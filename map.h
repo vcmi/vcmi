@@ -1,0 +1,147 @@
+#ifndef MAPD
+#define MAPD
+struct TimeEvent
+{
+//bajty wydarzeñ (59 + |teksty|)
+//4 bajty na d³ugoœæ nazwy zdarzenia
+//nazwa zdarzenia (bajty dodatkowe)
+//4 bajty na d³ugoœæ wiadomoœci
+//wiadomoœæ (bajty dodatkowe)
+//4 bajty na zwiêkszenie siê ilosci drewna (zapis normalny) lub ff,ff,ff,ff - iloœæ drewna do odebrania (maksymalna iloœæ drewna, któr¹ mo¿na daæ/odebraæ to 32767)
+//4 bajty na zwiêkszenie siê ilosci rtêci (zapis normalny) lub ff,ff,ff,ff - iloœæ rtêci do odebrania (maksymalna iloœæ rtêci, któr¹ mo¿na daæ/odebraæ to 32767)
+//4 bajty na zwiêkszenie siê ilosci rudy (zapis normalny) lub ff,ff,ff,ff - iloœæ rudy do odebrania (maksymalna iloœæ rudy, któr¹ mo¿na daæ/odebraæ to 32767)
+//4 bajty na zwiêkszenie siê ilosci siarki (zapis normalny) lub ff,ff,ff,ff - iloœæ siarki do odebrania (maksymalna iloœæ siarki, któr¹ mo¿na daæ/odebraæ to 32767)
+//4 bajty na zwiêkszenie siê ilosci kryszta³u (zapis normalny) lub ff,ff,ff,ff - iloœæ kryszta³u do odebrania (maksymalna iloœæ kryszta³u, któr¹ mo¿na daæ/odebraæ to 32767)
+//4 bajty na zwiêkszenie siê ilosci klejnotów (zapis normalny) lub ff,ff,ff,ff - iloœæ klejnotów do odebrania (maksymalna iloœæ klejnotów, któr¹ mo¿na daæ/odebraæ to 32767)
+//4 bajty na zwiêkszenie siê ilosci z³ota (zapis normalny) lub ff,ff,ff,ff - iloœæ z³ota do odebrania (maksymalna iloœæ z³ota, któr¹ mo¿na daæ/odebraæ to 32767)
+//1 bajt - których graczy dotyczy zdarzenie (pole bitowe, +1 - pierwszy, +2 - drugi, +4 - trzeci, +8 - czwarty, +16 - pi¹ty, +32 - szósty, +64 - siódmy, +128 - ósmy)
+//1 bajt - czy zdarzenie odnosi siê do graczy - ludzi (00 - nie, 01 - tak)
+//1 bajt - czy zdarzenie odnosi siê do graczy komputerowych (00 - nie, 01 - tak)
+//2 bajty - opóŸnienie pierwszego wyst¹pienia (w dniach, zapis normalny, maks 671)
+//1 bajt - co ile dni wystêpuje zdarzenie (maks 28, 00 oznacza zdarzenie jednorazowe)
+//17 bajtów zerowych
+};
+struct TerrainTile
+{
+	EterrainType tertype; // type of terrain
+	unsigned int terview; // look of terrain
+	Eriver nuine; // type of Eriver (0 if there is no Eriver)
+	unsigned int rivDir; // direction of Eriver
+	Eroad malle; // type of Eroad (0 if there is no Eriver)
+	unsigned int roadDir; // direction of Eroad
+	unsigned int siodmyTajemniczyBajt; // mysterius byte // jak bedzie waidomo co to, to sie nazwie inaczej
+};
+struct DefInfo //information from def declaration
+{
+	std::string name; 
+	int bytes [46];
+};
+struct SheroName //name of starting hero
+{
+	int heroID;
+	std::string heroName;
+};
+struct PlayerInfo
+{
+	bool canHumanPlay;
+	bool canComputerPlay;
+	unsigned int AITactic; //(00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
+	unsigned int allowedFactions; //(01 - castle; 02 - rampart; 04 - tower; 08 - inferno; 16 - necropolis; 32 - dungeon; 64 - stronghold; 128 - fortress; 256 - conflux);
+	bool isFactionRandom; 
+	unsigned int mainHeroPortrait; //it's ID of hero with choosen portrait; 255 if standard
+	std::string mainHeroName;
+	std::vector<SheroName> heroesNames;
+};
+struct Location
+{
+	int x, y; 
+	bool z; // underground
+};
+struct LossCondition
+{
+	ElossCon typeOfLossCon;
+	union
+	{
+		Location castlePos;
+		Location heroPos;
+		int timeLimit; // in days
+	};
+};
+struct CspecificVictoryConidtions
+{
+	bool allowNormalVictory;
+	bool appliesToAI;
+};
+struct VicCon0 : public CspecificVictoryConidtions //acquire artifact
+{
+	int ArtifactID;
+};
+struct VicCon1 : public CspecificVictoryConidtions //accumulate creatures
+{
+	int monsterID;
+	int neededQuantity;
+};
+struct VicCon2 : public CspecificVictoryConidtions // accumulate resources
+{
+	int resourceID;
+	int neededQuantity;
+};
+struct VicCon3 : public CspecificVictoryConidtions // upgrade specific town
+{
+	Location posOfCity;
+	int councilNeededLevel; //0 - town; 1 - city; 2 - capitol
+	int fortNeededLevel;// 0 - fort; 1 - citadel; 2 - castle
+};
+struct VicCon4 : public CspecificVictoryConidtions // build grail structure
+{
+	bool anyLocation;
+	Location whereBuildGrail;
+};
+struct VicCon5 : public CspecificVictoryConidtions // defeat a specific hero
+{
+	Location locationOfHero;
+};
+struct VicCon6 : public CspecificVictoryConidtions // capture a specific town
+{
+	Location locationOfTown;
+};
+struct VicCon7 : public CspecificVictoryConidtions // defeat a specific monster
+{
+	Location locationOfMonster;
+};
+/*struct VicCon8 : public CspecificVictoryConidtions // flag all creature dwellings
+{
+};
+struct VicCon9 : public CspecificVictoryConidtions // flag all mines
+{
+};*/
+struct VicCona : public CspecificVictoryConidtions //transport specific artifact
+{
+	int artifactID;
+	Location destinationPlace;
+};
+struct Rumor
+{
+	std::string name, text;
+};
+struct Mapa
+{
+	Eformat version; // version of map Eformat
+	bool twoLevel; // if map has underground level
+	int difficulty; // 0 easy - 4 impossible
+	int levelLimit;
+	bool areAnyPLayers; // if there are any playable players on map
+	std::string name;  //name of map
+	std::string description;  //and description
+	int height, width; 
+	TerrainTile** terrain; 
+	TerrainTile** undergroungTerrain; // used only if there is underground level
+	std::vector<Rumor> rumors;
+	std::vector<DefInfo> defy; // list of .def files
+	PlayerInfo players[8]; // info about players
+	std::vector<int> teams;  // teams[i] = team of player nr i 
+	LossCondition lossCondition;
+	EvictoryConditions victoryCondition; //victory conditions
+	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
+};
+#endif //MAPD
