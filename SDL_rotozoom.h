@@ -67,15 +67,15 @@ extern "C" {
 
     SDL_Surface *rotozoomSurface(SDL_Surface * src, double angle, double zoom, int smooth);
 
-    DLLINTERFACE SDL_Surface *rotozoomSurfaceXY
+    SDL_Surface *rotozoomSurfaceXY
     (SDL_Surface * src, double angle, double zoomx, double zoomy, int smooth);
 
 /* Returns the size of the target surface for a rotozoomSurface() call */
 
-    DLLINTERFACE void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth,
+    void rotozoomSurfaceSize(int width, int height, double angle, double zoom, int *dstwidth,
 					  int *dstheight);
 
-    DLLINTERFACE void rotozoomSurfaceSizeXY
+    void rotozoomSurfaceSizeXY
     (int width, int height, double angle, double zoomx, double zoomy, 
      int *dstwidth, int *dstheight);
 
@@ -90,11 +90,11 @@ extern "C" {
 
 */
 
-    DLLINTERFACE SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smooth);
+    SDL_Surface *zoomSurface(SDL_Surface * src, double zoomx, double zoomy, int smooth);
 
 /* Returns the size of the target surface for a zoomSurface() call */
 
-    DLLINTERFACE void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
+    void zoomSurfaceSize(int width, int height, double zoomx, double zoomy, int *dstwidth, int *dstheight);
 
 
 /* 
@@ -107,7 +107,7 @@ extern "C" {
     or 32bit RGBA/ABGR it will be converted into a 32bit RGBA format on the fly.
 */     
     
-    DLLINTERFACE SDL_Surface *shrinkSurface(SDL_Surface * src, int factorx, int factory);
+    SDL_Surface *shrinkSurface(SDL_Surface * src, int factorx, int factory);
 
 /* Ends C function definitions when using C++ */
 #ifdef __cplusplus
