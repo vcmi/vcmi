@@ -2,6 +2,7 @@
 #include "mapHandler.h"
 #include "CSemiDefHandler.h"
 #include "SDL_rotozoom.h"
+#include "SDL_Extensions.h"
 extern SDL_Surface * ekran;
 void mapHandler::init()
 {
@@ -24,7 +25,24 @@ void mapHandler::init()
 					int ktora = reader->map.terrain[i][j].terview;
 					terrainBitmap[i][j] = reader->defs[k]->ourImages[ktora].bitmap;
 					//TODO: odwracanie	
-					
+					switch ((reader->map.terrain[i][j].siodmyTajemniczyBajt)%4)
+					{
+					case 1:
+						{
+							terrainBitmap[i][j] = CSDL_Ext::rotate01(terrainBitmap[i][j]);
+							break;
+						}
+					case 2:
+						{
+							terrainBitmap[i][j] = CSDL_Ext::hFlip(terrainBitmap[i][j]);
+							break;
+						}
+					case 3:
+						{
+							terrainBitmap[i][j] = CSDL_Ext::rotate03(terrainBitmap[i][j]);
+							break;
+						}
+					}
 					//SDL_BlitSurface(terrainBitmap[i][j],NULL,ekran,NULL); SDL_Flip(ekran);SDL_Delay(50);
 
 					break;

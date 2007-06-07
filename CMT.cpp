@@ -201,24 +201,22 @@ int _tmain(int argc, _TCHAR* argv[])
 		
 		screen = SDL_SetVideoMode(1024,768,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
-		// FILE * no = fopen("wyn.txt","w"); 
-		FILE * zr = fopen("mal.txt","r");
-		FILE * ko = fopen("wyn.txt","w");
-		FILE * kodd = fopen("kod.txt","r");
-		FILE * deko = fopen("dekod.txt","w");
-		def(zr,ko,1);
-		inf(kodd, deko);
-		fclose(ko);fclose(zr);
-		for (int i=0;i<=20;i++)
-		{
-			zr = fopen("kod2.txt","r");
-			char c [200];
-			sprintf(c,"wyn%d.txt",i);
-			ko = fopen(c,"w");
-			def(zr,ko,i);
-			fclose(ko);fclose(zr);
-		}
-		//def(zr,no,1); 
+		//FILE * zr = fopen("mal.txt","r");
+		//FILE * ko = fopen("wyn.txt","w");
+		//FILE * kodd = fopen("kod.txt","r");
+		//FILE * deko = fopen("dekod.txt","w");
+		//def(zr,ko,1);
+		//inf(kodd, deko);
+		//fclose(ko);fclose(zr);
+		//for (int i=0;i<=20;i++)
+		//{
+		//	zr = fopen("kod2.txt","r");
+		//	char c [200];
+		//	sprintf(c,"wyn%d.txt",i);
+		//	ko = fopen(c,"w");
+		//	def(zr,ko,i);
+		//	fclose(ko);fclose(zr);
+		//}
 		CAmbarCendamo * ac = new CAmbarCendamo("2gryf");
 		ac->deh3m();
 		ac->loadDefs();
@@ -226,7 +224,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		mh->reader = ac;
 		mh->init();
 		//SDL_Rect * sr = new SDL_Rect(); sr->h=64;sr->w=64;sr->x=0;sr->y=0;
-		SDL_Surface * teren = mh->terrainRect(0,0,55,25);
+		SDL_Surface * teren = mh->terrainRect(0,0,32,32);
 		SDL_BlitSurface(teren,NULL,ekran,NULL);
 		SDL_Flip(ekran);
 

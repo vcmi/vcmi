@@ -36,6 +36,11 @@ struct DefInfo //information from def declaration
 	std::string name; 
 	int bytes [46];
 };
+struct Location
+{
+	int x, y; 
+	bool z; // underground
+};
 struct SheroName //name of starting hero
 {
 	int heroID;
@@ -51,11 +56,9 @@ struct PlayerInfo
 	unsigned int mainHeroPortrait; //it's ID of hero with choosen portrait; 255 if standard
 	std::string mainHeroName;
 	std::vector<SheroName> heroesNames;
-};
-struct Location
-{
-	int x, y; 
-	bool z; // underground
+	bool hasMainTown;
+	bool generateHeroAtMainTown;
+	Location posOfMainTown;
 };
 struct LossCondition
 {

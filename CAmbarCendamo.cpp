@@ -61,7 +61,7 @@ void CAmbarCendamo::deh3m()
 	{
 		map.players[pom].canHumanPlay = bufor[i++];
 		map.players[pom].canComputerPlay = bufor[i++];
-		if (!(map.players[pom].canHumanPlay || map.players[pom].canComputerPlay))
+		if ((!(map.players[pom].canHumanPlay || map.players[pom].canComputerPlay)) || (!map.areAnyPLayers))
 		{
 			i+=13;
 			continue;
@@ -80,7 +80,16 @@ void CAmbarCendamo::deh3m()
 			i+=2;
 		}
 		map.players[pom].isFactionRandom = bufor[i++];
-		i+=2; //unknown bytes
+		map.players[pom].hasMainTown = bufor[i++];
+		if (map.players[pom].hasMainTown)
+		{
+			map.players[pom].generateHeroAtMainTown = bufor[i++];
+			i++; //unknown byte
+			map.players[pom].posOfMainTown.x = bufor[i++];
+			map.players[pom].posOfMainTown.y = bufor[i++];
+			map.players[pom].posOfMainTown.z = bufor[i++];
+		}
+		i++; //unknown byte
 		int unknown = bufor[i++];
 		if (unknown == 255)
 		{
