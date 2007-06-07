@@ -17,36 +17,41 @@ void mapHandler::init()
 			std::string name = CSemiDefHandler::nameFromType(reader->map.terrain[i][j].tertype);
 			for (int k=0; k<reader->defs.size(); k++)
 			{
-				if (reader->defs[k]->defName != name)
-					continue;
-				else
+				try
 				{
-					SDL_Surface * n;
-					int ktora = reader->map.terrain[i][j].terview;
-					terrainBitmap[i][j] = reader->defs[k]->ourImages[ktora].bitmap;
-					//TODO: odwracanie	
-					switch ((reader->map.terrain[i][j].siodmyTajemniczyBajt)%4)
+					if (reader->defs[k]->defName != name)
+						continue;
+					else
 					{
-					case 1:
+						SDL_Surface * n;
+						int ktora = reader->map.terrain[i][j].terview;
+						terrainBitmap[i][j] = reader->defs[k]->ourImages[ktora].bitmap;
+						//TODO: odwracanie	
+						switch ((reader->map.terrain[i][j].siodmyTajemniczyBajt)%4)
 						{
-							terrainBitmap[i][j] = CSDL_Ext::rotate01(terrainBitmap[i][j]);
-							break;
+						case 1:
+							{
+								terrainBitmap[i][j] = CSDL_Ext::rotate01(terrainBitmap[i][j]);
+								break;
+							}
+						case 2:
+							{
+								terrainBitmap[i][j] = CSDL_Ext::hFlip(terrainBitmap[i][j]);
+								break;
+							}
+						case 3:
+							{
+								terrainBitmap[i][j] = CSDL_Ext::rotate03(terrainBitmap[i][j]);
+								break;
+							}
 						}
-					case 2:
-						{
-							terrainBitmap[i][j] = CSDL_Ext::hFlip(terrainBitmap[i][j]);
-							break;
-						}
-					case 3:
-						{
-							terrainBitmap[i][j] = CSDL_Ext::rotate03(terrainBitmap[i][j]);
-							break;
-						}
-					}
-					//SDL_BlitSurface(terrainBitmap[i][j],NULL,ekran,NULL); SDL_Flip(ekran);SDL_Delay(50);
+						//SDL_BlitSurface(terrainBitmap[i][j],NULL,ekran,NULL); SDL_Flip(ekran);SDL_Delay(50);
 
-					break;
+						break;
+					}
 				}
+				catch (...)
+				{	continue;	}
 			}
 		}
 	}
@@ -66,6 +71,8 @@ SDL_Surface * mapHandler::terrainRect(int x, int y, int dx, int dy)
 #endif
 	SDL_Surface * su = SDL_CreateRGBSurface(SDL_SWSURFACE, dx*32, dy*32, 32,
                                    rmask, gmask, bmask, amask);
+	if (((dx+x)>((reader->map.width)-1) || (dy+y)>((reader->map.height)-1)) || ((x<0)||(y<0) ) )
+		throw new std::string("Poza zakresem");
 	for (int bx=0; bx<dx; bx++)
 	{
 		for (int by=0; by<dy; by++)
@@ -74,7 +81,8 @@ SDL_Surface * mapHandler::terrainRect(int x, int y, int dx, int dy)
 			sr->y=by*32;
 			sr->x=bx*32;
 			sr->h=sr->w=32;
-			SDL_BlitSurface(terrainBitmap[bx][by],NULL,su,sr);
+			
+			SDL_BlitSurface(terrainBitmap[bx+x][by+y],NULL,su,sr);
 
 			//SDL_BlitSurface(su,NULL,ekran,NULL);SDL_Flip(ekran);
 		}

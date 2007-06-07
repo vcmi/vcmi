@@ -192,7 +192,9 @@ void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B)
 	 SDL_UpdateRect(ekran, x, y, 1, 1);
 }
 int _tmain(int argc, _TCHAR* argv[])
-{
+{ 
+	int xx=0, yy=0;
+	SDL_Event sEvent;
 	srand ( time(NULL) );
 	SDL_Surface *screen, *temp;
 	std::vector<SDL_Surface*> Sprites;
@@ -231,17 +233,65 @@ int _tmain(int argc, _TCHAR* argv[])
 		mh->init();
 		THC std::cout<<"Inicjalizacja mapHandlera: "<<tmh.getDif()<<std::endl;
 		//SDL_Rect * sr = new SDL_Rect(); sr->h=64;sr->w=64;sr->x=0;sr->y=0;
-		SDL_Surface * teren = mh->terrainRect(0,0,32,24);
+		SDL_Surface * teren = mh->terrainRect(xx,yy,32,24);
 		THC std::cout<<"Przygotowanie terenu do wyswietlenia: "<<tmh.getDif()<<std::endl;
 		SDL_BlitSurface(teren,NULL,ekran,NULL);
+		SDL_FreeSurface(teren);
 		SDL_Flip(ekran);
 		THC std::cout<<"Wyswietlenie terenu: "<<tmh.getDif()<<std::endl;
 
 		//SDL_Surface * ss = ac->defs[0]->ourImages[0].bitmap;
 		//SDL_BlitSurface(ss, NULL, ekran, NULL);
 
-		SDL_Delay(5000);
-			SDL_Quit();
+		for(;;) // main loop
+		{
+			try
+			{
+				if(SDL_PollEvent(&sEvent))  //wait for event...
+				{
+					if(sEvent.type==SDL_QUIT) 
+						return 0;
+					else if (sEvent.type==SDL_KEYDOWN)
+					{
+						switch (sEvent.key.keysym.sym)
+						{
+						case SDLK_LEFT:
+							{
+								xx--;
+								break;
+							}
+						case (SDLK_RIGHT):
+							{
+								xx++;
+								break;
+							}
+						case (SDLK_UP):
+							{
+								yy--;
+								break;
+							}
+						case (SDLK_DOWN):
+							{
+								yy++;
+								break;
+							}
+						case (SDLK_q):
+							{
+								return 0;
+								break;
+							}
+						}
+						SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
+						SDL_BlitSurface(mh->terrainRect(xx,yy,32,24),NULL,ekran,NULL);
+						SDL_Flip(ekran);
+					}
+				}
+			}
+			catch(...)
+			{ continue; }
+
+		SDL_Delay(100); //give time for another apps
+		}
 		return 0;
 	}
 	else
