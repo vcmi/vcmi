@@ -231,7 +231,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//SDL_Surface * ss = ac->defs[0]->ourImages[0].bitmap;
 		//SDL_BlitSurface(ss, NULL, ekran, NULL);
 
-		SDL_Delay(3000);
+		SDL_Delay(5000);
 			SDL_Quit();
 		return 0;
 	}
