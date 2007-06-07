@@ -231,7 +231,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		mh->init();
 		THC std::cout<<"Inicjalizacja mapHandlera: "<<tmh.getDif()<<std::endl;
 		//SDL_Rect * sr = new SDL_Rect(); sr->h=64;sr->w=64;sr->x=0;sr->y=0;
-		SDL_Surface * teren = mh->terrainRect(0,0,32,32);
+		SDL_Surface * teren = mh->terrainRect(0,0,32,24);
 		THC std::cout<<"Przygotowanie terenu do wyswietlenia: "<<tmh.getDif()<<std::endl;
 		SDL_BlitSurface(teren,NULL,ekran,NULL);
 		SDL_Flip(ekran);
