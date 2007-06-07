@@ -217,7 +217,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	def(zr,ko,i);
 		//	fclose(ko);fclose(zr);
 		//}
-		CAmbarCendamo * ac = new CAmbarCendamo("2gryf");
+		CAmbarCendamo * ac = new CAmbarCendamo("3gryf");
 		ac->deh3m();
 		ac->loadDefs();
 		mapHandler * mh = new mapHandler();

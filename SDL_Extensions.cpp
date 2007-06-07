@@ -112,7 +112,7 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 		for(int j=0; j<ret->h; ++j)
 		{
 			{
-				Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
+				Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel+2;
 				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				{
 					SDL_PutPixel(ret, i, j, p[0], p[1], p[2], 2);
