@@ -11,6 +11,7 @@
 #include "zlib.h"
 #include <cmath>
 #include <ctime>
+#include "CArthandler.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -221,6 +222,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	fclose(ko);fclose(zr);
 		//}
 		THC timeHandler tmh;
+		CArtHandler * arth = new CArtHandler;
+		arth->loadArtifacts();
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
