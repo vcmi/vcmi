@@ -34,6 +34,7 @@ void CAmbarCendamo::teceDef()
 }
 void CAmbarCendamo::deh3m()
 {
+	THC timeHandler th;
 	map.version = (Eformat)bufor[0]; //wersja mapy
 	map.areAnyPLayers = bufor[4];
 	map.height = map.width = bufor[5]; // wymiary mapy
@@ -249,6 +250,7 @@ void CAmbarCendamo::deh3m()
 		}
 	}
 	i+=88;
+	THC std::cout<<"Wczytywanie naglowka: "<<th.getDif()<<std::endl;
 	int rumNr = readNormalNr(i,4);i+=4;
 	for (int it=0;it<rumNr;it++)
 	{
@@ -261,6 +263,7 @@ void CAmbarCendamo::deh3m()
 			ourRumor.text+=bufor[i++];
 		map.rumors.push_back(ourRumor); //add to our list
 	}
+	THC std::cout<<"Wczytywanie plotek: "<<th.getDif()<<std::endl;
 	i+=156;
 	for (int c=0; c<map.width; c++) // reading terrain
 	{
@@ -291,28 +294,25 @@ void CAmbarCendamo::deh3m()
 			}
 		}
 	}
+	THC std::cout<<"Wczytywanie terenu: "<<th.getDif()<<std::endl;
 	int defAmount = bufor[i]; // liczba defow
-	i+=8;
+	i+=4;
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
+		int nameLength = readNormalNr(i,4);i+=4;
 		DefInfo vinya; // info about new def
-		while (1) // read name
+		for (int cd=0;cd<nameLength;cd++)
 		{
-			if (bufor[i] == '.' && bufor[i+1] == 'd' && bufor[i+2] == 'e' && bufor[i+3] == 'f')
-			{
-				vinya.name += ".def";
-				i+=4;
-				break;
-			}
 			vinya.name += bufor[i++];
 		}
-		for (int v=0; v<46; v++) // read info
+		for (int v=0; v<42; v++) // read info
 		{
 			vinya.bytes[v] = bufor[i++];
 		}
 		map.defy.push_back(vinya); // add this def to the vector
-		teceDef();
+		//teceDef();
 	}
+	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	//todo: read events
 }
 int CAmbarCendamo::readNormalNr (int pos, int bytCon)

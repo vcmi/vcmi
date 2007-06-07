@@ -11,6 +11,7 @@
 #include "zlib.h"
 #include <cmath>
 #include <ctime>
+
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -217,16 +218,24 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	def(zr,ko,i);
 		//	fclose(ko);fclose(zr);
 		//}
+		THC timeHandler tmh;
 		CAmbarCendamo * ac = new CAmbarCendamo("3gryf");
+		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
+		THC std::cout<<"Rozpoznawianie pliku lacznie: "<<tmh.getDif()<<std::endl;
 		ac->loadDefs();
+		THC std::cout<<"Wczytywanie defow: "<<tmh.getDif()<<std::endl;
 		mapHandler * mh = new mapHandler();
 		mh->reader = ac;
+		THC std::cout<<"Stworzenie mapHandlera: "<<tmh.getDif()<<std::endl;
 		mh->init();
+		THC std::cout<<"Inicjalizacja mapHandlera: "<<tmh.getDif()<<std::endl;
 		//SDL_Rect * sr = new SDL_Rect(); sr->h=64;sr->w=64;sr->x=0;sr->y=0;
 		SDL_Surface * teren = mh->terrainRect(0,0,32,32);
+		THC std::cout<<"Przygotowanie terenu do wyswietlenia: "<<tmh.getDif()<<std::endl;
 		SDL_BlitSurface(teren,NULL,ekran,NULL);
 		SDL_Flip(ekran);
+		THC std::cout<<"Wyswietlenie terenu: "<<tmh.getDif()<<std::endl;
 
 		//SDL_Surface * ss = ac->defs[0]->ourImages[0].bitmap;
 		//SDL_BlitSurface(ss, NULL, ekran, NULL);

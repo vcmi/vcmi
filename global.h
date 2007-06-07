@@ -1,5 +1,13 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
+#define CHECKTIME 1
+#if CHECKTIME
+#include "timeHandler.h"
+#include <iostream>
+#define THC
+#else 
+#define THC //
+#endif
 enum EterrainType {dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
 enum Eriver {clearRiver=1, icyRiver, muddyRiver, lavaRiver};
 enum Eroad {dirtRoad=1, gravelRoad, cobblestoneRoad};
