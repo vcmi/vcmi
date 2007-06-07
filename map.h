@@ -1,7 +1,25 @@
 #ifndef MAPD
 #define MAPD
+
+#include <string>
+#include <vector>
+
+struct Sresource
+{
+	std::string resName; //name of this resource
+	int amount; //it can be greater and lesser than 0
+};
+
 struct TimeEvent
 {
+	std::string eventName;
+	std::string message;
+	std::vector<Sresource> decIncRes; //decreases / increases of resources
+	unsigned int whichPlayers; //which players are affected by this event (+1 - first, +2 - second, +4 - third, +8 - fourth etc.)
+	bool areHumansAffected;
+	bool areCompsAffected;
+	int firstAfterNDays; //how many days after appears this event
+	int nextAfterNDays; //how many days after the epperance before appaers this event
 //bajty wydarzeñ (59 + |teksty|)
 //4 bajty na d³ugoœæ nazwy zdarzenia
 //nazwa zdarzenia (bajty dodatkowe)
@@ -59,6 +77,7 @@ struct PlayerInfo
 	bool hasMainTown;
 	bool generateHeroAtMainTown;
 	Location posOfMainTown;
+	int team;
 };
 struct LossCondition
 {
@@ -146,5 +165,6 @@ struct Mapa
 	LossCondition lossCondition;
 	EvictoryConditions victoryCondition; //victory conditions
 	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
+	int howManyTeams;
 };
 #endif //MAPD

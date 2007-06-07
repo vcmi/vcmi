@@ -221,7 +221,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	fclose(ko);fclose(zr);
 		//}
 		THC timeHandler tmh;
-		CAmbarCendamo * ac = new CAmbarCendamo("3gryf");
+		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
 		THC std::cout<<"Rozpoznawianie pliku lacznie: "<<tmh.getDif()<<std::endl;
@@ -257,22 +257,26 @@ int _tmain(int argc, _TCHAR* argv[])
 						{
 						case SDLK_LEFT:
 							{
-								xx--;
+								if(xx>0)
+									xx--;
 								break;
 							}
 						case (SDLK_RIGHT):
 							{
-								xx++;
+								if(xx<ac->map.width-33)
+									xx++;
 								break;
 							}
 						case (SDLK_UP):
 							{
-								yy--;
+								if(yy>0)
+									yy--;
 								break;
 							}
 						case (SDLK_DOWN):
 							{
-								yy++;
+								if(yy<ac->map.height-25)
+									yy++;
 								break;
 							}
 						case (SDLK_q):
@@ -290,7 +294,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			catch(...)
 			{ continue; }
 
-		SDL_Delay(100); //give time for another apps
+			SDL_Delay(50); //give time for other apps
 		}
 		return 0;
 	}

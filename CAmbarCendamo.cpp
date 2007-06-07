@@ -247,9 +247,18 @@ void CAmbarCendamo::deh3m()
 	case timeExpires:
 		{
 			map.lossCondition.timeLimit = readNormalNr(i++,2);
+			i++;
 		}
 	}
-	i+=88;
+	map.howManyTeams=bufor[i++]; //read number of teams
+	if(map.howManyTeams>0) //read team numbers
+	{
+		for(int rr=0; rr<8; ++rr)
+		{
+			map.players[rr].team=bufor[i++];
+		}
+	}
+	i+=87;
 	THC std::cout<<"Wczytywanie naglowka: "<<th.getDif()<<std::endl;
 	int rumNr = readNormalNr(i,4);i+=4;
 	for (int it=0;it<rumNr;it++)
