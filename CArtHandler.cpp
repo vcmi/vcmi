@@ -35,7 +35,10 @@ void CArtHandler::loadArtifacts()
 			}
 		}
 		if(nart.name==std::string("-1") || nart.name==std::string("-2"))
+		{
+			artifacts.push_back(nart);
 			continue;
+		}
 		for(int i=eol; i<eol+200; ++i)
 		{
 			if(ss[i]=='\t')
@@ -195,7 +198,8 @@ void CArtHandler::loadArtifacts()
 			ss = std::string(read);
 			nart.desc2 += ss;
 		}
-		while(nart.desc2[nart.desc2.size()-1]!='"' || (nart.name==std::string("£uk Penetracji") && bowCounter<4) ); //do - while end
+		while(nart.desc2[nart.desc2.size()-1]!='"' ||
+			( (nart.name==std::string("£uk Penetracji")||nart.name==std::string("Bow of Seeking")) && bowCounter<4) ); //do - while end
 		//if(nart.name!=std::string("-1") && nart.name!=std::string("-2"))
 		this->artifacts.push_back(nart);
 		delete[10000] read;
@@ -218,7 +222,6 @@ bool CArtHandler::loadArtEvents()
 		if(std::string(tab).substr(0, std::string(tab).size()-1)==std::string("\42-1\42")
 			|| std::string(tab).substr(0, std::string(tab).size()-1)==std::string("\"-2\""))
 		{
-			--i;
 			continue;
 		}
 		artifacts[i].eventText = std::string(tab).substr(0, std::string(tab).size()-1);

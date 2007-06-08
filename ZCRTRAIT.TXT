@@ -1,0 +1,235 @@
+Name		Cost															Damage				Adv. Map			
+Singular	Plural	Wood	Mercury	Ore	Sulfur	Crystal	Gems	Gold	Fight Value	AI Value	Growth	Horde Growth	Hit Points	Speed	Attack	Defense	Low	High	Shots	Spells	Low	High	Ability Text	"Attributes (Reference only, do not change these values)"
+Pikinier	Pikinierzy	0	0	0	0	0	0	60	100	80	14	0	10	4	4	5	1	3	0	0	20	50	Odpornoœæ na szar¿ê Czempionów.	0
+Halabardnik	Halabardnicy	0	0	0	0	0	0	75	115	115	14	0	10	5	6	5	2	3	0	0	20	30	Odpornoœæ na szar¿ê Czempionów.	0
+£ucznik	£ucznicy	0	0	0	0	0	0	100	115	126	9	0	10	4	6	3	2	3	12	0	16	30		SHOOTING_ARMY
+Kusznik	Kusznicy	0	0	0	0	0	0	150	115	184	9	0	10	6	6	3	2	3	24	0	16	25	Strzela dwukrotnie.	const_two_attacks | SHOOTING_ARMY
+Gryf	Gryfy	0	0	0	0	0	0	200	324	351	7	3	25	6	8	8	3	6	0	0	12	25	Dwukrotnie kontratakuje.	DOUBLE_WIDE | FLYING_ARMY
+Gryf królewski	Gryfy królewskie	0	0	0	0	0	0	240	364	448	7	3	25	9	9	9	3	6	0	0	12	20	Zawsze kontratakuje.	DOUBLE_WIDE|FLYING_ARMY
+Zbrojny	Zbrojni	0	0	0	0	0	0	300	445	445	4	0	35	5	10	12	6	9	0	0	10	20		0
+Krzy¿owiec	Krzy¿owcy	0	0	0	0	0	0	400	588	588	4	0	35	6	12	12	7	10	0	0	10	16	Atakuje dwukrotnie.	const_two_attacks
+Mnich	Mnisi	0	0	0	0	0	0	400	485	485	3	0	30	5	12	7	10	12	12	0	8	16		SHOOTING_ARMY
+Kap³an	Kap³ani	0	0	0	0	0	0	450	500	750	3	0	30	7	12	10	10	12	24	0	8	12	Brak ograniczeñ w walce wrêcz.	SHOOTING_ARMY | const_no_melee_penalty
+Kawalerzysta	Kawalerzyœci	0	0	0	0	0	0	1000	1668	1946	2	0	100	7	15	15	15	25	0	0	5	12	Premia podczas walki.	DOUBLE_WIDE | const_jousting
+Czempion	Czempioni	0	0	0	0	0	0	1200	1800	2100	2	0	100	9	16	16	20	25	0	0	5	10	Premia podczas walki.	DOUBLE_WIDE | const_jousting
+Anio³	Anio³y	0	0	0	0	0	1	3000	3585	5019	1	0	200	12	20	20	50	50	0	0	4	10	Nienawidzi diab³ów.	FLYING_ARMY | const_raises_morale | KING_2
+Archanio³	Archanio³y	0	0	0	0	0	3	5000	6033	8776	1	0	250	18	30	30	50	50	0	1	3	8	 +1 do morale. Nienawidzi diab³ów. Wskrzesza.	DOUBLE_WIDE | FLYING_ARMY | const_raises_morale | KING_2
+																								
+																								
+																								
+Centaur	Centaury	0	0	0	0	0	0	70	100	100	14	0	8	6	5	3	2	3	12	0	20	50		DOUBLE_WIDE
+Centaur bojowy	Centaury bojowe	0	0	0	0	0	0	90	115	138	14	0	10	8	6	3	2	3	12	0	20	30		DOUBLE_WIDE
+Krasnolud	Krasnoludy	0	0	0	0	0	0	120	194	138	8	4	20	3	6	7	2	4	0	0	16	30	20% odpornoœci na magiê.	0
+Krasnoludzki  wojownik	Krasnoludzcy wojownicy	0	0	0	0	0	0	150	209	209	8	4	20	5	7	7	2	4	0	0	16	25	40% odpornoœci na magiê.	0
+Leœny elf	Leœne elfy	0	0	0	0	0	0	200	195	234	7	0	15	6	9	5	3	5	24	0	12	25		SHOOTING_ARMY
+Wysoki elf	Wysokie elfy	0	0	0	0	0	0	225	195	331	7	0	15	7	9	5	3	5	24	0	12	20	Strzela dwukrotnie.	SHOOTING_ARMY | const_two_attacks
+Pegaz	Pegazy	0	0	0	0	0	0	250	407	518	5	0	30	8	9	8	5	9	0	0	10	20	Odpornoœæ na magiê.	DOUBLE_WIDE | FLYING_ARMY
+Srebrny pegaz	Srebrne pegazy	0	0	0	0	0	0	275	418	532	5	0	30	12	9	10	5	9	0	0	10	16	Odpornoœæ na magiê.	DOUBLE_WIDE | FLYING_ARMY
+Drzewiec	Drzewce	0	0	0	0	0	0	350	690	517	3	2	55	3	9	12	10	14	0	0	8	16	Parali¿uje wrogów.	0
+Ent	Enty	0	0	0	0	0	0	425	765	803	3	2	65	4	9	12	10	14	0	0	8	12	Parali¿uje wrogów	0
+Jednoro¿ec	Jednoro¿ce	0	0	0	0	0	0	850	1548	1806	2	0	90	7	15	14	18	22	0	0	5	12	Aura antymagiczna.  Oœlepia wrogów.	DOUBLE_WIDE
+Jednoro¿ec bitewny	Jednoro¿ce bitewne	0	0	0	0	0	0	950	1740	2030	2	0	110	9	15	14	18	22	0	0	5	10	Aura antymagiczna.  Oœlepia wrogów.	DOUBLE_WIDE
+Zielony smok	Zielone smoki	0	0	0	0	1	0	2400	3654	4872	1	0	180	10	18	18	40	50	0	0	4	10	Odpornoœæ na czary poziomów 1-3.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Z³oty smok	Z³ote smoki	0	0	0	0	2	0	4000	6220	8613	1	0	250	16	27	27	40	50	0	0	3	8	Odpornoœæ na czary poziomów 1-4.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+																								
+																								
+																								
+Gremlin	Gremliny	0	0	0	0	0	0	30	55	44	16	0	4	4	3	3	1	2	0	0	20	50		0
+Wiêkszy gremlin	Wiêksze gremliny	0	0	0	0	0	0	40	55	66	16	0	4	5	4	4	1	2	8	0	20	30	Atakuje na odleg³oœæ.	SHOOTING_ARMY
+Kamienny gargulec	Kamienne gargulce	0	0	0	0	0	0	130	150	165	9	4	16	6	6	6	2	3	0	0	16	30		FLYING_ARMY
+Obsydianowy gargulec	Obsydianowe gargulce	0	0	0	0	0	0	160	155	201	9	4	16	9	7	7	2	3	0	0	16	25		FLYING_ARMY
+Kamienny golem	Kamienne golemy	0	0	0	0	0	0	150	339	250	6	0	30	3	7	10	4	5	0	0	12	25	O 50% zmniejsza obra¿enia od magii.	0
+¯elazny golem	¯elazne golemy	0	0	0	0	0	0	200	412	412	6	0	35	5	9	10	4	5	0	0	12	20	O 75% zmniejsza obra¿enia od magii.	0
+Mag	Magowie	0	0	0	0	0	0	350	418	570	4	0	25	5	11	8	7	9	24	0	10	20	Bez ograniczeñ w walce wrêcz. Zmniejsza koszt zaklêæ bohatera.	SHOOTING_ARMY | const_no_melee_penalty
+Arcymag	Arcymagowie	0	0	0	0	0	0	450	467	680	4	0	30	7	12	9	7	9	24	0	10	16	Bez ograniczeñ w walce wrêcz. Zmniejsza koszt zaklêæ bohatera.	SHOOTING_ARMY | const_no_melee_penalty | const_no_wall_penalty
+D¿inn	D¿inny	0	0	0	0	0	0	550	680	884	3	0	40	7	12	12	13	16	0	0	8	16	Nienawidzi ifritów.	FLYING_ARMY
+Wielki d¿inn	Wielkie d¿inny	0	0	0	0	0	0	600	748	942	3	0	40	11	12	12	13	16	0	3	8	12	Rzuca czary daj¹ce losowe korzyœci. Nienawidzi Ifritów.	FLYING_ARMY
+Naga	Nagi	0	0	0	0	0	0	1100	2016	2016	2	0	110	5	16	13	20	20	0	0	5	12	Powstrzymuje kontratak.	DOUBLE_WIDE
+Królewska naga	Królewskie nagi	0	0	0	0	0	0	1600	2485	2840	2	0	110	7	16	13	30	30	0	0	5	10	Powstrzymuje kontratak.	DOUBLE_WIDE
+Gigant	Giganci	0	0	0	0	0	1	2000	3146	3718	1	0	150	7	19	16	40	60	0	0	4	10	Odpornoœæ na zaklêcia umys³u.	KING_3
+Tytan	Tytani	0	0	0	0	0	2	5000	5000	7500	1	0	300	11	24	24	40	60	24	0	3	8	Walczy wrêcz. Odp. na czary umys³u. Nienawidzi czarnych smoków.	SHOOTING_ARMY | const_no_melee_penalty | KING_3
+                                   																								
+																								
+																								
+Chochlik	Chochliki	0	0	0	0	0	0	50	50	50	15	8	4	5	2	3	1	2	0	0	20	50		0
+Chowaniec	Chowañce	0	0	0	0	0	0	60	60	60	15	8	4	7	4	4	1	2	0	0	20	30	Kradnie manê.	0
+Gog	Gogi	0	0	0	0	0	0	125	145	159	8	0	13	4	6	4	2	4	12	0	16	30		SHOOTING_ARMY
+Magog	Magogi	0	0	0	0	0	0	175	210	240	8	0	13	6	7	4	2	4	24	0	16	25	Atak ognistymi kulami.	SHOOTING_ARMY
+Piekielny ogar	Piekielne ogary	0	0	0	0	0	0	200	275	357	5	3	25	7	10	6	2	7	0	0	12	25		DOUBLE_WIDE | FLYING_ARMY
+Cerber	Cerbery	0	0	0	0	0	0	250	308	392	5	3	25	8	10	8	2	7	0	0	12	20	3-polowy atak. Powstrzymuje kontratak.	DOUBLE_WIDE | FLYING_ARMY
+Demon	Demony	0	0	0	0	0	0	250	445	445	4	0	35	5	10	10	7	9	0	0	10	20		0
+Rogaty demon	Rogate demony	0	0	0	0	0	0	270	480	480	4	0	40	6	10	10	7	9	0	0	10	16		0
+Czart	Czarty	0	0	0	0	0	0	500	765	765	3	0	45	6	13	13	13	17	0	0	8	16		0
+Czarci lord	Czarci lordowie	0	0	0	0	0	0	700	1071	1224	3	0	45	7	13	13	13	17	0	1	8	12	Przywo³uje demony z cia³ sprzymierzeñców.	0
+Ifrit	Ifrity	0	0	0	0	0	0	900	1413	1670	2	0	90	9	16	12	16	24	0	0	5	12	Odpornoœæ na ogieñ. Nienawidzi d¿innów.	0
+Su³tañski ifrit	Su³tañskie ifrity	0	0	0	0	0	0	1100	1584	1848	2	0	90	13	16	14	16	24	0	0	5	10	Tarcza ogniowa. Odpornoœæ na ogieñ. Nienawidzi d¿innów.	0
+Diabe³	Diab³y	0	1	0	0	0	0	2700	3759	5101	1	0	160	11	19	21	30	40	0	0	4	10	 -1 szczêœcie wroga. Powstrz kontratak. Nienawidzi anio³ów	FLYING_ARMY | KING_2
+Arcydiabe³	Arcydiab³y	0	2	0	0	0	0	4500	5243	7115	1	0	200	17	26	28	30	40	0	0	3	8	 -1 szczêœcie wroga. Powstrz. kontratak. Nienawidzi anio³ów	FLYING_ARMY | KING_2
+																								
+																								
+																								
+Szkielet	Szkielety	0	0	0	0	0	0	60	75	60	12	6	6	4	5	4	1	3	0	0	20	50	Nieumar³y.	IS_UNDEAD
+Koœciej	Koœcieje	0	0	0	0	0	0	70	85	85	12	6	6	5	6	6	1	3	0	0	20	30	Nieumar³y.	IS_UNDEAD
+O¿ywieniec	O¿ywieñcy	0	0	0	0	0	0	100	140	98	8	0	15	3	5	5	2	3	0	0	16	30	Nieumar³y.	IS_UNDEAD
+Zombie	Zombie	0	0	0	0	0	0	125	160	128	8	0	20	4	5	5	2	3	0	0	16	25	Nieumar³y. Sieje zarazê.	IS_UNDEAD
+Zjawa	Zjawy	0	0	0	0	0	0	200	231	252	7	0	18	5	7	7	3	5	0	0	12	25	Nieumar³y. Zdolnoœæ regeneracji.	FLYING_ARMY | IS_UNDEAD
+Upiór	Upiory	0	0	0	0	0	0	230	252	315	7	0	18	7	7	7	3	5	0	0	12	20	Nieumar³y. Zdolnoœæ regeneracji. Wysysa manê.	FLYING_ARMY | IS_UNDEAD
+Wampir	Wampiry	0	0	0	0	0	0	360	518	555	4	0	30	6	10	9	5	8	0	0	10	20	Nieumar³y. Powstrzymuje kontratak.	FLYING_ARMY | IS_UNDEAD
+Wampirzy lord	Wampirzy lordowie	0	0	0	0	0	0	500	652	783	4	0	40	9	10	10	5	8	0	0	10	16	Nieumar³y. Wysysa punkty ¿ycia. Powstrzymuje kontratak.	FLYING_ARMY | IS_UNDEAD
+Lisz	Lisze	0	0	0	0	0	0	550	742	848	3	0	30	6	13	10	11	13	12	0	8	16	Nieumar³y. Atak zabójcz¹ chmur¹.  	SHOOTING_ARMY | IS_UNDEAD
+Arcylisz	Arcylisze	0	0	0	0	0	0	600	889	1079	3	0	40	7	13	10	11	15	24	0	8	12	Nieumar³y. Atak zabójcz¹ chmur¹.  	SHOOTING_ARMY | IS_UNDEAD
+Czarny rycerz	Czarni rycerze	0	0	0	0	0	0	1200	1753	2087	2	0	120	7	16	16	15	30	0	0	5	12	Nieumar³y. Przeklina wrogów.	DOUBLE_WIDE | IS_UNDEAD
+Upiorny rycerz	Upiorni rycerze	0	0	0	0	0	0	1500	2029	2382	2	0	120	9	18	18	15	30	0	0	5	10	Nieumar³y. Przeklina wrogów. Uderzenie œmierci.	DOUBLE_WIDE | IS_UNDEAD
+Koœciany smok	Koœciane smoki	0	0	0	0	0	0	1800	2420	3388	1	0	150	9	17	15	25	50	0	0	4	10	Nieumar³y. -1 do morale przeciwnika.	DOUBLE_WIDE | IS_UNDEAD | const_lowers_morale | FLYING_ARMY | KING_1
+Upiorny smok	Upiorne smoki	0	1	0	0	0	0	3000	3228	4696	1	0	200	14	19	17	25	50	0	0	3	8	Nieumar³y. -1 do morale przeciwnika. Postarza ofiarê.	DOUBLE_WIDE | IS_UNDEAD | const_lowers_morale | FLYING_ARMY | KING_1
+																								
+																								
+																								
+Troglodyta	Troglodyci	0	0	0	0	0	0	50	73	59	14	7	5	4	4	3	1	3	0	0	20	50	Odpornoœæ na oœlepienie.	0
+Piekielny troglodyta	Piekielni troglodyci	0	0	0	0	0	0	65	84	84	14	7	6	5	5	4	1	3	0	0	20	30	Odpornoœæ na oœlepienie.	0
+Harpia	Harpie	0	0	0	0	0	0	130	140	154	8	0	14	6	6	5	1	4	0	0	16	30	Atakuje i wraca na miejsce.	FLYING_ARMY
+Harpia wiedŸma	Harpie wiedŸmy	0	0	0	0	0	0	170	196	238	8	0	14	9	6	6	1	4	0	0	16	25	Atakuje i wraca na miejsce. Powstrzymuje kontratak.	FLYING_ARMY
+Z³e oko	Z³e oczy	0	0	0	0	0	0	250	240	336	7	0	22	5	9	7	3	5	12	0	12	25	Brak ograniczeñ w walce wrêcz.	SHOOTING_ARMY | const_no_melee_penalty
+Obserwator	Obserwatorzy	0	0	0	0	0	0	280	245	367	7	0	22	7	10	8	3	5	24	0	12	20	Brak ograniczeñ w walce wrêcz.	SHOOTING_ARMY | const_no_melee_penalty
+Meduza	Meduzy	0	0	0	0	0	0	300	379	517	4	0	25	5	9	9	6	8	4	0	10	20	Brak ograniczeñ w walce wrêcz. Zamienia w kamieñ.	DOUBLE_WIDE | SHOOTING_ARMY | const_no_melee_penalty
+Królewska meduza	Królewskie meduzy	0	0	0	0	0	0	330	423	577	4	0	30	6	10	10	6	8	8	0	10	16	Brak ograniczeñ w walce wrêcz. Zamienia w kamieñ.	DOUBLE_WIDE | SHOOTING_ARMY | const_no_melee_penalty
+Minotaur	Minotaury	0	0	0	0	0	0	500	835	835	3	0	50	6	14	12	12	20	0	0	8	16	Wysokie morale.	0
+Wielki minotaur	Wielkie minotaury	0	0	0	0	0	0	575	890	1068	3	0	50	8	15	15	12	20	0	0	8	12	Wysokie morale.	0
+Mantikora	Mantikory	0	0	0	0	0	0	850	1215	1547	2	0	80	7	15	13	14	20	0	0	5	12		DOUBLE_WIDE | FLYING_ARMY
+Chimera	Chimery	0	0	0	0	0	0	1050	1248	1589	2	0	80	11	16	14	14	20	0	0	5	10	Parali¿uj¹cy jad.	DOUBLE_WIDE | FLYING_ARMY
+Czerwony smok	Czerwone smoki	0	0	0	1	0	0	2500	3762	4702	1	0	180	11	19	19	40	50	0	0	4	10	Odpornoœæ na zaklêcia poziomu 1-3.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Czarny smok	Czarne smoki	0	0	0	2	0	0	4000	6783	8721	1	0	300	15	25	25	40	50	0	0	3	8	Odpornoœæ na wszystkie zaklêcia.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+																								
+																								
+																								
+Goblin	Gobliny	0	0	0	0	0	0	40	60	60	15	8	5	5	4	2	1	2	0	0	20	50		0
+Hobgoblin	Hobgobliny	0	0	0	0	0	0	50	65	78	15	8	5	7	5	3	1	2	0	0	20	30		0
+Wilczy jeŸdziec	Wilczy jeŸdŸcy	0	0	0	0	0	0	100	130	130	9	0	10	6	7	5	2	4	0	0	16	30		DOUBLE_WIDE
+Wilczy rycerz	Wilczy rycerze	0	0	0	0	0	0	140	174	203	9	0	10	8	8	5	3	4	0	0	16	25	Atakuje dwukrotnie.	DOUBLE_WIDE
+Ork	Orkowie	0	0	0	0	0	0	150	175	192	7	0	15	4	8	4	2	5	12	0	12	25		SHOOTING_ARMY
+Uruk	Urukowie	0	0	0	0	0	0	165	200	240	7	0	20	5	8	4	2	5	24	0	12	20		SHOOTING_ARMY
+Ogr	Ogry	0	0	0	0	0	0	300	520	416	4	0	40	4	13	7	6	12	0	0	10	20		0
+Ogr szaman	Ogry szamani	0	0	0	0	0	0	400	672	672	4	0	60	5	13	7	6	12	0	3	10	16	Rzuca zaklêcie: ¿¹dza krwi	0
+Rok	Roki	0	0	0	0	0	0	600	790	1027	3	0	60	7	13	11	11	15	0	0	8	16		FLYING_ARMY | DOUBLE_WIDE
+Ptak gromu	Ptaki gromu	0	0	0	0	0	0	700	869	1106	3	0	60	11	13	11	11	15	0	0	8	12	Uderzenie b³yskawicy.	FLYING_ARMY | DOUBLE_WIDE
+Cyklop	Cyklopy	0	0	0	0	0	0	750	1055	1266	2	0	70	6	15	12	16	20	16	0	5	12	Mo¿e niszczyæ mury.	SHOOTING_ARMY | CATAPULT
+Cyklop królewski	Cyklopy królewskie	0	0	0	0	0	0	1100	1110	1443	2	0	70	8	17	13	16	20	24	0	5	10	Mo¿e niszczyæ mury.	SHOOTING_ARMY | CATAPULT
+Behemot	Behemoty	0	0	0	0	0	0	1500	3162	3162	1	0	160	6	17	17	30	50	0	0	4	10	Obni¿a obronê atakowanego przeciwnika o 40%.	DOUBLE_WIDE | KING_1
+Staro¿ytny behemot	Staro¿ytne behemoty	0	0	0	0	1	0	3000	5397	6168	1	0	300	9	19	19	30	50	0	0	3	8	Obni¿a obronê atakowanego przeciwnika o 80%.	DOUBLE_WIDE | KING_1
+																								
+																								
+																								
+Gnoll	Gnolle	0	0	0	0	0	0	50	70	56	12	6	6	4	3	5	2	3	0	0	20	50		0
+Gnoll maruder	Gnolle maruderzy	0	0	0	0	0	0	70	90	90	12	6	6	5	4	6	2	3	0	0	20	30		0
+Jaszczurocz³ek	Jaszczuroludzie	0	0	0	0	0	0	110	115	126	9	0	14	4	5	6	2	3	12	0	16	30		SHOOTING_ARMY
+Reptilion	Reptilioni	0	0	0	0	0	0	140	130	156	9	0	15	5	6	8	2	5	24	0	16	25		SHOOTING_ARMY
+Gorgona	Gorgony	0	0	0	0	0	0	525	890	890	3	0	70	5	10	14	12	16	0	0	12	25		DOUBLE_WIDE
+Wielka gorgona	Wielkie gorgony	0	0	0	0	0	0	600	1028	1028	3	0	70	6	11	16	12	16	0	0	12	20	Zabija spojrzeniem.	DOUBLE_WIDE
+Wa¿ka	Wa¿ki	0	0	0	0	0	0	220	215	268	8	0	20	9	7	9	2	5	0	0	10	20	Rozprasza zaklêcia ochronne.	FLYING_ARMY
+Smocza wa¿ka	Smocze wa¿ki	0	0	0	0	0	0	240	250	312	8	0	20	13	8	10	2	5	0	0	10	16	Rozprasza zaklêcia ochronne. Os³abia przeciwników.	FLYING_ARMY
+Bazyliszek	Bazyliszki	0	0	0	0	0	0	325	506	552	4	0	35	5	11	11	6	10	0	0	8	16	Zamienia w kamieñ.	DOUBLE_WIDE
+Bazyliszek wiêkszy	Bazyliszki wiêksze	0	0	0	0	0	0	400	561	714	4	0	40	7	12	12	6	10	0	0	8	12	Zamienia w kamieñ.	DOUBLE_WIDE
+Wiwerna	Wiwerny	0	0	0	0	0	0	800	1050	1350	2	0	70	7	14	14	14	18	0	0	5	12		DOUBLE_WIDE | FLYING_ARMY
+Królewska wiwerna	Królewskie wiwerny	0	0	0	0	0	0	1100	1181	1518	2	0	70	11	14	14	18	22	0	0	5	10	Truj¹cy atak.	DOUBLE_WIDE | FLYING_ARMY
+Hydra	Hydry	0	0	0	0	0	0	2200	4120	4120	1	0	175	5	16	18	25	45	0	0	4	10	Atakuje wszystkich przyleg³ych wrogów. Powstrzymuje kontratak.	DOUBLE_WIDE | KING_1
+Hydra chaosu	Hydry chaosu	0	0	0	1	0	0	3500	5272	5931	1	0	250	7	18	20	25	45	0	0	3	8	Atakuje wszystkich przyleg³ych wrogów. Powstrzymuje kontratak.	DOUBLE_WIDE | KING_1
+																								
+																								
+																								
+¯ywio³ak powietrza	¯ywio³aki powietrza	0	0	0	0	0	0	250	324	356	6	0	25	7	9	9	2	8	0	0	8	12	Wra¿liwoœæ na b³yskawice oraz burzê ognia.	0
+¯ywio³ak ziemi	¯ywio³aki ziemi	0	0	0	0	0	0	400	415	330	4	0	40	4	10	10	4	8	0	0	16	30	Wra¿liwoœæ na zaklêcie deszcz meteorów.	0
+¯ywio³ak ognia	¯ywio³aki ognia	0	0	0	0	0	0	350	345	345	5	0	35	6	10	8	4	6	0	0	16	25	Odpornoœæ na ogieñ. Wra¿liwoœæ na lód.	0
+¯ywio³ak wody	¯ywio³aki wody	0	0	0	0	0	0	300	315	315	6	0	30	5	8	10	3	7	0	0	12	25	Odpornoœæ na lód. Wra¿liwoœæ na ogieñ.	0
+Z³oty golem	Z³ote golemy	0	0	0	0	0	0	500	600	600	3	0	50	5	11	12	8	10	0	0	10	16	O 85% zmniejsza obra¿enia od magii.	0
+Diamentowy golem	Diamentowe golemy	0	0	0	0	0	0	750	775	775	2	0	60	5	13	12	10	14	0	0	8	12	O 95% zmniejsza obra¿enia od magii.	0
+																								
+																								
+																								
+Nimfa	Nimfy	0	0	0	0	0	0	25	40	55	20	10	3	7	2	2	1	2	0	0	20	50		FLYING_ARMY
+Rusa³ka	Rusa³ki	0	0	0	0	0	0	30	70	95	20	10	3	9	2	2	1	3	0	0	20	30	Powstrzymuje kontratak.	FLYING_ARMY | const_free_attack
+¯ywio³ak umys³u	¯ywio³aki umys³u	0	0	0	0	0	0	750	1431	1669	2	0	75	7	15	13	10	20	0	0	8	16	Atakuje wszystkich przyleg³ych wrogów. Powstrzymuje kontratak. Odpornoœæ na czary.	IMMUNE_TO_MIND_SPELLS | DOUBLE_WIDE | const_free_attack | MULTI_HEADED
+¯ywio³ak magii	¯ywio³aki magii	0	0	0	0	0	0	800	1724	2012	2	0	80	9	15	13	15	25	0	0	8	12	Atakuje wszystkich przyleg³ych wrogów. Powstrzymuje kontratak. Odpornoœæ na czary.	IMMUNE_TO_MIND_SPELLS | DOUBLE_WIDE | const_free_attack | MULTI_HEADED
+NOT USED (1)	NOT USED (1)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		
+¯ywio³ak lodu	¯ywio³aki lodu 	0	0	0	0	0	0	375	315	380	6	0	30	6	8	10	3	7	24	3	12	20	Odpornoœæ na czary umys³u. Odpornoœæ na lód. Wra¿liwoœæ na ogieñ.	IMMUNE_TO_MIND_SPELLS | SHOOTING_ARMY
+NOT USED (2) 	NOT USED (2)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		
+¯ywio³ak magmy	¯ywio³aki magmy 	0	0	0	0	0	0	500	490	490	4	0	40	6	11	11	6	10	0	3	16	25	Odpornoœæ na czary umys³u. Rzuca odpornoœæ na magiê ziemi.	IMMUNE_TO_MIND_SPELLS
+NOT USED (3)	NOT USED (3)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		
+¯ywio³ak burzy	¯ywio³aki burzy	0	0	0	0	0	0	275	324	486	6	0	25	8	9	9	2	8	24	3	6	12	Brak ograniczeñ w walce wrêcz. Wra¿liwoœæ na b³yskawice i burzê ognia.	IMMUNE_TO_MIND_SPELLS | SHOOTING_ARMY
+NOT USED (4)	NOT USED (4)	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0		
+¯ywio³ak energii	¯ywio³aki energii	0	0	0	0	0	0	400	360	470	5	0	35	8	12	8	4	6	0	3	12	25	Rzuca odpornoœæ na magiê ognia. Odpronoœæ na magiê ognia i umys³u. Wra¿liwoœæ na zimno.	IMMUNE_TO_MIND_SPELLS | IMMUNE_TO_FIRE_SPELLS | FLYING_ARMY
+Ognisty ptak	Ogniste ptaki	0	0	0	0	0	0	1500	3248	4547	2	0	150	15	18	18	30	40	0	0	4	10	Zioniêcie. Odpornoœæ na czary ognia.	IMMUNE_TO_FIRE_SPELLS | DOUBLE_WIDE | FLYING_ARMY | KING_1 | HAS_EXTENDED_ATTACK
+Feniks	Feniksy	0	1	0	0	0	0	2000	4929	6721	2	0	200	21	21	18	30	40	0	1	4	10	Zioniêcie. Odpornoœæ na czary ognia. Odradza siê.	IMMUNE_TO_FIRE_SPELLS | DOUBLE_WIDE | FLYING_ARMY | KING_1 | HAS_EXTENDED_ATTACK
+																								
+																								
+																								
+B³êkitny smok	B³êkitne smoki	0	20	0	0	0	0	30000	56315	78845	1	0	1000	19	50	50	70	80	0	0	1	3	Wzbudza strach.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Kryszta³owy smok	Kryszta³owe smoki	0	0	0	0	10	0	20000	30260	39338	1	0	800	16	40	40	60	75	0	0	1	3	Generuje kryszta³y.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Czarodziejski smok	Czarodziejskie smoki	0	0	0	0	0	8	10000	16317	19580	1	0	500	15	20	20	20	30	0	5	1	3	Rzuca czary ofensywne.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Rdzawy smok	Rdzawe smoki	0	0	0	14	0	0	15000	24030	26433	1	0	750	17	30	30	50	50	0	0	1	3	Pluje kwasem.	DOUBLE_WIDE | FLYING_ARMY | KING_1
+Czarodziej	Czarodzieje	0	0	0	0	0	0	750	805	1210	2	0	30	9	17	12	14	14	32	0	5	12	Brak ograniczeñ w walce wrêcz. Rzuca czary grupowe.	SHOOTING_ARMY | const_no_melee_penalty
+Strzelec	Strzelcy	0	0	0	0	0	0	400	415	585	4	0	15	9	12	10	8	10	32	0	5	12	Brak ograniczeñ za odleg³oœæ lub os³onê.	SHOOTING_ARMY
+Nizio³ek	Nizio³ki	0	0	0	0	0	0	40	60	75	15	0	4	5	4	2	1	3	24	0	20	50	Przynosi szczêœcie.	SHOOTING_ARMY
+Ch³op	Ch³opi	0	0	0	0	0	0	10	15	15	25	0	1	3	1	1	1	1	0	0	20	50		
+Dzik	Dziki	0	0	0	0	0	0	150	145	145	8	0	15	6	6	5	2	3	0	0	16	30		
+Mumia	Mumie	0	0	0	0	0	0	300	270	270	7	0	30	5	7	7	3	5	0	0	12	25	Rzuca kl¹twy.	
+Nomad	Nomadowie	0	0	0	0	0	0	200	285	345	7	0	30	7	9	8	2	6	0	0	12	25	Nie zwalnia na piasku.	
+Rozbójnik	Rozbójnicy	0	0	0	0	0	0	100	135	135	8	0	10	6	8	3	2	4	0	0	16	30	Szpieguje.	
+Troll	Trolle	0	0	0	0	0	0	500	1024	1024	3	0	40	7	14	7	10	15	0	0	8	12	Zdolnoœæ regeneracji.	
+																								
+																								
+																								
+Katapulta	Katapulty	0	0	0	0	0	0	1	10	500	0	0	1000	0	10	10	0	0	24	0	0	0	Niszczy mury zamku.	DOUBLE_WIDE | SHOOTING_ARMY | CATAPULT | SIEGE_WEAPON
+Balista	Balisty	0	0	0	0	0	0	2500	650	600	0	0	250	0	10	10	2	3	24	0	0	0		DOUBLE_WIDE | SHOOTING_ARMY | SIEGE_WEAPON
+Namiot medyka	Namioty medyków	0	0	0	0	0	0	750	10	300	0	0	75	0	0	0	0	0	0	0	0	0	Leczy oddzia³y.	DOUBLE_WIDE | SIEGE_WEAPON
+Wóz z amunicj¹	Wozy z amunicj¹	0	0	0	0	0	0	1000	5	400	0	0	100	0	0	5	0	0	0	0	0	0	Nieograniczona amunicja.	SIEGE_WEAPON
+Wie¿a ³uczników	Wie¿e ³uczników	0	0	0	0	0	0	1000	5	400	0	0	100	0	10	5	2	4	99	0	0	0	Nieograniczona amunicja.	SIEGE_WEAPON
+Serafin	Serafiny	0	0	0	0	0	4	10000	18250	26300	1	0	500	18	40	40	75	75	0	2	2	5	"+1(+2) morale. Wskrzesza 2x. Nieustr. Powstrz. kontratak"	DOUBLE_WIDE | FLYING_ARMY | const_raises_morale | KING_2 | const_free_attack
+Diamentowy Smok	Diamentowe Smoki	0	0	0	0	3	0	8000	18750	25500	1	0	500	16	36	36	60	75	0	0	2	5	"Odp. na zaklêcia. Nieustr. Oœlepia. +1 klejnot dziennie"	DOUBLE_WIDE | FLYING_ARMY | KING_1 | HAS_EXTENDED_ATTACK
+Gromow³adny	Gromow³adni	0	0	0	0	0	3	10000	15000	22500	1	0	600	12	32	32	60	75	24	24	2	5	"Strzela x2. Nieustr. Walczy wrêcz +piorun. Tarcza powietrza"	SHOOTING_ARMY | const_no_melee_penalty | KING_3
+Antychryst	Antychryœci	0	3	0	0	0	0	9000	19250	25700	1	0	400	17	35	37	45	60	0	0	2	5	"-1(-2) szczêœcie. Nieustr. Zabiera duszê. Powstrz. kontratak"	FLYING_ARMY | KING_2
+Krwawy Smok	Krwawe Smoki	0	2	0	0	0	0	6000	12000	15000	1	0	400	14	25	23	38	75	0	0	2	5	"Nieumar³y. -1(-2) morale. Nieustr. Wysysa krew. Postarza"	DOUBLE_WIDE | IS_UNDEAD | const_lowers_morale | FLYING_ARMY | KING_1
+Smok Cienia	Smoki Cienia	0	0	0	3	0	0	8000	20000	26000	1	0	600	15	33	33	60	75	0	0	2	5	"Odp. na zaklêcia. Nieustr. Wzbudza strach. Wraca na miejsce. Ciemnoœæ"	DOUBLE_WIDE | FLYING_ARMY | KING_1 | HAS_EXTENDED_ATTACK | const_free_attack
+Widmowy Behemot	Widmowe Behemoty	0	0	0	0	2	0	6000	16250	18250	1	0	600	11	25	25	45	75	0	0	2	5	"+1(+2) szczêœcie. Lekcewa¿y obronê. Kontr. x2. Ignoruje przeszkody"	DOUBLE_WIDE | KING_1
+Piekielna Hydra	Piekielne Hydry	0	0	0	2	0	0	7000	15750	17750	1	0	500	10	25	27	38	68	0	0	2	5	"Pluje kwasem. Regeneracja. Nieustr. Powstrz. kontratak"	DOUBLE_WIDE | KING_1 | MULTI_HEADED | SHOOTING_ARMY | const_free_attack
+Œwiêty Feniks	Œwiête Feniksy	0	3	0	0	0	0	5000	17750	23000	1	0	400	21	28	28	45	60	0	1	2	5	"Odp. na czary ognia. Pogromca. Odradza x2. Tarcza ogniowa"	IMMUNE_TO_FIRE_SPELLS | DOUBLE_WIDE | FLYING_ARMY | KING_1 | HAS_EXTENDED_ATTACK
+Duch	Duchy	0	0	0	0	0	0	500	150	250	8	0	5	8	11	8	1	2	0	0	16	30	"Przyci¹ga martwe dusze."	IS_UNDEAD | IS_GHOST | FLYING_ARMY
+Emisariusz Wojny	Emisariusze Wojny	0	0	0	0	0	0	30000	10	20000	0	0	2000	4	0	10	0	0	0	0	0	0	"Zwiêksza cotygodniowo Atak bohatera o 1-3"	
+Emisariusz Pokoju	Emisariusze Pokoju	0	0	0	0	0	0	30000	10	20000	0	0	2000	4	0	10	0	0	0	0	0	0	"Zwiêksza cotygodniowo Obronê bohatera o 1-3"	
+Emisariusz Mocy	Emisariusze Mocy	0	0	0	0	0	0	30000	10	20000	0	0	2000	4	0	10	0	0	0	0	0	0	"Zwiêksza cotygodniowo Moc bohatera o 1-3"	
+Emisariusz Wiedzy	Emisariusze Wiedzy	0	0	0	0	0	0	30000	10	20000	0	0	2000	4	0	10	0	0	0	0	0	0	"Zwiêksza cotygodniowo Wiedzê bohatera o 1-3"	
+Pos³aniec Ognia	Pos³añcy Ognia	0	0	0	0	0	0	750	775	775	2	0	70	5	14	12	13	18	0	0	8	10	"Ochr. przed czarami ognia. Nieustraszony."	
+Pos³aniec Ziemii	Pos³añcy Ziemii	0	0	0	0	0	0	750	775	775	2	0	70	5	13	14	10	14	0	0	8	10	"Ochr. przed czarami ziemii. Nieustraszony."	
+Pos³aniec Powietrza	Pos³añcy Powietrza	0	0	0	0	0	0	750	775	775	2	0	70	6	13	12	10	14	0	0	8	10	"Ochr. przed czarami powietrza. Nieustraszony."	
+Pos³aniec Wody	Pos³añcy Wody	0	0	0	0	0	0	750	775	775	2	0	80	5	13	12	10	14	0	0	8	10	"Ochr. przed czarami wody. Nieustraszony."	
+Gorynicz	Gorynicze	0	0	0	0	0	0	3500	5272	5931	1	0	250	8	20	20	25	45	0	0	2	5	"Atak przyleg³ych wrogów. Nieustr. Powstrz. kontratak"	DOUBLE_WIDE | KING_1 | MULTI_HEADED
+Kap³an Wojny	Kap³ani Wojny	0	0	0	0	0	0	600	700	1000	2	0	40	8	14	10	10	12	24	0	6	10	"Magiczne Zwierciad³o. Nieustr. Brak ogr. w walce wrêcz."	SHOOTING_ARMY | const_no_melee_penalty
+Arktyczny Strzelec	Arktyczni Strzelcy	0	0	0	0	0	0	500	500	700	3	0	15	9	13	10	8	10	32	0	8	12	"Brak ogr. za odleg³oœæ lub os³onê. Nieustr. Tarcza powietrza"	SHOOTING_ARMY | const_no_wall_penalty
+Wulkaniczny Strzelec	Wulkaniczni Strzelcy	0	0	0	0	0	0	500	500	700	3	0	15	9	12	11	8	10	32	0	8	12	"Brak ogr. za odleg³oœæ lub os³onê. Nie zna lêku. Tarcza ogniowa."	SHOOTING_ARMY | const_no_wall_penalty
+Zmora	Zmory	0	0	0	0	0	0	1500	2050	2400	2	0	110	9	18	16	20	24	0	0	5	10	"Spojrzenie Œmierci. Nieustr. Odp. na czary umys³u"	DOUBLE_WIDE
+Gremlino³aj	Gremlino³aje	0	0	0	0	0	0	200	500	200	1	0	5	5	5	5	2	3	0	1000	20	50	"Atak Lodowym pociskiem. Obdarza prezentami. Wzywa stra¿ników."	0
+Palladyn	Palladyni	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Pustelnik	Pustelnicy	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Westalka	Westalki	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Sukkub	Sukkubi	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Po¿eracz Dusz	Po¿eracze Dusz	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Oprawca	Oprawcy	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Przywódca Ogrów	Przywódcy Ogrów	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Szaman	Szamani	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+¯ywio³ak Kosmosu	¯ywio³aki Kosmosu	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Paladyn	Paladyni	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Pustelnik	Pustelnicy	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Westalka	Westalki	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Sukkub	Sukkuby	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Po¿eracz Dusz	Po¿eracze Dusz	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Oprawca	Oprawcy	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Przywódca Ogrów	Przywódcy Ogrów	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Szaman	Szamani	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+¯ywio³ak Kosmosu	¯ywio³aki Kosmosu	0	0	0	0	0	0	140	130	156	9	0	50	5	5	5	10	10	24	0	16	25		SHOOTING_ARMY
+Sylwañski Centaur	Sylwañskie Centaury	0	0	0	0	0	0	250	250	400	7	0	15	8	10	5	4	6	24	0	10	15	Strzela x2.
+Przynosi szczêœcie.	SHOOTING_ARMY | const_two_attacks
+Czarodziejka	Czarodziejki	0	0	0	0	0	0	600	200	1150	2	0	35	8	15	13	10	13	24	0	5	12	Rzuca zaklêcia ofensywne.	SHOOTING_ARMY
+Wilko³ak	Wilko³aki	0	0	0	0	0	0	300	460	460	4	0	35	7	10	12	6	9	0	0	10	20	Likantropia (x2 gdy pe³nia).
+Berserk podczas pe³ni: dni 14-16	0
+Piekielny Rumak	Piekielne Rumaki	0	0	0	0	0	0	1100	1850	2150	2	0	100	8	15	15	18	24	0	0	5	10	Tarcza Ogniowa. Œciana Ognia.
+Odp. na czary ognia.	DOUBLE_WIDE
+Drakolicz	Drakolicze	0	15	0	0	0	0	25000	40000	55000	1	1	800	16	45	45	50	80	5	0	1	3	Nieumar³y. -1 morale wroga. 20% Magiczna Odp. 20% Blok.	DOUBLE_WIDE

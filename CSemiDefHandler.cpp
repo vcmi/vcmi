@@ -105,21 +105,20 @@ void CSemiDefHandler::loadImages()
 }
  void SDL_DisplayBitmap(const char *file, SDL_Surface *ekran, int x, int y)
 {
-	 SDL_Surface *image;
-	 SDL_Rect dest;
-	 
-	 image = SDL_LoadBMP(file);
-	 if ( image == NULL )
-	 {
-		  fprintf(stderr, "Nie mo¿na wczytaæ %s: %s\n", file, SDL_GetError());
-		  return;
-	 }
-	 dest.x = x;
-	 dest.y = y;
-	 dest.w = image->w;
-	 dest.h = image->h;
-	 SDL_BlitSurface(image, NULL, ekran, &dest);
-	 SDL_UpdateRects(ekran, 1, &dest);
+	SDL_Surface *image;
+	SDL_Rect dest;
+	image = SDL_LoadBMP(file);
+	if ( image == NULL )
+	{
+		fprintf(stderr, "Nie mo¿na wczytaæ %s: %s\n", file, SDL_GetError());
+		return;
+	}
+	dest.x = x;
+	dest.y = y;
+	dest.w = image->w;
+	dest.h = image->h;
+	SDL_BlitSurface(image, NULL, ekran, &dest);
+	SDL_UpdateRects(ekran, 1, &dest);
 	SDL_FreeSurface(image);
 }
 void CSemiDefHandler::openImg(const char *name)
@@ -133,7 +132,7 @@ void CSemiDefHandler::openImg(const char *name)
 		// handle error
 	}
 	Cimage vinya;
-	vinya.bitmap=image;
+	vinya.bitmap = image;
 	vinya.imName = name;
 	ourImages.push_back(vinya);
 }
