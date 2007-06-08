@@ -83,7 +83,7 @@ SDL_Surface * mapHandler::terrainRect(int x, int y, int dx, int dy)
 			sr->h=sr->w=32;
 			
 			SDL_BlitSurface(terrainBitmap[bx+x][by+y],NULL,su,sr);
-
+			delete sr;
 			//SDL_BlitSurface(su,NULL,ekran,NULL);SDL_Flip(ekran);
 		}
 	}

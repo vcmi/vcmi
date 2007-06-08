@@ -12,6 +12,7 @@
 #include <cmath>
 #include <ctime>
 #include "CArthandler.h"
+#include "CHeroHandler.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -224,6 +225,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC timeHandler tmh;
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
+		CHeroHandler * heroh = new CHeroHandler;
+		heroh->loadHeroes();
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
@@ -289,7 +292,9 @@ int _tmain(int argc, _TCHAR* argv[])
 							}
 						}
 						SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
-						SDL_BlitSurface(mh->terrainRect(xx,yy,32,24),NULL,ekran,NULL);
+						SDL_Surface * help = mh->terrainRect(xx,yy,32,24);
+						SDL_BlitSurface(help,NULL,ekran,NULL);
+						SDL_FreeSurface(help);
 						SDL_Flip(ekran);
 					}
 				}
@@ -297,7 +302,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			catch(...)
 			{ continue; }
 
-			SDL_Delay(50); //give time for other apps
+			SDL_Delay(30); //give time for other apps
 		}
 		return 0;
 	}

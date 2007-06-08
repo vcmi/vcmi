@@ -1,6 +1,5 @@
 #include "CArtHandler.h"
 #include <fstream>
-#include <iostream>
 
 void CArtHandler::loadArtifacts()
 {
@@ -15,13 +14,17 @@ void CArtHandler::loadArtifacts()
 	while(!inp.eof())
 	{
 		CArtifact nart;
-		nart.number=numberlet++;
+		nart.number = numberlet++;
 		char * read = new char[10000]; //here we'll have currently read character
 		inp.getline(read, 10000);
 		int eol=0; //end of looking
 		std::string ss = std::string(read);
 		if(ss==std::string("") && inp.eof())
+		{
+			delete [10000] read;
+			loadArtEvents();
 			return;
+		}
 		for(int i=0; i<200; ++i)
 		{
 			if(ss[i]=='\t')
@@ -31,6 +34,8 @@ void CArtHandler::loadArtifacts()
 				break;
 			}
 		}
+		if(nart.name==std::string("-1") || nart.name==std::string("-2"))
+			continue;
 		for(int i=eol; i<eol+200; ++i)
 		{
 			if(ss[i]=='\t')
@@ -191,6 +196,33 @@ void CArtHandler::loadArtifacts()
 			nart.desc2 += ss;
 		}
 		while(nart.desc2[nart.desc2.size()-1]!='"' || (nart.name==std::string("£uk Penetracji") && bowCounter<4) ); //do - while end
+		//if(nart.name!=std::string("-1") && nart.name!=std::string("-2"))
 		this->artifacts.push_back(nart);
+		delete[10000] read;
 	}
+	loadArtEvents();
+}
+
+bool CArtHandler::loadArtEvents()
+{
+	std::ifstream inp("ARTEVENT.TXT", std::ios::in);
+	if(!inp.is_open())
+	{
+		return false;
+	}
+	for(int i=0; i<this->artifacts.size(); ++i)
+	{
+		char * tab = new char[1000];
+		inp.getline(tab, 1000);
+		std::string spo = std::string("\42-1\42");
+		if(std::string(tab).substr(0, std::string(tab).size()-1)==std::string("\42-1\42")
+			|| std::string(tab).substr(0, std::string(tab).size()-1)==std::string("\"-2\""))
+		{
+			--i;
+			continue;
+		}
+		artifacts[i].eventText = std::string(tab).substr(0, std::string(tab).size()-1);
+		delete[1000] tab;
+	}
+	return true;
 }

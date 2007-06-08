@@ -12,6 +12,7 @@ CAmbarCendamo::CAmbarCendamo (const char * tie)
 	is->seekg(0,std::ios::beg); // wracamy na poczatek
 	bufor = new unsigned char[andame]; // allocate memory 
 	is->read((char*)bufor, andame); // read map file to buffer
+	delete is;
 }
 CAmbarCendamo::~CAmbarCendamo () 
 {// free memory

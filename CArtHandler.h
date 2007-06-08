@@ -12,6 +12,7 @@ public:
 	std::string name;
 	std::string description;
 	std::string desc2;
+	std::string eventText;
 	unsigned int price;
 	bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4, misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso, lHand, rHand, neck, shoulders, head;
 	EartClass aClass;
@@ -23,6 +24,7 @@ class CArtHandler //handles artifacts
 public:
 	std::vector<CArtifact> artifacts;
 	void loadArtifacts();
+	bool loadArtEvents();
 };
 
 #endif // CARTHANDLER_H
