@@ -20,6 +20,8 @@ void CArtHandler::loadArtifacts()
 		inp.getline(read, 10000);
 		int eol=0; //end of looking
 		std::string ss = std::string(read);
+		if(ss==std::string("") && inp.eof())
+			return;
 		for(int i=0; i<200; ++i)
 		{
 			if(ss[i]=='\t')
@@ -42,97 +44,116 @@ void CArtHandler::loadArtifacts()
 			nart.spellBook = true;
 		else
 			nart.spellBook = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.warMachine4 = true;
 		else
 			nart.warMachine4 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.warMachine3 = true;
 		else
 			nart.warMachine3 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.warMachine2 = true;
 		else
 			nart.warMachine2 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.warMachine1 = true;
 		else
 			nart.warMachine1 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.misc5 = true;
 		else
 			nart.misc5 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.misc4 = true;
 		else
 			nart.misc4 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.misc3 = true;
 		else
 			nart.misc3 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.misc2 = true;
 		else
 			nart.misc2 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.misc1 = true;
 		else
 			nart.misc1 = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.feet = true;
 		else
 			nart.feet = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.lRing = true;
 		else
 			nart.lRing = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.rRing = true;
 		else
 			nart.rRing = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.torso = true;
 		else
 			nart.torso = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.lHand = true;
 		else
 			nart.lHand = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.rHand = true;
 		else
 			nart.rHand = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.neck = true;
 		else
 			nart.neck = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.shoulders = true;
 		else
 			nart.shoulders = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		if(ss[eol]=='x')
 			nart.head = true;
 		else
 			nart.head = false;
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		switch(ss[eol])
 		{
 		case 'J':
@@ -155,11 +176,21 @@ void CArtHandler::loadArtifacts()
 			nart.aClass = EartClass::TartClass;
 			break;
 		}
-		eol+=2;
+		if(ss[eol++]!='\t')
+			eol++;
 		nart.description = ss.substr(eol, ss.size());
 		inp.getline(read, 10000);
-		inp.getline(read, 10000);
-		ss = std::string(read);
-		nart.desc2 = ss;
+		int bowCounter=0;
+		nart.desc2 = "";
+		do //do - while begin
+		{
+			++bowCounter;
+			inp.getline(read, 10000);
+			//inp.ignore();
+			ss = std::string(read);
+			nart.desc2 += ss;
+		}
+		while(nart.desc2[nart.desc2.size()-1]!='"' || (nart.name==std::string("£uk Penetracji") && bowCounter<4) ); //do - while end
+		this->artifacts.push_back(nart);
 	}
 }
