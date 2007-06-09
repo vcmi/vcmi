@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "CAmbarCendamo.h"
 #include "CSemiDefHandler.h"
-#include <fstream>
 #include <set>
 CAmbarCendamo::CAmbarCendamo (const char * tie)
 {
@@ -290,9 +289,9 @@ void CAmbarCendamo::deh3m()
 	}
 	if (map.twoLevel) // read underground terrain
 	{
-		for (int z=0; z<map.width; z++) // reading terrain
+		for (int c=0; c<map.width; c++) // reading terrain
 		{
-			for (int c=0; c<map.height; c++)
+			for (int z=0; z<map.height; z++)
 			{
 				map.undergroungTerrain[z][c].tertype = (EterrainType)(bufor[i++]);
 				map.undergroungTerrain[z][c].terview = bufor[i++];
@@ -344,13 +343,20 @@ void CAmbarCendamo::loadDefs()
 	{
 		for (int j=0; j<map.width; j++)
 		{
-		if (loadedTypes.find(map.terrain[i][j].tertype)==loadedTypes.end())
-		{
-			CSemiDefHandler  *sdh = new CSemiDefHandler();
-			sdh->openDef(("H3sprite.lod\\"+sdh->nameFromType(map.terrain[i][j].tertype)).c_str());
-			loadedTypes.insert(map.terrain[i][j].tertype);
-			defs.push_back(sdh);
-		}
+			if (loadedTypes.find(map.terrain[i][j].tertype)==loadedTypes.end())
+			{
+				CSemiDefHandler  *sdh = new CSemiDefHandler();
+				sdh->openDef(("H3sprite.lod\\"+sdh->nameFromType(map.terrain[i][j].tertype)).c_str());
+				loadedTypes.insert(map.terrain[i][j].tertype);
+				defs.push_back(sdh);
+			}
+			if (loadedTypes.find(map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
+			{
+				CSemiDefHandler  *sdh = new CSemiDefHandler();
+				sdh->openDef(("H3sprite.lod\\"+sdh->nameFromType(map.undergroungTerrain[i][j].tertype)).c_str());
+				loadedTypes.insert(map.undergroungTerrain[i][j].tertype);
+				defs.push_back(sdh);
+			}
 		}
 	}
 };

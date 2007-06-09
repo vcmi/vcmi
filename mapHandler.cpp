@@ -55,8 +55,60 @@ void mapHandler::init()
 			}
 		}
 	}
+	if (reader->map.twoLevel)
+	{
+		undTerrainBitmap = new SDL_Surface **[reader->map.width];
+		for (int ii=0;ii<reader->map.width;ii++)
+			undTerrainBitmap[ii] = new SDL_Surface*[reader->map.height]; // allocate memory 
+		for (int i=0; i<reader->map.width; i++)
+		{
+			for (int j=0; j<reader->map.height;j++)
+			{
+				TerrainTile zz = reader->map.undergroungTerrain[i][j];
+				std::string name = CSemiDefHandler::nameFromType(reader->map.undergroungTerrain[i][j].tertype);
+				for (int k=0; k<reader->defs.size(); k++)
+				{
+					try
+					{
+						if (reader->defs[k]->defName != name)
+							continue;
+						else
+						{
+							SDL_Surface * n;
+							int ktora = reader->map.undergroungTerrain[i][j].terview;
+							undTerrainBitmap[i][j] = reader->defs[k]->ourImages[ktora].bitmap;
+							//TODO: odwracanie	
+							switch ((reader->map.undergroungTerrain[i][j].siodmyTajemniczyBajt)%4)
+							{
+							case 1:
+								{
+									undTerrainBitmap[i][j] = CSDL_Ext::rotate01(undTerrainBitmap[i][j]);
+									break;
+								}
+							case 2:
+								{
+									undTerrainBitmap[i][j] = CSDL_Ext::hFlip(undTerrainBitmap[i][j]);
+									break;
+								}
+							case 3:
+								{
+									undTerrainBitmap[i][j] = CSDL_Ext::rotate03(undTerrainBitmap[i][j]);
+									break;
+								}
+							}
+							//SDL_BlitSurface(undTerrainBitmap[i][j],NULL,ekran,NULL); SDL_Flip(ekran);SDL_Delay(50);
+
+							break;
+						}
+					}
+					catch (...)
+					{	continue;	}
+				}
+			}
+		}
+	}
 }
-SDL_Surface * mapHandler::terrainRect(int x, int y, int dx, int dy)
+SDL_Surface * mapHandler::terrainRect(int x, int y, int dx, int dy, int level)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     int rmask = 0xff000000;
@@ -81,8 +133,10 @@ SDL_Surface * mapHandler::terrainRect(int x, int y, int dx, int dy)
 			sr->y=by*32;
 			sr->x=bx*32;
 			sr->h=sr->w=32;
-			
-			SDL_BlitSurface(terrainBitmap[bx+x][by+y],NULL,su,sr);
+			if (!level)
+				SDL_BlitSurface(terrainBitmap[bx+x][by+y],NULL,su,sr);
+			else 
+				SDL_BlitSurface(undTerrainBitmap[bx+x][by+y],NULL,su,sr);
 			delete sr;
 			//SDL_BlitSurface(su,NULL,ekran,NULL);SDL_Flip(ekran);
 		}

@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "CArtHandler.h"
-#include <fstream>
 
 void CArtHandler::loadArtifacts()
 {

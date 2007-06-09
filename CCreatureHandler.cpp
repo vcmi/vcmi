@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "CCreatureHandler.h"
-#include <fstream>
 
 void CCreatureHandler::loadCreatures()
 {

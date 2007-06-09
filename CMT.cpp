@@ -24,6 +24,7 @@
 #endif
 #define CHUNK 16384
 #define pi 3.14159
+const char * NAME = "VCMI 0.1";
 
 
 #include "CAmbarCendamo.h"
@@ -196,7 +197,7 @@ void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B)
 }
 int _tmain(int argc, _TCHAR* argv[])
 { 
-	int xx=0, yy=0;
+	int xx=0, yy=0, zz=0;
 	SDL_Event sEvent;
 	srand ( time(NULL) );
 	SDL_Surface *screen, *temp;
@@ -223,6 +224,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	def(zr,ko,i);
 		//	fclose(ko);fclose(zr);
 		//}
+		SDL_WM_SetCaption(NAME,"");
 		THC timeHandler tmh;
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
@@ -295,9 +297,16 @@ int _tmain(int argc, _TCHAR* argv[])
 								return 0;
 								break;
 							}
+						case (SDLK_u):
+							{
+								if (zz)
+									zz--;
+								else zz++;
+								break;
+							}
 						}
 						SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
-						SDL_Surface * help = mh->terrainRect(xx,yy,32,24);
+						SDL_Surface * help = mh->terrainRect(xx,yy,32,24,zz);
 						SDL_BlitSurface(help,NULL,ekran,NULL);
 						SDL_FreeSurface(help);
 						SDL_Flip(ekran);

@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "CAbilityHandler.h"
-#include <fstream>
 
 void CAbilityHandler::loadAbilities()
 {

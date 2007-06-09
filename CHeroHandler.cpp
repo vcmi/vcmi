@@ -1,4 +1,4 @@
-#include <fstream>
+#include "stdafx.h"
 #include "CHeroHandler.h"
 
 void CHeroHandler::loadHeroes()
