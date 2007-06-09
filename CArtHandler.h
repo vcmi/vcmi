@@ -17,6 +17,7 @@ public:
 	bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4, misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso, lHand, rHand, neck, shoulders, head;
 	EartClass aClass;
 	int number;
+	bool isAllowed; //true if we can use this artifact (map information)
 };
 
 class CArtHandler //handles artifacts

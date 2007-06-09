@@ -243,7 +243,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
 		CSpellHandler * spellh = new CSpellHandler;
-		//spellh->loadSpells(); //TODO - naprawiæ i dokoñczyæ!
+		spellh->loadSpells(); //TODO - naprawiæ i dokoñczyæ!
 		cgi->spellh = spellh;
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		cgi->ac = ac;

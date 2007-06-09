@@ -25,9 +25,10 @@ public:
 	int powerExp; //efect with expert magic ability
 	int castle, rampart, tower, inferno, necropolis, dungeon, stronghold, fortress, conflux; //% chance to gain
 	int none2, bas2, adv2, exp2; //AI values
-	std::string noneTip, basicTip, advTip, expTip; //descriptions of spell
+	std::string noneTip, basTip, advTip, expTip; //descriptions of spell
 	std::string attributes; //reference only attributes
 	bool combatSpell; //is this spell combat (true) or adventure (false)
+	bool isAllowed; //true if we can use this spell (depends on map)
 };
 
 class CSpellHandler

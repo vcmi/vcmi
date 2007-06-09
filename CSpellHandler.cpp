@@ -1,331 +1,361 @@
 #include "stdafx.h"
 #include "CSpellHandler.h"
-#include <string>
 
 void CSpellHandler::loadSpells()
 {
 	std::ifstream inp("SPTRAITS.TXT", std::ios::in | std::ios::binary);
-	//std::string dump;
-	bool combatSeries=false; //false - now we are reading adventure spells; true - combat spells
-	//for(int i=0; i<52; ++i)
-	//{
-	//	inp>>dump;
-	//}
-	//inp.ignore(37);
-	char * tpom = new char[100000];
-	inp.get(tpom, 100000);
-	inp.get(tpom, 100000);
-	//inp.get(tpom, 1000, '\r');
-	//inp.get(tpom, 1000, '\r');
-	inp.ignore(1);
-	std::string bb = std::string(tpom);
-	//delete [100000] tpom;
-	//std::string ppp(inp, 0, inp.tellg());
-	/*for(int ii=0; ii<10000; ++ii)
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+	int i=0; //buf iterator
+	int hmcr=0;
+	for(i; i<andame; ++i)
 	{
-		char c;
-		inp.get(c);
-		inp.get(c);
-		ppp+=c;
-		inp.ignore(100, '\n');
-	}*/
-	
-	while(!inp.eof())
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==5)
+			break;
+	}
+	i+=2;
+	bool combSpells=false; //true, if we are reading combat spells
+	while(i<andame)
 	{
-		CSpell nsp;
-		std::string base;
-		char * tab = new char[5000];
-		int iit = 0;
-		int iitBef = 0;
-		inp.get(tab, 5000, '\r');
-		base = std::string(tab);
-		if(base.size()<2)
+		CSpell nsp; //new currently being read spell
+		int befi=i;
+		for(i; i<andame; ++i)
 		{
-			return;
+			if(buf[i]=='\t')
+				break;
 		}
-		while(base[iit]!='\t')
+		nsp.name = buf.substr(befi, i-befi);
+		++i;
+
+		if(nsp.name == std::string(""))
 		{
-			++iit;
+			combSpells = true;
+			int hmcr=0;
+			for(i; i<andame; ++i)
+			{
+				if(buf[i]=='\r')
+					++hmcr;
+				if(hmcr==4)
+					break;
+			}
+			++i;
+			++i;
+			befi=i;
+			for(i; i<andame; ++i)
+			{
+				if(buf[i]=='\t')
+					break;
+			}
+			nsp.name = buf.substr(befi, i-befi);
+			++i;
 		}
-		nsp.name = base.substr(0, iit);
-		++iit;
-		iitBef=iit;
 
-		if (nsp.name==std::string("Adventure Spells"))
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			combatSeries=false;
-			inp.getline(tab, 500);
-			continue;
+			if(buf[i]=='\t')
+				break;
 		}
-		else if (nsp.name==std::string("Combat Spells"))
+		nsp.abbName = buf.substr(befi, i-befi);
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			combatSeries=true;
-			inp.getline(tab, 500);
-			continue;
+			if(buf[i]=='\t')
+				break;
 		}
+		nsp.level = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.abbName = base.substr(iitBef, iit-iitBef);
-		++iit;
-		iitBef=iit;
+		nsp.earth = buf.substr(befi, i-befi)[0]=='x' ? true : false;
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.level = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.water = buf.substr(befi, i-befi)[0]=='x' ? true : false;
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.earth = base.substr(iitBef, iit-iitBef)==std::string("x") ? true : false;
-		++iit;
-		iitBef=iit;
+		nsp.fire = buf.substr(befi, i-befi)[0]=='x' ? true : false;
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.water = base.substr(iitBef, iit-iitBef)==std::string("x") ? true : false;
-		++iit;
-		iitBef=iit;
+		nsp.air = buf.substr(befi, i-befi)[0]=='x' ? true : false;
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.fire = base.substr(iitBef, iit-iitBef)==std::string("x") ? true : false;
-		++iit;
-		iitBef=iit;
+		nsp.costNone = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.air = base.substr(iitBef, iit-iitBef)==std::string("x") ? true : false;
-		++iit;
-		iitBef=iit;
+		nsp.costBas = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.costNone = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.costAdv = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.costBas = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.costExp = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.costAdv = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.power = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.costExp = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.powerNone = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.power = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.powerBas = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.powerNone = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.powerAdv = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.powerBas = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.powerExp = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.powerAdv = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.castle = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.powerExp = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.rampart = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.castle = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.tower = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.rampart = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.inferno = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.tower = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.necropolis = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.inferno = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.dungeon = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.necropolis = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.stronghold = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.dungeon = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.fortress = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.stronghold = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.conflux = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.fortress = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.none2 = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.conflux = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.bas2 = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.none2 = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.adv2 = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.bas2 = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.exp2 = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.adv2 = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.noneTip = buf.substr(befi, i-befi).c_str();
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.exp2 = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		nsp.basTip = buf.substr(befi, i-befi).c_str();
+		++i;
 
-		while(base[iit]!='\t' && iit<base.size())
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.noneTip = base.substr(iitBef, iit-iitBef);
+		nsp.advTip = buf.substr(befi, i-befi).c_str();
+		++i;
 
-		inp.getline(tab, 500);
-		inp.getline(tab, 500);
-		base = std::string(tab);
-
-		nsp.noneTip += std::string("\n");
-		nsp.noneTip += base;
-		nsp.noneTip += std::string("\n"); 
-
-		inp.getline(tab, 500);
-		inp.getline(tab, 500);
-		base = std::string(tab);
-
-		iit = 0;
-		iitBef = 0;
-
-		while(base[iit]!='\t' && iit<base.size())
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		nsp.noneTip += base.substr(0, iit);
-		++iit;
-		iitBef=iit;
+		nsp.expTip = buf.substr(befi, i-befi).c_str();
+		++i;
 
-		//////////////
-		inp.get(tab, 5000, '\r');
-		base = std::string(tab);
-		//////////////
-
-		nsp.combatSpell = combatSeries;
-
-		delete [500] tab;
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\r')
+				break;
+		}
+		nsp.attributes = buf.substr(befi, i-befi).c_str();
+		++i;
+		++i;
+		
+		nsp.combatSpell = combSpells;
 		spells.push_back(nsp);
 	}
-	inp.ignore();
 }

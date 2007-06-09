@@ -12,6 +12,7 @@ public:
 	std::string advText, advText2;
 	std::string expText, expText2;
 	int idNumber;
+	bool isAllowed; //true if we can use this hero's ability (map information)
 };
 
 class CAbilityHandler
