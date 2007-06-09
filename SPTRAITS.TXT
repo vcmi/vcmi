@@ -1,0 +1,1011 @@
+			School				Cost				Effect					% Chance to gain									AI value				Right click text				
+Name	Abbreviated Name	Level	Earth	Water	Fire	Air	None	Basic	Advanced	Expert	Power 	None	Basic	Advanced	Expert	Castle	Rampart	Tower	Inferno	Necropolis	Dungeon	Stronghold	Fortress	Conflux	None	Basic	Advanced	Expert	Normal	Basic	Advanced	Expert	"Attributes (reference only, do not change)"
+																																	
+Adventure Spells																																	
+																																	
+Przyzwanie okrêtu	Przyzwanie okrêtu	1	 	x	 	 	8	7	7	7	0	50	50	75	100	3	5	5	5	3	5	5	3	3	10	10	20	20	"{Przyzwanie okrêtu}
+
+Przyzywa do okolicy istniej¹cy okrêt, nale¿¹cy do aktualnego gracza.
+
+Szansa powodzenia - 50%.
+"	"{Przyzwanie okrêtu - poziom podstawowy}
+
+Przyzywa do okolicy istniej¹cy okrêt, nale¿¹cy do aktualnego gracza.
+
+Szansa powodzenia - 50%.
+"	"{Przyzwanie okrêtu - poziom zaawansowany}
+
+Przyzywa do okolicy istniej¹cy okrêt, nale¿¹cy do aktualnego gracza. Je¿eli okrêt nie istnieje - zostaje stworzony.
+
+Szansa powodzenia - 75%.
+"	"{Przyzwanie okrêtu - poziom mistrzowski}
+
+Przyzywa do okolicy istniej¹cy okrêt, nale¿¹cy do aktualnego gracza.  Je¿eli okrêt nie istnieje - zostaje stworzony.
+"	 ADV_SPELL
+Zniszczenie okrêtu	Zniszczenie okrêtu	2	 	x	 	 	8	6	6	6	0	50	50	75	100	6	4	4	4	4	4	4	4	4	1	1	1	1	"{Zniszczenie okrêtu}
+
+Niszczy okrêt nale¿¹cy do aktualnego gracza. U¿ywaæ z umiarem! Skutki zaklêcia s¹ nieodwo³alne. 
+
+Szansa powodzenia - 50%.
+"	"{Zniszczenie okrêtu - poziom podstawowy}
+
+Niszczy okrêt nale¿¹cy do aktualnego gracza. U¿ywaæ z umiarem! Skutki zaklêcia s¹ nieodwo³alne.
+
+Szansa powodzenia - 50%.
+"	"{Zniszczenie okrêtu - poziom zaawansowany}
+
+Niszczy okrêt nale¿¹cy do aktualnego gracza.  U¿ywaæ z umiarem! Skutki zaklêcia s¹ nieodwo³alne.
+
+Szansa powodzenia - 75%.
+"	"{Zniszczenie okrêtu - poziom mistrzowski}
+
+Niszczy okrêt nale¿¹cy do aktualnego gracza.  U¿ywaæ z umiarem! Skutki zaklêcia s¹ nieodwo³alne."	 ADV_SPELL
+Wizja	Wizja	2	x	x	x	x	4	2	2	2	0	1	1	2	3	2	2	2	4	2	2	2	2	2	1	1	1	1	"{Wizja}
+
+Podaje ogólne informacje o armii przeciwnika, bohaterze lub garnizonie miasta."	"{Wizja - poziom podstawowy}
+
+Podaje ogólne informacje o armii przeciwnika, bohaterze lub garnizonie miasta. Je¿eli w pobli¿u znajduje siê wroga grupa stworzeñ, zaklêcie podaje dok³adne informacje o jej sk³adzie oraz liczebnoœci, a tak¿e informuje, czy dana grupa zechce siê do ciebie przy³¹czyæ."	"{Wizja - poziom zaawansowany}
+
+Podaje dok³adne informacje o garnizonie miasta. Je¿eli w pobli¿u znajduje siê wroga grupa stworzeñ, zaklêcie podaje dok³adne informacje o jej sk³adzie oraz liczebnoœci, a tak¿e informuje, czy dana grupa zechce siê do ciebie przy³¹czyæ. Dodatkowo zaklêcie podaje dok³adne informacje o wrogim bohaterze i jego armii."	"{Wizja - poziom mistrzowski}
+
+Podaje bardzo dok³adne informacje o garnizonach miast, stworzeniach znajduj¹cych siê w okolicy, oraz o wrogich bohaterach i ich armiach.
+"	 ADV_SPELL
+Zasoby ziemi	Zasoby ziemi	1	x				2	1	1	1	0	0	0	0	0	3	3	3	3	3	3	3	3	3	1	1	1	1	"{Zasoby ziemi}
+
+Ujawnia umiejscowienie wszystkich zasobów znajduj¹cych siê na mapie.
+"	"{Zasoby ziemi - poziom podstawowy}
+
+Ujawnia umiejscowienie wszystkich zasobów znajduj¹cych siê na mapie.
+"	"{Zasoby ziemi - poziom zaawansowany}
+
+Ujawnia umiejscowienie wszystkich zasobów oraz kopalñ znajduj¹cych siê na mapie.
+"	"{Zasoby ziemi - poziom mistrzowski}
+
+Odkrywa ca³¹ mapê oraz ujawnia umiejscowienie wszystkich zasobów i kopalñ.
+"	 ADV_SPELL
+Ukrycie	Ukrycie	2	 	 	 	x	4	2	2	2	0	0	0	0	0	2	2	2	4	2	2	2	0	2	1	1	1	1	"{Ukrycie}
+
+Podaje fa³szywe informacje wrogiemu bohaterowi, próbuj¹cemu rozpoznaæ si³ê twojej armii.
+"	"{Ukrycie - poziom podstawowy}
+
+Sprawia, ¿e wszyscy wrogowie widz¹, i¿ twoja armia sk³ada siê wy³¹cznie z najlepszych oddzia³ów, jakie aktualnie w niej posiadasz. Iloœæ jednostek w oddzia³ach pozostaje niezmieniona.
+"	"{Ukrycie - poziom zaawansowany}
+
+Sprawia, ¿e wszyscy wrogowie widz¹, i¿ twoja armia sk³ada siê wy³¹cznie z najlepszych oddzia³ów, jakie aktualnie w niej posiadasz. Iloœæ jednostek w oddzia³ach ukazana jest jako zero.
+"	"{Ukrycie - poziom mistrzowski}
+
+Sprawia, ¿e wszyscy wrogowie widz¹, i¿ twoja armia sk³ada siê wy³¹cznie z najlepszych oddzia³ów, jakie mo¿e posiadaæ aktualny bohater. Iloœæ jednostek w oddzia³ach ukazana jest jako zero."	 ADV_SPELL
+Aura artefaktów	Aura artefaktów	1				x	2	1	1	1	0	0	0	0	0	3	3	3	3	3	3	3	3	3	1	1	1	1	"{Aura artefaktów}
+
+Ujawnia miejsca na mapie, gdzie znajduj¹ siê artefakty.
+"	"{Aura artefaktów - poziom podstawowy}
+
+Ujawnia miejsca na mapie, gdzie znajduj¹ siê artefakty.
+"	"{Aura artefaktów - poziom zaawansowany}
+
+Ujawnia miejsca na mapie, gdzie znajduj¹ siê artefakty oraz wrodzy bohaterowie.
+"	"{Aura artefaktów - poziom mistrzowski}
+
+Ujawnia miejsca na mapie, gdzie znajduj¹ siê artefakty oraz wrodzy bohaterowie i ich miasta.
+"	 ADV_SPELL
+Lot	Lot	5	 	 	 	x	20	15	15	15	0	60	60	80	100	0	16	16	16	16	12	0	0	13	30	30	40	50	"{Lot}
+
+Pozwala na wykorzystanie czêœci punktów ruchu do przelotu nad jak¹œ przeszkod¹ terenow¹.  Koniec kolejki musi zakoñczyæ siê l¹dowaniem."	"{Lot - poziom podstawowy}
+
+Pozwala na wykorzystanie czêœci punktów ruchu do przelotu nad jak¹œ przeszkod¹ terenow¹.  Koniec kolejki musi zakoñczyæ siê l¹dowaniem.
+"	"{Lot - poziom zaawansowany}
+
+Pozwala na wykorzystanie wiêkszoœci punktów ruchu do przelotu nad jak¹œ przeszkod¹ terenow¹.  Koniec kolejki musi zakoñczyæ siê l¹dowaniem.
+"	"{Lot - poziom mistrzowski}
+
+Pozwala na wykorzystanie wszystkich punktów ruchu do przelotu nad jak¹œ przeszkod¹ terenow¹.  Koniec kolejki musi zakoñczyæ siê l¹dowaniem.
+"	 ADV_SPELL
+Spacer po wodzie	Spacer po wodzie	4	 	x	 	 	12	8	8	8	0	60	60	80	100	10	10	10	10	10	10	0	0	10	15	15	20	25	"{Spacer po wodzie}
+
+Pozwala na wykorzystanie czêœci punktów ruchu do chodzenia po wodzie. Koniec kolejki musi zakoñczyæ siê na l¹dzie."	"{Spacer po wodzie - poziom podstawowy}
+
+Pozwala na wykorzystanie czêœci punktów ruchu do chodzenia po wodzie. Koniec kolejki musi zakoñczyæ siê na l¹dzie.
+"	"{Spacer po wodzie - poziom zaawansowany}
+
+Pozwala na wykorzystanie wiêkszoœci punktów ruchu do chodzenia po wodzie. Koniec kolejki musi zakoñczyæ siê na l¹dzie.
+"	"{Spacer po wodzie - poziom mistrzowski}
+
+Pozwala na wykorzystanie wszystkich punktów ruchu do chodzenia po wodzie. Koniec kolejki musi zakoñczyæ siê na l¹dzie.
+"	 ADV_SPELL
+Wrota wymiarów	Wrota wymiarów	5	 	 	 	x	25	20	20	20	0	1	2	3	4	0	20	14	16	16	16	0	0	13	30	30	40	50	"{Wrota wymiarów}
+
+Raz dziennie mo¿esz teleportowaæ swojego bohatera wraz z jego armi¹ do widocznego, wolnego miejsca na mapie.
+"	"{Wrota wymiarów - poziom podstawowy}
+
+Dwa razy dziennie mo¿esz teleportowaæ swojego bohatera wraz z jego armi¹ do widocznego, wolnego miejsca na mapie.
+"	"{Wrota wymiarów - poziom zaawansowany}
+
+Trzy razy dziennie mo¿esz teleportowaæ swojego bohatera wraz z jego armi¹ do widocznego, wolnego miejsca na mapie.
+"	"{Wrota wymiarów - poziom mistrzowski}
+
+Cztery razy dziennie mo¿esz teleportowaæ swojego bohatera wraz z jego armi¹ do widocznego, wolnego miejsca na mapie.
+"	 ADV_SPELL
+Miejski portal	Miejski portal	4	x	 	 	 	16	12	12	12	0	0	0	0	0	10	10	10	10	10	10	0	0	10	5	5	70	70	"{Miejski portal}
+
+Teleportuje bohatera do najbli¿szego nale¿¹cego do niego miasta. Miasta nie mo¿e odwiedzaæ w tym czasie inny bohater.
+"	"{Magiczny portal - poziom podstawowy}
+
+Teleportuje bohatera do najbli¿szego nale¿¹cego do niego miasta. Miasta nie mo¿e odwiedzaæ w tym czasie inny bohater.
+"	"{Magiczny portal - poziom zaawansowany}
+
+Teleportuje bohatera do dowolnego nale¿¹cego do niego miasta. Miasta nie mo¿e odwiedzaæ w tym czasie inny bohater.
+"	"{Magiczny portal - poziom mistrzowski}
+
+Teleportuje bohatera do dowolnego nale¿¹cego do niego miasta. Miasta nie mo¿e odwiedzaæ w tym czasie inny bohater.
+"	 ADV_SPELL
+																																	
+Combat Spells																																	
+																																	
+Ruchome piaski	Ruchome piaski	2	x	 	 	 	8	6	6	6	0	0	0	0	0	4	4	6	4	4	4	6	6	4	1	1	1	1	"{Ruchome piaski}
+
+Zaklêcie tworzy losowo na polu bitwy cztery obszary pokryte ruchomymi piaskami. Obszary te widoczne s¹ tylko dla gracza, który je utworzy³ i w³aœciwych dla danego terenu oddzia³ów. Oddzia³, który wpadnie w ruchome piaski, nie mo¿e siê poruszaæ do rozpoczêcia nastêpnej kolejki."	"{Ruchome piaski - poziom podstawowy}
+
+Zaklêcie tworzy losowo na polu bitwy cztery obszary pokryte ruchomymi piaskami. Obszary te widoczne s¹ tylko dla gracza, który je utworzy³ i w³aœciwych dla danego terenu oddzia³ów. Oddzia³, który wpadnie w ruchome piaski, nie mo¿e siê poruszaæ do rozpoczêcia nastêpnej kolejki."	"{Ruchome piaski - poziom zaawansowany}
+
+Zaklêcie tworzy losowo na polu bitwy szeœæ obszarów pokrytych ruchomymi piaskami. Obszary te widoczne s¹ tylko dla gracza, który je utworzy³ i w³aœciwych dla danego terenu oddzia³ów. Oddzia³, który wpadnie w ruchome piaski, nie mo¿e siê poruszaæ do rozpoczêcia nastêpnej kolejki."	"{Ruchome piaski - poziom mistrzowski}
+
+Zaklêcie tworzy losowo na polu bitwy osiem obszarów pokrytych  ruchomymi piaskami. Obszary te widoczne s¹ tylko dla gracza, który je utworzy³ i w³aœciwych dla danego terenu oddzia³ów. Oddzia³, który wpadnie w ruchome piaski, nie mo¿e siê poruszaæ do rozpoczêcia nastêpnej kolejki."	 COMBAT_SPELL|LOCATION_TARGET
+Pole minowe	Pole minowe	3	 	 	x	 	18	15	15	15	10	25	25	50	100	8	8	8	6	8	12	8	2	4	1	1	1	1	"{Pole minowe}
+
+Zaklêcie tworzy losowo na polu bitwy cztery pola minowe widoczne tylko dla gracza i w³aœciwych dla danego terenu oddzia³ów. Ka¿dy oddzia³, który wejdzie na miny, powoduje ich wybuch."	"{Pole minowe - poziom podstawowy}
+
+Zaklêcie tworzy losowo na polu bitwy cztery pola minowe widoczne tylko dla gracza i w³aœciwych dla danego terenu oddzia³ów. Ka¿dy oddzia³, który wejdzie na miny, powoduje ich wybuch."	"{Pole minowe - poziom zaawansowany}
+
+Zaklêcie tworzy losowo na polu bitwy szeœæ pól minowych widocznych tylko dla gracza i w³aœciwych dla danego terenu oddzia³ów. Ka¿dy oddzia³, który wejdzie na miny, powoduje ich wybuch."	"{Pole minowe - poziom mistrzowski}
+
+Zaklêcie tworzy losowo na polu bitwy osiem pól minowych widocznych tylko dla gracza i w³aœciwych dla danego terenu oddzia³ów. Ka¿dy oddzia³, który wejdzie na miny, powoduje ich wybuch."	 COMBAT_SPELL|LOCATION_TARGET
+Pole si³owe	Pole si³owe	3	x	 	 	 	12	9	9	9	0	0	0	0	0	4	4	8	2	8	8	4	4	8	1	1	1	1	"{Pole si³owe}
+
+W miejscu wskazanym przez gracza tworzy ma³ej wielkoœci pole si³owe na polu bitwy, nie pozwalaj¹ce na przejœcie wrogim oddzia³om.
+"	"{Pole si³owe - poziom podstawowy}
+
+W miejscu wskazanym przez gracza tworzy ma³ej wielkoœci pole si³owe na polu bitwy, nie pozwalaj¹ce na przejœcie wrogim oddzia³om.
+"	"{Pole si³owe - poziom zaawansowany}
+
+W miejscu wskazanym przez gracza tworzy œredniej wielkoœci pole si³owe na polu bitwy, nie pozwalaj¹ce na przejœcie wrogim oddzia³om.
+"	"{Pole si³owe - poziom mistrzowski}
+
+W miejscu wskazanym przez gracza tworzy œredniej wielkoœci pole si³owe na polu bitwy, nie pozwalaj¹ce na przejœcie wrogim oddzia³om.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Œciana ognia	Œciana ognia	2	 	 	x	 	8	6	6	6	10	10	10	20	50	4	4	4	12	4	4	4	4	8	1	1	1	1	"{Œciana ognia}
+
+W miejscu wskazanym przez gracza tworzy ma³¹ œcianê ognia na polu bitwy, która rani oddzia³y próbuj¹ce j¹ pokonaæ.
+"	"{Œciana ognia - poziom podstawowy}
+
+W miejscu wskazanym przez gracza tworzy ma³¹ œcianê ognia na polu bitwy, która rani oddzia³y próbuj¹ce j¹ pokonaæ.
+"	"{Œciana ognia - poziom zaawansowany}
+
+W miejscu wskazanym przez gracza tworzy œredni¹ œcianê ognia na polu bitwy, która rani oddzia³y próbuj¹ce j¹ pokonaæ.
+"	"{Œciana ognia - poziom mistrzowski}
+
+W miejscu wskazanym przez gracza tworzy œredni¹ œcianê ognia na polu bitwy, która rani oddzia³y próbuj¹ce j¹ pokonaæ.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Trzêsienie ziemi	Trzêsienie ziemi	3	x	 	 	 	20	17	17	17	1	2	2	3	4	4	8	4	6	4	4	4	50	4	1	1	1	1	"{Trzêsienie ziemi}
+
+Uszkadza  mury miasta w dwóch losowo wybranych miejscach.
+"	"{Trzêsienie ziemi - poziom podstawowy}
+
+Uszkadza  mury miasta w dwóch losowo wybranych miejscach.
+"	"{Trzêsienie ziemi - poziom zaawansowany}
+
+Uszkadza  mury miasta w trzech losowo wybranych miejscach.
+"	"{Trzêsienie ziemi - poziom mistrzowski}
+
+Uszkadza  mury miasta w czterech losowo wybranych miejscach.
+"	 COMBAT_SPELL
+Magiczna strza³a	Magiczna strza³a	1	x	x	x	x	5	4	4	4	10	10	10	20	30	30	30	30	30	30	30	30	30	30	10	10	10	10	"{Magiczna strza³a}
+
+Wysy³a pocisk magicznej energii rani¹cej oddzia³ przeciwnika."	"{Magiczna strza³a - poziom podstawowy}
+
+Wysy³a pocisk magicznej energii rani¹cej oddzia³ przeciwnika.
+"	"{Magiczna strza³a  - poziom zaawansowany}
+
+Wysy³a pocisk magicznej energii rani¹cej oddzia³ przeciwnika.
+
+Obra¿enia s¹ o 10 punktów wiêksze ni¿ w wypadku u¿ycia czaru magiczny pocisk - poziom podstawowy.
+"	"{Magiczna strza³a - poziom mistrzowski}
+
+Wysy³a pocisk magicznej energii rani¹cej oddzia³ przeciwnika.
+
+Obra¿enia s¹ o 20 punktów wiêksze ni¿ w wypadku u¿ycia czaru magiczny pocisk - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Lodowy pocisk	Lodowy pocisk	2	 	x	 	 	8	6	6	6	20	10	10	20	50	50	50	6	0	6	6	4	50	25	20	20	20	20	"{Lodowy pocisk}
+
+Wysysa ciep³o z cia³ wrogów zadaj¹c im rany."	"{Lodowy pocisk - poziom podstawowy}
+
+Wysysa ciep³o z cia³ wrogów zadaj¹c im rany.
+"	"{Lodowy pocisk - poziom zaawansowany}
+
+Wysysa ciep³o z cia³ wrogów zadaj¹c im rany.
+
+Obra¿enia s¹ o 10 punktów wiêksze ni¿ w wypadku u¿ycia czaru lodowy pocisk - poziom podstawowy.
+"	"{Lodowy pocisk - poziom mistrzowski}
+
+Wysysa ciep³o z cia³ wrogów zadaj¹c im rany.
+
+Obra¿enia s¹ o 40 punktów wiêksze ni¿ w wypadku u¿ycia czaru lodowy pocisk - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET
+B³yskawica	B³yskawica	2	 	 	 	x	10	8	8	8	25	10	10	20	50	4	4	50	20	6	50	50	4	25	25	25	25	25	"{B³yskawica}
+
+Œci¹ga uderzenie pioruna na oddzia³ wroga."	"{B³yskawica - poziom podstawowy}
+
+Œci¹ga uderzenie pioruna na oddzia³ wroga.
+"	"{B³yskawica - poziom zaawansowany}
+
+Œci¹ga uderzenie pioruna na oddzia³ wroga.
+
+Obra¿enia s¹ o 10 punktów wiêksze ni¿ w wypadku u¿ycia czaru piorun - poziom podstawowy
+"	"{B³yskawica - poziom mistrzowski}
+
+Œci¹ga uderzenie pioruna na oddzia³ wroga.
+
+Obra¿enia s¹ o 40 punktów wiêksze ni¿ w wypadku u¿ycia czaru piorun - poziom podstawowy
+"	 COMBAT_SPELL|CREATURE_TARGET
+Implozja	Implozja	5	x	 	 	 	30	25	25	25	75	100	100	200	300	0	16	14	16	20	12	0	0	13	75	75	75	75	"{Implozja}
+
+Rozrywa cia³a wrogów zadaj¹c powa¿ne straty wybranemu oddzia³owi."	"{Implozja - poziom podstawowy}
+
+Rozrywa cia³a wrogów zadaj¹c powa¿ne straty wybranemu oddzia³owi.
+"	"{Implozja - poziom zaawansowany}
+
+Rozrywa cia³a wrogów zadaj¹c powa¿ne straty wybranemu oddzia³owi.
+
+Obra¿enia s¹ o 100 punktów wiêksze ni¿ w wypadku u¿ycia czaru implozja - poziom podstawowy
+"	"{Implozja - poziom mistrzowski}
+
+Rozrywa cia³a wrogów zadaj¹c powa¿ne straty wybranemu oddzia³owi.
+
+Obra¿enia s¹ o 200 punktów wiêksze ni¿ w wypadku u¿ycia czaru implozja - poziom podstawowy
+"	 COMBAT_SPELL|CREATURE_TARGET
+£añcuch piorunów	£añcuch piorunów	4	 	 	 	x	24	20	20	20	40	25	25	50	100	10	10	10	10	10	10	0	0	10	75	75	75	75	"{£añcuch piorunów}
+
+Œci¹ga uderzenie pioruna na wybrany oddzia³ wroga. Po uderzeniu piorun przeskakuje na najbli¿szy oddzia³ rani¹c nale¿¹ce do niego stworzenia z o po³owê mniejsz¹ si³¹. Nastêpnie piorun przeskakuje dalej w sumie zadaj¹c straty czterem oddzia³om.
+"	"{£añcuch piorunów - poziom podstawowy}
+
+Œci¹ga uderzenie pioruna na wybrany oddzia³ wroga. Po uderzeniu piorun przeskakuje na najbli¿szy oddzia³ rani¹c nale¿¹ce do niego stworzenia z o po³owê mniejsz¹ si³¹. Nastêpnie piorun przeskakuje dalej w sumie zadaj¹c straty czterem oddzia³om.
+"	"{£añcuch piorunów - poziom zaawansowany}
+
+Œci¹ga uderzenie pioruna na wybrany oddzia³ wroga. Po uderzeniu piorun przeskakuje na najbli¿szy oddzia³ rani¹c nale¿¹ce do niego stworzenia z o po³owê mniejsz¹ si³¹. Nastêpnie piorun przeskakuje dalej w sumie zadaj¹c straty piêciu oddzia³om.
+
+Obra¿enia s¹ o 25 punktów wiêksze ni¿ w wypadku u¿ycia czaru ³añcuch piorunów - poziom podstawowy.
+"	"{£añcuch piorunów - poziom mistrzowski}
+
+Œci¹ga uderzenie pioruna na wybrany oddzia³ wroga. Po uderzeniu piorun przeskakuje na najbli¿szy oddzia³ rani¹c nale¿¹ce do niego stworzenia z o po³owê mniejsz¹ si³¹. Nastêpnie piorun przeskakuje dalej w sumie zadaj¹c straty piêciu oddzia³om.
+
+Obra¿enia s¹ o 75 punktów wiêksze ni¿ w wypadku u¿ycia czaru ³añcuch piorunów - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Kr¹g zimna	Kr¹g zimna	3	 	x	 	 	12	9	9	9	10	15	15	30	60	16	16	16	0	12	12	12	4	12	12	12	12	12	"{Kr¹g zimna}
+
+Wysysa ciep³o ze strefy przylegaj¹cej do celu nie rani¹c znajduj¹cego siê tam oddzia³u.
+"	"{Kr¹g zimna - poziom podstawowy}
+
+Wysysa ciep³o ze strefy przylegaj¹cej do celu nie rani¹c znajduj¹cego siê tam oddzia³u.
+"	"{Kr¹g zimna - poziom zaawansowany}
+
+Wysysa ciep³o ze strefy przylegaj¹cej do celu nie rani¹c znajduj¹cego siê tam oddzia³u.
+
+Obra¿enia s¹ o 15 punktów wiêksze ni¿ w wypadku u¿ycia czaru strefa zimna - poziom podstawowy.
+"	"{Kr¹g zimna - poziom mistrzowski}
+
+Wysysa ciep³o ze strefy przylegaj¹cej do celu nie rani¹c znajduj¹cego siê tam oddzia³u.
+
+Obra¿enia s¹ o 45 punktów wiêksze ni¿ w wypadku u¿ycia czaru strefa zimna - poziom podstawowy.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Kula ognia	Kula ognia	3	 	 	x	 	15	12	12	12	10	15	15	30	60	8	8	8	50	12	16	12	2	12	15	15	15	15	"{Kula ognia}
+
+Tworzy rozprzestrzeniaj¹c¹ siê kulê ognia rani¹c¹ wybrany oddzia³ wroga oraz inne oddzia³y znajduj¹ce siê w  jego pobli¿u."	"{Kula ognia - poziom podstawowy}
+
+Tworzy rozprzestrzeniaj¹c¹ siê kulê ognia rani¹c¹ wybrany oddzia³ wroga  oraz inne oddzia³y znajduj¹ce siê w  jego pobli¿u.
+"	"{Kula ognia - poziom zaawansowany}
+
+Tworzy rozprzestrzeniaj¹c¹ siê kulê ognia rani¹c¹ wybrany oddzia³ wroga  oraz inne oddzia³y znajduj¹ce siê w  jego pobli¿u.
+
+Obra¿enia s¹ o 15 punktów wiêksze ni¿ w wypadku u¿ycia czaru kula ognia  - poziom podstawowy.
+"	"{Kula ognia - poziom mistrzowski}
+
+Tworzy rozprzestrzeniaj¹c¹ siê kulê ognia rani¹c¹ wybrany oddzia³ wroga  oraz inne oddzia³y znajduj¹ce siê w  jego pobli¿u.
+
+Obra¿enia s¹ o 45 punktów wiêksze ni¿ w wypadku u¿ycia czaru kula ognia  - poziom podstawowy.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Inferno	Inferno	4	 	 	x	 	16	12	12	12	10	20	20	40	80	5	5	5	10	5	5	0	0	10	20	20	20	20	"{Inferno}
+
+Wysy³a œcianê ognia, która uderza w oddzia³ wroga. Lepiej nie znajdowaæ siê wtedy w jego pobli¿u!
+"	"{Inferno - poziom podstawowy}
+
+Wysy³a œcianê ognia, która uderza w oddzia³ wroga. Lepiej nie znajdowaæ siê wtedy w jego pobli¿u!
+"	"{Inferno - poziom zaawansowany}
+
+Wysy³a œcianê ognia, która uderza w oddzia³ wroga. Lepiej nie znajdowaæ siê wtedy w jego pobli¿u!
+
+Obra¿enia s¹ o 20 punktów wiêksze ni¿ w wypadku u¿ycia czaru Inferno - poziom podstawowy.
+"	"{Inferno - poziom mistrzowski}
+
+Wysy³a œcianê ognia, która uderza w oddzia³ wroga. Lepiej nie znajdowaæ siê wtedy w jego pobli¿u!
+
+Obra¿enia s¹ o 60 punktów wiêksze ni¿ w wypadku u¿ycia czaru Inferno  - poziom podstawowy.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Deszcz meteorów	Deszcz meteorów	4	x	 	 	 	16	12	12	12	25	25	25	50	100	10	10	10	10	10	10	0	0	10	37	37	37	37	"{Deszcz meteorów}
+
+Sprowadza deszcz meteorów na wybrany oddzia³ oraz na inne jednostki znajduj¹ce siê w jego s¹siedztwie.
+"	"{Deszcz meteorów - poziom podstawowy}
+
+Sprowadza deszcz meteorów na wybrany oddzia³ oraz na inne jednostki znajduj¹ce siê w jego s¹siedztwie.
+"	"{Deszcz meteorów - poziom zaawansowany}
+
+Sprowadza deszcz meteorów na wybrany oddzia³ oraz na inne jednostki znajduj¹ce siê w jego s¹siedztwie.
+
+Obra¿enia s¹ o 25 punktów wiêksze ni¿ w wypadku u¿ycia czaru Deszcz meteorów - poziom podstawowy'.
+"	"{Deszcz meteorów - poziom mistrzowski}
+
+Sprowadza deszcz meteorów na wybrany oddzia³ oraz na inne jednostki znajduj¹ce siê w jego s¹siedztwie.
+
+Obra¿enia s¹ o 75 punktów wiêksze ni¿ w wypadku u¿ycia czaru Deszcz meteorów - poziom podstawowy.
+"	 COMBAT_SPELL|LOCATION_TARGET
+Fala œmierci	Fala œmierci	2	x	 	 	 	10	8	8	8	5	10	10	20	30	0	0	0	0	50	0	0	0	0	20	20	20	20	"{Fala œmierci}
+
+Wysy³a falê œmierci, która rani wszystkie ¿ywe jednostki znajduj¹ce siê na polu bitwy."	"{Fala œmierci - poziom podstawowy}
+
+Wysy³a falê œmierci, która rani wszystkie ¿ywe jednostki znajduj¹ce siê na polu bitwy.
+"	"{Fala œmierci - poziom zaawansowany}
+
+Wysy³a falê œmierci, która rani wszystkie ¿ywe jednostki znajduj¹ce siê na polu bitwy.
+
+Obra¿enia s¹ o 10 punktów wiêksze ni¿ w wypadku u¿ycia czaru Fala œmierci - poziom podstawowy.
+"	"{Fala œmierci - poziom mistrzowski}
+
+Wysy³a falê œmierci, która rani wszystkie ¿ywe jednostki znajduj¹ce siê na polu bitwy.
+
+Obra¿enia s¹ o 20 punktów wiêksze ni¿ w wypadku u¿ycia czaru Fala œmierci - poziom podstawowy.
+"	 COMBAT_SPELL
+Zniszczenie nieumar³ych	Zniszcz. nieumar.	3	 	 	 	x	15	12	12	12	10	10	10	20	50	12	8	8	2	0	4	4	2	4	40	40	40	40	"{Odes³anie nieumar³ych}
+
+Próbuje zniszczyæ wszystkich nieumar³ych znajduj¹ce siê na polu bitwy."	"{Odes³anie nieumar³ych - poziom podstawowy}
+
+Próbuje zniszczyæ wszystkich nieumar³ych znajduj¹ce siê na polu bitwy.
+"	"{Odes³anie nieumar³ych - poziom zaawansowany}
+
+Próbuje zniszczyæ wszystkich nieumar³ych znajduj¹ce siê na polu bitwy.
+
+Obra¿enia s¹ o 10 punktów wiêksze ni¿ w wypadku u¿ycia czaru Odes³anie nieumar³ych - poziom podstawowy.
+"	"{Odes³anie nieumar³ych - poziom mistrzowski}
+
+Próbuje zniszczyæ wszystkich nieumar³ych znajduj¹ce siê na polu bitwy.
+
+Obra¿enia s¹ o 40 punktów wiêksze ni¿ w wypadku u¿ycia czaru Odes³anie nieumar³ych - poziom podstawowy.
+"	 COMBAT_SPELL
+Armagedon	Armagedon	4	 	 	x	 	24	20	20	20	50	30	30	60	120	0	0	0	5	5	10	0	0	0	100	100	100	100	"{Armagedon}
+
+Zrzuca deszcz ognia i siarki na pole bitwy rani¹c wszystkie znajduj¹ce siê na nim jednostki."	"{Armagedon - poziom podstawowy}
+
+Zrzuca deszcz ognia i siarki na pole bitwy rani¹c wszystkie znajduj¹ce siê na nim jednostki.
+"	"{Armagedon - poziom zaawansowany}
+
+Zrzuca deszcz ognia i siarki na pole bitwy rani¹c wszystkie znajduj¹ce siê na nim jednostki.
+
+Obra¿enia s¹ o 30 punktów wiêksze ni¿ w wypadku u¿ycia czaru Armagedon - poziom podstawowy.
+"	"{Armagedon - poziom mistrzowski}
+
+Zrzuca deszcz ognia i siarki na pole bitwy rani¹c wszystkie znajduj¹ce siê na nim jednostki.
+
+Obra¿enia s¹ o 90 punktów wiêksze ni¿ w wypadku u¿ycia czaru Armagedon - poziom podstawowy."	 COMBAT_SPELL
+Tarcza	Tarcza	1	x	 	 	 	5	4	4	4	0	85	85	70	70	10	3	5	3	10	5	5	5	5	10	10	20	20	"{Tarcza}
+
+Os³ania wybrany oddzia³ redukuj¹c iloœæ ran, jakich móg³by on doznaæ podczas walki wrêcz."	"{Tarcza - poziom podstawowy}
+
+Os³ania wybrany oddzia³ redukuj¹c iloœæ ran, jakich móg³by on doznaæ podczas walki wrêcz.
+"	"{Tarcza - poziom zaawansowany}
+
+Os³ania wybrany oddzia³ redukuj¹c iloœæ ran, jakich móg³by on doznaæ podczas walki wrêcz.
+
+Zaklêcie jest dwa razy bardziej skuteczne ni¿ na poziomie podstawowym.
+"	"{Tarcza - poziom mistrzowski}
+
+Os³ania wybrany oddzia³ redukuj¹c iloœæ ran, jakich móg³by on doznaæ podczas walki wrêcz.
+
+Zaklêcie jest dwa razy bardziej skuteczne ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET_2
+Tarcza powietrza	Tarcza powietrza	3	 	 	 	x	12	9	9	9	0	75	75	50	50	4	8	8	2	4	4	8	4	4	20	20	50	50	"{Tarcza powietrza}
+
+Os³ania wybrany oddzia³ redukuj¹c iloœæ ran,  jakich móg³by on doznaæ znajduj¹c siê pod ostrza³em wroga."	"{Tarcza powietrza - poziom podstawowy}
+
+Os³ania wybrany oddzia³ redukuj¹c iloœæ ran,  jakich móg³by on doznaæ znajduj¹c siê pod ostrza³em wroga.
+"	"{Tarcza powietrza - poziom zaawansowany}
+
+Os³ania wybrany oddzia³ redukuj¹c iloœæ ran,  jakich móg³by on doznaæ znajduj¹c siê pod ostrza³em wroga.
+
+Zaklêcie jest dwa razy bardziej skuteczne ni¿ na poziomie podstawowym.
+"	"{Tarcza powietrza - poziom mistrzowski}
+
+Os³ania wybrany oddzia³ redukuj¹c iloœæ ran,  jakich móg³by on doznaæ znajduj¹c siê pod ostrza³em wroga.
+
+Zaklêcie jest dwa razy bardziej skuteczne ni¿ na poziomie podstawowym.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Tarcza ognia	Tarcza ognia	4	 	 	x	 	16	12	12	12	0	20	20	25	30	5	5	5	5	5	5	0	0	5	10	10	12	15	"{Tarcza ognia}
+
+Tarcza ognia nie chroni przed atakiem, ale sprawia ¿e atakuj¹cy oddzia³ wroga bêdzie równie¿ otrzymywa³ obra¿enia równe tym, jakie sam zada³."	"{Tarcza ognia - poziom podstawowy}
+
+Tarcza ognia nie chroni przed atakiem, ale sprawia ¿e atakuj¹cy oddzia³ wroga bêdzie równie¿ otrzymywa³ obra¿enia równe tym, jakie sam zada³."	"{Tarcza ognia - poziom zaawansowany}
+
+Tarcza ognia nie chroni przed atakiem, ale sprawia ¿e atakuj¹cy oddzia³ wroga bêdzie równie¿ otrzymywa³ obra¿enia równe tym, jakie sam zada³.
+
+Zadaje wrogom dodatkowe 5% obra¿eñ.
+"	"{Tarcza ognia - poziom mistrzowski}
+
+Tarcza ognia nie chroni przed atakiem, ale sprawia ¿e atakuj¹cy oddzia³ wroga bêdzie równie¿ otrzymywa³ obra¿enia równe tym, jakie sam zada³.
+
+Zadaje wrogom dodatkowe 10% obra¿eñ.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Ochr. przed powietrzem	Ochr. powietrze	2		 	 	x	7	5	5	5	0	70	70	50	50	2	2	2	4	2	2	2	2	2	2	2	4	4	"{Ochrona przed powietrzem}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii powietrza.
+"	"{Ochrona przed powietrzem - poziom podstawowy}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii powietrza.
+"	"{Ochrona przed powietrzem - poziom zaawansowany}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii powietrza.
+
+Ochrona jest prawie dwa razy bardziej skuteczna ni¿ w wypadku zaklêcia Ochrona przed powietrzem - poziom podstawowy.
+"	"{Ochrona przed powietrzem - poziom mistrzowski}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii powietrza.
+
+Ochrona jest prawie dwa razy bardziej skuteczna ni¿ w wypadku zaklêcia Ochrona przed powietrzem - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Ochrona przed ogniem	Ochr. ogieñ	1	 		x	 	5	4	4	4	0	70	70	50	50	3	3	3	3	3	3	3	3	3	2	2	4	4	"{Ochrona przed ogniem}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii ognia.
+"	"{Ochrona przed ogniem - poziom podstawowy}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii ognia.
+"	"{Ochrona przed ogniem - poziom zaawansowany}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii ognia.
+
+Ochrona jest prawie dwa razy bardziej skuteczna ni¿ w wypadku zaklêcia Ochrona przed ogniem - poziom podstawowy.
+"	"{Ochrona przed ogniem - poziom mistrzowski}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii ognia.
+
+Ochrona jest prawie dwa razy bardziej skuteczna ni¿ w wypadku zaklêcia Ochrona przed ogniem - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Ochrona przed wod¹	Ochr. woda	1		x			5	4	4	4	0	70	70	50	50	3	3	3	3	3	3	3	3	3	2	2	4	4	"{Ochrona przed wod¹}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii wody.
+"	"{Ochrona przed wod¹ - poziom podstawowy}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii wody.
+"	"{Ochrona przed wod¹ - poziom zaawansowany}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii wody.
+
+Ochrona jest prawie dwa razy bardziej skuteczna ni¿ w wypadku zaklêcia Ochrona przed wod¹ - poziom podstawowy.
+"	"{Ochrona przed wod¹ - poziom mistrzowski}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii wody.
+
+Ochrona jest prawie dwa razy bardziej skuteczna ni¿ w wypadku zaklêcia Ochrona przed wod¹ - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Ochrona przed ziemi¹	Ochr. ziemia	3	x				12	9	9	9	0	70	70	50	50	4	4	4	2	4	4	4	0	4	2	2	4	4	"{Ochrona przed ziemi¹}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii ziemi.
+"	"{Ochrona przed ziemi¹ - poziom podstawowy}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii ziemi.
+"	"{Anty¿ywio³ ziem - poziom zaawansowany}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii ziemi.
+
+Ochrona jest prawie dwa razy bardziej skuteczna ni¿ w wypadku zaklêcia Ochrona przed ziemi¹ - poziom podstawowy.
+"	"{Ochrona przed ziemi¹ - poziom mistrzowski}
+
+Chroni wybrany oddzia³ zmniejszaj¹c obra¿enia zadawane przez zaklêcia oparte na magii ziemi.
+
+Ochrona jest prawie dwa razy bardziej skuteczna ni¿ w wypadku zaklêcia Ochrona przed ziemi¹ - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Antymagia	Antymagia	3	x	 	 	 	15	12	12	12	0	4	4	5	6	12	8	8	4	8	8	12	10	12	10	10	15	20	"{Antymagia}
+
+Chroni oddzia³ przed zaklêciami niskich poziomów.
+"	"{Antymagia - poziom podstawowy}
+
+Chroni oddzia³ przed zaklêciami niskich poziomów.
+"	"{Antymagia - poziom zaawansowany}
+
+Chroni oddzia³ przed prawie wszystkimi zaklêciami z wyj¹tkiem najpotê¿niejszych.
+"	"{Antymagia - poziom mistrzowski}
+
+Chroni oddzia³ przed wszystkimi zaklêciami.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Rozproszenie	Rozproszenie	1	 	x	 	 	5	4	4	4	0	0	0	0	0	10	10	10	10	10	10	10	10	10	3	3	3	3	"{Rozproszenie}
+
+Usuwa dzia³anie wszystkich czarów, pod których wp³ywem znajduje siê w³asny oddzia³.
+"	"{Rozproszenie - poziom podstawowy}
+
+Usuwa dzia³anie wszystkich czarów pod których wp³ywem znajduje siê w³asny oddzia³.
+"	"{Rozproszenie - poziom zaawansowany}
+
+Usuwa dzia³anie wszystkich czarów pod których wp³ywem znajduje siê w³asny lub wrogi oddzia³.
+"	"{Rozproszenie - poziom mistrzowski}
+
+Usuwa dzia³anie wszystkich czarów pod których wp³ywem znajduj¹ siê wszystkie oddzia³y na polu bitwy.
+"	 COMBAT_SPELL|CREATURE_TARGET_1
+Magiczne zwierciad³o	Mag. zwierciad³o	5	 	 	 	x	25	20	20	20	0	20	20	30	40	0	16	14	0	0	12	0	0	13	12	12	18	24	"{Magiczne zwierciad³o}
+
+Odwraca dzia³anie wrogich zaklêæ odsy³aj¹c je w kierunku losowej jednostki wroga. Szansa powodzenia wynosi 20%.
+"	"{Magiczne zwierciad³o - poziom podstawowy}
+
+Odwraca dzia³anie wrogich zaklêæ odsy³aj¹c je w kierunku losowej jednostki wroga. Szansa powodzenia wynosi 20%."	"{Magiczne zwierciad³o - poziom zaawansowany}
+
+Odwraca dzia³anie wrogich zaklêæ odsy³aj¹c je w kierunku losowej jednostki wroga. Szansa powodzenia wynosi 30%.
+"	"{Magiczne zwierciad³o - poziom mistrzowski}
+
+Odwraca dzia³anie wrogich zaklêæ odsy³aj¹c je w kierunku losowej jednostki wroga. Szansa powodzenia wynosi 40%."	 COMBAT_SPELL|CREATURE_TARGET
+Uleczenie	Uleczenie	1	 	x	 	 	6	5	5	5	5	10	10	20	30	10	10	5	5	0	5	5	10	5	4	4	4	4	"{Uleczenie}
+
+Usuwa dzia³anie wszystkich negatywnych zaklêæ oraz regeneruje czêœæ punktów ¿ycia wybranego oddzia³u.
+"	"{Uleczenie - poziom podstawowy}
+
+Usuwa dzia³anie wszystkich negatywnych zaklêæ oraz regeneruje czêœæ punktów ¿ycia wybranego oddzia³u.
+"	"{Uleczenie - poziom zaawansowany}
+
+Usuwa dzia³anie wszystkich negatywnych zaklêæ oraz regeneruje czêœæ punktów ¿ycia wybranego oddzia³u.
+
+Regenerowane jest dodatkowe 10 punktów ¿ycia wiêcej ni¿ w przypadku zaklêcia Uleczenie - poziom podstawowy.
+"	"{Wzmocnienie - poziom mistrzowski}
+
+Usuwa dzia³anie wszystkich negatywnych zaklêæ oraz regeneruje czêœæ punktów ¿ycia wybranego oddzia³u.
+
+Regenerowane jest dodatkowe 10 punktów ¿ycia wiêcej ni¿ w przypadku zaklêcia Uleczenie - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET_1
+Wskrzeszenie	Wskrzeszenie	4	x				20	16	16	16	50	40	40	80	160	10	10	10	10	0	10	0	0	5	50	50	60	120	"{Wskrzeszenie}
+
+Wskrzesza jednostki z wybranego oddzia³u zwracaj¹c mu okreœlon¹ iloœæ punktów ¿ycia.
+"	"{Wskrzeszenie - poziom podstawowy}
+
+Wskrzesza jednostki z wybranego oddzia³u zwracaj¹c mu okreœlon¹ iloœæ punktów ¿ycia.
+"	"{Wskrzeszenie - poziom zaawansowany}
+
+Wskrzesza jednostki z wybranego oddzia³u zwracaj¹c mu okreœlon¹ iloœæ punktów ¿ycia.
+
+Dodaje 40 punktów ¿ycia wiêcej ni¿  w przypadku zaklêcia Wskrzeszenie - poziom podstawowy.
+"	"{Wskrzeszenie - poziom mistrzowski}
+
+Wskrzesza jednostki z wybranego oddzia³u zwracaj¹c mu okreœlon¹ iloœæ punktów ¿ycia.
+
+Dodaje 120 punktów ¿ycia wiêcej ni¿  w przypadku zaklêcia Wskrzeszenie - poziom podstawowy.
+"	 COMBAT_SPELL|CREATURE_TARGET
+O¿ywienie	O¿ywienie	3	x	 	 	 	15	12	12	12	50	30	30	60	160	0	0	0	0	16	0	0	0	0	60	60	60	120	"{O¿ywienie}
+
+Ponownie o¿ywia zniszczone jednostki nieumar³ych przywracaj¹c wybranemu oddzia³owi pewn¹ iloœæ punktów ¿ycia."	"{O¿ywienie - poziom podstawowy}
+
+Ponownie o¿ywia zniszczone jednostki nieumar³ych przywracaj¹c wybranemu oddzia³owi pewn¹ iloœæ punktów ¿ycia.
+"	"{O¿ywienie - poziom zaawansowany}
+
+Ponownie o¿ywia zniszczone jednostki nieumar³ych przywracaj¹c wybranemu oddzia³owi pewn¹ iloœæ punktów ¿ycia.
+
+Dodaje 30 punktów ¿ycia wiêcej ni¿  w przypadku zaklêcia O¿ywienie - poziom podstawowy.
+"	"{O¿ywienie - poziom mistrzowski}
+
+Ponownie o¿ywia zniszczone jednostki nieumar³ych przywracaj¹c wybranemu oddzia³owi pewn¹ iloœæ punktów ¿ycia.
+
+Dodaje 130 punktów ¿ycia wiêcej ni¿  w przypadku zaklêcia O¿ywienie - poziom podstawowy."	 COMBAT_SPELL|CREATURE_TARGET
+Ofiara	Ofiara	5	 	 	x	 	25	20	20	20	1	3	3	6	10	0	0	0	20	16	12	0	0	0	1	1	1	1	"{Ofiara}
+
+Niszczy jeden z przyjaznych oddzia³ów w zamian wskrzeszaj¹c inny. Iloœæ wskrzeszonych jednostek zale¿y od mocy bohatera oraz iloœci punktów ¿ycia, które posiada³y jednostki z poœwiêconego oddzia³u. "	"{Ofiara - poziom podstawowy}
+
+Niszczy jeden z przyjaznych oddzia³ów w zamian wskrzeszaj¹c inny. iloœæ wskrzeszonych jednostek zale¿y od mocy bohatera oraz iloœci punktów ¿ycia, które posiada³y jednostki z poœwiêconego oddzia³u. 
+"	"{Ofiara - poziom zaawansowany}
+
+Niszczy jeden z przyjaznych oddzia³ów w zamian wskrzeszaj¹c inny. iloœæ wskrzeszonych jednostek zale¿y od mocy bohatera oraz iloœci punktów ¿ycia, które posiada³y jednostki z poœwiêconego oddzia³u. 
+
+O¿ywia wiêcej stworzeñ ni¿ zaklêcie Ofiara - poziom podstawowy."	"{Ofiara - poziom mistrzowski}
+
+Niszczy jeden z przyjaznych oddzia³ów w zamian wskrzeszaj¹c inny. iloœæ wskrzeszonych jednostek zale¿y od mocy bohatera oraz iloœci punktów ¿ycia, które posiada³y jednostki z poœwiêconego oddzia³u.
+
+Przywraca wiêcej punktów ¿ycia ni¿ zaklêcie Ofiara - poziom zaawansowany."	 COMBAT_SPELL|CREATURE_TARGET
+B³ogos³awieñstwo	B³ogos³awieñstwo	1	 	x	 	 	5	4	4	4	0	0	0	1	1	10	5	5	0	0	3	3	5	5	10	10	11	11	"{B³ogos³awieñstwo}
+
+Wybrany oddzia³ atakuje wroga z najwiêksz¹ mo¿liw¹ dla niego skutecznoœci¹.
+"	"{B³ogos³awieñstwo - poziom podstawowy}
+
+Wybrany oddzia³ atakuje wroga z najwiêksz¹ mo¿liw¹ dla niego skutecznoœci¹.
+"	"{B³ogos³awieñstwo - poziom zaawansowany}
+
+Wybrany oddzia³ atakuje wroga zadaj¹c mu wiêksze straty ni¿ gdyby atakowa³ z najwiêksz¹ mo¿liw¹ dla niego normalnie skutecznoœci¹."	"{B³ogos³awieñstwo - poziom mistrzowski}
+
+Wszystkie oddzia³y atakuj¹ wroga zadaj¹c mu wiêksze straty ni¿ gdyby atakowa³y z najwiêksz¹ mo¿liw¹ dla nich normalnie skutecznoœci¹.
+"	 COMBAT_SPELL|CREATURE_TARGET_2
+Kl¹twa	Kl¹twa	1	 		x	 	6	5	5	5	0	0	0	1	1	0	0	3	5	10	5	0	0	0	10	10	11	11	"{Kl¹twa}
+
+Wybrany oddzia³ wroga atakuje z najmniejsz¹ mo¿liw¹ dla niego skutecznoœci¹.
+"	"{Kl¹twa - poziom podstawowy}
+
+Wybrany oddzia³ wroga atakuje z najmniejsz¹ mo¿liw¹ dla niego skutecznoœci¹.
+"	"{Kl¹twa - poziom zaawansowany}
+
+Wybrany oddzia³ wroga zadaje mniejsze straty ni¿ gdyby atakowa³ z najmniejsz¹ mo¿liw¹ dla niego normalnie skutecznoœci¹."	"{Kl¹twa - poziom mistrzowski}
+
+Wszystkie oddzia³ wroga zadaj¹ mniejsze straty ni¿ gdyby atakowa³y z najmniejsz¹ mo¿liw¹ dla nich normalnie skutecznoœci¹."	 COMBAT_SPELL|CREATURE_TARGET_2
+¯¹dza krwi	¯¹dza krwi	1	 	 	x	 	5	4	4	4	0	3	3	6	6	0	0	0	10	5	5	10	5	5	7	7	15	15	"{¯¹dza krwi}
+
+Zwiêksza skutecznoœæ ataku wybranego oddzia³u podczas walki wrêcz.
+"	"{¯¹dza krwi - poziom podstawowy}
+
+Zwiêksza skutecznoœæ ataku wybranego oddzia³u podczas walki wrêcz.
+"	"{¯¹dza krwi - poziom zaawansowany}
+
+Zwiêksza skutecznoœæ ataku wybranego oddzia³u podczas walki wrêcz.
+
+Dwa razy skuteczniejsze ni¿ zaklêcie ¯¹dza krwi - poziom podstawowy."	"{¯¹dza krwi - poziom mistrzowski}
+
+Zwiêksza skutecznoœæ ataku wszystkich oddzia³ów podczas walki wrêcz.
+
+Dwa razy skuteczniejsze ni¿ zaklêcie ¯¹dza krwi - poziom podstawowy."	 COMBAT_SPELL|CREATURE_TARGET_2
+Precyzja	Precyzja	2	 	 	 	x	8	6	6	6	0	3	3	6	6	6	6	4	8	2	6	4	4	2	7	7	15	15	"{Precyzja}
+
+Zwiêksza skutecznoœæ ataku wybranego oddzia³u podczas walki na odleg³oœæ.
+"	"{Precyzja - poziom podstawowy}
+
+Zwiêksza skutecznoœæ ataku wybranego oddzia³u podczas walki na odleg³oœæ.
+"	"{Precyzja - poziom zaawansowany}
+
+Zwiêksza skutecznoœæ ataku wybranego oddzia³u podczas walki na odleg³oœæ.
+
+Dwa razy skuteczniejsze ni¿ zaklêcie Precyzja - poziom podstawowy."	"{Precyzja - poziom mistrzowski}
+
+Zwiêksza skutecznoœæ ataku wszystkich oddzia³ów podczas walki na odleg³oœæ.
+
+Dwa razy skuteczniejsze ni¿ zaklêcie Precyzja - poziom podstawowy."	 COMBAT_SPELL|CREATURE_TARGET_2
+Os³abienie	Os³abienie	2	 	x	 	 	8	6	6	6	0	3	3	6	6	2	2	2	8	4	4	4	4	4	7	7	15	15	"{Os³abienie}
+
+Zmniejsza skutecznoœæ ataku wrogiego oddzia³u.
+"	"{Os³abienie - poziom podstawowy}
+
+Zmniejsza skutecznoœæ ataku wrogiego oddzia³u.
+"	"{Os³abienie - poziom zaawansowany}
+
+Zmniejsza skutecznoœæ ataku wrogiego oddzia³u.
+
+Dwa razy skuteczniejsze ni¿ zaklêcie Os³abienie - poziom podstawowy."	"{Os³abienie - poziom mistrzowski}
+
+Zmniejsza skutecznoœæ ataku wszystkich wrogich oddzia³ów.
+
+Dwa razy skuteczniejsze ni¿ zaklêcie Os³abienie - poziom podstawowy."	 COMBAT_SPELL|CREATURE_TARGET_2
+Kamienna skóra	Kamienna skóra	1	x	 	 	 	5	4	4	4	0	3	3	6	6	5	5	10	5	10	5	10	5	5	7	7	15	15	"{Kamienna skóra}
+
+Zwiêksza skutecznoœæ obrony wybranego oddzia³u.
+"	"{Kamienna skóra - poziom podstawowy}
+
+Zwiêksza skutecznoœæ obrony wybranego oddzia³u.
+"	"{Kamienna skóra - poziom zaawansowany}
+
+Zwiêksza skutecznoœæ obrony wybranego oddzia³u.
+
+Dwa razy skuteczniejsze ni¿ zaklêcie Kamienna skóra - poziom podstawowy."	"{Kamienna skóra - poziom mistrzowski}
+
+Zwiêksza skutecznoœæ obrony wszystkich oddzia³ów.
+
+Dwa razy skuteczniejsze ni¿ zaklêcie Kamienna skóra - poziom podstawowy."	 COMBAT_SPELL|CREATURE_TARGET_2
+Promieñ os³abienia	Prom. Os³abienia	2	 	 	 	x	10	8	8	8	0	3	3	4	5	6	4	6	12	4	6	6	6	8	7	7	15	15	"{Promieñ os³abienia}
+
+Os³abia oddzia³ wroga zmniejszaj¹c jego zdolnoœæ obrony.  Zaklêcie mo¿e byæ u¿yte kilkukrotnie na jednym oddziale.
+"	"{Promieñ os³abienia - poziom podstawowy}
+
+Os³abia oddzia³ wroga zmniejszaj¹c jego zdolnoœæ obrony.  zaklêcie mo¿e byæ u¿yte kilkukrotnie na jednym oddziale.
+"	"{Promieñ os³abienia - poziom zaawansowany}
+
+Os³abia oddzia³ wroga zmniejszaj¹c jego zdolnoœæ obrony.  zaklêcie mo¿e byæ u¿yte kilkukrotnie na jednym oddziale.
+
+Skutecznoœæ  jest wiêksza ni¿ zaklêcia Promieñ os³abienia - poziom podstawowy."	"{Promieñ os³abienia - poziom mistrzowski}
+
+Os³abia oddzia³ wroga zmniejszaj¹c jego zdolnoœæ obrony.  zaklêcie mo¿e byæ u¿yte kilkukrotnie na jednym oddziale.
+
+Skutecznoœæ  jest wiêksza ni¿ zaklêcia Promieñ os³abienia - poziom zaawansowany."	 COMBAT_SPELL|CREATURE_TARGET_2
+Modlitwa	Modlitwa	4	 	x	 	 	16	12	12	12	0	2	2	4	4	10	5	5	0	0	0	0	0	5	8	8	16	16	"{Modlitwa mocy}
+
+Zwiêksza si³ê ataku, si³ê obrony oraz szybkoœæ wybranego oddzia³u.
+"	"{Modlitwa - poziom podstawowy}
+
+Zwiêksza si³ê ataku, si³ê obrony oraz szybkoœæ wybranego oddzia³u.
+"	"{Modlitwa - poziom zaawansowany}
+
+Zwiêksza si³ê ataku, si³ê obrony oraz szybkoœæ wybranego oddzia³u.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	"{Modlitwa - poziom mistrzowski}
+
+Zwiêksza si³ê ataku, si³ê obrony oraz szybkoœæ wszystkich oddzia³ów.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET_2
+Radoœæ	Radoœæ	3	 	x	 	 	12	9	9	9	0	1	1	2	2	4	4	4	2	4	4	12	2	4	1	1	2	2	"{Radoœæ}
+
+Zwiêksza morale wybranego oddzia³u.
+"	"{Radoœæ - poziom podstawowy}
+
+Zwiêksza morale wybranego oddzia³u.
+"	"{Radoœæ - poziom zaawansowany}
+
+Zwiêksza morale wybranego oddzia³u.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	"{Radoœæ - poziom mistrzowski}
+
+Zwiêksza morale wszystkich oddzia³ów.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym.
+"	 COMBAT_SPELL|CREATURE_TARGET_2|MIND_SPELL
+Przygnêbienie	Przygnêbienie	4	x	 	 	 	16	12	12	12	0	1	1	2	2	5	5	5	5	5	5	0	0	5	1	1	2	2	"{Przygnêbienie}
+
+Zmniejsza morale wybranego oddzia³u wroga.
+"	"{Przygnêbienie - poziom podstawowy}
+
+Zmniejsza morale wybranego oddzia³u wroga.
+"	"{Przygnêbienie - poziom zaawansowany}
+
+Zmniejsza morale wybranego oddzia³u wroga.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	"{Przygnêbienie - poziom mistrzowski}
+
+Zmniejsza morale wszystkich oddzia³ów wroga.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET_2|MIND_SPELL
+Fortuna	Fortuna	2	 	 	 	x	7	5	5	5	0	1	1	2	2	4	6	4	4	2	2	4	4	2	1	1	2	2	"{Fortuna}
+
+Zwiêksza szczêœcie wybranego oddzia³u.
+"	"{Fortuna - poziom podstawowy}
+
+Zwiêksza szczêœcie wybranego oddzia³u.
+"	"{Fortuna - poziom zaawansowany}
+
+Zwiêksza szczêœcie wybranego oddzia³u.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	"{Fortuna - poziom mistrzowski}
+
+Zwiêksza szczêœcie wszystkich oddzia³ów.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET_2
+Pech	Pech	3	 	 	x	 	12	9	9	9	0	1	1	2	2	4	4	4	6	8	4	4	2	4	1	1	2	2	"{Pech}
+
+Zmniejsza szczêœcie wybranego oddzia³u wroga.
+"	"{Pech - poziom podstawowy}
+
+Zmniejsza szczêœcie wybranego oddzia³u wroga.
+
+Kosztuje o po³owê mniej ni¿ na poziomie normalnym."	"{Pech - poziom zaawansowany}
+
+Zmniejsza szczêœcie wybranego oddzia³u wroga.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	"{Pech - poziom mistrzowski}
+
+Zmniejsza szczêœcie wszystkich oddzia³ów wroga.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET_2
+Przyœpieszenie	Przyœpieszenie	1		 	 	x	6	5	5	5	0	3	3	5	5	5	10	5	5	5	10	5	10	10	5	5	10	10	"{Przyœpieszenie}
+
+Zwiêksza szybkoœæ (zasiêg) wybranego oddzia³u.
+"	"{Przyœpieszenie - poziom podstawowy}
+
+Zwiêksza szybkoœæ  (zasiêg) wybranego oddzia³u."	"{Przyœpieszenie - poziom zaawansowany}
+
+Zwiêksza szybkoœæ  (zasiêg)  wybranego oddzia³u.
+
+Prawie dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	"{Przyœpieszenie - poziom mistrzowski}
+
+Zwiêksza szybkoœæ  (zasiêg) wszystkich oddzia³ów.
+
+Prawie dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET_2
+Spowolnienie	Spowolnienie	1	x	 	 	 	6	5	5	5	0	75	75	50	50	5	10	10	10	5	5	5	5	10	5	5	15	15	"{Spowolnienie}
+
+Zmniejsza szybkoœæ  (zasiêg) wybranego oddzia³u wroga.
+"	"{Spowolnienie - poziom podstawowy}
+
+Zmniejsza szybkoœæ  (zasiêg) wybranego oddzia³u wroga.
+"	"{Spowolnienie - poziom zaawansowany}
+
+Zmniejsza szybkoœæ  (zasiêg) wybranego oddzia³u wroga.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	"{Spowolnienie - poziom mistrzowski}
+
+Zmniejsza szybkoœæ  (zasiêg) wszystkich oddzia³ów wroga.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET_2
+Pogromca	Pogromca	4	 		x	 	16	12	12	12	0	8	8	8	8	5	5	5	5	5	5	0	0	5	1	1	1	1	"{Pogromca}
+
+Zwiêksza si³ê ataku wybranego oddzia³u podczas walki ze smokami, behemotami i hydrami."	"{Pogromca - poziom podstawowy}
+
+Zwiêksza si³ê ataku wybranego oddzia³u podczas walki ze smokami, behemotami i hydrami.
+"	"{Pogromca - poziom zaawansowany}
+
+Zwiêksza si³ê ataku wybranego oddzia³u podczas walki ze smokami, behemotami, hydrami, diab³ami i anio³ami.
+"	"{Pogromca - poziom mistrzowski}
+
+Zwiêksza si³ê ataku wybranego oddzia³u podczas walki ze smokami, behemotami, hydrami, diab³ami, anio³ami i tytanami.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Sza³	Sza³	4	 	 	x	 	16	12	12	12	0	100	100	150	200	5	5	5	5	5	5	0	0	5	10	10	20	30	"{Sza³}
+
+Zmniejsza skutecznoœæ obrony wybranego oddzia³u zwiêkszaj¹c równoczeœnie si³ê jego ataku."	"{Sza³ - poziom podstawowy}
+
+Zmniejsza skutecznoœæ obrony wybranego oddzia³u zwiêkszaj¹c równoczeœnie si³ê jego ataku.
+"	"{Sza³ - poziom zaawansowany}
+
+Zmniejsza skutecznoœæ obrony wybranego oddzia³u zwiêkszaj¹c równoczeœnie si³ê jego ataku.
+
+O po³owê bardziej skuteczne ni¿ na poziomie podstawowym."	"{Sza³ - poziom mistrzowski}
+
+Zmniejsza skutecznoœæ obrony wybranego oddzia³u zwiêkszaj¹c równoczeœnie si³ê jego ataku.
+
+Dwa razy skuteczniejsze ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+B³yskawica tytana	B³yskawica tytana	5				x	0	0	0	0	0	600	600	600	600	0	0	0	0	0	0	0	0	0	75	75	75	75	"{B³yskawica tytana}
+
+Zadaje 600 punktów obra¿eñ. nie kosztuje nic tego, kto je rzuca."	"{B³yskawica tytana}
+
+Zadaje 600 punktów obra¿eñ, nie kosztuje nic tego, kto je rzuca."	"{B³yskawica tytana}
+
+Zadaje 600 punktów obra¿eñ. Nie kosztuje nic rzucaj¹cego"	"{B³yskawica tytana}
+
+Zadaje 600 punktów obra¿eñ, nie kosztuje nic tego, kto je rzuca."	
+Kontratak	Kontratak	4	 	 	 	x	24	20	20	20	0	1	1	2	2	5	10	5	5	5	5	0	0	5	20	20	30	30	"{Kontratak}
+
+Wybrany oddzia³ bêdzie mia³ szansê wykonaæ jeden kontratak wiêcej na turê."	"{Kontratak - poziom podstawowy}
+
+Wybrany oddzia³ bêdzie mia³ szansê wykonaæ jeden kontratak wiêcej na turê."	"{Kontratak - poziom zaawansowany}
+
+Wybrany oddzia³ bêdzie mia³ szansê wykonaæ dwa dodatkowe kontrataki na turê."	"{Kontratak - poziom mistrzowski}
+
+Wybrany oddzia³ bêdzie mia³ szansê wykonaæ dwa dodatkowe kontrataki na turê."	 COMBAT_SPELL|CREATURE_TARGET_2
+Berserk	Berserk	4	 	 	x	 	20	16	16	16	0	0	0	1	2	5	5	5	5	10	5	0	0	5	60	60	60	60	"{Berserk}
+
+Oddzia³ zaatakuje losowy wybrany najbli¿szy oddzia³, niewa¿ne czyj.
+"	"{Berserk - poziom podstawowy}
+
+Oddzia³ zaatakuje losowy wybrany najbli¿szy oddzia³, niewa¿ne czyj.
+"	"{Berserk - poziom zaawansowany}
+
+Oddzia³ zaatakuje losowy wybrany najbli¿szy oddzia³, niewa¿ne czyj.
+
+Zasiêg jest o szeœæ pól wiêkszy ni¿ na poziomie podstawowym."	"{Berserk - poziom mistrzowski}
+
+Oddzia³ zaatakuje losowy wybrany najbli¿szy oddzia³, niewa¿ne czyj.
+
+Zasiêg jest o osiemnaœcie pól wiêkszy ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+Hipnoza	Hipnoza	3	 	 	 	x	18	15	15	15	25	10	10	20	50	4	4	8	6	0	8	4	4	12	25	25	50	100	"{Hipnoza}
+
+Pozwala ci czasowo sprawowaæ kontrolê nad wrogim oddzia³em."	"{Hipnoza - poziom podstawowy}
+
+Pozwala ci czasowo sprawowaæ kontrolê nad wrogim oddzia³em."	"{Hipnoza - poziom zaawansowany}
+
+Pozwala ci czasowo sprawowaæ kontrolê nad wrogim oddzia³em.
+
+Pozwala kontrolowaæ oddzia³y maj¹ce o 10 punktów wytrzyma³oœci wiêcej ni¿ na poziomie podstawowym."	"{Hipnoza - poziom mistrzowski}
+
+Pozwala ci czasowo sprawowaæ kontrolê nad wrogim oddzia³em.
+
+Pozwala kontrolowaæ oddzia³y maj¹ce o 40 punktów wytrzyma³oœci wiêcej ni¿ na poziomie podstawowym."	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+Zapomnienie	Zapomnienie	3	 	x	 	 	12	9	9	9	0	0	0	0	0	8	8	4	4	4	4	4	4	8	1	1	1	1	"{Zapomnienie}
+
+Po³owa jednostek wrogiego oddzia³u zapomina wykonaæ atak na odleg³oœæ (strza³)."	"{Zapomnienie - poziom podstawowy}
+
+Po³owa jednostek wrogiego oddzia³u zapomina wykonaæ atak na odleg³oœæ (strza³)."	"{Zapomnienie - poziom zaawansowany}
+
+Wrogi oddzia³ zapomina wykonaæ atak na odleg³oœæ (strza³)."	"{Zapomnienie - poziom mistrzowski}
+
+Ca³a armia wroga zapomina wykonaæ atak na odleg³oœæ (strza³)."	 COMBAT_SPELL|CREATURE_TARGET|MIND_SPELL
+Oœlepienie	Oœlepienie	2	 	 	x	 	10	8	8	8	0	50	50	25	0	4	6	2	12	4	4	4	6	8	50	50	50	50	"{Oœlepienie}
+
+Oœlepia stworzenia. Nie mog¹ siê one ruszaæ, a kontratak w ich wykonaniu jest o po³owê mniej skuteczny. Oœlepienie trwa a¿ oddzia³ zostanie zaatakowany b¹dŸ czar minie."	"{Oœlepienie - poziom podstawowy}
+
+Oœlepia stworzenia. Nie mog¹ siê one ruszaæ, a kontratak w ich wykonaniu jest o po³owê mniej skuteczny. Oœlepienie trwa a¿ oddzia³ zostanie zaatakowany b¹dŸ czar minie."	"{Oœlepienie - poziom zaawansowany}
+
+Oœlepia stworzenia. Nie mog¹ siê one ruszaæ, a kontratak w ich wykonaniu zadaje tylko æwieræ normalnych obra¿eñ. Oœlepienie trwa a¿ oddzia³ zostanie zaatakowany b¹dŸ czar minie."	"{Oœlepienie - poziom mistrzowski}
+
+Oœlepia stworzenia. Nie mog¹ siê one ruszaæ ani kontratakowaæ. Oœlepienie trwa a¿ oddzia³ zostanie zaatakowany b¹dŸ czar minie."	 COMBAT_SPELL|CREATURE_TARGET
+Teleportacja	Teleportacja	3	 	x	 	 	15	12	6	3	0	0	0	0	0	8	8	8	8	8	8	8	10	8	20	20	20	20	"{Teleport}
+
+Teleportuje w³asny oddzia³ na wolne pole na polu bitwy."	"{Teleport - poziom podstawowy}
+
+Teleportuje w³asny oddzia³ na wolne pole na polu bitwy.
+
+Nie mo¿na teleportowaæ ponad murami i fosami.
+"	"{Teleport - poziom zaawansowany}
+
+Teleportuje w³asny oddzia³ na wolne pole na polu bitwy.
+
+Nie mo¿na teleportowaæ ponad murami.
+"	"{Teleport - poziom mistrzowski}
+
+Teleportuje w³asny oddzia³ na wolne pole na polu bitwy.
+"	 COMBAT_SPELL|CREATURE_TARGET
+Usuniêcie przeszkody	Usuniêcie przeszkody	2	 	x	 	 	7	5	5	5	0	0	0	0	0	4	4	6	4	4	4	4	4	4	1	1	1	1	"{Usuniêcie przeszkody}
+
+Usuwa normaln¹ przeszkodê (drzewo, ska³ê, itd.) z pola bitwy zgodnie z wyborem rzucaj¹cego czar."	"{Usuniêcie przeszkody - poziom podstawowy}
+
+Usuwa normaln¹ przeszkodê (drzewo, ska³ê, itd.) z pola bitwy zgodnie z wyborem rzucaj¹cego czar."	"{Usuniêcie przeszkody - poziom zaawansowany}
+
+Usuwa normaln¹ przeszkodê (drzewo, ska³ê, itd.) lub œcianê ognia z pola bitwy zgodnie z wyborem rzucaj¹cego czar."	"{Usuniêcie przeszkody - poziom mistrzowski}
+
+Usuwa normaln¹ lub magiczn¹ przeszkodê z pola bitwy zgodnie z wyborem rzucaj¹cego czar."	 COMBAT_SPELL|OBSTACLE_TARGET
+Klonowanie	Klonowanie	4	 	x	 	 	24	20	20	20	0	5	5	6	7	5	5	10	5	5	5	0	0	10	20	20	40	50	"{Klonowanie}
+
+Klonuje dowoln¹ jednostkê. Klon rozp³ywa siê, gdy zostanie zaatakowany.
+
+Klonuje stworzenia z poziomów 1-5."	"{Klonowanie - poziom podstawowy}
+
+Klonuje dowoln¹ jednostkê. Klon rozp³ywa siê, gdy zostanie zaatakowany.
+
+Klonuje stworzenia z poziomów 1-5."	"{Klonowanie - poziom zaawansowany}
+
+Klonuje dowoln¹ jednostkê. Klon rozp³ywa siê, gdy zostanie zaatakowany.
+
+Klonuje stworzenia z poziomów 1-6."	"{Klonowanie - poziom mistrzowski}
+
+Klonuje dowoln¹ jednostkê. Klon rozp³ywa siê, gdy zostanie zaatakowany.
+
+Klonuje stworzenia z dowolnego poziomu."	 COMBAT_SPELL|CREATURE_TARGET
+¯ywio³ak ognia	¯ywio³ak ognia	5			x		25	20	20	20	0	2	2	3	4	0	0	0	16	0	12	0	0	12	50	50	100	150	"{Przyzwanie ¿ywio³aka ognia}
+
+Pozwala na przyzwanie ¿ywio³aków ognia. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane."	"{Przyzwanie ¿ywio³aka ognia - poziom podstawowy}
+
+Pozwala na przyzwanie ¿ywio³aków ognia. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane."	"{Przyzwanie ¿ywio³aka ognia - poziom zaawansowany}
+
+Pozwala na przyzwanie ¿ywio³aków ognia. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane.
+
+Przyzywa o oko³o po³owê wiêcej ¿ywio³aków ni¿ na poziomie podstawowym."	"{Przyzwanie ¿ywio³aka ognia - poziom mistrzowski}
+
+Pozwala na przyzwanie ¿ywio³aków ognia. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane.
+
+Przyzywa oko³o dwa razy wiêcej ¿ywio³aków ni¿ na poziomie podstawowym."	 COMBAT_SPELL
+¯ywio³ak ziemi	¯ywio³ak ziemi	5	x				25	20	20	20	0	2	2	3	4	0	16	14	16	16	12	0	0	12	50	50	100	150	"{Przyzwanie ¿ywio³aka ziemi}
+
+Pozwala na przyzwanie ¿ywio³aków ziemi. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane."	"{Przyzwanie ¿ywio³aka ziemi - poziom podstawowy}
+
+Pozwala na przyzwanie ¿ywio³aków ziemi. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane."	"{Przyzwanie ¿ywio³aka ziemi - poziom zaawansowany}
+
+Pozwala na przyzwanie ¿ywio³aków ziemi. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane.
+
+Przyzywa o oko³o po³owê wiêcej ¿ywio³aków ni¿ na poziomie podstawowym."	"{Przyzwanie ¿ywio³aka ziemi - poziom mistrzowski}
+
+Pozwala na przyzwanie ¿ywio³aków ziemi. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane.
+
+Przyzywa oko³o dwa razy wiêcej ¿ywio³aków ni¿ na poziomie podstawowym."	 COMBAT_SPELL
+¯ywio³ak wody	¯ywio³ak wody	5		x			25	20	20	20	0	2	2	3	4	0	16	14	0	0	12	0	0	12	50	50	100	150	"{Przyzwanie ¿ywio³aka wody}
+
+Pozwala na przyzwanie ¿ywio³aków wody. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane."	"{Przyzwanie ¿ywio³aka wody - poziom podstawowy}
+
+Pozwala na przyzwanie ¿ywio³aków wody. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane."	"{Przyzwanie ¿ywio³aka wody - poziom zaawansowany}
+
+Pozwala na przyzwanie ¿ywio³aków wody. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane.
+
+Przyzywa o oko³o po³owê wiêcej ¿ywio³aków ni¿ na poziomie podstawowym."	"{Przyzwanie ¿ywio³aka wody - poziom mistrzowski}
+
+Pozwala na przyzwanie ¿ywio³aków wody. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane.
+
+Przyzywa oko³o dwa razy wiêcej ¿ywio³aków ni¿ na poziomie podstawowym."	 COMBAT_SPELL
+¯ywio³ak powietrza	¯ywio³ak powietrza	5				x	25	20	20	20	0	2	2	3	4	0	0	14	0	16	0	0	0	12	50	50	100	150	"{Przyzwanie ¿ywio³aka powietrza}
+
+Pozwala na przyzwanie ¿ywio³aków powietrza. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane."	"{Przyzwanie ¿ywio³aka powietrza - poziom podstawowy}
+
+Pozwala na przyzwanie ¿ywio³aków powietrza. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane."	"{Przyzwanie ¿ywio³aka powietrza - poziom zaawansowany}
+
+Pozwala na przyzwanie ¿ywio³aków powietrza. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane.
+
+Przyzywa o oko³o po³owê wiêcej ¿ywio³aków ni¿ na - poziomie podstawowym."	"{Przyzwanie ¿ywio³aka powietrza - poziom mistrzowski}
+
+Pozwala na przyzwanie ¿ywio³aków powietrza. ¯adne inne ¿ywio³aki nie bêd¹ mog³y byæ przyzwane.
+
+Przyzywa oko³o dwa razy wiêcej ¿ywio³aków ni¿ na - poziomie podstawowym."	 COMBAT_SPELL
+																																	
+Creature Abilities																																	
+																																	
+Kamienne spojrzenie	Kamienne spojrzenie	3					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Trucizna	Trucizna	0					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Spêtanie	Spêtanie	0					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Choroba	Choroba	2					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Parali¿	Parali¿	4					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Staroœæ	Staroœæ	5					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Œmiertelny ob³ok	Œmiertelny ob³ok	0					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Piorun	Piorun	0					0	0	0	0	0	0	0	0	0	12	13	12	13	12	13	12	13	13	1	1	1	1					 CREATURE_SPELL
+Pomocne zaklêcia	Pomocne zaklêcia	0					0	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	1	1	1	1	1					
+Spojrzenie œmierci	Spojrzenie œmierci	0					0	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	1	1	1	1	1					
+Zioniêcie kwasem	Zioniêcie kwasem	0					0	0	0	0	0	0	0	0	0	1	1	1	1	1	1	1	1	1	1	1	1	1					

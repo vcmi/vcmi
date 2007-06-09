@@ -14,6 +14,7 @@
 #include "CHeroHandler.h"
 #include "CCreatureHandler.h"
 #include "CAbilityHandler.h"
+#include "CSpellHandler.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -234,6 +235,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		creh->loadCreatures();
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
+		CSpellHandler * spellh = new CSpellHandler;
+		spellh->loadSpells();
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();

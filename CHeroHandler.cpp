@@ -20,6 +20,7 @@ void CHeroHandler::loadHeroes()
 		base = std::string(tab);
 		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
 		{
+			loadSpecialAbilities();
 			return;
 		}
 		while(base[iit]!='\t')
@@ -99,5 +100,61 @@ void CHeroHandler::loadHeroes()
 		nher.refType3stack = base.substr(iit, base.size()-iit);
 		heroes.push_back(nher);
 		delete[500] tab;
+	}
+	loadSpecialAbilities();
+}
+void CHeroHandler::loadSpecialAbilities()
+{
+	std::ifstream inp("HeroSpec.txt", std::ios::in);
+	std::string dump;
+	for(int i=0; i<7; ++i)
+	{
+		inp>>dump;
+	}
+	inp.ignore();
+	int whHero=0;
+	while(!inp.eof())
+	{
+		std::string base;
+		char * tab = new char[500];
+		int iitBef = 0;
+		int iit = 0;
+		inp.getline(tab, 500);
+		base = std::string(tab);
+		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
+		{
+			return; //add counter
+		}
+		while(base[iit]!='\t')
+		{
+			++iit;
+		}
+		heroes[whHero].bonusName = base.substr(0, iit);
+		++iit;
+		iitBef=iit;
+
+		if(heroes[whHero].bonusName == std::string("Ogry"))
+		{
+			char * tab2 = new char[500];
+			inp.getline(tab2, 500);
+			base += std::string(tab2);
+			delete [500] tab2;
+		}
+
+		while(base[iit]!='\t')
+		{
+			++iit;
+		}
+		heroes[whHero].shortBonus = base.substr(iitBef, iit-iitBef);
+		++iit;
+		iitBef=iit;
+
+		while(base[iit]!='\t' && iit<base.size())
+		{
+			++iit;
+		}
+		heroes[whHero].longBonus = base.substr(iitBef, iit-iitBef);
+		++whHero;
+		delete [500] tab;
 	}
 }
