@@ -273,11 +273,11 @@ void CAmbarCendamo::deh3m()
 	for(i; i<ist+20; ++i)
 	{
 		unsigned char c = bufor[i];
-		for(int yy=0; yy<7; ++yy)
+		for(int yy=0; yy<8; ++yy)
 		{
 			if((i-ist)*8+yy < CGameInfo::mainObj->heroh->heroes.size())
 			{
-				if(c == c|intPow(2, yy))
+				if(c == (c|((unsigned char)intPow(2, yy))))
 					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy].isAllowed = true;
 				else
 					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy].isAllowed = false;
@@ -291,11 +291,11 @@ void CAmbarCendamo::deh3m()
 	for(i; i<ist+18; ++i)
 	{
 		unsigned char c = bufor[i];
-		for(int yy=0; yy<7; ++yy)
+		for(int yy=0; yy<8; ++yy)
 		{
 			if((i-ist)*8+yy < CGameInfo::mainObj->arth->artifacts.size())
 			{
-				if(c == c|intPow(2, yy))
+				if(c != (c|((unsigned char)intPow(2, yy))))
 					CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = true;
 				else
 					CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = false;
@@ -308,11 +308,11 @@ void CAmbarCendamo::deh3m()
 	for(i; i<ist+9; ++i)
 	{
 		unsigned char c = bufor[i];
-		for(int yy=0; yy<7; ++yy)
+		for(int yy=0; yy<8; ++yy)
 		{
 			if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
 			{
-				if(c == c|intPow(2, yy))
+				if(c != (c|((unsigned char)intPow(2, yy))))
 					CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy].isAllowed = true;
 				else
 					CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy].isAllowed = false;
@@ -325,11 +325,11 @@ void CAmbarCendamo::deh3m()
 	for(i; i<ist+4; ++i)
 	{
 		unsigned char c = bufor[i];
-		for(int yy=0; yy<7; ++yy)
+		for(int yy=0; yy<8; ++yy)
 		{
 			if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
 			{
-				if(c == c|intPow(2, yy))
+				if(c != (c|((unsigned char)intPow(2, yy))))
 					CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy].isAllowed = true;
 				else
 					CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy].isAllowed = false;
