@@ -1,0 +1,23 @@
+Land Movement		Sea Movement		Item / Artifact Bonuses	
+Slowest Creature	Movement	Navigation	Movement	Item	Bonus
+0	1300	None	1500	Equestrian Gloves	300
+1	1360	Basic	2250	Ring of the Wayfarer	600
+2	1430	Advanced	3000	Necklace of Ocean Guidance	1000
+3	1500	Expert	3750	Angel Wings	600
+4	1560	 	 	Stables	400
+5	1630	 	 	Lighthouse	500
+6	1700				
+7	1760				
+8	1830				
+9	1900				
+10	1960				
+11	2000				
+12	2000				
+13	2000				
+14	2000		
+15	2000		
+16	2000		
+17	2000		
+18	2000		
+19	2000		
+20	2000		

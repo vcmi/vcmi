@@ -20,7 +20,7 @@ void CSpellHandler::loadSpells()
 	inp.ignore(1);
 	std::string bb = std::string(tpom);
 	//delete [100000] tpom;
-	std::string ppp(inp, 0, inp.tellg());
+	//std::string ppp(inp, 0, inp.tellg());
 	/*for(int ii=0; ii<10000; ++ii)
 	{
 		char c;

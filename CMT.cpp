@@ -15,6 +15,7 @@
 #include "CCreatureHandler.h"
 #include "CAbilityHandler.h"
 #include "CSpellHandler.h"
+#include "CGameInfo.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -227,17 +228,25 @@ int _tmain(int argc, _TCHAR* argv[])
 		//}
 		SDL_WM_SetCaption(NAME,"");
 		THC timeHandler tmh;
+		CGameInfo * cgi = new CGameInfo;
+		CGameInfo::mainObj = cgi;
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
+		cgi->arth = arth;
 		CHeroHandler * heroh = new CHeroHandler;
 		heroh->loadHeroes();
+		cgi->heroh = heroh;
 		CCreatureHandler * creh = new CCreatureHandler;
 		creh->loadCreatures();
+		cgi->creh = creh;
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
+		cgi->abilh = abilh;
 		CSpellHandler * spellh = new CSpellHandler;
-		spellh->loadSpells();
+		//spellh->loadSpells(); //TODO - naprawiæ i dokoñczyæ!
+		cgi->spellh = spellh;
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
+		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
 		THC std::cout<<"Rozpoznawianie pliku lacznie: "<<tmh.getDif()<<std::endl;

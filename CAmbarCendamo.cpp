@@ -1,7 +1,17 @@
 #include "stdafx.h"
 #include "CAmbarCendamo.h"
 #include "CSemiDefHandler.h"
+#include "CGameInfo.h"
 #include <set>
+
+int intPow(int a, int b)
+{
+	int ret=1;
+	for(int i=0; i<b; ++i)
+		ret*=a;
+	return ret;
+}
+
 CAmbarCendamo::CAmbarCendamo (const char * tie)
 {
 	is = new std::ifstream();
@@ -258,7 +268,24 @@ void CAmbarCendamo::deh3m()
 			map.players[rr].team=bufor[i++];
 		}
 	}
-	i+=87;
+	//reading allowed heroes (20 bytes)
+	int ist=i; //starting i for loop
+	for(i; i<ist+20; ++i)
+	{
+		unsigned char c = bufor[i];
+		for(int yy=0; yy<7; ++yy)
+		{
+			if((i-ist)*8+yy < CGameInfo::mainObj->heroh->heroes.size())
+			{
+				if(c == c&intPow(2, yy))
+					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy].isAllowed = true;
+				else
+					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy].isAllowed = false;
+			}
+		}
+	}
+	//allowed heroes read
+	i+=67;
 	THC std::cout<<"Wczytywanie naglowka: "<<th.getDif()<<std::endl;
 	int rumNr = readNormalNr(i,4);i+=4;
 	for (int it=0;it<rumNr;it++)
