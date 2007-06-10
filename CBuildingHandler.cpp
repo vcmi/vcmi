@@ -248,6 +248,7 @@ void CBuildingHandler::loadBuildings()
 		buildings.push_back(nbu);
 	}
 	loadNames();
+	loadNeutNames();
 }
 
 void CBuildingHandler::loadNames()
@@ -309,7 +310,7 @@ void CBuildingHandler::loadNames()
 				graal.type = EbuildingType(ii+1);
 				graal.wood = graal.mercury = graal.ore = graal.sulfur = graal.crystal = graal.gems = graal.gold = 0;
 				graal.isDwelling = false;
-				graals.push_back(graal);
+				grails.push_back(graal);
 			}
 			else //for resource silos
 			{
@@ -338,5 +339,300 @@ void CBuildingHandler::loadNames()
 				resourceSilos.push_back(graal);
 			}
 		}
+	}
+	///////////////reading artifact merchant
+	int befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	artMerchant.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	artMerchant.description = buf.substr(befi, i-befi);
+	i+=2;
+	//////////////////////reading level1 creature horde
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	l1horde.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	l1horde.description = buf.substr(befi, i-befi);
+	i+=2;
+	//////////////////////reading level2 creature horde
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	l2horde.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	l2horde.description = buf.substr(befi, i-befi);
+	i+=2;
+	//////////////////////reading shipyard
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	shipyard.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	shipyard.description = buf.substr(befi, i-befi);
+	i+=2;
+	//////////////////////omitting rubbish
+	int hmcr = 0;
+	for(i; i<andame; ++i) //omitting rubbish
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==2)
+			break;
+	}
+	i+=2;
+	//////////////////////reading level3 creature horde
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	l3horde.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	l3horde.description = buf.substr(befi, i-befi);
+	i+=2;
+	//////////////////////reading level4 creature horde
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	l4horde.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	l4horde.description = buf.substr(befi, i-befi);
+	i+=2;
+	//////////////////////reading level5 creature horde
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	l5horde.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	l5horde.description = buf.substr(befi, i-befi);
+	i+=2;
+	//////////////////////reading grail
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	grail.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	grail.description = buf.substr(befi, i-befi);
+	i+=2;
+	//////////////////////reading resource silo
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	resSilo.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	resSilo.description = buf.substr(befi, i-befi);
+	i+=2;
+}
+
+void CBuildingHandler::loadNeutNames()
+{
+	std::ifstream inp("H3bitmap.lod\\BLDGNEUT.TXT", std::ios::in | std::ios::binary);
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+	int i=0; //buf iterator
+	for(int q=0; q<15; ++q)
+	{
+		int befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		buildings[81+q].name = buf.substr(befi, i-befi);
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\r')
+				break;
+		}
+		buildings[81+q].description = buf.substr(befi, i-befi);
+		i+=2;
+	}
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	i+=2;
+	////////////////////////////reading blacksmith
+	int befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	CBuilding b1;
+	b1.type = EbuildingType(0);
+	b1.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	b1.description = buf.substr(befi, i-befi);
+	i+=2;
+	blacksmith = b1;
+	//////////////////////////////reading moat
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	b1.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	b1.description = buf.substr(befi, i-befi);
+	i+=2;
+	moat = b1;
+	/////////////////////////reading shipyard with ship
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	b1.name = buf.substr(befi, i-befi);
+	++i;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	b1.description = buf.substr(befi, i-befi);
+	i+=2;
+	shipyardWithShip = b1;
+	/////////////////////////reading blacksmiths
+	for(int q=0; q<9; ++q)
+	{
+		CBuilding black; //
+		int befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		black.name = buf.substr(befi, i-befi);
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\r')
+				break;
+		}
+		black.description = buf.substr(befi, i-befi);
+		i+=2;
+
+		black.type = EbuildingType(q+1);
+		blacksmiths.push_back(black);
 	}
 }

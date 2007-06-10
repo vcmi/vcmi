@@ -22,9 +22,19 @@ class CBuildingHandler
 public:
 	std::vector<CBuilding> buildings; //vector of buildings
 	std::vector<CBuilding> resourceSilos; //vector with resource silos only - for castle profiled descriptions
-	std::vector<CBuilding> graals; //vector with graal - type buildings only - for castle profiled descriptions
-	void loadBuildings();
-	void loadNames();
+	std::vector<CBuilding> grails; //vector with grail - type buildings only - for castle profiled descriptions
+	std::vector<CBuilding> blacksmiths; //vector with names and descriptions for blacksmith (castle - dependent)
+	CBuilding blacksmith; //global name and description for blacksmiths
+	CBuilding moat; //description and name of moat
+	CBuilding shipyard; //castle - independent name and description of shipyard
+	CBuilding shipyardWithShip; //name and description for shipyard with ship
+	CBuilding artMerchant; //name and description of artifact merchant
+	CBuilding l1horde, l2horde, l3horde, l4horde, l5horde; //castle - independent horde names and descriptions
+	CBuilding grail; //castle - independent grail description
+	CBuilding resSilo; //castle - independent resource silo name and description
+	void loadBuildings(); //main loader, calls loading functions below
+	void loadNames(); //loads castle - specufuc names and descriptoins
+	void loadNeutNames(); //loads castle independent names and descriptions
 };
 
 #endif //CBUILDINGHANDLER_H
