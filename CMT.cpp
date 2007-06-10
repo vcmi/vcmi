@@ -16,7 +16,6 @@
 #include "CAbilityHandler.h"
 #include "CSpellHandler.h"
 #include "CGameInfo.h"
-
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -26,12 +25,11 @@
 #endif
 #define CHUNK 16384
 #define pi 3.14159
-const char * NAME = "VCMI 0.1";
-
-
+const char * NAME = "VCMI 0.2";
 #include "CAmbarCendamo.h"
 #include "mapHandler.h"
 #include "global.h"
+#include "CPreGame.h"
 /* Compress from file source to file dest until EOF on source.
    def() returns Z_OK on success, Z_MEM_ERROR if memory could not be
    allocated for processing, Z_STREAM_ERROR if an invalid compression
@@ -208,7 +206,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
 		
-		screen = SDL_SetVideoMode(1024,768,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
+		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
 		//FILE * zr = fopen("mal.txt","r");
 		//FILE * ko = fopen("wyn.txt","w");
@@ -227,6 +225,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	fclose(ko);fclose(zr);
 		//}
 		SDL_WM_SetCaption(NAME,"");
+		CPreGame * cpg = new CPreGame();
+		//cpg->runLoop();
 		THC timeHandler tmh;
 		CGameInfo * cgi = new CGameInfo;
 		CGameInfo::mainObj = cgi;

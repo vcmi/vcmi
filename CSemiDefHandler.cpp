@@ -58,10 +58,10 @@ std::string CSemiDefHandler::nameFromType (EterrainType typ)
 		}
 	}
 }
-void CSemiDefHandler::openDef(const char *name)
+void CSemiDefHandler::openDef(std::string name, std::string lodName)
 {
 	std::ifstream * is = new std::ifstream();
-	is -> open(name,std::ios::binary);
+	is -> open((lodName+"\\"+name).c_str(),std::ios::binary);
 	is->seekg(0,std::ios::end); // na koniec
 	int andame = is->tellg();  // read length
 	is->seekg(0,std::ios::beg); // wracamy na poczatek
@@ -73,7 +73,7 @@ void CSemiDefHandler::openDef(const char *name)
 	delete is;
 
 	readFileList();
-	loadImages();
+	loadImages(lodName);
 
 }
 void CSemiDefHandler::readFileList()
@@ -96,11 +96,11 @@ void CSemiDefHandler::readFileList()
 		else pom--;
 	}
 }
-void CSemiDefHandler::loadImages()
+void CSemiDefHandler::loadImages(std::string path)
 {
 	for (int i=0; i<namesOfImgs.size(); i++)
 	{
-		openImg(("H3sprite.lod\\_"+defName+"\\"+namesOfImgs[i]).c_str());
+		openImg((path+"\\_"+defName+"\\"+namesOfImgs[i]).c_str());
 	}
 }
  void SDL_DisplayBitmap(const char *file, SDL_Surface *ekran, int x, int y)
@@ -133,6 +133,7 @@ void CSemiDefHandler::openImg(const char *name)
 	}
 	Cimage vinya;
 	vinya.bitmap = image;
+	SDL_SetColorKey(vinya.bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(vinya.bitmap->format,0,255,255));
 	vinya.imName = name;
 	ourImages.push_back(vinya);
 }

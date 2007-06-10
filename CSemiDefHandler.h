@@ -21,8 +21,8 @@ public:
 
 	static std::string nameFromType(EterrainType typ);
 	void openImg(const char *name);
-	void openDef(const char *name);
+	void openDef(std::string name, std::string lodName);
 	void readFileList();
-	void loadImages();
+	void loadImages(std::string path);
 };
 #endif // SEMIDEF_H

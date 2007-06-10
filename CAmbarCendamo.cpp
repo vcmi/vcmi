@@ -425,14 +425,14 @@ void CAmbarCendamo::loadDefs()
 			if (loadedTypes.find(map.terrain[i][j].tertype)==loadedTypes.end())
 			{
 				CSemiDefHandler  *sdh = new CSemiDefHandler();
-				sdh->openDef(("H3sprite.lod\\"+sdh->nameFromType(map.terrain[i][j].tertype)).c_str());
+				sdh->openDef((sdh->nameFromType(map.terrain[i][j].tertype)).c_str(),"H3sprite.lod");
 				loadedTypes.insert(map.terrain[i][j].tertype);
 				defs.push_back(sdh);
 			}
 			if (loadedTypes.find(map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
 			{
 				CSemiDefHandler  *sdh = new CSemiDefHandler();
-				sdh->openDef(("H3sprite.lod\\"+sdh->nameFromType(map.undergroungTerrain[i][j].tertype)).c_str());
+				sdh->openDef((sdh->nameFromType(map.undergroungTerrain[i][j].tertype)).c_str(),"H3sprite.lod");
 				loadedTypes.insert(map.undergroungTerrain[i][j].tertype);
 				defs.push_back(sdh);
 			}
