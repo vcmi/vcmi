@@ -15,6 +15,7 @@
 #include "CCreatureHandler.h"
 #include "CAbilityHandler.h"
 #include "CSpellHandler.h"
+#include "CBuildingHandler.h"
 #include "CGameInfo.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -243,8 +244,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
 		CSpellHandler * spellh = new CSpellHandler;
-		spellh->loadSpells(); //TODO - naprawiæ i dokoñczyæ!
+		spellh->loadSpells();
 		cgi->spellh = spellh;
+		CBuildingHandler * buildh = new CBuildingHandler;
+		buildh->loadBuildings();
+		cgi->buildh = buildh;
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;

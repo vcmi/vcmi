@@ -3,7 +3,7 @@
 
 void CSpellHandler::loadSpells()
 {
-	std::ifstream inp("SPTRAITS.TXT", std::ios::in | std::ios::binary);
+	std::ifstream inp("H3bitmap.lod\\SPTRAITS.TXT", std::ios::in | std::ios::binary);
 	inp.seekg(0,std::ios::end); // na koniec
 	int andame = inp.tellg();  // read length
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek

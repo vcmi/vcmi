@@ -3,7 +3,7 @@
 
 void CAbilityHandler::loadAbilities()
 {
-	std::ifstream inp("SSTRAITS.TXT", std::ios::in);
+	std::ifstream inp("H3bitmap.lod\\SSTRAITS.TXT", std::ios::in);
 	std::string dump;
 	for(int i=0; i<5; ++i)
 	{

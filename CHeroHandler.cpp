@@ -3,7 +3,7 @@
 
 void CHeroHandler::loadHeroes()
 {
-	std::ifstream inp("HOTRAITS.TXT", std::ios::in);
+	std::ifstream inp("H3bitmap.lod\\HOTRAITS.TXT", std::ios::in);
 	std::string dump;
 	for(int i=0; i<25; ++i)
 	{
@@ -105,7 +105,7 @@ void CHeroHandler::loadHeroes()
 }
 void CHeroHandler::loadSpecialAbilities()
 {
-	std::ifstream inp("HeroSpec.txt", std::ios::in);
+	std::ifstream inp("H3bitmap.lod\\HEROSPEC.txt", std::ios::in);
 	std::string dump;
 	for(int i=0; i<7; ++i)
 	{
@@ -113,7 +113,7 @@ void CHeroHandler::loadSpecialAbilities()
 	}
 	inp.ignore();
 	int whHero=0;
-	while(!inp.eof())
+	while(!inp.eof() && whHero<heroes.size())
 	{
 		std::string base;
 		char * tab = new char[500];

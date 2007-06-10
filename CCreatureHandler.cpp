@@ -3,245 +3,258 @@
 
 void CCreatureHandler::loadCreatures()
 {
-	std::ifstream inp("ZCRTRAIT.TXT", std::ios::in);
-	std::string dump;
-	for(int i=0; i<42; ++i)
+	std::ifstream inp("H3bitmap.lod\\ZCRTRAIT.TXT", std::ios::in|std::ios::binary);
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+	int i=0; //buf iterator
+	int hmcr=0;
+	for(i; i<andame; ++i)
 	{
-		inp>>dump;
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==2)
+			break;
 	}
-	inp.ignore();
-	while(!inp.eof())
+	i+=2;
+
+	while(i<buf.size())
 	{
-		CCreature ncre; //new creature, that will be read
-		std::string base;
-		char * tab = new char[500];
-		int iitBef = 0;
-		int iit = 0;
-		inp.getline(tab, 500);
-		base = std::string(tab);
-		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
-		{
-			return; //add counter
-		}
-		while(base[iit]!='\t')
-		{
-			++iit;
-		}
-		ncre.nameSing = base.substr(0, iit);
-		++iit;
-		iitBef=iit;
+		if(creatures.size()>190 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
+			break;
 
-		//////// omijanie problemu z kasowaniem znaków CR - ifujê problematyczne miejsca
-		if(ncre.nameSing==std::string("Wilko³ak") || ncre.nameSing==std::string("Werewolf") 
-			|| ncre.nameSing==std::string("Piekielny Rumak") || ncre.nameSing==std::string("Hell Steed")
-			|| ncre.nameSing==std::string("Sylwañski Centaur") || ncre.nameSing==std::string("Sylvan Centaur"))
-		{
-			std::string base2;
-			char * tab2 = new char[500];
-			inp.getline(tab2, 500);
-			base2 = std::string(tab2);
-			base+=base2;
-		}
-		///////
+		CCreature ncre;
 
-		while(base[iit]!='\t')
+		int befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.namePl = base.substr(iitBef, iit-iitBef);
-		++iit;
-		iitBef=iit;
+		ncre.nameSing = buf.substr(befi, i-befi);
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.wood = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.namePl = buf.substr(befi, i-befi);
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.mercury = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.wood = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.ore = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.mercury = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.sulfur = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.ore = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.crystal = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.sulfur = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.gems = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.crystal = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.gold = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.gems = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.fightValue = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.gold = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.AIValue = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.fightValue = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.growth = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.AIValue = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.hordeGrowth = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.growth = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.hitPoints = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.hordeGrowth = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.speed = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.hitPoints = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.attack = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.speed = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.defence = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.attack = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.low1 = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.defence = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.high1 = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.low1 = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.shots = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.high1 = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.spells = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.shots = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.low2 = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.spells = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.high2 = atoi(base.substr(iitBef, iit-iitBef).c_str());
-		++iit;
-		iitBef=iit;
+		ncre.low2 = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t')
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.abilityText = base.substr(iitBef, iit-iitBef);
-		++iit;
-		iitBef=iit;
+		ncre.high2 = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
-		while(base[iit]!='\t' && iit<base.size())
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			++iit;
+			if(buf[i]=='\t')
+				break;
 		}
-		ncre.abilityRefs = base.substr(iitBef, iit-iitBef);
-		++iit;
-		iitBef=iit;
+		ncre.abilityText = buf.substr(befi, i-befi);
+		++i;
 
-		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
+		befi=i;
+		for(i; i<andame; ++i)
 		{
-			ncre.idNumber=creatures.size();
-			creatures.push_back(ncre);
+			if(buf[i]=='\r')
+				break;
 		}
-		delete[500] tab;
+		ncre.abilityRefs = buf.substr(befi, i-befi);
+		i+=2;
+		ncre.idNumber = creatures.size();
+		creatures.push_back(ncre);
 	}
 }
 

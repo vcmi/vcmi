@@ -7,6 +7,7 @@
 #include "CArtHandler.h"
 #include "CHeroHandler.h"
 #include "CAmbarCendamo.h"
+#include "CBuildingHandler.h"
 
 /*
 	CGameInfo class
@@ -22,6 +23,7 @@ public:
 	CAbilityHandler * abilh;
 	CSpellHandler * spellh;
 	CAmbarCendamo * ac;
+	CBuildingHandler * buildh;
 };
 
 #endif //CGAMEINFO_H

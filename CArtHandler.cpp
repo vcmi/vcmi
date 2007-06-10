@@ -3,7 +3,7 @@
 
 void CArtHandler::loadArtifacts()
 {
-	std::ifstream inp("ARTRAITS.TXT", std::ios::in);
+	std::ifstream inp("H3bitmap.lod\\ARTRAITS.TXT", std::ios::in);
 	std::string dump;
 	for(int i=0; i<44; ++i)
 	{
@@ -209,7 +209,7 @@ void CArtHandler::loadArtifacts()
 
 bool CArtHandler::loadArtEvents()
 {
-	std::ifstream inp("ARTEVENT.TXT", std::ios::in);
+	std::ifstream inp("H3bitmap.lod\\ARTEVENT.TXT", std::ios::in);
 	if(!inp.is_open())
 	{
 		return false;
