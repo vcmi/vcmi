@@ -123,7 +123,7 @@ SDL_Surface * mapHandler::terrainRect(int x, int y, int dx, int dy, int level)
 #endif
 	SDL_Surface * su = SDL_CreateRGBSurface(SDL_SWSURFACE, dx*32, dy*32, 32,
                                    rmask, gmask, bmask, amask);
-	if (((dx+x)>((reader->map.width)-1) || (dy+y)>((reader->map.height)-1)) || ((x<0)||(y<0) ) )
+	if (((dx+x)>((reader->map.width)) || (dy+y)>((reader->map.height))) || ((x<0)||(y<0) ) )
 		throw new std::string("Poza zakresem");
 	for (int bx=0; bx<dx; bx++)
 	{

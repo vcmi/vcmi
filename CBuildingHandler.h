@@ -35,6 +35,7 @@ public:
 	void loadBuildings(); //main loader, calls loading functions below
 	void loadNames(); //loads castle - specufuc names and descriptoins
 	void loadNeutNames(); //loads castle independent names and descriptions
+	void loadDwellingNames(); //load names for dwellgins
 };
 
 #endif //CBUILDINGHANDLER_H

@@ -2,6 +2,7 @@
 #include "CAmbarCendamo.h"
 #include "CSemiDefHandler.h"
 #include "CGameInfo.h"
+#include "CObjectHandler.h"
 #include <set>
 
 unsigned int intPow(unsigned int a, unsigned int b)
@@ -384,6 +385,7 @@ void CAmbarCendamo::deh3m()
 	}
 	THC std::cout<<"Wczytywanie terenu: "<<th.getDif()<<std::endl;
 	int defAmount = bufor[i]; // liczba defow
+	defAmount = readNormalNr(i);
 	i+=4;
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
@@ -401,6 +403,18 @@ void CAmbarCendamo::deh3m()
 		//teceDef();
 	}
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
+	////loading objects
+	int howManyObjs = readNormalNr(i, 4); i+=4;
+	for(int ww=0; ww<howManyObjs; ++ww)
+	{
+		CObjectInstance nobj; //we will read this object
+		nobj.x = bufor[i++];
+		nobj.y = bufor[i++];
+		nobj.z = bufor[i++];
+		nobj.defNumber = bufor[i++]; //TODO - zobaczyæ co siê dzieje, jak numer okreœlaj¹cego defa jest wiêkszy ni¿ 255
+		//TODO - dokoñczyæ, du¿o do zrobienia - trzeba patrzeæ, co def niesie
+	}
+	////objects loaded
 	//todo: read events
 }
 int CAmbarCendamo::readNormalNr (int pos, int bytCon)
@@ -415,6 +429,7 @@ int CAmbarCendamo::readNormalNr (int pos, int bytCon)
 
 	return ret;
 }
+
 void CAmbarCendamo::loadDefs()
 {
 	std::set<int> loadedTypes;

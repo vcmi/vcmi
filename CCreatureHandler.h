@@ -16,6 +16,13 @@ public:
 	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
 };
 
+class CCreatureSet //seven combined creatures
+{
+	CCreature * slot1, slot2, slot3, slot4, slot5, slot6, slot7; //types of creatures on each slot
+	unsigned int s1, s2, s3, s4, s5, s6, s7; //amounts of units in slots
+	bool formation; //false - wide, true - tight
+};
+
 class CCreatureHandler
 {
 public:

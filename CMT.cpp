@@ -10,12 +10,13 @@
 #include "zlib.h"
 #include <cmath>
 #include <ctime>
-#include "CArthandler.h"
+#include "CArtHandler.h"
 #include "CHeroHandler.h"
 #include "CCreatureHandler.h"
 #include "CAbilityHandler.h"
 #include "CSpellHandler.h"
 #include "CBuildingHandler.h"
+#include "CObjectHandler.h"
 #include "CGameInfo.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -249,6 +250,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		CBuildingHandler * buildh = new CBuildingHandler;
 		buildh->loadBuildings();
 		cgi->buildh = buildh;
+		CObjectHandler * objh = new CObjectHandler;
+		objh->loadObjects();
+		cgi->objh = objh;
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
@@ -292,7 +296,7 @@ int _tmain(int argc, _TCHAR* argv[])
 							}
 						case (SDLK_RIGHT):
 							{
-								if(xx<ac->map.width-33)
+								if(xx<ac->map.width-25)
 									xx++;
 								break;
 							}
@@ -304,7 +308,7 @@ int _tmain(int argc, _TCHAR* argv[])
 							}
 						case (SDLK_DOWN):
 							{
-								if(yy<ac->map.height-25)
+								if(yy<ac->map.height-18)
 									yy++;
 								break;
 							}
@@ -322,7 +326,7 @@ int _tmain(int argc, _TCHAR* argv[])
 							}
 						}
 						SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
-						SDL_Surface * help = mh->terrainRect(xx,yy,32,24,zz);
+						SDL_Surface * help = mh->terrainRect(xx,yy,25,18,zz);
 						SDL_BlitSurface(help,NULL,ekran,NULL);
 						SDL_FreeSurface(help);
 						SDL_Flip(ekran);

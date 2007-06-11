@@ -21,6 +21,7 @@ void CHeroHandler::loadHeroes()
 		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
 		{
 			loadSpecialAbilities();
+			loadBiographies();
 			return;
 		}
 		while(base[iit]!='\t')
@@ -156,5 +157,29 @@ void CHeroHandler::loadSpecialAbilities()
 		heroes[whHero].longBonus = base.substr(iitBef, iit-iitBef);
 		++whHero;
 		delete [500] tab;
+	}
+}
+
+void CHeroHandler::loadBiographies()
+{
+	std::ifstream inp("H3bitmap.lod\\HEROBIOS.TXT", std::ios::in | std::ios::binary);
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+	int i = 0; //buf iterator
+	for(int q=0; q<heroes.size(); ++q)
+	{
+		int befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\r')
+				break;
+		}
+		heroes[q].biography = buf.substr(befi, i-befi);
+		i+=2;
 	}
 }
