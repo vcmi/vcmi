@@ -225,9 +225,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	def(zr,ko,i);
 		//	fclose(ko);fclose(zr);
 		//}
-		SDL_WM_SetCaption(NAME,"");
+		SDL_WM_SetCaption(NAME,""); //set window title
 		CPreGame * cpg = new CPreGame();
-		//cpg->runLoop();
+		cpg->runLoop();
 		THC timeHandler tmh;
 		CGameInfo * cgi = new CGameInfo;
 		CGameInfo::mainObj = cgi;
