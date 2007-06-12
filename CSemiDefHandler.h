@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include "SDL_image.h"
 #include <vector>
+
 struct Cimage
 {
 	std::string imName; //name without extension

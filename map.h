@@ -52,7 +52,7 @@ struct TerrainTile
 struct DefInfo //information from def declaration
 {
 	std::string name; 
-	int bytes [46];
+	int bytes [42];
 };
 struct Location
 {

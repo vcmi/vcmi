@@ -20,6 +20,7 @@
 #include "CBuildingHandler.h"
 #include "CObjectHandler.h"
 #include "CGameInfo.h"
+#include "CPreGameTextHandler.h" //TODO - powinno byæ w inicjowaniu preGame, ale to ty tam grzebiesz, wiêc ty to zrób ;]
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -258,6 +259,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
+		CPreGameTextHandler * preth = new CPreGameTextHandler;
+		preth->loadTexts();
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;

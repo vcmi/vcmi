@@ -453,4 +453,27 @@ void CAmbarCendamo::loadDefs()
 			}
 		}
 	}
-};
+}
+
+EDefType CAmbarCendamo::getDefType(DefInfo &a)
+{
+	switch(a.bytes[16])
+	{
+	case 26:
+		return EDefType::EVENTOBJ_DEF;
+	case 33:
+		return EDefType::GARRISON_DEF;
+	case 34:
+		return EDefType::HERO_DEF;
+	case 79:
+		return EDefType::RESOURCE_DEF;
+	case 83:
+		return EDefType::SEERHUT_DEF;
+	case 91:
+		return EDefType::SIGN_DEF;
+	case 98:
+		return EDefType::TOWN_DEF;
+	case 219:
+		return EDefType::GARRISON_DEF;
+	}
+}

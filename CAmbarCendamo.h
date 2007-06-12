@@ -9,6 +9,8 @@
 #include "map.h"
 #include "CSemiDefHandler.h"
 
+enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TERRAINOBJ_DEF, EVENTOBJ_DEF, SIGN_DEF, GARRISON_DEF};
+
 class CAmbarCendamo 
 {
 public:
@@ -25,5 +27,6 @@ public:
 	void teceDef (); // create files with info about defs
 	void deh3m(); // decode file, results are stored in map
 	void loadDefs();
+	EDefType getDefType(DefInfo& a); //returns type of object in def
 };
 #endif //AMBARCENDD

@@ -15,7 +15,7 @@ void mapHandler::init()
 		{
 			TerrainTile zz = reader->map.terrain[i][j];
 			std::string name = CSemiDefHandler::nameFromType(reader->map.terrain[i][j].tertype);
-			for (int k=0; k<reader->defs.size(); k++)
+			for (unsigned int k=0; k<reader->defs.size(); k++)
 			{
 				try
 				{
@@ -66,7 +66,7 @@ void mapHandler::init()
 			{
 				TerrainTile zz = reader->map.undergroungTerrain[i][j];
 				std::string name = CSemiDefHandler::nameFromType(reader->map.undergroungTerrain[i][j].tertype);
-				for (int k=0; k<reader->defs.size(); k++)
+				for (unsigned int k=0; k<reader->defs.size(); k++)
 				{
 					try
 					{
