@@ -1,5 +1,5 @@
-#include "CObjectHandler.h"
 #include "stdafx.h"
+#include "CObjectHandler.h"
 
 void CObjectHandler::loadObjects()
 {

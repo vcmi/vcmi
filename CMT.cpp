@@ -1,8 +1,10 @@
 // CMT.cpp : Defines the entry point for the console application.
 //
-#include "SDL.h"
-#include <cmath>
 #include "stdafx.h"
+#include "SDL.h"
+#include "SDL_TTF.h"
+#include "CBuildingHandler.h"
+#include <cmath>
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
@@ -39,6 +41,7 @@ const char * NAME = "VCMI 0.2";
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
 SDL_Surface * ekran;
+TTF_Font * TNRB;
 int def(FILE *source, FILE *dest, int level, int winBits=15, int memLevel =8)
 {
 	int ret, flush;
@@ -207,7 +210,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	float i;
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
-		
+		TTF_Init();
+		atexit(TTF_Quit);
+		TNRB = TTF_OpenFont("Fonts\\tnrb.ttf",18);
 		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
 		//FILE * zr = fopen("mal.txt","r");

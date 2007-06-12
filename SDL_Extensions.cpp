@@ -1,6 +1,14 @@
 #include "stdafx.h"
 #include "SDL_Extensions.h"
-
+SDL_Rect genRect(int hh, int ww, int xx, int yy)
+{
+	SDL_Rect ret;
+	ret.h=hh;
+	ret.w=ww;
+	ret.x=xx;
+	ret.y=yy;
+	return ret;
+}
 void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC)
 {
      Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;

@@ -16,6 +16,7 @@
 class CPreGame
 {
 public:
+	SDL_Rect * currentMessage;
 	enum EState { //where are we?
 		mainMenu, ScenarioList
 	} state;

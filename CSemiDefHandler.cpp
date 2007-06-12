@@ -129,6 +129,7 @@ void CSemiDefHandler::openImg(const char *name)
 	if(!image) 
 	{
 		printf("IMG_Load: %s\n", IMG_GetError());
+		return;
 		// handle error
 	}
 	Cimage vinya;

@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "CPreGame.h"
 #include "SDL.h"
+#include "CMessage.h"
 extern SDL_Surface * ekran;
+SDL_Rect genRect(int hh, int ww, int xx, int yy);
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
 	if ((x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h))
@@ -10,6 +12,7 @@ bool isItIn(const SDL_Rect * rect, int x, int y)
 }
 CPreGame::CPreGame()
 {
+	currentMessage=NULL;
 	initMainMenu();
 	showMainMenu();
 }
@@ -100,6 +103,7 @@ void CPreGame::highlightButton(int which, int on)
 }
 void CPreGame::runLoop()
 {
+	CMessage * cmh = new CMessage();
 	SDL_Event sEvent;
 	while(true)
 	{
@@ -198,7 +202,7 @@ void CPreGame::runLoop()
 						ourMainMenu->highlighted=5;
 					}
 				}
-				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && SDL_BUTTON(1))
+				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_LEFT))
 				{
 					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
@@ -226,7 +230,7 @@ void CPreGame::runLoop()
 						ourMainMenu->highlighted=5;
 					}
 				}
-				else if ((sEvent.type==SDL_MOUSEBUTTONUP) && SDL_BUTTON(1))
+				else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_LEFT))
 				{
 					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
@@ -254,32 +258,57 @@ void CPreGame::runLoop()
 						ourMainMenu->highlighted=5;
 					}
 				}
+				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_RIGHT))
+				{
+					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
+					{
+					}
+					else if (isItIn(&ourMainMenu->lLoadGame,sEvent.motion.x,sEvent.motion.y))
+					{
+					}
+					else if (isItIn(&ourMainMenu->lHighScores,sEvent.motion.x,sEvent.motion.y))
+					{
+					}
+					else if (isItIn(&ourMainMenu->lCredits,sEvent.motion.x,sEvent.motion.y))
+					{
+					}
+					else if (isItIn(&ourMainMenu->lQuit,sEvent.motion.x,sEvent.motion.y))
+					{
+						SDL_Surface * infoBox = cmh->genMessage("Quit", "Return to Windows");
+						//SDL_Surface * infoBox = cmh->genMessage("Quit", "View the legendary Heores of Might and Magic abbbba");
+						SDL_Rect pos = genRect(infoBox->h,infoBox->w,
+							(ekran->w/2)-(infoBox->w/2),(ekran->h/2)-(infoBox->h/2));
+						SDL_BlitSurface(infoBox,NULL,ekran,&pos);
+						SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
+						SDL_FreeSurface(infoBox);
+						currentMessage = new SDL_Rect(pos);
+					}
+				}
+				else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_RIGHT))
+				{
+					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
+					{
+					}
+					else if (isItIn(&ourMainMenu->lLoadGame,sEvent.motion.x,sEvent.motion.y))
+					{
+					}
+					else if (isItIn(&ourMainMenu->lHighScores,sEvent.motion.x,sEvent.motion.y))
+					{
+					}
+					else if (isItIn(&ourMainMenu->lCredits,sEvent.motion.x,sEvent.motion.y))
+					{
+					}
+					else if (isItIn(&ourMainMenu->lQuit,sEvent.motion.x,sEvent.motion.y))
+					{
+						SDL_BlitSurface(ourMainMenu->background,currentMessage,ekran,currentMessage);
+						SDL_UpdateRect
+							(ekran,currentMessage->x,currentMessage->y,currentMessage->w,currentMessage->h);
+					}
+				}
 				else if (sEvent.type==SDL_KEYDOWN)
 				{
 					switch (sEvent.key.keysym.sym)
 					{
-					//case SDLK_LEFT:
-					//	{
-					//		if(ourMainMenu->lQuit.x>0)
-					//			ourMainMenu->lQuit.x--;
-					//		break;
-					//	}
-					//case (SDLK_RIGHT):
-					//	{
-					//			ourMainMenu->lQuit.x++;
-					//		break;
-					//	}
-					//case (SDLK_UP):
-					//	{
-					//		if(ourMainMenu->lQuit.y>0)
-					//			ourMainMenu->lQuit.y--;
-					//		break;
-					//	}
-					//case (SDLK_DOWN):
-					//	{
-					//			ourMainMenu->lQuit.y++;
-					//		break;
-					//	}
 					case (SDLK_q):
 						{
 							return ;
