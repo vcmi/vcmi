@@ -411,7 +411,36 @@ void CAmbarCendamo::deh3m()
 		nobj.x = bufor[i++];
 		nobj.y = bufor[i++];
 		nobj.z = bufor[i++];
-		nobj.defNumber = bufor[i++]; //TODO - zobaczyæ co siê dzieje, jak numer okreœlaj¹cego defa jest wiêkszy ni¿ 255
+		nobj.defNumber = readNormalNr(i, 4); i+=4;
+		i+=5;
+		switch(getDefType(map.defy[nobj.defNumber]))
+		{
+		case EDefType::EVENTOBJ_DEF:
+			{
+				CEventObjInfo spec;
+				bool guardMess;
+				guardMess = bufor[i]; ++i;
+				if(guardMess)
+				{
+					int messLong = readNormalNr(i, 4); i+=4;
+					if(messLong>0)
+					{
+						spec.isMessage = true;
+						for(int yy=0; yy<messLong; ++yy)
+						{
+							spec.message +=bufor[i+yy];
+						}
+						i+=messLong;
+					}
+					spec.areGuarders = bufor[i]; ++i;
+					if(spec.areGuarders)
+					{
+						//TODO: czytanie potworów w zapisie standardowym, to jest czêsto wykorzystywane
+					}
+				}
+				break;
+			}
+		}
 		//TODO - dokoñczyæ, du¿o do zrobienia - trzeba patrzeæ, co def niesie
 	}
 	////objects loaded
@@ -475,5 +504,7 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 		return EDefType::TOWN_DEF;
 	case 219:
 		return EDefType::GARRISON_DEF;
+	default:
+		return EDefType::TERRAINOBJ_DEF;
 	}
 }
