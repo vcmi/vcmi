@@ -1,6 +1,24 @@
-#include "CPreGameTextHandler.h"
 #include "stdafx.h"
-
+#include "CPreGameTextHandler.h"
+std::string CPreGameTextHandler::getTitle(std::string text)
+{
+	std::string ret;
+	int i=0;
+	while ((text[i++]!='{'));
+	while ((text[i]!='}') && (i<text.length()))
+		ret+=text[i++];
+	return ret;
+}
+std::string CPreGameTextHandler::getDescr(std::string text)
+{
+	std::string ret;
+	int i=0;
+	while ((text[i++]!='}'));
+	i+=2;
+	while ((text[i]!='"') && (i<text.length()))
+		ret+=text[i++];
+	return ret;
+}
 void CPreGameTextHandler::loadTexts()
 {
 	std::ifstream inp("H3bitmap.lod\\ZELP.TXT", std::ios::in|std::ios::binary);

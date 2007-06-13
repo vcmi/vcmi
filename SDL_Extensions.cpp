@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "SDL_Extensions.h"
+extern SDL_Surface * ekran;
 SDL_Rect genRect(int hh, int ww, int xx, int yy)
 {
 	SDL_Rect ret;
@@ -8,6 +9,19 @@ SDL_Rect genRect(int hh, int ww, int xx, int yy)
 	ret.x=xx;
 	ret.y=yy;
 	return ret;
+}
+SDL_Color genRGB(int r, int g, int b, int a=0)
+{
+	SDL_Color ret;
+	ret.b=b;
+	ret.g=g;
+	ret.r=r;
+	ret.unused=a;
+	return ret;
+}
+void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran)
+{
+	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
 }
 void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC)
 {

@@ -20,7 +20,6 @@
 #include "CBuildingHandler.h"
 #include "CObjectHandler.h"
 #include "CGameInfo.h"
-#include "CPreGameTextHandler.h" //TODO - powinno byæ w inicjowaniu preGame, ale to ty tam grzebiesz, wiêc ty to zrób ;]
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -213,7 +212,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		TTF_Init();
 		atexit(TTF_Quit);
-		TNRB = TTF_OpenFont("Fonts\\tnrb.ttf",18);
+		TNRB = TTF_OpenFont("Fonts\\tnrb.ttf",16);
 		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
 		//FILE * zr = fopen("mal.txt","r");
@@ -259,8 +258,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
-		CPreGameTextHandler * preth = new CPreGameTextHandler;
-		preth->loadTexts();
 		CAmbarCendamo * ac = new CAmbarCendamo("4gryf");
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;

@@ -10,7 +10,8 @@ public:
 	std::vector<std::string> * breakText(std::string text);
 	CSemiDefHandler * piecesOfBox;
 	SDL_Surface * background;
-	SDL_Surface * genMessage(std::string title, std::string text, EWindowType type=infoOnly);
+	SDL_Surface * genMessage(std::string title, std::string text, EWindowType type=infoOnly, 
+								std::vector<CSemiDefHandler*> *addPics=NULL, void * cb=NULL);
 	SDL_Surface * drawBox1(int w, int h);
 	CMessage();
 };
