@@ -253,8 +253,11 @@ void CCreatureHandler::loadCreatures()
 		}
 		ncre.abilityRefs = buf.substr(befi, i-befi);
 		i+=2;
-		ncre.idNumber = creatures.size();
-		creatures.push_back(ncre);
+		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
+		{
+			ncre.idNumber = creatures.size();
+			creatures.push_back(ncre);
+		}
 	}
 }
 

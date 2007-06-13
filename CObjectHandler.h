@@ -7,6 +7,7 @@
 #include "CArtHandler.h"
 #include "CAbilityHandler.h"
 #include "CSpellHandler.h"
+#include "CHeroHandler.h"
 
 class CSpecObjInfo //class with object - specific info (eg. different information for creatures and heroes); use inheritance to make object - specific classes
 {
@@ -28,14 +29,34 @@ public:
 	unsigned int defence; //added defence points
 	unsigned int power; //added power points
 	unsigned int knowledge; //added knowledge points
-	std::vector<CAbility> abilities; //gained abilities
+	std::vector<CAbility *> abilities; //gained abilities
 	std::vector<int> abilityLevels; //levels of gained abilities
-	std::vector<CArtifact> artifacts; //gained artifacts
-	std::vector<CSpell> spells; //gained spells
+	std::vector<CArtifact *> artifacts; //gained artifacts
+	std::vector<CSpell *> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
 	unsigned char availableFor; //players whom this event is available for
 	bool computerActivate; //true if computre player can activate this event
 	bool humanActivate; //true if human player can activate this event
+};
+
+class CHeroObjInfo : public CSpecObjInfo
+{
+public:
+	char bytes[4]; //mysterius bytes identifying hero in a strange way
+	int player;
+	CHero * type;
+	std::string name; //if nonstandard
+	CCreatureSet garrison; //hero's army
+	std::vector<CArtifact *> artifacts; //hero's artifacts
+	bool isGuarding;
+	int guardRange; //range of hero's guard
+	std::string biography; //if nonstandard
+	bool sex; //if true, reverse hero's sex
+	std::vector<CSpell *> spells; //hero's spells
+	int attack, defence, power, knowledge; //main hero's attributes
+	unsigned int experience; //hero's experience points
+	std::vector<CAbility *> abilities; //hero's abilities
+	std::vector<int> abilityLevels; //hero ability levels
 };
 
 class CObject //typical object that can be encountered on a map

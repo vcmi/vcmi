@@ -3,6 +3,7 @@
 #include "CSemiDefHandler.h"
 #include "CGameInfo.h"
 #include "CObjectHandler.h"
+#include "CCastleHandler.h"
 #include <set>
 
 unsigned int intPow(unsigned int a, unsigned int b)
@@ -405,9 +406,10 @@ void CAmbarCendamo::deh3m()
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	////loading objects
 	int howManyObjs = readNormalNr(i, 4); i+=4;
-	for(int ww=0; ww<howManyObjs; ++ww)
+	/*for(int ww=0; ww<howManyObjs; ++ww)
 	{
 		CObjectInstance nobj; //we will read this object
+		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
 		nobj.x = bufor[i++];
 		nobj.y = bufor[i++];
 		nobj.z = bufor[i++];
@@ -415,9 +417,9 @@ void CAmbarCendamo::deh3m()
 		i+=5;
 		switch(getDefType(map.defy[nobj.defNumber]))
 		{
-		case EDefType::EVENTOBJ_DEF:
+		case EDefType::EVENTOBJ_DEF: //for event - objects
 			{
-				CEventObjInfo spec;
+				CEventObjInfo * spec = new CEventObjInfo;
 				bool guardMess;
 				guardMess = bufor[i]; ++i;
 				if(guardMess)
@@ -425,28 +427,121 @@ void CAmbarCendamo::deh3m()
 					int messLong = readNormalNr(i, 4); i+=4;
 					if(messLong>0)
 					{
-						spec.isMessage = true;
+						spec->isMessage = true;
 						for(int yy=0; yy<messLong; ++yy)
 						{
-							spec.message +=bufor[i+yy];
+							spec->message +=bufor[i+yy];
 						}
 						i+=messLong;
 					}
-					spec.areGuarders = bufor[i]; ++i;
-					if(spec.areGuarders)
+					spec->areGuarders = bufor[i]; ++i;
+					if(spec->areGuarders)
 					{
-						//TODO: czytanie potworów w zapisie standardowym, to jest czêsto wykorzystywane
+						spec->guarders = readCreatureSet(i); i+=32;
 					}
 				}
+				else
+				{
+					spec->isMessage = false;
+					spec->areGuarders = false;
+					spec->message = std::string("");
+				}
+				spec->gainedExp = readNormalNr(i, 4); i+=4;
+				spec->manaDiff = readNormalNr(i, 4); i+=4;
+				spec->moraleDiff = readNormalNr(i, 1, true); ++i;
+				spec->luckDiff = readNormalNr(i, 1, true); ++i;
+				spec->wood = readNormalNr(i); i+=4;
+				spec->mercury = readNormalNr(i); i+=4;
+				spec->ore = readNormalNr(i); i+=4;
+				spec->sulfur = readNormalNr(i); i+=4;
+				spec->crystal = readNormalNr(i); i+=4;
+				spec->gems = readNormalNr(i); i+=4;
+				spec->gold = readNormalNr(i); i+=4;
+				spec->attack = readNormalNr(i, 1); ++i;
+				spec->defence = readNormalNr(i, 1); ++i;
+				spec->power = readNormalNr(i, 1); ++i;
+				spec->knowledge = readNormalNr(i, 1); ++i;
+				int gabn; //number of gained abilities
+				gabn = readNormalNr(i, 1); ++i;
+				for(int oo = 0; oo<gabn; ++oo)
+				{
+					spec->abilities.push_back(&((CGameInfo::mainObj->abilh)->abilities[readNormalNr(i, 1)])); ++i;
+					spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
+				}
+				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts
+				for(int oo = 0; oo<gart; ++oo)
+				{
+					spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 2)])); i+=2;
+				}
+				int gspel = readNormalNr(i, 1); ++i; //number of gained spells
+				for(int oo = 0; oo<gspel; ++oo)
+				{
+					spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[readNormalNr(i, 1)])); ++i;
+				}
+				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
+				spec->creatures = readCreatureSet(i, gcre); i+=4*gcre;
+				i+=8;
+				spec->availableFor = readNormalNr(i, 1); ++i;
+				spec->computerActivate = readNormalNr(i, 1); ++i;
+				spec->humanActivate = readNormalNr(i, 1); ++i;
+				i+=4;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::HERO_DEF:
+			{
+				CHeroObjInfo * spec = new CHeroObjInfo;
+				spec->bytes[0] = bufor[i]; ++i;
+				spec->bytes[1] = bufor[i]; ++i;
+				spec->bytes[2] = bufor[i]; ++i;
+				spec->bytes[3] = bufor[i]; ++i;
+				spec->player = bufor[i]; ++i;
+				spec->type = &(CGameInfo::mainObj->heroh->heroes[readNormalNr(i, 1)]); ++i;
+				bool isName = bufor[i]; ++i; //true if hero has nonstandard name
+				if(isName)
+				{
+					int length = readNormalNr(i, 4); i+=4;
+					for(int gg=0; gg<length; ++gg)
+					{
+						spec->name+=bufor[i]; ++i;
+					}
+				}
+				else
+					spec->name = std::string("");
+				bool isExp = bufor[i]; ++i; //true if hore's experience is greater than 0
+				if(isExp)
+				{
+					spec->experience = readNormalNr(i); i+=4;
+				}
+				else spec->experience = 0;
+				++i; //TODO - czy tu na pewno nie ma istotnej informacji?
+				bool nonstandardAbilities = bufor[i]; //true if hero has specified abilities
+				if(nonstandardAbilities)
+				{
+					int howMany = readNormalNr(i); i+=4;
+					for(int yy=0; yy<howMany; ++yy)
+					{
+						spec->abilities.push_back(&(CGameInfo::mainObj->abilh->abilities[readNormalNr(i, 1)])); ++i;
+						spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
+					}
+				}
+				bool standGarrison = bufor[i]; ++i; //true if hero has nonstandard garrison
+				if(standGarrison)
+				{
+					spec->garrison = readCreatureSet(i); i+=7;
+				}
+				bool form = bufor[i]; ++i; //formation
+				spec->garrison.formation = form;
 				break;
 			}
 		}
+		CGameInfo::mainObj->objh->objInstances.push_back(nobj);
 		//TODO - dokoñczyæ, du¿o do zrobienia - trzeba patrzeæ, co def niesie
-	}
+	}//*/ //end of loading objects; commented to making application work until it will be finished
 	////objects loaded
 	//todo: read events
 }
-int CAmbarCendamo::readNormalNr (int pos, int bytCon)
+int CAmbarCendamo::readNormalNr (int pos, int bytCon, bool cyclic)
 {
 	int ret=0;
 	int amp=1;
@@ -455,7 +550,10 @@ int CAmbarCendamo::readNormalNr (int pos, int bytCon)
 		ret+=bufor[pos+i]*amp;
 		amp*=256;
 	}
-
+	if(cyclic && bytCon<4 && ret>=amp/2)
+	{
+		ret = ret-amp;
+	}
 	return ret;
 }
 
@@ -507,4 +605,80 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 	default:
 		return EDefType::TERRAINOBJ_DEF;
 	}
+}
+
+CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
+{
+	CCreatureSet ret;
+	if(number>0 && readNormalNr(pos, 2)!=0xffff)
+	{
+		ret.slot1 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos, 2)]);
+		ret.s1 = readNormalNr(pos+2, 2);
+	}
+	else
+	{
+		ret.slot1 = NULL;
+		ret.s1 = 0;
+	}
+	if(number>1 && readNormalNr(pos+4, 2)!=0xffff)
+	{
+		ret.slot2 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+4, 2)]);
+		ret.s2 = readNormalNr(pos+6, 2);
+	}
+	else
+	{
+		ret.slot2 = NULL;
+		ret.s2 = 0;
+	}
+	if(number>2 && readNormalNr(pos+8, 2)!=0xffff)
+	{
+		ret.slot3 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+8, 2)]);
+		ret.s3 = readNormalNr(pos+10, 2);
+	}
+	else
+	{
+		ret.slot3 = NULL;
+		ret.s3 = 0;
+	}
+	if(number>3 && readNormalNr(pos+12, 2)!=0xffff)
+	{
+		ret.slot4 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+12, 2)]);
+		ret.s4 = readNormalNr(pos+14, 2);
+	}
+	else
+	{
+		ret.slot4 = NULL;
+		ret.s4 = 0;
+	}
+	if(number>4 && readNormalNr(pos+16, 2)!=0xffff)
+	{
+		ret.slot5 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+16, 2)]);
+		ret.s5 = readNormalNr(pos+18, 2);
+	}
+	else
+	{
+		ret.slot5 = NULL;
+		ret.s5 = 0;
+	}
+	if(number>5 && readNormalNr(pos+20, 2)!=0xffff)
+	{
+		ret.slot6 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+20, 2)]);
+		ret.s6 = readNormalNr(pos+22, 2);
+	}
+	else
+	{
+		ret.slot6 = NULL;
+		ret.s6 = 0;
+	}
+	if(number>6 && readNormalNr(pos+24, 2)!=0xffff)
+	{
+		ret.slot7 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+24, 2)]);
+		ret.s7 = readNormalNr(pos+26, 2);
+	}
+	else
+	{
+		ret.slot7 = NULL;
+		ret.s7 = 0;
+	}
+	return ret;
 }

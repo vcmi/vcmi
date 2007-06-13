@@ -124,4 +124,99 @@ void CPreGameTextHandler::loadTexts()
 	}
 	mainQuit = buf.substr(befi, i-befi);
 	++i;
+
+	hmcr = 0;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==3)
+			break;
+	}
+	i+=3;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	ngSingleScenario = buf.substr(befi, i-befi);
+	++i;
+
+	hmcr = 0;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==1)
+			break;
+	}
+	i+=3;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	ngCampain = buf.substr(befi, i-befi);
+	++i;
+
+	hmcr = 0;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==1)
+			break;
+	}
+	i+=3;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	ngMultiplayer = buf.substr(befi, i-befi);
+	++i;
+
+	hmcr = 0;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==1)
+			break;
+	}
+	i+=3;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	ngTutorial = buf.substr(befi, i-befi);
+	++i;
+
+	hmcr = 0;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==1)
+			break;
+	}
+	i+=3;
+
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	ngBack = buf.substr(befi, i-befi);
+	++i;
 }
