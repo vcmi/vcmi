@@ -35,8 +35,8 @@ void CPreGame::initMainMenu()
 	ourMainMenu->highScores = slh->giveDef("ZMENUHS.DEF");
 	ourMainMenu->credits = slh->giveDef("ZMENUCR.DEF");
 	ourMainMenu->quit = slh->giveDef("ZMENUQT.DEF");
-	ourMainMenu->ok = slh->giveDef("IOKAY.DEF");
-	ourMainMenu->cancel = slh->giveDef("ICANCEL.DEF");
+	ok = slh->giveDef("IOKAY.DEF");
+	cancel = slh->giveDef("ICANCEL.DEF");
 	// new game button location
 	ourMainMenu->lNewGame.h=ourMainMenu->newGame->ourImages[0].bitmap->h;
 	ourMainMenu->lNewGame.w=ourMainMenu->newGame->ourImages[0].bitmap->w;
@@ -128,8 +128,8 @@ void CPreGame::showAskBox (std::string data, void(*f1)(),void(*f2)())
 	CMessage * cmh = new CMessage();
 	std::vector<CSemiDefHandler*> * przyciski = new std::vector<CSemiDefHandler*>(0);
 	std::vector<SDL_Rect> * btnspos= new std::vector<SDL_Rect>(0);
-	przyciski->push_back(ourMainMenu->ok);
-	przyciski->push_back(ourMainMenu->cancel);
+	przyciski->push_back(ok);
+	przyciski->push_back(cancel);
 	SDL_Surface * infoBox = cmh->genMessage(preth->getTitle(data), preth->getDescr(data), EWindowType::yesOrNO, przyciski, btnspos);
 	behindCurMes = SDL_CreateRGBSurface(ekran->flags,infoBox->w,infoBox->h,ekran->format->BitsPerPixel,ekran->format->Rmask,ekran->format->Gmask,ekran->format->Bmask,ekran->format->Amask);
 	SDL_Rect pos = genRect(infoBox->h,infoBox->w,
@@ -143,8 +143,8 @@ void CPreGame::showAskBox (std::string data, void(*f1)(),void(*f2)())
 	(*btnspos)[0].y+=pos.y;
 	(*btnspos)[1].x+=pos.x;
 	(*btnspos)[1].y+=pos.y;
-	btns.push_back(Button(1,(*btnspos)[0],&CPreGame::quit,ourMainMenu->ok));
-	btns.push_back(Button(2,(*btnspos)[1],(&CPreGame::hideBox),ourMainMenu->cancel));
+	btns.push_back(Button<>(1,(*btnspos)[0],&CPreGame::quit,ok));
+	btns.push_back(Button<>(2,(*btnspos)[1],(&CPreGame::hideBox),cancel));
 	delete cmh;
 	delete przyciski;
 	delete btnspos;
@@ -173,6 +173,7 @@ void CPreGame::runLoop()
 					return ;
 				else if (sEvent.type==SDL_MOUSEMOTION)
 				{
+					if (currentMessage) continue;
 					if (ourMainMenu->highlighted)
 					{
 						switch (ourMainMenu->highlighted)
@@ -270,6 +271,7 @@ void CPreGame::runLoop()
 							updateRect(&btns[i].pos);
 						}
 					}
+					if (currentMessage) continue;
 					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(1,1);
@@ -308,6 +310,7 @@ void CPreGame::runLoop()
 							updateRect(&btns[i].pos);
 						}
 					}
+					if (currentMessage) continue;
 					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(1,2);
@@ -337,6 +340,7 @@ void CPreGame::runLoop()
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_RIGHT))
 				{
+					if (currentMessage) continue;
 					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						showCenBox(preth->mainNewGame);

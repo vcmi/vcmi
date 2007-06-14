@@ -4,28 +4,30 @@
 #include "CPreGameTextHandler.h" 
 class CPreGame;
 extern CPreGame * CPG;
-struct Button
+typedef void(CPreGame::*ttt)();
+template <class T=ttt> struct Button
 {
 	int type; // 1=yes; 2=no
 	SDL_Rect pos;
-	(void)(CPreGame::*fun)();
+	T fun;
 	CSemiDefHandler* imgs;
-	Button(int Type, SDL_Rect Pos, void(CPreGame::*Fun)(),CSemiDefHandler* Imgs):imgs(Imgs),type(Type),pos(Pos),fun(Fun){};
+	Button(int Type, SDL_Rect Pos, T Fun,CSemiDefHandler* Imgs):imgs(Imgs),type(Type),pos(Pos),fun(Fun){};
 	Button(){};
 };
 class CPreGame
 {
 public:
-	std::vector<Button> btns;
+	std::vector<Button<> > btns;
 	CPreGameTextHandler * preth ;
 	SDL_Rect * currentMessage;	
 	SDL_Surface * behindCurMes;
+	CSemiDefHandler *ok, *cancel;
 	enum EState { //where are we?
-		mainMenu, ScenarioList
+		mainMenu, newGame, loadGame, ScenarioList
 	} state;
 	struct menuItems { 
 		SDL_Surface * background;
-		CSemiDefHandler *newGame, *loadGame, *highScores,*credits, *quit, *ok, *cancel;
+		CSemiDefHandler *newGame, *loadGame, *highScores,*credits, *quit;
 		SDL_Rect lNewGame, lLoadGame, lHighScores, lCredits, lQuit;
 		int highlighted;//0=none; 1=new game; 2=load game; 3=high score; 4=credits; 5=quit
 	} * ourMainMenu, * newGameManu;
