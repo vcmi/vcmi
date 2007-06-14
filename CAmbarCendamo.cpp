@@ -406,7 +406,7 @@ void CAmbarCendamo::deh3m()
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	////loading objects
 	int howManyObjs = readNormalNr(i, 4); i+=4;
-	/*for(int ww=0; ww<howManyObjs; ++ww)
+	/*for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
@@ -515,7 +515,7 @@ void CAmbarCendamo::deh3m()
 				}
 				else spec->experience = 0;
 				++i; //TODO - czy tu na pewno nie ma istotnej informacji?
-				bool nonstandardAbilities = bufor[i]; //true if hero has specified abilities
+				bool nonstandardAbilities = bufor[i]; ++i; //true if hero has specified abilities
 				if(nonstandardAbilities)
 				{
 					int howMany = readNormalNr(i); i+=4;
@@ -526,12 +526,119 @@ void CAmbarCendamo::deh3m()
 					}
 				}
 				bool standGarrison = bufor[i]; ++i; //true if hero has nonstandard garrison
+				spec->standardGarrison = standGarrison;
 				if(standGarrison)
 				{
 					spec->garrison = readCreatureSet(i); i+=7;
 				}
 				bool form = bufor[i]; ++i; //formation
 				spec->garrison.formation = form;
+				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
+				if(artSet)
+				{
+					//head art
+					int id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artHead = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artHead = NULL;
+					//shoulders art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artShoulders = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artShoulders = NULL;
+					//neck art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artNeck = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artNeck = NULL;
+					//right hand art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artRhand = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artRhand = NULL;
+					//left hand art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artLHand = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artLHand = NULL;
+					//torso art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artTorso = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artTorso = NULL;
+					//right hand ring
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artRRing = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artRRing = NULL;
+					//left hand ring
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artLRing = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artLRing = NULL;
+					//feet art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artFeet = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artFeet = NULL;
+					//misc1 art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artMisc1 = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artMisc1 = NULL;
+					//misc2 art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artMisc2 = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artMisc2 = NULL;
+					//misc3 art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artMisc3 = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artMisc3 = NULL;
+					//misc4 art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artMisc4 = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artMisc4 = NULL;
+					//machine1 art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artMach1 = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artMach1 = NULL;
+					//machine2 art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artMach2 = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artMach2 = NULL;
+					//machine3 art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artMach3 = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artMach3 = NULL;
+					//misc5 art
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artMisc5 = NULL;
+				}
 				break;
 			}
 		}

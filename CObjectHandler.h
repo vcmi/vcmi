@@ -46,8 +46,10 @@ public:
 	int player;
 	CHero * type;
 	std::string name; //if nonstandard
+	bool standardGarrison; //true if hero has standard garrison
 	CCreatureSet garrison; //hero's army
-	std::vector<CArtifact *> artifacts; //hero's artifacts
+	std::vector<CArtifact *> artifacts; //hero's artifacts from bag
+	CArtifact * artHead, * artLRing, * artRRing, * artLHand, * artRhand, * artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck, * artShoulders; //working artifacts
 	bool isGuarding;
 	int guardRange; //range of hero's guard
 	std::string biography; //if nonstandard
