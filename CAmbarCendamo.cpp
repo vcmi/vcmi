@@ -536,109 +536,170 @@ void CAmbarCendamo::deh3m()
 				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
 				if(artSet)
 				{
-					//head art
+					//head art //1
 					int id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artHead = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artHead = NULL;
-					//shoulders art
+					//shoulders art //2
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artShoulders = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artShoulders = NULL;
-					//neck art
+					//neck art //3
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artNeck = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artNeck = NULL;
-					//right hand art
+					//right hand art //4
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artRhand = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artRhand = NULL;
-					//left hand art
+					//left hand art //5
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artLHand = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artLHand = NULL;
-					//torso art
+					//torso art //6
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artTorso = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artTorso = NULL;
-					//right hand ring
+					//right hand ring //7
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artRRing = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artRRing = NULL;
-					//left hand ring
+					//left hand ring //8
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artLRing = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artLRing = NULL;
-					//feet art
+					//feet art //9
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artFeet = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artFeet = NULL;
-					//misc1 art
+					//misc1 art //10
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artMisc1 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc1 = NULL;
-					//misc2 art
+					//misc2 art //11
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artMisc2 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc2 = NULL;
-					//misc3 art
+					//misc3 art //12
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artMisc3 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc3 = NULL;
-					//misc4 art
+					//misc4 art //13
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artMisc4 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc4 = NULL;
-					//machine1 art
+					//machine1 art //14
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artMach1 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMach1 = NULL;
-					//machine2 art
+					//machine2 art //15
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artMach2 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMach2 = NULL;
-					//machine3 art
+					//machine3 art //16
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artMach3 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMach3 = NULL;
-					//misc5 art
+					//misc5 art //17
 					id = readNormalNr(i, 2); i+=2;
 					if(id!=0xffff)
 						spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc5 = NULL;
+					//spellbook
+					id = readNormalNr(i, 2); i+=2;
+					if(id!=0xffff)
+						spec->artSpellBook = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artSpellBook = NULL;
+					//19 //???what is that? gap in file or what?
+					i+=2;
+					//bag artifacts //20
+					int amount = readNormalNr(i, 2); i+=2; //number of artifacts in hero's bag
+					if(amount>0)
+					{
+						for(int ss=0; ss<amount; ++ss)
+						{
+							id = readNormalNr(i, 2); i+=2;
+							if(id!=0xffff)
+								spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[id]));
+							else
+								spec->artifacts.push_back(NULL);
+						}
+					}
+				} //artifacts
+				spec->guardRange = readNormalNr(i, 1); ++i;
+				if(spec->guardRange == 0xff)
+					spec->isGuarding = false;
+				else
+					spec->isGuarding = true;
+				bool hasBiography = bufor[i]; ++i; //true if hero has nonstandard (mapmaker defined) biography
+				if(hasBiography)
+				{
+					int length = readNormalNr(i); i+=4;
+					int iStart = i;
+					i+=length;
+					for(int bb=0; bb<length; ++bb)
+					{
+						spec->biography+=bufor[iStart+bb];
+					}
 				}
+				spec->sex = !(bufor[i]); ++i;
+				//spells
+				bool areSpells = bufor[i]; ++i;
+
+				if(areSpells) //TODO: sprawdziæ
+				{
+					int ist = i;
+					for(i; i<ist+9; ++i)
+					{
+						unsigned char c = bufor[i];
+						for(int yy=0; yy<8; ++yy)
+						{
+							if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+							{
+								if(c != (c|((unsigned char)intPow(2, yy))))
+									spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]))
+							}
+						}
+					}
+					i+=9;
+				}
+				//spells loaded
+
+				nobj.info = spec;
 				break;
 			}
 		}

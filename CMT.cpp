@@ -258,7 +258,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
-		CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
+		CAmbarCendamo * ac = new CAmbarCendamo("1base+l4"); //4gryf
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
