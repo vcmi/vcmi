@@ -110,22 +110,29 @@ SDL_Surface * CMessage::genMessage
 
 	SDL_Surface * ret = drawBox1(ww,hh);
 	//prepare title text
-	SDL_Surface * titleText = TTF_RenderText_Shaded(TNRB,title.c_str(),tytulowy,tlo);	
-	//draw title
-	SDL_Rect tytul = genRect(titleText->h,titleText->w,((ret->w/2)-(titleText->w/2)),37);
-	SDL_BlitSurface(titleText,NULL,ret,&tytul);
-	SDL_FreeSurface(titleText);
+	
+	if (title.length())
+	{
+		SDL_Surface * titleText = TTF_RenderText_Shaded(TNRB,title.c_str(),tytulowy,tlo);	
+		//draw title
+		SDL_Rect tytul = genRect(titleText->h,titleText->w,((ret->w/2)-(titleText->w/2)),37);
+		SDL_BlitSurface(titleText,NULL,ret,&tytul);
+		SDL_FreeSurface(titleText);
+	}
 	//draw text
 	for (int i=0; i<tekst->size(); i++) 
 	{
+		int by = 37+i*21;
+		if (title.length()) by+=40;
 		SDL_Surface * tresc = TTF_RenderText_Shaded(TNRB,(*tekst)[i].c_str(),zwykly,tlo);
-		SDL_Rect trescRect = genRect(tresc->h,tresc->w,((ret->w/2)-(tresc->w/2)),77+i*21);
+		SDL_Rect trescRect = genRect(tresc->h,tresc->w,((ret->w/2)-(tresc->w/2)),by);
 		SDL_BlitSurface(tresc,NULL,ret,&trescRect);
 		SDL_FreeSurface(tresc);
 	}
 	if (type==EWindowType::yesOrNO) // add buttons
 	{
-		int by = 40+77+tekst->size()*21;
+		int by = 77+tekst->size()*21;
+		if (title.length()) by+=40;
 		int hwo = (*addPics)[0]->ourImages[0].bitmap->w, hwc=(*addPics)[0]->ourImages[0].bitmap->w;
 		//ok
 		SDL_Rect trescRect = genRect((*addPics)[0]->ourImages[0].bitmap->h,hwo,((ret->w/2)-hwo-10),by);

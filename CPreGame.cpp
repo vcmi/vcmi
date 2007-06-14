@@ -20,8 +20,65 @@ CPreGame::CPreGame()
 	currentMessage=NULL;
 	behindCurMes=NULL;
 	initMainMenu();
+	initNewMenu();
 	showMainMenu();
 	CPG=this;
+}
+void CPreGame::initNewMenu()
+{
+	ourNewMenu = new menuItems();
+	ourNewMenu->background = SDL_LoadBMP("h3bitmap.lod\\ZPIC1005.bmp");
+	CSemiLodHandler * slh = new CSemiLodHandler();
+	slh->openLod("H3sprite.lod");
+	 //loading menu buttons
+	ourNewMenu->newGame = slh->giveDef("ZTSINGL.DEF");
+	ourNewMenu->loadGame = slh->giveDef("ZTMULTI.DEF");
+	ourNewMenu->highScores = slh->giveDef("ZTCAMPN.DEF");
+	ourNewMenu->credits = slh->giveDef("ZTTUTOR.DEF");
+	ourNewMenu->quit = slh->giveDef("ZTBACK.DEF");
+	ok = slh->giveDef("IOKAY.DEF");
+	cancel = slh->giveDef("ICANCEL.DEF");
+	// single scenario
+	ourNewMenu->lNewGame.h=ourNewMenu->newGame->ourImages[0].bitmap->h;
+	ourNewMenu->lNewGame.w=ourNewMenu->newGame->ourImages[0].bitmap->w;
+	ourNewMenu->lNewGame.x=545;
+	ourNewMenu->lNewGame.y=4;
+	//multiplayer
+	ourNewMenu->lLoadGame.h=ourNewMenu->loadGame->ourImages[0].bitmap->h;
+	ourNewMenu->lLoadGame.w=ourNewMenu->loadGame->ourImages[0].bitmap->w;
+	ourNewMenu->lLoadGame.x=568;
+	ourNewMenu->lLoadGame.y=120;
+	//campaign
+	ourNewMenu->lHighScores.h=ourNewMenu->highScores->ourImages[0].bitmap->h;
+	ourNewMenu->lHighScores.w=ourNewMenu->highScores->ourImages[0].bitmap->w;
+	ourNewMenu->lHighScores.x=541;
+	ourNewMenu->lHighScores.y=233;
+	//tutorial
+	ourNewMenu->lCredits.h=ourNewMenu->credits->ourImages[0].bitmap->h;
+	ourNewMenu->lCredits.w=ourNewMenu->credits->ourImages[0].bitmap->w;
+	ourNewMenu->lCredits.x=545;
+	ourNewMenu->lCredits.y=358;
+	//back
+	ourNewMenu->lQuit.h=ourNewMenu->quit->ourImages[0].bitmap->h;
+	ourNewMenu->lQuit.w=ourNewMenu->quit->ourImages[0].bitmap->w;
+	ourNewMenu->lQuit.x=582;
+	ourNewMenu->lQuit.y=464;
+	ourNewMenu->fQuit=&CPreGame::showMainMenu;
+	
+	ourNewMenu->highlighted=0;
+	handledLods.push_back(slh);
+	delete slh;
+}
+void CPreGame::showNewMenu()
+{
+	state = EState::newGame;
+	SDL_BlitSurface(ourNewMenu->background,NULL,ekran,NULL);
+	SDL_BlitSurface(ourNewMenu->newGame->ourImages[0].bitmap,NULL,ekran,&ourNewMenu->lNewGame);
+	SDL_BlitSurface(ourNewMenu->loadGame->ourImages[0].bitmap,NULL,ekran,&ourNewMenu->lLoadGame);
+	SDL_BlitSurface(ourNewMenu->highScores->ourImages[0].bitmap,NULL,ekran,&ourNewMenu->lHighScores);
+	SDL_BlitSurface(ourNewMenu->credits->ourImages[0].bitmap,NULL,ekran,&ourNewMenu->lCredits);
+	SDL_BlitSurface(ourNewMenu->quit->ourImages[0].bitmap,NULL,ekran,&ourNewMenu->lQuit);
+	SDL_Flip(ekran);
 }
 void CPreGame::initMainMenu()
 {
@@ -42,6 +99,7 @@ void CPreGame::initMainMenu()
 	ourMainMenu->lNewGame.w=ourMainMenu->newGame->ourImages[0].bitmap->w;
 	ourMainMenu->lNewGame.x=540;
 	ourMainMenu->lNewGame.y=10;
+	ourMainMenu->fNewGame=&CPreGame::showNewMenu;
 	//load game location
 	ourMainMenu->lLoadGame.h=ourMainMenu->loadGame->ourImages[0].bitmap->h;
 	ourMainMenu->lLoadGame.w=ourMainMenu->loadGame->ourImages[0].bitmap->w;
@@ -61,7 +119,8 @@ void CPreGame::initMainMenu()
 	ourMainMenu->lQuit.h=ourMainMenu->quit->ourImages[0].bitmap->h;
 	ourMainMenu->lQuit.w=ourMainMenu->quit->ourImages[0].bitmap->w;
 	ourMainMenu->lQuit.x=586;
-	ourMainMenu->lQuit.y=469;
+	ourMainMenu->lQuit.y=468;
+	ourMainMenu->fQuit=&CPreGame::quitAskBox;
 	
 	ourMainMenu->highlighted=0;
 	handledLods.push_back(slh);
@@ -69,6 +128,7 @@ void CPreGame::initMainMenu()
 }
 void CPreGame::showMainMenu()
 {
+	state = EState::mainMenu;
 	SDL_BlitSurface(ourMainMenu->background,NULL,ekran,NULL);
 	SDL_BlitSurface(ourMainMenu->newGame->ourImages[0].bitmap,NULL,ekran,&ourMainMenu->lNewGame);
 	SDL_BlitSurface(ourMainMenu->loadGame->ourImages[0].bitmap,NULL,ekran,&ourMainMenu->lLoadGame);
@@ -79,31 +139,33 @@ void CPreGame::showMainMenu()
 }
 void CPreGame::highlightButton(int which, int on)
 {
+
+	menuItems * current = currentItems();
 	switch (which)
 	{
 	case 1:
 		{
-			SDL_BlitSurface(ourMainMenu->newGame->ourImages[on].bitmap,NULL,ekran,&ourMainMenu->lNewGame);
+			SDL_BlitSurface(current->newGame->ourImages[on].bitmap,NULL,ekran,&current->lNewGame);
 			break;
 		}
 	case 2:
 		{
-			SDL_BlitSurface(ourMainMenu->loadGame->ourImages[on].bitmap,NULL,ekran,&ourMainMenu->lLoadGame);
+			SDL_BlitSurface(current->loadGame->ourImages[on].bitmap,NULL,ekran,&current->lLoadGame);
 			break;
 		}
 	case 3:
 		{
-			SDL_BlitSurface(ourMainMenu->highScores->ourImages[on].bitmap,NULL,ekran,&ourMainMenu->lHighScores);
+			SDL_BlitSurface(current->highScores->ourImages[on].bitmap,NULL,ekran,&current->lHighScores);
 			break;
 		}
 	case 4:
 		{
-			SDL_BlitSurface(ourMainMenu->credits->ourImages[on].bitmap,NULL,ekran,&ourMainMenu->lCredits);
+			SDL_BlitSurface(current->credits->ourImages[on].bitmap,NULL,ekran,&current->lCredits);
 			break;
 		}
 	case 5:
 		{
-			SDL_BlitSurface(ourMainMenu->quit->ourImages[on].bitmap,NULL,ekran,&ourMainMenu->lQuit);
+			SDL_BlitSurface(current->quit->ourImages[on].bitmap,NULL,ekran,&current->lQuit);
 			break;
 		}
 	}
@@ -160,6 +222,16 @@ void CPreGame::hideBox ()
 	currentMessage = NULL;
 	behindCurMes=NULL;
 }
+CPreGame::menuItems * CPreGame::currentItems()
+{
+	switch (state)
+	{
+	case EState::mainMenu:
+		return ourMainMenu;
+	case EState::newGame:
+		return ourNewMenu;
+	}
+}
 void CPreGame::runLoop()
 {
 	SDL_Event sEvent;
@@ -169,96 +241,134 @@ void CPreGame::runLoop()
 		{
 			if(SDL_PollEvent(&sEvent))  //wait for event...
 			{
+				menuItems * current = currentItems();
 				if(sEvent.type==SDL_QUIT) 
 					return ;
+				else if (sEvent.type==SDL_KEYDOWN)
+				{
+					if (state==EState::newGame)
+					{
+						switch (sEvent.key.keysym.sym)
+						{
+						case (SDLK_q):
+							{
+								return ;
+								break;
+							}
+						case SDLK_LEFT:
+							{
+								if(currentItems()->lNewGame.x>0)
+									currentItems()->lNewGame.x--;
+								break;
+							}
+						case (SDLK_RIGHT):
+							{
+									currentItems()->lNewGame.x++;
+								break;
+							}
+						case (SDLK_UP):
+							{
+								if(currentItems()->lNewGame.y>0)
+									currentItems()->lNewGame.y--;
+								break;
+							}
+						case (SDLK_DOWN):
+							{
+									currentItems()->lNewGame.y++;
+								break;
+							}
+						}
+						showNewMenu();
+					}
+				}
 				else if (sEvent.type==SDL_MOUSEMOTION)
 				{
 					if (currentMessage) continue;
-					if (ourMainMenu->highlighted)
+					if (current->highlighted)
 					{
-						switch (ourMainMenu->highlighted)
+						switch (current->highlighted)
 						{
 							case 1:
 								{
-									if(isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
+									if(isItIn(&current->lNewGame,sEvent.motion.x,sEvent.motion.y))
 										continue;
 									else
 									{
-										ourMainMenu->highlighted=0;
+										current->highlighted=0;
 										highlightButton(1,0);
 									}
 									break;
 								}
 							case 2:
 								{
-									if(isItIn(&ourMainMenu->lLoadGame,sEvent.motion.x,sEvent.motion.y))
+									if(isItIn(&current->lLoadGame,sEvent.motion.x,sEvent.motion.y))
 										continue;
 									else
 									{
-										ourMainMenu->highlighted=0;
+										current->highlighted=0;
 										highlightButton(2,0);
 									}
 									break;
 								}
 							case 3:
 								{
-									if(isItIn(&ourMainMenu->lHighScores,sEvent.motion.x,sEvent.motion.y))
+									if(isItIn(&current->lHighScores,sEvent.motion.x,sEvent.motion.y))
 										continue;
 									else
 									{
-										ourMainMenu->highlighted=0;
+										current->highlighted=0;
 										highlightButton(3,0);
 									}
 									break;
 								}
 							case 4:
 								{
-									if(isItIn(&ourMainMenu->lCredits,sEvent.motion.x,sEvent.motion.y))
+									if(isItIn(&current->lCredits,sEvent.motion.x,sEvent.motion.y))
 										continue;
 									else
 									{
-										ourMainMenu->highlighted=0;
+										current->highlighted=0;
 										highlightButton(4,0);
 									}
 									break;
 								}
 							case 5:
 								{
-									if(isItIn(&ourMainMenu->lQuit,sEvent.motion.x,sEvent.motion.y))
+									if(isItIn(&current->lQuit,sEvent.motion.x,sEvent.motion.y))
 										continue;
 									else
 									{
-										ourMainMenu->highlighted=0;
+										current->highlighted=0;
 										highlightButton(5,0);
 									}
 									break;
 								}
-						} //switch (ourMainMenu->highlighted)
-					} // if (ourMainMenu->highlighted)
-					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
+						} //switch (current->highlighted)
+					} // if (current->highlighted)
+					if (isItIn(&current->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(1,2);
-						ourMainMenu->highlighted=1;
+						current->highlighted=1;
 					}
-					else if (isItIn(&ourMainMenu->lLoadGame,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lLoadGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(2,2);
-						ourMainMenu->highlighted=2;
+						current->highlighted=2;
 					}
-					else if (isItIn(&ourMainMenu->lHighScores,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lHighScores,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(3,2);
-						ourMainMenu->highlighted=3;
+						current->highlighted=3;
 					}
-					else if (isItIn(&ourMainMenu->lCredits,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lCredits,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(4,2);
-						ourMainMenu->highlighted=4;
+						current->highlighted=4;
 					}
-					else if (isItIn(&ourMainMenu->lQuit,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lQuit,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(5,2);
-						ourMainMenu->highlighted=5;
+						current->highlighted=5;
 					}
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_LEFT))
@@ -272,30 +382,30 @@ void CPreGame::runLoop()
 						}
 					}
 					if (currentMessage) continue;
-					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
+					if (isItIn(&current->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(1,1);
-						ourMainMenu->highlighted=1;
+						current->highlighted=1;
 					}
-					else if (isItIn(&ourMainMenu->lLoadGame,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lLoadGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(2,1);
-						ourMainMenu->highlighted=2;
+						current->highlighted=2;
 					}
-					else if (isItIn(&ourMainMenu->lHighScores,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lHighScores,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(3,1);
-						ourMainMenu->highlighted=3;
+						current->highlighted=3;
 					}
-					else if (isItIn(&ourMainMenu->lCredits,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lCredits,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(4,1);
-						ourMainMenu->highlighted=4;
+						current->highlighted=4;
 					}
-					else if (isItIn(&ourMainMenu->lQuit,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lQuit,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(5,1);
-						ourMainMenu->highlighted=5;
+						current->highlighted=5;
 					}
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_LEFT))
@@ -311,72 +421,61 @@ void CPreGame::runLoop()
 						}
 					}
 					if (currentMessage) continue;
-					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
+					if (isItIn(&current->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(1,2);
-						ourMainMenu->highlighted=1;
+						current->highlighted=1;
+						(this->*(current->fNewGame))();
 					}
-					else if (isItIn(&ourMainMenu->lLoadGame,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lLoadGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(2,2);
-						ourMainMenu->highlighted=2;
+						current->highlighted=2;
 					}
-					else if (isItIn(&ourMainMenu->lHighScores,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lHighScores,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(3,2);
-						ourMainMenu->highlighted=3;
+						current->highlighted=3;
 					}
-					else if (isItIn(&ourMainMenu->lCredits,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lCredits,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(4,2);
-						ourMainMenu->highlighted=4;
+						current->highlighted=4;
 					}
-					else if (isItIn(&ourMainMenu->lQuit,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lQuit,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(5,2);
-						ourMainMenu->highlighted=5;
-						showAskBox("\"{BBBB}BBDDDDDDDDDD\"",NULL,NULL);
+						current->highlighted=5;
+						(this->*(current->fQuit))();
 					}
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_RIGHT))
 				{
 					if (currentMessage) continue;
-					if (isItIn(&ourMainMenu->lNewGame,sEvent.motion.x,sEvent.motion.y))
+					if (isItIn(&current->lNewGame,sEvent.motion.x,sEvent.motion.y))
 					{
-						showCenBox(preth->mainNewGame);
+						showCenBox(buttonText(0));
 					}
-					else if (isItIn(&ourMainMenu->lLoadGame,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lLoadGame,sEvent.motion.x,sEvent.motion.y))
 					{
-						showCenBox(preth->mainLoadGame);
+						showCenBox(buttonText(1));
 					}
-					else if (isItIn(&ourMainMenu->lHighScores,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lHighScores,sEvent.motion.x,sEvent.motion.y))
 					{
-						showCenBox(preth->mainHighScores);
+						showCenBox(buttonText(2));
 					}
-					else if (isItIn(&ourMainMenu->lCredits,sEvent.motion.x,sEvent.motion.y))
+					else if (isItIn(&current->lCredits,sEvent.motion.x,sEvent.motion.y))
 					{
-						showCenBox(preth->mainCredits);
+						showCenBox(buttonText(3));
 					}
 					else if (isItIn(&ourMainMenu->lQuit,sEvent.motion.x,sEvent.motion.y))
 					{
-						showCenBox(preth->mainQuit);
+						showCenBox(buttonText(4));
 					}
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_RIGHT) && currentMessage)
 				{
 					hideBox();
-				}
-				else if (sEvent.type==SDL_KEYDOWN)
-				{
-					switch (sEvent.key.keysym.sym)
-					{
-					case (SDLK_q):
-						{
-							return ;
-							break;
-						}
-					}
-					showMainMenu();
 				}
 			}
 		}
@@ -385,5 +484,43 @@ void CPreGame::runLoop()
 
 		SDL_Delay(30); //give time for other apps
 	}
-
+}
+std::string CPreGame::buttonText(int which)
+{
+	if (state==EState::mainMenu)
+	{
+		switch (which)
+		{
+		case 0:
+			return preth->mainNewGame;
+		case 1:
+			return preth->mainLoadGame;
+		case 2:
+			return preth->mainHighScores;
+		case 3:
+			return preth->mainCredits;
+		case 4:
+			return preth->mainQuit;
+		}
+	}
+	else if (state==EState::newGame)
+	{
+		switch (which)
+		{
+		case 0:
+			return preth->ngSingleScenario;
+		case 1:
+			return preth->ngMultiplayer;
+		case 2:
+			return preth->ngCampain;
+		case 3:
+			return preth->ngTutorial;
+		case 4:
+			return preth->ngBack;
+		}
+	}
+}
+void CPreGame::quitAskBox()
+{
+	showAskBox("\"{}  Are you sure you want to quit?\"",NULL,NULL);
 }

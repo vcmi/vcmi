@@ -29,12 +29,18 @@ public:
 		SDL_Surface * background;
 		CSemiDefHandler *newGame, *loadGame, *highScores,*credits, *quit;
 		SDL_Rect lNewGame, lLoadGame, lHighScores, lCredits, lQuit;
+		ttt fNewGame, fLoadGame, fHighScores, fCredits, fQuit;
 		int highlighted;//0=none; 1=new game; 2=load game; 3=high score; 4=credits; 5=quit
-	} * ourMainMenu, * newGameManu;
+	} * ourMainMenu, * ourNewMenu;
 	std::string map; //selected map
 	std::vector<CSemiLodHandler *> handledLods; 
 	CPreGame(); //c-tor
+	std::string buttonText(int which);
+	menuItems * currentItems();
+	void quitAskBox();
 	void quit(){exit(0);};  
+	void initNewMenu(); 
+	void showNewMenu();  
 	void showMainMenu();  
 	void runLoop(); // runs mainloop of PreGame
 	void initMainMenu(); //loads components for main menu
