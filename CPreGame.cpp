@@ -246,15 +246,15 @@ void CPreGame::runLoop()
 					return ;
 				else if (sEvent.type==SDL_KEYDOWN)
 				{
-					if (state==EState::newGame)
+					if (sEvent.key.keysym.sym==SDLK_q)
+						{
+							return ;
+							break;
+						}
+					/*if (state==EState::newGame)
 					{
 						switch (sEvent.key.keysym.sym)
 						{
-						case (SDLK_q):
-							{
-								return ;
-								break;
-							}
 						case SDLK_LEFT:
 							{
 								if(currentItems()->lNewGame.x>0)
@@ -279,7 +279,7 @@ void CPreGame::runLoop()
 							}
 						}
 						showNewMenu();
-					}
+					}*/
 				}
 				else if (sEvent.type==SDL_MOUSEMOTION)
 				{
