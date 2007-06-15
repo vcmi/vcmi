@@ -42,7 +42,7 @@ public:
 class CHeroObjInfo : public CSpecObjInfo
 {
 public:
-	char bytes[4]; //mysterius bytes identifying hero in a strange way
+	unsigned char bytes[4]; //mysterius bytes identifying hero in a strange way
 	int player;
 	CHero * type;
 	std::string name; //if nonstandard
@@ -59,6 +59,55 @@ public:
 	unsigned int experience; //hero's experience points
 	std::vector<CAbility *> abilities; //hero's abilities
 	std::vector<int> abilityLevels; //hero ability levels
+	bool defaultMianStats; //if true attack, defence, power and knowledge are typical
+};
+
+class CCreatureObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char bytes[4]; //mysterious bytes identifying creature
+	unsigned int number; //number of units (0 - random)
+	unsigned char character; //chracter of this set of creatures (0 - the most friendly, 4 - the most hostile)
+	std::string message; //message printed for attacking hero
+	int wood, mercury, ore, sulfur, crytal, gems, gold; //resources gained to hero that has won with monsters
+	CArtifact * gainedArtifact; //artifact gained to hero
+	bool neverFlees; //if true, the troops will never flee
+	bool notGrowingTeam; //if true, number of units won't grow
+};
+
+class CSignObjInfo : public CSpecObjInfo
+{
+public:
+	std::string message; //message
+};
+
+class CSeerHutObjInfo : public CSpecObjInfo
+{
+public:
+	char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
+	bool isDayLimit; //if true, there is a day limit
+	int lastDay; //after this day (first day is 0) mission cannot be completed
+	//for mission 1
+	int m1level;
+	//for mission 2
+	int m2attack, m2defence, m2power, m2knowledge;
+	//for mission 3
+	unsigned char m3bytes[4];
+	//for mission 4
+	unsigned char m4bytes[4];
+	//for mission 5
+	std::vector<CArtifact *> m5arts;
+	//for mission 6
+	std::vector<CCreature *> m6cre;
+	std::vector<int> m6number;
+	//for mission 7
+	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;
+	//for mission 8
+	CHero * m8hero;
+	//for mission 9
+	int m9player; //number; from 0 to 7
+
+	std::string firstVisitText, nextVisitText, completedText;
 };
 
 class CObject //typical object that can be encountered on a map

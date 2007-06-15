@@ -405,8 +405,8 @@ void CAmbarCendamo::deh3m()
 	}
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	////loading objects
-	int howManyObjs = readNormalNr(i, 4); i+=4;
-	/*for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
+	/*int howManyObjs = readNormalNr(i, 4); i+=4;
+	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
@@ -690,22 +690,281 @@ void CAmbarCendamo::deh3m()
 						{
 							if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
 							{
-								if(c != (c|((unsigned char)intPow(2, yy))))
-									spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]))
+								if(c == (c|((unsigned char)intPow(2, yy))))
+									spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
 							}
 						}
 					}
-					i+=9;
 				}
 				//spells loaded
+				spec->defaultMianStats = bufor[i]; ++i;
+				if(spec->defaultMianStats)
+				{
+					spec->attack = bufor[i]; ++i;
+					spec->defence = bufor[i]; ++i;
+					spec->power = bufor[i]; ++i;
+					spec->knowledge = bufor[i]; ++i;
+				}
+				i+=16;
+				nobj.info = spec;
+				break;
+			}
+		case CREATURES_DEF:
+			{
+				CCreatureObjInfo * spec = new CCreatureObjInfo;
+				spec->bytes[0] = bufor[i]; ++i;
+				spec->bytes[1] = bufor[i]; ++i;
+				spec->bytes[2] = bufor[i]; ++i;
+				spec->bytes[3] = bufor[i]; ++i;
+				spec->number = readNormalNr(i, 2); i+=2;
+				spec->character = bufor[i]; ++i;
+				bool isMesTre = bufor[i]; ++i; //true if there is message or treasury
+				if(isMesTre)
+				{
+					int messLength = readNormalNr(i); i+=4;
+					if(messLength>0)
+					{
+						for(int tt=0; tt<messLength; ++tt)
+						{
+							spec->message += bufor[i]; ++i;
+						}
+					}
+					spec->wood = readNormalNr(i); i+=4;
+					spec->mercury = readNormalNr(i); i+=4;
+					spec->ore = readNormalNr(i); i+=4;
+					spec->sulfur = readNormalNr(i); i+=4;
+					spec->crytal = readNormalNr(i); i+=4;
+					spec->gems = readNormalNr(i); i+=4;
+					spec->gold = readNormalNr(i); i+=4;
+					int artID = readNormalNr(i, 2); i+=2;
+					if(artID!=0xffff)
+						spec->gainedArtifact = &(CGameInfo::mainObj->arth->artifacts[artID]);
+					else
+						spec->gainedArtifact = NULL;
+				}
+				spec->neverFlees = bufor[i]; ++i;
+				spec->notGrowingTeam = bufor[i]; ++i;
+				i+=2;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::SIGN_DEF:
+			{
+				CSignObjInfo * spec = new CSignObjInfo;
+				int length = readNormalNr(i); i+=4;
+				for(int rr=0; rr<length; ++rr)
+				{
+					spec->message += bufor[i]; ++i;
+				}
+				i+=4;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::SEERHUT_DEF:
+			{
+				CSeerHutObjInfo * spec = new CSeerHutObjInfo;
+				spec->missionType = bufor[i]; ++i;
+				switch(spec->missionType)
+				{
+				case 1:
+					{
+						spec->m1level = readNormalNr(i); i+=4;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 2:
+					{
+						spec->m2attack = bufor[i]; ++i;
+						spec->m2defence = bufor[i]; ++i;
+						spec->m2power = bufor[i]; ++i;
+						spec->m2knowledge = bufor[i]; ++i;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 3:
+					{
+						spec->m3bytes[0] = bufor[i]; ++i;
+						spec->m3bytes[1] = bufor[i]; ++i;
+						spec->m3bytes[2] = bufor[i]; ++i;
+						spec->m3bytes[3] = bufor[i]; ++i;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 4:
+					{
+						spec->m4bytes[0] = bufor[i]; ++i;
+						spec->m4bytes[1] = bufor[i]; ++i;
+						spec->m4bytes[2] = bufor[i]; ++i;
+						spec->m4bytes[3] = bufor[i]; ++i;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 5:
+					{
+						int artNumber = bufor[i]; ++i;
+						for(int yy=0; yy<artNumber; ++yy)
+						{
+							int artid = readNormalNr(i, 2); i+=2;
+							spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artid]));
+						}
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 6:
+					{
+						int typeNumber = bufor[i]; ++i;
+						for(int hh=0; hh<typeNumber; ++hh)
+						{
+							int creType = readNormalNr(i, 2); i+=2;
+							int creNumb = readNormalNr(i, 2); i+=2;
+							spec->m6cre.push_back(&(CGameInfo::mainObj->creh->creatures[creType]));
+							spec->m6number.push_back(creNumb);
+						}
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 7:
+					{
+						spec->m7wood = readNormalNr(i); i+=4;
+						spec->m7mercury = readNormalNr(i); i+=4;
+						spec->m7ore = readNormalNr(i); i+=4;
+						spec->m7sulfur = readNormalNr(i); i+=4;
+						spec->m7crystal = readNormalNr(i); i+=4;
+						spec->m7gems = readNormalNr(i); i+=4;
+						spec->m7gold = readNormalNr(i); i+=4;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 8:
+					{
+						int heroType = bufor[i]; ++i;
+						spec->m8hero = &(CGameInfo::mainObj->heroh->heroes[heroType]);
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 9:
+					{
+						spec->m9player = bufor[i]; ++i;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				}//internal switch end (seer huts)
+
+				int len1 = readNormalNr(i); i+=4;
+				for(int ee=0; ee<len1; ++ee)
+				{
+					spec->firstVisitText += bufor[i]; ++i;
+				}
+
+				int len2 = readNormalNr(i); i+=4;
+				for(int ee=0; ee<len2; ++ee)
+				{
+					spec->nextVisitText += bufor[i]; ++i;
+				}
+
+				int len3 = readNormalNr(i); i+=4;
+				for(int ee=0; ee<len3; ++ee)
+				{
+					spec->completedText += bufor[i]; ++i;
+				}
 
 				nobj.info = spec;
 				break;
 			}
-		}
+		} //end of main switch
 		CGameInfo::mainObj->objh->objInstances.push_back(nobj);
 		//TODO - dokoñczyæ, du¿o do zrobienia - trzeba patrzeæ, co def niesie
-	}//*/ //end of loading objects; commented to making application work until it will be finished
+	}//*/ //end of loading objects; commented to make application work until it will be finished
 	////objects loaded
 	//todo: read events
 }
@@ -754,12 +1013,18 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 {
 	switch(a.bytes[16])
 	{
+	case 5:
+		return EDefType::ARTIFACT_DEF;
 	case 26:
 		return EDefType::EVENTOBJ_DEF;
 	case 33:
 		return EDefType::GARRISON_DEF;
 	case 34:
 		return EDefType::HERO_DEF;
+	case 54:
+		return EDefType::CREATURES_DEF;
+	case 59:
+		return EDefType::SIGN_DEF;
 	case 79:
 		return EDefType::RESOURCE_DEF;
 	case 83:
