@@ -405,8 +405,8 @@ void CAmbarCendamo::deh3m()
 	}
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	////loading objects
-	/*int howManyObjs = readNormalNr(i, 4); i+=4;
-	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
+	int howManyObjs = readNormalNr(i, 4); i+=4;
+	/*for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
@@ -958,6 +958,175 @@ void CAmbarCendamo::deh3m()
 					spec->completedText += bufor[i]; ++i;
 				}
 
+				unsigned char rewardType = bufor[i]; ++i;
+				spec->rewardType = rewardType;
+
+				switch(rewardType)
+				{
+				case 1:
+					{
+						spec->r1exp = readNormalNr(i); i+=4;
+						break;
+					}
+				case 2:
+					{
+						spec->r2mana = readNormalNr(i); i+=4;
+						break;
+					}
+				case 3:
+					{
+						spec->r3morale = bufor[i]; ++i;
+						break;
+					}
+				case 4:
+					{
+						spec->r4luck = bufor[i]; ++i;
+						break;
+					}
+				case 5:
+					{
+						spec->r5type = bufor[i]; ++i;
+						spec->r5amount = readNormalNr(i, 3); i+=3;
+						break;
+					}
+				case 6:
+					{
+						spec->r6type = bufor[i]; ++i;
+						spec->r6amount = bufor[i]; ++i;
+						break;
+					}
+				case 7:
+					{
+						int abid = bufor[i]; ++i;
+						spec->r7ability = &(CGameInfo::mainObj->abilh->abilities[abid]);
+						spec->r7level = bufor[i]; ++i;
+						break;
+					}
+				case 8:
+					{
+						int artid = readNormalNr(i, 2); i+=2;
+						spec->r8art = &(CGameInfo::mainObj->arth->artifacts[artid]);
+						break;
+					}
+				case 9:
+					{
+						int spellid = bufor[i]; ++i;
+						spec->r9spell = &(CGameInfo::mainObj->spellh->spells[spellid]);
+						break;
+					}
+				case 10:
+					{
+						int creid = readNormalNr(i, 2); i+=2;
+						spec->r10creature = &(CGameInfo::mainObj->creh->creatures[creid]);
+						spec->r10amount = readNormalNr(i, 2); i+=2;
+						break;
+					}
+				}// end of internal switch
+				i+=2;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::WITCHHUT_DEF:
+			{
+				CWitchHutObjInfo * spec = new CWitchHutObjInfo;
+				ist=i; //starting i for loop
+				for(i; i<ist+4; ++i)
+				{
+					unsigned char c = bufor[i];
+					for(int yy=0; yy<8; ++yy)
+					{
+						if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
+						{
+							if(c == (c|((unsigned char)intPow(2, yy))))
+								spec->allowedAbilities.push_back(&(CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]));
+						}
+					}
+				}
+				
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::SCHOLAR_DEF:
+			{
+				CScholarObjInfo * spec = new CScholarObjInfo;
+				spec->bonusType = bufor[i]; ++i;
+				switch(spec->bonusType)
+				{
+				case 0xff:
+					++i;
+					break;
+				case 0:
+					spec->r0type = bufor[i]; ++i;
+					break;
+				case 1:
+					spec->r1 = &(CGameInfo::mainObj->abilh->abilities[bufor[i]]); ++i;
+					break;
+				case 2:
+					spec->r2 = &(CGameInfo::mainObj->spellh->spells[bufor[i]]); ++i;
+					break;
+				}
+				i+=6;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::GARRISON_DEF:
+			{
+				CGarrisonObjInfo * spec = new CGarrisonObjInfo;
+				spec->player = bufor[i]; ++i;
+				i+=3;
+				spec->units = readCreatureSet(i); i+=28;
+				spec->movableUnits = bufor[i]; ++i;
+				i+=8;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::ARTIFACT_DEF:
+			{
+				CArtifactObjInfo * spec = new CArtifactObjInfo;
+				bool areSettings = bufor[i]; ++i;
+				if(areSettings)
+				{
+					int messLength = readNormalNr(i, 4); i+=4;
+					for(int hh=0; hh<messLength; ++hh)
+					{
+						spec->message += bufor[i]; ++i;
+					}
+					bool areGuards = bufor[i]; ++i;
+					if(areGuards)
+					{
+						spec->areGuards = true;
+						spec->guards = readCreatureSet(i);
+					}
+					else
+						spec->areGuards = false;
+				}
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::RESOURCE_DEF:
+			{
+				CResourceObjInfo * spec = new CResourceObjInfo;
+				bool isMessGuard = bufor[i]; ++i;
+				if(isMessGuard)
+				{
+					int messLength = readNormalNr(i); i+=4;
+					for(int mm=0; mm<messLength; ++mm)
+					{
+						spec->message+=bufor[i]; ++i;
+					}
+					spec->areGuards = bufor[i]; ++i;
+					if(spec->areGuards)
+					{
+						spec->guards = readCreatureSet(i); i+=28;
+					}
+					i+=4;
+				}
+				else
+				{
+					spec->areGuards = false;
+				}
+				spec->amount = readNormalNr(i); i+=4;
+				i+=4;
 				nobj.info = spec;
 				break;
 			}
@@ -1014,27 +1183,31 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 	switch(a.bytes[16])
 	{
 	case 5:
-		return EDefType::ARTIFACT_DEF;
+		return EDefType::ARTIFACT_DEF; //handled
 	case 26:
-		return EDefType::EVENTOBJ_DEF;
+		return EDefType::EVENTOBJ_DEF; //handled
 	case 33:
-		return EDefType::GARRISON_DEF;
+		return EDefType::GARRISON_DEF; //handled
 	case 34:
-		return EDefType::HERO_DEF;
+		return EDefType::HERO_DEF; //handled
 	case 54:
-		return EDefType::CREATURES_DEF;
+		return EDefType::CREATURES_DEF; //handled
 	case 59:
-		return EDefType::SIGN_DEF;
+		return EDefType::SIGN_DEF; //handled
 	case 79:
-		return EDefType::RESOURCE_DEF;
+		return EDefType::RESOURCE_DEF; //handled
+	case 81:
+		return EDefType::SCHOLAR_DEF; //handled
 	case 83:
-		return EDefType::SEERHUT_DEF;
+		return EDefType::SEERHUT_DEF; //handled
 	case 91:
-		return EDefType::SIGN_DEF;
+		return EDefType::SIGN_DEF; //handled
 	case 98:
 		return EDefType::TOWN_DEF;
+	case 113:
+		return EDefType::WITCHHUT_DEF; //handled
 	case 219:
-		return EDefType::GARRISON_DEF;
+		return EDefType::GARRISON_DEF; //handled
 	default:
 		return EDefType::TERRAINOBJ_DEF;
 	}

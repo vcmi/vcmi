@@ -108,6 +108,74 @@ public:
 	int m9player; //number; from 0 to 7
 
 	std::string firstVisitText, nextVisitText, completedText;
+
+	char rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
+	//for reward 1
+	int r1exp;
+	//for reward 2
+	int r2mana;
+	//for reward 3
+	int r3morale;
+	//for reward 4
+	int r4luck;
+	//for reward 5
+	unsigned char r5type; //0 - wood, 1 - mercury, 2 - ore, 3 - sulfur, 4 - crystal, 5 - gems, 6 - gold
+	int r5amount;
+	//for reward 6
+	unsigned char r6type; //0 - attack, 1 - defence, 2 - power, 3 - knowledge
+	int r6amount;
+	//for reward 7
+	CAbility * r7ability;
+	unsigned char r7level; //1 - basic, 2 - advanced, 3 - expert
+	//for reward 8
+	CArtifact * r8art;
+	//for reward 9
+	CSpell * r9spell;
+	//for reward 10
+	CCreature * r10creature;
+	int r10amount;
+};
+
+class CWitchHutObjInfo : public CSpecObjInfo
+{
+public:
+	std::vector<CAbility *> allowedAbilities;
+};
+
+class CScholarObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
+
+	unsigned char r0type;
+	CAbility * r1;
+	CSpell * r2;
+};
+
+class CGarrisonObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char player; //255 - nobody; 0 - 7 - players
+	CCreatureSet units;
+	bool movableUnits; //if true, units can be moved
+};
+
+class CArtifactObjInfo : public CSpecObjInfo
+{
+public:
+	bool areGuards;
+	std::string message;
+	CCreatureSet guards;
+};
+
+class CResourceObjInfo : public CSpecObjInfo
+{
+public:
+	bool randomAmount;
+	int amount; //if not random
+	bool areGuards;
+	CCreatureSet guards;
+	std::string message;
 };
 
 class CObject //typical object that can be encountered on a map
