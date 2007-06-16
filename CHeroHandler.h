@@ -4,16 +4,19 @@
 #include <string>
 #include <vector>
 #include "CCreatureHandler.h"
+#include "nodrze.h"
 
 class CHero
 {
 public:
 	std::string name;
+	int ID;
 	int low1stack, high1stack, low2stack, high2stack, low3stack, high3stack; //amount of units; described below
 	std::string refType1stack, refType2stack, refType3stack; //reference names of units appearing in hero's army if he is recruited in tavern
 	std::string bonusName, shortBonus, longBonus; //for special abilities
 	std::string biography; //biography, of course
 	bool isAllowed; //true if we can play with this hero (depends on map)
+	bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 };
 
 class CHeroInstance
@@ -28,7 +31,7 @@ public:
 class CHeroHandler
 {
 public:
-	std::vector<CHero> heroes;
+	nodrze<CHero> heroes;
 	void loadHeroes();
 	void loadSpecialAbilities();
 	void loadBiographies();

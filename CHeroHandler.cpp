@@ -3,6 +3,7 @@
 
 void CHeroHandler::loadHeroes()
 {
+	int ID=0;
 	std::ifstream inp("H3bitmap.lod\\HOTRAITS.TXT", std::ios::in);
 	std::string dump;
 	for(int i=0; i<25; ++i)
@@ -99,6 +100,7 @@ void CHeroHandler::loadHeroes()
 			}
 		}
 		nher.refType3stack = base.substr(iit, base.size()-iit);
+		nher.ID=ID++;
 		heroes.push_back(nher);
 		delete[500] tab;
 	}
