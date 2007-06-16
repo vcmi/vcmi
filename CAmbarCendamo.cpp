@@ -415,6 +415,9 @@ void CAmbarCendamo::deh3m()
 		nobj.z = bufor[i++];
 		nobj.defNumber = readNormalNr(i, 4); i+=4;
 		i+=5;
+		EDefType uu = getDefType(map.defy[nobj.defNumber]);
+		int j = map.defy[nobj.defNumber].bytes[16];
+		int p = 99;
 		switch(getDefType(map.defy[nobj.defNumber]))
 		{
 		case EDefType::EVENTOBJ_DEF: //for event - objects
@@ -1095,10 +1098,11 @@ void CAmbarCendamo::deh3m()
 					if(areGuards)
 					{
 						spec->areGuards = true;
-						spec->guards = readCreatureSet(i);
+						spec->guards = readCreatureSet(i); i+=28;
 					}
 					else
 						spec->areGuards = false;
+					i+=4;
 				}
 				nobj.info = spec;
 				break;
@@ -1143,7 +1147,7 @@ void CAmbarCendamo::deh3m()
 				if(hasName)
 				{
 					int len = readNormalNr(i); i+=4;
-					for(iny gg=0; gg<len; ++gg)
+					for(int gg=0; gg<len; ++gg)
 					{
 						spec->name += bufor[i]; ++i;
 					}
@@ -1154,6 +1158,109 @@ void CAmbarCendamo::deh3m()
 					spec->garrison = readCreatureSet(i); i+=28;
 				}
 				spec->garrison.formation = bufor[i]; ++i;
+				spec->unusualBuildins = bufor[i]; ++i;
+				if(spec->unusualBuildins)
+				{
+					for(int ff=0; ff<12; ++ff)
+					{
+						spec->buildingSettings[ff] = bufor[i]; ++i;
+					}
+				}
+				else
+				{
+					spec->hasFort = bufor[i]; ++i;
+				}
+
+				int ist = i;
+				for(i; i<ist+9; ++i)
+				{
+					unsigned char c = bufor[i];
+					for(int yy=0; yy<8; ++yy)
+					{
+						if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+						{
+							if(c == (c|((unsigned char)intPow(2, yy))))
+								spec->obligatorySpells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+						}
+					}
+				}
+
+				ist = i;
+				for(i; i<ist+9; ++i)
+				{
+					unsigned char c = bufor[i];
+					for(int yy=0; yy<8; ++yy)
+					{
+						if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+						{
+							if(c != (c|((unsigned char)intPow(2, yy))))
+								spec->possibleSpells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+						}
+					}
+				}
+
+				/////// reading castle events //////////////////////////////////
+
+				int numberOfEvent = readNormalNr(i); i+=4;
+
+				CCastleEvent nce;
+				int nameLen = readNormalNr(i); i+=4;
+				for(int ll=0; ll<nameLen; ++ll)
+				{
+					nce.name += bufor[i]; ++i;
+				}
+
+				int messLen = readNormalNr(i); i+=4;
+				for(int ll=0; ll<messLen; ++ll)
+				{
+					nce.message += bufor[i]; ++i;
+				}
+
+				nce.wood = readNormalNr(i); i+=4;
+				nce.mercury = readNormalNr(i); i+=4;
+				nce.ore = readNormalNr(i); i+=4;
+				nce.sulfur = readNormalNr(i); i+=4;
+				nce.crystal = readNormalNr(i); i+=4;
+				nce.gems = readNormalNr(i); i+=4;
+				nce.gold = readNormalNr(i); i+=4;
+
+				nce.players = bufor[i]; ++i;
+				nce.forHuman = bufor[i]; ++i;
+				nce.forComputer = bufor[i]; ++i;
+				nce.firstShow = readNormalNr(i, 2); i+=2;
+				nce.forEvery = bufor[i]; ++i;
+
+				i+=17;
+
+				for(int kk=0; kk<6; ++kk)
+				{
+					nce.bytes[kk] = bufor[i]; ++i;
+				}
+
+				for(int vv=0; vv<7; ++vv)
+				{
+					nce.gen[vv] = readNormalNr(i, 2);
+				}
+
+				/////// castle events have been read ///////////////////////////
+
+				i+=4;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::MINE_DEF:
+			{
+				CMineObjInfo * spec = new CMineObjInfo;
+				spec->player = bufor[i]; ++i;
+				i+=3;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::SHRINE_DEF:
+			{
+				CShrineObjInfo * spec = new CShrineObjInfo;
+				spec->spell = bufor[i]; i+=4;
+				nobj.info = spec;
 				break;
 			}
 		} //end of main switch
@@ -1216,10 +1323,14 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 		return EDefType::GARRISON_DEF; //handled
 	case 34:
 		return EDefType::HERO_DEF; //handled
-	case 54:
+	case 53: case 17: case 18: case 19: case 20: //cases 17 - 20 - tests
+		return EDefType::MINE_DEF; //handled
+	case 54: case 71: case 72: case 73: case 74: case 75:
 		return EDefType::CREATURES_DEF; //handled
 	case 59:
 		return EDefType::SIGN_DEF; //handled
+	case 77:
+		return EDefType::TOWN_DEF; //can be problematic, but handled
 	case 79:
 		return EDefType::RESOURCE_DEF; //handled
 	case 81:
@@ -1228,14 +1339,16 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 		return EDefType::SEERHUT_DEF; //handled
 	case 91:
 		return EDefType::SIGN_DEF; //handled
+	case 88: case 89: case 90:
+		return SHRINE_DEF; //handled
 	case 98:
-		return EDefType::TOWN_DEF;
+		return EDefType::TOWN_DEF; //handled
 	case 113:
 		return EDefType::WITCHHUT_DEF; //handled
 	case 219:
 		return EDefType::GARRISON_DEF; //handled
 	default:
-		return EDefType::TERRAINOBJ_DEF;
+		return EDefType::TERRAINOBJ_DEF; // nothing to be handled
 	}
 }
 

@@ -42,7 +42,7 @@ void CSpellHandler::loadSpells()
 			{
 				if(buf[i]=='\r')
 					++hmcr;
-				if(hmcr==4)
+				if(hmcr==3)
 					break;
 			}
 			++i;

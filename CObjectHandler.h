@@ -178,6 +178,18 @@ public:
 	std::string message;
 };
 
+class CMineObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char player; //FF - nobody, 0 - 7
+};
+
+class CShrineObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char spell; //number of spell or 255
+};
+
 class CObject //typical object that can be encountered on a map
 {
 public:
