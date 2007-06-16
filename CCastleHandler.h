@@ -4,8 +4,14 @@
 #include "CBuildingHandler.h"
 #include "CHeroHandler.h"
 #include "CObjectHandler.h"
+#include "CCreatureHandler.h"
 
-class CCastle : public CSpecObjInfo //castle class
+class CCastleEvent
+{
+public:
+};
+
+class CCastleObjInfo : public CSpecObjInfo //castle class
 {
 public:
 	int x, y, z; //posiotion
@@ -14,7 +20,17 @@ public:
 	std::vector<bool> isLocked; //isLocked[i] is true, when building buildings[i] canot be built
 	CHero * visitingHero;
 	CHero * garnisonHero;
-	//TODO: dokoñczyæ
+
+	unsigned char bytes[4]; //identifying bytes
+	unsigned char player; //255 - nobody, players 0 - 7
+	std::string name; //town name
+	CCreatureSet garrison;
+
+	std::vector<CSpell *> possibleSpells;
+	std::vector<CSpell *> obligatorySpells;
+	std::vector<CSpell *> availableSpells;
+	
+	std::vector<CCastleEvent> events;
 };
 
 #endif //CCASTLEHANDLER_H

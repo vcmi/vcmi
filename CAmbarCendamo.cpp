@@ -1130,6 +1130,32 @@ void CAmbarCendamo::deh3m()
 				nobj.info = spec;
 				break;
 			}
+		case EDefType::TOWN_DEF:
+			{
+				CCastleObjInfo * spec = new CCastleObjInfo;
+				spec->bytes[0] = bufor[i]; ++i;
+				spec->bytes[1] = bufor[i]; ++i;
+				spec->bytes[2] = bufor[i]; ++i;
+				spec->bytes[3] = bufor[i]; ++i;
+				spec->player = bufor[i]; ++i;
+
+				bool hasName = bufor[i]; ++i;
+				if(hasName)
+				{
+					int len = readNormalNr(i); i+=4;
+					for(iny gg=0; gg<len; ++gg)
+					{
+						spec->name += bufor[i]; ++i;
+					}
+				}
+				bool stGarr = bufor[i]; ++i; //true if garrison isn't empty
+				if(stGarr)
+				{
+					spec->garrison = readCreatureSet(i); i+=28;
+				}
+				spec->garrison.formation = bufor[i]; ++i;
+				break;
+			}
 		} //end of main switch
 		CGameInfo::mainObj->objh->objInstances.push_back(nobj);
 		//TODO - dokoñczyæ, du¿o do zrobienia - trzeba patrzeæ, co def niesie
