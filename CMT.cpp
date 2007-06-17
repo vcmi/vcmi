@@ -324,6 +324,8 @@ int _tmain(int argc, _TCHAR* argv[])
 							}
 						case (SDLK_u):
 							{
+								if(!ac->map.twoLevel)
+									break;
 								if (zz)
 									zz--;
 								else zz++;

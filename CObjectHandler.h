@@ -178,7 +178,7 @@ public:
 	std::string message;
 };
 
-class CMineObjInfo : public CSpecObjInfo
+class CPlayerOnlyObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char player; //FF - nobody, 0 - 7
@@ -188,6 +188,97 @@ class CShrineObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char spell; //number of spell or 255
+};
+
+class CSpellScrollObjinfo : public CSpecObjInfo
+{
+public:
+	std::string message;
+	CSpell * spell;
+	bool areGuarders;
+	CCreatureSet guarders;
+};
+
+class CPandorasBoxObjInfo : public CSpecObjInfo
+{
+public:
+	std::string message;
+	bool areGuarders;
+	CCreatureSet guarders;
+
+	//gained things:
+	unsigned int gainedExp;
+	int manaDiff;
+	int moraleDiff;
+	int luckDiff;
+	int wood, mercury, ore, sulfur, crystal, gems, gold;
+	int attack, defence, power, knowledge;
+	std::vector<CAbility *> abilities;
+	std::vector<int> abilityLevels;
+	std::vector<CArtifact *> artifacts;
+	std::vector<CSpell *> spells;
+	CCreatureSet creatures;
+};
+
+class CGrailObjInfo : public CSpecObjInfo
+{
+public:
+	int radius; //place grail at the distance lesser or equal radius from this place
+};
+
+class CCreGenObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char player; //owner
+	bool asCastle;
+	unsigned char bytes[4]; //castle identifier
+	unsigned char castles[2]; //allowed castles
+};
+
+class CCreGen2ObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char player; //owner
+	bool asCastle;
+	unsigned char bytes[4]; //castle identifier
+	unsigned char castles[2]; //allowed castles
+	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
+};
+
+class CCreGen3ObjInfo : public CSpecObjInfo
+{
+public:
+	unsigned char player; //owner
+	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
+};
+
+class CBorderGuardObjInfo : public CSpecObjInfo //copied form seer huts, seems to be similar
+{
+public:
+	char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
+	bool isDayLimit; //if true, there is a day limit
+	int lastDay; //after this day (first day is 0) mission cannot be completed
+	//for mission 1
+	int m1level;
+	//for mission 2
+	int m2attack, m2defence, m2power, m2knowledge;
+	//for mission 3
+	unsigned char m3bytes[4];
+	//for mission 4
+	unsigned char m4bytes[4];
+	//for mission 5
+	std::vector<CArtifact *> m5arts;
+	//for mission 6
+	std::vector<CCreature *> m6cre;
+	std::vector<int> m6number;
+	//for mission 7
+	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;
+	//for mission 8
+	CHero * m8hero;
+	//for mission 9
+	int m9player; //number; from 0 to 7
+
+	std::string firstVisitText, nextVisitText, completedText;
 };
 
 class CObject //typical object that can be encountered on a map

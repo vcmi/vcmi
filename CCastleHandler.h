@@ -44,6 +44,8 @@ public:
 	std::vector<CSpell *> availableSpells;
 	
 	std::vector<CCastleEvent> events;
+
+	unsigned char alignment; //what the hell is that??
 };
 
 #endif //CCASTLEHANDLER_H

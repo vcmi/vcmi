@@ -406,7 +406,7 @@ void CAmbarCendamo::deh3m()
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	////loading objects
 	int howManyObjs = readNormalNr(i, 4); i+=4;
-	/*for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
+	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
@@ -415,6 +415,11 @@ void CAmbarCendamo::deh3m()
 		nobj.z = bufor[i++];
 		nobj.defNumber = readNormalNr(i, 4); i+=4;
 		i+=5;
+		unsigned char buff [30];
+		for(int ccc=0; ccc<30; ++ccc)
+		{
+			buff[ccc] = bufor[i+ccc];
+		}
 		EDefType uu = getDefType(map.defy[nobj.defNumber]);
 		int j = map.defy[nobj.defNumber].bytes[16];
 		int p = 99;
@@ -442,6 +447,7 @@ void CAmbarCendamo::deh3m()
 					{
 						spec->guarders = readCreatureSet(i); i+=32;
 					}
+					i+=4;
 				}
 				else
 				{
@@ -990,6 +996,7 @@ void CAmbarCendamo::deh3m()
 					{
 						spec->r5type = bufor[i]; ++i;
 						spec->r5amount = readNormalNr(i, 3); i+=3;
+						i+=1;
 						break;
 					}
 				case 6:
@@ -1203,54 +1210,59 @@ void CAmbarCendamo::deh3m()
 
 				int numberOfEvent = readNormalNr(i); i+=4;
 
-				CCastleEvent nce;
-				int nameLen = readNormalNr(i); i+=4;
-				for(int ll=0; ll<nameLen; ++ll)
+				for(int gh = 0; gh<numberOfEvent; ++gh)
 				{
-					nce.name += bufor[i]; ++i;
-				}
+					CCastleEvent nce;
+					int nameLen = readNormalNr(i); i+=4;
+					for(int ll=0; ll<nameLen; ++ll)
+					{
+						nce.name += bufor[i]; ++i;
+					}
 
-				int messLen = readNormalNr(i); i+=4;
-				for(int ll=0; ll<messLen; ++ll)
-				{
-					nce.message += bufor[i]; ++i;
-				}
+					int messLen = readNormalNr(i); i+=4;
+					for(int ll=0; ll<messLen; ++ll)
+					{
+						nce.message += bufor[i]; ++i;
+					}
 
-				nce.wood = readNormalNr(i); i+=4;
-				nce.mercury = readNormalNr(i); i+=4;
-				nce.ore = readNormalNr(i); i+=4;
-				nce.sulfur = readNormalNr(i); i+=4;
-				nce.crystal = readNormalNr(i); i+=4;
-				nce.gems = readNormalNr(i); i+=4;
-				nce.gold = readNormalNr(i); i+=4;
+					nce.wood = readNormalNr(i); i+=4;
+					nce.mercury = readNormalNr(i); i+=4;
+					nce.ore = readNormalNr(i); i+=4;
+					nce.sulfur = readNormalNr(i); i+=4;
+					nce.crystal = readNormalNr(i); i+=4;
+					nce.gems = readNormalNr(i); i+=4;
+					nce.gold = readNormalNr(i); i+=4;
 
-				nce.players = bufor[i]; ++i;
-				nce.forHuman = bufor[i]; ++i;
-				nce.forComputer = bufor[i]; ++i;
-				nce.firstShow = readNormalNr(i, 2); i+=2;
-				nce.forEvery = bufor[i]; ++i;
+					nce.players = bufor[i]; ++i;
+					nce.forHuman = bufor[i]; ++i;
+					nce.forComputer = bufor[i]; ++i;
+					nce.firstShow = readNormalNr(i, 2); i+=2;
+					nce.forEvery = bufor[i]; ++i;
 
-				i+=17;
+					i+=17;
 
-				for(int kk=0; kk<6; ++kk)
-				{
-					nce.bytes[kk] = bufor[i]; ++i;
-				}
+					for(int kk=0; kk<6; ++kk)
+					{
+						nce.bytes[kk] = bufor[i]; ++i;
+					}
 
-				for(int vv=0; vv<7; ++vv)
-				{
-					nce.gen[vv] = readNormalNr(i, 2);
+					for(int vv=0; vv<7; ++vv)
+					{
+						nce.gen[vv] = readNormalNr(i, 2);
+					}
+					spec->events.push_back(nce);
 				}
 
 				/////// castle events have been read ///////////////////////////
 
-				i+=4;
+				spec->alignment = bufor[i]; ++i;
+				i+=3;
 				nobj.info = spec;
 				break;
 			}
-		case EDefType::MINE_DEF:
+		case EDefType::PLAYERONLY_DEF:
 			{
-				CMineObjInfo * spec = new CMineObjInfo;
+				CPlayerOnlyObjInfo * spec = new CPlayerOnlyObjInfo;
 				spec->player = bufor[i]; ++i;
 				i+=3;
 				nobj.info = spec;
@@ -1260,6 +1272,350 @@ void CAmbarCendamo::deh3m()
 			{
 				CShrineObjInfo * spec = new CShrineObjInfo;
 				spec->spell = bufor[i]; i+=4;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::SPELLSCROLL_DEF:
+			{
+				CSpellScrollObjinfo * spec = new CSpellScrollObjinfo;
+				bool messg = bufor[i]; ++i;
+				if(messg)
+				{
+					int mLength = readNormalNr(i); i+=4;
+					for(int vv=0; vv<mLength; ++vv)
+					{
+						spec->message += bufor[i]; ++i;
+					}
+					spec->areGuarders = bufor[i]; ++i;
+					if(spec->areGuarders)
+					{
+						spec->guarders = readCreatureSet(i); i+=28;
+					}
+					i+=4;
+				}
+				spec->spell = &(CGameInfo::mainObj->spellh->spells[bufor[i]]); ++i;
+				i+=3;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::PANDORA_DEF:
+			{
+				CPandorasBoxObjInfo * spec = new CPandorasBoxObjInfo;
+				bool messg = bufor[i]; ++i;
+				if(messg)
+				{
+					int mLength = readNormalNr(i); i+=4;
+					for(int vv=0; vv<mLength; ++vv)
+					{
+						spec->message += bufor[i]; ++i;
+					}
+					spec->areGuarders = bufor[i]; ++i;
+					if(spec->areGuarders)
+					{
+						spec->guarders = readCreatureSet(i); i+=28;
+					}
+					i+=4;
+				}
+				////// copied form event handling (seems to be similar)
+				spec->gainedExp = readNormalNr(i, 4); i+=4;
+				spec->manaDiff = readNormalNr(i, 4); i+=4;
+				spec->moraleDiff = readNormalNr(i, 1, true); ++i;
+				spec->luckDiff = readNormalNr(i, 1, true); ++i;
+				spec->wood = readNormalNr(i); i+=4;
+				spec->mercury = readNormalNr(i); i+=4;
+				spec->ore = readNormalNr(i); i+=4;
+				spec->sulfur = readNormalNr(i); i+=4;
+				spec->crystal = readNormalNr(i); i+=4;
+				spec->gems = readNormalNr(i); i+=4;
+				spec->gold = readNormalNr(i); i+=4;
+				spec->attack = readNormalNr(i, 1); ++i;
+				spec->defence = readNormalNr(i, 1); ++i;
+				spec->power = readNormalNr(i, 1); ++i;
+				spec->knowledge = readNormalNr(i, 1); ++i;
+				int gabn; //number of gained abilities
+				gabn = readNormalNr(i, 1); ++i;
+				for(int oo = 0; oo<gabn; ++oo)
+				{
+					spec->abilities.push_back(&((CGameInfo::mainObj->abilh)->abilities[readNormalNr(i, 1)])); ++i;
+					spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
+				}
+				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts
+				for(int oo = 0; oo<gart; ++oo)
+				{
+					spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 2)])); i+=2;
+				}
+				int gspel = readNormalNr(i, 1); ++i; //number of gained spells
+				for(int oo = 0; oo<gspel; ++oo)
+				{
+					spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[readNormalNr(i, 1)])); ++i;
+				}
+				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
+				spec->creatures = readCreatureSet(i, gcre); i+=4*gcre;
+				i+=8;
+				nobj.info = spec;
+				///////end of copied fragment
+				break;
+			}
+		case EDefType::GRAIL_DEF:
+			{
+				CGrailObjInfo * spec = new CGrailObjInfo;
+				spec->radius = readNormalNr(i); i+=4;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::CREGEN_DEF:
+			{
+				CCreGenObjInfo * spec = new CCreGenObjInfo;
+				spec->player = bufor[i]; ++i;
+				i+=3;
+				for(int ggg=0; ggg<4; ++ggg)
+				{
+					spec->bytes[ggg] = bufor[i]; ++i;
+				}
+				if((spec->bytes[0] == '\0') && (spec->bytes[1] == '\0') && (spec->bytes[2] == '\0') && (spec->bytes[3] == '\0'))
+				{
+					spec->asCastle = false;
+					spec->castles[0] = bufor[i]; ++i;
+					spec->castles[1] = bufor[i]; ++i;
+				}
+				else
+				{
+					spec->asCastle = true;
+				}
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::CREGEN2_DEF:
+			{
+				CCreGen2ObjInfo * spec = new CCreGen2ObjInfo;
+				spec->player = bufor[i]; ++i;
+				i+=3;
+				for(int ggg=0; ggg<4; ++ggg)
+				{
+					spec->bytes[ggg] = bufor[i]; ++i;
+				}
+				if((spec->bytes[0] == '\0') && (spec->bytes[1] == '\0') && (spec->bytes[2] == '\0') && (spec->bytes[3] == '\0'))
+				{
+					spec->asCastle = false;
+					spec->castles[0] = bufor[i]; ++i;
+					spec->castles[1] = bufor[i]; ++i;
+				}
+				else
+				{
+					spec->asCastle = true;
+				}
+				spec->minLevel = bufor[i]; ++i;
+				spec->maxLevel = bufor[i]; ++i;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::CREGEN3_DEF:
+			{
+				CCreGen3ObjInfo * spec = new CCreGen3ObjInfo;
+				spec->player = bufor[i]; ++i;
+				i+=3;
+				spec->minLevel = bufor[i]; ++i;
+				spec->maxLevel = bufor[i]; ++i;
+				nobj.info = spec;
+				break;
+			}
+		case EDefType::BORDERGUARD_DEF:
+			{
+				CBorderGuardObjInfo * spec = new CBorderGuardObjInfo;
+				spec->missionType = bufor[i]; ++i;
+				switch(spec->missionType)
+				{
+				case 1:
+					{
+						spec->m1level = readNormalNr(i); i+=4;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 2:
+					{
+						spec->m2attack = bufor[i]; ++i;
+						spec->m2defence = bufor[i]; ++i;
+						spec->m2power = bufor[i]; ++i;
+						spec->m2knowledge = bufor[i]; ++i;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 3:
+					{
+						spec->m3bytes[0] = bufor[i]; ++i;
+						spec->m3bytes[1] = bufor[i]; ++i;
+						spec->m3bytes[2] = bufor[i]; ++i;
+						spec->m3bytes[3] = bufor[i]; ++i;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 4:
+					{
+						spec->m4bytes[0] = bufor[i]; ++i;
+						spec->m4bytes[1] = bufor[i]; ++i;
+						spec->m4bytes[2] = bufor[i]; ++i;
+						spec->m4bytes[3] = bufor[i]; ++i;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 5:
+					{
+						int artNumber = bufor[i]; ++i;
+						for(int yy=0; yy<artNumber; ++yy)
+						{
+							int artid = readNormalNr(i, 2); i+=2;
+							spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artid]));
+						}
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 6:
+					{
+						int typeNumber = bufor[i]; ++i;
+						for(int hh=0; hh<typeNumber; ++hh)
+						{
+							int creType = readNormalNr(i, 2); i+=2;
+							int creNumb = readNormalNr(i, 2); i+=2;
+							spec->m6cre.push_back(&(CGameInfo::mainObj->creh->creatures[creType]));
+							spec->m6number.push_back(creNumb);
+						}
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 7:
+					{
+						spec->m7wood = readNormalNr(i); i+=4;
+						spec->m7mercury = readNormalNr(i); i+=4;
+						spec->m7ore = readNormalNr(i); i+=4;
+						spec->m7sulfur = readNormalNr(i); i+=4;
+						spec->m7crystal = readNormalNr(i); i+=4;
+						spec->m7gems = readNormalNr(i); i+=4;
+						spec->m7gold = readNormalNr(i); i+=4;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 8:
+					{
+						int heroType = bufor[i]; ++i;
+						spec->m8hero = &(CGameInfo::mainObj->heroh->heroes[heroType]);
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				case 9:
+					{
+						spec->m9player = bufor[i]; ++i;
+						int limit = readNormalNr(i); i+=4;
+						if(limit == ((int)0xffffffff))
+						{
+							spec->isDayLimit = false;
+							spec->lastDay = -1;
+						}
+						else
+						{
+							spec->isDayLimit = true;
+							spec->lastDay = limit;
+						}
+						break;
+					}
+				}//internal switch end (seer huts)
+
+				int len1 = readNormalNr(i); i+=4;
+				for(int ee=0; ee<len1; ++ee)
+				{
+					spec->firstVisitText += bufor[i]; ++i;
+				}
+
+				int len2 = readNormalNr(i); i+=4;
+				for(int ee=0; ee<len2; ++ee)
+				{
+					spec->nextVisitText += bufor[i]; ++i;
+				}
+
+				int len3 = readNormalNr(i); i+=4;
+				for(int ee=0; ee<len3; ++ee)
+				{
+					spec->completedText += bufor[i]; ++i;
+				}
 				nobj.info = spec;
 				break;
 			}
@@ -1300,7 +1656,7 @@ void CAmbarCendamo::loadDefs()
 				loadedTypes.insert(map.terrain[i][j].tertype);
 				defs.push_back(sdh);
 			}
-			if (loadedTypes.find(map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
+			if (map.twoLevel && loadedTypes.find(map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
 			{
 				CSemiDefHandler  *sdh = new CSemiDefHandler();
 				sdh->openDef((sdh->nameFromType(map.undergroungTerrain[i][j].tertype)).c_str(),"H3sprite.lod");
@@ -1315,23 +1671,27 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 {
 	switch(a.bytes[16])
 	{
-	case 5:
+	case 5: case 65: case 66: case 67: case 68: case 69:
 		return EDefType::ARTIFACT_DEF; //handled
+	case 6:
+		return EDefType::PANDORA_DEF; //hanled
 	case 26:
 		return EDefType::EVENTOBJ_DEF; //handled
 	case 33:
 		return EDefType::GARRISON_DEF; //handled
-	case 34:
+	case 34: case 70: //70 - random hero
 		return EDefType::HERO_DEF; //handled
-	case 53: case 17: case 18: case 19: case 20: //cases 17 - 20 - tests
-		return EDefType::MINE_DEF; //handled
-	case 54: case 71: case 72: case 73: case 74: case 75:
+	case 36:
+		return EDefType::GRAIL_DEF; //hanled
+	case 53: case 17: case 18: case 19: case 20: case 42: case 87: //cases 17 - 20 and 42 - tests
+		return EDefType::PLAYERONLY_DEF; //handled
+	case 54: case 71: case 72: case 73: case 74: case 75: case 162: case 163: case 164:
 		return EDefType::CREATURES_DEF; //handled
 	case 59:
 		return EDefType::SIGN_DEF; //handled
 	case 77:
 		return EDefType::TOWN_DEF; //can be problematic, but handled
-	case 79:
+	case 79: case 76:
 		return EDefType::RESOURCE_DEF; //handled
 	case 81:
 		return EDefType::SCHOLAR_DEF; //handled
@@ -1341,10 +1701,20 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 		return EDefType::SIGN_DEF; //handled
 	case 88: case 89: case 90:
 		return SHRINE_DEF; //handled
+	case 93:
+		return SPELLSCROLL_DEF; //handled
 	case 98:
 		return EDefType::TOWN_DEF; //handled
 	case 113:
 		return EDefType::WITCHHUT_DEF; //handled
+	case 215:
+		return EDefType::BORDERGUARD_DEF; //handled by analogy to seer huts ;]
+	case 216:
+		return EDefType::CREGEN2_DEF; //handled
+	case 217:
+		return EDefType::CREGEN_DEF; //handled
+	case 218:
+		return EDefType::CREGEN3_DEF; //handled
 	case 219:
 		return EDefType::GARRISON_DEF; //handled
 	default:
