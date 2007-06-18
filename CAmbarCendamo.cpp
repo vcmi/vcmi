@@ -1624,7 +1624,39 @@ void CAmbarCendamo::deh3m()
 		//TODO - dokoñczyæ, du¿o do zrobienia - trzeba patrzeæ, co def niesie
 	}//*/ //end of loading objects; commented to make application work until it will be finished
 	////objects loaded
-	//todo: read events
+
+	//loading events
+	int numberOfEvents = readNormalNr(i); i+=4;
+	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)
+	{
+		CMapEvent ne;
+		ne.name = std::string();
+		ne.message = std::string();
+		int nameLen = readNormalNr(i); i+=4;
+		for(int qq=0; qq<nameLen; ++qq)
+		{
+			ne.name += bufor[i]; ++i;
+		}
+		int messLen = readNormalNr(i); i+=4;
+		for(int qq=0; qq<messLen; ++qq)
+		{
+			ne.message +=bufor[i]; ++i;
+		}
+		ne.wood = readNormalNr(i); i+=4;
+		ne.mercury = readNormalNr(i); i+=4;
+		ne.ore = readNormalNr(i); i+=4;
+		ne.sulfur = readNormalNr(i); i+=4;
+		ne.crystal = readNormalNr(i); i+=4;
+		ne.gems = readNormalNr(i); i+=4;
+		ne.gold = readNormalNr(i); i+=4;
+		ne.players = bufor[i]; ++i;
+		ne.humanAffected = bufor[i]; ++i;
+		ne.computerAffected = bufor[i]; ++i;
+		ne.firstOccurence = bufor[i]; ++i;
+		ne.nextOccurence = bufor[i]; ++i;
+		i+=18;
+		map.events.push_back(ne);
+	}
 }
 int CAmbarCendamo::readNormalNr (int pos, int bytCon, bool cyclic)
 {

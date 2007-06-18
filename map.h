@@ -146,6 +146,20 @@ struct Rumor
 {
 	std::string name, text;
 };
+
+
+class CMapEvent
+{
+public:
+	std::string name, message;
+	int wood, mercury, ore, sulfur, crystal, gems, gold; //gained / taken resources
+	unsigned char players; //affected players
+	bool humanAffected;
+	bool computerAffected;
+	int firstOccurence;
+	int nextOccurence; //after nextOccurance day event will occure; if it it 0, event occures only one time;
+};
+
 struct Mapa
 {
 	Eformat version; // version of map Eformat
@@ -166,5 +180,8 @@ struct Mapa
 	EvictoryConditions victoryCondition; //victory conditions
 	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
 	int howManyTeams;
+	std::vector<CMapEvent> events;
 };
+
+
 #endif //MAPD
