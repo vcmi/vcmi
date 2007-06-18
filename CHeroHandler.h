@@ -6,6 +6,8 @@
 #include "CCreatureHandler.h"
 #include "nodrze.h"
 
+class CHeroClass;
+
 class CHero
 {
 public:
@@ -16,6 +18,7 @@ public:
 	std::string bonusName, shortBonus, longBonus; //for special abilities
 	std::string biography; //biography, of course
 	bool isAllowed; //true if we can play with this hero (depends on map)
+	CHeroClass * heroClass;
 	bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 };
 
@@ -45,8 +48,8 @@ public:
 class CHeroHandler
 {
 public:
-	nodrze<CHero> heroes;
-	std::vector<CHeroClass> heroClasses;
+	nodrze<CHero> heroes; //by³o nodrze
+	std::vector<CHeroClass *> heroClasses;
 	void loadHeroes();
 	void loadSpecialAbilities();
 	void loadBiographies();

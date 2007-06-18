@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CHeroHandler.h"
+#include "CGameInfo.h"
 
 void CHeroHandler::loadHeroes()
 {
@@ -23,6 +24,7 @@ void CHeroHandler::loadHeroes()
 		{
 			loadSpecialAbilities();
 			loadBiographies();
+			loadHeroClasses();
 			return;
 		}
 		while(base[iit]!='\t')
@@ -263,6 +265,105 @@ void CHeroHandler::loadHeroClasses()
 		hc->initialKnowledge = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->proAttack[0] = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
 
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->proDefence[0] = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->proPower[0] = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->proKnowledge[0] = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->proAttack[1] = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->proDefence[1] = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->proPower[1] = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->proKnowledge[1] = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		CHero kkk = heroes[0];
+
+		for(int dd=0; dd<CGameInfo::mainObj->abilh->abilities.size(); ++dd)
+		{
+			befi=i;
+			for(i; i<andame; ++i)
+			{
+				if(buf[i]=='\t')
+					break;
+			}
+			int buff = atoi(buf.substr(befi, i-befi).c_str());
+			++i;
+			hc->proSec.push_back(buff);
+		}
+
+		for(int dd=0; dd<9; ++dd)
+		{
+			befi=i;
+			for(i; i<andame; ++i)
+			{
+				if(buf[i]=='\t' || buf[i]=='\r')
+					break;
+			}
+			hc->selectionProbability[dd] = atoi(buf.substr(befi, i-befi).c_str());
+			++i;
+		}
+		++i;
+		heroClasses.push_back(hc);
 	}
 }
