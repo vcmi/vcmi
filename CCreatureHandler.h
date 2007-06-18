@@ -13,6 +13,15 @@ public:
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in textformat
 	int idNumber;
+
+	///animation info
+	float timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
+	int upperRightMissleOffsetX, rightMissleOffsetX, lowerRightMissleOffsetX, upperRightMissleOffsetY, rightMissleOffsetY, lowerRightMissleOffsetY;
+	float missleFrameAngles[12];
+	int troopCountLocationOffset, attackClimaxFrame;
+	///end of anim info
+
+
 	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
 };
 
@@ -29,6 +38,8 @@ class CCreatureHandler
 public:
 	std::vector<CCreature> creatures;
 	void loadCreatures();
+	void loadAnimationInfo();
+	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
 };
 
 #endif //CCREATUREHANDLER_H

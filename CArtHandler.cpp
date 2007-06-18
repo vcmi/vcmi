@@ -201,6 +201,8 @@ void CArtHandler::loadArtifacts()
 		while(nart.desc2[nart.desc2.size()-1]!='"' ||
 			( (nart.name==std::string("£uk Penetracji")||nart.name==std::string("Bow of Seeking")) && bowCounter<4) ); //do - while end
 		//if(nart.name!=std::string("-1") && nart.name!=std::string("-2"))
+		nart.description += "\n\n";
+		nart.description += nart.desc2;
 		this->artifacts.push_back(nart);
 		delete[10000] read;
 	}

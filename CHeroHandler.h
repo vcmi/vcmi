@@ -19,6 +19,20 @@ public:
 	bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 };
 
+class CHeroClass
+{
+public:
+	std::string name;
+	float aggression;
+	int initialAttack, initialDefence, initialPower, initialKnowledge;
+	int proAttack[2]; //probability of gaining attack point on levels [0]: 2 - 9; [1]: 10+  (out of 100)
+	int proDefence[2]; //probability of gaining defence point on levels [0]: 2 - 9; [1]: 10+ (out of 100)
+	int proPower[2]; //probability of gaining power point on levels [0]: 2 - 9; [1]: 10+ (out of 100)
+	int proKnowledge[2]; //probability of gaining knowledge point on levels [0]: 2 - 9; [1]: 10+ (out of 100)
+	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
+	int selectionProbability[9]; //probability of selection in towns
+};
+
 class CHeroInstance
 {
 public:
@@ -32,9 +46,11 @@ class CHeroHandler
 {
 public:
 	nodrze<CHero> heroes;
+	std::vector<CHeroClass> heroClasses;
 	void loadHeroes();
 	void loadSpecialAbilities();
 	void loadBiographies();
+	void loadHeroClasses();
 };
 
 

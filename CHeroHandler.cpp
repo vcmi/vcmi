@@ -185,3 +185,84 @@ void CHeroHandler::loadBiographies()
 		i+=2;
 	}
 }
+
+void CHeroHandler::loadHeroClasses()
+{
+	std::ifstream inp("H3bitmap.lod\\HCTRAITS.TXT", std::ios::in | std::ios::binary);
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+	int i = 0; //buf iterator
+	int hmcr = 0;
+	for(i; i<andame; ++i) //omitting rubbish
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==2)
+			break;
+	}
+	i+=2;
+	for(int ss=0; ss<18; ++ss) //18 classes of hero (including conflux)
+	{
+		CHeroClass * hc = new CHeroClass;
+		int befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->name = buf.substr(befi, i-befi);
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->aggression = atof(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->initialAttack = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->initialDefence = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->initialPower = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\t')
+				break;
+		}
+		hc->initialKnowledge = atoi(buf.substr(befi, i-befi).c_str());
+		++i;
+
+
+	}
+}

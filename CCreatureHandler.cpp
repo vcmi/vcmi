@@ -25,7 +25,10 @@ void CCreatureHandler::loadCreatures()
 	while(i<buf.size())
 	{
 		if(creatures.size()>190 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
+		{
+			loadAnimationInfo();
 			break;
+		}
 
 		CCreature ncre;
 
@@ -261,3 +264,181 @@ void CCreatureHandler::loadCreatures()
 	}
 }
 
+void CCreatureHandler::loadAnimationInfo()
+{
+	std::ifstream inp("H3bitmap.lod\\CRANIM.TXT", std::ios::in|std::ios::binary);
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+	int i=0; //buf iterator
+	int hmcr=0;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==2)
+			break;
+	}
+	i+=2;
+	for(int dd=0; dd<creatures.size(); ++dd)
+	{
+		loadUnitAnimInfo(creatures[dd], buf, i);
+	}
+	return;
+}
+
+void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int & i)
+{
+	int befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.timeBetweenFidgets = atof(src.substr(befi, i-befi).c_str());
+	++i;
+
+	while(unit.timeBetweenFidgets == 0.0)
+	{
+		for(i; i<src.size(); ++i)
+		{
+			if(src[i]=='\r')
+				break;
+		}
+		i+=2;
+		befi=i;
+		for(i; i<src.size(); ++i)
+		{
+			if(src[i]=='\t')
+				break;
+		}
+		unit.timeBetweenFidgets = atof(src.substr(befi, i-befi).c_str());
+		++i;
+	}
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.walkAnimationTime = atof(src.substr(befi, i-befi).c_str());
+	++i;
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.attackAnimationTime = atof(src.substr(befi, i-befi).c_str());
+	++i;
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.flightAnimationDistance = atof(src.substr(befi, i-befi).c_str());
+	++i;
+
+	///////////////////////
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.upperRightMissleOffsetX = atoi(src.substr(befi, i-befi).c_str());
+	++i;
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.upperRightMissleOffsetY = atoi(src.substr(befi, i-befi).c_str());
+	++i;
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.rightMissleOffsetX = atoi(src.substr(befi, i-befi).c_str());
+	++i;
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.rightMissleOffsetY = atoi(src.substr(befi, i-befi).c_str());
+	++i;
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.lowerRightMissleOffsetX = atoi(src.substr(befi, i-befi).c_str());
+	++i;
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.lowerRightMissleOffsetY = atoi(src.substr(befi, i-befi).c_str());
+	++i;
+
+	///////////////////////
+
+	for(int jjj=0; jjj<12; ++jjj)
+	{
+		befi=i;
+		for(i; i<src.size(); ++i)
+		{
+			if(src[i]=='\t')
+				break;
+		}
+		unit.missleFrameAngles[jjj] = atof(src.substr(befi, i-befi).c_str());
+		++i;
+	}
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.troopCountLocationOffset= atoi(src.substr(befi, i-befi).c_str());
+	++i;
+
+	befi=i;
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\t')
+			break;
+	}
+	unit.attackClimaxFrame = atoi(src.substr(befi, i-befi).c_str());
+	++i;
+
+	for(i; i<src.size(); ++i)
+	{
+		if(src[i]=='\r')
+			break;
+	}
+	i+=2;
+}

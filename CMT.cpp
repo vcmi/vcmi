@@ -240,15 +240,15 @@ int _tmain(int argc, _TCHAR* argv[])
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
 		cgi->arth = arth;
-		CHeroHandler * heroh = new CHeroHandler;
-		heroh->loadHeroes();
-		cgi->heroh = heroh;
 		CCreatureHandler * creh = new CCreatureHandler;
 		creh->loadCreatures();
 		cgi->creh = creh;
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
+		CHeroHandler * heroh = new CHeroHandler;
+		heroh->loadHeroes();
+		cgi->heroh = heroh;
 		CSpellHandler * spellh = new CSpellHandler;
 		spellh->loadSpells();
 		cgi->spellh = spellh;
@@ -281,6 +281,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		//SDL_Surface * ss = ac->defs[0]->ourImages[0].bitmap;
 		//SDL_BlitSurface(ss, NULL, ekran, NULL);
 
+		bool scrollingLeft = false;
+		bool scrollingRight = false;
+		bool scrollingUp = false;
+		bool scrollingDown = false;
 		for(;;) // main loop
 		{
 			try
@@ -295,26 +299,22 @@ int _tmain(int argc, _TCHAR* argv[])
 						{
 						case SDLK_LEFT:
 							{
-								if(xx>0)
-									xx--;
+								scrollingLeft = true;
 								break;
 							}
 						case (SDLK_RIGHT):
 							{
-								if(xx<ac->map.width-25)
-									xx++;
+								scrollingRight = true;
 								break;
 							}
 						case (SDLK_UP):
 							{
-								if(yy>0)
-									yy--;
+								scrollingUp = true;
 								break;
 							}
 						case (SDLK_DOWN):
 							{
-								if(yy<ac->map.height-18)
-									yy++;
+								scrollingDown = true;
 								break;
 							}
 						case (SDLK_q):
@@ -332,18 +332,68 @@ int _tmain(int argc, _TCHAR* argv[])
 								break;
 							}
 						}
-						SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
-						SDL_Surface * help = mh->terrainRect(xx,yy,25,18,zz);
-						SDL_BlitSurface(help,NULL,ekran,NULL);
-						SDL_FreeSurface(help);
-						SDL_Flip(ekran);
-					}
+					} //keydown end
+					else if(sEvent.type==SDL_KEYUP) 
+					{
+						switch (sEvent.key.keysym.sym)
+						{
+						case SDLK_LEFT:
+							{
+								scrollingLeft = false;
+								break;
+							}
+						case (SDLK_RIGHT):
+							{
+								scrollingRight = false;
+								break;
+							}
+						case (SDLK_UP):
+							{
+								scrollingUp = false;
+								break;
+							}
+						case (SDLK_DOWN):
+							{
+								scrollingDown = false;
+								break;
+							}
+						}
+					}//keyup end
+				} //event end
+
+				/////////////// scrolling terrain
+				if(scrollingLeft)
+				{
+					if(xx>0)
+						xx--;
 				}
+				if(scrollingRight)
+				{
+					if(xx<ac->map.width-25)
+						xx++;
+				}
+				if(scrollingUp)
+				{
+					if(yy>0)
+						yy--;
+				}
+				if(scrollingDown)
+				{
+					if(yy<ac->map.height-18)
+						yy++;
+				}
+				
+				SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
+				SDL_Surface * help = mh->terrainRect(xx,yy,25,18,zz);
+				SDL_BlitSurface(help,NULL,ekran,NULL);
+				SDL_FreeSurface(help);
+				SDL_Flip(ekran);
+				/////////
 			}
 			catch(...)
 			{ continue; }
 
-			SDL_Delay(30); //give time for other apps
+			SDL_Delay(25); //give time for other apps
 		}
 		return 0;
 	}
