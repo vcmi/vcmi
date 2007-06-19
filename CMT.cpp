@@ -43,7 +43,7 @@ const char * NAME = "VCMI 0.2";
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
 SDL_Surface * ekran;
-TTF_Font * TNRB;
+TTF_Font * TNRB16, *TNR, *GEOR13;
 int def(FILE *source, FILE *dest, int level, int winBits=15, int memLevel =8)
 {
 	int ret, flush;
@@ -215,7 +215,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		TTF_Init();
 		atexit(TTF_Quit);
 		atexit(SDL_Quit);
-		TNRB = TTF_OpenFont("Fonts\\tnrb.ttf",16);
+		//TNRB = TTF_OpenFont("Fonts\\tnrb.ttf",16);
+		TNRB16 = TTF_OpenFont("Fonts\\tnrb.ttf",16);
+		//TNR = TTF_OpenFont("Fonts\\tnr.ttf",10);
+		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
 
 		//initializing audio
 		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048)==-1)
@@ -234,11 +237,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			// this might be a critical error...
 		}
 
-		/*if(Mix_PlayMusic(music, -1)==-1) //uncomment this fragment to have music
+		if(Mix_PlayMusic(music, -1)==-1) //uncomment this fragment to have music
 		{
 			printf("Mix_PlayMusic: %s\n", Mix_GetError());
 			// well, there's no music, but most games don't break without music...
-		}*/
+		}
 
 		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;

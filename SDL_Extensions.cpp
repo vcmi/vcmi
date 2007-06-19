@@ -1,6 +1,14 @@
 #include "stdafx.h"
 #include "SDL_Extensions.h"
+#include "SDL_TTF.h"
 extern SDL_Surface * ekran;
+extern SDL_Color tytulowy, tlo, zwykly ;
+bool isItIn(const SDL_Rect * rect, int x, int y)
+{
+	if ((x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h))
+		return true;
+	else return false;
+}
 SDL_Rect genRect(int hh, int ww, int xx, int yy)
 {
 	SDL_Rect ret;
@@ -9,6 +17,10 @@ SDL_Rect genRect(int hh, int ww, int xx, int yy)
 	ret.x=xx;
 	ret.y=yy;
 	return ret;
+}
+void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran)
+{
+	SDL_BlitSurface(src,NULL,dst,&genRect(src->h,src->w,x,y));
 }
 SDL_Color genRGB(int r, int g, int b, int a=0)
 {
@@ -22,6 +34,13 @@ SDL_Color genRGB(int r, int g, int b, int a=0)
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran)
 {
 	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
+}
+void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran)
+{
+	SDL_Surface * temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
+	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x,y));
+	SDL_UpdateRect(dst,x,y,temp->w,temp->h);
+	SDL_FreeSurface(temp);
 }
 void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC)
 {

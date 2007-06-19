@@ -2,19 +2,24 @@
 #include "CMessage.h"
 #include "SDL_TTF.h"
 #include "CSemiDefHandler.h"
-extern TTF_Font * TNRB;
-extern SDL_Surface * ekran;
 
+SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
+
+extern SDL_Surface * ekran;
+extern TTF_Font * TNRB16, *TNR, *GEOR13;
+SDL_Color genRGB(int r, int g, int b, int a=0);
+void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
+void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran);
+extern CPreGame * CPG;
+void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran);
+bool isItIn(const SDL_Rect * rect, int x, int y);
 CMessage::CMessage()
 {
 	piecesOfBox = new CSemiDefHandler();
 	piecesOfBox->openDef("DIALGBOX.DEF","H3sprite.lod");
 	background = SDL_LoadBMP("H3bitmap.lod\\DIBOXBCK.BMP");
 	SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
-	tytulowy.r=229;tytulowy.g=215;tytulowy.b=123;tytulowy.unused=0;
-	zwykly.r=255;zwykly.g=255;zwykly.b=255;zwykly.unused=0; //gbr
-	tlo.r=66;tlo.g=44;tlo.b=24;tlo.unused=0;
 }
 SDL_Surface * CMessage::drawBox1(int w, int h)
 {
@@ -113,7 +118,9 @@ SDL_Surface * CMessage::genMessage
 	
 	if (title.length())
 	{
-		SDL_Surface * titleText = TTF_RenderText_Shaded(TNRB,title.c_str(),tytulowy,tlo);	
+		//SDL_Surface * titleText = TTF_RenderText_Shaded(TNRB16,title.c_str(),tytulowy,tlo);	
+		SDL_Surface * titleText = TTF_RenderText_Blended(TNRB16,title.c_str(),tytulowy);	
+
 		//draw title
 		SDL_Rect tytul = genRect(titleText->h,titleText->w,((ret->w/2)-(titleText->w/2)),37);
 		SDL_BlitSurface(titleText,NULL,ret,&tytul);
@@ -124,7 +131,8 @@ SDL_Surface * CMessage::genMessage
 	{
 		int by = 37+i*21;
 		if (title.length()) by+=40;
-		SDL_Surface * tresc = TTF_RenderText_Shaded(TNRB,(*tekst)[i].c_str(),zwykly,tlo);
+		//SDL_Surface * tresc = TTF_RenderText_Shaded(TNRB16,(*tekst)[i].c_str(),zwykly,tlo);
+		SDL_Surface * tresc = TTF_RenderText_Blended(TNRB16,(*tekst)[i].c_str(),zwykly);
 		SDL_Rect trescRect = genRect(tresc->h,tresc->w,((ret->w/2)-(tresc->w/2)),by);
 		SDL_BlitSurface(tresc,NULL,ret,&trescRect);
 		SDL_FreeSurface(tresc);
