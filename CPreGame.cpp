@@ -360,6 +360,7 @@ void CPreGame::hideBox ()
 		{
 			delete btns[i];
 			btns.erase(btns.begin()+i);
+			i--;
 		}
 	}
 	SDL_FreeSurface(behindCurMes);
