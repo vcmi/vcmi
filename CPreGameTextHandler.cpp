@@ -270,6 +270,95 @@ void CPreGameTextHandler::loadTexts()
 	loadToIt(singleLFilter, buf, i, 1);
 	loadToIt(singleXLFilter, buf, i, 1);
 	loadToIt(singleAllFilter, buf, i, 1);
+	for(int vv=0; vv<18; ++vv)
+	{
+		loadToIt(singleScenarioNameNr[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<18; ++vv)
+	{
+		loadToIt(singleEntryScenarioNameNr[vv], buf, i, 1);
+	}
+	std::string ff = singleEntryScenarioNameNr[4];
+	loadToIt(singleTurnDuration, buf, i, 1);
+	loadToIt(singleChatText, buf, i, 0);
+	loadToIt(singleChatEntry, buf, i, 0);
+	loadToIt(singleChatPlug, buf, i, 0);
+	loadToIt(singleChatPlayer, buf, i, 0);
+	loadToIt(singleChatPlayerSlider, buf, i, 0);
+	loadToIt(singleRollover, buf, i, 0);
+	loadToIt(singleNext, buf, i, 0);
+	loadToIt(singleBegin, buf, i, 0);
+	loadToIt(singleBack, buf, i, 0);
+	loadToIt(singleSSExit, buf, i, 0);
+	loadToIt(singleWhichMap, buf, i, 0);
+	loadToIt(singleSortNumber, buf, i, 0);
+	loadToIt(singleSortSize, buf, i, 0);
+	loadToIt(singleSortVersion, buf, i, 0);
+	loadToIt(singleSortAlpha, buf, i, 0);
+	loadToIt(singleSortVictory, buf, i, 0);
+	loadToIt(singleSortLoss, buf, i, 1);
+	loadToIt(singleBriefing, buf, i, 1);
+	loadToIt(singleSSHero, buf, i, 1);
+	loadToIt(singleGoldpic, buf, i, 1);
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleHumanCPU[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleHandicap[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleTownLeft[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleTownRite[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleHeroLeft[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleHeroRite[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleResLeft[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleResRite[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleHeroSetting[vv], buf, i, 1);
+	}
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleTownSetting[vv], buf, i, 1);
+	}
+	loadToIt(singleConstCreateMap, buf, i, 1);
+	loadToIt(singleConstMapSizeLabel, buf, i, 1);
+	loadToIt(singleConstSmallMap, buf, i, 1);
+	loadToIt(singleConstMediumMap, buf, i, 1);
+	loadToIt(singleConstLargeMap, buf, i, 1);
+	loadToIt(singleConstHugeMap, buf, i, 1);
+	loadToIt(singleConstMapLevels, buf, i, 1);
+	loadToIt(singleConstHumanPositionsLabel, buf, i, 1);
+	for(int vv=0; vv<8; ++vv)
+	{
+		loadToIt(singleConstNHumans[vv], buf, i, 1);
+	}
+	loadToIt(singleConstRandomHumans, buf, i, 1);
+	loadToIt(singleConstHumanTeamsLabel, buf, i, 1);
+	loadToIt(singleConstNoHumanTeams, buf, i, 1);
+	for(int vv=0; vv<7; ++vv)
+	{
+		loadToIt(singleConstNHumanTeams[vv], buf, i, 1);
+	}
 }
 
 void CPreGameTextHandler::loadToIt(std::string &dest, std::string &src, int &iter, int mode)
