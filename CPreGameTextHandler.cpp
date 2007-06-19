@@ -359,6 +359,42 @@ void CPreGameTextHandler::loadTexts()
 	{
 		loadToIt(singleConstNHumanTeams[vv], buf, i, 1);
 	}
+	loadToIt(singleConstRandomHumanTeams, buf, i, 1);
+	loadToIt(singleConstComputerPositionsLabel, buf, i, 1);
+	loadToIt(singleConstNoComputers, buf, i, 1);
+	for(int vv=0; vv<7; ++vv)
+	{
+		loadToIt(singleConstNComputers[vv], buf, i, 1);
+	}
+	loadToIt(singleConstRandomComputers, buf, i, 1);
+	loadToIt(singleConstComputerTeamsLabel, buf, i, 1);
+	loadToIt(singleConstNoComputerTeams, buf, i, 1);
+	for(int vv=0; vv<6; ++vv)
+	{
+		loadToIt(singleConstNComputerTeams[vv], buf, i, 1);
+	}
+	loadToIt(singleConstRandomComputerTeams, buf, i, 1);
+	loadToIt(singleConstWaterLabel, buf, i, 1);
+	loadToIt(singleConstNoWater, buf, i, 1);
+	loadToIt(singleConstNormalWater, buf, i, 1);
+	loadToIt(singleConstIslands, buf, i, 1);
+	loadToIt(singleConstRandomWater, buf, i, 1);
+	loadToIt(singleConstMonsterStrengthLabel, buf, i, 1);
+	loadToIt(singleConstWeakMonsters, buf, i, 1);
+	loadToIt(singleConstNormalMonsters, buf, i, 1);
+	loadToIt(singleConstStrongMonsters, buf, i, 1);
+	loadToIt(singleConstRandomMonsters, buf, i, 1);
+	loadToIt(singleConstShowSavedRandomMaps, buf, i, 1);
+	loadToIt(singleSliderChatWindow, buf, i, 1);
+	loadToIt(singleSliderFileMenu, buf, i, 1);
+	loadToIt(singleSliderDuration, buf, i, 1);
+
+	loadToIt(singlePlayerHandicapHeaderID, buf, i, 0);
+	loadToIt(singleTurnDurationHeaderID, buf, i, 0);
+	loadToIt(singleStartingTownHeaderID, buf, i, 0);
+	loadToIt(singleStartingTownHeaderWConfluxID, buf, i, 0);
+	loadToIt(singleStartingHeroHeaderID, buf, i, 0);
+	loadToIt(singleStartingBonusHeaderID, buf, i, 0);
 }
 
 void CPreGameTextHandler::loadToIt(std::string &dest, std::string &src, int &iter, int mode)
