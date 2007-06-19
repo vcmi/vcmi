@@ -3,7 +3,9 @@
 #include "stdafx.h"
 #include "SDL.h"
 #include "SDL_TTF.h"
+#include "SDL_mixer.h"
 #include "CBuildingHandler.h"
+#include "SDL_Extensions.h"
 #include <cmath>
 #include <stdio.h>
 #include <string.h>
@@ -208,11 +210,36 @@ int _tmain(int argc, _TCHAR* argv[])
 	SDL_Surface *screen, *temp;
 	std::vector<SDL_Surface*> Sprites;
 	float i;
-	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER/*|SDL_INIT_EVENTTHREAD*/)==0)
+	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
 		TTF_Init();
 		atexit(TTF_Quit);
+		atexit(SDL_Quit);
 		TNRB = TTF_OpenFont("Fonts\\tnrb.ttf",16);
+
+		//initializing audio
+		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048)==-1)
+		{
+			printf("Mix_OpenAudio: %s\n", Mix_GetError());
+			exit(2);
+		}
+		atexit(Mix_CloseAudio);
+		//audio initialized
+
+		Mix_Music *music;
+		music = Mix_LoadMUS("MP3\\MainMenuWoG.mp3");
+		if(!music)
+		{
+			printf("Mix_LoadMUS(\"MainMenuWoG.mp3\"): %s\n", Mix_GetError());
+			// this might be a critical error...
+		}
+
+		/*if(Mix_PlayMusic(music, -1)==-1) //uncomment this fragment to have music
+		{
+			printf("Mix_PlayMusic: %s\n", Mix_GetError());
+			// well, there's no music, but most games don't break without music...
+		}*/
+
 		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
 		//FILE * zr = fopen("mal.txt","r");
