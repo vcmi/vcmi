@@ -2,7 +2,7 @@
 
 void CMusicHandler::initMusics()
 {
-	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048)==-1)
+	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096)==-1)
 	{
 		printf("Mix_OpenAudio: %s\n", Mix_GetError());
 		exit(2);

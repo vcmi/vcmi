@@ -9,6 +9,7 @@
 #include "CAmbarCendamo.h"
 #include "CBuildingHandler.h"
 #include "CObjectHandler.h"
+#include "CMusicHandler.h"
 
 /*
 	CGameInfo class
@@ -26,6 +27,7 @@ public:
 	CAmbarCendamo * ac;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
+	CMusicHandler * mush;
 };
 
 #endif //CGAMEINFO_H

@@ -233,8 +233,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			// well, there's no music, but most games don't break without music...
 		}
 
-		mush->playClick();
-
 		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
 		//FILE * zr = fopen("mal.txt","r");
@@ -260,6 +258,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC timeHandler tmh;
 		CGameInfo * cgi = new CGameInfo;
 		CGameInfo::mainObj = cgi;
+		cgi->mush = mush;
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
 		cgi->arth = arth;

@@ -389,6 +389,8 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 		{
 			if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
 			{
+				
+				mush->playClick();
 				btns[i]->press(true);
 				ourScenSel->pressed=btns[i];
 			}
@@ -559,12 +561,12 @@ void CPreGame::runLoop()
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_LEFT))
 				{
-					mush->playClick();
 					for (int i=0;i<btns.size(); i++)
 					{
 						if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
 						{
 							btns[i]->press(true);
+							mush->playClick();
 							//SDL_BlitSurface((btns[i].imgs)->ourImages[1].bitmap,NULL,ekran,&btns[i].pos);
 							//updateRect(&btns[i].pos);
 						}
@@ -574,26 +576,31 @@ void CPreGame::runLoop()
 					{
 						highlightButton(1,1);
 						current->highlighted=1;
+						mush->playClick();
 					}
 					else if (isItIn(&current->lLoadGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(2,1);
 						current->highlighted=2;
+						mush->playClick();
 					}
 					else if (isItIn(&current->lHighScores,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(3,1);
 						current->highlighted=3;
+						mush->playClick();
 					}
 					else if (isItIn(&current->lCredits,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(4,1);
 						current->highlighted=4;
+						mush->playClick();
 					}
 					else if (isItIn(&current->lQuit,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(5,1);
 						current->highlighted=5;
+						mush->playClick();
 					}
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_LEFT))
