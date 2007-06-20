@@ -559,6 +559,7 @@ void CPreGame::runLoop()
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_LEFT))
 				{
+					mush->playClick();
 					for (int i=0;i<btns.size(); i++)
 					{
 						if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))

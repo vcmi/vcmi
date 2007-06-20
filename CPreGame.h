@@ -4,6 +4,7 @@
 #include "CPreGameTextHandler.h" 
 #include "CMessage.h"
 #include "map.h"
+#include "CMusicHandler.h"
 class CPreGame;
 extern CPreGame * CPG;
 class ScenSel
@@ -22,6 +23,7 @@ public:
 class CPreGame
 {
 public:	
+	CMusicHandler * mush;
 	CSemiLodHandler * slh ;
 	std::vector<Button<> *> btns;
 	CPreGameTextHandler * preth ;

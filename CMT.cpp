@@ -9,6 +9,7 @@
 #include <cmath>
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #include <assert.h>
 #include <vector>
 #include "zlib.h"
@@ -22,6 +23,7 @@
 #include "CBuildingHandler.h"
 #include "CObjectHandler.h"
 #include "CGameInfo.h"
+#include "CMusicHandler.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -221,27 +223,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
 
 		//initializing audio
-		if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048)==-1)
-		{
-			printf("Mix_OpenAudio: %s\n", Mix_GetError());
-			exit(2);
-		}
-		atexit(Mix_CloseAudio);
+		CMusicHandler * mush = new CMusicHandler;
+		mush->initMusics();
 		//audio initialized
 
-		Mix_Music *music;
-		music = Mix_LoadMUS("MP3\\MainMenuWoG.mp3");
-		if(!music)
-		{
-			printf("Mix_LoadMUS(\"MainMenuWoG.mp3\"): %s\n", Mix_GetError());
-			// this might be a critical error...
-		}
-
-		if(Mix_PlayMusic(music, -1)==-1) //uncomment this fragment to have music
+		if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
 		{
 			printf("Mix_PlayMusic: %s\n", Mix_GetError());
 			// well, there's no music, but most games don't break without music...
 		}
+
+		mush->playClick();
 
 		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
@@ -263,6 +255,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//}
 		SDL_WM_SetCaption(NAME,""); //set window title
 		CPreGame * cpg = new CPreGame();
+		cpg->mush = mush;
 		cpg->runLoop();
 		THC timeHandler tmh;
 		CGameInfo * cgi = new CGameInfo;
@@ -289,6 +282,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		objh->loadObjects();
 		cgi->objh = objh;
 		CAmbarCendamo * ac = new CAmbarCendamo("Arrogance"); //4gryf
+		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "global.h"
 
 struct Sresource
 {
@@ -175,12 +176,32 @@ struct Mapa
 	std::vector<Rumor> rumors;
 	std::vector<DefInfo> defy; // list of .def files
 	PlayerInfo players[8]; // info about players
-	std::vector<int> teams;  // teams[i] = team of player nr i 
+	std::vector<int> teams;  // teams[i] = team of player no i 
 	LossCondition lossCondition;
 	EvictoryConditions victoryCondition; //victory conditions
 	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
 	int howManyTeams;
 	std::vector<CMapEvent> events;
+};
+
+class CMapHeader
+{
+public:
+	Eformat version; // version of map Eformat
+	bool areAnyPLayers; // if there are any playable players on map
+	int height, width; 
+	bool twoLevel; // if map has underground level
+	std::string name;  //name of map
+	std::string description;  //and description
+	int difficulty; // 0 easy - 4 impossible
+	int levelLimit;
+	LossCondition lossCondition;
+	EvictoryConditions victoryCondition; //victory conditions
+	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
+	PlayerInfo players[8]; // info about players
+	std::vector<int> teams;  // teams[i] = team of player no i 
+	int howManyTeams;
+	CMapHeader(unsigned char *map); //an argument is a reference to string described a map (unpacked)
 };
 
 
