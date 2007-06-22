@@ -15,7 +15,7 @@ int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4)
 CMapHeader::CMapHeader(unsigned char *map)
 {
 	this->version = (Eformat)map[0]; //wersja mapy
-	this->areAnyPLayers = map[4];
+	this->areAnyPLayers = map[4]; //seems to be invalid
 	this->height = this->width = map[5]; // wymiary mapy
 	this->twoLevel = map[9]; //czy sa lochy
 	
@@ -33,7 +33,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 	{
 		this->players[pom].canHumanPlay = map[i++];
 		this->players[pom].canComputerPlay = map[i++];
-		if ((!(this->players[pom].canHumanPlay || this->players[pom].canComputerPlay)) || (!this->areAnyPLayers))
+		if ((!(this->players[pom].canHumanPlay || this->players[pom].canComputerPlay)))
 		{
 			i+=13;
 			continue;

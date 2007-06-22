@@ -21,6 +21,7 @@ void CAbilityHandler::loadAbilities()
 		base = std::string(tab);
 		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
 		{
+			inp.close();
 			return; //add counter
 		}
 		while(base[iit]!='\t')

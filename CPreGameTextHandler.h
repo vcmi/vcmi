@@ -25,6 +25,11 @@ public:
 	std::string singleConstNComputerTeams[6];
 	std::string singleConstRandomComputerTeams, singleConstWaterLabel, singleConstNoWater, singleConstNormalWater, singleConstIslands, singleConstRandomWater, singleConstMonsterStrengthLabel, singleConstWeakMonsters, singleConstNormalMonsters, singleConstStrongMonsters, singleConstRandomMonsters, singleConstShowSavedRandomMaps, singleSliderChatWindow, singleSliderFileMenu, singleSliderDuration;
 	std::string singlePlayerHandicapHeaderID, singleTurnDurationHeaderID, singleStartingTownHeaderID, singleStartingTownHeaderWConfluxID, singleStartingHeroHeaderID, singleStartingBonusHeaderID;
+
+	std::string multiOnlineService, multiHotSeat, multiIPX, multiTCPIP, multiModem, multiDirectConnection, multiHostGame, multiJoinGame, multiSearchGame;
+	std::string multiGameNo [12];
+	std::string multiScrollGames, multiCancel;
+
 	std::string getTitle(std::string text);
 	std::string getDescr(std::string text);
 	void loadTexts();

@@ -25,6 +25,7 @@ void CHeroHandler::loadHeroes()
 			loadSpecialAbilities();
 			loadBiographies();
 			loadHeroClasses();
+			inp.close();
 			return;
 		}
 		while(base[iit]!='\t')
@@ -128,6 +129,7 @@ void CHeroHandler::loadSpecialAbilities()
 		base = std::string(tab);
 		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
 		{
+			inp.close();
 			return; //add counter
 		}
 		while(base[iit]!='\t')
@@ -162,6 +164,7 @@ void CHeroHandler::loadSpecialAbilities()
 		++whHero;
 		delete [500] tab;
 	}
+	inp.close();
 }
 
 void CHeroHandler::loadBiographies()
@@ -172,6 +175,7 @@ void CHeroHandler::loadBiographies()
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
 	char * bufor = new char[andame]; // allocate memory 
 	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
 	std::string buf = std::string(bufor);
 	delete [andame] bufor;
 	int i = 0; //buf iterator
@@ -196,6 +200,7 @@ void CHeroHandler::loadHeroClasses()
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
 	char * bufor = new char[andame]; // allocate memory 
 	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
 	std::string buf = std::string(bufor);
 	delete [andame] bufor;
 	int i = 0; //buf iterator

@@ -27,6 +27,7 @@ void CPreGameTextHandler::loadTexts()
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
 	char * bufor = new char[andame]; // allocate memory 
 	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
 	std::string buf = std::string(bufor);
 	delete [andame] bufor;
 	int i=0; //buf iterator
@@ -395,6 +396,34 @@ void CPreGameTextHandler::loadTexts()
 	loadToIt(singleStartingTownHeaderWConfluxID, buf, i, 0);
 	loadToIt(singleStartingHeroHeaderID, buf, i, 0);
 	loadToIt(singleStartingBonusHeaderID, buf, i, 0);
+
+	hmcr = 0;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==3)
+			break;
+	}
+	i+=2;
+
+	loadToIt(multiOnlineService, buf, i, 0);
+	loadToIt(multiHotSeat, buf, i, 0);
+	loadToIt(multiIPX, buf, i, 0);
+	loadToIt(multiTCPIP, buf, i, 0);
+	loadToIt(multiModem, buf, i, 0);
+	loadToIt(multiDirectConnection, buf, i, 0);
+	loadToIt(multiHostGame, buf, i, 0);
+	loadToIt(multiJoinGame, buf, i, 1);
+	loadToIt(multiSearchGame, buf, i, 1);
+	for(int vv=0; vv<12; ++vv)
+	{
+		loadToIt(multiGameNo[vv], buf, i, 1);
+	}
+	loadToIt(multiScrollGames, buf, i, 1);
+	std::string dump;
+	loadToIt(dump, buf, i, 1);
+	loadToIt(multiCancel, buf, i, 0);
 }
 
 void CPreGameTextHandler::loadToIt(std::string &dest, std::string &src, int &iter, int mode)

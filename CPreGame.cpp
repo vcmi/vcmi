@@ -348,6 +348,7 @@ void CPreGame::showAskBox (std::string data, void(*f1)(),void(*f2)())
 	delete cmh;
 	delete przyciski;
 	delete btnspos;
+
 }
 void CPreGame::hideBox ()
 {

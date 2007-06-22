@@ -9,6 +9,7 @@ void CBuildingHandler::loadBuildings()
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
 	char * bufor = new char[andame]; // allocate memory 
 	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
 	std::string buf = std::string(bufor);
 	delete [andame] bufor;
 	int i=0; //buf iterator
@@ -260,6 +261,7 @@ void CBuildingHandler::loadNames()
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
 	char * bufor = new char[andame]; // allocate memory 
 	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
 	std::string buf = std::string(bufor);
 	delete [andame] bufor;
 	int i=0; //buf iterator
@@ -523,6 +525,7 @@ void CBuildingHandler::loadNeutNames()
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
 	char * bufor = new char[andame]; // allocate memory 
 	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
 	std::string buf = std::string(bufor);
 	delete [andame] bufor;
 	int i=0; //buf iterator
@@ -646,6 +649,7 @@ void CBuildingHandler::loadDwellingNames()
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
 	char * bufor = new char[andame]; // allocate memory 
 	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
 	std::string buf = std::string(bufor);
 	delete [andame] bufor;
 	int i = 0; //buf iterator

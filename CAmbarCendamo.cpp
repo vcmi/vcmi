@@ -23,6 +23,7 @@ CAmbarCendamo::CAmbarCendamo (const char * tie)
 	is->seekg(0,std::ios::beg); // wracamy na poczatek
 	bufor = new unsigned char[andame]; // allocate memory 
 	is->read((char*)bufor, andame); // read map file to buffer
+	is->close();
 	delete is;
 }
 CAmbarCendamo::~CAmbarCendamo () 
@@ -41,6 +42,7 @@ void CAmbarCendamo::teceDef()
 		{
 			(*of) << map.defy[i].bytes[j]<<std::endl;
 		}
+		of->close();
 		delete of;
 	}
 }
@@ -48,7 +50,7 @@ void CAmbarCendamo::deh3m()
 {
 	THC timeHandler th;
 	map.version = (Eformat)bufor[0]; //wersja mapy
-	map.areAnyPLayers = bufor[4];
+	map.areAnyPLayers = bufor[4]; //invalid on some maps
 	map.height = map.width = bufor[5]; // wymiary mapy
 	map.twoLevel = bufor[9]; //czy sa lochy
 	map.terrain = new TerrainTile*[map.width]; // allocate memory 
@@ -74,7 +76,7 @@ void CAmbarCendamo::deh3m()
 	{
 		map.players[pom].canHumanPlay = bufor[i++];
 		map.players[pom].canComputerPlay = bufor[i++];
-		if ((!(map.players[pom].canHumanPlay || map.players[pom].canComputerPlay)) || (!map.areAnyPLayers))
+		if ((!(map.players[pom].canHumanPlay || map.players[pom].canComputerPlay)))
 		{
 			i+=13;
 			continue;
