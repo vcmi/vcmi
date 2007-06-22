@@ -10,6 +10,7 @@
 #include "CBuildingHandler.h"
 #include "CObjectHandler.h"
 #include "CMusicHandler.h"
+#include "CSemiLodHandler.h"
 
 /*
 	CGameInfo class
@@ -28,6 +29,7 @@ public:
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
 	CMusicHandler * mush;
+	CSemiLodHandler * sspriteh;
 };
 
 #endif //CGAMEINFO_H

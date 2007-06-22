@@ -24,6 +24,7 @@
 #include "CObjectHandler.h"
 #include "CGameInfo.h"
 #include "CMusicHandler.h"
+#include "CSemiLodHandler.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -259,6 +260,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		CGameInfo * cgi = new CGameInfo;
 		CGameInfo::mainObj = cgi;
 		cgi->mush = mush;
+		cgi->sspriteh = new CSemiLodHandler();
+		cgi->sspriteh->openLod("H3sprite.lod");
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
 		cgi->arth = arth;
@@ -280,7 +283,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
-		CAmbarCendamo * ac = new CAmbarCendamo("Cave of Gerfrex"); //4gryf
+		CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
@@ -308,6 +311,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		bool scrollingRight = false;
 		bool scrollingUp = false;
 		bool scrollingDown = false;
+		bool updateScreen = false;
 		for(;;) // main loop
 		{
 			try
@@ -352,6 +356,7 @@ int _tmain(int argc, _TCHAR* argv[])
 								if (zz)
 									zz--;
 								else zz++;
+								updateScreen = true;
 								break;
 							}
 						}
@@ -388,29 +393,44 @@ int _tmain(int argc, _TCHAR* argv[])
 				if(scrollingLeft)
 				{
 					if(xx>0)
+					{
 						xx--;
+						updateScreen = true;
+					}
 				}
 				if(scrollingRight)
 				{
-					if(xx<ac->map.width-25)
+					if(xx<ac->map.width-25+8)
+					{
 						xx++;
+						updateScreen = true;
+					}
 				}
 				if(scrollingUp)
 				{
 					if(yy>0)
+					{
 						yy--;
+						updateScreen = true;
+					}
 				}
 				if(scrollingDown)
 				{
-					if(yy<ac->map.height-18)
+					if(yy<ac->map.height-18+8)
+					{
 						yy++;
+						updateScreen = true;
+					}
 				}
-				
-				SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
-				SDL_Surface * help = mh->terrainRect(xx,yy,25,18,zz);
-				SDL_BlitSurface(help,NULL,ekran,NULL);
-				SDL_FreeSurface(help);
-				SDL_Flip(ekran);
+				if(updateScreen)
+				{
+					SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
+					SDL_Surface * help = mh->terrainRect(xx,yy,25,18,zz);
+					SDL_BlitSurface(help,NULL,ekran,NULL);
+					SDL_FreeSurface(help);
+					SDL_Flip(ekran);
+					updateScreen = false;
+				}
 				/////////
 			}
 			catch(...)
