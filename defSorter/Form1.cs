@@ -20,7 +20,7 @@ namespace DefSorter
             string[] pliczki = Directory.GetFiles(Directory.GetCurrentDirectory());
             foreach (string ss in pliczki)
             {
-                if (!(ss.EndsWith(".DEF")))
+                if ((!(ss.EndsWith(".DEF")))&&(!(ss.EndsWith(".def"))))
                     continue;
                 else ile++;
             }
@@ -40,7 +40,7 @@ namespace DefSorter
             progressBar1.Maximum = Convert.ToInt32(label2.Text);
             foreach (string ss in pliczki)
             {
-                if (!(ss.EndsWith(".DEF")))
+                if ((!(ss.EndsWith(".DEF"))) && (!(ss.EndsWith(".def"))))
                     continue;
                 FileStream czytacz = File.OpenRead(ss);
                 int coTo = czytacz.ReadByte();
