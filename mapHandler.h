@@ -1,11 +1,27 @@
+#ifndef MAPHANDLER_H
+#define MAPHANDLER_H
+
 #include "CAmbarCendamo.h"
-class mapHandler
+#include "CSemiDefHandler.h"
+#include "CGameInfo.h"
+
+class CMapHandler
 {
 public:
 	CAmbarCendamo * reader;
 	SDL_Surface *** terrainBitmap;
 	SDL_Surface *** undTerrainBitmap; // used only if there is underground level
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0);
-	SDL_Surface mirrorImage(SDL_Surface *src);
+	SDL_Surface * terrBitmap(int x, int y);
+	SDL_Surface * undTerrBitmap(int x, int y);
+	CSemiDefHandler * fullHide;
+	CSemiDefHandler * partialHide;
+
+	std::vector< std::vector<bool> > visibility; //true means that pointed place is visible
+	std::vector< std::vector<bool> > undVisibility; //true means that pointed place is visible
+	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
+	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector<bool> > & visibility);
 	void init();
 };
+
+#endif //MAPHANDLER_H

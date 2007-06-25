@@ -188,7 +188,7 @@ void zerr(int ret)
 
 
 
-void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B)
+/*void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B)
 {
 	 Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel;
 	 if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
@@ -204,7 +204,7 @@ void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B)
 		  p[2] = R;
 	 }
 	 SDL_UpdateRect(ekran, x, y, 1, 1);
-}
+}*/
 int _tmain(int argc, _TCHAR* argv[])
 { 
 	int xx=0, yy=0, zz=0;
@@ -283,7 +283,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
-		CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
+		CAmbarCendamo * ac = new CAmbarCendamo("9gryf"); //4gryf
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
@@ -291,17 +291,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Rozpoznawianie pliku lacznie: "<<tmh.getDif()<<std::endl;
 		ac->loadDefs();
 		THC std::cout<<"Wczytywanie defow: "<<tmh.getDif()<<std::endl;
-		mapHandler * mh = new mapHandler();
+		CMapHandler * mh = new CMapHandler();
 		mh->reader = ac;
 		THC std::cout<<"Stworzenie mapHandlera: "<<tmh.getDif()<<std::endl;
 		mh->init();
 		THC std::cout<<"Inicjalizacja mapHandlera: "<<tmh.getDif()<<std::endl;
 		//SDL_Rect * sr = new SDL_Rect(); sr->h=64;sr->w=64;sr->x=0;sr->y=0;
-		SDL_Surface * teren = mh->terrainRect(xx,yy,32,24);
+		SDL_Surface * teren = mh->terrainRect(xx,yy,25,19);
 		THC std::cout<<"Przygotowanie terenu do wyswietlenia: "<<tmh.getDif()<<std::endl;
 		SDL_BlitSurface(teren,NULL,ekran,NULL);
 		SDL_FreeSurface(teren);
-		SDL_Flip(ekran);
+		SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
 		THC std::cout<<"Wyswietlenie terenu: "<<tmh.getDif()<<std::endl;
 
 		//SDL_Surface * ss = ac->defs[0]->ourImages[0].bitmap;
@@ -428,7 +428,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					SDL_Surface * help = mh->terrainRect(xx,yy,25,18,zz);
 					SDL_BlitSurface(help,NULL,ekran,NULL);
 					SDL_FreeSurface(help);
-					SDL_Flip(ekran);
+					SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
 					updateScreen = false;
 				}
 				/////////

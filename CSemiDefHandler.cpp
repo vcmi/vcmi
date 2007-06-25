@@ -58,7 +58,7 @@ std::string CSemiDefHandler::nameFromType (EterrainType typ)
 		}
 	}
 }
-void CSemiDefHandler::openDef(std::string name, std::string lodName)
+void CSemiDefHandler::openDef(std::string name, std::string lodName, int dist)
 {
 	std::ifstream * is = new std::ifstream();
 	is -> open((lodName+"\\"+name).c_str(),std::ios::binary);
@@ -72,11 +72,11 @@ void CSemiDefHandler::openDef(std::string name, std::string lodName)
 	defName = defName.substr(gdzie+1, gdzie-defName.length());
 	delete is;
 
-	readFileList();
+	readFileList(dist);
 	loadImages(lodName);
 
 }
-void CSemiDefHandler::readFileList()
+void CSemiDefHandler::readFileList(int dist)
 {
 	howManyImgs = buforD[788];
 	int i = 800;
@@ -87,7 +87,7 @@ void CSemiDefHandler::readFileList()
 		{
 			temp+=buforD[i++];
 		}
-		i++;;
+		i+=dist; //by³o zwiêkszenie tylko o jedno
 		if (temp!="")
 		{
 			temp = temp.substr(0,temp.length()-4) + ".BMP";

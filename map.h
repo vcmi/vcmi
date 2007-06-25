@@ -1,5 +1,5 @@
-#ifndef MAPD
-#define MAPD
+#ifndef MAPD_H
+#define MAPD_H
 
 #include <string>
 #include <vector>
@@ -205,4 +205,4 @@ public:
 };
 
 
-#endif //MAPD
+#endif //MAPD_H
