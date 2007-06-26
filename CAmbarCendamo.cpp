@@ -403,6 +403,12 @@ void CAmbarCendamo::deh3m()
 			vinya.bytes[v] = bufor[i++];
 		}
 		map.defy.push_back(vinya); // add this def to the vector
+
+		//testing - only fragment//////////////////////////////////////////////////////////////
+		//map.defy[idd].handler = new CSemiDefHandler();
+		//map.defy[idd].handler->openDef(map.defy[idd].name.c_str(), "H3sprite.lod");
+		//end fo testing - only fragment///////////////////////////////////////////////////////
+
 		//teceDef();
 	}
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;

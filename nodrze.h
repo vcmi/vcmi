@@ -1,5 +1,5 @@
-#ifndef NODRZE
-#define NODRZE
+#ifndef _NODRZE_H
+#define _NODRZE_H
 #include <iostream>
 #include <string>
 #ifndef LOGUJ
@@ -873,4 +873,4 @@ template <typename T> void nodrze<T>::pre(std::ostream & strum, wezel<T> * wsk)
 	if (wsk->prawy != NIL)
 		pre(strum,wsk->prawy);
 };
-#endif
+#endif //_NODRZE_H

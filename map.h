@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "global.h"
+#include "CSemiDefHandler.h"
 
 struct Sresource
 {
@@ -54,6 +55,7 @@ struct DefInfo //information from def declaration
 {
 	std::string name; 
 	int bytes [42];
+	CSemiDefHandler * handler;
 };
 struct Location
 {

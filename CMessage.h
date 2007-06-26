@@ -1,3 +1,6 @@
+#ifndef CMESSAGE_H
+#define CMESSAGE_H
+
 #include "SDL_TTF.h"
 #include "CSemiDefHandler.h"
 enum EWindowType {infoOnly, infoOK, yesOrNO};
@@ -60,3 +63,5 @@ public:
 };
 
 //
+
+#endif //CMESSAGE_H

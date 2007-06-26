@@ -1,3 +1,6 @@
+#ifndef TIMEHANDLER_H
+#define TIMEHANDLER_H
+
 #include <ctime>
 class timeHandler
 {
@@ -9,3 +12,5 @@ public:
 	void remember(){mem=clock();};
 	long memDif(){return mem-clock();};
 };
+
+#endif //TIMEHANDLER_H

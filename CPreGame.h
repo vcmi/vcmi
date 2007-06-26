@@ -1,3 +1,6 @@
+#ifndef CPREGAME_H
+#define CPREGAME_H
+
 #include "SDL.h"
 #include "CSemiDefHandler.h"
 #include "CSemiLodHandler.h"
@@ -64,3 +67,5 @@ public:
 	void showAskBox (std::string data, void(*f1)(),void(*f2)());
 	void hideBox ();
 };
+
+#endif //CPREGAME_H

@@ -1,5 +1,5 @@
-#ifndef AMBARCENDD
-#define AMBARCENDD
+#ifndef CAMBARCENDAMO_H
+#define CAMBARCENDAMO_H
 #include <iostream>
 #include <fstream>
 #include <string>
@@ -31,4 +31,4 @@ public:
 	EDefType getDefType(DefInfo& a); //returns type of object in def
 	CCreatureSet readCreatureSet(int pos, int number = 7); //reads creature set in most recently encountered format; reades number units (default is 7)
 };
-#endif //AMBARCENDD
+#endif //CAMBARCENDAMO_H

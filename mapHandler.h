@@ -17,10 +17,12 @@ public:
 	CSemiDefHandler * fullHide;
 	CSemiDefHandler * partialHide;
 
-	std::vector< std::vector<bool> > visibility; //true means that pointed place is visible
-	std::vector< std::vector<bool> > undVisibility; //true means that pointed place is visible
+	std::vector< std::vector<char> > visibility; //true means that pointed place is visible
+	std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
+	char & visAccess(int x, int y);
+	char & undVisAccess(int x, int y);
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
-	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector<bool> > & visibility);
+	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector<char> > & visibility);
 	void init();
 };
 

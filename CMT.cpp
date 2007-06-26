@@ -228,11 +228,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		mush->initMusics();
 		//audio initialized
 
-		if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
+		/*if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
 		{
 			printf("Mix_PlayMusic: %s\n", Mix_GetError());
 			// well, there's no music, but most games don't break without music...
-		}
+		}*/
 
 		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
@@ -283,7 +283,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
-		CAmbarCendamo * ac = new CAmbarCendamo("9gryf"); //4gryf
+		CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;

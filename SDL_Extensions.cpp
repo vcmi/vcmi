@@ -69,19 +69,35 @@ SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot, int myC)
 	SDL_Surface * first = SDL_CreateRGBSurface(toRot->flags, toRot->w, toRot->h, toRot->format->BitsPerPixel, toRot->format->Rmask, toRot->format->Gmask, toRot->format->Bmask, toRot->format->Amask);
 	SDL_Surface * ret = SDL_ConvertSurface(first, toRot->format, toRot->flags);
 	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
-	for(int i=0; i<ret->w; ++i)
+	if(toRot->format->BytesPerPixel!=1)
 	{
-		for(int j=0; j<ret->h; ++j)
+		for(int i=0; i<ret->w; ++i)
 		{
+			for(int j=0; j<ret->h; ++j)
 			{
-				Uint8 *p = (Uint8 *)toRot->pixels + j * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
-				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				{
-					CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], myC);
+					Uint8 *p = (Uint8 *)toRot->pixels + j * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
+					if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+					{
+						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], myC);
+					}
+					else
+					{
+						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], myC);
+					}
 				}
-				else
+			}
+		}
+	}
+	else
+	{
+		for(int i=0; i<ret->w; ++i)
+		{
+			for(int j=0; j<ret->h; ++j)
+			{
 				{
-					CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], myC);
+					Uint8 *p = (Uint8 *)toRot->pixels + j * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
+					(*((Uint8*)ret->pixels + j*ret->pitch + i*ret->format->BytesPerPixel)) = *p;
 				}
 			}
 		}
@@ -94,20 +110,36 @@ SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 	SDL_Surface * first = SDL_CreateRGBSurface(toRot->flags, toRot->w, toRot->h, toRot->format->BitsPerPixel, toRot->format->Rmask, toRot->format->Gmask, toRot->format->Bmask, toRot->format->Amask);
 	SDL_Surface * ret = SDL_ConvertSurface(first, toRot->format, toRot->flags);
 	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
-	for(int i=0; i<ret->w; ++i)
+	if(ret->format->BytesPerPixel!=1)
 	{
-		for(int j=0; j<ret->h; ++j)
+		for(int i=0; i<ret->w; ++i)
 		{
+			for(int j=0; j<ret->h; ++j)
 			{
-				Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel-2;
-				int k=2;
-				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				{
-					CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], k);
+					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel-2;
+					int k=2;
+					if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+					{
+						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], k);
+					}
+					else
+					{
+						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], k);
+					}
 				}
-				else
+			}
+		}
+	}
+	else
+	{
+		for(int i=0; i<ret->w; ++i)
+		{
+			for(int j=0; j<ret->h; ++j)
+			{
 				{
-					CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], k);
+					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel;
+					(*((Uint8*)ret->pixels + j*ret->pitch + i*ret->format->BytesPerPixel)) = *p;
 				}
 			}
 		}
@@ -153,20 +185,34 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 	SDL_Surface * first = SDL_CreateRGBSurface(toRot->flags, toRot->w, toRot->h, toRot->format->BitsPerPixel, toRot->format->Rmask, toRot->format->Gmask, toRot->format->Bmask, toRot->format->Amask);
 	SDL_Surface * ret = SDL_ConvertSurface(first, toRot->format, toRot->flags);
 	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
-	for(int i=0; i<ret->w; ++i)
+	if(ret->format->BytesPerPixel!=1)
 	{
-		for(int j=0; j<ret->h; ++j)
+		for(int i=0; i<ret->w; ++i)
 		{
+			for(int j=0; j<ret->h; ++j)
 			{
-				Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel+2;
-				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				{
-					SDL_PutPixel(ret, i, j, p[0], p[1], p[2], 2);
+					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel+2;
+					if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+					{
+						SDL_PutPixel(ret, i, j, p[0], p[1], p[2], 2);
+					}
+					else
+					{
+						SDL_PutPixel(ret, i, j, p[2], p[1], p[0], 2);
+					}
 				}
-				else
-				{
-					SDL_PutPixel(ret, i, j, p[2], p[1], p[0], 2);
-				}
+			}
+		}
+	}
+	else
+	{
+		for(int i=0; i<ret->w; ++i)
+		{
+			for(int j=0; j<ret->h; ++j)
+			{
+				Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
+				(*((Uint8*)ret->pixels + j*ret->pitch + i*ret->format->BytesPerPixel)) = *p;
 			}
 		}
 	}
@@ -247,28 +293,6 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, int x, int y, bool colorByte
 SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 {
 	Uint32 trans = SDL_MapRGBA(src->format, 0, 255, 255, 255);
-	//SDL_SetColorKey(src, SDL_SRCCOLORKEY, trans);
-	/*SDL_SetColorKey(src, 0, trans);
-	src = SDL_ConvertSurface(src, ekran->format, ekran->flags);
-	for(int i=0; i<src->w; ++i)
-	{
-		for(int j=0; j<src->h; ++j)
-		{
-			Uint8 cr, cg, cb, ca;
-			SDL_GetRGBA(SDL_GetPixel(src, i, j), src->format, &cr, &cg, &cb, &ca);
-			if(cr == 255 && cb == 255)
-			{
-				Uint32 aaaa=src->format->Amask;
-				Uint32 aaab=src->format->Bmask;
-				Uint32 aaag=src->format->Gmask;
-				Uint32 aaar=src->format->Rmask;
-				Uint32 put = cg << 24 | cr << 16 | ca << 8 | cb;
-				SDL_Rect rrr = genRect(1, 1, i, j);
-				SDL_FillRect(src, &rrr, put);
-			}
-		}
-	}*/
-	//SDL_UpdateRect(src, 0, 0, src->w, src->h);
 	SDL_SetColorKey(src, 0, trans);
 	src->flags|=SDL_SRCALPHA;
 	

@@ -14,7 +14,7 @@ void CMapHandler::init()
 
 	for(int i=0; i<partialHide->ourImages.size(); ++i)
 	{
-		//CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
+		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
 	}
 
 	visibility.resize(reader->map.width+8);
@@ -274,7 +274,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level)
 				SDL_BlitSurface(terrainBitmap[bx+x][by+y],NULL,su,sr);
 				if( bx+x>3 && by+y>3 && bx+x<visibility.size()-3 && by+y<visibility[0].size()-3 && !visibility[bx+x][by+y])
 				{
-					SDL_Surface * hide = CSDL_Ext::alphaTransform(getVisBitmap(bx+x, by+y, visibility));
+					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibility);
 					Uint32 pompom[32][32];
 					for(int i=0; i<hide->w; ++i)
 					{
@@ -283,16 +283,17 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level)
 							pompom[i][j] = 0xffffffff - (CSDL_Ext::SDL_GetPixel(hide, i, j, true) & 0xff000000);
 						}
 					}
-					hide = SDL_ConvertSurface(hide, su->format, SDL_SWSURFACE);
-					for(int i=0; i<hide->w; ++i)
+					SDL_Surface * hide2 = SDL_ConvertSurface(hide, su->format, SDL_SWSURFACE);
+					for(int i=0; i<hide2->w; ++i)
 					{
-						for(int j=0; j<hide->h; ++j)
+						for(int j=0; j<hide2->h; ++j)
 						{
-							Uint32 * place = (Uint32*)( (Uint8*)hide->pixels + j * hide->pitch + i * hide->format->BytesPerPixel);
+							Uint32 * place = (Uint32*)( (Uint8*)hide2->pixels + j * hide2->pitch + i * hide2->format->BytesPerPixel);
 							(*place)&=pompom[i][j];
 						}
 					}
-					SDL_BlitSurface(hide, NULL, su, sr);
+					SDL_BlitSurface(hide2, NULL, su, sr);
+					SDL_FreeSurface(hide2);
 				}
 			}
 			else 
@@ -300,7 +301,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level)
 				SDL_BlitSurface(undTerrainBitmap[bx+x][by+y],NULL,su,sr);
 				if( bx+x>3 && by+y>3 && bx+x<undVisibility.size()-3 && by+y<undVisibility[0].size()-3 && !undVisibility[bx+x][by+y])
 				{
-					SDL_Surface * hide = CSDL_Ext::alphaTransform(getVisBitmap(bx+x, by+y, undVisibility));
+					SDL_Surface * hide = getVisBitmap(bx+x, by+y, undVisibility);
 					Uint32 pompom[32][32];
 					for(int i=0; i<hide->w; ++i)
 					{
@@ -309,16 +310,17 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level)
 							pompom[i][j] = 0xffffffff - (CSDL_Ext::SDL_GetPixel(hide, i, j, true) & 0xff000000);
 						}
 					}
-					hide = SDL_ConvertSurface(hide, su->format, SDL_SWSURFACE);
-					for(int i=0; i<hide->w; ++i)
+					SDL_Surface * hide2 = SDL_ConvertSurface(hide, su->format, SDL_SWSURFACE);
+					for(int i=0; i<hide2->w; ++i)
 					{
-						for(int j=0; j<hide->h; ++j)
+						for(int j=0; j<hide2->h; ++j)
 						{
-							Uint32 * place = (Uint32*)( (Uint8*)hide->pixels + j * hide->pitch + i * hide->format->BytesPerPixel);
+							Uint32 * place = (Uint32*)( (Uint8*)hide2->pixels + j * hide2->pitch + i * hide2->format->BytesPerPixel);
 							(*place)&=pompom[i][j];
 						}
 					}
-					SDL_BlitSurface(hide, NULL, su, sr);
+					SDL_BlitSurface(hide2, NULL, su, sr);
+					SDL_FreeSurface(hide2);
 				}
 			}
 			delete sr;
@@ -338,7 +340,7 @@ SDL_Surface * CMapHandler::undTerrBitmap(int x, int y)
 	return undTerrainBitmap[x+4][y+4];
 }
 
-SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector<bool> > & visibility)
+SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector<char> > & visibility)
 {
 	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && !visibility[x+1][y+1] && !visibility[x+1][y-1] && !visibility[x-1][y+1])
 	{
@@ -529,4 +531,14 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector<b
 		return CSDL_Ext::rotate01(partialHide->ourImages[28].bitmap); //visible left, left - bottom, bottom; right top corner visible
 	}
 	return fullHide->ourImages[0].bitmap; //this case should never happen, but it is better to hide too much than reveal it....
+}
+
+char & CMapHandler::visAccess(int x, int y)
+{
+	return visibility[x+4][y+4];
+}
+
+char & CMapHandler::undVisAccess(int x, int y)
+{
+	return undVisibility[x+4][y+4];
 }
