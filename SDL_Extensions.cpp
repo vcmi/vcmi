@@ -2,6 +2,7 @@
 #include "SDL_Extensions.h"
 #include "SDL_TTF.h"
 #include <iostream>
+
 extern SDL_Surface * ekran;
 extern SDL_Color tytulowy, tlo, zwykly ;
 bool isItIn(const SDL_Rect * rect, int x, int y)
@@ -305,7 +306,27 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 			{
 				SDL_Color shadow;
 				shadow.b = shadow.g = shadow.r = 0;
-				shadow.unused = cur.g + 25; //25 is a scalable constans to make it nicer
+				switch(cur.g) //change this values; make diffrerent for objects and shadows (?)
+				{
+				case 0:
+					shadow.unused = 0+32;
+					break;
+				case 50:
+					shadow.unused = 50+32;
+					break;
+				case 100:
+					shadow.unused = 100+64;
+					break;
+				case 128:
+					shadow.unused = 128+64;
+					break;
+				case 150:
+					shadow.unused = 150+64;
+					break;
+				default:
+					shadow.unused = 255;
+					break;
+				}
 				SDL_SetColors(src, &shadow, yy, 1);
 			}
 			if(cur.g == 255 && cur.b == 255)
@@ -319,6 +340,38 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 	}
 	SDL_UpdateRect(src, 0, 0, src->w, src->h);
 	return src;
+}
+
+SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha)
+{
+	
+	Uint32 pompom[192][192];
+	for(int i=0; i<src->w; ++i)
+	{
+		for(int j=0; j<src->h; ++j)
+		{
+			pompom[i][j] = 0xffffffff - (SDL_GetPixel(src, i, j, true) & 0xff000000);
+		}
+	}
+	Uint32 pompom2[192][192];
+	for(int i=0; i<src->w; ++i)
+	{
+		for(int j=0; j<src->h; ++j)
+		{
+			pompom2[i][j] = pompom[i][j]>>24;
+		}
+	}
+	SDL_Surface * hide2 = SDL_ConvertSurface(src, alpha->format, SDL_SWSURFACE);
+	for(int i=0; i<hide2->w; ++i)
+	{
+		for(int j=0; j<hide2->h; ++j)
+		{
+			Uint32 * place = (Uint32*)( (Uint8*)hide2->pixels + j * hide2->pitch + i * hide2->format->BytesPerPixel);
+			(*place)&=pompom[i][j];
+			int ffgg=0;
+		}
+	}
+	return hide2;
 }
 
 Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)

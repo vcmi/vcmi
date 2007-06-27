@@ -4,6 +4,7 @@
 #include "CGameInfo.h"
 #include "CObjectHandler.h"
 #include "CCastleHandler.h"
+#include "SDL_Extensions.h"
 #include <set>
 
 unsigned int intPow(unsigned int a, unsigned int b)
@@ -405,8 +406,12 @@ void CAmbarCendamo::deh3m()
 		map.defy.push_back(vinya); // add this def to the vector
 
 		//testing - only fragment//////////////////////////////////////////////////////////////
-		//map.defy[idd].handler = new CSemiDefHandler();
-		//map.defy[idd].handler->openDef(map.defy[idd].name.c_str(), "H3sprite.lod");
+		/*map.defy[idd].handler = new CSemiDefHandler();
+		map.defy[idd].handler->openDef(map.defy[idd].name.c_str(), "H3sprite.lod");
+		for(int ff=0; ff<map.defy[idd].handler->ourImages.size(); ++ff) //adding shadows and transparency
+		{
+			map.defy[idd].handler->ourImages[ff].bitmap = CSDL_Ext::alphaTransform(map.defy[idd].handler->ourImages[ff].bitmap);
+		}//*/
 		//end fo testing - only fragment///////////////////////////////////////////////////////
 
 		//teceDef();

@@ -109,7 +109,6 @@ void CMapHandler::init()
 						continue;
 					else
 					{
-						SDL_Surface * n;
 						int ktora = reader->map.terrain[i-4][j-4].terview;
 						terrainBitmap[i][j] = reader->defs[k]->ourImages[ktora].bitmap;
 						//TODO: odwracanie	
@@ -208,7 +207,6 @@ void CMapHandler::init()
 							continue;
 						else
 						{
-							SDL_Surface * n;
 							int ktora = reader->map.undergroungTerrain[i-4][j-4].terview;
 							undTerrainBitmap[i][j] = reader->defs[k]->ourImages[ktora].bitmap;
 							//TODO: odwracanie	
@@ -261,6 +259,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level)
                                    rmask, gmask, bmask, amask);
 	if (((dx+x)>((reader->map.width+8)) || (dy+y)>((reader->map.height+8))) || ((x<0)||(y<0) ) )
 		throw new std::string("Poza zakresem");
+	////printing terrain
 	for (int bx=0; bx<dx; bx++)
 	{
 		for (int by=0; by<dy; by++)
@@ -272,61 +271,70 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level)
 			if (!level)
 			{
 				SDL_BlitSurface(terrainBitmap[bx+x][by+y],NULL,su,sr);
-				if( bx+x>3 && by+y>3 && bx+x<visibility.size()-3 && by+y<visibility[0].size()-3 && !visibility[bx+x][by+y])
-				{
-					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibility);
-					Uint32 pompom[32][32];
-					for(int i=0; i<hide->w; ++i)
-					{
-						for(int j=0; j<hide->h; ++j)
-						{
-							pompom[i][j] = 0xffffffff - (CSDL_Ext::SDL_GetPixel(hide, i, j, true) & 0xff000000);
-						}
-					}
-					SDL_Surface * hide2 = SDL_ConvertSurface(hide, su->format, SDL_SWSURFACE);
-					for(int i=0; i<hide2->w; ++i)
-					{
-						for(int j=0; j<hide2->h; ++j)
-						{
-							Uint32 * place = (Uint32*)( (Uint8*)hide2->pixels + j * hide2->pitch + i * hide2->format->BytesPerPixel);
-							(*place)&=pompom[i][j];
-						}
-					}
-					SDL_BlitSurface(hide2, NULL, su, sr);
-					SDL_FreeSurface(hide2);
-				}
 			}
 			else 
 			{
 				SDL_BlitSurface(undTerrainBitmap[bx+x][by+y],NULL,su,sr);
+			}
+			delete sr;
+		}
+	}
+	////terrain printed; printing objects
+	/*
+	for (int bx=0; bx<dx; bx++)
+	{
+		for (int by=0; by<dy; by++)
+		{
+			for(int gg=0; gg<CGameInfo::mainObj->objh->objInstances.size(); ++gg)
+			{
+				if(CGameInfo::mainObj->objh->objInstances[gg].x == bx+x-4 && CGameInfo::mainObj->objh->objInstances[gg].y == by+y-4 && CGameInfo::mainObj->objh->objInstances[gg].z == level)
+				{
+					SDL_Rect * sr = new SDL_Rect;
+					sr->h=sr->w=192;
+					sr->x = (bx)*32 - CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->w + 32;
+					sr->y = (by)*32 - CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->h + 32;
+					SDL_Surface * s2 = CSDL_Ext::secondAlphaTransform(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap, su);
+					SDL_BlitSurface(s2, NULL, su, sr);
+					SDL_FreeSurface(s2);
+					delete sr;
+				}
+			}
+		}
+	}//*/
+	////objects printed, printing shadow
+	for (int bx=0; bx<dx; bx++)
+	{
+		for (int by=0; by<dy; by++)
+		{
+			SDL_Rect * sr = new SDL_Rect;
+			sr->y=by*32;
+			sr->x=bx*32;
+			sr->h=sr->w=32;
+			if (!level)
+			{
+				
+				if( bx+x>3 && by+y>3 && bx+x<visibility.size()-3 && by+y<visibility[0].size()-3 && !visibility[bx+x][by+y])
+				{
+					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibility);
+					SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
+					SDL_BlitSurface(hide2, NULL, su, sr);
+					SDL_FreeSurface(hide2);
+				}
+			}
+			else
+			{
 				if( bx+x>3 && by+y>3 && bx+x<undVisibility.size()-3 && by+y<undVisibility[0].size()-3 && !undVisibility[bx+x][by+y])
 				{
 					SDL_Surface * hide = getVisBitmap(bx+x, by+y, undVisibility);
-					Uint32 pompom[32][32];
-					for(int i=0; i<hide->w; ++i)
-					{
-						for(int j=0; j<hide->h; ++j)
-						{
-							pompom[i][j] = 0xffffffff - (CSDL_Ext::SDL_GetPixel(hide, i, j, true) & 0xff000000);
-						}
-					}
-					SDL_Surface * hide2 = SDL_ConvertSurface(hide, su->format, SDL_SWSURFACE);
-					for(int i=0; i<hide2->w; ++i)
-					{
-						for(int j=0; j<hide2->h; ++j)
-						{
-							Uint32 * place = (Uint32*)( (Uint8*)hide2->pixels + j * hide2->pitch + i * hide2->format->BytesPerPixel);
-							(*place)&=pompom[i][j];
-						}
-					}
+					SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
 					SDL_BlitSurface(hide2, NULL, su, sr);
 					SDL_FreeSurface(hide2);
 				}
 			}
 			delete sr;
-			//SDL_BlitSurface(su,NULL,ekran,NULL);SDL_Flip(ekran);
 		}
 	}
+	////shadow printed
 	return su;
 }
 

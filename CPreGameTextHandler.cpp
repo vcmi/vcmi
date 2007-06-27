@@ -484,4 +484,58 @@ void CPreGameTextHandler::loadToIt(std::string &dest, std::string &src, int &ite
 			iter+=2;
 		}
 	}
+	loadLossConditions();
+	loadVictoryConditions();
+}
+
+void CPreGameTextHandler::loadVictoryConditions()
+{
+	std::ifstream inp("H3bitmap.lod\\VCDESC.TXT", std::ios::in|std::ios::binary);
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+	int i=0; //buf iterator
+
+	for(int gg=0; gg<14; ++gg)
+	{
+		int befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\r')
+				break;
+		}
+		victoryConditions[gg] = buf.substr(befi, i-befi);
+		i+=2;
+	}
+}
+
+void CPreGameTextHandler::loadLossConditions()
+{
+	std::ifstream inp("H3bitmap.lod\\LCDESC.TXT", std::ios::in|std::ios::binary);
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+	int i=0; //buf iterator
+
+	for(int gg=0; gg<4; ++gg)
+	{
+		int befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\r')
+				break;
+		}
+		lossCondtions[gg] = buf.substr(befi, i-befi);
+		i+=2;
+	}
 }

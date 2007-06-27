@@ -14,6 +14,7 @@ public:
 	static Uint32 SDL_GetPixel(SDL_Surface *surface, int x, int y, bool colorByte = false);
 	static SDL_Color SDL_GetPixelColor(SDL_Surface *surface, int x, int y);
 	static SDL_Surface * alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
+	static SDL_Surface * secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha); //alpha is a surface we want to blit src to
 	static Uint32 colorToUint32(const SDL_Color * color); //little endian only
 };
 
