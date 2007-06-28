@@ -255,6 +255,15 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 	SDL_Color nasz;
 	for (int i=at;i<to;i++)
 	{
+		if ((i-at+from) > ourMaps.size()-1)
+		{
+			SDL_Surface * scenin = SDL_CreateRGBSurface(ekran->flags,351,25,ekran->format->BitsPerPixel,ekran->format->Rmask,ekran->format->Gmask,ekran->format->Bmask,ekran->format->Amask);
+			SDL_BlitSurface(bg,&genRect(25,351,22,(i-at)*25+115),scenin,NULL);
+			blitAt(scenin,24,121+(i-at)*25);
+			SDL_Flip(ekran);
+			SDL_FreeSurface(scenin);
+			continue;
+		}
 		if (sizeFilter && ((ourMaps[(i-at)+from].width) != sizeFilter))
 		{
 			to++;
