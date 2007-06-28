@@ -76,6 +76,11 @@ void CSemiDefHandler::openDef(std::string name, std::string lodName, int dist)
 	loadImages(lodName);
 
 }
+CSemiDefHandler::~CSemiDefHandler()
+{
+	for (int i=0;i<ourImages.size();i++)
+		SDL_FreeSurface(ourImages[i].bitmap);
+}
 void CSemiDefHandler::readFileList(int dist)
 {
 	howManyImgs = buforD[788];
@@ -95,6 +100,7 @@ void CSemiDefHandler::readFileList(int dist)
 		}
 		else pom--;
 	}
+	delete buforD;
 }
 void CSemiDefHandler::loadImages(std::string path)
 {

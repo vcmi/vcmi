@@ -10,22 +10,61 @@
 #include "CMusicHandler.h"
 class CPreGame;
 extern CPreGame * CPG;
+struct RanSel
+{
+	Button<> horcpl[9], horcte[9], conpl[9], conte[8], water[4], monster[4], //last is random
+			size[4], twoLevel, showRand;
+	CGroup<> *Ghorcpl, *Ghorcte, *Gconpl, *Gconte, *Gwater, *Gmonster, *Gsize;
+};
+class MapSel
+{
+public:
+	bool showed;
+	SDL_Surface * bg;
+	int selected;
+	CSemiDefHandler * Dtypes, * Dvic, * Dloss, *Dsizes;
+	std::vector<Mapa*> scenList;
+	std::vector<SDL_Surface*> scenImgs;
+	int current;
+	std::vector<CMapInfo> ourMaps;
+	IntBut<> small, medium, large, xlarge, all;
+	Button<> nrplayer, mapsize, type, name, viccon, loscon;
+	Slider<>  *slid, *descslid;
+	int sizeFilter;
+	int whichWL(int nr);
+	int countWL();
+	void draw();
+	void init();
+	std::string gdiff(std::string ss);
+	void printMaps(int from,int to=18, int at=0, bool abs=false);
+	void select(int which);
+	void printSelectedInfo();
+	MapSel();
+	~MapSel();
+};
 class ScenSel
 {
 public:
+	bool listShowed;
+	RanSel ransel;
+	MapSel mapsel;
 	SDL_Surface * background, *scenInf, *scenList, *randMap, *options ;
 	Button<> bScens, bOptions, bRandom, bBegin, bBack;
 	IntSelBut<>	bEasy, bNormal, bHard, bExpert, bImpossible;
 	Button<> * pressed;
 	CPoinGroup<> * difficulty;
 	std::vector<Mapa> maps;
-	void genScenList();
 	int selectedDiff;
+	void initRanSel();
+	void showRanSel();
+	void hideRanSel();
+	void genScenList();
 	~ScenSel(){delete difficulty;};
 } ;
 class CPreGame
 {
 public:	
+	std::vector<Slider<> *> interested;
 	CMusicHandler * mush;
 	CSemiLodHandler * slh ;
 	std::vector<Button<> *> btns;
@@ -37,7 +76,7 @@ public:
 		mainMenu, newGame, loadGame, ScenarioList
 	} state;
 	struct menuItems { 
-		SDL_Surface * background;
+		SDL_Surface * background, *bgAd;
 		CSemiDefHandler *newGame, *loadGame, *highScores,*credits, *quit;
 		SDL_Rect lNewGame, lLoadGame, lHighScores, lCredits, lQuit;
 		ttt fNewGame, fLoadGame, fHighScores, fCredits, fQuit;
@@ -66,6 +105,7 @@ public:
 	void showCenBox (std::string data);
 	void showAskBox (std::string data, void(*f1)(),void(*f2)());
 	void hideBox ();
+	void printMapsFrom(int from);
 };
 
 #endif //CPREGAME_H

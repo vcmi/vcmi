@@ -68,13 +68,13 @@ SDL_Surface * CMessage::drawBox1(int w, int h)
 	return ret;
 }
 
-std::vector<std::string> * CMessage::breakText(std::string text)
+std::vector<std::string> * CMessage::breakText(std::string text, int line)
 {
 	std::vector<std::string> * ret = new std::vector<std::string>();
-	while (text.length()>30)
+	while (text.length()>line)
 	{
 		int whereCut = -1;
-		for (int i=30; i>0; i--)
+		for (int i=line; i>0; i--)
 		{
 			if (text[i]==' ')
 			{

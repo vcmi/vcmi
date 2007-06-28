@@ -46,7 +46,7 @@ const char * NAME = "VCMI 0.2";
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
 SDL_Surface * ekran;
-TTF_Font * TNRB16, *TNR, *GEOR13;
+TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX;
 int def(FILE *source, FILE *dest, int level, int winBits=15, int memLevel =8)
 {
 	int ret, flush;
@@ -215,6 +215,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	float i;
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
+		CPG=NULL;
 		TTF_Init();
 		atexit(TTF_Quit);
 		atexit(SDL_Quit);
@@ -222,6 +223,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		TNRB16 = TTF_OpenFont("Fonts\\tnrb.ttf",16);
 		//TNR = TTF_OpenFont("Fonts\\tnr.ttf",10);
 		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
+		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
 
 		//initializing audio
 		CMusicHandler * mush = new CMusicHandler;
@@ -283,7 +285,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
-		CAmbarCendamo * ac = new CAmbarCendamo("9gryf"); //4gryf
+		std::string mapname;
+		if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
+		else mapname = "4gryf";
+		CAmbarCendamo * ac = new CAmbarCendamo(mapname.c_str()); //4gryf
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
@@ -425,7 +430,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				if(updateScreen)
 				{
 					SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
-					SDL_Surface * help = mh->terrainRect(xx,yy,25,18,zz);
+					SDL_Surface * help = mh->terrainRect(xx,yy,25,19,zz);
 					SDL_BlitSurface(help,NULL,ekran,NULL);
 					SDL_FreeSurface(help);
 					SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);

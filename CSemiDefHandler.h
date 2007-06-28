@@ -25,5 +25,6 @@ public:
 	void openDef(std::string name, std::string lodName, int dist=1);
 	void readFileList(int dist = 1);
 	void loadImages(std::string path);
+	~CSemiDefHandler();
 };
 #endif // SEMIDEF_H

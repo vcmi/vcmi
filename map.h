@@ -6,6 +6,7 @@
 #include "global.h"
 #include "CSemiDefHandler.h"
 
+enum ESortBy{name,playerAm,size,format, viccon,loscon};
 struct Sresource
 {
 	std::string resName; //name of this resource
@@ -185,7 +186,6 @@ struct Mapa
 	int howManyTeams;
 	std::vector<CMapEvent> events;
 };
-
 class CMapHeader
 {
 public:
@@ -205,6 +205,54 @@ public:
 	int howManyTeams;
 	CMapHeader(unsigned char *map); //an argument is a reference to string described a map (unpacked)
 };
+class CMapInfo : public CMapHeader
+{
+public:
+	std::string filename;
+	int playerAmnt, humenPlayers;
+	CMapInfo(std::string fname, unsigned char *map):CMapHeader(map),filename(fname)
+	{
+		playerAmnt=humenPlayers=0;
+		for (int i=0;i<8;i++)
+		{
+			if (players[i].canHumanPlay) {playerAmnt++;humenPlayers++;}
+			else if (players[i].canComputerPlay) {playerAmnt++;}
+		}
+	};
+};
 
 
+class mapSorter
+{
+public:
+	ESortBy sortBy;
+	bool operator()(CMapHeader & a, CMapHeader& b)
+	{
+		switch (sortBy)
+		{
+		case ESortBy::format:
+			return (a.version<b.version);
+			break;
+		case ESortBy::loscon:
+			return (a.lossCondition.typeOfLossCon<b.lossCondition.typeOfLossCon);
+			break;
+		case ESortBy::playerAm:
+			//TODO
+			break;
+		case ESortBy::size:
+			return (a.width<b.width);
+			break;
+		case ESortBy::viccon:
+			return (a.victoryCondition<b.victoryCondition);
+			break;
+		case ESortBy::name:
+			return (a.name<b.name);
+			break;
+		default:
+			return (a.name<b.name);
+			break;
+		}
+	};
+	mapSorter(ESortBy es):sortBy(es){};
+};
 #endif //MAPD_H

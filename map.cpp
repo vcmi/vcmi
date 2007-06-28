@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "map.h"
 
 int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4)
