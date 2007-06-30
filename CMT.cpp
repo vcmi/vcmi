@@ -25,6 +25,7 @@
 #include "CGameInfo.h"
 #include "CMusicHandler.h"
 #include "CSemiLodHandler.h"
+#include "CLodHandler.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -262,6 +263,20 @@ int _tmain(int argc, _TCHAR* argv[])
 		CGameInfo * cgi = new CGameInfo;
 		CGameInfo::mainObj = cgi;
 		cgi->mush = mush;
+
+		//////////////////////////////////////////////////////////////////////////////// lod testing
+
+		//CLodHandler * clod = new CLodHandler;
+		//clod->loadLod("h3abp_bm.lod");
+
+		CLodHandler * test = new CLodHandler;
+		test->init(std::string("h3abp_bm.lod"));
+
+		CLodHandler * bitmapLod = new CLodHandler;
+		test->init(std::string("newH3sprite.lod"));
+
+		//////////////////////////////////////////////////////////////////////////////// lod testing end
+
 		cgi->sspriteh = new CSemiLodHandler();
 		cgi->sspriteh->openLod("H3sprite.lod");
 		CArtHandler * arth = new CArtHandler;
@@ -286,8 +301,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		objh->loadObjects();
 		cgi->objh = objh;
 		std::string mapname;
-		if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
-		else mapname = "4gryf";
+		//if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
+		//else mapname = "4gryf";
+		mapname = "4gryf";
 		CAmbarCendamo * ac = new CAmbarCendamo(mapname.c_str()); //4gryf
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;

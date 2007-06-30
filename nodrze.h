@@ -1,7 +1,12 @@
 #ifndef _NODRZE_H
 #define _NODRZE_H
+
 #include <iostream>
 #include <string>
+
+#define LOGUJ ;
+#define CLOG ;
+
 #ifndef LOGUJ
 #define LOGUJ(a) (std::cout<<a)
 #define CLOG(a) (std::cout<<a)
@@ -599,7 +604,7 @@ template <typename T> wezel<T> * nodrze<T>::usunRBT (wezel<T> * nowy)
 };
 template <typename T> void nodrze<T>::naprawWstaw (wezel<T> * nowy)
 {
-	CLOG ("Naprawiam po wstawieniu"<<std::endl);
+	//CLOG ("Naprawiam po wstawieniu"<<std::endl);
 	while (nowy->ojciec->kolor==CZERWONY)
 	{
 		if (nowy->ojciec == nowy->ojciec->ojciec->lewy) // ojciec nowego lest lewy
@@ -651,7 +656,7 @@ template <typename T> void nodrze<T>::naprawWstaw (wezel<T> * nowy)
 }
 template <typename T> void nodrze<T>::dodajRBT (wezel<T> * nowy)
 {
-	CLOG("Dodaje do drzewa "<<nowy->zawart<<std::endl);
+	//CLOG("Dodaje do drzewa "<<nowy->zawart<<std::endl);
 	ile++;
 	if ((*nowy->zawart) < (*ostatnio->zawart))
 	{
@@ -717,7 +722,7 @@ template <typename T> bool nodrze<T>::sprawdzW(wezel<T> * w)
 }
 template <typename T> void nodrze<T>::rotacjaLewa (wezel<T> * x)
 {
-	CLOG("Wykonuje lew¹ rotacjê na "<<x->zawart<<std::endl);
+	//CLOG("Wykonuje lew¹ rotacjê na "<<x->zawart<<std::endl);
 	wezel<T> * y = x->prawy;
 	x->prawy = y->lewy; // zamiana lewego poddrzewa y na prawe poddrzewo x
 	if (y->lewy != NIL) y->lewy->ojciec = x; // i przypisanie ojcostwa temu poddrzewu
@@ -733,7 +738,7 @@ template <typename T> void nodrze<T>::rotacjaLewa (wezel<T> * x)
 };
 template <typename T> void nodrze<T>::rotacjaPrawa (wezel<T> * y)
 {
-	CLOG("Wykonuje prawa rotacjê na "<<y->zawart<<std::endl);
+	//CLOG("Wykonuje prawa rotacjê na "<<y->zawart<<std::endl);
 	wezel<T> * x = y->lewy;
 	y->lewy = x->prawy; // zamiana prawe poddrzewa x na lewe poddrzewo y
 	if (x->prawy != NIL) x->prawy->ojciec = y; // i przypisanie ojcostwa temu poddrzewu
