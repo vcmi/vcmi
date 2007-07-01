@@ -26,6 +26,7 @@
 #include "CMusicHandler.h"
 #include "CSemiLodHandler.h"
 #include "CLodHandler.h"
+#include "CDefHandler.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -269,11 +270,20 @@ int _tmain(int argc, _TCHAR* argv[])
 		//CLodHandler * clod = new CLodHandler;
 		//clod->loadLod("h3abp_bm.lod");
 
-		CLodHandler * test = new CLodHandler;
-		test->init(std::string("h3abp_bm.lod"));
+		//CLodHandler * test = new CLodHandler;
+		//test->init(std::string("h3abp_bm.lod"));
 
-		CLodHandler * bitmapLod = new CLodHandler;
-		test->init(std::string("newH3sprite.lod"));
+		CDefHandler * tdef = new CDefHandler;
+		tdef->openDef(std::string("H3sprite.lod\\IOKAY.DEF"));
+		tdef->getSprite(0);
+
+		//CLodHandler * bitmapLod = new CLodHandler;
+		//bitmapLod->init(std::string("newH3bitmap.lod"));
+
+		CPCXConv * tconv = new CPCXConv;
+		tconv->fromFile(std::string("newh3bitmap\\ADOPBPNL.PCX"));
+		tconv->convert();
+		tconv->saveBMP(std::string("tesciczekConva.bmp"));
 
 		//////////////////////////////////////////////////////////////////////////////// lod testing end
 

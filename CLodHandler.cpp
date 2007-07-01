@@ -39,7 +39,7 @@ void CPCXConv::fromFile(std::string path)
 void CPCXConv::saveBMP(std::string path)
 {
 	std::ofstream os;
-	os.open(path.c_str());
+	os.open(path.c_str(), std::ios::binary);
 	os.write((char*)bmp,bmps);
 	os.close();
 }
@@ -76,7 +76,7 @@ void CPCXConv::convert()
 	bh.y=maxy;
 	add=(int)(4*(((float)1)-(((float)maxx/(float)4)-((int)((float)maxx/(float)4)))));
 	if (add==4)
-		add=2;
+		add=0;
 	if (format==Epcxformat::PCX8B)
 	{
 		bh._c1=0x436;
