@@ -6,6 +6,9 @@
 #include <vector>
 #include <string>
 #include "zlib.h"
+#include "CDefHandler.h"
+
+enum Epcxformat {PCX8B, PCX24B};
 
 namespace NLoadHandlerHelp
 {
@@ -23,7 +26,19 @@ struct Entry
 		realSize, //size without compression
 		size;	//and with
 };
-
+class CPCXConv
+{	
+public:
+	unsigned char * pcx, *bmp;
+	int pcxs, bmps;
+	void fromFile(std::string path);
+	void saveBMP(std::string path);
+	void openPCX(char * PCX, int len);
+	void openPCX();
+	void convert();
+	CPCXConv(){pcx=bmp=NULL;pcxs=bmps=0;};
+	~CPCXConv(){if (pcxs) delete pcx; if(bmps) delete bmp;}
+};
 class CLodHandler
 {
 public:

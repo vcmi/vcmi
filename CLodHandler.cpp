@@ -1,6 +1,170 @@
-#include "CLodHandler.h"
 #include "stdafx.h"
+#include "CLodHandler.h"
+#include <sstream>
 
+
+int readNormalNr (int pos, int bytCon, unsigned char * str)
+{
+	int ret=0;
+	int amp=1;
+	if (str)
+	{
+		for (int i=0; i<bytCon; i++)
+		{
+			ret+=str[pos+i]*amp;
+			amp*=256;
+		}
+	}
+	else return -1;
+	return ret;
+}
+void CPCXConv::openPCX(char * PCX, int len)
+{
+	pcx = new unsigned char[len];
+	for (int i=0;i<len;i++)
+		pcx[i]=PCX[i];
+}
+void CPCXConv::fromFile(std::string path)
+{
+	std::ifstream * is = new std::ifstream();
+	is -> open(path.c_str(),std::ios::binary);
+	is->seekg(0,std::ios::end); // na koniec
+	pcxs = is->tellg();  // read length
+	is->seekg(0,std::ios::beg); // wracamy na poczatek
+	pcx = new unsigned char[pcxs]; // allocate memory 
+	is->read((char*)pcx, pcxs); // read map file to buffer
+	is->close();
+	delete is;
+}
+void CPCXConv::saveBMP(std::string path)
+{
+	std::ofstream os;
+	os.open(path.c_str());
+	os.write((char*)bmp,bmps);
+	os.close();
+}
+void CPCXConv::convert()
+{
+	BMPHeader bh;
+	BMPPalette pal[256];
+	Epcxformat format;
+	int fSize, maxx, maxy,i,y;
+	bool check1, check2;
+	unsigned char add;
+	int it=0;
+
+	std::stringstream out;
+
+	fSize = readNormalNr(it,4,pcx);it+=4;
+	maxx = readNormalNr(it,4,pcx);it+=4;
+	maxy = readNormalNr(it,4,pcx);it+=4;
+	if (fSize==maxx*maxy*3)
+		check1=true;
+	else 
+		check1=false;
+	if (fSize==maxx*maxy)
+		check2=true;
+	else 
+		check2=false;
+	if (check1)
+		format=Epcxformat::PCX24B;
+	else if (check2)
+		format=Epcxformat::PCX8B;
+	else 
+		return;
+	bh.x=maxx;
+	bh.y=maxy;
+	add=(int)(4*(((float)1)-(((float)maxx/(float)4)-((int)((float)maxx/(float)4)))));
+	if (add==4)
+		add=2;
+	if (format==Epcxformat::PCX8B)
+	{
+		bh._c1=0x436;
+		bh._c2=0x28;
+		bh._c3=1;
+		bh._c4=8;
+		bh.dataSize2=bh.dataSize1=maxx*maxy;
+		bh.fullSize = bh.dataSize1+436;
+	}
+	else
+	{
+		bh._c1=0x36;
+		bh._c2=0x28;
+		bh._c3=1;
+		bh._c4=0x18;
+		bh.dataSize2=bh.dataSize1=0xB12;
+		bh.fullSize=(maxx+add)*maxy*3+36;
+	}
+	if (format==Epcxformat::PCX8B)
+	{
+		it = pcxs-256*3;
+		for (int i=0;i<256;i++)
+		{
+			pal[i].R=pcx[it++];
+			pal[i].G=pcx[it++];
+			pal[i].B=pcx[it++];
+			pal[i].F='\0';
+		}
+	}
+	out<<"BM";
+	bh.print(out);
+	if (format==Epcxformat::PCX8B)
+	{
+		for (int i=0;i<256;i++)
+		{
+			out<<pal[i].B;
+			out<<pal[i].G;
+			out<<pal[i].R;
+			out<<pal[i].F;
+		}
+		for (y=maxy;y>0;y--)
+		{
+			it=0xC+(y-1)*maxx;
+			for (int j=0;j<maxx;j++)
+				out<<pcx[it+j];
+			if (add>0)
+			{
+				for (int j=0;j<add;j++)
+					out<<'\0'; //bylo z buforu, ale onnie byl incjalizowany (?!)
+			}
+		}
+	}
+	else
+	{
+		for (y=maxy; y>0; y--)
+		{
+			it=0xC+(y-1)*maxx*3;
+			for (int j=0;j<maxx*3;j++)
+				out<<pcx[it+j];
+			if (add>0)
+			{
+				for (int j=0;j<add*3;j++)
+					out<<'\0'; //bylo z buforu, ale onnie byl incjalizowany (?!)
+			}
+		}
+	}
+	std::string temp = out.str();
+	bmp = new unsigned char[temp.length()];
+	bmps=temp.length();
+	for (int a=0;a<temp.length();a++)
+	{
+		bmp[a]=temp[a];
+	}
+}
+
+
+//  if PFileType=pcx24bit then
+//  for y:=MaxY downto 1 do
+//  begin
+//    FPcx.Seek($0C+(y-1)*(MaxX*3),spBegin);
+//    Stream2Stream(FTemp,FPcx,MaxX*3);
+//    if Add>0 then FTemp.Write(Buffer,Add*3);
+//  end;
+//  FTemp.Seek(0,spBegin);
+//  BufferBitmap.LoadFromStream(FTemp);
+//  FTemp.Free;
+//  Result:=True;
+//end;
 int CLodHandler::decompress (unsigned char * source, int size, int realSize, std::ofstream & dest)
 {
 	std::ofstream lb;
