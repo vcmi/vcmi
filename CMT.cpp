@@ -274,7 +274,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//test->init(std::string("h3abp_bm.lod"));
 
 		CDefHandler * tdef = new CDefHandler;
-		tdef->openDef(std::string("H3sprite.lod\\IOKAY.DEF"));
+		tdef->openDef(std::string("H3sprite.lod\\EDG.DEF"));
 		tdef->getSprite(0);
 
 		//CLodHandler * bitmapLod = new CLodHandler;
