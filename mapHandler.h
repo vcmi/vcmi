@@ -5,13 +5,16 @@
 #include "CSemiDefHandler.h"
 #include "CGameInfo.h"
 
+const unsigned int Woff = 4; //width of map's frame
+const unsigned int Hoff = 4; 
+
 class CMapHandler
 {
 public:
 	CAmbarCendamo * reader;
 	SDL_Surface *** terrainBitmap;
 	SDL_Surface *** undTerrainBitmap; // used only if there is underground level
-	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0);
+	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0);
 	SDL_Surface * terrBitmap(int x, int y);
 	SDL_Surface * undTerrBitmap(int x, int y);
 	CSemiDefHandler * fullHide;

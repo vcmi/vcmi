@@ -391,6 +391,19 @@ void CAmbarCendamo::deh3m()
 	int defAmount = bufor[i]; // liczba defow
 	defAmount = readNormalNr(i);
 	i+=4;
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    int srmask = 0xff000000;
+    int sgmask = 0x00ff0000;
+    int sbmask = 0x0000ff00;
+    int samask = 0x000000ff;
+#else
+    int srmask = 0x000000ff;
+    int sgmask = 0x0000ff00;
+    int sbmask = 0x00ff0000;
+    int samask = 0xff000000;
+#endif
+	SDL_Surface * alphaTransSurf = SDL_CreateRGBSurface(SDL_SWSURFACE, 12, 12, 32, srmask, sgmask, sbmask, samask);
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
 		int nameLength = readNormalNr(i,4);i+=4;
@@ -406,16 +419,20 @@ void CAmbarCendamo::deh3m()
 		map.defy.push_back(vinya); // add this def to the vector
 
 		//testing - only fragment//////////////////////////////////////////////////////////////
-		/*map.defy[idd].handler = new CSemiDefHandler();
-		map.defy[idd].handler->openDef(map.defy[idd].name.c_str(), "H3sprite.lod");
+		map.defy[idd].handler = new CDefHandler();
+		map.defy[idd].handler->openDef( std::string("newH3sprite\\")+map.defy[idd].name);
 		for(int ff=0; ff<map.defy[idd].handler->ourImages.size(); ++ff) //adding shadows and transparency
 		{
 			map.defy[idd].handler->ourImages[ff].bitmap = CSDL_Ext::alphaTransform(map.defy[idd].handler->ourImages[ff].bitmap);
-		}//*/
+			SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[idd].handler->ourImages[ff].bitmap, alphaTransSurf);
+			SDL_FreeSurface(map.defy[idd].handler->ourImages[ff].bitmap);
+			map.defy[idd].handler->ourImages[ff].bitmap = bufs;
+		}
 		//end fo testing - only fragment///////////////////////////////////////////////////////
 
 		//teceDef();
 	}
+	SDL_FreeSurface(alphaTransSurf);
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	////loading objects
 	int howManyObjs = readNormalNr(i, 4); i+=4;

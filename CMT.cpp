@@ -274,8 +274,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//test->init(std::string("h3abp_bm.lod"));
 
 		CDefHandler * tdef = new CDefHandler;
-		tdef->openDef(std::string("H3sprite.lod\\EDG.DEF"));
-		tdef->getSprite(0);
+		tdef->openDef(std::string("newh3sprite\\AVLSPTR3.DEF"));
+		//tdef->getSprite(0);
 
 		//CLodHandler * bitmapLod = new CLodHandler;
 		//bitmapLod->init(std::string("newH3bitmap.lod"));
@@ -284,6 +284,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		tconv->fromFile(std::string("newh3bitmap\\ADOPBPNL.PCX"));
 		tconv->convert();
 		tconv->saveBMP(std::string("tesciczekConva.bmp"));
+
+		CSemiDefHandler * semek = new CSemiDefHandler;
+		semek->openDef(std::string("EDG.DEF"), std::string("H3sprite.lod"));
 
 		//////////////////////////////////////////////////////////////////////////////// lod testing end
 
@@ -343,6 +346,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		bool scrollingUp = false;
 		bool scrollingDown = false;
 		bool updateScreen = false;
+		unsigned char animVal=0; //for animations handling
 		for(;;) // main loop
 		{
 			try
@@ -456,7 +460,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				if(updateScreen)
 				{
 					SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
-					SDL_Surface * help = mh->terrainRect(xx,yy,25,19,zz);
+					SDL_Surface * help = mh->terrainRect(xx,yy,25,19,zz,animVal);
 					SDL_BlitSurface(help,NULL,ekran,NULL);
 					SDL_FreeSurface(help);
 					SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
@@ -467,7 +471,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			catch(...)
 			{ continue; }
 
-			SDL_Delay(25); //give time for other apps
+			updateScreen = true;
+			++animVal; //for animations
+
+			SDL_Delay(30); //give time for other apps
 		}
 		return 0;
 	}

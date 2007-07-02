@@ -17,18 +17,18 @@ void CMapHandler::init()
 		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
 	}
 
-	visibility.resize(reader->map.width+8);
-	for(int gg=0; gg<reader->map.width+8; ++gg)
+	visibility.resize(reader->map.width+2*Woff);
+	for(int gg=0; gg<reader->map.width+2*Woff; ++gg)
 	{
-		visibility[gg].resize(reader->map.height+8);
-		for(int jj=0; jj<reader->map.height+8; ++jj)
+		visibility[gg].resize(reader->map.height+2*Hoff);
+		for(int jj=0; jj<reader->map.height+2*Hoff; ++jj)
 			visibility[gg][jj] = true;
 	}
-	undVisibility.resize(reader->map.width+8);
-	for(int gg=0; gg<reader->map.width+8; ++gg)
+	undVisibility.resize(reader->map.width+2*Woff);
+	for(int gg=0; gg<reader->map.width+2*Woff; ++gg)
 	{
-		undVisibility[gg].resize(reader->map.height+8);
-		for(int jj=0; jj<reader->map.height+8; ++jj)
+		undVisibility[gg].resize(reader->map.height+2*Woff);
+		for(int jj=0; jj<reader->map.height+2*Woff; ++jj)
 			undVisibility[gg][jj] = true;
 	}
 
@@ -44,8 +44,8 @@ void CMapHandler::init()
 	visibility[6][9] = false;
 
 	terrainBitmap = new SDL_Surface **[reader->map.width+8];
-	for (int ii=0;ii<reader->map.width+8;ii++)
-		terrainBitmap[ii] = new SDL_Surface*[reader->map.height+8]; // allocate memory 
+	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
+		terrainBitmap[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
 	CSemiDefHandler * bord = CGameInfo::mainObj->sspriteh->giveDef("EDG.DEF");
 	for (int i=0; i<reader->map.width+8; i++) //jest po szerokoœci
 	{
@@ -241,7 +241,7 @@ void CMapHandler::init()
 	} //end of if
 }
 
-SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level)
+SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     int rmask = 0xff000000;
@@ -280,27 +280,19 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level)
 		}
 	}
 	////terrain printed; printing objects
-	/*
-	for (int bx=0; bx<dx; bx++)
+	for(int gg=0; gg<CGameInfo::mainObj->objh->objInstances.size(); ++gg)
 	{
-		for (int by=0; by<dy; by++)
+		if(CGameInfo::mainObj->objh->objInstances[gg].x >= x-3 && CGameInfo::mainObj->objh->objInstances[gg].x < dx+x-3 && CGameInfo::mainObj->objh->objInstances[gg].y >= y-3 && CGameInfo::mainObj->objh->objInstances[gg].y < dy+y-3 && CGameInfo::mainObj->objh->objInstances[gg].z == level)
 		{
-			for(int gg=0; gg<CGameInfo::mainObj->objh->objInstances.size(); ++gg)
-			{
-				if(CGameInfo::mainObj->objh->objInstances[gg].x == bx+x-4 && CGameInfo::mainObj->objh->objInstances[gg].y == by+y-4 && CGameInfo::mainObj->objh->objInstances[gg].z == level)
-				{
-					SDL_Rect * sr = new SDL_Rect;
-					sr->h=sr->w=192;
-					sr->x = (bx)*32 - CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->w + 32;
-					sr->y = (by)*32 - CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->h + 32;
-					SDL_Surface * s2 = CSDL_Ext::secondAlphaTransform(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap, su);
-					SDL_BlitSurface(s2, NULL, su, sr);
-					SDL_FreeSurface(s2);
-					delete sr;
-				}
-			}
+			SDL_Rect * sr = new SDL_Rect;
+			sr->w = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->w;
+			sr->h = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->h;
+			sr->x = (CGameInfo::mainObj->objh->objInstances[gg].x-x+4)*32 - CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->w + 32;
+			sr->y = (CGameInfo::mainObj->objh->objInstances[gg].y-y+4)*32 - CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->h + 32;
+			SDL_BlitSurface(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap, NULL, su, sr);
+			delete sr;
 		}
-	}//*/
+	}
 	////objects printed, printing shadow
 	for (int bx=0; bx<dx; bx++)
 	{

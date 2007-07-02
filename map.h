@@ -5,6 +5,7 @@
 #include <vector>
 #include "global.h"
 #include "CSemiDefHandler.h"
+#include "CDefHandler.h"
 
 enum ESortBy{name,playerAm,size,format, viccon,loscon};
 struct Sresource
@@ -56,7 +57,8 @@ struct DefInfo //information from def declaration
 {
 	std::string name; 
 	int bytes [42];
-	CSemiDefHandler * handler;
+	//CSemiDefHandler * handler;
+	CDefHandler * handler;
 };
 struct Location
 {
