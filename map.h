@@ -59,6 +59,7 @@ struct DefInfo //information from def declaration
 	int bytes [42];
 	//CSemiDefHandler * handler;
 	CDefHandler * handler;
+	bool isVisitable();
 };
 struct Location
 {

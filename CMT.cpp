@@ -27,6 +27,7 @@
 #include "CSemiLodHandler.h"
 #include "CLodHandler.h"
 #include "CDefHandler.h"
+#include "CDefObjInfoHandler.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -280,10 +281,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		//CLodHandler * bitmapLod = new CLodHandler;
 		//bitmapLod->init(std::string("newH3bitmap.lod"));
 
-		CPCXConv * tconv = new CPCXConv;
-		tconv->fromFile(std::string("newh3bitmap\\ADOPBPNL.PCX"));
-		tconv->convert();
-		tconv->saveBMP(std::string("tesciczekConva.bmp"));
+		//CPCXConv * tconv = new CPCXConv;
+		//tconv->fromFile(std::string("newh3bitmap\\ADOPBPNL.PCX"));
+		//tconv->convert();
+		//tconv->saveBMP(std::string("tesciczekConva.bmp"));
 
 		CSemiDefHandler * semek = new CSemiDefHandler;
 		semek->openDef(std::string("EDG.DEF"), std::string("H3sprite.lod"));
@@ -313,6 +314,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
+		cgi->dobjinfo = new CDefObjInfoHandler;
+		cgi->dobjinfo->load();
+
 		std::string mapname;
 		//if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
 		//else mapname = "4gryf";

@@ -12,7 +12,15 @@ int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4)
 	}
 	return ret;
 }
-
+bool DefInfo::isVisitable()
+{
+	for (int i=6; i<12; i++)
+	{
+		if (bytes[i])
+			return true;
+	}
+	return false;
+}
 CMapHeader::CMapHeader(unsigned char *map)
 {
 	this->version = (Eformat)map[0]; //wersja mapy

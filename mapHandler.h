@@ -5,8 +5,15 @@
 #include "CSemiDefHandler.h"
 #include "CGameInfo.h"
 
-const unsigned int Woff = 4; //width of map's frame
-const unsigned int Hoff = 4; 
+const int Woff = 4; //width of map's frame
+const int Hoff = 4; 
+
+struct ObjSorter
+{
+	SDL_Surface * bitmap;
+	int xpos, ypos;
+	bool operator<(const ObjSorter & por) const;
+};
 
 class CMapHandler
 {
