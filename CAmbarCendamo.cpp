@@ -450,6 +450,8 @@ void CAmbarCendamo::deh3m()
 		//teceDef();
 	}
 	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->lodh->extractManyFiles(defsToUnpack, std::string("newh3sprite.lod"));
+	for (int i=0;i<dhandlers.size();i++)
+		map.defy[i].handler=dhandlers[i];
 	std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
 	SDL_FreeSurface(alphaTransSurf);
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;

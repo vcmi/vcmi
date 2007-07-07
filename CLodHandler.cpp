@@ -486,7 +486,7 @@ int CLodHandler::infs2(unsigned char * in, int size, int realSize, unsigned char
 	z_stream strm;
 	unsigned char inx[NLoadHandlerHelp::fCHUNK];
 	unsigned char outx[NLoadHandlerHelp::fCHUNK];
-	out = new unsigned char [size];
+	out = new unsigned char [realSize];
 	int latPosOut = 0;
 
 	/* allocate inflate state */

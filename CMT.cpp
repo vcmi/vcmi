@@ -337,7 +337,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		ac->deh3m();
 		THC std::cout<<"Rozpoznawianie pliku lacznie: "<<tmh.getDif()<<std::endl;
 		ac->loadDefs();
-		THC std::cout<<"Wczytywanie defow: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Wczytywanie defow terenu: "<<tmh.getDif()<<std::endl;
 		CMapHandler * mh = new CMapHandler();
 		mh->reader = ac;
 		THC std::cout<<"Stworzenie mapHandlera: "<<tmh.getDif()<<std::endl;

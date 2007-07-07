@@ -330,7 +330,12 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			else if(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].printPriority==0)
 			{
 				ObjSorter os;
-				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap;
+
+				int defyod = CGameInfo::mainObj->objh->objInstances[gg].defNumber;
+				int ourimagesod = anim%CGameInfo::mainObj->ac->map.defy[defyod].handler->ourImages.size();
+
+				os.bitmap = CGameInfo::mainObj->ac->map.defy[defyod].handler->ourImages[ourimagesod].bitmap;
+
 				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].x-x+4)*32;
 				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].y-y+4)*32;
 				if (CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].isVisitable())
