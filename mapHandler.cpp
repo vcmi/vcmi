@@ -23,7 +23,7 @@ class poX
 public:
 	bool operator()(const ObjSorter & por2, const ObjSorter & por) const
 	{
-		if(por2.xpos>=por.xpos)
+		if(por2.xpos<=por.xpos)
 			return false;
 		return true;
 	};
@@ -319,9 +319,15 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	{
 		if(CGameInfo::mainObj->objh->objInstances[gg].x >= x-Woff-4 && CGameInfo::mainObj->objh->objInstances[gg].x < dx+x-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg].y >= y-Hoff-4 && CGameInfo::mainObj->objh->objInstances[gg].y < dy+y-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg].z == level)
 		{
-			std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-			CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].name);
-			if(pit->priority==0)
+			if(!CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].isOnDefList)
+			{
+				ObjSorter os;
+				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap;
+				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].x-x+4)*32;
+				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].y-y+4)*32;
+				highPrObjsVis.push_back(os);
+			}
+			else if(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].printPriority==0)
 			{
 				ObjSorter os;
 				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap;
@@ -342,11 +348,12 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 		}
 	}
-	//std::stable_sort(lowPrObjs.begin(), lowPrObjs.end());
-	std::stable_sort(highPrObjs.begin(), highPrObjs.end(),pox);
-	std::stable_sort(highPrObjs.begin(), highPrObjs.end(),poy);
-	std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),pox);
-	std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),poy);
+	//std::stable_sort(lowPrObjs.begin(), lowPrObjs.end(), pox);
+	//std::stable_sort(lowPrObjs.begin(), lowPrObjs.end(), poy);
+	//std::stable_sort(highPrObjs.begin(), highPrObjs.end(),pox);
+	//std::stable_sort(highPrObjs.begin(), highPrObjs.end(),poy);
+	//std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),pox);
+	//std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),poy);
 	for(int yy=0; yy<lowPrObjs.size(); ++yy)
 	{
 		SDL_Rect * sr = new SDL_Rect;
@@ -461,23 +468,28 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector<c
 	}
 	else if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y+1] && visibility[x+1][y-1] && !visibility[x-1][y+1])
 	{
-		return partialHide->ourImages[rand()%2].bitmap; //visible top
+		//return partialHide->ourImages[rand()%2].bitmap; //visible top
+		return partialHide->ourImages[0].bitmap; //visible top
 	}
 	else if(visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y+1] && !visibility[x+1][y-1] && visibility[x-1][y+1])
 	{
-		return partialHide->ourImages[4+rand()%2].bitmap; //visble bottom
+		//return partialHide->ourImages[4+rand()%2].bitmap; //visble bottom
+		return partialHide->ourImages[4].bitmap; //visble bottom
 	}
 	else if(!visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y+1] && !visibility[x+1][y-1] && visibility[x-1][y+1])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[2+rand()%2].bitmap); //visible left
+		//return CSDL_Ext::rotate01(partialHide->ourImages[2+rand()%2].bitmap); //visible left
+		return CSDL_Ext::rotate01(partialHide->ourImages[2].bitmap); //visible left
 	}
 	else if(!visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1] && !visibility[x-1][y+1])
 	{
-		return partialHide->ourImages[2+rand()%2].bitmap; //visible right
+		//return partialHide->ourImages[2+rand()%2].bitmap; //visible right
+		return partialHide->ourImages[2].bitmap; //visible right
 	}
 	else if(visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1])
 	{
-		return partialHide->ourImages[12+2*(rand()%2)].bitmap; //visible bottom, right - bottom, right; left top corner hidden
+		//return partialHide->ourImages[12+2*(rand()%2)].bitmap; //visible bottom, right - bottom, right; left top corner hidden
+		return partialHide->ourImages[12].bitmap; //visible bottom, right - bottom, right; left top corner hidden
 	}
 	else if(!visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1] && !visibility[x-1][y+1])
 	{
@@ -489,7 +501,8 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector<c
 	}
 	else if(visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1]  && !visibility[x+1][y-1])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[12+2*(rand()%2)].bitmap); //visible left, left - bottom, bottom; right top corner hidden
+		//return CSDL_Ext::rotate01(partialHide->ourImages[12+2*(rand()%2)].bitmap); //visible left, left - bottom, bottom; right top corner hidden
+		return CSDL_Ext::rotate01(partialHide->ourImages[12].bitmap); //visible left, left - bottom, bottom; right top corner hidden
 	}
 	else if(visibility[x][y+1] && visibility[x+1][y] && visibility[x-1][y] && visibility[x][y-1] && visibility[x-1][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1] && visibility[x-1][y+1])
 	{

@@ -12,6 +12,7 @@
 #include "CMusicHandler.h"
 #include "CSemiLodHandler.h"
 #include "CDefObjInfoHandler.h"
+#include "CLodHandler.h"
 
 /*
 	CGameInfo class
@@ -32,6 +33,7 @@ public:
 	CMusicHandler * mush;
 	CSemiLodHandler * sspriteh;
 	CDefObjInfoHandler * dobjinfo;
+	CLodHandler * lodh;
 };
 
 #endif //CGAMEINFO_H

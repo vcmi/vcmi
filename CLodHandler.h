@@ -22,9 +22,16 @@ struct Entry
 	unsigned char name[12], //filename
 		hlam_1[4], //
 		hlam_2[4]; //
+	std::string nameStr;
 	int offset, //from beginning
 		realSize, //size without compression
 		size;	//and with
+	bool operator<(const Entry & comp) const
+	{
+		return this->nameStr<comp.nameStr;
+	}
+	Entry(std::string con): nameStr(con){};
+	Entry(){};
 };
 class CPCXConv
 {	
@@ -49,7 +56,11 @@ public:
 	int decompress (unsigned char * source, int size, int realSize, std::ofstream & dest); //main decompression function
 	int decompress (unsigned char * source, int size, int realSize, std::string & dest); //main decompression function
 	int infm(FILE *source, FILE *dest, int wBits = 15); //zlib handler
+	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
+	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
+	std::vector<CDefHandler *> extractManyFiles(std::vector<std::string> defNamesIn, std::string lodName); //extrats given files
 	void extract(std::string FName);
+	void extractFile(std::string FName, std::string name);
 	void init(std::string lodFile);
 };
 

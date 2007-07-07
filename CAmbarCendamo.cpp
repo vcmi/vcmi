@@ -5,6 +5,7 @@
 #include "CObjectHandler.h"
 #include "CCastleHandler.h"
 #include "SDL_Extensions.h"
+#include "boost\filesystem.hpp"
 #include <set>
 
 unsigned int intPow(unsigned int a, unsigned int b)
@@ -404,8 +405,10 @@ void CAmbarCendamo::deh3m()
     int samask = 0xff000000;
 #endif
 	SDL_Surface * alphaTransSurf = SDL_CreateRGBSurface(SDL_SWSURFACE, 12, 12, 32, srmask, sgmask, sbmask, samask);
+	std::vector<std::string> defsToUnpack;
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
+		std::cout<<'\r'<<"Reading defs: "<<(100.0*idd)/((float)(defAmount))<<"%      ";
 		int nameLength = readNormalNr(i,4);i+=4;
 		DefInfo vinya; // info about new def
 		for (int cd=0;cd<nameLength;cd++)
@@ -416,10 +419,22 @@ void CAmbarCendamo::deh3m()
 		{
 			vinya.bytes[v] = bufor[i++];
 		}
+		std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+			vinya.name);
+		if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+		{
+			vinya.isOnDefList = false;
+		}
+		else
+		{
+			vinya.printPriority = pit->priority;
+			vinya.isOnDefList = true;
+		}
 		map.defy.push_back(vinya); // add this def to the vector
-
+		defsToUnpack.push_back(vinya.name);
 		//testing - only fragment//////////////////////////////////////////////////////////////
-		map.defy[idd].handler = new CDefHandler();
+		/*map.defy[idd].handler = new CDefHandler();
+		CGameInfo::mainObj->lodh->extractFile(std::string("newH3sprite.lod"), map.defy[idd].name);
 		map.defy[idd].handler->openDef( std::string("newH3sprite\\")+map.defy[idd].name);
 		for(int ff=0; ff<map.defy[idd].handler->ourImages.size(); ++ff) //adding shadows and transparency
 		{
@@ -428,10 +443,14 @@ void CAmbarCendamo::deh3m()
 			SDL_FreeSurface(map.defy[idd].handler->ourImages[ff].bitmap);
 			map.defy[idd].handler->ourImages[ff].bitmap = bufs;
 		}
+		boost::filesystem::remove(boost::filesystem::path(std::string("newH3sprite\\")+map.defy[idd].name));*/
+		//system((std::string("DEL newH3sprite\\")+map.defy[idd].name).c_str());
 		//end fo testing - only fragment///////////////////////////////////////////////////////
 
 		//teceDef();
 	}
+	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->lodh->extractManyFiles(defsToUnpack, std::string("newh3sprite.lod"));
+	std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
 	SDL_FreeSurface(alphaTransSurf);
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	////loading objects

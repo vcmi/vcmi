@@ -281,8 +281,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//CLodHandler * test = new CLodHandler;
 		//test->init(std::string("h3abp_bm.lod"));
 
-		CDefHandler * tdef = new CDefHandler;
-		tdef->openDef(std::string("newh3sprite\\AVLSPTR3.DEF"));
+		//CDefHandler * tdef = new CDefHandler;
+		//tdef->openDef(std::string("newh3sprite\\AVLSPTR3.DEF"));
 		//tdef->getSprite(0);
 
 		//CLodHandler * bitmapLod = new CLodHandler;
@@ -293,8 +293,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//tconv->convert();
 		//tconv->saveBMP(std::string("tesciczekConva.bmp"));
 
-		CSemiDefHandler * semek = new CSemiDefHandler;
-		semek->openDef(std::string("EDG.DEF"), std::string("H3sprite.lod"));
+		//CSemiDefHandler * semek = new CSemiDefHandler;
+		//semek->openDef(std::string("EDG.DEF"), std::string("H3sprite.lod"));
 
 		//////////////////////////////////////////////////////////////////////////////// lod testing end
 
@@ -323,6 +323,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->objh = objh;
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
+		cgi->lodh = new CLodHandler;
 
 		THC std::cout<<"Inicjalizacja wszelakich handlerow: "<<tmh.getDif()<<std::endl;
 		std::string mapname;
