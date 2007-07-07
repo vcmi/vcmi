@@ -10,7 +10,7 @@ extern SDL_Surface * ekran;
 extern TTF_Font * TNRB16, *TNR, *GEOR13;
 SDL_Color genRGB(int r, int g, int b, int a=0);
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
-void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran);
+//void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2);
 extern CPreGame * CPG;
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran);
 bool isItIn(const SDL_Rect * rect, int x, int y);

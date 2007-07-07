@@ -3,8 +3,6 @@
 #include "SDL_TTF.h"
 #include <iostream>
 
-extern SDL_Surface * ekran;
-extern SDL_Color tytulowy, tlo, zwykly ;
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
 	if ((x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h))
@@ -37,7 +35,7 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran)
 {
 	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
 }
-void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran)
+void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
 {
 	SDL_Surface * temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x,y));

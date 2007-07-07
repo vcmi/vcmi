@@ -8,6 +8,7 @@
 
 struct Cimage
 {
+	int groupNumber;
 	std::string imName; //name without extension
 	SDL_Surface * bitmap;
 };

@@ -33,7 +33,8 @@ public:
 	CMusicHandler * mush;
 	CSemiLodHandler * sspriteh;
 	CDefObjInfoHandler * dobjinfo;
-	CLodHandler * lodh;
+	CLodHandler * spriteh;
+	CLodHandler * bitmaph;
 };
 
 #endif //CGAMEINFO_H

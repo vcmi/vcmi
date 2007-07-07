@@ -278,55 +278,56 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 	{
 		std::transform(defNamesIn[hh].begin(), defNamesIn[hh].end(), defNamesIn[hh].begin(), (int(*)(int))toupper);
 	}
-	std::ifstream FLOD;
+	//std::ifstream FLOD;
 	std::ofstream FOut;
 	int i;
 
-	std::string Ts;
-	//std::cout<<"*** Loading FAT ... \n";
-	FLOD.open(lodName.c_str(),std::ios::binary);
-	//std::cout<<"*** Archive: "+FName+" loaded\n";
-	FLOD.seekg(8,std::ios_base::beg);
-	unsigned char temp[4];
-	FLOD.read((char*)temp,4);
-	totalFiles = readNormalNr(temp,4);
-	FLOD.seekg(0x5c,std::ios_base::beg);
-	entries.reserve(totalFiles);
-	//std::cout<<"*** Loading FAT ...\n";
-	for (int i=0; i<totalFiles; i++)
-	{
-		entries.push_back(Entry());
-		//FLOD.read((char*)entries[i].name,12);
-		char * bufc = new char;
-		bool appending = true;
-		for(int kk=0; kk<12; ++kk)
-		{
-			FLOD.read(bufc, 1);
-			if(appending)
-			{
-				entries[i].name[kk] = *bufc;
-			}
-			else
-			{
-				entries[i].name[kk] = 0;
-				appending = false;
-			}
-		}
-		delete bufc;
-		FLOD.read((char*)entries[i].hlam_1,4);
-		FLOD.read((char*)temp,4);
-		entries[i].offset=readNormalNr(temp,4);
-		FLOD.read((char*)temp,4);
-		entries[i].realSize=readNormalNr(temp,4);
-		FLOD.read((char*)entries[i].hlam_2,4);
-		FLOD.read((char*)temp,4);
-		entries[i].size=readNormalNr(temp,4);
-	}
+	//std::string Ts;
+	////std::cout<<"*** Loading FAT ... \n";
+	//FLOD.open(lodName.c_str(),std::ios::binary);
+	////std::cout<<"*** Archive: "+FName+" loaded\n";
+	//FLOD.seekg(8,std::ios_base::beg);
+	//unsigned char temp[4];
+	//FLOD.read((char*)temp,4);
+	//totalFiles = readNormalNr(temp,4);
+	//FLOD.seekg(0x5c,std::ios_base::beg);
+	//entries.reserve(totalFiles);
+	////std::cout<<"*** Loading FAT ...\n";
+	//for (int i=0; i<totalFiles; i++)
+	//{
+	//	entries.push_back(Entry());
+	//	//FLOD.read((char*)entries[i].name,12);
+	//	char * bufc = new char;
+	//	bool appending = true;
+	//	for(int kk=0; kk<12; ++kk)
+	//	{
+	//		FLOD.read(bufc, 1);
+	//		if(appending)
+	//		{
+	//			entries[i].name[kk] = *bufc;
+	//		}
+	//		else
+	//		{
+	//			entries[i].name[kk] = 0;
+	//			appending = false;
+	//		}
+	//	}
+	//	delete bufc;
+	//	FLOD.read((char*)entries[i].hlam_1,4);
+	//	FLOD.read((char*)temp,4);
+	//	entries[i].offset=readNormalNr(temp,4);
+	//	FLOD.read((char*)temp,4);
+	//	entries[i].realSize=readNormalNr(temp,4);
+	//	FLOD.read((char*)entries[i].hlam_2,4);
+	//	FLOD.read((char*)temp,4);
+	//	entries[i].size=readNormalNr(temp,4);
+	//}
 	//std::cout<<" done\n";
 	//std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 	std::vector<char> found(defNamesIn.size(), 0);
 	for (int i=0;i<totalFiles;i++)
 	{
+		std::cout<<'\r'<<"Reading defs: "<<(100.0*i)/((float)(totalFiles))<<"%      ";
 		std::string buf1 = std::string((char*)entries[i].name);
 		std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
 		bool exists = false;
@@ -397,7 +398,20 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 		//FOut.close();
 		//std::cout<<"*** done\n";
 	}
-	//TODO: przypisywanie defhandlerów powtarzaj¹cym siê defom
+	std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
+	for(int hh=0; hh<found.size(); ++hh)
+	{
+		if(!found[hh])
+		{
+			for(int ff=0; ff<hh; ++ff)
+			{
+				if(defNamesIn[ff]==defNamesIn[hh])
+				{
+					ret[hh]=ret[ff];
+				}
+			}
+		}
+	}
 	FLOD.close();
 	//std::cout<<"*** Archive: "+FName+" closed\n";
 	return ret;
@@ -564,50 +578,10 @@ int CLodHandler::infs2(unsigned char * in, int size, int realSize, unsigned char
 
 void CLodHandler::extract(std::string FName)
 {
-	std::ifstream FLOD;
+	
 	std::ofstream FOut;
 	int i;
 
-	std::string Ts;
-	//std::cout<<"*** Loading FAT ... \n";
-	FLOD.open(FName.c_str(),std::ios::binary);
-	//std::cout<<"*** Archive: "+FName+" loaded\n";
-	FLOD.seekg(8,std::ios_base::beg);
-	unsigned char temp[4];
-	FLOD.read((char*)temp,4);
-	totalFiles = readNormalNr(temp,4);
-	FLOD.seekg(0x5c,std::ios_base::beg);
-	entries.reserve(totalFiles);
-	//std::cout<<"*** Loading FAT ...\n";
-	for (int i=0; i<totalFiles; i++)
-	{
-		entries.push_back(Entry());
-		//FLOD.read((char*)entries[i].name,12);
-		char * bufc = new char;
-		bool appending = true;
-		for(int kk=0; kk<12; ++kk)
-		{
-			FLOD.read(bufc, 1);
-			if(appending)
-			{
-				entries[i].name[kk] = *bufc;
-			}
-			else
-			{
-				entries[i].name[kk] = 0;
-				appending = false;
-			}
-		}
-		delete bufc;
-		FLOD.read((char*)entries[i].hlam_1,4);
-		FLOD.read((char*)temp,4);
-		entries[i].offset=readNormalNr(temp,4);
-		FLOD.read((char*)temp,4);
-		entries[i].realSize=readNormalNr(temp,4);
-		FLOD.read((char*)entries[i].hlam_2,4);
-		FLOD.read((char*)temp,4);
-		entries[i].size=readNormalNr(temp,4);
-	}
 	//std::cout<<" done\n";
 	for (int i=0;i<totalFiles;i++)
 	{
@@ -661,50 +635,50 @@ void CLodHandler::extract(std::string FName)
 
 void CLodHandler::extractFile(std::string FName, std::string name)
 {
-	std::ifstream FLOD;
+	//std::ifstream FLOD;
 	std::ofstream FOut;
 	int i;
 
-	std::string Ts;
-	//std::cout<<"*** Loading FAT ... \n";
-	FLOD.open(FName.c_str(),std::ios::binary);
-	//std::cout<<"*** Archive: "+FName+" loaded\n";
-	FLOD.seekg(8,std::ios_base::beg);
-	unsigned char temp[4];
-	FLOD.read((char*)temp,4);
-	totalFiles = readNormalNr(temp,4);
-	FLOD.seekg(0x5c,std::ios_base::beg);
-	entries.reserve(totalFiles);
-	//std::cout<<"*** Loading FAT ...\n";
-	for (int i=0; i<totalFiles; i++)
-	{
-		entries.push_back(Entry());
-		//FLOD.read((char*)entries[i].name,12);
-		char * bufc = new char;
-		bool appending = true;
-		for(int kk=0; kk<12; ++kk)
-		{
-			FLOD.read(bufc, 1);
-			if(appending)
-			{
-				entries[i].name[kk] = *bufc;
-			}
-			else
-			{
-				entries[i].name[kk] = 0;
-				appending = false;
-			}
-		}
-		delete bufc;
-		FLOD.read((char*)entries[i].hlam_1,4);
-		FLOD.read((char*)temp,4);
-		entries[i].offset=readNormalNr(temp,4);
-		FLOD.read((char*)temp,4);
-		entries[i].realSize=readNormalNr(temp,4);
-		FLOD.read((char*)entries[i].hlam_2,4);
-		FLOD.read((char*)temp,4);
-		entries[i].size=readNormalNr(temp,4);
-	}
+	//std::string Ts;
+	////std::cout<<"*** Loading FAT ... \n";
+	//FLOD.open(FName.c_str(),std::ios::binary);
+	////std::cout<<"*** Archive: "+FName+" loaded\n";
+	//FLOD.seekg(8,std::ios_base::beg);
+	//unsigned char temp[4];
+	//FLOD.read((char*)temp,4);
+	//totalFiles = readNormalNr(temp,4);
+	//FLOD.seekg(0x5c,std::ios_base::beg);
+	//entries.reserve(totalFiles);
+	////std::cout<<"*** Loading FAT ...\n";
+	//for (int i=0; i<totalFiles; i++)
+	//{
+	//	entries.push_back(Entry());
+	//	//FLOD.read((char*)entries[i].name,12);
+	//	char * bufc = new char;
+	//	bool appending = true;
+	//	for(int kk=0; kk<12; ++kk)
+	//	{
+	//		FLOD.read(bufc, 1);
+	//		if(appending)
+	//		{
+	//			entries[i].name[kk] = *bufc;
+	//		}
+	//		else
+	//		{
+	//			entries[i].name[kk] = 0;
+	//			appending = false;
+	//		}
+	//	}
+	//	delete bufc;
+	//	FLOD.read((char*)entries[i].hlam_1,4);
+	//	FLOD.read((char*)temp,4);
+	//	entries[i].offset=readNormalNr(temp,4);
+	//	FLOD.read((char*)temp,4);
+	//	entries[i].realSize=readNormalNr(temp,4);
+	//	FLOD.read((char*)entries[i].hlam_2,4);
+	//	FLOD.read((char*)temp,4);
+	//	entries[i].size=readNormalNr(temp,4);
+	//}
 	//std::cout<<" done\n";
 	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 	for (int i=0;i<totalFiles;i++)
@@ -779,5 +753,45 @@ int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
 
 void CLodHandler::init(std::string lodFile)
 {
-	extract(lodFile);
+	FLOD;
+	std::string Ts;
+	//std::cout<<"*** Loading FAT ... \n";
+	FLOD.open(lodFile.c_str(),std::ios::binary);
+	//std::cout<<"*** Archive: "+FName+" loaded\n";
+	FLOD.seekg(8,std::ios_base::beg);
+	unsigned char temp[4];
+	FLOD.read((char*)temp,4);
+	totalFiles = readNormalNr(temp,4);
+	FLOD.seekg(0x5c,std::ios_base::beg);
+	entries.reserve(totalFiles);
+	//std::cout<<"*** Loading FAT ...\n";
+	for (int i=0; i<totalFiles; i++)
+	{
+		entries.push_back(Entry());
+		//FLOD.read((char*)entries[i].name,12);
+		char * bufc = new char;
+		bool appending = true;
+		for(int kk=0; kk<12; ++kk)
+		{
+			FLOD.read(bufc, 1);
+			if(appending)
+			{
+				entries[i].name[kk] = *bufc;
+			}
+			else
+			{
+				entries[i].name[kk] = 0;
+				appending = false;
+			}
+		}
+		delete bufc;
+		FLOD.read((char*)entries[i].hlam_1,4);
+		FLOD.read((char*)temp,4);
+		entries[i].offset=readNormalNr(temp,4);
+		FLOD.read((char*)temp,4);
+		entries[i].realSize=readNormalNr(temp,4);
+		FLOD.read((char*)entries[i].hlam_2,4);
+		FLOD.read((char*)temp,4);
+		entries[i].size=readNormalNr(temp,4);
+	}
 }

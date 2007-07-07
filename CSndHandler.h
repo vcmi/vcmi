@@ -1,3 +1,6 @@
+#ifndef CSNDHANDLER_H
+#define CSNDHANDLER_H
+
 #include <vector>
 #include <fstream>
 class CSndHandler
@@ -21,3 +24,5 @@ public:
 	void extract(int index, std::string dstfile); //saves selected file
 	unsigned char * extract (int index, int & size); //return selecte file - NIE TESTOWANE
 };
+
+#endif //CSNDHANDLER_H

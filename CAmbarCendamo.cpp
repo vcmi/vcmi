@@ -408,7 +408,6 @@ void CAmbarCendamo::deh3m()
 	std::vector<std::string> defsToUnpack;
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
-		std::cout<<'\r'<<"Reading defs: "<<(100.0*idd)/((float)(defAmount))<<"%      ";
 		int nameLength = readNormalNr(i,4);i+=4;
 		DefInfo vinya; // info about new def
 		for (int cd=0;cd<nameLength;cd++)
@@ -449,10 +448,19 @@ void CAmbarCendamo::deh3m()
 
 		//teceDef();
 	}
-	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->lodh->extractManyFiles(defsToUnpack, std::string("newh3sprite.lod"));
+	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack, std::string("newh3sprite.lod"));
 	for (int i=0;i<dhandlers.size();i++)
 		map.defy[i].handler=dhandlers[i];
-	std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
+	for(int vv=0; vv<map.defy.size(); ++vv)
+	{
+		for(int yy=0; yy<map.defy[vv].handler->ourImages.size(); ++yy)
+		{
+			map.defy[vv].handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map.defy[vv].handler->ourImages[yy].bitmap);
+			SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[vv].handler->ourImages[yy].bitmap, alphaTransSurf);
+			SDL_FreeSurface(map.defy[vv].handler->ourImages[yy].bitmap);
+			map.defy[vv].handler->ourImages[yy].bitmap = bufs;
+		}
+	}
 	SDL_FreeSurface(alphaTransSurf);
 	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
 	////loading objects

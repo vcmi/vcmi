@@ -48,6 +48,8 @@ public:
 };
 class CLodHandler
 {
+private:
+	std::ifstream FLOD;
 public:
 	std::vector<Entry> entries;
 	unsigned int totalFiles;
@@ -58,9 +60,9 @@ public:
 	int infm(FILE *source, FILE *dest, int wBits = 15); //zlib handler
 	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
-	std::vector<CDefHandler *> extractManyFiles(std::vector<std::string> defNamesIn, std::string lodName); //extrats given files
+	std::vector<CDefHandler *> extractManyFiles(std::vector<std::string> defNamesIn, std::string lodName); //extrats given files (defs only)
 	void extract(std::string FName);
-	void extractFile(std::string FName, std::string name);
+	void extractFile(std::string FName, std::string name); //extracts a specific file
 	void init(std::string lodFile);
 };
 
