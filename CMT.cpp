@@ -211,6 +211,8 @@ void zerr(int ret)
 }*/
 int _tmain(int argc, _TCHAR* argv[])
 { 
+	THC timeHandler tmh;
+	THC tmh.getDif();
 	int xx=0, yy=0, zz=0;
 	SDL_Event sEvent;
 	srand ( time(NULL) );
@@ -232,8 +234,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//initializing audio
 		CMusicHandler * mush = new CMusicHandler;
 		mush->initMusics();
-		CSndHandler snd("Heroes3.snd");
-		snd.extract("AELMMOVE.wav","snddd.wav");
+		//CSndHandler snd("Heroes3.snd");
+		//snd.extract("AELMMOVE.wav","snddd.wav");
 		//audio initialized
 
 		/*if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
@@ -261,10 +263,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	fclose(ko);fclose(zr);
 		//}
 		SDL_WM_SetCaption(NAME,""); //set window title
+		THC std::cout<<"Inicjalizacja ekranu, czcionek, obslugi dzwieku: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame();
+		THC std::cout<<"Razem inicjalizacja CPreGame: "<<tmh.getDif()<<std::endl;
 		cpg->mush = mush;
 		cpg->runLoop();
-		THC timeHandler tmh;
+		THC tmh.getDif();
 		CGameInfo * cgi = new CGameInfo;
 		CGameInfo::mainObj = cgi;
 		cgi->mush = mush;
@@ -320,6 +324,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
 
+		THC std::cout<<"Inicjalizacja wszelakich handlerow: "<<tmh.getDif()<<std::endl;
 		std::string mapname;
 		//if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
 		//else mapname = "4gryf";
