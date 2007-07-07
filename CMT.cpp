@@ -27,6 +27,7 @@
 #include "CSemiLodHandler.h"
 #include "CLodHandler.h"
 #include "CDefHandler.h"
+#include "CSndHandler.h"
 #include "CDefObjInfoHandler.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -231,6 +232,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		//initializing audio
 		CMusicHandler * mush = new CMusicHandler;
 		mush->initMusics();
+		CSndHandler snd("Heroes3.snd");
+		snd.extract("AELMMOVE.wav","snddd.wav");
 		//audio initialized
 
 		/*if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
