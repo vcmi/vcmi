@@ -154,6 +154,117 @@ void CPCXConv::convert()
 	}
 }
 
+SDL_Surface * CPCXConv::getSurface()
+{
+	SDL_Surface * ret;
+	BMPHeader bh;
+	BMPPalette pal[256];
+	Epcxformat format;
+	int fSize, maxx, maxy,i,y;
+	bool check1, check2;
+	unsigned char add;
+	int it=0;
+
+	fSize = readNormalNr(it,4,pcx);it+=4;
+	maxx = readNormalNr(it,4,pcx);it+=4;
+	maxy = readNormalNr(it,4,pcx);it+=4;
+	if (fSize==maxx*maxy*3)
+		check1=true;
+	else 
+		check1=false;
+	if (fSize==maxx*maxy)
+		check2=true;
+	else 
+		check2=false;
+	if (check1)
+		format=Epcxformat::PCX24B;
+	else if (check2)
+		format=Epcxformat::PCX8B;
+	else 
+		return NULL;
+	bh.x=maxx;
+	bh.y=maxy;
+	add=(int)(4*(((float)1)-(((float)maxx/(float)4)-((int)((float)maxx/(float)4)))));
+	if (add==4)
+		add=0;
+	if (format==Epcxformat::PCX8B)
+	{
+		bh._c1=0x436;
+		bh._c2=0x28;
+		bh._c3=1;
+		bh._c4=8;
+		bh.dataSize2=bh.dataSize1=maxx*maxy;
+		bh.fullSize = bh.dataSize1+436;
+	}
+	else
+	{
+		bh._c1=0x36;
+		bh._c2=0x28;
+		bh._c3=1;
+		bh._c4=0x18;
+		bh.dataSize2=bh.dataSize1=0xB12;
+		bh.fullSize=(maxx+add)*maxy*3+36;
+	}
+	if (format==Epcxformat::PCX8B)
+	{
+		it = pcxs-256*3;
+		for (int i=0;i<256;i++)
+		{
+			pal[i].R=pcx[it++];
+			pal[i].G=pcx[it++];
+			pal[i].B=pcx[it++];
+			pal[i].F='\0';
+		}
+	}
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    int rmask = 0xff000000;
+    int gmask = 0x00ff0000;
+    int bmask = 0x0000ff00;
+    int amask = 0x000000ff;
+#else
+    int rmask = 0x000000ff;
+    int gmask = 0x0000ff00;
+    int bmask = 0x00ff0000;
+    int amask = 0xff000000;
+#endif
+	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, maxx, maxy, (format==Epcxformat::PCX8B ? 8 : 24), rmask, gmask, bmask, amask);
+	if (format==Epcxformat::PCX8B)
+	{
+		for(int i=0; i<256; ++i)
+		{
+			SDL_Color pr;
+			pr.r = pal[i].R;
+			pr.g = pal[i].G;
+			pr.b = pal[i].B;
+			pr.unused = pal[i].F;
+			(*(ret->format->palette->colors+i)) = pr;
+		}
+		for(y=maxy; y>0; --y)
+		{
+			it = 0xc + (y-1)*maxx;
+			for(int j=0; j<maxx; ++j)
+				*((char*)ret->pixels + ret->format->BytesPerPixel * (y*(maxx+add) + j)) = pcx[it+j];
+			for(int j=0; j<add; ++j)
+				*((char*)ret->pixels + ret->format->BytesPerPixel * (y*(maxx+add) + maxx + j)) = 0;
+		}
+	}
+	else
+	{
+		for(int y=maxy; y>0; --y)
+		{
+			it = 0xc + (y-1)*maxx*3;
+			for(int j=0; j<maxx*3; ++j)
+			{
+				*((char*)ret->pixels + (y*(maxx+add) + j)) = pcx[it+j];
+			}
+			for(int j=0; j<add*3; ++j)
+			{
+				*((char*)ret->pixels + (y*(maxx+add) + j)) = 0;
+			}
+		}
+	}
+	return ret;
+}
 
 //  if PFileType=pcx24bit then
 //  for y:=MaxY downto 1 do
