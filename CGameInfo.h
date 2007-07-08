@@ -13,6 +13,7 @@
 #include "CSemiLodHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CLodHandler.h"
+#include "CGeneralTextHandler.h"
 
 /*
 	CGameInfo class
@@ -35,6 +36,7 @@ public:
 	CDefObjInfoHandler * dobjinfo;
 	CLodHandler * spriteh;
 	CLodHandler * bitmaph;
+	CGeneralTextHandler * generaltexth;
 };
 
 #endif //CGAMEINFO_H

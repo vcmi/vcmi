@@ -424,6 +424,8 @@ void CPreGameTextHandler::loadTexts()
 	std::string dump;
 	loadToIt(dump, buf, i, 1);
 	loadToIt(multiCancel, buf, i, 0);
+	loadLossConditions();
+	loadVictoryConditions();
 }
 
 void CPreGameTextHandler::loadToIt(std::string &dest, std::string &src, int &iter, int mode)
@@ -484,8 +486,8 @@ void CPreGameTextHandler::loadToIt(std::string &dest, std::string &src, int &ite
 			iter+=2;
 		}
 	}
-	loadLossConditions();
-	loadVictoryConditions();
+	//loadLossConditions();
+	//loadVictoryConditions(); //moved to loadTexts
 }
 
 void CPreGameTextHandler::loadVictoryConditions()

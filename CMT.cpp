@@ -33,6 +33,7 @@
 #include "mapHandler.h"
 #include "global.h"
 #include "CPreGame.h"
+#include "CGeneralTextHandler.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -304,6 +305,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
+		cgi->generaltexth = new CGeneralTextHandler;
+		cgi->generaltexth->load();
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
 		cgi->spriteh = new CLodHandler;
