@@ -363,7 +363,7 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha)
 {
 	
-	Uint32 pompom[224][224];
+	Uint32 pompom[256][256];
 	for(int i=0; i<src->w; ++i)
 	{
 		for(int j=0; j<src->h; ++j)
@@ -371,7 +371,7 @@ SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * al
 			pompom[i][j] = 0xffffffff - (SDL_GetPixel(src, i, j, true) & 0xff000000);
 		}
 	}
-	Uint32 pompom2[224][224];
+	Uint32 pompom2[256][256];
 	for(int i=0; i<src->w; ++i)
 	{
 		for(int j=0; j<src->h; ++j)

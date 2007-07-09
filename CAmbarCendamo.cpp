@@ -1311,8 +1311,9 @@ void CAmbarCendamo::deh3m()
 
 					for(int vv=0; vv<7; ++vv)
 					{
-						nce.gen[vv] = readNormalNr(i, 2);
+						nce.gen[vv] = readNormalNr(i, 2); i+=2;
 					}
+					i+=4;
 					spec->events.push_back(nce);
 				}
 
@@ -1778,7 +1779,7 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 		return EDefType::HERO_DEF; //handled
 	case 36:
 		return EDefType::GRAIL_DEF; //hanled
-	case 53: case 17: case 18: case 19: case 20: case 42: case 87: //cases 17 - 20 and 42 - tests
+	case 53: case 17: case 18: case 19: case 20: case 42: case 87: case 220://cases 17 - 20 and 42 - tests
 		return EDefType::PLAYERONLY_DEF; //handled
 	case 54: case 71: case 72: case 73: case 74: case 75: case 162: case 163: case 164:
 		return EDefType::CREATURES_DEF; //handled
