@@ -317,7 +317,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
 		std::string mapname;
-		CPG->ourScenSel->mapsel.selected = 1;
+		if(CPG->ourScenSel->mapsel.selected==0) CPG->ourScenSel->mapsel.selected = 1; //only for tests
 		if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
 		gzFile map = gzopen(mapname.c_str(),"rb");
 		std::string mapstr;int pom;
@@ -325,7 +325,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			mapstr+=pom;
 		}
-		CAmbarCendamo * ac = new CAmbarCendamo((unsigned char*)mapstr.c_str()); //4gryf
+		unsigned char *initTable = new unsigned char[mapstr.size()];
+		for(int ss=0; ss<mapstr.size(); ++ss)
+		{
+			initTable[ss] = mapstr[ss];
+		}
+		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
 		//CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
