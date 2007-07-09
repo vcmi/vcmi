@@ -247,17 +247,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	fclose(ko);fclose(zr);
 		//}
 		SDL_WM_SetCaption(NAME,""); //set window title
-		CGameInfo * cgi = new CGameInfo;
+		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 		CGameInfo::mainObj = cgi;
 		cgi->mush = mush;
-		THC std::cout<<"Inicjalizacja ekranu, czcionek, obslugi dzwieku: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		cgi->spriteh = new CLodHandler;
 		cgi->spriteh->init(std::string("newH3sprite.lod"));
 		cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init(std::string("newH3bitmap.lod"));
-		THC std::cout<<"Ladowanie .lodow: "<<tmh.getDif()<<std::endl;
-		CPreGame * cpg = new CPreGame();
-		THC std::cout<<"Razem inicjalizacja CPreGame: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Loading .lods: "<<tmh.getDif()<<std::endl;
+		CPreGame * cpg = new CPreGame(); //main menu and submenus
+		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		cpg->mush = mush;
 		cpg->runLoop();
 		THC tmh.getDif();
@@ -315,8 +315,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
 
-		THC std::cout<<"Inicjalizacja wszelakich handlerow: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
 		std::string mapname;
+		CPG->ourScenSel->mapsel.selected = 1;
 		if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
 		gzFile map = gzopen(mapname.c_str(),"rb");
 		std::string mapstr;int pom;
@@ -328,23 +329,23 @@ int _tmain(int argc, _TCHAR* argv[])
 		//CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
-		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
-		THC std::cout<<"Rozpoznawianie pliku lacznie: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Detecting file (together): "<<tmh.getDif()<<std::endl;
 		ac->loadDefs();
-		THC std::cout<<"Wczytywanie defow terenu: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;
 		CMapHandler * mh = new CMapHandler();
 		mh->reader = ac;
-		THC std::cout<<"Stworzenie mapHandlera: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 		mh->init();
-		THC std::cout<<"Inicjalizacja mapHandlera: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Initializing mapHandler: "<<tmh.getDif()<<std::endl;
 		//SDL_Rect * sr = new SDL_Rect(); sr->h=64;sr->w=64;sr->x=0;sr->y=0;
 		SDL_Surface * teren = mh->terrainRect(xx,yy,25,19);
-		THC std::cout<<"Przygotowanie terenu do wyswietlenia: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Preparing terrain to display: "<<tmh.getDif()<<std::endl;
 		SDL_BlitSurface(teren,NULL,ekran,NULL);
 		SDL_FreeSurface(teren);
 		SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
-		THC std::cout<<"Wyswietlenie terenu: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Displaying terrain: "<<tmh.getDif()<<std::endl;
 
 		//SDL_Surface * ss = ac->defs[0]->ourImages[0].bitmap;
 		//SDL_BlitSurface(ss, NULL, ekran, NULL);
@@ -523,7 +524,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	else
 	{
-		printf("Coœ posz³o nie tak: %s/n", SDL_GetError());
+		printf("Something was wrong: %s/n", SDL_GetError());
 		return -1;
 	}
 }

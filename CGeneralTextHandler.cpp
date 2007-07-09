@@ -20,7 +20,13 @@ void CGeneralTextHandler::load()
 			break;
 	}
 	i+=2;
-	loadToIt(cantAddManager, buf, i, 2);
+	for(int jj=0; jj<764; ++jj)
+	{
+		std::string buflet;
+		loadToIt(buflet, buf, i, 2);
+		allTexts.push_back(buflet);
+	}
+	/*loadToIt(cantAddManager, buf, i, 2);
 	loadToIt(experienceLimitScenarioReached, buf, i, 2);
 	loadToIt(heroExperienceInfo, buf, i, 2);
 	loadToIt(perDay, buf, i, 2);
@@ -74,6 +80,90 @@ void CGeneralTextHandler::load()
 	loadToIt(cannotBuildBoat, buf, i, 2);
 	loadToIt(requires, buf, i, 2);
 	loadToIt(systemUppercase, buf, i, 2);
+	loadToIt(worldMapHelp, buf, i, 2);
+	loadToIt(sureEndTurnHeroMayMove, buf, i, 2);
+	loadToIt(diggingArtifactWholeDay, buf, i, 2);
+	loadToIt(noRoomForArtifact, buf, i, 2);
+	loadToIt(heroUncoveredThe, buf, i, 2);
+	loadToIt(diggingNothing, buf, i, 2);
+	loadToIt(tryLookingOnLand, buf, i, 2);
+	loadToIt(unchartedTerritory, buf, i, 2);
+	loadToIt(month, buf, i, 2);
+	loadToIt(week, buf, i, 2);
+	loadToIt(day, buf, i, 2);
+	loadToIt(enemyViewTip, buf, i, 2);
+	loadToIt(pingInfo, buf, i, 2);
+	loadToIt(sureToRestart, buf, i, 2);
+	loadToIt(sureToStartNewGame, buf, i, 2);
+	loadToIt(sureQuit, buf, i, 2);
+	loadToIt(dimensionDoorFiled, buf, i, 2);
+	loadToIt(chooseBonus, buf, i, 2);
+	loadToIt(ping, buf, i, 2);
+	loadToIt(pingSomething, buf, i, 2);
+	loadToIt(pingEveryone, buf, i, 2);
+	loadToIt(score, buf, i, 2);
+	loadToIt(autosaveUppercase, buf, i, 2);
+	loadToIt(startingHeroB, buf, i, 2);
+	loadToIt(heroSpecialityB, buf, i, 2);
+	loadToIt(associatedCreaturesB, buf, i, 2);
+	loadToIt(townAlignmentB, buf, i, 2);
+	loadToIt(errorSendingDataKeepTrying, buf, i, 2);
+	loadToIt(tooFewPalyersForMultiGame, buf, i, 2);
+	loadToIt(artifactBonusB, buf, i, 2);
+	loadToIt(goldBonusB, buf, i, 2);
+	loadToIt(resourceBonusB, buf, i, 2);
+	loadToIt(randomBonusB, buf, i, 2);
+	loadToIt(fiveHundredToOneThousand, buf, i, 2);
+	loadToIt(armageddonDamages, buf, i, 2);
+	loadToIt(woodOreBonus, buf, i, 2);
+	loadToIt(randomlyChoosenArtifact, buf, i, 2);
+	loadToIt(disruptingRayReducesDefence, buf, i, 2);
+	loadToIt(goldStartingBonus, buf, i, 2);
+	loadToIt(woodOreStartingBonus, buf, i, 2);
+	loadToIt(randomStartingBonus, buf, i, 2);
+	loadToIt(youEliminatedFormGame, buf, i, 2);
+	loadToIt(scoreToHallOfFame, buf, i, 2);
+	loadToIt(trySearchingOnClearGround, buf, i, 2);
+	loadToIt(sendingData, buf, i, 2);
+	loadToIt(receivingData, buf, i, 2);
+	loadToIt(chaosMp2, buf, i, 2);
+	loadToIt(randomHeroB, buf, i, 2);
+	loadToIt(randomStartingHeroInfo, buf, i, 2);
+	loadToIt(randomTownB, buf, i, 2);
+	loadToIt(randomStartingTownInfo, buf, i, 2);
+	loadToIt(somethingSurrendersInfo, buf, i, 2);
+	loadToIt(heroesCDNotFound, buf, i, 2);
+	loadToIt(autosaving, buf, i, 2);
+	loadToIt(playerexitUppercase, buf, i, 2);
+	loadToIt(statusWindowTip, buf, i, 2);
+	loadToIt(border, buf, i, 2);
+	loadToIt(somethingAbsorbsMana, buf, i, 2);
+	loadToIt(somethingsAbsorbMana, buf, i, 2);
+	loadToIt(unableChangeHeroesDirectory, buf, i, 2);
+	loadToIt(unableFindHeoresDataFiles, buf, i, 2);
+	loadToIt(victoryAchievementText, buf, i, 2);
+	loadToIt(somethingsRiseFromDeath, buf, i, 2);
+	loadToIt(somethingRisesFormDeath, buf, i, 2);
+	loadToIt(somethingDiesUnderGaze, buf, i, 2);
+	loadToIt(somethingsDieUnderGaze, buf, i, 2);
+	loadToIt(somethingTakesDefensiveStance, buf, i, 2);
+	loadToIt(somethingsTakeDefensiveStance, buf, i, 2);
+	loadToIt(somethingExp, buf, i, 2);
+	loadToIt(nearestTownOccupied, buf, i, 2);
+	loadToIt(noAvailableTown, buf, i, 2);
+	loadToIt(heroTooTiredSpell, buf, i, 2);
+	loadToIt(townGateCannotBeUsed, buf, i, 2);
+	loadToIt(youHaveNoHeroes, buf, i, 2);
+	loadToIt(heroHasCastSpell, buf, i, 2);
+	loadToIt(requires, buf, i, 2);
+	loadToIt(requires, buf, i, 2);
+	loadToIt(requires, buf, i, 2);
+	loadToIt(requires, buf, i, 2);
+	loadToIt(requires, buf, i, 2);
+	loadToIt(requires, buf, i, 2);
+	loadToIt(requires, buf, i, 2);
+	loadToIt(requires, buf, i, 2);
+	loadToIt(requires, buf, i, 2);*/
 }
 
 

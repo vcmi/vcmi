@@ -1,6 +1,8 @@
 #ifndef _NODRZE_H
 #define _NODRZE_H
 
+//don't look here, it's a horrible, partially working implementation of RB trees
+
 #include <iostream>
 #include <string>
 

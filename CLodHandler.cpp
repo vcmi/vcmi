@@ -444,7 +444,6 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 			}
 		}
 	}
-	FLOD.close();
 	//std::cout<<"*** Archive: "+FName+" closed\n";
 	return ret;
 }

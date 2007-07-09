@@ -347,7 +347,7 @@ void CAmbarCendamo::deh3m()
 	}
 	//allowed hero's abilities have been read
 
-	THC std::cout<<"Wczytywanie naglowka: "<<th.getDif()<<std::endl;
+	THC std::cout<<"Reading header: "<<th.getDif()<<std::endl;
 	int rumNr = readNormalNr(i,4);i+=4;
 	for (int it=0;it<rumNr;it++)
 	{
@@ -360,7 +360,7 @@ void CAmbarCendamo::deh3m()
 			ourRumor.text+=bufor[i++];
 		map.rumors.push_back(ourRumor); //add to our list
 	}
-	THC std::cout<<"Wczytywanie plotek: "<<th.getDif()<<std::endl;
+	THC std::cout<<"Reading rumors: "<<th.getDif()<<std::endl;
 	i+=156;
 	for (int c=0; c<map.width; c++) // reading terrain
 	{
@@ -391,7 +391,7 @@ void CAmbarCendamo::deh3m()
 			}
 		}
 	}
-	THC std::cout<<"Wczytywanie terenu: "<<th.getDif()<<std::endl;
+	THC std::cout<<"Reading terrain: "<<th.getDif()<<std::endl;
 	int defAmount = bufor[i]; // liczba defow
 	defAmount = readNormalNr(i);
 	i+=4;
@@ -465,12 +465,12 @@ void CAmbarCendamo::deh3m()
 		}
 	}
 	SDL_FreeSurface(alphaTransSurf);
-	THC std::cout<<"Wczytywanie defow: "<<th.getDif()<<std::endl;
+	THC std::cout<<"Reading defs: "<<th.getDif()<<std::endl;
 	////loading objects
 	int howManyObjs = readNormalNr(i, 4); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
-		std::cout << "object nr "<<ww<<std::endl;
+		//std::cout << "object nr "<<ww<<std::endl;
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
 		nobj.x = bufor[i++];
