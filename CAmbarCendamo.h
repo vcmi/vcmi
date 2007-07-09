@@ -24,6 +24,7 @@ public:
 	std::vector<CSemiDefHandler*> defs;
 /////////////////funkcje skladowe
 	CAmbarCendamo (const char * tie); // c-tor; tie is the path of the map file
+	CAmbarCendamo (unsigned char * map); // c-tor; map is pointer to array containing map; it is not copied, so don't delete
 	~CAmbarCendamo (); // d-tor
 	int readNormalNr (int pos, int bytCon=4, bool cyclic = false); //read number from bytCon bytes starting from pos position in buffer ; if cyclic is true, number is treated as it were signed number with bytCon bytes
 	void teceDef (); // create files with info about defs

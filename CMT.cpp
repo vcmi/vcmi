@@ -247,15 +247,20 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	fclose(ko);fclose(zr);
 		//}
 		SDL_WM_SetCaption(NAME,""); //set window title
+		CGameInfo * cgi = new CGameInfo;
+		CGameInfo::mainObj = cgi;
+		cgi->mush = mush;
 		THC std::cout<<"Inicjalizacja ekranu, czcionek, obslugi dzwieku: "<<tmh.getDif()<<std::endl;
+		cgi->spriteh = new CLodHandler;
+		cgi->spriteh->init(std::string("newH3sprite.lod"));
+		cgi->bitmaph = new CLodHandler;
+		cgi->bitmaph->init(std::string("newH3bitmap.lod"));
+		THC std::cout<<"Ladowanie .lodow: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame();
 		THC std::cout<<"Razem inicjalizacja CPreGame: "<<tmh.getDif()<<std::endl;
 		cpg->mush = mush;
 		cpg->runLoop();
 		THC tmh.getDif();
-		CGameInfo * cgi = new CGameInfo;
-		CGameInfo::mainObj = cgi;
-		cgi->mush = mush;
 
 		//////////////////////////////////////////////////////////////////////////////// lod testing
 
@@ -309,17 +314,18 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->generaltexth->load();
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
-		cgi->spriteh = new CLodHandler;
-		cgi->spriteh->init(std::string("newH3sprite.lod"));
-		cgi->bitmaph = new CLodHandler;
-		cgi->bitmaph->init(std::string("newH3bitmap.lod"));
 
 		THC std::cout<<"Inicjalizacja wszelakich handlerow: "<<tmh.getDif()<<std::endl;
 		std::string mapname;
-		//if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
-		//else mapname = "4gryf";
-		mapname = "4gryf";
-		CAmbarCendamo * ac = new CAmbarCendamo(mapname.c_str()); //4gryf
+		if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
+		gzFile map = gzopen(mapname.c_str(),"rb");
+		std::string mapstr;int pom;
+		while((pom=gzgetc(map))>=0)
+		{
+			mapstr+=pom;
+		}
+		CAmbarCendamo * ac = new CAmbarCendamo((unsigned char*)mapstr.c_str()); //4gryf
+		//CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Wczytywanie pliku: "<<tmh.getDif()<<std::endl;

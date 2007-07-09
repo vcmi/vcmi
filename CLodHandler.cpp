@@ -3,7 +3,7 @@
 #include <sstream>
 #include <algorithm>
 #include <cstring>
-
+#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
 
 int readNormalNr (int pos, int bytCon, unsigned char * str)
 {
@@ -22,9 +22,11 @@ int readNormalNr (int pos, int bytCon, unsigned char * str)
 }
 void CPCXConv::openPCX(char * PCX, int len)
 {
-	pcx = new unsigned char[len];
+	pcxs=len;
+	pcx=(unsigned char*)PCX;
+	/*pcx = new unsigned char[len];
 	for (int i=0;i<len;i++)
-		pcx[i]=PCX[i];
+		pcx[i]=PCX[i];*/
 }
 void CPCXConv::fromFile(std::string path)
 {
@@ -50,7 +52,7 @@ void CPCXConv::convert()
 	BMPHeader bh;
 	BMPPalette pal[256];
 	Epcxformat format;
-	int fSize, maxx, maxy,i,y;
+	int fSize,i,y;
 	bool check1, check2;
 	unsigned char add;
 	int it=0;
@@ -58,13 +60,13 @@ void CPCXConv::convert()
 	std::stringstream out;
 
 	fSize = readNormalNr(it,4,pcx);it+=4;
-	maxx = readNormalNr(it,4,pcx);it+=4;
-	maxy = readNormalNr(it,4,pcx);it+=4;
-	if (fSize==maxx*maxy*3)
+	bh.x = readNormalNr(it,4,pcx);it+=4;
+	bh.y = readNormalNr(it,4,pcx);it+=4;
+	if (fSize==bh.x*bh.y*3)
 		check1=true;
 	else 
 		check1=false;
-	if (fSize==maxx*maxy)
+	if (fSize==bh.x*bh.y)
 		check2=true;
 	else 
 		check2=false;
@@ -74,18 +76,19 @@ void CPCXConv::convert()
 		format=Epcxformat::PCX8B;
 	else 
 		return;
-	bh.x=maxx;
-	bh.y=maxy;
-	add=(int)(4*(((float)1)-(((float)maxx/(float)4)-((int)((float)maxx/(float)4)))));
+	add=(int)(4*(((float)1)-(((float)bh.x/(float)4)-((int)((float)bh.x/(float)4)))));
 	if (add==4)
 		add=0;
+	bh._h3=bh.x*bh.y;
 	if (format==Epcxformat::PCX8B)
 	{
 		bh._c1=0x436;
 		bh._c2=0x28;
 		bh._c3=1;
 		bh._c4=8;
-		bh.dataSize2=bh.dataSize1=maxx*maxy;
+		//bh.dataSize2=bh.dataSize1=maxx*maxy;
+		bh.dataSize1=bh.x;
+		bh.dataSize2=bh.y;
 		bh.fullSize = bh.dataSize1+436;
 	}
 	else
@@ -94,8 +97,11 @@ void CPCXConv::convert()
 		bh._c2=0x28;
 		bh._c3=1;
 		bh._c4=0x18;
-		bh.dataSize2=bh.dataSize1=0xB12;
-		bh.fullSize=(maxx+add)*maxy*3+36;
+		//bh.dataSize2=bh.dataSize1=0xB12;
+		bh.dataSize1=bh.x;
+		bh.dataSize2=bh.y;
+		bh.fullSize=(bh.x+add)*bh.y*3+36+18;
+		bh._h3*=3;
 	}
 	if (format==Epcxformat::PCX8B)
 	{
@@ -119,10 +125,10 @@ void CPCXConv::convert()
 			out<<pal[i].R;
 			out<<pal[i].F;
 		}
-		for (y=maxy;y>0;y--)
+		for (y=bh.y;y>0;y--)
 		{
-			it=0xC+(y-1)*maxx;
-			for (int j=0;j<maxx;j++)
+			it=0xC+(y-1)*bh.x;
+			for (int j=0;j<bh.x;j++)
 				out<<pcx[it+j];
 			if (add>0)
 			{
@@ -133,10 +139,10 @@ void CPCXConv::convert()
 	}
 	else
 	{
-		for (y=maxy; y>0; y--)
+		for (y=bh.y; y>0; y--)
 		{
-			it=0xC+(y-1)*maxx*3;
-			for (int j=0;j<maxx*3;j++)
+			it=0xC+(y-1)*bh.x*3;
+			for (int j=0;j<bh.x*3;j++)
 				out<<pcx[it+j];
 			if (add>0)
 			{
@@ -182,29 +188,9 @@ SDL_Surface * CPCXConv::getSurface()
 		format=Epcxformat::PCX8B;
 	else 
 		return NULL;
-	bh.x=maxx;
-	bh.y=maxy;
 	add=(int)(4*(((float)1)-(((float)maxx/(float)4)-((int)((float)maxx/(float)4)))));
 	if (add==4)
 		add=0;
-	if (format==Epcxformat::PCX8B)
-	{
-		bh._c1=0x436;
-		bh._c2=0x28;
-		bh._c3=1;
-		bh._c4=8;
-		bh.dataSize2=bh.dataSize1=maxx*maxy;
-		bh.fullSize = bh.dataSize1+436;
-	}
-	else
-	{
-		bh._c1=0x36;
-		bh._c2=0x28;
-		bh._c3=1;
-		bh._c4=0x18;
-		bh.dataSize2=bh.dataSize1=0xB12;
-		bh.fullSize=(maxx+add)*maxy*3+36;
-	}
 	if (format==Epcxformat::PCX8B)
 	{
 		it = pcxs-256*3;
@@ -265,41 +251,44 @@ SDL_Surface * CPCXConv::getSurface()
 	}
 	return ret;
 }
-
-//  if PFileType=pcx24bit then
-//  for y:=MaxY downto 1 do
-//  begin
-//    FPcx.Seek($0C+(y-1)*(MaxX*3),spBegin);
-//    Stream2Stream(FTemp,FPcx,MaxX*3);
-//    if Add>0 then FTemp.Write(Buffer,Add*3);
-//  end;
-//  FTemp.Seek(0,spBegin);
-//  BufferBitmap.LoadFromStream(FTemp);
-//  FTemp.Free;
-//  Result:=True;
-//end;
-/*int CLodHandler::decompress (unsigned char * source, int size, int realSize, std::ofstream & dest)
+SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 {
-	std::ofstream lb;
-	lb.open("lodbuf\\buf.gz", std::ios::out|std::ios::binary);
-	for(int i=0; i<size; ++i)
+	unsigned char * pcx;
+	std::transform(fname.begin(),fname.end(),fname.begin(),toupper);
+	fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".PCX");
+	int index=-1;
+	for (int i=0;i<entries.size();i++)
 	{
-		lb<<source[i];
+		std::string buf1 = std::string((char*)entries[i].name);
+		//std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
+		if(buf1==fname)
+		{
+			index=i;
+			break;
+		}
 	}
-	lb.close();
-
-	FILE * inputf = fopen("lodbuf\\buf.gz", "rb+");
-	FILE * outputf = fopen("lodbuf\\buf.un", "wb+");
-
-	int ret = infm(inputf, outputf);
-	fclose(inputf);
-	fclose(outputf);
-	std::stringstream sin;
-	//for()
-
-	int ret = infs(sin, dest);
+	FLOD.seekg(entries[index].offset,std::ios_base::beg);
+	if (entries[index].size==0) //file is not compressed
+	{
+		pcx = new unsigned char[entries[index].realSize];
+		FLOD.read((char*)pcx,entries[index].realSize);
+	}
+	else 
+	{
+		unsigned char * pcd = new unsigned char[entries[index].size];
+		FLOD.read((char*)pcd,entries[index].size);
+		infs2(pcd,entries[index].size,entries[index].realSize,pcx);
+	}
+	CPCXConv cp;
+	cp.openPCX((char*)pcx,entries[index].realSize);
+	cp.convert();
+	cp.saveBMP("vctemp.bmp");
+	SDL_Surface * ret = SDL_LoadBMP("vctemp.bmp");
+	boost::filesystem::path p("vctemp.bmp");
+	boost::filesystem::remove(p);
+	//return cp.getSurface();
 	return ret;
-} */
+}
 
 int CLodHandler::decompress (unsigned char * source, int size, int realSize, std::string & dest)
 {
@@ -381,64 +370,25 @@ int CLodHandler::infm(FILE *source, FILE *dest, int wBits)
 	(void)inflateEnd(&strm);
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
-
-std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string> defNamesIn, std::string lodName)
+CDefHandler * CLodHandler::giveDef(std::string defName) // TODO: zamienic
+{
+	std::vector<std::string> pom;
+	pom.push_back(defName);
+	return extractManyFiles(pom)[0];
+}
+std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string> defNamesIn)
 {
 	std::vector<CDefHandler *> ret(defNamesIn.size());
 	for(int hh=0; hh<defNamesIn.size(); ++hh)
 	{
 		std::transform(defNamesIn[hh].begin(), defNamesIn[hh].end(), defNamesIn[hh].begin(), (int(*)(int))toupper);
 	}
-	//std::ifstream FLOD;
 	std::ofstream FOut;
 	int i;
-
-	//std::string Ts;
-	////std::cout<<"*** Loading FAT ... \n";
-	//FLOD.open(lodName.c_str(),std::ios::binary);
-	////std::cout<<"*** Archive: "+FName+" loaded\n";
-	//FLOD.seekg(8,std::ios_base::beg);
-	//unsigned char temp[4];
-	//FLOD.read((char*)temp,4);
-	//totalFiles = readNormalNr(temp,4);
-	//FLOD.seekg(0x5c,std::ios_base::beg);
-	//entries.reserve(totalFiles);
-	////std::cout<<"*** Loading FAT ...\n";
-	//for (int i=0; i<totalFiles; i++)
-	//{
-	//	entries.push_back(Entry());
-	//	//FLOD.read((char*)entries[i].name,12);
-	//	char * bufc = new char;
-	//	bool appending = true;
-	//	for(int kk=0; kk<12; ++kk)
-	//	{
-	//		FLOD.read(bufc, 1);
-	//		if(appending)
-	//		{
-	//			entries[i].name[kk] = *bufc;
-	//		}
-	//		else
-	//		{
-	//			entries[i].name[kk] = 0;
-	//			appending = false;
-	//		}
-	//	}
-	//	delete bufc;
-	//	FLOD.read((char*)entries[i].hlam_1,4);
-	//	FLOD.read((char*)temp,4);
-	//	entries[i].offset=readNormalNr(temp,4);
-	//	FLOD.read((char*)temp,4);
-	//	entries[i].realSize=readNormalNr(temp,4);
-	//	FLOD.read((char*)entries[i].hlam_2,4);
-	//	FLOD.read((char*)temp,4);
-	//	entries[i].size=readNormalNr(temp,4);
-	//}
-	//std::cout<<" done\n";
-	//std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 	std::vector<char> found(defNamesIn.size(), 0);
 	for (int i=0;i<totalFiles;i++)
 	{
-		std::cout<<'\r'<<"Reading defs: "<<(100.0*i)/((float)(totalFiles))<<"%      ";
+		//std::cout<<'\r'<<"Reading defs: "<<(100.0*i)/((float)(totalFiles))<<"%      ";
 		std::string buf1 = std::string((char*)entries[i].name);
 		std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
 		bool exists = false;
@@ -456,26 +406,12 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 		if(!exists)
 			continue;
 		FLOD.seekg(entries[i].offset,std::ios_base::beg);
-		std::string bufff = (lodName.substr(0, lodName.size()-4) + "\\" + (char*)entries[i].name);
+		//std::string bufff = (lodName.substr(0, lodName.size()-4) + "\\" + (char*)entries[i].name);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
 			outp = new unsigned char[entries[i].realSize];
 			FLOD.read((char*)outp, entries[i].realSize);
-			/*std::ofstream out;
-			out.open(bufff.c_str(), std::ios::binary);
-			if(!out.is_open())
-			{
-				std::cout<<"Unable to create "<<bufff;
-			}
-			else
-			{
-				for(int hh=0; hh<entries[i].realSize; ++hh)
-				{
-					out<<*(outp+hh);
-				}
-				out.close();
-			}*/
 			CDefHandler * nh = new CDefHandler;
 			nh->openFromMemory(outp, entries[i].realSize, std::string((char*)entries[i].name));
 			ret[curDef] = nh;
@@ -486,28 +422,13 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 			outp = new unsigned char[entries[i].size];
 			FLOD.read((char*)outp, entries[i].size);
 			FLOD.seekg(0, std::ios_base::beg);
-			/*std::ofstream destin;
-			destin.open(bufff.c_str(), std::ios::binary);
-			//int decRes = decompress(outp, entries[i].size, entries[i].realSize, bufff);
-			int decRes = infs(outp, entries[i].size, entries[i].realSize, destin);
-			destin.close();
-			if(decRes!=0)
-			{
-				std::cout<<"LOD Extraction error"<<"  "<<decRes<<" while extracting to "<<bufff<<std::endl;
-			}*/
 			unsigned char * decomp = NULL;
 			int decRes = infs2(outp, entries[i].size, entries[i].realSize, decomp);
 			CDefHandler * nh = new CDefHandler;
 			nh->openFromMemory(decomp, entries[i].realSize, std::string((char*)entries[i].name));
 			ret[curDef] = nh;
-			//delete decomp;
 		}
-		//for (int j=0; j<entries[i].size; j++)
-		//	FOut << outp[j];
-		//FOut.flush();
 		delete outp;
-		//FOut.close();
-		//std::cout<<"*** done\n";
 	}
 	std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
 	for(int hh=0; hh<found.size(); ++hh)
@@ -527,7 +448,6 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 	//std::cout<<"*** Archive: "+FName+" closed\n";
 	return ret;
 }
-
 int CLodHandler::infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits)
 {
 	int ret;
@@ -887,7 +807,7 @@ void CLodHandler::init(std::string lodFile)
 			FLOD.read(bufc, 1);
 			if(appending)
 			{
-				entries[i].name[kk] = *bufc;
+				entries[i].name[kk] = toupper(*bufc);
 			}
 			else
 			{

@@ -15,7 +15,10 @@ unsigned int intPow(unsigned int a, unsigned int b)
 		ret*=a;
 	return ret;
 }
-
+CAmbarCendamo::CAmbarCendamo (unsigned char * map)
+{
+	bufor=map;
+}
 CAmbarCendamo::CAmbarCendamo (const char * tie)
 {
 	is = new std::ifstream();
@@ -448,7 +451,7 @@ void CAmbarCendamo::deh3m()
 
 		//teceDef();
 	}
-	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack, std::string("newh3sprite.lod"));
+	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack);
 	for (int i=0;i<dhandlers.size();i++)
 		map.defy[i].handler=dhandlers[i];
 	for(int vv=0; vv<map.defy.size(); ++vv)
@@ -467,6 +470,7 @@ void CAmbarCendamo::deh3m()
 	int howManyObjs = readNormalNr(i, 4); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
+		std::cout << "object nr "<<ww<<std::endl;
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
 		nobj.x = bufor[i++];

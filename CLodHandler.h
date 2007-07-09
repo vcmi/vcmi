@@ -61,10 +61,12 @@ public:
 	int infm(FILE *source, FILE *dest, int wBits = 15); //zlib handler
 	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
-	std::vector<CDefHandler *> extractManyFiles(std::vector<std::string> defNamesIn, std::string lodName); //extrats given files (defs only)
+	std::vector<CDefHandler *> extractManyFiles(std::vector<std::string> defNamesIn); //extrats given files (defs only)
+	CDefHandler * giveDef(std::string defName);
 	void extract(std::string FName);
 	void extractFile(std::string FName, std::string name); //extracts a specific file
 	void init(std::string lodFile);
+	SDL_Surface * loadBitmap(std::string fname);
 };
 
 

@@ -22,7 +22,8 @@ public:
 	bool showed;
 	SDL_Surface * bg;
 	int selected;
-	CSemiDefHandler * Dtypes, * Dvic, * Dloss, *Dsizes;
+	CSemiDefHandler * Dtypes, * Dvic, * Dloss; 
+	CDefHandler *Dsizes;
 	std::vector<Mapa*> scenList;
 	std::vector<SDL_Surface*> scenImgs;
 	int current;
@@ -38,6 +39,7 @@ public:
 	std::string gdiff(std::string ss);
 	void printMaps(int from,int to=18, int at=0, bool abs=false);
 	void select(int which);
+	void moveByOne(bool up);
 	void printSelectedInfo();
 	MapSel();
 	~MapSel();
@@ -64,6 +66,7 @@ public:
 class CPreGame
 {
 public:	
+	bool run;
 	std::vector<Slider<> *> interested;
 	CMusicHandler * mush;
 	CSemiLodHandler * slh ;
@@ -90,6 +93,7 @@ public:
 	menuItems * currentItems();
 	void(CPreGame::*handleOther)(SDL_Event&);
 	void scenHandleEv(SDL_Event& sEvent);
+	void begin(){run=false;};
 	void quitAskBox();
 	void quit(){exit(0);};  
 	void initScenSel(); 
@@ -101,8 +105,8 @@ public:
 	void showMainMenu();  
 	void runLoop(); // runs mainloop of PreGame
 	void initMainMenu(); //loads components for main menu
-	void highlightButton(int which, int on);
-	void showCenBox (std::string data);
+	void highlightButton(int which, int on); //highlights one from 5 main menu buttons
+	void showCenBox (std::string data); //
 	void showAskBox (std::string data, void(*f1)(),void(*f2)());
 	void hideBox ();
 	void printMapsFrom(int from);
