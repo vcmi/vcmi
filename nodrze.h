@@ -3,6 +3,8 @@
 
 //don't look here, it's a horrible, partially working implementation of RB trees
 
+//ignore comment above, it is simply TowDragon's envy. Everything (without removing) is working fine
+
 #include <iostream>
 #include <string>
 

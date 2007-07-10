@@ -9,6 +9,7 @@ enum EartClass {SartClass=0, TartClass, NartClass, JartClass, RartClass}; //arti
 class CArtifact //container for artifacts
 {
 public:
+	bool isAllowed; //true if we can use this artifact (map information)
 	std::string name;
 	std::string description;
 	std::string desc2;
@@ -17,7 +18,6 @@ public:
 	bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4, misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso, lHand, rHand, neck, shoulders, head;
 	EartClass aClass;
 	int number;
-	bool isAllowed; //true if we can use this artifact (map information)
 };
 
 class CArtHandler //handles artifacts

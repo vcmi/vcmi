@@ -7,6 +7,7 @@
 class CSpell
 {
 public:
+	bool isAllowed; //true if we can use this spell (depends on map)
 	std::string name;
 	std::string abbName; //abbreviated name
 	int level;
@@ -28,7 +29,6 @@ public:
 	std::string noneTip, basTip, advTip, expTip; //descriptions of spell
 	std::string attributes; //reference only attributes
 	bool combatSpell; //is this spell combat (true) or adventure (false)
-	bool isAllowed; //true if we can use this spell (depends on map)
 };
 
 class CSpellHandler

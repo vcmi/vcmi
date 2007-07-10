@@ -256,17 +256,20 @@ void CAmbarCendamo::deh3m()
 			  map.lossCondition.castlePos.x=bufor[i++];
 			  map.lossCondition.castlePos.y=bufor[i++];
 			  map.lossCondition.castlePos.z=bufor[i++];
+			  break;
 		  }
 	case lossHero:
 		  {
 			  map.lossCondition.heroPos.x=bufor[i++];
 			  map.lossCondition.heroPos.y=bufor[i++];
 			  map.lossCondition.heroPos.z=bufor[i++];
+			  break;
 		  }
 	case timeExpires:
 		{
 			map.lossCondition.timeLimit = readNormalNr(i++,2);
 			i++;
+			 break;
 		}
 	}
 	map.howManyTeams=bufor[i++]; //read number of teams
@@ -310,8 +313,8 @@ void CAmbarCendamo::deh3m()
 					CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = false;
 			}
 		}
-	}
-	//allowed artifacts have been read
+	}//allowed artifacts have been read
+
 	//reading allowed spells (9 bytes)
 	ist=i; //starting i for loop
 	for(i; i<ist+9; ++i)
@@ -470,13 +473,17 @@ void CAmbarCendamo::deh3m()
 	int howManyObjs = readNormalNr(i, 4); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
-		//std::cout << "object nr "<<ww<<std::endl;
+		std::cout << "object nr "<<ww<<"\ti= "<<i<<std::endl;
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
 		nobj.x = bufor[i++];
 		nobj.y = bufor[i++];
 		nobj.z = bufor[i++];
 		nobj.defNumber = readNormalNr(i, 4); i+=4;
+
+		if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
+			std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
+
 		i+=5;
 		unsigned char buff [30];
 		for(int ccc=0; ccc<30; ++ccc)
@@ -508,7 +515,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuarders = bufor[i]; ++i;
 					if(spec->areGuarders)
 					{
-						spec->guarders = readCreatureSet(i); i+=32;
+						spec->guarders = readCreatureSet(i); i+=28;
 					}
 					i+=4;
 				}
@@ -586,7 +593,9 @@ void CAmbarCendamo::deh3m()
 					spec->experience = readNormalNr(i); i+=4;
 				}
 				else spec->experience = 0;
-				++i; //TODO - czy tu na pewno nie ma istotnej informacji?
+				bool portrait=bufor[i]; ++i;
+				if (portrait)
+					i++; //TODO read portrait nr, save, open
 				bool nonstandardAbilities = bufor[i]; ++i; //true if hero has specified abilities
 				if(nonstandardAbilities)
 				{
@@ -601,7 +610,7 @@ void CAmbarCendamo::deh3m()
 				spec->standardGarrison = standGarrison;
 				if(standGarrison)
 				{
-					spec->garrison = readCreatureSet(i); i+=7;
+					spec->garrison = readCreatureSet(i); i+=28; //4 bytes per slot
 				}
 				bool form = bufor[i]; ++i; //formation
 				spec->garrison.formation = form;
@@ -752,7 +761,7 @@ void CAmbarCendamo::deh3m()
 				//spells
 				bool areSpells = bufor[i]; ++i;
 
-				if(areSpells) //TODO: sprawdziæ
+				if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
 				{
 					int ist = i;
 					for(i; i<ist+9; ++i)

@@ -325,13 +325,18 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			mapstr+=pom;
 		}
+		gzclose(map);
 		unsigned char *initTable = new unsigned char[mapstr.size()];
 		for(int ss=0; ss<mapstr.size(); ++ss)
 		{
 			initTable[ss] = mapstr[ss];
 		}
+#define CHOOSE
+#ifdef CHOOSE
 		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
-		//CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
+#else
+		CAmbarCendamo * ac = new CAmbarCendamo("5gryf"); //4gryf
+#endif
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
