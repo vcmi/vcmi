@@ -22,8 +22,8 @@ public:
 	bool showed;
 	SDL_Surface * bg;
 	int selected;
-	CSemiDefHandler * Dtypes, * Dvic, * Dloss; 
-	CDefHandler *Dsizes;
+	CSemiDefHandler * Dtypes, * Dvic; 
+	CDefHandler *Dsizes, * Dloss;
 	std::vector<Mapa*> scenList;
 	std::vector<SDL_Surface*> scenImgs;
 	int current;

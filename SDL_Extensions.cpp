@@ -35,6 +35,33 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran)
 {
 	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
 }
+void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
+{
+	SDL_Surface * temp;
+	switch (quality)
+	{
+	case 0:
+		temp = TTF_RenderText_Solid(font,text.c_str(),kolor);
+		break;
+	case 1:
+		SDL_Color tem;
+		tem.b = 0xff-kolor.b;
+		tem.g = 0xff-kolor.g;
+		tem.r = 0xff-kolor.r;
+		tem.unused = 0xff-kolor.unused;
+		temp = TTF_RenderText_Shaded(font,text.c_str(),kolor,tem);
+		break;
+	case 2:
+		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
+		break;
+	default:
+		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
+		break;
+	}
+	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-(temp->w/2),y-(temp->h/2)));
+	SDL_UpdateRect(dst,x,y,temp->w,temp->h);
+	SDL_FreeSurface(temp);
+}
 void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
 {
 	SDL_Surface * temp;
