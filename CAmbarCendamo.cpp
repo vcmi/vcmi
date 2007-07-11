@@ -1783,7 +1783,7 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 		return EDefType::EVENTOBJ_DEF; //handled
 	case 33:
 		return EDefType::GARRISON_DEF; //handled
-	case 34: case 70: //70 - random hero
+	case 34: case 70: case 62: //70 - random hero //62 - prison
 		return EDefType::HERO_DEF; //handled
 	case 36:
 		return EDefType::GRAIL_DEF; //hanled

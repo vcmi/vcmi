@@ -228,7 +228,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			// well, there's no music, but most games don't break without music...
 		}*/
 
-		screen = SDL_SetVideoMode(800,600,24,SDL_HWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
+		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
 		//FILE * zr = fopen("mal.txt","r");
 		//FILE * ko = fopen("wyn.txt","w");
@@ -331,11 +331,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			initTable[ss] = mapstr[ss];
 		}
-//#define CHOOSE
+#define CHOOSE
 #ifdef CHOOSE
 		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
 #else
-		CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
+		CAmbarCendamo * ac = new CAmbarCendamo("1smok"); //4gryf
 #endif
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
