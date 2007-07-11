@@ -20,7 +20,10 @@ SDL_Rect genRect(int hh, int ww, int xx, int yy)
 }
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran)
 {
-	SDL_BlitSurface(src,NULL,dst,&genRect(src->h,src->w,x,y));
+	SDL_SaveBMP(src, "bufimg.bmp");
+	SDL_SaveBMP(dst, "bufimg2.bmp");
+	SDL_Rect pom = genRect(src->h,src->w,x,y);
+	SDL_BlitSurface(src,NULL,dst,&pom);
 }
 SDL_Color genRGB(int r, int g, int b, int a=0)
 {

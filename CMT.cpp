@@ -331,11 +331,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			initTable[ss] = mapstr[ss];
 		}
-#define CHOOSE
+//#define CHOOSE
 #ifdef CHOOSE
 		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
 #else
-		CAmbarCendamo * ac = new CAmbarCendamo("5gryf"); //4gryf
+		CAmbarCendamo * ac = new CAmbarCendamo("4gryf"); //4gryf
 #endif
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
