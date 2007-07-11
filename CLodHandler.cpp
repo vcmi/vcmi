@@ -430,7 +430,7 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 		}
 		delete outp;
 	}
-	std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
+	//std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
 	for(int hh=0; hh<found.size(); ++hh)
 	{
 		if(!found[hh])

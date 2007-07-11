@@ -2,6 +2,9 @@
 #include "CMessage.h"
 #include "SDL_TTF.h"
 #include "CSemiDefHandler.h"
+#include "CDefHandler.h"
+#include "CGameInfo.h"
+#define CGI (CGameInfo::mainObj)
 
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
@@ -16,9 +19,8 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran);
 bool isItIn(const SDL_Rect * rect, int x, int y);
 CMessage::CMessage()
 {
-	piecesOfBox = new CSemiDefHandler();
-	piecesOfBox->openDef("DIALGBOX.DEF","H3sprite.lod");
-	background = SDL_LoadBMP("H3bitmap.lod\\DIBOXBCK.BMP");
+	piecesOfBox = CGI->spriteh->giveDef("DIALGBOX.DEF");
+	background = CGI->bitmaph->loadBitmap("DIBOXBCK.BMP");
 	SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
 }
 SDL_Surface * CMessage::drawBox1(int w, int h)
@@ -90,7 +92,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line)
 	return ret;
 }
 SDL_Surface * CMessage::genMessage
-(std::string title, std::string text, EWindowType type, std::vector<CSemiDefHandler*> *addPics, void * cb)
+(std::string title, std::string text, EWindowType type, std::vector<CDefHandler*> *addPics, void * cb)
 {
 //max x 320 okolo 30 znakow
 	std::vector<std::string> * tekst;

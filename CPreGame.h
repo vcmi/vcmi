@@ -74,7 +74,7 @@ public:
 	CPreGameTextHandler * preth ;
 	SDL_Rect * currentMessage;	
 	SDL_Surface * behindCurMes;
-	CSemiDefHandler *ok, *cancel;
+	CDefHandler *ok, *cancel;
 	enum EState { //where are we?
 		mainMenu, newGame, loadGame, ScenarioList
 	} state;

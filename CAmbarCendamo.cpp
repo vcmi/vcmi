@@ -7,6 +7,7 @@
 #include "SDL_Extensions.h"
 #include "boost\filesystem.hpp"
 #include <set>
+#define CGI (CGameInfo::mainObj)
 
 unsigned int intPow(unsigned int a, unsigned int b)
 {
@@ -1756,15 +1757,13 @@ void CAmbarCendamo::loadDefs()
 		{
 			if (loadedTypes.find(map.terrain[i][j].tertype)==loadedTypes.end())
 			{
-				CSemiDefHandler  *sdh = new CSemiDefHandler();
-				sdh->openDef((sdh->nameFromType(map.terrain[i][j].tertype)).c_str(),"H3sprite.lod");
+				CDefHandler  *sdh = CGI->spriteh->giveDef(CSemiDefHandler::nameFromType(map.terrain[i][j].tertype).c_str());
 				loadedTypes.insert(map.terrain[i][j].tertype);
 				defs.push_back(sdh);
 			}
 			if (map.twoLevel && loadedTypes.find(map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
 			{
-				CSemiDefHandler  *sdh = new CSemiDefHandler();
-				sdh->openDef((sdh->nameFromType(map.undergroungTerrain[i][j].tertype)).c_str(),"H3sprite.lod");
+				CDefHandler  *sdh = CGI->spriteh->giveDef(CSemiDefHandler::nameFromType(map.undergroungTerrain[i][j].tertype).c_str());
 				loadedTypes.insert(map.undergroungTerrain[i][j].tertype);
 				defs.push_back(sdh);
 			}

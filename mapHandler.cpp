@@ -41,8 +41,8 @@ public:
 
 void CMapHandler::init()
 {
-	fullHide = CGameInfo::mainObj->sspriteh->giveDef("TSHRC.DEF", 2);
-	partialHide = CGameInfo::mainObj->sspriteh->giveDef("TSHRE.DEF", 2);
+	fullHide = CGameInfo::mainObj->spriteh->giveDef("TSHRC.DEF");
+	partialHide = CGameInfo::mainObj->spriteh->giveDef("TSHRE.DEF");
 
 	for(int i=0; i<partialHide->ourImages.size(); ++i)
 	{
@@ -78,7 +78,7 @@ void CMapHandler::init()
 	terrainBitmap = new SDL_Surface **[reader->map.width+8];
 	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
 		terrainBitmap[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
-	CSemiDefHandler * bord = CGameInfo::mainObj->sspriteh->giveDef("EDG.DEF");
+	CDefHandler * bord = CGameInfo::mainObj->spriteh->giveDef("EDG.DEF");
 	for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
 	{
 		for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci

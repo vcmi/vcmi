@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "CHeroHandler.h"
 #include "CGameInfo.h"
+#include <sstream>
+#define CGI (CGameInfo::mainObj)
 
 void CHeroHandler::loadHeroes()
 {
