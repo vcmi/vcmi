@@ -22,7 +22,7 @@ public:
 	bool showed;
 	SDL_Surface * bg;
 	int selected;
-	CSemiDefHandler * Dtypes, * Dvic; 
+	CDefHandler * Dtypes, * Dvic; 
 	CDefHandler *Dsizes, * Dloss;
 	std::vector<Mapa*> scenList;
 	std::vector<SDL_Surface*> scenImgs;
@@ -80,7 +80,7 @@ public:
 	} state;
 	struct menuItems { 
 		SDL_Surface * background, *bgAd;
-		CSemiDefHandler *newGame, *loadGame, *highScores,*credits, *quit;
+		CDefHandler *newGame, *loadGame, *highScores,*credits, *quit;
 		SDL_Rect lNewGame, lLoadGame, lHighScores, lCredits, lQuit;
 		ttt fNewGame, fLoadGame, fHighScores, fCredits, fQuit;
 		int highlighted;//0=none; 1=new game; 2=load game; 3=high score; 4=credits; 5=quit
