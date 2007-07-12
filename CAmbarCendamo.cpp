@@ -1757,13 +1757,13 @@ void CAmbarCendamo::loadDefs()
 		{
 			if (loadedTypes.find(map.terrain[i][j].tertype)==loadedTypes.end())
 			{
-				CSemiDefHandler  *sdh = CGI->sspriteh->giveDef(CSemiDefHandler::nameFromType(map.terrain[i][j].tertype).c_str());
+				CDefHandler  *sdh = CGI->spriteh->giveDef(CSemiDefHandler::nameFromType(map.terrain[i][j].tertype).c_str());
 				loadedTypes.insert(map.terrain[i][j].tertype);
 				defs.push_back(sdh);
 			}
 			if (map.twoLevel && loadedTypes.find(map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
 			{
-				CSemiDefHandler  *sdh = CGI->sspriteh->giveDef(CSemiDefHandler::nameFromType(map.undergroungTerrain[i][j].tertype).c_str());
+				CDefHandler  *sdh = CGI->spriteh->giveDef(CSemiDefHandler::nameFromType(map.undergroungTerrain[i][j].tertype).c_str());
 				loadedTypes.insert(map.undergroungTerrain[i][j].tertype);
 				defs.push_back(sdh);
 			}

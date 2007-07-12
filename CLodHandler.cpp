@@ -163,22 +163,23 @@ void CPCXConv::convert()
 SDL_Surface * CPCXConv::getSurface()
 {
 	SDL_Surface * ret;
+
 	BMPHeader bh;
 	BMPPalette pal[256];
 	Epcxformat format;
-	int fSize, maxx, maxy,i,y;
+	int fSize,i,y;
 	bool check1, check2;
 	unsigned char add;
 	int it=0;
 
 	fSize = readNormalNr(it,4,pcx);it+=4;
-	maxx = readNormalNr(it,4,pcx);it+=4;
-	maxy = readNormalNr(it,4,pcx);it+=4;
-	if (fSize==maxx*maxy*3)
+	bh.x = readNormalNr(it,4,pcx);it+=4;
+	bh.y = readNormalNr(it,4,pcx);it+=4;
+	if (fSize==bh.x*bh.y*3)
 		check1=true;
 	else 
 		check1=false;
-	if (fSize==maxx*maxy)
+	if (fSize==bh.x*bh.y)
 		check2=true;
 	else 
 		check2=false;
@@ -188,9 +189,41 @@ SDL_Surface * CPCXConv::getSurface()
 		format=Epcxformat::PCX8B;
 	else 
 		return NULL;
-	add=(int)(4*(((float)1)-(((float)maxx/(float)4)-((int)((float)maxx/(float)4)))));
+	add = 4 - bh.x%4;
 	if (add==4)
 		add=0;
+	bh._h3=bh.x*bh.y;
+	if (format==Epcxformat::PCX8B)
+	{
+		int bmask = 0x0000ff;
+		int gmask = 0x00ff00;
+		int rmask = 0xff0000;
+		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 8, 0, 0, 0, 0);
+		bh._c1=0x436;
+		bh._c2=0x28;
+		bh._c3=1;
+		bh._c4=8;
+		//bh.dataSize2=bh.dataSize1=maxx*maxy;
+		bh.dataSize1=bh.x;
+		bh.dataSize2=bh.y;
+		bh.fullSize = bh.dataSize1+436;
+	}
+	else
+	{
+		int bmask = 0x0000ff;
+		int gmask = 0x00ff00;
+		int rmask = 0xff0000;
+		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 24, rmask, gmask, bmask, 0);
+		bh._c1=0x36;
+		bh._c2=0x28;
+		bh._c3=1;
+		bh._c4=0x18;
+		//bh.dataSize2=bh.dataSize1=0xB12;
+		bh.dataSize1=bh.x;
+		bh.dataSize2=bh.y;
+		bh.fullSize=(bh.x+add)*bh.y*3+36+18;
+		bh._h3*=3;
+	}
 	if (format==Epcxformat::PCX8B)
 	{
 		it = pcxs-256*3;
@@ -202,50 +235,53 @@ SDL_Surface * CPCXConv::getSurface()
 			pal[i].F='\0';
 		}
 	}
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int rmask = 0xff000000;
-    int gmask = 0x00ff0000;
-    int bmask = 0x0000ff00;
-    int amask = 0x000000ff;
-#else
-    int rmask = 0x000000ff;
-    int gmask = 0x0000ff00;
-    int bmask = 0x00ff0000;
-    int amask = 0xff000000;
-#endif
-	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, maxx, maxy, (format==Epcxformat::PCX8B ? 8 : 24), rmask, gmask, bmask, amask);
 	if (format==Epcxformat::PCX8B)
 	{
+		
 		for(int i=0; i<256; ++i)
 		{
-			SDL_Color pr;
-			pr.r = pal[i].R;
-			pr.g = pal[i].G;
-			pr.b = pal[i].B;
-			pr.unused = pal[i].F;
-			(*(ret->format->palette->colors+i)) = pr;
+			SDL_Color tp;
+			tp.r = pal[i].R;
+			tp.g = pal[i].G;
+			tp.b = pal[i].B;
+			tp.unused = pal[i].F;
+			*(ret->format->palette->colors+i) = tp;
 		}
-		for(y=maxy; y>0; --y)
+		for (y=bh.y;y>0;y--)
 		{
-			it = 0xc + (y-1)*maxx;
-			for(int j=0; j<maxx; ++j)
-				*((char*)ret->pixels + ret->format->BytesPerPixel * (y*(maxx+add) + j)) = pcx[it+j];
-			for(int j=0; j<add; ++j)
-				*((char*)ret->pixels + ret->format->BytesPerPixel * (y*(maxx+add) + maxx + j)) = 0;
+			it=0xC+(y-1)*bh.x;
+			for (int j=0;j<bh.x;j++)
+			{
+				//out<<pcx[it+j];
+				*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * j) = pcx[it+j];
+			}
+			if (add>0)
+			{
+				for (int j=0;j<add;j++)
+				{
+					//out<<'\0'; //bylo z buforu, ale onnie byl incjalizowany (?!)
+					*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * (j+bh.x)) = 0;
+				}
+			}
 		}
 	}
 	else
 	{
-		for(int y=maxy; y>0; --y)
+		for (y=bh.y; y>0; y--)
 		{
-			it = 0xc + (y-1)*maxx*3;
-			for(int j=0; j<maxx*3; ++j)
+			it=0xC+(y-1)*bh.x*3;
+			for (int j=0;j<bh.x*3;j++)
 			{
-				*((char*)ret->pixels + (y*(maxx+add) + j)) = pcx[it+j];
+				//out<<pcx[it+j];
+				*((char*)ret->pixels + ret->pitch * (y-1) + j) = pcx[it+j];
 			}
-			for(int j=0; j<add*3; ++j)
+			if (add>0)
 			{
-				*((char*)ret->pixels + (y*(maxx+add) + j)) = 0;
+				for (int j=0;j<add*3;j++)
+				{
+					//out<<'\0'; //bylo z buforu, ale onnie byl incjalizowany (?!)
+					*((char*)ret->pixels + ret->pitch * (y-1) + (j+bh.x*3)) = 0;
+				}
 			}
 		}
 	}
@@ -277,17 +313,21 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 	{
 		unsigned char * pcd = new unsigned char[entries[index].size];
 		FLOD.read((char*)pcd,entries[index].size);
-		infs2(pcd,entries[index].size,entries[index].realSize,pcx);
+		int res=infs2(pcd,entries[index].size,entries[index].realSize,pcx);
+		if(res!=0)
+		{
+			std::cout<<"an error "<<res<<" ocured during extracting file "<<fname<<std::endl;
+		}
 	}
 	CPCXConv cp;
 	cp.openPCX((char*)pcx,entries[index].realSize);
-	cp.convert();
-	cp.saveBMP("vctemp.bmp");
-	SDL_Surface * ret = SDL_LoadBMP("vctemp.bmp");
-	boost::filesystem::path p("vctemp.bmp");
-	boost::filesystem::remove(p);
-	//return cp.getSurface();
-	return ret;
+	//cp.convert();
+	//cp.saveBMP("vctemp.bmp");
+	//SDL_Surface * ret = SDL_LoadBMP("vctemp.bmp");
+	//boost::filesystem::path p("vctemp.bmp");
+	//boost::filesystem::remove(p);
+	return cp.getSurface();
+	//return ret;
 }
 
 int CLodHandler::decompress (unsigned char * source, int size, int realSize, std::string & dest)
@@ -383,14 +423,13 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 	{
 		std::transform(defNamesIn[hh].begin(), defNamesIn[hh].end(), defNamesIn[hh].begin(), (int(*)(int))toupper);
 	}
-	std::ofstream FOut;
 	int i;
 	std::vector<char> found(defNamesIn.size(), 0);
 	for (int i=0;i<totalFiles;i++)
 	{
 		//std::cout<<'\r'<<"Reading defs: "<<(100.0*i)/((float)(totalFiles))<<"%      ";
 		std::string buf1 = std::string((char*)entries[i].name);
-		std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
+		//std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
 		bool exists = false;
 		int curDef;
 		for(int hh=0; hh<defNamesIn.size(); ++hh)
@@ -406,7 +445,6 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 		if(!exists)
 			continue;
 		FLOD.seekg(entries[i].offset,std::ios_base::beg);
-		//std::string bufff = (lodName.substr(0, lodName.size()-4) + "\\" + (char*)entries[i].name);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
@@ -415,7 +453,6 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 			CDefHandler * nh = new CDefHandler;
 			nh->openFromMemory(outp, entries[i].realSize, std::string((char*)entries[i].name));
 			ret[curDef] = nh;
-
 		}
 		else //we will decompressing file
 		{

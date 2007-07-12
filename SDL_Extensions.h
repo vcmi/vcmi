@@ -21,6 +21,7 @@ namespace CSDL_Ext
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
 	void printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
 	void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
+	void update(SDL_Surface * what = ekran); //updates whole surface (default - main screen)
 };
 
 #endif // SDL_EXTENSIONS_H

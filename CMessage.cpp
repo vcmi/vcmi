@@ -4,6 +4,7 @@
 #include "CSemiDefHandler.h"
 #include "CDefHandler.h"
 #include "CGameInfo.h"
+#include "SDL_Extensions.h"
 #define CGI (CGameInfo::mainObj)
 
 SDL_Color tytulowy, tlo, zwykly ;
@@ -31,7 +32,9 @@ SDL_Surface * CMessage::drawBox1(int w, int h)
 	{
 		for (int j=0; j<w; j+=background->w-1)
 			SDL_BlitSurface(background,&genRect(background->h,background->w-1,1,0),ret,&genRect(h,w,j,i));
-	}SDL_Flip(ekran);
+	}
+	//SDL_Flip(ekran);
+	CSDL_Ext::update(ekran);
 	//obwodka I-szego rzedu pozioma
 	for (int i=0; i<w; i+=piecesOfBox->ourImages[6].bitmap->w)
 	{

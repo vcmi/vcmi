@@ -432,3 +432,8 @@ Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 	ret+=color->r;
 	return ret;
 }
+
+void CSDL_Ext::update(SDL_Surface * what)
+{
+	SDL_UpdateRect(what, 0, 0, what->w, what->h);
+}
