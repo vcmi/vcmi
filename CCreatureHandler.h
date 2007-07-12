@@ -21,6 +21,11 @@ public:
 	int troopCountLocationOffset, attackClimaxFrame;
 	///end of anim info
 
+	//for some types of towns
+	bool isDefinite; //if the creature type is wotn dependent, it should be true
+	int indefLevel; //only if indefinite
+	bool indefUpgraded; //onlu if inddefinite
+	//end
 
 	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
 };

@@ -192,21 +192,9 @@ SDL_Surface * CPCXConv::getSurface()
 	add = 4 - bh.x%4;
 	if (add==4)
 		add=0;
-	bh._h3=bh.x*bh.y;
 	if (format==Epcxformat::PCX8B)
 	{
-		int bmask = 0x0000ff;
-		int gmask = 0x00ff00;
-		int rmask = 0xff0000;
 		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 8, 0, 0, 0, 0);
-		bh._c1=0x436;
-		bh._c2=0x28;
-		bh._c3=1;
-		bh._c4=8;
-		//bh.dataSize2=bh.dataSize1=maxx*maxy;
-		bh.dataSize1=bh.x;
-		bh.dataSize2=bh.y;
-		bh.fullSize = bh.dataSize1+436;
 	}
 	else
 	{
@@ -214,15 +202,6 @@ SDL_Surface * CPCXConv::getSurface()
 		int gmask = 0x00ff00;
 		int rmask = 0xff0000;
 		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 24, rmask, gmask, bmask, 0);
-		bh._c1=0x36;
-		bh._c2=0x28;
-		bh._c3=1;
-		bh._c4=0x18;
-		//bh.dataSize2=bh.dataSize1=0xB12;
-		bh.dataSize1=bh.x;
-		bh.dataSize2=bh.y;
-		bh.fullSize=(bh.x+add)*bh.y*3+36+18;
-		bh._h3*=3;
 	}
 	if (format==Epcxformat::PCX8B)
 	{
@@ -252,14 +231,12 @@ SDL_Surface * CPCXConv::getSurface()
 			it=0xC+(y-1)*bh.x;
 			for (int j=0;j<bh.x;j++)
 			{
-				//out<<pcx[it+j];
 				*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * j) = pcx[it+j];
 			}
 			if (add>0)
 			{
 				for (int j=0;j<add;j++)
 				{
-					//out<<'\0'; //bylo z buforu, ale onnie byl incjalizowany (?!)
 					*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * (j+bh.x)) = 0;
 				}
 			}
@@ -272,14 +249,12 @@ SDL_Surface * CPCXConv::getSurface()
 			it=0xC+(y-1)*bh.x*3;
 			for (int j=0;j<bh.x*3;j++)
 			{
-				//out<<pcx[it+j];
 				*((char*)ret->pixels + ret->pitch * (y-1) + j) = pcx[it+j];
 			}
 			if (add>0)
 			{
 				for (int j=0;j<add*3;j++)
 				{
-					//out<<'\0'; //bylo z buforu, ale onnie byl incjalizowany (?!)
 					*((char*)ret->pixels + ret->pitch * (y-1) + (j+bh.x*3)) = 0;
 				}
 			}
@@ -296,12 +271,15 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 	for (int i=0;i<entries.size();i++)
 	{
 		std::string buf1 = std::string((char*)entries[i].name);
-		//std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
 		if(buf1==fname)
 		{
 			index=i;
 			break;
 		}
+	}
+	if(index==-1)
+	{
+		std::cout<<"File "<<fname<<" did't found"<<std::endl;
 	}
 	FLOD.seekg(entries[index].offset,std::ios_base::beg);
 	if (entries[index].size==0) //file is not compressed
@@ -321,13 +299,7 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 	}
 	CPCXConv cp;
 	cp.openPCX((char*)pcx,entries[index].realSize);
-	//cp.convert();
-	//cp.saveBMP("vctemp.bmp");
-	//SDL_Surface * ret = SDL_LoadBMP("vctemp.bmp");
-	//boost::filesystem::path p("vctemp.bmp");
-	//boost::filesystem::remove(p);
 	return cp.getSurface();
-	//return ret;
 }
 
 int CLodHandler::decompress (unsigned char * source, int size, int realSize, std::string & dest)

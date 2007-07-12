@@ -331,7 +331,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			initTable[ss] = mapstr[ss];
 		}
-//#define CHOOSE
+#define CHOOSE
 #ifdef CHOOSE
 		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
 #else

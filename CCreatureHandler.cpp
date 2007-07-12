@@ -259,8 +259,19 @@ void CCreatureHandler::loadCreatures()
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
 			ncre.idNumber = creatures.size();
+			ncre.isDefinite = true;
 			creatures.push_back(ncre);
 		}
+	}
+	for(int bb=1; bb<8; ++bb)
+	{
+		CCreature ncre;
+		ncre.isDefinite = false;
+		ncre.indefLevel = bb;
+		ncre.indefUpgraded = false;
+		creatures.push_back(ncre);
+		ncre.indefUpgraded = true;
+		creatures.push_back(ncre);
 	}
 }
 

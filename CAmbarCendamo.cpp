@@ -482,8 +482,8 @@ void CAmbarCendamo::deh3m()
 		nobj.z = bufor[i++];
 		nobj.defNumber = readNormalNr(i, 4); i+=4;
 
-		if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
-			std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
+		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
+		//	std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
 
 		i+=5;
 		unsigned char buff [30];
@@ -1831,7 +1831,10 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	CCreatureSet ret;
 	if(number>0 && readNormalNr(pos, 2)!=0xffff)
 	{
-		ret.slot1 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos, 2)]);
+		int rettt = readNormalNr(pos, 2);
+		if(rettt>32768)
+			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+		ret.slot1 = &(CGameInfo::mainObj->creh->creatures[rettt]);
 		ret.s1 = readNormalNr(pos+2, 2);
 	}
 	else
@@ -1841,7 +1844,10 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	}
 	if(number>1 && readNormalNr(pos+4, 2)!=0xffff)
 	{
-		ret.slot2 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+4, 2)]);
+		int rettt = readNormalNr(pos+4, 2);
+		if(rettt>32768)
+			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+		ret.slot2 = &(CGameInfo::mainObj->creh->creatures[rettt]);
 		ret.s2 = readNormalNr(pos+6, 2);
 	}
 	else
@@ -1851,7 +1857,10 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	}
 	if(number>2 && readNormalNr(pos+8, 2)!=0xffff)
 	{
-		ret.slot3 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+8, 2)]);
+		int rettt = readNormalNr(pos+8, 2);
+		if(rettt>32768)
+			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+		ret.slot3 = &(CGameInfo::mainObj->creh->creatures[rettt]);
 		ret.s3 = readNormalNr(pos+10, 2);
 	}
 	else
@@ -1861,7 +1870,10 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	}
 	if(number>3 && readNormalNr(pos+12, 2)!=0xffff)
 	{
-		ret.slot4 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+12, 2)]);
+		int rettt = readNormalNr(pos+12, 2);
+		if(rettt>32768)
+			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+		ret.slot4 = &(CGameInfo::mainObj->creh->creatures[rettt]);
 		ret.s4 = readNormalNr(pos+14, 2);
 	}
 	else
@@ -1871,7 +1883,10 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	}
 	if(number>4 && readNormalNr(pos+16, 2)!=0xffff)
 	{
-		ret.slot5 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+16, 2)]);
+		int rettt = readNormalNr(pos+16, 2);
+		if(rettt>32768)
+			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+		ret.slot5 = &(CGameInfo::mainObj->creh->creatures[rettt]);
 		ret.s5 = readNormalNr(pos+18, 2);
 	}
 	else
@@ -1881,7 +1896,10 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	}
 	if(number>5 && readNormalNr(pos+20, 2)!=0xffff)
 	{
-		ret.slot6 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+20, 2)]);
+		int rettt = readNormalNr(pos+20, 2);
+		if(rettt>32768)
+			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+		ret.slot6 = &(CGameInfo::mainObj->creh->creatures[rettt]);
 		ret.s6 = readNormalNr(pos+22, 2);
 	}
 	else
@@ -1891,7 +1909,10 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	}
 	if(number>6 && readNormalNr(pos+24, 2)!=0xffff)
 	{
-		ret.slot7 = &(CGameInfo::mainObj->creh->creatures[readNormalNr(pos+24, 2)]);
+		int rettt = readNormalNr(pos+24, 2);
+		if(rettt>32768)
+			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+		ret.slot7 = &(CGameInfo::mainObj->creh->creatures[rettt]);
 		ret.s7 = readNormalNr(pos+26, 2);
 	}
 	else
