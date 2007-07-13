@@ -29,7 +29,10 @@ public:
 	int readNormalNr (int pos, int bytCon=4, bool cyclic = false); //read number from bytCon bytes starting from pos position in buffer ; if cyclic is true, number is treated as it were signed number with bytCon bytes
 	void teceDef (); // create files with info about defs
 	void deh3m(); // decode file, results are stored in map
-	void processMap(); //choose castles, creatures, resources, artifacts...
+	void processMap(std::vector<std::string> & defsToUnpack); //choose castles, creatures, resources, artifacts...
+	////
+	std::vector<std::string> resDefNames;
+	////
 	void loadDefs();
 	EDefType getDefType(DefInfo& a); //returns type of object in def
 	CCreatureSet readCreatureSet(int pos, int number = 7); //reads creature set in most recently encountered format; reades number units (default is 7)

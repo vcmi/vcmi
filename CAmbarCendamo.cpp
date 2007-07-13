@@ -455,20 +455,6 @@ void CAmbarCendamo::deh3m()
 
 		//teceDef();
 	}
-	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack);
-	for (int i=0;i<dhandlers.size();i++)
-		map.defy[i].handler=dhandlers[i];
-	for(int vv=0; vv<map.defy.size(); ++vv)
-	{
-		for(int yy=0; yy<map.defy[vv].handler->ourImages.size(); ++yy)
-		{
-			map.defy[vv].handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map.defy[vv].handler->ourImages[yy].bitmap);
-			SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[vv].handler->ourImages[yy].bitmap, alphaTransSurf);
-			SDL_FreeSurface(map.defy[vv].handler->ourImages[yy].bitmap);
-			map.defy[vv].handler->ourImages[yy].bitmap = bufs;
-		}
-	}
-	SDL_FreeSurface(alphaTransSurf);
 	THC std::cout<<"Reading defs: "<<th.getDif()<<std::endl;
 	////loading objects
 	int howManyObjs = readNormalNr(i, 4); i+=4;
@@ -1699,6 +1685,25 @@ void CAmbarCendamo::deh3m()
 	}//*/ //end of loading objects; commented to make application work until it will be finished
 	////objects loaded
 
+	processMap(defsToUnpack);
+	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack);
+	for (int i=0;i<dhandlers.size();i++)
+		map.defy[i].handler=dhandlers[i];
+	for(int vv=0; vv<map.defy.size(); ++vv)
+	{
+		if(map.defy[vv].handler->alphaTransformed)
+			continue;
+		for(int yy=0; yy<map.defy[vv].handler->ourImages.size(); ++yy)
+		{
+			map.defy[vv].handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map.defy[vv].handler->ourImages[yy].bitmap);
+			SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[vv].handler->ourImages[yy].bitmap, alphaTransSurf);
+			SDL_FreeSurface(map.defy[vv].handler->ourImages[yy].bitmap);
+			map.defy[vv].handler->ourImages[yy].bitmap = bufs;
+			map.defy[vv].handler->alphaTransformed = true;
+		}
+	}
+	SDL_FreeSurface(alphaTransSurf);
+
 	//loading events
 	int numberOfEvents = readNormalNr(i); i+=4;
 	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)
@@ -1923,7 +1928,47 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	return ret;
 }
 
-void CAmbarCendamo::processMap()
+void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 {
-	//for(int j=0;)
+	resDefNames.push_back("AVTRNDM0.DEF");
+	resDefNames.push_back("AVTWOOD0.DEF");
+	resDefNames.push_back("AVTMERC0.DEF");
+	resDefNames.push_back("AVTORE0.DEF");
+	resDefNames.push_back("AVTSULF0.DEF");
+	resDefNames.push_back("AVTCRYS0.DEF");
+	resDefNames.push_back("AVTGEMS0.DEF");
+	resDefNames.push_back("AVTGOLD0.DEF");
+	resDefNames.push_back("ZMITHR.DEF");
+	for(int j=0; j<CGI->objh->objInstances.size(); ++j)
+	{
+		DefInfo & curDef = map.defy[CGI->objh->objInstances[j].defNumber];
+		switch(getDefType(curDef))
+		{
+		case EDefType::RESOURCE_DEF:
+			{
+				if(curDef.bytes[16]==76) //resource to specify
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 79;
+					nxt.bytes[20] = rand()%7;
+					nxt.name = resDefNames[nxt.bytes[20]+1];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+				}
+				break;
+			}
+		}
+	}
 }

@@ -424,6 +424,7 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 			FLOD.read((char*)outp, entries[i].realSize);
 			CDefHandler * nh = new CDefHandler;
 			nh->openFromMemory(outp, entries[i].realSize, std::string((char*)entries[i].name));
+			nh->alphaTransformed = false;
 			ret[curDef] = nh;
 		}
 		else //we will decompressing file
@@ -435,6 +436,7 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 			int decRes = infs2(outp, entries[i].size, entries[i].realSize, decomp);
 			CDefHandler * nh = new CDefHandler;
 			nh->openFromMemory(decomp, entries[i].realSize, std::string((char*)entries[i].name));
+			nh->alphaTransformed = false;
 			ret[curDef] = nh;
 		}
 		delete outp;
