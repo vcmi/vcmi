@@ -242,7 +242,19 @@ public:
 			return (a.lossCondition.typeOfLossCon<b.lossCondition.typeOfLossCon);
 			break;
 		case ESortBy::playerAm:
-			//TODO
+			int playerAmntB,humenPlayersB,playerAmntA,humenPlayersA;
+			playerAmntB=humenPlayersB=playerAmntA=humenPlayersA=0;
+			for (int i=0;i<8;i++)
+			{
+				if (a.players[i].canHumanPlay) {playerAmntA++;humenPlayersA++;}
+				else if (a.players[i].canComputerPlay) {playerAmntA++;}
+				if (b.players[i].canHumanPlay) {playerAmntB++;humenPlayersB++;}
+				else if (b.players[i].canComputerPlay) {playerAmntB++;}
+			}
+			if (playerAmntB!=playerAmntA)
+				return (playerAmntA<playerAmntB);
+			else
+				return (humenPlayersA<humenPlayersB);
 			break;
 		case ESortBy::size:
 			return (a.width<b.width);

@@ -26,12 +26,18 @@ template <class T=ttt> struct Button: public OverButton
 	CGroup<T> * ourGroup;
 	Button( SDL_Rect Pos, T Fun,CDefHandler* Imgs, bool Sel=false, CGroup<T>* gr=NULL, int id=-1)
 		:fun(Fun),ourGroup(gr){type=0;imgs=Imgs;selectable=Sel;selected=false;state=0;pos=Pos;ID=id;};
-	Button(){};
+	Button(){ourGroup=NULL;};
 	bool selectable, selected;
 	bool highlightable, highlighted;
 	virtual	void hover(bool on=true);
 	virtual void select(bool on=true);
 };	
+template <class T=ttt> struct SetrButton: public Button<T>
+{
+	int key, * poin;
+	virtual void press(bool down=true);
+	SetrButton(){type=0;selectable=selected=false;state=0;}
+};
 template<class T=CPreGame>  class Slider
 { //
 public:

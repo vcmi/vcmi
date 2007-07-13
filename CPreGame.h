@@ -16,9 +16,11 @@ struct RanSel
 			size[4], twoLevel, showRand;
 	CGroup<> *Ghorcpl, *Ghorcte, *Gconpl, *Gconte, *Gwater, *Gmonster, *Gsize;
 };
+
 class MapSel
 {
 public:
+	ESortBy sortBy;
 	bool showed;
 	SDL_Surface * bg;
 	int selected;
@@ -29,7 +31,7 @@ public:
 	int current;
 	std::vector<CMapInfo> ourMaps;
 	IntBut<> small, medium, large, xlarge, all;
-	Button<> nrplayer, mapsize, type, name, viccon, loscon;
+	SetrButton<> nrplayer, mapsize, type, name, viccon, loscon;
 	Slider<>  *slid, *descslid;
 	int sizeFilter;
 	int whichWL(int nr);
@@ -110,6 +112,7 @@ public:
 	void showAskBox (std::string data, void(*f1)(),void(*f2)());
 	void hideBox ();
 	void printMapsFrom(int from);
+	void sortMaps();
 };
 
 #endif //CPREGAME_H
