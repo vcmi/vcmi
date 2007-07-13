@@ -1922,3 +1922,8 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 	}
 	return ret;
 }
+
+void CAmbarCendamo::processMap()
+{
+	//for(int j=0;)
+}
