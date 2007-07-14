@@ -7,6 +7,8 @@
 #include "SDL_Extensions.h"
 #include "boost\filesystem.hpp"
 #include <set>
+#include <iomanip>
+#include <sstream>
 #define CGI (CGameInfo::mainObj)
 
 unsigned int intPow(unsigned int a, unsigned int b)
@@ -1939,9 +1941,54 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 	resDefNames.push_back("AVTGEMS0.DEF");
 	resDefNames.push_back("AVTGOLD0.DEF");
 	resDefNames.push_back("ZMITHR.DEF");
+
+	std::vector<int> resDefNumbers;
+	for(int hh=0; hh<resDefNames.size(); ++hh)
+	{
+		resDefNumbers.push_back(-1);
+		for(int k=0; k<map.defy.size(); ++k)
+		{
+			std::string buf = map.defy[k].name;
+			std::transform(buf.begin(), buf.end(), buf.begin(), (int(*)(int))toupper);
+			if(resDefNames[hh] == buf)
+			{
+				resDefNumbers[resDefNumbers.size()-1] = k;
+				break;
+			}
+		}
+	}
+	std::vector<std::string> creDefNames;
+	for(int dd=0; dd<140; ++dd) //we do not use here WoG units
+	{
+		creDefNames.push_back(CGI->dobjinfo->objs[dd+1184].defName);
+	}
+	std::vector<int> creDefNumbers;
+	for(int ee=0; ee<creDefNames.size(); ++ee)
+	{
+		creDefNumbers.push_back(-1);
+	}
+	std::vector<std::string> artDefNames;
+	std::vector<int> artDefNumbers;
+	for(int bb=0; bb<127; ++bb)
+	{
+		if(bb>0 && bb<8)
+			continue;
+		std::ostringstream out;
+		out<<"AVA";
+		out<<std::setw(4)<<std::setfill('0');
+		out<<bb;
+		out<<".DEF";
+		artDefNames.push_back(out.str());
+	}
+	for(int ee=0; ee<artDefNames.size(); ++ee)
+	{
+		artDefNumbers.push_back(-1);
+	}
+
+	//variables initialized
 	for(int j=0; j<CGI->objh->objInstances.size(); ++j)
 	{
-		DefInfo & curDef = map.defy[CGI->objh->objInstances[j].defNumber];
+		DefInfo curDef = map.defy[CGI->objh->objInstances[j].defNumber];
 		switch(getDefType(curDef))
 		{
 		case EDefType::RESOURCE_DEF:
@@ -1951,6 +1998,11 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					DefInfo nxt = curDef;
 					nxt.bytes[16] = 79;
 					nxt.bytes[20] = rand()%7;
+					if(resDefNumbers[nxt.bytes[20]+1]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = resDefNumbers[nxt.bytes[20]+1];
+						continue;
+					}
 					nxt.name = resDefNames[nxt.bytes[20]+1];
 					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
 						nxt.name);
@@ -1966,9 +2018,291 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
 					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(resDefNumbers[nxt.bytes[20]+1]==-1)
+					{
+						resDefNumbers[nxt.bytes[20]+1] = map.defy.size()-1;
+					}
 				}
 				break;
 			}
-		}
-	}
+		case EDefType::CREATURES_DEF:
+			{
+				if(curDef.bytes[16]==72) //random monster lvl 1
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 54;
+					nxt.bytes[20] = 14*(rand()%9)+rand()%2;
+					if(creDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = creDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creDefNumbers[nxt.bytes[20]]==-1)
+					{
+						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==73) //random monster lvl 2
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 54;
+					nxt.bytes[20] = 14*(rand()%9)+rand()%2+2;
+					if(creDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = creDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creDefNumbers[nxt.bytes[20]]==-1)
+					{
+						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==74) //random monster lvl 3
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 54;
+					nxt.bytes[20] = 14*(rand()%9)+rand()%2+4;
+					if(creDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = creDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creDefNumbers[nxt.bytes[20]]==-1)
+					{
+						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==75) //random monster lvl 4
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 54;
+					nxt.bytes[20] = 14*(rand()%9)+rand()%2+6;
+					if(creDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = creDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creDefNumbers[nxt.bytes[20]]==-1)
+					{
+						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==162) //random monster lvl 5
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 54;
+					nxt.bytes[20] = 14*(rand()%9)+rand()%2+8;
+					if(creDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = creDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creDefNumbers[nxt.bytes[20]]==-1)
+					{
+						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==163) //random monster lvl 6
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 54;
+					nxt.bytes[20] = 14*(rand()%9)+rand()%2+10;
+					if(creDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = creDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creDefNumbers[nxt.bytes[20]]==-1)
+					{
+						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==164) //random monster lvl 7
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 54;
+					nxt.bytes[20] = 14*(rand()%9)+rand()%2+12;
+					if(creDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = creDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creDefNumbers[nxt.bytes[20]]==-1)
+					{
+						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==71) //random monster (any level)
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 54;
+					nxt.bytes[20] = rand()%126;
+					if(creDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = creDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creDefNumbers[nxt.bytes[20]]==-1)
+					{
+						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				break;
+			} //end of case
+		case EDefType::ARTIFACT_DEF:
+			{
+				if(curDef.bytes[16]==65) //random atrifact (any class)
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 5;
+					nxt.bytes[20] = rand()%artDefNames.size();
+					if(artDefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = artDefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = artDefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(artDefNumbers[nxt.bytes[20]]==-1)
+					{
+						artDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				break;
+			}
+		} //end of main switch
+	} //end of main loop
 }
