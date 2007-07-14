@@ -230,22 +230,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		ekran = screen;
-		//FILE * zr = fopen("mal.txt","r");
-		//FILE * ko = fopen("wyn.txt","w");
-		//FILE * kodd = fopen("kod.txt","r");
-		//FILE * deko = fopen("dekod.txt","w");
-		//def(zr,ko,1);
-		//inf(kodd, deko);
-		//fclose(ko);fclose(zr);
-		//for (int i=0;i<=20;i++)
-		//{
-		//	zr = fopen("kod2.txt","r");
-		//	char c [200];
-		//	sprintf(c,"wyn%d.txt",i);
-		//	ko = fopen(c,"w");
-		//	def(zr,ko,i);
-		//	fclose(ko);fclose(zr);
-		//}
+
 		SDL_WM_SetCaption(NAME,""); //set window title
 		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 		CGameInfo::mainObj = cgi;
@@ -255,6 +240,30 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->spriteh->init(std::string("newH3sprite.lod"));
 		cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init(std::string("newH3bitmap.lod"));
+
+		//colors initialization
+		SDL_Color p;
+		p.unused = 0;
+		p.r = 0xff; p.g = 0x0; p.b = 0x0; //red
+		cgi->playerColors.push_back(p); //red
+		p.r = 0x31; p.g = 0x52; p.b = 0xff; //blue
+		cgi->playerColors.push_back(p); //blue
+		p.r = 0x9c; p.g = 0x73; p.b = 0x52;//tan
+		cgi->playerColors.push_back(p);//tan
+		p.r = 0x42; p.g = 0x94; p.b = 0x29; //green
+		cgi->playerColors.push_back(p); //green
+		p.r = 0xff; p.g = 0x84; p.b = 0x0; //orange
+		cgi->playerColors.push_back(p); //orange
+		p.r = 0x8c; p.g = 0x29; p.b = 0xa5; //purple
+		cgi->playerColors.push_back(p); //purple
+		p.r = 0x09; p.g = 0x9c; p.b = 0xa5;//teal
+		cgi->playerColors.push_back(p);//teal
+		p.r = 0xc6; p.g = 0x7b; p.b = 0x8c;//pink
+		cgi->playerColors.push_back(p);//pink
+		p.r = 0x84; p.g = 0x84; p.b = 0x84;//gray
+		cgi->neutralColor = p;//gray
+		//colors initialized
+
 		THC std::cout<<"Loading .lods: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;

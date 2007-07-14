@@ -22,6 +22,8 @@ namespace CSDL_Ext
 	void printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
 	void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
 	void update(SDL_Surface * what = ekran); //updates whole surface (default - main screen)
+	void blueToPlayers(SDL_Surface * sur, int player); //simple color substitution
+	void blueToPlayersAdv(SDL_Surface * sur, int player); //substitute blue color by another one, makes it nicer keeping nuances
 };
 
 #endif // SDL_EXTENSIONS_H

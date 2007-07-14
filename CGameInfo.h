@@ -14,6 +14,8 @@
 #include "CDefObjInfoHandler.h"
 #include "CLodHandler.h"
 #include "CGeneralTextHandler.h"
+#include "SDL.h"
+#include <vector>
 
 /*
 	CGameInfo class
@@ -37,6 +39,8 @@ public:
 	CLodHandler * spriteh;
 	CLodHandler * bitmaph;
 	CGeneralTextHandler * generaltexth;
+	std::vector<SDL_Color> playerColors;
+	SDL_Color neutralColor;
 };
 
 #endif //CGAMEINFO_H

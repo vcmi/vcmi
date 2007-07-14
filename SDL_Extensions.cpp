@@ -1,7 +1,10 @@
 #include "stdafx.h"
 #include "SDL_Extensions.h"
 #include "SDL_TTF.h"
+#include "CGameInfo.h"
 #include <iostream>
+#include <utility>
+#include <algorithm>
 
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
@@ -438,3 +441,86 @@ void CSDL_Ext::update(SDL_Surface * what)
 {
 	SDL_UpdateRect(what, 0, 0, what->w, what->h);
 }
+
+void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
+{
+	if(sur->format->BitsPerPixel == 8)
+	{
+		for(int i=0; i<sur->format->palette->ncolors; ++i)
+		{
+			SDL_Color * cc = sur->format->palette->colors+i;
+			if(cc->r==0 && cc->g==0 && cc->b==255)
+			{
+				cc->r = CGameInfo::mainObj->playerColors[player].r;
+				cc->g = CGameInfo::mainObj->playerColors[player].g;
+				cc->b = CGameInfo::mainObj->playerColors[player].b;
+			}
+		}
+	}
+	else if(sur->format->BitsPerPixel == 24)
+	{
+		for(int y=0; y<sur->h; ++y)
+		{
+			for(int x=0; x<sur->w; ++x)
+			{
+				Uint8* cp = (Uint8*)sur->pixels + y+sur->pitch + x*3;
+				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+				{
+					if(cp[0]==0 && cp[1]==0 && cp[2]==255)
+					{
+						cp[0] = CGameInfo::mainObj->playerColors[player].r;
+						cp[1] = CGameInfo::mainObj->playerColors[player].g;
+						cp[2] = CGameInfo::mainObj->playerColors[player].b;
+					}
+				}
+				else
+				{
+					
+					if(cp[0]==255 && cp[1]==0 && cp[2]==0)
+					{
+						cp[0] = CGameInfo::mainObj->playerColors[player].b;
+						cp[1] = CGameInfo::mainObj->playerColors[player].g;
+						cp[2] = CGameInfo::mainObj->playerColors[player].r;
+					}
+				}
+			}
+		}
+	}
+}
+
+void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player)
+{
+	if(sur->format->BitsPerPixel == 8)
+	{
+		for(int i=0; i<sur->format->palette->ncolors; ++i)
+		{
+			SDL_Color * cc = sur->format->palette->colors+i;
+			if(cc->b>cc->g && cc->b>cc->r)
+			{
+				std::vector<long long int> sort1;
+				sort1.push_back(cc->r);
+				sort1.push_back(cc->g);
+				sort1.push_back(cc->b);
+				std::vector< std::pair<long long int, Uint8*> > sort2;
+				sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].r, &(cc->r)));
+				sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].g, &(cc->g)));
+				sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].b, &(cc->b)));
+				std::sort(sort1.begin(), sort1.end());
+				if(sort2[0].first>sort2[1].first)
+					std::swap(sort2[0], sort2[1]);
+				if(sort2[1].first>sort2[2].first)
+					std::swap(sort2[1], sort2[2]);
+				if(sort2[0].first>sort2[1].first)
+					std::swap(sort2[0], sort2[1]);
+				for(int hh=0; hh<3; ++hh)
+				{
+					(*sort2[hh].second) = (sort1[hh] + sort2[hh].first)/2;
+				}
+			}
+		}
+	}
+	else if(sur->format->BitsPerPixel == 24)
+	{
+	}
+}
+
