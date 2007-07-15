@@ -514,13 +514,70 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player)
 					std::swap(sort2[0], sort2[1]);
 				for(int hh=0; hh<3; ++hh)
 				{
-					(*sort2[hh].second) = (sort1[hh] + sort2[hh].first)/2;
+					(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
 				}
 			}
 		}
 	}
 	else if(sur->format->BitsPerPixel == 24)
 	{
+		for(int y=0; y<sur->h; ++y)
+		{
+			for(int x=0; x<sur->w; ++x)
+			{
+				Uint8* cp = (Uint8*)sur->pixels + y+sur->pitch + x*3;
+				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+				{
+					if(cp[2]>cp[1] && cp[2]>cp[0])
+					{
+						std::vector<long long int> sort1;
+						sort1.push_back(cp[0]);
+						sort1.push_back(cp[1]);
+						sort1.push_back(cp[2]);
+						std::vector< std::pair<long long int, Uint8*> > sort2;
+						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].r, &(cp[0])));
+						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].g, &(cp[1])));
+						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].b, &(cp[2])));
+						std::sort(sort1.begin(), sort1.end());
+						if(sort2[0].first>sort2[1].first)
+							std::swap(sort2[0], sort2[1]);
+						if(sort2[1].first>sort2[2].first)
+							std::swap(sort2[1], sort2[2]);
+						if(sort2[0].first>sort2[1].first)
+							std::swap(sort2[0], sort2[1]);
+						for(int hh=0; hh<3; ++hh)
+						{
+							(*sort2[hh].second) = (sort1[hh] + sort2[hh].first)/2.2;
+						}
+					}
+				}
+				else
+				{
+					if(cp[0]>cp[1] && cp[0]>cp[2])
+					{
+						std::vector<long long int> sort1;
+						sort1.push_back(cp[2]);
+						sort1.push_back(cp[1]);
+						sort1.push_back(cp[0]);
+						std::vector< std::pair<long long int, Uint8*> > sort2;
+						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].r, &(cp[2])));
+						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].g, &(cp[1])));
+						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].b, &(cp[0])));
+						std::sort(sort1.begin(), sort1.end());
+						if(sort2[0].first>sort2[1].first)
+							std::swap(sort2[0], sort2[1]);
+						if(sort2[1].first>sort2[2].first)
+							std::swap(sort2[1], sort2[2]);
+						if(sort2[0].first>sort2[1].first)
+							std::swap(sort2[0], sort2[1]);
+						for(int hh=0; hh<3; ++hh)
+						{
+							(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
+						}
+					}
+				}
+			}
+		}
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "SDL_mixer.h"
 #include "CBuildingHandler.h"
 #include "SDL_Extensions.h"
+#include "SDL_framerate.h"
 #include <cmath>
 #include <stdio.h>
 #include <string.h>
@@ -267,6 +268,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Loading .lods: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
+		//CMessage * ll = new CMessage;
+		//CSDL_Ext::blueToPlayersAdv(ll->piecesOfBox[0].ourImages[0].bitmap, 0);
+		//SDL_SaveBMP(ll->piecesOfBox[0].ourImages[0].bitmap, "test2.bmp");
 		cpg->mush = mush;
 		cpg->runLoop();
 		THC tmh.getDif();
@@ -374,7 +378,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		bool scrollingUp = false;
 		bool scrollingDown = false;
 		bool updateScreen = false;
-		unsigned char animVal=0; //for animations handling
+		unsigned char animVal = 0; //for animations handling
+		unsigned char animValHitCount = 0; //for slower animations
+		//initializing framerate keeper
+		FPSmanager * mainLoopFramerateKeeper = new FPSmanager;
+		SDL_initFramerate(mainLoopFramerateKeeper);
+		SDL_setFramerate(mainLoopFramerateKeeper, 30);
+		//framerate keeper initialized
 		for(;;) // main loop
 		{
 			try
@@ -535,9 +545,15 @@ int _tmain(int argc, _TCHAR* argv[])
 			{ continue; }
 
 			updateScreen = true;
-			++animVal; //for animations
+			++animValHitCount; //for animations
+			if(animValHitCount == 2)
+			{
+				animValHitCount = 0;
+				++animVal;
+			}
 
-			SDL_Delay(30); //give time for other apps
+			SDL_Delay(5); //give time for other apps
+			SDL_framerateDelay(mainLoopFramerateKeeper);
 		}
 		return 0;
 	}
