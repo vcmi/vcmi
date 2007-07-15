@@ -1969,20 +1969,62 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 	}
 	std::vector<std::string> artDefNames;
 	std::vector<int> artDefNumbers;
-	for(int bb=0; bb<127; ++bb)
+	for(int bb=0; bb<162; ++bb)
 	{
-		if(bb>0 && bb<8)
-			continue;
-		std::ostringstream out;
-		out<<"AVA";
-		out<<std::setw(4)<<std::setfill('0');
-		out<<bb;
-		out<<".DEF";
-		artDefNames.push_back(out.str());
+		if(CGI->arth->artifacts[CGI->dobjinfo->objs[bb+213].subtype].aClass!=EartClass::SartClass)
+		artDefNames.push_back(CGI->dobjinfo->objs[bb+213].defName);
 	}
 	for(int ee=0; ee<artDefNames.size(); ++ee)
 	{
 		artDefNumbers.push_back(-1);
+	}
+	
+	std::vector<std::string> art1DefNames;
+	std::vector<int> art1DefNumbers;
+	for(int bb=0; bb<162; ++bb)
+	{
+		if(CGI->arth->artifacts[CGI->dobjinfo->objs[bb+213].subtype].aClass==EartClass::TartClass)
+			art1DefNames.push_back(CGI->dobjinfo->objs[bb+213].defName);
+	}
+	for(int ee=0; ee<art1DefNames.size(); ++ee)
+	{
+		art1DefNumbers.push_back(-1);
+	}
+	
+	std::vector<std::string> art2DefNames;
+	std::vector<int> art2DefNumbers;
+	for(int bb=0; bb<162; ++bb)
+	{
+		if(CGI->arth->artifacts[CGI->dobjinfo->objs[bb+213].subtype].aClass==EartClass::NartClass)
+			art2DefNames.push_back(CGI->dobjinfo->objs[bb+213].defName);
+	}
+	for(int ee=0; ee<art2DefNames.size(); ++ee)
+	{
+		art2DefNumbers.push_back(-1);
+	}
+
+	std::vector<std::string> art3DefNames;
+	std::vector<int> art3DefNumbers;
+	for(int bb=0; bb<162; ++bb)
+	{
+		if(CGI->arth->artifacts[CGI->dobjinfo->objs[bb+213].subtype].aClass==EartClass::JartClass)
+			art3DefNames.push_back(CGI->dobjinfo->objs[bb+213].defName);
+	}
+	for(int ee=0; ee<art3DefNames.size(); ++ee)
+	{
+		art3DefNumbers.push_back(-1);
+	}
+
+	std::vector<std::string> art4DefNames;
+	std::vector<int> art4DefNumbers;
+	for(int bb=0; bb<162; ++bb)
+	{
+		if(CGI->arth->artifacts[CGI->dobjinfo->objs[bb+213].subtype].aClass==EartClass::RartClass)
+			art4DefNames.push_back(CGI->dobjinfo->objs[bb+213].defName);
+	}
+	for(int ee=0; ee<art4DefNames.size(); ++ee)
+	{
+		art4DefNumbers.push_back(-1);
 	}
 
 	//variables initialized
@@ -2299,6 +2341,126 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					if(artDefNumbers[nxt.bytes[20]]==-1)
 					{
 						artDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==66) //random atrifact (treasure)
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 5;
+					nxt.bytes[20] = rand()%art1DefNames.size();
+					if(art1DefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = art1DefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = art1DefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(art1DefNumbers[nxt.bytes[20]]==-1)
+					{
+						art1DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==67) //random atrifact (minor)
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 5;
+					nxt.bytes[20] = rand()%art2DefNames.size();
+					if(art2DefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = art2DefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = art2DefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(art2DefNumbers[nxt.bytes[20]]==-1)
+					{
+						art2DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==68) //random atrifact (major)
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 5;
+					nxt.bytes[20] = rand()%art3DefNames.size();
+					if(art3DefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = art3DefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = art3DefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(art3DefNumbers[nxt.bytes[20]]==-1)
+					{
+						art3DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				if(curDef.bytes[16]==69) //random atrifact (relic)
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 5;
+					nxt.bytes[20] = rand()%art4DefNames.size();
+					if(art4DefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = art4DefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = art4DefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(art4DefNumbers[nxt.bytes[20]]==-1)
+					{
+						art4DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
 					}
 				}
 				break;
