@@ -293,9 +293,9 @@ void CAmbarCendamo::deh3m()
 			if((i-ist)*8+yy < CGameInfo::mainObj->heroh->heroes.size())
 			{
 				if(c == (c|((unsigned char)intPow(2, yy))))
-					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy].isAllowed = true;
+					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy]->isAllowed = true;
 				else
-					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy].isAllowed = false;
+					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy]->isAllowed = false;
 			}
 		}
 	}
@@ -564,7 +564,7 @@ void CAmbarCendamo::deh3m()
 				spec->bytes[2] = bufor[i]; ++i;
 				spec->bytes[3] = bufor[i]; ++i;
 				spec->player = bufor[i]; ++i;
-				spec->type = &(CGameInfo::mainObj->heroh->heroes[readNormalNr(i, 1)]); ++i;
+				spec->type = CGameInfo::mainObj->heroh->heroes[readNormalNr(i, 1)]; ++i;
 				bool isName = bufor[i]; ++i; //true if hero has nonstandard name
 				if(isName)
 				{
@@ -978,7 +978,7 @@ void CAmbarCendamo::deh3m()
 				case 8:
 					{
 						int heroType = bufor[i]; ++i;
-						spec->m8hero = &(CGameInfo::mainObj->heroh->heroes[heroType]);
+						spec->m8hero = CGameInfo::mainObj->heroh->heroes[heroType];
 						int limit = readNormalNr(i); i+=4;
 						if(limit == ((int)0xffffffff))
 						{
@@ -1629,7 +1629,7 @@ void CAmbarCendamo::deh3m()
 				case 8:
 					{
 						int heroType = bufor[i]; ++i;
-						spec->m8hero = &(CGameInfo::mainObj->heroh->heroes[heroType]);
+						spec->m8hero = CGameInfo::mainObj->heroh->heroes[heroType];
 						int limit = readNormalNr(i); i+=4;
 						if(limit == ((int)0xffffffff))
 						{

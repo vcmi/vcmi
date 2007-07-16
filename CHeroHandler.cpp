@@ -14,9 +14,40 @@ void CHeroHandler::loadHeroes()
 		inp>>dump;
 	}
 	inp.ignore();
+	int numberOfCurrentClassHeroes = 0;
+	int currentClass = 0;
+	int additHero = 0;
+	EHeroClasses addTab[12];
+	addTab[0] = HERO_KNIGHT;
+	addTab[1] = HERO_WITCH;
+	addTab[2] = HERO_KNIGHT;
+	addTab[3] = HERO_WIZARD;
+	addTab[4] = HERO_RANGER;
+	addTab[5] = HERO_BARBARIAN;
+	addTab[6] = HERO_DEATHKNIGHT;
+	addTab[7] = HERO_WARLOCK;
+	addTab[8] = HERO_KNIGHT;
+	addTab[9] = HERO_WARLOCK;
+	addTab[10] = HERO_BARBARIAN;
+	addTab[11] = HERO_DEMONIAC;
+
 	while(!inp.eof())
 	{
-		CHero nher;
+		CHero * nher = new CHero;
+		if(currentClass<18)
+		{
+			nher->heroType = (EHeroClasses)currentClass;
+			++numberOfCurrentClassHeroes;
+			if(numberOfCurrentClassHeroes==8)
+			{
+				numberOfCurrentClassHeroes = 0;
+				++currentClass;
+			}
+		}
+		else
+		{
+			nher->heroType = addTab[additHero++];
+		}
 		std::string base;
 		char * tab = new char[500];
 		int iit = 0;
@@ -27,6 +58,7 @@ void CHeroHandler::loadHeroes()
 			loadSpecialAbilities();
 			loadBiographies();
 			loadHeroClasses();
+			initHeroClasses();
 			inp.close();
 			return;
 		}
@@ -34,13 +66,13 @@ void CHeroHandler::loadHeroes()
 		{
 			++iit;
 		}
-		nher.name = base.substr(0, iit);
+		nher->name = base.substr(0, iit);
 		++iit;
 		for(int i=iit; i<iit+100; ++i)
 		{
 			if(base[i]==(char)(10) || base[i]==(char)(9))
 			{
-				nher.low1stack = atoi(base.substr(iit, i).c_str());
+				nher->low1stack = atoi(base.substr(iit, i).c_str());
 				iit=i+1;
 				break;
 			}
@@ -49,7 +81,7 @@ void CHeroHandler::loadHeroes()
 		{
 			if(base[i]==(char)(10) || base[i]==(char)(9))
 			{
-				nher.high1stack = atoi(base.substr(iit, i).c_str());
+				nher->high1stack = atoi(base.substr(iit, i).c_str());
 				iit=i+1;
 				break;
 			}
@@ -59,13 +91,13 @@ void CHeroHandler::loadHeroes()
 		{
 			++ipom;
 		}
-		nher.refType1stack = base.substr(iit, ipom-iit);
+		nher->refType1stack = base.substr(iit, ipom-iit);
 		iit=ipom+1;
 		for(int i=iit; i<iit+100; ++i)
 		{
 			if(base[i]==(char)(10) || base[i]==(char)(9))
 			{
-				nher.low2stack = atoi(base.substr(iit, i-iit).c_str());
+				nher->low2stack = atoi(base.substr(iit, i-iit).c_str());
 				iit=i+1;
 				break;
 			}
@@ -74,7 +106,7 @@ void CHeroHandler::loadHeroes()
 		{
 			if(base[i]==(char)(10) || base[i]==(char)(9))
 			{
-				nher.high2stack = atoi(base.substr(iit, i-iit).c_str());
+				nher->high2stack = atoi(base.substr(iit, i-iit).c_str());
 				iit=i+1;
 				break;
 			}
@@ -84,13 +116,13 @@ void CHeroHandler::loadHeroes()
 		{
 			++ipom;
 		}
-		nher.refType2stack = base.substr(iit, ipom-iit);
+		nher->refType2stack = base.substr(iit, ipom-iit);
 		iit=ipom+1;
 		for(int i=iit; i<iit+100; ++i)
 		{
 			if(base[i]==(char)(10) || base[i]==(char)(9))
 			{
-				nher.low3stack = atoi(base.substr(iit, i-iit).c_str());
+				nher->low3stack = atoi(base.substr(iit, i-iit).c_str());
 				iit=i+1;
 				break;
 			}
@@ -99,13 +131,13 @@ void CHeroHandler::loadHeroes()
 		{
 			if(base[i]==(char)(10) || base[i]==(char)(9))
 			{
-				nher.high3stack = atoi(base.substr(iit, i-iit).c_str());
+				nher->high3stack = atoi(base.substr(iit, i-iit).c_str());
 				iit=i+1;
 				break;
 			}
 		}
-		nher.refType3stack = base.substr(iit, base.size()-iit);
-		nher.ID=ID++;
+		nher->refType3stack = base.substr(iit, base.size()-iit);
+		nher->ID=ID++;
 		heroes.push_back(nher);
 		delete[500] tab;
 	}
@@ -138,11 +170,11 @@ void CHeroHandler::loadSpecialAbilities()
 		{
 			++iit;
 		}
-		heroes[whHero].bonusName = base.substr(0, iit);
+		heroes[whHero]->bonusName = base.substr(0, iit);
 		++iit;
 		iitBef=iit;
 
-		if(heroes[whHero].bonusName == std::string("Ogry"))
+		if(heroes[whHero]->bonusName == std::string("Ogry"))
 		{
 			char * tab2 = new char[500];
 			inp.getline(tab2, 500);
@@ -154,7 +186,7 @@ void CHeroHandler::loadSpecialAbilities()
 		{
 			++iit;
 		}
-		heroes[whHero].shortBonus = base.substr(iitBef, iit-iitBef);
+		heroes[whHero]->shortBonus = base.substr(iitBef, iit-iitBef);
 		++iit;
 		iitBef=iit;
 
@@ -162,7 +194,7 @@ void CHeroHandler::loadSpecialAbilities()
 		{
 			++iit;
 		}
-		heroes[whHero].longBonus = base.substr(iitBef, iit-iitBef);
+		heroes[whHero]->longBonus = base.substr(iitBef, iit-iitBef);
 		++whHero;
 		delete [500] tab;
 	}
@@ -189,7 +221,7 @@ void CHeroHandler::loadBiographies()
 			if(buf[i]=='\r')
 				break;
 		}
-		heroes[q].biography = buf.substr(befi, i-befi);
+		heroes[q]->biography = buf.substr(befi, i-befi);
 		i+=2;
 	}
 }
@@ -344,7 +376,7 @@ void CHeroHandler::loadHeroClasses()
 		hc->proKnowledge[1] = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
-		CHero kkk = heroes[0];
+		//CHero kkk = heroes[0];
 
 		for(int dd=0; dd<CGameInfo::mainObj->abilh->abilities.size(); ++dd)
 		{
@@ -372,5 +404,13 @@ void CHeroHandler::loadHeroClasses()
 		}
 		++i;
 		heroClasses.push_back(hc);
+	}
+}
+
+void CHeroHandler::initHeroClasses()
+{
+	for(int gg=0; gg<heroes.size(); ++gg)
+	{
+		heroes[gg]->heroClass = heroClasses[heroes[gg]->heroType];
 	}
 }

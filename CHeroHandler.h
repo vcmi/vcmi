@@ -4,9 +4,10 @@
 #include <string>
 #include <vector>
 #include "CCreatureHandler.h"
-#include "nodrze.h"
 
 class CHeroClass;
+
+enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HREO_ALCHEMIST, HERO_WIZARD, HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD, HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
 
 class CHero
 {
@@ -19,7 +20,8 @@ public:
 	std::string biography; //biography, of course
 	bool isAllowed; //true if we can play with this hero (depends on map)
 	CHeroClass * heroClass;
-	bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
+	EHeroClasses heroType; //hero class
+	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 };
 
 class CHeroClass
@@ -48,12 +50,13 @@ public:
 class CHeroHandler
 {
 public:
-	nodrze<CHero> heroes; //by³o nodrze
+	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
 	void loadHeroes();
 	void loadSpecialAbilities();
 	void loadBiographies();
 	void loadHeroClasses();
+	void initHeroClasses();
 };
 
 

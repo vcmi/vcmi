@@ -24,6 +24,7 @@ namespace CSDL_Ext
 	void update(SDL_Surface * what = ekran); //updates whole surface (default - main screen)
 	void blueToPlayers(SDL_Surface * sur, int player); //simple color substitution
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //substitute blue color by another one, makes it nicer keeping nuances
+	void setPlayerColor(SDL_Surface * sur, int player); //sets correct color of flags; -1 for neutral
 };
 
 #endif // SDL_EXTENSIONS_H
