@@ -1,17 +1,11 @@
 #include "stdafx.h"
+#include "CGameInfo.h"
 #include "CBuildingHandler.h"
 
 void CBuildingHandler::loadBuildings()
 {
-	std::ifstream inp("H3bitmap.lod\\BUILDING.TXT", std::ios::in | std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("BUILDING.TXT");
+	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;
 	for(i; i<andame; ++i) //omitting rubbish
@@ -24,7 +18,7 @@ void CBuildingHandler::loadBuildings()
 	i+=2;
 	EbuildingType currType; //current type of building
 	bool currDwel = false; //true, if we are reading dwellings
-	while(!inp.eof())
+	while(true)
 	{
 		CBuilding nbu; //currently read building
 		if(buildings.size()>200 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
@@ -255,15 +249,8 @@ void CBuildingHandler::loadBuildings()
 
 void CBuildingHandler::loadNames()
 {
-	std::ifstream inp("H3bitmap.lod\\BLDGSPEC.TXT", std::ios::in | std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("BLDGSPEC.TXT");
+	int andame = buf.size();
 	int i=0; //buf iterator
 	for(int ii=0; ii<9; ++ii)
 	{
@@ -519,15 +506,8 @@ void CBuildingHandler::loadNames()
 
 void CBuildingHandler::loadNeutNames()
 {
-	std::ifstream inp("H3bitmap.lod\\BLDGNEUT.TXT", std::ios::in | std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("BLDGNEUT.TXT");
+	int andame = buf.size();
 	int i=0; //buf iterator
 	for(int q=0; q<15; ++q)
 	{
@@ -643,15 +623,8 @@ void CBuildingHandler::loadNeutNames()
 
 void CBuildingHandler::loadDwellingNames()
 {
-	std::ifstream inp("H3bitmap.lod\\DWELLING.TXT", std::ios::in | std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("DWELLING.TXT");
+	int andame = buf.size();
 	int i = 0; //buf iterator
 	int whdw = 98; //wchich dwelling we are currently reading
 	for(whdw; whdw<224; ++whdw)

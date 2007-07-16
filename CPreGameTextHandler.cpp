@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CPreGameTextHandler.h"
+#include "CGameInfo.h"
 std::string CPreGameTextHandler::getTitle(std::string text)
 {
 	std::string ret;
@@ -492,15 +493,17 @@ void CPreGameTextHandler::loadToIt(std::string &dest, std::string &src, int &ite
 
 void CPreGameTextHandler::loadVictoryConditions()
 {
-	std::ifstream inp("H3bitmap.lod\\VCDESC.TXT", std::ios::in|std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	//std::ifstream inp("H3bitmap.lod\\VCDESC.TXT", std::ios::in|std::ios::binary);
+	//inp.seekg(0,std::ios::end); // na koniec
+	//int andame = inp.tellg();  // read length
+	//inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	//char * bufor = new char[andame]; // allocate memory 
+	//inp.read((char*)bufor, andame); // read map file to buffer
+	//inp.close();
+	//std::string buf = std::string(bufor);
+	//delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("VCDESC.TXT");
+	int andame = buf.size();
 	int i=0; //buf iterator
 
 	for(int gg=0; gg<14; ++gg)
@@ -518,15 +521,17 @@ void CPreGameTextHandler::loadVictoryConditions()
 
 void CPreGameTextHandler::loadLossConditions()
 {
-	std::ifstream inp("H3bitmap.lod\\LCDESC.TXT", std::ios::in|std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	//std::ifstream inp("H3bitmap.lod\\LCDESC.TXT", std::ios::in|std::ios::binary);
+	//inp.seekg(0,std::ios::end); // na koniec
+	//int andame = inp.tellg();  // read length
+	//inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	//char * bufor = new char[andame]; // allocate memory 
+	//inp.read((char*)bufor, andame); // read map file to buffer
+	//inp.close();
+	//std::string buf = std::string(bufor);
+	//delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("LCDESC.TXT");
+	int andame = buf.size();
 	int i=0; //buf iterator
 
 	for(int gg=0; gg<4; ++gg)

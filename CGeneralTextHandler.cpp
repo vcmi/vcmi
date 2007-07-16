@@ -1,18 +1,12 @@
 #include "stdafx.h"
 #include "CGeneralTextHandler.h"
+#include "CGameInfo.h"
 #include <fstream>
 
 void CGeneralTextHandler::load()
 {
-	std::ifstream inp("H3bitmap.lod\\GENRLTXT.TXT", std::ios::in|std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("GENRLTXT.TXT");
+	int andame = buf.size();
 	int i=0; //buf iterator
 	for(i; i<andame; ++i)
 	{

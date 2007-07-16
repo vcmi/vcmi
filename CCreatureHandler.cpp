@@ -1,16 +1,11 @@
 #include "stdafx.h"
+#include "CGameInfo.h"
 #include "CCreatureHandler.h"
 
 void CCreatureHandler::loadCreatures()
 {
-	std::ifstream inp("H3bitmap.lod\\ZCRTRAIT.TXT", std::ios::in|std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("ZCRTRAIT.TXT");
+	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;
 	for(i; i<andame; ++i)
@@ -277,15 +272,8 @@ void CCreatureHandler::loadCreatures()
 
 void CCreatureHandler::loadAnimationInfo()
 {
-	std::ifstream inp("H3bitmap.lod\\CRANIM.TXT", std::ios::in|std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("CRANIM.TXT");
+	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;
 	for(i; i<andame; ++i)

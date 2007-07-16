@@ -345,9 +345,9 @@ void CAmbarCendamo::deh3m()
 			if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
 			{
 				if(c != (c|((unsigned char)intPow(2, yy))))
-					CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy].isAllowed = true;
+					CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]->isAllowed = true;
 				else
-					CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy].isAllowed = false;
+					CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]->isAllowed = false;
 			}
 		}
 	}
@@ -462,7 +462,7 @@ void CAmbarCendamo::deh3m()
 	int howManyObjs = readNormalNr(i, 4); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
-		std::cout << "object nr "<<ww<<"\ti= "<<i<<std::endl;
+		//std::cout << "object nr "<<ww<<"\ti= "<<i<<std::endl;
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
 		nobj.x = bufor[i++];
@@ -533,7 +533,7 @@ void CAmbarCendamo::deh3m()
 				gabn = readNormalNr(i, 1); ++i;
 				for(int oo = 0; oo<gabn; ++oo)
 				{
-					spec->abilities.push_back(&((CGameInfo::mainObj->abilh)->abilities[readNormalNr(i, 1)])); ++i;
+					spec->abilities.push_back((CGameInfo::mainObj->abilh)->abilities[readNormalNr(i, 1)]); ++i;
 					spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
 				}
 				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts
@@ -591,7 +591,7 @@ void CAmbarCendamo::deh3m()
 					int howMany = readNormalNr(i); i+=4;
 					for(int yy=0; yy<howMany; ++yy)
 					{
-						spec->abilities.push_back(&(CGameInfo::mainObj->abilh->abilities[readNormalNr(i, 1)])); ++i;
+						spec->abilities.push_back(CGameInfo::mainObj->abilh->abilities[readNormalNr(i, 1)]); ++i;
 						spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
 					}
 				}
@@ -1069,7 +1069,7 @@ void CAmbarCendamo::deh3m()
 				case 7:
 					{
 						int abid = bufor[i]; ++i;
-						spec->r7ability = &(CGameInfo::mainObj->abilh->abilities[abid]);
+						spec->r7ability = CGameInfo::mainObj->abilh->abilities[abid];
 						spec->r7level = bufor[i]; ++i;
 						break;
 					}
@@ -1109,7 +1109,7 @@ void CAmbarCendamo::deh3m()
 						if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
 						{
 							if(c == (c|((unsigned char)intPow(2, yy))))
-								spec->allowedAbilities.push_back(&(CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]));
+								spec->allowedAbilities.push_back(CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]);
 						}
 					}
 				}
@@ -1130,7 +1130,7 @@ void CAmbarCendamo::deh3m()
 					spec->r0type = bufor[i]; ++i;
 					break;
 				case 1:
-					spec->r1 = &(CGameInfo::mainObj->abilh->abilities[bufor[i]]); ++i;
+					spec->r1 = CGameInfo::mainObj->abilh->abilities[bufor[i]]; ++i;
 					break;
 				case 2:
 					spec->r2 = &(CGameInfo::mainObj->spellh->spells[bufor[i]]); ++i;
@@ -1398,7 +1398,7 @@ void CAmbarCendamo::deh3m()
 				gabn = readNormalNr(i, 1); ++i;
 				for(int oo = 0; oo<gabn; ++oo)
 				{
-					spec->abilities.push_back(&((CGameInfo::mainObj->abilh)->abilities[readNormalNr(i, 1)])); ++i;
+					spec->abilities.push_back((CGameInfo::mainObj->abilh)->abilities[readNormalNr(i, 1)]); ++i;
 					spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
 				}
 				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts

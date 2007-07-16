@@ -228,15 +228,20 @@ void CHeroHandler::loadBiographies()
 
 void CHeroHandler::loadHeroClasses()
 {
-	std::ifstream inp("H3bitmap.lod\\HCTRAITS.TXT", std::ios::in | std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	//std::ifstream inp("H3bitmap.lod\\HCTRAITS.TXT", std::ios::in | std::ios::binary);
+	//inp.seekg(0,std::ios::end); // na koniec
+	//int andame = inp.tellg();  // read length
+	//inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	//char * bufor = new char[andame]; // allocate memory 
+	//inp.read((char*)bufor, andame); // read map file to buffer
+	//inp.close();
+	//std::string buf = std::string(bufor);
+	//delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HCTRAITS.TXT");
+	int andame = buf.size();
+	for(int y=0; y<andame; ++y)
+		if(buf[y]==',')
+			buf[y]='.';
 	int i = 0; //buf iterator
 	int hmcr = 0;
 	for(i; i<andame; ++i) //omitting rubbish

@@ -18,7 +18,7 @@ public:
 class CAbilityHandler
 {
 public:
-	std::vector<CAbility> abilities;
+	std::vector<CAbility *> abilities;
 	void loadAbilities();
 };
 

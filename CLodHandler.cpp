@@ -836,3 +836,41 @@ void CLodHandler::init(std::string lodFile)
 		entries[i].size=readNormalNr(temp,4);
 	}
 }
+
+std::string CLodHandler::getTextFile(std::string name)
+{
+	std::string ret0;
+	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
+	int i;
+	for (int i=0;i<totalFiles;i++)
+	{
+		std::string buf1 = std::string((char*)entries[i].name);
+		bool exists = false;
+		int curDef;
+		if(buf1!=name)
+			continue;
+		FLOD.seekg(entries[i].offset,std::ios_base::beg);
+		unsigned char * outp;
+		if (entries[i].size==0) //file is not compressed
+		{
+			outp = new unsigned char[entries[i].realSize];
+			FLOD.read((char*)outp, entries[i].realSize);
+			std::string ret = std::string((char*)outp);
+			delete outp;
+			return ret;
+		}
+		else //we will decompressing file
+		{
+			outp = new unsigned char[entries[i].size];
+			FLOD.read((char*)outp, entries[i].size);
+			FLOD.seekg(0, std::ios_base::beg);
+			unsigned char * decomp = NULL;
+			int decRes = infs2(outp, entries[i].size, entries[i].realSize, decomp);
+			std::string ret = std::string((char*)decomp);
+			delete outp;
+			delete decomp;
+			return ret;
+		}
+	}
+	return ret0;
+}

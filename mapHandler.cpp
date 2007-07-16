@@ -353,12 +353,21 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 		}
 	}
-	//std::stable_sort(lowPrObjs.begin(), lowPrObjs.end(), pox);
-	//std::stable_sort(lowPrObjs.begin(), lowPrObjs.end(), poy);
-	//std::stable_sort(highPrObjs.begin(), highPrObjs.end(),pox);
-	//std::stable_sort(highPrObjs.begin(), highPrObjs.end(),poy);
-	//std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),pox);
-	//std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),poy);
+#ifndef _DEBUG
+	std::stable_sort(lowPrObjs.begin(), lowPrObjs.end(), pox);
+	std::stable_sort(lowPrObjs.begin(), lowPrObjs.end(), poy);
+	std::stable_sort(highPrObjs.begin(), highPrObjs.end(),pox);
+	std::stable_sort(highPrObjs.begin(), highPrObjs.end(),poy);
+	std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),pox);
+	std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),poy);
+#else
+	std::sort(lowPrObjs.begin(), lowPrObjs.end(), pox);
+	std::sort(lowPrObjs.begin(), lowPrObjs.end(), poy);
+	std::sort(highPrObjs.begin(), highPrObjs.end(),pox);
+	std::sort(highPrObjs.begin(), highPrObjs.end(),poy);
+	std::sort(highPrObjsVis.begin(), highPrObjsVis.end(),pox);
+	std::sort(highPrObjsVis.begin(), highPrObjsVis.end(),poy);
+#endif
 	for(int yy=0; yy<lowPrObjs.size(); ++yy)
 	{
 		SDL_Rect * sr = new SDL_Rect;

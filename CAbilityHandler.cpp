@@ -12,7 +12,7 @@ void CAbilityHandler::loadAbilities()
 	inp.ignore();
 	while(!inp.eof())
 	{
-		CAbility nab; //new creature, that will be read
+		CAbility * nab = new CAbility; //new creature, that will be read
 		std::string base;
 		char * tab = new char[500];
 		int iitBef = 0;
@@ -28,11 +28,11 @@ void CAbilityHandler::loadAbilities()
 		{
 			++iit;
 		}
-		nab.name = base.substr(0, iit);
+		nab->name = base.substr(0, iit);
 		++iit;
 		iitBef=iit;
 
-		nab.basicText = base.substr(iitBef, base.size()-iitBef);
+		nab->basicText = base.substr(iitBef, base.size()-iitBef);
 
 		inp.getline(tab, 500);
 		inp.getline(tab, 500);
@@ -45,11 +45,11 @@ void CAbilityHandler::loadAbilities()
 		{
 			++iit;
 		}
-		nab.basicText2 = base.substr(0, iit);
+		nab->basicText2 = base.substr(0, iit);
 		++iit;
 		iitBef=iit;
 
-		nab.advText = base.substr(iitBef, base.size()-iitBef);
+		nab->advText = base.substr(iitBef, base.size()-iitBef);
 
 		inp.getline(tab, 500);
 		inp.getline(tab, 500);
@@ -62,19 +62,19 @@ void CAbilityHandler::loadAbilities()
 		{
 			++iit;
 		}
-		nab.advText2 = base.substr(0, iit);
+		nab->advText2 = base.substr(0, iit);
 		++iit;
 		iitBef=iit;
 
-		nab.expText = base.substr(iitBef, base.size()-iitBef);
+		nab->expText = base.substr(iitBef, base.size()-iitBef);
 
 		inp.getline(tab, 500);
 		inp.getline(tab, 500);
 		base = std::string(tab);
 
-		nab.expText2 = base;
+		nab->expText2 = base;
 
-		nab.idNumber = abilities.size();
+		nab->idNumber = abilities.size();
 		abilities.push_back(nab);
 		delete [500] tab;
 	}
