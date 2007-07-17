@@ -41,10 +41,12 @@ template <class T=ttt> struct SetrButton: public Button<T>
 template<class T=CPreGame>  class Slider
 { //
 public:
-	SDL_Rect pos;
-	Button<void(Slider::*)()> up, down, slider;
-	int positionsAmnt, capacity;
-	int whereAreWe;
+	bool vertical; // false means horizontal
+	SDL_Rect pos; // position
+	Button<void(Slider::*)()> up, down, //or left/right
+		slider; 
+	int positionsAmnt, capacity;// capacity - amount of positions dispplayed at once
+	int whereAreWe; // first displayed thing
 	bool moving;
 	void(T::*fun)(int);
 	void clickDown(int x, int y, bool bzgl=true);
@@ -52,8 +54,8 @@ public:
 	void mMove(int x, int y, bool bzgl=true);
 	void moveUp();
 	void moveDown();
-	void activate(MapSel * ms);
-	Slider(int x, int y, int h, int amnt, int cap);
+	void activate();
+	Slider(int x, int y, int h, int amnt, int cap, bool ver);
 	void updateSlid();
 	void handleIt(SDL_Event sev);
 

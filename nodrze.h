@@ -81,42 +81,59 @@ private:
 	void wypisuj(wezel<T> * w, std::ostream & strum);
 	void wypisujPre(wezel<T> * w, std::ostream & strum);
 public:
-	wezel<T> * korzen;
-	nodrze():ile(0) //najzwyczajniejszy w swiecie kosntruktor
+	wezel<T> * korzen; //root
+	nodrze():ile(0) //najzwyczajniejszy w swiecie kosntruktor // c-tor
 	{
 		NIL=new wezel<T>(CZARNY);
 		korzen=NIL;
 		ostatnio=NIL;
 		ktory=0;
 	};
-	T * begin () {return minimumimum();};
-	T * end () {return NIL;};
+	T * begin () {return minimumimum();}; //first element (=minimum)
+	T * end () {return NIL;}; // 
 	void clear(); // czysci az do korzenia wlacznie
+				// removes all elements, including root
 	void usun (T co); // usuwa element z drzewa
+					// remove element (value)
 	bool sprawdz(); // sprawdza, czy drzewo jest poprawnym drzewem BST
-	T * nast(T czego); // nastepnik zadenego elementu
+					//checks if tree is correct (rather useful only for debugging)
+	T * nast(T czego); // nastepnik zadanego elementu
+						// successor of that element
 	T * maksimumimum (); // najwiekszy element w drzewie
+						//biggest element (and last)
 	bool czyJest(T co); // czy cos jest w drzewie
+						//check if given element is in tree
 	T * minimumimum (); // najmniejszy element w drzewie
+						//smallest element (first)
 	void dodaj (T co); // dodaje element do drzewa
+						// adds (copies)
 	void inorder(std::ostream & strum); // wypisuje na zadane wyjscie elementy w porzadku inorder
+										//print all elements inorder
 	void preorder(std::ostream & strum); // wypisuje na zadane wyjscie elementy w porzadku preorder
+										//print all elements preorder
 	void postorder(std::ostream & strum); // wypisuje na zadane wyjscie elementy w porzadku postorder
+										//print all elements postorder
 	void wypiszObficie(std::ostream & strum); //wypisuje dane o kazdym wezle -- wymaga operatora >> dla zawartosci
+										//prints info about all nodes - >> operator for T needed
 	T * znajdz (T co, bool iter = true); // wyszukuje zadany element
+										//search for T
 	int size(); //ilosc elementow
+				//returns size of tree
 	T* operator()(int i) ; //n-ty element przez wskaxnik
+							//returns pointer to element with index i
 	nodrze<T> & operator()(std::istream & potoczek) ; //zczytanie n elemntow z listy
+													//read elements from istream (first must be given amount of elements)
 	T& operator[](int i) ; //dostep do obiektu, ale przez wartosc
-	bool operator+=(T * co);
-	bool operator+=(T co);
-	bool operator-=(T co);
-	bool operator-=(T * co);
-	T* operator%(T * co);
-	bool operator&(T co);
-	bool operator&(T * co);
-	template <typename Y, class X> friend Y* operator%(nodrze<Y> & drzewko, X co);
-	void push_back(T co){(*this)+=co;};
+						//returns value of object with index i
+	bool operator+=(T * co); //add
+	bool operator+=(T co); //add
+	bool operator-=(T co); //remove
+	bool operator-=(T * co); //remove
+	T* operator%(T * co); // search and return pointer
+	bool operator&(T co); // check if exist
+	bool operator&(T * co); // check if exist
+	template <typename Y, class X> friend Y* operator%(nodrze<Y> & drzewko, X co); // search and return pointer
+	void push_back(T co){(*this)+=co;}; // add
 };
 template <typename T> void nodrze<T>::wypisuj(wezel<T> * w, std::ostream & strum)
 {
@@ -774,7 +791,7 @@ template <typename T> bool nodrze<T>::czyJest(T co)
 }
 template <typename T> wezel<T> * nodrze<T>::szukajRek(wezel<T> * w, T co)
 {
-	if (w==NIL || (*w->zawart)==co)
+	if (w==NIL || (!(((*w->zawart)<co)||(co<(*w->zawart)))))
 		return w;
 	if (co < (*w->zawart))
 		return szukajRek(w->lewy,co);
@@ -782,13 +799,13 @@ template <typename T> wezel<T> * nodrze<T>::szukajRek(wezel<T> * w, T co)
 };
 template <typename T> wezel<T> * nodrze<T>::szukajIter(wezel<T> * w, T co)
 {
-	while (w!=NIL && (*w->zawart)!=co)
+	while ( w!=NIL && (((*w->zawart)<co)||(co<(*w->zawart))) )
 	{
 		if (co < (*w->zawart))
 			w=w->lewy;
 		else w=w->prawy;
 	}
-	return w;
+	return (w)?w:NULL;
 };
 template <typename T> wezel<T> * nodrze<T>::minimum(wezel<T> * w)
 {

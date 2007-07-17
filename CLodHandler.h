@@ -7,6 +7,7 @@
 #include <string>
 #include "zlib.h"
 #include "CDefHandler.h"
+#include "nodrze.h"
 
 enum Epcxformat {PCX8B, PCX24B};
 
@@ -28,9 +29,10 @@ struct Entry
 		size;	//and with
 	bool operator<(const Entry & comp) const
 	{
-		return this->nameStr<comp.nameStr;
+		return nameStr<comp.nameStr;
 	}
 	Entry(std::string con): nameStr(con){};
+	//Entry(unsigned char ): nameStr(con){};
 	Entry(){};
 };
 class CPCXConv
@@ -52,7 +54,7 @@ class CLodHandler
 private:
 	std::ifstream FLOD;
 public:
-	std::vector<Entry> entries;
+	nodrze<Entry> entries;
 	unsigned int totalFiles;
 
 	int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper

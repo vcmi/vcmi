@@ -142,6 +142,10 @@ void CHeroHandler::loadHeroes()
 		delete[500] tab;
 	}
 	loadSpecialAbilities();
+
+	//for (int i=0;i<heroes.size();i++)
+		//TODO: read portrait
+
 }
 void CHeroHandler::loadSpecialAbilities()
 {

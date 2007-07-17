@@ -1,6 +1,5 @@
 #ifndef CPREGAME_H
 #define CPREGAME_H
-
 #include "SDL.h"
 #include "CSemiDefHandler.h"
 #include "CSemiLodHandler.h"
@@ -10,13 +9,47 @@
 #include "CMusicHandler.h"
 class CPreGame;
 extern CPreGame * CPG;
-struct RanSel
+enum Ebonus {brandom=-1,bartifact, bgold, bresource};
+struct StartInfo
+{
+	struct PlayerSettings
+	{
+		int castle, hero; //ID, if -1 then random, if -2 then none
+		Ebonus bonus; 
+		Ecolor color; //from 0 - 
+		int handicap;//0-no, 1-mild, 2-severe
+		std::string name;
+	};
+	std::vector<PlayerSettings> playerInfos;
+	int turnTime; //in minutes, 0=unlimited
+};
+class RanSel
 {
 	Button<> horcpl[9], horcte[9], conpl[9], conte[8], water[4], monster[4], //last is random
 			size[4], twoLevel, showRand;
 	CGroup<> *Ghorcpl, *Ghorcte, *Gconpl, *Gconte, *Gwater, *Gmonster, *Gsize;
 };
-
+class Options
+{
+	struct PlayerOptions
+	{
+		Ecolor color;
+		//SDL_Surface * bg;
+		Button<> left, right;
+		int nr;
+	};
+public:
+	Slider<> * turnLength;
+	SDL_Surface * bg;
+	std::vector<SDL_Surface*> bgs;
+	CDefHandler //* castles, * heroes, * bonus,
+		* left, * right;
+	std::vector<PlayerOptions> poptions;
+	void show();
+	void init();
+	//Options();
+	~Options();
+};
 class MapSel
 {
 public:
@@ -68,6 +101,7 @@ public:
 class CPreGame
 {
 public:	
+	StartInfo ret;
 	bool run;
 	std::vector<Slider<> *> interested;
 	CMusicHandler * mush;
@@ -88,6 +122,7 @@ public:
 		int highlighted;//0=none; 1=new game; 2=load game; 3=high score; 4=credits; 5=quit
 	} * ourMainMenu, * ourNewMenu;
 	ScenSel * ourScenSel;
+	Options * ourOptions;
 	std::string map; //selected map
 	std::vector<CSemiLodHandler *> handledLods; 
 	CPreGame(); //c-tor
@@ -101,17 +136,19 @@ public:
 	void initScenSel(); 
 	void showScenSel();  
 	void showScenList(); 
+	void initOptions();
 	void showOptions();  
 	void initNewMenu(); 
 	void showNewMenu();  
 	void showMainMenu();  
-	void runLoop(); // runs mainloop of PreGame
+	StartInfo runLoop(); // runs mainloop of PreGame
 	void initMainMenu(); //loads components for main menu
 	void highlightButton(int which, int on); //highlights one from 5 main menu buttons
 	void showCenBox (std::string data); //
 	void showAskBox (std::string data, void(*f1)(),void(*f2)());
 	void hideBox ();
 	void printMapsFrom(int from);
+	void setTurnLength(int on);
 	void sortMaps();
 };
 

@@ -2,6 +2,7 @@
 #include "CLodHandler.h"
 #include <sstream>
 #include <algorithm>
+#include <cctype>
 #include <cstring>
 #include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
 
@@ -382,11 +383,35 @@ int CLodHandler::infm(FILE *source, FILE *dest, int wBits)
 	(void)inflateEnd(&strm);
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
-CDefHandler * CLodHandler::giveDef(std::string defName) // TODO: zamienic
+CDefHandler * CLodHandler::giveDef(std::string defName) 
 {
-	std::vector<std::string> pom;
-	pom.push_back(defName);
-	return extractManyFiles(pom)[0];
+	Entry * ourEntry = entries.znajdz(Entry(defName));
+	CDefHandler * ret;
+	FLOD.seekg(ourEntry->offset,std::ios_base::beg);
+	unsigned char * outp;
+	if (ourEntry->size==0) //file is not compressed
+	{
+		outp = new unsigned char[ourEntry->realSize];
+		FLOD.read((char*)outp, ourEntry->realSize);
+		CDefHandler * nh = new CDefHandler;
+		nh->openFromMemory(outp, ourEntry->realSize, std::string((char*)ourEntry->name));
+		nh->alphaTransformed = false;
+		ret = nh;
+	}
+	else //we will decompressing file
+	{
+		outp = new unsigned char[ourEntry->size];
+		FLOD.read((char*)outp, ourEntry->size);
+		FLOD.seekg(0, std::ios_base::beg);
+		unsigned char * decomp = NULL;
+		int decRes = infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
+		CDefHandler * nh = new CDefHandler;
+		nh->openFromMemory(decomp, ourEntry->realSize, std::string((char*)ourEntry->name));
+		nh->alphaTransformed = false;
+		ret = nh;
+	}
+	delete outp;
+	return ret;
 }
 std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string> defNamesIn)
 {
@@ -794,22 +819,16 @@ int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
 
 void CLodHandler::init(std::string lodFile)
 {
-	FLOD;
 	std::string Ts;
-	//std::cout<<"*** Loading FAT ... \n";
 	FLOD.open(lodFile.c_str(),std::ios::binary);
-	//std::cout<<"*** Archive: "+FName+" loaded\n";
 	FLOD.seekg(8,std::ios_base::beg);
 	unsigned char temp[4];
 	FLOD.read((char*)temp,4);
 	totalFiles = readNormalNr(temp,4);
 	FLOD.seekg(0x5c,std::ios_base::beg);
-	entries.reserve(totalFiles);
-	//std::cout<<"*** Loading FAT ...\n";
 	for (int i=0; i<totalFiles; i++)
 	{
-		entries.push_back(Entry());
-		//FLOD.read((char*)entries[i].name,12);
+		Entry entry;
 		char * bufc = new char;
 		bool appending = true;
 		for(int kk=0; kk<12; ++kk)
@@ -817,23 +836,30 @@ void CLodHandler::init(std::string lodFile)
 			FLOD.read(bufc, 1);
 			if(appending)
 			{
-				entries[i].name[kk] = toupper(*bufc);
+				entry.name[kk] = toupper(*bufc);
 			}
 			else
 			{
-				entries[i].name[kk] = 0;
+				entry.name[kk] = 0;
 				appending = false;
 			}
 		}
 		delete bufc;
-		FLOD.read((char*)entries[i].hlam_1,4);
+		FLOD.read((char*)entry.hlam_1,4);
 		FLOD.read((char*)temp,4);
-		entries[i].offset=readNormalNr(temp,4);
+		entry.offset=readNormalNr(temp,4);
 		FLOD.read((char*)temp,4);
-		entries[i].realSize=readNormalNr(temp,4);
-		FLOD.read((char*)entries[i].hlam_2,4);
+		entry.realSize=readNormalNr(temp,4);
+		FLOD.read((char*)entry.hlam_2,4);
 		FLOD.read((char*)temp,4);
-		entries[i].size=readNormalNr(temp,4);
+		entry.size=readNormalNr(temp,4);
+		for (int z=0;z<12;z++)
+		{
+			if (entry.name[z])
+				entry.nameStr+=entry.name[z];
+			else break;
+		}
+		entries.push_back(entry);
 	}
 }
 

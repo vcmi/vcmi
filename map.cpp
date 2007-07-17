@@ -49,17 +49,17 @@ CMapHeader::CMapHeader(unsigned char *map)
 		}
 
 		this->players[pom].AITactic = map[i++];
-		if (map[i++])
+		/*if (map[i++])*/i++;
 		{
 			this->players[pom].allowedFactions = 0;
 			this->players[pom].allowedFactions += map[i++];
 			this->players[pom].allowedFactions += (map[i++])*256;
 		}
-		else 
-		{
-			this->players[pom].allowedFactions = 511;
-			i+=2;
-		}
+		//else 
+		//{
+		//	this->players[pom].allowedFactions = 511;
+		//	i+=2;
+		//}
 		this->players[pom].isFactionRandom = map[i++];
 		this->players[pom].hasMainTown = map[i++];
 		if (this->players[pom].hasMainTown)

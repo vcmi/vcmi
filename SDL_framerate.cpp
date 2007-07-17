@@ -6,7 +6,7 @@
  LGPL (c) A. Schiffler
  
  */
-
+#include "stdafx.h"
 #include "SDL_framerate.h"
 
 /* 

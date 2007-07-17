@@ -63,7 +63,7 @@ void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SD
 		break;
 	}
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-(temp->w/2),y-(temp->h/2)));
-	SDL_UpdateRect(dst,x,y,temp->w,temp->h);
+	SDL_UpdateRect(dst,x-(temp->w/2),y-(temp->h/2),temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
 void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
@@ -359,7 +359,7 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 				switch(cur.g) //change this values; make diffrerent for objects and shadows (?)
 				{
 				case 0:
-					shadow.unused = 0+32;
+					shadow.unused = 128;
 					break;
 				case 50:
 					shadow.unused = 50+32;

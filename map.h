@@ -218,7 +218,7 @@ public:
 	CMapInfo(std::string fname, unsigned char *map):CMapHeader(map),filename(fname)
 	{
 		playerAmnt=humenPlayers=0;
-		for (int i=0;i<8;i++)
+		for (int i=0;i<PLAYER_LIMIT;i++)
 		{
 			if (players[i].canHumanPlay) {playerAmnt++;humenPlayers++;}
 			else if (players[i].canComputerPlay) {playerAmnt++;}

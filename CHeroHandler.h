@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include "CCreatureHandler.h"
+#include "SDL.h"
 
 class CHeroClass;
 
@@ -22,6 +23,7 @@ public:
 	CHeroClass * heroClass;
 	EHeroClasses heroType; //hero class
 	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
+	SDL_Surface * portraitSmall; //48x32 p
 };
 
 class CHeroClass
