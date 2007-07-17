@@ -22,6 +22,7 @@ void CCreatureHandler::loadCreatures()
 		if(creatures.size()>190 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
 		{
 			loadAnimationInfo();
+			loadUnitAnimations();
 			break;
 		}
 
@@ -441,4 +442,51 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 			break;
 	}
 	i+=2;
+}
+
+void CCreatureHandler::loadUnitAnimations()
+{
+	std::ifstream inp("CREDEFS.TXT", std::ios::in | std::ios::binary);
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame]; // allocate memory 
+	inp.read((char*)bufor, andame); // read map file to buffer
+	inp.close();
+	std::string buf = std::string(bufor);
+	delete [andame] bufor;
+
+	int i = 0; //buf iterator
+	int hmcr = 0;
+	for(i; i<andame; ++i) //omitting rubbish
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	i+=2;
+	for(int s=0; s<creatures.size(); ++s)
+	{
+		int befi=i;
+		std::string rub;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]==' ')
+				break;
+		}
+		rub = buf.substr(befi, i-befi);
+		++i;
+
+		befi=i;
+		for(i; i<andame; ++i)
+		{
+			if(buf[i]=='\r')
+				break;
+		}
+		std::string defName = buf.substr(befi, i-befi);
+		if(defName != std::string("x"))
+			creatures[s].battleAnimation = CGameInfo::mainObj->spriteh->giveDef(defName);
+		else
+			creatures[s].battleAnimation = NULL;
+		i+=2;
+	}
 }

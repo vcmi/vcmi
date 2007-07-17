@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include "CDefHandler.h"
 
 class CCreature
 {
@@ -26,7 +27,7 @@ public:
 	int indefLevel; //only if indefinite
 	bool indefUpgraded; //onlu if inddefinite
 	//end
-
+	CDefHandler * battleAnimation;
 	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
 };
 
@@ -45,6 +46,7 @@ public:
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
+	void loadUnitAnimations();
 };
 
 #endif //CCREATUREHANDLER_H
