@@ -22,7 +22,7 @@ void CCreatureHandler::loadCreatures()
 		if(creatures.size()>190 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
 		{
 			loadAnimationInfo();
-			loadUnitAnimations();
+			//loadUnitAnimations();
 			break;
 		}
 

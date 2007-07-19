@@ -14,7 +14,8 @@ struct StartInfo
 {
 	struct PlayerSettings
 	{
-		int castle, hero; //ID, if -1 then random, if -2 then none
+		int castle, hero, heroPortrait; //ID, if -1 then random, if -2 then none
+		std::string heroName;
 		Ebonus bonus; 
 		Ecolor color; //from 0 - 
 		int handicap;//0-no, 1-mild, 2-severe

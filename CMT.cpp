@@ -313,6 +313,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->abilh = abilh;
 		CHeroHandler * heroh = new CHeroHandler;
 		heroh->loadHeroes();
+		heroh->loadPortraits();
 		cgi->heroh = heroh;
 		CSpellHandler * spellh = new CSpellHandler;
 		spellh->loadSpells();

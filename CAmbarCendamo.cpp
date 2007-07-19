@@ -107,7 +107,7 @@ void CAmbarCendamo::deh3m()
 		if (map.players[pom].hasMainTown)
 		{
 			map.players[pom].generateHeroAtMainTown = bufor[i++];
-			i++; //unknown byte
+			map.players[pom].generateHero = bufor[i++];
 			map.players[pom].posOfMainTown.x = bufor[i++];
 			map.players[pom].posOfMainTown.y = bufor[i++];
 			map.players[pom].posOfMainTown.z = bufor[i++];

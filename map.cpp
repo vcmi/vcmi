@@ -65,14 +65,14 @@ CMapHeader::CMapHeader(unsigned char *map)
 		if (this->players[pom].hasMainTown)
 		{
 			this->players[pom].generateHeroAtMainTown = map[i++];
-			i++; //unknown byte
+			this->players[pom].generateHero = map[i++];
 			this->players[pom].posOfMainTown.x = map[i++];
 			this->players[pom].posOfMainTown.y = map[i++];
 			this->players[pom].posOfMainTown.z = map[i++];
 		}
 		i++; //unknown byte
-		int unknown = map[i++];
-		if (unknown == 255)
+		int customPortrait = map[i++];
+		if (customPortrait == 255)
 		{
 			this->players[pom].mainHeroPortrait = 255;
 			i+=5;
@@ -83,7 +83,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 		i+=3; 
 		for (int pp=0;pp<nameLength;pp++)
 			this->players[pom].mainHeroName+=map[i++];
-		i++; ////unknown byte
+		i++; ////heroes placeholders //domostwa
 		int heroCount = map[i++];
 		i+=3;
 		for (int pp=0;pp<heroCount;pp++)

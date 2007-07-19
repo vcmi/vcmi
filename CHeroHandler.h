@@ -58,7 +58,9 @@ public:
 	void loadSpecialAbilities();
 	void loadBiographies();
 	void loadHeroClasses();
+	void loadPortraits();
 	void initHeroClasses();
+	~CHeroHandler();
 };
 
 

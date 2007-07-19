@@ -4,6 +4,30 @@
 #include <sstream>
 #define CGI (CGameInfo::mainObj)
 
+CHeroHandler::~CHeroHandler()
+{
+	for (int j=0;j<heroes.size();j++)
+	{
+		if (heroes[j]->portraitSmall)
+			SDL_FreeSurface(heroes[j]->portraitSmall);
+		delete heroes[j];
+	}
+}
+void CHeroHandler::loadPortraits()
+{
+	std::ifstream of("portrety.txt");
+	for (int j=0;j<heroes.size();j++)
+	{
+		int ID;
+		of>>ID;
+		std::string path;
+		of>>path;
+		heroes[ID]->portraitSmall=CGI->bitmaph->loadBitmap(path);
+		if (!heroes[ID]->portraitSmall)
+			std::cout<<"Can't read portrait for "<<ID<<" ("<<path<<")\n";
+	}
+	of.close();
+}
 void CHeroHandler::loadHeroes()
 {
 	int ID=0;
@@ -142,9 +166,6 @@ void CHeroHandler::loadHeroes()
 		delete[500] tab;
 	}
 	loadSpecialAbilities();
-
-	//for (int i=0;i<heroes.size();i++)
-		//TODO: read portrait
 
 }
 void CHeroHandler::loadSpecialAbilities()

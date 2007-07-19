@@ -87,6 +87,7 @@ struct PlayerInfo
 	bool generateHeroAtMainTown;
 	Location posOfMainTown;
 	int team;
+	bool generateHero;
 };
 struct LossCondition
 {
