@@ -463,7 +463,7 @@ int _tmain(int argc, _TCHAR* argv[])
 					}//keyup end
 					else if(sEvent.type==SDL_MOUSEMOTION)
 					{
-						if(sEvent.motion.x<5)
+						if(sEvent.motion.x<15)
 						{
 							scrollingLeft = true;
 						}
@@ -471,7 +471,7 @@ int _tmain(int argc, _TCHAR* argv[])
 						{
 							scrollingLeft = false;
 						}
-						if(sEvent.motion.x>screen->w-5)
+						if(sEvent.motion.x>screen->w-15)
 						{
 							scrollingRight = true;
 						}
@@ -479,7 +479,7 @@ int _tmain(int argc, _TCHAR* argv[])
 						{
 							scrollingRight = false;
 						}
-						if(sEvent.motion.y<5)
+						if(sEvent.motion.y<15)
 						{
 							scrollingUp = true;
 						}
@@ -487,7 +487,7 @@ int _tmain(int argc, _TCHAR* argv[])
 						{
 							scrollingUp = false;
 						}
-						if(sEvent.motion.y>screen->h-5)
+						if(sEvent.motion.y>screen->h-15)
 						{
 							scrollingDown = true;
 						}

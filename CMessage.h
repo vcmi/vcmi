@@ -20,15 +20,23 @@ struct OverButton
 	virtual void show() ;
 	virtual void press(bool down=true);
 };
-template <class T=ttt> struct Button: public OverButton
+struct HighButton: public OverButton
 {
-	T fun;
-	CGroup<T> * ourGroup;
-	Button( SDL_Rect Pos, T Fun,CDefHandler* Imgs, bool Sel=false, CGroup<T>* gr=NULL, int id=-1)
-		:fun(Fun),ourGroup(gr){type=0;imgs=Imgs;selectable=Sel;selected=false;state=0;pos=Pos;ID=id;};
-	Button(){ourGroup=NULL;};
+	HighButton( SDL_Rect Pos, CDefHandler* Imgs, bool Sel=false, int id=-1)
+		{type=0;imgs=Imgs;selectable=Sel;selected=false;state=0;pos=Pos;ID=id;};
+	HighButton(){}
 	bool selectable, selected;
 	bool highlightable, highlighted;
+	virtual	void hover(bool on=true)=0;
+	virtual void select(bool on=true)=0;
+};
+template <class T=ttt> struct Button: public HighButton
+{
+	CGroup<T> * ourGroup;
+	Button( SDL_Rect Pos, T Fun,CDefHandler* Imgs, bool Sel=false, CGroup<T>* gr=NULL, int id=-1)
+		:HighButton(Pos,Imgs,Sel,id),ourGroup(gr),fun(Fun){};
+	Button(){ourGroup=NULL;};
+	T fun;
 	virtual	void hover(bool on=true);
 	virtual void select(bool on=true);
 };	

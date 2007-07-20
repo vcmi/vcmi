@@ -32,23 +32,39 @@ class RanSel
 };
 class Options
 {
+	bool inited, showed;
+	struct OptionSwitch:public HighButton
+	{
+		void hover(bool on=true){};
+		void select(bool on=true){};
+		OptionSwitch( SDL_Rect Pos, CDefHandler* Imgs)
+			:HighButton(Pos,Imgs,false,7)
+			{selectable=false;highlightable=false;}
+		void press(bool down=true);
+		bool left;
+		int playerID;
+		int serialID;
+		int which; //-1=castle;0=hero;1=bonus
+	};
 	struct PlayerOptions
 	{
+		PlayerOptions(int serial, int player);
 		Ecolor color;
 		//SDL_Surface * bg;
-		Button<> left, right;
+		OptionSwitch left, right;
 		int nr;
 	};
 public:
 	Slider<> * turnLength;
-	SDL_Surface * bg;
+	SDL_Surface * bg,
+		* rHero, * rCastle, * nHero, * nCastle;
 	std::vector<SDL_Surface*> bgs;
 	CDefHandler //* castles, * heroes, * bonus,
 		* left, * right;
-	std::vector<PlayerOptions> poptions;
+	std::vector<PlayerOptions*> poptions;
 	void show();
 	void init();
-	//Options();
+	Options(){inited=showed=false;};
 	~Options();
 };
 class MapSel
@@ -107,7 +123,7 @@ public:
 	std::vector<Slider<> *> interested;
 	CMusicHandler * mush;
 	CSemiLodHandler * slh ;
-	std::vector<Button<> *> btns;
+	std::vector<HighButton *> btns;
 	CPreGameTextHandler * preth ;
 	SDL_Rect * currentMessage;	
 	SDL_Surface * behindCurMes;

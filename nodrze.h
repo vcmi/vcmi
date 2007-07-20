@@ -16,9 +16,6 @@
 #define CLOG(a) (std::cout<<a)
 #endif
 const bool CZERWONY=true, CZARNY=false;
-class TTAICore;
-extern TTAICore * C;
-
 template <typename T>  class wezel
 {
 public:
