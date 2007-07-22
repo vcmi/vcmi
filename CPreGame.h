@@ -24,15 +24,24 @@ struct StartInfo
 	std::vector<PlayerSettings> playerInfos;
 	int turnTime; //in minutes, 0=unlimited
 };
-class RanSel
+class PreGameTab
+{
+public:
+	bool showed;
+	virtual void init()=0;
+	virtual void show()=0;
+	virtual void hide()=0;
+	PreGameTab();
+};
+class RanSel : public PreGameTab
 {
 	Button<> horcpl[9], horcte[9], conpl[9], conte[8], water[4], monster[4], //last is random
 			size[4], twoLevel, showRand;
 	CGroup<> *Ghorcpl, *Ghorcte, *Gconpl, *Gconte, *Gwater, *Gmonster, *Gsize;
 };
-class Options
+class Options : public PreGameTab
 {
-	bool inited, showed;
+	bool inited;
 	struct OptionSwitch:public HighButton
 	{
 		void hover(bool on=true){};
@@ -63,15 +72,15 @@ public:
 		* left, * right;
 	std::vector<PlayerOptions*> poptions;
 	void show();
+	void hide();
 	void init();
 	Options(){inited=showed=false;};
 	~Options();
 };
-class MapSel
+class MapSel : public PreGameTab
 {
 public:
 	ESortBy sortBy;
-	bool showed;
 	SDL_Surface * bg;
 	int selected;
 	CDefHandler * Dtypes, * Dvic; 
@@ -86,7 +95,8 @@ public:
 	int sizeFilter;
 	int whichWL(int nr);
 	int countWL();
-	void draw();
+	void show();
+	void hide();
 	void init();
 	std::string gdiff(std::string ss);
 	void printMaps(int from,int to=18, int at=0, bool abs=false);
@@ -100,7 +110,7 @@ class ScenSel
 {
 public:
 	bool listShowed;
-	RanSel ransel;
+	//RanSel ransel;
 	MapSel mapsel;
 	SDL_Surface * background, *scenInf, *scenList, *randMap, *options ;
 	Button<> bScens, bOptions, bRandom, bBegin, bBack;
@@ -118,6 +128,7 @@ public:
 class CPreGame
 {
 public:	
+	PreGameTab* currentTab;
 	StartInfo ret;
 	bool run;
 	std::vector<Slider<> *> interested;

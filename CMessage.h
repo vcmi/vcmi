@@ -19,6 +19,7 @@ struct OverButton
 	int state;
 	virtual void show() ;
 	virtual void press(bool down=true);
+	OverButton(){state=0;}
 };
 struct HighButton: public OverButton
 {
@@ -34,8 +35,8 @@ template <class T=ttt> struct Button: public HighButton
 {
 	CGroup<T> * ourGroup;
 	Button( SDL_Rect Pos, T Fun,CDefHandler* Imgs, bool Sel=false, CGroup<T>* gr=NULL, int id=-1)
-		:HighButton(Pos,Imgs,Sel,id),ourGroup(gr),fun(Fun){};
-	Button(){ourGroup=NULL;};
+		:HighButton(Pos,Imgs,Sel,id),ourGroup(gr),fun(Fun){type=1;};
+	Button(){ourGroup=NULL;type=1;};
 	T fun;
 	virtual	void hover(bool on=true);
 	virtual void select(bool on=true);
@@ -62,6 +63,7 @@ public:
 	void mMove(int x, int y, bool bzgl=true);
 	void moveUp();
 	void moveDown();
+	void deactivate();
 	void activate();
 	Slider(int x, int y, int h, int amnt, int cap, bool ver);
 	void updateSlid();
