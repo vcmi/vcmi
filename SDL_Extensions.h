@@ -6,6 +6,7 @@
 
 extern SDL_Surface * ekran;
 extern SDL_Color tytulowy, tlo, zwykly ;
+void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
 namespace CSDL_Ext
 {
 	void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC=0, Uint8 A = 255); //myC influences the start of reading pixels

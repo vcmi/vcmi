@@ -29,6 +29,7 @@
 #include "CLodHandler.h"
 #include "CDefHandler.h"
 #include "CSndHandler.h"
+#include "CTownHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CAmbarCendamo.h"
 #include "mapHandler.h"
@@ -265,6 +266,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->neutralColor = p;//gray
 		//colors initialized
 
+		cgi->townh = new CTownHandler;
+		cgi->townh->loadNames();
 		THC std::cout<<"Loading .lods: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;

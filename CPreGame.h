@@ -46,8 +46,8 @@ class Options : public PreGameTab
 	{
 		void hover(bool on=true){};
 		void select(bool on=true){};
-		OptionSwitch( SDL_Rect Pos, CDefHandler* Imgs)
-			:HighButton(Pos,Imgs,false,7)
+		OptionSwitch( SDL_Rect Pos, CDefHandler* Imgs, bool Left, int Which)
+			:HighButton(Pos,Imgs,false,7),left(Left),which(Which)
 			{selectable=false;highlightable=false;}
 		void press(bool down=true);
 		bool left;
@@ -74,6 +74,7 @@ public:
 	void show();
 	void hide();
 	void init();
+	void showIcon (int what, int nr, bool abs); //what: -1=castle, 0=hero, 1=bonus, 2=all; abs=true -> nr is absolute
 	Options(){inited=showed=false;};
 	~Options();
 };

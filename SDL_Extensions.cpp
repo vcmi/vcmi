@@ -21,7 +21,13 @@ SDL_Rect genRect(int hh, int ww, int xx, int yy)
 	ret.y=yy;
 	return ret;
 }
-void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran)
+void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst)
+{
+	SDL_Rect pom = genRect(src->h,src->w,x,y);
+	SDL_BlitSurface(src,NULL,dst,&pom);
+	SDL_UpdateRect(dst,x,y,src->w,src->h);
+}
+void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
 	SDL_Rect pom = genRect(src->h,src->w,x,y);
 	SDL_BlitSurface(src,NULL,dst,&pom);

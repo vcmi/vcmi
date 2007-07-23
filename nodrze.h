@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <string>
+#include <vector>
 
 #define LOGUJ ;
 #define CLOG ;
@@ -112,6 +113,7 @@ public:
 										//print all elements postorder
 	void wypiszObficie(std::ostream & strum); //wypisuje dane o kazdym wezle -- wymaga operatora >> dla zawartosci
 										//prints info about all nodes - >> operator for T needed
+	std::vector<T> vectorize(); //returns vector with all nodrze elements
 	T * znajdz (T co, bool iter = true); // wyszukuje zadany element
 										//search for T
 	int size(); //ilosc elementow
@@ -132,6 +134,13 @@ public:
 	template <typename Y, class X> friend Y* operator%(nodrze<Y> & drzewko, X co); // search and return pointer
 	void push_back(T co){(*this)+=co;}; // add
 };
+template <typename T> std::vector<T> nodrze<T>::vectorize()
+{
+	std::vector<T> ret;
+	for (int i=0; i<ile; i++)
+		ret.push_back((*this)[i]);
+	return ret;
+}
 template <typename T> void nodrze<T>::wypisuj(wezel<T> * w, std::ostream & strum)
 {
 	if (w==NIL) return;

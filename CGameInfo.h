@@ -13,6 +13,7 @@
 #include "CSemiLodHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CLodHandler.h"
+#include "CTownHandler.h"
 #include "CGeneralTextHandler.h"
 #include "SDL.h"
 #include <vector>
@@ -36,6 +37,7 @@ public:
 	CMusicHandler * mush;
 	CSemiLodHandler * sspriteh;
 	CDefObjInfoHandler * dobjinfo;
+	CTownHandler * townh;
 	CLodHandler * spriteh;
 	CLodHandler * bitmaph;
 	CGeneralTextHandler * generaltexth;
