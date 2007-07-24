@@ -268,6 +268,15 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		cgi->townh = new CTownHandler;
 		cgi->townh->loadNames();
+
+		CAbilityHandler * abilh = new CAbilityHandler;
+		abilh->loadAbilities();
+		cgi->abilh = abilh;
+		CHeroHandler * heroh = new CHeroHandler;
+		heroh->loadHeroes();
+		heroh->loadPortraits();
+		cgi->heroh = heroh;
+
 		THC std::cout<<"Loading .lods: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
@@ -311,13 +320,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CCreatureHandler * creh = new CCreatureHandler;
 		creh->loadCreatures();
 		cgi->creh = creh;
-		CAbilityHandler * abilh = new CAbilityHandler;
-		abilh->loadAbilities();
-		cgi->abilh = abilh;
-		CHeroHandler * heroh = new CHeroHandler;
-		heroh->loadHeroes();
-		heroh->loadPortraits();
-		cgi->heroh = heroh;
+
 		CSpellHandler * spellh = new CSpellHandler;
 		spellh->loadSpells();
 		cgi->spellh = spellh;

@@ -60,7 +60,7 @@ class Options : public PreGameTab
 		PlayerOptions(int serial, int player);
 		Ecolor color;
 		//SDL_Surface * bg;
-		OptionSwitch left, right;
+		OptionSwitch left, right, Hleft, Hright;
 		int nr;
 	};
 public:
