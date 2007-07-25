@@ -45,7 +45,7 @@ template <class T=ttt> struct SetrButton: public Button<T>
 {
 	int key, * poin;
 	virtual void press(bool down=true);
-	SetrButton(){type=0;selectable=selected=false;state=0;}
+	SetrButton(){type=0;selectable=selected=false;state=0;highlightable=false;}
 };
 template<class T=CPreGame>  class Slider
 { //
@@ -76,7 +76,7 @@ template<class T=ttt>  struct IntBut: public Button<T>
 public:
 	int key;
 	int * what;
-	IntBut(){type=2;fun=NULL;};
+	IntBut(){type=2;fun=NULL;highlightable=false;};
 	IntBut( SDL_Rect Pos, T Fun,CDefHandler* Imgs, bool Sel, int Key, int * What)
 		: Button(Pos,Fun,Imgs,Sel,gr),key(My),key(Key),what(What){ourGroup=gr;type=2;fun=NULL;};
 	void set(){*what=key;};
