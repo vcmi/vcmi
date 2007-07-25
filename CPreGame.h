@@ -60,7 +60,7 @@ class Options : public PreGameTab
 		PlayerOptions(int serial, int player);
 		Ecolor color;
 		//SDL_Surface * bg;
-		OptionSwitch left, right, Hleft, Hright;
+		OptionSwitch Cleft, Cright, Hleft, Hright, Bleft, Bright;
 		int nr;
 	};
 public:
@@ -69,7 +69,8 @@ public:
 		* rHero, * rCastle, * nHero, * nCastle;
 	std::vector<SDL_Surface*> bgs;
 	CDefHandler //* castles, * heroes, * bonus,
-		* left, * right;
+		* left, * right,
+		* bonuses;
 	std::vector<PlayerOptions*> poptions;
 	void show();
 	void hide();
