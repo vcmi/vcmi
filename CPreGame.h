@@ -55,10 +55,21 @@ class Options : public PreGameTab
 		int serialID;
 		int which; //-1=castle;0=hero;1=bonus
 	};
+	struct PlayerFlag:public HighButton
+	{
+		int color;
+		PlayerFlag(SDL_Rect Pos, CDefHandler* Imgs, int Color)
+			:HighButton(Pos,Imgs,false,7),color(Color)
+			{selectable=false;highlightable=true;}
+		void hover(bool on=true);
+		void press(bool down=true);
+		void select(bool on=true){};
+	};
 	struct PlayerOptions
 	{
 		PlayerOptions(int serial, int player);
 		Ecolor color;
+		PlayerFlag flag;
 		//SDL_Surface * bg;
 		OptionSwitch Cleft, Cright, Hleft, Hright, Bleft, Bright;
 		int nr;
@@ -68,6 +79,7 @@ public:
 	SDL_Surface * bg,
 		* rHero, * rCastle, * nHero, * nCastle;
 	std::vector<SDL_Surface*> bgs;
+	std::vector<CDefHandler*> flags;
 	CDefHandler //* castles, * heroes, * bonus,
 		* left, * right,
 		* bonuses;
@@ -130,6 +142,7 @@ public:
 class CPreGame
 {
 public:	
+	HighButton * highlighted;
 	PreGameTab* currentTab;
 	StartInfo ret;
 	bool run;

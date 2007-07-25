@@ -24,7 +24,7 @@ struct OverButton
 struct HighButton: public OverButton
 {
 	HighButton( SDL_Rect Pos, CDefHandler* Imgs, bool Sel=false, int id=-1)
-		{type=0;imgs=Imgs;selectable=Sel;selected=false;state=0;pos=Pos;ID=id;};
+		{type=0;imgs=Imgs;selectable=Sel;selected=false;state=0;pos=Pos;ID=id;highlightable=false;};
 	HighButton(){}
 	bool selectable, selected;
 	bool highlightable, highlighted;
