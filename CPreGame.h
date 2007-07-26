@@ -114,7 +114,7 @@ public:
 	void init();
 	std::string gdiff(std::string ss);
 	void printMaps(int from,int to=18, int at=0, bool abs=false);
-	void select(int which);
+	void select(int which, bool updateMapsList=true);
 	void moveByOne(bool up);
 	void printSelectedInfo();
 	MapSel();

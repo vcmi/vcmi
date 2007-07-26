@@ -280,7 +280,7 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 	}
 	if(index==-1)
 	{
-		std::cout<<"File "<<fname<<" did't found"<<std::endl;
+		std::cout<<"File "<<fname<<" not found"<<std::endl;
 	}
 	FLOD.seekg(entries[index].offset,std::ios_base::beg);
 	if (entries[index].size==0) //file is not compressed
@@ -295,7 +295,7 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 		int res=infs2(pcd,entries[index].size,entries[index].realSize,pcx);
 		if(res!=0)
 		{
-			std::cout<<"an error "<<res<<" ocured during extracting file "<<fname<<std::endl;
+			std::cout<<"an error "<<res<<" occured while extracting file "<<fname<<std::endl;
 		}
 	}
 	CPCXConv cp;
