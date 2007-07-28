@@ -1,3 +1,6 @@
+#ifndef INT3_H
+#define INT3_H
+
 class int3
 {
 	int x,y,z;
@@ -59,3 +62,5 @@ class int3
 		return false;
 	}
 };
+
+#endif //INT3_H

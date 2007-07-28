@@ -9,7 +9,6 @@
 
 class CHeroClass;
 
-enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HREO_ALCHEMIST, HERO_WIZARD, HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD, HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
 
 class CHero
 {
@@ -44,10 +43,18 @@ public:
 class CHeroInstance
 {
 public:
+	int owner;
+	int exp; //experience point
+	int level; //current level of hero
+	std::string name; //may be custom
+	std::string biography; //may be custom
+	int portrait; //may be custom
 	CHero type;
-	int3 pos;
+	int3 pos; //position on adventure map
 	CCreatureSet army; //army
-	//TODO: armia, artefakty, itd.
+	int mana; // remaining spell points
+	int movement; //remaining movement points
+	//TODO: artifacts, primary and secondary skills, known spells, commander, blessings, curses, morale/luck modifiers
 };
 
 class CHeroHandler

@@ -21,12 +21,12 @@ struct PlayerState
 	vector<vector<bool> > fogOfWarMap;
 	std::vector<int> resources;
 	std::vector<CHeroInstance> heroes;
-	std::vector<CTownInstance> heroes;
-}
+	std::vector<CTownInstance> towns;
+};
 
 class CGameState
 {
-
-}
+	std::map<int,PlayerState> players; //color <-> playerstate
+};
 
 #endif //CGAMESTATE_H

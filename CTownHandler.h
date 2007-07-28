@@ -1,7 +1,9 @@
 #ifndef CTOWNHANDLER_H
 #define CTOWNHANDLER_H
 #include "CDefHandler.h"
+#include "CCreatureHandler.h"
 #include "SDL.h"
+#include "int3.h"
 #include <string>
 #include <vector>
 class CTown
@@ -22,8 +24,19 @@ public:
 };
 class CTownInstance
 {
-	int type;
-	std::string name;
-
+	int type; //type of town
+	int owner; //ID of owner
+	int3 pos; //position
+	CTown * town;
+	std::string name; // name of town
+	CCreatureSet garrison;
+	int builded; //how many buildings has been built this turn
+	int destroyed; //how many buildings has been destroyed this turn
+	
+	//TODO:
+	//buildings
+	//creatures to be recruited
+	//hero in garrison
+	//spells in mage guild
 };
 #endif //CTOWNHANDLER_H

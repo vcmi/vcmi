@@ -14,19 +14,58 @@ extern SDL_Surface * ekran;
 extern TTF_Font * TNRB16, *TNR, *GEOR13;
 SDL_Color genRGB(int r, int g, int b, int a=0);
 //void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2);
-extern CPreGame * CPG;
 bool isItIn(const SDL_Rect * rect, int x, int y);
 
+using namespace NMessage;
+
+
+namespace NMessage
+{
+	std::vector<std::vector<SDL_Surface*> > piecesOfBox; //in colors of all players
+	SDL_Surface * background = NULL;
+}
 
 CMessage::CMessage()
 {
-	piecesOfBox = CGI->spriteh->giveDef("DIALGBOX.DEF");
-	background = CGI->bitmaph->loadBitmap("DIBOXBCK.BMP");
-	SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
+	if (!NMessage::background)
+		init();
 }
-CMessage::~CMessage()
+void CMessage::init()
 {
-	delete piecesOfBox;
+	{
+		for (int i=0;i<PLAYER_LIMIT;i++)
+		{
+			CDefHandler * bluePieces = CGI->spriteh->giveDef("DIALGBOX.DEF");
+			std::vector<SDL_Surface *> n;
+			piecesOfBox.push_back(n);
+			if (i==1)
+			{
+				for (int j=0;j<bluePieces->ourImages.size();j++)
+				{
+					piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
+				}
+			}
+			for (int j=0;j<bluePieces->ourImages.size();j++)
+			{
+				CSDL_Ext::blueToPlayersAdv(bluePieces->ourImages[j].bitmap,i);
+				piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
+			}
+		}
+		NMessage::background = CGI->bitmaph->loadBitmap("DIBOXBCK.BMP");
+		SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
+	}
+}
+
+
+void CMessage::dispose()
+{
+	for (int i=0;i<PLAYER_LIMIT;i++)
+	{
+		for (int j=0;j<piecesOfBox[i].size();j++)
+		{
+			SDL_FreeSurface(piecesOfBox[i][j]);
+		}
+	}
 	SDL_FreeSurface(background);
 }
 SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor)
@@ -38,43 +77,32 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor)
 		for (int j=0; j<w; j+=background->w-1)
 			SDL_BlitSurface(background,&genRect(background->h,background->w-1,1,0),ret,&genRect(h,w,j,i));
 	}
-	//SDL_Flip(ekran);
-	//CSDL_Ext::update(ekran);
-	
-	std::vector<SDL_Surface*> pieces;
-	for (int i=0;i<piecesOfBox->ourImages.size();i++)
-	{
-		pieces.push_back(piecesOfBox->ourImages[i].bitmap);
-		if (playerColor!=1)
-		{
-			CSDL_Ext::blueToPlayersAdv(pieces[pieces.size()-1],playerColor);
-		}
-	}
+
 	//obwodka I-szego rzedu pozioma
-	for (int i=0; i<w; i+=pieces[6]->w)
+	for (int i=0; i<w; i+=piecesOfBox[playerColor][6]->w)
 	{
 		SDL_BlitSurface
-			(pieces[6],NULL,ret,&genRect(pieces[6]->h,pieces[6]->w,i,0));
+			(piecesOfBox[playerColor][6],NULL,ret,&genRect(piecesOfBox[playerColor][6]->h,piecesOfBox[playerColor][6]->w,i,0));
 		SDL_BlitSurface
-			(pieces[7],NULL,ret,&genRect(pieces[7]->h,pieces[7]->w,i,h-pieces[7]->h));
+			(piecesOfBox[playerColor][7],NULL,ret,&genRect(piecesOfBox[playerColor][7]->h,piecesOfBox[playerColor][7]->w,i,h-piecesOfBox[playerColor][7]->h));
 	}
 	//obwodka I-szego rzedu pionowa
-	for (int i=0; i<h; i+=piecesOfBox->ourImages[4].bitmap->h)
+	for (int i=0; i<h; i+=piecesOfBox[playerColor][4]->h)
 	{
 		SDL_BlitSurface
-			(pieces[4],NULL,ret,&genRect(pieces[4]->h,pieces[4]->w,0,i));
+			(piecesOfBox[playerColor][4],NULL,ret,&genRect(piecesOfBox[playerColor][4]->h,piecesOfBox[playerColor][4]->w,0,i));
 		SDL_BlitSurface
-			(pieces[5],NULL,ret,&genRect(pieces[5]->h,pieces[5]->w,w-pieces[5]->w,i));
+			(piecesOfBox[playerColor][5],NULL,ret,&genRect(piecesOfBox[playerColor][5]->h,piecesOfBox[playerColor][5]->w,w-piecesOfBox[playerColor][5]->w,i));
 	}
 	//corners
 	SDL_BlitSurface
-		(pieces[0],NULL,ret,&genRect(pieces[0]->h,pieces[0]->w,0,0));
+		(piecesOfBox[playerColor][0],NULL,ret,&genRect(piecesOfBox[playerColor][0]->h,piecesOfBox[playerColor][0]->w,0,0));
 	SDL_BlitSurface
-		(pieces[1],NULL,ret,&genRect(pieces[1]->h,pieces[1]->w,w-pieces[1]->w,0));
+		(piecesOfBox[playerColor][1],NULL,ret,&genRect(piecesOfBox[playerColor][1]->h,piecesOfBox[playerColor][1]->w,w-piecesOfBox[playerColor][1]->w,0));
 	SDL_BlitSurface
-		(pieces[2],NULL,ret,&genRect(pieces[2]->h,pieces[2]->w,0,h-pieces[2]->h));
+		(piecesOfBox[playerColor][2],NULL,ret,&genRect(piecesOfBox[playerColor][2]->h,piecesOfBox[playerColor][2]->w,0,h-piecesOfBox[playerColor][2]->h));
 	SDL_BlitSurface
-		(pieces[3],NULL,ret,&genRect(pieces[3]->h,pieces[3]->w,w-pieces[3]->w,h-pieces[3]->h));
+		(piecesOfBox[playerColor][3],NULL,ret,&genRect(piecesOfBox[playerColor][3]->h,piecesOfBox[playerColor][3]->w,w-piecesOfBox[playerColor][3]->w,h-piecesOfBox[playerColor][3]->h));
 	//box gotowy!
 	return ret;
 }
