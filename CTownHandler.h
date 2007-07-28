@@ -20,5 +20,10 @@ public:
 	void loadNames();
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //ID=-1 - blank; -2 - border; -3 - random
 };
+class CTownInstance
+{
+	int type;
+	std::string name;
 
+};
 #endif //CTOWNHANDLER_H

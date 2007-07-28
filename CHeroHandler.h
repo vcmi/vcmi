@@ -5,6 +5,7 @@
 #include <vector>
 #include "CCreatureHandler.h"
 #include "SDL.h"
+#include "int3.h"
 
 class CHeroClass;
 
@@ -44,7 +45,7 @@ class CHeroInstance
 {
 public:
 	CHero type;
-	int x, y, z; //position
+	int3 pos;
 	CCreatureSet army; //army
 	//TODO: armia, artefakty, itd.
 };

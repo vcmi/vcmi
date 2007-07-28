@@ -1836,96 +1836,76 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 {
 	CCreatureSet ret;
+	std::pair<CCreature *, int> ins;
 	if(number>0 && readNormalNr(pos, 2)!=0xffff)
 	{
 		int rettt = readNormalNr(pos, 2);
 		if(rettt>32768)
 			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ret.slot1 = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ret.s1 = readNormalNr(pos+2, 2);
-	}
-	else
-	{
-		ret.slot1 = NULL;
-		ret.s1 = 0;
+		ins.first = &(CGameInfo::mainObj->creh->creatures[rettt]);
+		ins.second = readNormalNr(pos+2, 2);
+		std::pair<int,std::pair<CCreature *, int> > tt(0,ins);
+		ret.slots.insert(tt);
 	}
 	if(number>1 && readNormalNr(pos+4, 2)!=0xffff)
 	{
 		int rettt = readNormalNr(pos+4, 2);
 		if(rettt>32768)
 			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ret.slot2 = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ret.s2 = readNormalNr(pos+6, 2);
-	}
-	else
-	{
-		ret.slot2 = NULL;
-		ret.s2 = 0;
+		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+		ins.second = readNormalNr(pos+6, 2);
+		std::pair<int,std::pair<CCreature *, int> > tt(1,ins);
+		ret.slots.insert(tt);
 	}
 	if(number>2 && readNormalNr(pos+8, 2)!=0xffff)
 	{
 		int rettt = readNormalNr(pos+8, 2);
 		if(rettt>32768)
 			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ret.slot3 = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ret.s3 = readNormalNr(pos+10, 2);
-	}
-	else
-	{
-		ret.slot3 = NULL;
-		ret.s3 = 0;
+		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+		ins.second = readNormalNr(pos+10, 2);
+		std::pair<int,std::pair<CCreature *, int> > tt(2,ins);
+		ret.slots.insert(tt);
 	}
 	if(number>3 && readNormalNr(pos+12, 2)!=0xffff)
 	{
 		int rettt = readNormalNr(pos+12, 2);
 		if(rettt>32768)
 			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ret.slot4 = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ret.s4 = readNormalNr(pos+14, 2);
-	}
-	else
-	{
-		ret.slot4 = NULL;
-		ret.s4 = 0;
+		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+		ins.second = readNormalNr(pos+14, 2);
+		std::pair<int,std::pair<CCreature *, int> > tt(3,ins);
+		ret.slots.insert(tt);
 	}
 	if(number>4 && readNormalNr(pos+16, 2)!=0xffff)
 	{
 		int rettt = readNormalNr(pos+16, 2);
 		if(rettt>32768)
 			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ret.slot5 = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ret.s5 = readNormalNr(pos+18, 2);
-	}
-	else
-	{
-		ret.slot5 = NULL;
-		ret.s5 = 0;
+		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+		ins.second = readNormalNr(pos+18, 2);
+		std::pair<int,std::pair<CCreature *, int> > tt(4,ins);
+		ret.slots.insert(tt);
 	}
 	if(number>5 && readNormalNr(pos+20, 2)!=0xffff)
 	{
 		int rettt = readNormalNr(pos+20, 2);
 		if(rettt>32768)
 			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ret.slot6 = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ret.s6 = readNormalNr(pos+22, 2);
-	}
-	else
-	{
-		ret.slot6 = NULL;
-		ret.s6 = 0;
+		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+		ins.second = readNormalNr(pos+22, 2);
+		std::pair<int,std::pair<CCreature *, int> > tt(5,ins);
+		ret.slots.insert(tt);
 	}
 	if(number>6 && readNormalNr(pos+24, 2)!=0xffff)
 	{
 		int rettt = readNormalNr(pos+24, 2);
 		if(rettt>32768)
 			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ret.slot7 = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ret.s7 = readNormalNr(pos+26, 2);
-	}
-	else
-	{
-		ret.slot7 = NULL;
-		ret.s7 = 0;
+		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+		ins.second = readNormalNr(pos+26, 2);
+		std::pair<int,std::pair<CCreature *, int> > tt(6,ins);
+		ret.slots.insert(tt);
 	}
 	return ret;
 }

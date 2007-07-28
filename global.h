@@ -21,5 +21,7 @@ const int F_NUMBER = 9; //factions quantity
 const int PLAYER_LIMIT = 8; //player limit per map
 const int HEROES_PER_TYPE=8; //amount of heroes of each type
 
+
+
 #define DEFBYPASS
 #endif //GLOBAL_H

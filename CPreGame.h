@@ -25,7 +25,7 @@ struct HighButton
 	int state;
 	HighButton( SDL_Rect Pos, CDefHandler* Imgs, bool Sel=false, int id=-1)
 		{type=0;imgs=Imgs;selectable=Sel;selected=false;state=0;pos=Pos;ID=id;highlightable=false;};
-	HighButton(){}
+	HighButton(){state=0;}
 	bool selectable, selected;
 	bool highlightable, highlighted;
 	virtual void show();

@@ -3,6 +3,7 @@
 
 #include <string>
 #include <vector>
+#include <map>
 #include "CDefHandler.h"
 
 class CCreature
@@ -34,8 +35,9 @@ public:
 class CCreatureSet //seven combined creatures
 {
 public:
-	CCreature * slot1, * slot2, * slot3, * slot4, * slot5, * slot6, * slot7; //types of creatures on each slot
-	unsigned int s1, s2, s3, s4, s5, s6, s7; //amounts of units in slots
+	std::map<int,std::pair<CCreature*,int> > slots;
+	//CCreature * slot1, * slot2, * slot3, * slot4, * slot5, * slot6, * slot7; //types of creatures on each slot
+	//unsigned int s1, s2, s3, s4, s5, s6, s7; //amounts of units in slots
 	bool formation; //false - wide, true - tight
 };
 
