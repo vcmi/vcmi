@@ -41,7 +41,7 @@ SDL_Color genRGB(int r, int g, int b, int a=0)
 	ret.unused=a;
 	return ret;
 }
-void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran)
+void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 {
 	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
 }

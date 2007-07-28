@@ -13,18 +13,23 @@ SDL_Rect genRect(int hh, int ww, int xx, int yy);
 extern SDL_Surface * ekran;
 extern TTF_Font * TNRB16, *TNR, *GEOR13;
 SDL_Color genRGB(int r, int g, int b, int a=0);
-void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
 //void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2);
 extern CPreGame * CPG;
-void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran);
 bool isItIn(const SDL_Rect * rect, int x, int y);
+
+
 CMessage::CMessage()
 {
 	piecesOfBox = CGI->spriteh->giveDef("DIALGBOX.DEF");
 	background = CGI->bitmaph->loadBitmap("DIBOXBCK.BMP");
 	SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
 }
-SDL_Surface * CMessage::drawBox1(int w, int h)
+CMessage::~CMessage()
+{
+	delete piecesOfBox;
+	SDL_FreeSurface(background);
+}
+SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor)
 {
 	//prepare surface
 	SDL_Surface * ret = SDL_CreateRGBSurface(ekran->flags, w, h, ekran->format->BitsPerPixel, ekran->format->Rmask, ekran->format->Gmask, ekran->format->Bmask, ekran->format->Amask);
@@ -34,52 +39,63 @@ SDL_Surface * CMessage::drawBox1(int w, int h)
 			SDL_BlitSurface(background,&genRect(background->h,background->w-1,1,0),ret,&genRect(h,w,j,i));
 	}
 	//SDL_Flip(ekran);
-	CSDL_Ext::update(ekran);
+	//CSDL_Ext::update(ekran);
+	
+	std::vector<SDL_Surface*> pieces;
+	for (int i=0;i<piecesOfBox->ourImages.size();i++)
+	{
+		pieces.push_back(piecesOfBox->ourImages[i].bitmap);
+		if (playerColor!=1)
+		{
+			CSDL_Ext::blueToPlayersAdv(pieces[pieces.size()-1],playerColor);
+		}
+	}
 	//obwodka I-szego rzedu pozioma
-	for (int i=0; i<w; i+=piecesOfBox->ourImages[6].bitmap->w)
+	for (int i=0; i<w; i+=pieces[6]->w)
 	{
 		SDL_BlitSurface
-			(piecesOfBox->ourImages[6].bitmap,NULL,
-			ret,&genRect(piecesOfBox->ourImages[6].bitmap->h,piecesOfBox->ourImages[6].bitmap->w,i,0));
+			(pieces[6],NULL,ret,&genRect(pieces[6]->h,pieces[6]->w,i,0));
 		SDL_BlitSurface
-			(piecesOfBox->ourImages[7].bitmap,NULL,
-			ret,&genRect(piecesOfBox->ourImages[7].bitmap->h,piecesOfBox->ourImages[7].bitmap->w,i,h-piecesOfBox->ourImages[7].bitmap->h));
+			(pieces[7],NULL,ret,&genRect(pieces[7]->h,pieces[7]->w,i,h-pieces[7]->h));
 	}
 	//obwodka I-szego rzedu pionowa
 	for (int i=0; i<h; i+=piecesOfBox->ourImages[4].bitmap->h)
 	{
 		SDL_BlitSurface
-			(piecesOfBox->ourImages[4].bitmap,NULL,
-			ret,&genRect(piecesOfBox->ourImages[4].bitmap->h,piecesOfBox->ourImages[4].bitmap->w,0,i));
+			(pieces[4],NULL,ret,&genRect(pieces[4]->h,pieces[4]->w,0,i));
 		SDL_BlitSurface
-			(piecesOfBox->ourImages[5].bitmap,NULL,
-			ret,&genRect(piecesOfBox->ourImages[5].bitmap->h,piecesOfBox->ourImages[5].bitmap->w,w-piecesOfBox->ourImages[5].bitmap->w,i));
+			(pieces[5],NULL,ret,&genRect(pieces[5]->h,pieces[5]->w,w-pieces[5]->w,i));
 	}
 	//corners
 	SDL_BlitSurface
-		(piecesOfBox->ourImages[0].bitmap,NULL,
-		ret,&genRect(piecesOfBox->ourImages[0].bitmap->h,piecesOfBox->ourImages[0].bitmap->w,0,0));
+		(pieces[0],NULL,ret,&genRect(pieces[0]->h,pieces[0]->w,0,0));
 	SDL_BlitSurface
-		(piecesOfBox->ourImages[1].bitmap,NULL,
-		ret,&genRect(piecesOfBox->ourImages[1].bitmap->h,piecesOfBox->ourImages[1].bitmap->w,w-piecesOfBox->ourImages[1].bitmap->w,0));
+		(pieces[1],NULL,ret,&genRect(pieces[1]->h,pieces[1]->w,w-pieces[1]->w,0));
 	SDL_BlitSurface
-		(piecesOfBox->ourImages[2].bitmap,NULL,
-		ret,&genRect(piecesOfBox->ourImages[2].bitmap->h,piecesOfBox->ourImages[2].bitmap->w,0,h-piecesOfBox->ourImages[2].bitmap->h));
+		(pieces[2],NULL,ret,&genRect(pieces[2]->h,pieces[2]->w,0,h-pieces[2]->h));
 	SDL_BlitSurface
-		(piecesOfBox->ourImages[3].bitmap,NULL,
-		ret,&genRect(piecesOfBox->ourImages[3].bitmap->h,piecesOfBox->ourImages[3].bitmap->w,w-piecesOfBox->ourImages[3].bitmap->w,h-piecesOfBox->ourImages[3].bitmap->h));
+		(pieces[3],NULL,ret,&genRect(pieces[3]->h,pieces[3]->w,w-pieces[3]->w,h-pieces[3]->h));
 	//box gotowy!
-
 	return ret;
 }
 
-std::vector<std::string> * CMessage::breakText(std::string text, int line)
+std::vector<std::string> * CMessage::breakText(std::string text, int line, bool userBreak)
 {
 	std::vector<std::string> * ret = new std::vector<std::string>();
 	while (text.length()>line)
 	{
 		int whereCut = -1;
-		for (int i=line; i>0; i--)
+		bool pom = true;
+		for (int i=0; i<line; i++)
+		{
+			if (text[i]==10) //end of line sign
+			{
+				whereCut=i+1;
+				pom=false;
+				break;
+			}
+		}
+		for (int i=line; i>0&&pom; i--)
 		{
 			if (text[i]==' ')
 			{
@@ -89,6 +105,15 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line)
 		}
 		ret->push_back(text.substr(0,whereCut));
 		text.erase(0,whereCut);
+	}
+	for (int i=0;i<text.length();i++)
+	{		
+		if (text[i]==10) //end of line sign
+		{
+			ret->push_back(text.substr(0,i));
+			text.erase(0,i);
+			i=0;
+		}
 	}
 	if (text.length() > 0)
 		ret->push_back(text);
@@ -118,7 +143,7 @@ SDL_Surface * CMessage::genMessage
 		hh+=70;
 	}
 
-	SDL_Surface * ret = drawBox1(ww,hh);
+	SDL_Surface * ret = drawBox1(ww,hh,0);
 	//prepare title text
 	
 	if (title.length())
