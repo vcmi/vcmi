@@ -25,7 +25,7 @@ public:
 	SDL_Surface * terrBitmap(int x, int y);
 	SDL_Surface * undTerrBitmap(int x, int y);
 	CDefHandler * fullHide;
-	CSemiDefHandler * partialHide;
+	CDefHandler * partialHide;
 
 	std::vector< std::vector<char> > visibility; //true means that pointed place is visible
 	std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible

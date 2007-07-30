@@ -42,7 +42,7 @@ public:
 void CMapHandler::init()
 {
 	fullHide = CGameInfo::mainObj->spriteh->giveDef("TSHRC.DEF");
-	partialHide = CGameInfo::mainObj->sspriteh->giveDef("TSHRE.DEF");
+	partialHide = CGameInfo::mainObj->spriteh->giveDef("TSHRE.DEF");
 
 	for(int i=0; i<partialHide->ourImages.size(); ++i)
 	{
