@@ -385,6 +385,7 @@ int CLodHandler::infm(FILE *source, FILE *dest, int wBits)
 }
 CDefHandler * CLodHandler::giveDef(std::string defName) 
 {
+	std::transform(defName.begin(), defName.end(), defName.begin(), (int(*)(int))toupper);
 	Entry * ourEntry = entries.znajdz(Entry(defName));
 	CDefHandler * ret;
 	FLOD.seekg(ourEntry->offset,std::ios_base::beg);

@@ -564,7 +564,11 @@ void CAmbarCendamo::deh3m()
 				spec->bytes[2] = bufor[i]; ++i;
 				spec->bytes[3] = bufor[i]; ++i;
 				spec->player = bufor[i]; ++i;
-				spec->type = CGameInfo::mainObj->heroh->heroes[readNormalNr(i, 1)]; ++i;
+				int typeBuf = readNormalNr(i, 1); ++i;
+				if(typeBuf==0xff)
+					spec->type = NULL;
+				else
+					spec->type = CGameInfo::mainObj->heroh->heroes[typeBuf];
 				bool isName = bufor[i]; ++i; //true if hero has nonstandard name
 				if(isName)
 				{

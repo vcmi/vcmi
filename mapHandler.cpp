@@ -75,7 +75,327 @@ void CMapHandler::init()
 	visibility[7][6] = false;
 	visibility[6][9] = false;
 
-	terrainBitmap = new SDL_Surface **[reader->map.width+8];
+
+	//initializing road's and river's DefHandlers
+
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    int rmask = 0xff000000;
+    int gmask = 0x00ff0000;
+    int bmask = 0x0000ff00;
+    int amask = 0x000000ff;
+#else
+    int rmask = 0x000000ff;
+    int gmask = 0x0000ff00;
+    int bmask = 0x00ff0000;
+    int amask = 0xff000000;
+#endif
+
+	SDL_Surface * su = SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32,
+                                   rmask, gmask, bmask, amask);
+
+	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("dirtrd.def"));
+	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("gravrd.def"));
+	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("cobbrd.def"));
+	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("clrrvr.def"));
+	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("icyrvr.def"));
+	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("mudrvr.def"));
+	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("lavrvr.def"));
+
+	roadBitmaps = new SDL_Surface **[reader->map.width+2*Woff];
+	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
+		roadBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
+
+	for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
+	{
+		for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
+		{
+			if(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1)
+				roadBitmaps[i][j] = NULL;
+			else
+			{
+				if(reader->map.terrain[i-Woff][j-Hoff].malle)
+				{
+					roadBitmaps[i][j] = roadDefs[reader->map.terrain[i-Woff][j-Hoff].malle-1]->ourImages[reader->map.terrain[i-Woff][j-Hoff].roadDir].bitmap;
+					int cDir = reader->map.terrain[i-Woff][j-Hoff].roadDir;
+					if(cDir==0 || cDir==1 || cDir==2 || cDir==3 || cDir==4 || cDir==5)
+					{
+						if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.terrain[i-Woff+1][j-Hoff].malle && reader->map.terrain[i-Woff][j-Hoff-1].malle)
+						{
+							roadBitmaps[i][j] = CSDL_Ext::hFlip(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+						}
+						if(i-Woff-1>0 && j-Hoff-1>0 && reader->map.terrain[i-Woff-1][j-Hoff].malle && reader->map.terrain[i-Woff][j-Hoff-1].malle)
+						{
+							roadBitmaps[i][j] = CSDL_Ext::rotate03(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+						}
+						if(i-Woff-1>0 && j-Hoff+1<reader->map.height && reader->map.terrain[i-Woff-1][j-Hoff].malle && reader->map.terrain[i-Woff][j-Hoff+1].malle)
+						{
+							roadBitmaps[i][j] = CSDL_Ext::rotate01(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+						}
+					}
+					if(cDir==8 || cDir==9)
+					{
+						if(j-Hoff+1<reader->map.height && !(reader->map.terrain[i-Woff][j-Hoff+1].malle))
+						{
+							roadBitmaps[i][j] = CSDL_Ext::hFlip(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+						}
+					}
+					if(cDir==6 || cDir==7)
+					{
+						if(i-Woff+1<reader->map.width && !(reader->map.terrain[i-Woff+1][j-Hoff].malle))
+						{
+							roadBitmaps[i][j] = CSDL_Ext::rotate01(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+						}
+					}
+					if(cDir==0x0e)
+					{
+						if(j-Hoff+1<reader->map.height && !(reader->map.terrain[i-Woff][j-Hoff+1].malle))
+						{
+							roadBitmaps[i][j] = CSDL_Ext::hFlip(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+						}
+					}
+					if(cDir==0x0f)
+					{
+						if(i-Woff+1<reader->map.width && !(reader->map.terrain[i-Woff+1][j-Hoff].malle))
+						{
+							roadBitmaps[i][j] = CSDL_Ext::rotate01(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
+							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+						}
+					}
+				}
+				else
+					roadBitmaps[i][j] = NULL;
+			}
+		}
+	}
+
+	undRoadBitmaps = new SDL_Surface **[reader->map.width+2*Woff];
+	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
+		undRoadBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
+
+	if(reader->map.twoLevel)
+	{
+		for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
+		{
+			for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
+			{
+				if(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1)
+					undRoadBitmaps[i][j] = NULL;
+				else
+				{
+					if(reader->map.terrain[i-Woff][j-Hoff].malle)
+					{
+						undRoadBitmaps[i][j] = roadDefs[reader->map.undergroungTerrain[i-Woff][j-Hoff].malle-1]->ourImages[reader->map.undergroungTerrain[i-Woff][j-Hoff].roadDir].bitmap;
+						int cDir = reader->map.terrain[i-Woff][j-Hoff].roadDir;
+						if(cDir==0 || cDir==1 || cDir==2 || cDir==3 || cDir==4 || cDir==5)
+						{
+							if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff+1][j-Hoff].malle && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].malle)
+							{
+								undRoadBitmaps[i][j] = CSDL_Ext::hFlip(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
+							}
+							if(i-Woff-1>0 && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff-1][j-Hoff].malle && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].malle)
+							{
+								undRoadBitmaps[i][j] = CSDL_Ext::rotate03(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
+							}
+							if(i-Woff-1>0 && j-Hoff+1<reader->map.height && reader->map.undergroungTerrain[i-Woff-1][j-Hoff].malle && reader->map.undergroungTerrain[i-Woff][j-Hoff+1].malle)
+							{
+								undRoadBitmaps[i][j] = CSDL_Ext::rotate01(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
+							}
+						}
+						if(cDir==8 || cDir==9)
+						{
+							if(j-Hoff+1<reader->map.height && !(reader->map.undergroungTerrain[i-Woff][j-Hoff+1].malle))
+							{
+								undRoadBitmaps[i][j] = CSDL_Ext::hFlip(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
+							}
+						}
+						if(cDir==6 || cDir==7)
+						{
+							if(i-Woff+1<reader->map.width && !(reader->map.undergroungTerrain[i-Woff+1][j-Hoff].malle))
+							{
+								undRoadBitmaps[i][j] = CSDL_Ext::rotate01(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
+							}
+						}
+						if(cDir==0x0e)
+						{
+							if(j-Hoff+1<reader->map.height && !(reader->map.undergroungTerrain[i-Woff][j-Hoff+1].malle))
+							{
+								undRoadBitmaps[i][j] = CSDL_Ext::hFlip(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
+							}
+						}
+						if(cDir==0x0f)
+						{
+							if(i-Woff+1<reader->map.width && !(reader->map.undergroungTerrain[i-Woff+1][j-Hoff].malle))
+							{
+								undRoadBitmaps[i][j] = CSDL_Ext::rotate01(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
+								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
+							}
+						}
+					}
+					else
+						undRoadBitmaps[i][j] = NULL;
+				}
+			}
+		}
+	}
+
+	staticRiverBitmaps = new SDL_Surface **[reader->map.width+2*Woff];
+	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
+		staticRiverBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
+
+	for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
+	{
+		for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
+		{
+			if(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1)
+				staticRiverBitmaps[i][j] = NULL;
+			else
+			{
+				if(reader->map.terrain[i-Woff][j-Hoff].nuine)
+				{
+					staticRiverBitmaps[i][j] = staticRiverDefs[reader->map.terrain[i-Woff][j-Hoff].nuine-1]->ourImages[reader->map.terrain[i-Woff][j-Hoff].rivDir].bitmap;
+					int cDir = reader->map.terrain[i-Woff][j-Hoff].rivDir;
+					if(cDir==0 || cDir==1 || cDir==2 || cDir==3)
+					{
+						if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.terrain[i-Woff+1][j-Hoff].nuine && reader->map.terrain[i-Woff][j-Hoff-1].nuine)
+						{
+							staticRiverBitmaps[i][j] = CSDL_Ext::hFlip(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
+						}
+						if(i-Woff-1>0 && j-Hoff-1>0 && reader->map.terrain[i-Woff-1][j-Hoff].nuine && reader->map.terrain[i-Woff][j-Hoff-1].nuine)
+						{
+							staticRiverBitmaps[i][j] = CSDL_Ext::rotate03(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
+						}
+						if(i-Woff-1>0 && j-Hoff+1<reader->map.height && reader->map.terrain[i-Woff-1][j-Hoff].nuine && reader->map.terrain[i-Woff][j-Hoff+1].nuine)
+						{
+							staticRiverBitmaps[i][j] = CSDL_Ext::rotate01(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
+						}
+					}
+					if(cDir==5 || cDir==6)
+					{
+						if(j-Hoff+1<reader->map.height && !(reader->map.terrain[i-Woff][j-Hoff+1].nuine))
+						{
+							staticRiverBitmaps[i][j] = CSDL_Ext::hFlip(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
+						}
+					}
+					if(cDir==7 || cDir==8)
+					{
+						if(i-Woff+1<reader->map.width && !(reader->map.terrain[i-Woff+1][j-Hoff].nuine))
+						{
+							staticRiverBitmaps[i][j] = CSDL_Ext::rotate01(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
+							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
+						}
+					}
+				}
+				else
+					staticRiverBitmaps[i][j] = NULL;
+			}
+		}
+	}
+
+	undStaticRiverBitmaps = new SDL_Surface **[reader->map.width+2*Woff];
+	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
+		undStaticRiverBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
+
+	if(reader->map.twoLevel)
+	{
+		for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
+		{
+			for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
+			{
+				if(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1)
+					undStaticRiverBitmaps[i][j] = NULL;
+				else
+				{
+					if(reader->map.undergroungTerrain[i-Woff][j-Hoff].nuine)
+					{
+						undStaticRiverBitmaps[i][j] = staticRiverDefs[reader->map.undergroungTerrain[i-Woff][j-Hoff].nuine-1]->ourImages[reader->map.undergroungTerrain[i-Woff][j-Hoff].rivDir].bitmap;
+						int cDir = reader->map.undergroungTerrain[i-Woff][j-Hoff].rivDir;
+						if(cDir==0 || cDir==1 || cDir==2 || cDir==3)
+						{
+							if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff+1][j-Hoff].nuine && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].nuine)
+							{
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::hFlip(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
+							}
+							if(i-Woff-1>0 && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff-1][j-Hoff].nuine && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].nuine)
+							{
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::rotate03(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
+							}
+							if(i-Woff-1>0 && j-Hoff+1<reader->map.height && reader->map.undergroungTerrain[i-Woff-1][j-Hoff].nuine && reader->map.undergroungTerrain[i-Woff][j-Hoff+1].nuine)
+							{
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::rotate01(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
+							}
+						}
+						if(cDir==5 || cDir==6)
+						{
+							if(j-Hoff+1<reader->map.height && !(reader->map.undergroungTerrain[i-Woff][j-Hoff+1].nuine))
+							{
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::hFlip(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
+							}
+						}
+						if(cDir==7 || cDir==8)
+						{
+							if(i-Woff+1<reader->map.width && !(reader->map.undergroungTerrain[i-Woff+1][j-Hoff].nuine))
+							{
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::rotate01(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
+								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
+							}
+						}
+					}
+					else
+						undStaticRiverBitmaps[i][j] = NULL;
+				}
+			}
+		}
+	}
+
+	SDL_FreeSurface(su);
+
+	//road's and river's DefHandlers initialized
+
+	terrainBitmap = new SDL_Surface **[reader->map.width+2*Woff];
 	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
 		terrainBitmap[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
 	CDefHandler * bord = CGameInfo::mainObj->spriteh->giveDef("EDG.DEF");
@@ -311,7 +631,54 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			delete sr;
 		}
 	}
-	////terrain printed; printing objects
+	////terrain printed
+	////printing rivers
+	for (int bx=0; bx<dx; bx++)
+	{
+		for (int by=0; by<dy; by++)
+		{
+			SDL_Rect * sr = new SDL_Rect;
+			sr->y=by*32;
+			sr->x=bx*32;
+			sr->h=sr->w=32;
+			if (!level)
+			{
+				if(staticRiverBitmaps[bx+x][by+y])
+					SDL_BlitSurface(staticRiverBitmaps[bx+x][by+y],NULL,su,sr);
+			}
+			else 
+			{
+				if(undStaticRiverBitmaps[bx+x][by+y])
+					SDL_BlitSurface(undStaticRiverBitmaps[bx+x][by+y],NULL,su,sr);
+			}
+			delete sr;
+		}
+	}
+	////rivers printed
+	////printing roads
+	for (int bx=0; bx<dx; bx++)
+	{
+		for (int by=0; by<dy; by++)
+		{
+			SDL_Rect * sr = new SDL_Rect;
+			sr->y=by*32;
+			sr->x=bx*32;
+			sr->h=sr->w=32;
+			if (!level)
+			{
+				if(roadBitmaps[bx+x][by+y])
+					SDL_BlitSurface(roadBitmaps[bx+x][by+y],NULL,su,sr);
+			}
+			else 
+			{
+				if(undRoadBitmaps[bx+x][by+y])
+					SDL_BlitSurface(undRoadBitmaps[bx+x][by+y],NULL,su,sr);
+			}
+			delete sr;
+		}
+	}
+	////roads printed
+	////printing objects
 	std::vector<ObjSorter> lowPrObjs;
 	std::vector<ObjSorter> highPrObjs;
 	std::vector<ObjSorter> highPrObjsVis;

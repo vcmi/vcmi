@@ -4,6 +4,7 @@
 #include "CAmbarCendamo.h"
 #include "CSemiDefHandler.h"
 #include "CGameInfo.h"
+#include "CDefHandler.h"
 
 const int Woff = 4; //width of map's frame
 const int Hoff = 4; 
@@ -29,6 +30,12 @@ public:
 
 	std::vector< std::vector<char> > visibility; //true means that pointed place is visible
 	std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
+	std::vector<CDefHandler *> roadDefs;
+	std::vector<CDefHandler *> staticRiverDefs;
+	SDL_Surface *** roadBitmaps;
+	SDL_Surface *** undRoadBitmaps;
+	SDL_Surface *** staticRiverBitmaps;
+	SDL_Surface *** undStaticRiverBitmaps;
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
