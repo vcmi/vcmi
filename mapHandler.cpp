@@ -195,10 +195,10 @@ void CMapHandler::init()
 					undRoadBitmaps[i][j] = NULL;
 				else
 				{
-					if(reader->map.terrain[i-Woff][j-Hoff].malle)
+					if(reader->map.undergroungTerrain[i-Woff][j-Hoff].malle)
 					{
 						undRoadBitmaps[i][j] = roadDefs[reader->map.undergroungTerrain[i-Woff][j-Hoff].malle-1]->ourImages[reader->map.undergroungTerrain[i-Woff][j-Hoff].roadDir].bitmap;
-						int cDir = reader->map.terrain[i-Woff][j-Hoff].roadDir;
+						int cDir = reader->map.undergroungTerrain[i-Woff][j-Hoff].roadDir;
 						if(cDir==0 || cDir==1 || cDir==2 || cDir==3 || cDir==4 || cDir==5)
 						{
 							if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff+1][j-Hoff].malle && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].malle)
