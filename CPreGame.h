@@ -1,6 +1,7 @@
 #ifndef CPREGAME_H
 #define CPREGAME_H
 #include "SDL.h"
+#include "StartInfo.h"
 #include "CSemiDefHandler.h"
 #include "CSemiLodHandler.h"
 #include "CPreGameTextHandler.h" 
@@ -9,7 +10,6 @@
 #include "CMusicHandler.h"
 class CPreGame;
 extern CPreGame * CPG;
-enum Ebonus {brandom=-1,bartifact, bgold, bresource};
 
 typedef void(CPreGame::*ttt)();
 template <class T=ttt> class CGroup;
@@ -105,20 +105,6 @@ public:
 	CGroup():selected(NULL),type(0){};
 };
 
-struct StartInfo
-{
-	struct PlayerSettings
-	{
-		int castle, hero, heroPortrait; //ID, if -1 then random, if -2 then none
-		std::string heroName;
-		Ebonus bonus; 
-		Ecolor color; //from 0 - 
-		int handicap;//0-no, 1-mild, 2-severe
-		std::string name;
-	};
-	std::vector<PlayerSettings> playerInfos;
-	int turnTime; //in minutes, 0=unlimited
-};
 class PreGameTab
 {
 public:

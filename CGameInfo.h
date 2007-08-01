@@ -1,6 +1,8 @@
 #ifndef CGAMEINFO_H
 #define CGAMEINFO_H
 
+#include "CPreGame.h"
+#include "StartInfo.h"
 #include "CSpellHandler.h"
 #include "CAbilityHandler.h"
 #include "CCreaturehandler.h"
@@ -16,8 +18,8 @@
 #include "CTownHandler.h"
 #include "CGeneralTextHandler.h"
 #include "SDL.h"
-#include <vector>
 
+#include <vector>
 /*
 	CGameInfo class
 	for allowing different functions for modifying game informations
@@ -43,6 +45,7 @@ public:
 	CGeneralTextHandler * generaltexth;
 	std::vector<SDL_Color> playerColors;
 	SDL_Color neutralColor;
+	StartInfo scenarioOps;
 };
 
 #endif //CGAMEINFO_H

@@ -2011,6 +2011,17 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 		art4DefNumbers.push_back(-1);
 	}
 
+	std::vector<std::string> town0DefNames; //without fort
+	std::vector<int> town0DefNumbers;
+	std::vector<std::string> town1DefNames; //with fort
+	std::vector<int> town1DefNumbers;
+
+	for(int dd=0; dd<9; ++dd)
+	{
+		town1DefNames.push_back(CGI->dobjinfo->objs[dd+385].defName);
+		town1DefNumbers.push_back(-1);
+	}
+	
 	//variables initialized
 	for(int j=0; j<CGI->objh->objInstances.size(); ++j)
 	{
@@ -2449,6 +2460,59 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 				}
 				break;
 			}
+		case EDefType::TOWN_DEF:
+			{
+				if(curDef.bytes[16]==77) //random town
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 98;
+					if(((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player==0xff)
+					{
+						nxt.bytes[20] = rand()%town1DefNames.size();		
+					}
+					else
+					{
+						if(CGI->scenarioOps.playerInfos[((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player].castle>-1)
+						{
+							nxt.bytes[20] = CGI->scenarioOps.playerInfos[((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player].castle;
+						}
+						else
+						{
+							nxt.bytes[20] = rand()%town1DefNames.size();
+						}
+					}
+					if(town1DefNumbers[nxt.bytes[20]]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = town1DefNumbers[nxt.bytes[20]];
+						continue;
+					}
+					nxt.name = town1DefNames[nxt.bytes[20]];
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(town1DefNumbers[nxt.bytes[20]]==-1)
+					{
+						town1DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+				}
+				//((CCastleObjInfo*)CGI->objh->objInstances[j].info)
+				break;
+			}
 		} //end of main switch
 	} //end of main loop
+	//for(int j=0; j<CGI->objh->objInstances.size(); ++j) //for creature dwellings on map (they are town type dependent)
+	//{
+	//	DefInfo curDef = map.defy[CGI->objh->objInstances[j].defNumber];
+	//}
 }

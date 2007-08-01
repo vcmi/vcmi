@@ -1,3 +1,6 @@
+#ifndef CGAMEINTERFACE_H
+#define CGAMEINTERFACE_H
+
 #include "SDL.h"
 #include "CDefHandler.h"
 #include "SDL_Extensions.h"
@@ -60,3 +63,5 @@ class CPlayerInterface
 	std::vector<KeyInterested*> keyinterested;
 	void handleEvent(SDL_Event * sEvent);
 };
+
+#endif //CGAMEINTERFACE_H

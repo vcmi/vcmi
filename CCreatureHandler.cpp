@@ -446,7 +446,7 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 
 void CCreatureHandler::loadUnitAnimations()
 {
-	std::ifstream inp("CREDEFS.TXT", std::ios::in | std::ios::binary);
+	std::ifstream inp("CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
 	inp.seekg(0,std::ios::end); // na koniec
 	int andame = inp.tellg();  // read length
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek

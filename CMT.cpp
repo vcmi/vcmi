@@ -284,7 +284,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//CSDL_Ext::blueToPlayersAdv(ll->piecesOfBox[0].ourImages[0].bitmap, 0);
 		//SDL_SaveBMP(ll->piecesOfBox[0].ourImages[0].bitmap, "test2.bmp");
 		cpg->mush = mush;
-		cpg->runLoop();
+		cgi->scenarioOps = cpg->runLoop();
 		THC tmh.getDif();
 
 		//////////////////////////////////////////////////////////////////////////////// lod testing

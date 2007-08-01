@@ -140,7 +140,7 @@ void CMapHandler::init()
 					}
 					if(cDir==8 || cDir==9)
 					{
-						if(j-Hoff+1<reader->map.height && !(reader->map.terrain[i-Woff][j-Hoff+1].malle))
+						if((j-Hoff+1<reader->map.height && !(reader->map.terrain[i-Woff][j-Hoff+1].malle)) || j-Hoff+1==reader->map.height)
 						{
 							roadBitmaps[i][j] = CSDL_Ext::hFlip(roadBitmaps[i][j]);
 							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
@@ -222,7 +222,7 @@ void CMapHandler::init()
 						}
 						if(cDir==8 || cDir==9)
 						{
-							if(j-Hoff+1<reader->map.height && !(reader->map.undergroungTerrain[i-Woff][j-Hoff+1].malle))
+							if((j-Hoff+1<reader->map.height && !(reader->map.undergroungTerrain[i-Woff][j-Hoff+1].malle)) || j-Hoff+1==reader->map.height)
 							{
 								undRoadBitmaps[i][j] = CSDL_Ext::hFlip(undRoadBitmaps[i][j]);
 								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
