@@ -4,16 +4,11 @@
 #include "SDL.h"
 #include "CDefHandler.h"
 #include "SDL_Extensions.h"
-class CGameInterface
-{
-};
-class CAdvMapInt : public CGameInterface //adventure map interface
-{
-	SDL_Surface * bg;
-};
-class CAICallback : public CGameInterface // callback for AI
-{
-};
+#include <boost/logic/tribool.hpp>
+BOOST_TRIBOOL_THIRD_STATE(outOfRange)
+using namespace boost::logic;
+class CAdvMapInt;
+
 class CIntObject //interface object
 {
 public:
@@ -23,45 +18,65 @@ public:
 class CButtonBase : public CIntObject
 {
 public:
-	int type;
+	int type; //advmapbutton=2
 	bool abs;
-	struct Offset
-	{
-		int x, y;
-	}  *offset;
+	bool active;
 	CIntObject * ourObj;
 	int state;
 	std::vector<SDL_Surface*> imgs;
 	virtual void show() ;
-	CButtonBase(){abs=true;ourObj=NULL;}
+	virtual void activate()=0;
+	virtual void deactivate()=0;
+	CButtonBase();
 };
-class ClickableL : public virtual CButtonBase //for left-clicks
+class ClickableL  //for left-clicks
 {
+public:
 	bool pressed;
-	virtual void press (bool down)=0;
+	virtual void clickLeft (tribool down)=0;
+	virtual void activate()=0;
+	virtual void deactivate()=0;
 };
-class ClickableR : public virtual CButtonBase //for right-clicks
+class ClickableR //for right-clicks
 {
+public:
 	bool pressed;
-	virtual void click (bool down)=0;
+	virtual void clickRight (tribool down)=0;
+	virtual void activate()=0;
+	virtual void deactivate()=0;
 };
-class Hoverable : public virtual CButtonBase 
+class Hoverable 
 {
+public:
 	bool hovered;
 	virtual void hover (bool on)=0;
+	virtual void activate()=0;
+	virtual void deactivate()=0;
 };
-class KeyInterested : public virtual CButtonBase 
+class KeyInterested
 {
+public:
 	virtual void keyPressed (SDL_KeyboardEvent & key)=0;
+	virtual void activate()=0;
+	virtual void deactivate()=0;
 };
+class CGameInterface
+{
+};
+class CAICallback : public CGameInterface // callback for AI
+{
+};
+
 class CPlayerInterface
 {
-	static CGameInterface * gamein;
+public:
+	static CAdvMapInt * adventureInt;
+
 	std::vector<ClickableL*> lclickable;
 	std::vector<ClickableR*> rclickable;
 	std::vector<Hoverable*> hoverable;
 	std::vector<KeyInterested*> keyinterested;
+
 	void handleEvent(SDL_Event * sEvent);
 };
-
 #endif //CGAMEINTERFACE_H

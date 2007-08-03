@@ -27,8 +27,8 @@ public:
 	static SDL_Surface * drawBox1(int w, int h, int playerColor=1);
 	static std::vector<std::string> * breakText(std::string text, int line=30, bool userBreak=true); //line - chars per line
 	CMessage();
-	void init();
-	void dispose();
+	static void init();
+	static void dispose();
 };
 //
 

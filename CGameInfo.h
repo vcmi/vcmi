@@ -17,6 +17,7 @@
 #include "CLodHandler.h"
 #include "CTownHandler.h"
 #include "CGeneralTextHandler.h"
+#include "CGameInterface.h"
 #include "SDL.h"
 
 #include <vector>
@@ -43,6 +44,7 @@ public:
 	CLodHandler * spriteh;
 	CLodHandler * bitmaph;
 	CGeneralTextHandler * generaltexth;
+	CPlayerInterface * playerint;
 	std::vector<SDL_Color> playerColors;
 	SDL_Color neutralColor;
 	StartInfo scenarioOps;

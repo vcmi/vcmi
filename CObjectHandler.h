@@ -292,7 +292,7 @@ class CObjectInstance //instance of object
 public:
 	int defNumber; //specifies number of def file with animation of this object
 	int id; //number of object in CObjectHandler's vector
-	int x, y, z; // position
+	int3 pos; // position
 	CSpecObjInfo * info; //pointer to something with additional information
 };
 

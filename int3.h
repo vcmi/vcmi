@@ -3,6 +3,7 @@
 
 class int3
 {
+public:
 	int x,y,z;
 	inline int3():x(0),y(0),z(0){}; //c-tor, x/y/z initialized to 0
 	inline int3(const int X, const int Y, const int Z):x(X),y(Y),z(Z){}; //c-tor

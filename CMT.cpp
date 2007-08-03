@@ -237,6 +237,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 		CGameInfo::mainObj = cgi;
 		cgi->mush = mush;
+
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		cgi->spriteh = new CLodHandler;
 		cgi->spriteh->init(std::string("newH3sprite.lod"));

@@ -74,6 +74,8 @@ void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SD
 }
 void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
 {
+	if (text.length()==0)
+		return;
 	SDL_Surface * temp;
 	switch (quality)
 	{

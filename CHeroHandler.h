@@ -44,17 +44,17 @@ class CHeroInstance
 {
 public:
 	int owner;
+	CHero type;
 	int exp; //experience point
 	int level; //current level of hero
 	std::string name; //may be custom
 	std::string biography; //may be custom
 	int portrait; //may be custom
-	CHero type;
 	int3 pos; //position on adventure map
 	CCreatureSet army; //army
 	int mana; // remaining spell points
 	int movement; //remaining movement points
-	//TODO: artifacts, primary and secondary skills, known spells, commander, blessings, curses, morale/luck modifiers
+	//TODO: artifacts, primary and secondary skills, known spells, commander, blessings, curses, morale/luck special modifiers
 };
 
 class CHeroHandler

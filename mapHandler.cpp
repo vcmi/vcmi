@@ -684,14 +684,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	std::vector<ObjSorter> highPrObjsVis;
 	for(int gg=0; gg<CGameInfo::mainObj->objh->objInstances.size(); ++gg)
 	{
-		if(CGameInfo::mainObj->objh->objInstances[gg].x >= x-Woff-4 && CGameInfo::mainObj->objh->objInstances[gg].x < dx+x-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg].y >= y-Hoff-4 && CGameInfo::mainObj->objh->objInstances[gg].y < dy+y-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg].z == level)
+		if(CGameInfo::mainObj->objh->objInstances[gg].pos.x >= x-Woff-4 && CGameInfo::mainObj->objh->objInstances[gg].pos.x < dx+x-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg].pos.y >= y-Hoff-4 && CGameInfo::mainObj->objh->objInstances[gg].pos.y < dy+y-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg].pos.z == level)
 		{
 			if(!CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].isOnDefList)
 			{
 				ObjSorter os;
 				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap;
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].y-y+Hoff)*32;
+				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].pos.x-x+Woff)*32;
+				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].pos.y-y+Hoff)*32;
 				highPrObjsVis.push_back(os);
 			}
 			else if(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].printPriority==0)
@@ -703,8 +703,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 				os.bitmap = CGameInfo::mainObj->ac->map.defy[defyod].handler->ourImages[ourimagesod].bitmap;
 
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].y-y+Hoff)*32;
+				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].pos.x-x+Woff)*32;
+				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].pos.y-y+Hoff)*32;
 				if (CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].isVisitable())
 					highPrObjsVis.push_back(os);
 				else
@@ -714,8 +714,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			{
 				ObjSorter os;
 				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap;
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].y-y+Hoff)*32;
+				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].pos.x-x+Woff)*32;
+				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].pos.y-y+Hoff)*32;
 				lowPrObjs.push_back(os);
 			}
 		}

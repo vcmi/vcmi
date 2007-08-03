@@ -465,9 +465,9 @@ void CAmbarCendamo::deh3m()
 		//std::cout << "object nr "<<ww<<"\ti= "<<i<<std::endl;
 		CObjectInstance nobj; //we will read this object
 		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
-		nobj.x = bufor[i++];
-		nobj.y = bufor[i++];
-		nobj.z = bufor[i++];
+		nobj.pos.x = bufor[i++];
+		nobj.pos.y = bufor[i++];
+		nobj.pos.z = bufor[i++];
 		nobj.defNumber = readNormalNr(i, 4); i+=4;
 
 		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
