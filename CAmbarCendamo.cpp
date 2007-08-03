@@ -2016,11 +2016,38 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 	std::vector<std::string> town1DefNames; //with fort
 	std::vector<int> town1DefNumbers;
 
-	for(int dd=0; dd<9; ++dd)
+	for(int dd=0; dd<F_NUMBER; ++dd)
 	{
 		town1DefNames.push_back(CGI->dobjinfo->objs[dd+385].defName);
 		town1DefNumbers.push_back(-1);
 	}
+
+	std::vector< std::vector<std::string> > creGenNames;
+	std::vector< std::vector<int> > creGenNumbers;
+	creGenNames.resize(F_NUMBER);
+	creGenNumbers.resize(F_NUMBER);
+
+	for(int ff=0; ff<F_NUMBER-1; ++ff)
+	{
+		for(int dd=0; dd<7; ++dd)
+		{
+			creGenNames[ff].push_back(CGI->dobjinfo->objs[395+7*ff+dd].defName);
+			creGenNumbers[ff].push_back(-1);
+		}
+	}
+
+	for(int dd=0; dd<7; ++dd)
+	{
+		creGenNumbers[8].push_back(-1);
+	}
+
+	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[457].defName);
+	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[452].defName);
+	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[455].defName);
+	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[454].defName);
+	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[453].defName);
+	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[458].defName);
+	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[459].defName);
 	
 	//variables initialized
 	for(int j=0; j<CGI->objh->objInstances.size(); ++j)
@@ -2511,8 +2538,238 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 			}
 		} //end of main switch
 	} //end of main loop
-	//for(int j=0; j<CGI->objh->objInstances.size(); ++j) //for creature dwellings on map (they are town type dependent)
-	//{
-	//	DefInfo curDef = map.defy[CGI->objh->objInstances[j].defNumber];
-	//}
+	for(int j=0; j<CGI->objh->objInstances.size(); ++j) //for creature dwellings on map (they are town type dependent)
+	{
+		DefInfo curDef = map.defy[CGI->objh->objInstances[j].defNumber];
+		switch(getDefType(curDef))
+		{
+		case EDefType::CREGEN_DEF:
+			{
+				if(((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->asCastle)
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 17;
+					for(int vv=0; vv<CGI->objh->objInstances.size(); ++vv)
+					{
+						if(getDefType(map.defy[CGI->objh->objInstances[vv].defNumber])==EDefType::TOWN_DEF)
+						{
+							if(
+								((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[0]==((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->bytes[0]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[1]==((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->bytes[1]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[2]==((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->bytes[2]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[3]==((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->bytes[3])
+							{
+								for(int mm=0; mm<town1DefNames.size(); ++mm)
+								{
+									std::transform(town1DefNames[mm].begin(), town1DefNames[mm].end(), town1DefNames[mm].begin(), (int(*)(int))toupper);
+									std::string hlp = map.defy[CGI->objh->objInstances[vv].defNumber].name;
+									std::transform(hlp.begin(), hlp.end(), hlp.begin(), (int(*)(int))toupper);
+									if(town1DefNames[mm]==hlp)
+									{
+										nxt.bytes[20] = mm;
+									}
+								}
+							}
+						}
+					}
+					int lvl = atoi(map.defy[CGI->objh->objInstances[j].defNumber].name.substr(7, 8).c_str())-1;
+					nxt.name = creGenNames[nxt.bytes[20]][lvl];
+					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+						continue;
+					}
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
+					{
+						creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
+					}
+				}
+				else //if not as castle
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 17;
+					std::vector<int> possibleTowns;
+					for(int bb=0; bb<8; ++bb)
+					{
+						if(((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->castles[0] & (1<<bb))
+						{
+							possibleTowns.push_back(bb);
+						}
+					}
+					if(((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->castles[1])
+						possibleTowns.push_back(8);
+					nxt.bytes[20] = possibleTowns[rand()%possibleTowns.size()];
+					int lvl = atoi(map.defy[CGI->objh->objInstances[j].defNumber].name.substr(7, 8).c_str())-1;
+					nxt.name = creGenNames[nxt.bytes[20]][lvl];
+					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+						continue;
+					}
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
+					{
+						creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
+					}
+				}
+				break;
+			}
+		case EDefType::CREGEN2_DEF:
+			{
+				if(((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->asCastle)
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 17;
+					for(int vv=0; vv<CGI->objh->objInstances.size(); ++vv)
+					{
+						if(getDefType(map.defy[CGI->objh->objInstances[vv].defNumber])==EDefType::TOWN_DEF)
+						{
+							if(
+								((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[0]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->bytes[0]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[1]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->bytes[1]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[2]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->bytes[2]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[3]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->bytes[3])
+							{
+								for(int mm=0; mm<town1DefNames.size(); ++mm)
+								{
+									std::transform(town1DefNames[mm].begin(), town1DefNames[mm].end(), town1DefNames[mm].begin(), (int(*)(int))toupper);
+									std::string hlp = map.defy[CGI->objh->objInstances[vv].defNumber].name;
+									std::transform(hlp.begin(), hlp.end(), hlp.begin(), (int(*)(int))toupper);
+									if(town1DefNames[mm]==hlp)
+									{
+										nxt.bytes[20] = mm;
+									}
+								}
+							}
+						}
+					}
+					int lvl = rand()%(((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->minLevel) + ((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->minLevel;
+					nxt.name = creGenNames[nxt.bytes[20]][lvl];
+					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+						continue;
+					}
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
+					{
+						creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
+					}
+				}
+				else //if not as castle
+				{
+					DefInfo nxt = curDef;
+					nxt.bytes[16] = 17;
+					std::vector<int> possibleTowns;
+					for(int bb=0; bb<8; ++bb)
+					{
+						if(((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->castles[0] & (1<<bb))
+						{
+							possibleTowns.push_back(bb);
+						}
+					}
+					if(((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->castles[1])
+						possibleTowns.push_back(8);
+					nxt.bytes[20] = possibleTowns[rand()%possibleTowns.size()];
+					int lvl = rand()%(((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->minLevel) + ((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->minLevel;
+					nxt.name = creGenNames[nxt.bytes[20]][lvl];
+					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
+					{
+						CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+						continue;
+					}
+					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						nxt.name);
+					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+					{
+						nxt.isOnDefList = false;
+					}
+					else
+					{
+						nxt.printPriority = pit->priority;
+						nxt.isOnDefList = true;
+					}
+					map.defy.push_back(nxt); // add this def to the vector
+					defsToUnpack.push_back(nxt.name);
+					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
+					{
+						creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
+					}
+				}
+			}
+		case EDefType::CREGEN3_DEF:
+			{
+				DefInfo nxt = curDef;
+				nxt.bytes[16] = 17;
+				nxt.bytes[20] = atoi(map.defy[CGI->objh->objInstances[j].defNumber].name.substr(7, 8).c_str());
+				int lvl = rand()%(((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel) + ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel;
+				nxt.name = creGenNames[nxt.bytes[20]][lvl];
+				if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
+				{
+					CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+					continue;
+				}
+				std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+					nxt.name);
+				if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+				{
+					nxt.isOnDefList = false;
+				}
+				else
+				{
+					nxt.printPriority = pit->priority;
+					nxt.isOnDefList = true;
+				}
+				map.defy.push_back(nxt); // add this def to the vector
+				defsToUnpack.push_back(nxt.name);
+				CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+				if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
+				{
+					creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
+				}
+				break;
+			}
+		}//end of main switch
+	} //end of sencond for loop
 }
