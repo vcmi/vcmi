@@ -253,6 +253,18 @@ void CGeneralTextHandler::loadToIt(std::string &dest, std::string &src, int &ite
 			iter+=2;
 			break;
 		}
+	case 4:
+		{
+			int befi=iter;
+			for(iter; iter<src.size(); ++iter)
+			{
+				if(src[iter]=='\t')
+					break;
+			}
+			dest = src.substr(befi, iter-befi);
+			iter++;
+			break;
+		}
 	}
 }
 

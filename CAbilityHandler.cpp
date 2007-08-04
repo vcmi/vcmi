@@ -1,81 +1,24 @@
 #include "stdafx.h"
 #include "CAbilityHandler.h"
-
+#include "CGameInfo.h"
+#include "CGeneralTextHandler.h"
 void CAbilityHandler::loadAbilities()
 {
-	std::ifstream inp("H3bitmap.lod\\SSTRAITS.TXT", std::ios::in);
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("SSTRAITS.TXT");
+	int it=0;
 	std::string dump;
-	for(int i=0; i<5; ++i)
+	for(int i=0; i<2; ++i)
 	{
-		inp>>dump;
+		CGeneralTextHandler::loadToIt(dump,buf,it,3);
 	}
-	inp.ignore();
-	while(!inp.eof())
+	for (int i=0; i<SKILL_QUANTITY; i++)
 	{
-		CAbility * nab = new CAbility; //new creature, that will be read
-		std::string base;
-		char * tab = new char[500];
-		int iitBef = 0;
-		int iit = 0;
-		inp.getline(tab, 500);
-		base = std::string(tab);
-		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
-		{
-			inp.close();
-			return; //add counter
-		}
-		while(base[iit]!='\t')
-		{
-			++iit;
-		}
-		nab->name = base.substr(0, iit);
-		++iit;
-		iitBef=iit;
-
-		nab->basicText = base.substr(iitBef, base.size()-iitBef);
-
-		inp.getline(tab, 500);
-		inp.getline(tab, 500);
-		base = std::string(tab);
-
-		iitBef = 0;
-		iit = 0;
-
-		while(base[iit]!='\t')
-		{
-			++iit;
-		}
-		nab->basicText2 = base.substr(0, iit);
-		++iit;
-		iitBef=iit;
-
-		nab->advText = base.substr(iitBef, base.size()-iitBef);
-
-		inp.getline(tab, 500);
-		inp.getline(tab, 500);
-		base = std::string(tab);
-
-		iitBef = 0;
-		iit = 0;
-
-		while(base[iit]!='\t')
-		{
-			++iit;
-		}
-		nab->advText2 = base.substr(0, iit);
-		++iit;
-		iitBef=iit;
-
-		nab->expText = base.substr(iitBef, base.size()-iitBef);
-
-		inp.getline(tab, 500);
-		inp.getline(tab, 500);
-		base = std::string(tab);
-
-		nab->expText2 = base;
-
+		CAbility * nab = new CAbility; //new skill, that will be read
+		CGeneralTextHandler::loadToIt(nab->name,buf,it,4);
+		CGeneralTextHandler::loadToIt(nab->basicText,buf,it,4);
+		CGeneralTextHandler::loadToIt(nab->advText,buf,it,4);
+		CGeneralTextHandler::loadToIt(nab->expText,buf,it,3);
 		nab->idNumber = abilities.size();
 		abilities.push_back(nab);
-		delete [500] tab;
 	}
 }

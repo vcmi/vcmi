@@ -2499,9 +2499,9 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					else
 					{
-						if(CGI->scenarioOps.playerInfos[((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player].castle>-1)
+						if(CGI->scenarioOps.getIthPlayersSettings(((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player).castle>-1)
 						{
-							nxt.bytes[20] = CGI->scenarioOps.playerInfos[((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player].castle;
+							nxt.bytes[20] = CGI->scenarioOps.getIthPlayersSettings(((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player).castle;
 						}
 						else
 						{

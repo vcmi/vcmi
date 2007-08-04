@@ -17,8 +17,9 @@
 
 struct PlayerState
 {
+public:
 	int color;
-	vector<vector<bool> > fogOfWarMap;
+	std::vector<std::vector<std::vector<bool> > >fogOfWarMap;
 	std::vector<int> resources;
 	std::vector<CHeroInstance> heroes;
 	std::vector<CTownInstance> towns;
@@ -26,6 +27,8 @@ struct PlayerState
 
 class CGameState
 {
+public:
+	int currentPlayer;
 	std::map<int,PlayerState> players; //color <-> playerstate
 };
 

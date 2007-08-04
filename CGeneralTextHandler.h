@@ -22,7 +22,7 @@ public:
 	std::string somethingsRiseFromDeath, somethingRisesFormDeath, somethingDiesUnderGaze, somethingsDieUnderGaze, somethingTakesDefensiveStance, somethingsTakeDefensiveStance, somethingExp, nearestTownOccupied, noAvailableTown, heroTooTiredSpell, townGateCannotBeUsed, youHaveNoHeroes, heroHasCastSpell;
 	std::string doYouWishToSaveSomethingsArmy, problemsWithInputDevices, problemsWithSound, problemsWithMouse, problemsWithWindows, abandonedShipyard, spellFailed, somethingPauses, somethingsPause, somethingLevelSomething, somethingStudiedMagic, learnsSpeced, andSpaced, fromSomethingSpaced;*/
 
-	void loadToIt(std::string & dest, std::string & src, int & iter, int mode = 0); //mode 0 - dump to tab, dest to tab, dump to eol //mode 1 - dump to tab, src to eol //mode 2 - copy to tab, dump to eol //mode 3 - copy to eol
+	static void loadToIt(std::string & dest, std::string & src, int & iter, int mode = 0); //mode 0 - dump to tab, dest to tab, dump to eol //mode 1 - dump to tab, src to eol //mode 2 - copy to tab, dump to eol //mode 3 - copy to eol //mode 4 - copy to tab
 	void load();
 };
 

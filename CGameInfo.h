@@ -18,6 +18,8 @@
 #include "CTownHandler.h"
 #include "CGeneralTextHandler.h"
 #include "CGameInterface.h"
+#include "CGameState.h"
+#include "mapHandler.h"
 #include "SDL.h"
 
 #include <vector>
@@ -25,15 +27,19 @@
 	CGameInfo class
 	for allowing different functions for modifying game informations
 */
+
+class CMapHandler;
 class CGameInfo
 {
 public:
 	static CGameInfo * mainObj; //pointer to main CGameInfo object
+	CGameState * state;
 	CArtHandler * arth;
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
 	CAbilityHandler * abilh;
 	CSpellHandler * spellh;
+	CMapHandler * mh;
 	CAmbarCendamo * ac;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
@@ -44,7 +50,7 @@ public:
 	CLodHandler * spriteh;
 	CLodHandler * bitmaph;
 	CGeneralTextHandler * generaltexth;
-	CPlayerInterface * playerint;
+	std::vector<CGameInterface *> playerint;
 	std::vector<SDL_Color> playerColors;
 	SDL_Color neutralColor;
 	StartInfo scenarioOps;

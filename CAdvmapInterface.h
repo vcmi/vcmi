@@ -71,7 +71,9 @@ class CDataBar
 	void refresh();
 };
 class CStatusBar
+	: public CIntObject
 {
+public:
 	SDL_Surface * bg;
 	std::string current;
 	void print(std::string text);
@@ -79,6 +81,7 @@ class CStatusBar
 class CMinimap
 	: public ClickableL, public ClickableR, public Hoverable, public CIntObject
 {
+public:
 	SDL_Surface * radar; //radar.def
 	SDL_Surface * terrainMap;
 	SDL_Surface * undTerrainMap; //underground
@@ -87,15 +90,41 @@ class CMinimap
 
 	bool underground; 
 
-	int3 position; //top left corner of visible map part
+};
+class CTerrainRect
+	:  public ClickableL, public ClickableR, public Hoverable, public CIntObject, public KeyInterested
+{
+public:
+	void activate(); 
+	void deactivate();
+	void clickLeft(tribool down);
+	void clickRight(tribool down);
+	void hover(bool on);
+	void keyPressed (SDL_KeyboardEvent & key);
+	void show();
 };
 /*****************************/
-class CAdvMapInt : public CGameInterface //adventure map interface
+class CAdvMapInt //adventure map interface
 {
+public:
 	CAdvMapInt(int Player);
 	~CAdvMapInt();
 
+	int3 position; //top left corner of visible map part
 	int player;
+
+	std::vector<CDefHandler *> gems;
+
+	
+	bool scrollingLeft ;
+	bool scrollingRight ;
+	bool scrollingUp ;
+	bool scrollingDown ;
+	bool updateScreen ;
+	unsigned char anim, animValHitCount; //animation frame
+
+
+
 	SDL_Surface * bg;
 	AdventureMapButton kingOverview,//- kingdom overview
 		undeground,//- underground switch
@@ -108,8 +137,12 @@ class CAdvMapInt : public CGameInterface //adventure map interface
 		nextHero, //- next hero
 		endTurn;//- end turn
 	//CHeroList herolist;
+
+	CTerrainRect terrain;
 	
 	void show();
+
+	void update();
 
 
 };

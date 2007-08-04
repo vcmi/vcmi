@@ -62,21 +62,31 @@ public:
 };
 class CGameInterface
 {
-};
-class CAICallback : public CGameInterface // callback for AI
-{
-};
+public:
+	bool human;
+	int playerID;
 
-class CPlayerInterface
+	virtual void yourTurn()=0{};
+};
+class CGlobalAI : public CGameInterface // callback for AI
 {
 public:
-	static CAdvMapInt * adventureInt;
+	virtual void yourTurn(){};
+};
+class CPlayerInterface : public CGameInterface
+{
+public:
+	CAdvMapInt * adventureInt;
+	//TODO: town interace, battle interface, other interfaces
 
 	std::vector<ClickableL*> lclickable;
 	std::vector<ClickableR*> rclickable;
 	std::vector<Hoverable*> hoverable;
 	std::vector<KeyInterested*> keyinterested;
 
+	void yourTurn();
 	void handleEvent(SDL_Event * sEvent);
+
+	CPlayerInterface(int Player);
 };
 #endif //CGAMEINTERFACE_H

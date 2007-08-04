@@ -288,30 +288,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->scenarioOps = cpg->runLoop();
 		THC tmh.getDif();
 
-		//////////////////////////////////////////////////////////////////////////////// lod testing
 
-		//CLodHandler * clod = new CLodHandler;
-		//clod->loadLod("h3abp_bm.lod");
-
-		//CLodHandler * test = new CLodHandler;
-		//test->init(std::string("h3abp_bm.lod"));
-
-		//CDefHandler * tdef = new CDefHandler;
-		//tdef->openDef(std::string("newh3sprite\\AVLSPTR3.DEF"));
-		//tdef->getSprite(0);
-
-		//CLodHandler * bitmapLod = new CLodHandler;
-		//bitmapLod->init(std::string("newH3bitmap.lod"));
-
-		//CPCXConv * tconv = new CPCXConv;
-		//tconv->fromFile(std::string("newh3bitmap\\ADOPBPNL.PCX"));
-		//tconv->convert();
-		//tconv->saveBMP(std::string("tesciczekConva.bmp"));
-
-		//CSemiDefHandler * semek = new CSemiDefHandler;
-		//semek->openDef(std::string("EDG.DEF"), std::string("H3sprite.lod"));
-
-		//////////////////////////////////////////////////////////////////////////////// lod testing end
 
 		cgi->sspriteh = new CSemiLodHandler();
 		cgi->sspriteh->openLod("H3sprite.lod");
@@ -335,8 +312,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->generaltexth->load();
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
-
+		cgi->state = new CGameState();
 		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
+
+
+
 		std::string mapname;
 		if(CPG->ourScenSel->mapsel.selected==0) CPG->ourScenSel->mapsel.selected = 1; //only for tests
 		if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
@@ -366,6 +346,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		ac->loadDefs();
 		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;
 		CMapHandler * mh = new CMapHandler();
+		cgi->mh = mh;
 		mh->reader = ac;
 		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 		mh->init();
@@ -378,6 +359,25 @@ int _tmain(int argc, _TCHAR* argv[])
 		SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
 		THC std::cout<<"Displaying terrain: "<<tmh.getDif()<<std::endl;
 
+
+
+
+		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++)
+		{
+			if(cgi->scenarioOps.playerInfos[i].name=="AI")
+				cgi->playerint.push_back(new CGlobalAI());
+			else cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color));
+		}
+
+
+		while(1)
+		{
+			for (int i=0;i<cgi->playerint.size();i++)
+			{
+				cgi->state->currentPlayer=cgi->playerint[i]->playerID;
+				cgi->playerint[i]->yourTurn();
+			}
+		}
 		//SDL_Surface * ss = ac->defs[0]->ourImages[0].bitmap;
 		//SDL_BlitSurface(ss, NULL, ekran, NULL);
 

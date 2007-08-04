@@ -2,6 +2,9 @@
 #include "CHeroHandler.h"
 #include "CGameInfo.h"
 #include <sstream>
+#include "CGameInfo.h"
+#include "CGeneralTextHandler.h"
+
 #define CGI (CGameInfo::mainObj)
 
 CHeroHandler::~CHeroHandler()
@@ -31,13 +34,14 @@ void CHeroHandler::loadPortraits()
 void CHeroHandler::loadHeroes()
 {
 	int ID=0;
-	std::ifstream inp("H3bitmap.lod\\HOTRAITS.TXT", std::ios::in);
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HOTRAITS.TXT");
+	int it=0;
 	std::string dump;
-	for(int i=0; i<25; ++i)
+	for(int i=0; i<2; ++i)
 	{
-		inp>>dump;
+		CGeneralTextHandler::loadToIt(dump,buf,it,3);
 	}
-	inp.ignore();
+
 	int numberOfCurrentClassHeroes = 0;
 	int currentClass = 0;
 	int additHero = 0;
@@ -55,7 +59,8 @@ void CHeroHandler::loadHeroes()
 	addTab[10] = HERO_BARBARIAN;
 	addTab[11] = HERO_DEMONIAC;
 
-	while(!inp.eof())
+	
+	for (int i=0; i<HEROES_QUANTITY; i++)
 	{
 		CHero * nher = new CHero;
 		if(currentClass<18)
@@ -72,196 +77,67 @@ void CHeroHandler::loadHeroes()
 		{
 			nher->heroType = addTab[additHero++];
 		}
-		std::string base;
-		char * tab = new char[500];
-		int iit = 0;
-		inp.getline(tab, 500);
-		base = std::string(tab);
-		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
-		{
-			loadSpecialAbilities();
-			loadBiographies();
-			loadHeroClasses();
-			initHeroClasses();
-			inp.close();
-			return;
-		}
-		while(base[iit]!='\t')
-		{
-			++iit;
-		}
-		nher->name = base.substr(0, iit);
-		++iit;
-		for(int i=iit; i<iit+100; ++i)
-		{
-			if(base[i]==(char)(10) || base[i]==(char)(9))
-			{
-				nher->low1stack = atoi(base.substr(iit, i).c_str());
-				iit=i+1;
-				break;
-			}
-		}
-		for(int i=iit; i<iit+100; ++i)
-		{
-			if(base[i]==(char)(10) || base[i]==(char)(9))
-			{
-				nher->high1stack = atoi(base.substr(iit, i).c_str());
-				iit=i+1;
-				break;
-			}
-		}
-		int ipom=iit;
-		while(base[ipom]!='\t')
-		{
-			++ipom;
-		}
-		nher->refType1stack = base.substr(iit, ipom-iit);
-		iit=ipom+1;
-		for(int i=iit; i<iit+100; ++i)
-		{
-			if(base[i]==(char)(10) || base[i]==(char)(9))
-			{
-				nher->low2stack = atoi(base.substr(iit, i-iit).c_str());
-				iit=i+1;
-				break;
-			}
-		}
-		for(int i=iit; i<iit+100; ++i)
-		{
-			if(base[i]==(char)(10) || base[i]==(char)(9))
-			{
-				nher->high2stack = atoi(base.substr(iit, i-iit).c_str());
-				iit=i+1;
-				break;
-			}
-		}
-		ipom=iit;
-		while(base[ipom]!='\t')
-		{
-			++ipom;
-		}
-		nher->refType2stack = base.substr(iit, ipom-iit);
-		iit=ipom+1;
-		for(int i=iit; i<iit+100; ++i)
-		{
-			if(base[i]==(char)(10) || base[i]==(char)(9))
-			{
-				nher->low3stack = atoi(base.substr(iit, i-iit).c_str());
-				iit=i+1;
-				break;
-			}
-		}
-		for(int i=iit; i<iit+100; ++i)
-		{
-			if(base[i]==(char)(10) || base[i]==(char)(9))
-			{
-				nher->high3stack = atoi(base.substr(iit, i-iit).c_str());
-				iit=i+1;
-				break;
-			}
-		}
-		nher->refType3stack = base.substr(iit, base.size()-iit);
-		nher->ID=ID++;
+
+		std::string pom ;
+		CGeneralTextHandler::loadToIt(nher->name,buf,it,4);
+
+		CGeneralTextHandler::loadToIt(pom,buf,it,4);
+		nher->low1stack = atoi(pom.c_str());
+		CGeneralTextHandler::loadToIt(pom,buf,it,4);
+		nher->high1stack = atoi(pom.c_str());
+		CGeneralTextHandler::loadToIt(nher->refType1stack,buf,it,4);
+
+		CGeneralTextHandler::loadToIt(pom,buf,it,4);
+		nher->low2stack = atoi(pom.c_str());
+		CGeneralTextHandler::loadToIt(pom,buf,it,4);
+		nher->high2stack = atoi(pom.c_str());
+		CGeneralTextHandler::loadToIt(nher->refType2stack,buf,it,4);
+
+		CGeneralTextHandler::loadToIt(pom,buf,it,4);
+		nher->low3stack = atoi(pom.c_str());
+		CGeneralTextHandler::loadToIt(pom,buf,it,4);
+		nher->high3stack = atoi(pom.c_str());
+		CGeneralTextHandler::loadToIt(nher->refType3stack,buf,it,3);
+	
+		nher->ID = heroes.size();
 		heroes.push_back(nher);
-		delete[500] tab;
 	}
 	loadSpecialAbilities();
+	loadBiographies();
+	loadHeroClasses();
+	initHeroClasses();
+	return;
 
 }
 void CHeroHandler::loadSpecialAbilities()
 {
-	std::ifstream inp("H3bitmap.lod\\HEROSPEC.txt", std::ios::in);
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HEROSPEC.TXT");
+	int it=0;
 	std::string dump;
-	for(int i=0; i<7; ++i)
+	for(int i=0; i<2; ++i)
 	{
-		inp>>dump;
+		CGeneralTextHandler::loadToIt(dump,buf,it,3);
 	}
-	inp.ignore();
-	int whHero=0;
-	while(!inp.eof() && whHero<heroes.size())
+	for (int i=0;i<heroes.size();i++)
 	{
-		std::string base;
-		char * tab = new char[500];
-		int iitBef = 0;
-		int iit = 0;
-		inp.getline(tab, 500);
-		base = std::string(tab);
-		if(base.size()<2) //ended, but some rubbish could still stay end we have something useless
-		{
-			inp.close();
-			return; //add counter
-		}
-		while(base[iit]!='\t')
-		{
-			++iit;
-		}
-		heroes[whHero]->bonusName = base.substr(0, iit);
-		++iit;
-		iitBef=iit;
-
-		if(heroes[whHero]->bonusName == std::string("Ogry"))
-		{
-			char * tab2 = new char[500];
-			inp.getline(tab2, 500);
-			base += std::string(tab2);
-			delete [500] tab2;
-		}
-
-		while(base[iit]!='\t')
-		{
-			++iit;
-		}
-		heroes[whHero]->shortBonus = base.substr(iitBef, iit-iitBef);
-		++iit;
-		iitBef=iit;
-
-		while(base[iit]!='\t' && iit<base.size())
-		{
-			++iit;
-		}
-		heroes[whHero]->longBonus = base.substr(iitBef, iit-iitBef);
-		++whHero;
-		delete [500] tab;
+		CGeneralTextHandler::loadToIt(heroes[i]->bonusName,buf,it,4);
+		CGeneralTextHandler::loadToIt(heroes[i]->shortBonus,buf,it,4);
+		CGeneralTextHandler::loadToIt(heroes[i]->longBonus,buf,it,3);
 	}
-	inp.close();
 }
 
 void CHeroHandler::loadBiographies()
-{
-	std::ifstream inp("H3bitmap.lod\\HEROBIOS.TXT", std::ios::in | std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
-	int i = 0; //buf iterator
-	for(int q=0; q<heroes.size(); ++q)
+{	
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HEROBIOS.TXT");
+	int it=0;
+	for (int i=0;i<heroes.size();i++)
 	{
-		int befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\r')
-				break;
-		}
-		heroes[q]->biography = buf.substr(befi, i-befi);
-		i+=2;
+		CGeneralTextHandler::loadToIt(heroes[i]->biography,buf,it,3);
 	}
 }
 
 void CHeroHandler::loadHeroClasses()
 {
-	//std::ifstream inp("H3bitmap.lod\\HCTRAITS.TXT", std::ios::in | std::ios::binary);
-	//inp.seekg(0,std::ios::end); // na koniec
-	//int andame = inp.tellg();  // read length
-	//inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	//char * bufor = new char[andame]; // allocate memory 
-	//inp.read((char*)bufor, andame); // read map file to buffer
-	//inp.close();
-	//std::string buf = std::string(bufor);
-	//delete [andame] bufor;
 	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HCTRAITS.TXT");
 	int andame = buf.size();
 	for(int y=0; y<andame; ++y)

@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include "CDefObjInfoHandler.h"
+#include "CGameInfo.h"
+#include <sstream>
 
 bool DefObjInfo::operator==(const std::string & por) const
 {
@@ -8,7 +10,7 @@ bool DefObjInfo::operator==(const std::string & por) const
 
 void CDefObjInfoHandler::load()
 {
-	std::ifstream inp("H3bitmap.lod\\ZOBJCTS.TXT", std::ios::in | std::ios::binary);
+	std::istringstream inp(CGameInfo::mainObj->bitmaph->getTextFile("ZOBJCTS.TXT"));
 	int objNumber;
 	inp>>objNumber;
 	for(int hh=0; hh<objNumber; ++hh)
@@ -24,5 +26,4 @@ void CDefObjInfoHandler::load()
 		inp>>nobj.priority;
 		objs.push_back(nobj);
 	}
-	inp.close();
 }

@@ -6,6 +6,18 @@ CAdvMapInt::CAdvMapInt(int Player)
 {
 	bg = CGI->bitmaph->loadBitmap("ADVMAP.bmp");
 	blueToPlayersAdv(bg,player);
+	scrollingLeft = false;
+	scrollingRight  = false;
+	scrollingUp = false ;
+	scrollingDown = false ;
+	updateScreen  = false;
+	anim=0;
+	animValHitCount=0; //animation frame
+	
+	gems.push_back(CGI->spriteh->giveDef("agemLL.def"));
+	gems.push_back(CGI->spriteh->giveDef("agemLR.def"));
+	gems.push_back(CGI->spriteh->giveDef("agemUL.def"));
+	gems.push_back(CGI->spriteh->giveDef("agemUR.def"));
 }
 CAdvMapInt::~CAdvMapInt()
 {
@@ -69,3 +81,44 @@ void CList::deactivate()
 void CList::clickLeft(tribool down)
 {
 };
+
+void CTerrainRect::activate()
+{
+	ClickableL::activate();
+	ClickableR::activate();
+	Hoverable::activate();
+	KeyInterested::activate();
+}; 
+void CTerrainRect::deactivate()
+{
+	ClickableL::deactivate();
+	ClickableR::deactivate();
+	Hoverable::deactivate();
+	KeyInterested::deactivate();
+}; 
+void CTerrainRect::clickLeft(tribool down){}
+void CTerrainRect::clickRight(tribool down){}
+void CTerrainRect::hover(bool on){}
+void CTerrainRect::keyPressed (SDL_KeyboardEvent & key){}
+void CTerrainRect::show()
+{
+	SDL_Surface * teren = CGI->mh->terrainRect
+		(CURPLINT->adventureInt->position.x,CURPLINT->adventureInt->position.y,
+		19,18,CURPLINT->adventureInt->position.z,CURPLINT->adventureInt->anim);
+	SDL_BlitSurface(teren,&genRect(547,594,0,0),ekran,&genRect(547,594,7,6));
+	SDL_FreeSurface(teren);
+}
+void CAdvMapInt::show()
+{
+	blitAt(bg,0,0);
+	SDL_Flip(ekran);
+}
+void CAdvMapInt::update()
+{
+	terrain.show();
+	blitAt(gems[2]->ourImages[CURPLINT->playerID].bitmap,6,6);
+	blitAt(gems[0]->ourImages[CURPLINT->playerID].bitmap,6,508);
+	blitAt(gems[1]->ourImages[CURPLINT->playerID].bitmap,556,508);
+	blitAt(gems[3]->ourImages[CURPLINT->playerID].bitmap,556,6);
+	updateRect(&genRect(550,600,6,6));
+}

@@ -8,9 +8,9 @@ class CAbility
 {
 public:
 	std::string name;
-	std::string basicText, basicText2;
-	std::string advText, advText2;
-	std::string expText, expText2;
+	std::string basicText;
+	std::string advText;
+	std::string expText;
 	int idNumber;
 	bool isAllowed; //true if we can use this hero's ability (map information)
 };

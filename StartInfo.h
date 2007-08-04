@@ -19,6 +19,12 @@ struct StartInfo
 	};
 	std::vector<PlayerSettings> playerInfos;
 	int turnTime; //in minutes, 0=unlimited
+	PlayerSettings & getIthPlayersSettings(int no)
+	{
+		for(int i=0; i<playerInfos.size(); ++i)
+			if(playerInfos[i].color == no)
+				return playerInfos[i];
+	}
 };
 
 #endif
