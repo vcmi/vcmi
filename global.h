@@ -8,7 +8,7 @@
 #else 
 #define THC //
 #endif
-enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK};
+enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK}; //player's colors
 enum EterrainType {dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
 enum Eriver {noRiver=0, clearRiver, icyRiver, muddyRiver, lavaRiver};
 enum Eroad {dirtRoad=1, grazvelRoad, cobblestoneRoad};
@@ -26,7 +26,7 @@ enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HREO_ALCHE
 //LOCPLINT gives pointer to the interface which is currently showed (on this machine)
 
 
-const int F_NUMBER = 9; //factions quantity
+const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
 const int HEROES_PER_TYPE=8; //amount of heroes of each type
 const int SKILL_QUANTITY=28;

@@ -281,14 +281,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Loading .lods: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
-		//CMessage * ll = new CMessage;
-		//CSDL_Ext::blueToPlayersAdv(ll->piecesOfBox[0].ourImages[0].bitmap, 0);
-		//SDL_SaveBMP(ll->piecesOfBox[0].ourImages[0].bitmap, "test2.bmp");
 		cpg->mush = mush;
 		cgi->scenarioOps = cpg->runLoop();
 		THC tmh.getDif();
-
-
 
 		cgi->sspriteh = new CSemiLodHandler();
 		cgi->sspriteh->openLod("H3sprite.lod");
@@ -314,8 +309,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->dobjinfo->load();
 		cgi->state = new CGameState();
 		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
-
-
 
 		std::string mapname;
 		if(CPG->ourScenSel->mapsel.selected==0) CPG->ourScenSel->mapsel.selected = 1; //only for tests
@@ -360,9 +353,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Displaying terrain: "<<tmh.getDif()<<std::endl;
 
 
-
-
-		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++)
+		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
 		{
 			if(cgi->scenarioOps.playerInfos[i].name=="AI")
 				cgi->playerint.push_back(new CGlobalAI());
@@ -373,8 +364,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			}
 		}
 
-
-		while(1)
+		while(1) //main game loop, one execution per turn
 		{
 			for (int i=0;i<cgi->playerint.size();i++)
 			{
@@ -382,192 +372,6 @@ int _tmain(int argc, _TCHAR* argv[])
 				cgi->playerint[i]->yourTurn();
 			}
 		}
-		//SDL_Surface * ss = ac->defs[0]->ourImages[0].bitmap;
-		//SDL_BlitSurface(ss, NULL, ekran, NULL);
-
-		bool scrollingLeft = false;
-		bool scrollingRight = false;
-		bool scrollingUp = false;
-		bool scrollingDown = false;
-		bool updateScreen = false;
-		unsigned char animVal = 0; //for animations handling
-		unsigned char animValHitCount = 0; //for slower animations
-		//initializing framerate keeper
-		FPSmanager * mainLoopFramerateKeeper = new FPSmanager;
-		SDL_initFramerate(mainLoopFramerateKeeper);
-		SDL_setFramerate(mainLoopFramerateKeeper, 30);
-		//framerate keeper initialized
-		for(;;) // main loop
-		{
-			try
-			{
-				if(SDL_PollEvent(&sEvent))  //wait for event...
-				{
-					if(sEvent.type==SDL_QUIT) 
-						return 0;
-					else if (sEvent.type==SDL_KEYDOWN)
-					{
-						switch (sEvent.key.keysym.sym)
-						{
-						case SDLK_LEFT:
-							{
-								scrollingLeft = true;
-								break;
-							}
-						case (SDLK_RIGHT):
-							{
-								scrollingRight = true;
-								break;
-							}
-						case (SDLK_UP):
-							{
-								scrollingUp = true;
-								break;
-							}
-						case (SDLK_DOWN):
-							{
-								scrollingDown = true;
-								break;
-							}
-						case (SDLK_q):
-							{
-								return 0;
-								break;
-							}
-						case (SDLK_u):
-							{
-								if(!ac->map.twoLevel)
-									break;
-								if (zz)
-									zz--;
-								else zz++;
-								updateScreen = true;
-								break;
-							}
-						}
-					} //keydown end
-					else if(sEvent.type==SDL_KEYUP) 
-					{
-						switch (sEvent.key.keysym.sym)
-						{
-						case SDLK_LEFT:
-							{
-								scrollingLeft = false;
-								break;
-							}
-						case (SDLK_RIGHT):
-							{
-								scrollingRight = false;
-								break;
-							}
-						case (SDLK_UP):
-							{
-								scrollingUp = false;
-								break;
-							}
-						case (SDLK_DOWN):
-							{
-								scrollingDown = false;
-								break;
-							}
-						}
-					}//keyup end
-					else if(sEvent.type==SDL_MOUSEMOTION)
-					{
-						if(sEvent.motion.x<15)
-						{
-							scrollingLeft = true;
-						}
-						else
-						{
-							scrollingLeft = false;
-						}
-						if(sEvent.motion.x>screen->w-15)
-						{
-							scrollingRight = true;
-						}
-						else
-						{
-							scrollingRight = false;
-						}
-						if(sEvent.motion.y<15)
-						{
-							scrollingUp = true;
-						}
-						else
-						{
-							scrollingUp = false;
-						}
-						if(sEvent.motion.y>screen->h-15)
-						{
-							scrollingDown = true;
-						}
-						else
-						{
-							scrollingDown = false;
-						}
-					}
-				} //event end
-
-				/////////////// scrolling terrain
-				if(scrollingLeft)
-				{
-					if(xx>0)
-					{
-						xx--;
-						updateScreen = true;
-					}
-				}
-				if(scrollingRight)
-				{
-					if(xx<ac->map.width-25+8)
-					{
-						xx++;
-						updateScreen = true;
-					}
-				}
-				if(scrollingUp)
-				{
-					if(yy>0)
-					{
-						yy--;
-						updateScreen = true;
-					}
-				}
-				if(scrollingDown)
-				{
-					if(yy<ac->map.height-19+8)
-					{
-						yy++;
-						updateScreen = true;
-					}
-				}
-				if(updateScreen)
-				{
-					SDL_FillRect(ekran, NULL, SDL_MapRGB(ekran->format, 0, 0, 0));
-					SDL_Surface * help = mh->terrainRect(xx,yy,25,19,zz,animVal);
-					SDL_BlitSurface(help,NULL,ekran,NULL);
-					SDL_FreeSurface(help);
-					SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
-					updateScreen = false;
-				}
-				/////////
-			}
-			catch(...)
-			{ continue; }
-
-			updateScreen = true;
-			++animValHitCount; //for animations
-			if(animValHitCount == 4)
-			{
-				animValHitCount = 0;
-				++animVal;
-			}
-
-			SDL_Delay(5); //give time for other apps
-			SDL_framerateDelay(mainLoopFramerateKeeper);
-		}
-		return 0;
 	}
 	else
 	{

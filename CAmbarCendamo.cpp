@@ -1472,6 +1472,10 @@ void CAmbarCendamo::deh3m()
 				}
 				spec->minLevel = bufor[i]; ++i;
 				spec->maxLevel = bufor[i]; ++i;
+				if(spec->maxLevel>7)
+					spec->maxLevel = 7;
+				if(spec->minLevel<1)
+					spec->minLevel = 1;
 				nobj.info = spec;
 				break;
 			}
@@ -1482,6 +1486,10 @@ void CAmbarCendamo::deh3m()
 				i+=3;
 				spec->minLevel = bufor[i]; ++i;
 				spec->maxLevel = bufor[i]; ++i;
+				if(spec->maxLevel>7)
+					spec->maxLevel = 7;
+				if(spec->minLevel<1)
+					spec->minLevel = 1;
 				nobj.info = spec;
 				break;
 			}
@@ -2743,7 +2751,16 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 				DefInfo nxt = curDef;
 				nxt.bytes[16] = 17;
 				nxt.bytes[20] = atoi(map.defy[CGI->objh->objInstances[j].defNumber].name.substr(7, 8).c_str());
-				int lvl = rand()%(((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel) + ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel;
+				int lvl = -1;
+				CCreGen3ObjInfo * ct = (CCreGen3ObjInfo*)CGI->objh->objInstances[j].info;
+				if(ct->maxLevel>7)
+					ct->maxLevel = 7;
+				if(ct->minLevel<1)
+					ct->minLevel = 1;
+				if((((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel)!=0)
+					lvl = rand()%(((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel) + ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel;
+				else
+					lvl = ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel;
 				nxt.name = creGenNames[nxt.bytes[20]][lvl];
 				if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
 				{
