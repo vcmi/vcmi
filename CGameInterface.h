@@ -15,7 +15,7 @@ public:
 	SDL_Rect pos;
 	int ID;
 };
-class CButtonBase : public CIntObject
+class CButtonBase : public virtual CIntObject
 {
 public:
 	int type; //advmapbutton=2
@@ -29,23 +29,23 @@ public:
 	virtual void deactivate()=0;
 	CButtonBase();
 };
-class ClickableL  //for left-clicks
+class ClickableL : public virtual CIntObject  //for left-clicks
 {
 public:
-	bool pressed;
+	bool pressedL;
 	virtual void clickLeft (tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
-class ClickableR //for right-clicks
+class ClickableR : public virtual CIntObject //for right-clicks
 {
 public:
-	bool pressed;
+	bool pressedR;
 	virtual void clickRight (tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
-class Hoverable 
+class Hoverable  : public virtual CIntObject
 {
 public:
 	bool hovered;
@@ -53,7 +53,7 @@ public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
-class KeyInterested
+class KeyInterested : public virtual CIntObject
 {
 public:
 	virtual void keyPressed (SDL_KeyboardEvent & key)=0;
@@ -64,7 +64,7 @@ class CGameInterface
 {
 public:
 	bool human;
-	int playerID;
+	int playerID, serialID;
 
 	virtual void yourTurn()=0{};
 };
@@ -86,7 +86,8 @@ public:
 
 	void yourTurn();
 	void handleEvent(SDL_Event * sEvent);
+	void init();
 
-	CPlayerInterface(int Player);
+	CPlayerInterface(int Player, int serial);
 };
 #endif //CGAMEINTERFACE_H

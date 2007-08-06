@@ -6,6 +6,7 @@
 #include <utility>
 #include <algorithm>
 
+
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
 	if ((x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h))
@@ -598,4 +599,21 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, int player)
 		else
 			*(sur->format->palette->colors+5) = CGameInfo::mainObj->neutralColor;
 	}
+}
+int readNormalNr (std::istream &in, int bytCon)
+{
+	int ret=0;
+	int amp=1;
+	unsigned char byte;
+	if (in.good())
+	{
+		for (int i=0; i<bytCon; i++)
+		{
+			in.read((char*)&byte,1);
+			ret+=byte*amp;
+			amp*=256;
+		}
+	}
+	else return -1;
+	return ret;
 }

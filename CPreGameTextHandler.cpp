@@ -22,18 +22,10 @@ std::string CPreGameTextHandler::getDescr(std::string text)
 }
 void CPreGameTextHandler::loadTexts()
 {
-	std::ifstream inp("H3bitmap.lod\\ZELP.TXT", std::ios::in|std::ios::binary);
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("ZELP.TXT");
 	int i=0; //buf iterator
 	int hmcr=0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -43,7 +35,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	int befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -52,7 +44,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -62,7 +54,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -71,7 +63,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -81,7 +73,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -90,7 +82,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -100,7 +92,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -109,7 +101,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -119,7 +111,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -128,7 +120,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -138,7 +130,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -147,7 +139,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -157,7 +149,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -166,7 +158,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -176,7 +168,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -185,7 +177,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -195,7 +187,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -204,7 +196,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -214,7 +206,7 @@ void CPreGameTextHandler::loadTexts()
 	i+=3;
 
 	befi=i;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\t')
 			break;
@@ -223,7 +215,7 @@ void CPreGameTextHandler::loadTexts()
 	++i;
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -399,7 +391,7 @@ void CPreGameTextHandler::loadTexts()
 	loadToIt(singleStartingBonusHeaderID, buf, i, 0);
 
 	hmcr = 0;
-	for(i; i<andame; ++i)
+	for(i; i<buf.length(); ++i)
 	{
 		if(buf[i]=='\r')
 			++hmcr;
@@ -425,6 +417,35 @@ void CPreGameTextHandler::loadTexts()
 	std::string dump;
 	loadToIt(dump, buf, i, 1);
 	loadToIt(multiCancel, buf, i, 0);
+	loadToIt(dump, buf, i, 0);
+	loadToIt(dump, buf, i, 4);
+	loadToIt(dump, buf, i, 2);
+
+	loadToIt(advWorldMap.first, buf, i, 4);
+	loadToIt(advWorldMap.second, buf, i, 2);
+	loadToIt(advStatusWindow1.first, buf, i, 4);
+	loadToIt(advStatusWindow1.second, buf, i, 2);
+	loadToIt(advKingdomOverview.first, buf, i, 4);
+	loadToIt(advKingdomOverview.second, buf, i, 2);
+	loadToIt(advSurfaceSwitch.first, buf, i, 4);
+	loadToIt(advSurfaceSwitch.second, buf, i, 2);
+	loadToIt(advQuestlog.first, buf, i, 4);
+	loadToIt(advQuestlog.second, buf, i, 2);
+	loadToIt(advSleepWake.first, buf, i, 4);
+	loadToIt(advSleepWake.second, buf, i, 2);
+	loadToIt(advMoveHero.first, buf, i, 4);
+	loadToIt(advMoveHero.second, buf, i, 2);
+	loadToIt(advCastSpell.first, buf, i, 4);
+	loadToIt(advCastSpell.second, buf, i, 2);
+	loadToIt(advAdvOptions.first, buf, i, 4);
+	loadToIt(advAdvOptions.second, buf, i, 2);
+	loadToIt(advSystemOptions.first, buf, i, 4);
+	loadToIt(advSystemOptions.second, buf, i, 2);
+	loadToIt(advNextHero.first, buf, i, 4);
+	loadToIt(advNextHero.second, buf, i, 2);
+	loadToIt(advEndTurn.first, buf, i, 4);
+	loadToIt(advEndTurn.second, buf, i, 2);
+
 	loadLossConditions();
 	loadVictoryConditions();
 }
@@ -485,6 +506,53 @@ void CPreGameTextHandler::loadToIt(std::string &dest, std::string &src, int &ite
 			}
 			dest = src.substr(befi, iter-befi);
 			iter+=2;
+			break;
+		}	
+	case 2:
+		{
+			int befi=iter;
+			for(iter; iter<src.size(); ++iter)
+			{
+				if(src[iter]=='\t')
+					break;
+			}
+			dest = src.substr(befi, iter-befi);
+			++iter;
+
+			int hmcr = 0;
+			for(iter; iter<src.size(); ++iter)
+			{
+				if(src[iter]=='\r')
+					++hmcr;
+				if(hmcr==1)
+					break;
+			}
+			iter+=2;
+			break;
+		}
+	case 3:
+		{
+			int befi=iter;
+			for(iter; iter<src.size(); ++iter)
+			{
+				if(src[iter]=='\r')
+					break;
+			}
+			dest = src.substr(befi, iter-befi);
+			iter+=2;
+			break;
+		}
+	case 4:
+		{
+			int befi=iter;
+			for(iter; iter<src.size(); ++iter)
+			{
+				if(src[iter]=='\t')
+					break;
+			}
+			dest = src.substr(befi, iter-befi);
+			iter++;
+			break;
 		}
 	}
 	//loadLossConditions();

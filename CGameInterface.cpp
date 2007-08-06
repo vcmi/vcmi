@@ -15,7 +15,7 @@ CButtonBase::CButtonBase()
 }
 void CButtonBase::show()
 {
-	if (!abs)
+	if (abs)
 	{
 		blitAt(imgs[state],pos.x,pos.y);
 		updateRect(&pos);
@@ -29,108 +29,115 @@ void CButtonBase::show()
 }
 void ClickableL::activate()
 {
-	CURPLINT->lclickable.push_back(this);
+	LOCPLINT->lclickable.push_back(this);
 }
 void ClickableL::deactivate()
 {
-	CURPLINT->lclickable.erase
-		(std::find(CURPLINT->lclickable.begin(),CURPLINT->lclickable.end(),this));
+	LOCPLINT->lclickable.erase
+		(std::find(LOCPLINT->lclickable.begin(),LOCPLINT->lclickable.end(),this));
 }
 void ClickableR::activate()
 {
-	CURPLINT->rclickable.push_back(this);
+	LOCPLINT->rclickable.push_back(this);
 }
 void ClickableR::deactivate()
 {
-	CURPLINT->rclickable.erase(std::find(CURPLINT->rclickable.begin(),CURPLINT->rclickable.end(),this));
+	LOCPLINT->rclickable.erase(std::find(LOCPLINT->rclickable.begin(),LOCPLINT->rclickable.end(),this));
 }
 void Hoverable::activate()
 {
-	CURPLINT->hoverable.push_back(this);
+	LOCPLINT->hoverable.push_back(this);
 }
 void Hoverable::deactivate()
 {
-	CURPLINT->hoverable.erase(std::find(CURPLINT->hoverable.begin(),CURPLINT->hoverable.end(),this));
+	LOCPLINT->hoverable.erase(std::find(LOCPLINT->hoverable.begin(),LOCPLINT->hoverable.end(),this));
 }
 void KeyInterested::activate()
 {
-	CURPLINT->keyinterested.push_back(this);
+	LOCPLINT->keyinterested.push_back(this);
 }
 void KeyInterested::deactivate()
 {
-	CURPLINT->
-		keyinterested.erase(std::find(CURPLINT->keyinterested.begin(),CURPLINT->keyinterested.end(),this));
+	LOCPLINT->
+		keyinterested.erase(std::find(LOCPLINT->keyinterested.begin(),LOCPLINT->keyinterested.end(),this));
 }
-CPlayerInterface::CPlayerInterface(int Player)
+CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
 	playerID=Player;
+	serialID=serial;
+	CGI->localPlayer = playerID;
 	human=true;
-	adventureInt = new CAdvMapInt(Player);
+}
+void CPlayerInterface::init()
+{
+	CGI->localPlayer = serialID;
+	adventureInt = new CAdvMapInt(playerID);
 }
 void CPlayerInterface::yourTurn()
 {
-	unsigned char & animVal = CURPLINT->adventureInt->anim; //for animations handling
+	CGI->localPlayer = serialID;
+	unsigned char & animVal = LOCPLINT->adventureInt->anim; //for animations handling
 	adventureInt->show();
 	//show rest of things
 
 	//initializing framerate keeper
 	FPSmanager * mainLoopFramerateKeeper = new FPSmanager;
 	SDL_initFramerate(mainLoopFramerateKeeper);
-	SDL_setFramerate(mainLoopFramerateKeeper, 30);
+	SDL_setFramerate(mainLoopFramerateKeeper, 24);
 	SDL_Event sEvent;
 	//framerate keeper initialized
 	for(;;) // main loop
 	{
 		
-		CURPLINT->adventureInt->updateScreen = false;
+		LOCPLINT->adventureInt->updateScreen = false;
 		if(SDL_PollEvent(&sEvent))  //wait for event...
 		{
 			handleEvent(&sEvent);
 		}
-		++CURPLINT->adventureInt->animValHitCount; //for animations
-		if(CURPLINT->adventureInt->animValHitCount == 2)
+		++LOCPLINT->adventureInt->animValHitCount; //for animations
+		if(LOCPLINT->adventureInt->animValHitCount == 2)
 		{
-			CURPLINT->adventureInt->animValHitCount = 0;
+			LOCPLINT->adventureInt->animValHitCount = 0;
 			++animVal;
-			CURPLINT->adventureInt->updateScreen = true;
+			LOCPLINT->adventureInt->updateScreen = true;
 
 		}
-		if(CURPLINT->adventureInt->scrollingLeft)
+		if(LOCPLINT->adventureInt->scrollingLeft)
 		{
-			if(CURPLINT->adventureInt->position.x>0)
+			if(LOCPLINT->adventureInt->position.x>0)
 			{
-				CURPLINT->adventureInt->position.x--;
-				CURPLINT->adventureInt->updateScreen = true;
+				LOCPLINT->adventureInt->position.x--;
+				LOCPLINT->adventureInt->updateScreen = true;
 			}
 		}
-		if(CURPLINT->adventureInt->scrollingRight)
+		if(LOCPLINT->adventureInt->scrollingRight)
 		{
-			if(CURPLINT->adventureInt->position.x<CGI->ac->map.width-19+8)
+			if(LOCPLINT->adventureInt->position.x<CGI->ac->map.width-19+8)
 			{
-				CURPLINT->adventureInt->position.x++;
-				CURPLINT->adventureInt->updateScreen = true;
+				LOCPLINT->adventureInt->position.x++;
+				LOCPLINT->adventureInt->updateScreen = true;
 			}
 		}
-		if(CURPLINT->adventureInt->scrollingUp)
+		if(LOCPLINT->adventureInt->scrollingUp)
 		{
-			if(CURPLINT->adventureInt->position.y>0)
+			if(LOCPLINT->adventureInt->position.y>0)
 			{
-				CURPLINT->adventureInt->position.y--;
-				CURPLINT->adventureInt->updateScreen = true;
+				LOCPLINT->adventureInt->position.y--;
+				LOCPLINT->adventureInt->updateScreen = true;
 			}
 		}
-		if(CURPLINT->adventureInt->scrollingDown)
+		if(LOCPLINT->adventureInt->scrollingDown)
 		{
-			if(CURPLINT->adventureInt->position.y<CGI->ac->map.height-18+8)
+			if(LOCPLINT->adventureInt->position.y<CGI->ac->map.height-18+8)
 			{
-				CURPLINT->adventureInt->position.y++;
-				CURPLINT->adventureInt->updateScreen = true;
+				LOCPLINT->adventureInt->position.y++;
+				LOCPLINT->adventureInt->updateScreen = true;
 			}
 		}
-		if(CURPLINT->adventureInt->updateScreen)
+		if(LOCPLINT->adventureInt->updateScreen)
 		{
 			adventureInt->update();
-			CURPLINT->adventureInt->updateScreen=false;
+			LOCPLINT->adventureInt->updateScreen=false;
 		}
 		SDL_Delay(5); //give time for other apps
 		SDL_framerateDelay(mainLoopFramerateKeeper);
@@ -151,22 +158,22 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 		{
 		case SDLK_LEFT:
 			{
-				CURPLINT->adventureInt->scrollingLeft = true;
+				LOCPLINT->adventureInt->scrollingLeft = true;
 				break;
 			}
 		case (SDLK_RIGHT):
 			{
-				CURPLINT->adventureInt->scrollingRight = true;
+				LOCPLINT->adventureInt->scrollingRight = true;
 				break;
 			}
 		case (SDLK_UP):
 			{
-				CURPLINT->adventureInt->scrollingUp = true;
+				LOCPLINT->adventureInt->scrollingUp = true;
 				break;
 			}
 		case (SDLK_DOWN):
 			{
-				CURPLINT->adventureInt->scrollingDown = true;
+				LOCPLINT->adventureInt->scrollingDown = true;
 				break;
 			}
 		case (SDLK_q):
@@ -176,13 +183,7 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 			}
 		case (SDLK_u):
 			{
-				if(!CGI->ac->map.twoLevel)
-					break;
-				if (adventureInt->position.z)
-					adventureInt->position.z--;
-				else adventureInt->position.z++;
-				CURPLINT->adventureInt->updateScreen = true;
-				break;
+				adventureInt->undeground.clickLeft(true);
 			}
 		}
 	} //keydown end
@@ -192,59 +193,99 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 		{
 		case SDLK_LEFT:
 			{
-				CURPLINT->adventureInt->scrollingLeft = false;
+				LOCPLINT->adventureInt->scrollingLeft = false;
 				break;
 			}
 		case (SDLK_RIGHT):
 			{
-				CURPLINT->adventureInt->scrollingRight = false;
+				LOCPLINT->adventureInt->scrollingRight = false;
 				break;
 			}
 		case (SDLK_UP):
 			{
-				CURPLINT->adventureInt->scrollingUp = false;
+				LOCPLINT->adventureInt->scrollingUp = false;
 				break;
 			}
 		case (SDLK_DOWN):
 			{
-				CURPLINT->adventureInt->scrollingDown = false;
+				LOCPLINT->adventureInt->scrollingDown = false;
 				break;
+			}
+		case (SDLK_u):
+			{
+				adventureInt->undeground.clickLeft(false);
 			}
 		}
 	}//keyup end
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
+		for (int i=0; i<hoverable.size();i++)
+		{
+			if (isItIn(&hoverable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			{
+				if (!hoverable[i]->hovered)
+					hoverable[i]->hover(true);
+			}
+			else if (hoverable[i]->hovered)
+			{
+				hoverable[i]->hover(false);
+			}
+		}
 		if(sEvent->motion.x<15)
 		{
-			CURPLINT->adventureInt->scrollingLeft = true;
+			LOCPLINT->adventureInt->scrollingLeft = true;
 		}
 		else
 		{
-			CURPLINT->adventureInt->scrollingLeft = false;
+			LOCPLINT->adventureInt->scrollingLeft = false;
 		}
 		if(sEvent->motion.x>ekran->w-15)
 		{
-			CURPLINT->adventureInt->scrollingRight = true;
+			LOCPLINT->adventureInt->scrollingRight = true;
 		}
 		else
 		{
-			CURPLINT->adventureInt->scrollingRight = false;
+			LOCPLINT->adventureInt->scrollingRight = false;
 		}
 		if(sEvent->motion.y<15)
 		{
-			CURPLINT->adventureInt->scrollingUp = true;
+			LOCPLINT->adventureInt->scrollingUp = true;
 		}
 		else
 		{
-			CURPLINT->adventureInt->scrollingUp = false;
+			LOCPLINT->adventureInt->scrollingUp = false;
 		}
 		if(sEvent->motion.y>ekran->h-15)
 		{
-			CURPLINT->adventureInt->scrollingDown = true;
+			LOCPLINT->adventureInt->scrollingDown = true;
 		}
 		else
 		{
-			CURPLINT->adventureInt->scrollingDown = false;
+			LOCPLINT->adventureInt->scrollingDown = false;
 		}
 	}
+
+	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
+	{
+		for(int i=0; i<lclickable.size();i++)
+		{
+			if (isItIn(&lclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			{
+				lclickable[i]->clickLeft(true);
+			}
+		}
+	}
+	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
+	{
+		for(int i=0; i<lclickable.size();i++)
+		{
+			if (isItIn(&lclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			{
+				lclickable[i]->clickLeft(false);
+			}
+			else
+				lclickable[i]->clickLeft(boost::logic::indeterminate);
+		}
+	}
+
 } //event end

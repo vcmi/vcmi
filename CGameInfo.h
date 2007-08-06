@@ -41,6 +41,7 @@ public:
 	CSpellHandler * spellh;
 	CMapHandler * mh;
 	CAmbarCendamo * ac;
+	CPreGameTextHandler * preth ;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
 	CMusicHandler * mush;
@@ -50,6 +51,7 @@ public:
 	CLodHandler * spriteh;
 	CLodHandler * bitmaph;
 	CGeneralTextHandler * generaltexth;
+	int localPlayer;
 	std::vector<CGameInterface *> playerint;
 	std::vector<SDL_Color> playerColors;
 	SDL_Color neutralColor;

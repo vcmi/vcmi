@@ -28,12 +28,12 @@ public:
 	void deactivate(); // makes button inactive (but don't deletes)
 
 	AdventureMapButton(); //c-tor
-	AdventureMapButton( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)() );//c-tor
+	AdventureMapButton( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)(), int x, int y, std::string defName, bool activ=false );//c-tor
 
 };
 /*****************************/
 class CList 
-	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CIntObject
+	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject
 {
 	SDL_Surface * bg;
 	//arrow up, arrow down
@@ -75,8 +75,14 @@ class CStatusBar
 {
 public:
 	SDL_Surface * bg;
+	SDL_Surface * temp;
+	int tx, ty;
 	std::string current;
+
+	CStatusBar(int x, int y)
+		{bg=CGI->bitmaph->loadBitmap("ADROLLVR.bmp");pos.x=x;pos.y=y;pos.w=bg->w;pos.h=bg->h;temp=NULL;}
 	void print(std::string text);
+	void show();
 };
 class CMinimap
 	: public ClickableL, public ClickableR, public Hoverable, public CIntObject
@@ -138,11 +144,24 @@ public:
 		endTurn;//- end turn
 	//CHeroList herolist;
 
-	CTerrainRect terrain;
-	
-	void show();
+	CTerrainRect terrain; //visible terrain
 
-	void update();
+	CStatusBar statusbar;
+	
+	//fuctions binded to buttons
+	void fshowOverview();
+	void fswitchLevel(); 
+	void fshowQuestlog(); 
+	void fsleepWake();
+	void fmoveHero();
+	void fshowSpellbok();
+	void fadventureOPtions();
+	void fsystemOptions();
+	void fnextHero();
+	void fendTurn();
+
+	void show(); //shows and activates adv. map interface
+	void update(); //redraws terrain
 
 
 };

@@ -37,8 +37,13 @@ public:
 
 	std::string getTitle(std::string text);
 	std::string getDescr(std::string text);
+
+	std::pair<std::string, std::string> //first is statusbar text, second right-click help; they're all for adventure map interface
+		advKingdomOverview, advSurfaceSwitch, advQuestlog, advSleepWake, advMoveHero, advCastSpell, advAdvOptions, advSystemOptions, advNextHero, advEndTurn, //buttons
+		advWorldMap, advStatusWindow1;
+
 	void loadTexts();
-	void loadToIt(std::string & dest, std::string & src, int & iter, int mode = 0); //mode 0 - dump to tab, dest to tab, dump to eol //mode 1 - dump to tab, src to eol
+	void loadToIt(std::string & dest, std::string & src, int & iter, int mode = 0); //mode 0 - dump to tab, dest to tab, dump to eol //mode 1 - dump to tab, src to eol //mode 2 - copy to tab, dump to eol //mode 3 - copy to eol //mode 4 - copy to tab
 	void loadVictoryConditions();
 	void loadLossConditions();
 };

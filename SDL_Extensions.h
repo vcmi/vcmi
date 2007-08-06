@@ -9,6 +9,7 @@ extern SDL_Color tytulowy, tlo, zwykly ;
 void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran);
+bool isItIn(const SDL_Rect * rect, int x, int y);
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 namespace CSDL_Ext
 {

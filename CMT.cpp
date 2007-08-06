@@ -240,9 +240,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		cgi->spriteh = new CLodHandler;
-		cgi->spriteh->init(std::string("newH3sprite.lod"));
+		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
 		cgi->bitmaph = new CLodHandler;
-		cgi->bitmaph->init(std::string("newH3bitmap.lod"));
+		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
 
 		//colors initialization
 		SDL_Color p;
@@ -366,7 +366,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			if(cgi->scenarioOps.playerInfos[i].name=="AI")
 				cgi->playerint.push_back(new CGlobalAI());
-			else cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color));
+			else 
+			{
+				cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color,i));
+				((CPlayerInterface*)(cgi->playerint[i]))->init();
+			}
 		}
 
 
@@ -554,7 +558,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			updateScreen = true;
 			++animValHitCount; //for animations
-			if(animValHitCount == 2)
+			if(animValHitCount == 4)
 			{
 				animValHitCount = 0;
 				++animVal;
