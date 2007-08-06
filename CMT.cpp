@@ -46,7 +46,7 @@
 #endif
 
 #define CHUNK 16384
-const char * NAME = "VCMI 0.2";
+const char * NAME = "VCMI 0.3";
 
 /* Compress from file source to file dest until EOF on source.
    def() returns Z_OK on success, Z_MEM_ERROR if memory could not be
