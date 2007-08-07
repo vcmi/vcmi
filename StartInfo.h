@@ -2,6 +2,7 @@
 #define STARTINFO_H
 
 #include "global.h"
+#include <vector>
 
 enum Ebonus {brandom=-1,bartifact, bgold, bresource};
 

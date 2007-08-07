@@ -9,6 +9,8 @@ struct DefObjInfo
 	int priority;
 	int type, subtype;
 	int objType;
+	unsigned char visitMap[6];
+	unsigned char blockMap[6];
 	bool operator==(const std::string & por) const;
 };
 

@@ -18,7 +18,31 @@ void CDefObjInfoHandler::load()
 		DefObjInfo nobj;
 		std::string dump;
 		inp>>nobj.defName;
-		for(int yy=0; yy<4; ++yy)
+
+		for(int o=0; o<6; ++o)
+		{
+			nobj.blockMap[o] = 0xff;
+			nobj.visitMap[o] = 0x00;
+		}
+		std::string mapStr;
+		inp>>mapStr;
+		for(int v=0; v<mapStr.size(); ++v)
+		{
+			if(mapStr[v]=='0')
+			{
+				nobj.blockMap[v/6] ^= (128 >> (v%6));
+			}
+		}
+		inp>>mapStr;
+		for(int v=0; v<mapStr.size(); ++v)
+		{
+			if(mapStr[v]=='1')
+			{
+				nobj.visitMap[v/6] ^= (128 >> (v%6));
+			}
+		}
+
+		for(int yy=0; yy<2; ++yy)
 			inp>>dump;
 		inp>>nobj.type;
 		inp>>nobj.subtype;
