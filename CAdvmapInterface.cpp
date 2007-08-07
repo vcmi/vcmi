@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CAdvmapInterface.h"
-
+extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
@@ -22,6 +22,8 @@ AdventureMapButton::AdventureMapButton
 	active=false;
 	ourObj=NULL;
 	state=0;
+	name=Name;
+	helpBox=HelpBox;
 	int est = LOCPLINT->playerID;
 	CDefHandler * temp = CGI->spriteh->giveDef(defName); //todo: moze cieknac
 	for (int i=0;i<temp->ourImages.size();i++)
@@ -33,7 +35,7 @@ AdventureMapButton::AdventureMapButton
 	pos.x=x;
 	pos.y=y;
 	pos.w = imgs[0]->w;
-	pos.h = imgs[0]->h;
+	pos.h = imgs[0]->h  -1;
 	if (activ)
 		activate();
 }
@@ -59,7 +61,11 @@ void AdventureMapButton::clickRight (tribool down)
 }
 void AdventureMapButton::hover (bool on)
 {
-	//TODO: print info in statusbar
+	Hoverable::hover(on);
+	if (on)
+		LOCPLINT->adventureInt->statusbar.print(name);
+	else if (LOCPLINT->adventureInt->statusbar.current==name)
+		LOCPLINT->adventureInt->statusbar.clear();
 }
 void AdventureMapButton::activate()
 {
@@ -99,12 +105,36 @@ void CList::deactivate()
 void CList::clickLeft(tribool down)
 {
 };
+CStatusBar::CStatusBar(int x, int y)
+{
+	bg=CGI->bitmaph->loadBitmap("ADROLLVR.bmp");
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	pos.x=x;
+	pos.y=y;
+	pos.w=bg->w;
+	pos.h=bg->h;
+	middlex=(bg->w/2)+x;
+	middley=(bg->h/2)+y;
+}
+CStatusBar::~CStatusBar()
+{
+	SDL_FreeSurface(bg);
+}
+void CStatusBar::clear()
+{
+	current="";
+	blitAtWR(bg,pos.x,pos.y);
+}
 void CStatusBar::print(std::string text)
 {
-
+	current=text;
+	blitAtWR(bg,pos.x,pos.y);
+	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
 }
 void CStatusBar::show()
 {
+	blitAtWR(bg,pos.x,pos.y);
+	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
 }
 void CTerrainRect::activate()
 {
@@ -135,7 +165,7 @@ void CTerrainRect::show()
 
 CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
-statusbar(8,556),
+statusbar(7,556),
 kingOverview(CGI->preth->advKingdomOverview.first,CGI->preth->advKingdomOverview.second,
 			 &CAdvMapInt::fshowOverview, 679, 196, "IAM002.DEF"),
 
@@ -243,6 +273,9 @@ void CAdvMapInt::show()
 	nextHero.activate();
 	endTurn.show();
 	endTurn.activate();
+
+	statusbar.show();
+
 	SDL_Flip(ekran);
 }
 void CAdvMapInt::update()

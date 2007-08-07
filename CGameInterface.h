@@ -48,6 +48,7 @@ public:
 class Hoverable  : public virtual CIntObject
 {
 public:
+	Hoverable(){hovered=false;}
 	bool hovered;
 	virtual void hover (bool on)=0;
 	virtual void activate()=0;

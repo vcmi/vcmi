@@ -52,6 +52,10 @@ void Hoverable::deactivate()
 {
 	LOCPLINT->hoverable.erase(std::find(LOCPLINT->hoverable.begin(),LOCPLINT->hoverable.end(),this));
 }
+void Hoverable::hover(bool on)
+{
+	hovered=on;
+}
 void KeyInterested::activate()
 {
 	LOCPLINT->keyinterested.push_back(this);
