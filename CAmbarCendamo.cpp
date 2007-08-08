@@ -463,12 +463,12 @@ void CAmbarCendamo::deh3m()
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
 		//std::cout << "object nr "<<ww<<"\ti= "<<i<<std::endl;
-		CObjectInstance nobj; //we will read this object
-		nobj.id = CGameInfo::mainObj->objh->objInstances.size();
-		nobj.pos.x = bufor[i++];
-		nobj.pos.y = bufor[i++];
-		nobj.pos.z = bufor[i++];
-		nobj.defNumber = readNormalNr(i, 4); i+=4;
+		CObjectInstance * nobj = new CObjectInstance; //we will read this object
+		nobj->id = CGameInfo::mainObj->objh->objInstances.size();
+		nobj->pos.x = bufor[i++];
+		nobj->pos.y = bufor[i++];
+		nobj->pos.z = bufor[i++];
+		nobj->defNumber = readNormalNr(i, 4); i+=4;
 
 		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
 		//	std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
@@ -479,10 +479,10 @@ void CAmbarCendamo::deh3m()
 		{
 			buff[ccc] = bufor[i+ccc];
 		}
-		EDefType uu = getDefType(map.defy[nobj.defNumber]);
-		int j = map.defy[nobj.defNumber].bytes[16];
+		EDefType uu = getDefType(map.defy[nobj->defNumber]);
+		int j = map.defy[nobj->defNumber].bytes[16];
 		int p = 99;
-		switch(getDefType(map.defy[nobj.defNumber]))
+		switch(getDefType(map.defy[nobj->defNumber]))
 		{
 		case EDefType::EVENTOBJ_DEF: //for event - objects
 			{
@@ -553,7 +553,7 @@ void CAmbarCendamo::deh3m()
 				spec->computerActivate = readNormalNr(i, 1); ++i;
 				spec->humanActivate = readNormalNr(i, 1); ++i;
 				i+=4;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::HERO_DEF:
@@ -780,7 +780,7 @@ void CAmbarCendamo::deh3m()
 					spec->knowledge = bufor[i]; ++i;
 				}
 				i+=16;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case CREATURES_DEF:
@@ -819,7 +819,7 @@ void CAmbarCendamo::deh3m()
 				spec->neverFlees = bufor[i]; ++i;
 				spec->notGrowingTeam = bufor[i]; ++i;
 				i+=2;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::SIGN_DEF:
@@ -831,7 +831,7 @@ void CAmbarCendamo::deh3m()
 					spec->message += bufor[i]; ++i;
 				}
 				i+=4;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::SEERHUT_DEF:
@@ -1098,7 +1098,7 @@ void CAmbarCendamo::deh3m()
 					}
 				}// end of internal switch
 				i+=2;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::WITCHHUT_DEF:
@@ -1118,7 +1118,7 @@ void CAmbarCendamo::deh3m()
 					}
 				}
 				
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::SCHOLAR_DEF:
@@ -1141,7 +1141,7 @@ void CAmbarCendamo::deh3m()
 					break;
 				}
 				i+=6;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::GARRISON_DEF:
@@ -1152,7 +1152,7 @@ void CAmbarCendamo::deh3m()
 				spec->units = readCreatureSet(i); i+=28;
 				spec->movableUnits = bufor[i]; ++i;
 				i+=8;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::ARTIFACT_DEF:
@@ -1176,7 +1176,7 @@ void CAmbarCendamo::deh3m()
 						spec->areGuards = false;
 					i+=4;
 				}
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::RESOURCE_DEF:
@@ -1203,7 +1203,7 @@ void CAmbarCendamo::deh3m()
 				}
 				spec->amount = readNormalNr(i); i+=4;
 				i+=4;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::TOWN_DEF:
@@ -1323,7 +1323,7 @@ void CAmbarCendamo::deh3m()
 
 				spec->alignment = bufor[i]; ++i;
 				i+=3;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::PLAYERONLY_DEF:
@@ -1331,14 +1331,14 @@ void CAmbarCendamo::deh3m()
 				CPlayerOnlyObjInfo * spec = new CPlayerOnlyObjInfo;
 				spec->player = bufor[i]; ++i;
 				i+=3;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::SHRINE_DEF:
 			{
 				CShrineObjInfo * spec = new CShrineObjInfo;
 				spec->spell = bufor[i]; i+=4;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::SPELLSCROLL_DEF:
@@ -1361,7 +1361,7 @@ void CAmbarCendamo::deh3m()
 				}
 				spec->spell = &(CGameInfo::mainObj->spellh->spells[bufor[i]]); ++i;
 				i+=3;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::PANDORA_DEF:
@@ -1418,7 +1418,7 @@ void CAmbarCendamo::deh3m()
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
 				spec->creatures = readCreatureSet(i, gcre); i+=4*gcre;
 				i+=8;
-				nobj.info = spec;
+				nobj->info = spec;
 				///////end of copied fragment
 				break;
 			}
@@ -1426,7 +1426,7 @@ void CAmbarCendamo::deh3m()
 			{
 				CGrailObjInfo * spec = new CGrailObjInfo;
 				spec->radius = readNormalNr(i); i+=4;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::CREGEN_DEF:
@@ -1448,7 +1448,7 @@ void CAmbarCendamo::deh3m()
 				{
 					spec->asCastle = true;
 				}
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::CREGEN2_DEF:
@@ -1476,7 +1476,7 @@ void CAmbarCendamo::deh3m()
 					spec->maxLevel = 7;
 				if(spec->minLevel<1)
 					spec->minLevel = 1;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::CREGEN3_DEF:
@@ -1490,7 +1490,7 @@ void CAmbarCendamo::deh3m()
 					spec->maxLevel = 7;
 				if(spec->minLevel<1)
 					spec->minLevel = 1;
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		case EDefType::BORDERGUARD_DEF:
@@ -1690,7 +1690,7 @@ void CAmbarCendamo::deh3m()
 				{
 					spec->completedText += bufor[i]; ++i;
 				}
-				nobj.info = spec;
+				nobj->info = spec;
 				break;
 			}
 		} //end of main switch
@@ -2060,7 +2060,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 	//variables initialized
 	for(int j=0; j<CGI->objh->objInstances.size(); ++j)
 	{
-		DefInfo curDef = map.defy[CGI->objh->objInstances[j].defNumber];
+		DefInfo curDef = map.defy[CGI->objh->objInstances[j]->defNumber];
 		switch(getDefType(curDef))
 		{
 		case EDefType::RESOURCE_DEF:
@@ -2072,7 +2072,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = rand()%7;
 					if(resDefNumbers[nxt.bytes[20]+1]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = resDefNumbers[nxt.bytes[20]+1];
+						CGI->objh->objInstances[j]->defNumber = resDefNumbers[nxt.bytes[20]+1];
 						continue;
 					}
 					nxt.name = resDefNames[nxt.bytes[20]+1];
@@ -2089,7 +2089,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(resDefNumbers[nxt.bytes[20]+1]==-1)
 					{
 						resDefNumbers[nxt.bytes[20]+1] = map.defy.size()-1;
@@ -2106,7 +2106,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = 14*(rand()%9)+rand()%2;
 					if(creDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = creDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = creDefNames[nxt.bytes[20]];
@@ -2123,7 +2123,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creDefNumbers[nxt.bytes[20]]==-1)
 					{
 						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2136,7 +2136,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = 14*(rand()%9)+rand()%2+2;
 					if(creDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = creDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = creDefNames[nxt.bytes[20]];
@@ -2153,7 +2153,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creDefNumbers[nxt.bytes[20]]==-1)
 					{
 						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2166,7 +2166,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = 14*(rand()%9)+rand()%2+4;
 					if(creDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = creDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = creDefNames[nxt.bytes[20]];
@@ -2183,7 +2183,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creDefNumbers[nxt.bytes[20]]==-1)
 					{
 						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2196,7 +2196,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = 14*(rand()%9)+rand()%2+6;
 					if(creDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = creDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = creDefNames[nxt.bytes[20]];
@@ -2213,7 +2213,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creDefNumbers[nxt.bytes[20]]==-1)
 					{
 						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2226,7 +2226,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = 14*(rand()%9)+rand()%2+8;
 					if(creDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = creDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = creDefNames[nxt.bytes[20]];
@@ -2243,7 +2243,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creDefNumbers[nxt.bytes[20]]==-1)
 					{
 						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2256,7 +2256,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = 14*(rand()%9)+rand()%2+10;
 					if(creDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = creDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = creDefNames[nxt.bytes[20]];
@@ -2273,7 +2273,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creDefNumbers[nxt.bytes[20]]==-1)
 					{
 						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2286,7 +2286,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = 14*(rand()%9)+rand()%2+12;
 					if(creDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = creDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = creDefNames[nxt.bytes[20]];
@@ -2303,7 +2303,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creDefNumbers[nxt.bytes[20]]==-1)
 					{
 						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2316,7 +2316,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = rand()%126;
 					if(creDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = creDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = creDefNames[nxt.bytes[20]];
@@ -2333,7 +2333,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creDefNumbers[nxt.bytes[20]]==-1)
 					{
 						creDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2350,7 +2350,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = rand()%artDefNames.size();
 					if(artDefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = artDefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = artDefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = artDefNames[nxt.bytes[20]];
@@ -2367,7 +2367,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(artDefNumbers[nxt.bytes[20]]==-1)
 					{
 						artDefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2380,7 +2380,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = rand()%art1DefNames.size();
 					if(art1DefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = art1DefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = art1DefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = art1DefNames[nxt.bytes[20]];
@@ -2397,7 +2397,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(art1DefNumbers[nxt.bytes[20]]==-1)
 					{
 						art1DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2410,7 +2410,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = rand()%art2DefNames.size();
 					if(art2DefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = art2DefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = art2DefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = art2DefNames[nxt.bytes[20]];
@@ -2427,7 +2427,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(art2DefNumbers[nxt.bytes[20]]==-1)
 					{
 						art2DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2440,7 +2440,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = rand()%art3DefNames.size();
 					if(art3DefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = art3DefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = art3DefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = art3DefNames[nxt.bytes[20]];
@@ -2457,7 +2457,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(art3DefNumbers[nxt.bytes[20]]==-1)
 					{
 						art3DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2470,7 +2470,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					nxt.bytes[20] = rand()%art4DefNames.size();
 					if(art4DefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = art4DefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = art4DefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = art4DefNames[nxt.bytes[20]];
@@ -2487,7 +2487,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(art4DefNumbers[nxt.bytes[20]]==-1)
 					{
 						art4DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2501,15 +2501,15 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 				{
 					DefInfo nxt = curDef;
 					nxt.bytes[16] = 98;
-					if(((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player==0xff)
+					if(((CCastleObjInfo*)CGI->objh->objInstances[j]->info)->player==0xff)
 					{
 						nxt.bytes[20] = rand()%town1DefNames.size();		
 					}
 					else
 					{
-						if(CGI->scenarioOps.getIthPlayersSettings(((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player).castle>-1)
+						if(CGI->scenarioOps.getIthPlayersSettings(((CCastleObjInfo*)CGI->objh->objInstances[j]->info)->player).castle>-1)
 						{
-							nxt.bytes[20] = CGI->scenarioOps.getIthPlayersSettings(((CCastleObjInfo*)CGI->objh->objInstances[j].info)->player).castle;
+							nxt.bytes[20] = CGI->scenarioOps.getIthPlayersSettings(((CCastleObjInfo*)CGI->objh->objInstances[j]->info)->player).castle;
 						}
 						else
 						{
@@ -2518,7 +2518,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					if(town1DefNumbers[nxt.bytes[20]]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = town1DefNumbers[nxt.bytes[20]];
+						CGI->objh->objInstances[j]->defNumber = town1DefNumbers[nxt.bytes[20]];
 						continue;
 					}
 					nxt.name = town1DefNames[nxt.bytes[20]];
@@ -2535,7 +2535,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(town1DefNumbers[nxt.bytes[20]]==-1)
 					{
 						town1DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
@@ -2548,29 +2548,29 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 	} //end of main loop
 	for(int j=0; j<CGI->objh->objInstances.size(); ++j) //for creature dwellings on map (they are town type dependent)
 	{
-		DefInfo curDef = map.defy[CGI->objh->objInstances[j].defNumber];
+		DefInfo curDef = map.defy[CGI->objh->objInstances[j]->defNumber];
 		switch(getDefType(curDef))
 		{
 		case EDefType::CREGEN_DEF:
 			{
-				if(((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->asCastle)
+				if(((CCreGenObjInfo*)CGI->objh->objInstances[j]->info)->asCastle)
 				{
 					DefInfo nxt = curDef;
 					nxt.bytes[16] = 17;
 					for(int vv=0; vv<CGI->objh->objInstances.size(); ++vv)
 					{
-						if(getDefType(map.defy[CGI->objh->objInstances[vv].defNumber])==EDefType::TOWN_DEF)
+						if(getDefType(map.defy[CGI->objh->objInstances[vv]->defNumber])==EDefType::TOWN_DEF)
 						{
 							if(
-								((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[0]==((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->bytes[0]
-							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[1]==((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->bytes[1]
-							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[2]==((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->bytes[2]
-							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[3]==((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->bytes[3])
+								((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[0]==((CCreGenObjInfo*)CGI->objh->objInstances[j]->info)->bytes[0]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[1]==((CCreGenObjInfo*)CGI->objh->objInstances[j]->info)->bytes[1]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[2]==((CCreGenObjInfo*)CGI->objh->objInstances[j]->info)->bytes[2]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[3]==((CCreGenObjInfo*)CGI->objh->objInstances[j]->info)->bytes[3])
 							{
 								for(int mm=0; mm<town1DefNames.size(); ++mm)
 								{
 									std::transform(town1DefNames[mm].begin(), town1DefNames[mm].end(), town1DefNames[mm].begin(), (int(*)(int))toupper);
-									std::string hlp = map.defy[CGI->objh->objInstances[vv].defNumber].name;
+									std::string hlp = map.defy[CGI->objh->objInstances[vv]->defNumber].name;
 									std::transform(hlp.begin(), hlp.end(), hlp.begin(), (int(*)(int))toupper);
 									if(town1DefNames[mm]==hlp)
 									{
@@ -2580,11 +2580,11 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 							}
 						}
 					}
-					int lvl = atoi(map.defy[CGI->objh->objInstances[j].defNumber].name.substr(7, 8).c_str())-1;
+					int lvl = atoi(map.defy[CGI->objh->objInstances[j]->defNumber].name.substr(7, 8).c_str())-1;
 					nxt.name = creGenNames[nxt.bytes[20]][lvl];
 					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+						CGI->objh->objInstances[j]->defNumber = creGenNumbers[nxt.bytes[20]][lvl];
 						continue;
 					}
 					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
@@ -2600,7 +2600,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
 					{
 						creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
@@ -2613,19 +2613,19 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					std::vector<int> possibleTowns;
 					for(int bb=0; bb<8; ++bb)
 					{
-						if(((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->castles[0] & (1<<bb))
+						if(((CCreGenObjInfo*)CGI->objh->objInstances[j]->info)->castles[0] & (1<<bb))
 						{
 							possibleTowns.push_back(bb);
 						}
 					}
-					if(((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->castles[1])
+					if(((CCreGenObjInfo*)CGI->objh->objInstances[j]->info)->castles[1])
 						possibleTowns.push_back(8);
 					nxt.bytes[20] = possibleTowns[rand()%possibleTowns.size()];
-					int lvl = atoi(map.defy[CGI->objh->objInstances[j].defNumber].name.substr(7, 8).c_str())-1;
+					int lvl = atoi(map.defy[CGI->objh->objInstances[j]->defNumber].name.substr(7, 8).c_str())-1;
 					nxt.name = creGenNames[nxt.bytes[20]][lvl];
 					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+						CGI->objh->objInstances[j]->defNumber = creGenNumbers[nxt.bytes[20]][lvl];
 						continue;
 					}
 					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
@@ -2641,7 +2641,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
 					{
 						creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
@@ -2651,24 +2651,24 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 			}
 		case EDefType::CREGEN2_DEF:
 			{
-				if(((CCreGenObjInfo*)CGI->objh->objInstances[j].info)->asCastle)
+				if(((CCreGenObjInfo*)CGI->objh->objInstances[j]->info)->asCastle)
 				{
 					DefInfo nxt = curDef;
 					nxt.bytes[16] = 17;
 					for(int vv=0; vv<CGI->objh->objInstances.size(); ++vv)
 					{
-						if(getDefType(map.defy[CGI->objh->objInstances[vv].defNumber])==EDefType::TOWN_DEF)
+						if(getDefType(map.defy[CGI->objh->objInstances[vv]->defNumber])==EDefType::TOWN_DEF)
 						{
 							if(
-								((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[0]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->bytes[0]
-							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[1]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->bytes[1]
-							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[2]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->bytes[2]
-							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv].info)->bytes[3]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->bytes[3])
+								((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[0]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->bytes[0]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[1]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->bytes[1]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[2]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->bytes[2]
+							&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[3]==((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->bytes[3])
 							{
 								for(int mm=0; mm<town1DefNames.size(); ++mm)
 								{
 									std::transform(town1DefNames[mm].begin(), town1DefNames[mm].end(), town1DefNames[mm].begin(), (int(*)(int))toupper);
-									std::string hlp = map.defy[CGI->objh->objInstances[vv].defNumber].name;
+									std::string hlp = map.defy[CGI->objh->objInstances[vv]->defNumber].name;
 									std::transform(hlp.begin(), hlp.end(), hlp.begin(), (int(*)(int))toupper);
 									if(town1DefNames[mm]==hlp)
 									{
@@ -2678,11 +2678,11 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 							}
 						}
 					}
-					int lvl = rand()%(((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->minLevel) + ((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->minLevel;
+					int lvl = rand()%(((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel) + ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel;
 					nxt.name = creGenNames[nxt.bytes[20]][lvl];
 					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+						CGI->objh->objInstances[j]->defNumber = creGenNumbers[nxt.bytes[20]][lvl];
 						continue;
 					}
 					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
@@ -2698,7 +2698,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
 					{
 						creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
@@ -2711,19 +2711,19 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					std::vector<int> possibleTowns;
 					for(int bb=0; bb<8; ++bb)
 					{
-						if(((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->castles[0] & (1<<bb))
+						if(((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->castles[0] & (1<<bb))
 						{
 							possibleTowns.push_back(bb);
 						}
 					}
-					if(((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->castles[1])
+					if(((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->castles[1])
 						possibleTowns.push_back(8);
 					nxt.bytes[20] = possibleTowns[rand()%possibleTowns.size()];
-					int lvl = rand()%(((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->minLevel) + ((CCreGen2ObjInfo*)CGI->objh->objInstances[j].info)->minLevel;
+					int lvl = rand()%(((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel) + ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel;
 					nxt.name = creGenNames[nxt.bytes[20]][lvl];
 					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
 					{
-						CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+						CGI->objh->objInstances[j]->defNumber = creGenNumbers[nxt.bytes[20]][lvl];
 						continue;
 					}
 					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
@@ -2739,7 +2739,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt.name);
-					CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+					CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 					if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
 					{
 						creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;
@@ -2750,21 +2750,21 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 			{
 				DefInfo nxt = curDef;
 				nxt.bytes[16] = 17;
-				nxt.bytes[20] = atoi(map.defy[CGI->objh->objInstances[j].defNumber].name.substr(7, 8).c_str());
+				nxt.bytes[20] = atoi(map.defy[CGI->objh->objInstances[j]->defNumber].name.substr(7, 8).c_str());
 				int lvl = -1;
-				CCreGen3ObjInfo * ct = (CCreGen3ObjInfo*)CGI->objh->objInstances[j].info;
+				CCreGen3ObjInfo * ct = (CCreGen3ObjInfo*)CGI->objh->objInstances[j]->info;
 				if(ct->maxLevel>7)
 					ct->maxLevel = 7;
 				if(ct->minLevel<1)
 					ct->minLevel = 1;
-				if((((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel)!=0)
-					lvl = rand()%(((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel - ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel) + ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->minLevel;
+				if((((CCreGen3ObjInfo*)CGI->objh->objInstances[j]->info)->maxLevel - ((CCreGen3ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel)!=0)
+					lvl = rand()%(((CCreGen3ObjInfo*)CGI->objh->objInstances[j]->info)->maxLevel - ((CCreGen3ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel) + ((CCreGen3ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel;
 				else
-					lvl = ((CCreGen3ObjInfo*)CGI->objh->objInstances[j].info)->maxLevel;
+					lvl = ((CCreGen3ObjInfo*)CGI->objh->objInstances[j]->info)->maxLevel;
 				nxt.name = creGenNames[nxt.bytes[20]][lvl];
 				if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
 				{
-					CGI->objh->objInstances[j].defNumber = creGenNumbers[nxt.bytes[20]][lvl];
+					CGI->objh->objInstances[j]->defNumber = creGenNumbers[nxt.bytes[20]][lvl];
 					continue;
 				}
 				std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
@@ -2780,7 +2780,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 				}
 				map.defy.push_back(nxt); // add this def to the vector
 				defsToUnpack.push_back(nxt.name);
-				CGI->objh->objInstances[j].defNumber = map.defy.size()-1;
+				CGI->objh->objInstances[j]->defNumber = map.defy.size()-1;
 				if(creGenNumbers[nxt.bytes[20]][lvl]==-1)
 				{
 					creGenNumbers[nxt.bytes[20]][lvl] = map.defy.size()-1;

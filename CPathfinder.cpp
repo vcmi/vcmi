@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "global.h"
 #include "CPathfinder.h"
 
@@ -25,10 +26,10 @@ CPath * CPathfinder::getPath(int3 &src, int3 &dest)
 
 	for(int h=0; h<CGI->objh->objInstances.size(); ++h)
 	{
-		if(CGI->objh->objInstances[h].pos.z == src.z)
+		if(CGI->objh->objInstances[h]->pos.z == src.z)
 		{
 			unsigned char blockMap[6];
-			std::string ourName = CGI->ac->map.defy[CGI->objh->objInstances[h].defNumber].name;
+			std::string ourName = CGI->ac->map.defy[CGI->objh->objInstances[h]->defNumber].name;
 			std::transform(ourName.begin(), ourName.end(), ourName.begin(), (int(*)(int))toupper);
 			for(int y=0; y<CGI->dobjinfo->objs.size(); ++y)
 			{
@@ -47,8 +48,8 @@ CPath * CPathfinder::getPath(int3 &src, int3 &dest)
 			{
 				for(int j=0; j<8; ++j)
 				{
-					int cPosX = CGI->objh->objInstances[h].pos.x - j;
-					int cPosY = CGI->objh->objInstances[h].pos.y - i;
+					int cPosX = CGI->objh->objInstances[h]->pos.x - j;
+					int cPosY = CGI->objh->objInstances[h]->pos.y - i;
 					if(cPosX>0 && cPosY>0)
 					{
 						graph[cPosX][cPosY].accesible = blockMap[i] & (128 >> j);

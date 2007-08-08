@@ -23,7 +23,8 @@ public:
 	bool active;
 	CIntObject * ourObj;
 	int state;
-	std::vector<SDL_Surface*> imgs;
+	std::vector< std::vector<SDL_Surface*> > imgs;
+	int curimg;
 	virtual void show() ;
 	virtual void activate()=0;
 	virtual void deactivate()=0;

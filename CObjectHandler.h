@@ -300,7 +300,7 @@ class CObjectHandler
 {
 public:
 	std::vector<CObject> objects; //vector of objects; i-th object in vector has subnumber i
-	std::vector<CObjectInstance> objInstances; //vector with objects on map
+	std::vector<CObjectInstance*> objInstances; //vector with objects on map
 	void loadObjects();
 };
 

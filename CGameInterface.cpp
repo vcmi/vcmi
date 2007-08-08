@@ -7,6 +7,7 @@
 using namespace CSDL_Ext;
 CButtonBase::CButtonBase()
 {
+	curimg=0;
 	type=-1;
 	abs=false;
 	active=false;
@@ -17,12 +18,12 @@ void CButtonBase::show()
 {
 	if (abs)
 	{
-		blitAt(imgs[state],pos.x,pos.y);
+		blitAt(imgs[curimg][state],pos.x,pos.y);
 		updateRect(&pos);
 	}
 	else
 	{
-		blitAt(imgs[state],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y);
+		blitAt(imgs[curimg][state],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y);
 		updateRect(&genRect(pos.h,pos.w,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y));
 		
 	}
@@ -187,7 +188,7 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 			}
 		case (SDLK_u):
 			{
-				adventureInt->undeground.clickLeft(true);
+				adventureInt->underground.clickLeft(true);
 			}
 		}
 	} //keydown end
@@ -217,7 +218,7 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 			}
 		case (SDLK_u):
 			{
-				adventureInt->undeground.clickLeft(false);
+				adventureInt->underground.clickLeft(false);
 			}
 		}
 	}//keyup end

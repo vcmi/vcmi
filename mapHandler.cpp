@@ -101,291 +101,123 @@ void CMapHandler::init()
 	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("mudrvr.def"));
 	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("lavrvr.def"));
 
-	roadBitmaps = new SDL_Surface **[reader->map.width+2*Woff];
-	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
-		roadBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
+	//roadBitmaps = new SDL_Surface** [reader->map.width+2*Woff];
+	//for (int ii=0;ii<reader->map.width+2*Woff;ii++)
+	//	roadBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
+
+	ttiles.resize(CGI->ac->map.width+2*Woff);
+	for (int i=0;i<ttiles.size();i++)
+	{
+		ttiles[i].resize(CGI->ac->map.height+2*Hoff);
+	}
+	for (int i=0;i<ttiles.size();i++)
+	{
+		for (int j=0;j<CGI->ac->map.height+2*Hoff;j++)
+			ttiles[i][j].resize(CGI->ac->map.twoLevel+1);
+	}
+
+
 
 	for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
 	{
 		for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
 		{
-			if(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1)
-				roadBitmaps[i][j] = NULL;
-			else
+			if(!(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1))
 			{
-				if(reader->map.terrain[i-Woff][j-Hoff].malle)
+				for (int k=0; k<=reader->map.twoLevel; ++k)
 				{
-					roadBitmaps[i][j] = roadDefs[reader->map.terrain[i-Woff][j-Hoff].malle-1]->ourImages[reader->map.terrain[i-Woff][j-Hoff].roadDir].bitmap;
-					int cDir = reader->map.terrain[i-Woff][j-Hoff].roadDir;
-					if(cDir==0 || cDir==1 || cDir==2 || cDir==3 || cDir==4 || cDir==5)
+					TerrainTile** pomm = reader->map.terrain; ;
+					if (k==0)
+						pomm = reader->map.terrain;
+					else
+						pomm = reader->map.undergroungTerrain;
+					if(pomm[i-Woff][j-Hoff].malle)
 					{
-						if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.terrain[i-Woff+1][j-Hoff].malle && reader->map.terrain[i-Woff][j-Hoff-1].malle)
+						int cDir;
+						bool rotV, rotH;
+						if(k==0)
 						{
-							roadBitmaps[i][j] = CSDL_Ext::hFlip(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+							int roadpom = reader->map.terrain[i-Woff][j-Hoff].malle-1,
+								impom = reader->map.terrain[i-Woff][j-Hoff].roadDir;
+							SDL_Surface *pom1 = roadDefs[roadpom]->ourImages[impom].bitmap;
+							ttiles[i][j][k].roadbitmap.push_back(pom1);
+							cDir = reader->map.terrain[i-Woff][j-Hoff].roadDir;
+							
+							rotH = (reader->map.terrain[i-Woff][j-Hoff].siodmyTajemniczyBajt >> 5) & 1;
+							rotV = (reader->map.terrain[i-Woff][j-Hoff].siodmyTajemniczyBajt >> 4) & 1;
 						}
-						if(i-Woff-1>0 && j-Hoff-1>0 && reader->map.terrain[i-Woff-1][j-Hoff].malle && reader->map.terrain[i-Woff][j-Hoff-1].malle)
+						else
 						{
-							roadBitmaps[i][j] = CSDL_Ext::rotate03(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+							int pom111 = reader->map.undergroungTerrain[i-Woff][j-Hoff].malle-1,
+								pom777 = reader->map.undergroungTerrain[i-Woff][j-Hoff].roadDir;
+							SDL_Surface *pom1 = roadDefs[pom111]->ourImages[pom777].bitmap;
+							ttiles[i][j][k].roadbitmap.push_back(pom1);
+							cDir = reader->map.undergroungTerrain[i-Woff][j-Hoff].roadDir;
+
+							rotH = (reader->map.undergroungTerrain[i-Woff][j-Hoff].siodmyTajemniczyBajt >> 5) & 1;
+							rotV = (reader->map.undergroungTerrain[i-Woff][j-Hoff].siodmyTajemniczyBajt >> 4) & 1;
 						}
-						if(i-Woff-1>0 && j-Hoff+1<reader->map.height && reader->map.terrain[i-Woff-1][j-Hoff].malle && reader->map.terrain[i-Woff][j-Hoff+1].malle)
+						if(rotH)
 						{
-							roadBitmaps[i][j] = CSDL_Ext::rotate01(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+							ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::hFlip(ttiles[i][j][k].roadbitmap[0]);
 						}
-					}
-					if(cDir==8 || cDir==9)
-					{
-						if((j-Hoff+1<reader->map.height && !(reader->map.terrain[i-Woff][j-Hoff+1].malle)) || j-Hoff+1==reader->map.height)
+						if(rotV)
 						{
-							roadBitmaps[i][j] = CSDL_Ext::hFlip(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
+							ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::rotate01(ttiles[i][j][k].roadbitmap[0]);
 						}
-					}
-					if(cDir==6 || cDir==7)
-					{
-						if(i-Woff+1<reader->map.width && !(reader->map.terrain[i-Woff+1][j-Hoff].malle))
-						{
-							roadBitmaps[i][j] = CSDL_Ext::rotate01(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
-						}
-					}
-					if(cDir==0x0e)
-					{
-						if(j-Hoff+1<reader->map.height && !(reader->map.terrain[i-Woff][j-Hoff+1].malle))
-						{
-							roadBitmaps[i][j] = CSDL_Ext::hFlip(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
-						}
-					}
-					if(cDir==0x0f)
-					{
-						if(i-Woff+1<reader->map.width && !(reader->map.terrain[i-Woff+1][j-Hoff].malle))
-						{
-							roadBitmaps[i][j] = CSDL_Ext::rotate01(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::alphaTransform(roadBitmaps[i][j]);
-							roadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(roadBitmaps[i][j], su);
-						}
+						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].roadbitmap[0]);
+						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].roadbitmap[0], su);
 					}
 				}
-				else
-					roadBitmaps[i][j] = NULL;
 			}
 		}
 	}
 
-	undRoadBitmaps = new SDL_Surface **[reader->map.width+2*Woff];
-	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
-		undRoadBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
-
-	if(reader->map.twoLevel)
+	for (int i=0; i<reader->map.width+Woff; i++) //jest po szerokoœci
 	{
-		for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
+		for (int j=0; j<reader->map.height+Hoff;j++) //po wysokoœci
 		{
-			for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
+			for(int k=0; k<=reader->map.twoLevel; ++k)
 			{
-				if(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1)
-					undRoadBitmaps[i][j] = NULL;
+				if(i<4 || j<4)
+					continue;
+				TerrainTile** pomm = reader->map.terrain;
+				if(k==0)
+				{
+					pomm = reader->map.terrain;
+				}
 				else
 				{
-					if(reader->map.undergroungTerrain[i-Woff][j-Hoff].malle)
+					pomm = reader->map.undergroungTerrain;
+				}
+				if(pomm[i-Woff][j-Hoff].nuine)
+				{
+					int cDir;
+					bool rotH, rotV;
+					if(k==0)
 					{
-						undRoadBitmaps[i][j] = roadDefs[reader->map.undergroungTerrain[i-Woff][j-Hoff].malle-1]->ourImages[reader->map.undergroungTerrain[i-Woff][j-Hoff].roadDir].bitmap;
-						int cDir = reader->map.undergroungTerrain[i-Woff][j-Hoff].roadDir;
-						if(cDir==0 || cDir==1 || cDir==2 || cDir==3 || cDir==4 || cDir==5)
-						{
-							if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff+1][j-Hoff].malle && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].malle)
-							{
-								undRoadBitmaps[i][j] = CSDL_Ext::hFlip(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
-							}
-							if(i-Woff-1>0 && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff-1][j-Hoff].malle && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].malle)
-							{
-								undRoadBitmaps[i][j] = CSDL_Ext::rotate03(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
-							}
-							if(i-Woff-1>0 && j-Hoff+1<reader->map.height && reader->map.undergroungTerrain[i-Woff-1][j-Hoff].malle && reader->map.undergroungTerrain[i-Woff][j-Hoff+1].malle)
-							{
-								undRoadBitmaps[i][j] = CSDL_Ext::rotate01(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
-							}
-						}
-						if(cDir==8 || cDir==9)
-						{
-							if((j-Hoff+1<reader->map.height && !(reader->map.undergroungTerrain[i-Woff][j-Hoff+1].malle)) || j-Hoff+1==reader->map.height)
-							{
-								undRoadBitmaps[i][j] = CSDL_Ext::hFlip(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
-							}
-						}
-						if(cDir==6 || cDir==7)
-						{
-							if(i-Woff+1<reader->map.width && !(reader->map.undergroungTerrain[i-Woff+1][j-Hoff].malle))
-							{
-								undRoadBitmaps[i][j] = CSDL_Ext::rotate01(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
-							}
-						}
-						if(cDir==0x0e)
-						{
-							if(j-Hoff+1<reader->map.height && !(reader->map.undergroungTerrain[i-Woff][j-Hoff+1].malle))
-							{
-								undRoadBitmaps[i][j] = CSDL_Ext::hFlip(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
-							}
-						}
-						if(cDir==0x0f)
-						{
-							if(i-Woff+1<reader->map.width && !(reader->map.undergroungTerrain[i-Woff+1][j-Hoff].malle))
-							{
-								undRoadBitmaps[i][j] = CSDL_Ext::rotate01(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::alphaTransform(undRoadBitmaps[i][j]);
-								undRoadBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undRoadBitmaps[i][j], su);
-							}
-						}
+						ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[reader->map.terrain[i-Woff][j-Hoff].nuine-1]->ourImages[reader->map.terrain[i-Woff][j-Hoff].rivDir].bitmap);
+						cDir = reader->map.terrain[i-Woff][j-Hoff].rivDir;
+						rotH = (reader->map.terrain[i-Woff][j-Hoff].siodmyTajemniczyBajt >> 3) & 1;
+						rotV = (reader->map.terrain[i-Woff][j-Hoff].siodmyTajemniczyBajt >> 2) & 1;
 					}
 					else
-						undRoadBitmaps[i][j] = NULL;
-				}
-			}
-		}
-	}
-
-	staticRiverBitmaps = new SDL_Surface **[reader->map.width+2*Woff];
-	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
-		staticRiverBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
-
-	for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
-	{
-		for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
-		{
-			if(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1)
-				staticRiverBitmaps[i][j] = NULL;
-			else
-			{
-				if(reader->map.terrain[i-Woff][j-Hoff].nuine)
-				{
-					staticRiverBitmaps[i][j] = staticRiverDefs[reader->map.terrain[i-Woff][j-Hoff].nuine-1]->ourImages[reader->map.terrain[i-Woff][j-Hoff].rivDir].bitmap;
-					int cDir = reader->map.terrain[i-Woff][j-Hoff].rivDir;
-					if(cDir==0 || cDir==1 || cDir==2 || cDir==3)
 					{
-						if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.terrain[i-Woff+1][j-Hoff].nuine && reader->map.terrain[i-Woff][j-Hoff-1].nuine)
-						{
-							staticRiverBitmaps[i][j] = CSDL_Ext::hFlip(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
-						}
-						if(i-Woff-1>0 && j-Hoff-1>0 && reader->map.terrain[i-Woff-1][j-Hoff].nuine && reader->map.terrain[i-Woff][j-Hoff-1].nuine)
-						{
-							staticRiverBitmaps[i][j] = CSDL_Ext::rotate03(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
-						}
-						if(i-Woff-1>0 && j-Hoff+1<reader->map.height && reader->map.terrain[i-Woff-1][j-Hoff].nuine && reader->map.terrain[i-Woff][j-Hoff+1].nuine)
-						{
-							staticRiverBitmaps[i][j] = CSDL_Ext::rotate01(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
-						}
+						ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[reader->map.undergroungTerrain[i-Woff][j-Hoff].nuine-1]->ourImages[reader->map.undergroungTerrain[i-Woff][j-Hoff].rivDir].bitmap);
+						cDir = reader->map.undergroungTerrain[i-Woff][j-Hoff].rivDir;
+						rotH = (reader->map.undergroungTerrain[i-Woff][j-Hoff].siodmyTajemniczyBajt >> 3) & 1;
+						rotV = (reader->map.undergroungTerrain[i-Woff][j-Hoff].siodmyTajemniczyBajt >> 2) & 1;
 					}
-					if(cDir==5 || cDir==6)
+					if(rotH)
 					{
-						if(j-Hoff+1<reader->map.height && !(reader->map.terrain[i-Woff][j-Hoff+1].nuine))
-						{
-							staticRiverBitmaps[i][j] = CSDL_Ext::hFlip(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
-						}
+						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::hFlip(ttiles[i][j][k].rivbitmap[0]);
 					}
-					if(cDir==7 || cDir==8)
+					if(rotV)
 					{
-						if(i-Woff+1<reader->map.width && !(reader->map.terrain[i-Woff+1][j-Hoff].nuine))
-						{
-							staticRiverBitmaps[i][j] = CSDL_Ext::rotate01(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(staticRiverBitmaps[i][j]);
-							staticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(staticRiverBitmaps[i][j], su);
-						}
+						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::rotate01(ttiles[i][j][k].rivbitmap[0]);
 					}
-				}
-				else
-					staticRiverBitmaps[i][j] = NULL;
-			}
-		}
-	}
-
-	undStaticRiverBitmaps = new SDL_Surface **[reader->map.width+2*Woff];
-	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
-		undStaticRiverBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
-
-	if(reader->map.twoLevel)
-	{
-		for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
-		{
-			for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
-			{
-				if(i<Woff || i>reader->map.width+Woff-1 || j<Woff || j>reader->map.height+Hoff-1)
-					undStaticRiverBitmaps[i][j] = NULL;
-				else
-				{
-					if(reader->map.undergroungTerrain[i-Woff][j-Hoff].nuine)
-					{
-						undStaticRiverBitmaps[i][j] = staticRiverDefs[reader->map.undergroungTerrain[i-Woff][j-Hoff].nuine-1]->ourImages[reader->map.undergroungTerrain[i-Woff][j-Hoff].rivDir].bitmap;
-						int cDir = reader->map.undergroungTerrain[i-Woff][j-Hoff].rivDir;
-						if(cDir==0 || cDir==1 || cDir==2 || cDir==3)
-						{
-							if(i-Woff+1<reader->map.width && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff+1][j-Hoff].nuine && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].nuine)
-							{
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::hFlip(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
-							}
-							if(i-Woff-1>0 && j-Hoff-1>0 && reader->map.undergroungTerrain[i-Woff-1][j-Hoff].nuine && reader->map.undergroungTerrain[i-Woff][j-Hoff-1].nuine)
-							{
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::rotate03(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
-							}
-							if(i-Woff-1>0 && j-Hoff+1<reader->map.height && reader->map.undergroungTerrain[i-Woff-1][j-Hoff].nuine && reader->map.undergroungTerrain[i-Woff][j-Hoff+1].nuine)
-							{
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::rotate01(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
-							}
-						}
-						if(cDir==5 || cDir==6)
-						{
-							if(j-Hoff+1<reader->map.height && !(reader->map.undergroungTerrain[i-Woff][j-Hoff+1].nuine))
-							{
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::hFlip(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
-							}
-						}
-						if(cDir==7 || cDir==8)
-						{
-							if(i-Woff+1<reader->map.width && !(reader->map.undergroungTerrain[i-Woff+1][j-Hoff].nuine))
-							{
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::rotate01(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::alphaTransform(undStaticRiverBitmaps[i][j]);
-								undStaticRiverBitmaps[i][j] = CSDL_Ext::secondAlphaTransform(undStaticRiverBitmaps[i][j], su);
-							}
-						}
-					}
-					else
-						undStaticRiverBitmaps[i][j] = NULL;
+					ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].rivbitmap[0]);
+					ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].rivbitmap[0], su);
 				}
 			}
 		}
@@ -395,202 +227,121 @@ void CMapHandler::init()
 
 	//road's and river's DefHandlers initialized
 
-	terrainBitmap = new SDL_Surface **[reader->map.width+2*Woff];
-	for (int ii=0;ii<reader->map.width+2*Woff;ii++)
-		terrainBitmap[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
+	//terrainBitmap = new SDL_Surface **[reader->map.width+2*Woff];
+	//for (int ii=0;ii<reader->map.width+2*Woff;ii++)
+	//	terrainBitmap[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
+
 	CDefHandler * bord = CGameInfo::mainObj->spriteh->giveDef("EDG.DEF");
 	for (int i=0; i<reader->map.width+2*Woff; i++) //jest po szerokoœci
 	{
 		for (int j=0; j<reader->map.height+2*Hoff;j++) //po wysokoœci
 		{
-			if(i < Woff || i > (reader->map.width+Woff-1) || j < Hoff  || j > (reader->map.height+Hoff-1))
-			{
-				if(i==Woff-1 && j==Hoff-1)
-				{
-					terrainBitmap[i][j] = bord->ourImages[16].bitmap;
-					continue;
-				}
-				else if(i==Woff-1 && j==(reader->map.height+Hoff))
-				{
-					terrainBitmap[i][j] = bord->ourImages[19].bitmap;
-					continue;
-				}
-				else if(i==(reader->map.width+Woff) && j==Hoff-1)
-				{
-					terrainBitmap[i][j] = bord->ourImages[17].bitmap;
-					continue;
-				}
-				else if(i==(reader->map.width+Woff) && j==(reader->map.height+Hoff))
-				{
-					terrainBitmap[i][j] = bord->ourImages[18].bitmap;
-					continue;
-				}
-				else if(j == Hoff-1 && i > Woff-1 && i < reader->map.height+Woff)
-				{
-					terrainBitmap[i][j] = bord->ourImages[22+rand()%2].bitmap;
-					continue;
-				}
-				else if(i == Woff-1 && j > Hoff-1 && j < reader->map.height+Hoff)
-				{
-					terrainBitmap[i][j] = bord->ourImages[33+rand()%2].bitmap;
-					continue;
-				}
-				else if(j == reader->map.height+Hoff && i > Woff-1 && i < reader->map.width+Woff)
-				{
-					terrainBitmap[i][j] = bord->ourImages[29+rand()%2].bitmap;
-					continue;
-				}
-				else if(i == reader->map.width+Woff && j > Hoff-1 && j < reader->map.height+Hoff)
-				{
-					terrainBitmap[i][j] = bord->ourImages[25+rand()%2].bitmap;
-					continue;
-				}
-				else
-				{
-					terrainBitmap[i][j] = bord->ourImages[rand()%16].bitmap;
-					continue;
-				}
-			}
-			TerrainTile zz = reader->map.terrain[i-Woff][j-Hoff];
-			std::string name = CSemiDefHandler::nameFromType(reader->map.terrain[i-Woff][j-Hoff].tertype);
-			for (unsigned int k=0; k<reader->defs.size(); k++)
-			{
-				try
-				{
-					if (reader->defs[k]->defName != name)
-						continue;
-					else
-					{
-						int ktora = reader->map.terrain[i-Woff][j-Hoff].terview;
-						terrainBitmap[i][j] = reader->defs[k]->ourImages[ktora].bitmap;
-						//TODO: odwracanie	
-						switch ((reader->map.terrain[i-Woff][j-Hoff].siodmyTajemniczyBajt)%4)
-						{
-						case 1:
-							{
-								terrainBitmap[i][j] = CSDL_Ext::rotate01(terrainBitmap[i][j]);
-								break;
-							}
-						case 2:
-							{
-								terrainBitmap[i][j] = CSDL_Ext::hFlip(terrainBitmap[i][j]);
-								break;
-							}
-						case 3:
-							{
-								terrainBitmap[i][j] = CSDL_Ext::rotate03(terrainBitmap[i][j]);
-								break;
-							}
-						}
-						//SDL_BlitSurface(terrainBitmap[i][j],NULL,ekran,NULL); SDL_Flip(ekran);SDL_Delay(50);
-
-						break;
-					}
-				}
-				catch (...)
-				{	continue;	}
-			}
-		}
-	}
-	if (reader->map.twoLevel)
-	{
-		undTerrainBitmap = new SDL_Surface **[reader->map.width+8];
-		for (int ii=0;ii<reader->map.width+8;ii++)
-			undTerrainBitmap[ii] = new SDL_Surface*[reader->map.height+8]; // allocate memory 
-		for (int i=0; i<reader->map.width+2*Woff; i++)
-		{
-			for (int j=0; j<reader->map.height+2*Hoff;j++)
+			for(int k=0; k<=reader->map.twoLevel; ++k)
 			{
 				if(i < Woff || i > (reader->map.width+Woff-1) || j < Hoff  || j > (reader->map.height+Hoff-1))
 				{
 					if(i==Woff-1 && j==Hoff-1)
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[16].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[16].bitmap);
 						continue;
 					}
 					else if(i==Woff-1 && j==(reader->map.height+Hoff))
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[19].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[19].bitmap);
 						continue;
 					}
 					else if(i==(reader->map.width+Woff) && j==Hoff-1)
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[17].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[17].bitmap);
 						continue;
 					}
 					else if(i==(reader->map.width+Woff) && j==(reader->map.height+Hoff))
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[18].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[18].bitmap);
 						continue;
 					}
-					else if(j == Hoff-1 && i > Woff-1 && i < reader->map.width+Woff)
+					else if(j == Hoff-1 && i > Woff-1 && i < reader->map.height+Woff)
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[22+rand()%2].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[22+rand()%2].bitmap);
 						continue;
 					}
 					else if(i == Woff-1 && j > Hoff-1 && j < reader->map.height+Hoff)
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[33+rand()%2].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[33+rand()%2].bitmap);
 						continue;
 					}
 					else if(j == reader->map.height+Hoff && i > Woff-1 && i < reader->map.width+Woff)
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[29+rand()%2].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[29+rand()%2].bitmap);
 						continue;
 					}
 					else if(i == reader->map.width+Woff && j > Hoff-1 && j < reader->map.height+Hoff)
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[25+rand()%2].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[25+rand()%2].bitmap);
 						continue;
 					}
 					else
 					{
-						undTerrainBitmap[i][j] = bord->ourImages[rand()%16].bitmap;
+						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[rand()%16].bitmap);
 						continue;
 					}
 				}
-				TerrainTile zz = reader->map.undergroungTerrain[i-Woff][j-Hoff];
-				std::string name = CSemiDefHandler::nameFromType(reader->map.undergroungTerrain[i-Woff][j-Hoff].tertype);
-				for (unsigned int k=0; k<reader->defs.size(); k++)
+				//TerrainTile zz = reader->map.terrain[i-Woff][j-Hoff];
+				std::string name;
+				if (k>0)
+					name = CSemiDefHandler::nameFromType(reader->map.undergroungTerrain[i-Woff][j-Hoff].tertype);
+				else
+					name = CSemiDefHandler::nameFromType(reader->map.terrain[i-Woff][j-Hoff].tertype);
+				for (unsigned int m=0; m<reader->defs.size(); m++)
 				{
 					try
 					{
-						if (reader->defs[k]->defName != name)
+						if (reader->defs[m]->defName != name)
 							continue;
 						else
 						{
-							int ktora = reader->map.undergroungTerrain[i-Woff][j-Hoff].terview;
-							undTerrainBitmap[i][j] = reader->defs[k]->ourImages[ktora].bitmap;
-							//TODO: odwracanie	
-							switch ((reader->map.undergroungTerrain[i-Woff][j-Hoff].siodmyTajemniczyBajt)%4)
+							int ktora;
+							if (k==0)
+								ktora = reader->map.terrain[i-Woff][j-Hoff].terview;
+							else
+								ktora = reader->map.undergroungTerrain[i-Woff][j-Hoff].terview;
+							ttiles[i][j][k].terbitmap.push_back(reader->defs[m]->ourImages[ktora].bitmap);
+							int zz;
+							if (k==0)
+								zz = (reader->map.terrain[i-Woff][j-Hoff].siodmyTajemniczyBajt)%4;
+							else 
+								zz = (reader->map.undergroungTerrain[i-Woff][j-Hoff].siodmyTajemniczyBajt)%4;
+							switch (zz)
 							{
 							case 1:
 								{
-									undTerrainBitmap[i][j] = CSDL_Ext::rotate01(undTerrainBitmap[i][j]);
+									ttiles[i][j][k].terbitmap[0] = CSDL_Ext::rotate01(ttiles[i][j][k].terbitmap[0]);
 									break;
 								}
 							case 2:
 								{
-									undTerrainBitmap[i][j] = CSDL_Ext::hFlip(undTerrainBitmap[i][j]);
+									ttiles[i][j][k].terbitmap[0] = CSDL_Ext::hFlip(ttiles[i][j][k].terbitmap[0]);
 									break;
 								}
 							case 3:
 								{
-									undTerrainBitmap[i][j] = CSDL_Ext::rotate03(undTerrainBitmap[i][j]);
+									ttiles[i][j][k].terbitmap[0] = CSDL_Ext::rotate03(ttiles[i][j][k].terbitmap[0]);
 									break;
 								}
 							}
-							//SDL_BlitSurface(undTerrainBitmap[i][j],NULL,ekran,NULL); SDL_Flip(ekran);SDL_Delay(50);
+							//SDL_BlitSurface(terrainBitmap[i][j],NULL,ekran,NULL); SDL_Flip(ekran);SDL_Delay(50);
 
 							break;
 						}
 					}
 					catch (...)
-					{	continue;	}
+					{	
+						continue;	
+					}
 				}
-			} //end of internal for
-		} //end of external for
-	} //end of if
+			}
+		}
+	}
 }
 
 SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim)
@@ -620,14 +371,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr->y=by*32;
 			sr->x=bx*32;
 			sr->h=sr->w=32;
-			if (!level)
-			{
-				SDL_BlitSurface(terrainBitmap[bx+x][by+y],NULL,su,sr);
-			}
-			else 
-			{
-				SDL_BlitSurface(undTerrainBitmap[bx+x][by+y],NULL,su,sr);
-			}
+			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,sr);
 			delete sr;
 		}
 	}
@@ -641,16 +385,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr->y=by*32;
 			sr->x=bx*32;
 			sr->h=sr->w=32;
-			if (!level)
-			{
-				if(staticRiverBitmaps[bx+x][by+y])
-					SDL_BlitSurface(staticRiverBitmaps[bx+x][by+y],NULL,su,sr);
-			}
-			else 
-			{
-				if(undStaticRiverBitmaps[bx+x][by+y])
-					SDL_BlitSurface(undStaticRiverBitmaps[bx+x][by+y],NULL,su,sr);
-			}
+			if(ttiles[x+bx][y+by][level].rivbitmap.size())
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,sr);
 			delete sr;
 		}
 	}
@@ -661,19 +397,11 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		for (int by=0; by<dy; by++)
 		{
 			SDL_Rect * sr = new SDL_Rect;
-			sr->y=by*32;
+			sr->y=by*32+16;
 			sr->x=bx*32;
 			sr->h=sr->w=32;
-			if (!level)
-			{
-				if(roadBitmaps[bx+x][by+y])
-					SDL_BlitSurface(roadBitmaps[bx+x][by+y],NULL,su,sr);
-			}
-			else 
-			{
-				if(undRoadBitmaps[bx+x][by+y])
-					SDL_BlitSurface(undRoadBitmaps[bx+x][by+y],NULL,su,sr);
-			}
+			if(ttiles[x+bx][y+by][level].roadbitmap.size())
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()],NULL,su,sr);
 			delete sr;
 		}
 	}
@@ -684,28 +412,28 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	std::vector<ObjSorter> highPrObjsVis;
 	for(int gg=0; gg<CGameInfo::mainObj->objh->objInstances.size(); ++gg)
 	{
-		if(CGameInfo::mainObj->objh->objInstances[gg].pos.x >= x-Woff-4 && CGameInfo::mainObj->objh->objInstances[gg].pos.x < dx+x-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg].pos.y >= y-Hoff-4 && CGameInfo::mainObj->objh->objInstances[gg].pos.y < dy+y-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg].pos.z == level)
+		if(CGameInfo::mainObj->objh->objInstances[gg]->pos.x >= x-Woff-4 && CGameInfo::mainObj->objh->objInstances[gg]->pos.x < dx+x-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg]->pos.y >= y-Hoff-4 && CGameInfo::mainObj->objh->objInstances[gg]->pos.y < dy+y-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg]->pos.z == level)
 		{
-			if(!CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].isOnDefList)
+			if(!CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].isOnDefList)
 			{
 				ObjSorter os;
-				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap;
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].pos.x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].pos.y-y+Hoff)*32;
+				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].handler->ourImages.size()].bitmap;
+				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.x-x+Woff)*32;
+				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.y-y+Hoff)*32;
 				highPrObjsVis.push_back(os);
 			}
-			else if(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].printPriority==0)
+			else if(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].printPriority==0)
 			{
 				ObjSorter os;
 
-				int defyod = CGameInfo::mainObj->objh->objInstances[gg].defNumber;
+				int defyod = CGameInfo::mainObj->objh->objInstances[gg]->defNumber;
 				int ourimagesod = anim%CGameInfo::mainObj->ac->map.defy[defyod].handler->ourImages.size();
 
 				os.bitmap = CGameInfo::mainObj->ac->map.defy[defyod].handler->ourImages[ourimagesod].bitmap;
 
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].pos.x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].pos.y-y+Hoff)*32;
-				if (CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].isVisitable())
+				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.x-x+Woff)*32;
+				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.y-y+Hoff)*32;
+				if (CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].isVisitable())
 					highPrObjsVis.push_back(os);
 				else
 					highPrObjs.push_back(os);
@@ -713,9 +441,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			else
 			{
 				ObjSorter os;
-				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap;
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg].pos.x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg].pos.y-y+Hoff)*32;
+				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].handler->ourImages.size()].bitmap;
+				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.x-x+Woff)*32;
+				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.y-y+Hoff)*32;
 				lowPrObjs.push_back(os);
 			}
 		}
@@ -823,14 +551,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr->y=by*32;
 			sr->x=bx*32;
 			sr->h=sr->w=32;
-			if (!level)
-			{
-				SDL_BlitSurface(terrainBitmap[bx+x][by+y],NULL,su,sr);
-			}
-			else 
-			{
-				SDL_BlitSurface(undTerrainBitmap[bx+x][by+y],NULL,su,sr);
-			}
+
+			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,sr);
+
 			delete sr;
 			}
 		}
@@ -841,12 +564,12 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 SDL_Surface * CMapHandler::terrBitmap(int x, int y)
 {
-	return terrainBitmap[x+4][y+4];
+	return ttiles[x+Woff][y+Hoff][0].terbitmap[0];
 }
 
 SDL_Surface * CMapHandler::undTerrBitmap(int x, int y)
 {
-	return undTerrainBitmap[x+4][y+4];
+	return ttiles[x+Woff][y+Hoff][0].terbitmap[1];
 }
 
 SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector<char> > & visibility)

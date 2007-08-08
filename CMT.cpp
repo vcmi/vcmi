@@ -3,6 +3,7 @@
 #include "stdafx.h"
 #include "SDL.h"
 #include "SDL_TTF.h"
+#include "CVideoHandler.h"
 #include "SDL_mixer.h"
 #include "CBuildingHandler.h"
 #include "SDL_Extensions.h"
@@ -78,6 +79,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		//TNR = TTF_OpenFont("Fonts\\tnr.ttf",10);
 		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
 		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
+
+
+
+
+		//CBIKHandler cb;
+		//cb.open("CSECRET.BIK");
+
+
+
+
+
 
 		//initializing audio
 		CMusicHandler * mush = new CMusicHandler;

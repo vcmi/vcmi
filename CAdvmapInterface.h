@@ -8,8 +8,8 @@
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include <boost/logic/tribool.hpp>
-#define CGI (CGameInfo::mainObj)
 using namespace boost::logic;
+#define CGI (CGameInfo::mainObj)
 using namespace CSDL_Ext;
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase
@@ -28,7 +28,7 @@ public:
 	void deactivate(); // makes button inactive (but don't deletes)
 
 	AdventureMapButton(); //c-tor
-	AdventureMapButton( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)(), int x, int y, std::string defName, bool activ=false );//c-tor
+	AdventureMapButton( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)(), int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL );//c-tor
 
 };
 /*****************************/
@@ -133,7 +133,7 @@ public:
 
 	SDL_Surface * bg;
 	AdventureMapButton kingOverview,//- kingdom overview
-		undeground,//- underground switch
+		underground,//- underground switch
 		questlog,//- questlog
 		sleepWake, //- sleep/wake hero
 		moveHero, //- move hero

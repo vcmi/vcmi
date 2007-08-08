@@ -9,7 +9,7 @@
 #define THC //
 #endif
 enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK}; //player's colors
-enum EterrainType {dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
+enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
 enum Eriver {noRiver=0, clearRiver, icyRiver, muddyRiver, lavaRiver};
 enum Eroad {dirtRoad=1, grazvelRoad, cobblestoneRoad};
 enum Eformat { WoG=0x33, AB=0x15, RoE=0x0e,  SoD=0x1c};

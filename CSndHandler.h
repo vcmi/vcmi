@@ -46,8 +46,9 @@ public:
 	std::vector<Entry> entries;
 	~CVidHandler();
 	CVidHandler(std::string fname);
+	std::ifstream & extract(std::string srcfile);
 	void extract(std::string srcfile, std::string dstfile, bool caseSens=true); //saves selected file
-	unsigned char * extract (std::string srcfile, int & size); //return selecte file
+	unsigned char * extract (std::string srcfile, int & size); //return selecte file,
 	void extract(int index, std::string dstfile); //saves selected file
 	MemberFile getFile(std::string name); //nie testowane - sprawdzic
 };

@@ -15,7 +15,7 @@ AdventureMapButton::AdventureMapButton ()
 	state=0;
 }
 AdventureMapButton::AdventureMapButton
-( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)(), int x, int y, std::string defName, bool activ )
+( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)(), int x, int y, std::string defName, bool activ, std::vector<std::string> * add )
 {
 	type=2;
 	abs=true;
@@ -28,14 +28,29 @@ AdventureMapButton::AdventureMapButton
 	CDefHandler * temp = CGI->spriteh->giveDef(defName); //todo: moze cieknac
 	for (int i=0;i<temp->ourImages.size();i++)
 	{
-		imgs.push_back(temp->ourImages[i].bitmap);
-		blueToPlayersAdv(imgs[i],LOCPLINT->playerID);
+		imgs.resize(1);
+		imgs[0].push_back(temp->ourImages[i].bitmap);
+		blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
+	}
+	if (add)
+	{
+		imgs.resize(imgs.size()+add->size());
+		for (int i=0; i<add->size();i++)
+		{
+			temp = CGI->spriteh->giveDef((*add)[i]);
+			for (int j=0;j<temp->ourImages.size();j++)
+			{
+				imgs[i+1].push_back(temp->ourImages[j].bitmap);
+				blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
+			}
+		}
+		delete add;
 	}
 	function = Function;
 	pos.x=x;
 	pos.y=y;
-	pos.w = imgs[0]->w;
-	pos.h = imgs[0]->h  -1;
+	pos.w = imgs[curimg][0]->w;
+	pos.h = imgs[curimg][0]->h  -1;
 	if (activ)
 		activate();
 }
@@ -169,8 +184,8 @@ statusbar(7,556),
 kingOverview(CGI->preth->advKingdomOverview.first,CGI->preth->advKingdomOverview.second,
 			 &CAdvMapInt::fshowOverview, 679, 196, "IAM002.DEF"),
 
-undeground(CGI->preth->advSurfaceSwitch.first,CGI->preth->advSurfaceSwitch.second,
-		   &CAdvMapInt::fswitchLevel, 711, 196, "IAM003.DEF"),
+underground(CGI->preth->advSurfaceSwitch.first,CGI->preth->advSurfaceSwitch.second,
+		   &CAdvMapInt::fswitchLevel, 711, 196, "IAM010.DEF", false, new std::vector<std::string>(1,std::string("IAM003.DEF"))),
 
 questlog(CGI->preth->advQuestlog.first,CGI->preth->advQuestlog.second,
 		 &CAdvMapInt::fshowQuestlog, 679, 228, "IAM004.DEF"),
@@ -220,8 +235,17 @@ void CAdvMapInt::fswitchLevel()
 	if(!CGI->ac->map.twoLevel)
 		return;
 	if (position.z)
+	{
 		position.z--;
-	else position.z++;
+		underground.curimg=0;
+		underground.show();
+	}
+	else 
+	{
+		underground.curimg=1;
+		position.z++;
+		underground.show();
+	}
 	updateScreen = true;
 }
 void CAdvMapInt::fshowQuestlog()
@@ -255,8 +279,8 @@ void CAdvMapInt::show()
 
 	kingOverview.show();
 	kingOverview.activate();
-	undeground.show();
-	undeground.activate();
+	underground.show();
+	underground.activate();
 	questlog.show();
 	questlog.activate();
 	sleepWake.show();
