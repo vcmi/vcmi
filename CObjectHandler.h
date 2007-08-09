@@ -294,6 +294,8 @@ public:
 	int id; //number of object in CObjectHandler's vector
 	int3 pos; // position
 	CSpecObjInfo * info; //pointer to something with additional information
+	bool operator<(const CObjectInstance & cmp) const;  //screen printing priority comparing
+
 };
 
 class CObjectHandler

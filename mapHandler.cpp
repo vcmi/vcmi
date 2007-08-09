@@ -8,36 +8,15 @@
 #include <algorithm>
 
 extern SDL_Surface * ekran;
-//
-//bool ObjSorter::operator <(const ObjSorter & por) const
-//{
-//	if(this->xpos>=por.xpos)
-//		return false;
-//	if(this->ypos>=por.ypos)
-//		return false;
-//	return true;
-//};
 
-class poX
+class OCM_HLP
 {
 public:
-	bool operator()(const ObjSorter & por2, const ObjSorter & por) const
+	bool operator ()(const std::pair<CObjectInstance *, SDL_Rect> & a, const std::pair<CObjectInstance *, SDL_Rect> & b)
 	{
-		if(por2.xpos<=por.xpos)
-			return false;
-		return true;
-	};
-} pox;
-class poY
-{
-public:
-	bool operator ()(const ObjSorter & por2, const ObjSorter & por) const
-	{
-		if(por2.ypos>=por.ypos)
-			return false;
-		return true;
-	};
-} poy;
+		return (*a.first)<(*b.first);
+	}
+} ocmptwo ;
 
 void CMapHandler::init()
 {
@@ -342,6 +321,36 @@ void CMapHandler::init()
 			}
 		}
 	}
+	//initializing objects / rects
+	for(int f=0; f<CGI->objh->objInstances.size(); ++f)
+	{	
+		CDefHandler * curd = CGI->ac->map.defy[CGI->objh->objInstances[f]->defNumber].handler;
+		for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+		{
+			for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+			{
+				SDL_Rect cr;
+				cr.w = 32;
+				cr.h = 32;
+				cr.x = fx*32;
+				cr.y = fy*32;
+				std::pair<CObjectInstance *, SDL_Rect> toAdd = std::make_pair(CGI->objh->objInstances[f], cr);
+				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff)<=ttiles[0].size() && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff)<=ttiles[0].size())
+					ttiles[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff][CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff][CGI->objh->objInstances[f]->pos.z].objects.push_back(toAdd);
+
+			} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+		} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+	} // for(int f=0; f<CGI->objh->objInstances.size(); ++f)
+	for(int ix=0; ix<ttiles.size(); ++ix)
+	{
+		for(int iy=0; iy<ttiles[0].size(); ++iy)
+		{
+			for(int iz=0; iz<ttiles[0][0].size(); ++iz)
+			{
+				stable_sort(ttiles[ix][iy][iz].objects.begin(), ttiles[ix][iy][iz].objects.end(), ocmptwo);
+			}
+		}
+	}
 }
 
 SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim)
@@ -407,105 +416,35 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	}
 	////roads printed
 	////printing objects
-	std::vector<ObjSorter> lowPrObjs;
-	std::vector<ObjSorter> highPrObjs;
-	std::vector<ObjSorter> highPrObjsVis;
-	for(int gg=0; gg<CGameInfo::mainObj->objh->objInstances.size(); ++gg)
+
+	for (int bx=(x==0 ? 0 : -1); bx<dx; bx++)
 	{
-		if(CGameInfo::mainObj->objh->objInstances[gg]->pos.x >= x-Woff-4 && CGameInfo::mainObj->objh->objInstances[gg]->pos.x < dx+x-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg]->pos.y >= y-Hoff-4 && CGameInfo::mainObj->objh->objInstances[gg]->pos.y < dy+y-Hoff+4 && CGameInfo::mainObj->objh->objInstances[gg]->pos.z == level)
+		for (int by=( y==0 ? 0 : -1); by<dy; by++)
 		{
-			if(!CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].isOnDefList)
+			if(true)
 			{
-				ObjSorter os;
-				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].handler->ourImages.size()].bitmap;
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.y-y+Hoff)*32;
-				highPrObjsVis.push_back(os);
-			}
-			else if(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].printPriority==0)
-			{
-				ObjSorter os;
+				for(int h=0; h<ttiles[x+bx][y+by][level].objects.size(); ++h)
+				{
+					SDL_Rect * sr = new SDL_Rect;
+					sr->w = 32;
+					sr->h = 32;
+					sr->x = (bx+1)*32;
+					sr->y = (by+1)*32;
 
-				int defyod = CGameInfo::mainObj->objh->objInstances[gg]->defNumber;
-				int ourimagesod = anim%CGameInfo::mainObj->ac->map.defy[defyod].handler->ourImages.size();
-
-				os.bitmap = CGameInfo::mainObj->ac->map.defy[defyod].handler->ourImages[ourimagesod].bitmap;
-
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.y-y+Hoff)*32;
-				if (CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].isVisitable())
-					highPrObjsVis.push_back(os);
-				else
-					highPrObjs.push_back(os);
-			}
-			else
-			{
-				ObjSorter os;
-				os.bitmap = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg]->defNumber].handler->ourImages.size()].bitmap;
-				os.xpos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.x-x+Woff)*32;
-				os.ypos = (CGameInfo::mainObj->objh->objInstances[gg]->pos.y-y+Hoff)*32;
-				lowPrObjs.push_back(os);
+					SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
+					int imgVal = CGI->ac->map.defy[
+						ttiles[x+bx][y+by][level].objects[h].first->defNumber]
+					.handler->ourImages.size();
+					SDL_Surface * tb = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap;
+					SDL_BlitSurface(
+					CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,
+					&pp,su,sr);
+					delete sr;
+				}
 			}
 		}
 	}
-#ifndef _DEBUG
-	std::stable_sort(lowPrObjs.begin(), lowPrObjs.end(), pox);
-	std::stable_sort(lowPrObjs.begin(), lowPrObjs.end(), poy);
-	std::stable_sort(highPrObjs.begin(), highPrObjs.end(),pox);
-	std::stable_sort(highPrObjs.begin(), highPrObjs.end(),poy);
-	std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),pox);
-	std::stable_sort(highPrObjsVis.begin(), highPrObjsVis.end(),poy);
-#else
-	std::sort(lowPrObjs.begin(), lowPrObjs.end(), pox);
-	std::sort(lowPrObjs.begin(), lowPrObjs.end(), poy);
-	std::sort(highPrObjs.begin(), highPrObjs.end(),pox);
-	std::sort(highPrObjs.begin(), highPrObjs.end(),poy);
-	std::sort(highPrObjsVis.begin(), highPrObjsVis.end(),pox);
-	std::sort(highPrObjsVis.begin(), highPrObjsVis.end(),poy);
-#endif
-	for(int yy=0; yy<lowPrObjs.size(); ++yy)
-	{
-		SDL_Rect * sr = new SDL_Rect;
-		sr->w = lowPrObjs[yy].bitmap->w;
-		sr->h = lowPrObjs[yy].bitmap->h;
-		sr->x = lowPrObjs[yy].xpos - lowPrObjs[yy].bitmap->w + 32;
-		sr->y = lowPrObjs[yy].ypos - lowPrObjs[yy].bitmap->h + 32;
-		SDL_BlitSurface(lowPrObjs[yy].bitmap, NULL, su, sr);
-		delete sr;
-	}
-	for(int yy=0; yy<highPrObjs.size(); ++yy)
-	{
-		SDL_Rect * sr = new SDL_Rect;
-		sr->w = highPrObjs[yy].bitmap->w;
-		sr->h = highPrObjs[yy].bitmap->h;
-		sr->x = highPrObjs[yy].xpos - highPrObjs[yy].bitmap->w + 32;
-		sr->y = highPrObjs[yy].ypos - highPrObjs[yy].bitmap->h + 32;
-		SDL_BlitSurface(highPrObjs[yy].bitmap, NULL, su, sr);
-		delete sr;
-	}
-	for(int yy=0; yy<highPrObjsVis.size(); ++yy)
-	{
-		SDL_Rect * sr = new SDL_Rect;
-		sr->w = highPrObjsVis[yy].bitmap->w;
-		sr->h = highPrObjsVis[yy].bitmap->h;
-		sr->x = highPrObjsVis[yy].xpos - highPrObjsVis[yy].bitmap->w + 32;
-		sr->y = highPrObjsVis[yy].ypos - highPrObjsVis[yy].bitmap->h + 32;
-		SDL_BlitSurface(highPrObjsVis[yy].bitmap, NULL, su, sr);
-		delete sr;
-	}
-	/*for(int gg=0; gg<CGameInfo::mainObj->objh->objInstances.size(); ++gg)
-	{
-		if(CGameInfo::mainObj->objh->objInstances[gg].x >= x-3 && CGameInfo::mainObj->objh->objInstances[gg].x < dx+x-3 && CGameInfo::mainObj->objh->objInstances[gg].y >= y-3 && CGameInfo::mainObj->objh->objInstances[gg].y < dy+y-3 && CGameInfo::mainObj->objh->objInstances[gg].z == level)
-		{
-			SDL_Rect * sr = new SDL_Rect;
-			sr->w = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->w;
-			sr->h = CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->h;
-			sr->x = (CGameInfo::mainObj->objh->objInstances[gg].x-x+4)*32 - CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->w + 32;
-			sr->y = (CGameInfo::mainObj->objh->objInstances[gg].y-y+4)*32 - CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[0].bitmap->h + 32;
-			SDL_BlitSurface(CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages[anim%CGameInfo::mainObj->ac->map.defy[CGameInfo::mainObj->objh->objInstances[gg].defNumber].handler->ourImages.size()].bitmap, NULL, su, sr);
-			delete sr;
-		}
-	}*/
+
 	////objects printed, printing shadow
 	for (int bx=0; bx<dx; bx++)
 	{
