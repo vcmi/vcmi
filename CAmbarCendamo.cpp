@@ -469,6 +469,7 @@ void CAmbarCendamo::deh3m()
 		nobj->pos.y = bufor[i++];
 		nobj->pos.z = bufor[i++];
 		nobj->defNumber = readNormalNr(i, 4); i+=4;
+		nobj->defObjInfoNumber = -1;
 
 		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
 		//	std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
@@ -1718,6 +1719,22 @@ void CAmbarCendamo::deh3m()
 	}
 	SDL_FreeSurface(alphaTransSurf);
 
+	//assigning defobjinfos
+
+	for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
+	{
+		for(int h=0; h<CGI->dobjinfo->objs.size(); ++h)
+		{
+			if(CGI->dobjinfo->objs[h].defName==CGI->ac->map.defy[CGI->objh->objInstances[ww]->defNumber].name)
+			{
+				CGI->objh->objInstances[ww]->defObjInfoNumber = h;
+				break;
+			}
+		}
+	}
+
+	//assigned
+
 	//loading events
 	int numberOfEvents = readNormalNr(i); i+=4;
 	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)
@@ -2056,6 +2073,12 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[453].defName);
 	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[458].defName);
 	creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[459].defName);
+
+	for(int b=0; b<CGI->scenarioOps.playerInfos.size(); ++b)
+	{
+		if(CGI->scenarioOps.playerInfos[b].castle==-1)
+			CGI->scenarioOps.playerInfos[b].castle = rand()%F_NUMBER;
+	}
 	
 	//variables initialized
 	for(int j=0; j<CGI->objh->objInstances.size(); ++j)

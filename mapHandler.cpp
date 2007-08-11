@@ -144,13 +144,44 @@ void CMapHandler::init()
 						{
 							ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::rotate01(ttiles[i][j][k].roadbitmap[0]);
 						}
-						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].roadbitmap[0]);
-						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].roadbitmap[0], su);
+						if(rotH || rotV)
+						{
+							ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].roadbitmap[0]);
+							SDL_Surface * buf = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].roadbitmap[0], su);
+							SDL_FreeSurface(ttiles[i][j][k].roadbitmap[0]);
+							ttiles[i][j][k].roadbitmap[0] = buf;
+						}
 					}
 				}
 			}
 		}
 	}
+
+	//initializing simple values
+	for (int i=0; i<ttiles.size(); i++) //jest po szerokoœci
+	{
+		for (int j=0; j<ttiles[0].size();j++) //po wysokoœci
+		{
+			for(int k=0; k<ttiles[0][0].size(); ++k)
+			{
+				ttiles[i][j][k].pos = int3(i, j, k);
+				ttiles[i][j][k].blocked = false;
+				ttiles[i][j][k].visitable = false;
+				if(i<Woff || j<Hoff || i>=CGI->ac->map.width+Woff || j>=CGI->ac->map.height+Hoff)
+				{
+					ttiles[i][j][k].blocked = true;
+					continue;
+				}
+				ttiles[i][j][k].terType = (k==0 ? CGI->ac->map.terrain[i-Woff][j-Hoff].tertype : CGI->ac->map.undergroungTerrain[i-Woff][j-Hoff].tertype);
+				ttiles[i][j][k].malle = (k==0 ? CGI->ac->map.terrain[i-Woff][j-Hoff].malle : CGI->ac->map.undergroungTerrain[i-Woff][j-Hoff].malle);
+				ttiles[i][j][k].nuine = (k==0 ? CGI->ac->map.terrain[i-Woff][j-Hoff].nuine : CGI->ac->map.undergroungTerrain[i-Woff][j-Hoff].nuine);
+				ttiles[i][j][k].rivdir = (k==0 ? CGI->ac->map.terrain[i-Woff][j-Hoff].rivDir : CGI->ac->map.undergroungTerrain[i-Woff][j-Hoff].rivDir);
+				ttiles[i][j][k].roaddir = (k==0 ? CGI->ac->map.terrain[i-Woff][j-Hoff].roadDir : CGI->ac->map.undergroungTerrain[i-Woff][j-Hoff].roadDir);
+
+			}
+		}
+	}
+	//simple values initialized
 
 	for (int i=0; i<reader->map.width+Woff; i++) //jest po szerokoœci
 	{
@@ -195,8 +226,13 @@ void CMapHandler::init()
 					{
 						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::rotate01(ttiles[i][j][k].rivbitmap[0]);
 					}
-					ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].rivbitmap[0]);
-					ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].rivbitmap[0], su);
+					if(rotH || rotV)
+					{
+						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].rivbitmap[0]);
+						SDL_Surface * buf = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].rivbitmap[0], su);
+						SDL_FreeSurface(ttiles[i][j][k].rivbitmap[0]);
+						ttiles[i][j][k].rivbitmap[0] = buf;
+					}
 				}
 			}
 		}
@@ -308,7 +344,6 @@ void CMapHandler::init()
 									break;
 								}
 							}
-							//SDL_BlitSurface(terrainBitmap[i][j],NULL,ekran,NULL); SDL_Flip(ekran);SDL_Delay(50);
 
 							break;
 						}
@@ -335,12 +370,38 @@ void CMapHandler::init()
 				cr.x = fx*32;
 				cr.y = fy*32;
 				std::pair<CObjectInstance *, SDL_Rect> toAdd = std::make_pair(CGI->objh->objInstances[f], cr);
-				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff)<=ttiles[0].size() && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff)<=ttiles[0].size())
+				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff)<=ttiles.size() && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff)<=ttiles[0].size())
+				{
+					TerrainTile2 & curt = ttiles[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff][CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff][CGI->objh->objInstances[f]->pos.z];
 					ttiles[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+Woff][CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+Hoff][CGI->objh->objInstances[f]->pos.z].objects.push_back(toAdd);
+				}
 
 			} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
 		} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
 	} // for(int f=0; f<CGI->objh->objInstances.size(); ++f)
+	for(int f=0; f<CGI->objh->objInstances.size(); ++f) //calculationg blocked / visitable positions
+	{	
+		if(CGI->objh->objInstances[f]->defObjInfoNumber == -1)
+			continue;
+		CDefHandler * curd = CGI->ac->map.defy[CGI->objh->objInstances[f]->defNumber].handler;
+		for(int fx=0; fx<8; ++fx)
+		{
+			for(int fy=0; fy<6; ++fy)
+			{
+				int xVal = CGI->objh->objInstances[f]->pos.x + Woff + fx - 7;
+				int yVal = CGI->objh->objInstances[f]->pos.y + Hoff + fy - 5;
+				int zVal = CGI->objh->objInstances[f]->pos.z;
+				if(xVal>=0 && xVal<ttiles.size() && yVal>=0 && yVal<ttiles[0].size())
+				{
+					TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
+					if(((CGI->dobjinfo->objs[CGI->objh->objInstances[f]->defObjInfoNumber].visitMap[fy] >> (7 - fx)) & 1))
+						curt.visitable = true;
+					if(!((CGI->dobjinfo->objs[CGI->objh->objInstances[f]->defObjInfoNumber].blockMap[fy] >> (7 - fx)) & 1))
+						curt.blocked = true;
+				}
+			}
+		}
+	}
 	for(int ix=0; ix<ttiles.size(); ++ix)
 	{
 		for(int iy=0; iy<ttiles[0].size(); ++iy)
@@ -370,7 +431,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	SDL_Surface * su = SDL_CreateRGBSurface(SDL_SWSURFACE, dx*32, dy*32, 32,
                                    rmask, gmask, bmask, amask);
 	if (((dx+x)>((reader->map.width+8)) || (dy+y)>((reader->map.height+8))) || ((x<0)||(y<0) ) )
-		throw new std::string("Poza zakresem");
+		throw new std::string("terrainRect: out of range");
 	////printing terrain
 	for (int bx=0; bx<dx; bx++)
 	{
@@ -480,23 +541,67 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	}
 	////shadow printed
 	//printing borders
-	for (int bx=0; bx<dx; bx++)
+	for (int bx=(x==0 ? 0 : -1); bx<dx; bx++)
 	{
-		for (int by=0; by<dy; by++)
+		for (int by=(y==0 ? 0 : -1); by<dy; by++)
 		{
 			if(bx+x<Woff || by+y<Hoff || bx+x>reader->map.width+(Woff-1) || by+y>reader->map.height+(Hoff-1))
 			{
-			SDL_Rect * sr = new SDL_Rect;
-			sr->y=by*32;
-			sr->x=bx*32;
-			sr->h=sr->w=32;
+				SDL_Rect * sr = new SDL_Rect;
+				sr->y=by*32;
+				sr->x=bx*32;
+				sr->h=sr->w=32;
 
-			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,sr);
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,sr);
 
-			delete sr;
+				delete sr;
+			}
+			else 
+			{
+				if(MARK_BLOCKED_POSITIONS &&  ttiles[x+bx][y+by][level].blocked) //temporary hiding blocked positions
+				{
+					SDL_Rect * sr = new SDL_Rect;
+					sr->y=by*32;
+					sr->x=bx*32;
+					sr->h=sr->w=32;
+
+					SDL_Surface * ns =  SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32,
+									   rmask, gmask, bmask, amask);
+					for(int f=0; f<ns->w*ns->h*4; ++f)
+					{
+						*((unsigned char*)(ns->pixels) + f) = 128;
+					}
+
+					SDL_BlitSurface(ns,NULL,su,sr);
+
+					SDL_FreeSurface(ns);
+
+					delete sr;
+				}
+				if(MARK_VISITABLE_POSITIONS &&  ttiles[x+bx][y+by][level].visitable) //temporary hiding visitable positions
+				{
+					SDL_Rect * sr = new SDL_Rect;
+					sr->y=by*32;
+					sr->x=bx*32;
+					sr->h=sr->w=32;
+
+					SDL_Surface * ns =  SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32,
+									   rmask, gmask, bmask, amask);
+					for(int f=0; f<ns->w*ns->h*4; ++f)
+					{
+						*((unsigned char*)(ns->pixels) + f) = 128;
+					}
+
+					SDL_BlitSurface(ns,NULL,su,sr);
+
+					SDL_FreeSurface(ns);
+
+					delete sr;
+				}
 			}
 		}
 	}
+	CSDL_Ext::update(su);
 	//borders printed
 	return su;
 }

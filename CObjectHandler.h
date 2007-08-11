@@ -291,6 +291,7 @@ class CObjectInstance //instance of object
 {
 public:
 	int defNumber; //specifies number of def file with animation of this object
+	int defObjInfoNumber; //number of this object's def's additional informations in CDefObjInfo's vector
 	int id; //number of object in CObjectHandler's vector
 	int3 pos; // position
 	CSpecObjInfo * info; //pointer to something with additional information

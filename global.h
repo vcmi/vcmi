@@ -33,6 +33,9 @@ const int SKILL_QUANTITY=28;
 const int ARTIFACTS_QUANTITY=171;
 const int HEROES_QUANTITY=156;
 
+#define MARK_BLOCKED_POSITIONS false
+#define MARK_VISITABLE_POSITIONS false
+
 
 
 #define DEFBYPASS

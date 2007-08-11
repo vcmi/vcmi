@@ -26,19 +26,21 @@ void CDefObjInfoHandler::load()
 		}
 		std::string mapStr;
 		inp>>mapStr;
+		std::reverse(mapStr.begin(), mapStr.end());
 		for(int v=0; v<mapStr.size(); ++v)
 		{
 			if(mapStr[v]=='0')
 			{
-				nobj.blockMap[v/6] ^= (128 >> (v%6));
+				nobj.blockMap[v/8] &= 255 - (128 >> (v%8));
 			}
 		}
 		inp>>mapStr;
+		std::reverse(mapStr.begin(), mapStr.end());
 		for(int v=0; v<mapStr.size(); ++v)
 		{
 			if(mapStr[v]=='1')
 			{
-				nobj.visitMap[v/6] ^= (128 >> (v%6));
+				nobj.visitMap[v/8] |= (128 >> (v%8));
 			}
 		}
 

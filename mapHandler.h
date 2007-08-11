@@ -11,23 +11,24 @@ const int Hoff = 4;
 
 struct TerrainTile2
 {
-	int3 pos;
-	EterrainType typ;
+	int3 pos; //this tile's position
+	EterrainType terType; //type of terrain tile
 
-	Eroad malle;
-	unsigned char roaddir;
+	Eroad malle; //type of road
+	unsigned char roaddir; //type of road tile
 
-	Eriver nuine;
-	unsigned char  rivdir;
+	Eriver nuine; //type of river
+	unsigned char  rivdir; //type of river tile
 
-	std::vector<SDL_Surface *> terbitmap; //frames of animation
-	std::vector<SDL_Surface *> rivbitmap; //frames of animation
-	std::vector<SDL_Surface *> roadbitmap; //frames of animation
+	std::vector<SDL_Surface *> terbitmap; //frames of terrain animation
+	std::vector<SDL_Surface *> rivbitmap; //frames of river animation
+	std::vector<SDL_Surface *> roadbitmap; //frames of road animation
 
-	boost::logic::tribool state; //false = free; true = blocked; middle = visitable
+	bool visitable; //false = not visitable; true = visitable
+	bool blocked; //false = free; true = blocked;
 
-	std::vector < std::pair<CObjectInstance*,SDL_Rect> > objects;
-	std::vector <CObjectInstance*> visitableObjects;
+	std::vector < std::pair<CObjectInstance*,SDL_Rect> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
+	std::vector <CObjectInstance*> visitableObjects; //pointers to objects hero is visiting being on this tile
 
 };
 
