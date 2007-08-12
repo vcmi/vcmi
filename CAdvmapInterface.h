@@ -8,9 +8,8 @@
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include <boost/logic/tribool.hpp>
-using namespace boost::logic;
-#define CGI (CGameInfo::mainObj)
-using namespace CSDL_Ext;
+#include "global.h"
+
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase
 {

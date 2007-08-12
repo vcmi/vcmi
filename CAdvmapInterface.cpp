@@ -1,6 +1,11 @@
 #include "stdafx.h"
 #include "CAdvmapInterface.h"
+
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
+
+using namespace boost::logic;
+using namespace CSDL_Ext;
+
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);

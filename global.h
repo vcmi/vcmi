@@ -36,6 +36,8 @@ const int HEROES_QUANTITY=156;
 #define MARK_BLOCKED_POSITIONS false
 #define MARK_VISITABLE_POSITIONS false
 
+#define CGI (CGameInfo::mainObj)
+
 
 
 #define DEFBYPASS

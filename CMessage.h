@@ -1,6 +1,7 @@
 #ifndef CMESSAGE_H
 #define CMESSAGE_H
 
+#include "global.h"
 #include "SDL_TTF.h"
 #include "SDL.h"
 #include "CSemiDefHandler.h"
@@ -8,7 +9,6 @@
 #include "CGameInterface.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
-#define CGI (CGameInfo::mainObj)
 enum EWindowType {infoOnly, infoOK, yesOrNO};
 class CPreGame;
 class MapSel;

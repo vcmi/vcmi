@@ -2,8 +2,6 @@
 #include "CTownHandler.h"
 #include "CGameInfo.h"
 #include <sstream>
-#define CGI (CGameInfo::mainObj)
-
 
 CTownHandler::CTownHandler()
 {

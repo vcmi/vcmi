@@ -44,7 +44,7 @@ class CHeroInstance
 {
 public:
 	int owner;
-	CHero type;
+	CHero * type;
 	int exp; //experience point
 	int level; //current level of hero
 	std::string name; //may be custom
@@ -54,6 +54,10 @@ public:
 	CCreatureSet army; //army
 	int mana; // remaining spell points
 	int movement; //remaining movement points
+	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);
+	unsigned int getLowestCreatureSpeed();
+	unsigned int getAdditiveMoveBonus();
+	unsigned float getMultiplicativeMoveBonus();
 	//TODO: artifacts, primary and secondary skills, known spells, commander, blessings, curses, morale/luck special modifiers
 };
 
@@ -62,6 +66,8 @@ class CHeroHandler
 public:
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
+	std::vector<CHeroInstance *> heroInstances;
+	unsigned int level(unsigned int experience);
 	void loadHeroes();
 	void loadSpecialAbilities();
 	void loadBiographies();

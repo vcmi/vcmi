@@ -55,6 +55,8 @@ public:
 	char & undVisAccess(int x, int y);
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
 	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector<char> > & visibility);
+
+	int getCost(int3 & a, int3 & b, CHeroInstance * hero);
 	void init();
 };
 

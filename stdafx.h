@@ -12,4 +12,5 @@
 #include <vector>
 #include <algorithm>
 #include <fstream>
+#include "global.h"
 // TODO: reference additional headers your program requires here

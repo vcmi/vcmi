@@ -7,13 +7,11 @@
 
 struct CPathNode
 {
-	bool v1, v2, v3,
-		 v4,     v5,
-		 v6, v7, v8; //true if we can pass, false if not
 	bool accesible; //true if a hero can be on this node
 	int dist; //distance from the first node of searching; -1 is infinity
 	CPathNode * theNodeBefore;
 	int x, y; //coordiantes
+	bool visited;
 };
 
 struct CPath
@@ -27,10 +25,10 @@ struct CPath
 class CPathfinder
 {
 private:
-	std::vector< std::vector<CPathNode> > graph;
+	std::vector< std::vector<CPathNode *> > graph;
 public:
-	CPath * getPath(int3 & src, int3 & dest); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists
-	CPath * getPath(int3 & src, int3 & dest, int (*getDist)(int3 & a, int3 b)); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; uses getDist to calculate distance
+	CPath * getPath(int3 & src, int3 & dest, CHeroInstance * hero); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists
+	CPath * getPath(int3 & src, int3 & dest, CHeroInstance * hero, int (*getDist)(int3 & a, int3 b)); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; uses getDist to calculate distance
 };
 
 #endif //CPATHFINDER_H

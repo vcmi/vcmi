@@ -9,7 +9,6 @@
 #include <set>
 #include <iomanip>
 #include <sstream>
-#define CGI (CGameInfo::mainObj)
 
 unsigned int intPow(unsigned int a, unsigned int b)
 {
@@ -782,6 +781,18 @@ void CAmbarCendamo::deh3m()
 				}
 				i+=16;
 				nobj->info = spec;
+				//////creating CHeroInstance
+				CHeroInstance * nhi = new CHeroInstance;
+				nhi->exp = spec->experience;
+				nhi->level = CGI->heroh->level(nhi->exp);
+				nhi->mana = spec->knowledge * 10;
+				nhi->movement = -1;
+				nhi->name = spec->name;
+				nhi->owner = spec->player;
+				nhi->pos = nobj->pos;
+				nhi->type = spec->type;
+				nhi->army = spec->garrison;
+				CGI->heroh->heroInstances.push_back(nhi);
 				break;
 			}
 		case CREATURES_DEF:

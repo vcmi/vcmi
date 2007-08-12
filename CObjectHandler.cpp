@@ -3,8 +3,6 @@
 #include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
 
-#define CGI (CGameInfo::mainObj)
-
 void CObjectHandler::loadObjects()
 {
 	int ID=0;

@@ -5,8 +5,6 @@
 #include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
 
-#define CGI (CGameInfo::mainObj)
-
 CHeroHandler::~CHeroHandler()
 {
 	for (int j=0;j<heroes.size();j++)
@@ -319,4 +317,19 @@ void CHeroHandler::initHeroClasses()
 	{
 		heroes[gg]->heroClass = heroClasses[heroes[gg]->heroType];
 	}
+}
+
+unsigned int CHeroInstance::getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype)
+{
+	return 100; //TODO: finish it
+}
+
+unsigned int CHeroHandler::level(unsigned int experience)
+{
+	return 0; //TODO: finish it
+}
+
+unsigned int CHeroInstance::getLowestCreatureSpeed()
+{
+	return 1; //TODO: finish it
 }
