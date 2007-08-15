@@ -20,6 +20,7 @@
 #include "CGameInterface.h"
 #include "CGameState.h"
 #include "mapHandler.h"
+#include "CConsoleHandler.h"
 #include "SDL.h"
 
 #include <vector>
@@ -51,6 +52,7 @@ public:
 	CLodHandler * spriteh;
 	CLodHandler * bitmaph;
 	CGeneralTextHandler * generaltexth;
+	CConsoleHandler * consoleh;
 	int localPlayer;
 	std::vector<CGameInterface *> playerint;
 	std::vector<SDL_Color> playerColors;

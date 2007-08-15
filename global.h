@@ -16,7 +16,7 @@ enum Eformat { WoG=0x33, AB=0x15, RoE=0x0e,  SoD=0x1c};
 enum EvictoryConditions {artifact, gatherTroop, gatherResource, buildCity, buildGrail, beatHero, 
 	captureCity, beatMonster, takeDwellings, takeMines, transportItem, winStandard=255};
 enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
-enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HREO_ALCHEMIST, HERO_WIZARD, 
+enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHEMIST, HERO_WIZARD, 
 	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD, 
 	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
 

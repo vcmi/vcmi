@@ -317,11 +317,25 @@ void CHeroHandler::initHeroClasses()
 	{
 		heroes[gg]->heroClass = heroClasses[heroes[gg]->heroType];
 	}
+	initTerrainCosts();
 }
 
 unsigned int CHeroInstance::getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype)
 {
-	return 100; //TODO: finish it
+	unsigned int ret = type->heroClass->terrCosts[ttype];
+	switch(rdtype)
+	{
+	case Eroad::dirtRoad:
+		ret*=0.75;
+		break;
+	case Eroad::grazvelRoad:
+		ret*=0.667;
+		break;
+	case Eroad::cobblestoneRoad:
+		ret*=0.5;
+		break;
+	}
+	return ret;
 }
 
 unsigned int CHeroHandler::level(unsigned int experience)
@@ -331,5 +345,133 @@ unsigned int CHeroHandler::level(unsigned int experience)
 
 unsigned int CHeroInstance::getLowestCreatureSpeed()
 {
-	return 1; //TODO: finish it
+	unsigned int sl = 100;
+	for(int h=0; h<army.slots.size(); ++h)
+	{
+		if(army.slots[h].first->speed<sl)
+			sl = army.slots[h].first->speed;
+	}
+	return sl;
+}
+
+void CHeroHandler::initTerrainCosts()
+{
+	for(int i=0; i<heroClasses.size(); ++i)
+	{
+		switch (i)
+		{
+		case EHeroClasses::HERO_KNIGHT: case EHeroClasses::HERO_CLERIC:
+			{
+				heroClasses[i]->terrCosts.push_back(100); //dirt
+				heroClasses[i]->terrCosts.push_back(150); //sand
+				heroClasses[i]->terrCosts.push_back(100); //grass
+				heroClasses[i]->terrCosts.push_back(150); //snow
+				heroClasses[i]->terrCosts.push_back(175); //swamp
+				heroClasses[i]->terrCosts.push_back(125); //rough
+				heroClasses[i]->terrCosts.push_back(100); //subterrain
+				heroClasses[i]->terrCosts.push_back(100); //lava
+				heroClasses[i]->terrCosts.push_back(-1); //water
+				heroClasses[i]->terrCosts.push_back(-1); //rock
+				break;
+			}
+		case EHeroClasses::HERO_RANGER: case EHeroClasses::HERO_DRUID:
+			{
+				heroClasses[i]->terrCosts.push_back(100); //dirt
+				heroClasses[i]->terrCosts.push_back(150); //sand
+				heroClasses[i]->terrCosts.push_back(100); //grass
+				heroClasses[i]->terrCosts.push_back(150); //snow
+				heroClasses[i]->terrCosts.push_back(175); //swamp
+				heroClasses[i]->terrCosts.push_back(125); //rough
+				heroClasses[i]->terrCosts.push_back(100); //subterrain
+				heroClasses[i]->terrCosts.push_back(100); //lava
+				heroClasses[i]->terrCosts.push_back(-1); //water
+				heroClasses[i]->terrCosts.push_back(-1); //rock
+				break;
+			}
+		case EHeroClasses::HERO_ALCHEMIST: case EHeroClasses::HERO_WIZARD:
+			{
+				heroClasses[i]->terrCosts.push_back(100); //dirt
+				heroClasses[i]->terrCosts.push_back(150); //sand
+				heroClasses[i]->terrCosts.push_back(100); //grass
+				heroClasses[i]->terrCosts.push_back(100); //snow
+				heroClasses[i]->terrCosts.push_back(175); //swamp
+				heroClasses[i]->terrCosts.push_back(125); //rough
+				heroClasses[i]->terrCosts.push_back(100); //subterrain
+				heroClasses[i]->terrCosts.push_back(100); //lava
+				heroClasses[i]->terrCosts.push_back(-1); //water
+				heroClasses[i]->terrCosts.push_back(-1); //rock
+				break;
+			}
+		case EHeroClasses::HERO_DEMONIAC: case EHeroClasses::HERO_HERETIC:
+			{
+				heroClasses[i]->terrCosts.push_back(100); //dirt
+				heroClasses[i]->terrCosts.push_back(150); //sand
+				heroClasses[i]->terrCosts.push_back(100); //grass
+				heroClasses[i]->terrCosts.push_back(150); //snow
+				heroClasses[i]->terrCosts.push_back(175); //swamp
+				heroClasses[i]->terrCosts.push_back(125); //rough
+				heroClasses[i]->terrCosts.push_back(100); //subterrain
+				heroClasses[i]->terrCosts.push_back(100); //lava
+				heroClasses[i]->terrCosts.push_back(-1); //water
+				heroClasses[i]->terrCosts.push_back(-1); //rock
+				break;
+			}
+		case EHeroClasses::HERO_DEATHKNIGHT: case EHeroClasses::HERO_NECROMANCER:
+			{
+				heroClasses[i]->terrCosts.push_back(100); //dirt
+				heroClasses[i]->terrCosts.push_back(150); //sand
+				heroClasses[i]->terrCosts.push_back(100); //grass
+				heroClasses[i]->terrCosts.push_back(150); //snow
+				heroClasses[i]->terrCosts.push_back(175); //swamp
+				heroClasses[i]->terrCosts.push_back(125); //rough
+				heroClasses[i]->terrCosts.push_back(100); //subterrain
+				heroClasses[i]->terrCosts.push_back(100); //lava
+				heroClasses[i]->terrCosts.push_back(-1); //water
+				heroClasses[i]->terrCosts.push_back(-1); //rock
+				break;
+			}
+		case EHeroClasses::HERO_WARLOCK: case EHeroClasses::HERO_OVERLORD:
+			{
+				heroClasses[i]->terrCosts.push_back(100); //dirt
+				heroClasses[i]->terrCosts.push_back(150); //sand
+				heroClasses[i]->terrCosts.push_back(100); //grass
+				heroClasses[i]->terrCosts.push_back(150); //snow
+				heroClasses[i]->terrCosts.push_back(175); //swamp
+				heroClasses[i]->terrCosts.push_back(125); //rough
+				heroClasses[i]->terrCosts.push_back(100); //subterrain
+				heroClasses[i]->terrCosts.push_back(100); //lava
+				heroClasses[i]->terrCosts.push_back(-1); //water
+				heroClasses[i]->terrCosts.push_back(-1); //rock
+				break;
+			}
+		case EHeroClasses::HERO_BARBARIAN: case EHeroClasses::HERO_BATTLEMAGE:
+			{
+				heroClasses[i]->terrCosts.push_back(100); //dirt
+				heroClasses[i]->terrCosts.push_back(150); //sand
+				heroClasses[i]->terrCosts.push_back(100); //grass
+				heroClasses[i]->terrCosts.push_back(150); //snow
+				heroClasses[i]->terrCosts.push_back(175); //swamp
+				heroClasses[i]->terrCosts.push_back(100); //rough
+				heroClasses[i]->terrCosts.push_back(100); //subterrain
+				heroClasses[i]->terrCosts.push_back(100); //lava
+				heroClasses[i]->terrCosts.push_back(-1); //water
+				heroClasses[i]->terrCosts.push_back(-1); //rock
+				break;
+			}
+		case EHeroClasses::HERO_BEASTMASTER: case EHeroClasses::HERO_WITCH:
+			{
+				heroClasses[i]->terrCosts.push_back(100); //dirt
+				heroClasses[i]->terrCosts.push_back(150); //sand
+				heroClasses[i]->terrCosts.push_back(100); //grass
+				heroClasses[i]->terrCosts.push_back(150); //snow
+				heroClasses[i]->terrCosts.push_back(100); //swamp
+				heroClasses[i]->terrCosts.push_back(125); //rough
+				heroClasses[i]->terrCosts.push_back(100); //subterrain
+				heroClasses[i]->terrCosts.push_back(100); //lava
+				heroClasses[i]->terrCosts.push_back(-1); //water
+				heroClasses[i]->terrCosts.push_back(-1); //rock
+				break;
+			}
+		}
+	}
 }

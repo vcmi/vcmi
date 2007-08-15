@@ -37,6 +37,7 @@
 #include "global.h"
 #include "CPreGame.h"
 #include "CGeneralTextHandler.h"
+#include "CConsoleHandler.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -110,6 +111,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		SDL_WM_SetCaption(NAME,""); //set window title
 		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 		CGameInfo::mainObj = cgi;
+		cgi->consoleh = new CConsoleHandler;
+		cgi->consoleh->runConsole();
 		cgi->mush = mush;
 
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;

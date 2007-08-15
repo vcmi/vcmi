@@ -827,40 +827,10 @@ char & CMapHandler::undVisAccess(int x, int y)
 
 int CMapHandler::getCost(int3 &a, int3 &b, CHeroInstance *hero)
 {
-	int ret = 1500; //basic value
-	switch(hero->getLowestCreatureSpeed())
-	{
-	case 0: case 1: case 2: case 3: case 4:
-		{
-			ret+=0;
-			break;
-		}
-	case 5:
-		{
-			ret+=100;
-			break;
-		}
-	case 6: case 7:
-		{
-			ret+=200;
-			break;
-		}
-	case 8:
-		{
-			ret+=300;
-			break;
-		}
-	case 9: case 10:
-		{
-			ret+=400;
-			break;
-		}
-	default:
-		{
-			ret+=500;
-			break;
-		}
-	}
+	int ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].malle];
+	if(!(a.x==b.x || a.y==b.y))
+		ret*=1.4142;
 
-	return ret; //TODO: finish it
+	//TODO: use hero's pathfinding skill during calculating cost
+	return ret;
 }

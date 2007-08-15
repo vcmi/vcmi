@@ -38,6 +38,7 @@ public:
 	int proKnowledge[2]; //probability of gaining knowledge point on levels [0]: 2 - 9; [1]: 10+ (out of 100)
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
 	int selectionProbability[9]; //probability of selection in towns
+	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterrain, lava, water, rock; -1 means terrain is imapassable
 };
 
 class CHeroInstance
@@ -75,6 +76,7 @@ public:
 	void loadPortraits();
 	void initHeroClasses();
 	~CHeroHandler();
+	void initTerrainCosts();
 };
 
 
