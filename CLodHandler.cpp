@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CLodHandler.h"
+#include "SDL_Extensions.h"
 #include <sstream>
 #include <algorithm>
 #include <cctype>

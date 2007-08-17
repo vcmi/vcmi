@@ -1,10 +1,9 @@
 #ifndef CPATHFINDER_H
 #define CPATHFINDER_H
-#include "CGameInfo.h"
 #include "int3.h"
 #include <queue>
 #include <vector>
-
+class CHeroInstance;
 struct CPathNode
 {
 	bool accesible; //true if a hero can be on this node
@@ -16,7 +15,7 @@ struct CPathNode
 
 struct CPath
 {
-	std::queue<CPathNode> nodes; //just get node by node
+	std::vector<CPathNode> nodes; //just get node by node
 };
 
 /**
@@ -28,7 +27,7 @@ private:
 	std::vector< std::vector<CPathNode *> > graph;
 public:
 	CPath * getPath(int3 & src, int3 & dest, CHeroInstance * hero); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists
-	CPath * getPath(int3 & src, int3 & dest, CHeroInstance * hero, int (*getDist)(int3 & a, int3 b)); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; uses getDist to calculate distance
+	CPath * getPath(int3 & src, int3 & dest, CHeroInstance * hero, int (*getDist)(int3 & a, int3 & b)); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; uses getDist to calculate distance
 };
 
 #endif //CPATHFINDER_H

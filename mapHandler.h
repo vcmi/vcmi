@@ -35,11 +35,29 @@ struct TerrainTile2
 //pathfinder
 //	map<int,int> iDTerenu=>koszt_pola
 //	map<int,int> IDdrogi=>koszt_drogi
-
+template <typename T> class PseudoV
+{
+public:
+	int offset;
+	std::vector<T> inver;
+	inline T & operator[](int n)
+	{
+		return inver[n+offset];
+	}
+	void resize(int rest,int Offset)
+	{
+		inver.resize(Offset*2+rest);
+		offset=Offset;
+	}
+	int size()
+	{
+		return inver.size();
+	}
+};
 class CMapHandler
 {
 public:
-	std::vector< std::vector< std::vector<TerrainTile2> > > ttiles;
+	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles;
 	CAmbarCendamo * reader;
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0);
 	SDL_Surface * terrBitmap(int x, int y);

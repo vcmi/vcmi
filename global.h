@@ -3,6 +3,7 @@
 #define CHECKTIME 1
 #if CHECKTIME
 #include "timeHandler.h"
+#include "int3.h"
 #include <iostream>
 #define THC
 #else 

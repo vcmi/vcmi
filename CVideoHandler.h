@@ -1,8 +1,10 @@
 #ifndef CVIDEOHANDLEER_H
 #define CVIDEOHANDLEER_H
 
-#include "windows.h"
+#include <stdio.h>
+#include <windows.h>
 //
+#define BINKNOTHREADEDIO 0x00800000
 //
 //  protected
 //    FLib: HINST;
@@ -71,16 +73,29 @@
   //  UVPlaneWidth: int;
   //  UVPlaneHeight: int;
   //end;
-struct BINKStruct
+typedef struct
 {
-	int width, height, frameCount, lastFrame, currentFrame,
-		FPSMul, // frames/second multiplier
-		FPSDiv, // frames/second divisor
-		unk1, flags, YPlaneWidth, YPlaneHeight, UVPlaneWidth, UVPlaneHeight;
-	unsigned char unk2[260];
-	int unk3[2];
-	void *plane1, *plane2;
-};
+	int width;			
+	int height;		
+	int frameCount;	
+	int currentFrame;		
+	int lastFrame;
+	int FPSMul;	
+	int FPSDiv;
+	int unknown0;	
+	unsigned char flags;
+	unsigned char unknown1[260];
+	int CurPlane;		// current plane
+	void *plane0;		// pointer to plane 0
+	void *plane1;		// pointer to plane 1
+	int unknown2;
+	int unknown3;
+	int yWidth;			// Y plane width
+	int yHeight;		// Y plane height
+	int uvWidth;		// U&V plane width
+	int uvHeight;		// U&V plane height
+	int d,e,f,g,h,i;
+} BINK_STRUCT, *HBINK;
 
 struct SMKStruct
 {
@@ -98,7 +113,7 @@ public:
 
 	void Instantiate(const char *filename);
 	const char *GetLibExtension();
-	void *FindAddress(const char *symbol);
+	void *FindAddress234(const char *symbol);
 
 	virtual ~DLLHandler();
 };
@@ -107,11 +122,14 @@ class CBIKHandler
 {
 public:
 	DLLHandler ourLib;
-	std::ifstream str;
 	int newmode;
-	BINKStruct data;
+	HANDLE hBinkFile;
+	HBINK hBink;
+	BINK_STRUCT data;
 	unsigned char * buffer;
 	void * waveOutOpen, * BinkGetError, *BinkOpen, *BinkSetSoundSystem ;
+
+	int width, height;
 
 	CBIKHandler();
 	void open(std::string name);

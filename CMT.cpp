@@ -61,6 +61,10 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX;
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
+
+		//CBIKHandler cb;
+		//cb.open("CSECRET.BIK");
+
 	THC timeHandler tmh;
 	THC tmh.getDif();
 	int xx=0, yy=0, zz=0;
@@ -80,17 +84,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		//TNR = TTF_OpenFont("Fonts\\tnr.ttf",10);
 		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
 		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
-
-
-
-
-		//CBIKHandler cb;
-		//cb.open("CSECRET.BIK");
-
-
-
-
-
 
 		//initializing audio
 		CMusicHandler * mush = new CMusicHandler;
@@ -185,6 +178,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
 		cgi->state = new CGameState();
+		cgi->pathf = new CPathfinder();
 		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
 
 		std::string mapname;

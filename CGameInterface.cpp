@@ -109,7 +109,7 @@ void CPlayerInterface::yourTurn()
 		}
 		if(LOCPLINT->adventureInt->scrollingLeft)
 		{
-			if(LOCPLINT->adventureInt->position.x>0)
+			if(LOCPLINT->adventureInt->position.x>-Woff)
 			{
 				LOCPLINT->adventureInt->position.x--;
 				LOCPLINT->adventureInt->updateScreen = true;
@@ -117,7 +117,7 @@ void CPlayerInterface::yourTurn()
 		}
 		if(LOCPLINT->adventureInt->scrollingRight)
 		{
-			if(LOCPLINT->adventureInt->position.x<CGI->ac->map.width-19+8)
+			if(LOCPLINT->adventureInt->position.x<CGI->ac->map.width-19+4)
 			{
 				LOCPLINT->adventureInt->position.x++;
 				LOCPLINT->adventureInt->updateScreen = true;
@@ -125,7 +125,7 @@ void CPlayerInterface::yourTurn()
 		}
 		if(LOCPLINT->adventureInt->scrollingUp)
 		{
-			if(LOCPLINT->adventureInt->position.y>0)
+			if(LOCPLINT->adventureInt->position.y>-Hoff)
 			{
 				LOCPLINT->adventureInt->position.y--;
 				LOCPLINT->adventureInt->updateScreen = true;
@@ -133,7 +133,7 @@ void CPlayerInterface::yourTurn()
 		}
 		if(LOCPLINT->adventureInt->scrollingDown)
 		{
-			if(LOCPLINT->adventureInt->position.y<CGI->ac->map.height-18+8)
+			if(LOCPLINT->adventureInt->position.y<CGI->ac->map.height-18+4)
 			{
 				LOCPLINT->adventureInt->position.y++;
 				LOCPLINT->adventureInt->updateScreen = true;

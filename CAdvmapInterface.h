@@ -97,9 +97,12 @@ public:
 
 };
 class CTerrainRect
-	:  public ClickableL, public ClickableR, public Hoverable, public CIntObject, public KeyInterested
+	:  public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject, public KeyInterested
 {
 public:
+	CDefHandler * arrows;
+	CTerrainRect();
+	CPath * currentPath;
 	void activate(); 
 	void deactivate();
 	void clickLeft(tribool down);

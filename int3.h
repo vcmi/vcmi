@@ -63,5 +63,9 @@ public:
 		return false;
 	}
 };
-
+inline std::istream & operator>>(std::istream & str, int3 & dest)
+{
+	str>>dest.x>>dest.y>>dest.z;
+	return str;
+}
 #endif //INT3_H

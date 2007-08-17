@@ -156,6 +156,18 @@ void CStatusBar::show()
 	blitAtWR(bg,pos.x,pos.y);
 	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
 }
+CTerrainRect::CTerrainRect():currentPath(NULL)
+{
+	pos.x=7;
+	pos.y=6;
+	pos.w=594;
+	pos.h=547;
+	arrows = CGI->spriteh->giveDef("ADAG.DEF");
+	for(int y=0; y<arrows->ourImages.size(); ++y)
+	{
+		CSDL_Ext::fullAlphaTransform(arrows->ourImages[y].bitmap);
+	}
+}
 void CTerrainRect::activate()
 {
 	ClickableL::activate();
@@ -181,6 +193,203 @@ void CTerrainRect::show()
 		19,18,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim);
 	SDL_BlitSurface(teren,&genRect(547,594,0,0),ekran,&genRect(547,594,7,6));
 	SDL_FreeSurface(teren);
+	if (currentPath)
+	{
+		for (int i=0;i<currentPath->nodes.size()-1;i++)
+		{
+			int pn=-1;//number of picture
+			if (i==0) //last tile
+			{
+				int x = 32*(currentPath->nodes[i].x-LOCPLINT->adventureInt->position.x)+7,
+					y = 32*(currentPath->nodes[i].y-LOCPLINT->adventureInt->position.y)+6;
+				if (x<0 || y<0 || x>pos.w || y>pos.h)
+					continue;
+				pn=0;
+			}
+			else
+			{
+				std::vector<CPathNode> & cv = currentPath->nodes;
+				if (cv[i+1].x == cv[i].x-1 && cv[i+1].y == cv[i].y-1)
+				{
+					if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y)
+					{
+						pn = 3;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 12;
+					}
+					else if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 21;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 22;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 2;
+					}
+				}
+				else if (cv[i+1].x == cv[i].x && cv[i+1].y == cv[i].y-1)
+				{
+					if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 4;
+					}
+					else if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 13;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 22;
+					}
+				}
+				else if (cv[i+1].x == cv[i].x+1 && cv[i+1].y == cv[i].y-1)
+				{
+					if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 5;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 14;
+					}
+					else if(cv[i-1].x-1 == cv[i].x && cv[i-1].y == cv[i].y)
+					{
+						pn = 23;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 24;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 4;
+					}
+				}
+				else if (cv[i+1].x == cv[i].x+1 && cv[i+1].y == cv[i].y)
+				{
+					if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 6;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y)
+					{
+						pn = 15;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 24;
+					}
+				}
+				else if (cv[i+1].x == cv[i].x+1 && cv[i+1].y == cv[i].y+1)
+				{
+					if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y)
+					{
+						pn = 7;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 16;
+					}
+					else if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 17;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 6;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 18;
+					}
+				}
+				else if (cv[i+1].x == cv[i].x && cv[i+1].y == cv[i].y+1)
+				{
+					if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 8;
+					}
+					else if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 9;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 18;
+					}
+				}
+				else if (cv[i+1].x == cv[i].x-1 && cv[i+1].y == cv[i].y+1)
+				{
+					if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 1;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 10;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y)
+					{
+						pn = 19;
+					}
+					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 8;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 20;
+					}
+				}
+				else if (cv[i+1].x == cv[i].x-1 && cv[i+1].y == cv[i].y)
+				{
+					if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					{
+						pn = 2;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y)
+					{
+						pn = 11;
+					}
+					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					{
+						pn = 20;
+					}
+				}
+			}
+			if (pn>=0)
+			{				
+				int x = 32*(currentPath->nodes[i].x-LOCPLINT->adventureInt->position.x)+7,
+					y = 32*(currentPath->nodes[i].y-LOCPLINT->adventureInt->position.y)+6;
+				if (x<0 || y<0 || x>pos.w || y>pos.h)
+					continue;
+				int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
+					hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
+				if (hvx<0 && hvy<0)
+					blitAtWR(arrows->ourImages[pn].bitmap,x,y);
+				else if(hvx<0)
+					SDL_BlitSurface
+						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,0,0),
+						ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,x,y));
+				else if (hvy<0)
+				{
+					SDL_BlitSurface
+						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,0,0),
+						ekran,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,x,y));
+				}
+				else
+					SDL_BlitSurface
+						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,0,0),
+						ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
+
+			}
+		}
+	}
 }
 
 CAdvMapInt::CAdvMapInt(int Player)

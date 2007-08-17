@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "global.h"
 #include "CPathfinder.h"
-
+#include "CGameInfo.h"
 CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO: test it (seems to be finished, but relies on unwritten functions :()
 {
 	if(src.z!=dest.z) //first check
@@ -30,119 +30,101 @@ CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO
 
 	std::queue<CPathNode *> mq;
 	mq.push(graph[src.x][src.y]);
+
+	unsigned int curDist = 4000000000;
+
 	while(!mq.empty())
 	{
 		CPathNode * cp = mq.front();
 		mq.pop();
+		if ((cp->x == dest.x) && (cp->y==dest.y))
+		{
+			if (cp->dist < curDist)
+				curDist=cp->dist;
+		}
+		else
+		{
+			if (cp->dist > curDist)
+				continue;
+		}
 		if(cp->x>0)
 		{
 			CPathNode * dp = graph[cp->x-1][cp->y];
-			if(!dp->visited)
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero))) && dp->accesible)
 			{
-				if(dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero)))
-				{
-					dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero);
-					dp->theNodeBefore = cp;
-					mq.push(dp);
-				}
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero);
+				dp->theNodeBefore = cp;
+				mq.push(dp);
 			}
 		}
 		if(cp->y>0)
 		{
 			CPathNode * dp = graph[cp->x][cp->y-1];
-			if(!dp->visited)
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y-1, src.z), hero))) && dp->accesible)
 			{
-				if(dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y-1, src.z), hero)))
-				{
-					dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero);
-					dp->theNodeBefore = cp;
-					mq.push(dp);
-					dp->visited = true;
-				}
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero);
+				dp->theNodeBefore = cp;
+				mq.push(dp);
 			}
 		}
 		if(cp->x>0 && cp->y>0)
 		{
 			CPathNode * dp = graph[cp->x-1][cp->y-1];
-			if(!dp->visited)
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y-1, src.z), hero))) && dp->accesible)
 			{
-				if(dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y-1, src.z), hero)))
-				{
-					dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y-1, src.z), hero);
-					dp->theNodeBefore = cp;
-					mq.push(dp);
-					dp->visited = true;
-				}
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y-1, src.z), hero);
+				dp->theNodeBefore = cp;
+				mq.push(dp);
 			}
 		}
 		if(cp->x<graph.size()-1)
 		{
 			CPathNode * dp = graph[cp->x+1][cp->y];
-			if(!dp->visited)
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y, src.z), hero))) && dp->accesible)
 			{
-				if(dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y, src.z), hero)))
-				{
-					dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y, src.z), hero);
-					dp->theNodeBefore = cp;
-					mq.push(dp);
-					dp->visited = true;
-				}
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y, src.z), hero);
+				dp->theNodeBefore = cp;
+				mq.push(dp);
 			}
 		}
 		if(cp->y<graph[0].size()-1)
 		{
 			CPathNode * dp = graph[cp->x][cp->y+1];
-			if(!dp->visited)
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y+1, src.z), hero))) && dp->accesible)
 			{
-				if(dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y+1, src.z), hero)))
-				{
-					dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y+1, src.z), hero);
-					dp->theNodeBefore = cp;
-					mq.push(dp);
-					dp->visited = true;
-				}
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y+1, src.z), hero);
+				dp->theNodeBefore = cp;
+				mq.push(dp);
 			}
 		}
-		if(cp->x<graph.size() && cp->y<graph[0].size())
+		if(cp->x<graph.size()-1 && cp->y<graph[0].size()-1)
 		{
 			CPathNode * dp = graph[cp->x+1][cp->y+1];
-			if(!dp->visited)
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y+1, src.z), hero))) && dp->accesible)
 			{
-				if(dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y+1, src.z), hero)))
-				{
-					dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y+1, src.z), hero);
-					dp->theNodeBefore = cp;
-					mq.push(dp);
-					dp->visited = true;
-				}
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y+1, src.z), hero);
+				dp->theNodeBefore = cp;
+				mq.push(dp);
 			}
 		}
-		if(cp->x>0 && cp->y<graph[0].size())
+		if(cp->x>0 && cp->y<graph[0].size()-1)
 		{
 			CPathNode * dp = graph[cp->x-1][cp->y+1];
-			if(!dp->visited)
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y+1, src.z), hero))) && dp->accesible)
 			{
-				if(dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y+1, src.z), hero)))
-				{
-					dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y+1, src.z), hero);
-					dp->theNodeBefore = cp;
-					mq.push(dp);
-					dp->visited = true;
-				}
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y+1, src.z), hero);
+				dp->theNodeBefore = cp;
+				mq.push(dp);
 			}
 		}
-		if(cp->x<graph.size() && cp->y>0)
+		if(cp->x<graph.size()-1 && cp->y>0)
 		{
 			CPathNode * dp = graph[cp->x+1][cp->y-1];
-			if(!dp->visited)
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y-1, src.z), hero))) && dp->accesible)
 			{
-				if(dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y-1, src.z), hero)))
-				{
-					dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y-1, src.z), hero);
-					dp->theNodeBefore = cp;
-					mq.push(dp);
-					dp->visited = true;
-				}
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y-1, src.z), hero);
+				dp->theNodeBefore = cp;
+				mq.push(dp);
 			}
 		}
 	}
@@ -152,15 +134,16 @@ CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO
 
 	while(curNode!=graph[src.x][src.y] && curNode != NULL)
 	{
-		ret->nodes.push(*curNode);
+		ret->nodes.push_back(*curNode);
 		curNode = curNode->theNodeBefore;
 	}
 
+	ret->nodes.push_back(*graph[src.x][src.y]);
+
 	for(int i=0; i<graph.size(); ++i)
 	{
-		for(int j=0; j<graph[0].size(); ++i)
+		for(int j=0; j<graph[0].size(); ++j)
 			delete graph[i][j];
 	}
-
 	return ret;
 }

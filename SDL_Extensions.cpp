@@ -618,3 +618,26 @@ int readNormalNr (std::istream &in, int bytCon)
 	else return -1;
 	return ret;
 }
+
+void CSDL_Ext::fullAlphaTransform(SDL_Surface *& src)
+{
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    int rmask = 0xff000000;
+    int gmask = 0x00ff0000;
+    int bmask = 0x0000ff00;
+    int amask = 0x000000ff;
+#else
+    int rmask = 0x000000ff;
+    int gmask = 0x0000ff00;
+    int bmask = 0x00ff0000;
+    int amask = 0xff000000;
+#endif
+	src = alphaTransform(src);
+	SDL_Surface * hlp1, * hlp2;
+	hlp1 = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, amask);
+	hlp2 = secondAlphaTransform(src, hlp1);
+	SDL_FreeSurface(src);
+	SDL_FreeSurface(hlp1);
+	src = hlp2;
+}
+
