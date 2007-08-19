@@ -84,22 +84,32 @@ public:
 	void show(); //shows statusbar (with current text)
 };
 class CMinimap
-	: public ClickableL, public ClickableR, public Hoverable, public CIntObject
+	: public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject
 {
 public:
-	SDL_Surface * radar; //radar.def
-	SDL_Surface * terrainMap;
-	SDL_Surface * undTerrainMap; //underground
-
+	CDefHandler * radar; //radar.def; TODO: radars for maps with custom dimensions
+	std::map<int,SDL_Color> colors;
+	std::map<int,SDL_Color> colorsBlocked;
+	std::vector<SDL_Surface *> map; //one bitmap for each level
 	//TODO flagged buildings
+	std::string statusbarTxt;
 
-	bool underground; 
+	CMinimap(bool draw=true); 
+	void draw();
+	void redraw(int level=-1);// (level==-1) => redraw all levels
+	void updateRadar();
 
+	void clickRight (tribool down);
+	void clickLeft (tribool down);
+	void hover (bool on);
+	void activate(); // makes button active
+	void deactivate(); // makes button inactive (but don't deletes)
 };
 class CTerrainRect
 	:  public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject, public KeyInterested
 {
 public:
+	int tilesw, tilesh;
 	CDefHandler * arrows;
 	CTerrainRect();
 	CPath * currentPath;
@@ -131,6 +141,7 @@ public:
 	bool updateScreen ;
 	unsigned char anim, animValHitCount; //animation frame
 
+	CMinimap minimap;
 
 
 	SDL_Surface * bg;

@@ -83,7 +83,9 @@ void CMapHandler::init()
 	//roadBitmaps = new SDL_Surface** [reader->map.width+2*Woff];
 	//for (int ii=0;ii<reader->map.width+2*Woff;ii++)
 	//	roadBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory 
-
+	sizes.x = CGI->ac->map.width;
+	sizes.y = CGI->ac->map.height;
+	sizes.z = CGI->ac->map.twoLevel+1;
 	ttiles.resize(CGI->ac->map.width,Woff);
 	for (int i=0-Woff;i<ttiles.size()-Woff;i++)
 	{
@@ -430,7 +432,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
     int bmask = 0x00ff0000;
     int amask = 0xff000000;
 #endif
-
+	std::cout<<"x to "<<x<<std::endl;
 	SDL_Surface * su = SDL_CreateRGBSurface(SDL_SWSURFACE, dx*32, dy*32, 32,
                                    rmask, gmask, bmask, amask);
 	if (((dx+x)>((reader->map.width+Woff)) || (dy+y)>((reader->map.height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )

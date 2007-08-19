@@ -1,0 +1,26 @@
+0	82	56	8	57	40	8
+1	222	207	140	165	158	107
+2	0	65	0	0	48	0
+3	181	199	198	140	158	156
+4	74	134	107	33	89	66
+5	132	113	49	99	81	33
+6	132	48	0	90	8	0
+7	74	73	74	41	40	41
+8	8	81	148	8	81	148
+9	0	0	0	0	0	0
+
+//end of data
+Colors of terrain in minimap
+Terrain_ID	Unblocked_R	Unblocked_G	Unblocked_B	Blocked_R	Blocked_G	Blocked_B
+(all values are decimal)
+Terrain types:
+00  	 Dirt
+01 	 Sand
+02 	 Grass
+03 	 Snow
+04 	 Swamp
+05 	 Rough
+06 	 Subterranean
+07 	 Lava
+08 	 Water
+09 	 Rock

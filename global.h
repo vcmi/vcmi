@@ -21,8 +21,9 @@ enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHE
 	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD, 
 	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
 
-#define CURPLINT (((CPlayerInterface*)(CGI->playerint[CGI->state->currentPlayer]))) 
-#define LOCPLINT (((CPlayerInterface*)(CGI->playerint[CGI->localPlayer]))) 
+#define CGI (CGameInfo::mainObj)
+#define CURPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->state->currentPlayer]))) 
+#define LOCPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->localPlayer]))) 
 //CURPLINT gives pointer to the interface of human player which is currently making turn, 
 //LOCPLINT gives pointer to the interface which is currently showed (on this machine)
 
@@ -33,13 +34,11 @@ const int HEROES_PER_TYPE=8; //amount of heroes of each type
 const int SKILL_QUANTITY=28;
 const int ARTIFACTS_QUANTITY=171;
 const int HEROES_QUANTITY=156;
+const int TERRAIN_TYPES=10;
 
 #define MARK_BLOCKED_POSITIONS false
 #define MARK_VISITABLE_POSITIONS false
 
-#define CGI (CGameInfo::mainObj)
-
-
-
 #define DEFBYPASS
+
 #endif //GLOBAL_H

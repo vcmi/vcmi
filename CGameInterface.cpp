@@ -28,6 +28,13 @@ void CButtonBase::show()
 		
 	}
 }
+void ClickableL::clickLeft(tribool down)
+{
+	if (down)
+		pressedL=true;
+	else
+		pressedL=false;
+}
 void ClickableL::activate()
 {
 	LOCPLINT->lclickable.push_back(this);
@@ -155,6 +162,7 @@ void CPlayerInterface::yourTurn()
 
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 {
+	current = sEvent;
 	if(sEvent->type==SDL_QUIT) 
 		exit(0);
 	else if (sEvent->type==SDL_KEYDOWN)
@@ -292,5 +300,6 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 				lclickable[i]->clickLeft(boost::logic::indeterminate);
 		}
 	}
+	current = NULL;
 
 } //event end

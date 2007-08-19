@@ -156,8 +156,124 @@ void CStatusBar::show()
 	blitAtWR(bg,pos.x,pos.y);
 	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
 }
+CMinimap::CMinimap(bool draw)
+{
+	statusbarTxt = CGI->preth->advWorldMap.first;
+	pos.x=630;
+	pos.y=26;
+	pos.h=pos.w=144;
+	radar = CGI->spriteh->giveDef("RADAR.DEF");
+	std::ifstream is("minimap.txt",std::ifstream::in);
+	for (int i=0;i<TERRAIN_TYPES;i++)
+	{
+		std::pair<int,SDL_Color> vinya;
+		std::pair<int,SDL_Color> vinya2;
+		int pom;
+		is >> pom;
+		vinya2.first=vinya.first=pom;
+		is >> pom;
+		vinya.second.r=pom;
+		is >> pom;
+		vinya.second.g=pom;
+		is >> pom;
+		vinya.second.b=pom;
+		is >> pom;
+		vinya2.second.r=pom;
+		is >> pom;
+		vinya2.second.g=pom;
+		is >> pom;
+		vinya2.second.b=pom;	
+		vinya.second.unused=vinya2.second.unused=255;
+		colors.insert(vinya);
+		colorsBlocked.insert(vinya2);
+	}
+	is.close();
+	if (draw)
+		redraw();
+}
+void CMinimap::draw()
+{
+	blitAtWR(map[LOCPLINT->adventureInt->position.z],pos.x,pos.y);
+}
+void CMinimap::redraw(int level)// (level==-1) => redraw all levels
+{
+	(CGameInfo::mainObj);
+	for (int i=0; i<CGI->mh->sizes.z; i++)
+	{
+		SDL_Surface * pom ;
+		if ((level>=0) && (i!=level))
+			continue;
+		if (map.size()<i+1)
+			pom = SDL_CreateRGBSurface(ekran->flags,pos.w,pos.h,ekran->format->BitsPerPixel,ekran->format->Rmask,ekran->format->Gmask,ekran->format->Bmask,ekran->format->Amask);
+		else pom = map[i];
+		for (int x=0;x<pos.w;x++)
+		{
+			for (int y=0;y<pos.h;y++)
+			{
+				int mx=(CGI->mh->sizes.x*x)/pos.w;
+				int my=(CGI->mh->sizes.y*y)/pos.h;
+				if (CGI->mh->ttiles[mx][my][i].blocked && (!CGI->mh->ttiles[mx][my][i].visitable))
+					SDL_PutPixel(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].b);
+				else SDL_PutPixel(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].terType].r,colors[CGI->mh->ttiles[mx][my][i].terType].g,colors[CGI->mh->ttiles[mx][my][i].terType].b);
+			}
+		}
+		map.push_back(pom);
+	}
+}
+void CMinimap::updateRadar()
+{}
+void CMinimap::clickRight (tribool down)
+{}
+void CMinimap::clickLeft (tribool down)
+{
+	ClickableL::clickLeft(down);
+	if (!((bool)down))
+		return;
+	
+	float dx=((float)(LOCPLINT->current->motion.x-pos.x))/((float)pos.w),
+		dy=((float)(LOCPLINT->current->motion.y-pos.y))/((float)pos.h);
+
+	int dxa = (CGI->mh->sizes.x*dx)-(LOCPLINT->adventureInt->terrain.tilesw/2);
+	int dya = (CGI->mh->sizes.y*dy)-(LOCPLINT->adventureInt->terrain.tilesh/2);
+
+	if (dxa<0)
+		dxa=-(Woff/2);
+	else if((dxa+LOCPLINT->adventureInt->terrain.tilesw)  >  (CGI->mh->sizes.x))
+		dxa=CGI->mh->sizes.x-LOCPLINT->adventureInt->terrain.tilesw+(Woff/2);
+
+	if (dya<0)
+		dya = -(Hoff/2);
+	else if((dya+LOCPLINT->adventureInt->terrain.tilesh)  >  (CGI->mh->sizes.y))
+		dya = CGI->mh->sizes.y-LOCPLINT->adventureInt->terrain.tilesh+(Hoff/2);
+
+	LOCPLINT->adventureInt->position.x=dxa;
+	LOCPLINT->adventureInt->position.y=dya;
+	LOCPLINT->adventureInt->updateScreen=true;
+}
+void CMinimap::hover (bool on)
+{
+	Hoverable::hover(on);
+	if (on)
+		LOCPLINT->adventureInt->statusbar.print(statusbarTxt);
+	else if (LOCPLINT->adventureInt->statusbar.current==statusbarTxt)
+		LOCPLINT->adventureInt->statusbar.clear();
+}
+void CMinimap::activate()
+{
+	ClickableL::activate();
+	ClickableR::activate();
+	Hoverable::activate();
+}
+void CMinimap::deactivate()
+{
+	ClickableL::deactivate();
+	ClickableR::deactivate();
+	Hoverable::deactivate();
+}
 CTerrainRect::CTerrainRect():currentPath(NULL)
 {
+	tilesw=19;
+	tilesh=18;
 	pos.x=7;
 	pos.y=6;
 	pos.w=594;
@@ -190,10 +306,10 @@ void CTerrainRect::show()
 {
 	SDL_Surface * teren = CGI->mh->terrainRect
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
-		19,18,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim);
-	SDL_BlitSurface(teren,&genRect(547,594,0,0),ekran,&genRect(547,594,7,6));
+		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim);
+	SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),ekran,&genRect(547,594,7,6));
 	SDL_FreeSurface(teren);
-	if (currentPath)
+	if (currentPath) //drawing path
 	{
 		for (int i=0;i<currentPath->nodes.size()-1;i++)
 		{
@@ -388,8 +504,8 @@ void CTerrainRect::show()
 						ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
 
 			}
-		}
-	}
+		} //for (int i=0;i<currentPath->nodes.size()-1;i++)
+	} // if (currentPath)
 }
 
 CAdvMapInt::CAdvMapInt(int Player)
@@ -511,6 +627,9 @@ void CAdvMapInt::show()
 	nextHero.activate();
 	endTurn.show();
 	endTurn.activate();
+
+	minimap.activate();
+	minimap.draw();
 
 	statusbar.show();
 

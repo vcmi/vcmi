@@ -78,6 +78,7 @@ public:
 class CPlayerInterface : public CGameInterface
 {
 public:
+	SDL_Event * current;
 	CAdvMapInt * adventureInt;
 	//TODO: town interace, battle interface, other interfaces
 

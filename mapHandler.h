@@ -58,10 +58,9 @@ class CMapHandler
 {
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles;
+	int3 sizes;
 	CAmbarCendamo * reader;
-	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0);
-	SDL_Surface * terrBitmap(int x, int y);
-	SDL_Surface * undTerrBitmap(int x, int y);
+
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;
 
@@ -69,6 +68,8 @@ public:
 	std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;
+
+
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
@@ -76,6 +77,10 @@ public:
 
 	int getCost(int3 & a, int3 & b, CHeroInstance * hero);
 	void init();
+	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0);
+	SDL_Surface * terrBitmap(int x, int y);
+	SDL_Surface * undTerrBitmap(int x, int y);
+
 };
 
 #endif //MAPHANDLER_H

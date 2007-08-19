@@ -216,12 +216,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		mh->init();
 		THC std::cout<<"Initializing mapHandler: "<<tmh.getDif()<<std::endl;
 		//SDL_Rect * sr = new SDL_Rect(); sr->h=64;sr->w=64;sr->x=0;sr->y=0;
-		SDL_Surface * teren = mh->terrainRect(xx,yy,25,19);
-		THC std::cout<<"Preparing terrain to display: "<<tmh.getDif()<<std::endl;
-		SDL_BlitSurface(teren,NULL,ekran,NULL);
-		SDL_FreeSurface(teren);
-		SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
-		THC std::cout<<"Displaying terrain: "<<tmh.getDif()<<std::endl;
+		//SDL_Surface * teren = mh->terrainRect(xx,yy,25,19);
+		//THC std::cout<<"Preparing terrain to display: "<<tmh.getDif()<<std::endl;
+		//SDL_BlitSurface(teren,NULL,ekran,NULL);
+		//SDL_FreeSurface(teren);
+		//SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
+		//THC std::cout<<"Displaying terrain: "<<tmh.getDif()<<std::endl;
 
 
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
