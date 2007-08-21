@@ -100,7 +100,8 @@ void CPlayerInterface::yourTurn()
 	//framerate keeper initialized
 	for(;;) // main loop
 	{
-		
+		CGI->screenh->updateScreen();
+
 		LOCPLINT->adventureInt->updateScreen = false;
 		if(SDL_PollEvent(&sEvent))  //wait for event...
 		{
@@ -163,6 +164,12 @@ void CPlayerInterface::yourTurn()
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 {
 	current = sEvent;
+
+	if(sEvent->type == SDL_MOUSEMOTION)
+	{
+		CGI->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
+	}
+
 	if(sEvent->type==SDL_QUIT) 
 		exit(0);
 	else if (sEvent->type==SDL_KEYDOWN)

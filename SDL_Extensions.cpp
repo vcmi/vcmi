@@ -449,7 +449,8 @@ Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 
 void CSDL_Ext::update(SDL_Surface * what)
 {
-	SDL_UpdateRect(what, 0, 0, what->w, what->h);
+	if(what)
+		SDL_UpdateRect(what, 0, 0, what->w, what->h);
 }
 
 void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)

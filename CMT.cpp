@@ -38,6 +38,8 @@
 #include "CPreGame.h"
 #include "CGeneralTextHandler.h"
 #include "CConsoleHandler.h"
+#include "CCursorHandler.h"
+#include "CScreenHandler.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -56,7 +58,7 @@ const char * NAME = "VCMI 0.3";
    level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
-SDL_Surface * ekran;
+SDL_Surface * ekran, * screen, * screen2;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX;
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -70,7 +72,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	int xx=0, yy=0, zz=0;
 	SDL_Event sEvent;
 	srand ( time(NULL) );
-	SDL_Surface *screen, *temp;
+	SDL_Surface *temp;
 	std::vector<SDL_Surface*> Sprites;
 	float i;
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO/*|SDL_INIT_EVENTTHREAD*/)==0)
@@ -98,7 +100,8 @@ int _tmain(int argc, _TCHAR* argv[])
 			// well, there's no music, but most games don't break without music...
 		}*/
 
-		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
+		screen2 = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
+		screen = SDL_ConvertSurface(screen2, screen2->format, SDL_SWSURFACE);
 		ekran = screen;
 
 		SDL_WM_SetCaption(NAME,""); //set window title
@@ -107,12 +110,19 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->consoleh = new CConsoleHandler;
 		cgi->consoleh->runConsole();
 		cgi->mush = mush;
+		cgi->curh = new CCursorHandler;
 
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		cgi->spriteh = new CLodHandler;
 		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
 		cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
+
+		cgi->curh->initCursor();
+		cgi->curh->showGraphicCursor();
+
+		cgi->screenh = new CScreenHandler;
+		cgi->screenh->initScreen();
 
 		//colors initialization
 		SDL_Color p;

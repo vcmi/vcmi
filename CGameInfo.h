@@ -22,6 +22,8 @@
 #include "mapHandler.h"
 #include "CConsoleHandler.h"
 #include "CPathfinder.h"
+#include "CCursorHandler.h"
+#include "CScreenHandler.h"
 #include "SDL.h"
 
 #include <vector>
@@ -55,6 +57,8 @@ public:
 	CGeneralTextHandler * generaltexth;
 	CConsoleHandler * consoleh;
 	CPathfinder * pathf;
+	CCursorHandler * curh;
+	CScreenHandler * screenh;
 	int localPlayer;
 	std::vector<CGameInterface *> playerint;
 	std::vector<SDL_Color> playerColors;
