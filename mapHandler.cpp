@@ -469,8 +469,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	////printing roads
 	for (int bx=0; bx<dx; bx++)
 	{
-		for (int by=0; by<dy; by++)
+		for (int by=-1; by<dy; by++)
 		{
+			if(y+by<=-4)
+				continue;
 			SDL_Rect * sr = new SDL_Rect;
 			sr->y=by*32+16;
 			sr->x=bx*32;

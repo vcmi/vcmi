@@ -210,7 +210,7 @@ int _tmain(int argc, _TCHAR* argv[])
 #ifdef CHOOSE
 		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
 #else
-		CAmbarCendamo * ac = new CAmbarCendamo("1smok"); //4gryf
+		CAmbarCendamo * ac = new CAmbarCendamo("RoEtest"); //4gryf
 #endif
 		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;

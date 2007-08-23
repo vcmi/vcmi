@@ -78,66 +78,90 @@ void CAmbarCendamo::deh3m()
 	for (pom=0;pom<length;pom++)
 		map.description+=bufor[i++];
 	map.difficulty = bufor[i++]; // reading map difficulty
-	map.levelLimit = bufor[i++]; // hero level limit
+	if(map.version != Eformat::RoE)
+	{
+		map.levelLimit = bufor[i++]; // hero level limit
+	}
+	else
+	{
+		map.levelLimit = 0;
+	}
 	for (pom=0;pom<8;pom++)
 	{
 		map.players[pom].canHumanPlay = bufor[i++];
 		map.players[pom].canComputerPlay = bufor[i++];
 		if ((!(map.players[pom].canHumanPlay || map.players[pom].canComputerPlay)))
 		{
-			i+=13;
+			switch(map.version)
+			{
+			case Eformat::SoD: case Eformat::WoG: 
+				i+=13;
+				break;
+			case Eformat::AB:
+				i+=12;
+				break;
+			case Eformat::RoE:
+				i+=6;
+				break;
+			}
 			continue;
 		}
 
 		map.players[pom].AITactic = bufor[i++];
-		if (bufor[i++])
-		{
-			map.players[pom].allowedFactions = 0;
-			map.players[pom].allowedFactions += bufor[i++];
+
+		if(map.version == Eformat::SoD || map.version == Eformat::WoG)
+			i++;
+
+		map.players[pom].allowedFactions = 0;
+		map.players[pom].allowedFactions += bufor[i++];
+		if(map.version != Eformat::RoE)
 			map.players[pom].allowedFactions += (bufor[i++])*256;
-		}
-		else 
-		{
-			map.players[pom].allowedFactions = 511;
-			i+=2;
-		}
+
 		map.players[pom].isFactionRandom = bufor[i++];
 		map.players[pom].hasMainTown = bufor[i++];
 		if (map.players[pom].hasMainTown)
 		{
-			map.players[pom].generateHeroAtMainTown = bufor[i++];
-			map.players[pom].generateHero = bufor[i++];
+			if(map.version != Eformat::RoE)
+			{
+				map.players[pom].generateHeroAtMainTown = bufor[i++];
+				map.players[pom].generateHero = bufor[i++];
+			}
 			map.players[pom].posOfMainTown.x = bufor[i++];
 			map.players[pom].posOfMainTown.y = bufor[i++];
 			map.players[pom].posOfMainTown.z = bufor[i++];
+
+			
 		}
-		i++; //unknown byte
-		int unknown = bufor[i++];
-		if (unknown == 255)
+
+		i++; //unknown
+		
+		if(bufor[i++]!=0xff)
 		{
-			map.players[pom].mainHeroPortrait = 255;
-			i+=5;
-			continue;
+			map.players[pom].mainHeroPortrait = bufor[i++];
+			int nameLength = bufor[i++];
+			i+=3; 
+			for (int pp=0;pp<nameLength;pp++)
+				map.players[pom].mainHeroName+=bufor[i++];
 		}
-		map.players[pom].mainHeroPortrait = bufor[i++];
-		int nameLength = bufor[i++];
-		i+=3; 
-		for (int pp=0;pp<nameLength;pp++)
-			map.players[pom].mainHeroName+=bufor[i++];
-		i++; ////unknown byte
-		int heroCount = bufor[i++];
-		i+=3;
-		for (int pp=0;pp<heroCount;pp++)
+
+		//i++; //unknown byte
+		if(map.version != Eformat::RoE)
 		{
-			SheroName vv;
-			vv.heroID=bufor[i++];
-			int hnl = bufor[i++];
+			i++; ////unknown byte
+			int heroCount = bufor[i++];
 			i+=3;
-			for (int zz=0;zz<hnl;zz++)
+			for (int pp=0;pp<heroCount;pp++)
 			{
-				vv.heroName+=bufor[i++];
+				SheroName vv;
+				vv.heroID=bufor[i++];
+				int hnl = bufor[i++];
+				i+=3;
+				for (int zz=0;zz<hnl;zz++)
+				{
+					vv.heroName+=bufor[i++];
+				}
+				map.players[pom].heroesNames.push_back(vv);
 			}
-			map.players[pom].heroesNames.push_back(vv);
 		}
 	}
 	map.victoryCondition = (EvictoryConditions)bufor[i++];
@@ -226,13 +250,13 @@ void CAmbarCendamo::deh3m()
 		case takeDwellings:
 			{		
 				map.vicConDetails = new CspecificVictoryConidtions();
-				nr=3;
+				nr=0;
 				break;
 			}
 		case takeMines:
 			{	
 				map.vicConDetails = new CspecificVictoryConidtions();	
-				nr=3;
+				nr=0;
 				break;
 			}
 		case transportItem:
@@ -283,8 +307,10 @@ void CAmbarCendamo::deh3m()
 		}
 	}
 	//reading allowed heroes (20 bytes)
-	int ist=i; //starting i for loop
-	for(i; i<ist+20; ++i)
+	int ist;
+
+	ist=i; //starting i for loop
+	for(i; i<ist+ (map.version == Eformat::RoE ? 16 : 20) ; ++i)
 	{
 		unsigned char c = bufor[i];
 		for(int yy=0; yy<8; ++yy)
@@ -299,54 +325,71 @@ void CAmbarCendamo::deh3m()
 		}
 	}
 	//allowed heroes have been read
-	i+=36;
-	//reading allowed artifacts //18 bytes
-	ist=i; //starting i for loop
-	for(i; i<ist+18; ++i)
+	switch(map.version)
 	{
-		unsigned char c = bufor[i];
-		for(int yy=0; yy<8; ++yy)
+	case SoD: case WoG:
+		i+=36;
+		break;
+	case AB:
+		i+=35;
+		break;
+	case RoE:
+		i+=31;
+		break;
+	}
+	//reading allowed artifacts //18 bytes
+	if(map.version!=RoE)
+	{
+		ist=i; //starting i for loop
+		for(i; i<ist+18; ++i)
 		{
-			if((i-ist)*8+yy < CGameInfo::mainObj->arth->artifacts.size())
+			unsigned char c = bufor[i];
+			for(int yy=0; yy<8; ++yy)
 			{
-				if(c != (c|((unsigned char)intPow(2, yy))))
-					CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = true;
-				else
-					CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = false;
+				if((i-ist)*8+yy < CGameInfo::mainObj->arth->artifacts.size())
+				{
+					if(c != (c|((unsigned char)intPow(2, yy))))
+						CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = true;
+					else
+						CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = false;
+				}
 			}
-		}
-	}//allowed artifacts have been read
+		}//allowed artifacts have been read
+	}
 
 	//reading allowed spells (9 bytes)
-	ist=i; //starting i for loop
-	for(i; i<ist+9; ++i)
+	if(map.version>=SoD)
 	{
-		unsigned char c = bufor[i];
-		for(int yy=0; yy<8; ++yy)
+		ist=i; //starting i for loop
+		for(i; i<ist+9; ++i)
 		{
-			if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+			unsigned char c = bufor[i];
+			for(int yy=0; yy<8; ++yy)
 			{
-				if(c != (c|((unsigned char)intPow(2, yy))))
-					CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy].isAllowed = true;
-				else
-					CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy].isAllowed = false;
+				if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+				{
+					if(c != (c|((unsigned char)intPow(2, yy))))
+						CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy].isAllowed = true;
+					else
+						CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy].isAllowed = false;
+				}
 			}
 		}
-	}
-	//allowed spells have been read
-	//allowed hero's abilities (4 bytes)
-	ist=i; //starting i for loop
-	for(i; i<ist+4; ++i)
-	{
-		unsigned char c = bufor[i];
-		for(int yy=0; yy<8; ++yy)
+		//allowed spells have been read
+		//allowed hero's abilities (4 bytes)
+		ist=i; //starting i for loop
+		for(i; i<ist+4; ++i)
 		{
-			if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
+			unsigned char c = bufor[i];
+			for(int yy=0; yy<8; ++yy)
 			{
-				if(c != (c|((unsigned char)intPow(2, yy))))
-					CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]->isAllowed = true;
-				else
-					CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]->isAllowed = false;
+				if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
+				{
+					if(c != (c|((unsigned char)intPow(2, yy))))
+						CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]->isAllowed = true;
+					else
+						CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]->isAllowed = false;
+				}
 			}
 		}
 	}
@@ -366,7 +409,15 @@ void CAmbarCendamo::deh3m()
 		map.rumors.push_back(ourRumor); //add to our list
 	}
 	THC std::cout<<"Reading rumors: "<<th.getDif()<<std::endl;
-	i+=156;
+	switch(map.version)
+	{
+	case WoG: case SoD: case AB:
+		i+=156;
+		break;
+	case RoE:
+		i+=0;
+		break;
+	}
 	for (int c=0; c<map.width; c++) // reading terrain
 	{
 		for (int z=0; z<map.height; z++)

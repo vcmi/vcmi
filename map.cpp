@@ -37,66 +37,87 @@ CMapHeader::CMapHeader(unsigned char *map)
 	for (pom=0;pom<length;pom++)
 		this->description+=map[i++];
 	this->difficulty = map[i++]; // reading map difficulty
-	this->levelLimit = map[i++]; // hero level limit
+	if(version!=Eformat::RoE)
+	{
+		this->levelLimit = map[i++]; // hero level limit
+	}
+	else
+	{
+		levelLimit = 0;
+	}
 	for (pom=0;pom<8;pom++)
 	{
 		this->players[pom].canHumanPlay = map[i++];
 		this->players[pom].canComputerPlay = map[i++];
 		if ((!(this->players[pom].canHumanPlay || this->players[pom].canComputerPlay)))
 		{
-			i+=13;
+			switch(version)
+			{
+			case Eformat::SoD: case Eformat::WoG: 
+				i+=13;
+				break;
+			case Eformat::AB:
+				i+=12;
+				break;
+			case Eformat::RoE:
+				i+=6;
+				break;
+			}
 			continue;
 		}
 
 		this->players[pom].AITactic = map[i++];
-		/*if (map[i++])*/i++;
-		{
-			this->players[pom].allowedFactions = 0;
-			this->players[pom].allowedFactions += map[i++];
+
+		if(version == Eformat::SoD || version == Eformat::WoG)
+			i++;
+
+		this->players[pom].allowedFactions = 0;
+		this->players[pom].allowedFactions += map[i++];
+		if(version != Eformat::RoE)
 			this->players[pom].allowedFactions += (map[i++])*256;
-		}
-		//else 
-		//{
-		//	this->players[pom].allowedFactions = 511;
-		//	i+=2;
-		//}
+
 		this->players[pom].isFactionRandom = map[i++];
 		this->players[pom].hasMainTown = map[i++];
 		if (this->players[pom].hasMainTown)
 		{
-			this->players[pom].generateHeroAtMainTown = map[i++];
-			this->players[pom].generateHero = map[i++];
+			if(version != Eformat::RoE)
+			{
+				this->players[pom].generateHeroAtMainTown = map[i++];
+				this->players[pom].generateHero = map[i++];
+			}
 			this->players[pom].posOfMainTown.x = map[i++];
 			this->players[pom].posOfMainTown.y = map[i++];
-			this->players[pom].posOfMainTown.z = map[i++];
+			this->players[pom].posOfMainTown.z = map[i++];	
 		}
+
 		i++; //unknown byte
 		int customPortrait = map[i++];
-		if (customPortrait == 255)
+		if (customPortrait != 255)
 		{
-			this->players[pom].mainHeroPortrait = 255;
-			i+=5;
-			continue;
+			players[pom].mainHeroPortrait = map[i++];
+			int nameLength = map[i++];
+			i+=3; 
+			for (int pp=0;pp<nameLength;pp++)
+				players[pom].mainHeroName+=map[i++];
 		}
-		this->players[pom].mainHeroPortrait = map[i++];
-		int nameLength = map[i++];
-		i+=3; 
-		for (int pp=0;pp<nameLength;pp++)
-			this->players[pom].mainHeroName+=map[i++];
-		i++; ////heroes placeholders //domostwa
-		int heroCount = map[i++];
-		i+=3;
-		for (int pp=0;pp<heroCount;pp++)
+
+		if(version!=Eformat::RoE)
 		{
-			SheroName vv;
-			vv.heroID=map[i++];
-			int hnl = map[i++];
+			i++; ////heroes placeholders //domostwa
+			int heroCount = map[i++];
 			i+=3;
-			for (int zz=0;zz<hnl;zz++)
+			for (int pp=0;pp<heroCount;pp++)
 			{
-				vv.heroName+=map[i++];
+				SheroName vv;
+				vv.heroID=map[i++];
+				int hnl = map[i++];
+				i+=3;
+				for (int zz=0;zz<hnl;zz++)
+				{
+					vv.heroName+=map[i++];
+				}
+				this->players[pom].heroesNames.push_back(vv);
 			}
-			this->players[pom].heroesNames.push_back(vv);
 		}
 	}
 	this->victoryCondition = (EvictoryConditions)map[i++];
