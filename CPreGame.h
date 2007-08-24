@@ -89,7 +89,7 @@ public:
 	IntSelBut(){};
 	IntSelBut( SDL_Rect Pos, T Fun,CDefHandler* Imgs, bool Sel=false, CPoinGroup<T>* gr=NULL, int My=-1)
 		: Button(Pos,Fun,Imgs,Sel,gr),key(My){ourPoinGroup=gr;};
-	void select(bool on=true) {(*this).Button::select(on);ourPoinGroup->setYour(this);}
+	void select(bool on=true) {(*this).Button::select(on);ourPoinGroup->setYour(this);CPG->printRating();}
 };
 template <class T=ttt> class CPoinGroup :public CGroup<T>
 {
@@ -223,6 +223,7 @@ public:
 class CPreGame
 {
 public:	
+	std::string playerName;
 	HighButton * highlighted;
 	PreGameTab* currentTab;
 	StartInfo ret;
@@ -271,6 +272,7 @@ public:
 	void showCenBox (std::string data); //
 	void showAskBox (std::string data, void(*f1)(),void(*f2)());
 	void hideBox ();
+	void printRating();
 	void printMapsFrom(int from);
 	void setTurnLength(int on);
 	void sortMaps();

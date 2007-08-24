@@ -490,22 +490,6 @@ void CAmbarCendamo::deh3m()
 		}
 		map.defy.push_back(vinya); // add this def to the vector
 		defsToUnpack.push_back(vinya.name);
-		//testing - only fragment//////////////////////////////////////////////////////////////
-		/*map.defy[idd].handler = new CDefHandler();
-		CGameInfo::mainObj->lodh->extractFile(std::string("newH3sprite.lod"), map.defy[idd].name);
-		map.defy[idd].handler->openDef( std::string("newH3sprite\\")+map.defy[idd].name);
-		for(int ff=0; ff<map.defy[idd].handler->ourImages.size(); ++ff) //adding shadows and transparency
-		{
-			map.defy[idd].handler->ourImages[ff].bitmap = CSDL_Ext::alphaTransform(map.defy[idd].handler->ourImages[ff].bitmap);
-			SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[idd].handler->ourImages[ff].bitmap, alphaTransSurf);
-			SDL_FreeSurface(map.defy[idd].handler->ourImages[ff].bitmap);
-			map.defy[idd].handler->ourImages[ff].bitmap = bufs;
-		}
-		boost::filesystem::remove(boost::filesystem::path(std::string("newH3sprite\\")+map.defy[idd].name));*/
-		//system((std::string("DEL newH3sprite\\")+map.defy[idd].name).c_str());
-		//end fo testing - only fragment///////////////////////////////////////////////////////
-
-		//teceDef();
 	}
 	THC std::cout<<"Reading defs: "<<th.getDif()<<std::endl;
 	////loading objects

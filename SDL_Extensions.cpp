@@ -46,6 +46,34 @@ void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 {
 	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
 }
+void CSDL_Ext::printAtMiddleWB(std::string text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
+{
+	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
+	std::vector<SDL_Surface*> wesu;
+	wesu.resize(ws->size());
+	for (int i=0;i<wesu.size();i++)
+		wesu[i]=TTF_RenderText_Blended(font,(*ws)[i].c_str(),kolor);
+
+	int tox=0, toy=0;
+	for (int i=0;i<wesu.size();i++)
+	{
+		toy+=wesu[i]->h;
+		if (tox < wesu[i]->w)
+			tox=wesu[i]->w;
+	}
+	int evx, evy = y - (toy/2);
+	for (int i=0;i<wesu.size();i++)
+	{
+		evx = (x - (tox/2)) + ((tox-wesu[i]->w)/2);
+		blitAt(wesu[i],evx,evy);
+		evy+=wesu[i]->h;
+	}
+
+
+	for (int i=0;i<wesu.size();i++)
+		SDL_FreeSurface(wesu[i]);
+	delete ws;
+}
 void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
 {
 	if(text.length()==0) return;

@@ -117,6 +117,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
 		cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
+		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 
 		cgi->curh->initCursor();
 		cgi->curh->showGraphicCursor();
@@ -149,7 +150,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		cgi->townh = new CTownHandler;
 		cgi->townh->loadNames();
-
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
@@ -157,8 +157,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		heroh->loadHeroes();
 		heroh->loadPortraits();
 		cgi->heroh = heroh;
-
-		THC std::cout<<"Loading .lods: "<<tmh.getDif()<<std::endl;
+		cgi->generaltexth = new CGeneralTextHandler;
+		cgi->generaltexth->load();
+		THC std::cout<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		cpg->mush = mush;
@@ -183,8 +184,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
-		cgi->generaltexth = new CGeneralTextHandler;
-		cgi->generaltexth->load();
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
 		cgi->state = new CGameState();
