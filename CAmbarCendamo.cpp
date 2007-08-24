@@ -174,7 +174,7 @@ void CAmbarCendamo::deh3m()
 			{
 				map.vicConDetails = new VicCon0();
 				((VicCon0*)map.vicConDetails)->ArtifactID = bufor[i+2];
-				nr=2;
+				nr=(map.version==RoE ? 1 : 2);
 				break;
 			}
 		case gatherTroop:
@@ -183,8 +183,8 @@ void CAmbarCendamo::deh3m()
 				int temp1 = bufor[i+2];
 				int temp2 = bufor[i+3];
 				((VicCon1*)map.vicConDetails)->monsterID = bufor[i+2];
-				((VicCon1*)map.vicConDetails)->neededQuantity=readNormalNr(i+4);
-				nr=6;
+				((VicCon1*)map.vicConDetails)->neededQuantity=readNormalNr(i+(map.version==RoE ? 3 : 4));
+				nr=(map.version==RoE ? 5 : 6);
 				break;
 			}
 		case gatherResource:
@@ -1256,10 +1256,20 @@ void CAmbarCendamo::deh3m()
 		case EDefType::TOWN_DEF:
 			{
 				CCastleObjInfo * spec = new CCastleObjInfo;
-				spec->bytes[0] = bufor[i]; ++i;
-				spec->bytes[1] = bufor[i]; ++i;
-				spec->bytes[2] = bufor[i]; ++i;
-				spec->bytes[3] = bufor[i]; ++i;
+				if(map.version!=RoE)
+				{
+					spec->bytes[0] = bufor[i]; ++i;
+					spec->bytes[1] = bufor[i]; ++i;
+					spec->bytes[2] = bufor[i]; ++i;
+					spec->bytes[3] = bufor[i]; ++i;
+				}
+				else
+				{
+					spec->bytes[0] = 0;
+					spec->bytes[1] = 0;
+					spec->bytes[2] = 0;
+					spec->bytes[3] = 0;
+				}
 				spec->player = bufor[i]; ++i;
 
 				bool hasName = bufor[i]; ++i;

@@ -130,7 +130,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 			{
 				this->vicConDetails = new VicCon0();
 				((VicCon0*)this->vicConDetails)->ArtifactID = map[i+2];
-				nr=2;
+				nr=(version==RoE ? 1 : 2);
 				break;
 			}
 		case gatherTroop:
@@ -139,8 +139,8 @@ CMapHeader::CMapHeader(unsigned char *map)
 				int temp1 = map[i+2];
 				int temp2 = map[i+3];
 				((VicCon1*)this->vicConDetails)->monsterID = map[i+2];
-				((VicCon1*)this->vicConDetails)->neededQuantity=readNormalNr(map, i+4);
-				nr=6;
+				((VicCon1*)this->vicConDetails)->neededQuantity=readNormalNr(map, i+(version==RoE ? 3 : 4));
+				nr=(version==RoE ? 5 : 6);
 				break;
 			}
 		case gatherResource:
