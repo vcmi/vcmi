@@ -369,7 +369,7 @@ void CMapHandler::init()
 				cr.x = fx*32;
 				cr.y = fy*32;
 				std::pair<CObjectInstance *, SDL_Rect> toAdd = std::make_pair(CGI->objh->objInstances[f], cr);
-				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32)<=ttiles.size() && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32)<=ttiles[0].size())
+				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32)<ttiles[0].size()-Hoff)
 				{
 					TerrainTile2 & curt = 
 						ttiles
@@ -488,26 +488,23 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	{
 		for (int by=0; by<dy; by++)
 		{
-			if(true)
+			for(int h=0; h<ttiles[x+bx][y+by][level].objects.size(); ++h)
 			{
-				for(int h=0; h<ttiles[x+bx][y+by][level].objects.size(); ++h)
-				{
-					SDL_Rect * sr = new SDL_Rect;
-					sr->w = 32;
-					sr->h = 32;
-					sr->x = (bx)*32;
-					sr->y = (by)*32;
+				SDL_Rect * sr = new SDL_Rect;
+				sr->w = 32;
+				sr->h = 32;
+				sr->x = (bx)*32;
+				sr->y = (by)*32;
 
-					SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
-					int imgVal = CGI->ac->map.defy[
-						ttiles[x+bx][y+by][level].objects[h].first->defNumber]
-					.handler->ourImages.size();
-					SDL_Surface * tb = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap;
-					SDL_BlitSurface(
-					CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,
-					&pp,su,sr);
-					delete sr;
-				}
+				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
+				int imgVal = CGI->ac->map.defy[
+					ttiles[x+bx][y+by][level].objects[h].first->defNumber]
+				.handler->ourImages.size();
+				SDL_Surface * tb = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap;
+				SDL_BlitSurface(
+				CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,
+				&pp,su,sr);
+				delete sr;
 			}
 		}
 	}

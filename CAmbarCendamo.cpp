@@ -324,19 +324,22 @@ void CAmbarCendamo::deh3m()
 			}
 		}
 	}
-	//allowed heroes have been read
-	switch(map.version)
+	if(map.version>=RoE)
+		i+=4;
+	unsigned char disp = 0;
+	if(map.version>=SoD)
 	{
-	case SoD: case WoG:
-		i+=36;
-		break;
-	case AB:
-		i+=35;
-		break;
-	case RoE:
-		i+=31;
-		break;
+		disp = bufor[i++];
+		for(int g=0; g<disp; ++g)
+		{
+			i+=2;
+			int lenbuf = readNormalNr(i); i+=4;
+			i+=lenbuf+1;
+		}
 	}
+	//allowed heroes have been read
+	unsigned char aaa1=bufor[i], aaa2=bufor[i+1], aaa3=bufor[i+2];
+	i+=31; //omitting 0s
 	//reading allowed artifacts //18 bytes
 	if(map.version!=RoE)
 	{
@@ -412,7 +415,30 @@ void CAmbarCendamo::deh3m()
 	switch(map.version)
 	{
 	case WoG: case SoD: case AB:
-		i+=156;
+		if(bufor[i]=='\0') //omit 156 bytes of rubbish
+		{
+			i+=156;
+			break;
+		}
+		else //omit a lot of rubbish in a strage way
+		{
+			int lastFFpos=i;
+			while(i-lastFFpos<50) //i far in terrain bytes
+			{
+				++i;
+				if(bufor[i]==0xff)
+				{
+					lastFFpos=i;
+				}
+			}
+
+			i=lastFFpos;
+
+			while(bufor[i-1]!=0 || bufor[i]>8 || bufor[i+2]>4 || bufor[i+1]==0) //back to terrain bytes
+			{
+				i++;
+			}
+		}
 		break;
 	case RoE:
 		i+=0;
@@ -887,6 +913,9 @@ void CAmbarCendamo::deh3m()
 				spec->missionType = bufor[i]; ++i;
 				switch(spec->missionType)
 				{
+				case 0:
+					i+=3;
+					continue;
 				case 1:
 					{
 						spec->m1level = readNormalNr(i); i+=4;
@@ -2757,7 +2786,10 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 							}
 						}
 					}
-					int lvl = rand()%(((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel) + ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel;
+					int lvl;
+					if((((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel)!=0) 
+						lvl = rand()%(((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->maxLevel - ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel) + ((CCreGen2ObjInfo*)CGI->objh->objInstances[j]->info)->minLevel;
+					else lvl = 0;
 					nxt.name = creGenNames[nxt.bytes[20]][lvl];
 					if(creGenNumbers[nxt.bytes[20]][lvl]!=-1)
 					{
