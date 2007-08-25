@@ -177,12 +177,13 @@ class MapSel : public PreGameTab
 public:
 	ESortBy sortBy;
 	SDL_Surface * bg;
-	int selected;
+	int selected; //selected map
 	CDefHandler * Dtypes, * Dvic; 
-	CDefHandler *Dsizes, * Dloss;
+	CDefHandler *Dsizes, * Dloss,
+		* sFlags;
 	std::vector<Mapa*> scenList;
 	std::vector<SDL_Surface*> scenImgs;
-	int current;
+	//int current;
 	std::vector<CMapInfo> ourMaps;
 	IntBut<> small, medium, large, xlarge, all;
 	SetrButton<> nrplayer, mapsize, type, name, viccon, loscon;
@@ -198,6 +199,7 @@ public:
 	void select(int which, bool updateMapsList=true);
 	void moveByOne(bool up);
 	void printSelectedInfo();
+	void printFlags();
 	MapSel();
 	~MapSel();
 };
@@ -224,6 +226,7 @@ class CPreGame
 {
 public:	
 	std::string playerName;
+	int playerColor;
 	HighButton * highlighted;
 	PreGameTab* currentTab;
 	StartInfo ret;

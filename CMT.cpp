@@ -59,7 +59,7 @@ const char * NAME = "VCMI 0.3";
    version of the library linked do not match, or Z_ERRNO if there is
    an error reading or writing the files. */
 SDL_Surface * ekran, * screen, * screen2;
-TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX;
+TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
@@ -86,6 +86,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//TNR = TTF_OpenFont("Fonts\\tnr.ttf",10);
 		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
 		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
+		GEORM = TTF_OpenFont("Fonts\\georgia.ttf",10);
 
 		//initializing audio
 		CMusicHandler * mush = new CMusicHandler;

@@ -28,6 +28,10 @@ void CButtonBase::show()
 		
 	}
 }
+ClickableL::ClickableL()
+{
+	pressedL=false;
+}
 void ClickableL::clickLeft(tribool down)
 {
 	if (down)
@@ -43,6 +47,10 @@ void ClickableL::deactivate()
 {
 	LOCPLINT->lclickable.erase
 		(std::find(LOCPLINT->lclickable.begin(),LOCPLINT->lclickable.end(),this));
+}
+ClickableR::ClickableR()
+{
+	pressedR=false;
 }
 void ClickableR::activate()
 {

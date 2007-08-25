@@ -5,7 +5,10 @@ extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
 using namespace CSDL_Ext;
-
+CDefHandler * CHeroList::arrdo = NULL;
+CDefHandler * CHeroList::arrup = NULL;
+CDefHandler * CTownList::arrdo = NULL;
+CDefHandler * CTownList::arrup = NULL;
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
@@ -125,6 +128,45 @@ void CList::deactivate()
 void CList::clickLeft(tribool down)
 {
 };
+CHeroList::CHeroList()
+{
+	pos = genRect(192,64,609,196);
+}
+void CHeroList::select(int which)
+{
+}
+void CHeroList::clickLeft(tribool down)
+{
+}
+void CHeroList::clickRight(tribool down)
+{
+}
+void CHeroList::hover (bool on)
+{
+}
+void CHeroList::keyPressed (SDL_KeyboardEvent & key)
+{
+}
+CTownList::CTownList()
+{
+	pos = genRect(192,48,747,196);
+	arrdo = NULL;
+}
+void CTownList::select(int which)
+{
+}
+void CTownList::clickLeft(tribool down)
+{
+}
+void CTownList::clickRight(tribool down)
+{
+}
+void CTownList::hover (bool on)
+{
+}
+void CTownList::keyPressed (SDL_KeyboardEvent & key)
+{
+}
 CStatusBar::CStatusBar(int x, int y)
 {
 	bg=CGI->bitmaph->loadBitmap("ADROLLVR.bmp");

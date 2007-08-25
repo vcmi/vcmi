@@ -34,6 +34,7 @@ public:
 class CList 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject
 {
+public:
 	SDL_Surface * bg;
 	//arrow up, arrow down
 	int posw, posh; //position width/height
@@ -46,14 +47,28 @@ class CList
 class CHeroList 
 	: public CList
 {
+public:
+	static CDefHandler *arrup, *arrdo;
+
+	CHeroList();
 	void select(int which);
+	void clickLeft(tribool down);
 	void clickRight(tribool down);
+	void hover (bool on);
+	void keyPressed (SDL_KeyboardEvent & key);
 };
 class CTownList 
 	: public CList
 {
+public:
+	static CDefHandler *arrup, *arrdo;
+
+	CTownList();
 	void select(int which);
+	void clickLeft(tribool down);
 	void clickRight(tribool down);
+	void hover (bool on);
+	void keyPressed (SDL_KeyboardEvent & key);
 };
 class CResourceBar
 	:public ClickableR, public CIntObject
@@ -161,6 +176,9 @@ public:
 
 	CStatusBar statusbar;
 	
+	CHeroList heroList;
+	CTownList townList;
+
 	//fuctions binded to buttons
 	void fshowOverview();
 	void fswitchLevel(); 

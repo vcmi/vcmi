@@ -34,6 +34,7 @@ class ClickableL : public virtual CIntObject  //for left-clicks
 {
 public:
 	bool pressedL;
+	ClickableL();
 	virtual void clickLeft (tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -42,6 +43,7 @@ class ClickableR : public virtual CIntObject //for right-clicks
 {
 public:
 	bool pressedR;
+	ClickableR();
 	virtual void clickRight (tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -70,7 +72,7 @@ public:
 
 	virtual void yourTurn()=0{};
 };
-class CGlobalAI : public CGameInterface // callback for AI
+class CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
 	virtual void yourTurn(){};
