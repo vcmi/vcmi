@@ -324,7 +324,7 @@ void CAmbarCendamo::deh3m()
 			}
 		}
 	}
-	if(map.version>=RoE)
+	if(map.version>RoE)
 		i+=4;
 	unsigned char disp = 0;
 	if(map.version>=SoD)
@@ -423,7 +423,7 @@ void CAmbarCendamo::deh3m()
 		else //omit a lot of rubbish in a strage way
 		{
 			int lastFFpos=i;
-			while(i-lastFFpos<50) //i far in terrain bytes
+			while(i-lastFFpos<200) //i far in terrain bytes
 			{
 				++i;
 				if(bufor[i]==0xff)
@@ -565,7 +565,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuarders = bufor[i]; ++i;
 					if(spec->areGuarders)
 					{
-						spec->guarders = readCreatureSet(i); i+=28;
+						spec->guarders = readCreatureSet(i); i+=( map.version == RoE ? 21 : 28);
 					}
 					i+=4;
 				}
@@ -600,7 +600,7 @@ void CAmbarCendamo::deh3m()
 				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
-					spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 2)])); i+=2;
+					spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, (map.version == RoE ? 1 : 2))])); i+=(map.version == RoE ? 1 : 2);
 				}
 				int gspel = readNormalNr(i, 1); ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
@@ -620,10 +620,13 @@ void CAmbarCendamo::deh3m()
 		case EDefType::HERO_DEF:
 			{
 				CHeroObjInfo * spec = new CHeroObjInfo;
-				spec->bytes[0] = bufor[i]; ++i;
-				spec->bytes[1] = bufor[i]; ++i;
-				spec->bytes[2] = bufor[i]; ++i;
-				spec->bytes[3] = bufor[i]; ++i;
+				if(map.version>RoE)
+				{
+					spec->bytes[0] = bufor[i]; ++i;
+					spec->bytes[1] = bufor[i]; ++i;
+					spec->bytes[2] = bufor[i]; ++i;
+					spec->bytes[3] = bufor[i]; ++i;
+				}
 				spec->player = bufor[i]; ++i;
 				int typeBuf = readNormalNr(i, 1); ++i;
 				if(typeBuf==0xff)
@@ -641,12 +644,20 @@ void CAmbarCendamo::deh3m()
 				}
 				else
 					spec->name = std::string("");
-				bool isExp = bufor[i]; ++i; //true if hore's experience is greater than 0
-				if(isExp)
+				if(map.version>RoE)
+				{
+					bool isExp = bufor[i]; ++i; //true if hore's experience is greater than 0
+					if(isExp)
+					{
+						spec->experience = readNormalNr(i); i+=4;
+					}
+					else
+						spec->experience = 0;
+				}
+				else
 				{
 					spec->experience = readNormalNr(i); i+=4;
 				}
-				else spec->experience = 0;
 				bool portrait=bufor[i]; ++i;
 				if (portrait)
 					i++; //TODO read portrait nr, save, open
@@ -664,131 +675,139 @@ void CAmbarCendamo::deh3m()
 				spec->standardGarrison = standGarrison;
 				if(standGarrison)
 				{
-					spec->garrison = readCreatureSet(i); i+=28; //4 bytes per slot
+					spec->garrison = readCreatureSet(i); i+= (map.version == RoE ? 21 : 28); //4 bytes per slot
 				}
 				bool form = bufor[i]; ++i; //formation
 				spec->garrison.formation = form;
 				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
+				int artmask = map.version == RoE ? 0xff : 0xffff;
+				int artidlen = map.version == RoE ? 1 : 2;
 				if(artSet)
 				{
 					//head art //1
-					int id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					int id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artHead = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artHead = NULL;
 					//shoulders art //2
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artShoulders = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artShoulders = NULL;
 					//neck art //3
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artNeck = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artNeck = NULL;
 					//right hand art //4
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artRhand = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artRhand = NULL;
 					//left hand art //5
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artLHand = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artLHand = NULL;
 					//torso art //6
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artTorso = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artTorso = NULL;
 					//right hand ring //7
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artRRing = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artRRing = NULL;
 					//left hand ring //8
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artLRing = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artLRing = NULL;
 					//feet art //9
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artFeet = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artFeet = NULL;
 					//misc1 art //10
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artMisc1 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc1 = NULL;
 					//misc2 art //11
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artMisc2 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc2 = NULL;
 					//misc3 art //12
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artMisc3 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc3 = NULL;
 					//misc4 art //13
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artMisc4 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMisc4 = NULL;
 					//machine1 art //14
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artMach1 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMach1 = NULL;
 					//machine2 art //15
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artMach2 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMach2 = NULL;
 					//machine3 art //16
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artMach3 = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artMach3 = NULL;
 					//misc5 art //17
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
-						spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artMisc5 = NULL;
+					if(map.version>=SoD)
+					{
+						id = readNormalNr(i, artidlen); i+=artidlen;
+						if(id!=artmask)
+							spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						else
+							spec->artMisc5 = NULL;
+					}
 					//spellbook
-					id = readNormalNr(i, 2); i+=2;
-					if(id!=0xffff)
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
 						spec->artSpellBook = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artSpellBook = NULL;
 					//19 //???what is that? gap in file or what?
-					i+=2;
+					if(map.version>RoE)
+						i+=2;
+					else
+						i+=1;
 					//bag artifacts //20
 					int amount = readNormalNr(i, 2); i+=2; //number of artifacts in hero's bag
 					if(amount>0)
 					{
 						for(int ss=0; ss<amount; ++ss)
 						{
-							id = readNormalNr(i, 2); i+=2;
-							if(id!=0xffff)
+							id = readNormalNr(i, artidlen); i+=2;
+							if(id!=artmask)
 								spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[id]));
 							else
 								spec->artifacts.push_back(NULL);
@@ -800,45 +819,54 @@ void CAmbarCendamo::deh3m()
 					spec->isGuarding = false;
 				else
 					spec->isGuarding = true;
-				bool hasBiography = bufor[i]; ++i; //true if hero has nonstandard (mapmaker defined) biography
-				if(hasBiography)
+				if(map.version>RoE)
 				{
-					int length = readNormalNr(i); i+=4;
-					int iStart = i;
-					i+=length;
-					for(int bb=0; bb<length; ++bb)
+					bool hasBiography = bufor[i]; ++i; //true if hero has nonstandard (mapmaker defined) biography
+					if(hasBiography)
 					{
-						spec->biography+=bufor[iStart+bb];
-					}
-				}
-				spec->sex = !(bufor[i]); ++i;
-				//spells
-				bool areSpells = bufor[i]; ++i;
-
-				if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
-				{
-					int ist = i;
-					for(i; i<ist+9; ++i)
-					{
-						unsigned char c = bufor[i];
-						for(int yy=0; yy<8; ++yy)
+						int length = readNormalNr(i); i+=4;
+						int iStart = i;
+						i+=length;
+						for(int bb=0; bb<length; ++bb)
 						{
-							if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+							spec->biography+=bufor[iStart+bb];
+						}
+					}
+					spec->sex = !(bufor[i]); ++i;
+				}
+				//spells
+				if(map.version>RoE)
+				{
+					bool areSpells = bufor[i]; ++i;
+
+					if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
+					{
+						int ist = i;
+						for(i; i<ist+9; ++i)
+						{
+							unsigned char c = bufor[i];
+							for(int yy=0; yy<8; ++yy)
 							{
-								if(c == (c|((unsigned char)intPow(2, yy))))
-									spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+								if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+								{
+									if(c == (c|((unsigned char)intPow(2, yy))))
+										spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+								}
 							}
 						}
 					}
 				}
 				//spells loaded
-				spec->defaultMianStats = bufor[i]; ++i;
-				if(spec->defaultMianStats)
+				if(map.version>RoE)
 				{
-					spec->attack = bufor[i]; ++i;
-					spec->defence = bufor[i]; ++i;
-					spec->power = bufor[i]; ++i;
-					spec->knowledge = bufor[i]; ++i;
+					spec->defaultMainStats = bufor[i]; ++i;
+					if(spec->defaultMainStats)
+					{
+						spec->attack = bufor[i]; ++i;
+						spec->defence = bufor[i]; ++i;
+						spec->power = bufor[i]; ++i;
+						spec->knowledge = bufor[i]; ++i;
+					}
 				}
 				i+=16;
 				nobj->info = spec;
@@ -859,10 +887,13 @@ void CAmbarCendamo::deh3m()
 		case CREATURES_DEF:
 			{
 				CCreatureObjInfo * spec = new CCreatureObjInfo;
-				spec->bytes[0] = bufor[i]; ++i;
-				spec->bytes[1] = bufor[i]; ++i;
-				spec->bytes[2] = bufor[i]; ++i;
-				spec->bytes[3] = bufor[i]; ++i;
+				if(map.version>RoE)
+				{
+					spec->bytes[0] = bufor[i]; ++i;
+					spec->bytes[1] = bufor[i]; ++i;
+					spec->bytes[2] = bufor[i]; ++i;
+					spec->bytes[3] = bufor[i]; ++i;
+				}
 				spec->number = readNormalNr(i, 2); i+=2;
 				spec->character = bufor[i]; ++i;
 				bool isMesTre = bufor[i]; ++i; //true if there is message or treasury
@@ -883,11 +914,21 @@ void CAmbarCendamo::deh3m()
 					spec->crytal = readNormalNr(i); i+=4;
 					spec->gems = readNormalNr(i); i+=4;
 					spec->gold = readNormalNr(i); i+=4;
-					int artID = readNormalNr(i, 2); i+=2;
-					if(artID!=0xffff)
-						spec->gainedArtifact = &(CGameInfo::mainObj->arth->artifacts[artID]);
+					int artID = readNormalNr(i, (map.version == RoE ? 1 : 2)); i+=(map.version == RoE ? 1 : 2);
+					if(map.version==RoE)
+					{
+						if(artID!=0xff)
+							spec->gainedArtifact = &(CGameInfo::mainObj->arth->artifacts[artID]);
+						else
+							spec->gainedArtifact = NULL;
+					}
 					else
-						spec->gainedArtifact = NULL;
+					{
+						if(artID!=0xffff)
+							spec->gainedArtifact = &(CGameInfo::mainObj->arth->artifacts[artID]);
+						else
+							spec->gainedArtifact = NULL;
+					}
 				}
 				spec->neverFlees = bufor[i]; ++i;
 				spec->notGrowingTeam = bufor[i]; ++i;
@@ -910,202 +951,210 @@ void CAmbarCendamo::deh3m()
 		case EDefType::SEERHUT_DEF:
 			{
 				CSeerHutObjInfo * spec = new CSeerHutObjInfo;
-				spec->missionType = bufor[i]; ++i;
-				switch(spec->missionType)
+				if(map.version>RoE)
 				{
-				case 0:
-					i+=3;
-					continue;
-				case 1:
+					spec->missionType = bufor[i]; ++i;
+					switch(spec->missionType)
 					{
-						spec->m1level = readNormalNr(i); i+=4;
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
+					case 0:
+						i+=3;
+						continue;
+					case 1:
 						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
+							spec->m1level = readNormalNr(i); i+=4;
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						else
+					case 2:
 						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
+							spec->m2attack = bufor[i]; ++i;
+							spec->m2defence = bufor[i]; ++i;
+							spec->m2power = bufor[i]; ++i;
+							spec->m2knowledge = bufor[i]; ++i;
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						break;
-					}
-				case 2:
-					{
-						spec->m2attack = bufor[i]; ++i;
-						spec->m2defence = bufor[i]; ++i;
-						spec->m2power = bufor[i]; ++i;
-						spec->m2knowledge = bufor[i]; ++i;
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
+					case 3:
 						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
+							spec->m3bytes[0] = bufor[i]; ++i;
+							spec->m3bytes[1] = bufor[i]; ++i;
+							spec->m3bytes[2] = bufor[i]; ++i;
+							spec->m3bytes[3] = bufor[i]; ++i;
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						else
+					case 4:
 						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
+							spec->m4bytes[0] = bufor[i]; ++i;
+							spec->m4bytes[1] = bufor[i]; ++i;
+							spec->m4bytes[2] = bufor[i]; ++i;
+							spec->m4bytes[3] = bufor[i]; ++i;
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						break;
-					}
-				case 3:
-					{
-						spec->m3bytes[0] = bufor[i]; ++i;
-						spec->m3bytes[1] = bufor[i]; ++i;
-						spec->m3bytes[2] = bufor[i]; ++i;
-						spec->m3bytes[3] = bufor[i]; ++i;
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
+					case 5:
 						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
+							int artNumber = bufor[i]; ++i;
+							for(int yy=0; yy<artNumber; ++yy)
+							{
+								int artid = readNormalNr(i, 2); i+=2;
+								spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artid]));
+							}
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						else
+					case 6:
 						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
+							int typeNumber = bufor[i]; ++i;
+							for(int hh=0; hh<typeNumber; ++hh)
+							{
+								int creType = readNormalNr(i, 2); i+=2;
+								int creNumb = readNormalNr(i, 2); i+=2;
+								spec->m6cre.push_back(&(CGameInfo::mainObj->creh->creatures[creType]));
+								spec->m6number.push_back(creNumb);
+							}
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						break;
-					}
-				case 4:
-					{
-						spec->m4bytes[0] = bufor[i]; ++i;
-						spec->m4bytes[1] = bufor[i]; ++i;
-						spec->m4bytes[2] = bufor[i]; ++i;
-						spec->m4bytes[3] = bufor[i]; ++i;
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
+					case 7:
 						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
+							spec->m7wood = readNormalNr(i); i+=4;
+							spec->m7mercury = readNormalNr(i); i+=4;
+							spec->m7ore = readNormalNr(i); i+=4;
+							spec->m7sulfur = readNormalNr(i); i+=4;
+							spec->m7crystal = readNormalNr(i); i+=4;
+							spec->m7gems = readNormalNr(i); i+=4;
+							spec->m7gold = readNormalNr(i); i+=4;
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						else
+					case 8:
 						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
+							int heroType = bufor[i]; ++i;
+							spec->m8hero = CGameInfo::mainObj->heroh->heroes[heroType];
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						break;
-					}
-				case 5:
-					{
-						int artNumber = bufor[i]; ++i;
-						for(int yy=0; yy<artNumber; ++yy)
+					case 9:
 						{
-							int artid = readNormalNr(i, 2); i+=2;
-							spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artid]));
+							spec->m9player = bufor[i]; ++i;
+							int limit = readNormalNr(i); i+=4;
+							if(limit == ((int)0xffffffff))
+							{
+								spec->isDayLimit = false;
+								spec->lastDay = -1;
+							}
+							else
+							{
+								spec->isDayLimit = true;
+								spec->lastDay = limit;
+							}
+							break;
 						}
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
-						}
-						else
-						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
-						}
-						break;
-					}
-				case 6:
-					{
-						int typeNumber = bufor[i]; ++i;
-						for(int hh=0; hh<typeNumber; ++hh)
-						{
-							int creType = readNormalNr(i, 2); i+=2;
-							int creNumb = readNormalNr(i, 2); i+=2;
-							spec->m6cre.push_back(&(CGameInfo::mainObj->creh->creatures[creType]));
-							spec->m6number.push_back(creNumb);
-						}
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
-						}
-						else
-						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
-						}
-						break;
-					}
-				case 7:
-					{
-						spec->m7wood = readNormalNr(i); i+=4;
-						spec->m7mercury = readNormalNr(i); i+=4;
-						spec->m7ore = readNormalNr(i); i+=4;
-						spec->m7sulfur = readNormalNr(i); i+=4;
-						spec->m7crystal = readNormalNr(i); i+=4;
-						spec->m7gems = readNormalNr(i); i+=4;
-						spec->m7gold = readNormalNr(i); i+=4;
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
-						}
-						else
-						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
-						}
-						break;
-					}
-				case 8:
-					{
-						int heroType = bufor[i]; ++i;
-						spec->m8hero = CGameInfo::mainObj->heroh->heroes[heroType];
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
-						}
-						else
-						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
-						}
-						break;
-					}
-				case 9:
-					{
-						spec->m9player = bufor[i]; ++i;
-						int limit = readNormalNr(i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							spec->isDayLimit = false;
-							spec->lastDay = -1;
-						}
-						else
-						{
-							spec->isDayLimit = true;
-							spec->lastDay = limit;
-						}
-						break;
-					}
-				}//internal switch end (seer huts)
+					}//internal switch end (seer huts)
 
-				int len1 = readNormalNr(i); i+=4;
-				for(int ee=0; ee<len1; ++ee)
-				{
-					spec->firstVisitText += bufor[i]; ++i;
+					int len1 = readNormalNr(i); i+=4;
+					for(int ee=0; ee<len1; ++ee)
+					{
+						spec->firstVisitText += bufor[i]; ++i;
+					}
+
+					int len2 = readNormalNr(i); i+=4;
+					for(int ee=0; ee<len2; ++ee)
+					{
+						spec->nextVisitText += bufor[i]; ++i;
+					}
+
+					int len3 = readNormalNr(i); i+=4;
+					for(int ee=0; ee<len3; ++ee)
+					{
+						spec->completedText += bufor[i]; ++i;
+					}
 				}
-
-				int len2 = readNormalNr(i); i+=4;
-				for(int ee=0; ee<len2; ++ee)
+				else //RoE
 				{
-					spec->nextVisitText += bufor[i]; ++i;
-				}
-
-				int len3 = readNormalNr(i); i+=4;
-				for(int ee=0; ee<len3; ++ee)
-				{
-					spec->completedText += bufor[i]; ++i;
+					int artID = bufor[i]; ++i;
+					spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artID]));
 				}
 
 				unsigned char rewardType = bufor[i]; ++i;
@@ -1155,7 +1204,7 @@ void CAmbarCendamo::deh3m()
 					}
 				case 8:
 					{
-						int artid = readNormalNr(i, 2); i+=2;
+						int artid = readNormalNr(i, (map.version == RoE ? 1 : 2)); i+=(map.version == RoE ? 1 : 2);
 						spec->r8art = &(CGameInfo::mainObj->arth->artifacts[artid]);
 						break;
 					}
@@ -1225,8 +1274,13 @@ void CAmbarCendamo::deh3m()
 				CGarrisonObjInfo * spec = new CGarrisonObjInfo;
 				spec->player = bufor[i]; ++i;
 				i+=3;
-				spec->units = readCreatureSet(i); i+=28;
-				spec->movableUnits = bufor[i]; ++i;
+				spec->units = readCreatureSet(i); i+= (map.version==RoE ? 21 : 28);
+				if(map.version > RoE)
+				{
+					spec->movableUnits = bufor[i]; ++i;
+				}
+				else
+					spec->movableUnits = true;
 				i+=8;
 				nobj->info = spec;
 				break;
@@ -1246,7 +1300,7 @@ void CAmbarCendamo::deh3m()
 					if(areGuards)
 					{
 						spec->areGuards = true;
-						spec->guards = readCreatureSet(i); i+=28;
+						spec->guards = readCreatureSet(i); i+= (map.version == RoE ? 21 : 28) ;
 					}
 					else
 						spec->areGuards = false;
@@ -1269,7 +1323,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuards = bufor[i]; ++i;
 					if(spec->areGuards)
 					{
-						spec->guards = readCreatureSet(i); i+=28;
+						spec->guards = readCreatureSet(i); i+= (map.version == RoE ? 21 : 28);
 					}
 					i+=4;
 				}
@@ -1313,7 +1367,7 @@ void CAmbarCendamo::deh3m()
 				bool stGarr = bufor[i]; ++i; //true if garrison isn't empty
 				if(stGarr)
 				{
-					spec->garrison = readCreatureSet(i); i+=28;
+					spec->garrison = readCreatureSet(i); i+=( map.version > RoE ? 28 : 21 );
 				}
 				spec->garrison.formation = bufor[i]; ++i;
 				spec->unusualBuildins = bufor[i]; ++i;
@@ -1330,15 +1384,18 @@ void CAmbarCendamo::deh3m()
 				}
 
 				int ist = i;
-				for(i; i<ist+9; ++i)
+				if(map.version>RoE)
 				{
-					unsigned char c = bufor[i];
-					for(int yy=0; yy<8; ++yy)
+					for(i; i<ist+9; ++i)
 					{
-						if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+						unsigned char c = bufor[i];
+						for(int yy=0; yy<8; ++yy)
 						{
-							if(c == (c|((unsigned char)intPow(2, yy))))
-								spec->obligatorySpells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+							if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+							{
+								if(c == (c|((unsigned char)intPow(2, yy))))
+									spec->obligatorySpells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+							}
 						}
 					}
 				}
@@ -1385,7 +1442,12 @@ void CAmbarCendamo::deh3m()
 					nce.gold = readNormalNr(i); i+=4;
 
 					nce.players = bufor[i]; ++i;
-					nce.forHuman = bufor[i]; ++i;
+					if(map.version > RoE)
+					{
+						nce.forHuman = bufor[i]; ++i;
+					}
+					else
+						nce.forHuman = true;
 					nce.forComputer = bufor[i]; ++i;
 					nce.firstShow = readNormalNr(i, 2); i+=2;
 					nce.forEvery = bufor[i]; ++i;
@@ -1407,7 +1469,12 @@ void CAmbarCendamo::deh3m()
 
 				/////// castle events have been read ///////////////////////////
 
-				spec->alignment = bufor[i]; ++i;
+				if(map.version > RoE)
+				{
+					spec->alignment = bufor[i]; ++i;
+				}
+				else
+					spec->alignment = 0xff;
 				i+=3;
 				nobj->info = spec;
 				break;
@@ -1441,7 +1508,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuarders = bufor[i]; ++i;
 					if(spec->areGuarders)
 					{
-						spec->guarders = readCreatureSet(i); i+=28;
+						spec->guarders = readCreatureSet(i); i+=( map.version == RoE ? 21 : 28 );
 					}
 					i+=4;
 				}
@@ -1464,7 +1531,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuarders = bufor[i]; ++i;
 					if(spec->areGuarders)
 					{
-						spec->guarders = readCreatureSet(i); i+=28;
+						spec->guarders = readCreatureSet(i); i+= (map.version == RoE ? 21 : 28);
 					}
 					i+=4;
 				}
@@ -1949,79 +2016,158 @@ EDefType CAmbarCendamo::getDefType(DefInfo &a)
 
 CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
 {
-	CCreatureSet ret;
-	std::pair<CCreature *, int> ins;
-	if(number>0 && readNormalNr(pos, 2)!=0xffff)
+	if(map.version>RoE)
 	{
-		int rettt = readNormalNr(pos, 2);
-		if(rettt>32768)
-			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ins.first = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ins.second = readNormalNr(pos+2, 2);
-		std::pair<int,std::pair<CCreature *, int> > tt(0,ins);
-		ret.slots.insert(tt);
+		CCreatureSet ret;
+		std::pair<CCreature *, int> ins;
+		if(number>0 && readNormalNr(pos, 2)!=0xffff)
+		{
+			int rettt = readNormalNr(pos, 2);
+			if(rettt>32768)
+				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+2, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(0,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>1 && readNormalNr(pos+4, 2)!=0xffff)
+		{
+			int rettt = readNormalNr(pos+4, 2);
+			if(rettt>32768)
+				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+6, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(1,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>2 && readNormalNr(pos+8, 2)!=0xffff)
+		{
+			int rettt = readNormalNr(pos+8, 2);
+			if(rettt>32768)
+				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+10, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(2,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>3 && readNormalNr(pos+12, 2)!=0xffff)
+		{
+			int rettt = readNormalNr(pos+12, 2);
+			if(rettt>32768)
+				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+14, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(3,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>4 && readNormalNr(pos+16, 2)!=0xffff)
+		{
+			int rettt = readNormalNr(pos+16, 2);
+			if(rettt>32768)
+				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+18, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(4,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>5 && readNormalNr(pos+20, 2)!=0xffff)
+		{
+			int rettt = readNormalNr(pos+20, 2);
+			if(rettt>32768)
+				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+22, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(5,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>6 && readNormalNr(pos+24, 2)!=0xffff)
+		{
+			int rettt = readNormalNr(pos+24, 2);
+			if(rettt>32768)
+				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+26, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(6,ins);
+			ret.slots.insert(tt);
+		}
+		return ret;
 	}
-	if(number>1 && readNormalNr(pos+4, 2)!=0xffff)
+	else
 	{
-		int rettt = readNormalNr(pos+4, 2);
-		if(rettt>32768)
-			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ins.second = readNormalNr(pos+6, 2);
-		std::pair<int,std::pair<CCreature *, int> > tt(1,ins);
-		ret.slots.insert(tt);
+		CCreatureSet ret;
+		std::pair<CCreature *, int> ins;
+		if(number>0 && readNormalNr(pos, 1)!=0xff)
+		{
+			int rettt = readNormalNr(pos, 1);
+			if(rettt>220)
+				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+1, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(0,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>1 && readNormalNr(pos+3, 1)!=0xff)
+		{
+			int rettt = readNormalNr(pos+3, 1);
+			if(rettt>220)
+				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+4, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(1,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>2 && readNormalNr(pos+6, 1)!=0xff)
+		{
+			int rettt = readNormalNr(pos+6, 1);
+			if(rettt>220)
+				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+7, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(2,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>3 && readNormalNr(pos+9, 1)!=0xff)
+		{
+			int rettt = readNormalNr(pos+9, 1);
+			if(rettt>220)
+				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+10, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(3,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>4 && readNormalNr(pos+12, 1)!=0xff)
+		{
+			int rettt = readNormalNr(pos+12, 1);
+			if(rettt>220)
+				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+13, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(4,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>5 && readNormalNr(pos+15, 1)!=0xff)
+		{
+			int rettt = readNormalNr(pos+15, 1);
+			if(rettt>220)
+				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+16, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(5,ins);
+			ret.slots.insert(tt);
+		}
+		if(number>6 && readNormalNr(pos+18, 1)!=0xff)
+		{
+			int rettt = readNormalNr(pos+18, 1);
+			if(rettt>220)
+				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
+			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
+			ins.second = readNormalNr(pos+19, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(6,ins);
+			ret.slots.insert(tt);
+		}
+		return ret;
 	}
-	if(number>2 && readNormalNr(pos+8, 2)!=0xffff)
-	{
-		int rettt = readNormalNr(pos+8, 2);
-		if(rettt>32768)
-			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ins.second = readNormalNr(pos+10, 2);
-		std::pair<int,std::pair<CCreature *, int> > tt(2,ins);
-		ret.slots.insert(tt);
-	}
-	if(number>3 && readNormalNr(pos+12, 2)!=0xffff)
-	{
-		int rettt = readNormalNr(pos+12, 2);
-		if(rettt>32768)
-			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ins.second = readNormalNr(pos+14, 2);
-		std::pair<int,std::pair<CCreature *, int> > tt(3,ins);
-		ret.slots.insert(tt);
-	}
-	if(number>4 && readNormalNr(pos+16, 2)!=0xffff)
-	{
-		int rettt = readNormalNr(pos+16, 2);
-		if(rettt>32768)
-			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ins.second = readNormalNr(pos+18, 2);
-		std::pair<int,std::pair<CCreature *, int> > tt(4,ins);
-		ret.slots.insert(tt);
-	}
-	if(number>5 && readNormalNr(pos+20, 2)!=0xffff)
-	{
-		int rettt = readNormalNr(pos+20, 2);
-		if(rettt>32768)
-			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ins.second = readNormalNr(pos+22, 2);
-		std::pair<int,std::pair<CCreature *, int> > tt(5,ins);
-		ret.slots.insert(tt);
-	}
-	if(number>6 && readNormalNr(pos+24, 2)!=0xffff)
-	{
-		int rettt = readNormalNr(pos+24, 2);
-		if(rettt>32768)
-			rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-		ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-		ins.second = readNormalNr(pos+26, 2);
-		std::pair<int,std::pair<CCreature *, int> > tt(6,ins);
-		ret.slots.insert(tt);
-	}
-	return ret;
 }
 
 void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)

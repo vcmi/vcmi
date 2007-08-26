@@ -59,7 +59,7 @@ public:
 	unsigned int experience; //hero's experience points
 	std::vector<CAbility *> abilities; //hero's abilities
 	std::vector<int> abilityLevels; //hero ability levels
-	bool defaultMianStats; //if true attack, defence, power and knowledge are typical
+	bool defaultMainStats; //if true attack, defence, power and knowledge are typical
 };
 
 class CCreatureObjInfo : public CSpecObjInfo
