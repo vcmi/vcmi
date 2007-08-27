@@ -81,6 +81,15 @@ void KeyInterested::deactivate()
 	LOCPLINT->
 		keyinterested.erase(std::find(LOCPLINT->keyinterested.begin(),LOCPLINT->keyinterested.end(),this));
 }
+void MotionInterested::activate()
+{
+	LOCPLINT->motioninterested.push_back(this);
+}
+void MotionInterested::deactivate()
+{
+	LOCPLINT->
+		motioninterested.erase(std::find(LOCPLINT->motioninterested.begin(),LOCPLINT->motioninterested.end(),this));
+}
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
 	playerID=Player;
@@ -111,7 +120,7 @@ void CPlayerInterface::yourTurn()
 		CGI->screenh->updateScreen();
 
 		LOCPLINT->adventureInt->updateScreen = false;
-		if(SDL_PollEvent(&sEvent))  //wait for event...
+		while (SDL_PollEvent(&sEvent))  //wait for event...
 		{
 			handleEvent(&sEvent);
 		}
@@ -257,6 +266,13 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 			else if (hoverable[i]->hovered)
 			{
 				hoverable[i]->hover(false);
+			}
+		}
+		for(int i=0; i<motioninterested.size();i++)
+		{
+			if (isItIn(&motioninterested[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			{
+				motioninterested[i]->mouseMoved(sEvent->motion);
 			}
 		}
 		if(sEvent->motion.x<15)

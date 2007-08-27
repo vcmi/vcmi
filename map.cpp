@@ -89,10 +89,9 @@ CMapHeader::CMapHeader(unsigned char *map)
 			this->players[pom].posOfMainTown.y = map[i++];
 			this->players[pom].posOfMainTown.z = map[i++];	
 		}
-
-		i++; //unknown byte
-		int customPortrait = map[i++];
-		if (customPortrait != 255)
+		players[pom].p8= map[i++];
+		players[pom].p9= map[i++];		
+		if(players[pom].p9!=0xff)
 		{
 			players[pom].mainHeroPortrait = map[i++];
 			int nameLength = map[i++];

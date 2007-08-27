@@ -64,6 +64,13 @@ public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
+class MotionInterested: public virtual CIntObject
+{
+public:
+	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
+	virtual void activate()=0;
+	virtual void deactivate()=0;
+};
 class CGameInterface
 {
 public:
@@ -88,6 +95,7 @@ public:
 	std::vector<ClickableR*> rclickable;
 	std::vector<Hoverable*> hoverable;
 	std::vector<KeyInterested*> keyinterested;
+	std::vector<MotionInterested*> motioninterested;
 
 	void yourTurn();
 	void handleEvent(SDL_Event * sEvent);

@@ -99,7 +99,7 @@ public:
 	void show(); //shows statusbar (with current text)
 };
 class CMinimap
-	: public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject
+	: public ClickableL, public ClickableR, public Hoverable, public MotionInterested, public virtual CIntObject
 {
 public:
 	CDefHandler * radar; //radar.def; TODO: radars for maps with custom dimensions
@@ -117,6 +117,7 @@ public:
 	void clickRight (tribool down);
 	void clickLeft (tribool down);
 	void hover (bool on);
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but don't deletes)
 };

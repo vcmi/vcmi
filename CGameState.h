@@ -14,7 +14,7 @@
 #include "CDefObjInfoHandler.h"
 #include "CLodHandler.h"
 #include "CTownHandler.h"
-
+class CCallback;
 struct PlayerState
 {
 public:
@@ -27,9 +27,12 @@ public:
 
 class CGameState
 {
-public:
 	int currentPlayer;
 	std::map<int,PlayerState> players; //color <-> playerstate
+public:
+	friend CCallback;
+	friend int _tmain(int argc, _TCHAR* argv[]);
+	CCallback * cb; //for communication between PlayerInterface/AI and GameState
 };
 
 #endif //CGAMESTATE_H

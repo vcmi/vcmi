@@ -75,6 +75,7 @@ struct SheroName //name of starting hero
 };
 struct PlayerInfo
 {
+	int p8, p9;
 	bool canHumanPlay;
 	bool canComputerPlay;
 	unsigned int AITactic; //(00 - random, 01 -  warrior, 02 - builder, 03 - explorer)

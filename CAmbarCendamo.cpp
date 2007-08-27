@@ -132,10 +132,9 @@ void CAmbarCendamo::deh3m()
 
 			
 		}
-
-		i++; //unknown
-		
-		if(bufor[i++]!=0xff)
+		map.players[pom].p8= bufor[i++];
+		map.players[pom].p9= bufor[i++];		
+		if(map.players[pom].p9!=0xff)
 		{
 			map.players[pom].mainHeroPortrait = bufor[i++];
 			int nameLength = bufor[i++];
@@ -144,7 +143,6 @@ void CAmbarCendamo::deh3m()
 				map.players[pom].mainHeroName+=bufor[i++];
 		}
 
-		//i++; //unknown byte
 		if(map.version != Eformat::RoE)
 		{
 			i++; ////unknown byte

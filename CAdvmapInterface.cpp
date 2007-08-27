@@ -268,6 +268,10 @@ void CMinimap::clickRight (tribool down)
 {}
 void CMinimap::clickLeft (tribool down)
 {
+	if (down && (!pressedL))
+		MotionInterested::activate();
+	else if (!down)
+		MotionInterested::deactivate();
 	ClickableL::clickLeft(down);
 	if (!((bool)down))
 		return;
@@ -300,14 +304,25 @@ void CMinimap::hover (bool on)
 	else if (LOCPLINT->adventureInt->statusbar.current==statusbarTxt)
 		LOCPLINT->adventureInt->statusbar.clear();
 }
+void CMinimap::mouseMoved (SDL_MouseMotionEvent & sEvent)
+{
+	if (pressedL)
+	{
+		clickLeft(true);
+	}
+}
 void CMinimap::activate()
 {
 	ClickableL::activate();
 	ClickableR::activate();
 	Hoverable::activate();
+	if (pressedL)
+		MotionInterested::activate();
 }
 void CMinimap::deactivate()
 {
+	if (pressedL)
+		MotionInterested::deactivate();
 	ClickableL::deactivate();
 	ClickableR::deactivate();
 	Hoverable::deactivate();
