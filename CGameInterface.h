@@ -9,6 +9,7 @@ BOOST_TRIBOOL_THIRD_STATE(outOfRange)
 using namespace boost::logic;
 class CAdvMapInt;
 
+struct HeroMoveDetails;
 class CIntObject //interface object
 {
 public:
@@ -78,6 +79,8 @@ public:
 	int playerID, serialID;
 
 	virtual void yourTurn()=0{};
+
+	virtual void heroMoved(const HeroMoveDetails & details)=0;
 };
 class CGlobalAI : public CGameInterface // AI class (to derivate)
 {
@@ -98,6 +101,7 @@ public:
 	std::vector<MotionInterested*> motioninterested;
 
 	void yourTurn();
+	void heroMoved(const HeroMoveDetails & details);
 	void handleEvent(SDL_Event * sEvent);
 	void init();
 

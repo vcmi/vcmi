@@ -63,10 +63,8 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
-
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");
-
 	THC timeHandler tmh;
 	THC tmh.getDif();
 	int xx=0, yy=0, zz=0;
@@ -235,10 +233,13 @@ int _tmain(int argc, _TCHAR* argv[])
 
 
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
-		{
-			if(cgi->scenarioOps.playerInfos[i].name=="AI")
-				cgi->playerint.push_back(new CGlobalAI());
-			else 
+		{ 
+
+			//TODO: uncomment when AI will be done
+
+			//if(cgi->scenarioOps.playerInfos[i].name=="AI")
+			//	cgi->playerint.push_back(new CGlobalAI());
+			//else 
 			{
 				cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color,i));
 				((CPlayerInterface*)(cgi->playerint[i]))->init();

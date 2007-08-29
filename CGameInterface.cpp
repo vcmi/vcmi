@@ -172,10 +172,11 @@ void CPlayerInterface::yourTurn()
 		SDL_Delay(5); //give time for other apps
 		SDL_framerateDelay(mainLoopFramerateKeeper);
 	}
+}
 
-
-
-
+void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
+{
+	
 }
 
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)
