@@ -2,6 +2,8 @@
 #include "global.h"
 #include "CPathfinder.h"
 #include "CGameInfo.h"
+#include "CAmbarCendamo.h"
+#include "mapHandler.h"
 CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO: test it (seems to be finished, but relies on unwritten functions :()
 {
 	if(src.z!=dest.z) //first check

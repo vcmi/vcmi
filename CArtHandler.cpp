@@ -2,6 +2,7 @@
 #include "CArtHandler.h"
 #include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
+#include "CLodHandler.h"
 
 void CArtHandler::loadArtifacts()
 {

@@ -5,6 +5,8 @@
 #include "SDL_thread.h"
 #include "CGameInfo.h"
 #include "global.h"
+#include "CGameState.h"
+#include "CCallback.h"
 #include <sstream>
 
 int internalFunc(void * nothingUsed)
@@ -19,13 +21,28 @@ int internalFunc(void * nothingUsed)
 		readed.str(pom);
 		std::string cn; //command name
 		readed >> cn;
+		int3 src, dst;
+
+		int heronum;
+		int3 dest;
+
 		switch (*cn.c_str())
 		{
 		case 'P':
-			std::cout<<"Policzyc sciezke."<<std::endl;
-			int3 src, dst;
+			std::cout<<"Policzyc sciezke."<<std::endl;		
 			readed>>src>>dst;
 			LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
+			break;
+		case 'm': //number of heroes
+			std::cout<<"Number of heroes: "<<CGI->heroh->heroInstances.size()<<std::endl;
+			break;
+		case 'H': //position of hero
+			readed>>heronum;
+			std::cout<<"Position of hero "<<heronum<<": "<<CGI->heroh->heroInstances[heronum]->pos<<std::endl;
+			break;
+		case 'M': //move hero
+			readed>>heronum>>dest;
+			CGI->state->cb->moveHero(heronum, dest);
 			break;
 		}
 		//SDL_Delay(100);

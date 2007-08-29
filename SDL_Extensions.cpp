@@ -5,7 +5,7 @@
 #include <iostream>
 #include <utility>
 #include <algorithm>
-
+#include "CMessage.h"
 
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {

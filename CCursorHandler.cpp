@@ -4,6 +4,7 @@
 #include "SDL_thread.h"
 #include "CGameInfo.h"
 #include "SDL_framerate.h"
+#include "CLodHandler.h"
 
 extern SDL_Surface * screen;
 
@@ -194,7 +195,6 @@ void CCursorHandler::initCursor()
 	xpos = ypos = 0;
 	behindCur = SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32, rmask, gmask, bmask, amask);
 	xbef = ybef = 0;
-	std::vector<Entry> pom = CGI->spriteh->entries.vectorize();
 	adventure = CGI->spriteh->giveDef("CRADVNTR.DEF");
 	combat = CGI->spriteh->giveDef("CRCOMBAT.DEF");
 	deflt = CGI->spriteh->giveDef("CRDEFLT.DEF");

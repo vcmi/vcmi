@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CGeneralTextHandler.h"
 #include "CGameInfo.h"
+#include "CLodHandler.h"
 #include <fstream>
 
 void CGeneralTextHandler::load()

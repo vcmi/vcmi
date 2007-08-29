@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CDefObjInfoHandler.h"
 #include "CGameInfo.h"
+#include "CLodHandler.h"
 #include <sstream>
 
 bool DefObjInfo::operator==(const std::string & por) const

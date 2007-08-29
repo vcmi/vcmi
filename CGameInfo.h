@@ -1,38 +1,40 @@
 #ifndef CGAMEINFO_H
 #define CGAMEINFO_H
 
-#include "CPreGame.h"
 #include "StartInfo.h"
-#include "CSpellHandler.h"
-#include "CAbilityHandler.h"
-#include "CCreaturehandler.h"
-#include "CArtHandler.h"
-#include "CHeroHandler.h"
-#include "CAmbarCendamo.h"
-#include "CBuildingHandler.h"
-#include "CObjectHandler.h"
-#include "CMusicHandler.h"
-#include "CSemiLodHandler.h"
-#include "CDefObjInfoHandler.h"
-#include "CLodHandler.h"
-#include "CTownHandler.h"
-#include "CGeneralTextHandler.h"
-#include "CGameInterface.h"
-#include "CGameState.h"
-#include "mapHandler.h"
-#include "CConsoleHandler.h"
-#include "CPathfinder.h"
-#include "CCursorHandler.h"
-#include "CScreenHandler.h"
 #include "SDL.h"
 
 #include <vector>
+
+
+class CMapHandler;
+class CArtHandler;
+class CHeroHandler;
+class CCreatureHandler;
+class CAbilityHandler;
+class CSpellHandler;
+class CAmbarCendamo;
+class CPreGameTextHandler;
+class CBuildingHandler;
+class CObjectHandler;
+class CMusicHandler;
+class CSemiLodHandler;
+class CDefObjInfoHandler;
+class CTownHandler;
+class CLodHandler;
+class CGeneralTextHandler;
+class CConsoleHandler;
+class CPathfinder;
+class CCursorHandler;
+class CScreenHandler;
+class CGameState;
+class CMapHandler;
+class CGameInterface;
+class CPreGame;
 /*
 	CGameInfo class
 	for allowing different functions for modifying game informations
 */
-
-class CMapHandler;
 class CGameInfo
 {
 public:
@@ -45,7 +47,7 @@ public:
 	CSpellHandler * spellh;
 	CMapHandler * mh;
 	CAmbarCendamo * ac;
-	CPreGameTextHandler * preth ;
+	CPreGameTextHandler * preth;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
 	CMusicHandler * mush;

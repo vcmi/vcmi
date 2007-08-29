@@ -2,6 +2,8 @@
 #include "CObjectHandler.h"
 #include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
+#include "CLodHandler.h"
+#include "CAmbarCendamo.h"
 
 void CObjectHandler::loadObjects()
 {

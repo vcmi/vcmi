@@ -4,7 +4,9 @@
 #include "SDL_thread.h"
 #include "SDL_framerate.h"
 #include "SDL_Extensions.h"
+#include "CCursorHandler.h"
 #include "CGameInfo.h"
+#include "CDefHandler.h"
 
 extern SDL_Surface * screen, * screen2;
 

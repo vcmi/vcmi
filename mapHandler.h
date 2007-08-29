@@ -6,6 +6,7 @@
 #include "CGameInfo.h"
 #include "CDefHandler.h"
 #include <boost/logic/tribool.hpp>
+#include "CObjectHandler.h"
 const int Woff = 4; //width of map's frame
 const int Hoff = 4; 
 

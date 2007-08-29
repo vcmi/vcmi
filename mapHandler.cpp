@@ -5,6 +5,8 @@
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "stdlib.h"
+#include "CLodHandler.h"
+#include "CDefObjInfoHandler.h"
 #include <algorithm>
 
 extern SDL_Surface * ekran;

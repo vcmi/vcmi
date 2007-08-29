@@ -68,4 +68,8 @@ inline std::istream & operator>>(std::istream & str, int3 & dest)
 	str>>dest.x>>dest.y>>dest.z;
 	return str;
 }
+inline std::ostream & operator<<(std::ostream & str, int3 & sth)
+{
+	return str<<sth.x<<' '<<sth.y<<' '<<sth.z;
+}
 #endif //INT3_H

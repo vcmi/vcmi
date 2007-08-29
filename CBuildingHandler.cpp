@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CGameInfo.h"
 #include "CBuildingHandler.h"
+#include "CLodHandler.h"
 
 void CBuildingHandler::loadBuildings()
 {

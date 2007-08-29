@@ -2,6 +2,7 @@
 #include "CAbilityHandler.h"
 #include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
+#include "CLodHandler.h"
 void CAbilityHandler::loadAbilities()
 {
 	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("SSTRAITS.TXT");

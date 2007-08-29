@@ -4,8 +4,10 @@
 #include "CGameInfo.h"
 #include "CObjectHandler.h"
 #include "CCastleHandler.h"
+#include "CDefObjInfoHandler.h"
 #include "SDL_Extensions.h"
 #include "boost\filesystem.hpp"
+#include "CLodHandler.h"
 #include <set>
 #include <iomanip>
 #include <sstream>

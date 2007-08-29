@@ -4,6 +4,8 @@
 #include <sstream>
 #include "CGameInfo.h"
 #include "CGeneralTextHandler.h"
+#include "CLodHandler.h"
+#include "CAbilityHandler.h"
 
 CHeroHandler::~CHeroHandler()
 {

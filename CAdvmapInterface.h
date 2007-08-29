@@ -9,6 +9,8 @@
 #include "SDL_Extensions.h"
 #include <boost/logic/tribool.hpp>
 #include "global.h"
+#include "CPathfinder.h"
+#include "mapHandler.h"
 
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase

@@ -5,6 +5,7 @@
 #include "CDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
+#include "CLodHandler.h"
 
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);

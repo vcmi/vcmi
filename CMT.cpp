@@ -40,6 +40,8 @@
 #include "CConsoleHandler.h"
 #include "CCursorHandler.h"
 #include "CScreenHandler.h"
+#include "CPathfinder.h"
+#include "CGameState.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>

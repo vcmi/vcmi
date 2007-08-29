@@ -4,6 +4,8 @@
 #include "CMessage.h"
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
+#include "CScreenHandler.h"
+#include "CCursorHandler.h"
 using namespace CSDL_Ext;
 CButtonBase::CButtonBase()
 {
