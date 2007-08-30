@@ -2,12 +2,12 @@
 #define CPREGAME_H
 #include "SDL.h"
 #include "StartInfo.h"
-#include "CSemiDefHandler.h"
-#include "CSemiLodHandler.h"
-#include "CPreGameTextHandler.h" 
+#include "hch\CSemiDefHandler.h"
+#include "hch\CSemiLodHandler.h"
+#include "hch\CPreGameTextHandler.h" 
 #include "CMessage.h"
 #include "map.h"
-#include "CMusicHandler.h"
+#include "hch\CMusicHandler.h"
 class CPreGame;
 extern CPreGame * CPG;
 

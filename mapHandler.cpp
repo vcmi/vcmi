@@ -1,12 +1,12 @@
 #include "stdafx.h"
 #include "mapHandler.h"
-#include "CSemiDefHandler.h"
+#include "hch\CSemiDefHandler.h"
 #include "SDL_rotozoom.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "stdlib.h"
-#include "CLodHandler.h"
-#include "CDefObjInfoHandler.h"
+#include "hch\CLodHandler.h"
+#include "hch\CDefObjInfoHandler.h"
 #include <algorithm>
 
 extern SDL_Surface * ekran;

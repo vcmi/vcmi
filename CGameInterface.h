@@ -2,7 +2,7 @@
 #define CGAMEINTERFACE_H
 
 #include "SDL.h"
-#include "CDefHandler.h"
+#include "hch\CDefHandler.h"
 #include "SDL_Extensions.h"
 #include <boost/logic/tribool.hpp>
 BOOST_TRIBOOL_THIRD_STATE(outOfRange)

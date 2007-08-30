@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CAdvmapInterface.h"
-#include "CLodHandler.h"
-#include "CPreGameTextHandler.h"
+#include "hch\CLodHandler.h"
+#include "hch\CPreGameTextHandler.h"
 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 

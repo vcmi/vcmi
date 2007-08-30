@@ -1,5 +1,5 @@
-#include "stdafx.h"
-#include "CGameInfo.h"
+#include "../stdafx.h"
+#include "../CGameInfo.h"
 #include "CBuildingHandler.h"
 #include "CLodHandler.h"
 

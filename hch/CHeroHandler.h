@@ -5,7 +5,7 @@
 #include <vector>
 #include "CCreatureHandler.h"
 #include "SDL.h"
-#include "int3.h"
+#include "../int3.h"
 
 class CHeroClass;
 

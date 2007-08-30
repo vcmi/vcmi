@@ -9,7 +9,7 @@ struct PlayerState
 {
 public:
 	int color;
-	std::vector<std::vector<std::vector<bool> > >fogOfWarMap;
+	std::vector<std::vector<std::vector<char> > >fogOfWarMap; //true - visible, false - hidden
 	std::vector<int> resources;
 	std::vector<CHeroInstance *> heroes;
 	std::vector<CTownInstance *> towns;

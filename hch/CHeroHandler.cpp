@@ -1,8 +1,8 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CHeroHandler.h"
-#include "CGameInfo.h"
+#include "../CGameInfo.h"
 #include <sstream>
-#include "CGameInfo.h"
+#include "../CGameInfo.h"
 #include "CGeneralTextHandler.h"
 #include "CLodHandler.h"
 #include "CAbilityHandler.h"

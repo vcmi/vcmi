@@ -1,6 +1,6 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CGeneralTextHandler.h"
-#include "CGameInfo.h"
+#include "../CGameInfo.h"
 #include "CLodHandler.h"
 #include <fstream>
 

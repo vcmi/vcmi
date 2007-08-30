@@ -4,9 +4,9 @@
 #include <fstream>
 #include <string>
 #include <vector>
-#include "global.h"
+#include "../global.h"
 #include "SDL.h"
-#include "map.h"
+#include "../map.h"
 #include "CSemiDefHandler.h"
 #include "CDefHandler.h"
 #include "CCreatureHandler.h"

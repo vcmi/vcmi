@@ -2,7 +2,7 @@
 #define CADVENTUREMAPINTERFACE_H
 
 #include "SDL.h"
-#include "CDefHandler.h"
+#include "hch\CDefHandler.h"
 #include "SDL_Extensions.h"
 #include "CGameInterface.h"
 #include "CGameInfo.h"

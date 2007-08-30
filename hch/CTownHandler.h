@@ -3,7 +3,7 @@
 #include "CDefHandler.h"
 #include "CCreatureHandler.h"
 #include "SDL.h"
-#include "int3.h"
+#include "../int3.h"
 #include <string>
 #include <vector>
 class CTown

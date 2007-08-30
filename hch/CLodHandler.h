@@ -7,7 +7,7 @@
 #include <string>
 #include "zlib.h"
 #include "CDefHandler.h"
-#include "nodrze.h"
+#include "../nodrze.h"
 
 enum Epcxformat {PCX8B, PCX24B};
 

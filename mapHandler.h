@@ -1,12 +1,12 @@
 #ifndef MAPHANDLER_H
 #define MAPHANDLER_H
 
-#include "CAmbarCendamo.h"
-#include "CSemiDefHandler.h"
+#include "hch\CAmbarCendamo.h"
+#include "hch\CSemiDefHandler.h"
 #include "CGameInfo.h"
-#include "CDefHandler.h"
+#include "hch\CDefHandler.h"
 #include <boost/logic/tribool.hpp>
-#include "CObjectHandler.h"
+#include "hch\CObjectHandler.h"
 const int Woff = 4; //width of map's frame
 const int Hoff = 4; 
 

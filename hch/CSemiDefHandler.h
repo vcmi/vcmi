@@ -1,6 +1,6 @@
 #ifndef SEMIDEF_H
 #define SEMIDEF_H
-#include "global.h"
+#include "../global.h"
 #include <string>
 #include "SDL.h"
 #include "SDL_image.h"

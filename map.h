@@ -4,8 +4,8 @@
 #include <string>
 #include <vector>
 #include "global.h"
-#include "CSemiDefHandler.h"
-#include "CDefHandler.h"
+#include "hch\CSemiDefHandler.h"
+#include "hch\CDefHandler.h"
 
 enum ESortBy{name,playerAm,size,format, viccon,loscon};
 struct Sresource

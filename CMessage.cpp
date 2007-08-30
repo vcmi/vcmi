@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "CMessage.h"
 #include "SDL_TTF.h"
-#include "CSemiDefHandler.h"
-#include "CDefHandler.h"
+#include "hch\CSemiDefHandler.h"
+#include "hch\CDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
-#include "CLodHandler.h"
+#include "hch\CLodHandler.h"
 
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
