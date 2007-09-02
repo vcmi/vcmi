@@ -38,7 +38,8 @@ class CList
 {
 public:
 	SDL_Surface * bg;
-	//arrow up, arrow down
+	CDefHandler *arrup, *arrdo;
+	SDL_Rect arrupp, arrdop;
 	int posw, posh; //position width/height
 
 	void clickLeft(tribool down);
@@ -50,7 +51,7 @@ class CHeroList
 	: public CList
 {
 public:
-	static CDefHandler *arrup, *arrdo;
+	CDefHandler *mobile, *mana;
 
 	CHeroList();
 	void select(int which);
@@ -62,8 +63,7 @@ public:
 class CTownList 
 	: public CList
 {
-public:
-	static CDefHandler *arrup, *arrdo;
+public: 
 
 	CTownList();
 	void select(int which);

@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "CSpellHandler.h"
 #include "../CGameInfo.h"
 #include "CLodHandler.h"

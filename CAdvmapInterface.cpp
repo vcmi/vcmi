@@ -7,10 +7,6 @@ extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
 using namespace CSDL_Ext;
-CDefHandler * CHeroList::arrdo = NULL;
-CDefHandler * CHeroList::arrup = NULL;
-CDefHandler * CTownList::arrdo = NULL;
-CDefHandler * CTownList::arrup = NULL;
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
@@ -133,6 +129,11 @@ void CList::clickLeft(tribool down)
 CHeroList::CHeroList()
 {
 	pos = genRect(192,64,609,196);
+
+	arrup = CGI->spriteh->giveDef("IAM012.DEF");
+	arrdo = CGI->spriteh->giveDef("IAM013.DEF");
+	mobile = CGI->spriteh->giveDef("IMOBIL.DEF");
+	mana = CGI->spriteh->giveDef("IMANA.DEF");
 }
 void CHeroList::select(int which)
 {
@@ -152,7 +153,8 @@ void CHeroList::keyPressed (SDL_KeyboardEvent & key)
 CTownList::CTownList()
 {
 	pos = genRect(192,48,747,196);
-	arrdo = NULL;
+	arrup = CGI->spriteh->giveDef("IAM014.DEF");
+	arrdo = CGI->spriteh->giveDef("IAM015.DEF");
 }
 void CTownList::select(int which)
 {
@@ -636,6 +638,7 @@ void CAdvMapInt::fswitchLevel()
 		underground.show();
 	}
 	updateScreen = true;
+	minimap.draw();
 }
 void CAdvMapInt::fshowQuestlog()
 {

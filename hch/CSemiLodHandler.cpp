@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "CSemiLodHandler.h"
 void CSemiLodHandler::openLod(std::string path)
 {

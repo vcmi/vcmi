@@ -1,4 +1,4 @@
-#include "../stdafx.h"
+#include "stdafx.h"
 #include "CLodHandler.h"
 #include "../SDL_Extensions.h"
 #include <sstream>
