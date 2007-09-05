@@ -4,9 +4,11 @@
 #include "../CGameInfo.h"
 #include "CObjectHandler.h"
 #include "CCastleHandler.h"
+#include "CTownHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "../SDL_Extensions.h"
 #include "boost\filesystem.hpp"
+#include "CGameState.h"
 #include "CLodHandler.h"
 #include <set>
 #include <iomanip>
@@ -1477,6 +1479,18 @@ void CAmbarCendamo::deh3m()
 					spec->alignment = 0xff;
 				i+=3;
 				nobj->info = spec;
+				//////////// rewriting info to CTownInstance class /////////////////////
+				CTownInstance * nt = new CTownInstance;
+				nt->type = CTownHandler::getTypeByDefName(map.defy[nobj->defNumber].name);
+				nt->builded = 0;
+				nt->destroyed = 0;
+				nt->name = spec->name;
+				nt->garrison = spec->garrison;
+				nt->garrisonHero = spec->garnisonHero;
+				nt->pos = int3(spec->x, spec->y, spec->z);
+				nt->possibleSpells = spec->possibleSpells;
+				nt->obligatorySpells = spec->obligatorySpells;
+				CGI->state->players[spec->player].towns.push_back(nt);
 				break;
 			}
 		case EDefType::PLAYERONLY_DEF:

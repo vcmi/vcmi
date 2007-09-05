@@ -63,9 +63,9 @@ const char * NAME = "VCMI 0.3";
 SDL_Surface * ekran, * screen, * screen2;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
-//	#include "lua.h"
-//	#include "lualib.h"
-//	#include "lauxlib.h"
+//#include "lua.h"
+//#include "lualib.h"
+//#include "lauxlib.h"
 //#include <luabind/luabind.hpp>
 //#include <luabind/function.hpp>
 //#include <luabind/class.hpp>
@@ -99,7 +99,7 @@ int _tmain(int argc, _TCHAR* argv[])
 //   {    luabind::open(lua);
 //   luabind::module(lua)
 //	[
-//		luabind::def("powitanie",&piszpowitanie2,NULL)
+//		luabind::def("powitanie",&piszpowitanie2)
 //
 //	];
 //

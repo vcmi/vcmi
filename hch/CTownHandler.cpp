@@ -47,3 +47,9 @@ SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)
 		return smallIcons->ourImages[pom].bitmap;
 	}
 }
+
+int CTownHandler::getTypeByDefName(std::string name)
+{
+	//TODO
+	return 0;
+}
