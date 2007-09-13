@@ -266,6 +266,23 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->ac = ac;
 		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
+		//initializing gamestate
+		for(int k=0; k<CGI->state->players.size(); ++k)
+		{
+			CGI->state->players[k].fogOfWarMap.resize(ac->map.width);
+			for(int g=0; g<ac->map.width; ++g)
+				CGI->state->players[k].fogOfWarMap[g].resize(ac->map.height);
+
+			for(int g=0; g<ac->map.width; ++g)
+				for(int h=0; h<ac->map.height; ++h)
+					CGI->state->players[k].fogOfWarMap[g][h].resize(ac->map.twoLevel+1);
+
+			for(int g=0; g<ac->map.width; ++g)
+				for(int h=0; h<ac->map.height; ++h)
+					for(int v=0; v<ac->map.twoLevel+1; ++v)
+						CGI->state->players[k].fogOfWarMap[g][h][v] = 1;
+		}
+		//gamestate nitialized (at least partially)
 		THC std::cout<<"Detecting file (together): "<<tmh.getDif()<<std::endl;
 		ac->loadDefs();
 		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;

@@ -5,6 +5,7 @@
 #include "hch\CDefHandler.h"
 #include "SDL_Extensions.h"
 #include <boost/logic/tribool.hpp>
+#include "SDL_framerate.h"
 BOOST_TRIBOOL_THIRD_STATE(outOfRange)
 using namespace boost::logic;
 class CAdvMapInt;
@@ -92,6 +93,7 @@ class CPlayerInterface : public CGameInterface
 public:
 	SDL_Event * current;
 	CAdvMapInt * adventureInt;
+	FPSmanager * mainFPSmng;
 	//TODO: town interace, battle interface, other interfaces
 
 	std::vector<ClickableL*> lclickable;

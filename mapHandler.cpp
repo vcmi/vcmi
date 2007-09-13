@@ -443,12 +443,11 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	{
 		for (int by=0; by<dy; by++)
 		{
-			SDL_Rect * sr = new SDL_Rect;
-			sr->y=by*32;
-			sr->x=bx*32;
-			sr->h=sr->w=32;
-			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,sr);
-			delete sr;
+			SDL_Rect sr;
+			sr.y=by*32;
+			sr.x=bx*32;
+			sr.h=sr.w=32;
+			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,&sr);
 		}
 	}
 	////terrain printed
@@ -457,13 +456,12 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	{
 		for (int by=0; by<dy; by++)
 		{
-			SDL_Rect * sr = new SDL_Rect;
-			sr->y=by*32;
-			sr->x=bx*32;
-			sr->h=sr->w=32;
+			SDL_Rect sr;
+			sr.y=by*32;
+			sr.x=bx*32;
+			sr.h=sr.w=32;
 			if(ttiles[x+bx][y+by][level].rivbitmap.size())
-				SDL_BlitSurface(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,sr);
-			delete sr;
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,&sr);
 		}
 	}
 	////rivers printed
@@ -474,13 +472,12 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		{
 			if(y+by<=-4)
 				continue;
-			SDL_Rect * sr = new SDL_Rect;
-			sr->y=by*32+16;
-			sr->x=bx*32;
-			sr->h=sr->w=32;
+			SDL_Rect sr;
+			sr.y=by*32+16;
+			sr.x=bx*32;
+			sr.h=sr.w=32;
 			if(ttiles[x+bx][y+by][level].roadbitmap.size())
-				SDL_BlitSurface(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()],NULL,su,sr);
-			delete sr;
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()],NULL,su,&sr);
 		}
 	}
 	////roads printed
@@ -492,11 +489,11 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		{
 			for(int h=0; h<ttiles[x+bx][y+by][level].objects.size(); ++h)
 			{
-				SDL_Rect * sr = new SDL_Rect;
-				sr->w = 32;
-				sr->h = 32;
-				sr->x = (bx)*32;
-				sr->y = (by)*32;
+				SDL_Rect sr;
+				sr.w = 32;
+				sr.h = 32;
+				sr.x = (bx)*32;
+				sr.y = (by)*32;
 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
 				int imgVal = CGI->ac->map.defy[
@@ -505,8 +502,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				SDL_Surface * tb = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap;
 				SDL_BlitSurface(
 				CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,
-				&pp,su,sr);
-				delete sr;
+				&pp,su,&sr);
 			}
 		}
 	}
@@ -516,10 +512,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	{
 		for (int by=0; by<dy; by++)
 		{
-			SDL_Rect * sr = new SDL_Rect;
-			sr->y=by*32;
-			sr->x=bx*32;
-			sr->h=sr->w=32;
+			SDL_Rect sr;
+			sr.y=by*32;
+			sr.x=bx*32;
+			sr.h=sr.w=32;
 			if (!level)
 			{
 				
@@ -527,7 +523,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				{
 					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibility);
 					SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
-					SDL_BlitSurface(hide2, NULL, su, sr);
+					SDL_BlitSurface(hide2, NULL, su, &sr);
 					SDL_FreeSurface(hide2);
 				}
 			}
@@ -537,11 +533,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				{
 					SDL_Surface * hide = getVisBitmap(bx+x, by+y, undVisibility);
 					SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
-					SDL_BlitSurface(hide2, NULL, su, sr);
+					SDL_BlitSurface(hide2, NULL, su, &sr);
 					SDL_FreeSurface(hide2);
 				}
 			}
-			delete sr;
 		}
 	}
 	////shadow printed
@@ -552,23 +547,21 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		{
 			if(bx+x<0 || by+y<0 || bx+x>reader->map.width+(-1) || by+y>reader->map.height+(-1))
 			{
-				SDL_Rect * sr = new SDL_Rect;
-				sr->y=by*32;
-				sr->x=bx*32;
-				sr->h=sr->w=32;
+				SDL_Rect sr;
+				sr.y=by*32;
+				sr.x=bx*32;
+				sr.h=sr.w=32;
 
-				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,sr);
-
-				delete sr;
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,&sr);
 			}
 			else 
 			{
 				if(MARK_BLOCKED_POSITIONS &&  ttiles[x+bx][y+by][level].blocked) //temporary hiding blocked positions
 				{
-					SDL_Rect * sr = new SDL_Rect;
-					sr->y=by*32;
-					sr->x=bx*32;
-					sr->h=sr->w=32;
+					SDL_Rect sr;
+					sr.y=by*32;
+					sr.x=bx*32;
+					sr.h=sr.w=32;
 
 					SDL_Surface * ns =  SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32,
 									   rmask, gmask, bmask, amask);
@@ -577,18 +570,16 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						*((unsigned char*)(ns->pixels) + f) = 128;
 					}
 
-					SDL_BlitSurface(ns,NULL,su,sr);
+					SDL_BlitSurface(ns,NULL,su,&sr);
 
 					SDL_FreeSurface(ns);
-
-					delete sr;
 				}
 				if(MARK_VISITABLE_POSITIONS &&  ttiles[x+bx][y+by][level].visitable) //temporary hiding visitable positions
 				{
-					SDL_Rect * sr = new SDL_Rect;
-					sr->y=by*32;
-					sr->x=bx*32;
-					sr->h=sr->w=32;
+					SDL_Rect sr;
+					sr.y=by*32;
+					sr.x=bx*32;
+					sr.h=sr.w=32;
 
 					SDL_Surface * ns =  SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32,
 									   rmask, gmask, bmask, amask);
@@ -597,11 +588,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						*((unsigned char*)(ns->pixels) + f) = 128;
 					}
 
-					SDL_BlitSurface(ns,NULL,su,sr);
+					SDL_BlitSurface(ns,NULL,su,&sr);
 
 					SDL_FreeSurface(ns);
-
-					delete sr;
 				}
 			}
 		}

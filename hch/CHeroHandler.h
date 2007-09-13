@@ -8,6 +8,7 @@
 #include "../int3.h"
 
 class CHeroClass;
+class CObjectInstance;
 
 
 class CHero
@@ -46,6 +47,7 @@ class CHeroInstance
 public:
 	int owner;
 	CHero * type;
+	CObjectInstance * ourObject;
 	int exp; //experience point
 	int level; //current level of hero
 	std::string name; //may be custom

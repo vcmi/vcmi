@@ -883,6 +883,7 @@ void CAmbarCendamo::deh3m()
 				nhi->pos = nobj->pos;
 				nhi->type = spec->type;
 				nhi->army = spec->garrison;
+				nhi->ourObject = nobj;
 				CGI->heroh->heroInstances.push_back(nhi);
 				break;
 			}
@@ -1468,6 +1469,9 @@ void CAmbarCendamo::deh3m()
 					i+=4;
 					spec->events.push_back(nce);
 				}
+				spec->x = nobj->pos.x;
+				spec->y = nobj->pos.y;
+				spec->z = nobj->pos.z;
 
 				/////// castle events have been read ///////////////////////////
 

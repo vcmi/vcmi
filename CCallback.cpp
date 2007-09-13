@@ -21,17 +21,17 @@ bool CCallback::moveHero(int ID, int3 destPoint)
 	CPath * ourPath = CGI->pathf->getPath(CGI->heroh->heroInstances[ID]->pos, destPoint, CGI->heroh->heroInstances[ID]);
 	if(!ourPath)
 		return false;
-	for(int i=0; i<ourPath->nodes.size()-1; ++i)
+	for(int i=ourPath->nodes.size()-1; i>0; i--)
 	{
 		int3 stpos, endpos;
 		stpos = int3(ourPath->nodes[i].x, ourPath->nodes[i].y, CGI->heroh->heroInstances[ID]->pos.z);
-		endpos = int3(ourPath->nodes[i+1].x, ourPath->nodes[i+1].y, CGI->heroh->heroInstances[ID]->pos.z);
+		endpos = int3(ourPath->nodes[i-1].x, ourPath->nodes[i-1].y, CGI->heroh->heroInstances[ID]->pos.z);
 		HeroMoveDetails curd;
 		curd.src = stpos;
 		curd.dst = endpos;
 		curd.heroID = ID;
 		curd.owner = CGI->heroh->heroInstances[ID]->owner;
-		if(CGI->heroh->heroInstances[ID]->movement>=CGI->mh->getCost(stpos, endpos, CGI->heroh->heroInstances[ID]))
+		//if(CGI->heroh->heroInstances[ID]->movement>=CGI->mh->getCost(stpos, endpos, CGI->heroh->heroInstances[ID]))
 		{ //performing move
 			for(int j=0; j<CGI->state->players.size(); ++j)
 			{
@@ -41,7 +41,7 @@ bool CCallback::moveHero(int ID, int3 destPoint)
 				}
 			}
 		}
-		else
+		//else
 			return true; //move ended - no more movement points
 	}
 	return true;

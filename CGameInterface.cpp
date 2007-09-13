@@ -6,6 +6,7 @@
 #include "SDL_framerate.h"
 #include "CScreenHandler.h"
 #include "CCursorHandler.h"
+#include "CCallback.h"
 using namespace CSDL_Ext;
 CButtonBase::CButtonBase()
 {
@@ -112,9 +113,9 @@ void CPlayerInterface::yourTurn()
 	//show rest of things
 
 	//initializing framerate keeper
-	FPSmanager * mainLoopFramerateKeeper = new FPSmanager;
-	SDL_initFramerate(mainLoopFramerateKeeper);
-	SDL_setFramerate(mainLoopFramerateKeeper, 24);
+	mainFPSmng = new FPSmanager;
+	SDL_initFramerate(mainFPSmng);
+	SDL_setFramerate(mainFPSmng, 24);
 	SDL_Event sEvent;
 	//framerate keeper initialized
 	for(;;) // main loop
@@ -172,13 +173,65 @@ void CPlayerInterface::yourTurn()
 			LOCPLINT->adventureInt->updateScreen=false;
 		}
 		SDL_Delay(5); //give time for other apps
-		SDL_framerateDelay(mainLoopFramerateKeeper);
+		SDL_framerateDelay(mainFPSmng);
 	}
 }
 
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
-	
+	//initializing objects and performing first step of move
+	CObjectInstance * ho = CGI->heroh->heroInstances[details.heroID]->ourObject; //object representing this hero
+	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
+	{
+	}
+	else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
+	{
+	}
+	else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
+	{
+	}
+	else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
+	{
+	}
+	else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
+	{
+	}
+	else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
+	{
+	}
+	else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
+	{
+	}
+	else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
+	{
+	}
+	for(int i=0; i<32; ++i)
+	{
+		if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
+		{
+		}
+		else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
+		{
+		}
+		else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
+		{
+		}
+		else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
+		{
+		}
+		else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
+		{
+		}
+		else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
+		{
+		}
+		else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
+		{
+		}
+		else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
+		{
+		}
+	}
 }
 
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)
