@@ -261,8 +261,11 @@ void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	float ny = (float)hy/(float)32;
-	if (ny>5 || ny<0)
+	if ((ny>5 || ny<0) || (from+ny>=items.size()))
+	{
+		LOCPLINT->adventureInt->statusbar.clear();
 		return;
+	}
 	std::vector<std::string> temp;
 	temp+=(items[from+ny]->name),(items[from+ny]->type->heroClass->name);
 	LOCPLINT->adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
