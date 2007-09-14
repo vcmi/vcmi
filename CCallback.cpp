@@ -46,3 +46,27 @@ bool CCallback::moveHero(int ID, int3 destPoint)
 	}
 	return true;
 }
+
+
+int CCallback::howManyHeroes(int player)
+{
+	if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
+		return -1;
+	return gs->players[player].heroes.size();
+}
+const CHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
+{
+	if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
+		return NULL;
+	if (!mode)
+		return gs->players[player].heroes[val];
+	else 
+	{
+		for (int i=0; i<gs->players[player].heroes.size();i++)
+		{
+			if (gs->players[player].heroes[i]->type->ID==val)
+				return gs->players[player].heroes[i];
+		}
+	}
+	return NULL;
+}

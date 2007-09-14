@@ -27,6 +27,9 @@ enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHE
 //CURPLINT gives pointer to the interface of human player which is currently making turn, 
 //LOCPLINT gives pointer to the interface which is currently showed (on this machine)
 
+#define HEROI_TYPE (typeid(CHeroInstance*))
+#define TOWNI_TYPE (typeid(CTownInstance*))
+
 
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
@@ -35,6 +38,7 @@ const int SKILL_QUANTITY=28;
 const int ARTIFACTS_QUANTITY=171;
 const int HEROES_QUANTITY=156;
 const int TERRAIN_TYPES=10;
+const int PRIMARY_SKILLS=4;
 
 #define MARK_BLOCKED_POSITIONS false
 #define MARK_VISITABLE_POSITIONS false

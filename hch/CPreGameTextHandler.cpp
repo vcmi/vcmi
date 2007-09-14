@@ -446,6 +446,10 @@ void CPreGameTextHandler::loadTexts()
 	loadToIt(advNextHero.second, buf, i, 2);
 	loadToIt(advEndTurn.first, buf, i, 4);
 	loadToIt(advEndTurn.second, buf, i, 2);
+	loadToIt(advHListUp.first, buf, i, 4);
+	loadToIt(advHListUp.second, buf, i, 2);
+	loadToIt(advHListDown.first, buf, i, 4);
+	loadToIt(advHListDown.second, buf, i, 2);
 
 	loadLossConditions();
 	loadVictoryConditions();

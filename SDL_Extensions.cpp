@@ -6,6 +6,7 @@
 #include <utility>
 #include <algorithm>
 #include "CMessage.h"
+#include <boost/algorithm/string.hpp>
 
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
@@ -670,3 +671,11 @@ void CSDL_Ext::fullAlphaTransform(SDL_Surface *& src)
 	src = hlp2;
 }
 
+std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor)
+{
+	for (int i=0;(i<tor.size())&&(boost::find_first(str,"%s"));i++)
+	{
+		boost::replace_first(str,"%s",tor[i]);
+	}
+	return str;
+}

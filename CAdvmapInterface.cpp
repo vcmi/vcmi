@@ -2,10 +2,13 @@
 #include "CAdvmapInterface.h"
 #include "hch\CLodHandler.h"
 #include "hch\CPreGameTextHandler.h"
-
+#include "hch\CGeneralTextHandler.h"
+#include "CCallback.h"
+#include <boost/assign/std/vector.hpp>
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
+using namespace boost::assign;
 using namespace CSDL_Ext;
 CAdvMapInt::~CAdvMapInt()
 {
@@ -115,6 +118,7 @@ void CList::activate()
 	ClickableR::activate();
 	Hoverable::activate();
 	KeyInterested::activate();
+	MotionInterested::activate();
 }; 
 void CList::deactivate()
 {
@@ -122,6 +126,7 @@ void CList::deactivate()
 	ClickableR::deactivate();
 	Hoverable::deactivate();
 	KeyInterested::deactivate();
+	MotionInterested::deactivate();
 }; 
 void CList::clickLeft(tribool down)
 {
@@ -129,17 +134,139 @@ void CList::clickLeft(tribool down)
 CHeroList::CHeroList()
 {
 	pos = genRect(192,64,609,196);
-
+	
+	arrupp = genRect(16,64,609,196);
+	arrdop = genRect(16,64,609,372);
+ //32px per hero
+	posmobx = 610;
+	posmoby = 213;
+	posporx = 617;
+	pospory = 212;
+	posmanx = 666;
+	posmany = 213;
+	
 	arrup = CGI->spriteh->giveDef("IAM012.DEF");
 	arrdo = CGI->spriteh->giveDef("IAM013.DEF");
 	mobile = CGI->spriteh->giveDef("IMOBIL.DEF");
 	mana = CGI->spriteh->giveDef("IMANA.DEF");
+	empty = CGI->bitmaph->loadBitmap("HPSXXX.bmp");
+	selection = CGI->bitmaph->loadBitmap("HPSYYY.bmp");
+	SDL_SetColorKey(selection,SDL_SRCCOLORKEY,SDL_MapRGB(selection->format,0,255,255));
+	from = 0;
+	pressed = indeterminate;
+}
+
+void CHeroList::init()
+{
+	bg = SDL_CreateRGBSurface(ekran->flags,68,193,ekran->format->BitsPerPixel,ekran->format->Rmask,ekran->format->Gmask,ekran->format->Bmask,ekran->format->Amask);
+	SDL_BlitSurface(LOCPLINT->adventureInt->bg,&genRect(193,68,607,196),bg,&genRect(193,68,0,0));
+}
+void CHeroList::genList()
+{
+	int howMany = LOCPLINT->cb->howManyHeroes(LOCPLINT->playerID);
+	for (int i=0;i<howMany;i++)
+	{
+		items.push_back(LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0));
+	}
 }
 void CHeroList::select(int which)
 {
+	selected = which;
+	if (which>=items.size()) 
+		which=items.size();
+	draw();
+	LOCPLINT->adventureInt->centerOn(items[which]->pos);
+	LOCPLINT->adventureInt->selection.type = &HEROI_TYPE;
+	LOCPLINT->adventureInt->selection.selected = items[which];
 }
 void CHeroList::clickLeft(tribool down)
 {
+	if (down)
+	{
+		/***************************ARROWS*****************************************/
+		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		{
+			blitAtWR(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
+			pressed = true;
+			return;
+		}
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		{
+			blitAtWR(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
+			pressed = false;
+			return;
+		}
+		/***************************HEROES*****************************************/
+		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+		hx-=pos.x;
+		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+		float ny = (float)hy/(float)32;
+		if (ny>5 || ny<0)
+			return;
+		select(ny+from);
+	}
+	else
+	{
+		if (indeterminate(pressed))
+			return;
+		if (pressed) //up
+		{
+			blitAtWR(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+			pressed = indeterminate;
+			if (!down)
+			{
+				from--;
+				if (from<0)
+					from=0;
+				draw();
+			}
+		}
+		else if (!pressed) //down
+		{
+			blitAtWR(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+			pressed = indeterminate;
+			if (!down)
+			{
+				from++;
+				if (from<items.size()-5)
+					from=items.size()-5;
+				draw();
+			}
+		}
+		else
+			throw 0;
+
+	}
+}
+void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
+{
+	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	{
+		if (from>0)
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advHListUp.first);
+		else
+			LOCPLINT->adventureInt->statusbar.clear();
+		return;
+	}
+	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	{
+		if ((items.size()-from)  >  5)
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advHListDown.first);
+		else
+			LOCPLINT->adventureInt->statusbar.clear();
+		return;
+	}
+	//if not buttons then heroes
+	int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+	hx-=pos.x;
+	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+	float ny = (float)hy/(float)32;
+	if (ny>5 || ny<0)
+		return;
+	std::vector<std::string> temp;
+	temp+=(items[from+ny]->name),(items[from+ny]->type->heroClass->name);
+	LOCPLINT->adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
+	//select(ny+from);
 }
 void CHeroList::clickRight(tribool down)
 {
@@ -150,13 +277,56 @@ void CHeroList::hover (bool on)
 void CHeroList::keyPressed (SDL_KeyboardEvent & key)
 {
 }
+void CHeroList::draw()
+{	for (int iT=0+from;iT<5+from;iT++)
+	{
+		int i = iT-from;
+		if (iT>=items.size())
+		{
+			blitAtWR(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32);
+			blitAtWR(mana->ourImages[0].bitmap,posmanx,posmany+i*32);
+			blitAtWR(empty,posporx,pospory+i*32);
+			continue;
+		}
+		int pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->movement)/100;
+		if (pom>25) pom=25;
+		if (pom<0) pom=0;
+		blitAtWR(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32); //move point
+		pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->mana)/10;
+		if (pom>25) pom=25;
+		if (pom<0) pom=0;
+		blitAtWR(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
+		SDL_Surface * temp = LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->type->portraitSmall;
+		blitAtWR(temp,posporx,pospory+i*32);
+		if (selected == iT)
+		{
+			blitAtWR(selection,posporx,pospory+i*32);
+		}
+		//TODO: support for custom portraits
+	}
+	if (from>0)
+		blitAtWR(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+	else
+		blitAtWR(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
+
+	if (items.size()-from>5)
+		blitAtWR(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+	else
+		blitAtWR(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
+}
 CTownList::CTownList()
 {
 	pos = genRect(192,48,747,196);
 	arrup = CGI->spriteh->giveDef("IAM014.DEF");
 	arrdo = CGI->spriteh->giveDef("IAM015.DEF");
 }
+void CTownList::genList()
+{
+}
 void CTownList::select(int which)
+{
+}
+void CTownList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 {
 }
 void CTownList::clickLeft(tribool down)
@@ -169,6 +339,9 @@ void CTownList::hover (bool on)
 {
 }
 void CTownList::keyPressed (SDL_KeyboardEvent & key)
+{
+}
+void CTownList::draw()
 {
 }
 CStatusBar::CStatusBar(int x, int y)
@@ -283,22 +456,11 @@ void CMinimap::clickLeft (tribool down)
 	float dx=((float)(LOCPLINT->current->motion.x-pos.x))/((float)pos.w),
 		dy=((float)(LOCPLINT->current->motion.y-pos.y))/((float)pos.h);
 
-	int dxa = (CGI->mh->sizes.x*dx)-(LOCPLINT->adventureInt->terrain.tilesw/2);
-	int dya = (CGI->mh->sizes.y*dy)-(LOCPLINT->adventureInt->terrain.tilesh/2);
-
-	if (dxa<0)
-		dxa=-(Woff/2);
-	else if((dxa+LOCPLINT->adventureInt->terrain.tilesw)  >  (CGI->mh->sizes.x))
-		dxa=CGI->mh->sizes.x-LOCPLINT->adventureInt->terrain.tilesw+(Woff/2);
-
-	if (dya<0)
-		dya = -(Hoff/2);
-	else if((dya+LOCPLINT->adventureInt->terrain.tilesh)  >  (CGI->mh->sizes.y))
-		dya = CGI->mh->sizes.y-LOCPLINT->adventureInt->terrain.tilesh+(Hoff/2);
-
-	LOCPLINT->adventureInt->position.x=dxa;
-	LOCPLINT->adventureInt->position.y=dya;
-	LOCPLINT->adventureInt->updateScreen=true;
+	int3 newCPos;
+	newCPos.x = (CGI->mh->sizes.x*dx);
+	newCPos.y = (CGI->mh->sizes.y*dy);
+	newCPos.z = LOCPLINT->adventureInt->position.z;
+	LOCPLINT->adventureInt->centerOn(newCPos);
 }
 void CMinimap::hover (bool on)
 {
@@ -602,6 +764,7 @@ nextHero(CGI->preth->advNextHero.first,CGI->preth->advNextHero.second,
 endTurn(CGI->preth->advEndTurn.first,CGI->preth->advEndTurn.second,
 		  &CAdvMapInt::fendTurn, 679, 356, "IAM001.DEF")
 {
+	LOCPLINT->adventureInt=this;
 	bg = CGI->bitmaph->loadBitmap("ADVMAP.bmp");
 	blueToPlayersAdv(bg,player);
 	scrollingLeft = false;
@@ -611,6 +774,9 @@ endTurn(CGI->preth->advEndTurn.first,CGI->preth->advEndTurn.second,
 	updateScreen  = false;
 	anim=0;
 	animValHitCount=0; //animation frame
+
+	heroList.init();
+	heroList.genList();
 	
 	gems.push_back(CGI->spriteh->giveDef("agemLL.def"));
 	gems.push_back(CGI->spriteh->giveDef("agemLR.def"));
@@ -692,6 +858,8 @@ void CAdvMapInt::show()
 
 	minimap.activate();
 	minimap.draw();
+	heroList.activate();
+	heroList.draw();
 
 	statusbar.show();
 
@@ -705,4 +873,29 @@ void CAdvMapInt::update()
 	blitAt(gems[1]->ourImages[LOCPLINT->playerID].bitmap,556,508);
 	blitAt(gems[3]->ourImages[LOCPLINT->playerID].bitmap,556,6);
 	updateRect(&genRect(550,600,6,6));
+}
+
+void CAdvMapInt::centerOn(int3 on)
+{
+	on.x -= (LOCPLINT->adventureInt->terrain.tilesw/2);
+	on.y -= (LOCPLINT->adventureInt->terrain.tilesh/2);
+
+	if (on.x<0)
+		on.x=-(Woff/2);
+	else if((on.x+LOCPLINT->adventureInt->terrain.tilesw)  >  (CGI->mh->sizes.x))
+		on.x=CGI->mh->sizes.x-LOCPLINT->adventureInt->terrain.tilesw+(Woff/2);
+
+	if (on.y<0)
+		on.y = -(Hoff/2);
+	else if((on.y+LOCPLINT->adventureInt->terrain.tilesh)  >  (CGI->mh->sizes.y))
+		on.y = CGI->mh->sizes.y-LOCPLINT->adventureInt->terrain.tilesh+(Hoff/2);
+
+	LOCPLINT->adventureInt->position.x=on.x;
+	LOCPLINT->adventureInt->position.y=on.y;
+	LOCPLINT->adventureInt->updateScreen=true;
+}
+CAdvMapInt::CurrentSelection::CurrentSelection()
+{
+	type=NULL;
+	selected=NULL;
 }

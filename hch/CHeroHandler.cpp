@@ -6,6 +6,7 @@
 #include "CGeneralTextHandler.h"
 #include "CLodHandler.h"
 #include "CAbilityHandler.h"
+#include <cmath>
 
 CHeroHandler::~CHeroHandler()
 {
@@ -342,7 +343,34 @@ unsigned int CHeroInstance::getTileCost(EterrainType & ttype, Eroad & rdtype, Er
 
 unsigned int CHeroHandler::level(unsigned int experience)
 {
-	return 0; //TODO: finish it
+	if (experience==0)
+		return 0; 
+	else if (experience<14700) //level < 10
+	{
+		return (-500+20*sqrt((float)experience+1025))/(200);
+	}
+	else if (experience<24320) //10 - 12
+	{
+		if (experience>20600)
+			return 12;
+		else if (experience>17500)
+			return 11;
+		else return 10;
+	}
+	else //>12
+	{
+		int lvl=12;
+		int xp = 24320; //xp needed for 13 lvl
+		int td = 4464; //diff 14-13
+		float mp = 1.2;
+		while (experience>xp)
+		{
+			xp+=td;
+			td*=mp;
+			lvl++;
+		}
+		return lvl;
+	}
 }
 
 unsigned int CHeroInstance::getLowestCreatureSpeed()

@@ -1,6 +1,6 @@
 #ifndef CADVENTUREMAPINTERFACE_H
 #define CADVENTUREMAPINTERFACE_H
-
+#include <typeinfo>
 #include "SDL.h"
 #include "hch\CDefHandler.h"
 #include "SDL_Extensions.h"
@@ -11,6 +11,8 @@
 #include "global.h"
 #include "CPathfinder.h"
 #include "mapHandler.h"
+
+class CCallback;
 
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase
@@ -34,31 +36,46 @@ public:
 };
 /*****************************/
 class CList 
-	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject
+	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject, public MotionInterested
 {
 public:
 	SDL_Surface * bg;
 	CDefHandler *arrup, *arrdo;
-	SDL_Rect arrupp, arrdop;
+	SDL_Surface *empty, *selection; 
+	SDL_Rect arrupp, arrdop; //positions of arrows
 	int posw, posh; //position width/height
+	int selected, //id of selected position, <0 if none
+		from; 
+	tribool pressed; //true=up; false=down; indeterminate=none
 
 	void clickLeft(tribool down);
 	void activate(); 
 	void deactivate();
+	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
+	virtual void genList()=0;
 	virtual void select(int which)=0;
+	virtual void draw()=0;
 };
 class CHeroList 
 	: public CList
 {
 public:
 	CDefHandler *mobile, *mana;
+	std::vector<const CHeroInstance*> items;
+	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
 
 	CHeroList();
+	void genList();
 	void select(int which);
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void clickLeft(tribool down);
 	void clickRight(tribool down);
 	void hover (bool on);
 	void keyPressed (SDL_KeyboardEvent & key);
+	void updateHList();
+	void redrawAllOne(int which);
+	void draw();
+	void init();
 };
 class CTownList 
 	: public CList
@@ -66,11 +83,14 @@ class CTownList
 public: 
 
 	CTownList();
+	void genList();
 	void select(int which);
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void clickLeft(tribool down);
 	void clickRight(tribool down);
 	void hover (bool on);
 	void keyPressed (SDL_KeyboardEvent & key);
+	void draw();
 };
 class CResourceBar
 	:public ClickableR, public CIntObject
@@ -197,6 +217,14 @@ public:
 	void show(); //shows and activates adv. map interface
 	void update(); //redraws terrain
 
+	void centerOn(int3 on);
+
+	struct CurrentSelection
+	{
+		const type_info* type;
+		const void* selected;
+		CurrentSelection(); //ctor
+	} selection;
 
 };
 #endif //CADVENTUREMAPINTERFACE_H

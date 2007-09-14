@@ -22,6 +22,7 @@ class CGameState
 public:
 	friend CCallback;
 	friend int _tmain(int argc, _TCHAR* argv[]);
+	friend void initGameState(CGameInfo * cgi);
 	friend void CAmbarCendamo::deh3m();
 	CCallback * cb; //for communication between PlayerInterface/AI and GameState
 };

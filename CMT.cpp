@@ -42,6 +42,7 @@
 #include "CScreenHandler.h"
 #include "CPathfinder.h"
 #include "CGameState.h"
+#include "CCallback.h"
 
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -52,7 +53,7 @@
 #endif
 
 #define CHUNK 16384
-const char * NAME = "VCMI 0.3";
+const char * NAME = "VCMI 0.3 \"Tol Galen\"";
 
 /* Compress from file source to file dest until EOF on source.
    def() returns Z_OK on success, Z_MEM_ERROR if memory could not be
@@ -82,37 +83,101 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 //	std::cout<<"powitanie2zc++. Liczba dnia to " << i;
 //}
 
+void initGameState(CGameInfo * cgi)
+{
+	/*************************FOG**OF**WAR******************************************/		
+	for(int k=0; k<CGI->state->players.size(); ++k)
+	{
+		cgi->state->players[k].fogOfWarMap.resize(cgi->ac->map.width);
+		for(int g=0; g<cgi->ac->map.width; ++g)
+			cgi->state->players[k].fogOfWarMap[g].resize(cgi->ac->map.height);
+
+		for(int g=0; g<cgi->ac->map.width; ++g)
+			for(int h=0; h<cgi->ac->map.height; ++h)
+				cgi->state->players[k].fogOfWarMap[g][h].resize(cgi->ac->map.twoLevel+1);
+
+		for(int g=0; g<cgi->ac->map.width; ++g)
+			for(int h=0; h<cgi->ac->map.height; ++h)
+				for(int v=0; v<cgi->ac->map.twoLevel+1; ++v)
+					cgi->state->players[k].fogOfWarMap[g][h][v] = 1;
+	}
+	/*************************HEROES************************************************/
+	for (int i=0; i<cgi->heroh->heroInstances.size();i++) //heroes instances
+	{
+		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->owner<0)
+			continue;
+		CHeroInstance * vhi = new CHeroInstance();
+		*vhi=*(cgi->heroh->heroInstances[i]);
+		if (!vhi->level)
+		{
+			vhi->exp=40+rand()%50;
+			vhi->level = 1;
+		}
+		if (vhi->level>1) ;//TODO dodac um dr, ale potrzebne los
+		if ((!vhi->primSkills.size()) || (vhi->primSkills[0]<0))
+		{
+			if (vhi->primSkills.size()<PRIMARY_SKILLS)
+				vhi->primSkills.resize(PRIMARY_SKILLS);
+			vhi->primSkills[0] = vhi->type->heroClass->initialAttack;
+			vhi->primSkills[1] = vhi->type->heroClass->initialDefence;
+			vhi->primSkills[2] = vhi->type->heroClass->initialPower;
+			vhi->primSkills[3] = vhi->type->heroClass->initialKnowledge;
+			vhi->mana = vhi->primSkills[3]*10;
+		}
+		if (!vhi->name.length())
+		{
+			vhi->name = vhi->type->name;
+		}
+		if (!vhi->biography.length())
+		{
+			vhi->biography = vhi->type->biography;
+		}
+		if (vhi->portrait < 0)
+			vhi->portrait = vhi->type->ID;
+
+		cgi->state->players[vhi->owner].heroes.push_back(vhi);
+
+	}
+	/****************************TOWNS************************************************/
+
+}
+
 int _tmain(int argc, _TCHAR* argv[])
 { 
 
-//int iErr = 0;
-//lua_State *lua = lua_open ();  // Open Lua
-//	LUA_OPEN_LIB(lua, luaopen_base);
-//	LUA_OPEN_LIB(lua, luaopen_io);
-//
-//if ((iErr = luaL_loadfile (lua, "test.lua")) == 0)
-//{
-//	
-//
-//   // Call main...
-//   if ((iErr = lua_pcall (lua, 0, LUA_MULTRET, 0)) == 0)
-//   {    luabind::open(lua);
-//   luabind::module(lua)
-//	[
-//		luabind::def("powitanie",&piszpowitanie2)
-//
-//	];
-//
-//   int ret = luabind::call_function<int>(lua, "helloWorld2");
-//      // Push the function name onto the stack
-//      lua_pushstring (lua, "helloWorld");
-//      // Function is located in the Global Table
-//      lua_gettable (lua, LUA_GLOBALSINDEX);  
-//      lua_pcall (lua, 0, 0, 0);
-//   }
-//
-//}
-//lua_close (lua);
+	//int iErr = 0;
+	//lua_State *lua = lua_open ();  // Open Lua
+	//	LUA_OPEN_LIB(lua, luaopen_base);
+	//	LUA_OPEN_LIB(lua, luaopen_io);
+
+	//if ((iErr = luaL_loadfile (lua, "test.lua")) == 0)
+	//{
+	//	
+
+	//   // Call main...
+	//   if ((iErr = lua_pcall (lua, 0, LUA_MULTRET, 0)) == 0)
+	//   {    
+	//	   luabind::open(lua);
+	//	   luabind::module(lua)
+	//		[
+	//			luabind::def("powitanie",&piszpowitanie2)
+
+	//		];
+
+	//   //int ret = luabind::call_function<int>(lua, "helloWorld2");
+
+	//	  lua_pushstring (lua, "helloWorld2");
+	//	  lua_gettable (lua, LUA_GLOBALSINDEX);  
+	//	  lua_pcall (lua, 0, 0, 0);
+
+	//	  // Push the function name onto the stack
+	//	  lua_pushstring (lua, "helloWorld");
+	//	  lua_gettable (lua, LUA_GLOBALSINDEX);  
+	//	  lua_pcall (lua, 0, 0, 0);
+	//   }
+
+	//}
+	//lua_close (lua);
 
 
 		//CBIKHandler cb;
@@ -141,9 +206,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		//initializing audio
 		CMusicHandler * mush = new CMusicHandler;
 		mush->initMusics();
-		//CSndHandler snd("Heroes3.snd");
+		//CSndHandler snd("Heroes3.snd"); 
 		//snd.extract("AELMMOVE.wav","snddd.wav");
-		//audio initialized
+		//audio initialized 
 
 		/*if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
 		{
@@ -238,6 +303,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
 		cgi->state = new CGameState();
+		cgi->state->cb = new CCallback(cgi->state);
 		cgi->pathf = new CPathfinder();
 		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
 
@@ -266,23 +332,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->ac = ac;
 		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
-		//initializing gamestate
-		for(int k=0; k<CGI->state->players.size(); ++k)
-		{
-			CGI->state->players[k].fogOfWarMap.resize(ac->map.width);
-			for(int g=0; g<ac->map.width; ++g)
-				CGI->state->players[k].fogOfWarMap[g].resize(ac->map.height);
-
-			for(int g=0; g<ac->map.width; ++g)
-				for(int h=0; h<ac->map.height; ++h)
-					CGI->state->players[k].fogOfWarMap[g][h].resize(ac->map.twoLevel+1);
-
-			for(int g=0; g<ac->map.width; ++g)
-				for(int h=0; h<ac->map.height; ++h)
-					for(int v=0; v<ac->map.twoLevel+1; ++v)
-						CGI->state->players[k].fogOfWarMap[g][h][v] = 1;
-		}
-		//gamestate nitialized (at least partially)
 		THC std::cout<<"Detecting file (together): "<<tmh.getDif()<<std::endl;
 		ac->loadDefs();
 		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;
@@ -292,13 +341,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 		mh->init();
 		THC std::cout<<"Initializing mapHandler: "<<tmh.getDif()<<std::endl;
-		//SDL_Rect * sr = new SDL_Rect(); sr->h=64;sr->w=64;sr->x=0;sr->y=0;
-		//SDL_Surface * teren = mh->terrainRect(xx,yy,25,19);
-		//THC std::cout<<"Preparing terrain to display: "<<tmh.getDif()<<std::endl;
-		//SDL_BlitSurface(teren,NULL,ekran,NULL);
-		//SDL_FreeSurface(teren);
-		//SDL_UpdateRect(ekran, 0, 0, ekran->w, ekran->h);
-		//THC std::cout<<"Displaying terrain: "<<tmh.getDif()<<std::endl;
+
+		initGameState(cgi);
+		THC std::cout<<"Initializing GameState: "<<tmh.getDif()<<std::endl;
 
 
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
@@ -310,8 +355,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			//	cgi->playerint.push_back(new CGlobalAI());
 			//else 
 			{
+				cgi->state->currentPlayer=i;
 				cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color,i));
-				((CPlayerInterface*)(cgi->playerint[i]))->init();
+				((CPlayerInterface*)(cgi->playerint[i]))->init(cgi->state->cb);
 			}
 		}
 

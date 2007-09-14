@@ -100,8 +100,9 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	CGI->localPlayer = playerID;
 	human=true;
 }
-void CPlayerInterface::init()
+void CPlayerInterface::init(CCallback * CB)
 {
+	cb = CB;
 	CGI->localPlayer = serialID;
 	adventureInt = new CAdvMapInt(playerID);
 }
@@ -233,6 +234,12 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 	}
 }
+void CPlayerInterface::heroKilled(const CHeroInstance * hero)
+{
+}
+void CPlayerInterface::heroCreated(const CHeroInstance * hero)
+{
+}
 
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 {
@@ -363,7 +370,7 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 		{
 			LOCPLINT->adventureInt->scrollingDown = false;
 		}
-	}
+	} //mousemotion end
 
 	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{

@@ -9,7 +9,8 @@
 BOOST_TRIBOOL_THIRD_STATE(outOfRange)
 using namespace boost::logic;
 class CAdvMapInt;
-
+class CCallback;
+class CHeroInstance;
 struct HeroMoveDetails;
 class CIntObject //interface object
 {
@@ -80,6 +81,8 @@ public:
 	int playerID, serialID;
 
 	virtual void yourTurn()=0{};
+	virtual void heroKilled(const CHeroInstance * hero)=0{};
+	virtual void heroCreated(const CHeroInstance * hero)=0{};
 
 	virtual void heroMoved(const HeroMoveDetails & details)=0;
 };
@@ -87,6 +90,8 @@ class CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
 	virtual void yourTurn(){};
+	virtual void heroKilled(const CHeroInstance * hero){};
+	virtual void heroCreated(const CHeroInstance * hero){};
 };
 class CPlayerInterface : public CGameInterface
 {
@@ -96,6 +101,8 @@ public:
 	FPSmanager * mainFPSmng;
 	//TODO: town interace, battle interface, other interfaces
 
+	CCallback * cb;
+
 	std::vector<ClickableL*> lclickable;
 	std::vector<ClickableR*> rclickable;
 	std::vector<Hoverable*> hoverable;
@@ -104,8 +111,12 @@ public:
 
 	void yourTurn();
 	void heroMoved(const HeroMoveDetails & details);
+	void heroKilled(const CHeroInstance * hero);
+	void heroCreated(const CHeroInstance * hero);
+
+
 	void handleEvent(SDL_Event * sEvent);
-	void init();
+	void init(CCallback * CB);
 
 	CPlayerInterface(int Player, int serial);
 };

@@ -56,12 +56,17 @@ public:
 	int3 pos; //position on adventure map
 	CCreatureSet army; //army
 	int mana; // remaining spell points
+	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
+	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
 	int movement; //remaining movement points
+	bool inTownGarrison; // if hero is in town garrison 
+
 	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);
 	unsigned int getLowestCreatureSpeed();
 	unsigned int getAdditiveMoveBonus();
 	unsigned float getMultiplicativeMoveBonus();
-	//TODO: artifacts, primary and secondary skills, known spells, commander, blessings, curses, morale/luck special modifiers
+
+	//TODO: artifacts, known spells, commander, blessings, curses, morale/luck special modifiers
 };
 
 class CHeroHandler

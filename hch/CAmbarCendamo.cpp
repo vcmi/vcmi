@@ -8,7 +8,7 @@
 #include "CDefObjInfoHandler.h"
 #include "../SDL_Extensions.h"
 #include "boost\filesystem.hpp"
-#include "CGameState.h"
+#include "../CGameState.h"
 #include "CLodHandler.h"
 #include <set>
 #include <iomanip>
@@ -869,6 +869,14 @@ void CAmbarCendamo::deh3m()
 						spec->power = bufor[i]; ++i;
 						spec->knowledge = bufor[i]; ++i;
 					}
+					else
+					{
+						spec->attack = -1;
+						spec->defence = -1;
+						spec->power = -1;
+						spec->knowledge = -1;
+					}
+
 				}
 				i+=16;
 				nobj->info = spec;
@@ -876,6 +884,11 @@ void CAmbarCendamo::deh3m()
 				CHeroInstance * nhi = new CHeroInstance;
 				nhi->exp = spec->experience;
 				nhi->level = CGI->heroh->level(nhi->exp);
+				nhi->primSkills.resize(PRIMARY_SKILLS);
+				nhi->primSkills[0] = spec->attack;
+				nhi->primSkills[1] = spec->defence;
+				nhi->primSkills[2] = spec->power;
+				nhi->primSkills[3] = spec->knowledge;
 				nhi->mana = spec->knowledge * 10;
 				nhi->movement = -1;
 				nhi->name = spec->name;
@@ -883,6 +896,7 @@ void CAmbarCendamo::deh3m()
 				nhi->pos = nobj->pos;
 				nhi->type = spec->type;
 				nhi->army = spec->garrison;
+				nhi->portrait = -1; // TODO: przypisywac portret
 				nhi->ourObject = nobj;
 				CGI->heroh->heroInstances.push_back(nhi);
 				break;

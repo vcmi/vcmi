@@ -39,7 +39,7 @@ public:
 	std::string getDescr(std::string text);
 
 	std::pair<std::string, std::string> //first is statusbar text, second right-click help; they're all for adventure map interface
-		advKingdomOverview, advSurfaceSwitch, advQuestlog, advSleepWake, advMoveHero, advCastSpell, advAdvOptions, advSystemOptions, advNextHero, advEndTurn, //buttons
+		advKingdomOverview, advSurfaceSwitch, advQuestlog, advSleepWake, advMoveHero, advCastSpell, advAdvOptions, advSystemOptions, advNextHero, advEndTurn, advHListUp, advHListDown, //buttons
 		advWorldMap, advStatusWindow1;
 
 	void loadTexts();

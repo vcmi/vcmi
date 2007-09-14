@@ -32,6 +32,7 @@ namespace CSDL_Ext
 	void blueToPlayers(SDL_Surface * sur, int player); //simple color substitution
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //substitute blue color by another one, makes it nicer keeping nuances
 	void setPlayerColor(SDL_Surface * sur, int player); //sets correct color of flags; -1 for neutral
+	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 };
 
 #endif // SDL_EXTENSIONS_H
