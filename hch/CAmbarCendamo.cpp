@@ -532,6 +532,8 @@ void CAmbarCendamo::deh3m()
 		nobj->pos.z = bufor[i++];
 		nobj->defNumber = readNormalNr(i, 4); i+=4;
 		nobj->defObjInfoNumber = -1;
+		nobj->isHero = false;
+		nobj->moveDir = 0;
 
 		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
 		//	std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
@@ -882,6 +884,8 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				//////creating CHeroInstance
 				CHeroInstance * nhi = new CHeroInstance;
+				spec->myInstance = nhi;
+				nobj->isHero = true;
 				nhi->exp = spec->experience;
 				nhi->level = CGI->heroh->level(nhi->exp);
 				nhi->primSkills.resize(PRIMARY_SKILLS);

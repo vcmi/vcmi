@@ -207,6 +207,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	int3 hp = CGI->heroh->heroInstances[details.heroID]->pos;
 	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 	{
+		ho->moveDir = 1;
 		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -31)));
 		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, -31)));
 		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, -31)));
@@ -239,6 +240,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	}
 	else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
 	{
+		ho->moveDir = 2;
 		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, -31)));
 		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, -31)));
 		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, -31)));
@@ -265,6 +267,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
 	{
+		ho->moveDir = 3;
 		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, -31)));
 		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, -31)));
 		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, -31)));
@@ -297,6 +300,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
 	{
+		ho->moveDir = 4;
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 0), ho->id);
@@ -319,6 +323,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
 	{
+		ho->moveDir = 5;
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, -1), ho->id);
@@ -351,6 +356,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	}
 	else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
 	{
+		ho->moveDir = 6;
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1), ho->id);
@@ -377,6 +383,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	}
 	else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
 	{
+		ho->moveDir = 7;
 		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -1)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, -1), ho->id);
@@ -409,6 +416,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	}
 	else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
 	{
+		ho->moveDir = 8;
 		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 0)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 0), ho->id);
@@ -432,7 +440,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//first initializing done
 	SDL_framerateDelay(mainFPSmng); // after first move
 	//main moving
-	for(int i=1; i<32; ++i)
+	for(int i=1; i<32; i+=4)
 	{
 		if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 		{
@@ -722,6 +730,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 	}
 	CGI->heroh->heroInstances[details.heroID]->pos = details.dst; //actualizing hero position
+	ho->moveDir = 0; //move ended
 	//move finished
 }
 void CPlayerInterface::heroKilled(const CHeroInstance * hero)

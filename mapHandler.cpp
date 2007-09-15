@@ -496,13 +496,131 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.y = (by)*32;
 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
-				int imgVal = CGI->ac->map.defy[
-					ttiles[x+bx][y+by][level].objects[h].first->defNumber]
-				.handler->ourImages.size();
-				SDL_Surface * tb = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap;
-				SDL_BlitSurface(
-				CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,
-				&pp,su,&sr);
+				if(ttiles[x+bx][y+by][level].objects[h].first->isHero && ttiles[x+bx][y+by][level].objects[h].first->moveDir)
+				{
+					int imgVal = 8;
+					SDL_Surface * tb;
+					switch(ttiles[x+bx][y+by][level].objects[h].first->moveDir)
+					{
+					case 1:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							for(int gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==10)
+								{
+									tb = iv[gg+anim%imgVal].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							break;
+						}
+					case 2:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							for(int gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==5)
+								{
+									tb = iv[gg+anim%imgVal].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							break;
+						}
+					case 3:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							for(int gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==6)
+								{
+									tb = iv[gg+anim%imgVal].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							break;
+						}
+					case 4:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							for(int gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==7)
+								{
+									tb = iv[gg+anim%imgVal].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							break;
+						}
+					case 5:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							for(int gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==8)
+								{
+									tb = iv[gg+anim%imgVal].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							break;
+						}
+					case 6:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							for(int gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==9)
+								{
+									tb = iv[gg+anim%imgVal].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							break;
+						}
+					case 7:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							for(int gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==12)
+								{
+									tb = iv[gg+anim%imgVal].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							break;
+						}
+					case 8:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							for(int gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==11)
+								{
+									tb = iv[gg+anim%imgVal].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							break;
+						}
+					}
+				}
+				else
+				{
+					int imgVal = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages.size();
+					SDL_BlitSurface(CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
+				}
 			}
 		}
 	}
@@ -823,7 +941,7 @@ int CMapHandler::getCost(int3 &a, int3 &b, CHeroInstance *hero)
 {
 	int ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].malle];
 	if(!(a.x==b.x || a.y==b.y))
-		ret*=1.4142;
+		ret*=1.41421;
 
 	//TODO: use hero's pathfinding skill during calculating cost
 	return ret;

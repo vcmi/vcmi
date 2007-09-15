@@ -6,7 +6,9 @@
 #include "CGeneralTextHandler.h"
 #include "CLodHandler.h"
 #include "CAbilityHandler.h"
+#include "SDL_Extensions.h"
 #include <cmath>
+#include <iomanip>
 
 CHeroHandler::~CHeroHandler()
 {
@@ -310,6 +312,59 @@ void CHeroHandler::loadHeroClasses()
 			++i;
 		}
 		++i;
+		std::stringstream nm;
+		nm<<"AH";
+		nm<<std::setw(2);
+		nm<<std::setfill('0');
+		nm<<heroClasses.size();
+		nm<<"_.DEF";
+		hc->moveAnim = CGI->spriteh->giveDef(nm.str());
+
+		for(int o=0; o<hc->moveAnim->ourImages.size(); ++o)
+		{
+			if(hc->moveAnim->ourImages[o].groupNumber==6)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.imName = std::string();
+					hc->moveAnim->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(hc->moveAnim->ourImages[o].groupNumber==7)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o+e].bitmap);
+					nci.groupNumber = 11;
+					nci.imName = std::string();
+					hc->moveAnim->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(hc->moveAnim->ourImages[o].groupNumber==8)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o+e].bitmap);
+					nci.groupNumber = 12;
+					nci.imName = std::string();
+					hc->moveAnim->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+		}
+
+		for(int ff=0; ff<hc->moveAnim->ourImages.size(); ++ff)
+		{
+			CSDL_Ext::fullAlphaTransform(hc->moveAnim->ourImages[ff].bitmap);
+		}
+		hc->moveAnim->alphaTransformed = true;
 		heroClasses.push_back(hc);
 	}
 }
@@ -386,122 +441,21 @@ unsigned int CHeroInstance::getLowestCreatureSpeed()
 
 void CHeroHandler::initTerrainCosts()
 {
-	for(int i=0; i<heroClasses.size(); ++i)
+	std::ifstream inp;
+	inp.open("TERCOSTS.TXT", std::ios_base::in|std::ios_base::binary);
+	int tynum;
+	inp>>tynum;
+	for(int i=0; i<2*tynum; i+=2)
 	{
-		switch (i)
+		int catNum;
+		inp>>catNum;
+		for(int k=0; k<catNum; ++k)
 		{
-		case EHeroClasses::HERO_KNIGHT: case EHeroClasses::HERO_CLERIC:
-			{
-				heroClasses[i]->terrCosts.push_back(100); //dirt
-				heroClasses[i]->terrCosts.push_back(150); //sand
-				heroClasses[i]->terrCosts.push_back(100); //grass
-				heroClasses[i]->terrCosts.push_back(150); //snow
-				heroClasses[i]->terrCosts.push_back(175); //swamp
-				heroClasses[i]->terrCosts.push_back(125); //rough
-				heroClasses[i]->terrCosts.push_back(100); //subterrain
-				heroClasses[i]->terrCosts.push_back(100); //lava
-				heroClasses[i]->terrCosts.push_back(-1); //water
-				heroClasses[i]->terrCosts.push_back(-1); //rock
-				break;
-			}
-		case EHeroClasses::HERO_RANGER: case EHeroClasses::HERO_DRUID:
-			{
-				heroClasses[i]->terrCosts.push_back(100); //dirt
-				heroClasses[i]->terrCosts.push_back(150); //sand
-				heroClasses[i]->terrCosts.push_back(100); //grass
-				heroClasses[i]->terrCosts.push_back(150); //snow
-				heroClasses[i]->terrCosts.push_back(175); //swamp
-				heroClasses[i]->terrCosts.push_back(125); //rough
-				heroClasses[i]->terrCosts.push_back(100); //subterrain
-				heroClasses[i]->terrCosts.push_back(100); //lava
-				heroClasses[i]->terrCosts.push_back(-1); //water
-				heroClasses[i]->terrCosts.push_back(-1); //rock
-				break;
-			}
-		case EHeroClasses::HERO_ALCHEMIST: case EHeroClasses::HERO_WIZARD:
-			{
-				heroClasses[i]->terrCosts.push_back(100); //dirt
-				heroClasses[i]->terrCosts.push_back(150); //sand
-				heroClasses[i]->terrCosts.push_back(100); //grass
-				heroClasses[i]->terrCosts.push_back(100); //snow
-				heroClasses[i]->terrCosts.push_back(175); //swamp
-				heroClasses[i]->terrCosts.push_back(125); //rough
-				heroClasses[i]->terrCosts.push_back(100); //subterrain
-				heroClasses[i]->terrCosts.push_back(100); //lava
-				heroClasses[i]->terrCosts.push_back(-1); //water
-				heroClasses[i]->terrCosts.push_back(-1); //rock
-				break;
-			}
-		case EHeroClasses::HERO_DEMONIAC: case EHeroClasses::HERO_HERETIC:
-			{
-				heroClasses[i]->terrCosts.push_back(100); //dirt
-				heroClasses[i]->terrCosts.push_back(150); //sand
-				heroClasses[i]->terrCosts.push_back(100); //grass
-				heroClasses[i]->terrCosts.push_back(150); //snow
-				heroClasses[i]->terrCosts.push_back(175); //swamp
-				heroClasses[i]->terrCosts.push_back(125); //rough
-				heroClasses[i]->terrCosts.push_back(100); //subterrain
-				heroClasses[i]->terrCosts.push_back(100); //lava
-				heroClasses[i]->terrCosts.push_back(-1); //water
-				heroClasses[i]->terrCosts.push_back(-1); //rock
-				break;
-			}
-		case EHeroClasses::HERO_DEATHKNIGHT: case EHeroClasses::HERO_NECROMANCER:
-			{
-				heroClasses[i]->terrCosts.push_back(100); //dirt
-				heroClasses[i]->terrCosts.push_back(150); //sand
-				heroClasses[i]->terrCosts.push_back(100); //grass
-				heroClasses[i]->terrCosts.push_back(150); //snow
-				heroClasses[i]->terrCosts.push_back(175); //swamp
-				heroClasses[i]->terrCosts.push_back(125); //rough
-				heroClasses[i]->terrCosts.push_back(100); //subterrain
-				heroClasses[i]->terrCosts.push_back(100); //lava
-				heroClasses[i]->terrCosts.push_back(-1); //water
-				heroClasses[i]->terrCosts.push_back(-1); //rock
-				break;
-			}
-		case EHeroClasses::HERO_WARLOCK: case EHeroClasses::HERO_OVERLORD:
-			{
-				heroClasses[i]->terrCosts.push_back(100); //dirt
-				heroClasses[i]->terrCosts.push_back(150); //sand
-				heroClasses[i]->terrCosts.push_back(100); //grass
-				heroClasses[i]->terrCosts.push_back(150); //snow
-				heroClasses[i]->terrCosts.push_back(175); //swamp
-				heroClasses[i]->terrCosts.push_back(125); //rough
-				heroClasses[i]->terrCosts.push_back(100); //subterrain
-				heroClasses[i]->terrCosts.push_back(100); //lava
-				heroClasses[i]->terrCosts.push_back(-1); //water
-				heroClasses[i]->terrCosts.push_back(-1); //rock
-				break;
-			}
-		case EHeroClasses::HERO_BARBARIAN: case EHeroClasses::HERO_BATTLEMAGE:
-			{
-				heroClasses[i]->terrCosts.push_back(100); //dirt
-				heroClasses[i]->terrCosts.push_back(150); //sand
-				heroClasses[i]->terrCosts.push_back(100); //grass
-				heroClasses[i]->terrCosts.push_back(150); //snow
-				heroClasses[i]->terrCosts.push_back(175); //swamp
-				heroClasses[i]->terrCosts.push_back(100); //rough
-				heroClasses[i]->terrCosts.push_back(100); //subterrain
-				heroClasses[i]->terrCosts.push_back(100); //lava
-				heroClasses[i]->terrCosts.push_back(-1); //water
-				heroClasses[i]->terrCosts.push_back(-1); //rock
-				break;
-			}
-		case EHeroClasses::HERO_BEASTMASTER: case EHeroClasses::HERO_WITCH:
-			{
-				heroClasses[i]->terrCosts.push_back(100); //dirt
-				heroClasses[i]->terrCosts.push_back(150); //sand
-				heroClasses[i]->terrCosts.push_back(100); //grass
-				heroClasses[i]->terrCosts.push_back(150); //snow
-				heroClasses[i]->terrCosts.push_back(100); //swamp
-				heroClasses[i]->terrCosts.push_back(125); //rough
-				heroClasses[i]->terrCosts.push_back(100); //subterrain
-				heroClasses[i]->terrCosts.push_back(100); //lava
-				heroClasses[i]->terrCosts.push_back(-1); //water
-				heroClasses[i]->terrCosts.push_back(-1); //rock
-				break;
-			}
+			int curCost;
+			inp>>curCost;
+			heroClasses[i]->terrCosts.push_back(curCost);
+			heroClasses[i+1]->terrCosts.push_back(curCost);
 		}
 	}
+	inp.close();
 }

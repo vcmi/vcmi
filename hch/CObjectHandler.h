@@ -60,6 +60,7 @@ public:
 	std::vector<CAbility *> abilities; //hero's abilities
 	std::vector<int> abilityLevels; //hero ability levels
 	bool defaultMainStats; //if true attack, defence, power and knowledge are typical
+	CHeroInstance * myInstance; //pointer to appropriate hero instance
 };
 
 class CCreatureObjInfo : public CSpecObjInfo
@@ -295,6 +296,8 @@ public:
 	int id; //number of object in CObjectHandler's vector
 	int3 pos; // position
 	CSpecObjInfo * info; //pointer to something with additional information
+	bool isHero; //true if this is a hero
+	unsigned char moveDir; //direction of hero movement (0 - default; 1 - lt; 2 - t; 3 - tr; 4 - r; 5 - br; 6 - b; 7 - bl; 8 - l)
 	bool operator<(const CObjectInstance & cmp) const;  //screen printing priority comparing
 };
 
