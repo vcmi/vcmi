@@ -33,16 +33,19 @@ bool CCallback::moveHero(int ID, int3 destPoint)
 		curd.owner = CGI->heroh->heroInstances[ID]->owner;
 		//if(CGI->heroh->heroInstances[ID]->movement>=CGI->mh->getCost(stpos, endpos, CGI->heroh->heroInstances[ID]))
 		{ //performing move
-			for(int j=0; j<CGI->state->players.size(); ++j)
+			int nn=0; //number of interfece of currently browsed player
+			for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
 			{
-				if(CGI->state->players[j].fogOfWarMap[stpos.x][stpos.y][stpos.z] || CGI->state->players[j].fogOfWarMap[endpos.x][endpos.y][endpos.z])
+				if(j->second.fogOfWarMap[stpos.x][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x][endpos.y][endpos.z])
 				{ //player should be notified
-					CGI->playerint[j]->heroMoved(curd);
+					CGI->playerint[nn]->heroMoved(curd);
 				}
+				++nn;
+				break; //for testing only
 			}
 		}
 		//else
-			return true; //move ended - no more movement points
+			//return true; //move ended - no more movement points
 	}
 	return true;
 }

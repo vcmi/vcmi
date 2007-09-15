@@ -8,6 +8,14 @@
 #include "CCursorHandler.h"
 #include "CCallback.h"
 using namespace CSDL_Ext;
+class OCM_HLP_CGIN
+{
+public:
+	bool operator ()(const std::pair<CObjectInstance *, SDL_Rect> & a, const std::pair<CObjectInstance *, SDL_Rect> & b) const
+	{
+		return (*a.first)<(*b.first);
+	}
+} ocmptwo_cgin ;
 CButtonBase::CButtonBase()
 {
 	curimg=0;
@@ -178,61 +186,543 @@ void CPlayerInterface::yourTurn()
 	}
 }
 
+inline void subRect(const int & x, const int & y, const int & z, SDL_Rect & r, const int & hid)
+{
+	for(int h=0; h<CGI->mh->ttiles[x][y][z].objects.size(); ++h)
+		if(CGI->mh->ttiles[x][y][z].objects[h].first->id==hid)
+			CGI->mh->ttiles[x][y][z].objects[h].second = r;
+}
+
+inline void delObjRect(const int & x, const int & y, const int & z, const int & hid)
+{
+	for(int h=0; h<CGI->mh->ttiles[x][y][z].objects.size(); ++h)
+		if(CGI->mh->ttiles[x][y][z].objects[h].first->id==hid)
+			CGI->mh->ttiles[x][y][z].objects.erase(CGI->mh->ttiles[x][y][z].objects.begin()+h);
+}
+
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
 	//initializing objects and performing first step of move
 	CObjectInstance * ho = CGI->heroh->heroInstances[details.heroID]->ourObject; //object representing this hero
+	int3 hp = CGI->heroh->heroInstances[details.heroID]->pos;
 	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 	{
+		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -31)));
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, -31)));
+
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 1)));
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 1), ho->id);
+
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 33)));
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 33), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 33), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 33), ho->id);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
 	{
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, -31)));
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33), ho->id);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
 	{
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, -31)));
+		CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -31)));
+
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 1), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 1)));
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 33), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 33), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 33), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 33)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
 	{
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 0), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 0)));
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 32), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 32), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 32), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 32)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
 	{
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, -1), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -1)));
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 31), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 31), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 31), ho->id);
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 31)));
+
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, 63)));
+		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 63)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
 	{
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1), ho->id);
+
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31), ho->id);
+
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, 63)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
 	{
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -1)));
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, -1), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, -1), ho->id);
+
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 31)));
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 31), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 31), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 31), ho->id);
+
+		CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 63)));
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, 63)));
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
 	{
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 0)));
+		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
+		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 0), ho->id);
+		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 0), ho->id);
+
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 32)));
+		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 32), ho->id);
+		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 32), ho->id);
+		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 32), ho->id);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
-	for(int i=0; i<32; ++i)
+	//first initializing done
+	SDL_framerateDelay(mainFPSmng); // after first move
+	//main moving
+	for(int i=1; i<32; ++i)
 	{
 		if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 		{
+			subRect(hp.x-3, hp.y-2, hp.z, genRect(32, 32, -31+i, -31+i), ho->id);
+			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 1+i, -31+i), ho->id);
+			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 33+i, -31+i), ho->id);
+			subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 65+i, -31+i), ho->id);
+
+			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 1+i), ho->id);
+			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 1+i), ho->id);
+			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 1+i), ho->id);
+			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 1+i), ho->id);
+
+			subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 33+i), ho->id);
+			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 33+i), ho->id);
+			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 33+i), ho->id);
+			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 33+i), ho->id);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		}
 		else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
 		{
+			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 0, -31+i), ho->id);
+			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 32, -31+i), ho->id);
+			subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 64, -31+i), ho->id);
+
+			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1+i), ho->id);
+			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1+i), ho->id);
+			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, 1+i), ho->id);
+
+			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33+i), ho->id);
+			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33+i), ho->id);
+			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33+i), ho->id);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
 		{
+			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, -1-i, -31+i), ho->id);
+			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 31-i, -31+i), ho->id);
+			subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 63-i, -31+i), ho->id);
+			subRect(hp.x+1, hp.y-2, hp.z, genRect(32, 32, 95-i, -31+i), ho->id);
+
+			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 1+i), ho->id);
+			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 1+i), ho->id);
+			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 1+i), ho->id);
+			subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 1+i), ho->id);
+
+			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 33+i), ho->id);
+			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 33+i), ho->id);
+			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 33+i), ho->id);
+			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 33+i), ho->id);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
 		{
+			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 0), ho->id);
+			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 0), ho->id);
+			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 0), ho->id);
+			subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, 0), ho->id);
+
+			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 32), ho->id);
+			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 32), ho->id);
+			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 32), ho->id);
+			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 32), ho->id);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
 		{
+			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, -1-i), ho->id);
+			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, -1-i), ho->id);
+			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, -1-i), ho->id);
+			subRect(hp.x+1, hp.y-1, hp.z, genRect(32, 32, 95-i, -1-i), ho->id);
+
+			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1-i, 31-i), ho->id);
+			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 31-i), ho->id);
+			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 31-i), ho->id);
+			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 31-i), ho->id);
+
+			subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, -1-i, 63-i), ho->id);
+			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 31-i, 63-i), ho->id);
+			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 63-i, 63-i), ho->id);
+			subRect(hp.x+1, hp.y+1, hp.z, genRect(32, 32, 95-i, 63-i), ho->id);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 		}
 		else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
 		{
+			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1-i), ho->id);
+			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1-i), ho->id);
+			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1-i), ho->id);
+
+			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 31-i), ho->id);
+			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31-i), ho->id);
+			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31-i), ho->id);
+
+			subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 0, 63-i), ho->id);
+			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 32, 63-i), ho->id);
+			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 64, 63-i), ho->id);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 		}
 		else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
 		{
+			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, -1-i), ho->id);
+			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, -1-i), ho->id);
+			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, -1-i), ho->id);
+			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, -1-i), ho->id);
+
+			subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 31-i), ho->id);
+			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 31-i), ho->id);
+			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 31-i), ho->id);
+			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 31-i), ho->id);
+
+			subRect(hp.x-3, hp.y+1, hp.z, genRect(32, 32, -31+i, 63-i), ho->id);
+			subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 1+i, 63-i), ho->id);
+			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 33+i, 63-i), ho->id);
+			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 65+i, 63-i), ho->id);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 		}
 		else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
 		{
+			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 0), ho->id);
+			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 0), ho->id);
+			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 0), ho->id);
+			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65+i, 0), ho->id);
+
+			subRect(hp.x-3, hp.y, hp.z, genRect(32, 32, -31+i, 32), ho->id);
+			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 32), ho->id);
+			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 32), ho->id);
+			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
+
+			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
+			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		}
+		LOCPLINT->adventureInt->update(); //updating screen
+		SDL_framerateDelay(mainFPSmng); //for animation purposes
 	}
+	//main moving done
+	//finishing move
+	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
+	{
+		delObjRect(hp.x, hp.y-2, hp.z, ho->id);
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-3, hp.y, hp.z, ho->id);
+	}
+	else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
+	{
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+	}
+	else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
+	{
+		delObjRect(hp.x-2, hp.y-2, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x+1, hp.y, hp.z, ho->id);
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+	}
+	else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
+	{
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+	}
+	else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
+	{
+		delObjRect(hp.x-2, hp.y+1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
+		delObjRect(hp.x+1, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+	}
+	else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
+	{
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+	}
+	else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
+	{
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x-3, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+		delObjRect(hp.x, hp.y+1, hp.z, ho->id);
+	}
+	else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
+	{
+		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
+		delObjRect(hp.x, hp.y, hp.z, ho->id);
+	}
+	CGI->heroh->heroInstances[details.heroID]->pos = details.dst; //actualizing hero position
+	//move finished
 }
 void CPlayerInterface::heroKilled(const CHeroInstance * hero)
 {

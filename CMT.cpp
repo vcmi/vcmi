@@ -85,22 +85,7 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
 void initGameState(CGameInfo * cgi)
 {
-	/*************************FOG**OF**WAR******************************************/		
-	for(int k=0; k<CGI->state->players.size(); ++k)
-	{
-		cgi->state->players[k].fogOfWarMap.resize(cgi->ac->map.width);
-		for(int g=0; g<cgi->ac->map.width; ++g)
-			cgi->state->players[k].fogOfWarMap[g].resize(cgi->ac->map.height);
-
-		for(int g=0; g<cgi->ac->map.width; ++g)
-			for(int h=0; h<cgi->ac->map.height; ++h)
-				cgi->state->players[k].fogOfWarMap[g][h].resize(cgi->ac->map.twoLevel+1);
-
-		for(int g=0; g<cgi->ac->map.width; ++g)
-			for(int h=0; h<cgi->ac->map.height; ++h)
-				for(int v=0; v<cgi->ac->map.twoLevel+1; ++v)
-					cgi->state->players[k].fogOfWarMap[g][h][v] = 1;
-	}
+	cgi->state->currentPlayer = 0;
 	/*************************HEROES************************************************/
 	for (int i=0; i<cgi->heroh->heroInstances.size();i++) //heroes instances
 	{
@@ -137,6 +122,22 @@ void initGameState(CGameInfo * cgi)
 
 		cgi->state->players[vhi->owner].heroes.push_back(vhi);
 
+	}
+	/*************************FOG**OF**WAR******************************************/		
+	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
+	{
+		k->second.fogOfWarMap.resize(cgi->ac->map.width);
+		for(int g=0; g<cgi->ac->map.width; ++g)
+			k->second.fogOfWarMap[g].resize(cgi->ac->map.height);
+
+		for(int g=0; g<cgi->ac->map.width; ++g)
+			for(int h=0; h<cgi->ac->map.height; ++h)
+				k->second.fogOfWarMap[g][h].resize(cgi->ac->map.twoLevel+1);
+
+		for(int g=0; g<cgi->ac->map.width; ++g)
+			for(int h=0; h<cgi->ac->map.height; ++h)
+				for(int v=0; v<cgi->ac->map.twoLevel+1; ++v)
+					k->second.fogOfWarMap[g][h][v] = 1;
 	}
 	/****************************TOWNS************************************************/
 
@@ -303,6 +304,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
 		cgi->state = new CGameState();
+		cgi->state->players = std::map<int, PlayerState>();
 		cgi->state->cb = new CCallback(cgi->state);
 		cgi->pathf = new CPathfinder();
 		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
