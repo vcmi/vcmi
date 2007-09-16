@@ -18,6 +18,7 @@ struct StartInfo
 		int handicap;//0-no, 1-mild, 2-severe
 		std::string name;
 	};
+	int difficulty; //0=easy; 4=impossible
 	std::vector<PlayerSettings> playerInfos;
 	int turnTime; //in minutes, 0=unlimited
 	PlayerSettings & getIthPlayersSettings(int no)

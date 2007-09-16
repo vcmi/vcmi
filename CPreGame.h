@@ -258,7 +258,7 @@ public:
 	menuItems * currentItems();
 	void(CPreGame::*handleOther)(SDL_Event&);
 	void scenHandleEv(SDL_Event& sEvent);
-	void begin(){run=false;};
+	void begin(){run=false;ret.difficulty=ourScenSel->selectedDiff;};
 	void quitAskBox();
 	void quit(){exit(0);};  
 	void initScenSel(); 

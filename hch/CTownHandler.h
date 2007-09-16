@@ -15,7 +15,8 @@ class CHero;
 class CTown
 {
 public:
-	std::string name;
+	std::string name; //name of type
+	std::vector<std::string> names; //names of the town instances
 	int bonus; //pic number
 };
 

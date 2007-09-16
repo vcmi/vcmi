@@ -22,6 +22,7 @@ public:
 
 	int howManyHeroes(int player);
 	const CHeroInstance * getHeroInfo(int player, int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
+	int getResourceAmount(int type);
 };
 
 #endif //CCALLBACK_H

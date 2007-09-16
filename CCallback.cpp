@@ -73,3 +73,7 @@ const CHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //m
 	}
 	return NULL;
 }
+int CCallback::getResourceAmount(int type)
+{
+	return gs->players[gs->currentPlayer].resources[type];
+}

@@ -85,7 +85,32 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
 void initGameState(CGameInfo * cgi)
 {
-	cgi->state->currentPlayer = 0;
+	/******************RESOURCES****************************************************/
+	//TODO: zeby komputer dostawal inaczej niz gracz
+	std::vector<int> startres;
+	std::ifstream tis("config/startres.txt");
+	int k;
+	for (int j=0;j<cgi->scenarioOps.difficulty;j++)
+	{
+		tis >> k;
+		for (int z=0;z<RESOURCE_QUANTITY;z++)
+			tis>>k;
+	}
+	tis >> k;
+	for (int i=0;i<RESOURCE_QUANTITY;i++)
+	{
+		tis >> k;
+		startres.push_back(k);
+	}
+	tis.close();
+	for (std::map<int,PlayerState>::iterator i = cgi->state->players.begin(); i!=cgi->state->players.end(); i++)
+	{
+		(*i).second.resources.resize(RESOURCE_QUANTITY);
+		for (int x=0;x<RESOURCE_QUANTITY;x++)
+			(*i).second.resources[x] = startres[x];
+
+	}
+
 	/*************************HEROES************************************************/
 	for (int i=0; i<cgi->heroh->heroInstances.size();i++) //heroes instances
 	{

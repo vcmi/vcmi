@@ -1,0 +1,8 @@
+0	30	15	30	15	15	15	30000	0
+1	20	10	20	10	10	10	20000	0
+2	15	7	15	7	7	7	15000	0
+3	10	4	10	4	4	4	10000	0
+4	0	0	0	0	0	0	0	0
+
+Resources on start. Format:
+Difficulty	wood	mercury	ore	sulfur	crystal	gems	gold	mithril

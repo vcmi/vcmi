@@ -159,6 +159,21 @@ public:
 	void keyPressed (SDL_KeyboardEvent & key);
 	void show();
 };
+class CResDataBar
+	:public ClickableR, public virtual CIntObject
+{
+public:
+	SDL_Surface * bg;
+	std::vector<std::pair<int,int> > txtpos;
+
+	void clickRight (tribool down);
+	void activate(); 
+	void deactivate();
+	CResDataBar();
+	~CResDataBar();
+
+	void draw();
+};
 /*****************************/
 class CAdvMapInt //adventure map interface
 {
@@ -198,6 +213,7 @@ public:
 	CTerrainRect terrain; //visible terrain
 
 	CStatusBar statusbar;
+	CResDataBar resdatabar;
 	
 	CHeroList heroList;
 	CTownList townList;

@@ -21,7 +21,7 @@ CHeroHandler::~CHeroHandler()
 }
 void CHeroHandler::loadPortraits()
 {
-	std::ifstream of("portrety.txt");
+	std::ifstream of("config/portrety.txt");
 	for (int j=0;j<heroes.size();j++)
 	{
 		int ID;

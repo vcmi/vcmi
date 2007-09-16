@@ -14,12 +14,19 @@ CTownHandler::~CTownHandler()
 }
 void CTownHandler::loadNames()
 {
-	std::istringstream ins;
+	std::istringstream ins, names;
 	ins.str(CGI->bitmaph->getTextFile("TOWNTYPE.TXT"));
+	names.str(CGI->bitmaph->getTextFile("TOWNNAME.TXT"));
 	while (!ins.eof())
 	{
 		CTown town;
 		ins >> town.name;
+		char bufname[50];
+		for (int i=0; i<NAMES_PER_TOWN; i++)
+		{
+			names.getline(bufname,50);
+			town.names.push_back(std::string(bufname));
+		}
 		town.bonus=towns.size();
 		if (town.bonus==8) town.bonus=3; 
 		if (town.name.length())

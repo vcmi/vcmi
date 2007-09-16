@@ -385,7 +385,7 @@ CMinimap::CMinimap(bool draw)
 	pos.y=26;
 	pos.h=pos.w=144;
 	radar = CGI->spriteh->giveDef("RADAR.DEF");
-	std::ifstream is("minimap.txt",std::ifstream::in);
+	std::ifstream is("config/minimap.txt",std::ifstream::in);
 	for (int i=0;i<TERRAIN_TYPES;i++)
 	{
 		std::pair<int,SDL_Color> vinya;
@@ -451,7 +451,10 @@ void CMinimap::clickLeft (tribool down)
 	if (down && (!pressedL))
 		MotionInterested::activate();
 	else if (!down)
-		MotionInterested::deactivate();
+	{
+		if (std::find(LOCPLINT->motioninterested.begin(),LOCPLINT->motioninterested.end(),this)!=LOCPLINT->motioninterested.end())
+			MotionInterested::deactivate();
+	}
 	ClickableL::clickLeft(down);
 	if (!((bool)down))
 		return;
@@ -734,6 +737,46 @@ void CTerrainRect::show()
 	} // if (currentPath)
 }
 
+
+void CResDataBar::clickRight (tribool down)
+{
+}
+void CResDataBar::activate()
+{
+	ClickableR::activate();
+}
+void CResDataBar::deactivate()
+{
+	ClickableR::deactivate();
+}
+CResDataBar::CResDataBar()
+{
+	bg = CGI->bitmaph->loadBitmap("ZRESBAR.bmp");
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	blueToPlayersAdv(bg,LOCPLINT->playerID);
+	pos = genRect(bg->h,bg->w,3,575);
+
+	txtpos  +=  (std::pair<int,int>(35,577)),(std::pair<int,int>(120,577)),(std::pair<int,int>(205,577)),
+		(std::pair<int,int>(290,577)),(std::pair<int,int>(375,577)),(std::pair<int,int>(460,577)),(std::pair<int,int>(545,577));
+
+}
+CResDataBar::~CResDataBar()
+{
+	SDL_FreeSurface(bg);
+}
+void CResDataBar::draw()
+{
+	blitAt(bg,pos.x,pos.y);
+	char * buf = new char[15];
+	for (int i=0;i<7;i++)
+	{
+		itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
+		printAt(buf,txtpos[i].first,txtpos[i].second,GEOR13,zwykly);
+	}
+	delete buf;
+	updateRect(&pos,ekran);
+}
+
 CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(7,556),
@@ -863,6 +906,8 @@ void CAdvMapInt::show()
 	minimap.draw();
 	heroList.activate();
 	heroList.draw();
+
+	resdatabar.draw();
 
 	statusbar.show();
 
