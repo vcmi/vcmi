@@ -530,6 +530,8 @@ void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
 
 void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player)
 {
+	if(player==1) //it is actually blue...
+		return;
 	if(sur->format->BitsPerPixel == 8)
 	{
 		for(int i=0; i<sur->format->palette->ncolors; ++i)
@@ -615,6 +617,29 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player)
 							(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
 						}
 					}
+				}
+			}
+		}
+	}
+}
+
+void CSDL_Ext::blueToPlayersNice(SDL_Surface * sur, int player) //incomplete, TODO: finish
+{
+	if(sur->format->BitsPerPixel==8)
+	{
+		for(int a=0; a<sur->format->palette->ncolors; ++a)
+		{
+			for(int s=0; s<CGI->playerColorInfo[0]->ourImages[1].bitmap->format->palette->ncolors; ++s)
+			{
+				if(abs((sur->format->palette->colors+a)->b - (CGI->playerColorInfo[0]->ourImages[1].bitmap->format->palette->colors+s)->b) < 5
+					&& abs((sur->format->palette->colors+a)->g - (CGI->playerColorInfo[0]->ourImages[1].bitmap->format->palette->colors+s)->g) < 5
+					&& abs((sur->format->palette->colors+a)->r - (CGI->playerColorInfo[0]->ourImages[1].bitmap->format->palette->colors+s)->r) < 5
+					)
+				{
+					(sur->format->palette->colors+a)->b = (CGI->playerColorInfo[0]->ourImages[player].bitmap->format->palette->colors+s)->b;
+					(sur->format->palette->colors+a)->r = (CGI->playerColorInfo[0]->ourImages[player].bitmap->format->palette->colors+s)->g;
+					(sur->format->palette->colors+a)->g = (CGI->playerColorInfo[0]->ourImages[player].bitmap->format->palette->colors+s)->r;
+					break;
 				}
 			}
 		}

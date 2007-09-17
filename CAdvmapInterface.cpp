@@ -754,6 +754,7 @@ CResDataBar::CResDataBar()
 	bg = CGI->bitmaph->loadBitmap("ZRESBAR.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	blueToPlayersAdv(bg,LOCPLINT->playerID);
+	//blueToPlayersNice(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,3,575);
 
 	txtpos  +=  (std::pair<int,int>(35,577)),(std::pair<int,int>(120,577)),(std::pair<int,int>(205,577)),

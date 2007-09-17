@@ -31,6 +31,7 @@ class CGameState;
 class CMapHandler;
 class CGameInterface;
 class CPreGame;
+class CDefHandler;
 /*
 	CGameInfo class
 	for allowing different functions for modifying game informations
@@ -64,6 +65,7 @@ public:
 	int localPlayer;
 	std::vector<CGameInterface *> playerint;
 	std::vector<SDL_Color> playerColors;
+	std::vector<CDefHandler *> playerColorInfo; //gems from adventure map interface
 	SDL_Color neutralColor;
 	StartInfo scenarioOps;
 };

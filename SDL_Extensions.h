@@ -31,6 +31,7 @@ namespace CSDL_Ext
 	void update(SDL_Surface * what = ekran); //updates whole surface (default - main screen)
 	void blueToPlayers(SDL_Surface * sur, int player); //simple color substitution
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //substitute blue color by another one, makes it nicer keeping nuances
+	void blueToPlayersNice(SDL_Surface * sur, int player); //uses interface gems to substitute colours
 	void setPlayerColor(SDL_Surface * sur, int player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
 };
