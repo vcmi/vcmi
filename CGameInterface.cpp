@@ -669,6 +669,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		}
 		LOCPLINT->adventureInt->update(); //updating screen
+		CGI->screenh->updateScreen();
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
 	}
 	//main moving done

@@ -18,6 +18,8 @@ CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO
 		{
 			graph[i][j] = new CPathNode;
 			graph[i][j]->accesible = !CGI->mh->ttiles[i][j][src.z].blocked;
+			if(i==dest.x && j==dest.y && CGI->mh->ttiles[i][j][src.z].visitable)
+				graph[i][j]->accesible = true; //for allowing visiting objects
 			graph[i][j]->dist = -1;
 			graph[i][j]->theNodeBefore = NULL;
 			graph[i][j]->visited = false;
