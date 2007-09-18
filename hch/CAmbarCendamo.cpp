@@ -1503,6 +1503,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				//////////// rewriting info to CTownInstance class /////////////////////
 				CTownInstance * nt = new CTownInstance;
+				nt->owner = spec->player;
 				nt->type = CTownHandler::getTypeByDefName(map.defy[nobj->defNumber].name);
 				nt->builded = 0;
 				nt->destroyed = 0;
@@ -1512,7 +1513,7 @@ void CAmbarCendamo::deh3m()
 				nt->pos = int3(spec->x, spec->y, spec->z);
 				nt->possibleSpells = spec->possibleSpells;
 				nt->obligatorySpells = spec->obligatorySpells;
-				CGI->state->players[spec->player].towns.push_back(nt);
+				CGI->townh->townInstances.push_back(nt);
 				break;
 			}
 		case EDefType::PLAYERONLY_DEF:

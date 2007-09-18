@@ -3,8 +3,13 @@
 #include "hch\CLodHandler.h"
 #include "hch\CPreGameTextHandler.h"
 #include "hch\CGeneralTextHandler.h"
+#include "hch\CTownHandler.h"
+#include "CPathfinder.h"
+#include "CGameInfo.h"
+#include "SDL_Extensions.h"
 #include "CCallback.h"
 #include <boost/assign/std/vector.hpp>
+#include "mapHandler.h"
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
@@ -281,7 +286,8 @@ void CHeroList::keyPressed (SDL_KeyboardEvent & key)
 {
 }
 void CHeroList::draw()
-{	for (int iT=0+from;iT<5+from;iT++)
+{	
+	for (int iT=0+from;iT<5+from;iT++)
 	{
 		int i = iT-from;
 		if (iT>=items.size())
@@ -322,9 +328,24 @@ CTownList::CTownList()
 	pos = genRect(192,48,747,196);
 	arrup = CGI->spriteh->giveDef("IAM014.DEF");
 	arrdo = CGI->spriteh->giveDef("IAM015.DEF");
+
+	arrupp.x=747;
+	arrupp.y=196;
+	arrdop.x=747;
+	arrdop.y=372;
+	posporx = 747;
+	pospory = 211;
+
+	from = 0;
+	
 }
 void CTownList::genList()
 {
+	int howMany = LOCPLINT->cb->howManyTowns();
+	for (int i=0;i<howMany;i++)
+	{
+		items.push_back(LOCPLINT->cb->getTownInfo(i,0));
+	}
 }
 void CTownList::select(int which)
 {
@@ -345,7 +366,33 @@ void CTownList::keyPressed (SDL_KeyboardEvent & key)
 {
 }
 void CTownList::draw()
-{
+{	
+	for (int iT=0+from;iT<5+from;iT++)
+	{
+		int i = iT-from;
+		if (iT>=items.size())
+		{
+			blitAtWR(CGI->townh->getPic(-1),posporx,pospory+i*32);
+			continue;
+		}
+
+		blitAtWR(CGI->townh->getPic(items[i]->type),posporx,pospory+i*32);
+
+		if (selected == iT)
+		{
+			blitAtWR(CGI->townh->getPic(-2),posporx,pospory+i*32);
+		}
+		//TODO: dodac oznaczanie zbudowania w danej turze i posiadania fortu
+	}
+	if (from>0)
+		blitAtWR(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+	else
+		blitAtWR(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
+
+	if (items.size()-from>5)
+		blitAtWR(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+	else
+		blitAtWR(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
 }
 CStatusBar::CStatusBar(int x, int y)
 {
@@ -758,7 +805,10 @@ CResDataBar::CResDataBar()
 	pos = genRect(bg->h,bg->w,3,575);
 
 	txtpos  +=  (std::pair<int,int>(35,577)),(std::pair<int,int>(120,577)),(std::pair<int,int>(205,577)),
-		(std::pair<int,int>(290,577)),(std::pair<int,int>(375,577)),(std::pair<int,int>(460,577)),(std::pair<int,int>(545,577));
+		(std::pair<int,int>(290,577)),(std::pair<int,int>(375,577)),(std::pair<int,int>(460,577)),
+		(std::pair<int,int>(545,577)),(std::pair<int,int>(620,577));
+	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63] + ": %s, " +
+		CGI->generaltexth->allTexts[64] + ": %s";
 
 }
 CResDataBar::~CResDataBar()
@@ -774,8 +824,14 @@ void CResDataBar::draw()
 		itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
 		printAt(buf,txtpos[i].first,txtpos[i].second,GEOR13,zwykly);
 	}
-	delete buf;
+	std::vector<std::string> temp;
+	itoa(LOCPLINT->cb->getDate(3),buf,10); temp+=std::string(buf);
+	itoa(LOCPLINT->cb->getDate(2),buf,10); temp+=std::string(buf);
+	itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
+	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,GEOR13,zwykly);
+	temp.clear();
 	updateRect(&pos,ekran);
+	delete buf;
 }
 
 CAdvMapInt::CAdvMapInt(int Player)
@@ -824,6 +880,8 @@ endTurn(CGI->preth->advEndTurn.first,CGI->preth->advEndTurn.second,
 
 	heroList.init();
 	heroList.genList();
+	//townList.init();
+	townList.genList();
 	
 	gems.push_back(CGI->spriteh->giveDef("agemLL.def"));
 	gems.push_back(CGI->spriteh->giveDef("agemLR.def"));
@@ -907,6 +965,8 @@ void CAdvMapInt::show()
 	minimap.draw();
 	heroList.activate();
 	heroList.draw();
+	townList.activate();
+	townList.draw();
 
 	resdatabar.draw();
 

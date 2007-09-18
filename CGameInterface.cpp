@@ -2,11 +2,13 @@
 #include "CGameInterface.h"
 #include "CAdvMapInterface.h"
 #include "CMessage.h"
+#include "mapHandler.h"
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
 #include "CScreenHandler.h"
 #include "CCursorHandler.h"
 #include "CCallback.h"
+#include "SDL_Extensions.h"
 using namespace CSDL_Ext;
 class OCM_HLP_CGIN
 {
@@ -730,6 +732,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 	}
 	CGI->heroh->heroInstances[details.heroID]->pos = details.dst; //actualizing hero position
+	CGI->heroh->heroInstances[details.heroID]->ourObject->pos = details.dst; //copy of hero's position
 	ho->moveDir = 0; //move ended
 	//move finished
 }

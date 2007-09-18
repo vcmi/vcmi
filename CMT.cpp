@@ -55,12 +55,6 @@
 #define CHUNK 16384
 const char * NAME = "VCMI 0.3 \"Tol Galen\"";
 
-/* Compress from file source to file dest until EOF on source.
-   def() returns Z_OK on success, Z_MEM_ERROR if memory could not be
-   allocated for processing, Z_STREAM_ERROR if an invalid compression
-   level is supplied, Z_VERSION_ERROR if the version of zlib.h and the
-   version of the library linked do not match, or Z_ERRNO if there is
-   an error reading or writing the files. */
 SDL_Surface * ekran, * screen, * screen2;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
@@ -85,10 +79,43 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
 void initGameState(CGameInfo * cgi)
 {
+	cgi->state->day=1;
+	/*********creating players entries in gs****************************************/
+	for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++)
+	{
+		std::pair<int,PlayerState> ins(cgi->scenarioOps.playerInfos[i].color,PlayerState());
+		cgi->state->players.insert(ins);
+	}
+	/******************RESOURCES****************************************************/
+	//TODO: zeby komputer dostawal inaczej niz gracz
+	std::vector<int> startres;
+	std::ifstream tis("config/startres.txt");
+	int k;
+	for (int j=0;j<cgi->scenarioOps.difficulty;j++)
+	{
+		tis >> k;
+		for (int z=0;z<RESOURCE_QUANTITY;z++)
+			tis>>k;
+	}
+	tis >> k;
+	for (int i=0;i<RESOURCE_QUANTITY;i++)
+	{
+		tis >> k;
+		startres.push_back(k);
+	}
+	tis.close();
+	for (std::map<int,PlayerState>::iterator i = cgi->state->players.begin(); i!=cgi->state->players.end(); i++)
+	{
+		(*i).second.resources.resize(RESOURCE_QUANTITY);
+		for (int x=0;x<RESOURCE_QUANTITY;x++)
+			(*i).second.resources[x] = startres[x];
+
+	}
+
 	/*************************HEROES************************************************/
 	for (int i=0; i<cgi->heroh->heroInstances.size();i++) //heroes instances
 	{
-		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->owner<0 || cgi->heroh->heroInstances[i]->owner==255)
+		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->owner<0)
 			continue;
 		CHeroInstance * vhi = new CHeroInstance();
 		*vhi=*(cgi->heroh->heroInstances[i]);
@@ -122,31 +149,6 @@ void initGameState(CGameInfo * cgi)
 		cgi->state->players[vhi->owner].heroes.push_back(vhi);
 
 	}
-	/******************RESOURCES****************************************************/
-	//TODO: zeby komputer dostawal inaczej niz gracz
-	std::vector<int> startres;
-	std::ifstream tis("config/startres.txt");
-	int k;
-	for (int j=0;j<cgi->scenarioOps.difficulty;j++)
-	{
-		tis >> k;
-		for (int z=0;z<RESOURCE_QUANTITY;z++)
-			tis>>k;
-	}
-	tis >> k;
-	for (int i=0;i<RESOURCE_QUANTITY;i++)
-	{
-		tis >> k;
-		startres.push_back(k);
-	}
-	tis.close();
-	for (std::map<int,PlayerState>::iterator i = cgi->state->players.begin(); i!=cgi->state->players.end(); i++)
-	{
-		(*i).second.resources.resize(RESOURCE_QUANTITY);
-		for (int x=0;x<RESOURCE_QUANTITY;x++)
-			(*i).second.resources[x] = startres[x];
-
-	}
 	/*************************FOG**OF**WAR******************************************/		
 	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
 	{
@@ -164,7 +166,14 @@ void initGameState(CGameInfo * cgi)
 					k->second.fogOfWarMap[g][h][v] = 1;
 	}
 	/****************************TOWNS************************************************/
+	for (int i=0;i<cgi->townh->townInstances.size();i++)
+	{
+		CTownInstance * vti = new CTownInstance();
+		(*vti)=*(cgi->townh->townInstances[i]);
 
+		
+		cgi->state->players[vti->owner].towns.push_back(vti);
+	}
 }
 
 int _tmain(int argc, _TCHAR* argv[])
@@ -228,13 +237,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
 		GEORM = TTF_OpenFont("Fonts\\georgia.ttf",10);
 
-		//initializing audio
-		CMusicHandler * mush = new CMusicHandler;
+		CMusicHandler * mush = new CMusicHandler;  //initializing audio
 		mush->initMusics();
-		//CSndHandler snd("Heroes3.snd"); 
-		//snd.extract("AELMMOVE.wav","snddd.wav");
 		//audio initialized 
-
 		/*if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
 		{
 			printf("Mix_PlayMusic: %s\n", Mix_GetError());
@@ -287,8 +292,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->playerColors.push_back(p);//pink
 		p.r = 0x84; p.g = 0x84; p.b = 0x84;//gray
 		cgi->neutralColor = p;//gray
-
-		cgi->playerColorInfo.push_back(cgi->spriteh->giveDef("agemLL.def")); //todo: finish
 		//colors initialized
 
 		cgi->townh = new CTownHandler;

@@ -1,18 +1,16 @@
 #ifndef CADVENTUREMAPINTERFACE_H
 #define CADVENTUREMAPINTERFACE_H
 #include <typeinfo>
-#include "SDL.h"
-#include "hch\CDefHandler.h"
-#include "SDL_Extensions.h"
-#include "CGameInterface.h"
-#include "CGameInfo.h"
-#include "SDL_Extensions.h"
-#include <boost/logic/tribool.hpp>
 #include "global.h"
-#include "CPathfinder.h"
-#include "mapHandler.h"
+#include "SDL.h"
+#include "CGameInterface.h"
+#include <boost/logic/tribool.hpp>
+#include <map>
 
+class CDefHandler;
 class CCallback;
+class CTownInstance;
+class CPath; 
 
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase
@@ -81,6 +79,8 @@ class CTownList
 	: public CList
 {
 public: 
+	std::vector<const CTownInstance*> items;
+	int posporx,pospory;
 
 	CTownList();
 	void genList();
@@ -165,6 +165,7 @@ class CResDataBar
 public:
 	SDL_Surface * bg;
 	std::vector<std::pair<int,int> > txtpos;
+	std::string datetext;
 
 	void clickRight (tribool down);
 	void activate(); 

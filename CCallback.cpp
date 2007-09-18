@@ -2,6 +2,7 @@
 #include "CCallback.h"
 #include "CPathfinder.h"
 #include "hch\CHeroHandler.h"
+#include "hch\CTownHandler.h"
 #include "CGameInfo.h"
 #include "hch\CAmbarCendamo.h"
 #include "mapHandler.h"
@@ -51,6 +52,28 @@ bool CCallback::moveHero(int ID, int3 destPoint)
 }
 
 
+int CCallback::howManyTowns()
+{
+	return gs->players[gs->currentPlayer].towns.size();
+}
+const CTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
+{
+	if (!mode)
+		return gs->players[gs->currentPlayer].towns[val];
+	else 
+	{
+		//TODO: add some smart ID to the CTownInstance
+
+
+		//for (int i=0; i<gs->players[gs->currentPlayer].towns.size();i++)
+		//{
+		//	if (gs->players[gs->currentPlayer].towns[i]->someID==val)
+		//		return gs->players[gs->currentPlayer].towns[i];
+		//}
+		return NULL;
+	}
+	return NULL;
+}
 int CCallback::howManyHeroes(int player)
 {
 	if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
@@ -73,7 +96,30 @@ const CHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //m
 	}
 	return NULL;
 }
+
 int CCallback::getResourceAmount(int type)
 {
 	return gs->players[gs->currentPlayer].resources[type];
+}
+
+int CCallback::getDate(int mode)
+{
+	int temp;
+	switch (mode)
+	{
+	case 0:
+		return gs->day;
+	case 1:
+		temp = (gs->day)%7;
+		if (temp)
+			return temp;
+		else return 7;
+	case 2:
+		temp = ((gs->day-1)/7)+1;
+		if (temp%4)
+			return temp;
+		else return 4;
+	case 3:
+		return ((gs->day-1)/28)+1;
+	}
 }

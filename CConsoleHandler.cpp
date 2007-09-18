@@ -7,6 +7,8 @@
 #include "global.h"
 #include "CGameState.h"
 #include "CCallback.h"
+#include "CPathfinder.h"
+#include "mapHandler.h"
 #include <sstream>
 
 int internalFunc(void * nothingUsed)

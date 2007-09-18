@@ -2,16 +2,19 @@
 #define CGAMEINTERFACE_H
 
 #include "SDL.h"
-#include "hch\CDefHandler.h"
-#include "SDL_Extensions.h"
 #include <boost/logic/tribool.hpp>
 #include "SDL_framerate.h"
+
 BOOST_TRIBOOL_THIRD_STATE(outOfRange)
+
 using namespace boost::logic;
+
 class CAdvMapInt;
 class CCallback;
 class CHeroInstance;
+class CDefHandler;
 struct HeroMoveDetails;
+
 class CIntObject //interface object
 {
 public:
