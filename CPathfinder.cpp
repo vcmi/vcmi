@@ -4,7 +4,16 @@
 #include "CGameInfo.h"
 #include "hch\CAmbarCendamo.h"
 #include "mapHandler.h"
-CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO: test it (seems to be finished, but relies on unwritten functions :()
+int3 CPath::startPos()
+{
+	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
+}
+int3 CPath::endPos()
+{
+	return int3(nodes[nodes.size()-1].coord.x,nodes[nodes.size()-1].coord.y,nodes[nodes.size()-1].coord.z);
+}
+
+CPath * CPathfinder::getPath(const int3 &src, const int3 &dest, const CHeroInstance * hero) //TODO: test it (seems to be finished, but relies on unwritten functions :()
 {
 	if(src.z!=dest.z) //first check
 		return NULL;
@@ -23,8 +32,9 @@ CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO
 			graph[i][j]->dist = -1;
 			graph[i][j]->theNodeBefore = NULL;
 			graph[i][j]->visited = false;
-			graph[i][j]->x = i;
-			graph[i][j]->y = j;
+			graph[i][j]->coord.x = i;
+			graph[i][j]->coord.y = j;
+			graph[i][j]->coord.z = dest.z;
 		}
 	}
 
@@ -41,7 +51,7 @@ CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO
 	{
 		CPathNode * cp = mq.front();
 		mq.pop();
-		if ((cp->x == dest.x) && (cp->y==dest.y))
+		if ((cp->coord.x == dest.x) && (cp->coord.y==dest.y))
 		{
 			if (cp->dist < curDist)
 				curDist=cp->dist;
@@ -51,82 +61,82 @@ CPath * CPathfinder::getPath(int3 &src, int3 &dest, CHeroInstance * hero) //TODO
 			if (cp->dist > curDist)
 				continue;
 		}
-		if(cp->x>0)
+		if(cp->coord.x>0)
 		{
-			CPathNode * dp = graph[cp->x-1][cp->y];
-			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero))) && dp->accesible)
+			CPathNode * dp = graph[cp->coord.x-1][cp->coord.y];
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x-1, cp->coord.y, src.z), hero))) && dp->accesible)
 			{
-				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero);
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x-1, cp->coord.y, src.z), hero);
 				dp->theNodeBefore = cp;
 				mq.push(dp);
 			}
 		}
-		if(cp->y>0)
+		if(cp->coord.y>0)
 		{
-			CPathNode * dp = graph[cp->x][cp->y-1];
-			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y-1, src.z), hero))) && dp->accesible)
+			CPathNode * dp = graph[cp->coord.x][cp->coord.y-1];
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x, cp->coord.y-1, src.z), hero))) && dp->accesible)
 			{
-				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y, src.z), hero);
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x-1, cp->coord.y, src.z), hero);
 				dp->theNodeBefore = cp;
 				mq.push(dp);
 			}
 		}
-		if(cp->x>0 && cp->y>0)
+		if(cp->coord.x>0 && cp->coord.y>0)
 		{
-			CPathNode * dp = graph[cp->x-1][cp->y-1];
-			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y-1, src.z), hero))) && dp->accesible)
+			CPathNode * dp = graph[cp->coord.x-1][cp->coord.y-1];
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x-1, cp->coord.y-1, src.z), hero))) && dp->accesible)
 			{
-				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y-1, src.z), hero);
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x-1, cp->coord.y-1, src.z), hero);
 				dp->theNodeBefore = cp;
 				mq.push(dp);
 			}
 		}
-		if(cp->x<graph.size()-1)
+		if(cp->coord.x<graph.size()-1)
 		{
-			CPathNode * dp = graph[cp->x+1][cp->y];
-			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y, src.z), hero))) && dp->accesible)
+			CPathNode * dp = graph[cp->coord.x+1][cp->coord.y];
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x+1, cp->coord.y, src.z), hero))) && dp->accesible)
 			{
-				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y, src.z), hero);
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x+1, cp->coord.y, src.z), hero);
 				dp->theNodeBefore = cp;
 				mq.push(dp);
 			}
 		}
-		if(cp->y<graph[0].size()-1)
+		if(cp->coord.y<graph[0].size()-1)
 		{
-			CPathNode * dp = graph[cp->x][cp->y+1];
-			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y+1, src.z), hero))) && dp->accesible)
+			CPathNode * dp = graph[cp->coord.x][cp->coord.y+1];
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x, cp->coord.y+1, src.z), hero))) && dp->accesible)
 			{
-				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x, cp->y+1, src.z), hero);
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x, cp->coord.y+1, src.z), hero);
 				dp->theNodeBefore = cp;
 				mq.push(dp);
 			}
 		}
-		if(cp->x<graph.size()-1 && cp->y<graph[0].size()-1)
+		if(cp->coord.x<graph.size()-1 && cp->coord.y<graph[0].size()-1)
 		{
-			CPathNode * dp = graph[cp->x+1][cp->y+1];
-			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y+1, src.z), hero))) && dp->accesible)
+			CPathNode * dp = graph[cp->coord.x+1][cp->coord.y+1];
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x+1, cp->coord.y+1, src.z), hero))) && dp->accesible)
 			{
-				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y+1, src.z), hero);
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x+1, cp->coord.y+1, src.z), hero);
 				dp->theNodeBefore = cp;
 				mq.push(dp);
 			}
 		}
-		if(cp->x>0 && cp->y<graph[0].size()-1)
+		if(cp->coord.x>0 && cp->coord.y<graph[0].size()-1)
 		{
-			CPathNode * dp = graph[cp->x-1][cp->y+1];
-			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y+1, src.z), hero))) && dp->accesible)
+			CPathNode * dp = graph[cp->coord.x-1][cp->coord.y+1];
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x-1, cp->coord.y+1, src.z), hero))) && dp->accesible)
 			{
-				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x-1, cp->y+1, src.z), hero);
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x-1, cp->coord.y+1, src.z), hero);
 				dp->theNodeBefore = cp;
 				mq.push(dp);
 			}
 		}
-		if(cp->x<graph.size()-1 && cp->y>0)
+		if(cp->coord.x<graph.size()-1 && cp->coord.y>0)
 		{
-			CPathNode * dp = graph[cp->x+1][cp->y-1];
-			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y-1, src.z), hero))) && dp->accesible)
+			CPathNode * dp = graph[cp->coord.x+1][cp->coord.y-1];
+			if((dp->dist==-1 || (dp->dist > cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x+1, cp->coord.y-1, src.z), hero))) && dp->accesible)
 			{
-				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->x, cp->y, src.z), int3(cp->x+1, cp->y-1, src.z), hero);
+				dp->dist = cp->dist + CGI->mh->getCost(int3(cp->coord.x, cp->coord.y, src.z), int3(cp->coord.x+1, cp->coord.y-1, src.z), hero);
 				dp->theNodeBefore = cp;
 				mq.push(dp);
 			}

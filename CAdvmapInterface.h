@@ -144,7 +144,8 @@ public:
 	void deactivate(); // makes button inactive (but don't deletes)
 };
 class CTerrainRect
-	:  public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject, public KeyInterested
+	:  public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject, public KeyInterested,
+	public MotionInterested
 {
 public:
 	int tilesw, tilesh;
@@ -156,6 +157,7 @@ public:
 	void clickLeft(tribool down);
 	void clickRight(tribool down);
 	void hover(bool on);
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void show();
 };

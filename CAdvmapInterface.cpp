@@ -552,7 +552,7 @@ CTerrainRect::CTerrainRect():currentPath(NULL)
 	tilesh=18;
 	pos.x=7;
 	pos.y=6;
-	pos.w=594;
+	pos.w=593;
 	pos.h=547;
 	arrows = CGI->spriteh->giveDef("ADAG.DEF");
 	for(int y=0; y<arrows->ourImages.size(); ++y)
@@ -574,8 +574,35 @@ void CTerrainRect::deactivate()
 	Hoverable::deactivate();
 	KeyInterested::deactivate();
 }; 
-void CTerrainRect::clickLeft(tribool down){}
-void CTerrainRect::clickRight(tribool down){}
+void CTerrainRect::clickLeft(tribool down)
+{
+	if ((down==false) || indeterminate(down))
+		return;
+	int3 mp;
+	mp.x = LOCPLINT->adventureInt->position.x + ((LOCPLINT->current->motion.x-pos.x)/32);
+	mp.y = LOCPLINT->adventureInt->position.y + ((LOCPLINT->current->motion.y-pos.y)/32);
+	mp.z = LOCPLINT->adventureInt->position.z;
+	if (currentPath)
+	{
+		if ( (currentPath->endPos()) == mp)
+		{ //move
+			return;
+		}
+		else
+		{
+			delete currentPath;
+		}
+	}
+	const CHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected];
+	currentPath = CGI->pathf->getPath(currentHero->pos,mp,currentHero);
+}
+void CTerrainRect::clickRight(tribool down)
+{
+}
+void CTerrainRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
+{
+	//TODO: print names of objects in toolbar
+}
 void CTerrainRect::hover(bool on){}
 void CTerrainRect::keyPressed (SDL_KeyboardEvent & key){}
 void CTerrainRect::show()
@@ -592,8 +619,8 @@ void CTerrainRect::show()
 			int pn=-1;//number of picture
 			if (i==0) //last tile
 			{
-				int x = 32*(currentPath->nodes[i].x-LOCPLINT->adventureInt->position.x)+7,
-					y = 32*(currentPath->nodes[i].y-LOCPLINT->adventureInt->position.y)+6;
+				int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
+					y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
 				if (x<0 || y<0 || x>pos.w || y>pos.h)
 					continue;
 				pn=0;
@@ -601,154 +628,154 @@ void CTerrainRect::show()
 			else
 			{
 				std::vector<CPathNode> & cv = currentPath->nodes;
-				if (cv[i+1].x == cv[i].x-1 && cv[i+1].y == cv[i].y-1)
+				if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y-1)
 				{
-					if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y)
+					if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
 					{
 						pn = 3;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 12;
 					}
-					else if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 21;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 22;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 2;
 					}
 				}
-				else if (cv[i+1].x == cv[i].x && cv[i+1].y == cv[i].y-1)
+				else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y-1)
 				{
-					if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 4;
 					}
-					else if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 13;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 22;
 					}
 				}
-				else if (cv[i+1].x == cv[i].x+1 && cv[i+1].y == cv[i].y-1)
+				else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y-1)
 				{
-					if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y+1)
+					if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 5;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 14;
 					}
-					else if(cv[i-1].x-1 == cv[i].x && cv[i-1].y == cv[i].y)
+					else if(cv[i-1].coord.x-1 == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y)
 					{
 						pn = 23;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 24;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 4;
 					}
 				}
-				else if (cv[i+1].x == cv[i].x+1 && cv[i+1].y == cv[i].y)
+				else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y)
 				{
-					if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 6;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
 					{
 						pn = 15;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 24;
 					}
 				}
-				else if (cv[i+1].x == cv[i].x+1 && cv[i+1].y == cv[i].y+1)
+				else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y+1)
 				{
-					if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y)
+					if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
 					{
 						pn = 7;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 16;
 					}
-					else if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 17;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 6;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 18;
 					}
 				}
-				else if (cv[i+1].x == cv[i].x && cv[i+1].y == cv[i].y+1)
+				else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1)
 				{
-					if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 8;
 					}
-					else if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 9;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 18;
 					}
 				}
-				else if (cv[i+1].x == cv[i].x-1 && cv[i+1].y == cv[i].y+1)
+				else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y+1)
 				{
-					if(cv[i-1].x == cv[i].x && cv[i-1].y == cv[i].y-1)
+					if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 1;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 10;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
 					{
 						pn = 19;
 					}
-					else if(cv[i-1].x == cv[i].x-1 && cv[i-1].y == cv[i].y-1)
+					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 8;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 20;
 					}
 				}
-				else if (cv[i+1].x == cv[i].x-1 && cv[i+1].y == cv[i].y)
+				else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y)
 				{
-					if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y-1)
+					if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
 					{
 						pn = 2;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
 					{
 						pn = 11;
 					}
-					else if(cv[i-1].x == cv[i].x+1 && cv[i-1].y == cv[i].y+1)
+					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
 					{
 						pn = 20;
 					}
@@ -756,8 +783,8 @@ void CTerrainRect::show()
 			}
 			if (pn>=0)
 			{				
-				int x = 32*(currentPath->nodes[i].x-LOCPLINT->adventureInt->position.x)+7,
-					y = 32*(currentPath->nodes[i].y-LOCPLINT->adventureInt->position.y)+6;
+				int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
+					y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
 				if (x<0 || y<0 || x>pos.w || y>pos.h)
 					continue;
 				int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
@@ -967,6 +994,7 @@ void CAdvMapInt::show()
 	heroList.draw();
 	townList.activate();
 	townList.draw();
+	terrain.activate();
 
 	resdatabar.draw();
 

@@ -25,8 +25,8 @@ bool CCallback::moveHero(int ID, int3 destPoint)
 	for(int i=ourPath->nodes.size()-1; i>0; i--)
 	{
 		int3 stpos, endpos;
-		stpos = int3(ourPath->nodes[i].x, ourPath->nodes[i].y, CGI->heroh->heroInstances[ID]->pos.z);
-		endpos = int3(ourPath->nodes[i-1].x, ourPath->nodes[i-1].y, CGI->heroh->heroInstances[ID]->pos.z);
+		stpos = int3(ourPath->nodes[i].coord.x, ourPath->nodes[i].coord.y, CGI->heroh->heroInstances[ID]->pos.z);
+		endpos = int3(ourPath->nodes[i-1].coord.x, ourPath->nodes[i-1].coord.y, CGI->heroh->heroInstances[ID]->pos.z);
 		HeroMoveDetails curd;
 		curd.src = stpos;
 		curd.dst = endpos;

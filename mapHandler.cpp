@@ -937,7 +937,7 @@ char & CMapHandler::undVisAccess(int x, int y)
 	return undVisibility[x+Woff][y+Hoff];
 }
 
-int CMapHandler::getCost(int3 &a, int3 &b, CHeroInstance *hero)
+int CMapHandler::getCost(int3 &a, int3 &b, const CHeroInstance *hero)
 {
 	int ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].malle];
 	if(!(a.x==b.x || a.y==b.y))

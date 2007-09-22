@@ -76,7 +76,7 @@ public:
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
 	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector<char> > & visibility);
 
-	int getCost(int3 & a, int3 & b, CHeroInstance * hero);
+	int getCost(int3 & a, int3 & b, const CHeroInstance * hero);
 	void init();
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0);
 	SDL_Surface * terrBitmap(int x, int y);
