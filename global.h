@@ -27,8 +27,8 @@ enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHE
 //CURPLINT gives pointer to the interface of human player which is currently making turn, 
 //LOCPLINT gives pointer to the interface which is currently showed (on this machine)
 
-#define HEROI_TYPE (typeid(CHeroInstance*))
-#define TOWNI_TYPE (typeid(CTownInstance*))
+#define HEROI_TYPE (0)
+#define TOWNI_TYPE (1)
 
 
 const int F_NUMBER = 9; //factions (town types) quantity

@@ -9,7 +9,7 @@
 #include "CGameState.h"
 #include "CGameInterface.h"
 
-bool CCallback::moveHero(int ID, int3 destPoint)
+bool CCallback::moveHero(int ID, int3 destPoint, int idtype)
 {
 	if(ID<0 || ID>CGI->heroh->heroInstances.size())
 		return false;

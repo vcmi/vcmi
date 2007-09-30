@@ -254,7 +254,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 		CGameInfo::mainObj = cgi;
 		cgi->consoleh = new CConsoleHandler;
-		cgi->consoleh->runConsole();
 		cgi->mush = mush;
 		cgi->curh = new CCursorHandler;
 
@@ -334,8 +333,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->dobjinfo->load();
 		cgi->state = new CGameState();
 		cgi->state->players = std::map<int, PlayerState>();
-		cgi->state->cb = new CCallback(cgi->state);
 		cgi->pathf = new CPathfinder();
+		cgi->consoleh->cb = new CCallback(cgi->state,-1);
+		cgi->consoleh->runConsole();
 		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
 
 		std::string mapname;
@@ -386,9 +386,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			//	cgi->playerint.push_back(new CGlobalAI());
 			//else 
 			{
-				cgi->state->currentPlayer=i;
+				cgi->state->currentPlayer=cgi->scenarioOps.playerInfos[i].color;
 				cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color,i));
-				((CPlayerInterface*)(cgi->playerint[i]))->init(cgi->state->cb);
+				((CPlayerInterface*)(cgi->playerint[i]))->init(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color));
 			}
 		}
 

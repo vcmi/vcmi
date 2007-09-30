@@ -11,8 +11,9 @@
 #include "mapHandler.h"
 #include <sstream>
 
-int internalFunc(void * nothingUsed)
+int internalFunc(void * callback)
 {
+	CCallback * cb = (CCallback*)callback;
 	char * usersMessage = new char[500];
 	std::string readed;
 	while(true)
@@ -44,7 +45,7 @@ int internalFunc(void * nothingUsed)
 			break;
 		case 'M': //move hero
 			readed>>heronum>>dest;
-			CGI->state->cb->moveHero(heronum, dest);
+			cb->moveHero(heronum, dest);
 			break;
 		}
 		//SDL_Delay(100);
@@ -54,5 +55,5 @@ int internalFunc(void * nothingUsed)
 
 void CConsoleHandler::runConsole()
 {
-	SDL_Thread * myth = SDL_CreateThread(&internalFunc, NULL);
+	SDL_Thread * myth = SDL_CreateThread(&internalFunc, cb);
 }

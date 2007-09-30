@@ -4,11 +4,11 @@
 #include "CGameInfo.h"
 #include "hch\CAmbarCendamo.h"
 #include "mapHandler.h"
-int3 CPath::startPos()
+int3 CPath::endPos()
 {
 	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
 }
-int3 CPath::endPos()
+int3 CPath::startPos()
 {
 	return int3(nodes[nodes.size()-1].coord.x,nodes[nodes.size()-1].coord.y,nodes[nodes.size()-1].coord.z);
 }

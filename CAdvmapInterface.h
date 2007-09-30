@@ -59,7 +59,7 @@ class CHeroList
 {
 public:
 	CDefHandler *mobile, *mana;
-	std::vector<const CHeroInstance*> items;
+	std::vector<std::pair<const CHeroInstance*, CPath *> > items;
 	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
 
 	CHeroList();
@@ -177,6 +177,12 @@ public:
 
 	void draw();
 };
+class CInfoBar
+	:public virtual CIntObject
+{
+	CInfoBar();
+	void draw(void * specific=NULL); // if specific==0 function draws info about selected hero/town
+};
 /*****************************/
 class CAdvMapInt //adventure map interface
 {
@@ -240,7 +246,7 @@ public:
 
 	struct CurrentSelection
 	{
-		const type_info* type;
+		int type; //0 - hero, 1 - town
 		const void* selected;
 		CurrentSelection(); //ctor
 	} selection;

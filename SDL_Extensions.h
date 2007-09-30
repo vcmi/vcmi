@@ -6,6 +6,7 @@
 
 extern SDL_Surface * ekran;
 extern SDL_Color tytulowy, tlo, zwykly ;
+extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran);
@@ -34,6 +35,8 @@ namespace CSDL_Ext
 	void blueToPlayersNice(SDL_Surface * sur, int player); //uses interface gems to substitute colours
 	void setPlayerColor(SDL_Surface * sur, int player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
+	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=ekran); //creates new surface, with flags/format same as in surface given
+	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 };
 
 #endif // SDL_EXTENSIONS_H

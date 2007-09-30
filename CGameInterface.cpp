@@ -9,6 +9,8 @@
 #include "CCursorHandler.h"
 #include "CCallback.h"
 #include "SDL_Extensions.h"
+#include "hch/CLodHandler.h"
+#include <sstream>
 using namespace CSDL_Ext;
 class OCM_HLP_CGIN
 {
@@ -109,6 +111,7 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	serialID=serial;
 	CGI->localPlayer = playerID;
 	human=true;
+	hInfo = CGI->bitmaph->loadBitmap("HEROQVBK.bmp");
 }
 void CPlayerInterface::init(CCallback * CB)
 {
@@ -742,6 +745,41 @@ void CPlayerInterface::heroKilled(const CHeroInstance * hero)
 }
 void CPlayerInterface::heroCreated(const CHeroInstance * hero)
 {
+}
+
+SDL_Surface * CPlayerInterface::infoWin(void * specific) //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
+{
+	if (specific)
+		;//TODO: dorobic, ale w ogole to moze lepiej najpierw zastapic tego voida czym innym
+	else
+	{
+		if (adventureInt->selection.type == HEROI_TYPE)
+		{
+			char * buf = new char[10];
+			SDL_Surface * ret = copySurface(hInfo);
+			SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
+			blueToPlayersAdv(ret,playerID);
+			const CHeroInstance * curh = (const CHeroInstance *)adventureInt->selection.selected;
+			printAt(curh->name,15,75,GEOR13,zwykly,ret);
+			for (int i=0;i<PRIMARY_SKILLS;i++)
+			{
+				itoa(curh->primSkills[i],buf,10);
+				printAtMiddle(buf,87+27*i,69,GEOR13,zwykly,ret);
+			}
+			itoa(curh->mana,buf,10);
+			printAtMiddle(buf,169,109,GEORM,zwykly,ret);
+			delete buf;
+			return ret;
+		}
+		else if (adventureInt->selection.type == TOWNI_TYPE)
+		{
+			//TODO: do it
+			return NULL;
+		}
+		else
+			return NULL;
+	}
+	return NULL;
 }
 
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)

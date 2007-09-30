@@ -8,6 +8,17 @@
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
 
+SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
+{
+	return SDL_CreateRGBSurface(mod->flags,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
+}
+
+SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given surface
+{
+	SDL_Surface * ret = newSurface(mod->w,mod->h,mod);
+	SDL_BlitSurface(mod,NULL,ret,NULL);
+	return ret;
+}
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
 	if ((x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h))

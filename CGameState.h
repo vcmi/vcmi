@@ -26,7 +26,7 @@ public:
 	friend CCallback;
 	friend int _tmain(int argc, _TCHAR* argv[]);
 	friend void initGameState(CGameInfo * cgi);
-	CCallback * cb; //for communication between PlayerInterface/AI and GameState
+	//CCallback * cb; //for communication between PlayerInterface/AI and GameState
 };
 
 #endif //CGAMESTATE_H

@@ -163,7 +163,7 @@ CHeroList::CHeroList()
 
 void CHeroList::init()
 {
-	bg = SDL_CreateRGBSurface(ekran->flags,68,193,ekran->format->BitsPerPixel,ekran->format->Rmask,ekran->format->Gmask,ekran->format->Bmask,ekran->format->Amask);
+	bg = CSDL_Ext::newSurface(68,193,ekran);
 	SDL_BlitSurface(LOCPLINT->adventureInt->bg,&genRect(193,68,607,196),bg,&genRect(193,68,0,0));
 }
 void CHeroList::genList()
@@ -171,7 +171,7 @@ void CHeroList::genList()
 	int howMany = LOCPLINT->cb->howManyHeroes(LOCPLINT->playerID);
 	for (int i=0;i<howMany;i++)
 	{
-		items.push_back(LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0));
+		items.push_back(std::pair<const CHeroInstance *,CPath *>(LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0),NULL));
 	}
 }
 void CHeroList::select(int which)
@@ -180,9 +180,10 @@ void CHeroList::select(int which)
 	if (which>=items.size()) 
 		which=items.size();
 	draw();
-	LOCPLINT->adventureInt->centerOn(items[which]->pos);
-	LOCPLINT->adventureInt->selection.type = &HEROI_TYPE;
-	LOCPLINT->adventureInt->selection.selected = items[which];
+	LOCPLINT->adventureInt->centerOn(items[which].first->pos);
+	LOCPLINT->adventureInt->selection.type = HEROI_TYPE;
+	LOCPLINT->adventureInt->selection.selected = items[which].first;
+	LOCPLINT->adventureInt->terrain.currentPath = items[which].second;
 }
 void CHeroList::clickLeft(tribool down)
 {
@@ -272,7 +273,7 @@ void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 		return;
 	}
 	std::vector<std::string> temp;
-	temp+=(items[from+ny]->name),(items[from+ny]->type->heroClass->name);
+	temp+=(items[from+ny].first->name),(items[from+ny].first->type->heroClass->name);
 	LOCPLINT->adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
 	//select(ny+from);
 }
@@ -473,7 +474,7 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 		if ((level>=0) && (i!=level))
 			continue;
 		if (map.size()<i+1)
-			pom = SDL_CreateRGBSurface(ekran->flags,pos.w,pos.h,ekran->format->BitsPerPixel,ekran->format->Rmask,ekran->format->Gmask,ekran->format->Bmask,ekran->format->Amask);
+			pom = CSDL_Ext::newSurface(pos.w,pos.h,ekran);
 		else pom = map[i];
 		for (int x=0;x<pos.w;x++)
 		{
@@ -578,23 +579,36 @@ void CTerrainRect::clickLeft(tribool down)
 {
 	if ((down==false) || indeterminate(down))
 		return;
+	if (LOCPLINT->adventureInt->selection.type != HEROI_TYPE)
+	{
+		if (currentPath)
+		{
+			delete currentPath;
+			currentPath = NULL;
+		}
+		return;
+	}
 	int3 mp;
 	mp.x = LOCPLINT->adventureInt->position.x + ((LOCPLINT->current->motion.x-pos.x)/32);
 	mp.y = LOCPLINT->adventureInt->position.y + ((LOCPLINT->current->motion.y-pos.y)/32);
 	mp.z = LOCPLINT->adventureInt->position.z;
+	if ((mp.x<0) || (mp.y<0))
+		return;
 	if (currentPath)
 	{
 		if ( (currentPath->endPos()) == mp)
 		{ //move
+			LOCPLINT->cb->moveHero(0,currentPath->endPos());//todo - move selected hero
 			return;
 		}
 		else
 		{
 			delete currentPath;
+			currentPath=NULL;
 		}
 	}
-	const CHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected];
-	currentPath = CGI->pathf->getPath(currentHero->pos,mp,currentHero);
+	const CHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first;
+	currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(currentHero->pos,mp,currentHero);
 }
 void CTerrainRect::clickRight(tribool down)
 {
@@ -860,7 +874,19 @@ void CResDataBar::draw()
 	updateRect(&pos,ekran);
 	delete buf;
 }
-
+CInfoBar::CInfoBar()
+{
+	pos.x=604;
+	pos.y=389;
+	pos.w=194;
+	pos.h=186;
+}
+void CInfoBar::draw(void * specific)
+{
+	SDL_Surface * todr = LOCPLINT->infoWin(specific);
+	blitAt(todr,pos.x,pos.y);
+	SDL_FreeSurface(todr);
+}
 CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(7,556),
@@ -1033,6 +1059,6 @@ void CAdvMapInt::centerOn(int3 on)
 }
 CAdvMapInt::CurrentSelection::CurrentSelection()
 {
-	type=NULL;
+	type=-1;
 	selected=NULL;
 }

@@ -112,11 +112,15 @@ public:
 	std::vector<KeyInterested*> keyinterested;
 	std::vector<MotionInterested*> motioninterested;
 
+	SDL_Surface * hInfo;
+
+	//overloaded funcs from Interface
 	void yourTurn();
 	void heroMoved(const HeroMoveDetails & details);
 	void heroKilled(const CHeroInstance * hero);
 	void heroCreated(const CHeroInstance * hero);
-
+	
+	SDL_Surface * infoWin(void * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
 
 	void handleEvent(SDL_Event * sEvent);
 	void init(CCallback * CB);

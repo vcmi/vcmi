@@ -6,10 +6,13 @@
 #include "CCreatureHandler.h"
 #include "SDL.h"
 #include "../int3.h"
+#include "CAmbarCendamo.h"
+#include "CGameInterface.h"
 
 class CHeroClass;
 class CObjectInstance;
 class CDefHandler;
+class CGameInfo;
 
 class CHero
 {
@@ -73,9 +76,9 @@ public:
 class CHeroHandler
 {
 public:
+	std::vector<CHeroInstance *> heroInstances;
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
-	std::vector<CHeroInstance *> heroInstances;
 	unsigned int level(unsigned int experience);
 	void loadHeroes();
 	void loadSpecialAbilities();
@@ -85,6 +88,12 @@ public:
 	void initHeroClasses();
 	~CHeroHandler();
 	void initTerrainCosts();
+
+	friend void CAmbarCendamo::deh3m();
+	friend void initGameState(CGameInfo * cgi);
+	friend class CConsoleHandler;
+
+	//friend void CPlayerInterface::heroMoved(const HeroMoveDetails & details); //TODO: wywalic, wstretne!!!
 };
 
 
