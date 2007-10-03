@@ -8,7 +8,38 @@
 #include "mapHandler.h"
 #include "CGameState.h"
 #include "CGameInterface.h"
+int CCallback::lowestSpeed(CHeroInstance * chi)
+{
+	int min = 150;
+	for (  std::map<int,std::pair<CCreature*,int> >::iterator i = chi->army.slots.begin(); 
+		   i!=chi->army.slots.end();		 i++													)
+	{
+		if (min>(*i).second.first->speed)
+			min = (*i).second.first->speed;
+	}
+	return min;
+}
+int CCallback::valMovePoints(CHeroInstance * chi)
+{
+	int ret = 1270+70*lowestSpeed(chi);
+	if (ret>2000) 
+		ret=2000;
+	
+	//TODO: additional bonuses (but they aren't currently stored in chi)
 
+	return ret;
+}
+void CCallback::newTurn()
+{
+	//std::map<int, PlayerState>::iterator i = gs->players.begin() ;
+	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	{
+		for (int j=0;j<(*i).second.heroes.size();j++)
+		{
+			(*i).second.heroes[j]->movement = valMovePoints((*i).second.heroes[j]);
+		}
+	}
+}
 bool CCallback::moveHero(int ID, int3 destPoint, int idtype)
 {
 	if(ID<0 || ID>CGI->heroh->heroInstances.size())

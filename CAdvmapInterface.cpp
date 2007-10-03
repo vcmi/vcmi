@@ -302,7 +302,7 @@ void CHeroList::draw()
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
 		blitAtWR(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32); //move point
-		pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->mana)/10;
+		pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->mana)/5; //bylo: .../10;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
 		blitAtWR(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana

@@ -674,7 +674,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		LOCPLINT->adventureInt->update(); //updating screen
 		CGI->screenh->updateScreen();
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
-	}
+	} //for(int i=1; i<32; i+=4)
 	//main moving done
 	//finishing move
 	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl

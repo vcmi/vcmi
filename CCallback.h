@@ -12,12 +12,14 @@ struct HeroMoveDetails
 class CCallback 
 {
 private:
-	int player;
 	void newTurn();
 	CCallback(CGameState * GS, int Player):gs(GS),player(Player){};
+	CGameState * gs;
+	int lowestSpeed(CHeroInstance * chi); //speed of the slowest stack
+	int valMovePoints(CHeroInstance * chi); 
 
 protected:
-	CGameState * gs;
+	int player;
 
 public:
 	bool moveHero(int ID, int3 destPoint, int idtype=0);//idtype: 0-position in vector; 1-ID of hero 

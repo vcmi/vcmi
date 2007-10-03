@@ -394,6 +394,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		while(1) //main game loop, one execution per turn
 		{
+			cgi->consoleh->cb->newTurn();
 			for (int i=0;i<cgi->playerint.size();i++)
 			{
 				cgi->state->currentPlayer=cgi->playerint[i]->playerID;
