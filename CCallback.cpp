@@ -40,7 +40,7 @@ void CCallback::newTurn()
 		}
 	}
 }
-bool CCallback::moveHero(int ID, int3 destPoint, int idtype)
+bool CCallback::moveHero(int ID, int3 destPoint, int idtype, unsigned char posType)
 {
 	if(ID<0 || ID>CGI->heroh->heroInstances.size())
 		return false;
@@ -50,7 +50,7 @@ bool CCallback::moveHero(int ID, int3 destPoint, int idtype)
 		return false;
 	if(destPoint.z<0 || destPoint.z>CGI->mh->ttiles[0][0].size()-1)
 		return false;
-	CPath * ourPath = CGI->pathf->getPath(CGI->heroh->heroInstances[ID]->pos, destPoint, CGI->heroh->heroInstances[ID]);
+	CPath * ourPath = CGI->pathf->getPath(CGI->heroh->heroInstances[ID]->pos, destPoint, CGI->heroh->heroInstances[ID], posType);
 	if(!ourPath)
 		return false;
 	for(int i=ourPath->nodes.size()-1; i>0; i--)

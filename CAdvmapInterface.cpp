@@ -598,7 +598,7 @@ void CTerrainRect::clickLeft(tribool down)
 	{
 		if ( (currentPath->endPos()) == mp)
 		{ //move
-			LOCPLINT->cb->moveHero(0,currentPath->endPos());//todo - move selected hero
+			LOCPLINT->cb->moveHero(0,currentPath->endPos(), 1);//todo - move selected hero
 			return;
 		}
 		else
@@ -608,7 +608,9 @@ void CTerrainRect::clickLeft(tribool down)
 		}
 	}
 	const CHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first;
-	currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(currentHero->pos,mp,currentHero);
+	int3 bufpos = currentHero->pos;
+	//bufpos.x-=1;
+	currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
 }
 void CTerrainRect::clickRight(tribool down)
 {

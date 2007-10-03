@@ -29,8 +29,8 @@ class CPathfinder
 private:
 	std::vector< std::vector<CPathNode *> > graph;
 public:
-	CPath * getPath(const int3 & src, const int3 & dest, const CHeroInstance * hero); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists
-	CPath * getPath(const int3 & src, const int3 & dest, const CHeroInstance * hero, int (*getDist)(int3 & a, int3 & b)); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; uses getDist to calculate distance
+	CPath * getPath(int3 src, int3 dest, const CHeroInstance * hero, unsigned char type=0); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; type - type of calculation: 0 - positions are normal positions of hero; 1 - given places are tiles blocked by hero
+	CPath * getPath(const int3 & src, const int3 & dest, const CHeroInstance * hero, int (*getDist)(int3 & a, int3 & b), unsigned char type=0); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; uses getDist to calculate distance; type - type of calculation: 0 - positions are normal positions of hero; 1 - given places are tiles blocked by hero
 };
 
 #endif //CPATHFINDER_H

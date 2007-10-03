@@ -22,7 +22,7 @@ protected:
 	int player;
 
 public:
-	bool moveHero(int ID, int3 destPoint, int idtype=0);//idtype: 0-position in vector; 1-ID of hero 
+	bool moveHero(int ID, int3 destPoint, int idtype=0, unsigned char posType=0);//idtype: 0-position in vector; 1-ID of hero 
 
 	int howManyTowns();
 	const CTownInstance * getTownInfo(int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID

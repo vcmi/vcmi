@@ -4,19 +4,23 @@
 #include "CGameInfo.h"
 #include "hch\CAmbarCendamo.h"
 #include "mapHandler.h"
-int3 CPath::endPos()
-{
-	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
-}
 int3 CPath::startPos()
 {
 	return int3(nodes[nodes.size()-1].coord.x,nodes[nodes.size()-1].coord.y,nodes[nodes.size()-1].coord.z);
 }
+int3 CPath::endPos()
+{
+	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
+}
 
-CPath * CPathfinder::getPath(const int3 &src, const int3 &dest, const CHeroInstance * hero) //TODO: test it (seems to be finished, but relies on unwritten functions :()
+CPath * CPathfinder::getPath(int3 src, int3 dest, const CHeroInstance * hero, unsigned char type) //TODO: test it (seems to be finished, but relies on unwritten functions :()
 {
 	if(src.z!=dest.z) //first check
 		return NULL;
+	if(type==1) //calibrating
+	{
+		src.x-=1;
+	}
 
 	//graph initialization
 	graph.resize(CGI->ac->map.width);

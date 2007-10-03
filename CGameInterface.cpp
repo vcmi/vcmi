@@ -673,6 +673,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		LOCPLINT->adventureInt->update(); //updating screen
 		CGI->screenh->updateScreen();
+		LOCPLINT->adventureInt->anim++;
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
