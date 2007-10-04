@@ -50,7 +50,11 @@ bool CCallback::moveHero(int ID, int3 destPoint, int idtype, unsigned char posTy
 		return false;
 	if(destPoint.z<0 || destPoint.z>CGI->mh->ttiles[0][0].size()-1)
 		return false;
-	CPath * ourPath = CGI->pathf->getPath(CGI->heroh->heroInstances[ID]->pos, destPoint, CGI->heroh->heroInstances[ID], posType);
+	if(posType==1)
+	{
+		destPoint.x+=1;
+	}
+	CPath * ourPath = CGI->pathf->getPath(CGI->heroh->heroInstances[ID]->pos, destPoint, CGI->heroh->heroInstances[ID]);
 	if(!ourPath)
 		return false;
 	for(int i=ourPath->nodes.size()-1; i>0; i--)
@@ -63,6 +67,10 @@ bool CCallback::moveHero(int ID, int3 destPoint, int idtype, unsigned char posTy
 		curd.dst = endpos;
 		curd.heroID = ID;
 		curd.owner = CGI->heroh->heroInstances[ID]->owner;
+		if(player!=-1)
+		{
+			gs->players[player].heroes[ID]->pos = endpos;
+		}
 		//if(CGI->heroh->heroInstances[ID]->movement>=CGI->mh->getCost(stpos, endpos, CGI->heroh->heroInstances[ID]))
 		{ //performing move
 			int nn=0; //number of interfece of currently browsed player

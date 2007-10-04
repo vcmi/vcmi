@@ -598,7 +598,7 @@ void CTerrainRect::clickLeft(tribool down)
 	{
 		if ( (currentPath->endPos()) == mp)
 		{ //move
-			LOCPLINT->cb->moveHero(0,currentPath->endPos(), 1);//todo - move selected hero
+			LOCPLINT->cb->moveHero(0,currentPath->endPos(),0, 1);//todo - move selected hero
 			return;
 		}
 		else
@@ -692,7 +692,7 @@ void CTerrainRect::show()
 					{
 						pn = 14;
 					}
-					else if(cv[i-1].coord.x-1 == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y)
+					else if(cv[i-1].coord.x+1 == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y)
 					{
 						pn = 23;
 					}
