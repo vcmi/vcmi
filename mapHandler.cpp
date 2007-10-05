@@ -946,3 +946,20 @@ int CMapHandler::getCost(int3 &a, int3 &b, const CHeroInstance *hero)
 	//TODO: use hero's pathfinding skill during calculating cost
 	return ret;
 }
+
+std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
+{
+	std::vector < std::pair<CObjectInstance*,SDL_Rect> > objs = ttiles[pos.x][pos.y][pos.z].objects;
+	std::vector<std::string> ret;
+	for(int g=0; g<objs.size(); ++g)
+	{
+		if( (5-(objs[g].first->pos.y-pos.y-1)) >= 0 && (5-(objs[g].first->pos.y-pos.y-1)) < 6 && (objs[g].first->pos.x-pos.x-1) >= 0 && (objs[g].first->pos.x-pos.x-1)<7 && objs[g].first->defObjInfoNumber!=-1 &&
+			(((CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap[5-(objs[g].first->pos.y-pos.y-1)])>>((objs[g].first->pos.x-pos.x-1)))&1)==0
+			) //checking position blocking
+		{
+			unsigned char * blm = CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap;
+			ret.push_back(CGI->objh->objects[CGI->ac->map.defy[objs[g].first->defNumber].bytes[16]].name);
+		}
+	}
+	return ret;
+}

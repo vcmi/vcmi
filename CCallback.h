@@ -23,6 +23,7 @@ protected:
 
 public:
 	bool moveHero(int ID, int3 destPoint, int idtype=0, unsigned char posType=0);//idtype: 0-position in vector; 1-ID of hero 
+	std::vector < std::string > getObjDescriptions(int3 pos); //returns descriptions of objects at pos in order from the lowest to the highest
 
 	int howManyTowns();
 	const CTownInstance * getTownInfo(int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID

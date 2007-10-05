@@ -47,6 +47,26 @@ int internalFunc(void * callback)
 			readed>>heronum>>dest;
 			cb->moveHero(heronum, dest);
 			break;
+		case 'D': //pos description
+			readed>>src;
+			CGI->mh->getObjDescriptions(src);
+			break;
+		case 'T': //test rect
+			readed>>src;
+			for(int g=0; g<8; ++g)
+			{
+				for(int v=0; v<8; ++v)
+				{
+					int3 csrc = src;
+					csrc.y+=g;
+					csrc.x+=v;
+					if(CGI->mh->getObjDescriptions(csrc).size())
+						std::cout<<'x';
+					else
+						std::cout<<'o';
+				}
+				std::cout<<std::endl;
+			}
 		}
 		//SDL_Delay(100);
 	}

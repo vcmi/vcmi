@@ -162,3 +162,10 @@ int CCallback::getDate(int mode)
 		return ((gs->day-1)/28)+1;
 	}
 }
+
+std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
+{
+	if(gs->players[player].fogOfWarMap[pos.x][pos.y][pos.z])
+		return CGI->mh->getObjDescriptions(pos);
+	else return std::vector< std::string > ();
+}
