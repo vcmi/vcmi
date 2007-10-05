@@ -1129,6 +1129,7 @@ void CAdvMapInt::centerOn(int3 on)
 
 	LOCPLINT->adventureInt->position.x=on.x;
 	LOCPLINT->adventureInt->position.y=on.y;
+	LOCPLINT->adventureInt->position.z=on.z;
 	LOCPLINT->adventureInt->updateScreen=true;
 }
 CAdvMapInt::CurrentSelection::CurrentSelection()

@@ -58,6 +58,8 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CHeroInstance * hero, un
 			graph[i][j]->coord.x = i;
 			graph[i][j]->coord.y = j;
 			graph[i][j]->coord.z = dest.z;
+			if (CGI->mh->ttiles[i][j][src.z].terType==EterrainType::rock)
+				graph[i][j]->accesible = false;
 			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].terType==EterrainType::water))
 				graph[i][j]->accesible = false;
 			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].terType!=EterrainType::water))

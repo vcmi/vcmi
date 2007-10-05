@@ -10,6 +10,7 @@
 #include "CCallback.h"
 #include "SDL_Extensions.h"
 #include "hch/CLodHandler.h"
+#include "CPathfinder.h"
 #include <sstream>
 using namespace CSDL_Ext;
 class OCM_HLP_CGIN
@@ -210,6 +211,12 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//initializing objects and performing first step of move
 	CObjectInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
+
+	if (adventureInt->terrain.currentPath) //&& hero is moving
+	{
+		adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
+	}
+
 	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 	{
 		ho->moveDir = 1;
