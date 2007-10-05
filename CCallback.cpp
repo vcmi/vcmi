@@ -40,36 +40,67 @@ void CCallback::newTurn()
 		}
 	}
 }
-bool CCallback::moveHero(int ID, int3 destPoint, int idtype, unsigned char posType)
+bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 {
-	if(ID<0 || ID>CGI->heroh->heroInstances.size())
-		return false;
-	if(destPoint.x<0 || destPoint.x>CGI->ac->map.width)
-		return false;
-	if(destPoint.y<0 || destPoint.y>CGI->ac->map.height)
-		return false;
-	if(destPoint.z<0 || destPoint.z>CGI->mh->ttiles[0][0].size()-1)
-		return false;
-	if(posType==1)
+	CHeroInstance * hero = NULL;
+
+	if (idtype==0)
 	{
-		destPoint.x+=1;
+		if (player==-1)
+			hero=gs->players[player+1].heroes[ID];
+		else
+			hero=gs->players[player].heroes[ID];
 	}
-	CPath * ourPath = CGI->pathf->getPath(CGI->heroh->heroInstances[ID]->pos, destPoint, CGI->heroh->heroInstances[ID]);
+	else if (idtype==1 && player>=0) //szukamy lokalnie
+	{
+		for (int i=0; i<gs->players[player].heroes.size();i++)
+		{
+			if (gs->players[player].heroes[i]->type->ID == ID)
+				hero = gs->players[player].heroes[i];
+		}
+	}
+	else //idtype==1; player<0
+	{
+
+		for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)
+		{
+			for (int i=0; i<(*j).second.heroes.size();i++)
+			{
+				if ((*j).second.heroes[i]->type->ID == ID)
+				{
+					hero = (*j).second.heroes[i];
+				}
+			}
+		}
+	}
+
+	if (!hero)
+		return false; //can't find hero
+	if(!verifyPath(path,!hero->canWalkOnSea()))//TODO: not check sea, if hero has flying or walking on water
+		return false; //invalid path
+
+	//check path format
+	if (pathType==0)
+		CPathfinder::convertPath(path,pathType);
+	if (pathType>1)
+		throw std::exception("Unknown path format");
+
+	CPath * ourPath = path; 
 	if(!ourPath)
 		return false;
 	for(int i=ourPath->nodes.size()-1; i>0; i--)
 	{
 		int3 stpos, endpos;
-		stpos = int3(ourPath->nodes[i].coord.x, ourPath->nodes[i].coord.y, CGI->heroh->heroInstances[ID]->pos.z);
-		endpos = int3(ourPath->nodes[i-1].coord.x, ourPath->nodes[i-1].coord.y, CGI->heroh->heroInstances[ID]->pos.z);
+		stpos = int3(ourPath->nodes[i].coord.x, ourPath->nodes[i].coord.y, hero->pos.z);
+		endpos = int3(ourPath->nodes[i-1].coord.x, ourPath->nodes[i-1].coord.y, hero->pos.z);
 		HeroMoveDetails curd;
 		curd.src = stpos;
 		curd.dst = endpos;
-		curd.heroID = ID;
-		curd.owner = CGI->heroh->heroInstances[ID]->owner;
+		curd.ho = hero->ourObject;
+		curd.owner = hero->owner;
 		if(player!=-1)
 		{
-			gs->players[player].heroes[ID]->pos = endpos;
+			hero->pos = endpos;
 		}
 		//if(CGI->heroh->heroInstances[ID]->movement>=CGI->mh->getCost(stpos, endpos, CGI->heroh->heroInstances[ID]))
 		{ //performing move
@@ -86,6 +117,7 @@ bool CCallback::moveHero(int ID, int3 destPoint, int idtype, unsigned char posTy
 		}
 		//else
 			//return true; //move ended - no more movement points
+		hero->pos = curd.dst;
 	}
 	return true;
 }
@@ -161,6 +193,36 @@ int CCallback::getDate(int mode)
 	case 3:
 		return ((gs->day-1)/28)+1;
 	}
+}
+bool CCallback::verifyPath(CPath * path, bool blockSea)
+{
+	for (int i=0;i<path->nodes.size();i++)
+	{
+		if ( CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].blocked 
+			&& (! (CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].visitable)))
+			return false; //path is wrong - one of the tiles is blocked
+
+		if (blockSea)
+		{
+			if (i==0)
+				continue;
+
+			if (
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].terType==EterrainType::water)
+					&&
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType!=EterrainType::water))
+				  ||
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].terType!=EterrainType::water)
+					&&
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType==EterrainType::water))
+					
+				)
+				return false;
+		}
+
+
+	}
+	return true;
 }
 
 std::vector < std::string > CCallback::getObjDescriptions(int3 pos)

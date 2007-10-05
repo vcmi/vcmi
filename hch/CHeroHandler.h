@@ -57,7 +57,7 @@ public:
 	std::string name; //may be custom
 	std::string biography; //may be custom
 	int portrait; //may be custom
-	int3 pos; //position on adventure map
+	int3 pos; //position of object (hero pic is on the left)
 	CCreatureSet army; //army
 	int mana; // remaining spell points
 	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
@@ -69,6 +69,11 @@ public:
 	unsigned int getLowestCreatureSpeed();
 	unsigned int getAdditiveMoveBonus();
 	unsigned float getMultiplicativeMoveBonus();
+	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
+	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
+	void setPosition(int3 Pos, bool h3m); //as above, but sets position
+
+	bool canWalkOnSea() const;
 
 	//TODO: artifacts, known spells, commander, blessings, curses, morale/luck special modifiers
 };

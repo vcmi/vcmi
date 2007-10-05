@@ -41,12 +41,17 @@ int internalFunc(void * callback)
 			break;
 		case 'H': //position of hero
 			readed>>heronum;
-			std::cout<<"Position of hero "<<heronum<<": "<<CGI->heroh->heroInstances[heronum]->pos<<std::endl;
+			std::cout<<"Position of hero "<<heronum<<": "<<CGI->heroh->heroInstances[heronum]->getPosition(false)<<std::endl;
 			break;
-		case 'M': //move hero
-			readed>>heronum>>dest;
-			cb->moveHero(heronum, dest);
-			break;
+		case 'M': //move heroa
+			{
+				readed>>heronum>>dest;
+				const CHeroInstance * hero = cb->getHeroInfo(0,heronum,0);
+				CPath * path = CGI->pathf->getPath(hero->getPosition(false),dest,hero);
+				cb->moveHero(heronum, path, 0, 0);
+				delete path;
+				break;
+			}
 		case 'D': //pos description
 			readed>>src;
 			CGI->mh->getObjDescriptions(src);

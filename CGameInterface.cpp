@@ -208,8 +208,8 @@ inline void delObjRect(const int & x, const int & y, const int & z, const int & 
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
 	//initializing objects and performing first step of move
-	CObjectInstance * ho = CGI->heroh->heroInstances[details.heroID]->ourObject; //object representing this hero
-	int3 hp = CGI->heroh->heroInstances[details.heroID]->pos;
+	CObjectInstance * ho = details.ho; //object representing this hero
+	int3 hp = details.src;
 	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 	{
 		ho->moveDir = 1;
@@ -736,8 +736,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 	}
-	CGI->heroh->heroInstances[details.heroID]->pos = details.dst; //actualizing hero position
-	CGI->heroh->heroInstances[details.heroID]->ourObject->pos = details.dst; //copy of hero's position
+	ho->pos = details.dst; //copy of hero's position
 	ho->moveDir = 0; //move ended
 	//move finished
 }

@@ -15,11 +15,30 @@ int3 CPath::endPos()
 
 CPath * CPathfinder::getPath(int3 src, int3 dest, const CHeroInstance * hero, unsigned char type) //TODO: test it (seems to be finished, but relies on unwritten functions :()
 {
-	if(src.z!=dest.z) //first check
-		return NULL;
-	if(type==1) //calibrating
+	//check input
+	if ((src.x < 0)||(src.y < 0)||(src.z < 0)||(dest.x < 0)||(dest.y < 0)||(dest.z < 0))
 	{
-		src.x-=1;
+		return NULL;
+	}
+	if ((src.x >= CGI->mh->sizes.x)||(src.y >= CGI->mh->sizes.y)||(src.z >= CGI->mh->sizes.z)
+			||(dest.x >= CGI->mh->sizes.x)||(dest.y >= CGI->mh->sizes.y)||(dest.z >= CGI->mh->sizes.z))
+	{
+		return NULL;
+	}
+
+	int3 hpos = hero->getPosition(false);
+
+	tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
+	if (!hero->canWalkOnSea())
+	{
+		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].terType==EterrainType::water)
+			blockLandSea=false;
+		else
+			blockLandSea=true;
+	}
+	else
+	{
+		blockLandSea = indeterminate;
 	}
 
 	//graph initialization
@@ -39,6 +58,10 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CHeroInstance * hero, un
 			graph[i][j]->coord.x = i;
 			graph[i][j]->coord.y = j;
 			graph[i][j]->coord.z = dest.z;
+			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].terType==EterrainType::water))
+				graph[i][j]->accesible = false;
+			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].terType!=EterrainType::water))
+				graph[i][j]->accesible = false;
 		}
 	}
 
@@ -164,4 +187,15 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CHeroInstance * hero, un
 			delete graph[i][j];
 	}
 	return ret;
+}
+
+void CPathfinder::convertPath(CPath * path, unsigned int mode) //mode=0 -> from 'manifest' to 'object'
+{
+	if (mode==0)
+	{
+		for (int i=0;i<path->nodes.size();i++)
+		{
+			path->nodes[i].coord = CHeroInstance::convertPosition(path->nodes[i].coord,true);
+		}
+	}
 }

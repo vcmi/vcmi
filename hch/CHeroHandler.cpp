@@ -439,6 +439,37 @@ unsigned int CHeroInstance::getLowestCreatureSpeed()
 	return sl;
 }
 
+int3 CHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
+{
+	if (toh3m)
+	{
+		src.x+=1;
+		return src;
+	}
+	else
+	{
+		src.x-=1;
+		return src;
+	}
+}
+int3 CHeroInstance::getPosition(bool h3m) const
+{
+	if (h3m)
+		return pos;
+	else return convertPosition(pos,false);
+}
+void CHeroInstance::setPosition(int3 Pos, bool h3m)
+{
+	if (h3m)
+		pos = Pos;
+	else
+		pos = convertPosition(Pos,true);
+}
+bool CHeroInstance::canWalkOnSea() const
+{
+	//TODO: write it - it should check if hero is flying, or something similiar
+	return false;
+}
 void CHeroHandler::initTerrainCosts()
 {
 	std::ifstream inp;

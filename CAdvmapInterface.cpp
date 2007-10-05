@@ -178,12 +178,13 @@ void CHeroList::select(int which)
 {
 	selected = which;
 	if (which>=items.size()) 
-		which=items.size();
-	draw();
+		return;
 	LOCPLINT->adventureInt->centerOn(items[which].first->pos);
 	LOCPLINT->adventureInt->selection.type = HEROI_TYPE;
 	LOCPLINT->adventureInt->selection.selected = items[which].first;
 	LOCPLINT->adventureInt->terrain.currentPath = items[which].second;
+	draw();
+	LOCPLINT->adventureInt->townList.draw();
 }
 void CHeroList::clickLeft(tribool down)
 {
@@ -308,7 +309,7 @@ void CHeroList::draw()
 		blitAtWR(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
 		SDL_Surface * temp = LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->type->portraitSmall;
 		blitAtWR(temp,posporx,pospory+i*32);
-		if (selected == iT)
+		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
 		{
 			blitAtWR(selection,posporx,pospory+i*32);
 		}
@@ -332,10 +333,16 @@ CTownList::CTownList()
 
 	arrupp.x=747;
 	arrupp.y=196;
+	arrupp.w=arrup->ourImages[0].bitmap->w;
+	arrupp.h=arrup->ourImages[0].bitmap->h;
 	arrdop.x=747;
 	arrdop.y=372;
+	arrdop.w=arrdo->ourImages[0].bitmap->w;
+	arrdop.h=arrdo->ourImages[0].bitmap->h;
 	posporx = 747;
-	pospory = 211;
+	pospory = 212;
+
+	pressed = indeterminate;
 
 	from = 0;
 	
@@ -350,12 +357,77 @@ void CTownList::genList()
 }
 void CTownList::select(int which)
 {
+	selected = which;
+	if (which>=items.size()) 
+		return;
+	LOCPLINT->adventureInt->centerOn(items[which]->pos);
+	LOCPLINT->adventureInt->selection.type = TOWNI_TYPE;
+	LOCPLINT->adventureInt->selection.selected = items[which];
+	LOCPLINT->adventureInt->terrain.currentPath = NULL;
+	draw();
+	LOCPLINT->adventureInt->heroList.draw();
 }
 void CTownList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 {
 }
 void CTownList::clickLeft(tribool down)
 {
+	if (down)
+	{
+		/***************************ARROWS*****************************************/
+		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		{
+			blitAtWR(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
+			pressed = true;
+			return;
+		}
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		{
+			blitAtWR(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
+			pressed = false;
+			return;
+		}
+		/***************************HEROES*****************************************/
+		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+		hx-=pos.x;
+		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+		float ny = (float)hy/(float)32;
+		if (ny>5 || ny<0)
+			return;
+		select(ny+from);
+	}
+	else
+	{
+		if (indeterminate(pressed))
+			return;
+		if (pressed) //up
+		{
+			blitAtWR(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+			pressed = indeterminate;
+			if (!down)
+			{
+				from--;
+				if (from<0)
+					from=0;
+				draw();
+			}
+		}
+		else if (!pressed) //down
+		{
+			blitAtWR(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+			pressed = indeterminate;
+			if (!down)
+			{
+				from++;
+				if (from<items.size()-5)
+					from=items.size()-5;
+				draw();
+			}
+		}
+		else
+			throw 0;
+
+	}
 }
 void CTownList::clickRight(tribool down)
 {
@@ -379,7 +451,7 @@ void CTownList::draw()
 
 		blitAtWR(CGI->townh->getPic(items[i]->type),posporx,pospory+i*32);
 
-		if (selected == iT)
+		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
 		{
 			blitAtWR(CGI->townh->getPic(-2),posporx,pospory+i*32);
 		}
@@ -598,8 +670,8 @@ void CTerrainRect::clickLeft(tribool down)
 	{
 		if ( (currentPath->endPos()) == mp)
 		{ //move
-			LOCPLINT->cb->moveHero(0,currentPath->endPos(),0, 1);//todo - move selected hero
-			return;
+			CPath sended(*currentPath); //temporary path - engine will operate on it
+			LOCPLINT->cb->moveHero( ((const CHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
 		}
 		else
 		{
@@ -608,7 +680,7 @@ void CTerrainRect::clickLeft(tribool down)
 		}
 	}
 	const CHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first;
-	int3 bufpos = currentHero->pos;
+	int3 bufpos = currentHero->getPosition(false);
 	//bufpos.x-=1;
 	currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
 }
