@@ -505,7 +505,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					case 1:
 						{
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
-							for(int gg=0; gg<iv.size(); ++gg)
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
 							{
 								if(iv[gg].groupNumber==10)
 								{
@@ -514,12 +515,18 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
 							break;
 						}
 					case 2:
 						{
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
-							for(int gg=0; gg<iv.size(); ++gg)
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
 							{
 								if(iv[gg].groupNumber==5)
 								{
@@ -528,12 +535,18 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);	
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
 							break;
 						}
 					case 3:
 						{
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
-							for(int gg=0; gg<iv.size(); ++gg)
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
 							{
 								if(iv[gg].groupNumber==6)
 								{
@@ -542,12 +555,18 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
 							break;
 						}
 					case 4:
 						{
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
-							for(int gg=0; gg<iv.size(); ++gg)
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
 							{
 								if(iv[gg].groupNumber==7)
 								{
@@ -556,12 +575,18 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
 							break;
 						}
 					case 5:
 						{
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
-							for(int gg=0; gg<iv.size(); ++gg)
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
 							{
 								if(iv[gg].groupNumber==8)
 								{
@@ -570,12 +595,18 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
 							break;
 						}
 					case 6:
 						{
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
-							for(int gg=0; gg<iv.size(); ++gg)
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
 							{
 								if(iv[gg].groupNumber==9)
 								{
@@ -584,12 +615,18 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
 							break;
 						}
 					case 7:
 						{
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
-							for(int gg=0; gg<iv.size(); ++gg)
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
 							{
 								if(iv[gg].groupNumber==12)
 								{
@@ -598,12 +635,18 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
 							break;
 						}
 					case 8:
 						{
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
-							for(int gg=0; gg<iv.size(); ++gg)
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
 							{
 								if(iv[gg].groupNumber==11)
 								{
@@ -612,6 +655,11 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
 							break;
 						}
 					}
@@ -624,6 +672,15 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 		}
 	}
+
+	///enabling flags
+
+	for(int qq=0; qq<CGI->heroh->heroInstances.size(); ++qq)
+	{
+		CGI->heroh->heroInstances[qq]->ourObject->flagPrinted = false;
+	}
+
+	///flags enabled
 
 	////objects printed, printing shadow
 	for (int bx=0; bx<dx; bx++)

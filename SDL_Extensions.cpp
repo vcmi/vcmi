@@ -657,11 +657,13 @@ void CSDL_Ext::blueToPlayersNice(SDL_Surface * sur, int player) //incomplete, TO
 	}
 }
 
-void CSDL_Ext::setPlayerColor(SDL_Surface * sur, int player)
+void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
 {
+	if(player==254)
+		return;
 	if(sur->format->BitsPerPixel==8)
 	{
-		if(player != -1) 
+		if(player != 255) 
 			*(sur->format->palette->colors+5) = CGameInfo::mainObj->playerColors[player];
 		else
 			*(sur->format->palette->colors+5) = CGameInfo::mainObj->neutralColor;

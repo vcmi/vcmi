@@ -534,6 +534,7 @@ void CAmbarCendamo::deh3m()
 		nobj->defObjInfoNumber = -1;
 		nobj->isHero = false;
 		nobj->moveDir = 0;
+		nobj->owner = 254; //a lot of objs will never have an owner
 
 		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
 		//	std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
@@ -881,6 +882,7 @@ void CAmbarCendamo::deh3m()
 
 				}
 				i+=16;
+				nobj->owner = spec->player;
 				nobj->info = spec;
 				//////creating CHeroInstance
 				CHeroInstance * nhi = new CHeroInstance;
@@ -1303,6 +1305,7 @@ void CAmbarCendamo::deh3m()
 				else
 					spec->movableUnits = true;
 				i+=8;
+				nobj->owner = spec->player;
 				nobj->info = spec;
 				break;
 			}
@@ -1500,6 +1503,7 @@ void CAmbarCendamo::deh3m()
 				else
 					spec->alignment = 0xff;
 				i+=3;
+				nobj->owner = spec->player;
 				nobj->info = spec;
 				//////////// rewriting info to CTownInstance class /////////////////////
 				CTownInstance * nt = new CTownInstance;
@@ -1521,6 +1525,7 @@ void CAmbarCendamo::deh3m()
 				CPlayerOnlyObjInfo * spec = new CPlayerOnlyObjInfo;
 				spec->player = bufor[i]; ++i;
 				i+=3;
+				nobj->owner = spec->player;
 				nobj->info = spec;
 				break;
 			}
@@ -1638,6 +1643,7 @@ void CAmbarCendamo::deh3m()
 				{
 					spec->asCastle = true;
 				}
+				nobj->owner = spec->player;
 				nobj->info = spec;
 				break;
 			}
@@ -1666,6 +1672,7 @@ void CAmbarCendamo::deh3m()
 					spec->maxLevel = 7;
 				if(spec->minLevel<1)
 					spec->minLevel = 1;
+				nobj->owner = spec->player;
 				nobj->info = spec;
 				break;
 			}
@@ -1680,6 +1687,7 @@ void CAmbarCendamo::deh3m()
 					spec->maxLevel = 7;
 				if(spec->minLevel<1)
 					spec->minLevel = 1;
+				nobj->owner = spec->player;
 				nobj->info = spec;
 				break;
 			}

@@ -14,7 +14,7 @@ void CObjectHandler::loadObjects()
 	{
 		CObject nobj;
 		CGeneralTextHandler::loadToIt(nobj.name,buf,it,3);
-		if(nobj.name.size() && (nobj.name[nobj.name.size()-1]=='/10' || nobj.name[nobj.name.size()-1]=='/13'))
+		if(nobj.name.size() && (nobj.name[nobj.name.size()-1]==(char)10 || nobj.name[nobj.name.size()-1]==(char)13 || nobj.name[nobj.name.size()-1]==(char)9))
 			nobj.name = nobj.name.substr(0, nobj.name.size()-1);
 		objects.push_back(nobj);
 	}

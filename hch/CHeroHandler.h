@@ -84,6 +84,7 @@ public:
 	std::vector<CHeroInstance *> heroInstances;
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
+	std::vector<CDefHandler *> flags1, flags2, flags3; //flags blitted on heroes when 
 	unsigned int level(unsigned int experience);
 	void loadHeroes();
 	void loadSpecialAbilities();

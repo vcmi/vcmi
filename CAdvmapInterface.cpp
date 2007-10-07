@@ -696,10 +696,7 @@ void CTerrainRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(pom);
 	if (temp.size())
 	{
-		if ((*(((*((temp.end())-1)).end())-1))==(char)9) //usuwamy krzaka// TODO: a tak w ogole, to mh to powinien robic
-			LOCPLINT->adventureInt->statusbar.print((*((temp.end())-1)).substr(0,(*((temp.end())-1)).size()-1)); //ucinamy ostatni znak
-		else
-			LOCPLINT->adventureInt->statusbar.print((*((temp.end())-1)));
+		LOCPLINT->adventureInt->statusbar.print((*((temp.end())-1)));
 	}
 	else
 	{
