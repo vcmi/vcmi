@@ -639,6 +639,7 @@ void CTerrainRect::activate()
 	ClickableR::activate();
 	Hoverable::activate();
 	KeyInterested::activate();
+	MotionInterested::activate();
 }; 
 void CTerrainRect::deactivate()
 {
@@ -646,6 +647,7 @@ void CTerrainRect::deactivate()
 	ClickableR::deactivate();
 	Hoverable::deactivate();
 	KeyInterested::deactivate();
+	MotionInterested::deactivate();
 }; 
 void CTerrainRect::clickLeft(tribool down)
 {
@@ -660,10 +662,7 @@ void CTerrainRect::clickLeft(tribool down)
 		}
 		return;
 	}
-	int3 mp;
-	mp.x = LOCPLINT->adventureInt->position.x + ((LOCPLINT->current->motion.x-pos.x)/32);
-	mp.y = LOCPLINT->adventureInt->position.y + ((LOCPLINT->current->motion.y-pos.y)/32);
-	mp.z = LOCPLINT->adventureInt->position.z;
+	int3 mp = whichTileIsIt();
 	if ((mp.x<0) || (mp.y<0))
 		return;
 	if (currentPath)
@@ -689,10 +688,31 @@ void CTerrainRect::clickRight(tribool down)
 }
 void CTerrainRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 {
-	//TODO: print names of objects in toolbar
+	int3 pom=LOCPLINT->adventureInt->verifyPos(whichTileIsIt(sEvent.x,sEvent.y));
+	if (pom!=curHoveredTile)
+		curHoveredTile=pom;
+	else 
+		return;
+	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(pom);
+	if (temp.size())
+	{
+		if ((*(((*((temp.end())-1)).end())-1))==(char)9) //usuwamy krzaka// TODO: a tak w ogole, to mh to powinien robic
+			LOCPLINT->adventureInt->statusbar.print((*((temp.end())-1)).substr(0,(*((temp.end())-1)).size()-1)); //ucinamy ostatni znak
+		else
+			LOCPLINT->adventureInt->statusbar.print((*((temp.end())-1)));
+	}
+	else
+	{
+		LOCPLINT->adventureInt->statusbar.clear();
+	}
+
 }
-void CTerrainRect::hover(bool on){}
 void CTerrainRect::keyPressed (SDL_KeyboardEvent & key){}
+void CTerrainRect::hover(bool on)
+{
+	if (!on)
+		LOCPLINT->adventureInt->statusbar.clear();
+}
 void CTerrainRect::show()
 {
 	SDL_Surface * teren = CGI->mh->terrainRect
@@ -899,7 +919,18 @@ void CTerrainRect::show()
 	} // if (currentPath)
 }
 
-
+int3 CTerrainRect::whichTileIsIt(int x, int y)
+{
+	int3 ret;
+	ret.x = LOCPLINT->adventureInt->position.x + ((LOCPLINT->current->motion.x-pos.x)/32);
+	ret.y = LOCPLINT->adventureInt->position.y + ((LOCPLINT->current->motion.y-pos.y)/32);
+	ret.z = LOCPLINT->adventureInt->position.z;
+	return ret;
+}
+int3 CTerrainRect::whichTileIsIt()
+{
+	return whichTileIsIt(LOCPLINT->current->motion.x,LOCPLINT->current->motion.y);
+}
 void CResDataBar::clickRight (tribool down)
 {
 }
@@ -1136,4 +1167,20 @@ CAdvMapInt::CurrentSelection::CurrentSelection()
 {
 	type=-1;
 	selected=NULL;
+}
+int3 CAdvMapInt::verifyPos(int3 ver)
+{
+	if (ver.x<0)
+		ver.x=0;
+	if (ver.y<0)
+		ver.y=0;
+	if (ver.z<0)
+		ver.z=0;
+	if (ver.x>=CGI->mh->sizes.x)
+		ver.x=CGI->mh->sizes.x-1;
+	if (ver.y>=CGI->mh->sizes.y)
+		ver.y=CGI->mh->sizes.y-1;
+	if (ver.z>=CGI->mh->sizes.z)
+		ver.z=CGI->mh->sizes.z-1;
+	return ver;
 }

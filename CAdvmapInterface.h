@@ -149,6 +149,8 @@ class CTerrainRect
 {
 public:
 	int tilesw, tilesh;
+	int3 curHoveredTile;
+
 	CDefHandler * arrows;
 	CTerrainRect();
 	CPath * currentPath;
@@ -160,6 +162,8 @@ public:
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void show();
+	int3 whichTileIsIt(int x, int y); //x,y are cursor position 
+	int3 whichTileIsIt(); //uses current cursor pos
 };
 class CResDataBar
 	:public ClickableR, public virtual CIntObject
@@ -225,7 +229,15 @@ public:
 	CResDataBar resdatabar;
 	
 	CHeroList heroList;
-	CTownList townList;
+	CTownList townList;	
+	
+	
+	struct CurrentSelection
+	{
+		int type; //0 - hero, 1 - town
+		const void* selected;
+		CurrentSelection(); //ctor
+	} selection;
 
 	//fuctions binded to buttons
 	void fshowOverview();
@@ -243,13 +255,8 @@ public:
 	void update(); //redraws terrain
 
 	void centerOn(int3 on);
+	int3 verifyPos(int3 ver);
 
-	struct CurrentSelection
-	{
-		int type; //0 - hero, 1 - town
-		const void* selected;
-		CurrentSelection(); //ctor
-	} selection;
 
 };
 #endif //CADVENTUREMAPINTERFACE_H
