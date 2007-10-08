@@ -534,6 +534,7 @@ void CAmbarCendamo::deh3m()
 		nobj->defObjInfoNumber = -1;
 		nobj->isHero = false;
 		nobj->moveDir = 0;
+		nobj->isStanding = true;
 		nobj->owner = 254; //a lot of objs will never have an owner
 
 		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
@@ -888,6 +889,7 @@ void CAmbarCendamo::deh3m()
 				CHeroInstance * nhi = new CHeroInstance;
 				spec->myInstance = nhi;
 				nobj->isHero = true;
+				nobj->moveDir = 4;
 				nhi->exp = spec->experience;
 				nhi->level = CGI->heroh->level(nhi->exp);
 				nhi->primSkills.resize(PRIMARY_SKILLS);

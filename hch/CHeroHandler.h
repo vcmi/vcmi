@@ -43,7 +43,7 @@ public:
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
 	int selectionProbability[9]; //probability of selection in towns
 	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterrain, lava, water, rock; -1 means terrain is imapassable
-	CDefHandler * moveAnim; //added group 10: up - left, 11 - left and 12 - left down
+	CDefHandler * moveAnim; //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 };
 
 class CHeroInstance
@@ -84,7 +84,7 @@ public:
 	std::vector<CHeroInstance *> heroInstances;
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
-	std::vector<CDefHandler *> flags1, flags2, flags3; //flags blitted on heroes when 
+	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when 
 	unsigned int level(unsigned int experience);
 	void loadHeroes();
 	void loadSpecialAbilities();

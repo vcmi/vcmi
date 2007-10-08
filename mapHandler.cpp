@@ -496,7 +496,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.y = (by)*32;
 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
-				if(ttiles[x+bx][y+by][level].objects[h].first->isHero && ttiles[x+bx][y+by][level].objects[h].first->moveDir)
+				if(ttiles[x+bx][y+by][level].objects[h].first->isHero && ttiles[x+bx][y+by][level].objects[h].first->moveDir && !ttiles[x+bx][y+by][level].objects[h].first->isStanding)
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
@@ -517,7 +517,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
-								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
 							}
 							break;
@@ -537,7 +537,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
-								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);	
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);	
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
 							}
 							break;
@@ -557,7 +557,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
-								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
 							}
 							break;
@@ -577,7 +577,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
-								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
 							}
 							break;
@@ -597,7 +597,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
-								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
 							}
 							break;
@@ -617,7 +617,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
-								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
 							}
 							break;
@@ -637,7 +637,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
-								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
 							}
 							break;
@@ -657,7 +657,175 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
-								SDL_BlitSurface(CGI->heroh->flags2[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
+							break;
+						}
+					}
+				}
+				else if(ttiles[x+bx][y+by][level].objects[h].first->isHero && ttiles[x+bx][y+by][level].objects[h].first->moveDir && ttiles[x+bx][y+by][level].objects[h].first->isStanding)
+				{
+					int imgVal = 8;
+					SDL_Surface * tb;
+					switch(ttiles[x+bx][y+by][level].objects[h].first->moveDir)
+					{
+					case 1:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==13)
+								{
+									tb = iv[gg].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[13*8+anim%imgVal].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
+							break;
+						}
+					case 2:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==0)
+								{
+									tb = iv[gg].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[anim%imgVal].bitmap, NULL, su, &sr);	
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
+							break;
+						}
+					case 3:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==1)
+								{
+									tb = iv[gg].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[8+anim%imgVal].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
+							break;
+						}
+					case 4:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==2)
+								{
+									tb = iv[gg].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[2*8+anim%imgVal].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
+							break;
+						}
+					case 5:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==3)
+								{
+									tb = iv[gg].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[3*8+anim%imgVal].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
+							break;
+						}
+					case 6:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==4)
+								{
+									tb = iv[gg].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[4*8+anim%imgVal].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
+							break;
+						}
+					case 7:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==15)
+								{
+									tb = iv[gg].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[15*8+anim%imgVal].bitmap, NULL, su, &sr);
+								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+							}
+							break;
+						}
+					case 8:
+						{
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							int gg;
+							for(gg=0; gg<iv.size(); ++gg)
+							{
+								if(iv[gg].groupNumber==14)
+								{
+									tb = iv[gg].bitmap;
+									break;
+								}
+							}
+							SDL_BlitSurface(tb,&pp,su,&sr);
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							{
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[14*8+anim%imgVal].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
 							}
 							break;

@@ -359,6 +359,36 @@ void CHeroHandler::loadHeroClasses()
 				o+=8;
 			}
 		}
+		for(int o=0; o<hc->moveAnim->ourImages.size(); ++o)
+		{
+			if(hc->moveAnim->ourImages[o].groupNumber==1)
+			{
+				Cimage nci;
+				nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o].bitmap);
+				nci.groupNumber = 13;
+				nci.imName = std::string();
+				hc->moveAnim->ourImages.push_back(nci);
+				//o+=1;
+			}
+			if(hc->moveAnim->ourImages[o].groupNumber==2)
+			{
+				Cimage nci;
+				nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o].bitmap);
+				nci.groupNumber = 14;
+				nci.imName = std::string();
+				hc->moveAnim->ourImages.push_back(nci);
+				//o+=1;
+			}
+			if(hc->moveAnim->ourImages[o].groupNumber==3)
+			{
+				Cimage nci;
+				nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o].bitmap);
+				nci.groupNumber = 15;
+				nci.imName = std::string();
+				hc->moveAnim->ourImages.push_back(nci);
+				//o+=1;
+			}
+		}
 
 		for(int ff=0; ff<hc->moveAnim->ourImages.size(); ++ff)
 		{

@@ -481,6 +481,104 @@ int _tmain(int argc, _TCHAR* argv[])
 			cgi->heroh->flags3[q]->alphaTransformed = true;
 		}
 
+		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF00.DEF")); //red
+		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF01.DEF")); //blue
+		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF02.DEF")); //tan
+		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF03.DEF")); //green
+		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF04.DEF")); //orange
+		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF05.DEF")); //purple
+		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF06.DEF")); //teal
+		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF07.DEF")); //pink
+
+		for(int q=0; q<8; ++q)
+		{
+			for(int o=0; o<cgi->heroh->flags4[q]->ourImages.size(); ++o)
+			{
+				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==6)
+				{
+					for(int e=0; e<8; ++e)
+					{
+						Cimage nci;
+						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
+						nci.groupNumber = 10;
+						nci.imName = std::string();
+						cgi->heroh->flags4[q]->ourImages.push_back(nci);
+					}
+					o+=8;
+				}
+				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==7)
+				{
+					for(int e=0; e<8; ++e)
+					{
+						Cimage nci;
+						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
+						nci.groupNumber = 11;
+						nci.imName = std::string();
+						cgi->heroh->flags4[q]->ourImages.push_back(nci);
+					}
+					o+=8;
+				}
+				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==8)
+				{
+					for(int e=0; e<8; ++e)
+					{
+						Cimage nci;
+						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
+						nci.groupNumber = 12;
+						nci.imName = std::string();
+						cgi->heroh->flags4[q]->ourImages.push_back(nci);
+					}
+					o+=8;
+				}
+			}
+
+			for(int o=0; o<cgi->heroh->flags4[q]->ourImages.size(); ++o)
+			{
+				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==1)
+				{
+					for(int e=0; e<8; ++e)
+					{
+						Cimage nci;
+						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
+						nci.groupNumber = 13;
+						nci.imName = std::string();
+						cgi->heroh->flags4[q]->ourImages.push_back(nci);
+					}
+					o+=8;
+				}
+				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==2)
+				{
+					for(int e=0; e<8; ++e)
+					{
+						Cimage nci;
+						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
+						nci.groupNumber = 14;
+						nci.imName = std::string();
+						cgi->heroh->flags4[q]->ourImages.push_back(nci);
+					}
+					o+=8;
+				}
+				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==3)
+				{
+					for(int e=0; e<8; ++e)
+					{
+						Cimage nci;
+						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
+						nci.groupNumber = 15;
+						nci.imName = std::string();
+						cgi->heroh->flags4[q]->ourImages.push_back(nci);
+					}
+					o+=8;
+				}
+			}
+
+			for(int ff=0; ff<cgi->heroh->flags4[q]->ourImages.size(); ++ff)
+			{
+				CSDL_Ext::fullAlphaTransform(cgi->heroh->flags4[q]->ourImages[ff].bitmap);
+			}
+			cgi->heroh->flags4[q]->alphaTransformed = true;
+		}
+
 		//hero flags initialized
 
 		THC std::cout<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
