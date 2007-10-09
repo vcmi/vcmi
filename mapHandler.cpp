@@ -504,6 +504,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					{
 					case 1:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -515,7 +517,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							if(ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
 								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
@@ -524,6 +526,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 2:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -544,6 +548,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 3:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -564,6 +570,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 4:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -584,6 +592,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 5:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -604,6 +614,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 6:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -624,6 +636,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 7:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -644,6 +658,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 8:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -672,6 +688,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					{
 					case 1:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -692,6 +710,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 2:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -712,6 +732,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 3:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -732,6 +754,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 4:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -752,6 +776,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 5:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -772,6 +798,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 6:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -792,6 +820,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 7:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
@@ -812,6 +842,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 8:
 						{
+							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+								continue;
 							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
