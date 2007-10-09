@@ -124,6 +124,7 @@ public:
 
 	void handleEvent(SDL_Event * sEvent);
 	void init(CCallback * CB);
+	int3 repairScreenPos(int3 pos);
 
 	CPlayerInterface(int Player, int serial);
 };

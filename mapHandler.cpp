@@ -517,7 +517,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
+							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
 							{
 								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
 								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;

@@ -217,6 +217,12 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
 	}
 
+	int3 buff = details.ho->pos;
+	buff.x-=11;
+	buff.y-=9;
+	buff = repairScreenPos(buff);
+	LOCPLINT->adventureInt->position = buff; //actualizing screen pos
+
 	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 	{
 		ho->moveDir = 1;
@@ -954,3 +960,16 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 	current = NULL;
 
 } //event end
+
+int3 CPlayerInterface::repairScreenPos(int3 pos)
+{
+	if(pos.x<=-Woff)
+		pos.x = -Woff+1;
+	if(pos.y<=-Hoff)
+		pos.y = -Hoff+1;
+	if(pos.x>CGI->mh->reader->map.width - this->adventureInt->terrain.tilesw + Woff)
+		pos.x = CGI->mh->reader->map.width - this->adventureInt->terrain.tilesw + Woff;
+	if(pos.y>CGI->mh->reader->map.height - this->adventureInt->terrain.tilesh + Hoff)
+		pos.y = CGI->mh->reader->map.height - this->adventureInt->terrain.tilesh + Hoff;
+	return pos;
+}
