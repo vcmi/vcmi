@@ -51,7 +51,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		else
 			hero=gs->players[player].heroes[ID];
 	}
-	else if (idtype==1 && player>=0) //szukamy lokalnie
+	else if (idtype==1 && player>=0) //looking for it in local area
 	{
 		for (int i=0; i<gs->players[player].heroes.size();i++)
 		{
