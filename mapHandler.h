@@ -7,8 +7,8 @@
 #include "hch\CDefHandler.h"
 #include <boost/logic/tribool.hpp>
 #include "hch\CObjectHandler.h"
-const int Woff = 4; //width of map's frame
-const int Hoff = 4; 
+const int Woff = 12; //width of map's frame
+const int Hoff = 8; 
 
 struct TerrainTile2
 {

@@ -2848,6 +2848,22 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 				//((CCastleObjInfo*)CGI->objh->objInstances[j].info)
 				break;
 			}
+		case EDefType::HERO_DEF:
+			{
+				std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
+						map.defy[CGI->objh->objInstances[j]->defNumber].name);
+
+				map.defy[CGI->objh->objInstances[j]->defNumber].printPriority = 0;
+				if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
+				{
+					map.defy[CGI->objh->objInstances[j]->defNumber].isOnDefList = false;
+				}
+				else
+				{
+					map.defy[CGI->objh->objInstances[j]->defNumber].isOnDefList = true;
+				}
+				break;
+			}
 		} //end of main switch
 	} //end of main loop
 	for(int j=0; j<CGI->objh->objInstances.size(); ++j) //for creature dwellings on map (they are town type dependent)

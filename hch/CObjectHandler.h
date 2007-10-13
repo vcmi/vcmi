@@ -299,7 +299,7 @@ public:
 	bool isHero; //true if this is a hero
 	unsigned char moveDir; //direction of hero movement (0 - default; 1 - lt; 2 - t; 3 - tr; 4 - r; 5 - br; 6 - b; 7 - bl; 8 - l)
 	bool isStanding; //true if is standing, flase if is moving
-	bool flagPrinted; //true if flag has been printed
+	unsigned char flagPrinted; //true if flag has been printed //number of print hits
 	unsigned char owner; //if 254, object cannot have owner; if it has, it equal to owner's ID (or 255, when no owner)
 	bool operator<(const CObjectInstance & cmp) const;  //screen printing priority comparing
 };

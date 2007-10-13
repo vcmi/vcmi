@@ -58,24 +58,24 @@ const char * NAME = "VCMI 0.3 \"Tol Galen\"";
 SDL_Surface * ekran, * screen, * screen2;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
-//#include "lua.h"
-//#include "lualib.h"
-//#include "lauxlib.h"
-//#include <luabind/luabind.hpp>
-//#include <luabind/function.hpp>
-//#include <luabind/class.hpp>
-//
-//#if (LUA_VERSION_NUM < 500)
-//#  define LUA_OPEN_LIB(L, lib) lib(L)
-//#else
-//#  define LUA_OPEN_LIB(L, lib) \
-//     lua_pushcfunction((L), lib); \
-//     lua_pcall((L), 0, 0, 0);
-//#endif
-//void piszpowitanie2(std::string i)
-//{
-//	std::cout<<"powitanie2zc++. Liczba dnia to " << i;
-//}
+#include "lua.h"
+#include "lualib.h"
+#include "lauxlib.h"
+#include <luabind/luabind.hpp>
+#include <luabind/function.hpp>
+#include <luabind/class.hpp>
+
+#if (LUA_VERSION_NUM < 500)
+#  define LUA_OPEN_LIB(L, lib) lib(L)
+#else
+#  define LUA_OPEN_LIB(L, lib) \
+     lua_pushcfunction((L), lib); \
+     lua_pcall((L), 0, 0, 0);
+#endif
+void piszpowitanie2(std::string i)
+{
+	std::cout<<"powitanie2zc++. Liczba dnia to " << i;
+}
 
 void initGameState(CGameInfo * cgi)
 {
@@ -179,39 +179,39 @@ void initGameState(CGameInfo * cgi)
 int _tmain(int argc, _TCHAR* argv[])
 { 
 
-	//int iErr = 0;
-	//lua_State *lua = lua_open ();  // Open Lua
-	//	LUA_OPEN_LIB(lua, luaopen_base);
-	//	LUA_OPEN_LIB(lua, luaopen_io);
+	int iErr = 0;
+	lua_State *lua = lua_open ();  // Open Lua
+		LUA_OPEN_LIB(lua, luaopen_base);
+		LUA_OPEN_LIB(lua, luaopen_io);
 
-	//if ((iErr = luaL_loadfile (lua, "test.lua")) == 0)
-	//{
-	//	
+	if ((iErr = luaL_loadfile (lua, "test.lua")) == 0)
+	{
+		
 
-	//   // Call main...
-	//   if ((iErr = lua_pcall (lua, 0, LUA_MULTRET, 0)) == 0)
-	//   {    
-	//	   luabind::open(lua);
-	//	   luabind::module(lua)
-	//		[
-	//			luabind::def("powitanie",&piszpowitanie2)
+	   // Call main...
+	   if ((iErr = lua_pcall (lua, 0, LUA_MULTRET, 0)) == 0)
+	   {    
+		   luabind::open(lua);
+		   luabind::module(lua)
+			[
+				luabind::def("powitanie",&piszpowitanie2)
 
-	//		];
+			];
 
-	//   //int ret = luabind::call_function<int>(lua, "helloWorld2");
+	   //int ret = luabind::call_function<int>(lua, "helloWorld2");
 
-	//	  lua_pushstring (lua, "helloWorld2");
-	//	  lua_gettable (lua, LUA_GLOBALSINDEX);  
-	//	  lua_pcall (lua, 0, 0, 0);
+		  lua_pushstring (lua, "helloWorld2");
+		  lua_gettable (lua, LUA_GLOBALSINDEX);  
+		  lua_pcall (lua, 0, 0, 0);
 
-	//	  // Push the function name onto the stack
-	//	  lua_pushstring (lua, "helloWorld");
-	//	  lua_gettable (lua, LUA_GLOBALSINDEX);  
-	//	  lua_pcall (lua, 0, 0, 0);
-	//   }
+		  // Push the function name onto the stack
+		  lua_pushstring (lua, "helloWorld");
+		  lua_gettable (lua, LUA_GLOBALSINDEX);  
+		  lua_pcall (lua, 0, 0, 0);
+	   }
 
-	//}
-	//lua_close (lua);
+	}
+	lua_close (lua);
 
 
 		//CBIKHandler cb;
@@ -358,7 +358,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 			}
 
-			for(int ff=0; ff<cgi->heroh->flags1[q]->ourImages.size(); ++ff)
+			for(int ff=80; ff<cgi->heroh->flags1[q]->ourImages.size(); ++ff)
 			{
 				CSDL_Ext::fullAlphaTransform(cgi->heroh->flags1[q]->ourImages[ff].bitmap);
 			}
@@ -416,7 +416,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 			}
 
-			for(int ff=0; ff<cgi->heroh->flags2[q]->ourImages.size(); ++ff)
+			for(int ff=80; ff<cgi->heroh->flags2[q]->ourImages.size(); ++ff)
 			{
 				CSDL_Ext::fullAlphaTransform(cgi->heroh->flags2[q]->ourImages[ff].bitmap);
 			}
@@ -474,7 +474,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 			}
 
-			for(int ff=0; ff<cgi->heroh->flags3[q]->ourImages.size(); ++ff)
+			for(int ff=80; ff<cgi->heroh->flags3[q]->ourImages.size(); ++ff)
 			{
 				CSDL_Ext::fullAlphaTransform(cgi->heroh->flags3[q]->ourImages[ff].bitmap);
 			}
@@ -572,7 +572,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 			}
 
-			for(int ff=0; ff<cgi->heroh->flags4[q]->ourImages.size(); ++ff)
+			for(int ff=80; ff<cgi->heroh->flags4[q]->ourImages.size(); ++ff)
 			{
 				CSDL_Ext::fullAlphaTransform(cgi->heroh->flags4[q]->ourImages[ff].bitmap);
 			}
