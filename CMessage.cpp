@@ -6,7 +6,14 @@
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include "hch\CLodHandler.h"
-
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include "CGameInterface.h"
+#include "hch\CDefHandler.h"
+#include "hch\CSemiDefHandler.h"
+#include "CGameInfo.h"
+#include "SDL_Extensions.h"
+#include <sstream>
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 
@@ -27,8 +34,8 @@ namespace NMessage
 
 CMessage::CMessage()
 {
-	if (!NMessage::background)
-		init();
+	//if (!NMessage::background)
+	//	init();
 }
 void CMessage::init()
 {
@@ -107,14 +114,14 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor)
 	return ret;
 }
 
-std::vector<std::string> * CMessage::breakText(std::string text, int line, bool userBreak)
+std::vector<std::string> * CMessage::breakText(std::string text, int line, bool userBreak, bool ifor)
 {
 	std::vector<std::string> * ret = new std::vector<std::string>();
 	while (text.length()>line)
 	{
-		int whereCut = -1;
-		bool pom = true;
-		for (int i=0; i<line; i++)
+		int whereCut = -1, braces=0;
+		bool pom = true, opened=false;
+		for (int i=0; i<line+braces; i++) 
 		{
 			if (text[i]==10) //end of line sign
 			{
@@ -122,17 +129,35 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line, bool 
 				pom=false;
 				break;
 			}
+			else if (ifor && (text[i]=='{') || (text[i]=='}')) // ignore braces
+			{
+				if (text[i]=='{')
+					opened=true;
+				else 
+					opened=false;
+				braces++;
+			}
 		}
-		for (int i=line; i>0&&pom; i--)
+		for (int i=line+braces; i>0&&pom; i--)
 		{
 			if (text[i]==' ')
 			{
 				whereCut = i;
 				break;
 			}
+			else if (opened && text[i]=='{')
+				opened = false;
+			else if (text[i]=='}')
+				opened = true;
 		}
 		ret->push_back(text.substr(0,whereCut));
 		text.erase(0,whereCut);
+		boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(" "));
+		if (opened)
+		{
+			(*(ret->end()-1))+='}';
+			text.insert(0,"{");
+		}
 	}
 	for (int i=0;i<text.length();i++)
 	{		
@@ -145,8 +170,90 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line, bool 
 	}
 	if (text.length() > 0)
 		ret->push_back(text);
+	for (int i=0; i<ret->size(); i++)
+	{
+		boost::algorithm::trim((*ret)[i]);
+	}
 	return ret;
 }
+
+CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int Rmar, int Tmar, int Bmar)
+{
+	CSimpleWindow * ret = new CSimpleWindow();
+	std::vector<std::string> * brtext = breakText(text,32,true,true);
+	std::vector<std::vector<SDL_Surface*> > txtg;
+	txtg.resize(brtext->size());
+	for (int i=0; i<brtext->size();i++) //foreach line
+	{
+		while((*brtext)[i].length()) //jesli zostalo cos
+		{
+			int z=0; bool br=true;
+			while( ((*brtext)[i][z]) != ('{') )
+			{
+				if (z >= (((*brtext)[i].length())-1))
+				{
+					br=false;
+					break;
+				}
+				z++;
+			}
+			if (!br)
+				z++;
+			if (z)
+				txtg[i].push_back(TTF_RenderText_Blended(TNRB16,(*brtext)[i].substr(0,z).c_str(),zwykly));
+			(*brtext)[i].erase(0,z);
+			z=0;
+			if (  ((*brtext)[i].length()==0) || ((*brtext)[i][z]!='{')  )
+			{
+				continue;
+			}
+			while( ((*brtext)[i][++z]) != ('}') )
+			{}
+			//tyemp = (*brtext)[i].substr(1,z-1); //od 1 bo pomijamy otwierajaca klamre
+			txtg[i].push_back(TTF_RenderText_Blended(TNRB16,(*brtext)[i].substr(1,z-1).c_str(),tytulowy));
+			(*brtext)[i].erase(0,z+1); //z+1 bo dajemy zamykajaca klamre
+		} //ends while((*brtext)[i].length())
+	} //ends for(int i=0; i<brtext->size();i++) 
+	int max = -1, lh=0;
+	for (int i=0; i<txtg.size();i++) //szukamy najszerszej linii i lacznej wysokosci
+	{
+		int lw=0;
+		for (int j=0;j<txtg[i].size();j++)
+		{
+			lw+=txtg[i][j]->w;
+			lh+=txtg[i][j]->h;
+		}
+		if (max<lw)
+			max=lw;
+	}
+	ret->bitmap = drawBox1(max+Lmar+Rmar,lh+Tmar+Bmar,0); 
+	ret->pos.h=ret->bitmap->h;
+	ret->pos.w=ret->bitmap->w;
+	for (int i=0; i<txtg.size();i++)
+	{
+		int lw=0;
+		for (int j=0;j<txtg[i].size();j++)
+			lw+=txtg[i][j]->w;
+		int pw = ret->bitmap->w/2, ph =  ret->bitmap->h/2;
+		//int pw = Tmar, ph = Lmar;
+		pw -= lw/2;
+		ph -= (19*txtg.size())/2;
+
+		int tw = pw;
+		for (int j=0;j<txtg[i].size();j++)
+		{
+				//std::stringstream n;
+				//n <<"temp_"<<i<<"__"<<j<<".bmp";
+			blitAt(txtg[i][j],tw,ph+i*19,ret->bitmap);
+				//SDL_SaveBMP(ret->bitmap,n.str().c_str());	
+			tw+=txtg[i][j]->w;
+			SDL_FreeSurface(txtg[i][j]);
+		}
+	}
+	return ret;
+}
+
+
 SDL_Surface * CMessage::genMessage
 (std::string title, std::string text, EWindowType type, std::vector<CDefHandler*> *addPics, void * cb)
 {

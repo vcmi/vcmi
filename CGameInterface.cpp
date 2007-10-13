@@ -21,6 +21,11 @@ public:
 		return (*a.first)<(*b.first);
 	}
 } ocmptwo_cgin ;
+CSimpleWindow::~CSimpleWindow()
+{
+	SDL_FreeSurface(bitmap);
+	bitmap=NULL;
+}
 CButtonBase::CButtonBase()
 {
 	curimg=0;
@@ -187,6 +192,8 @@ void CPlayerInterface::yourTurn()
 			adventureInt->update();
 			LOCPLINT->adventureInt->updateScreen=false;
 		}
+		for(int i=0;i<objsToBlit.size();i++)
+			blitAt(objsToBlit[i]->bitmap,objsToBlit[i]->pos.x,objsToBlit[i]->pos.y);
 		SDL_Delay(5); //give time for other apps
 		SDL_framerateDelay(mainFPSmng);
 	}
@@ -955,6 +962,28 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 			}
 			else
 				lclickable[i]->clickLeft(boost::logic::indeterminate);
+		}
+	}
+	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_RIGHT))
+	{
+		for(int i=0; i<rclickable.size();i++)
+		{
+			if (isItIn(&rclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			{
+				rclickable[i]->clickRight(true);
+			}
+		}
+	}
+	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
+	{
+		for(int i=0; i<rclickable.size();i++)
+		{
+			if (isItIn(&rclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			{
+				rclickable[i]->clickRight(false);
+			}
+			else
+				rclickable[i]->clickRight(boost::logic::indeterminate);
 		}
 	}
 	current = NULL;

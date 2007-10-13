@@ -72,6 +72,7 @@ int internalFunc(void * callback)
 				}
 				std::cout<<std::endl;
 			}
+			break;
 		}
 		//SDL_Delay(100);
 	}

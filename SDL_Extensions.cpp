@@ -7,6 +7,7 @@
 #include <algorithm>
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
+#include "hch\CDefHandler.h"
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {

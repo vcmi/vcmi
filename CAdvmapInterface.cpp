@@ -10,6 +10,9 @@
 #include "CCallback.h"
 #include <boost/assign/std/vector.hpp>
 #include "mapHandler.h"
+#include "CMessage.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
@@ -86,7 +89,7 @@ void AdventureMapButton::clickLeft (tribool down)
 }
 void AdventureMapButton::clickRight (tribool down)
 {
-	//TODO: show/hide infobox
+	LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);
 }
 void AdventureMapButton::hover (bool on)
 {
@@ -101,6 +104,7 @@ void AdventureMapButton::activate()
 	if (active) return;
 	active=true;
 	ClickableL::activate();
+	ClickableR::activate();
 	Hoverable::activate();
 	KeyInterested::activate();
 }
@@ -501,6 +505,7 @@ void CStatusBar::show()
 CMinimap::CMinimap(bool draw)
 {
 	statusbarTxt = CGI->preth->advWorldMap.first;
+	rcText = CGI->preth->advWorldMap.second;
 	pos.x=630;
 	pos.y=26;
 	pos.h=pos.w=144;
@@ -565,7 +570,9 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 void CMinimap::updateRadar()
 {}
 void CMinimap::clickRight (tribool down)
-{}
+{
+	LOCPLINT->adventureInt->handleRightClick(rcText,down,this);
+}
 void CMinimap::clickLeft (tribool down)
 {
 	if (down && (!pressedL))
@@ -682,6 +689,14 @@ void CTerrainRect::clickLeft(tribool down)
 	int3 bufpos = currentHero->getPosition(false);
 	//bufpos.x-=1;
 	currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
+
+	//if (LOCPLINT->objsToBlit.size()==0)
+	//{
+	//	CSimpleWindow * temp = CMessage::genWindow(" Tutaj dlugi dlugo test Tutaj dlugi dlugi dlugo test Tutaj dlugi dlugi dlugo test Tutaj dlugi dlugi dlugo test {Tutaj tytul} Tutaj dlugi dlugi dlugo test",0);
+	//	temp->pos.x=temp->pos.y=0;temp->ID=3;
+	//	LOCPLINT->objsToBlit.push_back(temp);
+	//}
+	//SDL_Delay(5000);
 }
 void CTerrainRect::clickRight(tribool down)
 {
@@ -1164,6 +1179,28 @@ CAdvMapInt::CurrentSelection::CurrentSelection()
 {
 	type=-1;
 	selected=NULL;
+}
+void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * client)
+{	
+	if (down)
+	{
+		boost::algorithm::erase_all(text,"\"");
+		CSimpleWindow * temp = CMessage::genWindow(text,LOCPLINT->playerID);
+		temp->pos.x=300-(temp->pos.w/2);
+		temp->pos.y=300-(temp->pos.h/2);
+		temp->owner = client;
+		LOCPLINT->objsToBlit.push_back(temp);
+	}
+	else
+	{
+		for (int i=0;i<LOCPLINT->objsToBlit.size();i++)
+		{
+			if (LOCPLINT->objsToBlit[i]->owner==client)
+			{
+				LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+(i));
+			}
+		}
+	}
 }
 int3 CAdvMapInt::verifyPos(int3 ver)
 {

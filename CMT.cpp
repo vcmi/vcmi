@@ -292,7 +292,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		p.r = 0x84; p.g = 0x84; p.b = 0x84;//gray
 		cgi->neutralColor = p;//gray
 		//colors initialized
-
+		CMessage::init();
 		cgi->townh = new CTownHandler;
 		cgi->townh->loadNames();
 		CAbilityHandler * abilh = new CAbilityHandler;

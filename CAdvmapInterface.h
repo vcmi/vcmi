@@ -129,7 +129,7 @@ public:
 	std::map<int,SDL_Color> colorsBlocked;
 	std::vector<SDL_Surface *> map; //one bitmap for each level
 	//TODO flagged buildings
-	std::string statusbarTxt;
+	std::string statusbarTxt, rcText;
 
 	CMinimap(bool draw=true); 
 	void draw();
@@ -256,6 +256,7 @@ public:
 
 	void centerOn(int3 on);
 	int3 verifyPos(int3 ver);
+	void handleRightClick(std::string text, tribool down, CIntObject * client);
 
 
 };

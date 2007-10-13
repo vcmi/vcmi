@@ -21,7 +21,15 @@ public:
 	SDL_Rect pos;
 	int ID;
 };
-class CButtonBase : public virtual CIntObject
+class CSimpleWindow : public virtual CIntObject
+{
+public:
+	SDL_Surface * bitmap;
+	CIntObject * owner;
+	CSimpleWindow():bitmap(NULL),owner(NULL){};
+	virtual ~CSimpleWindow();
+};
+class CButtonBase : public virtual CIntObject //basic buttton class
 {
 public:
 	int type; //advmapbutton=2
@@ -111,6 +119,7 @@ public:
 	std::vector<Hoverable*> hoverable;
 	std::vector<KeyInterested*> keyinterested;
 	std::vector<MotionInterested*> motioninterested;
+	std::vector<CSimpleWindow*> objsToBlit;
 
 	SDL_Surface * hInfo;
 
@@ -121,7 +130,6 @@ public:
 	void heroCreated(const CHeroInstance * hero);
 	
 	SDL_Surface * infoWin(void * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
-
 	void handleEvent(SDL_Event * sEvent);
 	void init(CCallback * CB);
 	int3 repairScreenPos(int3 pos);
