@@ -239,8 +239,8 @@ void CHeroList::clickLeft(tribool down)
 			if (!down)
 			{
 				from++;
-				if (from<items.size()-5)
-					from=items.size()-5;
+				//if (from<items.size()-5)
+				//	from=items.size()-5;
 				draw();
 			}
 		}
@@ -284,6 +284,23 @@ void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 }
 void CHeroList::clickRight(tribool down)
 {
+	if (down)
+	{
+		/***************************ARROWS*****************************************/
+		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListUp.second,down,this);
+		}
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListDown.second,down,this);
+		}
+	}
+	else
+	{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListUp.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListDown.second,down,this);
+	}
 }
 void CHeroList::hover (bool on)
 {
@@ -373,6 +390,33 @@ void CTownList::select(int which)
 }
 void CTownList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 {
+	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	{
+		if (from>0)
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advTListUp.first);
+		else
+			LOCPLINT->adventureInt->statusbar.clear();
+		return;
+	}
+	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	{
+		if ((items.size()-from)  >  5)
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advTListDown.first);
+		else
+			LOCPLINT->adventureInt->statusbar.clear();
+		return;
+	}
+	//if not buttons then heroes
+	int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+	hx-=pos.x;
+	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+	float ny = (float)hy/(float)32;
+	if ((ny>5 || ny<0) || (from+ny>=items.size()))
+	{
+		LOCPLINT->adventureInt->statusbar.clear();
+		return;
+	};
+	//LOCPLINT->adventureInt->statusbar.print( items[from+ny]->name + ", " + items[from+ny]->town->name ); //TODO - uncomment when pointer to the town type is initialized
 }
 void CTownList::clickLeft(tribool down)
 {
@@ -391,7 +435,7 @@ void CTownList::clickLeft(tribool down)
 			pressed = false;
 			return;
 		}
-		/***************************HEROES*****************************************/
+		/***************************TOWNS*****************************************/
 		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
@@ -423,8 +467,8 @@ void CTownList::clickLeft(tribool down)
 			if (!down)
 			{
 				from++;
-				if (from<items.size()-5)
-					from=items.size()-5;
+				//if (from<items.size()-5)
+				//	from=items.size()-5;
 				draw();
 			}
 		}
@@ -434,7 +478,24 @@ void CTownList::clickLeft(tribool down)
 	}
 }
 void CTownList::clickRight(tribool down)
-{
+{	
+	if (down)
+	{
+		/***************************ARROWS*****************************************/
+		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advTListUp.second,down,this);
+		}
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advTListDown.second,down,this);
+		}
+	}
+	else
+	{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advTListUp.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advTListDown.second,down,this);
+	}
 }
 void CTownList::hover (bool on)
 {
@@ -1089,6 +1150,12 @@ void CAdvMapInt::fsleepWake()
 }
 void CAdvMapInt::fmoveHero()
 {
+	if (selection.type!=HEROI_TYPE)
+		return;
+	if (!terrain.currentPath)
+		return;
+	CPath sended(*(terrain.currentPath)); //temporary path - engine will operate on it
+	LOCPLINT->cb->moveHero( ((const CHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
 }
 void CAdvMapInt::fshowSpellbok()
 {
