@@ -514,7 +514,7 @@ void CTownList::draw()
 			continue;
 		}
 
-		blitAtWR(CGI->townh->getPic(items[i]->type),posporx,pospory+i*32);
+		blitAtWR(CGI->townh->getPic(items[i]->town->typeID),posporx,pospory+i*32);
 
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
 		{
@@ -961,9 +961,12 @@ void CTerrainRect::show()
 						pn = 20;
 					}
 				}
+
 			}
+			if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > ((const CHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->movement)
+				pn+=25;
 			if (pn>=0)
-			{				
+			{			
 				int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
 					y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
 				if (x<0 || y<0 || x>pos.w || y>pos.h)

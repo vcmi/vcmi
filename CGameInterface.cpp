@@ -768,6 +768,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//ho->moveDir = 0; //move ended
 	ho->isStanding = true;
 	//move finished
+	adventureInt->heroList.draw();
 }
 void CPlayerInterface::heroKilled(const CHeroInstance * hero)
 {

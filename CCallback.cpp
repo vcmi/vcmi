@@ -102,8 +102,9 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		{
 			hero->pos = endpos;
 		}*/
-		//if(CGI->heroh->heroInstances[ID]->movement>=CGI->mh->getCost(stpos, endpos, CGI->heroh->heroInstances[ID]))
+		if((hero->movement>=CGI->mh->getCost(stpos, endpos, hero))  || player==-1)
 		{ //performing move
+			hero->movement-=CGI->mh->getCost(stpos, endpos, hero);
 			int nn=0; //number of interfece of currently browsed player
 			for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
 			{
@@ -115,8 +116,8 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 				break; //for testing only
 			}
 		}
-		//else
-			//return true; //move ended - no more movement points
+		else
+			return true; //move ended - no more movement points
 		hero->pos = curd.dst;
 		hero->ourObject->pos = curd.dst;
 	}

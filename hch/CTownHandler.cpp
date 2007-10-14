@@ -17,6 +17,7 @@ void CTownHandler::loadNames()
 	std::istringstream ins, names;
 	ins.str(CGI->bitmaph->getTextFile("TOWNTYPE.TXT"));
 	names.str(CGI->bitmaph->getTextFile("TOWNNAME.TXT"));
+	int si=0;
 	while (!ins.eof())
 	{
 		CTown town;
@@ -27,6 +28,7 @@ void CTownHandler::loadNames()
 			names.getline(bufname,50);
 			town.names.push_back(std::string(bufname));
 		}
+		town.typeID=si++;
 		town.bonus=towns.size();
 		if (town.bonus==8) town.bonus=3; 
 		if (town.name.length())
@@ -59,4 +61,14 @@ int CTownHandler::getTypeByDefName(std::string name)
 {
 	//TODO
 	return 0;
+}
+
+CTownInstance::CTownInstance()
+  :pos(-1,-1,-1)
+{
+	builded=-1;
+	destroyed=-1;
+	garrisonHero=NULL;
+	owner=-1;
+	town=NULL;
 }

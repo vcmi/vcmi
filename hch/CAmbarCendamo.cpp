@@ -1508,14 +1508,14 @@ void CAmbarCendamo::deh3m()
 				nobj->owner = spec->player;
 				nobj->info = spec;
 				//////////// rewriting info to CTownInstance class /////////////////////
-				CTownInstance * nt = new CTownInstance;
+				CTownInstance * nt = new CTownInstance();
 				nt->owner = spec->player;
-				nt->type = CTownHandler::getTypeByDefName(map.defy[nobj->defNumber].name);
+				nt->town = &CGI->townh->towns[CTownHandler::getTypeByDefName(map.defy[nobj->defNumber].name)];
 				nt->builded = 0;
 				nt->destroyed = 0;
 				nt->name = spec->name;
 				nt->garrison = spec->garrison;
-				nt->garrisonHero = spec->garnisonHero;
+				nt->garrisonHero = NULL;// spec->garnisonHero is not readed - TODO: readit
 				nt->pos = int3(spec->x, spec->y, spec->z);
 				nt->possibleSpells = spec->possibleSpells;
 				nt->obligatorySpells = spec->obligatorySpells;
@@ -2843,6 +2843,14 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					if(town1DefNumbers[nxt.bytes[20]]==-1)
 					{
 						town1DefNumbers[nxt.bytes[20]] = map.defy.size()-1;
+					}
+					for (int ij=0;ij<CGI->townh->townInstances.size();ij++) // wyharatac gdy bedzie dziedziczenie
+					{
+						if (CGI->townh->townInstances[ij]->pos==CGI->objh->objInstances[j]->pos)
+						{
+							CGI->townh->townInstances[ij]->town = &CGI->townh->towns[nxt.bytes[20]];
+							break;
+						}
 					}
 				}
 				//((CCastleObjInfo*)CGI->objh->objInstances[j].info)

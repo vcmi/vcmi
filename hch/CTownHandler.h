@@ -19,6 +19,7 @@ public:
 	std::string name; //name of type
 	std::vector<std::string> names; //names of the town instances
 	int bonus; //pic number
+	int typeID;
 };
 
 class CTownHandler
@@ -39,7 +40,6 @@ public:
 class CTownInstance
 {
 public:
-	int type; //type of town
 	int owner; //ID of owner
 	int3 pos; //position
 	CTown * town;
@@ -56,6 +56,8 @@ public:
 	CHero * garrisonHero;
 
 	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
+
+	CTownInstance();
 };
 
 #endif //CTOWNHANDLER_H
