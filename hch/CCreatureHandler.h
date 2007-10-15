@@ -9,7 +9,7 @@
 class CCreature
 {
 public:
-	std::string namePl, nameSing; //name in singular and plural form
+	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
 	int wood, mercury, ore, sulfur, crystal, gems, gold, fightValue, AIValue, growth, hordeGrowth, hitPoints, speed, attack, defence, shots, spells;
 	int low1, low2, high1, high2; //TODO - co to w ogóle jest???
 	std::string abilityText; //description of abilities
@@ -45,6 +45,7 @@ class CCreatureHandler
 {
 public:
 	std::vector<CCreature> creatures;
+	std::map<std::string,int> nameToID;
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);

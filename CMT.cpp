@@ -127,6 +127,19 @@ void initGameState(CGameInfo * cgi)
 		if (vhi->portrait < 0)
 			vhi->portrait = vhi->type->ID;
 
+
+		CCreature * ct1 = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType2stack])]);
+		int cid1 = (cgi->creh->nameToID[vhi->type->refType2stack]);
+	
+		int cid2 = (cgi->creh->nameToID[vhi->type->refType3stack]);
+
+		vhi->army.slots[0].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType1stack])]);
+		vhi->army.slots[0].second = (rand()%(vhi->type->high1stack-vhi->type->low1stack))+vhi->type->low1stack;
+		vhi->army.slots[1].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType2stack])]);
+		vhi->army.slots[1].second = (rand()%(vhi->type->high2stack-vhi->type->low2stack))+vhi->type->low2stack;
+		vhi->army.slots[2].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType3stack])]);
+		vhi->army.slots[2].second = (rand()%(vhi->type->high3stack-vhi->type->low3stack))+vhi->type->low3stack;
+
 		cgi->state->players[vhi->owner].heroes.push_back(vhi);
 
 	}

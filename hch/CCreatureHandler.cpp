@@ -2,7 +2,10 @@
 #include "../CGameInfo.h"
 #include "CCreatureHandler.h"
 #include "CLodHandler.h"
-
+#include <sstream>
+#include <boost/assign/std/vector.hpp>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 void CCreatureHandler::loadCreatures()
 {
 	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("ZCRTRAIT.TXT");
@@ -20,12 +23,12 @@ void CCreatureHandler::loadCreatures()
 
 	while(i<buf.size())
 	{
-		if(creatures.size()>190 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
-		{
-			loadAnimationInfo();
-			//loadUnitAnimations();
-			break;
-		}
+		//if(creatures.size()>190 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
+		//{
+		//	loadAnimationInfo();
+		//	loadUnitAnimations();
+		//	break;
+		//}
 
 		CCreature ncre;
 
@@ -270,26 +273,39 @@ void CCreatureHandler::loadCreatures()
 		ncre.indefUpgraded = true;
 		creatures.push_back(ncre);
 	}
+
+	std::ifstream ifs("config/crerefnam.txt");
+	int tempi;
+	std::string temps;
+	for (;;)
+	{
+		ifs >> tempi >> temps;
+		if (tempi>=creatures.size())
+			break;
+		boost::assign::insert(nameToID)(temps,tempi);
+		creatures[tempi].nameRef=temps;
+	}
+	ifs.close();
 }
 
 void CCreatureHandler::loadAnimationInfo()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("CRANIM.TXT");
-	int andame = buf.size();
-	int i=0; //buf iterator
-	int hmcr=0;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			++hmcr;
-		if(hmcr==2)
-			break;
-	}
-	i+=2;
-	for(int dd=0; dd<creatures.size(); ++dd)
-	{
-		loadUnitAnimInfo(creatures[dd], buf, i);
-	}
+	//std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("CRANIM.TXT");
+	//int andame = buf.size();
+	//int i=0; //buf iterator
+	//hmcr=0;
+	//for(i; i<andame; ++i)
+	//{
+	//	if(buf[i]=='\r')
+	//		++hmcr;
+	//	if(hmcr==2)
+	//		break;
+	//}
+	//i+=2;
+	//for(int dd=0; dd<creatures.size(); ++dd)
+	//{
+	//	loadUnitAnimInfo(creatures[dd], buf, i);
+	//}
 	return;
 }
 
