@@ -189,6 +189,8 @@ void CHeroList::select(int which)
 	LOCPLINT->adventureInt->terrain.currentPath = items[which].second;
 	draw();
 	LOCPLINT->adventureInt->townList.draw();
+	
+	LOCPLINT->adventureInt->infoBar.draw(NULL);
 }
 void CHeroList::clickLeft(tribool down)
 {
@@ -1057,7 +1059,7 @@ void CResDataBar::draw()
 }
 CInfoBar::CInfoBar()
 {
-	pos.x=604;
+	pos.x=605;
 	pos.y=389;
 	pos.w=194;
 	pos.h=186;

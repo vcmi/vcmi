@@ -30,7 +30,13 @@ void CHeroHandler::loadPortraits()
 		of>>path;
 		heroes[ID]->portraitSmall=CGI->bitmaph->loadBitmap(path);
 		if (!heroes[ID]->portraitSmall)
-			std::cout<<"Can't read portrait for "<<ID<<" ("<<path<<")\n";
+			std::cout<<"Can't read small portrait for "<<ID<<" ("<<path<<")\n";
+		path.replace(2,1,"L");
+		heroes[ID]->portraitLarge=CGI->bitmaph->loadBitmap(path);
+		if (!heroes[ID]->portraitLarge)
+			std::cout<<"Can't read large portrait for "<<ID<<" ("<<path<<")\n";	
+		SDL_SetColorKey(heroes[ID]->portraitLarge,SDL_SRCCOLORKEY,SDL_MapRGB(heroes[ID]->portraitLarge->format,0,255,255));
+
 	}
 	of.close();
 }
@@ -499,6 +505,16 @@ bool CHeroInstance::canWalkOnSea() const
 {
 	//TODO: write it - it should check if hero is flying, or something similiar
 	return false;
+}
+int CHeroInstance::getCurrentLuck() const
+{
+	//TODO: write it
+	return 0;
+}
+int CHeroInstance::getCurrentMorale() const
+{
+	//TODO: write it
+	return 0;
 }
 void CHeroHandler::initTerrainCosts()
 {

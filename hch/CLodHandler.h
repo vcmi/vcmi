@@ -65,6 +65,7 @@ public:
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
 	std::vector<CDefHandler *> extractManyFiles(std::vector<std::string> defNamesIn); //extrats given files (defs only)
 	CDefHandler * giveDef(std::string defName);
+	CDefEssential * giveDefEss(std::string defName);
 	std::string getTextFile(std::string name); //extracts one file
 	void extract(std::string FName);
 	void extractFile(std::string FName, std::string name); //extracts a specific file

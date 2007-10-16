@@ -10,7 +10,7 @@
 #include "CPathfinder.h"
 #include "mapHandler.h"
 #include <sstream>
-
+#include "SDL_Extensions.h"
 int internalFunc(void * callback)
 {
 	CCallback * cb = (CCallback*)callback;
@@ -56,6 +56,12 @@ int internalFunc(void * callback)
 			readed>>src;
 			CGI->mh->getObjDescriptions(src);
 			break;
+		case 'I': 
+			{
+				SDL_Surface * temp = LOCPLINT->infoWin(NULL);
+				blitAtWR(temp,605,389);
+				break;
+			}
 		case 'T': //test rect
 			readed>>src;
 			for(int g=0; g<8; ++g)

@@ -44,6 +44,7 @@ public:
 class CCreatureHandler
 {
 public:
+	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::vector<CCreature> creatures;
 	std::map<std::string,int> nameToID;
 	void loadCreatures();

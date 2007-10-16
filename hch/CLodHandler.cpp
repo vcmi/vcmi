@@ -400,7 +400,7 @@ CDefHandler * CLodHandler::giveDef(std::string defName)
 		nh->alphaTransformed = false;
 		ret = nh;
 	}
-	else //we will decompressing file
+	else //we will decompress file
 	{
 		outp = new unsigned char[ourEntry->size];
 		FLOD.read((char*)outp, ourEntry->size);
@@ -413,6 +413,14 @@ CDefHandler * CLodHandler::giveDef(std::string defName)
 		ret = nh;
 	}
 	delete outp;
+	return ret;
+}
+CDefEssential * CLodHandler::giveDefEss(std::string defName)
+{
+	CDefEssential * ret;
+	CDefHandler * temp = giveDef(defName);
+	ret = temp->essentialize();
+	delete temp;
 	return ret;
 }
 std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string> defNamesIn)

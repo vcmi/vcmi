@@ -184,6 +184,7 @@ public:
 class CInfoBar
 	:public virtual CIntObject
 {
+public:
 	CInfoBar();
 	void draw(void * specific=NULL); // if specific==0 function draws info about selected hero/town
 };
@@ -230,7 +231,7 @@ public:
 	
 	CHeroList heroList;
 	CTownList townList;	
-	
+	CInfoBar infoBar;
 	
 	struct CurrentSelection
 	{

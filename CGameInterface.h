@@ -14,7 +14,7 @@ class CCallback;
 class CHeroInstance;
 class CDefHandler;
 struct HeroMoveDetails;
-
+class CDefEssential;
 class CIntObject //interface object
 {
 public:
@@ -122,6 +122,9 @@ public:
 	std::vector<CSimpleWindow*> objsToBlit;
 
 	SDL_Surface * hInfo;
+	std::vector<std::pair<int, int> > slotsPos;
+	CDefEssential *luck22, *luck30, *luck42, *luck82,
+		*morale22, *morale30, *morale42, *morale82;
 
 	//overloaded funcs from Interface
 	void yourTurn();

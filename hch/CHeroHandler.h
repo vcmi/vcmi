@@ -27,7 +27,8 @@ public:
 	CHeroClass * heroClass;
 	EHeroClasses heroType; //hero class
 	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
-	SDL_Surface * portraitSmall; //48x32 p
+	SDL_Surface * portraitSmall; //48x32 px
+	SDL_Surface * portraitLarge; //58x64 px
 };
 
 class CHeroClass
@@ -74,6 +75,8 @@ public:
 	void setPosition(int3 Pos, bool h3m); //as above, but sets position
 
 	bool canWalkOnSea() const;
+	int getCurrentLuck() const;
+	int getCurrentMorale() const;
 
 	//TODO: artifacts, known spells, commander, blessings, curses, morale/luck special modifiers
 };

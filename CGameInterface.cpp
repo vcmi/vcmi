@@ -118,6 +118,24 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	CGI->localPlayer = playerID;
 	human=true;
 	hInfo = CGI->bitmaph->loadBitmap("HEROQVBK.bmp");
+	SDL_SetColorKey(hInfo,SDL_SRCCOLORKEY,SDL_MapRGB(hInfo->format,0,255,255));
+	slotsPos.push_back(std::pair<int,int>(44,82));
+	slotsPos.push_back(std::pair<int,int>(80,82));
+	slotsPos.push_back(std::pair<int,int>(116,82));
+	slotsPos.push_back(std::pair<int,int>(26,131));
+	slotsPos.push_back(std::pair<int,int>(62,131));
+	slotsPos.push_back(std::pair<int,int>(98,131));
+	slotsPos.push_back(std::pair<int,int>(134,131));
+
+	luck22 = CGI->spriteh->giveDefEss("ILCK22.DEF");
+	luck30 = CGI->spriteh->giveDefEss("ILCK30.DEF");
+	luck42 = CGI->spriteh->giveDefEss("ILCK42.DEF");
+	luck82 = CGI->spriteh->giveDefEss("ILCK82.DEF");
+	morale22 = CGI->spriteh->giveDefEss("IMRL22.DEF");
+	morale30 = CGI->spriteh->giveDefEss("IMRL30.DEF");
+	morale42 = CGI->spriteh->giveDefEss("IMRL42.DEF");
+	morale82 = CGI->spriteh->giveDefEss("IMRL82.DEF");
+
 }
 void CPlayerInterface::init(CCallback * CB)
 {
@@ -788,17 +806,27 @@ SDL_Surface * CPlayerInterface::infoWin(void * specific) //specific=0 => draws i
 			char * buf = new char[10];
 			SDL_Surface * ret = copySurface(hInfo);
 			SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-			blueToPlayersAdv(ret,playerID);
+			//blueToPlayersAdv(ret,playerID); // zygzyg - nie koloruje, tylko odrobine smieci
 			const CHeroInstance * curh = (const CHeroInstance *)adventureInt->selection.selected;
-			printAt(curh->name,15,75,GEOR13,zwykly,ret);
+			printAt(curh->name,75,15,GEOR13,zwykly,ret);
 			for (int i=0;i<PRIMARY_SKILLS;i++)
 			{
 				itoa(curh->primSkills[i],buf,10);
-				printAtMiddle(buf,87+27*i,69,GEOR13,zwykly,ret);
+				printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
 			}
+			for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
+			{
+				blitAt(CGI->creh->smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
+				itoa((*i).second.second,buf,10);
+				printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+			}
+			blitAt(curh->type->portraitLarge,11,12,ret);
 			itoa(curh->mana,buf,10);
-			printAtMiddle(buf,169,109,GEORM,zwykly,ret);
+			printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
 			delete buf;
+			blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
+			blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
+			//SDL_SaveBMP(ret,"inf1.bmp");
 			return ret;
 		}
 		else if (adventureInt->selection.type == TOWNI_TYPE)

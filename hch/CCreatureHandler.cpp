@@ -274,7 +274,8 @@ void CCreatureHandler::loadCreatures()
 		creatures.push_back(ncre);
 	}
 
-	std::ifstream ifs("config/crerefnam.txt");
+	//loading reference names
+	std::ifstream ifs("config/crerefnam.txt"); 
 	int tempi;
 	std::string temps;
 	for (;;)
@@ -286,6 +287,16 @@ void CCreatureHandler::loadCreatures()
 		creatures[tempi].nameRef=temps;
 	}
 	ifs.close();
+
+	//loading 32x32px imgs
+	CDefHandler *smi = CGI->spriteh->giveDef("CPRSMALL.DEF");
+	smi->notFreeImgs = true;
+	for (int i=0; i<smi->ourImages.size(); i++)
+	{
+		boost::assign::insert(smallImgs)(i-2,smi->ourImages[i].bitmap);
+	}
+	delete smi;
+
 }
 
 void CCreatureHandler::loadAnimationInfo()
