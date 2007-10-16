@@ -1,16 +1,21 @@
 #ifndef CCALLBACK_H
 #define CCALLBACK_H
+
+#include "mapHandler.h"
+
 class CGameState;
 class CHeroInstance;
 class CTownInstance;
 class CPath;
 class CObjectInstance;
+
 struct HeroMoveDetails
 {
 	int3 src, dst; //source and destination points
 	CObjectInstance * ho; //object instance of this hero
 	int owner;
 };
+
 class CCallback 
 {
 private:
@@ -34,6 +39,7 @@ public:
 	int howManyHeroes(int player);
 	const CHeroInstance * getHeroInfo(int player, int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
 	int getResourceAmount(int type);
+	PseudoV< PseudoV< PseudoV<unsigned char> > > & getVisibilityMap(); //returns visibility map (TODO: make it const)
 	int getDate(int mode=0); //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	bool verifyPath(CPath * path, bool blockSea);
 	

@@ -235,3 +235,8 @@ std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
 		return CGI->mh->getObjDescriptions(pos);
 	else return std::vector< std::string > ();
 }
+
+PseudoV< PseudoV< PseudoV<unsigned char> > > & CCallback::getVisibilityMap()
+{
+	return gs->players[player].fogOfWarMap;
+}

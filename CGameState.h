@@ -1,6 +1,8 @@
 #ifndef CGAMESTATE_H
 #define CGAMESTATE_H
 
+#include "mapHandler.h"
+
 class CHeroInstance;
 class CTownInstance;
 class CCallback;
@@ -9,7 +11,8 @@ struct PlayerState
 {
 public:
 	int color;
-	std::vector<std::vector<std::vector<char> > >fogOfWarMap; //true - visible, false - hidden
+	//std::vector<std::vector<std::vector<char> > > fogOfWarMap; //true - visible, false - hidden
+	PseudoV< PseudoV< PseudoV<unsigned char> > >  fogOfWarMap; //true - visible, false - hidden
 	std::vector<int> resources;
 	std::vector<CHeroInstance *> heroes;
 	std::vector<CTownInstance *> towns;

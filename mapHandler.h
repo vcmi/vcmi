@@ -50,7 +50,7 @@ public:
 		inver.resize(Offset*2+rest);
 		offset=Offset;
 	}
-	int size()
+	int size() const
 	{
 		return inver.size();
 	}
@@ -65,8 +65,8 @@ public:
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;
 
-	std::vector< std::vector<char> > visibility; //true means that pointed place is visible
-	std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
+	PseudoV< PseudoV< PseudoV<unsigned char> > > visibility; //true means that pointed place is visible
+	//std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;
 
@@ -74,12 +74,12 @@ public:
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
-	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector<char> > & visibility);
+	SDL_Surface * getVisBitmap(int x, int y, const PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, int lvl);
 
 	int getCost(int3 & a, int3 & b, const CHeroInstance * hero);
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
 	void init();
-	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0);
+	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility);
 	SDL_Surface * terrBitmap(int x, int y);
 	SDL_Surface * undTerrBitmap(int x, int y);
 

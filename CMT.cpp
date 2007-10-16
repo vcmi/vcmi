@@ -146,13 +146,13 @@ void initGameState(CGameInfo * cgi)
 	/*************************FOG**OF**WAR******************************************/		
 	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
 	{
-		k->second.fogOfWarMap.resize(cgi->ac->map.width);
+		k->second.fogOfWarMap.resize(cgi->ac->map.width, Woff);
 		for(int g=0; g<cgi->ac->map.width; ++g)
-			k->second.fogOfWarMap[g].resize(cgi->ac->map.height);
+			k->second.fogOfWarMap[g].resize(cgi->ac->map.height, Hoff);
 
 		for(int g=0; g<cgi->ac->map.width; ++g)
 			for(int h=0; h<cgi->ac->map.height; ++h)
-				k->second.fogOfWarMap[g][h].resize(cgi->ac->map.twoLevel+1);
+				k->second.fogOfWarMap[g][h].resize(cgi->ac->map.twoLevel+1, 0);
 
 		for(int g=0; g<cgi->ac->map.width; ++g)
 			for(int h=0; h<cgi->ac->map.height; ++h)

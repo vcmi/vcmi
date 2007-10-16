@@ -30,31 +30,36 @@ void CMapHandler::init()
 		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
 	}
 
-	visibility.resize(reader->map.width+2*Woff);
-	for(int gg=0; gg<reader->map.width+2*Woff; ++gg)
+	//visibility.resize(reader->map.width+2*Woff);
+	//for(int gg=0; gg<reader->map.width+2*Woff; ++gg)
+	//{
+	//	visibility[gg].resize(reader->map.height+2*Hoff);
+	//	for(int jj=0; jj<reader->map.height+2*Hoff; ++jj)
+	//		visibility[gg][jj] = true;
+	//}
+
+	visibility.resize(CGI->ac->map.width, Woff);
+	for (int i=0-Woff;i<visibility.size()-Woff;i++)
 	{
-		visibility[gg].resize(reader->map.height+2*Hoff);
-		for(int jj=0; jj<reader->map.height+2*Hoff; ++jj)
-			visibility[gg][jj] = true;
+		visibility[i].resize(CGI->ac->map.height,Hoff);
 	}
-	undVisibility.resize(reader->map.width+2*Woff);
-	for(int gg=0; gg<reader->map.width+2*Woff; ++gg)
+	for (int i=0-Woff; i<visibility.size()-Woff; ++i)
 	{
-		undVisibility[gg].resize(reader->map.height+2*Woff);
-		for(int jj=0; jj<reader->map.height+2*Woff; ++jj)
-			undVisibility[gg][jj] = true;
+		for (int j=0-Hoff; j<CGI->ac->map.height+Hoff; ++j)
+		{
+			visibility[i][j].resize(CGI->ac->map.twoLevel+1,0);
+			for(int k=0; k<CGI->ac->map.twoLevel+1; ++k)
+				visibility[i][j][k]=true;
+		}
 	}
 
-	visibility[6][7] = false;
-	undVisibility[5][7] = false;
-	visibility[7][7] = false;
-	visibility[6][8] = false;
-	visibility[6][6] = false;
-	//visibility[5][6] = false;
-	//visibility[7][8] = false;
-	visibility[5][8] = false;
-	visibility[7][6] = false;
-	visibility[6][9] = false;
+	//visibility[6][7][1] = false;
+	//visibility[7][7][1] = false;
+	//visibility[6][8][1] = false;
+	//visibility[6][6][1] = false;
+	//visibility[5][8][1] = false;
+	//visibility[7][6][1] = false;
+	//visibility[6][9][1] = false;
 
 
 	//initializing road's and river's DefHandlers
@@ -421,7 +426,7 @@ void CMapHandler::init()
 	}
 }
 
-SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim)
+SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap)
 {
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     int rmask = 0xff000000;
@@ -517,11 +522,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
-							{
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
-							}
+							pp.y+=imgVal*2-32;
+							sr.y-=16;
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 2:
@@ -539,11 +542,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
-							{
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);	
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
-							}
+							pp.y+=imgVal*2-32;
+							sr.y-=16;
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);	
 							break;
 						}
 					case 3:
@@ -561,11 +562,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
-							{
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
-							}
+							pp.y+=imgVal*2-32;
+							sr.y-=16;
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 4:
@@ -583,16 +582,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(ttiles[x+bx][y+by][level].objects[h].first->flagPrinted++==2 )
-							{
-								SDL_Rect bufr = pp;
-								bufr.w = 3*32;
-								bufr.h = 2*32;
-								bufr.x = 32 - bufr.x + 3*32 + bx + y + 6*32-10;
-								bufr.y = 32 - bufr.y + 2*32 + by + x + 5*32-12;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &bufr);
-								//ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
-							}
+							pp.y+=imgVal*2-32;
+							sr.y-=16;
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 5:
@@ -610,14 +602,12 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
-							{
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
-							}
+							pp.y+=imgVal*2-32;
+							sr.y-=16;
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
-					case 6:
+					case 6: //ok
 						{
 							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
 								continue;
@@ -632,11 +622,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
-							{
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
-							}
+							pp.y+=imgVal*2-32;
+							sr.y-=16;
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 7:
@@ -654,11 +642,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
-							{
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
-							}
+							pp.y+=imgVal*2-32;
+							sr.y-=16;
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 8:
@@ -676,11 +662,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(!ttiles[x+bx][y+by][level].objects[h].first->flagPrinted)
-							{
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, NULL, su, &sr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
-							}
+							pp.y+=imgVal*2-32;
+							sr.y-=16;
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					}
@@ -923,9 +907,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			if (!level)
 			{
 				
-				if( bx+x>-1 && by+y>-1 && bx+x<visibility.size()-(-1) && by+y<visibility[0].size()-(-1) && !visibility[bx+x][by+y])
+				//if( bx+x>-1 && by+y>-1 && bx+x<visibilityMap.size()-(-1) && by+y<visibilityMap[0].size()-(-1) && !visibilityMap[bx+x][by+y][0])
+				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && bx+x<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][0])
 				{
-					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibility);
+					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, 0);
 					SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
 					SDL_BlitSurface(hide2, NULL, su, &sr);
 					SDL_FreeSurface(hide2);
@@ -933,9 +918,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 			else
 			{
-				if( bx+x>-1 && by+y>-1 && bx+x<undVisibility.size()-(-1) && by+y<undVisibility[0].size()-(-1) && !undVisibility[bx+x][by+y])
+				//if( bx+x>-1 && by+y>-1 && bx+x<visibilityMap.size()-(-1) && by+y<visibilityMap[0].size()-(-1) && !visibilityMap[bx+x][by+y][1])
+				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && bx+x<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][1])
 				{
-					SDL_Surface * hide = getVisBitmap(bx+x, by+y, undVisibility);
+					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, 1);
 					SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
 					SDL_BlitSurface(hide2, NULL, su, &sr);
 					SDL_FreeSurface(hide2);
@@ -1014,214 +1000,214 @@ SDL_Surface * CMapHandler::undTerrBitmap(int x, int y)
 	return ttiles[x+Woff][y+Hoff][0].terbitmap[1];
 }
 
-SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector<char> > & visibility)
+SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, int lvl)
 {
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && !visibility[x+1][y+1] && !visibility[x+1][y-1] && !visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return fullHide->ourImages[rand()%fullHide->ourImages.size()].bitmap; //fully hidden
 	}
-	else if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y+1] && !visibility[x+1][y-1] && !visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[22].bitmap; //visible right bottom corner
 	}
-	else if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && !visibility[x+1][y+1] && visibility[x+1][y-1] && !visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[15].bitmap; //visible right top corner
 	}
-	else if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && !visibility[x+1][y+1] && !visibility[x+1][y-1] && visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[22].bitmap); //visible left bottom corner
 	}
-	else if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y+1] && !visibility[x+1][y-1] && !visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[15].bitmap); //visible left top corner
 	}
-	else if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y+1] && visibility[x+1][y-1] && !visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		//return partialHide->ourImages[rand()%2].bitmap; //visible top
 		return partialHide->ourImages[0].bitmap; //visible top
 	}
-	else if(visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y+1] && !visibility[x+1][y-1] && visibility[x-1][y+1])
+	else if(!visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		//return partialHide->ourImages[4+rand()%2].bitmap; //visble bottom
 		return partialHide->ourImages[4].bitmap; //visble bottom
 	}
-	else if(!visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y+1] && !visibility[x+1][y-1] && visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[2+rand()%2].bitmap); //visible left
 		return CSDL_Ext::rotate01(partialHide->ourImages[2].bitmap); //visible left
 	}
-	else if(!visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1] && !visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		//return partialHide->ourImages[2+rand()%2].bitmap; //visible right
 		return partialHide->ourImages[2].bitmap; //visible right
 	}
-	else if(visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1])
+	else if(!visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl])
 	{
 		//return partialHide->ourImages[12+2*(rand()%2)].bitmap; //visible bottom, right - bottom, right; left top corner hidden
 		return partialHide->ourImages[12].bitmap; //visible bottom, right - bottom, right; left top corner hidden
 	}
-	else if(!visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1] && !visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[13].bitmap; //visible right, right - top; left bottom corner hidden
 	}
-	else if(!visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && visibility[x][y-1] && !visibility[x+1][y+1])
+	else if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && visibility[x+1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[13].bitmap); //visible top, top - left, left; right bottom corner hidden
 	}
-	else if(visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1]  && !visibility[x+1][y-1])
+	else if(!visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x+1][y-1][lvl])
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[12+2*(rand()%2)].bitmap); //visible left, left - bottom, bottom; right top corner hidden
 		return CSDL_Ext::rotate01(partialHide->ourImages[12].bitmap); //visible left, left - bottom, bottom; right top corner hidden
 	}
-	else if(visibility[x][y+1] && visibility[x+1][y] && visibility[x-1][y] && visibility[x][y-1] && visibility[x-1][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1] && visibility[x-1][y+1])
+	else if(!visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[10].bitmap; //visible left, right, bottom and top
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1] && !visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[16].bitmap; //visible right corners
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y+1] && visibility[x+1][y-1] && !visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[18].bitmap; //visible top corners
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y+1] && !visibility[x+1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[16].bitmap); //visible left corners
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y+1] && !visibility[x+1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::hFlip(partialHide->ourImages[18].bitmap); //visible bottom corners
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && !visibility[x+1][y+1] && visibility[x+1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[17].bitmap; //visible right - top and bottom - left corners
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && visibility[x+1][y+1] && !visibility[x+1][y-1] && !visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::hFlip(partialHide->ourImages[17].bitmap); //visible top - left and bottom - right corners
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[19].bitmap; //visible corners without left top
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1] && !visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[20].bitmap; //visible corners without left bottom
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y+1] && visibility[x+1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[20].bitmap); //visible corners without right bottom
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && visibility[x+1][y+1] && !visibility[x+1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[19].bitmap); //visible corners without right top
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && !visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[21].bitmap; //visible all corners only
 	}
-	if(visibility[x][y+1] && visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1])
+	if(!visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && visibility[x][y-1][lvl])
 	{
 		return partialHide->ourImages[6].bitmap; //hidden top
 	}
-	if(visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && visibility[x][y-1])
+	if(!visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && !visibility[x][y-1][lvl])
 	{
 		return partialHide->ourImages[7].bitmap; //hidden right
 	}
-	if(!visibility[x][y+1] && visibility[x+1][y] && visibility[x-1][y] && visibility[x][y-1])
+	if(visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && !visibility[x][y-1][lvl])
 	{
 		return partialHide->ourImages[8].bitmap; //hidden bottom
 	}
-	if(visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1])
+	if(!visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && !visibility[x][y-1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[6].bitmap); //hidden left
 	}
-	if(!visibility[x][y+1] && visibility[x+1][y] && visibility[x-1][y] && visibility[x][y-1])
+	if(visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && !visibility[x][y-1][lvl])
 	{
 		return partialHide->ourImages[9].bitmap; //hidden top and bottom
 	}
-	if(visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1])
+	if(!visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && !visibility[x][y-1][lvl])
 	{
 		return partialHide->ourImages[29].bitmap;  //hidden left and right
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1] && visibility[x+1][y+1] && !visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && !visibility[x+1][y+1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[24].bitmap; //visible top and right bottom corner
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1] && !visibility[x+1][y+1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && visibility[x+1][y+1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[24].bitmap); //visible top and left bottom corner
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1] && visibility[x+1][y+1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && !visibility[x+1][y+1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[33].bitmap; //visible top and bottom corners
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1] && !visibility[x+1][y+1] && visibility[x+1][y-1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[26].bitmap); //visible left and right top corner
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1] && visibility[x+1][y+1] && !visibility[x+1][y-1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x+1][y+1][lvl] && visibility[x+1][y-1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[25].bitmap); //visible left and right bottom corner
 	}
-	if(!visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1] && visibility[x+1][y+1] && visibility[x+1][y-1])
+	if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x+1][y+1][lvl] && !visibility[x+1][y-1][lvl])
 	{
 		return partialHide->ourImages[32].bitmap; //visible left and right corners
 	}
-	if(visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x+1][y-1])
+	if(!visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && visibility[x+1][y-1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[30].bitmap); //visible bottom and left top corner
 	}
-	if(visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x+1][y-1])
+	if(!visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && !visibility[x+1][y-1][lvl])
 	{
 		return partialHide->ourImages[30].bitmap; //visible bottom and right top corner
 	}
-	if(visibility[x][y+1] && !visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && visibility[x+1][y-1])
+	if(!visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && !visibility[x+1][y-1][lvl])
 	{
 		return partialHide->ourImages[31].bitmap; //visible bottom and top corners
 	}
-	if(!visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && !visibility[x-1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && visibility[x-1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[25].bitmap; //visible right and left bottom corner
 	}
-	if(!visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && !visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[26].bitmap; //visible right and left top corner
 	}
-	if(!visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1] && visibility[x-1][y+1])
+	if(visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[32].bitmap); //visible right and left cornres
 	}
-	if(visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && !visibility[x][y-1] && visibility[x-1][y-1])
+	if(!visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x-1][y-1][lvl])
 	{
 		return partialHide->ourImages[28].bitmap; //visible bottom, right - bottom, right; left top corner visible
 	}
-	else if(!visibility[x][y+1] && visibility[x+1][y] && !visibility[x-1][y] && visibility[x][y-1] && visibility[x-1][y+1])
+	else if(visibility[x][y+1][lvl] && !visibility[x+1][y][lvl] && visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && !visibility[x-1][y+1][lvl])
 	{
 		return partialHide->ourImages[27].bitmap; //visible right, right - top; left bottom corner visible
 	}
-	else if(!visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && visibility[x][y-1] && visibility[x+1][y+1])
+	else if(visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && !visibility[x][y-1][lvl] && !visibility[x+1][y+1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[27].bitmap); //visible top, top - left, left; right bottom corner visible
 	}
-	else if(visibility[x][y+1] && !visibility[x+1][y] && visibility[x-1][y] && !visibility[x][y-1]  && visibility[x+1][y-1])
+	else if(!visibility[x][y+1][lvl] && visibility[x+1][y][lvl] && !visibility[x-1][y][lvl] && visibility[x][y-1][lvl] && !visibility[x+1][y-1][lvl])
 	{
 		return CSDL_Ext::rotate01(partialHide->ourImages[28].bitmap); //visible left, left - bottom, bottom; right top corner visible
 	}
 	return fullHide->ourImages[0].bitmap; //this case should never happen, but it is better to hide too much than reveal it....
 }
 
-char & CMapHandler::visAccess(int x, int y)
-{
-	return visibility[x+Woff][y+Hoff];
-}
-
-char & CMapHandler::undVisAccess(int x, int y)
-{
-	return undVisibility[x+Woff][y+Hoff];
-}
+//char & CMapHandler::visAccess(int x, int y)
+//{
+//	return visibility[x+Woff][y+Hoff];
+//}
+//
+//char & CMapHandler::undVisAccess(int x, int y)
+//{
+//	return undVisibility[x+Woff][y+Hoff];
+//}
 
 int CMapHandler::getCost(int3 &a, int3 &b, const CHeroInstance *hero)
 {

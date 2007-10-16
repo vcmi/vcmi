@@ -790,7 +790,7 @@ void CTerrainRect::show()
 {
 	SDL_Surface * teren = CGI->mh->terrainRect
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
-		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim);
+		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim, LOCPLINT->cb->getVisibilityMap());
 	SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),ekran,&genRect(547,594,7,6));
 	SDL_FreeSurface(teren);
 	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
