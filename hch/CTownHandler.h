@@ -57,6 +57,8 @@ public:
 
 	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
 
+	int getSightDistance() const; //returns sight distance
+
 	CTownInstance();
 };
 

@@ -145,17 +145,30 @@ void initGameState(CGameInfo * cgi)
 	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
 	{
 		k->second.fogOfWarMap.resize(cgi->ac->map.width, Woff);
-		for(int g=0; g<cgi->ac->map.width; ++g)
+		for(int g=-Woff; g<cgi->ac->map.width+Woff; ++g)
 			k->second.fogOfWarMap[g].resize(cgi->ac->map.height, Hoff);
 
-		for(int g=0; g<cgi->ac->map.width; ++g)
-			for(int h=0; h<cgi->ac->map.height; ++h)
+		for(int g=-Woff; g<cgi->ac->map.width+Woff; ++g)
+			for(int h=-Hoff; h<cgi->ac->map.height+Hoff; ++h)
 				k->second.fogOfWarMap[g][h].resize(cgi->ac->map.twoLevel+1, 0);
 
-		for(int g=0; g<cgi->ac->map.width; ++g)
-			for(int h=0; h<cgi->ac->map.height; ++h)
+		for(int g=-Woff; g<cgi->ac->map.width+Woff; ++g)
+			for(int h=-Hoff; h<cgi->ac->map.height+Hoff; ++h)
 				for(int v=0; v<cgi->ac->map.twoLevel+1; ++v)
-					k->second.fogOfWarMap[g][h][v] = 1;
+					k->second.fogOfWarMap[g][h][v] = 0;
+		for(int xd=0; xd<cgi->ac->map.width; ++xd) //revealing part of map around heroes
+		{
+			for(int yd=0; yd<cgi->ac->map.height; ++yd)
+			{
+				for(int ch=0; ch<k->second.heroes.size(); ++ch)
+				{
+					int deltaX = (k->second.heroes[ch]->getPosition(false).x-xd)*(k->second.heroes[ch]->getPosition(false).x-xd);
+					int deltaY = (k->second.heroes[ch]->getPosition(false).y-yd)*(k->second.heroes[ch]->getPosition(false).y-yd);
+					if(deltaX+deltaY<=k->second.heroes[ch]->getSightDistance()*k->second.heroes[ch]->getSightDistance())
+						k->second.fogOfWarMap[xd][yd][k->second.heroes[ch]->getPosition(false).z] = 1;
+				}
+			}
+		}
 	}
 	/****************************TOWNS************************************************/
 	for (int i=0;i<cgi->townh->townInstances.size();i++)
@@ -166,6 +179,25 @@ void initGameState(CGameInfo * cgi)
 			vti->name=vti->town->names[rand()%vti->town->names.size()];
 		
 		cgi->state->players[vti->owner].towns.push_back(vti);
+	}
+
+	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
+	{
+		if(k->first==-1 || k->first==255)
+			continue;
+		for(int xd=0; xd<cgi->ac->map.width; ++xd) //revealing part of map around towns
+		{
+			for(int yd=0; yd<cgi->ac->map.height; ++yd)
+			{
+				for(int ch=0; ch<k->second.towns.size(); ++ch)
+				{
+					int deltaX = (k->second.towns[ch]->pos.x-xd)*(k->second.towns[ch]->pos.x-xd);
+					int deltaY = (k->second.towns[ch]->pos.y-yd)*(k->second.towns[ch]->pos.y-yd);
+					if(deltaX+deltaY<=k->second.towns[ch]->getSightDistance()*k->second.towns[ch]->getSightDistance())
+						k->second.fogOfWarMap[xd][yd][k->second.towns[ch]->pos.z] = 1;
+				}
+			}
+		}
 	}
 }
 

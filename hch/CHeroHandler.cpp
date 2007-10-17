@@ -536,3 +536,8 @@ void CHeroHandler::initTerrainCosts()
 	}
 	inp.close();
 }
+
+int CHeroInstance::getSightDistance() const //TODO: finish
+{
+	return 6;
+}

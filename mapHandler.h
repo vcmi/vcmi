@@ -74,7 +74,7 @@ public:
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
-	SDL_Surface * getVisBitmap(int x, int y, const PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, int lvl);
+	SDL_Surface * getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, int lvl);
 
 	int getCost(int3 & a, int3 & b, const CHeroInstance * hero);
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position

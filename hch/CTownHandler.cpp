@@ -72,3 +72,8 @@ CTownInstance::CTownInstance()
 	owner=-1;
 	town=NULL;
 }
+
+int CTownInstance::getSightDistance() const //TODO: finish
+{
+	return 10;
+}
