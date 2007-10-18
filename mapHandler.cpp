@@ -25,9 +25,48 @@ void CMapHandler::init()
 	fullHide = CGameInfo::mainObj->spriteh->giveDef("TSHRC.DEF");
 	partialHide = CGameInfo::mainObj->spriteh->giveDef("TSHRE.DEF");
 
+	//adding necessary rotations
+	Cimage nw = partialHide->ourImages[22]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[15]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[2]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[13]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[12]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[16]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[18]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[17]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[20]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[19]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[7]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[24]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[26]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[25]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[30]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[32]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[27]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	nw = partialHide->ourImages[28]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+	partialHide->ourImages.push_back(nw);
+	//necessaary rotations added
+
 	for(int i=0; i<partialHide->ourImages.size(); ++i)
 	{
-		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
+		CSDL_Ext::fullAlphaTransform(partialHide->ourImages[i].bitmap);
 	}
 
 	//visibility.resize(reader->map.width+2*Woff);
@@ -911,9 +950,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && bx+x<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][0])
 				{
 					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, 0);
-					SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
-					SDL_BlitSurface(hide2, NULL, su, &sr);
-					SDL_FreeSurface(hide2);
+					//SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
+					SDL_BlitSurface(hide, NULL, su, &sr);
+					//SDL_FreeSurface(hide2);
 				}
 			}
 			else
@@ -922,9 +961,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && bx+x<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][1])
 				{
 					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, 1);
-					SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
-					SDL_BlitSurface(hide2, NULL, su, &sr);
-					SDL_FreeSurface(hide2);
+					//SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
+					SDL_BlitSurface(hide, NULL, su, &sr);
+					//SDL_FreeSurface(hide2);
 				}
 			}
 		}
@@ -1016,11 +1055,13 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[22].bitmap); //visible left bottom corner
+		//return CSDL_Ext::rotate01(partialHide->ourImages[22].bitmap); //visible left bottom corner
+		return partialHide->ourImages[34].bitmap; //visible left bottom corner
 	}
 	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[15].bitmap); //visible left top corner
+		//return CSDL_Ext::rotate01(partialHide->ourImages[15].bitmap); //visible left top corner
+		return partialHide->ourImages[35].bitmap;
 	}
 	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
 	{
@@ -1035,7 +1076,8 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[2+rand()%2].bitmap); //visible left
-		return CSDL_Ext::rotate01(partialHide->ourImages[2].bitmap); //visible left
+		//return CSDL_Ext::rotate01(partialHide->ourImages[2].bitmap); //visible left
+		return partialHide->ourImages[36].bitmap;
 	}
 	else if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
 	{
@@ -1053,12 +1095,14 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && !visibilityMap[x+1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[13].bitmap); //visible top, top - left, left; right bottom corner hidden
+		//return CSDL_Ext::rotate01(partialHide->ourImages[13].bitmap); //visible top, top - left, left; right bottom corner hidden
+		return partialHide->ourImages[37].bitmap;
 	}
 	else if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x+1][y-1][lvl])
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[12+2*(rand()%2)].bitmap); //visible left, left - bottom, bottom; right top corner hidden
-		return CSDL_Ext::rotate01(partialHide->ourImages[12].bitmap); //visible left, left - bottom, bottom; right top corner hidden
+		//return CSDL_Ext::rotate01(partialHide->ourImages[12].bitmap); //visible left, left - bottom, bottom; right top corner hidden
+		return partialHide->ourImages[38].bitmap;
 	}
 	else if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
@@ -1074,11 +1118,13 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[16].bitmap); //visible left corners
+		//return CSDL_Ext::rotate01(partialHide->ourImages[16].bitmap); //visible left corners
+		return partialHide->ourImages[39].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::hFlip(partialHide->ourImages[18].bitmap); //visible bottom corners
+		//return CSDL_Ext::hFlip(partialHide->ourImages[18].bitmap); //visible bottom corners
+		return partialHide->ourImages[40].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
@@ -1086,7 +1132,8 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::hFlip(partialHide->ourImages[17].bitmap); //visible top - left and bottom - right corners
+		//return CSDL_Ext::hFlip(partialHide->ourImages[17].bitmap); //visible top - left and bottom - right corners
+		return partialHide->ourImages[41].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
@@ -1098,11 +1145,13 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[20].bitmap); //visible corners without right bottom
+		//return CSDL_Ext::rotate01(partialHide->ourImages[20].bitmap); //visible corners without right bottom
+		return partialHide->ourImages[42].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[19].bitmap); //visible corners without right top
+		//return CSDL_Ext::rotate01(partialHide->ourImages[19].bitmap); //visible corners without right top
+		return partialHide->ourImages[43].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
@@ -1122,7 +1171,8 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[7].bitmap); //hidden left
+		//return CSDL_Ext::rotate01(partialHide->ourImages[7].bitmap); //hidden left
+		return partialHide->ourImages[44].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl])
 	{
@@ -1138,7 +1188,8 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[24].bitmap); //visible top and left bottom corner
+		//return CSDL_Ext::rotate01(partialHide->ourImages[24].bitmap); //visible top and left bottom corner
+		return partialHide->ourImages[45].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
@@ -1146,11 +1197,13 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[26].bitmap); //visible left and right top corner
+		//return CSDL_Ext::rotate01(partialHide->ourImages[26].bitmap); //visible left and right top corner
+		return partialHide->ourImages[46].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[25].bitmap); //visible left and right bottom corner
+		//return CSDL_Ext::rotate01(partialHide->ourImages[25].bitmap); //visible left and right bottom corner
+		return partialHide->ourImages[47].bitmap;
 	}
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl])
 	{
@@ -1158,7 +1211,8 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y-1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[30].bitmap); //visible bottom and left top corner
+		//return CSDL_Ext::rotate01(partialHide->ourImages[30].bitmap); //visible bottom and left top corner
+		return partialHide->ourImages[48].bitmap;
 	}
 	if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y-1][lvl])
 	{
@@ -1178,7 +1232,8 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[32].bitmap); //visible right and left cornres
+		//return CSDL_Ext::rotate01(partialHide->ourImages[32].bitmap); //visible right and left cornres
+		return partialHide->ourImages[49].bitmap;
 	}
 	if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl])
 	{
@@ -1190,11 +1245,13 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 	}
 	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[27].bitmap); //visible top, top - left, left; right bottom corner visible
+		//return CSDL_Ext::rotate01(partialHide->ourImages[27].bitmap); //visible top, top - left, left; right bottom corner visible
+		return partialHide->ourImages[50].bitmap;
 	}
 	else if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y-1][lvl])
 	{
-		return CSDL_Ext::rotate01(partialHide->ourImages[28].bitmap); //visible left, left - bottom, bottom; right top corner visible
+		//return CSDL_Ext::rotate01(partialHide->ourImages[28].bitmap); //visible left, left - bottom, bottom; right top corner visible
+		return partialHide->ourImages[51].bitmap;
 	}
 	return fullHide->ourImages[0].bitmap; //this case should never happen, but it is better to hide too much than reveal it....
 }

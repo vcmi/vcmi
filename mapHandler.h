@@ -65,7 +65,7 @@ public:
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;
 
-	PseudoV< PseudoV< PseudoV<unsigned char> > > visibility; //true means that pointed place is visible
+	PseudoV< PseudoV< PseudoV<unsigned char> > > visibility; //true means that pointed place is visible //not used now
 	//std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;

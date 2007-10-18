@@ -164,7 +164,7 @@ void initGameState(CGameInfo * cgi)
 				{
 					int deltaX = (k->second.heroes[ch]->getPosition(false).x-xd)*(k->second.heroes[ch]->getPosition(false).x-xd);
 					int deltaY = (k->second.heroes[ch]->getPosition(false).y-yd)*(k->second.heroes[ch]->getPosition(false).y-yd);
-					if(deltaX+deltaY<=k->second.heroes[ch]->getSightDistance()*k->second.heroes[ch]->getSightDistance())
+					if(deltaX+deltaY<k->second.heroes[ch]->getSightDistance()*k->second.heroes[ch]->getSightDistance())
 						k->second.fogOfWarMap[xd][yd][k->second.heroes[ch]->getPosition(false).z] = 1;
 				}
 			}
@@ -193,7 +193,7 @@ void initGameState(CGameInfo * cgi)
 				{
 					int deltaX = (k->second.towns[ch]->pos.x-xd)*(k->second.towns[ch]->pos.x-xd);
 					int deltaY = (k->second.towns[ch]->pos.y-yd)*(k->second.towns[ch]->pos.y-yd);
-					if(deltaX+deltaY<=k->second.towns[ch]->getSightDistance()*k->second.towns[ch]->getSightDistance())
+					if(deltaX+deltaY<k->second.towns[ch]->getSightDistance()*k->second.towns[ch]->getSightDistance())
 						k->second.fogOfWarMap[xd][yd][k->second.towns[ch]->pos.z] = 1;
 				}
 			}

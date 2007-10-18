@@ -806,7 +806,7 @@ SDL_Surface * CPlayerInterface::infoWin(void * specific) //specific=0 => draws i
 			char * buf = new char[10];
 			SDL_Surface * ret = copySurface(hInfo);
 			SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-			//blueToPlayersAdv(ret,playerID); // zygzyg - nie koloruje, tylko odrobine smieci
+			blueToPlayersAdv(ret,playerID); // zygzyg - nie koloruje, tylko odrobine smieci
 			const CHeroInstance * curh = (const CHeroInstance *)adventureInt->selection.selected;
 			printAt(curh->name,75,15,GEOR13,zwykly,ret);
 			for (int i=0;i<PRIMARY_SKILLS;i++)

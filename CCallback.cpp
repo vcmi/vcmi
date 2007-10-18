@@ -102,16 +102,6 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		{
 			hero->pos = endpos;
 		}*/
-		for(int xd=0; xd<CGI->ac->map.width; ++xd) //revealing part of map around heroes
-		{
-			for(int yd=0; yd<CGI->ac->map.height; ++yd)
-			{
-				int deltaX = (endpos.x-xd)*(endpos.x-xd);
-				int deltaY = (endpos.y-yd)*(endpos.y-yd);
-				if(deltaX+deltaY<=hero->getSightDistance()*hero->getSightDistance())
-					gs->players[player].fogOfWarMap[xd][yd][endpos.z] = 1;
-			}
-		}
 		if((hero->movement>=CGI->mh->getCost(stpos, endpos, hero))  || player==-1)
 		{ //performing move
 			hero->movement-=CGI->mh->getCost(stpos, endpos, hero);
@@ -124,6 +114,17 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 				}
 				++nn;
 				break; //for testing only
+			}
+			
+			for(int xd=0; xd<CGI->ac->map.width; ++xd) //revealing part of map around heroes
+			{
+				for(int yd=0; yd<CGI->ac->map.height; ++yd)
+				{
+					int deltaX = (hero->getPosition(false).x-xd)*(hero->getPosition(false).x-xd);
+					int deltaY = (hero->getPosition(false).y-yd)*(hero->getPosition(false).y-yd);
+					if(deltaX+deltaY<hero->getSightDistance()*hero->getSightDistance())
+						gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] = 1;
+				}
 			}
 		}
 		else

@@ -577,7 +577,7 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player)
 		{
 			for(int x=0; x<sur->w; ++x)
 			{
-				Uint8* cp = (Uint8*)sur->pixels + y+sur->pitch + x*3;
+				Uint8* cp = (Uint8*)sur->pixels + y*sur->pitch + x*3;
 				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				{
 					if(cp[2]>cp[1] && cp[2]>cp[0])
