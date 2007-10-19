@@ -233,6 +233,7 @@ inline void delObjRect(const int & x, const int & y, const int & z, const int & 
 
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
+	adventureInt->minimap.draw();
 	//initializing objects and performing first step of move
 	CObjectInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
@@ -831,8 +832,9 @@ SDL_Surface * CPlayerInterface::infoWin(void * specific) //specific=0 => draws i
 		}
 		else if (adventureInt->selection.type == TOWNI_TYPE)
 		{
-			//TODO: do it
-			return NULL;
+			char * buf = new char[10];
+			SDL_Surface * ret = copySurface(hInfo);
+			return ret;
 		}
 		else
 			return NULL;

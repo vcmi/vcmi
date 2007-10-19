@@ -172,7 +172,7 @@ void CHeroList::init()
 }
 void CHeroList::genList()
 {
-	int howMany = LOCPLINT->cb->howManyHeroes(LOCPLINT->playerID);
+	int howMany = LOCPLINT->cb->howManyHeroes();
 	for (int i=0;i<howMany;i++)
 	{
 		items.push_back(std::pair<const CHeroInstance *,CPath *>(LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0),NULL));
@@ -572,7 +572,7 @@ CMinimap::CMinimap(bool draw)
 	pos.x=630;
 	pos.y=26;
 	pos.h=pos.w=144;
-	radar = CGI->spriteh->giveDef("RADAR.DEF");
+	//radar = CGI->spriteh->giveDef("RADAR.DEF");
 	std::ifstream is("config/minimap.txt",std::ifstream::in);
 	for (int i=0;i<TERRAIN_TYPES;i++)
 	{
@@ -603,7 +603,52 @@ CMinimap::CMinimap(bool draw)
 }
 void CMinimap::draw()
 {
+	//draw terrain
 	blitAtWR(map[LOCPLINT->adventureInt->position.z],pos.x,pos.y);
+
+	//draw heroes
+	std::vector <const CHeroInstance *> * hh = LOCPLINT->cb->getHeroesInfo(false);
+	int mw = map[0]->w, mh = map[0]->h,
+		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
+	for (int i=0; i<hh->size();i++)
+	{
+		int3 hpos = (*hh)[i]->getPosition(false);
+		float zawx = ((float)hpos.x/CGI->mh->sizes.x), zawy = ((float)hpos.y/CGI->mh->sizes.y);
+		int3 maplgp ( zawx*mw, zawy*mh, hpos.z );
+		for (int ii=0; ii<wo; ii++)
+		{
+			for (int jj=0; jj<ho; jj++)
+			{
+				SDL_PutPixel(ekran,maplgp.x+pos.x+ii,maplgp.y+pos.y+jj,CGI->playerColors[(*hh)[i]->owner].r,CGI->playerColors[(*hh)[i]->owner].g,CGI->playerColors[(*hh)[i]->owner].b);
+			}
+		}
+	}
+	SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
+	delete hh;
+
+	//draw FoW
+	for (int i=0; i<mw; i++)
+	{
+		for (int j=0; j<mh; j++)
+		{
+			int3 pp;
+			pp.x = (((float)i/mw)*CGI->mh->sizes.x);
+			pp.y = (((float)j/mh)*CGI->mh->sizes.y);
+			pp.z = LOCPLINT->adventureInt->position.z;
+			if ( !LOCPLINT->cb->isVisible(pp) )
+			{
+				for (int ii=0; ii<wo; ii++)
+				{
+					for (int jj=0; jj<ho; jj++)
+					{
+						if ((i+ii<pos.w-1) && (j+jj<pos.h-1))
+							SDL_PutPixel(ekran,i+pos.x+ii,j+pos.y+jj,0,0,0);
+					}
+				}
+			}
+		}
+	}
+
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {

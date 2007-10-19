@@ -105,16 +105,6 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		if((hero->movement>=CGI->mh->getCost(stpos, endpos, hero))  || player==-1)
 		{ //performing move
 			hero->movement-=CGI->mh->getCost(stpos, endpos, hero);
-			int nn=0; //number of interfece of currently browsed player
-			for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
-			{
-				if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
-				{ //player should be notified
-					CGI->playerint[nn]->heroMoved(curd);
-				}
-				++nn;
-				break; //for testing only
-			}
 			
 			for(int xd=0; xd<CGI->ac->map.width; ++xd) //revealing part of map around heroes
 			{
@@ -126,10 +116,21 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 						gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] = 1;
 				}
 			}
+
+			hero->pos = curd.dst;
+			int nn=0; //number of interfece of currently browsed player
+			for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
+			{
+				if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
+				{ //player should be notified
+					CGI->playerint[nn]->heroMoved(curd);
+				}
+				++nn;
+				break; //for testing only
+			}
 		}
 		else
 			return true; //move ended - no more movement points
-		hero->pos = curd.dst;
 		hero->ourObject->pos = curd.dst;
 	}
 	return true;
@@ -158,10 +159,8 @@ const CTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> v
 	}
 	return NULL;
 }
-int CCallback::howManyHeroes(int player)
+int CCallback::howManyHeroes()
 {
-	if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
-		return -1;
 	return gs->players[player].heroes.size();
 }
 const CHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
@@ -250,4 +249,31 @@ std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
 PseudoV< PseudoV< PseudoV<unsigned char> > > & CCallback::getVisibilityMap()
 {
 	return gs->players[player].fogOfWarMap;
+}
+
+
+bool CCallback::isVisible(int3 pos, int Player)
+{
+	return gs->players[Player].fogOfWarMap[pos.x][pos.y][pos.z];
+}
+
+std::vector < const CHeroInstance *> * CCallback::getHeroesInfo(bool onlyOur)
+{
+	std::vector < const CHeroInstance *> * ret = new std::vector < const CHeroInstance *>();
+	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	{
+		for (int j=0;j<(*i).second.heroes.size();j++)
+		{
+			if ( ( isVisible((*i).second.heroes[j]->getPosition(false),player) ) || (*i).first==player)
+			{
+				ret->push_back((*i).second.heroes[j]);
+			}
+		}
+	} //	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	return ret;
+}
+
+bool CCallback::isVisible(int3 pos)
+{
+	return isVisible(pos,player);
 }
