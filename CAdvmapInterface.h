@@ -124,7 +124,8 @@ class CMinimap
 	: public ClickableL, public ClickableR, public Hoverable, public MotionInterested, public virtual CIntObject
 {
 public:
-	CDefHandler * radar; //radar.def; TODO: radars for maps with custom dimensions
+	SDL_Surface * radar; //radar.def; TODO: radars for maps with custom dimensions
+	SDL_Surface * temps;
 	std::map<int,SDL_Color> colors;
 	std::map<int,SDL_Color> colorsBlocked;
 	std::vector<SDL_Surface *> map; //one bitmap for each level
@@ -205,7 +206,7 @@ public:
 	bool scrollingRight ;
 	bool scrollingUp ;
 	bool scrollingDown ;
-	bool updateScreen ;
+	bool updateScreen, updateMinimap ;
 	unsigned char anim, animValHitCount; //animation frame
 
 	CMinimap minimap;

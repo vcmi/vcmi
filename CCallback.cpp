@@ -193,18 +193,23 @@ int CCallback::getDate(int mode)
 	{
 	case 0:
 		return gs->day;
+		break;
 	case 1:
 		temp = (gs->day)%7;
 		if (temp)
 			return temp;
 		else return 7;
+		break;
 	case 2:
 		temp = ((gs->day-1)/7)+1;
-		if (temp%4)
-			return temp;
-		else return 4;
+		if (!(temp%4))
+			return 4;
+		else 
+			return (temp%4);
+		break;
 	case 3:
 		return ((gs->day-1)/28)+1;
+		break;
 	}
 }
 bool CCallback::verifyPath(CPath * path, bool blockSea)

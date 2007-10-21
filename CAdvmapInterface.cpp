@@ -117,6 +117,7 @@ void AdventureMapButton::deactivate()
 	if (!active) return;
 	active=false;
 	ClickableL::deactivate();
+	ClickableR::deactivate();
 	Hoverable::deactivate();
 	KeyInterested::deactivate();
 }
@@ -572,6 +573,35 @@ CMinimap::CMinimap(bool draw)
 	pos.x=630;
 	pos.y=26;
 	pos.h=pos.w=144;
+
+	int rx = (((float)19)/(CGI->mh->sizes.x))*((float)pos.w),
+		ry = (((float)18)/(CGI->mh->sizes.y))*((float)pos.h);
+
+	radar = newSurface(rx,ry);
+	temps = newSurface(144,144);
+	SDL_FillRect(radar,NULL,0x00FFFF);
+	SDL_SaveBMP(radar,"radar1.bmp");
+	for (int i=0; i<radar->w; i++)
+	{
+		if (i%3)
+		{
+			SDL_PutPixel(radar,i,0,255,75,125);
+			SDL_PutPixel(radar,i,radar->h-1,255,75,125);
+		}
+	}
+	for (int i=0; i<radar->h; i++)
+	{
+		if ((i%4) || (i==0))
+		{
+			SDL_PutPixel(radar,0,i,255,75,125);
+			SDL_PutPixel(radar,radar->w-1,i,255,75,125);
+		}
+	}
+	SDL_SaveBMP(radar,"radar2.bmp");
+	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));
+	SDL_SaveBMP(radar,"radar3.bmp");
+	
+
 	//radar = CGI->spriteh->giveDef("RADAR.DEF");
 	std::ifstream is("config/minimap.txt",std::ifstream::in);
 	for (int i=0;i<TERRAIN_TYPES;i++)
@@ -604,7 +634,7 @@ CMinimap::CMinimap(bool draw)
 void CMinimap::draw()
 {
 	//draw terrain
-	blitAtWR(map[LOCPLINT->adventureInt->position.z],pos.x,pos.y);
+	blitAt(map[LOCPLINT->adventureInt->position.z],0,0,temps);
 
 	//draw heroes
 	std::vector <const CHeroInstance *> * hh = LOCPLINT->cb->getHeroesInfo(false);
@@ -619,7 +649,7 @@ void CMinimap::draw()
 		{
 			for (int jj=0; jj<ho; jj++)
 			{
-				SDL_PutPixel(ekran,maplgp.x+pos.x+ii,maplgp.y+pos.y+jj,CGI->playerColors[(*hh)[i]->owner].r,CGI->playerColors[(*hh)[i]->owner].g,CGI->playerColors[(*hh)[i]->owner].b);
+				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[(*hh)[i]->owner].r,CGI->playerColors[(*hh)[i]->owner].g,CGI->playerColors[(*hh)[i]->owner].b);
 			}
 		}
 	}
@@ -642,13 +672,18 @@ void CMinimap::draw()
 					for (int jj=0; jj<ho; jj++)
 					{
 						if ((i+ii<pos.w-1) && (j+jj<pos.h-1))
-							SDL_PutPixel(ekran,i+pos.x+ii,j+pos.y+jj,0,0,0);
+							SDL_PutPixel(temps,i+ii,j+jj,0,0,0);
 					}
 				}
 			}
 		}
 	}
-
+	
+	//draw radar
+	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)CGI->mh->sizes.x)))*pos.w, 
+		by = (((float)LOCPLINT->adventureInt->position.y)/(((float)CGI->mh->sizes.y)))*pos.h;
+	blitAt(radar,bx,by,temps);
+	blitAt(temps,pos.x,pos.y);
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
@@ -1312,6 +1347,7 @@ void CAdvMapInt::centerOn(int3 on)
 	LOCPLINT->adventureInt->position.y=on.y;
 	LOCPLINT->adventureInt->position.z=on.z;
 	LOCPLINT->adventureInt->updateScreen=true;
+	updateMinimap=true;
 }
 CAdvMapInt::CurrentSelection::CurrentSelection()
 {

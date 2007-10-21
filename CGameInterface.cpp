@@ -217,6 +217,7 @@ void CPlayerInterface::yourTurn()
 			{
 				LOCPLINT->adventureInt->position.x--;
 				LOCPLINT->adventureInt->updateScreen = true;
+				adventureInt->updateMinimap=true;
 			}
 		}
 		if(LOCPLINT->adventureInt->scrollingRight)
@@ -225,6 +226,7 @@ void CPlayerInterface::yourTurn()
 			{
 				LOCPLINT->adventureInt->position.x++;
 				LOCPLINT->adventureInt->updateScreen = true;
+				adventureInt->updateMinimap=true;
 			}
 		}
 		if(LOCPLINT->adventureInt->scrollingUp)
@@ -233,6 +235,7 @@ void CPlayerInterface::yourTurn()
 			{
 				LOCPLINT->adventureInt->position.y--;
 				LOCPLINT->adventureInt->updateScreen = true;
+				adventureInt->updateMinimap=true;
 			}
 		}
 		if(LOCPLINT->adventureInt->scrollingDown)
@@ -241,12 +244,18 @@ void CPlayerInterface::yourTurn()
 			{
 				LOCPLINT->adventureInt->position.y++;
 				LOCPLINT->adventureInt->updateScreen = true;
+				adventureInt->updateMinimap=true;
 			}
 		}
 		if(LOCPLINT->adventureInt->updateScreen)
 		{
 			adventureInt->update();
-			LOCPLINT->adventureInt->updateScreen=false;
+			adventureInt->updateScreen=false;
+		}
+		if (LOCPLINT->adventureInt->updateMinimap)
+		{
+			adventureInt->minimap.draw();
+			adventureInt->updateMinimap=false;
 		}
 		for(int i=0;i<objsToBlit.size();i++)
 			blitAt(objsToBlit[i]->bitmap,objsToBlit[i]->pos.x,objsToBlit[i]->pos.y);
