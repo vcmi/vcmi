@@ -7,7 +7,7 @@
 #include "SDL.h"
 #include "../int3.h"
 #include "CAmbarCendamo.h"
-#include "CGameInterface.h"
+#include "../CGameInterface.h"
 
 class CHeroClass;
 class CObjectInstance;
