@@ -31,7 +31,9 @@ namespace CSDL_Ext
 	void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
 	void update(SDL_Surface * what = ekran); //updates whole surface (default - main screen)
 	void blueToPlayers(SDL_Surface * sur, int player); //simple color substitution
-	void blueToPlayersAdv(SDL_Surface * sur, int player); //substitute blue color by another one, makes it nicer keeping nuances
+	void blueToPlayersAdv(SDL_Surface * sur, int player, int mode=0, void* additionalInfo=NULL); //substitute blue color by another one, makes it nicer keeping nuances
+																							//mode 1 is calibrated for hero infobox
+																							//mode 2 is calibrated for resbar and gets in additionalInfo a pointer to the set of (SDL_Color) which shouldn't be replaced
 	void blueToPlayersNice(SDL_Surface * sur, int player); //uses interface gems to substitute colours
 	void setPlayerColor(SDL_Surface * sur, unsigned char player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string

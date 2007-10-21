@@ -91,15 +91,23 @@ public:
 	bool human;
 	int playerID, serialID;
 
+	virtual void init(CCallback * CB)=0{};
 	virtual void yourTurn()=0{};
 	virtual void heroKilled(const CHeroInstance * hero)=0{};
 	virtual void heroCreated(const CHeroInstance * hero)=0{};
 
 	virtual void heroMoved(const HeroMoveDetails & details)=0;
 };
+class CGlobalAI;
+class CAIHandler
+{
+public:
+	static CGlobalAI * getNewAI(CCallback * cb, std::string dllname);
+};
 class CGlobalAI : public CGameInterface // AI class (to derivate)
 {
 public:
+	//CGlobalAI();
 	virtual void yourTurn(){};
 	virtual void heroKilled(const CHeroInstance * hero){};
 	virtual void heroCreated(const CHeroInstance * hero){};
@@ -107,6 +115,7 @@ public:
 class CPlayerInterface : public CGameInterface
 {
 public:
+	bool makingTurn;
 	SDL_Event * current;
 	CAdvMapInt * adventureInt;
 	FPSmanager * mainFPSmng;

@@ -253,6 +253,7 @@ public:
 	void fendTurn();
 
 	void show(); //shows and activates adv. map interface
+	void hide(); //deactivates advmap interface
 	void update(); //redraws terrain
 
 	void centerOn(int3 on);

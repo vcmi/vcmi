@@ -12,6 +12,12 @@
 #include "hch/CLodHandler.h"
 #include "CPathfinder.h"
 #include <sstream>
+
+#ifdef _WIN32
+	#include <windows.h> //for .dll libs
+#else
+	#include <dlfcn.h>
+#endif
 using namespace CSDL_Ext;
 class OCM_HLP_CGIN
 {
@@ -111,6 +117,37 @@ void MotionInterested::deactivate()
 	LOCPLINT->
 		motioninterested.erase(std::find(LOCPLINT->motioninterested.begin(),LOCPLINT->motioninterested.end(),this));
 }
+
+CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
+{
+	dllname = "AI/"+dllname;
+	CGlobalAI * ret=NULL;
+	CGlobalAI*(*getAI)();
+	void(*getName)(char*);
+#ifdef _WIN32
+	HINSTANCE dll = LoadLibraryA(dllname.c_str());
+	if (!dll)
+	{
+		std::cout << "Cannot open AI library ("<<dllname<<"). Throwing..."<<std::endl;
+		throw new std::exception("Cannot open AI library");
+	}
+	//int len = dllname.size()+1;
+	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
+	getAI = (CGlobalAI*(*)())GetProcAddress(dll,"GetNewAI");
+#else
+	; //TODO: handle AI library on Linux
+#endif
+	char * temp = new char[50];
+	getName(temp);
+	std::cout << "Loaded .dll with AI named " << temp << std::endl;
+	delete temp;
+	ret = getAI();
+	ret->init(cb);
+	return ret;
+}
+//CGlobalAI::CGlobalAI()
+//{
+//}
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
 	playerID=Player;
@@ -145,6 +182,7 @@ void CPlayerInterface::init(CCallback * CB)
 }
 void CPlayerInterface::yourTurn()
 {
+	makingTurn = true;
 	CGI->localPlayer = serialID;
 	unsigned char & animVal = LOCPLINT->adventureInt->anim; //for animations handling
 	adventureInt->show();
@@ -156,7 +194,7 @@ void CPlayerInterface::yourTurn()
 	SDL_setFramerate(mainFPSmng, 24);
 	SDL_Event sEvent;
 	//framerate keeper initialized
-	for(;;) // main loop
+	for(;makingTurn;) // main loop
 	{
 		CGI->screenh->updateScreen();
 
@@ -215,6 +253,7 @@ void CPlayerInterface::yourTurn()
 		SDL_Delay(5); //give time for other apps
 		SDL_framerateDelay(mainFPSmng);
 	}
+	adventureInt->hide();
 }
 
 inline void subRect(const int & x, const int & y, const int & z, SDL_Rect & r, const int & hid)
@@ -807,7 +846,7 @@ SDL_Surface * CPlayerInterface::infoWin(void * specific) //specific=0 => draws i
 			char * buf = new char[10];
 			SDL_Surface * ret = copySurface(hInfo);
 			SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-			blueToPlayersAdv(ret,playerID); // zygzyg - nie koloruje, tylko odrobine smieci
+			blueToPlayersAdv(ret,playerID,1);
 			const CHeroInstance * curh = (const CHeroInstance *)adventureInt->selection.selected;
 			printAt(curh->name,75,15,GEOR13,zwykly,ret);
 			for (int i=0;i<PRIMARY_SKILLS;i++)

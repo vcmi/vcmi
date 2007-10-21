@@ -60,7 +60,7 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 
 void initGameState(CGameInfo * cgi)
 {
-	cgi->state->day=1;
+	cgi->state->day=0;
 	/*********creating players entries in gs****************************************/
 	for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++)
 	{
@@ -649,11 +649,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
 		{ 
 
-			//TODO: uncomment when AI will be done
-
-			//if(cgi->scenarioOps.playerInfos[i].name=="AI")
-			//	cgi->playerint.push_back(new CGlobalAI());
-			//else 
+			if(cgi->scenarioOps.playerInfos[i].name=="Computer")
+				cgi->playerint.push_back(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color),"EmptyAI.dll"));
+			else 
 			{
 				cgi->state->currentPlayer=cgi->scenarioOps.playerInfos[i].color;
 				cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color,i));

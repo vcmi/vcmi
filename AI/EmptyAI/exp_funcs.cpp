@@ -2,7 +2,7 @@
 #include "CEmptyAI.h"
 #include <cstring>
 #include <set>
-std::set<CAIBase*> ais;
+std::set<CGlobalAI*> ais;
 
 DLL_EXPORT int GetGlobalAiVersion()
 {
@@ -13,13 +13,19 @@ DLL_EXPORT void GetAiName(char* name)
 {
 	strcpy(name,NAME);
 }
-DLL_EXPORT CAIBase * GetNewAI()
+DLL_EXPORT char * GetAiNameS()
+{
+	char * ret = new char[50];
+	strcpy(ret,NAME);
+	return ret;
+}
+DLL_EXPORT CGlobalAI * GetNewAI()
 {
 	return new CEmptyAI();
 // return
 }
-DLL_EXPORT void ReleaseAI(CAIBase * i)
+DLL_EXPORT void ReleaseAI(CGlobalAI * i)
 {
-	//delete (TTAICore*)i;
-	//ais.erase(i);
+	delete (CEmptyAI*)i;
+	ais.erase(i);
 }

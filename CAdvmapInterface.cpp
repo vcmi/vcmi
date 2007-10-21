@@ -1069,8 +1069,11 @@ CResDataBar::CResDataBar()
 {
 	bg = CGI->bitmaph->loadBitmap("ZRESBAR.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	blueToPlayersAdv(bg,LOCPLINT->playerID);
-	//blueToPlayersNice(bg,LOCPLINT->playerID);
+	//std::vector<SDL_Color> kolory;
+	//SDL_Color p1={40,65,139,255}, p2={36,59,125,255}, p3={35,56,121,255};
+	//kolory+=p1,p2,p3;
+	//blueToPlayersAdv(bg,LOCPLINT->playerID,2,&kolory);
+	blueToPlayersAdv(bg,LOCPLINT->playerID,2);
 	pos = genRect(bg->h,bg->w,3,575);
 
 	txtpos  +=  (std::pair<int,int>(35,577)),(std::pair<int,int>(120,577)),(std::pair<int,int>(205,577)),
@@ -1221,6 +1224,7 @@ void CAdvMapInt::fnextHero()
 }
 void CAdvMapInt::fendTurn()
 {
+	LOCPLINT->makingTurn = false;
 }
 
 void CAdvMapInt::show()
@@ -1261,6 +1265,23 @@ void CAdvMapInt::show()
 	statusbar.show();
 
 	SDL_Flip(ekran);
+}
+void CAdvMapInt::hide()
+{
+	kingOverview.deactivate();
+	underground.deactivate();
+	questlog.deactivate();
+	sleepWake.deactivate();
+	moveHero.deactivate();
+	spellbook.deactivate();
+	advOptions.deactivate();
+	sysOptions.deactivate();
+	nextHero.deactivate();
+	endTurn.deactivate();
+	minimap.deactivate();
+	heroList.deactivate();
+	townList.deactivate();
+	terrain.deactivate();
 }
 void CAdvMapInt::update()
 {

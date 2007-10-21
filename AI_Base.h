@@ -3,9 +3,6 @@
 #include <iostream>
 #include "int3.h"
 #include "CGameInterface.h"
-class CAIBase : public CGameInterface
-{
-};
 
 #define AI_INTERFACE_VER 1
 #ifdef _WIN32

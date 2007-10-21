@@ -36,6 +36,8 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -48,7 +50,12 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="EmptyAI.dll"
+				OutputFile="../EmptyAI.dll"
+				Version="0.1"
+				GenerateDebugInformation="true"
+				GenerateMapFile="true"
+				MapFileName="mapfile.map"
+				MapExports="true"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -98,6 +105,12 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				Optimization="3"
+				InlineFunctionExpansion="2"
+				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				EnableFiberSafeOptimizations="true"
+				WholeProgramOptimization="true"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -110,7 +123,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				OutputFile="EmptyAI.dll"
+				OutputFile="../EmptyAI.dll"
 			/>
 			<Tool
 				Name="VCALinkTool"

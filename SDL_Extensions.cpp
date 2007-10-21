@@ -8,7 +8,6 @@
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
 #include "hch\CDefHandler.h"
-
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
 	return SDL_CreateRGBSurface(mod->flags,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
@@ -538,17 +537,34 @@ void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
 	}
 }
 
-void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player)
+void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player, int mode, void* additionalInfo)
 {
 	if(player==1) //it is actually blue...
 		return;
 	if(sur->format->BitsPerPixel == 8)
 	{
-		for(int i=0; i<sur->format->palette->ncolors; ++i)
+		for(int i=0; i<sur->format->palette->ncolors; ++i) //message, button, avmap, resbar
 		{
 			SDL_Color * cc = sur->format->palette->colors+i;
-			if(cc->b>cc->g && cc->b>cc->r)
+			if(
+				((mode==0) && (cc->b>cc->g) && (cc->b>cc->r)) ||
+				((mode==1) && (cc->r<45) && (cc->b>80) && (cc->g<70) && ((cc->b-cc->r)>40)) ||
+				((mode==2) && (cc->r<110) && (cc->b>63) && (cc->g<122) && ((cc->b-cc->r)>44) && ((cc->b-cc->g)>32))
+			  )
 			{
+				if ((mode==2) && additionalInfo)
+				{
+					for (int vi=0; vi<((std::vector<SDL_Color>*)additionalInfo)->size(); vi++)
+					{
+						if 
+						  (
+							((*((std::vector<SDL_Color>*)additionalInfo))[vi].r==cc->r) &&
+							((*((std::vector<SDL_Color>*)additionalInfo))[vi].g==cc->g) &&
+							((*((std::vector<SDL_Color>*)additionalInfo))[vi].b==cc->b)
+						  )	
+							goto main8bitloopend;
+					}
+				}
 				std::vector<long long int> sort1;
 				sort1.push_back(cc->r);
 				sort1.push_back(cc->g);
@@ -569,6 +585,8 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player)
 					(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
 				}
 			}
+main8bitloopend:
+			;
 		}
 	}
 	else if(sur->format->BitsPerPixel == 24)
@@ -605,7 +623,10 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player)
 				}
 				else
 				{
-					if(cp[0]>cp[1] && cp[0]>cp[2])
+					if(
+						((mode==0) && (cp[0]>cp[1]) && (cp[0]>cp[2])) ||
+						((mode==1) && (cp[2]<45) && (cp[0]>80) && (cp[1]<70) && ((cp[0]-cp[1])>40))
+					  )
 					{
 						std::vector<long long int> sort1;
 						sort1.push_back(cp[2]);

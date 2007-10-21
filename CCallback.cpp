@@ -32,6 +32,7 @@ int CCallback::valMovePoints(CHeroInstance * chi)
 void CCallback::newTurn()
 {
 	//std::map<int, PlayerState>::iterator i = gs->players.begin() ;
+	gs->day++;
 	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		for (int j=0;j<(*i).second.heroes.size();j++)
