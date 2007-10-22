@@ -580,10 +580,9 @@ CMinimap::CMinimap(bool draw)
 	radar = newSurface(rx,ry);
 	temps = newSurface(144,144);
 	SDL_FillRect(radar,NULL,0x00FFFF);
-	SDL_SaveBMP(radar,"radar1.bmp");
 	for (int i=0; i<radar->w; i++)
 	{
-		if (i%3)
+		if (i%4 || (i==0))
 		{
 			SDL_PutPixel(radar,i,0,255,75,125);
 			SDL_PutPixel(radar,i,radar->h-1,255,75,125);
@@ -597,10 +596,7 @@ CMinimap::CMinimap(bool draw)
 			SDL_PutPixel(radar,radar->w-1,i,255,75,125);
 		}
 	}
-	SDL_SaveBMP(radar,"radar2.bmp");
-	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));
-	SDL_SaveBMP(radar,"radar3.bmp");
-	
+	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));	
 
 	//radar = CGI->spriteh->giveDef("RADAR.DEF");
 	std::ifstream is("config/minimap.txt",std::ifstream::in);

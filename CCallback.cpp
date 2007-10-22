@@ -124,10 +124,9 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 			{
 				if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
 				{ //player should be notified
-					CGI->playerint[nn]->heroMoved(curd);
+					CGI->playerint[j->first]->heroMoved(curd);
 				}
 				++nn;
-				break; //for testing only
 			}
 		}
 		else
