@@ -203,8 +203,8 @@ void initGameState(CGameInfo * cgi)
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
-	CLuaHandler luatest;
-	luatest.test();
+	//CLuaHandler luatest;
+	//luatest.test();
 
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");

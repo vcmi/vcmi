@@ -122,6 +122,8 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 			int nn=0; //number of interfece of currently browsed player
 			for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
 			{
+				if (j->first > PLAYER_LIMIT)
+					break;
 				if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
 				{ //player should be notified
 					CGI->playerint[j->first]->heroMoved(curd);
