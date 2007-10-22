@@ -53,7 +53,7 @@
 #endif
 
 #define CHUNK 16384
-const char * NAME = "VCMI 0.3 \"Tol Galen\"";
+const char * NAME = "VCMI 0.4 \"Vingilot\"";
 
 SDL_Surface * ekran, * screen, * screen2;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
@@ -203,8 +203,8 @@ void initGameState(CGameInfo * cgi)
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
-	//CLuaHandler luatest;
-	//luatest.test();
+	CLuaHandler luatest;
+	luatest.test();
 
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");
