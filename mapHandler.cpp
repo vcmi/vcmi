@@ -1316,7 +1316,7 @@ std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
 	for(int g=0; g<objs.size(); ++g)
 	{
 		if( (5-(objs[g].first->pos.y-pos.y)) >= 0 && (5-(objs[g].first->pos.y-pos.y)) < 6 && (objs[g].first->pos.x-pos.x) >= 0 && (objs[g].first->pos.x-pos.x)<7 && objs[g].first->defObjInfoNumber!=-1 &&
-			(((CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap[5-(objs[g].first->pos.y-pos.y-1)])>>((objs[g].first->pos.x-pos.x-1)))&1)==0
+			(((CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap[5-(objs[g].first->pos.y-pos.y)])>>((objs[g].first->pos.x-pos.x)))&1)==0
 			) //checking position blocking
 		{
 			unsigned char * blm = CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap;
