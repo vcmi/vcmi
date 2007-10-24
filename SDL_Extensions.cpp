@@ -394,6 +394,10 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 	SDL_SetColorKey(src, 0, trans);
 	src->flags|=SDL_SRCALPHA;
 	
+	SDL_Color transp;
+	transp.b = transp.g = transp.r = 0;
+	transp.unused = 255;
+	
 	if(src->format->BitsPerPixel == 8)
 	{
 		for(int yy=0; yy<src->format->palette->ncolors; ++yy)
@@ -429,9 +433,6 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 			}
 			if(yy==0 || (cur.r == 255 && cur.g == 0 && cur.b == 0))
 			{
-				SDL_Color transp;
-				transp.b = transp.g = transp.r = 0;
-				transp.unused = 255;
 				SDL_SetColors(src, &transp, yy, 1);
 			}
 		}
@@ -451,14 +452,6 @@ SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * al
 			pompom[i][j] = 0xffffffff - (SDL_GetPixel(src, i, j, true) & 0xff000000);
 		}
 	}
-	Uint32 pompom2[256][256];
-	for(int i=0; i<src->w; ++i)
-	{
-		for(int j=0; j<src->h; ++j)
-		{
-			pompom2[i][j] = pompom[i][j]>>24;
-		}
-	}
 	SDL_Surface * hide2 = SDL_ConvertSurface(src, alpha->format, SDL_SWSURFACE);
 	for(int i=0; i<hide2->w; ++i)
 	{
@@ -466,7 +459,6 @@ SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * al
 		{
 			Uint32 * place = (Uint32*)( (Uint8*)hide2->pixels + j * hide2->pitch + i * hide2->format->BytesPerPixel);
 			(*place)&=pompom[i][j];
-			int ffgg=0;
 		}
 	}
 	return hide2;

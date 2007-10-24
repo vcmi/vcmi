@@ -14,7 +14,7 @@ extern SDL_Surface * ekran;
 class OCM_HLP
 {
 public:
-	bool operator ()(const std::pair<CObjectInstance *, SDL_Rect> & a, const std::pair<CObjectInstance *, SDL_Rect> & b)
+	bool operator ()(const std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & a, const std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & b)
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -414,7 +414,24 @@ void CMapHandler::init()
 				cr.h = 32;
 				cr.x = fx*32;
 				cr.y = fy*32;
-				std::pair<CObjectInstance *, SDL_Rect> toAdd = std::make_pair(CGI->objh->objInstances[f], cr);
+				std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
+				///initializing places that will be coloured by blitting (flag colour / player colour positions)
+				toAdd.second.second.resize(CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages.size());
+				for(int no = 0; no<CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages.size(); ++no)
+				{
+					for(int dx=0; dx<32; ++dx)
+					{
+						for(int dy=0; dy<32; ++dy)
+						{
+							SDL_Surface * curs = CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages[no].bitmap;
+							Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
+							Uint8* r = new Uint8, *g = new Uint8, *b = new Uint8, *a = new Uint8;
+							SDL_GetRGBA(*point, curs->format, r, g, b, a);
+							if(*r==255 && *g==255 && *b==0)
+								toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
+						}
+					}
+				}
 				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 				{
 					TerrainTile2 & curt = 
@@ -539,7 +556,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.x = (bx)*32;
 				sr.y = (by)*32;
 
-				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
+				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second.first;
 				if(ttiles[x+bx][y+by][level].objects[h].first->isHero && ttiles[x+bx][y+by][level].objects[h].first->moveDir && !ttiles[x+bx][y+by][level].objects[h].first->isStanding)
 				{
 					int imgVal = 8;
@@ -921,6 +938,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					int imgVal = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages.size();
 					SDL_BlitSurface(CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
 				}
+				//printing appropriate flag colour (TODO)
 			}
 		}
 	}
@@ -1311,7 +1329,7 @@ int CMapHandler::getCost(int3 &a, int3 &b, const CHeroInstance *hero)
 
 std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
 {
-	std::vector < std::pair<CObjectInstance*,SDL_Rect> > objs = ttiles[pos.x][pos.y][pos.z].objects;
+	std::vector < std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > objs = ttiles[pos.x][pos.y][pos.z].objects;
 	std::vector<std::string> ret;
 	for(int g=0; g<objs.size(); ++g)
 	{
