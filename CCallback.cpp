@@ -212,6 +212,7 @@ int CCallback::getDate(int mode)
 		return ((gs->day-1)/28)+1;
 		break;
 	}
+	return 0;
 }
 bool CCallback::verifyPath(CPath * path, bool blockSea)
 {

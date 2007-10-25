@@ -57,6 +57,7 @@ std::string CSemiDefHandler::nameFromType (EterrainType typ)
 			break;
 		}
 	}
+	return std::string();
 }
 void CSemiDefHandler::openDef(std::string name, std::string lodName, int dist)
 {

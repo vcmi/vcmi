@@ -416,20 +416,29 @@ void CMapHandler::init()
 				cr.y = fy*32;
 				std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
 				///initializing places that will be coloured by blitting (flag colour / player colour positions)
-				toAdd.second.second.resize(CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages.size());
-				for(int no = 0; no<CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages.size(); ++no)
+				if(toAdd.first->defObjInfoNumber>=0 && CGI->dobjinfo->objs[toAdd.first->defObjInfoNumber].isVisitable())
 				{
-					for(int dx=0; dx<32; ++dx)
+					toAdd.second.second.resize(CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages.size());
+					for(int no = 0; no<CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages.size(); ++no)
 					{
-						for(int dy=0; dy<32; ++dy)
+						bool breakNow = true;
+						for(int dx=0; dx<32; ++dx)
 						{
-							SDL_Surface * curs = CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages[no].bitmap;
-							Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
-							Uint8* r = new Uint8, *g = new Uint8, *b = new Uint8, *a = new Uint8;
-							SDL_GetRGBA(*point, curs->format, r, g, b, a);
-							if(*r==255 && *g==255 && *b==0)
-								toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
+							for(int dy=0; dy<32; ++dy)
+							{
+								SDL_Surface * curs = CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages[no].bitmap;
+								Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
+								Uint8 r, g, b, a;
+								SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
+								if(r==255 && g==255 && b==0)
+								{
+									toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
+									breakNow = false;
+								}
+							}
 						}
+						if(breakNow)
+							break;
 					}
 				}
 				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
@@ -938,7 +947,22 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					int imgVal = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages.size();
 					SDL_BlitSurface(CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
 				}
-				//printing appropriate flag colour (TODO)
+				//printing appropriate flag colour
+				if(ttiles[x+bx][y+by][level].objects[h].second.second.size())
+				{
+					std::list<int3> & curl = ttiles[x+bx][y+by][level].objects[h].second.second[anim%ttiles[x+bx][y+by][level].objects[h].second.second.size()];
+					for(std::list<int3>::iterator g=curl.begin(); g!=curl.end(); ++g)
+					{
+						SDL_Color ourC;
+						int own = ttiles[x+bx][y+by][level].objects[h].first->owner;
+						if(ttiles[x+bx][y+by][level].objects[h].first->owner!=255 && ttiles[x+bx][y+by][level].objects[h].first->owner!=254)
+							ourC = CGI->playerColors[ttiles[x+bx][y+by][level].objects[h].first->owner];
+						else if(ttiles[x+bx][y+by][level].objects[h].first->owner==255)
+							ourC = CGI->neutralColor;
+						else continue;
+						CSDL_Ext::SDL_PutPixelWithoutRefresh(su, bx*32 + g->x%32 , by*32 + g->y%32, ourC.r , ourC.g, ourC.b, 0);
+					}
+				}
 			}
 		}
 	}

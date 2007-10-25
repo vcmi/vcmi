@@ -12,6 +12,7 @@ struct DefObjInfo
 	unsigned char visitMap[6];
 	unsigned char blockMap[6];
 	bool operator==(const std::string & por) const;
+	bool isVisitable() const;
 };
 
 class CDefObjInfoHandler

@@ -54,3 +54,13 @@ void CDefObjInfoHandler::load()
 		objs.push_back(nobj);
 	}
 }
+
+bool DefObjInfo::isVisitable() const
+{
+	for(int g=0; g<6; ++g)
+	{
+		if(visitMap[g]!=0)
+			return true;
+	}
+	return false;
+}

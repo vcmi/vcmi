@@ -159,6 +159,23 @@ void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, 
      SDL_UpdateRect(ekran, x, y, 1, 1);
 }
 
+void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC, Uint8 A)
+{
+     Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;
+     if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+     {
+          p[0] = B;
+          p[1] = G;
+          p[2] = R;
+     }
+     else
+     {
+          p[0] = R;
+          p[1] = G;
+          p[2] = B;
+     }
+}
+
 ///**************/
 ///Reverses the toRot surface by the vertical axis
 ///**************/

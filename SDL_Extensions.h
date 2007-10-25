@@ -15,6 +15,7 @@ SDL_Rect genRect(int hh, int ww, int xx, int yy);
 namespace CSDL_Ext
 {
 	void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC=0, Uint8 A = 255); //myC influences the start of reading pixels
+	void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC=0, Uint8 A = 255); //myC influences the start of reading pixels ; without refreshing
 	SDL_Surface * rotate01(SDL_Surface * toRot, int myC = 2); //vertical flip
 	SDL_Surface * hFlip(SDL_Surface * toRot); //horizontal flip
 	SDL_Surface * rotate02(SDL_Surface * toRot); //rotate 90 degrees left
