@@ -1367,3 +1367,15 @@ std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
 	}
 	return ret;
 }
+
+std::vector < CObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
+{
+	std::vector < CObjectInstance * > ret;
+	for(int h=0; h<ttiles[pos.x][pos.y][pos.z].objects.size(); ++h)
+	{
+		CObjectInstance * curi = ttiles[pos.x][pos.y][pos.z].objects[h].first;
+		if(curi->visitableAt(curi->pos.x - pos.x, curi->pos.y - pos.y))
+			ret.push_back(curi);
+	}
+	return ret;
+}

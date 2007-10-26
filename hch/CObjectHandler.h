@@ -301,6 +301,9 @@ public:
 	bool isStanding; //true if is standing, flase if is moving
 	unsigned char flagPrinted; //true if flag has been printed //number of print hits
 	unsigned char owner; //if 254, object cannot have owner; if it has, it equal to owner's ID (or 255, when no owner)
+	int getWidth() const; //returns width of object graphic in tiles
+	int getHeight() const; //returns height of object graphic in tiles
+	bool visitableAt(int x, int y) const; //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
 	bool operator<(const CObjectInstance & cmp) const;  //screen printing priority comparing
 };
 

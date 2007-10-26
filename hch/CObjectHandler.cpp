@@ -4,6 +4,8 @@
 #include "CGeneralTextHandler.h"
 #include "CLodHandler.h"
 #include "CAmbarCendamo.h"
+#include "mapHandler.h"
+#include "CDefObjInfoHandler.h"
 
 void CObjectHandler::loadObjects()
 {
@@ -39,6 +41,25 @@ bool CObjectInstance::operator <(const CObjectInstance &cmp) const
 	if(!CGI->ac->map.defy[cmp.defNumber].isVisitable() && CGI->ac->map.defy[this->defNumber].isVisitable())
 		return false;
 	if(this->pos.x<cmp.pos.x)
+		return true;
+	return false;
+}
+
+int CObjectInstance::getWidth() const
+{
+	return CGI->mh->reader->map.defy[defNumber].handler->ourImages[0].bitmap->w/32;
+}
+
+int CObjectInstance::getHeight() const
+{
+	return CGI->mh->reader->map.defy[defNumber].handler->ourImages[0].bitmap->h/32;
+}
+
+bool CObjectInstance::visitableAt(int x, int y) const
+{
+	if(x<0 || y<0 || x>=getWidth() || y>=getHeight())
+		return false;
+	if((CGI->dobjinfo->objs[defObjInfoNumber].visitMap[y] >> (7-x)) & 1)
 		return true;
 	return false;
 }

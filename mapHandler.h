@@ -79,6 +79,7 @@ public:
 
 	int getCost(int3 & a, int3 & b, const CHeroInstance * hero);
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
+	std::vector< CObjectInstance * > getVisitableObjs(int3 pos); //returns vector of visitable objects at certain position
 	void init();
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility);
 	SDL_Surface * terrBitmap(int x, int y);

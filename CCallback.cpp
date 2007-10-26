@@ -107,9 +107,27 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		{ //performing move
 			hero->movement-=CGI->mh->getCost(stpos, endpos, hero);
 			
-			for(int xd=0; xd<CGI->ac->map.width; ++xd) //revealing part of map around heroes
+			int heroSight = hero->getSightDistance();
+
+			int xbeg = stpos.x - heroSight - 2;
+			if(xbeg < 0)
+				xbeg = 0;
+
+			int xend = stpos.x + heroSight + 2;
+			if(xend >= CGI->ac->map.width)
+				xend = CGI->ac->map.width - 1;
+
+			int ybeg = stpos.y - heroSight - 2;
+			if(ybeg < 0)
+				ybeg = 0;
+
+			int yend = stpos.y + heroSight + 2;
+			if(yend >= CGI->ac->map.height)
+				yend = CGI->ac->map.height - 1;
+
+			for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
 			{
-				for(int yd=0; yd<CGI->ac->map.height; ++yd)
+				for(int yd=ybeg; yd<yend; ++yd)
 				{
 					int deltaX = (hero->getPosition(false).x-xd)*(hero->getPosition(false).x-xd);
 					int deltaY = (hero->getPosition(false).y-yd)*(hero->getPosition(false).y-yd);
