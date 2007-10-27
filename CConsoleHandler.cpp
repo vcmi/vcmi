@@ -46,7 +46,7 @@ int internalFunc(void * callback)
 		case 'M': //move heroa
 			{
 				readed>>heronum>>dest;
-				const CHeroInstance * hero = cb->getHeroInfo(0,heronum,0);
+				const CGHeroInstance * hero = cb->getHeroInfo(0,heronum,0);
 				CPath * path = CGI->pathf->getPath(hero->getPosition(false),dest,hero);
 				cb->moveHero(heronum, path, 0, 0);
 				delete path;

@@ -44,6 +44,7 @@
 #include "CGameState.h"
 #include "CCallback.h"
 #include "CLuaHandler.h"
+#include "CLua.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -96,9 +97,9 @@ void initGameState(CGameInfo * cgi)
 	/*************************HEROES************************************************/
 	for (int i=0; i<cgi->heroh->heroInstances.size();i++) //heroes instances
 	{
-		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->owner<0)
+		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->state->owner<0)
 			continue;
-		CHeroInstance * vhi = new CHeroInstance();
+		CGHeroInstance * vhi = new CGHeroInstance();
 		*vhi=*(cgi->heroh->heroInstances[i]);
 		if (!vhi->level)
 		{
@@ -138,7 +139,7 @@ void initGameState(CGameInfo * cgi)
 			vhi->army.slots[2].second = (rand()%(vhi->type->high3stack-vhi->type->low3stack))+vhi->type->low3stack;
 		}
 
-		cgi->state->players[vhi->owner].heroes.push_back(vhi);
+		cgi->state->players[vhi->state->owner].heroes.push_back(vhi);
 
 	}
 	/*************************FOG**OF**WAR******************************************/		
@@ -173,12 +174,12 @@ void initGameState(CGameInfo * cgi)
 	/****************************TOWNS************************************************/
 	for (int i=0;i<cgi->townh->townInstances.size();i++)
 	{
-		CTownInstance * vti = new CTownInstance();
+		CGTownInstance * vti = new CGTownInstance();
 		(*vti)=*(cgi->townh->townInstances[i]);
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name=vti->town->names[rand()%vti->town->names.size()];
 		
-		cgi->state->players[vti->owner].towns.push_back(vti);
+		cgi->state->players[vti->state->owner].towns.push_back(vti);
 	}
 
 	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
@@ -203,8 +204,13 @@ void initGameState(CGameInfo * cgi)
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
+
 	CLuaHandler luatest;
 	luatest.test();
+	CLuaHandler::searchForScripts("scripts");
+	CLua * lua = new CLua("test.lua");
+
+
 
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");

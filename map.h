@@ -6,7 +6,7 @@
 #include "global.h"
 #include "hch\CSemiDefHandler.h"
 #include "hch\CDefHandler.h"
-
+class CGDefInfo;
 enum ESortBy{name,playerAm,size,format, viccon,loscon};
 struct Sresource
 {
@@ -184,7 +184,7 @@ struct Mapa
 	TerrainTile** terrain; 
 	TerrainTile** undergroungTerrain; // used only if there is underground level
 	std::vector<Rumor> rumors;
-	std::vector<DefInfo> defy; // list of .def files
+	std::vector<CGDefInfo *> defy; // list of .def files
 	PlayerInfo players[8]; // info about players
 	std::vector<int> teams;  // teams[i] = team of player no i 
 	LossCondition lossCondition;

@@ -14,7 +14,7 @@ extern SDL_Surface * ekran;
 class OCM_HLP
 {
 public:
-	bool operator ()(const std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & a, const std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & b)
+	bool operator ()(const std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & a, const std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & b)
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -404,7 +404,7 @@ void CMapHandler::init()
 	{	
 		/*CGI->objh->objInstances[f]->pos.x+=1;
 		CGI->objh->objInstances[f]->pos.y+=1;*/
-		CDefHandler * curd = CGI->ac->map.defy[CGI->objh->objInstances[f]->defNumber].handler;
+		CDefHandler * curd = CGI->objh->objInstances[f]->defInfo->handler;
 		for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
 		{
 			for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
@@ -414,19 +414,19 @@ void CMapHandler::init()
 				cr.h = 32;
 				cr.x = fx*32;
 				cr.y = fy*32;
-				std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
+				std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
 				///initializing places that will be coloured by blitting (flag colour / player colour positions)
 				if(toAdd.first->defObjInfoNumber>=0 && CGI->dobjinfo->objs[toAdd.first->defObjInfoNumber].isVisitable())
 				{
-					toAdd.second.second.resize(CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages.size());
-					for(int no = 0; no<CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages.size(); ++no)
+					toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
+					for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)
 					{
 						bool breakNow = true;
 						for(int dx=0; dx<32; ++dx)
 						{
 							for(int dy=0; dy<32; ++dy)
 							{
-								SDL_Surface * curs = CGI->mh->reader->map.defy[toAdd.first->defNumber].handler->ourImages[no].bitmap;
+								SDL_Surface * curs = toAdd.first->defInfo->handler->ourImages[no].bitmap;
 								Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
 								Uint8 r, g, b, a;
 								SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
@@ -460,7 +460,7 @@ void CMapHandler::init()
 	{	
 		if(CGI->objh->objInstances[f]->defObjInfoNumber == -1)
 			continue;
-		CDefHandler * curd = CGI->ac->map.defy[CGI->objh->objInstances[f]->defNumber].handler;
+		CDefHandler * curd = CGI->objh->objInstances[f]->defInfo->handler;
 		for(int fx=0; fx<8; ++fx)
 		{
 			for(int fy=0; fy<6; ++fy)
@@ -566,17 +566,18 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.y = (by)*32;
 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second.first;
-				if(ttiles[x+bx][y+by][level].objects[h].first->isHero && ttiles[x+bx][y+by][level].objects[h].first->moveDir && !ttiles[x+bx][y+by][level].objects[h].first->isStanding)
+				CGHeroInstance * themp = (dynamic_cast<CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
+				if(themp && themp->moveDir && !themp->isStanding)
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
-					switch(ttiles[x+bx][y+by][level].objects[h].first->moveDir)
+					switch(themp->moveDir)
 					{
 					case 1:
 						{
-							if(((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type==NULL)
+							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
 								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)ttiles[x+bx][y+by][level].objects[h].first->info)->myInstance->type->heroClass->moveAnim->ourImages;
+							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -589,7 +590,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 2:
@@ -609,7 +610,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);	
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);	
 							break;
 						}
 					case 3:
@@ -629,7 +630,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 4:
@@ -649,7 +650,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 5:
@@ -669,7 +670,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 6: //ok
@@ -689,7 +690,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 7:
@@ -709,7 +710,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 8:
@@ -729,16 +730,16 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					}
 				}
-				else if(ttiles[x+bx][y+by][level].objects[h].first->isHero && ttiles[x+bx][y+by][level].objects[h].first->moveDir && ttiles[x+bx][y+by][level].objects[h].first->isStanding)
+				else if(themp && themp->moveDir && themp->isStanding)
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
-					switch(ttiles[x+bx][y+by][level].objects[h].first->moveDir)
+					switch(themp->moveDir)
 					{
 					case 1:
 						{
@@ -760,8 +761,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[13*8+anim%imgVal].bitmap, NULL, su, &bufr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[13*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								themp->flagPrinted = true;
 							}
 							break;
 						}
@@ -785,8 +786,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[anim%imgVal].bitmap, NULL, su, &bufr);	
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[anim%imgVal].bitmap, NULL, su, &bufr);	
+								themp->flagPrinted = true;
 							}
 							break;
 						}
@@ -810,8 +811,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[8+anim%imgVal].bitmap, NULL, su, &bufr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[8+anim%imgVal].bitmap, NULL, su, &bufr);
+								themp->flagPrinted = true;
 							}
 							break;
 						}
@@ -835,8 +836,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[2*8+anim%imgVal].bitmap, NULL, su, &bufr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[2*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								themp->flagPrinted = true;
 							}
 							break;
 						}
@@ -860,8 +861,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[3*8+anim%imgVal].bitmap, NULL, su, &bufr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[3*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								themp->flagPrinted = true;
 							}
 							break;
 						}
@@ -885,8 +886,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[4*8+anim%imgVal].bitmap, NULL, su, &bufr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[4*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								themp->flagPrinted = true;
 							}
 							break;
 						}
@@ -910,8 +911,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[15*8+anim%imgVal].bitmap, NULL, su, &bufr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[15*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								themp->flagPrinted = true;
 							}
 							break;
 						}
@@ -935,8 +936,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->owner]->ourImages[14*8+anim%imgVal].bitmap, NULL, su, &bufr);
-								ttiles[x+bx][y+by][level].objects[h].first->flagPrinted = true;
+								SDL_BlitSurface(CGI->heroh->flags4[ttiles[x+bx][y+by][level].objects[h].first->getOwner()]->ourImages[14*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								themp->flagPrinted = true;
 							}
 							break;
 						}
@@ -944,8 +945,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				}
 				else
 				{
-					int imgVal = CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages.size();
-					SDL_BlitSurface(CGI->ac->map.defy[ttiles[x+bx][y+by][level].objects[h].first->defNumber].handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
+					int imgVal = ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages.size();
+					SDL_BlitSurface(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
 				}
 				//printing appropriate flag colour
 				if(ttiles[x+bx][y+by][level].objects[h].second.second.size())
@@ -954,10 +955,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					for(std::list<int3>::iterator g=curl.begin(); g!=curl.end(); ++g)
 					{
 						SDL_Color ourC;
-						int own = ttiles[x+bx][y+by][level].objects[h].first->owner;
-						if(ttiles[x+bx][y+by][level].objects[h].first->owner!=255 && ttiles[x+bx][y+by][level].objects[h].first->owner!=254)
-							ourC = CGI->playerColors[ttiles[x+bx][y+by][level].objects[h].first->owner];
-						else if(ttiles[x+bx][y+by][level].objects[h].first->owner==255)
+						int own = ttiles[x+bx][y+by][level].objects[h].first->getOwner();
+						if(ttiles[x+bx][y+by][level].objects[h].first->getOwner()!=255 && ttiles[x+bx][y+by][level].objects[h].first->getOwner()!=254)
+							ourC = CGI->playerColors[ttiles[x+bx][y+by][level].objects[h].first->getOwner()];
+						else if(ttiles[x+bx][y+by][level].objects[h].first->getOwner()==255)
 							ourC = CGI->neutralColor;
 						else continue;
 						CSDL_Ext::SDL_PutPixelWithoutRefresh(su, bx*32 + g->x%32 , by*32 + g->y%32, ourC.r , ourC.g, ourC.b, 0);
@@ -971,7 +972,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 	for(int qq=0; qq<CGI->heroh->heroInstances.size(); ++qq)
 	{
-		CGI->heroh->heroInstances[qq]->ourObject->flagPrinted = false;
+		//CGI->heroh->heroInstances[qq]->ourObject->flagPrinted = false;
 	}
 
 	///flags enabled
@@ -1341,7 +1342,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 //	return undVisibility[x+Woff][y+Hoff];
 //}
 
-int CMapHandler::getCost(int3 &a, int3 &b, const CHeroInstance *hero)
+int CMapHandler::getCost(int3 &a, int3 &b, const CGHeroInstance *hero)
 {
 	int ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].malle];
 	if(!(a.x==b.x || a.y==b.y))
@@ -1353,7 +1354,7 @@ int CMapHandler::getCost(int3 &a, int3 &b, const CHeroInstance *hero)
 
 std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
 {
-	std::vector < std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > objs = ttiles[pos.x][pos.y][pos.z].objects;
+	std::vector < std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > objs = ttiles[pos.x][pos.y][pos.z].objects;
 	std::vector<std::string> ret;
 	for(int g=0; g<objs.size(); ++g)
 	{
@@ -1362,19 +1363,21 @@ std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
 			) //checking position blocking
 		{
 			unsigned char * blm = CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap;
-			ret.push_back(CGI->objh->objects[CGI->ac->map.defy[objs[g].first->defNumber].bytes[16]].name);
+			ret.push_back(
+			  CGI->objh->objects[objs[g].first->defInfo->bytes[16]].name
+			  );
 		}
 	}
 	return ret;
 }
 
-std::vector < CObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
+std::vector < CGObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
 {
-	std::vector < CObjectInstance * > ret;
+	std::vector < CGObjectInstance * > ret;
 	for(int h=0; h<ttiles[pos.x][pos.y][pos.z].objects.size(); ++h)
 	{
-		CObjectInstance * curi = ttiles[pos.x][pos.y][pos.z].objects[h].first;
-		if(curi->visitableAt(curi->pos.x - pos.x, curi->pos.y - pos.y))
+		CGObjectInstance * curi = ttiles[pos.x][pos.y][pos.z].objects[h].first;
+		if(curi->visitableAt(- curi->pos.x + pos.x + curi->getWidth() - 1, -curi->pos.y + pos.y + curi->getHeight() - 1))
 			ret.push_back(curi);
 	}
 	return ret;

@@ -11,7 +11,8 @@ class CDefHandler;
 class CCallback;
 class CTownInstance;
 class CPath; 
-
+class CGHeroInstance;
+class CGTownInstance;
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase
 {
@@ -26,7 +27,7 @@ public:
 	void hover (bool on);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void activate(); // makes button active
-	void deactivate(); // makes button inactive (but don't deletes)
+	void deactivate(); // makes button inactive (but doesn't delete)
 
 	AdventureMapButton(); //c-tor
 	AdventureMapButton( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)(), int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL );//c-tor
@@ -59,7 +60,7 @@ class CHeroList
 {
 public:
 	CDefHandler *mobile, *mana;
-	std::vector<std::pair<const CHeroInstance*, CPath *> > items;
+	std::vector<std::pair<const CGHeroInstance*, CPath *> > items;
 	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
 
 	CHeroList();
@@ -79,7 +80,7 @@ class CTownList
 	: public CList
 {
 public: 
-	std::vector<const CTownInstance*> items;
+	std::vector<const CGTownInstance*> items;
 	int posporx,pospory;
 
 	CTownList();

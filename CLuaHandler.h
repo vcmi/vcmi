@@ -12,6 +12,9 @@ class CLuaHandler
 {
 public:
 	CLuaHandler();
+
+	static std::vector<std::string> * searchForScripts(std::string fol);
+
 	~CLuaHandler();
 
 	void test();

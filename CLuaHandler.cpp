@@ -7,7 +7,8 @@
 #include <luabind/function.hpp>
 #include <luabind/class.hpp>
 #include "CLuaHandler.h"
-
+#include "boost/filesystem.hpp"
+#include <boost/algorithm/string.hpp>
 void piszpowitanie2(std::string i) //simple global function for testing
 {
 	std::cout<<"powitanie2zc++. Liczba dnia to " << i;
@@ -53,4 +54,27 @@ void CLuaHandler::test()
 		}
 	}
 	lua_close (lua);
+}
+
+
+std::vector<std::string> * CLuaHandler::searchForScripts(std::string fol)
+{
+	std::vector<std::string> * ret = new std::vector<std::string> ();
+	boost::filesystem::path folder(fol);
+	if (!boost::filesystem::exists(folder))
+		throw new std::exception("No such folder!");
+	boost::filesystem::directory_iterator end_itr;
+	for 
+	  (
+	  boost::filesystem::directory_iterator it(folder);
+	  it!=end_itr;
+	  it++
+	  )
+	{
+		if(boost::algorithm::ends_with((it->path().leaf()),".lua"))
+		{
+			ret->push_back(fol+"/"+(it->path().leaf()));
+		}
+	}
+	return ret;
 }

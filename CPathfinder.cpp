@@ -13,7 +13,7 @@ int3 CPath::endPos()
 	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
 }
 
-CPath * CPathfinder::getPath(int3 src, int3 dest, const CHeroInstance * hero, unsigned char type) //TODO: test it (seems to be finished, but relies on unwritten functions :()
+CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, unsigned char type) //TODO: test it (seems to be finished, but relies on unwritten functions :()
 {
 	//check input
 	if ((src.x < 0)||(src.y < 0)||(src.z < 0)||(dest.x < 0)||(dest.y < 0)||(dest.z < 0))

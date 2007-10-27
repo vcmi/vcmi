@@ -12,7 +12,7 @@ class CBuilding;
 class CSpell;
 class CHero;
 class CTownInstance;
-
+class CGTownInstance;
 class CTown
 {
 public:
@@ -33,7 +33,7 @@ public:
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //ID=-1 - blank; -2 - border; -3 - random
 	static int getTypeByDefName(std::string name);
 
-	std::vector<CTownInstance *> townInstances;
+	std::vector<CGTownInstance *> townInstances;
 
 };
 

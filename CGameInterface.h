@@ -15,6 +15,7 @@ class CHeroInstance;
 class CDefHandler;
 struct HeroMoveDetails;
 class CDefEssential;
+class CGHeroInstance;
 class CIntObject //interface object
 {
 public:
@@ -93,8 +94,8 @@ public:
 
 	virtual void init(CCallback * CB)=0{};
 	virtual void yourTurn()=0{};
-	virtual void heroKilled(const CHeroInstance * hero)=0{};
-	virtual void heroCreated(const CHeroInstance * hero)=0{};
+	virtual void heroKilled(const CGHeroInstance*)=0{};
+	virtual void heroCreated(const CGHeroInstance*)=0{};
 
 	virtual void heroMoved(const HeroMoveDetails & details)=0;
 };
@@ -109,8 +110,8 @@ class CGlobalAI : public CGameInterface // AI class (to derivate)
 public:
 	//CGlobalAI();
 	virtual void yourTurn(){};
-	virtual void heroKilled(const CHeroInstance * hero){};
-	virtual void heroCreated(const CHeroInstance * hero){};
+	virtual void heroKilled(const CGHeroInstance*){};
+	virtual void heroCreated(const CGHeroInstance*){};
 };
 class CPlayerInterface : public CGameInterface
 {
@@ -138,8 +139,8 @@ public:
 	//overloaded funcs from Interface
 	void yourTurn();
 	void heroMoved(const HeroMoveDetails & details);
-	void heroKilled(const CHeroInstance * hero);
-	void heroCreated(const CHeroInstance * hero);
+	void heroKilled(const CGHeroInstance*);
+	void heroCreated(const CGHeroInstance*);
 	
 	SDL_Surface * infoWin(void * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
 	void handleEvent(SDL_Event * sEvent);

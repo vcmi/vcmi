@@ -13,6 +13,7 @@
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include "CLua.h"
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
@@ -176,7 +177,7 @@ void CHeroList::genList()
 	int howMany = LOCPLINT->cb->howManyHeroes();
 	for (int i=0;i<howMany;i++)
 	{
-		items.push_back(std::pair<const CHeroInstance *,CPath *>(LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0),NULL));
+		items.push_back(std::pair<const CGHeroInstance *,CPath *>(LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0),NULL));
 	}
 }
 void CHeroList::select(int which)
@@ -633,7 +634,7 @@ void CMinimap::draw()
 	blitAt(map[LOCPLINT->adventureInt->position.z],0,0,temps);
 
 	//draw heroes
-	std::vector <const CHeroInstance *> * hh = LOCPLINT->cb->getHeroesInfo(false);
+	std::vector <const CGHeroInstance *> * hh = LOCPLINT->cb->getHeroesInfo(false);
 	int mw = map[0]->w, mh = map[0]->h,
 		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
 	for (int i=0; i<hh->size();i++)
@@ -645,7 +646,7 @@ void CMinimap::draw()
 		{
 			for (int jj=0; jj<ho; jj++)
 			{
-				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[(*hh)[i]->owner].r,CGI->playerColors[(*hh)[i]->owner].g,CGI->playerColors[(*hh)[i]->owner].b);
+				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[(*hh)[i]->state->owner].r,CGI->playerColors[(*hh)[i]->state->owner].g,CGI->playerColors[(*hh)[i]->state->owner].b);
 			}
 		}
 	}
@@ -816,7 +817,7 @@ void CTerrainRect::clickLeft(tribool down)
 		if ( (currentPath->endPos()) == mp)
 		{ //move
 			CPath sended(*currentPath); //temporary path - engine will operate on it
-			LOCPLINT->cb->moveHero( ((const CHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
+			LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
 		}
 		else
 		{
@@ -824,7 +825,7 @@ void CTerrainRect::clickLeft(tribool down)
 			currentPath=NULL;
 		}
 	}
-	const CHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first;
+	const CGHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first;
 	int3 bufpos = currentHero->getPosition(false);
 	//bufpos.x-=1;
 	currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
@@ -1041,7 +1042,7 @@ void CTerrainRect::show()
 				}
 
 			}
-			if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > ((const CHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->movement)
+			if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > ((const CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->movement)
 				pn+=25;
 			if (pn>=0)
 			{			
@@ -1239,7 +1240,7 @@ void CAdvMapInt::fmoveHero()
 	if (!terrain.currentPath)
 		return;
 	CPath sended(*(terrain.currentPath)); //temporary path - engine will operate on it
-	LOCPLINT->cb->moveHero( ((const CHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
+	LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
 }
 void CAdvMapInt::fshowSpellbok()
 {

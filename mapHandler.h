@@ -29,8 +29,8 @@ struct TerrainTile2
 	bool visitable; //false = not visitable; true = visitable
 	bool blocked; //false = free; true = blocked;
 
-	std::vector < std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
-	std::vector <CObjectInstance*> visitableObjects; //pointers to objects hero is visiting being on this tile
+	std::vector < std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
+	std::vector <CGObjectInstance*> visitableObjects; //pointers to objects hero is visiting being on this tile
 
 };
 
@@ -77,9 +77,9 @@ public:
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
 	SDL_Surface * getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, int lvl);
 
-	int getCost(int3 & a, int3 & b, const CHeroInstance * hero);
+	int getCost(int3 & a, int3 & b, const CGHeroInstance * hero);
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
-	std::vector< CObjectInstance * > getVisitableObjs(int3 pos); //returns vector of visitable objects at certain position
+	std::vector< CGObjectInstance * > getVisitableObjs(int3 pos); //returns vector of visitable objects at certain position
 	void init();
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility);
 	SDL_Surface * terrBitmap(int x, int y);

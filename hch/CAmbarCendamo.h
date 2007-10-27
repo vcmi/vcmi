@@ -34,7 +34,7 @@ public:
 	std::vector<std::string> resDefNames;
 	////
 	void loadDefs();
-	EDefType getDefType(DefInfo& a); //returns type of object in def
+	EDefType getDefType(CGDefInfo * a); //returns type of object in def
 	CCreatureSet readCreatureSet(int pos, int number = 7); //reads creature set in most recently encountered format; reades number units (default is 7)
 };
 #endif //CAMBARCENDAMO_H

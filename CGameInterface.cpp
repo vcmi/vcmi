@@ -22,7 +22,7 @@ using namespace CSDL_Ext;
 class OCM_HLP_CGIN
 {
 public:
-	bool operator ()(const std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>>  & a, const std::pair<CObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & b) const
+	bool operator ()(const std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>>  & a, const std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & b) const
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -289,7 +289,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
 	adventureInt->minimap.draw();
 	//initializing objects and performing first step of move
-	CObjectInstance * ho = details.ho; //object representing this hero
+	CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
 
 	if (adventureInt->terrain.currentPath) //&& hero is moving
@@ -843,10 +843,10 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//move finished
 	adventureInt->heroList.draw();
 }
-void CPlayerInterface::heroKilled(const CHeroInstance * hero)
+void CPlayerInterface::heroKilled(const CGHeroInstance*)
 {
 }
-void CPlayerInterface::heroCreated(const CHeroInstance * hero)
+void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
 }
 
@@ -862,7 +862,7 @@ SDL_Surface * CPlayerInterface::infoWin(void * specific) //specific=0 => draws i
 			SDL_Surface * ret = copySurface(hInfo);
 			SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 			blueToPlayersAdv(ret,playerID,1);
-			const CHeroInstance * curh = (const CHeroInstance *)adventureInt->selection.selected;
+			const CGHeroInstance * curh = (const CGHeroInstance *)adventureInt->selection.selected;
 			printAt(curh->name,75,15,GEOR13,zwykly,ret);
 			for (int i=0;i<PRIMARY_SKILLS;i++)
 			{

@@ -14,8 +14,8 @@ public:
 	//std::vector<std::vector<std::vector<char> > > fogOfWarMap; //true - visible, false - hidden
 	PseudoV< PseudoV< PseudoV<unsigned char> > >  fogOfWarMap; //true - visible, false - hidden
 	std::vector<int> resources;
-	std::vector<CHeroInstance *> heroes;
-	std::vector<CTownInstance *> towns;
+	std::vector<CGHeroInstance *> heroes;
+	std::vector<CGTownInstance *> towns;
 	PlayerState():color(-1){};
 };
 

@@ -8,7 +8,13 @@
 #include "CAbilityHandler.h"
 #include "CSpellHandler.h"
 #include "CHeroHandler.h"
-
+class CScript;
+class CObjectScript;
+class CGHeroInstance;
+class CTown;
+class CHero;
+class CBuilding;
+class CSpell;
 class CSpecObjInfo //class with object - specific info (eg. different information for creatures and heroes); use inheritance to make object - specific classes
 {
 };
@@ -60,7 +66,7 @@ public:
 	std::vector<CAbility *> abilities; //hero's abilities
 	std::vector<int> abilityLevels; //hero ability levels
 	bool defaultMainStats; //if true attack, defence, power and knowledge are typical
-	CHeroInstance * myInstance; //pointer to appropriate hero instance
+	CGHeroInstance * myInstance; //pointer to appropriate hero instance
 };
 
 class CCreatureObjInfo : public CSpecObjInfo
@@ -307,11 +313,108 @@ public:
 	bool operator<(const CObjectInstance & cmp) const;  //screen printing priority comparing
 };
 
+class CGDefInfo
+{
+public:
+	std::string name; 
+	int bytes [42];
+
+	unsigned char visitMap[6];
+	unsigned char blockMap[6];
+	//CSemiDefHandler * handler;
+	CDefHandler * handler;
+	int printPriority;
+	bool isOnDefList;
+	bool isVisitable();
+};
+
+class CGObjectInstance
+{
+public:
+	int3 pos; //h3m pos
+	int ID, subID; //normal ID (this one from OH3 maps ;])
+	int id;//number of object in CObjectHandler's vector		
+	CGDefInfo * defInfo;
+	CObjectScript * state;
+	CSpecObjInfo * info;
+	int defObjInfoNumber;
+	
+	virtual bool isHero() const;
+	int getOwner() const; 
+	int getWidth() const; //returns width of object graphic in tiles
+	int getHeight() const; //returns height of object graphic in tiles
+	bool visitableAt(int x, int y) const; //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
+	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
+	CGObjectInstance();
+	virtual ~CGObjectInstance();
+	CGObjectInstance(const CGObjectInstance & right);
+	CGObjectInstance& operator=(const CGObjectInstance & right);
+};
+
+class CGHeroInstance : public CGObjectInstance
+{
+public:
+	int moveDir;
+
+	bool isStanding;
+	bool flagPrinted;
+	CHero * type;
+	int exp; //experience point
+	int level; //current level of hero
+	std::string name; //may be custom
+	std::string biography; //may be custom
+	int portrait; //may be custom
+	CCreatureSet army; //army
+	int mana; // remaining spell points
+	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
+	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
+	int movement; //remaining movement points
+	bool inTownGarrison; // if hero is in town garrison 
+
+	virtual bool isHero() const;
+	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);
+	unsigned int getLowestCreatureSpeed();
+	unsigned int getAdditiveMoveBonus();
+	unsigned float getMultiplicativeMoveBonus();
+	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
+	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
+	int getSightDistance() const; //returns sight distance of this hero
+	void setPosition(int3 Pos, bool h3m); //as above, but sets position
+
+	bool canWalkOnSea() const;
+	int getCurrentLuck() const;
+	int getCurrentMorale() const;
+	virtual ~CGHeroInstance();
+};
+
+class CGTownInstance : public CGObjectInstance
+{
+public:
+	CTown * town;
+	std::string name; // name of town
+	CCreatureSet garrison;
+	int builded; //how many buildings has been built this turn
+	int destroyed; //how many buildings has been destroyed this turn
+	
+	//TODO:
+	std::vector<CBuilding *> allBuildings, possibleBuildings, builtBuildings;
+	std::vector<int> creatureIncome; //vector by level
+	std::vector<int> creaturesLeft; //that can be recruited
+
+	CHero * garrisonHero;
+
+	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
+
+	int getSightDistance() const; //returns sight distance
+	CGTownInstance();
+	virtual ~CGTownInstance();
+};
+
 class CObjectHandler
 {
 public:
 	std::vector<CObject> objects; //vector of objects; i-th object in vector has subnumber i
-	std::vector<CObjectInstance*> objInstances; //vector with objects on map
+	std::vector<CGObjectInstance*> objInstances; //vector with objects on map
 	void loadObjects();
 };
 

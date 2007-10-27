@@ -13,7 +13,7 @@ class CHeroClass;
 class CObjectInstance;
 class CDefHandler;
 class CGameInfo;
-
+class CGHeroInstance;
 class CHero
 {
 public:
@@ -85,7 +85,7 @@ public:
 class CHeroHandler
 {
 public:
-	std::vector<CHeroInstance *> heroInstances;
+	std::vector<CGHeroInstance *> heroInstances;
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when 

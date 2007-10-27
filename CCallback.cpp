@@ -8,7 +8,8 @@
 #include "mapHandler.h"
 #include "CGameState.h"
 #include "CGameInterface.h"
-int CCallback::lowestSpeed(CHeroInstance * chi)
+#include "CLua.h"
+int CCallback::lowestSpeed(CGHeroInstance * chi)
 {
 	int min = 150;
 	for (  std::map<int,std::pair<CCreature*,int> >::iterator i = chi->army.slots.begin(); 
@@ -19,7 +20,7 @@ int CCallback::lowestSpeed(CHeroInstance * chi)
 	}
 	return min;
 }
-int CCallback::valMovePoints(CHeroInstance * chi)
+int CCallback::valMovePoints(CGHeroInstance * chi)
 {
 	int ret = 1270+70*lowestSpeed(chi);
 	if (ret>2000) 
@@ -43,7 +44,7 @@ void CCallback::newTurn()
 }
 bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 {
-	CHeroInstance * hero = NULL;
+	CGHeroInstance * hero = NULL;
 
 	if (idtype==0)
 	{
@@ -97,8 +98,8 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		HeroMoveDetails curd;
 		curd.src = stpos;
 		curd.dst = endpos;
-		curd.ho = hero->ourObject;
-		curd.owner = hero->owner;
+		//curd.ho = hero->ourObject;
+		curd.owner = hero->state->owner;
 		/*if(player!=-1)
 		{
 			hero->pos = endpos;
@@ -148,10 +149,15 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 				}
 				++nn;
 			}
+
+			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(hero->getPosition(false));
+			for (int iii=0; iii<vis.size(); iii++)
+				std::cout<< CGI->objh->objects[5].name<<std::endl;
+
 		}
 		else
 			return true; //move ended - no more movement points
-		hero->ourObject->pos = curd.dst;
+		hero->pos = curd.dst;
 	}
 	return true;
 }
@@ -161,7 +167,7 @@ int CCallback::howManyTowns()
 {
 	return gs->players[gs->currentPlayer].towns.size();
 }
-const CTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
+const CGTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
 	if (!mode)
 		return gs->players[gs->currentPlayer].towns[val];
@@ -183,7 +189,7 @@ int CCallback::howManyHeroes()
 {
 	return gs->players[player].heroes.size();
 }
-const CHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
+const CGHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
 	if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
 		return NULL;
@@ -283,9 +289,9 @@ bool CCallback::isVisible(int3 pos, int Player)
 	return gs->players[Player].fogOfWarMap[pos.x][pos.y][pos.z];
 }
 
-std::vector < const CHeroInstance *> * CCallback::getHeroesInfo(bool onlyOur)
+std::vector < const CGHeroInstance *> * CCallback::getHeroesInfo(bool onlyOur)
 {
-	std::vector < const CHeroInstance *> * ret = new std::vector < const CHeroInstance *>();
+	std::vector < const CGHeroInstance *> * ret = new std::vector < const CGHeroInstance *>();
 	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		for (int j=0;j<(*i).second.heroes.size();j++)
