@@ -197,7 +197,7 @@ void CPathfinder::convertPath(CPath * path, unsigned int mode) //mode=0 -> from 
 	{
 		for (int i=0;i<path->nodes.size();i++)
 		{
-			path->nodes[i].coord = CHeroInstance::convertPosition(path->nodes[i].coord,true);
+			path->nodes[i].coord = CGHeroInstance::convertPosition(path->nodes[i].coord,true);
 		}
 	}
 }

@@ -66,6 +66,7 @@ void initGameState(CGameInfo * cgi)
 	for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++)
 	{
 		std::pair<int,PlayerState> ins(cgi->scenarioOps.playerInfos[i].color,PlayerState());
+		ins.second.color=ins.first;
 		cgi->state->players.insert(ins);
 	}
 	/******************RESOURCES****************************************************/

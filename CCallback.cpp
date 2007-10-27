@@ -98,7 +98,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		HeroMoveDetails curd;
 		curd.src = stpos;
 		curd.dst = endpos;
-		//curd.ho = hero->ourObject;
+		curd.ho = hero;
 		curd.owner = hero->state->owner;
 		/*if(player!=-1)
 		{
@@ -152,7 +152,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 
 			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(hero->getPosition(false));
 			for (int iii=0; iii<vis.size(); iii++)
-				std::cout<< CGI->objh->objects[5].name<<std::endl;
+				std::cout<< CGI->objh->objects[vis[iii]->ID].name<<std::endl;
 
 		}
 		else

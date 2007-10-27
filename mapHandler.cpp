@@ -8,7 +8,7 @@
 #include "hch\CLodHandler.h"
 #include "hch\CDefObjInfoHandler.h"
 #include <algorithm>
-
+#include "CGameState.h"
 extern SDL_Surface * ekran;
 
 class OCM_HLP
@@ -970,10 +970,19 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 	///enabling flags
 
-	for(int qq=0; qq<CGI->heroh->heroInstances.size(); ++qq)
-	{
-		//CGI->heroh->heroInstances[qq]->ourObject->flagPrinted = false;
-	}
+
+
+	//nie zauwazylem aby ustawianie tego cokolwiek zmienialo w wyswietlaniu, wiec komentuje (do dzialania wymaga jeszcze odkomentowania przyjazni w statcie)
+
+	//for(std::map<int, PlayerState>::iterator k=CGI->state->players.begin(); k!=CGI->state->players.end(); ++k)
+	//{
+	//	for (int l = 0; l<k->second.heroes.size(); l++)
+	//		k->second.heroes[l]->flagPrinted = false;
+	//}
+	//for(int qq=0; qq<CGI->heroh->heroInstances.size(); ++qq)
+	//{
+	//	CGI->heroh->heroInstances[qq]->flagPrinted = false;
+	//}
 
 	///flags enabled
 
