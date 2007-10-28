@@ -31,7 +31,7 @@ public:
 	friend void initGameState(CGameInfo * cgi);
 	//CCallback * cb; //for communication between PlayerInterface/AI and GameState
 
-	//friend SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap); //todo: wywalic koniecznie, tylko do flag obecnie!!!!
+	friend SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap); //todo: wywalic koniecznie, tylko do flag obecnie!!!!
 };
 
 #endif //CGAMESTATE_H

@@ -157,7 +157,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		}
 		else
 			return true; //move ended - no more movement points
-		hero->pos = curd.dst;
+		//hero->pos = curd.dst;
 	}
 	return true;
 }
