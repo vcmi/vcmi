@@ -99,13 +99,13 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 		return true;
 	if(this->pos.y>cmp.pos.y)
 		return false;
-	if(defInfo->isOnDefList && !(defInfo->isOnDefList))
+	if(defInfo->isOnDefList && !(cmp.defInfo->isOnDefList))
 		return true;
-	if(defInfo->isOnDefList && !(defInfo->isOnDefList))
+	if(cmp.defInfo->isOnDefList && !(defInfo->isOnDefList))
 		return false;
-	if(!defInfo->isVisitable() && defInfo->isVisitable())
+	if(!defInfo->isVisitable() && cmp.defInfo->isVisitable())
 		return true;
-	if(!defInfo->isVisitable() && defInfo->isVisitable())
+	if(!cmp.defInfo->isVisitable() && defInfo->isVisitable())
 		return false;
 	if(this->pos.x<cmp.pos.x)
 		return true;
@@ -258,7 +258,7 @@ CGObjectInstance& CGObjectInstance::operator=(const CGObjectInstance & right)
 	defInfo = right.defInfo;
 	info = right.info;
 	defObjInfoNumber = right.defObjInfoNumber;
-	state = new CLuaObjectScript();
+	//state = new CLuaObjectScript();
 	*state = *right.state;
 	return *this;
 }
