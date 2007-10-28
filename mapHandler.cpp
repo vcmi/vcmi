@@ -1373,7 +1373,7 @@ std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
 		{
 			unsigned char * blm = CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap;
 			ret.push_back(
-			  CGI->objh->objects[objs[g].first->defInfo->bytes[16]].name
+			  CGI->objh->objects[objs[g].first->defInfo->id].name
 			  );
 		}
 	}

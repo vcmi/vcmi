@@ -115,9 +115,9 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 
 bool CGDefInfo::isVisitable()
 {
-	for (int i=6; i<12; i++)
+	for (int i=0; i<6; i++)
 	{
-		if (bytes[i])
+		if (visitMap[i])
 			return true;
 	}
 	return false;

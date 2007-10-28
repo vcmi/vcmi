@@ -317,11 +317,13 @@ class CGDefInfo
 {
 public:
 	std::string name; 
-	int bytes [42];
 
 	unsigned char visitMap[6];
 	unsigned char blockMap[6];
-	//CSemiDefHandler * handler;
+	int id, subid;
+	int terrainAllowed, //on which terrain it is possible to place object
+		 terrainMenu; //in which menus in map editor object will be showed
+	int type; //(0- ziemia, 1- miasta, 2-potwory, 3- bohaterowie, 4-artefakty, 5- surowce)   
 	CDefHandler * handler;
 	int printPriority;
 	bool isOnDefList;
