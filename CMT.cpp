@@ -100,8 +100,9 @@ void initGameState(CGameInfo * cgi)
 	{
 		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->state->owner<0)
 			continue;
-		CGHeroInstance * vhi = new CGHeroInstance();
-		*vhi=*(cgi->heroh->heroInstances[i]);
+		//CGHeroInstance * vhi = new CGHeroInstance();
+		//*vhi=*(cgi->heroh->heroInstances[i]);
+		CGHeroInstance * vhi = (cgi->heroh->heroInstances[i]);
 		if (!vhi->level)
 		{
 			vhi->exp=40+rand()%50;
