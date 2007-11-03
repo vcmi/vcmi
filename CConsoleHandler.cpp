@@ -79,6 +79,18 @@ int internalFunc(void * callback)
 				std::cout<<std::endl;
 			}
 			break;
+		case 'A':  //hide everything from map
+			for(int c=0; c<CGI->objh->objInstances.size(); ++c)
+			{
+				CGI->mh->hideObject(CGI->objh->objInstances[c]);
+			}
+			break;
+		case 'R': //restora all objects after A has been pressed
+			for(int c=0; c<CGI->objh->objInstances.size(); ++c)
+			{
+				CGI->mh->printObject(CGI->objh->objInstances[c]);
+			}
+			break;
 		}
 		//SDL_Delay(100);
 	}

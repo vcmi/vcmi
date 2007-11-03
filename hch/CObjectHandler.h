@@ -320,10 +320,10 @@ public:
 
 	unsigned char visitMap[6];
 	unsigned char blockMap[6];
-	int id, subid;
+	int id, subid; //of object described by this defInfo
 	int terrainAllowed, //on which terrain it is possible to place object
 		 terrainMenu; //in which menus in map editor object will be showed
-	int type; //(0- ziemia, 1- miasta, 2-potwory, 3- bohaterowie, 4-artefakty, 5- surowce)   
+	int type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)   
 	CDefHandler * handler;
 	int printPriority;
 	bool isOnDefList;

@@ -71,6 +71,8 @@ public:
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;
 
+	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
+
 
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
@@ -80,6 +82,10 @@ public:
 	int getCost(int3 & a, int3 & b, const CGHeroInstance * hero);
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
 	std::vector< CGObjectInstance * > getVisitableObjs(int3 pos); //returns vector of visitable objects at certain position
+	CGObjectInstance * createObject(int id, int subid, int3 pos); //creates a new object with a certain id and subid
+	std::string getDefName(int id, int subid); //returns name of def for object with given id and subid
+	bool printObject(CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map
+	bool hideObject(CGObjectInstance * obj); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
 	void init();
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility);
 	SDL_Surface * terrBitmap(int x, int y);

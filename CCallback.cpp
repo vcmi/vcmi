@@ -116,7 +116,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 
 			int xend = stpos.x + heroSight + 2;
 			if(xend >= CGI->ac->map.width)
-				xend = CGI->ac->map.width - 1;
+				xend = CGI->ac->map.width;
 
 			int ybeg = stpos.y - heroSight - 2;
 			if(ybeg < 0)
@@ -124,7 +124,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 
 			int yend = stpos.y + heroSight + 2;
 			if(yend >= CGI->ac->map.height)
-				yend = CGI->ac->map.height - 1;
+				yend = CGI->ac->map.height;
 
 			for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
 			{

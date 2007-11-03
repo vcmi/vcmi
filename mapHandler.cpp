@@ -9,6 +9,7 @@
 #include "hch\CDefObjInfoHandler.h"
 #include <algorithm>
 #include "CGameState.h"
+#include "CLua.h"
 extern SDL_Surface * ekran;
 
 class OCM_HLP
@@ -22,6 +23,13 @@ public:
 
 void CMapHandler::init()
 {
+	for(int h=0; h<reader->map.defy.size(); ++h) //initializing loaded def handler's info
+	{
+		std::string hlp = reader->map.defy[h]->name;
+		std::transform(hlp.begin(), hlp.end(), hlp.begin(), (int(*)(int))toupper);
+		CGI->mh->loadedDefs.insert(std::make_pair(hlp, reader->map.defy[h]->handler));
+	}
+
 	fullHide = CGameInfo::mainObj->spriteh->giveDef("TSHRC.DEF");
 	partialHide = CGameInfo::mainObj->spriteh->giveDef("TSHRE.DEF");
 
@@ -999,7 +1007,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			{
 				
 				//if( bx+x>-1 && by+y>-1 && bx+x<visibilityMap.size()-(-1) && by+y<visibilityMap[0].size()-(-1) && !visibilityMap[bx+x][by+y][0])
-				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && bx+x<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][0])
+				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][0])
 				{
 					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, 0);
 					//SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
@@ -1010,7 +1018,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			else
 			{
 				//if( bx+x>-1 && by+y>-1 && bx+x<visibilityMap.size()-(-1) && by+y<visibilityMap[0].size()-(-1) && !visibilityMap[bx+x][by+y][1])
-				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && bx+x<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][1])
+				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][1])
 				{
 					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, 1);
 					//SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
@@ -1353,7 +1361,15 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 
 int CMapHandler::getCost(int3 &a, int3 &b, const CGHeroInstance *hero)
 {
-	int ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].malle];
+	int ret=-1;
+	if(a.x>=CGI->mh->reader->map.width && a.y>=CGI->mh->reader->map.height)
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->reader->map.width-1][CGI->mh->reader->map.width-1][a.z].malle];
+	else if(a.x>=CGI->mh->reader->map.width && a.y<CGI->mh->reader->map.height)
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->reader->map.width-1][a.y][a.z].malle];
+	else if(a.x<CGI->mh->reader->map.width && a.y>=CGI->mh->reader->map.height)
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][CGI->mh->reader->map.width-1][a.z].malle];
+	else
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].malle];
 	if(!(a.x==b.x || a.y==b.y))
 		ret*=1.41421;
 
@@ -1390,4 +1406,151 @@ std::vector < CGObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
 			ret.push_back(curi);
 	}
 	return ret;
+}
+
+CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos)
+{
+	CGObjectInstance * nobj;
+	switch(id)
+	{
+	case 43: //hero
+		nobj = new CGHeroInstance;
+		break;
+	case 98: //town
+		nobj = new CGTownInstance;
+		break;
+	default: //rest of objects
+		nobj = new CGObjectInstance;
+		break;
+	}
+	nobj->ID = id;
+	nobj->subID = subid;
+	nobj->defInfo = new CGDefInfo;
+	nobj->defObjInfoNumber = -1;
+	for(int f=0; f<CGI->dobjinfo->objs.size(); ++f)
+	{
+		if(CGI->dobjinfo->objs[f].type==id && CGI->dobjinfo->objs[f].subtype == subid)
+		{
+			nobj->defObjInfoNumber = f;
+			break;
+		}
+	}
+	nobj->defInfo->name = CGI->dobjinfo->objs[nobj->defObjInfoNumber].defName;
+	nobj->defInfo->isOnDefList = (nobj->defObjInfoNumber==-1 ? false : true);
+	for(int g=0; g<6; ++g)
+		nobj->defInfo->blockMap[g] = CGI->dobjinfo->objs[nobj->defObjInfoNumber].blockMap[g];
+	for(int g=0; g<6; ++g)
+		nobj->defInfo->visitMap[g] = CGI->dobjinfo->objs[nobj->defObjInfoNumber].visitMap[g];
+	nobj->defInfo->printPriority = CGI->dobjinfo->objs[nobj->defObjInfoNumber].priority;
+	nobj->pos = pos;
+	nobj->state = new CLuaObjectScript();
+	nobj->state->owner = 254;
+	nobj->info = NULL;
+	nobj->defInfo->id = id;
+	nobj->defInfo->subid = subid;
+
+	//assigning defhandler
+
+	std::string ourName = getDefName(id, subid);
+	std::transform(ourName.begin(), ourName.end(), ourName.begin(), (int(*)(int))toupper);
+	nobj->defInfo->name = ourName;
+
+	if(loadedDefs[ourName] == NULL)
+	{
+		nobj->defInfo->handler = CGI->spriteh->giveDef(ourName);
+		loadedDefs[ourName] = nobj->defInfo->handler;
+	}
+	else
+	{
+		nobj->defInfo->handler = loadedDefs[ourName];
+	}
+
+	return nobj;
+}
+
+std::string CMapHandler::getDefName(int id, int subid)
+{
+	for(int i=0; i<CGI->dobjinfo->objs.size(); ++i)
+	{
+		if(CGI->dobjinfo->objs[i].type==id && CGI->dobjinfo->objs[i].subtype==subid)
+			return CGI->dobjinfo->objs[i].defName;
+	}
+}
+
+bool CMapHandler::printObject(CGObjectInstance *obj)
+{
+	CDefHandler * curd = obj->defInfo->handler;
+	for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+	{
+		for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+		{
+			SDL_Rect cr;
+			cr.w = 32;
+			cr.h = 32;
+			cr.x = fx*32;
+			cr.y = fy*32;
+			std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(obj, std::make_pair(cr, std::vector<std::list<int3>>()));
+			///initializing places that will be coloured by blitting (flag colour / player colour positions)
+			if(toAdd.first->defObjInfoNumber>=0 && CGI->dobjinfo->objs[toAdd.first->defObjInfoNumber].isVisitable())
+			{
+				toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
+				for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)
+				{
+					bool breakNow = true;
+					for(int dx=0; dx<32; ++dx)
+					{
+						for(int dy=0; dy<32; ++dy)
+						{
+							SDL_Surface * curs = toAdd.first->defInfo->handler->ourImages[no].bitmap;
+							Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
+							Uint8 r, g, b, a;
+							SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
+							if(r==255 && g==255 && b==0)
+							{
+								toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
+								breakNow = false;
+							}
+						}
+					}
+					if(breakNow)
+						break;
+				}
+			}
+			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+			{
+				TerrainTile2 & curt = 
+					ttiles
+					  [obj->pos.x + fx - curd->ourImages[0].bitmap->w/32]
+				      [obj->pos.y + fy - curd->ourImages[0].bitmap->h/32]
+					  [obj->pos.z];
+
+
+				ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects.push_back(toAdd);
+			}
+
+		} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+	} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+	return true;
+}
+
+bool CMapHandler::hideObject(CGObjectInstance *obj)
+{
+	CDefHandler * curd = obj->defInfo->handler;
+	for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+	{
+		for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+		{
+			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+			{
+				std::vector < std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > & ctile = ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects;
+				for(int dd=0; dd<ctile.size(); ++dd)
+				{
+					if(ctile[dd].first->id==obj->id)
+						ctile.erase(ctile.begin() + dd);
+				}
+			}
+
+		} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+	} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+	return true;
 }

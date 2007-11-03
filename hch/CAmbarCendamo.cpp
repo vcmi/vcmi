@@ -1963,6 +1963,7 @@ void CAmbarCendamo::deh3m()
 			map.defy[vv]->handler->alphaTransformed = true;
 		}
 	}
+
 	SDL_FreeSurface(alphaTransSurf);
 
 	//assigning defobjinfos
