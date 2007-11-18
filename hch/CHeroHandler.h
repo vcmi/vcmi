@@ -88,13 +88,15 @@ public:
 	std::vector<CGHeroInstance *> heroInstances;
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
-	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when 
+	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
+	CDefHandler * pskillsb; //82x93
+	std::vector<std::string> pskillsn;
 	unsigned int level(unsigned int experience);
 	void loadHeroes();
 	void loadSpecialAbilities();
 	void loadBiographies();
 	void loadHeroClasses();
-	void loadPortraits();
+	void loadPortraits(); //loads also imgs and names of primary skills
 	void initHeroClasses();
 	~CHeroHandler();
 	void initTerrainCosts();

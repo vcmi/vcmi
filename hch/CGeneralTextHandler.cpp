@@ -21,6 +21,20 @@ void CGeneralTextHandler::load()
 		loadToIt(buflet, buf, i, 2);
 		allTexts.push_back(buflet);
 	}
+
+
+	std::string  strs = CGI->bitmaph->getTextFile("ARRAYTXT.TXT");
+	int itr=0;
+	while(itr<strs.length()-1)
+	{
+		std::string tmp;
+		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
+		arraytxt.push_back(tmp);
+	}
+
+	//std::ofstream ofs("arraytxts.txt");
+	//for (int i=0;i<arraytxt.size();i++)
+	//	ofs << i <<".\t" << arraytxt[i] << std::endl<< std::endl;
 	/*loadToIt(cantAddManager, buf, i, 2);
 	loadToIt(experienceLimitScenarioReached, buf, i, 2);
 	loadToIt(heroExperienceInfo, buf, i, 2);

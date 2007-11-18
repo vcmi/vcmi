@@ -4,7 +4,10 @@
 #include <string>
 #include <vector>
 #include <map>
-#include "CDefHandler.h"
+
+class CDefHandler;
+struct SDL_Surface;
+//#include "CDefHandler.h"
 
 class CCreature
 {

@@ -3,8 +3,7 @@
 #include <typeinfo>
 #include "global.h"
 #include "SDL.h"
-#include "CGameInterface.h"
-#include <boost/logic/tribool.hpp>
+#include "CPlayerInterface.h"
 #include <map>
 
 class CDefHandler;
@@ -125,7 +124,7 @@ class CMinimap
 	: public ClickableL, public ClickableR, public Hoverable, public MotionInterested, public virtual CIntObject
 {
 public:
-	SDL_Surface * radar; //radar.def; TODO: radars for maps with custom dimensions
+	SDL_Surface * radar; 
 	SDL_Surface * temps;
 	std::map<int,SDL_Color> colors;
 	std::map<int,SDL_Color> colorsBlocked;

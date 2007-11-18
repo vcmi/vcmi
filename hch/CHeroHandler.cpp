@@ -39,6 +39,16 @@ void CHeroHandler::loadPortraits()
 
 	}
 	of.close();
+	pskillsb = CGI->spriteh->giveDef("PSKILL.DEF");
+
+	std::string  strs = CGI->bitmaph->getTextFile("PRISKILL.TXT");
+	int itr=0;
+	for (int i=0; i<PRIMARY_SKILLS; i++)
+	{
+		std::string tmp;
+		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
+		pskillsn.push_back(tmp);
+	}
 }
 void CHeroHandler::loadHeroes()
 {

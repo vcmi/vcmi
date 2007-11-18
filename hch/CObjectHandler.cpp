@@ -7,6 +7,7 @@
 #include "../mapHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "../CLua.h"
+#include "CHeroHandler.h"
 void CObjectHandler::loadObjects()
 {
 	int ID=0;
@@ -20,6 +21,25 @@ void CObjectHandler::loadObjects()
 			nobj.name = nobj.name.substr(0, nobj.name.size()-1);
 		objects.push_back(nobj);
 	}
+
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("ADVEVENT.TXT");
+	it=0;
+	std::string temp;
+	while (it<buf.length()-1)
+	{
+		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		advobtxt.push_back(temp);
+	}
+
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("XTRAINFO.TXT");
+	it=0;
+	temp;
+	while (it<buf.length()-1)
+	{
+		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		xtrainfo.push_back(temp);
+	}
+	
 }
 
 bool CObjectInstance::operator <(const CObjectInstance &cmp) const
@@ -71,7 +91,18 @@ bool CGObjectInstance::isHero() const
 }
 int CGObjectInstance::getOwner() const
 {
-	return state->getOwner();
+	//if (state)
+	//	return state->owner;
+	//else 
+		return tempOwner; //won't have owner
+}
+
+void CGObjectInstance::setOwner(int ow)
+{
+	//if (state)
+	//	state->owner = ow;
+	//else
+		tempOwner = ow;
 }
 int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 {
@@ -112,7 +143,6 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 	return false;
 }
 
-
 bool CGDefInfo::isVisitable()
 {
 	for (int i=0; i<6; i++)
@@ -122,7 +152,6 @@ bool CGDefInfo::isVisitable()
 	}
 	return false;
 }
-
 	
 bool CGHeroInstance::isHero() const
 {
@@ -213,22 +242,24 @@ CGTownInstance::CGTownInstance()
 	builded=-1;
 	destroyed=-1;
 	garrisonHero=NULL;
-	state->owner=-1;
+	//state->owner=-1;
 	town=NULL;
 }
 
 CGObjectInstance::CGObjectInstance()
 {
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
-	state = new CLuaObjectScript();
+	//state = new CLuaObjectScript();
+	//state = NULL;
 	defObjInfoNumber = -1;
+	tempOwner = 254;
 }
 CGObjectInstance::~CGObjectInstance()
 {
 	//std::cout << "Usuwam obiekt "<<this<<std::endl;
-	if (state)
-		delete state;
-	state=NULL;
+	//if (state)
+	//	delete state;
+	//state=NULL;
 }
 
 CGHeroInstance::~CGHeroInstance()
@@ -246,8 +277,10 @@ CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
 	defInfo = right.defInfo;
 	info = right.info;
 	defObjInfoNumber = right.defObjInfoNumber;
-	state = new CLuaObjectScript();
-	*state = *right.state;
+	//state = new CLuaObjectScript(right.state->);
+	//*state = *right.state;
+	//state = right.state;
+	tempOwner = right.tempOwner;
 }
 CGObjectInstance& CGObjectInstance::operator=(const CGObjectInstance & right)
 {
@@ -259,6 +292,7 @@ CGObjectInstance& CGObjectInstance::operator=(const CGObjectInstance & right)
 	info = right.info;
 	defObjInfoNumber = right.defObjInfoNumber;
 	//state = new CLuaObjectScript();
-	*state = *right.state;
+	//*state = *right.state;
+	tempOwner = right.tempOwner;
 	return *this;
 }

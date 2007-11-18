@@ -3,6 +3,7 @@
 #define CHECKTIME 1
 #if CHECKTIME
 #include "timeHandler.h"
+#include <boost/logic/tribool.hpp>
 #include "int3.h"
 #include <iostream>
 #define THC
@@ -47,5 +48,15 @@ const int NAMES_PER_TOWN=16;
 #define MARK_VISITABLE_POSITIONS false
 
 #define DEFBYPASS
+
+#define HANDLE_EXCEPTION  \
+	catch (const std::exception& e) {	\
+	std::cerr << e.what() << std::endl;	\
+	}									\
+	catch (const std::exception * e)	\
+	{									\
+		std::cerr << e->what()<< std::endl;	\
+		delete e;						\
+	}									
 
 #endif //GLOBAL_H

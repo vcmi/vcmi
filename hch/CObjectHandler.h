@@ -1,13 +1,15 @@
 #ifndef COBJECTHANDLER_H
 #define COBJECTHANDLER_H
-
 #include <string>
 #include <vector>
 #include "CCreatureHandler.h"
 #include "CArtHandler.h"
 #include "CAbilityHandler.h"
 #include "CSpellHandler.h"
-#include "CHeroHandler.h"
+//#include "CHeroHandler.h"
+using boost::logic::tribool;
+class CCPPObjectScript;
+class CGObjectInstance;
 class CScript;
 class CObjectScript;
 class CGHeroInstance;
@@ -330,6 +332,29 @@ public:
 	bool isVisitable();
 };
 
+//class CObjectType
+//{
+//public:
+//	CGObjectInstance * ourObj;
+//	int type;
+//	int owner; //254 - can't be flagged; 255 - neutral
+////};
+//class IVisitable
+//{
+//	virtual void newObject(CGObjectInstance *os);
+//	virtual void onHeroVisit(CGObjectInstance *os, int heroID);
+//	virtual void getRightText(tribool visited); 
+//	virtual void getHoverText(tribool visited); 
+//};
+//
+//class CVisitableOPH //object visitable once per hero
+//{
+//	virtual void newObject(CGObjectInstance *os);
+//	virtual void onHeroVisit(CGObjectInstance *os, int heroID);
+//	virtual void getRightText(tribool visited); 
+//	virtual void getHoverText(tribool visited); 
+//};
+
 class CGObjectInstance
 {
 public:
@@ -337,12 +362,15 @@ public:
 	int ID, subID; //normal ID (this one from OH3 maps ;])
 	int id;//number of object in CObjectHandler's vector		
 	CGDefInfo * defInfo;
-	CObjectScript * state;
+	CCPPObjectScript * state;
 	CSpecObjInfo * info;
 	int defObjInfoNumber;
+
+	int tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
 	
 	virtual bool isHero() const;
 	int getOwner() const; 
+	void setOwner(int ow); 
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
 	bool visitableAt(int x, int y) const; //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
@@ -418,6 +446,9 @@ public:
 	std::vector<CObject> objects; //vector of objects; i-th object in vector has subnumber i
 	std::vector<CGObjectInstance*> objInstances; //vector with objects on map
 	void loadObjects();
+
+	std::vector<std::string> advobtxt;
+	std::vector<std::string> xtrainfo;
 };
 
 

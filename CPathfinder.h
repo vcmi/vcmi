@@ -1,6 +1,6 @@
 #ifndef CPATHFINDER_H
 #define CPATHFINDER_H
-#include "int3.h"
+#include "global.h"
 #include <queue>
 #include <vector>
 class CHeroInstance;

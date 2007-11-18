@@ -14,6 +14,7 @@ public:
 	CLuaHandler();
 
 	static std::vector<std::string> * searchForScripts(std::string fol);
+	static std::vector<std::string> * functionList(std::string file);
 
 	~CLuaHandler();
 

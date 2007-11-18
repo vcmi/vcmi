@@ -43,6 +43,7 @@
 #include "CPathfinder.h"
 #include "CGameState.h"
 #include "CCallback.h"
+#include "CPlayerInterface.h"
 #include "CLuaHandler.h"
 #include "CLua.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
@@ -58,7 +59,14 @@ const char * NAME = "VCMI 0.4 \"Vingilot\"";
 
 SDL_Surface * ekran, * screen, * screen2;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
-
+void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
+{
+	std::vector<int> tempv = script->yourObjects();
+	for (int i=0;i<tempv.size();i++)
+	{
+		(*mapa)[tempv[i]]=script;
+	}
+}
 void initGameState(CGameInfo * cgi)
 {
 	cgi->state->day=0;
@@ -67,6 +75,7 @@ void initGameState(CGameInfo * cgi)
 	{
 		std::pair<int,PlayerState> ins(cgi->scenarioOps.playerInfos[i].color,PlayerState());
 		ins.second.color=ins.first;
+		ins.second.serial=i;
 		cgi->state->players.insert(ins);
 	}
 	/******************RESOURCES****************************************************/
@@ -98,11 +107,12 @@ void initGameState(CGameInfo * cgi)
 	/*************************HEROES************************************************/
 	for (int i=0; i<cgi->heroh->heroInstances.size();i++) //heroes instances
 	{
-		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->state->owner<0)
+		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->getOwner()<0)
 			continue;
 		//CGHeroInstance * vhi = new CGHeroInstance();
 		//*vhi=*(cgi->heroh->heroInstances[i]);
 		CGHeroInstance * vhi = (cgi->heroh->heroInstances[i]);
+		vhi->subID = vhi->type->ID;
 		if (!vhi->level)
 		{
 			vhi->exp=40+rand()%50;
@@ -141,7 +151,7 @@ void initGameState(CGameInfo * cgi)
 			vhi->army.slots[2].second = (rand()%(vhi->type->high3stack-vhi->type->low3stack))+vhi->type->low3stack;
 		}
 
-		cgi->state->players[vhi->state->owner].heroes.push_back(vhi);
+		cgi->state->players[vhi->getOwner()].heroes.push_back(vhi);
 
 	}
 	/*************************FOG**OF**WAR******************************************/		
@@ -181,7 +191,7 @@ void initGameState(CGameInfo * cgi)
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name=vti->town->names[rand()%vti->town->names.size()];
 		
-		cgi->state->players[vti->state->owner].towns.push_back(vti);
+		cgi->state->players[vti->getOwner()].towns.push_back(vti);
 	}
 
 	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
@@ -202,18 +212,68 @@ void initGameState(CGameInfo * cgi)
 			}
 		}
 	}
+
+	/****************************SCRIPTS************************************************/
+	std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &cgi->state->objscr; //alias for easier access
+	/****************************C++ OBJECT SCRIPTS************************************************/
+	std::map<int,CCPPObjectScript*> scripts;
+	CScriptCallback * csc = new CScriptCallback();
+	handleCPPObjS(&scripts,new CVisitableOPH(csc));
+	//created map
+
+
+
+	/****************************LUA OBJECT SCRIPTS************************************************/
+	std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
+	for (int i=0; i<lf->size(); i++)
+	{
+		try
+		{
+			std::vector<std::string> * temp =  CLuaHandler::functionList((*lf)[i]);
+			CLuaObjectScript * objs = new CLuaObjectScript((*lf)[i]);
+			CLuaCallback::registerFuncs(objs->is);
+			//objs
+			for (int j=0; j<temp->size(); j++)
+			{
+				int obid ; //obj ID
+				int dspos = (*temp)[j].find_first_of('_');
+				obid = atoi((*temp)[j].substr(dspos+1,(*temp)[j].size()-dspos-1).c_str());
+				std::string fname = (*temp)[j].substr(0,dspos);
+				if (skrypty->find(obid)==skrypty->end())
+					skrypty->insert(std::pair<int, std::map<std::string, CObjectScript*> >(obid,std::map<std::string,CObjectScript*>()));
+				(*skrypty)[obid].insert(std::pair<std::string, CObjectScript*>(fname,objs));
+			}
+			delete temp;
+		}HANDLE_EXCEPTION
+	}
+	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
+	std::string temps("newObject");
+	for (int i=0; i<CGI->objh->objInstances.size(); i++)
+	{
+		//c++ scripts
+		if (scripts.find(CGI->objh->objInstances[i]->ID) != scripts.end())
+		{
+			CGI->objh->objInstances[i]->state = scripts[CGI->objh->objInstances[i]->ID];
+			CGI->objh->objInstances[i]->state->newObject(CGI->objh->objInstances[i]);
+		}
+		else 
+		{
+			CGI->objh->objInstances[i]->state = NULL;
+		}
+
+		// lua scripts
+		if(cgi->state->checkFunc(CGI->objh->objInstances[i]->ID,temps))
+			(*skrypty)[CGI->objh->objInstances[i]->ID][temps]->newObject(CGI->objh->objInstances[i]);
+	}
+
+	delete lf;
 }
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
-
-	CLuaHandler luatest;
-	luatest.test();
-	CLuaHandler::searchForScripts("scripts");
-	CLua * lua = new CLua("test.lua");
-
-
-
+	//CLuaHandler luatest;
+	//luatest.test();
+	
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");
 	THC timeHandler tmh;

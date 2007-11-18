@@ -2,13 +2,14 @@
 #define CCALLBACK_H
 
 #include "mapHandler.h"
-
+#include "tchar.h"
 class CGameState;
 class CHeroInstance;
 class CTownInstance;
 class CPath;
 class CGObjectInstance;
-
+struct SComponent;
+typedef struct lua_State lua_State;
 struct HeroMoveDetails
 {
 	int3 src, dst; //source and destination points
@@ -50,8 +51,28 @@ public:
 //friends
 	friend int _tmain(int argc, _TCHAR* argv[]);
 };
-
-class CLuaCallback
+class CScriptCallback
 {
+public:
+	CGameState * gs;
+
+	static int3 getPos(CGObjectInstance * ob);
+	static void changePrimSkill(int ID, int which, int val);
+	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components);
+	int getHeroOwner(int heroID);
+	int getSelectedHero();
+	friend void initGameState(CGameInfo * cgi);
+};
+class CLuaCallback : public CScriptCallback
+{
+private:
+
+	static void registerFuncs(lua_State * L);
+	static int getPos(lua_State * L);//(CGObjectInstance * object);
+	static int changePrimSkill(lua_State * L);//(int ID, int which, int val);
+	static int getGnrlText(lua_State * L);//(int ID, int which, int val);
+	static int getSelectedHero(lua_State * L);//()
+
+	friend void initGameState(CGameInfo * cgi);
 };
 #endif //CCALLBACK_H

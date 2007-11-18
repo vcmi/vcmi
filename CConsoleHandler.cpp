@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CConsoleHandler.h"
 #include "CAdvmapInterface.h"
+#include "CPlayerInterface.h"
 #include "SDL.h"
 #include "SDL_thread.h"
 #include "CGameInfo.h"
@@ -11,6 +12,7 @@
 #include "mapHandler.h"
 #include <sstream>
 #include "SDL_Extensions.h"
+#include "hch/CHeroHandler.h"
 int internalFunc(void * callback)
 {
 	CCallback * cb = (CCallback*)callback;

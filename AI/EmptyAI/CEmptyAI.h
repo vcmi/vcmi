@@ -9,6 +9,7 @@ public:
 	void heroKilled(const CHeroInstance *);
 	void heroCreated(const CHeroInstance *);
 	void heroMoved(const HeroMoveDetails &);
+	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val) {};
 };
 
 #define NAME "EmptyAI 0.1"

@@ -4,6 +4,7 @@
 #include "CGameInfo.h"
 #include "hch\CAmbarCendamo.h"
 #include "mapHandler.h"
+using namespace boost::logic;
 int3 CPath::startPos()
 {
 	return int3(nodes[nodes.size()-1].coord.x,nodes[nodes.size()-1].coord.y,nodes[nodes.size()-1].coord.z);

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CAdvmapInterface.h"
 #include "hch\CLodHandler.h"
+#include "CPlayerInterface.h"
 #include "hch\CPreGameTextHandler.h"
 #include "hch\CGeneralTextHandler.h"
 #include "hch\CTownHandler.h"
@@ -14,6 +15,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "CLua.h"
+#include "hch/CHeroHandler.h"
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
@@ -646,7 +648,7 @@ void CMinimap::draw()
 		{
 			for (int jj=0; jj<ho; jj++)
 			{
-				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[(*hh)[i]->state->owner].r,CGI->playerColors[(*hh)[i]->state->owner].g,CGI->playerColors[(*hh)[i]->state->owner].b);
+				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[(*hh)[i]->getOwner()].r,CGI->playerColors[(*hh)[i]->getOwner()].g,CGI->playerColors[(*hh)[i]->getOwner()].b);
 			}
 		}
 	}
@@ -1146,7 +1148,11 @@ CInfoBar::CInfoBar()
 }
 void CInfoBar::draw(void * specific)
 {
+	//if (!specific)
+	//	specific = LOCPLINT->adventureInt->selection.selected;
 	SDL_Surface * todr = LOCPLINT->infoWin(specific);
+	if (!todr)
+		return;
 	blitAt(todr,pos.x,pos.y);
 	SDL_FreeSurface(todr);
 }
@@ -1295,6 +1301,8 @@ void CAdvMapInt::show()
 	resdatabar.draw();
 
 	statusbar.show();
+
+	infoBar.draw();
 
 	SDL_Flip(ekran);
 }

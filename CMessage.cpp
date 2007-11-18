@@ -8,12 +8,13 @@
 #include "hch\CLodHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "CGameInterface.h"
+#include "CPlayerInterface.h"
 #include "hch\CDefHandler.h"
 #include "hch\CSemiDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include <sstream>
+#include "CLua.h"
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 
@@ -28,6 +29,7 @@ using namespace NMessage;
 
 namespace NMessage
 {
+	CDefHandler * ok, *cancel;
 	std::vector<std::vector<SDL_Surface*> > piecesOfBox; //in colors of all players
 	SDL_Surface * background = NULL;
 }
@@ -61,6 +63,8 @@ void CMessage::init()
 		NMessage::background = CGI->bitmaph->loadBitmap("DIBOXBCK.BMP");
 		SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
 	}
+	ok = CGI->spriteh->giveDef("IOKAY.DEF");
+	cancel = CGI->spriteh->giveDef("ICANCEL.DEF");
 }
 
 
@@ -74,6 +78,8 @@ void CMessage::dispose()
 		}
 	}
 	SDL_FreeSurface(background);
+	delete ok;
+	delete cancel;
 }
 SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor)
 {
@@ -176,13 +182,29 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line, bool 
 	}
 	return ret;
 }
-
-CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int Rmar, int Tmar, int Bmar)
+std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> > * txtg)
 {
-	CSimpleWindow * ret = new CSimpleWindow();
-	std::vector<std::string> * brtext = breakText(text,32,true,true);
-	std::vector<std::vector<SDL_Surface*> > txtg;
-	txtg.resize(brtext->size());
+	std::pair<int,int> ret;		
+	ret.first = -1;
+	ret.second=0;
+	for (int i=0; i<txtg->size();i++) //szukamy najszerszej linii i lacznej wysokosci
+	{
+		int lw=0;
+		for (int j=0;j<(*txtg)[i].size();j++)
+		{
+			lw+=(*txtg)[i][j]->w;
+			ret.second+=(*txtg)[i][j]->h;
+		}
+		if (ret.first<lw)
+			ret.first=lw;
+	}
+	return ret;
+}
+
+std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::string> * brtext)
+{
+	std::vector<std::vector<SDL_Surface*> > * txtg = new std::vector<std::vector<SDL_Surface*> >();
+	txtg->resize(brtext->size());
 	for (int i=0; i<brtext->size();i++) //foreach line
 	{
 		while((*brtext)[i].length()) //jesli zostalo cos
@@ -200,7 +222,7 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int 
 			if (!br)
 				z++;
 			if (z)
-				txtg[i].push_back(TTF_RenderText_Blended(TNRB16,(*brtext)[i].substr(0,z).c_str(),zwykly));
+				(*txtg)[i].push_back(TTF_RenderText_Blended(TNRB16,(*brtext)[i].substr(0,z).c_str(),zwykly));
 			(*brtext)[i].erase(0,z);
 			z=0;
 			if (  ((*brtext)[i].length()==0) || ((*brtext)[i][z]!='{')  )
@@ -210,49 +232,91 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int 
 			while( ((*brtext)[i][++z]) != ('}') )
 			{}
 			//tyemp = (*brtext)[i].substr(1,z-1); //od 1 bo pomijamy otwierajaca klamre
-			txtg[i].push_back(TTF_RenderText_Blended(TNRB16,(*brtext)[i].substr(1,z-1).c_str(),tytulowy));
+			(*txtg)[i].push_back(TTF_RenderText_Blended(TNRB16,(*brtext)[i].substr(1,z-1).c_str(),tytulowy));
 			(*brtext)[i].erase(0,z+1); //z+1 bo dajemy zamykajaca klamre
 		} //ends while((*brtext)[i].length())
 	} //ends for(int i=0; i<brtext->size();i++) 
-	int max = -1, lh=0;
-	for (int i=0; i<txtg.size();i++) //szukamy najszerszej linii i lacznej wysokosci
-	{
-		int lw=0;
-		for (int j=0;j<txtg[i].size();j++)
-		{
-			lw+=txtg[i][j]->w;
-			lh+=txtg[i][j]->h;
-		}
-		if (max<lw)
-			max=lw;
-	}
-	ret->bitmap = drawBox1(max+Lmar+Rmar,lh+Tmar+Bmar,0); 
+	return txtg;
+}
+CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int Rmar, int Tmar, int Bmar)
+{
+	CSimpleWindow * ret = new CSimpleWindow();
+	std::vector<std::string> * brtext = breakText(text,32,true,true);
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext);
+	std::pair<int,int> txts = getMaxSizes(txtg);
+	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,0); 
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
-	for (int i=0; i<txtg.size();i++)
+	for (int i=0; i<txtg->size();i++)
 	{
 		int lw=0;
-		for (int j=0;j<txtg[i].size();j++)
-			lw+=txtg[i][j]->w;
+		for (int j=0;j<(*txtg)[i].size();j++)
+			lw+=(*txtg)[i][j]->w;
 		int pw = ret->bitmap->w/2, ph =  ret->bitmap->h/2;
 		//int pw = Tmar, ph = Lmar;
 		pw -= lw/2;
-		ph -= (19*txtg.size())/2;
+		ph -= (19*txtg->size())/2;
 
 		int tw = pw;
-		for (int j=0;j<txtg[i].size();j++)
+		for (int j=0;j<(*txtg)[i].size();j++)
 		{
 				//std::stringstream n;
 				//n <<"temp_"<<i<<"__"<<j<<".bmp";
-			blitAt(txtg[i][j],tw,ph+i*19,ret->bitmap);
+			blitAt((*txtg)[i][j],tw,ph+i*19,ret->bitmap);
 				//SDL_SaveBMP(ret->bitmap,n.str().c_str());	
-			tw+=txtg[i][j]->w;
-			SDL_FreeSurface(txtg[i][j]);
+			tw+=(*txtg)[i][j]->w;
+			SDL_FreeSurface((*txtg)[i][j]);
 		}
 	}
 	return ret;
 }
 
+CInfoWindow * CMessage::genIWindow(std::string text, int player, int charperline, std::vector<SComponent*> & comps)
+{
+	//TODO: support for more than one component
+	CInfoWindow * ret = new CInfoWindow();
+
+	std::vector<std::string> * brtext = breakText(text,32,true,true);
+	std::vector<std::string> * brdtext = breakText(comps[0]->subtitle,12,true,true);
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext);
+	std::pair<int,int> txts = getMaxSizes(txtg);
+	txts.second = txts.second
+		+ 30 //space to first component
+		+ comps[0]->getImg()->h
+		+ brdtext->size() * 10 //subtitle //!!!!!!!!!!!!!!!!!!!!
+		+ 20 // space between subtitle and button
+		+ ok->ourImages[0].bitmap->h //button
+		+ 30; //after button
+	ret->bitmap = drawBox1(txts.first+70,txts.second+70,0); 
+	ret->pos.h=ret->bitmap->h;
+	ret->pos.w=ret->bitmap->w;
+
+
+	//for (int i=0; i<txtg->size();i++)
+	//{
+	//	int lw=0;
+	//	for (int j=0;j<(*txtg)[i].size();j++)
+	//		lw+=(*txtg)[i][j]->w;
+	//	int pw = ret->bitmap->w/2, ph =  ret->bitmap->h/2;
+	//	//int pw = Tmar, ph = Lmar;
+	//	pw -= lw/2;
+	//	ph -= (19*txtg->size())/2;
+
+	//	int tw = pw;
+	//	for (int j=0;j<(*txtg)[i].size();j++)
+	//	{
+	//			//std::stringstream n;
+	//			//n <<"temp_"<<i<<"__"<<j<<".bmp";
+	//		blitAt((*txtg)[i][j],tw,ph+i*19,ret->bitmap);
+	//			//SDL_SaveBMP(ret->bitmap,n.str().c_str());	
+	//		tw+=(*txtg)[i][j]->w;
+	//		SDL_FreeSurface((*txtg)[i][j]);
+	//	}
+	//}
+
+
+	return ret;
+}
 
 SDL_Surface * CMessage::genMessage
 (std::string title, std::string text, EWindowType type, std::vector<CDefHandler*> *addPics, void * cb)

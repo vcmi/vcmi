@@ -7,8 +7,12 @@
 #include "hch\CAmbarCendamo.h"
 #include "mapHandler.h"
 #include "CGameState.h"
-#include "CGameInterface.h"
+#include "CPlayerInterface.h"
 #include "CLua.h"
+#include "hch/CGeneralTextHandler.h"
+#include "CAdvmapInterface.h"
+#include "CPlayerInterface.h"
+LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
 int CCallback::lowestSpeed(CGHeroInstance * chi)
 {
 	int min = 150;
@@ -99,7 +103,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		curd.src = stpos;
 		curd.dst = endpos;
 		curd.ho = hero;
-		curd.owner = hero->state->owner;
+		curd.owner = hero->getOwner();
 		/*if(player!=-1)
 		{
 			hero->pos = endpos;
@@ -145,14 +149,20 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 					break;
 				if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
 				{ //player should be notified
-					CGI->playerint[j->first]->heroMoved(curd);
+					CGI->playerint[j->second.serial]->heroMoved(curd);
 				}
 				++nn;
 			}
 
 			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(hero->getPosition(false));
 			for (int iii=0; iii<vis.size(); iii++)
-				std::cout<< CGI->objh->objects[vis[iii]->ID].name<<std::endl;
+			{
+				if(gs->checkFunc(vis[iii]->ID,"heroVisit"))
+					gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
+				if(vis[iii]->state)
+					vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
+				//std::cout<< CGI->objh->objects[vis[iii]->ID].name<<std::endl;
+			}
 
 		}
 		else
@@ -308,4 +318,134 @@ std::vector < const CGHeroInstance *> * CCallback::getHeroesInfo(bool onlyOur)
 bool CCallback::isVisible(int3 pos)
 {
 	return isVisible(pos,player);
+}
+
+
+
+int3 CScriptCallback::getPos(CGObjectInstance * ob)
+{
+	return ob->pos;
+}
+void CScriptCallback::changePrimSkill(int ID, int which, int val)
+{	
+	CGHeroInstance * hero = CGI->state->getHero(ID,0);
+	hero->primSkills[which]+=val;
+	for (int i=0; i<CGI->playerint.size(); i++)
+	{
+		if (CGI->playerint[i]->playerID == hero->getOwner())
+		{
+			CGI->playerint[i]->heroPrimarySkillChanged(hero, which, val);
+			break;
+		}
+	}
+}
+
+int CScriptCallback::getHeroOwner(int heroID)
+{
+	CGHeroInstance * hero = CGI->state->getHero(heroID,0);
+	return hero->getOwner();
+}
+void CScriptCallback::showInfoDialog(int player, std::string text, std::vector<SComponent*> * components)
+{
+	//TODO: upewniac sie ze mozemy to zrzutowac (przy customowych interfejsach cos moze sie kopnac)
+	if (player>=0)
+	{
+		CGameInterface * temp = CGI->playerint[CGI->state->players[player].serial];
+		if (temp->human)
+			((CPlayerInterface*)(temp))->showInfoDialog(text,*components);
+		return;
+	}
+	else
+	{
+		for (int i=0; i<CGI->playerint.size();i++)
+		{
+			if (CGI->playerint[i]->human)
+				((CPlayerInterface*)(CGI->playerint[i]))->showInfoDialog(text,*components);
+		}
+	}
+}
+int CScriptCallback::getSelectedHero()
+{	
+	int ret;
+	if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
+		ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
+	else 
+		ret = -1;;
+	return ret;
+}
+void CLuaCallback::registerFuncs(lua_State * L)
+{
+	lua_newtable(L);
+
+#define REGISTER_C_FUNC(x) \
+	lua_pushstring(L, #x);      \
+	lua_pushcfunction(L, x);    \
+	lua_rawset(L, -3)
+
+	REGISTER_C_FUNC(getPos);
+	REGISTER_C_FUNC(changePrimSkill);
+	REGISTER_C_FUNC(getGnrlText);
+	REGISTER_C_FUNC(getSelectedHero);
+
+	/*
+	REGISTER_C_FUNC(changePrimSkill);
+	REGISTER_C_FUNC(getGnrlText);
+	REGISTER_C_FUNC(changePrimSkill);
+	REGISTER_C_FUNC(getGnrlText);
+	REGISTER_C_FUNC(changePrimSkill);
+	REGISTER_C_FUNC(getGnrlText);*/
+	
+
+	lua_setglobal(L, "vcmi");
+#undef REGISTER_C_FUNC(x)
+}
+int CLuaCallback::getPos(lua_State * L)//(CGObjectInstance * object);
+{	
+	const int args = lua_gettop(L); // number of arguments
+	if ((args < 1) || !lua_isnumber(L, 1) )
+		luaL_error(L,
+			"Incorrect arguments to getPos([Object address])");
+	CGObjectInstance * object = (CGObjectInstance *)(lua_tointeger(L, 1));
+	lua_pushinteger(L,object->pos.x);
+	lua_pushinteger(L,object->pos.y);
+	lua_pushinteger(L,object->pos.z);
+	return 3;
+}
+int CLuaCallback::changePrimSkill(lua_State * L)//(int ID, int which, int val);
+{	
+	const int args = lua_gettop(L); // number of arguments
+	if ((args < 1) || !lua_isnumber(L, 1) ||
+	    ((args >= 2) && !lua_isnumber(L, 2)) ||
+	    ((args >= 3) && !lua_isnumber(L, 3))		)
+	{
+		luaL_error(L,
+			"Incorrect arguments to changePrimSkill([Hero ID], [Which Primary skill], [Change by])");
+	}
+	int ID = lua_tointeger(L, 1),
+		which = lua_tointeger(L, 2),
+		val = lua_tointeger(L, 3);
+
+	CScriptCallback::changePrimSkill(ID,which,val);
+
+	return 0;
+}
+int CLuaCallback::getGnrlText(lua_State * L) //(int which),returns string
+{
+	const int args = lua_gettop(L); // number of arguments
+	if ((args < 1) || !lua_isnumber(L, 1) )
+		luaL_error(L,
+			"Incorrect arguments to getGnrlText([Text ID])");
+	int which = lua_tointeger(L,1);
+	lua_pushstring(L,CGI->generaltexth->allTexts[which].c_str());
+	return 1;
+}
+int CLuaCallback::getSelectedHero(lua_State * L) //(),returns int (ID of hero, -1 if no hero is seleceted)
+{
+	int ret;
+	if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
+		ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
+	else 
+		ret = -1;
+	lua_pushinteger(L,ret);
+	return 1;
 }

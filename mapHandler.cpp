@@ -10,6 +10,7 @@
 #include <algorithm>
 #include "CGameState.h"
 #include "CLua.h"
+#include "hch/CHeroHandler.h"
 extern SDL_Surface * ekran;
 
 class OCM_HLP
@@ -1383,14 +1384,15 @@ std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
 	std::vector<std::string> ret;
 	for(int g=0; g<objs.size(); ++g)
 	{
-		if( (5-(objs[g].first->pos.y-pos.y)) >= 0 && (5-(objs[g].first->pos.y-pos.y)) < 6 && (objs[g].first->pos.x-pos.x) >= 0 && (objs[g].first->pos.x-pos.x)<7 && objs[g].first->defObjInfoNumber!=-1 &&
-			(((CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap[5-(objs[g].first->pos.y-pos.y)])>>((objs[g].first->pos.x-pos.x)))&1)==0
+		if( (5-(objs[g].first->pos.y-pos.y)) >= 0 && (5-(objs[g].first->pos.y-pos.y)) < 6 && (objs[g].first->pos.x-pos.x) >= 0 && (objs[g].first->pos.x-pos.x)<7 && objs[g].first->defInfo &&
+			(((objs[g].first->defInfo->blockMap[5-(objs[g].first->pos.y-pos.y)])>>((objs[g].first->pos.x-pos.x)))&1)==0
 			) //checking position blocking
 		{
-			unsigned char * blm = CGI->dobjinfo->objs[objs[g].first->defObjInfoNumber].blockMap;
-			ret.push_back(
-			  CGI->objh->objects[objs[g].first->defInfo->id].name
-			  );
+			//unsigned char * blm = objs[g].first->defInfo->blockMap;
+			if (objs[g].first->state)
+				ret.push_back(objs[g].first->state->hoverText(objs[g].first));
+			else
+				ret.push_back(CGI->objh->objects[objs[g].first->defInfo->id].name);
 		}
 	}
 	return ret;
@@ -1443,8 +1445,8 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos)
 		nobj->defInfo->visitMap[g] = CGI->dobjinfo->objs[nobj->defObjInfoNumber].visitMap[g];
 	nobj->defInfo->printPriority = CGI->dobjinfo->objs[nobj->defObjInfoNumber].priority;
 	nobj->pos = pos;
-	nobj->state = new CLuaObjectScript();
-	nobj->state->owner = 254;
+	//nobj->state = NULL;//new CLuaObjectScript();
+	nobj->tempOwner = 254;
 	nobj->info = NULL;
 	nobj->defInfo->id = id;
 	nobj->defInfo->subid = subid;
