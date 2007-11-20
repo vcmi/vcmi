@@ -143,37 +143,31 @@ void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Colo
 }
 void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC, Uint8 A)
 {
-     Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;
-     if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-     {
-          p[0] = R;
-          p[1] = G;
-          p[2] = B;
-     }
-     else
-     {
-          p[0] = B;
-          p[1] = G;
-          p[2] = R;
-     }
-     SDL_UpdateRect(ekran, x, y, 1, 1);
+	Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;
+#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+	p[0] = R;
+	p[1] = G;
+	p[2] = B;
+#else
+	p[0] = B;
+	p[1] = G;
+	p[2] = R;
+#endif
+	SDL_UpdateRect(ekran, x, y, 1, 1);
 }
 
 void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC, Uint8 A)
 {
      Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;
-     if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-     {
-          p[0] = B;
-          p[1] = G;
-          p[2] = R;
-     }
-     else
-     {
-          p[0] = R;
-          p[1] = G;
-          p[2] = B;
-     }
+#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+	p[0] = B;
+	p[1] = G;
+	p[2] = R;
+#else
+	p[0] = R;
+	p[1] = G;
+	p[2] = B;
+#endif
 }
 
 ///**************/
@@ -192,14 +186,11 @@ SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot, int myC)
 			{
 				{
 					Uint8 *p = (Uint8 *)toRot->pixels + j * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
-					if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-					{
+#if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], myC);
-					}
-					else
-					{
+#else
 						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], myC);
-					}
+#endif
 				}
 			}
 		}
@@ -234,14 +225,11 @@ SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 				{
 					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel-2;
 					int k=2;
-					if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-					{
+#if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], k);
-					}
-					else
-					{
+#else
 						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], k);
-					}
+#endif
 				}
 			}
 		}
@@ -277,14 +265,11 @@ SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
 		{
 			{
 				Uint8 *p = (Uint8 *)toRot->pixels + i * toRot->pitch + j * toRot->format->BytesPerPixel;
-				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-				{
+#if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 					SDL_PutPixel(ret, i, j, p[0], p[1], p[2]);
-				}
-				else
-				{
+#else
 					SDL_PutPixel(ret, i, j, p[2], p[1], p[0]);
-				}
+#endif
 			}
 		}
 	}
@@ -308,14 +293,11 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 			{
 				{
 					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel+2;
-					if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-					{
+#if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 						SDL_PutPixel(ret, i, j, p[0], p[1], p[2], 2);
-					}
-					else
-					{
+#else
 						SDL_PutPixel(ret, i, j, p[2], p[1], p[0], 2);
-					}
+#endif
 				}
 			}
 		}
@@ -392,10 +374,11 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, int x, int y, bool colorByte
         return *(Uint16 *)p;
 
     case 3:
-        if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             return p[0] << 16 | p[1] << 8 | p[2];
-        else
+#else
             return p[0] | p[1] << 8 | p[2] << 16;
+#endif
 
     case 4:
         return *(Uint32 *)p;

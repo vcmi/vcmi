@@ -713,7 +713,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		initGameState(cgi);
 		THC std::cout<<"Initializing GameState: "<<tmh.getDif()<<std::endl;
 
-
+		/*for(int d=0; d<PLAYER_LIMIT; ++d)
+		{
+			cgi->playerint.push_back(NULL);
+		}*/
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
 		{ 
 

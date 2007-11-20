@@ -930,6 +930,7 @@ void CAmbarCendamo::deh3m()
 				spec->myInstance = nhi;
 				//nobj->isHero = true;
 				(static_cast<CGHeroInstance*>(nobj))->moveDir = 4;
+				nhi->isStanding = true;
 				nhi->exp = spec->experience;
 				nhi->level = CGI->heroh->level(nhi->exp);
 				nhi->primSkills.resize(PRIMARY_SKILLS);
@@ -1944,7 +1945,7 @@ void CAmbarCendamo::deh3m()
 	}//*/ //end of loading objects; commented to make application work until it will be finished
 	////objects loaded
 
-	processMap(defsToUnpack);
+	//processMap(defsToUnpack);
 	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack);
 	for (int i=0;i<dhandlers.size();i++)
 		map.defy[i]->handler=dhandlers[i];

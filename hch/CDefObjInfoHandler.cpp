@@ -19,6 +19,8 @@ void CDefObjInfoHandler::load()
 		DefObjInfo nobj;
 		std::string dump;
 		inp>>nobj.defName;
+		
+		std::transform(nobj.defName.begin(), nobj.defName.end(), nobj.defName.begin(), (int(*)(int))toupper);
 
 		for(int o=0; o<6; ++o)
 		{
