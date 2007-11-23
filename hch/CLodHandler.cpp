@@ -6,7 +6,6 @@
 #include <cctype>
 #include <cstring>
 #include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
-
 int readNormalNr (int pos, int bytCon, unsigned char * str)
 {
 	int ret=0;

@@ -61,6 +61,8 @@ public:
 	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components);
 	int getHeroOwner(int heroID);
 	int getSelectedHero();
+	int getDate(int mode=0);
+	void giveResource(int player, int which, int val);
 	friend void initGameState(CGameInfo * cgi);
 };
 class CLuaCallback : public CScriptCallback

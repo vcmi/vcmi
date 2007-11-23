@@ -5,7 +5,6 @@
 BOOST_TRIBOOL_THIRD_STATE(outOfRange)
 
 using namespace boost::logic;
-class CAdvMapInt;
 class CCallback;
 class CGlobalAI;
 class CGHeroInstance;

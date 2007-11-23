@@ -14,6 +14,7 @@
 #include <sstream>
 #include "hch/CHeroHandler.h"
 #include "SDL_framerate.h"
+#include "hch/CGeneralTextHandler.h"
 using namespace CSDL_Ext;
 
 class OCM_HLP_CGIN
@@ -24,11 +25,142 @@ public:
 		return (*a.first)<(*b.first);
 	}
 } ocmptwo_cgin ;
+CInfoWindow::CInfoWindow()
+:okb(NMessage::ok,NULL,&CInfoWindow::okClicked)
+{
+	okb.ourObj = this;
+	okb.delg = this;
+}
+
+void CInfoWindow::okClicked(tribool down)
+{
+	if (!down)
+		close();
+}
+
+void CInfoWindow::close()
+{
+	for (int i=0;i<components.size();i++)
+		delete components[i];
+	okb.deactivate();
+	SDL_FreeSurface(bitmap);
+	bitmap = NULL;
+	LOCPLINT->removeObjToBlit(this);
+	//delete this;
+	LOCPLINT->adventureInt->show();
+}
+CInfoWindow::~CInfoWindow()
+{
+}
+SComponent::SComponent(Etype Type, int Subtype, int Val)
+{
+	std::ostringstream oss;
+	switch (Type)
+	{
+	case primskill:
+		description = CGI->generaltexth->arraytxt[2+Subtype];
+		oss << ((Val>0)?("+"):("-")) << Val << " " << CGI->heroh->pskillsn[Subtype];
+		subtitle = oss.str();
+		break;
+	case resource:
+		//description = CGI->generaltexth->arraytxt[2+Subtype];
+		std::ostringstream oss;
+		oss << Val;
+		subtitle = oss.str();
+		break;
+	}
+	type = Type;
+	subtype = Subtype;
+	val = Val;
+	SDL_Surface * temp = getImg();
+	pos.w = temp->w;
+	pos.h = temp->h;
+}
+
+SDL_Surface * SComponent::getImg()
+{
+	switch (type)
+	{
+	case primskill:
+		return CGI->heroh->pskillsb->ourImages[subtype].bitmap;
+		break;
+	case resource:
+		return CGI->heroh->resources->ourImages[subtype].bitmap;
+		break;
+	}
+	return NULL;
+}
+
+void SComponent::clickRight (tribool down)
+{
+	LOCPLINT->adventureInt->handleRightClick(description,down,this);
+}
+void SComponent::activate()
+{
+	ClickableR::activate();
+}
+void SComponent::deactivate()
+{
+	ClickableR::deactivate();
+}
 CSimpleWindow::~CSimpleWindow()
 {
 	if (bitmap)
+	{
 		SDL_FreeSurface(bitmap);
-	bitmap=NULL;
+		bitmap=NULL;
+	}
+}
+
+template <typename T>CSCButton<T>::CSCButton(CDefHandler * img, CIntObject * obj, void(T::*poin)(tribool), T* Delg)
+{
+	ourObj = obj;
+	delg = Delg;
+	func = poin;
+	imgs.resize(1);
+	for (int i =0; i<img->ourImages.size();i++)
+	{
+		imgs[0].push_back(img->ourImages[i].bitmap);
+	}
+	pos.w = imgs[0][0]->w;
+	pos.h = imgs[0][0]->h;
+	state = 0;
+}
+template <typename T> void CSCButton<T>::clickLeft (tribool down)
+{
+	if (down)
+	{
+		state=1;
+	}
+	else 
+	{
+		state=0;
+	}
+	show();
+	if (delg)
+		(delg->*func)(down);
+	pressedL=state;
+}
+template <typename T> void CSCButton<typename T>::activate()
+{
+	ClickableL::activate();
+}
+template <typename T> void CSCButton<typename T>::deactivate()
+{
+	ClickableL::deactivate();
+}
+
+template <typename T> void CSCButton<typename T>::show()
+{
+	if (delg)
+	{
+		blitAt(imgs[curimg][state],posr.x,posr.y,delg->bitmap);
+		updateRect(&genRect(pos.h,pos.w,posr.x,posr.y),delg->bitmap);
+	}
+	else
+	{
+		CButtonBase::show();
+	}
 }
 CButtonBase::CButtonBase()
 {
@@ -1061,7 +1193,20 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 		adventureInt->infoBar.draw();
 	return;
 }
-void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> components)
+void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> & components)
 {
-	;
+	adventureInt->hide();
+	CInfoWindow * temp = CMessage::genIWindow(text,LOCPLINT->playerID,32,components);
+	LOCPLINT->objsToBlit.push_back(temp);
+	temp->pos.x=300-(temp->pos.w/2);
+	temp->pos.y=300-(temp->pos.h/2);
+	temp->okb.pos.x = temp->okb.posr.x + temp->pos.x;
+	temp->okb.pos.y = temp->okb.posr.y + temp->pos.y;
+	temp->okb.activate();
+}
+void CPlayerInterface::removeObjToBlit(CSimpleWindow* obj)
+{
+	objsToBlit.erase
+		(std::find(objsToBlit.begin(),objsToBlit.end(),obj));
+	//delete obj;
 }

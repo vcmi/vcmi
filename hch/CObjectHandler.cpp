@@ -8,6 +8,7 @@
 #include "CDefObjInfoHandler.h"
 #include "../CLua.h"
 #include "CHeroHandler.h"
+#include <boost/algorithm/string/replace.hpp>
 void CObjectHandler::loadObjects()
 {
 	int ID=0;
@@ -28,6 +29,8 @@ void CObjectHandler::loadObjects()
 	while (it<buf.length()-1)
 	{
 		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		temp = temp.substr(1,temp.length()-2);
+		boost::algorithm::replace_all(temp,"\"\"","\"");
 		advobtxt.push_back(temp);
 	}
 
@@ -122,9 +125,9 @@ bool CGObjectInstance::visitableAt(int x, int y) const //returns true if ibject 
 }
 bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen printing priority comparing
 {
-	if(defInfo->printPriority==1 && defInfo->printPriority==0)
+	if(defInfo->printPriority==1 && cmp.defInfo->printPriority==0)
 		return true;
-	if(defInfo->printPriority==1 && defInfo->printPriority==0)
+	if(cmp.defInfo->printPriority==1 && defInfo->printPriority==0)
 		return false;
 	if(this->pos.y<cmp.pos.y)
 		return true;
@@ -277,6 +280,7 @@ CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
 	defInfo = right.defInfo;
 	info = right.info;
 	defObjInfoNumber = right.defObjInfoNumber;
+	blockVisit = false;
 	//state = new CLuaObjectScript(right.state->);
 	//*state = *right.state;
 	//state = right.state;
@@ -291,6 +295,7 @@ CGObjectInstance& CGObjectInstance::operator=(const CGObjectInstance & right)
 	defInfo = right.defInfo;
 	info = right.info;
 	defObjInfoNumber = right.defObjInfoNumber;
+	blockVisit = right.blockVisit;
 	//state = new CLuaObjectScript();
 	//*state = *right.state;
 	tempOwner = right.tempOwner;

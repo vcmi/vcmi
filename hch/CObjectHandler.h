@@ -367,6 +367,7 @@ public:
 	int defObjInfoNumber;
 
 	int tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
+	bool blockVisit;
 	
 	virtual bool isHero() const;
 	int getOwner() const; 
@@ -405,7 +406,7 @@ public:
 	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);
 	unsigned int getLowestCreatureSpeed();
 	unsigned int getAdditiveMoveBonus();
-	unsigned float getMultiplicativeMoveBonus();
+	float getMultiplicativeMoveBonus();
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	int getSightDistance() const; //returns sight distance of this hero

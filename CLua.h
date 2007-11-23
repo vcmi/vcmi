@@ -25,6 +25,8 @@ public:
 	virtual void newObject(CGObjectInstance *os){};
 	virtual void onHeroVisit(CGObjectInstance *os, int heroID){};
 	virtual std::string hoverText(CGObjectInstance *os){return "";};
+	virtual void newTurn (){}; 
+
 
 	//TODO: implement functions below:
 	virtual void equipArtefact(int HID, int AID, int slot, bool putOn){}; //putOn==0 means that artifact is taken off
@@ -33,7 +35,6 @@ public:
 	//virtual void battleAction (int type,int destination, int stack, int owner, int){};
 	//virtual void mouseClick (down,left,screen?, pos??){};
 	virtual void heroLevelUp (int HID){}; //add possibility of changing available sec. skills
-
 
 };
 class CScript
@@ -100,19 +101,16 @@ class CVisitableOPH : public CCPPObjectScript  //once per hero
 	friend void initGameState(CGameInfo * cgi);
 };
 
-struct SComponent
+class CVisitableOPW : public CCPPObjectScript  //once per week
 {
-	enum Etype
-	{
-		primskill, secskill, resource, creature, artifact
-	} type;
-	int subtype; 
-	int val;
+	CVisitableOPW(CScriptCallback * CB):CCPPObjectScript(CB){};
+	std::map<CGObjectInstance*,bool> visited;
+	void onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited);
+	void newObject(CGObjectInstance *os);
+	void onHeroVisit(CGObjectInstance *os, int heroID);
+	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+	std::string hoverText(CGObjectInstance *os);
+	void newTurn (); 
 
-	std::string description; //r-click
-	std::string subtitle; 
-
-	SComponent(Etype Type, int Subtype, int Val);
-	//SComponent(const & SComponent r);
-	SDL_Surface * getImg();
+	friend void initGameState(CGameInfo * cgi);
 };

@@ -13,6 +13,7 @@ class CDefHandler;
 struct SComponent;
 namespace NMessage
 {
+	extern CDefHandler * ok, *cancel;
 	extern std::vector<std::vector<SDL_Surface*> > piecesOfBox; //in colors of all players
 	extern SDL_Surface * background ;
 }

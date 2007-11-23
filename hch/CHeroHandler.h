@@ -69,7 +69,7 @@ public:
 	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);
 	unsigned int getLowestCreatureSpeed();
 	unsigned int getAdditiveMoveBonus();
-	unsigned float getMultiplicativeMoveBonus();
+	float getMultiplicativeMoveBonus();
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	int getSightDistance() const; //returns sight distance of this hero
@@ -89,7 +89,7 @@ public:
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
-	CDefHandler * pskillsb; //82x93
+	CDefHandler * pskillsb, *resources; //82x93
 	std::vector<std::string> pskillsn;
 	unsigned int level(unsigned int experience);
 	void loadHeroes();

@@ -10,7 +10,7 @@ class CDefHandler;
 struct HeroMoveDetails;
 class CDefEssential;
 class CGHeroInstance;
-struct SComponent;
+class CAdvMapInt;
 class CIntObject //interface object
 {
 public:
@@ -25,19 +25,13 @@ public:
 	CSimpleWindow():bitmap(NULL),owner(NULL){};
 	virtual ~CSimpleWindow();
 };
-class CInfoWindow : public CSimpleWindow //text + comp. + ok button
-{
-public:
-	std::vector<SComponent *> components;
-	CInfoWindow(){};
-};
 class CButtonBase : public virtual CIntObject //basic buttton class
 {
 public:
 	int type; //advmapbutton=2
 	bool abs;
 	bool active;
-	CIntObject * ourObj;
+	CIntObject * ourObj; // "owner"
 	int state;
 	std::vector< std::vector<SDL_Surface*> > imgs;
 	int curimg;
@@ -45,6 +39,7 @@ public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 	CButtonBase();
+	virtual ~CButtonBase(){};
 };
 class ClickableL : public virtual CIntObject  //for left-clicks
 {
@@ -87,6 +82,54 @@ public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
+
+template <typename T> class CSCButton: public CButtonBase, public ClickableL //prosty guzik, ktory tylko zmienia obrazek
+{
+public:
+	int3 posr; //position in the bitmap
+	int state;
+	T* delg;
+	void(T::*func)(tribool);
+	CSCButton(CDefHandler * img, CIntObject * obj, void(T::*poin)(tribool), T* Delg=NULL);
+	void clickLeft (tribool down);
+	void activate();
+	void deactivate();
+	void show();
+};
+
+class CInfoWindow : public CSimpleWindow //text + comp. + ok button
+{
+public:
+	CSCButton<CInfoWindow> okb;
+	std::vector<SComponent*> components;
+	void okClicked(tribool down);
+	void close();
+	CInfoWindow();
+	~CInfoWindow();
+};
+
+class SComponent : public ClickableR
+{
+public:
+	enum Etype
+	{
+		primskill, secskill, resource, creature, artifact
+	} type;
+	int subtype; 
+	int val;
+
+	std::string description; //r-click
+	std::string subtitle; 
+
+	SComponent(Etype Type, int Subtype, int Val);
+	//SComponent(const & SComponent r);
+	SDL_Surface * getImg();
+	
+	void clickRight (tribool down);
+	void activate();
+	void deactivate();
+};
+
 class CPlayerInterface : public CGameInterface
 {
 public:
@@ -121,7 +164,8 @@ public:
 	void handleEvent(SDL_Event * sEvent);
 	void init(CCallback * CB);
 	int3 repairScreenPos(int3 pos);
-	void showInfoDialog(std::string text, std::vector<SComponent*> components);
+	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
+	void removeObjToBlit(CSimpleWindow* obj);
 
 	CPlayerInterface(int Player, int serial);
 };

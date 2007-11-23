@@ -93,14 +93,14 @@ public:
 	void draw();
 };
 class CResourceBar
-	:public ClickableR, public CIntObject
+	:public ClickableR
 {
 	SDL_Surface * bg;
 	void clickRight(tribool down);
 	void refresh();
 };
 class CDataBar
-	:public ClickableR, public CIntObject
+	:public ClickableR
 {
 	SDL_Surface * bg;
 	void clickRight(tribool down);

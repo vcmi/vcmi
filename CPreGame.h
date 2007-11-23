@@ -91,13 +91,13 @@ public:
 		: Button(Pos,Fun,Imgs,Sel,gr),key(My){ourPoinGroup=gr;};
 	void select(bool on=true) {(*this).Button::select(on);ourPoinGroup->setYour(this);CPG->printRating();}
 };
-template <class T=ttt> class CPoinGroup :public CGroup<T>
+template <class T> class CPoinGroup :public CGroup<T>
 {
 public:
 	int * gdzie; //where (po polsku, bo by by³o s³owo kluczowe :/)
 	void setYour(IntSelBut<T> * your){*gdzie=your->key;};
 };
-template <class T=ttt> class CGroup
+template <class T> class CGroup
 {
 public:
 	Button<T> * selected;

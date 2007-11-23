@@ -1524,6 +1524,7 @@ std::string CMapHandler::getDefName(int id, int subid)
 		if(CGI->dobjinfo->objs[i].type==id && CGI->dobjinfo->objs[i].subtype==subid)
 			return CGI->dobjinfo->objs[i].defName;
 	}
+	throw new std::exception("Def not found.");
 }
 
 bool CMapHandler::printObject(CGObjectInstance *obj)

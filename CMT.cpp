@@ -218,7 +218,9 @@ void initGameState(CGameInfo * cgi)
 	/****************************C++ OBJECT SCRIPTS************************************************/
 	std::map<int,CCPPObjectScript*> scripts;
 	CScriptCallback * csc = new CScriptCallback();
+	csc->gs = cgi->state;
 	handleCPPObjS(&scripts,new CVisitableOPH(csc));
+	handleCPPObjS(&scripts,new CVisitableOPW(csc));
 	//created map
 
 
@@ -330,6 +332,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->screenh = new CScreenHandler;
 		cgi->screenh->initScreen();
 
+		THC std::cout<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
+
 		//colors initialization
 		SDL_Color p;
 		p.unused = 0;
@@ -352,6 +356,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		p.r = 0x84; p.g = 0x84; p.b = 0x84;//gray
 		cgi->neutralColor = p;//gray
 		//colors initialized
+		THC std::cout<<"Preparing players' colours: "<<tmh.getDif()<<std::endl;
 		CMessage::init();
 		cgi->townh = new CTownHandler;
 		cgi->townh->loadNames();
@@ -364,6 +369,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->heroh = heroh;
 		cgi->generaltexth = new CGeneralTextHandler;
 		cgi->generaltexth->load();
+		THC std::cout<<"Preparing more handlers: "<<tmh.getDif()<<std::endl;
 
 		//initializing hero flags
 
@@ -641,7 +647,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		//hero flags initialized
 
-		THC std::cout<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Initializing colours and flags: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		cpg->mush = mush;

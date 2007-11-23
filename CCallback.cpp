@@ -38,6 +38,11 @@ void CCallback::newTurn()
 {
 	//std::map<int, PlayerState>::iterator i = gs->players.begin() ;
 	gs->day++;
+	for (int i=0;i<CGI->objh->objInstances.size();i++)
+	{
+		if (CGI->objh->objInstances[i]->state)
+			CGI->objh->objInstances[i]->state->newTurn();
+	}
 	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		for (int j=0;j<(*i).second.heroes.size();j++)
@@ -373,6 +378,37 @@ int CScriptCallback::getSelectedHero()
 		ret = -1;;
 	return ret;
 }
+int CScriptCallback::getDate(int mode)
+{
+	int temp;
+	switch (mode)
+	{
+	case 0:
+		return gs->day;
+		break;
+	case 1:
+		temp = (gs->day)%7;
+		if (temp)
+			return temp;
+		else return 7;
+		break;
+	case 2:
+		temp = ((gs->day-1)/7)+1;
+		if (!(temp%4))
+			return 4;
+		else 
+			return (temp%4);
+		break;
+	case 3:
+		return ((gs->day-1)/28)+1;
+		break;
+	}
+	return 0;
+}
+void CScriptCallback::giveResource(int player, int which, int val)
+{
+	gs->players[player].resources[which]+=val;
+}
 void CLuaCallback::registerFuncs(lua_State * L)
 {
 	lua_newtable(L);
@@ -397,7 +433,8 @@ void CLuaCallback::registerFuncs(lua_State * L)
 	
 
 	lua_setglobal(L, "vcmi");
-#undef REGISTER_C_FUNC(x)
+	#undef REGISTER_C_FUNC(x)
+
 }
 int CLuaCallback::getPos(lua_State * L)//(CGObjectInstance * object);
 {	

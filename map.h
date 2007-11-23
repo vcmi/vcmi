@@ -1,6 +1,6 @@
 #ifndef MAPD_H
 #define MAPD_H
-
+#pragma warning (disable : 4482) 
 #include <string>
 #include <vector>
 #include "global.h"
@@ -174,7 +174,7 @@ public:
 struct Mapa
 {
 	Eformat version; // version of map Eformat
-	bool twoLevel; // if map has underground level
+	int twoLevel; // if map has underground level
 	int difficulty; // 0 easy - 4 impossible
 	int levelLimit;
 	bool areAnyPLayers; // if there are any playable players on map

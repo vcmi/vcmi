@@ -275,45 +275,76 @@ CInfoWindow * CMessage::genIWindow(std::string text, int player, int charperline
 {
 	//TODO: support for more than one component
 	CInfoWindow * ret = new CInfoWindow();
-
-	std::vector<std::string> * brtext = breakText(text,32,true,true);
-	std::vector<std::string> * brdtext = breakText(comps[0]->subtitle,12,true,true);
+	ret->components = comps;
+	//for (int i=0;i<comps.size();i++)
+	//	comps[i]->
+	std::vector<std::string> * brtext = breakText(text,charperline,true,true);
+	std::vector<std::string> * brdtext;
+	if (comps.size())
+		brdtext = breakText(comps[0]->subtitle,12,true,true);
+	else 
+		brdtext = NULL;
 	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext);
 	std::pair<int,int> txts = getMaxSizes(txtg);
 	txts.second = txts.second
-		+ 30 //space to first component
-		+ comps[0]->getImg()->h
-		+ brdtext->size() * 10 //subtitle //!!!!!!!!!!!!!!!!!!!!
-		+ 20 // space between subtitle and button
 		+ ok->ourImages[0].bitmap->h //button
-		+ 30; //after button
+		+ 15 //after button
+		+ 20; // space between subtitle and button
+	if (comps.size())
+			txts.second = txts.second
+			+ 30 //space to first component
+			+ comps[0]->getImg()->h
+			+ 5 //img <-> subtitle
+			+ brdtext->size() * 10; //subtitle //!!!!!!!!!!!!!!!!!!!!
 	ret->bitmap = drawBox1(txts.first+70,txts.second+70,0); 
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 
+	int curh = 30; //gorny margines
+	for (int i=0; i<txtg->size();i++)
+	{
+		int lw=0;
+		for (int j=0;j<(*txtg)[i].size();j++)
+			lw+=(*txtg)[i][j]->w;
+		int pw = ret->bitmap->w/2;
+		//int pw = Tmar, ph = Lmar;
+		pw -= lw/2;
 
-	//for (int i=0; i<txtg->size();i++)
-	//{
-	//	int lw=0;
-	//	for (int j=0;j<(*txtg)[i].size();j++)
-	//		lw+=(*txtg)[i][j]->w;
-	//	int pw = ret->bitmap->w/2, ph =  ret->bitmap->h/2;
-	//	//int pw = Tmar, ph = Lmar;
-	//	pw -= lw/2;
-	//	ph -= (19*txtg->size())/2;
+		int tw = pw;
+		for (int j=0;j<(*txtg)[i].size();j++) //blit text
+		{
+				//std::stringstream n;
+				//n <<"temp_"<<i<<"__"<<j<<".bmp";
+				//SDL_SaveBMP(ret->bitmap,n.str().c_str());	
+			blitAt((*txtg)[i][j],tw,curh+i*19,ret->bitmap);
+			tw+=(*txtg)[i][j]->w;
+			SDL_FreeSurface((*txtg)[i][j]);
+		}
+	}
+	curh += (19 * txtg->size()); //wys. tekstu
 
-	//	int tw = pw;
-	//	for (int j=0;j<(*txtg)[i].size();j++)
-	//	{
-	//			//std::stringstream n;
-	//			//n <<"temp_"<<i<<"__"<<j<<".bmp";
-	//		blitAt((*txtg)[i][j],tw,ph+i*19,ret->bitmap);
-	//			//SDL_SaveBMP(ret->bitmap,n.str().c_str());	
-	//		tw+=(*txtg)[i][j]->w;
-	//		SDL_FreeSurface((*txtg)[i][j]);
-	//	}
-	//}
+	if (comps.size())
+	{
+		curh += 30;
+		comps[0]->pos.x = (ret->bitmap->w/2) - ((comps[0]->getImg()->w)/2);
+		comps[0]->pos.y = curh;
+		blitAt(comps[0]->getImg(),comps[0]->pos.x,comps[0]->pos.y,ret->bitmap);
+		curh += comps[0]->getImg()->h + 5; //obrazek + przerwa
+		for (int i=0; i<brdtext->size();i++) //descr.
+		{
+			SDL_Surface * tesu = TTF_RenderText_Blended(GEOR13,(*brdtext)[i].c_str(),zwykly);
+			blitAt(tesu,((comps[0]->getImg()->w - tesu->w)/2)+comps[0]->pos.x,curh,ret->bitmap);
+			curh+=tesu->h;
+			SDL_FreeSurface(tesu);
+		}
+	}
 
+	curh += 20; //to buttton
+
+	ret->okb.posr.x = (ret->bitmap->w/2) - (ret->okb.imgs[0][0]->w/2);
+	ret->okb.posr.y = curh;
+	ret->okb.show();
+	curh+=ret->okb.imgs[0][0]->h;
 
 	return ret;
 }

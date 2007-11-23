@@ -15,6 +15,8 @@
 #include "CCallback.h"
 #include "hch/CGeneralTextHandler.h"
 #include <sstream>
+#include "CPlayerInterface.h"
+#pragma warning (disable : 4311)
 bool getGlobalFunc(lua_State * L, std::string fname)
 {
 	unsigned int hash = lua_calchash(fname.c_str(), fname.size());
@@ -25,7 +27,7 @@ bool getGlobalFunc(lua_State * L, std::string fname)
 
 CObjectScript::CObjectScript()
 {
-	language == ESLan::UNDEF;
+	language = ESLan::UNDEF;
 	//std::cout << "Tworze obiekt objectscript "<<this<<std::endl;
 }
 
@@ -107,7 +109,7 @@ void CLua::findFS(std::string fname)
 
 CLuaObjectScript::CLuaObjectScript(std::string filename)
 {
-	language == ESLan::LUA;
+	language = ESLan::LUA;
 	open(filename);
 	//binit = bnewobject = bonherovisit = brightext = false;
 	//std::cout << "Tworze obiekt CLuaObjectScript "<<this<<std::endl;
@@ -163,6 +165,7 @@ std::string CLuaObjectScript::hoverText(CGObjectInstance *os)
 	}
 	std::string ret = lua_tostring(is,1);
 	lua_settop(is, 0);
+	return ret;
 }
 
 std::string CCPPObjectScript::hoverText(CGObjectInstance *os)
@@ -197,6 +200,26 @@ void CVisitableOPH::onHeroVisit(CGObjectInstance *os, int heroID)
 };
 void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited)
 {
+	int w=0, ot=0;
+	switch(os->ID)
+	{
+	case 51:
+		w=0;
+		ot=80;
+		break;
+	case 23:
+		w=1;
+		ot=39;
+		break;
+	case 61:
+		w=2;
+		ot=100;
+		break;
+	case 32:
+		w=3;
+		ot=59;
+		break;
+	}
 	if (!alreadyVisited)
 	{
 		switch (os->ID)
@@ -206,35 +229,20 @@ void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 		case 61:
 		case 32:
 			{
-				int w=0, ot=0;
-				switch(os->ID)
-				{
-				case 51:
-					w=0;
-					ot=80;
-					break;
-				case 23:
-					w=1;
-					ot=29;
-					break;
-				case 61:
-					w=2;
-					ot=100;
-					break;
-				case 32:
-					w=3;
-					ot=59;
-					break;
-				}
 				cb->changePrimSkill(heroID,w,1);
 				std::vector<SComponent*> weko;
-				weko.push_back(new SComponent(SComponent::primskill,1,1));
-				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko);
-				for (int ii=0; ii<weko.size();ii++)
-					delete weko[ii];
+				weko.push_back(new SComponent(SComponent::primskill,w,1)); 
+				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko); //TODO: maybe we have memory leak with these windows
+				//for (int ii=0; ii<weko.size();ii++)
+				//	delete weko[ii];
 				break;
 			}
 		}
+	}
+	else
+	{
+		ot++;
+		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&std::vector<SComponent*>());
 	}
 }
 
@@ -282,6 +290,104 @@ std::string CVisitableOPH::hoverText(CGObjectInstance *os)
 	return CGI->objh->objects[os->defInfo->id].name + add;
 }
 
+void CVisitableOPW::onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited)
+{
+	int mid;
+	switch (os->ID)
+	{
+	case 55:
+		mid = 92;
+		break;
+	case 112:
+		mid = 170;
+		break;
+	case 109:
+		mid = 164;
+		break;
+	}
+	if (alreadyVisited)
+	{
+		if (os->ID!=112)
+			mid++;
+		else 
+			mid--;
+		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[mid],&std::vector<SComponent*>()); //TODO: maybe we have memory leak with these windows
+	}
+	else
+	{
+		int type, sub, val;
+		type = SComponent::resource;
+		switch (os->ID)
+		{
+		case 55:
+			if (rand()%2)
+			{
+				sub = 5;
+				val = 5;
+			}
+			else
+			{
+				sub = 6;
+				val = 500;
+			}
+			break;
+		case 112:
+			mid = 170;
+			sub = rand() % 6;
+			val = (rand() % 4) + 3;
+			break;
+		case 109:
+			mid = 164;
+			sub = 6;
+			if(cb->getDate(2)<2)
+				val = 500;
+			else
+				val = 1000;
+		}
+		SComponent * com = new SComponent((SComponent::Etype)type,sub,val);
+		std::vector<SComponent*> weko;
+		weko.push_back(com);
+		cb->giveResource(cb->getHeroOwner(heroID),sub,val);
+		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[mid],&weko);
+		visited[os] = true;
+	}
+}
+void CVisitableOPW::newTurn ()
+{
+	if (cb->getDate(1)==1)
+	{
+		for (std::map<CGObjectInstance*,bool>::iterator i = visited.begin(); i != visited.end(); i++)
+		{
+			(*i).second = false;
+		}
+	}
+} 
+void CVisitableOPW::newObject(CGObjectInstance *os)
+{
+	visited.insert(std::pair<CGObjectInstance*,bool>(os,false));
+}
+
+void CVisitableOPW::onHeroVisit(CGObjectInstance *os, int heroID)
+{
+	if(visited[os])
+		onNAHeroVisit(os,heroID,true);
+	else 
+		onNAHeroVisit(os,heroID,false);
+}
+
+std::vector<int> CVisitableOPW::yourObjects() //returns IDs of objects which are handled by script
+{
+	std::vector<int> ret(3);
+	ret.push_back(55); //mystical garden
+	ret.push_back(112); //windmill
+	ret.push_back(109); //water wheel
+	return ret;
+}
+
+std::string CVisitableOPW::hoverText(CGObjectInstance *os)
+{
+	return CGI->objh->objects[os->defInfo->id].name + " " + ( (visited[os]) ? (CGI->generaltexth->allTexts[352]) : (CGI->generaltexth->allTexts[353]))  ;
+}
 
 //std::string SComponent::getSubtitle()
 //{
@@ -293,29 +399,3 @@ std::string CVisitableOPH::hoverText(CGObjectInstance *os)
 //void SComponent::getDescription(Etype Type, int Subtype)
 //{
 //}
-SComponent::SComponent(Etype Type, int Subtype, int Val)
-{
-	switch (Type)
-	{
-	case primskill:
-		description = CGI->generaltexth->arraytxt[2+Subtype];
-		std::ostringstream oss;
-		oss << ((Val>0)?("+"):("-")) << Val << " " << CGI->heroh->pskillsn[Subtype];
-		subtitle = oss.str();
-		break;
-	}
-	type = Type;
-	subtype = Subtype;
-	val = Val;
-}
-
-SDL_Surface * SComponent::getImg()
-{
-	switch (type)
-	{
-	case primskill:
-		return CGI->heroh->pskillsb[subtype].ourImages[0].bitmap;
-		break;
-	}
-	return NULL;
-}
