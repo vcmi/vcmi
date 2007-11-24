@@ -38,10 +38,9 @@ void CCallback::newTurn()
 {
 	//std::map<int, PlayerState>::iterator i = gs->players.begin() ;
 	gs->day++;
-	for (int i=0;i<CGI->objh->objInstances.size();i++)
+	for (std::set<CCPPObjectScript *>::iterator i=gs->cppscripts.begin();i!=gs->cppscripts.end();i++)
 	{
-		if (CGI->objh->objInstances[i]->state)
-			CGI->objh->objInstances[i]->state->newTurn();
+		(*i)->newTurn();
 	}
 	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{

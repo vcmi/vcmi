@@ -66,6 +66,7 @@ void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * sc
 	{
 		(*mapa)[tempv[i]]=script;
 	}
+	CGI->state->cppscripts.insert(script);
 }
 void initGameState(CGameInfo * cgi)
 {
@@ -221,6 +222,7 @@ void initGameState(CGameInfo * cgi)
 	csc->gs = cgi->state;
 	handleCPPObjS(&scripts,new CVisitableOPH(csc));
 	handleCPPObjS(&scripts,new CVisitableOPW(csc));
+	handleCPPObjS(&scripts,new CMines(csc));
 	//created map
 
 

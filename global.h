@@ -41,7 +41,7 @@ const int HEROES_QUANTITY=156;
 const int RESOURCE_QUANTITY=8;
 const int TERRAIN_TYPES=10;
 const int PRIMARY_SKILLS=4;
-
+const int NEUTRAL_PLAYER=255;
 const int NAMES_PER_TOWN=16;
 
 #define MARK_BLOCKED_POSITIONS false

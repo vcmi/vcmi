@@ -36,11 +36,28 @@ void CObjectHandler::loadObjects()
 
 	buf = CGameInfo::mainObj->bitmaph->getTextFile("XTRAINFO.TXT");
 	it=0;
-	temp;
 	while (it<buf.length()-1)
 	{
 		CGeneralTextHandler::loadToIt(temp,buf,it,3);
 		xtrainfo.push_back(temp);
+	}
+
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("MINENAME.TXT");
+	it=0;
+	while (it<buf.length()-1)
+	{
+		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		mines.push_back(std::pair<std::string,std::string>(temp,""));
+	}
+
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("MINEEVNT.TXT");
+	it=0;
+	int i=0;
+	while (it<buf.length()-1)
+	{
+		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		temp = temp.substr(1,temp.length()-2);
+		mines[i++].second = temp;
 	}
 	
 }

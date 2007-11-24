@@ -1,11 +1,13 @@
 #ifndef CGAMESTATE_H
 #define CGAMESTATE_H
 #include "mapHandler.h"
+#include <set>
 class CScriptCallback;
 class CHeroInstance;
 class CTownInstance;
 class CCallback;
 class CLuaCallback;
+class CCPPObjectScript;
 struct PlayerState
 {
 public:
@@ -24,7 +26,8 @@ private:
 	int currentPlayer;
 	int day; //total number of days in game
 	std::map<int,PlayerState> players; //color <-> playerstate
-	std::map<int, std::map<std::string, CObjectScript*> > objscr; //custom user scripts
+	std::set<CCPPObjectScript *> cppscripts;
+	std::map<int, std::map<std::string, CObjectScript*> > objscr; //custom user scripts (as for now only Lua)
 	
 
 	bool checkFunc(int obid, std::string name)
@@ -58,6 +61,7 @@ public:
 	friend int _tmain(int argc, _TCHAR* argv[]);
 	friend void initGameState(CGameInfo * cgi);
 	friend CScriptCallback;
+	friend void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	//CCallback * cb; //for communication between PlayerInterface/AI and GameState
 
 	friend SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap); //todo: wywalic koniecznie, tylko do flag obecnie!!!!

@@ -114,3 +114,18 @@ class CVisitableOPW : public CCPPObjectScript  //once per week
 
 	friend void initGameState(CGameInfo * cgi);
 };
+
+class CMines : public CCPPObjectScript  //flaggable, and giving resource at each day
+{
+	CMines(CScriptCallback * CB):CCPPObjectScript(CB){};
+
+	std::vector<CGObjectInstance*> ourObjs;
+
+	void newObject(CGObjectInstance *os);
+	void onHeroVisit(CGObjectInstance *os, int heroID);
+	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+	std::string hoverText(CGObjectInstance *os);
+	void newTurn (); 
+
+	friend void initGameState(CGameInfo * cgi);
+};

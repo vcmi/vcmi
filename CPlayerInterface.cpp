@@ -41,7 +41,11 @@ void CInfoWindow::okClicked(tribool down)
 void CInfoWindow::close()
 {
 	for (int i=0;i<components.size();i++)
+	{
+		components[i]->deactivate();
 		delete components[i];
+	}
+	components.clear();
 	okb.deactivate();
 	SDL_FreeSurface(bitmap);
 	bitmap = NULL;
@@ -1195,7 +1199,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 }
 void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> & components)
 {
-	adventureInt->hide();
+	adventureInt->hide(); //dezaktywacja starego interfejsu
 	CInfoWindow * temp = CMessage::genIWindow(text,LOCPLINT->playerID,32,components);
 	LOCPLINT->objsToBlit.push_back(temp);
 	temp->pos.x=300-(temp->pos.w/2);
@@ -1203,6 +1207,12 @@ void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*>
 	temp->okb.pos.x = temp->okb.posr.x + temp->pos.x;
 	temp->okb.pos.y = temp->okb.posr.y + temp->pos.y;
 	temp->okb.activate();
+	for (int i=0;i<temp->components.size();i++)
+	{
+		temp->components[i]->activate();
+		temp->components[i]->pos.x += temp->pos.x;
+		temp->components[i]->pos.y += temp->pos.y;
+	}
 }
 void CPlayerInterface::removeObjToBlit(CSimpleWindow* obj)
 {

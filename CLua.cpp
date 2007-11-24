@@ -389,13 +389,59 @@ std::string CVisitableOPW::hoverText(CGObjectInstance *os)
 	return CGI->objh->objects[os->defInfo->id].name + " " + ( (visited[os]) ? (CGI->generaltexth->allTexts[352]) : (CGI->generaltexth->allTexts[353]))  ;
 }
 
-//std::string SComponent::getSubtitle()
-//{
-//	std::string ret;
-//
-//
-//	return ret;
-//}
-//void SComponent::getDescription(Etype Type, int Subtype)
-//{
-//}
+void CMines::newObject(CGObjectInstance *os)
+{
+	ourObjs.push_back(os);
+	os->tempOwner = NEUTRAL_PLAYER;
+}
+void CMines::onHeroVisit(CGObjectInstance *os, int heroID)
+{
+	int vv = 1;
+	if (os->subID==0 || os->subID==2)
+		vv++;
+	else if (os->subID==6)
+		vv = 1000;
+	if (os->tempOwner == cb->getHeroOwner(heroID))
+	{
+		//TODO: garrison
+	}
+	else
+	{
+		if (os->subID==7)
+			return; //TODO: support for abandoned mine
+		os->tempOwner = cb->getHeroOwner(heroID);
+		SComponent * com = new SComponent(SComponent::Etype::resource,os->subID,vv);
+		com->subtitle+=CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
+		std::vector<SComponent*> weko;
+		weko.push_back(com);
+		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->mines[os->subID].second,&weko);
+	}
+}
+std::vector<int> CMines::yourObjects()
+{
+	std::vector<int> ret(1);
+	ret.push_back(53);
+	return ret;
+}
+std::string CMines::hoverText(CGObjectInstance *os)
+{
+	if (os->tempOwner == NEUTRAL_PLAYER)
+		return CGI->objh->mines[os->subID].first;
+	else
+		return CGI->objh->mines[os->subID].first + " " + CGI->generaltexth->arraytxt[23+os->tempOwner];
+
+}
+void CMines::newTurn ()
+{
+	for (int i=0;i<ourObjs.size();i++)
+	{
+		if (ourObjs[i]->tempOwner == NEUTRAL_PLAYER)
+			continue;
+		int vv = 1;
+		if (ourObjs[i]->subID==0 || ourObjs[i]->subID==2)
+			vv++;
+		else if (ourObjs[i]->subID==6)
+			vv = 1000;
+		cb->giveResource(ourObjs[i]->tempOwner,ourObjs[i]->subID,vv);
+	}
+}
