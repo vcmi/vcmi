@@ -11,7 +11,9 @@
 #include "CGameState.h"
 #include "CLua.h"
 #include "hch\CCastleHandler.h"
-#include "hch/CHeroHandler.h"
+#include "hch\CHeroHandler.h"
+#include <iomanip>
+#include <sstream>
 extern SDL_Surface * ekran;
 
 class OCM_HLP
@@ -26,47 +28,60 @@ public:
 void CMapHandler::init()
 {
 	///////////////randomizing objects on map///////////////////////////
-
-	for(int no=0; no<CGI->objh->objInstances.size(); ++no)
+	for(int gh=0; gh<2; ++gh) //some objects can be initialized not before initializing some other
 	{
-		std::string nname = getRandomizedDefName(CGI->objh->objInstances[no]->defInfo, CGI->objh->objInstances[no]);
-		if(nname.size()>0) //change def
+		for(int no=0; no<CGI->objh->objInstances.size(); ++no)
 		{
-			int f=-1;
-			for(f=0; f<CGI->dobjinfo->objs.size(); ++f)
+			std::string nname = getRandomizedDefName(CGI->objh->objInstances[no]->defInfo, CGI->objh->objInstances[no]);
+			if(nname.size()>0) //change def
 			{
-				if(CGI->dobjinfo->objs[f].defName==nname)
+				int f=-1;
+				for(f=0; f<CGI->dobjinfo->objs.size(); ++f)
 				{
-					break;
+					if(CGI->dobjinfo->objs[f].defName==nname)
+					{
+						break;
+					}
 				}
-			}
-			CGI->objh->objInstances[no]->defInfo->name = nname;
-			if(loadedDefs.find(nname)!=loadedDefs.end())
-			{
-				CGI->objh->objInstances[no]->defInfo->handler = loadedDefs.find(nname)->second;
-			}
-			else
-			{
-				CGI->objh->objInstances[no]->defInfo->handler = CGI->spriteh->giveDef(nname);
-				for(int dd=0; dd<CGI->objh->objInstances[no]->defInfo->handler->ourImages.size(); ++dd)
+				CGI->objh->objInstances[no]->defInfo->name = nname;
+				if(CGI->objh->objInstances[no]->ID==70) //random hero - init here
 				{
-					CSDL_Ext::fullAlphaTransform(CGI->objh->objInstances[no]->defInfo->handler->ourImages[dd].bitmap);
+					CHeroObjInfo* curc = ((CHeroObjInfo*)CGI->objh->objInstances[no]->info);
+					curc->type = CGI->heroh->heroes[rand()%CGI->heroh->heroes.size()];
+					curc->sex = rand()%2; //TODO: what to do with that?
+					curc->name = curc->type->name;
+					curc->attack = curc->type->heroClass->initialAttack;
+					curc->defence = curc->type->heroClass->initialDefence;
+					curc->knowledge = curc->type->heroClass->initialKnowledge;
+					curc->power = curc->type->heroClass->initialPower;
 				}
-				loadedDefs.insert(std::pair<std::string, CDefHandler*>(nname, CGI->objh->objInstances[no]->defInfo->handler));
-			}
-			CGI->objh->objInstances[no]->defObjInfoNumber = f;
-			if(f!=-1)
-			{
-				CGI->objh->objInstances[no]->defInfo->isOnDefList = true;
-				CGI->objh->objInstances[no]->ID = CGI->dobjinfo->objs[f].type;
-				CGI->objh->objInstances[no]->subID = CGI->dobjinfo->objs[f].subtype;
-				CGI->objh->objInstances[no]->defInfo->id = CGI->dobjinfo->objs[f].type;
-				CGI->objh->objInstances[no]->defInfo->subid = CGI->dobjinfo->objs[f].subtype;
-				CGI->objh->objInstances[no]->defInfo->printPriority = CGI->dobjinfo->objs[f].priority;
-			}
-			else
-			{
-				CGI->objh->objInstances[no]->defInfo->isOnDefList = false;
+				if(loadedDefs.find(nname)!=loadedDefs.end())
+				{
+					CGI->objh->objInstances[no]->defInfo->handler = loadedDefs.find(nname)->second;
+				}
+				else
+				{
+					CGI->objh->objInstances[no]->defInfo->handler = CGI->spriteh->giveDef(nname);
+					for(int dd=0; dd<CGI->objh->objInstances[no]->defInfo->handler->ourImages.size(); ++dd)
+					{
+						CSDL_Ext::fullAlphaTransform(CGI->objh->objInstances[no]->defInfo->handler->ourImages[dd].bitmap);
+					}
+					loadedDefs.insert(std::pair<std::string, CDefHandler*>(nname, CGI->objh->objInstances[no]->defInfo->handler));
+				}
+				CGI->objh->objInstances[no]->defObjInfoNumber = f;
+				if(f!=-1)
+				{
+					CGI->objh->objInstances[no]->defInfo->isOnDefList = true;
+					CGI->objh->objInstances[no]->ID = CGI->dobjinfo->objs[f].type;
+					CGI->objh->objInstances[no]->subID = CGI->dobjinfo->objs[f].subtype;
+					CGI->objh->objInstances[no]->defInfo->id = CGI->dobjinfo->objs[f].type;
+					CGI->objh->objInstances[no]->defInfo->subid = CGI->dobjinfo->objs[f].subtype;
+					CGI->objh->objInstances[no]->defInfo->printPriority = CGI->dobjinfo->objs[f].priority;
+				}
+				else
+				{
+					CGI->objh->objInstances[no]->defInfo->isOnDefList = false;
+				}
 			}
 		}
 	}
@@ -1766,6 +1781,23 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 			}
 		}
 	}
+	else if(di->id==70) //random hero
+	{
+		std::stringstream nm;
+		nm<<"AH";
+		nm<<std::setw(2);
+		nm<<std::setfill('0');
+		nm<<rand()%18; //HARDCODED VALUE! TODO: REMOVE IN FUTURE
+		nm<<"_.DEF";
+		return nm.str();
+	}
 
 	return std::string();
+}
+
+bool CMapHandler::removeObject(CGObjectInstance *obj)
+{
+	hideObject(obj);
+	CGI->objh->objInstances.erase(std::find(CGI->objh->objInstances.begin(), CGI->objh->objInstances.end(), obj));
+	return true;
 }

@@ -86,6 +86,7 @@ public:
 	std::string getDefName(int id, int subid); //returns name of def for object with given id and subid
 	bool printObject(CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map
 	bool hideObject(CGObjectInstance * obj); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
+	bool removeObject(CGObjectInstance * obj); //removes object from each place in VCMI (I hope)
 	void init();
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility);
 	SDL_Surface * terrBitmap(int x, int y);
