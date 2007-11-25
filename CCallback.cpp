@@ -116,56 +116,79 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		{ //performing move
 			hero->movement-=CGI->mh->getCost(stpos, endpos, hero);
 			
-			int heroSight = hero->getSightDistance();
+			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(CHeroInstance::convertPosition(curd.dst,false));
+			bool blockvis = false;
+			for (int pit = 0; pit<vis.size();pit++)
+				if (vis[pit]->blockVisit)
+					blockvis = true;
 
-			int xbeg = stpos.x - heroSight - 2;
-			if(xbeg < 0)
-				xbeg = 0;
-
-			int xend = stpos.x + heroSight + 2;
-			if(xend >= CGI->ac->map.width)
-				xend = CGI->ac->map.width;
-
-			int ybeg = stpos.y - heroSight - 2;
-			if(ybeg < 0)
-				ybeg = 0;
-
-			int yend = stpos.y + heroSight + 2;
-			if(yend >= CGI->ac->map.height)
-				yend = CGI->ac->map.height;
-
-			for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
+			if (!blockvis)
 			{
-				for(int yd=ybeg; yd<yend; ++yd)
+				curd.successful = true;
+				int heroSight = hero->getSightDistance();
+
+				int xbeg = stpos.x - heroSight - 2;
+				if(xbeg < 0)
+					xbeg = 0;
+
+				int xend = stpos.x + heroSight + 2;
+				if(xend >= CGI->ac->map.width)
+					xend = CGI->ac->map.width;
+
+				int ybeg = stpos.y - heroSight - 2;
+				if(ybeg < 0)
+					ybeg = 0;
+
+				int yend = stpos.y + heroSight + 2;
+				if(yend >= CGI->ac->map.height)
+					yend = CGI->ac->map.height;
+
+				for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
 				{
-					int deltaX = (hero->getPosition(false).x-xd)*(hero->getPosition(false).x-xd);
-					int deltaY = (hero->getPosition(false).y-yd)*(hero->getPosition(false).y-yd);
-					if(deltaX+deltaY<hero->getSightDistance()*hero->getSightDistance())
-						gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] = 1;
+					for(int yd=ybeg; yd<yend; ++yd)
+					{
+						int deltaX = (hero->getPosition(false).x-xd)*(hero->getPosition(false).x-xd);
+						int deltaY = (hero->getPosition(false).y-yd)*(hero->getPosition(false).y-yd);
+						if(deltaX+deltaY<hero->getSightDistance()*hero->getSightDistance())
+							gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] = 1;
+					}
+				}
+
+				hero->pos = curd.dst;
+				int nn=0; //number of interfece of currently browsed player
+				for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
+				{
+					if (j->first > PLAYER_LIMIT)
+						break;
+					if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
+					{ //player should be notified
+						CGI->playerint[j->second.serial]->heroMoved(curd);
+					}
+					++nn;
+				}
+				for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
+				{
+					if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
+						gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
+					if(vis[iii]->state) //hard-coded function
+						vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
 				}
 			}
-
-			hero->pos = curd.dst;
-			int nn=0; //number of interfece of currently browsed player
-			for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
+			else
 			{
-				if (j->first > PLAYER_LIMIT)
-					break;
-				if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
-				{ //player should be notified
-					CGI->playerint[j->second.serial]->heroMoved(curd);
+				curd.successful = false;
+				CGI->playerint[gs->players[hero->getOwner()].serial]->heroMoved(curd);
+				for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
+				{
+					if (vis[iii]->blockVisit)
+					{
+						if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
+							gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
+						if(vis[iii]->state) //hard-coded function
+							vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
+					}
 				}
-				++nn;
-			}
-
-			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(hero->getPosition(false));
-			for (int iii=0; iii<vis.size(); iii++)
-			{
-				if(gs->checkFunc(vis[iii]->ID,"heroVisit"))
-					gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
-				if(vis[iii]->state)
-					vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
-				//std::cout<< CGI->objh->objects[vis[iii]->ID].name<<std::endl;
+				return false;
 			}
 
 		}
@@ -407,6 +430,7 @@ int CScriptCallback::getDate(int mode)
 void CScriptCallback::giveResource(int player, int which, int val)
 {
 	gs->players[player].resources[which]+=val;
+	CGI->playerint[gs->players[player].serial]->receivedResource(which,val);
 }
 void CLuaCallback::registerFuncs(lua_State * L)
 {

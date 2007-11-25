@@ -445,3 +445,57 @@ void CMines::newTurn ()
 		cb->giveResource(ourObjs[i]->tempOwner,ourObjs[i]->subID,vv);
 	}
 }
+
+
+void CPickable::newObject(CGObjectInstance *os)
+{
+	os->blockVisit = true;
+}
+void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
+{
+	switch(os->ID)
+	{
+	case 79:
+		{
+			int val;
+			switch(os->subID)
+			{
+			case 6:
+				val = 500 + (rand()%6)*100;
+				break;
+			case 0: case 2:
+				val = 6 + (rand()%5);
+				break;
+			default:
+				val = 3 + (rand()%3);
+				break;
+			}
+			cb->giveResource(cb->getHeroOwner(heroID),os->subID,val);
+			break;
+		}
+	}
+	CGI->mh->removeObject(os);
+}
+std::string CPickable::hoverText(CGObjectInstance *os)
+{
+	switch (os->ID)
+	{
+	case 79:
+		return CGI->objh->restypes[os->subID];
+		break;
+	case 5:
+		return CGI->arth->artifacts[os->subID].name;
+		break;
+	default:
+		return CGI->objh->objects[os->defInfo->id].name;
+		break;
+	}
+}
+std::vector<int> CPickable::yourObjects() //returns IDs of objects which are handled by script
+{
+	std::vector<int> ret(3);
+	ret.push_back(79); //resource
+	ret.push_back(5); //artifact
+	ret.push_back(101); //treasure chest / commander stone
+	return ret;
+}

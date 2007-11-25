@@ -129,3 +129,15 @@ class CMines : public CCPPObjectScript  //flaggable, and giving resource at each
 
 	friend void initGameState(CGameInfo * cgi);
 };
+
+class CPickable : public CCPPObjectScript  //pickable - resources, artifacts, etc
+{
+	CPickable(CScriptCallback * CB):CCPPObjectScript(CB){};
+
+	void newObject(CGObjectInstance *os);
+	void onHeroVisit(CGObjectInstance *os, int heroID);
+	std::string hoverText(CGObjectInstance *os);
+	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+
+	friend void initGameState(CGameInfo * cgi);
+};

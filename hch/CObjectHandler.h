@@ -450,7 +450,8 @@ public:
 
 	std::vector<std::string> advobtxt;
 	std::vector<std::string> xtrainfo;
-	std::vector<std::pair<std::string,std::string> > mines; //first - name; second - event
+	std::vector<std::string> restypes;
+	std::vector<std::pair<std::string,std::string> > mines; //first - name; second - event description
 };
 
 

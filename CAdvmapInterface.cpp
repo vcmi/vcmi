@@ -814,12 +814,13 @@ void CTerrainRect::clickLeft(tribool down)
 	int3 mp = whichTileIsIt();
 	if ((mp.x<0) || (mp.y<0))
 		return;
+	bool mres;
 	if (currentPath)
 	{
 		if ( (currentPath->endPos()) == mp)
 		{ //move
 			CPath sended(*currentPath); //temporary path - engine will operate on it
-			LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
+			mres = LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
 		}
 		else
 		{
@@ -830,7 +831,8 @@ void CTerrainRect::clickLeft(tribool down)
 	const CGHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first;
 	int3 bufpos = currentHero->getPosition(false);
 	//bufpos.x-=1;
-	currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
+	if (mres)
+		currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
 
 	//if (LOCPLINT->objsToBlit.size()==0)
 	//{

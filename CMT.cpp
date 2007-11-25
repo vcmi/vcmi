@@ -222,10 +222,9 @@ void initGameState(CGameInfo * cgi)
 	csc->gs = cgi->state;
 	handleCPPObjS(&scripts,new CVisitableOPH(csc));
 	handleCPPObjS(&scripts,new CVisitableOPW(csc));
+	handleCPPObjS(&scripts,new CPickable(csc));
 	handleCPPObjS(&scripts,new CMines(csc));
 	//created map
-
-
 
 	/****************************LUA OBJECT SCRIPTS************************************************/
 	std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files

@@ -159,6 +159,7 @@ public:
 	void heroKilled(const CGHeroInstance*);
 	void heroCreated(const CGHeroInstance*);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
+	void receivedResource(int type, int val);
 	
 	SDL_Surface * infoWin(const void * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
 	void handleEvent(SDL_Event * sEvent);

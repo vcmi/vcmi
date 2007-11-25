@@ -15,6 +15,7 @@ struct HeroMoveDetails
 	int3 src, dst; //source and destination points
 	CGHeroInstance * ho; //object instance of this hero
 	int owner;
+	bool successful;
 };
 
 class CCallback 
@@ -56,13 +57,18 @@ class CScriptCallback
 public:
 	CGameState * gs;
 
+	//get info
 	static int3 getPos(CGObjectInstance * ob);
-	static void changePrimSkill(int ID, int which, int val);
-	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components);
 	int getHeroOwner(int heroID);
 	int getSelectedHero();
 	int getDate(int mode=0);
+
+	//do sth
+	static void changePrimSkill(int ID, int which, int val);
+	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components);
 	void giveResource(int player, int which, int val);
+
+	//friends
 	friend void initGameState(CGameInfo * cgi);
 };
 class CLuaCallback : public CScriptCallback

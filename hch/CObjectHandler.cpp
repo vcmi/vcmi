@@ -59,6 +59,16 @@ void CObjectHandler::loadObjects()
 		temp = temp.substr(1,temp.length()-2);
 		mines[i++].second = temp;
 	}
+
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("RESTYPES.TXT");
+	it=0;
+	while (it<buf.length()-1)
+	{
+		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		restypes.push_back(temp);
+	}
+
+
 	
 }
 
@@ -273,6 +283,7 @@ CGObjectInstance::CGObjectInstance()
 	//state = NULL;
 	defObjInfoNumber = -1;
 	tempOwner = 254;
+	blockVisit = false;
 }
 CGObjectInstance::~CGObjectInstance()
 {
@@ -297,7 +308,7 @@ CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
 	defInfo = right.defInfo;
 	info = right.info;
 	defObjInfoNumber = right.defObjInfoNumber;
-	blockVisit = false;
+	blockVisit = right.blockVisit;
 	//state = new CLuaObjectScript(right.state->);
 	//*state = *right.state;
 	//state = right.state;

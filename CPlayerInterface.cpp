@@ -67,7 +67,7 @@ SComponent::SComponent(Etype Type, int Subtype, int Val)
 		subtitle = oss.str();
 		break;
 	case resource:
-		//description = CGI->generaltexth->arraytxt[2+Subtype];
+		description = CGI->generaltexth->allTexts[242];
 		std::ostringstream oss;
 		oss << Val;
 		subtitle = oss.str();
@@ -388,13 +388,61 @@ inline void delObjRect(const int & x, const int & y, const int & z, const int & 
 			break;
 		}
 }
-
+int getDir(int3 src, int3 dst)
+{	
+	int ret = -1;
+	if(dst.x+1 == src.x && dst.y+1 == src.y) //tl
+	{
+		ret = 1;
+	}
+	else if(dst.x == src.x && dst.y+1 == src.y) //t
+	{
+		ret = 2;
+	}
+	else if(dst.x-1 == src.x && dst.y+1 == src.y) //tr
+	{
+		ret = 3;
+	}
+	else if(dst.x-1 == src.x && dst.y == src.y) //r
+	{
+		ret = 4;
+	}
+	else if(dst.x-1 == src.x && dst.y-1 == src.y) //br
+	{
+		ret = 5;
+	}
+	else if(dst.x == src.x && dst.y-1 == src.y) //b
+	{
+		ret = 6;
+	}
+	else if(dst.x+1 == src.x && dst.y-1 == src.y) //bl
+	{
+		ret = 7;
+	}
+	else if(dst.x+1 == src.x && dst.y == src.y) //l
+	{
+		ret = 8;
+	}
+	return ret;
+}
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
 	adventureInt->minimap.draw();
 	//initializing objects and performing first step of move
 	CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
+	if (!details.successful)
+	{
+		ho->moveDir = getDir(details.src,details.dst);
+		ho->isStanding = true;
+		adventureInt->heroList.draw();
+		if (adventureInt->terrain.currentPath)
+		{
+			delete adventureInt->terrain.currentPath;
+			adventureInt->terrain.currentPath = NULL;
+		}
+		return;
+	}
 
 	if (adventureInt->terrain.currentPath) //&& hero is moving
 	{
@@ -1196,6 +1244,11 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 	if (adventureInt->selection.selected == hero)
 		adventureInt->infoBar.draw();
 	return;
+}
+
+void CPlayerInterface::receivedResource(int type, int val)
+{
+	adventureInt->resdatabar.draw();
 }
 void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> & components)
 {
