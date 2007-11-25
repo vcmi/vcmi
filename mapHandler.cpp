@@ -48,6 +48,16 @@ void CMapHandler::init()
 				{
 					CHeroObjInfo* curc = ((CHeroObjInfo*)CGI->objh->objInstances[no]->info);
 					curc->type = CGI->heroh->heroes[rand()%CGI->heroh->heroes.size()];
+
+					//making def appropriate for hero type
+					std::stringstream nm;
+					nm<<"AH";
+					nm<<std::setw(2);
+					nm<<std::setfill('0');
+					nm<<curc->type->heroType; //HARDCODED VALUE! TODO: REMOVE IN FUTURE
+					nm<<"_.DEF";
+					nname = nm.str();
+
 					curc->sex = rand()%2; //TODO: what to do with that?
 					curc->name = curc->type->name;
 					curc->attack = curc->type->heroClass->initialAttack;
@@ -68,9 +78,9 @@ void CMapHandler::init()
 					}
 					loadedDefs.insert(std::pair<std::string, CDefHandler*>(nname, CGI->objh->objInstances[no]->defInfo->handler));
 				}
-				CGI->objh->objInstances[no]->defObjInfoNumber = f;
-				if(f!=-1)
+				if(f!=-1 && f!=CGI->dobjinfo->objs.size())
 				{
+					CGI->objh->objInstances[no]->defObjInfoNumber = f;
 					CGI->objh->objInstances[no]->defInfo->isOnDefList = true;
 					CGI->objh->objInstances[no]->ID = CGI->dobjinfo->objs[f].type;
 					CGI->objh->objInstances[no]->subID = CGI->dobjinfo->objs[f].subtype;
@@ -80,6 +90,7 @@ void CMapHandler::init()
 				}
 				else
 				{
+					CGI->objh->objInstances[no]->defObjInfoNumber = -1;
 					CGI->objh->objInstances[no]->defInfo->isOnDefList = false;
 				}
 			}
@@ -1798,6 +1809,52 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 bool CMapHandler::removeObject(CGObjectInstance *obj)
 {
 	hideObject(obj);
-	CGI->objh->objInstances.erase(std::find(CGI->objh->objInstances.begin(), CGI->objh->objInstances.end(), obj));
+	std::vector<CGObjectInstance *>::iterator db = std::find(CGI->objh->objInstances.begin(), CGI->objh->objInstances.end(), obj);
+	recalculateHideVisPosUnderObj(*db);
+	delete *db;
+	CGI->objh->objInstances.erase(db);
+	return true;
+}
+
+bool CMapHandler::recalculateHideVisPos(int3 &pos)
+{
+	ttiles[pos.x][pos.y][pos.z].visitable = false;
+	ttiles[pos.x][pos.y][pos.z].blocked = false;
+	for(int i=0; i<ttiles[pos.x][pos.y][pos.z].objects.size(); ++i)
+	{
+		CDefHandler * curd = ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->handler;
+		for(int fx=0; fx<8; ++fx)
+		{
+			for(int fy=0; fy<6; ++fy)
+			{
+				int xVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.x + fx - 7;
+				int yVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.y + fy - 5;
+				int zVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.z;
+				if(xVal>=0 && xVal<ttiles.size()-Woff && yVal>=0 && yVal<ttiles[0].size()-Hoff)
+				{
+					TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
+					if(((ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+						curt.visitable = true;
+					if(!((ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+						curt.blocked = true;
+				}
+			}
+		}
+	}
+	return true;
+}
+
+bool CMapHandler::recalculateHideVisPosUnderObj(CGObjectInstance *obj)
+{
+	for(int fx=0; fx<obj->defInfo->handler->ourImages[0].bitmap->w/32; ++fx)
+	{
+		for(int fy=0; fy<obj->defInfo->handler->ourImages[0].bitmap->h/32; ++fy)
+		{
+			if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+			{
+				recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32, obj->pos.z));
+			}
+		}
+	}
 	return true;
 }
