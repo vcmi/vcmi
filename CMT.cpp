@@ -728,7 +728,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		{ 
 
 			if(cgi->scenarioOps.playerInfos[i].name=="Computer")
-				cgi->playerint.push_back(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color),"EmptyAI.dll"));
+				cgi->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color),"EmptyAI.dll")));
 			else 
 			{
 				cgi->state->currentPlayer=cgi->scenarioOps.playerInfos[i].color;

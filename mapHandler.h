@@ -88,7 +88,7 @@ public:
 	bool hideObject(CGObjectInstance * obj); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
 	bool removeObject(CGObjectInstance * obj); //removes object from each place in VCMI (I hope)
 	bool recalculateHideVisPos(int3& pos); //recalculates position for hidden / visitable positions
-	bool recalculateHideVisPosUnderObj(CGObjectInstance * obj); //recalculates position for hidden / visitable positions under given object
+	bool recalculateHideVisPosUnderObj(CGObjectInstance * obj, bool withBorder = false); //recalculates position for hidden / visitable positions under given object
 	void init();
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility);
 	SDL_Surface * terrBitmap(int x, int y);

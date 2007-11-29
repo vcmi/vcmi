@@ -20,7 +20,7 @@ public:
 	virtual void heroKilled(const CGHeroInstance*)=0{};
 	virtual void heroCreated(const CGHeroInstance*)=0{};
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)=0{};
-	virtual void heroMoved(const HeroMoveDetails & details)=0;
+	virtual void heroMoved(const HeroMoveDetails & details)=0{};
 	virtual void receivedResource(int type, int val){};
 };
 class CAIHandler

@@ -993,6 +993,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//ho->moveDir = 0; //move ended
 	ho->isStanding = true;
 	//move finished
+	CGI->mh->recalculateHideVisPosUnderObj(details.ho, true);
 	adventureInt->heroList.draw();
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance*)
