@@ -11,21 +11,36 @@ struct HeroMoveDetails;
 class CDefEssential;
 class CGHeroInstance;
 class CAdvMapInt;
+
+class IShowable
+{
+public:
+	virtual void show(SDL_Surface * to = NULL)=0;
+};
+
+class IActivable
+{
+public:
+	virtual void activate()=0;
+	virtual void deactivate()=0;
+};
+
 class CIntObject //interface object
 {
 public:
 	SDL_Rect pos;
 	int ID;
 };
-class CSimpleWindow : public virtual CIntObject
+class CSimpleWindow : public virtual CIntObject, public IShowable
 {
 public:
 	SDL_Surface * bitmap;
 	CIntObject * owner;
+	virtual void show(SDL_Surface * to = NULL);
 	CSimpleWindow():bitmap(NULL),owner(NULL){};
 	virtual ~CSimpleWindow();
 };
-class CButtonBase : public virtual CIntObject //basic buttton class
+class CButtonBase : public virtual CIntObject, public IShowable, public IActivable //basic buttton class
 {
 public:
 	int type; //advmapbutton=2
@@ -35,7 +50,7 @@ public:
 	int state;
 	std::vector< std::vector<SDL_Surface*> > imgs;
 	int curimg;
-	virtual void show() ;
+	virtual void show(SDL_Surface * to = NULL);
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 	CButtonBase();
@@ -94,7 +109,7 @@ public:
 	void clickLeft (tribool down);
 	void activate();
 	void deactivate();
-	void show();
+	void show(SDL_Surface * to = NULL);
 };
 
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
@@ -146,7 +161,7 @@ public:
 	std::vector<Hoverable*> hoverable;
 	std::vector<KeyInterested*> keyinterested;
 	std::vector<MotionInterested*> motioninterested;
-	std::vector<CSimpleWindow*> objsToBlit;
+	std::vector<IShowable*> objsToBlit;
 
 	SDL_Surface * hInfo;
 	std::vector<std::pair<int, int> > slotsPos;
@@ -166,7 +181,7 @@ public:
 	void init(CCallback * CB);
 	int3 repairScreenPos(int3 pos);
 	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
-	void removeObjToBlit(CSimpleWindow* obj);
+	void removeObjToBlit(IShowable* obj);
 
 	CPlayerInterface(int Player, int serial);
 };

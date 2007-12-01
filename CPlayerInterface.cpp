@@ -107,6 +107,12 @@ void SComponent::deactivate()
 {
 	ClickableR::deactivate();
 }
+void CSimpleWindow::show(SDL_Surface * to)
+{
+	if(!to)
+		to=ekran;
+	blitAt(bitmap,pos.x,pos.y,to);
+}
 CSimpleWindow::~CSimpleWindow()
 {
 	if (bitmap)
@@ -154,16 +160,16 @@ template <typename T> void CSCButton<typename T>::deactivate()
 	ClickableL::deactivate();
 }
 
-template <typename T> void CSCButton<typename T>::show()
+template <typename T> void CSCButton<typename T>::show(SDL_Surface * to)
 {
-	if (delg)
+	if (delg) //we blit on our owner's bitmap
 	{
 		blitAt(imgs[curimg][state],posr.x,posr.y,delg->bitmap);
 		updateRect(&genRect(pos.h,pos.w,posr.x,posr.y),delg->bitmap);
 	}
 	else
 	{
-		CButtonBase::show();
+		CButtonBase::show(to);
 	}
 }
 CButtonBase::CButtonBase()
@@ -175,17 +181,19 @@ CButtonBase::CButtonBase()
 	ourObj=NULL;
 	state=0;
 }
-void CButtonBase::show()
+void CButtonBase::show(SDL_Surface * to)
 {
+	if(!to)
+		to=ekran;
 	if (abs)
 	{
-		blitAt(imgs[curimg][state],pos.x,pos.y);
-		updateRect(&pos);
+		blitAt(imgs[curimg][state],pos.x,pos.y,to);
+		updateRect(&pos,to);
 	}
 	else
 	{
-		blitAt(imgs[curimg][state],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y);
-		updateRect(&genRect(pos.h,pos.w,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y));
+		blitAt(imgs[curimg][state],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
+		updateRect(&genRect(pos.h,pos.w,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y),to);
 		
 	}
 }
@@ -362,7 +370,7 @@ void CPlayerInterface::yourTurn()
 			adventureInt->updateMinimap=false;
 		}
 		for(int i=0;i<objsToBlit.size();i++)
-			blitAt(objsToBlit[i]->bitmap,objsToBlit[i]->pos.x,objsToBlit[i]->pos.y);
+			objsToBlit[i]->show();
 		SDL_Delay(5); //give time for other apps
 		SDL_framerateDelay(mainFPSmng);
 	}
@@ -427,7 +435,6 @@ int getDir(int3 src, int3 dst)
 }
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
-	adventureInt->minimap.draw();
 	//initializing objects and performing first step of move
 	CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
@@ -994,6 +1001,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	ho->isStanding = true;
 	//move finished
 	CGI->mh->recalculateHideVisPosUnderObj(details.ho, true);
+	adventureInt->minimap.draw();
 	adventureInt->heroList.draw();
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance*)
@@ -1268,7 +1276,7 @@ void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*>
 		temp->components[i]->pos.y += temp->pos.y;
 	}
 }
-void CPlayerInterface::removeObjToBlit(CSimpleWindow* obj)
+void CPlayerInterface::removeObjToBlit(IShowable* obj)
 {
 	objsToBlit.erase
 		(std::find(objsToBlit.begin(),objsToBlit.end(),obj));

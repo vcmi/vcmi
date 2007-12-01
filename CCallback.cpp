@@ -125,6 +125,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 			if (!blockvis)
 			{
 				curd.successful = true;
+				hero->pos = curd.dst;
 				int heroSight = hero->getSightDistance();
 
 				int xbeg = stpos.x - heroSight - 2;
@@ -154,7 +155,6 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 					}
 				}
 
-				hero->pos = curd.dst;
 				int nn=0; //number of interfece of currently browsed player
 				for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
 				{
@@ -174,7 +174,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 						vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
 				}
 			}
-			else
+			else //interaction with blocking object (like resources)
 			{
 				curd.successful = false;
 				CGI->playerint[gs->players[hero->getOwner()].serial]->heroMoved(curd);
@@ -194,7 +194,6 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		}
 		else
 			return true; //move ended - no more movement points
-		//hero->pos = curd.dst;
 	}
 	return true;
 }
@@ -245,7 +244,7 @@ const CGHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //
 
 int CCallback::getResourceAmount(int type)
 {
-	return gs->players[gs->currentPlayer].resources[type];
+	return gs->players[player].resources[type];
 }
 
 int CCallback::getDate(int mode)
@@ -347,6 +346,14 @@ bool CCallback::isVisible(int3 pos)
 	return isVisible(pos,player);
 }
 
+int CCallback::getMyColor()
+{
+	return player;
+}
+int CCallback::getMySerial()
+{	
+	return gs->players[player].serial;
+}
 
 
 int3 CScriptCallback::getPos(CGObjectInstance * ob)

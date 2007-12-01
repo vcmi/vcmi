@@ -1299,6 +1299,7 @@ void CAdvMapInt::show()
 	townList.activate();
 	townList.draw();
 	terrain.activate();
+	update();
 
 	resdatabar.draw();
 
@@ -1376,7 +1377,11 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 	{
 		for (int i=0;i<LOCPLINT->objsToBlit.size();i++)
 		{
-			if (LOCPLINT->objsToBlit[i]->owner==client)
+			//TODO: pewnie da sie to zrobic lepiej, ale nie chce mi sie. Wolajacy obiekt powinien informowac kogo spodziewa sie odwolac (null jesli down)
+			CSimpleWindow * pom = dynamic_cast<CSimpleWindow*>(LOCPLINT->objsToBlit[i]);
+			if (!pom)
+				continue;
+			if (pom->owner==client)
 			{
 				LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+(i));
 			}
