@@ -128,7 +128,7 @@ public:
 	SDL_Surface * temps;
 	std::map<int,SDL_Color> colors;
 	std::map<int,SDL_Color> colorsBlocked;
-	std::vector<SDL_Surface *> map; //one bitmap for each level
+	std::vector<SDL_Surface *> map, FoW; //one bitmap for each level (terrain, Fog of War)
 	//TODO flagged buildings
 	std::string statusbarTxt, rcText;
 
@@ -143,6 +143,8 @@ public:
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but don't deletes)
+	void hideTile(int3 pos); //puts FoW
+	void showTile(int3 pos); //removes FoW
 };
 class CTerrainRect
 	:  public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject, public KeyInterested,

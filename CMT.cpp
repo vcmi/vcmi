@@ -46,6 +46,7 @@
 #include "CPlayerInterface.h"
 #include "CLuaHandler.h"
 #include "CLua.h"
+#include "CAdvmapInterface.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -213,7 +214,6 @@ void initGameState(CGameInfo * cgi)
 			}
 		}
 	}
-
 	/****************************SCRIPTS************************************************/
 	std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &cgi->state->objscr; //alias for easier access
 	/****************************C++ OBJECT SCRIPTS************************************************/
@@ -309,8 +309,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			// well, there's no music, but most games don't break without music...
 		}*/
 
-		screen2 = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
-		screen = SDL_ConvertSurface(screen2, screen2->format, SDL_SWSURFACE);
+		//screen2 = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
+		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
+		//screen = SDL_ConvertSurface(screen2, screen2->format, SDL_SWSURFACE);
 		ekran = screen;
 
 		SDL_WM_SetCaption(NAME,""); //set window title
@@ -735,6 +736,60 @@ int _tmain(int argc, _TCHAR* argv[])
 				cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color,i));
 				((CPlayerInterface*)(cgi->playerint[i]))->init(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color));
 			}
+		}
+		///claculating FoWs for minimap
+		/****************************Minimaps' FoW******************************************/
+		for(int g=0; g<cgi->playerint.size(); ++g)
+		{
+			if(!cgi->playerint[g]->human)
+				continue;
+			CMinimap & mm = ((CPlayerInterface*)cgi->playerint[g])->adventureInt->minimap;
+
+			int mw = mm.map[0]->w, mh = mm.map[0]->h,
+				wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
+
+
+			for(int d=0; d<cgi->mh->reader->map.twoLevel+1; ++d)
+			{
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+    int rmask = 0xff000000;
+    int gmask = 0x00ff0000;
+    int bmask = 0x0000ff00;
+    int amask = 0x000000ff;
+#else
+    int rmask = 0x000000ff;
+    int gmask = 0x0000ff00;
+    int bmask = 0x00ff0000;
+    int amask = 0xff000000;
+#endif
+				SDL_Surface * pt = SDL_CreateRGBSurface(SDL_SWSURFACE, mm.pos.w, mm.pos.h, 32, rmask, gmask, bmask, amask);
+
+				for (int i=0; i<mw; i++)
+				{
+					for (int j=0; j<mh; j++)
+					{
+						int3 pp((((float)i/mw)*CGI->mh->sizes.x), (((float)j/mh)*CGI->mh->sizes.y), d);
+						/*pp.x = (((float)i/mw)*CGI->mh->sizes.x);
+						pp.y = (((float)j/mh)*CGI->mh->sizes.y);
+						pp.z = LOCPLINT->adventureInt->position.z;*/
+						if ( !((CPlayerInterface*)cgi->playerint[g])->cb->isVisible(pp) )
+						{
+							for (int ii=0; ii<wo; ii++)
+							{
+								for (int jj=0; jj<ho; jj++)
+								{
+									if ((i+ii<mm.pos.w-1) && (j+jj<mm.pos.h-1))
+										CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i+ii,j+jj,0,0,0);
+
+								}
+							}
+						}
+					}
+				}
+				CSDL_Ext::update(pt);
+				mm.FoW.push_back(pt);
+			}
+
 		}
 
 		while(1) //main game loop, one execution per turn

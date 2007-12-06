@@ -636,47 +636,49 @@ void CMinimap::draw()
 	blitAt(map[LOCPLINT->adventureInt->position.z],0,0,temps);
 
 	//draw heroes
-	std::vector <const CGHeroInstance *> * hh = LOCPLINT->cb->getHeroesInfo(false);
+	std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
 	int mw = map[0]->w, mh = map[0]->h,
 		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
-	for (int i=0; i<hh->size();i++)
+
+	for (int i=0; i<hh.size();i++)
 	{
-		int3 hpos = (*hh)[i]->getPosition(false);
+		int3 hpos = hh[i]->getPosition(false);
 		float zawx = ((float)hpos.x/CGI->mh->sizes.x), zawy = ((float)hpos.y/CGI->mh->sizes.y);
 		int3 maplgp ( zawx*mw, zawy*mh, hpos.z );
 		for (int ii=0; ii<wo; ii++)
 		{
 			for (int jj=0; jj<ho; jj++)
 			{
-				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[(*hh)[i]->getOwner()].r,CGI->playerColors[(*hh)[i]->getOwner()].g,CGI->playerColors[(*hh)[i]->getOwner()].b);
+				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[hh[i]->getOwner()].r,CGI->playerColors[hh[i]->getOwner()].g,CGI->playerColors[hh[i]->getOwner()].b);
 			}
 		}
 	}
 	SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
-	delete hh;
 
 	//draw FoW
-	for (int i=0; i<mw; i++)
-	{
-		for (int j=0; j<mh; j++)
-		{
-			int3 pp;
-			pp.x = (((float)i/mw)*CGI->mh->sizes.x);
-			pp.y = (((float)j/mh)*CGI->mh->sizes.y);
-			pp.z = LOCPLINT->adventureInt->position.z;
-			if ( !LOCPLINT->cb->isVisible(pp) )
-			{
-				for (int ii=0; ii<wo; ii++)
-				{
-					for (int jj=0; jj<ho; jj++)
-					{
-						if ((i+ii<pos.w-1) && (j+jj<pos.h-1))
-							SDL_PutPixel(temps,i+ii,j+jj,0,0,0);
-					}
-				}
-			}
-		}
-	}
+	//for (int i=0; i<mw; i++)
+	//{
+	//	for (int j=0; j<mh; j++)
+	//	{
+	//		int3 pp((((float)i/mw)*CGI->mh->sizes.x), (((float)j/mh)*CGI->mh->sizes.y), LOCPLINT->adventureInt->position.z);
+	//		/*pp.x = (((float)i/mw)*CGI->mh->sizes.x);
+	//		pp.y = (((float)j/mh)*CGI->mh->sizes.y);
+	//		pp.z = LOCPLINT->adventureInt->position.z;*/
+	//		if ( !LOCPLINT->cb->isVisible(pp) )
+	//		{
+	//			for (int ii=0; ii<wo; ii++)
+	//			{
+	//				for (int jj=0; jj<ho; jj++)
+	//				{
+	//					if ((i+ii<pos.w-1) && (j+jj<pos.h-1))
+	//						SDL_PutPixelWithoutRefresh(temps,i+ii,j+jj,0,0,0);
+	//				}
+	//			}
+	//		}
+	//	}
+	//}
+	//update(temps);
+	blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
 	
 	//draw radar
 	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)CGI->mh->sizes.x)))*pos.w, 
@@ -707,6 +709,7 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 			}
 		}
 		map.push_back(pom);
+
 	}
 }
 void CMinimap::updateRadar()

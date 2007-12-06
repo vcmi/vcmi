@@ -69,7 +69,7 @@ public:
 	const CGTownInstance * getTownInfo(int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
 	int howManyTowns();
 	std::vector < std::string > getObjDescriptions(int3 pos); //returns descriptions of objects at pos in order from the lowest to the highest
-	std::vector < const CGHeroInstance *> * getHeroesInfo(bool onlyOur=true);
+	std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true);
 	bool isVisible(int3 pos);
 	int getMyColor();
 	int getMySerial();

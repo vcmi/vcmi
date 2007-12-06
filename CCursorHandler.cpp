@@ -180,58 +180,58 @@ static SDL_Cursor *init_system_cursor(const char *image[])
 
 void CCursorHandler::initCursor()
 {
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int rmask = 0xff000000;
-    int gmask = 0x00ff0000;
-    int bmask = 0x0000ff00;
-    int amask = 0x000000ff;
-#else
-    int rmask = 0x000000ff;
-    int gmask = 0x0000ff00;
-    int bmask = 0x00ff0000;
-    int amask = 0xff000000;
-#endif
-	curVisible = true;
-	xpos = ypos = 0;
-	behindCur = SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32, rmask, gmask, bmask, amask);
-	xbef = ybef = 0;
-	adventure = CGI->spriteh->giveDef("CRADVNTR.DEF");
-	combat = CGI->spriteh->giveDef("CRCOMBAT.DEF");
-	deflt = CGI->spriteh->giveDef("CRDEFLT.DEF");
-	spell = CGI->spriteh->giveDef("CRSPELL.DEF");
-	//SDL_SetCursor(init_system_cursor(arrow));
-	//SDL_Thread * myth = SDL_CreateThread(&cursorHandlerFunc, this);
+//#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+//    int rmask = 0xff000000;
+//    int gmask = 0x00ff0000;
+//    int bmask = 0x0000ff00;
+//    int amask = 0x000000ff;
+//#else
+//    int rmask = 0x000000ff;
+//    int gmask = 0x0000ff00;
+//    int bmask = 0x00ff0000;
+//    int amask = 0xff000000;
+//#endif
+//	curVisible = true;
+//	xpos = ypos = 0;
+//	behindCur = SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32, rmask, gmask, bmask, amask);
+//	xbef = ybef = 0;
+//	adventure = CGI->spriteh->giveDef("CRADVNTR.DEF");
+//	combat = CGI->spriteh->giveDef("CRCOMBAT.DEF");
+//	deflt = CGI->spriteh->giveDef("CRDEFLT.DEF");
+//	spell = CGI->spriteh->giveDef("CRSPELL.DEF");
+//	//SDL_SetCursor(init_system_cursor(arrow));
+//	//SDL_Thread * myth = SDL_CreateThread(&cursorHandlerFunc, this);
 }
 
 void CCursorHandler::changeGraphic(int type, int no)
 {
-	mode = type;
-	number = no;
+	//mode = type;
+	//number = no;
 }
 
 void CCursorHandler::cursorMove(int x, int y)
 {
-	xbef = xpos;
-	ybef = ypos;
-	xpos = x;
-	ypos = y;
+	//xbef = xpos;
+	//ybef = ypos;
+	//xpos = x;
+	//ypos = y;
 }
 
 void CCursorHandler::hardwareCursor()
 {
-	curVisible = false;
-	SDL_SetCursor(init_system_cursor(arrow2));
+	//curVisible = false;
+	//SDL_SetCursor(init_system_cursor(arrow2));
 }
 
 void CCursorHandler::hideCursor()
 {
-	curVisible = false;
-	SDL_SetCursor(init_system_cursor(arrow));
+	//curVisible = false;
+	//SDL_SetCursor(init_system_cursor(arrow));
 }
 
 void CCursorHandler::showGraphicCursor()
 {
-	curVisible = true;
-	SDL_SetCursor(init_system_cursor(arrow));
-	changeGraphic(0, 0);
+	//curVisible = true;
+	//SDL_SetCursor(init_system_cursor(arrow));
+	//changeGraphic(0, 0);
 }

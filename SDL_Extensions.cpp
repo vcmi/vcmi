@@ -23,7 +23,7 @@ bool isItIn(const SDL_Rect * rect, int x, int y)
 		return true;
 	else return false;
 }
-SDL_Rect genRect(int hh, int ww, int xx, int yy)
+inline SDL_Rect genRect(int hh, int ww, int xx, int yy)
 {
 	SDL_Rect ret;
 	ret.h=hh;
@@ -167,6 +167,8 @@ void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint
 	p[0] = R;
 	p[1] = G;
 	p[2] = B;
+	if(ekran->format->BytesPerPixel==4)
+		p[3] = A;
 #endif
 }
 

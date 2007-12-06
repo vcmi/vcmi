@@ -171,6 +171,8 @@ public:
 	//overloaded funcs from Interface
 	void yourTurn();
 	void heroMoved(const HeroMoveDetails & details);
+	void tileRevealed(int3 pos);
+	void tileHidden(int3 pos);
 	void heroKilled(const CGHeroInstance*);
 	void heroCreated(const CGHeroInstance*);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);

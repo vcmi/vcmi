@@ -325,16 +325,16 @@ bool CCallback::isVisible(int3 pos, int Player)
 	return gs->players[Player].fogOfWarMap[pos.x][pos.y][pos.z];
 }
 
-std::vector < const CGHeroInstance *> * CCallback::getHeroesInfo(bool onlyOur)
+std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur)
 {
-	std::vector < const CGHeroInstance *> * ret = new std::vector < const CGHeroInstance *>();
+	std::vector < const CGHeroInstance *> ret = std::vector < const CGHeroInstance *>();
 	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		for (int j=0;j<(*i).second.heroes.size();j++)
 		{
 			if ( ( isVisible((*i).second.heroes[j]->getPosition(false),player) ) || (*i).first==player)
 			{
-				ret->push_back((*i).second.heroes[j]);
+				ret.push_back((*i).second.heroes[j]);
 			}
 		}
 	} //	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)

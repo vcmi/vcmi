@@ -17,7 +17,7 @@ void CScreenHandler::initScreen()
 
 void CScreenHandler::updateScreen()
 {
-	blitAt(screen, 0, 0, screen2);
+	/*blitAt(screen, 0, 0, screen2);
 	switch(CGI->curh->mode)
 	{
 	case 0:
@@ -41,5 +41,5 @@ void CScreenHandler::updateScreen()
 			break;
 		}
 	}
-	CSDL_Ext::update(screen2);
+	CSDL_Ext::update(screen2);*/
 }

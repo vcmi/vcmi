@@ -10,6 +10,8 @@ public:
 	void heroCreated(const CHeroInstance *);
 	void heroMoved(const HeroMoveDetails &);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val) {};
+	void tileRevealed(int3 pos){};
+	void tileHidden(int3 pos){};
 };
 
 #define NAME "EmptyAI 0.1"
