@@ -1287,7 +1287,9 @@ void CPlayerInterface::removeObjToBlit(IShowable* obj)
 }
 void CPlayerInterface::tileRevealed(int3 pos)
 {
+	adventureInt->minimap.showTile(pos);
 }
 void CPlayerInterface::tileHidden(int3 pos)
 {
+	adventureInt->minimap.hideTile(pos);
 }

@@ -777,6 +777,23 @@ void CMinimap::deactivate()
 	ClickableR::deactivate();
 	Hoverable::deactivate();
 }
+void CMinimap::showTile(int3 pos)
+{
+	int mw = map[0]->w, mh = map[0]->h,
+		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
+	for (int ii=0; ii<wo; ii++)
+	{
+		for (int jj=0; jj<ho; jj++)
+		{
+			if ((pos.x+ii<this->pos.w-1) && (pos.y+jj<this->pos.h-1))
+				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x+ii,pos.y+jj,0,0,0,0,128);
+
+		}
+	}
+}
+void CMinimap::hideTile(int3 pos)
+{
+}
 CTerrainRect::CTerrainRect():currentPath(NULL)
 {
 	tilesw=19;

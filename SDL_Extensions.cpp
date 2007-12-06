@@ -152,6 +152,8 @@ void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, 
 	p[0] = B;
 	p[1] = G;
 	p[2] = R;
+	if(ekran->format->BytesPerPixel==4)
+		p[3] = A;
 #endif
 	SDL_UpdateRect(ekran, x, y, 1, 1);
 }

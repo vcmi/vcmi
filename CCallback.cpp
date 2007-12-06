@@ -151,7 +151,13 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 						int deltaX = (hero->getPosition(false).x-xd)*(hero->getPosition(false).x-xd);
 						int deltaY = (hero->getPosition(false).y-yd)*(hero->getPosition(false).y-yd);
 						if(deltaX+deltaY<hero->getSightDistance()*hero->getSightDistance())
+						{
+							if(gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] == 0)
+							{
+								CGI->playerint[gs->players[player].serial]->tileRevealed(int3(xd, yd, hero->getPosition(false).z));
+							}
 							gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] = 1;
+						}
 					}
 				}
 
