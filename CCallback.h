@@ -27,10 +27,11 @@ public:
 	virtual const CGTownInstance * getTownInfo(int val, bool mode)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
 	virtual int howManyTowns()=0;
 	virtual std::vector < std::string > getObjDescriptions(int3 pos)=0; //returns descriptions of objects at pos in order from the lowest to the highest
-	virtual std::vector < const CGHeroInstance *> * getHeroesInfo(bool onlyOur=true)=0;
+	virtual std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true)=0;
 	virtual bool isVisible(int3 pos)=0;
 	virtual int getMyColor()=0;
 	virtual int getMySerial()=0;
+	virtual int getHeroSerial(const CGHeroInstance * hero)=0;
 };
 
 struct HeroMoveDetails
@@ -72,6 +73,7 @@ public:
 	std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true);
 	bool isVisible(int3 pos);
 	int getMyColor();
+	int getHeroSerial(const CGHeroInstance * hero);
 	int getMySerial();
 
 //friends

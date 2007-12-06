@@ -71,6 +71,7 @@ public:
 	void hover (bool on);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void updateHList();
+	void updateMove(const CGHeroInstance* which); //draws move points bar
 	void redrawAllOne(int which);
 	void draw();
 	void init();

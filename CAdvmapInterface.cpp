@@ -314,6 +314,12 @@ void CHeroList::hover (bool on)
 void CHeroList::keyPressed (SDL_KeyboardEvent & key)
 {
 }
+void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
+{
+	int ser = LOCPLINT->cb->getHeroSerial(which);
+	int pom = (which->movement)/100;
+	blitAtWR(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
+}
 void CHeroList::draw()
 {	
 	for (int iT=0+from;iT<5+from;iT++)

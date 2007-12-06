@@ -350,6 +350,15 @@ int CCallback::getMyColor()
 {
 	return player;
 }
+int CCallback::getHeroSerial(const CGHeroInstance * hero)
+{
+	for (int i=0; i<gs->players[player].heroes.size();i++)
+	{
+		if (gs->players[player].heroes[i]==hero)
+			return i;
+	}
+	return -1;
+}
 int CCallback::getMySerial()
 {	
 	return gs->players[player].serial;
