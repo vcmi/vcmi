@@ -9,13 +9,6 @@
 #include <string>
 #include <vector>
 
-#define LOGUJ ;
-#define CLOG ;
-
-#ifndef LOGUJ
-#define LOGUJ(a) (std::cout<<a)
-#define CLOG(a) (std::cout<<a)
-#endif
 const bool CZERWONY=true, CZARNY=false;
 template <typename T>  class wezel
 {

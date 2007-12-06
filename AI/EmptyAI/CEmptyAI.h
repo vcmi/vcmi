@@ -2,9 +2,9 @@
 
 class CEmptyAI : public CGlobalAI
 {
-	CCallback * cb;
+	ICallback * cb;
 public:
-	void init(CCallback * CB);
+	void init(ICallback * CB);
 	void yourTurn();
 	void heroKilled(const CHeroInstance *);
 	void heroCreated(const CHeroInstance *);

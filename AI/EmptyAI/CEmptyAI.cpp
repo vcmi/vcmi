@@ -1,6 +1,6 @@
 #include "CEmptyAI.h"
 #include <iostream>
-void CEmptyAI::init(CCallback * CB)
+void CEmptyAI::init(ICallback * CB)
 {
 	cb = CB;
 	human=false;

@@ -26,6 +26,7 @@ struct StartInfo
 		for(int i=0; i<playerInfos.size(); ++i)
 			if(playerInfos[i].color == no)
 				return playerInfos[i];
+		throw new std::exception("Cannot find info about player");
 	}
 };
 

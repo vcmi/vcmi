@@ -800,6 +800,7 @@ void CTerrainRect::deactivate()
 }; 
 void CTerrainRect::clickLeft(tribool down)
 {
+	LOGE("Left mouse button down2");
 	if ((down==false) || indeterminate(down))
 		return;
 	if (LOCPLINT->adventureInt->selection.type != HEROI_TYPE)
@@ -814,7 +815,7 @@ void CTerrainRect::clickLeft(tribool down)
 	int3 mp = whichTileIsIt();
 	if ((mp.x<0) || (mp.y<0))
 		return;
-	bool mres;
+	bool mres =true;
 	if (currentPath)
 	{
 		if ( (currentPath->endPos()) == mp)

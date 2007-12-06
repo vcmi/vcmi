@@ -10,6 +10,29 @@ class CPath;
 class CGObjectInstance;
 struct SComponent;
 typedef struct lua_State lua_State;
+
+class ICallback
+{	
+public:
+	virtual bool moveHero(int ID, CPath * path, int idtype, int pathType=0)=0;//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero 
+															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
+
+//get info
+	virtual bool verifyPath(CPath * path, bool blockSea)=0;
+	virtual int getDate(int mode=0)=0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	virtual PseudoV< PseudoV< PseudoV<unsigned char> > > & getVisibilityMap()=0; //returns visibility map (TODO: make it const)
+	virtual const CGHeroInstance * getHeroInfo(int player, int val, bool mode)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	virtual int getResourceAmount(int type)=0;
+	virtual int howManyHeroes()=0;
+	virtual const CGTownInstance * getTownInfo(int val, bool mode)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	virtual int howManyTowns()=0;
+	virtual std::vector < std::string > getObjDescriptions(int3 pos)=0; //returns descriptions of objects at pos in order from the lowest to the highest
+	virtual std::vector < const CGHeroInstance *> * getHeroesInfo(bool onlyOur=true)=0;
+	virtual bool isVisible(int3 pos)=0;
+	virtual int getMyColor()=0;
+	virtual int getMySerial()=0;
+};
+
 struct HeroMoveDetails
 {
 	int3 src, dst; //source and destination points
@@ -18,7 +41,7 @@ struct HeroMoveDetails
 	bool successful;
 };
 
-class CCallback 
+class CCallback : public ICallback
 {
 private:
 	void newTurn();

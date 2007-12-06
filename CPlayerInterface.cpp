@@ -286,9 +286,9 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	morale82 = CGI->spriteh->giveDefEss("IMRL82.DEF");
 
 }
-void CPlayerInterface::init(CCallback * CB)
+void CPlayerInterface::init(ICallback * CB)
 {
-	cb = CB;
+	cb = dynamic_cast<CCallback*>(CB);
 	CGI->localPlayer = serialID;
 	adventureInt = new CAdvMapInt(playerID);
 }
@@ -1190,6 +1190,7 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 
 	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
+		LOGE("Left mouse button down1");
 		for(int i=0; i<lclickable.size();i++)
 		{
 			if (isItIn(&lclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))

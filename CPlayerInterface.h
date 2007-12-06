@@ -178,7 +178,7 @@ public:
 	
 	SDL_Surface * infoWin(const void * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
 	void handleEvent(SDL_Event * sEvent);
-	void init(CCallback * CB);
+	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos);
 	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
 	void removeObjToBlit(IShowable* obj);

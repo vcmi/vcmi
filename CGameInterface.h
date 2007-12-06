@@ -15,7 +15,7 @@ public:
 	bool human;
 	int playerID, serialID;
 
-	virtual void init(CCallback * CB)=0{};
+	virtual void init(ICallback * CB)=0{};
 	virtual void yourTurn()=0{};
 	virtual void heroKilled(const CGHeroInstance*)=0{};
 	virtual void heroCreated(const CGHeroInstance*)=0{};

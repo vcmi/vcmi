@@ -31,6 +31,15 @@ enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHE
 #define HEROI_TYPE (0)
 #define TOWNI_TYPE (1)
 
+//#define LOGUJ
+
+#ifdef LOGUJ
+#define LOG(x) std::cout<<x;
+#define LOGE(x) std::cout<<x<<std::endl;
+#else
+#define LOG(x) ;
+#define LOGE(x) ;
+#endif
 
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
