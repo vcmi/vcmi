@@ -1004,7 +1004,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//move finished
 	CGI->mh->recalculateHideVisPosUnderObj(details.ho, true);
 	adventureInt->minimap.draw();
-	adventureInt->heroList.draw();
+	adventureInt->heroList.updateMove(ho);
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance*)
 {
