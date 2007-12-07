@@ -785,8 +785,8 @@ void CMinimap::showTile(int3 pos)
 	{
 		for (int jj=0; jj<ho; jj++)
 		{
-			if ((pos.x+ii<this->pos.w-1) && (pos.y+jj<this->pos.h-1))
-				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x+ii,pos.y+jj,0,0,0,0,128);
+			if ((pos.x*wo+ii<this->pos.w-1) && (pos.y*ho+jj<this->pos.h-1))
+				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
 
 		}
 	}
