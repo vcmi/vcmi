@@ -165,7 +165,7 @@ template <typename T> void CSCButton<typename T>::show(SDL_Surface * to)
 	if (delg) //we blit on our owner's bitmap
 	{
 		blitAt(imgs[curimg][state],posr.x,posr.y,delg->bitmap);
-		updateRect(&genRect(pos.h,pos.w,posr.x,posr.y),delg->bitmap);
+		//updateRect(&genRect(pos.h,pos.w,posr.x,posr.y),delg->bitmap);
 	}
 	else
 	{
@@ -188,12 +188,12 @@ void CButtonBase::show(SDL_Surface * to)
 	if (abs)
 	{
 		blitAt(imgs[curimg][state],pos.x,pos.y,to);
-		updateRect(&pos,to);
+		//updateRect(&pos,to);
 	}
 	else
 	{
 		blitAt(imgs[curimg][state],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
-		updateRect(&genRect(pos.h,pos.w,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y),to);
+		//updateRect(&genRect(pos.h,pos.w,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y),to);
 		
 	}
 }
@@ -371,6 +371,7 @@ void CPlayerInterface::yourTurn()
 		}
 		for(int i=0;i<objsToBlit.size();i++)
 			objsToBlit[i]->show();
+		SDL_Flip(ekran);
 		SDL_Delay(5); //give time for other apps
 		SDL_framerateDelay(mainFPSmng);
 	}
@@ -934,6 +935,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		LOCPLINT->adventureInt->update(); //updating screen
+		SDL_Flip(ekran);
 		CGI->screenh->updateScreen();
 		LOCPLINT->adventureInt->anim++;
 		SDL_framerateDelay(mainFPSmng); //for animation purposes

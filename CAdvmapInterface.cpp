@@ -203,13 +203,13 @@ void CHeroList::clickLeft(tribool down)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
 		{
-			blitAtWR(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
+			blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
 			pressed = true;
 			return;
 		}
 		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
 		{
-			blitAtWR(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
+			blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
 			pressed = false;
 			return;
 		}
@@ -228,7 +228,7 @@ void CHeroList::clickLeft(tribool down)
 			return;
 		if (pressed) //up
 		{
-			blitAtWR(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
 			pressed = indeterminate;
 			if (!down)
 			{
@@ -240,7 +240,7 @@ void CHeroList::clickLeft(tribool down)
 		}
 		else if (!pressed) //down
 		{
-			blitAtWR(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
 			pressed = indeterminate;
 			if (!down)
 			{
@@ -317,8 +317,9 @@ void CHeroList::keyPressed (SDL_KeyboardEvent & key)
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {
 	int ser = LOCPLINT->cb->getHeroSerial(which);
+	ser -= from;
 	int pom = (which->movement)/100;
-	blitAtWR(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
+	blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
 }
 void CHeroList::draw()
 {	
@@ -327,36 +328,36 @@ void CHeroList::draw()
 		int i = iT-from;
 		if (iT>=items.size())
 		{
-			blitAtWR(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32);
-			blitAtWR(mana->ourImages[0].bitmap,posmanx,posmany+i*32);
-			blitAtWR(empty,posporx,pospory+i*32);
+			blitAt(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32);
+			blitAt(mana->ourImages[0].bitmap,posmanx,posmany+i*32);
+			blitAt(empty,posporx,pospory+i*32);
 			continue;
 		}
 		int pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->movement)/100;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
-		blitAtWR(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32); //move point
+		blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32); //move point
 		pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->mana)/5; //bylo: .../10;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
-		blitAtWR(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
+		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
 		SDL_Surface * temp = LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->type->portraitSmall;
-		blitAtWR(temp,posporx,pospory+i*32);
+		blitAt(temp,posporx,pospory+i*32);
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
 		{
-			blitAtWR(selection,posporx,pospory+i*32);
+			blitAt(selection,posporx,pospory+i*32);
 		}
 		//TODO: support for custom portraits
 	}
 	if (from>0)
-		blitAtWR(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
 	else
-		blitAtWR(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
+		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
 
 	if (items.size()-from>5)
-		blitAtWR(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
 	else
-		blitAtWR(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
+		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
 }
 CTownList::CTownList()
 {
@@ -437,13 +438,13 @@ void CTownList::clickLeft(tribool down)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
 		{
-			blitAtWR(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
+			blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
 			pressed = true;
 			return;
 		}
 		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
 		{
-			blitAtWR(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
+			blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
 			pressed = false;
 			return;
 		}
@@ -462,7 +463,7 @@ void CTownList::clickLeft(tribool down)
 			return;
 		if (pressed) //up
 		{
-			blitAtWR(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
 			pressed = indeterminate;
 			if (!down)
 			{
@@ -474,7 +475,7 @@ void CTownList::clickLeft(tribool down)
 		}
 		else if (!pressed) //down
 		{
-			blitAtWR(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
 			pressed = indeterminate;
 			if (!down)
 			{
@@ -522,27 +523,27 @@ void CTownList::draw()
 		int i = iT-from;
 		if (iT>=items.size())
 		{
-			blitAtWR(CGI->townh->getPic(-1),posporx,pospory+i*32);
+			blitAt(CGI->townh->getPic(-1),posporx,pospory+i*32);
 			continue;
 		}
 
-		blitAtWR(CGI->townh->getPic(items[i]->town->typeID),posporx,pospory+i*32);
+		blitAt(CGI->townh->getPic(items[i]->town->typeID),posporx,pospory+i*32);
 
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
 		{
-			blitAtWR(CGI->townh->getPic(-2),posporx,pospory+i*32);
+			blitAt(CGI->townh->getPic(-2),posporx,pospory+i*32);
 		}
 		//TODO: dodac oznaczanie zbudowania w danej turze i posiadania fortu
 	}
 	if (from>0)
-		blitAtWR(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
 	else
-		blitAtWR(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
+		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
 
 	if (items.size()-from>5)
-		blitAtWR(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
 	else
-		blitAtWR(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
+		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
 }
 CStatusBar::CStatusBar(int x, int y)
 {
@@ -562,17 +563,17 @@ CStatusBar::~CStatusBar()
 void CStatusBar::clear()
 {
 	current="";
-	blitAtWR(bg,pos.x,pos.y);
+	blitAt(bg,pos.x,pos.y);
 }
 void CStatusBar::print(std::string text)
 {
 	current=text;
-	blitAtWR(bg,pos.x,pos.y);
+	blitAt(bg,pos.x,pos.y);
 	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
 }
 void CStatusBar::show()
 {
-	blitAtWR(bg,pos.x,pos.y);
+	blitAt(bg,pos.x,pos.y);
 	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
 }
 CMinimap::CMinimap(bool draw)
@@ -659,7 +660,6 @@ void CMinimap::draw()
 			}
 		}
 	}
-	SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
 
 	//draw FoW
 	//for (int i=0; i<mw; i++)
@@ -691,6 +691,7 @@ void CMinimap::draw()
 		by = (((float)LOCPLINT->adventureInt->position.y)/(((float)CGI->mh->sizes.y)))*pos.h;
 	blitAt(radar,bx,by,temps);
 	blitAt(temps,pos.x,pos.y);
+	//SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
@@ -1084,7 +1085,7 @@ void CTerrainRect::show()
 				int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
 					hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
 				if (hvx<0 && hvy<0)
-					blitAtWR(arrows->ourImages[pn].bitmap,x,y);
+					blitAt(arrows->ourImages[pn].bitmap,x,y);
 				else if(hvx<0)
 					SDL_BlitSurface
 						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,0,0),
@@ -1165,7 +1166,7 @@ void CResDataBar::draw()
 	itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
 	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,GEOR13,zwykly);
 	temp.clear();
-	updateRect(&pos,ekran);
+	//updateRect(&pos,ekran);
 	delete buf;
 }
 CInfoBar::CInfoBar()
@@ -1183,6 +1184,7 @@ void CInfoBar::draw(void * specific)
 	if (!todr)
 		return;
 	blitAt(todr,pos.x,pos.y);
+	//SDL_Flip(ekran);
 	SDL_FreeSurface(todr);
 }
 CAdvMapInt::CAdvMapInt(int Player)
@@ -1360,7 +1362,7 @@ void CAdvMapInt::update()
 	blitAt(gems[0]->ourImages[LOCPLINT->playerID].bitmap,6,508);
 	blitAt(gems[1]->ourImages[LOCPLINT->playerID].bitmap,556,508);
 	blitAt(gems[3]->ourImages[LOCPLINT->playerID].bitmap,556,6);
-	updateRect(&genRect(550,600,6,6));
+	//updateRect(&genRect(550,600,6,6));
 }
 
 void CAdvMapInt::centerOn(int3 on)

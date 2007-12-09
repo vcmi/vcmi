@@ -8,7 +8,7 @@ class CHeroInstance;
 class CTownInstance;
 class CPath;
 class CGObjectInstance;
-struct SComponent;
+class SComponent;
 typedef struct lua_State lua_State;
 
 class ICallback

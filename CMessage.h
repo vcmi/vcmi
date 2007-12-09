@@ -10,7 +10,7 @@ class MapSel;
 class CSimpleWindow;
 class CInfoWindow;
 class CDefHandler;
-struct SComponent;
+class SComponent;
 namespace NMessage
 {
 	extern CDefHandler * ok, *cancel;

@@ -26,5 +26,4 @@ public:
 };
 
 
-
 #endif //CCURSORHANDLER_H
