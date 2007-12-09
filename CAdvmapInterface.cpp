@@ -650,8 +650,10 @@ void CMinimap::draw()
 	for (int i=0; i<hh.size();i++)
 	{
 		int3 hpos = hh[i]->getPosition(false);
-		float zawx = ((float)hpos.x/CGI->mh->sizes.x), zawy = ((float)hpos.y/CGI->mh->sizes.y);
-		int3 maplgp ( zawx*mw, zawy*mh, hpos.z );
+		if(hpos.z!=LOCPLINT->adventureInt->position.z)
+			continue;
+		//float zawx = ((float)hpos.x/CGI->mh->sizes.x), zawy = ((float)hpos.y/CGI->mh->sizes.y);
+		int3 maplgp ( (hpos.x*mw)/CGI->mh->sizes.x, (hpos.y*mh)/CGI->mh->sizes.y, hpos.z );
 		for (int ii=0; ii<wo; ii++)
 		{
 			for (int jj=0; jj<ho; jj++)
@@ -786,7 +788,7 @@ void CMinimap::showTile(int3 pos)
 	{
 		for (int jj=0; jj<ho; jj++)
 		{
-			if ((pos.x*wo+ii<this->pos.w-1) && (pos.y*ho+jj<this->pos.h-1))
+			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
 				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
 
 		}
@@ -1336,7 +1338,7 @@ void CAdvMapInt::show()
 
 	infoBar.draw();
 
-	SDL_Flip(ekran);
+	CSDL_Ext::update(ekran);
 }
 void CAdvMapInt::hide()
 {

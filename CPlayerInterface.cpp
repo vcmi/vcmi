@@ -371,7 +371,8 @@ void CPlayerInterface::yourTurn()
 		}
 		for(int i=0;i<objsToBlit.size();i++)
 			objsToBlit[i]->show();
-		SDL_Flip(ekran);
+		//SDL_Flip(ekran);
+		CSDL_Ext::update(ekran);
 		SDL_Delay(5); //give time for other apps
 		SDL_framerateDelay(mainFPSmng);
 	}
@@ -935,7 +936,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		LOCPLINT->adventureInt->update(); //updating screen
-		SDL_Flip(ekran);
+		CSDL_Ext::update(ekran);
 		CGI->screenh->updateScreen();
 		LOCPLINT->adventureInt->anim++;
 		SDL_framerateDelay(mainFPSmng); //for animation purposes

@@ -768,21 +768,11 @@ int _tmain(int argc, _TCHAR* argv[])
 				{
 					for (int j=0; j<mh; j++)
 					{
-						int3 pp((((float)i/mw)*CGI->mh->sizes.x), (((float)j/mh)*CGI->mh->sizes.y), d);
-						/*pp.x = (((float)i/mw)*CGI->mh->sizes.x);
-						pp.y = (((float)j/mh)*CGI->mh->sizes.y);
-						pp.z = LOCPLINT->adventureInt->position.z;*/
+						int3 pp( ((i*CGI->mh->sizes.x)/mw), ((j*CGI->mh->sizes.y)/mh), d );
+
 						if ( !((CPlayerInterface*)cgi->playerint[g])->cb->isVisible(pp) )
 						{
-							for (int ii=0; ii<wo; ii++)
-							{
-								for (int jj=0; jj<ho; jj++)
-								{
-									if ((i+ii<mm.pos.w-1) && (j+jj<mm.pos.h-1))
-										CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i+ii,j+jj,0,0,0);
-
-								}
-							}
+							CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
 						}
 					}
 				}
