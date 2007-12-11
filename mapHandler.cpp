@@ -176,6 +176,21 @@ void CMapHandler::init()
 		}
 	}
 
+	hideBitmap.resize(CGI->ac->map.width, Woff);
+	for (int i=0-Woff;i<visibility.size()-Woff;i++)
+	{
+		hideBitmap[i].resize(CGI->ac->map.height,Hoff);
+	}
+	for (int i=0-Woff; i<hideBitmap.size()-Woff; ++i)
+	{
+		for (int j=0-Hoff; j<CGI->ac->map.height+Hoff; ++j)
+		{
+			hideBitmap[i][j].resize(CGI->ac->map.twoLevel+1,0);
+			for(int k=0; k<CGI->ac->map.twoLevel+1; ++k)
+				hideBitmap[i][j][k] = rand()%fullHide->ourImages.size();
+		}
+	}
+
 	//visibility[6][7][1] = false;
 	//visibility[7][7][1] = false;
 	//visibility[6][8][1] = false;
@@ -1177,7 +1192,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 {
 	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
 	{
-		return fullHide->ourImages[rand()%fullHide->ourImages.size()].bitmap; //fully hidden
+		return fullHide->ourImages[hideBitmap[x][y][lvl]].bitmap; //fully hidden
 	}
 	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
 	{

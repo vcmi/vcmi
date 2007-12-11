@@ -73,6 +73,7 @@ public:
 
 	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
 
+	PseudoV< PseudoV< PseudoV<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
