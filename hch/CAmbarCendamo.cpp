@@ -359,7 +359,7 @@ void CAmbarCendamo::deh3m()
 	if(map.version!=RoE)
 	{
 		ist=i; //starting i for loop
-		for(i; i<ist+18; ++i)
+		for(i; i<ist+(map.version==AB ? 17 : 18); ++i)
 		{
 			unsigned char c = bufor[i];
 			for(int yy=0; yy<8; ++yy)
@@ -432,10 +432,11 @@ void CAmbarCendamo::deh3m()
 	case WoG: case SoD: case AB:
 		if(bufor[i]=='\0') //omit 156 bytes of rubbish
 		{
-			i+=156;
+			if(map.version>AB)
+				i+=156;
 			break;
 		}
-		else //omit a lot of rubbish in a strage way
+		else if(map.version!=AB || map.rumors.size()==0) //omit a lot of rubbish in a strage way
 		{
 			int lastFFpos=i;
 			while(i-lastFFpos<200) //i far in terrain bytes
@@ -688,7 +689,7 @@ void CAmbarCendamo::deh3m()
 				}
 				else
 					spec->name = std::string("");
-				if(map.version>RoE)
+				if(map.version>AB)
 				{
 					bool isExp = bufor[i]; ++i; //true if hore's experience is greater than 0
 					if(isExp)
@@ -879,7 +880,7 @@ void CAmbarCendamo::deh3m()
 					spec->sex = !(bufor[i]); ++i;
 				}
 				//spells
-				if(map.version>RoE)
+				if(map.version>AB)
 				{
 					bool areSpells = bufor[i]; ++i;
 
@@ -900,8 +901,16 @@ void CAmbarCendamo::deh3m()
 						}
 					}
 				}
+				else if(map.version==AB) //we can read one spell
+				{
+					unsigned char buff = bufor[i]; ++i;
+					if(buff!=254)
+					{
+						spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[buff]));
+					}
+				}
 				//spells loaded
-				if(map.version>RoE)
+				if(map.version>AB)
 				{
 					spec->defaultMainStats = bufor[i]; ++i;
 					if(spec->defaultMainStats)
@@ -1508,7 +1517,7 @@ void CAmbarCendamo::deh3m()
 					nce.gold = readNormalNr(i); i+=4;
 
 					nce.players = bufor[i]; ++i;
-					if(map.version > RoE)
+					if(map.version > AB)
 					{
 						nce.forHuman = bufor[i]; ++i;
 					}
@@ -1538,7 +1547,7 @@ void CAmbarCendamo::deh3m()
 
 				/////// castle events have been read ///////////////////////////
 
-				if(map.version > RoE)
+				if(map.version > AB)
 				{
 					spec->alignment = bufor[i]; ++i;
 				}
@@ -2006,7 +2015,12 @@ void CAmbarCendamo::deh3m()
 		ne.gems = readNormalNr(i); i+=4;
 		ne.gold = readNormalNr(i); i+=4;
 		ne.players = bufor[i]; ++i;
-		ne.humanAffected = bufor[i]; ++i;
+		if(map.version>AB)
+		{
+			ne.humanAffected = bufor[i]; ++i;
+		}
+		else
+			ne.humanAffected = true;
 		ne.computerAffected = bufor[i]; ++i;
 		ne.firstOccurence = bufor[i]; ++i;
 		ne.nextOccurence = bufor[i]; ++i;
