@@ -12,6 +12,7 @@
 #include "CLua.h"
 #include "hch\CCastleHandler.h"
 #include "hch\CHeroHandler.h"
+#include "hch\CTownHandler.h"
 #include <iomanip>
 #include <sstream>
 extern SDL_Surface * ekran;
@@ -92,6 +93,7 @@ void CMapHandler::init()
 				{
 					CGI->objh->objInstances[no]->defObjInfoNumber = -1;
 					CGI->objh->objInstances[no]->defInfo->isOnDefList = false;
+					CGI->objh->objInstances[no]->defInfo->printPriority = 0;
 				}
 			}
 		}
@@ -1816,6 +1818,168 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 		nm<<rand()%18; //HARDCODED VALUE! TODO: REMOVE IN FUTURE
 		nm<<"_.DEF";
 		return nm.str();
+	}
+	else if(di->id==217) //random dwelling with preset level
+	{
+		std::vector< std::vector<std::string> > creGenNames;
+		creGenNames.resize(F_NUMBER);
+
+		for(int ff=0; ff<F_NUMBER-1; ++ff)
+		{
+			for(int dd=0; dd<7; ++dd)
+			{
+				creGenNames[ff].push_back(CGI->dobjinfo->objs[394+7*ff+dd].defName);
+			}
+		}
+
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[456].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[451].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[454].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[453].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[452].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[457].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[458].defName);
+
+		if(((CCreGenObjInfo*)obj->info)->asCastle)
+		{
+			int fraction = -1;
+			for(int vv=0; vv<CGI->objh->objInstances.size(); ++vv)
+			{
+				if(CGI->objh->objInstances[vv]->defInfo->id==98) //is a town
+				{
+					if( //check if it is this one we want
+						((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[0]==((CCreGenObjInfo*)obj->info)->bytes[0]
+					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[1]==((CCreGenObjInfo*)obj->info)->bytes[1]
+					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[2]==((CCreGenObjInfo*)obj->info)->bytes[2]
+					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[3]==((CCreGenObjInfo*)obj->info)->bytes[3])
+					{
+						fraction = ((CGTownInstance*)CGI->objh->objInstances[vv])->town->typeID; //TODO: is typeID what we really want?
+					}
+				}
+			}
+			int lvl = atoi(di->name.substr(7, 8).c_str())-1;
+			return creGenNames[fraction][lvl];
+		}
+		else
+		{
+			std::vector<int> possibleTowns;
+			for(int bb=0; bb<8; ++bb)
+			{
+				if(((CCreGenObjInfo*)obj->info)->castles[0] & (1<<bb))
+				{
+					possibleTowns.push_back(bb);
+				}
+			}
+			if(((CCreGenObjInfo*)obj->info)->castles[1])
+				possibleTowns.push_back(8);
+
+			int fraction = possibleTowns[rand()%possibleTowns.size()];
+			int lvl = atoi(di->name.substr(7, 8).c_str())-1;
+			return creGenNames[fraction][lvl];
+		}
+	}
+	else if(di->id==216) //random dwelling
+	{
+		std::vector< std::vector<std::string> > creGenNames;
+		creGenNames.resize(F_NUMBER);
+
+		for(int ff=0; ff<F_NUMBER-1; ++ff)
+		{
+			for(int dd=0; dd<7; ++dd)
+			{
+				creGenNames[ff].push_back(CGI->dobjinfo->objs[394+7*ff+dd].defName);
+			}
+		}
+
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[456].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[451].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[454].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[453].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[452].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[457].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[458].defName);
+
+		if(((CCreGenObjInfo*)obj->info)->asCastle)
+		{
+			int faction = -1;
+			for(int vv=0; vv<CGI->objh->objInstances.size(); ++vv)
+			{
+				if(CGI->objh->objInstances[vv]->defInfo->id==98) //is a town
+				{
+					if( //check if it is this one we want
+						((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[0]==((CCreGenObjInfo*)obj->info)->bytes[0]
+					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[1]==((CCreGenObjInfo*)obj->info)->bytes[1]
+					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[2]==((CCreGenObjInfo*)obj->info)->bytes[2]
+					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[3]==((CCreGenObjInfo*)obj->info)->bytes[3])
+					{
+						faction = ((CGTownInstance*)CGI->objh->objInstances[vv])->town->typeID; //TODO: is typeID what we really want?
+					}
+				}
+			}
+			int lvl=-1;
+			if((((CCreGen2ObjInfo*)obj->info)->maxLevel - ((CCreGen2ObjInfo*)obj->info)->minLevel)!=0) 
+				lvl = rand()%(((CCreGen2ObjInfo*)obj->info)->maxLevel - ((CCreGen2ObjInfo*)obj->info)->minLevel) + ((CCreGen2ObjInfo*)obj->info)->minLevel;
+			else lvl = 0;
+
+			return creGenNames[faction][lvl];
+		}
+		else
+		{
+			std::vector<int> possibleTowns;
+			for(int bb=0; bb<8; ++bb)
+			{
+				if(((CCreGenObjInfo*)obj->info)->castles[0] & (1<<bb))
+				{
+					possibleTowns.push_back(bb);
+				}
+			}
+			if(((CCreGenObjInfo*)obj->info)->castles[1])
+				possibleTowns.push_back(8);
+
+			int faction = possibleTowns[rand()%possibleTowns.size()];
+			int lvl=-1;
+			if((((CCreGen2ObjInfo*)obj->info)->maxLevel - ((CCreGen2ObjInfo*)obj->info)->minLevel)!=0) 
+				lvl = rand()%(((CCreGen2ObjInfo*)obj->info)->maxLevel - ((CCreGen2ObjInfo*)obj->info)->minLevel) + ((CCreGen2ObjInfo*)obj->info)->minLevel;
+			else lvl = 0;
+
+			return creGenNames[faction][lvl];
+		}
+	}
+	else if(di->id==218) //random creature generators with preset alignment
+	{
+		std::vector< std::vector<std::string> > creGenNames;
+		creGenNames.resize(F_NUMBER);
+
+		for(int ff=0; ff<F_NUMBER-1; ++ff)
+		{
+			for(int dd=0; dd<7; ++dd)
+			{
+				creGenNames[ff].push_back(CGI->dobjinfo->objs[394+7*ff+dd].defName);
+			}
+		}
+
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[456].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[451].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[454].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[453].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[452].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[457].defName);
+		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[458].defName);
+
+		int faction = atoi(di->name.substr(7, 8).c_str())-1;
+
+		int lvl = -1;
+		CCreGen3ObjInfo * ct = (CCreGen3ObjInfo*)obj->info;
+		if(ct->maxLevel>7)
+			ct->maxLevel = 7;
+		if(ct->minLevel<1)
+			ct->minLevel = 1;
+		if((ct->maxLevel - ct->minLevel)!=0)
+			lvl = rand()%(ct->maxLevel - ct->minLevel) + ct->minLevel;
+		else
+			lvl = ct->maxLevel;
+
+		return creGenNames[faction][lvl];
 	}
 
 	return std::string();
