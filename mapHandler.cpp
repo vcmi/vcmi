@@ -1857,7 +1857,7 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 					}
 				}
 			}
-			int lvl = atoi(di->name.substr(7, 8).c_str())-1;
+			int lvl = atoi(di->name.substr(7, 8).c_str());
 			return creGenNames[fraction][lvl];
 		}
 		else
@@ -1874,7 +1874,7 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 				possibleTowns.push_back(8);
 
 			int fraction = possibleTowns[rand()%possibleTowns.size()];
-			int lvl = atoi(di->name.substr(7, 8).c_str())-1;
+			int lvl = atoi(di->name.substr(7, 8).c_str());
 			return creGenNames[fraction][lvl];
 		}
 	}
@@ -1966,7 +1966,7 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[457].defName);
 		creGenNames[F_NUMBER-1].push_back(CGI->dobjinfo->objs[458].defName);
 
-		int faction = atoi(di->name.substr(7, 8).c_str())-1;
+		int faction = atoi(di->name.substr(7, 8).c_str());
 
 		int lvl = -1;
 		CCreGen3ObjInfo * ct = (CCreGen3ObjInfo*)obj->info;
