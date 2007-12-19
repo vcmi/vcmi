@@ -107,6 +107,73 @@ void SComponent::deactivate()
 {
 	ClickableR::deactivate();
 }
+
+void CSelectableComponent::clickLeft(tribool down)
+{
+	if (down)
+	{
+		select(true);
+
+	}
+}
+CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, SDL_Surface * Border)
+:SComponent(Type,Sub,Val)
+{
+	if (Border) //use custom border
+	{
+		border = Border;
+	}
+	else //we need to draw border
+	{
+		SDL_Surface * symb = SComponent::getImg();
+		border = CSDL_Ext::newSurface(symb->w+2,symb->h+2,symb);
+		SDL_FillRect(border,NULL,0x00FFFF);
+		for (int i=0;i<border->w;i++)
+		{
+			SDL_PutPixel(border,i,0,239,215,123);
+			SDL_PutPixel(border,i,(border->h)-1,239,215,123);
+		}
+		for (int i=0;i<border->h;i++)
+		{
+			SDL_PutPixel(border,0,i,239,215,123);
+			SDL_PutPixel(border,(border->w)-1,i,239,215,123);
+		}
+		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));	
+	}
+	selected = false;
+}
+void CSelectableComponent::activate()
+{
+	SComponent::activate();
+	ClickableL::activate();
+}
+void CSelectableComponent::deactivate()
+{
+	SComponent::deactivate();
+	ClickableL::deactivate();
+}
+SDL_Surface * CSelectableComponent::getImg()
+{
+	return myBitmap;
+}
+void CSelectableComponent::select(bool on)
+{
+	if(on != selected)
+	{
+		blitAt(SComponent::getImg(),1,1,myBitmap);
+		if (on)
+		{
+			blitAt(SComponent::getImg(),0,0,border);
+		}
+		selected = on;
+		return;
+	}
+	else 
+	{
+		return;
+	}
+}
+
 void CSimpleWindow::show(SDL_Surface * to)
 {
 	if(!to)
@@ -122,6 +189,28 @@ CSimpleWindow::~CSimpleWindow()
 	}
 }
 
+void CSelWindow::selectionChange(SComponent * to)
+{
+	for (int i=0;i<components.size();i++)
+	{
+		if(components[i]==to)
+			continue;
+		CSelectableComponent * pom = dynamic_cast<CSelectableComponent*>(components[i]);
+		if (!pom)
+			continue;
+		pom->select(false);
+	}
+}
+void CSelWindow::okClicked(tribool down)
+{
+	if(!down)
+		close();
+}
+void CSelWindow::close()
+{
+	//call owner with selection result
+	CInfoWindow::close();
+}
 template <typename T>CSCButton<T>::CSCButton(CDefHandler * img, CIntObject * obj, void(T::*poin)(tribool), T* Delg)
 {
 	ourObj = obj;
@@ -259,7 +348,15 @@ void MotionInterested::deactivate()
 	LOCPLINT->
 		motioninterested.erase(std::find(LOCPLINT->motioninterested.begin(),LOCPLINT->motioninterested.end(),this));
 }
-
+void TimeInterested::activate()
+{
+	LOCPLINT->timeinterested.push_back(this);
+}
+void TimeInterested::deactivate()
+{
+	LOCPLINT->
+		timeinterested.erase(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),this));
+}
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
 	playerID=Player;
@@ -291,12 +388,20 @@ void CPlayerInterface::init(ICallback * CB)
 	cb = dynamic_cast<CCallback*>(CB);
 	CGI->localPlayer = serialID;
 	adventureInt = new CAdvMapInt(playerID);
+	
+	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
+	for(int i=0;i<hh.size();i++)
+	{
+		SDL_Surface * pom = infoWin(hh[i]);
+		heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
+	}
 }
 void CPlayerInterface::yourTurn()
 {
 	makingTurn = true;
 	CGI->localPlayer = serialID;
 	unsigned char & animVal = LOCPLINT->adventureInt->anim; //for animations handling
+	adventureInt->infoBar.newDay(cb->getDate(1));
 	adventureInt->show();
 	//show rest of things
 
@@ -306,17 +411,26 @@ void CPlayerInterface::yourTurn()
 	SDL_setFramerate(mainFPSmng, 24);
 	SDL_Event sEvent;
 	//framerate keeper initialized
+	timeHandler th;
+	th.getDif();
 	for(;makingTurn;) // main loop
 	{
 		CGI->screenh->updateScreen();
-
+		int tv = th.getDif();
+		for (int i=0;i<timeinterested.size();i++)
+		{
+			if (timeinterested[i]->toNextTick>=0)
+				timeinterested[i]->toNextTick-=tv;
+			if (timeinterested[i]->toNextTick<0)
+				timeinterested[i]->tick();
+		}
 		LOCPLINT->adventureInt->updateScreen = false;
 		while (SDL_PollEvent(&sEvent))  //wait for event...
 		{
 			handleEvent(&sEvent);
 		}
 		++LOCPLINT->adventureInt->animValHitCount; //for animations
-		if(LOCPLINT->adventureInt->animValHitCount == 2)
+		if(LOCPLINT->adventureInt->animValHitCount == 4)
 		{
 			LOCPLINT->adventureInt->animValHitCount = 0;
 			++animVal;
@@ -939,6 +1053,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		CSDL_Ext::update(ekran);
 		CGI->screenh->updateScreen();
 		LOCPLINT->adventureInt->anim++;
+		adventureInt->animValHitCount=0;
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
@@ -1009,46 +1124,69 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	adventureInt->minimap.draw();
 	adventureInt->heroList.updateMove(ho);
 }
-void CPlayerInterface::heroKilled(const CGHeroInstance*)
+void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
+	heroWins.erase(hero->ID);
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
+	if(heroWins.find(hero->subID)==heroWins.end())
+		heroWins.insert(std::pair<int,SDL_Surface*>(hero->subID,infoWin(hero)));
 }
 
-SDL_Surface * CPlayerInterface::infoWin(const void * specific) //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
+SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
+{
+	char * buf = new char[10];
+	SDL_Surface * ret = copySurface(hInfo);
+	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
+	blueToPlayersAdv(ret,playerID,1);
+	printAt(curh->name,75,15,GEOR13,zwykly,ret);
+	for (int i=0;i<PRIMARY_SKILLS;i++)
+	{
+		itoa(curh->primSkills[i],buf,10);
+		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
+	}
+	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
+	{
+		blitAt(CGI->creh->smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
+		itoa((*i).second.second,buf,10);
+		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+	}
+	blitAt(curh->type->portraitLarge,11,12,ret);
+	itoa(curh->mana,buf,10);
+	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
+	delete buf;
+	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
+	blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
+	//SDL_SaveBMP(ret,"inf1.bmp");
+	return ret;
+}
+
+SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
+{
+	return NULL;
+}
+
+SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
 {
 	if (specific)
-		;//TODO: dorobic, ale w ogole to moze lepiej najpierw zastapic tego voida czym innym
+	{
+		switch (specific->ID)
+		{
+		case 34:
+			return drawHeroInfoWin(dynamic_cast<const CGHeroInstance*>(specific));
+			break;
+		default:
+			return NULL;
+			break;
+		}
+	}
 	else
 	{
 		if (adventureInt->selection.type == HEROI_TYPE)
 		{
-			char * buf = new char[10];
-			SDL_Surface * ret = copySurface(hInfo);
-			SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-			blueToPlayersAdv(ret,playerID,1);
 			const CGHeroInstance * curh = (const CGHeroInstance *)adventureInt->selection.selected;
-			printAt(curh->name,75,15,GEOR13,zwykly,ret);
-			for (int i=0;i<PRIMARY_SKILLS;i++)
-			{
-				itoa(curh->primSkills[i],buf,10);
-				printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
-			}
-			for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
-			{
-				blitAt(CGI->creh->smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-				itoa((*i).second.second,buf,10);
-				printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
-			}
-			blitAt(curh->type->portraitLarge,11,12,ret);
-			itoa(curh->mana,buf,10);
-			printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
-			delete buf;
-			blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
-			blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
-			//SDL_SaveBMP(ret,"inf1.bmp");
-			return ret;
+			return drawHeroInfoWin(curh);
 		}
 		else if (adventureInt->selection.type == TOWNI_TYPE)
 		{
@@ -1105,6 +1243,17 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 		case (SDLK_u):
 			{
 				adventureInt->underground.clickLeft(true);
+				break;
+			}
+		case (SDLK_m):
+			{
+				adventureInt->moveHero.clickLeft(true);
+				break;
+			}
+		case (SDLK_e):
+			{
+				adventureInt->endTurn.clickLeft(true);
+				break;
 			}
 		}
 	} //keydown end
@@ -1135,6 +1284,17 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 		case (SDLK_u):
 			{
 				adventureInt->underground.clickLeft(false);
+				break;
+			}
+		case (SDLK_m):
+			{
+				adventureInt->moveHero.clickLeft(false);
+				break;
+			}
+		case (SDLK_e):
+			{
+				adventureInt->endTurn.clickLeft(false);
+				break;
 			}
 		}
 	}//keyup end
@@ -1256,6 +1416,8 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
+	SDL_FreeSurface(heroWins[hero->ID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
+	heroWins[hero->ID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
 	if (adventureInt->selection.selected == hero)
 		adventureInt->infoBar.draw();
 	return;

@@ -97,7 +97,14 @@ public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
-
+class TimeInterested: public virtual CIntObject
+{
+public:
+	int toNextTick;
+	virtual void tick()=0;
+	virtual void activate();
+	virtual void deactivate();
+};
 template <typename T> class CSCButton: public CButtonBase, public ClickableL //prosty guzik, ktory tylko zmienia obrazek
 {
 public:
@@ -117,12 +124,17 @@ class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 public:
 	CSCButton<CInfoWindow> okb;
 	std::vector<SComponent*> components;
-	void okClicked(tribool down);
-	void close();
+	virtual void okClicked(tribool down);
+	virtual void close();
 	CInfoWindow();
 	~CInfoWindow();
 };
-
+class CSelWindow : public CInfoWindow //component selection window
+{
+	void selectionChange(SComponent * to);
+	void okClicked(tribool down);
+	void close();
+};
 class SComponent : public ClickableR
 {
 public:
@@ -138,11 +150,24 @@ public:
 
 	SComponent(Etype Type, int Subtype, int Val);
 	//SComponent(const & SComponent r);
-	SDL_Surface * getImg();
 	
 	void clickRight (tribool down);
+	virtual SDL_Surface * getImg();
+	virtual void activate();
+	virtual void deactivate();
+};
+
+class CSelectableComponent : public SComponent, public ClickableL
+{
+public:
+	bool selected;
+	SDL_Surface * border, *myBitmap;
+	void clickLeft(tribool down);
+	CSelectableComponent(Etype Type, int Sub, int Val, SDL_Surface * Border=NULL);
 	void activate();
 	void deactivate();
+	void select(bool on);
+	SDL_Surface * getImg();
 };
 
 class CPlayerInterface : public CGameInterface
@@ -161,29 +186,34 @@ public:
 	std::vector<Hoverable*> hoverable;
 	std::vector<KeyInterested*> keyinterested;
 	std::vector<MotionInterested*> motioninterested;
+	std::vector<TimeInterested*> timeinterested;
 	std::vector<IShowable*> objsToBlit;
 
 	SDL_Surface * hInfo;
 	std::vector<std::pair<int, int> > slotsPos;
 	CDefEssential *luck22, *luck30, *luck42, *luck82,
 		*morale22, *morale30, *morale42, *morale82;
+	std::map<int,SDL_Surface*> heroWins;
+	//std::map<int,SDL_Surface*> townWins;
 
 	//overloaded funcs from Interface
 	void yourTurn();
 	void heroMoved(const HeroMoveDetails & details);
 	void tileRevealed(int3 pos);
 	void tileHidden(int3 pos);
-	void heroKilled(const CGHeroInstance*);
-	void heroCreated(const CGHeroInstance*);
+	void heroKilled(const CGHeroInstance* hero);
+	void heroCreated(const CGHeroInstance* hero);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
 	
-	SDL_Surface * infoWin(const void * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
+	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
 	void handleEvent(SDL_Event * sEvent);
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos);
 	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
 	void removeObjToBlit(IShowable* obj);
+	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
+	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 
 	CPlayerInterface(int Player, int serial);
 };

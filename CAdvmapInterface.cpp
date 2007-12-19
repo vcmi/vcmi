@@ -16,6 +16,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include "CLua.h"
 #include "hch/CHeroHandler.h"
+#include <sstream>
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
@@ -1173,22 +1174,101 @@ void CResDataBar::draw()
 }
 CInfoBar::CInfoBar()
 {
+	toNextTick = mode = pom = -1;
 	pos.x=605;
 	pos.y=389;
 	pos.w=194;
 	pos.h=186;
+	day = CGI->spriteh->giveDef("NEWDAY.DEF");
+	week1 = CGI->spriteh->giveDef("NEWWEEK1.DEF");
+	week2 = CGI->spriteh->giveDef("NEWWEEK2.DEF");
+	week3 = CGI->spriteh->giveDef("NEWWEEK3.DEF");
+	week4 = CGI->spriteh->giveDef("NEWWEEK4.DEF");
 }
-void CInfoBar::draw(void * specific)
+CInfoBar::~CInfoBar()
 {
-	//if (!specific)
-	//	specific = LOCPLINT->adventureInt->selection.selected;
-	SDL_Surface * todr = LOCPLINT->infoWin(specific);
-	if (!todr)
-		return;
-	blitAt(todr,pos.x,pos.y);
-	//SDL_Flip(ekran);
-	SDL_FreeSurface(todr);
+	delete day;
+	delete week1;
+	delete week2;
+	delete week3;
+	delete week4;
 }
+void CInfoBar::draw(const CGObjectInstance * specific)
+{
+	if (mode==1)
+	{
+		//blitAt(day->ourImages[pom].bitmap,pos.x+10,pos.y+10);
+		return;
+	}
+	else if (mode==2)
+	{
+		mode = -1;
+		if(!LOCPLINT->adventureInt->selection.selected)
+		{
+			if (LOCPLINT->adventureInt->heroList.items.size())
+			{
+				LOCPLINT->adventureInt->heroList.select(0);
+			}
+		}
+		draw((const CGObjectInstance *)LOCPLINT->adventureInt->selection.selected);
+	}
+	if (!specific)
+		specific = (const CGObjectInstance *)LOCPLINT->adventureInt->selection.selected; 
+	//TODO: to rzutowanie wyglada groznie, ale dziala. Ale nie powinno wygladac groznie.
+
+	if(!specific)
+		return;
+
+	if(specific->ID == 34) //hero
+	{
+		if(LOCPLINT->heroWins.find(specific->subID)!=LOCPLINT->heroWins.end())
+			blitAt(LOCPLINT->heroWins[specific->subID],pos.x,pos.y);
+
+	}
+
+	//SDL_Surface * todr = LOCPLINT->infoWin(specific);
+	//if (!todr)
+	//	return;
+	//blitAt(todr,pos.x,pos.y);
+	//SDL_FreeSurface(todr);
+}
+
+void CInfoBar::newDay(int Day)
+{
+	mode = 1; //showing day
+	pom = 0;
+	TimeInterested::activate();
+	toNextTick = 500;
+	//blitAt(day->ourImages[pom].bitmap,pos.x+10,pos.y+10);
+}
+
+void CInfoBar::showComp(SComponent * comp, int time)
+{
+}
+
+void CInfoBar::tick()
+{
+	if (mode == 1) //new day animation
+	{
+		pom++;
+		if (pom >= day->ourImages.size())
+		{
+			TimeInterested::deactivate();
+			toNextTick = -1;
+			mode = 2;
+			draw();
+			return;
+		}
+		toNextTick = 250;
+		blitAt(day->ourImages[pom].bitmap,pos.x+10,pos.y+10);
+		std::stringstream txt;
+		txt << CGI->generaltexth->allTexts[64] << " " << LOCPLINT->cb->getDate(1);
+		printAtMiddle(txt.str(),700,420,TNRB16,zwykly);
+		if (pom == day->ourImages.size()-1)
+			toNextTick+=750;
+	}
+}
+
 CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(7,556),

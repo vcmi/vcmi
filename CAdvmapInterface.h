@@ -186,11 +186,19 @@ public:
 	void draw();
 };
 class CInfoBar
-	:public virtual CIntObject
+	:public virtual CIntObject, public TimeInterested
 {
 public:
+	CDefHandler *day, *week1, *week2, *week3, *week4;
+	int mode;
+	int pom;
+
 	CInfoBar();
-	void draw(void * specific=NULL); // if specific==0 function draws info about selected hero/town
+	~CInfoBar();
+	void newDay(int Day);
+	void showComp(SComponent * comp, int time=5000);
+	void tick();
+	void draw(const CGObjectInstance * specific=NULL); // if specific==0 function draws info about selected hero/town
 };
 /*****************************/
 class CAdvMapInt //adventure map interface
@@ -203,7 +211,6 @@ public:
 	int player;
 
 	std::vector<CDefHandler *> gems;
-
 	
 	bool scrollingLeft ;
 	bool scrollingRight ;
