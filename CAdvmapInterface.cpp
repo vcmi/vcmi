@@ -1195,12 +1195,12 @@ CInfoBar::~CInfoBar()
 }
 void CInfoBar::draw(const CGObjectInstance * specific)
 {
-	if (mode==1)
+	if ((mode>=0) && mode<5)
 	{
-		//blitAt(day->ourImages[pom].bitmap,pos.x+10,pos.y+10);
+		blitAnim(mode);
 		return;
 	}
-	else if (mode==2)
+	else if (mode==5)
 	{
 		mode = -1;
 		if(!LOCPLINT->adventureInt->selection.selected)
@@ -1233,12 +1233,79 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 	//SDL_FreeSurface(todr);
 }
 
+CDefHandler * CInfoBar::getAnim(int mode)
+{
+	switch(mode)
+	{
+	case 0:
+		return day;
+		break;
+	case 1:
+		return week1;
+		break;
+	case 2:
+		return week2;
+		break;
+	case 3:
+		return week3;
+		break;
+	case 4:
+		return week4;
+		break;
+	default:
+		return NULL;
+		break;
+	}
+}
+void CInfoBar::blitAnim(int mode)//0 - day, 1 - week
+{
+	CDefHandler * anim = NULL;
+	std::stringstream txt;
+	anim = getAnim(mode);
+	if(mode) //new week animation
+	{
+		txt << CGI->generaltexth->allTexts[63] << " " << LOCPLINT->cb->getDate(2);
+	}
+	else //new day
+	{
+		txt << CGI->generaltexth->allTexts[64] << " " << LOCPLINT->cb->getDate(1);
+	}
+	blitAt(anim->ourImages[pom].bitmap,pos.x+9,pos.y+10);
+	printAtMiddle(txt.str(),700,420,TNRB16,zwykly);
+	if (pom == anim->ourImages.size()-1)
+		toNextTick+=750;
+}
 void CInfoBar::newDay(int Day)
 {
-	mode = 1; //showing day
+	if(LOCPLINT->cb->getDate(1) != 1)
+	{
+		mode = 0; //showing day
+	}
+	else 
+	{
+		switch(LOCPLINT->cb->getDate(2))
+		{
+		case 1:
+			mode = 1;
+			break;
+		case 2:
+			mode = 2;
+			break;
+		case 3:
+			mode = 3;
+			break;
+		case 4:
+			mode = 4;
+			break;
+		default:
+			mode = -1;
+			break;
+		}
+	}
 	pom = 0;
 	TimeInterested::activate();
 	toNextTick = 500;
+	blitAnim(mode);
 	//blitAt(day->ourImages[pom].bitmap,pos.x+10,pos.y+10);
 }
 
@@ -1248,25 +1315,21 @@ void CInfoBar::showComp(SComponent * comp, int time)
 
 void CInfoBar::tick()
 {
-	if (mode == 1) //new day animation
+	if((mode >= 0) && (mode < 5))
 	{
 		pom++;
-		if (pom >= day->ourImages.size())
+		if (pom >= getAnim(mode)->ourImages.size())
 		{
 			TimeInterested::deactivate();
 			toNextTick = -1;
-			mode = 2;
+			mode = 5;
 			draw();
 			return;
 		}
-		toNextTick = 250;
-		blitAt(day->ourImages[pom].bitmap,pos.x+10,pos.y+10);
-		std::stringstream txt;
-		txt << CGI->generaltexth->allTexts[64] << " " << LOCPLINT->cb->getDate(1);
-		printAtMiddle(txt.str(),700,420,TNRB16,zwykly);
-		if (pom == day->ourImages.size()-1)
-			toNextTick+=750;
+		toNextTick = 150;
+		blitAnim(mode);
 	}
+
 }
 
 CAdvMapInt::CAdvMapInt(int Player)
@@ -1436,6 +1499,10 @@ void CAdvMapInt::hide()
 	heroList.deactivate();
 	townList.deactivate();
 	terrain.deactivate();
+	if(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),&infoBar)!=LOCPLINT->timeinterested.end())
+		LOCPLINT->timeinterested.erase(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),&infoBar));
+	infoBar.mode=-1;
+
 }
 void CAdvMapInt::update()
 {

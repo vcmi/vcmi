@@ -199,6 +199,8 @@ public:
 	void showComp(SComponent * comp, int time=5000);
 	void tick();
 	void draw(const CGObjectInstance * specific=NULL); // if specific==0 function draws info about selected hero/town
+	void blitAnim(int mode);//0 - day, 1 - week
+	CDefHandler * getAnim(int mode);
 };
 /*****************************/
 class CAdvMapInt //adventure map interface
