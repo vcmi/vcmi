@@ -91,6 +91,13 @@ public:
 	bool recalculateHideVisPos(int3& pos); //recalculates position for hidden / visitable positions
 	bool recalculateHideVisPosUnderObj(CGObjectInstance * obj, bool withBorder = false); //recalculates position for hidden / visitable positions under given object
 	void init();
+	void calculateBlockedPos();
+	void initObjectRects();
+	void borderAndTerrainBitmapInit();
+	void roadsRiverTerrainInit();
+	void prepareFOWDefs();
+	void randomizeObjects();
+
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility);
 	SDL_Surface * terrBitmap(int x, int y);
 	SDL_Surface * undTerrBitmap(int x, int y);
