@@ -16,6 +16,8 @@
 #include "hch/CGeneralTextHandler.h"
 #include <sstream>
 #include "CPlayerInterface.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #pragma warning (disable : 4311)
 bool getGlobalFunc(lua_State * L, std::string fname)
 {
@@ -470,7 +472,11 @@ void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
 				val = 3 + (rand()%3);
 				break;
 			}
+			SComponent ccc(SComponent::resource,os->subID,val);
+			ccc.description = CGI->objh->advobtxt[113];
+			boost::algorithm::replace_first(ccc.description,"%s",CGI->objh->restypes[os->subID]);
 			cb->giveResource(cb->getHeroOwner(heroID),os->subID,val);
+			cb->showCompInfo(cb->getHeroOwner(heroID),&ccc);
 			break;
 		}
 	}

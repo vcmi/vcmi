@@ -1134,6 +1134,17 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 		heroWins.insert(std::pair<int,SDL_Surface*>(hero->subID,infoWin(hero)));
 }
 
+SDL_Surface * CPlayerInterface::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from, int to)
+{
+	char * buf = new char[10];
+	for (int i=from;i<to;i++)
+	{
+		itoa(curh->primSkills[i],buf,10);
+		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
+	}
+	delete buf;
+	return ret;
+}
 SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 {
 	char * buf = new char[10];
@@ -1141,11 +1152,7 @@ SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 	blueToPlayersAdv(ret,playerID,1);
 	printAt(curh->name,75,15,GEOR13,zwykly,ret);
-	for (int i=0;i<PRIMARY_SKILLS;i++)
-	{
-		itoa(curh->primSkills[i],buf,10);
-		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
-	}
+	drawPrimarySkill(curh, ret);
 	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
 	{
 		blitAt(CGI->creh->smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
@@ -1183,23 +1190,165 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 	}
 	else
 	{
-		if (adventureInt->selection.type == HEROI_TYPE)
+		switch (adventureInt->selection.type)
 		{
-			const CGHeroInstance * curh = (const CGHeroInstance *)adventureInt->selection.selected;
-			return drawHeroInfoWin(curh);
-		}
-		else if (adventureInt->selection.type == TOWNI_TYPE)
-		{
-			char * buf = new char[10];
-			SDL_Surface * ret = copySurface(hInfo);
-			return ret;
-		}
-		else
+		case HEROI_TYPE:
+			{
+				const CGHeroInstance * curh = (const CGHeroInstance *)adventureInt->selection.selected;
+				return drawHeroInfoWin(curh);
+			}
+		case TOWNI_TYPE:
+			{
+				return drawTownInfoWin((const CGTownInstance *)adventureInt->selection.selected);
+			}
+		default:
 			return NULL;
+		}
 	}
 	return NULL;
 }
 
+void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
+{
+	for (int i=0; i<hoverable.size();i++)
+	{
+		if (isItIn(&hoverable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+		{
+			if (!hoverable[i]->hovered)
+				hoverable[i]->hover(true);
+		}
+		else if (hoverable[i]->hovered)
+		{
+			hoverable[i]->hover(false);
+		}
+	}
+	for(int i=0; i<motioninterested.size();i++)
+	{
+		if (isItIn(&motioninterested[i]->pos,sEvent->motion.x,sEvent->motion.y))
+		{
+			motioninterested[i]->mouseMoved(sEvent->motion);
+		}
+	}
+	if(sEvent->motion.x<15)
+	{
+		LOCPLINT->adventureInt->scrollingLeft = true;
+	}
+	else
+	{
+		LOCPLINT->adventureInt->scrollingLeft = false;
+	}
+	if(sEvent->motion.x>ekran->w-15)
+	{
+		LOCPLINT->adventureInt->scrollingRight = true;
+	}
+	else
+	{
+		LOCPLINT->adventureInt->scrollingRight = false;
+	}
+	if(sEvent->motion.y<15)
+	{
+		LOCPLINT->adventureInt->scrollingUp = true;
+	}
+	else
+	{
+		LOCPLINT->adventureInt->scrollingUp = false;
+	}
+	if(sEvent->motion.y>ekran->h-15)
+	{
+		LOCPLINT->adventureInt->scrollingDown = true;
+	}
+	else
+	{
+		LOCPLINT->adventureInt->scrollingDown = false;
+	}
+}
+void CPlayerInterface::handleKeyUp(SDL_Event *sEvent)
+{
+	switch (sEvent->key.keysym.sym)
+	{
+	case SDLK_LEFT:
+		{
+			LOCPLINT->adventureInt->scrollingLeft = false;
+			break;
+		}
+	case (SDLK_RIGHT):
+		{
+			LOCPLINT->adventureInt->scrollingRight = false;
+			break;
+		}
+	case (SDLK_UP):
+		{
+			LOCPLINT->adventureInt->scrollingUp = false;
+			break;
+		}
+	case (SDLK_DOWN):
+		{
+			LOCPLINT->adventureInt->scrollingDown = false;
+			break;
+		}
+	case (SDLK_u):
+		{
+			adventureInt->underground.clickLeft(false);
+			break;
+		}
+	case (SDLK_m):
+		{
+			adventureInt->moveHero.clickLeft(false);
+			break;
+		}
+	case (SDLK_e):
+		{
+			adventureInt->endTurn.clickLeft(false);
+			break;
+		}
+	}
+}
+void CPlayerInterface::handleKeyDown(SDL_Event *sEvent)
+{
+	switch (sEvent->key.keysym.sym)
+	{
+	case SDLK_LEFT:
+		{
+			LOCPLINT->adventureInt->scrollingLeft = true;
+			break;
+		}
+	case (SDLK_RIGHT):
+		{
+			LOCPLINT->adventureInt->scrollingRight = true;
+			break;
+		}
+	case (SDLK_UP):
+		{
+			LOCPLINT->adventureInt->scrollingUp = true;
+			break;
+		}
+	case (SDLK_DOWN):
+		{
+			LOCPLINT->adventureInt->scrollingDown = true;
+			break;
+		}
+	case (SDLK_q):
+		{
+			exit(0);
+			break;
+		}
+	case (SDLK_u):
+		{
+			adventureInt->underground.clickLeft(true);
+			break;
+		}
+	case (SDLK_m):
+		{
+			adventureInt->moveHero.clickLeft(true);
+			break;
+		}
+	case (SDLK_e):
+		{
+			adventureInt->endTurn.clickLeft(true);
+			break;
+		}
+	}
+}
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 {
 	current = sEvent;
@@ -1213,144 +1362,15 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 		exit(0);
 	else if (sEvent->type==SDL_KEYDOWN)
 	{
-		switch (sEvent->key.keysym.sym)
-		{
-		case SDLK_LEFT:
-			{
-				LOCPLINT->adventureInt->scrollingLeft = true;
-				break;
-			}
-		case (SDLK_RIGHT):
-			{
-				LOCPLINT->adventureInt->scrollingRight = true;
-				break;
-			}
-		case (SDLK_UP):
-			{
-				LOCPLINT->adventureInt->scrollingUp = true;
-				break;
-			}
-		case (SDLK_DOWN):
-			{
-				LOCPLINT->adventureInt->scrollingDown = true;
-				break;
-			}
-		case (SDLK_q):
-			{
-				exit(0);
-				break;
-			}
-		case (SDLK_u):
-			{
-				adventureInt->underground.clickLeft(true);
-				break;
-			}
-		case (SDLK_m):
-			{
-				adventureInt->moveHero.clickLeft(true);
-				break;
-			}
-		case (SDLK_e):
-			{
-				adventureInt->endTurn.clickLeft(true);
-				break;
-			}
-		}
+		handleKeyDown(sEvent);
 	} //keydown end
 	else if(sEvent->type==SDL_KEYUP) 
 	{
-		switch (sEvent->key.keysym.sym)
-		{
-		case SDLK_LEFT:
-			{
-				LOCPLINT->adventureInt->scrollingLeft = false;
-				break;
-			}
-		case (SDLK_RIGHT):
-			{
-				LOCPLINT->adventureInt->scrollingRight = false;
-				break;
-			}
-		case (SDLK_UP):
-			{
-				LOCPLINT->adventureInt->scrollingUp = false;
-				break;
-			}
-		case (SDLK_DOWN):
-			{
-				LOCPLINT->adventureInt->scrollingDown = false;
-				break;
-			}
-		case (SDLK_u):
-			{
-				adventureInt->underground.clickLeft(false);
-				break;
-			}
-		case (SDLK_m):
-			{
-				adventureInt->moveHero.clickLeft(false);
-				break;
-			}
-		case (SDLK_e):
-			{
-				adventureInt->endTurn.clickLeft(false);
-				break;
-			}
-		}
+		handleKeyUp(sEvent);
 	}//keyup end
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
-		for (int i=0; i<hoverable.size();i++)
-		{
-			if (isItIn(&hoverable[i]->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				if (!hoverable[i]->hovered)
-					hoverable[i]->hover(true);
-			}
-			else if (hoverable[i]->hovered)
-			{
-				hoverable[i]->hover(false);
-			}
-		}
-		for(int i=0; i<motioninterested.size();i++)
-		{
-			if (isItIn(&motioninterested[i]->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				motioninterested[i]->mouseMoved(sEvent->motion);
-			}
-		}
-		if(sEvent->motion.x<15)
-		{
-			LOCPLINT->adventureInt->scrollingLeft = true;
-		}
-		else
-		{
-			LOCPLINT->adventureInt->scrollingLeft = false;
-		}
-		if(sEvent->motion.x>ekran->w-15)
-		{
-			LOCPLINT->adventureInt->scrollingRight = true;
-		}
-		else
-		{
-			LOCPLINT->adventureInt->scrollingRight = false;
-		}
-		if(sEvent->motion.y<15)
-		{
-			LOCPLINT->adventureInt->scrollingUp = true;
-		}
-		else
-		{
-			LOCPLINT->adventureInt->scrollingUp = false;
-		}
-		if(sEvent->motion.y>ekran->h-15)
-		{
-			LOCPLINT->adventureInt->scrollingDown = true;
-		}
-		else
-		{
-			LOCPLINT->adventureInt->scrollingDown = false;
-		}
+		handleMouseMotion(sEvent);
 	} //mousemotion end
 
 	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
@@ -1427,6 +1447,12 @@ void CPlayerInterface::receivedResource(int type, int val)
 {
 	adventureInt->resdatabar.draw();
 }
+
+void CPlayerInterface::showComp(SComponent comp)
+{
+
+}
+
 void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> & components)
 {
 	adventureInt->hide(); //dezaktywacja starego interfejsu

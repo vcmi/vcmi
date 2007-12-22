@@ -166,6 +166,7 @@ public:
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void show();
+	void showPath();
 	int3 whichTileIsIt(int x, int y); //x,y are cursor position 
 	int3 whichTileIsIt(); //uses current cursor pos
 };
@@ -190,6 +191,7 @@ class CInfoBar
 {
 public:
 	CDefHandler *day, *week1, *week2, *week3, *week4;
+	SComponent * current;
 	int mode;
 	int pom;
 

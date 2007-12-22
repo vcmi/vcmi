@@ -454,6 +454,13 @@ void CScriptCallback::giveResource(int player, int which, int val)
 	gs->players[player].resources[which]+=val;
 	CGI->playerint[gs->players[player].serial]->receivedResource(which,val);
 }
+void CScriptCallback::showCompInfo(int player, SComponent * comp)
+{
+	CPlayerInterface * i = dynamic_cast<CPlayerInterface*>(CGI->playerint[gs->players[player].serial]);
+	if(i)
+		i->showComp(*comp);
+}
+
 void CLuaCallback::registerFuncs(lua_State * L)
 {
 	lua_newtable(L);

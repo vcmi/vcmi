@@ -94,6 +94,7 @@ public:
 	static void changePrimSkill(int ID, int which, int val);
 	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components);
 	void giveResource(int player, int which, int val);
+	void showCompInfo(int player, SComponent * comp);
 
 	//friends
 	friend void initGameState(CGameInfo * cgi);

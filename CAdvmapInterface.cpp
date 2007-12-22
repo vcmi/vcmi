@@ -663,30 +663,6 @@ void CMinimap::draw()
 			}
 		}
 	}
-
-	//draw FoW
-	//for (int i=0; i<mw; i++)
-	//{
-	//	for (int j=0; j<mh; j++)
-	//	{
-	//		int3 pp((((float)i/mw)*CGI->mh->sizes.x), (((float)j/mh)*CGI->mh->sizes.y), LOCPLINT->adventureInt->position.z);
-	//		/*pp.x = (((float)i/mw)*CGI->mh->sizes.x);
-	//		pp.y = (((float)j/mh)*CGI->mh->sizes.y);
-	//		pp.z = LOCPLINT->adventureInt->position.z;*/
-	//		if ( !LOCPLINT->cb->isVisible(pp) )
-	//		{
-	//			for (int ii=0; ii<wo; ii++)
-	//			{
-	//				for (int jj=0; jj<ho; jj++)
-	//				{
-	//					if ((i+ii<pos.w-1) && (j+jj<pos.h-1))
-	//						SDL_PutPixelWithoutRefresh(temps,i+ii,j+jj,0,0,0);
-	//				}
-	//			}
-	//		}
-	//	}
-	//}
-	//update(temps);
 	blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
 	
 	//draw radar
@@ -864,14 +840,6 @@ void CTerrainRect::clickLeft(tribool down)
 	//bufpos.x-=1;
 	if (mres)
 		currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
-
-	//if (LOCPLINT->objsToBlit.size()==0)
-	//{
-	//	CSimpleWindow * temp = CMessage::genWindow(" Tutaj dlugi dlugo test Tutaj dlugi dlugi dlugo test Tutaj dlugi dlugi dlugo test Tutaj dlugi dlugi dlugo test {Tutaj tytul} Tutaj dlugi dlugi dlugo test",0);
-	//	temp->pos.x=temp->pos.y=0;temp->ID=3;
-	//	LOCPLINT->objsToBlit.push_back(temp);
-	//}
-	//SDL_Delay(5000);
 }
 void CTerrainRect::clickRight(tribool down)
 {
@@ -900,6 +868,206 @@ void CTerrainRect::hover(bool on)
 	if (!on)
 		LOCPLINT->adventureInt->statusbar.clear();
 }
+void CTerrainRect::showPath()
+{
+	for (int i=0;i<currentPath->nodes.size()-1;i++)
+	{
+		int pn=-1;//number of picture
+		if (i==0) //last tile
+		{
+			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
+				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
+			if (x<0 || y<0 || x>pos.w || y>pos.h)
+				continue;
+			pn=0;
+		}
+		else
+		{
+			std::vector<CPathNode> & cv = currentPath->nodes;
+			if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y-1)
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 3;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 12;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 21;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 22;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 2;
+				}
+			}
+			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y-1)
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 4;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 13;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 22;
+				}
+			}
+			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y-1)
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 5;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 14;
+				}
+				else if(cv[i-1].coord.x+1 == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 23;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 24;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 4;
+				}
+			}
+			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y)
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 6;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 15;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 24;
+				}
+			}
+			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y+1)
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 7;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 16;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 17;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 6;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 18;
+				}
+			}
+			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1)
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 8;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 9;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 18;
+				}
+			}
+			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y+1)
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 1;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 10;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 19;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 8;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 20;
+				}
+			}
+			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y)
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 2;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 11;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 20;
+				}
+			}
+
+		}
+		if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > ((const CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->movement)
+			pn+=25;
+		if (pn>=0)
+		{
+			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
+				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
+			if (x<0 || y<0 || x>pos.w || y>pos.h)
+				continue;
+			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
+				hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
+			if (hvx<0 && hvy<0)
+				blitAt(arrows->ourImages[pn].bitmap,x,y);
+			else if(hvx<0)
+				SDL_BlitSurface
+				(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,0,0),
+				ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,x,y));
+			else if (hvy<0)
+			{
+				SDL_BlitSurface
+					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,0,0),
+					ekran,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,x,y));
+			}
+			else
+				SDL_BlitSurface
+				(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,0,0),
+				ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
+
+		}
+	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
+}
 void CTerrainRect::show()
 {
 	SDL_Surface * teren = CGI->mh->terrainRect
@@ -909,204 +1077,8 @@ void CTerrainRect::show()
 	SDL_FreeSurface(teren);
 	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
 	{
-		for (int i=0;i<currentPath->nodes.size()-1;i++)
-		{
-			int pn=-1;//number of picture
-			if (i==0) //last tile
-			{
-				int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
-					y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
-				if (x<0 || y<0 || x>pos.w || y>pos.h)
-					continue;
-				pn=0;
-			}
-			else
-			{
-				std::vector<CPathNode> & cv = currentPath->nodes;
-				if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y-1)
-				{
-					if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
-					{
-						pn = 3;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 12;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 21;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 22;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 2;
-					}
-				}
-				else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y-1)
-				{
-					if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 4;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 13;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 22;
-					}
-				}
-				else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y-1)
-				{
-					if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 5;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 14;
-					}
-					else if(cv[i-1].coord.x+1 == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y)
-					{
-						pn = 23;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 24;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 4;
-					}
-				}
-				else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y)
-				{
-					if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 6;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
-					{
-						pn = 15;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 24;
-					}
-				}
-				else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y+1)
-				{
-					if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
-					{
-						pn = 7;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 16;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 17;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 6;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 18;
-					}
-				}
-				else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1)
-				{
-					if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 8;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 9;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 18;
-					}
-				}
-				else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y+1)
-				{
-					if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 1;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 10;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
-					{
-						pn = 19;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 8;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 20;
-					}
-				}
-				else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y)
-				{
-					if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
-					{
-						pn = 2;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
-					{
-						pn = 11;
-					}
-					else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
-					{
-						pn = 20;
-					}
-				}
-
-			}
-			if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > ((const CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->movement)
-				pn+=25;
-			if (pn>=0)
-			{			
-				int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
-					y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
-				if (x<0 || y<0 || x>pos.w || y>pos.h)
-					continue;
-				int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
-					hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
-				if (hvx<0 && hvy<0)
-					blitAt(arrows->ourImages[pn].bitmap,x,y);
-				else if(hvx<0)
-					SDL_BlitSurface
-						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,0,0),
-						ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,x,y));
-				else if (hvy<0)
-				{
-					SDL_BlitSurface
-						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,0,0),
-						ekran,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,x,y));
-				}
-				else
-					SDL_BlitSurface
-						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,0,0),
-						ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
-
-			}
-		} //for (int i=0;i<currentPath->nodes.size()-1;i++)
-	} // if (currentPath)
+		showPath();
+	}
 }
 
 int3 CTerrainRect::whichTileIsIt(int x, int y)

@@ -205,14 +205,21 @@ public:
 	void heroCreated(const CGHeroInstance* hero);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
-	
+
+	void showComp(SComponent comp);
+
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
 	void handleEvent(SDL_Event * sEvent);
+	void handleKeyDown(SDL_Event *sEvent);
+	void handleKeyUp(SDL_Event *sEvent);
+	void handleMouseMotion(SDL_Event *sEvent);
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos);
 	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
 	void removeObjToBlit(IShowable* obj);
 	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
+	SDL_Surface * drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from=0, int to=PRIMARY_SKILLS);
+
 	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 
 	CPlayerInterface(int Player, int serial);
