@@ -1450,7 +1450,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 
 void CPlayerInterface::showComp(SComponent comp)
 {
-
+	adventureInt->infoBar.showComp(&comp,4000);
 }
 
 void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> & components)

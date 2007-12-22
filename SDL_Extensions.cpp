@@ -75,7 +75,7 @@ void CSDL_Ext::printAtMiddleWB(std::string text, int x, int y, TTF_Font * font, 
 	for (int i=0;i<wesu.size();i++)
 	{
 		evx = (x - (tox/2)) + ((tox-wesu[i]->w)/2);
-		blitAt(wesu[i],evx,evy);
+		blitAt(wesu[i],evx,evy,dst);
 		evy+=wesu[i]->h;
 	}
 

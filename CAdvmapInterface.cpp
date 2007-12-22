@@ -1283,6 +1283,15 @@ void CInfoBar::newDay(int Day)
 
 void CInfoBar::showComp(SComponent * comp, int time)
 {
+	SDL_Surface * b = CGI->bitmaph->loadBitmap("ADSTATOT.bmp");
+	blitAt(b,pos.x+8,pos.y+11);
+	blitAt(comp->getImg(),pos.x+52,pos.y+54);
+	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,GEOR13,zwykly);
+	printAtMiddleWB(comp->description,pos.x+94,pos.y+31,GEOR13,26,zwykly);
+	SDL_FreeSurface(b);
+	TimeInterested::activate();
+	mode = 6;
+	toNextTick = time;
 }
 
 void CInfoBar::tick()
@@ -1300,6 +1309,13 @@ void CInfoBar::tick()
 		}
 		toNextTick = 150;
 		blitAnim(mode);
+	}
+	else if (mode == 6)
+	{
+		TimeInterested::deactivate();
+		toNextTick = -1;
+		mode = 5;
+		draw();
 	}
 
 }

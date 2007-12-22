@@ -29,7 +29,8 @@ void CObjectHandler::loadObjects()
 	while (it<buf.length()-1)
 	{
 		CGeneralTextHandler::loadToIt(temp,buf,it,3);
-		temp = temp.substr(1,temp.length()-2);
+		if (temp[0]=='\"')
+			temp = temp.substr(1,temp.length()-2);
 		boost::algorithm::replace_all(temp,"\"\"","\"");
 		advobtxt.push_back(temp);
 	}
