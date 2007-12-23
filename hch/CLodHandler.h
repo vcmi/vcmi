@@ -47,7 +47,7 @@ public:
 	void convert();
 	SDL_Surface * getSurface();
 	CPCXConv(){pcx=bmp=NULL;pcxs=bmps=0;};
-	~CPCXConv(){if (pcxs) delete pcx; if(bmps) delete bmp;}
+	~CPCXConv(){if (pcxs) delete[] pcx; if(bmps) delete[] bmp;}
 };
 class CLodHandler
 {

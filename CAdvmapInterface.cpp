@@ -1142,7 +1142,7 @@ void CResDataBar::draw()
 	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,GEOR13,zwykly);
 	temp.clear();
 	//updateRect(&pos,ekran);
-	delete buf;
+	delete[] buf;
 }
 CInfoBar::CInfoBar()
 {

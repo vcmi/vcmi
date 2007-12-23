@@ -411,7 +411,7 @@ CDefHandler * CLodHandler::giveDef(std::string defName)
 		nh->alphaTransformed = false;
 		ret = nh;
 	}
-	delete outp;
+	delete[] outp;
 	return ret;
 }
 CDefEssential * CLodHandler::giveDefEss(std::string defName)
@@ -473,7 +473,7 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 			nh->alphaTransformed = false;
 			ret[curDef] = nh;
 		}
-		delete outp;
+		delete[] outp;
 	}
 	//std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
 	for(int hh=0; hh<found.size(); ++hh)
@@ -697,7 +697,7 @@ void CLodHandler::extract(std::string FName)
 				std::cout<<"LOD Extraction error"<<"  "<<decRes<<" while extracting to "<<bufff<<std::endl;
 			}
 		}
-		delete outp;
+		delete[] outp;
 	}
 	FLOD.close();
 }
@@ -748,7 +748,7 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 				std::cout<<"LOD Extraction error"<<"  "<<decRes<<" while extracting to "<<bufff<<std::endl;
 			}
 		}
-		delete outp;
+		delete[] outp;
 	}
 	FLOD.close();
 }
@@ -834,7 +834,7 @@ std::string CLodHandler::getTextFile(std::string name)
 			outp = new unsigned char[entries[i].realSize];
 			FLOD.read((char*)outp, entries[i].realSize);
 			std::string ret = std::string((char*)outp);
-			delete outp;
+			delete[] outp;
 			return ret;
 		}
 		else //we will decompressing file
@@ -847,8 +847,8 @@ std::string CLodHandler::getTextFile(std::string name)
 			std::string ret;
 			for (int itr=0;itr<entries[i].realSize;itr++)
 				ret+= *((char*)decomp+itr);
-			delete outp;
-			delete decomp;
+			delete[] outp;
+			delete[] decomp;
 			return ret;
 		}
 	}

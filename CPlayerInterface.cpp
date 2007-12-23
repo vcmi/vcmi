@@ -1142,7 +1142,7 @@ SDL_Surface * CPlayerInterface::drawPrimarySkill(const CGHeroInstance *curh, SDL
 		itoa(curh->primSkills[i],buf,10);
 		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
 	}
-	delete buf;
+	delete[] buf;
 	return ret;
 }
 SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
@@ -1162,7 +1162,7 @@ SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 	blitAt(curh->type->portraitLarge,11,12,ret);
 	itoa(curh->mana,buf,10);
 	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
-	delete buf;
+	delete[] buf;
 	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
 	blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
 	//SDL_SaveBMP(ret,"inf1.bmp");
