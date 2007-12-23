@@ -83,19 +83,19 @@ void CArtHandler::loadArtifacts()
 		switch (pom[0])
 		{
 		case 'S':
-			nart.aClass=EartClass::SartClass;
+			nart.aClass=SartClass;
 			break;
 		case 'T':
-			nart.aClass=EartClass::TartClass;
+			nart.aClass=TartClass;
 			break;
 		case 'N':
-			nart.aClass=EartClass::NartClass;
+			nart.aClass=NartClass;
 			break;
 		case 'J':
-			nart.aClass=EartClass::JartClass;
+			nart.aClass=JartClass;
 			break;
 		case 'R':
-			nart.aClass=EartClass::RartClass;
+			nart.aClass=RartClass;
 			break;
 		}
 		CGeneralTextHandler::loadToIt(nart.description,buf,it,3);

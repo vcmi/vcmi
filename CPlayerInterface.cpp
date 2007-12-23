@@ -47,11 +47,11 @@ void CInfoWindow::close()
 	}
 	components.clear();
 	okb.deactivate();
-	SDL_FreeSurface(bitmap);
-	bitmap = NULL;
+	//SDL_FreeSurface(bitmap);
+	//bitmap = NULL;
 	LOCPLINT->removeObjToBlit(this);
-	//delete this;
 	LOCPLINT->adventureInt->show();
+	delete this;
 }
 CInfoWindow::~CInfoWindow()
 {
@@ -116,8 +116,8 @@ void CSelectableComponent::clickLeft(tribool down)
 
 	}
 }
-CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, SDL_Surface * Border)
-:SComponent(Type,Sub,Val)
+CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner=NULL, SDL_Surface * Border)
+:SComponent(Type,Sub,Val),owner(Owner)
 {
 	if (Border) //use custom border
 	{
@@ -163,7 +163,7 @@ void CSelectableComponent::select(bool on)
 		blitAt(SComponent::getImg(),1,1,myBitmap);
 		if (on)
 		{
-			blitAt(SComponent::getImg(),0,0,border);
+			blitAt(border,0,0,myBitmap);
 		}
 		selected = on;
 		return;
@@ -236,9 +236,9 @@ template <typename T> void CSCButton<T>::clickLeft (tribool down)
 		state=0;
 	}
 	show();
+	pressedL=state;
 	if (delg)
 		(delg->*func)(down);
-	pressedL=state;
 }
 template <typename T> void CSCButton<typename T>::activate()
 {

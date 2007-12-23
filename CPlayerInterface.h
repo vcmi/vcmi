@@ -162,8 +162,11 @@ class CSelectableComponent : public SComponent, public ClickableL
 public:
 	bool selected;
 	SDL_Surface * border, *myBitmap;
+	CSelWindow * owner;
+
+
 	void clickLeft(tribool down);
-	CSelectableComponent(Etype Type, int Sub, int Val, SDL_Surface * Border=NULL);
+	CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner, SDL_Surface * Border=NULL);
 	void activate();
 	void deactivate();
 	void select(bool on);

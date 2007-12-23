@@ -72,16 +72,16 @@ void CPCXConv::convert()
 	else 
 		check2=false;
 	if (check1)
-		format=Epcxformat::PCX24B;
+		format=PCX24B;
 	else if (check2)
-		format=Epcxformat::PCX8B;
+		format=PCX8B;
 	else 
 		return;
 	add=(int)(4*(((float)1)-(((float)bh.x/(float)4)-((int)((float)bh.x/(float)4)))));
 	if (add==4)
 		add=0;
 	bh._h3=bh.x*bh.y;
-	if (format==Epcxformat::PCX8B)
+	if (format==PCX8B)
 	{
 		bh._c1=0x436;
 		bh._c2=0x28;
@@ -104,7 +104,7 @@ void CPCXConv::convert()
 		bh.fullSize=(bh.x+add)*bh.y*3+36+18;
 		bh._h3*=3;
 	}
-	if (format==Epcxformat::PCX8B)
+	if (format==PCX8B)
 	{
 		it = pcxs-256*3;
 		for (int i=0;i<256;i++)
@@ -117,7 +117,7 @@ void CPCXConv::convert()
 	}
 	out<<"BM";
 	bh.print(out);
-	if (format==Epcxformat::PCX8B)
+	if (format==PCX8B)
 	{
 		for (int i=0;i<256;i++)
 		{
@@ -185,15 +185,15 @@ SDL_Surface * CPCXConv::getSurface()
 	else 
 		check2=false;
 	if (check1)
-		format=Epcxformat::PCX24B;
+		format=PCX24B;
 	else if (check2)
-		format=Epcxformat::PCX8B;
+		format=PCX8B;
 	else 
 		return NULL;
 	add = 4 - bh.x%4;
 	if (add==4)
 		add=0;
-	if (format==Epcxformat::PCX8B)
+	if (format==PCX8B)
 	{
 		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 8, 0, 0, 0, 0);
 	}
@@ -204,7 +204,7 @@ SDL_Surface * CPCXConv::getSurface()
 		int rmask = 0xff0000;
 		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 24, rmask, gmask, bmask, 0);
 	}
-	if (format==Epcxformat::PCX8B)
+	if (format==PCX8B)
 	{
 		it = pcxs-256*3;
 		for (int i=0;i<256;i++)
@@ -215,7 +215,7 @@ SDL_Surface * CPCXConv::getSurface()
 			pal[i].F='\0';
 		}
 	}
-	if (format==Epcxformat::PCX8B)
+	if (format==PCX8B)
 	{
 		
 		for(int i=0; i<256; ++i)
