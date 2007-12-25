@@ -202,7 +202,7 @@ void CVisitableOPH::onHeroVisit(CGObjectInstance *os, int heroID)
 };
 void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited)
 {
-	int w=0, ot=0;
+	int w=0, ot=0, vvv=1;
 	switch(os->ID)
 	{
 	case 51:
@@ -221,6 +221,11 @@ void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 		w=3;
 		ot=59;
 		break;
+	case 100:
+		w=4;
+		ot=143;
+		vvv=1000;
+		break;
 	}
 	if (!alreadyVisited)
 	{
@@ -231,10 +236,20 @@ void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 		case 61:
 		case 32:
 			{
-				cb->changePrimSkill(heroID,w,1);
+				cb->changePrimSkill(heroID,w,vvv);
 				std::vector<SComponent*> weko;
-				weko.push_back(new SComponent(SComponent::primskill,w,1)); 
-				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko); //TODO: maybe we have memory leak with these windows
+				weko.push_back(new SComponent(SComponent::primskill,w,vvv)); 
+				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko); 
+				//for (int ii=0; ii<weko.size();ii++)
+				//	delete weko[ii];
+				break;
+			}
+		case 100:
+			{
+				cb->changePrimSkill(heroID,w,vvv);
+				std::vector<SComponent*> weko;
+				weko.push_back(new SComponent(SComponent::experience,0,vvv)); 
+				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko); 
 				//for (int ii=0; ii<weko.size();ii++)
 				//	delete weko[ii];
 				break;
@@ -250,11 +265,12 @@ void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 
 std::vector<int> CVisitableOPH::yourObjects()
 {
-	std::vector<int> ret(4);
+	std::vector<int> ret(5);
 	ret.push_back(51);
 	ret.push_back(23);
 	ret.push_back(61);
 	ret.push_back(32);
+	ret.push_back(100);
 	return ret;
 }
 
@@ -275,6 +291,9 @@ std::string CVisitableOPH::hoverText(CGObjectInstance *os)
 		break;
 	case 32:
 		pom = 4; 
+		break;
+	case 100:
+		pom = 5; 
 		break;
 	default:
 		throw new std::exception("Unsupported ID in CVisitableOPH::hoverText");
@@ -479,9 +498,59 @@ void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
 			cb->showCompInfo(cb->getHeroOwner(heroID),&ccc);
 			break;
 		}
+	case 101:
+		{
+			if (os->subID)
+				break; //not OH3 treasure chest
+			int wyn = rand()%100;
+			if (wyn<32)
+			{
+				tempStore.push_back(new SComponent(SComponent::resource,6,1000));
+				tempStore.push_back(new SComponent(SComponent::experience,0,500));
+			}//1k/0.5k
+			else if(wyn<64)
+			{
+				tempStore.push_back(new SComponent(SComponent::resource,6,1500));
+				tempStore.push_back(new SComponent(SComponent::experience,0,1000));
+			}//1.5k/1k
+			else if(wyn<95)
+			{
+				tempStore.push_back(new SComponent(SComponent::resource,6,2000));
+				tempStore.push_back(new SComponent(SComponent::experience,0,1500));
+			}//2k/1.5k
+			else
+			{
+				if (1/*TODO: backpack is full*/)
+				{
+					tempStore.push_back(new SComponent(SComponent::resource,6,1000));
+					tempStore.push_back(new SComponent(SComponent::experience,0,500));
+				}
+				else
+				{
+					//TODO: give treasure artifact
+					break;
+				}
+			}//random treasure artifact, or (if backapack is full) 1k/0.5k
+			player = cb->getHeroOwner(heroID);
+			cb->showSelDialog(player,"Wybierz prosze co chcesz dostac :)",&tempStore,this);
+			break;
+		}
 	}
 	CGI->mh->removeObject(os);
 }
+void CPickable::chosen(int which)
+{
+	switch(tempStore[which]->type)
+	{
+	case SComponent::resource:
+		cb->giveResource(player,tempStore[which]->subtype,tempStore[which]->val);
+		break;
+	default:
+		throw new std::exception("Unhandled choice");
+		
+	}
+}
+
 std::string CPickable::hoverText(CGObjectInstance *os)
 {
 	switch (os->ID)

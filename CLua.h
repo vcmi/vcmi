@@ -8,6 +8,7 @@ class CGObjectInstance;
 class CGameInfo;
 class CGHeroInstance;
 class CScriptCallback;
+class SComponent;
 enum ESLan{UNDEF=-1,CPP,ERM,LUA};
 class CObjectScript
 {
@@ -43,7 +44,11 @@ public:
 	CScript();
 	virtual ~CScript();
 };
-
+class IChosen
+{
+public:
+	virtual void chosen(int which)=0;
+};
 class CLua :public CScript
 {
 protected:
@@ -130,10 +135,13 @@ class CMines : public CCPPObjectScript  //flaggable, and giving resource at each
 	friend void initGameState(CGameInfo * cgi);
 };
 
-class CPickable : public CCPPObjectScript  //pickable - resources, artifacts, etc
+class CPickable : public CCPPObjectScript, public IChosen  //pickable - resources, artifacts, etc
 {
-	CPickable(CScriptCallback * CB):CCPPObjectScript(CB){};
+	std::vector<SComponent*> tempStore;
+	int player;
 
+	CPickable(CScriptCallback * CB):CCPPObjectScript(CB){};
+	void chosen(int which);
 	void newObject(CGObjectInstance *os);
 	void onHeroVisit(CGObjectInstance *os, int heroID);
 	std::string hoverText(CGObjectInstance *os);

@@ -204,6 +204,12 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 	return true;
 }
 
+void CCallback::selectionMade(int selection, int asker)
+{
+	//todo - jak bedzie multiplayer po sieci, to moze wymagac przerobek zaleznych od obranego modelu
+	IChosen * ask = (IChosen *)asker;
+	ask->chosen(selection);
+}
 
 int CCallback::howManyTowns()
 {
@@ -378,14 +384,22 @@ int3 CScriptCallback::getPos(CGObjectInstance * ob)
 void CScriptCallback::changePrimSkill(int ID, int which, int val)
 {	
 	CGHeroInstance * hero = CGI->state->getHero(ID,0);
-	hero->primSkills[which]+=val;
-	for (int i=0; i<CGI->playerint.size(); i++)
+	if (which<PRIMARY_SKILLS)
 	{
-		if (CGI->playerint[i]->playerID == hero->getOwner())
+		hero->primSkills[which]+=val;
+		for (int i=0; i<CGI->playerint.size(); i++)
 		{
-			CGI->playerint[i]->heroPrimarySkillChanged(hero, which, val);
-			break;
+			if (CGI->playerint[i]->playerID == hero->getOwner())
+			{
+				CGI->playerint[i]->heroPrimarySkillChanged(hero, which, val);
+				break;
+			}
 		}
+	}
+	else if (which==4)
+	{
+		hero->exp+=val;
+		//TODO - powiadomic interfejsy, sprawdzic czy nie ma awansu itp
 	}
 }
 
@@ -412,6 +426,14 @@ void CScriptCallback::showInfoDialog(int player, std::string text, std::vector<S
 				((CPlayerInterface*)(CGI->playerint[i]))->showInfoDialog(text,*components);
 		}
 	}
+}
+
+void CScriptCallback::showSelDialog(int player, std::string text, std::vector<SComponent*>*components, IChosen * asker)
+{
+	CGameInterface * temp = CGI->playerint[CGI->state->players[player].serial];
+	if (temp->human)
+		((CPlayerInterface*)(temp))->showSelDialog(text,*components,(int)asker);
+	return;
 }
 int CScriptCallback::getSelectedHero()
 {	

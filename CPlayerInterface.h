@@ -131,6 +131,7 @@ public:
 };
 class CSelWindow : public CInfoWindow //component selection window
 {
+public:
 	void selectionChange(SComponent * to);
 	void okClicked(tribool down);
 	void close();
@@ -140,7 +141,7 @@ class SComponent : public ClickableR
 public:
 	enum Etype
 	{
-		primskill, secskill, resource, creature, artifact
+		primskill, secskill, resource, creature, artifact, experience
 	} type;
 	int subtype; 
 	int val;
@@ -166,7 +167,7 @@ public:
 
 
 	void clickLeft(tribool down);
-	CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner, SDL_Surface * Border=NULL);
+	CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner=NULL, SDL_Surface * Border=NULL);
 	void activate();
 	void deactivate();
 	void select(bool on);
@@ -208,6 +209,7 @@ public:
 	void heroCreated(const CGHeroInstance* hero);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
+	void showSelDialog(std::string text, std::vector<SComponent*> & components, int askID);
 
 	void showComp(SComponent comp);
 

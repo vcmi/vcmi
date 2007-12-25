@@ -9,6 +9,7 @@ class CTownInstance;
 class CPath;
 class CGObjectInstance;
 class SComponent;
+class IChosen;
 typedef struct lua_State lua_State;
 
 class ICallback
@@ -59,6 +60,7 @@ public:
 //commands
 	bool moveHero(int ID, CPath * path, int idtype, int pathType=0);//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero 
 															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
+	void selectionMade(int selection, int asker);
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea);
@@ -93,6 +95,7 @@ public:
 	//do sth
 	static void changePrimSkill(int ID, int which, int val);
 	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components);
+	void showSelDialog(int player, std::string text, std::vector<SComponent*>*components, IChosen * asker);
 	void giveResource(int player, int which, int val);
 	void showCompInfo(int player, SComponent * comp);
 

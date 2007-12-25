@@ -24,6 +24,7 @@ public:
 	virtual void tileRevealed(int3 pos)=0{};
 	virtual void tileHidden(int3 pos)=0{};
 	virtual void receivedResource(int type, int val){};
+	virtual void showSelDialog(std::string text, std::vector<SComponent*> & components, int askID)=0{};
 };
 class CAIHandler
 {

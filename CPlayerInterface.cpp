@@ -47,11 +47,11 @@ void CInfoWindow::close()
 	}
 	components.clear();
 	okb.deactivate();
-	//SDL_FreeSurface(bitmap);
-	//bitmap = NULL;
+	SDL_FreeSurface(bitmap);
+	bitmap = NULL;
 	LOCPLINT->removeObjToBlit(this);
+	//delete this;
 	LOCPLINT->adventureInt->show();
-	delete this;
 }
 CInfoWindow::~CInfoWindow()
 {
@@ -68,8 +68,12 @@ SComponent::SComponent(Etype Type, int Subtype, int Val)
 		break;
 	case resource:
 		description = CGI->generaltexth->allTexts[242];
-		std::ostringstream oss;
 		oss << Val;
+		subtitle = oss.str();
+		break;
+	case experience:
+		description = CGI->generaltexth->allTexts[241];
+		oss << Val ;
 		subtitle = oss.str();
 		break;
 	}
@@ -90,6 +94,9 @@ SDL_Surface * SComponent::getImg()
 		break;
 	case resource:
 		return CGI->heroh->resources->ourImages[subtype].bitmap;
+		break;
+	case experience:
+		return CGI->heroh->pskillsb->ourImages[4].bitmap;
 		break;
 	}
 	return NULL;
@@ -113,10 +120,10 @@ void CSelectableComponent::clickLeft(tribool down)
 	if (down)
 	{
 		select(true);
-
+		owner->selectionChange(this);
 	}
 }
-CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner=NULL, SDL_Surface * Border)
+CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner, SDL_Surface * Border)
 :SComponent(Type,Sub,Val),owner(Owner)
 {
 	if (Border) //use custom border
@@ -236,9 +243,9 @@ template <typename T> void CSCButton<T>::clickLeft (tribool down)
 		state=0;
 	}
 	show();
-	pressedL=state;
 	if (delg)
 		(delg->*func)(down);
+	pressedL=state;
 }
 template <typename T> void CSCButton<typename T>::activate()
 {
@@ -1142,7 +1149,7 @@ SDL_Surface * CPlayerInterface::drawPrimarySkill(const CGHeroInstance *curh, SDL
 		itoa(curh->primSkills[i],buf,10);
 		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
 	}
-	delete[] buf;
+	delete buf;
 	return ret;
 }
 SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
@@ -1162,7 +1169,7 @@ SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 	blitAt(curh->type->portraitLarge,11,12,ret);
 	itoa(curh->mana,buf,10);
 	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
-	delete[] buf;
+	delete buf;
 	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
 	blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
 	//SDL_SaveBMP(ret,"inf1.bmp");
@@ -1446,6 +1453,10 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	adventureInt->resdatabar.draw();
+}
+
+void CPlayerInterface::showSelDialog(std::string text, std::vector<SComponent*> & components, int askID)
+{
 }
 
 void CPlayerInterface::showComp(SComponent comp)
