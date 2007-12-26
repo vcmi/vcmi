@@ -1562,7 +1562,7 @@ void CAmbarCendamo::deh3m()
 				nobj = nt;
 
 				nt->setOwner(spec->player);
-				nt->town = &CGI->townh->towns[CTownHandler::getTypeByDefName(nobj->defInfo->name)];
+				nt->town = &CGI->townh->towns[nt->defInfo->subid];
 				nt->builded = 0;
 				nt->destroyed = 0;
 				nt->name = spec->name;

@@ -35,6 +35,11 @@ void CMapHandler::randomizeObjects()
 			std::string nname = getRandomizedDefName(CGI->objh->objInstances[no]->defInfo, CGI->objh->objInstances[no]);
 			if(nname.size()>0) //change def
 			{
+				CGDefInfo * ndi = new CGDefInfo;
+				*ndi = *CGI->objh->objInstances[no]->defInfo; //something to start with
+				CGI->mh->reader->map.defy.push_back(ndi);
+				CGI->objh->objInstances[no]->defInfo = ndi;
+
 				int f=-1;
 				for(f=0; f<CGI->dobjinfo->objs.size(); ++f)
 				{
@@ -1669,7 +1674,7 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 	if(di->id==76) //random resource
 	{
 		std::vector<std::string> resDefNames;
-		resDefNames.push_back("AVTRNDM0.DEF");
+		//resDefNames.push_back("AVTRNDM0.DEF");
 		resDefNames.push_back("AVTWOOD0.DEF");
 		resDefNames.push_back("AVTMERC0.DEF");
 		resDefNames.push_back("AVTORE0.DEF");
@@ -1776,13 +1781,13 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 		std::vector<std::string> town1DefNames; //with fort
 		for(int dd=0; dd<F_NUMBER; ++dd)
 		{
-			town1DefNames.push_back(CGI->dobjinfo->objs[dd+385].defName);
+			town1DefNames.push_back(CGI->dobjinfo->objs[dd+384].defName);
 		}
 
 		std::vector<std::string> town2DefNames; //with capitol
 		for(int dd=0; dd<F_NUMBER; ++dd)
 		{
-			town2DefNames.push_back(CGI->dobjinfo->objs[dd+385].defName);
+			town2DefNames.push_back(CGI->dobjinfo->objs[dd+384].defName);
 		}
 		for(int b=0; b<town2DefNames.size(); ++b)
 		{
@@ -1869,7 +1874,7 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[2]==((CCreGenObjInfo*)obj->info)->bytes[2]
 					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[3]==((CCreGenObjInfo*)obj->info)->bytes[3])
 					{
-						fraction = ((CGTownInstance*)CGI->objh->objInstances[vv])->town->typeID; //TODO: is typeID what we really want?
+						fraction = CGI->objh->objInstances[vv]->subID; //TODO: is typeID what we really want?
 					}
 				}
 			}
@@ -1928,7 +1933,7 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[2]==((CCreGenObjInfo*)obj->info)->bytes[2]
 					&&  ((CCastleObjInfo*)CGI->objh->objInstances[vv]->info)->bytes[3]==((CCreGenObjInfo*)obj->info)->bytes[3])
 					{
-						faction = ((CGTownInstance*)CGI->objh->objInstances[vv])->town->typeID; //TODO: is typeID what we really want?
+						faction = CGI->objh->objInstances[vv]->subID; //TODO: is typeID what we really want?
 					}
 				}
 			}
