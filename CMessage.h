@@ -11,6 +11,8 @@ class CSimpleWindow;
 class CInfoWindow;
 class CDefHandler;
 class SComponent;
+class CSelWindow;
+class CSelectableComponent;
 namespace NMessage
 {
 	extern CDefHandler * ok, *cancel;
@@ -23,10 +25,14 @@ class CMessage
 public:
 	
 	static std::pair<int,int> getMaxSizes(std::vector<std::vector<SDL_Surface*> > * txtg);
+	static std::pair<int, int> getMaxSizes(std::vector< std::vector<CSelectableComponent*> > * komp);
 	static std::vector<std::vector<SDL_Surface*> > * drawText(std::vector<std::string> * brtext);
 	static SDL_Surface * blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int & curh, SDL_Surface * ret);
 	static SDL_Surface * blitCompsOnSur(std::vector<SComponent*> & comps, int maxw, int inter, int & curh, SDL_Surface * ret);
+	static SDL_Surface* blitCompsOnSur(SDL_Surface * or, std::vector< std::vector<CSelectableComponent*> > *  komp, int inter, int &curh, SDL_Surface *ret);
 	static CInfoWindow * genIWindow(std::string text, int player, int charperline, std::vector<SComponent*> & comps);
+	static std::vector< std::vector<CSelectableComponent*> > * breakComps(std::vector<CSelectableComponent*> & comps,int maxw, SDL_Surface* or=NULL);
+	static CSelWindow * genSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> & comps, int owner);
 	static CSimpleWindow * genWindow(std::string text, int player, int Lmar=35, int Rmar=35, int Tmar=35, int Bmar=35);//supports h3 text formatting; player sets color of window, Lmar/Rmar/Tmar/Bmar are Left/Right/Top/Bottom margins
 	static SDL_Surface * genMessage(std::string title, std::string text, EWindowType type=infoOnly, 
 								std::vector<CDefHandler*> *addPics=NULL, void * cb=NULL);
@@ -37,5 +43,6 @@ public:
 	static void dispose();
 };
 //
+
 
 #endif //CMESSAGE_H

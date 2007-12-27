@@ -10,6 +10,7 @@ class CPath;
 class CGObjectInstance;
 class SComponent;
 class IChosen;
+class CSelectableComponent;
 typedef struct lua_State lua_State;
 
 class ICallback
@@ -95,7 +96,7 @@ public:
 	//do sth
 	static void changePrimSkill(int ID, int which, int val);
 	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components);
-	void showSelDialog(int player, std::string text, std::vector<SComponent*>*components, IChosen * asker);
+	void showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker);
 	void giveResource(int player, int which, int val);
 	void showCompInfo(int player, SComponent * comp);
 

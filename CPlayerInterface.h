@@ -127,7 +127,7 @@ public:
 	virtual void okClicked(tribool down);
 	virtual void close();
 	CInfoWindow();
-	~CInfoWindow();
+	virtual ~CInfoWindow();
 };
 class CSelWindow : public CInfoWindow //component selection window
 {
@@ -135,6 +135,7 @@ public:
 	void selectionChange(SComponent * to);
 	void okClicked(tribool down);
 	void close();
+	CSelWindow(){};
 };
 class SComponent : public ClickableR
 {
@@ -162,12 +163,15 @@ class CSelectableComponent : public SComponent, public ClickableL
 {
 public:
 	bool selected;
+
+	bool customB;
 	SDL_Surface * border, *myBitmap;
 	CSelWindow * owner;
 
 
 	void clickLeft(tribool down);
 	CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner=NULL, SDL_Surface * Border=NULL);
+	~CSelectableComponent();
 	void activate();
 	void deactivate();
 	void select(bool on);
@@ -209,7 +213,7 @@ public:
 	void heroCreated(const CGHeroInstance* hero);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
-	void showSelDialog(std::string text, std::vector<SComponent*> & components, int askID);
+	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID);
 
 	void showComp(SComponent comp);
 

@@ -428,7 +428,7 @@ void CScriptCallback::showInfoDialog(int player, std::string text, std::vector<S
 	}
 }
 
-void CScriptCallback::showSelDialog(int player, std::string text, std::vector<SComponent*>*components, IChosen * asker)
+void CScriptCallback::showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker)
 {
 	CGameInterface * temp = CGI->playerint[CGI->state->players[player].serial];
 	if (temp->human)

@@ -9,6 +9,7 @@ class CGameInfo;
 class CGHeroInstance;
 class CScriptCallback;
 class SComponent;
+class CSelectableComponent;
 enum ESLan{UNDEF=-1,CPP,ERM,LUA};
 class CObjectScript
 {
@@ -137,7 +138,7 @@ class CMines : public CCPPObjectScript  //flaggable, and giving resource at each
 
 class CPickable : public CCPPObjectScript, public IChosen  //pickable - resources, artifacts, etc
 {
-	std::vector<SComponent*> tempStore;
+	std::vector<CSelectableComponent*> tempStore;
 	int player;
 
 	CPickable(CScriptCallback * CB):CCPPObjectScript(CB){};

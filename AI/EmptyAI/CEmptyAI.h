@@ -10,7 +10,7 @@ public:
 	void heroCreated(const CHeroInstance *);
 	void heroMoved(const HeroMoveDetails &);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val) {};
-	void showSelDialog(std::string text, std::vector<SComponent*> & components, int askID){};
+	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID){};
 	void tileRevealed(int3 pos){};
 	void tileHidden(int3 pos){};
 };

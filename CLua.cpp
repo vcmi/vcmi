@@ -505,25 +505,25 @@ void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
 			int wyn = rand()%100;
 			if (wyn<32)
 			{
-				tempStore.push_back(new SComponent(SComponent::resource,6,1000));
-				tempStore.push_back(new SComponent(SComponent::experience,0,500));
+				tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1000));
+				tempStore.push_back(new CSelectableComponent(SComponent::experience,0,500));
 			}//1k/0.5k
 			else if(wyn<64)
 			{
-				tempStore.push_back(new SComponent(SComponent::resource,6,1500));
-				tempStore.push_back(new SComponent(SComponent::experience,0,1000));
+				tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1500));
+				tempStore.push_back(new CSelectableComponent(SComponent::experience,0,1000));
 			}//1.5k/1k
 			else if(wyn<95)
 			{
-				tempStore.push_back(new SComponent(SComponent::resource,6,2000));
-				tempStore.push_back(new SComponent(SComponent::experience,0,1500));
+				tempStore.push_back(new CSelectableComponent(SComponent::resource,6,2000));
+				tempStore.push_back(new CSelectableComponent(SComponent::experience,0,1500));
 			}//2k/1.5k
 			else
 			{
 				if (1/*TODO: backpack is full*/)
 				{
-					tempStore.push_back(new SComponent(SComponent::resource,6,1000));
-					tempStore.push_back(new SComponent(SComponent::experience,0,500));
+					tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1000));
+					tempStore.push_back(new CSelectableComponent(SComponent::experience,0,500));
 				}
 				else
 				{
@@ -532,7 +532,7 @@ void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
 				}
 			}//random treasure artifact, or (if backapack is full) 1k/0.5k
 			player = cb->getHeroOwner(heroID);
-			cb->showSelDialog(player,"Wybierz prosze co chcesz dostac :)",&tempStore,this);
+			cb->showSelDialog(player,CGI->objh->advobtxt[146],&tempStore,this);
 			break;
 		}
 	}

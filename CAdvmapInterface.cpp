@@ -1550,6 +1550,7 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 			if (pom->owner==client)
 			{
 				LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+(i));
+				delete pom;
 			}
 		}
 	}

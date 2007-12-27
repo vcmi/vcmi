@@ -126,14 +126,19 @@ void CSelectableComponent::clickLeft(tribool down)
 CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner, SDL_Surface * Border)
 :SComponent(Type,Sub,Val),owner(Owner)
 {
+	SDL_Surface * symb = SComponent::getImg();
+	myBitmap = CSDL_Ext::newSurface(symb->w+2,symb->h+2,ekran);
+	SDL_SetColorKey(myBitmap,SDL_SRCCOLORKEY,SDL_MapRGB(myBitmap->format,0,255,255));	
+	blitAt(symb,1,1,myBitmap);
 	if (Border) //use custom border
 	{
 		border = Border;
+		customB = true;
 	}
 	else //we need to draw border
 	{
-		SDL_Surface * symb = SComponent::getImg();
-		border = CSDL_Ext::newSurface(symb->w+2,symb->h+2,symb);
+		customB = false;
+		border = CSDL_Ext::newSurface(symb->w+2,symb->h+2,ekran);
 		SDL_FillRect(border,NULL,0x00FFFF);
 		for (int i=0;i<border->w;i++)
 		{
@@ -148,6 +153,12 @@ CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWin
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));	
 	}
 	selected = false;
+}
+CSelectableComponent::~CSelectableComponent()
+{
+	SDL_FreeSurface(myBitmap);
+	if (!customB)
+		SDL_FreeSurface(border);
 }
 void CSelectableComponent::activate()
 {
@@ -167,6 +178,7 @@ void CSelectableComponent::select(bool on)
 {
 	if(on != selected)
 	{
+		SDL_FillRect(myBitmap,NULL,0x000000);
 		blitAt(SComponent::getImg(),1,1,myBitmap);
 		if (on)
 		{
@@ -198,14 +210,18 @@ CSimpleWindow::~CSimpleWindow()
 
 void CSelWindow::selectionChange(SComponent * to)
 {
+	blitAt(to->getImg(),to->pos.x-pos.x,to->pos.y-pos.y,bitmap);
 	for (int i=0;i<components.size();i++)
 	{
 		if(components[i]==to)
+		{
 			continue;
+		}
 		CSelectableComponent * pom = dynamic_cast<CSelectableComponent*>(components[i]);
 		if (!pom)
 			continue;
 		pom->select(false);
+		blitAt(pom->getImg(),pom->pos.x-pos.x,pom->pos.y-pos.y,bitmap);
 	}
 }
 void CSelWindow::okClicked(tribool down)
@@ -1149,7 +1165,7 @@ SDL_Surface * CPlayerInterface::drawPrimarySkill(const CGHeroInstance *curh, SDL
 		itoa(curh->primSkills[i],buf,10);
 		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
 	}
-	delete buf;
+	delete[] buf;
 	return ret;
 }
 SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
@@ -1169,7 +1185,7 @@ SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 	blitAt(curh->type->portraitLarge,11,12,ret);
 	itoa(curh->mana,buf,10);
 	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
-	delete buf;
+	delete[] buf;
 	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
 	blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
 	//SDL_SaveBMP(ret,"inf1.bmp");
@@ -1455,8 +1471,23 @@ void CPlayerInterface::receivedResource(int type, int val)
 	adventureInt->resdatabar.draw();
 }
 
-void CPlayerInterface::showSelDialog(std::string text, std::vector<SComponent*> & components, int askID)
+void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)
 {
+	adventureInt->hide(); //dezaktywacja starego interfejsu
+	CSelWindow * temp = CMessage::genSelWindow(text,LOCPLINT->playerID,35,components,playerID);
+	LOCPLINT->objsToBlit.push_back(temp);
+	temp->pos.x=300-(temp->pos.w/2);
+	temp->pos.y=300-(temp->pos.h/2);
+	temp->okb.pos.x = temp->okb.posr.x + temp->pos.x;
+	temp->okb.pos.y = temp->okb.posr.y + temp->pos.y;
+	temp->okb.activate();
+	for (int i=0;i<temp->components.size();i++)
+	{
+		temp->components[i]->activate();
+		temp->components[i]->pos.x += temp->pos.x;
+		temp->components[i]->pos.y += temp->pos.y;
+	}
+
 }
 
 void CPlayerInterface::showComp(SComponent comp)
