@@ -399,6 +399,7 @@ void CScriptCallback::changePrimSkill(int ID, int which, int val)
 	else if (which==4)
 	{
 		hero->exp+=val;
+		std::cout << "Bohater o ID " << ID <<" (" <<CGI->heroh->heroes[ID]->name <<") dostaje "<<val<<" expa, ale nic z tym nie umiem zrobic :("<<std::endl;
 		//TODO - powiadomic interfejsy, sprawdzic czy nie ma awansu itp
 	}
 }

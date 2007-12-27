@@ -120,7 +120,7 @@ public:
 };
 
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
-{
+{ //okno usuwa swoje komponenty w chwili zamkniecia 
 public:
 	CSCButton<CInfoWindow> okb;
 	std::vector<SComponent*> components;
@@ -130,9 +130,9 @@ public:
 	virtual ~CInfoWindow();
 };
 class CSelWindow : public CInfoWindow //component selection window
-{
+{ //uwaga - to okno nie usuwa swoich komponentow przy usuwaniu, moga sie one jeszcze przydac skryptowi - tak wiec skrypt korzystajacyz tego okna musi je usunac
 public:
-	void selectionChange(SComponent * to);
+	void selectionChange(CSelectableComponent * to);
 	void okClicked(tribool down);
 	void close();
 	CSelWindow(){};

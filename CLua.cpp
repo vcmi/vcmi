@@ -531,6 +531,7 @@ void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
 					break;
 				}
 			}//random treasure artifact, or (if backapack is full) 1k/0.5k
+			tempStore[1]->ID = heroID;
 			player = cb->getHeroOwner(heroID);
 			cb->showSelDialog(player,CGI->objh->advobtxt[146],&tempStore,this);
 			break;
@@ -545,10 +546,16 @@ void CPickable::chosen(int which)
 	case SComponent::resource:
 		cb->giveResource(player,tempStore[which]->subtype,tempStore[which]->val);
 		break;
+	case SComponent::experience:
+		cb->changePrimSkill(tempStore[which]->ID,4,tempStore[which]->val);
+		break;
 	default:
 		throw new std::exception("Unhandled choice");
 		
 	}
+	for (int i=0;i<tempStore.size();i++)
+		delete tempStore[i];
+	tempStore.clear();
 }
 
 std::string CPickable::hoverText(CGObjectInstance *os)

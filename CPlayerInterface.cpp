@@ -50,8 +50,8 @@ void CInfoWindow::close()
 	SDL_FreeSurface(bitmap);
 	bitmap = NULL;
 	LOCPLINT->removeObjToBlit(this);
-	//delete this;
 	LOCPLINT->adventureInt->show();
+	delete this;
 }
 CInfoWindow::~CInfoWindow()
 {
@@ -208,14 +208,17 @@ CSimpleWindow::~CSimpleWindow()
 	}
 }
 
-void CSelWindow::selectionChange(SComponent * to)
+void CSelWindow::selectionChange(CSelectableComponent * to)
 {
 	blitAt(to->getImg(),to->pos.x-pos.x,to->pos.y-pos.y,bitmap);
 	for (int i=0;i<components.size();i++)
 	{
 		if(components[i]==to)
 		{
-			continue;
+			if (to->selected)
+				continue;
+			else
+				to->select(true);
 		}
 		CSelectableComponent * pom = dynamic_cast<CSelectableComponent*>(components[i]);
 		if (!pom)
@@ -231,8 +234,24 @@ void CSelWindow::okClicked(tribool down)
 }
 void CSelWindow::close()
 {
+	int ret = -1;
+	for (int i=0;i<components.size();i++)
+	{
+		if(dynamic_cast<CSelectableComponent*>(components[i])->selected)
+		{
+			ret = i;
+		}
+		components[i]->deactivate();
+	}	
+	components.clear();
+	okb.deactivate();
+	SDL_FreeSurface(bitmap);
+	bitmap = NULL;
+	LOCPLINT->removeObjToBlit(this);
+	LOCPLINT->adventureInt->show();
+	LOCPLINT->cb->selectionMade(ret,ID);
+	delete this;
 	//call owner with selection result
-	CInfoWindow::close();
 }
 template <typename T>CSCButton<T>::CSCButton(CDefHandler * img, CIntObject * obj, void(T::*poin)(tribool), T* Delg)
 {
@@ -258,10 +277,10 @@ template <typename T> void CSCButton<T>::clickLeft (tribool down)
 	{
 		state=0;
 	}
+	pressedL=state;
 	show();
 	if (delg)
 		(delg->*func)(down);
-	pressedL=state;
 }
 template <typename T> void CSCButton<typename T>::activate()
 {
@@ -1487,7 +1506,8 @@ void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableCo
 		temp->components[i]->pos.x += temp->pos.x;
 		temp->components[i]->pos.y += temp->pos.y;
 	}
-
+	temp->ID = askID;
+	components[0]->clickLeft(true);
 }
 
 void CPlayerInterface::showComp(SComponent comp)
