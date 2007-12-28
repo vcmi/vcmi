@@ -478,19 +478,28 @@ void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
 	{
 	case 79:
 		{
+			//TODO: handle guards (when battles are finished)
+			CResourceObjInfo * t2 = static_cast<CResourceObjInfo *>(os->info);
 			int val;
-			switch(os->subID)
+			if(t2->amount)
+				val = t2->amount;
+			else
 			{
-			case 6:
-				val = 500 + (rand()%6)*100;
-				break;
-			case 0: case 2:
-				val = 6 + (rand()%5);
-				break;
-			default:
-				val = 3 + (rand()%3);
-				break;
+				switch(os->subID)
+				{
+				case 6:
+					val = 500 + (rand()%6)*100;
+					break;
+				case 0: case 2:
+					val = 6 + (rand()%5);
+					break;
+				default:
+					val = 3 + (rand()%3);
+					break;
+				}
 			}
+			if(t2->message.length())
+				cb->showInfoDialog(cb->getHeroOwner(heroID),t2->message,&std::vector<SComponent*>());
 			SComponent ccc(SComponent::resource,os->subID,val);
 			ccc.description = CGI->objh->advobtxt[113];
 			boost::algorithm::replace_first(ccc.description,"%s",CGI->objh->restypes[os->subID]);

@@ -95,7 +95,7 @@ public:
 
 	//do sth
 	static void changePrimSkill(int ID, int which, int val);
-	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components);
+	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components); //TODO: obslugiwac nulle
 	void showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker);
 	void giveResource(int player, int which, int val);
 	void showCompInfo(int player, SComponent * comp);
