@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include "CDefHandler.h"
 
 class CDefHandler;
 struct SDL_Surface;
@@ -54,6 +55,43 @@ public:
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
 	void loadUnitAnimations();
+};
+
+class CCreatureAnimation
+{
+private:
+	int totalEntries, DEFType, totalBlocks, fullWidth, fullHeight;
+	unsigned char fbuffer[800];
+	bool allowRepaint;
+	int length;
+	BMPPalette palette[256];
+	unsigned int * RWEntries;
+	int * RLEntries;
+	struct SEntry
+	{
+		std::string name;
+		int offset;
+		int group;
+	} ;
+	std::vector<SEntry> SEntries ;
+	char id[2];
+	std::string defName, curDir;
+	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
+
+	////////////
+
+	unsigned char * FDef; //animation raw data
+	unsigned int curFrame; //number of currently displayed frame
+	unsigned int frames; //number of frames
+	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
+public:
+	CCreatureAnimation(std::string name); //c-tor
+	//~CCreatureAnimation(); //d-tor //not necessery ATM
+
+	void setType(int type); //sets type of animation and cleares framecount
+	int getType() const; //returns type of animation
+
+	int nextFrame(SDL_Surface * dest, int x, int y); //0 - success, any other - error //print next 
 };
 
 #endif //CCREATUREHANDLER_H
