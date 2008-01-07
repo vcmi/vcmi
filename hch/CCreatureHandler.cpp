@@ -603,6 +603,11 @@ CCreatureAnimation::CCreatureAnimation(std::string name)
 	//}
 	//delete FDef;
 	//FDef = NULL;
+
+	//init vars
+	curFrame = 0;
+	type = -1;
+	frames = totalEntries;
 }
 
 int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, bool cyclic)
@@ -638,6 +643,8 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 		return -1; //not enough depth
 
 	int SIndex = curFrame++; //TODO: finish
+	if(curFrame>=frames)
+		curFrame = 0;
 
 	long BaseOffset, 
 		SpriteWidth, SpriteHeight, //format sprite'a
@@ -750,7 +757,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 				{
 					for (int k=0;k<SegmentLength+1;k++)
 					{
-						FTemp+=fbuffer[k];//
+						FTemp+=SegmentType;//
 						//FTemp+='\0';
 					}
 					TotalRowLength+=SegmentLength+1;
@@ -784,9 +791,36 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 	{
 		for (int j=0;j<FullWidth+add;j++)
 		{
-			*((char*)dest->pixels + dest->format->BytesPerPixel * ((i + y)*dest->pitch + j + x)) = FTemp[i*(FullWidth+add)+j];
+			if( i+y<dest->h && j+x<dest->w)
+			{
+				unsigned char coln = FTemp[i*(FullWidth+add)+j]; //number of color from palette
+				if(coln==0)
+					continue;
+				unsigned char* ptr = ((unsigned char*)dest->pixels + dest->format->BytesPerPixel * ((i + y)*dest->w + j + x));
+				if(coln>7 || coln == 5) //normal or yellow border
+				{
+					*ptr = palette[coln].B;
+					*(ptr+1) = palette[coln].G;
+					*(ptr+2) = palette[coln].R;
+				}
+				else if(coln<5) //shadow
+				{
+					*ptr = ((*ptr) * (palette[coln].G + 50)) /200;
+					*(ptr+1) = ((*(ptr+1)) * (palette[coln].G + 50)) /200 ;
+					*(ptr+2) = ((*(ptr+2)) * (palette[coln].G + 50)) /200 ;
+				}
+				else if(coln == 6) //yellow border shadowed
+				{
+					*ptr = ((*ptr) + palette[coln-1].B) / 2;
+					*(ptr+1) = ((*(ptr+1)) + palette[coln-1].G) / 2;
+					*(ptr+2) = ((*(ptr+2)) + palette[coln-1].R) / 2;
+				}
+
+			}
 		}
 	}
+
+	SDL_UpdateRect(dest, x, y, FullWidth+add, FullHeight);
 
 	return 0;
 }

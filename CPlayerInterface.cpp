@@ -1094,8 +1094,15 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		LOCPLINT->adventureInt->update(); //updating screen
 		CSDL_Ext::update(ekran);
 		CGI->screenh->updateScreen();
-		LOCPLINT->adventureInt->anim++;
-		adventureInt->animValHitCount=0;
+
+		++LOCPLINT->adventureInt->animValHitCount; //for animations
+		if(LOCPLINT->adventureInt->animValHitCount == 4)
+		{
+			LOCPLINT->adventureInt->animValHitCount = 0;
+			++LOCPLINT->adventureInt->anim;
+			LOCPLINT->adventureInt->updateScreen = true;
+		}
+
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
