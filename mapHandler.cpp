@@ -689,7 +689,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second.first;
 				CGHeroInstance * themp = (dynamic_cast<CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
-				if(themp && themp->moveDir && !themp->isStanding)
+				if(themp && themp->moveDir && !themp->isStanding && themp->ID!=62) //last condition - this is not prison
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
@@ -857,7 +857,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					}
 				}
-				else if(themp && themp->moveDir && themp->isStanding)
+				else if(themp && themp->moveDir && themp->isStanding && themp->ID!=62) //last condition - this is not prison
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
@@ -1880,7 +1880,7 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 					}
 				}
 			}
-			int lvl = atoi(di->name.substr(7, 8).c_str());
+			int lvl = atoi(di->name.substr(7, 8).c_str()) - 1;
 			return creGenNames[fraction][lvl];
 		}
 		else
@@ -1897,7 +1897,7 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 				possibleTowns.push_back(8);
 
 			int fraction = possibleTowns[rand()%possibleTowns.size()];
-			int lvl = atoi(di->name.substr(7, 8).c_str());
+			int lvl = atoi(di->name.substr(7, 8).c_str()) - 1;
 			return creGenNames[fraction][lvl];
 		}
 	}

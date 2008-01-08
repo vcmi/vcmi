@@ -791,7 +791,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 	{
 		for (int j=0;j<FullWidth+add;j++)
 		{
-			if( i+y<dest->h && j+x<dest->w)
+			if( i+y<dest->h && j+x<dest->w && i+y>=0 && j+x>=0)
 			{
 				unsigned char coln = FTemp[i*(FullWidth+add)+j]; //number of color from palette
 				if(coln==0)

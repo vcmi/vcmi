@@ -93,7 +93,7 @@ public:
 class CSeerHutObjInfo : public CSpecObjInfo
 {
 public:
-	char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
+	unsigned char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
 	bool isDayLimit; //if true, there is a day limit
 	int lastDay; //after this day (first day is 0) mission cannot be completed
 	//for mission 1

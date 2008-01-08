@@ -1228,92 +1228,117 @@ void CAmbarCendamo::deh3m()
 				else //RoE
 				{
 					int artID = bufor[i]; ++i;
-					spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artID]));
+					if(artID!=255) //not none quest
+					{
+						spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artID]));
+						spec->missionType = 5;
+					}
+					else
+					{
+						spec->missionType = 255;
+					}
 				}
 
-				unsigned char rewardType = bufor[i]; ++i;
-				spec->rewardType = rewardType;
-
-				switch(rewardType)
+				if(spec->missionType!=255)
 				{
-				case 1:
+					unsigned char rewardType = bufor[i]; ++i;
+					spec->rewardType = rewardType;
+
+					switch(rewardType)
 					{
-						spec->r1exp = readNormalNr(i); i+=4;
-						break;
-					}
-				case 2:
-					{
-						spec->r2mana = readNormalNr(i); i+=4;
-						break;
-					}
-				case 3:
-					{
-						spec->r3morale = bufor[i]; ++i;
-						break;
-					}
-				case 4:
-					{
-						spec->r4luck = bufor[i]; ++i;
-						break;
-					}
-				case 5:
-					{
-						spec->r5type = bufor[i]; ++i;
-						spec->r5amount = readNormalNr(i, 3); i+=3;
-						i+=1;
-						break;
-					}
-				case 6:
-					{
-						spec->r6type = bufor[i]; ++i;
-						spec->r6amount = bufor[i]; ++i;
-						break;
-					}
-				case 7:
-					{
-						int abid = bufor[i]; ++i;
-						spec->r7ability = CGameInfo::mainObj->abilh->abilities[abid];
-						spec->r7level = bufor[i]; ++i;
-						break;
-					}
-				case 8:
-					{
-						int artid = readNormalNr(i, (map.version == RoE ? 1 : 2)); i+=(map.version == RoE ? 1 : 2);
-						spec->r8art = &(CGameInfo::mainObj->arth->artifacts[artid]);
-						break;
-					}
-				case 9:
-					{
-						int spellid = bufor[i]; ++i;
-						spec->r9spell = &(CGameInfo::mainObj->spellh->spells[spellid]);
-						break;
-					}
-				case 10:
-					{
-						int creid = readNormalNr(i, 2); i+=2;
-						spec->r10creature = &(CGameInfo::mainObj->creh->creatures[creid]);
-						spec->r10amount = readNormalNr(i, 2); i+=2;
-						break;
-					}
-				}// end of internal switch
-				i+=2;
+					case 1:
+						{
+							spec->r1exp = readNormalNr(i); i+=4;
+							break;
+						}
+					case 2:
+						{
+							spec->r2mana = readNormalNr(i); i+=4;
+							break;
+						}
+					case 3:
+						{
+							spec->r3morale = bufor[i]; ++i;
+							break;
+						}
+					case 4:
+						{
+							spec->r4luck = bufor[i]; ++i;
+							break;
+						}
+					case 5:
+						{
+							spec->r5type = bufor[i]; ++i;
+							spec->r5amount = readNormalNr(i, 3); i+=3;
+							i+=1;
+							break;
+						}
+					case 6:
+						{
+							spec->r6type = bufor[i]; ++i;
+							spec->r6amount = bufor[i]; ++i;
+							break;
+						}
+					case 7:
+						{
+							int abid = bufor[i]; ++i;
+							spec->r7ability = CGameInfo::mainObj->abilh->abilities[abid];
+							spec->r7level = bufor[i]; ++i;
+							break;
+						}
+					case 8:
+						{
+							int artid = readNormalNr(i, (map.version == RoE ? 1 : 2)); i+=(map.version == RoE ? 1 : 2);
+							spec->r8art = &(CGameInfo::mainObj->arth->artifacts[artid]);
+							break;
+						}
+					case 9:
+						{
+							int spellid = bufor[i]; ++i;
+							spec->r9spell = &(CGameInfo::mainObj->spellh->spells[spellid]);
+							break;
+						}
+					case 10:
+						{
+							int creid = readNormalNr(i, 2); i+=2;
+							spec->r10creature = &(CGameInfo::mainObj->creh->creatures[creid]);
+							spec->r10amount = readNormalNr(i, 2); i+=2;
+							break;
+						}
+					}// end of internal switch
+					i+=2;
+				}
+				else //missionType==255
+				{
+					i+=3;
+				}
 				nobj->info = spec;
 				break;
 			}
 		case EDefType::WITCHHUT_DEF:
 			{
 				CWitchHutObjInfo * spec = new CWitchHutObjInfo;
-				ist=i; //starting i for loop
-				for(i; i<ist+4; ++i)
+				if(map.version>RoE) //in reo we cannot specify it - all are allowed (I hope)
 				{
-					unsigned char c = bufor[i];
-					for(int yy=0; yy<8; ++yy)
+					ist=i; //starting i for loop
+					for(i; i<ist+4; ++i)
 					{
-						if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
+						unsigned char c = bufor[i];
+						for(int yy=0; yy<8; ++yy)
 						{
-							if(c == (c|((unsigned char)intPow(2, yy))))
-								spec->allowedAbilities.push_back(CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]);
+							if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
+							{
+								if(c == (c|((unsigned char)intPow(2, yy))))
+									spec->allowedAbilities.push_back(CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]);
+							}
 						}
+					}
+				}
+				else //(RoE map)
+				{
+					for(int gg=0; gg<CGameInfo::mainObj->abilh->abilities.size(); ++gg)
+					{
+						spec->allowedAbilities.push_back(CGameInfo::mainObj->abilh->abilities[gg]);
 					}
 				}
 				
