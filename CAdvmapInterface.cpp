@@ -1072,7 +1072,9 @@ void CTerrainRect::show()
 {
 	SDL_Surface * teren = CGI->mh->terrainRect
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
-		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim, LOCPLINT->cb->getVisibilityMap());
+		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
+		LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim
+		);
 	SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),ekran,&genRect(547,594,7,6));
 	SDL_FreeSurface(teren);
 	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
@@ -1363,6 +1365,8 @@ endTurn(CGI->preth->advEndTurn.first,CGI->preth->advEndTurn.second,
 	updateScreen  = false;
 	anim=0;
 	animValHitCount=0; //animation frame
+	heroAnim=0;
+	heroAnimValHitCount=0; // hero animation frame
 
 	heroList.init();
 	heroList.genList();

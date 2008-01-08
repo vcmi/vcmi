@@ -611,8 +611,10 @@ void CMapHandler::init()
 	calculateBlockedPos();
 }
 
-SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap)
+SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim)
 {
+	if(!otherHeroAnim)
+		heroAnim = anim; //the same, as it should be
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
     int rmask = 0xff000000;
     int gmask = 0x00ff0000;
@@ -703,14 +705,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							{
 								if(iv[gg].groupNumber==10)
 								{
-									tb = iv[gg+anim%imgVal].bitmap;
+									tb = iv[gg+heroAnim%imgVal].bitmap;
 									break;
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 2:
@@ -723,14 +725,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							{
 								if(iv[gg].groupNumber==5)
 								{
-									tb = iv[gg+anim%imgVal].bitmap;
+									tb = iv[gg+heroAnim%imgVal].bitmap;
 									break;
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);	
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);	
 							break;
 						}
 					case 3:
@@ -743,14 +745,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							{
 								if(iv[gg].groupNumber==6)
 								{
-									tb = iv[gg+anim%imgVal].bitmap;
+									tb = iv[gg+heroAnim%imgVal].bitmap;
 									break;
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 4:
@@ -763,14 +765,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							{
 								if(iv[gg].groupNumber==7)
 								{
-									tb = iv[gg+anim%imgVal].bitmap;
+									tb = iv[gg+heroAnim%imgVal].bitmap;
 									break;
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 5:
@@ -783,14 +785,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							{
 								if(iv[gg].groupNumber==8)
 								{
-									tb = iv[gg+anim%imgVal].bitmap;
+									tb = iv[gg+heroAnim%imgVal].bitmap;
 									break;
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 6: //ok
@@ -803,14 +805,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							{
 								if(iv[gg].groupNumber==9)
 								{
-									tb = iv[gg+anim%imgVal].bitmap;
+									tb = iv[gg+heroAnim%imgVal].bitmap;
 									break;
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 7:
@@ -823,14 +825,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							{
 								if(iv[gg].groupNumber==12)
 								{
-									tb = iv[gg+anim%imgVal].bitmap;
+									tb = iv[gg+heroAnim%imgVal].bitmap;
 									break;
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					case 8:
@@ -843,14 +845,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							{
 								if(iv[gg].groupNumber==11)
 								{
-									tb = iv[gg+anim%imgVal].bitmap;
+									tb = iv[gg+heroAnim%imgVal].bitmap;
 									break;
 								}
 							}
 							SDL_BlitSurface(tb,&pp,su,&sr);
 							pp.y+=imgVal*2-32;
 							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+anim%imgVal+35].bitmap, &pp, su, &sr);
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 							break;
 						}
 					}
@@ -881,7 +883,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[13*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[13*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
 								themp->flagPrinted = true;
 							}
 							break;
@@ -906,7 +908,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[anim%imgVal].bitmap, NULL, su, &bufr);	
+								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[heroAnim%imgVal].bitmap, NULL, su, &bufr);	
 								themp->flagPrinted = true;
 							}
 							break;
@@ -931,7 +933,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[8+anim%imgVal].bitmap, NULL, su, &bufr);
+								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
 								themp->flagPrinted = true;
 							}
 							break;
@@ -956,7 +958,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[2*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[2*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
 								themp->flagPrinted = true;
 							}
 							break;
@@ -981,7 +983,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[3*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[3*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
 								themp->flagPrinted = true;
 							}
 							break;
@@ -1006,7 +1008,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[4*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[4*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
 								themp->flagPrinted = true;
 							}
 							break;
@@ -1031,7 +1033,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[15*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[15*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
 								themp->flagPrinted = true;
 							}
 							break;
@@ -1056,7 +1058,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 								SDL_Rect bufr = sr;
 								bufr.x-=2*32;
 								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[14*8+anim%imgVal].bitmap, NULL, su, &bufr);
+								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[14*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
 								themp->flagPrinted = true;
 							}
 							break;

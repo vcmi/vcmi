@@ -222,6 +222,7 @@ public:
 	bool scrollingDown ;
 	bool updateScreen, updateMinimap ;
 	unsigned char anim, animValHitCount; //animation frame
+	unsigned char heroAnim, heroAnimValHitCount; //animation frame
 
 	CMinimap minimap;
 

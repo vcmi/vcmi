@@ -443,6 +443,7 @@ void CPlayerInterface::yourTurn()
 	makingTurn = true;
 	CGI->localPlayer = serialID;
 	unsigned char & animVal = LOCPLINT->adventureInt->anim; //for animations handling
+	unsigned char & heroAnimVal = LOCPLINT->adventureInt->heroAnim;
 	adventureInt->infoBar.newDay(cb->getDate(1));
 	adventureInt->show();
 	//show rest of things
@@ -479,6 +480,7 @@ void CPlayerInterface::yourTurn()
 			LOCPLINT->adventureInt->updateScreen = true;
 
 		}
+		++heroAnimVal;
 		if(LOCPLINT->adventureInt->scrollingLeft)
 		{
 			if(LOCPLINT->adventureInt->position.x>-Woff)
@@ -1102,6 +1104,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			++LOCPLINT->adventureInt->anim;
 			LOCPLINT->adventureInt->updateScreen = true;
 		}
+		++LOCPLINT->adventureInt->heroAnim;
 
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
