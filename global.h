@@ -52,6 +52,7 @@ const int TERRAIN_TYPES=10;
 const int PRIMARY_SKILLS=4;
 const int NEUTRAL_PLAYER=255;
 const int NAMES_PER_TOWN=16;
+const int CREATURES_PER_TOWN = 7; //without upgrades
 
 #define MARK_BLOCKED_POSITIONS false
 #define MARK_VISITABLE_POSITIONS false

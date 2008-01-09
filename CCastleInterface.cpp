@@ -72,6 +72,8 @@ void CCastleInterface::show()
 	LOCPLINT->adventureInt->resdatabar.draw();
 
 	int pom;
+
+	//draw fort icon
 	if(town->builtBuildings.find(9)!=town->builtBuildings.end())
 		pom = 2;
 	else if(town->builtBuildings.find(8)!=town->builtBuildings.end())
@@ -81,6 +83,7 @@ void CCastleInterface::show()
 	else pom = 3;
 	blitAt(fort->ourImages[pom].bitmap,122,413);
 
+	//draw ((village/town/city) hall)/capitol icon
 	if(town->builtBuildings.find(13)!=town->builtBuildings.end())
 		pom = 3;
 	else if(town->builtBuildings.find(12)!=town->builtBuildings.end())
@@ -90,6 +93,25 @@ void CCastleInterface::show()
 	else pom = 0;
 	blitAt(hall->ourImages[pom].bitmap,80,413);
 
+	//draw creatures icons and their growths
+	for(int i=0;i<CREATURES_PER_TOWN;i++)
+	{
+		int cid = -1;
+		if (town->builtBuildings.find(30+i)!=town->builtBuildings.end())
+		{
+			cid = (14*town->subID)+(i*2);
+			if (town->builtBuildings.find(30+CREATURES_PER_TOWN+i)!=town->builtBuildings.end())
+			{
+				cid++;
+			}
+		}
+		if (cid>=0)
+		{
+			;
+		}
+	}
+
+	//print name and income
 	CSDL_Ext::printAt(town->name,85,389,GEOR13,zwykly);
 	char temp[10];
 	itoa(town->income,temp,10);
