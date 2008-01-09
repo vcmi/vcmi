@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CSemiDefHandler.h"
 #include <fstream>
 extern SDL_Surface * ekran;

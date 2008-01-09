@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CHeroHandler.h"
 #include "../CGameInfo.h"
 #include <sstream>

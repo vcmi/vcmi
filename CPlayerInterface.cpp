@@ -15,6 +15,7 @@
 #include "hch/CHeroHandler.h"
 #include "SDL_framerate.h"
 #include "hch/CGeneralTextHandler.h"
+#include "CCastleInterface.h"
 using namespace CSDL_Ext;
 
 class OCM_HLP_CGIN
@@ -305,6 +306,7 @@ template <typename T> void CSCButton<typename T>::show(SDL_Surface * to)
 }
 CButtonBase::CButtonBase()
 {
+	bitmapOffset = 0;
 	curimg=0;
 	type=-1;
 	abs=false;
@@ -318,12 +320,12 @@ void CButtonBase::show(SDL_Surface * to)
 		to=ekran;
 	if (abs)
 	{
-		blitAt(imgs[curimg][state],pos.x,pos.y,to);
+		blitAt(imgs[curimg][state+bitmapOffset],pos.x,pos.y,to);
 		//updateRect(&pos,to);
 	}
 	else
 	{
-		blitAt(imgs[curimg][state],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
+		blitAt(imgs[curimg][state+bitmapOffset],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
 		//updateRect(&genRect(pos.h,pos.w,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y),to);
 		
 	}
@@ -430,7 +432,7 @@ void CPlayerInterface::init(ICallback * CB)
 	cb = dynamic_cast<CCallback*>(CB);
 	CGI->localPlayer = serialID;
 	adventureInt = new CAdvMapInt(playerID);
-	
+	castleInt = NULL;
 	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
 	for(int i=0;i<hh.size();i++)
 	{
@@ -472,60 +474,63 @@ void CPlayerInterface::yourTurn()
 		{
 			handleEvent(&sEvent);
 		}
-		++LOCPLINT->adventureInt->animValHitCount; //for animations
-		if(LOCPLINT->adventureInt->animValHitCount == 4)
+		if (!castleInt) //stuff for advMapInt
 		{
-			LOCPLINT->adventureInt->animValHitCount = 0;
-			++animVal;
-			LOCPLINT->adventureInt->updateScreen = true;
+			++LOCPLINT->adventureInt->animValHitCount; //for animations
+			if(LOCPLINT->adventureInt->animValHitCount == 4)
+			{
+				LOCPLINT->adventureInt->animValHitCount = 0;
+				++animVal;
+				LOCPLINT->adventureInt->updateScreen = true;
 
-		}
-		++heroAnimVal;
-		if(LOCPLINT->adventureInt->scrollingLeft)
-		{
-			if(LOCPLINT->adventureInt->position.x>-Woff)
-			{
-				LOCPLINT->adventureInt->position.x--;
-				LOCPLINT->adventureInt->updateScreen = true;
-				adventureInt->updateMinimap=true;
 			}
-		}
-		if(LOCPLINT->adventureInt->scrollingRight)
-		{
-			if(LOCPLINT->adventureInt->position.x<CGI->ac->map.width-19+4)
+			++heroAnimVal;
+			if(LOCPLINT->adventureInt->scrollingLeft)
 			{
-				LOCPLINT->adventureInt->position.x++;
-				LOCPLINT->adventureInt->updateScreen = true;
-				adventureInt->updateMinimap=true;
+				if(LOCPLINT->adventureInt->position.x>-Woff)
+				{
+					LOCPLINT->adventureInt->position.x--;
+					LOCPLINT->adventureInt->updateScreen = true;
+					adventureInt->updateMinimap=true;
+				}
 			}
-		}
-		if(LOCPLINT->adventureInt->scrollingUp)
-		{
-			if(LOCPLINT->adventureInt->position.y>-Hoff)
+			if(LOCPLINT->adventureInt->scrollingRight)
 			{
-				LOCPLINT->adventureInt->position.y--;
-				LOCPLINT->adventureInt->updateScreen = true;
-				adventureInt->updateMinimap=true;
+				if(LOCPLINT->adventureInt->position.x<CGI->ac->map.width-19+4)
+				{
+					LOCPLINT->adventureInt->position.x++;
+					LOCPLINT->adventureInt->updateScreen = true;
+					adventureInt->updateMinimap=true;
+				}
 			}
-		}
-		if(LOCPLINT->adventureInt->scrollingDown)
-		{
-			if(LOCPLINT->adventureInt->position.y<CGI->ac->map.height-18+4)
+			if(LOCPLINT->adventureInt->scrollingUp)
 			{
-				LOCPLINT->adventureInt->position.y++;
-				LOCPLINT->adventureInt->updateScreen = true;
-				adventureInt->updateMinimap=true;
+				if(LOCPLINT->adventureInt->position.y>-Hoff)
+				{
+					LOCPLINT->adventureInt->position.y--;
+					LOCPLINT->adventureInt->updateScreen = true;
+					adventureInt->updateMinimap=true;
+				}
 			}
-		}
-		if(LOCPLINT->adventureInt->updateScreen)
-		{
-			adventureInt->update();
-			adventureInt->updateScreen=false;
-		}
-		if (LOCPLINT->adventureInt->updateMinimap)
-		{
-			adventureInt->minimap.draw();
-			adventureInt->updateMinimap=false;
+			if(LOCPLINT->adventureInt->scrollingDown)
+			{
+				if(LOCPLINT->adventureInt->position.y<CGI->ac->map.height-18+4)
+				{
+					LOCPLINT->adventureInt->position.y++;
+					LOCPLINT->adventureInt->updateScreen = true;
+					adventureInt->updateMinimap=true;
+				}
+			}
+			if(LOCPLINT->adventureInt->updateScreen)
+			{
+				adventureInt->update();
+				adventureInt->updateScreen=false;
+			}
+			if (LOCPLINT->adventureInt->updateMinimap)
+			{
+				adventureInt->minimap.draw();
+				adventureInt->updateMinimap=false;
+			}
 		}
 		for(int i=0;i<objsToBlit.size();i++)
 			objsToBlit[i]->show();
@@ -1224,6 +1229,12 @@ SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
 {
 	return NULL;
+}
+
+void CPlayerInterface::openTownWindow(const CGTownInstance * town)
+{
+	adventureInt->hide();
+	castleInt = new CCastleInterface(town,true);
 }
 
 SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero

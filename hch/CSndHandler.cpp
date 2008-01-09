@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CSndHandler.h"
 
 
@@ -236,5 +236,6 @@ MemberFile CVidHandler::getFile(std::string name)
 			}
 		}
 	}
-	return ret;
+	throw ret;
+	//return ret;
 }

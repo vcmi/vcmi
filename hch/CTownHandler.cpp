@@ -1,9 +1,9 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CTownHandler.h"
 #include "../CGameInfo.h"
 #include "CLodHandler.h"
 #include <sstream>
-
+#include "CGeneralTextHandler.h"
 CTownHandler::CTownHandler()
 {
 	smallIcons = CGI->spriteh->giveDef("ITPA.DEF");
@@ -33,6 +33,16 @@ void CTownHandler::loadNames()
 		if (town.bonus==8) town.bonus=3; 
 		if (town.name.length())
 			towns.push_back(town);
+	}
+
+	std::string  strs = CGI->bitmaph->getTextFile("TCOMMAND.TXT");
+	int itr=0;
+	while(itr<strs.length()-1)
+	{
+		std::string tmp;
+		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
+		tcommands.push_back(tmp);
+
 	}
 }
 SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)
@@ -69,7 +79,6 @@ CTownInstance::CTownInstance()
 	builded=-1;
 	destroyed=-1;
 	garrisonHero=NULL;
-	owner=-1;
 	town=NULL;
 }
 

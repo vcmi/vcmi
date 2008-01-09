@@ -5,13 +5,14 @@
 #include "SDL.h"
 #include "CPlayerInterface.h"
 #include <map>
-
 class CDefHandler;
 class CCallback;
 class CTownInstance;
 class CPath; 
+class CAdvMapInt;
 class CGHeroInstance;
 class CGTownInstance;
+template <typename T=CAdvMapInt>
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase
 {
@@ -19,7 +20,8 @@ public:
 	std::string name; //for status bar 
 	std::string helpBox; //for right-click help
 	char key; //key shortcut
-	void (CAdvMapInt::*function)(); //function in CAdvMapInt called when this button is pressed, different for each button
+	T* owner;
+	void (T::*function)(); //function in CAdvMapInt called when this button is pressed, different for each button
 
 	void clickRight (tribool down);
 	void clickLeft (tribool down);
@@ -29,8 +31,7 @@ public:
 	void deactivate(); // makes button inactive (but doesn't delete)
 
 	AdventureMapButton(); //c-tor
-	AdventureMapButton( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)(), int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL );//c-tor
-
+	AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL );//c-tor
 };
 /*****************************/
 class CList 
@@ -92,20 +93,6 @@ public:
 	void hover (bool on);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void draw();
-};
-class CResourceBar
-	:public ClickableR
-{
-	SDL_Surface * bg;
-	void clickRight(tribool down);
-	void refresh();
-};
-class CDataBar
-	:public ClickableR
-{
-	SDL_Surface * bg;
-	void clickRight(tribool down);
-	void refresh();
 };
 class CStatusBar
 	: public CIntObject
@@ -228,7 +215,7 @@ public:
 
 
 	SDL_Surface * bg;
-	AdventureMapButton kingOverview,//- kingdom overview
+	AdventureMapButton<> kingOverview,//- kingdom overview
 		underground,//- underground switch
 		questlog,//- questlog
 		sleepWake, //- sleep/wake hero

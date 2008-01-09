@@ -18,7 +18,7 @@
 #include "hch/CHeroHandler.h"
 #include <sstream>
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
-
+#include "AdventureMapButton.h"
 using namespace boost::logic;
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -26,106 +26,6 @@ CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
 }
-
-AdventureMapButton::AdventureMapButton ()
-{
-	type=2;
-	abs=true;
-	active=false;
-	ourObj=NULL;
-	state=0;
-}
-AdventureMapButton::AdventureMapButton
-( std::string Name, std::string HelpBox, void(CAdvMapInt::*Function)(), int x, int y, std::string defName, bool activ, std::vector<std::string> * add )
-{
-	type=2;
-	abs=true;
-	active=false;
-	ourObj=NULL;
-	state=0;
-	name=Name;
-	helpBox=HelpBox;
-	int est = LOCPLINT->playerID;
-	CDefHandler * temp = CGI->spriteh->giveDef(defName); //todo: moze cieknac
-	for (int i=0;i<temp->ourImages.size();i++)
-	{
-		imgs.resize(1);
-		imgs[0].push_back(temp->ourImages[i].bitmap);
-		blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
-	}
-	if (add)
-	{
-		imgs.resize(imgs.size()+add->size());
-		for (int i=0; i<add->size();i++)
-		{
-			temp = CGI->spriteh->giveDef((*add)[i]);
-			for (int j=0;j<temp->ourImages.size();j++)
-			{
-				imgs[i+1].push_back(temp->ourImages[j].bitmap);
-				blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
-			}
-		}
-		delete add;
-	}
-	function = Function;
-	pos.x=x;
-	pos.y=y;
-	pos.w = imgs[curimg][0]->w;
-	pos.h = imgs[curimg][0]->h  -1;
-	if (activ)
-		activate();
-}
-
-void AdventureMapButton::clickLeft (tribool down)
-{
-	if (down)
-	{
-		state=1;
-	}
-	else 
-	{
-		state=0;
-	}
-	show();
-	if (pressedL && (down==false))
-		(LOCPLINT->adventureInt->*function)();
-	pressedL=state;
-}
-void AdventureMapButton::clickRight (tribool down)
-{
-	LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);
-}
-void AdventureMapButton::hover (bool on)
-{
-	Hoverable::hover(on);
-	if (on)
-		LOCPLINT->adventureInt->statusbar.print(name);
-	else if (LOCPLINT->adventureInt->statusbar.current==name)
-		LOCPLINT->adventureInt->statusbar.clear();
-}
-void AdventureMapButton::activate()
-{
-	if (active) return;
-	active=true;
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
-	KeyInterested::activate();
-}
-void AdventureMapButton::keyPressed (SDL_KeyboardEvent & key)
-{
-	//TODO: check if it's shortcut
-}
-void AdventureMapButton::deactivate()
-{
-	if (!active) return;
-	active=false;
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
-	KeyInterested::deactivate();
-}
-
 void CList::activate()
 {
 	ClickableL::activate();
@@ -456,7 +356,10 @@ void CTownList::clickLeft(tribool down)
 		float ny = (float)hy/(float)32;
 		if (ny>5 || ny<0)
 			return;
-		select(ny+from);
+		if (((int)(ny+from))==selected)
+			LOCPLINT->openTownWindow(items[selected]);//print town screen
+		else
+			select(ny+from);
 	}
 	else
 	{
@@ -528,13 +431,12 @@ void CTownList::draw()
 			continue;
 		}
 
-		blitAt(CGI->townh->getPic(items[i]->town->typeID),posporx,pospory+i*32);
+		blitAt(CGI->townh->getPic(items[i]->subID,items[i]->hasFort(),items[i]->builded),posporx,pospory+i*32);
 
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
 		{
 			blitAt(CGI->townh->getPic(-2),posporx,pospory+i*32);
 		}
-		//TODO: dodac oznaczanie zbudowania w danej turze i posiadania fortu
 	}
 	if (from>0)
 		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
@@ -1326,34 +1228,34 @@ CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(7,556),
 kingOverview(CGI->preth->advKingdomOverview.first,CGI->preth->advKingdomOverview.second,
-			 &CAdvMapInt::fshowOverview, 679, 196, "IAM002.DEF"),
+			 &CAdvMapInt::fshowOverview, 679, 196, "IAM002.DEF", this),
 
 underground(CGI->preth->advSurfaceSwitch.first,CGI->preth->advSurfaceSwitch.second,
-		   &CAdvMapInt::fswitchLevel, 711, 196, "IAM010.DEF", false, new std::vector<std::string>(1,std::string("IAM003.DEF"))),
+		   &CAdvMapInt::fswitchLevel, 711, 196, "IAM010.DEF", this, false, new std::vector<std::string>(1,std::string("IAM003.DEF"))),
 
 questlog(CGI->preth->advQuestlog.first,CGI->preth->advQuestlog.second,
-		 &CAdvMapInt::fshowQuestlog, 679, 228, "IAM004.DEF"),
+		 &CAdvMapInt::fshowQuestlog, 679, 228, "IAM004.DEF", this),
 
 sleepWake(CGI->preth->advSleepWake.first,CGI->preth->advSleepWake.second,
-		  &CAdvMapInt::fsleepWake, 711, 228, "IAM005.DEF"),
+		  &CAdvMapInt::fsleepWake, 711, 228, "IAM005.DEF", this),
 
 moveHero(CGI->preth->advMoveHero.first,CGI->preth->advMoveHero.second,
-		  &CAdvMapInt::fmoveHero, 679, 260, "IAM006.DEF"),
+		  &CAdvMapInt::fmoveHero, 679, 260, "IAM006.DEF", this),
 
 spellbook(CGI->preth->advCastSpell.first,CGI->preth->advCastSpell.second,
-		  &CAdvMapInt::fshowSpellbok, 711, 260, "IAM007.DEF"),
+		  &CAdvMapInt::fshowSpellbok, 711, 260, "IAM007.DEF", this),
 
 advOptions(CGI->preth->advAdvOptions.first,CGI->preth->advAdvOptions.second,
-		  &CAdvMapInt::fadventureOPtions, 679, 292, "IAM008.DEF"),
+		  &CAdvMapInt::fadventureOPtions, 679, 292, "IAM008.DEF", this),
 
 sysOptions(CGI->preth->advSystemOptions.first,CGI->preth->advSystemOptions.second,
-		  &CAdvMapInt::fsystemOptions, 711, 292, "IAM009.DEF"),
+		  &CAdvMapInt::fsystemOptions, 711, 292, "IAM009.DEF", this),
 
 nextHero(CGI->preth->advNextHero.first,CGI->preth->advNextHero.second,
-		  &CAdvMapInt::fnextHero, 679, 324, "IAM000.DEF"),
+		  &CAdvMapInt::fnextHero, 679, 324, "IAM000.DEF", this),
 
 endTurn(CGI->preth->advEndTurn.first,CGI->preth->advEndTurn.second,
-		  &CAdvMapInt::fendTurn, 679, 356, "IAM001.DEF")
+		  &CAdvMapInt::fendTurn, 679, 356, "IAM001.DEF", this)
 {
 	LOCPLINT->adventureInt=this;
 	bg = CGI->bitmaph->loadBitmap("ADVMAP.bmp");

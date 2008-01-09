@@ -103,7 +103,7 @@ public:
 
 	friend void CAmbarCendamo::deh3m();
 	friend void initGameState(CGameInfo * cgi);
-	friend class CConsoleHandler;
+	//friend class CConsoleHandler;
 
 	//friend void CPlayerInterface::heroMoved(const HeroMoveDetails & details); //TODO: wywalic, wstretne!!!
 };

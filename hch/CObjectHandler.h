@@ -2,6 +2,7 @@
 #define COBJECTHANDLER_H
 #include <string>
 #include <vector>
+#include <set>
 #include "CCreatureHandler.h"
 #include "CArtHandler.h"
 #include "CAbilityHandler.h"
@@ -426,17 +427,22 @@ public:
 	CCreatureSet garrison;
 	int builded; //how many buildings has been built this turn
 	int destroyed; //how many buildings has been destroyed this turn
+
+	int income;
 	
 	//TODO:
-	std::vector<CBuilding *> allBuildings, possibleBuildings, builtBuildings;
+	std::set<int> possibleBuildings, builtBuildings;
 	std::vector<int> creatureIncome; //vector by level
 	std::vector<int> creaturesLeft; //that can be recruited
 
-	CHero * garrisonHero;
+	CGHeroInstance * garrisonHero;
 
 	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
 
 	int getSightDistance() const; //returns sight distance
+	bool hasFort() const;
+	int dailyIncome() const;
+
 	CGTownInstance();
 	virtual ~CGTownInstance();
 };

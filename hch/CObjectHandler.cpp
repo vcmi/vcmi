@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CObjectHandler.h"
 #include "../CGameInfo.h"
 #include "CGeneralTextHandler.h"
@@ -267,6 +267,10 @@ int CGTownInstance::getSightDistance() const //returns sight distance
 {
 	return 10;
 }
+bool CGTownInstance::hasFort() const
+{
+	return (builtBuildings.find(7))!=builtBuildings.end();
+}
 CGTownInstance::CGTownInstance()
 {
 	pos = int3(-1,-1,-1);
@@ -275,6 +279,7 @@ CGTownInstance::CGTownInstance()
 	garrisonHero=NULL;
 	//state->owner=-1;
 	town=NULL;
+	income = 500;
 }
 
 CGObjectInstance::CGObjectInstance()

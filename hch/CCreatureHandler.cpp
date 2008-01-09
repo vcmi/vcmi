@@ -1,5 +1,6 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "../CGameInfo.h"
+#include "CDefHandler.h"
 #include "CCreatureHandler.h"
 #include "CLodHandler.h"
 #include <sstream>

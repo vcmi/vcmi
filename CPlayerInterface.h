@@ -11,7 +11,7 @@ struct HeroMoveDetails;
 class CDefEssential;
 class CGHeroInstance;
 class CAdvMapInt;
-
+class CCastleInterface;
 class IShowable
 {
 public:
@@ -43,6 +43,7 @@ public:
 class CButtonBase : public virtual CIntObject, public IShowable, public IActivable //basic buttton class
 {
 public:
+	int bitmapOffset;
 	int type; //advmapbutton=2
 	bool abs;
 	bool active;
@@ -182,8 +183,9 @@ class CPlayerInterface : public CGameInterface
 {
 public:
 	bool makingTurn;
-	SDL_Event * current;
+		SDL_Event * current;
 	CAdvMapInt * adventureInt;
+	CCastleInterface * castleInt;
 	FPSmanager * mainFPSmng;
 	//TODO: town interace, battle interface, other interfaces
 
@@ -217,6 +219,7 @@ public:
 
 	void showComp(SComponent comp);
 
+	void openTownWindow(const CGTownInstance * town);
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
 	void handleEvent(SDL_Event * sEvent);
 	void handleKeyDown(SDL_Event *sEvent);

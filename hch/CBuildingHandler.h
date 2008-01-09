@@ -17,6 +17,20 @@ public:
 	bool isDwelling; //true, if this building is a dwelling
 };
 
+//class CGBuilding
+//{
+//	int ID, subID;
+//
+//	struct {
+//		int x, y;
+//	} pos;
+//
+//	bool allowed;
+//	bool built;
+//
+//	std::string name, description
+//};
+
 class CBuildingHandler
 {
 public:

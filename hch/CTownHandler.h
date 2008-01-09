@@ -13,6 +13,7 @@ class CSpell;
 class CHero;
 class CTownInstance;
 class CGTownInstance;
+class CHeroInstance;
 class CTown
 {
 public:
@@ -29,6 +30,7 @@ public:
 	CTownHandler();
 	~CTownHandler();
 	std::vector<CTown> towns;
+	std::vector<std::string> tcommands;
 	void loadNames();
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //ID=-1 - blank; -2 - border; -3 - random
 	static int getTypeByDefName(std::string name);
@@ -40,7 +42,6 @@ public:
 class CTownInstance
 {
 public:
-	int owner; //ID of owner
 	int3 pos; //position
 	CTown * town;
 	std::string name; // name of town
@@ -49,11 +50,11 @@ public:
 	int destroyed; //how many buildings has been destroyed this turn
 	
 	//TODO:
-	std::vector<CBuilding *> allBuildings, possibleBuildings, builtBuildings;
+	std::vector<CBuilding *> /*allBuildings,*/ possibleBuildings, builtBuildings;
 	std::vector<int> creatureIncome; //vector by level
 	std::vector<int> creaturesLeft; //that can be recruited
 
-	CHero * garrisonHero;
+	CHeroInstance * garrisonHero;
 
 	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
 

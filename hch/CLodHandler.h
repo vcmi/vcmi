@@ -6,8 +6,12 @@
 #include <vector>
 #include <string>
 #include "zlib.h"
-#include "CDefHandler.h"
 #include "../nodrze.h"
+#include "SDL.h"
+
+
+class CDefHandler;
+class CDefEssential;
 
 enum Epcxformat {PCX8B, PCX24B};
 
@@ -72,6 +76,5 @@ public:
 	void init(std::string lodFile);
 	SDL_Surface * loadBitmap(std::string fname);
 };
-
 
 #endif //CLODHANDLER_H
