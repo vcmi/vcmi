@@ -121,6 +121,8 @@ void CHeroList::clickLeft(tribool down)
 		float ny = (float)hy/(float)32;
 		if (ny>5 || ny<0)
 			return;
+		if (((int)(ny+from))==selected)
+			LOCPLINT->openHeroWindow(items[selected].first);//print hero screen
 		select(ny+from);
 	}
 	else
@@ -1274,6 +1276,8 @@ endTurn(CGI->preth->advEndTurn.first,CGI->preth->advEndTurn.second,
 	heroList.genList();
 	//townList.init();
 	townList.genList();
+
+	heroWindow = CHeroWindow();
 	
 	gems.push_back(CGI->spriteh->giveDef("agemLL.def"));
 	gems.push_back(CGI->spriteh->giveDef("agemLR.def"));

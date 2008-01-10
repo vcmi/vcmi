@@ -1,3 +1,4 @@
+#pragma once
 #include "SDL_Extensions.h"
 template <typename T>
 AdventureMapButton<T>::AdventureMapButton ()

@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include "CPlayerInterface.h"
 #include <map>
+#include "CHeroWindow.h"
 class CDefHandler;
 class CCallback;
 class CTownInstance;
@@ -235,6 +236,8 @@ public:
 	CHeroList heroList;
 	CTownList townList;	
 	CInfoBar infoBar;
+
+	CHeroWindow heroWindow;
 	
 	struct CurrentSelection
 	{

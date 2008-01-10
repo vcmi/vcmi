@@ -1639,7 +1639,7 @@ void CAmbarCendamo::deh3m()
 									{
 										std::cout<<"Hej, sprawdz co to za budynek w miescie " <<nt<<std::endl;
 									}
-								}//bs==3 - nie wiadomo co to, 4 w 2. bajcie
+								}//bs==3 - not known what it is, 4 in 2. byte
 								else
 								{
 									if(spec->buildingSettings[ir] & (1<<bs))
@@ -1662,7 +1662,7 @@ void CAmbarCendamo::deh3m()
 								{
 									if(spec->buildingSettings[ir] & (1<<bs))
 									{
-										nt->builtBuildings.insert(26); //graal
+										nt->builtBuildings.insert(26); //grail
 									}
 								}
 								else if(bs==2)
@@ -1683,7 +1683,7 @@ void CAmbarCendamo::deh3m()
 								{
 									if(spec->buildingSettings[ir] & (1<<bs))
 									{
-										nt->builtBuildings.insert(21); //stajnia
+										nt->builtBuildings.insert(21); //stables
 									}
 								}
 								else if(bs==5)

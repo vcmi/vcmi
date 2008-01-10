@@ -1567,3 +1567,8 @@ void CPlayerInterface::tileHidden(int3 pos)
 {
 	adventureInt->minimap.hideTile(pos);
 }
+void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
+{
+	adventureInt->heroWindow.setHero(hero);
+	adventureInt->heroWindow.show();
+}

@@ -219,7 +219,8 @@ public:
 
 	void showComp(SComponent comp);
 
-	void openTownWindow(const CGTownInstance * town);
+	void openTownWindow(const CGTownInstance * town); //shows townscreen
+	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
 	void handleEvent(SDL_Event * sEvent);
 	void handleKeyDown(SDL_Event *sEvent);
