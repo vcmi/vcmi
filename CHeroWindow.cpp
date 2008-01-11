@@ -9,7 +9,7 @@ extern SDL_Surface * ekran;
 
 CHeroWindow::CHeroWindow(int playerColor)
 {
-	background = SDL_LoadBMP("Data\\HEROSCR4.bmp");
+	background = CGI->bitmaph->loadBitmap("HEROSCR4.bmp");
 	CSDL_Ext::blueToPlayersAdv(background, playerColor);
 	pos.x = 65;
 	pos.y = 8;
