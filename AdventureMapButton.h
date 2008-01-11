@@ -1,5 +1,8 @@
 #pragma once
 #include "SDL_Extensions.h"
+#include "hch\CDefHandler.h"
+#include "CGameInfo.h"
+#include "hch\CLodHandler.h"
 template <typename T>
 AdventureMapButton<T>::AdventureMapButton ()
 {

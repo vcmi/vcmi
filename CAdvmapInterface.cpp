@@ -25,6 +25,7 @@ using namespace CSDL_Ext;
 CAdvMapInt::~CAdvMapInt()
 {
 	SDL_FreeSurface(bg);
+	delete heroWindow;
 }
 void CList::activate()
 {
@@ -1277,7 +1278,7 @@ endTurn(CGI->preth->advEndTurn.first,CGI->preth->advEndTurn.second,
 	//townList.init();
 	townList.genList();
 
-	heroWindow = CHeroWindow();
+	heroWindow = new CHeroWindow(this->player);
 	
 	gems.push_back(CGI->spriteh->giveDef("agemLL.def"));
 	gems.push_back(CGI->spriteh->giveDef("agemLR.def"));

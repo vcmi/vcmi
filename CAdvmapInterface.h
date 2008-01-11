@@ -237,7 +237,7 @@ public:
 	CTownList townList;	
 	CInfoBar infoBar;
 
-	CHeroWindow heroWindow;
+	CHeroWindow * heroWindow;
 	
 	struct CurrentSelection
 	{

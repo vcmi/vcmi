@@ -1569,6 +1569,8 @@ void CPlayerInterface::tileHidden(int3 pos)
 }
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
-	adventureInt->heroWindow.setHero(hero);
-	adventureInt->heroWindow.show();
+	adventureInt->heroWindow->setHero(hero);
+	this->objsToBlit.push_back(adventureInt->heroWindow);
+	adventureInt->heroWindow->activate();
+	adventureInt->hide();
 }
