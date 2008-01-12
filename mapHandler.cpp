@@ -1880,6 +1880,10 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 					}
 				}
 			}
+			if(fraction == -1)
+			{
+				fraction = rand()%F_NUMBER; //TODO: check it more
+			}
 			int lvl = atoi(di->name.substr(7, 8).c_str()) - 1;
 			return creGenNames[fraction][lvl];
 		}
