@@ -190,6 +190,8 @@ void initGameState(CGameInfo * cgi)
 	{
 		CGTownInstance * vti = new CGTownInstance();
 		(*vti)=*(cgi->townh->townInstances[i]);
+		vti->creatureIncome.resize(CREATURES_PER_TOWN);
+		vti->creaturesLeft.resize(CREATURES_PER_TOWN);
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name=vti->town->names[rand()%vti->town->names.size()];
 		

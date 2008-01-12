@@ -297,7 +297,13 @@ void CCreatureHandler::loadCreatures()
 		boost::assign::insert(smallImgs)(i-2,smi->ourImages[i].bitmap);
 	}
 	delete smi;
-
+	smi = CGI->spriteh->giveDef("TWCRPORT.DEF");
+	smi->notFreeImgs = true;
+	for (int i=0; i<smi->ourImages.size(); i++)
+	{
+		boost::assign::insert(bigImgs)(i-2,smi->ourImages[i].bitmap);
+	}
+	delete smi;
 }
 
 void CCreatureHandler::loadAnimationInfo()

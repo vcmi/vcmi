@@ -17,7 +17,8 @@ public:
 	SDL_Surface * cityBg;
 	const CGTownInstance * town;
 
-	CDefHandler *hall,*fort;
+	CDefHandler *hall,*fort,
+		*bigTownPic, *flag;
 
 	AdventureMapButton<CCastleInterface> * exit;
 

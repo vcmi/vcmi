@@ -1762,22 +1762,20 @@ void CAmbarCendamo::deh3m()
 								}
 
 							}//else if (ir==3)
-							else if (ir==4)
+							else if (ir==4 && bs==0)
 							{
-									if(bs%2) //ulepszone
-									{
-										if(spec->buildingSettings[ir] & (1<<bs))
-										{
-											nt->builtBuildings.insert(40+(bs/2)); 
-										}
-									}
-									else
-									{
-										if(spec->buildingSettings[ir] & (1<<bs))
-										{
-											nt->builtBuildings.insert((int)(34+(bs/2))); 
-										}
-									}
+								if(spec->buildingSettings[ir] & 1<<0)
+									nt->builtBuildings.insert(40);
+								if(spec->buildingSettings[ir] & 1<<2)
+									nt->builtBuildings.insert(34); 
+								if(spec->buildingSettings[ir] & 1<<3)
+									nt->builtBuildings.insert(41); 
+								if(spec->buildingSettings[ir] & 1<<5)
+									nt->builtBuildings.insert(35); 
+								if(spec->buildingSettings[ir] & 1<<6)
+									nt->builtBuildings.insert(42); 
+								if(spec->buildingSettings[ir] & 1<<7)
+									nt->builtBuildings.insert(36); 
 							}//else if (ir==4)
 							else if (ir==5)
 							{

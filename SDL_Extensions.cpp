@@ -141,6 +141,35 @@ void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Colo
 	SDL_UpdateRect(dst,x,y,temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
+void CSDL_Ext::printTo(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
+{
+	if (text.length()==0)
+		return;
+	SDL_Surface * temp;
+	switch (quality)
+	{
+	case 0:
+		temp = TTF_RenderText_Solid(font,text.c_str(),kolor);
+		break;
+	case 1:
+		SDL_Color tem;
+		tem.b = 0xff-kolor.b;
+		tem.g = 0xff-kolor.g;
+		tem.r = 0xff-kolor.r;
+		tem.unused = 0xff-kolor.unused;
+		temp = TTF_RenderText_Shaded(font,text.c_str(),kolor,tem);
+		break;
+	case 2:
+		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
+		break;
+	default:
+		temp = TTF_RenderText_Blended(font,text.c_str(),kolor);
+		break;
+	}
+	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
+	SDL_UpdateRect(dst,x-temp->w,y-temp->h,temp->w,temp->h);
+	SDL_FreeSurface(temp);
+}
 void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC, Uint8 A)
 {
 	Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;

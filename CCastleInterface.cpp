@@ -7,6 +7,7 @@
 #include "CAdvmapInterface.h"
 #include "hch/CTownHandler.h"
 #include "AdventureMapButton.h"
+#include <sstream>
 std::string getBgName(int type) //TODO - co z tym zrobiæ?
 {
 	switch (type)
@@ -41,6 +42,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	cityBg = CGI->bitmaph->loadBitmap(getBgName(town->subID));
 	hall = CGI->spriteh->giveDef("ITMTL.DEF");
 	fort = CGI->spriteh->giveDef("ITMCL.DEF");
+	bigTownPic =  CGI->spriteh->giveDef("ITPT.DEF");
+	flag =  CGI->spriteh->giveDef("CREST58.DEF");
 	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit = new AdventureMapButton<CCastleInterface>(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,Activate);
 	exit->bitmapOffset = 4;
@@ -57,6 +60,8 @@ CCastleInterface::~CCastleInterface()
 	delete exit;
 	delete hall;
 	delete fort;
+	delete bigTownPic;
+	delete flag;
 }
 void CCastleInterface::close()
 {
@@ -107,7 +112,13 @@ void CCastleInterface::show()
 		}
 		if (cid>=0)
 		{
-			;
+			int pomx, pomy;
+			pomx = 22 + (55*((i>3)?(i-4):i));
+			pomy = (i>3)?(507):(459);
+			blitAt(CGI->creh->smallImgs[cid],pomx,pomy);
+			std::ostringstream oss;
+			oss << '+' << town->creatureIncome[i];
+			CSDL_Ext::printAtMiddle(oss.str(),pomx+16,pomy+37,GEOR13,zwykly);
 		}
 	}
 
@@ -116,6 +127,25 @@ void CCastleInterface::show()
 	char temp[10];
 	itoa(town->income,temp,10);
 	CSDL_Ext::printAtMiddle(temp,195,442,GEOR13,zwykly);
+
+	//blit town icon
+	pom = town->subID*2;
+	if (!town->hasFort())
+		pom += F_NUMBER*2;
+	if(town->builded >= MAX_BUILDING_PER_TURN)
+		pom++;
+	blitAt(bigTownPic->ourImages[pom].bitmap,15,387);
+
+	//flag
+	blitAt(flag->ourImages[town->getOwner()].bitmap,241,387);
+	//print garrison
+	for(std::map<int,std::pair<CCreature*,int> >::const_iterator i=town->garrison.slots.begin();i!=town->garrison.slots.end();i++)
+	{
+		blitAt(CGI->creh->bigImgs[i->second.first->idNumber],305+(62*(i->first)),387);
+		itoa(i->second.second,temp,10);
+		CSDL_Ext::printTo(temp,305+(62*(i->first))+57,387+61,GEOR13,zwykly);
+	}
+	
 }
 void CCastleInterface::activate()
 {
