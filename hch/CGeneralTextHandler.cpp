@@ -32,6 +32,15 @@ void CGeneralTextHandler::load()
 		arraytxt.push_back(tmp);
 	}
 
+	itr = 0;
+	std::string strin = CGI->bitmaph->getTextFile("PRISKILL.TXT");
+	for(int hh=0; hh<4; ++hh)
+	{
+		std::string tmp;
+		CGeneralTextHandler::loadToIt(tmp, strin, itr, 3);
+		primarySkillNames.push_back(tmp);
+	}
+
 	//std::ofstream ofs("arraytxts.txt");
 	//for (int i=0;i<arraytxt.size();i++)
 	//	ofs << i <<".\t" << arraytxt[i] << std::endl<< std::endl;

@@ -31,7 +31,14 @@ void CHeroHandler::loadPortraits()
 		heroes[ID]->portraitSmall=CGI->bitmaph->loadBitmap(path);
 		if (!heroes[ID]->portraitSmall)
 			std::cout<<"Can't read small portrait for "<<ID<<" ("<<path<<")\n";
-		path.replace(2,1,"L");
+		for(int ff=0; ff<path.size(); ++ff) //size letter is usually third one, but there are exceptions an it should fix the problem
+		{
+			if(path[ff]=='S')
+			{
+				path[ff]='L';
+				break;
+			}
+		}
 		heroes[ID]->portraitLarge=CGI->bitmaph->loadBitmap(path);
 		if (!heroes[ID]->portraitLarge)
 			std::cout<<"Can't read large portrait for "<<ID<<" ("<<path<<")\n";	
