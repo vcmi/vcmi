@@ -17,7 +17,9 @@ class CHeroWindow: public IShowable, public virtual CIntObject
 
 	//buttons
 	AdventureMapButton<CHeroWindow> * quitButton, * dismissButton, * questlogButton, //general
-		* gar1button, * gar2button, * gar3button, * gar4button; //garrison / formation handling
+		* gar1button, * gar2button, * gar3button, * gar4button, //garrison / formation handling
+		* leftArtRoll, * rightArtRoll;
+	std::vector< AdventureMapButton<CHeroWindow> * > heroList; //list of heroes
 public:
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor
@@ -26,9 +28,12 @@ public:
 	virtual void show(SDL_Surface * to = NULL); //shows hero window
 	void quit(); //stops displaying hero window
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero) //TODO: make it working
-	void questlog(); //show quest log in 
+	void questlog(); //show quest log in hero window
 	void gar1(); //garrison / formation handling
 	void gar2(); //garrison / formation handling
 	void gar3(); //garrison / formation handling
 	void gar4(); //garrison / formation handling
+	void leftArtRoller(); //scrolls artifacts in bag left
+	void rightArtRoller(); //scrolls artifacts in bag right
+	void switchHero(); //changes displayed hero
 };

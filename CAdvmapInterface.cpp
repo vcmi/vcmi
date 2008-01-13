@@ -120,7 +120,7 @@ void CHeroList::clickLeft(tribool down)
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		float ny = (float)hy/(float)32;
-		if (ny>5 || ny<0)
+		if (ny>=5 || ny<0)
 			return;
 		if (((int)(ny+from))==selected)
 			LOCPLINT->openHeroWindow(items[selected].first);//print hero screen

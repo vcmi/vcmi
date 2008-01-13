@@ -31,6 +31,14 @@ CHeroWindow::CHeroWindow(int playerColor)
 	gar3button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar3, 546, 527, "hsbtns7.def", this);
 	gar4button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar4, 604, 527, "hsbtns9.def", this);
 
+	leftArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::leftArtRoller, 379, 364, "hsbtns3.def", this);
+	rightArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::rightArtRoller, 632, 364, "hsbtns5.def", this);
+
+	for(int g=0; g<8; ++g)
+	{
+		heroList.push_back(new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::switchHero, 677, 95+g*54, "hsbtns5.def", this));
+	}
+
 	skillpics = CGI->spriteh->giveDef("pskil42.def");
 	flags = CGI->spriteh->giveDef("CREST58.DEF");
 }
@@ -45,6 +53,11 @@ CHeroWindow::~CHeroWindow()
 	delete gar2button;
 	delete gar3button;
 	delete gar4button;
+	delete leftArtRoll;
+	delete rightArtRoll;
+
+	for(int g=0; g<heroList.size(); ++g)
+		delete heroList[g];
 
 	if(curBack)
 		SDL_FreeSurface(curBack);
@@ -65,6 +78,8 @@ void CHeroWindow::show(SDL_Surface *to)
 	gar2button->show();
 	gar3button->show();
 	gar4button->show();
+	leftArtRoll->show();
+	rightArtRoll->show();
 }
 
 void CHeroWindow::setHero(const CGHeroInstance *hero)
@@ -88,6 +103,12 @@ void CHeroWindow::quit()
 	gar2button->deactivate();
 	gar3button->deactivate();
 	gar4button->deactivate();
+	leftArtRoll->deactivate();
+	rightArtRoll->deactivate();
+	for(int g=0; g<heroList.size(); ++g)
+	{
+		heroList[g]->deactivate();
+	}
 
 	LOCPLINT->adventureInt->show();
 
@@ -104,6 +125,12 @@ void CHeroWindow::activate()
 	gar2button->activate();
 	gar3button->activate();
 	gar4button->activate();
+	leftArtRoll->activate();
+	rightArtRoll->activate();
+	for(int g=0; g<heroList.size(); ++g)
+	{
+		heroList[g]->activate();
+	}
 
 	curBack = CSDL_Ext::copySurface(background);
 	blitAt(skillpics->ourImages[0].bitmap, 32, 111, curBack);
@@ -147,6 +174,25 @@ void CHeroWindow::activate()
 	blitAt(LOCPLINT->morale42->ourImages[curHero->getCurrentMorale()+3].bitmap, 181, 182, curBack);
 
 	blitAt(flags->ourImages[player].bitmap, 606, 8, curBack);
+
+	//hero list blitting
+	for(int g=0; g<LOCPLINT->cb->howManyHeroes(); ++g)
+	{
+		const CGHeroInstance * cur = LOCPLINT->cb->getHeroInfo(player, g, false);
+		blitAt(cur->type->portraitSmall, 611, 87+g*54, curBack);
+		//printing yellow border
+		if(cur->name == curHero->name)
+		{
+			for(int f=0; f<cur->type->portraitSmall->w; ++f)
+			{
+				for(int h=0; h<cur->type->portraitSmall->h; ++h)
+					if(f==0 || h==0 || f==cur->type->portraitSmall->w-1 || h==cur->type->portraitSmall->h-1)
+					{
+						CSDL_Ext::SDL_PutPixel(curBack, 611+f, 87+g*54+h, 240, 220, 120);
+					}
+			}
+		}
+	}
 }
 
 void CHeroWindow::dismissCurrent()
@@ -171,4 +217,27 @@ void CHeroWindow::gar3()
 
 void CHeroWindow::gar4()
 {
+}
+
+void CHeroWindow::leftArtRoller()
+{
+}
+
+void CHeroWindow::rightArtRoller()
+{
+}
+
+void CHeroWindow::switchHero()
+{
+	int y;
+	SDL_GetMouseState(NULL, &y);
+	for(int g=0; g<heroList.size(); ++g)
+	{
+		if(y>=94+54*g)
+		{
+			quit();
+			setHero(LOCPLINT->cb->getHeroInfo(player, g, false));
+			LOCPLINT->openHeroWindow(curHero);
+		}
+	}
 }
