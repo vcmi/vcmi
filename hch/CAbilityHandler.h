@@ -4,6 +4,8 @@
 #include <string>
 #include <vector>
 
+class CDefHandler;
+
 class CAbility
 {
 public:
@@ -19,6 +21,8 @@ class CAbilityHandler
 {
 public:
 	std::vector<CAbility *> abilities;
+	CDefHandler * abils32, * abils44, * abils82;
+	std::vector<std::string> levels;
 	void loadAbilities();
 };
 

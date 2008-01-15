@@ -48,6 +48,7 @@ void CHeroHandler::loadPortraits()
 	of.close();
 	pskillsb = CGI->spriteh->giveDef("PSKILL.DEF");
 	resources = CGI->spriteh->giveDef("RESOUR82.DEF");
+	un44 = CGI->spriteh->giveDef("UN44.DEF");
 
 	std::string  strs = CGI->bitmaph->getTextFile("PRISKILL.TXT");
 	int itr=0;

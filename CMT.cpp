@@ -59,7 +59,7 @@
 const char * NAME = "VCMI 0.5 \"Tirion\"";
 
 SDL_Surface * ekran, * screen, * screen2;
-TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
+TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
 {
 	std::vector<int> tempv = script->yourObjects();
@@ -299,6 +299,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		TNRB16 = TTF_OpenFont("Fonts\\tnrb.ttf",16);
 		//TNR = TTF_OpenFont("Fonts\\tnr.ttf",10);
 		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
+		GEOR16 = TTF_OpenFont("Fonts\\georgia.ttf",16);
 		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
 		GEORM = TTF_OpenFont("Fonts\\georgia.ttf",10);
 

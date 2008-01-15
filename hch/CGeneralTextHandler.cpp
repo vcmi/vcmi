@@ -41,6 +41,15 @@ void CGeneralTextHandler::load()
 		primarySkillNames.push_back(tmp);
 	}
 
+	itr = 0;
+	std::string strin2 = CGI->bitmaph->getTextFile("JKTEXT.TXT");
+	for(int hh=0; hh<45; ++hh)
+	{
+		std::string tmp;
+		CGeneralTextHandler::loadToIt(tmp, strin2, itr, 3);
+		jktexts.push_back(tmp);
+	}
+
 	//std::ofstream ofs("arraytxts.txt");
 	//for (int i=0;i<arraytxt.size();i++)
 	//	ofs << i <<".\t" << arraytxt[i] << std::endl<< std::endl;

@@ -90,6 +90,7 @@ public:
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
 	CDefHandler * pskillsb, *resources; //82x93
+	CDefHandler * un44; //many things
 	std::vector<std::string> pskillsn;
 	unsigned int level(unsigned int experience);
 	void loadHeroes();

@@ -955,6 +955,10 @@ void CAmbarCendamo::deh3m()
 				nhi->type = spec->type;
 				nhi->army = spec->garrison;
 				nhi->portrait = -1; // TODO: przypisywac portret
+				for(int qq=0; qq<spec->abilities.size(); ++qq)
+				{
+					nhi->secSkills.push_back(std::make_pair(spec->abilities[qq]->idNumber, spec->abilityLevels[qq]-1));
+				}
 				CGI->heroh->heroInstances.push_back(nhi);
 				break;
 			}
