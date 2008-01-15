@@ -34,6 +34,16 @@ std::string getBgName(int type) //TODO - co z tym zrobiæ?
 		throw new std::exception("std::string getBgName(int type): invalid type");
 	}
 }
+class SORTHELP
+{
+public:
+	bool operator ()
+		(const boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *a ,
+		 const boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *b)
+	{
+		return (a->get<0>())<(b->get<0>());
+	}
+} srthlp ;
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 {
@@ -47,6 +57,28 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit = new AdventureMapButton<CCastleInterface>(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,Activate);
 	exit->bitmapOffset = 4;
+
+	for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
+	{
+		if(CGI->townh->structures.find(town->subID) != CGI->townh->structures.end())
+		{
+			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end())
+			{
+				CDefHandler *b = CGI->spriteh->giveDef(CGI->townh->structures[town->subID][*i]->defName);
+				boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *t 
+					= new boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*>
+					(*i,b,CGI->townh->structures[town->subID][*i],NULL,NULL);
+				//TODO: obwódki i pola
+				buildings.push_back(t);
+			}
+			else continue;
+		}
+		else
+			break;
+	}
+
+	std::sort(buildings.begin(),buildings.end(),srthlp);
+
 	if(Activate)
 	{
 		activate();
@@ -62,6 +94,20 @@ CCastleInterface::~CCastleInterface()
 	delete fort;
 	delete bigTownPic;
 	delete flag;
+
+	for(int i=0;i<buildings.size();i++)
+	{
+		if (buildings[i]->get<1>())
+			delete (buildings[i]->get<1>());
+		//if (buildings[i]->get<2>())
+		//	delete (buildings[i]->get<2>());
+		if (buildings[i]->get<3>())
+			SDL_FreeSurface(buildings[i]->get<3>());
+		if (buildings[i]->get<4>())
+			SDL_FreeSurface(buildings[i]->get<4>());
+		delete buildings[i];
+	}
+
 }
 void CCastleInterface::close()
 {
@@ -144,6 +190,12 @@ void CCastleInterface::show()
 		blitAt(CGI->creh->bigImgs[i->second.first->idNumber],305+(62*(i->first)),387);
 		itoa(i->second.second,temp,10);
 		CSDL_Ext::printTo(temp,305+(62*(i->first))+57,387+61,GEOR13,zwykly);
+	}
+
+	//blit buildings
+	for(int i=0;i<buildings.size();i++)
+	{
+		blitAt(buildings[i]->get<1>()->ourImages[0].bitmap,buildings[i]->get<2>()->x,buildings[i]->get<2>()->y);
 	}
 	
 }

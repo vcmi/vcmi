@@ -165,10 +165,10 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 		return true;
 	if(!cmp.defInfo->isVisitable() && defInfo->isVisitable())
 		return false;
-	if(defInfo->isOnDefList && !(cmp.defInfo->isOnDefList))
-		return true;
-	if(cmp.defInfo->isOnDefList && !(defInfo->isOnDefList))
-		return false;
+	//if(defInfo->isOnDefList && !(cmp.defInfo->isOnDefList))
+	//	return true;
+	//if(cmp.defInfo->isOnDefList && !(defInfo->isOnDefList))
+	//	return false;
 	if(this->pos.x<cmp.pos.x)
 		return true;
 	return false;

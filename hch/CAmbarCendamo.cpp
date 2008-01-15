@@ -519,6 +519,7 @@ void CAmbarCendamo::deh3m()
 		//{
 		//	vinya->bytes[v] = bufor[i++];
 		//}
+		std::transform(vinya->name.begin(),vinya->name.end(),vinya->name.begin(),(int(*)(int))toupper);
 		std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
 			vinya->name);
 		if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
@@ -2227,6 +2228,12 @@ void CAmbarCendamo::deh3m()
 				break;
 			}
 		}
+	}
+
+	for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
+	{
+		if (CGI->objh->objInstances[ww]->defObjInfoNumber==-1)
+			std::cout<<CGI->objh->objInstances[ww]->ID<<"\t" << CGI->objh->objInstances[ww]->subID<<"\t"<<CGI->objh->objInstances[ww]->defInfo->name<<std::endl;
 	}
 
 	//assigned

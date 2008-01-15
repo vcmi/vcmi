@@ -2,7 +2,7 @@
 #include "CTownHandler.h"
 #include "../CGameInfo.h"
 #include "CLodHandler.h"
-#include <sstream>
+#include <sstream> 
 #include "CGeneralTextHandler.h"
 CTownHandler::CTownHandler()
 {
@@ -11,6 +11,7 @@ CTownHandler::CTownHandler()
 CTownHandler::~CTownHandler()
 {
 	delete smallIcons;
+	//todo - delete structures info
 }
 void CTownHandler::loadNames()
 {
@@ -42,8 +43,21 @@ void CTownHandler::loadNames()
 		std::string tmp;
 		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
 		tcommands.push_back(tmp);
-
 	}
+
+	
+	std::ifstream of("config/buildings.txt");
+	while(!of.eof())
+	{
+		Structure *vinya = new Structure;
+		of >> vinya->townID;
+		of >> vinya->ID;
+		of >> vinya->defName;
+		of >> vinya->x;
+		of >> vinya->y;
+		structures[vinya->townID][vinya->ID] = vinya;
+	}
+	
 }
 SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)
 {

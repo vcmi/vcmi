@@ -23,6 +23,12 @@ public:
 	int typeID;
 };
 
+struct Structure
+{
+	std::string defName;
+	int ID, townID, x, y;
+};
+
 class CTownHandler
 {
 	CDefHandler * smallIcons;
@@ -34,6 +40,9 @@ public:
 	void loadNames();
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //ID=-1 - blank; -2 - border; -3 - random
 	static int getTypeByDefName(std::string name);
+
+	std::map<int,std::map<int, Structure*> > structures;
+
 
 	std::vector<CGTownInstance *> townInstances;
 
