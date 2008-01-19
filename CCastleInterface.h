@@ -24,12 +24,14 @@ public:
 	void clickRight (tribool down);
 };
 
-class CCastleInterface
+class CCastleInterface : public IShowable
 {
 public:
 	SDL_Surface * townInt;
 	SDL_Surface * cityBg;
 	const CGTownInstance * town;
+
+	unsigned char animval, count;
 
 	CDefHandler *hall,*fort,
 		*bigTownPic, *flag;
@@ -40,7 +42,8 @@ public:
 
 	CCastleInterface(const CGTownInstance * Town, bool Activate=true);
 	~CCastleInterface();
-	void show();
+	void show(SDL_Surface * to=NULL);
+	void showAll(SDL_Surface * to=NULL);
 	void close();
 	void activate();
 	void deactivate();

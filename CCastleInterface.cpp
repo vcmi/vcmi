@@ -98,6 +98,7 @@ public:
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 {
+	count=0;
 	town = Town;
 	townInt = CGI->bitmaph->loadBitmap("TOWNSCRN.bmp");
 	cityBg = CGI->bitmaph->loadBitmap(getBgName(town->subID));
@@ -134,9 +135,16 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 
 	if(Activate)
 	{
+		LOCPLINT->objsToBlit.push_back(this);
 		activate();
-		show();
+		showAll();
 	}
+
+	//blit buildings on bg
+	//for(int i=0;i<buildings.size();i++)
+	//{
+	//	blitAt(buildings[i]->def->ourImages[0].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,cityBg);
+	//}
 }
 CCastleInterface::~CCastleInterface()
 {
@@ -156,15 +164,18 @@ CCastleInterface::~CCastleInterface()
 }
 void CCastleInterface::close()
 {
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	deactivate();
 	LOCPLINT->castleInt = NULL;
 	LOCPLINT->adventureInt->show();
 	delete this;
 }
-void CCastleInterface::show()
-{
-	blitAt(cityBg,0,0);
-	blitAt(townInt,0,374);
+void CCastleInterface::showAll(SDL_Surface * to)
+{	
+	if (!to)
+		to=ekran;
+	blitAt(cityBg,0,0,to);
+	blitAt(townInt,0,374,to);
 	LOCPLINT->adventureInt->resdatabar.draw();
 
 	int pom;
@@ -177,7 +188,7 @@ void CCastleInterface::show()
 	else if(town->builtBuildings.find(7)!=town->builtBuildings.end())
 		pom = 0;
 	else pom = 3;
-	blitAt(fort->ourImages[pom].bitmap,122,413);
+	blitAt(fort->ourImages[pom].bitmap,122,413,to);
 
 	//draw ((village/town/city) hall)/capitol icon
 	if(town->builtBuildings.find(13)!=town->builtBuildings.end())
@@ -187,7 +198,7 @@ void CCastleInterface::show()
 	else if(town->builtBuildings.find(11)!=town->builtBuildings.end())
 		pom = 1;
 	else pom = 0;
-	blitAt(hall->ourImages[pom].bitmap,80,413);
+	blitAt(hall->ourImages[pom].bitmap,80,413,to);
 
 	//draw creatures icons and their growths
 	for(int i=0;i<CREATURES_PER_TOWN;i++)
@@ -206,18 +217,18 @@ void CCastleInterface::show()
 			int pomx, pomy;
 			pomx = 22 + (55*((i>3)?(i-4):i));
 			pomy = (i>3)?(507):(459);
-			blitAt(CGI->creh->smallImgs[cid],pomx,pomy);
+			blitAt(CGI->creh->smallImgs[cid],pomx,pomy,to);
 			std::ostringstream oss;
 			oss << '+' << town->creatureIncome[i];
-			CSDL_Ext::printAtMiddle(oss.str(),pomx+16,pomy+37,GEOR13,zwykly);
+			CSDL_Ext::printAtMiddle(oss.str(),pomx+16,pomy+37,GEOR13,zwykly,to);
 		}
 	}
 
 	//print name and income
-	CSDL_Ext::printAt(town->name,85,389,GEOR13,zwykly);
+	CSDL_Ext::printAt(town->name,85,389,GEOR13,zwykly,to);
 	char temp[10];
 	itoa(town->income,temp,10);
-	CSDL_Ext::printAtMiddle(temp,195,442,GEOR13,zwykly);
+	CSDL_Ext::printAtMiddle(temp,195,442,GEOR13,zwykly,to);
 
 	//blit town icon
 	pom = town->subID*2;
@@ -225,10 +236,10 @@ void CCastleInterface::show()
 		pom += F_NUMBER*2;
 	if(town->builded >= MAX_BUILDING_PER_TURN)
 		pom++;
-	blitAt(bigTownPic->ourImages[pom].bitmap,15,387);
+	blitAt(bigTownPic->ourImages[pom].bitmap,15,387,to);
 
 	//flag
-	blitAt(flag->ourImages[town->getOwner()].bitmap,241,387);
+	blitAt(flag->ourImages[town->getOwner()].bitmap,241,387,to);
 	//print garrison
 	for(
 		std::map<int,std::pair<CCreature*,int> >::const_iterator i=town->garrison.slots.begin();
@@ -236,16 +247,41 @@ void CCastleInterface::show()
 		i++
 			)
 	{
-		blitAt(CGI->creh->bigImgs[i->second.first->idNumber],305+(62*(i->first)),387);
+		blitAt(CGI->creh->bigImgs[i->second.first->idNumber],305+(62*(i->first)),387,to);
 		itoa(i->second.second,temp,10);
-		CSDL_Ext::printTo(temp,305+(62*(i->first))+57,387+61,GEOR13,zwykly);
+		CSDL_Ext::printTo(temp,305+(62*(i->first))+57,387+61,GEOR13,zwykly,to);
 	}
+	show();
+}
+void CCastleInterface::show(SDL_Surface * to)
+{
+	if (!to)
+		to=ekran;
+	count++;
+	if(count==5)
+	{
+		count=0;
+		animval++;
+	}
+
 
 	//blit buildings
 	for(int i=0;i<buildings.size();i++)
 	{
-		blitAt(buildings[i]->def->ourImages[0].bitmap,buildings[i]->pos.x,buildings[i]->pos.y);
+		if((animval)%(buildings[i]->def->ourImages.size()))
+		{
+			blitAt(buildings[i]->def->ourImages[0].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
+			blitAt(buildings[i]->def->ourImages[(animval)%(buildings[i]->def->ourImages.size())].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
+		}
+		else 
+			blitAt(buildings[i]->def->ourImages[(animval)%(buildings[i]->def->ourImages.size())].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
 	}
+	//for(int i=0;i<buildings.size();i++)
+	//{
+	//	if((animval)%(buildings[i]->def->ourImages.size())==0)
+	//		blitAt(buildings[i]->def->ourImages[(animval)%(buildings[i]->def->ourImages.size())].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
+	//	else continue;
+	//}
 	
 }
 void CCastleInterface::activate()
