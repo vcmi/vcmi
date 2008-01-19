@@ -1,0 +1,38 @@
+0 0
+CASTLE 0
+0
+1
+2
+3
+4
+10
+11
+12
+13
+5
+22
+30
+37
+END
+EOD
+
+------------------------------------------------------------------
+
+//File format:
+
+0 0 //for further use - format version and ID mode
+
+
+	CASTLE [Castle ID]
+		[ID] //Building showed on the top (blitted later)
+		[ID] //Building showed later...
+		...
+		[ID] //even later...
+	END //end of buildings for this castle
+
+
+	[...] //info for more castles
+
+EOD
+
+Buildings not mentioned in the file will be blitted as first. File can contain data for any count of castles.

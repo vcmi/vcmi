@@ -45,7 +45,7 @@ void CTownHandler::loadNames()
 		tcommands.push_back(tmp);
 	}
 
-	
+	//read buildings coords
 	std::ifstream of("config/buildings.txt");
 	while(!of.eof())
 	{
@@ -53,10 +53,45 @@ void CTownHandler::loadNames()
 		of >> vinya->townID;
 		of >> vinya->ID;
 		of >> vinya->defName;
-		of >> vinya->x;
-		of >> vinya->y;
+		of >> vinya->pos.x;
+		of >> vinya->pos.y;
+		vinya->pos.z = 0;
 		structures[vinya->townID][vinya->ID] = vinya;
 	}
+	of.close();
+	of.clear();
+
+	//read building priorities
+	of.open("config/buildings2.txt");
+	int format, idt;
+	std::string s;
+	of >> format >> idt;
+	while(!of.eof())
+	{
+		std::map<int,std::map<int, Structure*> >::iterator i;
+		std::map<int, Structure*>::iterator i2;
+		int itr=1, buildingID;
+		int castleID;
+		of >> s;
+		if (s != "CASTLE")
+			break;
+		of >> castleID;
+		while(1)
+		{
+			of >> s;
+			if (s == "END")
+				break;
+			else
+				if((i=structures.find(castleID))!=structures.end())
+					if((i2=(i->second.find(buildingID=atoi(s.c_str()))))!=(i->second.end()))
+						i2->second->pos.z=itr++;
+					else
+						std::cout << "Warning: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
+				else
+					std::cout << "Warning: Castle "<<castleID<<" not defined."<<std::endl;
+		}
+	}
+	of.close();
 	
 }
 SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)

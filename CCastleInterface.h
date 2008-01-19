@@ -2,16 +2,26 @@
 #include "global.h"
 #include "SDL.h"
 #include "CPlayerInterface.h"
-#include "boost/tuple/tuple.hpp"
+//#include "boost/tuple/tuple.hpp"
 class CGTownInstance;
 class CTownHandler;
 struct Structure;
 template <typename T> class AdventureMapButton;
 class CBuildingRect : public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
 {
-	
+public:
+	Structure* str;
+	CDefHandler* def;
+	SDL_Surface* border;
+	SDL_Surface* area;
+	CBuildingRect(Structure *Str);
+	~CBuildingRect();
 	void activate();
 	void deactivate();
+	bool operator<(const CBuildingRect & p2) const;
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void clickLeft (tribool down);
+	void clickRight (tribool down);
 };
 
 class CCastleInterface
@@ -26,7 +36,7 @@ public:
 
 	AdventureMapButton<CCastleInterface> * exit;
 
-	std::vector<boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *> buildings; //building id, building def, structure struct, border, filling
+	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
 	CCastleInterface(const CGTownInstance * Town, bool Activate=true);
 	~CCastleInterface();

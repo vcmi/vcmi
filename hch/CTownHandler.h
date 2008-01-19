@@ -25,8 +25,10 @@ public:
 
 struct Structure
 {
+	int ID;
+	int3 pos;
 	std::string defName;
-	int ID, townID, x, y;
+	int townID;
 };
 
 class CTownHandler

@@ -8,6 +8,57 @@
 #include "hch/CTownHandler.h"
 #include "AdventureMapButton.h"
 #include <sstream>
+
+CBuildingRect::CBuildingRect(Structure *Str)
+:str(Str)
+{	
+	def = CGI->spriteh->giveDef(Str->defName);
+	border = area = NULL;
+	pos.x = str->pos.x;
+	pos.y = str->pos.y;
+	pos.w = def->ourImages[0].bitmap->w;
+	pos.h = def->ourImages[0].bitmap->h;
+}
+
+CBuildingRect::~CBuildingRect()
+{
+	delete def;
+	if(border)
+		SDL_FreeSurface(border);
+	if(area)
+		SDL_FreeSurface(area);
+}
+void CBuildingRect::activate()
+{
+	MotionInterested::activate();
+	ClickableL::activate();
+	ClickableR::activate();
+}
+void CBuildingRect::deactivate()
+{
+	MotionInterested::deactivate();
+	ClickableL::deactivate();
+	ClickableR::deactivate();
+}
+bool CBuildingRect::operator<(const CBuildingRect & p2) const
+{
+	if(str->pos.z != p2.str->pos.z)
+		return (str->pos.z) < (p2.str->pos.z);
+	else
+		return (str->ID) < (p2.str->ID);
+}
+void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
+{
+	//todo - handle
+}
+void CBuildingRect::clickLeft (tribool down)
+{
+	//todo - handle
+}
+void CBuildingRect::clickRight (tribool down)
+{
+	//todo - handle
+}
 std::string getBgName(int type) //TODO - co z tym zrobiæ?
 {
 	switch (type)
@@ -38,10 +89,10 @@ class SORTHELP
 {
 public:
 	bool operator ()
-		(const boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *a ,
-		 const boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *b)
+		(const CBuildingRect *a ,
+		 const CBuildingRect *b)
 	{
-		return (a->get<0>())<(b->get<0>());
+		return (*a)<(*b);
 	}
 } srthlp ;
 
@@ -55,7 +106,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	bigTownPic =  CGI->spriteh->giveDef("ITPT.DEF");
 	flag =  CGI->spriteh->giveDef("CREST58.DEF");
 	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
-	exit = new AdventureMapButton<CCastleInterface>(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,Activate);
+	exit = new AdventureMapButton<CCastleInterface>
+		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,Activate);
 	exit->bitmapOffset = 4;
 
 	for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
@@ -64,12 +116,13 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 		{
 			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end())
 			{
-				CDefHandler *b = CGI->spriteh->giveDef(CGI->townh->structures[town->subID][*i]->defName);
-				boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *t 
-					= new boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*>
-					(*i,b,CGI->townh->structures[town->subID][*i],NULL,NULL);
-				//TODO: obwódki i pola
-				buildings.push_back(t);
+				//CDefHandler *b = CGI->spriteh->giveDef(CGI->townh->structures[town->subID][*i]->defName);
+				buildings.push_back(new CBuildingRect(CGI->townh->structures[town->subID][*i]));
+				//boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *t 
+				//	= new boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*>
+				//	(*i,b,CGI->townh->structures[town->subID][*i],NULL,NULL);
+				////TODO: obwódki i pola
+				//buildings.push_back(t);
 			}
 			else continue;
 		}
@@ -97,14 +150,6 @@ CCastleInterface::~CCastleInterface()
 
 	for(int i=0;i<buildings.size();i++)
 	{
-		if (buildings[i]->get<1>())
-			delete (buildings[i]->get<1>());
-		//if (buildings[i]->get<2>())
-		//	delete (buildings[i]->get<2>());
-		if (buildings[i]->get<3>())
-			SDL_FreeSurface(buildings[i]->get<3>());
-		if (buildings[i]->get<4>())
-			SDL_FreeSurface(buildings[i]->get<4>());
 		delete buildings[i];
 	}
 
@@ -185,7 +230,11 @@ void CCastleInterface::show()
 	//flag
 	blitAt(flag->ourImages[town->getOwner()].bitmap,241,387);
 	//print garrison
-	for(std::map<int,std::pair<CCreature*,int> >::const_iterator i=town->garrison.slots.begin();i!=town->garrison.slots.end();i++)
+	for(
+		std::map<int,std::pair<CCreature*,int> >::const_iterator i=town->garrison.slots.begin();
+		i!=town->garrison.slots.end();
+		i++
+			)
 	{
 		blitAt(CGI->creh->bigImgs[i->second.first->idNumber],305+(62*(i->first)),387);
 		itoa(i->second.second,temp,10);
@@ -195,12 +244,14 @@ void CCastleInterface::show()
 	//blit buildings
 	for(int i=0;i<buildings.size();i++)
 	{
-		blitAt(buildings[i]->get<1>()->ourImages[0].bitmap,buildings[i]->get<2>()->x,buildings[i]->get<2>()->y);
+		blitAt(buildings[i]->def->ourImages[0].bitmap,buildings[i]->pos.x,buildings[i]->pos.y);
 	}
 	
 }
 void CCastleInterface::activate()
 {
+	//for(int i=0;i<buildings.size();i++)
+	//	buildings[i]->activate();
 }
 void CCastleInterface::deactivate()
 {

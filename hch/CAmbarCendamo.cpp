@@ -1794,6 +1794,18 @@ void CAmbarCendamo::deh3m()
 							}//else if (ir==5)
 						}
 					}
+
+					//testowe zczytywanie h3mowych ID
+					for(int byte=0;byte<6;byte++)
+					{
+						for(int bit=0;bit<8;bit++)
+						{
+							if(spec->buildingSettings[byte] & (1<<bit))
+							{
+								nt->h3mbuildings.insert(byte*8+bit);
+							}
+						}
+					}
 				}
 				else
 				{
