@@ -16,6 +16,7 @@
 #include "SDL_framerate.h"
 #include "hch/CGeneralTextHandler.h"
 #include "CCastleInterface.h"
+#include "CHeroWindow.h"
 using namespace CSDL_Ext;
 
 class OCM_HLP_CGIN

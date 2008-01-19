@@ -1,10 +1,23 @@
 #pragma once
 #include "CPlayerInterface.h"
+#include "CAdvmapInterface.h"
 
 template <typename T> class AdventureMapButton;
-class SDL_Surface;
+struct SDL_Surface;
 class CGHeroInstance;
 class CDefHandler;
+class CArtifact;
+
+class CArtPlace: public ClickableL, public IShowable
+{
+public:
+	const CArtifact * ourArt;
+	CArtPlace(CArtifact * art);
+	void clickLeft (tribool down);
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to = NULL);
+};
 
 class CHeroWindow: public IShowable, public virtual CIntObject
 {
@@ -20,6 +33,12 @@ class CHeroWindow: public IShowable, public virtual CIntObject
 		* gar1button, * gar2button, * gar3button, * gar4button, //garrison / formation handling
 		* leftArtRoll, * rightArtRoll;
 	std::vector< AdventureMapButton<CHeroWindow> * > heroList; //list of heroes
+
+	//artifact places
+	CArtPlace * artHead, * artLRing, * artRRing, * artLHand, * artRhand,
+		* artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3,
+		* artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4,
+		* artMisc5, * artTorso, * artNeck, * artShoulders; //heroes' artifacts
 public:
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor

@@ -11,10 +11,13 @@
 #include "CMessage.h"
 #include <sstream>
 
-extern SDL_Surface * ekran;
+extern SDL_Surface * screen;
 extern TTF_Font * GEOR16;
 
-CHeroWindow::CHeroWindow(int playerColor)
+CHeroWindow::CHeroWindow(int playerColor): artFeet(0), artHead(0), artLHand(0),
+	artLRing(0), artMach1(0), artMach2(0), artMach3(0), artMach4(0), artMisc1(0),
+	artMisc2(0), artMisc3(0), artMisc4(0), artMisc5(0), artNeck(0), artRhand(0),
+	artRRing(0), artShoulders(0), artSpellBook(0), artTorso(0)
 {
 	player = playerColor;
 	background = CGI->bitmaph->loadBitmap("HEROSCR4.bmp");
@@ -68,6 +71,26 @@ CHeroWindow::~CHeroWindow()
 
 	delete skillpics;
 	delete flags;
+
+	delete artFeet;
+	delete artHead;
+	delete artLHand;
+	delete artLRing;
+	delete artMach1;
+	delete artMach2;
+	delete artMach3;
+	delete artMach4;
+	delete artMisc1;
+	delete artMisc2;
+	delete artMisc3;
+	delete artMisc4;
+	delete artMisc5;
+	delete artNeck;
+	delete artRhand;
+	delete artRRing;
+	delete artShoulders;
+	delete artSpellBook;
+	delete artTorso;
 }
 
 void CHeroWindow::show(SDL_Surface *to)
@@ -84,11 +107,128 @@ void CHeroWindow::show(SDL_Surface *to)
 	gar4button->show();
 	leftArtRoll->show();
 	rightArtRoll->show();
+
+	artFeet->show(to);
+	artHead->show(to);
+	artLHand->show(to);
+	artLRing->show(to);
+	artMach1->show(to);
+	artMach2->show(to);
+	artMach3->show(to);
+	artMach4->show(to);
+	artMisc1->show(to);
+	artMisc2->show(to);
+	artMisc3->show(to);
+	artMisc4->show(to);
+	artMisc5->show(to);
+	artNeck->show(to);
+	artRhand->show(to);
+	artRRing->show(to);
+	artShoulders->show(to);
+	artSpellBook->show(to);
+	artTorso->show(to);
 }
 
 void CHeroWindow::setHero(const CGHeroInstance *hero)
 {
 	curHero = hero;
+
+	delete artFeet;
+	delete artHead;
+	delete artLHand;
+	delete artLRing;
+	delete artMach1;
+	delete artMach2;
+	delete artMach3;
+	delete artMach4;
+	delete artMisc1;
+	delete artMisc2;
+	delete artMisc3;
+	delete artMisc4;
+	delete artMisc5;
+	delete artNeck;
+	delete artRhand;
+	delete artRRing;
+	delete artShoulders;
+	delete artSpellBook;
+	delete artTorso;
+
+	artFeet = new CArtPlace(hero->artFeet);
+	artFeet->pos.x = 515;
+	artFeet->pos.y = 295;
+	artFeet->pos.h = artFeet->pos.w = 44;
+	artHead = new CArtPlace(hero->artHead);
+	artHead->pos.x = 509;
+	artHead->pos.y = 30;
+	artHead->pos.h = artHead->pos.h = 44;
+	artLHand = new CArtPlace(hero->artLHand);
+	artLHand->pos.x = 564;
+	artLHand->pos.y = 183;
+	artLHand->pos.h = artLHand->pos.h = 44;
+	artLRing = new CArtPlace(hero->artLRing);
+	artLRing->pos.x = 610;
+	artLRing->pos.y = 183;
+	artLRing->pos.h = artLRing->pos.h = 44;
+	artMach1 = new CArtPlace(hero->artMach1);
+	artMach1->pos.x = 564;
+	artMach1->pos.y = 30;
+	artMach1->pos.h = artMach1->pos.h = 44;
+	artMach2 = new CArtPlace(hero->artMach2);
+	artMach2->pos.x = 610;
+	artMach2->pos.y = 30;
+	artMach2->pos.h = artMach2->pos.h = 44;
+	artMach3 = new CArtPlace(hero->artMach3);
+	artMach3->pos.x = 610;
+	artMach3->pos.y = 76;
+	artMach3->pos.h = artMach3->pos.h = 44;
+	artMach4 = new CArtPlace(hero->artMach4);
+	artMach4->pos.x = 610;
+	artMach4->pos.y = 122;
+	artMach4->pos.h = artMach4->pos.h = 44;
+	artMisc1 = new CArtPlace(hero->artMisc1);
+	artMisc1->pos.x = 383;
+	artMisc1->pos.y = 143;
+	artMisc1->pos.h = artMisc1->pos.h = 44;
+	artMisc2 = new CArtPlace(hero->artMisc2);
+	artMisc2->pos.x = 399;
+	artMisc2->pos.y = 194;
+	artMisc2->pos.h = artMisc2->pos.h = 44;
+	artMisc3 = new CArtPlace(hero->artMisc3);
+	artMisc3->pos.x = 415;
+	artMisc3->pos.y = 245;
+	artMisc3->pos.h = artMisc3->pos.h = 44;
+	artMisc4 = new CArtPlace(hero->artMisc4);
+	artMisc4->pos.x = 431;
+	artMisc4->pos.y = 296;
+	artMisc4->pos.h = artMisc4->pos.h = 44;
+	artMisc5 = new CArtPlace(hero->artMisc5);
+	artMisc5->pos.x = 381;
+	artMisc5->pos.y = 296;
+	artMisc5->pos.h = artMisc5->pos.h = 44;
+	artNeck = new CArtPlace(hero->artNeck);
+	artNeck->pos.x = 508;
+	artNeck->pos.y = 79;
+	artNeck->pos.h = artNeck->pos.h = 44;
+	artRhand = new CArtPlace(hero->artRhand);
+	artRhand->pos.x = 383;
+	artRhand->pos.y = 68;
+	artRhand->pos.h = artRhand->pos.h = 44;
+	artRRing = new CArtPlace(hero->artRRing);
+	artRRing->pos.x = 431;
+	artRRing->pos.y = 68;
+	artRRing->pos.h = artRRing->pos.h = 44;
+	artShoulders = new CArtPlace(hero->artShoulders);
+	artShoulders->pos.x = 567;
+	artShoulders->pos.y = 240;
+	artShoulders->pos.h = artShoulders->pos.h = 44;
+	artSpellBook = new CArtPlace(hero->artSpellBook);
+	artSpellBook->pos.x = 610;
+	artSpellBook->pos.y = 310;
+	artSpellBook->pos.h = artSpellBook->pos.h = 44;
+	artTorso = new CArtPlace(hero->artTorso);
+	artTorso->pos.x = 509;
+	artTorso->pos.y = 130;
+	artTorso->pos.h = artTorso->pos.h = 44;
 }
 
 void CHeroWindow::quit()
@@ -118,6 +258,14 @@ void CHeroWindow::quit()
 
 	SDL_FreeSurface(curBack);
 	curBack = NULL;
+	for(int v=0; v<LOCPLINT->lclickable.size(); ++v)
+	{
+		if(dynamic_cast<CArtPlace*>(LOCPLINT->lclickable[v]))
+			LOCPLINT->lclickable.erase(LOCPLINT->lclickable.begin()+v);
+	}
+
+	delete artFeet;
+	artFeet = 0;
 }
 
 void CHeroWindow::activate()
@@ -136,6 +284,7 @@ void CHeroWindow::activate()
 		heroList[g]->activate();
 	}
 	redrawCurBack();
+	//LOCPLINT->lclickable.push_back(artFeet);
 }
 
 void CHeroWindow::dismissCurrent()
@@ -341,4 +490,22 @@ void CHeroWindow::redrawCurBack()
 	std::stringstream manastr;
 	manastr<<curHero->mana<<'/'<<curHero->primSkills[3]*10;
 	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
+}
+
+CArtPlace::CArtPlace(CArtifact *art): ourArt(art){}
+void CArtPlace::activate()
+{
+}
+void CArtPlace::clickLeft(boost::logic::tribool down)
+{
+}
+void CArtPlace::deactivate()
+{
+}
+void CArtPlace::show(SDL_Surface *to)
+{
+	if(ourArt)
+	{
+		blitAt(CGI->arth->artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
+	}
 }

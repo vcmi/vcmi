@@ -860,6 +860,28 @@ void CAmbarCendamo::deh3m()
 						}
 					}
 				} //artifacts
+				else
+				{
+					spec->artFeet = NULL;
+					spec->artHead = NULL;
+					spec->artLHand = NULL;
+					spec->artLRing = NULL;
+					spec->artMach1 = NULL;
+					spec->artMach2 = NULL;
+					spec->artMach3 = NULL;
+					spec->artMach4 = NULL;
+					spec->artMisc1 = NULL;
+					spec->artMisc2 = NULL;
+					spec->artMisc3 = NULL;
+					spec->artMisc4 = NULL;
+					spec->artMisc5 = NULL;
+					spec->artNeck = NULL;
+					spec->artRhand = NULL;
+					spec->artRRing = NULL;
+					spec->artShoulders = NULL;
+					spec->artSpellBook = NULL;
+					spec->artTorso = NULL;
+				}
 				spec->guardRange = readNormalNr(i, 1); ++i;
 				if(spec->guardRange == 0xff)
 					spec->isGuarding = false;
@@ -956,6 +978,26 @@ void CAmbarCendamo::deh3m()
 				nhi->type = spec->type;
 				nhi->army = spec->garrison;
 				nhi->portrait = -1; // TODO: przypisywac portret
+				nhi->artFeet = spec->artFeet;
+				nhi->artHead = spec->artHead;
+				nhi->artifacts = spec->artifacts;
+				nhi->artLHand = spec->artLHand;
+				nhi->artLRing = spec->artLRing;
+				nhi->artMach1 = spec->artMach1;
+				nhi->artMach2 = spec->artMach2;
+				nhi->artMach3 = spec->artMach3;
+				nhi->artMach4 = spec->artMach4 = new CArtifact(CGI->arth->artifacts[3]);
+				nhi->artMisc1 = spec->artMisc1;
+				nhi->artMisc2 = spec->artMisc2;
+				nhi->artMisc3 = spec->artMisc3;
+				nhi->artMisc4 = spec->artMisc4;
+				nhi->artMisc5 = spec->artMisc5;
+				nhi->artNeck = spec->artNeck;
+				nhi->artRhand = spec->artRhand;
+				nhi->artRRing = spec->artRRing;
+				nhi->artShoulders = spec->artShoulders;
+				nhi->artSpellBook = spec->artSpellBook;
+				nhi->artTorso = spec->artTorso;
 				for(int qq=0; qq<spec->abilities.size(); ++qq)
 				{
 					nhi->secSkills.push_back(std::make_pair(spec->abilities[qq]->idNumber, spec->abilityLevels[qq]-1));

@@ -6,6 +6,8 @@
 
 void CArtHandler::loadArtifacts()
 {
+	artDefs = CGI->spriteh->giveDef("ARTIFACT.DEF");
+
 	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("ARTRAITS.TXT");
 	int it=0;
 	std::string dump;

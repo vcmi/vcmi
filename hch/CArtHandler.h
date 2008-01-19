@@ -5,6 +5,7 @@
 #include <vector>
 
 enum EartClass {SartClass=0, TartClass, NartClass, JartClass, RartClass}; //artifact class (relict, treasure, strong, weak etc.)
+class CDefHandler;
 
 class CArtifact //container for artifacts
 {
@@ -23,6 +24,7 @@ public:
 class CArtHandler //handles artifacts
 {
 public:
+	CDefHandler * artDefs;
 	std::vector<CArtifact> artifacts;
 	void loadArtifacts();
 	bool loadArtEvents();

@@ -403,6 +403,13 @@ public:
 	int movement; //remaining movement points
 	bool inTownGarrison; // if hero is in town garrison 
 
+	std::vector<CArtifact *> artifacts; //hero's artifacts from bag
+	CArtifact * artHead, * artLRing, * artRRing, * artLHand,
+		* artRhand, * artFeet, * artSpellBook, * artMach1,
+		* artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2,
+		* artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck,
+		* artShoulders; //working artifacts
+
 	virtual bool isHero() const;
 	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);
 	unsigned int getLowestCreatureSpeed();

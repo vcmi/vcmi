@@ -5,7 +5,6 @@
 #include "SDL.h"
 #include "CPlayerInterface.h"
 #include <map>
-#include "CHeroWindow.h"
 class CDefHandler;
 class CCallback;
 class CTownInstance;
@@ -13,6 +12,7 @@ class CPath;
 class CAdvMapInt;
 class CGHeroInstance;
 class CGTownInstance;
+class CHeroWindow;
 template <typename T=CAdvMapInt>
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase

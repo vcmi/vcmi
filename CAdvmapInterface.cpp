@@ -17,8 +17,11 @@
 #include "CLua.h"
 #include "hch/CHeroHandler.h"
 #include <sstream>
-extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 #include "AdventureMapButton.h"
+#include "CHeroWindow.h"
+
+extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
+
 using namespace boost::logic;
 using namespace boost::assign;
 using namespace CSDL_Ext;
