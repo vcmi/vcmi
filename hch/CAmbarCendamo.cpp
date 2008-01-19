@@ -829,11 +829,12 @@ void CAmbarCendamo::deh3m()
 					//misc5 art //17
 					if(map.version>=SoD)
 					{
-						id = readNormalNr(i, artidlen); i+=artidlen;
+						i+=2;
+						/*id = readNormalNr(i, artidlen); i+=artidlen;
 						if(id!=artmask)
 							spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
 						else
-							spec->artMisc5 = NULL;
+							spec->artMisc5 = NULL;*/
 					}
 					//spellbook
 					id = readNormalNr(i, artidlen); i+=artidlen;
@@ -841,9 +842,15 @@ void CAmbarCendamo::deh3m()
 						spec->artSpellBook = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
 						spec->artSpellBook = NULL;
-					//19 //???what is that? gap in file or what?
+					//19 //???what is that? gap in file or what? - it's probably fifth slot..
 					if(map.version>RoE)
-						i+=2;
+					{
+						id = readNormalNr(i, artidlen); i+=artidlen;
+						if(id!=artmask)
+							spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						else
+							spec->artMisc5 = NULL;
+					}
 					else
 						i+=1;
 					//bag artifacts //20

@@ -8,6 +8,14 @@ class CGHeroInstance;
 class CDefHandler;
 class CArtifact;
 
+class LClickableArea: public ClickableL
+{
+public:
+	virtual void clickLeft (tribool down);
+	virtual void activate();
+	virtual void deactivate();
+};
+
 class CArtPlace: public ClickableL, public IShowable
 {
 public:
@@ -39,6 +47,10 @@ class CHeroWindow: public IShowable, public virtual CIntObject
 		* artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3,
 		* artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4,
 		* artMisc5, * artTorso, * artNeck, * artShoulders; //heroes' artifacts
+	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
+	int backpackPos; //unmber of first art visible in backpack (in hero's vector)
+	//clickable areas
+	LClickableArea * portraitArea;
 public:
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor

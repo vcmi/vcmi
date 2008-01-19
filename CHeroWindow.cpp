@@ -17,9 +17,9 @@ extern TTF_Font * GEOR16;
 CHeroWindow::CHeroWindow(int playerColor): artFeet(0), artHead(0), artLHand(0),
 	artLRing(0), artMach1(0), artMach2(0), artMach3(0), artMach4(0), artMisc1(0),
 	artMisc2(0), artMisc3(0), artMisc4(0), artMisc5(0), artNeck(0), artRhand(0),
-	artRRing(0), artShoulders(0), artSpellBook(0), artTorso(0)
+	artRRing(0), artShoulders(0), artSpellBook(0), artTorso(0),
+	backpackPos(0), player(playerColor)
 {
-	player = playerColor;
 	background = CGI->bitmaph->loadBitmap("HEROSCR4.bmp");
 	CSDL_Ext::blueToPlayersAdv(background, playerColor);
 	pos.x = 65;
@@ -48,6 +48,13 @@ CHeroWindow::CHeroWindow(int playerColor): artFeet(0), artHead(0), artLHand(0),
 
 	skillpics = CGI->spriteh->giveDef("pskil42.def");
 	flags = CGI->spriteh->giveDef("CREST58.DEF");
+	//areas
+	portraitArea = new LClickableArea();
+	portraitArea->pos.x = 83;
+	portraitArea->pos.y = 26;
+	portraitArea->pos.w = 58;
+	portraitArea->pos.h = 64;
+
 }
 
 CHeroWindow::~CHeroWindow()
@@ -91,6 +98,13 @@ CHeroWindow::~CHeroWindow()
 	delete artShoulders;
 	delete artSpellBook;
 	delete artTorso;
+	for(int g=0; g<backpack.size(); ++g)
+	{
+		delete backpack[g];
+	}
+	backpack.clear();
+
+	delete portraitArea;
 }
 
 void CHeroWindow::show(SDL_Surface *to)
@@ -127,6 +141,10 @@ void CHeroWindow::show(SDL_Surface *to)
 	artShoulders->show(to);
 	artSpellBook->show(to);
 	artTorso->show(to);
+	for(int d=0; d<backpack.size(); ++d)
+	{
+		backpack[d]->show(to);
+	}
 }
 
 void CHeroWindow::setHero(const CGHeroInstance *hero)
@@ -152,6 +170,11 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	delete artShoulders;
 	delete artSpellBook;
 	delete artTorso;
+	for(int g=0; g<backpack.size(); ++g)
+	{
+		delete backpack[g];
+	}
+	backpack.clear();
 
 	artFeet = new CArtPlace(hero->artFeet);
 	artFeet->pos.x = 515;
@@ -229,6 +252,14 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artTorso->pos.x = 509;
 	artTorso->pos.y = 130;
 	artTorso->pos.h = artTorso->pos.h = 44;
+	for(int s=0; s<5 && s<curHero->artifacts.size(); ++s)
+	{
+		CArtPlace * add = new CArtPlace(curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]);
+		add->pos.x = 403 + 46*s;
+		add->pos.y = 365;
+		add->pos.h = add->pos.h = 44;
+		backpack.push_back(add);
+	}
 }
 
 void CHeroWindow::quit()
@@ -263,9 +294,51 @@ void CHeroWindow::quit()
 		if(dynamic_cast<CArtPlace*>(LOCPLINT->lclickable[v]))
 			LOCPLINT->lclickable.erase(LOCPLINT->lclickable.begin()+v);
 	}
+	portraitArea->deactivate();
 
 	delete artFeet;
 	artFeet = 0;
+	delete artHead;
+	artHead = 0;
+	delete artLHand;
+	artLHand = 0;
+	delete artLRing;
+	artLRing = 0;
+	delete artMach1;
+	artMach1 = 0;
+	delete artMach2;
+	artMach2 = 0;
+	delete artMach3;
+	artMach3 = 0;
+	delete artMach4;
+	artMach4 = 0;
+	delete artMisc1;
+	artMisc1 = 0;
+	delete artMisc2;
+	artMisc2 = 0;
+	delete artMisc3;
+	artMisc3 = 0;
+	delete artMisc4;
+	artMisc4 = 0;
+	delete artMisc5;
+	artMisc5 = 0;
+	delete artNeck;
+	artNeck = 0;
+	delete artRhand;
+	artRhand = 0;
+	delete artRRing;
+	artRRing = 0;
+	delete artShoulders;
+	artShoulders = 0;
+	delete artSpellBook;
+	artSpellBook = 0;
+	delete artTorso;
+	artTorso = 0;
+	for(int g=0; g<backpack.size(); ++g)
+	{
+		delete backpack[g];
+	}
+	backpack.clear();
 }
 
 void CHeroWindow::activate()
@@ -279,6 +352,7 @@ void CHeroWindow::activate()
 	gar4button->activate();
 	leftArtRoll->activate();
 	rightArtRoll->activate();
+	portraitArea->activate();
 	for(int g=0; g<heroList.size(); ++g)
 	{
 		heroList[g]->activate();
@@ -313,10 +387,28 @@ void CHeroWindow::gar4()
 
 void CHeroWindow::leftArtRoller()
 {
+	if(curHero->artifacts.size()>5) //if it is <=5, we have nothing to scroll
+	{
+		backpackPos+=curHero->artifacts.size()-1; //set new offset
+
+		for(int s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
+		{
+			backpack[s]->ourArt = curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ];
+		}
+	}
 }
 
 void CHeroWindow::rightArtRoller()
 {
+	if(curHero->artifacts.size()>5) //if it is <=5, we have nothing to scroll
+	{
+		backpackPos+=1; //set new offset
+
+		for(int s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
+		{
+			backpack[s]->ourArt = curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ];
+		}
+	}
 }
 
 void CHeroWindow::switchHero()
@@ -507,5 +599,21 @@ void CArtPlace::show(SDL_Surface *to)
 	if(ourArt)
 	{
 		blitAt(CGI->arth->artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
+	}
+}
+
+void LClickableArea::activate()
+{
+	ClickableL::activate();
+}
+void LClickableArea::deactivate()
+{
+	ClickableL::deactivate();
+}
+void LClickableArea::clickLeft(boost::logic::tribool down)
+{
+	if(!down)
+	{
+		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
 	}
 }
