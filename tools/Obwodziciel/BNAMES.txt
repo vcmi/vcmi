@@ -1,0 +1,44 @@
+0	Mage guild 1
+1	Mage guild 2
+2	Mage guild 3
+3	Mage guild 4
+4	Mage guild 5
+5	tavern
+6	shipyard when it's present:))
+7	fort
+8	citadel
+9	castle
+10	village hall
+11	town hall
+12	city hall
+13	capitol
+14	marketplace
+15	resource silo
+16	blacksmith
+17	lighthouse(0) mystic pond(1) artifact merchants(2,5,8) veil of darkness(4) escape tunnel(6) cage of warlords(7)
+18	horde buildings for non-upgraded creatures: Griffins, dwarves, stone gargoyles, imps, skeletons, troglodytes, goblins, gnolls, pixies.
+19	horde buildings for upgraded creatures Royal griffins, battle dwarves, obsidian gargoyles, familiars, skeleton warriors, infernal troglodytes, hobgoblins, gnoll marauders, sprites
+20	Ship at the Shipyard
+21	stables(0) fountain of fortune(1) lookout tower(2) brimstone clouds(3) necromancy amplifier(4) mana vortex(5) freelancer's guild(6) glyphs of fear(7) magic university(8)
+22	brotherhood of sword(0) dwarven treasury(1) library(2) castle gates(3) skeleton transformer(4) portal of summoning(5) ballista yard(6) blood obelisk(7)
+23	wall of Knowledge.(2) order of fire(3) academy of battle scholars(5) hall of valhalla(6)
+24	horde buildings for non-upgraded creatures: dendroid guards, hell hounds
+25	horde buildings for upgraded creatures: Dendroid soldiers, Cerberi
+26	Grail
+27	Houses near city hall
+28	Houses near municipal
+29	Houses near Capitol
+30	dwelling 1
+31	dwelling 2
+32	dwelling 3
+33	dwelling 4
+34	dwelling 5
+35	dwelling 6
+36	dwelling 7
+37	upgraded dwelling 1
+38	upgraded dwelling 2
+39	upgraded dwelling 3
+40	upgraded dwelling 4
+41	upgraded dwelling 5
+42	upgraded dwelling 6
+43	upgraded dwelling 7
