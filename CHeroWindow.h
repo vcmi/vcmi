@@ -16,6 +16,13 @@ public:
 	virtual void deactivate();
 };
 
+class LClickableAreaWText: public LClickableArea
+{
+public:
+	std::string text;
+	virtual void clickLeft (tribool down);
+};
+
 class CArtPlace: public ClickableL, public IShowable
 {
 public:
@@ -25,6 +32,7 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+	~CArtPlace();
 };
 
 class CHeroWindow: public IActivable, public IShowable, public virtual CIntObject
@@ -50,7 +58,7 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
 	int backpackPos; //unmber of first art visible in backpack (in hero's vector)
 	//clickable areas
-	LClickableArea * portraitArea;
+	LClickableAreaWText * portraitArea;
 public:
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor

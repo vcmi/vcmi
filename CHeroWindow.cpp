@@ -49,7 +49,7 @@ CHeroWindow::CHeroWindow(int playerColor): artFeet(0), artHead(0), artLHand(0),
 	skillpics = CGI->spriteh->giveDef("pskil42.def");
 	flags = CGI->spriteh->giveDef("CREST58.DEF");
 	//areas
-	portraitArea = new LClickableArea();
+	portraitArea = new LClickableAreaWText();
 	portraitArea->pos.x = 83;
 	portraitArea->pos.y = 26;
 	portraitArea->pos.w = 58;
@@ -150,6 +150,7 @@ void CHeroWindow::show(SDL_Surface *to)
 void CHeroWindow::setHero(const CGHeroInstance *hero)
 {
 	curHero = hero;
+	portraitArea->text = hero->biography;
 
 	delete artFeet;
 	delete artHead;
@@ -180,84 +181,104 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artFeet->pos.x = 515;
 	artFeet->pos.y = 295;
 	artFeet->pos.h = artFeet->pos.w = 44;
+	artFeet->activate();
 	artHead = new CArtPlace(hero->artHead);
 	artHead->pos.x = 509;
 	artHead->pos.y = 30;
 	artHead->pos.h = artHead->pos.h = 44;
+	artHead->activate();
 	artLHand = new CArtPlace(hero->artLHand);
 	artLHand->pos.x = 564;
 	artLHand->pos.y = 183;
 	artLHand->pos.h = artLHand->pos.h = 44;
+	artLHand->activate();
 	artLRing = new CArtPlace(hero->artLRing);
 	artLRing->pos.x = 610;
 	artLRing->pos.y = 183;
 	artLRing->pos.h = artLRing->pos.h = 44;
+	artLRing->activate();
 	artMach1 = new CArtPlace(hero->artMach1);
 	artMach1->pos.x = 564;
 	artMach1->pos.y = 30;
 	artMach1->pos.h = artMach1->pos.h = 44;
+	artMach1->activate();
 	artMach2 = new CArtPlace(hero->artMach2);
 	artMach2->pos.x = 610;
 	artMach2->pos.y = 30;
 	artMach2->pos.h = artMach2->pos.h = 44;
+	artMach2->activate();
 	artMach3 = new CArtPlace(hero->artMach3);
 	artMach3->pos.x = 610;
 	artMach3->pos.y = 76;
 	artMach3->pos.h = artMach3->pos.h = 44;
+	artMach3->activate();
 	artMach4 = new CArtPlace(hero->artMach4);
 	artMach4->pos.x = 610;
 	artMach4->pos.y = 122;
 	artMach4->pos.h = artMach4->pos.h = 44;
+	artMach4->activate();
 	artMisc1 = new CArtPlace(hero->artMisc1);
 	artMisc1->pos.x = 383;
 	artMisc1->pos.y = 143;
 	artMisc1->pos.h = artMisc1->pos.h = 44;
+	artMisc1->activate();
 	artMisc2 = new CArtPlace(hero->artMisc2);
 	artMisc2->pos.x = 399;
 	artMisc2->pos.y = 194;
 	artMisc2->pos.h = artMisc2->pos.h = 44;
+	artMisc2->activate();
 	artMisc3 = new CArtPlace(hero->artMisc3);
 	artMisc3->pos.x = 415;
 	artMisc3->pos.y = 245;
 	artMisc3->pos.h = artMisc3->pos.h = 44;
+	artMisc3->activate();
 	artMisc4 = new CArtPlace(hero->artMisc4);
 	artMisc4->pos.x = 431;
 	artMisc4->pos.y = 296;
 	artMisc4->pos.h = artMisc4->pos.h = 44;
+	artMisc4->activate();
 	artMisc5 = new CArtPlace(hero->artMisc5);
 	artMisc5->pos.x = 381;
 	artMisc5->pos.y = 296;
 	artMisc5->pos.h = artMisc5->pos.h = 44;
+	artMisc5->activate();
 	artNeck = new CArtPlace(hero->artNeck);
 	artNeck->pos.x = 508;
 	artNeck->pos.y = 79;
 	artNeck->pos.h = artNeck->pos.h = 44;
+	artNeck->activate();
 	artRhand = new CArtPlace(hero->artRhand);
 	artRhand->pos.x = 383;
 	artRhand->pos.y = 68;
 	artRhand->pos.h = artRhand->pos.h = 44;
+	artRhand->activate();
 	artRRing = new CArtPlace(hero->artRRing);
 	artRRing->pos.x = 431;
 	artRRing->pos.y = 68;
 	artRRing->pos.h = artRRing->pos.h = 44;
+	artRRing->activate();
 	artShoulders = new CArtPlace(hero->artShoulders);
 	artShoulders->pos.x = 567;
 	artShoulders->pos.y = 240;
 	artShoulders->pos.h = artShoulders->pos.h = 44;
+	artShoulders->activate();
 	artSpellBook = new CArtPlace(hero->artSpellBook);
 	artSpellBook->pos.x = 610;
 	artSpellBook->pos.y = 310;
 	artSpellBook->pos.h = artSpellBook->pos.h = 44;
+	artSpellBook->activate();
 	artTorso = new CArtPlace(hero->artTorso);
 	artTorso->pos.x = 509;
 	artTorso->pos.y = 130;
 	artTorso->pos.h = artTorso->pos.h = 44;
+	artTorso->activate();
 	for(int s=0; s<5 && s<curHero->artifacts.size(); ++s)
 	{
 		CArtPlace * add = new CArtPlace(curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]);
 		add->pos.x = 403 + 46*s;
 		add->pos.y = 365;
 		add->pos.h = add->pos.h = 44;
+		add->activate();
 		backpack.push_back(add);
 	}
 }
@@ -359,6 +380,31 @@ void CHeroWindow::activate()
 		heroList[g]->activate();
 	}
 	redrawCurBack();
+
+	artFeet->activate();
+	artHead->activate();
+	artLHand->activate();
+	artLRing->activate();
+	artMach1->activate();
+	artMach2->activate();
+	artMach3->activate();
+	artMach4->activate();
+	artMisc1->activate();
+	artMisc2->activate();
+	artMisc3->activate();
+	artMisc4->activate();
+	artMisc5->activate();
+	artNeck->activate();
+	artRhand->activate();
+	artRRing->activate();
+	artShoulders->activate();
+	artSpellBook->activate();
+	artTorso->activate();
+	for(int f=0; f<backpack.size(); ++f)
+	{
+		backpack[f]->activate();
+	}
+
 	//LOCPLINT->lclickable.push_back(artFeet);
 }
 
@@ -377,6 +423,30 @@ void CHeroWindow::deactivate()
 	for(int g=0; g<heroList.size(); ++g)
 	{
 		heroList[g]->deactivate();
+	}
+
+	artFeet->deactivate();
+	artHead->deactivate();
+	artLHand->deactivate();
+	artLRing->deactivate();
+	artMach1->deactivate();
+	artMach2->deactivate();
+	artMach3->deactivate();
+	artMach4->deactivate();
+	artMisc1->deactivate();
+	artMisc2->deactivate();
+	artMisc3->deactivate();
+	artMisc4->deactivate();
+	artMisc5->deactivate();
+	artNeck->deactivate();
+	artRhand->deactivate();
+	artRRing->deactivate();
+	artShoulders->deactivate();
+	artSpellBook->deactivate();
+	artTorso->deactivate();
+	for(int f=0; f<backpack.size(); ++f)
+	{
+		backpack[f]->deactivate();
 	}
 }
 
@@ -606,12 +676,14 @@ void CHeroWindow::redrawCurBack()
 CArtPlace::CArtPlace(CArtifact *art): ourArt(art){}
 void CArtPlace::activate()
 {
+	ClickableL::activate();
 }
 void CArtPlace::clickLeft(boost::logic::tribool down)
 {
 }
 void CArtPlace::deactivate()
 {
+	ClickableL::deactivate();
 }
 void CArtPlace::show(SDL_Surface *to)
 {
@@ -619,6 +691,10 @@ void CArtPlace::show(SDL_Surface *to)
 	{
 		blitAt(CGI->arth->artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
 	}
+}
+CArtPlace::~CArtPlace()
+{
+	ClickableL::deactivate();
 }
 
 void LClickableArea::activate()
@@ -634,5 +710,13 @@ void LClickableArea::clickLeft(boost::logic::tribool down)
 	if(!down)
 	{
 		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
+	}
+}
+
+void LClickableAreaWText::clickLeft(boost::logic::tribool down)
+{
+	if(!down)
+	{
+		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
 	}
 }
