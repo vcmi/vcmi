@@ -1343,8 +1343,18 @@ void CAdvMapInt::fendTurn()
 	LOCPLINT->makingTurn = false;
 }
 
+void CAdvMapInt::activate()
+{
+	//todo - docelowo wartoby rozdzielic czesc odpowiedzialna za wyswietlanie i aktywacje
+	show();
+}
+void CAdvMapInt::deactivate()
+{
+	hide();
+}
 void CAdvMapInt::show()
 {
+	LOCPLINT->curint = this;
 	blitAt(bg,0,0);
 
 	kingOverview.show();

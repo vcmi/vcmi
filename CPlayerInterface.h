@@ -184,6 +184,7 @@ class CPlayerInterface : public CGameInterface
 public:
 	bool makingTurn;
 		SDL_Event * current;
+	IActivable *curint;
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt;
 	FPSmanager * mainFPSmng;

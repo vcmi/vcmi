@@ -286,6 +286,7 @@ void CCastleInterface::show(SDL_Surface * to)
 }
 void CCastleInterface::activate()
 {
+	LOCPLINT->curint = this;
 	//for(int i=0;i<buildings.size();i++)
 	//	buildings[i]->activate();
 }

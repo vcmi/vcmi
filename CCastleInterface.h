@@ -24,7 +24,7 @@ public:
 	void clickRight (tribool down);
 };
 
-class CCastleInterface : public IShowable
+class CCastleInterface : public IShowable, public IActivable
 {
 public:
 	SDL_Surface * townInt;

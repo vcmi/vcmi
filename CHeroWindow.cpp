@@ -343,6 +343,7 @@ void CHeroWindow::quit()
 
 void CHeroWindow::activate()
 {
+	LOCPLINT->curint = this;
 	quitButton->activate();
 	dismissButton->activate();
 	questlogButton->activate();
@@ -359,6 +360,24 @@ void CHeroWindow::activate()
 	}
 	redrawCurBack();
 	//LOCPLINT->lclickable.push_back(artFeet);
+}
+
+void CHeroWindow::deactivate()
+{
+	quitButton->deactivate();
+	dismissButton->deactivate();
+	questlogButton->deactivate();
+	gar1button->deactivate();
+	gar2button->deactivate();
+	gar3button->deactivate();
+	gar4button->deactivate();
+	leftArtRoll->deactivate();
+	rightArtRoll->deactivate();
+	portraitArea->deactivate();
+	for(int g=0; g<heroList.size(); ++g)
+	{
+		heroList[g]->deactivate();
+	}
 }
 
 void CHeroWindow::dismissCurrent()

@@ -193,7 +193,7 @@ public:
 	CDefHandler * getAnim(int mode);
 };
 /*****************************/
-class CAdvMapInt //adventure map interface
+class CAdvMapInt : public IActivable //adventure map interface
 {
 public:
 	CAdvMapInt(int Player);
@@ -257,6 +257,9 @@ public:
 	void fsystemOptions();
 	void fnextHero();
 	void fendTurn();
+
+	void activate();
+	void deactivate();
 
 	void show(); //shows and activates adv. map interface
 	void hide(); //deactivates advmap interface

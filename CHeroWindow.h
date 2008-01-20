@@ -27,7 +27,7 @@ public:
 	void show(SDL_Surface * to = NULL);
 };
 
-class CHeroWindow: public IShowable, public virtual CIntObject
+class CHeroWindow: public IActivable, public IShowable, public virtual CIntObject
 {
 	SDL_Surface * background, * curBack;
 	const CGHeroInstance * curHero;
@@ -56,6 +56,7 @@ public:
 	~CHeroWindow(); //d-tor
 	void setHero(const CGHeroInstance * hero); //sets main displayed hero
 	void activate(); //activates hero window;
+	void deactivate(); //activates hero window;
 	virtual void show(SDL_Surface * to = NULL); //shows hero window
 	void redrawCurBack(); //redraws curBAck from scratch
 	void quit(); //stops displaying hero window

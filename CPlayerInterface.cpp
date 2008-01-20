@@ -52,7 +52,7 @@ void CInfoWindow::close()
 	SDL_FreeSurface(bitmap);
 	bitmap = NULL;
 	LOCPLINT->removeObjToBlit(this);
-	LOCPLINT->adventureInt->show();
+	LOCPLINT->curint->activate();
 	delete this;
 }
 CInfoWindow::~CInfoWindow()
@@ -250,7 +250,7 @@ void CSelWindow::close()
 	SDL_FreeSurface(bitmap);
 	bitmap = NULL;
 	LOCPLINT->removeObjToBlit(this);
-	LOCPLINT->adventureInt->show();
+	LOCPLINT->curint->activate();
 	LOCPLINT->cb->selectionMade(ret,ID);
 	delete this;
 	//call owner with selection result
@@ -1539,7 +1539,7 @@ void CPlayerInterface::showComp(SComponent comp)
 
 void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> & components)
 {
-	adventureInt->hide(); //dezaktywacja starego interfejsu
+	curint->deactivate(); //dezaktywacja starego interfejsu
 	CInfoWindow * temp = CMessage::genIWindow(text,LOCPLINT->playerID,32,components);
 	LOCPLINT->objsToBlit.push_back(temp);
 	temp->pos.x=300-(temp->pos.w/2);
