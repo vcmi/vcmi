@@ -242,7 +242,9 @@ const CGHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //
 	if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
 		return NULL;
 	if (!mode)
-		return gs->players[player].heroes[val];
+		if(val<gs->players[player].heroes.size())
+			return gs->players[player].heroes[val];
+		else return NULL;
 	else 
 	{
 		for (int i=0; i<gs->players[player].heroes.size();i++)

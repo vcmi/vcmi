@@ -86,13 +86,38 @@ void CTownHandler::loadNames()
 					if((i2=(i->second.find(buildingID=atoi(s.c_str()))))!=(i->second.end()))
 						i2->second->pos.z=itr++;
 					else
-						std::cout << "Warning: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
+						std::cout << "Warning1: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
 				else
-					std::cout << "Warning: Castle "<<castleID<<" not defined."<<std::endl;
+					std::cout << "Warning1: Castle "<<castleID<<" not defined."<<std::endl;
 		}
 	}
 	of.close();
-	
+	of.clear();
+
+	of.open("config/buildings3.txt");
+	while(!of.eof())
+	{
+		std::map<int,std::map<int, Structure*> >::iterator i;
+		std::map<int, Structure*>::iterator i2;
+		int town, id;
+		std::string border, area;
+		of >> town >> id >> border >> border >> area;
+
+		if((i=structures.find(town))!=structures.end())
+			if((i2=(i->second.find(id)))!=(i->second.end()))
+			{
+				i2->second->borderName = border;
+				i2->second->areaName = area;
+			}		
+			else
+				std::cout << "Warning2: No building "<<id<<" in the castle "<<town<<std::endl;
+		else
+			std::cout << "Warning2: Castle "<<town<<" not defined."<<std::endl;
+
+	}
+	of.close();
+	of.clear();
+
 }
 SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)
 {

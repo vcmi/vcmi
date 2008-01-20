@@ -7,7 +7,7 @@ class CGTownInstance;
 class CTownHandler;
 struct Structure;
 template <typename T> class AdventureMapButton;
-class CBuildingRect : public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
+class CBuildingRect : public Hoverable, public ClickableL, public ClickableR//, public TimeInterested
 {
 public:
 	Structure* str;
@@ -19,7 +19,7 @@ public:
 	void activate();
 	void deactivate();
 	bool operator<(const CBuildingRect & p2) const;
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void hover(bool on);
 	void clickLeft (tribool down);
 	void clickRight (tribool down);
 };

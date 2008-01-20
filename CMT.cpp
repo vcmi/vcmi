@@ -276,6 +276,7 @@ void initGameState(CGameInfo * cgi)
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
+	//std::ios_base::sync_with_stdio(0);
 	//CLuaHandler luatest;
 	//luatest.test();
 	

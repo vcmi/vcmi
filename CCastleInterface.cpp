@@ -13,7 +13,14 @@ CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str)
 {	
 	def = CGI->spriteh->giveDef(Str->defName);
-	border = area = NULL;
+	if (border = CGI->bitmaph->loadBitmap(str->borderName))
+		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
+	else
+		std::cout << "Warning: no border for "<<Str->ID<<std::endl;
+	if (area = CGI->bitmaph->loadBitmap(str->areaName))
+		;//SDL_SetColorKey(area,SDL_SRCCOLORKEY,SDL_MapRGB(area->format,0,255,255));
+	else
+		std::cout << "Warning: no area for "<<Str->ID<<std::endl;
 	pos.x = str->pos.x;
 	pos.y = str->pos.y;
 	pos.w = def->ourImages[0].bitmap->w;
@@ -30,13 +37,13 @@ CBuildingRect::~CBuildingRect()
 }
 void CBuildingRect::activate()
 {
-	MotionInterested::activate();
+	Hoverable::activate();
 	ClickableL::activate();
 	ClickableR::activate();
 }
 void CBuildingRect::deactivate()
 {
-	MotionInterested::deactivate();
+	Hoverable::deactivate();
 	ClickableL::deactivate();
 	ClickableR::deactivate();
 }
@@ -47,9 +54,19 @@ bool CBuildingRect::operator<(const CBuildingRect & p2) const
 	else
 		return (str->ID) < (p2.str->ID);
 }
-void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
+void CBuildingRect::hover(bool on)
 {
-	//todo - handle
+	if(area)
+	{
+		if(CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) == 0)
+		{
+			Hoverable::hover(false);
+			return;
+		}
+	}
+	Hoverable::hover(on);
+	if(border)
+		blitAt(border,pos.x,pos.y);
 }
 void CBuildingRect::clickLeft (tribool down)
 {
@@ -264,6 +281,8 @@ void CCastleInterface::show(SDL_Surface * to)
 		animval++;
 	}
 
+	blitAt(cityBg,0,0,to);
+
 
 	//blit buildings
 	for(int i=0;i<buildings.size();i++)
@@ -275,6 +294,8 @@ void CCastleInterface::show(SDL_Surface * to)
 		}
 		else 
 			blitAt(buildings[i]->def->ourImages[(animval)%(buildings[i]->def->ourImages.size())].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
+		if(buildings[i]->hovered && buildings[i]->border)
+			blitAt(buildings[i]->border,buildings[i]->pos.x,buildings[i]->pos.y);
 	}
 	//for(int i=0;i<buildings.size();i++)
 	//{
@@ -287,10 +308,12 @@ void CCastleInterface::show(SDL_Surface * to)
 void CCastleInterface::activate()
 {
 	LOCPLINT->curint = this;
-	//for(int i=0;i<buildings.size();i++)
-	//	buildings[i]->activate();
+	for(int i=0;i<buildings.size();i++)
+		buildings[i]->activate();
 }
 void CCastleInterface::deactivate()
 {
 	exit->deactivate();
+	for(int i=0;i<buildings.size();i++)
+		buildings[i]->deactivate();
 }

@@ -254,6 +254,8 @@ SDL_Surface * CPCXConv::getSurface()
 }
 SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 {
+	if(!fname.size())
+		return NULL;
 	unsigned char * pcx;
 	std::transform(fname.begin(),fname.end(),fname.begin(),toupper);
 	fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".PCX");
@@ -270,6 +272,7 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 	if(index==-1)
 	{
 		std::cout<<"File "<<fname<<" not found"<<std::endl;
+		return NULL;
 	}
 	fseek(FLOD, entries[index].offset, 0);
 	if (entries[index].size==0) //file is not compressed
