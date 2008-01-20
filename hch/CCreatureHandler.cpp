@@ -728,7 +728,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 			for (int i=0;i<TopMargin;i++)
 			{
 				for (int j=0;j<FullWidth+add;j++)
-					FTemp+=fbuffer[j];
+					FTemp+='\0';
 			}
 		}
 		RLEntries = new int[SpriteHeight];
@@ -742,7 +742,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 			if (LeftMargin>0)
 			{
 				for (int j=0;j<LeftMargin;j++)
-					FTemp+=fbuffer[j];
+					FTemp+='\0';
 			}
 			TotalRowLength=0;
 			do
@@ -774,12 +774,12 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 			if (RightMargin>0)
 			{
 				for (int j=0;j<RightMargin;j++)
-					FTemp+=fbuffer[j];
+					FTemp+='\0';
 			}
 			if (add>0)
 			{
 				for (int j=0;j<add+RowAdd;j++)
-					FTemp+=fbuffer[j];
+					FTemp+='\0';
 			}
 		}
 		delete RLEntries;
@@ -789,7 +789,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 			for (int i=0;i<BottomMargin;i++)
 			{
 				for (int j=0;j<FullWidth+add;j++)
-					FTemp+=fbuffer[j];
+					FTemp+='\0';
 			}
 		}
 	}

@@ -78,7 +78,7 @@ void CPCXConv::convert()
 		format=PCX8B;
 	else 
 		return;
-	add=(int)(4*(((float)1)-(((float)bh.x/(float)4)-((int)((float)bh.x/(float)4)))));
+	add = 4 - bh.x%4;
 	if (add==4)
 		add=0;
 	bh._h3=bh.x*bh.y;
