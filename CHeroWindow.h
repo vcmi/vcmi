@@ -25,6 +25,8 @@ public:
 
 class CArtPlace: public ClickableL, public IShowable
 {
+private:
+	bool active;
 public:
 	const CArtifact * ourArt;
 	CArtPlace(CArtifact * art);

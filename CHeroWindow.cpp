@@ -310,11 +310,11 @@ void CHeroWindow::quit()
 
 	SDL_FreeSurface(curBack);
 	curBack = NULL;
-	for(int v=0; v<LOCPLINT->lclickable.size(); ++v)
+	/*for(int v=0; v<LOCPLINT->lclickable.size(); ++v)
 	{
 		if(dynamic_cast<CArtPlace*>(LOCPLINT->lclickable[v]))
 			LOCPLINT->lclickable.erase(LOCPLINT->lclickable.begin()+v);
-	}
+	}*/
 	portraitArea->deactivate();
 
 	delete artFeet;
@@ -673,17 +673,25 @@ void CHeroWindow::redrawCurBack()
 	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
 }
 
-CArtPlace::CArtPlace(CArtifact *art): ourArt(art){}
+CArtPlace::CArtPlace(CArtifact *art): ourArt(art), active(false){}
 void CArtPlace::activate()
 {
-	ClickableL::activate();
+	if(!active)
+	{
+		ClickableL::activate();
+		active = true;
+	}
 }
 void CArtPlace::clickLeft(boost::logic::tribool down)
 {
 }
 void CArtPlace::deactivate()
 {
-	ClickableL::deactivate();
+	if(active)
+	{
+		active = false;
+		ClickableL::deactivate();
+	}
 }
 void CArtPlace::show(SDL_Surface *to)
 {
@@ -694,7 +702,7 @@ void CArtPlace::show(SDL_Surface *to)
 }
 CArtPlace::~CArtPlace()
 {
-	ClickableL::deactivate();
+	deactivate();
 }
 
 void LClickableArea::activate()

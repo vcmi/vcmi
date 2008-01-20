@@ -56,7 +56,7 @@ public:
 class CLodHandler
 {
 private:
-	std::ifstream FLOD;
+	FILE* FLOD;
 public:
 	nodrze<Entry> entries;
 	unsigned int totalFiles;

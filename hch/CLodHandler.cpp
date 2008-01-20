@@ -167,7 +167,6 @@ SDL_Surface * CPCXConv::getSurface()
 	SDL_Surface * ret;
 
 	BMPHeader bh;
-	BMPPalette pal[256];
 	Epcxformat format;
 	int fSize,i,y;
 	bool check1, check2;
@@ -210,22 +209,11 @@ SDL_Surface * CPCXConv::getSurface()
 		it = pcxs-256*3;
 		for (int i=0;i<256;i++)
 		{
-			pal[i].R=pcx[it++];
-			pal[i].G=pcx[it++];
-			pal[i].B=pcx[it++];
-			pal[i].F='\0';
-		}
-	}
-	if (format==PCX8B)
-	{
-		
-		for(int i=0; i<256; ++i)
-		{
 			SDL_Color tp;
-			tp.r = pal[i].R;
-			tp.g = pal[i].G;
-			tp.b = pal[i].B;
-			tp.unused = pal[i].F;
+			tp.r = pcx[it++];
+			tp.g = pcx[it++];
+			tp.b = pcx[it++];
+			tp.unused = 0;
 			*(ret->format->palette->colors+i) = tp;
 		}
 		for (y=bh.y;y>0;y--)
@@ -283,16 +271,16 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 	{
 		std::cout<<"File "<<fname<<" not found"<<std::endl;
 	}
-	FLOD.seekg(entries[index].offset,std::ios_base::beg);
+	fseek(FLOD, entries[index].offset, 0);
 	if (entries[index].size==0) //file is not compressed
 	{
 		pcx = new unsigned char[entries[index].realSize];
-		FLOD.read((char*)pcx,entries[index].realSize);
+		fread((char*)pcx, 1, entries[index].realSize, FLOD);
 	}
 	else 
 	{
 		unsigned char * pcd = new unsigned char[entries[index].size];
-		FLOD.read((char*)pcd,entries[index].size);
+		fread((char*)pcd, 1, entries[index].size, FLOD);
 		int res=infs2(pcd,entries[index].size,entries[index].realSize,pcx);
 		if(res!=0)
 		{
@@ -389,12 +377,12 @@ CDefHandler * CLodHandler::giveDef(std::string defName)
 	std::transform(defName.begin(), defName.end(), defName.begin(), (int(*)(int))toupper);
 	Entry * ourEntry = entries.znajdz(Entry(defName));
 	CDefHandler * ret;
-	FLOD.seekg(ourEntry->offset,std::ios_base::beg);
+	fseek(FLOD, ourEntry->offset, 0);
 	unsigned char * outp;
 	if (ourEntry->size==0) //file is not compressed
 	{
 		outp = new unsigned char[ourEntry->realSize];
-		FLOD.read((char*)outp, ourEntry->realSize);
+		fread((char*)outp, 1, ourEntry->realSize, FLOD);
 		CDefHandler * nh = new CDefHandler;
 		nh->openFromMemory(outp, ourEntry->realSize, std::string((char*)ourEntry->name));
 		nh->alphaTransformed = false;
@@ -403,8 +391,8 @@ CDefHandler * CLodHandler::giveDef(std::string defName)
 	else //we will decompress file
 	{
 		outp = new unsigned char[ourEntry->size];
-		FLOD.read((char*)outp, ourEntry->size);
-		FLOD.seekg(0, std::ios_base::beg);
+		fread((char*)outp, 1, ourEntry->size, FLOD);
+		fseek(FLOD, 0, 0);
 		unsigned char * decomp = NULL;
 		int decRes = infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
 		CDefHandler * nh = new CDefHandler;
@@ -451,12 +439,12 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 		}
 		if(!exists)
 			continue;
-		FLOD.seekg(entries[i].offset,std::ios_base::beg);
+		fseek(FLOD, entries[i].offset, 0);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
 			outp = new unsigned char[entries[i].realSize];
-			FLOD.read((char*)outp, entries[i].realSize);
+			fread((char*)outp, 1, entries[i].realSize, FLOD);
 			CDefHandler * nh = new CDefHandler;
 			nh->openFromMemory(outp, entries[i].realSize, std::string((char*)entries[i].name));
 			nh->alphaTransformed = false;
@@ -465,8 +453,8 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 		else //we will decompressing file
 		{
 			outp = new unsigned char[entries[i].size];
-			FLOD.read((char*)outp, entries[i].size);
-			FLOD.seekg(0, std::ios_base::beg);
+			fread((char*)outp, 1, entries[i].size, FLOD);
+			fseek(FLOD, 0, 0);
 			unsigned char * decomp = NULL;
 			int decRes = infs2(outp, entries[i].size, entries[i].realSize, decomp);
 			CDefHandler * nh = new CDefHandler;
@@ -661,13 +649,13 @@ void CLodHandler::extract(std::string FName)
 	//std::cout<<" done\n";
 	for (int i=0;i<totalFiles;i++)
 	{
-		FLOD.seekg(entries[i].offset,std::ios_base::beg);
+		fseek(FLOD, entries[i].offset, 0);
 		std::string bufff = (FName.substr(0, FName.size()-4) + "\\" + (char*)entries[i].name);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
 			outp = new unsigned char[entries[i].realSize];
-			FLOD.read((char*)outp, entries[i].realSize);
+			fread((char*)outp, 1, entries[i].realSize, FLOD);
 			std::ofstream out;
 			out.open(bufff.c_str(), std::ios::binary);
 			if(!out.is_open())
@@ -686,8 +674,8 @@ void CLodHandler::extract(std::string FName)
 		else 
 		{
 			outp = new unsigned char[entries[i].size];
-			FLOD.read((char*)outp, entries[i].size);
-			FLOD.seekg(0, std::ios_base::beg);
+			fread((char*)outp, 1, entries[i].size, FLOD);
+			fseek(FLOD, 0, 0);
 			std::ofstream destin;
 			destin.open(bufff.c_str(), std::ios::binary);
 			//int decRes = decompress(outp, entries[i].size, entries[i].realSize, bufff);
@@ -700,7 +688,7 @@ void CLodHandler::extract(std::string FName)
 		}
 		delete[] outp;
 	}
-	FLOD.close();
+	fclose(FLOD);
 }
 
 void CLodHandler::extractFile(std::string FName, std::string name)
@@ -712,13 +700,13 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 		std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
 		if(buf1!=name)
 			continue;
-		FLOD.seekg(entries[i].offset,std::ios_base::beg);
+		fseek(FLOD, entries[i].offset, 0);
 		std::string bufff = (FName.substr(0, FName.size()-4) + "\\" + (char*)entries[i].name);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
 			outp = new unsigned char[entries[i].realSize];
-			FLOD.read((char*)outp, entries[i].realSize);
+			fread((char*)outp, 1, entries[i].realSize, FLOD);
 			std::ofstream out;
 			out.open(bufff.c_str(), std::ios::binary);
 			if(!out.is_open())
@@ -737,8 +725,8 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 		else //we will decompressing file
 		{
 			outp = new unsigned char[entries[i].size];
-			FLOD.read((char*)outp, entries[i].size);
-			FLOD.seekg(0, std::ios_base::beg);
+			fread((char*)outp, 1, entries[i].size, FLOD);
+			fseek(FLOD, 0, 0);
 			std::ofstream destin;
 			destin.open(bufff.c_str(), std::ios::binary);
 			//int decRes = decompress(outp, entries[i].size, entries[i].realSize, bufff);
@@ -751,7 +739,7 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 		}
 		delete[] outp;
 	}
-	FLOD.close();
+	fclose(FLOD);
 }
 
 int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
@@ -773,12 +761,12 @@ int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
 void CLodHandler::init(std::string lodFile)
 {
 	std::string Ts;
-	FLOD.open(lodFile.c_str(),std::ios::binary);
-	FLOD.seekg(8,std::ios_base::beg);
+	FLOD = fopen(lodFile.c_str(), "rb");
+	fseek(FLOD, 8, 0);
 	unsigned char temp[4];
-	FLOD.read((char*)temp,4);
+	fread((char*)temp, 1, 4, FLOD);
 	totalFiles = readNormalNr(temp,4);
-	FLOD.seekg(0x5c,std::ios_base::beg);
+	fseek(FLOD, 0x5c, 0);
 	for (int i=0; i<totalFiles; i++)
 	{
 		Entry entry;
@@ -786,7 +774,8 @@ void CLodHandler::init(std::string lodFile)
 		bool appending = true;
 		for(int kk=0; kk<12; ++kk)
 		{
-			FLOD.read(bufc, 1);
+			//FLOD.read(bufc, 1);
+			fread(bufc, 1, 1, FLOD);
 			if(appending)
 			{
 				entry.name[kk] = toupper(*bufc);
@@ -798,13 +787,13 @@ void CLodHandler::init(std::string lodFile)
 			}
 		}
 		delete bufc;
-		FLOD.read((char*)entry.hlam_1,4);
-		FLOD.read((char*)temp,4);
+		fread((char*)entry.hlam_1, 1, 4, FLOD);
+		fread((char*)temp, 1, 4, FLOD);
 		entry.offset=readNormalNr(temp,4);
-		FLOD.read((char*)temp,4);
+		fread((char*)temp, 1, 4, FLOD);
 		entry.realSize=readNormalNr(temp,4);
-		FLOD.read((char*)entry.hlam_2,4);
-		FLOD.read((char*)temp,4);
+		fread((char*)entry.hlam_2, 1, 4, FLOD);
+		fread((char*)temp, 1, 4, FLOD);
 		entry.size=readNormalNr(temp,4);
 		for (int z=0;z<12;z++)
 		{
@@ -828,12 +817,12 @@ std::string CLodHandler::getTextFile(std::string name)
 		int curDef;
 		if(buf1!=name)
 			continue;
-		FLOD.seekg(entries[i].offset,std::ios_base::beg);
+		fseek(FLOD, entries[i].offset, 0);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
 			outp = new unsigned char[entries[i].realSize];
-			FLOD.read((char*)outp, entries[i].realSize);
+			fread((char*)outp, 1, entries[i].realSize, FLOD);
 			std::string ret = std::string((char*)outp);
 			delete[] outp;
 			return ret;
@@ -841,8 +830,8 @@ std::string CLodHandler::getTextFile(std::string name)
 		else //we will decompressing file
 		{
 			outp = new unsigned char[entries[i].size];
-			FLOD.read((char*)outp, entries[i].size);
-			FLOD.seekg(0, std::ios_base::beg);
+			fread((char*)outp, 1, entries[i].size, FLOD);
+			fseek(FLOD, 0, 0);
 			unsigned char * decomp = NULL;
 			int decRes = infs2(outp, entries[i].size, entries[i].realSize, decomp);
 			std::string ret;
