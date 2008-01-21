@@ -32,6 +32,7 @@ AdventureMapButton<T>::AdventureMapButton
 		imgs[0].push_back(temp->ourImages[i].bitmap);
 		CSDL_Ext::blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
 	}
+	delete temp;
 	if (add)
 	{
 		imgs.resize(imgs.size()+add->size());
@@ -43,6 +44,7 @@ AdventureMapButton<T>::AdventureMapButton
 				imgs[i+1].push_back(temp->ourImages[j].bitmap);
 				CSDL_Ext::blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
 			}
+			delete temp;
 		}
 		delete add;
 	}
