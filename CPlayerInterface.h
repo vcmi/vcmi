@@ -55,7 +55,7 @@ public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 	CButtonBase();
-	virtual ~CButtonBase(){};
+	virtual ~CButtonBase();
 };
 class ClickableL : public virtual CIntObject  //for left-clicks
 {

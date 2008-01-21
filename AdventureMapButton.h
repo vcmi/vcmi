@@ -25,7 +25,8 @@ AdventureMapButton<T>::AdventureMapButton
 	name=Name;
 	helpBox=HelpBox;
 	int est = LOCPLINT->playerID;
-	CDefHandler * temp = CGI->spriteh->giveDef(defName); //todo: moze cieknac
+	CDefHandler * temp = CGI->spriteh->giveDef(defName); 
+	temp->notFreeImgs = true;
 	for (int i=0;i<temp->ourImages.size();i++)
 	{
 		imgs.resize(1);
@@ -39,6 +40,7 @@ AdventureMapButton<T>::AdventureMapButton
 		for (int i=0; i<add->size();i++)
 		{
 			temp = CGI->spriteh->giveDef((*add)[i]);
+			temp->notFreeImgs = true;
 			for (int j=0;j<temp->ourImages.size();j++)
 			{
 				imgs[i+1].push_back(temp->ourImages[j].bitmap);

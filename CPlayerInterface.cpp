@@ -316,6 +316,12 @@ CButtonBase::CButtonBase()
 	ourObj=NULL;
 	state=0;
 }
+CButtonBase::~CButtonBase()
+{
+	for(int i =0; i<imgs.size();i++)
+		for(int j=0;j<imgs[i].size();j++)
+			SDL_FreeSurface(imgs[i][j]);
+}
 void CButtonBase::show(SDL_Surface * to)
 {
 	if(!to)
