@@ -386,7 +386,7 @@ CDefHandler * CLodHandler::giveDef(std::string defName)
 	{
 		outp = new unsigned char[ourEntry->realSize];
 		fread((char*)outp, 1, ourEntry->realSize, FLOD);
-		CDefHandler * nh = new CDefHandler;
+		CDefHandler * nh = new CDefHandler();
 		nh->openFromMemory(outp, ourEntry->realSize, std::string((char*)ourEntry->name));
 		nh->alphaTransformed = false;
 		ret = nh;
@@ -398,10 +398,11 @@ CDefHandler * CLodHandler::giveDef(std::string defName)
 		fseek(FLOD, 0, 0);
 		unsigned char * decomp = NULL;
 		int decRes = infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
-		CDefHandler * nh = new CDefHandler;
+		CDefHandler * nh = new CDefHandler();
 		nh->openFromMemory(decomp, ourEntry->realSize, std::string((char*)ourEntry->name));
 		nh->alphaTransformed = false;
 		ret = nh;
+		delete[] decomp;
 	}
 	delete[] outp;
 	return ret;

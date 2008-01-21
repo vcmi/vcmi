@@ -115,6 +115,12 @@ public:
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 {
+	int t = 600;
+	while(t--)
+	{
+		CDefHandler* defik = CGI->spriteh->giveDef("ITMTL.DEF");
+		delete defik;
+	}
 	count=0;
 	town = Town;
 	townInt = CGI->bitmaph->loadBitmap("TOWNSCRN.bmp");
