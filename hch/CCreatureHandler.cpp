@@ -782,7 +782,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 					FTemp+='\0';
 			}
 		}
-		delete RLEntries;
+		delete [] RLEntries;
 		RLEntries = NULL;
 		if (BottomMargin>0)
 		{

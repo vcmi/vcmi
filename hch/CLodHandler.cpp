@@ -289,6 +289,7 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 		{
 			std::cout<<"an error "<<res<<" occured while extracting file "<<fname<<std::endl;
 		}
+		delete [] pcd;
 	}
 	CPCXConv cp;
 	cp.openPCX((char*)pcx,entries[index].realSize);
@@ -464,6 +465,7 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 			CDefHandler * nh = new CDefHandler;
 			nh->openFromMemory(decomp, entries[i].realSize, std::string((char*)entries[i].name));
 			nh->alphaTransformed = false;
+			delete [] decomp;
 			ret[curDef] = nh;
 		}
 		delete[] outp;
