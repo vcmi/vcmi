@@ -7,7 +7,7 @@ class CGTownInstance;
 class CTownHandler;
 struct Structure;
 template <typename T> class AdventureMapButton;
-class CBuildingRect : public Hoverable, public ClickableL, public ClickableR//, public TimeInterested
+class CBuildingRect : public Hoverable, public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
 {
 public:
 	Structure* str;
@@ -22,11 +22,13 @@ public:
 	void hover(bool on);
 	void clickLeft (tribool down);
 	void clickRight (tribool down);
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 };
 
 class CCastleInterface : public IShowable, public IActivable
 {
 public:
+	CBuildingRect * hBuild; //highlighted building
 	SDL_Surface * townInt;
 	SDL_Surface * cityBg;
 	const CGTownInstance * town;

@@ -56,17 +56,17 @@ bool CBuildingRect::operator<(const CBuildingRect & p2) const
 }
 void CBuildingRect::hover(bool on)
 {
-	if(area)
-	{
-		if(CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) == 0)
-		{
-			Hoverable::hover(false);
-			return;
-		}
-	}
 	Hoverable::hover(on);
-	if(border)
-		blitAt(border,pos.x,pos.y);
+	if(on)
+	{
+		MotionInterested::activate();
+	}
+	else 
+	{
+		MotionInterested::deactivate();
+		if(LOCPLINT->castleInt->hBuild == this)
+			LOCPLINT->castleInt->hBuild = NULL;
+	}
 }
 void CBuildingRect::clickLeft (tribool down)
 {
@@ -76,6 +76,35 @@ void CBuildingRect::clickRight (tribool down)
 {
 	//todo - handle
 }
+
+void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
+{
+	if(area)
+	{
+		if(CSDL_Ext::SDL_GetPixel(area,sEvent.x-pos.x,sEvent.y-pos.y) == 0) //najechany piksel jest poza polem
+		{
+			if(LOCPLINT->castleInt->hBuild == this)
+				LOCPLINT->castleInt->hBuild = NULL;
+		}
+		else //w polu
+		{
+			if(LOCPLINT->castleInt->hBuild) //jakis budynek jest zaznaczony
+			{
+				if((*LOCPLINT->castleInt->hBuild)<(*this)) //ustawiamy sie, jesli jestesmy na wierzchu
+				{
+					LOCPLINT->castleInt->hBuild = this;
+				}
+			}
+			else //nie ma budynku, wiec damy nasz
+			{
+				LOCPLINT->castleInt->hBuild = this;
+			}
+		}
+	}
+	//if(border)
+	//	blitAt(border,pos.x,pos.y);
+}
+
 std::string getBgName(int type) //TODO - co z tym zrobiæ?
 {
 	switch (type)
@@ -115,12 +144,7 @@ public:
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 {
-	int t = 600;
-	while(t--)
-	{
-		CDefHandler* defik = CGI->spriteh->giveDef("ITMTL.DEF");
-		delete defik;
-	}
+	hBuild = NULL;
 	count=0;
 	town = Town;
 	townInt = CGI->bitmaph->loadBitmap("TOWNSCRN.bmp");
@@ -140,13 +164,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 		{
 			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end())
 			{
-				//CDefHandler *b = CGI->spriteh->giveDef(CGI->townh->structures[town->subID][*i]->defName);
 				buildings.push_back(new CBuildingRect(CGI->townh->structures[town->subID][*i]));
-				//boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*> *t 
-				//	= new boost::tuples::tuple<int,CDefHandler*,Structure*,SDL_Surface*,SDL_Surface*>
-				//	(*i,b,CGI->townh->structures[town->subID][*i],NULL,NULL);
-				////TODO: obwódki i pola
-				//buildings.push_back(t);
 			}
 			else continue;
 		}
@@ -300,8 +318,10 @@ void CCastleInterface::show(SDL_Surface * to)
 		}
 		else 
 			blitAt(buildings[i]->def->ourImages[(animval)%(buildings[i]->def->ourImages.size())].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
-		if(buildings[i]->hovered && buildings[i]->border)
-			blitAt(buildings[i]->border,buildings[i]->pos.x,buildings[i]->pos.y);
+		//if(buildings[i]->hovered && buildings[i]->border)
+		//	blitAt(buildings[i]->border,buildings[i]->pos.x,buildings[i]->pos.y);
+		if(hBuild==buildings[i] && hBuild->border)
+			blitAt(hBuild->border,hBuild->pos,to);
 	}
 	//for(int i=0;i<buildings.size();i++)
 	//{
