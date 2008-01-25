@@ -43,7 +43,14 @@ CHeroWindow::CHeroWindow(int playerColor): artFeet(0), artHead(0), artLHand(0),
 
 	for(int g=0; g<8; ++g)
 	{
-		heroList.push_back(new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::switchHero, 677, 95+g*54, "hsbtns5.def", this));
+		//heroList.push_back(new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::switchHero, 677, 95+g*54, "hsbtns5.def", this));
+		heroListMi.push_back(new LClickableAreaHero());
+		heroListMi[g]->pos.x = 677;
+		heroListMi[g]->pos.y = 95+g*54;
+		heroListMi[g]->pos.h = 32;
+		heroListMi[g]->pos.w = 48;
+		heroListMi[g]->owner = this;
+		heroListMi[g]->id = g;
 	}
 
 	skillpics = CGI->spriteh->giveDef("pskil42.def");
@@ -70,8 +77,8 @@ CHeroWindow::~CHeroWindow()
 	delete leftArtRoll;
 	delete rightArtRoll;
 
-	for(int g=0; g<heroList.size(); ++g)
-		delete heroList[g];
+	for(int g=0; g<heroListMi.size(); ++g)
+		delete heroListMi[g];
 
 	if(curBack)
 		SDL_FreeSurface(curBack);
@@ -149,6 +156,10 @@ void CHeroWindow::show(SDL_Surface *to)
 
 void CHeroWindow::setHero(const CGHeroInstance *hero)
 {
+	if(!hero) //something strange... no hero? it should happen
+	{
+		return; 
+	}
 	curHero = hero;
 	portraitArea->text = hero->biography;
 
@@ -301,9 +312,9 @@ void CHeroWindow::quit()
 	gar4button->deactivate();
 	leftArtRoll->deactivate();
 	rightArtRoll->deactivate();
-	for(int g=0; g<heroList.size(); ++g)
+	for(int g=0; g<heroListMi.size(); ++g)
 	{
-		heroList[g]->deactivate();
+		heroListMi[g]->deactivate();
 	}
 
 	LOCPLINT->adventureInt->show();
@@ -375,34 +386,54 @@ void CHeroWindow::activate()
 	leftArtRoll->activate();
 	rightArtRoll->activate();
 	portraitArea->activate();
-	for(int g=0; g<heroList.size(); ++g)
+	for(int g=0; g<heroListMi.size(); ++g)
 	{
-		heroList[g]->activate();
+		heroListMi[g]->activate();
 	}
 	redrawCurBack();
 
-	artFeet->activate();
-	artHead->activate();
-	artLHand->activate();
-	artLRing->activate();
-	artMach1->activate();
-	artMach2->activate();
-	artMach3->activate();
-	artMach4->activate();
-	artMisc1->activate();
-	artMisc2->activate();
-	artMisc3->activate();
-	artMisc4->activate();
-	artMisc5->activate();
-	artNeck->activate();
-	artRhand->activate();
-	artRRing->activate();
-	artShoulders->activate();
-	artSpellBook->activate();
-	artTorso->activate();
+	if(artFeet)
+		artFeet->activate();
+	if(artHead)
+		artHead->activate();
+	if(artLHand)
+		artLHand->activate();
+	if(artLRing)
+		artLRing->activate();
+	if(artMach1)
+		artMach1->activate();
+	if(artMach2)
+		artMach2->activate();
+	if(artMach3)
+		artMach3->activate();
+	if(artMach4)
+		artMach4->activate();
+	if(artMisc1)
+		artMisc1->activate();
+	if(artMisc2)
+		artMisc2->activate();
+	if(artMisc3)
+		artMisc3->activate();
+	if(artMisc4)
+		artMisc4->activate();
+	if(artMisc5)
+		artMisc5->activate();
+	if(artNeck)
+		artNeck->activate();
+	if(artRhand)
+		artRhand->activate();
+	if(artRRing)
+		artRRing->activate();
+	if(artShoulders)
+		artShoulders->activate();
+	if(artSpellBook)
+		artSpellBook->activate();
+	if(artTorso)
+		artTorso->activate();
 	for(int f=0; f<backpack.size(); ++f)
 	{
-		backpack[f]->activate();
+		if(backpack[f])
+			backpack[f]->activate();
 	}
 
 	//LOCPLINT->lclickable.push_back(artFeet);
@@ -420,33 +451,53 @@ void CHeroWindow::deactivate()
 	leftArtRoll->deactivate();
 	rightArtRoll->deactivate();
 	portraitArea->deactivate();
-	for(int g=0; g<heroList.size(); ++g)
+	for(int g=0; g<heroListMi.size(); ++g)
 	{
-		heroList[g]->deactivate();
+		heroListMi[g]->deactivate();
 	}
 
-	artFeet->deactivate();
-	artHead->deactivate();
-	artLHand->deactivate();
-	artLRing->deactivate();
-	artMach1->deactivate();
-	artMach2->deactivate();
-	artMach3->deactivate();
-	artMach4->deactivate();
-	artMisc1->deactivate();
-	artMisc2->deactivate();
-	artMisc3->deactivate();
-	artMisc4->deactivate();
-	artMisc5->deactivate();
-	artNeck->deactivate();
-	artRhand->deactivate();
-	artRRing->deactivate();
-	artShoulders->deactivate();
-	artSpellBook->deactivate();
-	artTorso->deactivate();
+	if(artFeet)
+		artFeet->deactivate();
+	if(artHead)
+		artHead->deactivate();
+	if(artLHand)
+		artLHand->deactivate();
+	if(artLRing)
+		artLRing->deactivate();
+	if(artMach1)
+		artMach1->deactivate();
+	if(artMach2)
+		artMach2->deactivate();
+	if(artMach3)
+		artMach3->deactivate();
+	if(artMach4)
+		artMach4->deactivate();
+	if(artMisc1)
+		artMisc1->deactivate();
+	if(artMisc2)
+		artMisc2->deactivate();
+	if(artMisc3)
+		artMisc3->deactivate();
+	if(artMisc4)
+		artMisc4->deactivate();
+	if(artMisc5)
+		artMisc5->deactivate();
+	if(artNeck)
+		artNeck->deactivate();
+	if(artRhand)
+		artRhand->deactivate();
+	if(artRRing)
+		artRRing->deactivate();
+	if(artShoulders)
+		artShoulders->deactivate();
+	if(artSpellBook)
+		artSpellBook->deactivate();
+	if(artTorso)
+		artTorso->deactivate();
 	for(int f=0; f<backpack.size(); ++f)
-	{
-		backpack[f]->deactivate();
+	{		
+		if(backpack[f])
+			backpack[f]->deactivate();
 	}
 }
 
@@ -502,18 +553,18 @@ void CHeroWindow::rightArtRoller()
 
 void CHeroWindow::switchHero()
 {
-	int y;
-	SDL_GetMouseState(NULL, &y);
-	for(int g=0; g<heroList.size(); ++g)
-	{
-		if(y>=94+54*g)
-		{
-			//quit();
-			setHero(LOCPLINT->cb->getHeroInfo(player, g, false));
-			//LOCPLINT->openHeroWindow(curHero);
-			redrawCurBack();
-		}
-	}
+	//int y;
+	//SDL_GetMouseState(NULL, &y);
+	//for(int g=0; g<heroListMi.size(); ++g)
+	//{
+	//	if(y>=94+54*g)
+	//	{
+	//		//quit();
+	//		setHero(LOCPLINT->cb->getHeroInfo(player, g, false));
+	//		//LOCPLINT->openHeroWindow(curHero);
+	//		redrawCurBack();
+	//	}
+	//}
 }
 
 void CHeroWindow::redrawCurBack()
@@ -726,5 +777,15 @@ void LClickableAreaWText::clickLeft(boost::logic::tribool down)
 	if(!down)
 	{
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
+	}
+}
+
+void LClickableAreaHero::clickLeft(boost::logic::tribool down)
+{
+	if(!down)
+	{
+		const CGHeroInstance * buf = LOCPLINT->cb->getHeroInfo(owner->player, id, false);
+		owner->setHero(buf);
+		owner->redrawCurBack();
 	}
 }

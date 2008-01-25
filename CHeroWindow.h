@@ -7,6 +7,7 @@ struct SDL_Surface;
 class CGHeroInstance;
 class CDefHandler;
 class CArtifact;
+class CHeroWindow;
 
 class LClickableArea: public ClickableL
 {
@@ -14,6 +15,14 @@ public:
 	virtual void clickLeft (tribool down);
 	virtual void activate();
 	virtual void deactivate();
+};
+
+class LClickableAreaHero : public LClickableArea
+{
+public:
+	int id;
+	CHeroWindow * owner;
+	virtual void clickLeft (tribool down);
 };
 
 class LClickableAreaWText: public LClickableArea
@@ -41,7 +50,6 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 {
 	SDL_Surface * background, * curBack;
 	const CGHeroInstance * curHero;
-	int player;
 
 	//general graphics
 	CDefHandler * skillpics, *flags;
@@ -50,7 +58,8 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	AdventureMapButton<CHeroWindow> * quitButton, * dismissButton, * questlogButton, //general
 		* gar1button, * gar2button, * gar3button, * gar4button, //garrison / formation handling
 		* leftArtRoll, * rightArtRoll;
-	std::vector< AdventureMapButton<CHeroWindow> * > heroList; //list of heroes
+	//std::vector< AdventureMapButton<CHeroWindow> * > heroList; //list of heroes
+	std::vector<LClickableAreaHero *> heroListMi; //new better list of heroes
 
 	//artifact places
 	CArtPlace * artHead, * artLRing, * artRRing, * artLHand, * artRhand,
@@ -62,6 +71,7 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	//clickable areas
 	LClickableAreaWText * portraitArea;
 public:
+	int player;
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor
 	void setHero(const CGHeroInstance * hero); //sets main displayed hero
