@@ -373,6 +373,26 @@ int CCallback::getHeroSerial(const CGHeroInstance * hero)
 	}
 	return -1;
 }
+
+int CCallback::swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int p1, int p2)
+{
+	CCreatureSet *S1=const_cast<CCreatureSet *>(s1), *S2 = const_cast<CCreatureSet *>(s2);//todo - ugly
+	if (false)
+	{
+		//TODO: check if we are allowed to swap these creatures
+		return -1;
+	}
+	//if(S1->slots[p1].first)
+	{
+		//if(s2->slots[p2].first)
+		{
+			CCreature * pom = S2->slots[p2].first;
+			S2->slots[p2].first = S1->slots[p1].first;
+			S1->slots[p1].first = pom;
+		}
+	}
+	return -1;
+}
 int CCallback::getMySerial()
 {	
 	return gs->players[player].serial;

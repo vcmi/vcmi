@@ -34,6 +34,7 @@ public:
 	virtual int getMyColor()=0;
 	virtual int getMySerial()=0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)=0;
+	virtual int swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
 };
 
 struct HeroMoveDetails
@@ -78,6 +79,7 @@ public:
 	int getMyColor();
 	int getHeroSerial(const CGHeroInstance * hero);
 	int getMySerial();
+	int swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int p1, int p2);
 
 //friends
 	friend int _tmain(int argc, _TCHAR* argv[]);

@@ -31,6 +31,9 @@ int internalFunc(void * callback)
 		int heronum;
 		int3 dest;
 
+		if(pom==std::string("die, fool"))
+			exit(0);
+
 		switch (*cn.c_str())
 		{
 		case 'P':

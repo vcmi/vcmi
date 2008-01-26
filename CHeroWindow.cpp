@@ -118,7 +118,8 @@ void CHeroWindow::show(SDL_Surface *to)
 {
 	if(!to)
 		to=ekran;
-	blitAt(curBack,pos.x,pos.y,to);
+	if(curBack)
+		blitAt(curBack,pos.x,pos.y,to);
 	quitButton->show();
 	dismissButton->show();
 	questlogButton->show();
@@ -192,106 +193,87 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artFeet->pos.x = 515;
 	artFeet->pos.y = 295;
 	artFeet->pos.h = artFeet->pos.w = 44;
-	artFeet->activate();
 	artHead = new CArtPlace(hero->artHead);
 	artHead->pos.x = 509;
 	artHead->pos.y = 30;
 	artHead->pos.h = artHead->pos.h = 44;
-	artHead->activate();
 	artLHand = new CArtPlace(hero->artLHand);
 	artLHand->pos.x = 564;
 	artLHand->pos.y = 183;
 	artLHand->pos.h = artLHand->pos.h = 44;
-	artLHand->activate();
 	artLRing = new CArtPlace(hero->artLRing);
 	artLRing->pos.x = 610;
 	artLRing->pos.y = 183;
 	artLRing->pos.h = artLRing->pos.h = 44;
-	artLRing->activate();
 	artMach1 = new CArtPlace(hero->artMach1);
 	artMach1->pos.x = 564;
 	artMach1->pos.y = 30;
 	artMach1->pos.h = artMach1->pos.h = 44;
-	artMach1->activate();
 	artMach2 = new CArtPlace(hero->artMach2);
 	artMach2->pos.x = 610;
 	artMach2->pos.y = 30;
 	artMach2->pos.h = artMach2->pos.h = 44;
-	artMach2->activate();
 	artMach3 = new CArtPlace(hero->artMach3);
 	artMach3->pos.x = 610;
 	artMach3->pos.y = 76;
 	artMach3->pos.h = artMach3->pos.h = 44;
-	artMach3->activate();
 	artMach4 = new CArtPlace(hero->artMach4);
 	artMach4->pos.x = 610;
 	artMach4->pos.y = 122;
 	artMach4->pos.h = artMach4->pos.h = 44;
-	artMach4->activate();
 	artMisc1 = new CArtPlace(hero->artMisc1);
 	artMisc1->pos.x = 383;
 	artMisc1->pos.y = 143;
 	artMisc1->pos.h = artMisc1->pos.h = 44;
-	artMisc1->activate();
 	artMisc2 = new CArtPlace(hero->artMisc2);
 	artMisc2->pos.x = 399;
 	artMisc2->pos.y = 194;
 	artMisc2->pos.h = artMisc2->pos.h = 44;
-	artMisc2->activate();
 	artMisc3 = new CArtPlace(hero->artMisc3);
 	artMisc3->pos.x = 415;
 	artMisc3->pos.y = 245;
 	artMisc3->pos.h = artMisc3->pos.h = 44;
-	artMisc3->activate();
 	artMisc4 = new CArtPlace(hero->artMisc4);
 	artMisc4->pos.x = 431;
 	artMisc4->pos.y = 296;
 	artMisc4->pos.h = artMisc4->pos.h = 44;
-	artMisc4->activate();
 	artMisc5 = new CArtPlace(hero->artMisc5);
 	artMisc5->pos.x = 381;
 	artMisc5->pos.y = 296;
 	artMisc5->pos.h = artMisc5->pos.h = 44;
-	artMisc5->activate();
 	artNeck = new CArtPlace(hero->artNeck);
 	artNeck->pos.x = 508;
 	artNeck->pos.y = 79;
 	artNeck->pos.h = artNeck->pos.h = 44;
-	artNeck->activate();
 	artRhand = new CArtPlace(hero->artRhand);
 	artRhand->pos.x = 383;
 	artRhand->pos.y = 68;
 	artRhand->pos.h = artRhand->pos.h = 44;
-	artRhand->activate();
 	artRRing = new CArtPlace(hero->artRRing);
 	artRRing->pos.x = 431;
 	artRRing->pos.y = 68;
 	artRRing->pos.h = artRRing->pos.h = 44;
-	artRRing->activate();
 	artShoulders = new CArtPlace(hero->artShoulders);
 	artShoulders->pos.x = 567;
 	artShoulders->pos.y = 240;
 	artShoulders->pos.h = artShoulders->pos.h = 44;
-	artShoulders->activate();
 	artSpellBook = new CArtPlace(hero->artSpellBook);
 	artSpellBook->pos.x = 610;
 	artSpellBook->pos.y = 310;
 	artSpellBook->pos.h = artSpellBook->pos.h = 44;
-	artSpellBook->activate();
 	artTorso = new CArtPlace(hero->artTorso);
 	artTorso->pos.x = 509;
 	artTorso->pos.y = 130;
 	artTorso->pos.h = artTorso->pos.h = 44;
-	artTorso->activate();
 	for(int s=0; s<5 && s<curHero->artifacts.size(); ++s)
 	{
 		CArtPlace * add = new CArtPlace(curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]);
 		add->pos.x = 403 + 46*s;
 		add->pos.y = 365;
 		add->pos.h = add->pos.h = 44;
-		add->activate();
 		backpack.push_back(add);
 	}
+	redrawCurBack();
 }
 
 void CHeroWindow::quit()
@@ -303,19 +285,7 @@ void CHeroWindow::quit()
 			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+i);
 		}
 	}
-	quitButton->deactivate();
-	dismissButton->deactivate();
-	questlogButton->deactivate();
-	gar1button->deactivate();
-	gar2button->deactivate();
-	gar3button->deactivate();
-	gar4button->deactivate();
-	leftArtRoll->deactivate();
-	rightArtRoll->deactivate();
-	for(int g=0; g<heroListMi.size(); ++g)
-	{
-		heroListMi[g]->deactivate();
-	}
+	deactivate();
 
 	LOCPLINT->adventureInt->show();
 
@@ -326,7 +296,6 @@ void CHeroWindow::quit()
 		if(dynamic_cast<CArtPlace*>(LOCPLINT->lclickable[v]))
 			LOCPLINT->lclickable.erase(LOCPLINT->lclickable.begin()+v);
 	}*/
-	portraitArea->deactivate();
 
 	delete artFeet;
 	artFeet = 0;
@@ -435,6 +404,10 @@ void CHeroWindow::activate()
 		if(backpack[f])
 			backpack[f]->activate();
 	}
+	for(int e=0; e<heroListMi.size(); ++e)
+	{
+		heroListMi[e]->activate();
+	}
 
 	//LOCPLINT->lclickable.push_back(artFeet);
 }
@@ -498,6 +471,10 @@ void CHeroWindow::deactivate()
 	{		
 		if(backpack[f])
 			backpack[f]->deactivate();
+	}
+	for(int e=0; e<heroListMi.size(); ++e)
+	{
+		heroListMi[e]->deactivate();
 	}
 }
 
@@ -784,8 +761,10 @@ void LClickableAreaHero::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
+		owner->deactivate();
 		const CGHeroInstance * buf = LOCPLINT->cb->getHeroInfo(owner->player, id, false);
 		owner->setHero(buf);
 		owner->redrawCurBack();
+		owner->activate();
 	}
 }

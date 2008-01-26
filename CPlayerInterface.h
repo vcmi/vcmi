@@ -178,6 +178,51 @@ public:
 	void select(bool on);
 	SDL_Surface * getImg();
 };
+class CGarrisonInt;
+class CGarrisonSlot : public ClickableL, public ClickableR, public Hoverable
+{
+public:
+	CGarrisonInt *owner;
+	const CCreature * creature;
+	int count;
+	int upg; //upper garrison
+	
+	virtual void hover (bool on);
+	void clickRight (tribool down);
+	void clickLeft(tribool down);
+	void activate();
+	void deactivate();
+	void show();
+	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, const CCreature * Creature=NULL, int Count=0);
+};
+
+class CGarrisonInt :public CIntObject
+{
+public:
+	int interx, intery;
+	CGarrisonSlot *highlighted;
+
+	SDL_Surface *sur;
+	int offx, offy;
+	bool ignoreEvent;
+
+	const CCreatureSet *set1;
+	const CCreatureSet *set2;
+
+	std::vector<CGarrisonSlot*> *sup, *sdown;
+
+	void activate();
+	void deactivate();
+	void show();
+	void activeteSlots();
+	void deactiveteSlots();
+	void deleteSlots();
+	void createSlots();
+	void recreateSlots();
+
+	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CCreatureSet * s1, const CCreatureSet *s2=NULL);
+	~CGarrisonInt();
+};
 
 class CPlayerInterface : public CGameInterface
 {

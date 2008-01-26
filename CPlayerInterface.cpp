@@ -28,6 +28,250 @@ public:
 		return (*a.first)<(*b.first);
 	}
 } ocmptwo_cgin ;
+
+void CGarrisonSlot::hover (bool on)
+{
+}
+void CGarrisonSlot::clickRight (tribool down)
+{
+}
+void CGarrisonSlot::clickLeft(tribool down)
+{
+	if(owner->ignoreEvent)
+	{
+		owner->ignoreEvent = false;
+		return;
+	}
+	if(down)
+	{
+		if(owner->highlighted)
+		{
+			LOCPLINT->cb->swapCreatures(
+				(!upg)?(owner->set1):(owner->set2),
+				(!owner->highlighted->upg)?(owner->set1):(owner->set2),
+				ID,owner->highlighted->ID);
+			owner->highlighted = NULL;
+			owner->recreateSlots();
+		}
+		else
+		{
+			owner->highlighted = this;
+		}
+	}
+}
+void CGarrisonSlot::activate()
+{
+	ClickableL::activate();
+	ClickableR::activate();
+	Hoverable::activate();
+}
+void CGarrisonSlot::deactivate()
+{
+	ClickableL::deactivate();
+	ClickableR::deactivate();
+	Hoverable::deactivate();
+}
+CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, const CCreature * Creature, int Count)
+{
+	upg = 0;
+	count = Count;
+	ID = IID;
+	creature = Creature;
+	pos.x = x;
+	pos.y = y;
+	pos.w = 58;
+	pos.h = 64;
+	owner = Owner;
+}
+void CGarrisonSlot::show()
+{
+	if(creature)
+	{
+		blitAtWR(CGI->creh->bigImgs[creature->idNumber],pos);
+	}
+	else
+	{
+		SDL_Rect jakis1 = genRect(pos.w,pos.h,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), jakis2 = pos;
+		SDL_BlitSurface(owner->sur,&jakis1,ekran,&jakis2);
+		SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
+	}
+}
+CGarrisonInt::~CGarrisonInt()
+{
+	if(sup)
+	{
+		for(int i=0;i<sup->size();i++)
+			delete (*sup)[i];
+		delete sup;
+	}
+	if(sdown)
+	{
+		for(int i=0;i<sdown->size();i++)
+			delete (*sdown)[i];
+		delete sdown;
+	}
+}
+
+void CGarrisonInt::show()
+{
+	if(sup)
+	{
+		for(int i = 0; i<sup->size(); i++)
+			if((*sup)[i])
+				(*sup)[i]->show();
+	}
+	if(sdown)
+	{
+		for(int i = 0; i<sdown->size(); i++)
+			if((*sdown)[i])
+				(*sdown)[i]->show();
+	}
+	if(highlighted)
+	{
+		blitAt(CGI->creh->bigImgs[-1],highlighted->pos);
+	}
+}
+void CGarrisonInt::deactiveteSlots()
+{
+	if(sup)
+	{
+		for(int i = 0; i<sup->size(); i++)
+		{
+			if((*sup)[i])
+			{
+				(*sup)[i]->deactivate();
+			}
+		}
+	}
+	if(sdown)
+	{
+		for(int i = 0; i<sdown->size(); i++)
+		{
+			if((*sdown)[i])
+			{
+				(*sdown)[i]->deactivate();
+			}
+		}
+	}
+}
+void CGarrisonInt::activeteSlots()
+{
+	if(sup)
+	{
+		for(int i = 0; i<sup->size(); i++)
+		{
+			if((*sup)[i])
+			{
+				(*sup)[i]->activate();
+			}
+		}
+	}
+	if(sdown)
+	{
+		for(int i = 0; i<sdown->size(); i++)
+		{
+			if((*sdown)[i])
+			{
+				(*sdown)[i]->activate();
+			}
+		}
+	}
+}
+void CGarrisonInt::createSlots()
+{
+	if(set1)
+	{
+		sup = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
+		for
+			(std::map<int,std::pair<CCreature*,int> >::const_iterator i=set1->slots.begin();
+			i!=set1->slots.end(); i++)
+		{
+			(*sup)[i->first] = 
+				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y,i->first, i->second.first,i->second.second);
+		}
+		for(int i=0; i<sup->size(); i++)
+			if((*sup)[i] == NULL)
+				(*sup)[i] = new CGarrisonSlot(this, pos.x + (i*(58+interx)), pos.y,i, NULL, 0);
+	}
+	if(set2)
+	{	
+		sdown = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
+		for
+			(std::map<int,std::pair<CCreature*,int> >::const_iterator i=set2->slots.begin();
+			i!=set2->slots.end(); i++)
+		{
+			(*sdown)[i->first] = 
+				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y + 64 + intery,i->first, i->second.first,i->second.second);
+		}
+		for(int i=0; i<sup->size(); i++)
+			if((*sdown)[i] == NULL)
+				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(58+interx)), pos.y,i, NULL, 0);
+	}
+}
+void CGarrisonInt::deleteSlots()
+{
+	if(sup)
+	{
+		for(int i = 0; i<sup->size(); i++)
+		{
+			if((*sup)[i])
+			{
+				delete (*sup)[i];
+			}
+		}
+	}
+	if(sdown)
+	{
+		for(int i = 0; i<sdown->size(); i++)
+		{
+			if((*sdown)[i])
+			{
+				delete (*sdown)[i];
+			}
+		}
+	}
+}
+void CGarrisonInt::recreateSlots()
+{
+	deactiveteSlots();
+	deleteSlots();
+	createSlots();
+	activeteSlots();
+	show();
+}
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CCreatureSet * s1, const CCreatureSet *s2)
+	:interx(inx),intery(iny),sur(pomsur),highlighted(NULL),sup(NULL),sdown(NULL),set1(s1),set2(s2),
+	offx(OX),offy(OY)
+{
+	
+	ignoreEvent = false;
+	pos.x=(x);
+	pos.y=(y);
+	pos.w=(58);
+	pos.h=(64);
+	createSlots();
+}
+
+void CGarrisonInt::activate()
+{
+	if(sup)
+	{
+		for(int i = 0; i<sup->size(); i++)
+			if((*sup)[i])
+				(*sup)[i]->activate();
+	}
+	if(sdown)
+	{
+		for(int i = 0; i<sdown->size(); i++)
+			if((*sdown)[i])
+				(*sdown)[i]->activate();
+	}
+}
+void CGarrisonInt::deactivate()
+{
+	deactiveteSlots();
+}
+
 CInfoWindow::CInfoWindow()
 :okb(NMessage::ok,NULL,&CInfoWindow::okClicked)
 {
@@ -1582,6 +1826,6 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
 	adventureInt->heroWindow->setHero(hero);
 	this->objsToBlit.push_back(adventureInt->heroWindow);
-	adventureInt->heroWindow->activate();
 	adventureInt->hide();
+	adventureInt->heroWindow->activate();
 }

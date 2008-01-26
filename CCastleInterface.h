@@ -38,6 +38,7 @@ public:
 	CDefHandler *hall,*fort,
 		*bigTownPic, *flag;
 
+	CGarrisonInt * garr;
 	AdventureMapButton<CCastleInterface> * exit;
 
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling

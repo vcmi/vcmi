@@ -155,7 +155,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	flag =  CGI->spriteh->giveDef("CREST58.DEF");
 	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit = new AdventureMapButton<CCastleInterface>
-		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,Activate);
+		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,false);
 	exit->bitmapOffset = 4;
 
 	for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
@@ -173,6 +173,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	}
 
 	std::sort(buildings.begin(),buildings.end(),srthlp);
+	garr = new CGarrisonInt(305,387,4,32,townInt,241,13,&town->garrison,(town->garrisonHero)?(&town->garrisonHero->army):(NULL));
 
 	if(Activate)
 	{
@@ -281,23 +282,25 @@ void CCastleInterface::showAll(SDL_Surface * to)
 
 	//flag
 	blitAt(flag->ourImages[town->getOwner()].bitmap,241,387,to);
+
 	//print garrison
-	for(
-		std::map<int,std::pair<CCreature*,int> >::const_iterator i=town->garrison.slots.begin();
-		i!=town->garrison.slots.end();
-		i++
-			)
-	{
-		blitAt(CGI->creh->bigImgs[i->second.first->idNumber],305+(62*(i->first)),387,to);
-		itoa(i->second.second,temp,10);
-		CSDL_Ext::printTo(temp,305+(62*(i->first))+57,387+61,GEOR13,zwykly,to);
-	}
+	//for(
+	//	std::map<int,std::pair<CCreature*,int> >::const_iterator i=town->garrison.slots.begin();
+	//	i!=town->garrison.slots.end();
+	//	i++
+	//		)
+	//{
+	//	blitAt(CGI->creh->bigImgs[i->second.first->idNumber],305+(62*(i->first)),387,to);
+	//	itoa(i->second.second,temp,10);
+	//	CSDL_Ext::printTo(temp,305+(62*(i->first))+57,387+61,GEOR13,zwykly,to);
+	//}
 	show();
 }
 void CCastleInterface::show(SDL_Surface * to)
 {
 	if (!to)
 		to=ekran;
+	garr->show();
 	count++;
 	if(count==5)
 	{
@@ -333,12 +336,15 @@ void CCastleInterface::show(SDL_Surface * to)
 }
 void CCastleInterface::activate()
 {
+	garr->activate();
 	LOCPLINT->curint = this;
+	exit->activate();
 	for(int i=0;i<buildings.size();i++)
 		buildings[i]->activate();
 }
 void CCastleInterface::deactivate()
 {
+	garr->deactivate();
 	exit->deactivate();
 	for(int i=0;i<buildings.size();i++)
 		buildings[i]->deactivate();
