@@ -173,7 +173,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	}
 
 	std::sort(buildings.begin(),buildings.end(),srthlp);
-	garr = new CGarrisonInt(305,387,4,32,townInt,241,13,&town->garrison,(town->garrisonHero)?(&town->garrisonHero->army):(NULL));
+	garr = new CGarrisonInt(305,387,4,32,townInt,243,13,&town->garrison,(town->garrisonHero)?(&town->garrisonHero->army):(NULL));
 
 	if(Activate)
 	{
@@ -197,7 +197,7 @@ CCastleInterface::~CCastleInterface()
 	delete fort;
 	delete bigTownPic;
 	delete flag;
-
+	delete garr;
 	for(int i=0;i<buildings.size();i++)
 	{
 		delete buildings[i];

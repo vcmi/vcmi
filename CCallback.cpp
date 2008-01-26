@@ -389,6 +389,9 @@ int CCallback::swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int
 			CCreature * pom = S2->slots[p2].first;
 			S2->slots[p2].first = S1->slots[p1].first;
 			S1->slots[p1].first = pom;
+			int pom2 = S2->slots[p2].second;
+			S2->slots[p2].second = S1->slots[p1].second;
+			S1->slots[p1].second = pom2;
 		}
 	}
 	return -1;

@@ -87,11 +87,18 @@ void CGarrisonSlot::show()
 {
 	if(creature)
 	{
-		blitAtWR(CGI->creh->bigImgs[creature->idNumber],pos);
+		char* buf = new char[15];
+		itoa(count,buf,10);
+		blitAt(CGI->creh->bigImgs[creature->idNumber],pos);
+		printTo(buf,pos.x+56,pos.y+62,GEOR13,zwykly);
+		if(owner->highlighted==this)
+			blitAt(CGI->creh->bigImgs[-1],pos);
+		updateRect(&pos,ekran);
+		delete [] buf;
 	}
 	else
 	{
-		SDL_Rect jakis1 = genRect(pos.w,pos.h,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), jakis2 = pos;
+		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), jakis2 = pos;
 		SDL_BlitSurface(owner->sur,&jakis1,ekran,&jakis2);
 		SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
 	}
@@ -125,10 +132,6 @@ void CGarrisonInt::show()
 		for(int i = 0; i<sdown->size(); i++)
 			if((*sdown)[i])
 				(*sdown)[i]->show();
-	}
-	if(highlighted)
-	{
-		blitAt(CGI->creh->bigImgs[-1],highlighted->pos);
 	}
 }
 void CGarrisonInt::deactiveteSlots()
@@ -236,6 +239,7 @@ void CGarrisonInt::recreateSlots()
 	deactiveteSlots();
 	deleteSlots();
 	createSlots();
+	ignoreEvent = true;
 	activeteSlots();
 	show();
 }

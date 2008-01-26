@@ -118,6 +118,37 @@ void CTownHandler::loadNames()
 	of.close();
 	of.clear();
 
+	
+	//of.open("config/buildings4.txt");
+	//of >> format;
+	//while(!of.eof())
+	//{
+	//	std::map<int,std::map<int, Structure*> >::iterator i;
+	//	std::map<int, Structure*>::iterator i2;
+	//	int itr=1, buildingID;
+	//	int castleID;
+	//	of >> s;
+	//	if (s != "CASTLE")
+	//		break;
+	//	of >> castleID;
+	//	while(1)
+	//	{
+	//		of >> s;
+	//		if (s == "END")
+	//			break;
+	//		else
+	//			if((i=structures.find(castleID))!=structures.end())
+	//				if((i2=(i->second.find(buildingID=atoi(s.c_str()))))!=(i->second.end()))
+	//					i2->second->pos.z=itr++;
+	//				else
+	//					std::cout << "Warning1: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
+	//			else
+	//				std::cout << "Warning1: Castle "<<castleID<<" not defined."<<std::endl;
+	//	}
+	//}
+	//of.close();
+	//of.clear();
+
 }
 SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)
 {
