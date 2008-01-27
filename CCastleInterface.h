@@ -32,6 +32,7 @@ public:
 	SDL_Surface * townInt;
 	SDL_Surface * cityBg;
 	const CGTownInstance * town;
+	CStatusBar * statusbar;
 
 	unsigned char animval, count;
 

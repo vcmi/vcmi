@@ -459,37 +459,6 @@ void CTownList::draw()
 	else
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
 }
-CStatusBar::CStatusBar(int x, int y)
-{
-	bg=CGI->bitmaph->loadBitmap("ADROLLVR.bmp");
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	pos.x=x;
-	pos.y=y;
-	pos.w=bg->w;
-	pos.h=bg->h;
-	middlex=(bg->w/2)+x;
-	middley=(bg->h/2)+y;
-}
-CStatusBar::~CStatusBar()
-{
-	SDL_FreeSurface(bg);
-}
-void CStatusBar::clear()
-{
-	current="";
-	blitAt(bg,pos.x,pos.y);
-}
-void CStatusBar::print(std::string text)
-{
-	current=text;
-	blitAt(bg,pos.x,pos.y);
-	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
-}
-void CStatusBar::show()
-{
-	blitAt(bg,pos.x,pos.y);
-	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
-}
 CMinimap::CMinimap(bool draw)
 {
 	statusbarTxt = CGI->preth->advWorldMap.first;
@@ -1360,6 +1329,7 @@ void CAdvMapInt::deactivate()
 void CAdvMapInt::show()
 {
 	LOCPLINT->curint = this;
+	LOCPLINT->statusbar = &statusbar;
 	blitAt(bg,0,0);
 
 	kingOverview.show();

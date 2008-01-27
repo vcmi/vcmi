@@ -95,20 +95,6 @@ public:
 	void keyPressed (SDL_KeyboardEvent & key);
 	void draw();
 };
-class CStatusBar
-	: public CIntObject
-{
-public:
-	SDL_Surface * bg; //background
-	int middlex, middley; //middle of statusbar
-	std::string current; //text currently printed
-
-	CStatusBar(int x, int y); //c-tor
-	~CStatusBar(); //d-tor
-	void print(std::string text); //prints text and refreshes statusbar
-	void clear();//clears statusbar and refreshes
-	void show(); //shows statusbar (with current text)
-};
 class CMinimap
 	: public ClickableL, public ClickableR, public Hoverable, public MotionInterested, public virtual CIntObject
 {

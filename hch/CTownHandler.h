@@ -27,7 +27,7 @@ struct Structure
 {
 	int ID;
 	int3 pos;
-	std::string defName, borderName, areaName;
+	std::string defName, borderName, areaName, name;
 	int townID, group;
 };
 

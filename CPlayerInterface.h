@@ -18,6 +18,16 @@ public:
 	virtual void show(SDL_Surface * to = NULL)=0;
 };
 
+class IStatusBar
+{
+public:
+	virtual ~IStatusBar(){}; //d-tor
+	virtual void print(std::string text)=0; //prints text and refreshes statusbar
+	virtual void clear()=0;//clears statusbar and refreshes
+	virtual void show()=0; //shows statusbar (with current text)
+	virtual std::string getCurrent()=0;
+};
+
 class IActivable
 {
 public:
@@ -234,6 +244,7 @@ public:
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt;
 	FPSmanager * mainFPSmng;
+	IStatusBar *statusbar;
 	//TODO: town interace, battle interface, other interfaces
 
 	CCallback * cb;
@@ -283,4 +294,19 @@ public:
 	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 
 	CPlayerInterface(int Player, int serial);
+};
+class CStatusBar
+	: public CIntObject, public IStatusBar
+{
+public:
+	SDL_Surface * bg; //background
+	int middlex, middley; //middle of statusbar
+	std::string current; //text currently printed
+
+	CStatusBar(int x, int y, std::string name="ADROLLVR.bmp", int maxw=-1); //c-tor
+	~CStatusBar(); //d-tor
+	void print(std::string text); //prints text and refreshes statusbar
+	void clear();//clears statusbar and refreshes
+	void show(); //shows statusbar (with current text)
+	std::string getCurrent();
 };

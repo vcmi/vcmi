@@ -91,9 +91,9 @@ void AdventureMapButton<T>::hover (bool on)
 {
 	Hoverable::hover(on);
 	if (on)
-		LOCPLINT->adventureInt->statusbar.print(name);
-	else if (LOCPLINT->adventureInt->statusbar.current==name)
-		LOCPLINT->adventureInt->statusbar.clear();
+		LOCPLINT->statusbar->print(name);
+	else if (LOCPLINT->statusbar->getCurrent()==name)
+		LOCPLINT->statusbar->clear();
 }
 template <typename T>
 void AdventureMapButton<T>::activate()

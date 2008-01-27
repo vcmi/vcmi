@@ -1837,3 +1837,44 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 	adventureInt->hide();
 	adventureInt->heroWindow->activate();
 }
+CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
+{
+	bg=CGI->bitmaph->loadBitmap(name);
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	pos.x=x;
+	pos.y=y;
+	if(maxw >= 0)
+		pos.w = std::min(bg->w,maxw);
+	else
+		pos.w=bg->w;
+	pos.h=bg->h;
+	middlex=(pos.w/2)+x;
+	middley=(bg->h/2)+y;
+}
+CStatusBar::~CStatusBar()
+{
+	SDL_FreeSurface(bg);
+}
+void CStatusBar::clear()
+{
+	current="";
+	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
+	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),ekran,&pom);
+}
+void CStatusBar::print(std::string text)
+{
+	current=text;
+	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
+	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),ekran,&pom);
+	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
+}
+void CStatusBar::show()
+{
+	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
+	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),ekran,&pom);
+	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
+}
+std::string CStatusBar::getCurrent()
+{
+	return current;
+}

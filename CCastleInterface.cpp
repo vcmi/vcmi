@@ -65,7 +65,10 @@ void CBuildingRect::hover(bool on)
 	{
 		MotionInterested::deactivate();
 		if(LOCPLINT->castleInt->hBuild == this)
+		{
 			LOCPLINT->castleInt->hBuild = NULL;
+			LOCPLINT->statusbar->clear();
+		}
 	}
 }
 void CBuildingRect::clickLeft (tribool down)
@@ -84,7 +87,10 @@ void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 		if(CSDL_Ext::SDL_GetPixel(area,sEvent.x-pos.x,sEvent.y-pos.y) == 0) //najechany piksel jest poza polem
 		{
 			if(LOCPLINT->castleInt->hBuild == this)
+			{
 				LOCPLINT->castleInt->hBuild = NULL;
+				LOCPLINT->statusbar->clear();
+			}
 		}
 		else //w polu
 		{
@@ -93,11 +99,13 @@ void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 				if((*LOCPLINT->castleInt->hBuild)<(*this)) //ustawiamy sie, jesli jestesmy na wierzchu
 				{
 					LOCPLINT->castleInt->hBuild = this;
+					LOCPLINT->statusbar->print(str->name);
 				}
 			}
 			else //nie ma budynku, wiec damy nasz
 			{
 				LOCPLINT->castleInt->hBuild = this;
+				LOCPLINT->statusbar->print(str->name);
 			}
 		}
 	}
@@ -157,7 +165,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	exit = new AdventureMapButton<CCastleInterface>
 		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,false);
 	exit->bitmapOffset = 4;
-	
+	statusbar = new CStatusBar(8,555,"TSTATBAR.bmp",732);
 	std::set< std::pair<int,int> > s; //group - id
 
 	for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
@@ -254,6 +262,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 {	
 	if (!to)
 		to=ekran;
+	statusbar->show();
 	blitAt(cityBg,0,0,to);
 	blitAt(townInt,0,374,to);
 	LOCPLINT->adventureInt->resdatabar.draw();
@@ -376,6 +385,7 @@ void CCastleInterface::activate()
 {
 	garr->activate();
 	LOCPLINT->curint = this;
+	LOCPLINT->statusbar = statusbar;
 	exit->activate();
 	for(int i=0;i<buildings.size();i++)
 		buildings[i]->activate();

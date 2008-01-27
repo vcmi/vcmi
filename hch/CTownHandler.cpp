@@ -54,6 +54,7 @@ void CTownHandler::loadNames()
 		of >> vinya->townID;
 		of >> vinya->ID;
 		of >> vinya->defName;
+		vinya->name = vinya->defName; //TODO - use normal names
 		of >> vinya->pos.x;
 		of >> vinya->pos.y;
 		vinya->pos.z = 0;
