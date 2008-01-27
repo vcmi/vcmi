@@ -157,14 +157,52 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	exit = new AdventureMapButton<CCastleInterface>
 		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,false);
 	exit->bitmapOffset = 4;
+	
+	std::set< std::pair<int,int> > s; //group - id
 
 	for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
 	{
-		if(CGI->townh->structures.find(town->subID) != CGI->townh->structures.end())
+		if(CGI->townh->structures.find(town->subID) != CGI->townh->structures.end()) //we have info about structures in this town
 		{
-			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end())
+			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end()) //we have info about that structure
 			{
-				buildings.push_back(new CBuildingRect(CGI->townh->structures[town->subID][*i]));
+				Structure * st = CGI->townh->structures[town->subID][*i];
+				if(st->group<0) //no group - just add it
+				{
+					buildings.push_back(new CBuildingRect(st));
+				}
+				else
+				{
+					std::set< std::pair<int,int> >::iterator obecny=s.end();
+					for(std::set< std::pair<int,int> >::iterator seti = s.begin(); seti!=s.end(); seti++) //check if we have already building from same group
+					{
+						if(seti->first == st->group)
+						{
+							obecny = seti; 
+							break;
+						}
+					}
+					if(obecny != s.end())
+					{
+						if(obecny->second < st->ID) //we have to replace old building with current one
+						{
+							for(int itpb = 0; itpb<buildings.size(); itpb++)
+							{
+								if(buildings[itpb]->str->ID == obecny->second)
+								{
+									buildings.erase(buildings.begin() + itpb);
+									obecny->second = st->ID;
+									buildings.push_back(new CBuildingRect(st));
+								}
+							}
+						}
+					}
+					else
+					{
+						buildings.push_back(new CBuildingRect(st));
+						s.insert(std::pair<int,int>(st->group,st->ID));
+					}
+				}
 			}
 			else continue;
 		}

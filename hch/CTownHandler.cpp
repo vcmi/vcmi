@@ -50,6 +50,7 @@ void CTownHandler::loadNames()
 	while(!of.eof())
 	{
 		Structure *vinya = new Structure;
+		vinya->group = -1;
 		of >> vinya->townID;
 		of >> vinya->ID;
 		of >> vinya->defName;
@@ -94,6 +95,7 @@ void CTownHandler::loadNames()
 	of.close();
 	of.clear();
 
+	//read borders and areas names
 	of.open("config/buildings3.txt");
 	while(!of.eof())
 	{
@@ -118,37 +120,80 @@ void CTownHandler::loadNames()
 	of.close();
 	of.clear();
 
-	
-	//of.open("config/buildings4.txt");
-	//of >> format;
-	//while(!of.eof())
-	//{
-	//	std::map<int,std::map<int, Structure*> >::iterator i;
-	//	std::map<int, Structure*>::iterator i2;
-	//	int itr=1, buildingID;
-	//	int castleID;
-	//	of >> s;
-	//	if (s != "CASTLE")
-	//		break;
-	//	of >> castleID;
-	//	while(1)
-	//	{
-	//		of >> s;
-	//		if (s == "END")
-	//			break;
-	//		else
-	//			if((i=structures.find(castleID))!=structures.end())
-	//				if((i2=(i->second.find(buildingID=atoi(s.c_str()))))!=(i->second.end()))
-	//					i2->second->pos.z=itr++;
-	//				else
-	//					std::cout << "Warning1: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
-	//			else
-	//				std::cout << "Warning1: Castle "<<castleID<<" not defined."<<std::endl;
-	//	}
-	//}
-	//of.close();
-	//of.clear();
-
+	//read groups
+	itr = 0;
+	of.open("config/buildings4.txt");
+	of >> format;
+	if(format!=1)
+	{
+		std::cout << "Unhandled format of buildings4.txt \n";
+	}
+	else
+	{
+		while(!of.eof())
+		{
+			std::map<int,std::map<int, Structure*> >::iterator i;
+			std::map<int, Structure*>::iterator i2;
+			int itr=1, buildingID;
+			int castleID;
+			of >> s;
+			if (s == "CASTLE")
+			{
+				of >> castleID;
+			}
+			else if(s == "ALL")
+			{
+				castleID = -1;
+			}
+			else
+			{
+				break;
+			}
+			of >> s;
+			while(1) //read groups for castle
+			{
+				if (s == "GROUP")
+				{
+					while(1)
+					{
+						of >> s;
+						if((s == "GROUP") || (s == "EOD")) //
+							break;
+						buildingID = atoi(s.c_str());
+						if(castleID>=0)
+						{
+							if((i=structures.find(castleID))!=structures.end())
+								if((i2=(i->second.find(buildingID)))!=(i->second.end()))
+									i2->second->group = itr;
+								else
+									std::cout << "Warning3: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
+							else
+								std::cout << "Warning3: Castle "<<castleID<<" not defined."<<std::endl;
+						}
+						else //set group for selected building in ALL castles
+						{
+							for(i=structures.begin();i!=structures.end();i++)
+							{
+								for(i2=i->second.begin(); i2!=i->second.end(); i2++) 
+								{
+									if(i2->first == buildingID)
+									{
+										i2->second->group = itr;
+										break;
+									}
+								}
+							}
+						}
+					}
+					itr++;
+				}//if (s == "GROUP")
+				else if(s == "EOD")
+					break;
+			}
+		}
+		of.close();
+		of.clear();
+	}
 }
 SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)
 {

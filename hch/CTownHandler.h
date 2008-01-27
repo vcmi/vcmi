@@ -28,7 +28,7 @@ struct Structure
 	int ID;
 	int3 pos;
 	std::string defName, borderName, areaName;
-	int townID;
+	int townID, group;
 };
 
 class CTownHandler
@@ -43,7 +43,7 @@ public:
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //ID=-1 - blank; -2 - border; -3 - random
 	static int getTypeByDefName(std::string name);
 
-	std::map<int,std::map<int, Structure*> > structures;
+	std::map<int,std::map<int, Structure*> > structures; // <town ID, <structure ID, structure>>
 
 
 	std::vector<CGTownInstance *> townInstances;
