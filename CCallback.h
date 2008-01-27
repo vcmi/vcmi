@@ -35,6 +35,7 @@ public:
 	virtual int getMySerial()=0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)=0;
 	virtual int swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
+	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
 };
 
 struct HeroMoveDetails
@@ -80,6 +81,7 @@ public:
 	int getHeroSerial(const CGHeroInstance * hero);
 	int getMySerial();
 	int swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int p1, int p2);
+	bool dismissHero(const CGHeroInstance * hero);
 
 //friends
 	friend int _tmain(int argc, _TCHAR* argv[]);

@@ -17,6 +17,14 @@ public:
 	virtual void deactivate();
 };
 
+class RClickableArea: public ClickableR
+{
+public:
+	virtual void clickRight (tribool down);
+	virtual void activate();
+	virtual void deactivate();
+};
+
 class LClickableAreaHero : public LClickableArea
 {
 public:
@@ -25,11 +33,25 @@ public:
 	virtual void clickLeft (tribool down);
 };
 
-class LClickableAreaWText: public LClickableArea
+class LRClickableAreaWText: public virtual LClickableArea, public virtual RClickableArea
 {
 public:
 	std::string text;
+	virtual void activate();
+	virtual void deactivate();
 	virtual void clickLeft (tribool down);
+	virtual void clickRight (tribool down);
+};
+
+class LRClickableAreaWTextComp: public virtual LClickableArea, public virtual RClickableArea
+{
+public:
+	std::string text;
+	int bonus, type;
+	virtual void activate();
+	virtual void deactivate();
+	virtual void clickLeft (tribool down);
+	virtual void clickRight (tribool down);
 };
 
 class CArtPlace: public ClickableL, public IShowable
@@ -69,7 +91,9 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
 	int backpackPos; //unmber of first art visible in backpack (in hero's vector)
 	//clickable areas
-	LClickableAreaWText * portraitArea;
+	LRClickableAreaWText * portraitArea;
+	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
+	LRClickableAreaWText * expArea;
 public:
 	int player;
 	CHeroWindow(int playerColor); //c-tor

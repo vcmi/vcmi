@@ -396,6 +396,17 @@ int CCallback::swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int
 	}
 	return -1;
 }
+
+bool CCallback::dismissHero(const CGHeroInstance *hero)
+{
+	CGHeroInstance * Vhero = const_cast<CGHeroInstance *>(hero);
+	CGI->mh->removeObject(Vhero);
+	std::vector<CGHeroInstance*>::iterator nitr = find(CGI->state->players[player].heroes.begin(), CGI->state->players[player].heroes.end(), Vhero);
+	CGI->state->players[player].heroes.erase(nitr);
+	LOCPLINT->adventureInt->heroList.updateHList();
+	return false;
+}
+
 int CCallback::getMySerial()
 {	
 	return gs->players[player].serial;

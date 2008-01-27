@@ -92,7 +92,9 @@ public:
 	CDefHandler * pskillsb, *resources; //82x93
 	CDefHandler * un44; //many things
 	std::vector<std::string> pskillsn;
+	std::vector<int> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
 	unsigned int level(unsigned int experience);
+	unsigned int reqExp(unsigned int level);
 	void loadHeroes();
 	void loadSpecialAbilities();
 	void loadBiographies();

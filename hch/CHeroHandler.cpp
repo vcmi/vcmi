@@ -134,6 +134,21 @@ void CHeroHandler::loadHeroes()
 	loadBiographies();
 	loadHeroClasses();
 	initHeroClasses();
+	expPerLevel.push_back(0);
+	expPerLevel.push_back(1000);
+	expPerLevel.push_back(2000);
+	expPerLevel.push_back(3200);
+	expPerLevel.push_back(4500);
+	expPerLevel.push_back(6000);
+	expPerLevel.push_back(7700);
+	expPerLevel.push_back(9000);
+	expPerLevel.push_back(11000);
+	expPerLevel.push_back(13200);
+	expPerLevel.push_back(15500);
+	expPerLevel.push_back(18500);
+	expPerLevel.push_back(22100);
+	expPerLevel.push_back(26420);
+	expPerLevel.push_back(31604);
 	return;
 
 }
@@ -453,33 +468,61 @@ unsigned int CHeroInstance::getTileCost(EterrainType & ttype, Eroad & rdtype, Er
 
 unsigned int CHeroHandler::level(unsigned int experience)
 {
-	if (experience==0)
-		return 0; 
-	else if (experience<14700) //level < 10
+	//if (experience==0)
+	//	return 0; 
+	//else if (experience<14700) //level < 10
+	//{
+	//	return (-500+20*sqrt((float)experience+1025))/(200);
+	//}
+	//else if (experience<24320) //10 - 12
+	//{
+	//	if (experience>20600)
+	//		return 12;
+	//	else if (experience>17500)
+	//		return 11;
+	//	else return 10;
+	//}
+	//else //>12
+	//{
+	//	int lvl=12;
+	//	int xp = 24320; //xp needed for 13 lvl
+	//	int td = 4464; //diff 14-13
+	//	float mp = 1.2;
+	//	while (experience>xp)
+	//	{
+	//		xp+=td;
+	//		td*=mp;
+	//		lvl++;
+	//	}
+	//	return lvl;
+	//}
+	int add=0;
+	while(experience>=expPerLevel[expPerLevel.size()-1])
 	{
-		return (-500+20*sqrt((float)experience+1025))/(200);
+		experience/=1.2;
+		add+1;
 	}
-	else if (experience<24320) //10 - 12
+	for(int i=expPerLevel.size()-1; i>=0; --i)
 	{
-		if (experience>20600)
-			return 12;
-		else if (experience>17500)
-			return 11;
-		else return 10;
+		if(experience>=expPerLevel[i])
+			return i+add;
 	}
-	else //>12
+}
+
+unsigned int CHeroHandler::reqExp(unsigned int level)
+{
+	level-=1;
+	if(level<=expPerLevel.size())
+		return expPerLevel[level];
+	else
 	{
-		int lvl=12;
-		int xp = 24320; //xp needed for 13 lvl
-		int td = 4464; //diff 14-13
-		float mp = 1.2;
-		while (experience>xp)
+		unsigned int exp = expPerLevel[expPerLevel.size()-1];
+		level-=expPerLevel.size();
+		while(level>0)
 		{
-			xp+=td;
-			td*=mp;
-			lvl++;
+			--level;
+			exp*=1.2;
 		}
-		return lvl;
 	}
 }
 

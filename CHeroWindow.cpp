@@ -56,12 +56,27 @@ CHeroWindow::CHeroWindow(int playerColor): artFeet(0), artHead(0), artLHand(0),
 	skillpics = CGI->spriteh->giveDef("pskil42.def");
 	flags = CGI->spriteh->giveDef("CREST58.DEF");
 	//areas
-	portraitArea = new LClickableAreaWText();
+	portraitArea = new LRClickableAreaWText();
 	portraitArea->pos.x = 83;
 	portraitArea->pos.y = 26;
 	portraitArea->pos.w = 58;
 	portraitArea->pos.h = 64;
-
+	for(int v=0; v<4; ++v)
+	{
+		primSkillAreas.push_back(new LRClickableAreaWTextComp());
+		primSkillAreas[v]->pos.x = 95 + 70*v;
+		primSkillAreas[v]->pos.y = 111;
+		primSkillAreas[v]->pos.w = 42;
+		primSkillAreas[v]->pos.h = 42;
+		primSkillAreas[v]->text = CGI->generaltexth->arraytxt[2+v].substr(1, CGI->generaltexth->arraytxt[2+v].size()-2);
+		primSkillAreas[v]->type = v;
+		primSkillAreas[v]->bonus = -1; // to be initilized when hero is being set
+	}
+	expArea = new LRClickableAreaWText();
+	expArea->pos.x = 83;
+	expArea->pos.y = 236;
+	expArea->pos.w = 136;
+	expArea->pos.h = 42;
 }
 
 CHeroWindow::~CHeroWindow()
@@ -112,6 +127,11 @@ CHeroWindow::~CHeroWindow()
 	backpack.clear();
 
 	delete portraitArea;
+	delete expArea;
+	for(int v=0; v<primSkillAreas.size(); ++v)
+	{
+		delete primSkillAreas[v];
+	}
 }
 
 void CHeroWindow::show(SDL_Surface *to)
@@ -163,6 +183,16 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	}
 	curHero = hero;
 	portraitArea->text = hero->biography;
+
+	for(int g=0; g<primSkillAreas.size(); ++g)
+	{
+		primSkillAreas[g]->bonus = hero->primSkills[g];
+	}
+
+	char * th = new char[200];
+	sprintf(th, CGI->generaltexth->allTexts[2].substr(1, CGI->generaltexth->allTexts[2].size()-2).c_str(), hero->level, CGI->heroh->reqExp(hero->level+1)-hero->exp, hero->exp);
+	expArea->text = std::string(th);
+	delete [] th;
 
 	delete artFeet;
 	delete artHead;
@@ -355,6 +385,12 @@ void CHeroWindow::activate()
 	leftArtRoll->activate();
 	rightArtRoll->activate();
 	portraitArea->activate();
+	expArea->activate();
+	for(int v=0; v<primSkillAreas.size(); ++v)
+	{
+		primSkillAreas[v]->activate();
+	}
+
 	for(int g=0; g<heroListMi.size(); ++g)
 	{
 		heroListMi[g]->activate();
@@ -424,6 +460,12 @@ void CHeroWindow::deactivate()
 	leftArtRoll->deactivate();
 	rightArtRoll->deactivate();
 	portraitArea->deactivate();
+	expArea->deactivate();
+	for(int v=0; v<primSkillAreas.size(); ++v)
+	{
+		primSkillAreas[v]->deactivate();
+	}
+
 	for(int g=0; g<heroListMi.size(); ++g)
 	{
 		heroListMi[g]->deactivate();
@@ -480,6 +522,8 @@ void CHeroWindow::deactivate()
 
 void CHeroWindow::dismissCurrent()
 {
+	LOCPLINT->cb->dismissHero(curHero);
+	quit();
 }
 
 void CHeroWindow::questlog()
@@ -749,12 +793,42 @@ void LClickableArea::clickLeft(boost::logic::tribool down)
 	}
 }
 
-void LClickableAreaWText::clickLeft(boost::logic::tribool down)
+void RClickableArea::activate()
+{
+	ClickableR::activate();
+}
+void RClickableArea::deactivate()
+{
+	ClickableR::deactivate();
+}
+void RClickableArea::clickRight(boost::logic::tribool down)
+{
+	if(!down)
+	{
+		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
+	}
+}
+
+void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
 	}
+}
+void LRClickableAreaWText::clickRight(boost::logic::tribool down)
+{
+	LOCPLINT->adventureInt->handleRightClick(text, down, this);
+}
+void LRClickableAreaWText::activate()
+{
+	LClickableArea::activate();
+	RClickableArea::activate();
+}
+void LRClickableAreaWText::deactivate()
+{
+	LClickableArea::deactivate();
+	RClickableArea::deactivate();
 }
 
 void LClickableAreaHero::clickLeft(boost::logic::tribool down)
@@ -768,3 +842,26 @@ void LClickableAreaHero::clickLeft(boost::logic::tribool down)
 		owner->activate();
 	}
 }
+
+void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
+{
+	if(!down)
+	{
+		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(1, new SComponent(SComponent::Etype::primskill, type, bonus)));
+	}
+}
+void LRClickableAreaWTextComp::clickRight(boost::logic::tribool down)
+{
+	LOCPLINT->adventureInt->handleRightClick(text, down, this);
+}
+void LRClickableAreaWTextComp::activate()
+{
+	LClickableArea::activate();
+	RClickableArea::activate();
+}
+void LRClickableAreaWTextComp::deactivate()
+{
+	LClickableArea::deactivate();
+	RClickableArea::deactivate();
+}
+
