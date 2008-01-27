@@ -281,6 +281,7 @@ CInfoWindow::CInfoWindow()
 {
 	okb.ourObj = this;
 	okb.delg = this;
+	okb.notFreeButton=true;
 }
 
 void CInfoWindow::okClicked(tribool down)
@@ -561,11 +562,14 @@ CButtonBase::CButtonBase()
 	type=-1;
 	abs=false;
 	active=false;
+	notFreeButton = false;
 	ourObj=NULL;
 	state=0;
 }
 CButtonBase::~CButtonBase()
 {
+	if(notFreeButton)
+		return;
 	for(int i =0; i<imgs.size();i++)
 		for(int j=0;j<imgs[i].size();j++)
 			SDL_FreeSurface(imgs[i][j]);

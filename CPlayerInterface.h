@@ -47,6 +47,7 @@ public:
 	int type; //advmapbutton=2
 	bool abs;
 	bool active;
+	bool notFreeButton;
 	CIntObject * ourObj; // "owner"
 	int state;
 	std::vector< std::vector<SDL_Surface*> > imgs;
