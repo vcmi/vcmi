@@ -1793,7 +1793,13 @@ void CAmbarCendamo::deh3m()
 								{
 									if(spec->buildingSettings[ir] & (1<<bs))
 									{
-										std::cout<<"Hej, sprawdz co to za budynek4 w miescie " <<nt<<std::endl;
+										//horde building for 2lvl
+										if(nt->builtBuildings.find(38)!=nt->builtBuildings.end())
+											nt->builtBuildings.insert(19);
+										else
+											nt->builtBuildings.insert(18);
+
+											
 									}
 									continue;
 								}
@@ -1824,6 +1830,13 @@ void CAmbarCendamo::deh3m()
 									nt->builtBuildings.insert(34); 
 								if(spec->buildingSettings[ir] & 1<<3)
 									nt->builtBuildings.insert(41); 
+								if(spec->buildingSettings[ir] & 1<<3)
+								{
+									if(nt->builtBuildings.find(41)!=nt->builtBuildings.end())
+										nt->builtBuildings.insert(25);
+									else
+										nt->builtBuildings.insert(24);
+								}
 								if(spec->buildingSettings[ir] & 1<<5)
 									nt->builtBuildings.insert(35); 
 								if(spec->buildingSettings[ir] & 1<<6)

@@ -31,6 +31,17 @@ public:
 
 void CGarrisonSlot::hover (bool on)
 {
+	if(on)
+	{
+		if(creature)
+		{
+			LOCPLINT->statusbar->print(creature->nameSing);
+		}
+	}
+	else
+	{
+		LOCPLINT->statusbar->clear();
+	}
 }
 void CGarrisonSlot::clickRight (tribool down)
 {

@@ -387,6 +387,8 @@ int CCallback::getHeroSerial(const CGHeroInstance * hero)
 }
 const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 {
+	if(!obj)
+		return NULL;
 	if(obj->ID == 34)
 		return &(dynamic_cast<const CGHeroInstance*>(obj))->army;
 	else if(obj->ID == 98)
