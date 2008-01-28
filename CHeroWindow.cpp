@@ -862,10 +862,11 @@ void LClickableAreaHero::clickLeft(boost::logic::tribool down)
 
 void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
 {
-	if(!down)
+	if((!down) && pressedL)
 	{
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(1, new SComponent(SComponent::Etype(baseType), type, bonus)));
 	}
+	ClickableL::clickLeft(down);
 }
 void LRClickableAreaWTextComp::clickRight(boost::logic::tribool down)
 {
