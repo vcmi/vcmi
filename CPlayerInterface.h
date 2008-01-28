@@ -204,7 +204,7 @@ public:
 	void activate();
 	void deactivate();
 	void show();
-	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, const CCreature * Creature=NULL, int Count=0);
+	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CCreature * Creature=NULL, int Count=0);
 };
 
 class CGarrisonInt :public CIntObject
@@ -221,6 +221,7 @@ public:
 	const CCreatureSet *set2;
 
 	std::vector<CGarrisonSlot*> *sup, *sdown;
+	const CGObjectInstance *oup, *odown;
 
 	void activate();
 	void deactivate();
@@ -231,7 +232,7 @@ public:
 	void createSlots();
 	void recreateSlots();
 
-	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CCreatureSet * s1, const CCreatureSet *s2=NULL);
+	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CGObjectInstance *s1, const CGObjectInstance *s2=NULL);
 	~CGarrisonInt();
 };
 
@@ -274,6 +275,8 @@ public:
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
 	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID);
+	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
+	void garrisonChanged(const CGObjectInstance * obj);
 
 	void showComp(SComponent comp);
 

@@ -168,6 +168,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	statusbar = new CStatusBar(8,555,"TSTATBAR.bmp",732);
 	std::set< std::pair<int,int> > s; //group - id
 
+
+	//buildings
 	for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
 	{
 		if(CGI->townh->structures.find(town->subID) != CGI->townh->structures.end()) //we have info about structures in this town
@@ -218,8 +220,10 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 			break;
 	}
 
+
+	//garrison
 	std::sort(buildings.begin(),buildings.end(),srthlp);
-	garr = new CGarrisonInt(305,387,4,32,townInt,243,13,&town->garrison,(town->garrisonHero)?(&town->garrisonHero->army):(NULL));
+	garr = new CGarrisonInt(305,387,4,32,townInt,243,13,town,town->visitingHero);
 
 	if(Activate)
 	{

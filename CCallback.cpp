@@ -126,24 +126,31 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 			{
 				curd.successful = true;
 				hero->pos = curd.dst;
-				int heroSight = hero->getSightDistance();
 
+				//inform leaved objects
+				std::vector< CGObjectInstance * > leave = CGI->mh->getVisitableObjs(CHeroInstance::convertPosition(curd.src,false));
+				for (int iii=0; iii<leave.size(); iii++) //if object is visitable we call onHeroVisit
+				{
+					//TODO: allow to handle this in LUA
+					if(leave[iii]->state) //hard-coded function
+						leave[iii]->state->onHeroLeave(leave[iii],curd.ho->subID);
+				}
+
+
+				//reveal fog of war
+				int heroSight = hero->getSightDistance();
 				int xbeg = stpos.x - heroSight - 2;
 				if(xbeg < 0)
 					xbeg = 0;
-
 				int xend = stpos.x + heroSight + 2;
 				if(xend >= CGI->ac->map.width)
 					xend = CGI->ac->map.width;
-
 				int ybeg = stpos.y - heroSight - 2;
 				if(ybeg < 0)
 					ybeg = 0;
-
 				int yend = stpos.y + heroSight + 2;
 				if(yend >= CGI->ac->map.height)
 					yend = CGI->ac->map.height;
-
 				for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
 				{
 					for(int yd=ybeg; yd<yend; ++yd)
@@ -161,6 +168,8 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 					}
 				}
 
+
+				//notify interfacesabout move
 				int nn=0; //number of interfece of currently browsed player
 				for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
 				{
@@ -172,6 +181,9 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 					}
 					++nn;
 				}
+
+
+				//call objects if they arevisited
 				for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
 				{
 					if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
@@ -373,10 +385,18 @@ int CCallback::getHeroSerial(const CGHeroInstance * hero)
 	}
 	return -1;
 }
-
-int CCallback::swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int p1, int p2)
+const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 {
-	CCreatureSet *S1=const_cast<CCreatureSet *>(s1), *S2 = const_cast<CCreatureSet *>(s2);//todo - ugly
+	if(obj->ID == 34)
+		return &(dynamic_cast<const CGHeroInstance*>(obj))->army;
+	else if(obj->ID == 98)
+		return &(dynamic_cast<const CGTownInstance*>(obj)->garrison);
+	else return NULL;
+}
+
+int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
+{
+	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
 	if (false)
 	{
 		//TODO: check if we are allowed to swap these creatures
@@ -392,6 +412,15 @@ int CCallback::swapCreatures(const CCreatureSet *s1, const CCreatureSet *s2, int
 			int pom2 = S2->slots[p2].second;
 			S2->slots[p2].second = S1->slots[p1].second;
 			S1->slots[p1].second = pom2;
+
+			if(!S1->slots[p1].first)
+				S1->slots.erase(p1);
+			if(!S2->slots[p2].first)
+				S2->slots.erase(p2);
+			if(s1->tempOwner<PLAYER_LIMIT)
+				CGI->playerint[s1->tempOwner]->garrisonChanged(s1);
+			if(s2->tempOwner<PLAYER_LIMIT)
+				CGI->playerint[s2->tempOwner]->garrisonChanged(s2);
 		}
 	}
 	return -1;
@@ -519,7 +548,29 @@ void CScriptCallback::showCompInfo(int player, SComponent * comp)
 	if(i)
 		i->showComp(*comp);
 }
+void CScriptCallback::heroVisitCastle(CGObjectInstance * ob, int heroID)
+{
+	CGTownInstance * n;
+	if(n = dynamic_cast<CGTownInstance*>(ob))
+	{
+		n->visitingHero = CGI->state->getHero(heroID,0);
+		CGI->playerint[getHeroOwner(heroID)]->heroVisitsTown(CGI->state->getHero(heroID,0),n);
+	}
+	else
+		return;
+}
 
+void CScriptCallback::stopHeroVisitCastle(CGObjectInstance * ob, int heroID)
+{
+	CGTownInstance * n;
+	if(n = dynamic_cast<CGTownInstance*>(ob))
+	{
+		if(n->visitingHero->type->ID == heroID)
+			n->visitingHero = NULL;
+	}
+	else
+		return;
+}
 void CLuaCallback::registerFuncs(lua_State * L)
 {
 	lua_newtable(L);
@@ -544,8 +595,7 @@ void CLuaCallback::registerFuncs(lua_State * L)
 	
 
 	lua_setglobal(L, "vcmi");
-	#undef REGISTER_C_FUNC(x)
-
+	#undef REGISTER_C_FUNC
 }
 int CLuaCallback::getPos(lua_State * L)//(CGObjectInstance * object);
 {	

@@ -280,6 +280,7 @@ CGTownInstance::CGTownInstance()
 	//state->owner=-1;
 	town=NULL;
 	income = 500;
+	visitingHero = NULL;
 }
 
 CGObjectInstance::CGObjectInstance()

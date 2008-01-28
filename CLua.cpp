@@ -12,6 +12,7 @@
 #include "CGameState.h"
 #include <sstream>
 #include "hch/CObjectHandler.h"
+#include "hch/CTownHandler.h"
 #include "CCallback.h"
 #include "hch/CGeneralTextHandler.h"
 #include <sstream>
@@ -588,5 +589,28 @@ std::vector<int> CPickable::yourObjects() //returns IDs of objects which are han
 	ret.push_back(79); //resource
 	ret.push_back(5); //artifact
 	ret.push_back(101); //treasure chest / commander stone
+	return ret;
+}
+
+void CTownScript::onHeroVisit(CGObjectInstance *os, int heroID)
+{
+	cb->heroVisitCastle(os,heroID);
+}
+void CTownScript::onHeroLeave(CGObjectInstance *os, int heroID)
+{
+	cb->stopHeroVisitCastle(os,heroID);
+}
+std::string CTownScript::hoverText(CGObjectInstance *os)
+{
+	CGTownInstance * n;
+	if(n = dynamic_cast<CGTownInstance*>(os))
+		return n->name + ", " + n->town->name;
+	else return "";
+}
+
+std::vector<int> CTownScript::yourObjects() //returns IDs of objects which are handled by script
+{
+	std::vector<int> ret(1);
+	ret.push_back(98); //town
 	return ret;
 }

@@ -188,8 +188,9 @@ void initGameState(CGameInfo * cgi)
 	/****************************TOWNS************************************************/
 	for (int i=0;i<cgi->townh->townInstances.size();i++)
 	{
-		CGTownInstance * vti = new CGTownInstance();
-		(*vti)=*(cgi->townh->townInstances[i]);
+		//CGTownInstance * vti = new CGTownInstance();
+		//(*vti)=*(cgi->townh->townInstances[i]);
+		CGTownInstance * vti =(cgi->townh->townInstances[i]);
 		vti->creatureIncome.resize(CREATURES_PER_TOWN);
 		vti->creaturesLeft.resize(CREATURES_PER_TOWN);
 		if (vti->name.length()==0) // if town hasn't name we draw it
@@ -226,6 +227,7 @@ void initGameState(CGameInfo * cgi)
 	handleCPPObjS(&scripts,new CVisitableOPW(csc));
 	handleCPPObjS(&scripts,new CPickable(csc));
 	handleCPPObjS(&scripts,new CMines(csc));
+	handleCPPObjS(&scripts,new CTownScript(csc));
 	//created map
 
 	/****************************LUA OBJECT SCRIPTS************************************************/

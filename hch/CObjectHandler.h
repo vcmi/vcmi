@@ -442,7 +442,7 @@ public:
 	std::vector<int> creatureIncome; //vector by level
 	std::vector<int> creaturesLeft; //that can be recruited
 
-	CGHeroInstance * garrisonHero;
+	const CGHeroInstance * garrisonHero, *visitingHero;
 
 	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
 

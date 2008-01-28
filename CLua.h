@@ -26,6 +26,7 @@ public:
 	//virtual void init(){};
 	virtual void newObject(CGObjectInstance *os){};
 	virtual void onHeroVisit(CGObjectInstance *os, int heroID){};
+	virtual void onHeroLeave(CGObjectInstance *os, int heroID){};
 	virtual std::string hoverText(CGObjectInstance *os){return "";};
 	virtual void newTurn (){}; 
 
@@ -145,6 +146,17 @@ class CPickable : public CCPPObjectScript, public IChosen  //pickable - resource
 	void chosen(int which);
 	void newObject(CGObjectInstance *os);
 	void onHeroVisit(CGObjectInstance *os, int heroID);
+	std::string hoverText(CGObjectInstance *os);
+	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+
+	friend void initGameState(CGameInfo * cgi);
+};
+
+class CTownScript : public CCPPObjectScript  //pickable - resources, artifacts, etc
+{
+	CTownScript(CScriptCallback * CB):CCPPObjectScript(CB){};
+	void onHeroVisit(CGObjectInstance *os, int heroID);
+	void onHeroLeave(CGObjectInstance *os, int heroID);
 	std::string hoverText(CGObjectInstance *os);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 

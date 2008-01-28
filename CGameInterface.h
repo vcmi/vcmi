@@ -21,10 +21,12 @@ public:
 	virtual void heroCreated(const CGHeroInstance*)=0{};
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)=0{};
 	virtual void heroMoved(const HeroMoveDetails & details)=0{};
-	virtual void tileRevealed(int3 pos)=0{};
-	virtual void tileHidden(int3 pos)=0{};
+	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};
+	virtual void tileRevealed(int3 pos){};
+	virtual void tileHidden(int3 pos){};
 	virtual void receivedResource(int type, int val){};
 	virtual void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)=0{};
+	virtual void garrisonChanged(const CGObjectInstance * obj){};
 };
 class CAIHandler
 {
