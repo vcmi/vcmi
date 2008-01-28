@@ -33,7 +33,7 @@ public:
 	virtual void clickLeft (tribool down);
 };
 
-class LRClickableAreaWText: public virtual LClickableArea, public virtual RClickableArea
+class LRClickableAreaWText: public LClickableArea, public RClickableArea
 {
 public:
 	std::string text;
@@ -43,10 +43,11 @@ public:
 	virtual void clickRight (tribool down);
 };
 
-class LRClickableAreaWTextComp: public virtual LClickableArea, public virtual RClickableArea
+class LRClickableAreaWTextComp: public LClickableArea, public RClickableArea
 {
 public:
 	std::string text;
+	int baseType;
 	int bonus, type;
 	virtual void activate();
 	virtual void deactivate();
@@ -94,6 +95,7 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	LRClickableAreaWText * portraitArea;
 	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
 	LRClickableAreaWText * expArea;
+	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 public:
 	int player;
 	CHeroWindow(int playerColor); //c-tor

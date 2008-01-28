@@ -71,12 +71,22 @@ CHeroWindow::CHeroWindow(int playerColor): artFeet(0), artHead(0), artLHand(0),
 		primSkillAreas[v]->text = CGI->generaltexth->arraytxt[2+v].substr(1, CGI->generaltexth->arraytxt[2+v].size()-2);
 		primSkillAreas[v]->type = v;
 		primSkillAreas[v]->bonus = -1; // to be initilized when hero is being set
+		primSkillAreas[v]->baseType = 0;
 	}
 	expArea = new LRClickableAreaWText();
 	expArea->pos.x = 83;
 	expArea->pos.y = 236;
 	expArea->pos.w = 136;
 	expArea->pos.h = 42;
+	for(int i=0; i<8; ++i)
+	{
+		secSkillAreas.push_back(new LRClickableAreaWTextComp());
+		secSkillAreas[i]->pos.x = (i%2==0) ? (83) : (227);
+		secSkillAreas[i]->pos.y = 284 + 48 * (i/2);
+		secSkillAreas[i]->pos.w = 136;
+		secSkillAreas[i]->pos.h = 42;
+		secSkillAreas[i]->baseType = 1;
+	}
 }
 
 CHeroWindow::~CHeroWindow()
@@ -132,6 +142,10 @@ CHeroWindow::~CHeroWindow()
 	{
 		delete primSkillAreas[v];
 	}
+	for(int v=0; v<secSkillAreas.size(); ++v)
+	{
+		delete secSkillAreas[v];
+	}
 }
 
 void CHeroWindow::show(SDL_Surface *to)
@@ -177,7 +191,7 @@ void CHeroWindow::show(SDL_Surface *to)
 
 void CHeroWindow::setHero(const CGHeroInstance *hero)
 {
-	if(!hero) //something strange... no hero? it should happen
+	if(!hero) //something strange... no hero? it shouldn't happen
 	{
 		return; 
 	}
@@ -187,6 +201,11 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	for(int g=0; g<primSkillAreas.size(); ++g)
 	{
 		primSkillAreas[g]->bonus = hero->primSkills[g];
+	}
+	for(int g=0; g<secSkillAreas.size(); ++g)
+	{
+		secSkillAreas[g]->type = hero->secSkills[g].first;
+		secSkillAreas[g]->bonus = hero->secSkills[g].second;
 	}
 
 	char * th = new char[200];
@@ -390,10 +409,9 @@ void CHeroWindow::activate()
 	{
 		primSkillAreas[v]->activate();
 	}
-
-	for(int g=0; g<heroListMi.size(); ++g)
+	for(int v=0; v<curHero->secSkills.size(); ++v)
 	{
-		heroListMi[g]->activate();
+		secSkillAreas[v]->activate();
 	}
 	redrawCurBack();
 
@@ -465,10 +483,9 @@ void CHeroWindow::deactivate()
 	{
 		primSkillAreas[v]->deactivate();
 	}
-
-	for(int g=0; g<heroListMi.size(); ++g)
+	for(int v=0; v<secSkillAreas.size(); ++v)
 	{
-		heroListMi[g]->deactivate();
+		secSkillAreas[v]->deactivate();
 	}
 
 	if(artFeet)
@@ -847,7 +864,7 @@ void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
-		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(1, new SComponent(SComponent::Etype::primskill, type, bonus)));
+		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(1, new SComponent(SComponent::Etype(baseType), type, bonus)));
 	}
 }
 void LRClickableAreaWTextComp::clickRight(boost::logic::tribool down)
