@@ -194,7 +194,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 					}
 					if(obecny != s.end())
 					{
-						if(obecny->second < st->ID) //we have to replace old building with current one
+						if((*(CGI->townh->structures[town->subID][obecny->second])) < (*(CGI->townh->structures[town->subID][st->ID]))) //we have to replace old building with current one
 						{
 							for(int itpb = 0; itpb<buildings.size(); itpb++)
 							{
@@ -312,7 +312,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 			pomy = (i>3)?(507):(459);
 			blitAt(CGI->creh->smallImgs[cid],pomx,pomy,to);
 			std::ostringstream oss;
-			oss << '+' << town->creatureIncome[i];
+			oss << '+' << (CGI->creh->creatures[cid].growth + town->creatureIncome[i]);
 			CSDL_Ext::printAtMiddle(oss.str(),pomx+16,pomy+37,GEOR13,zwykly,to);
 		}
 	}

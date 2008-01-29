@@ -89,7 +89,7 @@ std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
 		else if(mapa[*i]  >=  (-CREATURES_PER_TOWN)) // horde buildings
 		{
 			int level = (-mapa[*i]);
-			if(h3m.find(36+level) != h3m.end()) //upgraded creature horde building
+			if(h3m.find(20+(level*3)) != h3m.end()) //upgraded creature horde building
 			{
 				if(((castleID==1) || (castleID==3)) && ((level==3) || (level==5)))
 					ret.insert(25);
@@ -111,6 +111,14 @@ std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
 	}
 
 	ret.insert(10); //village hall is always present
+	ret.insert(-1); //houses near v.hall
+
+	if(ret.find(11)!=ret.end())
+		ret.insert(27);
+	if(ret.find(12)!=ret.end())
+		ret.insert(28);
+	if(ret.find(13)!=ret.end())
+		ret.insert(29);
 
 	return ret;
 }

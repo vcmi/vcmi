@@ -131,13 +131,15 @@ void CTownHandler::loadNames()
 	}
 	else
 	{
+		of >> s;
+		int itr=1;
 		while(!of.eof())
 		{
 			std::map<int,std::map<int, Structure*> >::iterator i;
 			std::map<int, Structure*>::iterator i2;
-			int itr=1, buildingID;
+			int buildingID;
 			int castleID;
-			of >> s;
+			itr++;
 			if (s == "CASTLE")
 			{
 				of >> castleID;
@@ -158,7 +160,7 @@ void CTownHandler::loadNames()
 					while(1)
 					{
 						of >> s;
-						if((s == "GROUP") || (s == "EOD")) //
+						if((s == "GROUP") || (s == "EOD") || (s == "CASTLE")) //
 							break;
 						buildingID = atoi(s.c_str());
 						if(castleID>=0)
@@ -186,6 +188,8 @@ void CTownHandler::loadNames()
 							}
 						}
 					}
+					if(s == "CASTLE")
+						break;
 					itr++;
 				}//if (s == "GROUP")
 				else if(s == "EOD")

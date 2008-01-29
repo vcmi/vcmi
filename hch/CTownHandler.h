@@ -29,6 +29,13 @@ struct Structure
 	int3 pos;
 	std::string defName, borderName, areaName, name;
 	int townID, group;
+	bool operator<(const Structure & p2) const
+	{
+		if(pos.z != p2.pos.z)
+			return (pos.z) < (p2.pos.z);
+		else
+			return (ID) < (p2.ID);
+	}
 };
 
 class CTownHandler

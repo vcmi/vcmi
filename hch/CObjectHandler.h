@@ -439,7 +439,7 @@ public:
 	
 	//TODO:
 	std::set<int> possibleBuildings, builtBuildings, h3mbuildings;
-	std::vector<int> creatureIncome; //vector by level
+	std::vector<int> creatureIncome; //vector by level - that valueis addedto thebasic growth
 	std::vector<int> creaturesLeft; //that can be recruited
 
 	const CGHeroInstance * garrisonHero, *visitingHero;
