@@ -353,7 +353,7 @@ void CCastleInterface::show(SDL_Surface * to)
 		to=ekran;
 	garr->show();
 	count++;
-	if(count==5)
+	if(count==4)
 	{
 		count=0;
 		animval++;

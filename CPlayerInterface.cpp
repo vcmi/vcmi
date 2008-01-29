@@ -13,11 +13,14 @@
 #include "CPathfinder.h"
 #include <sstream>
 #include "hch/CHeroHandler.h"
+#include "hch/CTownHandler.h"
 #include "SDL_framerate.h"
 #include "hch/CGeneralTextHandler.h"
 #include "CCastleInterface.h"
 #include "CHeroWindow.h"
 #include "timeHandler.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 using namespace CSDL_Ext;
 
 class OCM_HLP_CGIN
@@ -31,12 +34,57 @@ public:
 
 void CGarrisonSlot::hover (bool on)
 {
+	Hoverable::hover(on);
 	if(on)
 	{
+		std::string temp;
 		if(creature)
 		{
-			LOCPLINT->statusbar->print(creature->nameSing);
+			if(owner->highlighted)
+			{
+				if(owner->highlighted == this)
+				{
+					temp = CGI->townh->tcommands[4];
+					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+				}
+				else if (owner->highlighted->creature == creature)
+				{
+					temp = CGI->townh->tcommands[2];
+					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+				}
+				else
+				{
+					temp = CGI->townh->tcommands[7];
+					boost::algorithm::replace_first(temp,"%s",owner->highlighted->creature->nameSing);
+					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+				}
+			}
+			else
+			{
+				if(upg)
+				{
+					temp = CGI->townh->tcommands[32];
+				}
+				else
+				{
+					temp = CGI->townh->tcommands[12];
+				}
+				boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+			};
 		}
+		else
+		{
+			if(owner->highlighted)
+			{
+					temp = CGI->townh->tcommands[6];
+					boost::algorithm::replace_first(temp,"%s",owner->highlighted->creature->nameSing);
+			}
+			else
+			{
+				temp = CGI->townh->tcommands[11];
+			}
+		}
+		LOCPLINT->statusbar->print(temp);
 	}
 	else
 	{
@@ -66,7 +114,8 @@ void CGarrisonSlot::clickLeft(tribool down)
 		}
 		else
 		{
-			owner->highlighted = this;
+			if(creature)
+				owner->highlighted = this;
 		}
 	}
 }

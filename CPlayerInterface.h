@@ -196,7 +196,7 @@ public:
 	CGarrisonInt *owner;
 	const CCreature * creature;
 	int count;
-	int upg; //upper garrison
+	int upg; //0 - up garrison, 1 - down garrison
 	
 	virtual void hover (bool on);
 	void clickRight (tribool down);

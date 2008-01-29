@@ -70,6 +70,50 @@ void CAmbarCendamo::teceDef()
 	//	delete of;
 	//}
 }
+std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
+{
+	std::map<int,int> mapa;
+	std::set<int> ret;
+	std::ifstream b5("config/buildings5.txt");
+	while(!b5.eof())
+	{
+		int a, b;
+		b5 >> a >> b;
+		mapa[a]=b;
+	}
+
+	for(std::set<int>::const_iterator i=h3m.begin();i!=h3m.end();i++)
+	{
+		if(mapa[*i]>=0)
+			ret.insert(mapa[*i]);
+		else if(mapa[*i]  >=  (-CREATURES_PER_TOWN)) // horde buildings
+		{
+			int level = (-mapa[*i]);
+			if(h3m.find(36+level) != h3m.end()) //upgraded creature horde building
+			{
+				if(((castleID==1) || (castleID==3)) && ((level==3) || (level==5)))
+					ret.insert(25);
+				else
+					ret.insert(19);
+			}
+			else
+			{
+				if(((castleID==1) || (castleID==3)) && ((level==3) || (level==5)))
+					ret.insert(24);
+				else
+					ret.insert(18);
+			}
+		}
+		else
+		{
+			std::cout<<"Conversion warning: unknown building "<<*i<<" in castle "<<castleID<<std::endl;
+		}
+	}
+
+	ret.insert(10); //village hall is always present
+
+	return ret;
+}
 void CAmbarCendamo::deh3m()
 {
 	THC timeHandler th;
@@ -1642,220 +1686,220 @@ void CAmbarCendamo::deh3m()
 
 				if(spec->unusualBuildins)
 				{
-					nt->builtBuildings.insert(10);
-					for(int ir = 0; ir < 6; ir++)
-					{
-						for(int bs=0;bs<8;bs++)
-						{
-							if(ir==0)
-							{
-								if (bs<3)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(11+bs);
-									}
-								}
-								else if (bs<6)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(7+bs-3);
-									}
-								}
-								else if(bs==6)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(5);
-									}
-								}
-								else// if(bs==7)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(16);
-									}
-								}
-							} //if(ir==0)
-							else if(ir==1)
-							{
-								if(bs<2)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(14+bs);
-									}
-								}
-								else if (bs==2)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										std::cout<<"Hej, sprawdz co to za budynek w miescie " <<nt<<std::endl;
-									}
-								}//bs==3 - not known what it is, 4 in 2. byte
-								else
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(0+bs-3);
-									}
-								}
+					//nt->builtBuildings.insert(10);
+					//for(int ir = 0; ir < 6; ir++)
+					//{
+					//	for(int bs=0;bs<8;bs++)
+					//	{
+					//		if(ir==0)
+					//		{
+					//			if (bs<3)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(11+bs);
+					//				}
+					//			}
+					//			else if (bs<6)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(7+bs-3);
+					//				}
+					//			}
+					//			else if(bs==6)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(5);
+					//				}
+					//			}
+					//			else// if(bs==7)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(16);
+					//				}
+					//			}
+					//		} //if(ir==0)
+					//		else if(ir==1)
+					//		{
+					//			if(bs<2)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(14+bs);
+					//				}
+					//			}
+					//			else if (bs==2)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					std::cout<<"Hej, sprawdz co to za budynek w miescie " <<nt<<std::endl;
+					//				}
+					//			}//bs==3 - not known what it is, 4 in 2. byte
+					//			else
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(0+bs-3);
+					//				}
+					//			}
 
-							}//else if(ir==1)
-							else if(ir==2)
-							{
-								if(bs==0)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(6); //stocznia
-									}
-								}
-								else if(bs==1)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(26); //grail
-									}
-								}
-								else if(bs==2)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(17); //latarnia
-									}
-								}
-								else if(bs==3)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(22); //bractwo miecza
-									}
-								}
-								else if(bs==4)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(21); //stables
-									}
-								}
-								else if(bs==5)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										std::cout<<"Hej, sprawdz co to za budynek2 w miescie " <<nt<<std::endl;
-									}
-								}
-								else if(bs==6)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(30); //gen1
-									}
-								}
-								else if(bs==7)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(37); //gen1+
-									}
-								}
-							}//else if(ir==2)
-							else if (ir==3)
-							{
-								if(bs==0)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										std::cout<<"Hej, sprawdz co to za budynek3 w miescie " <<nt<<std::endl;
-									}
-									continue;
-								}
-								else if(bs<3)
-								{
-									if(bs==1) 
-									{
-										if(spec->buildingSettings[ir] & (1<<bs))
-										{
-											nt->builtBuildings.insert(31); //gen2
-										}
-									}
-									else
-									{
-										if(spec->buildingSettings[ir] & (1<<bs))
-										{
-											nt->builtBuildings.insert(38); //gen2+
-										}
-									}
-								}
-								else if (bs==3)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										//horde building for 2lvl
-										if(nt->builtBuildings.find(38)!=nt->builtBuildings.end())
-											nt->builtBuildings.insert(19);
-										else
-											nt->builtBuildings.insert(18);
+					//		}//else if(ir==1)
+					//		else if(ir==2)
+					//		{
+					//			if(bs==0)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(6); //stocznia
+					//				}
+					//			}
+					//			else if(bs==1)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(26); //grail
+					//				}
+					//			}
+					//			else if(bs==2)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(17); //latarnia
+					//				}
+					//			}
+					//			else if(bs==3)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(22); //bractwo miecza
+					//				}
+					//			}
+					//			else if(bs==4)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(21); //stables
+					//				}
+					//			}
+					//			else if(bs==5)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					std::cout<<"Hej, sprawdz co to za budynek2 w miescie " <<nt<<std::endl;
+					//				}
+					//			}
+					//			else if(bs==6)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(30); //gen1
+					//				}
+					//			}
+					//			else if(bs==7)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(37); //gen1+
+					//				}
+					//			}
+					//		}//else if(ir==2)
+					//		else if (ir==3)
+					//		{
+					//			if(bs==0)
+					//			{
 
-											
-									}
-									continue;
-								}
-								else
-								{
-									if(bs%2) //nieulepszone
-									{
-										if(spec->buildingSettings[ir] & (1<<bs))
-										{
-											nt->builtBuildings.insert((int)(39+(bs/2)-2)); 
-										}
-									}
-									else
-									{
-										if(spec->buildingSettings[ir] & (1<<bs))
-										{
-											nt->builtBuildings.insert(32+(bs/2)-2); 
-										}
-									}
-								}
+					//				//horda dla 1 poziomu???
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					std::cout<<"Hej, sprawdz co to za budynek3 w miescie " <<nt<<std::endl;
+					//				}
+					//				continue;
+					//			}
+					//			else if(bs<3)
+					//			{
+					//				if(bs==1) 
+					//				{
+					//					if(spec->buildingSettings[ir] & (1<<bs))
+					//					{
+					//						nt->builtBuildings.insert(31); //gen2
+					//					}
+					//				}
+					//				else
+					//				{
+					//					if(spec->buildingSettings[ir] & (1<<bs))
+					//					{
+					//						nt->builtBuildings.insert(38); //gen2+
+					//					}
+					//				}
+					//			}
+					//			else if (bs==3)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					//horde building for 2lvl
+					//					if(nt->builtBuildings.find(38)!=nt->builtBuildings.end())
+					//						nt->builtBuildings.insert(19);
+					//					else
+					//						nt->builtBuildings.insert(18);
+					//				}
+					//				continue;
+					//			}
+					//			else if(bs==4)
+					//			{
+					//				if(bs%2) //nieulepszone
+					//				{
+					//					if(spec->buildingSettings[ir] & (1<<bs))
+					//					{
+					//						nt->builtBuildings.insert((int)(39+(bs/2)-2)); 
+					//					}
+					//				}
+					//				else
+					//				{
+					//					if(spec->buildingSettings[ir] & (1<<bs))
+					//					{
+					//						nt->builtBuildings.insert(32+(bs/2)-2); 
+					//					}
+					//				}
+					//			}
 
-							}//else if (ir==3)
-							else if (ir==4 && bs==0)
-							{
-								if(spec->buildingSettings[ir] & 1<<0)
-									nt->builtBuildings.insert(40);
-								if(spec->buildingSettings[ir] & 1<<2)
-									nt->builtBuildings.insert(34); 
-								if(spec->buildingSettings[ir] & 1<<3)
-									nt->builtBuildings.insert(41); 
-								if(spec->buildingSettings[ir] & 1<<3)
-								{
-									if(nt->builtBuildings.find(41)!=nt->builtBuildings.end())
-										nt->builtBuildings.insert(25);
-									else
-										nt->builtBuildings.insert(24);
-								}
-								if(spec->buildingSettings[ir] & 1<<5)
-									nt->builtBuildings.insert(35); 
-								if(spec->buildingSettings[ir] & 1<<6)
-									nt->builtBuildings.insert(42); 
-								if(spec->buildingSettings[ir] & 1<<7)
-									nt->builtBuildings.insert(36); 
-							}//else if (ir==4)
-							else if (ir==5)
-							{
-								if(bs==0)
-								{
-									if(spec->buildingSettings[ir] & (1<<bs))
-									{
-										nt->builtBuildings.insert(43); //gen7+
-									}
-								}
-							}//else if (ir==5)
-						}
-					}
+					//		}//else if (ir==3)
+					//		else if (ir==4 && bs==0)
+					//		{
+					//			if(spec->buildingSettings[ir] & 1<<0)
+					//				nt->builtBuildings.insert(40);
+					//			if(spec->buildingSettings[ir] & 1<<2)
+					//				nt->builtBuildings.insert(34); 
+					//			if(spec->buildingSettings[ir] & 1<<3)
+					//				nt->builtBuildings.insert(41); 
+					//			if(spec->buildingSettings[ir] & 1<<4)
+					//			{
+					//				if(nt->builtBuildings.find(41)!=nt->builtBuildings.end())
+					//					nt->builtBuildings.insert(25);
+					//				else
+					//					nt->builtBuildings.insert(24);
+					//			}
+					//			if(spec->buildingSettings[ir] & 1<<5)
+					//				nt->builtBuildings.insert(35); 
+					//			if(spec->buildingSettings[ir] & 1<<6)
+					//				nt->builtBuildings.insert(42); 
+					//			if(spec->buildingSettings[ir] & 1<<7)
+					//				nt->builtBuildings.insert(36); 
+					//		}//else if (ir==4)
+					//		else if (ir==5)
+					//		{
+					//			if(bs==0)
+					//			{
+					//				if(spec->buildingSettings[ir] & (1<<bs))
+					//				{
+					//					nt->builtBuildings.insert(43); //gen7+
+					//				}
+					//			}
+					//		}//else if (ir==5)
+					//	}
+					//}
 
 					//testowe zczytywanie h3mowych ID
 					for(int byte=0;byte<6;byte++)
@@ -1868,6 +1912,7 @@ void CAmbarCendamo::deh3m()
 							}
 						}
 					}
+					nt->builtBuildings = convertBuildings(nt->h3mbuildings,nt->subID);
 				}
 				else
 				{
