@@ -55,7 +55,7 @@ public:
 	virtual void clickRight (tribool down);
 };
 
-class CArtPlace: public ClickableL, public IShowable
+class CArtPlace: public ClickableL, public IShowable, public LRClickableAreaWTextComp
 {
 private:
 	bool active;
@@ -63,6 +63,7 @@ public:
 	const CArtifact * ourArt;
 	CArtPlace(CArtifact * art);
 	void clickLeft (tribool down);
+	void clickRight (tribool down);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
@@ -95,6 +96,7 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	LRClickableAreaWText * portraitArea;
 	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
 	LRClickableAreaWText * expArea;
+	LRClickableAreaWText * spellPointsArea;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 public:
 	int player;

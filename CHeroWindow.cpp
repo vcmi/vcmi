@@ -78,6 +78,13 @@ CHeroWindow::CHeroWindow(int playerColor): artFeet(0), artHead(0), artLHand(0),
 	expArea->pos.y = 236;
 	expArea->pos.w = 136;
 	expArea->pos.h = 42;
+
+	spellPointsArea = new LRClickableAreaWText();
+	spellPointsArea->pos.x = 227;
+	spellPointsArea->pos.y = 236;
+	spellPointsArea->pos.w = 136;
+	spellPointsArea->pos.h = 42;
+
 	for(int i=0; i<8; ++i)
 	{
 		secSkillAreas.push_back(new LRClickableAreaWTextComp());
@@ -138,6 +145,7 @@ CHeroWindow::~CHeroWindow()
 
 	delete portraitArea;
 	delete expArea;
+	delete spellPointsArea;
 	for(int v=0; v<primSkillAreas.size(); ++v)
 	{
 		delete primSkillAreas[v];
@@ -202,15 +210,35 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	{
 		primSkillAreas[g]->bonus = hero->primSkills[g];
 	}
-	for(int g=0; g<secSkillAreas.size(); ++g)
+	for(int g=0; g<hero->secSkills.size(); ++g)
 	{
 		secSkillAreas[g]->type = hero->secSkills[g].first;
 		secSkillAreas[g]->bonus = hero->secSkills[g].second;
+		std::string hlp;
+		switch(hero->secSkills[g].second)
+		{
+		case 0: //basic level
+			hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->basicText;
+			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
+			break;
+		case 1: //adv level
+			hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->advText;
+			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
+			break;
+		case 2: //expert level
+			hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->expText;
+			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
+			break;
+		}
 	}
 
 	char * th = new char[200];
-	sprintf(th, CGI->generaltexth->allTexts[2].substr(1, CGI->generaltexth->allTexts[2].size()-2).c_str(), hero->level, CGI->heroh->reqExp(hero->level+1)-hero->exp, hero->exp);
+	sprintf(th, CGI->generaltexth->allTexts[2].substr(1, CGI->generaltexth->allTexts[2].size()-2).c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
 	expArea->text = std::string(th);
+	delete [] th;
+	th = new char[400];
+	sprintf(th, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->primSkills[3]*10);
+	spellPointsArea->text = std::string(th);
 	delete [] th;
 
 	delete artFeet;
@@ -242,84 +270,164 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artFeet->pos.x = 515;
 	artFeet->pos.y = 295;
 	artFeet->pos.h = artFeet->pos.w = 44;
+	if(hero->artFeet)
+		artFeet->text = hero->artFeet->description;
+	else
+		artFeet->text = std::string();
 	artHead = new CArtPlace(hero->artHead);
 	artHead->pos.x = 509;
 	artHead->pos.y = 30;
-	artHead->pos.h = artHead->pos.h = 44;
+	artHead->pos.h = artHead->pos.w = 44;
+	if(hero->artHead)
+		artHead->text = hero->artHead->description;
+	else
+		artHead->text = std::string();
 	artLHand = new CArtPlace(hero->artLHand);
 	artLHand->pos.x = 564;
 	artLHand->pos.y = 183;
-	artLHand->pos.h = artLHand->pos.h = 44;
+	artLHand->pos.h = artLHand->pos.w = 44;
+	if(hero->artLHand)
+		artLHand->text = hero->artLHand->description;
+	else
+		artLHand->text = std::string();
 	artLRing = new CArtPlace(hero->artLRing);
 	artLRing->pos.x = 610;
 	artLRing->pos.y = 183;
-	artLRing->pos.h = artLRing->pos.h = 44;
+	artLRing->pos.h = artLRing->pos.w = 44;
+	if(hero->artLRing)
+		artLRing->text = hero->artLRing->description;
+	else
+		artLRing->text = std::string();
 	artMach1 = new CArtPlace(hero->artMach1);
 	artMach1->pos.x = 564;
 	artMach1->pos.y = 30;
-	artMach1->pos.h = artMach1->pos.h = 44;
+	artMach1->pos.h = artMach1->pos.w = 44;
+	if(hero->artMach1)
+		artMach1->text = hero->artMach1->description;
+	else
+		artMach1->text = std::string();
 	artMach2 = new CArtPlace(hero->artMach2);
 	artMach2->pos.x = 610;
 	artMach2->pos.y = 30;
-	artMach2->pos.h = artMach2->pos.h = 44;
+	artMach2->pos.h = artMach2->pos.w = 44;
+	if(hero->artMach2)
+		artMach2->text = hero->artMach2->description;
+	else
+		artMach2->text = std::string();
 	artMach3 = new CArtPlace(hero->artMach3);
 	artMach3->pos.x = 610;
 	artMach3->pos.y = 76;
-	artMach3->pos.h = artMach3->pos.h = 44;
+	artMach3->pos.h = artMach3->pos.w = 44;
+	if(hero->artMach3)
+		artMach3->text = hero->artMach3->description;
+	else
+		artMach3->text = std::string();
 	artMach4 = new CArtPlace(hero->artMach4);
 	artMach4->pos.x = 610;
 	artMach4->pos.y = 122;
-	artMach4->pos.h = artMach4->pos.h = 44;
+	artMach4->pos.h = artMach4->pos.w = 44;
+	if(hero->artMach4)
+		artMach4->text = hero->artMach4->description;
+	else
+		artMach4->text = std::string();
 	artMisc1 = new CArtPlace(hero->artMisc1);
 	artMisc1->pos.x = 383;
 	artMisc1->pos.y = 143;
-	artMisc1->pos.h = artMisc1->pos.h = 44;
+	artMisc1->pos.h = artMisc1->pos.w = 44;
+	if(hero->artMisc1)
+		artMisc1->text = hero->artMisc1->description;
+	else
+		artMisc1->text = std::string();
 	artMisc2 = new CArtPlace(hero->artMisc2);
 	artMisc2->pos.x = 399;
 	artMisc2->pos.y = 194;
-	artMisc2->pos.h = artMisc2->pos.h = 44;
+	artMisc2->pos.h = artMisc2->pos.w = 44;
+	if(hero->artMisc2)
+		artMisc2->text = hero->artMisc2->description;
+	else
+		artMisc2->text = std::string();
 	artMisc3 = new CArtPlace(hero->artMisc3);
 	artMisc3->pos.x = 415;
 	artMisc3->pos.y = 245;
-	artMisc3->pos.h = artMisc3->pos.h = 44;
+	artMisc3->pos.h = artMisc3->pos.w = 44;
+	if(hero->artMisc3)
+		artMisc3->text = hero->artMisc3->description;
+	else
+		artMisc3->text = std::string();
 	artMisc4 = new CArtPlace(hero->artMisc4);
 	artMisc4->pos.x = 431;
 	artMisc4->pos.y = 296;
-	artMisc4->pos.h = artMisc4->pos.h = 44;
+	artMisc4->pos.h = artMisc4->pos.w = 44;
+	if(hero->artMisc4)
+		artMisc4->text = hero->artMisc4->description;
+	else
+		artMisc4->text = std::string();
 	artMisc5 = new CArtPlace(hero->artMisc5);
 	artMisc5->pos.x = 381;
 	artMisc5->pos.y = 296;
-	artMisc5->pos.h = artMisc5->pos.h = 44;
+	artMisc5->pos.h = artMisc5->pos.w = 44;
+	if(hero->artMisc5)
+		artMisc5->text = hero->artMisc5->description;
+	else
+		artMisc5->text = std::string();
 	artNeck = new CArtPlace(hero->artNeck);
 	artNeck->pos.x = 508;
 	artNeck->pos.y = 79;
-	artNeck->pos.h = artNeck->pos.h = 44;
+	artNeck->pos.h = artNeck->pos.w = 44;
+	if(hero->artNeck)
+		artNeck->text = hero->artNeck->description;
+	else
+		artNeck->text = std::string();
 	artRhand = new CArtPlace(hero->artRhand);
 	artRhand->pos.x = 383;
 	artRhand->pos.y = 68;
-	artRhand->pos.h = artRhand->pos.h = 44;
+	artRhand->pos.h = artRhand->pos.w = 44;
+	if(hero->artRhand)
+		artRhand->text = hero->artRhand->description;
+	else
+		artRhand->text = std::string();
 	artRRing = new CArtPlace(hero->artRRing);
 	artRRing->pos.x = 431;
 	artRRing->pos.y = 68;
-	artRRing->pos.h = artRRing->pos.h = 44;
+	artRRing->pos.h = artRRing->pos.w = 44;
+	if(hero->artRRing)
+		artRRing->text = hero->artRRing->description;
+	else
+		artRRing->text = std::string();
 	artShoulders = new CArtPlace(hero->artShoulders);
 	artShoulders->pos.x = 567;
 	artShoulders->pos.y = 240;
-	artShoulders->pos.h = artShoulders->pos.h = 44;
+	artShoulders->pos.h = artShoulders->pos.w = 44;
+	if(hero->artShoulders)
+		artShoulders->text = hero->artShoulders->description;
+	else
+		artShoulders->text = std::string();
 	artSpellBook = new CArtPlace(hero->artSpellBook);
 	artSpellBook->pos.x = 610;
 	artSpellBook->pos.y = 310;
-	artSpellBook->pos.h = artSpellBook->pos.h = 44;
+	artSpellBook->pos.h = artSpellBook->pos.w = 44;
+	if(hero->artSpellBook)
+		artSpellBook->text = hero->artSpellBook->description;
+	else
+		artSpellBook->text = std::string();
 	artTorso = new CArtPlace(hero->artTorso);
 	artTorso->pos.x = 509;
 	artTorso->pos.y = 130;
-	artTorso->pos.h = artTorso->pos.h = 44;
+	artTorso->pos.h = artTorso->pos.w = 44;
+	if(hero->artTorso)
+		artTorso->text = hero->artTorso->description;
+	else
+		artTorso->text = std::string();
 	for(int s=0; s<5 && s<curHero->artifacts.size(); ++s)
 	{
 		CArtPlace * add = new CArtPlace(curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]);
 		add->pos.x = 403 + 46*s;
 		add->pos.y = 365;
-		add->pos.h = add->pos.h = 44;
+		add->pos.h = add->pos.w = 44;
+		if(hero->artifacts[s])
+			add->text = hero->artifacts[s]->description;
+		else
+			add->text = std::string();
 		backpack.push_back(add);
 	}
 	redrawCurBack();
@@ -405,6 +513,7 @@ void CHeroWindow::activate()
 	rightArtRoll->activate();
 	portraitArea->activate();
 	expArea->activate();
+	spellPointsArea->activate();
 	for(int v=0; v<primSkillAreas.size(); ++v)
 	{
 		primSkillAreas[v]->activate();
@@ -479,11 +588,12 @@ void CHeroWindow::deactivate()
 	rightArtRoll->deactivate();
 	portraitArea->deactivate();
 	expArea->deactivate();
+	spellPointsArea->deactivate();
 	for(int v=0; v<primSkillAreas.size(); ++v)
 	{
 		primSkillAreas[v]->deactivate();
 	}
-	for(int v=0; v<secSkillAreas.size(); ++v)
+	for(int v=0; v<curHero->secSkills.size(); ++v)
 	{
 		secSkillAreas[v]->deactivate();
 	}
@@ -572,6 +682,7 @@ void CHeroWindow::leftArtRoller()
 		for(int s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
 		{
 			backpack[s]->ourArt = curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ];
+			backpack[s]->text = backpack[s]->ourArt->description;
 		}
 	}
 }
@@ -585,6 +696,7 @@ void CHeroWindow::rightArtRoller()
 		for(int s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
 		{
 			backpack[s]->ourArt = curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ];
+			backpack[s]->text = backpack[s]->ourArt->description;
 		}
 	}
 }
@@ -767,19 +879,27 @@ void CArtPlace::activate()
 {
 	if(!active)
 	{
-		ClickableL::activate();
+		//ClickableL::activate();
+		LRClickableAreaWTextComp::activate();
 		active = true;
 	}
 }
 void CArtPlace::clickLeft(boost::logic::tribool down)
 {
+	//LRClickableAreaWTextComp::clickLeft(down);
+}
+void CArtPlace::clickRight(boost::logic::tribool down)
+{
+	if(text.size()) //if there is no description, do nothing ;]
+		LRClickableAreaWTextComp::clickRight(down);
 }
 void CArtPlace::deactivate()
 {
 	if(active)
 	{
 		active = false;
-		ClickableL::deactivate();
+		//ClickableL::deactivate();
+		LRClickableAreaWTextComp::deactivate();
 	}
 }
 void CArtPlace::show(SDL_Surface *to)

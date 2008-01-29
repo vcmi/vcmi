@@ -406,7 +406,7 @@ SDL_Surface * SComponent::getImg()
 		return CGI->heroh->pskillsb->ourImages[subtype].bitmap;
 		break;
 	case secskill:
-		return CGI->abilh->abils44->ourImages[subtype*3 + 3 + val].bitmap;
+		return CGI->abilh->abils82->ourImages[subtype*3 + 3 + val].bitmap;
 		break;
 	case resource:
 		return CGI->heroh->resources->ourImages[subtype].bitmap;
