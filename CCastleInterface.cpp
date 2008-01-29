@@ -164,6 +164,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit = new AdventureMapButton<CCastleInterface>
 		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,false);
+	split = new AdventureMapButton<CCastleInterface>
+		(CGI->townh->tcommands[8],"",&CCastleInterface::splitF,744,382,"TSBTNS.DEF",this,false);
 	exit->bitmapOffset = 4;
 	statusbar = new CStatusBar(8,555,"TSTATBAR.bmp",732);
 	std::set< std::pair<int,int> > s; //group - id
@@ -243,6 +245,7 @@ CCastleInterface::~CCastleInterface()
 	SDL_FreeSurface(townInt);
 	SDL_FreeSurface(cityBg);
 	delete exit;
+	delete split;
 	delete hall;
 	delete fort;
 	delete bigTownPic;
@@ -261,6 +264,9 @@ void CCastleInterface::close()
 	LOCPLINT->castleInt = NULL;
 	LOCPLINT->adventureInt->show();
 	delete this;
+}
+void CCastleInterface::splitF()
+{
 }
 void CCastleInterface::showAll(SDL_Surface * to)
 {	
@@ -391,6 +397,7 @@ void CCastleInterface::activate()
 	LOCPLINT->curint = this;
 	LOCPLINT->statusbar = statusbar;
 	exit->activate();
+	split->activate();
 	for(int i=0;i<buildings.size();i++)
 		buildings[i]->activate();
 }
@@ -398,6 +405,7 @@ void CCastleInterface::deactivate()
 {
 	garr->deactivate();
 	exit->deactivate();
+	split->deactivate();
 	for(int i=0;i<buildings.size();i++)
 		buildings[i]->deactivate();
 }

@@ -40,7 +40,7 @@ public:
 		*bigTownPic, *flag;
 
 	CGarrisonInt * garr;
-	AdventureMapButton<CCastleInterface> * exit;
+	AdventureMapButton<CCastleInterface> * exit, *split;
 
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
@@ -49,6 +49,7 @@ public:
 	void show(SDL_Surface * to=NULL);
 	void showAll(SDL_Surface * to=NULL);
 	void close();
+	void splitF();
 	void activate();
 	void deactivate();
 };

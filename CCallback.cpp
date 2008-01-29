@@ -423,8 +423,18 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 				CGI->playerint[s1->tempOwner]->garrisonChanged(s1);
 			if(s2->tempOwner<PLAYER_LIMIT)
 				CGI->playerint[s2->tempOwner]->garrisonChanged(s2);
+			return 0;
 		}
 	}
+	return -1;
+}
+
+int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
+{
+	return -1;
+}
+int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)
+{
 	return -1;
 }
 

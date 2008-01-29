@@ -35,6 +35,8 @@ public:
 	virtual int getMySerial()=0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)=0;
 	virtual int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
+	virtual int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
+	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
 	virtual const CCreatureSet* getGarrison(const CGObjectInstance *obj)=0;
 };
@@ -82,6 +84,8 @@ public:
 	int getHeroSerial(const CGHeroInstance * hero);
 	int getMySerial();
 	int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2);
+	int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2);
+	int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj);
 
