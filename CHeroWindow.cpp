@@ -28,6 +28,8 @@ CHeroWindow::CHeroWindow(int playerColor):
 	curHero = NULL;
 	activeArtPlace = NULL;
 
+	garInt = NULL;
+
 	quitButton = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::quit, 674, 524, "hsbtns.def", this);
 	dismissButton = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::dismissCurrent, 519, 437, "hsbtns2.def", this);
 	questlogButton = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::questlog, 379, 437, "hsbtns4.def", this);
@@ -117,6 +119,8 @@ CHeroWindow::~CHeroWindow()
 	delete skillpics;
 	delete flags;
 
+	delete garInt;
+
 	for(int g=0; g<artWorn.size(); ++g)
 	{
 		delete artWorn[g];
@@ -157,6 +161,8 @@ void CHeroWindow::show(SDL_Surface *to)
 	leftArtRoll->show();
 	rightArtRoll->show();
 
+	garInt->show();
+
 	for(int d=0; d<artWorn.size(); ++d)
 	{
 		artWorn[d]->show(to);
@@ -175,6 +181,9 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	}
 	curHero = hero;
 	portraitArea->text = hero->biography;
+
+	delete garInt;
+	garInt = new CGarrisonInt(80, 494, 8, 0, curBack, 13, 482, curHero);
 
 	for(int g=0; g<primSkillAreas.size(); ++g)
 	{
@@ -526,6 +535,9 @@ void CHeroWindow::activate()
 	portraitArea->activate();
 	expArea->activate();
 	spellPointsArea->activate();
+
+	garInt->activate();
+
 	for(int v=0; v<primSkillAreas.size(); ++v)
 	{
 		primSkillAreas[v]->activate();
@@ -568,6 +580,9 @@ void CHeroWindow::deactivate()
 	portraitArea->deactivate();
 	expArea->deactivate();
 	spellPointsArea->deactivate();
+
+	garInt->deactivate();
+
 	for(int v=0; v<primSkillAreas.size(); ++v)
 	{
 		primSkillAreas[v]->deactivate();
@@ -874,7 +889,10 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 					ourWindow->activeArtPlace->text = pmh->description;
 				else
 					ourWindow->activeArtPlace->text = std::string();
-				text = ourArt->description;
+				if(ourArt)
+					text = ourArt->description;
+				else
+					text = std::string();
 				
 				ourWindow->activeArtPlace->clicked = false;
 				ourWindow->activeArtPlace = NULL;

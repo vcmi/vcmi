@@ -83,6 +83,7 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 {
 	SDL_Surface * background, * curBack;
 	const CGHeroInstance * curHero;
+	CGarrisonInt * garInt;
 
 	//general graphics
 	CDefHandler * skillpics, *flags;
