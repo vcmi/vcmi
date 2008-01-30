@@ -23,6 +23,8 @@
 #include <boost/algorithm/string/replace.hpp>
 using namespace CSDL_Ext;
 
+extern TTF_Font * GEOR16;
+
 class OCM_HLP_CGIN
 {
 public:
@@ -150,7 +152,7 @@ void CGarrisonSlot::show()
 		char* buf = new char[15];
 		itoa(count,buf,10);
 		blitAt(CGI->creh->bigImgs[creature->idNumber],pos);
-		printTo(buf,pos.x+56,pos.y+62,GEOR13,zwykly);
+		printTo(buf,pos.x+56,pos.y+62,GEOR16,zwykly);
 		if(owner->highlighted==this)
 			blitAt(CGI->creh->bigImgs[-1],pos);
 		updateRect(&pos,ekran);

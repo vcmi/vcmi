@@ -16,7 +16,7 @@ int readNormalNr (int pos, int bytCon, unsigned char * str)
 		for (int i=0; i<bytCon; i++)
 		{
 			ret+=str[pos+i]*amp;
-			amp*=256;
+			amp<<=8;
 		}
 	}
 	else return -1;

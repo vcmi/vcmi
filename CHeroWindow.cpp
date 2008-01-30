@@ -183,7 +183,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	portraitArea->text = hero->biography;
 
 	delete garInt;
-	garInt = new CGarrisonInt(80, 494, 8, 0, curBack, 13, 482, curHero);
+	garInt = new CGarrisonInt(80, 493, 8, 0, curBack, 13, 482, curHero);
 
 	for(int g=0; g<primSkillAreas.size(); ++g)
 	{
@@ -899,7 +899,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			}
 			else
 			{
-				bool backID = -1;
+				int backID = -1;
 				for(int g=0; g<ourWindow->backpack.size(); ++g)
 				{
 					if(ourWindow->backpack[g]==this) //if user wants to put something to backpack

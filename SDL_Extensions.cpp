@@ -509,11 +509,11 @@ Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
 {
 	Uint32 ret = 0;
 	ret+=color->unused;
-	ret*=256;
+	ret<<=8; //*=256
 	ret+=color->b;
-	ret*=256;
+	ret<<=8; //*=256
 	ret+=color->g;
-	ret*=256;
+	ret<<=8; //*=256
 	ret+=color->r;
 	return ret;
 }
@@ -733,7 +733,7 @@ int readNormalNr (std::istream &in, int bytCon)
 		{
 			in.read((char*)&byte,1);
 			ret+=byte*amp;
-			amp*=256;
+			amp<<=8;
 		}
 	}
 	else return -1;

@@ -8,7 +8,7 @@ int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4)
 	for (int i=0; i<bytCon; i++)
 	{
 		ret+=bufor[pos+i]*amp;
-		amp*=256;
+		amp<<=8;
 	}
 	return ret;
 }

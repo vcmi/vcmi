@@ -693,13 +693,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
+
+					if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
+						continue;
+					std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 					switch(themp->moveDir)
 					{
 					case 1:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -717,9 +718,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 2:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -737,9 +735,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 3:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -757,9 +752,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 4:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -777,9 +769,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 5:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -797,9 +786,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 6: //ok
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -817,9 +803,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 7:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -837,9 +820,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 8:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -861,13 +841,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
+
+					if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
+						continue;
+					std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 					switch(themp->moveDir)
 					{
 					case 1:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -890,9 +871,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 2:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -915,9 +893,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 3:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -940,9 +915,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 4:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -965,9 +937,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 5:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -990,9 +959,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 6:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -1015,9 +981,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 7:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{
@@ -1040,9 +1003,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						}
 					case 8:
 						{
-							if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
-								continue;
-							std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
 							int gg;
 							for(gg=0; gg<iv.size(); ++gg)
 							{

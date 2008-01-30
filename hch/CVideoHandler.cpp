@@ -46,7 +46,7 @@ int readNormalNr2 (unsigned char* bufor, int &iter, int bytCon)
 	for (int i=iter; i<iter+bytCon; i++)
 	{
 		ret+=bufor[i]*amp;
-		amp*=256;
+		amp<<=8;
 	}
 	iter+=bytCon;
 	return ret;

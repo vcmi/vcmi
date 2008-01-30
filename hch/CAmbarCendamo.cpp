@@ -919,8 +919,6 @@ void CAmbarCendamo::deh3m()
 								spec->artifacts.push_back(NULL);
 						}
 					}
-					for(int t=spec->artifacts.size(); t<10; ++t)
-						spec->artifacts.push_back(NULL);
 				} //artifacts
 				else
 				{
@@ -944,6 +942,9 @@ void CAmbarCendamo::deh3m()
 					spec->artifWorn[17] = NULL;
 					spec->artifWorn[5] = NULL;
 				}
+				for(int t=spec->artifacts.size(); t<10; ++t) //it does make sense, even it is not obvious ;]
+					spec->artifacts.push_back(NULL);
+
 				spec->guardRange = readNormalNr(i, 1); ++i;
 				if(spec->guardRange == 0xff)
 					spec->isGuarding = false;
