@@ -55,18 +55,27 @@ public:
 	virtual void clickRight (tribool down);
 };
 
-class CArtPlace: public ClickableL, public IShowable, public LRClickableAreaWTextComp
+class CArtPlace: public IShowable, public LRClickableAreaWTextComp
 {
 private:
 	bool active;
 public:
+	bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4,
+		misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso,
+		lHand, rHand, neck, shoulders, head; //my types
+	int myNumber;
+	int backNumber; //number of artifact if this is backpack artplace
+
+	bool clicked;
+	CHeroWindow * ourWindow;
 	const CArtifact * ourArt;
-	CArtPlace(CArtifact * art);
+	CArtPlace(const CArtifact * const & art);
 	void clickLeft (tribool down);
 	void clickRight (tribool down);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+	bool fitsHere(const CArtifact * art); //returns true if given artifact can be placed here
 	~CArtPlace();
 };
 
@@ -86,12 +95,14 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	std::vector<LClickableAreaHero *> heroListMi; //new better list of heroes
 
 	//artifact places
-	CArtPlace * artHead, * artLRing, * artRRing, * artLHand, * artRhand,
-		* artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3,
-		* artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4,
-		* artMisc5, * artTorso, * artNeck, * artShoulders; //heroes' artifacts
+	//CArtPlace * artHead, * artLRing, * artRRing, * artLHand, * artRhand,
+	//	* artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3,
+	//	* artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4,
+	//	* artMisc5, * artTorso, * artNeck, * artShoulders; //hero's artifacts
+	std::vector<CArtPlace *> artWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::vector<CArtPlace *> backpack; //hero's visible backpack (only 5 elements!)
 	int backpackPos; //unmber of first art visible in backpack (in hero's vector)
+	CArtPlace * activeArtPlace;
 	//clickable areas
 	LRClickableAreaWText * portraitArea;
 	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
@@ -117,4 +128,7 @@ public:
 	void leftArtRoller(); //scrolls artifacts in bag left
 	void rightArtRoller(); //scrolls artifacts in bag right
 	void switchHero(); //changes displayed hero
+
+	//friends
+	friend void CArtPlace::clickLeft(tribool down);
 };

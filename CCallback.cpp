@@ -453,6 +453,32 @@ int CCallback::getMySerial()
 	return gs->players[player].serial;
 }
 
+bool CCallback::swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2)
+{
+	if(!hero1 || !hero2) //incorrect data
+		return false;
+	CGHeroInstance * Uhero1 = const_cast<CGHeroInstance *>(hero1);
+	CGHeroInstance * Uhero2 = const_cast<CGHeroInstance *>(hero2);
+
+	if(worn1 && worn2)
+	{
+		std::swap(Uhero1->artifWorn[pos1], Uhero2->artifWorn[pos2]);
+	}
+	else if(worn1 && !worn2)
+	{
+		std::swap(Uhero1->artifWorn[pos1], Uhero2->artifacts[pos2]);
+	}
+	else if(!worn1 && worn2)
+	{
+		std::swap(Uhero1->artifacts[pos1], Uhero2->artifWorn[pos2]);
+	}
+	else
+	{
+		std::swap(Uhero1->artifacts[pos1], Uhero2->artifacts[pos2]);
+	}
+	
+	return true;
+}
 
 int3 CScriptCallback::getPos(CGObjectInstance * ob)
 {

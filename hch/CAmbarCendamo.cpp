@@ -780,104 +780,105 @@ void CAmbarCendamo::deh3m()
 				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
 				int artmask = map.version == RoE ? 0xff : 0xffff;
 				int artidlen = map.version == RoE ? 1 : 2;
+				spec->artifWorn.resize(19);
 				if(artSet)
 				{
 					//head art //1
 					int id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artHead = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[0] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artHead = NULL;
+						spec->artifWorn[0] = NULL;
 					//shoulders art //2
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artShoulders = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[1] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artShoulders = NULL;
+						spec->artifWorn[1] = NULL;
 					//neck art //3
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artNeck = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[2] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artNeck = NULL;
+						spec->artifWorn[2] = NULL;
 					//right hand art //4
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artRhand = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[3] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artRhand = NULL;
+						spec->artifWorn[3] = NULL;
 					//left hand art //5
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artLHand = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[4] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artLHand = NULL;
+						spec->artifWorn[4] = NULL;
 					//torso art //6
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artTorso = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[5] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artTorso = NULL;
+						spec->artifWorn[5] = NULL;
 					//right hand ring //7
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artRRing = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[6] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artRRing = NULL;
+						spec->artifWorn[6] = NULL;
 					//left hand ring //8
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artLRing = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[7] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artLRing = NULL;
+						spec->artifWorn[7] = NULL;
 					//feet art //9
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artFeet = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[8] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artFeet = NULL;
+						spec->artifWorn[8] = NULL;
 					//misc1 art //10
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artMisc1 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[9] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artMisc1 = NULL;
+						spec->artifWorn[9] = NULL;
 					//misc2 art //11
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artMisc2 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[10] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artMisc2 = NULL;
+						spec->artifWorn[10] = NULL;
 					//misc3 art //12
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artMisc3 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[11] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artMisc3 = NULL;
+						spec->artifWorn[11] = NULL;
 					//misc4 art //13
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artMisc4 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[12] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artMisc4 = NULL;
+						spec->artifWorn[12] = NULL;
 					//machine1 art //14
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artMach1 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[13] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artMach1 = NULL;
+						spec->artifWorn[13] = NULL;
 					//machine2 art //15
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artMach2 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[14] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artMach2 = NULL;
+						spec->artifWorn[14] = NULL;
 					//machine3 art //16
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artMach3 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[15] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artMach3 = NULL;
+						spec->artifWorn[15] = NULL;
 					//misc5 art //17
 					if(map.version>=SoD)
 					{
@@ -891,17 +892,17 @@ void CAmbarCendamo::deh3m()
 					//spellbook
 					id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artSpellBook = &(CGameInfo::mainObj->arth->artifacts[id]);
+						spec->artifWorn[17] = &(CGameInfo::mainObj->arth->artifacts[id]);
 					else
-						spec->artSpellBook = NULL;
+						spec->artifWorn[17] = NULL;
 					//19 //???what is that? gap in file or what? - it's probably fifth slot..
 					if(map.version>RoE)
 					{
 						id = readNormalNr(i, artidlen); i+=artidlen;
 						if(id!=artmask)
-							spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
+							spec->artifWorn[18] = &(CGameInfo::mainObj->arth->artifacts[id]);
 						else
-							spec->artMisc5 = NULL;
+							spec->artifWorn[18] = NULL;
 					}
 					else
 						i+=1;
@@ -918,28 +919,30 @@ void CAmbarCendamo::deh3m()
 								spec->artifacts.push_back(NULL);
 						}
 					}
+					for(int t=spec->artifacts.size(); t<10; ++t)
+						spec->artifacts.push_back(NULL);
 				} //artifacts
 				else
 				{
-					spec->artFeet = NULL;
-					spec->artHead = NULL;
-					spec->artLHand = NULL;
-					spec->artLRing = NULL;
-					spec->artMach1 = NULL;
-					spec->artMach2 = NULL;
-					spec->artMach3 = NULL;
-					spec->artMach4 = NULL;
-					spec->artMisc1 = NULL;
-					spec->artMisc2 = NULL;
-					spec->artMisc3 = NULL;
-					spec->artMisc4 = NULL;
-					spec->artMisc5 = NULL;
-					spec->artNeck = NULL;
-					spec->artRhand = NULL;
-					spec->artRRing = NULL;
-					spec->artShoulders = NULL;
-					spec->artSpellBook = NULL;
-					spec->artTorso = NULL;
+					spec->artifWorn[8] = NULL;
+					spec->artifWorn[0] = NULL;
+					spec->artifWorn[4] = NULL;
+					spec->artifWorn[7] = NULL;
+					spec->artifWorn[13] = NULL;
+					spec->artifWorn[14] = NULL;
+					spec->artifWorn[15] = NULL;
+					spec->artifWorn[16] = NULL;
+					spec->artifWorn[9] = NULL;
+					spec->artifWorn[10] = NULL;
+					spec->artifWorn[11] = NULL;
+					spec->artifWorn[12] = NULL;
+					spec->artifWorn[18] = NULL;
+					spec->artifWorn[2] = NULL;
+					spec->artifWorn[3] = NULL;
+					spec->artifWorn[6] = NULL;
+					spec->artifWorn[1] = NULL;
+					spec->artifWorn[17] = NULL;
+					spec->artifWorn[5] = NULL;
 				}
 				spec->guardRange = readNormalNr(i, 1); ++i;
 				if(spec->guardRange == 0xff)
@@ -1025,6 +1028,7 @@ void CAmbarCendamo::deh3m()
 				nhi->exp = spec->experience;
 				nhi->level = CGI->heroh->level(nhi->exp);
 				nhi->primSkills.resize(PRIMARY_SKILLS);
+				nhi->artifWorn.resize(19);
 				nhi->primSkills[0] = spec->attack;
 				nhi->primSkills[1] = spec->defence;
 				nhi->primSkills[2] = spec->power;
@@ -1037,26 +1041,26 @@ void CAmbarCendamo::deh3m()
 				nhi->type = spec->type;
 				nhi->army = spec->garrison;
 				nhi->portrait = -1; // TODO: przypisywac portret
-				nhi->artFeet = spec->artFeet;
-				nhi->artHead = spec->artHead;
+				nhi->artifWorn[8] = spec->artifWorn[8];
+				nhi->artifWorn[0] = spec->artifWorn[0];
 				nhi->artifacts = spec->artifacts;
-				nhi->artLHand = spec->artLHand;
-				nhi->artLRing = spec->artLRing;
-				nhi->artMach1 = spec->artMach1;
-				nhi->artMach2 = spec->artMach2;
-				nhi->artMach3 = spec->artMach3;
-				nhi->artMach4 = spec->artMach4 = new CArtifact(CGI->arth->artifacts[3]);
-				nhi->artMisc1 = spec->artMisc1;
-				nhi->artMisc2 = spec->artMisc2;
-				nhi->artMisc3 = spec->artMisc3;
-				nhi->artMisc4 = spec->artMisc4;
-				nhi->artMisc5 = spec->artMisc5;
-				nhi->artNeck = spec->artNeck;
-				nhi->artRhand = spec->artRhand;
-				nhi->artRRing = spec->artRRing;
-				nhi->artShoulders = spec->artShoulders;
-				nhi->artSpellBook = spec->artSpellBook;
-				nhi->artTorso = spec->artTorso;
+				nhi->artifWorn[4] = spec->artifWorn[4];
+				nhi->artifWorn[7] = spec->artifWorn[7];
+				nhi->artifWorn[13] = spec->artifWorn[13];
+				nhi->artifWorn[14] = spec->artifWorn[14];
+				nhi->artifWorn[15] = spec->artifWorn[15];
+				nhi->artifWorn[16] = spec->artifWorn[16] = new CArtifact(CGI->arth->artifacts[3]);
+				nhi->artifWorn[9] = spec->artifWorn[9];
+				nhi->artifWorn[10] = spec->artifWorn[10];
+				nhi->artifWorn[11] = spec->artifWorn[11];
+				nhi->artifWorn[12] = spec->artifWorn[12];
+				nhi->artifWorn[18] = spec->artifWorn[18];
+				nhi->artifWorn[2] = spec->artifWorn[2];
+				nhi->artifWorn[3] = spec->artifWorn[3];
+				nhi->artifWorn[6] = spec->artifWorn[6];
+				nhi->artifWorn[1] = spec->artifWorn[1];
+				nhi->artifWorn[17] = spec->artifWorn[17];
+				nhi->artifWorn[5] = spec->artifWorn[5];
 				for(int qq=0; qq<spec->abilities.size(); ++qq)
 				{
 					nhi->secSkills.push_back(std::make_pair(spec->abilities[qq]->idNumber, spec->abilityLevels[qq]-1));

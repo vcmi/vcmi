@@ -24,62 +24,100 @@ void CArtHandler::loadArtifacts()
 		nart.price=atoi(pom.c_str());
 
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.spellBook=true;
+		else
+			nart.spellBook = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.warMachine4=true;
+		else
+			nart.warMachine4 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.warMachine3=true;
+		else
+			nart.warMachine3 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.warMachine2=true;
+		else
+			nart.warMachine2 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.warMachine1=true;
+		else
+			nart.warMachine1 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.misc5=true;
+		else
+			nart.misc5 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.misc4=true;
+		else
+			nart.misc4 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.misc3=true;
+		else
+			nart.misc3 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.misc2=true;
+		else
+			nart.misc2 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.misc1=true;
+		else
+			nart.misc1 = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.feet=true;
+		else
+			nart.feet = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.lRing=true;
+		else
+			nart.lRing = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.rRing=true;
+		else
+			nart.rRing = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.torso=true;
+		else
+			nart.torso = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.lHand=true;
+		else
+			nart.lHand = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.rHand=true;
+		else
+			nart.rHand = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.neck=true;
+		else
+			nart.neck = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.shoulders=true;
+		else
+			nart.shoulders = false;
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom.length())
+		if (pom[0]=='x')
 			nart.head=true;
+		else
+			nart.head = false;
 
 		CGeneralTextHandler::loadToIt(pom,buf,it,4);
 		switch (pom[0])

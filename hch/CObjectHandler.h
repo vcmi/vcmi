@@ -58,7 +58,8 @@ public:
 	bool standardGarrison; //true if hero has standard garrison
 	CCreatureSet garrison; //hero's army
 	std::vector<CArtifact *> artifacts; //hero's artifacts from bag
-	CArtifact * artHead, * artLRing, * artRRing, * artLHand, * artRhand, * artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck, * artShoulders; //working artifacts
+	//CArtifact * artHead, * artLRing, * artRRing, * artLHand, * artRhand, * artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck, * artShoulders; //working artifactsstd::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	std::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	bool isGuarding;
 	int guardRange; //range of hero's guard
 	std::string biography; //if nonstandard
@@ -404,11 +405,12 @@ public:
 	bool inTownGarrison; // if hero is in town garrison 
 
 	std::vector<CArtifact *> artifacts; //hero's artifacts from bag
-	CArtifact * artHead, * artLRing, * artRRing, * artLHand,
-		* artRhand, * artFeet, * artSpellBook, * artMach1,
-		* artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2,
-		* artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck,
-		* artShoulders; //working artifacts
+	//CArtifact * artHead, * artLRing, * artRRing, * artLHand,
+	//	* artRhand, * artFeet, * artSpellBook, * artMach1,
+	//	* artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2,
+	//	* artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck,
+	//	* artShoulders; //working artifacts
+	std::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 
 	virtual bool isHero() const;
 	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);

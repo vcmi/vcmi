@@ -39,6 +39,7 @@ public:
 	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
 	virtual const CCreatureSet* getGarrison(const CGObjectInstance *obj)=0;
+	virtual bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2)=0; //swaps artifacts between two given heroes
 };
 
 struct HeroMoveDetails
@@ -88,6 +89,7 @@ public:
 	int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj);
+	bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2);
 
 //friends
 	friend int _tmain(int argc, _TCHAR* argv[]);
