@@ -21,6 +21,7 @@
 #include "timeHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include "hch\CPreGameTextHandler.h"
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
@@ -155,14 +156,16 @@ void CGarrisonSlot::show()
 		printTo(buf,pos.x+56,pos.y+62,GEOR16,zwykly);
 		if(owner->highlighted==this)
 			blitAt(CGI->creh->bigImgs[-1],pos);
-		updateRect(&pos,ekran);
+		if(owner->update)
+			updateRect(&pos,ekran);
 		delete [] buf;
 	}
 	else
 	{
 		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), jakis2 = pos;
 		SDL_BlitSurface(owner->sur,&jakis1,ekran,&jakis2);
-		SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
+		if(owner->update)
+			SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
 	}
 }
 CGarrisonInt::~CGarrisonInt()
@@ -312,6 +315,7 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, 
 	set1 = LOCPLINT->cb->getGarrison(s1);
 	set2 = LOCPLINT->cb->getGarrison(s2);
 	ignoreEvent = false;
+	update = true;
 	pos.x=(x);
 	pos.y=(y);
 	pos.w=(58);
@@ -1961,4 +1965,251 @@ void CStatusBar::show()
 std::string CStatusBar::getCurrent()
 {
 	return current;
+}
+void CList::activate()
+{
+	ClickableL::activate();
+	ClickableR::activate();
+	Hoverable::activate();
+	KeyInterested::activate();
+	MotionInterested::activate();
+}; 
+void CList::deactivate()
+{
+	ClickableL::deactivate();
+	ClickableR::deactivate();
+	Hoverable::deactivate();
+	KeyInterested::deactivate();
+	MotionInterested::deactivate();
+}; 
+void CList::clickLeft(tribool down)
+{
+};
+CList::CList(int Size)
+:SIZE(Size)
+{
+}
+CHeroList::CHeroList(int Size)
+:CList(Size)
+{
+	pos = genRect(192,64,609,196);
+	
+	arrupp = genRect(16,64,609,196);
+	arrdop = genRect(16,64,609,372);
+ //32px per hero
+	posmobx = 610;
+	posmoby = 213;
+	posporx = 617;
+	pospory = 212;
+	posmanx = 666;
+	posmany = 213;
+	
+	arrup = CGI->spriteh->giveDef("IAM012.DEF");
+	arrdo = CGI->spriteh->giveDef("IAM013.DEF");
+	mobile = CGI->spriteh->giveDef("IMOBIL.DEF");
+	mana = CGI->spriteh->giveDef("IMANA.DEF");
+	empty = CGI->bitmaph->loadBitmap("HPSXXX.bmp");
+	selection = CGI->bitmaph->loadBitmap("HPSYYY.bmp");
+	SDL_SetColorKey(selection,SDL_SRCCOLORKEY,SDL_MapRGB(selection->format,0,255,255));
+	from = 0;
+	pressed = indeterminate;
+}
+
+void CHeroList::init()
+{
+	bg = CSDL_Ext::newSurface(68,193,ekran);
+	SDL_BlitSurface(LOCPLINT->adventureInt->bg,&genRect(193,68,607,196),bg,&genRect(193,68,0,0));
+}
+void CHeroList::genList()
+{
+	int howMany = LOCPLINT->cb->howManyHeroes();
+	for (int i=0;i<howMany;i++)
+	{
+		items.push_back(std::pair<const CGHeroInstance *,CPath *>(LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0),NULL));
+	}
+}
+void CHeroList::select(int which)
+{
+	selected = which;
+	if (which>=items.size()) 
+		return;
+	LOCPLINT->adventureInt->centerOn(items[which].first->pos);
+	LOCPLINT->adventureInt->selection.type = HEROI_TYPE;
+	LOCPLINT->adventureInt->selection.selected = items[which].first;
+	LOCPLINT->adventureInt->terrain.currentPath = items[which].second;
+	draw();
+	LOCPLINT->adventureInt->townList.draw();
+	
+	LOCPLINT->adventureInt->infoBar.draw(NULL);
+}
+void CHeroList::clickLeft(tribool down)
+{
+	if (down)
+	{
+		/***************************ARROWS*****************************************/
+		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		{
+			blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
+			pressed = true;
+			return;
+		}
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		{
+			blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
+			pressed = false;
+			return;
+		}
+		/***************************HEROES*****************************************/
+		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+		hx-=pos.x;
+		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+		float ny = (float)hy/(float)32;
+		if (ny>=5 || ny<0)
+			return;
+		if (((int)(ny+from))==selected && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
+			LOCPLINT->openHeroWindow(items[selected].first);//print hero screen
+		select(ny+from);
+	}
+	else
+	{
+		if (indeterminate(pressed))
+			return;
+		if (pressed) //up
+		{
+			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+			pressed = indeterminate;
+			if (!down)
+			{
+				from--;
+				if (from<0)
+					from=0;
+				draw();
+			}
+		}
+		else if (!pressed) //down
+		{
+			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+			pressed = indeterminate;
+			if (!down)
+			{
+				from++;
+				//if (from<items.size()-5)
+				//	from=items.size()-5;
+				draw();
+			}
+		}
+		else
+			throw 0;
+
+	}
+}
+void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
+{
+	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	{
+		if (from>0)
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advHListUp.first);
+		else
+			LOCPLINT->adventureInt->statusbar.clear();
+		return;
+	}
+	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	{
+		if ((items.size()-from)  >  5)
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advHListDown.first);
+		else
+			LOCPLINT->adventureInt->statusbar.clear();
+		return;
+	}
+	//if not buttons then heroes
+	int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+	hx-=pos.x;
+	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+	float ny = (float)hy/(float)32;
+	if ((ny>5 || ny<0) || (from+ny>=items.size()))
+	{
+		LOCPLINT->adventureInt->statusbar.clear();
+		return;
+	}
+	std::vector<std::string> temp;
+	temp.push_back(items[from+ny].first->name);
+	temp.push_back(items[from+ny].first->type->heroClass->name);
+	LOCPLINT->adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
+	//select(ny+from);
+}
+void CHeroList::clickRight(tribool down)
+{
+	if (down)
+	{
+		/***************************ARROWS*****************************************/
+		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListUp.second,down,this);
+		}
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListDown.second,down,this);
+		}
+	}
+	else
+	{
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListUp.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListDown.second,down,this);
+	}
+}
+void CHeroList::hover (bool on)
+{
+}
+void CHeroList::keyPressed (SDL_KeyboardEvent & key)
+{
+}
+void CHeroList::updateHList()
+{
+	items.clear();
+	genList();
+}
+void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
+{
+	int ser = LOCPLINT->cb->getHeroSerial(which);
+	ser -= from;
+	int pom = (which->movement)/100;
+	blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
+}
+void CHeroList::draw()
+{	
+	for (int iT=0+from;iT<5+from;iT++)
+	{
+		int i = iT-from;
+		if (iT>=items.size())
+		{
+			blitAt(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32);
+			blitAt(mana->ourImages[0].bitmap,posmanx,posmany+i*32);
+			blitAt(empty,posporx,pospory+i*32);
+			continue;
+		}
+		int pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->movement)/100;
+		if (pom>25) pom=25;
+		if (pom<0) pom=0;
+		blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32); //move point
+		pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->mana)/5; //bylo: .../10;
+		if (pom>25) pom=25;
+		if (pom<0) pom=0;
+		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
+		SDL_Surface * temp = LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->type->portraitSmall;
+		blitAt(temp,posporx,pospory+i*32);
+		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
+		{
+			blitAt(selection,posporx,pospory+i*32);
+		}
+		//TODO: support for custom portraits
+	}
+	if (from>0)
+		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+	else
+		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
+
+	if (items.size()-from>5)
+		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+	else
+		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
 }

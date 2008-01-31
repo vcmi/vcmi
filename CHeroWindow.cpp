@@ -200,7 +200,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 
 	delete garInt;
 	garInt = new CGarrisonInt(80, 493, 8, 0, curBack, 13, 482, curHero);
-
+	garInt->update = false;
 	for(int g=0; g<primSkillAreas.size(); ++g)
 	{
 		primSkillAreas[g]->bonus = hero->primSkills[g];

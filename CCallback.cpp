@@ -421,7 +421,7 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 				S2->slots.erase(p2);
 			if(s1->tempOwner<PLAYER_LIMIT)
 				CGI->playerint[s1->tempOwner]->garrisonChanged(s1);
-			if(s2->tempOwner<PLAYER_LIMIT)
+			if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
 				CGI->playerint[s2->tempOwner]->garrisonChanged(s2);
 			return 0;
 		}

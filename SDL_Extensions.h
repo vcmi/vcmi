@@ -13,6 +13,13 @@ void blitAtWR(SDL_Surface * src, SDL_Rect pos, SDL_Surface * dst=ekran);
 void blitAt(SDL_Surface * src, SDL_Rect pos, SDL_Surface * dst=ekran);
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran);
 bool isItIn(const SDL_Rect * rect, int x, int y);
+template <typename T> int getIndexOf(const std::vector<T> & v, const T & val)
+{
+	for(int i=0;i<v.size();i++)
+		if(v[i]==val)
+			return i;
+	return -1;
+}
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 namespace CSDL_Ext
 {

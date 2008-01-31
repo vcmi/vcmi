@@ -280,7 +280,7 @@ int _tmain(int argc, _TCHAR* argv[])
 { 
 	//std::ios_base::sync_with_stdio(0);
 	//CLuaHandler luatest;
-	//luatest.test();
+	//luatest.test(); 
 	
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");
@@ -294,6 +294,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	float i;
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
+		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		CPG=NULL;
 		TTF_Init();
 		atexit(TTF_Quit);
@@ -305,7 +306,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		GEOR16 = TTF_OpenFont("Fonts\\georgia.ttf",16);
 		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
 		GEORM = TTF_OpenFont("Fonts\\georgia.ttf",10);
-
 		CMusicHandler * mush = new CMusicHandler;  //initializing audio
 		mush->initMusics();
 		//audio initialized 
@@ -316,7 +316,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		}*/
 
 		//screen2 = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
-		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		//screen = SDL_ConvertSurface(screen2, screen2->format, SDL_SWSURFACE);
 		ekran = screen;
 

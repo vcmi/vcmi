@@ -215,7 +215,7 @@ public:
 
 	SDL_Surface *sur;
 	int offx, offy;
-	bool ignoreEvent;
+	bool ignoreEvent, update;
 
 	const CCreatureSet *set1;
 	const CCreatureSet *set2;
@@ -312,4 +312,71 @@ public:
 	void clear();//clears statusbar and refreshes
 	void show(); //shows statusbar (with current text)
 	std::string getCurrent();
+};
+
+class CList 
+	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject, public MotionInterested
+{
+public:
+	SDL_Surface * bg;
+	CDefHandler *arrup, *arrdo;
+	SDL_Surface *empty, *selection; 
+	SDL_Rect arrupp, arrdop; //positions of arrows
+	int posw, posh; //position width/height
+	int selected, //id of selected position, <0 if none
+		from; 
+	const int SIZE;
+	tribool pressed; //true=up; false=down; indeterminate=none
+
+	CList(int Size = 5);
+	void clickLeft(tribool down);
+	void activate(); 
+	void deactivate();
+	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
+	virtual void genList()=0;
+	virtual void select(int which)=0;
+	virtual void draw()=0;
+};
+class CHeroList 
+	: public CList
+{
+public:
+	CDefHandler *mobile, *mana;
+	std::vector<std::pair<const CGHeroInstance*, CPath *> > items;
+	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
+
+	CHeroList(int Size = 5);
+	void genList();
+	void select(int which);
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void clickLeft(tribool down);
+	void clickRight(tribool down);
+	void hover (bool on);
+	void keyPressed (SDL_KeyboardEvent & key);
+	void updateHList();
+	void updateMove(const CGHeroInstance* which); //draws move points bar
+	void redrawAllOne(int which);
+	void draw();
+	void init();
+};
+template<typename T>
+class CTownList 
+	: public CList
+{
+public: 
+	T* owner;
+	void(T::*fun)();
+	std::vector<const CGTownInstance*> items;
+	int posporx,pospory;
+
+	CTownList(int Size, SDL_Rect * Pos, int arupx, int arupy, int ardox, int ardoy);
+	~CTownList();
+	void genList();
+	void select(int which);
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void clickLeft(tribool down);
+	void clickRight(tribool down);
+	void hover (bool on);
+	void keyPressed (SDL_KeyboardEvent & key);
+	void draw();
 };

@@ -500,7 +500,7 @@ unsigned int CHeroHandler::level(unsigned int experience)
 	while(experience>=expPerLevel[expPerLevel.size()-1])
 	{
 		experience/=1.2;
-		add+1;
+		add+=1;
 	}
 	for(int i=expPerLevel.size()-1; i>=0; --i)
 	{

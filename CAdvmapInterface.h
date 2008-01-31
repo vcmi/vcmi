@@ -35,66 +35,6 @@ public:
 	AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL );//c-tor
 };
 /*****************************/
-class CList 
-	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject, public MotionInterested
-{
-public:
-	SDL_Surface * bg;
-	CDefHandler *arrup, *arrdo;
-	SDL_Surface *empty, *selection; 
-	SDL_Rect arrupp, arrdop; //positions of arrows
-	int posw, posh; //position width/height
-	int selected, //id of selected position, <0 if none
-		from; 
-	tribool pressed; //true=up; false=down; indeterminate=none
-
-	void clickLeft(tribool down);
-	void activate(); 
-	void deactivate();
-	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
-	virtual void genList()=0;
-	virtual void select(int which)=0;
-	virtual void draw()=0;
-};
-class CHeroList 
-	: public CList
-{
-public:
-	CDefHandler *mobile, *mana;
-	std::vector<std::pair<const CGHeroInstance*, CPath *> > items;
-	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
-
-	CHeroList();
-	void genList();
-	void select(int which);
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
-	void clickLeft(tribool down);
-	void clickRight(tribool down);
-	void hover (bool on);
-	void keyPressed (SDL_KeyboardEvent & key);
-	void updateHList();
-	void updateMove(const CGHeroInstance* which); //draws move points bar
-	void redrawAllOne(int which);
-	void draw();
-	void init();
-};
-class CTownList 
-	: public CList
-{
-public: 
-	std::vector<const CGTownInstance*> items;
-	int posporx,pospory;
-
-	CTownList();
-	void genList();
-	void select(int which);
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
-	void clickLeft(tribool down);
-	void clickRight(tribool down);
-	void hover (bool on);
-	void keyPressed (SDL_KeyboardEvent & key);
-	void draw();
-};
 class CMinimap
 	: public ClickableL, public ClickableR, public Hoverable, public MotionInterested, public virtual CIntObject
 {
@@ -220,7 +160,7 @@ public:
 	CResDataBar resdatabar;
 	
 	CHeroList heroList;
-	CTownList townList;	
+	CTownList<CAdvMapInt> townList;	
 	CInfoBar infoBar;
 
 	CHeroWindow * heroWindow;
@@ -251,6 +191,7 @@ public:
 	void hide(); //deactivates advmap interface
 	void update(); //redraws terrain
 
+	void selectionChanged();
 	void centerOn(int3 on);
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down, CIntObject * client);

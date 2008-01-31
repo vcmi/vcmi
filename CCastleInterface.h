@@ -39,6 +39,8 @@ public:
 	CDefHandler *hall,*fort,
 		*bigTownPic, *flag;
 
+	CTownList<CCastleInterface> * townlist;
+
 	CGarrisonInt * garr;
 	AdventureMapButton<CCastleInterface> * exit, *split;
 
@@ -46,6 +48,7 @@ public:
 
 	CCastleInterface(const CGTownInstance * Town, bool Activate=true);
 	~CCastleInterface();
+	void townChange();
 	void show(SDL_Surface * to=NULL);
 	void showAll(SDL_Surface * to=NULL);
 	void close();
