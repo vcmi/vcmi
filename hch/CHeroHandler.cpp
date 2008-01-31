@@ -507,6 +507,7 @@ unsigned int CHeroHandler::level(unsigned int experience)
 		if(experience>=expPerLevel[i])
 			return i+add;
 	}
+	return -1;
 }
 
 unsigned int CHeroHandler::reqExp(unsigned int level)
@@ -524,6 +525,7 @@ unsigned int CHeroHandler::reqExp(unsigned int level)
 			exp*=1.2;
 		}
 	}
+	return -1;
 }
 
 unsigned int CHeroInstance::getLowestCreatureSpeed()

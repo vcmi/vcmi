@@ -29,15 +29,16 @@ CHeroWindow::CHeroWindow(int playerColor):
 	activeArtPlace = NULL;
 
 	garInt = NULL;
+	ourBar = new CStatusBar(72, 567, "ADROLLVR.bmp", 660);
 
-	quitButton = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::quit, 674, 524, "hsbtns.def", this);
-	dismissButton = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::dismissCurrent, 519, 437, "hsbtns2.def", this);
-	questlogButton = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::questlog, 379, 437, "hsbtns4.def", this);
+	quitButton = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[17], std::string(), &CHeroWindow::quit, 674, 524, "hsbtns.def", this);
+	dismissButton = new AdventureMapButton<CHeroWindow>(std::string(), CGI->generaltexth->heroscrn[28], &CHeroWindow::dismissCurrent, 519, 437, "hsbtns2.def", this);
+	questlogButton = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[0], std::string(), &CHeroWindow::questlog, 379, 437, "hsbtns4.def", this);
 
-	gar1button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar1, 546, 491, "hsbtns6.def", this);
+	gar1button = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[23], CGI->generaltexth->heroscrn[29], &CHeroWindow::gar1, 546, 491, "hsbtns6.def", this);
 	gar2button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar2, 604, 491, "hsbtns8.def", this);
-	gar3button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar3, 546, 527, "hsbtns7.def", this);
-	gar4button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar4, 604, 527, "hsbtns9.def", this);
+	gar3button = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[24], CGI->generaltexth->heroscrn[30], &CHeroWindow::gar3, 546, 527, "hsbtns7.def", this);
+	gar4button = new AdventureMapButton<CHeroWindow>(std::string(), CGI->generaltexth->heroscrn[32], &CHeroWindow::gar4, 604, 527, "hsbtns9.def", this);
 
 	leftArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::leftArtRoller, 379, 364, "hsbtns3.def", this);
 	rightArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::rightArtRoller, 632, 364, "hsbtns5.def", this);
@@ -79,12 +80,14 @@ CHeroWindow::CHeroWindow(int playerColor):
 	expArea->pos.y = 236;
 	expArea->pos.w = 136;
 	expArea->pos.h = 42;
+	expArea->hoverText = CGI->generaltexth->heroscrn[9];
 
 	spellPointsArea = new LRClickableAreaWText();
 	spellPointsArea->pos.x = 227;
 	spellPointsArea->pos.y = 236;
 	spellPointsArea->pos.w = 136;
 	spellPointsArea->pos.h = 42;
+	spellPointsArea->hoverText = CGI->generaltexth->heroscrn[22];
 
 	for(int i=0; i<8; ++i)
 	{
@@ -120,6 +123,7 @@ CHeroWindow::~CHeroWindow()
 	delete flags;
 
 	delete garInt;
+	delete ourBar;
 
 	for(int g=0; g<artWorn.size(); ++g)
 	{
@@ -162,6 +166,7 @@ void CHeroWindow::show(SDL_Surface *to)
 	rightArtRoll->show();
 
 	garInt->show();
+	ourBar->show();
 
 	for(int d=0; d<artWorn.size(); ++d)
 	{
@@ -180,6 +185,17 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 		return; 
 	}
 	curHero = hero;
+
+	char * prhlp = new char[200];
+	sprintf(prhlp, CGI->generaltexth->heroscrn[16].c_str(), curHero->name.c_str(), curHero->type->heroClass->name.c_str());
+	dismissButton->name = std::string(prhlp);
+	delete [] prhlp;
+
+	prhlp = new char[200];
+	sprintf(prhlp, CGI->generaltexth->allTexts[15].c_str(), curHero->name.c_str(), curHero->type->heroClass->name.c_str());
+	portraitArea->hoverText = std::string(prhlp);
+	delete [] prhlp;
+
 	portraitArea->text = hero->biography;
 
 	delete garInt;
@@ -209,6 +225,11 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
 			break;
 		}
+		
+		char * hlpp = new char[200];
+		sprintf(hlpp, CGI->generaltexth->heroscrn[21].c_str(), CGI->abilh->levels[hero->secSkills[g].second].c_str(), CGI->abilh->abilities[hero->secSkills[g].first]->name.c_str());
+		secSkillAreas[g]->hoverText = std::string(hlpp);
+		delete [] hlpp;
 	}
 
 	char * th = new char[200];
@@ -443,6 +464,10 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	{
 		artWorn[g]->myNumber = g;
 		artWorn[g]->backNumber = -1;
+		char * hll = new char[200];
+		sprintf(hll, CGI->generaltexth->heroscrn[1].c_str(), (artWorn[g]->ourArt ? artWorn[g]->ourArt->name.c_str() : ""));
+		artWorn[g]->hoverText = std::string(hll);
+		delete [] hll;
 	}
 
 	for(int s=0; s<5; ++s)
@@ -537,6 +562,7 @@ void CHeroWindow::activate()
 	spellPointsArea->activate();
 
 	garInt->activate();
+	LOCPLINT->statusbar = ourBar;
 
 	for(int v=0; v<primSkillAreas.size(); ++v)
 	{
@@ -1028,11 +1054,21 @@ void LRClickableAreaWText::activate()
 {
 	LClickableArea::activate();
 	RClickableArea::activate();
+	Hoverable::activate();
 }
 void LRClickableAreaWText::deactivate()
 {
 	LClickableArea::deactivate();
 	RClickableArea::deactivate();
+	Hoverable::deactivate();
+}
+void LRClickableAreaWText::hover(bool on)
+{
+	Hoverable::hover(on);
+	if (on)
+		LOCPLINT->statusbar->print(hoverText);
+	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
+		LOCPLINT->statusbar->clear();
 }
 
 void LClickableAreaHero::clickLeft(boost::logic::tribool down)
@@ -1063,10 +1099,19 @@ void LRClickableAreaWTextComp::activate()
 {
 	LClickableArea::activate();
 	RClickableArea::activate();
+	Hoverable::activate();
 }
 void LRClickableAreaWTextComp::deactivate()
 {
 	LClickableArea::deactivate();
 	RClickableArea::deactivate();
+	Hoverable::deactivate();
 }
-
+void LRClickableAreaWTextComp::hover(bool on)
+{
+	Hoverable::hover(on);
+	if (on)
+		LOCPLINT->statusbar->print(hoverText);
+	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
+		LOCPLINT->statusbar->clear();
+}

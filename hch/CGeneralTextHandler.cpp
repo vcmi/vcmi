@@ -49,6 +49,15 @@ void CGeneralTextHandler::load()
 		CGeneralTextHandler::loadToIt(tmp, strin2, itr, 3);
 		jktexts.push_back(tmp);
 	}
+
+	itr = 0;
+	std::string strin3 = CGI->bitmaph->getTextFile("HEROSCRN.TXT");
+	for(int hh=0; hh<33; ++hh)
+	{
+		std::string tmp;
+		CGeneralTextHandler::loadToIt(tmp, strin3, itr, 3);
+		heroscrn.push_back(tmp);
+	}
 }
 
 

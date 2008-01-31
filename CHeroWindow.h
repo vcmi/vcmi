@@ -33,26 +33,28 @@ public:
 	virtual void clickLeft (tribool down);
 };
 
-class LRClickableAreaWText: public LClickableArea, public RClickableArea
+class LRClickableAreaWText: public LClickableArea, public RClickableArea, public Hoverable
 {
 public:
-	std::string text;
+	std::string text, hoverText;
 	virtual void activate();
 	virtual void deactivate();
 	virtual void clickLeft (tribool down);
 	virtual void clickRight (tribool down);
+	virtual void hover(bool on);
 };
 
-class LRClickableAreaWTextComp: public LClickableArea, public RClickableArea
+class LRClickableAreaWTextComp: public LClickableArea, public RClickableArea, public Hoverable
 {
 public:
-	std::string text;
+	std::string text, hoverText;
 	int baseType;
 	int bonus, type;
 	virtual void activate();
 	virtual void deactivate();
 	virtual void clickLeft (tribool down);
 	virtual void clickRight (tribool down);
+	virtual void hover(bool on);
 };
 
 class CArtPlace: public IShowable, public LRClickableAreaWTextComp
@@ -84,6 +86,7 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	SDL_Surface * background, * curBack;
 	const CGHeroInstance * curHero;
 	CGarrisonInt * garInt;
+	CStatusBar * ourBar; //heroWindow's statusBar
 
 	//general graphics
 	CDefHandler * skillpics, *flags;

@@ -84,7 +84,8 @@ void AdventureMapButton<T>::clickLeft (tribool down)
 template <typename T>
 void AdventureMapButton<T>::clickRight (tribool down)
 {
-	LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);
+	if(helpBox.size()) //there is no point to show window with nothing inside...
+		LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);
 }
 template <typename T>
 void AdventureMapButton<T>::hover (bool on)

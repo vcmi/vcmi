@@ -12,6 +12,7 @@ public:
 	std::vector<std::string> arraytxt;
 	std::vector<std::string> primarySkillNames;
 	std::vector<std::string> jktexts;
+	std::vector<std::string> heroscrn;
 	/*std::string cantAddManager, experienceLimitScenarioReached, heroExperienceInfo, perDay, or, somethingVanquished, lastTownLostInfo, heroesAbandonedYou, heroesAbandonedHim;
 	std::string couldNotSaveGame, errorOpeningFile, newgameUppercase, sureToDismissArmy, playersTurn, errorReceivingDataKeepTrying, somethingTheSomething, recruit, noRoomInGarrision, numberOFAdventuringHeroes, heroWithoutCreatures;
 	std::string videoQuality, itemCantBeTraded, sureDismissHero, selectSpellTarget, invalidTeleportDestination, teleportHere, castSomething, castSomethingOnSomething, sureRetreat, notEnoughGold, capturedEnemyArtifact, none;
