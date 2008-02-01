@@ -349,7 +349,8 @@ void CCastleInterface::showAll(SDL_Surface * to)
 	blitAt(bigTownPic->ourImages[pom].bitmap,15,387,to);
 
 	//flag
-	blitAt(flag->ourImages[town->getOwner()].bitmap,241,387,to);
+	if(town->getOwner()<PLAYER_LIMIT)
+		blitAt(flag->ourImages[town->getOwner()].bitmap,241,387,to);
 
 	//print garrison
 	//for(
