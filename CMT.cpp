@@ -47,6 +47,7 @@
 #include "CLuaHandler.h"
 #include "CLua.h"
 #include "CAdvmapInterface.h"
+#include "CCastleInterface.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -332,6 +333,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
+
 
 		cgi->curh->initCursor();
 		cgi->curh->showGraphicCursor();

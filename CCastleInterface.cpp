@@ -210,6 +210,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 							{
 								if(buildings[itpb]->str->ID == obecny->second)
 								{
+									delete buildings[itpb];
 									buildings.erase(buildings.begin() + itpb);
 									obecny->second = st->ID;
 									buildings.push_back(new CBuildingRect(st));

@@ -231,9 +231,9 @@ public:
 	PreGameTab* currentTab;
 	StartInfo ret;
 	bool run;
+	bool first; //hasn't we showed the scensel
 	std::vector<Slider<> *> interested;
 	CMusicHandler * mush;
-	CSemiLodHandler * slh ;
 	std::vector<HighButton *> btns;
 	CPreGameTextHandler * preth ;
 	SDL_Rect * currentMessage;	
@@ -252,7 +252,6 @@ public:
 	ScenSel * ourScenSel;
 	Options * ourOptions;
 	std::string map; //selected map
-	std::vector<CSemiLodHandler *> handledLods; 
 	CPreGame(); //c-tor
 	std::string buttonText(int which);
 	menuItems * currentItems();
