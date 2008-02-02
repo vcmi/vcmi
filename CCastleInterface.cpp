@@ -12,6 +12,15 @@ CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str)
 {	
 	def = CGI->spriteh->giveDef(Str->defName);
+	pos.x = str->pos.x;
+	pos.y = str->pos.y;
+	pos.w = def->ourImages[0].bitmap->w;
+	pos.h = def->ourImages[0].bitmap->h;
+	if(Str->ID<0  || (Str->ID>=27 && Str->ID<=29))
+	{
+		area = border = NULL;
+		return;
+	}
 	if (border = CGI->bitmaph->loadBitmap(str->borderName))
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
 	else
@@ -20,10 +29,6 @@ CBuildingRect::CBuildingRect(Structure *Str)
 		;//SDL_SetColorKey(area,SDL_SRCCOLORKEY,SDL_MapRGB(area->format,0,255,255));
 	else
 		std::cout << "Warning: no area for "<<Str->ID<<std::endl;
-	pos.x = str->pos.x;
-	pos.y = str->pos.y;
-	pos.w = def->ourImages[0].bitmap->w;
-	pos.h = def->ourImages[0].bitmap->h;
 }
 
 CBuildingRect::~CBuildingRect()

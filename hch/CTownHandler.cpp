@@ -27,7 +27,8 @@ void CTownHandler::loadNames()
 		for (int i=0; i<NAMES_PER_TOWN; i++)
 		{
 			names.getline(bufname,50);
-			town.names.push_back(std::string(bufname));
+			std::string pom(bufname);
+			town.names.push_back(pom.substr(0,pom.length()-1));
 		}
 		town.typeID=si++;
 		town.bonus=towns.size();

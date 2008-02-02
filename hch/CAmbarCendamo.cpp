@@ -79,6 +79,8 @@ std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
 	{
 		int a, b;
 		b5 >> a >> b;
+		if(castleID==8 && b==17) //magic university ID 17 (h3m) => 21 (vcmi)
+			b=21;
 		mapa[a]=b;
 	}
 
@@ -111,7 +113,8 @@ std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
 	}
 
 	ret.insert(10); //village hall is always present
-	ret.insert(-1); //houses near v.hall
+	ret.insert(-1); //houses near v.hall / eyecandies
+	ret.insert(-2); //terrain eyecandy, if -1 is used
 
 	if(ret.find(11)!=ret.end())
 		ret.insert(27);
@@ -2362,11 +2365,11 @@ void CAmbarCendamo::deh3m()
 		}
 	}
 
-	for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
-	{
-		if (CGI->objh->objInstances[ww]->defObjInfoNumber==-1)
-			std::cout<<CGI->objh->objInstances[ww]->ID<<"\t" << CGI->objh->objInstances[ww]->subID<<"\t"<<CGI->objh->objInstances[ww]->defInfo->name<<std::endl;
-	}
+	//for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
+	//{
+	//	if (CGI->objh->objInstances[ww]->defObjInfoNumber==-1)
+	//		std::cout<<CGI->objh->objInstances[ww]->ID<<"\t" << CGI->objh->objInstances[ww]->subID<<"\t"<<CGI->objh->objInstances[ww]->defInfo->name<<std::endl;
+	//}
 
 	//assigned
 
