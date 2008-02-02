@@ -1564,10 +1564,10 @@ SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	adventureInt->hide();
-	timeHandler t;
-	t.getDif();
+	//timeHandler t;
+	//t.getDif();
 	castleInt = new CCastleInterface(town,true);
-	std::cout << "Loading town screen: " << t.getDif() <<std::endl;
+	//std::cout << "Loading town screen: " << t.getDif() <<std::endl;
 }
 
 SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
