@@ -2325,6 +2325,11 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
+		case EDefType::HEROPLACEHOLDER_DEF:
+			{
+				i+=3; //TODO: handle it more properly
+				break;
+			}
 		} //end of main switch
 		CGameInfo::mainObj->objh->objInstances.push_back(nobj);
 		//TODO - dokoñczyæ, du¿o do zrobienia - trzeba patrzeæ, co def niesie
@@ -2490,6 +2495,8 @@ EDefType CAmbarCendamo::getDefType(CGDefInfo * a)
 		return EDefType::TOWN_DEF; //handled
 	case 113:
 		return EDefType::WITCHHUT_DEF; //handled
+	case 214:
+		return EDefType::HEROPLACEHOLDER_DEF; //partially handled
 	case 215:
 		return EDefType::BORDERGUARD_DEF; //handled by analogy to seer huts ;]
 	case 216:
