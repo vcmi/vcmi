@@ -18,6 +18,7 @@ struct DefObjInfo
 class CDefObjInfoHandler
 {
 public:
+	//std::vector<std::vector<CGDefInfo> > gobjs;
 	std::vector<DefObjInfo> objs;
 	void load();
 };

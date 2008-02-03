@@ -86,7 +86,6 @@ void CMapHandler::randomizeObjects()
 				if(f!=-1 && f!=CGI->dobjinfo->objs.size())
 				{
 					CGI->objh->objInstances[no]->defObjInfoNumber = f;
-					CGI->objh->objInstances[no]->defInfo->isOnDefList = true;
 					CGI->objh->objInstances[no]->ID = CGI->dobjinfo->objs[f].type;
 					CGI->objh->objInstances[no]->subID = CGI->dobjinfo->objs[f].subtype;
 					CGI->objh->objInstances[no]->defInfo->id = CGI->dobjinfo->objs[f].type;
@@ -96,7 +95,6 @@ void CMapHandler::randomizeObjects()
 				else
 				{
 					CGI->objh->objInstances[no]->defObjInfoNumber = -1;
-					CGI->objh->objInstances[no]->defInfo->isOnDefList = false;
 					CGI->objh->objInstances[no]->defInfo->printPriority = 0;
 				}
 			}
@@ -1520,7 +1518,6 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos)
 		}
 	}
 	nobj->defInfo->name = CGI->dobjinfo->objs[nobj->defObjInfoNumber].defName;
-	nobj->defInfo->isOnDefList = (nobj->defObjInfoNumber==-1 ? false : true);
 	for(int g=0; g<6; ++g)
 		nobj->defInfo->blockMap[g] = CGI->dobjinfo->objs[nobj->defObjInfoNumber].blockMap[g];
 	for(int g=0; g<6; ++g)

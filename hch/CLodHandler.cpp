@@ -421,7 +421,7 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 	std::vector<CDefHandler *> ret(defNamesIn.size()); 
 	for(int hh=0; hh<defNamesIn.size(); ++hh)
 	{
-		std::transform(defNamesIn[hh].begin(), defNamesIn[hh].end(), defNamesIn[hh].begin(), (int(*)(int))toupper);
+		//std::transform(defNamesIn[hh].begin(), defNamesIn[hh].end(), defNamesIn[hh].begin(), (int(*)(int))toupper);
 		Entry * e = entries.znajdz(defNamesIn[hh]);
 		if(!e)
 			continue;

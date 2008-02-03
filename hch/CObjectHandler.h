@@ -330,7 +330,6 @@ public:
 	int type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)   
 	CDefHandler * handler;
 	int printPriority;
-	bool isOnDefList;
 	bool isVisitable();
 };
 

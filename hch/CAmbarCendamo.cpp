@@ -576,17 +576,6 @@ void CAmbarCendamo::deh3m()
 		//	vinya->bytes[v] = bufor[i++];
 		//}
 		std::transform(vinya->name.begin(),vinya->name.end(),vinya->name.begin(),(int(*)(int))toupper);
-		std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-			vinya->name);
-		if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-		{
-			vinya->isOnDefList = false;
-		}
-		else
-		{
-			//vinya->printPriority = pit->priority;
-			vinya->isOnDefList = true;
-		}
 		unsigned char bytes[12];
 		for (int v=0; v<12; v++) // read info
 		{
@@ -2374,17 +2363,17 @@ borderguardend:
 
 	//assigning defobjinfos
 
-	for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
-	{
-		for(int h=0; h<CGI->dobjinfo->objs.size(); ++h)
-		{
-			if(CGI->dobjinfo->objs[h].defName==CGI->objh->objInstances[ww]->defInfo->name)
-			{
-				CGI->objh->objInstances[ww]->defObjInfoNumber = h;
-				break;
-			}
-		}
-	}
+	//for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
+	//{
+	//	for(int h=0; h<CGI->dobjinfo->objs.size(); ++h)
+	//	{
+	//		if(CGI->dobjinfo->objs[h].defName==CGI->objh->objInstances[ww]->defInfo->name)
+	//		{
+	//			CGI->objh->objInstances[ww]->defObjInfoNumber = h;
+	//			break;
+	//		}
+	//	}
+	//}
 
 	THC std::cout<<"\tHandling defs: "<<th.getDif()<<std::endl;
 	//for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
@@ -2845,17 +2834,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = resDefNames[nxt->subid+1];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -2879,17 +2857,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = creDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -2909,17 +2876,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = creDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -2939,17 +2895,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = creDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -2969,17 +2914,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = creDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -2999,17 +2933,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = creDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3029,17 +2952,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = creDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3059,17 +2971,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = creDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3089,17 +2990,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = creDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3123,17 +3013,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = artDefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3153,17 +3032,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = art1DefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3183,17 +3051,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = art2DefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3213,17 +3070,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = art3DefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3243,17 +3089,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = art4DefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3291,17 +3126,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						continue;
 					}
 					nxt->name = town1DefNames[nxt->subid];
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3323,18 +3147,7 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 			}
 		case EDefType::HERO_DEF:
 			{
-				std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						CGI->objh->objInstances[j]->defInfo->name);
-
 				CGI->objh->objInstances[j]->defInfo->printPriority = 0;
-				if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-				{
-					CGI->objh->objInstances[j]->defInfo->isOnDefList = false;
-				}
-				else
-				{
-					CGI->objh->objInstances[j]->defInfo->isOnDefList = true;
-				}
 				break;
 			}
 		} //end of main switch
@@ -3380,17 +3193,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						CGI->objh->objInstances[j]->defInfo = creGenNumbers[nxt->subid][lvl];
 						continue;
 					}
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3420,17 +3222,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 					{
 						CGI->objh->objInstances[j]->defInfo = creGenNumbers[nxt->subid][lvl];
 						continue;
-					}
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
 					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
@@ -3481,17 +3272,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						CGI->objh->objInstances[j]->defInfo = creGenNumbers[nxt->subid][lvl];
 						continue;
 					}
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3522,17 +3302,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 						CGI->objh->objInstances[j]->defInfo = creGenNumbers[nxt->subid][lvl];
 						continue;
 					}
-					std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-						nxt->name);
-					if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-					{
-						nxt->isOnDefList = false;
-					}
-					else
-					{
-						nxt->printPriority = pit->priority;
-						nxt->isOnDefList = true;
-					}
 					map.defy.push_back(nxt); // add this def to the vector
 					defsToUnpack.push_back(nxt->name);
 					CGI->objh->objInstances[j]->defInfo = nxt;
@@ -3562,17 +3331,6 @@ void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
 				{
 					CGI->objh->objInstances[j]->defInfo = creGenNumbers[nxt->subid][lvl];
 					continue;
-				}
-				std::vector<DefObjInfo>::iterator pit = std::find(CGameInfo::mainObj->dobjinfo->objs.begin(), CGameInfo::mainObj->dobjinfo->objs.end(), 
-					nxt->name);
-				if(pit == CGameInfo::mainObj->dobjinfo->objs.end())
-				{
-					nxt->isOnDefList = false;
-				}
-				else
-				{
-					nxt->printPriority = pit->priority;
-					nxt->isOnDefList = true;
 				}
 				map.defy.push_back(nxt); // add this def to the vector
 				defsToUnpack.push_back(nxt->name);
