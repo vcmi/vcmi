@@ -298,25 +298,6 @@ public:
 	std::string name; //object's name
 };
 
-class CObjectInstance //instance of object
-{
-public:
-	int defNumber; //specifies number of def file with animation of this object
-	int defObjInfoNumber; //number of this object's def's additional informations in CDefObjInfo's vector
-	int id; //number of object in CObjectHandler's vector			//TODO: absolutnie wywalic i zastapic czyms sensownym
-	int3 pos; // position
-	CSpecObjInfo * info; //pointer to something with additional information
-	bool isHero; //true if this is a hero
-	unsigned char moveDir; //direction of hero movement (0 - default; 1 - lt; 2 - t; 3 - tr; 4 - r; 5 - br; 6 - b; 7 - bl; 8 - l)
-	bool isStanding; //true if is standing, flase if is moving
-	unsigned char flagPrinted; //true if flag has been printed //number of print hits
-	unsigned char owner; //if 254, object cannot have owner; if it has, it equal to owner's ID (or 255, when no owner)
-	int getWidth() const; //returns width of object graphic in tiles
-	int getHeight() const; //returns height of object graphic in tiles
-	bool visitableAt(int x, int y) const; //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
-	bool operator<(const CObjectInstance & cmp) const;  //screen printing priority comparing
-};
-
 class CGDefInfo
 {
 public:
@@ -365,7 +346,6 @@ public:
 	CGDefInfo * defInfo;
 	CCPPObjectScript * state;
 	CSpecObjInfo * info;
-	int defObjInfoNumber;
 
 	int tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
 	bool blockVisit;

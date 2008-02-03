@@ -123,7 +123,7 @@ public:
 	virtual void show(SDL_Surface * to = NULL); //shows hero window
 	void redrawCurBack(); //redraws curBAck from scratch
 	void quit(); //stops displaying hero window
-	void dismissCurrent(); //dissmissed currently displayed hero (curHero) //TODO: make it working
+	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
 	void gar1(); //garrison / formation handling
 	void gar2(); //garrison / formation handling

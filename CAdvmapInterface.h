@@ -7,7 +7,6 @@
 #include <map>
 class CDefHandler;
 class CCallback;
-class CTownInstance;
 class CPath; 
 class CAdvMapInt;
 class CGHeroInstance;

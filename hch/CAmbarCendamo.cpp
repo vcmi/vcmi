@@ -495,7 +495,7 @@ void CAmbarCendamo::deh3m()
 		else if(map.version!=AB || map.rumors.size()==0) //omit a lot of rubbish in a strage way
 		{
 			int lastFFpos=i;
-			while(i-lastFFpos<200) //i far in terrain bytes
+			while(i-lastFFpos<350) //i far in terrain bytes
 			{
 				++i;
 				if(bufor[i]==0xff)
@@ -506,7 +506,7 @@ void CAmbarCendamo::deh3m()
 
 			i=lastFFpos;
 
-			while(bufor[i-1]!=0 || bufor[i]>8 || bufor[i+2]>4 || bufor[i+1]==0) //back to terrain bytes
+			while(bufor[i-1]!=0 || bufor[i]>8 || bufor[i+2]>4 || bufor[i+1]==0 || ( bufor[i+2]==0 && bufor[i+3]>0 ) || (bufor[i+4]==0 && bufor[i+5]>0)) //back to terrain bytes
 			{
 				i++;
 			}
@@ -616,7 +616,6 @@ void CAmbarCendamo::deh3m()
 		nobj->ID = nobj->defInfo->id;
 		nobj->subID = nobj->defInfo->subid;
 		//nobj->defInfo = readNormalNr(i, 4); i+=4;
-		//nobj->defObjInfoNumber = -1;
 		//nobj->isHero = false;
 		//nobj->moveDir = 0;
 		//nobj->isStanding = true;
@@ -2362,28 +2361,7 @@ borderguardend:
 
 	SDL_FreeSurface(alphaTransSurf);
 
-	//assigning defobjinfos
-
-	for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
-	{
-		for(int h=0; h<CGI->dobjinfo->objs.size(); ++h)
-		{
-			if(CGI->dobjinfo->objs[h].defName==CGI->objh->objInstances[ww]->defInfo->name)
-			{
-				CGI->objh->objInstances[ww]->defObjInfoNumber = h;
-				break;
-			}
-		}
-	}
-
 	THC std::cout<<"\tHandling defs: "<<th.getDif()<<std::endl;
-	//for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
-	//{
-	//	if (CGI->objh->objInstances[ww]->defObjInfoNumber==-1)
-	//		std::cout<<CGI->objh->objInstances[ww]->ID<<"\t" << CGI->objh->objInstances[ww]->subID<<"\t"<<CGI->objh->objInstances[ww]->defInfo->name<<std::endl;
-	//}
-
-	//assigned
 
 	//loading events
 	int numberOfEvents = readNormalNr(i); i+=4;

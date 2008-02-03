@@ -5,7 +5,6 @@
 #include "SDL_framerate.h"
 class CDefEssential;
 
-class CHeroInstance;
 class CDefHandler;
 struct HeroMoveDetails;
 class CDefEssential;

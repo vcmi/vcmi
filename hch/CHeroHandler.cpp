@@ -448,54 +448,8 @@ void CHeroHandler::initHeroClasses()
 	initTerrainCosts();
 }
 
-unsigned int CHeroInstance::getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype)
-{
-	unsigned int ret = type->heroClass->terrCosts[ttype];
-	switch(rdtype)
-	{
-	case Eroad::dirtRoad:
-		ret*=0.75;
-		break;
-	case Eroad::grazvelRoad:
-		ret*=0.667;
-		break;
-	case Eroad::cobblestoneRoad:
-		ret*=0.5;
-		break;
-	}
-	return ret;
-}
-
 unsigned int CHeroHandler::level(unsigned int experience)
 {
-	//if (experience==0)
-	//	return 0; 
-	//else if (experience<14700) //level < 10
-	//{
-	//	return (-500+20*sqrt((float)experience+1025))/(200);
-	//}
-	//else if (experience<24320) //10 - 12
-	//{
-	//	if (experience>20600)
-	//		return 12;
-	//	else if (experience>17500)
-	//		return 11;
-	//	else return 10;
-	//}
-	//else //>12
-	//{
-	//	int lvl=12;
-	//	int xp = 24320; //xp needed for 13 lvl
-	//	int td = 4464; //diff 14-13
-	//	float mp = 1.2;
-	//	while (experience>xp)
-	//	{
-	//		xp+=td;
-	//		td*=mp;
-	//		lvl++;
-	//	}
-	//	return lvl;
-	//}
 	int add=0;
 	while(experience>=expPerLevel[expPerLevel.size()-1])
 	{
@@ -528,58 +482,6 @@ unsigned int CHeroHandler::reqExp(unsigned int level)
 	return -1;
 }
 
-unsigned int CHeroInstance::getLowestCreatureSpeed()
-{
-	unsigned int sl = 100;
-	for(int h=0; h<army.slots.size(); ++h)
-	{
-		if(army.slots[h].first->speed<sl)
-			sl = army.slots[h].first->speed;
-	}
-	return sl;
-}
-
-int3 CHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
-{
-	if (toh3m)
-	{
-		src.x+=1;
-		return src;
-	}
-	else
-	{
-		src.x-=1;
-		return src;
-	}
-}
-int3 CHeroInstance::getPosition(bool h3m) const
-{
-	if (h3m)
-		return pos;
-	else return convertPosition(pos,false);
-}
-void CHeroInstance::setPosition(int3 Pos, bool h3m)
-{
-	if (h3m)
-		pos = Pos;
-	else
-		pos = convertPosition(Pos,true);
-}
-bool CHeroInstance::canWalkOnSea() const
-{
-	//TODO: write it - it should check if hero is flying, or something similiar
-	return false;
-}
-int CHeroInstance::getCurrentLuck() const
-{
-	//TODO: write it
-	return 0;
-}
-int CHeroInstance::getCurrentMorale() const
-{
-	//TODO: write it
-	return 0;
-}
 void CHeroHandler::initTerrainCosts()
 {
 	std::ifstream inp;
@@ -601,7 +503,3 @@ void CHeroHandler::initTerrainCosts()
 	inp.close();
 }
 
-int CHeroInstance::getSightDistance() const //TODO: finish
-{
-	return 6;
-}

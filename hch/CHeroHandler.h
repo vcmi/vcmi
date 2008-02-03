@@ -10,7 +10,6 @@
 #include "../CGameInterface.h"
 
 class CHeroClass;
-class CObjectInstance;
 class CDefHandler;
 class CGameInfo;
 class CGHeroInstance;
@@ -45,41 +44,6 @@ public:
 	int selectionProbability[9]; //probability of selection in towns
 	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterrain, lava, water, rock; -1 means terrain is imapassable
 	CDefHandler * moveAnim; //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
-};
-
-class CHeroInstance
-{
-public:
-	int owner;
-	CHero * type;
-	CObjectInstance * ourObject;
-	int exp; //experience point
-	int level; //current level of hero
-	std::string name; //may be custom
-	std::string biography; //may be custom
-	int portrait; //may be custom
-	int3 pos; //position of object (hero pic is on the left)
-	CCreatureSet army; //army
-	int mana; // remaining spell points
-	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
-	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
-	int movement; //remaining movement points
-	bool inTownGarrison; // if hero is in town garrison 
-
-	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);
-	unsigned int getLowestCreatureSpeed();
-	unsigned int getAdditiveMoveBonus();
-	float getMultiplicativeMoveBonus();
-	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
-	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
-	int getSightDistance() const; //returns sight distance of this hero
-	void setPosition(int3 Pos, bool h3m); //as above, but sets position
-
-	bool canWalkOnSea() const;
-	int getCurrentLuck() const;
-	int getCurrentMorale() const;
-
-	//TODO: artifacts, known spells, commander, blessings, curses, morale/luck special modifiers
 };
 
 class CHeroHandler

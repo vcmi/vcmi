@@ -346,7 +346,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 
-
 		cgi->curh->initCursor();
 		cgi->curh->showGraphicCursor();
 

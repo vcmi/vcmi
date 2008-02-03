@@ -46,12 +46,12 @@ struct TimeEvent
 struct TerrainTile
 {
 	EterrainType tertype; // type of terrain
-	unsigned int terview; // look of terrain
+	unsigned char terview; // look of terrain
 	Eriver nuine; // type of Eriver (0 if there is no Eriver)
-	unsigned int rivDir; // direction of Eriver
+	unsigned char rivDir; // direction of Eriver
 	Eroad malle; // type of Eroad (0 if there is no Eriver)
-	unsigned int roadDir; // direction of Eroad
-	unsigned int siodmyTajemniczyBajt; // mysterius byte // jak bedzie waidomo co to, to sie nazwie inaczej
+	unsigned char roadDir; // direction of Eroad
+	unsigned char siodmyTajemniczyBajt; // mysterius byte // jak bedzie waidomo co to, to sie nazwie inaczej
 };
 struct DefInfo //information from def declaration
 {

@@ -3,7 +3,6 @@
 #include "global.h"
 #include <queue>
 #include <vector>
-class CHeroInstance;
 class CGHeroInstance;
 struct CPathNode
 {

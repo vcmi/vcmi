@@ -229,16 +229,3 @@ int CTownHandler::getTypeByDefName(std::string name)
 	return 0;
 }
 
-CTownInstance::CTownInstance()
-  :pos(-1,-1,-1)
-{
-	builded=-1;
-	destroyed=-1;
-	garrisonHero=NULL;
-	town=NULL;
-}
-
-int CTownInstance::getSightDistance() const //TODO: finish
-{
-	return 10;
-}

@@ -4,8 +4,6 @@
 #include "mapHandler.h"
 #include "tchar.h"
 class CGameState;
-class CHeroInstance;
-class CTownInstance;
 class CPath;
 class CGObjectInstance;
 class SComponent;

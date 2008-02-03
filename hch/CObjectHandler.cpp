@@ -73,49 +73,6 @@ void CObjectHandler::loadObjects()
 	
 }
 
-bool CObjectInstance::operator <(const CObjectInstance &cmp) const
-{
-	//if(CGI->ac->map.defy[this->defNumber].printPriority==1 && CGI->ac->map.defy[cmp.defNumber].printPriority==0)
-	//	return true;
-	//if(CGI->ac->map.defy[cmp.defNumber].printPriority==1 && CGI->ac->map.defy[this->defNumber].printPriority==0)
-	//	return false;
-	//if(this->pos.y<cmp.pos.y)
-	//	return true;
-	//if(this->pos.y>cmp.pos.y)
-	//	return false;
-	//if(CGI->ac->map.defy[this->defNumber].isOnDefList && !(CGI->ac->map.defy[cmp.defNumber].isOnDefList))
-	//	return true;
-	//if(CGI->ac->map.defy[cmp.defNumber].isOnDefList && !(CGI->ac->map.defy[this->defNumber].isOnDefList))
-	//	return false;
-	//if(!CGI->ac->map.defy[this->defNumber].isVisitable() && CGI->ac->map.defy[cmp.defNumber].isVisitable())
-	//	return true;
-	//if(!CGI->ac->map.defy[cmp.defNumber].isVisitable() && CGI->ac->map.defy[this->defNumber].isVisitable())
-	//	return false;
-	//if(this->pos.x<cmp.pos.x)
-	//	return true;
-	return false;
-}
-
-int CObjectInstance::getWidth() const
-{
-	return -1;//CGI->mh->reader->map.defy[defNumber].handler->ourImages[0].bitmap->w/32;
-}
-
-int CObjectInstance::getHeight() const
-{
-	return -1;//CGI->mh->reader->map.defy[defNumber].handler->ourImages[0].bitmap->h/32;
-}
-
-bool CObjectInstance::visitableAt(int x, int y) const
-{
-	//if(x<0 || y<0 || x>=getWidth() || y>=getHeight() || defObjInfoNumber<0)
-	//	return false;
-	//if((CGI->dobjinfo->objs[defObjInfoNumber].visitMap[y+6-getHeight()] >> (7-(8-getWidth()+x) )) & 1)
-	//	return true;
-	return false;
-}
-
-
 bool CGObjectInstance::isHero() const
 {
 	return false;
@@ -288,7 +245,6 @@ CGObjectInstance::CGObjectInstance()
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
 	//state = new CLuaObjectScript();
 	//state = NULL;
-	defObjInfoNumber = -1;
 	tempOwner = 254;
 	blockVisit = false;
 }
@@ -314,7 +270,6 @@ CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
 	id	= right.id;
 	defInfo = right.defInfo;
 	info = right.info;
-	defObjInfoNumber = right.defObjInfoNumber;
 	blockVisit = right.blockVisit;
 	//state = new CLuaObjectScript(right.state->);
 	//*state = *right.state;
@@ -329,7 +284,6 @@ CGObjectInstance& CGObjectInstance::operator=(const CGObjectInstance & right)
 	id	= right.id;
 	defInfo = right.defInfo;
 	info = right.info;
-	defObjInfoNumber = right.defObjInfoNumber;
 	blockVisit = right.blockVisit;
 	//state = new CLuaObjectScript();
 	//*state = *right.state;

@@ -85,7 +85,6 @@ void CMapHandler::randomizeObjects()
 				}
 				if(f!=-1 && f!=CGI->dobjinfo->objs.size())
 				{
-					CGI->objh->objInstances[no]->defObjInfoNumber = f;
 					CGI->objh->objInstances[no]->ID = CGI->dobjinfo->objs[f].type;
 					CGI->objh->objInstances[no]->subID = CGI->dobjinfo->objs[f].subtype;
 					CGI->objh->objInstances[no]->defInfo->id = CGI->dobjinfo->objs[f].type;
@@ -94,7 +93,6 @@ void CMapHandler::randomizeObjects()
 				}
 				else
 				{
-					CGI->objh->objInstances[no]->defObjInfoNumber = -1;
 					CGI->objh->objInstances[no]->defInfo->printPriority = 0;
 				}
 			}
@@ -1508,21 +1506,21 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos)
 	nobj->ID = id;
 	nobj->subID = subid;
 	nobj->defInfo = new CGDefInfo;
-	nobj->defObjInfoNumber = -1;
+	int defObjInfoNumber = -1;
 	for(int f=0; f<CGI->dobjinfo->objs.size(); ++f)
 	{
 		if(CGI->dobjinfo->objs[f].type==id && CGI->dobjinfo->objs[f].subtype == subid)
 		{
-			nobj->defObjInfoNumber = f;
+			defObjInfoNumber = f;
 			break;
 		}
 	}
-	nobj->defInfo->name = CGI->dobjinfo->objs[nobj->defObjInfoNumber].defName;
+	nobj->defInfo->name = CGI->dobjinfo->objs[defObjInfoNumber].defName;
 	for(int g=0; g<6; ++g)
-		nobj->defInfo->blockMap[g] = CGI->dobjinfo->objs[nobj->defObjInfoNumber].blockMap[g];
+		nobj->defInfo->blockMap[g] = CGI->dobjinfo->objs[defObjInfoNumber].blockMap[g];
 	for(int g=0; g<6; ++g)
-		nobj->defInfo->visitMap[g] = CGI->dobjinfo->objs[nobj->defObjInfoNumber].visitMap[g];
-	nobj->defInfo->printPriority = CGI->dobjinfo->objs[nobj->defObjInfoNumber].priority;
+		nobj->defInfo->visitMap[g] = CGI->dobjinfo->objs[defObjInfoNumber].visitMap[g];
+	nobj->defInfo->printPriority = CGI->dobjinfo->objs[defObjInfoNumber].priority;
 	nobj->pos = pos;
 	//nobj->state = NULL;//new CLuaObjectScript();
 	nobj->tempOwner = 254;
@@ -1573,7 +1571,7 @@ bool CMapHandler::printObject(CGObjectInstance *obj)
 			cr.y = fy*32;
 			std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(obj, std::make_pair(cr, std::vector<std::list<int3>>()));
 			///initializing places that will be coloured by blitting (flag colour / player colour positions)
-			if(CGI->dobjinfo->objs[toAdd.first->defObjInfoNumber].isVisitable())
+			if(toAdd.first->defInfo->isVisitable())
 			{
 				toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
 				for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)

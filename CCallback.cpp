@@ -116,7 +116,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		{ //performing move
 			hero->movement-=CGI->mh->getCost(stpos, endpos, hero);
 			
-			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(CHeroInstance::convertPosition(curd.dst,false));
+			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.dst,false));
 			bool blockvis = false;
 			for (int pit = 0; pit<vis.size();pit++)
 				if (vis[pit]->blockVisit)
@@ -128,7 +128,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 				hero->pos = curd.dst;
 
 				//inform leaved objects
-				std::vector< CGObjectInstance * > leave = CGI->mh->getVisitableObjs(CHeroInstance::convertPosition(curd.src,false));
+				std::vector< CGObjectInstance * > leave = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.src,false));
 				for (int iii=0; iii<leave.size(); iii++) //if object is visitable we call onHeroVisit
 				{
 					//TODO: allow to handle this in LUA

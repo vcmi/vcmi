@@ -3,8 +3,6 @@
 #include "mapHandler.h"
 #include <set>
 class CScriptCallback;
-class CHeroInstance;
-class CTownInstance;
 class CCallback;
 class CLuaCallback;
 class CCPPObjectScript;

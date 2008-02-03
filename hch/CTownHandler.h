@@ -11,9 +11,7 @@
 class CBuilding;
 class CSpell;
 class CHero;
-class CTownInstance;
 class CGTownInstance;
-class CHeroInstance;
 class CTown
 {
 public:
@@ -55,30 +53,6 @@ public:
 
 	std::vector<CGTownInstance *> townInstances;
 
-};
-
-class CTownInstance
-{
-public:
-	int3 pos; //position
-	CTown * town;
-	std::string name; // name of town
-	CCreatureSet garrison;
-	int builded; //how many buildings has been built this turn
-	int destroyed; //how many buildings has been destroyed this turn
-	
-	//TODO:
-	std::vector<CBuilding *> /*allBuildings,*/ possibleBuildings, builtBuildings;
-	std::vector<int> creatureIncome; //vector by level
-	std::vector<int> creaturesLeft; //that can be recruited
-
-	CHeroInstance * garrisonHero;
-
-	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
-
-	int getSightDistance() const; //returns sight distance
-
-	CTownInstance();
 };
 
 #endif //CTOWNHANDLER_H
