@@ -128,6 +128,7 @@ std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
 void CAmbarCendamo::deh3m()
 {
 	THC timeHandler th;
+	th.getDif();
 	map.version = (Eformat)bufor[0]; //wersja mapy
 	map.areAnyPLayers = bufor[4]; //invalid on some maps
 	map.height = map.width = bufor[5]; // wymiary mapy
@@ -468,7 +469,7 @@ void CAmbarCendamo::deh3m()
 	}
 	//allowed hero's abilities have been read
 
-	THC std::cout<<"Reading header: "<<th.getDif()<<std::endl;
+	THC std::cout<<"\tReading header: "<<th.getDif()<<std::endl;
 	int rumNr = readNormalNr(i,4);i+=4;
 	for (int it=0;it<rumNr;it++)
 	{
@@ -481,7 +482,7 @@ void CAmbarCendamo::deh3m()
 			ourRumor.text+=bufor[i++];
 		map.rumors.push_back(ourRumor); //add to our list
 	}
-	THC std::cout<<"Reading rumors: "<<th.getDif()<<std::endl;
+	THC std::cout<<"\tReading rumors: "<<th.getDif()<<std::endl;
 	switch(map.version)
 	{
 	case WoG: case SoD: case AB:
@@ -544,7 +545,7 @@ void CAmbarCendamo::deh3m()
 			}
 		}
 	}
-	THC std::cout<<"Reading terrain: "<<th.getDif()<<std::endl;
+	THC std::cout<<"\tReading terrain: "<<th.getDif()<<std::endl;
 	int defAmount = bufor[i]; // liczba defow
 	defAmount = readNormalNr(i);
 	i+=4;
@@ -609,7 +610,7 @@ void CAmbarCendamo::deh3m()
 		map.defy.push_back(vinya); // add this def to the vector
 		defsToUnpack.push_back(vinya->name);
 	}
-	THC std::cout<<"Reading defs: "<<th.getDif()<<std::endl;
+	THC std::cout<<"\tReading defs: "<<th.getDif()<<std::endl;
 	////loading objects
 	int howManyObjs = readNormalNr(i, 4); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
@@ -915,7 +916,7 @@ void CAmbarCendamo::deh3m()
 					{
 						for(int ss=0; ss<amount; ++ss)
 						{
-							id = readNormalNr(i, artidlen); i+=2;
+							id = readNormalNr(i, artidlen); i+=artidlen;
 							if(id!=artmask)
 								spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[id]));
 							else
@@ -1069,7 +1070,11 @@ void CAmbarCendamo::deh3m()
 				{
 					nhi->secSkills.push_back(std::make_pair(spec->abilities[qq]->idNumber, spec->abilityLevels[qq]-1));
 				}
-				CGI->heroh->heroInstances.push_back(nhi);
+				if(nhi->ID==34)
+					CGI->heroh->heroInstances.push_back(nhi);
+				else
+					CGI->objh->objInstances.push_back(nhi);
+
 				break;
 			}
 		case CREATURES_DEF:
@@ -2046,7 +2051,9 @@ void CAmbarCendamo::deh3m()
 				}
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
 				spec->creatures = readCreatureSet(i, gcre); i+=4*gcre;
-				i+=8;
+				i+=7;
+				if(map.version > RoE)
+					i++;
 				nobj->info = spec;
 				///////end of copied fragment
 				break;
@@ -2131,6 +2138,11 @@ void CAmbarCendamo::deh3m()
 				spec->missionType = bufor[i]; ++i;
 				switch(spec->missionType)
 				{
+				case 0:
+					{
+						goto borderguardend;
+						break;
+					}
 				case 1:
 					{
 						spec->m1level = readNormalNr(i); i+=4;
@@ -2323,6 +2335,7 @@ void CAmbarCendamo::deh3m()
 					spec->completedText += bufor[i]; ++i;
 				}
 				nobj->info = spec;
+borderguardend:
 				break;
 			}
 		case EDefType::HEROPLACEHOLDER_DEF:
@@ -2336,8 +2349,11 @@ void CAmbarCendamo::deh3m()
 	}//*/ //end of loading objects; commented to make application work until it will be finished
 	////objects loaded
 
+	THC std::cout<<"\tReading objects: "<<th.getDif()<<std::endl;
 	//processMap(defsToUnpack);
 	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack);
+	
+	THC std::cout<<"\tUnpacking defs: "<<th.getDif()<<std::endl;
 	for (int i=0;i<dhandlers.size();i++)
 		map.defy[i]->handler=dhandlers[i];
 	for(int vv=0; vv<map.defy.size(); ++vv)
@@ -2370,6 +2386,7 @@ void CAmbarCendamo::deh3m()
 		}
 	}
 
+	THC std::cout<<"\tHandling defs: "<<th.getDif()<<std::endl;
 	//for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
 	//{
 	//	if (CGI->objh->objInstances[ww]->defObjInfoNumber==-1)

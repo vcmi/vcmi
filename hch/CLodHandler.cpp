@@ -427,6 +427,7 @@ std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string
 	std::vector<char> found(defNamesIn.size(), 0);
 	for (int i=0;i<totalFiles;i++)
 	{
+		//std::cout << "Reading def "<<i<<": "<<entries[i].name<<std::endl;
 		//std::cout<<'\r'<<"Reading defs: "<<(100.0*i)/((float)(totalFiles))<<"%      ";
 		std::string buf1 = std::string((char*)entries[i].name);
 		//std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);

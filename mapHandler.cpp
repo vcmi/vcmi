@@ -595,7 +595,10 @@ void CMapHandler::calculateBlockedPos()
 }
 void CMapHandler::init()
 {
+	timeHandler th;
+	th.getDif();
 	randomizeObjects();//randomizing objects on map
+	std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
 	for(int h=0; h<reader->map.defy.size(); ++h) //initializing loaded def handler's info
 	{
@@ -603,12 +606,18 @@ void CMapHandler::init()
 		std::transform(hlp.begin(), hlp.end(), hlp.begin(), (int(*)(int))toupper);
 		CGI->mh->loadedDefs.insert(std::make_pair(hlp, reader->map.defy[h]->handler));
 	}
+	std::cout<<"\tCollecting loaded def's handlers: "<<th.getDif()<<std::endl;
 
 	prepareFOWDefs();
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
 	borderAndTerrainBitmapInit();
+	std::cout<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
+
 	initObjectRects();
+	std::cout<<"\tMaking object rects: "<<th.getDif()<<std::endl;
+
 	calculateBlockedPos();
+	std::cout<<"\tCalculating blockmap: "<<th.getDif()<<std::endl;
 }
 
 SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim)

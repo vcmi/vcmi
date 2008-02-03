@@ -165,9 +165,9 @@ void CTownList<T>::genList()
 template<typename T>
 void CTownList<T>::select(int which)
 {
-	selected = which;
 	if (which>=items.size()) 
 		return;
+	selected = which;
 	if(owner)
 		(owner->*fun)();
 }

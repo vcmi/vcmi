@@ -2030,9 +2030,9 @@ void CHeroList::genList()
 }
 void CHeroList::select(int which)
 {
-	selected = which;
 	if (which>=items.size()) 
 		return;
+	selected = which;
 	LOCPLINT->adventureInt->centerOn(items[which].first->pos);
 	LOCPLINT->adventureInt->selection.type = HEROI_TYPE;
 	LOCPLINT->adventureInt->selection.selected = items[which].first;

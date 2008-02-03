@@ -146,12 +146,24 @@ void initGameState(CGameInfo * cgi)
 		//initial army
 		if (!vhi->army.slots.size())
 		{
+			int pom;
 			vhi->army.slots[0].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType1stack])]);
-			vhi->army.slots[0].second = (rand()%(vhi->type->high1stack-vhi->type->low1stack))+vhi->type->low1stack;
+			if((pom = (vhi->type->high1stack-vhi->type->low1stack)) > 0)
+				vhi->army.slots[0].second = (rand()%pom)+vhi->type->low1stack;
+			else 
+				vhi->army.slots[0].second = +vhi->type->low1stack;
+
 			vhi->army.slots[1].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType2stack])]);
-			vhi->army.slots[1].second = (rand()%(vhi->type->high2stack-vhi->type->low2stack))+vhi->type->low2stack;
+			if((pom=(vhi->type->high2stack-vhi->type->low2stack))>0)
+				vhi->army.slots[1].second = (rand()%pom)+vhi->type->low2stack;
+			else
+				vhi->army.slots[1].second = vhi->type->low2stack;
+
 			vhi->army.slots[2].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType3stack])]);
-			vhi->army.slots[2].second = (rand()%(vhi->type->high3stack-vhi->type->low3stack))+vhi->type->low3stack;
+			if((pom=(vhi->type->high3stack-vhi->type->low3stack))>0)
+				vhi->army.slots[2].second = (rand()%pom)+vhi->type->low3stack;
+			else
+				vhi->army.slots[2].second = vhi->type->low3stack;
 		}
 
 		cgi->state->players[vhi->getOwner()].heroes.push_back(vhi);
@@ -691,8 +703,15 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
 
 		std::string mapname;
-		if(CPG->ourScenSel->mapsel.selected==0) CPG->ourScenSel->mapsel.selected = 1; //only for tests
-		if (CPG) mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
+		//if(CPG->ourScenSel->mapsel.selected==0) 
+		//	CPG->ourScenSel->mapsel.selected = 1; //only for tests
+		if (CPG) 
+			mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
+		else
+		{
+			std::cout<<"Critical error: CPG==NULL"<<std::endl;
+		}
+		std::cout<<"Opening map file: "<<mapname<<"\t\t"<<std::flush;
 		gzFile map = gzopen(mapname.c_str(),"rb");
 		std::string mapstr;int pom;
 		while((pom=gzgetc(map))>=0)
@@ -705,13 +724,14 @@ int _tmain(int argc, _TCHAR* argv[])
 		{
 			initTable[ss] = mapstr[ss];
 		}
+		std::cout<<"done."<<std::endl;
 #define CHOOSE
 #ifdef CHOOSE
 		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
 #else
 		CAmbarCendamo * ac = new CAmbarCendamo("RoEtest"); //4gryf
 #endif
-		CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
+		//CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
@@ -723,7 +743,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		mh->reader = ac;
 		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 		mh->init();
-		THC std::cout<<"Initializing mapHandler: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
 		initGameState(cgi);
 		THC std::cout<<"Initializing GameState: "<<tmh.getDif()<<std::endl;
