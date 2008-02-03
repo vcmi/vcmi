@@ -2363,17 +2363,17 @@ borderguardend:
 
 	//assigning defobjinfos
 
-	//for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
-	//{
-	//	for(int h=0; h<CGI->dobjinfo->objs.size(); ++h)
-	//	{
-	//		if(CGI->dobjinfo->objs[h].defName==CGI->objh->objInstances[ww]->defInfo->name)
-	//		{
-	//			CGI->objh->objInstances[ww]->defObjInfoNumber = h;
-	//			break;
-	//		}
-	//	}
-	//}
+	for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)
+	{
+		for(int h=0; h<CGI->dobjinfo->objs.size(); ++h)
+		{
+			if(CGI->dobjinfo->objs[h].defName==CGI->objh->objInstances[ww]->defInfo->name)
+			{
+				CGI->objh->objInstances[ww]->defObjInfoNumber = h;
+				break;
+			}
+		}
+	}
 
 	THC std::cout<<"\tHandling defs: "<<th.getDif()<<std::endl;
 	//for(int ww=0; ww<CGI->objh->objInstances.size(); ++ww)

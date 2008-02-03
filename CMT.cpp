@@ -57,7 +57,7 @@
 #endif
 
 #define CHUNK 16384
-const char * NAME = "VCMI 0.5 \"Tirion\" Techdemo";
+const char * NAME = "VCMI 0.51 \"Tirion\" Techdemo";
 
 SDL_Surface * ekran, * screen, * screen2;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
