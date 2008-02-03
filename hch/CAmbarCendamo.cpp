@@ -2031,7 +2031,10 @@ void CAmbarCendamo::deh3m()
 				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
-					spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 2)])); i+=2;
+					spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 2)])); ++i;
+					if(map.version > RoE)
+						i++;
+
 				}
 				int gspel = readNormalNr(i, 1); ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
@@ -2040,9 +2043,7 @@ void CAmbarCendamo::deh3m()
 				}
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
 				spec->creatures = readCreatureSet(i, gcre); i+=4*gcre;
-				i+=7;
-				if(map.version > RoE)
-					i++;
+				i+=8;
 				nobj->info = spec;
 				///////end of copied fragment
 				break;
