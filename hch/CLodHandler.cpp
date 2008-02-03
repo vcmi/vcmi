@@ -418,73 +418,102 @@ CDefEssential * CLodHandler::giveDefEss(std::string defName)
 }
 std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string> defNamesIn)
 {
-	std::vector<CDefHandler *> ret(defNamesIn.size());
+	std::vector<CDefHandler *> ret(defNamesIn.size()); 
 	for(int hh=0; hh<defNamesIn.size(); ++hh)
 	{
 		std::transform(defNamesIn[hh].begin(), defNamesIn[hh].end(), defNamesIn[hh].begin(), (int(*)(int))toupper);
-	}
-	int i;
-	std::vector<char> found(defNamesIn.size(), 0);
-	for (int i=0;i<totalFiles;i++)
-	{
-		//std::cout << "Reading def "<<i<<": "<<entries[i].name<<std::endl;
-		//std::cout<<'\r'<<"Reading defs: "<<(100.0*i)/((float)(totalFiles))<<"%      ";
-		std::string buf1 = std::string((char*)entries[i].name);
-		//std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
-		bool exists = false;
-		int curDef;
-		for(int hh=0; hh<defNamesIn.size(); ++hh)
-		{
-			if(buf1==defNamesIn[hh])
-			{
-				exists = true;
-				found[hh] = '\1';
-				curDef = hh;
-				break;
-			}
-		}
-		if(!exists)
+		Entry * e = entries.znajdz(defNamesIn[hh]);
+		if(!e)
 			continue;
-		fseek(FLOD, entries[i].offset, 0);
+
+		fseek(FLOD, e->offset, 0);
 		unsigned char * outp;
-		if (entries[i].size==0) //file is not compressed
+		if (e->size==0) //file is not compressed
 		{
-			outp = new unsigned char[entries[i].realSize];
-			fread((char*)outp, 1, entries[i].realSize, FLOD);
+			outp = new unsigned char[e->realSize];
+			fread((char*)outp, 1, e->realSize, FLOD);
 			CDefHandler * nh = new CDefHandler;
-			nh->openFromMemory(outp, entries[i].realSize, std::string((char*)entries[i].name));
+			nh->openFromMemory(outp, e->realSize, std::string((char*)e->name));
 			nh->alphaTransformed = false;
-			ret[curDef] = nh;
+			ret[hh] = nh;
 		}
 		else //we will decompressing file
 		{
-			outp = new unsigned char[entries[i].size];
-			fread((char*)outp, 1, entries[i].size, FLOD);
+			outp = new unsigned char[e->size];
+			fread((char*)outp, 1, e->size, FLOD);
 			fseek(FLOD, 0, 0);
 			unsigned char * decomp = NULL;
-			int decRes = infs2(outp, entries[i].size, entries[i].realSize, decomp);
+			int decRes = infs2(outp, e->size, e->realSize, decomp);
 			CDefHandler * nh = new CDefHandler;
-			nh->openFromMemory(decomp, entries[i].realSize, std::string((char*)entries[i].name));
+			nh->openFromMemory(decomp, e->realSize, std::string((char*)e->name));
 			nh->alphaTransformed = false;
 			delete [] decomp;
-			ret[curDef] = nh;
+			ret[hh] = nh;
 		}
 		delete[] outp;
 	}
-	//std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
-	for(int hh=0; hh<found.size(); ++hh)
-	{
-		if(!found[hh])
-		{
-			for(int ff=0; ff<hh; ++ff)
-			{
-				if(defNamesIn[ff]==defNamesIn[hh])
-				{
-					ret[hh]=ret[ff];
-				}
-			}
-		}
-	}
+	//int i;
+	//std::vector<char> found(defNamesIn.size(), 0);
+	//for (int i=0;i<totalFiles;i++)
+	//{
+	//	//std::cout << "Reading def "<<i<<": "<<entries[i].name<<std::endl;
+	//	//std::cout<<'\r'<<"Reading defs: "<<(100.0*i)/((float)(totalFiles))<<"%      ";
+	//	//std::string buf1 = std::string((char*)entries[i].name);
+	//	//std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
+	//	bool exists = false;
+	//	int curDef;
+	//	for(int hh=0; hh<defNamesIn.size(); ++hh)
+	//	{
+	//		if(entries[i].nameStr==defNamesIn[hh])
+	//		{
+	//			exists = true;
+	//			found[hh] = '\1';
+	//			curDef = hh;
+	//			break;
+	//		}
+	//	}
+	//	if(!exists)
+	//		continue;
+	//	fseek(FLOD, entries[i].offset, 0);
+	//	unsigned char * outp;
+	//	if (entries[i].size==0) //file is not compressed
+	//	{
+	//		outp = new unsigned char[entries[i].realSize];
+	//		fread((char*)outp, 1, entries[i].realSize, FLOD);
+	//		CDefHandler * nh = new CDefHandler;
+	//		nh->openFromMemory(outp, entries[i].realSize, std::string((char*)entries[i].name));
+	//		nh->alphaTransformed = false;
+	//		ret[curDef] = nh;
+	//	}
+	//	else //we will decompressing file
+	//	{
+	//		outp = new unsigned char[entries[i].size];
+	//		fread((char*)outp, 1, entries[i].size, FLOD);
+	//		fseek(FLOD, 0, 0);
+	//		unsigned char * decomp = NULL;
+	//		int decRes = infs2(outp, entries[i].size, entries[i].realSize, decomp);
+	//		CDefHandler * nh = new CDefHandler;
+	//		nh->openFromMemory(decomp, entries[i].realSize, std::string((char*)entries[i].name));
+	//		nh->alphaTransformed = false;
+	//		delete [] decomp;
+	//		ret[curDef] = nh;
+	//	}
+	//	delete[] outp;
+	//}
+	////std::cout<<'\r'<<"Reading defs: 100%    "<<std::endl;
+	//for(int hh=0; hh<found.size(); ++hh)
+	//{
+	//	if(!found[hh])
+	//	{
+	//		for(int ff=0; ff<hh; ++ff)
+	//		{
+	//			if(defNamesIn[ff]==defNamesIn[hh])
+	//			{
+	//				ret[hh]=ret[ff];
+	//			}
+	//		}
+	//	}
+	//}
 	//std::cout<<"*** Archive: "+FName+" closed\n";
 	return ret;
 }

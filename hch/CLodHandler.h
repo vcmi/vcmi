@@ -31,6 +31,10 @@ struct Entry
 	int offset, //from beginning
 		realSize, //size without compression
 		size;	//and with
+	bool operator<(const std::string & comp) const
+	{
+		return nameStr<comp;
+	}
 	bool operator<(const Entry & comp) const
 	{
 		return nameStr<comp.nameStr;
