@@ -48,6 +48,9 @@
 #include "CLua.h"
 #include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
+#include "boost/filesystem/operations.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -338,7 +341,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->consoleh = new CConsoleHandler;
 		cgi->mush = mush;
 		cgi->curh = new CCursorHandler;
-
+		
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		cgi->spriteh = new CLodHandler;
 		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
@@ -346,6 +349,23 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 
+		boost::filesystem::directory_iterator enddir;
+		for (boost::filesystem::directory_iterator dir("Data");dir!=enddir;dir++)
+		{
+			if(boost::filesystem::is_regular(dir->status()))
+			{
+				std::string name = dir->path().leaf();
+				std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
+				boost::algorithm::replace_all(name,".BMP",".PCX");
+				Entry * e = cgi->bitmaph->entries.znajdz(name);
+				if(e)
+				{
+					e->offset = -1;
+					e->realSize = e->size = boost::filesystem::file_size(dir->path());
+				}
+			}
+		}
+		THC std::cout<<"Scanning Data/: "<<tmh.getDif()<<std::endl;
 		cgi->curh->initCursor();
 		cgi->curh->showGraphicCursor();
 

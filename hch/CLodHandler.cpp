@@ -259,32 +259,29 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 	unsigned char * pcx;
 	std::transform(fname.begin(),fname.end(),fname.begin(),toupper);
 	fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".PCX");
-	int index=-1;
-	for (int i=0;i<entries.size();i++)
-	{
-		std::string buf1 = std::string((char*)entries[i].name);
-		if(buf1==fname)
-		{
-			index=i;
-			break;
-		}
-	}
-	if(index==-1)
+	Entry *e = entries.znajdz(fname);
+	if(!e)
 	{
 		std::cout<<"File "<<fname<<" not found"<<std::endl;
 		return NULL;
 	}
-	fseek(FLOD, entries[index].offset, 0);
-	if (entries[index].size==0) //file is not compressed
+	if(e->offset<0)
 	{
-		pcx = new unsigned char[entries[index].realSize];
-		fread((char*)pcx, 1, entries[index].realSize, FLOD);
+		fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".BMP");
+		fname = "Data/"+fname;
+		return SDL_LoadBMP(fname.c_str());
+	}
+	fseek(FLOD, e->offset, 0);
+	if (e->size==0) //file is not compressed
+	{
+		pcx = new unsigned char[e->realSize];
+		fread((char*)pcx, 1, e->realSize, FLOD);
 	}
 	else 
 	{
-		unsigned char * pcd = new unsigned char[entries[index].size];
-		fread((char*)pcd, 1, entries[index].size, FLOD);
-		int res=infs2(pcd,entries[index].size,entries[index].realSize,pcx);
+		unsigned char * pcd = new unsigned char[e->size];
+		fread((char*)pcd, 1, e->size, FLOD);
+		int res=infs2(pcd,e->size,e->realSize,pcx);
 		if(res!=0)
 		{
 			std::cout<<"an error "<<res<<" occured while extracting file "<<fname<<std::endl;
@@ -292,7 +289,7 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 		delete [] pcd;
 	}
 	CPCXConv cp;
-	cp.openPCX((char*)pcx,entries[index].realSize);
+	cp.openPCX((char*)pcx,e->realSize);
 	return cp.getSurface();
 }
 
@@ -845,38 +842,50 @@ std::string CLodHandler::getTextFile(std::string name)
 {
 	std::string ret0;
 	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
-	int i;
+	Entry *e;
 	for (int i=0;i<totalFiles;i++)
 	{
-		std::string buf1 = std::string((char*)entries[i].name);
-		bool exists = false;
-		int curDef;
-		if(buf1!=name)
-			continue;
-		fseek(FLOD, entries[i].offset, 0);
-		unsigned char * outp;
-		if (entries[i].size==0) //file is not compressed
-		{
-			outp = new unsigned char[entries[i].realSize];
-			fread((char*)outp, 1, entries[i].realSize, FLOD);
-			std::string ret = std::string((char*)outp);
-			delete[] outp;
-			return ret;
-		}
-		else //we will decompressing file
-		{
-			outp = new unsigned char[entries[i].size];
-			fread((char*)outp, 1, entries[i].size, FLOD);
-			fseek(FLOD, 0, 0);
-			unsigned char * decomp = NULL;
-			int decRes = infs2(outp, entries[i].size, entries[i].realSize, decomp);
-			std::string ret;
-			for (int itr=0;itr<entries[i].realSize;itr++)
-				ret+= *((char*)decomp+itr);
-			delete[] outp;
-			delete[] decomp;
-			return ret;
-		}
+		e = entries.znajdz(name);
+	}
+	if(!e)
+		return ret0;
+	if(e->offset<0)
+	{
+		char * outp = new char[e->realSize];
+		char name[120];for(int i=0;i<120;i++) name[i]='\0';
+		strcat(name,"Data/");
+		strcat(name,(char*)e->name);
+		FILE * f = fopen(name,"rb");
+		int result = fread(outp,1,e->realSize,f);
+		if(result<0) {std::cout<<"Error in file reading: "<<name<<std::endl;return ret0;}
+		for (int itr=0;itr<e->realSize;itr++)
+			ret0+= *(outp+itr);
+		delete[] outp;
+		return ret0;
+	}
+	fseek(FLOD, e->offset, 0);
+	unsigned char * outp;
+	if (e->size==0) //file is not compressed
+	{
+		outp = new unsigned char[e->realSize];
+		fread((char*)outp, 1, e->realSize, FLOD);
+		std::string ret = std::string((char*)outp);
+		delete[] outp;
+		return ret;
+	}
+	else //we will decompressing file
+	{
+		outp = new unsigned char[e->size];
+		fread((char*)outp, 1, e->size, FLOD);
+		fseek(FLOD, 0, 0);
+		unsigned char * decomp = NULL;
+		int decRes = infs2(outp, e->size, e->realSize, decomp);
+		std::string ret;
+		for (int itr=0;itr<e->realSize;itr++)
+			ret+= *((char*)decomp+itr);
+		delete[] outp;
+		delete[] decomp;
+		return ret;
 	}
 	return ret0;
 }

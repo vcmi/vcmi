@@ -76,6 +76,7 @@ public:
 	nodrze():ile(0) //najzwyczajniejszy w swiecie kosntruktor // c-tor
 	{
 		NIL=new wezel<T>(CZARNY);
+		NIL->zawart=NULL;
 		korzen=NIL;
 		ostatnio=NIL;
 		ktory=0;
@@ -678,7 +679,12 @@ template <typename T> void nodrze<T>::dodajRBT (wezel<T> * nowy)
 {
 	//CLOG("Dodaje do drzewa "<<nowy->zawart<<std::endl);
 	ile++;
-	if ((*nowy->zawart) < (*ostatnio->zawart))
+	if(ostatnio==NIL)
+	{
+		ostatnio = nowy;
+		ktory=0;
+	}
+	else if ((*nowy->zawart) < (*ostatnio->zawart))
 	{
 		ktory++;
 	}
