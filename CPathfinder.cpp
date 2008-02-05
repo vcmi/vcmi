@@ -174,6 +174,9 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, u
 	}
 
 	CPathNode * curNode = graph[dest.x][dest.y];
+	if(!curNode->theNodeBefore)
+		return NULL;
+
 	CPath * ret = new CPath;
 
 	while(curNode!=graph[src.x][src.y] && curNode != NULL)

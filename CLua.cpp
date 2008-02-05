@@ -19,6 +19,7 @@
 #include "CPlayerInterface.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include "hch/CDefObjInfoHandler.h"
 #pragma warning (disable : 4311)
 bool getGlobalFunc(lua_State * L, std::string fname)
 {

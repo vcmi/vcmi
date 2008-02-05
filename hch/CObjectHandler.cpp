@@ -69,7 +69,16 @@ void CObjectHandler::loadObjects()
 		restypes.push_back(temp);
 	}
 
-
+	cregens.resize(110); //TODO: hardcoded value - change
+	for(int i=0; i<cregens.size();i++)
+		cregens[i]=-1;
+	std::ifstream ifs("config/cregens.txt");
+	while(!ifs.eof())
+	{
+		int dw, cr;
+		ifs >> dw >> cr;
+		cregens[dw]=cr;
+	}
 	
 }
 
@@ -131,15 +140,6 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 	return false;
 }
 
-bool CGDefInfo::isVisitable()
-{
-	for (int i=0; i<6; i++)
-	{
-		if (visitMap[i])
-			return true;
-	}
-	return false;
-}
 	
 bool CGHeroInstance::isHero() const
 {
@@ -227,6 +227,10 @@ int CGTownInstance::getSightDistance() const //returns sight distance
 bool CGTownInstance::hasFort() const
 {
 	return (builtBuildings.find(7))!=builtBuildings.end();
+}
+bool CGTownInstance::hasCapitol() const
+{
+	return (builtBuildings.find(13))!=builtBuildings.end();
 }
 CGTownInstance::CGTownInstance()
 {

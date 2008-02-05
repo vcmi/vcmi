@@ -11,10 +11,10 @@ void CEmptyAI::init(ICallback * CB)
 void CEmptyAI::yourTurn()
 {
 }
-void CEmptyAI::heroKilled(const CHeroInstance *)
+void CEmptyAI::heroKilled(const CGHeroInstance *)
 {
 }
-void CEmptyAI::heroCreated(const CHeroInstance *)
+void CEmptyAI::heroCreated(const CGHeroInstance *)
 {
 }
 void CEmptyAI::heroMoved(const HeroMoveDetails &)

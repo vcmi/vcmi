@@ -6,8 +6,8 @@ class CEmptyAI : public CGlobalAI
 public:
 	void init(ICallback * CB);
 	void yourTurn();
-	void heroKilled(const CHeroInstance *);
-	void heroCreated(const CHeroInstance *);
+	void heroKilled(const CGHeroInstance *);
+	void heroCreated(const CGHeroInstance *);
 	void heroMoved(const HeroMoveDetails &);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val) {};
 	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID){};

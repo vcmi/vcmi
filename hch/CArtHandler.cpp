@@ -143,4 +143,22 @@ void CArtHandler::loadArtifacts()
 
 		artifacts.push_back(nart);
 	}
+	for(int i=0;i<144;i++) //do 144, bo nie chcemy bzdurek
+	{
+		switch (artifacts[i].aClass)
+		{
+		case TartClass:
+			treasures.push_back(&(artifacts[i]));
+			break;
+		case NartClass:
+			minors.push_back(&(artifacts[i]));
+			break;
+		case JartClass:
+			majors.push_back(&(artifacts[i]));
+			break;
+		case RartClass:
+			relics.push_back(&(artifacts[i]));
+			break;
+		}
+	}
 }

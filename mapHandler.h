@@ -72,6 +72,7 @@ public:
 	std::vector<CDefHandler *> staticRiverDefs;
 
 	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
+	std::map<int, CGDefInfo*> villages, forts, capitols;
 
 	PseudoV< PseudoV< PseudoV<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
@@ -91,6 +92,8 @@ public:
 	bool recalculateHideVisPos(int3& pos); //recalculates position for hidden / visitable positions
 	bool recalculateHideVisPosUnderObj(CGObjectInstance * obj, bool withBorder = false); //recalculates position for hidden / visitable positions under given object
 	void init();
+	std::pair<int,int> pickObject(CGObjectInstance *obj);
+	void randomizeObject(CGObjectInstance *cur);
 	void calculateBlockedPos();
 	void initObjectRects();
 	void borderAndTerrainBitmapInit();

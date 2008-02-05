@@ -199,6 +199,20 @@ void CTownHandler::loadNames()
 		}
 		of.close();
 		of.clear();
+
+		for(int x=0;x<towns.size();x++)
+			towns[x].basicCreatures.resize(7);
+
+		of.open("config/basicCres.txt");
+		while(!of.eof())
+		{
+			int tid, lid, cid; //town,level,creature
+			of >> tid >> lid >> cid;
+			if(lid < towns[tid].basicCreatures.size())
+				towns[tid].basicCreatures[lid]=cid;
+		}
+		of.close();
+		of.clear();
 	}
 }
 SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)

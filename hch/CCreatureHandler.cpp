@@ -24,15 +24,8 @@ void CCreatureHandler::loadCreatures()
 
 	while(i<buf.size())
 	{
-		//if(creatures.size()>190 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
-		//{
-		//	loadAnimationInfo();
-		//	loadUnitAnimations();
-		//	break;
-		//}
-
 		CCreature ncre;
-
+		ncre.level=0;
 		int befi=i;
 		for(i; i<andame; ++i)
 		{
@@ -288,6 +281,22 @@ void CCreatureHandler::loadCreatures()
 		creatures[tempi].nameRef=temps;
 	}
 	ifs.close();
+	ifs.clear();
+	for(int i=1;i<=10;i++)
+		levelCreatures.insert(std::pair<int,std::vector<CCreature*> >(i,std::vector<CCreature*>()));
+	ifs.open("config/monsters.txt"); 
+	{
+		while(!ifs.eof())
+		{
+			int id, lvl;
+			ifs >> id >> lvl;
+			if(lvl>0)
+			{
+				creatures[id].level = lvl;
+				levelCreatures[lvl].push_back(&(creatures[id]));
+			}
+		}
+	}
 
 	//loading 32x32px imgs
 	CDefHandler *smi = CGI->spriteh->giveDef("CPRSMALL.DEF");

@@ -242,7 +242,7 @@ class CCreGenObjInfo : public CSpecObjInfo
 public:
 	unsigned char player; //owner
 	bool asCastle;
-	unsigned char bytes[4]; //castle identifier
+	int identifier;
 	unsigned char castles[2]; //allowed castles
 };
 
@@ -251,7 +251,7 @@ class CCreGen2ObjInfo : public CSpecObjInfo
 public:
 	unsigned char player; //owner
 	bool asCastle;
-	unsigned char bytes[4]; //castle identifier
+	int identifier;
 	unsigned char castles[2]; //allowed castles
 	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };
@@ -298,44 +298,7 @@ public:
 	std::string name; //object's name
 };
 
-class CGDefInfo
-{
-public:
-	std::string name; 
-
-	unsigned char visitMap[6];
-	unsigned char blockMap[6];
-	int id, subid; //of object described by this defInfo
-	int terrainAllowed, //on which terrain it is possible to place object
-		 terrainMenu; //in which menus in map editor object will be showed
-	int type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)   
-	CDefHandler * handler;
-	int printPriority;
-	bool isVisitable();
-};
-
-//class CObjectType
-//{
-//public:
-//	CGObjectInstance * ourObj;
-//	int type;
-//	int owner; //254 - can't be flagged; 255 - neutral
-////};
-//class IVisitable
-//{
-//	virtual void newObject(CGObjectInstance *os);
-//	virtual void onHeroVisit(CGObjectInstance *os, int heroID);
-//	virtual void getRightText(tribool visited); 
-//	virtual void getHoverText(tribool visited); 
-//};
-//
-//class CVisitableOPH //object visitable once per hero
-//{
-//	virtual void newObject(CGObjectInstance *os);
-//	virtual void onHeroVisit(CGObjectInstance *os, int heroID);
-//	virtual void getRightText(tribool visited); 
-//	virtual void getHoverText(tribool visited); 
-//};
+class CGDefInfo;
 
 class CGObjectInstance
 {
@@ -415,6 +378,7 @@ public:
 	CCreatureSet garrison;
 	int builded; //how many buildings has been built this turn
 	int destroyed; //how many buildings has been destroyed this turn
+	int identifier; 
 
 	int income;
 	
@@ -429,6 +393,7 @@ public:
 
 	int getSightDistance() const; //returns sight distance
 	bool hasFort() const;
+	bool hasCapitol() const;
 	int dailyIncome() const;
 
 	CGTownInstance();
@@ -440,6 +405,7 @@ class CObjectHandler
 public:
 	std::vector<CObject> objects; //vector of objects; i-th object in vector has subnumber i
 	std::vector<CGObjectInstance*> objInstances; //vector with objects on map
+	std::vector<int> cregens; //type 17. dwelling subid -> creature ID
 	void loadObjects();
 
 	std::vector<std::string> advobtxt;

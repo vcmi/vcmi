@@ -57,7 +57,7 @@
 #endif
 
 #define CHUNK 16384
-const char * NAME = "VCMI 0.51 \"Tirion\" Techdemo";
+const char * NAME = "VCMI 0.52 \"Tirion\" Techdemo";
 
 SDL_Surface * ekran, * screen, * screen2;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
@@ -82,7 +82,7 @@ void initGameState(CGameInfo * cgi)
 		cgi->state->players.insert(ins);
 	}
 	/******************RESOURCES****************************************************/
-	//TODO: zeby komputer dostawal inaczej niz gracz
+	//TODO: zeby komputer dostawal inaczej niz gracz 
 	std::vector<int> startres;
 	std::ifstream tis("config/startres.txt");
 	int k;
@@ -814,7 +814,10 @@ int _tmain(int argc, _TCHAR* argv[])
 			for (int i=0;i<cgi->playerint.size();i++)
 			{
 				cgi->state->currentPlayer=cgi->playerint[i]->playerID;
-				cgi->playerint[i]->yourTurn();
+				try
+				{
+					cgi->playerint[i]->yourTurn();
+				}HANDLE_EXCEPTION
 			}
 		}
 	}
