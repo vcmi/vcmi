@@ -23,6 +23,7 @@ template <typename T> int getIndexOf(const std::vector<T> & v, const T & val)
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 namespace CSDL_Ext
 {
+	extern SDL_Surface * std32bppSurface;
 	void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC=0, Uint8 A = 255); //myC influences the start of reading pixels
 	void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC=0, Uint8 A = 255); //myC influences the start of reading pixels ; without refreshing
 	SDL_Surface * rotate01(SDL_Surface * toRot, int myC = 2); //vertical flip
@@ -30,7 +31,7 @@ namespace CSDL_Ext
 	SDL_Surface * rotate02(SDL_Surface * toRot); //rotate 90 degrees left
 	SDL_Surface * rotate03(SDL_Surface * toRot); //rotate 180 degrees
 	SDL_Cursor * SurfaceToCursor(SDL_Surface *image, int hx, int hy);
-	Uint32 SDL_GetPixel(SDL_Surface *surface, int x, int y, bool colorByte = false);
+	Uint32 SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
 	SDL_Color SDL_GetPixelColor(SDL_Surface *surface, int x, int y);
 	SDL_Surface * alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	SDL_Surface * secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha); //alpha is a surface we want to blit src to

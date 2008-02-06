@@ -561,18 +561,6 @@ void CAmbarCendamo::deh3m()
 	defAmount = readNormalNr(i);
 	i+=4;
 
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int srmask = 0xff000000;
-    int sgmask = 0x00ff0000;
-    int sbmask = 0x0000ff00;
-    int samask = 0x000000ff;
-#else
-    int srmask = 0x000000ff;
-    int sgmask = 0x0000ff00;
-    int sbmask = 0x00ff0000;
-    int samask = 0xff000000;
-#endif
-	SDL_Surface * alphaTransSurf = SDL_CreateRGBSurface(SDL_SWSURFACE, 12, 12, 32, srmask, sgmask, sbmask, samask);
 	std::vector<std::string> defsToUnpack;
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
@@ -2146,14 +2134,12 @@ borderguardend:
 		for(int yy=0; yy<map.defy[vv]->handler->ourImages.size(); ++yy)
 		{
 			map.defy[vv]->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap);
-			SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap, alphaTransSurf);
+			SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap, CSDL_Ext::std32bppSurface);
 			SDL_FreeSurface(map.defy[vv]->handler->ourImages[yy].bitmap);
 			map.defy[vv]->handler->ourImages[yy].bitmap = bufs;
 			map.defy[vv]->handler->alphaTransformed = true;
 		}
 	}
-
-	SDL_FreeSurface(alphaTransSurf);
 
 	THC std::cout<<"\tHandling defs: "<<th.getDif()<<std::endl;
 

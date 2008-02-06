@@ -63,6 +63,7 @@
 const char * NAME = "VCMI 0.52 \"Tirion\" Techdemo";
 
 SDL_Surface * ekran, * screen, * screen2;
+extern SDL_Surface * CSDL_Ext::std32bppSurface;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
 {
@@ -311,6 +312,21 @@ int _tmain(int argc, _TCHAR* argv[])
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
 		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
+		
+		//initializing important global surface
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		int rmask = 0xff000000;
+		int gmask = 0x00ff0000;
+		int bmask = 0x0000ff00;
+		int amask = 0x000000ff;
+#else
+		int rmask = 0x000000ff;
+		int gmask = 0x0000ff00;
+		int bmask = 0x00ff0000;
+		int amask = 0xff000000;
+#endif
+		CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
+
 		CPG=NULL;
 		TTF_Init();
 		atexit(TTF_Quit);
@@ -794,21 +810,9 @@ int _tmain(int argc, _TCHAR* argv[])
 			int mw = mm.map[0]->w, mh = mm.map[0]->h,
 				wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
 
-
 			for(int d=0; d<cgi->mh->reader->map.twoLevel+1; ++d)
 			{
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int rmask = 0xff000000;
-    int gmask = 0x00ff0000;
-    int bmask = 0x0000ff00;
-    int amask = 0x000000ff;
-#else
-    int rmask = 0x000000ff;
-    int gmask = 0x0000ff00;
-    int bmask = 0x00ff0000;
-    int amask = 0xff000000;
-#endif
-				SDL_Surface * pt = SDL_CreateRGBSurface(SDL_SWSURFACE, mm.pos.w, mm.pos.h, 32, rmask, gmask, bmask, amask);
+				SDL_Surface * pt = CSDL_Ext::newSurface(mm.pos.w, mm.pos.h, CSDL_Ext::std32bppSurface);
 
 				for (int i=0; i<mw; i++)
 				{

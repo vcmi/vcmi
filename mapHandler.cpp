@@ -319,21 +319,6 @@ void CMapHandler::roadsRiverTerrainInit()
 {
 	//initializing road's and river's DefHandlers
 
-	#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		int rmask = 0xff000000;
-		int gmask = 0x00ff0000;
-		int bmask = 0x0000ff00;
-		int amask = 0x000000ff;
-	#else
-		int rmask = 0x000000ff;
-		int gmask = 0x0000ff00;
-		int bmask = 0x00ff0000;
-		int amask = 0xff000000;
-	#endif
-
-	SDL_Surface * su = SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32,
-		rmask, gmask, bmask, amask);
-
 	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("dirtrd.def"));
 	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("gravrd.def"));
 	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("cobbrd.def"));
@@ -409,7 +394,7 @@ void CMapHandler::roadsRiverTerrainInit()
 					if(rotH || rotV)
 					{
 						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].roadbitmap[0]);
-						SDL_Surface * buf = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].roadbitmap[0], su);
+						SDL_Surface * buf = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].roadbitmap[0], CSDL_Ext::std32bppSurface);
 						SDL_FreeSurface(ttiles[i][j][k].roadbitmap[0]);
 						ttiles[i][j][k].roadbitmap[0] = buf;
 					}
@@ -488,7 +473,7 @@ void CMapHandler::roadsRiverTerrainInit()
 					if(rotH || rotV)
 					{
 						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].rivbitmap[0]);
-						SDL_Surface * buf = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].rivbitmap[0], su);
+						SDL_Surface * buf = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].rivbitmap[0], CSDL_Ext::std32bppSurface);
 						SDL_FreeSurface(ttiles[i][j][k].rivbitmap[0]);
 						ttiles[i][j][k].rivbitmap[0] = buf;
 					}
@@ -496,8 +481,6 @@ void CMapHandler::roadsRiverTerrainInit()
 			}
 		}
 	}
-
-	SDL_FreeSurface(su);
 }
 void CMapHandler::borderAndTerrainBitmapInit()
 {
@@ -628,15 +611,15 @@ void CMapHandler::initObjectRects()
 			continue;
 		}
 		CDefHandler * curd = CGI->objh->objInstances[f]->defInfo->handler;
-		for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+		for(int fx=0; fx<curd->ourImages[0].bitmap->w>>5; ++fx) //curd->ourImages[0].bitmap->w/32
 		{
-			for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+			for(int fy=0; fy<curd->ourImages[0].bitmap->h>>5; ++fy) //curd->ourImages[0].bitmap->h/32
 			{
 				SDL_Rect cr;
 				cr.w = 32;
 				cr.h = 32;
-				cr.x = fx*32;
-				cr.y = fy*32;
+				cr.x = fx<<5; //fx*32
+				cr.y = fy<<5; //fy*32
 				std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
 				///initializing places that will be coloured by blitting (flag colour / player colour positions)
 				if(toAdd.first->defInfo->isVisitable())
@@ -666,13 +649,11 @@ void CMapHandler::initObjectRects()
 				}
 				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 				{
-					TerrainTile2 & curt =
-						ttiles
-						[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32]
-					[CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32]
-					[CGI->objh->objInstances[f]->pos.z];
-
-
+					//TerrainTile2 & curt =
+					//	ttiles
+					//	[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32]
+					//[CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32]
+					//[CGI->objh->objInstances[f]->pos.z];
 					ttiles[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][CGI->objh->objInstances[f]->pos.z].objects.push_back(toAdd);
 				}
 
@@ -763,19 +744,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 {
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int rmask = 0xff000000;
-    int gmask = 0x00ff0000;
-    int bmask = 0x0000ff00;
-    int amask = 0x000000ff;
-#else
-    int rmask = 0x000000ff;
-    int gmask = 0x0000ff00;
-    int bmask = 0x00ff0000;
-    int amask = 0xff000000;
-#endif
-	SDL_Surface * su = SDL_CreateRGBSurface(SDL_SWSURFACE, dx*32, dy*32, 32,
-                                   rmask, gmask, bmask, amask);
+
+	SDL_Surface * su = CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
 	if (((dx+x)>((reader->map.width+Woff)) || (dy+y)>((reader->map.height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
 		throw new std::string("terrainRect: out of range");
 	////printing terrain
@@ -1274,8 +1244,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					sr.x=bx*32;
 					sr.h=sr.w=32;
 
-					SDL_Surface * ns =  SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32,
-									   rmask, gmask, bmask, amask);
+					SDL_Surface * ns =  CSDL_Ext::newSurface(32, 32, CSDL_Ext::std32bppSurface);
 					for(int f=0; f<ns->w*ns->h*4; ++f)
 					{
 						*((unsigned char*)(ns->pixels) + f) = 128;
@@ -1292,8 +1261,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					sr.x=bx*32;
 					sr.h=sr.w=32;
 
-					SDL_Surface * ns =  SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32,
-									   rmask, gmask, bmask, amask);
+					SDL_Surface * ns = CSDL_Ext::newSurface(32, 32, CSDL_Ext::std32bppSurface);
 					for(int f=0; f<ns->w*ns->h*4; ++f)
 					{
 						*((unsigned char*)(ns->pixels) + f) = 128;

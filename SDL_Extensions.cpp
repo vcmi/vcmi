@@ -216,8 +216,7 @@ void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint
 ///**************/
 SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot, int myC)
 {
-	SDL_Surface * first = SDL_CreateRGBSurface(toRot->flags, toRot->w, toRot->h, toRot->format->BitsPerPixel, toRot->format->Rmask, toRot->format->Gmask, toRot->format->Bmask, toRot->format->Amask);
-	SDL_Surface * ret = SDL_ConvertSurface(first, toRot->format, toRot->flags);
+	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
 	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
 	if(toRot->format->BytesPerPixel!=1)
 	{
@@ -249,13 +248,11 @@ SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot, int myC)
 			}
 		}
 	}
-	SDL_FreeSurface(first);
 	return ret;
 }
 SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 {
-	SDL_Surface * first = SDL_CreateRGBSurface(toRot->flags, toRot->w, toRot->h, toRot->format->BitsPerPixel, toRot->format->Rmask, toRot->format->Gmask, toRot->format->Bmask, toRot->format->Amask);
-	SDL_Surface * ret = SDL_ConvertSurface(first, toRot->format, toRot->flags);
+	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
 	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
 	if(ret->format->BytesPerPixel!=1)
 	{
@@ -288,7 +285,6 @@ SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 			}
 		}
 	}
-	SDL_FreeSurface(first);
 	return ret;
 };
 
@@ -297,8 +293,7 @@ SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 ///**************/
 SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
 {
-	SDL_Surface * first = SDL_CreateRGBSurface(toRot->flags, toRot->h, toRot->w, toRot->format->BitsPerPixel, toRot->format->Rmask, toRot->format->Gmask, toRot->format->Bmask, toRot->format->Amask);
-	SDL_Surface * ret = SDL_ConvertSurface(first, toRot->format, toRot->flags);
+	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
 	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
 	for(int i=0; i<ret->w; ++i)
 	{
@@ -314,7 +309,6 @@ SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
 			}
 		}
 	}
-	SDL_FreeSurface(first);
 	return ret;
 }
 
@@ -323,8 +317,7 @@ SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
 ///*************/
 SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 {
-	SDL_Surface * first = SDL_CreateRGBSurface(toRot->flags, toRot->w, toRot->h, toRot->format->BitsPerPixel, toRot->format->Rmask, toRot->format->Gmask, toRot->format->Bmask, toRot->format->Amask);
-	SDL_Surface * ret = SDL_ConvertSurface(first, toRot->format, toRot->flags);
+	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
 	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
 	if(ret->format->BytesPerPixel!=1)
 	{
@@ -354,7 +347,6 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 			}
 		}
 	}
-	SDL_FreeSurface(first);
 	return ret;
 }
  //converts surface to cursor
@@ -396,7 +388,7 @@ SDL_Cursor * CSDL_Ext::SurfaceToCursor(SDL_Surface *image, int hx, int hy)
 	return cursor;
 }
 
-Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, int x, int y, bool colorByte)
+Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
 {
     int bpp = surface->format->BytesPerPixel;
     /* Here p is the address to the pixel we want to retrieve */
@@ -484,22 +476,13 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 
 SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha)
 {
-	
-	Uint32 pompom[256][256];
-	for(int i=0; i<src->w; ++i)
-	{
-		for(int j=0; j<src->h; ++j)
-		{
-			pompom[i][j] = 0xffffffff - (SDL_GetPixel(src, i, j, true) & 0xff000000);
-		}
-	}
 	SDL_Surface * hide2 = SDL_ConvertSurface(src, alpha->format, SDL_SWSURFACE);
 	for(int i=0; i<hide2->w; ++i)
 	{
 		for(int j=0; j<hide2->h; ++j)
 		{
 			Uint32 * place = (Uint32*)( (Uint8*)hide2->pixels + j * hide2->pitch + i * hide2->format->BytesPerPixel);
-			(*place)&=pompom[i][j];
+			(*place) &= 0xffffffff - (SDL_GetPixel(src, i, j, true) & 0xff000000);
 		}
 	}
 	return hide2;
@@ -742,23 +725,10 @@ int readNormalNr (std::istream &in, int bytCon)
 
 void CSDL_Ext::fullAlphaTransform(SDL_Surface *& src)
 {
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int rmask = 0xff000000;
-    int gmask = 0x00ff0000;
-    int bmask = 0x0000ff00;
-    int amask = 0x000000ff;
-#else
-    int rmask = 0x000000ff;
-    int gmask = 0x0000ff00;
-    int bmask = 0x00ff0000;
-    int amask = 0xff000000;
-#endif
 	src = alphaTransform(src);
-	SDL_Surface * hlp1, * hlp2;
-	hlp1 = SDL_CreateRGBSurface(SDL_SWSURFACE, src->w, src->h, 32, rmask, gmask, bmask, amask);
-	hlp2 = secondAlphaTransform(src, hlp1);
+	SDL_Surface * hlp2;
+	hlp2 = secondAlphaTransform(src, std32bppSurface);
 	SDL_FreeSurface(src);
-	SDL_FreeSurface(hlp1);
 	src = hlp2;
 }
 
@@ -770,3 +740,5 @@ std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor
 	}
 	return str;
 }
+
+SDL_Surface * CSDL_Ext::std32bppSurface = NULL;

@@ -697,36 +697,11 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 	add = 4 - FullWidth%4;
 	/*if (add==4)
 		add=0;*/ //moved to defcompression dependent block
-
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int rmask = 0xff000000;
-    int gmask = 0x00ff0000;
-    int bmask = 0x0000ff00;
-    int amask = 0x000000ff;
-#else
-    int rmask = 0x000000ff;
-    int gmask = 0x0000ff00;
-    int bmask = 0x00ff0000;
-    int amask = 0xff000000;
-#endif
 		
 	//ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
 	//int tempee2 = readNormalNr(0,4,((unsigned char *)tempee.c_str()));
 
 	int BaseOffsetor = BaseOffset = i;
-
-	/*for(int i=0; i<256; ++i)
-	{
-		SDL_Color pr;
-		pr.r = palette[i].R;
-		pr.g = palette[i].G;
-		pr.b = palette[i].B;
-		pr.unused = palette[i].F;
-		(*(ret->format->palette->colors+i))=pr;
-	}*/
-
-	for (int i=0;i<800;i++)
-		fbuffer[i]=0;
 
 	if (defType2==1) //as it should be allways in creature animations
 	{

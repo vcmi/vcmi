@@ -64,7 +64,6 @@ class CCreatureAnimation
 {
 private:
 	int totalEntries, DEFType, totalBlocks, fullWidth, fullHeight;
-	unsigned char fbuffer[800];
 	bool allowRepaint;
 	int length;
 	BMPPalette palette[256];
