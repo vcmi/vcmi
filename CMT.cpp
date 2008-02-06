@@ -774,7 +774,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
 		{ 
 
-			if(cgi->scenarioOps.playerInfos[i].name=="Computer")
+			if(!cgi->scenarioOps.playerInfos[i].human)
 				cgi->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color),"EmptyAI.dll")));
 			else 
 			{

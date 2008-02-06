@@ -32,7 +32,7 @@ CAdvMapInt::~CAdvMapInt()
 }
 CMinimap::CMinimap(bool draw)
 {
-	statusbarTxt = CGI->preth->zelp[291].first;
+	statusbarTxt = CGI->preth->zelp[291].first;  
 	rcText = CGI->preth->zelp[291].second;
 	pos.x=630;
 	pos.y=26;

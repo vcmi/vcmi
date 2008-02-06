@@ -15,8 +15,10 @@ struct StartInfo
 		std::string heroName;
 		Ebonus bonus; 
 		Ecolor color; //from 0 - 
+		int serial;
 		int handicap;//0-no, 1-mild, 2-severe
 		std::string name;
+		bool human;
 	};
 	int difficulty; //0=easy; 4=impossible
 	std::vector<PlayerSettings> playerInfos;
