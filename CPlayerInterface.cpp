@@ -2108,7 +2108,7 @@ void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if (from>0)
-			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advHListUp.first);
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[303].first);
 		else
 			LOCPLINT->adventureInt->statusbar.clear();
 		return;
@@ -2116,7 +2116,7 @@ void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if ((items.size()-from)  >  5)
-			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advHListDown.first);
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[304].first);
 		else
 			LOCPLINT->adventureInt->statusbar.clear();
 		return;
@@ -2144,17 +2144,17 @@ void CHeroList::clickRight(tribool down)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListUp.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[303].second,down,this);
 		}
 		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListDown.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[304].second,down,this);
 		}
 	}
 	else
 	{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListUp.second,down,this);
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advHListDown.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[303].second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[304].second,down,this);
 	}
 }
 void CHeroList::hover (bool on)

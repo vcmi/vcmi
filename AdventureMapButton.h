@@ -177,7 +177,7 @@ void CTownList<T>::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if (from>0)
-			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advTListUp.first);
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[306].first);
 		else
 			LOCPLINT->adventureInt->statusbar.clear();
 		return;
@@ -185,7 +185,7 @@ void CTownList<T>::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if ((items.size()-from)  >  SIZE)
-			LOCPLINT->adventureInt->statusbar.print(CGI->preth->advTListDown.first);
+			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[307].first);
 		else
 			LOCPLINT->adventureInt->statusbar.clear();
 		return;
@@ -273,17 +273,17 @@ void CTownList<T>::clickRight(tribool down)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advTListUp.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[306].second,down,this);
 		}
 		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advTListDown.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[307].second,down,this);
 		}
 	}
 	else
 	{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advTListUp.second,down,this);
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->advTListDown.second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[306].second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[307].second,down,this);
 	}
 }
 template<typename T>
