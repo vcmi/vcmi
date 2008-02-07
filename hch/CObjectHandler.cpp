@@ -259,6 +259,11 @@ CGObjectInstance::~CGObjectInstance()
 	//	delete state;
 	//state=NULL;
 }
+CGHeroInstance::CGHeroInstance()
+{
+	level = exp = -1;
+	moveDir=4;
+}
 
 CGHeroInstance::~CGHeroInstance()
 {

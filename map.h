@@ -63,11 +63,6 @@ struct DefInfo //information from def declaration
 	bool isOnDefList;
 	bool isVisitable();
 };
-struct Location
-{
-	int x, y; 
-	bool z; // underground
-};
 struct SheroName //name of starting hero
 {
 	int heroID;
@@ -86,19 +81,16 @@ struct PlayerInfo
 	std::vector<SheroName> heroesNames;
 	bool hasMainTown;
 	bool generateHeroAtMainTown;
-	Location posOfMainTown;
+	int3 posOfMainTown;
 	int team;
 	bool generateHero;
 };
 struct LossCondition
 {
 	ElossCon typeOfLossCon;
-	union
-	{
-		Location castlePos;
-		Location heroPos;
-		int timeLimit; // in days
-	};
+	int3 castlePos;
+	int3 heroPos;
+	int timeLimit; // in days
 };
 struct CspecificVictoryConidtions
 {
@@ -121,26 +113,26 @@ struct VicCon2 : public CspecificVictoryConidtions // accumulate resources
 };
 struct VicCon3 : public CspecificVictoryConidtions // upgrade specific town
 {
-	Location posOfCity;
+	int3 posOfCity;
 	int councilNeededLevel; //0 - town; 1 - city; 2 - capitol
 	int fortNeededLevel;// 0 - fort; 1 - citadel; 2 - castle
 };
 struct VicCon4 : public CspecificVictoryConidtions // build grail structure
 {
 	bool anyLocation;
-	Location whereBuildGrail;
+	int3 whereBuildGrail;
 };
 struct VicCon5 : public CspecificVictoryConidtions // defeat a specific hero
 {
-	Location locationOfHero;
+	int3 locationOfHero;
 };
 struct VicCon6 : public CspecificVictoryConidtions // capture a specific town
 {
-	Location locationOfTown;
+	int3 locationOfTown;
 };
 struct VicCon7 : public CspecificVictoryConidtions // defeat a specific monster
 {
-	Location locationOfMonster;
+	int3 locationOfMonster;
 };
 /*struct VicCon8 : public CspecificVictoryConidtions // flag all creature dwellings
 {
@@ -151,7 +143,7 @@ struct VicCon9 : public CspecificVictoryConidtions // flag all mines
 struct VicCona : public CspecificVictoryConidtions //transport specific artifact
 {
 	int artifactID;
-	Location destinationPlace;
+	int3 destinationPlace;
 };
 struct Rumor
 {

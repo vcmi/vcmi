@@ -367,6 +367,7 @@ public:
 	bool canWalkOnSea() const;
 	int getCurrentLuck() const;
 	int getCurrentMorale() const;
+	CGHeroInstance();
 	virtual ~CGHeroInstance();
 };
 

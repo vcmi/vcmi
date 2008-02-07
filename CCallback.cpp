@@ -609,6 +609,32 @@ void CScriptCallback::stopHeroVisitCastle(CGObjectInstance * ob, int heroID)
 	else
 		return;
 }
+void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
+{
+	CGHeroInstance* h = gs->getHero(hid,0);
+	if(position<0)
+	{
+		for(int i=0;i<h->artifacts.size();i++)
+		{
+			if(!h->artifacts[i])
+			{
+				h->artifacts[i] = &CGI->arth->artifacts[artid];
+				return;
+			}
+		}
+		h->artifacts.push_back(&CGI->arth->artifacts[artid]);
+		return;
+	}
+	else
+	{
+		if(h->artifWorn[position]) //slot is occupied
+		{
+			giveHeroArtifact(h->artifWorn[position]->id,hid,-1);
+		}
+		h->artifWorn[position] = &CGI->arth->artifacts[artid];
+	}
+}
+
 void CLuaCallback::registerFuncs(lua_State * L)
 {
 	lua_newtable(L);
