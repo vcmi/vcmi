@@ -626,39 +626,30 @@ void CMapHandler::initObjectRects()
 					cr.y = fy<<5; //fy*32
 					std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
 					///initializing places that will be coloured by blitting (flag colour / player colour positions)
-					if(toAdd.first->defInfo->isVisitable())
+					
+					if(toAdd.first->defInfo->isVisitable() && toAdd.first->defInfo->handler->ourImages[0].bitmap->format->BitsPerPixel!=8)
 					{
-						SDL_Rect cr;
-						cr.w = 32;
-						cr.h = 32;
-						cr.x = fx*32;
-						cr.y = fy*32;
-						std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3> > > > toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
-						///initializing places that will be coloured by blitting (flag colour / player colour positions)
-						if(toAdd.first->defInfo->isVisitable() && toAdd.first->defInfo->handler->ourImages[0].bitmap->format->BitsPerPixel!=8)
+						toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
+						for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)
 						{
-							toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
-							for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)
+							bool breakNow = true;
+							for(int dx=0; dx<32; ++dx)
 							{
-								bool breakNow = true;
-								for(int dx=0; dx<32; ++dx)
+								for(int dy=0; dy<32; ++dy)
 								{
-									for(int dy=0; dy<32; ++dy)
+									SDL_Surface * curs = toAdd.first->defInfo->handler->ourImages[no].bitmap;
+									Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
+									Uint8 r, g, b, a;
+									SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
+									if(r==255 && g==255 && b==0)
 									{
-										SDL_Surface * curs = toAdd.first->defInfo->handler->ourImages[no].bitmap;
-										Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
-										Uint8 r, g, b, a;
-										SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
-										if(r==255 && g==255 && b==0)
-										{
-											toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
-											breakNow = false;
-										}
+										toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
+										breakNow = false;
 									}
 								}
-								if(breakNow)
-									break;
 							}
+							if(breakNow)
+								break;
 						}
 					}
 					if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
