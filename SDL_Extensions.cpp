@@ -261,12 +261,12 @@ SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 			for(int j=0; j<ret->h; ++j)
 			{
 				{
-					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel-2;
-					int k=2;
+					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel;
+					//int k=2;
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], k);
+						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2]);
 #else
-						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], k);
+						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0]);
 #endif
 				}
 			}
@@ -451,6 +451,9 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 					break;
 				case 100:
 					shadow.unused = 100+64;
+					break;
+				case 125:
+					shadow.unused = 125+64;
 					break;
 				case 128:
 					shadow.unused = 128+64;

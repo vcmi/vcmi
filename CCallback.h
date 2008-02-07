@@ -111,7 +111,7 @@ public:
 	void showCompInfo(int player, SComponent * comp);
 	void heroVisitCastle(CGObjectInstance * ob, int heroID);
 	void stopHeroVisitCastle(CGObjectInstance * ob, int heroID);
-
+	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack
 
 	//friends
 	friend void initGameState(CGameInfo * cgi);

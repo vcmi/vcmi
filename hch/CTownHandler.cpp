@@ -19,11 +19,12 @@ void CTownHandler::loadNames()
 	ins.str(CGI->bitmaph->getTextFile("TOWNTYPE.TXT"));
 	names.str(CGI->bitmaph->getTextFile("TOWNNAME.TXT"));
 	int si=0;
+	char bufname[50];
 	while (!ins.eof())
 	{
 		CTown town;
-		ins >> town.name;
-		char bufname[50];
+		ins.getline(bufname,50);
+		town.name = std::string(bufname);
 		for (int i=0; i<NAMES_PER_TOWN; i++)
 		{
 			names.getline(bufname,50);

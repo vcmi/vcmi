@@ -478,6 +478,11 @@ void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
 {
 	switch(os->ID)
 	{
+	case 5:
+		{
+			cb->giveHeroArtifact(os->subID,heroID,-1); //TODO: na pozycje
+			break;
+		}
 	case 79:
 		{
 			//TODO: handle guards (when battles are finished)

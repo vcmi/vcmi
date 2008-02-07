@@ -197,7 +197,7 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 			t->defInfo->handler = CGI->spriteh->giveDef(t->defInfo->name);
 			alphaTransformDef(t->defInfo);
 		}
-		CGI->townh->townInstances.push_back(t);
+		//CGI->townh->townInstances.push_back(t);
 		return;
 	}
 	//we have to replace normal random object
@@ -218,6 +218,8 @@ void CMapHandler::randomizeObjects()
 	for(int no=0; no<CGI->objh->objInstances.size(); ++no)
 	{
 		randomizeObject(CGI->objh->objInstances[no]);
+		if(CGI->objh->objInstances[no]->ID==26)
+			CGI->objh->objInstances[no]->defInfo->handler=NULL;
 	}
 }
 void CMapHandler::prepareFOWDefs()
@@ -611,54 +613,66 @@ void CMapHandler::initObjectRects()
 			continue;
 		}
 		CDefHandler * curd = CGI->objh->objInstances[f]->defInfo->handler;
-		for(int fx=0; fx<curd->ourImages[0].bitmap->w>>5; ++fx) //curd->ourImages[0].bitmap->w/32
+		if(curd)
 		{
-			for(int fy=0; fy<curd->ourImages[0].bitmap->h>>5; ++fy) //curd->ourImages[0].bitmap->h/32
+			for(int fx=0; fx<curd->ourImages[0].bitmap->w>>5; ++fx) //curd->ourImages[0].bitmap->w/32
 			{
-				SDL_Rect cr;
-				cr.w = 32;
-				cr.h = 32;
-				cr.x = fx<<5; //fx*32
-				cr.y = fy<<5; //fy*32
-				std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
-				///initializing places that will be coloured by blitting (flag colour / player colour positions)
-				if(toAdd.first->defInfo->isVisitable())
+				for(int fy=0; fy<curd->ourImages[0].bitmap->h>>5; ++fy) //curd->ourImages[0].bitmap->h/32
 				{
-					toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
-					for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)
+					SDL_Rect cr;
+					cr.w = 32;
+					cr.h = 32;
+					cr.x = fx<<5; //fx*32
+					cr.y = fy<<5; //fy*32
+					std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
+					///initializing places that will be coloured by blitting (flag colour / player colour positions)
+					if(toAdd.first->defInfo->isVisitable())
 					{
-						bool breakNow = true;
-						for(int dx=0; dx<32; ++dx)
+						SDL_Rect cr;
+						cr.w = 32;
+						cr.h = 32;
+						cr.x = fx*32;
+						cr.y = fy*32;
+						std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3> > > > toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
+						///initializing places that will be coloured by blitting (flag colour / player colour positions)
+						if(toAdd.first->defInfo->isVisitable() && toAdd.first->defInfo->handler->ourImages[0].bitmap->format->BitsPerPixel!=8)
 						{
-							for(int dy=0; dy<32; ++dy)
+							toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
+							for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)
 							{
-								SDL_Surface * curs = toAdd.first->defInfo->handler->ourImages[no].bitmap;
-								Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
-								Uint8 r, g, b, a;
-								SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
-								if(r==255 && g==255 && b==0)
+								bool breakNow = true;
+								for(int dx=0; dx<32; ++dx)
 								{
-									toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
-									breakNow = false;
+									for(int dy=0; dy<32; ++dy)
+									{
+										SDL_Surface * curs = toAdd.first->defInfo->handler->ourImages[no].bitmap;
+										Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
+										Uint8 r, g, b, a;
+										SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
+										if(r==255 && g==255 && b==0)
+										{
+											toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
+											breakNow = false;
+										}
+									}
 								}
+								if(breakNow)
+									break;
 							}
 						}
-						if(breakNow)
-							break;
 					}
-				}
-				if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
-				{
-					//TerrainTile2 & curt =
-					//	ttiles
-					//	[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32]
-					//[CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32]
-					//[CGI->objh->objInstances[f]->pos.z];
-					ttiles[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][CGI->objh->objInstances[f]->pos.z].objects.push_back(toAdd);
-				}
-
-			} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
-		} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+					if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+					{
+						//TerrainTile2 & curt =
+						//	ttiles
+						//	[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32]
+						//[CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32]
+						//[CGI->objh->objInstances[f]->pos.z];
+						ttiles[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][CGI->objh->objInstances[f]->pos.z].objects.push_back(toAdd);
+					}
+				} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+			} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+		}//if curd
 	} // for(int f=0; f<CGI->objh->objInstances.size(); ++f)
 	for(int ix=0; ix<ttiles.size()-Woff; ++ix)
 	{
@@ -717,6 +731,7 @@ void CMapHandler::init()
 
 	timeHandler th;
 	th.getDif();
+
 	randomizeObjects();//randomizing objects on map
 	std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
@@ -733,9 +748,28 @@ void CMapHandler::init()
 	borderAndTerrainBitmapInit();
 	std::cout<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
 
+
+	for(int i=0;i<PLAYER_LIMIT;i++)
+	{
+		if(reader->map.players[i].generateHeroAtMainTown && reader->map.players[i].hasMainTown)
+		{
+			int3 hpos = reader->map.players[i].posOfMainTown;
+			hpos.x+=1; hpos.y+=1;
+			int j;
+			for(j=0;j<CGI->scenarioOps.playerInfos.size();j++)
+				if(CGI->scenarioOps.playerInfos[j].color==i)
+					break;
+			if(j==CGI->scenarioOps.playerInfos.size())
+				continue;
+			CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,CGI->scenarioOps.playerInfos[j].hero,hpos,i);
+			nnn->defInfo->handler = CGI->heroh->flags1[0];
+			CGI->heroh->heroInstances.push_back(nnn);
+			CGI->objh->objInstances.push_back(nnn);
+		}
+	}
+
 	initObjectRects();
 	std::cout<<"\tMaking object rects: "<<th.getDif()<<std::endl;
-
 	calculateBlockedPos();
 	std::cout<<"\tCalculating blockmap: "<<th.getDif()<<std::endl;
 }
@@ -812,9 +846,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					int imgVal = 8;
 					SDL_Surface * tb;
 
-					if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
+					if(themp->type==NULL)
 						continue;
-					std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
+					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
 					switch(themp->moveDir)
 					{
 					case 1:
@@ -960,9 +994,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					int imgVal = 8;
 					SDL_Surface * tb;
 
-					if(((CHeroObjInfo*)themp->info)->myInstance->type==NULL)
+					if(themp->type==NULL)
 						continue;
-					std::vector<Cimage> & iv = ((CHeroObjInfo*)themp->info)->myInstance->type->heroClass->moveAnim->ourImages;
+					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
 					switch(themp->moveDir)
 					{
 					case 1:
@@ -1589,65 +1623,61 @@ std::vector < CGObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
 	return ret;
 }
 
-CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos)
+CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int owner)
 {
 	CGObjectInstance * nobj;
 	switch(id)
 	{
-	case 43: //hero
-		nobj = new CGHeroInstance;
-		break;
+	case 34: //hero
+		{
+			CGHeroInstance * nobj;
+			nobj = new CGHeroInstance();
+			nobj->pos = pos;
+			nobj->tempOwner = owner;
+			nobj->defInfo = new CGDefInfo();
+			nobj->defInfo->id = 34;
+			nobj->defInfo->subid = subid;
+			nobj->type = CGI->heroh->heroes[subid];
+			for(int i=0;i<6;i++)
+			{
+				nobj->defInfo->blockMap[i]=1;
+				nobj->defInfo->visitMap[i]=0;
+			}
+			nobj->ID = id;
+			nobj->subID = subid;
+			nobj->defInfo->handler=NULL;
+			nobj->defInfo->blockMap[5] = 0x7f;
+			nobj->defInfo->visitMap[5] = 0x80;
+			nobj->artifWorn.resize(20);
+			nobj->artifacts.resize(20);
+			nobj->artifWorn[16] = &CGI->arth->artifacts[3];
+			return nobj;
+		}
 	case 98: //town
 		nobj = new CGTownInstance;
 		break;
 	default: //rest of objects
 		nobj = new CGObjectInstance;
+		nobj->defInfo = CGI->dobjinfo->gobjs[id][subid];
 		break;
 	}
 	nobj->ID = id;
 	nobj->subID = subid;
-	nobj->defInfo = CGI->dobjinfo->gobjs[id][subid];
 	if(!nobj->defInfo)
 		std::cout <<"No def declaration for " <<id <<" "<<subid<<std::endl;
-		/*new CGDefInfo;
-	int defObjInfoNumber = -1;
-	for(int f=0; f<CGI->dobjinfo->objs.size(); ++f)
-	{
-		if(CGI->dobjinfo->objs[f].type==id && CGI->dobjinfo->objs[f].subtype == subid)
-		{
-			defObjInfoNumber = f;
-			break;
-		}
-	}
-	nobj->defInfo->name = CGI->dobjinfo->objs[defObjInfoNumber].defName;
-	for(int g=0; g<6; ++g)
-		nobj->defInfo->blockMap[g] = CGI->dobjinfo->objs[defObjInfoNumber].blockMap[g];
-	for(int g=0; g<6; ++g)
-		nobj->defInfo->visitMap[g] = CGI->dobjinfo->objs[nobj->defObjInfoNumber].visitMap[g];
-	nobj->defInfo->printPriority = CGI->dobjinfo->objs[nobj->defObjInfoNumber].priority;*/
 	nobj->pos = pos;
 	//nobj->state = NULL;//new CLuaObjectScript();
-	nobj->tempOwner = 254;
+	nobj->tempOwner = owner;
 	nobj->info = NULL;
 	nobj->defInfo->id = id;
 	nobj->defInfo->subid = subid;
 
 	//assigning defhandler
-
-	std::string ourName = getDefName(id, subid);
-	std::transform(ourName.begin(), ourName.end(), ourName.begin(), (int(*)(int))toupper);
-	nobj->defInfo->name = ourName;
-
-	if(loadedDefs[ourName] == NULL)
-	{
-		nobj->defInfo->handler = CGI->spriteh->giveDef(ourName);
-		loadedDefs[ourName] = nobj->defInfo->handler;
-	}
-	else
-	{
-		nobj->defInfo->handler = loadedDefs[ourName];
-	}
-
+	if(nobj->ID==34 || nobj->ID==98)
+		return nobj;
+	nobj->defInfo = CGI->dobjinfo->gobjs[id][subid];
+	if(!nobj->defInfo->handler)
+		nobj->defInfo->handler = CGI->spriteh->giveDef(nobj->defInfo->name);
 	return nobj;
 }
 

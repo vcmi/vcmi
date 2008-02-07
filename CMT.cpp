@@ -120,7 +120,7 @@ void initGameState(CGameInfo * cgi)
 		//*vhi=*(cgi->heroh->heroInstances[i]);
 		CGHeroInstance * vhi = (cgi->heroh->heroInstances[i]);
 		vhi->subID = vhi->type->ID;
-		if (!vhi->level)
+		if (vhi->level<1)
 		{
 			vhi->exp=40+rand()%50;
 			vhi->level = 1;
@@ -760,6 +760,17 @@ int _tmain(int argc, _TCHAR* argv[])
 			initTable[ss] = mapstr[ss];
 		}
 		std::cout<<"done."<<std::endl;
+
+		for(int pru=0;pru<cgi->scenarioOps.playerInfos.size();pru++)
+		{
+			if(cgi->scenarioOps.playerInfos[pru].castle<0)
+				cgi->scenarioOps.playerInfos[pru].castle = rand()%F_NUMBER;
+			if(cgi->scenarioOps.playerInfos[pru].hero<0)
+				cgi->scenarioOps.playerInfos[pru].hero= cgi->scenarioOps.playerInfos[pru].castle*HEROES_PER_TYPE*2+(rand()%(HEROES_PER_TYPE*2));//cgi->scenarioOps.playerInfos[pru].hero = cgi->
+		}
+
+
+
 #define CHOOSE
 #ifdef CHOOSE
 		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf

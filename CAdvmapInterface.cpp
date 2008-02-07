@@ -281,6 +281,20 @@ void CTerrainRect::clickLeft(tribool down)
 		{ //move
 			CPath sended(*currentPath); //temporary path - engine will operate on it
 			mres = LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
+			if(!mres)
+			{
+				delete currentPath;
+				currentPath = NULL;
+				int i=0;
+				for(;i<LOCPLINT->adventureInt->heroList.items.size();i++)
+				{
+					if(LOCPLINT->adventureInt->heroList.items[i].first->subID == ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID)
+					{
+						LOCPLINT->adventureInt->heroList.items[i].second = NULL;
+						break;
+					}
+				}
+			}
 		}
 		else
 		{
