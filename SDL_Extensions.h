@@ -35,6 +35,7 @@ namespace CSDL_Ext
 	SDL_Color SDL_GetPixelColor(SDL_Surface *surface, int x, int y);
 	SDL_Surface * alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	SDL_Surface * secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha); //alpha is a surface we want to blit src to
+	void blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	void fullAlphaTransform(SDL_Surface *& src); //performs first and second alpha transform
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
 	void printTo(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)

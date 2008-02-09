@@ -796,7 +796,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.x=bx*32;
 			sr.h=sr.w=32;
 			if(ttiles[x+bx][y+by][level].rivbitmap.size())
+			{
 				SDL_BlitSurface(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,&sr);
+				//CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,&sr);
+			}
 		}
 	}
 	////rivers printed
@@ -832,6 +835,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second.first;
 				CGHeroInstance * themp = (dynamic_cast<CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
+
 				if(themp && themp->moveDir && !themp->isStanding && themp->ID!=62) //last condition - this is not prison
 				{
 					int imgVal = 8;
@@ -840,147 +844,24 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					if(themp->type==NULL)
 						continue;
 					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
-					switch(themp->moveDir)
+
+					int gg;
+					for(gg=0; gg<iv.size(); ++gg)
 					{
-					case 1:
+						if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
 						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==10)
-								{
-									tb = iv[gg+heroAnim%imgVal].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							pp.y+=imgVal*2-32;
-							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
-							break;
-						}
-					case 2:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==5)
-								{
-									tb = iv[gg+heroAnim%imgVal].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							pp.y+=imgVal*2-32;
-							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);	
-							break;
-						}
-					case 3:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==6)
-								{
-									tb = iv[gg+heroAnim%imgVal].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							pp.y+=imgVal*2-32;
-							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
-							break;
-						}
-					case 4:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==7)
-								{
-									tb = iv[gg+heroAnim%imgVal].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							pp.y+=imgVal*2-32;
-							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
-							break;
-						}
-					case 5:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==8)
-								{
-									tb = iv[gg+heroAnim%imgVal].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							pp.y+=imgVal*2-32;
-							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
-							break;
-						}
-					case 6: //ok
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==9)
-								{
-									tb = iv[gg+heroAnim%imgVal].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							pp.y+=imgVal*2-32;
-							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
-							break;
-						}
-					case 7:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==12)
-								{
-									tb = iv[gg+heroAnim%imgVal].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							pp.y+=imgVal*2-32;
-							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
-							break;
-						}
-					case 8:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==11)
-								{
-									tb = iv[gg+heroAnim%imgVal].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							pp.y+=imgVal*2-32;
-							sr.y-=16;
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
+							tb = iv[gg+heroAnim%imgVal].bitmap;
 							break;
 						}
 					}
+					SDL_BlitSurface(tb,&pp,su,&sr);
+					//CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
+					pp.y+=imgVal*2-32;
+					sr.y-=16;
+					SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
+					//CSDL_Ext::blit8bppAlphaTo24bpp(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 				}
-				else if(themp && themp->moveDir && themp->isStanding && themp->ID!=62) //last condition - this is not prison
+				else if(themp && themp->moveDir && themp->isStanding && themp->ID!=62) //last condition - this is not prison)
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
@@ -988,190 +869,33 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					if(themp->type==NULL)
 						continue;
 					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
-					switch(themp->moveDir)
+
+					int gg;
+					for(gg=0; gg<iv.size(); ++gg)
 					{
-					case 1:
+						if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
 						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==13)
-								{
-									tb = iv[gg].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(themp->pos.x==x+bx && themp->pos.y==y+by)
-							{
-								SDL_Rect bufr = sr;
-								bufr.x-=2*32;
-								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[13*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
-								themp->flagPrinted = true;
-							}
+							tb = iv[gg].bitmap;
 							break;
 						}
-					case 2:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==0)
-								{
-									tb = iv[gg].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(themp->pos.x==x+bx && themp->pos.y==y+by)
-							{
-								SDL_Rect bufr = sr;
-								bufr.x-=2*32;
-								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[heroAnim%imgVal].bitmap, NULL, su, &bufr);	
-								themp->flagPrinted = true;
-							}
-							break;
-						}
-					case 3:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==1)
-								{
-									tb = iv[gg].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(themp->pos.x==x+bx && themp->pos.y==y+by)
-							{
-								SDL_Rect bufr = sr;
-								bufr.x-=2*32;
-								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
-								themp->flagPrinted = true;
-							}
-							break;
-						}
-					case 4:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==2)
-								{
-									tb = iv[gg].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(themp->pos.x==x+bx && themp->pos.y==y+by)
-							{
-								SDL_Rect bufr = sr;
-								bufr.x-=2*32;
-								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[2*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
-								themp->flagPrinted = true;
-							}
-							break;
-						}
-					case 5:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==3)
-								{
-									tb = iv[gg].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(themp->pos.x==x+bx && themp->pos.y==y+by)
-							{
-								SDL_Rect bufr = sr;
-								bufr.x-=2*32;
-								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[3*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
-								themp->flagPrinted = true;
-							}
-							break;
-						}
-					case 6:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==4)
-								{
-									tb = iv[gg].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(themp->pos.x==x+bx && themp->pos.y==y+by)
-							{
-								SDL_Rect bufr = sr;
-								bufr.x-=2*32;
-								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[4*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
-								themp->flagPrinted = true;
-							}
-							break;
-						}
-					case 7:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==15)
-								{
-									tb = iv[gg].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(themp->pos.x==x+bx && themp->pos.y==y+by)
-							{
-								SDL_Rect bufr = sr;
-								bufr.x-=2*32;
-								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[15*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
-								themp->flagPrinted = true;
-							}
-							break;
-						}
-					case 8:
-						{
-							int gg;
-							for(gg=0; gg<iv.size(); ++gg)
-							{
-								if(iv[gg].groupNumber==14)
-								{
-									tb = iv[gg].bitmap;
-									break;
-								}
-							}
-							SDL_BlitSurface(tb,&pp,su,&sr);
-							if(themp->pos.x==x+bx && themp->pos.y==y+by)
-							{
-								SDL_Rect bufr = sr;
-								bufr.x-=2*32;
-								bufr.y-=1*32;
-								SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[14*8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
-								themp->flagPrinted = true;
-							}
-							break;
-						}
+					}
+					SDL_BlitSurface(tb,&pp,su,&sr);
+					//CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
+					if(themp->pos.x==x+bx && themp->pos.y==y+by)
+					{
+						SDL_Rect bufr = sr;
+						bufr.x-=2*32;
+						bufr.y-=1*32;
+						SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
+						//CSDL_Ext::blit8bppAlphaTo24bpp(CGI->heroh->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
+						themp->flagPrinted = true;
 					}
 				}
 				else
 				{
 					int imgVal = ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages.size();
 					SDL_BlitSurface(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
+					//CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
 				}
 				//printing appropriate flag colour
 				if(ttiles[x+bx][y+by][level].objects[h].second.second.size())
@@ -1220,28 +944,12 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.y=by*32;
 			sr.x=bx*32;
 			sr.h=sr.w=32;
-			if (!level)
+			
+			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][level])
 			{
-				
-				//if( bx+x>-1 && by+y>-1 && bx+x<visibilityMap.size()-(-1) && by+y<visibilityMap[0].size()-(-1) && !visibilityMap[bx+x][by+y][0])
-				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][0])
-				{
-					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, 0);
-					//SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
-					SDL_BlitSurface(hide, NULL, su, &sr);
-					//SDL_FreeSurface(hide2);
-				}
-			}
-			else
-			{
-				//if( bx+x>-1 && by+y>-1 && bx+x<visibilityMap.size()-(-1) && by+y<visibilityMap[0].size()-(-1) && !visibilityMap[bx+x][by+y][1])
-				if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][1])
-				{
-					SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, 1);
-					//SDL_Surface * hide2 = CSDL_Ext::secondAlphaTransform(hide, su);
-					SDL_BlitSurface(hide, NULL, su, &sr);
-					//SDL_FreeSurface(hide2);
-				}
+				SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, level);
+				SDL_BlitSurface(hide, NULL, su, &sr);
+				//CSDL_Ext::blit8bppAlphaTo24bpp(hide, NULL, su, &sr);
 			}
 		}
 	}
@@ -1830,4 +1538,56 @@ bool CMapHandler::recalculateHideVisPosUnderObj(CGObjectInstance *obj, bool with
 		}
 	}
 	return true;
+}
+
+unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool &isMoving) const
+{
+	if(isMoving)
+	{
+		switch(dir)
+		{
+		case 1:
+			return 10;
+		case 2:
+			return 5;
+		case 3:
+			return 6;
+		case 4:
+			return 7;
+		case 5:
+			return 8;
+		case 6:
+			return 9;
+		case 7:
+			return 12;
+		case 8:
+			return 11;
+		default:
+			return -1; //should never happen
+		}
+	}
+	else //if(isMoving)
+	{
+		switch(dir)
+		{
+		case 1:
+			return 13;
+		case 2:
+			return 0;
+		case 3:
+			return 1;
+		case 4:
+			return 2;
+		case 5:
+			return 3;
+		case 6:
+			return 4;
+		case 7:
+			return 15;
+		case 8:
+			return 14;
+		default:
+			return -1; //should never happen
+		}
+	}
 }

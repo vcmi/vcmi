@@ -15,7 +15,8 @@ SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates ne
 
 SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given surface
 {
-	return SDL_DisplayFormat(mod);
+	//return SDL_DisplayFormat(mod);
+	return SDL_ConvertSurface(mod, mod->format, mod->flags);
 }
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
@@ -489,6 +490,96 @@ SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * al
 		}
 	}
 	return hide2;
+	//return copySurface(src);
+}
+
+void CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
+{
+	if(src && src->format->BytesPerPixel==1 && dst && (dst->format->BytesPerPixel==3 || dst->format->BytesPerPixel==4)) //everything's ok
+	{
+		int xFromSrc=-1, xToSrc=-1,
+			yFromSrc=-1, yToSrc=-1; //source pseudorect without errors
+
+		int xO=-1, yO=-1; //dst offsets
+
+		if(srcRect)
+		{
+			xFromSrc = srcRect->x;
+			yFromSrc = srcRect->y;
+			xToSrc = srcRect->w + srcRect->x;
+			yToSrc = srcRect->h + srcRect->y;
+		}
+		else
+		{
+			xFromSrc = 0;
+			yFromSrc = 0;
+			xToSrc = src->w;
+			yToSrc = src->h;
+
+			if(dstRect)
+			{
+				if(dstRect->w<xToSrc)
+				{
+					xToSrc = dstRect->w;
+				}
+				if(dstRect->h<yToSrc)
+				{
+					yToSrc = dstRect->h;
+				}
+			}
+			else
+			{
+				if(dst->w<xToSrc)
+				{
+					xToSrc = dst->w;
+				}
+				if(dst->h<yToSrc)
+				{
+					yToSrc = dst->h;
+				}
+			}
+		}
+
+		if(dstRect)
+		{
+			xO = dstRect->x - xFromSrc;
+			yO = dstRect->y - yFromSrc;
+		}
+		else
+		{
+			xO = -xFromSrc;
+			yO = -yFromSrc;
+		}
+
+		if(xO+xToSrc>dst->w)
+		{
+			xToSrc = dst->w - xO;
+		}
+		if(yO+yToSrc>dst->h)
+		{
+			yToSrc = dst->h - yO;
+		}
+		if(xO+xFromSrc<0)
+		{
+			xFromSrc = - xO;
+		}
+		if(yO+yFromSrc<0)
+		{
+			yFromSrc = - yO;
+		}
+
+		for(int x=xFromSrc; x<xToSrc; ++x)
+		{
+			for(int y=yFromSrc; y<yToSrc; ++y)
+			{
+				SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + y*src->pitch + x)]; //color to blit
+				Uint8 * p = (Uint8*)dst->pixels + (y+yO)*dst->pitch + (x+xO)*dst->format->BytesPerPixel; //place to blit at
+				p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
+				p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
+				p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
+			}
+		}
+	}
 }
 
 Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)

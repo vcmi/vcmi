@@ -105,6 +105,7 @@ public:
 	SDL_Surface * terrBitmap(int x, int y);
 	SDL_Surface * undTerrBitmap(int x, int y);
 	std::string getRandomizedDefName(CGDefInfo* di, CGObjectInstance * obj = NULL); //objinstance needed only for heroes and towns
+	unsigned char getHeroFrameNum(const unsigned char & dir, const bool & isMoving) const; //terrainRect helper function
 
 };
 
