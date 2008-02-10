@@ -508,6 +508,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 		add->backNumber = s;
 		backpack.push_back(add);
 	}
+	activeArtPlace = NULL;
 	redrawCurBack();
 }
 
@@ -543,6 +544,7 @@ void CHeroWindow::quit()
 		backpack[g] = NULL;
 	}
 	backpack.clear();
+	activeArtPlace = NULL;
 }
 
 void CHeroWindow::activate()
@@ -714,7 +716,7 @@ void CHeroWindow::redrawCurBack()
 {
 	if(curBack)
 		SDL_FreeSurface(curBack);
-	curBack = CSDL_Ext::copySurface(background);
+	curBack = SDL_DisplayFormat(background);
 
 	blitAt(skillpics->ourImages[0].bitmap, 32, 111, curBack);
 	blitAt(skillpics->ourImages[1].bitmap, 102, 111, curBack);
