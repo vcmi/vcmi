@@ -58,9 +58,11 @@
 #else
 #  define SET_BINARY_MODE(file)
 #endif
-
+#ifdef _DEBUG
+CGameInfo* CGI;
+#endif
 #define CHUNK 16384
-const char * NAME = "VCMI 0.52 \"Tirion\" Techdemo";
+const char * NAME = "VCMI 0.53 \"Tirion\" Techdemo";
 
 SDL_Surface * ekran, * screen, * screen2;
 extern SDL_Surface * CSDL_Ext::std32bppSurface;
@@ -353,7 +355,10 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		SDL_WM_SetCaption(NAME,""); //set window title
 		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
-		CGameInfo::mainObj = cgi;
+		CGameInfo::mainObj = cgi;		
+		#ifdef _DEBUG
+		CGI = cgi;
+		#endif
 		cgi->consoleh = new CConsoleHandler;
 		cgi->mush = mush;
 		cgi->curh = new CCursorHandler;
@@ -760,16 +765,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			initTable[ss] = mapstr[ss];
 		}
 		std::cout<<"done."<<std::endl;
-
-		for(int pru=0;pru<cgi->scenarioOps.playerInfos.size();pru++)
-		{
-			if(cgi->scenarioOps.playerInfos[pru].castle<0)
-				cgi->scenarioOps.playerInfos[pru].castle = rand()%F_NUMBER;
-			if(cgi->scenarioOps.playerInfos[pru].hero<0)
-				cgi->scenarioOps.playerInfos[pru].hero= cgi->scenarioOps.playerInfos[pru].castle*HEROES_PER_TYPE*2+(rand()%(HEROES_PER_TYPE*2));//cgi->scenarioOps.playerInfos[pru].hero = cgi->
-		}
-
-
 
 #define CHOOSE
 #ifdef CHOOSE

@@ -45,7 +45,7 @@ public:
 	
 	std::vector<CCastleEvent> events;
 
-	unsigned char alignment; //what the hell is that??
+	unsigned char alignment; //255 - same as owner/random, 0 - same as red, 1 - same as blue, etc
 };
 
 #endif //CCASTLEHANDLER_H

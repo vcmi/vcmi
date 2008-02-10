@@ -38,6 +38,30 @@ void alphaTransformDef(CGDefInfo * defInfo)
 	}
 	SDL_FreeSurface(alphaTransSurf);
 }
+int CMapHandler::pickHero(int owner)
+{
+	if(usedHeroes.find(CGI->scenarioOps.getIthPlayersSettings(owner).hero)==usedHeroes.end()) //we haven't used selected hero
+	{
+		int h = CGI->scenarioOps.getIthPlayersSettings(owner).hero;
+		usedHeroes.insert(h);
+		return h;
+	}
+	int f = CGI->scenarioOps.getIthPlayersSettings(owner).castle;
+	int i=0, h;
+	do //try to find free hero of our faction
+	{
+		i++;
+		h = CGI->scenarioOps.getIthPlayersSettings(owner).castle*HEROES_PER_TYPE*2+(rand()%(HEROES_PER_TYPE*2));//cgi->scenarioOps.playerInfos[pru].hero = cgi->
+	} while((usedHeroes.find(h)!=usedHeroes.end())  &&  i<175);
+	if(i>174) //probably no free heroes - there's no point in further search, we'll take first free
+	{
+		for(int j=0; j<HEROES_PER_TYPE * 2 * F_NUMBER; j++)
+			if(usedHeroes.find(j)==usedHeroes.end())
+				h=j;
+	}
+	usedHeroes.insert(h);
+	return h;
+}
 std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 {
 	switch(obj->ID)
@@ -53,7 +77,9 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 	case 69: //random relic artifact
 		return std::pair<int,int>(5,CGI->arth->relics[rand()%CGI->arth->relics.size()]->id);
 	case 70: //random hero
-		return std::pair<int,int>(34,rand()%CGI->heroh->heroes.size());
+		{
+			return std::pair<int,int>(34,pickHero(obj->tempOwner));
+		}
 	case 71: //random monster
 		return std::pair<int,int>(54,rand()%(CGI->creh->creatures.size())); 
 	case 72: //random monster lvl1
@@ -67,7 +93,23 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 	case 76: //random resource
 		return std::pair<int,int>(79,rand()%7); //now it's OH3 style, use %8 for mithril 
 	case 77: //random town
-		return std::pair<int,int>(98,rand()%CGI->townh->towns.size()); 
+		{
+			int align = ((CCastleObjInfo*)obj->info)->alignment,
+				f;
+			if(align>PLAYER_LIMIT-1)//same as owner / random
+			{
+				if(obj->tempOwner > PLAYER_LIMIT-1)
+					f = -1; //random
+				else
+					f = CGI->scenarioOps.getIthPlayersSettings(obj->tempOwner).castle;
+			}
+			else
+			{
+				f = CGI->scenarioOps.getIthPlayersSettings(align).castle;
+			}
+			if(f<0) f = rand()%CGI->townh->towns.size();
+			return std::pair<int,int>(98,f); 
+		}
 	case 162: //random monster lvl5
 		return std::pair<int,int>(54,CGI->creh->levelCreatures[5][rand()%CGI->creh->levelCreatures[5].size()]->idNumber);
 	case 163: //random monster lvl6
@@ -704,6 +746,7 @@ void CMapHandler::calculateBlockedPos()
 }
 void CMapHandler::init()
 {
+	//loading castles' defs
 	std::ifstream ifs("config/townsDefs.txt");
 	int ccc;
 	ifs>>ccc;
@@ -720,9 +763,29 @@ void CMapHandler::init()
 		alphaTransformDef(n);
 	} 
 
+	for(int i=0;i<CGI->scenarioOps.playerInfos.size();i++)
+	{
+		if(CGI->scenarioOps.playerInfos[i].castle==-1)
+		{
+			int f;
+			do
+			{
+				f = rand()%F_NUMBER;
+			}while(!(reader->map.players[CGI->scenarioOps.playerInfos[i].color].allowedFactions  & 1<<f));
+			CGI->scenarioOps.playerInfos[i].castle = f;
+		}
+	}
+	for(int i=0;i<PLAYER_LIMIT;i++)
+	{
+		for(int j=0; j<reader->map.players[i].heroesNames.size();j++)
+		{
+			usedHeroes.insert(reader->map.players[i].heroesNames[j].heroID);
+		}
+	}
+
+
 	timeHandler th;
 	th.getDif();
-
 	randomizeObjects();//randomizing objects on map
 	std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
@@ -752,7 +815,10 @@ void CMapHandler::init()
 					break;
 			if(j==CGI->scenarioOps.playerInfos.size())
 				continue;
-			CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,CGI->scenarioOps.playerInfos[j].hero,hpos,i);
+			int h = CGI->scenarioOps.playerInfos[j].hero;
+			if(h<0)
+				h=pickHero(i);
+			CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,h,hpos,i);
 			nnn->defInfo->handler = CGI->heroh->flags1[0];
 			CGI->heroh->heroInstances.push_back(nnn);
 			CGI->objh->objInstances.push_back(nnn);
@@ -1339,14 +1405,14 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int ow
 			nobj->type = CGI->heroh->heroes[subid];
 			for(int i=0;i<6;i++)
 			{
-				nobj->defInfo->blockMap[i]=1;
+				nobj->defInfo->blockMap[i]=255;
 				nobj->defInfo->visitMap[i]=0;
 			}
 			nobj->ID = id;
 			nobj->subID = subid;
 			nobj->defInfo->handler=NULL;
-			nobj->defInfo->blockMap[5] = 0x7f;
-			nobj->defInfo->visitMap[5] = 0x80;
+			nobj->defInfo->blockMap[5] = 253;
+			nobj->defInfo->visitMap[5] = 2;
 			nobj->artifWorn.resize(20);
 			nobj->artifacts.resize(20);
 			nobj->artifWorn[16] = &CGI->arth->artifacts[3];

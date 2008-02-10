@@ -22,7 +22,12 @@ enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHE
 	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD, 
 	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
 
+#ifdef _DEBUG
+class CGameInfo;
+extern CGameInfo* CGI;
+#else
 #define CGI (CGameInfo::mainObj)
+#endif
 #define CURPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->state->currentPlayer]))) 
 #define LOCPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->localPlayer]))) 
 //CURPLINT gives pointer to the interface of human player which is currently making turn, 
@@ -59,6 +64,7 @@ const int MAX_BUILDING_PER_TURN = 1;
 #define MARK_VISITABLE_POSITIONS false
 
 #define DEFBYPASS
+
 
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\

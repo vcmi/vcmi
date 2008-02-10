@@ -210,6 +210,12 @@ void CAmbarCendamo::deh3m()
 				map.players[pom].generateHeroAtMainTown = bufor[i++];
 				map.players[pom].generateHero = bufor[i++];
 			}
+			else
+			{
+				map.players[pom].generateHeroAtMainTown = false;
+				map.players[pom].generateHero = false;
+			}
+
 			map.players[pom].posOfMainTown.x = bufor[i++];
 			map.players[pom].posOfMainTown.y = bufor[i++];
 			map.players[pom].posOfMainTown.z = bufor[i++];
@@ -1824,7 +1830,9 @@ void CAmbarCendamo::deh3m()
 					spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[readNormalNr(i, 1)])); ++i;
 				}
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
-				spec->creatures = readCreatureSet(i, gcre); i+=4*gcre;
+				spec->creatures = readCreatureSet(i, gcre); i+=3*gcre;
+				if(map.version > RoE)
+					i+=gcre;
 				i+=8;
 				nobj->info = spec;
 				///////end of copied fragment

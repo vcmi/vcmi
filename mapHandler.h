@@ -62,7 +62,7 @@ public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles;
 	int3 sizes;
 	CAmbarCendamo * reader;
-
+	std::set<int> usedHeroes;
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;
 
@@ -92,6 +92,7 @@ public:
 	bool recalculateHideVisPos(int3& pos); //recalculates position for hidden / visitable positions
 	bool recalculateHideVisPosUnderObj(CGObjectInstance * obj, bool withBorder = false); //recalculates position for hidden / visitable positions under given object
 	void init();
+	int pickHero(int owner);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);
 	void randomizeObject(CGObjectInstance *cur);
 	void calculateBlockedPos();

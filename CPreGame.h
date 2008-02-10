@@ -1,5 +1,7 @@
 #ifndef CPREGAME_H
 #define CPREGAME_H
+#include "global.h"
+#include <set>
 #include "SDL.h"
 #include "StartInfo.h"
 #include "hch\CSemiDefHandler.h"
@@ -156,6 +158,7 @@ class Options : public PreGameTab
 		int nr;
 	};
 public:
+	std::set<int> usedHeroes;
 	Slider<> * turnLength;
 	SDL_Surface * bg,
 		* rHero, * rCastle, * nHero, * nCastle;
@@ -169,6 +172,8 @@ public:
 	void hide();
 	void init();
 	void showIcon (int what, int nr, bool abs); //what: -1=castle, 0=hero, 1=bonus, 2=all; abs=true -> nr is absolute
+	bool canUseThisHero(int ID);
+	int nextAllowedHero(int min, int max, int incl, int dir); //incl 0 - wlacznie; incl 1 - wylacznie; min-max - zakres szukania
 	Options(){inited=showed=false;};
 	~Options();
 };
