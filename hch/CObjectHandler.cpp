@@ -262,7 +262,9 @@ CGObjectInstance::~CGObjectInstance()
 CGHeroInstance::CGHeroInstance()
 {
 	level = exp = -1;
-	moveDir=4;
+	isStanding = true;
+	moveDir = 4;
+	mana = 0;
 }
 
 CGHeroInstance::~CGHeroInstance()

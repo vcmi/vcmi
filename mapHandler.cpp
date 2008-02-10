@@ -1416,6 +1416,12 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int ow
 			nobj->artifWorn.resize(20);
 			nobj->artifacts.resize(20);
 			nobj->artifWorn[16] = &CGI->arth->artifacts[3];
+			nobj->primSkills.resize(4);
+			nobj->primSkills[0] = nobj->type->heroClass->initialAttack;
+			nobj->primSkills[1] = nobj->type->heroClass->initialDefence;
+			nobj->primSkills[2] = nobj->type->heroClass->initialPower;
+			nobj->primSkills[3] = nobj->type->heroClass->initialKnowledge;
+			nobj->mana = 10 * nobj->primSkills[3];
 			return nobj;
 		}
 	case 98: //town
