@@ -40,14 +40,14 @@ void alphaTransformDef(CGDefInfo * defInfo)
 }
 int CMapHandler::pickHero(int owner)
 {
-	if(usedHeroes.find(CGI->scenarioOps.getIthPlayersSettings(owner).hero)==usedHeroes.end()) //we haven't used selected hero
+	int h;
+	if(usedHeroes.find(h = CGI->scenarioOps.getIthPlayersSettings(owner).hero)==usedHeroes.end() && h>=0) //we haven't used selected hero
 	{
-		int h = CGI->scenarioOps.getIthPlayersSettings(owner).hero;
 		usedHeroes.insert(h);
 		return h;
 	}
 	int f = CGI->scenarioOps.getIthPlayersSettings(owner).castle;
-	int i=0, h;
+	int i=0;
 	do //try to find free hero of our faction
 	{
 		i++;
