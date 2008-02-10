@@ -703,7 +703,9 @@ void CAmbarCendamo::deh3m()
 					spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[readNormalNr(i, 1)])); ++i;
 				}
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
-				spec->creatures = readCreatureSet(i, gcre); i+=4*gcre;
+				spec->creatures = readCreatureSet(i, gcre); i+=3*gcre;
+				if(map.version>RoE)
+					i+=gcre;
 				i+=8;
 				spec->availableFor = readNormalNr(i, 1); ++i;
 				spec->computerActivate = readNormalNr(i, 1); ++i;
@@ -1412,9 +1414,18 @@ void CAmbarCendamo::deh3m()
 						}
 					case 10:
 						{
-							int creid = readNormalNr(i, 2); i+=2;
-							spec->r10creature = &(CGameInfo::mainObj->creh->creatures[creid]);
-							spec->r10amount = readNormalNr(i, 2); i+=2;
+							if(map.version>RoE)
+							{
+								int creid = readNormalNr(i, 2); i+=2;
+								spec->r10creature = &(CGameInfo::mainObj->creh->creatures[creid]);
+								spec->r10amount = readNormalNr(i, 2); i+=2;
+							}
+							else
+							{
+								int creid = bufor[i]; ++i;
+								spec->r10creature = &(CGameInfo::mainObj->creh->creatures[creid]);
+								spec->r10amount = readNormalNr(i, 2); i+=2;
+							}
 							break;
 						}
 					}// end of internal switch
