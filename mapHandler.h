@@ -29,7 +29,7 @@ struct TerrainTile2
 	bool visitable; //false = not visitable; true = visitable
 	bool blocked; //false = free; true = blocked;
 
-	std::vector < std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
+	std::vector < std::pair<CGObjectInstance*,SDL_Rect> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
 	std::vector <CGObjectInstance*> visitableObjects; //pointers to objects hero is visiting being on this tile
 
 };

@@ -480,106 +480,129 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 
 SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha)
 {
-	SDL_Surface * hide2 = SDL_ConvertSurface(src, alpha->format, SDL_SWSURFACE);
-	for(int i=0; i<hide2->w; ++i)
-	{
-		for(int j=0; j<hide2->h; ++j)
-		{
-			Uint32 * place = (Uint32*)( (Uint8*)hide2->pixels + j * hide2->pitch + i * hide2->format->BytesPerPixel);
-			(*place) &= 0xffffffff - (SDL_GetPixel(src, i, j, true) & 0xff000000);
-		}
-	}
-	return hide2;
-	//return copySurface(src);
+	return copySurface(src);
 }
 
-void CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
+int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {
 	if(src && src->format->BytesPerPixel==1 && dst && (dst->format->BytesPerPixel==3 || dst->format->BytesPerPixel==4)) //everything's ok
 	{
-		int xFromSrc=-1, xToSrc=-1,
-			yFromSrc=-1, yToSrc=-1; //source pseudorect without errors
+		SDL_Rect fulldst;
+		int srcx, srcy, w, h;
 
-		int xO=-1, yO=-1; //dst offsets
-
-		if(srcRect)
-		{
-			xFromSrc = srcRect->x;
-			yFromSrc = srcRect->y;
-			xToSrc = srcRect->w + srcRect->x;
-			yToSrc = srcRect->h + srcRect->y;
+		/* Make sure the surfaces aren't locked */
+		if ( ! src || ! dst ) {
+			SDL_SetError("SDL_UpperBlit: passed a NULL surface");
+			return(-1);
 		}
-		else
-		{
-			xFromSrc = 0;
-			yFromSrc = 0;
-			xToSrc = src->w;
-			yToSrc = src->h;
+		if ( src->locked || dst->locked ) {
+			SDL_SetError("Surfaces must not be locked during blit");
+			return(-1);
+		}
 
-			if(dstRect)
+		/* If the destination rectangle is NULL, use the entire dest surface */
+		if ( dstRect == NULL ) {
+				fulldst.x = fulldst.y = 0;
+			dstRect = &fulldst;
+		}
+
+		/* clip the source rectangle to the source surface */
+		if(srcRect) {
+				int maxw, maxh;
+		
+			srcx = srcRect->x;
+			w = srcRect->w;
+			if(srcx < 0) {
+					w += srcx;
+				dstRect->x -= srcx;
+				srcx = 0;
+			}
+			maxw = src->w - srcx;
+			if(maxw < w)
+				w = maxw;
+
+			srcy = srcRect->y;
+			h = srcRect->h;
+			if(srcy < 0) {
+					h += srcy;
+				dstRect->y -= srcy;
+				srcy = 0;
+			}
+			maxh = src->h - srcy;
+			if(maxh < h)
+				h = maxh;
+		    
+		} else {
+				srcx = srcy = 0;
+			w = src->w;
+			h = src->h;
+		}
+
+		/* clip the destination rectangle against the clip rectangle */
+		{
+				SDL_Rect *clip = &dst->clip_rect;
+			int dx, dy;
+
+			dx = clip->x - dstRect->x;
+			if(dx > 0) {
+				w -= dx;
+				dstRect->x += dx;
+				srcx += dx;
+			}
+			dx = dstRect->x + w - clip->x - clip->w;
+			if(dx > 0)
+				w -= dx;
+
+			dy = clip->y - dstRect->y;
+			if(dy > 0) {
+				h -= dy;
+				dstRect->y += dy;
+				srcy += dy;
+			}
+			dy = dstRect->y + h - clip->y - clip->h;
+			if(dy > 0)
+				h -= dy;
+		}
+
+		if(w > 0 && h > 0)
+		{
+			SDL_Rect sr;
+			sr.x = srcx;
+			sr.y = srcy;
+			sr.w = dstRect->w = w;
+			sr.h = dstRect->h = h;
+
+			if(dst->format->Rshift==0) //like in most surfaces
 			{
-				if(dstRect->w<xToSrc)
+				for(int x=0; x<sr.w; ++x)
 				{
-					xToSrc = dstRect->w;
-				}
-				if(dstRect->h<yToSrc)
-				{
-					yToSrc = dstRect->h;
+					for(int y=0; y<sr.h; ++y)
+					{
+						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
+						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
+						p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
+						p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
+						p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
+					}
 				}
 			}
-			else
+			else if(dst->format->Rshift==16) //such as screen
 			{
-				if(dst->w<xToSrc)
+				for(int x=0; x<sr.w; ++x)
 				{
-					xToSrc = dst->w;
+					for(int y=0; y<sr.h; ++y)
+					{
+						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
+						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
+						p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
+						p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
+						p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
+					}
 				}
-				if(dst->h<yToSrc)
-				{
-					yToSrc = dst->h;
-				}
-			}
-		}
-
-		if(dstRect)
-		{
-			xO = dstRect->x - xFromSrc;
-			yO = dstRect->y - yFromSrc;
-		}
-		else
-		{
-			xO = -xFromSrc;
-			yO = -yFromSrc;
-		}
-
-		if(xO+xToSrc>dst->w)
-		{
-			xToSrc = dst->w - xO;
-		}
-		if(yO+yToSrc>dst->h)
-		{
-			yToSrc = dst->h - yO;
-		}
-		if(xO+xFromSrc<0)
-		{
-			xFromSrc = - xO;
-		}
-		if(yO+yFromSrc<0)
-		{
-			yFromSrc = - yO;
-		}
-
-		for(int x=xFromSrc; x<xToSrc; ++x)
-		{
-			for(int y=yFromSrc; y<yToSrc; ++y)
-			{
-				SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + y*src->pitch + x)]; //color to blit
-				Uint8 * p = (Uint8*)dst->pixels + (y+yO)*dst->pitch + (x+xO)*dst->format->BytesPerPixel; //place to blit at
-				p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
-				p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
-				p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
 			}
 		}
 	}
+	return 0;
 }
 
 Uint32 CSDL_Ext::colorToUint32(const SDL_Color * color)
@@ -817,14 +840,14 @@ int readNormalNr (std::istream &in, int bytCon)
 	return ret;
 }
 
-void CSDL_Ext::fullAlphaTransform(SDL_Surface *& src)
-{
-	src = alphaTransform(src);
-	SDL_Surface * hlp2;
-	hlp2 = secondAlphaTransform(src, std32bppSurface);
-	SDL_FreeSurface(src);
-	src = hlp2;
-}
+//void CSDL_Ext::fullAlphaTransform(SDL_Surface *& src)
+//{
+//	src = alphaTransform(src);
+//	//SDL_Surface * hlp2;
+//	//hlp2 = secondAlphaTransform(src, std32bppSurface);
+//	//SDL_FreeSurface(src);
+//	//src = hlp2;
+//}
 
 std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor)
 {

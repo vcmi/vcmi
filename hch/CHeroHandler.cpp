@@ -432,7 +432,7 @@ void CHeroHandler::loadHeroClasses()
 
 		for(int ff=0; ff<hc->moveAnim->ourImages.size(); ++ff)
 		{
-			CSDL_Ext::fullAlphaTransform(hc->moveAnim->ourImages[ff].bitmap);
+			CSDL_Ext::alphaTransform(hc->moveAnim->ourImages[ff].bitmap);
 		}
 		hc->moveAnim->alphaTransformed = true;
 		heroClasses.push_back(hc);

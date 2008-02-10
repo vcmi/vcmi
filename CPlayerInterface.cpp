@@ -29,7 +29,7 @@ extern TTF_Font * GEOR16;
 class OCM_HLP_CGIN
 {
 public:
-	bool operator ()(const std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>>  & a, const std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & b) const
+	bool operator ()(const std::pair<CGObjectInstance*,SDL_Rect>  & a, const std::pair<CGObjectInstance*,SDL_Rect> & b) const
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -878,7 +878,7 @@ inline void subRect(const int & x, const int & y, const int & z, SDL_Rect & r, c
 	for(int h=0; h<hlp.objects.size(); ++h)
 		if(hlp.objects[h].first->id==hid)
 		{
-			hlp.objects[h].second.first = r;
+			hlp.objects[h].second = r;
 			return;
 		}
 }
@@ -963,17 +963,17 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	{
 		ho->moveDir = 1;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -31, -31), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 1, -31), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 33, -31), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 65, -31), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -31)));
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, -31)));
 
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -31, 1), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 1)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 1), ho->id);
 
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -31, 33), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 33)));
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 33), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 33), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 33), ho->id);
@@ -997,9 +997,9 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	{
 		ho->moveDir = 2;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 0, -31), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 32, -31), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 64, -31), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, -31)));
 
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, 1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, 1), ho->id);
@@ -1025,20 +1025,20 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	{
 		ho->moveDir = 3;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -1, -31), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 31, -31), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 63, -31), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 95, -31), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, -31)));
+		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, -31)));
+		CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, -31)));
+		CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -31)));
 
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 95, 1), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 1)));
 
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 33), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 33), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 33), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 95, 33), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 33)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
@@ -1062,12 +1062,12 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, 0), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 95, 0), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 0)));
 
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 32), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 32), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 32), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 95, 32), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 32)));
 
 		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
@@ -1086,17 +1086,17 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63, -1), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 95, -1), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, -1)));
 
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, -1, 31), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31, 31), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 31), ho->id);
-		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 95, 31), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 31)));
 
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -1, 63), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 31, 63), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 63, 63), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 95, 63), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, 63)));
+		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 63)));
 
 		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
@@ -1125,9 +1125,9 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 31), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 31), ho->id);
 
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 0, 63), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 32, 63), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 64, 63), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, 63)));
 
 		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
@@ -1145,20 +1145,20 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	{
 		ho->moveDir = 7;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -31, -1), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -1)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, -1), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, -1), ho->id);
 
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -31, 31), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 31)));
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 31), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 31), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 31), ho->id);
 
-		CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -31, 63), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 1, 63), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 33, 63), std::vector<std::list<int3>>())));
-		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, 65, 63), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 63)));
+		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, 63)));
+		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 33, 63)));
+		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, 63)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
@@ -1179,12 +1179,12 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	{
 		ho->moveDir = 8;
 		ho->isStanding = false;
-		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -31, 0), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 0)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33, 0), ho->id);
 		subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 65, 0), ho->id);
 
-		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, std::make_pair(genRect(32, 32, -31, 32), std::vector<std::list<int3>>())));
+		CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 32)));
 		subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1, 32), ho->id);
 		subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33, 32), ho->id);
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 32), ho->id);

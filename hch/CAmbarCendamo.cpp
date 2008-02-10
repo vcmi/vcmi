@@ -2153,9 +2153,9 @@ borderguardend:
 		for(int yy=0; yy<map.defy[vv]->handler->ourImages.size(); ++yy)
 		{
 			map.defy[vv]->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap);
-			SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap, CSDL_Ext::std32bppSurface);
-			SDL_FreeSurface(map.defy[vv]->handler->ourImages[yy].bitmap);
-			map.defy[vv]->handler->ourImages[yy].bitmap = bufs;
+			//SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap, CSDL_Ext::std32bppSurface);
+			//SDL_FreeSurface(map.defy[vv]->handler->ourImages[yy].bitmap);
+			//map.defy[vv]->handler->ourImages[yy].bitmap = bufs;
 			map.defy[vv]->handler->alphaTransformed = true;
 		}
 	}

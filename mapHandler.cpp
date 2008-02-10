@@ -20,7 +20,7 @@ extern SDL_Surface * ekran;
 class OCM_HLP
 {
 public:
-	bool operator ()(const std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & a, const std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> & b)
+	bool operator ()(const std::pair<CGObjectInstance*, SDL_Rect> & a, const std::pair<CGObjectInstance*, SDL_Rect> & b)
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -31,9 +31,9 @@ void alphaTransformDef(CGDefInfo * defInfo)
 	for(int yy=0;yy<defInfo->handler->ourImages.size();yy++)
 	{
 		defInfo->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
-		SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(defInfo->handler->ourImages[yy].bitmap, alphaTransSurf);
-		SDL_FreeSurface(defInfo->handler->ourImages[yy].bitmap);
-		defInfo->handler->ourImages[yy].bitmap = bufs;
+		//SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(defInfo->handler->ourImages[yy].bitmap, alphaTransSurf);
+		//SDL_FreeSurface(defInfo->handler->ourImages[yy].bitmap);
+		//defInfo->handler->ourImages[yy].bitmap = bufs;
 		defInfo->handler->alphaTransformed = true;
 	}
 	SDL_FreeSurface(alphaTransSurf);
@@ -310,7 +310,7 @@ void CMapHandler::prepareFOWDefs()
 
 	for(int i=0; i<partialHide->ourImages.size(); ++i)
 	{
-		CSDL_Ext::fullAlphaTransform(partialHide->ourImages[i].bitmap);
+		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
 	}
 	//visibility.resize(reader->map.width+2*Woff);
 	//for(int gg=0; gg<reader->map.width+2*Woff; ++gg)
@@ -370,6 +370,20 @@ void CMapHandler::roadsRiverTerrainInit()
 	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("icyrvr.def"));
 	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("mudrvr.def"));
 	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("lavrvr.def"));
+	for(int g=0; g<staticRiverDefs.size(); ++g)
+	{
+		for(int h=0; h<staticRiverDefs[g]->ourImages.size(); ++h)
+		{
+			CSDL_Ext::alphaTransform(staticRiverDefs[g]->ourImages[h].bitmap);
+		}
+	}
+	for(int g=0; g<roadDefs.size(); ++g)
+	{
+		for(int h=0; h<roadDefs[g]->ourImages.size(); ++h)
+		{
+			CSDL_Ext::alphaTransform(roadDefs[g]->ourImages[h].bitmap);
+		}
+	}
 
 	//roadBitmaps = new SDL_Surface** [reader->map.width+2*Woff];
 	//for (int ii=0;ii<reader->map.width+2*Woff;ii++)
@@ -438,9 +452,6 @@ void CMapHandler::roadsRiverTerrainInit()
 					if(rotH || rotV)
 					{
 						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].roadbitmap[0]);
-						SDL_Surface * buf = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].roadbitmap[0], CSDL_Ext::std32bppSurface);
-						SDL_FreeSurface(ttiles[i][j][k].roadbitmap[0]);
-						ttiles[i][j][k].roadbitmap[0] = buf;
 					}
 				}
 			}
@@ -517,9 +528,6 @@ void CMapHandler::roadsRiverTerrainInit()
 					if(rotH || rotV)
 					{
 						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].rivbitmap[0]);
-						SDL_Surface * buf = CSDL_Ext::secondAlphaTransform(ttiles[i][j][k].rivbitmap[0], CSDL_Ext::std32bppSurface);
-						SDL_FreeSurface(ttiles[i][j][k].rivbitmap[0]);
-						ttiles[i][j][k].rivbitmap[0] = buf;
 					}
 				}
 			}
@@ -666,34 +674,8 @@ void CMapHandler::initObjectRects()
 					cr.h = 32;
 					cr.x = fx<<5; //fx*32
 					cr.y = fy<<5; //fy*32
-					std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(CGI->objh->objInstances[f], std::make_pair(cr, std::vector<std::list<int3>>()));
-					///initializing places that will be coloured by blitting (flag colour / player colour positions)
+					std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(CGI->objh->objInstances[f],cr);
 					
-					if(toAdd.first->defInfo->isVisitable() && toAdd.first->defInfo->handler->ourImages[0].bitmap->format->BitsPerPixel!=8)
-					{
-						toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
-						for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)
-						{
-							bool breakNow = true;
-							for(int dx=0; dx<32; ++dx)
-							{
-								for(int dy=0; dy<32; ++dy)
-								{
-									SDL_Surface * curs = toAdd.first->defInfo->handler->ourImages[no].bitmap;
-									Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
-									Uint8 r, g, b, a;
-									SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
-									if(r==255 && g==255 && b==0)
-									{
-										toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
-										breakNow = false;
-									}
-								}
-							}
-							if(breakNow)
-								break;
-						}
-					}
 					if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 					{
 						//TerrainTile2 & curt =
@@ -863,8 +845,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.h=sr.w=32;
 			if(ttiles[x+bx][y+by][level].rivbitmap.size())
 			{
-				SDL_BlitSurface(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,&sr);
-				//CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,&sr);
+				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,&sr);
 			}
 		}
 	}
@@ -881,7 +862,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.x=bx*32;
 			sr.h=sr.w=32;
 			if(ttiles[x+bx][y+by][level].roadbitmap.size())
-				SDL_BlitSurface(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()],NULL,su,&sr);
+			{
+				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()],NULL,su,&sr);
+			}
 		}
 	}
 	////roads printed
@@ -899,7 +882,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.x = (bx)*32;
 				sr.y = (by)*32;
 
-				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second.first;
+				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
 				CGHeroInstance * themp = (dynamic_cast<CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
 
 				if(themp && themp->moveDir && !themp->isStanding && themp->ID!=62) //last condition - this is not prison
@@ -920,12 +903,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							break;
 						}
 					}
-					SDL_BlitSurface(tb,&pp,su,&sr);
-					//CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
+					CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
 					pp.y+=imgVal*2-32;
 					sr.y-=16;
-					SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
-					//CSDL_Ext::blit8bppAlphaTo24bpp(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
+					CSDL_Ext::blit8bppAlphaTo24bpp(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 				}
 				else if(themp && themp->moveDir && themp->isStanding && themp->ID!=62) //last condition - this is not prison)
 				{
@@ -945,61 +926,29 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 							break;
 						}
 					}
-					SDL_BlitSurface(tb,&pp,su,&sr);
-					//CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
+					CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
 					if(themp->pos.x==x+bx && themp->pos.y==y+by)
 					{
 						SDL_Rect bufr = sr;
 						bufr.x-=2*32;
 						bufr.y-=1*32;
-						SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
-						//CSDL_Ext::blit8bppAlphaTo24bpp(CGI->heroh->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
+						CSDL_Ext::blit8bppAlphaTo24bpp(CGI->heroh->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
 						themp->flagPrinted = true;
 					}
 				}
 				else
 				{
 					int imgVal = ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages.size();
-					SDL_BlitSurface(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
-					//CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
-				}
-				//printing appropriate flag colour
-				if(ttiles[x+bx][y+by][level].objects[h].second.second.size())
-				{
-					std::list<int3> & curl = ttiles[x+bx][y+by][level].objects[h].second.second[anim%ttiles[x+bx][y+by][level].objects[h].second.second.size()];
-					for(std::list<int3>::iterator g=curl.begin(); g!=curl.end(); ++g)
-					{
-						SDL_Color ourC;
-						int own = ttiles[x+bx][y+by][level].objects[h].first->getOwner();
-						if(ttiles[x+bx][y+by][level].objects[h].first->getOwner()!=255 && ttiles[x+bx][y+by][level].objects[h].first->getOwner()!=254)
-							ourC = CGI->playerColors[ttiles[x+bx][y+by][level].objects[h].first->getOwner()];
-						else if(ttiles[x+bx][y+by][level].objects[h].first->getOwner()==255)
-							ourC = CGI->neutralColor;
-						else continue;
-						CSDL_Ext::SDL_PutPixelWithoutRefresh(su, bx*32 + g->x%32 , by*32 + g->y%32, ourC.r , ourC.g, ourC.b, 0);
-					}
+
+					//setting appropriate flag color
+					if((ttiles[x+bx][y+by][level].objects[h].first->tempOwner>=0 && ttiles[x+bx][y+by][level].objects[h].first->tempOwner<=8) || ttiles[x+bx][y+by][level].objects[h].first->tempOwner==255)
+						CSDL_Ext::setPlayerColor(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap, ttiles[x+bx][y+by][level].objects[h].first->tempOwner);
+					
+					CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
 				}
 			}
 		}
 	}
-
-	///enabling flags
-
-
-
-	//nie zauwazylem aby ustawianie tego cokolwiek zmienialo w wyswietlaniu, wiec komentuje (do dzialania wymaga jeszcze odkomentowania przyjazni w statcie)
-
-	/*for(std::map<int, PlayerState>::iterator k=CGI->state->players.begin(); k!=CGI->state->players.end(); ++k)
-	{
-		for (int l = 0; l<k->second.heroes.size(); l++)
-			k->second.heroes[l]->flagPrinted = false;
-	}
-	for(int qq=0; qq<CGI->heroh->heroInstances.size(); ++qq)
-	{
-		CGI->heroh->heroInstances[qq]->flagPrinted = false;
-	}*/
-
-	///flags enabled
 
 	////objects printed, printing shadow
 	for (int bx=0; bx<dx; bx++)
@@ -1014,8 +963,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][level])
 			{
 				SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, level);
-				SDL_BlitSurface(hide, NULL, su, &sr);
-				//CSDL_Ext::blit8bppAlphaTo24bpp(hide, NULL, su, &sr);
+				CSDL_Ext::blit8bppAlphaTo24bpp(hide, NULL, su, &sr);
 			}
 		}
 	}
@@ -1358,7 +1306,7 @@ int CMapHandler::getCost(int3 &a, int3 &b, const CGHeroInstance *hero)
 
 std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
 {
-	std::vector < std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > objs = ttiles[pos.x][pos.y][pos.z].objects;
+	std::vector < std::pair<CGObjectInstance*,SDL_Rect > > objs = ttiles[pos.x][pos.y][pos.z].objects;
 	std::vector<std::string> ret;
 	for(int g=0; g<objs.size(); ++g)
 	{
@@ -1472,33 +1420,7 @@ bool CMapHandler::printObject(CGObjectInstance *obj)
 			cr.h = 32;
 			cr.x = fx*32;
 			cr.y = fy*32;
-			std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> toAdd = std::make_pair(obj, std::make_pair(cr, std::vector<std::list<int3>>()));
-			///initializing places that will be coloured by blitting (flag colour / player colour positions)
-			if(CGI->dobjinfo->gobjs[toAdd.first->ID][toAdd.first->subID]->isVisitable())
-			{
-				toAdd.second.second.resize(toAdd.first->defInfo->handler->ourImages.size());
-				for(int no = 0; no<toAdd.first->defInfo->handler->ourImages.size(); ++no)
-				{
-					bool breakNow = true;
-					for(int dx=0; dx<32; ++dx)
-					{
-						for(int dy=0; dy<32; ++dy)
-						{
-							SDL_Surface * curs = toAdd.first->defInfo->handler->ourImages[no].bitmap;
-							Uint32* point = (Uint32*)( (Uint8*)curs->pixels + curs->pitch * (fy*32+dy) + curs->format->BytesPerPixel*(fx*32+dx));
-							Uint8 r, g, b, a;
-							SDL_GetRGBA(*point, curs->format, &r, &g, &b, &a);
-							if(r==255 && g==255 && b==0)
-							{
-								toAdd.second.second[no].push_back(int3((fx*32+dx), (fy*32+dy), 0));
-								breakNow = false;
-							}
-						}
-					}
-					if(breakNow)
-						break;
-				}
-			}
+			std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
 			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
 				TerrainTile2 & curt = 
@@ -1525,7 +1447,7 @@ bool CMapHandler::hideObject(CGObjectInstance *obj)
 		{
 			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
-				std::vector < std::pair<CGObjectInstance*,std::pair<SDL_Rect, std::vector<std::list<int3>>>> > & ctile = ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects;
+				std::vector < std::pair<CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects;
 				for(int dd=0; dd<ctile.size(); ++dd)
 				{
 					if(ctile[dd].first->id==obj->id)

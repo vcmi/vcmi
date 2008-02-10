@@ -238,7 +238,7 @@ CTerrainRect::CTerrainRect():currentPath(NULL)
 	arrows = CGI->spriteh->giveDef("ADAG.DEF");
 	for(int y=0; y<arrows->ourImages.size(); ++y)
 	{
-		CSDL_Ext::fullAlphaTransform(arrows->ourImages[y].bitmap);
+		arrows->ourImages[y].bitmap = CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
 	}
 }
 void CTerrainRect::activate()
@@ -516,21 +516,27 @@ void CTerrainRect::showPath()
 			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
 				hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
 			if (hvx<0 && hvy<0)
-				blitAt(arrows->ourImages[pn].bitmap,x,y);
+			{
+				CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, ekran, &genRect(32, 32, x, y));
+			}
 			else if(hvx<0)
-				SDL_BlitSurface
-				(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,0,0),
-				ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,x,y));
+			{
+				CSDL_Ext::blit8bppAlphaTo24bpp
+					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,0,0),
+					ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,x,y));
+			}
 			else if (hvy<0)
 			{
-				SDL_BlitSurface
+				CSDL_Ext::blit8bppAlphaTo24bpp
 					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,0,0),
 					ekran,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,x,y));
 			}
 			else
-				SDL_BlitSurface
-				(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,0,0),
-				ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
+			{
+				CSDL_Ext::blit8bppAlphaTo24bpp
+					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,0,0),
+					ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
+			}
 
 		}
 	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
