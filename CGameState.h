@@ -62,7 +62,7 @@ public:
 	friend void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	//CCallback * cb; //for communication between PlayerInterface/AI and GameState
 
-	friend SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim); //todo: wywalic koniecznie, tylko do flag obecnie!!!!
+	friend SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect); //todo: wywalic koniecznie, tylko do flag obecnie!!!!
 };
 
 #endif //CGAMESTATE_H

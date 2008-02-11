@@ -984,14 +984,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
 	{
@@ -1012,14 +1006,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
 	{
@@ -1045,14 +1031,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
 
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
@@ -1069,14 +1049,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63, 32), ho->id);
 		CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 32)));
 
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
@@ -1098,14 +1072,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 63, 63)));
 		CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 95, 63)));
 
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
@@ -1128,14 +1096,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, 63)));
 		CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, 63)));
 		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 64, 63)));
-
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
@@ -1161,14 +1121,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 65, 63)));
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
@@ -1190,14 +1144,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65, 32), ho->id);
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-		//std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
 	//first initializing done
 	SDL_framerateDelay(mainFPSmng); // after first move
@@ -1220,21 +1168,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 33+i), ho->id);
 			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 33+i), ho->id);
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 33+i), ho->id);
-
-			/*std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
 		{
@@ -1249,18 +1182,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 0, 33+i), ho->id);
 			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33+i), ho->id);
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33+i), ho->id);
-
-			/*std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
 		{
@@ -1278,21 +1199,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 33+i), ho->id);
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 33+i), ho->id);
 			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 33+i), ho->id);
-
-			/*std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
 		{
@@ -1305,16 +1211,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 31-i, 32), ho->id);
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 32), ho->id);
 			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 32), ho->id);
-
-			/*std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
 		{
@@ -1332,21 +1228,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 31-i, 63-i), ho->id);
 			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 63-i, 63-i), ho->id);
 			subRect(hp.x+1, hp.y+1, hp.z, genRect(32, 32, 95-i, 63-i), ho->id);
-
-			/*std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
 		{
@@ -1361,18 +1242,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 0, 63-i), ho->id);
 			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 32, 63-i), ho->id);
 			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 64, 63-i), ho->id);
-
-			/*std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
 		{
@@ -1390,21 +1259,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-2, hp.y+1, hp.z, genRect(32, 32, 1+i, 63-i), ho->id);
 			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 33+i, 63-i), ho->id);
 			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 65+i, 63-i), ho->id);
-
-			/*std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
 		{
@@ -1417,16 +1271,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-2, hp.y, hp.z, genRect(32, 32, 1+i, 32), ho->id);
 			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 32), ho->id);
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
-
-			/*std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-1][hp.z].objects.end(), ocmptwo_cgin);
-
-			std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-2][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
-			std::stable_sort(CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y][hp.z].objects.end(), ocmptwo_cgin);*/
 		}
 		LOCPLINT->adventureInt->update(); //updating screen
 		CSDL_Ext::update(ekran);
@@ -1441,6 +1285,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		++LOCPLINT->adventureInt->heroAnim;
 
+		SDL_Delay(5);
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
 	} //for(int i=1; i<32; i+=4)
 	//main moving done

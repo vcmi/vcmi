@@ -813,12 +813,22 @@ void CMapHandler::init()
 	std::cout<<"\tCalculating blockmap: "<<th.getDif()<<std::endl;
 }
 
-SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim)
+SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)
 {
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
 
-	SDL_Surface * su = CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
+	//setting surface to blit at
+	SDL_Surface * su = NULL; //blitting surface CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
+	if(extSurf)
+	{
+		su = extSurf;
+	}
+	else
+	{
+		 su = CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
+	}
+
 	if (((dx+x)>((reader->map.width+Woff)) || (dy+y)>((reader->map.height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
 		throw new std::string("terrainRect: out of range");
 	////printing terrain
@@ -830,6 +840,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.y=by*32;
 			sr.x=bx*32;
 			sr.h=sr.w=32;
+			validateRectTerr(&sr, extRect);
 			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,&sr);
 		}
 	}
@@ -843,6 +854,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.y=by*32;
 			sr.x=bx*32;
 			sr.h=sr.w=32;
+			validateRectTerr(&sr, extRect);
 			if(ttiles[x+bx][y+by][level].rivbitmap.size())
 			{
 				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,&sr);
@@ -861,6 +873,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.y=by*32+16;
 			sr.x=bx*32;
 			sr.h=sr.w=32;
+			validateRectTerr(&sr, extRect);
 			if(ttiles[x+bx][y+by][level].roadbitmap.size())
 			{
 				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()],NULL,su,&sr);
@@ -881,6 +894,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.h = 32;
 				sr.x = (bx)*32;
 				sr.y = (by)*32;
+				validateRectTerr(&sr, extRect);
 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
 				CGHeroInstance * themp = (dynamic_cast<CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
@@ -959,6 +973,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.y=by*32;
 			sr.x=bx*32;
 			sr.h=sr.w=32;
+			validateRectTerr(&sr, extRect);
 			
 			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][level])
 			{
@@ -979,6 +994,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.y=by*32;
 				sr.x=bx*32;
 				sr.h=sr.w=32;
+				validateRectTerr(&sr, extRect);
 
 				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,&sr);
 			}
@@ -990,6 +1006,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					sr.y=by*32;
 					sr.x=bx*32;
 					sr.h=sr.w=32;
+					validateRectTerr(&sr, extRect);
 
 					SDL_Surface * ns =  CSDL_Ext::newSurface(32, 32, CSDL_Ext::std32bppSurface);
 					for(int f=0; f<ns->w*ns->h*4; ++f)
@@ -1007,6 +1024,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					sr.y=by*32;
 					sr.x=bx*32;
 					sr.h=sr.w=32;
+					validateRectTerr(&sr, extRect);
 
 					SDL_Surface * ns = CSDL_Ext::newSurface(32, 32, CSDL_Ext::std32bppSurface);
 					for(int f=0; f<ns->w*ns->h*4; ++f)
@@ -1582,6 +1600,40 @@ unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool 
 			return 14;
 		default:
 			return -1; //should never happen
+		}
+	}
+}
+
+void CMapHandler::validateRectTerr(SDL_Rect * val, const SDL_Rect * ext)
+{
+	if(ext)
+	{
+		if(val->x<0)
+		{
+			val->w += val->x;
+			val->x = ext->x;
+		}
+		else
+		{
+			val->x += ext->x;
+		}
+		if(val->y<0)
+		{
+			val->h += val->y;
+			val->y = ext->y;
+		}
+		else
+		{
+			val->y += ext->y;
+		}
+
+		if(val->x+val->w > ext->x+ext->w)
+		{
+			val->w = ext->x+ext->w-val->x;
+		}
+		if(val->y+val->h > ext->y+ext->h)
+		{
+			val->h = ext->y+ext->h-val->y;
 		}
 	}
 }
