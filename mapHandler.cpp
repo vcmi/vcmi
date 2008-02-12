@@ -841,7 +841,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.x=bx*32;
 			sr.h=sr.w=32;
 			validateRectTerr(&sr, extRect);
-			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,&sr);
+			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
 		}
 	}
 	////terrain printed
@@ -857,7 +857,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			validateRectTerr(&sr, extRect);
 			if(ttiles[x+bx][y+by][level].rivbitmap.size())
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],NULL,su,&sr);
+				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
 			}
 		}
 	}
@@ -876,7 +876,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			validateRectTerr(&sr, extRect);
 			if(ttiles[x+bx][y+by][level].roadbitmap.size())
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()],NULL,su,&sr);
+				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()], &genRect(sr.h, sr.w, 0, (by==-1 ? 16 : 0)),su,&sr);
 			}
 		}
 	}
@@ -897,6 +897,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				validateRectTerr(&sr, extRect);
 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
+				pp.h = sr.h;
+				pp.w = sr.w;
 				CGHeroInstance * themp = (dynamic_cast<CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
 
 				if(themp && themp->moveDir && !themp->isStanding && themp->ID!=62) //last condition - this is not prison
@@ -978,7 +980,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][level])
 			{
 				SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, level);
-				CSDL_Ext::blit8bppAlphaTo24bpp(hide, NULL, su, &sr);
+				CSDL_Ext::blit8bppAlphaTo24bpp(hide, &genRect(sr.h, sr.w, 0, 0), su, &sr);
 			}
 		}
 	}
@@ -996,7 +998,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.h=sr.w=32;
 				validateRectTerr(&sr, extRect);
 
-				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],NULL,su,&sr);
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
 			}
 			else 
 			{
@@ -1014,7 +1016,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						*((unsigned char*)(ns->pixels) + f) = 128;
 					}
 
-					SDL_BlitSurface(ns,NULL,su,&sr);
+					SDL_BlitSurface(ns,&genRect(sr.h, sr.w, 0, 0),su,&sr);
 
 					SDL_FreeSurface(ns);
 				}
@@ -1032,14 +1034,13 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						*((unsigned char*)(ns->pixels) + f) = 128;
 					}
 
-					SDL_BlitSurface(ns,NULL,su,&sr);
+					SDL_BlitSurface(ns,&genRect(sr.h, sr.w, 0, 0),su,&sr);
 
 					SDL_FreeSurface(ns);
 				}
 			}
 		}
 	}
-	CSDL_Ext::update(su);
 	//borders printed
 	return su;
 }
@@ -1634,6 +1635,12 @@ void CMapHandler::validateRectTerr(SDL_Rect * val, const SDL_Rect * ext)
 		if(val->y+val->h > ext->y+ext->h)
 		{
 			val->h = ext->y+ext->h-val->y;
+		}
+
+		//for sign problems
+		if(val->h > 20000 || val->w > 20000)
+		{
+			val->h = val->w = 0;
 		}
 	}
 }

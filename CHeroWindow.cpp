@@ -890,8 +890,11 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 	{
 		if(!ourWindow->activeArtPlace) //nothing has benn clicked
 		{
-			clicked = true;
-			ourWindow->activeArtPlace = this;
+			if(ourArt) //to prevent selecting empty slots (bugfix to what GrayFace reported)
+			{
+				clicked = true;
+				ourWindow->activeArtPlace = this;
+			}
 		}
 		else //perform artifact substitution
 		{

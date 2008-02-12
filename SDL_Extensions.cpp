@@ -438,7 +438,7 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 		{
 			SDL_Color cur = *(src->format->palette->colors+yy);
 			//if(cur.r == 255 && cur.b == 255)
-			if(yy==1 || yy==2 || yy==3 || yy==4 || yy==8)
+			if(yy==1 || yy==2 || yy==3 || yy==4 || yy==8 || yy==9)
 			{
 				SDL_Color shadow;
 				shadow.b = shadow.g = shadow.r = 0;
