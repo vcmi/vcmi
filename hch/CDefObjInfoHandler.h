@@ -10,6 +10,7 @@ public:
 
 	unsigned char visitMap[6];
 	unsigned char blockMap[6];
+	unsigned char visitDir; //directions from which object can be entered, format same as for moveDir in CGHeroInstance(but 0 - 7)
 	int id, subid; //of object described by this defInfo
 	int terrainAllowed, //on which terrain it is possible to place object
 		 terrainMenu; //in which menus in map editor object will be showed
@@ -24,6 +25,7 @@ public:
 		else
 			return subid<por.subid;
 	}
+	CGDefInfo();
 };
 struct DefObjInfo
 {

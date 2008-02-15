@@ -329,8 +329,9 @@ public:
 class CGHeroInstance : public CGObjectInstance
 {
 public:
-	int moveDir;
-
+	int moveDir; //format:	123
+					//		8 4
+					//		765
 	bool isStanding;
 	bool flagPrinted;
 	CHero * type;

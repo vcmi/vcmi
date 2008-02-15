@@ -1380,7 +1380,7 @@ SDL_Surface * CPlayerInterface::drawPrimarySkill(const CGHeroInstance *curh, SDL
 SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 {
 	char * buf = new char[10];
-	SDL_Surface * ret = copySurface(hInfo);
+	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 	blueToPlayersAdv(ret,playerID,1);
 	printAt(curh->name,75,15,GEOR13,zwykly,ret);
@@ -1875,6 +1875,13 @@ void CHeroList::genList()
 }
 void CHeroList::select(int which)
 {
+	if (which<0)
+	{
+		selected = which;
+		LOCPLINT->adventureInt->selection.selected = LOCPLINT->adventureInt->terrain.currentPath = NULL;
+		draw();
+		LOCPLINT->adventureInt->infoBar.draw(NULL);
+	}
 	if (which>=items.size()) 
 		return;
 	selected = which;
@@ -2012,6 +2019,8 @@ void CHeroList::updateHList()
 {
 	items.clear();
 	genList();
+	if(selected>=items.size())
+		select(items.size()-1);
 }
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {

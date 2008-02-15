@@ -13,6 +13,10 @@ bool CGDefInfo::isVisitable()
 	}
 	return false;
 }
+CGDefInfo::CGDefInfo()
+{
+	visitDir = (8|16|32|64|128); //4,5,6,7,8 - any not-from-up direction
+}
 bool DefObjInfo::operator==(const std::string & por) const
 {
 	return this->defName == por;
