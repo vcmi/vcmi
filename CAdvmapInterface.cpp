@@ -212,8 +212,8 @@ void CMinimap::deactivate()
 }
 void CMinimap::showTile(int3 pos)
 {
-	int mw = map[0]->w, mh = map[0]->h,
-		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
+	int mw = map[0]->w, mh = map[0]->h;
+	double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
 	for (int ii=0; ii<wo; ii++)
 	{
 		for (int jj=0; jj<ho; jj++)
