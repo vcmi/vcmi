@@ -108,6 +108,7 @@ public:
 	std::string getRandomizedDefName(CGDefInfo* di, CGObjectInstance * obj = NULL); //objinstance needed only for heroes and towns
 	unsigned char getHeroFrameNum(const unsigned char & dir, const bool & isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
+	static unsigned char getDir(const int3 & a, const int3 & b); //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]
 
 };
 

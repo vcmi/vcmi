@@ -1644,3 +1644,42 @@ void CMapHandler::validateRectTerr(SDL_Rect * val, const SDL_Rect * ext)
 		}
 	}
 }
+
+unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
+{
+	if(a.z!=b.z)
+		return -1; //error!
+	if(a.x==b.x+1 && a.y==b.y+1) //lt
+	{
+		return 0;
+	}
+	else if(a.x==b.x && a.y==b.y+1) //t
+	{
+		return 1;
+	}
+	else if(a.x==b.x-1 && a.y==b.y+1) //rt
+	{
+		return 2;
+	}
+	else if(a.x==b.x-1 && a.y==b.y) //r
+	{
+		return 3;
+	}
+	else if(a.x==b.x-1 && a.y==b.y-1) //rb
+	{
+		return 4;
+	}
+	else if(a.x==b.x && a.y==b.y-1) //b
+	{
+		return 5;
+	}
+	else if(a.x==b.x+1 && a.y==b.y-1) //lb
+	{
+		return 6;
+	}
+	else if(a.x==b.x+1 && a.y==b.y) //l
+	{
+		return 7;
+	}
+
+}
