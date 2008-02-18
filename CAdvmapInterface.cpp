@@ -671,7 +671,12 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 	{
 		if(LOCPLINT->heroWins.find(specific->subID)!=LOCPLINT->heroWins.end())
 			blitAt(LOCPLINT->heroWins[specific->subID],pos.x,pos.y);
-
+	}
+	else if (specific->ID == 98)
+	{
+		const CGTownInstance * t = static_cast<const CGTownInstance*>(specific);
+		if(LOCPLINT->townWins.find(t->identifier)!=LOCPLINT->townWins.end())
+			blitAt(LOCPLINT->townWins[t->identifier],pos.x,pos.y);
 	}
 
 	//SDL_Surface * todr = LOCPLINT->infoWin(specific);
@@ -1006,6 +1011,7 @@ void CAdvMapInt::selectionChanged()
 	terrain.currentPath = NULL;
 	townList.draw();
 	heroList.draw();
+	infoBar.draw(NULL);
 }
 void CAdvMapInt::centerOn(int3 on)
 {

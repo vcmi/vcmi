@@ -739,6 +739,8 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	human=true;
 	hInfo = CGI->bitmaph->loadBitmap("HEROQVBK.bmp");
 	SDL_SetColorKey(hInfo,SDL_SRCCOLORKEY,SDL_MapRGB(hInfo->format,0,255,255));
+	tInfo = CGI->bitmaph->loadBitmap("TOWNQVBK.bmp");
+	SDL_SetColorKey(tInfo,SDL_SRCCOLORKEY,SDL_MapRGB(tInfo->format,0,255,255));
 	slotsPos.push_back(std::pair<int,int>(44,82));
 	slotsPos.push_back(std::pair<int,int>(80,82));
 	slotsPos.push_back(std::pair<int,int>(116,82));
@@ -755,6 +757,9 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	morale30 = CGI->spriteh->giveDefEss("IMRL30.DEF");
 	morale42 = CGI->spriteh->giveDefEss("IMRL42.DEF");
 	morale82 = CGI->spriteh->giveDefEss("IMRL82.DEF");
+	halls = CGI->spriteh->giveDefEss("ITMTLS.DEF");
+	forts = CGI->spriteh->giveDefEss("ITMCLS.DEF");
+	bigTownPic =  CGI->spriteh->giveDefEss("ITPT.DEF");
 
 }
 void CPlayerInterface::init(ICallback * CB)
@@ -768,6 +773,12 @@ void CPlayerInterface::init(ICallback * CB)
 	{
 		SDL_Surface * pom = infoWin(hh[i]);
 		heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
+	}
+	std::vector<const CGTownInstance*> tt = cb->getTownsInfo(false);
+	for(int i=0;i<tt.size();i++)
+	{
+		SDL_Surface * pom = infoWin(tt[i]);
+		townWins.insert(std::pair<int,SDL_Surface*>(tt[i]->identifier,pom));
 	}
 }
 void CPlayerInterface::yourTurn()
@@ -1403,7 +1414,34 @@ SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 
 SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
 {
-	return NULL;
+	char * buf = new char[10];
+	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
+	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
+	blueToPlayersAdv(ret,playerID,1);
+	printAt(curh->name,75,15,GEOR13,zwykly,ret);
+
+	int pom = curh->fortLevel() - 1; if(pom<0) pom = 3;
+	blitAt(halls->ourImages[curh->hallLevel()].bitmap,77,42,ret);
+	blitAt(forts->ourImages[pom].bitmap,115,42,ret);
+	itoa(curh->dailyIncome(),buf,10);
+	printAtMiddle(buf,167,70,GEORM,zwykly,ret);
+	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->garrison.slots.begin(); i!=curh->garrison.slots.end();i++)
+	{
+		blitAt(CGI->creh->smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
+		itoa((*i).second.second,buf,10);
+		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+	}
+
+	//blit town icon
+	pom = curh->subID*2;
+	if (!curh->hasFort())
+		pom += F_NUMBER*2;
+	if(curh->builded >= MAX_BUILDING_PER_TURN)
+		pom++;
+	blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
+
+	delete[] buf;
+	return ret;
 }
 
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
@@ -1423,6 +1461,9 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 		{
 		case 34:
 			return drawHeroInfoWin(dynamic_cast<const CGHeroInstance*>(specific));
+			break;
+		case 98:
+			return drawTownInfoWin(dynamic_cast<const CGTownInstance*>(specific));
 			break;
 		default:
 			return NULL;
@@ -1725,6 +1766,12 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 	}
 	else if (obj->ID == 98) //town
 	{
+		const CGTownInstance * tt;
+		if(tt = dynamic_cast<const CGTownInstance*>(obj))
+		{
+			SDL_FreeSurface(heroWins[tt->identifier]);
+			heroWins[tt->identifier] = infoWin(tt);
+		}
 	}
 }
 void CPlayerInterface::showComp(SComponent comp)

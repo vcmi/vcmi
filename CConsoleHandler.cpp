@@ -65,6 +65,7 @@ int internalFunc(void * callback)
 			{
 				SDL_Surface * temp = LOCPLINT->infoWin(NULL);
 				blitAtWR(temp,605,389);
+				SDL_FreeSurface(temp);
 				break;
 			}
 		case 'T': //test rect

@@ -148,6 +148,15 @@ public:
 	void close();
 	CSelWindow(){};
 };
+
+class CRClickPopup : public IShowable, public ClickableR
+{
+	virtual void activate()=0;
+	virtual void deactivate()=0;
+	virtual void close()=0;
+	virtual void show()=0;
+};
+
 class SComponent : public ClickableR
 {
 public:
@@ -257,12 +266,13 @@ public:
 	std::vector<TimeInterested*> timeinterested;
 	std::vector<IShowable*> objsToBlit;
 
-	SDL_Surface * hInfo;
+	SDL_Surface * hInfo, *tInfo;
 	std::vector<std::pair<int, int> > slotsPos;
 	CDefEssential *luck22, *luck30, *luck42, *luck82,
-		*morale22, *morale30, *morale42, *morale82;
+		*morale22, *morale30, *morale42, *morale82,
+		*halls, *forts, *bigTownPic;
 	std::map<int,SDL_Surface*> heroWins;
-	//std::map<int,SDL_Surface*> townWins;
+	std::map<int,SDL_Surface*> townWins;
 
 	//overloaded funcs from Interface
 	void yourTurn();

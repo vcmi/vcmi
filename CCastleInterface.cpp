@@ -160,7 +160,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	cityBg = CGI->bitmaph->loadBitmap(getBgName(Town->subID));
 	hall = CGI->spriteh->giveDef("ITMTL.DEF");
 	fort = CGI->spriteh->giveDef("ITMCL.DEF");
-	bigTownPic =  CGI->spriteh->giveDef("ITPT.DEF");
 	flag =  CGI->spriteh->giveDef("CREST58.DEF");
 	townlist = new CTownList<CCastleInterface>(3,&genRect(128,48,744,414),744,414,744,526);
 	exit = new AdventureMapButton<CCastleInterface>
@@ -262,7 +261,6 @@ CCastleInterface::~CCastleInterface()
 	delete split;
 	delete hall;
 	delete fort;
-	delete bigTownPic;
 	delete flag;
 	delete garr;
 	delete townlist;
@@ -343,7 +341,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 	//print name and income
 	CSDL_Ext::printAt(town->name,85,389,GEOR13,zwykly,to);
 	char temp[10];
-	itoa(town->income,temp,10);
+	itoa(town->dailyIncome(),temp,10);
 	CSDL_Ext::printAtMiddle(temp,195,442,GEOR13,zwykly,to);
 
 	//blit town icon
@@ -352,7 +350,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 		pom += F_NUMBER*2;
 	if(town->builded >= MAX_BUILDING_PER_TURN)
 		pom++;
-	blitAt(bigTownPic->ourImages[pom].bitmap,15,387,to);
+	blitAt(LOCPLINT->bigTownPic->ourImages[pom].bitmap,15,387,to);
 
 	//flag
 	if(town->getOwner()<PLAYER_LIMIT)

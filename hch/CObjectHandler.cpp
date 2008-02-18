@@ -224,6 +224,43 @@ int CGTownInstance::getSightDistance() const //returns sight distance
 {
 	return 10;
 }
+int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
+{
+	if((builtBuildings.find(9))!=builtBuildings.end())
+		return 3;
+	if((builtBuildings.find(8))!=builtBuildings.end())
+		return 2;
+	if((builtBuildings.find(7))!=builtBuildings.end())
+		return 1;
+	return 0;
+}
+int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
+{
+	if ((builtBuildings.find(13))!=builtBuildings.end())
+		return 3;
+	if ((builtBuildings.find(12))!=builtBuildings.end())
+		return 2;
+	if ((builtBuildings.find(11))!=builtBuildings.end())
+		return 1;
+	if ((builtBuildings.find(10))!=builtBuildings.end())
+		return 0;
+	return -1;
+}
+int CGTownInstance::dailyIncome() const
+{
+	int ret = 0;
+	if ((builtBuildings.find(26))!=builtBuildings.end())
+		ret+=5000;
+	if ((builtBuildings.find(13))!=builtBuildings.end())
+		ret+=4000;
+	else if ((builtBuildings.find(12))!=builtBuildings.end())
+		ret+=2000;
+	else if ((builtBuildings.find(11))!=builtBuildings.end())
+		ret+=1000;
+	else if ((builtBuildings.find(10))!=builtBuildings.end())
+		ret+=500;
+	return ret;
+}
 bool CGTownInstance::hasFort() const
 {
 	return (builtBuildings.find(7))!=builtBuildings.end();

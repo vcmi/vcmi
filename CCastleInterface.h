@@ -36,8 +36,7 @@ public:
 
 	unsigned char animval, count;
 
-	CDefHandler *hall,*fort,
-		*bigTownPic, *flag;
+	CDefHandler *hall,*fort, *flag;
 
 	CTownList<CCastleInterface> * townlist;
 

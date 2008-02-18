@@ -394,6 +394,10 @@ public:
 	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
 
 	int getSightDistance() const; //returns sight distance
+
+	int fortLevel() const; //0 - none, 1 - fort, 2 - citadel, 3 - castle
+	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
+
 	bool hasFort() const;
 	bool hasCapitol() const;
 	int dailyIncome() const;
