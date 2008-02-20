@@ -1729,6 +1729,11 @@ void CAmbarCendamo::deh3m()
 					{
 						nt->builtBuildings.insert(7);
 					}
+					nt->builtBuildings.insert(10);
+					nt->builtBuildings.insert(5);
+					nt->builtBuildings.insert(30);
+					if(rand()%2)
+						nt->builtBuildings.insert(31);
 				}
 
 				nt->setOwner(spec->player);

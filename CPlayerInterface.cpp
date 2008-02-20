@@ -1421,8 +1421,9 @@ SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
 	printAt(curh->name,75,15,GEOR13,zwykly,ret);
 
 	int pom = curh->fortLevel() - 1; if(pom<0) pom = 3;
-	blitAt(halls->ourImages[curh->hallLevel()].bitmap,77,42,ret);
 	blitAt(forts->ourImages[pom].bitmap,115,42,ret);
+	if((pom=curh->hallLevel())>=0)
+		blitAt(halls->ourImages[pom].bitmap,77,42,ret);
 	itoa(curh->dailyIncome(),buf,10);
 	printAtMiddle(buf,167,70,GEORM,zwykly,ret);
 	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->garrison.slots.begin(); i!=curh->garrison.slots.end();i++)
