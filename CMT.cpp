@@ -62,7 +62,7 @@
 CGameInfo* CGI;
 #endif
 #define CHUNK 16384
-const char * NAME = "VCMI 0.53b \"Tirion\" Techdemo";
+const char * NAME = "VCMI 0.53c \"Tirion\" Techdemo";
 
 SDL_Surface * ekran, * screen, * screen2;
 extern SDL_Surface * CSDL_Ext::std32bppSurface;

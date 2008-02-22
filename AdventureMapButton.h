@@ -5,6 +5,7 @@
 #include "hch\CLodHandler.h"
 #include "hch\CPreGameTextHandler.h"
 #include "hch/CTownHandler.h"
+#include "CLua.h"
 template <typename T>
 AdventureMapButton<T>::AdventureMapButton ()
 {
@@ -177,30 +178,30 @@ void CTownList<T>::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if (from>0)
-			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[306].first);
+			LOCPLINT->statusbar->print(CGI->preth->zelp[306].first);
 		else
-			LOCPLINT->adventureInt->statusbar.clear();
+			LOCPLINT->statusbar->clear();
 		return;
 	}
 	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if ((items.size()-from)  >  SIZE)
-			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[307].first);
+			LOCPLINT->statusbar->print(CGI->preth->zelp[307].first);
 		else
-			LOCPLINT->adventureInt->statusbar.clear();
+			LOCPLINT->statusbar->clear();
 		return;
 	}
-	//if not buttons then heroes
+	//if not buttons then towns
 	int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	float ny = (float)hy/(float)32;
 	if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
 	{
-		LOCPLINT->adventureInt->statusbar.clear();
+		LOCPLINT->statusbar->clear();
 		return;
 	};
-	//LOCPLINT->adventureInt->statusbar.print( items[from+ny]->name + ", " + items[from+ny]->town->name ); //TODO - uncomment when pointer to the town type is initialized
+	LOCPLINT->statusbar->print(items[from+ny]->state->hoverText(const_cast<CGTownInstance*>(items[from+ny])));
 }
 template<typename T>
 void CTownList<T>::clickLeft(tribool down)

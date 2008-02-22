@@ -25,6 +25,7 @@ void CTownHandler::loadNames()
 		CTown town;
 		ins.getline(bufname,50);
 		town.name = std::string(bufname);
+		town.name = town.name.substr(0,town.name.size()-1);
 		for (int i=0; i<NAMES_PER_TOWN; i++)
 		{
 			names.getline(bufname,50);

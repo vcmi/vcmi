@@ -1681,5 +1681,5 @@ unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
 	{
 		return 7;
 	}
-
+	return -2; //shouldn't happen
 }
