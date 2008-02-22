@@ -523,7 +523,7 @@ void CHeroWindow::quit()
 	}
 	deactivate();
 
-	LOCPLINT->adventureInt->show();
+	LOCPLINT->adventureInt->activate();
 
 	SDL_FreeSurface(curBack);
 	curBack = NULL;

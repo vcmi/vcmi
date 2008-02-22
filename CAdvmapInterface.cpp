@@ -920,7 +920,23 @@ void CAdvMapInt::fendTurn()
 
 void CAdvMapInt::activate()
 {
-	//todo - docelowo wartoby rozdzielic czesc odpowiedzialna za wyswietlanie i aktywacje
+	LOCPLINT->curint = this;
+	LOCPLINT->statusbar = &statusbar;	
+	kingOverview.activate();
+	underground.activate();
+	questlog.activate();
+	sleepWake.activate();
+	moveHero.activate();
+	spellbook.activate();
+	sysOptions.activate();
+	advOptions.activate();
+	nextHero.activate();
+	endTurn.activate();
+
+	minimap.activate();
+	heroList.activate();
+	townList.activate();
+	terrain.activate();
 	show();
 }
 void CAdvMapInt::deactivate()
@@ -929,38 +945,22 @@ void CAdvMapInt::deactivate()
 }
 void CAdvMapInt::show()
 {
-	LOCPLINT->curint = this;
-	LOCPLINT->statusbar = &statusbar;
 	blitAt(bg,0,0);
 
 	kingOverview.show();
-	kingOverview.activate();
 	underground.show();
-	underground.activate();
 	questlog.show();
-	questlog.activate();
 	sleepWake.show();
-	sleepWake.activate();
 	moveHero.show();
-	moveHero.activate();
 	spellbook.show();
-	spellbook.activate();
 	advOptions.show();
-	advOptions.activate();
 	sysOptions.show();
-	sysOptions.activate();
 	nextHero.show();
-	nextHero.activate();
 	endTurn.show();
-	endTurn.activate();
 
-	minimap.activate();
 	minimap.draw();
-	heroList.activate();
 	heroList.draw();
-	townList.activate();
 	townList.draw();
-	terrain.activate();
 	update();
 
 	resdatabar.draw();

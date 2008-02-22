@@ -276,7 +276,7 @@ void CCastleInterface::close()
 	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	deactivate();
 	LOCPLINT->castleInt = NULL;
-	LOCPLINT->adventureInt->show();
+	LOCPLINT->adventureInt->activate();
 	delete this;
 }
 void CCastleInterface::splitF()
@@ -292,6 +292,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 	LOCPLINT->adventureInt->resdatabar.draw();
 	townlist->draw();
 
+	garr->show();
 	int pom;
 
 	//draw fort icon
@@ -381,7 +382,6 @@ void CCastleInterface::show(SDL_Surface * to)
 {
 	if (!to)
 		to=ekran;
-	garr->show();
 	count++;
 	if(count==4)
 	{

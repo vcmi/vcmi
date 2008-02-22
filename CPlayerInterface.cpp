@@ -119,6 +119,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 		{
 			if(creature)
 				owner->highlighted = this;
+			show();
 		}
 	}
 }
@@ -375,6 +376,46 @@ void CInfoWindow::close()
 CInfoWindow::~CInfoWindow()
 {
 }
+
+CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
+:bitmap(Bitmap),free(Free)
+{
+	pos.x = x;
+	pos.y = y;
+	pos.h = bitmap->h;
+	pos.w = bitmap->w;
+}
+void CInfoPopup::clickRight (tribool down)
+{
+	//if(!down)
+		close();
+}
+void CInfoPopup::activate()
+{
+	ClickableR::activate();
+	LOCPLINT->objsToBlit.push_back(this);
+}
+void CInfoPopup::deactivate()
+{
+	ClickableR::deactivate();
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+}
+void CInfoPopup::close()
+{
+	deactivate();
+	if(free)
+		SDL_FreeSurface(bitmap);
+	delete this;
+	if(LOCPLINT->curint == LOCPLINT->adventureInt)
+		LOCPLINT->adventureInt->show();
+	else if(LOCPLINT->curint == LOCPLINT->castleInt)
+		LOCPLINT->castleInt->showAll();
+}
+void CInfoPopup::show(SDL_Surface * to)
+{
+	blitAt(bitmap,pos.x,pos.y,(to)?(to):(ekran));
+}
+
 SComponent::SComponent(Etype Type, int Subtype, int Val)
 {
 	std::ostringstream oss;
@@ -788,7 +829,7 @@ void CPlayerInterface::yourTurn()
 	unsigned char & animVal = LOCPLINT->adventureInt->anim; //for animations handling
 	unsigned char & heroAnimVal = LOCPLINT->adventureInt->heroAnim;
 	adventureInt->infoBar.newDay(cb->getDate(1));
-	adventureInt->show();
+	adventureInt->activate();
 	//show rest of things
 
 	//initializing framerate keeper
@@ -820,11 +861,13 @@ void CPlayerInterface::yourTurn()
 				{
 					tab[i] = CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[224 + (i+1)%32];
 				}
+				//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t1.bmp");
 				for(int i=0; i<32; ++i)
 				{
 					CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[224 + i] = tab[i];
 				}
-				CSDL_Ext::update(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap);
+				//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t2.bmp");
+				CSDL_Ext::update(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap); 
 			}
 		}
 		//water tiles updated
@@ -2077,6 +2120,19 @@ void CHeroList::clickRight(tribool down)
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[304].second,down,this);
 		}
+		//if not buttons then heroes
+		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+		hx-=pos.x;
+		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+		float ny = (float)hy/(float)32;
+		if ((ny>5 || ny<0) || (from+ny>=items.size()))
+		{
+			return;
+		}
+
+		//show popup
+		CInfoPopup * ip = new CInfoPopup(LOCPLINT->heroWins[items[from+ny].first->subID],LOCPLINT->current->motion.x-LOCPLINT->heroWins[items[from+ny].first->subID]->w,LOCPLINT->current->motion.y-LOCPLINT->heroWins[items[from+ny].first->subID]->h,false);
+		ip->activate();
 	}
 	else
 	{

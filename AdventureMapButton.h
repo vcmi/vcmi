@@ -283,6 +283,19 @@ void CTownList<T>::clickRight(tribool down)
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[307].second,down,this);
 		}
+		//if not buttons then towns
+		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+		hx-=pos.x;
+		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+		float ny = (float)hy/(float)32;
+		if ((ny>5 || ny<0) || (from+ny>=items.size()))
+		{
+			return;
+		}
+
+		//show popup
+		CInfoPopup * ip = new CInfoPopup(LOCPLINT->townWins[items[from+ny]->identifier],LOCPLINT->current->motion.x-LOCPLINT->townWins[items[from+ny]->identifier]->w,LOCPLINT->current->motion.y-LOCPLINT->townWins[items[from+ny]->identifier]->h,false);
+		ip->activate();
 	}
 	else
 	{
