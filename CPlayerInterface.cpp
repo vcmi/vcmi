@@ -801,6 +801,33 @@ void CPlayerInterface::yourTurn()
 	th.getDif();
 	for(;makingTurn;) // main loop
 	{
+		//updating water tiles
+		int wnumber = -1;
+		for(int s=0; s<CGI->mh->reader->defs.size(); ++s)
+		{
+			if(CGI->mh->reader->defs[s]->defName==std::string("WATRTL.DEF"))
+			{
+				wnumber = s;
+				break;
+			}
+		}
+		if(wnumber>=0)
+		{
+			for(int g=0; g<CGI->mh->reader->defs[wnumber]->ourImages.size(); ++g)
+			{
+				SDL_Color tab[32];
+				for(int i=0; i<32; ++i)
+				{
+					tab[i] = CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[224 + (i+1)%32];
+				}
+				for(int i=0; i<32; ++i)
+				{
+					CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[224 + i] = tab[i];
+				}
+				CSDL_Ext::update(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap);
+			}
+		}
+		//water tiles updated
 		CGI->screenh->updateScreen();
 		int tv = th.getDif();
 		for (int i=0;i<timeinterested.size();i++)
@@ -1391,9 +1418,9 @@ SDL_Surface * CPlayerInterface::drawPrimarySkill(const CGHeroInstance *curh, SDL
 SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 {
 	char * buf = new char[10];
+	blueToPlayersAdv(hInfo,playerID,1);
 	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-	blueToPlayersAdv(ret,playerID,1);
 	printAt(curh->name,75,15,GEOR13,zwykly,ret);
 	drawPrimarySkill(curh, ret);
 	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
@@ -1415,9 +1442,9 @@ SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
 {
 	char * buf = new char[10];
+	blueToPlayersAdv(tInfo,playerID,1);
 	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-	blueToPlayersAdv(ret,playerID,1);
 	printAt(curh->name,75,15,GEOR13,zwykly,ret);
 
 	int pom = curh->fortLevel() - 1; if(pom<0) pom = 3;

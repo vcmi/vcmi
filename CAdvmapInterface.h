@@ -22,6 +22,7 @@ public:
 	char key; //key shortcut
 	T* owner;
 	void (T::*function)(); //function in CAdvMapInt called when this button is pressed, different for each button
+	bool colorChange;
 
 	void clickRight (tribool down);
 	void clickLeft (tribool down);
@@ -31,7 +32,7 @@ public:
 	void deactivate(); // makes button inactive (but doesn't delete)
 
 	AdventureMapButton(); //c-tor
-	AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL );//c-tor
+	AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = true );//c-tor
 };
 /*****************************/
 class CMinimap

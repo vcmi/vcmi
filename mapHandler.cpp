@@ -541,6 +541,7 @@ void CMapHandler::borderAndTerrainBitmapInit()
 	//	terrainBitmap[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory
 
 	CDefHandler * bord = CGameInfo::mainObj->spriteh->giveDef("EDG.DEF");
+	bord->notFreeImgs =  true;
 	for (int i=0-Woff; i<reader->map.width+Woff; i++) //jest po szerokoœci
 	{
 		for (int j=0-Hoff; j<reader->map.height+Hoff;j++) //po wysokoœci
@@ -650,6 +651,7 @@ void CMapHandler::borderAndTerrainBitmapInit()
 			}
 		}
 	}
+	delete bord;
 }
 void CMapHandler::initObjectRects()
 {
@@ -957,7 +959,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					int imgVal = ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages.size();
 
 					//setting appropriate flag color
-					if((ttiles[x+bx][y+by][level].objects[h].first->tempOwner>=0 && ttiles[x+bx][y+by][level].objects[h].first->tempOwner<=8) || ttiles[x+bx][y+by][level].objects[h].first->tempOwner==255)
+					if((ttiles[x+bx][y+by][level].objects[h].first->tempOwner>=0 && ttiles[x+bx][y+by][level].objects[h].first->tempOwner<8) || ttiles[x+bx][y+by][level].objects[h].first->tempOwner==255)
 						CSDL_Ext::setPlayerColor(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap, ttiles[x+bx][y+by][level].objects[h].first->tempOwner);
 					
 					CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);

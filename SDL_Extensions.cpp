@@ -8,6 +8,9 @@
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
 #include "hch\CDefHandler.h"
+
+extern SDL_Color playerColorPalette[256];
+
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
 	return SDL_CreateRGBSurface(mod->flags,w,h,mod->format->BitsPerPixel,mod->format->Rmask,mod->format->Gmask,mod->format->Bmask,mod->format->Amask);
@@ -676,53 +679,12 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player, int mode, void* a
 		return;
 	if(sur->format->BitsPerPixel == 8)
 	{
-		for(int i=0; i<sur->format->palette->ncolors; ++i) //message, button, avmap, resbar
+		for(int i=0; i<32; ++i)
 		{
-			SDL_Color * cc = sur->format->palette->colors+i;
-			if(
-				((mode==0) && (cc->b>cc->g) && (cc->b>cc->r)) ||
-				((mode==1) && (cc->r<45) && (cc->b>80) && (cc->g<70) && ((cc->b-cc->r)>40)) ||
-				((mode==2) && (cc->r<110) && (cc->b>63) && (cc->g<122) && ((cc->b-cc->r)>44) && ((cc->b-cc->g)>32))
-			  )
-			{
-				if ((mode==2) && additionalInfo)
-				{
-					for (int vi=0; vi<((std::vector<SDL_Color>*)additionalInfo)->size(); vi++)
-					{
-						if 
-						  (
-							((*((std::vector<SDL_Color>*)additionalInfo))[vi].r==cc->r) &&
-							((*((std::vector<SDL_Color>*)additionalInfo))[vi].g==cc->g) &&
-							((*((std::vector<SDL_Color>*)additionalInfo))[vi].b==cc->b)
-						  )	
-							goto main8bitloopend;
-					}
-				}
-				std::vector<long long int> sort1;
-				sort1.push_back(cc->r);
-				sort1.push_back(cc->g);
-				sort1.push_back(cc->b);
-				std::vector< std::pair<long long int, Uint8*> > sort2;
-				sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].r, &(cc->r)));
-				sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].g, &(cc->g)));
-				sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].b, &(cc->b)));
-				std::sort(sort1.begin(), sort1.end());
-				if(sort2[0].first>sort2[1].first)
-					std::swap(sort2[0], sort2[1]);
-				if(sort2[1].first>sort2[2].first)
-					std::swap(sort2[1], sort2[2]);
-				if(sort2[0].first>sort2[1].first)
-					std::swap(sort2[0], sort2[1]);
-				for(int hh=0; hh<3; ++hh)
-				{
-					(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
-				}
-			}
-main8bitloopend:
-			;
+			sur->format->palette->colors[224+i] = playerColorPalette[32*player+i];
 		}
 	}
-	else if(sur->format->BitsPerPixel == 24)
+	else if(sur->format->BitsPerPixel == 24) //should never happen in general
 	{
 		for(int y=0; y<sur->h; ++y)
 		{
@@ -781,29 +743,6 @@ main8bitloopend:
 							(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
 						}
 					}
-				}
-			}
-		}
-	}
-}
-
-void CSDL_Ext::blueToPlayersNice(SDL_Surface * sur, int player) //incomplete, TODO: finish
-{
-	if(sur->format->BitsPerPixel==8)
-	{
-		for(int a=0; a<sur->format->palette->ncolors; ++a)
-		{
-			for(int s=0; s<CGI->playerColorInfo[0]->ourImages[1].bitmap->format->palette->ncolors; ++s)
-			{
-				if(abs((sur->format->palette->colors+a)->b - (CGI->playerColorInfo[0]->ourImages[1].bitmap->format->palette->colors+s)->b) < 5
-					&& abs((sur->format->palette->colors+a)->g - (CGI->playerColorInfo[0]->ourImages[1].bitmap->format->palette->colors+s)->g) < 5
-					&& abs((sur->format->palette->colors+a)->r - (CGI->playerColorInfo[0]->ourImages[1].bitmap->format->palette->colors+s)->r) < 5
-					)
-				{
-					(sur->format->palette->colors+a)->b = (CGI->playerColorInfo[0]->ourImages[player].bitmap->format->palette->colors+s)->b;
-					(sur->format->palette->colors+a)->r = (CGI->playerColorInfo[0]->ourImages[player].bitmap->format->palette->colors+s)->g;
-					(sur->format->palette->colors+a)->g = (CGI->playerColorInfo[0]->ourImages[player].bitmap->format->palette->colors+s)->r;
-					break;
 				}
 			}
 		}

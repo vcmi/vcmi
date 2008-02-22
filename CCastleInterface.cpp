@@ -163,9 +163,9 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	flag =  CGI->spriteh->giveDef("CREST58.DEF");
 	townlist = new CTownList<CCastleInterface>(3,&genRect(128,48,744,414),744,414,744,526);
 	exit = new AdventureMapButton<CCastleInterface>
-		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,false);
+		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,false,NULL,false);
 	split = new AdventureMapButton<CCastleInterface>
-		(CGI->townh->tcommands[3],"",&CCastleInterface::splitF,744,382,"TSBTNS.DEF",this,false);
+		(CGI->townh->tcommands[3],"",&CCastleInterface::splitF,744,382,"TSBTNS.DEF",this,false,NULL,false);
 	statusbar = new CStatusBar(8,555,"TSTATBAR.bmp",732);
 
 	townlist->owner = this;

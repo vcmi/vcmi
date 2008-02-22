@@ -31,17 +31,17 @@ CHeroWindow::CHeroWindow(int playerColor):
 	garInt = NULL;
 	ourBar = new CStatusBar(72, 567, "ADROLLVR.bmp", 660);
 
-	quitButton = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[17], std::string(), &CHeroWindow::quit, 674, 524, "hsbtns.def", this);
-	dismissButton = new AdventureMapButton<CHeroWindow>(std::string(), CGI->generaltexth->heroscrn[28], &CHeroWindow::dismissCurrent, 519, 437, "hsbtns2.def", this);
-	questlogButton = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[0], std::string(), &CHeroWindow::questlog, 379, 437, "hsbtns4.def", this);
+	quitButton = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[17], std::string(), &CHeroWindow::quit, 674, 524, "hsbtns.def", this, false, NULL, false);
+	dismissButton = new AdventureMapButton<CHeroWindow>(std::string(), CGI->generaltexth->heroscrn[28], &CHeroWindow::dismissCurrent, 519, 437, "hsbtns2.def", this, false, NULL, false);
+	questlogButton = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[0], std::string(), &CHeroWindow::questlog, 379, 437, "hsbtns4.def", this, false, NULL, false);
 
-	gar1button = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[23], CGI->generaltexth->heroscrn[29], &CHeroWindow::gar1, 546, 491, "hsbtns6.def", this);
-	gar2button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar2, 604, 491, "hsbtns8.def", this);
-	gar3button = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[24], CGI->generaltexth->heroscrn[30], &CHeroWindow::gar3, 546, 527, "hsbtns7.def", this);
-	gar4button = new AdventureMapButton<CHeroWindow>(std::string(), CGI->generaltexth->heroscrn[32], &CHeroWindow::gar4, 604, 527, "hsbtns9.def", this);
+	gar1button = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[23], CGI->generaltexth->heroscrn[29], &CHeroWindow::gar1, 546, 491, "hsbtns6.def", this, false, NULL, false);
+	gar2button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar2, 604, 491, "hsbtns8.def", this, false, NULL, false);
+	gar3button = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[24], CGI->generaltexth->heroscrn[30], &CHeroWindow::gar3, 546, 527, "hsbtns7.def", this, false, NULL, false);
+	gar4button = new AdventureMapButton<CHeroWindow>(std::string(), CGI->generaltexth->heroscrn[32], &CHeroWindow::gar4, 604, 527, "hsbtns9.def", this, false, NULL, false);
 
-	leftArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::leftArtRoller, 379, 364, "hsbtns3.def", this);
-	rightArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::rightArtRoller, 632, 364, "hsbtns5.def", this);
+	leftArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::leftArtRoller, 379, 364, "hsbtns3.def", this, false, NULL, false);
+	rightArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::rightArtRoller, 632, 364, "hsbtns5.def", this, false, NULL, false);
 
 	for(int g=0; g<8; ++g)
 	{

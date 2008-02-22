@@ -17,7 +17,7 @@ AdventureMapButton<T>::AdventureMapButton ()
 }
 template <typename T>
 AdventureMapButton<T>::AdventureMapButton
-( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ, std::vector<std::string> * add )
+( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ, std::vector<std::string> * add, bool playerColoredButton )
 {
 	owner = Owner;
 	type=2;
@@ -27,6 +27,7 @@ AdventureMapButton<T>::AdventureMapButton
 	state=0;
 	name=Name;
 	helpBox=HelpBox;
+	colorChange = playerColoredButton;
 	int est = LOCPLINT->playerID;
 	CDefHandler * temp = CGI->spriteh->giveDef(defName); 
 	temp->notFreeImgs = true;
@@ -34,7 +35,8 @@ AdventureMapButton<T>::AdventureMapButton
 	{
 		imgs.resize(1);
 		imgs[0].push_back(temp->ourImages[i].bitmap);
-		CSDL_Ext::blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
+		if(playerColoredButton)
+			CSDL_Ext::blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
 	}
 	delete temp;
 	if (add)
@@ -47,7 +49,8 @@ AdventureMapButton<T>::AdventureMapButton
 			for (int j=0;j<temp->ourImages.size();j++)
 			{
 				imgs[i+1].push_back(temp->ourImages[j].bitmap);
-				CSDL_Ext::blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
+				if(playerColoredButton)
+					CSDL_Ext::blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
 			}
 			delete temp;
 		}

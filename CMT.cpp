@@ -64,6 +64,8 @@ CGameInfo* CGI;
 #define CHUNK 16384
 const char * NAME = "VCMI 0.53c \"Tirion\" Techdemo";
 
+SDL_Color playerColorPalette[256]; //palette to make interface colors good
+
 SDL_Surface * ekran, * screen, * screen2;
 extern SDL_Surface * CSDL_Ext::std32bppSurface;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
@@ -417,6 +419,19 @@ int _tmain(int argc, _TCHAR* argv[])
 		p.r = 0x84; p.g = 0x84; p.b = 0x84;//gray
 		cgi->neutralColor = p;//gray
 		//colors initialized
+		//palette initialization
+		std::string pals = cgi->bitmaph->getTextFile("PLAYERS.PAL");
+		int startPoint = 24; //beginning byte; used to read
+		for(int i=0; i<256; ++i)
+		{
+			SDL_Color col;
+			col.r = pals[startPoint++];
+			col.g = pals[startPoint++];
+			col.b = pals[startPoint++];
+			col.unused = pals[startPoint++];
+			playerColorPalette[i] = col;
+		}
+		//palette initialized
 		THC std::cout<<"Preparing players' colours: "<<tmh.getDif()<<std::endl;
 		CMessage::init();
 		cgi->townh = new CTownHandler;
