@@ -786,21 +786,21 @@ void CMapHandler::init()
 	borderAndTerrainBitmapInit();
 	std::cout<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
 
-
+	//giving starting hero
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
-		if(reader->map.players[i].generateHeroAtMainTown && reader->map.players[i].hasMainTown)
+		if((reader->map.players[i].generateHeroAtMainTown && reader->map.players[i].hasMainTown) ||  (reader->map.players[i].hasMainTown && reader->map.version==RoE))
 		{
 			int3 hpos = reader->map.players[i].posOfMainTown;
-			hpos.x+=1; hpos.y+=1;
+			hpos.x+=1;// hpos.y+=1;
 			int j;
 			for(j=0;j<CGI->scenarioOps.playerInfos.size();j++)
 				if(CGI->scenarioOps.playerInfos[j].color==i)
 					break;
 			if(j==CGI->scenarioOps.playerInfos.size())
 				continue;
-			int h = CGI->scenarioOps.playerInfos[j].hero;
-			if(h<0)
+			int h; //= CGI->scenarioOps.playerInfos[j].hero;
+			//if(h<0)
 				h=pickHero(i);
 			CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,h,hpos,i);
 			nnn->defInfo->handler = CGI->heroh->flags1[0];
@@ -808,6 +808,7 @@ void CMapHandler::init()
 			CGI->objh->objInstances.push_back(nnn);
 		}
 	}
+	std::cout<<"\tGiving starting heroes: "<<th.getDif()<<std::endl;
 
 	initObjectRects();
 	std::cout<<"\tMaking object rects: "<<th.getDif()<<std::endl;
@@ -1371,6 +1372,7 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int ow
 			nobj->defInfo = new CGDefInfo();
 			nobj->defInfo->id = 34;
 			nobj->defInfo->subid = subid;
+			nobj->defInfo->printPriority = 0;
 			nobj->type = CGI->heroh->heroes[subid];
 			for(int i=0;i<6;i++)
 			{

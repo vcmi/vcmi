@@ -618,8 +618,9 @@ void CScriptCallback::stopHeroVisitCastle(CGObjectInstance * ob, int heroID)
 	CGTownInstance * n;
 	if(n = dynamic_cast<CGTownInstance*>(ob))
 	{
-		if(n->visitingHero->type->ID == heroID)
+		if(n->visitingHero && n->visitingHero->type->ID == heroID)
 			n->visitingHero = NULL;
+		return;
 	}
 	else
 		return;

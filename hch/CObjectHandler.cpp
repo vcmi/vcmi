@@ -127,6 +127,10 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 		return true;
 	if(this->pos.y>cmp.pos.y)
 		return false;
+	if(cmp.ID==34 && ID!=34)
+		return true;
+	if(cmp.ID!=34 && ID==34)
+		return false;
 	if(!defInfo->isVisitable() && cmp.defInfo->isVisitable())
 		return true;
 	if(!cmp.defInfo->isVisitable() && defInfo->isVisitable())

@@ -55,6 +55,7 @@ private:
 	}
 public:
 	friend CCallback;
+	friend CPathfinder;;
 	friend CLuaCallback;
 	friend int _tmain(int argc, _TCHAR* argv[]);
 	friend void initGameState(CGameInfo * cgi);

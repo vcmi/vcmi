@@ -4,6 +4,7 @@
 #include "CGameInfo.h"
 #include "hch\CAmbarCendamo.h"
 #include "mapHandler.h"
+#include "CGameState.h"
 using namespace boost::logic;
 int3 CPath::startPos()
 {
@@ -64,6 +65,8 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, u
 				graph[i][j].accesible = false;
 			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].terType!=EterrainType::water))
 				graph[i][j].accesible = false;
+			if(graph[i][j].accesible)
+				graph[i][j].accesible = CGI->state->players[hero->tempOwner].fogOfWarMap[i][j][src.z];
 		}
 	}
 

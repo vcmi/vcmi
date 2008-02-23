@@ -843,33 +843,33 @@ void CPlayerInterface::yourTurn()
 	for(;makingTurn;) // main loop
 	{
 		//updating water tiles
-		int wnumber = -1;
-		for(int s=0; s<CGI->mh->reader->defs.size(); ++s)
-		{
-			if(CGI->mh->reader->defs[s]->defName==std::string("WATRTL.DEF"))
-			{
-				wnumber = s;
-				break;
-			}
-		}
-		if(wnumber>=0)
-		{
-			for(int g=0; g<CGI->mh->reader->defs[wnumber]->ourImages.size(); ++g)
-			{
-				SDL_Color tab[32];
-				for(int i=0; i<32; ++i)
-				{
-					tab[i] = CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[224 + (i+1)%32];
-				}
-				//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t1.bmp");
-				for(int i=0; i<32; ++i)
-				{
-					CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[224 + i] = tab[i];
-				}
-				//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t2.bmp");
-				CSDL_Ext::update(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap); 
-			}
-		}
+		//int wnumber = -1;
+		//for(int s=0; s<CGI->mh->reader->defs.size(); ++s)
+		//{
+		//	if(CGI->mh->reader->defs[s]->defName==std::string("WATRTL.DEF"))
+		//	{
+		//		wnumber = s;
+		//		break;
+		//	}
+		//}
+		//if(wnumber>=0)
+		//{
+		//	for(int g=0; g<CGI->mh->reader->defs[wnumber]->ourImages.size(); ++g)
+		//	{
+		//		SDL_Color tab[32];
+		//		for(int i=0; i<32; ++i)
+		//		{
+		//			tab[i] = CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[160 + (i+1)%32];
+		//		}
+		//		//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t1.bmp");
+		//		for(int i=0; i<32; ++i)
+		//		{
+		//			CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[160 + i] = tab[i];
+		//		}
+		//		//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t2.bmp");
+		//		CSDL_Ext::update(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap); 
+		//	}
+		//}
 		//water tiles updated
 		CGI->screenh->updateScreen();
 		int tv = th.getDif();

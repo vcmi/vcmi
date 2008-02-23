@@ -62,7 +62,7 @@
 CGameInfo* CGI;
 #endif
 #define CHUNK 16384
-const char * NAME = "VCMI 0.53c \"Tirion\" Techdemo";
+const char * NAME = "VCMI 0.54 \"Tirion\" Techdemo";
 
 SDL_Color playerColorPalette[256]; //palette to make interface colors good
 

@@ -194,7 +194,7 @@ void CAmbarCendamo::deh3m()
 		map.players[pom].AITactic = bufor[i++];
 
 		if(map.version == Eformat::SoD || map.version == Eformat::WoG)
-			i++;
+			map.players[pom].p7= bufor[i++];	
 
 		map.players[pom].allowedFactions = 0;
 		map.players[pom].allowedFactions += bufor[i++];
@@ -1012,7 +1012,13 @@ void CAmbarCendamo::deh3m()
 						spec->power = -1;
 						spec->knowledge = -1;
 					}
-
+				}
+				else
+				{
+					spec->attack = -1;
+					spec->defence = -1;
+					spec->power = -1;
+					spec->knowledge = -1;
 				}
 				i+=16;
 				nobj->info = spec;
