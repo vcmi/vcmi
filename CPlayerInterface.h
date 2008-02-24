@@ -302,6 +302,18 @@ public:
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void garrisonChanged(const CGObjectInstance * obj);
 
+	//battles
+	void battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, tribool side); //called by engine when battle starts; side=0 - left, side=1 - right
+	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
+	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	void actionStarted(Action action);//occurs BEFORE every action taken by any stack or by the hero
+	void actionFinished(Action action);//occurs AFTER every action taken by any stack or by the hero
+	void activeStack(int stackID); //called when it's turn of that stack
+	void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner);
+
+
+	//-------------//
+
 	void showComp(SComponent comp);
 
 	void openTownWindow(const CGTownInstance * town); //shows townscreen

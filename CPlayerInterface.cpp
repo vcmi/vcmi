@@ -22,6 +22,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "hch\CPreGameTextHandler.h"
+#include "CBattleInterface.h"
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
@@ -1496,7 +1497,7 @@ SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
 		blitAt(halls->ourImages[pom].bitmap,77,42,ret);
 	itoa(curh->dailyIncome(),buf,10);
 	printAtMiddle(buf,167,70,GEORM,zwykly,ret);
-	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->garrison.slots.begin(); i!=curh->garrison.slots.end();i++)
+	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
 	{
 		blitAt(CGI->creh->smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		itoa((*i).second.second,buf,10);
@@ -1845,6 +1846,37 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		}
 	}
 }
+
+void CPlayerInterface::battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, tribool side) //called by engine when battle starts; side=0 - left, side=1 - right
+{
+	curint->deactivate();
+	curint = new CBattleInterface(army1,army2,tile,hero1,hero2);
+}
+
+void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles) //called when battlefield is prepared, prior the battle beginning
+{
+}
+
+void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+{
+}
+
+void CPlayerInterface::actionStarted(Action action)//occurs BEFORE every action taken by any stack or by the hero
+{
+}
+
+void CPlayerInterface::actionFinished(Action action)//occurs AFTER every action taken by any stack or by the hero
+{
+}
+
+void CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
+{
+}
+
+void CPlayerInterface::battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner)
+{
+}
+
 void CPlayerInterface::showComp(SComponent comp)
 {
 	adventureInt->infoBar.showComp(&comp,4000);

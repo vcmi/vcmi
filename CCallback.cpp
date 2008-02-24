@@ -407,7 +407,7 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 	if(obj->ID == 34)
 		return &(dynamic_cast<const CGHeroInstance*>(obj))->army;
 	else if(obj->ID == 98)
-		return &(dynamic_cast<const CGTownInstance*>(obj)->garrison);
+		return &(dynamic_cast<const CGTownInstance*>(obj)->army);
 	else return NULL;
 }
 
@@ -651,6 +651,15 @@ void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==
 	}
 }
 
+void CScriptCallback::startBattle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2) //use hero=NULL for no hero
+{
+	gs->battle(army1,army2,tile,hero1,hero2);
+}
+void CScriptCallback::startBattle(int heroID, CCreatureSet * army, int3 tile) //for hero<=>neutral army
+{
+	CGHeroInstance* h = gs->getHero(heroID,0);
+	gs->battle(&h->army,army,tile,h,NULL);
+}
 void CLuaCallback::registerFuncs(lua_State * L)
 {
 	lua_newtable(L);

@@ -222,6 +222,13 @@ int CGHeroInstance::getCurrentMorale() const
 	//TODO: write it
 	return 0;
 }
+int CGHeroInstance::getSecSkillLevel(int ID) const
+{
+	for(int i=0;i<secSkills.size();i++)
+		if(secSkills[i].first==ID)
+			return secSkills[i].second;
+	return -1;
+}
 
 
 int CGTownInstance::getSightDistance() const //returns sight distance

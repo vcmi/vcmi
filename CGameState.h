@@ -2,10 +2,15 @@
 #define CGAMESTATE_H
 #include "mapHandler.h"
 #include <set>
+#include <tchar.h>
 class CScriptCallback;
 class CCallback;
 class CLuaCallback;
 class CCPPObjectScript;
+class CCreatureSet;
+class CStack;
+class CGHeroInstance;
+class CArmedInstance;
 struct PlayerState
 {
 public:
@@ -17,11 +22,21 @@ public:
 	std::vector<CGTownInstance *> towns;
 	PlayerState():color(-1){};
 };
-
+struct BattleInfo
+{
+	int side1, side2;
+	int round, activeStack;
+	int siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
+	int3 tile; //for background and bonuses
+	CGHeroInstance *hero1, *hero2;
+	CCreatureSet * army1, * army2;
+	std::vector<CStack*> stacks;
+};
 class CGameState
 {
 private:
 	int currentPlayer;
+	BattleInfo *curB; //current battle
 	int day; //total number of days in game
 	std::map<int,PlayerState> players; //color <-> playerstate
 	std::set<CCPPObjectScript *> cppscripts;
@@ -53,6 +68,7 @@ private:
 		}
 		return NULL;
 	}
+	void battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2);
 public:
 	friend CCallback;
 	friend CPathfinder;;

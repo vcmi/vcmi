@@ -249,6 +249,8 @@ void initGameState(CGameInfo * cgi)
 	handleCPPObjS(&scripts,new CPickable(csc));
 	handleCPPObjS(&scripts,new CMines(csc));
 	handleCPPObjS(&scripts,new CTownScript(csc));
+	handleCPPObjS(&scripts,new CHeroScript(csc));
+	handleCPPObjS(&scripts,new CMonsterS(csc));
 	//created map
 
 	/****************************LUA OBJECT SCRIPTS************************************************/
@@ -388,7 +390,27 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 			}
 		}
-		THC std::cout<<"Scanning Data/: "<<tmh.getDif()<<std::endl;
+		if(boost::filesystem::exists("Sprites"))
+		{
+			for (boost::filesystem::directory_iterator dir("Sprites");dir!=enddir;dir++)
+			{
+				if(boost::filesystem::is_regular(dir->status()))
+				{
+					std::string name = dir->path().leaf();
+					std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
+					boost::algorithm::replace_all(name,".BMP",".PCX");
+					Entry * e = cgi->spriteh->entries.znajdz(name);
+					if(e)
+					{
+						e->offset = -1;
+						e->realSize = e->size = boost::filesystem::file_size(dir->path());
+					}
+				}
+			}
+		}
+		else
+			std::cout<<"Warning: No sprites/ folder!"<<std::endl;
+		THC std::cout<<"Scanning Data/ and Sprites/ folders: "<<tmh.getDif()<<std::endl;
 		cgi->curh->initCursor();
 		cgi->curh->showGraphicCursor();
 

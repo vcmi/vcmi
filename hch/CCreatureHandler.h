@@ -35,6 +35,8 @@ public:
 	//end
 	CDefHandler * battleAnimation;
 	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
+
+	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 };
 
 class CCreatureSet //seven combined creatures

@@ -163,3 +163,26 @@ class CTownScript : public CCPPObjectScript  //pickable - resources, artifacts, 
 
 	friend void initGameState(CGameInfo * cgi);
 };
+
+class CHeroScript : public CCPPObjectScript
+{
+	std::map<int, CGObjectInstance*> heroes;
+	CHeroScript(CScriptCallback * CB):CCPPObjectScript(CB){};
+	void newObject(CGObjectInstance *os);
+	void onHeroVisit(CGObjectInstance *os, int heroID);
+	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+
+	friend void initGameState(CGameInfo * cgi);
+};
+
+class CMonsterS : public CCPPObjectScript
+{
+	std::map<int, CGObjectInstance*> heroes;
+	CMonsterS(CScriptCallback * CB):CCPPObjectScript(CB){};
+	void newObject(CGObjectInstance *os);
+	std::string hoverText(CGObjectInstance *os);
+	void onHeroVisit(CGObjectInstance *os, int heroID);
+	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+
+	friend void initGameState(CGameInfo * cgi);
+};

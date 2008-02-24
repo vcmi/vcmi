@@ -354,7 +354,7 @@ void CAmbarCendamo::deh3m()
 				((VicCona*)map.vicConDetails)->destinationPlace.x = bufor[i+3];
 				((VicCona*)map.vicConDetails)->destinationPlace.y = bufor[i+4];
 				((VicCona*)map.vicConDetails)->destinationPlace.z = bufor[i+5];				
-				nr=3;
+				nr=4;
 				break;
 			}
 		}
@@ -1747,7 +1747,7 @@ void CAmbarCendamo::deh3m()
 				nt->builded = 0;
 				nt->destroyed = 0;
 				nt->name = spec->name;
-				nt->garrison = spec->garrison;
+				nt->army = spec->garrison;
 				nt->garrisonHero = NULL;// spec->garnisonHero is not readed - TODO: readit
 				nt->pos = int3(spec->x, spec->y, spec->z);
 				nt->possibleSpells = spec->possibleSpells;

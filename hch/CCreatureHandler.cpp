@@ -7,6 +7,30 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+
+int CCreature::getQuantityID(int quantity)
+{
+	if (quantity<5)
+		return 0;
+	if (quantity<10)
+		return 1;
+	if (quantity<20)
+		return 2;
+	if (quantity<50)
+		return 3;
+	if (quantity<100)
+		return 4;
+	if (quantity<250)
+		return 5;
+	if (quantity<500)
+		return 5;
+	if (quantity<1000)
+		return 6;
+	if (quantity<4000)
+		return 7;
+	return 8;
+}
+
 void CCreatureHandler::loadCreatures()
 {
 	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("ZCRTRAIT.TXT");

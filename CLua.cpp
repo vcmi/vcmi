@@ -620,3 +620,85 @@ std::vector<int> CTownScript::yourObjects() //returns IDs of objects which are h
 	ret.push_back(98); //town
 	return ret;
 }
+
+void CHeroScript::newObject(CGObjectInstance *os)
+{
+	os->blockVisit = true;
+	heroes.insert(std::pair<int,CGObjectInstance*>(os->subID,os));
+}
+
+void CHeroScript::onHeroVisit(CGObjectInstance *os, int heroID)
+{
+	//TODO: check for allies
+	cb->startBattle(
+		&(static_cast<CGHeroInstance*>(heroes[heroID]))->army,
+		&(static_cast<CGHeroInstance*>(os))->army,
+		os->pos,
+		static_cast<CGHeroInstance*>(heroes[heroID]),
+		static_cast<CGHeroInstance*>(os));
+}
+std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are handled by script
+{
+	std::vector<int> ret(1);
+	ret.push_back(34); //town
+	return ret;
+}
+
+void CMonsterS::newObject(CGObjectInstance *os)
+{
+	os->blockVisit = true;
+	switch(CGI->creh->creatures[os->subID].level)
+	{
+	case 1:
+		((CCreatureObjInfo*)os->info)->number = rand()%31+20;
+		break;
+	case 2:
+		((CCreatureObjInfo*)os->info)->number = rand()%16+15;
+		break;
+	case 3:
+		((CCreatureObjInfo*)os->info)->number = rand()%16+10;
+		break;
+	case 4:
+		((CCreatureObjInfo*)os->info)->number = rand()%11+10;
+		break;
+	case 5:
+		((CCreatureObjInfo*)os->info)->number = rand()%9+8;
+		break;
+	case 6:
+		((CCreatureObjInfo*)os->info)->number = rand()%8+5;
+		break;
+	case 7:
+		((CCreatureObjInfo*)os->info)->number = rand()%7+3;
+		break;
+	case 8:
+		((CCreatureObjInfo*)os->info)->number = rand()%4+2;
+		break;
+	case 9:
+		((CCreatureObjInfo*)os->info)->number = rand()%3+2;
+		break;
+	case 10:
+		((CCreatureObjInfo*)os->info)->number = rand()%3+1;
+		break;
+
+	}
+
+}
+std::string CMonsterS::hoverText(CGObjectInstance *os)
+{
+	int pom = CCreature::getQuantityID(((CCreatureObjInfo*)os->info)->number);
+	pom = 174 + 3*pom + 1;
+	return CGI->generaltexth->arraytxt[pom] + CGI->creh->creatures[os->subID].namePl;
+}
+void CMonsterS::onHeroVisit(CGObjectInstance *os, int heroID)
+{
+	CCreatureSet set;
+	//TODO: zrobic secik w sposob wyrafinowany
+	set.slots[0] = std::pair<CCreature*,int>(&CGI->creh->creatures[os->subID],((CCreatureObjInfo*)os->info)->number);
+	cb->startBattle(heroID,&set,os->pos);
+}
+std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script
+{
+	std::vector<int> ret(1);
+	ret.push_back(54); //town
+	return ret;
+}

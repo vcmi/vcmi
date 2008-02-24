@@ -9,6 +9,7 @@ class CGObjectInstance;
 class SComponent;
 class IChosen;
 class CSelectableComponent;
+class Action;
 typedef struct lua_State lua_State;
 
 class ICallback
@@ -89,6 +90,13 @@ public:
 	bool dismissHero(const CGHeroInstance * hero);
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj);
 	bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2);
+	//battle
+	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
+	int battleGetObstaclesAtTile(int tile); //returns bitfield 
+	int battleGetStack(int pos); //returns ID of stack on the tile
+	int battleGetPos(int stack); //returns position (tile ID) of stack
+	int battleMakeAction(Action* action);//perform action with an active stack (or custom action)
+	
 
 //friends
 	friend int _tmain(int argc, _TCHAR* argv[]);
@@ -113,6 +121,8 @@ public:
 	void heroVisitCastle(CGObjectInstance * ob, int heroID);
 	void stopHeroVisitCastle(CGObjectInstance * ob, int heroID);
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack
+	void startBattle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2); //use hero=NULL for no hero
+	void startBattle(int heroID, CCreatureSet * army, int3 tile); //for hero<=>neutral army
 
 	//friends
 	friend void initGameState(CGameInfo * cgi);

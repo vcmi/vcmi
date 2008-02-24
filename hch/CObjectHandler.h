@@ -326,7 +326,13 @@ public:
 	CGObjectInstance& operator=(const CGObjectInstance & right);
 };
 
-class CGHeroInstance : public CGObjectInstance
+class  CArmedInstance: public CGObjectInstance
+{
+public:
+	CCreatureSet army; //army
+};
+
+class CGHeroInstance : public CArmedInstance
 {
 public:
 	int moveDir; //format:	123
@@ -340,7 +346,6 @@ public:
 	std::string name; //may be custom
 	std::string biography; //may be custom
 	int portrait; //may be custom
-	CCreatureSet army; //army
 	int mana; // remaining spell points
 	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
@@ -368,16 +373,16 @@ public:
 	bool canWalkOnSea() const;
 	int getCurrentLuck() const;
 	int getCurrentMorale() const;
+	int getSecSkillLevel(int ID) const; //-1 - no skill
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
 };
 
-class CGTownInstance : public CGObjectInstance
+class CGTownInstance : public CArmedInstance
 {
 public:
 	CTown * town;
 	std::string name; // name of town
-	CCreatureSet garrison;
 	int builded; //how many buildings has been built this turn
 	int destroyed; //how many buildings has been destroyed this turn
 	int identifier; 

@@ -4,8 +4,8 @@
 #if CHECKTIME
 #include "timeHandler.h"
 #include <boost/logic/tribool.hpp>
-#include "int3.h"
 #include <iostream>
+#include "int3.h"
 #define THC
 #else 
 #define THC //
