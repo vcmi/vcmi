@@ -1841,10 +1841,14 @@ void CAmbarCendamo::deh3m()
 				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
-					spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 2)])); ++i;
 					if(map.version > RoE)
-						i++;
-
+					{
+						spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 2)])); i+=2;
+					}
+					else
+					{
+						spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 1)])); i+=1;
+					}
 				}
 				int gspel = readNormalNr(i, 1); ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
