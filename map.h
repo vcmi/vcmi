@@ -7,6 +7,7 @@
 #include "hch\CSemiDefHandler.h"
 #include "hch\CDefHandler.h"
 class CGDefInfo;
+class CHeroObjInfo;
 enum ESortBy{name,playerAm,size,format, viccon,loscon};
 struct Sresource
 {
@@ -150,6 +151,13 @@ struct Rumor
 	std::string name, text;
 };
 
+struct DisposedHero
+{
+	int ID;
+	int portrait; //0xFF - default
+	std::string name;
+	bool players[8]; //who can hire this hero
+};
 
 class CMapEvent
 {
@@ -176,6 +184,8 @@ struct Mapa
 	TerrainTile** terrain; 
 	TerrainTile** undergroungTerrain; // used only if there is underground level
 	std::vector<Rumor> rumors;
+	std::vector<DisposedHero> disposedHeroes;
+	std::vector<CHeroObjInfo*> predefinedHeroes;
 	std::vector<CGDefInfo *> defy; // list of .def files
 	PlayerInfo players[8]; // info about players
 	std::vector<int> teams;  // teams[i] = team of player no i 

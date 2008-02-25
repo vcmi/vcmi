@@ -221,7 +221,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 				((VicCona*)this->vicConDetails)->destinationPlace.x = map[i+3];
 				((VicCona*)this->vicConDetails)->destinationPlace.y = map[i+4];
 				((VicCona*)this->vicConDetails)->destinationPlace.z = map[i+5];				
-				nr=3;
+				nr=4;
 				break;
 			}
 		}

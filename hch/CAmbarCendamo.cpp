@@ -412,17 +412,29 @@ void CAmbarCendamo::deh3m()
 			}
 		}
 	}
-	if(map.version>RoE)
+	if(map.version>RoE) //probably reserved for further heroes
 		i+=4;
 	unsigned char disp = 0;
 	if(map.version>=SoD)
 	{
 		disp = bufor[i++];
+		map.disposedHeroes.resize(disp);
 		for(int g=0; g<disp; ++g)
 		{
-			i+=2;
+			map.disposedHeroes[g].ID = bufor[i++];
+			map.disposedHeroes[g].portrait = bufor[i++];
 			int lenbuf = readNormalNr(i); i+=4;
-			i+=lenbuf+1;
+			for (int zz=0; zz<lenbuf; zz++)
+				map.disposedHeroes[g].name+=bufor[i++];
+			int players = bufor[i++];
+			for(int zz=0;zz<8;zz++)
+			{
+				int por = (1<<zz);
+				if(players & por)
+					map.disposedHeroes[g].players[zz] = true;
+				else 
+					map.disposedHeroes[g].players[zz] = false;
+			}
 		}
 	}
 	//allowed heroes have been read
@@ -503,32 +515,244 @@ void CAmbarCendamo::deh3m()
 	switch(map.version)
 	{
 	case WoG: case SoD: case AB:
-		if(bufor[i]=='\0') //omit 156 bytes of rubbish
 		{
-			if(map.version>AB)
-				i+=156;
+			for(int z=0;z<HEROES_QUANTITY;z++) //disposed heroes
+			{
+				int custom =  bufor[i++];
+				if(!custom)
+					continue;
+				CHeroObjInfo * spec = new CHeroObjInfo;
+				spec->type = CGI->heroh->heroes[z];
+				bool isExp = bufor[i]; ++i; //true if hore's experience is greater than 0
+				if(isExp)
+				{
+					spec->experience = readNormalNr(i); i+=4;
+				}
+				else
+				{
+					spec->experience = 0;
+				}
+				bool nonstandardAbilities = bufor[i]; ++i; //true if hero has specified abilities
+				if(nonstandardAbilities)
+				{
+					int howMany = readNormalNr(i); i+=4;
+					for(int yy=0; yy<howMany; ++yy)
+					{
+						spec->abilities.push_back(CGameInfo::mainObj->abilh->abilities[readNormalNr(i, 1)]); ++i;
+						spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
+					}
+				}
+				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
+				int artmask = map.version == RoE ? 0xff : 0xffff;
+				int artidlen = map.version == RoE ? 1 : 2;
+				spec->artifWorn.resize(19);
+				if(artSet)
+				{
+					//head art //1
+					int id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[0] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[0] = NULL;
+					//shoulders art //2
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[1] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[1] = NULL;
+					//neck art //3
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[2] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[2] = NULL;
+					//right hand art //4
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[3] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[3] = NULL;
+					//left hand art //5
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[4] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[4] = NULL;
+					//torso art //6
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[5] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[5] = NULL;
+					//right hand ring //7
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[6] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[6] = NULL;
+					//left hand ring //8
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[7] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[7] = NULL;
+					//feet art //9
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[8] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[8] = NULL;
+					//misc1 art //10
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[9] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[9] = NULL;
+					//misc2 art //11
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[10] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[10] = NULL;
+					//misc3 art //12
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[11] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[11] = NULL;
+					//misc4 art //13
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[12] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[12] = NULL;
+					//machine1 art //14
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[13] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[13] = NULL;
+					//machine2 art //15
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[14] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[14] = NULL;
+					//machine3 art //16
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[15] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[15] = NULL;
+					//misc5 art //17
+					if(map.version>=SoD)
+					{
+						i+=2;
+						/*id = readNormalNr(i, artidlen); i+=artidlen;
+						if(id!=artmask)
+							spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
+						else
+							spec->artMisc5 = NULL;*/
+					}
+					//spellbook
+					id = readNormalNr(i, artidlen); i+=artidlen;
+					if(id!=artmask)
+						spec->artifWorn[17] = &(CGameInfo::mainObj->arth->artifacts[id]);
+					else
+						spec->artifWorn[17] = NULL;
+					//19 //???what is that? gap in file or what? - it's probably fifth slot..
+					if(map.version>RoE)
+					{
+						id = readNormalNr(i, artidlen); i+=artidlen;
+						if(id!=artmask)
+							spec->artifWorn[18] = &(CGameInfo::mainObj->arth->artifacts[id]);
+						else
+							spec->artifWorn[18] = NULL;
+					}
+					else
+						i+=1;
+					//bag artifacts //20
+					int amount = readNormalNr(i, 2); i+=2; //number of artifacts in hero's bag
+					if(amount>0)
+					{
+						for(int ss=0; ss<amount; ++ss)
+						{
+							id = readNormalNr(i, artidlen); i+=artidlen;
+							if(id!=artmask)
+								spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[id]));
+							else
+								spec->artifacts.push_back(NULL);
+						}
+					}
+				} //artifacts
+				else
+				{
+					spec->artifWorn[8] = NULL;
+					spec->artifWorn[0] = NULL;
+					spec->artifWorn[4] = NULL;
+					spec->artifWorn[7] = NULL;
+					spec->artifWorn[13] = NULL;
+					spec->artifWorn[14] = NULL;
+					spec->artifWorn[15] = NULL;
+					spec->artifWorn[16] = NULL;
+					spec->artifWorn[9] = NULL;
+					spec->artifWorn[10] = NULL;
+					spec->artifWorn[11] = NULL;
+					spec->artifWorn[12] = NULL;
+					spec->artifWorn[18] = NULL;
+					spec->artifWorn[2] = NULL;
+					spec->artifWorn[3] = NULL;
+					spec->artifWorn[6] = NULL;
+					spec->artifWorn[1] = NULL;
+					spec->artifWorn[17] = NULL;
+					spec->artifWorn[5] = NULL;
+				}
+				for(int t=spec->artifacts.size(); t<10; ++t) //it does make sense, even it is not obvious ;]
+					spec->artifacts.push_back(NULL);
+				int customBio = bufor[i++];
+				if(customBio)
+				{
+					int length = readNormalNr(i); i+=4;
+					for (int zz=0; zz<length; zz++)
+						spec->biography+=bufor[i++];
+				}
+				int sex =   bufor[i++]; // 0xFF is default, 00 male, 01 female
+				bool areSpells = bufor[i]; ++i;
+				if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
+				{
+					int ist = i;
+					for(i; i<ist+9; ++i)
+					{
+						unsigned char c = bufor[i];
+						for(int yy=0; yy<8; ++yy)
+						{
+							if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+							{
+								if(c == (c|((unsigned char)intPow(2, yy))))
+									spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+							}
+						}
+					}
+				}
+				int customPrimSkills = bufor[i++];
+				if(customPrimSkills)
+				{
+					spec->attack = bufor[i++];
+					spec->defence = bufor[i++];
+					spec->power = bufor[i++];
+					spec->knowledge = bufor[i++];
+				}
+				else
+				{
+					spec->attack = -1;
+					spec->defence = -1;
+					spec->power = -1;
+					spec->knowledge = -1;
+				}
+				map.predefinedHeroes.push_back(spec);
+			}
 			break;
 		}
-		else if(map.version!=AB || map.rumors.size()==0) //omit a lot of rubbish in a strage way
-		{
-			int lastFFpos=i;
-			while(i-lastFFpos<350) //i far in terrain bytes
-			{
-				++i;
-				if(bufor[i]==0xff)
-				{
-					lastFFpos=i;
-				}
-			}
-
-			i=lastFFpos;
-
-			while(bufor[i-1]!=0 || bufor[i]>8 || bufor[i+2]>4 || bufor[i+1]==0 || ( bufor[i+2]==0 && bufor[i+3]>0 ) || (bufor[i+4]==0 && bufor[i+5]>0)) //back to terrain bytes
-			{
-				i++;
-			}
-		}
-		break;
 	case RoE:
 		i+=0;
 		break;
