@@ -13,6 +13,9 @@
 #include <sstream>
 #include "SDL_Extensions.h"
 #include "hch/CHeroHandler.h"
+#include "hch/CLodHandler.h"
+#include "boost/filesystem/operations.hpp"
+#include <boost/algorithm/string.hpp>
 int internalFunc(void * callback)
 {
 	CCallback * cb = (CCallback*)callback;
@@ -33,6 +36,31 @@ int internalFunc(void * callback)
 
 		if(pom==std::string("die, fool"))
 			exit(0);
+		else if(pom==std::string("get txt"))
+		{
+			boost::filesystem::create_directory("Extracted_txts");
+			std::cout<<"Command accepted. Opening .lod file...\t";
+			CLodHandler * txth = new CLodHandler;
+			txth->init(std::string("Data\\H3bitmap.lod"));
+			std::cout<<"done.\nScanning .lod file\n";
+			int curp=0;
+			std::string pattern = ".TXT";
+			for(int i=0;i<txth->entries.size(); i++)
+			{
+				std::string pom = txth->entries[i].nameStr;
+				if(boost::algorithm::find_last(pom,pattern))
+				{
+					txth->extractFile(std::string("Extracted_txts\\")+pom,pom);
+				}
+				int p2 = ((float)i/(float)txth->entries.size())*(float)100;
+				if(p2!=curp)
+				{
+					curp = p2;
+					std::cout<<"\r"<<curp<<"%";
+				}
+			}
+			std::cout<<"\rExtracting done :)\n";
+		}
 
 		switch (*cn.c_str())
 		{

@@ -62,7 +62,7 @@
 CGameInfo* CGI;
 #endif
 #define CHUNK 16384
-const char * NAME = "VCMI 0.54 \"Tirion\" Techdemo";
+const char * NAME = "VCMI 0.55 \"Tirion\" Techdemo";
 
 SDL_Color playerColorPalette[256]; //palette to make interface colors good
 
@@ -757,32 +757,46 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->scenarioOps = cpg->runLoop();
 		THC tmh.getDif();
 
-		cgi->sspriteh = new CSemiLodHandler();
-		cgi->sspriteh->openLod("H3sprite.lod");
+		timeHandler pomtime;pomtime.getDif();
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
 		cgi->arth = arth;
+		THC std::cout<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
+
 		CCreatureHandler * creh = new CCreatureHandler;
 		creh->loadCreatures();
 		cgi->creh = creh;
+		THC std::cout<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
 
 		CSpellHandler * spellh = new CSpellHandler;
 		spellh->loadSpells();
-		cgi->spellh = spellh;
+		cgi->spellh = spellh;		
+		THC std::cout<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
+
 		CBuildingHandler * buildh = new CBuildingHandler;
 		buildh->loadBuildings();
 		cgi->buildh = buildh;
+		THC std::cout<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
+
 		CObjectHandler * objh = new CObjectHandler;
 		objh->loadObjects();
 		cgi->objh = objh;
+		THC std::cout<<"\tObject handler: "<<pomtime.getDif()<<std::endl;
+
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
+		THC std::cout<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
+
 		cgi->state = new CGameState();
 		cgi->state->players = std::map<int, PlayerState>();
+		THC std::cout<<"\tGamestate: "<<pomtime.getDif()<<std::endl;
+
 		cgi->pathf = new CPathfinder();
+		THC std::cout<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
 		cgi->consoleh->cb = new CCallback(cgi->state,-1);
 		cgi->consoleh->runConsole();
-		THC std::cout<<"Handlers initailization: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
+		THC std::cout<<"Handlers initailization (together): "<<tmh.getDif()<<std::endl;
 
 		std::string mapname;
 		//if(CPG->ourScenSel->mapsel.selected==0) 

@@ -687,7 +687,7 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 		if(buf1!=name)
 			continue;
 		fseek(FLOD, entries[i].offset, 0);
-		std::string bufff = (FName.substr(0, FName.size()-4) + "\\" + (char*)entries[i].name);
+		std::string bufff = (FName);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
@@ -725,7 +725,6 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 		}
 		delete[] outp;
 	}
-	fclose(FLOD);
 }
 
 int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
