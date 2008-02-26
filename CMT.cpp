@@ -524,7 +524,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			for(int ff=0; ff<cgi->heroh->flags1[q]->ourImages.size(); ++ff)
 			{
-				CSDL_Ext::alphaTransform(cgi->heroh->flags1[q]->ourImages[ff].bitmap);
+				SDL_SetColorKey(cgi->heroh->flags1[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
+					SDL_MapRGB(cgi->heroh->flags1[q]->ourImages[ff].bitmap->format, 0, 255, 255)
+					);
 			}
 			cgi->heroh->flags1[q]->alphaTransformed = true;
 		}
@@ -582,7 +584,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			for(int ff=0; ff<cgi->heroh->flags2[q]->ourImages.size(); ++ff)
 			{
-				CSDL_Ext::alphaTransform(cgi->heroh->flags2[q]->ourImages[ff].bitmap);
+				SDL_SetColorKey(cgi->heroh->flags2[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
+					SDL_MapRGB(cgi->heroh->flags2[q]->ourImages[ff].bitmap->format, 0, 255, 255)
+					);
 			}
 			cgi->heroh->flags2[q]->alphaTransformed = true;
 		}
@@ -640,7 +644,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			for(int ff=0; ff<cgi->heroh->flags3[q]->ourImages.size(); ++ff)
 			{
-				CSDL_Ext::alphaTransform(cgi->heroh->flags3[q]->ourImages[ff].bitmap);
+				SDL_SetColorKey(cgi->heroh->flags3[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
+					SDL_MapRGB(cgi->heroh->flags3[q]->ourImages[ff].bitmap->format, 0, 255, 255)
+					);
 			}
 			cgi->heroh->flags3[q]->alphaTransformed = true;
 		}
@@ -653,6 +659,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF05.DEF")); //purple
 		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF06.DEF")); //teal
 		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF07.DEF")); //pink
+
 
 		for(int q=0; q<8; ++q)
 		{
@@ -743,7 +750,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
 			for(int ff=0; ff<cgi->heroh->flags4[q]->ourImages.size(); ++ff)
 			{
-				CSDL_Ext::alphaTransform(cgi->heroh->flags4[q]->ourImages[ff].bitmap);
+				SDL_SetColorKey(cgi->heroh->flags4[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
+					SDL_MapRGB(cgi->heroh->flags4[q]->ourImages[ff].bitmap->format, 0, 255, 255)
+					);
 			}
 			cgi->heroh->flags4[q]->alphaTransformed = true;
 		}

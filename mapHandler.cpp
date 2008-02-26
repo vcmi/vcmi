@@ -814,6 +814,20 @@ void CMapHandler::init()
 	std::cout<<"\tMaking object rects: "<<th.getDif()<<std::endl;
 	calculateBlockedPos();
 	std::cout<<"\tCalculating blockmap: "<<th.getDif()<<std::endl;
+
+	//initailizing battle backgrounds
+	std::ifstream bback("config/battleBack.txt");
+	battleBacks.resize(9);
+	for(int i=0; i<9; ++i) //9 - number of terrains battle can be fought on
+	{
+		int am;
+		bback>>am;
+		battleBacks[i].resize(am);
+		for(int f=0; f<am; ++f)
+		{
+			bback>>battleBacks[i][f];
+		}
+	}
 }
 
 SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)
@@ -925,7 +939,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
 					pp.y+=imgVal*2-32;
 					sr.y-=16;
-					CSDL_Ext::blit8bppAlphaTo24bpp(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
+					SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 				}
 				else if(themp && themp->moveDir && themp->isStanding && themp->ID!=62) //last condition - this is not prison)
 				{
@@ -951,7 +965,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						SDL_Rect bufr = sr;
 						bufr.x-=2*32;
 						bufr.y-=1*32;
-						CSDL_Ext::blit8bppAlphaTo24bpp(CGI->heroh->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+heroAnim%imgVal].bitmap, NULL, su, &bufr);
+						bufr.h = 64;
+						bufr.w = 96;
+						if(bufr.x-extRect->x>-64)
+							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, su, &bufr);
 						themp->flagPrinted = true;
 					}
 				}

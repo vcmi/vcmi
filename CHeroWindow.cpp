@@ -7,6 +7,7 @@
 #include "SDL.h"
 #include "SDL_Extensions.h"
 #include "CAdvmapInterface.h"
+#include "hch\CLodHandler.h"
 #include "AdventureMapButton.h"
 #include "CMessage.h"
 #include <sstream>

@@ -1848,9 +1848,11 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 }
 
 void CPlayerInterface::battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, tribool side) //called by engine when battle starts; side=0 - left, side=1 - right
-{
+ {
 	curint->deactivate();
 	curint = new CBattleInterface(army1,army2,tile,hero1,hero2);
+	curint->activate();
+	LOCPLINT->objsToBlit.push_back(dynamic_cast<IShowable*>(curint));
 }
 
 void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles) //called when battlefield is prepared, prior the battle beginning

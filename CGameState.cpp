@@ -1,5 +1,6 @@
 #include "CGameState.h"
 #include "CGameInterface.h"
+#include "CPlayerInterface.h"
 #include <algorithm>
 class CStack
 {
@@ -20,6 +21,7 @@ public:
 		return (a->creature->speed)<(b->creature->speed);
 	}
 } cmpst ;
+
 
 void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2)
 {
@@ -53,27 +55,43 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 				side = true;
 			else 
 				return; //no witnesses
-			CGI->playerint[j->second.serial]->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side);
+			if(CGI->playerint[j->second.serial]->human)
+			{
+				((CPlayerInterface*)( CGI->playerint[j->second.serial] ))->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side);
+			}
+			else
+			{
+				//CGI->playerint[j->second.serial]->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side);
+			}
 		}
 	}
 
 	curB->round++;
-	if(curB->hero1->getSecSkillLevel(19)>=0 || curB->hero2->getSecSkillLevel(19)>=0) //someone has tactics
+	if( (curB->hero1 && curB->hero1->getSecSkillLevel(19)>=0) || ( curB->hero2 && curB->hero2->getSecSkillLevel(19)>=0)  )//someone has tactics
 	{
 		//TODO: wywolania dla rundy -1, ograniczenie pola ruchu, etc
 	}
 
 	curB->round++;
-	while(true) //do zwyciestwa jednej ze stron
-	{
-		for(int i=0;i<stacks.size();i++)
-		{
-			curB->activeStack = i;
-			if(stacks[i]->alive) //niech interfejs ruszy oddzialem
-				CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->activeStack(stacks[i]->ID);
-			//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy
-		}
-	}
+	//while(true) //do zwyciestwa jednej ze stron
+	//{
+	//	for(int i=0;i<stacks.size();i++)
+	//	{
+	//		curB->activeStack = i;
+	//		if(stacks[i]->alive) //niech interfejs ruszy oddzialem
+	//		{
+	//			if(CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->human)
+	//			{
+	//				((CPlayerInterface*)CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)])->activeStack(stacks[i]->ID);
+	//			}
+	//			else
+	//			{
+	//				//CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->activeStack(stacks[i]->ID);
+	//			}
+	//		}
+	//		//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy
+	//	}
+	//}
 
 	for(int i=0;i<stacks.size();i++)
 		delete stacks[i];

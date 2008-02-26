@@ -630,12 +630,19 @@ void CHeroScript::newObject(CGObjectInstance *os)
 void CHeroScript::onHeroVisit(CGObjectInstance *os, int heroID)
 {
 	//TODO: check for allies
-	cb->startBattle(
-		&(static_cast<CGHeroInstance*>(heroes[heroID]))->army,
-		&(static_cast<CGHeroInstance*>(os))->army,
-		os->pos,
-		static_cast<CGHeroInstance*>(heroes[heroID]),
-		static_cast<CGHeroInstance*>(os));
+	if(static_cast<CGHeroInstance*>(heroes[heroID])->tempOwner == static_cast<CGHeroInstance*>(os)->tempOwner) //one of allied cases
+	{
+		//exchange
+	}
+	else
+	{
+		/*cb->startBattle(
+			&(static_cast<CGHeroInstance*>(heroes[heroID]))->army,
+			&(static_cast<CGHeroInstance*>(os))->army,
+			os->pos,
+			static_cast<CGHeroInstance*>(heroes[heroID]),
+			static_cast<CGHeroInstance*>(os));*/
+	}
 }
 std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are handled by script
 {
@@ -694,7 +701,7 @@ void CMonsterS::onHeroVisit(CGObjectInstance *os, int heroID)
 	CCreatureSet set;
 	//TODO: zrobic secik w sposob wyrafinowany
 	set.slots[0] = std::pair<CCreature*,int>(&CGI->creh->creatures[os->subID],((CCreatureObjInfo*)os->info)->number);
-	cb->startBattle(heroID,&set,os->pos);
+	//cb->startBattle(heroID,&set,os->pos);
 }
 std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script
 {
