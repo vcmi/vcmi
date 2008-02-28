@@ -636,12 +636,12 @@ void CHeroScript::onHeroVisit(CGObjectInstance *os, int heroID)
 	}
 	else
 	{
-		/*cb->startBattle(
+		cb->startBattle(
 			&(static_cast<CGHeroInstance*>(heroes[heroID]))->army,
 			&(static_cast<CGHeroInstance*>(os))->army,
 			os->pos,
 			static_cast<CGHeroInstance*>(heroes[heroID]),
-			static_cast<CGHeroInstance*>(os));*/
+			static_cast<CGHeroInstance*>(os));
 	}
 }
 std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are handled by script

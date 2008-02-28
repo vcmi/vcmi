@@ -2,6 +2,9 @@
 #include "CGameInterface.h"
 #include "CPlayerInterface.h"
 #include <algorithm>
+#include "SDL_Thread.h"
+#include "SDL_Extensions.h"
+
 class CStack
 {
 public:
@@ -13,6 +16,7 @@ public:
 	bool alive;
 	CStack(CCreature * C, int A, int O, int I):creature(C),amount(A),owner(O), alive(true), position(-1), ID(I){};
 };
+
 class CMP_stack
 {
 public:
@@ -22,6 +26,20 @@ public:
 	}
 } cmpst ;
 
+int battleEventThread(void * pointer)
+{
+	while(true)
+	{
+		SDL_Event sEvent;
+		while (SDL_PollEvent(&sEvent))  //wait for event...
+		{
+			LOCPLINT->handleEvent(&sEvent);
+		}
+		CSDL_Ext::update();
+		SDL_Delay(100);
+	}
+	return 0;
+}
 
 void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2)
 {
@@ -73,25 +91,29 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 	}
 
 	curB->round++;
-	//while(true) //do zwyciestwa jednej ze stron
-	//{
-	//	for(int i=0;i<stacks.size();i++)
-	//	{
-	//		curB->activeStack = i;
-	//		if(stacks[i]->alive) //niech interfejs ruszy oddzialem
-	//		{
-	//			if(CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->human)
-	//			{
-	//				((CPlayerInterface*)CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)])->activeStack(stacks[i]->ID);
-	//			}
-	//			else
-	//			{
-	//				//CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->activeStack(stacks[i]->ID);
-	//			}
-	//		}
-	//		//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy
-	//	}
-	//}
+
+	SDL_Thread * eventh = SDL_CreateThread(battleEventThread, NULL);
+
+	while(true) //do zwyciestwa jednej ze stron
+	{
+		for(int i=0;i<stacks.size();i++)
+		{
+			curB->activeStack = i;
+			if(stacks[i]->alive) //niech interfejs ruszy oddzialem
+			{
+				if(CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->human)
+				{
+					((CPlayerInterface*)CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)])->activeStack(stacks[i]->ID);
+				}
+				else
+				{
+					//CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->activeStack(stacks[i]->ID);
+				}
+			}
+			//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy
+		}
+		SDL_Delay(50);
+	}
 
 	for(int i=0;i<stacks.size();i++)
 		delete stacks[i];
