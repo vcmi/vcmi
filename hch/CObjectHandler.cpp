@@ -79,7 +79,16 @@ void CObjectHandler::loadObjects()
 		ifs >> dw >> cr;
 		cregens[dw]=cr;
 	}
-	
+	ifs.close();
+	ifs.clear();
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("ZCRGN1.TXT");
+	it=0;
+	while (it<buf.length()-1)
+	{
+		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		creGens.push_back(temp);
+	}
+
 }
 
 bool CGObjectInstance::isHero() const

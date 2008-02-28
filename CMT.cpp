@@ -251,6 +251,7 @@ void initGameState(CGameInfo * cgi)
 	handleCPPObjS(&scripts,new CTownScript(csc));
 	handleCPPObjS(&scripts,new CHeroScript(csc));
 	handleCPPObjS(&scripts,new CMonsterS(csc));
+	handleCPPObjS(&scripts,new CCreatureGen(csc));
 	//created map
 
 	/****************************LUA OBJECT SCRIPTS************************************************/

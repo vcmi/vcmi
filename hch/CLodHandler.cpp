@@ -795,12 +795,12 @@ std::string CLodHandler::getTextFile(std::string name)
 	std::string ret0;
 	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 	Entry *e;
-	for (int i=0;i<totalFiles;i++)
-	{
-		e = entries.znajdz(name);
-	}
+	e = entries.znajdz(name);
 	if(!e)
+	{
+		std::cout << "Error: cannot load "<<name<<" from the .lod file!"<<std::endl;
 		return ret0;
+	}
 	if(e->offset<0)
 	{
 		char * outp = new char[e->realSize];

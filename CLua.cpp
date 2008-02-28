@@ -629,31 +629,31 @@ void CHeroScript::newObject(CGObjectInstance *os)
 
 void CHeroScript::onHeroVisit(CGObjectInstance *os, int heroID)
 {
-	//TODO: check for allies
-	if(static_cast<CGHeroInstance*>(heroes[heroID])->tempOwner == static_cast<CGHeroInstance*>(os)->tempOwner) //one of allied cases
-	{
-		//exchange
-	}
-	else
-	{
-		cb->startBattle(
-			&(static_cast<CGHeroInstance*>(heroes[heroID]))->army,
-			&(static_cast<CGHeroInstance*>(os))->army,
-			os->pos,
-			static_cast<CGHeroInstance*>(heroes[heroID]),
-			static_cast<CGHeroInstance*>(os));
-	}
+	////TODO: check for allies
+	//if(static_cast<CGHeroInstance*>(heroes[heroID])->tempOwner == static_cast<CGHeroInstance*>(os)->tempOwner) //one of allied cases
+	//{
+	//	//exchange
+	//}
+	//else
+	//{
+	//	cb->startBattle(
+	//		&(static_cast<CGHeroInstance*>(heroes[heroID]))->army,
+	//		&(static_cast<CGHeroInstance*>(os))->army,
+	//		os->pos,
+	//		static_cast<CGHeroInstance*>(heroes[heroID]),
+	//		static_cast<CGHeroInstance*>(os));
+	//}
 }
 std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are handled by script
 {
 	std::vector<int> ret(1);
-	ret.push_back(34); //town
+	ret.push_back(34); //hero
 	return ret;
 }
 
 void CMonsterS::newObject(CGObjectInstance *os)
 {
-	os->blockVisit = true;
+	//os->blockVisit = true;
 	switch(CGI->creh->creatures[os->subID].level)
 	{
 	case 1:
@@ -694,7 +694,7 @@ std::string CMonsterS::hoverText(CGObjectInstance *os)
 {
 	int pom = CCreature::getQuantityID(((CCreatureObjInfo*)os->info)->number);
 	pom = 174 + 3*pom + 1;
-	return CGI->generaltexth->arraytxt[pom] + CGI->creh->creatures[os->subID].namePl;
+	return CGI->generaltexth->arraytxt[pom] + " " + CGI->creh->creatures[os->subID].namePl;
 }
 void CMonsterS::onHeroVisit(CGObjectInstance *os, int heroID)
 {
@@ -706,6 +706,25 @@ void CMonsterS::onHeroVisit(CGObjectInstance *os, int heroID)
 std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script
 {
 	std::vector<int> ret(1);
-	ret.push_back(54); //town
+	ret.push_back(54); //monster
+	return ret;
+}
+
+
+void CCreatureGen::newObject(CGObjectInstance *os)
+{
+	amount[os] = CGI->creh->creatures[CGI->objh->cregens[os->subID]].growth;
+}
+std::string CCreatureGen::hoverText(CGObjectInstance *os)
+{
+	return CGI->objh->creGens[os->subID];
+}
+void CCreatureGen::onHeroVisit(CGObjectInstance *os, int heroID)
+{
+}
+std::vector<int> CCreatureGen::yourObjects() //returns IDs of objects which are handled by script
+{
+	std::vector<int> ret(1);
+	ret.push_back(17); //cregen1
 	return ret;
 }

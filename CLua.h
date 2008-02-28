@@ -186,3 +186,15 @@ class CMonsterS : public CCPPObjectScript
 
 	friend void initGameState(CGameInfo * cgi);
 };
+
+class CCreatureGen : public CCPPObjectScript
+{
+	std::map<CGObjectInstance*, int> amount; //amount of creatures in each dwelling
+	CCreatureGen(CScriptCallback * CB):CCPPObjectScript(CB){};
+	void newObject(CGObjectInstance *os);
+	std::string hoverText(CGObjectInstance *os);
+	void onHeroVisit(CGObjectInstance *os, int heroID);
+	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+
+	friend void initGameState(CGameInfo * cgi);
+};
