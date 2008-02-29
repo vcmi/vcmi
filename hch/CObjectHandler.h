@@ -419,6 +419,7 @@ public:
 	std::vector<int> cregens; //type 17. dwelling subid -> creature ID
 	void loadObjects();
 
+	std::vector<std::string> creGens; //names of creatures' generators
 	std::vector<std::string> advobtxt;
 	std::vector<std::string> xtrainfo;
 	std::vector<std::string> restypes;

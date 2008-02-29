@@ -92,7 +92,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 
 	curB->round++;
 
-	SDL_Thread * eventh = SDL_CreateThread(battleEventThread, NULL);
+	//SDL_Thread * eventh = SDL_CreateThread(battleEventThread, NULL);
 
 	while(true) //do zwyciestwa jednej ze stron
 	{

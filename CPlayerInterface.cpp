@@ -1873,6 +1873,20 @@ void CPlayerInterface::actionFinished(Action action)//occurs AFTER every action 
 
 void CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
+	while(true)
+	{
+		SDL_Event sEvent;
+		while (SDL_PollEvent(&sEvent))  //wait for event...
+		{
+			LOCPLINT->handleEvent(&sEvent);
+		}
+		for(int i=0;i<objsToBlit.size();i++)
+			objsToBlit[i]->show();
+		//SDL_Flip(ekran);
+		CSDL_Ext::update(ekran);
+		SDL_Delay(5); //give time for other apps
+		SDL_framerateDelay(mainFPSmng);
+	}
 }
 
 void CPlayerInterface::battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner)
