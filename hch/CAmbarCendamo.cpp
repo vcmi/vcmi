@@ -514,7 +514,7 @@ void CAmbarCendamo::deh3m()
 	THC std::cout<<"\tReading rumors: "<<th.getDif()<<std::endl;
 	switch(map.version)
 	{
-	case WoG: case SoD: case AB:
+	case WoG: case SoD:
 		{
 			for(int z=0;z<HEROES_QUANTITY;z++) //disposed heroes
 			{

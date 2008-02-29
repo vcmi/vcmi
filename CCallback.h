@@ -9,7 +9,7 @@ class CGObjectInstance;
 class SComponent;
 class IChosen;
 class CSelectableComponent;
-class Action;
+struct Action;
 typedef struct lua_State lua_State;
 
 class ICallback
