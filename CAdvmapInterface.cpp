@@ -302,7 +302,9 @@ void CTerrainRect::clickLeft(tribool down)
 			currentPath=NULL;
 		}
 	}
-	const CGHeroInstance * currentHero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first;
+	const CGHeroInstance * currentHero = (LOCPLINT->adventureInt->heroList.items.size())?(LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first):(NULL);
+	if(!currentHero)
+		return; 
 	int3 bufpos = currentHero->getPosition(false);
 	//bufpos.x-=1;
 	if (mres)

@@ -2200,6 +2200,7 @@ void CHeroList::updateHList()
 	genList();
 	if(selected>=items.size())
 		select(items.size()-1);
+	draw();
 }
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {
