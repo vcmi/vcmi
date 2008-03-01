@@ -639,8 +639,9 @@ void CHeroWindow::deactivate()
 
 void CHeroWindow::dismissCurrent()
 {
-	LOCPLINT->cb->dismissHero(curHero);
+	const CGHeroInstance * ch = curHero;
 	quit();
+	LOCPLINT->cb->dismissHero(ch);
 }
 
 void CHeroWindow::questlog()

@@ -96,11 +96,14 @@ void AdventureMapButton<T>::clickRight (tribool down)
 template <typename T>
 void AdventureMapButton<T>::hover (bool on)
 {
-	Hoverable::hover(on);
-	if (on)
-		LOCPLINT->statusbar->print(name);
-	else if (LOCPLINT->statusbar->getCurrent()==name)
-		LOCPLINT->statusbar->clear();
+	if(name.size()) //if there is no name, there is nohing to display also
+	{
+		Hoverable::hover(on);
+		if (on)
+			LOCPLINT->statusbar->print(name);
+		else if (LOCPLINT->statusbar->getCurrent()==name)
+			LOCPLINT->statusbar->clear();
+	}
 }
 template <typename T>
 void AdventureMapButton<T>::activate()
