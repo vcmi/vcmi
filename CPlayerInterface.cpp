@@ -2200,7 +2200,10 @@ void CHeroList::updateHList()
 	genList();
 	if(selected>=items.size())
 		select(items.size()-1);
-	draw();
+	if(items.size()==0)
+		LOCPLINT->adventureInt->townList.select(0);
+	else
+		select(selected);
 }
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {

@@ -1,8 +1,6 @@
 #ifndef CBUILDINGHANDLER_H
 #define CBUILDINGHANDLER_H
-
-#include <vector>
-#include <string>
+#include "../global.h"
 
 enum EbuildingType {NEUTRAL=0, CASTLE, RAMPART, TOWER, INFERNO, NECROPOLIS, DUNGEON, STRONGHOLD, FORTRESS, CONFLUX};
 
@@ -17,23 +15,10 @@ public:
 	bool isDwelling; //true, if this building is a dwelling
 };
 
-//class CGBuilding
-//{
-//	int ID, subID;
-//
-//	struct {
-//		int x, y;
-//	} pos;
-//
-//	bool allowed;
-//	bool built;
-//
-//	std::string name, description
-//};
-
 class CBuildingHandler
 {
 public:
+	//std::map<int, std::map<int, CBuilding*> > buildings; ///< first int is the castle ID, second the building ID (in ERM-U format)
 	std::vector<CBuilding> buildings; //vector of buildings
 	std::vector<CBuilding> resourceSilos; //vector with resource silos only - for castle profiled descriptions
 	std::vector<CBuilding> grails; //vector with grail - type buildings only - for castle profiled descriptions

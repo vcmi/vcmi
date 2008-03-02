@@ -310,6 +310,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//cb.open("CSECRET.BIK");
 	THC timeHandler tmh;
 	THC tmh.getDif();
+	timeHandler pomtime;pomtime.getDif();
 	int xx=0, yy=0, zz=0;
 	SDL_Event sEvent;
 	srand ( time(NULL) );
@@ -366,7 +367,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		#endif
 		cgi->consoleh = new CConsoleHandler;
 		cgi->mush = mush;
-		cgi->curh = new CCursorHandler;
+		cgi->curh = new CCursorHandler; 
 		
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		cgi->spriteh = new CLodHandler;
@@ -767,7 +768,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->scenarioOps = cpg->runLoop();
 		THC tmh.getDif();
 
-		timeHandler pomtime;pomtime.getDif();
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
 		cgi->arth = arth;
