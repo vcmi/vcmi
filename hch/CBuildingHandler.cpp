@@ -2,650 +2,133 @@
 #include "../CGameInfo.h"
 #include "CBuildingHandler.h"
 #include "CLodHandler.h"
-
+#include <sstream>
+std::string readTo(std::string in, unsigned int &it, char end)
+{
+	int pom = it;
+	int last = in.find_first_of(end,it);
+	it+=(1+last-it);
+	return in.substr(pom,last-pom);
+}
+unsigned int readNr(std::string in, unsigned int &it)
+{
+	int last=it;
+	for(;last<in.size();last++)
+		if(in[last]=='\t' || in[last]=='\n' || in[last]==' ' || in[last]=='\r' || in[last]=='\n')
+			break;
+	if(last==in.size())
+		throw new std::exception("Cannot read number...");
+	std::stringstream ss(in.substr(it,last-it));
+	it+=(1+last-it);
+	ss >> last;
+	return last;
+}
+CBuilding * readBg(std::string &buf, unsigned int& it)
+{
+	CBuilding * nb = new CBuilding();
+	for(int res=0;res<7;res++)
+		nb->resources[res] = readNr(buf,it);
+	nb->refName = readTo(buf,it,'\n');
+	return nb;
+}
 void CBuildingHandler::loadBuildings()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("BUILDING.TXT");
-	int andame = buf.size();
-	int i=0; //buf iterator
-	int hmcr=0;
-	for(i; i<andame; ++i) //omitting rubbish
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("BUILDING.TXT"), temp;
+	unsigned int andame = buf.size(), it=0; //buf iterator
+
+	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//read 2 lines of file info
+
+	//read 9 special buildings for every faction
+	for(int i=0;i<F_NUMBER;i++)
 	{
-		if(buf[i]=='\r')
-			++hmcr;
-		if(hmcr==3)
-			break;
-	}
-	i+=2;
-	EbuildingType currType; //current type of building
-	bool currDwel = false; //true, if we are reading dwellings
-	while(true)
-	{
-		CBuilding nbu; //currently read building
-		if(buildings.size()>200 && buf.substr(i, buf.size()-i).find('\r')==std::string::npos)
-			break;
-
-		std::string firstStr;
-		int befi=i;
-		for(i; i<andame; ++i)
+		temp = readTo(buf,it,'\n');//read blank line and faction name
+		temp = readTo(buf,it,'\n');
+		for(int bg = 0; bg<9; bg++)
 		{
-			if(buf[i]=='\t')
-				break;
-		}
-		firstStr = buf.substr(befi, i-befi);
-		++i;
-
-		if(firstStr == std::string(""))
-		{
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-
-		if(firstStr == std::string("Castle"))
-		{
-			currType = CASTLE;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Rampart"))
-		{
-			currType = RAMPART;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Tower"))
-		{
-			currType = TOWER;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Inferno"))
-		{
-			currType = INFERNO;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Necropolis"))
-		{
-			currType = NECROPOLIS;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Dungeon"))
-		{
-			currType = DUNGEON;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Stronghold"))
-		{
-			currType = STRONGHOLD;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Fortress"))
-		{
-			currType = FORTRESS;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Conflux"))
-		{
-			currType = CONFLUX;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Neutral Buildings"))
-		{
-			currType = NEUTRAL;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else if(firstStr == std::string("Dwellings"))
-		{
-			currDwel = true;
-			for(i; i<andame; ++i) //omitting rubbish
-			{
-				if(buf[i]=='\r')
-					break;
-			}
-			i+=2;
-			continue;
-		}
-		else
-		{
-			nbu.wood = atoi(firstStr.c_str());
-		}
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nbu.mercury = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nbu.ore = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nbu.sulfur = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nbu.crystal = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nbu.gems = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nbu.gold = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\r' || buf[i]=='\t')
-				break;
-		}
-		nbu.refName = buf.substr(befi, i-befi);
-		i+=2;
-
-		nbu.type = currType;
-		nbu.isDwelling = currDwel;
-
-		if(nbu.refName[0]==' ')
-			nbu.refName = nbu.refName.substr(1, nbu.name.size()-1);
-
-		buildings.push_back(nbu);
-	}
-	loadNames();
-	loadNeutNames();
-	loadDwellingNames();
-}
-
-void CBuildingHandler::loadNames()
-{
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("BLDGSPEC.TXT");
-	int andame = buf.size();
-	int i=0; //buf iterator
-	for(int ii=0; ii<9; ++ii)
-	{
-		for(int q=0; q<11; ++q)
-		{
-			if (q<9) //normal building names and descriptions
-			{
-				int befi=i;
-				for(i; i<andame; ++i)
-				{
-					if(buf[i]=='\t')
-						break;
-				}
-				buildings[ii*9+q].name = buf.substr(befi, i-befi);
-				++i;
-
-				befi=i;
-				for(i; i<andame; ++i)
-				{
-					if(buf[i]=='\r')
-						break;
-				}
-				buildings[ii*9+q].description = buf.substr(befi, i-befi);
-				i+=2;
-			}
-			else if (q==9) //for graal buildings
-			{
-				CBuilding graal;
-				int befi=i;
-				for(i; i<andame; ++i)
-				{
-					if(buf[i]=='\t')
-						break;
-				}
-				graal.name = buf.substr(befi, i-befi);
-				++i;
-
-				befi=i;
-				for(i; i<andame; ++i)
-				{
-					if(buf[i]=='\r')
-						break;
-				}
-				graal.description = buf.substr(befi, i-befi);
-				i+=2;
-
-				graal.type = EbuildingType(ii+1);
-				graal.wood = graal.mercury = graal.ore = graal.sulfur = graal.crystal = graal.gems = graal.gold = 0;
-				graal.isDwelling = false;
-				grails.push_back(graal);
-			}
-			else //for resource silos
-			{
-				CBuilding graal;
-				int befi=i;
-				for(i; i<andame; ++i)
-				{
-					if(buf[i]=='\t')
-						break;
-				}
-				graal.name = buf.substr(befi, i-befi);
-				++i;
-
-				befi=i;
-				for(i; i<andame; ++i)
-				{
-					if(buf[i]=='\r')
-						break;
-				}
-				graal.description = buf.substr(befi, i-befi);
-				i+=2;
-
-				graal.type = EbuildingType(ii+1);
-				graal.wood = graal.mercury = graal.ore = graal.sulfur = graal.crystal = graal.gems = graal.gold = 0;
-				graal.isDwelling = false;
-				resourceSilos.push_back(graal);
-			}
+			CBuilding *nb = readBg(buf,it);
+			buildings[i][bg+17] = nb;
 		}
 	}
-	///////////////reading artifact merchant
-	int befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	artMerchant.name = buf.substr(befi, i-befi);
-	++i;
 
-	befi=i;
-	for(i; i<andame; ++i)
+	//reading 17 neutral (common) buildings
+	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//neutral buildings - skip 3 lines
+	for(int bg = 0; bg<17; bg++)
 	{
-		if(buf[i]=='\r')
-			break;
+		CBuilding *nb = readBg(buf,it);
+		for(int f=0;f<F_NUMBER;f++)
+			buildings[f][bg] = new CBuilding(*nb);
+		delete nb;
 	}
-	artMerchant.description = buf.substr(befi, i-befi);
-	i+=2;
-	//////////////////////reading level1 creature horde
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	l1horde.name = buf.substr(befi, i-befi);
-	++i;
 
-	befi=i;
-	for(i; i<andame; ++i)
+	//reading 14 per faction dwellings 
+	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//dwellings - skip 2 lines
+	for(int i=0;i<F_NUMBER;i++)
 	{
-		if(buf[i]=='\r')
-			break;
-	}
-	l1horde.description = buf.substr(befi, i-befi);
-	i+=2;
-	//////////////////////reading level2 creature horde
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	l2horde.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	l2horde.description = buf.substr(befi, i-befi);
-	i+=2;
-	//////////////////////reading shipyard
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	shipyard.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	shipyard.description = buf.substr(befi, i-befi);
-	i+=2;
-	//////////////////////omitting rubbish
-	int hmcr = 0;
-	for(i; i<andame; ++i) //omitting rubbish
-	{
-		if(buf[i]=='\r')
-			++hmcr;
-		if(hmcr==2)
-			break;
-	}
-	i+=2;
-	//////////////////////reading level3 creature horde
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	l3horde.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	l3horde.description = buf.substr(befi, i-befi);
-	i+=2;
-	//////////////////////reading level4 creature horde
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	l4horde.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	l4horde.description = buf.substr(befi, i-befi);
-	i+=2;
-	//////////////////////reading level5 creature horde
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	l5horde.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	l5horde.description = buf.substr(befi, i-befi);
-	i+=2;
-	//////////////////////reading grail
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	grail.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	grail.description = buf.substr(befi, i-befi);
-	i+=2;
-	//////////////////////reading resource silo
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	resSilo.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	resSilo.description = buf.substr(befi, i-befi);
-	i+=2;
-}
-
-void CBuildingHandler::loadNeutNames()
-{
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("BLDGNEUT.TXT");
-	int andame = buf.size();
-	int i=0; //buf iterator
-	for(int q=0; q<15; ++q)
-	{
-		int befi=i;
-		for(i; i<andame; ++i)
+		temp = readTo(buf,it,'\n');//read blank line
+		temp = readTo(buf,it,'\n');// and faction name
+		for(int bg = 0; bg<14; bg++)
 		{
-			if(buf[i]=='\t')
-				break;
+			CBuilding *nb = readBg(buf,it);
+			buildings[i][bg+30] = nb;
 		}
-		buildings[81+q].name = buf.substr(befi, i-befi);
-		++i;
+	}
+	/////done reading BUILDING.TXT*****************************
 
-		befi=i;
-		for(i; i<andame; ++i)
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("BLDGNEUT.TXT");
+	andame = buf.size(), it=0;
+
+	for(int b=0;b<15;b++)
+	{
+		std::string name = readTo(buf,it,'\t'),
+			description = readTo(buf,it,'\n');
+		for(int fi=0;fi<F_NUMBER;fi++)
 		{
-			if(buf[i]=='\r')
-				break;
+			buildings[fi][b]->name = name;
+			buildings[fi][b]->description = description;
 		}
-		buildings[81+q].description = buf.substr(befi, i-befi);
-		i+=2;
 	}
-	for(i; i<andame; ++i)
+	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//silo,blacksmith,moat - useless???
+	//shipyard with the ship
+	std::string name = readTo(buf,it,'\t'),
+		description = readTo(buf,it,'\n');
+	for(int fi=0;fi<F_NUMBER;fi++)
 	{
-		if(buf[i]=='\r')
-			break;
+		buildings[fi][20]->name = name;
+		buildings[fi][20]->description = description;
 	}
-	i+=2;
-	////////////////////////////reading blacksmith
-	int befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	CBuilding b1;
-	b1.type = EbuildingType(0);
-	b1.name = buf.substr(befi, i-befi);
-	++i;
 
-	befi=i;
-	for(i; i<andame; ++i)
+	for(int fi=0;fi<F_NUMBER;fi++)
 	{
-		if(buf[i]=='\r')
-			break;
+		buildings[fi][16]->name = readTo(buf,it,'\t'),
+		buildings[fi][16]->description = readTo(buf,it,'\n');
 	}
-	b1.description = buf.substr(befi, i-befi);
-	i+=2;
-	blacksmith = b1;
-	//////////////////////////////reading moat
-	befi=i;
-	for(i; i<andame; ++i)
+	/////done reading "BLDGNEUT.TXT"******************************
+	
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("BLDGSPEC.TXT");
+	andame = buf.size(), it=0;
+	for(int f=0;f<F_NUMBER;f++)
 	{
-		if(buf[i]=='\t')
-			break;
-	}
-	b1.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	b1.description = buf.substr(befi, i-befi);
-	i+=2;
-	moat = b1;
-	/////////////////////////reading shipyard with ship
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\t')
-			break;
-	}
-	b1.name = buf.substr(befi, i-befi);
-	++i;
-
-	befi=i;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	b1.description = buf.substr(befi, i-befi);
-	i+=2;
-	shipyardWithShip = b1;
-	/////////////////////////reading blacksmiths
-	for(int q=0; q<9; ++q)
-	{
-		CBuilding black; //
-		int befi=i;
-		for(i; i<andame; ++i)
+		for(int b=0;b<9;b++)
 		{
-			if(buf[i]=='\t')
-				break;
+			buildings[f][17+b]->name = readTo(buf,it,'\t');
+			buildings[f][17+b]->description = readTo(buf,it,'\n');
 		}
-		black.name = buf.substr(befi, i-befi);
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\r')
-				break;
-		}
-		black.description = buf.substr(befi, i-befi);
-		i+=2;
-
-		black.type = EbuildingType(q+1);
-		blacksmiths.push_back(black);
+		buildings[f][26] = new CBuilding();//grail
+		buildings[f][26]->name = readTo(buf,it,'\t');
+		buildings[f][26]->description = readTo(buf,it,'\n');
+		buildings[f][15]->name = readTo(buf,it,'\t'); //resource silo
+		buildings[f][15]->description = readTo(buf,it,'\n');//resource silo
 	}
-}
+	/////done reading BLDGSPEC.TXT*********************************
 
-void CBuildingHandler::loadDwellingNames()
-{
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("DWELLING.TXT");
-	int andame = buf.size();
-	int i = 0; //buf iterator
-	int whdw = 98; //wchich dwelling we are currently reading
-	for(whdw; whdw<224; ++whdw)
+	buf = CGameInfo::mainObj->bitmaph->getTextFile("DWELLING.TXT");
+	andame = buf.size(), it=0;
+	for(int f=0;f<F_NUMBER;f++)
 	{
-		int befi=i;
-		for(i; i<andame; ++i)
+		for(int b=0;b<14;b++)
 		{
-			if(buf[i]=='\t')
-				break;
+			buildings[f][30+b]->name = readTo(buf,it,'\t');
+			buildings[f][30+b]->description = readTo(buf,it,'\n');
 		}
-		buildings[whdw].name = buf.substr(befi, i-befi);
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\r')
-				break;
-		}
-		buildings[whdw].description = buf.substr(befi, i-befi);
-		i+=2;
 	}
 }
