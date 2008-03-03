@@ -577,29 +577,61 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 
 			if(dst->format->Rshift==0) //like in most surfaces
 			{
-				for(int x=0; x<sr.w; ++x)
+				for(int y=0; y<sr.h; ++y)
 				{
-					for(int y=0; y<sr.h; ++y)
+					for(int x=0; x<sr.w; ++x)
 					{
 						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
 						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
-						p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
-						p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
-						p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
+						switch ((Uint32)tbc.unused) {
+							case 0:
+								p[0] = (Uint32)tbc.r;
+								p[1] = (Uint32)tbc.g;
+								p[2] = (Uint32)tbc.b;
+								break;
+							case 128:  // optimized
+								p[0] = ((Uint32)tbc.r + (Uint32)p[0]) >> 1;
+								p[1] = ((Uint32)tbc.g + (Uint32)p[1]) >> 1;
+								p[2] = ((Uint32)tbc.b + (Uint32)p[2]) >> 1;
+								break;
+							case 255:
+								break;
+							default:
+								p[0] = ((((Uint32)tbc.r-(Uint32)p[0])*(Uint32)tbc.unused) + p[0]) & 0xFF;
+								p[1] = ((((Uint32)tbc.g-(Uint32)p[1])*(Uint32)tbc.unused) + p[1]) & 0xFF;
+								p[2] = ((((Uint32)tbc.b-(Uint32)p[2])*(Uint32)tbc.unused) + p[2]) & 0xFF;
+								break;
+						}
 					}
 				}
 			}
 			else if(dst->format->Rshift==16) //such as screen
 			{
-				for(int x=0; x<sr.w; ++x)
+				for(int y=0; y<sr.h; ++y)
 				{
-					for(int y=0; y<sr.h; ++y)
+					for(int x=0; x<sr.w; ++x)
 					{
 						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
 						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
-						p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
-						p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
-						p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
+						switch ((Uint32)tbc.unused) {
+							case 0:
+								p[2] = (Uint32)tbc.r;
+								p[1] = (Uint32)tbc.g;
+								p[0] = (Uint32)tbc.b;
+								break;
+							case 128:  // optimized
+								p[2] = ((Uint32)tbc.r + (Uint32)p[2]) >> 1;
+								p[1] = ((Uint32)tbc.g + (Uint32)p[1]) >> 1;
+								p[0] = ((Uint32)tbc.b + (Uint32)p[0]) >> 1;
+								break;
+							case 255:
+								break;
+							default:
+								p[2] = ((((Uint32)tbc.r-(Uint32)p[2])*(Uint32)tbc.unused) + p[2]) & 0xFF;
+								p[1] = ((((Uint32)tbc.g-(Uint32)p[1])*(Uint32)tbc.unused) + p[1]) & 0xFF;
+								p[0] = ((((Uint32)tbc.b-(Uint32)p[0])*(Uint32)tbc.unused) + p[0]) & 0xFF;
+								break;
+						}
 					}
 				}
 			}
