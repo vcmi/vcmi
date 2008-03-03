@@ -377,6 +377,11 @@ CDefHandler * CLodHandler::giveDef(std::string defName)
 {
 	std::transform(defName.begin(), defName.end(), defName.begin(), (int(*)(int))toupper);
 	Entry * ourEntry = entries.znajdz(Entry(defName));
+	if(!ourEntry) //nothing's been found
+	{
+		std::cerr<<"No def: "<<defName;
+		throw(std::string("Bad def name!"));
+	}
 	CDefHandler * ret;
 	fseek(FLOD, ourEntry->offset, 0);
 	unsigned char * outp;

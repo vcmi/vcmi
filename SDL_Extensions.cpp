@@ -597,12 +597,12 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 							case 255:
 								break;
 							default:
-								p[0] = ((((Uint32)tbc.r-(Uint32)p[0])*(Uint32)tbc.unused) >> 8 + p[0]) & 0xFF;
-								p[1] = ((((Uint32)tbc.g-(Uint32)p[1])*(Uint32)tbc.unused) >> 8 + p[1]) & 0xFF;
-								p[2] = ((((Uint32)tbc.b-(Uint32)p[2])*(Uint32)tbc.unused) >> 8 + p[2]) & 0xFF;
-								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
-								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
-								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
+								//p[0] = ((((Uint32)tbc.r-(Uint32)p[0])*(Uint32)tbc.unused) >> 8 + p[0]) & 0xFF;
+								//p[1] = ((((Uint32)tbc.g-(Uint32)p[1])*(Uint32)tbc.unused) >> 8 + p[1]) & 0xFF;
+								//p[2] = ((((Uint32)tbc.b-(Uint32)p[2])*(Uint32)tbc.unused) >> 8 + p[2]) & 0xFF;
+								p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
+								p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
+								p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
 								break;
 						}
 					}
@@ -630,12 +630,12 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 							case 255:
 								break;
 							default:
-								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
-								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
-								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
-								p[2] = ((((Uint32)tbc.r-(Uint32)p[2])*(Uint32)tbc.unused) >> 8 + p[2]) & 0xFF;
-								p[1] = ((((Uint32)tbc.g-(Uint32)p[1])*(Uint32)tbc.unused) >> 8 + p[1]) & 0xFF;
-								p[0] = ((((Uint32)tbc.b-(Uint32)p[0])*(Uint32)tbc.unused) >> 8 + p[0]) & 0xFF;
+								p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
+								p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
+								p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
+								//p[2] = ((((Uint32)tbc.r-(Uint32)p[2])*(Uint32)tbc.unused) >> 8 + p[2]) & 0xFF;
+								//p[1] = ((((Uint32)tbc.g-(Uint32)p[1])*(Uint32)tbc.unused) >> 8 + p[1]) & 0xFF;
+								//p[0] = ((((Uint32)tbc.b-(Uint32)p[0])*(Uint32)tbc.unused) >> 8 + p[0]) & 0xFF;
 								break;
 						}
 					}

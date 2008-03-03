@@ -26,21 +26,6 @@ public:
 	}
 } cmpst ;
 
-int battleEventThread(void * pointer)
-{
-	while(true)
-	{
-		SDL_Event sEvent;
-		while (SDL_PollEvent(&sEvent))  //wait for event...
-		{
-			LOCPLINT->handleEvent(&sEvent);
-		}
-		CSDL_Ext::update();
-		SDL_Delay(100);
-	}
-	return 0;
-}
-
 void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2)
 {
 	curB = new BattleInfo();

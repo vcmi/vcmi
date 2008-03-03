@@ -828,6 +828,16 @@ void CMapHandler::init()
 			bback>>battleBacks[i][f];
 		}
 	}
+
+	//initializing battle hero animation
+	std::ifstream bher("config/battleHeroes.txt");
+	int numberofh;
+	bher>>numberofh;
+	battleHeroes.resize(numberofh);
+	for(int i=0; i<numberofh; ++i) //9 - number of terrains battle can be fought on
+	{
+		bher>>battleHeroes[i];
+	}
 }
 
 SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)

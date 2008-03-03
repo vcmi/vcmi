@@ -74,6 +74,7 @@ public:
 	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
 	std::map<int, CGDefInfo*> villages, forts, capitols;
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
+	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 
 	PseudoV< PseudoV< PseudoV<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 

@@ -1884,7 +1884,19 @@ void CPlayerInterface::activeStack(int stackID) //called when it's turn of that 
 			objsToBlit[i]->show();
 		//SDL_Flip(ekran);
 		CSDL_Ext::update(ekran);
-		SDL_Delay(5); //give time for other apps
+		
+		/*timeHandler th;
+		th.getDif();
+		int tv = th.getDif();
+		for (int i=0;i<((CBattleInterface*)this->curint)->timeinterested.size();i++)
+		{
+			if (timeinterested[i]->toNextTick>=0)
+				timeinterested[i]->toNextTick-=tv;
+			if (timeinterested[i]->toNextTick<0)
+				timeinterested[i]->tick();
+		}*/
+
+		SDL_Delay(1); //give time for other apps
 		SDL_framerateDelay(mainFPSmng);
 	}
 }
