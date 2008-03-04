@@ -9,7 +9,7 @@
 
 extern SDL_Surface * screen;
 
-CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2)
+CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2) : printCellBorders(true)
 {
 	//preparing menu background and terrain
 	std::vector< std::string > & backref = CGI->mh->battleBacks[ CGI->mh->ttiles[tile.x][tile.y][tile.z].terType ];
@@ -37,17 +37,8 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, i
 	//loading hero animations
 	if(hero1) // attacking hero
 	{
-		attackingHero = new CBattleHero;
-		attackingHero->dh = CGI->spriteh->giveDef( CGI->mh->battleHeroes[hero1->type->heroType] );
-		for(int i=0; i<attackingHero->dh->ourImages.size(); ++i) //transforming images
-		{
-			attackingHero->dh->ourImages[i].bitmap = CSDL_Ext::alphaTransform(attackingHero->dh->ourImages[i].bitmap);
-		}
-		attackingHero->dh->alphaTransformed = true;
-		attackingHero->phase = 0;
-		attackingHero->image = 0;
-		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, 0, 0);
-		//CSDL_Ext::blit8bppAlphaTo24bpp(attackingHero->ourImages[0].bitmap, &attackingHero->ourImages[0].bitmap->clip_rect, screen, &genRect(attackingHero->ourImages[0].bitmap->h, attackingHero->ourImages[0].bitmap->w, 0, 0));
+		attackingHero = new CBattleHero(CGI->mh->battleHeroes[hero1->type->heroType], 0, 0, false, hero1->tempOwner);
+		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, -40, 0);
 	}
 	else
 	{
@@ -55,23 +46,19 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, i
 	}
 	if(hero2) // defending hero
 	{
-		defendingHero = new CBattleHero;
-		defendingHero->dh = CGI->spriteh->giveDef( CGI->mh->battleHeroes[hero2->type->heroType] );
-		for(int i=0; i<defendingHero->dh->ourImages.size(); ++i) //transforming and flipping images
-		{
-			defendingHero->dh->ourImages[i].bitmap = CSDL_Ext::rotate01(defendingHero->dh->ourImages[i].bitmap);
-			defendingHero->dh->ourImages[i].bitmap = CSDL_Ext::alphaTransform(defendingHero->dh->ourImages[i].bitmap);
-		}
-		defendingHero->dh->alphaTransformed = true;
-		defendingHero->phase = 0;
-		defendingHero->image = 0;
-		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, 650, 0);
-		//CSDL_Ext::blit8bppAlphaTo24bpp(defendingHero->ourImages[0].bitmap, &defendingHero->ourImages[0].bitmap->clip_rect, screen, &genRect(defendingHero->ourImages[0].bitmap->h, defendingHero->ourImages[0].bitmap->w, 650, 0));
+		defendingHero = new CBattleHero(CGI->mh->battleHeroes[hero2->type->heroType], 0, 0, true, hero2->tempOwner);
+		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, 690, 0);
 	}
 	else
 	{
 		defendingHero = NULL;
 	}
+
+	//preparing cells and hexes
+	cellBorder = CGI->bitmaph->loadBitmap("CCELLGRD.BMP");
+	cellBorder = CSDL_Ext::alphaTransform(cellBorder);
+	cellShade = CGI->bitmaph->loadBitmap("CCELLSHD.BMP");
+	cellShade = CSDL_Ext::alphaTransform(cellShade);
 }
 
 CBattleInterface::~CBattleInterface()
@@ -90,6 +77,9 @@ CBattleInterface::~CBattleInterface()
 
 	delete attackingHero;
 	delete defendingHero;
+
+	SDL_FreeSurface(cellBorder);
+	SDL_FreeSurface(cellShade);
 }
 
 void CBattleInterface::activate()
@@ -125,7 +115,20 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	//showing background
 	blitAt(background, 0, 0, to);
-	//blitAt(menu, 0, 556, to);
+	if(printCellBorders) //printing cell borders
+	{
+		for(int i=0; i<11; ++i) //rows
+		{
+			for(int j=0; j<15; ++j) //columns
+			{
+				int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
+				int y = 86 + 42 * i;
+				CSDL_Ext::blit8bppAlphaTo24bpp(cellBorder, NULL, to, &genRect(cellBorder->h, cellBorder->w, x, y));
+			}
+		}
+	}
+	//showing menu background
+	blitAt(menu, 0, 556, to);
 
 	//showing buttons
 	bOptions->show(to);
@@ -190,7 +193,8 @@ void CBattleHero::show(SDL_Surface *to)
 			++tick;
 		if(tick==image)
 		{
-			CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[i].bitmap, NULL, to, &pos);
+			SDL_Rect posb = pos;
+			CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[i].bitmap, NULL, to, &posb);
 			++image;
 			if(dh->ourImages[i+1].groupNumber!=phase) //back to appropriate frame
 			{
@@ -199,9 +203,47 @@ void CBattleHero::show(SDL_Surface *to)
 			break;
 		}
 	}
+	if(flip)
+	{
+		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 752, 39));
+	}
+	else
+	{
+		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 31, 39));
+	}
+	++flagAnimCount;
+	if(flagAnimCount%4==0)
+	{
+		++flagAnim;
+		flagAnim %= flag->ourImages.size();
+	}
+}
+
+CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG, unsigned char player): phase(phaseG), image(imageG), flip(flipG), flagAnim(0)
+{
+	dh = CGI->spriteh->giveDef( defName );
+	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images
+	{
+		if(flip)
+			dh->ourImages[i].bitmap = CSDL_Ext::rotate01(dh->ourImages[i].bitmap); 
+		dh->ourImages[i].bitmap = CSDL_Ext::alphaTransform(dh->ourImages[i].bitmap);
+	}
+	dh->alphaTransformed = true;
+
+	if(flip)
+		flag = CGI->spriteh->giveDef("CMFLAGR.DEF");
+	else
+		flag = CGI->spriteh->giveDef("CMFLAGL.DEF");
+
+	for(int i=0; i<flag->ourImages.size(); ++i)
+	{
+		flag->ourImages[i].bitmap = CSDL_Ext::alphaTransform(flag->ourImages[i].bitmap);
+		CSDL_Ext::blueToPlayersAdv(flag->ourImages[i].bitmap, player);
+	}
 }
 
 CBattleHero::~CBattleHero()
 {
 	delete dh;
+	delete flag;
 }
