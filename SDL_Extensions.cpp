@@ -8,6 +8,7 @@
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
 #include "hch\CDefHandler.h"
+#include <map>
 
 extern SDL_Color playerColorPalette[256];
 
@@ -488,6 +489,7 @@ SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * al
 
 int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {
+	static std::map<Uint8, int> st;
 	if(src && src->format->BytesPerPixel==1 && dst && (dst->format->BytesPerPixel==3 || dst->format->BytesPerPixel==4)) //everything's ok
 	{
 		SDL_Rect fulldst;
@@ -583,7 +585,25 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 					{
 						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
 						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
-						switch ((Uint32)tbc.unused) {
+
+						// According analyze, the values of tbc.unused are fixed, 
+						// and the approximate ratios are as following:
+						//
+						// tbc.unused	numbers
+						// 192			    2679					
+						// 164			  326907
+						// 82			  705590
+						// 214			 1292625
+						// 128			 4842923
+						// 0			72138078
+						// 255			77547326
+						//
+						// By making use of such characteristic, we may implement a
+						// very fast algorithm for heroes3 without loose much quality.
+						switch ((Uint32)tbc.unused) 
+						{
+							case 255:
+								break;
 							case 0:
 								p[0] = (Uint32)tbc.r;
 								p[1] = (Uint32)tbc.g;
@@ -594,15 +614,13 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 								p[1] = ((Uint32)tbc.g + (Uint32)p[1]) >> 1;
 								p[2] = ((Uint32)tbc.b + (Uint32)p[2]) >> 1;
 								break;
-							case 255:
-								break;
 							default:
-								//p[0] = ((((Uint32)tbc.r-(Uint32)p[0])*(Uint32)tbc.unused) >> 8 + p[0]) & 0xFF;
-								//p[1] = ((((Uint32)tbc.g-(Uint32)p[1])*(Uint32)tbc.unused) >> 8 + p[1]) & 0xFF;
-								//p[2] = ((((Uint32)tbc.b-(Uint32)p[2])*(Uint32)tbc.unused) >> 8 + p[2]) & 0xFF;
-								p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
-								p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
-								p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
+								p[0] = ((((Uint32)p[0]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r) & 0xFF;
+								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g) & 0xFF;
+								p[2] = ((((Uint32)p[2]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b) & 0xFF;
+								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
+								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
+								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
 								break;
 						}
 					}
@@ -616,7 +634,11 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 					{
 						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
 						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
-						switch ((Uint32)tbc.unused) {
+						
+						switch ((Uint32)tbc.unused) 
+						{
+							case 255:
+								break;
 							case 0:
 								p[2] = (Uint32)tbc.r;
 								p[1] = (Uint32)tbc.g;
@@ -627,15 +649,13 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 								p[1] = ((Uint32)tbc.g + (Uint32)p[1]) >> 1;
 								p[0] = ((Uint32)tbc.b + (Uint32)p[0]) >> 1;
 								break;
-							case 255:
-								break;
 							default:
-								p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
-								p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
-								p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
-								//p[2] = ((((Uint32)tbc.r-(Uint32)p[2])*(Uint32)tbc.unused) >> 8 + p[2]) & 0xFF;
-								//p[1] = ((((Uint32)tbc.g-(Uint32)p[1])*(Uint32)tbc.unused) >> 8 + p[1]) & 0xFF;
-								//p[0] = ((((Uint32)tbc.b-(Uint32)p[0])*(Uint32)tbc.unused) >> 8 + p[0]) & 0xFF;
+								p[2] = ((((Uint32)p[2]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r) & 0xFF;
+								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g) & 0xFF;
+								p[0] = ((((Uint32)p[0]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b) & 0xFF;
+								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
+								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
+								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
 								break;
 						}
 					}
