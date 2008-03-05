@@ -41,6 +41,8 @@ private:
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
 	CBattleHero * attackingHero, * defendingHero;
 	SDL_Surface * cellBorder, * cellShade;
+	CCreatureSet * army1, * army2; //fighting armies
+	std::vector< CCreatureAnimation * > creAnim1, creAnim2; //animations of creatures from fighting armies
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor

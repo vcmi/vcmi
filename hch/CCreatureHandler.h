@@ -19,6 +19,7 @@ public:
 	int level; // 0 - unknown
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in textformat
+	std::string animDefName;
 	int idNumber;
 
 	///animation info
@@ -90,7 +91,7 @@ private:
 	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
 public:
 	CCreatureAnimation(std::string name); //c-tor
-	//~CCreatureAnimation(); //d-tor //not necessery ATM
+	~CCreatureAnimation(); //d-tor //not necessery ATM
 
 	void setType(int type); //sets type of animation and cleares framecount
 	int getType() const; //returns type of animation

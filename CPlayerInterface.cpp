@@ -1873,15 +1873,18 @@ void CPlayerInterface::actionFinished(Action action)//occurs AFTER every action 
 
 void CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
+	unsigned int av=0;
 	while(true)
 	{
+		++av;
 		SDL_Event sEvent;
 		while (SDL_PollEvent(&sEvent))  //wait for event...
 		{
 			LOCPLINT->handleEvent(&sEvent);
 		}
-		for(int i=0;i<objsToBlit.size();i++)
-			objsToBlit[i]->show();
+		if(av%3==0)
+			for(int i=0;i<objsToBlit.size();i++)
+				objsToBlit[i]->show();
 		//SDL_Flip(ekran);
 		CSDL_Ext::update(ekran);
 		

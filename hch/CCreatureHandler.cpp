@@ -337,26 +337,69 @@ void CCreatureHandler::loadCreatures()
 		boost::assign::insert(bigImgs)(i-2,smi->ourImages[i].bitmap);
 	}
 	delete smi;
+	//
+	
+	//loading unit animation def names
+	std::ifstream inp("config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
+	inp.seekg(0,std::ios::end); // na koniec
+	int andame2 = inp.tellg();  // read length
+	inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	char * bufor = new char[andame2]; // allocate memory 
+	inp.read((char*)bufor, andame2); // read map file to buffer
+	inp.close();
+	buf = std::string(bufor);
+	delete [andame2] bufor;
+
+	i = 0; //buf iterator
+	hmcr = 0;
+	for(i; i<andame2; ++i) //omitting rubbish
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+	i+=2;
+	for(int s=0; s<creatures.size()-16; ++s)
+	{
+		int befi=i;
+		std::string rub;
+		for(i; i<andame2; ++i)
+		{
+			if(buf[i]==' ')
+				break;
+		}
+		rub = buf.substr(befi, i-befi);
+		++i;
+
+		befi=i;
+		for(i; i<andame2; ++i)
+		{
+			if(buf[i]=='\r')
+				break;
+		}
+		std::string defName = buf.substr(befi, i-befi);
+		creatures[s].animDefName = defName;
+	}
+	loadAnimationInfo();
 }
 
 void CCreatureHandler::loadAnimationInfo()
 {
-	//std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("CRANIM.TXT");
-	//int andame = buf.size();
-	//int i=0; //buf iterator
-	//hmcr=0;
-	//for(i; i<andame; ++i)
-	//{
-	//	if(buf[i]=='\r')
-	//		++hmcr;
-	//	if(hmcr==2)
-	//		break;
-	//}
-	//i+=2;
-	//for(int dd=0; dd<creatures.size(); ++dd)
-	//{
-	//	loadUnitAnimInfo(creatures[dd], buf, i);
-	//}
+	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("CRANIM.TXT");
+	int andame = buf.size();
+	int i=0; //buf iterator
+	int hmcr=0;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			++hmcr;
+		if(hmcr==2)
+			break;
+	}
+	i+=2;
+	for(int dd=0; dd<creatures.size()-16; ++dd)
+	{
+		loadUnitAnimInfo(creatures[dd], buf, i);
+	}
 	return;
 }
 
@@ -568,9 +611,31 @@ void CCreatureAnimation::setType(int type)
 {
 	this->type = type;
 	curFrame = 0;
+	if(type!=-1)
+	{
+		if(SEntries[curFrame].group!=type) //rewind
+		{
+			int j=-1; //first frame in displayed group
+			for(int g=0; g<SEntries.size(); ++g)
+			{
+				if(SEntries[g].group==type && j==-1)
+				{
+					j = g;
+					break;
+				}
+			}
+			if(curFrame!=-1)
+				curFrame = j;
+		}
+	}
+	else
+	{
+		if(curFrame>=frames)
+			curFrame = 0;
+	}
 }
 
-CCreatureAnimation::CCreatureAnimation(std::string name)
+CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEntries(NULL)
 {
 	//load main file
 	std::string data2 = CGI->spriteh->getTextFile(name);
@@ -683,8 +748,28 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 		return -1; //not enough depth
 
 	int SIndex = curFrame++; //TODO: finish
-	if(curFrame>=frames)
-		curFrame = 0;
+	if(type!=-1)
+	{
+		if(SEntries[curFrame].group!=type) //rewind
+		{
+			int j=-1; //first frame in displayed group
+			for(int g=0; g<SEntries.size(); ++g)
+			{
+				if(SEntries[g].group==type && j==-1)
+				{
+					j = g;
+					break;
+				}
+			}
+			if(curFrame!=-1)
+				curFrame = j;
+		}
+	}
+	else
+	{
+		if(curFrame>=frames)
+			curFrame = 0;
+	}
 
 	long BaseOffset, 
 		SpriteWidth, SpriteHeight, //format sprite'a
@@ -838,4 +923,13 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 	SDL_UpdateRect(dest, x, y, FullWidth+add, FullHeight);
 
 	return 0;
+}
+
+CCreatureAnimation::~CCreatureAnimation()
+{
+	delete [] FDef;
+	if (RWEntries)
+		delete [] RWEntries;
+	if (RLEntries)
+		delete [] RLEntries;
 }

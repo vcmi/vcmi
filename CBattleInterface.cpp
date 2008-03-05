@@ -11,6 +11,20 @@ extern SDL_Surface * screen;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2) : printCellBorders(true)
 {
+	//initializing armies
+	this->army1 = army1;
+	this->army2 = army2;
+	for(std::map<int,std::pair<CCreature*,int> >::iterator i=army1->slots.begin(); i!=army1->slots.end(); ++i)
+	{
+		//creAnim1.push_back(new CCreatureAnimation(i->second.first->animDefName));
+		creAnim1.push_back(new CCreatureAnimation(i->second.first->animDefName));
+		creAnim1[creAnim1.size()-1]->setType(2);
+	}
+	for(std::map<int,std::pair<CCreature*,int> >::iterator i=army2->slots.begin(); i!=army2->slots.end(); ++i)
+	{
+		creAnim2.push_back(new CCreatureAnimation(i->second.first->animDefName));
+		creAnim2[creAnim2.size()-1]->setType(2);
+	}
 	//preparing menu background and terrain
 	std::vector< std::string > & backref = CGI->mh->battleBacks[ CGI->mh->ttiles[tile.x][tile.y][tile.z].terType ];
 	background = CGI->bitmaph->loadBitmap(backref[ rand() % backref.size()] );
@@ -80,6 +94,11 @@ CBattleInterface::~CBattleInterface()
 
 	SDL_FreeSurface(cellBorder);
 	SDL_FreeSurface(cellShade);
+
+	for(int g=0; g<creAnim1.size(); ++g)
+		delete creAnim1[g];
+	for(int g=0; g<creAnim2.size(); ++g)
+		delete creAnim2[g];
 }
 
 void CBattleInterface::activate()
@@ -142,8 +161,16 @@ void CBattleInterface::show(SDL_Surface * to)
 	bConsoleDown->show(to);
 
 	//showing hero animations
-	attackingHero->show(to);
-	defendingHero->show(to);
+	if(attackingHero)
+		attackingHero->show(to);
+	if(defendingHero)
+		defendingHero->show(to);
+
+	//showing units //a lot of work...
+
+	creAnim1[0]->nextFrame(to, -94, -139);
+
+	//units shown
 
 	CSDL_Ext::update();
 }
@@ -211,8 +238,8 @@ void CBattleHero::show(SDL_Surface *to)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 31, 39));
 	}
-	++flagAnimCount;
-	if(flagAnimCount%4==0)
+	//++flagAnimCount;
+	//if(flagAnimCount%4==0)
 	{
 		++flagAnim;
 		flagAnim %= flag->ourImages.size();
