@@ -435,9 +435,27 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 			if(!S2->slots[p2].first)
 				S2->slots.erase(p2);
 			if(s1->tempOwner<PLAYER_LIMIT)
-				CGI->playerint[s1->tempOwner]->garrisonChanged(s1);
+			{
+				for(int b=0; b<CGI->playerint.size(); ++b)
+				{
+					if(CGI->playerint[b]->playerID == s1->tempOwner)
+					{
+						CGI->playerint[b]->garrisonChanged(s1);
+						break;
+					}
+				}
+			}
 			if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
-				CGI->playerint[s2->tempOwner]->garrisonChanged(s2);
+			{
+				for(int b=0; b<CGI->playerint.size(); ++b)
+				{
+					if(CGI->playerint[b]->playerID == s2->tempOwner)
+					{
+						CGI->playerint[b]->garrisonChanged(s2);
+						break;
+					}
+				}
+			}
 			return 0;
 		}
 	}
@@ -607,7 +625,14 @@ void CScriptCallback::heroVisitCastle(CGObjectInstance * ob, int heroID)
 	if(n = dynamic_cast<CGTownInstance*>(ob))
 	{
 		n->visitingHero = CGI->state->getHero(heroID,0);
-		CGI->playerint[getHeroOwner(heroID)]->heroVisitsTown(CGI->state->getHero(heroID,0),n);
+		for(int b=0; b<CGI->playerint.size(); ++b)
+		{
+			if(CGI->playerint[b]->playerID == getHeroOwner(heroID))
+			{
+				CGI->playerint[b]->heroVisitsTown(CGI->state->getHero(heroID,0),n);
+				break;
+			}
+		}
 	}
 	else
 		return;

@@ -16,13 +16,13 @@ enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TER
 class CAmbarCendamo 
 {
 public:
-/////////////////zmienne skladowe
+/////////////////member variables
 	Mapa map;
 	std::ifstream * is; // stream used to read map file
 	int andame; // length of map file
 	unsigned char * bufor; // here we store map bytecode
 	std::vector<CDefHandler*> defs;
-/////////////////funkcje skladowe
+/////////////////member functions
 	CAmbarCendamo (const char * tie); // c-tor; tie is the path of the map file
 	CAmbarCendamo (unsigned char * map); // c-tor; map is pointer to array containing map; it is not copied, so don't delete
 	~CAmbarCendamo (); // d-tor

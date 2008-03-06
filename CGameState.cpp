@@ -86,13 +86,23 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 			curB->activeStack = i;
 			if(stacks[i]->alive) //niech interfejs ruszy oddzialem
 			{
-				if(CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->human)
+				unsigned char owner = (stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner);
+				unsigned char serialOwner = -1;
+				for(int g=0; g<CGI->playerint.size(); ++g)
 				{
-					((CPlayerInterface*)CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)])->activeStack(stacks[i]->ID);
+					if(CGI->playerint[g]->playerID == owner)
+					{
+						serialOwner = g;
+						break;
+					}
+				}
+				if(CGI->playerint[serialOwner]->human)
+				{
+					((CPlayerInterface*)CGI->playerint[serialOwner])->activeStack(stacks[i]->ID);
 				}
 				else
 				{
-					//CGI->playerint[(stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner)]->activeStack(stacks[i]->ID);
+					//CGI->playerint[serialOwner]->activeStack(stacks[i]->ID);
 				}
 			}
 			//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy

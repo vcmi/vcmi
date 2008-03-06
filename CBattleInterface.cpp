@@ -185,6 +185,17 @@ void CBattleInterface::bSurrenderf()
 
 void CBattleInterface::bFleef()
 {
+	for(int i=0; i<LOCPLINT->objsToBlit.size(); ++i)
+	{
+		if( dynamic_cast<CBattleInterface*>( LOCPLINT->objsToBlit[i] ) )
+		{
+			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+i);
+		}
+	}
+	deactivate();
+
+	LOCPLINT->adventureInt->activate();
+	delete this;
 }
 
 void CBattleInterface::bAutofightf()

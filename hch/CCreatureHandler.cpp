@@ -777,9 +777,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 		i, add, FullHeight,FullWidth,
 		TotalRowLength, // dlugosc przeczytanego segmentu
 		NextSpriteOffset, RowAdd;
-	std::ifstream Fdef;
 	unsigned char SegmentType, SegmentLength, BL, BR;
-	unsigned char * TempDef; //memory
 
 	std::string FTemp;
 	
@@ -794,21 +792,8 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 	TopMargin = readNormalNr(i,4,FDef);i+=4;
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
-
-	BMPHeader tb;
-	tb.x = FullWidth;
-	tb.y = FullHeight;
-	tb.dataSize2 = tb.dataSize1 = tb.x*tb.y;
-	tb.fullSize = tb.dataSize1+436;
-	tb._h3=tb.fullSize-36;
 	
-	//add = (int)(4*(((float)1) - ((int)(((int)((float)FullWidth/(float)4))-((float)FullWidth/(float)4)))));
 	add = 4 - FullWidth%4;
-	/*if (add==4)
-		add=0;*/ //moved to defcompression dependent block
-		
-	//ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
-	//int tempee2 = readNormalNr(0,4,((unsigned char *)tempee.c_str()));
 
 	int BaseOffsetor = BaseOffset = i;
 
