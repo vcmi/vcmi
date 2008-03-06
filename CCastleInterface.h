@@ -37,7 +37,7 @@ public:
 	unsigned char animval, count;
 
 	CDefHandler *hall,*fort, *flag;
-
+	CDefEssential* bicons; //150x70 buildings imgs
 	CTownList<CCastleInterface> * townlist;
 
 	CGarrisonInt * garr;

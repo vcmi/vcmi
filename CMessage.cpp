@@ -436,6 +436,32 @@ std::vector< std::vector<CSelectableComponent*> > * CMessage::breakComps(std::ve
 	}
 	return ret;
 }
+
+SDL_Surface * CMessage::drawBoxTextBitmapSub(int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline)
+{
+	int curh;
+	std::vector<std::string> * tekst = breakText(text,charperline);
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(tekst);
+	std::pair<int,int> txts = getMaxSizes(txtg), boxs;
+	boxs.first = std::max(txts.first,bitmap->w) // text/bitmap max width
+		+ 50; //side margins
+	boxs.second = 
+		(curh=45) //top margin
+		+ txts.second //text total height
+		+ 55 //text <=> img
+		+ bitmap->h
+		+ 5 // to sibtitle
+		+ (*txtg)[0][0]->h
+		+ 30;
+	SDL_Surface *ret = drawBox1(boxs.first,boxs.second,player);
+	blitTextOnSur(txtg,curh,ret);
+	curh += 55;
+	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
+	curh += bitmap->h + 5;
+	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+(  ((*txtg)[0][0]->h) / 2  ),GEOR13,zwykly,ret);
+	return ret;
+}
+
 CSelWindow * CMessage::genSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> & comps, int owner)
 {
 	CSelWindow * ret = new CSelWindow();

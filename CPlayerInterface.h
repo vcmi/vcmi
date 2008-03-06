@@ -152,9 +152,10 @@ public:
 class CRClickPopup : public IShowable, public ClickableR
 {
 public:
-	virtual void activate()=0;
-	virtual void deactivate()=0;
+	virtual void activate();
+	virtual void deactivate();
 	virtual void close()=0;
+	void clickRight (tribool down);
 	virtual ~CRClickPopup(){};
 };
 
@@ -164,11 +165,9 @@ public:
 	bool free;
 	SDL_Surface * bitmap;
 	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false);
-	void clickRight (tribool down);
-	void activate();
-	void deactivate();
 	void close();
 	void show(SDL_Surface * to = NULL);
+	CInfoPopup(){free=false;bitmap=NULL;}
 	~CInfoPopup(){};
 };
 

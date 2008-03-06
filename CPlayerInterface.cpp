@@ -378,6 +378,25 @@ CInfoWindow::~CInfoWindow()
 {
 }
 
+void CRClickPopup::clickRight (tribool down)
+{
+	if(down)
+		return;
+	close();
+}
+
+void CRClickPopup::activate()
+{
+	ClickableR::activate();
+	LOCPLINT->objsToBlit.push_back(this);
+}
+
+void CRClickPopup::deactivate()
+{
+	ClickableR::deactivate();
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+}
+
 CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 :bitmap(Bitmap),free(Free)
 {
@@ -385,21 +404,6 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 	pos.y = y;
 	pos.h = bitmap->h;
 	pos.w = bitmap->w;
-}
-void CInfoPopup::clickRight (tribool down)
-{
-	//if(!down)
-		close();
-}
-void CInfoPopup::activate()
-{
-	ClickableR::activate();
-	LOCPLINT->objsToBlit.push_back(this);
-}
-void CInfoPopup::deactivate()
-{
-	ClickableR::deactivate();
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 }
 void CInfoPopup::close()
 {

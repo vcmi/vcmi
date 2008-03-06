@@ -7,7 +7,9 @@
 #include "CAdvmapInterface.h"
 #include "hch/CTownHandler.h"
 #include "AdventureMapButton.h"
+#include "hch/CBuildingHandler.h"
 #include <sstream>
+#include "CMessage.h"
 CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str)
 {	
@@ -77,11 +79,31 @@ void CBuildingRect::hover(bool on)
 }
 void CBuildingRect::clickLeft (tribool down)
 {
+	
+	if(area && (CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
+	{
+	}
+
+	
 	//todo - handle
 }
 void CBuildingRect::clickRight (tribool down)
 {
-	//todo - handle
+	if((!area) || (!((bool)down)))
+		return;
+	if((CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
+	{
+		CInfoPopup *vinya = new CInfoPopup();
+		vinya->free = true;
+		vinya->bitmap = CMessage::drawBoxTextBitmapSub
+			(LOCPLINT->playerID,
+			CGI->buildh->buildings[str->townID][str->ID]->description, 
+			LOCPLINT->castleInt->bicons->ourImages[str->ID].bitmap, 
+			CGI->buildh->buildings[str->townID][str->ID]->name);
+		vinya->pos.x = ekran->w/2 - vinya->bitmap->w/2;
+		vinya->pos.y = ekran->h/2 - vinya->bitmap->h/2;
+		vinya->activate();
+	}
 }
 
 void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
@@ -103,13 +125,19 @@ void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 				if((*LOCPLINT->castleInt->hBuild)<(*this)) //ustawiamy sie, jesli jestesmy na wierzchu
 				{
 					LOCPLINT->castleInt->hBuild = this;
-					LOCPLINT->statusbar->print(str->name);
+					if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->name.length())
+						LOCPLINT->statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->name);
+					else
+						LOCPLINT->statusbar->print(str->name);
 				}
 			}
 			else //nie ma budynku, wiec damy nasz
 			{
 				LOCPLINT->castleInt->hBuild = this;
-				LOCPLINT->statusbar->print(str->name);
+				if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->name.length())
+					LOCPLINT->statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->name);
+				else
+					LOCPLINT->statusbar->print(str->name);
 			}
 		}
 	}
@@ -247,6 +275,40 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 		showAll();
 	}
 
+	std::string defname;
+	switch (town->subID)
+	{
+	case 0:
+		defname = "HALLCSTL.DEF";
+		break;
+	case 1:
+		defname = "HALLRAMP.DEF";
+		break;
+	case 2:
+		defname = "HALLTOWR.DEF";
+		break;
+	case 3:
+		defname = "HALLINFR.DEF";
+		break;
+	case 4:
+		defname = "HALLNECR.DEF";
+		break;
+	case 5:
+		defname = "HALLDUNG.DEF";
+		break;
+	case 6:
+		defname = "HALLSTRN.DEF";
+		break;
+	case 7:
+		defname = "HALLFORT.DEF";
+		break;
+	case 8:
+		defname = "HALLELEM.DEF";
+		break;
+	default:
+		throw new std::exception("Bad town subID");
+	}
+	bicons = CGI->spriteh->giveDefEss(defname);
 	//blit buildings on bg
 	//for(int i=0;i<buildings.size();i++)
 	//{
@@ -269,6 +331,7 @@ CCastleInterface::~CCastleInterface()
 	{
 		delete buildings[i];
 	}
+	delete bicons;
 
 }
 void CCastleInterface::close()
@@ -407,12 +470,6 @@ void CCastleInterface::show(SDL_Surface * to)
 		if(hBuild==buildings[i] && hBuild->border)
 			blitAt(hBuild->border,hBuild->pos,to);
 	}
-	//for(int i=0;i<buildings.size();i++)
-	//{
-	//	if((animval)%(buildings[i]->def->ourImages.size())==0)
-	//		blitAt(buildings[i]->def->ourImages[(animval)%(buildings[i]->def->ourImages.size())].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
-	//	else continue;
-	//}
 	
 }
 void CCastleInterface::activate()
