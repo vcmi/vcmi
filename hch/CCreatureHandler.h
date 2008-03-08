@@ -96,7 +96,7 @@ public:
 	void setType(int type); //sets type of animation and cleares framecount
 	int getType() const; //returns type of animation
 
-	int nextFrame(SDL_Surface * dest, int x, int y); //0 - success, any other - error //print next 
+	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker); //0 - success, any other - error //print next 
 };
 
 #endif //CCREATUREHANDLER_H

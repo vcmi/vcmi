@@ -7,6 +7,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include "SDL_Extensions.h"
 
 int CCreature::getQuantityID(int quantity)
 {
@@ -742,12 +743,13 @@ int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, 
 	return ret;
 }
 
-int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
+int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker)
 {
 	if(dest->format->BytesPerPixel<3)
 		return -1; //not enough depth
 
-	int SIndex = curFrame++; //TODO: finish
+	//increasing frame numer
+	int SIndex = curFrame++;
 	if(type!=-1)
 	{
 		if(SEntries[curFrame].group!=type) //rewind
@@ -770,6 +772,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 		if(curFrame>=frames)
 			curFrame = 0;
 	}
+	//frame number increased
 
 	long BaseOffset, 
 		SpriteWidth, SpriteHeight, //format sprite'a
@@ -777,7 +780,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 		i, add, FullHeight,FullWidth,
 		TotalRowLength, // dlugosc przeczytanego segmentu
 		NextSpriteOffset, RowAdd;
-	unsigned char SegmentType, SegmentLength, BL, BR;
+	unsigned char SegmentType, SegmentLength;
 
 	std::string FTemp;
 	
@@ -797,16 +800,27 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 
 	int BaseOffsetor = BaseOffset = i;
 
+	int ftcp = 0;
+
+	SDL_Surface * hlps = SDL_CreateRGBSurface(dest->flags, FullWidth+add, FullHeight, 8, 0, 0, 0, 0);
+
+	for(int b=0; b<256; ++b)
+	{
+		hlps->format->palette->ncolors = 256;
+		hlps->format->palette->colors[b].r = palette[b].R;
+		hlps->format->palette->colors[b].g = palette[b].G;
+		hlps->format->palette->colors[b].b = palette[b].B;
+		hlps->format->palette->colors[b].unused = palette[b].F;
+	}
+
 	if (defType2==1) //as it should be allways in creature animations
 	{
-		if (add==4)
-			add=0; ////////was 3
 		if (TopMargin>0)
 		{
 			for (int i=0;i<TopMargin;i++)
 			{
 				for (int j=0;j<FullWidth+add;j++)
-					FTemp+='\0';
+					ftcp++;
 			}
 		}
 		RLEntries = new int[SpriteHeight];
@@ -820,7 +834,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 			if (LeftMargin>0)
 			{
 				for (int j=0;j<LeftMargin;j++)
-					FTemp+='\0';
+					ftcp++;
 			}
 			TotalRowLength=0;
 			do
@@ -831,7 +845,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 				{
 					for (int k=0;k<=SegmentLength;k++)
 					{
-						FTemp+=FDef[BaseOffset+k];
+						((char*)(hlps->pixels))[ftcp++]=FDef[BaseOffset+k];
 						if ((TotalRowLength+k+1)>=SpriteWidth)
 							break;
 					}
@@ -842,8 +856,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 				{
 					for (int k=0;k<SegmentLength+1;k++)
 					{
-						FTemp+=SegmentType;//
-						//FTemp+='\0';
+						((char*)(hlps->pixels))[ftcp++]=SegmentType;
 					}
 					TotalRowLength+=SegmentLength+1;
 				}
@@ -852,12 +865,12 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 			if (RightMargin>0)
 			{
 				for (int j=0;j<RightMargin;j++)
-					FTemp+='\0';
+					ftcp++;
 			}
 			if (add>0)
 			{
 				for (int j=0;j<add+RowAdd;j++)
-					FTemp+='\0';
+					ftcp++;
 			}
 		}
 		delete [] RLEntries;
@@ -867,45 +880,55 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y)
 			for (int i=0;i<BottomMargin;i++)
 			{
 				for (int j=0;j<FullWidth+add;j++)
-					FTemp+='\0';
+					ftcp++;
 			}
 		}
 	}
-
-	for (int i=0; i<FullHeight; ++i)
+	if(!attacker)
 	{
-		for (int j=0;j<FullWidth+add;j++)
-		{
-			if( i+y<dest->h && j+x<dest->w && i+y>=0 && j+x>=0)
-			{
-				unsigned char coln = FTemp[i*(FullWidth+add)+j]; //number of color from palette
-				if(coln==0)
-					continue;
-				unsigned char* ptr = ((unsigned char*)dest->pixels + dest->format->BytesPerPixel * ((i + y)*dest->w + j + x));
-				if(coln>7 || coln == 5) //normal or yellow border
-				{
-					*ptr = palette[coln].B;
-					*(ptr+1) = palette[coln].G;
-					*(ptr+2) = palette[coln].R;
-				}
-				else if(coln<5) //shadow
-				{
-					*ptr = ((*ptr) * (palette[coln].G + 50)) /200;
-					*(ptr+1) = ((*(ptr+1)) * (palette[coln].G + 50)) /200 ;
-					*(ptr+2) = ((*(ptr+2)) * (palette[coln].G + 50)) /200 ;
-				}
-				else if(coln == 6) //yellow border shadowed
-				{
-					*ptr = ((*ptr) + palette[coln-1].B) / 2;
-					*(ptr+1) = ((*(ptr+1)) + palette[coln-1].G) / 2;
-					*(ptr+2) = ((*(ptr+2)) + palette[coln-1].R) / 2;
-				}
-
-			}
-		}
+		SDL_Surface * h2 = CSDL_Ext::rotate01(hlps);
+		SDL_FreeSurface(hlps);
+		hlps = h2;
 	}
+	CSDL_Ext::alphaTransform(hlps);
 
-	SDL_UpdateRect(dest, x, y, FullWidth+add, FullHeight);
+	CSDL_Ext::blit8bppAlphaTo24bpp(hlps, NULL, dest, &genRect(hlps->h, hlps->w, x, y));
+	SDL_FreeSurface(hlps);
+
+	//for (int i=0; i<FullHeight; ++i)
+	//{
+	//	for (int j=0;j<FullWidth+add;j++)
+	//	{
+	//		if( i+y<dest->h && j+x<dest->w && i+y>=0 && j+x>=0)
+	//		{
+	//			unsigned char coln = FTemp[i*(FullWidth+add)+j]; //number of color from palette
+	//			if(coln==0)
+	//				continue;
+	//			unsigned char* ptr = ((unsigned char*)dest->pixels + dest->format->BytesPerPixel * ((i + y)*dest->w + j + x));
+	//			if(coln>7 || coln == 5) //normal or yellow border
+	//			{
+	//				*ptr = palette[coln].B;
+	//				*(ptr+1) = palette[coln].G;
+	//				*(ptr+2) = palette[coln].R;
+	//			}
+	//			else if(coln<5) //shadow
+	//			{
+	//				*ptr = ((*ptr) * (palette[coln].G + 50)) /200;
+	//				*(ptr+1) = ((*(ptr+1)) * (palette[coln].G + 50)) /200 ;
+	//				*(ptr+2) = ((*(ptr+2)) * (palette[coln].G + 50)) /200 ;
+	//			}
+	//			else if(coln == 6) //yellow border shadowed
+	//			{
+	//				*ptr = ((*ptr) + palette[coln-1].B) / 2;
+	//				*(ptr+1) = ((*(ptr+1)) + palette[coln-1].G) / 2;
+	//				*(ptr+2) = ((*(ptr+2)) + palette[coln-1].R) / 2;
+	//			}
+
+	//		}
+	//	}
+	//}
+
+	//SDL_UpdateRect(dest, x, y, FullWidth+add, FullHeight);
 
 	return 0;
 }

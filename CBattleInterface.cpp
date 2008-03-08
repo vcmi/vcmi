@@ -167,8 +167,106 @@ void CBattleInterface::show(SDL_Surface * to)
 		defendingHero->show(to);
 
 	//showing units //a lot of work...
-
-	creAnim1[0]->nextFrame(to, -94, -139);
+	switch(creAnim1.size()) //for attacker
+	{
+	case 0:
+		break;
+	case 1:
+		creAnim1[0]->nextFrame(to, -116, 71, true); //6
+		break;
+	case 2:
+		creAnim1[0]->nextFrame(to, -94, -55, true); //3
+		creAnim1[1]->nextFrame(to, -94, 197, true); //9
+		break;
+	case 3:
+		creAnim1[0]->nextFrame(to, -94, -55, true); //3
+		creAnim1[1]->nextFrame(to, -116, 71, true); //6
+		creAnim1[2]->nextFrame(to, -94, 197, true); //9
+		break;
+	case 4:
+		creAnim1[0]->nextFrame(to, -94, -139, true); //1
+		creAnim1[1]->nextFrame(to, -94, 29, true); //5
+		creAnim1[2]->nextFrame(to, -94, 113, true); //7
+		creAnim1[3]->nextFrame(to, -94, 281, true); //11
+		break;
+	case 5:
+		creAnim1[0]->nextFrame(to, -94, -139, true); //1
+		creAnim1[1]->nextFrame(to, -94, -55, true); //3
+		creAnim1[2]->nextFrame(to, -116, 71, true); //6
+		creAnim1[3]->nextFrame(to, -94, 197, true); //9
+		creAnim1[4]->nextFrame(to, -94, 281, true); //11
+		break;
+	case 6:
+		creAnim1[0]->nextFrame(to, -94, -139, true); //1
+		creAnim1[1]->nextFrame(to, -94, -55, true); //3
+		creAnim1[2]->nextFrame(to, -94, 29, true); //5
+		creAnim1[3]->nextFrame(to, -94, 113, true); //7
+		creAnim1[4]->nextFrame(to, -94, 197, true); //9
+		creAnim1[5]->nextFrame(to, -94, 281, true); //11
+		break;
+	case 7:
+		creAnim1[0]->nextFrame(to, -94, -139, true); //1
+		creAnim1[1]->nextFrame(to, -94, -55, true); //3
+		creAnim1[2]->nextFrame(to, -94, 29, true); //5
+		creAnim1[3]->nextFrame(to, -116, 71, true); //6
+		creAnim1[4]->nextFrame(to, -94, 113, true); //7
+		creAnim1[5]->nextFrame(to, -94, 197, true); //9
+		creAnim1[6]->nextFrame(to, -94, 281, true); //11
+		break;
+	default: //fault
+		break;
+		//creAnim1[0]->nextFrame(to, -94, -139);
+	}
+	switch(creAnim2.size()) //for defender
+	{
+	case 0:
+		break;
+	case 1:
+		creAnim2[0]->nextFrame(to, 441, 71, false); //6
+		break;
+	case 2:
+		creAnim2[0]->nextFrame(to, 463, -55, false); //3
+		creAnim2[1]->nextFrame(to, 463, 197, false); //9
+		break;
+	case 3:
+		creAnim2[0]->nextFrame(to, 463, -55, false); //3
+		creAnim2[1]->nextFrame(to, 441, 71, false); //6
+		creAnim2[2]->nextFrame(to, 463, 197, false); //9
+		break;
+	case 4:
+		creAnim2[0]->nextFrame(to, 463, -139, false); //1
+		creAnim2[1]->nextFrame(to, 463, 29, false); //5
+		creAnim2[2]->nextFrame(to, 463, 113, false); //7
+		creAnim2[3]->nextFrame(to, 463, 281, false); //11
+		break;
+	case 5:
+		creAnim2[0]->nextFrame(to, 463, -139, false); //1
+		creAnim2[1]->nextFrame(to, 463, -55, false); //3
+		creAnim2[2]->nextFrame(to, 441, 71, false); //6
+		creAnim2[3]->nextFrame(to, 463, 197, false); //9
+		creAnim2[4]->nextFrame(to, 463, 281, false); //11
+		break;
+	case 6:
+		creAnim2[0]->nextFrame(to, 463, -139, false); //1
+		creAnim2[1]->nextFrame(to, 463, -55, false); //3
+		creAnim2[2]->nextFrame(to, 463, 29, false); //5
+		creAnim2[3]->nextFrame(to, 463, 113, false); //7
+		creAnim2[4]->nextFrame(to, 463, 197, false); //9
+		creAnim2[5]->nextFrame(to, 463, 281, false); //11
+		break;
+	case 7:
+		creAnim2[0]->nextFrame(to, 463, -139, false); //1
+		creAnim2[1]->nextFrame(to, 463, -55, false); //3
+		creAnim2[2]->nextFrame(to, 463, 29, false); //5
+		creAnim2[3]->nextFrame(to, 441, 71, false); //6
+		creAnim2[4]->nextFrame(to, 463, 113, false); //7
+		creAnim2[5]->nextFrame(to, 463, 197, false); //9
+		creAnim2[6]->nextFrame(to, 463, 281, false); //11
+		break;
+	default: //fault
+		break;
+		//creAnim2[0]->nextFrame(to, 463, -139);
+	}
 
 	//units shown
 
