@@ -50,8 +50,50 @@ public:
 	void townChange();
 	void show(SDL_Surface * to=NULL);
 	void showAll(SDL_Surface * to=NULL);
+	void buildingClicked(int building);
+	void enterHall();
 	void close();
 	void splitF();
+	void activate();
+	void deactivate();
+};
+
+class CHallInterface : public IShowable, public IActivable
+{
+public:
+	class CResDataBar : public IShowable, public CIntObject
+	{
+	public:
+		SDL_Surface *bg;
+		void show(SDL_Surface * to=NULL);
+		CResDataBar();
+		~CResDataBar();
+	} resdatabar;
+
+	class CBuildingBox : public Hoverable, public ClickableL, public ClickableR
+	{
+	public:
+		int ID;
+		int state;//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
+		void hover(bool on);
+		void clickLeft (tribool down);
+		void clickRight (tribool down);
+		void activate();
+		void deactivate();
+		~CBuildingBox();
+	};
+
+	std::vector<CBuildingBox*> boxes[5];
+
+	AdventureMapButton<CHallInterface> * exit;
+
+	SDL_Surface * bg;
+
+
+	CHallInterface(CCastleInterface * owner);
+	~CHallInterface();
+	void close();
+	void show(SDL_Surface * to=NULL);
 	void activate();
 	void deactivate();
 };

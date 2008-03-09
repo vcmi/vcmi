@@ -32,6 +32,7 @@ class IActivable
 public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
+	virtual ~IActivable(){};
 };
 
 class CIntObject //interface object

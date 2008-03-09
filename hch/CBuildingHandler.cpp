@@ -3,14 +3,15 @@
 #include "CBuildingHandler.h"
 #include "CLodHandler.h"
 #include <sstream>
-std::string readTo(std::string in, unsigned int &it, char end)
+#include <fstream>
+std::string readTo(std::string &in, unsigned int &it, char end)
 {
 	int pom = it;
 	int last = in.find_first_of(end,it);
 	it+=(1+last-it);
 	return in.substr(pom,last-pom);
 }
-unsigned int readNr(std::string in, unsigned int &it)
+unsigned int readNr(std::string &in, unsigned int &it)
 {
 	int last=it;
 	for(;last<in.size();last++)
@@ -131,4 +132,48 @@ void CBuildingHandler::loadBuildings()
 			buildings[f][30+b]->description = readTo(buf,it,'\n');
 		}
 	}
+
+	char line[100]; //bufor 
+	std::ifstream ofs("config/hall.txt");
+	int castles;
+	ofs>>castles;
+	for(int i=0;i<castles;i++)
+	{
+		int tid;
+		unsigned int it, box=0;
+		std::string pom;
+		ofs >> tid >> pom;
+		hall[tid].first = pom;
+		(hall[tid].second).resize(5); //rows
+		for(int j=0;j<5;j++)
+		{
+			box = it = 0;
+			ofs.getline(line,100);
+			if(!line[0])
+				ofs.getline(line,100);
+			std::string linia(line);
+			bool areboxes=true;
+			while(areboxes) //read all boxes
+			{
+				(hall[tid].second)[j].push_back(std::vector<int>()); //push new box
+				int seppos = linia.find_first_of('|',it); //position of end of this box data
+				if(seppos<0)
+					seppos = linia.length();
+				while(it<seppos)
+				{
+					int last = linia.find_first_of(' ',it);
+					std::stringstream ss(linia.substr(it,last-it));
+					it = last + 1;
+					ss >> last;
+					(hall[tid].second)[j][box].push_back(last);
+					areboxes = it; //wyzeruje jak nie znajdzie kolejnej zpasji = koniec linii
+					if(!it)
+						it = seppos+1;
+				}
+				box++;
+				it+=2;
+			}
+		}
+	}
+	
 }

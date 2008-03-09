@@ -3,7 +3,6 @@
 #include "../global.h"
 #include <map>
 //enum EbuildingType {NEUTRAL=-1, CASTLE, RAMPART, TOWER, INFERNO, NECROPOLIS, DUNGEON, STRONGHOLD, FORTRESS, CONFLUX};
-
 class CBuilding //a typical building encountered in every castle ;]
 {
 public:
@@ -19,22 +18,8 @@ class CBuildingHandler
 {
 public:
 	std::map<int, std::map<int, CBuilding*> > buildings; ///< first int is the castle ID, second the building ID (in ERM-U format)
-	//std::vector<CBuilding> buildings; //vector of buildings
-	//std::vector<CBuilding> resourceSilos; //vector with resource silos only - for castle profiled descriptions
-	//std::vector<CBuilding> grails; //vector with grail - type buildings only - for castle profiled descriptions
-	//std::vector<CBuilding> blacksmiths; //vector with names and descriptions for blacksmith (castle - dependent)
-	//CBuilding blacksmith; //global name and description for blacksmiths
-	//CBuilding moat; //description and name of moat
-	//CBuilding shipyard; //castle - independent name and description of shipyard
-	//CBuilding shipyardWithShip; //name and description for shipyard with ship
-	//CBuilding artMerchant; //name and description of artifact merchant
-	//CBuilding l1horde, l2horde, l3horde, l4horde, l5horde; //castle - independent horde names and descriptions
-	//CBuilding grail; //castle - independent grail description
-	//CBuilding resSilo; //castle - independent resource silo name and description
-	void loadBuildings(); //main loader, calls loading functions below
-	void loadNames(); //loads castle - specufuc names and descriptoins
-	void loadNeutNames(); //loads castle independent names and descriptions
-	void loadDwellingNames(); //load names for dwellgins
+	std::map<int, std::pair<std::string,std::vector< std::vector< std::vector<int> > > > > hall; //map<castle ID, pair<hall bg name, std::vector< std::vector<building id> >[5]> - external vector is the vector of buildings in the row, internal is the list of buildings for the specific slot
+	void loadBuildings(); //main loader
 };
 
 #endif //CBUILDINGHANDLER_H

@@ -589,6 +589,7 @@ std::string CPickable::hoverText(CGObjectInstance *os)
 		break;
 	}
 }
+
 std::vector<int> CPickable::yourObjects() //returns IDs of objects which are handled by script
 {
 	std::vector<int> ret(3);

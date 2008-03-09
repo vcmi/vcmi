@@ -5,17 +5,7 @@
 #include "SDL_Thread.h"
 #include "SDL_Extensions.h"
 
-class CStack
-{
-public:
-	int ID;
-	CCreature * creature;
-	int amount;
-	int owner;
-	int position;
-	bool alive;
-	CStack(CCreature * C, int A, int O, int I):creature(C),amount(A),owner(O), alive(true), position(-1), ID(I){};
-};
+
 
 class CMP_stack
 {

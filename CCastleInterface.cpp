@@ -80,8 +80,11 @@ void CBuildingRect::hover(bool on)
 void CBuildingRect::clickLeft (tribool down)
 {
 	
-	if(area && (CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
+	if(area && (LOCPLINT->castleInt->hBuild==this) && !(indeterminate(down)) && (CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
 	{
+		if(pressedL && !down)
+			LOCPLINT->castleInt->buildingClicked(str->ID);
+		ClickableL::clickLeft(down);
 	}
 
 	
@@ -89,7 +92,7 @@ void CBuildingRect::clickLeft (tribool down)
 }
 void CBuildingRect::clickRight (tribool down)
 {
-	if((!area) || (!((bool)down)))
+	if((!area) || (!((bool)down)) || (this!=LOCPLINT->castleInt->hBuild))
 		return;
 	if((CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
 	{
@@ -345,17 +348,33 @@ void CCastleInterface::close()
 void CCastleInterface::splitF()
 {
 }
+void CCastleInterface::buildingClicked(int building)
+{
+	std::cout<<"You've clicked on "<<building<<std::endl;
+	switch(building)
+	{
+	case 10: case 11: case 12: case 13:
+		enterHall();
+		break;
+	default:
+		std::cout<<"This building isn't handled...\n";
+	}
+}
+void CCastleInterface::enterHall()
+{
+	deactivate();
+}
 void CCastleInterface::showAll(SDL_Surface * to)
 {	
 	if (!to)
 		to=ekran;
-	statusbar->show();
 	blitAt(cityBg,0,0,to);
 	blitAt(townInt,0,374,to);
 	LOCPLINT->adventureInt->resdatabar.draw();
 	townlist->draw();
+	statusbar->show();
 
-	garr->show();
+	garr->show(); 
 	int pom;
 
 	//draw fort icon
@@ -491,4 +510,56 @@ void CCastleInterface::deactivate()
 	split->deactivate();
 	for(int i=0;i<buildings.size();i++)
 		buildings[i]->deactivate();
+}
+
+
+void CHallInterface::CResDataBar::show(SDL_Surface * to)
+{
+}
+CHallInterface::CResDataBar::CResDataBar()
+{
+}
+CHallInterface::CResDataBar::~CResDataBar()
+{
+}
+
+
+void CHallInterface::CBuildingBox::hover(bool on)
+{
+}
+void CHallInterface::CBuildingBox::clickLeft (tribool down)
+{
+}
+void CHallInterface::CBuildingBox::clickRight (tribool down)
+{
+}
+void CHallInterface::CBuildingBox::activate()
+{
+}
+void CHallInterface::CBuildingBox::deactivate()
+{
+}
+CHallInterface::CBuildingBox::~CBuildingBox()
+{
+}
+
+
+CHallInterface::CHallInterface(CCastleInterface * owner)
+{
+
+}
+CHallInterface::~CHallInterface()
+{
+}
+void CHallInterface::close()
+{
+}
+void CHallInterface::show(SDL_Surface * to)
+{
+}
+void CHallInterface::activate()
+{
+}
+void CHallInterface::deactivate()
+{
 }

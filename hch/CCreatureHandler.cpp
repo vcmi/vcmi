@@ -7,7 +7,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "SDL_Extensions.h"
+#include "../SDL_Extensions.h"
 
 int CCreature::getQuantityID(int quantity)
 {
