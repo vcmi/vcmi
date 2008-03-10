@@ -6,6 +6,7 @@ class CCreatureSet;
 class CGHeroInstance;
 class CDefHandler;
 class CStack;
+class CCallback;
 template <typename T> class AdventureMapButton;
 
 class CBattleHero : public IShowable, public CIntObject
@@ -21,11 +22,19 @@ public:
 	~CBattleHero(); //d-tor
 };
 
-class CBattleHex
+class CBattleHex : public Hoverable
 {
+public:
 	unsigned int myNumber;
 	bool accesible;
-	CStack * ourStack;
+	//CStack * ourStack;
+	bool hovered;
+	static std::pair<int, int> getXYUnitAnim(int hexNum, bool attacker); //returns (x, y) of left top corner of animation
+	//for user interactions
+	void hover (bool on);
+	void activate();
+	void deactivate();
+	CBattleHex();
 };
 
 class CBattleObstacle
@@ -42,9 +51,13 @@ private:
 	CBattleHero * attackingHero, * defendingHero;
 	SDL_Surface * cellBorder, * cellShade;
 	CCreatureSet * army1, * army2; //fighting armies
-	std::vector< CCreatureAnimation * > creAnim1, creAnim2; //animations of creatures from fighting armies
+	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
+	std::vector< CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order like in BattleInfo's stacks)
+
+	CCallback * cb; //our callback for getting info about different things
+	const std::vector< CStack* > & stacks; //fighting stacks
 public:
-	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
+	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CCallback * callback, CGHeroInstance *hero1, CGHeroInstance *hero2, const std::vector< CStack* > & stcks); //c-tor
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling

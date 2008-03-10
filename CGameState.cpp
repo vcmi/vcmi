@@ -30,8 +30,107 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 	curB->round = -2;
 	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army1->slots.begin(); i!=army1->slots.end(); i++)
 		stacks.push_back(new CStack(i->second.first,i->second.second,0, stacks.size()));
+	//initialization of positions
+	switch(army1->slots.size()) //for attacker
+	{
+	case 0:
+		break;
+	case 1:
+		stacks[0]->position = 86; //6
+		break;
+	case 2:
+		stacks[0]->position = 35; //3
+		stacks[1]->position = 137; //9
+		break;
+	case 3:
+		stacks[0]->position = 35; //3
+		stacks[1]->position = 86; //6
+		stacks[2]->position = 137; //9
+		break;
+	case 4:
+		stacks[0]->position = 1; //1
+		stacks[1]->position = 69; //5
+		stacks[2]->position = 103; //7
+		stacks[3]->position = 171; //11
+		break;
+	case 5:
+		stacks[0]->position = 1; //1
+		stacks[1]->position = 35; //3
+		stacks[2]->position = 86; //6
+		stacks[3]->position = 137; //9
+		stacks[4]->position = 171; //11
+		break;
+	case 6:
+		stacks[0]->position = 1; //1
+		stacks[1]->position = 35; //3
+		stacks[2]->position = 69; //5
+		stacks[3]->position = 103; //7
+		stacks[4]->position = 137; //9
+		stacks[5]->position = 171; //11
+		break;
+	case 7:
+		stacks[0]->position = 1; //1
+		stacks[1]->position = 35; //3
+		stacks[2]->position = 69; //5
+		stacks[3]->position = 86; //6
+		stacks[4]->position = 103; //7
+		stacks[5]->position = 137; //9
+		stacks[6]->position = 171; //11
+		break;
+	default: //fault
+		break;
+	}
 	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army2->slots.begin(); i!=army2->slots.end(); i++)
 		stacks.push_back(new CStack(i->second.first,i->second.second,1, stacks.size()));
+	switch(army2->slots.size()) //for attacker
+	{
+	case 0:
+		break;
+	case 1:
+		stacks[0+army1->slots.size()]->position = 100; //6
+		break;
+	case 2:
+		stacks[0+army1->slots.size()]->position = 49; //3
+		stacks[1+army1->slots.size()]->position = 151; //9
+		break;
+	case 3:
+		stacks[0+army1->slots.size()]->position = 49; //3
+		stacks[1+army1->slots.size()]->position = 100; //6
+		stacks[2+army1->slots.size()]->position = 151; //9
+		break;
+	case 4:
+		stacks[0+army1->slots.size()]->position = 15; //1
+		stacks[1+army1->slots.size()]->position = 83; //5
+		stacks[2+army1->slots.size()]->position = 117; //7
+		stacks[3+army1->slots.size()]->position = 185; //11
+		break;
+	case 5:
+		stacks[0+army1->slots.size()]->position = 15; //1
+		stacks[1+army1->slots.size()]->position = 49; //3
+		stacks[2+army1->slots.size()]->position = 100; //6
+		stacks[3+army1->slots.size()]->position = 151; //9
+		stacks[4+army1->slots.size()]->position = 185; //11
+		break;
+	case 6:
+		stacks[0+army1->slots.size()]->position = 15; //1
+		stacks[1+army1->slots.size()]->position = 49; //3
+		stacks[2+army1->slots.size()]->position = 83; //5
+		stacks[3+army1->slots.size()]->position = 117; //7
+		stacks[4+army1->slots.size()]->position = 151; //9
+		stacks[5+army1->slots.size()]->position = 185; //11
+		break;
+	case 7:
+		stacks[0+army1->slots.size()]->position = 15; //1
+		stacks[1+army1->slots.size()]->position = 49; //3
+		stacks[2+army1->slots.size()]->position = 83; //5
+		stacks[3+army1->slots.size()]->position = 100; //6
+		stacks[4+army1->slots.size()]->position = 117; //7
+		stacks[5+army1->slots.size()]->position = 151; //9
+		stacks[6+army1->slots.size()]->position = 185; //11
+		break;
+	default: //fault
+		break;
+	}
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
 	//for start inform players about battle
@@ -50,7 +149,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 				return; //no witnesses
 			if(CGI->playerint[j->second.serial]->human)
 			{
-				((CPlayerInterface*)( CGI->playerint[j->second.serial] ))->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side);
+				((CPlayerInterface*)( CGI->playerint[j->second.serial] ))->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side, curB->stacks);
 			}
 			else
 			{

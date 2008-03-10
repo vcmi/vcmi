@@ -513,6 +513,11 @@ bool CCallback::swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1,
 	return true;
 }
 
+int CCallback::battleGetBattlefieldType()
+{
+	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].terType;
+}
+
 int3 CScriptCallback::getPos(CGObjectInstance * ob)
 {
 	return ob->pos;

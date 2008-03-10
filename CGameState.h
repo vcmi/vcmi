@@ -1,8 +1,10 @@
 #ifndef CGAMESTATE_H
 #define CGAMESTATE_H
+
 #include "mapHandler.h"
 #include <set>
 #include <tchar.h>
+
 class CScriptCallback;
 class CCallback;
 class CLuaCallback;
@@ -11,6 +13,7 @@ class CCreatureSet;
 class CStack;
 class CGHeroInstance;
 class CArmedInstance;
+
 struct PlayerState
 {
 public:
@@ -22,6 +25,7 @@ public:
 	std::vector<CGTownInstance *> towns;
 	PlayerState():color(-1){};
 };
+
 struct BattleInfo
 {
 	int side1, side2;
@@ -32,17 +36,19 @@ struct BattleInfo
 	CCreatureSet * army1, * army2;
 	std::vector<CStack*> stacks;
 };
+
 class CStack
 {
 public:
-	int ID;
+	int ID; //type of creature
 	CCreature * creature;
 	int amount;
 	int owner;
-	int position;
-	bool alive;
+	int position; //position on battlefield
+	bool alive; //true if it is alive
 	CStack(CCreature * C, int A, int O, int I):creature(C),amount(A),owner(O), alive(true), position(-1), ID(I){};
 };
+
 class CGameState
 {
 private:

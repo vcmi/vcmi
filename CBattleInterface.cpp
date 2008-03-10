@@ -6,27 +6,24 @@
 #include "AdventureMapButton.h"
 #include "hch\CHeroHandler.h"
 #include "hch\CDefHandler.h"
+#include "CCallback.h"
+#include "CGameState.h"
 
 extern SDL_Surface * screen;
 
-CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2) : printCellBorders(true)
+CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CCallback * callback, CGHeroInstance *hero1, CGHeroInstance *hero2, const std::vector< CStack* > & stcks) 
+: printCellBorders(true), cb(callback), stacks(stcks), attackingHeroInstance(hero1), defendingHeroInstance(hero2)
 {
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
-	for(std::map<int,std::pair<CCreature*,int> >::iterator i=army1->slots.begin(); i!=army1->slots.end(); ++i)
+	for(int b=0; b<stacks.size(); ++b)
 	{
-		//creAnim1.push_back(new CCreatureAnimation(i->second.first->animDefName));
-		creAnim1.push_back(new CCreatureAnimation(i->second.first->animDefName));
-		creAnim1[creAnim1.size()-1]->setType(2);
-	}
-	for(std::map<int,std::pair<CCreature*,int> >::iterator i=army2->slots.begin(); i!=army2->slots.end(); ++i)
-	{
-		creAnim2.push_back(new CCreatureAnimation(i->second.first->animDefName));
-		creAnim2[creAnim2.size()-1]->setType(2);
+		creAnims.push_back(new CCreatureAnimation(stacks[b]->creature->animDefName));
+		creAnims[b]->setType(2);
 	}
 	//preparing menu background and terrain
-	std::vector< std::string > & backref = CGI->mh->battleBacks[ CGI->mh->ttiles[tile.x][tile.y][tile.z].terType ];
+	std::vector< std::string > & backref = CGI->mh->battleBacks[ cb->battleGetBattlefieldType() ];
 	background = CGI->bitmaph->loadBitmap(backref[ rand() % backref.size()] );
 	menu = CGI->bitmaph->loadBitmap("CBAR.BMP");
 	CSDL_Ext::blueToPlayersAdv(menu, hero1->tempOwner);
@@ -73,6 +70,14 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, i
 	cellBorder = CSDL_Ext::alphaTransform(cellBorder);
 	cellShade = CGI->bitmaph->loadBitmap("CCELLSHD.BMP");
 	cellShade = CSDL_Ext::alphaTransform(cellShade);
+	for(int h=0; h<187; ++h)
+	{
+		bfield[h].myNumber = h;
+		
+		int x = 14 + ((h/17)%2==0 ? 22 : 0) + 44*(h%17);
+		int y = 86 + 42 * (h/17);
+		bfield[h].pos = genRect(cellShade->h, cellShade->w, x, y);
+	}
 }
 
 CBattleInterface::~CBattleInterface()
@@ -95,10 +100,8 @@ CBattleInterface::~CBattleInterface()
 	SDL_FreeSurface(cellBorder);
 	SDL_FreeSurface(cellShade);
 
-	for(int g=0; g<creAnim1.size(); ++g)
-		delete creAnim1[g];
-	for(int g=0; g<creAnim2.size(); ++g)
-		delete creAnim2[g];
+	for(int g=0; g<creAnims.size(); ++g)
+		delete creAnims[g];
 }
 
 void CBattleInterface::activate()
@@ -112,6 +115,10 @@ void CBattleInterface::activate()
 	bDefence->activate();
 	bConsoleUp->activate();
 	bConsoleDown->activate();
+	for(int b=0; b<187; ++b)
+	{
+		bfield[b].activate();
+	}
 }
 
 void CBattleInterface::deactivate()
@@ -125,6 +132,10 @@ void CBattleInterface::deactivate()
 	bDefence->deactivate();
 	bConsoleUp->deactivate();
 	bConsoleDown->deactivate();
+	for(int b=0; b<187; ++b)
+	{
+		bfield[b].deactivate();
+	}
 }
 
 void CBattleInterface::show(SDL_Surface * to)
@@ -144,6 +155,16 @@ void CBattleInterface::show(SDL_Surface * to)
 				int y = 86 + 42 * i;
 				CSDL_Ext::blit8bppAlphaTo24bpp(cellBorder, NULL, to, &genRect(cellBorder->h, cellBorder->w, x, y));
 			}
+		}
+	}
+	//printing hovered cell
+	for(int b=0; b<187; ++b)
+	{
+		if(bfield[b].hovered)
+		{
+			int x = 14 + ((b/17)%2==0 ? 22 : 0) + 44*(b%17);
+			int y = 86 + 42 * (b/17);
+			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
 		}
 	}
 	//showing menu background
@@ -167,107 +188,11 @@ void CBattleInterface::show(SDL_Surface * to)
 		defendingHero->show(to);
 
 	//showing units //a lot of work...
-	switch(creAnim1.size()) //for attacker
+	for(int j=0; j<creAnims.size(); ++j)
 	{
-	case 0:
-		break;
-	case 1:
-		creAnim1[0]->nextFrame(to, -116, 71, true); //6
-		break;
-	case 2:
-		creAnim1[0]->nextFrame(to, -94, -55, true); //3
-		creAnim1[1]->nextFrame(to, -94, 197, true); //9
-		break;
-	case 3:
-		creAnim1[0]->nextFrame(to, -94, -55, true); //3
-		creAnim1[1]->nextFrame(to, -116, 71, true); //6
-		creAnim1[2]->nextFrame(to, -94, 197, true); //9
-		break;
-	case 4:
-		creAnim1[0]->nextFrame(to, -94, -139, true); //1
-		creAnim1[1]->nextFrame(to, -94, 29, true); //5
-		creAnim1[2]->nextFrame(to, -94, 113, true); //7
-		creAnim1[3]->nextFrame(to, -94, 281, true); //11
-		break;
-	case 5:
-		creAnim1[0]->nextFrame(to, -94, -139, true); //1
-		creAnim1[1]->nextFrame(to, -94, -55, true); //3
-		creAnim1[2]->nextFrame(to, -116, 71, true); //6
-		creAnim1[3]->nextFrame(to, -94, 197, true); //9
-		creAnim1[4]->nextFrame(to, -94, 281, true); //11
-		break;
-	case 6:
-		creAnim1[0]->nextFrame(to, -94, -139, true); //1
-		creAnim1[1]->nextFrame(to, -94, -55, true); //3
-		creAnim1[2]->nextFrame(to, -94, 29, true); //5
-		creAnim1[3]->nextFrame(to, -94, 113, true); //7
-		creAnim1[4]->nextFrame(to, -94, 197, true); //9
-		creAnim1[5]->nextFrame(to, -94, 281, true); //11
-		break;
-	case 7:
-		creAnim1[0]->nextFrame(to, -94, -139, true); //1
-		creAnim1[1]->nextFrame(to, -94, -55, true); //3
-		creAnim1[2]->nextFrame(to, -94, 29, true); //5
-		creAnim1[3]->nextFrame(to, -116, 71, true); //6
-		creAnim1[4]->nextFrame(to, -94, 113, true); //7
-		creAnim1[5]->nextFrame(to, -94, 197, true); //9
-		creAnim1[6]->nextFrame(to, -94, 281, true); //11
-		break;
-	default: //fault
-		break;
-		//creAnim1[0]->nextFrame(to, -94, -139);
+		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(stacks[j]->position, stacks[j]->owner == attackingHeroInstance->tempOwner);
+		creAnims[j]->nextFrame(to, coords.first, coords.second, stacks[j]->owner == attackingHeroInstance->tempOwner);
 	}
-	switch(creAnim2.size()) //for defender
-	{
-	case 0:
-		break;
-	case 1:
-		creAnim2[0]->nextFrame(to, 441, 71, false); //6
-		break;
-	case 2:
-		creAnim2[0]->nextFrame(to, 463, -55, false); //3
-		creAnim2[1]->nextFrame(to, 463, 197, false); //9
-		break;
-	case 3:
-		creAnim2[0]->nextFrame(to, 463, -55, false); //3
-		creAnim2[1]->nextFrame(to, 441, 71, false); //6
-		creAnim2[2]->nextFrame(to, 463, 197, false); //9
-		break;
-	case 4:
-		creAnim2[0]->nextFrame(to, 463, -139, false); //1
-		creAnim2[1]->nextFrame(to, 463, 29, false); //5
-		creAnim2[2]->nextFrame(to, 463, 113, false); //7
-		creAnim2[3]->nextFrame(to, 463, 281, false); //11
-		break;
-	case 5:
-		creAnim2[0]->nextFrame(to, 463, -139, false); //1
-		creAnim2[1]->nextFrame(to, 463, -55, false); //3
-		creAnim2[2]->nextFrame(to, 441, 71, false); //6
-		creAnim2[3]->nextFrame(to, 463, 197, false); //9
-		creAnim2[4]->nextFrame(to, 463, 281, false); //11
-		break;
-	case 6:
-		creAnim2[0]->nextFrame(to, 463, -139, false); //1
-		creAnim2[1]->nextFrame(to, 463, -55, false); //3
-		creAnim2[2]->nextFrame(to, 463, 29, false); //5
-		creAnim2[3]->nextFrame(to, 463, 113, false); //7
-		creAnim2[4]->nextFrame(to, 463, 197, false); //9
-		creAnim2[5]->nextFrame(to, 463, 281, false); //11
-		break;
-	case 7:
-		creAnim2[0]->nextFrame(to, 463, -139, false); //1
-		creAnim2[1]->nextFrame(to, 463, -55, false); //3
-		creAnim2[2]->nextFrame(to, 463, 29, false); //5
-		creAnim2[3]->nextFrame(to, 441, 71, false); //6
-		creAnim2[4]->nextFrame(to, 463, 113, false); //7
-		creAnim2[5]->nextFrame(to, 463, 197, false); //9
-		creAnim2[6]->nextFrame(to, 463, 281, false); //11
-		break;
-	default: //fault
-		break;
-		//creAnim2[0]->nextFrame(to, 463, -139);
-	}
-
 	//units shown
 
 	CSDL_Ext::update();
@@ -347,8 +272,6 @@ void CBattleHero::show(SDL_Surface *to)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 31, 39));
 	}
-	//++flagAnimCount;
-	//if(flagAnimCount%4==0)
 	{
 		++flagAnim;
 		flagAnim %= flag->ourImages.size();
@@ -371,6 +294,7 @@ CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG
 	else
 		flag = CGI->spriteh->giveDef("CMFLAGL.DEF");
 
+	//coloring flag and adding transparency
 	for(int i=0; i<flag->ourImages.size(); ++i)
 	{
 		flag->ourImages[i].bitmap = CSDL_Ext::alphaTransform(flag->ourImages[i].bitmap);
@@ -382,4 +306,41 @@ CBattleHero::~CBattleHero()
 {
 	delete dh;
 	delete flag;
+}
+
+std::pair<int, int> CBattleHex::getXYUnitAnim(int hexNum, bool attacker)
+{
+	std::pair<int, int> ret = std::make_pair(-500, -500); //returned value
+	ret.second = -139 + 42 * (hexNum/17); //counting y
+	//counting x
+	if(attacker)
+	{
+		ret.first = -160 + 22 * ( ((hexNum/17) + 1)%2 ) + 44 * (hexNum % 17);
+	}
+	else
+	{
+		ret.first = -219 + 22 * ( ((hexNum/17) + 1)%2 ) + 44 * (hexNum % 17);
+	}
+	//returning
+	return ret;
+}
+
+void CBattleHex::activate()
+{
+	Hoverable::activate();
+}
+
+void CBattleHex::deactivate()
+{
+	Hoverable::activate();
+}
+
+void CBattleHex::hover(bool on)
+{
+	hovered = on;
+	Hoverable::hover(on);
+}
+
+CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false)
+{
 }

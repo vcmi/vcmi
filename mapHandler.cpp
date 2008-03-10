@@ -1150,7 +1150,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 		//return CSDL_Ext::rotate01(partialHide->ourImages[12].bitmap); //visible left, left - bottom, bottom; right top corner hidden
 		return partialHide->ourImages[38].bitmap;
 	}
-	else if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	else if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl])
 	{
 		return partialHide->ourImages[10].bitmap; //visible left, right, bottom and top
 	}
