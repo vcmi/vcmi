@@ -5,6 +5,7 @@
 //#include "boost/tuple/tuple.hpp"
 class CGTownInstance;
 class CTownHandler;
+class CHallInterface;
 struct Structure;
 template <typename T> class AdventureMapButton;
 class CBuildingRect : public Hoverable, public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
@@ -28,12 +29,13 @@ public:
 class CCastleInterface : public IShowable, public IActivable
 {
 public:
+	bool showing;
 	CBuildingRect * hBuild; //highlighted building
 	SDL_Surface * townInt;
 	SDL_Surface * cityBg;
 	const CGTownInstance * town;
 	CStatusBar * statusbar;
-
+	CHallInterface * hallInt;
 	unsigned char animval, count;
 
 	CDefHandler *hall,*fort, *flag;
@@ -78,11 +80,16 @@ public:
 		void hover(bool on);
 		void clickLeft (tribool down);
 		void clickRight (tribool down);
+		void show(SDL_Surface * to=NULL);
 		void activate();
 		void deactivate();
+		CBuildingBox(int id);
+		CBuildingBox(int id, int x, int y);
 		~CBuildingBox();
 	};
 
+	CDefEssential *bars, //0 - yellow, 1 - green, 2 - red, 3 - gray
+		*status; //0 - already, 1 - can't, 2 - lack of resources
 	std::vector<CBuildingBox*> boxes[5];
 
 	AdventureMapButton<CHallInterface> * exit;

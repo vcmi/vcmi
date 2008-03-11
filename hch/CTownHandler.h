@@ -44,7 +44,7 @@ public:
 	CTownHandler();
 	~CTownHandler();
 	std::vector<CTown> towns;
-	std::vector<std::string> tcommands;
+	std::vector<std::string> tcommands, hcommands;
 	void loadNames();
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //ID=-1 - blank; -2 - border; -3 - random
 	static int getTypeByDefName(std::string name);

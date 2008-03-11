@@ -469,7 +469,6 @@ SDL_Surface * SComponent::getImg()
 	}
 	return NULL;
 }
-
 void SComponent::clickRight (tribool down)
 {
 	LOCPLINT->adventureInt->handleRightClick(description,down,this);

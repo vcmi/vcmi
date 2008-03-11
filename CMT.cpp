@@ -832,13 +832,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		std::cout<<"done."<<std::endl;
 
-#define CHOOSE
-#ifdef CHOOSE
 		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
-#else
-		CAmbarCendamo * ac = new CAmbarCendamo("RoEtest"); //4gryf
-#endif
-		//CMapHeader * mmhh = new CMapHeader(ac->bufor); //czytanie nag³ówka
 		cgi->ac = ac;
 		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
@@ -853,7 +847,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
 		initGameState(cgi);
-		THC std::cout<<"Initializing GameState: "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
 
 		/*for(int d=0; d<PLAYER_LIMIT; ++d)
 		{

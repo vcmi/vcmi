@@ -48,6 +48,15 @@ void CTownHandler::loadNames()
 		tcommands.push_back(tmp);
 	}
 
+	strs = CGI->bitmaph->getTextFile("HALLINFO.TXT");
+	itr=0;
+	while(itr<strs.length()-1)
+	{
+		std::string tmp;
+		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
+		hcommands.push_back(tmp);
+	}
+
 	//read buildings coords
 	std::ifstream of("config/buildings.txt");
 	while(!of.eof())
