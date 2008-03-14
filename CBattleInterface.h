@@ -49,21 +49,19 @@ private:
 	AdventureMapButton<CBattleInterface> * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
 	CBattleHero * attackingHero, * defendingHero;
-	SDL_Surface * cellBorder, * cellShade;
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
-	std::vector< CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order like in BattleInfo's stacks)
+	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order like in BattleInfo's stacks)
 
-	CCallback * cb; //our callback for getting info about different things
-	const std::vector< CStack* > & stacks; //fighting stacks
 public:
-	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CCallback * callback, CGHeroInstance *hero1, CGHeroInstance *hero2, const std::vector< CStack* > & stcks); //c-tor
+	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling
 	bool printCellBorders; //if true, cell borders will be printed
 	CBattleHex bfield[187]; //11 lines, 17 hexes on each
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
+	static SDL_Surface * cellBorder, * cellShade;
 
 	//button handle funcs:
 	void bOptionsf();
@@ -80,4 +78,8 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
+
+	//call-ins
+	void newStack(CStack stack);
+	void stackRemoved(CStack stack);
 };

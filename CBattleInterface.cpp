@@ -10,20 +10,22 @@
 #include "CGameState.h"
 
 extern SDL_Surface * screen;
+SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
-CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CCallback * callback, CGHeroInstance *hero1, CGHeroInstance *hero2, const std::vector< CStack* > & stcks) 
-: printCellBorders(true), cb(callback), stacks(stcks), attackingHeroInstance(hero1), defendingHeroInstance(hero2)
+CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2) 
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2)
 {
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
-	for(int b=0; b<stacks.size(); ++b)
+	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
+	for(std::map<int, CStack>::iterator b=stacks.begin(); b!=stacks.end(); ++b)
 	{
-		creAnims.push_back(new CCreatureAnimation(stacks[b]->creature->animDefName));
-		creAnims[b]->setType(2);
+		creAnims[b->second.ID] = (new CCreatureAnimation(b->second.creature->animDefName));
+		creAnims[b->second.ID]->setType(2);
 	}
 	//preparing menu background and terrain
-	std::vector< std::string > & backref = CGI->mh->battleBacks[ cb->battleGetBattlefieldType() ];
+	std::vector< std::string > & backref = CGI->mh->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
 	background = CGI->bitmaph->loadBitmap(backref[ rand() % backref.size()] );
 	menu = CGI->bitmaph->loadBitmap("CBAR.BMP");
 	CSDL_Ext::blueToPlayersAdv(menu, hero1->tempOwner);
@@ -188,10 +190,11 @@ void CBattleInterface::show(SDL_Surface * to)
 		defendingHero->show(to);
 
 	//showing units //a lot of work...
-	for(int j=0; j<creAnims.size(); ++j)
+	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
+	for(std::map<int, CCreatureAnimation*>::iterator j=creAnims.begin(); j!=creAnims.end(); ++j)
 	{
-		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(stacks[j]->position, stacks[j]->owner == attackingHeroInstance->tempOwner);
-		creAnims[j]->nextFrame(to, coords.first, coords.second, stacks[j]->owner == attackingHeroInstance->tempOwner);
+		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(stacks[j->first].position, stacks[j->first].owner == attackingHeroInstance->tempOwner);
+		j->second->nextFrame(to, coords.first, coords.second, stacks[j->first].owner == attackingHeroInstance->tempOwner);
 	}
 	//units shown
 
@@ -243,6 +246,18 @@ void CBattleInterface::bConsoleUpf()
 
 void CBattleInterface::bConsoleDownf()
 {
+}
+
+void CBattleInterface::newStack(CStack stack)
+{
+	creAnims[stack.ID] = new CCreatureAnimation(stack.creature->animDefName);
+	creAnims[stack.ID]->setType(2);
+}
+
+void CBattleInterface::stackRemoved(CStack stack)
+{
+	delete creAnims[stack.ID];
+	creAnims.erase(stack.ID);
 }
 
 void CBattleHero::show(SDL_Surface *to)

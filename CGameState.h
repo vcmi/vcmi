@@ -40,13 +40,14 @@ struct BattleInfo
 class CStack
 {
 public:
-	int ID; //type of creature
+	int ID; //unique ID of stack
 	CCreature * creature;
 	int amount;
 	int owner;
 	int position; //position on battlefield
 	bool alive; //true if it is alive
 	CStack(CCreature * C, int A, int O, int I):creature(C),amount(A),owner(O), alive(true), position(-1), ID(I){};
+	CStack() : creature(NULL),amount(-1),owner(255), alive(true), position(-1), ID(-1){};
 };
 
 class CGameState

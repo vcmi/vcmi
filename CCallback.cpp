@@ -12,7 +12,9 @@
 #include "hch/CGeneralTextHandler.h"
 #include "CAdvmapInterface.h"
 #include "CPlayerInterface.h"
+
 LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
+
 int CCallback::lowestSpeed(CGHeroInstance * chi)
 {
 	int min = 150;
@@ -516,6 +518,16 @@ bool CCallback::swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1,
 int CCallback::battleGetBattlefieldType()
 {
 	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].terType;
+}
+
+std::map<int, CStack> CCallback::battleGetStacks()
+{
+	std::map<int, CStack> ret;
+	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
+	{
+		ret[CGI->state->curB->stacks[g]->ID] = *(CGI->state->curB->stacks[g]);
+	}
+	return ret;
 }
 
 int3 CScriptCallback::getPos(CGObjectInstance * ob)

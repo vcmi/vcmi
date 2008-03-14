@@ -3,6 +3,8 @@
 
 #include "mapHandler.h"
 #include "tchar.h"
+#include "CGameState.h"
+
 class CGameState;
 class CPath;
 class CGObjectInstance;
@@ -96,6 +98,7 @@ public:
 	int battleGetStack(int pos); //returns ID of stack on the tile
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	int battleMakeAction(Action* action);//perform action with an active stack (or custom action)
+	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
 	
 
 //friends

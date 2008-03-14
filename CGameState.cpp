@@ -29,7 +29,10 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 	curB->side2=(hero2)?(hero2->tempOwner):(-1);
 	curB->round = -2;
 	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army1->slots.begin(); i!=army1->slots.end(); i++)
+	{
 		stacks.push_back(new CStack(i->second.first,i->second.second,0, stacks.size()));
+		stacks[stacks.size()-1]->ID = stacks.size()-1;
+	}
 	//initialization of positions
 	switch(army1->slots.size()) //for attacker
 	{
@@ -149,7 +152,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 				return; //no witnesses
 			if(CGI->playerint[j->second.serial]->human)
 			{
-				((CPlayerInterface*)( CGI->playerint[j->second.serial] ))->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side, curB->stacks);
+				((CPlayerInterface*)( CGI->playerint[j->second.serial] ))->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side);
 			}
 			else
 			{
