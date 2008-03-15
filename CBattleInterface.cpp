@@ -13,7 +13,7 @@ extern SDL_Surface * screen;
 SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2) 
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0)
 {
 	//initializing armies
 	this->army1 = army1;
@@ -142,6 +142,7 @@ void CBattleInterface::deactivate()
 
 void CBattleInterface::show(SDL_Surface * to)
 {
+	++animCount;
 	if(!to) //"evaluating" to
 		to = screen;
 
@@ -162,7 +163,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	//printing hovered cell
 	for(int b=0; b<187; ++b)
 	{
-		if(bfield[b].hovered)
+		if(bfield[b].strictHovered && bfield[b].hovered)
 		{
 			int x = 14 + ((b/17)%2==0 ? 22 : 0) + 44*(b%17);
 			int y = 86 + 42 * (b/17);
@@ -194,7 +195,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	for(std::map<int, CCreatureAnimation*>::iterator j=creAnims.begin(); j!=creAnims.end(); ++j)
 	{
 		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(stacks[j->first].position, stacks[j->first].owner == attackingHeroInstance->tempOwner);
-		j->second->nextFrame(to, coords.first, coords.second, stacks[j->first].owner == attackingHeroInstance->tempOwner);
+		j->second->nextFrame(to, coords.first, coords.second, stacks[j->first].owner == attackingHeroInstance->tempOwner, animCount%2==0);
 	}
 	//units shown
 
@@ -343,11 +344,13 @@ std::pair<int, int> CBattleHex::getXYUnitAnim(int hexNum, bool attacker)
 void CBattleHex::activate()
 {
 	Hoverable::activate();
+	MotionInterested::activate();
 }
 
 void CBattleHex::deactivate()
 {
-	Hoverable::activate();
+	Hoverable::deactivate();
+	MotionInterested::deactivate();
 }
 
 void CBattleHex::hover(bool on)
@@ -356,6 +359,21 @@ void CBattleHex::hover(bool on)
 	Hoverable::hover(on);
 }
 
-CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false)
+CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strictHovered(false)
 {
+}
+
+void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
+{
+	if(CBattleInterface::cellShade)
+	{
+		if(CSDL_Ext::SDL_GetPixel(CBattleInterface::cellShade, sEvent.x-pos.x, sEvent.y-pos.y) == 0) //hovered pixel is outside hex
+		{
+			strictHovered = false;
+		}
+		else //hovered pixel is inside hex
+		{
+			strictHovered = true;
+		}
+	}
 }

@@ -22,18 +22,19 @@ public:
 	~CBattleHero(); //d-tor
 };
 
-class CBattleHex : public Hoverable
+class CBattleHex : public Hoverable, public MotionInterested
 {
 public:
 	unsigned int myNumber;
 	bool accesible;
 	//CStack * ourStack;
-	bool hovered;
+	bool hovered, strictHovered;
 	static std::pair<int, int> getXYUnitAnim(int hexNum, bool attacker); //returns (x, y) of left top corner of animation
 	//for user interactions
 	void hover (bool on);
 	void activate();
 	void deactivate();
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	CBattleHex();
 };
 
@@ -52,6 +53,7 @@ private:
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order like in BattleInfo's stacks)
+	unsigned char animCount;
 
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor

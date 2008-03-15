@@ -114,7 +114,7 @@ void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 {
 	if(area)
 	{
-		if(CSDL_Ext::SDL_GetPixel(area,sEvent.x-pos.x,sEvent.y-pos.y) == 0) //najechany piksel jest poza polem
+		if(CSDL_Ext::SDL_GetPixel(area,sEvent.x-pos.x,sEvent.y-pos.y) == 0) //hovered pixel is inside this building
 		{
 			if(LOCPLINT->castleInt->hBuild == this)
 			{
@@ -122,11 +122,11 @@ void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 				LOCPLINT->statusbar->clear();
 			}
 		}
-		else //w polu
+		else //inside the area of this building
 		{
-			if(LOCPLINT->castleInt->hBuild) //jakis budynek jest zaznaczony
+			if(LOCPLINT->castleInt->hBuild) //a building is hovered
 			{
-				if((*LOCPLINT->castleInt->hBuild)<(*this)) //ustawiamy sie, jesli jestesmy na wierzchu
+				if((*LOCPLINT->castleInt->hBuild)<(*this)) //set if we are on top
 				{
 					LOCPLINT->castleInt->hBuild = this;
 					if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->name.length())
@@ -135,7 +135,7 @@ void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 						LOCPLINT->statusbar->print(str->name);
 				}
 			}
-			else //nie ma budynku, wiec damy nasz
+			else //no building hovered
 			{
 				LOCPLINT->castleInt->hBuild = this;
 				if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->name.length())
