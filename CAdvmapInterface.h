@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include "CPlayerInterface.h"
 #include <map>
+#include "AdventureMapButton.h"
 class CDefHandler;
 class CCallback;
 class CPath; 
@@ -12,28 +13,6 @@ class CAdvMapInt;
 class CGHeroInstance;
 class CGTownInstance;
 class CHeroWindow;
-template <typename T=CAdvMapInt>
-class AdventureMapButton 
-	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase
-{
-public:
-	std::string name; //for status bar 
-	std::string helpBox; //for right-click help
-	char key; //key shortcut
-	T* owner;
-	void (T::*function)(); //function in CAdvMapInt called when this button is pressed, different for each button
-	bool colorChange;
-
-	void clickRight (tribool down);
-	void clickLeft (tribool down);
-	void hover (bool on);
-	void keyPressed (SDL_KeyboardEvent & key);
-	void activate(); // makes button active
-	void deactivate(); // makes button inactive (but doesn't delete)
-
-	AdventureMapButton(); //c-tor
-	AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = true );//c-tor
-};
 /*****************************/
 class CMinimap
 	: public ClickableL, public ClickableR, public Hoverable, public MotionInterested, public virtual CIntObject

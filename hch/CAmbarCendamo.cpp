@@ -1951,7 +1951,18 @@ void CAmbarCendamo::deh3m()
 							}
 						}
 					}
+					for(int byte=6;byte<12;byte++)
+					{
+						for(int bit=0;bit<8;bit++)
+						{
+							if(spec->buildingSettings[byte] & (1<<bit))
+							{
+								nt->forbiddenBuildings.insert(byte*8+bit);
+							}
+						}
+					}
 					nt->builtBuildings = convertBuildings(nt->h3mbuildings,nt->subID);
+					nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,nt->subID);
 				}
 				else
 				{

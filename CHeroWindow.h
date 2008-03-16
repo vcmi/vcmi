@@ -1,6 +1,5 @@
 #pragma once
 #include "CPlayerInterface.h"
-#include "CAdvmapInterface.h"
 
 template <typename T> class AdventureMapButton;
 struct SDL_Surface;

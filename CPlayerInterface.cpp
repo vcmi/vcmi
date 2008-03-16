@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CPlayerInterface.h"
-#include "CAdvMapInterface.h"
+#include "CAdvmapInterface.h"
 #include "CMessage.h"
 #include "mapHandler.h"
 #include "SDL_Extensions.h"

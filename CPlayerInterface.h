@@ -74,6 +74,7 @@ class ClickableL : public virtual CIntObject  //for left-clicks
 public:
 	bool pressedL;
 	ClickableL();
+	virtual ~ClickableL(){};
 	virtual void clickLeft (tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -83,6 +84,7 @@ class ClickableR : public virtual CIntObject //for right-clicks
 public:
 	bool pressedR;
 	ClickableR();
+	virtual ~ClickableR(){};
 	virtual void clickRight (tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -91,6 +93,7 @@ class Hoverable  : public virtual CIntObject
 {
 public:
 	Hoverable(){hovered=false;}
+	virtual ~Hoverable(){};
 	bool hovered;
 	virtual void hover (bool on)=0;
 	virtual void activate()=0;
@@ -99,6 +102,7 @@ public:
 class KeyInterested : public virtual CIntObject
 {
 public:
+	virtual ~KeyInterested(){};
 	virtual void keyPressed (SDL_KeyboardEvent & key)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -106,6 +110,7 @@ public:
 class MotionInterested: public virtual CIntObject
 {
 public:
+	virtual ~MotionInterested(){};
 	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -113,6 +118,7 @@ public:
 class TimeInterested: public virtual CIntObject
 {
 public:
+	virtual ~TimeInterested(){};
 	int toNextTick;
 	virtual void tick()=0;
 	virtual void activate();

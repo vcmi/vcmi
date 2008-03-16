@@ -76,7 +76,8 @@ public:
 	{
 	public:
 		int ID;
-		int state;//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
+		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build
+		//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
 		void hover(bool on);
 		void clickLeft (tribool down);
 		void clickRight (tribool down);
@@ -88,9 +89,23 @@ public:
 		~CBuildingBox();
 	};
 
+	class CBuildWindow: public IShowable, public CIntObject
+	{
+	public: 
+		int tid, bid, state; //town id, building id, state
+		bool mode; // 0 - normal (with buttons), 1 - r-click popup
+		SDL_Surface * bitmap; //main window bitmap, with blitted res/text, without buttons/subtitle in "statusbar"
+
+		void activate();
+		void deactivate();
+		void show(SDL_Surface * to=NULL);
+		CBuildWindow(int Tid, int Bid, int State, bool Mode);
+		~CBuildWindow();
+	};
+
 	CDefEssential *bars, //0 - yellow, 1 - green, 2 - red, 3 - gray
 		*status; //0 - already, 1 - can't, 2 - lack of resources
-	std::vector<CBuildingBox*> boxes[5];
+	std::vector< std::vector<CBuildingBox*> >boxes;
 
 	AdventureMapButton<CHallInterface> * exit;
 

@@ -390,7 +390,7 @@ public:
 	int income;
 	
 	//TODO:
-	std::set<int> possibleBuildings, builtBuildings, h3mbuildings;
+	std::set<int> forbiddenBuildings, builtBuildings, h3mbuildings;
 	std::vector<int> creatureIncome; //vector by level - that valueis addedto thebasic growth
 	std::vector<int> creaturesLeft; //that can be recruited
 

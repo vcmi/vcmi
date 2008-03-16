@@ -19,7 +19,7 @@ void CTownHandler::loadNames()
 	ins.str(CGI->bitmaph->getTextFile("TOWNTYPE.TXT"));
 	names.str(CGI->bitmaph->getTextFile("TOWNNAME.TXT"));
 	int si=0;
-	char bufname[50];
+	char bufname[75];
 	while (!ins.eof())
 	{
 		CTown town;
@@ -221,6 +221,33 @@ void CTownHandler::loadNames()
 			of >> tid >> lid >> cid;
 			if(lid < towns[tid].basicCreatures.size())
 				towns[tid].basicCreatures[lid]=cid;
+		}
+		of.close();
+		of.clear();
+
+		
+		of.open("config/requirements.txt");
+		while(!of.eof())
+		{
+			int ile, town, build, pom;
+			of >> ile;
+			for(int i=0;i<ile;i++)
+			{
+				of >> town;
+				while(true)
+				{
+					of.getline(bufname,75);
+					std::istringstream ifs(bufname);
+					ifs >> build;
+					if(build<0)
+						break;
+					while(!ifs.eof())
+					{
+						ifs >> pom;
+						requirements[town][build].insert(pom);
+					}
+				}
+			}
 		}
 		of.close();
 		of.clear();

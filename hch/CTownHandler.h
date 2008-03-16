@@ -7,7 +7,7 @@
 #include "../int3.h"
 #include <string>
 #include <vector>
-
+#include <set>
 class CBuilding;
 class CSpell;
 class CHero;
@@ -50,7 +50,7 @@ public:
 	static int getTypeByDefName(std::string name);
 
 	std::map<int,std::map<int, Structure*> > structures; // <town ID, <structure ID, structure>>
-
+	std::map<int, std::map<int,std::set<int> > > requirements; //requirements[town_id][structure_id] -> set of required buildings
 
 	std::vector<CGTownInstance *> townInstances;
 
