@@ -82,7 +82,7 @@ private:
 	char id[2];
 	std::string defName, curDir;
 	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
-	void putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc);
+	void putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc) const;
 
 	////////////
 

@@ -783,10 +783,10 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	//frame number increased
 
 	long BaseOffset, 
-		SpriteWidth, SpriteHeight, //format sprite'a
+		SpriteWidth, SpriteHeight, //sprite format
 		LeftMargin, RightMargin, TopMargin,BottomMargin,
 		i, add, FullHeight,FullWidth,
-		TotalRowLength, // dlugosc przeczytanego segmentu
+		TotalRowLength, // length of read segment
 		NextSpriteOffset, RowAdd;
 	unsigned char SegmentType, SegmentLength;
 	
@@ -807,17 +807,6 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	int BaseOffsetor = BaseOffset = i;
 
 	int ftcp = 0;
-
-	SDL_Surface * hlps = SDL_CreateRGBSurface(dest->flags, FullWidth+add, FullHeight, 8, 0, 0, 0, 0);
-
-	for(int b=0; b<256; ++b)
-	{
-		hlps->format->palette->ncolors = 256;
-		hlps->format->palette->colors[b].r = palette[b].R;
-		hlps->format->palette->colors[b].g = palette[b].G;
-		hlps->format->palette->colors[b].b = palette[b].B;
-		hlps->format->palette->colors[b].unused = palette[b].F;
-	}
 
 	if (defType2==1) //as it should be allways in creature animations
 	{
@@ -849,8 +838,13 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 				{
 					for (int k=0;k<=SegmentLength;k++)
 					{
-						((char*)(hlps->pixels))[ftcp++]=FDef[BaseOffset+k];
-						//putPixel(dest, ftcp++, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k]);
+						int xB = (attacker ? ftcp%(FullWidth+add) : (FullWidth+add) - ftcp%(FullWidth+add) - 1) + x;
+						int yB = ftcp/(FullWidth+add) + y;
+						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
+						{
+							putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k]);
+						}
+						ftcp++; //increment pos
 						if ((TotalRowLength+k+1)>=SpriteWidth)
 							break;
 					}
@@ -861,8 +855,13 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 				{
 					for (int k=0;k<SegmentLength+1;k++)
 					{
-						((char*)(hlps->pixels))[ftcp++]=SegmentType;
-						//putPixel(dest, ftcp++, palette[SegmentType], SegmentType);
+						int xB = (attacker ? ftcp%(FullWidth+add) : (FullWidth+add) - ftcp%(FullWidth+add) - 1) + x;
+						int yB = ftcp/(FullWidth+add) + y;
+						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
+						{
+							putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType);
+						}
+						ftcp++; //increment pos
 					}
 					TotalRowLength+=SegmentLength+1;
 				}
@@ -884,16 +883,6 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 			ftcp += BottomMargin * (FullWidth+add);
 		}
 	}
-	if(!attacker)
-	{
-		SDL_Surface * h2 = CSDL_Ext::rotate01(hlps);
-		SDL_FreeSurface(hlps);
-		hlps = h2;
-	}
-	CSDL_Ext::alphaTransform(hlps);
-
-	CSDL_Ext::blit8bppAlphaTo24bpp(hlps, NULL, dest, &genRect(hlps->h, hlps->w, x, y));
-	SDL_FreeSurface(hlps);
 
 	//for (int i=0; i<FullHeight; ++i)
 	//{
@@ -942,13 +931,60 @@ CCreatureAnimation::~CCreatureAnimation()
 		delete [] RLEntries;
 }
 
-void CCreatureAnimation::putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc)
+void CCreatureAnimation::putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc) const
 {
 	if(palc!=0)
 	{
-		Uint8 * p = (Uint8*)dest->pixels + ftcp*3 ;
-		p[0] = color.R;
-		p[1] = color.G;
-		p[2] = color.B;
+		Uint8 * p = (Uint8*)dest->pixels + ftcp*3;
+		if(palc > 7) //normal color
+		{
+			p[0] = color.B;
+			p[1] = color.G;
+			p[2] = color.R;
+		}
+		else if(palc == 6 || palc == 7) //dark yellow border
+		{
+			p[0] = 0;
+			p[1] = 0xff;
+			p[2] = 0xff;
+		}
+		else if(palc == 5) //yellow border
+		{
+			p[0] = color.B;
+			p[1] = color.G;
+			p[2] = color.R;
+		}
+		else if(palc < 5) //shadow
+		{
+			Uint16 alpha;
+			switch(color.G)
+			{
+			case 0:
+				alpha = 128;
+				break;
+			case 50:
+				alpha = 50+32;
+				break;
+			case 100:
+				alpha = 100+64;
+				break;
+			case 125:
+				alpha = 125+64;
+				break;
+			case 128:
+				alpha = 128+64;
+				break;
+			case 150:
+				alpha = 150+64;
+				break;
+			default:
+				alpha = 255;
+				break;
+			}
+			//alpha counted
+			p[0] = (p[0] * alpha)>>8;
+			p[1] = (p[1] * alpha)>>8;
+			p[2] = (p[2] * alpha)>>8;
+		}
 	}
 }
