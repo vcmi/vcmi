@@ -56,7 +56,7 @@ void CMusicHandler::initMusics()
 	click = Mix_LoadWAV("MP3\\snd1.wav");
 	click->volume = 30;
 
-	this->sndPlayer = new CSndPlayer();
+	this->sndh = new CSndHandler(std::string("Data\\Heroes3.snd"));
 }
 
 void CMusicHandler::playClick()
@@ -69,7 +69,25 @@ void CMusicHandler::playClick()
 	}
 }
 
-bool CMusicHandler::playLodSnd(std::string sndname)
+void CMusicHandler::playLodSnd(std::string sndname)
 {
-	return this->sndPlayer->playLodSnd(sndname);
+	int size;
+	unsigned char *data;
+	SDL_RWops *ops;
+	Mix_Chunk *chunk;
+	int channel;
+
+	if ((data = sndh->extract(sndname, size)) == NULL)
+		return;
+
+	ops = SDL_RWFromConstMem(data, size);
+	chunk = Mix_LoadWAV_RW(ops, 1);
+	
+	channel = Mix_PlayChannel(-1, chunk, 0);
+	if(channel == -1)
+	{
+		fprintf(stderr, "Unable to play WAV file(Data\\Heroes3.wav::%s): %s\n",
+			sndname.c_str(),Mix_GetError());
+	}
+	ops->close(ops);
 }
