@@ -55,6 +55,8 @@ void CMusicHandler::initMusics()
 	
 	click = Mix_LoadWAV("MP3\\snd1.wav");
 	click->volume = 30;
+
+	this->sndPlayer = new CSndPlayer();
 }
 
 void CMusicHandler::playClick()
@@ -65,4 +67,9 @@ void CMusicHandler::playClick()
 	{
 		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
 	}
+}
+
+bool CMusicHandler::playLodSnd(std::string sndname)
+{
+	return this->sndPlayer->playLodSnd(sndname);
 }

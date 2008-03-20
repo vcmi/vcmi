@@ -5,6 +5,7 @@
 CSndHandler::~CSndHandler()
 {
 	entries.clear();
+	fimap.clear();
 	file.close();
 }
 CSndHandler::CSndHandler(std::string fname):CHUNK(65535)
@@ -36,6 +37,7 @@ CSndHandler::CSndHandler(std::string fname):CHUNK(65535)
 		entry.offset = readNormalNr(-1,4);
 		entry.size = readNormalNr(-1,4);
 		entries.push_back(entry);
+		fimap[entry.name] = i;
 	}
 }
 int CSndHandler::readNormalNr (int pos, int bytCon)
@@ -122,6 +124,19 @@ unsigned char * CSndHandler::extract (int index, int & size)
 	file.seekg(entries[index].offset,std::ios_base::beg);
 	file.read((char*)ret,entries[index].size);
 	return ret;
+}
+
+unsigned char * CSndHandler::extract (std::string srcName, int &size)
+{
+	int index;
+	std::map<std::string, int>::iterator fit;
+	if ((fit = fimap.find(srcName)) != fimap.end())
+	{
+		index = fit->second;
+		return this->extract(index, size);
+	}
+	size = 0;
+	return NULL;
 }
 
 
