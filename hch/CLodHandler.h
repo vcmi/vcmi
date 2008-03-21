@@ -25,8 +25,8 @@ namespace NLoadHandlerHelp
 struct Entry
 {
 	unsigned char name[12], //filename
-		hlam_1[4], //
-		hlam_2[4]; //
+		hlam_1[4], //???
+		hlam_2[4]; //probably type of file
 	std::string nameStr;
 	int offset, //from beginning
 		realSize, //size without compression

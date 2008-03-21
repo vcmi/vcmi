@@ -11,6 +11,7 @@
 #include <sstream>
 #include "CMessage.h"
 #include "hch/CGeneralTextHandler.h"
+extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str)
 {	
@@ -539,6 +540,7 @@ void CHallInterface::CResDataBar::show(SDL_Surface * to)
 CHallInterface::CResDataBar::CResDataBar()
 {
 	bg = CGI->bitmaph->loadBitmap("Z2ESBAR.bmp");
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	CSDL_Ext::blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos.x = 7;
 	pos.y = 575;
@@ -557,7 +559,7 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	{
 		std::string toPrint = CGI->townh->hcommands[state];
 		std::vector<std::string> name;
-		name.push_back(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][ID]->name);
+		name.push_back(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->name);
 		LOCPLINT->statusbar->print(CSDL_Ext::processStr(toPrint,name));
 	}
 	else
@@ -565,13 +567,25 @@ void CHallInterface::CBuildingBox::hover(bool on)
 }
 void CHallInterface::CBuildingBox::clickLeft (tribool down)
 {
+	if(pressedL && (!down))
+	{
+		LOCPLINT->castleInt->hallInt->deactivate();
+		new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,0);
+	}
+	ClickableL::clickLeft(down);
 }
 void CHallInterface::CBuildingBox::clickRight (tribool down)
 {
+	if(down)
+	{
+		LOCPLINT->castleInt->hallInt->deactivate();
+		new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,1);
+	}
+	ClickableR::clickRight(down);
 }
 void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 {
-	blitAt(LOCPLINT->castleInt->bicons->ourImages[ID].bitmap,pos.x,pos.y);
+	blitAt(LOCPLINT->castleInt->bicons->ourImages[BID].bitmap,pos.x,pos.y);
 	int pom, pom2=-1;
 	switch (state)
 	{
@@ -597,7 +611,7 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 	blitAt(LOCPLINT->castleInt->hallInt->bars->ourImages[pom].bitmap,pos.x-1,pos.y+71);
 	if(pom2>=0)
 		blitAt(LOCPLINT->castleInt->hallInt->status->ourImages[pom2].bitmap,pos.x+135, pos.y+54);
-	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][ID]->name,pos.x-1+LOCPLINT->castleInt->hallInt->bars->ourImages[0].bitmap->w/2,pos.y+71+LOCPLINT->castleInt->hallInt->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly);
+	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->name,pos.x-1+LOCPLINT->castleInt->hallInt->bars->ourImages[0].bitmap->w/2,pos.y+71+LOCPLINT->castleInt->hallInt->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly);
 }
 void CHallInterface::CBuildingBox::activate()
 {
@@ -615,13 +629,13 @@ CHallInterface::CBuildingBox::~CBuildingBox()
 {
 }
 CHallInterface::CBuildingBox::CBuildingBox(int id)
-	:ID(id)
+	:BID(id)
 {
 	pos.w = 150;
 	pos.h = 70;
 }
 CHallInterface::CBuildingBox::CBuildingBox(int id, int x, int y)
-	:ID(id)
+	:BID(id)
 {
 	pos.x = x;
 	pos.y = y;
@@ -638,6 +652,8 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	status = CGI->spriteh->giveDefEss("TPTHCHK.DEF");
 	exit = new AdventureMapButton<CHallInterface>
 		(CGI->townh->tcommands[8],"",&CHallInterface::close,748,556,"TPMAGE1.DEF",this,false,NULL,false);
+
+	//preparing boxes with buildings//
 	boxes.resize(5);
 	for(int i=0;i<5;i++) //for each row
 	{
@@ -666,8 +682,17 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 					if(owner->town->forbiddenBuildings.find(CGI->buildh->hall[owner->town->subID].second[i][j][k])!=owner->town->forbiddenBuildings.end())
 						boxes[i][boxes[i].size()-1]->state = 2; //forbidden
 					else if(owner->town->builded >= MAX_BUILDING_PER_TURN)
-						boxes[i][boxes[i].size()-1]->state = 4; //already built
+						boxes[i][boxes[i].size()-1]->state = 5; //already built
 
+					//checking resources
+					CBuilding * pom = CGI->buildh->buildings[owner->town->subID][CGI->buildh->hall[owner->town->subID].second[i][j][k]];
+					for(int res=0;res<7;res++) //TODO: support custom amount of resources
+					{
+						if(pom->resources[res]>LOCPLINT->cb->getResourceAmount(res))
+							boxes[i][boxes[i].size()-1]->state = 6; //lack of res
+					}
+
+					//checking for requirements
 					for( std::set<int>::iterator ri  =  CGI->townh->requirements[owner->town->subID][ID].begin();
 						 ri != CGI->townh->requirements[owner->town->subID][ID].end();
 						 ri++ )
@@ -679,13 +704,6 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 					//TODO: check if capital is already built, check if there is water for shipyard
 					
 
-					CBuilding * pom = CGI->buildh->buildings[owner->town->subID][CGI->buildh->hall[owner->town->subID].second[i][j][k]];
-
-					for(int res=0;res<7;res++) //TODO: support custom amount of resources
-					{
-						if(pom->resources[res]>LOCPLINT->cb->getResourceAmount(res))
-							boxes[i][boxes[i].size()-1]->state = 6; //lack of res
-					}
 
 
 					break;
@@ -746,7 +764,6 @@ void CHallInterface::deactivate()
 		for(int j=0;j<boxes[i].size();j++)
 		{
 			boxes[i][j]->deactivate();
-			delete boxes[i][j];
 		}
 	}
 	exit->deactivate();
@@ -754,19 +771,101 @@ void CHallInterface::deactivate()
 
 void CHallInterface::CBuildWindow::activate()
 {
+	buy->activate();
+	cancel->activate();
+	ClickableR::activate();
+	LOCPLINT->objsToBlit.push_back(this);
 }
 void CHallInterface::CBuildWindow::deactivate()
 {
+	buy->deactivate();
+	cancel->deactivate();
+	ClickableR::deactivate();
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+}
+void CHallInterface::CBuildWindow::Buy()
+{
+	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,bid);
+	close();
+}
+void CHallInterface::CBuildWindow::close()
+{
+	deactivate();
+	delete this;
+	LOCPLINT->castleInt->hallInt->activate();
+	LOCPLINT->castleInt->hallInt->show();
+}
+void CHallInterface::CBuildWindow::clickRight (tribool down)
+{
+	if((!down || indeterminate(down)) && mode)
+		close();
 }
 void CHallInterface::CBuildWindow::show(SDL_Surface * to)
 {
+	SDL_Rect pom = genRect(bitmap->h-1,bitmap->w-1,pos.x,pos.y);
+	SDL_Rect poms = pom; poms.x=0;poms.y=0;
+	SDL_BlitSurface(bitmap,&poms,to?to:ekran,&pom);
+	buy->show();
+	cancel->show();
+}
+std::string getTextForState(int state)
+{
+	if(state<7)
+		return CGI->townh->hcommands[state];
+	switch (state)
+	{
+	case 7:
+		return CGI->generaltexth->allTexts[219]; //all prereq. are met
+	default:
+		return "Error, wrong state!";
+	}
 }
 CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mode)
 :tid(Tid),bid(Bid),mode(Mode), state(State)
 {
-	bitmap = CGI->bitmaph->loadBitmap("TPUBUILD.bmp");
+	SDL_Surface *hhlp = CGI->bitmaph->loadBitmap("TPUBUILD.bmp");
+	bitmap = SDL_ConvertSurface(hhlp,ekran->format,0); //na 8bitowej mapie by sie psulo
+	SDL_SetColorKey(hhlp,SDL_SRCCOLORKEY,SDL_MapRGB(hhlp->format,0,255,255));
+	SDL_FreeSurface(hhlp);
+	pos.x = ekran->w/2 - bitmap->w/2;
+	pos.y = ekran->h/2 - bitmap->h/2;
 	CSDL_Ext::blueToPlayersAdv(bitmap,LOCPLINT->playerID);
+	blitAt(LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,125,50,bitmap);
+	std::vector<std::string> pom; pom.push_back(CGI->buildh->buildings[tid][bid]->name);
+	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->description,197,168,GEOR16,40,zwykly,bitmap);
+	CSDL_Ext::printAtMiddleWB(getTextForState(state),197,248,GEOR13,50,zwykly,bitmap);
+	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(CGI->townh->hcommands[7],pom),197,30,GEOR16,tytulowy,bitmap);
+	int resamount=0; for(int i=0;i<7;i++) if(CGI->buildh->buildings[tid][bid]->resources[i]) resamount++;
+	int ah = (resamount>4) ? 304 : 341;
+	int cn=-1, it=0;
+	int row1w = std::min(resamount,4) * 32 + (std::min(resamount,4)-1) * 45,
+		row2w = (resamount-4) * 32 + (resamount-5) * 45;
+	char buf[15];
+	while(++cn<7)
+	{
+		if(!CGI->buildh->buildings[tid][bid]->resources[cn])
+			continue;
+		itoa(CGI->buildh->buildings[tid][bid]->resources[cn],buf,10);
+		if(it<4)
+		{
+			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row1w/2)+77*it+16,ah+42,GEOR16,zwykly,bitmap);
+			blitAt(CGI->townh->resources->ourImages[cn].bitmap,(bitmap->w/2-row1w/2)+77*it++,ah,bitmap);
+		}
+		else
+		{
+			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row2w/2)+77*it+16-308,ah+42,GEOR16,zwykly,bitmap);
+			blitAt(CGI->townh->resources->ourImages[cn].bitmap,(bitmap->w/2-row2w/2)+77*it++ - 308,ah,bitmap);
+		}
+		if(it==4)
+			ah+=75;
+	}
+	buy = new AdventureMapButton<CBuildWindow>("","",&CBuildWindow::Buy,pos.x+45,pos.y+446,"IBUY30.DEF",this,true,NULL,false);
+	cancel = new AdventureMapButton<CBuildWindow>("","",&CBuildWindow::close,pos.x+290,pos.y+445,"ICANCEL.DEF",this,true,NULL,false);
+	activate();
 }
 CHallInterface::CBuildWindow::~CBuildWindow()
 {
+	SDL_FreeSurface(bitmap);
+	delete buy;
+	delete cancel;
 }

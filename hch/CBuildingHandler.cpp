@@ -166,7 +166,7 @@ void CBuildingHandler::loadBuildings()
 					it = last + 1;
 					ss >> last;
 					(hall[tid].second)[j][box].push_back(last);
-					areboxes = it; //wyzeruje jak nie znajdzie kolejnej zpasji = koniec linii
+					areboxes = it; //wyzeruje jak nie znajdzie kolejnej spacji = koniec linii
 					if(!it)
 						it = seppos+1;
 				}

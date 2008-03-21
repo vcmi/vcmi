@@ -7,6 +7,7 @@
 CTownHandler::CTownHandler()
 {
 	smallIcons = CGI->spriteh->giveDef("ITPA.DEF");
+	resources = CGI->spriteh->giveDef("RESOURCE.DEF");
 }
 CTownHandler::~CTownHandler()
 {
@@ -236,7 +237,7 @@ void CTownHandler::loadNames()
 				of >> town;
 				while(true)
 				{
-					of.getline(bufname,75);
+					of.getline(bufname,75);if(!(*bufname))of.getline(bufname,75);
 					std::istringstream ifs(bufname);
 					ifs >> build;
 					if(build<0)

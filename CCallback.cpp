@@ -12,7 +12,7 @@
 #include "hch/CGeneralTextHandler.h"
 #include "CAdvmapInterface.h"
 #include "CPlayerInterface.h"
-
+#include "hch/CBuildingHandler.h"
 LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
 
 int CCallback::lowestSpeed(CGHeroInstance * chi)
@@ -49,6 +49,10 @@ void CCallback::newTurn()
 		for (int j=0;j<(*i).second.heroes.size();j++)
 		{
 			(*i).second.heroes[j]->movement = valMovePoints((*i).second.heroes[j]);
+		}
+		for(int j=0;j<i->second.towns.size();j++)
+		{
+			i->second.towns[j]->builded=0;
 		}
 	}
 }
@@ -512,6 +516,20 @@ bool CCallback::swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1,
 		std::swap(Uhero1->artifacts[pos1], Uhero2->artifacts[pos2]);
 	}
 	
+	return true;
+}
+
+bool CCallback::buildBuilding(const CGTownInstance *town, int buildingID)
+{
+	CGTownInstance * t = const_cast<CGTownInstance *>(town);
+	CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
+	//TODO: check if we are allowed to build
+
+	t->builtBuildings.insert(buildingID);
+	for(int i=0;i<7;i++)
+		gs->players[player].resources[i]-=b->resources[i];
+	t->builded++;
+
 	return true;
 }
 

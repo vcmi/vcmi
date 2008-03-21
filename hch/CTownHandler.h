@@ -39,8 +39,8 @@ struct Structure
 
 class CTownHandler
 {
-	CDefHandler * smallIcons;
 public:
+	CDefHandler * smallIcons, *resources; //resources 32x32
 	CTownHandler();
 	~CTownHandler();
 	std::vector<CTown> towns;

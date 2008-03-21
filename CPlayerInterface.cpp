@@ -729,6 +729,13 @@ ClickableR::ClickableR()
 {
 	pressedR=false;
 }
+void ClickableR::clickRight(tribool down)
+{
+	if (down)
+		pressedR=true;
+	else
+		pressedR=false;
+}
 void ClickableR::activate()
 {
 	LOCPLINT->rclickable.push_back(this);

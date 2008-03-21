@@ -75,7 +75,7 @@ public:
 	class CBuildingBox : public Hoverable, public ClickableL, public ClickableR
 	{
 	public:
-		int ID;
+		int BID;
 		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build
 		//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
 		void hover(bool on);
@@ -89,16 +89,20 @@ public:
 		~CBuildingBox();
 	};
 
-	class CBuildWindow: public IShowable, public CIntObject
+	class CBuildWindow: public IShowable, public ClickableR
 	{
 	public: 
 		int tid, bid, state; //town id, building id, state
 		bool mode; // 0 - normal (with buttons), 1 - r-click popup
 		SDL_Surface * bitmap; //main window bitmap, with blitted res/text, without buttons/subtitle in "statusbar"
+		AdventureMapButton<CBuildWindow> *buy, *cancel;
 
 		void activate();
 		void deactivate();
+		void clickRight (tribool down);
 		void show(SDL_Surface * to=NULL);
+		void Buy();
+		void close();
 		CBuildWindow(int Tid, int Bid, int State, bool Mode);
 		~CBuildWindow();
 	};
