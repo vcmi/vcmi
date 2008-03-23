@@ -4,7 +4,7 @@
 #include <algorithm>
 #include "SDL_Thread.h"
 #include "SDL_Extensions.h"
-
+#include <queue>
 
 
 class CMP_stack
@@ -206,4 +206,80 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 		delete stacks[i];
 	delete curB;
 	curB = NULL;
+}
+
+bool CGameState::battleMoveCreatureStack(int ID, int dest)
+{
+	//initing necessary tables
+	bool accessibility[187]; //accesibility of hexes
+	for(int k=0; k<187; k++)
+		accessibility[k] = true;
+	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
+	{
+		accessibility[CGI->state->curB->stacks[g]->position] = false;
+	}
+	int predecessor[187]; //for getting the Path
+	for(int b=0; b<187; ++b)
+		predecessor[b] = -1;
+	//bfsing
+	int dists[187]; //calculated distances
+	std::queue<int> hexq; //bfs queue
+	hexq.push(CGI->state->curB->stacks[ID]->position);
+	for(int g=0; g<187; ++g)
+		dists[g] = 100000000;
+	dists[hexq.front()] = 0;
+	while(!hexq.empty()) //bfs loop
+	{
+		int curHex = hexq.front();
+		hexq.pop();
+		if((curHex - 18 > 0) && accessibility[curHex-18]  && (dists[curHex] + 1 < dists[curHex-18]) && (curHex-18)%17!=0 && (curHex-18)%17!=16) //top left
+		{
+			hexq.push(curHex - 18);
+			dists[curHex-18] = dists[curHex] + 1;
+			predecessor[curHex-18] = curHex;
+		}
+		if((curHex - 17 > 0) && accessibility[curHex-17]  && (dists[curHex] + 1 < dists[curHex-17]) && (curHex-17)%17!=0 && (curHex-17)%17!=16) //top right
+		{
+			hexq.push(curHex - 17);
+			dists[curHex-17] = dists[curHex] + 1;
+			predecessor[curHex-17] = curHex;
+		}
+		if((curHex - 1 > 0) && accessibility[curHex-1]  && (dists[curHex] + 1 < dists[curHex-1]) && (curHex-1)%17!=0 && (curHex-1)%17!=16) //left
+		{
+			hexq.push(curHex - 1);
+			dists[curHex-1] = dists[curHex] + 1;
+			predecessor[curHex-1] = curHex;
+		}
+		if((curHex + 1 < 187) && accessibility[curHex+1]  && (dists[curHex] + 1 < dists[curHex+1]) && (curHex+1)%17!=0 && (curHex+1)%17!=16) //right
+		{
+			hexq.push(curHex + 1);
+			dists[curHex+1] = dists[curHex] + 1;
+			predecessor[curHex+1] = curHex;
+		}
+		if((curHex + 17 < 187) && accessibility[curHex+17]  && (dists[curHex] + 1 < dists[curHex+17]) && (curHex+17)%17!=0 && (curHex+17)%17!=16) //bottom left
+		{
+			hexq.push(curHex + 17);
+			dists[curHex+17] = dists[curHex] + 1;
+			predecessor[curHex+17] = curHex;
+		}
+		if((curHex + 18 < 187) && accessibility[curHex+18]  && (dists[curHex] + 1 < dists[curHex+18]) && (curHex+18)%17!=0 && (curHex+18)%17!=16) //bottom right
+		{
+			hexq.push(curHex + 18);
+			dists[curHex+18] = dists[curHex] + 1;
+			predecessor[curHex+18] = curHex;
+		}
+	}
+	//following the Path
+	std::vector<int> path;
+	int curElem = dest;
+	while(curElem!=CGI->state->curB->stacks[ID]->position)
+	{
+		path.push_back(curElem);
+		curElem = predecessor[curElem];
+	}
+	for(int v=path.size()-1; v>=0; --v)
+	{
+		LOCPLINT->battleStackMoved(ID, path[v]);
+	}
+	return true;
 }

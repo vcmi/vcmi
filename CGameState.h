@@ -87,6 +87,7 @@ private:
 		return NULL;
 	}
 	void battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2);
+	bool battleMoveCreatureStack(int ID, int dest);
 public:
 	friend CCallback;
 	friend CPathfinder;;

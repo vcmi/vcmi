@@ -743,7 +743,7 @@ int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, 
 	return ret;
 }
 
-int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame)
+int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder)
 {
 	if(dest->format->BytesPerPixel<3)
 		return -1; //not enough depth
@@ -842,7 +842,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 						int yB = ftcp/(FullWidth+add) + y;
 						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
 						{
-							putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k]);
+							putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k], yellowBorder);
 						}
 						ftcp++; //increment pos
 						if ((TotalRowLength+k+1)>=SpriteWidth)
@@ -859,7 +859,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 						int yB = ftcp/(FullWidth+add) + y;
 						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
 						{
-							putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType);
+							putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType, yellowBorder);
 						}
 						ftcp++; //increment pos
 					}
@@ -931,7 +931,7 @@ CCreatureAnimation::~CCreatureAnimation()
 		delete [] RLEntries;
 }
 
-void CCreatureAnimation::putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc) const
+void CCreatureAnimation::putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc, const bool & yellowBorder) const
 {
 	if(palc!=0)
 	{
@@ -942,13 +942,13 @@ void CCreatureAnimation::putPixel(SDL_Surface * dest, const int & ftcp, const BM
 			p[1] = color.G;
 			p[2] = color.R;
 		}
-		else if(palc == 6 || palc == 7) //dark yellow border
+		else if(yellowBorder && (palc == 6 || palc == 7)) //dark yellow border
 		{
 			p[0] = 0;
 			p[1] = 0xff;
 			p[2] = 0xff;
 		}
-		else if(palc == 5) //yellow border
+		else if(yellowBorder && (palc == 5)) //yellow border
 		{
 			p[0] = color.B;
 			p[1] = color.G;

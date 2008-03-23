@@ -550,6 +550,20 @@ std::map<int, CStack> CCallback::battleGetStacks()
 	return ret;
 }
 
+CCreature CCallback::battleGetCreature(int number)
+{
+	return *(CGI->state->curB->stacks[number]->creature);
+}
+
+bool CCallback::battleMoveCreature(int ID, int dest)
+{
+	//checking parameters
+	if(dest<0 || dest > 187 || ID<0 || ID>=CGI->state->curB->stacks.size())
+		return false;
+	
+	return CGI->state->battleMoveCreatureStack(ID, dest); //everything finished successfully
+}
+
 int3 CScriptCallback::getPos(CGObjectInstance * ob)
 {
 	return ob->pos;

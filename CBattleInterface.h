@@ -54,6 +54,8 @@ private:
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order like in BattleInfo's stacks)
 	unsigned char animCount;
+	int activeStack; //number of active stack; -1 - no one
+	void showRange(SDL_Surface * to, int initialPlace, int radius); //show helper funtion ot mark range of a unit
 
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
@@ -82,6 +84,8 @@ public:
 	void show(SDL_Surface * to);
 
 	//call-ins
-	void newStack(CStack stack);
-	void stackRemoved(CStack stack);
+	void newStack(CStack stack); //new stack appeared on battlefield
+	void stackRemoved(CStack stack); //stack disappeared from batlefiled
+	void stackActivated(int number); //active stack has been changed
+	void stackMoved(int number, int destHex); //stack with id number moved to destHex
 };

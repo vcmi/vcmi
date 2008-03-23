@@ -100,6 +100,8 @@ public:
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	int battleMakeAction(Action* action);//perform action with an active stack (or custom action)
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
+	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
+	bool battleMoveCreature(int ID, int dest); //moves creature with id ID to dest if possible
 	
 
 //friends

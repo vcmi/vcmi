@@ -8,12 +8,13 @@
 #include "hch\CDefHandler.h"
 #include "CCallback.h"
 #include "CGameState.h"
+#include <queue>
 
 extern SDL_Surface * screen;
 SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2) 
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1)
 {
 	//initializing armies
 	this->army1 = army1;
@@ -79,7 +80,14 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		int x = 14 + ((h/17)%2==0 ? 22 : 0) + 44*(h%17);
 		int y = 86 + 42 * (h/17);
 		bfield[h].pos = genRect(cellShade->h, cellShade->w, x, y);
+		bfield[h].accesible = true;
 	}
+	//locking occupied positions on batlefield
+	for(std::map<int, CStack>::iterator it = stacks.begin(); it!=stacks.end(); ++it) //stacks gained at top of this function
+	{
+		bfield[it->second.position].accesible = false;
+	}
+	
 }
 
 CBattleInterface::~CBattleInterface()
@@ -142,6 +150,7 @@ void CBattleInterface::deactivate()
 
 void CBattleInterface::show(SDL_Surface * to)
 {
+	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks(); //used in a few places
 	++animCount;
 	if(!to) //"evaluating" to
 		to = screen;
@@ -170,6 +179,15 @@ void CBattleInterface::show(SDL_Surface * to)
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
 		}
 	}
+	//showing selected unit's range
+	for(std::map<int, CCreatureAnimation*>::iterator j=creAnims.begin(); j!=creAnims.end(); ++j)
+	{
+		if(j->first == activeStack) //print range of selected unit //TODO: check if it is to be done
+		{
+			showRange(to, stacks[j->first].position, LOCPLINT->cb->battleGetCreature(j->first).speed);
+			break;
+		}
+	}
 	//showing menu background
 	blitAt(menu, 0, 556, to);
 
@@ -191,11 +209,10 @@ void CBattleInterface::show(SDL_Surface * to)
 		defendingHero->show(to);
 
 	//showing units //a lot of work...
-	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
 	for(std::map<int, CCreatureAnimation*>::iterator j=creAnims.begin(); j!=creAnims.end(); ++j)
 	{
 		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(stacks[j->first].position, stacks[j->first].owner == attackingHeroInstance->tempOwner);
-		j->second->nextFrame(to, coords.first, coords.second, stacks[j->first].owner == attackingHeroInstance->tempOwner, animCount%2==0);
+		j->second->nextFrame(to, coords.first, coords.second, stacks[j->first].owner == attackingHeroInstance->tempOwner, animCount%2==0, j->first==activeStack);
 	}
 	//units shown
 
@@ -259,6 +276,67 @@ void CBattleInterface::stackRemoved(CStack stack)
 {
 	delete creAnims[stack.ID];
 	creAnims.erase(stack.ID);
+}
+
+void CBattleInterface::stackActivated(int number)
+{
+	activeStack = number;
+}
+
+void CBattleInterface::stackMoved(int number, int destHex)
+{
+}
+
+void CBattleInterface::showRange(SDL_Surface * to, int initialPlace, int radius)
+{
+	int dists[187]; //calculated distances
+	std::queue<int> hexq; //bfs queue
+	hexq.push(initialPlace);
+	for(int g=0; g<187; ++g)
+		dists[g] = 100000000;
+	dists[initialPlace] = 0;
+	while(!hexq.empty()) //bfs loop
+	{
+		int curHex = hexq.front();
+		hexq.pop();
+		if((curHex - 18 > 0) && bfield[curHex-18].accesible  && (dists[curHex] + 1 < dists[curHex-18]) && (curHex-18)%17!=0 && (curHex-18)%17!=16) //top left
+		{
+			hexq.push(curHex - 18);
+			dists[curHex-18] = dists[curHex] + 1;
+		}
+		if((curHex - 17 > 0) && bfield[curHex-17].accesible  && (dists[curHex] + 1 < dists[curHex-17]) && (curHex-17)%17!=0 && (curHex-17)%17!=16) //top right
+		{
+			hexq.push(curHex - 17);
+			dists[curHex-17] = dists[curHex] + 1;
+		}
+		if((curHex - 1 > 0) && bfield[curHex-1].accesible  && (dists[curHex] + 1 < dists[curHex-1]) && (curHex-1)%17!=0 && (curHex-1)%17!=16) //left
+		{
+			hexq.push(curHex - 1);
+			dists[curHex-1] = dists[curHex] + 1;
+		}
+		if((curHex + 1 < 187) && bfield[curHex+1].accesible  && (dists[curHex] + 1 < dists[curHex+1]) && (curHex+1)%17!=0 && (curHex+1)%17!=16) //right
+		{
+			hexq.push(curHex + 1);
+			dists[curHex+1] = dists[curHex] + 1;
+		}
+		if((curHex + 17 < 187) && bfield[curHex+17].accesible  && (dists[curHex] + 1 < dists[curHex+17]) && (curHex+17)%17!=0 && (curHex+17)%17!=16) //bottom left
+		{
+			hexq.push(curHex + 17);
+			dists[curHex+17] = dists[curHex] + 1;
+		}
+		if((curHex + 18 < 187) && bfield[curHex+18].accesible  && (dists[curHex] + 1 < dists[curHex+18]) && (curHex+18)%17!=0 && (curHex+18)%17!=16) //bottom right
+		{
+			hexq.push(curHex + 18);
+			dists[curHex+18] = dists[curHex] + 1;
+		}
+	}
+	for(int i=0; i<187; ++i)
+	{
+		if(dists[i]<=radius)
+		{
+			CSDL_Ext::blit8bppAlphaTo24bpp(CBattleInterface::cellShade, NULL, to, &bfield[i].pos);
+		}
+	}
 }
 
 void CBattleHero::show(SDL_Surface *to)

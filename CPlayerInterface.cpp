@@ -1900,6 +1900,7 @@ void CPlayerInterface::actionFinished(Action action)//occurs AFTER every action 
 void CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
 	unsigned char showCount = 0;
+	((CBattleInterface*)curint)->stackActivated(stackID);
 	while(true)
 	{
 		++showCount;
@@ -1932,6 +1933,11 @@ void CPlayerInterface::activeStack(int stackID) //called when it's turn of that 
 
 void CPlayerInterface::battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner)
 {
+}
+
+void CPlayerInterface::battleStackMoved(int ID, int dest)
+{
+	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest);
 }
 
 void CPlayerInterface::showComp(SComponent comp)

@@ -82,7 +82,7 @@ private:
 	char id[2];
 	std::string defName, curDir;
 	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
-	void putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc) const;
+	void putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc, const bool & yellowBorder) const;
 
 	////////////
 
@@ -97,7 +97,7 @@ public:
 	void setType(int type); //sets type of animation and cleares framecount
 	int getType() const; //returns type of animation
 
-	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true); //0 - success, any other - error //print next 
+	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false); //0 - success, any other - error //print next 
 };
 
 #endif //CCREATUREHANDLER_H
