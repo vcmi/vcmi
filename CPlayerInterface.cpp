@@ -1856,6 +1856,22 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		}
 	}
 }
+void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
+{
+	if(curint!=castleInt)
+		return;
+	if(castleInt->town!=town)
+		return;
+	switch(what)
+	{
+	case 1:
+		castleInt->addBuilding(buildingID);
+		break;
+	case 2:
+		castleInt->removeBuilding(buildingID);
+		break;
+	}
+}
 
 void CPlayerInterface::battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, tribool side) //called by engine when battle starts; side=0 - left, side=1 - right
  {

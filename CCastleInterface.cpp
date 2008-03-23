@@ -13,7 +13,7 @@
 #include "hch/CGeneralTextHandler.h"
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
-:str(Str)
+:str(Str), moi(false)
 {	
 	def = CGI->spriteh->giveDef(Str->defName);
 	pos.x = str->pos.x;
@@ -48,12 +48,16 @@ void CBuildingRect::activate()
 	Hoverable::activate();
 	ClickableL::activate();
 	ClickableR::activate();
+
 }
 void CBuildingRect::deactivate()
 {
 	Hoverable::deactivate();
 	ClickableL::deactivate();
 	ClickableR::deactivate();
+	if(moi)
+		MotionInterested::deactivate();
+	moi=false;
 }
 bool CBuildingRect::operator<(const CBuildingRect & p2) const
 {
@@ -67,11 +71,15 @@ void CBuildingRect::hover(bool on)
 	Hoverable::hover(on);
 	if(on)
 	{
-		MotionInterested::activate();
+		if(!moi)
+			MotionInterested::activate();
+		moi = true;
 	}
 	else 
 	{
-		MotionInterested::deactivate();
+		if(moi)
+			MotionInterested::deactivate();
+		moi = false;
 		if(LOCPLINT->castleInt->hBuild == this)
 		{
 			LOCPLINT->castleInt->hBuild = NULL;
@@ -214,60 +222,10 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 
 	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit->bitmapOffset = 4;
-	std::set< std::pair<int,int> > s; //group - id
 
 
 	//buildings
-	for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
-	{
-		if(CGI->townh->structures.find(town->subID) != CGI->townh->structures.end()) //we have info about structures in this town
-		{
-			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end()) //we have info about that structure
-			{
-				Structure * st = CGI->townh->structures[town->subID][*i];
-				if(st->group<0) //no group - just add it
-				{
-					buildings.push_back(new CBuildingRect(st));
-				}
-				else
-				{
-					std::set< std::pair<int,int> >::iterator obecny=s.end();
-					for(std::set< std::pair<int,int> >::iterator seti = s.begin(); seti!=s.end(); seti++) //check if we have already building from same group
-					{
-						if(seti->first == st->group)
-						{
-							obecny = seti; 
-							break;
-						}
-					}
-					if(obecny != s.end())
-					{
-						if((*(CGI->townh->structures[town->subID][obecny->second])) < (*(CGI->townh->structures[town->subID][st->ID]))) //we have to replace old building with current one
-						{
-							for(int itpb = 0; itpb<buildings.size(); itpb++)
-							{
-								if(buildings[itpb]->str->ID == obecny->second)
-								{
-									delete buildings[itpb];
-									buildings.erase(buildings.begin() + itpb);
-									obecny->second = st->ID;
-									buildings.push_back(new CBuildingRect(st));
-								}
-							}
-						}
-					}
-					else
-					{
-						buildings.push_back(new CBuildingRect(st));
-						s.insert(std::pair<int,int>(st->group,st->ID));
-					}
-				}
-			}
-			else continue;
-		}
-		else
-			break;
-	}
+	recreateBuildings();
 
 
 	//garrison
@@ -511,6 +469,83 @@ void CCastleInterface::deactivate()
 		buildings[i]->deactivate();
 }
 
+void CCastleInterface::addBuilding(int bid)
+{
+	//TODO: lepiej by bylo tylko dodawac/usuwac co trzeba pamietajac o grupach
+	recreateBuildings();
+}
+
+void CCastleInterface::removeBuilding(int bid)
+{
+	//TODO: lepiej by bylo tylko dodawac/usuwac co trzeba pamietajac o grupach
+	recreateBuildings();
+}
+
+void CCastleInterface::recreateBuildings()
+{
+	for(int i=0;i<buildings.size();i++)
+	{
+		if(showing)
+			buildings[i]->deactivate();
+		delete buildings[i];
+	}
+	buildings.clear();
+	hBuild = NULL;
+
+	std::set< std::pair<int,int> > s; //group - id
+
+
+		for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
+	{
+		if(CGI->townh->structures.find(town->subID) != CGI->townh->structures.end()) //we have info about structures in this town
+		{
+			if(CGI->townh->structures[town->subID].find(*i)!=CGI->townh->structures[town->subID].end()) //we have info about that structure
+			{
+				Structure * st = CGI->townh->structures[town->subID][*i];
+				if(st->group<0) //no group - just add it
+				{
+					buildings.push_back(new CBuildingRect(st));
+				}
+				else
+				{
+					std::set< std::pair<int,int> >::iterator obecny=s.end();
+					for(std::set< std::pair<int,int> >::iterator seti = s.begin(); seti!=s.end(); seti++) //check if we have already building from same group
+					{
+						if(seti->first == st->group)
+						{
+							obecny = seti; 
+							break;
+						}
+					}
+					if(obecny != s.end())
+					{
+						if((*(CGI->townh->structures[town->subID][obecny->second])) < (*(CGI->townh->structures[town->subID][st->ID]))) //we have to replace old building with current one
+						{
+							for(int itpb = 0; itpb<buildings.size(); itpb++)
+							{
+								if(buildings[itpb]->str->ID == obecny->second)
+								{
+									delete buildings[itpb];
+									buildings.erase(buildings.begin() + itpb);
+									obecny->second = st->ID;
+									buildings.push_back(new CBuildingRect(st));
+								}
+							}
+						}
+					}
+					else
+					{
+						buildings.push_back(new CBuildingRect(st));
+						s.insert(std::pair<int,int>(st->group,st->ID));
+					}
+				}
+			}
+			else continue;
+		}
+		else
+			break;
+	}
+}
 
 void CHallInterface::CResDataBar::show(SDL_Surface * to)
 {
@@ -600,7 +635,7 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 		pom2 = 2;
 		pom = 2;
 		break;
-	case 0: case 5: 
+	case 0: case 5: case 8:
 		pom2 = 1;
 		pom = 2;
 		break;
@@ -682,7 +717,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 					if(owner->town->forbiddenBuildings.find(CGI->buildh->hall[owner->town->subID].second[i][j][k])!=owner->town->forbiddenBuildings.end())
 						boxes[i][boxes[i].size()-1]->state = 2; //forbidden
 					else if(owner->town->builded >= MAX_BUILDING_PER_TURN)
-						boxes[i][boxes[i].size()-1]->state = 5; //already built
+						boxes[i][boxes[i].size()-1]->state = 5; //building limit
 
 					//checking resources
 					CBuilding * pom = CGI->buildh->buildings[owner->town->subID][CGI->buildh->hall[owner->town->subID].second[i][j][k]];
@@ -698,7 +733,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 						 ri++ )
 					{
 						if(owner->town->builtBuildings.find(*ri)==owner->town->builtBuildings.end())
-							boxes[i][boxes[i].size()-1]->state = 5; //lack of requirements - cannot build
+							boxes[i][boxes[i].size()-1]->state = 8; //lack of requirements - cannot build
 					}
 
 					//TODO: check if capital is already built, check if there is water for shipyard
@@ -736,6 +771,7 @@ CHallInterface::~CHallInterface()
 void CHallInterface::close()
 {
 	deactivate();
+	delete this;
 	LOCPLINT->castleInt->activate();
 	LOCPLINT->castleInt->showAll();
 }
@@ -771,22 +807,31 @@ void CHallInterface::deactivate()
 
 void CHallInterface::CBuildWindow::activate()
 {
+	LOCPLINT->objsToBlit.push_back(this);
+	ClickableR::activate();
+	if(mode)
+		return;
 	buy->activate();
 	cancel->activate();
-	ClickableR::activate();
-	LOCPLINT->objsToBlit.push_back(this);
 }
 void CHallInterface::CBuildWindow::deactivate()
 {
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+	ClickableR::deactivate();
+	if(mode)
+		return;
 	buy->deactivate();
 	cancel->deactivate();
-	ClickableR::deactivate();
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 }
 void CHallInterface::CBuildWindow::Buy()
 {
 	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,bid);
-	close();
+	deactivate();
+	delete this;
+	delete LOCPLINT->castleInt->hallInt;
+	LOCPLINT->castleInt->hallInt = NULL;
+	LOCPLINT->castleInt->activate();
+	LOCPLINT->castleInt->showAll();
 }
 void CHallInterface::CBuildWindow::close()
 {
@@ -805,20 +850,70 @@ void CHallInterface::CBuildWindow::show(SDL_Surface * to)
 	SDL_Rect pom = genRect(bitmap->h-1,bitmap->w-1,pos.x,pos.y);
 	SDL_Rect poms = pom; poms.x=0;poms.y=0;
 	SDL_BlitSurface(bitmap,&poms,to?to:ekran,&pom);
-	buy->show();
-	cancel->show();
+	if(!mode)
+	{
+		buy->show();
+		cancel->show();
+	}
 }
-std::string getTextForState(int state)
+std::string CHallInterface::CBuildWindow::getTextForState(int state)
 {
+	std::string ret;
 	if(state<7)
-		return CGI->townh->hcommands[state];
+		ret =  CGI->townh->hcommands[state];
 	switch (state)
 	{
+	case 4:
+		ret.replace(ret.find_first_of("%s"),2,CGI->buildh->buildings[tid][bid]->name);
+		break;
 	case 7:
 		return CGI->generaltexth->allTexts[219]; //all prereq. are met
-	default:
-		return "Error, wrong state!";
+	case 8:
+		{
+			ret = CGI->generaltexth->allTexts[52];
+			std::set<int> used;
+			used.insert(bid);
+			std::set<int> reqs;
+			
+			for(std::set<int>::iterator i=CGI->townh->requirements[tid][bid].begin();i!=CGI->townh->requirements[tid][bid].end();i++)
+				if (LOCPLINT->castleInt->town->builtBuildings.find(*i)   ==  LOCPLINT->castleInt->town->builtBuildings.end()) 
+					reqs.insert(*i);
+			while(true)
+			{
+				int czystych=0;
+				for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
+				{
+					if(used.find(*i)==used.end()) //we haven't added requirements for this building
+					{
+						used.insert(*i);
+						for(
+							std::set<int>::iterator j=CGI->townh->requirements[tid][*i].begin();
+							j!=CGI->townh->requirements[tid][*i].end();
+							j++
+								)
+						{
+							if(LOCPLINT->castleInt->town->builtBuildings.find(*j)   ==   //this building is not built
+													LOCPLINT->castleInt->town->builtBuildings.end()) 
+							reqs.insert(*j);
+						}
+					}
+					else
+					{
+						czystych++;
+					}
+				}
+				if(czystych==reqs.size())
+					break;
+			}
+			bool first=true;
+			for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
+			{
+				ret+=(((first)?(" "):(", ")) + CGI->buildh->buildings[tid][*i]->name);
+				first = false;
+			}
+		}
 	}
+	return ret;
 }
 CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mode)
 :tid(Tid),bid(Bid),mode(Mode), state(State)
@@ -859,13 +954,19 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 		if(it==4)
 			ah+=75;
 	}
-	buy = new AdventureMapButton<CBuildWindow>("","",&CBuildWindow::Buy,pos.x+45,pos.y+446,"IBUY30.DEF",this,true,NULL,false);
-	cancel = new AdventureMapButton<CBuildWindow>("","",&CBuildWindow::close,pos.x+290,pos.y+445,"ICANCEL.DEF",this,true,NULL,false);
+	if(!mode)
+	{
+		buy = new AdventureMapButton<CBuildWindow>("","",&CBuildWindow::Buy,pos.x+45,pos.y+446,"IBUY30.DEF",this,true,NULL,false);
+		cancel = new AdventureMapButton<CBuildWindow>("","",&CBuildWindow::close,pos.x+290,pos.y+445,"ICANCEL.DEF",this,true,NULL,false);
+	}
 	activate();
 }
 CHallInterface::CBuildWindow::~CBuildWindow()
 {
 	SDL_FreeSurface(bitmap);
-	delete buy;
-	delete cancel;
+	if(!mode)
+	{
+		delete buy;
+		delete cancel;
+	}
 }

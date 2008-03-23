@@ -308,6 +308,7 @@ public:
 	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void garrisonChanged(const CGObjectInstance * obj);
+	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
 
 	//battles
 	void battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, tribool side); //called by engine when battle starts; side=0 - left, side=1 - right

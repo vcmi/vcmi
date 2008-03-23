@@ -41,6 +41,7 @@ public:
 	virtual void receivedResource(int type, int val){};
 	virtual void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)=0{};
 	virtual void garrisonChanged(const CGObjectInstance * obj){};
+	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
 	//battle call-ins 
 	virtual void battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning

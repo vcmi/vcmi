@@ -523,13 +523,15 @@ bool CCallback::buildBuilding(const CGTownInstance *town, int buildingID)
 {
 	CGTownInstance * t = const_cast<CGTownInstance *>(town);
 	CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
-	//TODO: check if we are allowed to build
+	
+	if(0/*not allowed*/)//TODO: check if we are allowed to build
+		return false;
 
 	t->builtBuildings.insert(buildingID);
 	for(int i=0;i<7;i++)
 		gs->players[player].resources[i]-=b->resources[i];
 	t->builded++;
-
+	CGI->playerint[CGI->state->players[player].serial]->buildChanged(town,buildingID,1);
 	return true;
 }
 

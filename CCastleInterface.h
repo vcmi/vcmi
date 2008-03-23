@@ -11,6 +11,7 @@ template <typename T> class AdventureMapButton;
 class CBuildingRect : public Hoverable, public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
 {
 public:
+	bool moi; //motion interested is active
 	Structure* str;
 	CDefHandler* def;
 	SDL_Surface* border;
@@ -58,6 +59,9 @@ public:
 	void splitF();
 	void activate();
 	void deactivate();
+	void addBuilding(int bid);
+	void removeBuilding(int bid);
+	void recreateBuildings();
 };
 
 class CHallInterface : public IShowable, public IActivable
@@ -76,7 +80,7 @@ public:
 	{
 	public:
 		int BID;
-		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build
+		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 		//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
 		void hover(bool on);
 		void clickLeft (tribool down);
@@ -99,6 +103,7 @@ public:
 
 		void activate();
 		void deactivate();
+		std::string getTextForState(int state);
 		void clickRight (tribool down);
 		void show(SDL_Surface * to=NULL);
 		void Buy();
