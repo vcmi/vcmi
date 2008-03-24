@@ -22,7 +22,7 @@ public:
 	~CBattleHero(); //d-tor
 };
 
-class CBattleHex : public Hoverable, public MotionInterested
+class CBattleHex : public Hoverable, public MotionInterested, public ClickableL
 {
 public:
 	unsigned int myNumber;
@@ -35,6 +35,7 @@ public:
 	void activate();
 	void deactivate();
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void clickLeft(boost::logic::tribool down);
 	CBattleHex();
 };
 

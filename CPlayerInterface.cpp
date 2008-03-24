@@ -1900,7 +1900,7 @@ void CPlayerInterface::actionFinished(Action action)//occurs AFTER every action 
 void CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
 	unsigned char showCount = 0;
-	((CBattleInterface*)curint)->stackActivated(stackID);
+	dynamic_cast<CBattleInterface*>(curint)->stackActivated(stackID);
 	while(true)
 	{
 		++showCount;

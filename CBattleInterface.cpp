@@ -289,45 +289,52 @@ void CBattleInterface::stackMoved(int number, int destHex)
 
 void CBattleInterface::showRange(SDL_Surface * to, int initialPlace, int radius)
 {
-	int dists[187]; //calculated distances
+	int * dists = new int[187]; //calculated distances
 	std::queue<int> hexq; //bfs queue
 	hexq.push(initialPlace);
 	for(int g=0; g<187; ++g)
 		dists[g] = 100000000;
 	dists[initialPlace] = 0;
+	int curNext = -1; //for bfs loop only (helper var)
 	while(!hexq.empty()) //bfs loop
 	{
 		int curHex = hexq.front();
 		hexq.pop();
-		if((curHex - 18 > 0) && bfield[curHex-18].accesible  && (dists[curHex] + 1 < dists[curHex-18]) && (curHex-18)%17!=0 && (curHex-18)%17!=16) //top left
+		curNext = curHex - ( (curHex/17)%2 ? 17 : 18 );
+		if((curNext > 0) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
 		{
-			hexq.push(curHex - 18);
-			dists[curHex-18] = dists[curHex] + 1;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
 		}
-		if((curHex - 17 > 0) && bfield[curHex-17].accesible  && (dists[curHex] + 1 < dists[curHex-17]) && (curHex-17)%17!=0 && (curHex-17)%17!=16) //top right
+		curNext = curHex - ( (curHex/17)%2 ? 16 : 17 );
+		if((curNext > 0) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
 		{
-			hexq.push(curHex - 17);
-			dists[curHex-17] = dists[curHex] + 1;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
 		}
-		if((curHex - 1 > 0) && bfield[curHex-1].accesible  && (dists[curHex] + 1 < dists[curHex-1]) && (curHex-1)%17!=0 && (curHex-1)%17!=16) //left
+		curNext = curHex - 1;
+		if((curNext > 0) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
 		{
-			hexq.push(curHex - 1);
-			dists[curHex-1] = dists[curHex] + 1;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
 		}
-		if((curHex + 1 < 187) && bfield[curHex+1].accesible  && (dists[curHex] + 1 < dists[curHex+1]) && (curHex+1)%17!=0 && (curHex+1)%17!=16) //right
+		curNext = curHex + 1;
+		if((curNext < 187) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
 		{
-			hexq.push(curHex + 1);
-			dists[curHex+1] = dists[curHex] + 1;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
 		}
-		if((curHex + 17 < 187) && bfield[curHex+17].accesible  && (dists[curHex] + 1 < dists[curHex+17]) && (curHex+17)%17!=0 && (curHex+17)%17!=16) //bottom left
+		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
+		if((curNext < 187) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
 		{
-			hexq.push(curHex + 17);
-			dists[curHex+17] = dists[curHex] + 1;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
 		}
-		if((curHex + 18 < 187) && bfield[curHex+18].accesible  && (dists[curHex] + 1 < dists[curHex+18]) && (curHex+18)%17!=0 && (curHex+18)%17!=16) //bottom right
+		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
+		if((curNext < 187) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
 		{
-			hexq.push(curHex + 18);
-			dists[curHex+18] = dists[curHex] + 1;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
 		}
 	}
 	for(int i=0; i<187; ++i)
@@ -423,12 +430,14 @@ void CBattleHex::activate()
 {
 	Hoverable::activate();
 	MotionInterested::activate();
+	ClickableL::activate();
 }
 
 void CBattleHex::deactivate()
 {
 	Hoverable::deactivate();
 	MotionInterested::deactivate();
+	ClickableL::deactivate();
 }
 
 void CBattleHex::hover(bool on)
@@ -454,4 +463,8 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 			strictHovered = true;
 		}
 	}
+}
+
+void CBattleHex::clickLeft(boost::logic::tribool down)
+{
 }

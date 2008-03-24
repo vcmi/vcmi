@@ -552,7 +552,11 @@ std::map<int, CStack> CCallback::battleGetStacks()
 
 CCreature CCallback::battleGetCreature(int number)
 {
-	return *(CGI->state->curB->stacks[number]->creature);
+	for(int h=0; h<CGI->state->curB->stacks.size(); ++h)
+	{
+		if(CGI->state->curB->stacks[h]->ID == number) //creature found
+			return *(CGI->state->curB->stacks[h]->creature);
+	}
 }
 
 bool CCallback::battleMoveCreature(int ID, int dest)

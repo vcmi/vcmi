@@ -228,45 +228,52 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	for(int g=0; g<187; ++g)
 		dists[g] = 100000000;
 	dists[hexq.front()] = 0;
+	int curNext = -1; //for bfs loop only (helper var)
 	while(!hexq.empty()) //bfs loop
 	{
 		int curHex = hexq.front();
 		hexq.pop();
-		if((curHex - 18 > 0) && accessibility[curHex-18]  && (dists[curHex] + 1 < dists[curHex-18]) && (curHex-18)%17!=0 && (curHex-18)%17!=16) //top left
+		curNext = curHex - ( (curHex/17)%2 ? 17 : 18 );
+		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
 		{
-			hexq.push(curHex - 18);
-			dists[curHex-18] = dists[curHex] + 1;
-			predecessor[curHex-18] = curHex;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
 		}
-		if((curHex - 17 > 0) && accessibility[curHex-17]  && (dists[curHex] + 1 < dists[curHex-17]) && (curHex-17)%17!=0 && (curHex-17)%17!=16) //top right
+		curNext = curHex - ( (curHex/17)%2 ? 16 : 17 );
+		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
 		{
-			hexq.push(curHex - 17);
-			dists[curHex-17] = dists[curHex] + 1;
-			predecessor[curHex-17] = curHex;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
 		}
-		if((curHex - 1 > 0) && accessibility[curHex-1]  && (dists[curHex] + 1 < dists[curHex-1]) && (curHex-1)%17!=0 && (curHex-1)%17!=16) //left
+		curNext = curHex - 1;
+		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
 		{
-			hexq.push(curHex - 1);
-			dists[curHex-1] = dists[curHex] + 1;
-			predecessor[curHex-1] = curHex;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
 		}
-		if((curHex + 1 < 187) && accessibility[curHex+1]  && (dists[curHex] + 1 < dists[curHex+1]) && (curHex+1)%17!=0 && (curHex+1)%17!=16) //right
+		curNext = curHex + 1;
+		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
 		{
-			hexq.push(curHex + 1);
-			dists[curHex+1] = dists[curHex] + 1;
-			predecessor[curHex+1] = curHex;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
 		}
-		if((curHex + 17 < 187) && accessibility[curHex+17]  && (dists[curHex] + 1 < dists[curHex+17]) && (curHex+17)%17!=0 && (curHex+17)%17!=16) //bottom left
+		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
+		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
 		{
-			hexq.push(curHex + 17);
-			dists[curHex+17] = dists[curHex] + 1;
-			predecessor[curHex+17] = curHex;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
 		}
-		if((curHex + 18 < 187) && accessibility[curHex+18]  && (dists[curHex] + 1 < dists[curHex+18]) && (curHex+18)%17!=0 && (curHex+18)%17!=16) //bottom right
+		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
+		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
 		{
-			hexq.push(curHex + 18);
-			dists[curHex+18] = dists[curHex] + 1;
-			predecessor[curHex+18] = curHex;
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
 		}
 	}
 	//following the Path
