@@ -22,6 +22,8 @@ public:
 	~CBattleHero(); //d-tor
 };
 
+class CBattleInterface;
+
 class CBattleHex : public Hoverable, public MotionInterested, public ClickableL
 {
 public:
@@ -29,6 +31,7 @@ public:
 	bool accesible;
 	//CStack * ourStack;
 	bool hovered, strictHovered;
+	CBattleInterface * myInterface; //interface that owns me
 	static std::pair<int, int> getXYUnitAnim(int hexNum, bool attacker); //returns (x, y) of left top corner of animation
 	//for user interactions
 	void hover (bool on);
@@ -89,4 +92,5 @@ public:
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex); //stack with id number moved to destHex
+	void hexLclicked(int whichOne); //hex only call-in
 };

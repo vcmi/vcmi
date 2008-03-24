@@ -210,13 +210,25 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 
 bool CGameState::battleMoveCreatureStack(int ID, int dest)
 {
+	//selecting moved stack
+	CStack * curStack = NULL;
+	for(int y=0; y<curB->stacks.size(); ++y)
+	{
+		if(curB->stacks[y]->ID == ID)
+		{
+			curStack = curB->stacks[y];
+			break;
+		}
+	}
+	if(!curStack)
+		return false;
 	//initing necessary tables
 	bool accessibility[187]; //accesibility of hexes
 	for(int k=0; k<187; k++)
 		accessibility[k] = true;
-	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
+	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		accessibility[CGI->state->curB->stacks[g]->position] = false;
+		accessibility[curB->stacks[g]->position] = false;
 	}
 	int predecessor[187]; //for getting the Path
 	for(int b=0; b<187; ++b)
@@ -224,7 +236,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	//bfsing
 	int dists[187]; //calculated distances
 	std::queue<int> hexq; //bfs queue
-	hexq.push(CGI->state->curB->stacks[ID]->position);
+	hexq.push(curStack->position);
 	for(int g=0; g<187; ++g)
 		dists[g] = 100000000;
 	dists[hexq.front()] = 0;
@@ -277,9 +289,11 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		}
 	}
 	//following the Path
+	if(dists[dest] > curStack->creature->speed)
+		return false;
 	std::vector<int> path;
 	int curElem = dest;
-	while(curElem!=CGI->state->curB->stacks[ID]->position)
+	while(curElem!=curStack->position)
 	{
 		path.push_back(curElem);
 		curElem = predecessor[curElem];

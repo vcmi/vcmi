@@ -81,6 +81,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		int y = 86 + 42 * (h/17);
 		bfield[h].pos = genRect(cellShade->h, cellShade->w, x, y);
 		bfield[h].accesible = true;
+		bfield[h].myInterface = this;
 	}
 	//locking occupied positions on batlefield
 	for(std::map<int, CStack>::iterator it = stacks.begin(); it!=stacks.end(); ++it) //stacks gained at top of this function
@@ -287,9 +288,15 @@ void CBattleInterface::stackMoved(int number, int destHex)
 {
 }
 
+void CBattleInterface::hexLclicked(int whichOne)
+{
+	if((whichOne%17)!=0 && (whichOne%17)!=16)
+		LOCPLINT->cb->battleMoveCreature(activeStack, whichOne);
+}
+
 void CBattleInterface::showRange(SDL_Surface * to, int initialPlace, int radius)
 {
-	int * dists = new int[187]; //calculated distances
+	int dists[187]; //calculated distances
 	std::queue<int> hexq; //bfs queue
 	hexq.push(initialPlace);
 	for(int g=0; g<187; ++g)
@@ -446,7 +453,7 @@ void CBattleHex::hover(bool on)
 	Hoverable::hover(on);
 }
 
-CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strictHovered(false)
+CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strictHovered(false), myInterface(NULL)
 {
 }
 
@@ -467,4 +474,8 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 
 void CBattleHex::clickLeft(boost::logic::tribool down)
 {
+	if(!down && hovered && strictHovered) //we've been really clicked!
+	{
+		myInterface->hexLclicked(myNumber);
+	}
 }

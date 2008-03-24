@@ -562,7 +562,7 @@ CCreature CCallback::battleGetCreature(int number)
 bool CCallback::battleMoveCreature(int ID, int dest)
 {
 	//checking parameters
-	if(dest<0 || dest > 187 || ID<0 || ID>=CGI->state->curB->stacks.size())
+	if(dest<0 || dest > 187)
 		return false;
 	
 	return CGI->state->battleMoveCreatureStack(ID, dest); //everything finished successfully
