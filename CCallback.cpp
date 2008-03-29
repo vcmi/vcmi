@@ -540,6 +540,15 @@ int CCallback::battleGetBattlefieldType()
 	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].terType;
 }
 
+int CCallback::battleGetPos(int stack)
+{
+	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
+	{
+		if(CGI->state->curB->stacks[g]->ID == stack)
+			return CGI->state->curB->stacks[g]->position;
+	}
+}
+
 std::map<int, CStack> CCallback::battleGetStacks()
 {
 	std::map<int, CStack> ret;
@@ -566,6 +575,11 @@ bool CCallback::battleMoveCreature(int ID, int dest)
 		return false;
 	
 	return CGI->state->battleMoveCreatureStack(ID, dest); //everything finished successfully
+}
+
+std::vector<int> CCallback::battleGetAvailableHexes(int ID)
+{
+	return CGI->state->battleGetRange(ID);
 }
 
 int3 CScriptCallback::getPos(CGObjectInstance * ob)

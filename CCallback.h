@@ -11,7 +11,7 @@ class CGObjectInstance;
 class SComponent;
 class IChosen;
 class CSelectableComponent;
-struct Action;
+struct BattleAction;
 typedef struct lua_State lua_State;
 
 class ICallback
@@ -98,10 +98,11 @@ public:
 	int battleGetObstaclesAtTile(int tile); //returns bitfield 
 	int battleGetStack(int pos); //returns ID of stack on the tile
 	int battleGetPos(int stack); //returns position (tile ID) of stack
-	int battleMakeAction(Action* action);//perform action with an active stack (or custom action)
+	int battleMakeAction(BattleAction* action);//perform action with an active stack (or custom action)
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
 	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
 	bool battleMoveCreature(int ID, int dest); //moves creature with id ID to dest if possible
+	std::vector<int> battleGetAvailableHexes(int ID); //reutrns numbers of hexes reachable by creature with id ID
 	
 
 //friends

@@ -35,6 +35,7 @@ struct BattleInfo
 	CGHeroInstance *hero1, *hero2;
 	CCreatureSet * army1, * army2;
 	std::vector<CStack*> stacks;
+	bool stackActionPerformed; //true if current stack has been moved
 };
 
 class CStack
@@ -88,6 +89,7 @@ private:
 	}
 	void battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2);
 	bool battleMoveCreatureStack(int ID, int dest);
+	std::vector<int> battleGetRange(int ID); //called by std::vector<int> CCallback::battleGetAvailableHexes(int ID);
 public:
 	friend CCallback;
 	friend CPathfinder;;

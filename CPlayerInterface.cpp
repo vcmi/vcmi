@@ -1889,19 +1889,20 @@ void CPlayerInterface::battleNewRound(int round) //called at the beggining of ea
 {
 }
 
-void CPlayerInterface::actionStarted(Action action)//occurs BEFORE every action taken by any stack or by the hero
+void CPlayerInterface::actionStarted(BattleAction action)//occurs BEFORE every action taken by any stack or by the hero
 {
 }
 
-void CPlayerInterface::actionFinished(Action action)//occurs AFTER every action taken by any stack or by the hero
+void CPlayerInterface::actionFinished(BattleAction action)//occurs AFTER every action taken by any stack or by the hero
 {
+	dynamic_cast<CBattleInterface*>(curint)->curStackActed = true;
 }
 
 void CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
 	unsigned char showCount = 0;
 	dynamic_cast<CBattleInterface*>(curint)->stackActivated(stackID);
-	while(true)
+	while(!dynamic_cast<CBattleInterface*>(curint)->curStackActed) //while current unit can perform an action
 	{
 		++showCount;
 		SDL_Event sEvent;

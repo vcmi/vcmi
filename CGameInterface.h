@@ -15,11 +15,11 @@ class CObstacle
 	int position;
 	//TODO: add some kind of the blockmap
 };
-struct Action
+struct BattleAction
 {
 	bool side; //who made this action: false - left, true - right player
 	int stackNumber;//stack ID, -1 left hero, -2 right hero, 
-	int actionType; //    0 = Cancel Action   1 = Hero cast a spell   2 = Walk   3 = Defend   4 = Retreat from the battle   5 = Surrender   6 = Walk and Attack   7 = Shoot    8 = Wait   9 = Catapult 10 = Monster casts a spell (i.e. Faerie Dragons) 
+	int actionType; //    0 = Cancel BattleAction   1 = Hero cast a spell   2 = Walk   3 = Defend   4 = Retreat from the battle   5 = Surrender   6 = Walk and Attack   7 = Shoot    8 = Wait   9 = Catapult 10 = Monster casts a spell (i.e. Faerie Dragons) 
 	int destinationTile; 
 	int additionalInfo; // e.g. spell number if type is 1 || 10
 };
@@ -46,8 +46,8 @@ public:
 	virtual void battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void actionStarted(Action action){};//occurs BEFORE every action taken by any stack or by the hero
-	virtual void actionFinished(Action action){};//occurs AFTER every action taken by any stack or by the hero
+	virtual void actionStarted(BattleAction action){};//occurs BEFORE every action taken by any stack or by the hero
+	virtual void actionFinished(BattleAction action){};//occurs AFTER every action taken by any stack or by the hero
 	virtual void activeStack(int stackID){}; //called when it's turn of that stack
 	virtual void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner){};
 	virtual void battleStackMoved(int ID, int dest)=0;

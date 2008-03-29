@@ -56,10 +56,10 @@ private:
 	CBattleHero * attackingHero, * defendingHero;
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
-	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order like in BattleInfo's stacks)
+	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
-	void showRange(SDL_Surface * to, int initialPlace, int radius); //show helper funtion ot mark range of a unit
+	void showRange(SDL_Surface * to, int ID); //show helper funtion ot mark range of a unit
 
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
@@ -70,6 +70,7 @@ public:
 	CBattleHex bfield[187]; //11 lines, 17 hexes on each
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	static SDL_Surface * cellBorder, * cellShade;
+	bool curStackActed; //true if we have i.e. moved current unit
 
 	//button handle funcs:
 	void bOptionsf();
@@ -92,5 +93,6 @@ public:
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex); //stack with id number moved to destHex
+	void turnEnded(); //caled when current unit cannot get new orders
 	void hexLclicked(int whichOne); //hex only call-in
 };

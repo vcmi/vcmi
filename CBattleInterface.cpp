@@ -14,7 +14,7 @@ extern SDL_Surface * screen;
 SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2) 
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), curStackActed(false)
 {
 	//initializing armies
 	this->army1 = army1;
@@ -181,14 +181,8 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	//showing selected unit's range
-	for(std::map<int, CCreatureAnimation*>::iterator j=creAnims.begin(); j!=creAnims.end(); ++j)
-	{
-		if(j->first == activeStack) //print range of selected unit //TODO: check if it is to be done
-		{
-			showRange(to, stacks[j->first].position, LOCPLINT->cb->battleGetCreature(j->first).speed);
-			break;
-		}
-	}
+	showRange(to, activeStack);
+
 	//showing menu background
 	blitAt(menu, 0, 556, to);
 
@@ -281,75 +275,33 @@ void CBattleInterface::stackRemoved(CStack stack)
 
 void CBattleInterface::stackActivated(int number)
 {
+	curStackActed = false;
 	activeStack = number;
 }
 
 void CBattleInterface::stackMoved(int number, int destHex)
 {
+	int curStackPos = LOCPLINT->cb->battleGetPos(number);
+	for(int i=0; i<6; ++i)
+	{
+		//creAnims[number]->setType(0);
+	}
 }
 
 void CBattleInterface::hexLclicked(int whichOne)
 {
 	if((whichOne%17)!=0 && (whichOne%17)!=16)
+	{
 		LOCPLINT->cb->battleMoveCreature(activeStack, whichOne);
+	}
 }
 
-void CBattleInterface::showRange(SDL_Surface * to, int initialPlace, int radius)
+void CBattleInterface::showRange(SDL_Surface * to, int ID)
 {
-	int dists[187]; //calculated distances
-	std::queue<int> hexq; //bfs queue
-	hexq.push(initialPlace);
-	for(int g=0; g<187; ++g)
-		dists[g] = 100000000;
-	dists[initialPlace] = 0;
-	int curNext = -1; //for bfs loop only (helper var)
-	while(!hexq.empty()) //bfs loop
+	std::vector<int> shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(ID);
+	for(int i=0; i<shadedHexes.size(); ++i)
 	{
-		int curHex = hexq.front();
-		hexq.pop();
-		curNext = curHex - ( (curHex/17)%2 ? 17 : 18 );
-		if((curNext > 0) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex - ( (curHex/17)%2 ? 16 : 17 );
-		if((curNext > 0) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex - 1;
-		if((curNext > 0) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex + 1;
-		if((curNext < 187) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
-		if((curNext < 187) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
-		if((curNext < 187) && bfield[curNext].accesible  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-	}
-	for(int i=0; i<187; ++i)
-	{
-		if(dists[i]<=radius)
-		{
-			CSDL_Ext::blit8bppAlphaTo24bpp(CBattleInterface::cellShade, NULL, to, &bfield[i].pos);
-		}
+		CSDL_Ext::blit8bppAlphaTo24bpp(CBattleInterface::cellShade, NULL, to, &bfield[shadedHexes[i]].pos);
 	}
 }
 
