@@ -807,34 +807,34 @@ CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(7,556),
 kingOverview(CGI->preth->zelp[293].first,CGI->preth->zelp[293].second,
-			 &CAdvMapInt::fshowOverview, 679, 196, "IAM002.DEF", this),
+			 &CAdvMapInt::fshowOverview, 679, 196, "IAM002.DEF", this,false,NULL,true),
 
 underground(CGI->preth->zelp[294].first,CGI->preth->zelp[294].second,
-		   &CAdvMapInt::fswitchLevel, 711, 196, "IAM010.DEF", this, false, new std::vector<std::string>(1,std::string("IAM003.DEF"))),
+		   &CAdvMapInt::fswitchLevel, 711, 196, "IAM010.DEF", this, false, new std::vector<std::string>(1,std::string("IAM003.DEF")),true),
 
 questlog(CGI->preth->zelp[295].first,CGI->preth->zelp[295].second,
-		 &CAdvMapInt::fshowQuestlog, 679, 228, "IAM004.DEF", this),
+		 &CAdvMapInt::fshowQuestlog, 679, 228, "IAM004.DEF", this,false,NULL,true),
 
 sleepWake(CGI->preth->zelp[296].first,CGI->preth->zelp[296].second,
-		  &CAdvMapInt::fsleepWake, 711, 228, "IAM005.DEF", this),
+		  &CAdvMapInt::fsleepWake, 711, 228, "IAM005.DEF", this,false,NULL,true),
 
 moveHero(CGI->preth->zelp[297].first,CGI->preth->zelp[297].second,
-		  &CAdvMapInt::fmoveHero, 679, 260, "IAM006.DEF", this),
+		  &CAdvMapInt::fmoveHero, 679, 260, "IAM006.DEF", this,false,NULL,true),
 
 spellbook(CGI->preth->zelp[298].first,CGI->preth->zelp[298].second,
-		  &CAdvMapInt::fshowSpellbok, 711, 260, "IAM007.DEF", this),
+		  &CAdvMapInt::fshowSpellbok, 711, 260, "IAM007.DEF", this,false,NULL,true),
 
 advOptions(CGI->preth->zelp[299].first,CGI->preth->zelp[299].second,
-		  &CAdvMapInt::fadventureOPtions, 679, 292, "IAM008.DEF", this),
+		  &CAdvMapInt::fadventureOPtions, 679, 292, "IAM008.DEF", this,false,NULL,true),
 
 sysOptions(CGI->preth->zelp[300].first,CGI->preth->zelp[300].second,
-		  &CAdvMapInt::fsystemOptions, 711, 292, "IAM009.DEF", this),
+		  &CAdvMapInt::fsystemOptions, 711, 292, "IAM009.DEF", this,false,NULL,true),
 
 nextHero(CGI->preth->zelp[301].first,CGI->preth->zelp[301].second,
-		  &CAdvMapInt::fnextHero, 679, 324, "IAM000.DEF", this),
+		  &CAdvMapInt::fnextHero, 679, 324, "IAM000.DEF", this,false,NULL,true),
 
 endTurn(CGI->preth->zelp[302].first,CGI->preth->zelp[302].second,
-		  &CAdvMapInt::fendTurn, 679, 356, "IAM001.DEF", this),
+		  &CAdvMapInt::fendTurn, 679, 356, "IAM001.DEF", this,false,NULL,true),
 
 townList(5,&genRect(192,48,747,196),747,196,747,372)
 {

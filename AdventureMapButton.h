@@ -17,7 +17,8 @@ public:
 	char key; //key shortcut
 	T* owner;
 	void (T::*function)(); //function in CAdvMapInt called when this button is pressed, different for each button
-	bool colorChange;
+	bool colorChange,
+		actOnDown; //runs when mouse is pressed down over it, not when up
 
 	void clickRight (tribool down);
 	void clickLeft (tribool down);
@@ -27,7 +28,7 @@ public:
 	void deactivate(); // makes button inactive (but doesn't delete)
 
 	AdventureMapButton(); //c-tor
-	AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = true );//c-tor
+	AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 };
 
 template <typename T>
@@ -38,11 +39,13 @@ AdventureMapButton<T>::AdventureMapButton ()
 	active=false;
 	ourObj=NULL;
 	state=0;
+	actOnDown = false;
 }
 template <typename T>
 AdventureMapButton<T>::AdventureMapButton
 ( std::string Name, std::string HelpBox, void(T::*Function)(), int x, int y, std::string defName, T* Owner, bool activ, std::vector<std::string> * add, bool playerColoredButton )
 {
+	actOnDown = false;
 	owner = Owner;
 	type=2;
 	abs=true;
@@ -101,7 +104,12 @@ void AdventureMapButton<T>::clickLeft (tribool down)
 		state=0;
 	}
 	show();
-	if (pressedL && (down==false))
+	if (actOnDown && down)
+	{
+		pressedL=state;
+		(owner->*function)();
+	}
+	else if (pressedL && (down==false))
 	{
 		pressedL=state;
 		(owner->*function)();
@@ -366,4 +374,151 @@ void CTownList<T>::draw()
 		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
 	else
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
+}
+
+
+template<typename T>
+class CSlider : public IShowable, public MotionInterested, public ClickableL
+{
+public:
+	AdventureMapButton<CSlider> left, right, slider; //if vertical then left=up
+	int capacity,//how many elements can be active at same time
+		amount, //how many elements
+		value; //first active element
+	bool horizontal, moving;
+	CDefEssential *imgs ;
+
+	T* owner;
+	void(T::*moved)(int to);
+
+	void redrawSlider(); 
+
+	void sliderClicked();
+	void moveLeft();
+	void clickLeft (tribool down);
+	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void moveRight();
+	void moveTo(int to);
+	void activate(); // makes button active
+	void deactivate(); // makes button inactive (but doesn't delete)
+	void show(SDL_Surface * to = NULL);
+	CSlider(int x, int y, int totalw, T*Owner,void(T::*Moved)(int to), int Capacity, int Amount, 
+		int Value=0, bool Horizontal=true);
+	~CSlider();
+};	
+
+template<typename T>
+void CSlider<T>::sliderClicked()
+{
+	if(!moving)
+	{
+		MotionInterested::activate();
+		moving = true;
+	}
+}
+template<typename T>
+void CSlider<T>::mouseMoved (SDL_MouseMotionEvent & sEvent)
+{
+	float v = sEvent.x - pos.x - 16;
+	v/= (pos.w - 48);
+	v*=amount;
+	if(v!=value)
+	{
+		moveTo(v);
+		redrawSlider();
+	}
+}
+template<typename T>
+void CSlider<T>::redrawSlider()
+{
+	slider.show();
+}
+template<typename T>
+void CSlider<T>::moveLeft()
+{
+	moveTo(value-1);
+}
+template<typename T>
+void CSlider<T>::moveRight()
+{
+	moveTo(value+1);
+}
+template<typename T>
+void CSlider<T>::moveTo(int to)
+{
+	if(to<0)
+		to=0;
+	else if(to>amount)
+		to=amount;
+	value = to;
+	float part = (float)to/amount;
+	part*=(pos.w-48);
+	slider.pos.x = part + pos.x + 16;
+	(owner->*moved)(to);
+}
+template<typename T>
+void CSlider<T>::activate() // makes button active
+{
+	left.activate();
+	right.activate();
+	slider.activate();
+	ClickableL::activate();
+}
+template<typename T>
+void CSlider<T>::deactivate() // makes button inactive (but doesn't delete)
+{
+	left.deactivate();
+	right.deactivate();
+	slider.deactivate();
+	ClickableL::deactivate();
+}
+template<typename T>
+void CSlider<T>::clickLeft (tribool down)
+{
+	if(down)
+		return;
+	if(moving)
+	{
+		MotionInterested::deactivate();
+		moving = false;
+	}
+}
+template<typename T>
+void CSlider<T>::show(SDL_Surface * to)
+{
+	left.show();
+	right.show();
+	slider.show();
+}
+template<typename T>
+CSlider<T>::CSlider(int x, int y, int totalw, T*Owner,void(T::*Moved)(int to), int Capacity, int Amount, int Value, bool Horizontal)
+:capacity(Capacity),amount(Amount),value(Value),horizontal(Horizontal), moved(Moved), owner(Owner)
+{
+	moving = false;
+	strongInterest = true;
+	imgs = CGI->spriteh->giveDefEss("IGPCRDIV.DEF");
+
+	left.pos.y = slider.pos.y = right.pos.y = pos.y = y;
+	left.pos.x = pos.x = x;
+	right.pos.x = x + totalw - 16;
+
+	left.owner = right.owner = slider.owner = this;
+	left.function = &CSlider::moveLeft;
+	right.function = &CSlider::moveRight;
+	slider.function = &CSlider::sliderClicked;
+	left.pos.w = left.pos.h = right.pos.w = right.pos.h = slider.pos.w = slider.pos.h = pos.h = 16;
+	pos.w = totalw;
+	left.imgs.resize(1); right.imgs.resize(1); slider.imgs.resize(1);
+	left.imgs[0].push_back(imgs->ourImages[0].bitmap); left.imgs[0].push_back(imgs->ourImages[1].bitmap);
+	right.imgs[0].push_back(imgs->ourImages[2].bitmap); right.imgs[0].push_back(imgs->ourImages[3].bitmap);
+	slider.imgs[0].push_back(imgs->ourImages[4].bitmap);
+	left.notFreeButton = right.notFreeButton = slider.notFreeButton = true;
+	slider.actOnDown = true;
+
+	moveTo(value);
+}
+template<typename T>
+CSlider<T>::~CSlider()
+{
+	delete imgs;
 }

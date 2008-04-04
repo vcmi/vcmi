@@ -18,6 +18,7 @@ public:
 	std::string name; //name of type
 	std::vector<std::string> names; //names of the town instances
 	std::vector<int> basicCreatures; //level (from 0) -> ID
+	std::vector<int> upgradedCreatures; //level (from 0) -> ID
 	int bonus; //pic number
 	int typeID;
 };

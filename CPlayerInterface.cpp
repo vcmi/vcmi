@@ -695,12 +695,19 @@ void CButtonBase::show(SDL_Surface * to)
 		to=ekran;
 	if (abs)
 	{
-		blitAt(imgs[curimg][state+bitmapOffset],pos.x,pos.y,to);
+		blitAt(imgs[curimg]
+			[( (state+bitmapOffset) < (imgs[curimg].size()) )	?	
+				(state+bitmapOffset)	:
+				(imgs[curimg].size()-1)			]
+													,pos.x,pos.y,to);
 		//updateRect(&pos,to);
 	}
 	else
 	{
-		blitAt(imgs[curimg][state+bitmapOffset],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
+		blitAt(imgs[curimg]
+			[( (state+bitmapOffset) < (imgs[curimg].size()) )	?	
+				(state+bitmapOffset)	:
+				(imgs[curimg].size()-1)			],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
 		//updateRect(&genRect(pos.h,pos.w,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y),to);
 		
 	}
@@ -1588,7 +1595,7 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 	}
 	for(int i=0; i<motioninterested.size();i++)
 	{
-		if (isItIn(&motioninterested[i]->pos,sEvent->motion.x,sEvent->motion.y))
+		if (motioninterested[i]->strongInterest || isItIn(&motioninterested[i]->pos,sEvent->motion.x,sEvent->motion.y))
 		{
 			motioninterested[i]->mouseMoved(sEvent->motion);
 		}
@@ -2297,4 +2304,143 @@ void CHeroList::draw()
 		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
 	else
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
+}
+void CRecrutationWindow::close()
+{
+	deactivate();
+	delete this;
+	LOCPLINT->curint->activate();
+	CCastleInterface *pom;
+	if(pom=dynamic_cast<CCastleInterface*>(LOCPLINT->curint))
+		pom->showAll();
+}
+void CRecrutationWindow::Max()
+{
+	slider->moveTo(slider->amount);
+}
+void CRecrutationWindow::Buy()
+{
+	close();
+}
+void CRecrutationWindow::Cancel()
+{
+	close();
+}
+void CRecrutationWindow::sliderMoved(int to)
+{
+}
+void CRecrutationWindow::clickLeft(tribool down)
+{
+}
+void CRecrutationWindow::activate()
+{
+	LOCPLINT->objsToBlit.push_back(this);
+	buy->activate();
+	max->activate();
+	cancel->activate();
+	slider->activate();
+}
+void CRecrutationWindow::deactivate()
+{
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+	buy->deactivate();
+	max->deactivate();
+	cancel->deactivate();
+	slider->deactivate();
+}
+void CRecrutationWindow::show(SDL_Surface * to)
+{
+	static char c=0;
+	blitAt(bitmap,pos.x,pos.y,to?to:ekran);
+	buy->show();
+	max->show();
+	cancel->show();
+	slider->show();
+	char pom[15];
+	itoa(creatures[which].amount,pom,10); //available
+	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,ekran);
+	itoa(slider->value,pom,10); //recruit
+	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,ekran);
+
+	int curx = pos.x+115-creatures[which].res.size()*16;
+	for(int i=0;i<creatures[which].res.size();i++)
+	{
+		blitAt(CGI->townh->resources->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,ekran);
+		blitAt(CGI->townh->resources->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,ekran);
+		itoa(creatures[which].res[i].second,pom,10);
+		printAtMiddle(pom,curx+12,pos.y+286,GEOR13,zwykly,ekran);
+		itoa(creatures[which].res[i].second * slider->value,pom,10);
+		printAtMiddle(pom,curx+12+258,pos.y+286,GEOR13,zwykly,ekran);
+		curx+=32;
+	}
+
+	curx = pos.x + 192 + 102 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+	for(int i=0;i<creatures.size();i++)
+	{
+		blitAt(CGI->creh->backgrounds[CGI->creh->creatures[creatures[i].ID].faction],curx-50,pos.y+130-65);
+		creatures[i].anim->nextFrameMiddle(ekran,curx+20,pos.y+110,true,!(c%2),false);
+		curx += 120;
+	}
+	c++;
+}
+CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatures) //creatures - pairs<creature_ID,amount>
+{
+	creatures.resize(Creatures.size());
+	for(int i=0;i<creatures.size();i++)
+	{
+		creatures[i].amount = Creatures[i].second;
+		creatures[i].ID = Creatures[i].first;
+		for(int j=0;j<CGI->creh->creatures[Creatures[i].first].cost.size();j++)
+			if(CGI->creh->creatures[Creatures[i].first].cost[j])
+				creatures[i].res.push_back(std::make_pair(j,CGI->creh->creatures[Creatures[i].first].cost[j]));
+		creatures[i].anim = new CCreatureAnimation(CGI->creh->creatures[Creatures[i].first].animDefName);
+	}
+	SDL_Surface *hhlp = CGI->bitmaph->loadBitmap("TPRCRT.bmp");
+	blueToPlayersAdv(hhlp,LOCPLINT->playerID);
+	bitmap = SDL_ConvertSurface(hhlp,ekran->format,0); //na 8bitowej mapie by sie psulo
+	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
+	SDL_FreeSurface(hhlp);
+	pos.x = ekran->w/2 - bitmap->w/2;
+	pos.y = ekran->h/2 - bitmap->h/2;
+	pos.w = bitmap->w;
+	pos.h = bitmap->h;
+	slider = new CSlider<CRecrutationWindow>(pos.x+176,pos.y+279,135,this,&CRecrutationWindow::sliderMoved,1,creatures[0].amount,0,true);
+	std::string pom;
+	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[0].ID].namePl,243,32,GEOR16,tytulowy,bitmap); //eg "Recruit Dragon flies"
+	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
+	printAtMiddle(CGI->generaltexth->allTexts[465],205,231,GEOR13,zwykly,bitmap); //available t
+	printAtMiddle(CGI->generaltexth->allTexts[16],279,231,GEOR13,zwykly,bitmap); //recruit t
+	printAtMiddle(CGI->generaltexth->allTexts[466],373,231,GEOR13,zwykly,bitmap); //total cost t
+	drawBorder(bitmap,172,222,67,42,int3(239,215,123));
+	drawBorder(bitmap,246,222,67,42,int3(239,215,123));
+	drawBorder(bitmap,64,222,99,76,int3(239,215,123));
+	drawBorder(bitmap,322,222,99,76,int3(239,215,123));
+	drawBorder(bitmap,133,312,66,34,int3(173,142,66));
+	drawBorder(bitmap,211,312,66,34,int3(173,142,66));
+	drawBorder(bitmap,289,312,66,34,int3(173,142,66));
+
+	//border for creatures
+	int curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+	for(int i=0;i<creatures.size();i++)
+	{
+		creatures[i].pos.x = curx+1;
+		creatures[i].pos.y = 65;
+		creatures[i].pos.w = 100;
+		creatures[i].pos.h = 130;
+		drawBorder(bitmap,curx,64,102,132,int3(255,0,0));
+		curx += 120;
+	}
+
+	max = new AdventureMapButton<CRecrutationWindow>("","",&CRecrutationWindow::Max,pos.x+134,pos.y+313,"IRCBTNS.DEF",this);
+	buy = new AdventureMapButton<CRecrutationWindow>("","",&CRecrutationWindow::Buy,pos.x+212,pos.y+313,"IBY6432.DEF",this);
+	cancel = new AdventureMapButton<CRecrutationWindow>("","",&CRecrutationWindow::Cancel,pos.x+290,pos.y+313,"ICN6432.DEF",this);
+	LOCPLINT->curint->deactivate();
+	which = 0;
+	//AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), 
+	//int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = true );//c-tor
+}//(int x, int y, int totalw, T*Owner,void(T::*Moved)(int to), int Capacity, int Amount, int Value, bool Horizontal)
+CRecrutationWindow::~CRecrutationWindow()
+{
+	SDL_FreeSurface(bitmap);
+	delete slider;
 }

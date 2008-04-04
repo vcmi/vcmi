@@ -14,13 +14,15 @@ class CCreature
 {
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
-	int wood, mercury, ore, sulfur, crystal, gems, gold, fightValue, AIValue, growth, hordeGrowth, hitPoints, speed, attack, defence, shots, spells;
+	std::vector<int> cost; //cost[res_id] - amount of that resource
+	int fightValue, AIValue, growth, hordeGrowth, hitPoints, speed, attack, defence, shots, spells;
 	int low1, low2, high1, high2; //TODO - co to w ogóle jest???
 	int level; // 0 - unknown
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in textformat
 	std::string animDefName;
 	int idNumber;
+	int faction; //-1 = neutral
 
 	///animation info
 	float timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
@@ -54,6 +56,7 @@ class CCreatureHandler
 public:
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
+	std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
 	std::vector<CCreature> creatures;
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
 	std::map<std::string,int> nameToID;
@@ -98,6 +101,7 @@ public:
 	int getType() const; //returns type of animation
 
 	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false); //0 - success, any other - error //print next 
+	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false); //0 - success, any other - error //print next 
 };
 
 #endif //CCREATUREHANDLER_H

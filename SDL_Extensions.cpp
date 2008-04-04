@@ -806,7 +806,19 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player, int mode, void* a
 		}
 	}
 }
-
+void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 color)
+{
+	for(int i=0;i<w;i++)
+	{
+		SDL_PutPixel(sur,x+i,y,color.x,color.y,color.z);
+		SDL_PutPixel(sur,x+i,y+h-1,color.x,color.y,color.z);
+	}
+	for(int i=0; i<h;i++)
+	{
+		SDL_PutPixel(sur,x,y+i,color.x,color.y,color.z);
+		SDL_PutPixel(sur,x+w-1,y+i,color.x,color.y,color.z);
+	}
+}
 void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
 {
 	if(player==254)

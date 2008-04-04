@@ -4,7 +4,7 @@
 #include "SDL.h"
 #include "SDL_framerate.h"
 class CDefEssential;
-
+template <typename T> class AdventureMapButton;
 class CDefHandler;
 struct HeroMoveDetails;
 class CDefEssential;
@@ -12,6 +12,7 @@ class CGHeroInstance;
 class CAdvMapInt;
 class CCastleInterface;
 class CStack;
+template<typename T>class CSlider;
 class IShowable
 {
 public:
@@ -110,6 +111,8 @@ public:
 class MotionInterested: public virtual CIntObject
 {
 public:
+	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
+	MotionInterested(){strongInterest=false;};
 	virtual ~MotionInterested(){};
 	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
 	virtual void activate()=0;
@@ -424,4 +427,32 @@ public:
 	void hover (bool on);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void draw();
+};
+class CRecrutationWindow : public IShowable, public ClickableL
+{
+public:
+	struct creinfo
+	{
+		SDL_Rect pos;
+		int ID, amount; //creature ID and available amount
+		CCreatureAnimation *anim;
+		std::vector<std::pair<int,int> > res; //res_id - cost_per_unit
+	};
+	std::vector<creinfo> creatures;
+	CSlider<CRecrutationWindow> *slider;
+	AdventureMapButton<CRecrutationWindow> *max, *buy, *cancel;
+	SDL_Surface *bitmap;
+	int which; //which creature is active
+
+	void close();
+	void Max();
+	void Buy();
+	void Cancel();
+	void sliderMoved(int to);
+	void clickLeft(tribool down);
+	void activate(); 
+	void deactivate();
+	void show(SDL_Surface * to = NULL);
+	CRecrutationWindow(std::vector<std::pair<int,int> > & Creatures); //creatures - pairs<creature_ID,amount>
+	~CRecrutationWindow();
 };

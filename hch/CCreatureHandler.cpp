@@ -50,6 +50,7 @@ void CCreatureHandler::loadCreatures()
 	while(i<buf.size())
 	{
 		CCreature ncre;
+		ncre.cost.resize(RESOURCE_QUANTITY);
 		ncre.level=0;
 		int befi=i;
 		for(i; i<andame; ++i)
@@ -75,7 +76,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.wood = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.cost[0] = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -84,7 +85,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.mercury = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.cost[1] = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -93,7 +94,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.ore = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.cost[2] = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -102,7 +103,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.sulfur = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.cost[3] = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -111,7 +112,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.crystal = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.cost[4] = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -120,7 +121,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.gems = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.cost[5] = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -129,7 +130,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.gold = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.cost[6] = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -322,6 +323,31 @@ void CCreatureHandler::loadCreatures()
 			}
 		}
 	}
+	ifs.close();
+	ifs.clear();
+
+
+	ifs.open("config/cr_bgs.txt"); 
+	while(!ifs.eof())
+	{
+		int id;
+		std::string name;
+		ifs >> id >> name;
+		backgrounds[id]=CGI->bitmaph->loadBitmap(name);
+	}
+	ifs.close();
+	ifs.clear();
+
+
+	ifs.open("config/cr_factions.txt"); 
+	while(!ifs.eof())
+	{
+		int id, fact;
+		ifs >> id >> fact;
+		creatures[id].faction = fact;
+	}
+	ifs.close();
+	ifs.clear();
 
 	//loading 32x32px imgs
 	CDefHandler *smi = CGI->spriteh->giveDef("CPRSMALL.DEF");
@@ -742,7 +768,10 @@ int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, 
 	}
 	return ret;
 }
-
+int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder)
+{
+	return nextFrame(dest,x-fullWidth/2,y-fullHeight/2,attacker,incrementFrame,yellowBorder);
+}
 int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder)
 {
 	if(dest->format->BytesPerPixel<3)

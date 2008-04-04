@@ -46,13 +46,31 @@ void CCallback::newTurn()
 	}
 	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
+		//handle heroes/////////////////////////////
 		for (int j=0;j<(*i).second.heroes.size();j++)
 		{
 			(*i).second.heroes[j]->movement = valMovePoints((*i).second.heroes[j]);
 		}
+
+
+		//handle towns/////////////////////////////
 		for(int j=0;j<i->second.towns.size();j++)
 		{
 			i->second.towns[j]->builded=0;
+			if(getDate(1)==1) //first day of week
+			{
+				for(int k=0;k<CREATURES_PER_TOWN;k++)
+				{
+					int growth;
+					if(i->second.towns[j]->creatureDwelling(k))//basic growth
+						  growth=CGI->creh->creatures[i->second.towns[j]->town->basicCreatures[k]].growth;
+					if(i->second.towns[j]->builtBuildings.find(9)!=i->second.towns[j]->builtBuildings.end()) //castle +100%
+						growth*=2;
+					else if(i->second.towns[j]->builtBuildings.find(9)!=i->second.towns[j]->builtBuildings.end()) //castle +100%
+						growth*=1.5;
+					i->second.towns[j]->strInfo.creatures[k]+=growth;
+				}
+			}
 		}
 	}
 }

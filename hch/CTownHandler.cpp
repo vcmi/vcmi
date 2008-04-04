@@ -226,6 +226,20 @@ void CTownHandler::loadNames()
 		of.close();
 		of.clear();
 
+		for(int x=0;x<towns.size();x++)
+			towns[x].upgradedCreatures.resize(7);
+
+		of.open("config/creatures_upgr.txt");
+		while(!of.eof())
+		{
+			int tid, lid, cid; //town,level,creature
+			of >> tid >> lid >> cid;
+			if(lid < towns[tid].upgradedCreatures.size())
+				towns[tid].upgradedCreatures[lid]=cid;
+		}
+		of.close();
+		of.clear();
+
 		
 		of.open("config/requirements.txt");
 		while(!of.eof())

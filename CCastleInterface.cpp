@@ -229,7 +229,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 
 
 	//garrison
-	std::sort(buildings.begin(),buildings.end(),srthlp);
 	garr = new CGarrisonInt(305,387,4,32,townInt,243,13,town,town->visitingHero);
 
 	if(Activate)
@@ -312,6 +311,19 @@ void CCastleInterface::splitF()
 void CCastleInterface::buildingClicked(int building)
 {
 	std::cout<<"You've clicked on "<<building<<std::endl;
+	if(building >= 30)
+	{
+		if(building>36)
+			building-=7;
+		std::vector<std::pair<int,int > > crs;
+		int amount = (const_cast<CGTownInstance*>(town))->strInfo.creatures[building-30]; //trzeba odconstowac, bo inaczej operator [] by sypal :(
+		crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
+
+		if(town->builtBuildings.find(building+7) != town->builtBuildings.end()) //check if there is an upgraded building
+			crs.push_back(std::make_pair(town->town->upgradedCreatures[building-30],amount));
+		CRecrutationWindow *rw = new CRecrutationWindow(crs);
+		rw->activate();
+	}
 	switch(building)
 	{
 	case 10: case 11: case 12: case 13:
@@ -367,11 +379,10 @@ void CCastleInterface::showAll(SDL_Surface * to)
 		int cid = -1;
 		if (town->builtBuildings.find(30+i)!=town->builtBuildings.end())
 		{
-			cid = (14*town->subID)+(i*2);
 			if (town->builtBuildings.find(30+CREATURES_PER_TOWN+i)!=town->builtBuildings.end())
-			{
-				cid++;
-			}
+				cid = town->town->upgradedCreatures[i];
+			else
+				cid = town->town->basicCreatures[i];
 		}
 		if (cid>=0)
 		{
@@ -545,6 +556,7 @@ void CCastleInterface::recreateBuildings()
 		else
 			break;
 	}
+	std::sort(buildings.begin(),buildings.end(),srthlp);
 }
 
 void CHallInterface::CResDataBar::show(SDL_Surface * to)
@@ -811,7 +823,8 @@ void CHallInterface::CBuildWindow::activate()
 	ClickableR::activate();
 	if(mode)
 		return;
-	buy->activate();
+	if(state==7)
+		buy->activate();
 	cancel->activate();
 }
 void CHallInterface::CBuildWindow::deactivate()
@@ -820,7 +833,8 @@ void CHallInterface::CBuildWindow::deactivate()
 	ClickableR::deactivate();
 	if(mode)
 		return;
-	buy->deactivate();
+	if(state==7)
+		buy->deactivate();
 	cancel->deactivate();
 }
 void CHallInterface::CBuildWindow::Buy()
@@ -956,8 +970,12 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	}
 	if(!mode)
 	{
-		buy = new AdventureMapButton<CBuildWindow>("","",&CBuildWindow::Buy,pos.x+45,pos.y+446,"IBUY30.DEF",this,true,NULL,false);
-		cancel = new AdventureMapButton<CBuildWindow>("","",&CBuildWindow::close,pos.x+290,pos.y+445,"ICANCEL.DEF",this,true,NULL,false);
+		buy = new AdventureMapButton<CBuildWindow>
+			("","",&CBuildWindow::Buy,pos.x+45,pos.y+446,"IBUY30.DEF",this,false,NULL,false);
+		cancel = new AdventureMapButton<CBuildWindow>
+			("","",&CBuildWindow::close,pos.x+290,pos.y+445,"ICANCEL.DEF",this,false,NULL,false);
+		if(state!=7)
+			buy->state=2;
 	}
 	activate();
 }

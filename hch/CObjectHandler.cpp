@@ -266,6 +266,15 @@ int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - c
 		return 0;
 	return -1;
 }
+bool CGTownInstance::creatureDwelling(int level, bool upgraded)
+{
+	return builtBuildings.find(30+level+upgraded*7)!=builtBuildings.end();
+}
+int CGTownInstance::getHordeLevel(int HID) //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
+{
+	//TODO: write
+	return -1;
+}
 int CGTownInstance::dailyIncome() const
 {
 	int ret = 0;
