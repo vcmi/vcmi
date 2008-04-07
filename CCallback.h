@@ -97,12 +97,14 @@ public:
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	int battleGetObstaclesAtTile(int tile); //returns bitfield 
 	int battleGetStack(int pos); //returns ID of stack on the tile
+	CStack battleGetStackByID(int ID); //returns stack info by given ID
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	int battleMakeAction(BattleAction* action);//perform action with an active stack (or custom action)
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
 	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
 	bool battleMoveCreature(int ID, int dest); //moves creature with id ID to dest if possible
 	std::vector<int> battleGetAvailableHexes(int ID); //reutrns numbers of hexes reachable by creature with id ID
+	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
 	
 
 //friends

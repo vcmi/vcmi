@@ -1,6 +1,7 @@
 #ifndef CCREATUREHANDLER_H
 #define CCREATUREHANDLER_H
 
+#include "CPlayerInterface.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -8,7 +9,6 @@
 
 class CDefHandler;
 struct SDL_Surface;
-//#include "CDefHandler.h"
 
 class CCreature
 {
@@ -66,10 +66,10 @@ public:
 	void loadUnitAnimations();
 };
 
-class CCreatureAnimation
+class CCreatureAnimation : public CIntObject
 {
 private:
-	int totalEntries, DEFType, totalBlocks, fullWidth, fullHeight;
+	int totalEntries, DEFType, totalBlocks;
 	bool allowRepaint;
 	int length;
 	BMPPalette palette[256];
@@ -94,6 +94,7 @@ private:
 	unsigned int frames; //number of frames
 	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
 public:
+	int fullWidth, fullHeight; //read-only, please!
 	CCreatureAnimation(std::string name); //c-tor
 	~CCreatureAnimation(); //d-tor //not necessery ATM
 

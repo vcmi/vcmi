@@ -1,8 +1,10 @@
-#pragma once
+#ifndef CPLAYERINTERFACE_H
+#define CPLAYERINTERFACE_H
 #include "global.h"
 #include "CGameInterface.h"
-#include "SDL.h"
 #include "SDL_framerate.h"
+#include <map>
+
 class CDefEssential;
 template <typename T> class AdventureMapButton;
 class CDefHandler;
@@ -12,7 +14,16 @@ class CGHeroInstance;
 class CAdvMapInt;
 class CCastleInterface;
 class CStack;
+class SComponent;
+class CCreature;
+struct SDL_Surface;
+class CPath;
+class CCreatureAnimation;
+class CSelectableComponent;
+class CCreatureSet;
+class CGObjectInstance;
 template<typename T>class CSlider;
+
 class IShowable
 {
 public:
@@ -76,7 +87,7 @@ public:
 	bool pressedL;
 	ClickableL();
 	virtual ~ClickableL(){};
-	virtual void clickLeft (tribool down)=0;
+	virtual void clickLeft (boost::logic::tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
@@ -86,7 +97,7 @@ public:
 	bool pressedR;
 	ClickableR();
 	virtual ~ClickableR(){};
-	virtual void clickRight (tribool down)=0;
+	virtual void clickRight (boost::logic::tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
@@ -133,9 +144,9 @@ public:
 	int3 posr; //position in the bitmap
 	int state;
 	T* delg;
-	void(T::*func)(tribool);
-	CSCButton(CDefHandler * img, CIntObject * obj, void(T::*poin)(tribool), T* Delg=NULL);
-	void clickLeft (tribool down);
+	void(T::*func)(boost::logic::tribool);
+	CSCButton(CDefHandler * img, CIntObject * obj, void(T::*poin)(boost::logic::tribool), T* Delg=NULL);
+	void clickLeft (boost::logic::tribool down);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
@@ -146,7 +157,7 @@ class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 public:
 	CSCButton<CInfoWindow> okb;
 	std::vector<SComponent*> components;
-	virtual void okClicked(tribool down);
+	virtual void okClicked(boost::logic::tribool down);
 	virtual void close();
 	CInfoWindow();
 	virtual ~CInfoWindow();
@@ -155,7 +166,7 @@ class CSelWindow : public CInfoWindow //component selection window
 { //uwaga - to okno nie usuwa swoich komponentow przy usuwaniu, moga sie one jeszcze przydac skryptowi - tak wiec skrypt korzystajacyz tego okna musi je usunac
 public:
 	void selectionChange(CSelectableComponent * to);
-	void okClicked(tribool down);
+	void okClicked(boost::logic::tribool down);
 	void close();
 	CSelWindow(){};
 };
@@ -166,7 +177,7 @@ public:
 	virtual void activate();
 	virtual void deactivate();
 	virtual void close()=0;
-	void clickRight (tribool down);
+	void clickRight (boost::logic::tribool down);
 	virtual ~CRClickPopup(){};
 };
 
@@ -198,7 +209,7 @@ public:
 	SComponent(Etype Type, int Subtype, int Val);
 	//SComponent(const & SComponent r);
 	
-	void clickRight (tribool down);
+	void clickRight (boost::logic::tribool down);
 	virtual SDL_Surface * getImg();
 	virtual void activate();
 	virtual void deactivate();
@@ -214,7 +225,7 @@ public:
 	CSelWindow * owner;
 
 
-	void clickLeft(tribool down);
+	void clickLeft(boost::logic::tribool down);
 	CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner=NULL, SDL_Surface * Border=NULL);
 	~CSelectableComponent();
 	void activate();
@@ -232,8 +243,8 @@ public:
 	int upg; //0 - up garrison, 1 - down garrison
 	
 	virtual void hover (bool on);
-	void clickRight (tribool down);
-	void clickLeft(tribool down);
+	void clickRight (boost::logic::tribool down);
+	void clickLeft(boost::logic::tribool down);
 	void activate();
 	void deactivate();
 	void show();
@@ -314,7 +325,7 @@ public:
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
 
 	//battles
-	void battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, tribool side); //called by engine when battle starts; side=0 - left, side=1 - right
+	void battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::logic::tribool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void actionStarted(BattleAction action);//occurs BEFORE every action taken by any stack or by the hero
@@ -322,6 +333,7 @@ public:
 	void activeStack(int stackID); //called when it's turn of that stack
 	void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner);
 	void battleStackMoved(int ID, int dest);
+	void battleStackAttacking(int ID, int dest);
 
 
 	//-------------//
@@ -374,10 +386,10 @@ public:
 	int selected, //id of selected position, <0 if none
 		from; 
 	const int SIZE;
-	tribool pressed; //true=up; false=down; indeterminate=none
+	boost::logic::tribool pressed; //true=up; false=down; indeterminate=none
 
 	CList(int Size = 5);
-	void clickLeft(tribool down);
+	void clickLeft(boost::logic::tribool down);
 	void activate(); 
 	void deactivate();
 	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
@@ -397,8 +409,8 @@ public:
 	void genList();
 	void select(int which);
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
-	void clickLeft(tribool down);
-	void clickRight(tribool down);
+	void clickLeft(boost::logic::tribool down);
+	void clickRight(boost::logic::tribool down);
 	void hover (bool on);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void updateHList();
@@ -422,8 +434,8 @@ public:
 	void genList();
 	void select(int which);
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
-	void clickLeft(tribool down);
-	void clickRight(tribool down);
+	void clickLeft(boost::logic::tribool down);
+	void clickRight(boost::logic::tribool down);
 	void hover (bool on);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void draw();
@@ -449,10 +461,12 @@ public:
 	void Buy();
 	void Cancel();
 	void sliderMoved(int to);
-	void clickLeft(tribool down);
+	void clickLeft(boost::logic::tribool down);
 	void activate(); 
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
 	CRecrutationWindow(std::vector<std::pair<int,int> > & Creatures); //creatures - pairs<creature_ID,amount>
 	~CRecrutationWindow();
 };
+
+#endif //CPLAYERINTERFACE_H

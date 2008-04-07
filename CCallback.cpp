@@ -558,6 +558,26 @@ int CCallback::battleGetBattlefieldType()
 	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].terType;
 }
 
+int CCallback::battleGetStack(int pos)
+{
+	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
+	{
+		if(CGI->state->curB->stacks[g]->position == pos)
+			return CGI->state->curB->stacks[g]->ID;
+	}
+	return -1;
+}
+
+CStack CCallback::battleGetStackByID(int ID)
+{
+	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
+	{
+		if(CGI->state->curB->stacks[g]->ID == ID)
+			return *(CGI->state->curB->stacks[g]);
+	}
+	return CStack();
+}
+
 int CCallback::battleGetPos(int stack)
 {
 	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
@@ -565,6 +585,20 @@ int CCallback::battleGetPos(int stack)
 		if(CGI->state->curB->stacks[g]->ID == stack)
 			return CGI->state->curB->stacks[g]->position;
 	}
+	return -1;
+}
+
+int CCallback::battleMakeAction(BattleAction* action)
+{
+	switch(action->actionType)
+	{
+	case 3: //defend
+		return battleMoveCreature(action->stackNumber, battleGetPos(action->stackNumber));
+	case 6: //move or attack
+		return battleMoveCreature(action->stackNumber, action->destinationTile);
+	}
+	delete action;
+	return -1; //error
 }
 
 std::map<int, CStack> CCallback::battleGetStacks()
@@ -584,6 +618,7 @@ CCreature CCallback::battleGetCreature(int number)
 		if(CGI->state->curB->stacks[h]->ID == number) //creature found
 			return *(CGI->state->curB->stacks[h]->creature);
 	}
+	return CCreature();
 }
 
 bool CCallback::battleMoveCreature(int ID, int dest)
@@ -598,6 +633,16 @@ bool CCallback::battleMoveCreature(int ID, int dest)
 std::vector<int> CCallback::battleGetAvailableHexes(int ID)
 {
 	return CGI->state->battleGetRange(ID);
+}
+
+bool CCallback::battleIsStackMine(int ID)
+{
+	for(int h=0; h<CGI->state->curB->stacks.size(); ++h)
+	{
+		if(CGI->state->curB->stacks[h]->ID == ID) //creature found
+			return CGI->state->curB->stacks[h]->owner == player;
+	}
+	return false;
 }
 
 int3 CScriptCallback::getPos(CGObjectInstance * ob)

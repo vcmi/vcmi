@@ -215,6 +215,24 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	//first checks
 	if(curB->stackActionPerformed) //because unit cannot be moved more than once
 		return false;
+	bool stackAtEnd = false; //true if there is a stack at the end of the path (we should attack it)
+	unsigned char owner = -1; //owner moved of unit
+	for(int g=0; g<curB->stacks.size(); ++g)
+	{
+		if(curB->stacks[g]->position == dest)
+		{
+			stackAtEnd = true;
+			break;
+		}
+	}
+	for(int g=0; g<curB->stacks.size(); ++g)
+	{
+		if(curB->stacks[g]->ID == ID)
+		{
+			owner = curB->stacks[g]->owner;
+			break;
+		}
+	}
 	//selecting moved stack
 	CStack * curStack = NULL;
 	for(int y=0; y<curB->stacks.size(); ++y)
@@ -233,7 +251,8 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		accessibility[curB->stacks[g]->position] = false;
+		if(curB->stacks[g]->owner == owner) //we don't want to lock enemy's positions
+			accessibility[curB->stacks[g]->position] = false;
 	}
 	int predecessor[187]; //for getting the Path
 	for(int b=0; b<187; ++b)
@@ -305,8 +324,15 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	}
 	for(int v=path.size()-1; v>=0; --v)
 	{
-		LOCPLINT->battleStackMoved(ID, path[v]);
-		curStack->position = path[v];
+		if(v!=0 || !stackAtEnd) //it's not the last step
+		{
+			LOCPLINT->battleStackMoved(ID, path[v]);
+			curStack->position = path[v];
+		}
+		else //if it's last step and we should attack unit at the end
+		{
+			LOCPLINT->battleStackAttacking(ID, path[v]);
+		}
 	}
 	curB->stackActionPerformed = true;
 	LOCPLINT->actionFinished(BattleAction());
@@ -317,12 +343,14 @@ std::vector<int> CGameState::battleGetRange(int ID)
 {
 	int initialPlace=-1; //position of unit
 	int radius=-1; //range of unit
+	unsigned char owner = -1; //owner of unit
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
 		if(curB->stacks[g]->ID == ID)
 		{
 			initialPlace = curB->stacks[g]->position;
 			radius = curB->stacks[g]->creature->speed;
+			owner = curB->stacks[g]->owner;
 			break;
 		}
 	}
@@ -332,7 +360,8 @@ std::vector<int> CGameState::battleGetRange(int ID)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		accessibility[curB->stacks[g]->position] = false;
+		if(curB->stacks[g]->owner == owner) //we don't want to lock enemy's positions
+			accessibility[curB->stacks[g]->position] = false;
 	}
 
 

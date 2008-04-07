@@ -1,14 +1,22 @@
 #ifndef CGAMEINTERFACE_H
 #define CGAMEINTERFACE_H
 #include "global.h"
-#include "CCallback.h"
+//#include "CCallback.h"
+#include <vector>
 BOOST_TRIBOOL_THIRD_STATE(outOfRange)
 
 using namespace boost::logic;
 class CCallback;
+class ICallback;
 class CGlobalAI;
 class CGHeroInstance;
 class CSelectableComponent;
+struct HeroMoveDetails;
+class CGHeroInstance;
+class CGTownInstance;
+class CGObjectInstance;
+class CCreatureSet;
+
 class CObstacle
 {
 	int ID;

@@ -9,7 +9,9 @@
 #include "CAdvmapInterface.h"
 #include "hch\CLodHandler.h"
 #include "AdventureMapButton.h"
+#include "hch\CObjectHandler.h"
 #include "CMessage.h"
+#include "CCallback.h"
 #include <sstream>
 
 extern SDL_Surface * screen;

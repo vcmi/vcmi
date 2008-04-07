@@ -1948,6 +1948,11 @@ void CPlayerInterface::battleStackMoved(int ID, int dest)
 	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest);
 }
 
+void CPlayerInterface::battleStackAttacking(int ID, int dest)
+{
+	dynamic_cast<CBattleInterface*>(curint)->stackAttacking(ID, dest);
+}
+
 void CPlayerInterface::showComp(SComponent comp)
 {
 	adventureInt->infoBar.showComp(&comp,4000);

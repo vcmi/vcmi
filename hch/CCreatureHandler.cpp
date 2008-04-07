@@ -666,6 +666,8 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEn
 {
 	//load main file
 	std::string data2 = CGI->spriteh->getTextFile(name);
+	if(data2.size()==0)
+		throw new std::string("no such def!");
 	FDef = new unsigned char[data2.size()];
 	for(int g=0; g<data2.size(); ++g)
 	{

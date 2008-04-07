@@ -11,6 +11,7 @@
 #include <sstream>
 #include "CMessage.h"
 #include "hch/CGeneralTextHandler.h"
+#include "CCallback.h"
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str), moi(false)

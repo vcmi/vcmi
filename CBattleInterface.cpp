@@ -22,8 +22,10 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
 	for(std::map<int, CStack>::iterator b=stacks.begin(); b!=stacks.end(); ++b)
 	{
+		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(b->second.position, b->second.owner == attackingHeroInstance->tempOwner);
 		creAnims[b->second.ID] = (new CCreatureAnimation(b->second.creature->animDefName));
 		creAnims[b->second.ID]->setType(2);
+		creAnims[b->second.ID]->pos = genRect(creAnims[b->second.ID]->fullHeight, creAnims[b->second.ID]->fullWidth, coords.first, coords.second);
 	}
 	//preparing menu background and terrain
 	std::vector< std::string > & backref = CGI->mh->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
@@ -206,8 +208,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing units //a lot of work...
 	for(std::map<int, CCreatureAnimation*>::iterator j=creAnims.begin(); j!=creAnims.end(); ++j)
 	{
-		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(stacks[j->first].position, stacks[j->first].owner == attackingHeroInstance->tempOwner);
-		j->second->nextFrame(to, coords.first, coords.second, stacks[j->first].owner == attackingHeroInstance->tempOwner, animCount%2==0, j->first==activeStack);
+		j->second->nextFrame(to, j->second->pos.x, j->second->pos.y, stacks[j->first].owner == attackingHeroInstance->tempOwner, animCount%2==0 || j->second->getType()==0, j->first==activeStack); //increment always when moving
 	}
 	//units shown
 
@@ -251,6 +252,10 @@ void CBattleInterface::bWaitf()
 
 void CBattleInterface::bDefencef()
 {
+	BattleAction * ba = new BattleAction;
+	ba->actionType = 3;
+	ba->stackNumber = activeStack;
+	LOCPLINT->cb->battleMakeAction(ba);
 }
 
 void CBattleInterface::bConsoleUpf()
@@ -282,14 +287,62 @@ void CBattleInterface::stackActivated(int number)
 void CBattleInterface::stackMoved(int number, int destHex)
 {
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
-	for(int i=0; i<6; ++i)
+	int steps = 6;
+	int hexWbase = 44, hexHbase = 42;
+	creAnims[number]->setType(0);
+	for(int i=0; i<steps; ++i)
 	{
-		//creAnims[number]->setType(0);
+		switch(CBattleHex::mutualPosition(curStackPos, destHex))
+		{
+		case 0:
+			creAnims[number]->pos.x -= hexWbase/(2*steps);
+			creAnims[number]->pos.y -= hexHbase/steps;
+			break;
+		case 1:
+			creAnims[number]->pos.x += hexWbase/(2*steps);
+			creAnims[number]->pos.y -= hexHbase/steps;
+			break;
+		case 2:
+			creAnims[number]->pos.x += hexWbase/steps;
+			break;
+		case 3:
+			creAnims[number]->pos.x += hexWbase/(2*steps);
+			creAnims[number]->pos.y += hexHbase/steps;
+			break;
+		case 4:
+			creAnims[number]->pos.x -= hexWbase/(2*steps);
+			creAnims[number]->pos.y += hexHbase/steps;
+			break;
+		case 5:
+			creAnims[number]->pos.x -= hexWbase/steps;
+			break;
+		}
+		show();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
+	
+	creAnims[number]->setType(2); //resetting to delault
+	CStack curs = LOCPLINT->cb->battleGetStackByID(number);
+	
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, curs.owner == attackingHeroInstance->tempOwner);
+	creAnims[number]->pos.x = coords.first;
+	creAnims[number]->pos.y = coords.second;
+}
+
+void CBattleInterface::stackAttacking(int ID, int dest)
+{
 }
 
 void CBattleInterface::hexLclicked(int whichOne)
 {
+	if(!LOCPLINT->cb->battleIsStackMine(LOCPLINT->cb->battleGetStack(whichOne))) //if player is trying to attack eney unit
+	{
+		BattleAction * ba = new BattleAction(); //to be deleted by engine
+		ba->actionType = 6;
+		ba->destinationTile = whichOne;
+		ba->stackNumber = activeStack;
+		LOCPLINT->cb->battleMakeAction(ba);
+	}
 	if((whichOne%17)!=0 && (whichOne%17)!=16)
 	{
 		LOCPLINT->cb->battleMoveCreature(activeStack, whichOne);
@@ -383,6 +436,23 @@ std::pair<int, int> CBattleHex::getXYUnitAnim(int hexNum, bool attacker)
 	}
 	//returning
 	return ret;
+}
+
+signed char CBattleHex::mutualPosition(int hex1, int hex2)
+{
+	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
+		return 0;
+	if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
+		return 1;
+	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
+		return 5;
+	if(hex2 == hex1 + 1 && hex1%17 != 16) //right
+		return 2;
+	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
+		return 4;
+	if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
+		return 3;
+	return -1;
 }
 
 void CBattleHex::activate()
