@@ -322,7 +322,7 @@ void CCastleInterface::buildingClicked(int building)
 
 		if(town->builtBuildings.find(building+7) != town->builtBuildings.end()) //check if there is an upgraded building
 			crs.push_back(std::make_pair(town->town->upgradedCreatures[building-30],amount));
-		CRecrutationWindow *rw = new CRecrutationWindow(crs);
+		CRecrutationWindow *rw = new CRecrutationWindow(crs,this);
 		rw->activate();
 	}
 	switch(building)
@@ -392,7 +392,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 			pomy = (i>3)?(507):(459);
 			blitAt(CGI->creh->smallImgs[cid],pomx,pomy,to);
 			std::ostringstream oss;
-			oss << '+' << (CGI->creh->creatures[cid].growth + town->creatureIncome[i]);
+			oss << '+' << town->creatureGrowth(i);
 			CSDL_Ext::printAtMiddle(oss.str(),pomx+16,pomy+37,GEOR13,zwykly,to);
 		}
 	}
@@ -559,7 +559,10 @@ void CCastleInterface::recreateBuildings()
 	}
 	std::sort(buildings.begin(),buildings.end(),srthlp);
 }
-
+void CCastleInterface::recruit(int ID, int amount)
+{
+	LOCPLINT->cb->recruitCreatures(town,ID,amount);
+}
 void CHallInterface::CResDataBar::show(SDL_Surface * to)
 {
 	blitAt(bg,pos.x,pos.y);

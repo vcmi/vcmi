@@ -520,7 +520,7 @@ SDL_Surface * CMessage::genMessage
 	if (title.length())
 		hh=110+(21*tekst->size());
 	else hh=60+(21*tekst->size());
-	if (type==EWindowType::yesOrNO) //make place for buttons
+	if (type==yesOrNO) //make place for buttons
 	{
 		if (ww<200) ww=200; 
 		hh+=70;
@@ -550,7 +550,7 @@ SDL_Surface * CMessage::genMessage
 		SDL_BlitSurface(tresc,NULL,ret,&trescRect);
 		SDL_FreeSurface(tresc);
 	}
-	if (type==EWindowType::yesOrNO) // add buttons
+	if (type==yesOrNO) // add buttons
 	{
 		int by = 77+tekst->size()*21;
 		if (title.length()) by+=40;

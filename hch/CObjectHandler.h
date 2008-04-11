@@ -395,10 +395,7 @@ public:
 		std::map<int,int> creatures; //level - available amount
 	} strInfo;
 	
-	//TODO:
 	std::set<int> forbiddenBuildings, builtBuildings, h3mbuildings;
-	std::vector<int> creatureIncome; //vector by level - that valueis addedto thebasic growth
-	std::vector<int> creaturesLeft; //that can be recruited
 
 	const CGHeroInstance * garrisonHero, *visitingHero;
 
@@ -408,8 +405,9 @@ public:
 
 	int fortLevel() const; //0 - none, 1 - fort, 2 - citadel, 3 - castle
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
-	bool creatureDwelling(int level, bool upgraded=false);
-	int getHordeLevel(int HID); //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
+	bool creatureDwelling(int level, bool upgraded=false) const;
+	int getHordeLevel(int HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
+	int creatureGrowth(int level) const;
 
 	bool hasFort() const;
 	bool hasCapitol() const;

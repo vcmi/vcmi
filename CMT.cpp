@@ -62,7 +62,7 @@
 CGameInfo* CGI;
 #endif
 #define CHUNK 16384
-const char * NAME = "VCMI 0.5x \"Tirion\" Techdemo";
+const char * NAME = "VCMI pre-0.6";
 
 SDL_Color playerColorPalette[256]; //palette to make interface colors good
 
@@ -212,8 +212,8 @@ void initGameState(CGameInfo * cgi)
 		//CGTownInstance * vti = new CGTownInstance();
 		//(*vti)=*(cgi->townh->townInstances[i]);
 		CGTownInstance * vti =(cgi->townh->townInstances[i]);
-		vti->creatureIncome.resize(CREATURES_PER_TOWN);
-		vti->creaturesLeft.resize(CREATURES_PER_TOWN);
+		//vti->creatureIncome.resize(CREATURES_PER_TOWN);
+		//vti->creaturesLeft.resize(CREATURES_PER_TOWN);
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name=vti->town->names[rand()%vti->town->names.size()];
 		

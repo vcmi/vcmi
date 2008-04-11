@@ -241,6 +241,7 @@ public:
 	const CCreature * creature;
 	int count;
 	int upg; //0 - up garrison, 1 - down garrison
+	bool active;
 	
 	virtual void hover (bool on);
 	void clickRight (boost::logic::tribool down);
@@ -249,6 +250,7 @@ public:
 	void deactivate();
 	void show();
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CCreature * Creature=NULL, int Count=0);
+	~CGarrisonSlot();
 };
 
 class CGarrisonInt :public CIntObject
@@ -259,7 +261,7 @@ public:
 
 	SDL_Surface *sur;
 	int offx, offy;
-	bool ignoreEvent, update;
+	bool ignoreEvent, update, active;
 
 	const CCreatureSet *set1;
 	const CCreatureSet *set2;
@@ -440,6 +442,13 @@ public:
 	void keyPressed (SDL_KeyboardEvent & key);
 	void draw();
 };
+
+class IRecruit
+{
+public:
+	virtual void recruit(int ID, int amount)=0;
+};
+
 class CRecrutationWindow : public IShowable, public ClickableL
 {
 public:
@@ -451,6 +460,7 @@ public:
 		std::vector<std::pair<int,int> > res; //res_id - cost_per_unit
 	};
 	std::vector<creinfo> creatures;
+	IRecruit *rec;
 	CSlider<CRecrutationWindow> *slider;
 	AdventureMapButton<CRecrutationWindow> *max, *buy, *cancel;
 	SDL_Surface *bitmap;
@@ -465,7 +475,7 @@ public:
 	void activate(); 
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
-	CRecrutationWindow(std::vector<std::pair<int,int> > & Creatures); //creatures - pairs<creature_ID,amount>
+	CRecrutationWindow(std::vector<std::pair<int,int> > & Creatures, IRecruit *irec); //creatures - pairs<creature_ID,amount>
 	~CRecrutationWindow();
 };
 

@@ -27,7 +27,7 @@ public:
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 };
 
-class CCastleInterface : public IShowable, public IActivable
+class CCastleInterface : public IShowable, public IActivable, public IRecruit
 {
 public:
 	bool showing;
@@ -62,6 +62,7 @@ public:
 	void addBuilding(int bid);
 	void removeBuilding(int bid);
 	void recreateBuildings();
+	void recruit(int ID, int amount);
 };
 
 class CHallInterface : public IShowable, public IActivable

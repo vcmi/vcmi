@@ -19,6 +19,12 @@ class ICallback
 public:
 	virtual bool moveHero(int ID, CPath * path, int idtype, int pathType=0)=0;//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero 
 															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
+	virtual int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
+	virtual int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
+	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
+	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
+	virtual bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2)=0; //swaps artifacts between two given heroes
+	virtual void recruitCreatures(const CGObjectInstance *obj, int ID, int amount)=0;
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)=0;
@@ -35,12 +41,7 @@ public:
 	virtual int getMyColor()=0;
 	virtual int getMySerial()=0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)=0;
-	virtual int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
-	virtual int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
-	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
-	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
 	virtual const CCreatureSet* getGarrison(const CGObjectInstance *obj)=0;
-	virtual bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2)=0; //swaps artifacts between two given heroes
 };
 
 struct HeroMoveDetails
@@ -69,6 +70,8 @@ public:
 	bool moveHero(int ID, CPath * path, int idtype, int pathType=0);//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero 
 															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
 	void selectionMade(int selection, int asker);
+	void recruitCreatures(const CGObjectInstance *obj, int ID, int amount);
+
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea);

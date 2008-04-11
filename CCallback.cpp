@@ -246,6 +246,59 @@ void CCallback::selectionMade(int selection, int asker)
 	IChosen * ask = (IChosen *)asker;
 	ask->chosen(selection);
 }
+void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount)
+{
+	if(amount<=0) return;
+	if(obj->ID==98)
+	{
+		CGTownInstance *t = const_cast<CGTownInstance*>(static_cast<const CGTownInstance*>(obj));
+
+		//verify
+		bool found = false;
+		typedef std::pair<const int,int> Parka;
+		for(std::map<int,int>::iterator av=t->strInfo.creatures.begin();av!=t->strInfo.creatures.end();av++)
+		{
+			if(	(   found  = (ID == t->town->basicCreatures[av->first])   )
+				|| (found  = (ID == t->town->upgradedCreatures[av->first]))			)
+			{
+				amount = std::min(amount,av->second);
+				break;
+			}
+		}
+		if(!found)	//no such creature
+			return;
+
+		for(int i=0;i<RESOURCE_QUANTITY;i++)
+			if (gs->players[player].resources[i]  <  (CGI->creh->creatures[ID].cost[i] * amount))
+				return; //not enough resources
+
+		if(amount<=0) return;
+
+		//recruit
+		int slot = -1;
+		std::pair<int,std::pair<CCreature*,int> > parb;	
+
+		for(int i=0;i<7;i++)
+		{
+			if(!t->army.slots[i].first)
+			{
+				slot = i;
+				break;
+			}
+		}
+
+		if(slot<0) //no free slot
+			return;
+
+		for(int i=0;i<RESOURCE_QUANTITY;i++)
+			gs->players[player].resources[i]  -=  (CGI->creh->creatures[ID].cost[i] * amount);
+		
+		t->army.slots[slot].first = &CGI->creh->creatures[ID];
+		t->army.slots[slot].second = amount;
+		CGI->playerint[gs->players[player].serial]->garrisonChanged(obj);
+
+	}
+}
 
 int CCallback::howManyTowns()
 {
@@ -618,7 +671,7 @@ CCreature CCallback::battleGetCreature(int number)
 		if(CGI->state->curB->stacks[h]->ID == number) //creature found
 			return *(CGI->state->curB->stacks[h]->creature);
 	}
-	return CCreature();
+	throw new std::exception("Cannot find the creature");
 }
 
 bool CCallback::battleMoveCreature(int ID, int dest)

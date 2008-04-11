@@ -113,8 +113,6 @@ void CGarrisonSlot::clickLeft(tribool down)
 				(!upg)?(owner->oup):(owner->odown),
 				(!owner->highlighted->upg)?(owner->oup):(owner->odown),
 				ID,owner->highlighted->ID);
-			owner->highlighted = NULL;
-			owner->recreateSlots();
 		}
 		else
 		{
@@ -126,18 +124,23 @@ void CGarrisonSlot::clickLeft(tribool down)
 }
 void CGarrisonSlot::activate()
 {
+	if(!active) active=true;
+	else return;
 	ClickableL::activate();
 	ClickableR::activate();
 	Hoverable::activate();
 }
 void CGarrisonSlot::deactivate()
 {
+	if(active) active=false;
+	else return;
 	ClickableL::deactivate();
 	ClickableR::deactivate();
 	Hoverable::deactivate();
 }
 CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CCreature * Creature, int Count)
 {
+	active = false;
 	upg = Upg;
 	count = Count;
 	ID = IID;
@@ -147,6 +150,11 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 	pos.w = 58;
 	pos.h = 64;
 	owner = Owner;
+}
+CGarrisonSlot::~CGarrisonSlot()
+{
+	if(active)
+		deactivate();
 }
 void CGarrisonSlot::show()
 {
@@ -1516,6 +1524,8 @@ SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
 	printAtMiddle(buf,167,70,GEORM,zwykly,ret);
 	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
 	{
+		if(!i->second.first)
+			continue;
 		blitAt(CGI->creh->smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		itoa((*i).second.second,buf,10);
 		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
@@ -1528,7 +1538,6 @@ SDL_Surface * CPlayerInterface::drawTownInfoWin(const CGTownInstance * curh)
 	if(curh->builded >= MAX_BUILDING_PER_TURN)
 		pom++;
 	blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
-
 	delete[] buf;
 	return ret;
 }
@@ -1858,8 +1867,15 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		const CGTownInstance * tt;
 		if(tt = dynamic_cast<const CGTownInstance*>(obj))
 		{
-			SDL_FreeSurface(heroWins[tt->identifier]);
-			heroWins[tt->identifier] = infoWin(tt);
+			SDL_FreeSurface(townWins[tt->identifier]);
+			townWins[tt->identifier] = infoWin(tt);
+		}
+		
+		const CCastleInterface *ci = dynamic_cast<CCastleInterface*>(curint);
+		if(ci)
+		{
+			ci->garr->highlighted = NULL;
+			ci->garr->recreateSlots();
 		}
 	}
 }
@@ -2325,6 +2341,7 @@ void CRecrutationWindow::Max()
 }
 void CRecrutationWindow::Buy()
 {
+	rec->recruit(creatures[which].ID,slider->value);
 	close();
 }
 void CRecrutationWindow::Cancel()
@@ -2388,7 +2405,8 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	}
 	c++;
 }
-CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatures) //creatures - pairs<creature_ID,amount>
+CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatures, IRecruit *irec) //creatures - pairs<creature_ID,amount>
+:rec(irec)
 {
 	creatures.resize(Creatures.size());
 	for(int i=0;i<creatures.size();i++)

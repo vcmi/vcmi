@@ -1988,8 +1988,6 @@ void CAmbarCendamo::deh3m()
 				nt->possibleSpells = spec->possibleSpells;
 				nt->obligatorySpells = spec->obligatorySpells;
 				nt->availableSpells = std::vector<CSpell*>();
-				nt->creatureIncome = std::vector<int>();
-				nt->creaturesLeft = std::vector<int>();
 				CGI->townh->townInstances.push_back(nt);
 				break;
 			}

@@ -1,7 +1,7 @@
 #ifndef CCREATUREHANDLER_H
 #define CCREATUREHANDLER_H
 
-#include "CPlayerInterface.h"
+#include "../CPlayerInterface.h"
 #include <string>
 #include <vector>
 #include <map>
