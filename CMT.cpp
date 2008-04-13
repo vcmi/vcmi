@@ -237,7 +237,22 @@ void initGameState(CGameInfo * cgi)
 				}
 			}
 		}
+
+		//init visiting heroes
+		for(int l=0; l<k->second.heroes.size();l++)
+		{ 
+			for(int m=0; m<k->second.towns.size();m++)
+			{
+				int3 vistile = k->second.towns[m]->pos; vistile.x--; //tile next to the entrance
+				if(vistile == k->second.heroes[l]->pos)
+				{
+					k->second.towns[m]->visitingHero = k->second.heroes[l];
+					break;
+				}
+			}
+		}
 	}
+
 	/****************************SCRIPTS************************************************/
 	std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &cgi->state->objscr; //alias for easier access
 	/****************************C++ OBJECT SCRIPTS************************************************/

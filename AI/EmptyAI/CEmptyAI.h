@@ -1,5 +1,5 @@
 #include "../../AI_Base.h"
-
+#include "../../CCallback.h"
 class CEmptyAI : public CGlobalAI
 {
 	ICallback * cb;

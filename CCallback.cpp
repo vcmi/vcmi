@@ -251,6 +251,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 	if(amount<=0) return;
 	if(obj->ID==98)
 	{
+		int ser=-1;
 		CGTownInstance *t = const_cast<CGTownInstance*>(static_cast<const CGTownInstance*>(obj));
 
 		//verify
@@ -262,6 +263,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 				|| (found  = (ID == t->town->upgradedCreatures[av->first]))			)
 			{
 				amount = std::min(amount,av->second);
+				ser = av->first;
 				break;
 			}
 		}
@@ -292,6 +294,8 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 
 		for(int i=0;i<RESOURCE_QUANTITY;i++)
 			gs->players[player].resources[i]  -=  (CGI->creh->creatures[ID].cost[i] * amount);
+
+		t->strInfo.creatures[ser] -= amount;
 		
 		t->army.slots[slot].first = &CGI->creh->creatures[ID];
 		t->army.slots[slot].second = amount;
@@ -496,52 +500,82 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 		//TODO: check if we are allowed to swap these creatures
 		return -1;
 	}
-	//if(S1->slots[p1].first)
-	{
-		//if(s2->slots[p2].first)
-		{
-			CCreature * pom = S2->slots[p2].first;
-			S2->slots[p2].first = S1->slots[p1].first;
-			S1->slots[p1].first = pom;
-			int pom2 = S2->slots[p2].second;
-			S2->slots[p2].second = S1->slots[p1].second;
-			S1->slots[p1].second = pom2;
 
-			if(!S1->slots[p1].first)
-				S1->slots.erase(p1);
-			if(!S2->slots[p2].first)
-				S2->slots.erase(p2);
-			if(s1->tempOwner<PLAYER_LIMIT)
+	CCreature * pom = S2->slots[p2].first;
+	S2->slots[p2].first = S1->slots[p1].first;
+	S1->slots[p1].first = pom;
+	int pom2 = S2->slots[p2].second;
+	S2->slots[p2].second = S1->slots[p1].second;
+	S1->slots[p1].second = pom2;
+
+	if(!S1->slots[p1].first)
+		S1->slots.erase(p1);
+	if(!S2->slots[p2].first)
+		S2->slots.erase(p2);
+
+	if(s1->tempOwner<PLAYER_LIMIT)
+	{
+		for(int b=0; b<CGI->playerint.size(); ++b)
+		{
+			if(CGI->playerint[b]->playerID == s1->tempOwner)
 			{
-				for(int b=0; b<CGI->playerint.size(); ++b)
-				{
-					if(CGI->playerint[b]->playerID == s1->tempOwner)
-					{
-						CGI->playerint[b]->garrisonChanged(s1);
-						break;
-					}
-				}
+				CGI->playerint[b]->garrisonChanged(s1);
+				break;
 			}
-			if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
-			{
-				for(int b=0; b<CGI->playerint.size(); ++b)
-				{
-					if(CGI->playerint[b]->playerID == s2->tempOwner)
-					{
-						CGI->playerint[b]->garrisonChanged(s2);
-						break;
-					}
-				}
-			}
-			return 0;
 		}
 	}
-	return -1;
+	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
+	{
+		for(int b=0; b<CGI->playerint.size(); ++b)
+		{
+			if(CGI->playerint[b]->playerID == s2->tempOwner)
+			{
+				CGI->playerint[b]->garrisonChanged(s2);
+				break;
+			}
+		}
+	}
+	return 0;
 }
 
 int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
-{
-	return -1;
+{	
+	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
+	if ((S1->slots[p1].first != S2->slots[p2].first) && (true /*we are allowed to*/))
+	{
+		return -1;
+	}
+
+
+	S2->slots[p2].second += S1->slots[p1].second;
+	S1->slots[p1].first = NULL;
+	S1->slots[p1].second = 0;
+
+	S1->slots.erase(p1);
+
+	if(s1->tempOwner<PLAYER_LIMIT)
+	{
+		for(int b=0; b<CGI->playerint.size(); ++b)
+		{
+			if(CGI->playerint[b]->playerID == s1->tempOwner)
+			{
+				CGI->playerint[b]->garrisonChanged(s1);
+				break;
+			}
+		}
+	}
+	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
+	{
+		for(int b=0; b<CGI->playerint.size(); ++b)
+		{
+			if(CGI->playerint[b]->playerID == s2->tempOwner)
+			{
+				CGI->playerint[b]->garrisonChanged(s2);
+				break;
+			}
+		}
+	}
+	return 0;
 }
 int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)
 {
@@ -611,6 +645,11 @@ int CCallback::battleGetBattlefieldType()
 	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].terType;
 }
 
+int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield 
+{
+	//TODO - write
+	return -1;
+}
 int CCallback::battleGetStack(int pos)
 {
 	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)

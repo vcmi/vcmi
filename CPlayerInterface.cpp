@@ -56,11 +56,17 @@ void CGarrisonSlot::hover (bool on)
 					temp = CGI->townh->tcommands[2];
 					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
 				}
-				else
+				else if (owner->highlighted->creature)
 				{
 					temp = CGI->townh->tcommands[7];
 					boost::algorithm::replace_first(temp,"%s",owner->highlighted->creature->nameSing);
 					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
+				}
+				else
+				{
+					std::cout << "Warning - shouldn't be - highlighted void slot "<<owner->highlighted<<std::endl;
+					std::cout << "Highlighted set to NULL"<<std::endl;
+					owner->highlighted = NULL;
 				}
 			}
 			else
@@ -109,10 +115,26 @@ void CGarrisonSlot::clickLeft(tribool down)
 	{
 		if(owner->highlighted)
 		{
-			LOCPLINT->cb->swapCreatures(
-				(!upg)?(owner->oup):(owner->odown),
-				(!owner->highlighted->upg)?(owner->oup):(owner->odown),
-				ID,owner->highlighted->ID);
+			if(owner->highlighted == this)
+			{
+				//TODO: view creature info
+				owner->highlighted = NULL;
+				show();
+			}
+			else if(creature != owner->highlighted->creature) //swap
+			{
+				LOCPLINT->cb->swapCreatures(
+					(!upg)?(owner->oup):(owner->odown),
+					(!owner->highlighted->upg)?(owner->oup):(owner->odown),
+					ID,owner->highlighted->ID);
+			}
+			else
+			{
+				LOCPLINT->cb->mergeStacks(
+					(!owner->highlighted->upg)?(owner->oup):(owner->odown),
+					(!upg)?(owner->oup):(owner->odown),
+					owner->highlighted->ID,ID);
+			}
 		}
 		else
 		{
@@ -1860,6 +1882,11 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		{
 			SDL_FreeSurface(heroWins[hh->subID]);
 			heroWins[hh->subID] = infoWin(hh);
+		}
+		if(castleInt == curint) //opened town window - redraw town garrsion slots (change is within hero garr) 
+		{
+			castleInt->garr->highlighted = NULL;
+			castleInt->garr->recreateSlots();
 		}
 	}
 	else if (obj->ID == 98) //town
