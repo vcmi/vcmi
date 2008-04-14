@@ -19,6 +19,7 @@ public:
 	std::vector<std::string> names; //names of the town instances
 	std::vector<int> basicCreatures; //level (from 0) -> ID
 	std::vector<int> upgradedCreatures; //level (from 0) -> ID
+	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	int bonus; //pic number
 	int typeID;
 };

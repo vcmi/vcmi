@@ -240,6 +240,15 @@ void CTownHandler::loadNames()
 		of.close();
 		of.clear();
 
+		of.open("config/building_horde.txt");
+		while(!of.eof())
+		{
+			int tid, lid, cid; //town,horde serial,creature level
+			of >> tid >> lid >> cid;
+			towns[tid].hordeLvl[--lid] = cid;
+		}
+		of.close();
+		of.clear();
 		
 		of.open("config/requirements.txt");
 		while(!of.eof())

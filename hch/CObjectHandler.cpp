@@ -9,6 +9,7 @@
 #include "../CLua.h"
 #include "CHeroHandler.h"
 #include <boost/algorithm/string/replace.hpp>
+#include "CTownHandler.h"
 void CObjectHandler::loadObjects()
 {
 	int ID=0;
@@ -272,13 +273,25 @@ bool CGTownInstance::creatureDwelling(int level, bool upgraded) const
 }
 int CGTownInstance::getHordeLevel(int HID)  const//HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 {
-	//TODO: write
-	return -1;
+	return town->hordeLvl[HID];
 }
 int CGTownInstance::creatureGrowth(int level) const
 {
-	//TODO: write 
-	return -1;
+	int ret = CGI->creh->creatures[town->basicCreatures[level]].growth;
+	switch(fortLevel())
+	{
+	case 3:
+		ret*=2;break;
+	case 2:
+		ret*=(1.5); break;
+	}
+	if(getHordeLevel(0)==level)
+		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
+			ret+=CGI->creh->creatures[town->basicCreatures[level]].hordeGrowth;
+	if(getHordeLevel(1)==level)
+		if((builtBuildings.find(24)!=builtBuildings.end()) || (builtBuildings.find(25)!=builtBuildings.end()))
+			ret+=CGI->creh->creatures[town->basicCreatures[level]].hordeGrowth;
+	return ret;
 }
 int CGTownInstance::dailyIncome() const
 {

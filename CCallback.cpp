@@ -61,16 +61,12 @@ void CCallback::newTurn()
 			{
 				for(int k=0;k<CREATURES_PER_TOWN;k++)
 				{
-					int growth;
-					if(i->second.towns[j]->creatureDwelling(k))//basic growth
-						  growth=CGI->creh->creatures[i->second.towns[j]->town->basicCreatures[k]].growth;
-					if(i->second.towns[j]->builtBuildings.find(9)!=i->second.towns[j]->builtBuildings.end()) //castle +100%
-						growth*=2;
-					else if(i->second.towns[j]->builtBuildings.find(9)!=i->second.towns[j]->builtBuildings.end()) //castle +100%
-						growth*=1.5;
-					i->second.towns[j]->strInfo.creatures[k]+=growth;
+					if(i->second.towns[j]->creatureDwelling(k))//there is dwelling
+						i->second.towns[j]->strInfo.creatures[k]+=i->second.towns[j]->creatureGrowth(k);
 				}
 			}
+			if((gs->day>1) && i->first<PLAYER_LIMIT)
+				i->second.resources[6]+=i->second.towns[j]->dailyIncome();
 		}
 	}
 }
