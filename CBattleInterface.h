@@ -32,7 +32,7 @@ public:
 	//CStack * ourStack;
 	bool hovered, strictHovered;
 	CBattleInterface * myInterface; //interface that owns me
-	static std::pair<int, int> getXYUnitAnim(int hexNum, bool attacker); //returns (x, y) of left top corner of animation
+	static std::pair<int, int> getXYUnitAnim(int hexNum, bool attacker, CCreature * creature); //returns (x, y) of left top corner of animation
 	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	//for user interactions
 	void hover (bool on);
@@ -51,13 +51,14 @@ class CBattleObstacle
 class CBattleInterface : public IActivable, public IShowable
 {
 private:
-	SDL_Surface * background, * menu;
+	SDL_Surface * background, * menu, * amountBasic, * amountNormal;
 	AdventureMapButton<CBattleInterface> * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
 	CBattleHero * attackingHero, * defendingHero;
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
+	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
 	void showRange(SDL_Surface * to, int ID); //show helper funtion ot mark range of a unit
@@ -88,12 +89,13 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+	bool reverseCreature(int number, int hex); //reverses animation of given creature playing animation of reversing
 
 	//call-ins
 	void newStack(CStack stack); //new stack appeared on battlefield
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
 	void stackActivated(int number); //active stack has been changed
-	void stackMoved(int number, int destHex); //stack with id number moved to destHex
+	void stackMoved(int number, int destHex, bool startMoving, bool endMoving); //stack with id number moved to destHex
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
 	void turnEnded(); //caled when current unit cannot get new orders
 	void hexLclicked(int whichOne); //hex only call-in

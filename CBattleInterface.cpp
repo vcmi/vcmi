@@ -9,8 +9,11 @@
 #include "CCallback.h"
 #include "CGameState.h"
 #include <queue>
+#include <sstream>
 
 extern SDL_Surface * screen;
+extern TTF_Font * GEOR13;
+extern SDL_Color zwykly;
 SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2) 
@@ -22,16 +25,33 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
 	for(std::map<int, CStack>::iterator b=stacks.begin(); b!=stacks.end(); ++b)
 	{
-		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(b->second.position, b->second.owner == attackingHeroInstance->tempOwner);
+		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(b->second.position, b->second.owner == attackingHeroInstance->tempOwner, b->second.creature);
 		creAnims[b->second.ID] = (new CCreatureAnimation(b->second.creature->animDefName));
 		creAnims[b->second.ID]->setType(2);
 		creAnims[b->second.ID]->pos = genRect(creAnims[b->second.ID]->fullHeight, creAnims[b->second.ID]->fullWidth, coords.first, coords.second);
+		creDir[b->second.ID] = b->second.owner==attackingHeroInstance->tempOwner;
 	}
 	//preparing menu background and terrain
 	std::vector< std::string > & backref = CGI->mh->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
 	background = CGI->bitmaph->loadBitmap(backref[ rand() % backref.size()] );
 	menu = CGI->bitmaph->loadBitmap("CBAR.BMP");
 	CSDL_Ext::blueToPlayersAdv(menu, hero1->tempOwner);
+
+	//preparing graphics for displaying amounts of creatures
+	amountBasic = CGI->bitmaph->loadBitmap("CMNUMWIN.BMP");
+	amountNormal = CGI->bitmaph->loadBitmap("CMNUMWIN.BMP");
+	CSDL_Ext::alphaTransform(amountNormal);
+	for(int g=0; g<amountNormal->format->palette->ncolors; ++g)
+	{
+		if((amountNormal->format->palette->colors+g)->b != 132 &&
+			(amountNormal->format->palette->colors+g)->g != 231 &&
+			(amountNormal->format->palette->colors+g)->r != 255) //it's not yellow border
+		{
+			(amountNormal->format->palette->colors+g)->r = (float)((amountNormal->format->palette->colors+g)->r) * 0.54f;
+			(amountNormal->format->palette->colors+g)->g = (float)((amountNormal->format->palette->colors+g)->g) * 0.19f;
+			(amountNormal->format->palette->colors+g)->b = (float)((amountNormal->format->palette->colors+g)->b) * 0.93f;
+		}
+	}
 
 	//blitting menu background and terrain
 	blitAt(background, 0, 0);
@@ -206,13 +226,66 @@ void CBattleInterface::show(SDL_Surface * to)
 		defendingHero->show(to);
 
 	//showing units //a lot of work...
-	for(std::map<int, CCreatureAnimation*>::iterator j=creAnims.begin(); j!=creAnims.end(); ++j)
+	int stackByHex[187];
+	for(int b=0; b<187; ++b)
+		stackByHex[b] = -1;
+	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		j->second->nextFrame(to, j->second->pos.x, j->second->pos.y, stacks[j->first].owner == attackingHeroInstance->tempOwner, animCount%2==0 || j->second->getType()==0, j->first==activeStack); //increment always when moving
+		stackByHex[j->second.position] = j->second.ID;
+	}
+	for(int b=0; b<187; ++b)
+	{
+		if(stackByHex[b]!=-1)
+		{
+			creAnims[stackByHex[b]]->nextFrame(to, creAnims[stackByHex[b]]->pos.x, creAnims[stackByHex[b]]->pos.y, creDir[stackByHex[b]], animCount%2==0 || creAnims[stackByHex[b]]->getType()==0, stackByHex[b]==activeStack); //increment always when moving
+			//printing amount
+			if(stacks[stackByHex[b]].attackerOwned)
+			{
+				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 220, creAnims[stackByHex[b]]->pos.y + 260));
+				std::stringstream ss;
+				ss<<stacks[stackByHex[b]].amount;
+				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 220 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+			}
+			else
+			{
+				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 202, creAnims[stackByHex[b]]->pos.y + 260));
+				std::stringstream ss;
+				ss<<stacks[stackByHex[b]].amount;
+				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 202 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+			}
+		}
 	}
 	//units shown
 
 	CSDL_Ext::update();
+}
+
+bool CBattleInterface::reverseCreature(int number, int hex)
+{
+	if(creAnims[number]==NULL)
+		return false; //there is no such creature
+	creAnims[number]->setType(8);
+	for(int g=0; g<creAnims[number]->framesInGroup(8); ++g)
+	{
+		show();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+	}
+	creDir[number] = !creDir[number];
+
+	CStack curs = LOCPLINT->cb->battleGetStackByID(number);
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, creDir[number], curs.creature);
+	creAnims[number]->pos.x = coords.first;
+	creAnims[number]->pos.y = coords.second;
+
+	creAnims[number]->setType(7);
+	for(int g=0; g<creAnims[number]->framesInGroup(7); ++g)
+	{
+		show();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+	}
+	creAnims[number]->setType(2);
+
+	return true;
 }
 
 void CBattleInterface::bOptionsf()
@@ -270,6 +343,7 @@ void CBattleInterface::newStack(CStack stack)
 {
 	creAnims[stack.ID] = new CCreatureAnimation(stack.creature->animDefName);
 	creAnims[stack.ID]->setType(2);
+	creDir[stack.ID] = stack.owner==attackingHeroInstance->tempOwner;
 }
 
 void CBattleInterface::stackRemoved(CStack stack)
@@ -284,11 +358,49 @@ void CBattleInterface::stackActivated(int number)
 	activeStack = number;
 }
 
-void CBattleInterface::stackMoved(int number, int destHex)
+void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, bool endMoving)
 {
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
-	int steps = 6;
+	int steps = creAnims[number]->framesInGroup(0);
 	int hexWbase = 44, hexHbase = 42;
+
+	if(startMoving) //animation of starting move
+	{
+		for(int i=0; i<creAnims[number]->framesInGroup(20); ++i)
+		{
+			show();
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		}
+	}
+
+	switch(CBattleHex::mutualPosition(curStackPos, destHex)) //reverse unit if necessary
+	{
+	case 0:
+		if(creDir[number] == true)
+			reverseCreature(number, curStackPos);
+		break;
+	case 1:
+		if(creDir[number] == false)
+			reverseCreature(number, curStackPos);
+		break;
+	case 2:
+		if(creDir[number] == false)
+			reverseCreature(number, curStackPos);
+		break;
+	case 3:
+		if(creDir[number] == false)
+			reverseCreature(number, curStackPos);
+		break;
+	case 4:
+		if(creDir[number] == true)
+			reverseCreature(number, curStackPos);
+		break;
+	case 5:
+		if(creDir[number] == true)
+			reverseCreature(number, curStackPos);
+		break;
+	}
+	//moving instructions
 	creAnims[number]->setType(0);
 	for(int i=0; i<steps; ++i)
 	{
@@ -320,11 +432,26 @@ void CBattleInterface::stackMoved(int number, int destHex)
 		show();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
+
+	if(endMoving) //animation of starting move
+	{
+		for(int i=0; i<creAnims[number]->framesInGroup(21); ++i)
+		{
+			show();
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		}
+	}
 	
-	creAnims[number]->setType(2); //resetting to delault
+	creAnims[number]->setType(2); //resetting to default
 	CStack curs = LOCPLINT->cb->battleGetStackByID(number);
+	if(endMoving) //resetting to default
+	{
+		if(creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))
+			reverseCreature(number, destHex);
+		//creDir[number] = (curs.owner == attackingHeroInstance->tempOwner);
+	}
 	
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, curs.owner == attackingHeroInstance->tempOwner);
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], curs.creature);
 	creAnims[number]->pos.x = coords.first;
 	creAnims[number]->pos.y = coords.second;
 }
@@ -360,6 +487,20 @@ void CBattleInterface::showRange(SDL_Surface * to, int ID)
 
 void CBattleHero::show(SDL_Surface *to)
 {
+	//animation of flag
+	if(flip)
+	{
+		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 752, 39));
+	}
+	else
+	{
+		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 31, 39));
+	}
+	{
+		++flagAnim;
+		flagAnim %= flag->ourImages.size();
+	}
+	//animation of hero
 	int tick=-1;
 	for(int i=0; i<dh->ourImages.size(); ++i)
 	{
@@ -376,18 +517,6 @@ void CBattleHero::show(SDL_Surface *to)
 			}
 			break;
 		}
-	}
-	if(flip)
-	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 752, 39));
-	}
-	else
-	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 31, 39));
-	}
-	{
-		++flagAnim;
-		flagAnim %= flag->ourImages.size();
 	}
 }
 
@@ -421,7 +550,7 @@ CBattleHero::~CBattleHero()
 	delete flag;
 }
 
-std::pair<int, int> CBattleHex::getXYUnitAnim(int hexNum, bool attacker)
+std::pair<int, int> CBattleHex::getXYUnitAnim(int hexNum, bool attacker, CCreature * creature)
 {
 	std::pair<int, int> ret = std::make_pair(-500, -500); //returned value
 	ret.second = -139 + 42 * (hexNum/17); //counting y
@@ -433,6 +562,18 @@ std::pair<int, int> CBattleHex::getXYUnitAnim(int hexNum, bool attacker)
 	else
 	{
 		ret.first = -219 + 22 * ( ((hexNum/17) + 1)%2 ) + 44 * (hexNum % 17);
+	}
+	//shifting position for double - hex creatures
+	if(creature->isDoubleWide())
+	{
+		if(attacker)
+		{
+			ret.first -= 42;
+		}
+		else
+		{
+			ret.first += 42;
+		}
 	}
 	//returning
 	return ret;

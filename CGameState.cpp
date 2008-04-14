@@ -12,7 +12,7 @@ class CMP_stack
 public:
 	bool operator ()(const CStack* a, const CStack* b)
 	{
-		return (a->creature->speed)<(b->creature->speed);
+		return (a->creature->speed)>(b->creature->speed);
 	}
 } cmpst ;
 
@@ -31,7 +31,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 	curB->stackActionPerformed = false;
 	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army1->slots.begin(); i!=army1->slots.end(); i++)
 	{
-		stacks.push_back(new CStack(i->second.first,i->second.second,0, stacks.size()));
+		stacks.push_back(new CStack(i->second.first,i->second.second,0, stacks.size(), true));
 		stacks[stacks.size()-1]->ID = stacks.size()-1;
 	}
 	//initialization of positions
@@ -85,8 +85,8 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 		break;
 	}
 	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army2->slots.begin(); i!=army2->slots.end(); i++)
-		stacks.push_back(new CStack(i->second.first,i->second.second,1, stacks.size()));
-	switch(army2->slots.size()) //for attacker
+		stacks.push_back(new CStack(i->second.first,i->second.second,1, stacks.size(), false));
+	switch(army2->slots.size()) //for defender
 	{
 	case 0:
 		break;
@@ -135,6 +135,17 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 	default: //fault
 		break;
 	}
+	for(int g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
+	{
+		if((stacks[g]->position%17)==1 && stacks[g]->creature->isDoubleWide())
+		{
+			stacks[g]->position += 1;
+		}
+		else if((stacks[g]->position%17)==15 && stacks[g]->creature->isDoubleWide())
+		{
+			stacks[g]->position -= 1;
+		}
+	}
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
 	//for start inform players about battle
@@ -180,7 +191,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 			curB->stackActionPerformed = false;
 			if(stacks[i]->alive) //niech interfejs ruszy oddzialem
 			{
-				unsigned char owner = (stacks[i]->owner)?(hero2->tempOwner):(hero1->tempOwner);
+				unsigned char owner = (stacks[i]->owner)?(hero2 ? hero2->tempOwner : 255):(hero1->tempOwner);
 				unsigned char serialOwner = -1;
 				for(int g=0; g<CGI->playerint.size(); ++g)
 				{
@@ -190,7 +201,10 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 						break;
 					}
 				}
-				if(CGI->playerint[serialOwner]->human)
+				if(serialOwner==255) //neutral unit
+				{
+				}
+				else if(CGI->playerint[serialOwner]->human)
 				{
 					((CPlayerInterface*)CGI->playerint[serialOwner])->activeStack(stacks[i]->ID);
 				}
@@ -252,7 +266,16 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
 		if(curB->stacks[g]->owner == owner) //we don't want to lock enemy's positions
+		{
 			accessibility[curB->stacks[g]->position] = false;
+			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
+			{
+				if(curB->stacks[g]->attackerOwned)
+					accessibility[curB->stacks[g]->position-1] = false;
+				else
+					accessibility[curB->stacks[g]->position+1] = false;
+			}
+		}
 	}
 	int predecessor[187]; //for getting the Path
 	for(int b=0; b<187; ++b)
@@ -326,7 +349,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	{
 		if(v!=0 || !stackAtEnd) //it's not the last step
 		{
-			LOCPLINT->battleStackMoved(ID, path[v]);
+			LOCPLINT->battleStackMoved(ID, path[v], v==path.size()-1, v==0);
 			curStack->position = path[v];
 		}
 		else //if it's last step and we should attack unit at the end
@@ -361,7 +384,16 @@ std::vector<int> CGameState::battleGetRange(int ID)
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
 		if(curB->stacks[g]->owner == owner) //we don't want to lock enemy's positions
+		{
 			accessibility[curB->stacks[g]->position] = false;
+			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
+			{
+				if(curB->stacks[g]->attackerOwned)
+					accessibility[curB->stacks[g]->position-1] = false;
+				else
+					accessibility[curB->stacks[g]->position+1] = false;
+			}
+		}
 	}
 
 

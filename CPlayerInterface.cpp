@@ -1986,9 +1986,9 @@ void CPlayerInterface::battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGH
 {
 }
 
-void CPlayerInterface::battleStackMoved(int ID, int dest)
+void CPlayerInterface::battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)
 {
-	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest);
+	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest, startMoving, endMoving);
 }
 
 void CPlayerInterface::battleStackAttacking(int ID, int dest)

@@ -40,6 +40,8 @@ public:
 	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
 
 	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
+	bool isDoubleWide(); //returns true if unit is double wide on battlefield
+	bool isFlying(); //returns true if it is a flying unit
 };
 
 class CCreatureSet //seven combined creatures
@@ -96,13 +98,15 @@ private:
 public:
 	int fullWidth, fullHeight; //read-only, please!
 	CCreatureAnimation(std::string name); //c-tor
-	~CCreatureAnimation(); //d-tor //not necessery ATM
+	~CCreatureAnimation(); //d-tor
 
 	void setType(int type); //sets type of animation and cleares framecount
 	int getType() const; //returns type of animation
 
 	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false); //0 - success, any other - error //print next 
 	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false); //0 - success, any other - error //print next 
+
+	int framesInGroup(int group) const; //retirns number of fromes in given group
 };
 
 #endif //CCREATUREHANDLER_H

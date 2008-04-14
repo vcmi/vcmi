@@ -58,7 +58,7 @@ public:
 	virtual void actionFinished(BattleAction action){};//occurs AFTER every action taken by any stack or by the hero
 	virtual void activeStack(int stackID){}; //called when it's turn of that stack
 	virtual void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner){};
-	virtual void battleStackMoved(int ID, int dest)=0;
+	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)=0;
 	//
 
 };
@@ -74,6 +74,6 @@ public:
 	virtual void yourTurn(){};
 	virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroCreated(const CGHeroInstance*){};
-	virtual void battleStackMoved(int ID, int dest){};
+	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving){};
 };
 #endif //CGAMEINTERFACE_H

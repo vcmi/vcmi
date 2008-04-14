@@ -6,6 +6,7 @@
 #include <sstream>
 #include <boost/assign/std/vector.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "../SDL_Extensions.h"
 
@@ -30,6 +31,16 @@ int CCreature::getQuantityID(int quantity)
 	if (quantity<4000)
 		return 7;
 	return 8;
+}
+
+bool CCreature::isDoubleWide()
+{
+	return boost::algorithm::find_first(abilityRefs, "DOUBLE_WIDE");
+}
+
+bool CCreature::isFlying()
+{
+	return boost::algorithm::find_first(abilityRefs, "FLYING_ARMY");
 }
 
 void CCreatureHandler::loadCreatures()
@@ -951,6 +962,17 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	//SDL_UpdateRect(dest, x, y, FullWidth+add, FullHeight);
 
 	return 0;
+}
+
+int CCreatureAnimation::framesInGroup(int group) const
+{
+	int ret = 0; //number of frames in given group
+	for(int g=0; g<SEntries.size(); ++g)
+	{
+		if(SEntries[g].group == group)
+			++ret;
+	}
+	return ret;
 }
 
 CCreatureAnimation::~CCreatureAnimation()
