@@ -49,10 +49,10 @@ public:
 	virtual int battleGetStack(int pos)=0; //returns ID of stack on the tile
 	virtual CStack battleGetStackByID(int ID)=0; //returns stack info by given ID
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
-	virtual int battleMakeAction(BattleAction* action)=0;//perform action with an active stack (or custom action)
+	//virtual int battleMakeAction(BattleAction* action)=0;//perform action with an active stack (or custom action)
 	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
 	virtual CCreature battleGetCreature(int number)=0; //returns type of creature by given number of stack
-	virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
+	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
 	virtual std::vector<int> battleGetAvailableHexes(int ID)=0; //reutrns numbers of hexes reachable by creature with id ID
 	virtual bool battleIsStackMine(int ID)=0; //returns true if stack with id ID belongs to caller
 };
@@ -115,10 +115,10 @@ public:
 	int battleGetStack(int pos); //returns ID of stack on the tile
 	CStack battleGetStackByID(int ID); //returns stack info by given ID
 	int battleGetPos(int stack); //returns position (tile ID) of stack
-	int battleMakeAction(BattleAction* action);//perform action with an active stack (or custom action)
+	//int battleMakeAction(BattleAction* action);//perform action with an active stack (or custom action)
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
 	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
-	bool battleMoveCreature(int ID, int dest); //moves creature with id ID to dest if possible
+	//bool battleMoveCreature(int ID, int dest); //moves creature with id ID to dest if possible
 	std::vector<int> battleGetAvailableHexes(int ID); //reutrns numbers of hexes reachable by creature with id ID
 	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
 	

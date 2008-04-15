@@ -16,6 +16,7 @@ class CGHeroInstance;
 class CGTownInstance;
 class CGObjectInstance;
 class CCreatureSet;
+class CArmedInstance;
 
 class CObstacle
 {
@@ -56,8 +57,8 @@ public:
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void actionStarted(BattleAction action){};//occurs BEFORE every action taken by any stack or by the hero
 	virtual void actionFinished(BattleAction action){};//occurs AFTER every action taken by any stack or by the hero
-	virtual void activeStack(int stackID){}; //called when it's turn of that stack
-	virtual void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner){};
+	virtual BattleAction activeStack(int stackID)=0; //called when it's turn of that stack
+	virtual void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CArmedInstance *hero1, CArmedInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner){};
 	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)=0;
 	//
 
@@ -75,5 +76,6 @@ public:
 	virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving){};
+	virtual BattleAction activeStack(int stackID) {BattleAction ba; ba.actionType = 3; ba.stackNumber = stackID; return ba;};
 };
 #endif //CGAMEINTERFACE_H

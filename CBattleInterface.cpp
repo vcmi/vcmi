@@ -17,7 +17,7 @@ extern SDL_Color zwykly;
 SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2) 
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), curStackActed(false)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL)
 {
 	//initializing armies
 	this->army1 = army1;
@@ -117,6 +117,8 @@ CBattleInterface::~CBattleInterface()
 {
 	SDL_FreeSurface(background);
 	SDL_FreeSurface(menu);
+	SDL_FreeSurface(amountBasic);
+	SDL_FreeSurface(amountNormal);
 	delete bOptions;
 	delete bSurrender;
 	delete bFlee;
@@ -298,17 +300,9 @@ void CBattleInterface::bSurrenderf()
 
 void CBattleInterface::bFleef()
 {
-	for(int i=0; i<LOCPLINT->objsToBlit.size(); ++i)
-	{
-		if( dynamic_cast<CBattleInterface*>( LOCPLINT->objsToBlit[i] ) )
-		{
-			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+i);
-		}
-	}
-	deactivate();
-
-	LOCPLINT->adventureInt->activate();
-	delete this;
+	BattleAction * ba = new BattleAction;
+	ba->actionType = 4;
+	givenCommand = ba;
 }
 
 void CBattleInterface::bAutofightf()
@@ -328,7 +322,7 @@ void CBattleInterface::bDefencef()
 	BattleAction * ba = new BattleAction;
 	ba->actionType = 3;
 	ba->stackNumber = activeStack;
-	LOCPLINT->cb->battleMakeAction(ba);
+	givenCommand = ba;
 }
 
 void CBattleInterface::bConsoleUpf()
@@ -354,7 +348,7 @@ void CBattleInterface::stackRemoved(CStack stack)
 
 void CBattleInterface::stackActivated(int number)
 {
-	curStackActed = false;
+	givenCommand = NULL;
 	activeStack = number;
 }
 
@@ -462,17 +456,13 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 
 void CBattleInterface::hexLclicked(int whichOne)
 {
-	if(!LOCPLINT->cb->battleIsStackMine(LOCPLINT->cb->battleGetStack(whichOne))) //if player is trying to attack eney unit
+	if((whichOne%17)!=0 && (whichOne%17)!=16) //if player is trying to attack enemey unit or move creature stack
 	{
 		BattleAction * ba = new BattleAction(); //to be deleted by engine
 		ba->actionType = 6;
 		ba->destinationTile = whichOne;
 		ba->stackNumber = activeStack;
-		LOCPLINT->cb->battleMakeAction(ba);
-	}
-	if((whichOne%17)!=0 && (whichOne%17)!=16)
-	{
-		LOCPLINT->cb->battleMoveCreature(activeStack, whichOne);
+		givenCommand = ba;
 	}
 }
 

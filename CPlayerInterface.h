@@ -332,8 +332,8 @@ public:
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void actionStarted(BattleAction action);//occurs BEFORE every action taken by any stack or by the hero
 	void actionFinished(BattleAction action);//occurs AFTER every action taken by any stack or by the hero
-	void activeStack(int stackID); //called when it's turn of that stack
-	void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner);
+	BattleAction activeStack(int stackID); //called when it's turn of that stack
+	void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CArmedInstance *hero1, CArmedInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner);
 	void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving);
 	void battleStackAttacking(int ID, int dest);
 

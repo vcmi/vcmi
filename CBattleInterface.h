@@ -72,7 +72,7 @@ public:
 	CBattleHex bfield[187]; //11 lines, 17 hexes on each
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	static SDL_Surface * cellBorder, * cellShade;
-	bool curStackActed; //true if we have i.e. moved current unit
+	BattleAction * givenCommand; //true if we have i.e. moved current unit
 
 	//button handle funcs:
 	void bOptionsf();

@@ -189,7 +189,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 		{
 			curB->activeStack = i;
 			curB->stackActionPerformed = false;
-			if(stacks[i]->alive) //niech interfejs ruszy oddzialem
+			if(stacks[i]->alive) //indicate posiibility of making action for this unit
 			{
 				unsigned char owner = (stacks[i]->owner)?(hero2 ? hero2->tempOwner : 255):(hero1->tempOwner);
 				unsigned char serialOwner = -1;
@@ -206,7 +206,26 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 				}
 				else if(CGI->playerint[serialOwner]->human)
 				{
-					((CPlayerInterface*)CGI->playerint[serialOwner])->activeStack(stacks[i]->ID);
+					BattleAction ba = ((CPlayerInterface*)CGI->playerint[serialOwner])->activeStack(stacks[i]->ID);
+					switch(ba.actionType)
+					{
+					case 3: //defend
+						{
+							break;
+						}
+					case 4: //retreat/flee
+						{
+							for(int v=0; v<CGI->playerint.size(); ++v) //tell about the end of this battle to interfaces
+								CGI->playerint[v]->battleEnd(army1, army2, hero1, hero2, std::vector<int>(), 0, false);
+							return; //return from this function, I hope it'll work
+							break;
+						}
+					case 6: //walk or attack
+						{
+							battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
+							break;
+						}
+					}
 				}
 				else
 				{
@@ -265,7 +284,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		if(curB->stacks[g]->owner == owner) //we don't want to lock enemy's positions
+		//if(curB->stacks[g]->owner == owner) //we don't want to lock enemy's positions
 		{
 			accessibility[curB->stacks[g]->position] = false;
 			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
@@ -293,42 +312,42 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		int curHex = hexq.front();
 		hexq.pop();
 		curNext = curHex - ( (curHex/17)%2 ? 18 : 17 );
-		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
+		if((curNext > 0) && (accessibility[curNext] || curNext==dest) && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex - ( (curHex/17)%2 ? 17 : 16 );
-		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
+		if((curNext > 0) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex - 1;
-		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
+		if((curNext > 0) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex + 1;
-		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
+		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
-		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
+		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
-		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
+		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;

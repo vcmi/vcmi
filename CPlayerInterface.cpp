@@ -1945,14 +1945,14 @@ void CPlayerInterface::actionStarted(BattleAction action)//occurs BEFORE every a
 
 void CPlayerInterface::actionFinished(BattleAction action)//occurs AFTER every action taken by any stack or by the hero
 {
-	dynamic_cast<CBattleInterface*>(curint)->curStackActed = true;
+	//dynamic_cast<CBattleInterface*>(curint)->givenCommand = -1;
 }
 
-void CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
+BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
 	unsigned char showCount = 0;
 	dynamic_cast<CBattleInterface*>(curint)->stackActivated(stackID);
-	while(!dynamic_cast<CBattleInterface*>(curint)->curStackActed) //while current unit can perform an action
+	while(!dynamic_cast<CBattleInterface*>(curint)->givenCommand) //while current unit can perform an action
 	{
 		++showCount;
 		SDL_Event sEvent;
@@ -1980,10 +1980,17 @@ void CPlayerInterface::activeStack(int stackID) //called when it's turn of that 
 		SDL_Delay(1); //give time for other apps
 		SDL_framerateDelay(mainFPSmng);
 	}
+	BattleAction ret = *(dynamic_cast<CBattleInterface*>(curint)->givenCommand);
+	delete dynamic_cast<CBattleInterface*>(curint)->givenCommand;
+	dynamic_cast<CBattleInterface*>(curint)->givenCommand = NULL;
+	return ret;
 }
 
-void CPlayerInterface::battleEnd(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner)
+void CPlayerInterface::battleEnd(CCreatureSet * army1, CCreatureSet * army2, CArmedInstance *hero1, CArmedInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner)
 {
+	dynamic_cast<CBattleInterface*>(curint)->deactivate();
+	delete dynamic_cast<CBattleInterface*>(curint);
+	curint = NULL;
 }
 
 void CPlayerInterface::battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)

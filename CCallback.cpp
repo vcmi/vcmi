@@ -676,19 +676,6 @@ int CCallback::battleGetPos(int stack)
 	return -1;
 }
 
-int CCallback::battleMakeAction(BattleAction* action)
-{
-	switch(action->actionType)
-	{
-	case 3: //defend
-		return battleMoveCreature(action->stackNumber, battleGetPos(action->stackNumber));
-	case 6: //move or attack
-		return battleMoveCreature(action->stackNumber, action->destinationTile);
-	}
-	delete action;
-	return -1; //error
-}
-
 std::map<int, CStack> CCallback::battleGetStacks()
 {
 	std::map<int, CStack> ret;
@@ -707,15 +694,6 @@ CCreature CCallback::battleGetCreature(int number)
 			return *(CGI->state->curB->stacks[h]->creature);
 	}
 	throw new std::exception("Cannot find the creature");
-}
-
-bool CCallback::battleMoveCreature(int ID, int dest)
-{
-	//checking parameters
-	if(dest<0 || dest > 187)
-		return false;
-	
-	return CGI->state->battleMoveCreatureStack(ID, dest); //everything finished successfully
 }
 
 std::vector<int> CCallback::battleGetAvailableHexes(int ID)
