@@ -476,7 +476,14 @@ template<typename T>
 void CSlider<T>::clickLeft (tribool down)
 {
 	if(down)
+	{
+		float pw = LOCPLINT->current->motion.x-pos.x-16;
+		float rw = pw / ((float)(pos.w-32));
+		if (rw>1) rw=1;
+		if (rw<0) rw=0;
+		moveTo(rw*amount);
 		return;
+	}
 	if(moving)
 	{
 		MotionInterested::deactivate();

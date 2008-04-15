@@ -1989,8 +1989,10 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 void CPlayerInterface::battleEnd(CCreatureSet * army1, CCreatureSet * army2, CArmedInstance *hero1, CArmedInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner)
 {
 	dynamic_cast<CBattleInterface*>(curint)->deactivate();
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),dynamic_cast<IShowable*>(curint)));
 	delete dynamic_cast<CBattleInterface*>(curint);
-	curint = NULL;
+	curint = adventureInt;
+	adventureInt->activate();
 }
 
 void CPlayerInterface::battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)
@@ -2387,10 +2389,30 @@ void CRecrutationWindow::sliderMoved(int to)
 }
 void CRecrutationWindow::clickLeft(tribool down)
 {
+	int curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+	for(int i=0;i<creatures.size();i++)
+	{
+		if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+		{
+			which = i;	
+			curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+			for(int j=0;j<creatures.size();j++)
+			{
+				if(which==j)
+					drawBorder(bitmap,curx,64,102,132,int3(255,0,0));
+				else
+					drawBorder(bitmap,curx,64,102,132,int3(239,215,123));
+				curx += 120;
+			}
+			break;
+		}
+		curx += 120;
+	}
 }
 void CRecrutationWindow::activate()
 {
 	LOCPLINT->objsToBlit.push_back(this);
+	ClickableL::activate();
 	buy->activate();
 	max->activate();
 	cancel->activate();
@@ -2399,6 +2421,7 @@ void CRecrutationWindow::activate()
 void CRecrutationWindow::deactivate()
 {
 	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+	ClickableL::deactivate();
 	buy->deactivate();
 	max->deactivate();
 	cancel->deactivate();
@@ -2417,7 +2440,7 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,ekran);
 	itoa(slider->value,pom,10); //recruit
 	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,ekran);
-
+	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,GEOR16,tytulowy,ekran); //eg "Recruit Dragon flies"
 	int curx = pos.x+115-creatures[which].res.size()*16;
 	for(int i=0;i<creatures[which].res.size();i++)
 	{
@@ -2442,6 +2465,7 @@ void CRecrutationWindow::show(SDL_Surface * to)
 CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatures, IRecruit *irec) //creatures - pairs<creature_ID,amount>
 :rec(irec)
 {
+	which = 0;
 	creatures.resize(Creatures.size());
 	for(int i=0;i<creatures.size();i++)
 	{
@@ -2463,7 +2487,6 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 	pos.h = bitmap->h;
 	slider = new CSlider<CRecrutationWindow>(pos.x+176,pos.y+279,135,this,&CRecrutationWindow::sliderMoved,1,creatures[0].amount,0,true);
 	std::string pom;
-	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[0].ID].namePl,243,32,GEOR16,tytulowy,bitmap); //eg "Recruit Dragon flies"
 	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
 	printAtMiddle(CGI->generaltexth->allTexts[465],205,231,GEOR13,zwykly,bitmap); //available t
 	printAtMiddle(CGI->generaltexth->allTexts[16],279,231,GEOR13,zwykly,bitmap); //recruit t
@@ -2484,7 +2507,10 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 		creatures[i].pos.y = 65;
 		creatures[i].pos.w = 100;
 		creatures[i].pos.h = 130;
-		drawBorder(bitmap,curx,64,102,132,int3(255,0,0));
+		if(which==i)
+			drawBorder(bitmap,curx,64,102,132,int3(255,0,0));
+		else
+			drawBorder(bitmap,curx,64,102,132,int3(239,215,123));
 		curx += 120;
 	}
 
@@ -2492,7 +2518,6 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 	buy = new AdventureMapButton<CRecrutationWindow>("","",&CRecrutationWindow::Buy,pos.x+212,pos.y+313,"IBY6432.DEF",this);
 	cancel = new AdventureMapButton<CRecrutationWindow>("","",&CRecrutationWindow::Cancel,pos.x+290,pos.y+313,"ICN6432.DEF",this);
 	LOCPLINT->curint->deactivate();
-	which = 0;
 	//AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(), 
 	//int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = true );//c-tor
 }//(int x, int y, int totalw, T*Owner,void(T::*Moved)(int to), int Capacity, int Amount, int Value, bool Horizontal)
