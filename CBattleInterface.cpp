@@ -58,7 +58,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	blitAt(menu, 0, 556);
 	CSDL_Ext::update();
 	
-	//preparing buttons
+	//preparing buttons and console
 	bOptions = new AdventureMapButton<CBattleInterface> (std::string(), std::string(), &CBattleInterface::bOptionsf, 3, 561, "icm003.def", this, false, NULL, false);
 	bSurrender = new AdventureMapButton<CBattleInterface> (std::string(), std::string(), &CBattleInterface::bSurrenderf, 54, 561, "icm001.def", this, false, NULL, false);
 	bFlee = new AdventureMapButton<CBattleInterface> (std::string(), std::string(), &CBattleInterface::bFleef, 105, 561, "icm002.def", this, false, NULL, false);
@@ -69,6 +69,11 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	bConsoleUp = new AdventureMapButton<CBattleInterface> (std::string(), std::string(), &CBattleInterface::bConsoleUpf, 624, 561, "ComSlide.def", this, false, NULL, false);
 	bConsoleDown = new AdventureMapButton<CBattleInterface> (std::string(), std::string(), &CBattleInterface::bConsoleDownf, 624, 580, "ComSlide.def", this, false, NULL, false);
 	bConsoleDown->bitmapOffset = 2;
+	console = new CBattleConsole();
+	console->pos.x = 211;
+	console->pos.y = 560;
+	console->pos.w = 406;
+	console->pos.h = 38;
 	
 	//loading hero animations
 	if(hero1) // attacking hero
@@ -128,6 +133,7 @@ CBattleInterface::~CBattleInterface()
 	delete bDefence;
 	delete bConsoleUp;
 	delete bConsoleDown;
+	delete console;
 
 	delete attackingHero;
 	delete defendingHero;
@@ -207,8 +213,9 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing selected unit's range
 	showRange(to, activeStack);
 
-	//showing menu background
+	//showing menu background and console
 	blitAt(menu, 0, 556, to);
+	console->show(to);
 
 	//showing buttons
 	bOptions->show(to);
@@ -327,10 +334,12 @@ void CBattleInterface::bDefencef()
 
 void CBattleInterface::bConsoleUpf()
 {
+	console->scrollUp();
 }
 
 void CBattleInterface::bConsoleDownf()
 {
+	console->scrollDown();
 }
 
 void CBattleInterface::newStack(CStack stack)
@@ -631,4 +640,67 @@ void CBattleHex::clickLeft(boost::logic::tribool down)
 	{
 		myInterface->hexLclicked(myNumber);
 	}
+}
+
+CBattleConsole::CBattleConsole() : lastShown(-1)
+{
+}
+
+CBattleConsole::~CBattleConsole()
+{
+	texts.clear();
+}
+
+void CBattleConsole::show(SDL_Surface * to)
+{
+	if(texts.size())
+	{
+		if(texts.size()==1)
+		{
+			CSDL_Ext::printAtMiddleWB(texts[0], pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
+		}
+		else
+		{
+			CSDL_Ext::printAtMiddleWB(texts[lastShown-1], pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
+			CSDL_Ext::printAtMiddleWB(texts[lastShown], pos.x + pos.w/2, pos.y + 26, GEOR13, 80, zwykly, to);
+		}
+	}
+}
+
+bool CBattleConsole::addText(std::string text)
+{
+	if(text.size()>70)
+		return false; //text too long!
+	texts.push_back(text);
+	lastShown++;
+	return true;
+}
+
+void CBattleConsole::eraseText(unsigned int pos)
+{
+	if(pos < texts.size())
+	{
+		texts.erase(texts.begin() + pos);
+		if(lastShown == texts.size())
+			--lastShown;
+	}
+}
+
+void CBattleConsole::changeTextAt(std::string text, unsigned int pos)
+{
+	if(pos >= texts.size()) //no such pos
+		return;
+	texts[pos] = text;
+}
+
+void CBattleConsole::scrollUp(unsigned int by)
+{
+	if(lastShown > by)
+		lastShown -= by;
+}
+
+void CBattleConsole::scrollDown(unsigned int by)
+{
+	if(lastShown + by < texts.size())
+		lastShown += by;
 }

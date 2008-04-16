@@ -48,12 +48,29 @@ class CBattleObstacle
 	std::vector<int> lockedHexes;
 };
 
+class CBattleConsole : public IShowable, public CIntObject
+{
+private:
+	std::vector< std::string > texts; //a place where texts are stored
+	int lastShown; //las shown line of text
+public:
+	CBattleConsole(); //c-tor
+	~CBattleConsole(); //d-tor
+	void show(SDL_Surface * to = 0);
+	bool addText(std::string text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
+	void eraseText(unsigned int pos); //erases added text at position pos
+	void changeTextAt(std::string text, unsigned int pos); //if we have more than pos texts, pos-th is changed to given one
+	void scrollUp(unsigned int by = 1); //scrolls console up by 'by' positions
+	void scrollDown(unsigned int by = 1); //scrolls console up by 'by' positions
+};
+
 class CBattleInterface : public IActivable, public IShowable
 {
 private:
 	SDL_Surface * background, * menu, * amountBasic, * amountNormal;
 	AdventureMapButton<CBattleInterface> * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
+	CBattleConsole * console;
 	CBattleHero * attackingHero, * defendingHero;
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;

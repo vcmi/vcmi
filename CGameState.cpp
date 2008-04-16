@@ -185,6 +185,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 
 	while(true) //do zwyciestwa jednej ze stron
 	{
+		bool battleEnd = false;
 		for(int i=0;i<stacks.size();i++)
 		{
 			curB->activeStack = i;
@@ -217,7 +218,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 						{
 							for(int v=0; v<CGI->playerint.size(); ++v) //tell about the end of this battle to interfaces
 								CGI->playerint[v]->battleEnd(army1, army2, hero1, hero2, std::vector<int>(), 0, false);
-							return; //return from this function, I hope it'll work
+							battleEnd = true;
 							break;
 						}
 					case 6: //walk or attack
@@ -232,8 +233,12 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 					//CGI->playerint[serialOwner]->activeStack(stacks[i]->ID);
 				}
 			}
+			if(battleEnd)
+				break;
 			//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy
 		}
+		if(battleEnd)
+			break;
 		SDL_Delay(50);
 	}
 
