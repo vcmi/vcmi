@@ -345,6 +345,7 @@ void CGarrisonInt::deleteSlots()
 void CGarrisonInt::recreateSlots()
 {
 	splitting = false;
+	highlighted = NULL;
 	deactiveteSlots();
 	deleteSlots();
 	createSlots();
@@ -1913,11 +1914,18 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			SDL_FreeSurface(heroWins[hh->subID]);
 			heroWins[hh->subID] = infoWin(hh);
 		}
-		if(castleInt == curint) //opened town window - redraw town garrsion slots (change is within hero garr) 
+		CHeroWindow * hw = dynamic_cast<CHeroWindow *>(curint);
+		if(hw)
+		{
+			hw->garInt->recreateSlots();
+			hw->garInt->show();
+		}
+		else if(castleInt == curint) //opened town window - redraw town garrsion slots (change is within hero garr) 
 		{
 			castleInt->garr->highlighted = NULL;
 			castleInt->garr->recreateSlots();
 		}
+		
 	}
 	else if (obj->ID == 98) //town
 	{
