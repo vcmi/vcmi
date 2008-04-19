@@ -323,7 +323,13 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		mac[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;
 		for(int v=0; v<187; ++v)
 			accessibility[v] = mac[v];
+		//removing accessibility for side hexes
+		for(int v=0; v<187; ++v)
+			if(curStack->attackerOwned ? (v%17)==1 : (v%17)==15)
+				accessibility[v] = false;
 	}
+	if(!accessibility[dest])
+		return false;
 	int predecessor[187]; //for getting the Path
 	for(int b=0; b<187; ++b)
 		predecessor[b] = -1;
@@ -470,6 +476,10 @@ std::vector<int> CGameState::battleGetRange(int ID)
 		mac[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;
 		for(int v=0; v<187; ++v)
 			accessibility[v] = mac[v];
+		//removing accessibility for side hexes
+		for(int v=0; v<187; ++v)
+			if(curStack->attackerOwned ? (v%17)==1 : (v%17)==15)
+				accessibility[v] = false;
 	}
 
 	int dists[187]; //calculated distances
