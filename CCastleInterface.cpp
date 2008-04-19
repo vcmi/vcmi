@@ -204,11 +204,18 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	hall = CGI->spriteh->giveDef("ITMTL.DEF");
 	fort = CGI->spriteh->giveDef("ITMCL.DEF");
 	flag =  CGI->spriteh->giveDef("CREST58.DEF");
+	hBuild = NULL;
+	count=0;
+	town = Town;
+
+	//garrison
+	garr = new CGarrisonInt(305,387,4,32,townInt,243,13,town,town->visitingHero);
+
 	townlist = new CTownList<CCastleInterface>(3,&genRect(128,48,744,414),744,414,744,526);
 	exit = new AdventureMapButton<CCastleInterface>
 		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,false,NULL,false);
-	split = new AdventureMapButton<CCastleInterface>
-		(CGI->townh->tcommands[3],"",&CCastleInterface::splitF,744,382,"TSBTNS.DEF",this,false,NULL,false);
+	split = new AdventureMapButton<CGarrisonInt>
+		(CGI->townh->tcommands[3],"",&CGarrisonInt::splitClick,744,382,"TSBTNS.DEF",garr,false,NULL,false);
 	statusbar = new CStatusBar(8,555,"TSTATBAR.bmp",732);
 
 	townlist->owner = this;
@@ -217,9 +224,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	townlist->selected = getIndexOf(townlist->items,Town);
 	if((townlist->selected+1) > townlist->SIZE)
 		townlist->from = townlist->selected -  townlist->SIZE + 1;
-	hBuild = NULL;
-	count=0;
-	town = Town;
 
 	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit->bitmapOffset = 4;
@@ -229,8 +233,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	recreateBuildings();
 
 
-	//garrison
-	garr = new CGarrisonInt(305,387,4,32,townInt,243,13,town,town->visitingHero);
 
 	if(Activate)
 	{

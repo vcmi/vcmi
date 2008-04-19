@@ -44,7 +44,8 @@ public:
 	CTownList<CCastleInterface> * townlist;
 
 	CGarrisonInt * garr;
-	AdventureMapButton<CCastleInterface> * exit, *split;
+	AdventureMapButton<CCastleInterface> * exit;
+	AdventureMapButton<CGarrisonInt>*split;
 
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 

@@ -260,8 +260,8 @@ public:
 	CGarrisonSlot *highlighted;
 
 	SDL_Surface *sur;
-	int offx, offy;
-	bool ignoreEvent, update, active;
+	int offx, offy, p2;
+	bool ignoreEvent, update, active, splitting, pb;
 
 	const CCreatureSet *set1;
 	const CCreatureSet *set2;
@@ -277,6 +277,9 @@ public:
 	void deleteSlots();
 	void createSlots();
 	void recreateSlots();
+
+	void splitClick();
+	void splitStacks(int am2);
 
 	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CGObjectInstance *s1, const CGObjectInstance *s2=NULL);
 	~CGarrisonInt();
@@ -477,6 +480,28 @@ public:
 	void show(SDL_Surface * to = NULL);
 	CRecrutationWindow(std::vector<std::pair<int,int> > & Creatures, IRecruit *irec); //creatures - pairs<creature_ID,amount>
 	~CRecrutationWindow();
+};
+
+class CSplitWindow : public IShowable, public KeyInterested
+{
+public:
+	CGarrisonInt *gar;
+	CSlider<CSplitWindow> *slider;
+	CCreatureAnimation *anim;
+	AdventureMapButton<CSplitWindow> *ok, *cancel;
+	SDL_Surface *bitmap;
+	int a1, a2, c;
+	bool which;
+
+	CSplitWindow(int cid, int max, CGarrisonInt *Owner);
+	~CSplitWindow();
+	void activate(); 
+	void split();
+	void close();
+	void deactivate();
+	void show(SDL_Surface * to = NULL);
+	void keyPressed (SDL_KeyboardEvent & key);
+	void sliderMoved(int to);
 };
 
 #endif //CPLAYERINTERFACE_H

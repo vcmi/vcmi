@@ -575,7 +575,42 @@ int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s
 }
 int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)
 {
-	return -1;
+	if(!val)
+		return -1;
+	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
+	if ((S1->slots[p1].second<p2) && (true /*we are allowed to*/))
+	{
+		return -1;
+	}
+
+	S2->slots[p2].first = S1->slots[p1].first;
+	S2->slots[p2].second = val;
+	S1->slots[p1].second -= val;
+
+
+	if(s1->tempOwner<PLAYER_LIMIT)
+	{
+		for(int b=0; b<CGI->playerint.size(); ++b)
+		{
+			if(CGI->playerint[b]->playerID == s1->tempOwner)
+			{
+				CGI->playerint[b]->garrisonChanged(s1);
+				break;
+			}
+		}
+	}
+	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
+	{
+		for(int b=0; b<CGI->playerint.size(); ++b)
+		{
+			if(CGI->playerint[b]->playerID == s2->tempOwner)
+			{
+				CGI->playerint[b]->garrisonChanged(s2);
+				break;
+			}
+		}
+	}
+	return 0;
 }
 
 bool CCallback::dismissHero(const CGHeroInstance *hero)

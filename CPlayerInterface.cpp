@@ -121,6 +121,15 @@ void CGarrisonSlot::clickLeft(tribool down)
 				owner->highlighted = NULL;
 				show();
 			}
+			else if( !creature && owner->splitting)//split
+			{
+				owner->p2 = ID;
+				owner->pb = upg;
+				owner->splitting = false;
+				LOCPLINT->curint->deactivate();
+				CSplitWindow * spw = new CSplitWindow(owner->highlighted->creature->idNumber,owner->highlighted->count, owner);
+				spw->activate();
+			}
 			else if(creature != owner->highlighted->creature) //swap
 			{
 				LOCPLINT->cb->swapCreatures(
@@ -196,6 +205,8 @@ void CGarrisonSlot::show()
 	{
 		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), jakis2 = pos;
 		SDL_BlitSurface(owner->sur,&jakis1,ekran,&jakis2);
+		if(owner->splitting)
+			blitAt(CGI->creh->bigImgs[-1],pos);
 		if(owner->update)
 			SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
 	}
@@ -333,6 +344,7 @@ void CGarrisonInt::deleteSlots()
 }
 void CGarrisonInt::recreateSlots()
 {
+	splitting = false;
 	deactiveteSlots();
 	deleteSlots();
 	createSlots();
@@ -340,10 +352,28 @@ void CGarrisonInt::recreateSlots()
 	activeteSlots();
 	show();
 }
+void CGarrisonInt::splitClick()
+{
+	if(!highlighted)
+		return;
+	splitting = !splitting;
+	show();
+}
+void CGarrisonInt::splitStacks(int am2)
+{
+	LOCPLINT->cb->splitStack(
+		(highlighted->upg)?(odown):(oup),
+		(pb)?(odown):(oup),
+		highlighted->ID,
+		p2,
+		am2);
+
+}
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CGObjectInstance *s1, const CGObjectInstance *s2)
 	:interx(inx),intery(iny),sur(pomsur),highlighted(NULL),sup(NULL),sdown(NULL),oup(s1),odown(s2),
 	offx(OX),offy(OY)
 {
+	splitting = false;
 	set1 = LOCPLINT->cb->getGarrison(s1);
 	set2 = LOCPLINT->cb->getGarrison(s2);
 	ignoreEvent = false;
@@ -2525,4 +2555,90 @@ CRecrutationWindow::~CRecrutationWindow()
 {
 	SDL_FreeSurface(bitmap);
 	delete slider;
+}
+
+CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
+{
+	c=cid;
+	slider = NULL;
+	gar = Owner;
+	bitmap = CGI->bitmaph->loadBitmap("GPUCRDIV.bmp");
+	pos.x = ekran->w/2 - bitmap->w/2;
+	pos.y = ekran->h/2 - bitmap->h/2;
+	pos.w = bitmap->w;
+	pos.h = bitmap->h;
+	ok = new AdventureMapButton<CSplitWindow>("","",&CSplitWindow::split,pos.x+20,pos.y+263,"IOK6432.DEF",this);
+	cancel = new AdventureMapButton<CSplitWindow>("","",&CSplitWindow::close,pos.x+214,pos.y+263,"ICN6432.DEF",this);
+	slider = new CSlider<CSplitWindow>(pos.x+21,pos.y+194,257,this,&CSplitWindow::sliderMoved,1,max,0,true);
+	a1 = max;
+	a2 = 0;
+	anim = new CCreatureAnimation(CGI->creh->creatures[cid].animDefName);
+	anim->setType(1);
+
+	std::string title = CGI->generaltexth->allTexts[256];
+	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid].namePl);
+	printAtMiddle(title,150,34,GEOR16,tytulowy,bitmap);
+}
+CSplitWindow::~CSplitWindow()
+{
+	SDL_FreeSurface(bitmap);
+}
+void CSplitWindow::activate()
+{
+	LOCPLINT->objsToBlit.push_back(this);
+	KeyInterested::activate();
+	ok->activate();
+	cancel->activate();
+	slider->activate();
+}
+void CSplitWindow::deactivate()
+{
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+	KeyInterested::deactivate();
+	ok->deactivate();
+	cancel->deactivate();
+	slider->deactivate();
+}
+void CSplitWindow::split()
+{
+	gar->splitStacks(a2);
+	close();
+}
+void CSplitWindow::close()
+{
+	deactivate();
+	delete this;
+	LOCPLINT->curint->activate();
+	
+	CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
+	if(c) c->showAll();
+}
+void CSplitWindow::sliderMoved(int to)
+{
+	a2 = to;
+	if(slider)
+		a1 = slider->amount - to;
+}
+void CSplitWindow::show(SDL_Surface * to)
+{
+	char pom[15];
+	blitAt(bitmap,pos.x,pos.y,ekran);
+	ok->show();
+	cancel->show();
+	slider->show();
+	itoa(a1,pom,10);
+	printAtMiddle(pom,pos.x+70,pos.y+237,GEOR16,zwykly,ekran);
+	itoa(a2,pom,10);
+	printAtMiddle(pom,pos.x+233,pos.y+237,GEOR16,zwykly,ekran);
+
+
+	blitAt(CGI->creh->backgrounds[CGI->creh->creatures[c].faction],pos.x+20,pos.y+54);
+	anim->nextFrameMiddle(ekran,pos.x+20+70,pos.y+54+55,true,false,false);
+
+	blitAt(CGI->creh->backgrounds[CGI->creh->creatures[c].faction],pos.x+177,pos.y+54);
+	anim->nextFrameMiddle(ekran,pos.x+177+70,pos.y+54+55,true,false,false);
+}
+void CSplitWindow::keyPressed (SDL_KeyboardEvent & key)
+{
+	//TODO: zeby sie dalo recznie wpisywac
 }
