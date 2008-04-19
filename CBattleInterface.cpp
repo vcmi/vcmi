@@ -8,6 +8,7 @@
 #include "hch\CDefHandler.h"
 #include "CCallback.h"
 #include "CGameState.h"
+#include "hch\CGeneralTextHandler.h"
 #include <queue>
 #include <sstream>
 
@@ -461,6 +462,11 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
+}
+
+void CBattleInterface::newRound(int number)
+{
+	console->addText(CGI->generaltexth->allTexts[412]);
 }
 
 void CBattleInterface::hexLclicked(int whichOne)

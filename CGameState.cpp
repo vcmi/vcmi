@@ -183,9 +183,14 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 
 	//SDL_Thread * eventh = SDL_CreateThread(battleEventThread, NULL);
 
-	while(true) //do zwyciestwa jednej ze stron
+	while(true) //till the end of the battle ;]
 	{
 		bool battleEnd = false;
+		//tell players about next round
+		for(int v=0; v<CGI->playerint.size(); ++v)
+			CGI->playerint[v]->battleNewRound(curB->round);
+
+		//stack loop
 		for(int i=0;i<stacks.size();i++)
 		{
 			curB->activeStack = i;
@@ -239,6 +244,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 		}
 		if(battleEnd)
 			break;
+		curB->round++;
 		SDL_Delay(50);
 	}
 
@@ -300,6 +306,23 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 					accessibility[curB->stacks[g]->position+1] = false;
 			}
 		}
+	}
+	if(curStack->creature->isDoubleWide()) //locking positions unreachable by two-hex creatures
+	{
+		bool mac[187];
+		for(int b=0; b<187; ++b)
+		{
+			//
+			//	&& (  ? (curStack->attackerOwned ? accessibility[curNext-1] : accessibility[curNext+1]) : true )
+			mac[b] = accessibility[b];
+			if( accessibility[b] && !(curStack->attackerOwned ? accessibility[b-1] : accessibility[b+1]))
+			{
+				mac[b] = false;
+			}
+		}
+		mac[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;
+		for(int v=0; v<187; ++v)
+			accessibility[v] = mac[v];
 	}
 	int predecessor[187]; //for getting the Path
 	for(int b=0; b<187; ++b)
@@ -391,6 +414,17 @@ std::vector<int> CGameState::battleGetRange(int ID)
 	int initialPlace=-1; //position of unit
 	int radius=-1; //range of unit
 	unsigned char owner = -1; //owner of unit
+	//selecting stack
+	CStack * curStack = NULL;
+	for(int y=0; y<curB->stacks.size(); ++y)
+	{
+		if(curB->stacks[y]->ID == ID)
+		{
+			curStack = curB->stacks[y];
+			break;
+		}
+	}
+
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
 		if(curB->stacks[g]->ID == ID)
@@ -420,6 +454,23 @@ std::vector<int> CGameState::battleGetRange(int ID)
 		}
 	}
 
+	if(curStack->creature->isDoubleWide()) //locking positions unreachable by two-hex creatures
+	{
+		bool mac[187];
+		for(int b=0; b<187; ++b)
+		{
+			//
+			//	&& (  ? (curStack->attackerOwned ? accessibility[curNext-1] : accessibility[curNext+1]) : true )
+			mac[b] = accessibility[b];
+			if( accessibility[b] && !(curStack->attackerOwned ? accessibility[b-1] : accessibility[b+1]))
+			{
+				mac[b] = false;
+			}
+		}
+		mac[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;
+		for(int v=0; v<187; ++v)
+			accessibility[v] = mac[v];
+	}
 
 	int dists[187]; //calculated distances
 	std::queue<int> hexq; //bfs queue

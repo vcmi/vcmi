@@ -1967,6 +1967,7 @@ void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObs
 
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
+	dynamic_cast<CBattleInterface*>(curint)->newRound(round);
 }
 
 void CPlayerInterface::actionStarted(BattleAction action)//occurs BEFORE every action taken by any stack or by the hero

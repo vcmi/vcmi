@@ -114,6 +114,6 @@ public:
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool startMoving, bool endMoving); //stack with id number moved to destHex
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
-	void turnEnded(); //caled when current unit cannot get new orders
+	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
 };
