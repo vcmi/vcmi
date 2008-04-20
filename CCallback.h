@@ -6,7 +6,7 @@
 #include "CGameState.h"
 
 class CGameState;
-class CPath;
+struct CPath;
 class CGObjectInstance;
 class SComponent;
 class IChosen;

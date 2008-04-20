@@ -327,11 +327,8 @@ int _tmain(int argc, _TCHAR* argv[])
 	THC tmh.getDif();
 	timeHandler pomtime;pomtime.getDif();
 	int xx=0, yy=0, zz=0;
-	SDL_Event sEvent;
 	srand ( time(NULL) );
-	SDL_Surface *temp;
 	std::vector<SDL_Surface*> Sprites;
-	float i;
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
 		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);

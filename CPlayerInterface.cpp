@@ -1962,7 +1962,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 }
 
 void CPlayerInterface::battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, tribool side) //called by engine when battle starts; side=0 - left, side=1 - right
- {
+{
 	curint->deactivate();
 	curint = new CBattleInterface(army1,army2,hero1,hero2);
 	curint->activate();
@@ -2232,10 +2232,10 @@ void CHeroList::clickLeft(tribool down)
 		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-		float ny = (float)hy/(float)32;
+		int ny = hy/32;
 		if (ny>=5 || ny<0)
 			return;
-		if (((int)(ny+from))==selected && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
+		if ( (ny+from)==selected && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
 			LOCPLINT->openHeroWindow(items[selected].first);//print hero screen
 		select(ny+from);
 	}
@@ -2294,7 +2294,7 @@ void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-	float ny = (float)hy/(float)32;
+	int ny = hy/32;
 	if ((ny>5 || ny<0) || (from+ny>=items.size()))
 	{
 		LOCPLINT->adventureInt->statusbar.clear();
@@ -2323,7 +2323,7 @@ void CHeroList::clickRight(tribool down)
 		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-		float ny = (float)hy/(float)32;
+		int ny = hy/32;
 		if ((ny>5 || ny<0) || (from+ny>=items.size()))
 		{
 			return;

@@ -781,11 +781,11 @@ int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, 
 	}
 	return ret;
 }
-int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder)
+int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder, SDL_Rect * destRect)
 {
-	return nextFrame(dest,x-fullWidth/2,y-fullHeight/2,attacker,incrementFrame,yellowBorder);
+	return nextFrame(dest,x-fullWidth/2,y-fullHeight/2,attacker,incrementFrame,yellowBorder,destRect);
 }
-int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder)
+int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder, SDL_Rect * destRect)
 {
 	if(dest->format->BytesPerPixel<3)
 		return -1; //not enough depth
@@ -829,7 +829,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 		LeftMargin, RightMargin, TopMargin,BottomMargin,
 		i, add, FullHeight,FullWidth,
 		TotalRowLength, // length of read segment
-		NextSpriteOffset, RowAdd;
+		RowAdd;
 	unsigned char SegmentType, SegmentLength;
 	
 	i=BaseOffset=SEntries[SIndex].offset;
@@ -884,7 +884,8 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 						int yB = ftcp/(FullWidth+add) + y;
 						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
 						{
-							putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k], yellowBorder);
+							if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
+								putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k], yellowBorder);
 						}
 						ftcp++; //increment pos
 						if ((TotalRowLength+k+1)>=SpriteWidth)
@@ -901,7 +902,8 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 						int yB = ftcp/(FullWidth+add) + y;
 						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
 						{
-							putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType, yellowBorder);
+							if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
+								putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType, yellowBorder);
 						}
 						ftcp++; //increment pos
 					}

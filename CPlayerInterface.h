@@ -17,7 +17,7 @@ class CStack;
 class SComponent;
 class CCreature;
 struct SDL_Surface;
-class CPath;
+struct CPath;
 class CCreatureAnimation;
 class CSelectableComponent;
 class CCreatureSet;

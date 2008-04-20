@@ -478,7 +478,6 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 			}
 		}
 	}
-	SDL_UpdateRect(src, 0, 0, src->w, src->h);
 	return src;
 }
 

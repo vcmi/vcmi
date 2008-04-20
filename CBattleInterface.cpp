@@ -54,7 +54,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		}
 	}
 
-	//blitting menu background and terrain
+	////blitting menu background and terrain
 	blitAt(background, 0, 0);
 	blitAt(menu, 0, 556);
 	CSDL_Ext::update();
@@ -98,9 +98,9 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 
 	//preparing cells and hexes
 	cellBorder = CGI->bitmaph->loadBitmap("CCELLGRD.BMP");
-	cellBorder = CSDL_Ext::alphaTransform(cellBorder);
+	CSDL_Ext::alphaTransform(cellBorder);
 	cellShade = CGI->bitmaph->loadBitmap("CCELLSHD.BMP");
-	cellShade = CSDL_Ext::alphaTransform(cellShade);
+	CSDL_Ext::alphaTransform(cellShade);
 	for(int h=0; h<187; ++h)
 	{
 		bfield[h].myNumber = h;
@@ -142,8 +142,8 @@ CBattleInterface::~CBattleInterface()
 	SDL_FreeSurface(cellBorder);
 	SDL_FreeSurface(cellShade);
 
-	for(int g=0; g<creAnims.size(); ++g)
-		delete creAnims[g];
+	for(std::map< int, CCreatureAnimation * >::iterator g=creAnims.begin(); g!=creAnims.end(); ++g)
+		delete g->second;
 }
 
 void CBattleInterface::activate()
@@ -531,7 +531,11 @@ CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG
 	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images
 	{
 		if(flip)
-			dh->ourImages[i].bitmap = CSDL_Ext::rotate01(dh->ourImages[i].bitmap); 
+		{
+			SDL_Surface * hlp = CSDL_Ext::rotate01(dh->ourImages[i].bitmap);
+			SDL_FreeSurface(dh->ourImages[i].bitmap); 
+			dh->ourImages[i].bitmap = hlp;
+		}
 		dh->ourImages[i].bitmap = CSDL_Ext::alphaTransform(dh->ourImages[i].bitmap);
 	}
 	dh->alphaTransformed = true;

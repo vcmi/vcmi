@@ -8,7 +8,7 @@
 #include "AdventureMapButton.h"
 class CDefHandler;
 class CCallback;
-class CPath; 
+struct CPath; 
 class CAdvMapInt;
 class CGHeroInstance;
 class CGTownInstance;

@@ -2,7 +2,7 @@
 #define CCURSORHANDLER_H
 
 struct SDL_Thread;
-struct CDefHandler;
+class CDefHandler;
 struct SDL_Surface;
 
 class CCursorHandler //handles cursor

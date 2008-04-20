@@ -233,7 +233,7 @@ void CTownList<T>::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-	float ny = (float)hy/(float)32;
+	int ny = hy/32;
 	if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
 	{
 		LOCPLINT->statusbar->clear();
@@ -263,10 +263,10 @@ void CTownList<T>::clickLeft(tribool down)
 		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-		float ny = (float)hy/(float)32;
+		int ny = hy/32;
 		if (ny>SIZE || ny<0)
 			return;
-		if (SIZE==5 && ((int)(ny+from))==selected && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
+		if (SIZE==5 && (ny+from)==selected && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
 			LOCPLINT->openTownWindow(items[selected]);//print town screen
 		else
 			select(ny+from);
@@ -322,7 +322,7 @@ void CTownList<T>::clickRight(tribool down)
 		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-		float ny = (float)hy/(float)32;
+		int ny = hy/32;
 		if ((ny>5 || ny<0) || (from+ny>=items.size()))
 		{
 			return;
