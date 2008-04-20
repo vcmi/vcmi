@@ -41,7 +41,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 	gar1button = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[23], CGI->generaltexth->heroscrn[29], &CHeroWindow::gar1, 546, 491, "hsbtns6.def", this, false, NULL, false);
 	gar2button = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::gar2, 604, 491, "hsbtns8.def", this, false, NULL, false);
 	gar3button = new AdventureMapButton<CHeroWindow>(CGI->generaltexth->heroscrn[24], CGI->generaltexth->heroscrn[30], &CHeroWindow::gar3, 546, 527, "hsbtns7.def", this, false, NULL, false);
-	gar4button = new AdventureMapButton<CHeroWindow>(std::string(), CGI->generaltexth->heroscrn[32], &CHeroWindow::gar4, 604, 527, "hsbtns9.def", this, false, NULL, false);
+	gar4button = new AdventureMapButton<CGarrisonInt>(std::string(), CGI->generaltexth->heroscrn[32], &CGarrisonInt::splitClick, 604, 527, "hsbtns9.def", garInt, false, NULL, false);
 
 	leftArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::leftArtRoller, 379, 364, "hsbtns3.def", this, false, NULL, false);
 	rightArtRoll = new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::rightArtRoller, 632, 364, "hsbtns5.def", this, false, NULL, false);
@@ -202,7 +202,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	portraitArea->text = hero->biography;
 
 	delete garInt;
-	garInt = new CGarrisonInt(80, 493, 8, 0, curBack, 13, 482, curHero);
+	gar4button->owner = garInt = new CGarrisonInt(80, 493, 8, 0, curBack, 13, 482, curHero);
 	garInt->update = false;
 	for(int g=0; g<primSkillAreas.size(); ++g)
 	{

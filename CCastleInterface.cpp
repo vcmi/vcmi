@@ -327,13 +327,16 @@ void CCastleInterface::buildingClicked(int building)
 		CRecrutationWindow *rw = new CRecrutationWindow(crs,this);
 		rw->activate();
 	}
-	switch(building)
+	else
 	{
-	case 10: case 11: case 12: case 13:
-		enterHall();
-		break;
-	default:
-		std::cout<<"This building isn't handled...\n";
+		switch(building)
+		{
+		case 10: case 11: case 12: case 13:
+			enterHall();
+			break;
+		default:
+			std::cout<<"This building isn't handled...\n";
+		}
 	}
 }
 void CCastleInterface::enterHall()

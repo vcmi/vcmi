@@ -578,7 +578,7 @@ int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2
 	if(!val)
 		return -1;
 	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
-	if ((S1->slots[p1].second<p2) && (true /*we are allowed to*/))
+	if ((S1->slots[p1].second<=val) && (true /*we are allowed to*/))
 	{
 		return -1;
 	}

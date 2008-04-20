@@ -92,8 +92,9 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 
 	//buttons
 	AdventureMapButton<CHeroWindow> * quitButton, * dismissButton, * questlogButton, //general
-		* gar1button, * gar2button, * gar3button, * gar4button, //garrison / formation handling
+		* gar1button, * gar2button, * gar3button, //garrison / formation handling
 		* leftArtRoll, * rightArtRoll;
+	AdventureMapButton<CGarrisonInt> * gar4button; //splitting
 	//std::vector< AdventureMapButton<CHeroWindow> * > heroList; //list of heroes
 	std::vector<LClickableAreaHero *> heroListMi; //new better list of heroes
 

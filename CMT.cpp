@@ -62,7 +62,7 @@
 CGameInfo* CGI;
 #endif
 #define CHUNK 16384
-const char * NAME = "VCMI pre-0.6";
+const char * NAME = "VCMI 0.58";
 
 SDL_Color playerColorPalette[256]; //palette to make interface colors good
 
