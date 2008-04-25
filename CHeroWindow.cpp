@@ -155,7 +155,7 @@ CHeroWindow::~CHeroWindow()
 void CHeroWindow::show(SDL_Surface *to)
 {
 	if(!to)
-		to=ekran;
+		to=screen;
 	if(curBack)
 		blitAt(curBack,pos.x,pos.y,to);
 	quitButton->show();

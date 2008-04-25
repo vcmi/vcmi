@@ -4,14 +4,14 @@
 #include "SDL_ttf.h"
 
 
-extern SDL_Surface * ekran;
+extern SDL_Surface * screen;
 extern SDL_Color tytulowy, tlo, zwykly ;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
-void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
-void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=ekran);
-void blitAtWR(SDL_Surface * src, SDL_Rect pos, SDL_Surface * dst=ekran);
-void blitAt(SDL_Surface * src, SDL_Rect pos, SDL_Surface * dst=ekran);
-void updateRect (SDL_Rect * rect, SDL_Surface * scr = ekran);
+void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
+void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
+void blitAtWR(SDL_Surface * src, SDL_Rect pos, SDL_Surface * dst=screen);
+void blitAt(SDL_Surface * src, SDL_Rect pos, SDL_Surface * dst=screen);
+void updateRect (SDL_Rect * rect, SDL_Surface * scr = screen);
 bool isItIn(const SDL_Rect * rect, int x, int y);
 template <typename T> int getIndexOf(const std::vector<T> & v, const T & val)
 {
@@ -38,11 +38,11 @@ namespace CSDL_Ext
 	int blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	//void fullAlphaTransform(SDL_Surface *& src); //performs first and second alpha transform
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
-	void printTo(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)
-	void printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
-	void printAtMiddleWB(std::string text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran);
-	void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
-	void update(SDL_Surface * what = ekran); //updates whole surface (default - main screen)
+	void printTo(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)
+	void printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
+	void printAtMiddleWB(std::string text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
+	void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
+	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void blueToPlayers(SDL_Surface * sur, int player); //simple color substitution
 	void blueToPlayersAdv(SDL_Surface * sur, int player, int mode=0, void* additionalInfo=NULL); //substitute blue color by another one, makes it nicer keeping nuances
 																							//mode 1 is calibrated for hero infobox
@@ -50,7 +50,7 @@ namespace CSDL_Ext
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 color);
 	void setPlayerColor(SDL_Surface * sur, unsigned char player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string
-	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=ekran); //creates new surface, with flags/format same as in surface given
+	SDL_Surface * newSurface(int w, int h, SDL_Surface * mod=screen); //creates new surface, with flags/format same as in surface given
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 };
 

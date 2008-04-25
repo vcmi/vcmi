@@ -19,10 +19,10 @@
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 
-extern SDL_Surface * ekran;
+extern SDL_Surface * screen;
 extern TTF_Font * TNRB16, *TNR, *GEOR13;
 SDL_Color genRGB(int r, int g, int b, int a=0);
-//void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=ekran, unsigned char quality = 2);
+//void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2);
 bool isItIn(const SDL_Rect * rect, int x, int y);
 
 using namespace NMessage;
@@ -91,7 +91,7 @@ void CMessage::dispose()
 SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor)
 {
 	//prepare surface
-	SDL_Surface * ret = SDL_CreateRGBSurface(ekran->flags, w, h, ekran->format->BitsPerPixel, ekran->format->Rmask, ekran->format->Gmask, ekran->format->Bmask, ekran->format->Amask);
+	SDL_Surface * ret = SDL_CreateRGBSurface(screen->flags, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
 	for (int i=0; i<h; i+=background->h)//background
 	{
 		for (int j=0; j<w; j+=background->w-1)

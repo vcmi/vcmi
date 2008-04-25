@@ -1,7 +1,7 @@
 #include "../stdafx.h"
 #include "CSemiDefHandler.h"
 #include <fstream>
-extern SDL_Surface * ekran;
+extern SDL_Surface * screen;
 std::string CSemiDefHandler::nameFromType (EterrainType typ)
 {
 	switch(typ)

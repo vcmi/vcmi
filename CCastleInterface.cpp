@@ -114,8 +114,8 @@ void CBuildingRect::clickRight (tribool down)
 			CGI->buildh->buildings[str->townID][str->ID]->description, 
 			LOCPLINT->castleInt->bicons->ourImages[str->ID].bitmap, 
 			CGI->buildh->buildings[str->townID][str->ID]->name);
-		vinya->pos.x = ekran->w/2 - vinya->bitmap->w/2;
-		vinya->pos.y = ekran->h/2 - vinya->bitmap->h/2;
+		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
+		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
 		vinya->activate();
 	}
 }
@@ -349,7 +349,7 @@ void CCastleInterface::enterHall()
 void CCastleInterface::showAll(SDL_Surface * to)
 {	
 	if (!to)
-		to=ekran;
+		to=screen;
 	blitAt(cityBg,0,0,to);
 	blitAt(townInt,0,374,to);
 	LOCPLINT->adventureInt->resdatabar.draw();
@@ -435,7 +435,7 @@ void CCastleInterface::show(SDL_Surface * to)
 	if(!showing)
 		return;
 	if (!to)
-		to=ekran;
+		to=screen;
 	count++;
 	if(count==4)
 	{
@@ -590,7 +590,7 @@ void CHallInterface::CResDataBar::show(SDL_Surface * to)
 			+ ": %s",temp)
 		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,GEOR13,zwykly);
 	temp.clear();
-	//updateRect(&pos,ekran);
+	//updateRect(&pos,screen);
 	delete[] buf;
 }
 CHallInterface::CResDataBar::CResDataBar()
@@ -872,7 +872,7 @@ void CHallInterface::CBuildWindow::show(SDL_Surface * to)
 {
 	SDL_Rect pom = genRect(bitmap->h-1,bitmap->w-1,pos.x,pos.y);
 	SDL_Rect poms = pom; poms.x=0;poms.y=0;
-	SDL_BlitSurface(bitmap,&poms,to?to:ekran,&pom);
+	SDL_BlitSurface(bitmap,&poms,to?to:screen,&pom);
 	if(!mode)
 	{
 		buy->show();
@@ -942,11 +942,11 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 :tid(Tid),bid(Bid),mode(Mode), state(State)
 {
 	SDL_Surface *hhlp = CGI->bitmaph->loadBitmap("TPUBUILD.bmp");
-	bitmap = SDL_ConvertSurface(hhlp,ekran->format,0); //na 8bitowej mapie by sie psulo
+	bitmap = SDL_ConvertSurface(hhlp,screen->format,0); //na 8bitowej mapie by sie psulo
 	SDL_SetColorKey(hhlp,SDL_SRCCOLORKEY,SDL_MapRGB(hhlp->format,0,255,255));
 	SDL_FreeSurface(hhlp);
-	pos.x = ekran->w/2 - bitmap->w/2;
-	pos.y = ekran->h/2 - bitmap->h/2;
+	pos.x = screen->w/2 - bitmap->w/2;
+	pos.y = screen->h/2 - bitmap->h/2;
 	CSDL_Ext::blueToPlayersAdv(bitmap,LOCPLINT->playerID);
 	blitAt(LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,125,50,bitmap);
 	std::vector<std::string> pom; pom.push_back(CGI->buildh->buildings[tid][bid]->name);

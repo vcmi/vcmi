@@ -66,7 +66,7 @@ const char * NAME = "VCMI 0.58";
 
 SDL_Color playerColorPalette[256]; //palette to make interface colors good
 
-SDL_Surface * ekran, * screen, * screen2;
+SDL_Surface * screen, * screen2;
 extern SDL_Surface * CSDL_Ext::std32bppSurface;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
@@ -369,7 +369,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		//screen2 = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		//screen = SDL_ConvertSurface(screen2, screen2->format, SDL_SWSURFACE);
-		ekran = screen;
 
 		SDL_WM_SetCaption(NAME,""); //set window title
 		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)

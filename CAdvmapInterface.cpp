@@ -123,7 +123,7 @@ void CMinimap::draw()
 		by = (((float)LOCPLINT->adventureInt->position.y)/(((float)CGI->mh->sizes.y)))*pos.h;
 	blitAt(radar,bx,by,temps);
 	blitAt(temps,pos.x,pos.y);
-	//SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
+	//SDL_UpdateRect(screen,pos.x,pos.y,pos.w,pos.h);
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
@@ -134,7 +134,7 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 		if ((level>=0) && (i!=level))
 			continue;
 		if (map.size()<i+1)
-			pom = CSDL_Ext::newSurface(pos.w,pos.h,ekran);
+			pom = CSDL_Ext::newSurface(pos.w,pos.h,screen);
 		else pom = map[i];
 		for (int x=0;x<pos.w;x++)
 		{
@@ -519,25 +519,25 @@ void CTerrainRect::showPath()
 				hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
 			if (hvx<0 && hvy<0)
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, ekran, &genRect(32, 32, x, y));
+				CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, screen, &genRect(32, 32, x, y));
 			}
 			else if(hvx<0)
 			{
 				CSDL_Ext::blit8bppAlphaTo24bpp
 					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,0,0),
-					ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,x,y));
+					screen,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,x,y));
 			}
 			else if (hvy<0)
 			{
 				CSDL_Ext::blit8bppAlphaTo24bpp
 					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,0,0),
-					ekran,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,x,y));
+					screen,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,x,y));
 			}
 			else
 			{
 				CSDL_Ext::blit8bppAlphaTo24bpp
 					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,0,0),
-					ekran,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
+					screen,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
 			}
 
 		}
@@ -549,9 +549,9 @@ void CTerrainRect::show()
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
 		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
 		LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-		ekran,&genRect(547,594,7,6)
+		screen,&genRect(547,594,7,6)
 		);
-	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),ekran,&genRect(547,594,7,6));
+	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
 	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
 	{
@@ -619,7 +619,7 @@ void CResDataBar::draw()
 	itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
 	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,GEOR13,zwykly);
 	temp.clear();
-	//updateRect(&pos,ekran);
+	//updateRect(&pos,screen);
 	delete[] buf;
 }
 CInfoBar::CInfoBar()
@@ -971,7 +971,7 @@ void CAdvMapInt::show()
 
 	infoBar.draw();
 
-	CSDL_Ext::update(ekran);
+	CSDL_Ext::update(screen);
 }
 void CAdvMapInt::hide()
 {

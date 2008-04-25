@@ -15,7 +15,7 @@
 #include "hch\CTownHandler.h"
 #include <iomanip>
 #include <sstream>
-extern SDL_Surface * ekran;
+extern SDL_Surface * screen;
 
 class OCM_HLP
 {

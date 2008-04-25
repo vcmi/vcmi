@@ -198,17 +198,17 @@ void CGarrisonSlot::show()
 		if(owner->highlighted==this)
 			blitAt(CGI->creh->bigImgs[-1],pos);
 		if(owner->update)
-			updateRect(&pos,ekran);
+			updateRect(&pos,screen);
 		delete [] buf;
 	}
 	else
 	{
 		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), jakis2 = pos;
-		SDL_BlitSurface(owner->sur,&jakis1,ekran,&jakis2);
+		SDL_BlitSurface(owner->sur,&jakis1,screen,&jakis2);
 		if(owner->splitting)
 			blitAt(CGI->creh->bigImgs[-1],pos);
 		if(owner->update)
-			SDL_UpdateRect(ekran,pos.x,pos.y,pos.w,pos.h);
+			SDL_UpdateRect(screen,pos.x,pos.y,pos.w,pos.h);
 	}
 }
 CGarrisonInt::~CGarrisonInt()
@@ -479,7 +479,7 @@ void CInfoPopup::close()
 }
 void CInfoPopup::show(SDL_Surface * to)
 {
-	blitAt(bitmap,pos.x,pos.y,(to)?(to):(ekran));
+	blitAt(bitmap,pos.x,pos.y,(to)?(to):(screen));
 }
 
 SComponent::SComponent(Etype Type, int Subtype, int Val)
@@ -555,7 +555,7 @@ CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWin
 :SComponent(Type,Sub,Val),owner(Owner)
 {
 	SDL_Surface * symb = SComponent::getImg();
-	myBitmap = CSDL_Ext::newSurface(symb->w+2,symb->h+2,ekran);
+	myBitmap = CSDL_Ext::newSurface(symb->w+2,symb->h+2,screen);
 	SDL_SetColorKey(myBitmap,SDL_SRCCOLORKEY,SDL_MapRGB(myBitmap->format,0,255,255));	
 	blitAt(symb,1,1,myBitmap);
 	if (Border) //use custom border
@@ -566,7 +566,7 @@ CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWin
 	else //we need to draw border
 	{
 		customB = false;
-		border = CSDL_Ext::newSurface(symb->w+2,symb->h+2,ekran);
+		border = CSDL_Ext::newSurface(symb->w+2,symb->h+2,screen);
 		SDL_FillRect(border,NULL,0x00FFFF);
 		for (int i=0;i<border->w;i++)
 		{
@@ -624,7 +624,7 @@ void CSelectableComponent::select(bool on)
 void CSimpleWindow::show(SDL_Surface * to)
 {
 	if(!to)
-		to=ekran;
+		to=screen;
 	blitAt(bitmap,pos.x,pos.y,to);
 }
 CSimpleWindow::~CSimpleWindow()
@@ -753,7 +753,7 @@ CButtonBase::~CButtonBase()
 void CButtonBase::show(SDL_Surface * to)
 {
 	if(!to)
-		to=ekran;
+		to=screen;
 	if (abs)
 	{
 		blitAt(imgs[curimg]
@@ -1024,8 +1024,8 @@ void CPlayerInterface::yourTurn()
 		}
 		for(int i=0;i<objsToBlit.size();i++)
 			objsToBlit[i]->show();
-		//SDL_Flip(ekran);
-		CSDL_Ext::update(ekran);
+		//SDL_Flip(screen);
+		CSDL_Ext::update(screen);
 		SDL_Delay(5); //give time for other apps
 		SDL_framerateDelay(mainFPSmng);
 	}
@@ -1433,7 +1433,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
 		}
 		LOCPLINT->adventureInt->update(); //updating screen
-		CSDL_Ext::update(ekran);
+		CSDL_Ext::update(screen);
 		CGI->screenh->updateScreen();
 
 		++LOCPLINT->adventureInt->animValHitCount; //for animations
@@ -1670,7 +1670,7 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 	{
 		LOCPLINT->adventureInt->scrollingLeft = false;
 	}
-	if(sEvent->motion.x>ekran->w-15)
+	if(sEvent->motion.x>screen->w-15)
 	{
 		LOCPLINT->adventureInt->scrollingRight = true;
 	}
@@ -1686,7 +1686,7 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 	{
 		LOCPLINT->adventureInt->scrollingUp = false;
 	}
-	if(sEvent->motion.y>ekran->h-15)
+	if(sEvent->motion.y>screen->h-15)
 	{
 		LOCPLINT->adventureInt->scrollingDown = true;
 	}
@@ -2002,8 +2002,8 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 		if(showCount%2==0)
 			for(int i=0;i<objsToBlit.size();i++)
 				objsToBlit[i]->show();
-		//SDL_Flip(ekran);
-		CSDL_Ext::update(ekran);
+		//SDL_Flip(screen);
+		CSDL_Ext::update(screen);
 		
 		/*timeHandler th;
 		th.getDif();
@@ -2109,19 +2109,19 @@ void CStatusBar::clear()
 {
 	current="";
 	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
-	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),ekran,&pom);
+	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),screen,&pom);
 }
 void CStatusBar::print(std::string text)
 {
 	current=text;
 	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
-	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),ekran,&pom);
+	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),screen,&pom);
 	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
 }
 void CStatusBar::show()
 {
 	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
-	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),ekran,&pom);
+	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),screen,&pom);
 	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
 }
 std::string CStatusBar::getCurrent()
@@ -2179,7 +2179,7 @@ CHeroList::CHeroList(int Size)
 
 void CHeroList::init()
 {
-	bg = CSDL_Ext::newSurface(68,193,ekran);
+	bg = CSDL_Ext::newSurface(68,193,screen);
 	SDL_BlitSurface(LOCPLINT->adventureInt->bg,&genRect(193,68,607,196),bg,&genRect(193,68,0,0));
 }
 void CHeroList::genList()
@@ -2469,26 +2469,26 @@ void CRecrutationWindow::deactivate()
 void CRecrutationWindow::show(SDL_Surface * to)
 {
 	static char c=0;
-	blitAt(bitmap,pos.x,pos.y,to?to:ekran);
+	blitAt(bitmap,pos.x,pos.y,to?to:screen);
 	buy->show();
 	max->show();
 	cancel->show();
 	slider->show();
 	char pom[15];
 	itoa(creatures[which].amount,pom,10); //available
-	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,ekran);
+	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,screen);
 	itoa(slider->value,pom,10); //recruit
-	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,ekran);
-	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,GEOR16,tytulowy,ekran); //eg "Recruit Dragon flies"
+	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,screen);
+	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,GEOR16,tytulowy,screen); //eg "Recruit Dragon flies"
 	int curx = pos.x+115-creatures[which].res.size()*16;
 	for(int i=0;i<creatures[which].res.size();i++)
 	{
-		blitAt(CGI->townh->resources->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,ekran);
-		blitAt(CGI->townh->resources->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,ekran);
+		blitAt(CGI->townh->resources->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,screen);
+		blitAt(CGI->townh->resources->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,screen);
 		itoa(creatures[which].res[i].second,pom,10);
-		printAtMiddle(pom,curx+12,pos.y+286,GEOR13,zwykly,ekran);
+		printAtMiddle(pom,curx+12,pos.y+286,GEOR13,zwykly,screen);
 		itoa(creatures[which].res[i].second * slider->value,pom,10);
-		printAtMiddle(pom,curx+12+258,pos.y+286,GEOR13,zwykly,ekran);
+		printAtMiddle(pom,curx+12+258,pos.y+286,GEOR13,zwykly,screen);
 		curx+=32;
 	}
 
@@ -2496,7 +2496,7 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	for(int i=0;i<creatures.size();i++)
 	{
 		blitAt(CGI->creh->backgrounds[CGI->creh->creatures[creatures[i].ID].faction],curx-50,pos.y+130-65);
-		creatures[i].anim->nextFrameMiddle(ekran,curx+20,pos.y+110,true,!(c%2),false);
+		creatures[i].anim->nextFrameMiddle(screen,curx+20,pos.y+110,true,!(c%2),false);
 		curx += 120;
 	}
 	c++;
@@ -2517,11 +2517,11 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 	}
 	SDL_Surface *hhlp = CGI->bitmaph->loadBitmap("TPRCRT.bmp");
 	blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	bitmap = SDL_ConvertSurface(hhlp,ekran->format,0); //na 8bitowej mapie by sie psulo
+	bitmap = SDL_ConvertSurface(hhlp,screen->format,0); //na 8bitowej mapie by sie psulo
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	SDL_FreeSurface(hhlp);
-	pos.x = ekran->w/2 - bitmap->w/2;
-	pos.y = ekran->h/2 - bitmap->h/2;
+	pos.x = screen->w/2 - bitmap->w/2;
+	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
 	slider = new CSlider<CRecrutationWindow>(pos.x+176,pos.y+279,135,this,&CRecrutationWindow::sliderMoved,1,creatures[0].amount,0,true);
@@ -2572,8 +2572,8 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
 	slider = NULL;
 	gar = Owner;
 	bitmap = CGI->bitmaph->loadBitmap("GPUCRDIV.bmp");
-	pos.x = ekran->w/2 - bitmap->w/2;
-	pos.y = ekran->h/2 - bitmap->h/2;
+	pos.x = screen->w/2 - bitmap->w/2;
+	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
 	ok = new AdventureMapButton<CSplitWindow>("","",&CSplitWindow::split,pos.x+20,pos.y+263,"IOK6432.DEF",this);
@@ -2631,21 +2631,21 @@ void CSplitWindow::sliderMoved(int to)
 void CSplitWindow::show(SDL_Surface * to)
 {
 	char pom[15];
-	blitAt(bitmap,pos.x,pos.y,ekran);
+	blitAt(bitmap,pos.x,pos.y,screen);
 	ok->show();
 	cancel->show();
 	slider->show();
 	itoa(a1,pom,10);
-	printAtMiddle(pom,pos.x+70,pos.y+237,GEOR16,zwykly,ekran);
+	printAtMiddle(pom,pos.x+70,pos.y+237,GEOR16,zwykly,screen);
 	itoa(a2,pom,10);
-	printAtMiddle(pom,pos.x+233,pos.y+237,GEOR16,zwykly,ekran);
+	printAtMiddle(pom,pos.x+233,pos.y+237,GEOR16,zwykly,screen);
 
 
 	blitAt(CGI->creh->backgrounds[CGI->creh->creatures[c].faction],pos.x+20,pos.y+54);
-	anim->nextFrameMiddle(ekran,pos.x+20+70,pos.y+54+55,true,false,false);
+	anim->nextFrameMiddle(screen,pos.x+20+70,pos.y+54+55,true,false,false);
 
 	blitAt(CGI->creh->backgrounds[CGI->creh->creatures[c].faction],pos.x+177,pos.y+54);
-	anim->nextFrameMiddle(ekran,pos.x+177+70,pos.y+54+55,true,false,false);
+	anim->nextFrameMiddle(screen,pos.x+177+70,pos.y+54+55,true,false,false);
 }
 void CSplitWindow::keyPressed (SDL_KeyboardEvent & key)
 {
