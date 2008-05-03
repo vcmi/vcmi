@@ -106,7 +106,7 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
-	bool reverseCreature(int number, int hex); //reverses animation of given creature playing animation of reversing
+	bool reverseCreature(int number, int hex, bool wideTrick = false); //reverses animation of given creature playing animation of reversing
 
 	//call-ins
 	void newStack(CStack stack); //new stack appeared on battlefield

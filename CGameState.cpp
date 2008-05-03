@@ -295,7 +295,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		//if(curB->stacks[g]->owner == owner) //we don't want to lock enemy's positions
+		if(curB->stacks[g]->owner == owner && curB->stacks[g]->ID != ID) //we don't want to lock enemy's positions and this units' position
 		{
 			accessibility[curB->stacks[g]->position] = false;
 			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
@@ -447,7 +447,7 @@ std::vector<int> CGameState::battleGetRange(int ID)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		if(curB->stacks[g]->owner == owner) //we don't want to lock enemy's positions
+		if(curB->stacks[g]->owner == owner && curB->stacks[g]->ID != ID) //we don't want to lock enemy's positions or current unit's position
 		{
 			accessibility[curB->stacks[g]->position] = false;
 			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
