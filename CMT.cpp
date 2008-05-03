@@ -152,26 +152,33 @@ void initGameState(CGameInfo * cgi)
 			vhi->portrait = vhi->type->ID;
 
 		//initial army
-		if (!vhi->army.slots.size())
+		if (!vhi->army.slots.size()) //standard army
 		{
-			int pom;
-			vhi->army.slots[0].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType1stack])]);
-			if((pom = (vhi->type->high1stack-vhi->type->low1stack)) > 0)
-				vhi->army.slots[0].second = (rand()%pom)+vhi->type->low1stack;
-			else 
-				vhi->army.slots[0].second = +vhi->type->low1stack;
-
-			vhi->army.slots[1].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType2stack])]);
-			if((pom=(vhi->type->high2stack-vhi->type->low2stack))>0)
-				vhi->army.slots[1].second = (rand()%pom)+vhi->type->low2stack;
-			else
-				vhi->army.slots[1].second = vhi->type->low2stack;
-
-			vhi->army.slots[2].first = &(cgi->creh->creatures[(cgi->creh->nameToID[vhi->type->refType3stack])]);
-			if((pom=(vhi->type->high3stack-vhi->type->low3stack))>0)
-				vhi->army.slots[2].second = (rand()%pom)+vhi->type->low3stack;
-			else
-				vhi->army.slots[2].second = vhi->type->low3stack;
+			int pom, pom2=0;
+			for(int x=0;x<3;x++)
+			{
+				pom = (cgi->creh->nameToID[vhi->type->refTypeStack[x]]);
+				if(pom>=145 && pom<=149) //war machine
+				{
+					pom2++;
+					switch (pom)
+					{
+					case 145: //catapult
+						vhi->artifWorn[16] = &CGI->arth->artifacts[3];
+						break;
+					default:
+						pom-=145;
+						vhi->artifWorn[13+pom] = &CGI->arth->artifacts[4+pom];
+						break;
+					}
+					continue;
+				}
+				vhi->army.slots[x-pom2].first = &(cgi->creh->creatures[pom]);
+				if((pom = (vhi->type->highStack[x]-vhi->type->lowStack[x])) > 0)
+					vhi->army.slots[x-pom2].second = (rand()%pom)+vhi->type->lowStack[x];
+				else 
+					vhi->army.slots[x-pom2].second = +vhi->type->lowStack[x];
+			}
 		}
 
 		cgi->state->players[vhi->getOwner()].heroes.push_back(vhi);

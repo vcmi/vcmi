@@ -146,7 +146,7 @@
 144	OgreShaman
 145	Catapult
 146	Ballista
-147	First-AidTent
+147	FirstAidTent
 148	AmmoCart
 149	ArrowTower
 150	SupremeArchangel

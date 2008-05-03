@@ -5,8 +5,10 @@ void CMusicHandler::initMusics()
 {
 	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096)==-1)
 	{
-		printf("Mix_OpenAudio: %s\n", Mix_GetError());
-		exit(2);
+		printf("Mix_OpenAudio error: %s!!!\n", Mix_GetError());
+		//exit(2);
+		sndh = NULL;
+		return;
 	}
 	atexit(Mix_CloseAudio);
 
@@ -61,6 +63,7 @@ void CMusicHandler::initMusics()
 
 void CMusicHandler::playClick()
 {
+	if(!sndh) return;
 	int channel;
 	channel = Mix_PlayChannel(-1, click, 0);
 	if(channel == -1)
@@ -71,6 +74,7 @@ void CMusicHandler::playClick()
 
 void CMusicHandler::playLodSnd(std::string sndname)
 {
+	if(!sndh) return;
 	int size;
 	unsigned char *data;
 	SDL_RWops *ops;

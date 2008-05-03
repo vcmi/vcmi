@@ -659,9 +659,21 @@ bool CCallback::buildBuilding(const CGTownInstance *town, int buildingID)
 {
 	CGTownInstance * t = const_cast<CGTownInstance *>(town);
 	CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
-	
+
 	if(0/*not allowed*/)//TODO: check if we are allowed to build
 		return false;
+
+	if(buildingID>36) //upg dwelling
+	{
+		if(t->getHordeLevel(0) == (buildingID-37))
+			t->builtBuildings.insert(19);
+		else if(t->getHordeLevel(1) == (buildingID-37))
+			t->builtBuildings.insert(25);
+	}
+	else if(buildingID >= 30) //bas. dwelling
+	{
+		t->strInfo.creatures[buildingID-30] = CGI->creh->creatures[t->town->basicCreatures[buildingID-30]].growth;
+	}
 
 	t->builtBuildings.insert(buildingID);
 	for(int i=0;i<7;i++)
@@ -768,7 +780,24 @@ void CScriptCallback::changePrimSkill(int ID, int which, int val)
 	else if (which==4)
 	{
 		hero->exp+=val;
-		std::cout << "Bohater o ID " << ID <<" (" <<CGI->heroh->heroes[ID]->name <<") dostaje "<<val<<" expa, ale nic z tym nie umiem zrobic :("<<std::endl;
+		if(hero->exp >= CGI->heroh->reqExp(hero->level+1)) //new level
+		{
+			hero->level++;
+			std::cout << hero->name <<" got level "<<hero->level<<std::endl;
+			int r = rand()%100, pom=0, x=0;
+			int std::pair<int,int>::*g=hero->level>9?&std::pair<int,int>::second:&std::pair<int,int>::first;
+			for(;x<PRIMARY_SKILLS;x++)
+			{
+				pom += hero->type->heroClass->primChance[x].*g;
+				if(r<pom)
+					break;
+			}
+			std::cout << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
+			hero->primSkills[x]++;
+
+			//TODO: dac dwie umiejetnosci 2-rzedne to wyboru
+
+		}
 		//TODO - powiadomic interfejsy, sprawdzic czy nie ma awansu itp
 	}
 }

@@ -50,6 +50,7 @@ const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
 const int HEROES_PER_TYPE=8; //amount of heroes of each type
 const int SKILL_QUANTITY=28;
+const int SKILL_PER_HERO=8;
 const int ARTIFACTS_QUANTITY=171;
 const int HEROES_QUANTITY=156;
 const int RESOURCE_QUANTITY=8;

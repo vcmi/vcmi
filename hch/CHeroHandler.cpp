@@ -109,23 +109,14 @@ void CHeroHandler::loadHeroes()
 		std::string pom ;
 		CGeneralTextHandler::loadToIt(nher->name,buf,it,4);
 
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		nher->low1stack = atoi(pom.c_str());
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		nher->high1stack = atoi(pom.c_str());
-		CGeneralTextHandler::loadToIt(nher->refType1stack,buf,it,4);
-
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		nher->low2stack = atoi(pom.c_str());
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		nher->high2stack = atoi(pom.c_str());
-		CGeneralTextHandler::loadToIt(nher->refType2stack,buf,it,4);
-
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		nher->low3stack = atoi(pom.c_str());
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		nher->high3stack = atoi(pom.c_str());
-		CGeneralTextHandler::loadToIt(nher->refType3stack,buf,it,3);
+		for(int x=0;x<3;x++)
+		{
+			CGeneralTextHandler::loadToIt(pom,buf,it,4);
+			nher->lowStack[x] = atoi(pom.c_str());
+			CGeneralTextHandler::loadToIt(pom,buf,it,4);
+			nher->highStack[x] = atoi(pom.c_str());
+			CGeneralTextHandler::loadToIt(nher->refTypeStack[x],buf,it,(x==2) ? (3) : (4));
+		}
 	
 		nher->ID = heroes.size();
 		heroes.push_back(nher);
@@ -253,77 +244,29 @@ void CHeroHandler::loadHeroClasses()
 		hc->initialKnowledge = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
-		befi=i;
-		for(i; i<andame; ++i)
+		hc->primChance.resize(PRIMARY_SKILLS);
+		for(int x=0;x<PRIMARY_SKILLS;x++)
 		{
-			if(buf[i]=='\t')
-				break;
+			befi=i;
+			for(i; i<andame; ++i)
+			{
+				if(buf[i]=='\t')
+					break;
+			}
+			hc->primChance[x].first = atoi(buf.substr(befi, i-befi).c_str());
+			++i;
 		}
-		hc->proAttack[0] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
+		for(int x=0;x<PRIMARY_SKILLS;x++)
 		{
-			if(buf[i]=='\t')
-				break;
+			befi=i;
+			for(i; i<andame; ++i)
+			{
+				if(buf[i]=='\t')
+					break;
+			}
+			hc->primChance[x].second = atoi(buf.substr(befi, i-befi).c_str());
+			++i;
 		}
-		hc->proDefence[0] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->proPower[0] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->proKnowledge[0] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->proAttack[1] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->proDefence[1] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->proPower[1] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->proKnowledge[1] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
 
 		//CHero kkk = heroes[0];
 

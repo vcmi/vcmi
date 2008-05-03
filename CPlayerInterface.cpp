@@ -2572,6 +2572,7 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
 	slider = NULL;
 	gar = Owner;
 	bitmap = CGI->bitmaph->loadBitmap("GPUCRDIV.bmp");
+	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	pos.x = screen->w/2 - bitmap->w/2;
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;

@@ -18,8 +18,8 @@ class CHero
 public:
 	std::string name;
 	int ID;
-	int low1stack, high1stack, low2stack, high2stack, low3stack, high3stack; //amount of units; described below
-	std::string refType1stack, refType2stack, refType3stack; //reference names of units appearing in hero's army if he is recruited in tavern
+	int lowStack[3], highStack[3]; //amount of units; described below
+	std::string refTypeStack[3]; //reference names of units appearing in hero's army if he is recruited in tavern
 	std::string bonusName, shortBonus, longBonus; //for special abilities
 	std::string biography; //biography, of course
 	bool isAllowed; //true if we can play with this hero (depends on map)
@@ -36,10 +36,7 @@ public:
 	std::string name;
 	float aggression;
 	int initialAttack, initialDefence, initialPower, initialKnowledge;
-	int proAttack[2]; //probability of gaining attack point on levels [0]: 2 - 9; [1]: 10+  (out of 100)
-	int proDefence[2]; //probability of gaining defence point on levels [0]: 2 - 9; [1]: 10+ (out of 100)
-	int proPower[2]; //probability of gaining power point on levels [0]: 2 - 9; [1]: 10+ (out of 100)
-	int proKnowledge[2]; //probability of gaining knowledge point on levels [0]: 2 - 9; [1]: 10+ (out of 100)
+	std::vector<std::pair<int,int> > primChance;//primChance[PRIMARY_SKILL_ID] - first is for levels 2 - 9, second for 10+;;; probability (%) of getting point of primary skill when getting new level
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
 	int selectionProbability[9]; //probability of selection in towns
 	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterrain, lava, water, rock; -1 means terrain is imapassable

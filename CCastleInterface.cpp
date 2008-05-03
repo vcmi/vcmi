@@ -314,16 +314,26 @@ void CCastleInterface::splitF()
 void CCastleInterface::buildingClicked(int building)
 {
 	std::cout<<"You've clicked on "<<building<<std::endl;
+	if(building==19 || building==18)
+	{
+		building = town->town->hordeLvl[0] + 30;
+	}
+	else if(building==24 || building==25)
+	{
+		building = town->town->hordeLvl[1] + 30;
+	}
 	if(building >= 30)
 	{
 		if(building>36)
 			building-=7;
 		std::vector<std::pair<int,int > > crs;
 		int amount = (const_cast<CGTownInstance*>(town))->strInfo.creatures[building-30]; //trzeba odconstowac, bo inaczej operator [] by sypal :(
-		crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
 
 		if(town->builtBuildings.find(building+7) != town->builtBuildings.end()) //check if there is an upgraded building
 			crs.push_back(std::make_pair(town->town->upgradedCreatures[building-30],amount));
+
+		crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
+
 		CRecrutationWindow *rw = new CRecrutationWindow(crs,this);
 		rw->activate();
 	}
@@ -488,13 +498,13 @@ void CCastleInterface::deactivate()
 
 void CCastleInterface::addBuilding(int bid)
 {
-	//TODO: lepiej by bylo tylko dodawac/usuwac co trzeba pamietajac o grupach
+	//TODO: lepiej by bylo tylko dodawac co trzeba pamietajac o grupach
 	recreateBuildings();
 }
 
 void CCastleInterface::removeBuilding(int bid)
 {
-	//TODO: lepiej by bylo tylko dodawac/usuwac co trzeba pamietajac o grupach
+	//TODO: lepiej by bylo tylko usuwac co trzeba pamietajac o grupach
 	recreateBuildings();
 }
 

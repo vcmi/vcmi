@@ -419,7 +419,7 @@ void CSlider<T>::sliderClicked()
 template<typename T>
 void CSlider<T>::mouseMoved (SDL_MouseMotionEvent & sEvent)
 {
-	float v = sEvent.x - pos.x - 16;
+	float v = sEvent.x - pos.x - 24;
 	v/= (pos.w - 48);
 	v*=amount;
 	if(v!=value)

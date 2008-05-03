@@ -209,7 +209,24 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 {		
 	std::pair<int,int> ran = pickObject(cur);
 	if(ran.first<0 || ran.second<0) //this is not a random object, or we couldn't find anything
+	{
+		if(cur->ID==98) //town - set def
+		{
+			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
+			if(t->hasCapitol())
+				t->defInfo = capitols[t->subID];
+			else if(t->hasFort())
+				t->defInfo = CGI->dobjinfo->castles[t->subID];
+			else
+				t->defInfo = villages[t->subID]; 
+			if(!t->defInfo->handler)
+			{
+				t->defInfo->handler = CGI->spriteh->giveDef(t->defInfo->name);
+				alphaTransformDef(t->defInfo);
+			}
+		}
 		return;
+	}
 	else if(ran.first==34)//special code for hero
 	{
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
