@@ -2434,6 +2434,12 @@ void CRecrutationWindow::clickLeft(tribool down)
 		if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 		{
 			which = i;	
+			int newAmount = std::min(amounts[i],creatures[i].amount);
+			slider->amount = newAmount;
+			if(slider->value > newAmount)
+				slider->moveTo(newAmount);
+			else
+				slider->moveTo(slider->value);
 			curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
 			for(int j=0;j<creatures.size();j++)
 			{
@@ -2496,7 +2502,8 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	for(int i=0;i<creatures.size();i++)
 	{
 		blitAt(CGI->creh->backgrounds[CGI->creh->creatures[creatures[i].ID].faction],curx-50,pos.y+130-65);
-		creatures[i].anim->nextFrameMiddle(screen,curx+20,pos.y+110,true,!(c%2),false);
+		SDL_Rect dst = genRect(130,100,curx-50,pos.y+130-65);
+		creatures[i].anim->nextFrameMiddle(screen,curx+20,pos.y+110,true,!(c%2),&dst);
 		curx += 120;
 	}
 	c++;
@@ -2506,6 +2513,7 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 {
 	which = 0;
 	creatures.resize(Creatures.size());
+	amounts.resize(Creatures.size());
 	for(int i=0;i<creatures.size();i++)
 	{
 		creatures[i].amount = Creatures[i].second;
@@ -2514,6 +2522,7 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 			if(CGI->creh->creatures[Creatures[i].first].cost[j])
 				creatures[i].res.push_back(std::make_pair(j,CGI->creh->creatures[Creatures[i].first].cost[j]));
 		creatures[i].anim = new CCreatureAnimation(CGI->creh->creatures[Creatures[i].first].animDefName);
+		amounts[i] = CGI->creh->creatures[Creatures[i].first].maxAmount(LOCPLINT->cb->getResourceAmount());
 	}
 	SDL_Surface *hhlp = CGI->bitmaph->loadBitmap("TPRCRT.bmp");
 	blueToPlayersAdv(hhlp,LOCPLINT->playerID);
@@ -2524,7 +2533,7 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	slider = new CSlider<CRecrutationWindow>(pos.x+176,pos.y+279,135,this,&CRecrutationWindow::sliderMoved,1,creatures[0].amount,0,true);
+	slider = new CSlider<CRecrutationWindow>(pos.x+176,pos.y+279,135,this,&CRecrutationWindow::sliderMoved,1,std::min(amounts[0],creatures[0].amount),0,true);
 	std::string pom;
 	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
 	printAtMiddle(CGI->generaltexth->allTexts[465],205,231,GEOR13,zwykly,bitmap); //available t

@@ -42,6 +42,15 @@ bool CCreature::isFlying()
 {
 	return boost::algorithm::find_first(abilityRefs, "FLYING_ARMY");
 }
+int CCreature::maxAmount(const std::vector<int> &res) const //how many creatures can be bought
+{
+	int ret = 2147483645;
+	int resAmnt = std::min(res.size(),cost.size());
+	for(int i=0;i<resAmnt;i++)
+		if(cost[i])
+			ret = std::min(ret,res[i]/cost[i]);
+	return ret;
+}
 
 void CCreatureHandler::loadCreatures()
 {
@@ -1010,7 +1019,7 @@ void CCreatureAnimation::putPixel(SDL_Surface * dest, const int & ftcp, const BM
 			p[2] = color.R;
 		}
 		else if(palc < 5) //shadow
-		{
+		{ 
 			Uint16 alpha;
 			switch(color.G)
 			{

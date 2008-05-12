@@ -266,6 +266,9 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 		if(!found)	//no such creature
 			return;
 
+		if(amount > CGI->creh->creatures[ID].maxAmount(gs->players[player].resources))
+			return; //not enough resources
+
 		for(int i=0;i<RESOURCE_QUANTITY;i++)
 			if (gs->players[player].resources[i]  <  (CGI->creh->creatures[ID].cost[i] * amount))
 				return; //not enough resources
@@ -349,7 +352,10 @@ int CCallback::getResourceAmount(int type)
 {
 	return gs->players[player].resources[type];
 }
-
+std::vector<int> CCallback::getResourceAmount()
+{
+	return gs->players[player].resources;
+}
 int CCallback::getDate(int mode)
 {
 	int temp;
@@ -785,7 +791,7 @@ void CScriptCallback::changePrimSkill(int ID, int which, int val)
 			hero->level++;
 			std::cout << hero->name <<" got level "<<hero->level<<std::endl;
 			int r = rand()%100, pom=0, x=0;
-			int std::pair<int,int>::*g=hero->level>9?&std::pair<int,int>::second:&std::pair<int,int>::first;
+			int std::pair<int,int>::*g  =  (hero->level>9) ? (&std::pair<int,int>::second) : (&std::pair<int,int>::first);
 			for(;x<PRIMARY_SKILLS;x++)
 			{
 				pom += hero->type->heroClass->primChance[x].*g;

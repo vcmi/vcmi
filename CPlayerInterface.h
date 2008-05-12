@@ -462,6 +462,7 @@ public:
 		CCreatureAnimation *anim;
 		std::vector<std::pair<int,int> > res; //res_id - cost_per_unit
 	};
+	std::vector<int> amounts; //how many creatures we can afford
 	std::vector<creinfo> creatures;
 	IRecruit *rec;
 	CSlider<CRecrutationWindow> *slider;

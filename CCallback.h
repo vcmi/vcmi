@@ -92,6 +92,7 @@ public:
 	PseudoV< PseudoV< PseudoV<unsigned char> > > & getVisibilityMap(); //returns visibility map (TODO: make it const)
 	const CGHeroInstance * getHeroInfo(int player, int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
 	int getResourceAmount(int type);
+	std::vector<int> getResourceAmount();
 	int howManyHeroes();
 	const CGTownInstance * getTownInfo(int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
 	std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true);
