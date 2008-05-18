@@ -1,7 +1,7 @@
 #pragma once
 #include "CPlayerInterface.h"
 
-template <typename T> class AdventureMapButton;
+class AdventureMapButton;
 struct SDL_Surface;
 class CGHeroInstance;
 class CDefHandler;
@@ -91,10 +91,10 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	CDefHandler * skillpics, *flags;
 
 	//buttons
-	AdventureMapButton<CHeroWindow> * quitButton, * dismissButton, * questlogButton, //general
+	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general
 		* gar1button, * gar2button, * gar3button, //garrison / formation handling
 		* leftArtRoll, * rightArtRoll;
-	AdventureMapButton<CGarrisonInt> * gar4button; //splitting
+	AdventureMapButton * gar4button; //splitting
 	//std::vector< AdventureMapButton<CHeroWindow> * > heroList; //list of heroes
 	std::vector<LClickableAreaHero *> heroListMi; //new better list of heroes
 

@@ -121,7 +121,7 @@ public:
 
 
 	SDL_Surface * bg;
-	AdventureMapButton<> kingOverview,//- kingdom overview
+	AdventureMapButton kingOverview,//- kingdom overview
 		underground,//- underground switch
 		questlog,//- questlog
 		sleepWake, //- sleep/wake hero
@@ -139,7 +139,7 @@ public:
 	CResDataBar resdatabar;
 	
 	CHeroList heroList;
-	CTownList<CAdvMapInt> townList;	
+	CTownList townList;	
 	CInfoBar infoBar;
 
 	CHeroWindow * heroWindow;

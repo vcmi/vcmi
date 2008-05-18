@@ -1,7 +1,7 @@
 #ifndef CGAMEINTERFACE_H
 #define CGAMEINTERFACE_H
 #include "global.h"
-//#include "CCallback.h"
+#include <set>
 #include <vector>
 BOOST_TRIBOOL_THIRD_STATE(outOfRange)
 
@@ -32,6 +32,16 @@ struct BattleAction
 	int destinationTile; 
 	int additionalInfo; // e.g. spell number if type is 1 || 10
 };
+
+struct StackState
+{
+	int attackBonus, defenseBonus, healthBonus, speedBonus;
+	int currentHealth;
+	int shotsLeft;
+	std::set<int> effects; 
+	int morale, luck;
+};
+
 class CGameInterface
 {
 public:

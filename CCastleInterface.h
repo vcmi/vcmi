@@ -7,7 +7,7 @@ class CGTownInstance;
 class CTownHandler;
 class CHallInterface;
 struct Structure;
-template <typename T> class AdventureMapButton;
+class AdventureMapButton;
 class CBuildingRect : public Hoverable, public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
 {
 public:
@@ -41,11 +41,11 @@ public:
 
 	CDefHandler *hall,*fort, *flag;
 	CDefEssential* bicons; //150x70 buildings imgs
-	CTownList<CCastleInterface> * townlist;
+	CTownList * townlist;
 
 	CGarrisonInt * garr;
-	AdventureMapButton<CCastleInterface> * exit;
-	AdventureMapButton<CGarrisonInt>*split;
+	AdventureMapButton *exit;
+	AdventureMapButton *split;
 
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
@@ -101,7 +101,7 @@ public:
 		int tid, bid, state; //town id, building id, state
 		bool mode; // 0 - normal (with buttons), 1 - r-click popup
 		SDL_Surface * bitmap; //main window bitmap, with blitted res/text, without buttons/subtitle in "statusbar"
-		AdventureMapButton<CBuildWindow> *buy, *cancel;
+		AdventureMapButton *buy, *cancel;
 
 		void activate();
 		void deactivate();
@@ -118,7 +118,7 @@ public:
 		*status; //0 - already, 1 - can't, 2 - lack of resources
 	std::vector< std::vector<CBuildingBox*> >boxes;
 
-	AdventureMapButton<CHallInterface> * exit;
+	AdventureMapButton *exit;
 
 	SDL_Surface * bg;
 

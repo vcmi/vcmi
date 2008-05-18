@@ -807,39 +807,38 @@ CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(7,556),
 kingOverview(CGI->preth->zelp[293].first,CGI->preth->zelp[293].second,
-			 &CAdvMapInt::fshowOverview, 679, 196, "IAM002.DEF", this,false,NULL,true),
+			 boost::bind(&CAdvMapInt::fshowOverview,this), 679, 196, "IAM002.DEF", false,NULL,true),
 
 underground(CGI->preth->zelp[294].first,CGI->preth->zelp[294].second,
-		   &CAdvMapInt::fswitchLevel, 711, 196, "IAM010.DEF", this, false, new std::vector<std::string>(1,std::string("IAM003.DEF")),true),
+			boost::bind(&CAdvMapInt::fswitchLevel,this), 711, 196, "IAM010.DEF", false, new std::vector<std::string>(1,std::string("IAM003.DEF")),true),
 
 questlog(CGI->preth->zelp[295].first,CGI->preth->zelp[295].second,
-		 &CAdvMapInt::fshowQuestlog, 679, 228, "IAM004.DEF", this,false,NULL,true),
+		 boost::bind(&CAdvMapInt::fshowQuestlog,this), 679, 228, "IAM004.DEF", false,NULL,true),
 
 sleepWake(CGI->preth->zelp[296].first,CGI->preth->zelp[296].second,
-		  &CAdvMapInt::fsleepWake, 711, 228, "IAM005.DEF", this,false,NULL,true),
+		  boost::bind(&CAdvMapInt::fsleepWake,this), 711, 228, "IAM005.DEF", false,NULL,true),
 
 moveHero(CGI->preth->zelp[297].first,CGI->preth->zelp[297].second,
-		  &CAdvMapInt::fmoveHero, 679, 260, "IAM006.DEF", this,false,NULL,true),
+		  boost::bind(&CAdvMapInt::fmoveHero,this), 679, 260, "IAM006.DEF", false,NULL,true),
 
 spellbook(CGI->preth->zelp[298].first,CGI->preth->zelp[298].second,
-		  &CAdvMapInt::fshowSpellbok, 711, 260, "IAM007.DEF", this,false,NULL,true),
+		  boost::bind(&CAdvMapInt::fshowSpellbok,this), 711, 260, "IAM007.DEF", false,NULL,true),
 
 advOptions(CGI->preth->zelp[299].first,CGI->preth->zelp[299].second,
-		  &CAdvMapInt::fadventureOPtions, 679, 292, "IAM008.DEF", this,false,NULL,true),
+		  boost::bind(&CAdvMapInt::fadventureOPtions,this), 679, 292, "IAM008.DEF", false,NULL,true),
 
 sysOptions(CGI->preth->zelp[300].first,CGI->preth->zelp[300].second,
-		  &CAdvMapInt::fsystemOptions, 711, 292, "IAM009.DEF", this,false,NULL,true),
+		  boost::bind(&CAdvMapInt::fsystemOptions,this), 711, 292, "IAM009.DEF", false,NULL,true),
 
 nextHero(CGI->preth->zelp[301].first,CGI->preth->zelp[301].second,
-		  &CAdvMapInt::fnextHero, 679, 324, "IAM000.DEF", this,false,NULL,true),
+		  boost::bind(&CAdvMapInt::fnextHero,this), 679, 324, "IAM000.DEF", false,NULL,true),
 
 endTurn(CGI->preth->zelp[302].first,CGI->preth->zelp[302].second,
-		  &CAdvMapInt::fendTurn, 679, 356, "IAM001.DEF", this,false,NULL,true),
+		  boost::bind(&CAdvMapInt::fendTurn,this), 679, 356, "IAM001.DEF", false,NULL,true),
 
 townList(5,&genRect(192,48,747,196),747,196,747,372)
 {
-	townList.owner = this;
-	townList.fun = &CAdvMapInt::selectionChanged;
+	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
 	LOCPLINT->adventureInt=this;
 	bg = CGI->bitmaph->loadBitmap("ADVMAP.bmp");
 	blueToPlayersAdv(bg,player);

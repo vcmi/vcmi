@@ -211,15 +211,14 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	//garrison
 	garr = new CGarrisonInt(305,387,4,32,townInt,243,13,town,town->visitingHero);
 
-	townlist = new CTownList<CCastleInterface>(3,&genRect(128,48,744,414),744,414,744,526);
-	exit = new AdventureMapButton<CCastleInterface>
-		(CGI->townh->tcommands[8],"",&CCastleInterface::close,744,544,"TSBTNS.DEF",this,false,NULL,false);
-	split = new AdventureMapButton<CGarrisonInt>
-		(CGI->townh->tcommands[3],"",&CGarrisonInt::splitClick,744,382,"TSBTNS.DEF",garr,false,NULL,false);
+	townlist = new CTownList(3,&genRect(128,48,744,414),744,414,744,526);
+	exit = new AdventureMapButton
+		(CGI->townh->tcommands[8],"",boost::bind(&CCastleInterface::close,this),744,544,"TSBTNS.DEF",false,NULL,false);
+	split = new AdventureMapButton
+		(CGI->townh->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),744,382,"TSBTNS.DEF",false,NULL,false);
 	statusbar = new CStatusBar(8,555,"TSTATBAR.bmp",732);
 
-	townlist->owner = this;
-	townlist->fun = &CCastleInterface::townChange;
+	townlist->fun = boost::bind(&CCastleInterface::townChange,this);
 	townlist->genList();
 	townlist->selected = getIndexOf(townlist->items,Town);
 	if((townlist->selected+1) > townlist->SIZE)
@@ -716,8 +715,8 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	CSDL_Ext::blueToPlayersAdv(bg,LOCPLINT->playerID);
 	bars = CGI->spriteh->giveDefEss("TPTHBAR.DEF");
 	status = CGI->spriteh->giveDefEss("TPTHCHK.DEF");
-	exit = new AdventureMapButton<CHallInterface>
-		(CGI->townh->tcommands[8],"",&CHallInterface::close,748,556,"TPMAGE1.DEF",this,false,NULL,false);
+	exit = new AdventureMapButton
+		(CGI->townh->tcommands[8],"",boost::bind(&CHallInterface::close,this),748,556,"TPMAGE1.DEF",false,NULL,false);
 
 	//preparing boxes with buildings//
 	boxes.resize(5);
@@ -989,10 +988,10 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	}
 	if(!mode)
 	{
-		buy = new AdventureMapButton<CBuildWindow>
-			("","",&CBuildWindow::Buy,pos.x+45,pos.y+446,"IBUY30.DEF",this,false,NULL,false);
-		cancel = new AdventureMapButton<CBuildWindow>
-			("","",&CBuildWindow::close,pos.x+290,pos.y+445,"ICANCEL.DEF",this,false,NULL,false);
+		buy = new AdventureMapButton
+			("","",boost::bind(&CBuildWindow::Buy,this),pos.x+45,pos.y+446,"IBUY30.DEF",false,NULL,false);
+		cancel = new AdventureMapButton
+			("","",boost::bind(&CBuildWindow::close,this),pos.x+290,pos.y+445,"ICANCEL.DEF",false,NULL,false);
 		if(state!=7)
 			buy->state=2;
 	}

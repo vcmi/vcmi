@@ -7,7 +7,7 @@ class CGHeroInstance;
 class CDefHandler;
 class CStack;
 class CCallback;
-template <typename T> class AdventureMapButton;
+class AdventureMapButton;
 
 class CBattleHero : public IShowable, public CIntObject
 {
@@ -68,7 +68,7 @@ class CBattleInterface : public IActivable, public IShowable
 {
 private:
 	SDL_Surface * background, * menu, * amountBasic, * amountNormal;
-	AdventureMapButton<CBattleInterface> * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
+	AdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
 	CBattleConsole * console;
 	CBattleHero * attackingHero, * defendingHero;

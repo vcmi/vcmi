@@ -4,9 +4,10 @@
 #include "CGameInterface.h"
 #include "SDL_framerate.h"
 #include <map>
+#include <boost/function.hpp>
 
 class CDefEssential;
-template <typename T> class AdventureMapButton;
+class AdventureMapButton;
 class CDefHandler;
 struct HeroMoveDetails;
 class CDefEssential;
@@ -22,7 +23,7 @@ class CCreatureAnimation;
 class CSelectableComponent;
 class CCreatureSet;
 class CGObjectInstance;
-template<typename T>class CSlider;
+class CSlider;
 
 class IShowable
 {
@@ -424,13 +425,12 @@ public:
 	void draw();
 	void init();
 };
-template<typename T>
+
 class CTownList 
 	: public CList
 {
 public: 
-	T* owner;
-	void(T::*fun)();
+	boost::function<void()> fun;
 	std::vector<const CGTownInstance*> items;
 	int posporx,pospory;
 
@@ -465,8 +465,8 @@ public:
 	std::vector<int> amounts; //how many creatures we can afford
 	std::vector<creinfo> creatures;
 	IRecruit *rec;
-	CSlider<CRecrutationWindow> *slider;
-	AdventureMapButton<CRecrutationWindow> *max, *buy, *cancel;
+	CSlider *slider;
+	AdventureMapButton *max, *buy, *cancel;
 	SDL_Surface *bitmap;
 	int which; //which creature is active
 
@@ -487,9 +487,9 @@ class CSplitWindow : public IShowable, public KeyInterested
 {
 public:
 	CGarrisonInt *gar;
-	CSlider<CSplitWindow> *slider;
+	CSlider *slider;
 	CCreatureAnimation *anim;
-	AdventureMapButton<CSplitWindow> *ok, *cancel;
+	AdventureMapButton *ok, *cancel;
 	SDL_Surface *bitmap;
 	int a1, a2, c;
 	bool which;
@@ -503,6 +503,26 @@ public:
 	void show(SDL_Surface * to = NULL);
 	void keyPressed (SDL_KeyboardEvent & key);
 	void sliderMoved(int to);
+};
+
+class CCreInfoWindow : public IShowable, public KeyInterested, public ClickableR
+{
+public:
+	int type;//0 - rclick popup; 1 - normal window
+	SDL_Surface *bitmap;
+
+	CCreatureAnimation *anim;
+	CCreature *c;
+
+	AdventureMapButton *dismiss, *upgrade, *ok;
+	CCreInfoWindow(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm);
+	~CCreInfoWindow();
+	void activate(); 
+	void close();
+	void clickRight(boost::logic::tribool down);
+	void keyPressed (SDL_KeyboardEvent & key);
+	void deactivate();
+	void show(SDL_Surface * to = NULL);
 };
 
 #endif //CPLAYERINTERFACE_H
