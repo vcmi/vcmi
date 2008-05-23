@@ -231,7 +231,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.low1 = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.damageMin = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -240,7 +240,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.high1 = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.damageMax = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -267,7 +267,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.low2 = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.ammMin = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -276,7 +276,7 @@ void CCreatureHandler::loadCreatures()
 			if(buf[i]=='\t')
 				break;
 		}
-		ncre.high2 = atoi(buf.substr(befi, i-befi).c_str());
+		ncre.ammMax = atoi(buf.substr(befi, i-befi).c_str());
 		++i;
 
 		befi=i;
@@ -604,49 +604,49 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 
 void CCreatureHandler::loadUnitAnimations()
 {
-	std::ifstream inp("config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
-	inp.seekg(0,std::ios::end); // na koniec
-	int andame = inp.tellg();  // read length
-	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame]; // allocate memory 
-	inp.read((char*)bufor, andame); // read map file to buffer
-	inp.close();
-	std::string buf = std::string(bufor);
-	delete [andame] bufor;
+	//std::ifstream inp("config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
+	//inp.seekg(0,std::ios::end); // na koniec
+	//int andame = inp.tellg();  // read length
+	//inp.seekg(0,std::ios::beg); // wracamy na poczatek
+	//char * bufor = new char[andame]; // allocate memory 
+	//inp.read((char*)bufor, andame); // read map file to buffer
+	//inp.close();
+	//std::string buf = std::string(bufor);
+	//delete [andame] bufor;
 
-	int i = 0; //buf iterator
-	int hmcr = 0;
-	for(i; i<andame; ++i) //omitting rubbish
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-	i+=2;
-	for(int s=0; s<creatures.size(); ++s)
-	{
-		int befi=i;
-		std::string rub;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]==' ')
-				break;
-		}
-		rub = buf.substr(befi, i-befi);
-		++i;
+	//int i = 0; //buf iterator
+	//int hmcr = 0;
+	//for(i; i<andame; ++i) //omitting rubbish
+	//{
+	//	if(buf[i]=='\r')
+	//		break;
+	//}
+	//i+=2;
+	//for(int s=0; s<creatures.size(); ++s)
+	//{
+	//	int befi=i;
+	//	std::string rub;
+	//	for(i; i<andame; ++i)
+	//	{
+	//		if(buf[i]==' ')
+	//			break;
+	//	}
+	//	rub = buf.substr(befi, i-befi);
+	//	++i;
 
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\r')
-				break;
-		}
-		std::string defName = buf.substr(befi, i-befi);
-		if(defName != std::string("x"))
-			creatures[s].battleAnimation = CGameInfo::mainObj->spriteh->giveDef(defName);
-		else
-			creatures[s].battleAnimation = NULL;
-		i+=2;
-	}
+	//	befi=i;
+	//	for(i; i<andame; ++i)
+	//	{
+	//		if(buf[i]=='\r')
+	//			break;
+	//	}
+	//	std::string defName = buf.substr(befi, i-befi);
+	//	if(defName != std::string("x"))
+	//		creatures[s].battleAnimation = CGameInfo::mainObj->spriteh->giveDef(defName);
+	//	else
+	//		creatures[s].battleAnimation = NULL;
+	//	i+=2;
+	//}
 }
 
 int CCreatureAnimation::getType() const

@@ -303,6 +303,20 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 	}
 }
 
+
+bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
+{
+	return false;
+}
+bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos)
+{
+	return false;
+}
+UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
+{
+	return UpgradeInfo();
+}
+
 int CCallback::howManyTowns()
 {
 	return gs->players[gs->currentPlayer].towns.size();

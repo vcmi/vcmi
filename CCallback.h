@@ -14,6 +14,15 @@ class CSelectableComponent;
 struct BattleAction;
 typedef struct lua_State lua_State;
 
+//structure gathering info about upgrade possibilites
+struct UpgradeInfo
+{
+	int oldID; //creature to be upgraded
+	std::vector<int> newID; //possible upgrades
+	std::vector<std::set<std::pair<int,int> > > cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>
+	UpgradeInfo(){oldID = -1;};
+};
+
 class ICallback
 {	
 public:
@@ -25,6 +34,8 @@ public:
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
 	virtual bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2)=0; //swaps artifacts between two given heroes
 	virtual void recruitCreatures(const CGObjectInstance *obj, int ID, int amount)=0;
+	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
+	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos)=0;
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)=0;
@@ -42,6 +53,7 @@ public:
 	virtual int getMySerial()=0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)=0;
 	virtual const CCreatureSet* getGarrison(const CGObjectInstance *obj)=0;
+	virtual UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos)=0;
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -83,7 +95,15 @@ public:
 	bool moveHero(int ID, CPath * path, int idtype, int pathType=0);//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero 
 															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
 	void selectionMade(int selection, int asker);
+	int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2);
+	int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2); //first goes to the second
+	int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val);
+	bool dismissHero(const CGHeroInstance * hero);
+	bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2);
+	bool buildBuilding(const CGTownInstance *town, int buildingID);
 	void recruitCreatures(const CGObjectInstance *obj, int ID, int amount);
+	bool dismissCreature(const CArmedInstance *obj, int stackPos);
+	bool upgradeCreature(const CArmedInstance *obj, int stackPos);
 
 
 //get info
@@ -103,13 +123,9 @@ public:
 	int getMyColor();
 	int getHeroSerial(const CGHeroInstance * hero);
 	int getMySerial();
-	int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2);
-	int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2); //first goes to the second
-	int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val);
-	bool dismissHero(const CGHeroInstance * hero);
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj);
-	bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2);
-	bool buildBuilding(const CGTownInstance *town, int buildingID);
+	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos);
+
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	int battleGetObstaclesAtTile(int tile); //returns bitfield 

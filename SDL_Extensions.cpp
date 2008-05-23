@@ -97,6 +97,25 @@ void CSDL_Ext::printAtMiddleWB(std::string text, int x, int y, TTF_Font * font, 
 		SDL_FreeSurface(wesu[i]);
 	delete ws;
 }
+void CSDL_Ext::printAtWB(std::string text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
+{
+	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
+	std::vector<SDL_Surface*> wesu;
+	wesu.resize(ws->size());
+	for (int i=0;i<wesu.size();i++)
+		wesu[i]=TTF_RenderText_Blended(font,(*ws)[i].c_str(),kolor);
+
+	int evy = y;
+	for (int i=0;i<wesu.size();i++)
+	{
+		blitAt(wesu[i],x,evy,dst);
+		evy+=wesu[i]->h;
+	}
+
+	for (int i=0;i<wesu.size();i++)
+		SDL_FreeSurface(wesu[i]);
+	delete ws;
+}
 void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
 {
 	if(text.length()==0) return;

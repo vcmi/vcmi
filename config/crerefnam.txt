@@ -104,6 +104,7 @@
 102	CopperGorgon
 103	BronzeGorgon
 104	DragonFly
+104 SerpentFly
 105	FireDragonFly
 106	Basilisk
 107	GreaterBasilisk

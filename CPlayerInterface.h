@@ -245,6 +245,7 @@ public:
 	bool active;
 	
 	virtual void hover (bool on);
+	const CGObjectInstance * getObj();
 	void clickRight (boost::logic::tribool down);
 	void clickLeft(boost::logic::tribool down);
 	void activate();

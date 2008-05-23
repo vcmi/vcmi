@@ -16,7 +16,8 @@ public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
 	std::vector<int> cost; //cost[res_id] - amount of that resource
 	int fightValue, AIValue, growth, hordeGrowth, hitPoints, speed, attack, defence, shots, spells;
-	int low1, low2, high1, high2; //TODO - co to w ogóle jest???
+	int damageMin, damageMax;
+	int ammMin, ammMax;
 	int level; // 0 - unknown
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in textformat
@@ -36,7 +37,7 @@ public:
 	int indefLevel; //only if indefinite
 	bool indefUpgraded; //onlu if inddefinite
 	//end
-	CDefHandler * battleAnimation;
+	//CDefHandler * battleAnimation;
 	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
 
 	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
@@ -60,7 +61,7 @@ public:
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
-	std::vector<CCreature> creatures;
+	std::vector<CCreature> creatures; //creature ID -> creature info
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
 	std::map<std::string,int> nameToID;
 	void loadCreatures();

@@ -81,12 +81,14 @@ void AdventureMapButton::clickLeft (tribool down)
 	if (actOnDown && down)
 	{
 		pressedL=state;
-		callback();
+		if(!callback.empty())
+			callback();
 	}
 	else if (pressedL && (down==false))
 	{
 		pressedL=state;
-		callback();
+		if(!callback.empty())
+			callback();
 	}
 	else
 	{
@@ -243,12 +245,9 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	left.pos.y = slider.pos.y = right.pos.y = pos.y = y;
 	left.pos.x = pos.x = x;
 	right.pos.x = x + totalw - 16;
-
-	//left.owner = right.owner = slider.owner = this;
-	//left.function = &CSlider::moveLeft;
-	//right.function = &CSlider::moveRight;
-	//slider.function = &CSlider::sliderClicked;
 	left.callback = boost::bind(&CSlider::moveLeft,this);
+	right.callback = boost::bind(&CSlider::moveRight,this);
+	slider.callback = boost::bind(&CSlider::sliderClicked,this);
 	left.pos.w = left.pos.h = right.pos.w = right.pos.h = slider.pos.w = slider.pos.h = pos.h = 16;
 	pos.w = totalw;
 	left.imgs.resize(1); right.imgs.resize(1); slider.imgs.resize(1);

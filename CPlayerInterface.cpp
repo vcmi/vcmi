@@ -24,6 +24,7 @@
 #include "hch\CPreGameTextHandler.h"
 #include "CBattleInterface.h"
 #include "CLua.h"
+#include <cmath>
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
@@ -102,10 +103,30 @@ void CGarrisonSlot::hover (bool on)
 		LOCPLINT->statusbar->clear();
 	}
 }
+
+const CGObjectInstance * CGarrisonSlot::getObj()
+{
+	return 	(!upg)?(owner->oup):(owner->odown);
+}
+
 void CGarrisonSlot::clickRight (tribool down)
 {
-	//if(down && creature)
-		//(new CCreInfoWindow(creature->idNumber,0))->activate();
+	StackState *pom = NULL;
+	if(down && creature)
+	{
+		if(getObj()->ID == 34)
+		{
+			pom = new StackState();
+			const CGHeroInstance *h = static_cast<const CGHeroInstance *>(getObj());
+			pom->attackBonus = h->primSkills[0];
+			pom->defenseBonus = h->primSkills[1];
+			pom->luck = h->getCurrentLuck();
+			pom->morale = h->getCurrentMorale();
+		}
+		(new CCreInfoWindow(creature->idNumber,0,pom,boost::function<void()>(),boost::function<void()>()))
+				->activate();
+	}
+	delete pom;
 }
 void CGarrisonSlot::clickLeft(tribool down)
 {
@@ -2906,20 +2927,84 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, StackState *State, boost::func
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
+	blueToPlayersAdv(bitmap,LOCPLINT->playerID);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	anim = new CCreatureAnimation(c->animDefName);
 	anim->setType(1);
 
-	printAtMiddle(c->namePl,149,30,GEOR13,zwykly,bitmap);
+	char pom[25];int hlp=0;
+	printAtMiddle(c->namePl,149,30,GEOR13,zwykly,bitmap); //creature name
 
+	//atttack
 	printAt(CGI->preth->zelp[435].first,155,48,GEOR13,zwykly,bitmap);
+	itoa(c->attack,pom,10);
+	if(State && State->attackBonus)
+	{
+		int hlp = log10f(c->attack)+2;
+		pom[hlp-1] = ' '; pom[hlp] = '(';
+		itoa(c->attack+State->attackBonus,pom+hlp+1,10);
+		pom[hlp+2+(int)log10f(State->attackBonus+c->attack)] = ')';
+	}
+	printTo(pom,276,61,GEOR13,zwykly,bitmap);
+
+	//defense
 	printAt(CGI->preth->zelp[436].first,155,67,GEOR13,zwykly,bitmap);
+	itoa(c->defence,pom,10);
+	if(State && State->defenseBonus)
+	{
+		int hlp = log10f(c->defence)+2;
+		pom[hlp-1] = ' '; pom[hlp] = '(';
+		itoa(c->defence+State->defenseBonus,pom+hlp+1,10);
+		pom[hlp+2+(int)log10f(State->defenseBonus+c->defence)] = ')';
+	}
+	printTo(pom,276,80,GEOR13,zwykly,bitmap);
+
+	//shots
 	if(c->shots)
-		printAt(CGI->preth->zelp[437].first,155,86,GEOR13,zwykly,bitmap);
+	{
+		printAt(CGI->generaltexth->allTexts[198],155,86,GEOR13,zwykly,bitmap);
+		itoa(c->shots,pom,10);
+		printTo(pom,276,99,GEOR13,zwykly,bitmap);
+	}
+
+	//damage
 	printAt(CGI->generaltexth->allTexts[199],155,105,GEOR13,zwykly,bitmap);
+	itoa(c->damageMin,pom,10);
+	hlp=log10f(c->damageMin)+2;
+	pom[hlp-1]=' '; pom[hlp]='-'; pom[hlp+1]=' ';
+	itoa(c->damageMax,pom+hlp+2,10);
+	printTo(pom,276,118,GEOR13,zwykly,bitmap);
+
+	//health
 	printAt(CGI->preth->zelp[439].first,155,124,GEOR13,zwykly,bitmap);
+	itoa(c->hitPoints,pom,10);
+	printTo(pom,276,137,GEOR13,zwykly,bitmap);
+
+	//remaining health - TODO: show during the battles
 	//printAt(CGI->preth->zelp[440].first,155,143,GEOR13,zwykly,bitmap);
+
+	//speed
 	printAt(CGI->preth->zelp[441].first,155,162,GEOR13,zwykly,bitmap);
+	itoa(c->speed,pom,10);
+	printTo(pom,276,175,GEOR13,zwykly,bitmap);
+
+
+	//luck and morale
+	blitAt(LOCPLINT->morale42->ourImages[(State)?(State->morale+3):(3)].bitmap,24,189,bitmap);
+	blitAt(LOCPLINT->luck42->ourImages[(State)?(State->luck+3):(3)].bitmap,77,189,bitmap);
+
+	//print abilities text - if r-click popup
+	if(type)
+	{
+		if(Upg)
+			upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,Upg,76,237,"IVIEWCR.DEF");
+		if(Dsm)
+			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,Upg,21,237,"IVIEWCR2.DEF");
+	}
+	else
+	{
+		printAtWB(c->abilityText,17,231,GEOR13,35,zwykly,bitmap);
+	}
 }
 CCreInfoWindow::~CCreInfoWindow()
 {
@@ -2940,14 +3025,12 @@ void CCreInfoWindow::activate()
 void CCreInfoWindow::close()
 {
 	deactivate();
+	CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
+	if(c) c->showAll();
+	if(type)
+		LOCPLINT->curint->activate();
 	delete this;
 
-	if(type)
-	{
-		LOCPLINT->curint->activate();
-		CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
-		if(c) c->showAll();
-	}
 }
 void CCreInfoWindow::clickRight(boost::logic::tribool down)
 {
