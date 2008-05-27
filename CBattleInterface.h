@@ -24,7 +24,7 @@ public:
 
 class CBattleInterface;
 
-class CBattleHex : public Hoverable, public MotionInterested, public ClickableL
+class CBattleHex : public Hoverable, public MotionInterested, public ClickableL, public ClickableR
 {
 public:
 	unsigned int myNumber;
@@ -40,6 +40,7 @@ public:
 	void deactivate();
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void clickLeft(boost::logic::tribool down);
+	void clickRight(boost::logic::tribool down);
 	CBattleHex();
 };
 
@@ -113,7 +114,10 @@ public:
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool startMoving, bool endMoving); //stack with id number moved to destHex
+	void stackIsAttacked(int ID); //called when stack id attacked
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
+
+	friend CBattleHex;
 };

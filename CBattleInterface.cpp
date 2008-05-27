@@ -266,8 +266,6 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	//units shown
-
-	CSDL_Ext::update();
 }
 
 bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
@@ -278,6 +276,7 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	for(int g=0; g<creAnims[number]->framesInGroup(8); ++g)
 	{
 		show();
+		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	creDir[number] = !creDir[number];
@@ -296,6 +295,7 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	for(int g=0; g<creAnims[number]->framesInGroup(7); ++g)
 	{
 		show();
+		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	creAnims[number]->setType(2);
@@ -379,6 +379,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 		for(int i=0; i<creAnims[number]->framesInGroup(20); ++i)
 		{
 			show();
+			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		}
 	}
@@ -445,6 +446,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 				break;
 			}
 			show();
+			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		}
 		if( (LOCPLINT->cb->battleGetStackByID(number).owner == attackingHeroInstance->tempOwner ) != creDir[number])
@@ -512,6 +514,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 				break;
 			}
 			show();
+			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		}
 	}
@@ -521,6 +524,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 		for(int i=0; i<creAnims[number]->framesInGroup(21); ++i)
 		{
 			show();
+			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		}
 	}
@@ -539,8 +543,147 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 	creAnims[number]->pos.y = coords.second;
 }
 
+void CBattleInterface::stackIsAttacked(int ID)
+{
+}
+
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
+	CStack aStack = LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
+	if(aStack.creature->isDoubleWide())
+	{
+		switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
+		{
+			case 0:
+				/*reverseCreature(ID, aStack.position, true);
+				creAnims[ID]->setType(10);
+				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				reverseCreature(ID, aStack.position, true);*/
+				break;
+			case 1:
+				creAnims[ID]->setType(10);
+				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				break;
+			case 2:
+				creAnims[ID]->setType(11);
+				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				break;
+			case 3:
+				creAnims[ID]->setType(12);
+				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				break;
+			case 4:
+				/*reverseCreature(ID, aStack.position, true);
+				creAnims[ID]->setType(12);
+				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				reverseCreature(ID, aStack.position, true);*/
+				break;
+			case 5:
+				/*reverseCreature(ID, aStack.position, true);
+				creAnims[ID]->setType(11);
+				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				reverseCreature(ID, aStack.position, true);*/
+				break;
+		}
+		creAnims[ID]->setType(2);
+	}
+	else //else for if(aStack.creature->isDoubleWide())
+	{
+		switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
+		{
+			case 0:
+				reverseCreature(ID, aStack.position, true);
+				creAnims[ID]->setType(10);
+				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				reverseCreature(ID, aStack.position, true);
+				break;
+			case 1:
+				creAnims[ID]->setType(10);
+				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				break;
+			case 2:
+				creAnims[ID]->setType(11);
+				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				break;
+			case 3:
+				creAnims[ID]->setType(12);
+				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				break;
+			case 4:
+				reverseCreature(ID, aStack.position, true);
+				creAnims[ID]->setType(12);
+				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				reverseCreature(ID, aStack.position, true);
+				break;
+			case 5:
+				reverseCreature(ID, aStack.position, true);
+				creAnims[ID]->setType(11);
+				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
+				{
+					show();
+					CSDL_Ext::update();
+					SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				}
+				reverseCreature(ID, aStack.position, true);
+				break;
+		}
+		creAnims[ID]->setType(2);
+	}
 }
 
 void CBattleInterface::newRound(int number)
@@ -552,11 +695,24 @@ void CBattleInterface::hexLclicked(int whichOne)
 {
 	if((whichOne%17)!=0 && (whichOne%17)!=16) //if player is trying to attack enemey unit or move creature stack
 	{
-		BattleAction * ba = new BattleAction(); //to be deleted by engine
-		ba->actionType = 6;
-		ba->destinationTile = whichOne;
-		ba->stackNumber = activeStack;
-		givenCommand = ba;
+		int atCre = LOCPLINT->cb->battleGetStack(whichOne); //creature at destination tile; -1 if there is no one
+		//LOCPLINT->cb->battleGetCreature();
+		if(atCre==-1) //normal move action
+		{
+			BattleAction * ba = new BattleAction(); //to be deleted by engine
+			ba->actionType = 2;
+			ba->destinationTile = whichOne;
+			ba->stackNumber = activeStack;
+			givenCommand = ba;
+		}
+		else if(LOCPLINT->cb->battleGetStackByID(atCre).owner != attackingHeroInstance->tempOwner) //attacking
+		{
+			BattleAction * ba = new BattleAction(); //to be deleted by engine
+			ba->actionType = 6;
+			ba->destinationTile = whichOne;
+			ba->stackNumber = activeStack;
+			givenCommand = ba;
+		}
 	}
 }
 
@@ -689,6 +845,7 @@ void CBattleHex::activate()
 	Hoverable::activate();
 	MotionInterested::activate();
 	ClickableL::activate();
+	ClickableR::activate();
 }
 
 void CBattleHex::deactivate()
@@ -696,6 +853,7 @@ void CBattleHex::deactivate()
 	Hoverable::deactivate();
 	MotionInterested::deactivate();
 	ClickableL::deactivate();
+	ClickableR::deactivate();
 }
 
 void CBattleHex::hover(bool on)
@@ -728,6 +886,29 @@ void CBattleHex::clickLeft(boost::logic::tribool down)
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
 		myInterface->hexLclicked(myNumber);
+	}
+}
+
+void CBattleHex::clickRight(boost::logic::tribool down)
+{
+	int stID = LOCPLINT->cb->battleGetStack(myNumber); //id of stack being on this tile
+	if(hovered && strictHovered && stID!=-1)
+	{
+		CStack myst = LOCPLINT->cb->battleGetStackByID(stID); //stack info
+		StackState *pom = NULL;
+		if(down)
+		{
+			pom = new StackState();
+			const CGHeroInstance *h = myst.owner == myInterface->attackingHeroInstance->tempOwner ? myInterface->attackingHeroInstance : myInterface->defendingHeroInstance;
+			pom->attackBonus = h->primSkills[0];
+			pom->defenseBonus = h->primSkills[1];
+			pom->luck = h->getCurrentLuck();
+			pom->morale = h->getCurrentMorale();
+
+			(new CCreInfoWindow(myst.creature->idNumber,0,pom,boost::function<void()>(),boost::function<void()>()))
+					->activate();
+		}
+		delete pom;
 	}
 }
 

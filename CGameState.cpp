@@ -215,6 +215,10 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 					BattleAction ba = ((CPlayerInterface*)CGI->playerint[serialOwner])->activeStack(stacks[i]->ID);
 					switch(ba.actionType)
 					{
+					case 2: //walk
+						{
+							battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
+						}
 					case 3: //defend
 						{
 							break;
@@ -229,6 +233,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 					case 6: //walk or attack
 						{
 							battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
+							battleAttackCreatureStack(ba.stackNumber, ba.destinationTile);
 							break;
 						}
 					}
@@ -295,7 +300,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		if(curB->stacks[g]->owner == owner && curB->stacks[g]->ID != ID) //we don't want to lock enemy's positions and this units' position
+		if(curB->stacks[g]->ID != ID) //we don't want to lock enemy's positions and this units' position
 		{
 			accessibility[curB->stacks[g]->position] = false;
 			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
@@ -307,6 +312,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 			}
 		}
 	}
+	accessibility[dest] = true;
 	if(curStack->creature->isDoubleWide()) //locking positions unreachable by two-hex creatures
 	{
 		bool mac[187];
@@ -412,6 +418,23 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	}
 	curB->stackActionPerformed = true;
 	LOCPLINT->actionFinished(BattleAction());
+	return true;
+}
+
+bool CGameState::battleAttackCreatureStack(int ID, int dest)
+{
+	int attackedCreaure = -1; //-1 - there is no attacked creature
+	for(int b=0; b<curB->stacks.size(); ++b) //TODO: make upgrades for two-hex cres.
+	{
+		if(curB->stacks[b]->position == dest)
+		{
+			attackedCreaure = curB->stacks[b]->ID;
+			break;
+		}
+	}
+	if(attackedCreaure == -1)
+		return false;
+	//LOCPLINT->cb->
 	return true;
 }
 

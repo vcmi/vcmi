@@ -837,10 +837,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		std::cout<<"Opening map file: "<<mapname<<"\t\t"<<std::flush;
 		gzFile map = gzopen(mapname.c_str(),"rb");
-		std::string mapstr;int pom;
+		std::vector<unsigned char> mapstr; int pom;
 		while((pom=gzgetc(map))>=0)
 		{
-			mapstr+=pom;
+			mapstr.push_back(pom);
 		}
 		gzclose(map);
 		unsigned char *initTable = new unsigned char[mapstr.size()];
