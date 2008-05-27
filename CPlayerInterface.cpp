@@ -2938,10 +2938,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, StackState *State, boost::func
 	anim->setType(1);
 
 	char pom[25];int hlp=0;
-	printAtMiddleWB(c->namePl,149,30,GEOR13,100,zwykly,bitmap); //creature name
+	printAtMiddle(c->namePl,149,30,GEOR13,zwykly,bitmap); //creature name
 
 	//atttack
-	printAtWB(CGI->preth->zelp[435].first,155,48,GEOR13,100,zwykly,bitmap);
+	printAt(CGI->preth->zelp[435].first,155,48,GEOR13,zwykly,bitmap);
 	itoa(c->attack,pom,10);
 	if(State && State->attackBonus)
 	{
@@ -2951,10 +2951,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, StackState *State, boost::func
 		hlp += 2+(int)log10f(State->attackBonus+c->attack);
 		pom[hlp] = ')'; pom[hlp+1] = '\0';
 	}
-	printToWB(pom,276,61,GEOR13,zwykly,bitmap);
+	printToWR(pom,276,61,GEOR13,zwykly,bitmap);
 
 	//defense
-	printAtWB(CGI->preth->zelp[436].first,155,67,GEOR13,100,zwykly,bitmap);
+	printAt(CGI->preth->zelp[436].first,155,67,GEOR13,zwykly,bitmap);
 	itoa(c->defence,pom,10);
 	if(State && State->defenseBonus)
 	{
@@ -2963,36 +2963,36 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, StackState *State, boost::func
 		itoa(c->defence+State->defenseBonus,pom+hlp+1,10);
 		pom[hlp+2+(int)log10f(State->defenseBonus+c->defence)] = ')';
 	}
-	printToWB(pom,276,80,GEOR13,zwykly,bitmap);
+	printToWR(pom,276,80,GEOR13,zwykly,bitmap);
 
 	//shots
 	if(c->shots)
 	{
-		printAtWB(CGI->generaltexth->allTexts[198],155,86,GEOR13,100,zwykly,bitmap);
+		printAt(CGI->generaltexth->allTexts[198],155,86,GEOR13,zwykly,bitmap);
 		itoa(c->shots,pom,10);
-		printToWB(pom,276,99,GEOR13,zwykly,bitmap);
+		printToWR(pom,276,99,GEOR13,zwykly,bitmap);
 	}
 
 	//damage
-	printAtWB(CGI->generaltexth->allTexts[199],155,105,GEOR13,100,zwykly,bitmap);
+	printAt(CGI->generaltexth->allTexts[199],155,105,GEOR13,zwykly,bitmap);
 	itoa(c->damageMin,pom,10);
 	hlp=log10f(c->damageMin)+2;
 	pom[hlp-1]=' '; pom[hlp]='-'; pom[hlp+1]=' ';
 	itoa(c->damageMax,pom+hlp+2,10);
-	printToWB(pom,276,118,GEOR13,zwykly,bitmap);
+	printToWR(pom,276,118,GEOR13,zwykly,bitmap);
 
 	//health
-	printAtWB(CGI->preth->zelp[439].first,155,124,GEOR13,100,zwykly,bitmap);
+	printAt(CGI->preth->zelp[439].first,155,124,GEOR13,zwykly,bitmap);
 	itoa(c->hitPoints,pom,10);
-	printToWB(pom,276,137,GEOR13,zwykly,bitmap);
+	printToWR(pom,276,137,GEOR13,zwykly,bitmap);
 
 	//remaining health - TODO: show during the battles
 	//printAt(CGI->preth->zelp[440].first,155,143,GEOR13,zwykly,bitmap);
 
 	//speed
-	printAtWB(CGI->preth->zelp[441].first,155,162,GEOR13,100,zwykly,bitmap);
+	printAt(CGI->preth->zelp[441].first,155,162,GEOR13,zwykly,bitmap);
 	itoa(c->speed,pom,10);
-	printToWB(pom,276,175,GEOR13,zwykly,bitmap);
+	printToWR(pom,276,175,GEOR13,zwykly,bitmap);
 
 
 	//luck and morale

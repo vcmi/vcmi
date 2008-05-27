@@ -203,7 +203,7 @@ void CSDL_Ext::printTo(std::string text, int x, int y, TTF_Font * font, SDL_Colo
 	SDL_FreeSurface(temp);
 }
 
-void CSDL_Ext::printToWB(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
+void CSDL_Ext::printToWR(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
 {
 	if (text.length()==0)
 		return;
