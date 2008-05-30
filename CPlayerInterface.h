@@ -342,6 +342,7 @@ public:
 	void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving);
 	void battleStackAttacking(int ID, int dest);
 	void battleStackIsAttacked(int ID);
+	void battleStackKilled(int ID);
 
 
 	//-------------//

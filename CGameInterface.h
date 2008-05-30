@@ -70,6 +70,9 @@ public:
 	virtual BattleAction activeStack(int stackID)=0; //called when it's turn of that stack
 	virtual void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CArmedInstance *hero1, CArmedInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner){};
 	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)=0;
+	virtual void battleStackAttacking(int ID, int dest)=0;
+	virtual void battleStackIsAttacked(int ID)=0;
+	virtual void battleStackKilled(int ID)=0;
 	//
 
 };
@@ -86,6 +89,9 @@ public:
 	virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving){};
+	virtual void battleStackAttacking(int ID, int dest){};
+	virtual void battleStackIsAttacked(int ID){};
+	virtual void battleStackKilled(int ID){};
 	virtual BattleAction activeStack(int stackID) {BattleAction ba; ba.actionType = 3; ba.stackNumber = stackID; return ba;};
 };
 #endif //CGAMEINTERFACE_H

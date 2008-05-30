@@ -361,6 +361,10 @@ void CBattleInterface::stackRemoved(CStack stack)
 	creAnims.erase(stack.ID);
 }
 
+void CBattleInterface::stackKilled(int ID)
+{
+}
+
 void CBattleInterface::stackActivated(int number)
 {
 	givenCommand = NULL;

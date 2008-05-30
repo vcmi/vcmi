@@ -2078,6 +2078,11 @@ void CPlayerInterface::battleStackIsAttacked(int ID)
 	dynamic_cast<CBattleInterface*>(curint)->stackIsAttacked(ID);
 }
 
+void CPlayerInterface::battleStackKilled(int ID)
+{
+	dynamic_cast<CBattleInterface*>(curint)->stackKilled(ID);
+}
+
 void CPlayerInterface::showComp(SComponent comp)
 {
 	adventureInt->infoBar.showComp(&comp,4000);

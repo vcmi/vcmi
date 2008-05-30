@@ -44,12 +44,13 @@ public:
 	int ID; //unique ID of stack
 	CCreature * creature;
 	int amount;
+	int firstHPleft; //HP of first creature in stack
 	int owner;
 	bool attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	int position; //position on battlefield
 	bool alive; //true if it is alive
-	CStack(CCreature * C, int A, int O, int I, bool AO):creature(C),amount(A),owner(O), alive(true), position(-1), ID(I), attackerOwned(AO){};
-	CStack() : creature(NULL),amount(-1),owner(255), alive(true), position(-1), ID(-1), attackerOwned(true){};
+	CStack(CCreature * C, int A, int O, int I, bool AO):creature(C),amount(A),owner(O), alive(true), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints){};
+	CStack() : creature(NULL),amount(-1),owner(255), alive(true), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1){};
 };
 
 class CGameState

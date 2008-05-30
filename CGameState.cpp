@@ -264,16 +264,8 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	//first checks
 	if(curB->stackActionPerformed) //because unit cannot be moved more than once
 		return false;
-	bool stackAtEnd = false; //true if there is a stack at the end of the path (we should attack it)
+
 	unsigned char owner = -1; //owner moved of unit
-	for(int g=0; g<curB->stacks.size(); ++g)
-	{
-		if(curB->stacks[g]->position == dest)
-		{
-			stackAtEnd = true;
-			break;
-		}
-	}
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
 		if(curB->stacks[g]->ID == ID)
@@ -282,6 +274,21 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 			break;
 		}
 	}
+
+	bool stackAtEnd = false; //true if there is a stack at the end of the path (we should attack it)
+	int numberOfStackAtEnd = -1;
+	for(int g=0; g<curB->stacks.size(); ++g)
+	{
+		if(curB->stacks[g]->position == dest 
+			|| (curB->stacks[g]->creature->isDoubleWide() && curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == dest)
+			|| (curB->stacks[g]->creature->isDoubleWide() && !curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == dest))
+		{
+			stackAtEnd = true;
+			numberOfStackAtEnd = g;
+			break;
+		}
+	}
+
 	//selecting moved stack
 	CStack * curStack = NULL;
 	for(int y=0; y<curB->stacks.size(); ++y)
@@ -408,12 +415,74 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 	{
 		if(v!=0 || !stackAtEnd) //it's not the last step
 		{
-			LOCPLINT->battleStackMoved(ID, path[v], v==path.size()-1, v==0);
+			LOCPLINT->battleStackMoved(ID, path[v], v==path.size()-1, v==0 || (stackAtEnd && v==1) );
 			curStack->position = path[v];
 		}
 		else //if it's last step and we should attack unit at the end
 		{
 			LOCPLINT->battleStackAttacking(ID, path[v]);
+			//counting dealt damage
+			int numberOfCres = curStack->amount; //number of attacking creatures
+			int attackDefenseBonus = curStack->creature->attack - curB->stacks[numberOfStackAtEnd]->creature->defence;
+			int damageBase = 0;
+			if(curStack->creature->damageMax == curStack->creature->damageMin) //constant damage
+			{
+				damageBase = curStack->creature->damageMin;
+			}
+			else
+			{
+				damageBase = rand()%(curStack->creature->damageMax - curStack->creature->damageMin) + curStack->creature->damageMin + 1;
+			}
+
+			float dmgBonusMultiplier = 1.0;
+			if(attackDefenseBonus < 0) //decreasing dmg
+			{
+				if(0.02f * (-attackDefenseBonus) > 0.3f)
+				{
+					dmgBonusMultiplier += -0.3f;
+				}
+				else
+				{
+					dmgBonusMultiplier += 0.02f * attackDefenseBonus;
+				}
+			}
+			else //increasing dmg
+			{
+				if(0.05f * attackDefenseBonus > 4.0f)
+				{
+					dmgBonusMultiplier += 4.0f;
+				}
+				else
+				{
+					dmgBonusMultiplier += 0.05f * attackDefenseBonus;
+				}
+			}
+
+			int finalDmg = (float)damageBase * (float)curStack->amount * dmgBonusMultiplier;
+
+			//applying damages
+			int cresKilled = finalDmg / curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
+			int damageFirst = finalDmg % curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
+
+			if( curB->stacks[numberOfStackAtEnd]->firstHPleft <= damageFirst )
+			{
+				curB->stacks[numberOfStackAtEnd]->amount -= 1;
+				curB->stacks[numberOfStackAtEnd]->firstHPleft += curB->stacks[numberOfStackAtEnd]->creature->hitPoints - damageFirst;
+			}
+			else
+			{
+				curB->stacks[numberOfStackAtEnd]->firstHPleft -= damageFirst;
+			}
+
+			curB->stacks[numberOfStackAtEnd]->amount -= cresKilled;
+			if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
+			{
+				curB->stacks[numberOfStackAtEnd]->amount = 0;
+				curB->stacks[numberOfStackAtEnd]->alive = false;
+				LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID);
+			}
+
+			//damage applied
 		}
 	}
 	curB->stackActionPerformed = true;
@@ -470,7 +539,7 @@ std::vector<int> CGameState::battleGetRange(int ID)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		if(curB->stacks[g]->owner == owner && curB->stacks[g]->ID != ID) //we don't want to lock enemy's positions or current unit's position
+		if(curB->stacks[g]->ID != ID) //we don't want to lock current unit's position
 		{
 			accessibility[curB->stacks[g]->position] = false;
 			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
