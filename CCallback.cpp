@@ -281,7 +281,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 
 		for(int i=0;i<7;i++)
 		{
-			if(!t->army.slots[i].first)
+			if((!t->army.slots[i].first) || (t->army.slots[i].first->idNumber == ID)) //slot is free or there is saem creature
 			{
 				slot = i;
 				break;
@@ -295,9 +295,15 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 			gs->players[player].resources[i]  -=  (CGI->creh->creatures[ID].cost[i] * amount);
 
 		t->strInfo.creatures[ser] -= amount;
-		
-		t->army.slots[slot].first = &CGI->creh->creatures[ID];
-		t->army.slots[slot].second = amount;
+		if(t->army.slots[slot].first) //add new creatures to the existing stack
+		{
+			t->army.slots[slot].second += amount;
+		}
+		else //create new stack in the garrison
+		{
+			t->army.slots[slot].first = &CGI->creh->creatures[ID];
+			t->army.slots[slot].second = amount;
+		}
 		CGI->playerint[gs->players[player].serial]->garrisonChanged(obj);
 
 	}
@@ -306,15 +312,53 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 
 bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 {
-	return false;
+	if(obj->tempOwner != player)
+		return false;
+	CArmedInstance *ob = const_cast<CArmedInstance*>(obj);
+	ob->army.slots.erase(stackPos);
+	CGI->playerint[gs->players[player].serial]->garrisonChanged(obj);
+	return true;
 }
-bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos)
+bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int newID)
 {
 	return false;
 }
 UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 {
-	return UpgradeInfo();
+	UpgradeInfo ret;
+	CCreature *base = ((CArmedInstance*)obj)->army.slots[stackPos].first;
+	if((obj->ID == 98)  ||  ((obj->ID == 34) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
+	{
+		CGTownInstance * t;
+		if(obj->ID == 98)
+			t = static_cast<CGTownInstance *>(const_cast<CArmedInstance *>(obj));
+		else
+			t = static_cast<const CGHeroInstance*>(obj)->visitedTown;
+		for(std::set<int>::iterator i=t->builtBuildings.begin();  i!=t->builtBuildings.end(); i++)
+		{
+			if( (*i) >= 37   &&   (*i) < 44 ) //upgraded creature dwelling
+			{
+				int nid = t->town->upgradedCreatures[(*i)-37]; //upgrade offered by that building
+				if(base->upgrades.find(nid) != base->upgrades.end()) //possible upgrade
+				{
+					ret.newID.push_back(nid);
+					ret.cost.push_back(std::set<std::pair<int,int> >());
+					for(int j=0;j<RESOURCE_QUANTITY;j++)
+					{
+						int dif = CGI->creh->creatures[nid].cost[j] - base->cost[j];
+						if(dif)
+							ret.cost[ret.cost.size()-1].insert(std::make_pair(j,dif));
+					}
+				}
+			}
+		}//end for
+	}
+	//TODO: check if hero ability makes some upgrades possible
+
+	if(ret.newID.size())
+		ret.oldID = base->idNumber;
+
+	return ret;
 }
 
 int CCallback::howManyTowns()
@@ -907,6 +951,7 @@ void CScriptCallback::heroVisitCastle(CGObjectInstance * ob, int heroID)
 	if(n = dynamic_cast<CGTownInstance*>(ob))
 	{
 		n->visitingHero = CGI->state->getHero(heroID,0);
+		CGI->state->getHero(heroID,0)->visitedTown = n;
 		for(int b=0; b<CGI->playerint.size(); ++b)
 		{
 			if(CGI->playerint[b]->playerID == getHeroOwner(heroID))
@@ -925,6 +970,7 @@ void CScriptCallback::stopHeroVisitCastle(CGObjectInstance * ob, int heroID)
 	CGTownInstance * n;
 	if(n = dynamic_cast<CGTownInstance*>(ob))
 	{
+		CGI->state->getHero(heroID,0)->visitedTown = NULL;
 		if(n->visitingHero && n->visitingHero->type->ID == heroID)
 			n->visitingHero = NULL;
 		return;

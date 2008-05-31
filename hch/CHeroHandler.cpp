@@ -116,6 +116,9 @@ void CHeroHandler::loadHeroes()
 			CGeneralTextHandler::loadToIt(pom,buf,it,4);
 			nher->highStack[x] = atoi(pom.c_str());
 			CGeneralTextHandler::loadToIt(nher->refTypeStack[x],buf,it,(x==2) ? (3) : (4));
+			int hlp = nher->refTypeStack[x].find_first_of(' ',0);
+			if(hlp>=0)
+				nher->refTypeStack[x].replace(hlp,1,"");
 		}
 	
 		nher->ID = heroes.size();

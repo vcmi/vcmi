@@ -304,7 +304,7 @@ class CGObjectInstance
 {
 public:
 	int3 pos; //h3m pos
-	int ID, subID; //normal ID (this one from OH3 maps ;])
+	int ID, subID; //normal ID (this one from OH3 maps ;]) - eg. town=98; hero=34
 	int id;//number of object in CObjectHandler's vector		
 	CGDefInfo * defInfo;
 	CCPPObjectScript * state;
@@ -350,14 +350,11 @@ public:
 	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
 	int movement; //remaining movement points
+
 	bool inTownGarrison; // if hero is in town garrison 
+	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 
 	std::vector<CArtifact *> artifacts; //hero's artifacts from bag
-	//CArtifact * artHead, * artLRing, * artRRing, * artLHand,
-	//	* artRhand, * artFeet, * artSpellBook, * artMach1,
-	//	* artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2,
-	//	* artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck,
-	//	* artShoulders; //working artifacts
 	std::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 
 	virtual bool isHero() const;

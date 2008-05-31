@@ -349,6 +349,7 @@ CGHeroInstance::CGHeroInstance()
 	isStanding = true;
 	moveDir = 4;
 	mana = 0;
+	visitedTown = NULL;
 }
 
 CGHeroInstance::~CGHeroInstance()

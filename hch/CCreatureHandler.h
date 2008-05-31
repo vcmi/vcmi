@@ -15,6 +15,7 @@ class CCreature
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
 	std::vector<int> cost; //cost[res_id] - amount of that resource
+	std::set<int> upgrades; // IDs of creatures to which this creature can be upgraded
 	int fightValue, AIValue, growth, hordeGrowth, hitPoints, speed, attack, defence, shots, spells;
 	int damageMin, damageMax;
 	int ammMin, ammMax;

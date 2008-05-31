@@ -104,7 +104,7 @@ void CGarrisonSlot::hover (bool on)
 	}
 }
 
-const CGObjectInstance * CGarrisonSlot::getObj()
+const CArmedInstance * CGarrisonSlot::getObj()
 {
 	return 	(!upg)?(owner->oup):(owner->odown);
 }
@@ -142,7 +142,12 @@ void CGarrisonSlot::clickLeft(tribool down)
 		{
 			if(owner->highlighted == this) //view info
 			{
-				//TODO: view creature info
+				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(),ID);
+				(new CCreInfoWindow
+					(creature->idNumber,1,NULL,
+					(pom.oldID>=0)?(boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,-1)):(boost::function<void()>()), //if upgrade is possible we'll bind proper function in callback
+					 boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID)))
+						->activate();
 				owner->highlighted = NULL;
 				show();
 				refr = true;
@@ -399,7 +404,7 @@ void CGarrisonInt::splitStacks(int am2)
 		am2);
 
 }
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CGObjectInstance *s1, const CGObjectInstance *s2)
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CArmedInstance *s1, const CArmedInstance *s2)
 	:interx(inx),intery(iny),sur(pomsur),highlighted(NULL),sup(NULL),sdown(NULL),oup(s1),odown(s2),
 	offx(OX),offy(OY)
 {
@@ -2926,10 +2931,17 @@ void CCreInfoWindow::show(SDL_Surface * to)
 	blitAt(bitmap,pos.x,pos.y,screen);
 	blitAt(CGI->creh->backgrounds[c->faction],pos.x+21,pos.y+48,screen);
 	anim->nextFrameMiddle(screen,pos.x+90,pos.y+95,true,false,false);
+	if(upgrade)
+		upgrade->show();
+	if(dismiss)
+		dismiss->show();
+	if(ok)
+		ok->show();
 }
 
-CCreInfoWindow::CCreInfoWindow(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm)
-:ok(0),dismiss(0),upgrade(0),type(Type)
+CCreInfoWindow::CCreInfoWindow
+		(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm)
+:ok(0),dismiss(0),upgrade(0),type(Type),dsm(Dsm)
 {
 	c = &CGI->creh->creatures[Cid];
 	bitmap = CGI->bitmaph->loadBitmap("CRSTKPU.bmp");
@@ -3008,9 +3020,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, StackState *State, boost::func
 	if(type)
 	{
 		if(Upg)
-			upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,Upg,76,237,"IVIEWCR.DEF");
+			upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,Upg,pos.x+76,pos.y+237,"IVIEWCR.DEF");
 		if(Dsm)
-			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,Upg,21,237,"IVIEWCR2.DEF");
+			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::dismissF,this),pos.x+21,pos.y+237,"IVIEWCR2.DEF");
+		ok = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF");
 	}
 	else
 	{
@@ -3032,6 +3045,8 @@ void CCreInfoWindow::activate()
 		dismiss->activate();
 	if(upgrade)
 		upgrade->activate();
+	if(type)
+		LOCPLINT->curint->deactivate();
 }
 void CCreInfoWindow::close()
 {
@@ -3047,6 +3062,11 @@ void CCreInfoWindow::clickRight(boost::logic::tribool down)
 {
 	if(down)
 		return;
+	close();
+}
+void CCreInfoWindow::dismissF()
+{
+	dsm();
 	close();
 }
 void CCreInfoWindow::keyPressed (SDL_KeyboardEvent & key)

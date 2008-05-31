@@ -113,12 +113,17 @@
 110	Hydra
 111	ChaosHydra
 112	AirElemental
+112	AirElementals
 113	EarthElemental
+113	EarthElementals
 114	FireElemental
+114	FireElementals
 115	WaterElemental
+115	WaterElementals
 116	GoldGolem
 117	DiamondGolem
 118	Pixie
+118	Pixies
 119	Sprite
 120	PsiElemental
 121	MagicElemental

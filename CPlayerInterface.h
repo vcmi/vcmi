@@ -245,7 +245,7 @@ public:
 	bool active;
 	
 	virtual void hover (bool on);
-	const CGObjectInstance * getObj();
+	const CArmedInstance * getObj();
 	void clickRight (boost::logic::tribool down);
 	void clickLeft(boost::logic::tribool down);
 	void activate();
@@ -269,7 +269,7 @@ public:
 	const CCreatureSet *set2;
 
 	std::vector<CGarrisonSlot*> *sup, *sdown;
-	const CGObjectInstance *oup, *odown;
+	const CArmedInstance *oup, *odown;
 
 	void activate();
 	void deactivate();
@@ -283,7 +283,7 @@ public:
 	void splitClick();
 	void splitStacks(int am2);
 
-	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CGObjectInstance *s1, const CGObjectInstance *s2=NULL);
+	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CArmedInstance *s1, const CArmedInstance *s2=NULL);
 	~CGarrisonInt();
 };
 
@@ -514,6 +514,7 @@ public:
 	int type;//0 - rclick popup; 1 - normal window
 	SDL_Surface *bitmap;
 
+	boost::function<void()> dsm;
 	CCreatureAnimation *anim;
 	CCreature *c;
 
@@ -523,6 +524,7 @@ public:
 	void activate(); 
 	void close();
 	void clickRight(boost::logic::tribool down);
+	void dismissF();
 	void keyPressed (SDL_KeyboardEvent & key);
 	void deactivate();
 	void show(SDL_Surface * to = NULL);

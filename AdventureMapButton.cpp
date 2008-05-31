@@ -183,9 +183,14 @@ void CSlider::moveTo(int to)
 	else if(to>amount)
 		to=amount;
 	value = to;
-	float part = (float)to/amount;
-	part*=(pos.w-48);
-	slider.pos.x = part + pos.x + 16;
+	if(amount)
+	{
+		float part = (float)to/amount;
+		part*=(pos.w-48);
+		slider.pos.x = part + pos.x + 16;
+	}
+	else
+		slider.pos.x = pos.x+16;
 	moved(to);
 }
 

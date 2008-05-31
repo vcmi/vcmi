@@ -559,7 +559,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 		switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
 		{
 			case 0:
-				/*reverseCreature(ID, aStack.position, true);
+				//reverseCreature(ID, aStack.position, true);
 				creAnims[ID]->setType(10);
 				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
 				{
@@ -567,7 +567,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 					CSDL_Ext::update();
 					SDL_framerateDelay(LOCPLINT->mainFPSmng);
 				}
-				reverseCreature(ID, aStack.position, true);*/
+				//reverseCreature(ID, aStack.position, true);
 				break;
 			case 1:
 				creAnims[ID]->setType(10);
@@ -597,7 +597,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 				}
 				break;
 			case 4:
-				/*reverseCreature(ID, aStack.position, true);
+				//reverseCreature(ID, aStack.position, true);
 				creAnims[ID]->setType(12);
 				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
 				{
@@ -605,10 +605,10 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 					CSDL_Ext::update();
 					SDL_framerateDelay(LOCPLINT->mainFPSmng);
 				}
-				reverseCreature(ID, aStack.position, true);*/
+				//reverseCreature(ID, aStack.position, true);
 				break;
 			case 5:
-				/*reverseCreature(ID, aStack.position, true);
+				reverseCreature(ID, aStack.position, true);
 				creAnims[ID]->setType(11);
 				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
 				{
@@ -616,7 +616,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 					CSDL_Ext::update();
 					SDL_framerateDelay(LOCPLINT->mainFPSmng);
 				}
-				reverseCreature(ID, aStack.position, true);*/
+				reverseCreature(ID, aStack.position, true);
 				break;
 		}
 		creAnims[ID]->setType(2);

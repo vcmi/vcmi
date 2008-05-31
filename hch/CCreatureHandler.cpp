@@ -369,6 +369,16 @@ void CCreatureHandler::loadCreatures()
 	ifs.close();
 	ifs.clear();
 
+	ifs.open("config/cr_upgrade_list.txt"); 
+	while(!ifs.eof())
+	{
+		int id, up;
+		ifs >> id >> up;
+		creatures[id].upgrades.insert(up);
+	}
+	ifs.close();
+	ifs.clear();
+
 	//loading 32x32px imgs
 	CDefHandler *smi = CGI->spriteh->giveDef("CPRSMALL.DEF");
 	smi->notFreeImgs = true;
