@@ -1,9 +1,37 @@
-#ifndef CPATHFINDER_H
-#define CPATHFINDER_H
+#ifndef CPathfinder_H
+#define CPathfinder_H
 #include "global.h"
-#include <queue>
 #include <vector>
+#include <queue>
+#include <math.h>
 class CGHeroInstance;
+
+using namespace std; 
+
+class Coordinate
+{
+public:
+	int x;
+	int y;
+	int z;
+	float g; //Distance from goal
+	int h; //Movement cost
+
+	Coordinate() : x(NULL), y(NULL), z(NULL), g(NULL), h(NULL) {}
+	Coordinate(int3 xyz) : x(xyz.x), y(xyz.y), z(xyz.z){}
+	Coordinate(int xCor, int yCor, int zCor) : x(xCor), y(yCor), z(zCor){}
+	Coordinate(int xCor, int yCor, int zCor, int dist, int penalty) : x(xCor), y(yCor), z(zCor), g(dist), h(penalty){}
+	void operator=(const Coordinate& other);
+};
+
+//Class used in priority queue to determine order.
+class Compare
+{
+public:
+	bool operator()(const vector<Coordinate>& a, const vector<Coordinate>& b);
+};
+
+//Included for old format
 struct CPathNode
 {
 	bool accesible; //true if a hero can be on this node
@@ -13,6 +41,7 @@ struct CPathNode
 	bool visited;
 };
 
+//Included for old format
 struct CPath
 {
 	std::vector<CPathNode> nodes; //just get node by node
@@ -21,18 +50,65 @@ struct CPath
 	int3 endPos(); //destination point
 };
 
-/**
- * main pathfinder class
- */
 class CPathfinder
 {
 private:
-	std::vector< std::vector<CPathNode> > graph;
+	boost::logic::tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
+	
+	/*
+	 * Does the actual path calculation.  Don't call this directly, call GetPath instead.
+	 */
+	vector<Coordinate>* CalcPath();
+
+	/*
+ 	 * Determines if the given node exists in the closed list, returns true if it does.  This is
+	 * used to ensure you dont check the same node twice.
+	 */
+	bool ExistsInClosed(Coordinate node);
+
+	/*
+	 * Adds the neighbors of the current node to the open cue so they can be considered in the 
+	 * path creation.  If the node has a cost (f = g + h) less than zero, it isn't added to Open.
+	 */
+	void AddNeighbors(vector<Coordinate>* node);
+
+	/*
+	 * Calculates the movement cost of the node.  Returns -1 if it is impossible to travel on.
+	 */
+	void CalcH(Coordinate* node);
+
+	/*
+	 * Calculates distance from node to end node.
+	 */
+	void CalcG(Coordinate* node);
+
 public:
-	CPath * getPath(int3 src, int3 dest, const CGHeroInstance * hero, unsigned char type=0); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; type - type of calculation: 0 - positions are normal positions of hero; 1 - given places are tiles blocked by hero
-	CPath * getPath(const int3 & src, const int3 & dest, const CGHeroInstance * hero, int (*getDist)(int3 & a, int3 & b), unsigned char type=0); //calculates path between src and dest; returns pointer to CPath or NULL if path does not exists; uses getDist to calculate distance; type - type of calculation: 0 - positions are normal positions of hero; 1 - given places are tiles blocked by hero
+	//Contains nodes to be searched
+	priority_queue < vector<Coordinate>, vector<vector<Coordinate>>, Compare> Open;
+
+	//History of nodes you have been to before
+	vector<Coordinate> Closed;
+
+	//The start, or source position.
+	Coordinate Start;
+
+	//The end, or destination position
+	Coordinate End;
+
+	//A reference to the Hero.
+	const CGHeroInstance* Hero;
+	
+	/*
+	 * Does basic input checking and setup for the path calculation.
+	 */
+	vector<Coordinate>* GetPath(const CGHeroInstance* hero);
+	vector<Coordinate>* GetPath(Coordinate start, Coordinate end, const CGHeroInstance* hero);
+
+	//Convert to oldformat
+	CPath* ConvertToOldFormat(vector<Coordinate>* p);
 
 	static void convertPath(CPath * path, unsigned int mode); //mode=0 -> from 'manifest' to 'object'
+
 };
 
 #endif //CPATHFINDER_H

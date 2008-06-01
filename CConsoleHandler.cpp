@@ -61,13 +61,16 @@ int internalFunc(void * callback)
 			}
 			std::cout<<"\rExtracting done :)\n";
 		}
-
+		vector<Coordinate>* p;
 		switch (*cn.c_str())
 		{
 		case 'P':
 			std::cout<<"Policzyc sciezke."<<std::endl;		
 			readed>>src>>dst;
-			LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
+			
+			p = CGI->pathf->GetPath(Coordinate(src),Coordinate(dst),CGI->heroh->heroInstances[0]);
+			LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->ConvertToOldFormat(p);
+			//LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
 			break;
 		case 'm': //number of heroes
 			std::cout<<"Number of heroes: "<<CGI->heroh->heroInstances.size()<<std::endl;
@@ -80,9 +83,9 @@ int internalFunc(void * callback)
 			{
 				readed>>heronum>>dest;
 				const CGHeroInstance * hero = cb->getHeroInfo(0,heronum,0);
-				CPath * path = CGI->pathf->getPath(hero->getPosition(false),dest,hero);
-				cb->moveHero(heronum, path, 0, 0);
-				delete path;
+				p = CGI->pathf->GetPath(Coordinate(hero->getPosition(false)),Coordinate(dest),hero);
+				cb->moveHero(heronum, CGI->pathf->ConvertToOldFormat(p), 0, 0);
+				//LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
 				break;
 			}
 		case 'D': //pos description
@@ -127,6 +130,7 @@ int internalFunc(void * callback)
 			break;
 		}
 		//SDL_Delay(100);
+		delete p;
 	}
 	return -1;
 }

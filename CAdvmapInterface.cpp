@@ -308,7 +308,15 @@ void CTerrainRect::clickLeft(tribool down)
 	int3 bufpos = currentHero->getPosition(false);
 	//bufpos.x-=1;
 	if (mres)
-		currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
+	{
+		vector<Coordinate>* p;
+		p = CGI->pathf->GetPath(Coordinate(bufpos),Coordinate(mp),currentHero);
+
+		//Convert to old format.
+		currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->ConvertToOldFormat(p);
+
+		//currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
+	}
 }
 void CTerrainRect::clickRight(tribool down)
 {
