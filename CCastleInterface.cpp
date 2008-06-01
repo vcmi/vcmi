@@ -14,9 +14,19 @@
 #include "CCallback.h"
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
-:str(Str), moi(false)
+:str(Str), moi(false), offset(0)
 {	
 	def = CGI->spriteh->giveDef(Str->defName);
+	max = def->ourImages.size();
+
+	if(str->ID == 33    &&    str->townID == 4) //little 'hack' for estate in necropolis - background color is not always the first color in the palette
+	{
+		for(std::vector<Cimage>::iterator i=def->ourImages.begin();i!=def->ourImages.end();i++)
+		{
+			SDL_SetColorKey(i->bitmap,SDL_SRCCOLORKEY,*((char*)i->bitmap->pixels));
+		}
+	}
+
 	pos.x = str->pos.x;
 	pos.y = str->pos.y;
 	pos.w = def->ourImages[0].bitmap->w;
@@ -458,16 +468,16 @@ void CCastleInterface::show(SDL_Surface * to)
 	//blit buildings
 	for(int i=0;i<buildings.size();i++)
 	{
-		if((animval)%(buildings[i]->def->ourImages.size()))
+		int frame = (animval)%(buildings[i]->max - buildings[i]->offset);
+		if(frame)
 		{
 			blitAt(buildings[i]->def->ourImages[0].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
-			blitAt(buildings[i]->def->ourImages[(animval)%(buildings[i]->def->ourImages.size())].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
+			blitAt(buildings[i]->def->ourImages[frame].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
 		}
 		else 
-			blitAt(buildings[i]->def->ourImages[(animval)%(buildings[i]->def->ourImages.size())].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
-		//if(buildings[i]->hovered && buildings[i]->border)
-		//	blitAt(buildings[i]->border,buildings[i]->pos.x,buildings[i]->pos.y);
-		if(hBuild==buildings[i] && hBuild->border)
+			blitAt(buildings[i]->def->ourImages[frame].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
+
+		if(hBuild==buildings[i] && hBuild->border) //if this this higlighted structure and has border we'll blit it
 			blitAt(hBuild->border,hBuild->pos,to);
 	}
 	
@@ -572,6 +582,30 @@ void CCastleInterface::recreateBuildings()
 			break;
 	}
 	std::sort(buildings.begin(),buildings.end(),srthlp);
+
+	//code for Mana Vortex (there are two sets of animation frames - one without mage guild and one with
+	if((town->subID == 5) && (town->builtBuildings.find(21)!=town->builtBuildings.end())) 
+	{
+		CBuildingRect *vortex = NULL;
+		for(int i=0;i<buildings.size();i++)
+		{
+			if(buildings[i]->str->ID==21)
+			{
+				vortex=buildings[i];
+				break;
+			}
+		}
+		if(town->builtBuildings.find(4)!=town->builtBuildings.end()) //there is mage Guild level 5
+		{
+			vortex->offset = 10;
+			vortex->max = vortex->def->ourImages.size();
+		}
+		else
+		{
+			vortex->offset = 0;
+			vortex->max = 10;
+		}
+	}
 }
 void CCastleInterface::recruit(int ID, int amount)
 {

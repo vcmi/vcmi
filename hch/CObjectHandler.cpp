@@ -285,6 +285,8 @@ int CGTownInstance::creatureGrowth(int level) const
 	case 2:
 		ret*=(1.5); break;
 	}
+	if(builtBuildings.find(26)!=builtBuildings.end()) //grail
+		ret+=CGI->creh->creatures[town->basicCreatures[level]].growth;
 	if(getHordeLevel(0)==level)
 		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
 			ret+=CGI->creh->creatures[town->basicCreatures[level]].hordeGrowth;

@@ -12,6 +12,7 @@ class CBuildingRect : public Hoverable, public MotionInterested, public Clickabl
 {
 public:
 	bool moi; //motion interested is active
+	int offset, max; //first and last animation frame
 	Structure* str;
 	CDefHandler* def;
 	SDL_Surface* border;
