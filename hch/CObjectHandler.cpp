@@ -159,7 +159,7 @@ bool CGHeroInstance::isHero() const
 {
 	return true;
 }
-unsigned int CGHeroInstance::getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype)
+unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const
 {
 	unsigned int ret = type->heroClass->terrCosts[ttype];
 	switch(rdtype)
@@ -232,7 +232,7 @@ int CGHeroInstance::getCurrentMorale() const
 	//TODO: write it
 	return 0;
 }
-int CGHeroInstance::getSecSkillLevel(int ID) const
+int CGHeroInstance::getSecSkillLevel(const int & ID) const
 {
 	for(int i=0;i<secSkills.size();i++)
 		if(secSkills[i].first==ID)
@@ -267,15 +267,15 @@ int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - c
 		return 0;
 	return -1;
 }
-bool CGTownInstance::creatureDwelling(int level, bool upgraded) const
+bool CGTownInstance::creatureDwelling(const int & level, bool upgraded) const
 {
 	return builtBuildings.find(30+level+upgraded*7)!=builtBuildings.end();
 }
-int CGTownInstance::getHordeLevel(int HID)  const//HID - 0 or 1; returns creature level or -1 if that horde structure is not present
+int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 {
 	return town->hordeLvl[HID];
 }
-int CGTownInstance::creatureGrowth(int level) const
+int CGTownInstance::creatureGrowth(const int & level) const
 {
 	int ret = CGI->creh->creatures[town->basicCreatures[level]].growth;
 	switch(fortLevel())
@@ -330,7 +330,7 @@ CGTownInstance::CGTownInstance()
 	visitingHero = NULL;
 }
 
-CGObjectInstance::CGObjectInstance()
+CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
 {
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
 	//state = new CLuaObjectScript();

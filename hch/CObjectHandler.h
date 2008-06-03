@@ -309,6 +309,7 @@ public:
 	CGDefInfo * defInfo;
 	CCPPObjectScript * state;
 	CSpecObjInfo * info;
+	unsigned char animPhaseShift;
 
 	int tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
 	bool blockVisit;
@@ -358,10 +359,10 @@ public:
 	std::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 
 	virtual bool isHero() const;
-	unsigned int getTileCost(EterrainType & ttype, Eroad & rdtype, Eriver & rvtype);
+	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const;
 	unsigned int getLowestCreatureSpeed();
-	unsigned int getAdditiveMoveBonus();
-	float getMultiplicativeMoveBonus();
+	unsigned int getAdditiveMoveBonus() const;
+	float getMultiplicativeMoveBonus() const;
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	int getSightDistance() const; //returns sight distance of this hero
@@ -370,7 +371,7 @@ public:
 	bool canWalkOnSea() const;
 	int getCurrentLuck() const;
 	int getCurrentMorale() const;
-	int getSecSkillLevel(int ID) const; //-1 - no skill
+	int getSecSkillLevel(const int & ID) const; //-1 - no skill
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
 };
@@ -402,9 +403,9 @@ public:
 
 	int fortLevel() const; //0 - none, 1 - fort, 2 - citadel, 3 - castle
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
-	bool creatureDwelling(int level, bool upgraded=false) const;
-	int getHordeLevel(int HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
-	int creatureGrowth(int level) const;
+	bool creatureDwelling(const int & level, bool upgraded=false) const;
+	int getHordeLevel(const int & HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
+	int creatureGrowth(const int & level) const;
 
 	bool hasFort() const;
 	bool hasCapitol() const;

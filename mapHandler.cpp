@@ -1002,12 +1002,13 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				else
 				{
 					int imgVal = ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages.size();
+					int phaseShift = ttiles[x+bx][y+by][level].objects[h].first->animPhaseShift;
 
 					//setting appropriate flag color
 					if((ttiles[x+bx][y+by][level].objects[h].first->tempOwner>=0 && ttiles[x+bx][y+by][level].objects[h].first->tempOwner<8) || ttiles[x+bx][y+by][level].objects[h].first->tempOwner==255)
-						CSDL_Ext::setPlayerColor(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap, ttiles[x+bx][y+by][level].objects[h].first->tempOwner);
+						CSDL_Ext::setPlayerColor(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[(anim+phaseShift)%imgVal].bitmap, ttiles[x+bx][y+by][level].objects[h].first->tempOwner);
 					
-					CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[anim%imgVal].bitmap,&pp,su,&sr);
+					CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[(anim+phaseShift)%imgVal].bitmap,&pp,su,&sr);
 				}
 			}
 		}
