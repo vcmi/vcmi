@@ -171,6 +171,7 @@ class CHeroScript : public CCPPObjectScript
 	void newObject(CGObjectInstance *os);
 	void onHeroVisit(CGObjectInstance *os, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+	std::string hoverText(CGObjectInstance *os);
 
 	friend void initGameState(CGameInfo * cgi);
 };

@@ -7,6 +7,7 @@
 #include <cctype>
 #include <cstring>
 #include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
+#include "SDL_image.h"
 int readNormalNr (int pos, int bytCon, unsigned char * str)
 {
 	int ret=0;
@@ -252,52 +253,6 @@ SDL_Surface * CPCXConv::getSurface()
 	}
 	return ret;
 }
-SDL_Surface * CPCXConv::getSurfaceZ()
-{
-	//int i=1;
-	//int type = pcx[i];i+=2;//0 -- Version 2.5	2 -- Version 2.8, palette included	3 -- Version 2.8, use default palette	5 -- Version 3.0 or better
-	//int bpp = pcx[3];i++;
-	//int xmin, ymin, xmax, ymax, w, h;
-	//xmin = readNormalNr(i,2,pcx);i+=2;
-	//ymin = readNormalNr(i,2,pcx);i+=2;
-	//xmax = readNormalNr(i,2,pcx);i+=2;
-	//ymax = readNormalNr(i,2,pcx);i+=2;
-	//w = xmax - xmin + 1; h = ymax - ymin + 1;
-	//i+=4; //DPI is not interesting
-	//char palette[48];
-	//memcpy(palette,pcx+i,48); i+=48;
-	//int reserved = pcx[i++];
-	//int planes = pcx[i++];
-	//int bytesPerLine = readNormalNr(i,2,pcx);i+=2;
-	//i = 128; //to the end of header
-	//int totalBytes = planes * bytesPerLine;
-	//int padding = ((bytesPerLine * planes) * (8 / bpp)) - ((xmax - xmin) + 1);
-	//char * buffer = new char[totalBytes];
-	//int index = 0, count, value, total=0;
-	//do
-	//{
-	//	count=0; value=0;
-	//	unsigned char byte = pcx[i++];
-	//	if((byte & 0xC0) == 0xC0) //two top bits set
-	//	{
-	//		count = byte & 0x3f;
-	//		value = pcx[i++];
-	//	}
-	//	else
-	//	{
-	//		count = 1;
-	//		value = byte;
-	//	}
-	//	for(total+=count; count && (index < totalBytes); index++)
-	//	{
-	//		buffer[index] = value;
-	//		count--;
-	//	}
-	//} while(index<totalBytes);
-	//delete buffer;
-	std::cout<<"Warning - not supported ZSoft-style .png file!!!"<<std::endl;
-	return NULL;
-}
 
 SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 {
@@ -324,32 +279,32 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 		}
 		else  //file .bmp not present, check .pcx
 		{
-			//TODO: zczytywanie nawala, dokonczyc wsparcie zsoftowych pcxow
 			char sign[3];
 			fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".PCX");
 			f = fopen(fname.c_str(),"r");
 			if(!f)
 				return NULL; 
 			fread(sign,1,3,f);
-			if(sign[0]=='B' && sign[1]=='M') //BMP - ¿eby Kulex móg³ mieszaæ PCXy z BMPami
+			if(sign[0]=='B' && sign[1]=='M') //BMP named as PCX - people (eg. Kulex) sometimes use such files
 			{
 				fclose(f);
 				return SDL_LoadBMP(fname.c_str());
 			}
-			else //PCX
+			else //PCX - but we don't know which
 			{
-				CPCXConv cp;
-				pcx = new unsigned char[e->realSize];
-				memcpy(pcx,sign,3);
-				int res = fread((char*)pcx+3, 1, e->realSize-3, f);
-				fclose(f);
-				cp.openPCX((char*)pcx,e->realSize);
 				if((sign[0]==10) && (sign[1]<6) && (sign[2]==1)) //ZSoft PCX
 				{
-					return cp.getSurfaceZ();
+					fclose(f);
+					return IMG_Load(fname.c_str());
 				}
-				else //H3 PCX
+				else //H3-style PCX
 				{
+					CPCXConv cp;
+					pcx = new unsigned char[e->realSize];
+					memcpy(pcx,sign,3);
+					int res = fread((char*)pcx+3, 1, e->realSize-3, f);
+					fclose(f);
+					cp.openPCX((char*)pcx,e->realSize);
 					return cp.getSurface();
 				}
 			}

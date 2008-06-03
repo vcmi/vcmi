@@ -1,6 +1,7 @@
 #include "../stdafx.h"
 #include "CSemiDefHandler.h"
 #include <fstream>
+#include "SDL_image.h"
 extern SDL_Surface * screen;
 std::string CSemiDefHandler::nameFromType (EterrainType typ)
 {

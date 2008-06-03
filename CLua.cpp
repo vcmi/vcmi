@@ -356,7 +356,7 @@ void CVisitableOPW::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 			break;
 		case 112:
 			mid = 170;
-			sub = rand() % 6;
+			sub = (rand() % 5) + 1;
 			val = (rand() % 4) + 3;
 			break;
 		case 109:
@@ -651,7 +651,14 @@ std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are h
 	ret.push_back(34); //hero
 	return ret;
 }
-
+std::string CHeroScript::hoverText(CGObjectInstance *os)
+{
+	CGHeroInstance* h = static_cast<CGHeroInstance*>(os);
+	std::string ret = CGI->generaltexth->allTexts[15];
+	boost::algorithm::replace_first(ret,"%s",h->name);
+	boost::algorithm::replace_first(ret,"%s",h->type->heroClass->name);
+	return ret;
+}
 void CMonsterS::newObject(CGObjectInstance *os)
 {
 	//os->blockVisit = true;

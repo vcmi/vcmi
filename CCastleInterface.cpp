@@ -656,7 +656,11 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	Hoverable::hover(on);
 	if(on)
 	{
-		std::string toPrint = CGI->townh->hcommands[state];
+		std::string toPrint;
+		if(state==8)
+			toPrint = CGI->townh->hcommands[5];
+		else
+			toPrint = CGI->townh->hcommands[state];
 		std::vector<std::string> name;
 		name.push_back(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->name);
 		LOCPLINT->statusbar->print(CSDL_Ext::processStr(toPrint,name));
@@ -929,7 +933,7 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 		ret =  CGI->townh->hcommands[state];
 	switch (state)
 	{
-	case 4:
+	case 4:	case 5: case 6:
 		ret.replace(ret.find_first_of("%s"),2,CGI->buildh->buildings[tid][bid]->name);
 		break;
 	case 7:

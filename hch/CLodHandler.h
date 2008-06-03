@@ -54,7 +54,7 @@ public:
 	void openPCX();
 	void convert();
 	SDL_Surface * getSurface(); //for standard H3 PCX
-	SDL_Surface * getSurfaceZ(); //for ZSoft PCX
+	//SDL_Surface * getSurfaceZ(); //for ZSoft PCX
 	CPCXConv(){pcx=bmp=NULL;pcxs=bmps=0;};
 	~CPCXConv(){if (pcxs) delete[] pcx; if(bmps) delete[] bmp;}
 };
