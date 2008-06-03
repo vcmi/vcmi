@@ -132,9 +132,9 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		{
 			hero->pos = endpos;
 		}*/
-		if((hero->movement>=CGI->mh->getCost(stpos, endpos, hero))  || player==-1)
+		if((hero->movement>=CGI->mh->getCost(int3(stpos.x-1, stpos.y, stpos.z), int3(endpos.x-1, endpos.y, endpos.z), hero))  || player==-1)
 		{ //performing move
-			hero->movement-=CGI->mh->getCost(stpos, endpos, hero);
+			hero->movement-=CGI->mh->getCost(int3(stpos.x-1, stpos.y, stpos.z), int3(endpos.x-1, endpos.y, endpos.z), hero);
 			
 			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.dst,false));
 			bool blockvis = false;

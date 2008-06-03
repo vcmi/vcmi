@@ -211,23 +211,10 @@ void CPathfinder::CalcH(Coordinate* node)
 	if(node->y>=CGI->mh->reader->map.height)
 		y = CGI->mh->reader->map.height-1;
 
-	//Get a copy of the hero we can work with. Cant use const Hero because method is not static.
-	CGHeroInstance* tempHero = new CGHeroInstance();
-	*tempHero = *Hero;
-
 	//Get the movement cost.
-	ret = tempHero->getTileCost(CGI->mh->ttiles[x][y][node->z].terType, CGI->mh->reader->map.terrain[x][y].malle,CGI->mh->reader->map.terrain[x][y].nuine);
-	
-	//Is this right? This part of the code was stolen from getCost and I wasnt sure what parameters
-	//a and b represented.  Seems to work though.
-	if(!(node->x==End.x || node->y==End.y))
-		ret*=1.41421;
-
-	delete tempHero;
+	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].terType, CGI->mh->reader->map.terrain[x][y].malle,CGI->mh->reader->map.terrain[x][y].nuine);
 	
 	node->h = ret;
-
-	return;
 }
 
 /*
@@ -251,11 +238,12 @@ CPath* CPathfinder::ConvertToOldFormat(vector<Coordinate>* p)
 
 	CPath* path = new CPath();
 
-	vector<CPathNode> pNodes;
-
 	for(int i = 0; i < p->size(); i++)
 	{
 		CPathNode temp;
+
+		//Set coord
+		temp.coord = int3(p->at(i).x,p->at(i).y,p->at(i).z);
 		
 		//Set accesible
 		if(p->at(i).h == -1)
@@ -266,17 +254,23 @@ CPath* CPathfinder::ConvertToOldFormat(vector<Coordinate>* p)
 		{
 			temp.accesible = true;
 		}
+		//set diagonality
+		float diagonal = 1.0f; //by default
+		if(i+1<p->size())
+		{
+			if(p->at(i+1).x != temp.coord.x && p->at(i+1).y != temp.coord.y)
+			{
+				diagonal = sqrt(2.0f);
+			}
+		}
 
 		//Set distance
 		if(i == 0)
-			temp.dist = p->at(i).h;
+			temp.dist = p->at(i).h * diagonal;
 		else
-			temp.dist = p->at(i).h + path->nodes.back().dist;
+			temp.dist = p->at(i).h * diagonal + path->nodes.back().dist;
 
 		//theNodeBefore is never used outside of pathfinding?
-
-		//Set coord
-		temp.coord = int3(p->at(i).x,p->at(i).y,p->at(i).z);
 
 		//Set visited
 		temp.visited = false;
