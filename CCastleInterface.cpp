@@ -232,7 +232,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	townlist->genList();
 	townlist->selected = getIndexOf(townlist->items,Town);
 	if((townlist->selected+1) > townlist->SIZE)
-		townlist->from = townlist->selected -  townlist->SIZE + 1;
+		townlist->from = townlist->selected -  townlist->SIZE + 2;
 
 	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit->bitmapOffset = 4;
@@ -343,7 +343,7 @@ void CCastleInterface::buildingClicked(int building)
 
 		crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
 
-		CRecrutationWindow *rw = new CRecrutationWindow(crs,this);
+		CRecrutationWindow *rw = new CRecrutationWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 		rw->activate();
 	}
 	else
@@ -468,7 +468,7 @@ void CCastleInterface::show(SDL_Surface * to)
 	//blit buildings
 	for(int i=0;i<buildings.size();i++)
 	{
-		int frame = (animval)%(buildings[i]->max - buildings[i]->offset);
+		int frame = ((animval)%(buildings[i]->max - buildings[i]->offset)) + buildings[i]->offset;
 		if(frame)
 		{
 			blitAt(buildings[i]->def->ourImages[0].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
@@ -606,10 +606,29 @@ void CCastleInterface::recreateBuildings()
 			vortex->max = 10;
 		}
 	}
-}
-void CCastleInterface::recruit(int ID, int amount)
-{
-	LOCPLINT->cb->recruitCreatures(town,ID,amount);
+	//code for the shipyard in the Castle
+	else if((town->subID == 0) && (town->builtBuildings.find(6)!=town->builtBuildings.end())) 
+	{
+		CBuildingRect *shipyard = NULL;
+		for(int i=0;i<buildings.size();i++)
+		{
+			if(buildings[i]->str->ID==6)
+			{
+				shipyard=buildings[i];
+				break;
+			}
+		}
+		if(town->builtBuildings.find(8)!=town->builtBuildings.end()) //there is citadel
+		{
+			shipyard->offset = 1;
+			shipyard->max = shipyard->def->ourImages.size();
+		}
+		else
+		{
+			shipyard->offset = 0;
+			shipyard->max = 1;
+		}
+	}
 }
 void CHallInterface::CResDataBar::show(SDL_Surface * to)
 {

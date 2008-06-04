@@ -2662,6 +2662,28 @@ void CTownList::draw()
 }
 
 
+CCreaturePic::CCreaturePic(CCreature *cre)
+:c(cre)
+{
+	anim = new CCreatureAnimation(cre->animDefName);
+}
+CCreaturePic::~CCreaturePic()
+{
+	delete anim;
+}
+int CCreaturePic::blitPic(SDL_Surface *to, int x, int y, bool nextFrame)
+{
+	blitAt(CGI->creh->backgrounds[c->faction],x,y);//curx-50,pos.y+130-65);
+	SDL_Rect dst = genRect(130,100,x,y);
+	if(c->isDoubleWide())
+		x-=15;
+	return anim->nextFrameMiddle(to,x+70,y+45,true,nextFrame,false,&dst);
+}
+SDL_Surface * CCreaturePic::getPic(bool nextFrame)
+{
+	//TODO: write
+	return NULL;
+}
 void CRecrutationWindow::close()
 {
 	deactivate();
@@ -2677,7 +2699,7 @@ void CRecrutationWindow::Max()
 }
 void CRecrutationWindow::Buy()
 {
-	rec->recruit(creatures[which].ID,slider->value);
+	recruit(creatures[which].ID,slider->value);
 	close();
 }
 void CRecrutationWindow::Cancel()
@@ -2762,15 +2784,13 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	curx = pos.x + 192 + 102 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
-		blitAt(CGI->creh->backgrounds[CGI->creh->creatures[creatures[i].ID].faction],curx-50,pos.y+130-65);
-		SDL_Rect dst = genRect(130,100,curx-50,pos.y+130-65);
-		creatures[i].anim->nextFrameMiddle(screen,curx+20,pos.y+110,true,!(c%2),false,&dst);
+		creatures[i].pic->blitPic(screen,curx-50,pos.y+130-65,!(c%2));
 		curx += 120;
 	}
 	c++;
 }
-CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatures, IRecruit *irec) //creatures - pairs<creature_ID,amount>
-:rec(irec)
+CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &Creatures, const boost::function<void(int,int)> &Recruit) //creatures - pairs<creature_ID,amount>
+:recruit(Recruit)
 {
 	which = 0;
 	creatures.resize(Creatures.size());
@@ -2782,7 +2802,7 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 		for(int j=0;j<CGI->creh->creatures[Creatures[i].first].cost.size();j++)
 			if(CGI->creh->creatures[Creatures[i].first].cost[j])
 				creatures[i].res.push_back(std::make_pair(j,CGI->creh->creatures[Creatures[i].first].cost[j]));
-		creatures[i].anim = new CCreatureAnimation(CGI->creh->creatures[Creatures[i].first].animDefName);
+		creatures[i].pic = new CCreaturePic(&CGI->creh->creatures[Creatures[i].first]);
 		amounts[i] = CGI->creh->creatures[Creatures[i].first].maxAmount(LOCPLINT->cb->getResourceAmount());
 	}
 	SDL_Surface *hhlp = CGI->bitmaph->loadBitmap("TPRCRT.bmp");
@@ -2832,6 +2852,13 @@ CRecrutationWindow::CRecrutationWindow(std::vector<std::pair<int,int> > &Creatur
 }//(int x, int y, int totalw, T*Owner,void(T::*Moved)(int to), int Capacity, int Amount, int Value, bool Horizontal)
 CRecrutationWindow::~CRecrutationWindow()
 {
+	for(int i=0;i<creatures.size();i++)
+	{
+		delete creatures[i].pic;
+	}
+	delete max;
+	delete buy;
+	delete cancel;
 	SDL_FreeSurface(bitmap);
 	delete slider;
 }
@@ -2852,8 +2879,8 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
 	slider = new CSlider(pos.x+21,pos.y+194,257,boost::bind(&CSplitWindow::sliderMoved,this,_1),1,max,0,true);
 	a1 = max;
 	a2 = 0;
-	anim = new CCreatureAnimation(CGI->creh->creatures[cid].animDefName);
-	anim->setType(1);
+	anim = new CCreaturePic(&CGI->creh->creatures[cid]);
+	anim->anim->setType(1);
 
 	std::string title = CGI->generaltexth->allTexts[256];
 	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid].namePl);
@@ -2862,6 +2889,10 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
 CSplitWindow::~CSplitWindow()
 {
 	SDL_FreeSurface(bitmap);
+	delete ok;
+	delete cancel;
+	delete slider;
+	delete anim;
 }
 void CSplitWindow::activate()
 {
@@ -2910,27 +2941,20 @@ void CSplitWindow::show(SDL_Surface * to)
 	printAtMiddle(pom,pos.x+70,pos.y+237,GEOR16,zwykly,screen);
 	itoa(a2,pom,10);
 	printAtMiddle(pom,pos.x+233,pos.y+237,GEOR16,zwykly,screen);
-
-
-	blitAt(CGI->creh->backgrounds[CGI->creh->creatures[c].faction],pos.x+20,pos.y+54);
-	anim->nextFrameMiddle(screen,pos.x+20+70,pos.y+54+55,true,false,false);
-
-	blitAt(CGI->creh->backgrounds[CGI->creh->creatures[c].faction],pos.x+177,pos.y+54);
-	anim->nextFrameMiddle(screen,pos.x+177+70,pos.y+54+55,true,false,false);
+	anim->blitPic(screen,pos.x+20,pos.y+54,false);
+	anim->blitPic(screen,pos.x+177,pos.y+54,false);
 }
 void CSplitWindow::keyPressed (SDL_KeyboardEvent & key)
 {
-	//TODO: zeby sie dalo recznie wpisywac
+	//TODO: make manual typing possible 
 }
-
-
 
 void CCreInfoWindow::show(SDL_Surface * to)
 {
 	char pom[15];
 	blitAt(bitmap,pos.x,pos.y,screen);
-	blitAt(CGI->creh->backgrounds[c->faction],pos.x+21,pos.y+48,screen);
-	anim->nextFrameMiddle(screen,pos.x+90,pos.y+95,true,false,false);
+	anim->blitPic(screen,pos.x+21,pos.y+48,(type) && anf);
+	anf=!anf;
 	if(upgrade)
 		upgrade->show();
 	if(dismiss)
@@ -2951,8 +2975,8 @@ CCreInfoWindow::CCreInfoWindow
 	pos.h = bitmap->h;
 	blueToPlayersAdv(bitmap,LOCPLINT->playerID);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
-	anim = new CCreatureAnimation(c->animDefName);
-	anim->setType(1);
+	anim = new CCreaturePic(c);
+	if(!type) anim->anim->setType(1);
 
 	char pom[25];int hlp=0;
 	printAtMiddle(c->namePl,149,30,GEOR13,zwykly,bitmap); //creature name
@@ -3034,10 +3058,14 @@ CCreInfoWindow::~CCreInfoWindow()
 {
 	SDL_FreeSurface(bitmap);
 	delete anim;
+	delete upgrade;
+	delete ok;
+	delete dismiss;
 }
 void CCreInfoWindow::activate()
 {
-	ClickableR::activate();
+	if(!type)
+		ClickableR::activate();
 	LOCPLINT->objsToBlit.push_back(this);
 	if(ok)
 		ok->activate();
@@ -3074,7 +3102,8 @@ void CCreInfoWindow::keyPressed (SDL_KeyboardEvent & key)
 }
 void CCreInfoWindow::deactivate()
 {
-	ClickableR::deactivate(); 
+	if(!type)
+		ClickableR::deactivate(); 
 	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	if(ok)
 		ok->deactivate();

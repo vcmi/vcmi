@@ -35,6 +35,7 @@ struct BattleAction
 
 struct StackState
 {
+	StackState(){attackBonus=defenseBonus=healthBonus=speedBonus=morale=luck=shotsLeft=currentHealth=0;};
 	int attackBonus, defenseBonus, healthBonus, speedBonus;
 	int currentHealth;
 	int shotsLeft;

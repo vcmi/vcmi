@@ -449,10 +449,15 @@ public:
 	void draw();
 };
 
-class IRecruit
+class CCreaturePic //draws 100x130 picture with creature on background, use nextFrame=true to get animation
 {
 public:
-	virtual void recruit(int ID, int amount)=0;
+	CCreature *c;
+	CCreatureAnimation *anim;
+	CCreaturePic(CCreature *cre);
+	~CCreaturePic();
+	int blitPic(SDL_Surface *to, int x, int y, bool nextFrame);
+	SDL_Surface * getPic(bool nextFrame);
 };
 
 class CRecrutationWindow : public IShowable, public ClickableL
@@ -461,13 +466,13 @@ public:
 	struct creinfo
 	{
 		SDL_Rect pos;
+		CCreaturePic *pic;
 		int ID, amount; //creature ID and available amount
-		CCreatureAnimation *anim;
 		std::vector<std::pair<int,int> > res; //res_id - cost_per_unit
 	};
 	std::vector<int> amounts; //how many creatures we can afford
 	std::vector<creinfo> creatures;
-	IRecruit *rec;
+	boost::function<void(int,int)> recruit; //void (int ID, int amount) <-- call to recruit creatures
 	CSlider *slider;
 	AdventureMapButton *max, *buy, *cancel;
 	SDL_Surface *bitmap;
@@ -482,7 +487,7 @@ public:
 	void activate(); 
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
-	CRecrutationWindow(std::vector<std::pair<int,int> > & Creatures, IRecruit *irec); //creatures - pairs<creature_ID,amount>
+	CRecrutationWindow(const std::vector<std::pair<int,int> > & Creatures, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount>
 	~CRecrutationWindow();
 };
 
@@ -491,7 +496,7 @@ class CSplitWindow : public IShowable, public KeyInterested
 public:
 	CGarrisonInt *gar;
 	CSlider *slider;
-	CCreatureAnimation *anim;
+	CCreaturePic *anim;
 	AdventureMapButton *ok, *cancel;
 	SDL_Surface *bitmap;
 	int a1, a2, c;
@@ -513,9 +518,10 @@ class CCreInfoWindow : public IShowable, public KeyInterested, public ClickableR
 public:
 	int type;//0 - rclick popup; 1 - normal window
 	SDL_Surface *bitmap;
+	bool anf;
 
 	boost::function<void()> dsm;
-	CCreatureAnimation *anim;
+	CCreaturePic *anim;
 	CCreature *c;
 
 	AdventureMapButton *dismiss, *upgrade, *ok;

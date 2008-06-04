@@ -904,11 +904,13 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 		{
 			pom = new StackState();
 			const CGHeroInstance *h = myst.owner == myInterface->attackingHeroInstance->tempOwner ? myInterface->attackingHeroInstance : myInterface->defendingHeroInstance;
-			pom->attackBonus = h->primSkills[0];
-			pom->defenseBonus = h->primSkills[1];
-			pom->luck = h->getCurrentLuck();
-			pom->morale = h->getCurrentMorale();
-
+			if(h)
+			{
+				pom->attackBonus = h->primSkills[0];
+				pom->defenseBonus = h->primSkills[1];
+				pom->luck = h->getCurrentLuck();
+				pom->morale = h->getCurrentMorale();
+			}
 			(new CCreInfoWindow(myst.creature->idNumber,0,pom,boost::function<void()>(),boost::function<void()>()))
 					->activate();
 		}
