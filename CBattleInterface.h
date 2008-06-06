@@ -81,6 +81,16 @@ private:
 	int activeStack; //number of active stack; -1 - no one
 	void showRange(SDL_Surface * to, int ID); //show helper funtion ot mark range of a unit
 
+	class CAttHelper
+	{
+	public:
+		int ID; //attacking stack
+		int dest; //atacked hex
+		int frame, maxframe; //frame of animation, number of frames of animation
+		bool reversing;
+	} * attackingInfo;
+	void attackingShowHelper();
+
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor
