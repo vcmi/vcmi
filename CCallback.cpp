@@ -644,7 +644,7 @@ int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2
 	if(!val)
 		return -1;
 	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
-	if ((S1->slots[p1].second<=val) && (true /*we are allowed to*/))
+	if ((S1->slots[p1].second<val) && (true /*we are allowed to*/))
 	{
 		return -1;
 	}
@@ -652,6 +652,8 @@ int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2
 	S2->slots[p2].first = S1->slots[p1].first;
 	S2->slots[p2].second = val;
 	S1->slots[p1].second -= val;
+	if(!S1->slots[p1].second) //if we've moved all creatures
+		S1->slots.erase(p1); 
 
 
 	if(s1->tempOwner<PLAYER_LIMIT)
