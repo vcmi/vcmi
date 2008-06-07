@@ -1,11 +1,10 @@
 #ifndef CCREATUREHANDLER_H
 #define CCREATUREHANDLER_H
 
-#include "../CPlayerInterface.h"
 #include <string>
 #include <vector>
 #include <map>
-#include "CDefHandler.h"
+#include <set>
 
 class CDefHandler;
 struct SDL_Surface;
@@ -51,8 +50,6 @@ class CCreatureSet //seven combined creatures
 {
 public:
 	std::map<int,std::pair<CCreature*,int> > slots;
-	//CCreature * slot1, * slot2, * slot3, * slot4, * slot5, * slot6, * slot7; //types of creatures on each slot
-	//unsigned int s1, s2, s3, s4, s5, s6, s7; //amounts of units in slots
 	bool formation; //false - wide, true - tight
 };
 
@@ -68,48 +65,5 @@ public:
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
-	void loadUnitAnimations();
 };
-
-class CCreatureAnimation : public CIntObject
-{
-private:
-	int totalEntries, DEFType, totalBlocks;
-	bool allowRepaint;
-	int length;
-	BMPPalette palette[256];
-	unsigned int * RWEntries;
-	int * RLEntries;
-	struct SEntry
-	{
-		std::string name;
-		int offset;
-		int group;
-	} ;
-	std::vector<SEntry> SEntries ;
-	char id[2];
-	std::string defName, curDir;
-	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
-	void putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc, const bool & yellowBorder) const;
-
-	////////////
-
-	unsigned char * FDef; //animation raw data
-	unsigned int curFrame; //number of currently displayed frame
-	unsigned int frames; //number of frames
-	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
-public:
-	int fullWidth, fullHeight; //read-only, please!
-	CCreatureAnimation(std::string name); //c-tor
-	~CCreatureAnimation(); //d-tor
-
-	void setType(int type); //sets type of animation and cleares framecount
-	int getType() const; //returns type of animation
-
-	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
-	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
-
-	int framesInGroup(int group) const; //retirns number of fromes in given group
-};
-
 #endif //CCREATUREHANDLER_H

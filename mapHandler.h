@@ -2,7 +2,6 @@
 #define MAPHANDLER_H
 
 #include "hch\CAmbarCendamo.h"
-#include "hch\CSemiDefHandler.h"
 #include "CGameInfo.h"
 #include "hch\CDefHandler.h"
 #include <boost/logic/tribool.hpp>
@@ -70,6 +69,7 @@ public:
 	//std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;
+	std::vector<CDefHandler*> defs;
 
 	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
 	std::map<int, CGDefInfo*> villages, forts, capitols;
@@ -78,6 +78,7 @@ public:
 
 	PseudoV< PseudoV< PseudoV<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
+	void loadDefs();
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??

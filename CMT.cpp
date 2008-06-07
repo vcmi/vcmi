@@ -26,7 +26,6 @@
 #include "hch\CObjectHandler.h"
 #include "CGameInfo.h"
 #include "hch\CMusicHandler.h"
-#include "hch\CSemiLodHandler.h"
 #include "hch\CLodHandler.h"
 #include "hch\CDefHandler.h"
 #include "hch\CSndHandler.h"
@@ -855,12 +854,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
 		THC std::cout<<"Detecting file (together): "<<tmh.getDif()<<std::endl;
-		ac->loadDefs();
-		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;
 		CMapHandler * mh = new CMapHandler();
 		cgi->mh = mh;
 		mh->reader = ac;
 		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
+		mh->loadDefs();
+		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;
 		mh->init();
 		THC std::cout<<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 

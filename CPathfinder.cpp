@@ -48,7 +48,7 @@ vector<Coordinate>* CPathfinder::GetPath(const CGHeroInstance* hero)
 	}
 	else
 	{
-		blockLandSea = indeterminate;
+		blockLandSea = boost::logic::indeterminate;
 	}
 
 	CalcG(&Start);

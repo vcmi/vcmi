@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "mapHandler.h"
-#include "hch\CSemiDefHandler.h"
 #include "SDL_rotozoom.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
@@ -16,7 +15,63 @@
 #include <iomanip>
 #include <sstream>
 extern SDL_Surface * screen;
-
+std::string nameFromType (EterrainType typ)
+{
+	switch(typ)
+	{
+		case dirt:
+		{
+			return std::string("DIRTTL.DEF");
+			break;
+		}
+		case sand:
+		{
+			return std::string("SANDTL.DEF");
+			break;
+		}
+		case grass:
+		{
+			return std::string("GRASTL.DEF");
+			break;
+		}
+		case snow:
+		{
+			return std::string("SNOWTL.DEF");
+			break;
+		}
+		case swamp:
+		{
+			return std::string("SWMPTL.DEF");			
+			break;
+		}
+		case rough:
+		{
+			return std::string("ROUGTL.DEF");		
+			break;
+		}
+		case subterranean:
+		{
+			return std::string("SUBBTL.DEF");		
+			break;
+		}
+		case lava:
+		{
+			return std::string("LAVATL.DEF");		
+			break;
+		}
+		case water:
+		{
+			return std::string("WATRTL.DEF");
+			break;
+		}
+		case rock:
+		{
+			return std::string("ROCKTL.DEF");		
+			break;
+		}
+	}
+	return std::string();
+}
 class OCM_HLP
 {
 public:
@@ -616,14 +671,14 @@ void CMapHandler::borderAndTerrainBitmapInit()
 				//TerrainTile zz = reader->map.terrain[i-Woff][j-Hoff];
 				std::string name;
 				if (k>0)
-					name = CSemiDefHandler::nameFromType(reader->map.undergroungTerrain[i][j].tertype);
+					name = nameFromType(reader->map.undergroungTerrain[i][j].tertype);
 				else
-					name = CSemiDefHandler::nameFromType(reader->map.terrain[i][j].tertype);
-				for (unsigned int m=0; m<reader->defs.size(); m++)
+					name = nameFromType(reader->map.terrain[i][j].tertype);
+				for (unsigned int m=0; m<defs.size(); m++)
 				{
 					try
 					{
-						if (reader->defs[m]->defName != name)
+						if (defs[m]->defName != name)
 							continue;
 						else
 						{
@@ -632,7 +687,7 @@ void CMapHandler::borderAndTerrainBitmapInit()
 								ktora = reader->map.terrain[i][j].terview;
 							else
 								ktora = reader->map.undergroungTerrain[i][j].terview;
-							ttiles[i][j][k].terbitmap.push_back(reader->defs[m]->ourImages[ktora].bitmap);
+							ttiles[i][j][k].terbitmap.push_back(defs[m]->ourImages[ktora].bitmap);
 							int zz;
 							if (k==0)
 								zz = (reader->map.terrain[i][j].siodmyTajemniczyBajt)%4;
@@ -1731,4 +1786,28 @@ unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
 		return 7;
 	}
 	return -2; //shouldn't happen
+}
+
+
+void CMapHandler::loadDefs()
+{
+	std::set<int> loadedTypes;
+	for (int i=0; i<reader->map.width; i++)
+	{
+		for (int j=0; j<reader->map.width; j++)
+		{
+			if (loadedTypes.find(reader->map.terrain[i][j].tertype)==loadedTypes.end())
+			{
+				CDefHandler  *sdh = CGI->spriteh->giveDef(nameFromType(reader->map.terrain[i][j].tertype).c_str());
+				loadedTypes.insert(reader->map.terrain[i][j].tertype);
+				defs.push_back(sdh);
+			}
+			if (reader->map.twoLevel && loadedTypes.find(reader->map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
+			{
+				CDefHandler  *sdh = CGI->spriteh->giveDef(nameFromType(reader->map.undergroungTerrain[i][j].tertype).c_str());
+				loadedTypes.insert(reader->map.undergroungTerrain[i][j].tertype);
+				defs.push_back(sdh);
+			}
+		}
+	}
 }

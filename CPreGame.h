@@ -4,8 +4,6 @@
 #include <set>
 #include "SDL.h"
 #include "StartInfo.h"
-#include "hch\CSemiDefHandler.h"
-#include "hch\CSemiLodHandler.h"
 #include "hch\CPreGameTextHandler.h" 
 #include "CMessage.h"
 #include "map.h"

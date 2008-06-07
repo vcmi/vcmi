@@ -1,20 +1,18 @@
 #include "../stdafx.h"
 #include "CAmbarCendamo.h"
-#include "CSemiDefHandler.h"
 #include "../CGameInfo.h"
 #include "CObjectHandler.h"
 #include "CCastleHandler.h"
 #include "CTownHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "../SDL_Extensions.h"
-#include "boost\filesystem.hpp"
 #include "../CGameState.h"
 #include "CLodHandler.h"
 #include <set>
 #include <iomanip>
 #include <sstream>
-#include "../CLua.h"
-
+#include <fstream>
+std::string nameFromType (EterrainType typ);
 int readInt(unsigned char * bufor, int bytCon)
 {
 	int ret=0;
@@ -51,10 +49,10 @@ CAmbarCendamo::CAmbarCendamo (unsigned char * map)
 }
 CAmbarCendamo::CAmbarCendamo (const char * tie)
 {
-	is = new std::ifstream();
+	std::ifstream * is = new std::ifstream();
 	is -> open(tie,std::ios::binary);
 	is->seekg(0,std::ios::end); // na koniec
-	andame = is->tellg();  // read length
+	int andame = is->tellg();  // read length
 	is->seekg(0,std::ios::beg); // wracamy na poczatek
 	bufor = new unsigned char[andame]; // allocate memory 
 	is->read((char*)bufor, andame); // read map file to buffer
@@ -66,20 +64,7 @@ CAmbarCendamo::~CAmbarCendamo ()
 	for (int ii=0;ii<map.width;ii++)
 		delete map.terrain[ii] ; 
 	delete map.terrain;
-	delete bufor;
-}
-void CAmbarCendamo::teceDef()
-{
-	//for (int i=0; i<map.defy.size(); i++)
-	//{
-	//	std::ofstream * of = new std::ofstream(map.defy[i].name.c_str());
-	//	for (int j=0;j<46;j++)
-	//	{
-	//		(*of) << map.defy[i].bytes[j]<<std::endl;
-	//	}
-	//	of->close();
-	//	delete of;
-	//}
+	delete[] bufor;
 }
 std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
 {
@@ -153,8 +138,8 @@ void CAmbarCendamo::deh3m()
 		for (int ii=0;ii<map.width;ii++)
 			map.undergroungTerrain[ii] = new TerrainTile[map.height]; // allocate memory 
 	}
-	int length = bufor[10]; //name length
-	int i=14, pom; 
+	int pom, length = bufor[10]; //name length
+	i=14;
 	while (i-14<length)	//read name
 		map.name+=bufor[i++];
 	length = bufor[i] + bufor[i+1]*256; //description length
@@ -787,24 +772,25 @@ void CAmbarCendamo::deh3m()
 		}
 	}
 	THC std::cout<<"\tReading terrain: "<<th.getDif()<<std::endl;
-	int defAmount = bufor[i]; // liczba defow
-	defAmount = readNormalNr(i);
-	i+=4;
 
-	std::vector<std::string> defsToUnpack;
+	//////READING DEF INFO///////
+	int defAmount = readNormalNr(i); i+=4;
+	map.defy.reserve(defAmount);
+
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
+		CGDefInfo * vinya = new CGDefInfo(); // info about new def 
+
+		//reading name
 		int nameLength = readNormalNr(i,4);i+=4;
-		CGDefInfo * vinya = new CGDefInfo(); // info about new def
+		vinya->name.reserve(nameLength);
 		for (int cd=0;cd<nameLength;cd++)
 		{
 			vinya->name += bufor[i++];
 		}
-		//for (int v=0; v<42; v++) // read info
-		//{
-		//	vinya->bytes[v] = bufor[i++];
-		//}
 		std::transform(vinya->name.begin(),vinya->name.end(),vinya->name.begin(),(int(*)(int))toupper);
+
+
 		unsigned char bytes[12];
 		for (int v=0; v<12; v++) // read info
 		{
@@ -826,9 +812,9 @@ void CAmbarCendamo::deh3m()
 		}
 		i+=16;
 		map.defy.push_back(vinya); // add this def to the vector
-		defsToUnpack.push_back(vinya->name);
 	}
-	THC std::cout<<"\tReading defs: "<<th.getDif()<<std::endl;
+	THC std::cout<<"\tReading defs info: "<<th.getDif()<<std::endl;
+
 	////loading objects
 	int howManyObjs = readNormalNr(i, 4); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
@@ -844,14 +830,8 @@ void CAmbarCendamo::deh3m()
 		nobj->defInfo = map.defy[tempd];
 		nobj->ID = nobj->defInfo->id;
 		nobj->subID = nobj->defInfo->subid;
-		//nobj->defInfo = readNormalNr(i, 4); i+=4;
-		//nobj->isHero = false;
-		//nobj->moveDir = 0;
-		//nobj->isStanding = true;
-		//nobj->state->owner = 254; //a lot of objs will never have an owner
 
-		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())
-		//	std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
+		//if (((nobj.x==0)&&(nobj.y==0)) || nobj.x>map.width || nobj.y>map.height || nobj.z>1 || nobj.defNumber>map.defy.size())	std::cout << "Alarm!!! Obiekt "<<ww<<" jest kopniety (lub wystaje poza mape)\n";
 
 		i+=5;
 		unsigned char buff [30];
@@ -859,10 +839,9 @@ void CAmbarCendamo::deh3m()
 		{
 			buff[ccc] = bufor[i+ccc];
 		}
-		EDefType uu = getDefType(nobj->defInfo);
 		int j = nobj->defInfo->id;
 		int p = 99;
-		switch(uu)
+		switch(getDefType(nobj->defInfo))
 		{
 		case EDefType::EVENTOBJ_DEF: //for event - objects
 			{
@@ -884,7 +863,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuarders = bufor[i]; ++i;
 					if(spec->areGuarders)
 					{
-						spec->guarders = readCreatureSet(i); i+=( map.version == RoE ? 21 : 28);
+						spec->guarders = readCreatureSet(); 
 					}
 					i+=4;
 				}
@@ -927,7 +906,7 @@ void CAmbarCendamo::deh3m()
 					spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[readNormalNr(i, 1)])); ++i;
 				}
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
-				spec->creatures = readCreatureSet(i, gcre); i+=3*gcre;
+				spec->creatures = readCreatureSet(gcre);
 				if(map.version>RoE)
 					i+=gcre;
 				i+=8;
@@ -996,7 +975,7 @@ void CAmbarCendamo::deh3m()
 				spec->standardGarrison = standGarrison;
 				if(standGarrison)
 				{
-					spec->garrison = readCreatureSet(i); i+= (map.version == RoE ? 21 : 28); //4 bytes per slot
+					spec->garrison = readCreatureSet();
 				}
 				bool form = bufor[i]; ++i; //formation
 				spec->garrison.formation = form;
@@ -1726,7 +1705,7 @@ void CAmbarCendamo::deh3m()
 				CGarrisonObjInfo * spec = new CGarrisonObjInfo;
 				spec->player = bufor[i]; ++i;
 				i+=3;
-				spec->units = readCreatureSet(i); i+= (map.version==RoE ? 21 : 28);
+				spec->units = readCreatureSet();
 				if(map.version > RoE)
 				{
 					spec->movableUnits = bufor[i]; ++i;
@@ -1753,7 +1732,7 @@ void CAmbarCendamo::deh3m()
 					if(areGuards)
 					{
 						spec->areGuards = true;
-						spec->guards = readCreatureSet(i); i+= (map.version == RoE ? 21 : 28) ;
+						spec->guards = readCreatureSet();
 					}
 					else
 						spec->areGuards = false;
@@ -1776,7 +1755,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuards = bufor[i]; ++i;
 					if(spec->areGuards)
 					{
-						spec->guards = readCreatureSet(i); i+= (map.version == RoE ? 21 : 28);
+						spec->guards = readCreatureSet();
 					}
 					i+=4;
 				}
@@ -1820,7 +1799,7 @@ void CAmbarCendamo::deh3m()
 				bool stGarr = bufor[i]; ++i; //true if garrison isn't empty
 				if(stGarr)
 				{
-					spec->garrison = readCreatureSet(i); i+=( map.version > RoE ? 28 : 21 );
+					spec->garrison = readCreatureSet();
 				}
 				spec->garrison.formation = bufor[i]; ++i;
 				spec->unusualBuildins = bufor[i]; ++i;
@@ -2021,7 +2000,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuarders = bufor[i]; ++i;
 					if(spec->areGuarders)
 					{
-						spec->guarders = readCreatureSet(i); i+=( map.version == RoE ? 21 : 28 );
+						spec->guarders = readCreatureSet();
 					}
 					i+=4;
 				}
@@ -2044,7 +2023,7 @@ void CAmbarCendamo::deh3m()
 					spec->areGuarders = bufor[i]; ++i;
 					if(spec->areGuarders)
 					{
-						spec->guarders = readCreatureSet(i); i+= (map.version == RoE ? 21 : 28);
+						spec->guarders = readCreatureSet();
 					}
 					i+=4;
 				}
@@ -2089,7 +2068,7 @@ void CAmbarCendamo::deh3m()
 					spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[readNormalNr(i, 1)])); ++i;
 				}
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
-				spec->creatures = readCreatureSet(i, gcre); i+=3*gcre;
+				spec->creatures = readCreatureSet(gcre);
 				if(map.version > RoE)
 					i+=gcre;
 				i+=8;
@@ -2376,23 +2355,18 @@ borderguardend:
 			}
 		} //end of main switch
 		CGameInfo::mainObj->objh->objInstances.push_back(nobj);
-		//TODO - dokoñczyæ, du¿o do zrobienia - trzeba patrzeæ, co def niesie
-	}//*/ //end of loading objects; commented to make application work until it will be finished
-	////objects loaded
-
+	}//end of loading objects
 	THC std::cout<<"\tReading objects: "<<th.getDif()<<std::endl;
-	//processMap(defsToUnpack);
-	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack);
-	
-	THC std::cout<<"\tUnpacking defs: "<<th.getDif()<<std::endl;
-	for (int i=0;i<dhandlers.size();i++)
+
+	///loading defs from lod
+	for (int ir=0;ir<map.defy.size();ir++)
 	{
-		map.defy[i]->handler=dhandlers[i];
-		CGDefInfo* pom = CGI->dobjinfo->gobjs[map.defy[i]->id][map.defy[i]->subid];
+		map.defy[ir]->handler=CGI->spriteh->giveDef(map.defy[ir]->name);
+		CGDefInfo* pom = CGI->dobjinfo->gobjs[map.defy[ir]->id][map.defy[ir]->subid];
 		if(pom)
-			pom->handler=dhandlers[i];
+			pom->handler=map.defy[ir]->handler;
 		else
-			std::cout << "Lacking def info for " << map.defy[i]->id << " " << map.defy[i]->subid <<" " << map.defy[i]->name << std::endl;
+			std::cout << "Lacking def info for " << map.defy[ir]->id << " " << map.defy[ir]->subid <<" " << map.defy[ir]->name << std::endl;
 	}
 	for(int vv=0; vv<map.defy.size(); ++vv)
 	{
@@ -2401,14 +2375,11 @@ borderguardend:
 		for(int yy=0; yy<map.defy[vv]->handler->ourImages.size(); ++yy)
 		{
 			map.defy[vv]->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap);
-			//SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap, CSDL_Ext::std32bppSurface);
-			//SDL_FreeSurface(map.defy[vv]->handler->ourImages[yy].bitmap);
-			//map.defy[vv]->handler->ourImages[yy].bitmap = bufs;
 			map.defy[vv]->handler->alphaTransformed = true;
 		}
 	}
+	THC std::cout<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
 
-	THC std::cout<<"\tHandling defs: "<<th.getDif()<<std::endl;
 
 	//loading events
 	int numberOfEvents = readNormalNr(i); i+=4;
@@ -2447,14 +2418,17 @@ borderguardend:
 		i+=18;
 		map.events.push_back(ne);
 	}
+
+	//map readed, bufor no longer needed
+	delete[] bufor; bufor=NULL;
 }
 int CAmbarCendamo::readNormalNr (int pos, int bytCon, bool cyclic)
 {
 	int ret=0;
 	int amp=1;
-	for (int i=0; i<bytCon; i++)
+	for (int ir=0; ir<bytCon; ir++)
 	{
-		ret+=bufor[pos+i]*amp;
+		ret+=bufor[pos+ir]*amp;
 		amp*=256;
 	}
 	if(cyclic && bytCon<4 && ret>=amp/2)
@@ -2462,29 +2436,6 @@ int CAmbarCendamo::readNormalNr (int pos, int bytCon, bool cyclic)
 		ret = ret-amp;
 	}
 	return ret;
-}
-
-void CAmbarCendamo::loadDefs()
-{
-	std::set<int> loadedTypes;
-	for (int i=0; i<map.width; i++)
-	{
-		for (int j=0; j<map.width; j++)
-		{
-			if (loadedTypes.find(map.terrain[i][j].tertype)==loadedTypes.end())
-			{
-				CDefHandler  *sdh = CGI->spriteh->giveDef(CSemiDefHandler::nameFromType(map.terrain[i][j].tertype).c_str());
-				loadedTypes.insert(map.terrain[i][j].tertype);
-				defs.push_back(sdh);
-			}
-			if (map.twoLevel && loadedTypes.find(map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
-			{
-				CDefHandler  *sdh = CGI->spriteh->giveDef(CSemiDefHandler::nameFromType(map.undergroungTerrain[i][j].tertype).c_str());
-				loadedTypes.insert(map.undergroungTerrain[i][j].tertype);
-				defs.push_back(sdh);
-			}
-		}
-	}
 }
 
 EDefType CAmbarCendamo::getDefType(CGDefInfo * a)
@@ -2544,161 +2495,42 @@ EDefType CAmbarCendamo::getDefType(CGDefInfo * a)
 	}
 }
 
-CCreatureSet CAmbarCendamo::readCreatureSet(int pos, int number)
+CCreatureSet CAmbarCendamo::readCreatureSet(int number)
 {
 	if(map.version>RoE)
 	{
 		CCreatureSet ret;
 		std::pair<CCreature *, int> ins;
-		if(number>0 && readNormalNr(pos, 2)!=0xffff)
+		for(int ir=0;ir<number;ir++)
 		{
-			int rettt = readNormalNr(pos, 2);
+			int rettt = readNormalNr(i+ir*4, 2);
+			if(rettt==0xffff) continue;
 			if(rettt>32768)
 				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
 			ins.first = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+2, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(0,ins);
+			ins.second = readNormalNr(i+ir*4+2, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(ir,ins);
 			ret.slots.insert(tt);
 		}
-		if(number>1 && readNormalNr(pos+4, 2)!=0xffff)
-		{
-			int rettt = readNormalNr(pos+4, 2);
-			if(rettt>32768)
-				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+6, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(1,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>2 && readNormalNr(pos+8, 2)!=0xffff)
-		{
-			int rettt = readNormalNr(pos+8, 2);
-			if(rettt>32768)
-				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+10, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(2,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>3 && readNormalNr(pos+12, 2)!=0xffff)
-		{
-			int rettt = readNormalNr(pos+12, 2);
-			if(rettt>32768)
-				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+14, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(3,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>4 && readNormalNr(pos+16, 2)!=0xffff)
-		{
-			int rettt = readNormalNr(pos+16, 2);
-			if(rettt>32768)
-				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+18, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(4,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>5 && readNormalNr(pos+20, 2)!=0xffff)
-		{
-			int rettt = readNormalNr(pos+20, 2);
-			if(rettt>32768)
-				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+22, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(5,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>6 && readNormalNr(pos+24, 2)!=0xffff)
-		{
-			int rettt = readNormalNr(pos+24, 2);
-			if(rettt>32768)
-				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+26, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(6,ins);
-			ret.slots.insert(tt);
-		}
+		i+=number*4;
 		return ret;
 	}
 	else
 	{
 		CCreatureSet ret;
 		std::pair<CCreature *, int> ins;
-		if(number>0 && readNormalNr(pos, 1)!=0xff)
+		for(int ir=0;ir<number;ir++)
 		{
-			int rettt = readNormalNr(pos, 1);
+			int rettt = readNormalNr(i+ir*3, 1);
+			if(rettt==0xff) continue;
 			if(rettt>220)
 				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
 			ins.first = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+1, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(0,ins);
+			ins.second = readNormalNr(i+ir*3+1, 2);
+			std::pair<int,std::pair<CCreature *, int> > tt(ir,ins);
 			ret.slots.insert(tt);
 		}
-		if(number>1 && readNormalNr(pos+3, 1)!=0xff)
-		{
-			int rettt = readNormalNr(pos+3, 1);
-			if(rettt>220)
-				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+4, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(1,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>2 && readNormalNr(pos+6, 1)!=0xff)
-		{
-			int rettt = readNormalNr(pos+6, 1);
-			if(rettt>220)
-				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+7, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(2,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>3 && readNormalNr(pos+9, 1)!=0xff)
-		{
-			int rettt = readNormalNr(pos+9, 1);
-			if(rettt>220)
-				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+10, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(3,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>4 && readNormalNr(pos+12, 1)!=0xff)
-		{
-			int rettt = readNormalNr(pos+12, 1);
-			if(rettt>220)
-				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+13, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(4,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>5 && readNormalNr(pos+15, 1)!=0xff)
-		{
-			int rettt = readNormalNr(pos+15, 1);
-			if(rettt>220)
-				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+16, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(5,ins);
-			ret.slots.insert(tt);
-		}
-		if(number>6 && readNormalNr(pos+18, 1)!=0xff)
-		{
-			int rettt = readNormalNr(pos+18, 1);
-			if(rettt>220)
-				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first  = &(CGameInfo::mainObj->creh->creatures[rettt]);
-			ins.second = readNormalNr(pos+19, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(6,ins);
-			ret.slots.insert(tt);
-		}
+		i+=number*3;
 		return ret;
 	}
 }
-
-void CAmbarCendamo::processMap(std::vector<std::string> & defsToUnpack)
-{}

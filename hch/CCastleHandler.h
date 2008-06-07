@@ -31,8 +31,6 @@ public:
 	bool unusualBuildins; //if true, intrepret bytes below
 	unsigned char buildingSettings[12]; //raw format for two vectors above (greatly depends on town type)
 	bool hasFort; //used only if unusualBuildings is false
-	CHero * visitingHero;
-	CHero * garnisonHero;
 
 	unsigned char bytes[4]; //identifying bytes
 	unsigned char player; //255 - nobody, players 0 - 7

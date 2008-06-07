@@ -9,6 +9,7 @@
 #include "CCallback.h"
 #include "CGameState.h"
 #include "hch\CGeneralTextHandler.h"
+#include "client/CCreatureAnimation.h"
 #include <queue>
 #include <sstream>
 

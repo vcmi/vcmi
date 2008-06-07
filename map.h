@@ -3,9 +3,8 @@
 #pragma warning (disable : 4482) 
 #include <string>
 #include <vector>
+#include <map>
 #include "global.h"
-#include "hch\CSemiDefHandler.h"
-#include "hch\CDefHandler.h"
 class CGDefInfo;
 class CHeroObjInfo;
 enum ESortBy{name,playerAm,size,format, viccon,loscon};
@@ -25,24 +24,6 @@ struct TimeEvent
 	bool areCompsAffected;
 	int firstAfterNDays; //how many days after appears this event
 	int nextAfterNDays; //how many days after the epperance before appaers this event
-//bajty wydarzeñ (59 + |teksty|)
-//4 bajty na d³ugoœæ nazwy zdarzenia
-//nazwa zdarzenia (bajty dodatkowe)
-//4 bajty na d³ugoœæ wiadomoœci
-//wiadomoœæ (bajty dodatkowe)
-//4 bajty na zwiêkszenie siê ilosci drewna (zapis normalny) lub ff,ff,ff,ff - iloœæ drewna do odebrania (maksymalna iloœæ drewna, któr¹ mo¿na daæ/odebraæ to 32767)
-//4 bajty na zwiêkszenie siê ilosci rtêci (zapis normalny) lub ff,ff,ff,ff - iloœæ rtêci do odebrania (maksymalna iloœæ rtêci, któr¹ mo¿na daæ/odebraæ to 32767)
-//4 bajty na zwiêkszenie siê ilosci rudy (zapis normalny) lub ff,ff,ff,ff - iloœæ rudy do odebrania (maksymalna iloœæ rudy, któr¹ mo¿na daæ/odebraæ to 32767)
-//4 bajty na zwiêkszenie siê ilosci siarki (zapis normalny) lub ff,ff,ff,ff - iloœæ siarki do odebrania (maksymalna iloœæ siarki, któr¹ mo¿na daæ/odebraæ to 32767)
-//4 bajty na zwiêkszenie siê ilosci kryszta³u (zapis normalny) lub ff,ff,ff,ff - iloœæ kryszta³u do odebrania (maksymalna iloœæ kryszta³u, któr¹ mo¿na daæ/odebraæ to 32767)
-//4 bajty na zwiêkszenie siê ilosci klejnotów (zapis normalny) lub ff,ff,ff,ff - iloœæ klejnotów do odebrania (maksymalna iloœæ klejnotów, któr¹ mo¿na daæ/odebraæ to 32767)
-//4 bajty na zwiêkszenie siê ilosci z³ota (zapis normalny) lub ff,ff,ff,ff - iloœæ z³ota do odebrania (maksymalna iloœæ z³ota, któr¹ mo¿na daæ/odebraæ to 32767)
-//1 bajt - których graczy dotyczy zdarzenie (pole bitowe, +1 - pierwszy, +2 - drugi, +4 - trzeci, +8 - czwarty, +16 - pi¹ty, +32 - szósty, +64 - siódmy, +128 - ósmy)
-//1 bajt - czy zdarzenie odnosi siê do graczy - ludzi (00 - nie, 01 - tak)
-//1 bajt - czy zdarzenie odnosi siê do graczy komputerowych (00 - nie, 01 - tak)
-//2 bajty - opóŸnienie pierwszego wyst¹pienia (w dniach, zapis normalny, maks 671)
-//1 bajt - co ile dni wystêpuje zdarzenie (maks 28, 00 oznacza zdarzenie jednorazowe)
-//17 bajtów zerowych
 };
 struct TerrainTile
 {
@@ -53,16 +34,6 @@ struct TerrainTile
 	Eroad malle; // type of Eroad (0 if there is no Eriver)
 	unsigned char roadDir; // direction of Eroad
 	unsigned char siodmyTajemniczyBajt; // mysterius byte // jak bedzie waidomo co to, to sie nazwie inaczej
-};
-struct DefInfo //information from def declaration
-{
-	std::string name; 
-	int bytes [42];
-	//CSemiDefHandler * handler;
-	CDefHandler * handler;
-	int printPriority;
-	bool isOnDefList;
-	bool isVisitable();
 };
 struct SheroName //name of starting hero
 {

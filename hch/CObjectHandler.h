@@ -18,6 +18,7 @@ class CTown;
 class CHero;
 class CBuilding;
 class CSpell;
+class CGTownInstance;
 class CSpecObjInfo //class with object - specific info (eg. different information for creatures and heroes); use inheritance to make object - specific classes
 {
 };

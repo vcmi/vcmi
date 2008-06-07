@@ -25,6 +25,7 @@
 #include "CBattleInterface.h"
 #include "CLua.h"
 #include <cmath>
+#include "client/CCreatureAnimation.h"
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
