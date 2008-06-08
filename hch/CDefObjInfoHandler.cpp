@@ -17,11 +17,6 @@ CGDefInfo::CGDefInfo()
 {
 	visitDir = (8|16|32|64|128); //4,5,6,7,8 - any not-from-up direction
 }
-bool DefObjInfo::operator==(const std::string & por) const
-{
-	return this->defName == por;
-}
-
 void CDefObjInfoHandler::load()
 {
 	nodrze<int> ideki;
@@ -72,14 +67,4 @@ void CDefObjInfoHandler::load()
 		if(nobj->id==98)
 			castles[nobj->subid]=nobj;
 	}
-}
-
-bool DefObjInfo::isVisitable() const
-{
-	for(int g=0; g<6; ++g)
-	{
-		if(visitMap[g]!=0)
-			return true;
-	}
-	return false;
 }

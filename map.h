@@ -13,7 +13,7 @@ struct Sresource
 	std::string resName; //name of this resource
 	int amount; //it can be greater and lesser than 0
 };
-
+class CGHeroInstance;
 struct TimeEvent
 {
 	std::string eventName;
@@ -156,7 +156,7 @@ struct Mapa
 	TerrainTile** undergroungTerrain; // used only if there is underground level
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
-	std::vector<CHeroObjInfo*> predefinedHeroes;
+	std::vector<CGHeroInstance*> predefinedHeroes;
 	std::vector<CGDefInfo *> defy; // list of .def files
 	PlayerInfo players[8]; // info about players
 	std::vector<int> teams;  // teams[i] = team of player no i 
@@ -164,6 +164,9 @@ struct Mapa
 	EvictoryConditions victoryCondition; //victory conditions
 	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
 	int howManyTeams;
+	std::vector<bool> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
+	std::vector<bool> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
+	std::vector<bool> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
 	std::vector<CMapEvent> events;
 };
 class CMapHeader

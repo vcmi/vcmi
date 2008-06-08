@@ -12,6 +12,7 @@
 #include "hch\CCastleHandler.h"
 #include "hch\CHeroHandler.h"
 #include "hch\CTownHandler.h"
+#include "hch\CArtHandler.h"
 #include <iomanip>
 #include <sstream>
 extern SDL_Surface * screen;
@@ -149,7 +150,7 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 		return std::pair<int,int>(79,rand()%7); //now it's OH3 style, use %8 for mithril 
 	case 77: //random town
 		{
-			int align = ((CCastleObjInfo*)obj->info)->alignment,
+			int align = ((CGTownInstance*)obj)->alignment,
 				f;
 			if(align>PLAYER_LIMIT-1)//same as owner / random
 			{
@@ -1484,9 +1485,8 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int ow
 			nobj->defInfo->handler=NULL;
 			nobj->defInfo->blockMap[5] = 253;
 			nobj->defInfo->visitMap[5] = 2;
-			nobj->artifWorn.resize(20);
 			nobj->artifacts.resize(20);
-			nobj->artifWorn[16] = &CGI->arth->artifacts[3];
+			nobj->artifWorn[16] = 3;
 			nobj->primSkills.resize(4);
 			nobj->primSkills[0] = nobj->type->heroClass->initialAttack;
 			nobj->primSkills[1] = nobj->type->heroClass->initialDefence;

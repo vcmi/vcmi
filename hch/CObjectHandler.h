@@ -3,10 +3,8 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <map>
 #include "CCreatureHandler.h"
-#include "CArtHandler.h"
-#include "CAbilityHandler.h"
-#include "CSpellHandler.h"
 //#include "CHeroHandler.h"
 using boost::logic::tribool;
 class CCPPObjectScript;
@@ -19,6 +17,7 @@ class CHero;
 class CBuilding;
 class CSpell;
 class CGTownInstance;
+class CArtifact;
 class CSpecObjInfo //class with object - specific info (eg. different information for creatures and heroes); use inheritance to make object - specific classes
 {
 };
@@ -39,40 +38,40 @@ public:
 	unsigned int defence; //added defence points
 	unsigned int power; //added power points
 	unsigned int knowledge; //added knowledge points
-	std::vector<CAbility *> abilities; //gained abilities
+	std::vector<int> abilities; //gained abilities
 	std::vector<int> abilityLevels; //levels of gained abilities
-	std::vector<CArtifact *> artifacts; //gained artifacts
-	std::vector<CSpell *> spells; //gained spells
+	std::vector<int> artifacts; //gained artifacts
+	std::vector<int> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
 	unsigned char availableFor; //players whom this event is available for
 	bool computerActivate; //true if computre player can activate this event
 	bool humanActivate; //true if human player can activate this event
 };
 
-class CHeroObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char bytes[4]; //mysterius bytes identifying hero in a strange way
-	int player;
-	CHero * type;
-	std::string name; //if nonstandard
-	bool standardGarrison; //true if hero has standard garrison
-	CCreatureSet garrison; //hero's army
-	std::vector<CArtifact *> artifacts; //hero's artifacts from bag
-	//CArtifact * artHead, * artLRing, * artRRing, * artLHand, * artRhand, * artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck, * artShoulders; //working artifactsstd::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-	std::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-	bool isGuarding;
-	int guardRange; //range of hero's guard
-	std::string biography; //if nonstandard
-	bool sex; //if true, reverse hero's sex
-	std::vector<CSpell *> spells; //hero's spells
-	int attack, defence, power, knowledge; //main hero's attributes
-	unsigned int experience; //hero's experience points
-	std::vector<CAbility *> abilities; //hero's abilities
-	std::vector<int> abilityLevels; //hero ability levels
-	bool defaultMainStats; //if true attack, defence, power and knowledge are typical
-	CGHeroInstance * myInstance; //pointer to appropriate hero instance
-};
+//class CHeroObjInfo : public CSpecObjInfo
+//{
+//public:
+//	unsigned char bytes[4]; //mysterius bytes identifying hero in a strange way
+//	int player;
+//	CHero * type;
+//	std::string name; //if nonstandard
+//	bool standardGarrison; //true if hero has standard garrison
+//	CCreatureSet garrison; //hero's army
+//	std::vector<int> artifacts; //hero's artifacts from bag
+//	//CArtifact * artHead, * artLRing, * artRRing, * artLHand, * artRhand, * artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck, * artShoulders; //working artifactsstd::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+//	std::map<int,int> artifWorn; // keys: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+//	bool isGuarding;
+//	int guardRange; //range of hero's guard
+//	std::string biography; //if nonstandard
+//	bool sex; //if true, reverse hero's sex
+//	std::vector<int> spells; //hero's spells
+//	int attack, defence, power, knowledge; //main hero's attributes
+//	unsigned int experience; //hero's experience points
+//	std::vector<int> abilities; //hero's abilities
+//	std::vector<int> abilityLevels; //hero ability levels
+//	bool defaultMainStats; //if true attack, defence, power and knowledge are typical
+//	CGHeroInstance * myInstance; //pointer to appropriate hero instance
+//};
 
 class CCreatureObjInfo : public CSpecObjInfo
 {
@@ -82,7 +81,7 @@ public:
 	unsigned char character; //chracter of this set of creatures (0 - the most friendly, 4 - the most hostile)
 	std::string message; //message printed for attacking hero
 	int wood, mercury, ore, sulfur, crytal, gems, gold; //resources gained to hero that has won with monsters
-	CArtifact * gainedArtifact; //artifact gained to hero
+	int gainedArtifact; //ID of artifact gained to hero
 	bool neverFlees; //if true, the troops will never flee
 	bool notGrowingTeam; //if true, number of units won't grow
 };
@@ -99,25 +98,16 @@ public:
 	unsigned char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
 	bool isDayLimit; //if true, there is a day limit
 	int lastDay; //after this day (first day is 0) mission cannot be completed
-	//for mission 1
-	int m1level;
-	//for mission 2
-	int m2attack, m2defence, m2power, m2knowledge;
-	//for mission 3
-	unsigned char m3bytes[4];
-	//for mission 4
-	unsigned char m4bytes[4];
-	//for mission 5
-	std::vector<CArtifact *> m5arts;
-	//for mission 6
-	std::vector<CCreature *> m6cre;
+	int m1level; //for mission 1	
+	int m2attack, m2defence, m2power, m2knowledge;//for mission 2
+	unsigned char m3bytes[4];//for mission 3
+	unsigned char m4bytes[4];//for mission 4
+	std::vector<int> m5arts;//for mission 5 - artifact ID
+	std::vector<CCreature *> m6cre;//for mission 6
 	std::vector<int> m6number;
-	//for mission 7
-	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;
-	//for mission 8
-	CHero * m8hero;
-	//for mission 9
-	int m9player; //number; from 0 to 7
+	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;	//for mission 7
+	CHero * m8hero;//for mission 8
+	int m9player; //for mission 9 - number; from 0 to 7
 
 	std::string firstVisitText, nextVisitText, completedText;
 
@@ -137,21 +127,21 @@ public:
 	unsigned char r6type; //0 - attack, 1 - defence, 2 - power, 3 - knowledge
 	int r6amount;
 	//for reward 7
-	CAbility * r7ability;
+	int r7ability; //ability id
 	unsigned char r7level; //1 - basic, 2 - advanced, 3 - expert
 	//for reward 8
-	CArtifact * r8art;
+	int r8art;//artifact id
 	//for reward 9
-	CSpell * r9spell;
+	int r9spell;//spell id
 	//for reward 10
-	CCreature * r10creature;
+	int r10creature; //creature id
 	int r10amount;
 };
 
 class CWitchHutObjInfo : public CSpecObjInfo
 {
 public:
-	std::vector<CAbility *> allowedAbilities;
+	std::vector<int> allowedAbilities;
 };
 
 class CScholarObjInfo : public CSpecObjInfo
@@ -160,8 +150,8 @@ public:
 	unsigned char bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
 
 	unsigned char r0type;
-	CAbility * r1;
-	CSpell * r2;
+	int r1; //Ability ID
+	int r2; //Spell ID
 };
 
 class CGarrisonObjInfo : public CSpecObjInfo
@@ -206,7 +196,7 @@ class CSpellScrollObjinfo : public CSpecObjInfo
 {
 public:
 	std::string message;
-	CSpell * spell;
+	int spell;
 	bool areGuarders;
 	CCreatureSet guarders;
 };
@@ -225,10 +215,10 @@ public:
 	int luckDiff;
 	int wood, mercury, ore, sulfur, crystal, gems, gold;
 	int attack, defence, power, knowledge;
-	std::vector<CAbility *> abilities;
+	std::vector<int> abilities;
 	std::vector<int> abilityLevels;
-	std::vector<CArtifact *> artifacts;
-	std::vector<CSpell *> spells;
+	std::vector<int> artifacts;
+	std::vector<int> spells;
 	CCreatureSet creatures;
 };
 
@@ -279,7 +269,7 @@ public:
 	//for mission 4
 	unsigned char m4bytes[4];
 	//for mission 5
-	std::vector<CArtifact *> m5arts;
+	std::vector<int> m5arts; //artifacts id
 	//for mission 6
 	std::vector<CCreature *> m6cre;
 	std::vector<int> m6number;
@@ -352,12 +342,16 @@ public:
 	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
 	int movement; //remaining movement points
+	int identifier; //from the map file
+	int patrolRadious; //-1 - no patrol
+	bool sex;
 
 	bool inTownGarrison; // if hero is in town garrison 
 	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 
-	std::vector<CArtifact *> artifacts; //hero's artifacts from bag
-	std::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	std::vector<int> artifacts; //hero's artifacts from bag
+	std::map<int,int> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	std::set<int> spells; //known spells (spell IDs)
 
 	virtual bool isHero() const;
 	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const;
@@ -373,6 +367,7 @@ public:
 	int getCurrentLuck() const;
 	int getCurrentMorale() const;
 	int getSecSkillLevel(const int & ID) const; //-1 - no skill
+	const CArtifact * getArt(int pos);
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
 };
@@ -384,13 +379,12 @@ public:
 	std::string name; // name of town
 	int builded; //how many buildings has been built this turn
 	int destroyed; //how many buildings has been destroyed this turn
-	int identifier; 
 
-	int income;
+	int identifier; //special identifier from h3m (only > RoE maps)
+	int alignment;
 
 	struct StrInfo
 	{
-	public:
 		std::map<int,int> creatures; //level - available amount
 	} strInfo;
 	
@@ -398,7 +392,7 @@ public:
 
 	const CGHeroInstance * garrisonHero, *visitingHero;
 
-	std::vector<CSpell *> possibleSpells, obligatorySpells, availableSpells;
+	std::vector<int> possibleSpells, obligatorySpells, availableSpells;
 
 	int getSightDistance() const; //returns sight distance
 

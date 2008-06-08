@@ -28,5 +28,7 @@ public:
 	void deh3m(); // decode file, results are stored in map
 	EDefType getDefType(CGDefInfo * a); //returns type of object in def
 	CCreatureSet readCreatureSet(int number = 7); //reads creature set in most recently encountered format; reades number units (default is 7)
+	char readChar();
+	std::string readString();
 };
 #endif //CAMBARCENDAMO_H

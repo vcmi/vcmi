@@ -27,18 +27,6 @@ public:
 	}
 	CGDefInfo();
 };
-struct DefObjInfo
-{
-	std::string defName;
-	int priority;
-	int type, subtype;
-	int objType;
-	unsigned char visitMap[6];
-	unsigned char blockMap[6];
-	bool operator==(const std::string & por) const;
-	bool isVisitable() const;
-};
-
 class CDefObjInfoHandler
 {
 public:

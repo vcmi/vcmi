@@ -10,6 +10,7 @@
 #include "CHeroHandler.h"
 #include <boost/algorithm/string/replace.hpp>
 #include "CTownHandler.h"
+#include "CArtHandler.h"
 void CObjectHandler::loadObjects()
 {
 	int ID=0;
@@ -239,7 +240,10 @@ int CGHeroInstance::getSecSkillLevel(const int & ID) const
 			return secSkills[i].second;
 	return -1;
 }
-
+const CArtifact * CGHeroInstance::getArt(int pos)
+{
+	return &CGI->arth->artifacts[artifWorn[pos]];
+}
 
 int CGTownInstance::getSightDistance() const //returns sight distance
 {
@@ -326,7 +330,6 @@ CGTownInstance::CGTownInstance()
 	garrisonHero=NULL;
 	//state->owner=-1;
 	town=NULL;
-	income = 500;
 	visitingHero = NULL;
 }
 

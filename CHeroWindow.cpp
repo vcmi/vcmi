@@ -12,6 +12,8 @@
 #include "hch\CObjectHandler.h"
 #include "CMessage.h"
 #include "CCallback.h"
+#include "hch/CArtHandler.h"
+#include "hch\CAbilityHandler.h"
 #include <sstream>
 
 extern SDL_Surface * screen;
@@ -181,8 +183,9 @@ void CHeroWindow::show(SDL_Surface *to)
 	}
 }
 
-void CHeroWindow::setHero(const CGHeroInstance *hero)
+void CHeroWindow::setHero(const CGHeroInstance *Hero)
 {
+	CGHeroInstance *hero = const_cast<CGHeroInstance*>(Hero); //but don't modify hero! - it's only for easy map reading
 	if(!hero) //something strange... no hero? it shouldn't happen
 	{
 		return; 
@@ -259,7 +262,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[8]->pos.y = 295;
 	artWorn[8]->pos.h = artWorn[8]->pos.w = 44;
 	if(hero->artifWorn[8])
-		artWorn[8]->text = hero->artifWorn[8]->description;
+		artWorn[8]->text = hero->getArt(8)->description;
 	else
 		artWorn[8]->text = std::string();
 	artWorn[8]->ourWindow = this;
@@ -270,7 +273,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[0]->pos.y = 30;
 	artWorn[0]->pos.h = artWorn[0]->pos.w = 44;
 	if(hero->artifWorn[0])
-		artWorn[0]->text = hero->artifWorn[0]->description;
+		artWorn[0]->text = hero->getArt(0)->description;
 	else
 		artWorn[0]->text = std::string();
 	artWorn[0]->ourWindow = this;
@@ -281,7 +284,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[4]->pos.y = 183;
 	artWorn[4]->pos.h = artWorn[4]->pos.w = 44;
 	if(hero->artifWorn[4])
-		artWorn[4]->text = hero->artifWorn[4]->description;
+		artWorn[4]->text = hero->getArt(4)->description;
 	else
 		artWorn[4]->text = std::string();
 	artWorn[4]->ourWindow = this;
@@ -292,7 +295,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[7]->pos.y = 183;
 	artWorn[7]->pos.h = artWorn[7]->pos.w = 44;
 	if(hero->artifWorn[7])
-		artWorn[7]->text = hero->artifWorn[7]->description;
+		artWorn[7]->text = hero->getArt(7)->description;
 	else
 		artWorn[7]->text = std::string();
 	artWorn[7]->ourWindow = this;
@@ -303,7 +306,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[13]->pos.y = 30;
 	artWorn[13]->pos.h = artWorn[13]->pos.w = 44;
 	if(hero->artifWorn[13])
-		artWorn[13]->text = hero->artifWorn[13]->description;
+		artWorn[13]->text = hero->getArt(13)->description;
 	else
 		artWorn[13]->text = std::string();
 	artWorn[13]->ourWindow = this;
@@ -314,7 +317,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[14]->pos.y = 30;
 	artWorn[14]->pos.h = artWorn[14]->pos.w = 44;
 	if(hero->artifWorn[14])
-		artWorn[14]->text = hero->artifWorn[14]->description;
+		artWorn[14]->text = hero->getArt(14)->description;
 	else
 		artWorn[14]->text = std::string();
 	artWorn[14]->ourWindow = this;
@@ -325,7 +328,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[15]->pos.y = 76;
 	artWorn[15]->pos.h = artWorn[15]->pos.w = 44;
 	if(hero->artifWorn[15])
-		artWorn[15]->text = hero->artifWorn[15]->description;
+		artWorn[15]->text = hero->getArt(15)->description;
 	else
 		artWorn[15]->text = std::string();
 	artWorn[15]->ourWindow = this;
@@ -336,7 +339,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[16]->pos.y = 122;
 	artWorn[16]->pos.h = artWorn[16]->pos.w = 44;
 	if(hero->artifWorn[16])
-		artWorn[16]->text = hero->artifWorn[16]->description;
+		artWorn[16]->text = hero->getArt(16)->description;
 	else
 		artWorn[16]->text = std::string();
 	artWorn[16]->ourWindow = this;
@@ -347,7 +350,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[9]->pos.y = 143;
 	artWorn[9]->pos.h = artWorn[9]->pos.w = 44;
 	if(hero->artifWorn[9])
-		artWorn[9]->text = hero->artifWorn[9]->description;
+		artWorn[9]->text = hero->getArt(9)->description;
 	else
 		artWorn[9]->text = std::string();
 	artWorn[9]->ourWindow = this;
@@ -358,7 +361,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[10]->pos.y = 194;
 	artWorn[10]->pos.h = artWorn[10]->pos.w = 44;
 	if(hero->artifWorn[10])
-		artWorn[10]->text = hero->artifWorn[10]->description;
+		artWorn[10]->text = hero->getArt(10)->description;
 	else
 		artWorn[10]->text = std::string();
 	artWorn[10]->ourWindow = this;
@@ -369,7 +372,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[11]->pos.y = 245;
 	artWorn[11]->pos.h = artWorn[11]->pos.w = 44;
 	if(hero->artifWorn[11])
-		artWorn[11]->text = hero->artifWorn[11]->description;
+		artWorn[11]->text = hero->getArt(11)->description;
 	else
 		artWorn[11]->text = std::string();
 	artWorn[11]->ourWindow = this;
@@ -380,7 +383,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[12]->pos.y = 296;
 	artWorn[12]->pos.h = artWorn[12]->pos.w = 44;
 	if(hero->artifWorn[12])
-		artWorn[12]->text = hero->artifWorn[12]->description;
+		artWorn[12]->text = hero->getArt(12)->description;
 	else
 		artWorn[12]->text = std::string();
 	artWorn[12]->ourWindow = this;
@@ -391,7 +394,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[18]->pos.y = 296;
 	artWorn[18]->pos.h = artWorn[18]->pos.w = 44;
 	if(hero->artifWorn[18])
-		artWorn[18]->text = hero->artifWorn[18]->description;
+		artWorn[18]->text = hero->getArt(18)->description;
 	else
 		artWorn[18]->text = std::string();
 	artWorn[18]->ourWindow = this;
@@ -402,7 +405,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[2]->pos.y = 79;
 	artWorn[2]->pos.h = artWorn[2]->pos.w = 44;
 	if(hero->artifWorn[2])
-		artWorn[2]->text = hero->artifWorn[2]->description;
+		artWorn[2]->text = hero->getArt(2)->description;
 	else
 		artWorn[2]->text = std::string();
 	artWorn[2]->ourWindow = this;
@@ -413,7 +416,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[3]->pos.y = 68;
 	artWorn[3]->pos.h = artWorn[3]->pos.w = 44;
 	if(hero->artifWorn[3])
-		artWorn[3]->text = hero->artifWorn[3]->description;
+		artWorn[3]->text = hero->getArt(3)->description;
 	else
 		artWorn[3]->text = std::string();
 	artWorn[3]->ourWindow = this;
@@ -424,7 +427,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[6]->pos.y = 68;
 	artWorn[6]->pos.h = artWorn[6]->pos.w = 44;
 	if(hero->artifWorn[6])
-		artWorn[6]->text = hero->artifWorn[6]->description;
+		artWorn[6]->text = hero->getArt(6)->description;
 	else
 		artWorn[6]->text = std::string();
 	artWorn[6]->ourWindow = this;
@@ -435,7 +438,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[1]->pos.y = 240;
 	artWorn[1]->pos.h = artWorn[1]->pos.w = 44;
 	if(hero->artifWorn[1])
-		artWorn[1]->text = hero->artifWorn[1]->description;
+		artWorn[1]->text = hero->getArt(1)->description;
 	else
 		artWorn[1]->text = std::string();
 	artWorn[1]->ourWindow = this;
@@ -446,7 +449,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[17]->pos.y = 310;
 	artWorn[17]->pos.h = artWorn[17]->pos.w = 44;
 	if(hero->artifWorn[17])
-		artWorn[17]->text = hero->artifWorn[17]->description;
+		artWorn[17]->text = hero->getArt(17)->description;
 	else
 		artWorn[17]->text = std::string();
 	artWorn[17]->ourWindow = this;
@@ -457,7 +460,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	artWorn[5]->pos.y = 130;
 	artWorn[5]->pos.h = artWorn[5]->pos.w = 44;
 	if(hero->artifWorn[5])
-		artWorn[5]->text = hero->artifWorn[5]->description;
+		artWorn[5]->text = hero->getArt(5)->description;
 	else
 		artWorn[5]->text = std::string();
 	artWorn[5]->ourWindow = this;
@@ -484,7 +487,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 		add->pos.y = 365;
 		add->pos.h = add->pos.w = 44;
 		if(s<hero->artifacts.size() && hero->artifacts[s])
-			add->text = hero->artifacts[s]->description;
+			add->text = hero->getArt(s)->description;
 		else
 			add->text = std::string();
 		add->ourWindow = this;
@@ -674,7 +677,7 @@ void CHeroWindow::leftArtRoller()
 
 		for(int s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
 		{
-			backpack[s]->ourArt = curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ];
+			backpack[s]->ourArt = &CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]];
 			if(backpack[s]->ourArt)
 				backpack[s]->text = backpack[s]->ourArt->description;
 			else
@@ -691,7 +694,7 @@ void CHeroWindow::rightArtRoller()
 
 		for(int s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
 		{
-			backpack[s]->ourArt = curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ];
+			backpack[s]->ourArt = &CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ] ];
 			if(backpack[s]->ourArt)
 				backpack[s]->text = backpack[s]->ourArt->description;
 			else
@@ -873,7 +876,7 @@ void CHeroWindow::redrawCurBack()
 	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
 }
 
-CArtPlace::CArtPlace(const CArtifact * const & art): ourArt(art), active(false), clicked(false),
+CArtPlace::CArtPlace(int Art): ourArt(&CGI->arth->artifacts[Art]), active(false), clicked(false),
 	spellBook(false), warMachine1(false), warMachine2(false), warMachine3(false),
 	warMachine4(false),misc1(false), misc2(false), misc3(false), misc4(false),
 	misc5(false), feet(false), lRing(false), rRing(false), torso(false),

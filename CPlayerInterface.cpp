@@ -12,6 +12,7 @@
 #include "hch/CLodHandler.h"
 #include "CPathfinder.h"
 #include <sstream>
+#include "hch/CAbilityHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CTownHandler.h"
 #include "SDL_framerate.h"

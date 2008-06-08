@@ -13,6 +13,7 @@
 #include <sstream>
 #include "hch/CObjectHandler.h"
 #include "hch/CTownHandler.h"
+#include "hch/CArtHandler.h"
 #include "CCallback.h"
 #include "hch/CGeneralTextHandler.h"
 #include <sstream>

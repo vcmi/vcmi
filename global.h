@@ -53,6 +53,7 @@ const int SKILL_QUANTITY=28;
 const int SKILL_PER_HERO=8;
 const int ARTIFACTS_QUANTITY=171;
 const int HEROES_QUANTITY=156;
+const int SPELLS_QUANTITY=70;
 const int RESOURCE_QUANTITY=8;
 const int TERRAIN_TYPES=10;
 const int PRIMARY_SKILLS=4;

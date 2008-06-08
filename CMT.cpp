@@ -163,11 +163,11 @@ void initGameState(CGameInfo * cgi)
 					switch (pom)
 					{
 					case 145: //catapult
-						vhi->artifWorn[16] = &CGI->arth->artifacts[3];
+						vhi->artifWorn[16] = 3;
 						break;
 					default:
 						pom-=145;
-						vhi->artifWorn[13+pom] = &CGI->arth->artifacts[4+pom];
+						vhi->artifWorn[13+pom] = 4+pom;
 						break;
 					}
 					continue;

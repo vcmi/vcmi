@@ -422,10 +422,14 @@ void CAmbarCendamo::deh3m()
 			}
 		}
 	}
-	//allowed heroes have been read
-	unsigned char aaa1=bufor[i], aaa2=bufor[i+1], aaa3=bufor[i+2];
-	i+=31; //omitting 0s
-	//reading allowed artifacts //18 bytes
+
+	i+=31; //omitting NULLS
+
+	map.allowedArtifact.resize(ARTIFACTS_QUANTITY);
+	for(int x=0;x<map.allowedArtifact.size();x++)
+		map.allowedArtifact[x] = true;
+
+	//reading allowed artifacts:  17 or 18 bytes
 	if(map.version!=RoE)
 	{
 		ist=i; //starting i for loop
@@ -434,36 +438,38 @@ void CAmbarCendamo::deh3m()
 			unsigned char c = bufor[i];
 			for(int yy=0; yy<8; ++yy)
 			{
-				if((i-ist)*8+yy < CGameInfo::mainObj->arth->artifacts.size())
+				if((i-ist)*8+yy < ARTIFACTS_QUANTITY)
 				{
-					if(c != (c|((unsigned char)intPow(2, yy))))
-						CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = true;
-					else
-						CGameInfo::mainObj->arth->artifacts[(i-ist)*8+yy].isAllowed = false;
+					if(c == (c|((unsigned char)intPow(2, yy))))
+						map.allowedArtifact[(i-ist)*8+yy] = false;
 				}
 			}
 		}//allowed artifacts have been read
 	}
 
-	//reading allowed spells (9 bytes)
+
+	map.allowedSpell.resize(SPELLS_QUANTITY);
+	for(int x=0;x<map.allowedSpell.size();x++)
+		map.allowedSpell[x] = true;
+
+	map.allowedAbilities.resize(SKILL_QUANTITY);
+	for(int x=0;x<map.allowedAbilities.size();x++)
+		map.allowedAbilities[x] = true;
+
 	if(map.version>=SoD)
 	{
+		//reading allowed spells (9 bytes)
 		ist=i; //starting i for loop
 		for(i; i<ist+9; ++i)
 		{
 			unsigned char c = bufor[i];
 			for(int yy=0; yy<8; ++yy)
-			{
-				if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
-				{
-					if(c != (c|((unsigned char)intPow(2, yy))))
-						CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy].isAllowed = true;
-					else
-						CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy].isAllowed = false;
-				}
-			}
+				if((i-ist)*8+yy < SPELLS_QUANTITY)
+					if(c == (c|((unsigned char)intPow(2, yy))))
+						map.allowedSpell[(i-ist)*8+yy] = false;
 		}
-		//allowed spells have been read
+
+
 		//allowed hero's abilities (4 bytes)
 		ist=i; //starting i for loop
 		for(i; i<ist+4; ++i)
@@ -471,19 +477,16 @@ void CAmbarCendamo::deh3m()
 			unsigned char c = bufor[i];
 			for(int yy=0; yy<8; ++yy)
 			{
-				if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
+				if((i-ist)*8+yy < SKILL_QUANTITY)
 				{
-					if(c != (c|((unsigned char)intPow(2, yy))))
-						CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]->isAllowed = true;
-					else
-						CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]->isAllowed = false;
+					if(c == (c|((unsigned char)intPow(2, yy))))
+						map.allowedAbilities[(i-ist)*8+yy] = false;
 				}
 			}
 		}
 	}
-	//allowed hero's abilities have been read
-
 	THC std::cout<<"\tReading header: "<<th.getDif()<<std::endl;
+
 	int rumNr = readNormalNr(i,4);i+=4;
 	for (int it=0;it<rumNr;it++)
 	{
@@ -506,153 +509,52 @@ void CAmbarCendamo::deh3m()
 				int custom =  bufor[i++];
 				if(!custom)
 					continue;
-				CHeroObjInfo * spec = new CHeroObjInfo;
-				spec->type = CGI->heroh->heroes[z];
-				bool isExp = bufor[i]; ++i; //true if hore's experience is greater than 0
-				if(isExp)
-				{
-					spec->experience = readNormalNr(i); i+=4;
-				}
+				CGHeroInstance * cgh = new CGHeroInstance;
+				cgh->ID = 34;
+				cgh->subID = z;
+				if(readChar())//true if hore's experience is greater than 0
+				{	cgh->exp = readNormalNr(i); i+=4;	}
 				else
-				{
-					spec->experience = 0;
-				}
-				bool nonstandardAbilities = bufor[i]; ++i; //true if hero has specified abilities
-				if(nonstandardAbilities)
+					cgh->exp = 0;
+				if(readChar())//true if hero has specified abilities
 				{
 					int howMany = readNormalNr(i); i+=4;
+					cgh->secSkills.resize(howMany);
 					for(int yy=0; yy<howMany; ++yy)
 					{
-						spec->abilities.push_back(CGameInfo::mainObj->abilh->abilities[readNormalNr(i, 1)]); ++i;
-						spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
+						cgh->secSkills[yy].first = readNormalNr(i, 1); ++i;
+						cgh->secSkills[yy].second = readNormalNr(i, 1); ++i;
 					}
 				}
 				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
 				int artmask = map.version == RoE ? 0xff : 0xffff;
 				int artidlen = map.version == RoE ? 1 : 2;
-				spec->artifWorn.resize(19);
 				if(artSet)
 				{
-					//head art //1
-					int id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[0] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[0] = NULL;
-					//shoulders art //2
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[1] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[1] = NULL;
-					//neck art //3
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[2] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[2] = NULL;
-					//right hand art //4
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[3] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[3] = NULL;
-					//left hand art //5
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[4] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[4] = NULL;
-					//torso art //6
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[5] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[5] = NULL;
-					//right hand ring //7
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[6] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[6] = NULL;
-					//left hand ring //8
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[7] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[7] = NULL;
-					//feet art //9
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[8] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[8] = NULL;
-					//misc1 art //10
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[9] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[9] = NULL;
-					//misc2 art //11
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[10] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[10] = NULL;
-					//misc3 art //12
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[11] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[11] = NULL;
-					//misc4 art //13
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[12] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[12] = NULL;
-					//machine1 art //14
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[13] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[13] = NULL;
-					//machine2 art //15
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[14] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[14] = NULL;
-					//machine3 art //16
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[15] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[15] = NULL;
+					for(int pom=0;pom<16;pom++)
+					{
+						int id = readNormalNr(i, artidlen); i+=artidlen;
+						if(id!=artmask)
+							cgh->artifWorn[pom] = id;
+					}
 					//misc5 art //17
 					if(map.version>=SoD)
 					{
 						i+=2;
-						/*id = readNormalNr(i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
-						else
-							spec->artMisc5 = NULL;*/
+						//int id = readNormalNr(i, artidlen); i+=artidlen;
+						//if(id!=artmask)
+						//	spec->artifWorn[16] = id;
 					}
 					//spellbook
-					id = readNormalNr(i, artidlen); i+=artidlen;
+					int id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artifWorn[17] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[17] = NULL;
+						cgh->artifWorn[17] = id;
 					//19 //???what is that? gap in file or what? - it's probably fifth slot..
 					if(map.version>RoE)
 					{
 						id = readNormalNr(i, artidlen); i+=artidlen;
 						if(id!=artmask)
-							spec->artifWorn[18] = &(CGameInfo::mainObj->arth->artifacts[id]);
-						else
-							spec->artifWorn[18] = NULL;
+							cgh->artifWorn[18] = id;
 					}
 					else
 						i+=1;
@@ -664,46 +566,14 @@ void CAmbarCendamo::deh3m()
 						{
 							id = readNormalNr(i, artidlen); i+=artidlen;
 							if(id!=artmask)
-								spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[id]));
-							else
-								spec->artifacts.push_back(NULL);
+								cgh->artifacts.push_back(id);
 						}
 					}
 				} //artifacts
-				else
-				{
-					spec->artifWorn[8] = NULL;
-					spec->artifWorn[0] = NULL;
-					spec->artifWorn[4] = NULL;
-					spec->artifWorn[7] = NULL;
-					spec->artifWorn[13] = NULL;
-					spec->artifWorn[14] = NULL;
-					spec->artifWorn[15] = NULL;
-					spec->artifWorn[16] = NULL;
-					spec->artifWorn[9] = NULL;
-					spec->artifWorn[10] = NULL;
-					spec->artifWorn[11] = NULL;
-					spec->artifWorn[12] = NULL;
-					spec->artifWorn[18] = NULL;
-					spec->artifWorn[2] = NULL;
-					spec->artifWorn[3] = NULL;
-					spec->artifWorn[6] = NULL;
-					spec->artifWorn[1] = NULL;
-					spec->artifWorn[17] = NULL;
-					spec->artifWorn[5] = NULL;
-				}
-				for(int t=spec->artifacts.size(); t<10; ++t) //it does make sense, even it is not obvious ;]
-					spec->artifacts.push_back(NULL);
-				int customBio = bufor[i++];
-				if(customBio)
-				{
-					int length = readNormalNr(i); i+=4;
-					for (int zz=0; zz<length; zz++)
-						spec->biography+=bufor[i++];
-				}
-				int sex =   bufor[i++]; // 0xFF is default, 00 male, 01 female
-				bool areSpells = bufor[i]; ++i;
-				if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
+				if(readChar())//customBio
+					cgh->biography = readString();
+				int sex = bufor[i++]; // 0xFF is default, 00 male, 01 female
+				if(readChar())//are spells
 				{
 					int ist = i;
 					for(i; i<ist+9; ++i)
@@ -711,30 +581,21 @@ void CAmbarCendamo::deh3m()
 						unsigned char c = bufor[i];
 						for(int yy=0; yy<8; ++yy)
 						{
-							if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+							if((i-ist)*8+yy < SPELLS_QUANTITY)
 							{
 								if(c == (c|((unsigned char)intPow(2, yy))))
-									spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+									cgh->spells.insert((i-ist)*8+yy);
 							}
 						}
 					}
 				}
-				int customPrimSkills = bufor[i++];
-				if(customPrimSkills)
+				if(readChar())//customPrimSkills
 				{
-					spec->attack = bufor[i++];
-					spec->defence = bufor[i++];
-					spec->power = bufor[i++];
-					spec->knowledge = bufor[i++];
+					cgh->primSkills.resize(4);
+					for(int xx=0;xx<4;xx++)
+						cgh->primSkills[xx] = bufor[i++];
 				}
-				else
-				{
-					spec->attack = -1;
-					spec->defence = -1;
-					spec->power = -1;
-					spec->knowledge = -1;
-				}
-				map.predefinedHeroes.push_back(spec);
+				map.predefinedHeroes.push_back(cgh);
 			}
 			break;
 		}
@@ -892,18 +753,18 @@ void CAmbarCendamo::deh3m()
 				gabn = readNormalNr(i, 1); ++i;
 				for(int oo = 0; oo<gabn; ++oo)
 				{
-					spec->abilities.push_back((CGameInfo::mainObj->abilh)->abilities[readNormalNr(i, 1)]); ++i;
+					spec->abilities.push_back(readNormalNr(i, 1)); ++i;
 					spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
 				}
 				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
-					spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, (map.version == RoE ? 1 : 2))])); i+=(map.version == RoE ? 1 : 2);
+					spec->artifacts.push_back(readNormalNr(i, (map.version == RoE ? 1 : 2))); i+=(map.version == RoE ? 1 : 2);
 				}
 				int gspel = readNormalNr(i, 1); ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
 				{
-					spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[readNormalNr(i, 1)])); ++i;
+					spec->spells.push_back(readNormalNr(i, 1)); ++i;
 				}
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
 				spec->creatures = readCreatureSet(gcre);
@@ -919,192 +780,81 @@ void CAmbarCendamo::deh3m()
 			}
 		case EDefType::HERO_DEF:
 			{
-				CHeroObjInfo * spec = new CHeroObjInfo;
+				CGHeroInstance * nhi = new CGHeroInstance;
+				(*(static_cast<CGObjectInstance*>(nhi))) = *nobj;
+				delete nobj;
+				nobj=nhi;
 				if(map.version>RoE)
 				{
-					spec->bytes[0] = bufor[i]; ++i;
-					spec->bytes[1] = bufor[i]; ++i;
-					spec->bytes[2] = bufor[i]; ++i;
-					spec->bytes[3] = bufor[i]; ++i;
+					nhi->identifier = readNormalNr(i, 4); i+=4;
 				}
-				spec->player = bufor[i]; ++i;
+				nhi->setOwner(bufor[i]); ++i;
 				int typeBuf = readNormalNr(i, 1); ++i;
-				if(typeBuf==0xff)
-					spec->type = NULL;
-				else
-					spec->type = CGameInfo::mainObj->heroh->heroes[typeBuf];
-				bool isName = bufor[i]; ++i; //true if hero has nonstandard name
-				if(isName)
-				{
-					int length = readNormalNr(i, 4); i+=4;
-					for(int gg=0; gg<length; ++gg)
-					{
-						spec->name+=bufor[i]; ++i;
-					}
-				}
-				else
-					spec->name = std::string("");
+
+				//we should already know type from subID
+					//if(typeBuf==0xff)
+					//	spec->type = NULL;
+					//else
+					//	spec->type = CGameInfo::mainObj->heroh->heroes[typeBuf];
+
+				if(readChar())//true if hero has nonstandard name
+					nhi->name = readString();
 				if(map.version>AB)
 				{
-					bool isExp = bufor[i]; ++i; //true if hore's experience is greater than 0
-					if(isExp)
-					{
-						spec->experience = readNormalNr(i); i+=4;
-					}
+					if(readChar())//true if hore's experience is greater than 0
+					{	nhi->exp = readNormalNr(i); i+=4;	}
 					else
-						spec->experience = 0;
+						nhi->exp = -1;
 				}
 				else
-				{
-					spec->experience = readNormalNr(i); i+=4;
-				}
+				{	nhi->exp = readNormalNr(i); i+=4;	}
+
 				bool portrait=bufor[i]; ++i;
 				if (portrait)
 					i++; //TODO read portrait nr, save, open
-				bool nonstandardAbilities = bufor[i]; ++i; //true if hero has specified abilities
-				if(nonstandardAbilities)
+				
+				if(readChar())//true if hero has specified abilities
 				{
 					int howMany = readNormalNr(i); i+=4;
+					nhi->secSkills.resize(howMany);
 					for(int yy=0; yy<howMany; ++yy)
 					{
-						spec->abilities.push_back(CGameInfo::mainObj->abilh->abilities[readNormalNr(i, 1)]); ++i;
-						spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
+						nhi->secSkills[yy].first = readNormalNr(i, 1); ++i;
+						nhi->secSkills[yy].second = readNormalNr(i, 1); ++i;
 					}
 				}
-				bool standGarrison = bufor[i]; ++i; //true if hero has nonstandard garrison
-				spec->standardGarrison = standGarrison;
-				if(standGarrison)
-				{
-					spec->garrison = readCreatureSet();
-				}
-				bool form = bufor[i]; ++i; //formation
-				spec->garrison.formation = form;
+				if(readChar())//true if hero has nonstandard garrison
+					nhi->army = readCreatureSet();
+				nhi->army.formation =bufor[i]; ++i; //formation
 				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
 				int artmask = map.version == RoE ? 0xff : 0xffff;
 				int artidlen = map.version == RoE ? 1 : 2;
-				spec->artifWorn.resize(19);
 				if(artSet)
 				{
-					//head art //1
-					int id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[0] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[0] = NULL;
-					//shoulders art //2
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[1] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[1] = NULL;
-					//neck art //3
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[2] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[2] = NULL;
-					//right hand art //4
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[3] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[3] = NULL;
-					//left hand art //5
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[4] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[4] = NULL;
-					//torso art //6
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[5] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[5] = NULL;
-					//right hand ring //7
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[6] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[6] = NULL;
-					//left hand ring //8
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[7] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[7] = NULL;
-					//feet art //9
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[8] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[8] = NULL;
-					//misc1 art //10
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[9] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[9] = NULL;
-					//misc2 art //11
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[10] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[10] = NULL;
-					//misc3 art //12
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[11] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[11] = NULL;
-					//misc4 art //13
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[12] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[12] = NULL;
-					//machine1 art //14
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[13] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[13] = NULL;
-					//machine2 art //15
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[14] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[14] = NULL;
-					//machine3 art //16
-					id = readNormalNr(i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						spec->artifWorn[15] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[15] = NULL;
+					for(int pom=0;pom<16;pom++)
+					{
+						int id = readNormalNr(i, artidlen); i+=artidlen;
+						if(id!=artmask)
+							nhi->artifWorn[pom] = id;
+					}
 					//misc5 art //17
 					if(map.version>=SoD)
 					{
 						i+=2;
-						/*id = readNormalNr(i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							spec->artMisc5 = &(CGameInfo::mainObj->arth->artifacts[id]);
-						else
-							spec->artMisc5 = NULL;*/
+						//int id = readNormalNr(i, artidlen); i+=artidlen;
+						//if(id!=artmask)
+						//	spec->artifWorn[16] = id;
 					}
 					//spellbook
-					id = readNormalNr(i, artidlen); i+=artidlen;
+					int id = readNormalNr(i, artidlen); i+=artidlen;
 					if(id!=artmask)
-						spec->artifWorn[17] = &(CGameInfo::mainObj->arth->artifacts[id]);
-					else
-						spec->artifWorn[17] = NULL;
+						nhi->artifWorn[17] = id;
 					//19 //???what is that? gap in file or what? - it's probably fifth slot..
 					if(map.version>RoE)
 					{
 						id = readNormalNr(i, artidlen); i+=artidlen;
 						if(id!=artmask)
-							spec->artifWorn[18] = &(CGameInfo::mainObj->arth->artifacts[id]);
-						else
-							spec->artifWorn[18] = NULL;
+							nhi->artifWorn[18] = id;
 					}
 					else
 						i+=1;
@@ -1116,56 +866,28 @@ void CAmbarCendamo::deh3m()
 						{
 							id = readNormalNr(i, artidlen); i+=artidlen;
 							if(id!=artmask)
-								spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[id]));
-							else
-								spec->artifacts.push_back(NULL);
+								nhi->artifacts.push_back(id);
 						}
 					}
 				} //artifacts
-				else
-				{
-					spec->artifWorn[8] = NULL;
-					spec->artifWorn[0] = NULL;
-					spec->artifWorn[4] = NULL;
-					spec->artifWorn[7] = NULL;
-					spec->artifWorn[13] = NULL;
-					spec->artifWorn[14] = NULL;
-					spec->artifWorn[15] = NULL;
-					spec->artifWorn[16] = NULL;
-					spec->artifWorn[9] = NULL;
-					spec->artifWorn[10] = NULL;
-					spec->artifWorn[11] = NULL;
-					spec->artifWorn[12] = NULL;
-					spec->artifWorn[18] = NULL;
-					spec->artifWorn[2] = NULL;
-					spec->artifWorn[3] = NULL;
-					spec->artifWorn[6] = NULL;
-					spec->artifWorn[1] = NULL;
-					spec->artifWorn[17] = NULL;
-					spec->artifWorn[5] = NULL;
-				}
-				for(int t=spec->artifacts.size(); t<10; ++t) //it does make sense, even it is not obvious ;]
-					spec->artifacts.push_back(NULL);
 
-				spec->guardRange = readNormalNr(i, 1); ++i;
-				if(spec->guardRange == 0xff)
-					spec->isGuarding = false;
-				else
-					spec->isGuarding = true;
+				nhi->patrolRadious = readNormalNr(i, 1); ++i;
+				if(nhi->patrolRadious == 0xff)
+					nhi->patrolRadious = -1;
+
 				if(map.version>RoE)
 				{
-					bool hasBiography = bufor[i]; ++i; //true if hero has nonstandard (mapmaker defined) biography
-					if(hasBiography)
+					if(readChar())//true if hero has nonstandard (mapmaker defined) biography
 					{
 						int length = readNormalNr(i); i+=4;
 						int iStart = i;
 						i+=length;
 						for(int bb=0; bb<length; ++bb)
 						{
-							spec->biography+=bufor[iStart+bb];
+							nhi->biography+=bufor[iStart+bb];
 						}
 					}
-					spec->sex = !(bufor[i]); ++i;
+					nhi->sex = !(bufor[i]); ++i;
 				}
 				//spells
 				if(map.version>AB)
@@ -1180,10 +902,10 @@ void CAmbarCendamo::deh3m()
 							unsigned char c = bufor[i];
 							for(int yy=0; yy<8; ++yy)
 							{
-								if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+								if((i-ist)*8+yy < SPELLS_QUANTITY)
 								{
 									if(c == (c|((unsigned char)intPow(2, yy))))
-										spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+										nhi->spells.insert((i-ist)*8+yy);
 								}
 							}
 						}
@@ -1194,86 +916,25 @@ void CAmbarCendamo::deh3m()
 					unsigned char buff = bufor[i]; ++i;
 					if(buff!=254)
 					{
-						spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[buff]));
+						nhi->spells.insert(buff);
 					}
 				}
 				//spells loaded
 				if(map.version>AB)
 				{
-					spec->defaultMainStats = bufor[i]; ++i;
-					if(spec->defaultMainStats)
+					if(readChar())//customPrimSkills
 					{
-						spec->attack = bufor[i]; ++i;
-						spec->defence = bufor[i]; ++i;
-						spec->power = bufor[i]; ++i;
-						spec->knowledge = bufor[i]; ++i;
+						nhi->primSkills.resize(4);
+						for(int xx=0;xx<4;xx++)
+							nhi->primSkills[xx] = bufor[i++];
 					}
-					else
-					{
-						spec->attack = -1;
-						spec->defence = -1;
-						spec->power = -1;
-						spec->knowledge = -1;
-					}
-				}
-				else
-				{
-					spec->attack = -1;
-					spec->defence = -1;
-					spec->power = -1;
-					spec->knowledge = -1;
 				}
 				i+=16;
-				nobj->info = spec;
-				//////creating CHeroInstance
-				CGHeroInstance * nhi = new CGHeroInstance;
-				(*(static_cast<CGObjectInstance*>(nhi))) = *nobj;
-				delete nobj;
-				nobj=nhi;
-				spec->myInstance = nhi;
-				//nobj->isHero = true;
-				(static_cast<CGHeroInstance*>(nobj))->moveDir = 4;
+				nhi->moveDir = 4;
 				nhi->isStanding = true;
-				nhi->exp = spec->experience;
-				nhi->level = CGI->heroh->level(nhi->exp);
-				nhi->primSkills.resize(PRIMARY_SKILLS);
-				nhi->artifWorn.resize(19);
-				nhi->primSkills[0] = spec->attack;
-				nhi->primSkills[1] = spec->defence;
-				nhi->primSkills[2] = spec->power;
-				nhi->primSkills[3] = spec->knowledge;
-				nhi->mana = spec->knowledge * 10;
+				nhi->level = -1;
+				nhi->mana = -1;
 				nhi->movement = -1;
-				nhi->name = spec->name;
-				nhi->setOwner(spec->player);
-				nhi->pos = nobj->pos;
-				nhi->type = spec->type;
-				nhi->army = spec->garrison;
-				nhi->portrait = -1; // TODO: przypisywac portret
-				nhi->artifWorn[8] = spec->artifWorn[8];
-				nhi->artifWorn[0] = spec->artifWorn[0];
-				nhi->artifacts = spec->artifacts;
-				nhi->artifWorn[4] = spec->artifWorn[4];
-				nhi->artifWorn[7] = spec->artifWorn[7];
-				nhi->artifWorn[13] = spec->artifWorn[13];
-				nhi->artifWorn[14] = spec->artifWorn[14];
-				nhi->artifWorn[15] = spec->artifWorn[15];
-				nhi->artifWorn[16] = spec->artifWorn[16] = new CArtifact(CGI->arth->artifacts[3]);
-				nhi->artifWorn[9] = spec->artifWorn[9];
-				nhi->artifWorn[10] = spec->artifWorn[10];
-				nhi->artifWorn[11] = spec->artifWorn[11];
-				nhi->artifWorn[12] = spec->artifWorn[12];
-				nhi->artifWorn[18] = spec->artifWorn[18];
-				nhi->artifWorn[2] = spec->artifWorn[2];
-				nhi->artifWorn[3] = spec->artifWorn[3];
-				nhi->artifWorn[6] = spec->artifWorn[6];
-				nhi->artifWorn[1] = spec->artifWorn[1];
-				nhi->artifWorn[17] = spec->artifWorn[17];
-				nhi->artifWorn[5] = spec->artifWorn[5];
-				for(int qq=0; qq<spec->abilities.size(); ++qq)
-				{
-					nhi->secSkills.push_back(std::make_pair(spec->abilities[qq]->idNumber, spec->abilityLevels[qq]-1));
-				}
 				if(nhi->ID==34)
 					CGI->heroh->heroInstances.push_back(nhi);
 				else
@@ -1315,16 +976,16 @@ void CAmbarCendamo::deh3m()
 					if(map.version==RoE)
 					{
 						if(artID!=0xff)
-							spec->gainedArtifact = &(CGameInfo::mainObj->arth->artifacts[artID]);
+							spec->gainedArtifact = artID;
 						else
-							spec->gainedArtifact = NULL;
+							spec->gainedArtifact = -1;
 					}
 					else
 					{
 						if(artID!=0xffff)
-							spec->gainedArtifact = &(CGameInfo::mainObj->arth->artifacts[artID]);
+							spec->gainedArtifact = artID;
 						else
-							spec->gainedArtifact = NULL;
+							spec->gainedArtifact = -1;
 					}
 				}
 				spec->neverFlees = bufor[i]; ++i;
@@ -1435,7 +1096,7 @@ void CAmbarCendamo::deh3m()
 							for(int yy=0; yy<artNumber; ++yy)
 							{
 								int artid = readNormalNr(i, 2); i+=2;
-								spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artid]));
+								spec->m5arts.push_back(artid);
 							}
 							int limit = readNormalNr(i); i+=4;
 							if(limit == ((int)0xffffffff))
@@ -1553,7 +1214,7 @@ void CAmbarCendamo::deh3m()
 					int artID = bufor[i]; ++i;
 					if(artID!=255) //not none quest
 					{
-						spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artID]));
+						spec->m5arts.push_back(artID);
 						spec->missionType = 5;
 					}
 					else
@@ -1604,35 +1265,30 @@ void CAmbarCendamo::deh3m()
 						}
 					case 7:
 						{
-							int abid = bufor[i]; ++i;
-							spec->r7ability = CGameInfo::mainObj->abilh->abilities[abid];
+							spec->r7ability = bufor[i]; ++i;
 							spec->r7level = bufor[i]; ++i;
 							break;
 						}
 					case 8:
 						{
-							int artid = readNormalNr(i, (map.version == RoE ? 1 : 2)); i+=(map.version == RoE ? 1 : 2);
-							spec->r8art = &(CGameInfo::mainObj->arth->artifacts[artid]);
+							spec->r8art = readNormalNr(i, (map.version == RoE ? 1 : 2)); i+=(map.version == RoE ? 1 : 2);
 							break;
 						}
 					case 9:
 						{
-							int spellid = bufor[i]; ++i;
-							spec->r9spell = &(CGameInfo::mainObj->spellh->spells[spellid]);
+							spec->r9spell = bufor[i]; ++i;
 							break;
 						}
 					case 10:
 						{
 							if(map.version>RoE)
 							{
-								int creid = readNormalNr(i, 2); i+=2;
-								spec->r10creature = &(CGameInfo::mainObj->creh->creatures[creid]);
+								spec->r10creature = readNormalNr(i, 2); i+=2;
 								spec->r10amount = readNormalNr(i, 2); i+=2;
 							}
 							else
 							{
-								int creid = bufor[i]; ++i;
-								spec->r10creature = &(CGameInfo::mainObj->creh->creatures[creid]);
+								spec->r10creature = bufor[i]; ++i;
 								spec->r10amount = readNormalNr(i, 2); i+=2;
 							}
 							break;
@@ -1658,19 +1314,19 @@ void CAmbarCendamo::deh3m()
 						unsigned char c = bufor[i];
 						for(int yy=0; yy<8; ++yy)
 						{
-							if((i-ist)*8+yy < CGameInfo::mainObj->abilh->abilities.size())
+							if((i-ist)*8+yy < SKILL_QUANTITY)
 							{
 								if(c == (c|((unsigned char)intPow(2, yy))))
-									spec->allowedAbilities.push_back(CGameInfo::mainObj->abilh->abilities[(i-ist)*8+yy]);
+									spec->allowedAbilities.push_back((i-ist)*8+yy);
 							}
 						}
 					}
 				}
 				else //(RoE map)
 				{
-					for(int gg=0; gg<CGameInfo::mainObj->abilh->abilities.size(); ++gg)
+					for(int gg=0; gg<SKILL_QUANTITY; ++gg)
 					{
-						spec->allowedAbilities.push_back(CGameInfo::mainObj->abilh->abilities[gg]);
+						spec->allowedAbilities.push_back(gg);
 					}
 				}
 				
@@ -1690,10 +1346,10 @@ void CAmbarCendamo::deh3m()
 					spec->r0type = bufor[i]; ++i;
 					break;
 				case 1:
-					spec->r1 = CGameInfo::mainObj->abilh->abilities[bufor[i]]; ++i;
+					spec->r1 = bufor[i]; ++i;
 					break;
 				case 2:
-					spec->r2 = &(CGameInfo::mainObj->spellh->spells[bufor[i]]); ++i;
+					spec->r2 = bufor[i]; ++i;
 					break;
 				}
 				i+=6;
@@ -1770,49 +1426,52 @@ void CAmbarCendamo::deh3m()
 			}
 		case EDefType::TOWN_DEF:
 			{
-				CCastleObjInfo * spec = new CCastleObjInfo;
-				if(map.version!=RoE)
-				{
-					spec->bytes[0] = bufor[i]; ++i;
-					spec->bytes[1] = bufor[i]; ++i;
-					spec->bytes[2] = bufor[i]; ++i;
-					spec->bytes[3] = bufor[i]; ++i;
+											CCastleObjInfo * spec = new CCastleObjInfo;
+				CGTownInstance * nt = new CGTownInstance();
+				(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
+				delete nobj;
+				nobj = nt;
+				nt->identifier = 0;
+				if(map.version>RoE)
+				{	
+					readNormalNr(i); i+=4;
 				}
-				else
+				nt->tempOwner = bufor[i]; ++i;
+				if(readChar()) //has name
+					nt->name = readString();
+				if(readChar())//true if garrison isn't empty
+					nt->army = readCreatureSet();
+				nt->army.formation = bufor[i]; ++i;
+				if(readChar()) //unusualBuildings
 				{
-					spec->bytes[0] = 0;
-					spec->bytes[1] = 0;
-					spec->bytes[2] = 0;
-					spec->bytes[3] = 0;
-				}
-				spec->player = bufor[i]; ++i;
-
-				bool hasName = bufor[i]; ++i;
-				if(hasName)
-				{
-					int len = readNormalNr(i); i+=4;
-					for(int gg=0; gg<len; ++gg)
+					//built buildings
+					for(int byte=0;byte<6;byte++)
 					{
-						spec->name += bufor[i]; ++i;
+						for(int bit=0;bit<8;bit++)
+							if(bufor[i] & (1<<bit))
+								nt->h3mbuildings.insert(byte*8+bit);
+						i++;
 					}
-				}
-				bool stGarr = bufor[i]; ++i; //true if garrison isn't empty
-				if(stGarr)
-				{
-					spec->garrison = readCreatureSet();
-				}
-				spec->garrison.formation = bufor[i]; ++i;
-				spec->unusualBuildins = bufor[i]; ++i;
-				if(spec->unusualBuildins)
-				{
-					for(int ff=0; ff<12; ++ff)
+					//forbidden buildings
+					for(int byte=6;byte<12;byte++)
 					{
-						spec->buildingSettings[ff] = bufor[i]; ++i;
+						for(int bit=0;bit<8;bit++)
+							if(bufor[i] & (1<<bit))
+								nt->forbiddenBuildings.insert(byte*8+bit);
+						i++;
 					}
+					nt->builtBuildings = convertBuildings(nt->h3mbuildings,nt->subID);
+					nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,nt->subID);
 				}
-				else
+				else //standard buildings
 				{
-					spec->hasFort = bufor[i]; ++i;
+					if(readChar()) //has fort
+						nt->builtBuildings.insert(7);
+					nt->builtBuildings.insert(10);
+					nt->builtBuildings.insert(5);
+					nt->builtBuildings.insert(30);
+					if(rand()%2)
+						nt->builtBuildings.insert(31);
 				}
 
 				int ist = i;
@@ -1823,10 +1482,10 @@ void CAmbarCendamo::deh3m()
 						unsigned char c = bufor[i];
 						for(int yy=0; yy<8; ++yy)
 						{
-							if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+							if((i-ist)*8+yy < SPELLS_QUANTITY)
 							{
 								if(c == (c|((unsigned char)intPow(2, yy))))
-									spec->obligatorySpells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+									nt->obligatorySpells.push_back((i-ist)*8+yy);
 							}
 						}
 					}
@@ -1838,10 +1497,10 @@ void CAmbarCendamo::deh3m()
 					unsigned char c = bufor[i];
 					for(int yy=0; yy<8; ++yy)
 					{
-						if((i-ist)*8+yy < CGameInfo::mainObj->spellh->spells.size())
+						if((i-ist)*8+yy < SPELLS_QUANTITY)
 						{
 							if(c != (c|((unsigned char)intPow(2, yy))))
-								spec->possibleSpells.push_back(&(CGameInfo::mainObj->spellh->spells[(i-ist)*8+yy]));
+								nt->possibleSpells.push_back((i-ist)*8+yy);
 						}
 					}
 				}
@@ -1897,76 +1556,19 @@ void CAmbarCendamo::deh3m()
 					}
 					i+=4;
 					spec->events.push_back(nce);
-				}
-				spec->x = nobj->pos.x;
-				spec->y = nobj->pos.y;
-				spec->z = nobj->pos.z;
-
-				/////// castle events have been read ///////////////////////////
+				}//castle events have been read 
 
 				if(map.version > AB)
 				{
-					spec->alignment = bufor[i]; ++i;
+					nt->alignment = bufor[i]; ++i;
 				}
 				else
-					spec->alignment = 0xff;
+					nt->alignment = 0xff;
 				i+=3;
-				nobj->info = spec;
-				//////////// rewriting info to CTownInstance class /////////////////////
-				CGTownInstance * nt = new CGTownInstance();
-				(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
-				delete nobj;
-				nobj = nt;
-				nt->identifier = readInt(spec->bytes,4);;
-				if(spec->unusualBuildins)
-				{
-					for(int byte=0;byte<6;byte++)
-					{
-						for(int bit=0;bit<8;bit++)
-						{
-							if(spec->buildingSettings[byte] & (1<<bit))
-							{
-								nt->h3mbuildings.insert(byte*8+bit);
-							}
-						}
-					}
-					for(int byte=6;byte<12;byte++)
-					{
-						for(int bit=0;bit<8;bit++)
-						{
-							if(spec->buildingSettings[byte] & (1<<bit))
-							{
-								nt->forbiddenBuildings.insert(byte*8+bit);
-							}
-						}
-					}
-					nt->builtBuildings = convertBuildings(nt->h3mbuildings,nt->subID);
-					nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,nt->subID);
-				}
-				else
-				{
-					if(spec->hasFort)
-					{
-						nt->builtBuildings.insert(7);
-					}
-					nt->builtBuildings.insert(10);
-					nt->builtBuildings.insert(5);
-					nt->builtBuildings.insert(30);
-					if(rand()%2)
-						nt->builtBuildings.insert(31);
-				}
 
-				nt->setOwner(spec->player);
-				nt->town = &CGI->townh->towns[nt->defInfo->subid];
 				nt->builded = 0;
 				nt->destroyed = 0;
-				nt->name = spec->name;
-				nt->army = spec->garrison;
-				nt->garrisonHero = NULL;// spec->garnisonHero is not readed - TODO: readit
-				nt->pos = int3(spec->x, spec->y, spec->z);
-				nt->possibleSpells = spec->possibleSpells;
-				nt->obligatorySpells = spec->obligatorySpells;
-				nt->availableSpells = std::vector<CSpell*>();
+				nt->garrisonHero = NULL;
 				CGI->townh->townInstances.push_back(nt);
 				break;
 			}
@@ -2004,7 +1606,7 @@ void CAmbarCendamo::deh3m()
 					}
 					i+=4;
 				}
-				spec->spell = &(CGameInfo::mainObj->spellh->spells[bufor[i]]); ++i;
+				spec->spell = bufor[i]; ++i;
 				i+=3;
 				nobj->info = spec;
 				break;
@@ -2047,7 +1649,7 @@ void CAmbarCendamo::deh3m()
 				gabn = readNormalNr(i, 1); ++i;
 				for(int oo = 0; oo<gabn; ++oo)
 				{
-					spec->abilities.push_back((CGameInfo::mainObj->abilh)->abilities[readNormalNr(i, 1)]); ++i;
+					spec->abilities.push_back(readNormalNr(i, 1)); ++i;
 					spec->abilityLevels.push_back(readNormalNr(i, 1)); ++i;
 				}
 				int gart = readNormalNr(i, 1); ++i; //number of gained artifacts
@@ -2055,17 +1657,17 @@ void CAmbarCendamo::deh3m()
 				{
 					if(map.version > RoE)
 					{
-						spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 2)])); i+=2;
+						spec->artifacts.push_back(readNormalNr(i, 2)); i+=2;
 					}
 					else
 					{
-						spec->artifacts.push_back(&(CGameInfo::mainObj->arth->artifacts[readNormalNr(i, 1)])); i+=1;
+						spec->artifacts.push_back(readNormalNr(i, 1)); i+=1;
 					}
 				}
 				int gspel = readNormalNr(i, 1); ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
 				{
-					spec->spells.push_back(&(CGameInfo::mainObj->spellh->spells[readNormalNr(i, 1)])); ++i;
+					spec->spells.push_back(readNormalNr(i, 1)); ++i;
 				}
 				int gcre = readNormalNr(i, 1); ++i; //number of gained creatures
 				spec->creatures = readCreatureSet(gcre);
@@ -2231,8 +1833,7 @@ void CAmbarCendamo::deh3m()
 						int artNumber = bufor[i]; ++i;
 						for(int yy=0; yy<artNumber; ++yy)
 						{
-							int artid = readNormalNr(i, 2); i+=2;
-							spec->m5arts.push_back(&(CGameInfo::mainObj->arth->artifacts[artid]));
+							spec->m5arts.push_back(readNormalNr(i, 2)); i+=2;
 						}
 						int limit = readNormalNr(i); i+=4;
 						if(limit == ((int)0xffffffff))
@@ -2533,4 +2134,18 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int number)
 		i+=number*3;
 		return ret;
 	}
+}
+char CAmbarCendamo::readChar()
+{
+	return bufor[i++];
+}
+std::string CAmbarCendamo::readString()
+{					
+	int len = readNormalNr(i); i+=4;
+	std::string ret; ret.reserve(len);
+	for(int gg=0; gg<len; ++gg)
+	{
+		ret += bufor[i++];
+	}
+	return ret;
 }
