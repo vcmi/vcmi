@@ -478,8 +478,12 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 			if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
 			{
 				curB->stacks[numberOfStackAtEnd]->amount = 0;
-				curB->stacks[numberOfStackAtEnd]->alive = false;
 				LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID);
+				curB->stacks[numberOfStackAtEnd]->alive = false;
+			}
+			else
+			{
+				LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID);
 			}
 
 			//damage applied

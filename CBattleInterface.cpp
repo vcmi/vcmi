@@ -212,7 +212,10 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	//showing selected unit's range
-	showRange(to, activeStack);
+	if(creAnims[activeStack]->getType() != 0) //don't show if unit is moving
+	{
+		showRange(to, activeStack);
+	}
 
 	//showing menu background and console
 	blitAt(menu, 0, 556, to);
@@ -250,21 +253,24 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		if(stackByHex[b]!=-1)
 		{
-			creAnims[stackByHex[b]]->nextFrame(to, creAnims[stackByHex[b]]->pos.x, creAnims[stackByHex[b]]->pos.y, creDir[stackByHex[b]], animCount%2==0 || creAnims[stackByHex[b]]->getType()==0, stackByHex[b]==activeStack); //increment always when moving
+			creAnims[stackByHex[b]]->nextFrame(to, creAnims[stackByHex[b]]->pos.x, creAnims[stackByHex[b]]->pos.y, creDir[stackByHex[b]], (animCount%2==0 || creAnims[stackByHex[b]]->getType()!=2) && stacks[stackByHex[b]].alive, stackByHex[b]==activeStack); //increment always when moving, never if stack died
 			//printing amount
-			if(stacks[stackByHex[b]].attackerOwned)
+			if(stacks[stackByHex[b]].amount > 0) //don't print if stack is not alive
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 220, creAnims[stackByHex[b]]->pos.y + 260));
-				std::stringstream ss;
-				ss<<stacks[stackByHex[b]].amount;
-				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 220 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
-			}
-			else
-			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 202, creAnims[stackByHex[b]]->pos.y + 260));
-				std::stringstream ss;
-				ss<<stacks[stackByHex[b]].amount;
-				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 202 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				if(stacks[stackByHex[b]].attackerOwned)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 220, creAnims[stackByHex[b]]->pos.y + 260));
+					std::stringstream ss;
+					ss<<stacks[stackByHex[b]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 220 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				}
+				else
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 202, creAnims[stackByHex[b]]->pos.y + 260));
+					std::stringstream ss;
+					ss<<stacks[stackByHex[b]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 202 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				}
 			}
 		}
 	}
@@ -366,6 +372,13 @@ void CBattleInterface::stackRemoved(CStack stack)
 
 void CBattleInterface::stackKilled(int ID)
 {
+	creAnims[ID]->setType(5); //death
+	for(int i=0; i<creAnims[ID]->framesInGroup(5)-1; ++i)
+	{
+		show();
+		CSDL_Ext::update();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+	}
 }
 
 void CBattleInterface::stackActivated(int number)
@@ -552,6 +565,14 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 
 void CBattleInterface::stackIsAttacked(int ID)
 {
+	creAnims[ID]->setType(3); //getting hit
+	for(int i=0; i<creAnims[ID]->framesInGroup(3); ++i)
+	{
+		show();
+		CSDL_Ext::update();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+	}
+	creAnims[ID]->setType(2);
 }
 
 void CBattleInterface::stackAttacking(int ID, int dest)
