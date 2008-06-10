@@ -765,7 +765,13 @@ int CCallback::battleGetStack(int pos)
 {
 	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
 	{
-		if(CGI->state->curB->stacks[g]->position == pos)
+		if(CGI->state->curB->stacks[g]->position == pos ||
+				( CGI->state->curB->stacks[g]->creature->isDoubleWide() && 
+					( (CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position-1 == pos) || 
+						(!CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position+1 == pos)
+					) 
+				)
+			)
 			return CGI->state->curB->stacks[g]->ID;
 	}
 	return -1;
@@ -779,6 +785,11 @@ CStack CCallback::battleGetStackByID(int ID)
 			return *(CGI->state->curB->stacks[g]);
 	}
 	return CStack();
+}
+
+CStack CCallback::battleGetStackByPos(int pos)
+{
+	return battleGetStackByID(battleGetStack(pos));
 }
 
 int CCallback::battleGetPos(int stack)

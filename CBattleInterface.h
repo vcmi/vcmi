@@ -26,6 +26,8 @@ class CBattleInterface;
 
 class CBattleHex : public Hoverable, public MotionInterested, public ClickableL, public ClickableR
 {
+private:
+	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
 public:
 	unsigned int myNumber;
 	bool accesible;
@@ -53,8 +55,9 @@ class CBattleConsole : public IShowable, public CIntObject
 {
 private:
 	std::vector< std::string > texts; //a place where texts are stored
-	int lastShown; //las shown line of text
+	int lastShown; //last shown line of text
 public:
+	std::string alterTxt; //if it's not empty, this text is displayed
 	CBattleConsole(); //c-tor
 	~CBattleConsole(); //d-tor
 	void show(SDL_Surface * to = 0);
@@ -90,6 +93,7 @@ private:
 		bool reversing;
 	} * attackingInfo;
 	void attackingShowHelper();
+	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
 
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
@@ -122,10 +126,10 @@ public:
 	//call-ins
 	void newStack(CStack stack); //new stack appeared on battlefield
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
-	void stackKilled(int ID); //stack has been killed (but corpses remain)
+	void stackKilled(int ID, int dmg, int killed, int IDby); //stack has been killed (but corpses remain)
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool startMoving, bool endMoving); //stack with id number moved to destHex
-	void stackIsAttacked(int ID); //called when stack id attacked
+	void stackIsAttacked(int ID, int dmg, int killed, int IDby); //called when stack id attacked by stack with id IDby
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in

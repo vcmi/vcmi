@@ -2078,14 +2078,14 @@ void CPlayerInterface::battleStackAttacking(int ID, int dest)
 	dynamic_cast<CBattleInterface*>(curint)->stackAttacking(ID, dest);
 }
 
-void CPlayerInterface::battleStackIsAttacked(int ID)
+void CPlayerInterface::battleStackIsAttacked(int ID, int dmg, int killed, int IDby)
 {
-	dynamic_cast<CBattleInterface*>(curint)->stackIsAttacked(ID);
+	dynamic_cast<CBattleInterface*>(curint)->stackIsAttacked(ID, dmg, killed, IDby);
 }
 
-void CPlayerInterface::battleStackKilled(int ID)
+void CPlayerInterface::battleStackKilled(int ID, int dmg, int killed, int IDby)
 {
-	dynamic_cast<CBattleInterface*>(curint)->stackKilled(ID);
+	dynamic_cast<CBattleInterface*>(curint)->stackKilled(ID, dmg, killed, IDby);
 }
 
 void CPlayerInterface::showComp(SComponent comp)

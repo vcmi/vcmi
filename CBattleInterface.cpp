@@ -370,7 +370,7 @@ void CBattleInterface::stackRemoved(CStack stack)
 	creAnims.erase(stack.ID);
 }
 
-void CBattleInterface::stackKilled(int ID)
+void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby)
 {
 	creAnims[ID]->setType(5); //death
 	for(int i=0; i<creAnims[ID]->framesInGroup(5)-1; ++i)
@@ -379,6 +379,8 @@ void CBattleInterface::stackKilled(int ID)
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
+	
+	printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
 void CBattleInterface::stackActivated(int number)
@@ -563,7 +565,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 	creAnims[number]->pos.y = coords.second;
 }
 
-void CBattleInterface::stackIsAttacked(int ID)
+void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby)
 {
 	creAnims[ID]->setType(3); //getting hit
 	for(int i=0; i<creAnims[ID]->framesInGroup(3); ++i)
@@ -573,6 +575,8 @@ void CBattleInterface::stackIsAttacked(int ID)
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	creAnims[ID]->setType(2);
+
+	printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
 void CBattleInterface::stackAttacking(int ID, int dest)
@@ -831,6 +835,29 @@ void CBattleInterface::attackingShowHelper()
 	}
 }
 
+void CBattleInterface::printConsoleAttacked(int ID, int dmg, int killed, int IDby)
+{
+	char tabh[200];
+	CStack attacker = LOCPLINT->cb->battleGetStackByID(IDby);
+	CStack defender = LOCPLINT->cb->battleGetStackByID(ID);
+	int end = sprintf(tabh, CGI->generaltexth->allTexts[attacker.amount > 1 ? 377 : 376].c_str(),
+		(attacker.amount > 1 ? attacker.creature->namePl.c_str() : attacker.creature->nameSing.c_str()),
+		dmg);
+	if(killed > 0)
+	{
+		if(killed > 1)
+		{
+			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed, defender.creature->namePl.c_str());
+		}
+		else //killed == 1
+		{
+			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(), defender.creature->nameSing.c_str());
+		}
+	}
+
+	console->addText(std::string(tabh));
+}
+
 void CBattleHero::show(SDL_Surface *to)
 {
 	//animation of flag
@@ -966,9 +993,14 @@ void CBattleHex::hover(bool on)
 {
 	hovered = on;
 	Hoverable::hover(on);
+	if(!on && setAlterText)
+	{
+		myInterface->console->alterTxt = std::string();
+		setAlterText = false;
+	}
 }
 
-CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strictHovered(false), myInterface(NULL)
+CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strictHovered(false), myInterface(NULL), setAlterText(false)
 {
 }
 
@@ -984,6 +1016,26 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 		{
 			strictHovered = true;
 		}
+	}
+
+	if(hovered && strictHovered) //print attacked creature to console
+	{
+		if(myInterface->console->alterTxt.size() == 0 && LOCPLINT->cb->battleGetStack(myNumber) != -1 &&
+			LOCPLINT->cb->battleGetStackByPos(myNumber).owner != LOCPLINT->playerID &&
+			LOCPLINT->cb->battleGetStackByPos(myNumber).alive)
+		{
+			char tabh[160];
+			CStack attackedStack = LOCPLINT->cb->battleGetStackByPos(myNumber);
+			std::string attackedName = attackedStack.amount == 1 ? attackedStack.creature->nameSing : attackedStack.creature->namePl;
+			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
+			myInterface->console->alterTxt = std::string(tabh);
+			setAlterText = true;
+		}
+	}
+	else if(setAlterText)
+	{
+		myInterface->console->alterTxt = std::string();
+		setAlterText = false;
 	}
 }
 
@@ -1020,7 +1072,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 	}
 }
 
-CBattleConsole::CBattleConsole() : lastShown(-1)
+CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt("")
 {
 }
 
@@ -1031,7 +1083,11 @@ CBattleConsole::~CBattleConsole()
 
 void CBattleConsole::show(SDL_Surface * to)
 {
-	if(texts.size())
+	if(alterTxt.size())
+	{
+		CSDL_Ext::printAtMiddleWB(alterTxt, pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
+	}
+	else if(texts.size())
 	{
 		if(texts.size()==1)
 		{
@@ -1049,7 +1105,18 @@ bool CBattleConsole::addText(std::string text)
 {
 	if(text.size()>70)
 		return false; //text too long!
-	texts.push_back(text);
+	int firstInToken = 0;
+	for(int i=0; i<text.size(); ++i) //tokenize
+	{
+		if(text[i] == 10)
+		{
+			texts.push_back( text.substr(firstInToken, i-firstInToken) );
+			firstInToken = i+1;
+			lastShown++;
+		}
+	}
+
+	texts.push_back( text.substr(firstInToken, text.size()) );
 	lastShown++;
 	return true;
 }
