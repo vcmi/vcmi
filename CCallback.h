@@ -167,7 +167,7 @@ public:
 	void startBattle(int heroID, CCreatureSet * army, int3 tile); //for hero<=>neutral army
 
 	//friends
-	friend void initGameState(CGameInfo * cgi);
+	friend void initGameState(Mapa * map, CGameInfo * cgi);
 };
 class CLuaCallback : public CScriptCallback
 {
@@ -179,6 +179,6 @@ private:
 	static int getGnrlText(lua_State * L);//(int ID, int which, int val);
 	static int getSelectedHero(lua_State * L);//()
 
-	friend void initGameState(CGameInfo * cgi);
+	friend void initGameState(Mapa * map, CGameInfo * cgi);
 };
 #endif //CCALLBACK_H

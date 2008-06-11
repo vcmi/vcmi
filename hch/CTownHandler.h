@@ -53,9 +53,6 @@ public:
 
 	std::map<int,std::map<int, Structure*> > structures; // <town ID, <structure ID, structure>>
 	std::map<int, std::map<int,std::set<int> > > requirements; //requirements[town_id][structure_id] -> set of required buildings
-
-	std::vector<CGTownInstance *> townInstances;
-
 };
 
 #endif //CTOWNHANDLER_H

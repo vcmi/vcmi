@@ -206,13 +206,13 @@ void CPathfinder::CalcH(Coordinate* node)
 	int ret=-1;
 	int x = node->x;
 	int y = node->y;
-	if(node->x>=CGI->mh->reader->map.width)
-		x = CGI->mh->reader->map.width-1;
-	if(node->y>=CGI->mh->reader->map.height)
-		y = CGI->mh->reader->map.height-1;
+	if(node->x>=CGI->mh->map->width)
+		x = CGI->mh->map->width-1;
+	if(node->y>=CGI->mh->map->height)
+		y = CGI->mh->map->height-1;
 
 	//Get the movement cost.
-	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].terType, CGI->mh->reader->map.terrain[x][y].malle,CGI->mh->reader->map.terrain[x][y].nuine);
+	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].terType, CGI->mh->map->terrain[x][y].malle,CGI->mh->map->terrain[x][y].nuine);
 	
 	node->h = ret;
 }

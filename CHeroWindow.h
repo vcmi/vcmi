@@ -70,7 +70,7 @@ public:
 	bool clicked;
 	CHeroWindow * ourWindow;
 	const CArtifact * ourArt;
-	CArtPlace(int Art);
+	CArtPlace(const CArtifact * Art);
 	void clickLeft (tribool down);
 	void clickRight (tribool down);
 	void activate();

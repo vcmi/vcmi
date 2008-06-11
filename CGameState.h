@@ -98,7 +98,7 @@ public:
 	friend CPathfinder;;
 	friend CLuaCallback;
 	friend int _tmain(int argc, _TCHAR* argv[]);
-	friend void initGameState(CGameInfo * cgi);
+	friend void initGameState(Mapa * map, CGameInfo * cgi);
 	friend CScriptCallback;
 	friend void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	//CCallback * cb; //for communication between PlayerInterface/AI and GameState

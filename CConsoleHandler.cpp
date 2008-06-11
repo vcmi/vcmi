@@ -64,20 +64,20 @@ int internalFunc(void * callback)
 		vector<Coordinate>* p;
 		switch (*cn.c_str())
 		{
-		case 'P':
-			std::cout<<"Policzyc sciezke."<<std::endl;		
-			readed>>src>>dst;
-			
-			p = CGI->pathf->GetPath(Coordinate(src),Coordinate(dst),CGI->heroh->heroInstances[0]);
-			LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->ConvertToOldFormat(p);
+		//case 'P':
+		//	std::cout<<"Policzyc sciezke."<<std::endl;		
+		//	readed>>src>>dst;
+		//	
+		//	p = CGI->pathf->GetPath(Coordinate(src),Coordinate(dst),CGI->heroh->heroInstances[0]);
+		//	LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->ConvertToOldFormat(p);
 			//LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
-			break;
+			//break;
 		case 'm': //number of heroes
-			std::cout<<"Number of heroes: "<<CGI->heroh->heroInstances.size()<<std::endl;
+			std::cout<<"Number of heroes: "<<CGI->mh->map->heroes.size()<<std::endl;
 			break;
 		case 'H': //position of hero
 			readed>>heronum;
-			std::cout<<"Position of hero "<<heronum<<": "<<CGI->heroh->heroInstances[heronum]->getPosition(false)<<std::endl;
+			std::cout<<"Position of hero "<<heronum<<": "<<CGI->mh->map->heroes[heronum]->getPosition(false)<<std::endl;
 			break;
 		case 'M': //move heroa
 			{
@@ -117,15 +117,15 @@ int internalFunc(void * callback)
 			}
 			break;
 		case 'A':  //hide everything from map
-			for(int c=0; c<CGI->objh->objInstances.size(); ++c)
+			for(int c=0; c<CGI->mh->map->objects.size(); ++c)
 			{
-				CGI->mh->hideObject(CGI->objh->objInstances[c]);
+				CGI->mh->hideObject(CGI->mh->map->objects[c]);
 			}
 			break;
 		case 'R': //restora all objects after A has been pressed
-			for(int c=0; c<CGI->objh->objInstances.size(); ++c)
+			for(int c=0; c<CGI->mh->map->objects.size(); ++c)
 			{
-				CGI->mh->printObject(CGI->objh->objInstances[c]);
+				CGI->mh->printObject(CGI->mh->map->objects[c]);
 			}
 			break;
 		}

@@ -257,209 +257,209 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	}
 	backpack.clear();
 
-	artWorn[8] = new CArtPlace(hero->artifWorn[8]);
+	artWorn[8] = new CArtPlace(hero->getArt(8));
 	artWorn[8]->pos.x = 515;
 	artWorn[8]->pos.y = 295;
 	artWorn[8]->pos.h = artWorn[8]->pos.w = 44;
-	if(hero->artifWorn[8])
+	if(hero->getArt(8))
 		artWorn[8]->text = hero->getArt(8)->description;
 	else
 		artWorn[8]->text = std::string();
 	artWorn[8]->ourWindow = this;
 	artWorn[8]->feet = true;
 
-	artWorn[0] = new CArtPlace(hero->artifWorn[0]);
+	artWorn[0] = new CArtPlace(hero->getArt(0));
 	artWorn[0]->pos.x = 509;
 	artWorn[0]->pos.y = 30;
 	artWorn[0]->pos.h = artWorn[0]->pos.w = 44;
-	if(hero->artifWorn[0])
+	if(hero->getArt(0))
 		artWorn[0]->text = hero->getArt(0)->description;
 	else
 		artWorn[0]->text = std::string();
 	artWorn[0]->ourWindow = this;
 	artWorn[0]->head = true;
 
-	artWorn[4] = new CArtPlace(hero->artifWorn[4]);
+	artWorn[4] = new CArtPlace(hero->getArt(4));
 	artWorn[4]->pos.x = 564;
 	artWorn[4]->pos.y = 183;
 	artWorn[4]->pos.h = artWorn[4]->pos.w = 44;
-	if(hero->artifWorn[4])
+	if(hero->getArt(4))
 		artWorn[4]->text = hero->getArt(4)->description;
 	else
 		artWorn[4]->text = std::string();
 	artWorn[4]->ourWindow = this;
 	artWorn[4]->lHand = true;
 
-	artWorn[7] = new CArtPlace(hero->artifWorn[7]);
+	artWorn[7] = new CArtPlace(hero->getArt(7));
 	artWorn[7]->pos.x = 610;
 	artWorn[7]->pos.y = 183;
 	artWorn[7]->pos.h = artWorn[7]->pos.w = 44;
-	if(hero->artifWorn[7])
+	if(hero->getArt(7))
 		artWorn[7]->text = hero->getArt(7)->description;
 	else
 		artWorn[7]->text = std::string();
 	artWorn[7]->ourWindow = this;
 	artWorn[7]->lRing = true;
 
-	artWorn[13] = new CArtPlace(hero->artifWorn[13]);
+	artWorn[13] = new CArtPlace(hero->getArt(13));
 	artWorn[13]->pos.x = 564;
 	artWorn[13]->pos.y = 30;
 	artWorn[13]->pos.h = artWorn[13]->pos.w = 44;
-	if(hero->artifWorn[13])
+	if(hero->getArt(13))
 		artWorn[13]->text = hero->getArt(13)->description;
 	else
 		artWorn[13]->text = std::string();
 	artWorn[13]->ourWindow = this;
 	artWorn[13]->warMachine1 = true;
 
-	artWorn[14] = new CArtPlace(hero->artifWorn[14]);
+	artWorn[14] = new CArtPlace(hero->getArt(14));
 	artWorn[14]->pos.x = 610;
 	artWorn[14]->pos.y = 30;
 	artWorn[14]->pos.h = artWorn[14]->pos.w = 44;
-	if(hero->artifWorn[14])
+	if(hero->getArt(14))
 		artWorn[14]->text = hero->getArt(14)->description;
 	else
 		artWorn[14]->text = std::string();
 	artWorn[14]->ourWindow = this;
 	artWorn[14]->warMachine2 = true;
 
-	artWorn[15] = new CArtPlace(hero->artifWorn[15]);
+	artWorn[15] = new CArtPlace(hero->getArt(15));
 	artWorn[15]->pos.x = 610;
 	artWorn[15]->pos.y = 76;
 	artWorn[15]->pos.h = artWorn[15]->pos.w = 44;
-	if(hero->artifWorn[15])
+	if(hero->getArt(15))
 		artWorn[15]->text = hero->getArt(15)->description;
 	else
 		artWorn[15]->text = std::string();
 	artWorn[15]->ourWindow = this;
 	artWorn[15]->warMachine3 = true;
 
-	artWorn[16] = new CArtPlace(hero->artifWorn[16]);
+	artWorn[16] = new CArtPlace(hero->getArt(16));
 	artWorn[16]->pos.x = 610;
 	artWorn[16]->pos.y = 122;
 	artWorn[16]->pos.h = artWorn[16]->pos.w = 44;
-	if(hero->artifWorn[16])
+	if(hero->getArt(16))
 		artWorn[16]->text = hero->getArt(16)->description;
 	else
 		artWorn[16]->text = std::string();
 	artWorn[16]->ourWindow = this;
 	artWorn[16]->warMachine4 = true;
 
-	artWorn[9] = new CArtPlace(hero->artifWorn[9]);
+	artWorn[9] = new CArtPlace(hero->getArt(9));
 	artWorn[9]->pos.x = 383;
 	artWorn[9]->pos.y = 143;
 	artWorn[9]->pos.h = artWorn[9]->pos.w = 44;
-	if(hero->artifWorn[9])
+	if(hero->getArt(9))
 		artWorn[9]->text = hero->getArt(9)->description;
 	else
 		artWorn[9]->text = std::string();
 	artWorn[9]->ourWindow = this;
 	artWorn[9]->misc1 = true;
 
-	artWorn[10] = new CArtPlace(hero->artifWorn[10]);
+	artWorn[10] = new CArtPlace(hero->getArt(10));
 	artWorn[10]->pos.x = 399;
 	artWorn[10]->pos.y = 194;
 	artWorn[10]->pos.h = artWorn[10]->pos.w = 44;
-	if(hero->artifWorn[10])
+	if(hero->getArt(10))
 		artWorn[10]->text = hero->getArt(10)->description;
 	else
 		artWorn[10]->text = std::string();
 	artWorn[10]->ourWindow = this;
 	artWorn[10]->misc1 = true;
 
-	artWorn[11] = new CArtPlace(hero->artifWorn[11]);
+	artWorn[11] = new CArtPlace(hero->getArt(11));
 	artWorn[11]->pos.x = 415;
 	artWorn[11]->pos.y = 245;
 	artWorn[11]->pos.h = artWorn[11]->pos.w = 44;
-	if(hero->artifWorn[11])
+	if(hero->getArt(11))
 		artWorn[11]->text = hero->getArt(11)->description;
 	else
 		artWorn[11]->text = std::string();
 	artWorn[11]->ourWindow = this;
 	artWorn[11]->misc3 = true;
 
-	artWorn[12] = new CArtPlace(hero->artifWorn[12]);
+	artWorn[12] = new CArtPlace(hero->getArt(12));
 	artWorn[12]->pos.x = 431;
 	artWorn[12]->pos.y = 296;
 	artWorn[12]->pos.h = artWorn[12]->pos.w = 44;
-	if(hero->artifWorn[12])
+	if(hero->getArt(12))
 		artWorn[12]->text = hero->getArt(12)->description;
 	else
 		artWorn[12]->text = std::string();
 	artWorn[12]->ourWindow = this;
 	artWorn[12]->misc4 = true;
 
-	artWorn[18] = new CArtPlace(hero->artifWorn[18]);
+	artWorn[18] = new CArtPlace(hero->getArt(18));
 	artWorn[18]->pos.x = 381;
 	artWorn[18]->pos.y = 296;
 	artWorn[18]->pos.h = artWorn[18]->pos.w = 44;
-	if(hero->artifWorn[18])
+	if(hero->getArt(18))
 		artWorn[18]->text = hero->getArt(18)->description;
 	else
 		artWorn[18]->text = std::string();
 	artWorn[18]->ourWindow = this;
 	artWorn[18]->misc5 = true;
 
-	artWorn[2] = new CArtPlace(hero->artifWorn[2]);
+	artWorn[2] = new CArtPlace(hero->getArt(2));
 	artWorn[2]->pos.x = 508;
 	artWorn[2]->pos.y = 79;
 	artWorn[2]->pos.h = artWorn[2]->pos.w = 44;
-	if(hero->artifWorn[2])
+	if(hero->getArt(2))
 		artWorn[2]->text = hero->getArt(2)->description;
 	else
 		artWorn[2]->text = std::string();
 	artWorn[2]->ourWindow = this;
 	artWorn[2]->neck = true;
 
-	artWorn[3] = new CArtPlace(hero->artifWorn[3]);
+	artWorn[3] = new CArtPlace(hero->getArt(3));
 	artWorn[3]->pos.x = 383;
 	artWorn[3]->pos.y = 68;
 	artWorn[3]->pos.h = artWorn[3]->pos.w = 44;
-	if(hero->artifWorn[3])
+	if(hero->getArt(3))
 		artWorn[3]->text = hero->getArt(3)->description;
 	else
 		artWorn[3]->text = std::string();
 	artWorn[3]->ourWindow = this;
 	artWorn[3]->rHand = true;
 
-	artWorn[6] = new CArtPlace(hero->artifWorn[6]);
+	artWorn[6] = new CArtPlace(hero->getArt(6));
 	artWorn[6]->pos.x = 431;
 	artWorn[6]->pos.y = 68;
 	artWorn[6]->pos.h = artWorn[6]->pos.w = 44;
-	if(hero->artifWorn[6])
+	if(hero->getArt(6))
 		artWorn[6]->text = hero->getArt(6)->description;
 	else
 		artWorn[6]->text = std::string();
 	artWorn[6]->ourWindow = this;
 	artWorn[6]->rRing = true;
 
-	artWorn[1] = new CArtPlace(hero->artifWorn[1]);
+	artWorn[1] = new CArtPlace(hero->getArt(1));
 	artWorn[1]->pos.x = 567;
 	artWorn[1]->pos.y = 240;
 	artWorn[1]->pos.h = artWorn[1]->pos.w = 44;
-	if(hero->artifWorn[1])
+	if(hero->getArt(1))
 		artWorn[1]->text = hero->getArt(1)->description;
 	else
 		artWorn[1]->text = std::string();
 	artWorn[1]->ourWindow = this;
 	artWorn[1]->shoulders = true;
 
-	artWorn[17] = new CArtPlace(hero->artifWorn[17]);
+	artWorn[17] = new CArtPlace(hero->getArt(17));
 	artWorn[17]->pos.x = 610;
 	artWorn[17]->pos.y = 310;
 	artWorn[17]->pos.h = artWorn[17]->pos.w = 44;
-	if(hero->artifWorn[17])
+	if(hero->getArt(17))
 		artWorn[17]->text = hero->getArt(17)->description;
 	else
 		artWorn[17]->text = std::string();
 	artWorn[17]->ourWindow = this;
 	artWorn[17]->spellBook = true;
 
-	artWorn[5] = new CArtPlace(hero->artifWorn[5]);
+	artWorn[5] = new CArtPlace(hero->getArt(5));
 	artWorn[5]->pos.x = 509;
 	artWorn[5]->pos.y = 130;
 	artWorn[5]->pos.h = artWorn[5]->pos.w = 44;
-	if(hero->artifWorn[5])
+	if(hero->getArt(5))
 		artWorn[5]->text = hero->getArt(5)->description;
 	else
 		artWorn[5]->text = std::string();
@@ -480,7 +480,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	{
 		CArtPlace * add;
 		if( s < curHero->artifacts.size() )
-			add = new CArtPlace(curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]);
+			add = new CArtPlace(&CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]]);
 		else
 			add = new CArtPlace(NULL);
 		add->pos.x = 403 + 46*s;
@@ -876,7 +876,7 @@ void CHeroWindow::redrawCurBack()
 	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
 }
 
-CArtPlace::CArtPlace(int Art): ourArt(&CGI->arth->artifacts[Art]), active(false), clicked(false),
+CArtPlace::CArtPlace(const CArtifact* Art): ourArt(Art), active(false), clicked(false),
 	spellBook(false), warMachine1(false), warMachine2(false), warMachine3(false),
 	warMachine4(false),misc1(false), misc2(false), misc3(false), misc4(false),
 	misc5(false), feet(false), lRing(false), rRing(false), torso(false),

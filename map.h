@@ -6,14 +6,15 @@
 #include <map>
 #include "global.h"
 class CGDefInfo;
-class CHeroObjInfo;
+class CGObjectInstance;
+class CGHeroInstance;
+class CGTownInstance;
 enum ESortBy{name,playerAm,size,format, viccon,loscon};
 struct Sresource
 {
 	std::string resName; //name of this resource
 	int amount; //it can be greater and lesser than 0
 };
-class CGHeroInstance;
 struct TimeEvent
 {
 	std::string eventName;
@@ -106,12 +107,6 @@ struct VicCon7 : public CspecificVictoryConidtions // defeat a specific monster
 {
 	int3 locationOfMonster;
 };
-/*struct VicCon8 : public CspecificVictoryConidtions // flag all creature dwellings
-{
-};
-struct VicCon9 : public CspecificVictoryConidtions // flag all mines
-{
-};*/
 struct VicCona : public CspecificVictoryConidtions //transport specific artifact
 {
 	int artifactID;
@@ -141,7 +136,6 @@ public:
 	int firstOccurence;
 	int nextOccurence; //after nextOccurance day event will occure; if it it 0, event occures only one time;
 };
-
 struct Mapa
 {
 	Eformat version; // version of map Eformat
@@ -167,7 +161,12 @@ struct Mapa
 	std::vector<bool> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
 	std::vector<bool> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
 	std::vector<bool> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
+	std::vector<bool> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
 	std::vector<CMapEvent> events;
+
+	std::vector<CGObjectInstance*> objects;
+	std::vector<CGHeroInstance*> heroes;
+	std::vector<CGTownInstance*> towns;
 };
 class CMapHeader
 {

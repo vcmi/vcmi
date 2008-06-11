@@ -9,7 +9,6 @@
 #include <algorithm>
 #include "CGameState.h"
 #include "CLua.h"
-#include "hch\CCastleHandler.h"
 #include "hch\CHeroHandler.h"
 #include "hch\CTownHandler.h"
 #include "hch\CArtHandler.h"
@@ -178,17 +177,17 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 			CCreGen2ObjInfo* info =(CCreGen2ObjInfo*)obj->info;
 			if (info->asCastle)
 			{
-				for(int i=0;i<CGI->objh->objInstances.size();i++)
+				for(int i=0;i<map->objects.size();i++)
 				{
-					if(CGI->objh->objInstances[i]->ID==77 && dynamic_cast<CGTownInstance*>(CGI->objh->objInstances[i])->identifier == info->identifier)
+					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
 					{
-						randomizeObject(CGI->objh->objInstances[i]); //we have to randomize the castle first
-						faction = CGI->objh->objInstances[i]->subID;
+						randomizeObject(map->objects[i]); //we have to randomize the castle first
+						faction = map->objects[i]->subID;
 						break;
 					}
-					else if(CGI->objh->objInstances[i]->ID==98 && dynamic_cast<CGTownInstance*>(CGI->objh->objInstances[i])->identifier == info->identifier)
+					else if(map->objects[i]->ID==98 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
 					{
-						faction = CGI->objh->objInstances[i]->subID;
+						faction = map->objects[i]->subID;
 						break;
 					}
 				}
@@ -216,17 +215,17 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 			CCreGenObjInfo* info =(CCreGenObjInfo*)obj->info;
 			if (info->asCastle)
 			{
-				for(int i=0;i<CGI->objh->objInstances.size();i++)
+				for(int i=0;i<map->objects.size();i++)
 				{
-					if(CGI->objh->objInstances[i]->ID==77 && dynamic_cast<CGTownInstance*>(CGI->objh->objInstances[i])->identifier == info->identifier)
+					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
 					{
-						randomizeObject(CGI->objh->objInstances[i]); //we have to randomize the castle first
-						faction = CGI->objh->objInstances[i]->subID;
+						randomizeObject(map->objects[i]); //we have to randomize the castle first
+						faction = map->objects[i]->subID;
 						break;
 					}
-					else if(CGI->objh->objInstances[i]->ID==98 && dynamic_cast<CGTownInstance*>(CGI->objh->objInstances[i])->identifier == info->identifier)
+					else if(map->objects[i]->ID==98 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
 					{
-						faction = CGI->objh->objInstances[i]->subID;
+						faction = map->objects[i]->subID;
 						break;
 					}
 				}
@@ -290,8 +289,8 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 		cur->ID = ran.first;
 		cur->subID = ran.second;
 		h->type = CGI->heroh->heroes[ran.second];
-		CGI->heroh->heroInstances.push_back(h);
-		CGI->objh->objInstances.erase(std::find(CGI->objh->objInstances.begin(),CGI->objh->objInstances.end(),h));
+		map->heroes.push_back(h);
+		map->objects.erase(std::find(map->objects.begin(),map->objects.end(),h));
 		return; //TODO: maybe we should do something with definfo?
 	}
 	else if(ran.first==98)//special code for town
@@ -330,11 +329,11 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 void CMapHandler::randomizeObjects()
 {
 	CGObjectInstance * cur;
-	for(int no=0; no<CGI->objh->objInstances.size(); ++no)
+	for(int no=0; no<map->objects.size(); ++no)
 	{
-		randomizeObject(CGI->objh->objInstances[no]);
-		if(CGI->objh->objInstances[no]->ID==26)
-			CGI->objh->objInstances[no]->defInfo->handler=NULL;
+		randomizeObject(map->objects[no]);
+		if(map->objects[no]->ID==26)
+			map->objects[no]->defInfo->handler=NULL;
 	}
 }
 void CMapHandler::prepareFOWDefs()
@@ -385,11 +384,11 @@ void CMapHandler::prepareFOWDefs()
 	{
 		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
 	}
-	//visibility.resize(reader->map.width+2*Woff);
-	//for(int gg=0; gg<reader->map.width+2*Woff; ++gg)
+	//visibility.resize(map->width+2*Woff);
+	//for(int gg=0; gg<map->width+2*Woff; ++gg)
 	//{
-	//	visibility[gg].resize(reader->map.height+2*Hoff);
-	//	for(int jj=0; jj<reader->map.height+2*Hoff; ++jj)
+	//	visibility[gg].resize(map->height+2*Hoff);
+	//	for(int jj=0; jj<map->height+2*Hoff; ++jj)
 	//		visibility[gg][jj] = true;
 	//}
 
@@ -458,9 +457,9 @@ void CMapHandler::roadsRiverTerrainInit()
 		}
 	}
 
-	//roadBitmaps = new SDL_Surface** [reader->map.width+2*Woff];
-	//for (int ii=0;ii<reader->map.width+2*Woff;ii++)
-	//	roadBitmaps[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory
+	//roadBitmaps = new SDL_Surface** [map->width+2*Woff];
+	//for (int ii=0;ii<map->width+2*Woff;ii++)
+	//	roadBitmaps[ii] = new SDL_Surface*[map->height+2*Hoff]; // allocate memory
 	sizes.x = CGI->ac->map.width;
 	sizes.y = CGI->ac->map.height;
 	sizes.z = CGI->ac->map.twoLevel+1;
@@ -477,42 +476,42 @@ void CMapHandler::roadsRiverTerrainInit()
 
 
 
-	for (int i=0; i<reader->map.width; i++) //jest po szerokoœci
+	for (int i=0; i<map->width; i++) //jest po szerokoœci
 	{
-		for (int j=0; j<reader->map.height;j++) //po wysokoœci
+		for (int j=0; j<map->height;j++) //po wysokoœci
 		{
-			for (int k=0; k<=reader->map.twoLevel; ++k)
+			for (int k=0; k<=map->twoLevel; ++k)
 			{
-				TerrainTile** pomm = reader->map.terrain; ;
+				TerrainTile** pomm = map->terrain; ;
 				if (k==0)
-					pomm = reader->map.terrain;
+					pomm = map->terrain;
 				else
-					pomm = reader->map.undergroungTerrain;
+					pomm = map->undergroungTerrain;
 				if(pomm[i][j].malle)
 				{
 					int cDir;
 					bool rotV, rotH;
 					if(k==0)
 					{
-						int roadpom = reader->map.terrain[i][j].malle-1,
-							impom = reader->map.terrain[i][j].roadDir;
+						int roadpom = map->terrain[i][j].malle-1,
+							impom = map->terrain[i][j].roadDir;
 						SDL_Surface *pom1 = roadDefs[roadpom]->ourImages[impom].bitmap;
 						ttiles[i][j][k].roadbitmap.push_back(pom1);
-						cDir = reader->map.terrain[i][j].roadDir;
+						cDir = map->terrain[i][j].roadDir;
 
-						rotH = (reader->map.terrain[i][j].siodmyTajemniczyBajt >> 5) & 1;
-						rotV = (reader->map.terrain[i][j].siodmyTajemniczyBajt >> 4) & 1;
+						rotH = (map->terrain[i][j].siodmyTajemniczyBajt >> 5) & 1;
+						rotV = (map->terrain[i][j].siodmyTajemniczyBajt >> 4) & 1;
 					}
 					else
 					{
-						int pom111 = reader->map.undergroungTerrain[i][j].malle-1,
-							pom777 = reader->map.undergroungTerrain[i][j].roadDir;
+						int pom111 = map->undergroungTerrain[i][j].malle-1,
+							pom777 = map->undergroungTerrain[i][j].roadDir;
 						SDL_Surface *pom1 = roadDefs[pom111]->ourImages[pom777].bitmap;
 						ttiles[i][j][k].roadbitmap.push_back(pom1);
-						cDir = reader->map.undergroungTerrain[i][j].roadDir;
+						cDir = map->undergroungTerrain[i][j].roadDir;
 
-						rotH = (reader->map.undergroungTerrain[i][j].siodmyTajemniczyBajt >> 5) & 1;
-						rotV = (reader->map.undergroungTerrain[i][j].siodmyTajemniczyBajt >> 4) & 1;
+						rotH = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt >> 5) & 1;
+						rotV = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt >> 4) & 1;
 					}
 					if(rotH)
 					{
@@ -557,20 +556,20 @@ void CMapHandler::roadsRiverTerrainInit()
 	}
 	//simple values initialized
 
-	for (int i=0; i<reader->map.width; i++) //jest po szerokoœci
+	for (int i=0; i<map->width; i++) //jest po szerokoœci
 	{
-		for (int j=0; j<reader->map.height;j++) //po wysokoœci
+		for (int j=0; j<map->height;j++) //po wysokoœci
 		{
-			for(int k=0; k<=reader->map.twoLevel; ++k)
+			for(int k=0; k<=map->twoLevel; ++k)
 			{
-				TerrainTile** pomm = reader->map.terrain;
+				TerrainTile** pomm = map->terrain;
 				if(k==0)
 				{
-					pomm = reader->map.terrain;
+					pomm = map->terrain;
 				}
 				else
 				{
-					pomm = reader->map.undergroungTerrain;
+					pomm = map->undergroungTerrain;
 				}
 				if(pomm[i][j].nuine)
 				{
@@ -578,17 +577,17 @@ void CMapHandler::roadsRiverTerrainInit()
 					bool rotH, rotV;
 					if(k==0)
 					{
-						ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[reader->map.terrain[i][j].nuine-1]->ourImages[reader->map.terrain[i][j].rivDir].bitmap);
-						cDir = reader->map.terrain[i][j].rivDir;
-						rotH = (reader->map.terrain[i][j].siodmyTajemniczyBajt >> 3) & 1;
-						rotV = (reader->map.terrain[i][j].siodmyTajemniczyBajt >> 2) & 1;
+						ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[map->terrain[i][j].nuine-1]->ourImages[map->terrain[i][j].rivDir].bitmap);
+						cDir = map->terrain[i][j].rivDir;
+						rotH = (map->terrain[i][j].siodmyTajemniczyBajt >> 3) & 1;
+						rotV = (map->terrain[i][j].siodmyTajemniczyBajt >> 2) & 1;
 					}
 					else
 					{
-						ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[reader->map.undergroungTerrain[i][j].nuine-1]->ourImages[reader->map.undergroungTerrain[i][j].rivDir].bitmap);
-						cDir = reader->map.undergroungTerrain[i][j].rivDir;
-						rotH = (reader->map.undergroungTerrain[i][j].siodmyTajemniczyBajt >> 3) & 1;
-						rotV = (reader->map.undergroungTerrain[i][j].siodmyTajemniczyBajt >> 2) & 1;
+						ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[map->undergroungTerrain[i][j].nuine-1]->ourImages[map->undergroungTerrain[i][j].rivDir].bitmap);
+						cDir = map->undergroungTerrain[i][j].rivDir;
+						rotH = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt >> 3) & 1;
+						rotV = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt >> 2) & 1;
 					}
 					if(rotH)
 					{
@@ -609,56 +608,56 @@ void CMapHandler::roadsRiverTerrainInit()
 }
 void CMapHandler::borderAndTerrainBitmapInit()
 {
-	//terrainBitmap = new SDL_Surface **[reader->map.width+2*Woff];
-	//for (int ii=0;ii<reader->map.width+2*Woff;ii++)
-	//	terrainBitmap[ii] = new SDL_Surface*[reader->map.height+2*Hoff]; // allocate memory
+	//terrainBitmap = new SDL_Surface **[map->width+2*Woff];
+	//for (int ii=0;ii<map->width+2*Woff;ii++)
+	//	terrainBitmap[ii] = new SDL_Surface*[map->height+2*Hoff]; // allocate memory
 
 	CDefHandler * bord = CGameInfo::mainObj->spriteh->giveDef("EDG.DEF");
 	bord->notFreeImgs =  true;
-	for (int i=0-Woff; i<reader->map.width+Woff; i++) //jest po szerokoœci
+	for (int i=0-Woff; i<map->width+Woff; i++) //jest po szerokoœci
 	{
-		for (int j=0-Hoff; j<reader->map.height+Hoff;j++) //po wysokoœci
+		for (int j=0-Hoff; j<map->height+Hoff;j++) //po wysokoœci
 		{
-			for(int k=0; k<=reader->map.twoLevel; ++k)
+			for(int k=0; k<=map->twoLevel; ++k)
 			{
-				if(i < 0 || i > (reader->map.width-1) || j < 0  || j > (reader->map.height-1))
+				if(i < 0 || i > (map->width-1) || j < 0  || j > (map->height-1))
 				{
 					if(i==-1 && j==-1)
 					{
 						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[16].bitmap);
 						continue;
 					}
-					else if(i==-1 && j==(reader->map.height))
+					else if(i==-1 && j==(map->height))
 					{
 						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[19].bitmap);
 						continue;
 					}
-					else if(i==(reader->map.width) && j==-1)
+					else if(i==(map->width) && j==-1)
 					{
 						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[17].bitmap);
 						continue;
 					}
-					else if(i==(reader->map.width) && j==(reader->map.height))
+					else if(i==(map->width) && j==(map->height))
 					{
 						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[18].bitmap);
 						continue;
 					}
-					else if(j == -1 && i > -1 && i < reader->map.height)
+					else if(j == -1 && i > -1 && i < map->height)
 					{
 						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[22+rand()%2].bitmap);
 						continue;
 					}
-					else if(i == -1 && j > -1 && j < reader->map.height)
+					else if(i == -1 && j > -1 && j < map->height)
 					{
 						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[33+rand()%2].bitmap);
 						continue;
 					}
-					else if(j == reader->map.height && i >-1 && i < reader->map.width)
+					else if(j == map->height && i >-1 && i < map->width)
 					{
 						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[29+rand()%2].bitmap);
 						continue;
 					}
-					else if(i == reader->map.width && j > -1 && j < reader->map.height)
+					else if(i == map->width && j > -1 && j < map->height)
 					{
 						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[25+rand()%2].bitmap);
 						continue;
@@ -669,12 +668,12 @@ void CMapHandler::borderAndTerrainBitmapInit()
 						continue;
 					}
 				}
-				//TerrainTile zz = reader->map.terrain[i-Woff][j-Hoff];
+				//TerrainTile zz = map->terrain[i-Woff][j-Hoff];
 				std::string name;
 				if (k>0)
-					name = nameFromType(reader->map.undergroungTerrain[i][j].tertype);
+					name = nameFromType(map->undergroungTerrain[i][j].tertype);
 				else
-					name = nameFromType(reader->map.terrain[i][j].tertype);
+					name = nameFromType(map->terrain[i][j].tertype);
 				for (unsigned int m=0; m<defs.size(); m++)
 				{
 					try
@@ -685,15 +684,15 @@ void CMapHandler::borderAndTerrainBitmapInit()
 						{
 							int ktora;
 							if (k==0)
-								ktora = reader->map.terrain[i][j].terview;
+								ktora = map->terrain[i][j].terview;
 							else
-								ktora = reader->map.undergroungTerrain[i][j].terview;
+								ktora = map->undergroungTerrain[i][j].terview;
 							ttiles[i][j][k].terbitmap.push_back(defs[m]->ourImages[ktora].bitmap);
 							int zz;
 							if (k==0)
-								zz = (reader->map.terrain[i][j].siodmyTajemniczyBajt)%4;
+								zz = (map->terrain[i][j].siodmyTajemniczyBajt)%4;
 							else
-								zz = (reader->map.undergroungTerrain[i][j].siodmyTajemniczyBajt)%4;
+								zz = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt)%4;
 							switch (zz)
 							{
 							case 1:
@@ -729,15 +728,15 @@ void CMapHandler::borderAndTerrainBitmapInit()
 void CMapHandler::initObjectRects()
 {
 	//initializing objects / rects
-	for(int f=0; f<CGI->objh->objInstances.size(); ++f)
+	for(int f=0; f<map->objects.size(); ++f)
 	{
-		/*CGI->objh->objInstances[f]->pos.x+=1;
-		CGI->objh->objInstances[f]->pos.y+=1;*/
-		if(!CGI->objh->objInstances[f]->defInfo)
+		/*map->objects[f]->pos.x+=1;
+		map->objects[f]->pos.y+=1;*/
+		if(!map->objects[f]->defInfo)
 		{
 			continue;
 		}
-		CDefHandler * curd = CGI->objh->objInstances[f]->defInfo->handler;
+		CDefHandler * curd = map->objects[f]->defInfo->handler;
 		if(curd)
 		{
 			for(int fx=0; fx<curd->ourImages[0].bitmap->w>>5; ++fx) //curd->ourImages[0].bitmap->w/32
@@ -749,21 +748,21 @@ void CMapHandler::initObjectRects()
 					cr.h = 32;
 					cr.x = fx<<5; //fx*32
 					cr.y = fy<<5; //fy*32
-					std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(CGI->objh->objInstances[f],cr);
+					std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(map->objects[f],cr);
 					
-					if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+					if((map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 					{
 						//TerrainTile2 & curt =
 						//	ttiles
-						//	[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32]
-						//[CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32]
-						//[CGI->objh->objInstances[f]->pos.z];
-						ttiles[CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][CGI->objh->objInstances[f]->pos.z].objects.push_back(toAdd);
+						//	[map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32]
+						//[map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32]
+						//[map->objects[f]->pos.z];
+						ttiles[map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][map->objects[f]->pos.z].objects.push_back(toAdd);
 					}
 				} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
 			} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
 		}//if curd
-	} // for(int f=0; f<CGI->objh->objInstances.size(); ++f)
+	} // for(int f=0; f<map->objects.size(); ++f)
 	for(int ix=0; ix<ttiles.size()-Woff; ++ix)
 	{
 		for(int iy=0; iy<ttiles[0].size()-Hoff; ++iy)
@@ -777,24 +776,24 @@ void CMapHandler::initObjectRects()
 }
 void CMapHandler::calculateBlockedPos()
 {
-	for(int f=0; f<CGI->objh->objInstances.size(); ++f) //calculationg blocked / visitable positions
+	for(int f=0; f<map->objects.size(); ++f) //calculationg blocked / visitable positions
 	{
-		if(!CGI->objh->objInstances[f]->defInfo)
+		if(!map->objects[f]->defInfo)
 			continue;
-		CDefHandler * curd = CGI->objh->objInstances[f]->defInfo->handler;
+		CDefHandler * curd = map->objects[f]->defInfo->handler;
 		for(int fx=0; fx<8; ++fx)
 		{
 			for(int fy=0; fy<6; ++fy)
 			{
-				int xVal = CGI->objh->objInstances[f]->pos.x + fx - 7;
-				int yVal = CGI->objh->objInstances[f]->pos.y + fy - 5;
-				int zVal = CGI->objh->objInstances[f]->pos.z;
+				int xVal = map->objects[f]->pos.x + fx - 7;
+				int yVal = map->objects[f]->pos.y + fy - 5;
+				int zVal = map->objects[f]->pos.z;
 				if(xVal>=0 && xVal<ttiles.size()-Woff && yVal>=0 && yVal<ttiles[0].size()-Hoff)
 				{
 					TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
-					if(((CGI->objh->objInstances[f]->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+					if(((map->objects[f]->defInfo->visitMap[fy] >> (7 - fx)) & 1))
 						curt.visitable = true;
-					if(!((CGI->objh->objInstances[f]->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+					if(!((map->objects[f]->defInfo->blockMap[fy] >> (7 - fx)) & 1))
 						curt.blocked = true;
 				}
 			}
@@ -803,6 +802,31 @@ void CMapHandler::calculateBlockedPos()
 }
 void CMapHandler::init()
 {
+	timeHandler th;
+	th.getDif();
+
+	///loading defs from lod
+	for (int ir=0;ir<map->defy.size();ir++)
+	{
+		map->defy[ir]->handler=CGI->spriteh->giveDef(map->defy[ir]->name);
+		CGDefInfo* pom = CGI->dobjinfo->gobjs[map->defy[ir]->id][map->defy[ir]->subid];
+		if(pom)
+			pom->handler=map->defy[ir]->handler;
+		else
+			std::cout << "Lacking def info for " << map->defy[ir]->id << " " << map->defy[ir]->subid <<" " << map->defy[ir]->name << std::endl;
+	}
+	for(int vv=0; vv<map->defy.size(); ++vv)
+	{
+		if(map->defy[vv]->handler->alphaTransformed)
+			continue;
+		for(int yy=0; yy<map->defy[vv]->handler->ourImages.size(); ++yy)
+		{
+			map->defy[vv]->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map->defy[vv]->handler->ourImages[yy].bitmap);
+			map->defy[vv]->handler->alphaTransformed = true;
+		}
+	}
+	THC std::cout<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
+
 	//loading castles' defs
 	std::ifstream ifs("config/townsDefs.txt");
 	int ccc;
@@ -828,29 +852,28 @@ void CMapHandler::init()
 			do
 			{
 				f = rand()%F_NUMBER;
-			}while(!(reader->map.players[CGI->scenarioOps.playerInfos[i].color].allowedFactions  & 1<<f));
+			}while(!(map->players[CGI->scenarioOps.playerInfos[i].color].allowedFactions  & 1<<f));
 			CGI->scenarioOps.playerInfos[i].castle = f;
 		}
 	}
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
-		for(int j=0; j<reader->map.players[i].heroesNames.size();j++)
+		for(int j=0; j<map->players[i].heroesNames.size();j++)
 		{
-			usedHeroes.insert(reader->map.players[i].heroesNames[j].heroID);
+			usedHeroes.insert(map->players[i].heroesNames[j].heroID);
 		}
 	}
+	std::cout<<"\tLoading town defs, picking random factions and heroes: "<<th.getDif()<<std::endl;
 
 
-	timeHandler th;
-	th.getDif();
 	randomizeObjects();//randomizing objects on map
 	std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
-	for(int h=0; h<reader->map.defy.size(); ++h) //initializing loaded def handler's info
+	for(int h=0; h<map->defy.size(); ++h) //initializing loaded def handler's info
 	{
-		//std::string hlp = reader->map.defy[h]->name;
+		//std::string hlp = map->defy[h]->name;
 		//std::transform(hlp.begin(), hlp.end(), hlp.begin(), (int(*)(int))toupper);
-		CGI->mh->loadedDefs.insert(std::make_pair(reader->map.defy[h]->name, reader->map.defy[h]->handler));
+		CGI->mh->loadedDefs.insert(std::make_pair(map->defy[h]->name, map->defy[h]->handler));
 	}
 	std::cout<<"\tCollecting loaded def's handlers: "<<th.getDif()<<std::endl;
 
@@ -862,9 +885,9 @@ void CMapHandler::init()
 	//giving starting hero
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
-		if((reader->map.players[i].generateHeroAtMainTown && reader->map.players[i].hasMainTown) ||  (reader->map.players[i].hasMainTown && reader->map.version==RoE))
+		if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==RoE))
 		{
-			int3 hpos = reader->map.players[i].posOfMainTown;
+			int3 hpos = map->players[i].posOfMainTown;
 			hpos.x+=1;// hpos.y+=1;
 			int j;
 			for(j=0;j<CGI->scenarioOps.playerInfos.size();j++)
@@ -877,8 +900,8 @@ void CMapHandler::init()
 				h=pickHero(i);
 			CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,h,hpos,i);
 			nnn->defInfo->handler = CGI->heroh->flags1[0];
-			CGI->heroh->heroInstances.push_back(nnn);
-			CGI->objh->objInstances.push_back(nnn);
+			map->heroes.push_back(nnn);
+			map->objects.push_back(nnn);
 		}
 	}
 	std::cout<<"\tGiving starting heroes: "<<th.getDif()<<std::endl;
@@ -929,7 +952,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		 su = CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
 	}
 
-	if (((dx+x)>((reader->map.width+Woff)) || (dy+y)>((reader->map.height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
+	if (((dx+x)>((map->width+Woff)) || (dy+y)>((map->height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
 		throw new std::string("terrainRect: out of range");
 	////printing terrain
 	for (int bx=0; bx<dx; bx++)
@@ -1081,7 +1104,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.h=sr.w=32;
 			validateRectTerr(&sr, extRect);
 			
-			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][level])
+			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->map->width && by+y<CGI->mh->map->height && !visibilityMap[bx+x][by+y][level])
 			{
 				SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, level);
 				CSDL_Ext::blit8bppAlphaTo24bpp(hide, &genRect(sr.h, sr.w, 0, 0), su, &sr);
@@ -1094,7 +1117,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	{
 		for (int by=0; by<dy; by++)
 		{
-			if(bx+x<0 || by+y<0 || bx+x>reader->map.width+(-1) || by+y>reader->map.height+(-1))
+			if(bx+x<0 || by+y<0 || bx+x>map->width+(-1) || by+y>map->height+(-1))
 			{
 				SDL_Rect sr;
 				sr.y=by*32;
@@ -1412,12 +1435,12 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<
 int CMapHandler::getCost(int3 &a, int3 &b, const CGHeroInstance *hero)
 {
 	int ret=-1;
-	if(a.x>=CGI->mh->reader->map.width && a.y>=CGI->mh->reader->map.height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->reader->map.width-1][CGI->mh->reader->map.width-1][a.z].malle];
-	else if(a.x>=CGI->mh->reader->map.width && a.y<CGI->mh->reader->map.height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->reader->map.width-1][a.y][a.z].malle];
-	else if(a.x<CGI->mh->reader->map.width && a.y>=CGI->mh->reader->map.height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][CGI->mh->reader->map.width-1][a.z].malle];
+	if(a.x>=CGI->mh->map->width && a.y>=CGI->mh->map->height)
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->map->width-1][CGI->mh->map->width-1][a.z].malle];
+	else if(a.x>=CGI->mh->map->width && a.y<CGI->mh->map->height)
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->map->width-1][a.y][a.z].malle];
+	else if(a.x<CGI->mh->map->width && a.y>=CGI->mh->map->height)
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][CGI->mh->map->width-1][a.z].malle];
 	else
 		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].malle];
 	if(!(a.x==b.x || a.y==b.y))
@@ -1591,10 +1614,10 @@ std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * 
 bool CMapHandler::removeObject(CGObjectInstance *obj)
 {
 	hideObject(obj);
-	std::vector<CGObjectInstance *>::iterator db = std::find(CGI->objh->objInstances.begin(), CGI->objh->objInstances.end(), obj);
+	std::vector<CGObjectInstance *>::iterator db = std::find(map->objects.begin(), map->objects.end(), obj);
 	recalculateHideVisPosUnderObj(*db);
 	delete *db;
-	CGI->objh->objInstances.erase(db);
+	map->objects.erase(db);
 	return true;
 }
 
@@ -1792,20 +1815,20 @@ unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
 void CMapHandler::loadDefs()
 {
 	std::set<int> loadedTypes;
-	for (int i=0; i<reader->map.width; i++)
+	for (int i=0; i<map->width; i++)
 	{
-		for (int j=0; j<reader->map.width; j++)
+		for (int j=0; j<map->width; j++)
 		{
-			if (loadedTypes.find(reader->map.terrain[i][j].tertype)==loadedTypes.end())
+			if (loadedTypes.find(map->terrain[i][j].tertype)==loadedTypes.end())
 			{
-				CDefHandler  *sdh = CGI->spriteh->giveDef(nameFromType(reader->map.terrain[i][j].tertype).c_str());
-				loadedTypes.insert(reader->map.terrain[i][j].tertype);
+				CDefHandler  *sdh = CGI->spriteh->giveDef(nameFromType(map->terrain[i][j].tertype).c_str());
+				loadedTypes.insert(map->terrain[i][j].tertype);
 				defs.push_back(sdh);
 			}
-			if (reader->map.twoLevel && loadedTypes.find(reader->map.undergroungTerrain[i][j].tertype)==loadedTypes.end())
+			if (map->twoLevel && loadedTypes.find(map->undergroungTerrain[i][j].tertype)==loadedTypes.end())
 			{
-				CDefHandler  *sdh = CGI->spriteh->giveDef(nameFromType(reader->map.undergroungTerrain[i][j].tertype).c_str());
-				loadedTypes.insert(reader->map.undergroungTerrain[i][j].tertype);
+				CDefHandler  *sdh = CGI->spriteh->giveDef(nameFromType(map->undergroungTerrain[i][j].tertype).c_str());
+				loadedTypes.insert(map->undergroungTerrain[i][j].tertype);
 				defs.push_back(sdh);
 			}
 		}

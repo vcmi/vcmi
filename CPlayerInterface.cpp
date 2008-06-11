@@ -1897,10 +1897,10 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 		pos.x = -Woff+1;
 	if(pos.y<=-Hoff)
 		pos.y = -Hoff+1;
-	if(pos.x>CGI->mh->reader->map.width - this->adventureInt->terrain.tilesw + Woff)
-		pos.x = CGI->mh->reader->map.width - this->adventureInt->terrain.tilesw + Woff;
-	if(pos.y>CGI->mh->reader->map.height - this->adventureInt->terrain.tilesh + Hoff)
-		pos.y = CGI->mh->reader->map.height - this->adventureInt->terrain.tilesh + Hoff;
+	if(pos.x>CGI->mh->map->width - this->adventureInt->terrain.tilesw + Woff)
+		pos.x = CGI->mh->map->width - this->adventureInt->terrain.tilesw + Woff;
+	if(pos.y>CGI->mh->map->height - this->adventureInt->terrain.tilesh + Hoff)
+		pos.y = CGI->mh->map->height - this->adventureInt->terrain.tilesh + Hoff;
 	return pos;
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)

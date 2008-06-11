@@ -48,30 +48,25 @@ public:
 	bool humanActivate; //true if human player can activate this event
 };
 
-//class CHeroObjInfo : public CSpecObjInfo
-//{
-//public:
-//	unsigned char bytes[4]; //mysterius bytes identifying hero in a strange way
-//	int player;
-//	CHero * type;
-//	std::string name; //if nonstandard
-//	bool standardGarrison; //true if hero has standard garrison
-//	CCreatureSet garrison; //hero's army
-//	std::vector<int> artifacts; //hero's artifacts from bag
-//	//CArtifact * artHead, * artLRing, * artRRing, * artLHand, * artRhand, * artFeet, * artSpellBook, * artMach1, * artMach2, * artMach3, * artMach4, * artMisc1, * artMisc2, * artMisc3, * artMisc4, * artMisc5, * artTorso, * artNeck, * artShoulders; //working artifactsstd::vector<CArtifact *> artifWorn; // 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-//	std::map<int,int> artifWorn; // keys: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-//	bool isGuarding;
-//	int guardRange; //range of hero's guard
-//	std::string biography; //if nonstandard
-//	bool sex; //if true, reverse hero's sex
-//	std::vector<int> spells; //hero's spells
-//	int attack, defence, power, knowledge; //main hero's attributes
-//	unsigned int experience; //hero's experience points
-//	std::vector<int> abilities; //hero's abilities
-//	std::vector<int> abilityLevels; //hero ability levels
-//	bool defaultMainStats; //if true attack, defence, power and knowledge are typical
-//	CGHeroInstance * myInstance; //pointer to appropriate hero instance
-//};
+class CCastleEvent
+{
+public:
+	std::string name, message;
+	int wood, mercury, ore, sulfur, crystal, gems, gold; //gain / loss of resources
+	unsigned char players; //players for whom this event can be applied
+	bool forHuman, forComputer;
+	int firstShow; //postpone of first encounter time in days
+	int forEvery; //every n days this event will occure
+
+	unsigned char bytes[6]; //build specific buildings (raw format, similar to town's)
+
+	int gen[7]; //additional creatures in i-th level dwelling
+
+	bool operator<(const CCastleEvent &drugie) const
+	{
+		return firstShow<drugie.firstShow;
+	}
+};
 
 class CCreatureObjInfo : public CSpecObjInfo
 {
@@ -106,7 +101,7 @@ public:
 	std::vector<CCreature *> m6cre;//for mission 6
 	std::vector<int> m6number;
 	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;	//for mission 7
-	CHero * m8hero;//for mission 8
+	int m8hero;//for mission 8 - hero ID
 	int m9player; //for mission 9 - number; from 0 to 7
 
 	std::string firstVisitText, nextVisitText, completedText;
@@ -276,7 +271,7 @@ public:
 	//for mission 7
 	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;
 	//for mission 8
-	CHero * m8hero;
+	int m8hero; //hero id
 	//for mission 9
 	int m9player; //number; from 0 to 7
 
@@ -343,8 +338,15 @@ public:
 	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
 	int movement; //remaining movement points
 	int identifier; //from the map file
-	int patrolRadious; //-1 - no patrol
 	bool sex;
+
+	struct Patrol
+	{
+		Patrol(){patrolling=false;patrolRadious=-1;};
+		bool patrolling;
+		int patrolRadious;
+	} patrol;
+
 
 	bool inTownGarrison; // if hero is in town garrison 
 	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
@@ -379,29 +381,25 @@ public:
 	std::string name; // name of town
 	int builded; //how many buildings has been built this turn
 	int destroyed; //how many buildings has been destroyed this turn
-
+	const CGHeroInstance * garrisonHero, *visitingHero;
 	int identifier; //special identifier from h3m (only > RoE maps)
 	int alignment;
+	std::set<int> forbiddenBuildings, builtBuildings;
+	std::vector<int> possibleSpells, obligatorySpells, availableSpells;
 
 	struct StrInfo
 	{
 		std::map<int,int> creatures; //level - available amount
 	} strInfo;
-	
-	std::set<int> forbiddenBuildings, builtBuildings, h3mbuildings;
+	std::set<CCastleEvent> events;
 
-	const CGHeroInstance * garrisonHero, *visitingHero;
-
-	std::vector<int> possibleSpells, obligatorySpells, availableSpells;
 
 	int getSightDistance() const; //returns sight distance
-
 	int fortLevel() const; //0 - none, 1 - fort, 2 - citadel, 3 - castle
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	bool creatureDwelling(const int & level, bool upgraded=false) const;
 	int getHordeLevel(const int & HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 	int creatureGrowth(const int & level) const;
-
 	bool hasFort() const;
 	bool hasCapitol() const;
 	int dailyIncome() const;
@@ -414,7 +412,6 @@ class CObjectHandler
 {
 public:
 	std::vector<CObject> objects; //vector of objects; i-th object in vector has subnumber i
-	std::vector<CGObjectInstance*> objInstances; //vector with objects on map
 	std::vector<int> cregens; //type 17. dwelling subid -> creature ID
 	void loadObjects();
 

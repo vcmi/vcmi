@@ -2,12 +2,12 @@
 #include "CAmbarCendamo.h"
 #include "../CGameInfo.h"
 #include "CObjectHandler.h"
-#include "CCastleHandler.h"
-#include "CTownHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "../SDL_Extensions.h"
 #include "../CGameState.h"
-#include "CLodHandler.h"
+#include "SDL.h"
+#include "CDefHandler.h"
+#include "CCreatureHandler.h"
 #include <set>
 #include <iomanip>
 #include <sstream>
@@ -383,19 +383,18 @@ void CAmbarCendamo::deh3m()
 	int ist;
 
 	ist=i; //starting i for loop
+
+	map.allowedHeroes.resize(HEROES_QUANTITY);
+	for(int xx=0;xx<HEROES_QUANTITY;xx++)
+		map.allowedHeroes[xx] = true;
+
 	for(i; i<ist+ (map.version == Eformat::RoE ? 16 : 20) ; ++i)
 	{
 		unsigned char c = bufor[i];
 		for(int yy=0; yy<8; ++yy)
-		{
-			if((i-ist)*8+yy < CGameInfo::mainObj->heroh->heroes.size())
-			{
-				if(c == (c|((unsigned char)intPow(2, yy))))
-					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy]->isAllowed = true;
-				else
-					CGameInfo::mainObj->heroh->heroes[(i-ist)*8+yy]->isAllowed = false;
-			}
-		}
+			if((i-ist)*8+yy < HEROES_QUANTITY)
+				if(c != (c|((unsigned char)intPow(2, yy))))
+					map.allowedHeroes[(i-ist)*8+yy] = false;
 	}
 	if(map.version>RoE) //probably reserved for further heroes
 		i+=4;
@@ -682,7 +681,7 @@ void CAmbarCendamo::deh3m()
 	{
 		//std::cout << "object nr "<<ww<<"\ti= "<<i<<std::endl;
 		CGObjectInstance * nobj = new CGObjectInstance(); //we will read this object
-		nobj->id = CGameInfo::mainObj->objh->objInstances.size();
+		nobj->id = map.objects.size();
 		nobj->pos.x = bufor[i++];
 		nobj->pos.y = bufor[i++];
 		nobj->pos.z = bufor[i++];
@@ -789,14 +788,7 @@ void CAmbarCendamo::deh3m()
 					nhi->identifier = readNormalNr(i, 4); i+=4;
 				}
 				nhi->setOwner(bufor[i]); ++i;
-				int typeBuf = readNormalNr(i, 1); ++i;
-
-				//we should already know type from subID
-					//if(typeBuf==0xff)
-					//	spec->type = NULL;
-					//else
-					//	spec->type = CGameInfo::mainObj->heroh->heroes[typeBuf];
-
+				nhi->subID = readNormalNr(i, 1); ++i;
 				if(readChar())//true if hero has nonstandard name
 					nhi->name = readString();
 				if(map.version>AB)
@@ -840,10 +832,9 @@ void CAmbarCendamo::deh3m()
 					//misc5 art //17
 					if(map.version>=SoD)
 					{
-						i+=2;
-						//int id = readNormalNr(i, artidlen); i+=artidlen;
-						//if(id!=artmask)
-						//	spec->artifWorn[16] = id;
+						int id = readNormalNr(i, artidlen); i+=artidlen;
+						if(id!=artmask)
+							nhi->artifWorn[16] = id;
 					}
 					//spellbook
 					int id = readNormalNr(i, artidlen); i+=artidlen;
@@ -871,22 +862,16 @@ void CAmbarCendamo::deh3m()
 					}
 				} //artifacts
 
-				nhi->patrolRadious = readNormalNr(i, 1); ++i;
-				if(nhi->patrolRadious == 0xff)
-					nhi->patrolRadious = -1;
+				nhi->patrol.patrolRadious = readNormalNr(i, 1); ++i;
+				if(nhi->patrol.patrolRadious == 0xff)
+					nhi->patrol.patrolling = false;
+				else 
+					nhi->patrol.patrolling = true;
 
 				if(map.version>RoE)
 				{
 					if(readChar())//true if hero has nonstandard (mapmaker defined) biography
-					{
-						int length = readNormalNr(i); i+=4;
-						int iStart = i;
-						i+=length;
-						for(int bb=0; bb<length; ++bb)
-						{
-							nhi->biography+=bufor[iStart+bb];
-						}
-					}
+						nhi->biography = readString();
 					nhi->sex = !(bufor[i]); ++i;
 				}
 				//spells
@@ -936,9 +921,9 @@ void CAmbarCendamo::deh3m()
 				nhi->mana = -1;
 				nhi->movement = -1;
 				if(nhi->ID==34)
-					CGI->heroh->heroInstances.push_back(nhi);
-				else
-					CGI->objh->objInstances.push_back(nhi);
+					map.heroes.push_back(nhi);
+				//else
+				//	CGI->objh->objInstances.push_back(nhi);
 
 				break;
 			}
@@ -1159,7 +1144,7 @@ void CAmbarCendamo::deh3m()
 					case 8:
 						{
 							int heroType = bufor[i]; ++i;
-							spec->m8hero = CGameInfo::mainObj->heroh->heroes[heroType];
+							spec->m8hero = heroType;
 							int limit = readNormalNr(i); i+=4;
 							if(limit == ((int)0xffffffff))
 							{
@@ -1426,7 +1411,6 @@ void CAmbarCendamo::deh3m()
 			}
 		case EDefType::TOWN_DEF:
 			{
-											CCastleObjInfo * spec = new CCastleObjInfo;
 				CGTownInstance * nt = new CGTownInstance();
 				(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
 				delete nobj;
@@ -1449,7 +1433,7 @@ void CAmbarCendamo::deh3m()
 					{
 						for(int bit=0;bit<8;bit++)
 							if(bufor[i] & (1<<bit))
-								nt->h3mbuildings.insert(byte*8+bit);
+								nt->builtBuildings.insert(byte*8+bit);
 						i++;
 					}
 					//forbidden buildings
@@ -1460,18 +1444,14 @@ void CAmbarCendamo::deh3m()
 								nt->forbiddenBuildings.insert(byte*8+bit);
 						i++;
 					}
-					nt->builtBuildings = convertBuildings(nt->h3mbuildings,nt->subID);
+					nt->builtBuildings = convertBuildings(nt->builtBuildings,nt->subID);
 					nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,nt->subID);
 				}
 				else //standard buildings
 				{
 					if(readChar()) //has fort
 						nt->builtBuildings.insert(7);
-					nt->builtBuildings.insert(10);
-					nt->builtBuildings.insert(5);
-					nt->builtBuildings.insert(30);
-					if(rand()%2)
-						nt->builtBuildings.insert(31);
+					nt->builtBuildings.insert(-50); //means that set of standard building should be included
 				}
 
 				int ist = i;
@@ -1555,7 +1535,7 @@ void CAmbarCendamo::deh3m()
 						nce.gen[vv] = readNormalNr(i, 2); i+=2;
 					}
 					i+=4;
-					spec->events.push_back(nce);
+					nt->events.insert(nce);
 				}//castle events have been read 
 
 				if(map.version > AB)
@@ -1569,7 +1549,7 @@ void CAmbarCendamo::deh3m()
 				nt->builded = 0;
 				nt->destroyed = 0;
 				nt->garrisonHero = NULL;
-				CGI->townh->townInstances.push_back(nt);
+				map.towns.push_back(nt);
 				break;
 			}
 		case EDefType::PLAYERONLY_DEF:
@@ -1896,7 +1876,7 @@ void CAmbarCendamo::deh3m()
 				case 8:
 					{
 						int heroType = bufor[i]; ++i;
-						spec->m8hero = CGameInfo::mainObj->heroh->heroes[heroType];
+						spec->m8hero = heroType;
 						int limit = readNormalNr(i); i+=4;
 						if(limit == ((int)0xffffffff))
 						{
@@ -1955,33 +1935,10 @@ borderguardend:
 				break;
 			}
 		} //end of main switch
-		CGameInfo::mainObj->objh->objInstances.push_back(nobj);
+		map.objects.push_back(nobj);
 	}//end of loading objects
 	THC std::cout<<"\tReading objects: "<<th.getDif()<<std::endl;
-
-	///loading defs from lod
-	for (int ir=0;ir<map.defy.size();ir++)
-	{
-		map.defy[ir]->handler=CGI->spriteh->giveDef(map.defy[ir]->name);
-		CGDefInfo* pom = CGI->dobjinfo->gobjs[map.defy[ir]->id][map.defy[ir]->subid];
-		if(pom)
-			pom->handler=map.defy[ir]->handler;
-		else
-			std::cout << "Lacking def info for " << map.defy[ir]->id << " " << map.defy[ir]->subid <<" " << map.defy[ir]->name << std::endl;
-	}
-	for(int vv=0; vv<map.defy.size(); ++vv)
-	{
-		if(map.defy[vv]->handler->alphaTransformed)
-			continue;
-		for(int yy=0; yy<map.defy[vv]->handler->ourImages.size(); ++yy)
-		{
-			map.defy[vv]->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map.defy[vv]->handler->ourImages[yy].bitmap);
-			map.defy[vv]->handler->alphaTransformed = true;
-		}
-	}
-	THC std::cout<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
-
-
+	
 	//loading events
 	int numberOfEvents = readNormalNr(i); i+=4;
 	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)

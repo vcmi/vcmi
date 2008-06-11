@@ -60,7 +60,7 @@ class CMapHandler
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles;
 	int3 sizes;
-	CAmbarCendamo * reader;
+	Mapa * map;
 	std::set<int> usedHeroes;
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;

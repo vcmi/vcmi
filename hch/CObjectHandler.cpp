@@ -242,7 +242,10 @@ int CGHeroInstance::getSecSkillLevel(const int & ID) const
 }
 const CArtifact * CGHeroInstance::getArt(int pos)
 {
-	return &CGI->arth->artifacts[artifWorn[pos]];
+	if(artifWorn.find(pos)!=artifWorn.end())
+		return &CGI->arth->artifacts[artifWorn[pos]];
+	else 
+		return NULL;
 }
 
 int CGTownInstance::getSightDistance() const //returns sight distance
@@ -355,6 +358,7 @@ CGHeroInstance::CGHeroInstance()
 	moveDir = 4;
 	mana = 0;
 	visitedTown = NULL;
+	type = NULL;
 }
 
 CGHeroInstance::~CGHeroInstance()

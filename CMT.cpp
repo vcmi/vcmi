@@ -61,7 +61,7 @@
 CGameInfo* CGI;
 #endif
 #define CHUNK 16384
-const char * NAME = "VCMI 0.6";
+const char * NAME = "VCMI \"Altanatse\" 0.7";
 
 SDL_Color playerColorPalette[256]; //palette to make interface colors good
 
@@ -77,7 +77,7 @@ void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * sc
 	}
 	CGI->state->cppscripts.insert(script);
 }
-void initGameState(CGameInfo * cgi)
+void initGameState(Mapa * map, CGameInfo * cgi)
 {
 	cgi->state->day=0;
 	/*********creating players entries in gs****************************************/
@@ -115,14 +115,14 @@ void initGameState(CGameInfo * cgi)
 	}
 
 	/*************************HEROES************************************************/
-	for (int i=0; i<cgi->heroh->heroInstances.size();i++) //heroes instances
+	for (int i=0; i<map->heroes.size();i++) //heroes instances
 	{
-		if (!cgi->heroh->heroInstances[i]->type || cgi->heroh->heroInstances[i]->getOwner()<0)
+		if (map->heroes[i]->getOwner()<0)
 			continue;
-		//CGHeroInstance * vhi = new CGHeroInstance();
-		//*vhi=*(cgi->heroh->heroInstances[i]);
-		CGHeroInstance * vhi = (cgi->heroh->heroInstances[i]);
-		vhi->subID = vhi->type->ID;
+		CGHeroInstance * vhi = (map->heroes[i]);
+		if(!vhi->type)
+			vhi->type = cgi->heroh->heroes[vhi->subID];
+		//vhi->subID = vhi->type->ID;
 		if (vhi->level<1)
 		{
 			vhi->exp=40+rand()%50;
@@ -137,8 +137,8 @@ void initGameState(CGameInfo * cgi)
 			vhi->primSkills[1] = vhi->type->heroClass->initialDefence;
 			vhi->primSkills[2] = vhi->type->heroClass->initialPower;
 			vhi->primSkills[3] = vhi->type->heroClass->initialKnowledge;
-			vhi->mana = vhi->primSkills[3]*10;
 		}
+		vhi->mana = vhi->primSkills[3]*10;
 		if (!vhi->name.length())
 		{
 			vhi->name = vhi->type->name;
@@ -186,21 +186,21 @@ void initGameState(CGameInfo * cgi)
 	/*************************FOG**OF**WAR******************************************/		
 	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
 	{
-		k->second.fogOfWarMap.resize(cgi->ac->map.width, Woff);
-		for(int g=-Woff; g<cgi->ac->map.width+Woff; ++g)
-			k->second.fogOfWarMap[g].resize(cgi->ac->map.height, Hoff);
+		k->second.fogOfWarMap.resize(map->width, Woff);
+		for(int g=-Woff; g<map->width+Woff; ++g)
+			k->second.fogOfWarMap[g].resize(map->height, Hoff);
 
-		for(int g=-Woff; g<cgi->ac->map.width+Woff; ++g)
-			for(int h=-Hoff; h<cgi->ac->map.height+Hoff; ++h)
-				k->second.fogOfWarMap[g][h].resize(cgi->ac->map.twoLevel+1, 0);
+		for(int g=-Woff; g<map->width+Woff; ++g)
+			for(int h=-Hoff; h<map->height+Hoff; ++h)
+				k->second.fogOfWarMap[g][h].resize(map->twoLevel+1, 0);
 
-		for(int g=-Woff; g<cgi->ac->map.width+Woff; ++g)
-			for(int h=-Hoff; h<cgi->ac->map.height+Hoff; ++h)
-				for(int v=0; v<cgi->ac->map.twoLevel+1; ++v)
+		for(int g=-Woff; g<map->width+Woff; ++g)
+			for(int h=-Hoff; h<map->height+Hoff; ++h)
+				for(int v=0; v<map->twoLevel+1; ++v)
 					k->second.fogOfWarMap[g][h][v] = 0;
-		for(int xd=0; xd<cgi->ac->map.width; ++xd) //revealing part of map around heroes
+		for(int xd=0; xd<map->width; ++xd) //revealing part of map around heroes
 		{
-			for(int yd=0; yd<cgi->ac->map.height; ++yd)
+			for(int yd=0; yd<map->height; ++yd)
 			{
 				for(int ch=0; ch<k->second.heroes.size(); ++ch)
 				{
@@ -213,16 +213,20 @@ void initGameState(CGameInfo * cgi)
 		}
 	}
 	/****************************TOWNS************************************************/
-	for (int i=0;i<cgi->townh->townInstances.size();i++)
+	for (int i=0;i<map->towns.size();i++)
 	{
-		//CGTownInstance * vti = new CGTownInstance();
-		//(*vti)=*(cgi->townh->townInstances[i]);
-		CGTownInstance * vti =(cgi->townh->townInstances[i]);
-		//vti->creatureIncome.resize(CREATURES_PER_TOWN);
-		//vti->creaturesLeft.resize(CREATURES_PER_TOWN);
+		CGTownInstance * vti =(map->towns[i]);
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name=vti->town->names[rand()%vti->town->names.size()];
-		
+		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings
+		{
+			vti->builtBuildings.erase(-50);
+			vti->builtBuildings.insert(10);
+			vti->builtBuildings.insert(5);
+			vti->builtBuildings.insert(30);
+			if(rand()%2)
+				vti->builtBuildings.insert(31);
+		}
 		cgi->state->players[vti->getOwner()].towns.push_back(vti);
 	}
 
@@ -230,9 +234,9 @@ void initGameState(CGameInfo * cgi)
 	{
 		if(k->first==-1 || k->first==255)
 			continue;
-		for(int xd=0; xd<cgi->ac->map.width; ++xd) //revealing part of map around towns
+		for(int xd=0; xd<map->width; ++xd) //revealing part of map around towns
 		{
-			for(int yd=0; yd<cgi->ac->map.height; ++yd)
+			for(int yd=0; yd<map->height; ++yd)
 			{
 				for(int ch=0; ch<k->second.towns.size(); ++ch)
 				{
@@ -300,22 +304,22 @@ void initGameState(CGameInfo * cgi)
 	}
 	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
 	std::string temps("newObject");
-	for (int i=0; i<CGI->objh->objInstances.size(); i++)
+	for (int i=0; i<map->objects.size(); i++)
 	{
 		//c++ scripts
-		if (scripts.find(CGI->objh->objInstances[i]->ID) != scripts.end())
+		if (scripts.find(map->objects[i]->ID) != scripts.end())
 		{
-			CGI->objh->objInstances[i]->state = scripts[CGI->objh->objInstances[i]->ID];
-			CGI->objh->objInstances[i]->state->newObject(CGI->objh->objInstances[i]);
+			map->objects[i]->state = scripts[map->objects[i]->ID];
+			map->objects[i]->state->newObject(map->objects[i]);
 		}
 		else 
 		{
-			CGI->objh->objInstances[i]->state = NULL;
+			map->objects[i]->state = NULL;
 		}
 
 		// lua scripts
-		if(cgi->state->checkFunc(CGI->objh->objInstances[i]->ID,temps))
-			(*skrypty)[CGI->objh->objInstances[i]->ID][temps]->newObject(CGI->objh->objInstances[i]);
+		if(cgi->state->checkFunc(map->objects[i]->ID,temps))
+			(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
 	}
 
 	delete lf;
@@ -856,14 +860,14 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Detecting file (together): "<<tmh.getDif()<<std::endl;
 		CMapHandler * mh = new CMapHandler();
 		cgi->mh = mh;
-		mh->reader = ac;
+		mh->map = &ac->map;
 		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 		mh->loadDefs();
 		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;
 		mh->init();
 		THC std::cout<<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
-		initGameState(cgi);
+		initGameState(&ac->map,cgi);
 		THC std::cout<<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
 
 		/*for(int d=0; d<PLAYER_LIMIT; ++d)
@@ -893,7 +897,7 @@ int _tmain(int argc, _TCHAR* argv[])
 			int mw = mm.map[0]->w, mh = mm.map[0]->h,
 				wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
 
-			for(int d=0; d<cgi->mh->reader->map.twoLevel+1; ++d)
+			for(int d=0; d<cgi->mh->map->twoLevel+1; ++d)
 			{
 				SDL_Surface * pt = CSDL_Ext::newSurface(mm.pos.w, mm.pos.h, CSDL_Ext::std32bppSurface);
 

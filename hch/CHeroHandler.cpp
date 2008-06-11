@@ -9,7 +9,7 @@
 #include "../SDL_Extensions.h"
 #include <cmath>
 #include <iomanip>
-
+#include "CDefHandler.h"
 CHeroHandler::~CHeroHandler()
 {
 	for (int j=0;j<heroes.size();j++)
