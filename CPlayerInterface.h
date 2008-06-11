@@ -341,8 +341,8 @@ public:
 	void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CArmedInstance *hero1, CArmedInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner);
 	void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving);
 	void battleStackAttacking(int ID, int dest);
-	void battleStackIsAttacked(int ID);
-	void battleStackKilled(int ID);
+	void battleStackIsAttacked(int ID, int dmg, int killed, int IDby);
+	void battleStackKilled(int ID, int dmg, int killed, int IDby);
 
 
 	//-------------//

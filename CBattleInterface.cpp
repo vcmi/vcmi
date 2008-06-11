@@ -19,7 +19,7 @@ extern SDL_Color zwykly;
 SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2) 
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL)
 {
 	//initializing armies
 	this->army1 = army1;
@@ -213,7 +213,10 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	//showing selected unit's range
-	showRange(to, activeStack);
+	if(creAnims[activeStack]->getType() != 0) //don't show if unit is moving
+	{
+		showRange(to, activeStack);
+	}
 
 	//showing menu background and console
 	blitAt(menu, 0, 556, to);
@@ -244,25 +247,31 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		stackByHex[j->second.position] = j->second.ID;
 	}
+
+	attackingShowHelper(); // handle attack animation
+
 	for(int b=0; b<187; ++b)
 	{
 		if(stackByHex[b]!=-1)
 		{
-			creAnims[stackByHex[b]]->nextFrame(to, creAnims[stackByHex[b]]->pos.x, creAnims[stackByHex[b]]->pos.y, creDir[stackByHex[b]], animCount%2==0 || creAnims[stackByHex[b]]->getType()==0, stackByHex[b]==activeStack); //increment always when moving
+			creAnims[stackByHex[b]]->nextFrame(to, creAnims[stackByHex[b]]->pos.x, creAnims[stackByHex[b]]->pos.y, creDir[stackByHex[b]], (animCount%2==0 || creAnims[stackByHex[b]]->getType()!=2) && stacks[stackByHex[b]].alive, stackByHex[b]==activeStack); //increment always when moving, never if stack died
 			//printing amount
-			if(stacks[stackByHex[b]].attackerOwned)
+			if(stacks[stackByHex[b]].amount > 0) //don't print if stack is not alive
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 220, creAnims[stackByHex[b]]->pos.y + 260));
-				std::stringstream ss;
-				ss<<stacks[stackByHex[b]].amount;
-				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 220 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
-			}
-			else
-			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 202, creAnims[stackByHex[b]]->pos.y + 260));
-				std::stringstream ss;
-				ss<<stacks[stackByHex[b]].amount;
-				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 202 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				if(stacks[stackByHex[b]].attackerOwned)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 220, creAnims[stackByHex[b]]->pos.y + 260));
+					std::stringstream ss;
+					ss<<stacks[stackByHex[b]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 220 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				}
+				else
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 202, creAnims[stackByHex[b]]->pos.y + 260));
+					std::stringstream ss;
+					ss<<stacks[stackByHex[b]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 202 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				}
 			}
 		}
 	}
@@ -362,8 +371,17 @@ void CBattleInterface::stackRemoved(CStack stack)
 	creAnims.erase(stack.ID);
 }
 
-void CBattleInterface::stackKilled(int ID)
+void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby)
 {
+	creAnims[ID]->setType(5); //death
+	for(int i=0; i<creAnims[ID]->framesInGroup(5)-1; ++i)
+	{
+		show();
+		CSDL_Ext::update();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+	}
+	
+	printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
 void CBattleInterface::stackActivated(int number)
@@ -548,8 +566,18 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 	creAnims[number]->pos.y = coords.second;
 }
 
-void CBattleInterface::stackIsAttacked(int ID)
+void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby)
 {
+	creAnims[ID]->setType(3); //getting hit
+	for(int i=0; i<creAnims[ID]->framesInGroup(3); ++i)
+	{
+		show();
+		CSDL_Ext::update();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+	}
+	creAnims[ID]->setType(2);
+
+	printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
 void CBattleInterface::stackAttacking(int ID, int dest)
@@ -561,66 +589,20 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 		{
 			case 0:
 				//reverseCreature(ID, aStack.position, true);
-				creAnims[ID]->setType(10);
-				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
-				//reverseCreature(ID, aStack.position, true);
 				break;
 			case 1:
-				creAnims[ID]->setType(10);
-				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
 				break;
 			case 2:
-				creAnims[ID]->setType(11);
-				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
 				break;
 			case 3:
-				creAnims[ID]->setType(12);
-				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
 				break;
 			case 4:
-				//reverseCreature(ID, aStack.position, true);
-				creAnims[ID]->setType(12);
-				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
 				//reverseCreature(ID, aStack.position, true);
 				break;
 			case 5:
 				reverseCreature(ID, aStack.position, true);
-				creAnims[ID]->setType(11);
-				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
-				reverseCreature(ID, aStack.position, true);
 				break;
 		}
-		creAnims[ID]->setType(2);
 	}
 	else //else for if(aStack.creature->isDoubleWide())
 	{
@@ -628,66 +610,75 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 		{
 			case 0:
 				reverseCreature(ID, aStack.position, true);
-				creAnims[ID]->setType(10);
-				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
-				reverseCreature(ID, aStack.position, true);
 				break;
 			case 1:
-				creAnims[ID]->setType(10);
-				for(int i=0; i<creAnims[ID]->framesInGroup(10); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
 				break;
 			case 2:
-				creAnims[ID]->setType(11);
-				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
 				break;
 			case 3:
-				creAnims[ID]->setType(12);
-				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
 				break;
 			case 4:
-				reverseCreature(ID, aStack.position, true);
-				creAnims[ID]->setType(12);
-				for(int i=0; i<creAnims[ID]->framesInGroup(12); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
 				reverseCreature(ID, aStack.position, true);
 				break;
 			case 5:
 				reverseCreature(ID, aStack.position, true);
-				creAnims[ID]->setType(11);
-				for(int i=0; i<creAnims[ID]->framesInGroup(11); ++i)
-				{
-					show();
-					CSDL_Ext::update();
-					SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				}
-				reverseCreature(ID, aStack.position, true);
 				break;
 		}
-		creAnims[ID]->setType(2);
+	}
+
+	attackingInfo = new CAttHelper;
+	attackingInfo->dest = dest;
+	attackingInfo->frame = 0;
+	attackingInfo->ID = ID;
+	attackingInfo->reversing = false;
+
+	if(aStack.creature->isDoubleWide())
+	{
+		switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
+		{
+			case 0:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(10);
+				break;
+			case 1:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(10);
+				break;
+			case 2:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
+				break;
+			case 3:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
+				break;
+			case 4:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
+				break;
+			case 5:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
+				break;
+		}
+	}
+	else //else for if(aStack.creature->isDoubleWide())
+	{
+		switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
+		{
+			case 0:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(10);
+				break;
+			case 1:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(10);
+				break;
+			case 2:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
+				break;
+			case 3:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
+				break;
+			case 4:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
+				break;
+			case 5:
+				attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
+				break;
+		}
 	}
 }
 
@@ -728,6 +719,144 @@ void CBattleInterface::showRange(SDL_Surface * to, int ID)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(CBattleInterface::cellShade, NULL, to, &bfield[shadedHexes[i]].pos);
 	}
+}
+
+
+void CBattleInterface::attackingShowHelper()
+{
+	if(attackingInfo && !attackingInfo->reversing)
+	{
+		if(attackingInfo->frame == 0)
+		{
+			CStack aStack = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
+			if(aStack.creature->isDoubleWide())
+			{
+				switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+				{
+					case 0:
+						creAnims[attackingInfo->ID]->setType(10);
+						break;
+					case 1:
+						creAnims[attackingInfo->ID]->setType(10);
+						break;
+					case 2:
+						creAnims[attackingInfo->ID]->setType(11);
+						break;
+					case 3:
+						creAnims[attackingInfo->ID]->setType(12);
+						break;
+					case 4:
+						creAnims[attackingInfo->ID]->setType(12);
+						break;
+					case 5:
+						creAnims[attackingInfo->ID]->setType(11);
+						break;
+				}
+			}
+			else //else for if(aStack.creature->isDoubleWide())
+			{
+				switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+				{
+					case 0:
+						creAnims[attackingInfo->ID]->setType(10);
+						break;
+					case 1:
+						creAnims[attackingInfo->ID]->setType(10);
+						break;
+					case 2:
+						creAnims[attackingInfo->ID]->setType(11);
+						break;
+					case 3:
+						creAnims[attackingInfo->ID]->setType(12);
+						break;
+					case 4:
+						creAnims[attackingInfo->ID]->setType(12);
+						break;
+					case 5:
+						creAnims[attackingInfo->ID]->setType(11);
+						break;
+				}
+			}
+		}
+		else if(attackingInfo->frame == (attackingInfo->maxframe - 1))
+		{
+			attackingInfo->reversing = true;
+			CStack aStack = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
+			if(aStack.creature->isDoubleWide())
+			{
+				switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+				{
+					case 0:
+						//reverseCreature(ID, aStack.position, true);
+						break;
+					case 1:
+						break;
+					case 2:
+						break;
+					case 3:
+						break;
+					case 4:
+						//reverseCreature(ID, aStack.position, true);
+						break;
+					case 5:
+						reverseCreature(attackingInfo->ID, aStack.position, true);
+						break;
+				}
+			}
+			else //else for if(aStack.creature->isDoubleWide())
+			{
+				switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+				{
+					case 0:
+						reverseCreature(attackingInfo->ID, aStack.position, true);
+						break;
+					case 1:
+						break;
+					case 2:
+						break;
+					case 3:
+						break;
+					case 4:
+						reverseCreature(attackingInfo->ID, aStack.position, true);
+						break;
+					case 5:
+						reverseCreature(attackingInfo->ID, aStack.position, true);
+						break;
+				}
+			}
+			attackingInfo->reversing = false;
+			creAnims[attackingInfo->ID]->setType(2);
+			delete attackingInfo;
+			attackingInfo = NULL;
+		}
+		if(attackingInfo)
+		{
+			attackingInfo->frame++;
+		}
+	}
+}
+
+void CBattleInterface::printConsoleAttacked(int ID, int dmg, int killed, int IDby)
+{
+	char tabh[200];
+	CStack attacker = LOCPLINT->cb->battleGetStackByID(IDby);
+	CStack defender = LOCPLINT->cb->battleGetStackByID(ID);
+	int end = sprintf(tabh, CGI->generaltexth->allTexts[attacker.amount > 1 ? 377 : 376].c_str(),
+		(attacker.amount > 1 ? attacker.creature->namePl.c_str() : attacker.creature->nameSing.c_str()),
+		dmg);
+	if(killed > 0)
+	{
+		if(killed > 1)
+		{
+			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed, defender.creature->namePl.c_str());
+		}
+		else //killed == 1
+		{
+			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(), defender.creature->nameSing.c_str());
+		}
+	}
+
+	console->addText(std::string(tabh));
 }
 
 void CBattleHero::show(SDL_Surface *to)
@@ -865,9 +994,14 @@ void CBattleHex::hover(bool on)
 {
 	hovered = on;
 	Hoverable::hover(on);
+	if(!on && setAlterText)
+	{
+		myInterface->console->alterTxt = std::string();
+		setAlterText = false;
+	}
 }
 
-CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strictHovered(false), myInterface(NULL)
+CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strictHovered(false), myInterface(NULL), setAlterText(false)
 {
 }
 
@@ -883,6 +1017,26 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 		{
 			strictHovered = true;
 		}
+	}
+
+	if(hovered && strictHovered) //print attacked creature to console
+	{
+		if(myInterface->console->alterTxt.size() == 0 && LOCPLINT->cb->battleGetStack(myNumber) != -1 &&
+			LOCPLINT->cb->battleGetStackByPos(myNumber).owner != LOCPLINT->playerID &&
+			LOCPLINT->cb->battleGetStackByPos(myNumber).alive)
+		{
+			char tabh[160];
+			CStack attackedStack = LOCPLINT->cb->battleGetStackByPos(myNumber);
+			std::string attackedName = attackedStack.amount == 1 ? attackedStack.creature->nameSing : attackedStack.creature->namePl;
+			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
+			myInterface->console->alterTxt = std::string(tabh);
+			setAlterText = true;
+		}
+	}
+	else if(setAlterText)
+	{
+		myInterface->console->alterTxt = std::string();
+		setAlterText = false;
 	}
 }
 
@@ -919,7 +1073,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 	}
 }
 
-CBattleConsole::CBattleConsole() : lastShown(-1)
+CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt("")
 {
 }
 
@@ -930,7 +1084,11 @@ CBattleConsole::~CBattleConsole()
 
 void CBattleConsole::show(SDL_Surface * to)
 {
-	if(texts.size())
+	if(alterTxt.size())
+	{
+		CSDL_Ext::printAtMiddleWB(alterTxt, pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
+	}
+	else if(texts.size())
 	{
 		if(texts.size()==1)
 		{
@@ -948,7 +1106,18 @@ bool CBattleConsole::addText(std::string text)
 {
 	if(text.size()>70)
 		return false; //text too long!
-	texts.push_back(text);
+	int firstInToken = 0;
+	for(int i=0; i<text.size(); ++i) //tokenize
+	{
+		if(text[i] == 10)
+		{
+			texts.push_back( text.substr(firstInToken, i-firstInToken) );
+			firstInToken = i+1;
+			lastShown++;
+		}
+	}
+
+	texts.push_back( text.substr(firstInToken, text.size()) );
 	lastShown++;
 	return true;
 }

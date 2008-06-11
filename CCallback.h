@@ -60,6 +60,7 @@ public:
 	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield 
 	virtual int battleGetStack(int pos)=0; //returns ID of stack on the tile
 	virtual CStack battleGetStackByID(int ID)=0; //returns stack info by given ID
+	virtual CStack battleGetStackByPos(int pos)=0; //returns stack info by given pos
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	//virtual int battleMakeAction(BattleAction* action)=0;//perform action with an active stack (or custom action)
 	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
@@ -131,6 +132,7 @@ public:
 	int battleGetObstaclesAtTile(int tile); //returns bitfield 
 	int battleGetStack(int pos); //returns ID of stack on the tile
 	CStack battleGetStackByID(int ID); //returns stack info by given ID
+	CStack battleGetStackByPos(int pos); //returns stack info by given pos
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	//int battleMakeAction(BattleAction* action);//perform action with an active stack (or custom action)
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield

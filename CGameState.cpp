@@ -474,12 +474,17 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 				curB->stacks[numberOfStackAtEnd]->firstHPleft -= damageFirst;
 			}
 
+			int cresInstackBefore = curB->stacks[numberOfStackAtEnd]->amount; 
 			curB->stacks[numberOfStackAtEnd]->amount -= cresKilled;
 			if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
 			{
 				curB->stacks[numberOfStackAtEnd]->amount = 0;
+				LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore) , ID);
 				curB->stacks[numberOfStackAtEnd]->alive = false;
-				LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID);
+			}
+			else
+			{
+				LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID);
 			}
 
 			//damage applied
