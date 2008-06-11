@@ -35,7 +35,7 @@ public:
 	bool hovered, strictHovered;
 	CBattleInterface * myInterface; //interface that owns me
 	static std::pair<int, int> getXYUnitAnim(int hexNum, bool attacker, CCreature * creature); //returns (x, y) of left top corner of animation
-	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
+	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	//for user interactions
 	void hover (bool on);
 	void activate();

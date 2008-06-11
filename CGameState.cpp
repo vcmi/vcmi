@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "SDL_Thread.h"
 #include "SDL_Extensions.h"
+#include "CBattleInterface.h" //for CBattleHex
 #include <queue>
 
 
@@ -283,9 +284,12 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 			|| (curB->stacks[g]->creature->isDoubleWide() && curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == dest)
 			|| (curB->stacks[g]->creature->isDoubleWide() && !curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == dest))
 		{
-			stackAtEnd = true;
-			numberOfStackAtEnd = g;
-			break;
+			if(curB->stacks[g]->alive)
+			{
+				stackAtEnd = true;
+				numberOfStackAtEnd = g;
+				break;
+			}
 		}
 	}
 
@@ -307,7 +311,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		if(curB->stacks[g]->ID != ID) //we don't want to lock enemy's positions and this units' position
+		if(curB->stacks[g]->ID != ID && curB->stacks[g]->alive) //we don't want to lock enemy's positions and this units' position
 		{
 			accessibility[curB->stacks[g]->position] = false;
 			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
@@ -402,7 +406,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		}
 	}
 	//following the Path
-	if(dists[dest] > curStack->creature->speed)
+	if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
 		return false;
 	std::vector<int> path;
 	int curElem = dest;
@@ -544,7 +548,7 @@ std::vector<int> CGameState::battleGetRange(int ID)
 		accessibility[k] = true;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		if(curB->stacks[g]->ID != ID) //we don't want to lock current unit's position
+		if(curB->stacks[g]->ID != ID && curB->stacks[g]->alive) //we don't want to lock current unit's position
 		{
 			accessibility[curB->stacks[g]->position] = false;
 			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
@@ -637,6 +641,46 @@ std::vector<int> CGameState::battleGetRange(int ID)
 			ret.push_back(i);
 		}
 	}
-	return ret;
+
+	std::vector<int> additionals;
+
+	//adding enemies' positions
+	for(int c=0; c<curB->stacks.size(); ++c)
+	{
+		if(curB->stacks[c]->alive && curB->stacks[c]->owner != owner)
+		{
+			for(int g=0; g<ret.size(); ++g)
+			{
+				if(CBattleHex::mutualPosition(ret[g], curB->stacks[c]->position) != -1)
+				{
+					additionals.push_back(curB->stacks[c]->position);
+				}
+				if(curB->stacks[c]->creature->isDoubleWide() && curB->stacks[c]->attackerOwned && CBattleHex::mutualPosition(ret[g], curB->stacks[c]->position-1) != -1)
+				{
+					additionals.push_back(curB->stacks[c]->position-1);
+				}
+				if(curB->stacks[c]->creature->isDoubleWide() && !curB->stacks[c]->attackerOwned && CBattleHex::mutualPosition(ret[g], curB->stacks[c]->position+1) != -1)
+				{
+					additionals.push_back(curB->stacks[c]->position+1);
+				}
+			}
+		}
+	}
+	for(int g=0; g<additionals.size(); ++g)
+	{
+		ret.push_back(additionals[g]);
+	}
+
+	std::sort(ret.begin(), ret.end());
+	std::vector<int>::iterator nend = std::unique(ret.begin(), ret.end());
+
+	std::vector<int> ret2;
+
+	for(std::vector<int>::iterator it = ret.begin(); it != nend; ++it)
+	{
+		ret2.push_back(*it);
+	}
+
+	return ret2;
 }
 

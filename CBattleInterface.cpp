@@ -239,37 +239,42 @@ void CBattleInterface::show(SDL_Surface * to)
 		defendingHero->show(to);
 
 	//showing units //a lot of work...
-	int stackByHex[187];
-	for(int b=0; b<187; ++b)
-		stackByHex[b] = -1;
+	std::vector<int> stackByHex[187];
+	//double loop because dead stacks should be printed first
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		stackByHex[j->second.position] = j->second.ID;
+		if(!j->second.alive)
+			stackByHex[j->second.position].push_back(j->second.ID);
+	}
+	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
+	{
+		if(j->second.alive)
+			stackByHex[j->second.position].push_back(j->second.ID);
 	}
 
 	attackingShowHelper(); // handle attack animation
 
 	for(int b=0; b<187; ++b)
 	{
-		if(stackByHex[b]!=-1)
+		for(int v=0; v<stackByHex[b].size(); ++v)
 		{
-			creAnims[stackByHex[b]]->nextFrame(to, creAnims[stackByHex[b]]->pos.x, creAnims[stackByHex[b]]->pos.y, creDir[stackByHex[b]], (animCount%2==0 || creAnims[stackByHex[b]]->getType()!=2) && stacks[stackByHex[b]].alive, stackByHex[b]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackByHex[b][v]]->nextFrame(to, creAnims[stackByHex[b][v]]->pos.x, creAnims[stackByHex[b][v]]->pos.y, creDir[stackByHex[b][v]], (animCount%2==0 || creAnims[stackByHex[b][v]]->getType()!=2) && stacks[stackByHex[b][v]].alive, stackByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
-			if(stacks[stackByHex[b]].amount > 0) //don't print if stack is not alive
+			if(stacks[stackByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
-				if(stacks[stackByHex[b]].attackerOwned)
+				if(stacks[stackByHex[b][v]].attackerOwned)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 220, creAnims[stackByHex[b]]->pos.y + 260));
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b][v]]->pos.x + 220, creAnims[stackByHex[b][v]]->pos.y + 260));
 					std::stringstream ss;
-					ss<<stacks[stackByHex[b]].amount;
-					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 220 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+					ss<<stacks[stackByHex[b][v]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b][v]]->pos.x + 220 + 14, creAnims[stackByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
 				}
 				else
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b]]->pos.x + 202, creAnims[stackByHex[b]]->pos.y + 260));
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b][v]]->pos.x + 202, creAnims[stackByHex[b][v]]->pos.y + 260));
 					std::stringstream ss;
-					ss<<stacks[stackByHex[b]].amount;
-					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b]]->pos.x + 202 + 14, creAnims[stackByHex[b]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+					ss<<stacks[stackByHex[b][v]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b][v]]->pos.x + 202 + 14, creAnims[stackByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
 				}
 			}
 		}
@@ -1112,12 +1117,11 @@ bool CBattleConsole::addText(std::string text)
 		{
 			texts.push_back( text.substr(firstInToken, i-firstInToken) );
 			firstInToken = i+1;
-			lastShown++;
 		}
 	}
 
 	texts.push_back( text.substr(firstInToken, text.size()) );
-	lastShown++;
+	lastShown = texts.size()-1;
 	return true;
 }
 
