@@ -21,7 +21,7 @@ DLL_EXPORT int readNormalNr (int pos, int bytCon, unsigned char * str)
 	else return -1;
 	return ret;
 }
-DLL_EXPORT unsigned char * CLodHandler::giveFile(std::string defName, int * length)
+unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 {
 	std::transform(defName.begin(), defName.end(), defName.begin(), (int(*)(int))toupper);
 	Entry * ourEntry = entries.znajdz(Entry(defName));
@@ -63,7 +63,7 @@ DLL_EXPORT unsigned char * CLodHandler::giveFile(std::string defName, int * leng
 	}
 	return NULL;
 }
-DLL_EXPORT int CLodHandler::infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits)
+int CLodHandler::infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits)
 {
 	int ret;
 	unsigned have;
@@ -222,7 +222,7 @@ DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, un
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
 
-DLL_EXPORT void CLodHandler::extract(std::string FName)
+void CLodHandler::extract(std::string FName)
 {
 	std::ofstream FOut;
 	for (int i=0;i<totalFiles;i++)
@@ -269,7 +269,7 @@ DLL_EXPORT void CLodHandler::extract(std::string FName)
 	fclose(FLOD);
 }
 
-DLL_EXPORT void CLodHandler::extractFile(std::string FName, std::string name)
+void CLodHandler::extractFile(std::string FName, std::string name)
 {
 	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 	for (int i=0;i<totalFiles;i++)
@@ -335,7 +335,7 @@ int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
 	return ret;
 }
 
-DLL_EXPORT void CLodHandler::init(std::string lodFile)
+void CLodHandler::init(std::string lodFile)
 {
 	std::string Ts;
 	FLOD = fopen(lodFile.c_str(), "rb");
@@ -381,7 +381,7 @@ DLL_EXPORT void CLodHandler::init(std::string lodFile)
 		entries.push_back(entry);
 	}
 }
-DLL_EXPORT std::string CLodHandler::getTextFile(std::string name)
+std::string CLodHandler::getTextFile(std::string name)
 {
 	int length=-1;
 	unsigned char* data = giveFile(name,&length);

@@ -6,7 +6,7 @@
 
 void CGeneralTextHandler::load()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("GENRLTXT.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("GENRLTXT.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
 	for(i; i<andame; ++i)

@@ -742,9 +742,9 @@ void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
 			SDL_Color * cc = sur->format->palette->colors+i;
 			if(cc->r==0 && cc->g==0 && cc->b==255)
 			{
-				cc->r = CGameInfo::mainObj->playerColors[player].r;
-				cc->g = CGameInfo::mainObj->playerColors[player].g;
-				cc->b = CGameInfo::mainObj->playerColors[player].b;
+				cc->r = CGI->playerColors[player].r;
+				cc->g = CGI->playerColors[player].g;
+				cc->b = CGI->playerColors[player].b;
 			}
 		}
 	}
@@ -759,9 +759,9 @@ void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
 				{
 					if(cp[0]==0 && cp[1]==0 && cp[2]==255)
 					{
-						cp[0] = CGameInfo::mainObj->playerColors[player].r;
-						cp[1] = CGameInfo::mainObj->playerColors[player].g;
-						cp[2] = CGameInfo::mainObj->playerColors[player].b;
+						cp[0] = CGI->playerColors[player].r;
+						cp[1] = CGI->playerColors[player].g;
+						cp[2] = CGI->playerColors[player].b;
 					}
 				}
 				else
@@ -769,9 +769,9 @@ void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
 					
 					if(cp[0]==255 && cp[1]==0 && cp[2]==0)
 					{
-						cp[0] = CGameInfo::mainObj->playerColors[player].b;
-						cp[1] = CGameInfo::mainObj->playerColors[player].g;
-						cp[2] = CGameInfo::mainObj->playerColors[player].r;
+						cp[0] = CGI->playerColors[player].b;
+						cp[1] = CGI->playerColors[player].g;
+						cp[2] = CGI->playerColors[player].r;
 					}
 				}
 			}
@@ -806,9 +806,9 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player, int mode, void* a
 						sort1.push_back(cp[1]);
 						sort1.push_back(cp[2]);
 						std::vector< std::pair<long long int, Uint8*> > sort2;
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].r, &(cp[0])));
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].g, &(cp[1])));
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].b, &(cp[2])));
+						sort2.push_back(std::make_pair(CGI->playerColors[player].r, &(cp[0])));
+						sort2.push_back(std::make_pair(CGI->playerColors[player].g, &(cp[1])));
+						sort2.push_back(std::make_pair(CGI->playerColors[player].b, &(cp[2])));
 						std::sort(sort1.begin(), sort1.end());
 						if(sort2[0].first>sort2[1].first)
 							std::swap(sort2[0], sort2[1]);
@@ -834,9 +834,9 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player, int mode, void* a
 						sort1.push_back(cp[1]);
 						sort1.push_back(cp[0]);
 						std::vector< std::pair<long long int, Uint8*> > sort2;
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].r, &(cp[2])));
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].g, &(cp[1])));
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].b, &(cp[0])));
+						sort2.push_back(std::make_pair(CGI->playerColors[player].r, &(cp[2])));
+						sort2.push_back(std::make_pair(CGI->playerColors[player].g, &(cp[1])));
+						sort2.push_back(std::make_pair(CGI->playerColors[player].b, &(cp[0])));
 						std::sort(sort1.begin(), sort1.end());
 						if(sort2[0].first>sort2[1].first)
 							std::swap(sort2[0], sort2[1]);
@@ -874,9 +874,9 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
 	if(sur->format->BitsPerPixel==8)
 	{
 		if(player != 255) 
-			*(sur->format->palette->colors+5) = CGameInfo::mainObj->playerColors[player];
+			*(sur->format->palette->colors+5) = CGI->playerColors[player];
 		else
-			*(sur->format->palette->colors+5) = CGameInfo::mainObj->neutralColor;
+			*(sur->format->palette->colors+5) = CGI->neutralColor;
 	}
 }
 int readNormalNr (std::istream &in, int bytCon)

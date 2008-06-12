@@ -1,9 +1,10 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CDefObjInfoHandler.h"
 #include "../CGameInfo.h"
 #include "CLodHandler.h"
 #include <sstream>
-
+extern CLodHandler * bitmaph;
 bool CGDefInfo::isVisitable()
 {
 	for (int i=0; i<6; i++)
@@ -20,7 +21,7 @@ CGDefInfo::CGDefInfo()
 void CDefObjInfoHandler::load()
 {
 	nodrze<int> ideki;
-	std::istringstream inp(CGameInfo::mainObj->bitmaph->getTextFile("ZOBJCTS.TXT"));
+	std::istringstream inp(bitmaph->getTextFile("ZOBJCTS.TXT"));
 	int objNumber;
 	inp>>objNumber;
 	for(int hh=0; hh<objNumber; ++hh)

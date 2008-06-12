@@ -1103,7 +1103,7 @@ void CAmbarCendamo::deh3m()
 							{
 								int creType = readNormalNr(i, 2); i+=2;
 								int creNumb = readNormalNr(i, 2); i+=2;
-								spec->m6cre.push_back(&(CGameInfo::mainObj->creh->creatures[creType]));
+								spec->m6cre.push_back(&(CGI->creh->creatures[creType]));
 								spec->m6number.push_back(creNumb);
 							}
 							int limit = readNormalNr(i); i+=4;
@@ -1835,7 +1835,7 @@ void CAmbarCendamo::deh3m()
 						{
 							int creType = readNormalNr(i, 2); i+=2;
 							int creNumb = readNormalNr(i, 2); i+=2;
-							spec->m6cre.push_back(&(CGameInfo::mainObj->creh->creatures[creType]));
+							spec->m6cre.push_back(&(CGI->creh->creatures[creType]));
 							spec->m6number.push_back(creNumb);
 						}
 						int limit = readNormalNr(i); i+=4;
@@ -2064,8 +2064,8 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int number)
 			int rettt = readNormalNr(i+ir*4, 2);
 			if(rettt==0xffff) continue;
 			if(rettt>32768)
-				rettt = 65536-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first = &(CGameInfo::mainObj->creh->creatures[rettt]);
+				rettt = 65536-rettt+CGI->creh->creatures.size()-16;
+			ins.first = &(CGI->creh->creatures[rettt]);
 			ins.second = readNormalNr(i+ir*4+2, 2);
 			std::pair<int,std::pair<CCreature *, int> > tt(ir,ins);
 			ret.slots.insert(tt);
@@ -2082,8 +2082,8 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int number)
 			int rettt = readNormalNr(i+ir*3, 1);
 			if(rettt==0xff) continue;
 			if(rettt>220)
-				rettt = 256-rettt+CGameInfo::mainObj->creh->creatures.size()-16;
-			ins.first = &(CGameInfo::mainObj->creh->creatures[rettt]);
+				rettt = 256-rettt+CGI->creh->creatures.size()-16;
+			ins.first = &(CGI->creh->creatures[rettt]);
 			ins.second = readNormalNr(i+ir*3+1, 2);
 			std::pair<int,std::pair<CCreature *, int> > tt(ir,ins);
 			ret.slots.insert(tt);

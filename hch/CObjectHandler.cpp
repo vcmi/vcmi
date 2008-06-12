@@ -14,7 +14,7 @@
 void CObjectHandler::loadObjects()
 {
 	int ID=0;
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("OBJNAMES.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("OBJNAMES.TXT");
 	int it=0;
 	while (it<buf.length()-1)
 	{
@@ -25,7 +25,7 @@ void CObjectHandler::loadObjects()
 		objects.push_back(nobj);
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("ADVEVENT.TXT");
+	buf = CGI->bitmaph->getTextFile("ADVEVENT.TXT");
 	it=0;
 	std::string temp;
 	while (it<buf.length()-1)
@@ -37,7 +37,7 @@ void CObjectHandler::loadObjects()
 		advobtxt.push_back(temp);
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("XTRAINFO.TXT");
+	buf = CGI->bitmaph->getTextFile("XTRAINFO.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -45,7 +45,7 @@ void CObjectHandler::loadObjects()
 		xtrainfo.push_back(temp);
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("MINENAME.TXT");
+	buf = CGI->bitmaph->getTextFile("MINENAME.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -53,7 +53,7 @@ void CObjectHandler::loadObjects()
 		mines.push_back(std::pair<std::string,std::string>(temp,""));
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("MINEEVNT.TXT");
+	buf = CGI->bitmaph->getTextFile("MINEEVNT.TXT");
 	it=0;
 	int i=0;
 	while (it<buf.length()-1)
@@ -63,7 +63,7 @@ void CObjectHandler::loadObjects()
 		mines[i++].second = temp;
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("RESTYPES.TXT");
+	buf = CGI->bitmaph->getTextFile("RESTYPES.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -83,7 +83,7 @@ void CObjectHandler::loadObjects()
 	}
 	ifs.close();
 	ifs.clear();
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("ZCRGN1.TXT");
+	buf = CGI->bitmaph->getTextFile("ZCRGN1.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{

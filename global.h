@@ -21,14 +21,10 @@ enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
 enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHEMIST, HERO_WIZARD, 
 	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD, 
 	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
-#ifdef _DEBUG
 class CGameInfo;
 extern CGameInfo* CGI;
-#else
-#define CGI (CGameInfo::mainObj)
-#endif
-#define CURPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->state->currentPlayer]))) 
-#define LOCPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->localPlayer]))) 
+#define CURPLINT (((CPlayerInterface*)((CGI)->playerint[(CGI)->state->currentPlayer]))) 
+#define LOCPLINT (((CPlayerInterface*)((CGI)->playerint[(CGI)->localPlayer]))) 
 //CURPLINT gives pointer to the interface of human player which is currently making turn, 
 //LOCPLINT gives pointer to the interface which is currently showed (on this machine)
 

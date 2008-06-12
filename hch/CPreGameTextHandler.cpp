@@ -25,7 +25,7 @@ std::string CPreGameTextHandler::getDescr(std::string text)
 }
 void CPreGameTextHandler::loadTexts()
 {
-	std::string buf1 = CGameInfo::mainObj->bitmaph->getTextFile("ZELP.TXT");
+	std::string buf1 = CGI->bitmaph->getTextFile("ZELP.TXT");
 	int itr=0, eol=-1, eolnext=-1, pom;
 	eolnext = buf1.find_first_of('\r',itr);
 	while(itr<buf1.size())
@@ -48,7 +48,7 @@ void CPreGameTextHandler::loadTexts()
 		}
 		itr=eol+2;
 	}
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("VCDESC.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("VCDESC.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
 	for(int gg=0; gg<14; ++gg)
@@ -62,7 +62,7 @@ void CPreGameTextHandler::loadTexts()
 		victoryConditions[gg] = buf.substr(befi, i-befi);
 		i+=2;
 	}
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("LCDESC.TXT");
+	buf = CGI->bitmaph->getTextFile("LCDESC.TXT");
 	andame = buf.size();
 	i=0; //buf iterator
 	for(int gg=0; gg<4; ++gg)

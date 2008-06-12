@@ -38,21 +38,21 @@ struct Entry
 	//Entry(unsigned char ): nameStr(con){};
 	Entry(){};
 };
- class CLodHandler
+ class DLL_EXPORT CLodHandler
 {
 public:
 	FILE* FLOD;
 	nodrze<Entry> entries;
 	unsigned int totalFiles;
 
-	DLL_EXPORT int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
-	DLL_EXPORT int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
-	DLL_EXPORT int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
-	DLL_EXPORT unsigned char * giveFile(std::string defName, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
-	DLL_EXPORT std::string getTextFile(std::string name); //extracts one file
-	DLL_EXPORT void extract(std::string FName);
-	DLL_EXPORT void extractFile(std::string FName, std::string name); //extracts a specific file
-	DLL_EXPORT void init(std::string lodFile);
+	int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
+	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
+	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
+	unsigned char * giveFile(std::string defName, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
+	std::string getTextFile(std::string name); //extracts one file
+	void extract(std::string FName);
+	void extractFile(std::string FName, std::string name); //extracts a specific file
+	void init(std::string lodFile);
 };
 
 #endif //CLODHANDLER_H

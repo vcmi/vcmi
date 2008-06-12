@@ -1,6 +1,6 @@
 #ifndef CCREATUREHANDLER_H
 #define CCREATUREHANDLER_H
-
+#include "../global.h"
 #include <string>
 #include <vector>
 #include <map>
@@ -8,7 +8,7 @@
 
 class CLodHandler;
 
-class CCreature
+class DLL_EXPORT CCreature
 {
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
@@ -52,9 +52,8 @@ public:
 	bool formation; //false - wide, true - tight
 };
 
-class CCreatureHandler
+class DLL_EXPORT CCreatureHandler
 {
-	CLodHandler * bitmaph;
 public:
 	std::vector<CCreature> creatures; //creature ID -> creature info
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
@@ -62,6 +61,6 @@ public:
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
-	CCreatureHandler(CLodHandler * Bitmaph):bitmaph(Bitmaph){};
+	CCreatureHandler(){};
 };
 #endif //CCREATUREHANDLER_H

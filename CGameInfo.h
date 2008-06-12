@@ -39,7 +39,6 @@ class CDefHandler;
 class CGameInfo
 {
 public:
-	static CGameInfo * mainObj; //pointer to main CGameInfo object
 	CGameState * state;
 	CArtHandler * arth;
 	CHeroHandler * heroh;

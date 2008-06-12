@@ -2,8 +2,10 @@
 #define COBJINFOECTHANDLER_H
 #include <vector>
 #include <map>
+#include "../global.h"
 class CDefHandler;
-class CGDefInfo
+class CLodHandler;
+class DLL_EXPORT CGDefInfo
 {
 public:
 	std::string name; 
@@ -27,7 +29,7 @@ public:
 	}
 	CGDefInfo();
 };
-class CDefObjInfoHandler
+class DLL_EXPORT CDefObjInfoHandler
 {
 public:
 	std::map<int,std::map<int,CGDefInfo*> > gobjs;

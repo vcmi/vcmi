@@ -7,7 +7,7 @@
 
 void CAbilityHandler::loadAbilities()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("SSTRAITS.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("SSTRAITS.TXT");
 	int it=0;
 	std::string dump;
 	for(int i=0; i<2; ++i)
@@ -28,7 +28,7 @@ void CAbilityHandler::loadAbilities()
 	abils44 = CDefHandler::giveDef("SECSKILL.DEF");
 	abils82 = CDefHandler::giveDef("SECSK82.DEF");
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("SKILLLEV.TXT");
+	buf = CGI->bitmaph->getTextFile("SKILLLEV.TXT");
 	it=0;
 	for(int i=0; i<6; ++i)
 	{

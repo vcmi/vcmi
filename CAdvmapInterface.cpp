@@ -127,7 +127,7 @@ void CMinimap::draw()
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
-	(CGameInfo::mainObj);
+	(CGI);
 	for (int i=0; i<CGI->mh->sizes.z; i++)
 	{
 		SDL_Surface * pom ;

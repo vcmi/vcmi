@@ -1,3 +1,4 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CCreatureHandler.h"
 #include "CLodHandler.h"
@@ -6,7 +7,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/replace.hpp>
-
+extern CLodHandler * bitmaph;
 int CCreature::getQuantityID(int quantity)
 {
 	if (quantity<5)

@@ -350,7 +350,7 @@ void CHeroHandler::loadHeroFlags()
 void CHeroHandler::loadHeroes()
 {
 	int ID=0;
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HOTRAITS.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("HOTRAITS.TXT");
 	int it=0;
 	std::string dump;
 	for(int i=0; i<2; ++i)
@@ -436,7 +436,7 @@ void CHeroHandler::loadHeroes()
 }
 void CHeroHandler::loadSpecialAbilities()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HEROSPEC.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("HEROSPEC.TXT");
 	int it=0;
 	std::string dump;
 	for(int i=0; i<2; ++i)
@@ -453,7 +453,7 @@ void CHeroHandler::loadSpecialAbilities()
 
 void CHeroHandler::loadBiographies()
 {	
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HEROBIOS.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("HEROBIOS.TXT");
 	int it=0;
 	for (int i=0;i<heroes.size();i++)
 	{
@@ -463,7 +463,7 @@ void CHeroHandler::loadBiographies()
 
 void CHeroHandler::loadHeroClasses()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("HCTRAITS.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("HCTRAITS.TXT");
 	int andame = buf.size();
 	for(int y=0; y<andame; ++y)
 		if(buf[y]==',')
@@ -561,7 +561,7 @@ void CHeroHandler::loadHeroClasses()
 
 		//CHero kkk = heroes[0];
 
-		for(int dd=0; dd<CGameInfo::mainObj->abilh->abilities.size(); ++dd)
+		for(int dd=0; dd<CGI->abilh->abilities.size(); ++dd)
 		{
 			befi=i;
 			for(i; i<andame; ++i)

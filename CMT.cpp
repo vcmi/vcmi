@@ -58,11 +58,10 @@
 #  define SET_BINARY_MODE(file)
 #endif
 #ifdef _DEBUG
-CGameInfo* CGI;
 #endif
 #define CHUNK 16384
 const char * NAME = "VCMI \"Altanatse\" 0.7";
-
+DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Color playerColorPalette[256]; //palette to make interface colors good
 
 SDL_Surface * screen, * screen2;
@@ -381,11 +380,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//screen = SDL_ConvertSurface(screen2, screen2->format, SDL_SWSURFACE);
 
 		SDL_WM_SetCaption(NAME,""); //set window title
-		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
-		CGameInfo::mainObj = cgi;		
-		#ifdef _DEBUG
-		CGI = cgi;
-		#endif
+		CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 		cgi->consoleh = new CConsoleHandler;
 		cgi->mush = mush;
 		cgi->curh = new CCursorHandler; 
@@ -395,6 +390,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
 		BitmapHandler::bitmaph = cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
+		initDLL(cgi->bitmaph);
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 
 		boost::filesystem::directory_iterator enddir;
@@ -504,7 +500,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->arth = arth;
 		THC std::cout<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
 
-		CCreatureHandler * creh = new CCreatureHandler(cgi->bitmaph);
+		CCreatureHandler * creh = new CCreatureHandler();
 		creh->loadCreatures();
 		cgi->creh = creh;
 		THC std::cout<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;

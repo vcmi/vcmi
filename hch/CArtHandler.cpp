@@ -6,7 +6,7 @@
 
 void CArtHandler::loadArtifacts()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("ARTRAITS.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("ARTRAITS.TXT");
 	int it=0;
 	std::string dump;
 	for(int i=0; i<2; ++i)
