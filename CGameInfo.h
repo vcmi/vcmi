@@ -47,7 +47,6 @@ public:
 	CAbilityHandler * abilh;
 	CSpellHandler * spellh;
 	CMapHandler * mh;
-	CAmbarCendamo * ac;
 	CPreGameTextHandler * preth;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
@@ -65,7 +64,6 @@ public:
 	int localPlayer;
 	std::vector<CGameInterface *> playerint;
 	std::vector<SDL_Color> playerColors;
-	std::vector<CDefHandler *> playerColorInfo; //gems from adventure map interface
 	SDL_Color neutralColor;
 	StartInfo scenarioOps;
 };

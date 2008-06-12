@@ -6,8 +6,7 @@
 #include <map>
 #include <set>
 
-class CDefHandler;
-struct SDL_Surface;
+class CLodHandler;
 
 class CCreature
 {
@@ -36,14 +35,14 @@ public:
 	bool isDefinite; //if the creature type is wotn dependent, it should be true
 	int indefLevel; //only if indefinite
 	bool indefUpgraded; //onlu if inddefinite
-	//end
-	//CDefHandler * battleAnimation;
-	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
 
-	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
+	//TODO - zdolnoœci (abilities) - na typie wyliczeniowym czy czymœ - albo lepiej secie czegoœ
+
 	bool isDoubleWide(); //returns true if unit is double wide on battlefield
 	bool isFlying(); //returns true if it is a flying unit
 	int maxAmount(const std::vector<int> &res) const; //how many creatures can be bought
+
+	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 };
 
 class CCreatureSet //seven combined creatures
@@ -55,15 +54,14 @@ public:
 
 class CCreatureHandler
 {
+	CLodHandler * bitmaph;
 public:
-	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
-	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
-	std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
 	std::vector<CCreature> creatures; //creature ID -> creature info
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
 	std::map<std::string,int> nameToID;
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
+	CCreatureHandler(CLodHandler * Bitmaph):bitmaph(Bitmaph){};
 };
 #endif //CCREATUREHANDLER_H

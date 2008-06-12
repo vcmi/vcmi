@@ -31,7 +31,7 @@ AdventureMapButton::AdventureMapButton
 	helpBox=HelpBox;
 	colorChange = playerColoredButton;
 	int est = LOCPLINT->playerID;
-	CDefHandler * temp = CGI->spriteh->giveDef(defName); 
+	CDefHandler * temp = CDefHandler::giveDef(defName); 
 	temp->notFreeImgs = true;
 	for (int i=0;i<temp->ourImages.size();i++)
 	{
@@ -46,7 +46,7 @@ AdventureMapButton::AdventureMapButton
 		imgs.resize(imgs.size()+add->size());
 		for (int i=0; i<add->size();i++)
 		{
-			temp = CGI->spriteh->giveDef((*add)[i]);
+			temp = CDefHandler::giveDef((*add)[i]);
 			temp->notFreeImgs = true;
 			for (int j=0;j<temp->ourImages.size();j++)
 			{
@@ -245,7 +245,7 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 {
 	moving = false;
 	strongInterest = true;
-	imgs = CGI->spriteh->giveDefEss("IGPCRDIV.DEF");
+	imgs = CDefHandler::giveDefEss("IGPCRDIV.DEF");
 
 	left.pos.y = slider.pos.y = right.pos.y = pos.y = y;
 	left.pos.x = pos.x = x;

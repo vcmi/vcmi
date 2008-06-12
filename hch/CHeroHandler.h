@@ -60,6 +60,7 @@ public:
 	void loadBiographies();
 	void loadHeroClasses();
 	void loadPortraits(); //loads also imgs and names of primary skills
+	void loadHeroFlags();
 	void initHeroClasses();
 	~CHeroHandler();
 	void initTerrainCosts();

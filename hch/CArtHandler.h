@@ -24,7 +24,6 @@ public:
 class CArtHandler //handles artifacts
 {
 public:
-	CDefHandler * artDefs;
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector<CArtifact> artifacts;
 	void loadArtifacts();

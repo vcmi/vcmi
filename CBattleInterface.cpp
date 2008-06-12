@@ -35,13 +35,13 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	}
 	//preparing menu background and terrain
 	std::vector< std::string > & backref = CGI->mh->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
-	background = CGI->bitmaph->loadBitmap(backref[ rand() % backref.size()] );
-	menu = CGI->bitmaph->loadBitmap("CBAR.BMP");
+	background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()] );
+	menu = BitmapHandler::loadBitmap("CBAR.BMP");
 	CSDL_Ext::blueToPlayersAdv(menu, hero1->tempOwner);
 
 	//preparing graphics for displaying amounts of creatures
-	amountBasic = CGI->bitmaph->loadBitmap("CMNUMWIN.BMP");
-	amountNormal = CGI->bitmaph->loadBitmap("CMNUMWIN.BMP");
+	amountBasic = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
+	amountNormal = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
 	CSDL_Ext::alphaTransform(amountNormal);
 	for(int g=0; g<amountNormal->format->palette->ncolors; ++g)
 	{
@@ -98,9 +98,9 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	}
 
 	//preparing cells and hexes
-	cellBorder = CGI->bitmaph->loadBitmap("CCELLGRD.BMP");
+	cellBorder = BitmapHandler::loadBitmap("CCELLGRD.BMP");
 	CSDL_Ext::alphaTransform(cellBorder);
-	cellShade = CGI->bitmaph->loadBitmap("CCELLSHD.BMP");
+	cellShade = BitmapHandler::loadBitmap("CCELLSHD.BMP");
 	CSDL_Ext::alphaTransform(cellShade);
 	for(int h=0; h<187; ++h)
 	{
@@ -896,7 +896,7 @@ void CBattleHero::show(SDL_Surface *to)
 
 CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG, unsigned char player): phase(phaseG), image(imageG), flip(flipG), flagAnim(0)
 {
-	dh = CGI->spriteh->giveDef( defName );
+	dh = CDefHandler::giveDef( defName );
 	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images
 	{
 		if(flip)
@@ -910,9 +910,9 @@ CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG
 	dh->alphaTransformed = true;
 
 	if(flip)
-		flag = CGI->spriteh->giveDef("CMFLAGR.DEF");
+		flag = CDefHandler::giveDef("CMFLAGR.DEF");
 	else
-		flag = CGI->spriteh->giveDef("CMFLAGL.DEF");
+		flag = CDefHandler::giveDef("CMFLAGL.DEF");
 
 	//coloring flag and adding transparency
 	for(int i=0; i<flag->ourImages.size(); ++i)

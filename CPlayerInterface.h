@@ -290,17 +290,19 @@ public:
 class CPlayerInterface : public CGameInterface
 {
 public:
+	//minor interfaces
 	bool makingTurn;
-		SDL_Event * current;
+	SDL_Event * current;
 	IActivable *curint;
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt;
 	FPSmanager * mainFPSmng;
 	IStatusBar *statusbar;
-	//TODO: town interace, battle interface, other interfaces
 
+	//to commucate with engine
 	CCallback * cb;
 
+	//GUI elements
 	std::vector<ClickableL*> lclickable;
 	std::vector<ClickableR*> rclickable;
 	std::vector<Hoverable*> hoverable;
@@ -309,15 +311,32 @@ public:
 	std::vector<TimeInterested*> timeinterested;
 	std::vector<IShowable*> objsToBlit;
 
-	SDL_Surface * hInfo, *tInfo;
-	std::vector<std::pair<int, int> > slotsPos;
-	CDefEssential *luck22, *luck30, *luck42, *luck82,
-		*morale22, *morale30, *morale42, *morale82,
-		*halls, *forts, *bigTownPic;
-	std::map<int,SDL_Surface*> heroWins;
-	std::map<int,SDL_Surface*> townWins;
+	//various graphics
+	class Graphics
+	{
+	public:
+		//various graphics
+		SDL_Surface * hInfo, *tInfo; //hero and town infobox bgs
+		std::vector<std::pair<int, int> > slotsPos; //creature slot positions in infoboxes
+		CDefEssential *luck22, *luck30, *luck42, *luck82,
+			*morale22, *morale30, *morale42, *morale82,
+			*halls, *forts, *bigTownPic;
+		std::map<int,SDL_Surface*> heroWins; //hero_ID => infobox
+		std::map<int,SDL_Surface*> townWins; //town_ID => infobox
+		CDefHandler * artDefs; //artifacts
+		//creatures
+		std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
+		std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
+		std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
+		
+		//functions
+		Graphics();
+		SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
+		SDL_Surface * drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from=0, int to=PRIMARY_SKILLS);
+		SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
+	} graphics;
 
-	//overloaded funcs from Interface
+	//overloaded funcs from CGameInterface
 	void yourTurn();
 	void heroMoved(const HeroMoveDetails & details);
 	void tileRevealed(int3 pos);
@@ -330,8 +349,7 @@ public:
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void garrisonChanged(const CGObjectInstance * obj);
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
-
-	//battles
+	//for battles
 	void battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::logic::tribool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
@@ -348,7 +366,6 @@ public:
 	//-------------//
 
 	void showComp(SComponent comp);
-
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
@@ -360,12 +377,8 @@ public:
 	int3 repairScreenPos(int3 pos);
 	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
 	void removeObjToBlit(IShowable* obj);
-	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
-	SDL_Surface * drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from=0, int to=PRIMARY_SKILLS);
 
-	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
-
-	CPlayerInterface(int Player, int serial);
+	CPlayerInterface(int Player, int serial);//c-tor
 };
 class CStatusBar
 	: public CIntObject, public IStatusBar

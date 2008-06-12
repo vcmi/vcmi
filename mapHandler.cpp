@@ -276,7 +276,7 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 				t->defInfo = villages[t->subID]; 
 			if(!t->defInfo->handler)
 			{
-				t->defInfo->handler = CGI->spriteh->giveDef(t->defInfo->name);
+				t->defInfo->handler = CDefHandler::giveDef(t->defInfo->name);
 				alphaTransformDef(t->defInfo);
 			}
 		}
@@ -308,7 +308,7 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 			t->defInfo = villages[t->subID]; 
 		if(!t->defInfo->handler)
 		{
-			t->defInfo->handler = CGI->spriteh->giveDef(t->defInfo->name);
+			t->defInfo->handler = CDefHandler::giveDef(t->defInfo->name);
 			alphaTransformDef(t->defInfo);
 		}
 		//CGI->townh->townInstances.push_back(t);
@@ -321,7 +321,7 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 	if(!cur->defInfo){std::cout<<"Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;return;}
 	if(!cur->defInfo->handler) //if we have to load def
 	{
-		cur->defInfo->handler = CGI->spriteh->giveDef(cur->defInfo->name);
+		cur->defInfo->handler = CDefHandler::giveDef(cur->defInfo->name);
 		alphaTransformDef(cur->defInfo);
 	}
 
@@ -338,8 +338,8 @@ void CMapHandler::randomizeObjects()
 }
 void CMapHandler::prepareFOWDefs()
 {
-	fullHide = CGameInfo::mainObj->spriteh->giveDef("TSHRC.DEF");
-	partialHide = CGameInfo::mainObj->spriteh->giveDef("TSHRE.DEF");
+	fullHide = CDefHandler::giveDef("TSHRC.DEF");
+	partialHide = CDefHandler::giveDef("TSHRE.DEF");
 
 	//adding necessary rotations
 	Cimage nw = partialHide->ourImages[22]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
@@ -392,32 +392,32 @@ void CMapHandler::prepareFOWDefs()
 	//		visibility[gg][jj] = true;
 	//}
 
-	visibility.resize(CGI->ac->map.width, Woff);
+	visibility.resize(CGI->mh->map->width, Woff);
 	for (int i=0-Woff;i<visibility.size()-Woff;i++)
 	{
-		visibility[i].resize(CGI->ac->map.height,Hoff);
+		visibility[i].resize(CGI->mh->map->height,Hoff);
 	}
 	for (int i=0-Woff; i<visibility.size()-Woff; ++i)
 	{
-		for (int j=0-Hoff; j<CGI->ac->map.height+Hoff; ++j)
+		for (int j=0-Hoff; j<CGI->mh->map->height+Hoff; ++j)
 		{
-			visibility[i][j].resize(CGI->ac->map.twoLevel+1,0);
-			for(int k=0; k<CGI->ac->map.twoLevel+1; ++k)
+			visibility[i][j].resize(CGI->mh->map->twoLevel+1,0);
+			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
 				visibility[i][j][k]=true;
 		}
 	}
 
-	hideBitmap.resize(CGI->ac->map.width, Woff);
+	hideBitmap.resize(CGI->mh->map->width, Woff);
 	for (int i=0-Woff;i<visibility.size()-Woff;i++)
 	{
-		hideBitmap[i].resize(CGI->ac->map.height,Hoff);
+		hideBitmap[i].resize(CGI->mh->map->height,Hoff);
 	}
 	for (int i=0-Woff; i<hideBitmap.size()-Woff; ++i)
 	{
-		for (int j=0-Hoff; j<CGI->ac->map.height+Hoff; ++j)
+		for (int j=0-Hoff; j<CGI->mh->map->height+Hoff; ++j)
 		{
-			hideBitmap[i][j].resize(CGI->ac->map.twoLevel+1,0);
-			for(int k=0; k<CGI->ac->map.twoLevel+1; ++k)
+			hideBitmap[i][j].resize(CGI->mh->map->twoLevel+1,0);
+			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
 				hideBitmap[i][j][k] = rand()%fullHide->ourImages.size();
 		}
 	}
@@ -435,13 +435,13 @@ void CMapHandler::roadsRiverTerrainInit()
 {
 	//initializing road's and river's DefHandlers
 
-	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("dirtrd.def"));
-	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("gravrd.def"));
-	roadDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("cobbrd.def"));
-	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("clrrvr.def"));
-	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("icyrvr.def"));
-	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("mudrvr.def"));
-	staticRiverDefs.push_back(CGameInfo::mainObj->spriteh->giveDef("lavrvr.def"));
+	roadDefs.push_back(CDefHandler::giveDef("dirtrd.def"));
+	roadDefs.push_back(CDefHandler::giveDef("gravrd.def"));
+	roadDefs.push_back(CDefHandler::giveDef("cobbrd.def"));
+	staticRiverDefs.push_back(CDefHandler::giveDef("clrrvr.def"));
+	staticRiverDefs.push_back(CDefHandler::giveDef("icyrvr.def"));
+	staticRiverDefs.push_back(CDefHandler::giveDef("mudrvr.def"));
+	staticRiverDefs.push_back(CDefHandler::giveDef("lavrvr.def"));
 	for(int g=0; g<staticRiverDefs.size(); ++g)
 	{
 		for(int h=0; h<staticRiverDefs[g]->ourImages.size(); ++h)
@@ -460,18 +460,18 @@ void CMapHandler::roadsRiverTerrainInit()
 	//roadBitmaps = new SDL_Surface** [map->width+2*Woff];
 	//for (int ii=0;ii<map->width+2*Woff;ii++)
 	//	roadBitmaps[ii] = new SDL_Surface*[map->height+2*Hoff]; // allocate memory
-	sizes.x = CGI->ac->map.width;
-	sizes.y = CGI->ac->map.height;
-	sizes.z = CGI->ac->map.twoLevel+1;
-	ttiles.resize(CGI->ac->map.width,Woff);
+	sizes.x = CGI->mh->map->width;
+	sizes.y = CGI->mh->map->height;
+	sizes.z = CGI->mh->map->twoLevel+1;
+	ttiles.resize(CGI->mh->map->width,Woff);
 	for (int i=0-Woff;i<ttiles.size()-Woff;i++)
 	{
-		ttiles[i].resize(CGI->ac->map.height,Hoff);
+		ttiles[i].resize(CGI->mh->map->height,Hoff);
 	}
 	for (int i=0-Woff;i<ttiles.size()-Woff;i++)
 	{
-		for (int j=0-Hoff;j<CGI->ac->map.height+Hoff;j++)
-			ttiles[i][j].resize(CGI->ac->map.twoLevel+1,0);
+		for (int j=0-Hoff;j<CGI->mh->map->height+Hoff;j++)
+			ttiles[i][j].resize(CGI->mh->map->twoLevel+1,0);
 	}
 
 
@@ -531,25 +531,25 @@ void CMapHandler::roadsRiverTerrainInit()
 	}
 
 	//initializing simple values
-	for (int i=0; i<CGI->ac->map.width; i++) //jest po szerokoœci
+	for (int i=0; i<CGI->mh->map->width; i++) //jest po szerokoœci
 	{
-		for (int j=0; j<CGI->ac->map.height;j++) //po wysokoœci
+		for (int j=0; j<CGI->mh->map->height;j++) //po wysokoœci
 		{
 			for(int k=0; k<ttiles[0][0].size(); ++k)
 			{
 				ttiles[i][j][k].pos = int3(i, j, k);
 				ttiles[i][j][k].blocked = false;
 				ttiles[i][j][k].visitable = false;
-				if(i<0 || j<0 || i>=CGI->ac->map.width || j>=CGI->ac->map.height)
+				if(i<0 || j<0 || i>=CGI->mh->map->width || j>=CGI->mh->map->height)
 				{
 					ttiles[i][j][k].blocked = true;
 					continue;
 				}
-				ttiles[i][j][k].terType = (k==0 ? CGI->ac->map.terrain[i][j].tertype : CGI->ac->map.undergroungTerrain[i][j].tertype);
-				ttiles[i][j][k].malle = (k==0 ? CGI->ac->map.terrain[i][j].malle : CGI->ac->map.undergroungTerrain[i][j].malle);
-				ttiles[i][j][k].nuine = (k==0 ? CGI->ac->map.terrain[i][j].nuine : CGI->ac->map.undergroungTerrain[i][j].nuine);
-				ttiles[i][j][k].rivdir = (k==0 ? CGI->ac->map.terrain[i][j].rivDir : CGI->ac->map.undergroungTerrain[i][j].rivDir);
-				ttiles[i][j][k].roaddir = (k==0 ? CGI->ac->map.terrain[i][j].roadDir : CGI->ac->map.undergroungTerrain[i][j].roadDir);
+				ttiles[i][j][k].terType = (k==0 ? CGI->mh->map->terrain[i][j].tertype : CGI->mh->map->undergroungTerrain[i][j].tertype);
+				ttiles[i][j][k].malle = (k==0 ? CGI->mh->map->terrain[i][j].malle : CGI->mh->map->undergroungTerrain[i][j].malle);
+				ttiles[i][j][k].nuine = (k==0 ? CGI->mh->map->terrain[i][j].nuine : CGI->mh->map->undergroungTerrain[i][j].nuine);
+				ttiles[i][j][k].rivdir = (k==0 ? CGI->mh->map->terrain[i][j].rivDir : CGI->mh->map->undergroungTerrain[i][j].rivDir);
+				ttiles[i][j][k].roaddir = (k==0 ? CGI->mh->map->terrain[i][j].roadDir : CGI->mh->map->undergroungTerrain[i][j].roadDir);
 
 			}
 		}
@@ -612,7 +612,7 @@ void CMapHandler::borderAndTerrainBitmapInit()
 	//for (int ii=0;ii<map->width+2*Woff;ii++)
 	//	terrainBitmap[ii] = new SDL_Surface*[map->height+2*Hoff]; // allocate memory
 
-	CDefHandler * bord = CGameInfo::mainObj->spriteh->giveDef("EDG.DEF");
+	CDefHandler * bord = CDefHandler::giveDef("EDG.DEF");
 	bord->notFreeImgs =  true;
 	for (int i=0-Woff; i<map->width+Woff; i++) //jest po szerokoœci
 	{
@@ -808,7 +808,7 @@ void CMapHandler::init()
 	///loading defs from lod
 	for (int ir=0;ir<map->defy.size();ir++)
 	{
-		map->defy[ir]->handler=CGI->spriteh->giveDef(map->defy[ir]->name);
+		map->defy[ir]->handler=CDefHandler::giveDef(map->defy[ir]->name);
 		CGDefInfo* pom = CGI->dobjinfo->gobjs[map->defy[ir]->id][map->defy[ir]->subid];
 		if(pom)
 			pom->handler=map->defy[ir]->handler;
@@ -835,7 +835,7 @@ void CMapHandler::init()
 	{
 		CGDefInfo * n = new CGDefInfo(*CGI->dobjinfo->castles[i%ccc]);
 		ifs >> n->name;
-		if (!(n->handler = CGI->spriteh->giveDef(n->name)))
+		if (!(n->handler = CDefHandler::giveDef(n->name)))
 			std::cout << "Cannot open "<<n->name<<std::endl;
 		if(i<ccc)
 			villages[i]=n;
@@ -1542,7 +1542,7 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int ow
 		return nobj;
 	nobj->defInfo = CGI->dobjinfo->gobjs[id][subid];
 	if(!nobj->defInfo->handler)
-		nobj->defInfo->handler = CGI->spriteh->giveDef(nobj->defInfo->name);
+		nobj->defInfo->handler = CDefHandler::giveDef(nobj->defInfo->name);
 	return nobj;
 }
 
@@ -1821,13 +1821,13 @@ void CMapHandler::loadDefs()
 		{
 			if (loadedTypes.find(map->terrain[i][j].tertype)==loadedTypes.end())
 			{
-				CDefHandler  *sdh = CGI->spriteh->giveDef(nameFromType(map->terrain[i][j].tertype).c_str());
+				CDefHandler  *sdh = CDefHandler::giveDef(nameFromType(map->terrain[i][j].tertype).c_str());
 				loadedTypes.insert(map->terrain[i][j].tertype);
 				defs.push_back(sdh);
 			}
 			if (map->twoLevel && loadedTypes.find(map->undergroungTerrain[i][j].tertype)==loadedTypes.end())
 			{
-				CDefHandler  *sdh = CGI->spriteh->giveDef(nameFromType(map->undergroungTerrain[i][j].tertype).c_str());
+				CDefHandler  *sdh = CDefHandler::giveDef(nameFromType(map->undergroungTerrain[i][j].tertype).c_str());
 				loadedTypes.insert(map->undergroungTerrain[i][j].tertype);
 				defs.push_back(sdh);
 			}

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CAdvmapInterface.h"
-#include "hch\CLodHandler.h"
+#include "client/CBitmapHandler.h"
 #include "CPlayerInterface.h"
 #include "hch\CPreGameTextHandler.h"
 #include "hch\CGeneralTextHandler.h"
@@ -62,7 +62,7 @@ CMinimap::CMinimap(bool draw)
 	}
 	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));	
 
-	//radar = CGI->spriteh->giveDef("RADAR.DEF");
+	//radar = CDefHandler::giveDef("RADAR.DEF");
 	std::ifstream is("config/minimap.txt",std::ifstream::in);
 	for (int i=0;i<TERRAIN_TYPES;i++)
 	{
@@ -235,7 +235,7 @@ CTerrainRect::CTerrainRect():currentPath(NULL)
 	pos.y=6;
 	pos.w=593;
 	pos.h=547;
-	arrows = CGI->spriteh->giveDef("ADAG.DEF");
+	arrows = CDefHandler::giveDef("ADAG.DEF");
 	for(int y=0; y<arrows->ourImages.size(); ++y)
 	{
 		arrows->ourImages[y].bitmap = CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
@@ -592,7 +592,7 @@ void CResDataBar::deactivate()
 }
 CResDataBar::CResDataBar()
 {
-	bg = CGI->bitmaph->loadBitmap("ZRESBAR.bmp");
+	bg = BitmapHandler::loadBitmap("ZRESBAR.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	//std::vector<SDL_Color> kolory;
 	//SDL_Color p1={40,65,139,255}, p2={36,59,125,255}, p3={35,56,121,255};
@@ -637,11 +637,11 @@ CInfoBar::CInfoBar()
 	pos.y=389;
 	pos.w=194;
 	pos.h=186;
-	day = CGI->spriteh->giveDef("NEWDAY.DEF");
-	week1 = CGI->spriteh->giveDef("NEWWEEK1.DEF");
-	week2 = CGI->spriteh->giveDef("NEWWEEK2.DEF");
-	week3 = CGI->spriteh->giveDef("NEWWEEK3.DEF");
-	week4 = CGI->spriteh->giveDef("NEWWEEK4.DEF");
+	day = CDefHandler::giveDef("NEWDAY.DEF");
+	week1 = CDefHandler::giveDef("NEWWEEK1.DEF");
+	week2 = CDefHandler::giveDef("NEWWEEK2.DEF");
+	week3 = CDefHandler::giveDef("NEWWEEK3.DEF");
+	week4 = CDefHandler::giveDef("NEWWEEK4.DEF");
 }
 CInfoBar::~CInfoBar()
 {
@@ -679,14 +679,14 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 
 	if(specific->ID == 34) //hero
 	{
-		if(LOCPLINT->heroWins.find(specific->subID)!=LOCPLINT->heroWins.end())
-			blitAt(LOCPLINT->heroWins[specific->subID],pos.x,pos.y);
+		if(LOCPLINT->graphics.heroWins.find(specific->subID)!=LOCPLINT->graphics.heroWins.end())
+			blitAt(LOCPLINT->graphics.heroWins[specific->subID],pos.x,pos.y);
 	}
 	else if (specific->ID == 98)
 	{
 		const CGTownInstance * t = static_cast<const CGTownInstance*>(specific);
-		if(LOCPLINT->townWins.find(t->identifier)!=LOCPLINT->townWins.end())
-			blitAt(LOCPLINT->townWins[t->identifier],pos.x,pos.y);
+		if(LOCPLINT->graphics.townWins.find(t->identifier)!=LOCPLINT->graphics.townWins.end())
+			blitAt(LOCPLINT->graphics.townWins[t->identifier],pos.x,pos.y);
 	}
 
 	//SDL_Surface * todr = LOCPLINT->infoWin(specific);
@@ -774,7 +774,7 @@ void CInfoBar::newDay(int Day)
 
 void CInfoBar::showComp(SComponent * comp, int time)
 {
-	SDL_Surface * b = CGI->bitmaph->loadBitmap("ADSTATOT.bmp");
+	SDL_Surface * b = BitmapHandler::loadBitmap("ADSTATOT.bmp");
 	blitAt(b,pos.x+8,pos.y+11);
 	blitAt(comp->getImg(),pos.x+52,pos.y+54);
 	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,GEOR13,zwykly);
@@ -848,7 +848,7 @@ townList(5,&genRect(192,48,747,196),747,196,747,372)
 {
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
 	LOCPLINT->adventureInt=this;
-	bg = CGI->bitmaph->loadBitmap("ADVMAP.bmp");
+	bg = BitmapHandler::loadBitmap("ADVMAP.bmp");
 	blueToPlayersAdv(bg,player);
 	scrollingLeft = false;
 	scrollingRight  = false;
@@ -867,10 +867,10 @@ townList(5,&genRect(192,48,747,196),747,196,747,372)
 
 	heroWindow = new CHeroWindow(this->player);
 	
-	gems.push_back(CGI->spriteh->giveDef("agemLL.def"));
-	gems.push_back(CGI->spriteh->giveDef("agemLR.def"));
-	gems.push_back(CGI->spriteh->giveDef("agemUL.def"));
-	gems.push_back(CGI->spriteh->giveDef("agemUR.def"));
+	gems.push_back(CDefHandler::giveDef("agemLL.def"));
+	gems.push_back(CDefHandler::giveDef("agemLR.def"));
+	gems.push_back(CDefHandler::giveDef("agemUL.def"));
+	gems.push_back(CDefHandler::giveDef("agemUR.def"));
 }
 
 void CAdvMapInt::fshowOverview()
@@ -878,7 +878,7 @@ void CAdvMapInt::fshowOverview()
 }
 void CAdvMapInt::fswitchLevel()
 {
-	if(!CGI->ac->map.twoLevel)
+	if(!CGI->mh->map->twoLevel)
 		return;
 	if (position.z)
 	{

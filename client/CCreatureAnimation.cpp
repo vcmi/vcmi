@@ -1,5 +1,4 @@
 #include "CCreatureAnimation.h"
-#include "../CGameInfo.h"
 #include "../hch/CLodHandler.h"
 int CCreatureAnimation::getType() const
 {
@@ -36,21 +35,12 @@ void CCreatureAnimation::setType(int type)
 
 CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEntries(NULL)
 {
-	//load main file
-	std::string data2 = CGI->spriteh->getTextFile(name);
-	if(data2.size()==0)
-		throw new std::string("no such def!");
-	FDef = new unsigned char[data2.size()];
-	for(int g=0; g<data2.size(); ++g)
-	{
-		FDef[g] = data2[g];
-	}
+	FDef = CDefHandler::Spriteh->giveFile(name); //load main file
 
 	//init anim data
 	int i,j, totalInBlock;
 	char Buffer[13];
 	defName=name;
-	int andame = data2.size();
 	i = 0;
 	DEFType = readNormalNr(i,4); i+=4;
 	fullWidth = readNormalNr(i,4); i+=4;
@@ -98,17 +88,6 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEn
 	{
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
-	//pictures don't have to be readed here
-	//for(int i=0; i<SEntries.size(); ++i)
-	//{
-	//	Cimage nimg;
-	//	nimg.bitmap = getSprite(i);
-	//	nimg.imName = SEntries[i].name;
-	//	nimg.groupNumber = SEntries[i].group;
-	//	ourImages.push_back(nimg);
-	//}
-	//delete FDef;
-	//FDef = NULL;
 
 	//init vars
 	curFrame = 0;

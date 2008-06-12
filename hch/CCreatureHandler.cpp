@@ -1,6 +1,4 @@
 #include "../stdafx.h"
-#include "../CGameInfo.h"
-#include "CDefHandler.h"
 #include "CCreatureHandler.h"
 #include "CLodHandler.h"
 #include <sstream>
@@ -8,7 +6,6 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "../SDL_Extensions.h"
 
 int CCreature::getQuantityID(int quantity)
 {
@@ -54,7 +51,7 @@ int CCreature::maxAmount(const std::vector<int> &res) const //how many creatures
 
 void CCreatureHandler::loadCreatures()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("ZCRTRAIT.TXT");
+	std::string buf = bitmaph->getTextFile("ZCRTRAIT.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;
@@ -346,19 +343,6 @@ void CCreatureHandler::loadCreatures()
 	ifs.close();
 	ifs.clear();
 
-
-	ifs.open("config/cr_bgs.txt"); 
-	while(!ifs.eof())
-	{
-		int id;
-		std::string name;
-		ifs >> id >> name;
-		backgrounds[id]=CGI->bitmaph->loadBitmap(name);
-	}
-	ifs.close();
-	ifs.clear();
-
-
 	ifs.open("config/cr_factions.txt"); 
 	while(!ifs.eof())
 	{
@@ -378,23 +362,6 @@ void CCreatureHandler::loadCreatures()
 	}
 	ifs.close();
 	ifs.clear();
-
-	//loading 32x32px imgs
-	CDefHandler *smi = CGI->spriteh->giveDef("CPRSMALL.DEF");
-	smi->notFreeImgs = true;
-	for (int i=0; i<smi->ourImages.size(); i++)
-	{
-		boost::assign::insert(smallImgs)(i-2,smi->ourImages[i].bitmap);
-	}
-	delete smi;
-	smi = CGI->spriteh->giveDef("TWCRPORT.DEF");
-	smi->notFreeImgs = true;
-	for (int i=0; i<smi->ourImages.size(); i++)
-	{
-		boost::assign::insert(bigImgs)(i-2,smi->ourImages[i].bitmap);
-	}
-	delete smi;
-	//
 	
 	//loading unit animation def names
 	std::ifstream inp("config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
@@ -441,7 +408,7 @@ void CCreatureHandler::loadCreatures()
 
 void CCreatureHandler::loadAnimationInfo()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("CRANIM.TXT");
+	std::string buf = bitmaph->getTextFile("CRANIM.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;

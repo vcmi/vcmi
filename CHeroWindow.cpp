@@ -23,7 +23,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 	backpackPos(0), player(playerColor)
 {
 	artWorn.resize(19);
-	background = CGI->bitmaph->loadBitmap("HEROSCR4.bmp");
+	background = BitmapHandler::loadBitmap("HEROSCR4.bmp");
 	CSDL_Ext::blueToPlayersAdv(background, playerColor);
 	pos.x = 65;
 	pos.y = 8;
@@ -60,8 +60,8 @@ CHeroWindow::CHeroWindow(int playerColor):
 		heroListMi[g]->id = g;
 	}
 
-	skillpics = CGI->spriteh->giveDef("pskil42.def");
-	flags = CGI->spriteh->giveDef("CREST58.DEF");
+	skillpics = CDefHandler::giveDef("pskil42.def");
+	flags = CDefHandler::giveDef("CREST58.DEF");
 	//areas
 	portraitArea = new LRClickableAreaWText();
 	portraitArea->pos.x = 83;
@@ -788,8 +788,8 @@ void CHeroWindow::redrawCurBack()
 	primarySkill4<<curHero->primSkills[3];
 	CSDL_Ext::printAtMiddle(primarySkill4.str(), 263, 165, TNRB16, zwykly, curBack);
 
-	blitAt(LOCPLINT->luck42->ourImages[curHero->getCurrentLuck()+3].bitmap, 239, 182, curBack);
-	blitAt(LOCPLINT->morale42->ourImages[curHero->getCurrentMorale()+3].bitmap, 181, 182, curBack);
+	blitAt(LOCPLINT->graphics.luck42->ourImages[curHero->getCurrentLuck()+3].bitmap, 239, 182, curBack);
+	blitAt(LOCPLINT->graphics.morale42->ourImages[curHero->getCurrentMorale()+3].bitmap, 181, 182, curBack);
 
 	blitAt(flags->ourImages[player].bitmap, 606, 8, curBack);
 
@@ -979,7 +979,7 @@ void CArtPlace::show(SDL_Surface *to)
 {
 	if(ourArt)
 	{
-		blitAt(CGI->arth->artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
+		blitAt(LOCPLINT->graphics.artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
 	}
 	if(clicked && active)
 	{

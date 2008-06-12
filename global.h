@@ -21,7 +21,6 @@ enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
 enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHEMIST, HERO_WIZARD, 
 	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD, 
 	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
-
 #ifdef _DEBUG
 class CGameInfo;
 extern CGameInfo* CGI;
@@ -67,6 +66,19 @@ const int MAX_BUILDING_PER_TURN = 1;
 
 #define DEFBYPASS
 
+#ifdef _WIN32
+	#ifdef VCMI_DLL
+		#define DLL_EXPORT __declspec(dllexport)
+	#else
+		#define DLL_EXPORT __declspec(dllimport)
+	#endif
+#else
+	#if defined(__GNUC__) && __GNUC__ >= 4
+		#define DLL_EXPORT	__attribute__ ((visibility("default")))
+	#else
+		#define DLL_EXPORT
+	#endif
+#endif
 
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\

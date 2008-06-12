@@ -49,7 +49,7 @@ void CMessage::init()
 	{
 		for (int i=0;i<PLAYER_LIMIT;i++)
 		{
-			CDefHandler * bluePieces = CGI->spriteh->giveDef("DIALGBOX.DEF");
+			CDefHandler * bluePieces = CDefHandler::giveDef("DIALGBOX.DEF");
 			std::vector<SDL_Surface *> n;
 			piecesOfBox.push_back(n);
 			if (i==1)
@@ -65,11 +65,11 @@ void CMessage::init()
 				piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
 			}
 		}
-		NMessage::background = CGI->bitmaph->loadBitmap("DIBOXBCK.BMP");
+		NMessage::background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
 		SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
 	}
-	ok = CGI->spriteh->giveDef("IOKAY.DEF");
-	cancel = CGI->spriteh->giveDef("ICANCEL.DEF");
+	ok = CDefHandler::giveDef("IOKAY.DEF");
+	cancel = CDefHandler::giveDef("ICANCEL.DEF");
 }
 
 

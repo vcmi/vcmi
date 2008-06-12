@@ -24,9 +24,9 @@ void CAbilityHandler::loadAbilities()
 		nab->idNumber = abilities.size();
 		abilities.push_back(nab);
 	}
-	abils32 = CGI->spriteh->giveDef("SECSK32.DEF");
-	abils44 = CGI->spriteh->giveDef("SECSKILL.DEF");
-	abils82 = CGI->spriteh->giveDef("SECSK82.DEF");
+	abils32 = CDefHandler::giveDef("SECSK32.DEF");
+	abils44 = CDefHandler::giveDef("SECSKILL.DEF");
+	abils82 = CDefHandler::giveDef("SECSK82.DEF");
 
 	buf = CGameInfo::mainObj->bitmaph->getTextFile("SKILLLEV.TXT");
 	it=0;

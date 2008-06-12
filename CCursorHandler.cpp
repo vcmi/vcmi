@@ -195,10 +195,10 @@ void CCursorHandler::initCursor()
 //	xpos = ypos = 0;
 //	behindCur = SDL_CreateRGBSurface(SDL_SWSURFACE, 32, 32, 32, rmask, gmask, bmask, amask);
 //	xbef = ybef = 0;
-//	adventure = CGI->spriteh->giveDef("CRADVNTR.DEF");
-//	combat = CGI->spriteh->giveDef("CRCOMBAT.DEF");
-//	deflt = CGI->spriteh->giveDef("CRDEFLT.DEF");
-//	spell = CGI->spriteh->giveDef("CRSPELL.DEF");
+//	adventure = CDefHandler::giveDef("CRADVNTR.DEF");
+//	combat = CDefHandler::giveDef("CRCOMBAT.DEF");
+//	deflt = CDefHandler::giveDef("CRDEFLT.DEF");
+//	spell = CDefHandler::giveDef("CRSPELL.DEF");
 //	//SDL_SetCursor(init_system_cursor(arrow));
 //	//SDL_Thread * myth = SDL_CreateThread(&cursorHandlerFunc, this);
 }

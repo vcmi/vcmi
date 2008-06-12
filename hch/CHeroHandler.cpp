@@ -28,7 +28,7 @@ void CHeroHandler::loadPortraits()
 		of>>ID;
 		std::string path;
 		of>>path;
-		heroes[ID]->portraitSmall=CGI->bitmaph->loadBitmap(path);
+		heroes[ID]->portraitSmall=BitmapHandler::loadBitmap(path);
 		if (!heroes[ID]->portraitSmall)
 			std::cout<<"Can't read small portrait for "<<ID<<" ("<<path<<")\n";
 		for(int ff=0; ff<path.size(); ++ff) //size letter is usually third one, but there are exceptions an it should fix the problem
@@ -39,16 +39,16 @@ void CHeroHandler::loadPortraits()
 				break;
 			}
 		}
-		heroes[ID]->portraitLarge=CGI->bitmaph->loadBitmap(path);
+		heroes[ID]->portraitLarge=BitmapHandler::loadBitmap(path);
 		if (!heroes[ID]->portraitLarge)
 			std::cout<<"Can't read large portrait for "<<ID<<" ("<<path<<")\n";	
 		SDL_SetColorKey(heroes[ID]->portraitLarge,SDL_SRCCOLORKEY,SDL_MapRGB(heroes[ID]->portraitLarge->format,0,255,255));
 
 	}
 	of.close();
-	pskillsb = CGI->spriteh->giveDef("PSKILL.DEF");
-	resources = CGI->spriteh->giveDef("RESOUR82.DEF");
-	un44 = CGI->spriteh->giveDef("UN44.DEF");
+	pskillsb = CDefHandler::giveDef("PSKILL.DEF");
+	resources = CDefHandler::giveDef("RESOUR82.DEF");
+	un44 = CDefHandler::giveDef("UN44.DEF");
 
 	std::string  strs = CGI->bitmaph->getTextFile("PRISKILL.TXT");
 	int itr=0;
@@ -57,6 +57,294 @@ void CHeroHandler::loadPortraits()
 		std::string tmp;
 		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
 		pskillsn.push_back(tmp);
+	}
+}
+void CHeroHandler::loadHeroFlags()
+{
+	flags1.push_back(CDefHandler::giveDef("ABF01L.DEF")); //red
+	flags1.push_back(CDefHandler::giveDef("ABF01G.DEF")); //blue
+	flags1.push_back(CDefHandler::giveDef("ABF01R.DEF")); //tan
+	flags1.push_back(CDefHandler::giveDef("ABF01D.DEF")); //green
+	flags1.push_back(CDefHandler::giveDef("ABF01B.DEF")); //orange
+	flags1.push_back(CDefHandler::giveDef("ABF01P.DEF")); //purple
+	flags1.push_back(CDefHandler::giveDef("ABF01W.DEF")); //teal
+	flags1.push_back(CDefHandler::giveDef("ABF01K.DEF")); //pink
+
+	for(int q=0; q<8; ++q)
+	{
+		for(int o=0; o<flags1[q]->ourImages.size(); ++o)
+		{
+			if(flags1[q]->ourImages[o].groupNumber==6)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags1[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.imName = std::string();
+					flags1[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags1[q]->ourImages[o].groupNumber==7)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags1[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 11;
+					nci.imName = std::string();
+					flags1[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags1[q]->ourImages[o].groupNumber==8)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags1[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 12;
+					nci.imName = std::string();
+					flags1[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+		}
+
+		for(int ff=0; ff<flags1[q]->ourImages.size(); ++ff)
+		{
+			SDL_SetColorKey(flags1[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
+				SDL_MapRGB(flags1[q]->ourImages[ff].bitmap->format, 0, 255, 255)
+				);
+		}
+		flags1[q]->alphaTransformed = true;
+	}
+
+	flags2.push_back(CDefHandler::giveDef("ABF02L.DEF")); //red
+	flags2.push_back(CDefHandler::giveDef("ABF02G.DEF")); //blue
+	flags2.push_back(CDefHandler::giveDef("ABF02R.DEF")); //tan
+	flags2.push_back(CDefHandler::giveDef("ABF02D.DEF")); //green
+	flags2.push_back(CDefHandler::giveDef("ABF02B.DEF")); //orange
+	flags2.push_back(CDefHandler::giveDef("ABF02P.DEF")); //purple
+	flags2.push_back(CDefHandler::giveDef("ABF02W.DEF")); //teal
+	flags2.push_back(CDefHandler::giveDef("ABF02K.DEF")); //pink
+
+	for(int q=0; q<8; ++q)
+	{
+		for(int o=0; o<flags2[q]->ourImages.size(); ++o)
+		{
+			if(flags2[q]->ourImages[o].groupNumber==6)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags2[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.imName = std::string();
+					flags2[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags2[q]->ourImages[o].groupNumber==7)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags2[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 11;
+					nci.imName = std::string();
+					flags2[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags2[q]->ourImages[o].groupNumber==8)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags2[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 12;
+					nci.imName = std::string();
+					flags2[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+		}
+
+		for(int ff=0; ff<flags2[q]->ourImages.size(); ++ff)
+		{
+			SDL_SetColorKey(flags2[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
+				SDL_MapRGB(flags2[q]->ourImages[ff].bitmap->format, 0, 255, 255)
+				);
+		}
+		flags2[q]->alphaTransformed = true;
+	}
+
+	flags3.push_back(CDefHandler::giveDef("ABF03L.DEF")); //red
+	flags3.push_back(CDefHandler::giveDef("ABF03G.DEF")); //blue
+	flags3.push_back(CDefHandler::giveDef("ABF03R.DEF")); //tan
+	flags3.push_back(CDefHandler::giveDef("ABF03D.DEF")); //green
+	flags3.push_back(CDefHandler::giveDef("ABF03B.DEF")); //orange
+	flags3.push_back(CDefHandler::giveDef("ABF03P.DEF")); //purple
+	flags3.push_back(CDefHandler::giveDef("ABF03W.DEF")); //teal
+	flags3.push_back(CDefHandler::giveDef("ABF03K.DEF")); //pink
+
+	for(int q=0; q<8; ++q)
+	{
+		for(int o=0; o<flags3[q]->ourImages.size(); ++o)
+		{
+			if(flags3[q]->ourImages[o].groupNumber==6)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags3[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.imName = std::string();
+					flags3[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags3[q]->ourImages[o].groupNumber==7)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags3[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 11;
+					nci.imName = std::string();
+					flags3[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags3[q]->ourImages[o].groupNumber==8)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags3[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 12;
+					nci.imName = std::string();
+					flags3[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+		}
+
+		for(int ff=0; ff<flags3[q]->ourImages.size(); ++ff)
+		{
+			SDL_SetColorKey(flags3[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
+				SDL_MapRGB(flags3[q]->ourImages[ff].bitmap->format, 0, 255, 255)
+				);
+		}
+		flags3[q]->alphaTransformed = true;
+	}
+
+	flags4.push_back(CDefHandler::giveDef("AF00.DEF")); //red
+	flags4.push_back(CDefHandler::giveDef("AF01.DEF")); //blue
+	flags4.push_back(CDefHandler::giveDef("AF02.DEF")); //tan
+	flags4.push_back(CDefHandler::giveDef("AF03.DEF")); //green
+	flags4.push_back(CDefHandler::giveDef("AF04.DEF")); //orange
+	flags4.push_back(CDefHandler::giveDef("AF05.DEF")); //purple
+	flags4.push_back(CDefHandler::giveDef("AF06.DEF")); //teal
+	flags4.push_back(CDefHandler::giveDef("AF07.DEF")); //pink
+
+
+	for(int q=0; q<8; ++q)
+	{
+		for(int o=0; o<flags4[q]->ourImages.size(); ++o)
+		{
+			if(flags4[q]->ourImages[o].groupNumber==6)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags4[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.imName = std::string();
+					flags4[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags4[q]->ourImages[o].groupNumber==7)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags4[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.groupNumber = 11;
+					nci.imName = std::string();
+					flags4[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags4[q]->ourImages[o].groupNumber==8)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags4[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.groupNumber = 12;
+					nci.imName = std::string();
+					flags4[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+		}
+
+		for(int o=0; o<flags4[q]->ourImages.size(); ++o)
+		{
+			if(flags4[q]->ourImages[o].groupNumber==1)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags4[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.groupNumber = 13;
+					nci.imName = std::string();
+					flags4[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags4[q]->ourImages[o].groupNumber==2)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags4[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.groupNumber = 14;
+					nci.imName = std::string();
+					flags4[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+			if(flags4[q]->ourImages[o].groupNumber==3)
+			{
+				for(int e=0; e<8; ++e)
+				{
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(flags4[q]->ourImages[o+e].bitmap);
+					nci.groupNumber = 10;
+					nci.groupNumber = 15;
+					nci.imName = std::string();
+					flags4[q]->ourImages.push_back(nci);
+				}
+				o+=8;
+			}
+		}
+
+		for(int ff=0; ff<flags4[q]->ourImages.size(); ++ff)
+		{
+			SDL_SetColorKey(flags4[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
+				SDL_MapRGB(flags4[q]->ourImages[ff].bitmap->format, 0, 255, 255)
+				);
+		}
+		flags4[q]->alphaTransformed = true;
 	}
 }
 void CHeroHandler::loadHeroes()
@@ -304,7 +592,7 @@ void CHeroHandler::loadHeroClasses()
 		nm<<std::setfill('0');
 		nm<<heroClasses.size();
 		nm<<"_.DEF";
-		hc->moveAnim = CGI->spriteh->giveDef(nm.str());
+		hc->moveAnim = CDefHandler::giveDef(nm.str());
 
 		for(int o=0; o<hc->moveAnim->ourImages.size(); ++o)
 		{

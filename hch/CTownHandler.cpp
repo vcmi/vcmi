@@ -6,8 +6,8 @@
 #include "CGeneralTextHandler.h"
 CTownHandler::CTownHandler()
 {
-	smallIcons = CGI->spriteh->giveDef("ITPA.DEF");
-	resources = CGI->spriteh->giveDef("RESOURCE.DEF");
+	smallIcons = CDefHandler::giveDef("ITPA.DEF");
+	resources = CDefHandler::giveDef("RESOURCE.DEF");
 }
 CTownHandler::~CTownHandler()
 {

@@ -16,7 +16,7 @@ extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str), moi(false), offset(0)
 {	
-	def = CGI->spriteh->giveDef(Str->defName);
+	def = CDefHandler::giveDef(Str->defName);
 	max = def->ourImages.size();
 
 	if(str->ID == 33    &&    str->townID == 4) //little 'hack' for estate in necropolis - background color is not always the first color in the palette
@@ -36,11 +36,11 @@ CBuildingRect::CBuildingRect(Structure *Str)
 		area = border = NULL;
 		return;
 	}
-	if (border = CGI->bitmaph->loadBitmap(str->borderName))
+	if (border = BitmapHandler::loadBitmap(str->borderName))
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
 	else
 		std::cout << "Warning: no border for "<<Str->ID<<std::endl;
-	if (area = CGI->bitmaph->loadBitmap(str->areaName))
+	if (area = BitmapHandler::loadBitmap(str->areaName))
 		;//SDL_SetColorKey(area,SDL_SRCCOLORKEY,SDL_MapRGB(area->format,0,255,255));
 	else
 		std::cout << "Warning: no area for "<<Str->ID<<std::endl;
@@ -209,11 +209,11 @@ public:
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 {	
 	hall = NULL;
-	townInt = CGI->bitmaph->loadBitmap("TOWNSCRN.bmp");
-	cityBg = CGI->bitmaph->loadBitmap(getBgName(Town->subID));
-	hall = CGI->spriteh->giveDef("ITMTL.DEF");
-	fort = CGI->spriteh->giveDef("ITMCL.DEF");
-	flag =  CGI->spriteh->giveDef("CREST58.DEF");
+	townInt = BitmapHandler::loadBitmap("TOWNSCRN.bmp");
+	cityBg = BitmapHandler::loadBitmap(getBgName(Town->subID));
+	hall = CDefHandler::giveDef("ITMTL.DEF");
+	fort = CDefHandler::giveDef("ITMCL.DEF");
+	flag =  CDefHandler::giveDef("CREST58.DEF");
 	hBuild = NULL;
 	count=0;
 	town = Town;
@@ -283,7 +283,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	default:
 		throw new std::exception("Bad town subID");
 	}
-	bicons = CGI->spriteh->giveDefEss(defname);
+	bicons = CDefHandler::giveDefEss(defname);
 	//blit buildings on bg
 	//for(int i=0;i<buildings.size();i++)
 	//{
@@ -414,7 +414,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 			int pomx, pomy;
 			pomx = 22 + (55*((i>3)?(i-4):i));
 			pomy = (i>3)?(507):(459);
-			blitAt(CGI->creh->smallImgs[cid],pomx,pomy,to);
+			blitAt(LOCPLINT->graphics.smallImgs[cid],pomx,pomy,to);
 			std::ostringstream oss;
 			oss << '+' << town->creatureGrowth(i);
 			CSDL_Ext::printAtMiddle(oss.str(),pomx+16,pomy+37,GEOR13,zwykly,to);
@@ -433,7 +433,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 		pom += F_NUMBER*2;
 	if(town->builded >= MAX_BUILDING_PER_TURN)
 		pom++;
-	blitAt(LOCPLINT->bigTownPic->ourImages[pom].bitmap,15,387,to);
+	blitAt(LOCPLINT->graphics.bigTownPic->ourImages[pom].bitmap,15,387,to);
 
 	//flag
 	if(town->getOwner()<PLAYER_LIMIT)
@@ -657,7 +657,7 @@ void CHallInterface::CResDataBar::show(SDL_Surface * to)
 }
 CHallInterface::CResDataBar::CResDataBar()
 {
-	bg = CGI->bitmaph->loadBitmap("Z2ESBAR.bmp");
+	bg = BitmapHandler::loadBitmap("Z2ESBAR.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	CSDL_Ext::blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos.x = 7;
@@ -768,10 +768,10 @@ CHallInterface::CBuildingBox::CBuildingBox(int id, int x, int y)
 
 CHallInterface::CHallInterface(CCastleInterface * owner)
 {
-	bg = CGI->bitmaph->loadBitmap(CGI->buildh->hall[owner->town->subID].first);
+	bg = BitmapHandler::loadBitmap(CGI->buildh->hall[owner->town->subID].first);
 	CSDL_Ext::blueToPlayersAdv(bg,LOCPLINT->playerID);
-	bars = CGI->spriteh->giveDefEss("TPTHBAR.DEF");
-	status = CGI->spriteh->giveDefEss("TPTHCHK.DEF");
+	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
+	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	exit = new AdventureMapButton
 		(CGI->townh->tcommands[8],"",boost::bind(&CHallInterface::close,this),748,556,"TPMAGE1.DEF",false,NULL,false);
 
@@ -1007,7 +1007,7 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mode)
 :tid(Tid),bid(Bid),mode(Mode), state(State)
 {
-	SDL_Surface *hhlp = CGI->bitmaph->loadBitmap("TPUBUILD.bmp");
+	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPUBUILD.bmp");
 	bitmap = SDL_ConvertSurface(hhlp,screen->format,0); //na 8bitowej mapie by sie psulo
 	SDL_SetColorKey(hhlp,SDL_SRCCOLORKEY,SDL_MapRGB(hhlp->format,0,255,255));
 	SDL_FreeSurface(hhlp);

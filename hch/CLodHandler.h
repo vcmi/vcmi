@@ -1,19 +1,14 @@
 #ifndef CLODHANDLER_H
 #define CLODHANDLER_H
-
-#include <iostream>
+#include "../global.h"
 #include <fstream>
 #include <vector>
 #include <string>
-#include "zlib.h"
 #include "../nodrze.h"
-#include "SDL.h"
 
-
+struct SDL_Surface;
 class CDefHandler;
 class CDefEssential;
-
-enum Epcxformat {PCX8B, PCX24B};
 
 namespace NLoadHandlerHelp
 {
@@ -43,43 +38,21 @@ struct Entry
 	//Entry(unsigned char ): nameStr(con){};
 	Entry(){};
 };
-class CPCXConv
-{	
-public:
-	unsigned char * pcx, *bmp;
-	int pcxs, bmps;
-	void fromFile(std::string path);
-	void saveBMP(std::string path);
-	void openPCX(char * PCX, int len);
-	void openPCX();
-	void convert();
-	SDL_Surface * getSurface(); //for standard H3 PCX
-	//SDL_Surface * getSurfaceZ(); //for ZSoft PCX
-	CPCXConv(){pcx=bmp=NULL;pcxs=bmps=0;};
-	~CPCXConv(){if (pcxs) delete[] pcx; if(bmps) delete[] bmp;}
-};
-class CLodHandler
+ class CLodHandler
 {
-private:
-	FILE* FLOD;
 public:
+	FILE* FLOD;
 	nodrze<Entry> entries;
 	unsigned int totalFiles;
 
-	int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
-	int decompress (unsigned char * source, int size, int realSize, std::ofstream & dest); //main decompression function
-	int decompress (unsigned char * source, int size, int realSize, std::string & dest); //main decompression function
-	int infm(FILE *source, FILE *dest, int wBits = 15); //zlib handler
-	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
-	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
-	std::vector<CDefHandler *> extractManyFiles(std::vector<std::string> defNamesIn); //extrats given files (defs only)
-	CDefHandler * giveDef(std::string defName);
-	CDefEssential * giveDefEss(std::string defName);
-	std::string getTextFile(std::string name); //extracts one file
-	void extract(std::string FName);
-	void extractFile(std::string FName, std::string name); //extracts a specific file
-	void init(std::string lodFile);
-	SDL_Surface * loadBitmap(std::string fname);
+	DLL_EXPORT int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
+	DLL_EXPORT int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
+	DLL_EXPORT int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
+	DLL_EXPORT unsigned char * giveFile(std::string defName, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
+	DLL_EXPORT std::string getTextFile(std::string name); //extracts one file
+	DLL_EXPORT void extract(std::string FName);
+	DLL_EXPORT void extractFile(std::string FName, std::string name); //extracts a specific file
+	DLL_EXPORT void init(std::string lodFile);
 };
 
 #endif //CLODHANDLER_H

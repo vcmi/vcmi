@@ -391,9 +391,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->curh = new CCursorHandler; 
 		
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
-		cgi->spriteh = new CLodHandler;
+		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler;
 		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
-		cgi->bitmaph = new CLodHandler;
+		BitmapHandler::bitmaph = cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 
@@ -491,297 +491,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->generaltexth = new CGeneralTextHandler;
 		cgi->generaltexth->load();
 		THC std::cout<<"Preparing more handlers: "<<tmh.getDif()<<std::endl;
-
-		//initializing hero flags
-
-		cgi->heroh->flags1.push_back(cgi->spriteh->giveDef("ABF01L.DEF")); //red
-		cgi->heroh->flags1.push_back(cgi->spriteh->giveDef("ABF01G.DEF")); //blue
-		cgi->heroh->flags1.push_back(cgi->spriteh->giveDef("ABF01R.DEF")); //tan
-		cgi->heroh->flags1.push_back(cgi->spriteh->giveDef("ABF01D.DEF")); //green
-		cgi->heroh->flags1.push_back(cgi->spriteh->giveDef("ABF01B.DEF")); //orange
-		cgi->heroh->flags1.push_back(cgi->spriteh->giveDef("ABF01P.DEF")); //purple
-		cgi->heroh->flags1.push_back(cgi->spriteh->giveDef("ABF01W.DEF")); //teal
-		cgi->heroh->flags1.push_back(cgi->spriteh->giveDef("ABF01K.DEF")); //pink
-
-		for(int q=0; q<8; ++q)
-		{
-			for(int o=0; o<cgi->heroh->flags1[q]->ourImages.size(); ++o)
-			{
-				if(cgi->heroh->flags1[q]->ourImages[o].groupNumber==6)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags1[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.imName = std::string();
-						cgi->heroh->flags1[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags1[q]->ourImages[o].groupNumber==7)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags1[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 11;
-						nci.imName = std::string();
-						cgi->heroh->flags1[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags1[q]->ourImages[o].groupNumber==8)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags1[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 12;
-						nci.imName = std::string();
-						cgi->heroh->flags1[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-			}
-
-			for(int ff=0; ff<cgi->heroh->flags1[q]->ourImages.size(); ++ff)
-			{
-				SDL_SetColorKey(cgi->heroh->flags1[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
-					SDL_MapRGB(cgi->heroh->flags1[q]->ourImages[ff].bitmap->format, 0, 255, 255)
-					);
-			}
-			cgi->heroh->flags1[q]->alphaTransformed = true;
-		}
-
-		cgi->heroh->flags2.push_back(cgi->spriteh->giveDef("ABF02L.DEF")); //red
-		cgi->heroh->flags2.push_back(cgi->spriteh->giveDef("ABF02G.DEF")); //blue
-		cgi->heroh->flags2.push_back(cgi->spriteh->giveDef("ABF02R.DEF")); //tan
-		cgi->heroh->flags2.push_back(cgi->spriteh->giveDef("ABF02D.DEF")); //green
-		cgi->heroh->flags2.push_back(cgi->spriteh->giveDef("ABF02B.DEF")); //orange
-		cgi->heroh->flags2.push_back(cgi->spriteh->giveDef("ABF02P.DEF")); //purple
-		cgi->heroh->flags2.push_back(cgi->spriteh->giveDef("ABF02W.DEF")); //teal
-		cgi->heroh->flags2.push_back(cgi->spriteh->giveDef("ABF02K.DEF")); //pink
-
-		for(int q=0; q<8; ++q)
-		{
-			for(int o=0; o<cgi->heroh->flags2[q]->ourImages.size(); ++o)
-			{
-				if(cgi->heroh->flags2[q]->ourImages[o].groupNumber==6)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags2[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.imName = std::string();
-						cgi->heroh->flags2[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags2[q]->ourImages[o].groupNumber==7)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags2[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 11;
-						nci.imName = std::string();
-						cgi->heroh->flags2[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags2[q]->ourImages[o].groupNumber==8)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags2[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 12;
-						nci.imName = std::string();
-						cgi->heroh->flags2[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-			}
-
-			for(int ff=0; ff<cgi->heroh->flags2[q]->ourImages.size(); ++ff)
-			{
-				SDL_SetColorKey(cgi->heroh->flags2[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
-					SDL_MapRGB(cgi->heroh->flags2[q]->ourImages[ff].bitmap->format, 0, 255, 255)
-					);
-			}
-			cgi->heroh->flags2[q]->alphaTransformed = true;
-		}
-
-		cgi->heroh->flags3.push_back(cgi->spriteh->giveDef("ABF03L.DEF")); //red
-		cgi->heroh->flags3.push_back(cgi->spriteh->giveDef("ABF03G.DEF")); //blue
-		cgi->heroh->flags3.push_back(cgi->spriteh->giveDef("ABF03R.DEF")); //tan
-		cgi->heroh->flags3.push_back(cgi->spriteh->giveDef("ABF03D.DEF")); //green
-		cgi->heroh->flags3.push_back(cgi->spriteh->giveDef("ABF03B.DEF")); //orange
-		cgi->heroh->flags3.push_back(cgi->spriteh->giveDef("ABF03P.DEF")); //purple
-		cgi->heroh->flags3.push_back(cgi->spriteh->giveDef("ABF03W.DEF")); //teal
-		cgi->heroh->flags3.push_back(cgi->spriteh->giveDef("ABF03K.DEF")); //pink
-
-		for(int q=0; q<8; ++q)
-		{
-			for(int o=0; o<cgi->heroh->flags3[q]->ourImages.size(); ++o)
-			{
-				if(cgi->heroh->flags3[q]->ourImages[o].groupNumber==6)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags3[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.imName = std::string();
-						cgi->heroh->flags3[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags3[q]->ourImages[o].groupNumber==7)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags3[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 11;
-						nci.imName = std::string();
-						cgi->heroh->flags3[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags3[q]->ourImages[o].groupNumber==8)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags3[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 12;
-						nci.imName = std::string();
-						cgi->heroh->flags3[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-			}
-
-			for(int ff=0; ff<cgi->heroh->flags3[q]->ourImages.size(); ++ff)
-			{
-				SDL_SetColorKey(cgi->heroh->flags3[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
-					SDL_MapRGB(cgi->heroh->flags3[q]->ourImages[ff].bitmap->format, 0, 255, 255)
-					);
-			}
-			cgi->heroh->flags3[q]->alphaTransformed = true;
-		}
-
-		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF00.DEF")); //red
-		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF01.DEF")); //blue
-		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF02.DEF")); //tan
-		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF03.DEF")); //green
-		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF04.DEF")); //orange
-		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF05.DEF")); //purple
-		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF06.DEF")); //teal
-		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF07.DEF")); //pink
-
-
-		for(int q=0; q<8; ++q)
-		{
-			for(int o=0; o<cgi->heroh->flags4[q]->ourImages.size(); ++o)
-			{
-				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==6)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.imName = std::string();
-						cgi->heroh->flags4[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==7)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.groupNumber = 11;
-						nci.imName = std::string();
-						cgi->heroh->flags4[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==8)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.groupNumber = 12;
-						nci.imName = std::string();
-						cgi->heroh->flags4[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-			}
-
-			for(int o=0; o<cgi->heroh->flags4[q]->ourImages.size(); ++o)
-			{
-				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==1)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.groupNumber = 13;
-						nci.imName = std::string();
-						cgi->heroh->flags4[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==2)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.groupNumber = 14;
-						nci.imName = std::string();
-						cgi->heroh->flags4[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-				if(cgi->heroh->flags4[q]->ourImages[o].groupNumber==3)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(cgi->heroh->flags4[q]->ourImages[o+e].bitmap);
-						nci.groupNumber = 10;
-						nci.groupNumber = 15;
-						nci.imName = std::string();
-						cgi->heroh->flags4[q]->ourImages.push_back(nci);
-					}
-					o+=8;
-				}
-			}
-
-			for(int ff=0; ff<cgi->heroh->flags4[q]->ourImages.size(); ++ff)
-			{
-				SDL_SetColorKey(cgi->heroh->flags4[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
-					SDL_MapRGB(cgi->heroh->flags4[q]->ourImages[ff].bitmap->format, 0, 255, 255)
-					);
-			}
-			cgi->heroh->flags4[q]->alphaTransformed = true;
-		}
-
-		//hero flags initialized
-
+		cgi->heroh->loadHeroFlags();
 		THC std::cout<<"Initializing colours and flags: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
@@ -794,7 +504,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->arth = arth;
 		THC std::cout<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
 
-		CCreatureHandler * creh = new CCreatureHandler;
+		CCreatureHandler * creh = new CCreatureHandler(cgi->bitmaph);
 		creh->loadCreatures();
 		cgi->creh = creh;
 		THC std::cout<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
@@ -829,15 +539,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Handlers initailization (together): "<<tmh.getDif()<<std::endl;
 
-		std::string mapname;
-		//if(CPG->ourScenSel->mapsel.selected==0) 
-		//	CPG->ourScenSel->mapsel.selected = 1; //only for tests
-		if (CPG) 
-			mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
-		else
-		{
-			std::cout<<"Critical error: CPG==NULL"<<std::endl;
-		}
+		std::string mapname = cpg->ourScenSel->mapsel.ourMaps[cpg->ourScenSel->mapsel.selected].filename;
 		std::cout<<"Opening map file: "<<mapname<<"\t\t"<<std::flush;
 		gzFile map = gzopen(mapname.c_str(),"rb");
 		std::vector<unsigned char> mapstr; int pom;
@@ -853,8 +555,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		std::cout<<"done."<<std::endl;
 
-		CAmbarCendamo * ac = new CAmbarCendamo(initTable); //4gryf
-		cgi->ac = ac;
+		CAmbarCendamo * ac = new CAmbarCendamo(initTable);
 		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
 		ac->deh3m();
 		THC std::cout<<"Detecting file (together): "<<tmh.getDif()<<std::endl;
