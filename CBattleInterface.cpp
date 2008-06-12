@@ -239,42 +239,68 @@ void CBattleInterface::show(SDL_Surface * to)
 		defendingHero->show(to);
 
 	//showing units //a lot of work...
-	std::vector<int> stackByHex[187];
+	std::vector<int> stackAliveByHex[187];
 	//double loop because dead stacks should be printed first
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		if(!j->second.alive)
-			stackByHex[j->second.position].push_back(j->second.ID);
+		if(j->second.alive)
+			stackAliveByHex[j->second.position].push_back(j->second.ID);
 	}
+	std::vector<int> stackDeadByHex[187];
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		if(j->second.alive)
-			stackByHex[j->second.position].push_back(j->second.ID);
+		if(!j->second.alive)
+			stackDeadByHex[j->second.position].push_back(j->second.ID);
 	}
 
 	attackingShowHelper(); // handle attack animation
 
-	for(int b=0; b<187; ++b)
+	for(int b=0; b<187; ++b) //showing dead stacks
 	{
-		for(int v=0; v<stackByHex[b].size(); ++v)
+		for(int v=0; v<stackDeadByHex[b].size(); ++v)
 		{
-			creAnims[stackByHex[b][v]]->nextFrame(to, creAnims[stackByHex[b][v]]->pos.x, creAnims[stackByHex[b][v]]->pos.y, creDir[stackByHex[b][v]], (animCount%2==0 || creAnims[stackByHex[b][v]]->getType()!=2) && stacks[stackByHex[b][v]].alive, stackByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%2==0 || creAnims[stackDeadByHex[b][v]]->getType()!=2) && stacks[stackDeadByHex[b][v]].alive, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
-			if(stacks[stackByHex[b][v]].amount > 0) //don't print if stack is not alive
+			if(stacks[stackDeadByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
-				if(stacks[stackByHex[b][v]].attackerOwned)
+				if(stacks[stackDeadByHex[b][v]].attackerOwned)
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b][v]]->pos.x + 220, creAnims[stackByHex[b][v]]->pos.y + 260));
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackDeadByHex[b][v]]->pos.x + 220, creAnims[stackDeadByHex[b][v]]->pos.y + 260));
 					std::stringstream ss;
-					ss<<stacks[stackByHex[b][v]].amount;
-					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b][v]]->pos.x + 220 + 14, creAnims[stackByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+					ss<<stacks[stackDeadByHex[b][v]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackDeadByHex[b][v]]->pos.x + 220 + 14, creAnims[stackDeadByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
 				}
 				else
 				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackByHex[b][v]]->pos.x + 202, creAnims[stackByHex[b][v]]->pos.y + 260));
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackDeadByHex[b][v]]->pos.x + 202, creAnims[stackDeadByHex[b][v]]->pos.y + 260));
 					std::stringstream ss;
-					ss<<stacks[stackByHex[b][v]].amount;
-					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackByHex[b][v]]->pos.x + 202 + 14, creAnims[stackByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+					ss<<stacks[stackDeadByHex[b][v]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackDeadByHex[b][v]]->pos.x + 202 + 14, creAnims[stackDeadByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				}
+			}
+		}
+	}
+	for(int b=0; b<187; ++b) //showing alive stacks
+	{
+		for(int v=0; v<stackAliveByHex[b].size(); ++v)
+		{
+			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%2==0 || creAnims[stackAliveByHex[b][v]]->getType()!=2) && stacks[stackAliveByHex[b][v]].alive, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			//printing amount
+			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
+			{
+				if(stacks[stackAliveByHex[b][v]].attackerOwned)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + 220, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
+					std::stringstream ss;
+					ss<<stacks[stackAliveByHex[b][v]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackAliveByHex[b][v]]->pos.x + 220 + 14, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				}
+				else
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + 202, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
+					std::stringstream ss;
+					ss<<stacks[stackAliveByHex[b][v]].amount;
+					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackAliveByHex[b][v]]->pos.x + 202 + 14, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
 				}
 			}
 		}
