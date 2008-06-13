@@ -28,7 +28,7 @@ void CGeneralTextHandler::load()
 	while(itr<strs.length()-1)
 	{
 		std::string tmp;
-		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
+		loadToIt(tmp, strs, itr, 3);
 		arraytxt.push_back(tmp);
 	}
 
@@ -37,7 +37,7 @@ void CGeneralTextHandler::load()
 	for(int hh=0; hh<4; ++hh)
 	{
 		std::string tmp;
-		CGeneralTextHandler::loadToIt(tmp, strin, itr, 3);
+		loadToIt(tmp, strin, itr, 3);
 		primarySkillNames.push_back(tmp);
 	}
 
@@ -46,7 +46,7 @@ void CGeneralTextHandler::load()
 	for(int hh=0; hh<45; ++hh)
 	{
 		std::string tmp;
-		CGeneralTextHandler::loadToIt(tmp, strin2, itr, 3);
+		loadToIt(tmp, strin2, itr, 3);
 		jktexts.push_back(tmp);
 	}
 
@@ -55,116 +55,7 @@ void CGeneralTextHandler::load()
 	for(int hh=0; hh<33; ++hh)
 	{
 		std::string tmp;
-		CGeneralTextHandler::loadToIt(tmp, strin3, itr, 3);
+		loadToIt(tmp, strin3, itr, 3);
 		heroscrn.push_back(tmp);
 	}
 }
-
-
-void CGeneralTextHandler::loadToIt(std::string &dest, std::string &src, int &iter, int mode)
-{
-	switch(mode)
-	{
-	case 0:
-		{
-			int hmcr = 0;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\t')
-					++hmcr;
-				if(hmcr==1)
-					break;
-			}
-			++iter;
-
-			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\t')
-					break;
-			}
-			dest = src.substr(befi, iter-befi);
-			++iter;
-
-			hmcr = 0;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\r')
-					++hmcr;
-				if(hmcr==1)
-					break;
-			}
-			iter+=2;
-			break;
-		}
-	case 1:
-		{
-			int hmcr = 0;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\t')
-					++hmcr;
-				if(hmcr==1)
-					break;
-			}
-			++iter;
-
-			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\r')
-					break;
-			}
-			dest = src.substr(befi, iter-befi);
-			iter+=2;
-			break;
-		}
-	case 2:
-		{
-			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\t')
-					break;
-			}
-			dest = src.substr(befi, iter-befi);
-			++iter;
-
-			int hmcr = 0;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\r')
-					++hmcr;
-				if(hmcr==1)
-					break;
-			}
-			iter+=2;
-			break;
-		}
-	case 3:
-		{
-			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\r')
-					break;
-			}
-			dest = src.substr(befi, iter-befi);
-			iter+=2;
-			break;
-		}
-	case 4:
-		{
-			int befi=iter;
-			for(iter; iter<src.size(); ++iter)
-			{
-				if(src[iter]=='\t')
-					break;
-			}
-			dest = src.substr(befi, iter-befi);
-			iter++;
-			break;
-		}
-	}
-}
-

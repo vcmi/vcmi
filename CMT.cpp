@@ -50,6 +50,7 @@
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include "client\Graphics.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -370,11 +371,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CMusicHandler * mush = new CMusicHandler;  //initializing audio
 		mush->initMusics();
 		//audio initialized 
-		/*if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
-		{
-			printf("Mix_PlayMusic: %s\n", Mix_GetError());
-			// well, there's no music, but most games don't break without music...
-		}*/
+
 
 		//screen2 = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
 		//screen = SDL_ConvertSurface(screen2, screen2->format, SDL_SWSURFACE);
@@ -390,8 +387,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
 		BitmapHandler::bitmaph = cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
-		initDLL(cgi->bitmaph);
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
+		initDLL(cgi->bitmaph);
+		THC std::cout<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
+		graphics = new Graphics();
+		THC std::cout<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
 
 		boost::filesystem::directory_iterator enddir;
 		for (boost::filesystem::directory_iterator dir("Data");dir!=enddir;dir++)
@@ -487,8 +487,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->generaltexth = new CGeneralTextHandler;
 		cgi->generaltexth->load();
 		THC std::cout<<"Preparing more handlers: "<<tmh.getDif()<<std::endl;
-		cgi->heroh->loadHeroFlags();
-		THC std::cout<<"Initializing colours and flags: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		cpg->mush = mush;
@@ -566,11 +564,6 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		initGameState(&ac->map,cgi);
 		THC std::cout<<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
-
-		/*for(int d=0; d<PLAYER_LIMIT; ++d)
-		{
-			cgi->playerint.push_back(NULL);
-		}*/
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
 		{ 
 

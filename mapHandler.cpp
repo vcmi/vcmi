@@ -12,6 +12,7 @@
 #include "hch\CHeroHandler.h"
 #include "hch\CTownHandler.h"
 #include "hch\CArtHandler.h"
+#include "client\Graphics.h"
 #include <iomanip>
 #include <sstream>
 extern SDL_Surface * screen;
@@ -899,7 +900,7 @@ void CMapHandler::init()
 			//if(h<0)
 				h=pickHero(i);
 			CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,h,hpos,i);
-			nnn->defInfo->handler = CGI->heroh->flags1[0];
+			nnn->defInfo->handler = graphics->flags1[0];
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);
 		}
@@ -1045,7 +1046,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
 					pp.y+=imgVal*2-32;
 					sr.y-=16;
-					SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
+					SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
 				}
 				else if(themp && themp->moveDir && themp->isStanding && themp->ID!=62) //last condition - this is not prison)
 				{
@@ -1074,7 +1075,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						bufr.h = 64;
 						bufr.w = 96;
 						if(bufr.x-extRect->x>-64)
-							SDL_BlitSurface(CGI->heroh->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, su, &bufr);
+							SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, su, &bufr);
 						themp->flagPrinted = true;
 					}
 				}

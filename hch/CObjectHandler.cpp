@@ -1,16 +1,15 @@
 #include "../stdafx.h"
 #include "CObjectHandler.h"
-#include "../CGameInfo.h"
-#include "CGeneralTextHandler.h"
-#include "CLodHandler.h"
-#include "CAmbarCendamo.h"
-#include "../mapHandler.h"
 #include "CDefObjInfoHandler.h"
-#include "../CLua.h"
+#include "CDefHandler.h"
+#include "../CGameInfo.h"
+#include "CLodHandler.h"
+#include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
 #include <boost/algorithm/string/replace.hpp>
 #include "CTownHandler.h"
 #include "CArtHandler.h"
+DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 void CObjectHandler::loadObjects()
 {
 	int ID=0;
@@ -19,7 +18,7 @@ void CObjectHandler::loadObjects()
 	while (it<buf.length()-1)
 	{
 		CObject nobj;
-		CGeneralTextHandler::loadToIt(nobj.name,buf,it,3);
+		loadToIt(nobj.name,buf,it,3);
 		if(nobj.name.size() && (nobj.name[nobj.name.size()-1]==(char)10 || nobj.name[nobj.name.size()-1]==(char)13 || nobj.name[nobj.name.size()-1]==(char)9))
 			nobj.name = nobj.name.substr(0, nobj.name.size()-1);
 		objects.push_back(nobj);
@@ -30,7 +29,7 @@ void CObjectHandler::loadObjects()
 	std::string temp;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		if (temp[0]=='\"')
 			temp = temp.substr(1,temp.length()-2);
 		boost::algorithm::replace_all(temp,"\"\"","\"");
@@ -41,7 +40,7 @@ void CObjectHandler::loadObjects()
 	it=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		xtrainfo.push_back(temp);
 	}
 
@@ -49,7 +48,7 @@ void CObjectHandler::loadObjects()
 	it=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		mines.push_back(std::pair<std::string,std::string>(temp,""));
 	}
 
@@ -58,7 +57,7 @@ void CObjectHandler::loadObjects()
 	int i=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		temp = temp.substr(1,temp.length()-2);
 		mines[i++].second = temp;
 	}
@@ -67,7 +66,7 @@ void CObjectHandler::loadObjects()
 	it=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		restypes.push_back(temp);
 	}
 
@@ -87,7 +86,7 @@ void CObjectHandler::loadObjects()
 	it=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		creGens.push_back(temp);
 	}
 
@@ -146,10 +145,6 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 		return true;
 	if(!cmp.defInfo->isVisitable() && defInfo->isVisitable())
 		return false;
-	//if(defInfo->isOnDefList && !(cmp.defInfo->isOnDefList))
-	//	return true;
-	//if(cmp.defInfo->isOnDefList && !(defInfo->isOnDefList))
-	//	return false;
 	if(this->pos.x<cmp.pos.x)
 		return true;
 	return false;
@@ -165,13 +160,13 @@ unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad
 	unsigned int ret = type->heroClass->terrCosts[ttype];
 	switch(rdtype)
 	{
-	case Eroad::dirtRoad:
+	case dirtRoad:
 		ret*=0.75;
 		break;
-	case Eroad::grazvelRoad:
+	case grazvelRoad:
 		ret*=0.667;
 		break;
-	case Eroad::cobblestoneRoad:
+	case cobblestoneRoad:
 		ret*=0.5;
 		break;
 	}

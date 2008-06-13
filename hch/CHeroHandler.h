@@ -1,13 +1,8 @@
 #ifndef CHEROHANDLER_H
 #define CHEROHANDLER_H
-
+#include "../global.h"
 #include <string>
 #include <vector>
-#include "CCreatureHandler.h"
-#include "SDL.h"
-#include "../int3.h"
-#include "CAmbarCendamo.h"
-#include "../CGameInterface.h"
 
 class CHeroClass;
 class CDefHandler;
@@ -26,8 +21,6 @@ public:
 	CHeroClass * heroClass;
 	EHeroClasses heroType; //hero class
 	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
-	SDL_Surface * portraitSmall; //48x32 px
-	SDL_Surface * portraitLarge; //58x64 px
 };
 
 class CHeroClass
@@ -48,9 +41,6 @@ class CHeroHandler
 public:
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
-	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
-	CDefHandler * pskillsb, *resources; //82x93
-	CDefHandler * un44; //many things
 	std::vector<std::string> pskillsn;
 	std::vector<int> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
 	unsigned int level(unsigned int experience);
@@ -59,18 +49,9 @@ public:
 	void loadSpecialAbilities();
 	void loadBiographies();
 	void loadHeroClasses();
-	void loadPortraits(); //loads also imgs and names of primary skills
-	void loadHeroFlags();
+	void loadPortraits(); //loads names of primary skills
 	void initHeroClasses();
 	~CHeroHandler();
 	void initTerrainCosts();
-
-	friend void CAmbarCendamo::deh3m();
-	friend void initGameState(CGameInfo * cgi);
-	//friend class CConsoleHandler;
-
-	//friend void CPlayerInterface::heroMoved(const HeroMoveDetails & details); //TODO: wywalic, wstretne!!!
 };
-
-
 #endif //CHEROHANDLER_H

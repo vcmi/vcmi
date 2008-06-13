@@ -12,6 +12,7 @@
 #include "CMessage.h"
 #include "hch/CGeneralTextHandler.h"
 #include "CCallback.h"
+#include "client/Graphics.h"
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str), moi(false), offset(0)
@@ -414,7 +415,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 			int pomx, pomy;
 			pomx = 22 + (55*((i>3)?(i-4):i));
 			pomy = (i>3)?(507):(459);
-			blitAt(LOCPLINT->graphics.smallImgs[cid],pomx,pomy,to);
+			blitAt(graphics->smallImgs[cid],pomx,pomy,to);
 			std::ostringstream oss;
 			oss << '+' << town->creatureGrowth(i);
 			CSDL_Ext::printAtMiddle(oss.str(),pomx+16,pomy+37,GEOR13,zwykly,to);
@@ -433,7 +434,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 		pom += F_NUMBER*2;
 	if(town->builded >= MAX_BUILDING_PER_TURN)
 		pom++;
-	blitAt(LOCPLINT->graphics.bigTownPic->ourImages[pom].bitmap,15,387,to);
+	blitAt(graphics->bigTownPic->ourImages[pom].bitmap,15,387,to);
 
 	//flag
 	if(town->getOwner()<PLAYER_LIMIT)
@@ -1033,12 +1034,12 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 		if(it<4)
 		{
 			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row1w/2)+77*it+16,ah+42,GEOR16,zwykly,bitmap);
-			blitAt(CGI->townh->resources->ourImages[cn].bitmap,(bitmap->w/2-row1w/2)+77*it++,ah,bitmap);
+			blitAt(graphics->resources32->ourImages[cn].bitmap,(bitmap->w/2-row1w/2)+77*it++,ah,bitmap);
 		}
 		else
 		{
 			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row2w/2)+77*it+16-308,ah+42,GEOR16,zwykly,bitmap);
-			blitAt(CGI->townh->resources->ourImages[cn].bitmap,(bitmap->w/2-row2w/2)+77*it++ - 308,ah,bitmap);
+			blitAt(graphics->resources32->ourImages[cn].bitmap,(bitmap->w/2-row2w/2)+77*it++ - 308,ah,bitmap);
 		}
 		if(it==4)
 			ah+=75;

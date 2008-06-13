@@ -19,6 +19,7 @@
 #include <sstream>
 #include "AdventureMapButton.h"
 #include "CHeroWindow.h"
+#include "client/Graphics.h"
 #pragma warning (disable : 4355) 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
@@ -679,14 +680,14 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 
 	if(specific->ID == 34) //hero
 	{
-		if(LOCPLINT->graphics.heroWins.find(specific->subID)!=LOCPLINT->graphics.heroWins.end())
-			blitAt(LOCPLINT->graphics.heroWins[specific->subID],pos.x,pos.y);
+		if(graphics->heroWins.find(specific->subID)!=graphics->heroWins.end())
+			blitAt(graphics->heroWins[specific->subID],pos.x,pos.y);
 	}
 	else if (specific->ID == 98)
 	{
 		const CGTownInstance * t = static_cast<const CGTownInstance*>(specific);
-		if(LOCPLINT->graphics.townWins.find(t->identifier)!=LOCPLINT->graphics.townWins.end())
-			blitAt(LOCPLINT->graphics.townWins[t->identifier],pos.x,pos.y);
+		if(graphics->townWins.find(t->identifier)!=graphics->townWins.end())
+			blitAt(graphics->townWins[t->identifier],pos.x,pos.y);
 	}
 
 	//SDL_Surface * todr = LOCPLINT->infoWin(specific);

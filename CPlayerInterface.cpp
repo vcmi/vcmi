@@ -27,6 +27,7 @@
 #include "CLua.h"
 #include <cmath>
 #include "client/CCreatureAnimation.h"
+#include "client/Graphics.h"
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
@@ -229,10 +230,10 @@ void CGarrisonSlot::show()
 	{
 		char* buf = new char[15];
 		itoa(count,buf,10);
-		blitAt(LOCPLINT->graphics.bigImgs[creature->idNumber],pos);
+		blitAt(graphics->bigImgs[creature->idNumber],pos);
 		printTo(buf,pos.x+56,pos.y+62,GEOR16,zwykly);
 		if(owner->highlighted==this)
-			blitAt(LOCPLINT->graphics.bigImgs[-1],pos);
+			blitAt(graphics->bigImgs[-1],pos);
 		if(owner->update)
 			updateRect(&pos,screen);
 		delete [] buf;
@@ -242,7 +243,7 @@ void CGarrisonSlot::show()
 		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), jakis2 = pos;
 		SDL_BlitSurface(owner->sur,&jakis1,screen,&jakis2);
 		if(owner->splitting)
-			blitAt(LOCPLINT->graphics.bigImgs[-1],pos);
+			blitAt(graphics->bigImgs[-1],pos);
 		if(owner->update)
 			SDL_UpdateRect(screen,pos.x,pos.y,pos.w,pos.h);
 	}
@@ -552,16 +553,16 @@ SDL_Surface * SComponent::getImg()
 	switch (type)
 	{
 	case primskill:
-		return CGI->heroh->pskillsb->ourImages[subtype].bitmap;
+		return graphics->pskillsb->ourImages[subtype].bitmap;
 		break;
 	case secskill:
 		return CGI->abilh->abils82->ourImages[subtype*3 + 3 + val].bitmap;
 		break;
 	case resource:
-		return CGI->heroh->resources->ourImages[subtype].bitmap;
+		return graphics->resources->ourImages[subtype].bitmap;
 		break;
 	case experience:
-		return CGI->heroh->pskillsb->ourImages[4].bitmap;
+		return graphics->pskillsb->ourImages[4].bitmap;
 		break;
 	}
 	return NULL;
@@ -887,60 +888,6 @@ void TimeInterested::deactivate()
 	LOCPLINT->
 		timeinterested.erase(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),this));
 }
-CPlayerInterface::Graphics::Graphics()
-{
-	artDefs = CDefHandler::giveDef("ARTIFACT.DEF");
-	hInfo = BitmapHandler::loadBitmap("HEROQVBK.bmp");
-	SDL_SetColorKey(hInfo,SDL_SRCCOLORKEY,SDL_MapRGB(hInfo->format,0,255,255));
-	tInfo = BitmapHandler::loadBitmap("TOWNQVBK.bmp");
-	SDL_SetColorKey(tInfo,SDL_SRCCOLORKEY,SDL_MapRGB(tInfo->format,0,255,255));
-	slotsPos.push_back(std::pair<int,int>(44,82));
-	slotsPos.push_back(std::pair<int,int>(80,82));
-	slotsPos.push_back(std::pair<int,int>(116,82));
-	slotsPos.push_back(std::pair<int,int>(26,131));
-	slotsPos.push_back(std::pair<int,int>(62,131));
-	slotsPos.push_back(std::pair<int,int>(98,131));
-	slotsPos.push_back(std::pair<int,int>(134,131));
-
-	luck22 = CDefHandler::giveDefEss("ILCK22.DEF");
-	luck30 = CDefHandler::giveDefEss("ILCK30.DEF");
-	luck42 = CDefHandler::giveDefEss("ILCK42.DEF");
-	luck82 = CDefHandler::giveDefEss("ILCK82.DEF");
-	morale22 = CDefHandler::giveDefEss("IMRL22.DEF");
-	morale30 = CDefHandler::giveDefEss("IMRL30.DEF");
-	morale42 = CDefHandler::giveDefEss("IMRL42.DEF");
-	morale82 = CDefHandler::giveDefEss("IMRL82.DEF");
-	halls = CDefHandler::giveDefEss("ITMTLS.DEF");
-	forts = CDefHandler::giveDefEss("ITMCLS.DEF");
-	bigTownPic =  CDefHandler::giveDefEss("ITPT.DEF");
-	std::ifstream ifs;
-	ifs.open("config/cr_bgs.txt"); 
-	while(!ifs.eof())
-	{
-		int id;
-		std::string name;
-		ifs >> id >> name;
-		backgrounds[id]=BitmapHandler::loadBitmap(name);
-	}
-	ifs.close();
-	ifs.clear();
-
-	//loading 32x32px imgs
-	CDefHandler *smi = CDefHandler::giveDef("CPRSMALL.DEF");
-	smi->notFreeImgs = true;
-	for (int i=0; i<smi->ourImages.size(); i++)
-	{
-		smallImgs[i-2] = smi->ourImages[i].bitmap;
-	}
-	delete smi;
-	smi = CDefHandler::giveDef("TWCRPORT.DEF");
-	smi->notFreeImgs = true;
-	for (int i=0; i<smi->ourImages.size(); i++)
-	{
-		bigImgs[i-2] = smi->ourImages[i].bitmap;
-	}
-	delete smi;
-}
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
 	playerID=Player;
@@ -958,13 +905,13 @@ void CPlayerInterface::init(ICallback * CB)
 	for(int i=0;i<hh.size();i++)
 	{
 		SDL_Surface * pom = infoWin(hh[i]);
-		graphics.heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
+		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
 	}
 	std::vector<const CGTownInstance*> tt = cb->getTownsInfo(false);
 	for(int i=0;i<tt.size();i++)
 	{
 		SDL_Surface * pom = infoWin(tt[i]);
-		graphics.townWins.insert(std::pair<int,SDL_Surface*>(tt[i]->identifier,pom));
+		graphics->townWins.insert(std::pair<int,SDL_Surface*>(tt[i]->identifier,pom));
 	}
 }
 void CPlayerInterface::yourTurn()
@@ -1584,83 +1531,13 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
-	graphics.heroWins.erase(hero->ID);
+	graphics->heroWins.erase(hero->ID);
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
-	if(graphics.heroWins.find(hero->subID)==graphics.heroWins.end())
-		graphics.heroWins.insert(std::pair<int,SDL_Surface*>(hero->subID,infoWin(hero)));
+	if(graphics->heroWins.find(hero->subID)==graphics->heroWins.end())
+		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hero->subID,infoWin(hero)));
 }
-
-SDL_Surface * CPlayerInterface::Graphics::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from, int to)
-{
-	char * buf = new char[10];
-	for (int i=from;i<to;i++)
-	{
-		itoa(curh->primSkills[i],buf,10);
-		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
-	}
-	delete[] buf;
-	return ret;
-}
-SDL_Surface * CPlayerInterface::Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
-{
-	char * buf = new char[10];
-	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
-	blueToPlayersAdv(hInfo,curh->tempOwner,1);
-	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-	printAt(curh->name,75,15,GEOR13,zwykly,ret);
-	drawPrimarySkill(curh, ret);
-	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
-	{
-		blitAt(LOCPLINT->graphics.smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-		itoa((*i).second.second,buf,10);
-		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
-	}
-	blitAt(curh->type->portraitLarge,11,12,ret);
-	itoa(curh->mana,buf,10);
-	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
-	delete[] buf;
-	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
-	blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
-	//SDL_SaveBMP(ret,"inf1.bmp");
-	return ret;
-}
-
-SDL_Surface * CPlayerInterface::Graphics::drawTownInfoWin(const CGTownInstance * curh)
-{
-	char * buf = new char[10];
-	blueToPlayersAdv(tInfo,curh->tempOwner,1);
-	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
-	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-	printAt(curh->name,75,15,GEOR13,zwykly,ret);
-
-	int pom = curh->fortLevel() - 1; if(pom<0) pom = 3;
-	blitAt(forts->ourImages[pom].bitmap,115,42,ret);
-	if((pom=curh->hallLevel())>=0)
-		blitAt(halls->ourImages[pom].bitmap,77,42,ret);
-	itoa(curh->dailyIncome(),buf,10);
-	printAtMiddle(buf,167,70,GEORM,zwykly,ret);
-	for (std::map<int,std::pair<CCreature*,int> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
-	{
-		if(!i->second.first)
-			continue;
-		blitAt(LOCPLINT->graphics.smallImgs[(*i).second.first->idNumber],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-		itoa((*i).second.second,buf,10);
-		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
-	}
-
-	//blit town icon
-	pom = curh->subID*2;
-	if (!curh->hasFort())
-		pom += F_NUMBER*2;
-	if(curh->builded >= MAX_BUILDING_PER_TURN)
-		pom++;
-	blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
-	delete[] buf;
-	return ret;
-}
-
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	adventureInt->hide();
@@ -1677,10 +1554,10 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 		switch (specific->ID)
 		{
 		case 34:
-			return graphics.drawHeroInfoWin(dynamic_cast<const CGHeroInstance*>(specific));
+			return graphics->drawHeroInfoWin(dynamic_cast<const CGHeroInstance*>(specific));
 			break;
 		case 98:
-			return graphics.drawTownInfoWin(dynamic_cast<const CGTownInstance*>(specific));
+			return graphics->drawTownInfoWin(dynamic_cast<const CGTownInstance*>(specific));
 			break;
 		default:
 			return NULL;
@@ -1694,11 +1571,11 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 		case HEROI_TYPE:
 			{
 				const CGHeroInstance * curh = (const CGHeroInstance *)adventureInt->selection.selected;
-				return graphics.drawHeroInfoWin(curh);
+				return graphics->drawHeroInfoWin(curh);
 			}
 		case TOWNI_TYPE:
 			{
-				return graphics.drawTownInfoWin((const CGTownInstance *)adventureInt->selection.selected);
+				return graphics->drawTownInfoWin((const CGTownInstance *)adventureInt->selection.selected);
 			}
 		default:
 			return NULL;
@@ -1935,8 +1812,8 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
-	SDL_FreeSurface(graphics.heroWins[hero->subID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
-	graphics.heroWins[hero->subID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
+	SDL_FreeSurface(graphics->heroWins[hero->subID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
+	graphics->heroWins[hero->subID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
 	if (adventureInt->selection.selected == hero)
 		adventureInt->infoBar.draw();
 	return;
@@ -1977,8 +1854,8 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		const CGHeroInstance * hh;
 		if(hh = dynamic_cast<const CGHeroInstance*>(obj))
 		{
-			SDL_FreeSurface(graphics.heroWins[hh->subID]);
-			graphics.heroWins[hh->subID] = infoWin(hh);
+			SDL_FreeSurface(graphics->heroWins[hh->subID]);
+			graphics->heroWins[hh->subID] = infoWin(hh);
 		}
 		CHeroWindow * hw = dynamic_cast<CHeroWindow *>(curint);
 		if(hw)
@@ -1998,8 +1875,8 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		const CGTownInstance * tt;
 		if(tt = dynamic_cast<const CGTownInstance*>(obj))
 		{
-			SDL_FreeSurface(graphics.townWins[tt->identifier]);
-			graphics.townWins[tt->identifier] = infoWin(tt);
+			SDL_FreeSurface(graphics->townWins[tt->identifier]);
+			graphics->townWins[tt->identifier] = infoWin(tt);
 		}
 		
 		const CCastleInterface *ci = dynamic_cast<CCastleInterface*>(curint);
@@ -2406,7 +2283,7 @@ void CHeroList::clickRight(tribool down)
 		}
 
 		//show popup
-		CInfoPopup * ip = new CInfoPopup(LOCPLINT->graphics.heroWins[items[from+ny].first->subID],LOCPLINT->current->motion.x-LOCPLINT->graphics.heroWins[items[from+ny].first->subID]->w,LOCPLINT->current->motion.y-LOCPLINT->graphics.heroWins[items[from+ny].first->subID]->h,false);
+		CInfoPopup * ip = new CInfoPopup(graphics->heroWins[items[from+ny].first->subID],LOCPLINT->current->motion.x-graphics->heroWins[items[from+ny].first->subID]->w,LOCPLINT->current->motion.y-graphics->heroWins[items[from+ny].first->subID]->h,false);
 		ip->activate();
 	}
 	else
@@ -2459,7 +2336,7 @@ void CHeroList::draw()
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
 		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
-		SDL_Surface * temp = LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->type->portraitSmall;
+		SDL_Surface * temp = graphics->portraitSmall[LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->subID];
 		blitAt(temp,posporx,pospory+i*32);
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
 		{
@@ -2646,7 +2523,7 @@ void CTownList::clickRight(tribool down)
 		}
 
 		//show popup
-		CInfoPopup * ip = new CInfoPopup(LOCPLINT->graphics.townWins[items[from+ny]->identifier],LOCPLINT->current->motion.x-LOCPLINT->graphics.townWins[items[from+ny]->identifier]->w,LOCPLINT->current->motion.y-LOCPLINT->graphics.townWins[items[from+ny]->identifier]->h,false);
+		CInfoPopup * ip = new CInfoPopup(graphics->townWins[items[from+ny]->identifier],LOCPLINT->current->motion.x-graphics->townWins[items[from+ny]->identifier]->w,LOCPLINT->current->motion.y-graphics->townWins[items[from+ny]->identifier]->h,false);
 		ip->activate();
 	}
 	else
@@ -2671,15 +2548,15 @@ void CTownList::draw()
 		int i = iT-from;
 		if (iT>=items.size())
 		{
-			blitAt(CGI->townh->getPic(-1),posporx,pospory+i*32);
+			blitAt(graphics->getPic(-1),posporx,pospory+i*32);
 			continue;
 		}
 
-		blitAt(CGI->townh->getPic(items[iT]->subID,items[iT]->hasFort(),items[iT]->builded),posporx,pospory+i*32);
+		blitAt(graphics->getPic(items[iT]->subID,items[iT]->hasFort(),items[iT]->builded),posporx,pospory+i*32);
 
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
 		{
-			blitAt(CGI->townh->getPic(-2),posporx,pospory+i*32);
+			blitAt(graphics->getPic(-2),posporx,pospory+i*32);
 		}
 	}
 	if (from>0)
@@ -2705,7 +2582,7 @@ CCreaturePic::~CCreaturePic()
 }
 int CCreaturePic::blitPic(SDL_Surface *to, int x, int y, bool nextFrame)
 {
-	blitAt(LOCPLINT->graphics.backgrounds[c->faction],x,y);//curx-50,pos.y+130-65);
+	blitAt(graphics->backgrounds[c->faction],x,y);//curx-50,pos.y+130-65);
 	SDL_Rect dst = genRect(130,100,x,y);
 	if(c->isDoubleWide())
 		x-=15;
@@ -2804,8 +2681,8 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	int curx = pos.x+115-creatures[which].res.size()*16;
 	for(int i=0;i<creatures[which].res.size();i++)
 	{
-		blitAt(CGI->townh->resources->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,screen);
-		blitAt(CGI->townh->resources->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,screen);
+		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,screen);
+		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,screen);
 		itoa(creatures[which].res[i].second,pom,10);
 		printAtMiddle(pom,curx+12,pos.y+286,GEOR13,zwykly,screen);
 		itoa(creatures[which].res[i].second * slider->value,pom,10);
@@ -3069,8 +2946,8 @@ CCreInfoWindow::CCreInfoWindow
 
 
 	//luck and morale
-	blitAt(LOCPLINT->graphics.morale42->ourImages[(State)?(State->morale+3):(3)].bitmap,24,189,bitmap);
-	blitAt(LOCPLINT->graphics.luck42->ourImages[(State)?(State->luck+3):(3)].bitmap,77,189,bitmap);
+	blitAt(graphics->morale42->ourImages[(State)?(State->morale+3):(3)].bitmap,24,189,bitmap);
+	blitAt(graphics->luck42->ourImages[(State)?(State->luck+3):(3)].bitmap,77,189,bitmap);
 
 	//print abilities text - if r-click popup
 	if(type)

@@ -15,7 +15,7 @@
 #include "hch/CArtHandler.h"
 #include "hch\CAbilityHandler.h"
 #include <sstream>
-
+#include "client/Graphics.h"
 extern SDL_Surface * screen;
 extern TTF_Font * GEOR16;
 
@@ -732,7 +732,7 @@ void CHeroWindow::redrawCurBack()
 	blitAt(skillpics->ourImages[4].bitmap, 20, 230, curBack);
 	blitAt(skillpics->ourImages[3].bitmap, 162, 230, curBack);
 
-	blitAt(curHero->type->portraitLarge, 19, 19, curBack);
+	blitAt(graphics->portraitLarge[curHero->subID], 19, 19, curBack);
 
 	CSDL_Ext::printAtMiddle(curHero->name, 190, 40, GEORXX, tytulowy, curBack);
 
@@ -788,8 +788,8 @@ void CHeroWindow::redrawCurBack()
 	primarySkill4<<curHero->primSkills[3];
 	CSDL_Ext::printAtMiddle(primarySkill4.str(), 263, 165, TNRB16, zwykly, curBack);
 
-	blitAt(LOCPLINT->graphics.luck42->ourImages[curHero->getCurrentLuck()+3].bitmap, 239, 182, curBack);
-	blitAt(LOCPLINT->graphics.morale42->ourImages[curHero->getCurrentMorale()+3].bitmap, 181, 182, curBack);
+	blitAt(graphics->luck42->ourImages[curHero->getCurrentLuck()+3].bitmap, 239, 182, curBack);
+	blitAt(graphics->morale42->ourImages[curHero->getCurrentMorale()+3].bitmap, 181, 182, curBack);
 
 	blitAt(flags->ourImages[player].bitmap, 606, 8, curBack);
 
@@ -797,14 +797,14 @@ void CHeroWindow::redrawCurBack()
 	for(int g=0; g<LOCPLINT->cb->howManyHeroes(); ++g)
 	{
 		const CGHeroInstance * cur = LOCPLINT->cb->getHeroInfo(player, g, false);
-		blitAt(cur->type->portraitSmall, 611, 87+g*54, curBack);
+		blitAt(graphics->portraitSmall[cur->subID], 611, 87+g*54, curBack);
 		//printing yellow border
 		if(cur->name == curHero->name)
 		{
-			for(int f=0; f<cur->type->portraitSmall->w; ++f)
+			for(int f=0; f<graphics->portraitSmall[cur->subID]->w; ++f)
 			{
-				for(int h=0; h<cur->type->portraitSmall->h; ++h)
-					if(f==0 || h==0 || f==cur->type->portraitSmall->w-1 || h==cur->type->portraitSmall->h-1)
+				for(int h=0; h<graphics->portraitSmall[cur->subID]->h; ++h)
+					if(f==0 || h==0 || f==graphics->portraitSmall[cur->subID]->w-1 || h==graphics->portraitSmall[cur->subID]->h-1)
 					{
 						CSDL_Ext::SDL_PutPixel(curBack, 611+f, 87+g*54+h, 240, 220, 120);
 					}
@@ -863,7 +863,7 @@ void CHeroWindow::redrawCurBack()
 	}
 
 	//printing special ability
-	blitAt(CGI->heroh->un44->ourImages[curHero->subID].bitmap, 18, 180, curBack);
+	blitAt(graphics->un44->ourImages[curHero->subID].bitmap, 18, 180, curBack);
 
 	//printing necessery texts
 	CSDL_Ext::printAt(CGI->generaltexth->jktexts[6].substr(1, CGI->generaltexth->jktexts[6].size()-2), 69, 231, GEOR13, tytulowy, curBack);
@@ -979,7 +979,7 @@ void CArtPlace::show(SDL_Surface *to)
 {
 	if(ourArt)
 	{
-		blitAt(LOCPLINT->graphics.artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
+		blitAt(graphics->artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
 	}
 	if(clicked && active)
 	{

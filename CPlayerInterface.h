@@ -311,31 +311,6 @@ public:
 	std::vector<TimeInterested*> timeinterested;
 	std::vector<IShowable*> objsToBlit;
 
-	//various graphics
-	class Graphics
-	{
-	public:
-		//various graphics
-		SDL_Surface * hInfo, *tInfo; //hero and town infobox bgs
-		std::vector<std::pair<int, int> > slotsPos; //creature slot positions in infoboxes
-		CDefEssential *luck22, *luck30, *luck42, *luck82,
-			*morale22, *morale30, *morale42, *morale82,
-			*halls, *forts, *bigTownPic;
-		std::map<int,SDL_Surface*> heroWins; //hero_ID => infobox
-		std::map<int,SDL_Surface*> townWins; //town_ID => infobox
-		CDefHandler * artDefs; //artifacts
-		//creatures
-		std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
-		std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
-		std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
-		
-		//functions
-		Graphics();
-		SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
-		SDL_Surface * drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from=0, int to=PRIMARY_SKILLS);
-		SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
-	} graphics;
-
 	//overloaded funcs from CGameInterface
 	void yourTurn();
 	void heroMoved(const HeroMoveDetails & details);
