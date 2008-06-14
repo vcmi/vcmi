@@ -315,6 +315,7 @@ void CTerrainRect::clickLeft(tribool down)
 		//Convert to old format.
 		currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->ConvertToOldFormat(p);
 
+		delete p;
 		//currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
 	}
 }
