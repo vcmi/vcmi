@@ -212,7 +212,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	//showing selected unit's range
-	if(creAnims[activeStack]->getType() != 0) //don't show if unit is moving
+	if(activeStack != -1 && creAnims[activeStack]->getType() != 0) //don't show if unit is moving
 	{
 		showRange(to, activeStack);
 	}

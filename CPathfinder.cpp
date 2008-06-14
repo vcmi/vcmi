@@ -149,29 +149,29 @@ void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 	//   6  7  8
 
 	Coordinate node = branch->back();
-	Coordinate* c;
+	Coordinate c;
 
 	for(int i = node.x-1; i<node.x+2;i++)
 	{
 		for(int j = node.y-1; j < node.y+2; j++)
 		{
-			if(i > 0 && j > 0 && i < CGI->mh->sizes.x-1 && j < CGI->mh->sizes.y-1)
+			if(i >= 0 && j >= 0 && i < CGI->mh->sizes.x && j < CGI->mh->sizes.y)
 			{
-				c = new Coordinate(i,j,node.z);
+				c = Coordinate(i,j,node.z);
 
 				//Calculate the distance from the end node
-				CalcG(c);
+				CalcG(&c);
 
 				//Calculate the movement cost
-				CalcH(c);
+				CalcH(&c);
 
-				if(c->g != -1 && c->h != -1)
+				if(c.g != -1 && c.h != -1)
 				{
 					vector<Coordinate> toAdd = *branch;
-					toAdd.push_back(*c);
+					toAdd.push_back(c);
 					Open.push(toAdd);
 				}
-				delete c;
+				//delete c;
 			}
 		}
 	}

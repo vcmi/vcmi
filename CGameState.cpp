@@ -162,7 +162,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 			else if(j->first == curB->side2) //player is defender
 				side = true;
 			else 
-				return; //no witnesses
+				continue; //no witnesses
 			if(CGI->playerint[j->second.serial]->human)
 			{
 				((CPlayerInterface*)( CGI->playerint[j->second.serial] ))->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side);
