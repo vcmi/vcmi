@@ -41,7 +41,7 @@ int internalFunc(void * callback)
 			boost::filesystem::create_directory("Extracted_txts");
 			std::cout<<"Command accepted. Opening .lod file...\t";
 			CLodHandler * txth = new CLodHandler;
-			txth->init(std::string("Data\\H3bitmap.lod"));
+			txth->init(std::string("Data\\H3bitmap.lod"),"Data");
 			std::cout<<"done.\nScanning .lod file\n";
 			int curp=0;
 			std::string pattern = ".TXT";

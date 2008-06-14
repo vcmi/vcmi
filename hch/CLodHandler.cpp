@@ -6,6 +6,9 @@
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include "boost/filesystem/operations.hpp"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 DLL_EXPORT int readNormalNr (int pos, int bytCon, unsigned char * str)
 {
 	int ret=0;
@@ -335,7 +338,7 @@ int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
 	return ret;
 }
 
-void CLodHandler::init(std::string lodFile)
+void CLodHandler::init(std::string lodFile, std::string dirName)
 {
 	std::string Ts;
 	FLOD = fopen(lodFile.c_str(), "rb");
@@ -380,6 +383,27 @@ void CLodHandler::init(std::string lodFile)
 		}
 		entries.push_back(entry);
 	}
+	boost::filesystem::directory_iterator enddir;
+	if(boost::filesystem::exists(dirName))
+	{
+		for (boost::filesystem::directory_iterator dir(dirName);dir!=enddir;dir++)
+		{
+			if(boost::filesystem::is_regular(dir->status()))
+			{
+				std::string name = dir->path().leaf();
+				std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
+				boost::algorithm::replace_all(name,".BMP",".PCX");
+				Entry * e = entries.znajdz(name);
+				if(e)
+				{
+					e->offset = -1;
+					e->realSize = e->size = boost::filesystem::file_size(dir->path());
+				}
+			}
+		}
+	}
+	else
+		std::cout<<"Warning: No "+dirName+"/ folder!"<<std::endl;
 }
 std::string CLodHandler::getTextFile(std::string name)
 {

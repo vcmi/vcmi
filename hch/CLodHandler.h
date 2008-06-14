@@ -52,7 +52,7 @@ public:
 	std::string getTextFile(std::string name); //extracts one file
 	void extract(std::string FName);
 	void extractFile(std::string FName, std::string name); //extracts a specific file
-	void init(std::string lodFile);
+	void init(std::string lodFile, std::string dirName);
 };
 
 #endif //CLODHANDLER_H

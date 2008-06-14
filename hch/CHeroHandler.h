@@ -36,7 +36,7 @@ public:
 	CDefHandler * moveAnim; //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 };
 
-class CHeroHandler
+class DLL_EXPORT CHeroHandler
 {
 public:
 	std::vector<CHero*> heroes; //by³o nodrze

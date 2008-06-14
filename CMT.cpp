@@ -47,9 +47,6 @@
 #include "CLua.h"
 #include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
-#include "boost/filesystem/operations.hpp"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
 #include "client\Graphics.h"
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
@@ -333,9 +330,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");
-	THC timeHandler tmh;
-	THC tmh.getDif();
-	timeHandler pomtime;pomtime.getDif();
+	THC timeHandler tmh, total, pomtime;
 	int xx=0, yy=0, zz=0;
 	srand ( time(NULL) );
 	std::vector<SDL_Surface*> Sprites;
@@ -361,9 +356,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		TTF_Init();
 		atexit(TTF_Quit);
 		atexit(SDL_Quit);
-		//TNRB = TTF_OpenFont("Fonts\\tnrb.ttf",16);
 		TNRB16 = TTF_OpenFont("Fonts\\tnrb.ttf",16);
-		//TNR = TTF_OpenFont("Fonts\\tnr.ttf",10);
 		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
 		GEOR16 = TTF_OpenFont("Fonts\\georgia.ttf",16);
 		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
@@ -383,60 +376,35 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->curh = new CCursorHandler; 
 		
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
-		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler;
-		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
+		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
+		cgi->spriteh->init("Data\\H3sprite.lod","Sprites");
 		BitmapHandler::bitmaph = cgi->bitmaph = new CLodHandler;
-		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
+		cgi->bitmaph->init("Data\\H3bitmap.lod","Data");
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph);
 		THC std::cout<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
-		graphics = new Graphics();
-		THC std::cout<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
 
-		boost::filesystem::directory_iterator enddir;
-		for (boost::filesystem::directory_iterator dir("Data");dir!=enddir;dir++)
-		{
-			if(boost::filesystem::is_regular(dir->status()))
-			{
-				std::string name = dir->path().leaf();
-				std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
-				boost::algorithm::replace_all(name,".BMP",".PCX");
-				Entry * e = cgi->bitmaph->entries.znajdz(name);
-				if(e)
-				{
-					e->offset = -1;
-					e->realSize = e->size = boost::filesystem::file_size(dir->path());
-				}
-			}
-		}
-		if(boost::filesystem::exists("Sprites"))
-		{
-			for (boost::filesystem::directory_iterator dir("Sprites");dir!=enddir;dir++)
-			{
-				if(boost::filesystem::is_regular(dir->status()))
-				{
-					std::string name = dir->path().leaf();
-					std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
-					boost::algorithm::replace_all(name,".BMP",".PCX");
-					Entry * e = cgi->spriteh->entries.znajdz(name);
-					if(e)
-					{
-						e->offset = -1;
-						e->realSize = e->size = boost::filesystem::file_size(dir->path());
-					}
-				}
-			}
-		}
-		else
-			std::cout<<"Warning: No sprites/ folder!"<<std::endl;
-		THC std::cout<<"Scanning Data/ and Sprites/ folders: "<<tmh.getDif()<<std::endl;
-		cgi->curh->initCursor();
-		cgi->curh->showGraphicCursor();
-
+		//cgi->curh->initCursor();
+		//cgi->curh->showGraphicCursor();
+		pomtime.getDif();
 		cgi->screenh = new CScreenHandler;
 		cgi->screenh->initScreen();
-
+		THC std::cout<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
+		cgi->townh = new CTownHandler;
+		cgi->townh->loadNames();
+		THC std::cout<<"\tTown handler: "<<pomtime.getDif()<<std::endl;
+		CAbilityHandler * abilh = new CAbilityHandler;
+		abilh->loadAbilities();
+		cgi->abilh = abilh;
+		THC std::cout<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
+		CHeroHandler * heroh = new CHeroHandler;
+		heroh->loadHeroes();
+		heroh->loadPortraits();
+		cgi->heroh = heroh;
+		THC std::cout<<"\tHero handler: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
+		graphics = new Graphics();
+		THC std::cout<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
 
 		//colors initialization
 		SDL_Color p;
@@ -475,24 +443,15 @@ int _tmain(int argc, _TCHAR* argv[])
 		//palette initialized
 		THC std::cout<<"Preparing players' colours: "<<tmh.getDif()<<std::endl;
 		CMessage::init();
-		cgi->townh = new CTownHandler;
-		cgi->townh->loadNames();
-		CAbilityHandler * abilh = new CAbilityHandler;
-		abilh->loadAbilities();
-		cgi->abilh = abilh;
-		CHeroHandler * heroh = new CHeroHandler;
-		heroh->loadHeroes();
-		heroh->loadPortraits();
-		cgi->heroh = heroh;
 		cgi->generaltexth = new CGeneralTextHandler;
 		cgi->generaltexth->load();
 		THC std::cout<<"Preparing more handlers: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Initialization of VCMI (togeter): "<<total.getDif()<<std::endl;
 		cpg->mush = mush;
 		cgi->scenarioOps = cpg->runLoop();
-		THC tmh.getDif();
-
+		THC tmh.getDif();pomtime.getDif();
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
 		cgi->arth = arth;

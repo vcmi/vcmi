@@ -1,10 +1,8 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CHeroHandler.h"
 #include <sstream>
 #include "CLodHandler.h"
-#include <cmath>
-#include <iomanip>
-#include "CDefHandler.h"
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 CHeroHandler::~CHeroHandler()
@@ -259,89 +257,6 @@ void CHeroHandler::loadHeroClasses()
 			++i;
 		}
 		++i;
-		std::stringstream nm;
-		nm<<"AH";
-		nm<<std::setw(2);
-		nm<<std::setfill('0');
-		nm<<heroClasses.size();
-		nm<<"_.DEF";
-		hc->moveAnim = CDefHandler::giveDef(nm.str());
-
-		for(int o=0; o<hc->moveAnim->ourImages.size(); ++o)
-		{
-			if(hc->moveAnim->ourImages[o].groupNumber==6)
-			{
-				for(int e=0; e<8; ++e)
-				{
-					Cimage nci;
-					nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o+e].bitmap);
-					nci.groupNumber = 10;
-					nci.imName = std::string();
-					hc->moveAnim->ourImages.push_back(nci);
-				}
-				o+=8;
-			}
-			if(hc->moveAnim->ourImages[o].groupNumber==7)
-			{
-				for(int e=0; e<8; ++e)
-				{
-					Cimage nci;
-					nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o+e].bitmap);
-					nci.groupNumber = 11;
-					nci.imName = std::string();
-					hc->moveAnim->ourImages.push_back(nci);
-				}
-				o+=8;
-			}
-			if(hc->moveAnim->ourImages[o].groupNumber==8)
-			{
-				for(int e=0; e<8; ++e)
-				{
-					Cimage nci;
-					nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o+e].bitmap);
-					nci.groupNumber = 12;
-					nci.imName = std::string();
-					hc->moveAnim->ourImages.push_back(nci);
-				}
-				o+=8;
-			}
-		}
-		for(int o=0; o<hc->moveAnim->ourImages.size(); ++o)
-		{
-			if(hc->moveAnim->ourImages[o].groupNumber==1)
-			{
-				Cimage nci;
-				nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o].bitmap);
-				nci.groupNumber = 13;
-				nci.imName = std::string();
-				hc->moveAnim->ourImages.push_back(nci);
-				//o+=1;
-			}
-			if(hc->moveAnim->ourImages[o].groupNumber==2)
-			{
-				Cimage nci;
-				nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o].bitmap);
-				nci.groupNumber = 14;
-				nci.imName = std::string();
-				hc->moveAnim->ourImages.push_back(nci);
-				//o+=1;
-			}
-			if(hc->moveAnim->ourImages[o].groupNumber==3)
-			{
-				Cimage nci;
-				nci.bitmap = CSDL_Ext::rotate01(hc->moveAnim->ourImages[o].bitmap);
-				nci.groupNumber = 15;
-				nci.imName = std::string();
-				hc->moveAnim->ourImages.push_back(nci);
-				//o+=1;
-			}
-		}
-
-		for(int ff=0; ff<hc->moveAnim->ourImages.size(); ++ff)
-		{
-			CSDL_Ext::alphaTransform(hc->moveAnim->ourImages[ff].bitmap);
-		}
-		hc->moveAnim->alphaTransformed = true;
 		heroClasses.push_back(hc);
 	}
 }
