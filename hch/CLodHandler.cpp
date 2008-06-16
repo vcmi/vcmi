@@ -176,12 +176,6 @@ DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, un
 		}
 		++chunkNumber;
 		strm.avail_in = readBytes;
-		//strm.avail_in = fread(inx, 1, NLoadHandlerHelp::fCHUNK, source);
-		/*if (in.bad())
-		{
-			(void)inflateEnd(&strm);
-			return Z_ERRNO;
-		}*/
 		if (strm.avail_in == 0)
 			break;
 		strm.next_in = inx;
@@ -203,22 +197,11 @@ DLL_EXPORT int CLodHandler::infs2(unsigned char * in, int size, int realSize, un
 					return ret;
 			}
 			have = NLoadHandlerHelp::fCHUNK - strm.avail_out;
-			/*if (fwrite(out, 1, have, dest) != have || ferror(dest))
-			{
-				(void)inflateEnd(&strm);
-				return Z_ERRNO;
-			}*/
-			//out.write((char*)outx, have);
 			for(int oo=0; oo<have; ++oo)
 			{
 				out[latPosOut] = outx[oo];
 				++latPosOut;
 			}
-			/*if(out.bad())
-			{
-				(void)inflateEnd(&strm);
-				return Z_ERRNO;
-			}*/
 		} while (strm.avail_out == 0);
 
 		/* done when inflate() says it's done */

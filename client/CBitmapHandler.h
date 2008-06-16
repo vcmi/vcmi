@@ -35,5 +35,5 @@ public:
 namespace BitmapHandler
 {
 	extern CLodHandler *bitmaph;
-	SDL_Surface * loadBitmap(std::string fname);
+	SDL_Surface * loadBitmap(std::string fname, bool setKey=false);
 };

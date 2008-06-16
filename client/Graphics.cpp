@@ -8,7 +8,11 @@
 #include <sstream>
 #include <iomanip>
 #include <boost/thread.hpp>
+#include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/assign/std/vector.hpp>
+#include "../CThreadHelper.h"
+using namespace boost::assign;
 using namespace CSDL_Ext;
 Graphics * graphics = NULL;
 SDL_Surface * Graphics::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from, int to)
@@ -80,11 +84,6 @@ SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 }
 Graphics::Graphics()
 {
-	artDefs = CDefHandler::giveDef("ARTIFACT.DEF");
-	hInfo = BitmapHandler::loadBitmap("HEROQVBK.bmp");
-	SDL_SetColorKey(hInfo,SDL_SRCCOLORKEY,SDL_MapRGB(hInfo->format,0,255,255));
-	tInfo = BitmapHandler::loadBitmap("TOWNQVBK.bmp");
-	SDL_SetColorKey(tInfo,SDL_SRCCOLORKEY,SDL_MapRGB(tInfo->format,0,255,255));
 	slotsPos.push_back(std::pair<int,int>(44,82));
 	slotsPos.push_back(std::pair<int,int>(80,82));
 	slotsPos.push_back(std::pair<int,int>(116,82));
@@ -93,45 +92,61 @@ Graphics::Graphics()
 	slotsPos.push_back(std::pair<int,int>(98,131));
 	slotsPos.push_back(std::pair<int,int>(134,131));
 
-	luck22 = CDefHandler::giveDefEss("ILCK22.DEF");
-	luck30 = CDefHandler::giveDefEss("ILCK30.DEF");
-	luck42 = CDefHandler::giveDefEss("ILCK42.DEF");
-	luck82 = CDefHandler::giveDefEss("ILCK82.DEF");
-	morale22 = CDefHandler::giveDefEss("IMRL22.DEF");
-	morale30 = CDefHandler::giveDefEss("IMRL30.DEF");
-	morale42 = CDefHandler::giveDefEss("IMRL42.DEF");
-	morale82 = CDefHandler::giveDefEss("IMRL82.DEF");
-	halls = CDefHandler::giveDefEss("ITMTLS.DEF");
-	forts = CDefHandler::giveDefEss("ITMCLS.DEF");
-	bigTownPic =  CDefHandler::giveDefEss("ITPT.DEF");
-	std::ifstream ifs;
-	ifs.open("config/cr_bgs.txt"); 
+	CDefHandler *smi, *smi2;
+
+	std::vector<Task> tasks; //preparing list of graphics to load
+	tasks += boost::bind(&Graphics::loadHeroFlags,this);
+	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
+	tasks += GET_SURFACE(hInfo,"HEROQVBK.bmp");
+	tasks += GET_SURFACE(tInfo,"TOWNQVBK.bmp");
+	tasks += GET_DEF(artDefs,"ARTIFACT.DEF");
+	tasks += GET_DEF_ESS(forts,"ITMCLS.DEF");
+	tasks += GET_DEF_ESS(luck22,"ILCK22.DEF");
+	tasks += GET_DEF_ESS(luck30,"ILCK30.DEF");
+	tasks += GET_DEF_ESS(luck42,"ILCK42.DEF");
+	tasks += GET_DEF_ESS(luck82,"ILCK82.DEF");
+	tasks += GET_DEF_ESS(morale22,"IMRL22.DEF");
+	tasks += GET_DEF_ESS(morale30,"IMRL30.DEF");
+	tasks += GET_DEF_ESS(morale42,"IMRL42.DEF");
+	tasks += GET_DEF_ESS(morale82,"IMRL82.DEF");
+	tasks += GET_DEF_ESS(halls,"ITMTLS.DEF");
+	tasks += GET_DEF_ESS(bigTownPic,"ITPT.DEF");
+	tasks += GET_DEF(pskillsb,"PSKILL.DEF");
+	tasks += GET_DEF(resources,"RESOUR82.DEF");
+	tasks += GET_DEF(un44,"UN44.DEF");
+	tasks += GET_DEF(smallIcons,"ITPA.DEF");
+	tasks += GET_DEF(resources32,"RESOURCE.DEF");
+	tasks += GET_DEF(smi,"CPRSMALL.DEF");
+	tasks += GET_DEF(smi2,"TWCRPORT.DEF");
+
+	std::ifstream ifs("config/cr_bgs.txt"); 
+	int id;
+	std::string name;
 	while(!ifs.eof())
 	{
-		int id;
-		std::string name;
 		ifs >> id >> name;
-		backgrounds[id]=BitmapHandler::loadBitmap(name);
+		tasks += GET_SURFACE(backgrounds[id],name);
 	}
-	ifs.close();
-	ifs.clear();
 
-	//loading 32x32px imgs
-	CDefHandler *smi = CDefHandler::giveDef("CPRSMALL.DEF");
+	CThreadHelper th(&tasks,max(1,boost::thread::hardware_concurrency()));
+	th.run();
+
+	//handling 32x32px imgs
 	smi->notFreeImgs = true;
 	for (int i=0; i<smi->ourImages.size(); i++)
 	{
 		smallImgs[i-2] = smi->ourImages[i].bitmap;
 	}
 	delete smi;
-	smi = CDefHandler::giveDef("TWCRPORT.DEF");
-	smi->notFreeImgs = true;
-	for (int i=0; i<smi->ourImages.size(); i++)
+	smi2->notFreeImgs = true;
+	for (int i=0; i<smi2->ourImages.size(); i++)
 	{
-		bigImgs[i-2] = smi->ourImages[i].bitmap;
+		bigImgs[i-2] = smi2->ourImages[i].bitmap;
 	}
-	delete smi;
-
+	delete smi2;
+}
+void Graphics::loadHeroPortraits()
+{	
 	std::ifstream of("config/portrety.txt");
 	for (int j=0;j<HEROES_QUANTITY;j++)
 	{
@@ -140,8 +155,6 @@ Graphics::Graphics()
 		std::string path;
 		of>>path;
 		portraitSmall.push_back(BitmapHandler::loadBitmap(path));
-		//if (!heroes[ID]->portraitSmall)
-		//	std::cout<<"Can't read small portrait for "<<ID<<" ("<<path<<")\n";
 		for(int ff=0; ff<path.size(); ++ff) //size letter is usually third one, but there are exceptions an it should fix the problem
 		{
 			if(path[ff]=='S')
@@ -151,18 +164,10 @@ Graphics::Graphics()
 			}
 		}
 		portraitLarge.push_back(BitmapHandler::loadBitmap(path));
-		//if (!heroes[ID]->portraitLarge)
-		//	std::cout<<"Can't read large portrait for "<<ID<<" ("<<path<<")\n";	
 		SDL_SetColorKey(portraitLarge[portraitLarge.size()-1],SDL_SRCCOLORKEY,SDL_MapRGB(portraitLarge[portraitLarge.size()-1]->format,0,255,255));
 
 	}
 	of.close();
-	pskillsb = CDefHandler::giveDef("PSKILL.DEF");
-	resources = CDefHandler::giveDef("RESOUR82.DEF");
-	un44 = CDefHandler::giveDef("UN44.DEF");
-	smallIcons = CDefHandler::giveDef("ITPA.DEF");
-	resources32 = CDefHandler::giveDef("RESOURCE.DEF");
-	loadHeroFlags();
 }
 void Graphics::loadHeroAnim(std::vector<CDefHandler **> & anims)
 {
@@ -377,7 +382,7 @@ void Graphics::loadHeroFlags()
 	grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[1]),false));
 	grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[0]),false));
 	grupa.join_all();
-	std::cout << "Flagi: "<<th.getDif()<<std::endl;
+	std::cout << "Loading and transforming heroes' flags: "<<th.getDif()<<std::endl;
 }
 SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 {

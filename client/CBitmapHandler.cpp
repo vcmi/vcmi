@@ -5,6 +5,8 @@
 #include "../hch/CDefHandler.h"
 #include "../hch/CLodHandler.h"
 #include <sstream>
+#include <boost/thread.hpp>
+boost::mutex bitmap_handler_mx;
 int readNormalNr (int pos, int bytCon, unsigned char * str);
 CLodHandler * BitmapHandler::bitmaph = NULL;
 void BMPHeader::print(std::ostream & out)
@@ -253,7 +255,7 @@ SDL_Surface * CPCXConv::getSurface()
 	return ret;
 }
 
-SDL_Surface * BitmapHandler::loadBitmap(std::string fname)
+SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 {
 	if(!fname.size())
 		return NULL;
@@ -309,16 +311,19 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname)
 			}
 		}
 	}
+	bitmap_handler_mx.lock();
 	fseek(bitmaph->FLOD, e->offset, 0);
 	if (e->size==0) //file is not compressed
 	{
 		pcx = new unsigned char[e->realSize];
 		fread((char*)pcx, 1, e->realSize, bitmaph->FLOD);
+		bitmap_handler_mx.unlock();
 	}
 	else 
 	{
 		unsigned char * pcd = new unsigned char[e->size];
 		fread((char*)pcd, 1, e->size, bitmaph->FLOD);
+		bitmap_handler_mx.unlock();
 		int res=bitmaph->infs2(pcd,e->size,e->realSize,pcx);
 		if(res!=0)
 		{
@@ -328,5 +333,8 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname)
 	}
 	CPCXConv cp;
 	cp.openPCX((char*)pcx,e->realSize);
-	return cp.getSurface();
+	SDL_Surface * ret = cp.getSurface();
+	if(setKey)
+		SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
+	return ret;
 }

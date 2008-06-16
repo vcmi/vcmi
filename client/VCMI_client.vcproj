@@ -377,6 +377,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\CThreadHelper.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Graphics.cpp"
 				>
 			</File>
@@ -559,6 +563,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CArtHandler.h"
+				>
+			</File>
+			<File
 				RelativePath="..\CBattleInterface.h"
 				>
 			</File>
@@ -587,6 +595,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CCreatureHandler.h"
+				>
+			</File>
+			<File
 				RelativePath="..\CCursorHandler.h"
 				>
 			</File>
@@ -611,6 +623,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CHeroHandler.h"
+				>
+			</File>
+			<File
 				RelativePath="..\CHeroWindow.h"
 				>
 			</File>
@@ -628,6 +644,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CMusicHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\hch\CObjectHandler.h"
 				>
 			</File>
 			<File
@@ -656,6 +676,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CSpellHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\CThreadHelper.h"
 				>
 			</File>
 			<File
