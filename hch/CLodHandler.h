@@ -9,7 +9,8 @@
 struct SDL_Surface;
 class CDefHandler;
 class CDefEssential;
-
+namespace boost
+{class mutex;};
 namespace NLoadHandlerHelp
 {
 	const int dmHelp=0, dmNoExtractingMask=1;
@@ -44,6 +45,7 @@ public:
 	FILE* FLOD;
 	nodrze<Entry> entries;
 	unsigned int totalFiles;
+	boost::mutex *mutex;
 
 	int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
 	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler

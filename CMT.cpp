@@ -48,6 +48,7 @@
 #include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
 #include "client\Graphics.h"
+#include <boost/lambda/lambda.hpp>
 #if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
 #  include <fcntl.h>
 #  include <io.h>
@@ -324,57 +325,43 @@ void initGameState(Mapa * map, CGameInfo * cgi)
 
 int _tmain(int argc, _TCHAR* argv[])
 { 
-	//std::ios_base::sync_with_stdio(0);
+	srand ( time(NULL) );
+	CPG=NULL;
+	atexit(SDL_Quit);
+	CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 	//CLuaHandler luatest;
 	//luatest.test(); 
-	
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");
+	std::cout << "Starting... " << std::endl;
 	THC timeHandler tmh, total, pomtime;
-	int xx=0, yy=0, zz=0;
-	srand ( time(NULL) );
-	std::vector<SDL_Surface*> Sprites;
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
-		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
-		
-		//initializing important global surface
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		int rmask = 0xff000000;
-		int gmask = 0x00ff0000;
-		int bmask = 0x0000ff00;
-		int amask = 0x000000ff;
-#else
-		int rmask = 0x000000ff;
-		int gmask = 0x0000ff00;
-		int bmask = 0x00ff0000;
-		int amask = 0xff000000;
-#endif
+		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);  //initializing important global surface
+		THC std::cout<<"\tInitializing screen: "<<pomtime.getDif()<<std::endl;
+		SDL_WM_SetCaption(NAME,""); //set window title
+		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+			int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
+		#else
+			int rmask = 0x000000ff;	int gmask = 0x0000ff00;	int bmask = 0x00ff0000;	int amask = 0xff000000;
+		#endif
 		CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
-
-		CPG=NULL;
+		THC std::cout<<"\tInitializing minors: "<<pomtime.getDif()<<std::endl;
 		TTF_Init();
-		atexit(TTF_Quit);
-		atexit(SDL_Quit);
 		TNRB16 = TTF_OpenFont("Fonts\\tnrb.ttf",16);
 		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
 		GEOR16 = TTF_OpenFont("Fonts\\georgia.ttf",16);
 		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
 		GEORM = TTF_OpenFont("Fonts\\georgia.ttf",10);
+		atexit(TTF_Quit);
+		THC std::cout<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
 		CMusicHandler * mush = new CMusicHandler;  //initializing audio
 		mush->initMusics();
 		//audio initialized 
-
-
-		//screen2 = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
-		//screen = SDL_ConvertSurface(screen2, screen2->format, SDL_SWSURFACE);
-
-		SDL_WM_SetCaption(NAME,""); //set window title
-		CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 		cgi->consoleh = new CConsoleHandler;
 		cgi->mush = mush;
 		cgi->curh = new CCursorHandler; 
-		
+		THC std::cout<<"\tInitializing sound and cursor: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
 		cgi->spriteh->init("Data\\H3sprite.lod","Sprites");
@@ -403,7 +390,14 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->heroh = heroh;
 		THC std::cout<<"\tHero handler: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
+		pomtime.getDif();
 		graphics = new Graphics();
+		THC std::cout<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
+		std::vector<CDefHandler **> animacje;
+		for(std::vector<CHeroClass *>::iterator i = cgi->heroh->heroClasses.begin();i!=cgi->heroh->heroClasses.end();i++)
+			animacje.push_back(&((*i)->*(&CHeroClass::moveAnim)));
+		graphics->loadHeroAnim(animacje);
+		THC std::cout<<"\tHero animations: "<<tmh.getDif()<<std::endl;
 		THC std::cout<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
 
 		//colors initialization

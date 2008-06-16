@@ -9,6 +9,7 @@
 #include "boost/filesystem/operations.hpp"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/thread.hpp>
 DLL_EXPORT int readNormalNr (int pos, int bytCon, unsigned char * str)
 {
 	int ret=0;
@@ -34,6 +35,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 		return NULL;
 	}
 	if(length) *length = ourEntry->realSize;
+	mutex->lock();
 	fseek(FLOD, ourEntry->offset, 0);
 	unsigned char * outp;
 	if (ourEntry->offset<0) //file is in the sprites/ folder; no compression
@@ -44,6 +46,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 		strcat(name,(char*)ourEntry->name);
 		FILE * f = fopen(name,"rb");
 		int result = fread(outp,1,ourEntry->realSize,f);
+		mutex->unlock();
 		if(result<0) {std::cout<<"Error in file reading: "<<name<<std::endl;delete[] outp; return NULL;}
 		else
 			return outp;
@@ -52,13 +55,14 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	{
 		outp = new unsigned char[ourEntry->realSize];
 		fread((char*)outp, 1, ourEntry->realSize, FLOD);
+		mutex->unlock();
 		return outp;
 	}
 	else //we will decompress file
 	{
 		outp = new unsigned char[ourEntry->size];
 		fread((char*)outp, 1, ourEntry->size, FLOD);
-		fseek(FLOD, 0, 0);
+		mutex->unlock();
 		unsigned char * decomp = NULL;
 		int decRes = infs2(outp, ourEntry->size, ourEntry->realSize, decomp);
 		delete[] outp;
@@ -340,6 +344,7 @@ int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
 
 void CLodHandler::init(std::string lodFile, std::string dirName)
 {
+	mutex = new boost::mutex;
 	std::string Ts;
 	FLOD = fopen(lodFile.c_str(), "rb");
 	fseek(FLOD, 8, 0);

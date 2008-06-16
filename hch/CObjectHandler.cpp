@@ -326,7 +326,6 @@ CGTownInstance::CGTownInstance()
 	builded=-1;
 	destroyed=-1;
 	garrisonHero=NULL;
-	//state->owner=-1;
 	town=NULL;
 	visitingHero = NULL;
 }
@@ -335,7 +334,7 @@ CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
 {
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
 	//state = new CLuaObjectScript();
-	//state = NULL;
+	state = NULL;
 	tempOwner = 254;
 	blockVisit = false;
 }

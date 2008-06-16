@@ -121,7 +121,7 @@
 				StringPooling="true"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="3"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
 				WarningLevel="3"
 				DebugInformationFormat="3"
@@ -367,6 +367,10 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
+			<File
+				RelativePath="..\hch\CArtHandler.h"
+				>
+			</File>
 			<File
 				RelativePath="..\hch\CCreatureHandler.h"
 				>

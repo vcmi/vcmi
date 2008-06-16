@@ -203,6 +203,7 @@ public:
 	void moveByOne(bool up);
 	void printSelectedInfo();
 	void printFlags();
+	void processMaps(std::vector<std::string> &pliczkiTemp, int &index);
 	MapSel();
 	~MapSel();
 };

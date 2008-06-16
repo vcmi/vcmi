@@ -121,7 +121,7 @@
 				AdditionalIncludeDirectories="G:\vcmt\repa\include"
 				StringPooling="true"
 				BasicRuntimeChecks="0"
-				RuntimeLibrary="3"
+				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
 				WarningLevel="3"
 				DebugInformationFormat="3"

@@ -5,6 +5,7 @@ struct SDL_Surface;
 class CGHeroInstance;
 class CGTownInstance;
 class CDefHandler;
+class CHeroClass;
 class Graphics
 {
 public:
@@ -31,6 +32,8 @@ public:
 	//functions
 	Graphics();
 	void loadHeroFlags();
+	void loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, std::vector<const char *> > &pr, bool mode);
+	void loadHeroAnim(std::vector<CDefHandler **> & anims);
 	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
 	SDL_Surface * drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from=0, int to=PRIMARY_SKILLS);
 	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
