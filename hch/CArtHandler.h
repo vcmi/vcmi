@@ -28,6 +28,7 @@ public:
 	std::vector<CArtifact> artifacts;
 	void loadArtifacts();
 	bool loadArtEvents();
+	CArtHandler();
 };
 
 #endif // CARTHANDLER_H

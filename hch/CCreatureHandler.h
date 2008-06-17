@@ -61,6 +61,6 @@ public:
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
-	CCreatureHandler(){};
+	CCreatureHandler();
 };
 #endif //CCREATUREHANDLER_H

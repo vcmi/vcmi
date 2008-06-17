@@ -3,9 +3,6 @@
 #include "../CGameInfo.h"
 #include "CObjectHandler.h"
 #include "CDefObjInfoHandler.h"
-#include "../CGameState.h"
-#include "SDL.h"
-#include "CCreatureHandler.h"
 #include <set>
 #include <iomanip>
 #include <sstream>

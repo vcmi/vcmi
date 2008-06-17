@@ -48,17 +48,6 @@
 #include "CAdvmapInterface.h"
 #include "CCastleInterface.h"
 #include "client\Graphics.h"
-#include <boost/lambda/lambda.hpp>
-#if defined(MSDOS) || defined(OS2) || defined(WIN32) || defined(__CYGWIN__)
-#  include <fcntl.h>
-#  include <io.h>
-#  define SET_BINARY_MODE(file) setmode(fileno(file), O_BINARY)
-#else
-#  define SET_BINARY_MODE(file)
-#endif
-#ifdef _DEBUG
-#endif
-#define CHUNK 16384
 const char * NAME = "VCMI \"Altanatse\" 0.7";
 DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Color playerColorPalette[256]; //palette to make interface colors good
@@ -214,6 +203,8 @@ void initGameState(Mapa * map, CGameInfo * cgi)
 	for (int i=0;i<map->towns.size();i++)
 	{
 		CGTownInstance * vti =(map->towns[i]);
+		if(!vti->town)
+			vti->town = &CGI->townh->towns[vti->subID];
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name=vti->town->names[rand()%vti->town->names.size()];
 		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings

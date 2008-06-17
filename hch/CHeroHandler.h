@@ -8,7 +8,7 @@ class CHeroClass;
 class CDefHandler;
 class CGameInfo;
 class CGHeroInstance;
-class CHero
+class DLL_EXPORT CHero
 {
 public:
 	std::string name;
@@ -23,7 +23,7 @@ public:
 	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 };
 
-class CHeroClass
+class DLL_EXPORT CHeroClass
 {
 public:
 	std::string name;

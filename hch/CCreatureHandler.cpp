@@ -7,7 +7,12 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include "../lib/VCMI_Lib.h"
 extern CLodHandler * bitmaph;
+CCreatureHandler::CCreatureHandler()
+{
+	VLC->creh = this;
+}
 int CCreature::getQuantityID(int quantity)
 {
 	if (quantity<5)

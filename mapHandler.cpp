@@ -278,6 +278,8 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 			if(!t->defInfo->handler)
 			{
 				t->defInfo->handler = CDefHandler::giveDef(t->defInfo->name);
+				t->defInfo->width = t->defInfo->handler->ourImages[0].bitmap->w/32;
+				t->defInfo->height = t->defInfo->handler->ourImages[0].bitmap->h/32;
 				alphaTransformDef(t->defInfo);
 			}
 		}
@@ -310,6 +312,8 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 		if(!t->defInfo->handler)
 		{
 			t->defInfo->handler = CDefHandler::giveDef(t->defInfo->name);
+			t->defInfo->width = t->defInfo->handler->ourImages[0].bitmap->w/32;
+			t->defInfo->height = t->defInfo->handler->ourImages[0].bitmap->h/32;
 			alphaTransformDef(t->defInfo);
 		}
 		//CGI->townh->townInstances.push_back(t);
@@ -323,6 +327,8 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 	if(!cur->defInfo->handler) //if we have to load def
 	{
 		cur->defInfo->handler = CDefHandler::giveDef(cur->defInfo->name);
+		cur->defInfo->width = cur->defInfo->handler->ourImages[0].bitmap->w/32;
+		cur->defInfo->height = cur->defInfo->handler->ourImages[0].bitmap->h/32;
 		alphaTransformDef(cur->defInfo);
 	}
 
@@ -810,9 +816,15 @@ void CMapHandler::init()
 	for (int ir=0;ir<map->defy.size();ir++)
 	{
 		map->defy[ir]->handler=CDefHandler::giveDef(map->defy[ir]->name);
+		map->defy[ir]->width = map->defy[ir]->handler->ourImages[0].bitmap->w/32;
+		map->defy[ir]->height = map->defy[ir]->handler->ourImages[0].bitmap->h/32;
 		CGDefInfo* pom = CGI->dobjinfo->gobjs[map->defy[ir]->id][map->defy[ir]->subid];
 		if(pom)
+		{
 			pom->handler=map->defy[ir]->handler;
+			pom->width = pom->handler->ourImages[0].bitmap->w/32;
+			pom->height = pom->handler->ourImages[0].bitmap->h/32;
+		}
 		else
 			std::cout << "Lacking def info for " << map->defy[ir]->id << " " << map->defy[ir]->subid <<" " << map->defy[ir]->name << std::endl;
 	}
@@ -838,6 +850,11 @@ void CMapHandler::init()
 		ifs >> n->name;
 		if (!(n->handler = CDefHandler::giveDef(n->name)))
 			std::cout << "Cannot open "<<n->name<<std::endl;
+		else
+		{
+			n->width = n->handler->ourImages[0].bitmap->w/32;
+			n->height = n->handler->ourImages[0].bitmap->h/32;
+		}
 		if(i<ccc)
 			villages[i]=n;
 		else
@@ -1543,7 +1560,11 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int ow
 		return nobj;
 	nobj->defInfo = CGI->dobjinfo->gobjs[id][subid];
 	if(!nobj->defInfo->handler)
+	{
 		nobj->defInfo->handler = CDefHandler::giveDef(nobj->defInfo->name);
+		nobj->defInfo->width = nobj->defInfo->handler->ourImages[0].bitmap->w/32;
+		nobj->defInfo->height = nobj->defInfo->handler->ourImages[0].bitmap->h/32;
+	}
 	return nobj;
 }
 

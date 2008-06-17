@@ -1,11 +1,12 @@
 #ifndef COBJECTHANDLER_H
 #define COBJECTHANDLER_H
+#include "../global.h"
 #include <string>
 #include <vector>
 #include <set>
 #include <map>
 #include "CCreatureHandler.h"
-//#include "CHeroHandler.h"
+
 using boost::logic::tribool;
 class CCPPObjectScript;
 class CGObjectInstance;
@@ -18,11 +19,11 @@ class CBuilding;
 class CSpell;
 class CGTownInstance;
 class CArtifact;
-class CSpecObjInfo //class with object - specific info (eg. different information for creatures and heroes); use inheritance to make object - specific classes
+class DLL_EXPORT CSpecObjInfo //class with object - specific info (eg. different information for creatures and heroes); use inheritance to make object - specific classes
 {
 };
 
-class CEventObjInfo : public CSpecObjInfo
+class DLL_EXPORT CEventObjInfo : public CSpecObjInfo
 {
 public:
 	bool areGuarders; //true if there are
@@ -48,7 +49,7 @@ public:
 	bool humanActivate; //true if human player can activate this event
 };
 
-class CCastleEvent
+class DLL_EXPORT CCastleEvent
 {
 public:
 	std::string name, message;
@@ -68,7 +69,7 @@ public:
 	}
 };
 
-class CCreatureObjInfo : public CSpecObjInfo
+class DLL_EXPORT CCreatureObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char bytes[4]; //mysterious bytes identifying creature
@@ -81,13 +82,13 @@ public:
 	bool notGrowingTeam; //if true, number of units won't grow
 };
 
-class CSignObjInfo : public CSpecObjInfo
+class DLL_EXPORT CSignObjInfo : public CSpecObjInfo
 {
 public:
 	std::string message; //message
 };
 
-class CSeerHutObjInfo : public CSpecObjInfo
+class DLL_EXPORT CSeerHutObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
@@ -133,13 +134,13 @@ public:
 	int r10amount;
 };
 
-class CWitchHutObjInfo : public CSpecObjInfo
+class DLL_EXPORT CWitchHutObjInfo : public CSpecObjInfo
 {
 public:
 	std::vector<int> allowedAbilities;
 };
 
-class CScholarObjInfo : public CSpecObjInfo
+class DLL_EXPORT CScholarObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
@@ -149,7 +150,7 @@ public:
 	int r2; //Spell ID
 };
 
-class CGarrisonObjInfo : public CSpecObjInfo
+class DLL_EXPORT CGarrisonObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char player; //255 - nobody; 0 - 7 - players
@@ -157,7 +158,7 @@ public:
 	bool movableUnits; //if true, units can be moved
 };
 
-class CArtifactObjInfo : public CSpecObjInfo
+class DLL_EXPORT CArtifactObjInfo : public CSpecObjInfo
 {
 public:
 	bool areGuards;
@@ -165,7 +166,7 @@ public:
 	CCreatureSet guards;
 };
 
-class CResourceObjInfo : public CSpecObjInfo
+class DLL_EXPORT CResourceObjInfo : public CSpecObjInfo
 {
 public:
 	bool randomAmount;
@@ -175,19 +176,19 @@ public:
 	std::string message;
 };
 
-class CPlayerOnlyObjInfo : public CSpecObjInfo
+class DLL_EXPORT CPlayerOnlyObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char player; //FF - nobody, 0 - 7
 };
 
-class CShrineObjInfo : public CSpecObjInfo
+class DLL_EXPORT CShrineObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char spell; //number of spell or 255
 };
 
-class CSpellScrollObjinfo : public CSpecObjInfo
+class DLL_EXPORT CSpellScrollObjinfo : public CSpecObjInfo
 {
 public:
 	std::string message;
@@ -196,7 +197,7 @@ public:
 	CCreatureSet guarders;
 };
 
-class CPandorasBoxObjInfo : public CSpecObjInfo
+class DLL_EXPORT CPandorasBoxObjInfo : public CSpecObjInfo
 {
 public:
 	std::string message;
@@ -217,13 +218,13 @@ public:
 	CCreatureSet creatures;
 };
 
-class CGrailObjInfo : public CSpecObjInfo
+class DLL_EXPORT CGrailObjInfo : public CSpecObjInfo
 {
 public:
 	int radius; //place grail at the distance lesser or equal radius from this place
 };
 
-class CCreGenObjInfo : public CSpecObjInfo
+class DLL_EXPORT CCreGenObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char player; //owner
@@ -232,7 +233,7 @@ public:
 	unsigned char castles[2]; //allowed castles
 };
 
-class CCreGen2ObjInfo : public CSpecObjInfo
+class DLL_EXPORT CCreGen2ObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char player; //owner
@@ -242,14 +243,14 @@ public:
 	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };
 
-class CCreGen3ObjInfo : public CSpecObjInfo
+class DLL_EXPORT CCreGen3ObjInfo : public CSpecObjInfo
 {
 public:
 	unsigned char player; //owner
 	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };
 
-class CBorderGuardObjInfo : public CSpecObjInfo //copied form seer huts, seems to be similar
+class DLL_EXPORT CBorderGuardObjInfo : public CSpecObjInfo //copied form seer huts, seems to be similar
 {
 public:
 	char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
@@ -278,15 +279,15 @@ public:
 	std::string firstVisitText, nextVisitText, completedText;
 };
 
-class CObject //typical object that can be encountered on a map
+class DLL_EXPORT CObject //typical object that can be encountered on a map
 {
 public:
 	std::string name; //object's name
 };
 
-class CGDefInfo;
+class DLL_EXPORT CGDefInfo;
 
-class CGObjectInstance
+class DLL_EXPORT CGObjectInstance
 {
 public:
 	int3 pos; //h3m pos
@@ -313,13 +314,13 @@ public:
 	CGObjectInstance& operator=(const CGObjectInstance & right);
 };
 
-class  CArmedInstance: public CGObjectInstance
+class  DLL_EXPORT CArmedInstance: public CGObjectInstance
 {
 public:
 	CCreatureSet army; //army
 };
 
-class CGHeroInstance : public CArmedInstance
+class DLL_EXPORT CGHeroInstance : public CArmedInstance
 {
 public:
 	int moveDir; //format:	123
@@ -340,7 +341,7 @@ public:
 	int identifier; //from the map file
 	bool sex;
 
-	struct Patrol
+	struct DLL_EXPORT Patrol
 	{
 		Patrol(){patrolling=false;patrolRadious=-1;};
 		bool patrolling;
@@ -374,7 +375,7 @@ public:
 	virtual ~CGHeroInstance();
 };
 
-class CGTownInstance : public CArmedInstance
+class DLL_EXPORT CGTownInstance : public CArmedInstance
 {
 public:
 	CTown * town;
@@ -408,7 +409,7 @@ public:
 	virtual ~CGTownInstance();
 };
 
-class CObjectHandler
+class DLL_EXPORT CObjectHandler
 {
 public:
 	std::vector<CObject> objects; //vector of objects; i-th object in vector has subnumber i

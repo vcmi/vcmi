@@ -2,7 +2,7 @@
 
 
 //class CMapHandler;
-//class CArtHandler;
+class CArtHandler;
 //class CHeroHandler;
 class CCreatureHandler;
 //class CAbilityHandler;
@@ -30,7 +30,7 @@ class LibClasses
 {
 public:
 	//CGameState * state;
-	//CArtHandler * arth;
+	CArtHandler * arth;
 	//CHeroHandler * heroh;
 	CCreatureHandler * creh;
 	//CAbilityHandler * abilh;

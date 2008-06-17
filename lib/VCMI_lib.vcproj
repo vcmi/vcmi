@@ -350,6 +350,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CObjectHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CTownHandler.cpp"
 				>
 			</File>
@@ -385,6 +389,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CLodHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\hch\CObjectHandler.h"
 				>
 			</File>
 			<File

@@ -6,7 +6,7 @@ class CBuilding;
 class CSpell;
 class CHero;
 class CGTownInstance;
-class CTown
+class DLL_EXPORT CTown
 {
 public:
 	std::string name; //name of type

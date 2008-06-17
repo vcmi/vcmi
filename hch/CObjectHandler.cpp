@@ -1,19 +1,20 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CObjectHandler.h"
 #include "CDefObjInfoHandler.h"
-#include "CDefHandler.h"
-#include "../CGameInfo.h"
 #include "CLodHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
 #include <boost/algorithm/string/replace.hpp>
 #include "CTownHandler.h"
 #include "CArtHandler.h"
+#include "../lib/VCMI_Lib.h"
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
+extern CLodHandler * bitmaph;
 void CObjectHandler::loadObjects()
 {
 	int ID=0;
-	std::string buf = CGI->bitmaph->getTextFile("OBJNAMES.TXT");
+	std::string buf = bitmaph->getTextFile("OBJNAMES.TXT");
 	int it=0;
 	while (it<buf.length()-1)
 	{
@@ -24,7 +25,7 @@ void CObjectHandler::loadObjects()
 		objects.push_back(nobj);
 	}
 
-	buf = CGI->bitmaph->getTextFile("ADVEVENT.TXT");
+	buf = bitmaph->getTextFile("ADVEVENT.TXT");
 	it=0;
 	std::string temp;
 	while (it<buf.length()-1)
@@ -36,7 +37,7 @@ void CObjectHandler::loadObjects()
 		advobtxt.push_back(temp);
 	}
 
-	buf = CGI->bitmaph->getTextFile("XTRAINFO.TXT");
+	buf = bitmaph->getTextFile("XTRAINFO.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -44,7 +45,7 @@ void CObjectHandler::loadObjects()
 		xtrainfo.push_back(temp);
 	}
 
-	buf = CGI->bitmaph->getTextFile("MINENAME.TXT");
+	buf = bitmaph->getTextFile("MINENAME.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -52,7 +53,7 @@ void CObjectHandler::loadObjects()
 		mines.push_back(std::pair<std::string,std::string>(temp,""));
 	}
 
-	buf = CGI->bitmaph->getTextFile("MINEEVNT.TXT");
+	buf = bitmaph->getTextFile("MINEEVNT.TXT");
 	it=0;
 	int i=0;
 	while (it<buf.length()-1)
@@ -62,7 +63,7 @@ void CObjectHandler::loadObjects()
 		mines[i++].second = temp;
 	}
 
-	buf = CGI->bitmaph->getTextFile("RESTYPES.TXT");
+	buf = bitmaph->getTextFile("RESTYPES.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -82,7 +83,7 @@ void CObjectHandler::loadObjects()
 	}
 	ifs.close();
 	ifs.clear();
-	buf = CGI->bitmaph->getTextFile("ZCRGN1.TXT");
+	buf = bitmaph->getTextFile("ZCRGN1.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
@@ -113,11 +114,11 @@ void CGObjectInstance::setOwner(int ow)
 }
 int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 {
-	return defInfo->handler->ourImages[0].bitmap->w/32;
+	return defInfo->width;
 }
 int CGObjectInstance::getHeight() const //returns height of object graphic in tiles
 {
-	return defInfo->handler->ourImages[0].bitmap->h/32;
+	return defInfo->width;
 }
 bool CGObjectInstance::visitableAt(int x, int y) const //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
 {
@@ -238,7 +239,7 @@ int CGHeroInstance::getSecSkillLevel(const int & ID) const
 const CArtifact * CGHeroInstance::getArt(int pos)
 {
 	if(artifWorn.find(pos)!=artifWorn.end())
-		return &CGI->arth->artifacts[artifWorn[pos]];
+		return &VLC->arth->artifacts[artifWorn[pos]];
 	else 
 		return NULL;
 }
@@ -279,7 +280,7 @@ int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns
 }
 int CGTownInstance::creatureGrowth(const int & level) const
 {
-	int ret = CGI->creh->creatures[town->basicCreatures[level]].growth;
+	int ret = VLC->creh->creatures[town->basicCreatures[level]].growth;
 	switch(fortLevel())
 	{
 	case 3:
@@ -288,13 +289,13 @@ int CGTownInstance::creatureGrowth(const int & level) const
 		ret*=(1.5); break;
 	}
 	if(builtBuildings.find(26)!=builtBuildings.end()) //grail
-		ret+=CGI->creh->creatures[town->basicCreatures[level]].growth;
+		ret+=VLC->creh->creatures[town->basicCreatures[level]].growth;
 	if(getHordeLevel(0)==level)
 		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
-			ret+=CGI->creh->creatures[town->basicCreatures[level]].hordeGrowth;
+			ret+=VLC->creh->creatures[town->basicCreatures[level]].hordeGrowth;
 	if(getHordeLevel(1)==level)
 		if((builtBuildings.find(24)!=builtBuildings.end()) || (builtBuildings.find(25)!=builtBuildings.end()))
-			ret+=CGI->creh->creatures[town->basicCreatures[level]].hordeGrowth;
+			ret+=VLC->creh->creatures[town->basicCreatures[level]].hordeGrowth;
 	return ret;
 }
 int CGTownInstance::dailyIncome() const
