@@ -1,12 +1,12 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CAmbarCendamo.h"
-#include "../CGameInfo.h"
 #include "CObjectHandler.h"
 #include "CDefObjInfoHandler.h"
 #include <set>
-#include <iomanip>
 #include <sstream>
 #include <fstream>
+#include "../lib/VCMI_Lib.h"
 std::string nameFromType (EterrainType typ);
 int readInt(unsigned char * bufor, int bytCon)
 {
@@ -120,10 +120,11 @@ void CAmbarCendamo::deh3m()
 {
 	THC timeHandler th;
 	th.getDif();
-	map.version = (Eformat)bufor[0]; //wersja mapy
-	map.areAnyPLayers = bufor[4]; //invalid on some maps
-	map.height = map.width = bufor[5]; // wymiary mapy
-	map.twoLevel = bufor[9]; //czy sa lochy
+	i=0;
+	map.version = (Eformat)(readNormalNr(i)); i+=4; //map version
+	map.areAnyPLayers = readChar(); //invalid on some maps
+	map.height = map.width = (readNormalNr(i)); i+=4; // wymiary mapy
+	map.twoLevel = readChar(); //czy sa lochy
 	map.terrain = new TerrainTile*[map.width]; // allocate memory 
 	for (int ii=0;ii<map.width;ii++)
 		map.terrain[ii] = new TerrainTile[map.height]; // allocate memory 
@@ -133,23 +134,14 @@ void CAmbarCendamo::deh3m()
 		for (int ii=0;ii<map.width;ii++)
 			map.undergroungTerrain[ii] = new TerrainTile[map.height]; // allocate memory 
 	}
-	int pom, length = bufor[10]; //name length
-	i=14;
-	while (i-14<length)	//read name
-		map.name+=bufor[i++];
-	length = bufor[i] + bufor[i+1]*256; //description length
-	i+=4;
-	for (pom=0;pom<length;pom++)
-		map.description+=bufor[i++];
-	map.difficulty = bufor[i++]; // reading map difficulty
+	int pom;
+	map.name = readString();
+	map.description= readString();
+	map.difficulty = readChar(); // reading map difficulty
 	if(map.version != Eformat::RoE)
-	{
-		map.levelLimit = bufor[i++]; // hero level limit
-	}
+		map.levelLimit = readChar(); // hero level limit
 	else
-	{
 		map.levelLimit = 0;
-	}
 	for (pom=0;pom<8;pom++)
 	{
 		map.players[pom].canHumanPlay = bufor[i++];
@@ -1098,7 +1090,7 @@ void CAmbarCendamo::deh3m()
 							{
 								int creType = readNormalNr(i, 2); i+=2;
 								int creNumb = readNormalNr(i, 2); i+=2;
-								spec->m6cre.push_back(&(CGI->creh->creatures[creType]));
+								spec->m6cre.push_back(&(VLC->creh->creatures[creType]));
 								spec->m6number.push_back(creNumb);
 							}
 							int limit = readNormalNr(i); i+=4;
@@ -1830,7 +1822,7 @@ void CAmbarCendamo::deh3m()
 						{
 							int creType = readNormalNr(i, 2); i+=2;
 							int creNumb = readNormalNr(i, 2); i+=2;
-							spec->m6cre.push_back(&(CGI->creh->creatures[creType]));
+							spec->m6cre.push_back(&(VLC->creh->creatures[creType]));
 							spec->m6number.push_back(creNumb);
 						}
 						int limit = readNormalNr(i); i+=4;
@@ -2059,8 +2051,8 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int number)
 			int rettt = readNormalNr(i+ir*4, 2);
 			if(rettt==0xffff) continue;
 			if(rettt>32768)
-				rettt = 65536-rettt+CGI->creh->creatures.size()-16;
-			ins.first = &(CGI->creh->creatures[rettt]);
+				rettt = 65536-rettt+VLC->creh->creatures.size()-16;
+			ins.first = &(VLC->creh->creatures[rettt]);
 			ins.second = readNormalNr(i+ir*4+2, 2);
 			std::pair<int,std::pair<CCreature *, int> > tt(ir,ins);
 			ret.slots.insert(tt);
@@ -2077,8 +2069,8 @@ CCreatureSet CAmbarCendamo::readCreatureSet(int number)
 			int rettt = readNormalNr(i+ir*3, 1);
 			if(rettt==0xff) continue;
 			if(rettt>220)
-				rettt = 256-rettt+CGI->creh->creatures.size()-16;
-			ins.first = &(CGI->creh->creatures[rettt]);
+				rettt = 256-rettt+VLC->creh->creatures.size()-16;
+			ins.first = &(VLC->creh->creatures[rettt]);
 			ins.second = readNormalNr(i+ir*3+1, 2);
 			std::pair<int,std::pair<CCreature *, int> > tt(ir,ins);
 			ret.slots.insert(tt);

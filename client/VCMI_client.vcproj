@@ -265,19 +265,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\hch\CAmbarCendamo.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\CBattleInterface.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\CBitmapHandler.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\hch\CBuildingHandler.cpp"
 				>
 			</File>
 			<File
@@ -378,10 +370,6 @@
 			</File>
 			<File
 				RelativePath=".\Graphics.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\map.cpp"
 				>
 			</File>
 			<File

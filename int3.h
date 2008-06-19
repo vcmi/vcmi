@@ -1,5 +1,13 @@
 #ifndef INT3_H
 #define INT3_H
+#include <map>
+class CCreature;
+class CCreatureSet //seven combined creatures
+{
+public:
+	std::map<int,std::pair<CCreature*,int> > slots;
+	bool formation; //false - wide, true - tight
+};
 
 class int3
 {

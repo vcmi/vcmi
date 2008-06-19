@@ -177,11 +177,7 @@ void Graphics::loadHeroAnim(std::vector<CDefHandler **> & anims)
 	for(int i=0; i<anims.size();i++)
 	{
 		std::stringstream nm;
-		nm<<"AH";
-		nm<<std::setw(2);
-		nm<<std::setfill('0');
-		nm<<i;
-		nm<<"_.DEF";
+		nm << "AH" << std::setw(2) << std::setfill('0') << i << "_.DEF";
 		std::string name = nm.str();
 		(*anims[i]) = CDefHandler::giveDef(name);
 		int pom = 0; //how many groups has been rotated

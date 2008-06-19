@@ -330,7 +330,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath="..\hch\CAmbarCendamo.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CArtHandler.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\hch\CBuildingHandler.cpp"
 				>
 			</File>
 			<File
@@ -358,6 +366,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\map.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\stdafx.cpp"
 				>
 			</File>
@@ -372,7 +384,15 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath="..\hch\CAmbarCendamo.h"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CArtHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\hch\CBuildingHandler.h"
 				>
 			</File>
 			<File
@@ -400,15 +420,13 @@
 				>
 			</File>
 			<File
+				RelativePath="..\map.h"
+				>
+			</File>
+			<File
 				RelativePath=".\VCMI_Lib.h"
 				>
 			</File>
-		</Filter>
-		<Filter
-			Name="Resource Files"
-			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav"
-			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}"
-			>
 		</Filter>
 	</Files>
 	<Globals>

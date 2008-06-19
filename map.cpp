@@ -1,3 +1,4 @@
+#define VCMI_DLL
 #include "stdafx.h"
 #include "map.h"
 

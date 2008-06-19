@@ -45,12 +45,6 @@ public:
 	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 };
 
-class CCreatureSet //seven combined creatures
-{
-public:
-	std::map<int,std::pair<CCreature*,int> > slots;
-	bool formation; //false - wide, true - tight
-};
 
 class DLL_EXPORT CCreatureHandler
 {
