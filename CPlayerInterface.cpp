@@ -31,6 +31,7 @@
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
+extern bool continueReadingConsole;
 
 class OCM_HLP_CGIN
 {
@@ -1705,6 +1706,7 @@ void CPlayerInterface::handleKeyDown(SDL_Event *sEvent)
 		}
 	case (SDLK_q):
 		{
+			continueReadingConsole = false;
 			exit(0);
 			break;
 		}

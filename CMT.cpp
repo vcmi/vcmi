@@ -492,21 +492,18 @@ int _tmain(int argc, _TCHAR* argv[])
 			initTable[ss] = mapstr[ss];
 		}
 		std::cout<<"done."<<std::endl;
-
-		CAmbarCendamo * ac = new CAmbarCendamo(initTable);
-		THC std::cout<<"Reading file: "<<tmh.getDif()<<std::endl;
-		ac->deh3m();
-		THC std::cout<<"Detecting file (together): "<<tmh.getDif()<<std::endl;
+		Mapa * mapa = new Mapa(initTable);
+		THC std::cout<<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
 		CMapHandler * mh = new CMapHandler();
 		cgi->mh = mh;
-		mh->map = &ac->map;
+		mh->map = mapa;
 		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 		mh->loadDefs();
 		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;
 		mh->init();
 		THC std::cout<<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
-		initGameState(&ac->map,cgi);
+		initGameState(mapa,cgi);
 		THC std::cout<<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
 		{ 

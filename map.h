@@ -10,7 +10,10 @@ class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
 enum ESortBy{name,playerAm,size,format, viccon,loscon};
-
+enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TERRAINOBJ_DEF, 
+	EVENTOBJ_DEF, SIGN_DEF, GARRISON_DEF, ARTIFACT_DEF, WITCHHUT_DEF, SCHOLAR_DEF, PLAYERONLY_DEF, 
+	SHRINE_DEF, SPELLSCROLL_DEF, PANDORA_DEF, GRAIL_DEF, CREGEN_DEF, CREGEN2_DEF, CREGEN3_DEF, 
+	BORDERGUARD_DEF, HEROPLACEHOLDER_DEF};
 class DLL_EXPORT CSpecObjInfo //class with object - specific info (eg. different information for creatures and heroes); use inheritance to make object - specific classes
 {
 };
@@ -391,6 +394,8 @@ struct DLL_EXPORT Mapa
 	std::vector<CGObjectInstance*> objects;
 	std::vector<CGHeroInstance*> heroes;
 	std::vector<CGTownInstance*> towns;
+
+	Mapa(unsigned char * bufor); //creates map from decompressed .h3m data
 };
 class DLL_EXPORT CMapHeader
 {

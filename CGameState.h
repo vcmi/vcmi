@@ -13,6 +13,7 @@ class CCreatureSet;
 class CStack;
 class CGHeroInstance;
 class CArmedInstance;
+struct Mapa;
 
 struct PlayerState
 {
@@ -56,12 +57,13 @@ public:
 class CGameState
 {
 private:
-	int currentPlayer;
+	int currentPlayer; //ID of player currently having turn
 	BattleInfo *curB; //current battle
 	int day; //total number of days in game
-	std::map<int,PlayerState> players; //color <-> playerstate
-	std::set<CCPPObjectScript *> cppscripts;
-	std::map<int, std::map<std::string, CObjectScript*> > objscr; //custom user scripts (as for now only Lua)
+	Mapa * map;
+	std::map<int,PlayerState> players; //ID <-> playerstate
+	std::set<CCPPObjectScript *> cppscripts; //C++ scripts
+	std::map<int, std::map<std::string, CObjectScript*> > objscr; //non-C++ scripts 
 	
 
 	bool checkFunc(int obid, std::string name)

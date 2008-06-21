@@ -149,33 +149,33 @@ void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 	//   6  7  8
 
 	Coordinate node = branch->back();
-	Coordinate* c;
+	Coordinate c;
 
 	for(int i = node.x-1; i<node.x+2;i++)
 	{
 		for(int j = node.y-1; j < node.y+2; j++)
 		{
-			if(i > 0 && j > 0 && i < CGI->mh->sizes.x-1 && j < CGI->mh->sizes.y-1)
+			if(i >= 0 && j >= 0 && i < CGI->mh->sizes.x && j < CGI->mh->sizes.y)
 			{
-				c = new Coordinate(i,j,node.z);
+				c = Coordinate(i,j,node.z);
 
 				//Calculate the distance from the end node
-				CalcG(c);
+				CalcG(&c);
 
 				//Calculate the movement cost
-				CalcH(c);
+				CalcH(&c);
 
-				if(c->g != -1 && c->h != -1)
+				if(c.g != -1 && c.h != -1)
 				{
 					vector<Coordinate> toAdd = *branch;
-					toAdd.push_back(*c);
+					toAdd.push_back(c);
 					Open.push(toAdd);
 				}
+				//delete c;
 			}
 		}
 	}
 
-	delete c;
 }
 
 /*
@@ -238,6 +238,8 @@ CPath* CPathfinder::ConvertToOldFormat(vector<Coordinate>* p)
 
 	CPath* path = new CPath();
 
+	std::vector<int> costs; //vector with costs of tiles
+
 	for(int i = 0; i < p->size(); i++)
 	{
 		CPathNode temp;
@@ -256,19 +258,16 @@ CPath* CPathfinder::ConvertToOldFormat(vector<Coordinate>* p)
 		}
 		//set diagonality
 		float diagonal = 1.0f; //by default
-		if(i+1<p->size())
+		if(i>0)
 		{
-			if(p->at(i+1).x != temp.coord.x && p->at(i+1).y != temp.coord.y)
+			if(p->at(i-1).x != temp.coord.x && p->at(i-1).y != temp.coord.y)
 			{
 				diagonal = sqrt(2.0f);
 			}
 		}
 
 		//Set distance
-		if(i == 0)
-			temp.dist = p->at(i).h * diagonal;
-		else
-			temp.dist = p->at(i).h * diagonal + path->nodes.back().dist;
+		costs.push_back( i==0 ? 0 : p->at(i - 1).h * diagonal );
 
 		//theNodeBefore is never used outside of pathfinding?
 
@@ -278,13 +277,10 @@ CPath* CPathfinder::ConvertToOldFormat(vector<Coordinate>* p)
 		path->nodes.push_back(temp);
 	}
 
-	//YOU ARE ALL BACKWARDS!! =P
-	//Flip the distances.
-	for(int i = 0; i < path->nodes.size()/2;i++)
+	costs.push_back(0);
+	for(int i=path->nodes.size()-1; i>=0; --i)
 	{
-		int t = path->nodes[i].dist;
-		path->nodes[i].dist = path->nodes[path->nodes.size()-i-1].dist;
-		path->nodes[path->nodes.size()-i-1].dist = t;
+		path->nodes[i].dist = costs[i+1] + ((i == path->nodes.size()-1) ? 0 : path->nodes[i+1].dist);
 	}
 
 	return path;
