@@ -558,7 +558,7 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
 {
 	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
-	if (false)
+	if (((S1->slots[p1].second==val)&&(S1->slots.size()==2)) || (0/*we are not allowed*/)))
 	{
 		//TODO: check if we are allowed to swap these creatures
 		return -1;
@@ -645,7 +645,7 @@ int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2
 	if(!val)
 		return -1;
 	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
-	if ((S1->slots[p1].second<val) && (true /*we are allowed to*/))
+	if ((S1->slots[p1].second<val) || ((S1->slots[p1].second==val)&&(S1->slots.size()==2)) || (0/*we are not allowed*/))
 	{
 		return -1;
 	}
