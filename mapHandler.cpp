@@ -1,9 +1,8 @@
 #include "stdafx.h"
 #include "mapHandler.h"
-#include "SDL_rotozoom.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "stdlib.h"
+#include <cstdlib>
 #include "hch\CLodHandler.h"
 #include "hch\CDefObjInfoHandler.h"
 #include <algorithm>
@@ -11,7 +10,6 @@
 #include "CLua.h"
 #include "hch\CHeroHandler.h"
 #include "hch\CTownHandler.h"
-#include "hch\CArtHandler.h"
 #include "client\Graphics.h"
 #include <iomanip>
 #include <sstream>
@@ -87,261 +85,9 @@ void alphaTransformDef(CGDefInfo * defInfo)
 	for(int yy=0;yy<defInfo->handler->ourImages.size();yy++)
 	{
 		defInfo->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
-		//SDL_Surface * bufs = CSDL_Ext::secondAlphaTransform(defInfo->handler->ourImages[yy].bitmap, alphaTransSurf);
-		//SDL_FreeSurface(defInfo->handler->ourImages[yy].bitmap);
-		//defInfo->handler->ourImages[yy].bitmap = bufs;
 		defInfo->handler->alphaTransformed = true;
 	}
 	SDL_FreeSurface(alphaTransSurf);
-}
-int CMapHandler::pickHero(int owner)
-{
-	int h;
-	if(usedHeroes.find(h = CGI->scenarioOps.getIthPlayersSettings(owner).hero)==usedHeroes.end() && h>=0) //we haven't used selected hero
-	{
-		usedHeroes.insert(h);
-		return h;
-	}
-	int f = CGI->scenarioOps.getIthPlayersSettings(owner).castle;
-	int i=0;
-	do //try to find free hero of our faction
-	{
-		i++;
-		h = CGI->scenarioOps.getIthPlayersSettings(owner).castle*HEROES_PER_TYPE*2+(rand()%(HEROES_PER_TYPE*2));//cgi->scenarioOps.playerInfos[pru].hero = cgi->
-	} while((usedHeroes.find(h)!=usedHeroes.end())  &&  i<175);
-	if(i>174) //probably no free heroes - there's no point in further search, we'll take first free
-	{
-		for(int j=0; j<HEROES_PER_TYPE * 2 * F_NUMBER; j++)
-			if(usedHeroes.find(j)==usedHeroes.end())
-				h=j;
-	}
-	usedHeroes.insert(h);
-	return h;
-}
-std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
-{
-	switch(obj->ID)
-	{
-	case 65: //random artifact
-		return std::pair<int,int>(5,(rand()%136)+7); //tylko sensowny zakres - na poczatku sa katapulty itp, na koncu specjalne i blanki
-	case 66: //random treasure artifact
-		return std::pair<int,int>(5,CGI->arth->treasures[rand()%CGI->arth->treasures.size()]->id);
-	case 67: //random minor artifact
-		return std::pair<int,int>(5,CGI->arth->minors[rand()%CGI->arth->minors.size()]->id);
-	case 68: //random major artifact
-		return std::pair<int,int>(5,CGI->arth->majors[rand()%CGI->arth->majors.size()]->id);
-	case 69: //random relic artifact
-		return std::pair<int,int>(5,CGI->arth->relics[rand()%CGI->arth->relics.size()]->id);
-	case 70: //random hero
-		{
-			return std::pair<int,int>(34,pickHero(obj->tempOwner));
-		}
-	case 71: //random monster
-		return std::pair<int,int>(54,rand()%(CGI->creh->creatures.size())); 
-	case 72: //random monster lvl1
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[1][rand()%CGI->creh->levelCreatures[1].size()]->idNumber); 
-	case 73: //random monster lvl2
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[2][rand()%CGI->creh->levelCreatures[2].size()]->idNumber);
-	case 74: //random monster lvl3
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[3][rand()%CGI->creh->levelCreatures[3].size()]->idNumber);
-	case 75: //random monster lvl4
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[4][rand()%CGI->creh->levelCreatures[4].size()]->idNumber);
-	case 76: //random resource
-		return std::pair<int,int>(79,rand()%7); //now it's OH3 style, use %8 for mithril 
-	case 77: //random town
-		{
-			int align = ((CGTownInstance*)obj)->alignment,
-				f;
-			if(align>PLAYER_LIMIT-1)//same as owner / random
-			{
-				if(obj->tempOwner > PLAYER_LIMIT-1)
-					f = -1; //random
-				else
-					f = CGI->scenarioOps.getIthPlayersSettings(obj->tempOwner).castle;
-			}
-			else
-			{
-				f = CGI->scenarioOps.getIthPlayersSettings(align).castle;
-			}
-			if(f<0) f = rand()%CGI->townh->towns.size();
-			return std::pair<int,int>(98,f); 
-		}
-	case 162: //random monster lvl5
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[5][rand()%CGI->creh->levelCreatures[5].size()]->idNumber);
-	case 163: //random monster lvl6
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[6][rand()%CGI->creh->levelCreatures[6].size()]->idNumber);
-	case 164: //random monster lvl7
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[7][rand()%CGI->creh->levelCreatures[7].size()]->idNumber); 
-	case 216: //random dwelling
-		{
-			int faction = rand()%F_NUMBER;
-			CCreGen2ObjInfo* info =(CCreGen2ObjInfo*)obj->info;
-			if (info->asCastle)
-			{
-				for(int i=0;i<map->objects.size();i++)
-				{
-					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
-					{
-						randomizeObject(map->objects[i]); //we have to randomize the castle first
-						faction = map->objects[i]->subID;
-						break;
-					}
-					else if(map->objects[i]->ID==98 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
-					{
-						faction = map->objects[i]->subID;
-						break;
-					}
-				}
-			}
-			else
-			{
-				while((!(info->castles[0]&(1<<faction))))
-				{
-					if((faction>7) && (info->castles[1]&(1<<(faction-8))))
-						break;
-					faction = rand()%F_NUMBER;
-				}
-			}
-			int level = ((info->maxLevel-info->minLevel) ? (rand()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
-			int cid = CGI->townh->towns[faction].basicCreatures[level];
-			for(int i=0;i<CGI->objh->cregens.size();i++)
-				if(CGI->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i); 
-			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0); 
-		}
-	case 217:
-		{
-			int faction = rand()%F_NUMBER;
-			CCreGenObjInfo* info =(CCreGenObjInfo*)obj->info;
-			if (info->asCastle)
-			{
-				for(int i=0;i<map->objects.size();i++)
-				{
-					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
-					{
-						randomizeObject(map->objects[i]); //we have to randomize the castle first
-						faction = map->objects[i]->subID;
-						break;
-					}
-					else if(map->objects[i]->ID==98 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
-					{
-						faction = map->objects[i]->subID;
-						break;
-					}
-				}
-			}
-			else
-			{
-				while((!(info->castles[0]&(1<<faction))))
-				{
-					if((faction>7) && (info->castles[1]&(1<<(faction-8))))
-						break;
-					faction = rand()%F_NUMBER;
-				}
-			}
-			int cid = CGI->townh->towns[faction].basicCreatures[obj->subID];
-			for(int i=0;i<CGI->objh->cregens.size();i++)
-				if(CGI->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i); 
-			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0); 
-		}
-	case 218:
-		{
-			CCreGen3ObjInfo* info =(CCreGen3ObjInfo*)obj->info;
-			int level = ((info->maxLevel-info->minLevel) ? (rand()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
-			int cid = CGI->townh->towns[obj->subID].basicCreatures[level];
-			for(int i=0;i<CGI->objh->cregens.size();i++)
-				if(CGI->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i); 
-			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0); 
-		}
-	}
-	return std::pair<int,int>(-1,-1);
-}
-void CMapHandler::randomizeObject(CGObjectInstance *cur)
-{		
-	std::pair<int,int> ran = pickObject(cur);
-	if(ran.first<0 || ran.second<0) //this is not a random object, or we couldn't find anything
-	{
-		if(cur->ID==98) //town - set def
-		{
-			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-			if(t->hasCapitol())
-				t->defInfo = capitols[t->subID];
-			else if(t->hasFort())
-				t->defInfo = CGI->dobjinfo->castles[t->subID];
-			else
-				t->defInfo = villages[t->subID]; 
-			if(!t->defInfo->handler)
-			{
-				t->defInfo->handler = CDefHandler::giveDef(t->defInfo->name);
-				t->defInfo->width = t->defInfo->handler->ourImages[0].bitmap->w/32;
-				t->defInfo->height = t->defInfo->handler->ourImages[0].bitmap->h/32;
-				alphaTransformDef(t->defInfo);
-			}
-		}
-		return;
-	}
-	else if(ran.first==34)//special code for hero
-	{
-		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
-		if(!h) {std::cout<<"Wrong random hero at "<<cur->pos<<std::endl; return;}
-		cur->ID = ran.first;
-		cur->subID = ran.second;
-		h->type = CGI->heroh->heroes[ran.second];
-		map->heroes.push_back(h);
-		map->objects.erase(std::find(map->objects.begin(),map->objects.end(),h));
-		return; //TODO: maybe we should do something with definfo?
-	}
-	else if(ran.first==98)//special code for town
-	{
-		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-		if(!t) {std::cout<<"Wrong random town at "<<cur->pos<<std::endl; return;}
-		cur->ID = ran.first;
-		cur->subID = ran.second;
-		t->town = &CGI->townh->towns[ran.second];
-		if(t->hasCapitol())
-			t->defInfo = capitols[t->subID];
-		else if(t->hasFort())
-			t->defInfo = CGI->dobjinfo->castles[t->subID];
-		else
-			t->defInfo = villages[t->subID]; 
-		if(!t->defInfo->handler)
-		{
-			t->defInfo->handler = CDefHandler::giveDef(t->defInfo->name);
-			t->defInfo->width = t->defInfo->handler->ourImages[0].bitmap->w/32;
-			t->defInfo->height = t->defInfo->handler->ourImages[0].bitmap->h/32;
-			alphaTransformDef(t->defInfo);
-		}
-		//CGI->townh->townInstances.push_back(t);
-		return;
-	}
-	//we have to replace normal random object
-	cur->ID = ran.first;
-	cur->subID = ran.second;
-	cur->defInfo = CGI->dobjinfo->gobjs[ran.first][ran.second];
-	if(!cur->defInfo){std::cout<<"Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;return;}
-	if(!cur->defInfo->handler) //if we have to load def
-	{
-		cur->defInfo->handler = CDefHandler::giveDef(cur->defInfo->name);
-		cur->defInfo->width = cur->defInfo->handler->ourImages[0].bitmap->w/32;
-		cur->defInfo->height = cur->defInfo->handler->ourImages[0].bitmap->h/32;
-		alphaTransformDef(cur->defInfo);
-	}
-
-}
-void CMapHandler::randomizeObjects()
-{
-	CGObjectInstance * cur;
-	for(int no=0; no<map->objects.size(); ++no)
-	{
-		randomizeObject(map->objects[no]);
-		if(map->objects[no]->ID==26)
-			map->objects[no]->defInfo->handler=NULL;
-	}
 }
 void CMapHandler::prepareFOWDefs()
 {
@@ -399,43 +145,35 @@ void CMapHandler::prepareFOWDefs()
 	//		visibility[gg][jj] = true;
 	//}
 
-	visibility.resize(CGI->mh->map->width, Woff);
-	for (int i=0-Woff;i<visibility.size()-Woff;i++)
-	{
-		visibility[i].resize(CGI->mh->map->height,Hoff);
-	}
-	for (int i=0-Woff; i<visibility.size()-Woff; ++i)
-	{
-		for (int j=0-Hoff; j<CGI->mh->map->height+Hoff; ++j)
-		{
-			visibility[i][j].resize(CGI->mh->map->twoLevel+1,0);
-			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
-				visibility[i][j][k]=true;
-		}
-	}
+	//visibility.resize(CGI->mh->map->width, Woff);
+	//for (int i=0-Woff;i<visibility.size()-Woff;i++)
+	//{
+	//	visibility[i].resize(CGI->mh->map->height,Hoff);
+	//}
+	//for (int i=0-Woff; i<visibility.size()-Woff; ++i)
+	//{
+	//	for (int j=0-Hoff; j<CGI->mh->map->height+Hoff; ++j)
+	//	{
+	//		visibility[i][j].resize(CGI->mh->map->twoLevel+1,0);
+	//		for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
+	//			visibility[i][j][k]=true;
+	//	}
+	//}
 
-	hideBitmap.resize(CGI->mh->map->width, Woff);
-	for (int i=0-Woff;i<visibility.size()-Woff;i++)
+	hideBitmap.resize(CGI->mh->map->width);
+	for (int i=0;i<hideBitmap.size();i++)
 	{
-		hideBitmap[i].resize(CGI->mh->map->height,Hoff);
+		hideBitmap[i].resize(CGI->mh->map->height);
 	}
-	for (int i=0-Woff; i<hideBitmap.size()-Woff; ++i)
+	for (int i=0; i<hideBitmap.size(); ++i)
 	{
-		for (int j=0-Hoff; j<CGI->mh->map->height+Hoff; ++j)
+		for (int j=0; j<CGI->mh->map->height; ++j)
 		{
-			hideBitmap[i][j].resize(CGI->mh->map->twoLevel+1,0);
+			hideBitmap[i][j].resize(CGI->mh->map->twoLevel+1);
 			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
 				hideBitmap[i][j][k] = rand()%fullHide->ourImages.size();
 		}
 	}
-
-	//visibility[6][7][1] = false;
-	//visibility[7][7][1] = false;
-	//visibility[6][8][1] = false;
-	//visibility[6][6][1] = false;
-	//visibility[5][8][1] = false;
-	//visibility[7][6][1] = false;
-	//visibility[6][9][1] = false;
 }
 
 void CMapHandler::roadsRiverTerrainInit()
@@ -464,9 +202,6 @@ void CMapHandler::roadsRiverTerrainInit()
 		}
 	}
 
-	//roadBitmaps = new SDL_Surface** [map->width+2*Woff];
-	//for (int ii=0;ii<map->width+2*Woff;ii++)
-	//	roadBitmaps[ii] = new SDL_Surface*[map->height+2*Hoff]; // allocate memory
 	sizes.x = CGI->mh->map->width;
 	sizes.y = CGI->mh->map->height;
 	sizes.z = CGI->mh->map->twoLevel+1;
@@ -615,10 +350,6 @@ void CMapHandler::roadsRiverTerrainInit()
 }
 void CMapHandler::borderAndTerrainBitmapInit()
 {
-	//terrainBitmap = new SDL_Surface **[map->width+2*Woff];
-	//for (int ii=0;ii<map->width+2*Woff;ii++)
-	//	terrainBitmap[ii] = new SDL_Surface*[map->height+2*Hoff]; // allocate memory
-
 	CDefHandler * bord = CDefHandler::giveDef("EDG.DEF");
 	bord->notFreeImgs =  true;
 	for (int i=0-Woff; i<map->width+Woff; i++) //jest po szerokoœci
@@ -807,73 +538,59 @@ void CMapHandler::calculateBlockedPos()
 		}
 	}
 }
+void processDef (CGDefInfo* def)
+{
+	def->handler=CDefHandler::giveDef(def->name);
+	def->width = def->handler->ourImages[0].bitmap->w/32;
+	def->height = def->handler->ourImages[0].bitmap->h/32;
+	CGDefInfo* pom = CGI->dobjinfo->gobjs[def->id][def->subid];
+	if(pom)
+	{
+		pom->handler = def->handler;
+		pom->width = pom->handler->ourImages[0].bitmap->w/32;
+		pom->height = pom->handler->ourImages[0].bitmap->h/32;
+	}
+	else
+		std::cout << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
+	if(!def->handler->alphaTransformed)
+	{
+		for(int yy=0; yy<def->handler->ourImages.size(); ++yy)
+		{
+			def->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
+			def->handler->alphaTransformed = true;
+		}
+	}
+}
 void CMapHandler::init()
 {
 	timeHandler th;
 	th.getDif();
-
-	///loading defs from lod
-	for (int ir=0;ir<map->defy.size();ir++)
-	{
-		map->defy[ir]->handler=CDefHandler::giveDef(map->defy[ir]->name);
-		map->defy[ir]->width = map->defy[ir]->handler->ourImages[0].bitmap->w/32;
-		map->defy[ir]->height = map->defy[ir]->handler->ourImages[0].bitmap->h/32;
-		CGDefInfo* pom = CGI->dobjinfo->gobjs[map->defy[ir]->id][map->defy[ir]->subid];
-		if(pom)
-		{
-			pom->handler=map->defy[ir]->handler;
-			pom->width = pom->handler->ourImages[0].bitmap->w/32;
-			pom->height = pom->handler->ourImages[0].bitmap->h/32;
-		}
-		else
-			std::cout << "Lacking def info for " << map->defy[ir]->id << " " << map->defy[ir]->subid <<" " << map->defy[ir]->name << std::endl;
-	}
-	for(int vv=0; vv<map->defy.size(); ++vv)
-	{
-		if(map->defy[vv]->handler->alphaTransformed)
-			continue;
-		for(int yy=0; yy<map->defy[vv]->handler->ourImages.size(); ++yy)
-		{
-			map->defy[vv]->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(map->defy[vv]->handler->ourImages[yy].bitmap);
-			map->defy[vv]->handler->alphaTransformed = true;
-		}
-	}
+	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
+	std::for_each(map->defs.begin(),map->defs.end(),processDef); //and non-h3m defs
 	THC std::cout<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
 
 	//loading castles' defs
-	std::ifstream ifs("config/townsDefs.txt");
-	int ccc;
-	ifs>>ccc;
-	for(int i=0;i<ccc*2;i++)
-	{
-		CGDefInfo * n = new CGDefInfo(*CGI->dobjinfo->castles[i%ccc]);
-		ifs >> n->name;
-		if (!(n->handler = CDefHandler::giveDef(n->name)))
-			std::cout << "Cannot open "<<n->name<<std::endl;
-		else
-		{
-			n->width = n->handler->ourImages[0].bitmap->w/32;
-			n->height = n->handler->ourImages[0].bitmap->h/32;
-		}
-		if(i<ccc)
-			villages[i]=n;
-		else
-			capitols[i%ccc]=n;
-		alphaTransformDef(n);
-	} 
+	//std::ifstream ifs("config/townsDefs.txt");
+	//int ccc;
+	//ifs>>ccc;
+	//for(int i=0;i<ccc*2;i++)
+	//{
+	//	//CGDefInfo * n = new CGDefInfo(*CGI->dobjinfo->castles[i%ccc]);
+	//	ifs >> n->name;
+	//	if (!(n->handler = CDefHandler::giveDef(n->name)))
+	//		std::cout << "Cannot open "<<n->name<<std::endl;
+	//	else
+	//	{
+	//		n->width = n->handler->ourImages[0].bitmap->w/32;
+	//		n->height = n->handler->ourImages[0].bitmap->h/32;
+	//	}
+	//	if(i<ccc)
+	//		villages[i]=n;
+	//	else
+	//		capitols[i%ccc]=n;
+	//	alphaTransformDef(n);
+	//} 
 
-	for(int i=0;i<CGI->scenarioOps.playerInfos.size();i++)
-	{
-		if(CGI->scenarioOps.playerInfos[i].castle==-1)
-		{
-			int f;
-			do
-			{
-				f = rand()%F_NUMBER;
-			}while(!(map->players[CGI->scenarioOps.playerInfos[i].color].allowedFactions  & 1<<f));
-			CGI->scenarioOps.playerInfos[i].castle = f;
-		}
-	}
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
 		for(int j=0; j<map->players[i].heroesNames.size();j++)
@@ -884,15 +601,9 @@ void CMapHandler::init()
 	std::cout<<"\tLoading town defs, picking random factions and heroes: "<<th.getDif()<<std::endl;
 
 
-	randomizeObjects();//randomizing objects on map
-	std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
-	for(int h=0; h<map->defy.size(); ++h) //initializing loaded def handler's info
-	{
-		//std::string hlp = map->defy[h]->name;
-		//std::transform(hlp.begin(), hlp.end(), hlp.begin(), (int(*)(int))toupper);
+	for(int h=0; h<map->defy.size(); ++h) //initializing loaded def handler's info	{
 		CGI->mh->loadedDefs.insert(std::make_pair(map->defy[h]->name, map->defy[h]->handler));
-	}
 	std::cout<<"\tCollecting loaded def's handlers: "<<th.getDif()<<std::endl;
 
 	prepareFOWDefs();
@@ -901,27 +612,25 @@ void CMapHandler::init()
 	std::cout<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
 
 	//giving starting hero
-	for(int i=0;i<PLAYER_LIMIT;i++)
-	{
-		if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==RoE))
-		{
-			int3 hpos = map->players[i].posOfMainTown;
-			hpos.x+=1;// hpos.y+=1;
-			int j;
-			for(j=0;j<CGI->scenarioOps.playerInfos.size();j++)
-				if(CGI->scenarioOps.playerInfos[j].color==i)
-					break;
-			if(j==CGI->scenarioOps.playerInfos.size())
-				continue;
-			int h; //= CGI->scenarioOps.playerInfos[j].hero;
-			//if(h<0)
-				h=pickHero(i);
-			CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,h,hpos,i);
-			nnn->defInfo->handler = graphics->flags1[0];
-			map->heroes.push_back(nnn);
-			map->objects.push_back(nnn);
-		}
-	}
+	//for(int i=0;i<PLAYER_LIMIT;i++)
+	//{
+	//	if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==RoE))
+	//	{
+	//		int3 hpos = map->players[i].posOfMainTown;
+	//		hpos.x+=1;// hpos.y+=1;
+	//		int j;
+	//		for(j=0;j<CGI->state->scenarioOps->playerInfos.size();j++)
+	//			if(CGI->state->scenarioOps->playerInfos[j].color==i)
+	//				break;
+	//		if(j==CGI->state->scenarioOps->playerInfos.size())
+	//			continue;
+	//		int h=pickHero(i);
+	//		CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,h,hpos,i);
+	//		nnn->defInfo->handler = graphics->flags1[0];
+	//		map->heroes.push_back(nnn);
+	//		map->objects.push_back(nnn);
+	//	}
+	//}
 	std::cout<<"\tGiving starting heroes: "<<th.getDif()<<std::endl;
 
 	initObjectRects();
@@ -954,7 +663,7 @@ void CMapHandler::init()
 	}
 }
 
-SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)
+SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)
 {
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
@@ -1200,250 +909,261 @@ SDL_Surface * CMapHandler::undTerrBitmap(int x, int y)
 	return ttiles[x+Woff][y+Hoff][0].terbitmap[1];
 }
 
-SDL_Surface * CMapHandler::getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, int lvl)
+SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl)
 {
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	int size = visibilityMap.size()-1;							//is tile visible. arrangement: (like num keyboard)
+	bool d7 = (x>0 && y>0) ? visibilityMap[x-1][y-1][lvl] : 0,	//789
+		d8 = (y>0) ? visibilityMap[x][y-1][lvl] : 0,			//456
+		d9 = (y>0 && x<size) ? visibilityMap[x+1][y-1][lvl] : 0,//123
+		d4 = (x>0) ? visibilityMap[x-1][y][lvl] : 0,
+		d5 = visibilityMap[x][y][lvl],
+		d6 = (x<size) ? visibilityMap[x+1][y][lvl] : 0,
+		d1 = (x>0 && y<size) ? visibilityMap[x-1][y+1][lvl] : 0,
+		d2 = (y<size) ? visibilityMap[x][y+1][lvl] : 0,
+		d3 = (x<size && y<size) ? visibilityMap[x+1][y+1][lvl] : 0;
+
+	if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && !d9 && !d1)
 	{
 		return fullHide->ourImages[hideBitmap[x][y][lvl]].bitmap; //fully hidden
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && !d1)
 	{
 		return partialHide->ourImages[22].bitmap; //visible right bottom corner
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && d9 && !d1)
 	{
 		return partialHide->ourImages[15].bitmap; //visible right top corner
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && !d9 && d1)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[22].bitmap); //visible left bottom corner
 		return partialHide->ourImages[34].bitmap; //visible left bottom corner
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && !d9 && !d1)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[15].bitmap); //visible left top corner
 		return partialHide->ourImages[35].bitmap;
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && !d6 && !d4 && d8 && d7 && !d3 && d9 && !d1)
 	{
 		//return partialHide->ourImages[rand()%2].bitmap; //visible top
 		return partialHide->ourImages[0].bitmap; //visible top
 	}
-	else if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	else if(d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && d1)
 	{
 		//return partialHide->ourImages[4+rand()%2].bitmap; //visble bottom
 		return partialHide->ourImages[4].bitmap; //visble bottom
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && !d6 && d4 && !d8 && d7 && !d3 && !d9 && d1)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[2+rand()%2].bitmap); //visible left
 		//return CSDL_Ext::rotate01(partialHide->ourImages[2].bitmap); //visible left
 		return partialHide->ourImages[36].bitmap;
 	}
-	else if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && d6 && !d4 && !d8 && !d7 && d3 && d9 && !d1)
 	{
 		//return partialHide->ourImages[2+rand()%2].bitmap; //visible right
 		return partialHide->ourImages[2].bitmap; //visible right
 	}
-	else if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl])
+	else if(d2 && d6 && !d4 && !d8 && !d7)
 	{
 		//return partialHide->ourImages[12+2*(rand()%2)].bitmap; //visible bottom, right - bottom, right; left top corner hidden
 		return partialHide->ourImages[12].bitmap; //visible bottom, right - bottom, right; left top corner hidden
 	}
-	else if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && d6 && !d4 && d8 && !d1)
 	{
 		return partialHide->ourImages[13].bitmap; //visible right, right - top; left bottom corner hidden
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && !visibilityMap[x+1][y+1][lvl])
+	else if(!d2 && !d6 && d4 && d8 && !d3)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[13].bitmap); //visible top, top - left, left; right bottom corner hidden
 		return partialHide->ourImages[37].bitmap;
 	}
-	else if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x+1][y-1][lvl])
+	else if(d2 && !d6 && d4 && !d8 && !d9)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[12+2*(rand()%2)].bitmap); //visible left, left - bottom, bottom; right top corner hidden
 		//return CSDL_Ext::rotate01(partialHide->ourImages[12].bitmap); //visible left, left - bottom, bottom; right top corner hidden
 		return partialHide->ourImages[38].bitmap;
 	}
-	else if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl])
+	else if(d2 && d6 && d4 && d8)
 	{
 		return partialHide->ourImages[10].bitmap; //visible left, right, bottom and top
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && d9 && !d1)
 	{
 		return partialHide->ourImages[16].bitmap; //visible right corners
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && d9 && !d1)
 	{
 		return partialHide->ourImages[18].bitmap; //visible top corners
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && !d9 && d1)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[16].bitmap); //visible left corners
 		return partialHide->ourImages[39].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && d1)
 	{
 		//return CSDL_Ext::hFlip(partialHide->ourImages[18].bitmap); //visible bottom corners
 		return partialHide->ourImages[40].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && d9 && d1)
 	{
 		return partialHide->ourImages[17].bitmap; //visible right - top and bottom - left corners
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && !d9 && !d1)
 	{
 		//return CSDL_Ext::hFlip(partialHide->ourImages[17].bitmap); //visible top - left and bottom - right corners
 		return partialHide->ourImages[41].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && d9 && d1)
 	{
 		return partialHide->ourImages[19].bitmap; //visible corners without left top
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && d9 && !d1)
 	{
 		return partialHide->ourImages[20].bitmap; //visible corners without left bottom
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && d9 && d1)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[20].bitmap); //visible corners without right bottom
 		return partialHide->ourImages[42].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && !d9 && d1)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[19].bitmap); //visible corners without right top
 		return partialHide->ourImages[43].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && d9 && d1)
 	{
 		return partialHide->ourImages[21].bitmap; //visible all corners only
 	}
-	if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl])
+	if(d2 && d6 && d4 && !d8)
 	{
 		return partialHide->ourImages[6].bitmap; //hidden top
 	}
-	if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl])
+	if(d2 && !d6 && d4 && d8)
 	{
 		return partialHide->ourImages[7].bitmap; //hidden right
 	}
-	if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl])
+	if(!d2 && d6 && d4 && d8)
 	{
 		return partialHide->ourImages[8].bitmap; //hidden bottom
 	}
-	if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl])
+	if(d2 && d6 && !d4 && d8)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[7].bitmap); //hidden left
 		return partialHide->ourImages[44].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl])
+	if(!d2 && d6 && d4 && !d8)
 	{
 		return partialHide->ourImages[9].bitmap; //hidden top and bottom
 	}
-	if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl])
+	if(d2 && !d6 && !d4 && d8)
 	{
 		return partialHide->ourImages[29].bitmap;  //hidden left and right
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && d8 && d3 && !d1)
 	{
 		return partialHide->ourImages[24].bitmap; //visible top and right bottom corner
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && d8 && !d3 && d1)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[24].bitmap); //visible top and left bottom corner
 		return partialHide->ourImages[45].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && !d6 && !d4 && d8 && d3 && d1)
 	{
 		return partialHide->ourImages[33].bitmap; //visible top and bottom corners
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl])
+	if(!d2 && !d6 && d4 && !d8 && !d3 && d9)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[26].bitmap); //visible left and right top corner
 		return partialHide->ourImages[46].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl])
+	if(!d2 && !d6 && d4 && !d8 && d3 && !d9)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[25].bitmap); //visible left and right bottom corner
 		return partialHide->ourImages[47].bitmap;
 	}
-	if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl])
+	if(!d2 && !d6 && d4 && !d8 && d3 && d9)
 	{
 		return partialHide->ourImages[32].bitmap; //visible left and right corners
 	}
-	if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y-1][lvl])
+	if(d2 && !d6 && !d4 && !d8 && d7 && !d9)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[30].bitmap); //visible bottom and left top corner
 		return partialHide->ourImages[48].bitmap;
 	}
-	if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y-1][lvl])
+	if(d2 && !d6 && !d4 && !d8 && !d7 && d9)
 	{
 		return partialHide->ourImages[30].bitmap; //visible bottom and right top corner
 	}
-	if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y-1][lvl])
+	if(d2 && !d6 && !d4 && !d8 && d7 && d9)
 	{
 		return partialHide->ourImages[31].bitmap; //visible bottom and top corners
 	}
-	if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && d6 && !d4 && !d8 && !d7 && d1)
 	{
 		return partialHide->ourImages[25].bitmap; //visible right and left bottom corner
 	}
-	if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl])
+	if(!d2 && d6 && !d4 && !d8 && d7 && !d1)
 	{
 		return partialHide->ourImages[26].bitmap; //visible right and left top corner
 	}
-	if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	if(!d2 && d6 && !d4 && !d8 && d7 && d1)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[32].bitmap); //visible right and left cornres
 		return partialHide->ourImages[49].bitmap;
 	}
-	if(visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl])
+	if(d2 && d6 && !d4 && !d8 && d7)
 	{
 		return partialHide->ourImages[28].bitmap; //visible bottom, right - bottom, right; left top corner visible
 	}
-	else if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y+1][lvl])
+	else if(!d2 && d6 && !d4 && d8 && d1)
 	{
 		return partialHide->ourImages[27].bitmap; //visible right, right - top; left bottom corner visible
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y+1][lvl])
+	else if(!d2 && !d6 && d4 && d8 && d3)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[27].bitmap); //visible top, top - left, left; right bottom corner visible
 		return partialHide->ourImages[50].bitmap;
 	}
-	else if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x+1][y-1][lvl])
+	else if(d2 && !d6 && d4 && !d8 && d9)
 	{
 		//return CSDL_Ext::rotate01(partialHide->ourImages[28].bitmap); //visible left, left - bottom, bottom; right top corner visible
 		return partialHide->ourImages[51].bitmap;
 	}
 	//newly added
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl]) //visible t and tr
+	else if(!d2 && !d6 && !d4 && d8 && !d7 && !d3 && d9 && !d1) //visible t and tr
 	{
 		return partialHide->ourImages[0].bitmap;
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl]) //visible t and tl
+	else if(!d2 && !d6 && !d4 && d8 && d7 && !d3 && !d9 && !d1) //visible t and tl
 	{
 		return partialHide->ourImages[1].bitmap;
 	}
-	else if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl]) //visible b and br
+	else if(d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && !d1) //visible b and br
 	{
 		return partialHide->ourImages[4].bitmap;
 	}
-	else if(visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl]) //visible b and bl
+	else if(d2 && !d6 && !d4 && !d8 && !d7 && !d3 && !d9 && d1) //visible b and bl
 	{
 		return partialHide->ourImages[5].bitmap;
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl]) //visible l and tl
+	else if(!d2 && !d6 && d4 && !d8 && d7 && !d3 && !d9 && !d1) //visible l and tl
 	{
 		return partialHide->ourImages[36].bitmap;
 	}
-	else if(!visibilityMap[x][y+1][lvl] && !visibilityMap[x+1][y][lvl] && visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && visibilityMap[x-1][y+1][lvl]) //visible l and bl
+	else if(!d2 && !d6 && d4 && !d8 && !d7 && !d3 && !d9 && d1) //visible l and bl
 	{
 		return partialHide->ourImages[36].bitmap;
 	}
-	else if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && !visibilityMap[x+1][y+1][lvl] && visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl]) //visible r and tr
+	else if(!d2 && d6 && !d4 && !d8 && !d7 && !d3 && d9 && !d1) //visible r and tr
 	{
 		return partialHide->ourImages[2].bitmap;
 	}
-	else if(!visibilityMap[x][y+1][lvl] && visibilityMap[x+1][y][lvl] && !visibilityMap[x-1][y][lvl] && !visibilityMap[x][y-1][lvl] && !visibilityMap[x-1][y-1][lvl] && visibilityMap[x+1][y+1][lvl] && !visibilityMap[x+1][y-1][lvl] && !visibilityMap[x-1][y+1][lvl]) //visible r and br
+	else if(!d2 && d6 && !d4 && !d8 && !d7 && d3 && !d9 && !d1) //visible r and br
 	{
 		return partialHide->ourImages[3].bitmap;
 	}

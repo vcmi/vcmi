@@ -4,6 +4,7 @@
 #include "../CGameInfo.h"
 #include "CLodHandler.h"
 #include <sstream>
+#include "../lib/VCMI_Lib.h"
 extern CLodHandler * bitmaph;
 bool CGDefInfo::isVisitable()
 {
@@ -20,6 +21,7 @@ CGDefInfo::CGDefInfo()
 }
 void CDefObjInfoHandler::load()
 {
+	VLC->dobjinfo = this;
 	nodrze<int> ideki;
 	std::istringstream inp(bitmaph->getTextFile("ZOBJCTS.TXT"));
 	int objNumber;
@@ -58,8 +60,8 @@ void CDefObjInfoHandler::load()
 			}
 		}
 
-		for(int yy=0; yy<2; ++yy)
-			inp>>dump;
+		for(int yy=0; yy<2; ++yy) //first - on which types of terrain object can be placed; 
+			inp>>dump; //second -in which terrains' menus object in the editor will be available (?)
 		inp>>nobj->id;
 		inp>>nobj->subid;
 		inp>>nobj->type;

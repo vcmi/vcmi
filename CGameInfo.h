@@ -62,9 +62,6 @@ public:
 	CScreenHandler * screenh;
 	int localPlayer;
 	std::vector<CGameInterface *> playerint;
-	std::vector<SDL_Color> playerColors;
-	SDL_Color neutralColor;
-	StartInfo scenarioOps;
 };
 
 #endif //CGAMEINFO_H

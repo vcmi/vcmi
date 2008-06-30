@@ -40,7 +40,7 @@ public:
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)=0;
 	virtual int getDate(int mode=0)=0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	virtual PseudoV< PseudoV< PseudoV<unsigned char> > > & getVisibilityMap()=0; //returns visibility map (TODO: make it const)
+	virtual std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap()=0; //returns visibility map (TODO: make it const)
 	virtual const CGHeroInstance * getHeroInfo(int player, int val, bool mode)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
 	virtual int getResourceAmount(int type)=0;
 	virtual int howManyHeroes()=0;
@@ -54,6 +54,7 @@ public:
 	virtual int getHeroSerial(const CGHeroInstance * hero)=0;
 	virtual const CCreatureSet* getGarrison(const CGObjectInstance *obj)=0;
 	virtual UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos)=0;
+	virtual const StartInfo * getStartInfo()=0;
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -110,7 +111,7 @@ public:
 //get info
 	bool verifyPath(CPath * path, bool blockSea);
 	int getDate(int mode=0); //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	PseudoV< PseudoV< PseudoV<unsigned char> > > & getVisibilityMap(); //returns visibility map (TODO: make it const)
+	std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap(); //returns visibility map (TODO: make it const)
 	const CGHeroInstance * getHeroInfo(int player, int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
 	int getResourceAmount(int type);
 	std::vector<int> getResourceAmount();
@@ -126,6 +127,7 @@ public:
 	int getMySerial();
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj);
 	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos);
+	virtual const StartInfo * getStartInfo();
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -169,7 +171,7 @@ public:
 	void startBattle(int heroID, CCreatureSet * army, int3 tile); //for hero<=>neutral army
 
 	//friends
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 class CLuaCallback : public CScriptCallback
 {
@@ -181,6 +183,6 @@ private:
 	static int getGnrlText(lua_State * L);//(int ID, int which, int val);
 	static int getSelectedHero(lua_State * L);//()
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 #endif //CCALLBACK_H

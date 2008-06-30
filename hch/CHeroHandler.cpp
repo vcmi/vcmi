@@ -3,6 +3,7 @@
 #include "CHeroHandler.h"
 #include <sstream>
 #include "CLodHandler.h"
+#include "../lib/VCMI_Lib.h"
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 CHeroHandler::~CHeroHandler()
@@ -20,6 +21,7 @@ void CHeroHandler::loadPortraits()
 }
 void CHeroHandler::loadHeroes()
 {
+	VLC->heroh = this;
 	int ID=0;
 	std::string buf = bitmaph->getTextFile("HOTRAITS.TXT");
 	int it=0;

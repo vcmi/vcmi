@@ -13,6 +13,7 @@ DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mod
 extern CLodHandler * bitmaph;
 void CObjectHandler::loadObjects()
 {
+	VLC->objh = this;
 	int ID=0;
 	std::string buf = bitmaph->getTextFile("OBJNAMES.TXT");
 	int it=0;

@@ -2717,7 +2717,7 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 		amounts[i] = CGI->creh->creatures[Creatures[i].first].maxAmount(LOCPLINT->cb->getResourceAmount());
 	}
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPRCRT.bmp");
-	blueToPlayersAdv(hhlp,LOCPLINT->playerID);
+	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
 	bitmap = SDL_ConvertSurface(hhlp,screen->format,0); //na 8bitowej mapie by sie psulo
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	SDL_FreeSurface(hhlp);
@@ -2884,7 +2884,7 @@ CCreInfoWindow::CCreInfoWindow
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	blueToPlayersAdv(bitmap,LOCPLINT->playerID);
+	graphics->blueToPlayersAdv(bitmap,LOCPLINT->playerID);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	anim = new CCreaturePic(c);
 	if(!type) anim->anim->setType(1);

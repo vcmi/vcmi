@@ -113,7 +113,7 @@ void CMinimap::draw()
 		{
 			for (int jj=0; jj<ho; jj++)
 			{
-				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[hh[i]->getOwner()].r,CGI->playerColors[hh[i]->getOwner()].g,CGI->playerColors[hh[i]->getOwner()].b);
+				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,graphics->playerColors[hh[i]->getOwner()].g,graphics->playerColors[hh[i]->getOwner()].b);
 			}
 		}
 	}
@@ -600,7 +600,7 @@ CResDataBar::CResDataBar()
 	//SDL_Color p1={40,65,139,255}, p2={36,59,125,255}, p3={35,56,121,255};
 	//kolory+=p1,p2,p3;
 	//blueToPlayersAdv(bg,LOCPLINT->playerID,2,&kolory);
-	blueToPlayersAdv(bg,LOCPLINT->playerID,2);
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,3,575);
 
 	txtpos  +=  (std::pair<int,int>(35,577)),(std::pair<int,int>(120,577)),(std::pair<int,int>(205,577)),
@@ -851,7 +851,7 @@ townList(5,&genRect(192,48,747,196),747,196,747,372)
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
 	LOCPLINT->adventureInt=this;
 	bg = BitmapHandler::loadBitmap("ADVMAP.bmp");
-	blueToPlayersAdv(bg,player);
+	graphics->blueToPlayersAdv(bg,player);
 	scrollingLeft = false;
 	scrollingRight  = false;
 	scrollingUp = false ;

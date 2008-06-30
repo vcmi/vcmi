@@ -9,14 +9,10 @@
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
 #include <cmath>
-#include <stdio.h>
-#include <string.h>
 #include <string>
-#include <assert.h>
 #include <vector>
 #include "zlib.h"
 #include <cmath>
-#include <ctime>
 #include "hch\CArtHandler.h"
 #include "hch\CHeroHandler.h"
 #include "hch\CCreatureHandler.h"
@@ -28,7 +24,6 @@
 #include "hch\CMusicHandler.h"
 #include "hch\CLodHandler.h"
 #include "hch\CDefHandler.h"
-#include "hch\CSndHandler.h"
 #include "hch\CTownHandler.h"
 #include "hch\CDefObjInfoHandler.h"
 #include "hch\CAmbarCendamo.h"
@@ -46,12 +41,11 @@
 #include "CLuaHandler.h"
 #include "CLua.h"
 #include "CAdvmapInterface.h"
-#include "CCastleInterface.h"
 #include "client\Graphics.h"
-const char * NAME = "VCMI \"Altanatse\" 0.7";
+#include <boost/asio.hpp>
+std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
-SDL_Color playerColorPalette[256]; //palette to make interface colors good
-
+using boost::asio::ip::tcp;
 SDL_Surface * screen, * screen2;
 extern SDL_Surface * CSDL_Ext::std32bppSurface;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
@@ -64,258 +58,30 @@ void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * sc
 	}
 	CGI->state->cppscripts.insert(script);
 }
-void initGameState(Mapa * map, CGameInfo * cgi)
-{
-	cgi->state->day=0;
-	/*********creating players entries in gs****************************************/
-	for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++)
-	{
-		std::pair<int,PlayerState> ins(cgi->scenarioOps.playerInfos[i].color,PlayerState());
-		ins.second.color=ins.first;
-		ins.second.serial=i;
-		cgi->state->players.insert(ins);
-	}
-	/******************RESOURCES****************************************************/
-	//TODO: zeby komputer dostawal inaczej niz gracz 
-	std::vector<int> startres;
-	std::ifstream tis("config/startres.txt");
-	int k;
-	for (int j=0;j<cgi->scenarioOps.difficulty;j++)
-	{
-		tis >> k;
-		for (int z=0;z<RESOURCE_QUANTITY;z++)
-			tis>>k;
-	}
-	tis >> k;
-	for (int i=0;i<RESOURCE_QUANTITY;i++)
-	{
-		tis >> k;
-		startres.push_back(k);
-	}
-	tis.close();
-	for (std::map<int,PlayerState>::iterator i = cgi->state->players.begin(); i!=cgi->state->players.end(); i++)
-	{
-		(*i).second.resources.resize(RESOURCE_QUANTITY);
-		for (int x=0;x<RESOURCE_QUANTITY;x++)
-			(*i).second.resources[x] = startres[x];
-
-	}
-
-	/*************************HEROES************************************************/
-	for (int i=0; i<map->heroes.size();i++) //heroes instances
-	{
-		if (map->heroes[i]->getOwner()<0)
-			continue;
-		CGHeroInstance * vhi = (map->heroes[i]);
-		if(!vhi->type)
-			vhi->type = cgi->heroh->heroes[vhi->subID];
-		//vhi->subID = vhi->type->ID;
-		if (vhi->level<1)
-		{
-			vhi->exp=40+rand()%50;
-			vhi->level = 1;
-		}
-		if (vhi->level>1) ;//TODO dodac um dr, ale potrzebne los
-		if ((!vhi->primSkills.size()) || (vhi->primSkills[0]<0))
-		{
-			if (vhi->primSkills.size()<PRIMARY_SKILLS)
-				vhi->primSkills.resize(PRIMARY_SKILLS);
-			vhi->primSkills[0] = vhi->type->heroClass->initialAttack;
-			vhi->primSkills[1] = vhi->type->heroClass->initialDefence;
-			vhi->primSkills[2] = vhi->type->heroClass->initialPower;
-			vhi->primSkills[3] = vhi->type->heroClass->initialKnowledge;
-		}
-		vhi->mana = vhi->primSkills[3]*10;
-		if (!vhi->name.length())
-		{
-			vhi->name = vhi->type->name;
-		}
-		if (!vhi->biography.length())
-		{
-			vhi->biography = vhi->type->biography;
-		}
-		if (vhi->portrait < 0)
-			vhi->portrait = vhi->type->ID;
-
-		//initial army
-		if (!vhi->army.slots.size()) //standard army
-		{
-			int pom, pom2=0;
-			for(int x=0;x<3;x++)
-			{
-				pom = (cgi->creh->nameToID[vhi->type->refTypeStack[x]]);
-				if(pom>=145 && pom<=149) //war machine
-				{
-					pom2++;
-					switch (pom)
-					{
-					case 145: //catapult
-						vhi->artifWorn[16] = 3;
-						break;
-					default:
-						pom-=145;
-						vhi->artifWorn[13+pom] = 4+pom;
-						break;
-					}
-					continue;
-				}
-				vhi->army.slots[x-pom2].first = &(cgi->creh->creatures[pom]);
-				if((pom = (vhi->type->highStack[x]-vhi->type->lowStack[x])) > 0)
-					vhi->army.slots[x-pom2].second = (rand()%pom)+vhi->type->lowStack[x];
-				else 
-					vhi->army.slots[x-pom2].second = +vhi->type->lowStack[x];
-			}
-		}
-
-		cgi->state->players[vhi->getOwner()].heroes.push_back(vhi);
-
-	}
-	/*************************FOG**OF**WAR******************************************/		
-	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
-	{
-		k->second.fogOfWarMap.resize(map->width, Woff);
-		for(int g=-Woff; g<map->width+Woff; ++g)
-			k->second.fogOfWarMap[g].resize(map->height, Hoff);
-
-		for(int g=-Woff; g<map->width+Woff; ++g)
-			for(int h=-Hoff; h<map->height+Hoff; ++h)
-				k->second.fogOfWarMap[g][h].resize(map->twoLevel+1, 0);
-
-		for(int g=-Woff; g<map->width+Woff; ++g)
-			for(int h=-Hoff; h<map->height+Hoff; ++h)
-				for(int v=0; v<map->twoLevel+1; ++v)
-					k->second.fogOfWarMap[g][h][v] = 0;
-		for(int xd=0; xd<map->width; ++xd) //revealing part of map around heroes
-		{
-			for(int yd=0; yd<map->height; ++yd)
-			{
-				for(int ch=0; ch<k->second.heroes.size(); ++ch)
-				{
-					int deltaX = (k->second.heroes[ch]->getPosition(false).x-xd)*(k->second.heroes[ch]->getPosition(false).x-xd);
-					int deltaY = (k->second.heroes[ch]->getPosition(false).y-yd)*(k->second.heroes[ch]->getPosition(false).y-yd);
-					if(deltaX+deltaY<k->second.heroes[ch]->getSightDistance()*k->second.heroes[ch]->getSightDistance())
-						k->second.fogOfWarMap[xd][yd][k->second.heroes[ch]->getPosition(false).z] = 1;
-				}
-			}
-		}
-	}
-	/****************************TOWNS************************************************/
-	for (int i=0;i<map->towns.size();i++)
-	{
-		CGTownInstance * vti =(map->towns[i]);
-		if(!vti->town)
-			vti->town = &CGI->townh->towns[vti->subID];
-		if (vti->name.length()==0) // if town hasn't name we draw it
-			vti->name=vti->town->names[rand()%vti->town->names.size()];
-		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings
-		{
-			vti->builtBuildings.erase(-50);
-			vti->builtBuildings.insert(10);
-			vti->builtBuildings.insert(5);
-			vti->builtBuildings.insert(30);
-			if(rand()%2)
-				vti->builtBuildings.insert(31);
-		}
-		cgi->state->players[vti->getOwner()].towns.push_back(vti);
-	}
-
-	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
-	{
-		if(k->first==-1 || k->first==255)
-			continue;
-		for(int xd=0; xd<map->width; ++xd) //revealing part of map around towns
-		{
-			for(int yd=0; yd<map->height; ++yd)
-			{
-				for(int ch=0; ch<k->second.towns.size(); ++ch)
-				{
-					int deltaX = (k->second.towns[ch]->pos.x-xd)*(k->second.towns[ch]->pos.x-xd);
-					int deltaY = (k->second.towns[ch]->pos.y-yd)*(k->second.towns[ch]->pos.y-yd);
-					if(deltaX+deltaY<k->second.towns[ch]->getSightDistance()*k->second.towns[ch]->getSightDistance())
-						k->second.fogOfWarMap[xd][yd][k->second.towns[ch]->pos.z] = 1;
-				}
-			}
-		}
-
-		//init visiting heroes
-		for(int l=0; l<k->second.heroes.size();l++)
-		{ 
-			for(int m=0; m<k->second.towns.size();m++)
-			{
-				int3 vistile = k->second.towns[m]->pos; vistile.x--; //tile next to the entrance
-				if(vistile == k->second.heroes[l]->pos)
-				{
-					k->second.towns[m]->visitingHero = k->second.heroes[l];
-					break;
-				}
-			}
-		}
-	}
-
-	/****************************SCRIPTS************************************************/
-	std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &cgi->state->objscr; //alias for easier access
-	/****************************C++ OBJECT SCRIPTS************************************************/
-	std::map<int,CCPPObjectScript*> scripts;
-	CScriptCallback * csc = new CScriptCallback();
-	csc->gs = cgi->state;
-	handleCPPObjS(&scripts,new CVisitableOPH(csc));
-	handleCPPObjS(&scripts,new CVisitableOPW(csc));
-	handleCPPObjS(&scripts,new CPickable(csc));
-	handleCPPObjS(&scripts,new CMines(csc));
-	handleCPPObjS(&scripts,new CTownScript(csc));
-	handleCPPObjS(&scripts,new CHeroScript(csc));
-	handleCPPObjS(&scripts,new CMonsterS(csc));
-	handleCPPObjS(&scripts,new CCreatureGen(csc));
-	//created map
-
-	/****************************LUA OBJECT SCRIPTS************************************************/
-	std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
-	for (int i=0; i<lf->size(); i++)
-	{
-		try
-		{
-			std::vector<std::string> * temp =  CLuaHandler::functionList((*lf)[i]);
-			CLuaObjectScript * objs = new CLuaObjectScript((*lf)[i]);
-			CLuaCallback::registerFuncs(objs->is);
-			//objs
-			for (int j=0; j<temp->size(); j++)
-			{
-				int obid ; //obj ID
-				int dspos = (*temp)[j].find_first_of('_');
-				obid = atoi((*temp)[j].substr(dspos+1,(*temp)[j].size()-dspos-1).c_str());
-				std::string fname = (*temp)[j].substr(0,dspos);
-				if (skrypty->find(obid)==skrypty->end())
-					skrypty->insert(std::pair<int, std::map<std::string, CObjectScript*> >(obid,std::map<std::string,CObjectScript*>()));
-				(*skrypty)[obid].insert(std::pair<std::string, CObjectScript*>(fname,objs));
-			}
-			delete temp;
-		}HANDLE_EXCEPTION
-	}
-	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
-	std::string temps("newObject");
-	for (int i=0; i<map->objects.size(); i++)
-	{
-		//c++ scripts
-		if (scripts.find(map->objects[i]->ID) != scripts.end())
-		{
-			map->objects[i]->state = scripts[map->objects[i]->ID];
-			map->objects[i]->state->newObject(map->objects[i]);
-		}
-		else 
-		{
-			map->objects[i]->state = NULL;
-		}
-
-		// lua scripts
-		if(cgi->state->checkFunc(map->objects[i]->ID,temps))
-			(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
-	}
-
-	delete lf;
-}
-
 int _tmain(int argc, _TCHAR* argv[])
-{ 
+{ /*
+    boost::asio::io_service io_service;
+    boost::system::error_code error = boost::asio::error::host_not_found;
+	tcp::socket socket(io_service);
+    tcp::resolver resolver(io_service);
+    tcp::resolver::query query("127.0.0.1", "3030");
+    tcp::resolver::iterator endpoint_iterator = resolver.resolve(tcp::resolver::query("127.0.0.1", "3030"));
+    socket.connect(*endpoint_iterator, error);
+
+	boost::array<char, 128> buf;
+
+  size_t len = socket.read_some(boost::asio::buffer(buf), error);
+
+  if (error == boost::asio::error::eof)
+    ; // Connection closed cleanly by peer.
+  else if (error)
+    throw boost::system::system_error(error); // Some other error.
+
+  std::cout.write(buf.data(), len);
+  len = socket.read_some(boost::asio::buffer(buf), error);
+  std::cout.write(buf.data(), len);*/
+
+
 	srand ( time(NULL) );
 	CPG=NULL;
 	atexit(SDL_Quit);
@@ -330,7 +96,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);  //initializing important global surface
 		THC std::cout<<"\tInitializing screen: "<<pomtime.getDif()<<std::endl;
-		SDL_WM_SetCaption(NAME,""); //set window title
+		SDL_WM_SetCaption(NAME.c_str(),""); //set window title
 		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 			int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
 		#else
@@ -390,43 +156,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		graphics->loadHeroAnim(animacje);
 		THC std::cout<<"\tHero animations: "<<tmh.getDif()<<std::endl;
 		THC std::cout<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
-
-		//colors initialization
-		SDL_Color p;
-		p.unused = 0;
-		p.r = 0xff; p.g = 0x0; p.b = 0x0; //red
-		cgi->playerColors.push_back(p); //red
-		p.r = 0x31; p.g = 0x52; p.b = 0xff; //blue
-		cgi->playerColors.push_back(p); //blue
-		p.r = 0x9c; p.g = 0x73; p.b = 0x52;//tan
-		cgi->playerColors.push_back(p);//tan
-		p.r = 0x42; p.g = 0x94; p.b = 0x29; //green
-		cgi->playerColors.push_back(p); //green
-		p.r = 0xff; p.g = 0x84; p.b = 0x0; //orange
-		cgi->playerColors.push_back(p); //orange
-		p.r = 0x8c; p.g = 0x29; p.b = 0xa5; //purple
-		cgi->playerColors.push_back(p); //purple
-		p.r = 0x09; p.g = 0x9c; p.b = 0xa5;//teal
-		cgi->playerColors.push_back(p);//teal
-		p.r = 0xc6; p.g = 0x7b; p.b = 0x8c;//pink
-		cgi->playerColors.push_back(p);//pink
-		p.r = 0x84; p.g = 0x84; p.b = 0x84;//gray
-		cgi->neutralColor = p;//gray
-		//colors initialized
-		//palette initialization
-		std::string pals = cgi->bitmaph->getTextFile("PLAYERS.PAL");
-		int startPoint = 24; //beginning byte; used to read
-		for(int i=0; i<256; ++i)
-		{
-			SDL_Color col;
-			col.r = pals[startPoint++];
-			col.g = pals[startPoint++];
-			col.b = pals[startPoint++];
-			col.unused = pals[startPoint++];
-			playerColorPalette[i] = col;
-		}
-		//palette initialized
-		THC std::cout<<"Preparing players' colours: "<<tmh.getDif()<<std::endl;
 		CMessage::init();
 		cgi->generaltexth = new CGeneralTextHandler;
 		cgi->generaltexth->load();
@@ -435,8 +164,17 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		THC std::cout<<"Initialization of VCMI (togeter): "<<total.getDif()<<std::endl;
 		cpg->mush = mush;
-		cgi->scenarioOps = cpg->runLoop();
-		THC tmh.getDif();pomtime.getDif();
+		StartInfo *options = new StartInfo(cpg->runLoop());
+
+		cgi->dobjinfo = new CDefObjInfoHandler;
+		cgi->dobjinfo->load();
+		THC std::cout<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
+
+		cgi->state = new CGameState();
+		cgi->state->scenarioOps = options;
+		THC std::cout<<"\tGamestate: "<<pomtime.getDif()<<std::endl;
+
+		THC tmh.getDif();pomtime.getDif();//reset timers
 		CArtHandler * arth = new CArtHandler;
 		arth->loadArtifacts();
 		cgi->arth = arth;
@@ -462,20 +200,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->objh = objh;
 		THC std::cout<<"\tObject handler: "<<pomtime.getDif()<<std::endl;
 
-		cgi->dobjinfo = new CDefObjInfoHandler;
-		cgi->dobjinfo->load();
-		THC std::cout<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
-
-		cgi->state = new CGameState();
-		cgi->state->players = std::map<int, PlayerState>();
-		THC std::cout<<"\tGamestate: "<<pomtime.getDif()<<std::endl;
 
 		cgi->pathf = new CPathfinder();
 		THC std::cout<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
 		cgi->consoleh->cb = new CCallback(cgi->state,-1);
 		cgi->consoleh->runConsole();
 		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
-		THC std::cout<<"Handlers initailization (together): "<<tmh.getDif()<<std::endl;
+		THC std::cout<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
 
 		std::string mapname = cpg->ourScenSel->mapsel.ourMaps[cpg->ourScenSel->mapsel.selected].filename;
 		std::cout<<"Opening map file: "<<mapname<<"\t\t"<<std::flush;
@@ -494,8 +225,11 @@ int _tmain(int argc, _TCHAR* argv[])
 		std::cout<<"done."<<std::endl;
 		Mapa * mapa = new Mapa(initTable);
 		THC std::cout<<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
-		CMapHandler * mh = new CMapHandler();
-		cgi->mh = mh;
+
+		cgi->state->init(options,mapa,8);
+
+		CMapHandler * mh = cgi->mh = new CMapHandler();
+		THC std::cout<<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
 		mh->map = mapa;
 		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 		mh->loadDefs();
@@ -503,18 +237,16 @@ int _tmain(int argc, _TCHAR* argv[])
 		mh->init();
 		THC std::cout<<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
-		initGameState(mapa,cgi);
-		THC std::cout<<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
-		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
+		for (int i=0; i<cgi->state->scenarioOps->playerInfos.size();i++) //initializing interfaces
 		{ 
 
-			if(!cgi->scenarioOps.playerInfos[i].human)
-				cgi->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color),"EmptyAI.dll")));
+			if(!cgi->state->scenarioOps->playerInfos[i].human)
+				cgi->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->state->scenarioOps->playerInfos[i].color),"EmptyAI.dll")));
 			else 
 			{
-				cgi->state->currentPlayer=cgi->scenarioOps.playerInfos[i].color;
-				cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color,i));
-				((CPlayerInterface*)(cgi->playerint[i]))->init(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color));
+				cgi->state->currentPlayer=cgi->state->scenarioOps->playerInfos[i].color;
+				cgi->playerint.push_back(new CPlayerInterface(cgi->state->scenarioOps->playerInfos[i].color,i));
+				((CPlayerInterface*)(cgi->playerint[i]))->init(new CCallback(cgi->state,cgi->state->scenarioOps->playerInfos[i].color));
 			}
 		}
 		///claculating FoWs for minimap

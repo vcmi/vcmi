@@ -7,6 +7,7 @@
 #include "hch/CTownHandler.h"
 #include "CLua.h"
 #include "CCallback.h"
+#include "client/Graphics.h"
 AdventureMapButton::AdventureMapButton ()
 {
 	type=2;
@@ -38,7 +39,7 @@ AdventureMapButton::AdventureMapButton
 		imgs.resize(1);
 		imgs[0].push_back(temp->ourImages[i].bitmap);
 		if(playerColoredButton)
-			CSDL_Ext::blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
+			graphics->blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
 	}
 	delete temp;
 	if (add)
@@ -52,7 +53,7 @@ AdventureMapButton::AdventureMapButton
 			{
 				imgs[i+1].push_back(temp->ourImages[j].bitmap);
 				if(playerColoredButton)
-					CSDL_Ext::blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
+					graphics->blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
 			}
 			delete temp;
 		}

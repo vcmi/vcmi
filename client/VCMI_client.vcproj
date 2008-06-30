@@ -41,6 +41,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="0"
 				AdditionalIncludeDirectories="G:\vcmt\repa\include"
+				GeneratePreprocessedFile="0"
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -305,10 +306,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CGameState.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\hch\CGeneralTextHandler.cpp"
 				>
 			</File>
@@ -382,10 +379,6 @@
 			</File>
 			<File
 				RelativePath="..\SDL_framerate.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\SDL_rotozoom.cpp"
 				>
 			</File>
 			<Filter
@@ -599,10 +592,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CGameState.h"
-				>
-			</File>
-			<File
 				RelativePath="..\hch\CGeneralTextHandler.h"
 				>
 			</File>
@@ -692,10 +681,6 @@
 			</File>
 			<File
 				RelativePath="..\SDL_framerate.h"
-				>
-			</File>
-			<File
-				RelativePath="..\SDL_rotozoom.h"
 				>
 			</File>
 			<File

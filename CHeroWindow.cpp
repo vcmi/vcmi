@@ -24,7 +24,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 {
 	artWorn.resize(19);
 	background = BitmapHandler::loadBitmap("HEROSCR4.bmp");
-	CSDL_Ext::blueToPlayersAdv(background, playerColor);
+	graphics->blueToPlayersAdv(background, playerColor);
 	pos.x = 65;
 	pos.y = 8;
 	pos.h = background->h;

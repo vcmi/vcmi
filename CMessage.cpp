@@ -14,6 +14,7 @@
 #include <sstream>
 #include "CLua.h"
 #include "hch/CGeneralTextHandler.h"
+#include "client/Graphics.h"
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 
@@ -61,7 +62,7 @@ void CMessage::init()
 			}
 			for (int j=0;j<bluePieces->ourImages.size();j++)
 			{
-				CSDL_Ext::blueToPlayersAdv(bluePieces->ourImages[j].bitmap,i);
+				graphics->blueToPlayersAdv(bluePieces->ourImages[j].bitmap,i);
 				piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
 			}
 		}

@@ -3,10 +3,13 @@
 #include "CTownHandler.h"
 #include "CLodHandler.h"
 #include <sstream> 
+#include "../lib/VCMI_Lib.h"
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 CTownHandler::CTownHandler()
-{}
+{
+	VLC->townh = this;
+}
 CTownHandler::~CTownHandler()
 {}
 void CTownHandler::loadNames()

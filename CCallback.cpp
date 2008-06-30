@@ -364,6 +364,11 @@ UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 	return ret;
 }
 
+const StartInfo * CCallback::getStartInfo()
+{
+	return gs->scenarioOps;
+}
+
 int CCallback::howManyTowns()
 {
 	return gs->players[gs->currentPlayer].towns.size();
@@ -484,7 +489,7 @@ std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
 	else return std::vector< std::string > ();
 }
 
-PseudoV< PseudoV< PseudoV<unsigned char> > > & CCallback::getVisibilityMap()
+std::vector< std::vector< std::vector<unsigned char> > > & CCallback::getVisibilityMap()
 {
 	return gs->players[player].fogOfWarMap;
 }
@@ -844,7 +849,7 @@ int3 CScriptCallback::getPos(CGObjectInstance * ob)
 }
 void CScriptCallback::changePrimSkill(int ID, int which, int val)
 {	
-	CGHeroInstance * hero = CGI->state->getHero(ID,0);
+	CGHeroInstance * hero = CGI->state->map->getHero(ID,0);
 	if (which<PRIMARY_SKILLS)
 	{
 		hero->primSkills[which]+=val;
@@ -884,7 +889,7 @@ void CScriptCallback::changePrimSkill(int ID, int which, int val)
 
 int CScriptCallback::getHeroOwner(int heroID)
 {
-	CGHeroInstance * hero = CGI->state->getHero(heroID,0);
+	CGHeroInstance * hero = CGI->state->map->getHero(heroID,0);
 	return hero->getOwner();
 }
 void CScriptCallback::showInfoDialog(int player, std::string text, std::vector<SComponent*> * components)
@@ -966,13 +971,13 @@ void CScriptCallback::heroVisitCastle(CGObjectInstance * ob, int heroID)
 	CGTownInstance * n;
 	if(n = dynamic_cast<CGTownInstance*>(ob))
 	{
-		n->visitingHero = CGI->state->getHero(heroID,0);
-		CGI->state->getHero(heroID,0)->visitedTown = n;
+		n->visitingHero = CGI->state->map->getHero(heroID,0);
+		CGI->state->map->getHero(heroID,0)->visitedTown = n;
 		for(int b=0; b<CGI->playerint.size(); ++b)
 		{
 			if(CGI->playerint[b]->playerID == getHeroOwner(heroID))
 			{
-				CGI->playerint[b]->heroVisitsTown(CGI->state->getHero(heroID,0),n);
+				CGI->playerint[b]->heroVisitsTown(CGI->state->map->getHero(heroID,0),n);
 				break;
 			}
 		}
@@ -986,7 +991,7 @@ void CScriptCallback::stopHeroVisitCastle(CGObjectInstance * ob, int heroID)
 	CGTownInstance * n;
 	if(n = dynamic_cast<CGTownInstance*>(ob))
 	{
-		CGI->state->getHero(heroID,0)->visitedTown = NULL;
+		CGI->state->map->getHero(heroID,0)->visitedTown = NULL;
 		if(n->visitingHero && n->visitingHero->type->ID == heroID)
 			n->visitingHero = NULL;
 		return;
@@ -996,7 +1001,7 @@ void CScriptCallback::stopHeroVisitCastle(CGObjectInstance * ob, int heroID)
 }
 void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
 {
-	CGHeroInstance* h = gs->getHero(hid,0);
+	CGHeroInstance* h = gs->map->getHero(hid,0);
 	if(position<0)
 	{
 		for(int i=0;i<h->artifacts.size();i++)
@@ -1026,7 +1031,7 @@ void CScriptCallback::startBattle(CCreatureSet * army1, CCreatureSet * army2, in
 }
 void CScriptCallback::startBattle(int heroID, CCreatureSet * army, int3 tile) //for hero<=>neutral army
 {
-	CGHeroInstance* h = gs->getHero(heroID,0);
+	CGHeroInstance* h = gs->map->getHero(heroID,0);
 	gs->battle(&h->army,army,tile,h,NULL);
 }
 void CLuaCallback::registerFuncs(lua_State * L)

@@ -3,18 +3,18 @@
 
 //class CMapHandler;
 class CArtHandler;
-//class CHeroHandler;
+class CHeroHandler;
 class CCreatureHandler;
 //class CAbilityHandler;
 //class CSpellHandler;
 //class CAmbarCendamo;
 //class CPreGameTextHandler;
 //class CBuildingHandler;
-//class CObjectHandler;
+class CObjectHandler;
 //class CMusicHandler;
 //class CSemiLodHandler;
 class CDefObjInfoHandler;
-//class CTownHandler;
+class CTownHandler;
 //class CGeneralTextHandler;
 //class CConsoleHandler;
 //class CPathfinder;
@@ -31,18 +31,18 @@ class LibClasses
 public:
 	//CGameState * state;
 	CArtHandler * arth;
-	//CHeroHandler * heroh;
+	CHeroHandler * heroh;
 	CCreatureHandler * creh;
 	//CAbilityHandler * abilh;
 	//CSpellHandler * spellh;
 	//CMapHandler * mh;
 	//CPreGameTextHandler * preth;
 	//CBuildingHandler * buildh;
-	//CObjectHandler * objh;
+	CObjectHandler * objh;
 	//CMusicHandler * mush;
 	//CSemiLodHandler * sspriteh;
 	CDefObjInfoHandler * dobjinfo;
-	//CTownHandler * townh;
+	CTownHandler * townh;
 	//CGeneralTextHandler * generaltexth;
 	//CConsoleHandler * consoleh;
 	//CPathfinder * pathf;

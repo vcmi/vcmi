@@ -142,7 +142,7 @@ int internalFunc(void * callback)
 			//	break;
 			}
 			//SDL_Delay(100);
-			delete p;
+			//delete p;
 		}
 	}
 	return -1;

@@ -235,7 +235,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	if((townlist->selected+1) > townlist->SIZE)
 		townlist->from = townlist->selected -  townlist->SIZE + 2;
 
-	CSDL_Ext::blueToPlayersAdv(townInt,LOCPLINT->playerID);
+	graphics->blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit->bitmapOffset = 4;
 
 
@@ -660,7 +660,7 @@ CHallInterface::CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap("Z2ESBAR.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	CSDL_Ext::blueToPlayersAdv(bg,LOCPLINT->playerID);
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos.x = 7;
 	pos.y = 575;
 	pos.w = bg->w;
@@ -770,7 +770,7 @@ CHallInterface::CBuildingBox::CBuildingBox(int id, int x, int y)
 CHallInterface::CHallInterface(CCastleInterface * owner)
 {
 	bg = BitmapHandler::loadBitmap(CGI->buildh->hall[owner->town->subID].first);
-	CSDL_Ext::blueToPlayersAdv(bg,LOCPLINT->playerID);
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
 	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	exit = new AdventureMapButton
@@ -1014,7 +1014,7 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	SDL_FreeSurface(hhlp);
 	pos.x = screen->w/2 - bitmap->w/2;
 	pos.y = screen->h/2 - bitmap->h/2;
-	CSDL_Ext::blueToPlayersAdv(bitmap,LOCPLINT->playerID);
+	graphics->blueToPlayersAdv(bitmap,LOCPLINT->playerID);
 	blitAt(LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,125,50,bitmap);
 	std::vector<std::string> pom; pom.push_back(CGI->buildh->buildings[tid][bid]->name);
 	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->description,197,168,GEOR16,40,zwykly,bitmap);

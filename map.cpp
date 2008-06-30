@@ -947,7 +947,6 @@ Mapa::Mapa(unsigned char * bufor)
 	//////READING DEF INFO///////
 	int defAmount = readNormalNr(bufor,i); i+=4;
 	defy.reserve(defAmount);
-
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
 	{
 		CGDefInfo * vinya = new CGDefInfo(); // info about new def 
@@ -1233,9 +1232,6 @@ Mapa::Mapa(unsigned char * bufor)
 				nhi->movement = -1;
 				if(nhi->ID==34)
 					heroes.push_back(nhi);
-				//else
-				//	CGI->objh->objInstances.push_back(nhi);
-
 				break;
 			}
 		case CREATURES_DEF:
@@ -1860,7 +1856,8 @@ Mapa::Mapa(unsigned char * bufor)
 				nt->builded = 0;
 				nt->destroyed = 0;
 				nt->garrisonHero = NULL;
-				towns.push_back(nt);
+				if(nt->ID=98)
+					towns.push_back(nt);
 				break;
 			}
 		case EDefType::PLAYERONLY_DEF:
@@ -2290,4 +2287,13 @@ borderguardend:
 
 	//map readed, bufor no longer needed
 	delete[] bufor; bufor=NULL;
+}	
+CGHeroInstance * Mapa::getHero(int ID, int mode)
+{
+	if (mode != 0)
+		throw new std::exception("gs->getHero: This mode is not supported!");
+	for(int i=0; i<heroes.size();i++)
+		if(heroes[i]->subID == ID)
+			return heroes[i];
+	return NULL;
 }

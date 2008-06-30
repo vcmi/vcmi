@@ -41,6 +41,18 @@ template <typename T> class PseudoV
 public:
 	int offset;
 	std::vector<T> inver;
+	PseudoV(){};
+	PseudoV(std::vector<T> &src, int offset, const T& fill)
+	{
+		inver.resize(Offset*2+rest);
+		offset=Offset;
+		for(int i=0; i<offset;i++)
+			inver[i] = fill;
+		for(int i=0;i<src.size();i++)
+			inver[offset+i] = src[i];
+		for(int i=src.size(); i<src.size()+offset;i++)
+			inver[offset+i] = fill;
+	}
 	inline T & operator[](int n)
 	{
 		return inver[n+offset];
@@ -65,24 +77,23 @@ public:
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;
 
-	PseudoV< PseudoV< PseudoV<unsigned char> > > visibility; //true means that pointed place is visible //not used now
+	std::vector< std::vector< std::vector<unsigned char> > > visibility; //true means that pointed place is visible //not used now
 	//std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;
 	std::vector<CDefHandler*> defs;
 
 	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
-	std::map<int, CGDefInfo*> villages, forts, capitols;
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 
-	PseudoV< PseudoV< PseudoV<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
+	std::vector<std::vector<std::vector<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
 	void loadDefs();
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
 	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
-	SDL_Surface * getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, int lvl);
+	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl);
 
 	int getCost(int3 & a, int3 & b, const CGHeroInstance * hero);
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
@@ -105,7 +116,7 @@ public:
 	void prepareFOWDefs();
 	void randomizeObjects();
 
-	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL); //if extSurf is specified, blit to it
+	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap = CGI->mh->visibility, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL); //if extSurf is specified, blit to it
 	SDL_Surface * terrBitmap(int x, int y);
 	SDL_Surface * undTerrBitmap(int x, int y);
 	std::string getRandomizedDefName(CGDefInfo* di, CGObjectInstance * obj = NULL); //objinstance needed only for heroes and towns

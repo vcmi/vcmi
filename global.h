@@ -41,6 +41,8 @@ extern CGameInfo* CGI;
 #define LOGE(x) ;
 #endif
 
+#define NAME_VER ("VCMI \"Altanatse\" 0.7")
+
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
 const int HEROES_PER_TYPE=8; //amount of heroes of each type

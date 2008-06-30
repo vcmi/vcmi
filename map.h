@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 #include "global.h"
 class CGDefInfo;
 class CGObjectInstance;
@@ -363,40 +364,6 @@ public:
 	int firstOccurence;
 	int nextOccurence; //after nextOccurance day event will occure; if it it 0, event occures only one time;
 };
-struct DLL_EXPORT Mapa
-{
-	Eformat version; // version of map Eformat
-	int twoLevel; // if map has underground level
-	int difficulty; // 0 easy - 4 impossible
-	int levelLimit;
-	bool areAnyPLayers; // if there are any playable players on map
-	std::string name;  //name of map
-	std::string description;  //and description
-	int height, width; 
-	TerrainTile** terrain; 
-	TerrainTile** undergroungTerrain; // used only if there is underground level
-	std::vector<Rumor> rumors;
-	std::vector<DisposedHero> disposedHeroes;
-	std::vector<CGHeroInstance*> predefinedHeroes;
-	std::vector<CGDefInfo *> defy; // list of .def files
-	PlayerInfo players[8]; // info about players
-	std::vector<int> teams;  // teams[i] = team of player no i 
-	LossCondition lossCondition;
-	EvictoryConditions victoryCondition; //victory conditions
-	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
-	int howManyTeams;
-	std::vector<bool> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
-	std::vector<bool> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
-	std::vector<bool> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
-	std::vector<bool> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
-	std::vector<CMapEvent> events;
-
-	std::vector<CGObjectInstance*> objects;
-	std::vector<CGHeroInstance*> heroes;
-	std::vector<CGTownInstance*> towns;
-
-	Mapa(unsigned char * bufor); //creates map from decompressed .h3m data
-};
 class DLL_EXPORT CMapHeader
 {
 public:
@@ -477,5 +444,41 @@ public:
 		}
 	};
 	mapSorter(ESortBy es):sortBy(es){};
+};
+struct DLL_EXPORT Mapa
+{
+	Eformat version; // version of map Eformat
+	int twoLevel; // if map has underground level
+	int difficulty; // 0 easy - 4 impossible
+	int levelLimit;
+	bool areAnyPLayers; // if there are any playable players on map
+	std::string name;  //name of map
+	std::string description;  //and description
+	int height, width; 
+	TerrainTile** terrain; 
+	TerrainTile** undergroungTerrain; // used only if there is underground level
+	std::vector<Rumor> rumors;
+	std::vector<DisposedHero> disposedHeroes;
+	std::vector<CGHeroInstance*> predefinedHeroes;
+	std::vector<CGDefInfo *> defy; // list of .def files with definitions from .h3m (may be custom)
+	std::set<CGDefInfo *> defs; // other defInfos - for randomized objects, objects added or modified by script
+	PlayerInfo players[8]; // info about players
+	std::vector<int> teams;  // teams[i] = team of player no i 
+	LossCondition lossCondition;
+	EvictoryConditions victoryCondition; //victory conditions
+	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
+	int howManyTeams;
+	std::vector<bool> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
+	std::vector<bool> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
+	std::vector<bool> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
+	std::vector<bool> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
+	std::vector<CMapEvent> events;
+
+	std::vector<CGObjectInstance*> objects;
+	std::vector<CGHeroInstance*> heroes;
+	std::vector<CGTownInstance*> towns;
+
+	Mapa(unsigned char * bufor); //creates map from decompressed .h3m data
+	CGHeroInstance * getHero(int ID, int mode=0);
 };
 #endif //MAPD_H

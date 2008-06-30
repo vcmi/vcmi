@@ -10,6 +10,7 @@
 #include "CGameState.h"
 #include "hch\CGeneralTextHandler.h"
 #include "client/CCreatureAnimation.h"
+#include "client/Graphics.h"
 #include <queue>
 #include <sstream>
 
@@ -37,7 +38,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	std::vector< std::string > & backref = CGI->mh->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
 	background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()] );
 	menu = BitmapHandler::loadBitmap("CBAR.BMP");
-	CSDL_Ext::blueToPlayersAdv(menu, hero1->tempOwner);
+	graphics->blueToPlayersAdv(menu, hero1->tempOwner);
 
 	//preparing graphics for displaying amounts of creatures
 	amountBasic = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
@@ -949,7 +950,7 @@ CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG
 	for(int i=0; i<flag->ourImages.size(); ++i)
 	{
 		flag->ourImages[i].bitmap = CSDL_Ext::alphaTransform(flag->ourImages[i].bitmap);
-		CSDL_Ext::blueToPlayersAdv(flag->ourImages[i].bitmap, player);
+		graphics->blueToPlayersAdv(flag->ourImages[i].bitmap, player);
 	}
 }
 

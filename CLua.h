@@ -11,6 +11,7 @@ class CGHeroInstance;
 class CScriptCallback;
 class SComponent;
 class CSelectableComponent;
+class CGameState;
 struct Mapa;
 enum ESLan{UNDEF=-1,CPP,ERM,LUA};
 class CObjectScript
@@ -70,7 +71,7 @@ public:
 	void findFS(std::string fname);
 
 	
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 
 class CLuaObjectScript : public CLua, public CObjectScript
@@ -85,7 +86,7 @@ public:
 	void onHeroVisit(CGObjectInstance *os, int heroID);
 	std::string hoverText(CGObjectInstance *os);
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 class CCPPObjectScript: public CObjectScript
 {
@@ -107,7 +108,7 @@ class CVisitableOPH : public CCPPObjectScript  //once per hero
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 	std::string hoverText(CGObjectInstance *os);
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 
 class CVisitableOPW : public CCPPObjectScript  //once per week
@@ -121,7 +122,7 @@ class CVisitableOPW : public CCPPObjectScript  //once per week
 	std::string hoverText(CGObjectInstance *os);
 	void newTurn (); 
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 
 class CMines : public CCPPObjectScript  //flaggable, and giving resource at each day
@@ -136,7 +137,7 @@ class CMines : public CCPPObjectScript  //flaggable, and giving resource at each
 	std::string hoverText(CGObjectInstance *os);
 	void newTurn (); 
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 
 class CPickable : public CCPPObjectScript, public IChosen  //pickable - resources, artifacts, etc
@@ -151,7 +152,7 @@ class CPickable : public CCPPObjectScript, public IChosen  //pickable - resource
 	std::string hoverText(CGObjectInstance *os);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 
 class CTownScript : public CCPPObjectScript  //pickable - resources, artifacts, etc
@@ -162,7 +163,7 @@ class CTownScript : public CCPPObjectScript  //pickable - resources, artifacts, 
 	std::string hoverText(CGObjectInstance *os);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 
 class CHeroScript : public CCPPObjectScript
@@ -174,7 +175,7 @@ class CHeroScript : public CCPPObjectScript
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 	std::string hoverText(CGObjectInstance *os);
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 
 class CMonsterS : public CCPPObjectScript
@@ -186,7 +187,7 @@ class CMonsterS : public CCPPObjectScript
 	void onHeroVisit(CGObjectInstance *os, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };
 
 class CCreatureGen : public CCPPObjectScript
@@ -198,5 +199,5 @@ class CCreatureGen : public CCPPObjectScript
 	void onHeroVisit(CGObjectInstance *os, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 
-	friend void initGameState(Mapa * map, CGameInfo * cgi);
+	friend CGameState;
 };

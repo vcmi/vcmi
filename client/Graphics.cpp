@@ -2,7 +2,6 @@
 #include "Graphics.h"
 #include "../hch/CDefHandler.h"
 #include "../hch/CObjectHandler.h"
-//#include "../hch/CHeroHandler.h"
 #include "../SDL_Extensions.h"
 #include <boost/assign/std/vector.hpp> 
 #include <sstream>
@@ -12,6 +11,8 @@
 #include <boost/bind.hpp>
 #include <boost/assign/std/vector.hpp>
 #include "../CThreadHelper.h"
+#include "../CGameInfo.h"
+#include "../hch/CLodHandler.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
 Graphics * graphics = NULL;
@@ -30,7 +31,7 @@ SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 {
 	char * buf = new char[10];
 	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
-	blueToPlayersAdv(hInfo,curh->tempOwner,1);
+	blueToPlayersAdv(hInfo,curh->tempOwner);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 	printAt(curh->name,75,15,GEOR13,zwykly,ret);
 	drawPrimarySkill(curh, ret);
@@ -52,7 +53,7 @@ SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 {
 	char * buf = new char[10];
-	blueToPlayersAdv(tInfo,curh->tempOwner,1);
+	blueToPlayersAdv(tInfo,curh->tempOwner);
 	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 	printAt(curh->name,75,15,GEOR13,zwykly,ret);
@@ -82,6 +83,35 @@ SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 	delete[] buf;
 	return ret;
 }
+
+void Graphics::loadPaletteAndColors()
+{
+	std::string pals = CGI->bitmaph->getTextFile("PLAYERS.PAL");
+	playerColorPalette = new SDL_Color[256];
+	neutralColor = new SDL_Color;
+	playerColors = new SDL_Color[PLAYER_LIMIT];
+	int startPoint = 24; //beginning byte; used to read
+	for(int i=0; i<256; ++i)
+	{
+		SDL_Color col;
+		col.r = pals[startPoint++];
+		col.g = pals[startPoint++];
+		col.b = pals[startPoint++];
+		col.unused = pals[startPoint++];
+		playerColorPalette[i] = col;
+	}
+	//colors initialization
+	int3 kolory[] = {int3(0xff,0,0),int3(0x31,0x52,0xff),int3(0x9c,0x73,0x52),int3(0x42,0x94,0x29),
+		int3(0xff,0x84,0x0),int3(0x8c,0x29,0xa5),int3(0x09,0x9c,0xa5),int3(0xc6,0x7b,0x8c)};
+	for(int i=0;i<8;i++)
+	{
+		playerColors[i].r = kolory[i].x;
+		playerColors[i].g = kolory[i].y;
+		playerColors[i].b = kolory[i].z;
+		playerColors[i].unused = 0;
+	}
+	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84;//gray
+}
 Graphics::Graphics()
 {
 	slotsPos.push_back(std::pair<int,int>(44,82));
@@ -95,6 +125,7 @@ Graphics::Graphics()
 	CDefHandler *smi, *smi2;
 
 	std::vector<Task> tasks; //preparing list of graphics to load
+	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
 	tasks += GET_SURFACE(hInfo,"HEROQVBK.bmp");
@@ -338,5 +369,81 @@ SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 		if (!builded)
 			pom--;
 		return smallIcons->ourImages[pom].bitmap;
+	}
+}
+
+void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
+{
+	if(player==1) //it is actually blue...
+		return;
+	if(sur->format->BitsPerPixel == 8)
+	{
+		for(int i=0; i<32; ++i)
+		{
+			sur->format->palette->colors[224+i] = playerColorPalette[32*player+i];
+		}
+	}
+	else if(sur->format->BitsPerPixel == 24) //should never happen in general
+	{
+		for(int y=0; y<sur->h; ++y)
+		{
+			for(int x=0; x<sur->w; ++x)
+			{
+				Uint8* cp = (Uint8*)sur->pixels + y*sur->pitch + x*3;
+				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
+				{
+					if(cp[2]>cp[1] && cp[2]>cp[0])
+					{
+						std::vector<long long int> sort1;
+						sort1.push_back(cp[0]);
+						sort1.push_back(cp[1]);
+						sort1.push_back(cp[2]);
+						std::vector< std::pair<long long int, Uint8*> > sort2;
+						sort2.push_back(std::make_pair(graphics->playerColors[player].r, &(cp[0])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player].g, &(cp[1])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player].b, &(cp[2])));
+						std::sort(sort1.begin(), sort1.end());
+						if(sort2[0].first>sort2[1].first)
+							std::swap(sort2[0], sort2[1]);
+						if(sort2[1].first>sort2[2].first)
+							std::swap(sort2[1], sort2[2]);
+						if(sort2[0].first>sort2[1].first)
+							std::swap(sort2[0], sort2[1]);
+						for(int hh=0; hh<3; ++hh)
+						{
+							(*sort2[hh].second) = (sort1[hh] + sort2[hh].first)/2.2;
+						}
+					}
+				}
+				else
+				{
+					if(
+						(/*(mode==0) && (cp[0]>cp[1]) && (cp[0]>cp[2])) ||
+						((mode==1) &&*/ (cp[2]<45) && (cp[0]>80) && (cp[1]<70) && ((cp[0]-cp[1])>40))
+					  )
+					{
+						std::vector<long long int> sort1;
+						sort1.push_back(cp[2]);
+						sort1.push_back(cp[1]);
+						sort1.push_back(cp[0]);
+						std::vector< std::pair<long long int, Uint8*> > sort2;
+						sort2.push_back(std::make_pair(graphics->playerColors[player].r, &(cp[2])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player].g, &(cp[1])));
+						sort2.push_back(std::make_pair(graphics->playerColors[player].b, &(cp[0])));
+						std::sort(sort1.begin(), sort1.end());
+						if(sort2[0].first>sort2[1].first)
+							std::swap(sort2[0], sort2[1]);
+						if(sort2[1].first>sort2[2].first)
+							std::swap(sort2[1], sort2[2]);
+						if(sort2[0].first>sort2[1].first)
+							std::swap(sort2[0], sort2[1]);
+						for(int hh=0; hh<3; ++hh)
+						{
+							(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
+						}
+					}
+				}
+			}
+		}
 	}
 }
