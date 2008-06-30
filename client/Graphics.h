@@ -6,10 +6,14 @@ class CGHeroInstance;
 class CGTownInstance;
 class CDefHandler;
 class CHeroClass;
+struct SDL_Color;
 class Graphics
 {
 public:
 	//various graphics
+	SDL_Color * playerColors; //array [8]
+	SDL_Color * neutralColor;
+	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
 	SDL_Surface * hInfo, *tInfo; //hero and town infobox bgs
 	std::vector<std::pair<int, int> > slotsPos; //creature slot positions in infoboxes
 	CDefEssential *luck22, *luck30, *luck42, *luck82,
@@ -31,6 +35,7 @@ public:
 	
 	//functions
 	Graphics();
+	void loadPaletteAndColors();
 	void loadHeroFlags();
 	void loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, std::vector<const char *> > &pr, bool mode);
 	void loadHeroAnim(std::vector<CDefHandler **> & anims);
@@ -39,6 +44,7 @@ public:
 	SDL_Surface * drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from=0, int to=PRIMARY_SKILLS);
 	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //returns small picture of town: ID=-1 - blank; -2 - border; -3 - random
+	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
 };
 
 extern Graphics * graphics;
