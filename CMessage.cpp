@@ -1,14 +1,14 @@
 #include "stdafx.h"
 #include "CMessage.h"
 #include "SDL_TTF.h"
-#include "hch\CDefHandler.h"
+#include "hch/CDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
-#include "hch\CLodHandler.h"
+#include "hch/CLodHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "CPlayerInterface.h"
-#include "hch\CDefHandler.h"
+#include "hch/CDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include <sstream>

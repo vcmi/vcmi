@@ -22,7 +22,7 @@
 #include "timeHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "hch\CPreGameTextHandler.h"
+#include "hch/CPreGameTextHandler.h"
 #include "CBattleInterface.h"
 #include "CLua.h"
 #include <cmath>

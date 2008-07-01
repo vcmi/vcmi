@@ -604,10 +604,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CLua.h"
-				>
-			</File>
-			<File
 				RelativePath="..\CLuaHandler.h"
 				>
 			</File>

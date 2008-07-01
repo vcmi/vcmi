@@ -472,66 +472,66 @@ void CGameState::init(StartInfo * si, Mapa * map, int seed)
 		}
 	}
 
-	/****************************SCRIPTS************************************************/
-	std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &objscr; //alias for easier access
-	/****************************C++ OBJECT SCRIPTS************************************************/
-	std::map<int,CCPPObjectScript*> scripts;
-	CScriptCallback * csc = new CScriptCallback();
-	csc->gs = this;
-	handleCPPObjS(&scripts,new CVisitableOPH(csc));
-	handleCPPObjS(&scripts,new CVisitableOPW(csc));
-	handleCPPObjS(&scripts,new CPickable(csc));
-	handleCPPObjS(&scripts,new CMines(csc));
-	handleCPPObjS(&scripts,new CTownScript(csc));
-	handleCPPObjS(&scripts,new CHeroScript(csc));
-	handleCPPObjS(&scripts,new CMonsterS(csc));
-	handleCPPObjS(&scripts,new CCreatureGen(csc));
-	//created map
+	///****************************SCRIPTS************************************************/
+	//std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &objscr; //alias for easier access
+	///****************************C++ OBJECT SCRIPTS************************************************/
+	//std::map<int,CCPPObjectScript*> scripts;
+	//CScriptCallback * csc = new CScriptCallback();
+	//csc->gs = this;
+	//handleCPPObjS(&scripts,new CVisitableOPH(csc));
+	//handleCPPObjS(&scripts,new CVisitableOPW(csc));
+	//handleCPPObjS(&scripts,new CPickable(csc));
+	//handleCPPObjS(&scripts,new CMines(csc));
+	//handleCPPObjS(&scripts,new CTownScript(csc));
+	//handleCPPObjS(&scripts,new CHeroScript(csc));
+	//handleCPPObjS(&scripts,new CMonsterS(csc));
+	//handleCPPObjS(&scripts,new CCreatureGen(csc));
+	////created map
 
-	/****************************LUA OBJECT SCRIPTS************************************************/
-	std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
-	for (int i=0; i<lf->size(); i++)
-	{
-		try
-		{
-			std::vector<std::string> * temp =  CLuaHandler::functionList((*lf)[i]);
-			CLuaObjectScript * objs = new CLuaObjectScript((*lf)[i]);
-			CLuaCallback::registerFuncs(objs->is);
-			//objs
-			for (int j=0; j<temp->size(); j++)
-			{
-				int obid ; //obj ID
-				int dspos = (*temp)[j].find_first_of('_');
-				obid = atoi((*temp)[j].substr(dspos+1,(*temp)[j].size()-dspos-1).c_str());
-				std::string fname = (*temp)[j].substr(0,dspos);
-				if (skrypty->find(obid)==skrypty->end())
-					skrypty->insert(std::pair<int, std::map<std::string, CObjectScript*> >(obid,std::map<std::string,CObjectScript*>()));
-				(*skrypty)[obid].insert(std::pair<std::string, CObjectScript*>(fname,objs));
-			}
-			delete temp;
-		}HANDLE_EXCEPTION
-	}
-	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
-	std::string temps("newObject");
-	for (int i=0; i<map->objects.size(); i++)
-	{
-		//c++ scripts
-		if (scripts.find(map->objects[i]->ID) != scripts.end())
-		{
-			map->objects[i]->state = scripts[map->objects[i]->ID];
-			map->objects[i]->state->newObject(map->objects[i]);
-		}
-		else 
-		{
-			map->objects[i]->state = NULL;
-		}
+	///****************************LUA OBJECT SCRIPTS************************************************/
+	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
+	//for (int i=0; i<lf->size(); i++)
+	//{
+	//	try
+	//	{
+	//		std::vector<std::string> * temp =  CLuaHandler::functionList((*lf)[i]);
+	//		CLuaObjectScript * objs = new CLuaObjectScript((*lf)[i]);
+	//		CLuaCallback::registerFuncs(objs->is);
+	//		//objs
+	//		for (int j=0; j<temp->size(); j++)
+	//		{
+	//			int obid ; //obj ID
+	//			int dspos = (*temp)[j].find_first_of('_');
+	//			obid = atoi((*temp)[j].substr(dspos+1,(*temp)[j].size()-dspos-1).c_str());
+	//			std::string fname = (*temp)[j].substr(0,dspos);
+	//			if (skrypty->find(obid)==skrypty->end())
+	//				skrypty->insert(std::pair<int, std::map<std::string, CObjectScript*> >(obid,std::map<std::string,CObjectScript*>()));
+	//			(*skrypty)[obid].insert(std::pair<std::string, CObjectScript*>(fname,objs));
+	//		}
+	//		delete temp;
+	//	}HANDLE_EXCEPTION
+	//}
+	///****************************INITIALIZING OBJECT SCRIPTS************************************************/
+	//std::string temps("newObject");
+	//for (int i=0; i<map->objects.size(); i++)
+	//{
+	//	//c++ scripts
+	//	if (scripts.find(map->objects[i]->ID) != scripts.end())
+	//	{
+	//		map->objects[i]->state = scripts[map->objects[i]->ID];
+	//		map->objects[i]->state->newObject(map->objects[i]);
+	//	}
+	//	else 
+	//	{
+	//		map->objects[i]->state = NULL;
+	//	}
 
-		// lua scripts
-		if(checkFunc(map->objects[i]->ID,temps))
-			(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
-	}
+	//	// lua scripts
+	//	if(checkFunc(map->objects[i]->ID,temps))
+	//		(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
+	//}
 
-	delete lf;
+	//delete lf;
 }
 void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2)
 {/*

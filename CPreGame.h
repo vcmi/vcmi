@@ -4,10 +4,10 @@
 #include <set>
 #include "SDL.h"
 #include "StartInfo.h"
-#include "hch\CPreGameTextHandler.h" 
+#include "hch/CPreGameTextHandler.h" 
 #include "CMessage.h"
 #include "map.h"
-#include "hch\CMusicHandler.h"
+#include "hch/CMusicHandler.h"
 class CPreGame;
 extern CPreGame * CPG;
 

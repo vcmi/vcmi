@@ -3,9 +3,9 @@
 #include "stdafx.h"
 #include "SDL.h"
 #include "SDL_TTF.h"
-#include "hch\CVideoHandler.h"
+#include "hch/CVideoHandler.h"
 #include "SDL_mixer.h"
-#include "hch\CBuildingHandler.h"
+#include "hch/CBuildingHandler.h"
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
 #include <cmath>
@@ -13,24 +13,24 @@
 #include <vector>
 #include "zlib.h"
 #include <cmath>
-#include "hch\CArtHandler.h"
-#include "hch\CHeroHandler.h"
-#include "hch\CCreatureHandler.h"
-#include "hch\CAbilityHandler.h"
-#include "hch\CSpellHandler.h"
-#include "hch\CBuildingHandler.h"
-#include "hch\CObjectHandler.h"
+#include "hch/CArtHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CCreatureHandler.h"
+#include "hch/CAbilityHandler.h"
+#include "hch/CSpellHandler.h"
+#include "hch/CBuildingHandler.h"
+#include "hch/CObjectHandler.h"
 #include "CGameInfo.h"
-#include "hch\CMusicHandler.h"
-#include "hch\CLodHandler.h"
-#include "hch\CDefHandler.h"
-#include "hch\CTownHandler.h"
-#include "hch\CDefObjInfoHandler.h"
-#include "hch\CAmbarCendamo.h"
+#include "hch/CMusicHandler.h"
+#include "hch/CLodHandler.h"
+#include "hch/CDefHandler.h"
+#include "hch/CTownHandler.h"
+#include "hch/CDefObjInfoHandler.h"
+#include "hch/CAmbarCendamo.h"
 #include "mapHandler.h"
 #include "global.h"
 #include "CPreGame.h"
-#include "hch\CGeneralTextHandler.h"
+#include "hch/CGeneralTextHandler.h"
 #include "CConsoleHandler.h"
 #include "CCursorHandler.h"
 #include "CScreenHandler.h"
@@ -41,8 +41,9 @@
 #include "CLuaHandler.h"
 #include "CLua.h"
 #include "CAdvmapInterface.h"
-#include "client\Graphics.h"
+#include "client/Graphics.h"
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
 using boost::asio::ip::tcp;
@@ -59,7 +60,9 @@ void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * sc
 	CGI->state->cppscripts.insert(script);
 }
 int _tmain(int argc, _TCHAR* argv[])
-{ /*
+{ 
+	boost::thread servthr(boost::bind(system,"Debug\\VCMI_server.exe"));
+	/*
     boost::asio::io_service io_service;
     boost::system::error_code error = boost::asio::error::host_not_found;
 	tcp::socket socket(io_service);

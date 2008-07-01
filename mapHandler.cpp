@@ -3,13 +3,13 @@
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include <cstdlib>
-#include "hch\CLodHandler.h"
-#include "hch\CDefObjInfoHandler.h"
+#include "hch/CLodHandler.h"
+#include "hch/CDefObjInfoHandler.h"
 #include <algorithm>
 #include "CGameState.h"
 #include "CLua.h"
-#include "hch\CHeroHandler.h"
-#include "hch\CTownHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CTownHandler.h"
 #include "client\Graphics.h"
 #include <iomanip>
 #include <sstream>
