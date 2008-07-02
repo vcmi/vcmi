@@ -1,8 +1,6 @@
 #ifndef CGAMEINFO_H
 #define CGAMEINFO_H
-
-#include "StartInfo.h"
-#include "SDL.h"
+#include "global.h"
 
 #include <vector>
 

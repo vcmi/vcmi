@@ -20,6 +20,8 @@
 #include "AdventureMapButton.h"
 #include "CHeroWindow.h"
 #include "client/Graphics.h"
+#include "hch/CObjectHandler.h"
+#include "map.h"
 #pragma warning (disable : 4355) 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
@@ -558,7 +560,7 @@ void CTerrainRect::show()
 	SDL_Surface * teren = CGI->mh->terrainRect
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
 		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
-		LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+		&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
 		screen,&genRect(547,594,7,6)
 		);
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));

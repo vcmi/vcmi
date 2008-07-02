@@ -23,11 +23,14 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "hch/CPreGameTextHandler.h"
+#include "hch/CObjectHandler.h"
 #include "CBattleInterface.h"
+#include "CGameInfo.h"
 #include "CLua.h"
 #include <cmath>
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
+#include "map.h"
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;

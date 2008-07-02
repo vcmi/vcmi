@@ -91,15 +91,15 @@ int internalFunc(void * callback)
 			//	readed>>heronum;
 			//	std::cout<<"Position of hero "<<heronum<<": "<<CGI->heroh->heroInstances[heronum]->getPosition(false)<<std::endl;
 			//	break;
-			case 'M': //move heroa
-				{
-					readed>>heronum>>dest;
-					const CGHeroInstance * hero = cb->getHeroInfo(0,heronum,0);
-					p = CGI->pathf->GetPath(Coordinate(hero->getPosition(false)),Coordinate(dest),hero);
-					cb->moveHero(heronum, CGI->pathf->ConvertToOldFormat(p), 0, 0);
-					//LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
-					break;
-				}
+			//case 'M': //move heroa
+			//	{
+			//		readed>>heronum>>dest;
+			//		const CGHeroInstance * hero = cb->getHeroInfo(0,heronum,0);
+			//		p = CGI->pathf->GetPath(Coordinate(hero->getPosition(false)),Coordinate(dest),hero);
+			//		cb->moveHero(heronum, CGI->pathf->ConvertToOldFormat(p), 0, 0);
+			//		//LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
+			//		break;
+			//	}
 			case 'D': //pos description
 				readed>>src;
 				CGI->mh->getObjDescriptions(src);

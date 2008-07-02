@@ -61,7 +61,7 @@ void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * sc
 }
 int _tmain(int argc, _TCHAR* argv[])
 { 
-	boost::thread servthr(boost::bind(system,"Debug\\VCMI_server.exe"));
+	boost::thread servthr(boost::bind(system,"VCMI_server.exe"));
 	/*
     boost::asio::io_service io_service;
     boost::system::error_code error = boost::asio::error::host_not_found;

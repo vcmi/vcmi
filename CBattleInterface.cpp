@@ -4,6 +4,7 @@
 #include "SDL_Extensions.h"
 #include "CAdvmapInterface.h"
 #include "AdventureMapButton.h"
+#include "hch/CObjectHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CDefHandler.h"
 #include "CCallback.h"
@@ -35,7 +36,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		creDir[b->second.ID] = b->second.owner==attackingHeroInstance->tempOwner;
 	}
 	//preparing menu background and terrain
-	std::vector< std::string > & backref = CGI->mh->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
+	std::vector< std::string > & backref = graphics->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
 	background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()] );
 	menu = BitmapHandler::loadBitmap("CBAR.BMP");
 	graphics->blueToPlayersAdv(menu, hero1->tempOwner);
@@ -81,7 +82,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	//loading hero animations
 	if(hero1) // attacking hero
 	{
-		attackingHero = new CBattleHero(CGI->mh->battleHeroes[hero1->type->heroType], 0, 0, false, hero1->tempOwner);
+		attackingHero = new CBattleHero(graphics->battleHeroes[hero1->type->heroType], 0, 0, false, hero1->tempOwner);
 		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, -40, 0);
 	}
 	else
@@ -90,7 +91,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	}
 	if(hero2) // defending hero
 	{
-		defendingHero = new CBattleHero(CGI->mh->battleHeroes[hero2->type->heroType], 0, 0, true, hero2->tempOwner);
+		defendingHero = new CBattleHero(graphics->battleHeroes[hero2->type->heroType], 0, 0, true, hero2->tempOwner);
 		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, 690, 0);
 	}
 	else
@@ -323,7 +324,7 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	}
 	creDir[number] = !creDir[number];
 
-	CStack curs = LOCPLINT->cb->battleGetStackByID(number);
+	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
 	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, creDir[number], curs.creature);
 	creAnims[number]->pos.x = coords.first;
 	//creAnims[number]->pos.y = coords.second;
@@ -504,7 +505,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		}
-		if( (LOCPLINT->cb->battleGetStackByID(number).owner == attackingHeroInstance->tempOwner ) != creDir[number])
+		if( (LOCPLINT->cb->battleGetStackByID(number)->owner == attackingHeroInstance->tempOwner ) != creDir[number])
 		{
 			reverseCreature(number, curStackPos, true);
 		}
@@ -585,7 +586,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 	}
 
 	creAnims[number]->setType(2); //resetting to default
-	CStack curs = LOCPLINT->cb->battleGetStackByID(number);
+	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
 	if(endMoving) //resetting to default
 	{
 		if(creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))
@@ -614,7 +615,7 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby)
 
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
-	CStack aStack = LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
+	CStack aStack = *LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
 	if(aStack.creature->isDoubleWide())
 	{
 		switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
@@ -733,7 +734,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 			ba->stackNumber = activeStack;
 			givenCommand = ba;
 		}
-		else if(LOCPLINT->cb->battleGetStackByID(atCre).owner != attackingHeroInstance->tempOwner) //attacking
+		else if(LOCPLINT->cb->battleGetStackByID(atCre)->owner != attackingHeroInstance->tempOwner) //attacking
 		{
 			BattleAction * ba = new BattleAction(); //to be deleted by engine
 			ba->actionType = 6;
@@ -760,7 +761,7 @@ void CBattleInterface::attackingShowHelper()
 	{
 		if(attackingInfo->frame == 0)
 		{
-			CStack aStack = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
+			CStack aStack = *LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
 			if(aStack.creature->isDoubleWide())
 			{
 				switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
@@ -813,7 +814,7 @@ void CBattleInterface::attackingShowHelper()
 		else if(attackingInfo->frame == (attackingInfo->maxframe - 1))
 		{
 			attackingInfo->reversing = true;
-			CStack aStack = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
+			CStack aStack = *LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
 			if(aStack.creature->isDoubleWide())
 			{
 				switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
@@ -871,8 +872,8 @@ void CBattleInterface::attackingShowHelper()
 void CBattleInterface::printConsoleAttacked(int ID, int dmg, int killed, int IDby)
 {
 	char tabh[200];
-	CStack attacker = LOCPLINT->cb->battleGetStackByID(IDby);
-	CStack defender = LOCPLINT->cb->battleGetStackByID(ID);
+	CStack attacker = *LOCPLINT->cb->battleGetStackByID(IDby);
+	CStack defender = *LOCPLINT->cb->battleGetStackByID(ID);
 	int end = sprintf(tabh, CGI->generaltexth->allTexts[attacker.amount > 1 ? 377 : 376].c_str(),
 		(attacker.amount > 1 ? attacker.creature->namePl.c_str() : attacker.creature->nameSing.c_str()),
 		dmg);
@@ -1054,11 +1055,11 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 	if(hovered && strictHovered) //print attacked creature to console
 	{
 		if(myInterface->console->alterTxt.size() == 0 && LOCPLINT->cb->battleGetStack(myNumber) != -1 &&
-			LOCPLINT->cb->battleGetStackByPos(myNumber).owner != LOCPLINT->playerID &&
-			LOCPLINT->cb->battleGetStackByPos(myNumber).alive)
+			LOCPLINT->cb->battleGetStackByPos(myNumber)->owner != LOCPLINT->playerID &&
+			LOCPLINT->cb->battleGetStackByPos(myNumber)->alive)
 		{
 			char tabh[160];
-			CStack attackedStack = LOCPLINT->cb->battleGetStackByPos(myNumber);
+			CStack attackedStack = *LOCPLINT->cb->battleGetStackByPos(myNumber);
 			std::string attackedName = attackedStack.amount == 1 ? attackedStack.creature->nameSing : attackedStack.creature->namePl;
 			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
 			myInterface->console->alterTxt = std::string(tabh);
@@ -1085,7 +1086,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 	int stID = LOCPLINT->cb->battleGetStack(myNumber); //id of stack being on this tile
 	if(hovered && strictHovered && stID!=-1)
 	{
-		CStack myst = LOCPLINT->cb->battleGetStackByID(stID); //stack info
+		CStack myst = *LOCPLINT->cb->battleGetStackByID(stID); //stack info
 		StackState *pom = NULL;
 		if(down)
 		{

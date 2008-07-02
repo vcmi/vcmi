@@ -5,6 +5,7 @@
 #include "hch/CAmbarCendamo.h"
 #include "mapHandler.h"
 #include "CGameState.h"
+#include "hch/CObjectHandler.h"
 
 using namespace std;
 

@@ -8,6 +8,7 @@
 #include "hch/CTownHandler.h"
 #include "AdventureMapButton.h"
 #include "hch/CBuildingHandler.h"
+#include "hch/CDefHandler.h"
 #include <sstream>
 #include "CMessage.h"
 #include "hch/CGeneralTextHandler.h"

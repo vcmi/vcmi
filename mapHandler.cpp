@@ -13,6 +13,8 @@
 #include "client\Graphics.h"
 #include <iomanip>
 #include <sstream>
+#include "hch/CObjectHandler.h"
+#include "map.h"
 extern SDL_Surface * screen;
 std::string nameFromType (EterrainType typ)
 {
@@ -637,33 +639,9 @@ void CMapHandler::init()
 	std::cout<<"\tMaking object rects: "<<th.getDif()<<std::endl;
 	calculateBlockedPos();
 	std::cout<<"\tCalculating blockmap: "<<th.getDif()<<std::endl;
-
-	//initailizing battle backgrounds
-	std::ifstream bback("config/battleBack.txt");
-	battleBacks.resize(9);
-	for(int i=0; i<9; ++i) //9 - number of terrains battle can be fought on
-	{
-		int am;
-		bback>>am;
-		battleBacks[i].resize(am);
-		for(int f=0; f<am; ++f)
-		{
-			bback>>battleBacks[i][f];
-		}
-	}
-
-	//initializing battle hero animation
-	std::ifstream bher("config/battleHeroes.txt");
-	int numberofh;
-	bher>>numberofh;
-	battleHeroes.resize(numberofh);
-	for(int i=0; i<numberofh; ++i) //9 - number of terrains battle can be fought on
-	{
-		bher>>battleHeroes[i];
-	}
 }
 
-SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)
+SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)
 {
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
@@ -831,9 +809,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.h=sr.w=32;
 			validateRectTerr(&sr, extRect);
 			
-			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->map->width && by+y<CGI->mh->map->height && !visibilityMap[bx+x][by+y][level])
+			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->map->width && by+y<CGI->mh->map->height && !(*visibilityMap)[bx+x][by+y][level])
 			{
-				SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, level);
+				SDL_Surface * hide = getVisBitmap(bx+x, by+y, *visibilityMap, level);
 				CSDL_Ext::blit8bppAlphaTo24bpp(hide, &genRect(sr.h, sr.w, 0, 0), su, &sr);
 			}
 		}

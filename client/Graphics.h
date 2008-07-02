@@ -32,9 +32,12 @@ public:
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
-	
+	//for battles
+	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
+	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	//functions
-	Graphics();
+	Graphics();	
+	void initializeBattleGraphics();
 	void loadPaletteAndColors();
 	void loadHeroFlags();
 	void loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, std::vector<const char *> > &pr, bool mode);

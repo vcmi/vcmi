@@ -111,6 +111,31 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].unused = 0;
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84;//gray
+}	
+void Graphics::initializeBattleGraphics()
+{
+	std::ifstream bback("config/battleBack.txt");
+	battleBacks.resize(9);
+	for(int i=0; i<9; ++i) //9 - number of terrains battle can be fought on
+	{
+		int am;
+		bback>>am;
+		battleBacks[i].resize(am);
+		for(int f=0; f<am; ++f)
+		{
+			bback>>battleBacks[i][f];
+		}
+	}
+
+	//initializing battle hero animation
+	std::ifstream bher("config/battleHeroes.txt");
+	int numberofh;
+	bher>>numberofh;
+	battleHeroes.resize(numberofh);
+	for(int i=0; i<numberofh; ++i) //9 - number of terrains battle can be fought on
+	{
+		bher>>battleHeroes[i];
+	}
 }
 Graphics::Graphics()
 {
@@ -128,6 +153,7 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
+	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += GET_SURFACE(hInfo,"HEROQVBK.bmp");
 	tasks += GET_SURFACE(tInfo,"TOWNQVBK.bmp");
 	tasks += GET_DEF(artDefs,"ARTIFACT.DEF");

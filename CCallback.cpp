@@ -13,6 +13,7 @@
 #include "CAdvmapInterface.h"
 #include "CPlayerInterface.h"
 #include "hch/CBuildingHandler.h"
+#include "hch/CObjectHandler.h"
 LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
 
 int CCallback::lowestSpeed(CGHeroInstance * chi)
@@ -783,17 +784,17 @@ int CCallback::battleGetStack(int pos)
 	return -1;
 }
 
-CStack CCallback::battleGetStackByID(int ID)
+CStack* CCallback::battleGetStackByID(int ID)
 {
 	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
 	{
 		if(CGI->state->curB->stacks[g]->ID == ID)
-			return *(CGI->state->curB->stacks[g]);
+			return CGI->state->curB->stacks[g];
 	}
-	return CStack();
+	return NULL;
 }
 
-CStack CCallback::battleGetStackByPos(int pos)
+CStack* CCallback::battleGetStackByPos(int pos)
 {
 	return battleGetStackByID(battleGetStack(pos));
 }

@@ -105,7 +105,7 @@ public:
 	friend void initGameState(Mapa * map, CGameInfo * cgi);
 	friend CScriptCallback;
 	friend void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
-	friend CMapHandler;
+	friend class CMapHandler;
 };
 
 #endif //CGAMESTATE_H

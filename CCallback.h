@@ -1,19 +1,22 @@
 #ifndef CCALLBACK_H
 #define CCALLBACK_H
 
-#include "mapHandler.h"
+#include "global.h"
 #include "tchar.h"
-#include "CGameState.h"
-
+#include <set>
+class CGHeroInstance;
 class CGameState;
 struct CPath;
 class CGObjectInstance;
+class CArmedInstance;
 class SComponent;
 class IChosen;
 class CSelectableComponent;
 struct BattleAction;
-typedef struct lua_State lua_State;
-
+class CGTownInstance;
+struct StartInfo;
+class CStack;
+struct lua_State;
 //structure gathering info about upgrade possibilites
 struct UpgradeInfo
 {
@@ -60,8 +63,8 @@ public:
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield 
 	virtual int battleGetStack(int pos)=0; //returns ID of stack on the tile
-	virtual CStack battleGetStackByID(int ID)=0; //returns stack info by given ID
-	virtual CStack battleGetStackByPos(int pos)=0; //returns stack info by given pos
+	virtual CStack * battleGetStackByID(int ID)=0; //returns stack info by given ID
+	virtual CStack * battleGetStackByPos(int pos)=0; //returns stack info by given pos
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	//virtual int battleMakeAction(BattleAction* action)=0;//perform action with an active stack (or custom action)
 	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
@@ -133,8 +136,8 @@ public:
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	int battleGetObstaclesAtTile(int tile); //returns bitfield 
 	int battleGetStack(int pos); //returns ID of stack on the tile
-	CStack battleGetStackByID(int ID); //returns stack info by given ID
-	CStack battleGetStackByPos(int pos); //returns stack info by given pos
+	CStack * battleGetStackByID(int ID); //returns stack info by given ID
+	CStack * battleGetStackByPos(int pos); //returns stack info by given pos
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	//int battleMakeAction(BattleAction* action);//perform action with an active stack (or custom action)
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield

@@ -14,6 +14,8 @@
 #include "CCallback.h"
 #include "hch/CArtHandler.h"
 #include "hch/CAbilityHandler.h"
+#include "hch/CDefHandler.h"
+#include "client/CBitmapHandler.h"
 #include <sstream>
 #include "client/Graphics.h"
 extern SDL_Surface * screen;

@@ -1,14 +1,18 @@
 #ifndef MAPHANDLER_H
 #define MAPHANDLER_H
-
-#include "hch/CAmbarCendamo.h"
-#include "CGameInfo.h"
+#include "global.h"
+#include <SDL.h>
 #include "hch/CDefHandler.h"
 #include <boost/logic/tribool.hpp>
-#include "hch/CObjectHandler.h"
 #include <list>
+#include <set>
 const int Woff = 12; //width of map's frame
 const int Hoff = 8; 
+
+class CGObjectInstance;
+class CGHeroInstance;
+struct Mapa;
+class CGDefInfo;
 
 struct TerrainTile2
 {
@@ -84,15 +88,12 @@ public:
 	std::vector<CDefHandler*> defs;
 
 	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
-	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
-	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 
 	std::vector<std::vector<std::vector<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
 	void loadDefs();
 	char & visAccess(int x, int y);
 	char & undVisAccess(int x, int y);
-	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
 	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl);
 
 	int getCost(int3 & a, int3 & b, const CGHeroInstance * hero);
@@ -116,7 +117,7 @@ public:
 	void prepareFOWDefs();
 	void randomizeObjects();
 
-	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap = CGI->mh->visibility, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL); //if extSurf is specified, blit to it
+	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap = NULL, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL); //if extSurf is specified, blit to it
 	SDL_Surface * terrBitmap(int x, int y);
 	SDL_Surface * undTerrBitmap(int x, int y);
 	std::string getRandomizedDefName(CGDefInfo* di, CGObjectInstance * obj = NULL); //objinstance needed only for heroes and towns
