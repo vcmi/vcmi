@@ -57,6 +57,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="VCMI_lib.lib"
+				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -125,6 +127,8 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
+				AdditionalDependencies="VCMI_lib.lib"
+				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"

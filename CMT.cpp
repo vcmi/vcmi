@@ -42,11 +42,10 @@
 #include "CLua.h"
 #include "CAdvmapInterface.h"
 #include "client/Graphics.h"
-#include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include "lib/Connection.h"
 std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
-using boost::asio::ip::tcp;
 SDL_Surface * screen, * screen2;
 extern SDL_Surface * CSDL_Ext::std32bppSurface;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
@@ -61,30 +60,13 @@ void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * sc
 }
 int _tmain(int argc, _TCHAR* argv[])
 { 
-	boost::thread servthr(boost::bind(system,"VCMI_server.exe"));
-	/*
-    boost::asio::io_service io_service;
-    boost::system::error_code error = boost::asio::error::host_not_found;
-	tcp::socket socket(io_service);
-    tcp::resolver resolver(io_service);
-    tcp::resolver::query query("127.0.0.1", "3030");
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(tcp::resolver::query("127.0.0.1", "3030"));
-    socket.connect(*endpoint_iterator, error);
+	//boost::thread servthr(boost::bind(system,"VCMI_server.exe")); //runs server executable; 
+												//TODO: add versions for other platforms
+	CConnection c("localhost","3030",NAME,std::cout);
+	int r;
+	c >> r;		
 
-	boost::array<char, 128> buf;
-
-  size_t len = socket.read_some(boost::asio::buffer(buf), error);
-
-  if (error == boost::asio::error::eof)
-    ; // Connection closed cleanly by peer.
-  else if (error)
-    throw boost::system::system_error(error); // Some other error.
-
-  std::cout.write(buf.data(), len);
-  len = socket.read_some(boost::asio::buffer(buf), error);
-  std::cout.write(buf.data(), len);*/
-
-
+	std::cout << NAME << std::endl;
 	srand ( time(NULL) );
 	CPG=NULL;
 	atexit(SDL_Quit);

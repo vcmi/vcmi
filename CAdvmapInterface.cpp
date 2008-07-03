@@ -262,7 +262,6 @@ void CTerrainRect::deactivate()
 }; 
 void CTerrainRect::clickLeft(tribool down)
 {
-	LOGE("Left mouse button down2");
 	if ((down==false) || indeterminate(down))
 		return;
 	if (LOCPLINT->adventureInt->selection.type != HEROI_TYPE)

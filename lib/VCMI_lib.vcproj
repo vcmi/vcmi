@@ -17,7 +17,7 @@
 	<Configurations>
 		<Configuration
 			Name="Debug|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="2"
@@ -364,6 +364,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Connection.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CTownHandler.cpp"
 				>
 			</File>
@@ -419,6 +423,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CObjectHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\Connection.h"
 				>
 			</File>
 			<File

@@ -7,9 +7,10 @@
 #include <iostream>
 #include "int3.h"
 #define THC
-#else 
-#define THC //
 #endif
+
+#define NAME_VER ("VCMI \"Altanatse\" 0.7")
+
 enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK}; //player's colors
 enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
 enum Eriver {noRiver=0, clearRiver, icyRiver, muddyRiver, lavaRiver};
@@ -30,18 +31,6 @@ extern CGameInfo* CGI;
 
 #define HEROI_TYPE (0)
 #define TOWNI_TYPE (1)
-
-//#define LOGUJ
-
-#ifdef LOGUJ
-#define LOG(x) std::cout<<x;
-#define LOGE(x) std::cout<<x<<std::endl;
-#else
-#define LOG(x) ;
-#define LOGE(x) ;
-#endif
-
-#define NAME_VER ("VCMI \"Altanatse\" 0.7")
 
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map

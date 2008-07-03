@@ -3,27 +3,12 @@
 #include <boost/bind.hpp>
 #include <boost/asio.hpp>
 #include "../global.h"
+#include "../lib/Connection.h"
 std::string NAME = NAME_VER + std::string(" (server)");
 using boost::asio::ip::tcp;
 using namespace boost;
 using namespace boost::asio;
-
-class CConnection
-{
-public:
-	int ID;
-	tcp::socket socket;
-	void witaj()
-	{
-		char message[50]; strcpy(message,NAME.c_str());message[NAME.size()]='\n';
-		write(socket,buffer("Aiya!\n"));
-		write(socket,buffer(message,NAME.size()+1));
-	}
-	CConnection(io_service& io_service, int id=-1)
-		: socket(io_service), ID(id)
-	{
-	}
-};
+using namespace boost::asio::ip;
 
 class CVCMIServer
 {
@@ -38,27 +23,29 @@ public:
 private:
 	void start_accept()
 	{
+		boost::system::error_code error;
 		std::cout<<"Listening for connections at port " << acceptor.local_endpoint().port() << std::endl;
-		CConnection * new_connection = new CConnection(acceptor.io_service());
-		acceptor.accept(new_connection->socket);
-		new_connection->witaj();
-		acceptor.async_accept(new_connection->socket,
-			boost::bind(&CVCMIServer::gotConnection, this, new_connection,
-			placeholders::error));
-	}
-
-	void gotConnection(CConnection * connection,const boost::system::error_code& error)
-	{
+		tcp::socket s(acceptor.io_service());
+		acceptor.accept(s,error);
 		if (!error)
 		{
+			CConnection *connection = new CConnection(&s,&s.io_service(),NAME,std::cout);
 			std::cout<<"Got connection!" << std::endl;
-			connection->witaj();
-			start_accept();
 		}
 		else
 		{
 			std::cout<<"Got connection but there is an error " << std::endl;
 		}
+
+		//asio::write(s,asio::buffer("570"));
+		//new_connection->witaj();
+		//acceptor.async_accept(s,
+		//	boost::bind(&CVCMIServer::gotConnection, this, &s,
+		//	placeholders::error));
+	}
+
+	void gotConnection(tcp::socket *s,const boost::system::error_code& error)
+	{
 	}
 
 };
