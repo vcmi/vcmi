@@ -1,7 +1,6 @@
 // CMT.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
-#include "SDL.h"
 #include "SDL_TTF.h"
 #include "hch/CVideoHandler.h"
 #include "SDL_mixer.h"
@@ -44,6 +43,7 @@
 #include "client/Graphics.h"
 #include <boost/thread.hpp>
 #include "lib/Connection.h"
+#include <boost/crc.hpp>
 std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Surface * screen, * screen2;
@@ -62,9 +62,6 @@ int _tmain(int argc, _TCHAR* argv[])
 { 
 	//boost::thread servthr(boost::bind(system,"VCMI_server.exe")); //runs server executable; 
 												//TODO: add versions for other platforms
-	CConnection c("localhost","3030",NAME,std::cout);
-	int r;
-	c >> r;		
 
 	std::cout << NAME << std::endl;
 	srand ( time(NULL) );
@@ -150,7 +147,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Initialization of VCMI (togeter): "<<total.getDif()<<std::endl;
 		cpg->mush = mush;
 		StartInfo *options = new StartInfo(cpg->runLoop());
-
+///////////////////////////////////////////////////////////////////////////////////////
 		cgi->dobjinfo = new CDefObjInfoHandler;
 		cgi->dobjinfo->load();
 		THC std::cout<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
@@ -192,7 +189,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->consoleh->runConsole();
 		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
-
+//////////////////////////////////loading map and connecting
+		CConnection c("localhost","3030",NAME,std::cout);
+		THC std::cout<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
 		std::string mapname = cpg->ourScenSel->mapsel.ourMaps[cpg->ourScenSel->mapsel.selected].filename;
 		std::cout<<"Opening map file: "<<mapname<<"\t\t"<<std::flush;
 		gzFile map = gzopen(mapname.c_str(),"rb");
@@ -208,9 +207,25 @@ int _tmain(int argc, _TCHAR* argv[])
 			initTable[ss] = mapstr[ss];
 		}
 		std::cout<<"done."<<std::endl;
+////////////////////////////////////////////////////
+		ui8 pom8;
+		c << uint8_t(2) << uint8_t(1) << mapname;
+		c >> pom8;
+		if(pom8) throw "Server cannot open the map!";
+		c < *options;
+		c << ui8(options->playerInfos.size());
+		for(int i=0;i<options->playerInfos.size();i++)
+			c << ui8(options->playerInfos[i].color);
+		boost::crc_32_type  result;
+		result.process_bytes(initTable,mapstr.size());
+		std::cout << "\tMap checksum: "<<result.checksum();
+		std::cout << "\t" << sizeof(result.checksum());
+		THC std::cout<<"\tSending info to the server: "<<tmh.getDif()<<std::endl;
 		Mapa * mapa = new Mapa(initTable);
-		THC std::cout<<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
 
+
+
+		THC std::cout<<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
 		cgi->state->init(options,mapa,8);
 
 		CMapHandler * mh = cgi->mh = new CMapHandler();
@@ -236,36 +251,36 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		///claculating FoWs for minimap
 		/****************************Minimaps' FoW******************************************/
-		for(int g=0; g<cgi->playerint.size(); ++g)
-		{
-			if(!cgi->playerint[g]->human)
-				continue;
-			CMinimap & mm = ((CPlayerInterface*)cgi->playerint[g])->adventureInt->minimap;
+		//for(int g=0; g<cgi->playerint.size(); ++g)
+		//{
+		//	if(!cgi->playerint[g]->human)
+		//		continue;
+		//	CMinimap & mm = ((CPlayerInterface*)cgi->playerint[g])->adventureInt->minimap;
 
-			int mw = mm.map[0]->w, mh = mm.map[0]->h,
-				wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
+		//	int mw = mm.map[0]->w, mh = mm.map[0]->h,
+		//		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
 
-			for(int d=0; d<cgi->mh->map->twoLevel+1; ++d)
-			{
-				SDL_Surface * pt = CSDL_Ext::newSurface(mm.pos.w, mm.pos.h, CSDL_Ext::std32bppSurface);
+		//	for(int d=0; d<cgi->mh->map->twoLevel+1; ++d)
+		//	{
+		//		SDL_Surface * pt = CSDL_Ext::newSurface(mm.pos.w, mm.pos.h, CSDL_Ext::std32bppSurface);
 
-				for (int i=0; i<mw; i++)
-				{
-					for (int j=0; j<mh; j++)
-					{
-						int3 pp( ((i*CGI->mh->sizes.x)/mw), ((j*CGI->mh->sizes.y)/mh), d );
+		//		for (int i=0; i<mw; i++)
+		//		{
+		//			for (int j=0; j<mh; j++)
+		//			{
+		//				int3 pp( ((i*CGI->mh->sizes.x)/mw), ((j*CGI->mh->sizes.y)/mh), d );
 
-						if ( !((CPlayerInterface*)cgi->playerint[g])->cb->isVisible(pp) )
-						{
-							CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
-						}
-					}
-				}
-				CSDL_Ext::update(pt);
-				mm.FoW.push_back(pt);
-			}
+		//				if ( !((CPlayerInterface*)cgi->playerint[g])->cb->isVisible(pp) )
+		//				{
+		//					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
+		//				}
+		//			}
+		//		}
+		//		CSDL_Ext::update(pt);
+		//		mm.FoW.push_back(pt);
+		//	}
 
-		}
+		//}
 
 		while(1) //main game loop, one execution per turn
 		{

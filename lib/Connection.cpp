@@ -1,4 +1,5 @@
 #define VCMI_DLL
+#pragma warning(disable:4355)
 #include "Connection.h"
 #include <boost/asio.hpp>
 using namespace boost;
@@ -17,41 +18,48 @@ using namespace boost::asio::ip;
 #define LIL_ENDIAN
 #endif
 
-
-CConnection::CConnection(std::string host, std::string port, std::string Name, std::ostream & Out)
-:io_service(new asio::io_service), name(Name), out(Out)
+void CConnection::init()
 {
 #ifdef LIL_ENDIAN
 	myEndianess = true;
 #else
 	myEndianess = false;
 #endif
+	connected = true;
+	std::string pom;
+	//we got connection
+	(*this) << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
+	(*this) >> pom >> pom >> contactEndianess;
+	out << "Established connection with "<<pom<<std::endl;
+}
+
+CConnection::CConnection(std::string host, std::string port, std::string Name, std::ostream & Out)
+:io_service(new asio::io_service), name(Name), out(Out), send(this), rec(this)
+{
     system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
     tcp::resolver resolver(*io_service);
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port));
     socket->connect(*endpoint_iterator, error);
-	if(error)
-	{ 
-		connected = false;
-		return;
-	}
-	std::string pom;
-	//we got connection
-	(*this) << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
-	(*this) >> pom >> pom >> contactEndianess;
+	if (error){ delete socket;	throw "Can't establish connection :("; }
+	init();
 }
 CConnection::CConnection(
 			boost::asio::basic_stream_socket<boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * Socket, 
-			boost::asio::io_service *Io_service, 
 			std::string Name, 
 			std::ostream & Out	)
-:socket(Socket),io_service(Io_service), out(Out), name(Name)
+			:socket(Socket),io_service(Socket->io_service()), out(Out), name(Name), send(this), rec(this)
 {
-	std::string pom;
-	//we start with just connected socket
-	(*this) << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
-	(*this) >> pom >> pom >> contactEndianess;
+	init();
+}
+CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > * acceptor, boost::asio::io_service *Io_service, std::string Name, std::ostream & Out)
+: out(Out), name(Name), send(this), rec(this)
+{
+    system::error_code error = asio::error::host_not_found;
+	socket = new tcp::socket(*io_service);
+	acceptor->accept(*socket,error);
+	if (error){ delete socket;	throw "Can't establish connection :("; }
+	init();
 }
 int CConnection::write(const void * data, unsigned size)
 {
@@ -68,5 +76,7 @@ int CConnection::read(void * data, unsigned size)
 CConnection::~CConnection(void)
 {
 	delete io_service;
+	if(socket)
+		socket->close();
 	delete socket;
 }

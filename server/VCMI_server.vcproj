@@ -20,7 +20,7 @@
 			OutputDirectory="$(SolutionDir)"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="1"
-			CharacterSet="2"
+			CharacterSet="1"
 			>
 			<Tool
 				Name="VCPreBuildEventTool"
@@ -45,6 +45,7 @@
 				RuntimeLibrary="3"
 				WarningLevel="3"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4251"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -57,7 +58,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="VCMI_lib.lib"
+				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
 				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
@@ -127,7 +128,7 @@
 			/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="VCMI_lib.lib"
+				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
 				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateDebugInformation="true"
 				OptimizeReferences="2"

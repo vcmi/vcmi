@@ -106,6 +106,7 @@ public:
 	friend CScriptCallback;
 	friend void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	friend class CMapHandler;
+	friend class CVCMIServer;
 };
 
 #endif //CGAMESTATE_H

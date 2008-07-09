@@ -1,11 +1,18 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
+#include <iostream>
+#include <boost/logic/tribool.hpp>
+#include <boost/cstdint.hpp>
+typedef boost::uint32_t ui32;  //unsigned int 32 bits (4 bytes)
+typedef boost::uint16_t ui16; //unsigned int 16 bits (2 bytes)
+typedef boost::uint8_t ui8; //unsigned int 8 bits (1 byte)
+typedef boost::int32_t si32; //signed int 32 bits (4 bytes)
+typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
+typedef boost::int8_t si8; //signed int 8 bits (1 byte)
+#include "int3.h"
 #define CHECKTIME 1
 #if CHECKTIME
 #include "timeHandler.h"
-#include <boost/logic/tribool.hpp>
-#include <iostream>
-#include "int3.h"
 #define THC
 #endif
 

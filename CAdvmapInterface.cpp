@@ -119,7 +119,7 @@ void CMinimap::draw()
 			}
 		}
 	}
-	blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
+	//blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
 	
 	//draw radar
 	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)CGI->mh->sizes.x)))*pos.w, 
