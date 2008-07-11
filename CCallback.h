@@ -68,6 +68,7 @@ public:
 	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
 	virtual std::vector<int> battleGetAvailableHexes(int ID)=0; //reutrns numbers of hexes reachable by creature with id ID
 	virtual bool battleIsStackMine(int ID)=0; //returns true if stack with id ID belongs to caller
+	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
 };
 
 struct HeroMoveDetails
@@ -140,6 +141,7 @@ public:
 	//bool battleMoveCreature(int ID, int dest); //moves creature with id ID to dest if possible
 	std::vector<int> battleGetAvailableHexes(int ID); //reutrns numbers of hexes reachable by creature with id ID
 	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
+	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
 	
 
 //friends

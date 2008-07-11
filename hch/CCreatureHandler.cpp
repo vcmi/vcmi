@@ -42,6 +42,12 @@ bool CCreature::isFlying()
 {
 	return boost::algorithm::find_first(abilityRefs, "FLYING_ARMY");
 }
+
+bool CCreature::isShooting()
+{
+	return boost::algorithm::find_first(abilityRefs, "SHOOTING_ARMY");
+}
+
 int CCreature::maxAmount(const std::vector<int> &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
@@ -437,6 +443,27 @@ void CCreatureHandler::loadCreatures()
 		creatures[s].animDefName = defName;
 	}
 	loadAnimationInfo();
+
+	//loading id to projectile mapping
+
+	std::ifstream inp2("config/cr_shots.TXT", std::ios::in | std::ios::binary); //this file is not in lod
+	char dump [200];
+	inp2.getline(dump, 200);
+	while(true)
+	{
+		int id;
+		std::string name;
+		bool spin;
+
+		inp2>>id;
+		if(id == -1)
+			break;
+		inp2>>name;
+		idToProjectile[id] = name;
+		inp2>>spin;
+		idToProjectileSpin[id] = spin;
+	}
+	inp2.close();
 }
 
 void CCreatureHandler::loadAnimationInfo()

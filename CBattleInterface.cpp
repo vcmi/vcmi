@@ -116,7 +116,15 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	{
 		bfield[it->second.position].accesible = false;
 	}
-	
+
+	//loading projectiles for units
+	for(std::map<int, CStack>::iterator g = stacks.begin(); g != stacks.end(); ++g)
+	{
+		if(g->second.creature->isShooting() && CGI->creh->idToProjectile[g->second.creature->idNumber] != std::string())
+		{
+			idToProjectile[g->second.creature->idNumber] = CGI->spriteh->giveDef(CGI->creh->idToProjectile[g->second.creature->idNumber]);
+		}
+	}
 }
 
 CBattleInterface::~CBattleInterface()
@@ -143,6 +151,9 @@ CBattleInterface::~CBattleInterface()
 	SDL_FreeSurface(cellShade);
 
 	for(std::map< int, CCreatureAnimation * >::iterator g=creAnims.begin(); g!=creAnims.end(); ++g)
+		delete g->second;
+
+	for(std::map< int, CDefHandler * >::iterator g=idToProjectile.begin(); g!=idToProjectile.end(); ++g)
 		delete g->second;
 }
 
@@ -306,6 +317,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	//units shown
+	projectileShowHelper(to);//showing projectiles
 }
 
 bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
@@ -731,6 +743,15 @@ void CBattleInterface::hexLclicked(int whichOne)
 			ba->stackNumber = activeStack;
 			givenCommand = ba;
 		}
+		else if(LOCPLINT->cb->battleGetStackByID(atCre).owner != attackingHeroInstance->tempOwner
+			&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)) //shooting
+		{
+			BattleAction * ba = new BattleAction(); //to be deleted by engine
+			ba->actionType = 7;
+			ba->destinationTile = whichOne;
+			ba->stackNumber = activeStack;
+			givenCommand = ba;
+		}
 		else if(LOCPLINT->cb->battleGetStackByID(atCre).owner != attackingHeroInstance->tempOwner) //attacking
 		{
 			BattleAction * ba = new BattleAction(); //to be deleted by engine
@@ -887,6 +908,10 @@ void CBattleInterface::printConsoleAttacked(int ID, int dmg, int killed, int IDb
 	}
 
 	console->addText(std::string(tabh));
+}
+
+void CBattleInterface::projectileShowHelper(SDL_Surface * to)
+{
 }
 
 void CBattleHero::show(SDL_Surface *to)

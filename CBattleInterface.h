@@ -1,6 +1,7 @@
 #pragma once
 #include "global.h"
 #include "CPlayerInterface.h"
+#include <list>
 
 class CCreatureSet;
 class CGHeroInstance;
@@ -79,6 +80,7 @@ private:
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
+	std::map< int, CDefHandler * > idToProjectile; //projectiles of creaures (creatureID, defhandler)
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
@@ -94,6 +96,18 @@ private:
 	} * attackingInfo;
 	void attackingShowHelper();
 	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
+
+	struct SProjectileInfo
+	{
+		int x, y; //position on the screen
+		int dx, dy; //change in position in one step
+		int step, lastStep; //to know when finish showing this projectile
+		int creID; //ID of creature that shot this projectile
+		int frameNum; //frame to display form projectile animation
+		bool spin; //if true, frameNum will be increased
+	};
+	std::list<SProjectileInfo> projectiles;
+	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
 
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor

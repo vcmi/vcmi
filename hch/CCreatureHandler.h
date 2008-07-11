@@ -44,6 +44,7 @@ public:
 	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 	bool isDoubleWide(); //returns true if unit is double wide on battlefield
 	bool isFlying(); //returns true if it is a flying unit
+	bool isShooting(); //returns true if unit can shoot
 	int maxAmount(const std::vector<int> &res) const; //how many creatures can be bought
 };
 
@@ -65,6 +66,8 @@ public:
 	std::vector<CCreature> creatures; //creature ID -> creature info
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
 	std::map<std::string,int> nameToID;
+	std::map<int,std::string> idToProjectile;
+	std::map<int,bool> idToProjectileSpin; //if true, appropriate projectile is spinning during flight
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);

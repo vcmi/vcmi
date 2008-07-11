@@ -237,6 +237,10 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 							battleAttackCreatureStack(ba.stackNumber, ba.destinationTile);
 							break;
 						}
+					case 7: //shoot
+						{
+							break;
+						}
 					}
 				}
 				else
@@ -345,7 +349,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 			if(curStack->attackerOwned ? (v%17)==1 : (v%17)==15)
 				accessibility[v] = false;
 	}
-	if(!accessibility[dest])
+	if(!stackAtEnd && !accessibility[dest])
 		return false;
 	int predecessor[187]; //for getting the Path
 	for(int b=0; b<187; ++b)

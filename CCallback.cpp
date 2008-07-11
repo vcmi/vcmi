@@ -838,6 +838,15 @@ bool CCallback::battleIsStackMine(int ID)
 	return false;
 }
 
+bool CCallback::battleCanShoot(int ID, int dest) //TODO: finish
+{
+	if(battleGetStackByID(ID).creature->isShooting() 
+		&& battleGetStack(dest) != -1 
+		&& battleGetStackByPos(dest).owner != battleGetStackByID(ID).owner)
+		return true;
+	return false;
+}
+
 int3 CScriptCallback::getPos(CGObjectInstance * ob)
 {
 	return ob->pos;
