@@ -2,7 +2,12 @@
 #define CVIDEOHANDLEER_H
 
 #include <stdio.h>
+#ifdef WIN32
 #include <windows.h>
+#else
+#include <dlfcn.h>
+#endif
+
 //
 #define BINKNOTHREADEDIO 0x00800000
 //
@@ -75,14 +80,14 @@
   //end;
 typedef struct
 {
-	int width;			
-	int height;		
-	int frameCount;	
-	int currentFrame;		
+	int width;
+	int height;
+	int frameCount;
+	int currentFrame;
 	int lastFrame;
-	int FPSMul;	
+	int FPSMul;
 	int FPSDiv;
-	int unknown0;	
+	int unknown0;
 	unsigned char flags;
 	unsigned char unknown1[260];
 	int CurPlane;		// current plane
@@ -109,8 +114,11 @@ struct SMKStruct
 class DLLHandler
 {
 public:
+#ifndef __amigaos4__
 	HINSTANCE dll;
-
+#else
+	void *dll;
+#endif
 	void Instantiate(const char *filename);
 	const char *GetLibExtension();
 	void *FindAddress234(const char *symbol);
@@ -123,7 +131,11 @@ class CBIKHandler
 public:
 	DLLHandler ourLib;
 	int newmode;
+#ifndef __amigaos4__
 	HANDLE hBinkFile;
+#else
+	void *hBinkFile;
+#endif
 	HBINK hBink;
 	BINK_STRUCT data;
 	unsigned char * buffer;

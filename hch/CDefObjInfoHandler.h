@@ -6,7 +6,7 @@ class CDefHandler;
 class CGDefInfo
 {
 public:
-	std::string name; 
+	std::string name;
 
 	unsigned char visitMap[6];
 	unsigned char blockMap[6];
@@ -14,7 +14,7 @@ public:
 	int id, subid; //of object described by this defInfo
 	int terrainAllowed, //on which terrain it is possible to place object
 		 terrainMenu; //in which menus in map editor object will be showed
-	int type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)   
+	int type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)
 	CDefHandler * handler;
 	int printPriority;
 	bool isVisitable();

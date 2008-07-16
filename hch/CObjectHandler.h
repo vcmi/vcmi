@@ -305,7 +305,7 @@ class CGObjectInstance
 public:
 	int3 pos; //h3m pos
 	int ID, subID; //normal ID (this one from OH3 maps ;]) - eg. town=98; hero=34
-	int id;//number of object in CObjectHandler's vector		
+	int id;//number of object in CObjectHandler's vector
 	CGDefInfo * defInfo;
 	CCPPObjectScript * state;
 	CSpecObjInfo * info;
@@ -313,10 +313,10 @@ public:
 
 	int tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
 	bool blockVisit;
-	
+
 	virtual bool isHero() const;
-	int getOwner() const; 
-	void setOwner(int ow); 
+	int getOwner() const;
+	void setOwner(int ow);
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
 	bool visitableAt(int x, int y) const; //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
@@ -352,7 +352,7 @@ public:
 	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
 	int movement; //remaining movement points
 
-	bool inTownGarrison; // if hero is in town garrison 
+	bool inTownGarrison; // if hero is in town garrison
 	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 
 	std::vector<CArtifact *> artifacts; //hero's artifacts from bag
@@ -383,7 +383,7 @@ public:
 	std::string name; // name of town
 	int builded; //how many buildings has been built this turn
 	int destroyed; //how many buildings has been destroyed this turn
-	int identifier; 
+	int identifier;
 
 	int income;
 
@@ -392,7 +392,7 @@ public:
 	public:
 		std::map<int,int> creatures; //level - available amount
 	} strInfo;
-	
+
 	std::set<int> forbiddenBuildings, builtBuildings, h3mbuildings;
 
 	const CGHeroInstance * garrisonHero, *visitingHero;

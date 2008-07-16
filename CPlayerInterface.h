@@ -154,7 +154,7 @@ public:
 };
 
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
-{ //okno usuwa swoje komponenty w chwili zamkniecia 
+{ //okno usuwa swoje komponenty w chwili zamkniecia
 public:
 	CSCButton<CInfoWindow> okb;
 	std::vector<SComponent*> components;
@@ -201,15 +201,15 @@ public:
 	{
 		primskill, secskill, resource, creature, artifact, experience
 	} type;
-	int subtype; 
+	int subtype;
 	int val;
 
 	std::string description; //r-click
-	std::string subtitle; 
+	std::string subtitle;
 
 	SComponent(Etype Type, int Subtype, int Val);
 	//SComponent(const & SComponent r);
-	
+
 	void clickRight (boost::logic::tribool down);
 	virtual SDL_Surface * getImg();
 	virtual void activate();
@@ -243,7 +243,7 @@ public:
 	int count;
 	int upg; //0 - up garrison, 1 - down garrison
 	bool active;
-	
+
 	virtual void hover (bool on);
 	const CArmedInstance * getObj();
 	void clickRight (boost::logic::tribool down);
@@ -383,30 +383,30 @@ public:
 	std::string getCurrent();
 };
 
-class CList 
+class CList
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject, public MotionInterested
 {
 public:
 	SDL_Surface * bg;
 	CDefHandler *arrup, *arrdo;
-	SDL_Surface *empty, *selection; 
+	SDL_Surface *empty, *selection;
 	SDL_Rect arrupp, arrdop; //positions of arrows
 	int posw, posh; //position width/height
 	int selected, //id of selected position, <0 if none
-		from; 
+		from;
 	const int SIZE;
 	boost::logic::tribool pressed; //true=up; false=down; indeterminate=none
 
 	CList(int Size = 5);
 	void clickLeft(boost::logic::tribool down);
-	void activate(); 
+	void activate();
 	void deactivate();
 	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
 	virtual void genList()=0;
 	virtual void select(int which)=0;
 	virtual void draw()=0;
 };
-class CHeroList 
+class CHeroList
 	: public CList
 {
 public:
@@ -429,10 +429,10 @@ public:
 	void init();
 };
 
-class CTownList 
+class CTownList
 	: public CList
 {
-public: 
+public:
 	boost::function<void()> fun;
 	std::vector<const CGTownInstance*> items;
 	int posporx,pospory;
@@ -484,7 +484,7 @@ public:
 	void Cancel();
 	void sliderMoved(int to);
 	void clickLeft(boost::logic::tribool down);
-	void activate(); 
+	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
 	CRecrutationWindow(const std::vector<std::pair<int,int> > & Creatures, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount>
@@ -504,7 +504,7 @@ public:
 
 	CSplitWindow(int cid, int max, CGarrisonInt *Owner);
 	~CSplitWindow();
-	void activate(); 
+	void activate();
 	void split();
 	void close();
 	void deactivate();
@@ -527,7 +527,7 @@ public:
 	AdventureMapButton *dismiss, *upgrade, *ok;
 	CCreInfoWindow(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm);
 	~CCreInfoWindow();
-	void activate(); 
+	void activate();
 	void close();
 	void clickRight(boost::logic::tribool down);
 	void dismissF();

@@ -56,15 +56,15 @@ CAmbarCendamo::CAmbarCendamo (const char * tie)
 	is->seekg(0,std::ios::end); // na koniec
 	andame = is->tellg();  // read length
 	is->seekg(0,std::ios::beg); // wracamy na poczatek
-	bufor = new unsigned char[andame]; // allocate memory 
+	bufor = new unsigned char[andame]; // allocate memory
 	is->read((char*)bufor, andame); // read map file to buffer
 	is->close();
 	delete is;
 }
-CAmbarCendamo::~CAmbarCendamo () 
+CAmbarCendamo::~CAmbarCendamo ()
 {// free memory
 	for (int ii=0;ii<map.width;ii++)
-		delete map.terrain[ii] ; 
+		delete map.terrain[ii] ;
 	delete map.terrain;
 	delete bufor;
 }
@@ -144,17 +144,17 @@ void CAmbarCendamo::deh3m()
 	map.areAnyPLayers = bufor[4]; //invalid on some maps
 	map.height = map.width = bufor[5]; // wymiary mapy
 	map.twoLevel = bufor[9]; //czy sa lochy
-	map.terrain = new TerrainTile*[map.width]; // allocate memory 
+	map.terrain = new TerrainTile*[map.width]; // allocate memory
 	for (int ii=0;ii<map.width;ii++)
-		map.terrain[ii] = new TerrainTile[map.height]; // allocate memory 
+		map.terrain[ii] = new TerrainTile[map.height]; // allocate memory
 	if (map.twoLevel)
 	{
-		map.undergroungTerrain = new TerrainTile*[map.width]; // allocate memory 
+		map.undergroungTerrain = new TerrainTile*[map.width]; // allocate memory
 		for (int ii=0;ii<map.width;ii++)
-			map.undergroungTerrain[ii] = new TerrainTile[map.height]; // allocate memory 
+			map.undergroungTerrain[ii] = new TerrainTile[map.height]; // allocate memory
 	}
 	int length = bufor[10]; //name length
-	int i=14, pom; 
+	int i=14, pom;
 	while (i-14<length)	//read name
 		map.name+=bufor[i++];
 	length = bufor[i] + bufor[i+1]*256; //description length
@@ -162,7 +162,7 @@ void CAmbarCendamo::deh3m()
 	for (pom=0;pom<length;pom++)
 		map.description+=bufor[i++];
 	map.difficulty = bufor[i++]; // reading map difficulty
-	if(map.version != Eformat::RoE)
+	if(map.version != RoE)
 	{
 		map.levelLimit = bufor[i++]; // hero level limit
 	}
@@ -178,13 +178,13 @@ void CAmbarCendamo::deh3m()
 		{
 			switch(map.version)
 			{
-			case Eformat::SoD: case Eformat::WoG: 
+			case SoD: case WoG:
 				i+=13;
 				break;
-			case Eformat::AB:
+			case AB:
 				i+=12;
 				break;
-			case Eformat::RoE:
+			case RoE:
 				i+=6;
 				break;
 			}
@@ -193,19 +193,19 @@ void CAmbarCendamo::deh3m()
 
 		map.players[pom].AITactic = bufor[i++];
 
-		if(map.version == Eformat::SoD || map.version == Eformat::WoG)
-			map.players[pom].p7= bufor[i++];	
+		if(map.version == SoD || map.version == WoG)
+			map.players[pom].p7= bufor[i++];
 
 		map.players[pom].allowedFactions = 0;
 		map.players[pom].allowedFactions += bufor[i++];
-		if(map.version != Eformat::RoE)
+		if(map.version != RoE)
 			map.players[pom].allowedFactions += (bufor[i++])*256;
 
 		map.players[pom].isFactionRandom = bufor[i++];
 		map.players[pom].hasMainTown = bufor[i++];
 		if (map.players[pom].hasMainTown)
 		{
-			if(map.version != Eformat::RoE)
+			if(map.version != RoE)
 			{
 				map.players[pom].generateHeroAtMainTown = bufor[i++];
 				map.players[pom].generateHero = bufor[i++];
@@ -220,20 +220,20 @@ void CAmbarCendamo::deh3m()
 			map.players[pom].posOfMainTown.y = bufor[i++];
 			map.players[pom].posOfMainTown.z = bufor[i++];
 
-			
+
 		}
 		map.players[pom].p8= bufor[i++];
-		map.players[pom].p9= bufor[i++];		
+		map.players[pom].p9= bufor[i++];
 		if(map.players[pom].p9!=0xff)
 		{
 			map.players[pom].mainHeroPortrait = bufor[i++];
 			int nameLength = bufor[i++];
-			i+=3; 
+			i+=3;
 			for (int pp=0;pp<nameLength;pp++)
 				map.players[pom].mainHeroName+=bufor[i++];
 		}
 
-		if(map.version != Eformat::RoE)
+		if(map.version != RoE)
 		{
 			i++; ////unknown byte
 			int heroCount = bufor[i++];
@@ -313,7 +313,7 @@ void CAmbarCendamo::deh3m()
 				map.vicConDetails = new VicCon5();
 				((VicCon5*)map.vicConDetails)->locationOfHero.x = bufor[i+2];
 				((VicCon5*)map.vicConDetails)->locationOfHero.y = bufor[i+3];
-				((VicCon5*)map.vicConDetails)->locationOfHero.z = bufor[i+4];				
+				((VicCon5*)map.vicConDetails)->locationOfHero.z = bufor[i+4];
 				nr=3;
 				break;
 			}
@@ -322,7 +322,7 @@ void CAmbarCendamo::deh3m()
 				map.vicConDetails = new VicCon6();
 				((VicCon6*)map.vicConDetails)->locationOfTown.x = bufor[i+2];
 				((VicCon6*)map.vicConDetails)->locationOfTown.y = bufor[i+3];
-				((VicCon6*)map.vicConDetails)->locationOfTown.z = bufor[i+4];				
+				((VicCon6*)map.vicConDetails)->locationOfTown.z = bufor[i+4];
 				nr=3;
 				break;
 			}
@@ -331,19 +331,19 @@ void CAmbarCendamo::deh3m()
 				map.vicConDetails = new VicCon7();
 				((VicCon7*)map.vicConDetails)->locationOfMonster.x = bufor[i+2];
 				((VicCon7*)map.vicConDetails)->locationOfMonster.y = bufor[i+3];
-				((VicCon7*)map.vicConDetails)->locationOfMonster.z = bufor[i+4];				
+				((VicCon7*)map.vicConDetails)->locationOfMonster.z = bufor[i+4];
 				nr=3;
 				break;
 			}
 		case takeDwellings:
-			{		
+			{
 				map.vicConDetails = new CspecificVictoryConidtions();
 				nr=0;
 				break;
 			}
 		case takeMines:
-			{	
-				map.vicConDetails = new CspecificVictoryConidtions();	
+			{
+				map.vicConDetails = new CspecificVictoryConidtions();
 				nr=0;
 				break;
 			}
@@ -353,7 +353,7 @@ void CAmbarCendamo::deh3m()
 				((VicCona*)map.vicConDetails)->artifactID =  bufor[i+2];
 				((VicCona*)map.vicConDetails)->destinationPlace.x = bufor[i+3];
 				((VicCona*)map.vicConDetails)->destinationPlace.y = bufor[i+4];
-				((VicCona*)map.vicConDetails)->destinationPlace.z = bufor[i+5];				
+				((VicCona*)map.vicConDetails)->destinationPlace.z = bufor[i+5];
 				nr=4;
 				break;
 			}
@@ -398,7 +398,7 @@ void CAmbarCendamo::deh3m()
 	int ist;
 
 	ist=i; //starting i for loop
-	for(i; i<ist+ (map.version == Eformat::RoE ? 16 : 20) ; ++i)
+	for(i; i<ist+ (map.version == RoE ? 16 : 20) ; ++i)
 	{
 		unsigned char c = bufor[i];
 		for(int yy=0; yy<8; ++yy)
@@ -432,7 +432,7 @@ void CAmbarCendamo::deh3m()
 				int por = (1<<zz);
 				if(players & por)
 					map.disposedHeroes[g].players[zz] = true;
-				else 
+				else
 					map.disposedHeroes[g].players[zz] = false;
 			}
 		}
@@ -864,7 +864,7 @@ void CAmbarCendamo::deh3m()
 		int p = 99;
 		switch(uu)
 		{
-		case EDefType::EVENTOBJ_DEF: //for event - objects
+		case EVENTOBJ_DEF: //for event - objects
 			{
 				CEventObjInfo * spec = new CEventObjInfo;
 				bool guardMess;
@@ -938,7 +938,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::HERO_DEF:
+		case HERO_DEF:
 			{
 				CHeroObjInfo * spec = new CHeroObjInfo;
 				if(map.version>RoE)
@@ -1354,7 +1354,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SIGN_DEF:
+		case SIGN_DEF:
 			{
 				CSignObjInfo * spec = new CSignObjInfo;
 				int length = readNormalNr(i); i+=4;
@@ -1366,7 +1366,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SEERHUT_DEF:
+		case SEERHUT_DEF:
 			{
 				CSeerHutObjInfo * spec = new CSeerHutObjInfo;
 				if(map.version>RoE)
@@ -1668,7 +1668,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::WITCHHUT_DEF:
+		case WITCHHUT_DEF:
 			{
 				CWitchHutObjInfo * spec = new CWitchHutObjInfo;
 				if(map.version>RoE) //in reo we cannot specify it - all are allowed (I hope)
@@ -1694,11 +1694,11 @@ void CAmbarCendamo::deh3m()
 						spec->allowedAbilities.push_back(CGameInfo::mainObj->abilh->abilities[gg]);
 					}
 				}
-				
+
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SCHOLAR_DEF:
+		case SCHOLAR_DEF:
 			{
 				CScholarObjInfo * spec = new CScholarObjInfo;
 				spec->bonusType = bufor[i]; ++i;
@@ -1721,7 +1721,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::GARRISON_DEF:
+		case GARRISON_DEF:
 			{
 				CGarrisonObjInfo * spec = new CGarrisonObjInfo;
 				spec->player = bufor[i]; ++i;
@@ -1738,7 +1738,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::ARTIFACT_DEF:
+		case ARTIFACT_DEF:
 			{
 				CArtifactObjInfo * spec = new CArtifactObjInfo;
 				bool areSettings = bufor[i]; ++i;
@@ -1762,7 +1762,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::RESOURCE_DEF:
+		case RESOURCE_DEF:
 			{
 				CResourceObjInfo * spec = new CResourceObjInfo;
 				bool isMessGuard = bufor[i]; ++i;
@@ -1789,7 +1789,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::TOWN_DEF:
+		case TOWN_DEF:
 			{
 				CCastleObjInfo * spec = new CCastleObjInfo;
 				if(map.version!=RoE)
@@ -1991,7 +1991,7 @@ void CAmbarCendamo::deh3m()
 				CGI->townh->townInstances.push_back(nt);
 				break;
 			}
-		case EDefType::PLAYERONLY_DEF:
+		case PLAYERONLY_DEF:
 			{
 				CPlayerOnlyObjInfo * spec = new CPlayerOnlyObjInfo;
 				spec->player = bufor[i]; ++i;
@@ -2000,14 +2000,14 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SHRINE_DEF:
+		case SHRINE_DEF:
 			{
 				CShrineObjInfo * spec = new CShrineObjInfo;
 				spec->spell = bufor[i]; i+=4;
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SPELLSCROLL_DEF:
+		case SPELLSCROLL_DEF:
 			{
 				CSpellScrollObjinfo * spec = new CSpellScrollObjinfo;
 				bool messg = bufor[i]; ++i;
@@ -2030,7 +2030,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::PANDORA_DEF:
+		case PANDORA_DEF:
 			{
 				CPandorasBoxObjInfo * spec = new CPandorasBoxObjInfo;
 				bool messg = bufor[i]; ++i;
@@ -2097,14 +2097,14 @@ void CAmbarCendamo::deh3m()
 				///////end of copied fragment
 				break;
 			}
-		case EDefType::GRAIL_DEF:
+		case GRAIL_DEF:
 			{
 				CGrailObjInfo * spec = new CGrailObjInfo;
 				spec->radius = readNormalNr(i); i+=4;
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::CREGEN_DEF:
+		case CREGEN_DEF:
 			{
 				CCreGenObjInfo * spec = new CCreGenObjInfo;
 				spec->player = readNormalNr(i); i+=4;
@@ -2123,7 +2123,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::CREGEN2_DEF:
+		case CREGEN2_DEF:
 			{
 				CCreGen2ObjInfo * spec = new CCreGen2ObjInfo;
 				spec->player = readNormalNr(i); i+=4;
@@ -2148,7 +2148,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::CREGEN3_DEF:
+		case CREGEN3_DEF:
 			{
 				CCreGen3ObjInfo * spec = new CCreGen3ObjInfo;
 				spec->player = bufor[i]; ++i;
@@ -2163,7 +2163,7 @@ void CAmbarCendamo::deh3m()
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::BORDERGUARD_DEF:
+		case BORDERGUARD_DEF:
 			{
 				CBorderGuardObjInfo * spec = new CBorderGuardObjInfo;
 				spec->missionType = bufor[i]; ++i;
@@ -2348,19 +2348,22 @@ void CAmbarCendamo::deh3m()
 					}
 				}//internal switch end (seer huts)
 
-				int len1 = readNormalNr(i); i+=4;
+				int len1;
+				len1 = readNormalNr(i); i+=4;
 				for(int ee=0; ee<len1; ++ee)
 				{
 					spec->firstVisitText += bufor[i]; ++i;
 				}
 
-				int len2 = readNormalNr(i); i+=4;
+				int len2;
+				len2 = readNormalNr(i); i+=4;
 				for(int ee=0; ee<len2; ++ee)
 				{
 					spec->nextVisitText += bufor[i]; ++i;
 				}
 
-				int len3 = readNormalNr(i); i+=4;
+				int len3;
+				len3 = readNormalNr(i); i+=4;
 				for(int ee=0; ee<len3; ++ee)
 				{
 					spec->completedText += bufor[i]; ++i;
@@ -2369,7 +2372,7 @@ void CAmbarCendamo::deh3m()
 borderguardend:
 				break;
 			}
-		case EDefType::HEROPLACEHOLDER_DEF:
+		case HEROPLACEHOLDER_DEF:
 			{
 				i+=3; //TODO: handle it more properly
 				break;
@@ -2383,7 +2386,7 @@ borderguardend:
 	THC std::cout<<"\tReading objects: "<<th.getDif()<<std::endl;
 	//processMap(defsToUnpack);
 	std::vector<CDefHandler *> dhandlers = CGameInfo::mainObj->spriteh->extractManyFiles(defsToUnpack);
-	
+
 	THC std::cout<<"\tUnpacking defs: "<<th.getDif()<<std::endl;
 	for (int i=0;i<dhandlers.size();i++)
 	{
@@ -2492,55 +2495,55 @@ EDefType CAmbarCendamo::getDefType(CGDefInfo * a)
 	switch(a->id)
 	{
 	case 5: case 65: case 66: case 67: case 68: case 69:
-		return EDefType::ARTIFACT_DEF; //handled
+		return ARTIFACT_DEF; //handled
 	case 6:
-		return EDefType::PANDORA_DEF; //hanled
+		return PANDORA_DEF; //hanled
 	case 26:
-		return EDefType::EVENTOBJ_DEF; //handled
+		return EVENTOBJ_DEF; //handled
 	case 33:
-		return EDefType::GARRISON_DEF; //handled
+		return GARRISON_DEF; //handled
 	case 34: case 70: case 62: //70 - random hero //62 - prison
-		return EDefType::HERO_DEF; //handled
+		return HERO_DEF; //handled
 	case 36:
-		return EDefType::GRAIL_DEF; //hanled
+		return GRAIL_DEF; //hanled
 	case 53: case 17: case 18: case 19: case 20: case 42: case 87: case 220://cases 17 - 20 and 42 - tests
-		return EDefType::PLAYERONLY_DEF; //handled
+		return PLAYERONLY_DEF; //handled
 	case 54: case 71: case 72: case 73: case 74: case 75: case 162: case 163: case 164:
-		return EDefType::CREATURES_DEF; //handled
+		return CREATURES_DEF; //handled
 	case 59:
-		return EDefType::SIGN_DEF; //handled
+		return SIGN_DEF; //handled
 	case 77:
-		return EDefType::TOWN_DEF; //can be problematic, but handled
+		return TOWN_DEF; //can be problematic, but handled
 	case 79: case 76:
-		return EDefType::RESOURCE_DEF; //handled
+		return RESOURCE_DEF; //handled
 	case 81:
-		return EDefType::SCHOLAR_DEF; //handled
+		return SCHOLAR_DEF; //handled
 	case 83:
-		return EDefType::SEERHUT_DEF; //handled
+		return SEERHUT_DEF; //handled
 	case 91:
-		return EDefType::SIGN_DEF; //handled
+		return SIGN_DEF; //handled
 	case 88: case 89: case 90:
 		return SHRINE_DEF; //handled
 	case 93:
 		return SPELLSCROLL_DEF; //handled
 	case 98:
-		return EDefType::TOWN_DEF; //handled
+		return TOWN_DEF; //handled
 	case 113:
-		return EDefType::WITCHHUT_DEF; //handled
+		return WITCHHUT_DEF; //handled
 	case 214:
-		return EDefType::HEROPLACEHOLDER_DEF; //partially handled
+		return HEROPLACEHOLDER_DEF; //partially handled
 	case 215:
-		return EDefType::BORDERGUARD_DEF; //handled by analogy to seer huts ;]
+		return BORDERGUARD_DEF; //handled by analogy to seer huts ;]
 	case 216:
-		return EDefType::CREGEN2_DEF; //handled
+		return CREGEN2_DEF; //handled
 	case 217:
-		return EDefType::CREGEN_DEF; //handled
+		return CREGEN_DEF; //handled
 	case 218:
-		return EDefType::CREGEN3_DEF; //handled
+		return CREGEN3_DEF; //handled
 	case 219:
-		return EDefType::GARRISON_DEF; //handled
+		return GARRISON_DEF; //handled
 	default:
-		return EDefType::TERRAINOBJ_DEF; // nothing to be handled
+		return TERRAINOBJ_DEF; // nothing to be handled
 	}
 }
 

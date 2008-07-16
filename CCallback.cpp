@@ -1,10 +1,10 @@
 #include "stdafx.h"
 #include "CCallback.h"
 #include "CPathfinder.h"
-#include "hch\CHeroHandler.h"
-#include "hch\CTownHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CTownHandler.h"
 #include "CGameInfo.h"
-#include "hch\CAmbarCendamo.h"
+#include "hch/CAmbarCendamo.h"
 #include "mapHandler.h"
 #include "CGameState.h"
 #include "CPlayerInterface.h"
@@ -13,12 +13,13 @@
 #include "CAdvmapInterface.h"
 #include "CPlayerInterface.h"
 #include "hch/CBuildingHandler.h"
+
 LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
 
 int CCallback::lowestSpeed(CGHeroInstance * chi)
 {
 	int min = 150;
-	for (  std::map<int,std::pair<CCreature*,int> >::iterator i = chi->army.slots.begin(); 
+	for (  std::map<int,std::pair<CCreature*,int> >::iterator i = chi->army.slots.begin();
 		   i!=chi->army.slots.end();		 i++													)
 	{
 		if (min>(*i).second.first->speed)
@@ -29,9 +30,9 @@ int CCallback::lowestSpeed(CGHeroInstance * chi)
 int CCallback::valMovePoints(CGHeroInstance * chi)
 {
 	int ret = 1270+70*lowestSpeed(chi);
-	if (ret>2000) 
+	if (ret>2000)
 		ret=2000;
-	
+
 	//TODO: additional bonuses (but they aren't currently stored in chi)
 
 	return ret;
@@ -113,9 +114,12 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 	if (pathType==0)
 		CPathfinder::convertPath(path,pathType);
 	if (pathType>1)
+#ifndef __GNUC__
 		throw std::exception("Unknown path format");
-
-	CPath * ourPath = path; 
+#else
+		throw std::exception();
+#endif
+	CPath * ourPath = path;
 	if(!ourPath)
 		return false;
 	for(int i=ourPath->nodes.size()-1; i>0; i--)
@@ -136,7 +140,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		{ //performing move
 			hero->movement -= (ourPath->nodes.size()>=2 ?  (*(ourPath->nodes.end()-2)).dist : 0) - ourPath->nodes[i].dist;
 			ourPath->nodes.pop_back();
-			
+
 			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.dst,false));
 			bool blockvis = false;
 			for (int pit = 0; pit<vis.size();pit++)
@@ -278,7 +282,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 
 		//recruit
 		int slot = -1; //slot ID
-		std::pair<int,std::pair<CCreature*,int> > parb;	
+		std::pair<int,std::pair<CCreature*,int> > parb;
 
 		for(int i=0;i<7;i++) //TODO: if there is already stack of same creatures it should be used always
 		{
@@ -372,7 +376,7 @@ const CGTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> 
 {
 	if (!mode)
 		return gs->players[gs->currentPlayer].towns[val];
-	else 
+	else
 	{
 		//TODO: add some smart ID to the CTownInstance
 
@@ -398,7 +402,7 @@ const CGHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //
 		if(val<gs->players[player].heroes.size())
 			return gs->players[player].heroes[val];
 		else return NULL;
-	else 
+	else
 	{
 		for (int i=0; i<gs->players[player].heroes.size();i++)
 		{
@@ -435,7 +439,7 @@ int CCallback::getDate(int mode)
 		temp = ((gs->day-1)/7)+1;
 		if (!(temp%4))
 			return 4;
-		else 
+		else
 			return (temp%4);
 		break;
 	case 3:
@@ -448,7 +452,7 @@ bool CCallback::verifyPath(CPath * path, bool blockSea)
 {
 	for (int i=0;i<path->nodes.size();i++)
 	{
-		if ( CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].blocked 
+		if ( CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].blocked
 			&& (! (CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].visitable)))
 			return false; //path is wrong - one of the tiles is blocked
 
@@ -458,16 +462,16 @@ bool CCallback::verifyPath(CPath * path, bool blockSea)
 				continue;
 
 			if (
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].terType==EterrainType::water)
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].terType==water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType!=EterrainType::water))
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType!=water))
 				  ||
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].terType!=EterrainType::water)
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].terType!=water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType==EterrainType::water))
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType==water))
 				  ||
-				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType==EterrainType::rock)
-					
+				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType==rock)
+
 				)
 				return false;
 		}
@@ -558,7 +562,7 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
 {
 	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
-	if (((s1->ID == 34)&&(S1->slots.size()==1)&&(!S2->slots[p2].first)) || ((s2->ID == 34)&&(S2->slots.size()==1)&&(!S1->slots[p1].first)) || (0/*we are not allowed*/))
+	if (((s1->ID == 34)&&(S1->slots.size()==1)&&(!S2->slots[p2].first)) || ((s2->ID == 34)&&(S2->slots.size()==1)&&(!S1->slots[p1].first)) || (0/*we are not allowed*/)) 
 	{
 		//TODO: check if we are allowed to swap these creatures
 		return -1;
@@ -602,7 +606,7 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 }
 
 int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
-{	
+{
 	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
 	if ((S1->slots[p1].first != S2->slots[p2].first) && (true /*we are allowed to*/))
 	{
@@ -654,7 +658,7 @@ int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2
 	S2->slots[p2].second = val;
 	S1->slots[p1].second -= val;
 	if(!S1->slots[p1].second) //if we've moved all creatures
-		S1->slots.erase(p1); 
+		S1->slots.erase(p1);
 
 
 	if(s1->tempOwner<PLAYER_LIMIT)
@@ -693,7 +697,7 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 }
 
 int CCallback::getMySerial()
-{	
+{
 	return gs->players[player].serial;
 }
 
@@ -720,7 +724,7 @@ bool CCallback::swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1,
 	{
 		std::swap(Uhero1->artifacts[pos1], Uhero2->artifacts[pos2]);
 	}
-	
+
 	return true;
 }
 
@@ -757,7 +761,7 @@ int CCallback::battleGetBattlefieldType()
 	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].terType;
 }
 
-int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield 
+int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield
 {
 	//TODO - write
 	return -1;
@@ -767,10 +771,10 @@ int CCallback::battleGetStack(int pos)
 	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
 	{
 		if(CGI->state->curB->stacks[g]->position == pos ||
-				( CGI->state->curB->stacks[g]->creature->isDoubleWide() && 
-					( (CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position-1 == pos) || 
+				( CGI->state->curB->stacks[g]->creature->isDoubleWide() &&
+					( (CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position-1 == pos) ||
 						(!CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position+1 == pos)
-					) 
+					)
 				)
 			)
 			return CGI->state->curB->stacks[g]->ID;
@@ -820,7 +824,11 @@ CCreature CCallback::battleGetCreature(int number)
 		if(CGI->state->curB->stacks[h]->ID == number) //creature found
 			return *(CGI->state->curB->stacks[h]->creature);
 	}
+#ifndef __GNUC__
 	throw new std::exception("Cannot find the creature");
+#else
+	throw std::exception();
+#endif
 }
 
 std::vector<int> CCallback::battleGetAvailableHexes(int ID)
@@ -852,7 +860,7 @@ int3 CScriptCallback::getPos(CGObjectInstance * ob)
 	return ob->pos;
 }
 void CScriptCallback::changePrimSkill(int ID, int which, int val)
-{	
+{
 	CGHeroInstance * hero = CGI->state->getHero(ID,0);
 	if (which<PRIMARY_SKILLS)
 	{
@@ -881,7 +889,7 @@ void CScriptCallback::changePrimSkill(int ID, int which, int val)
 				if(r<pom)
 					break;
 			}
-			std::cout << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
+			std::cout << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl;
 			hero->primSkills[x]++;
 
 			//TODO: dac dwie umiejetnosci 2-rzedne to wyboru
@@ -924,11 +932,11 @@ void CScriptCallback::showSelDialog(int player, std::string text, std::vector<CS
 	return;
 }
 int CScriptCallback::getSelectedHero()
-{	
+{
 	int ret;
 	if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
 		ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
-	else 
+	else
 		ret = -1;;
 	return ret;
 }
@@ -950,7 +958,7 @@ int CScriptCallback::getDate(int mode)
 		temp = ((gs->day-1)/7)+1;
 		if (!(temp%4))
 			return 4;
-		else 
+		else
 			return (temp%4);
 		break;
 	case 3:
@@ -1059,13 +1067,13 @@ void CLuaCallback::registerFuncs(lua_State * L)
 	REGISTER_C_FUNC(getGnrlText);
 	REGISTER_C_FUNC(changePrimSkill);
 	REGISTER_C_FUNC(getGnrlText);*/
-	
+
 
 	lua_setglobal(L, "vcmi");
 	#undef REGISTER_C_FUNC
 }
 int CLuaCallback::getPos(lua_State * L)//(CGObjectInstance * object);
-{	
+{
 	const int args = lua_gettop(L); // number of arguments
 	if ((args < 1) || !lua_isnumber(L, 1) )
 		luaL_error(L,
@@ -1077,7 +1085,7 @@ int CLuaCallback::getPos(lua_State * L)//(CGObjectInstance * object);
 	return 3;
 }
 int CLuaCallback::changePrimSkill(lua_State * L)//(int ID, int which, int val);
-{	
+{
 	const int args = lua_gettop(L); // number of arguments
 	if ((args < 1) || !lua_isnumber(L, 1) ||
 	    ((args >= 2) && !lua_isnumber(L, 2)) ||
@@ -1109,7 +1117,7 @@ int CLuaCallback::getSelectedHero(lua_State * L) //(),returns int (ID of hero, -
 	int ret;
 	if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
 		ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
-	else 
+	else
 		ret = -1;
 	lua_pushinteger(L,ret);
 	return 1;

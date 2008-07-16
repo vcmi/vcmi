@@ -15,7 +15,7 @@ struct Cimage
 class CSemiDefHandler
 {
 public:
-	int howManyImgs;	
+	int howManyImgs;
 	std::string defName;
 	std::vector<Cimage> ourImages;
 	std::vector<std::string> namesOfImgs;

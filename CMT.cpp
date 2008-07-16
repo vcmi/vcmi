@@ -3,9 +3,9 @@
 #include "stdafx.h"
 #include "SDL.h"
 #include "SDL_TTF.h"
-#include "hch\CVideoHandler.h"
+#include "hch/CVideoHandler.h"
 #include "SDL_mixer.h"
-#include "hch\CBuildingHandler.h"
+#include "hch/CBuildingHandler.h"
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
 #include <cmath>
@@ -17,26 +17,26 @@
 #include "zlib.h"
 #include <cmath>
 #include <ctime>
-#include "hch\CArtHandler.h"
-#include "hch\CHeroHandler.h"
-#include "hch\CCreatureHandler.h"
-#include "hch\CAbilityHandler.h"
-#include "hch\CSpellHandler.h"
-#include "hch\CBuildingHandler.h"
-#include "hch\CObjectHandler.h"
+#include "hch/CArtHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CCreatureHandler.h"
+#include "hch/CAbilityHandler.h"
+#include "hch/CSpellHandler.h"
+#include "hch/CBuildingHandler.h"
+#include "hch/CObjectHandler.h"
 #include "CGameInfo.h"
-#include "hch\CMusicHandler.h"
-#include "hch\CSemiLodHandler.h"
-#include "hch\CLodHandler.h"
-#include "hch\CDefHandler.h"
-#include "hch\CSndHandler.h"
-#include "hch\CTownHandler.h"
-#include "hch\CDefObjInfoHandler.h"
-#include "hch\CAmbarCendamo.h"
+#include "hch/CMusicHandler.h"
+#include "hch/CSemiLodHandler.h"
+#include "hch/CLodHandler.h"
+#include "hch/CDefHandler.h"
+#include "hch/CSndHandler.h"
+#include "hch/CTownHandler.h"
+#include "hch/CDefObjInfoHandler.h"
+#include "hch/CAmbarCendamo.h"
 #include "mapHandler.h"
 #include "global.h"
 #include "CPreGame.h"
-#include "hch\CGeneralTextHandler.h"
+#include "hch/CGeneralTextHandler.h"
 #include "CConsoleHandler.h"
 #include "CCursorHandler.h"
 #include "CScreenHandler.h"
@@ -90,7 +90,7 @@ void initGameState(CGameInfo * cgi)
 		cgi->state->players.insert(ins);
 	}
 	/******************RESOURCES****************************************************/
-	//TODO: zeby komputer dostawal inaczej niz gracz 
+	//TODO: zeby komputer dostawal inaczej niz gracz
 	std::vector<int> startres;
 	std::ifstream tis("config/startres.txt");
 	int k;
@@ -176,7 +176,7 @@ void initGameState(CGameInfo * cgi)
 				vhi->army.slots[x-pom2].first = &(cgi->creh->creatures[pom]);
 				if((pom = (vhi->type->highStack[x]-vhi->type->lowStack[x])) > 0)
 					vhi->army.slots[x-pom2].second = (rand()%pom)+vhi->type->lowStack[x];
-				else 
+				else
 					vhi->army.slots[x-pom2].second = +vhi->type->lowStack[x];
 			}
 		}
@@ -184,7 +184,7 @@ void initGameState(CGameInfo * cgi)
 		cgi->state->players[vhi->getOwner()].heroes.push_back(vhi);
 
 	}
-	/*************************FOG**OF**WAR******************************************/		
+	/*************************FOG**OF**WAR******************************************/
 	for(std::map<int, PlayerState>::iterator k=cgi->state->players.begin(); k!=cgi->state->players.end(); ++k)
 	{
 		k->second.fogOfWarMap.resize(cgi->ac->map.width, Woff);
@@ -223,7 +223,7 @@ void initGameState(CGameInfo * cgi)
 		//vti->creaturesLeft.resize(CREATURES_PER_TOWN);
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name=vti->town->names[rand()%vti->town->names.size()];
-		
+
 		cgi->state->players[vti->getOwner()].towns.push_back(vti);
 	}
 
@@ -247,7 +247,7 @@ void initGameState(CGameInfo * cgi)
 
 		//init visiting heroes
 		for(int l=0; l<k->second.heroes.size();l++)
-		{ 
+		{
 			for(int m=0; m<k->second.towns.size();m++)
 			{
 				int3 vistile = k->second.towns[m]->pos; vistile.x--; //tile next to the entrance
@@ -309,7 +309,7 @@ void initGameState(CGameInfo * cgi)
 			CGI->objh->objInstances[i]->state = scripts[CGI->objh->objInstances[i]->ID];
 			CGI->objh->objInstances[i]->state->newObject(CGI->objh->objInstances[i]);
 		}
-		else 
+		else
 		{
 			CGI->objh->objInstances[i]->state = NULL;
 		}
@@ -322,12 +322,16 @@ void initGameState(CGameInfo * cgi)
 	delete lf;
 }
 
+#ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
-{ 
+#else
+int main(int argc, _TCHAR* argv[])
+#endif
+{
 	//std::ios_base::sync_with_stdio(0);
 	//CLuaHandler luatest;
-	//luatest.test(); 
-	
+	//luatest.test();
+
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");
 	THC timeHandler tmh;
@@ -339,7 +343,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO/*|SDL_INIT_EVENTTHREAD*/)==0)
 	{
 		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);
-		
+
 		//initializing important global surface
 #if SDL_BYTEORDER == SDL_BIG_ENDIAN
 		int rmask = 0xff000000;
@@ -358,16 +362,18 @@ int _tmain(int argc, _TCHAR* argv[])
 		TTF_Init();
 		atexit(TTF_Quit);
 		atexit(SDL_Quit);
-		//TNRB = TTF_OpenFont("Fonts\\tnrb.ttf",16);
-		TNRB16 = TTF_OpenFont("Fonts\\tnrb.ttf",16);
-		//TNR = TTF_OpenFont("Fonts\\tnr.ttf",10);
-		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
-		GEOR16 = TTF_OpenFont("Fonts\\georgia.ttf",16);
-		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
-		GEORM = TTF_OpenFont("Fonts\\georgia.ttf",10);
+		//TNRB = TTF_OpenFont(DATADIR "Fonts" PATHSEPARATOR "tnrb.ttf",16);
+		TNRB16 = TTF_OpenFont(DATADIR "Fonts" PATHSEPARATOR "tnrb.ttf",16);
+		//TNR = TTF_OpenFont(DATADIR "Fonts" PATHSEPARATOR "tnr.ttf",10);
+		GEOR13 = TTF_OpenFont(DATADIR "Fonts" PATHSEPARATOR "georgia.ttf",13);
+		GEOR16 = TTF_OpenFont(DATADIR "Fonts" PATHSEPARATOR "georgia.ttf",16);
+		GEORXX = TTF_OpenFont(DATADIR "Fonts" PATHSEPARATOR "tnrb.ttf",22);
+		GEORM = TTF_OpenFont(DATADIR "Fonts" PATHSEPARATOR "georgia.ttf",10);
+
 		CMusicHandler * mush = new CMusicHandler;  //initializing audio
 		mush->initMusics();
-		//audio initialized 
+
+		//audio initialized
 		/*if(Mix_PlayMusic(mush->mainMenuWoG, -1)==-1) //uncomment this fragment to have music
 		{
 			printf("Mix_PlayMusic: %s\n", Mix_GetError());
@@ -379,19 +385,19 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		SDL_WM_SetCaption(NAME,""); //set window title
 		CGameInfo * cgi = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
-		CGameInfo::mainObj = cgi;		
+		CGameInfo::mainObj = cgi;
 		#ifdef _DEBUG
 		CGI = cgi;
 		#endif
 		cgi->consoleh = new CConsoleHandler;
 		cgi->mush = mush;
-		cgi->curh = new CCursorHandler; 
-		
+		cgi->curh = new CCursorHandler;
+
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		cgi->spriteh = new CLodHandler;
-		cgi->spriteh->init(std::string("Data\\H3sprite.lod"));
+		cgi->spriteh->init(std::string(DATADIR "Data" PATHSEPARATOR "H3sprite.lod"));
 		cgi->bitmaph = new CLodHandler;
-		cgi->bitmaph->init(std::string("Data\\H3bitmap.lod"));
+		cgi->bitmaph->init(std::string(DATADIR "Data" PATHSEPARATOR "H3bitmap.lod"));
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 
 		boost::filesystem::directory_iterator enddir;
@@ -410,6 +416,7 @@ int _tmain(int argc, _TCHAR* argv[])
 				}
 			}
 		}
+
 		if(boost::filesystem::exists("Sprites"))
 		{
 			for (boost::filesystem::directory_iterator dir("Sprites");dir!=enddir;dir++)
@@ -475,6 +482,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		}
 		//palette initialized
 		THC std::cout<<"Preparing players' colours: "<<tmh.getDif()<<std::endl;
+
 		CMessage::init();
 		cgi->townh = new CTownHandler;
 		cgi->townh->loadNames();
@@ -680,7 +688,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF06.DEF")); //teal
 		cgi->heroh->flags4.push_back(cgi->spriteh->giveDef("AF07.DEF")); //pink
 
-
 		for(int q=0; q<8; ++q)
 		{
 			for(int o=0; o<cgi->heroh->flags4[q]->ourImages.size(); ++o)
@@ -798,7 +805,7 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		CSpellHandler * spellh = new CSpellHandler;
 		spellh->loadSpells();
-		cgi->spellh = spellh;		
+		cgi->spellh = spellh;
 		THC std::cout<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
 
 		CBuildingHandler * buildh = new CBuildingHandler;
@@ -827,9 +834,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"Handlers initailization (together): "<<tmh.getDif()<<std::endl;
 
 		std::string mapname;
-		//if(CPG->ourScenSel->mapsel.selected==0) 
+		//if(CPG->ourScenSel->mapsel.selected==0)
 		//	CPG->ourScenSel->mapsel.selected = 1; //only for tests
-		if (CPG) 
+		if (CPG)
 			mapname = CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].filename;
 		else
 		{
@@ -872,11 +879,16 @@ int _tmain(int argc, _TCHAR* argv[])
 			cgi->playerint.push_back(NULL);
 		}*/
 		for (int i=0; i<cgi->scenarioOps.playerInfos.size();i++) //initializing interfaces
-		{ 
-
+		{
 			if(!cgi->scenarioOps.playerInfos[i].human)
+			{
+#ifdef _WIN32
 				cgi->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color),"EmptyAI.dll")));
-			else 
+#else
+				cgi->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->scenarioOps.playerInfos[i].color),"libemptyai.so")));
+#endif
+			}
+			else
 			{
 				cgi->state->currentPlayer=cgi->scenarioOps.playerInfos[i].color;
 				cgi->playerint.push_back(new CPlayerInterface(cgi->scenarioOps.playerInfos[i].color,i));

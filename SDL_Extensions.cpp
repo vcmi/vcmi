@@ -7,7 +7,7 @@
 #include <algorithm>
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
-#include "hch\CDefHandler.h"
+#include "hch/CDefHandler.h"
 #include <map>
 
 extern SDL_Color playerColorPalette[256];
@@ -235,34 +235,38 @@ void CSDL_Ext::printToWR(std::string text, int x, int y, TTF_Font * font, SDL_Co
 void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC, Uint8 A)
 {
 	Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;
+/*
 #if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
 	p[0] = R;
 	p[1] = G;
 	p[2] = B;
 #else
+*/
 	p[0] = B;
 	p[1] = G;
 	p[2] = R;
 	if(ekran->format->BytesPerPixel==4)
 		p[3] = A;
-#endif
+//#endif
 	SDL_UpdateRect(ekran, x, y, 1, 1);
 }
 
 void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC, Uint8 A)
 {
      Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;
+/*
 #if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
 	p[0] = B;
 	p[1] = G;
 	p[2] = R;
 #else
+*/
 	p[0] = R;
 	p[1] = G;
 	p[2] = B;
 	if(ekran->format->BytesPerPixel==4)
 		p[3] = A;
-#endif
+//#endif
 }
 
 ///**************/
@@ -280,11 +284,14 @@ SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot, int myC)
 			{
 				{
 					Uint8 *p = (Uint8 *)toRot->pixels + j * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
+/*
+
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], myC);
 #else
+*/
 						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], myC);
-#endif
+//#endif
 				}
 			}
 		}
@@ -317,11 +324,13 @@ SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 				{
 					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel;
 					//int k=2;
+/*
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2]);
 #else
+*/
 						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0]);
-#endif
+//#endif
 				}
 			}
 		}
@@ -355,11 +364,13 @@ SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
 		{
 			{
 				Uint8 *p = (Uint8 *)toRot->pixels + i * toRot->pitch + j * toRot->format->BytesPerPixel;
+/*
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 					SDL_PutPixel(ret, i, j, p[0], p[1], p[2]);
 #else
+*/
 					SDL_PutPixel(ret, i, j, p[2], p[1], p[0]);
-#endif
+//#endif
 			}
 		}
 	}
@@ -381,11 +392,13 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 			{
 				{
 					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel+2;
+/*
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 						SDL_PutPixel(ret, i, j, p[0], p[1], p[2], 2);
 #else
+*/
 						SDL_PutPixel(ret, i, j, p[2], p[1], p[0], 2);
-#endif
+//#endif
 				}
 			}
 		}
@@ -461,11 +474,13 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
         return *(Uint16 *)p;
 
     case 3:
+/*
 #if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
             return p[0] << 16 | p[1] << 8 | p[2];
 #else
+*/
             return p[0] | p[1] << 8 | p[2] << 16;
-#endif
+//#endif
 
     case 4:
         return *(Uint32 *)p;
@@ -480,11 +495,11 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 	Uint32 trans = SDL_MapRGBA(src->format, 0, 255, 255, 255);
 	SDL_SetColorKey(src, 0, trans);
 	src->flags|=SDL_SRCALPHA;
-	
+
 	SDL_Color transp;
 	transp.b = transp.g = transp.r = 0;
 	transp.unused = 255;
-	
+
 	if(src->format->BitsPerPixel == 8)
 	{
 		for(int yy=0; yy<src->format->palette->ncolors; ++yy)
@@ -562,7 +577,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 		/* clip the source rectangle to the source surface */
 		if(srcRect) {
 				int maxw, maxh;
-		
+
 			srcx = srcRect->x;
 			w = srcRect->w;
 			if(srcx < 0) {
@@ -584,7 +599,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			maxh = src->h - srcy;
 			if(maxh < h)
 				h = maxh;
-		    
+
 		} else {
 				srcx = srcy = 0;
 			w = src->w;
@@ -634,11 +649,11 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
 						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
 
-						// According analyze, the values of tbc.unused are fixed, 
+						// According analyze, the values of tbc.unused are fixed,
 						// and the approximate ratios are as following:
 						//
 						// tbc.unused	numbers
-						// 192			    2679					
+						// 192			    2679
 						// 164			  326907
 						// 82			  705590
 						// 214			 1292625
@@ -648,7 +663,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 						//
 						// By making use of such characteristic, we may implement a
 						// very fast algorithm for heroes3 without loose much quality.
-						switch ((Uint32)tbc.unused) 
+						switch ((Uint32)tbc.unused)
 						{
 							case 255:
 								break;
@@ -666,9 +681,9 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 								p[0] = ((((Uint32)p[0]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r) & 0xFF;
 								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g) & 0xFF;
 								p[2] = ((((Uint32)p[2]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b) & 0xFF;
-								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
-								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
-								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
+								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
+								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
+								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
 								break;
 						}
 					}
@@ -682,8 +697,8 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 					{
 						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
 						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
-						
-						switch ((Uint32)tbc.unused) 
+
+						switch ((Uint32)tbc.unused)
 						{
 							case 255:
 								break;
@@ -701,9 +716,9 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 								p[2] = ((((Uint32)p[2]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r) & 0xFF;
 								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g) & 0xFF;
 								p[0] = ((((Uint32)p[0]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b) & 0xFF;
-								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red 
-								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green 
-								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue 
+								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
+								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
+								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
 								break;
 						}
 					}
@@ -755,6 +770,7 @@ void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
 			for(int x=0; x<sur->w; ++x)
 			{
 				Uint8* cp = (Uint8*)sur->pixels + y+sur->pitch + x*3;
+/*
 				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				{
 					if(cp[0]==0 && cp[1]==0 && cp[2]==255)
@@ -766,14 +782,15 @@ void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
 				}
 				else
 				{
-					
+
+*/
 					if(cp[0]==255 && cp[1]==0 && cp[2]==0)
 					{
 						cp[0] = CGameInfo::mainObj->playerColors[player].b;
 						cp[1] = CGameInfo::mainObj->playerColors[player].g;
 						cp[2] = CGameInfo::mainObj->playerColors[player].r;
 					}
-				}
+//				}
 			}
 		}
 	}
@@ -797,6 +814,7 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player, int mode, void* a
 			for(int x=0; x<sur->w; ++x)
 			{
 				Uint8* cp = (Uint8*)sur->pixels + y*sur->pitch + x*3;
+/*
 				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
 				{
 					if(cp[2]>cp[1] && cp[2]>cp[0])
@@ -823,6 +841,7 @@ void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player, int mode, void* a
 					}
 				}
 				else
+*/
 				{
 					if(
 						((mode==0) && (cp[0]>cp[1]) && (cp[0]>cp[2])) ||
@@ -873,7 +892,7 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
 		return;
 	if(sur->format->BitsPerPixel==8)
 	{
-		if(player != 255) 
+		if(player != 255)
 			*(sur->format->palette->colors+5) = CGameInfo::mainObj->playerColors[player];
 		else
 			*(sur->format->palette->colors+5) = CGameInfo::mainObj->neutralColor;

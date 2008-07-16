@@ -42,7 +42,7 @@ public:
 	std::vector<CSpell *> possibleSpells;
 	std::vector<CSpell *> obligatorySpells;
 	std::vector<CSpell *> availableSpells;
-	
+
 	std::vector<CCastleEvent> events;
 
 	unsigned char alignment; //255 - same as owner/random, 0 - same as red, 1 - same as blue, etc

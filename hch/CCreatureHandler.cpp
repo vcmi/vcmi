@@ -321,7 +321,7 @@ void CCreatureHandler::loadCreatures()
 	}
 
 	//loading reference names
-	std::ifstream ifs("config/crerefnam.txt"); 
+	std::ifstream ifs("config/crerefnam.txt");
 	int tempi;
 	std::string temps;
 	for (;;)
@@ -336,7 +336,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.clear();
 	for(int i=1;i<=10;i++)
 		levelCreatures.insert(std::pair<int,std::vector<CCreature*> >(i,std::vector<CCreature*>()));
-	ifs.open("config/monsters.txt"); 
+	ifs.open("config/monsters.txt");
 	{
 		while(!ifs.eof())
 		{
@@ -353,7 +353,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.clear();
 
 
-	ifs.open("config/cr_bgs.txt"); 
+	ifs.open("config/cr_bgs.txt");
 	while(!ifs.eof())
 	{
 		int id;
@@ -365,7 +365,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.clear();
 
 
-	ifs.open("config/cr_factions.txt"); 
+	ifs.open("config/cr_factions.txt");
 	while(!ifs.eof())
 	{
 		int id, fact;
@@ -375,7 +375,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.close();
 	ifs.clear();
 
-	ifs.open("config/cr_upgrade_list.txt"); 
+	ifs.open("config/cr_upgrade_list.txt");
 	while(!ifs.eof())
 	{
 		int id, up;
@@ -401,17 +401,21 @@ void CCreatureHandler::loadCreatures()
 	}
 	delete smi;
 	//
-	
+
 	//loading unit animation def names
 	std::ifstream inp("config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
 	inp.seekg(0,std::ios::end); // na koniec
 	int andame2 = inp.tellg();  // read length
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame2]; // allocate memory 
+	char * bufor = new char[andame2]; // allocate memory
 	inp.read((char*)bufor, andame2); // read map file to buffer
 	inp.close();
 	buf = std::string(bufor);
+#ifndef __GNUC__
 	delete [andame2] bufor;
+#else
+	delete [] bufor;
+#endif
 
 	i = 0; //buf iterator
 	hmcr = 0;
@@ -645,7 +649,7 @@ void CCreatureHandler::loadUnitAnimations()
 	//inp.seekg(0,std::ios::end); // na koniec
 	//int andame = inp.tellg();  // read length
 	//inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	//char * bufor = new char[andame]; // allocate memory 
+	//char * bufor = new char[andame]; // allocate memory
 	//inp.read((char*)bufor, andame); // read map file to buffer
 	//inp.close();
 	//std::string buf = std::string(bufor);
@@ -763,12 +767,12 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEn
 		int unknown3 = readNormalNr(i,4); i+=4;
 		for (j=0; j<totalInBlock; j++)
 		{
-			for (int k=0;k<13;k++) Buffer[k]=FDef[i+k]; 
+			for (int k=0;k<13;k++) Buffer[k]=FDef[i+k];
 			i+=13;
 			SEntries[totalEntries+j].name=Buffer;
 		}
 		for (j=0; j<totalInBlock; j++)
-		{ 
+		{
 			SEntries[totalEntries+j].offset = readNormalNr(i,4);
 			int unknown4 = readNormalNr(i,4); i+=4;
 		}
@@ -813,7 +817,7 @@ int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, 
 			amp*=256;
 		}
 	}
-	else 
+	else
 	{
 		for (int i=0; i<bytCon; i++)
 		{
@@ -870,14 +874,14 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	}
 	//frame number increased
 
-	long BaseOffset, 
+	long BaseOffset,
 		SpriteWidth, SpriteHeight, //sprite format
 		LeftMargin, RightMargin, TopMargin,BottomMargin,
 		i, add, FullHeight,FullWidth,
 		TotalRowLength, // length of read segment
 		RowAdd;
 	unsigned char SegmentType, SegmentLength;
-	
+
 	i=BaseOffset=SEntries[SIndex].offset;
 	int prSize=readNormalNr(i,4,FDef);i+=4;
 	int defType2 = readNormalNr(i,4,FDef);i+=4;
@@ -889,7 +893,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	TopMargin = readNormalNr(i,4,FDef);i+=4;
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
-	
+
 	add = 4 - FullWidth%4;
 
 	int BaseOffsetor = BaseOffset = i;
@@ -1023,7 +1027,7 @@ void CCreatureAnimation::putPixel(SDL_Surface * dest, const int & ftcp, const BM
 			p[2] = color.R;
 		}
 		else if(palc < 5) //shadow
-		{ 
+		{
 			Uint16 alpha;
 			switch(color.G)
 			{

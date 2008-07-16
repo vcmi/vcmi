@@ -7,19 +7,28 @@
 #include <iostream>
 #include "int3.h"
 #define THC
-#else 
+#else
 #define THC //
 #endif
+
+#ifdef WIN32
+#define PATHSEPARATOR "\\"
+#define DATADIR ""
+#else
+#define PATHSEPARATOR "/"
+#define DATADIR "/progdir/"
+#endif
+
 enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK}; //player's colors
 enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
 enum Eriver {noRiver=0, clearRiver, icyRiver, muddyRiver, lavaRiver};
 enum Eroad {dirtRoad=1, grazvelRoad, cobblestoneRoad};
 enum Eformat { WoG=0x33, AB=0x15, RoE=0x0e,  SoD=0x1c};
-enum EvictoryConditions {artifact, gatherTroop, gatherResource, buildCity, buildGrail, beatHero, 
+enum EvictoryConditions {artifact, gatherTroop, gatherResource, buildCity, buildGrail, beatHero,
 	captureCity, beatMonster, takeDwellings, takeMines, transportItem, winStandard=255};
 enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
-enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHEMIST, HERO_WIZARD, 
-	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD, 
+enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHEMIST, HERO_WIZARD,
+	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD,
 	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
 
 #ifdef _DEBUG
@@ -28,9 +37,9 @@ extern CGameInfo* CGI;
 #else
 #define CGI (CGameInfo::mainObj)
 #endif
-#define CURPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->state->currentPlayer]))) 
-#define LOCPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->localPlayer]))) 
-//CURPLINT gives pointer to the interface of human player which is currently making turn, 
+#define CURPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->state->currentPlayer])))
+#define LOCPLINT (((CPlayerInterface*)((CGameInfo::mainObj)->playerint[(CGameInfo::mainObj)->localPlayer])))
+//CURPLINT gives pointer to the interface of human player which is currently making turn,
 //LOCPLINT gives pointer to the interface which is currently showed (on this machine)
 
 #define HEROI_TYPE (0)
@@ -75,6 +84,6 @@ const int MAX_BUILDING_PER_TURN = 1;
 	{									\
 		std::cerr << e->what()<< std::endl;	\
 		delete e;						\
-	}									
+	}
 
 #endif //GLOBAL_H

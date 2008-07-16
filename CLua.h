@@ -29,7 +29,7 @@ public:
 	virtual void onHeroVisit(CGObjectInstance *os, int heroID){};
 	virtual void onHeroLeave(CGObjectInstance *os, int heroID){};
 	virtual std::string hoverText(CGObjectInstance *os){return "";};
-	virtual void newTurn (){}; 
+	virtual void newTurn (){};
 
 
 	//TODO: implement functions below:
@@ -68,7 +68,7 @@ public:
 	void findF2(std::string fname);
 	void findFS(std::string fname);
 
-	
+
 	friend void initGameState(CGameInfo * cgi);
 };
 
@@ -99,7 +99,7 @@ class CVisitableOPH : public CCPPObjectScript  //once per hero
 {
 	CVisitableOPH(CScriptCallback * CB):CCPPObjectScript(CB){};
 	std::map<CGObjectInstance*,std::set<int> > visitors;
-	
+
 	void onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited);
 	void newObject(CGObjectInstance *os);
 	void onHeroVisit(CGObjectInstance *os, int heroID);
@@ -118,7 +118,7 @@ class CVisitableOPW : public CCPPObjectScript  //once per week
 	void onHeroVisit(CGObjectInstance *os, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 	std::string hoverText(CGObjectInstance *os);
-	void newTurn (); 
+	void newTurn ();
 
 	friend void initGameState(CGameInfo * cgi);
 };
@@ -133,7 +133,7 @@ class CMines : public CCPPObjectScript  //flaggable, and giving resource at each
 	void onHeroVisit(CGObjectInstance *os, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 	std::string hoverText(CGObjectInstance *os);
-	void newTurn (); 
+	void newTurn ();
 
 	friend void initGameState(CGameInfo * cgi);
 };

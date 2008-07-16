@@ -1,9 +1,9 @@
 #include "CAdvmapInterface.h"
 #include "SDL_Extensions.h"
-#include "hch\CDefHandler.h"
+#include "hch/CDefHandler.h"
 #include "CGameInfo.h"
-#include "hch\CLodHandler.h"
-#include "hch\CPreGameTextHandler.h"
+#include "hch/CLodHandler.h"
+#include "hch/CPreGameTextHandler.h"
 #include "hch/CTownHandler.h"
 #include "CLua.h"
 #include "CCallback.h"
@@ -31,7 +31,7 @@ AdventureMapButton::AdventureMapButton
 	helpBox=HelpBox;
 	colorChange = playerColoredButton;
 	int est = LOCPLINT->playerID;
-	CDefHandler * temp = CGI->spriteh->giveDef(defName); 
+	CDefHandler * temp = CGI->spriteh->giveDef(defName);
 	temp->notFreeImgs = true;
 	for (int i=0;i<temp->ourImages.size();i++)
 	{
@@ -73,7 +73,7 @@ void AdventureMapButton::clickLeft (tribool down)
 	{
 		state=1;
 	}
-	else 
+	else
 	{
 		state=0;
 	}

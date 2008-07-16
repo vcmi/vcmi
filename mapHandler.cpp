@@ -1,18 +1,18 @@
 #include "stdafx.h"
 #include "mapHandler.h"
-#include "hch\CSemiDefHandler.h"
+#include "hch/CSemiDefHandler.h"
 #include "SDL_rotozoom.h"
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
 #include "stdlib.h"
-#include "hch\CLodHandler.h"
-#include "hch\CDefObjInfoHandler.h"
+#include "hch/CLodHandler.h"
+#include "hch/CDefObjInfoHandler.h"
 #include <algorithm>
 #include "CGameState.h"
 #include "CLua.h"
-#include "hch\CCastleHandler.h"
-#include "hch\CHeroHandler.h"
-#include "hch\CTownHandler.h"
+#include "hch/CCastleHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CTownHandler.h"
 #include <iomanip>
 #include <sstream>
 extern SDL_Surface * screen;
@@ -26,7 +26,7 @@ public:
 	}
 } ocmptwo ;
 void alphaTransformDef(CGDefInfo * defInfo)
-{	
+{
 	SDL_Surface * alphaTransSurf = SDL_CreateRGBSurface(SDL_SWSURFACE, 12, 12, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 	for(int yy=0;yy<defInfo->handler->ourImages.size();yy++)
 	{
@@ -81,9 +81,9 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 			return std::pair<int,int>(34,pickHero(obj->tempOwner));
 		}
 	case 71: //random monster
-		return std::pair<int,int>(54,rand()%(CGI->creh->creatures.size())); 
+		return std::pair<int,int>(54,rand()%(CGI->creh->creatures.size()));
 	case 72: //random monster lvl1
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[1][rand()%CGI->creh->levelCreatures[1].size()]->idNumber); 
+		return std::pair<int,int>(54,CGI->creh->levelCreatures[1][rand()%CGI->creh->levelCreatures[1].size()]->idNumber);
 	case 73: //random monster lvl2
 		return std::pair<int,int>(54,CGI->creh->levelCreatures[2][rand()%CGI->creh->levelCreatures[2].size()]->idNumber);
 	case 74: //random monster lvl3
@@ -91,7 +91,7 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 	case 75: //random monster lvl4
 		return std::pair<int,int>(54,CGI->creh->levelCreatures[4][rand()%CGI->creh->levelCreatures[4].size()]->idNumber);
 	case 76: //random resource
-		return std::pair<int,int>(79,rand()%7); //now it's OH3 style, use %8 for mithril 
+		return std::pair<int,int>(79,rand()%7); //now it's OH3 style, use %8 for mithril
 	case 77: //random town
 		{
 			int align = ((CCastleObjInfo*)obj->info)->alignment,
@@ -108,14 +108,14 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 				f = CGI->scenarioOps.getIthPlayersSettings(align).castle;
 			}
 			if(f<0) f = rand()%CGI->townh->towns.size();
-			return std::pair<int,int>(98,f); 
+			return std::pair<int,int>(98,f);
 		}
 	case 162: //random monster lvl5
 		return std::pair<int,int>(54,CGI->creh->levelCreatures[5][rand()%CGI->creh->levelCreatures[5].size()]->idNumber);
 	case 163: //random monster lvl6
 		return std::pair<int,int>(54,CGI->creh->levelCreatures[6][rand()%CGI->creh->levelCreatures[6].size()]->idNumber);
 	case 164: //random monster lvl7
-		return std::pair<int,int>(54,CGI->creh->levelCreatures[7][rand()%CGI->creh->levelCreatures[7].size()]->idNumber); 
+		return std::pair<int,int>(54,CGI->creh->levelCreatures[7][rand()%CGI->creh->levelCreatures[7].size()]->idNumber);
 	case 216: //random dwelling
 		{
 			int faction = rand()%F_NUMBER;
@@ -150,9 +150,9 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 			int cid = CGI->townh->towns[faction].basicCreatures[level];
 			for(int i=0;i<CGI->objh->cregens.size();i++)
 				if(CGI->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i); 
+					return std::pair<int,int>(17,i);
 			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0); 
+			return std::pair<int,int>(17,0);
 		}
 	case 217:
 		{
@@ -187,9 +187,9 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 			int cid = CGI->townh->towns[faction].basicCreatures[obj->subID];
 			for(int i=0;i<CGI->objh->cregens.size();i++)
 				if(CGI->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i); 
+					return std::pair<int,int>(17,i);
 			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0); 
+			return std::pair<int,int>(17,0);
 		}
 	case 218:
 		{
@@ -198,15 +198,15 @@ std::pair<int,int> CMapHandler::pickObject(CGObjectInstance *obj)
 			int cid = CGI->townh->towns[obj->subID].basicCreatures[level];
 			for(int i=0;i<CGI->objh->cregens.size();i++)
 				if(CGI->objh->cregens[i]==cid)
-					return std::pair<int,int>(17,i); 
+					return std::pair<int,int>(17,i);
 			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
-			return std::pair<int,int>(17,0); 
+			return std::pair<int,int>(17,0);
 		}
 	}
 	return std::pair<int,int>(-1,-1);
 }
 void CMapHandler::randomizeObject(CGObjectInstance *cur)
-{		
+{
 	std::pair<int,int> ran = pickObject(cur);
 	if(ran.first<0 || ran.second<0) //this is not a random object, or we couldn't find anything
 	{
@@ -218,7 +218,7 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 			else if(t->hasFort())
 				t->defInfo = CGI->dobjinfo->castles[t->subID];
 			else
-				t->defInfo = villages[t->subID]; 
+				t->defInfo = villages[t->subID];
 			if(!t->defInfo->handler)
 			{
 				t->defInfo->handler = CGI->spriteh->giveDef(t->defInfo->name);
@@ -250,7 +250,7 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 		else if(t->hasFort())
 			t->defInfo = CGI->dobjinfo->castles[t->subID];
 		else
-			t->defInfo = villages[t->subID]; 
+			t->defInfo = villages[t->subID];
 		if(!t->defInfo->handler)
 		{
 			t->defInfo->handler = CGI->spriteh->giveDef(t->defInfo->name);
@@ -694,7 +694,7 @@ void CMapHandler::initObjectRects()
 					cr.x = fx<<5; //fx*32
 					cr.y = fy<<5; //fy*32
 					std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(CGI->objh->objInstances[f],cr);
-					
+
 					if((CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (CGI->objh->objInstances[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (CGI->objh->objInstances[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 					{
 						//TerrainTile2 & curt =
@@ -762,7 +762,7 @@ void CMapHandler::init()
 		else
 			capitols[i%ccc]=n;
 		alphaTransformDef(n);
-	} 
+	}
 
 	for(int i=0;i<CGI->scenarioOps.playerInfos.size();i++)
 	{
@@ -1007,7 +1007,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 					//setting appropriate flag color
 					if((ttiles[x+bx][y+by][level].objects[h].first->tempOwner>=0 && ttiles[x+bx][y+by][level].objects[h].first->tempOwner<8) || ttiles[x+bx][y+by][level].objects[h].first->tempOwner==255)
 						CSDL_Ext::setPlayerColor(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[(anim+phaseShift)%imgVal].bitmap, ttiles[x+bx][y+by][level].objects[h].first->tempOwner);
-					
+
 					CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[(anim+phaseShift)%imgVal].bitmap,&pp,su,&sr);
 				}
 			}
@@ -1024,7 +1024,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.x=bx*32;
 			sr.h=sr.w=32;
 			validateRectTerr(&sr, extRect);
-			
+
 			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->reader->map.width && by+y<CGI->mh->reader->map.height && !visibilityMap[bx+x][by+y][level])
 			{
 				SDL_Surface * hide = getVisBitmap(bx+x, by+y, visibilityMap, level);
@@ -1048,7 +1048,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
 			}
-			else 
+			else
 			{
 				if(MARK_BLOCKED_POSITIONS &&  ttiles[x+bx][y+by][level].blocked) //temporary hiding blocked positions
 				{
@@ -1473,7 +1473,11 @@ std::string CMapHandler::getDefName(int id, int subid)
 	CGDefInfo* temp = CGI->dobjinfo->gobjs[id][subid];
 	if(temp)
 		return temp->name;
+#ifndef __GNUC__
 	throw new std::exception("Def not found.");
+#else
+	throw new std::exception();
+#endif
 }
 
 bool CMapHandler::printObject(CGObjectInstance *obj)
@@ -1491,7 +1495,7 @@ bool CMapHandler::printObject(CGObjectInstance *obj)
 			std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
 			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
-				TerrainTile2 & curt = 
+				TerrainTile2 & curt =
 					ttiles
 					  [obj->pos.x + fx - curd->ourImages[0].bitmap->w/32]
 				      [obj->pos.y + fy - curd->ourImages[0].bitmap->h/32]
@@ -1581,7 +1585,8 @@ bool CMapHandler::recalculateHideVisPosUnderObj(CGObjectInstance *obj, bool with
 			{
 				if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 				{
-					recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z));
+					int3 tempPos = int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z);
+					recalculateHideVisPos(tempPos);
 				}
 			}
 		}
@@ -1594,7 +1599,8 @@ bool CMapHandler::recalculateHideVisPosUnderObj(CGObjectInstance *obj, bool with
 			{
 				if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 				{
-					recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z));
+					int3 tempPos = int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z);
+					recalculateHideVisPos(tempPos);
 				}
 			}
 		}

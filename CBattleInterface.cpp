@@ -1,14 +1,14 @@
 #include "CBattleInterface.h"
 #include "CGameInfo.h"
-#include "hch\CLodHandler.h"
+#include "hch/CLodHandler.h"
 #include "SDL_Extensions.h"
 #include "CAdvmapInterface.h"
 #include "AdventureMapButton.h"
-#include "hch\CHeroHandler.h"
-#include "hch\CDefHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CDefHandler.h"
 #include "CCallback.h"
 #include "CGameState.h"
-#include "hch\CGeneralTextHandler.h"
+#include "hch/CGeneralTextHandler.h"
 #include <queue>
 #include <sstream>
 
@@ -17,7 +17,7 @@ extern TTF_Font * GEOR13;
 extern SDL_Color zwykly;
 SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
-CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2) 
+CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
 : printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL)
 {
 	//initializing armies
@@ -58,7 +58,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	blitAt(background, 0, 0);
 	blitAt(menu, 0, 556);
 	CSDL_Ext::update();
-	
+
 	//preparing buttons and console
 	bOptions = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bOptionsf,this), 3, 561, "icm003.def", false, NULL, false);
 	bSurrender = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bSurrenderf,this), 54, 561, "icm001.def", false, NULL, false);
@@ -75,7 +75,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	console->pos.y = 560;
 	console->pos.w = 406;
 	console->pos.h = 38;
-	
+
 	//loading hero animations
 	if(hero1) // attacking hero
 	{
@@ -104,7 +104,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	for(int h=0; h<187; ++h)
 	{
 		bfield[h].myNumber = h;
-		
+
 		int x = 14 + ((h/17)%2==0 ? 22 : 0) + 44*(h%17);
 		int y = 86 + 42 * (h/17);
 		bfield[h].pos = genRect(cellShade->h, cellShade->w, x, y);
@@ -422,7 +422,7 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby)
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
-	
+
 	printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
@@ -451,7 +451,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 
 	int mutPos = CBattleHex::mutualPosition(curStackPos, destHex);
 
-	if(LOCPLINT->cb->battleGetCreature(number).isDoubleWide() && 
+	if(LOCPLINT->cb->battleGetCreature(number).isDoubleWide() &&
 		((creDir[number] && mutPos == 5) || (creDir[number] && mutPos == 0) || (creDir[number] && mutPos == 4))) //for special cases
 	{
 		switch(CBattleHex::mutualPosition(curStackPos, destHex)) //reverse unit if necessary
@@ -602,7 +602,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 			reverseCreature(number, destHex);
 		//creDir[number] = (curs.owner == attackingHeroInstance->tempOwner);
 	}
-	
+
 	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], curs.creature);
 	creAnims[number]->pos.x = coords.first;
 	creAnims[number]->pos.y = coords.second;
@@ -957,7 +957,7 @@ CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG
 		if(flip)
 		{
 			SDL_Surface * hlp = CSDL_Ext::rotate01(dh->ourImages[i].bitmap);
-			SDL_FreeSurface(dh->ourImages[i].bitmap); 
+			SDL_FreeSurface(dh->ourImages[i].bitmap);
 			dh->ourImages[i].bitmap = hlp;
 		}
 		dh->ourImages[i].bitmap = CSDL_Ext::alphaTransform(dh->ourImages[i].bitmap);

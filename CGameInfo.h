@@ -3,6 +3,7 @@
 
 #include "StartInfo.h"
 #include "SDL.h"
+#include "CPregame.h"
 
 #include <vector>
 

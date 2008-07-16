@@ -1,15 +1,15 @@
 #ifndef MAPHANDLER_H
 #define MAPHANDLER_H
 
-#include "hch\CAmbarCendamo.h"
-#include "hch\CSemiDefHandler.h"
+#include "hch/CAmbarCendamo.h"
+#include "hch/CSemiDefHandler.h"
 #include "CGameInfo.h"
-#include "hch\CDefHandler.h"
+#include "hch/CDefHandler.h"
 #include <boost/logic/tribool.hpp>
-#include "hch\CObjectHandler.h"
+#include "hch/CObjectHandler.h"
 #include <list>
 const int Woff = 12; //width of map's frame
-const int Hoff = 8; 
+const int Hoff = 8;
 
 struct TerrainTile2
 {

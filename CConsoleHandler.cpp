@@ -53,7 +53,7 @@ int internalFunc(void * callback)
 				boost::filesystem::create_directory("Extracted_txts");
 				std::cout<<"Command accepted. Opening .lod file...\t";
 				CLodHandler * txth = new CLodHandler;
-				txth->init(std::string("Data\\H3bitmap.lod"));
+				txth->init(std::string(DATADIR "Data" PATHSEPARATOR "H3bitmap.lod"));
 				std::cout<<"done.\nScanning .lod file\n";
 				int curp=0;
 				std::string pattern = ".TXT";
@@ -74,12 +74,15 @@ int internalFunc(void * callback)
 				std::cout<<"\rExtracting done :)\n";
 			}
 			vector<Coordinate>* p;
+			int heroX;
+			int heroY;
+			int heroZ;
 			switch (*cn.c_str())
 			{
 			case 'P':
-				std::cout<<"Policzyc sciezke."<<std::endl;		
+				std::cout<<"Policzyc sciezke."<<std::endl;
 				readed>>src>>dst;
-				
+
 				p = CGI->pathf->GetPath(Coordinate(src),Coordinate(dst),CGI->heroh->heroInstances[0]);
 				LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->ConvertToOldFormat(p);
 				//LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
@@ -89,7 +92,14 @@ int internalFunc(void * callback)
 				break;
 			case 'H': //position of hero
 				readed>>heronum;
+				#ifndef __GNUC__
 				std::cout<<"Position of hero "<<heronum<<": "<<CGI->heroh->heroInstances[heronum]->getPosition(false)<<std::endl;
+				#else
+				heroX = CGI->heroh->heroInstances[heronum]->getPosition(false).x;
+				heroY = CGI->heroh->heroInstances[heronum]->getPosition(false).y;
+				heroZ = CGI->heroh->heroInstances[heronum]->getPosition(false).z;
+				std::cout<<"Position of hero "<<heronum<<": x:"<<heroX<<"- y:"<<heroY<<"- z:"<<heroZ<<std::endl;
+				#endif
 				break;
 			case 'M': //move heroa
 				{
@@ -104,7 +114,7 @@ int internalFunc(void * callback)
 				readed>>src;
 				CGI->mh->getObjDescriptions(src);
 				break;
-			case 'I': 
+			case 'I':
 				{
 					SDL_Surface * temp = LOCPLINT->infoWin(NULL);
 					blitAtWR(temp,605,389);

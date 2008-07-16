@@ -6,8 +6,11 @@
 //ignore comment above, it is simply TowDragon's envy. Everything (without removing) is working fine
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <vector>
+
+#define CLOG(x)
 
 const bool CZERWONY=true, CZARNY=false;
 template <typename T>  class wezel
@@ -82,7 +85,7 @@ public:
 		ktory=0;
 	};
 	T * begin () {return minimumimum();}; //first element (=minimum)
-	T * end () {return NIL;}; // 
+	T * end () {return NIL;}; //
 	void clear(); // czysci az do korzenia wlacznie
 				// removes all elements, including root
 	void usun (T co); // usuwa element z drzewa
@@ -140,7 +143,7 @@ template <typename T> void nodrze<T>::wypisuj(wezel<T> * w, std::ostream & strum
 	if (w==NIL) return;
 	wypisuj(w->lewy, strum);
 
-	strum << "Informacje o wezle: "<<flush<<w<<flush;
+	strum << "Informacje o wezle: "<<std::flush<<w<<std::flush;
 	if (w->ojciec!=NIL)
 		strum <<"\n\tOjciec: "<<(w->ojciec)<<" - "<<*(w->ojciec->zawart);
 	else strum <<"\n\tOjciec: NIL";
@@ -159,7 +162,7 @@ template <typename T> void nodrze<T>::wypisujPre(wezel<T> * w, std::ostream & st
 {
 	if (w==NIL) return;
 
-	strum << "Informacje o wezle: "<<flush<<w<<flush;
+	strum << "Informacje o wezle: "<<std::flush<<w<<std::flush;
 	if (w->ojciec!=NIL)
 		strum <<"\n\tOjciec: "<<(w->ojciec)<<" - "<<*(w->ojciec->zawart);
 	else strum <<"\n\tOjciec: NIL";
@@ -179,14 +182,16 @@ template <typename T> void nodrze<T>::wypiszObficie(std::ostream & strum)
 {
 	strum << "Nodrze " <<this<<" ma " << ile << " elementów."<<std::endl;
 	strum << "NIL to " << NIL <<std::endl;
-	strum << "Ostatnio bralismy "<<ktory<<flush<<" element, czyli "<<" ("<<ostatnio<<")"<<flush<<*ostatnio<<flush<<std::endl;
+	strum << "Ostatnio bralismy "<<ktory<<std::flush<<" element, czyli "<<" ("<<ostatnio<<")"<<std::flush<<*ostatnio<<std::flush<<std::endl;
 	strum << "Nasze wezly in-order"<<std::endl;
 	wypisujPre(korzen,strum);
 };
 template <typename T, class X> T* operator%(nodrze<T> & drzewko, X co)
 {
 	CLOG ("Szukam " <<co <<std::endl);
+#ifndef __amigaos4__
 	drzewko.wypiszObficie(*C->gl->loguj);
+#endif
 	wezel<T> * w = drzewko.korzen;
 	while (w!=drzewko.NIL && (*w->zawart)!=co)
 	{
@@ -494,10 +499,10 @@ template <typename T> void nodrze<T>::naprawUsun (wezel<T> * x)
 	wezel<T> *w;
 	while ( (x != korzen)  &&  (x->kolor == CZARNY) )
 	{
-		CLOG("6... "<<flush);
+		CLOG("6... "<<std::flush);
 		if (x == x->ojciec->lewy)
 		{
-			CLOG("7... "<<flush);
+			CLOG("7... "<<std::flush);
 			w = x->ojciec->prawy;
 			if (w->kolor == CZERWONY)
 			{
@@ -506,38 +511,38 @@ template <typename T> void nodrze<T>::naprawUsun (wezel<T> * x)
 				rotacjaLewa(x->ojciec);
 				w = x->ojciec->prawy;
 			}
-			CLOG("8... "<<flush);
+			CLOG("8... "<<std::flush);
 			if ( (w->lewy->kolor == CZARNY)  &&  (w->prawy->kolor == CZARNY) )
 			{
-				CLOG("8,1... "<<flush);
+				CLOG("8,1... "<<std::flush);
 				w->kolor = CZERWONY;
 				x = x->ojciec;
 			}
 			else
 			{
-				CLOG("9... "<<flush);
+				CLOG("9... "<<std::flush);
 				if (w->prawy->kolor == CZARNY)
 				{
-					CLOG("9,1... "<<flush);
+					CLOG("9,1... "<<std::flush);
 					w->lewy->kolor = CZARNY;
 					w->kolor = CZERWONY;
 					rotacjaPrawa(w);
 					w = x->ojciec->prawy;
-					CLOG("9,2... "<<flush);
+					CLOG("9,2... "<<std::flush);
 				}
-				CLOG("9,3... "<<flush);
+				CLOG("9,3... "<<std::flush);
 				w->kolor = x->ojciec->kolor;
 				x->ojciec->kolor = CZARNY;
 				w->prawy->kolor = CZARNY;
 				rotacjaLewa(x->ojciec);
 				x=korzen;
-				CLOG("9,4... "<<flush);
-				
+				CLOG("9,4... "<<std::flush);
+
 			}
 		}
 		else
 		{
-			CLOG("10... "<<flush);
+			CLOG("10... "<<std::flush);
 			w = x->ojciec->lewy;
 			if (w->kolor == CZERWONY)
 			{
@@ -546,7 +551,7 @@ template <typename T> void nodrze<T>::naprawUsun (wezel<T> * x)
 				rotacjaPrawa(x->ojciec);
 				w = x->ojciec->lewy;
 			}
-			CLOG("11... "<<flush);
+			CLOG("11... "<<std::flush);
 			if ( (w->lewy->kolor == CZARNY)  &&  (w->prawy->kolor == CZARNY) )
 			{
 				w->kolor = CZERWONY;
@@ -566,12 +571,12 @@ template <typename T> void nodrze<T>::naprawUsun (wezel<T> * x)
 				w->lewy->kolor = CZARNY;
 				rotacjaPrawa(x->ojciec);
 				x=korzen;
-				CLOG("12... "<<flush);
+				CLOG("12... "<<std::flush);
 			}
 		}
 	}
 	x->kolor = CZARNY;
-	CLOG("13... "<<flush);
+	CLOG("13... "<<std::flush);
 };
 template <typename T> wezel<T> * nodrze<T>::usunRBT (wezel<T> * nowy)
 {
@@ -597,27 +602,27 @@ template <typename T> wezel<T> * nodrze<T>::usunRBT (wezel<T> * nowy)
 		}
 		CLOG(*ostatnio->zawart<<std::endl);
 	}
-	CLOG("1... "<<flush);
+	CLOG("1... "<<std::flush);
 	wezel<T> *y, *x;
 	if ( (nowy->lewy == NIL)  ||  (nowy->prawy == NIL) )
 		y=nowy;
 	else y = nastepnik(nowy);
-	CLOG("2... "<<flush);
+	CLOG("2... "<<std::flush);
 	if (y->lewy != NIL)
 		x = y->lewy;
 	else x = y->prawy;
 	x->ojciec = y->ojciec;
-	CLOG("3... "<<flush);
+	CLOG("3... "<<std::flush);
 	if (y->ojciec == NIL)
 		korzen = x;
 	else if (y == y->ojciec->lewy)
 		y->ojciec->lewy = x;
 	else
 		y->ojciec->prawy = x;
-	CLOG("4... "<<flush);
+	CLOG("4... "<<std::flush);
 	if (y != nowy)
 		(*nowy) = (*y); // skopiowanie
-	CLOG("5... "<<flush);
+	CLOG("5... "<<std::flush);
 	if (y->kolor == CZARNY)
 		naprawUsun(x);
 	CLOG ("koniec usuwania"<<std::endl);

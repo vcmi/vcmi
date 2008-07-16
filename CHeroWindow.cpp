@@ -2,14 +2,14 @@
 #include "global.h"
 #include "CHeroWindow.h"
 #include "CGameInfo.h"
-#include "hch\CHeroHandler.h"
-#include "hch\CGeneralTextHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CGeneralTextHandler.h"
 #include "SDL.h"
 #include "SDL_Extensions.h"
 #include "CAdvmapInterface.h"
-#include "hch\CLodHandler.h"
+#include "hch/CLodHandler.h"
 #include "AdventureMapButton.h"
-#include "hch\CObjectHandler.h"
+#include "hch/CObjectHandler.h"
 #include "CMessage.h"
 #include "CCallback.h"
 #include <sstream>
@@ -185,7 +185,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 {
 	if(!hero) //something strange... no hero? it shouldn't happen
 	{
-		return; 
+		return;
 	}
 	curHero = hero;
 
@@ -230,7 +230,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
 			break;
 		}
-		
+
 		char * hlpp = new char[200];
 		sprintf(hlpp, CGI->generaltexth->heroscrn[21].c_str(), CGI->abilh->levels[hero->secSkills[g].second].c_str(), CGI->abilh->abilities[hero->secSkills[g].first]->name.c_str());
 		secSkillAreas[g]->hoverText = std::string(hlpp);
@@ -626,12 +626,12 @@ void CHeroWindow::deactivate()
 	}
 
 	for(int f=0; f<artWorn.size(); ++f)
-	{		
+	{
 		if(artWorn[f])
 			artWorn[f]->deactivate();
 	}
 	for(int f=0; f<backpack.size(); ++f)
-	{		
+	{
 		if(backpack[f])
 			backpack[f]->deactivate();
 	}
@@ -908,7 +908,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			if(this->fitsHere(ourWindow->activeArtPlace->ourArt) && ourWindow->activeArtPlace->fitsHere(this->ourArt))
 			{
 				//swap artifacts
-				
+
 				LOCPLINT->cb->swapArifacts(
 					ourWindow->curHero,
 					this->myNumber>=0,
@@ -930,7 +930,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 					text = ourArt->description;
 				else
 					text = std::string();
-				
+
 				ourWindow->activeArtPlace->clicked = false;
 				ourWindow->activeArtPlace = NULL;
 			}
@@ -1030,7 +1030,11 @@ void LClickableArea::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
+		#ifndef __amigaos4__
 		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
+		#else
+		#warning error here!
+		#endif
 	}
 }
 
@@ -1046,7 +1050,11 @@ void RClickableArea::clickRight(boost::logic::tribool down)
 {
 	if(!down)
 	{
+		#ifndef __amigaos4__
 		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
+		#else
+		#warning error here!
+		#endif
 	}
 }
 
@@ -1054,7 +1062,11 @@ void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
+		#ifndef __amigaos4__
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
+		#else
+		#warning error here!
+		#endif
 	}
 }
 void LRClickableAreaWText::clickRight(boost::logic::tribool down)
@@ -1098,7 +1110,11 @@ void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
 {
 	if((!down) && pressedL)
 	{
+#ifndef __amigaos4__
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(1, new SComponent(SComponent::Etype(baseType), type, bonus)));
+#else
+#warning error here!
+#endif
 	}
 	ClickableL::clickLeft(down);
 }

@@ -148,5 +148,5 @@ public:
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
 
-	friend CBattleHex;
+	friend class CBattleHex;
 };

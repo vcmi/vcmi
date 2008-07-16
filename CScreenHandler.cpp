@@ -6,7 +6,7 @@
 #include "SDL_Extensions.h"
 #include "CCursorHandler.h"
 #include "CGameInfo.h"
-#include "hch\CDefHandler.h"
+#include "hch/CDefHandler.h"
 
 extern SDL_Surface * screen, * screen2;
 

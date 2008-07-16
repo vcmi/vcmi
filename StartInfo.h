@@ -13,8 +13,8 @@ struct StartInfo
 		int castle, hero,  //ID, if -1 then random, if -2 then none
 			heroPortrait; //-1 if default, else ID
 		std::string heroName;
-		Ebonus bonus; 
-		Ecolor color; //from 0 - 
+		Ebonus bonus;
+		Ecolor color; //from 0 -
 		int serial;
 		int handicap;//0-no, 1-mild, 2-severe
 		std::string name;
@@ -28,7 +28,11 @@ struct StartInfo
 		for(int i=0; i<playerInfos.size(); ++i)
 			if(playerInfos[i].color == no)
 				return playerInfos[i];
+#ifndef __GNUC__
 		throw new std::exception("Cannot find info about player");
+#else
+		throw new std::exception();
+#endif
 	}
 };
 

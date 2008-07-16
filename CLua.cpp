@@ -31,7 +31,7 @@ bool getGlobalFunc(lua_State * L, std::string fname)
 
 CObjectScript::CObjectScript()
 {
-	language = ESLan::UNDEF;
+	language = UNDEF;
 	//std::cout << "Tworze obiekt objectscript "<<this<<std::endl;
 }
 
@@ -72,9 +72,13 @@ void CLua::open(std::string initpath)
 	}
 	else
 	{
+#ifndef __GNUC__
 		std::string temp = "Cannot open script ";
 		temp += initpath;
 		throw std::exception(temp.c_str());
+#else
+		throw std::exception();
+#endif
 	}
 }
 void CLua::registerCLuaCallback()
@@ -98,22 +102,26 @@ void CLua::findF(std::string fname)
 void CLua::findF2(std::string fname)
 {
 	lua_pushstring (is, fname.c_str());
-	lua_gettable (is, LUA_GLOBALSINDEX); 
+	lua_gettable (is, LUA_GLOBALSINDEX);
 }
 void CLua::findFS(std::string fname)
 {
 	lua_settop(is, 0);
-	if (!getGlobalFunc(is,fname)) 
+	if (!getGlobalFunc(is,fname))
 	{
 		lua_settop(is, 0);
+#ifndef __GNUC__
 		throw new std::exception((fname + ": function not defined").c_str()); // the call is not defined
+#else
+		throw std::exception();
+#endif
 	}
 }
 #undef LST
 
 CLuaObjectScript::CLuaObjectScript(std::string filename)
 {
-	language = ESLan::LUA;
+	language = LUA;
 	open(filename);
 	//binit = bnewobject = bonherovisit = brightext = false;
 	//std::cout << "Tworze obiekt CLuaObjectScript "<<this<<std::endl;
@@ -141,7 +149,11 @@ void CLuaObjectScript::newObject(CGObjectInstance *os)
 	if (lua_pcall (is, 1, 0, 0))
 	{
 		lua_settop(is, 0);
+#ifndef __GNUC__
 		throw new  std::exception(("Failed to call "+genFN("newObject",os->ID)+" function in lua script.").c_str());
+#else
+		throw std::exception();
+#endif
 	}
 	lua_settop(is, 0);
 	return;
@@ -154,7 +166,11 @@ void CLuaObjectScript::onHeroVisit(CGObjectInstance *os, int heroID)
 	if (lua_pcall (is, 2, 0, 0))
 	{
 		lua_settop(is, 0);
+#ifndef __GNUC__
 		throw new  std::exception(("Failed to call "+genFN("heroVisit",os->ID)+" function in lua script.").c_str());
+#else
+		throw std::exception();
+#endif
 	}
 	lua_settop(is, 0);
 }
@@ -165,7 +181,11 @@ std::string CLuaObjectScript::hoverText(CGObjectInstance *os)
 	if (lua_pcall (is, 1, 1, 0))
 	{
 		lua_settop(is, 0);
+#ifndef __GNUC__
 		throw new  std::exception(("Failed to call "+genFN("hoverText",os->ID)+" function in lua script.").c_str());
+#else
+		throw std::exception();
+#endif
 	}
 	std::string ret = lua_tostring(is,1);
 	lua_settop(is, 0);
@@ -199,7 +219,11 @@ void CVisitableOPH::onHeroVisit(CGObjectInstance *os, int heroID)
 	}
 	else
 	{
+#ifndef __GNUC__
 		throw new std::exception("Skrypt nie zainicjalizowal instancji tego obiektu. :(");
+#else
+		throw std::exception();
+#endif
 	}
 };
 void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited)
@@ -240,8 +264,8 @@ void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 			{
 				cb->changePrimSkill(heroID,w,vvv);
 				std::vector<SComponent*> weko;
-				weko.push_back(new SComponent(SComponent::primskill,w,vvv)); 
-				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko); 
+				weko.push_back(new SComponent(SComponent::primskill,w,vvv));
+				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko);
 				//for (int ii=0; ii<weko.size();ii++)
 				//	delete weko[ii];
 				break;
@@ -250,8 +274,8 @@ void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 			{
 				cb->changePrimSkill(heroID,w,vvv);
 				std::vector<SComponent*> weko;
-				weko.push_back(new SComponent(SComponent::experience,0,vvv)); 
-				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko); 
+				weko.push_back(new SComponent(SComponent::experience,0,vvv));
+				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko);
 				//for (int ii=0; ii<weko.size();ii++)
 				//	delete weko[ii];
 				break;
@@ -283,31 +307,35 @@ std::string CVisitableOPH::hoverText(CGObjectInstance *os)
 	switch(os->ID)
 	{
 	case 51:
-		pom = 8; 
+		pom = 8;
 		break;
 	case 23:
 		pom = 7;
 		break;
 	case 61:
-		pom = 11; 
+		pom = 11;
 		break;
 	case 32:
-		pom = 4; 
+		pom = 4;
 		break;
 	case 100:
-		pom = 5; 
+		pom = 5;
 		break;
 	default:
+#ifndef __GNUC__
 		throw new std::exception("Unsupported ID in CVisitableOPH::hoverText");
+#else
+		throw std::exception();
+#endif
 	}
 	add = " " + CGI->objh->xtrainfo[pom] + " ";
 	int heroID = cb->getSelectedHero();
 	if (heroID>=0)
 	{
-		add += ( (visitors[os].find(heroID) == visitors[os].end()) 
-				? 
+		add += ( (visitors[os].find(heroID) == visitors[os].end())
+				?
 			(CGI->generaltexth->allTexts[353])  //not visited
-				: 
+				:
 			( CGI->generaltexth->allTexts[352]) ); //visited
 	}
 	return CGI->objh->objects[os->defInfo->id].name + add;
@@ -332,7 +360,7 @@ void CVisitableOPW::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 	{
 		if (os->ID!=112)
 			mid++;
-		else 
+		else
 			mid--;
 		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[mid],&std::vector<SComponent*>()); //TODO: maybe we have memory leak with these windows
 	}
@@ -384,7 +412,7 @@ void CVisitableOPW::newTurn ()
 			(*i).second = false;
 		}
 	}
-} 
+}
 void CVisitableOPW::newObject(CGObjectInstance *os)
 {
 	visited.insert(std::pair<CGObjectInstance*,bool>(os,false));
@@ -394,7 +422,7 @@ void CVisitableOPW::onHeroVisit(CGObjectInstance *os, int heroID)
 {
 	if(visited[os])
 		onNAHeroVisit(os,heroID,true);
-	else 
+	else
 		onNAHeroVisit(os,heroID,false);
 }
 
@@ -433,7 +461,7 @@ void CMines::onHeroVisit(CGObjectInstance *os, int heroID)
 		if (os->subID==7)
 			return; //TODO: support for abandoned mine
 		os->tempOwner = cb->getHeroOwner(heroID);
-		SComponent * com = new SComponent(SComponent::Etype::resource,os->subID,vv);
+		SComponent * com = new SComponent(SComponent::resource,os->subID,vv);
 		com->subtitle+=CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
 		std::vector<SComponent*> weko;
 		weko.push_back(com);
@@ -566,8 +594,12 @@ void CPickable::chosen(int which)
 		cb->changePrimSkill(tempStore[which]->ID,4,tempStore[which]->val);
 		break;
 	default:
+#ifndef __GNUC__
 		throw new std::exception("Unhandled choice");
-		
+#else
+		throw std::exception();
+#endif
+
 	}
 	for (int i=0;i<tempStore.size();i++)
 		delete tempStore[i];

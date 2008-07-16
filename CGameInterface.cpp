@@ -1,4 +1,4 @@
-#include "stdafx.h"
+	#include "stdafx.h"
 #include "CGameInterface.h"
 #include "CAdvMapInterface.h"
 #include "CMessage.h"
@@ -14,6 +14,7 @@
 #include <sstream>
 #include "hch/CHeroHandler.h"
 #include "SDL_framerate.h"
+#include "AI/EmptyAI/CEmptyAI.h"
 
 #ifdef _WIN32
 	#include <windows.h> //for .dll libs
@@ -28,6 +29,7 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	CGlobalAI * ret=NULL;
 	CGlobalAI*(*getAI)();
 	void(*getName)(char*);
+
 #ifdef _WIN32
 	HINSTANCE dll = LoadLibraryA(dllname.c_str());
 	if (!dll)
@@ -42,11 +44,17 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	; //TODO: handle AI library on Linux
 #endif
 	char * temp = new char[50];
+#ifndef __amigaos4__
 	getName(temp);
+#endif
 	std::cout << "Loaded .dll with AI named " << temp << std::endl;
 	delete temp;
+#ifndef __amigaos4__
 	ret = getAI();
 	ret->init(cb);
+#else
+	//ret = new CEmptyAI();
+#endif
 	return ret;
 }
 //CGlobalAI::CGlobalAI()

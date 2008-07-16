@@ -2,9 +2,14 @@
 #include <iostream>
 #include "CVideoHandler.h"
 #include "SDL.h"
+
 void DLLHandler::Instantiate(const char *filename)
 {
+#ifdef WIN32
 	dll = LoadLibraryA(filename);
+#else
+	dll = dlopen(filename,RTLD_LOCAL | RTLD_LAZY);
+#endif
 }
 const char *DLLHandler::GetLibExtension()
 {
@@ -21,14 +26,22 @@ const char *DLLHandler::GetLibExtension()
 
 void *DLLHandler::FindAddress234(const char *symbol)
 {
+#ifdef WIN32
 	if ((int)symbol == 0x00001758)
 		return NULL;
 	std::cout<<"co ja tu robie"<<std::endl;
 	return (void*) GetProcAddress(dll,symbol);
+#else
+	return (void *)dlsym(dll, symbol);
+#endif
 }
 DLLHandler::~DLLHandler()
 {
+#ifdef WIN32
 	FreeLibrary(dll);
+#else
+	dlclose(dll);
+#endif
 }
 
 
@@ -53,13 +66,15 @@ int readNormalNr2 (unsigned char* bufor, int &iter, int bytCon)
 }
 void RaiseLastOSErrorAt(char * offset)
 {
+#ifdef WIN32
 	int * lastError = new int;
 	std::exception * error;
 	*lastError = GetLastError();
 	if (*lastError)
 		throw lastError;
-
-
+#else
+	throw new std::exception();
+#endif
 }
 //var
 //  LastError: Integer;
@@ -93,10 +108,7 @@ void RaiseLastOSErrorAt(char * offset)
 //}
 void CBIKHandler::open(std::string name)
 {
-
-
-
-
+#ifdef WIN32
 	hBinkFile = CreateFile
 	(
 		L"CSECRET.BIK",				// file name
@@ -135,7 +147,7 @@ void CBIKHandler::open(std::string name)
 		gg.bmPlanes=1;
 		gg.bmWidthBytes=3*width;
 		gg.bmBits = new unsigned char[width*height*(gg.bmBitsPixel/8)];
-		
+
 		//HBITMAP bitmapa = CreateBitmap(width, height,1,24,NULL);
 		std::cout<<"przeszlo!"<<std::endl;
 	}
@@ -143,7 +155,9 @@ void CBIKHandler::open(std::string name)
 	{
 		printf("cos nie tak");
 	}
+#endif
 }
+
 //void CBIKHandler::close()
 //{
 //	void *binkClose;

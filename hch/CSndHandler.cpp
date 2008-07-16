@@ -12,7 +12,11 @@ CSndHandler::CSndHandler(std::string fname):CHUNK(65535)
 {
 	file.open(fname.c_str(),std::ios::binary);
 	if (!file.is_open())
+#ifndef __GNUC__
 		throw new std::exception((std::string("Cannot open ")+fname).c_str());
+#else
+		throw new std::exception();
+#endif
 	int nr = readNormalNr(0,4);
 	char tempc;
 	for (int i=0;i<nr;i++)
@@ -98,7 +102,7 @@ void CSndHandler::extract(std::string srcfile, std::string dstfile, bool caseSen
 }
 MemberFile CSndHandler::getFile(std::string name)
 {
-	MemberFile ret;	
+	MemberFile ret;
 	std::transform(name.begin(),name.end(),name.begin(),tolower);
 	for (int i=0;i<entries.size();i++)
 	{
@@ -149,7 +153,11 @@ CVidHandler::CVidHandler(std::string fname):CHUNK(65535)
 {
 	file.open(fname.c_str(),std::ios::binary);
 	if (!file.is_open())
+#ifndef __GNUC__
 		throw new std::exception((std::string("Cannot open ")+fname).c_str());
+#else
+		throw new std::exception();
+#endif
 	int nr = readNormalNr(0,4);
 	char tempc;
 	for (int i=0;i<nr;i++)
@@ -169,9 +177,9 @@ CVidHandler::CVidHandler(std::string fname):CHUNK(65535)
 			entries[i-1].size=entry.offset-entries[i-1].offset;
 		if (i==nr-1)
 		{
-			file.seekg(0,std::ios::end); 
+			file.seekg(0,std::ios::end);
 			entry.size = ((int)file.tellg())-entry.offset;
-			file.seekg(0,std::ios::beg); 
+			file.seekg(0,std::ios::beg);
 		}
 		entries.push_back(entry);
 	}
@@ -234,7 +242,7 @@ void CVidHandler::extract(std::string srcfile, std::string dstfile, bool caseSen
 }
 MemberFile CVidHandler::getFile(std::string name)
 {
-	MemberFile ret;	
+	MemberFile ret;
 	std::transform(name.begin(),name.end(),name.begin(),tolower);
 	for (int i=0;i<entries.size();i++)
 	{

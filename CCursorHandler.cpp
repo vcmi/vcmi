@@ -4,7 +4,7 @@
 #include "SDL_thread.h"
 #include "CGameInfo.h"
 #include "SDL_framerate.h"
-#include "hch\CLodHandler.h"
+#include "hch/CLodHandler.h"
 
 extern SDL_Surface * screen;
 

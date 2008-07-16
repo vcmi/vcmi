@@ -97,7 +97,7 @@ public:
 
 	class CBuildWindow: public IShowable, public ClickableR
 	{
-	public: 
+	public:
 		int tid, bid, state; //town id, building id, state
 		bool mode; // 0 - normal (with buttons), 1 - r-click popup
 		SDL_Surface * bitmap; //main window bitmap, with blitted res/text, without buttons/subtitle in "statusbar"

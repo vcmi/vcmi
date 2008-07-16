@@ -38,7 +38,7 @@ void CPCXConv::fromFile(std::string path)
 	is->seekg(0,std::ios::end); // to the end
 	pcxs = is->tellg();  // read length
 	is->seekg(0,std::ios::beg); // wracamy na poczatek
-	pcx = new unsigned char[pcxs]; // allocate memory 
+	pcx = new unsigned char[pcxs]; // allocate memory
 	is->read((char*)pcx, pcxs); // read map file to buffer
 	is->close();
 	delete is;
@@ -67,17 +67,17 @@ void CPCXConv::convert()
 	bh.y = readNormalNr(it,4,pcx);it+=4;
 	if (fSize==bh.x*bh.y*3)
 		check1=true;
-	else 
+	else
 		check1=false;
 	if (fSize==bh.x*bh.y)
 		check2=true;
-	else 
+	else
 		check2=false;
 	if (check1)
 		format=PCX24B;
 	else if (check2)
 		format=PCX8B;
-	else 
+	else
 		return;
 	add = 4 - bh.x%4;
 	if (add==4)
@@ -179,17 +179,17 @@ SDL_Surface * CPCXConv::getSurface()
 	bh.y = readNormalNr(it,4,pcx);it+=4;
 	if (fSize==bh.x*bh.y*3)
 		check1=true;
-	else 
+	else
 		check1=false;
 	if (fSize==bh.x*bh.y)
 		check2=true;
-	else 
+	else
 		check2=false;
 	if (check1)
 		format=PCX24B;
 	else if (check2)
 		format=PCX8B;
-	else 
+	else
 		return NULL;
 	add = 4 - bh.x%4;
 	if (add==4)
@@ -283,7 +283,7 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 			fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".PCX");
 			f = fopen(fname.c_str(),"r");
 			if(!f)
-				return NULL; 
+				return NULL;
 			fread(sign,1,3,f);
 			if(sign[0]=='B' && sign[1]=='M') //BMP named as PCX - people (eg. Kulex) sometimes use such files
 			{
@@ -316,7 +316,7 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 		pcx = new unsigned char[e->realSize];
 		fread((char*)pcx, 1, e->realSize, FLOD);
 	}
-	else 
+	else
 	{
 		unsigned char * pcd = new unsigned char[e->size];
 		fread((char*)pcd, 1, e->size, FLOD);
@@ -335,21 +335,21 @@ SDL_Surface * CLodHandler::loadBitmap(std::string fname)
 int CLodHandler::decompress (unsigned char * source, int size, int realSize, std::string & dest)
 {
 	std::ofstream lb;
-	lb.open("lodbuf\\buf.gz", std::ios::out|std::ios::binary);
+	lb.open(DATADIR "lodbuf" PATHSEPARATOR "buf.gz", std::ios::out|std::ios::binary);
 	for(int i=0; i<size; ++i)
 	{
 		lb<<source[i];
 	}
 	lb.close();
 
-	FILE * inputf = fopen("lodbuf\\buf.gz", "rb+");
+	FILE * inputf = fopen(DATADIR "lodbuf" PATHSEPARATOR "buf.gz", "rb+");
 	FILE * outputf = fopen(dest.c_str(), "wb+");
 
 	int ret = infm(inputf, outputf);
 	fclose(inputf);
 	fclose(outputf);
 	return ret;
-} 
+}
 
 int CLodHandler::infm(FILE *source, FILE *dest, int wBits)
 {
@@ -412,7 +412,7 @@ int CLodHandler::infm(FILE *source, FILE *dest, int wBits)
 	(void)inflateEnd(&strm);
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
-CDefHandler * CLodHandler::giveDef(std::string defName) 
+CDefHandler * CLodHandler::giveDef(std::string defName)
 {
 	std::transform(defName.begin(), defName.end(), defName.begin(), (int(*)(int))toupper);
 	Entry * ourEntry = entries.znajdz(Entry(defName));
@@ -475,7 +475,7 @@ CDefEssential * CLodHandler::giveDefEss(std::string defName)
 }
 std::vector<CDefHandler *> CLodHandler::extractManyFiles(std::vector<std::string> defNamesIn)
 {
-	std::vector<CDefHandler *> ret(defNamesIn.size()); 
+	std::vector<CDefHandler *> ret(defNamesIn.size());
 	for(int hh=0; hh<defNamesIn.size(); ++hh)
 	{
 		//std::transform(defNamesIn[hh].begin(), defNamesIn[hh].end(), defNamesIn[hh].begin(), (int(*)(int))toupper);
@@ -672,7 +672,7 @@ int CLodHandler::infs2(unsigned char * in, int size, int realSize, unsigned char
 
 void CLodHandler::extract(std::string FName)
 {
-	
+
 	std::ofstream FOut;
 	int i;
 
@@ -680,7 +680,7 @@ void CLodHandler::extract(std::string FName)
 	for (int i=0;i<totalFiles;i++)
 	{
 		fseek(FLOD, entries[i].offset, 0);
-		std::string bufff = (FName.substr(0, FName.size()-4) + "\\" + (char*)entries[i].name);
+		std::string bufff = (/*DATADIR  + */FName.substr(0, FName.size()-4) + PATHSEPARATOR + (char*)entries[i].name);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
@@ -701,7 +701,7 @@ void CLodHandler::extract(std::string FName)
 				out.close();
 			}
 		}
-		else 
+		else
 		{
 			outp = new unsigned char[entries[i].size];
 			fread((char*)outp, 1, entries[i].size, FLOD);

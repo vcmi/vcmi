@@ -48,16 +48,16 @@ void CLuaHandler::test()
 	{
 	   // Call main...
 	   if ((iErr = lua_pcall (lua, 0, LUA_MULTRET, 0)) == 0)
-	   {    
+	   {
 
 			//int ret = luabind::call_function<int>(lua, "helloWorld2");
 			//lua_pushstring (lua, "helloWorld2");
-			//lua_gettable (lua, LUA_GLOBALSINDEX);  
+			//lua_gettable (lua, LUA_GLOBALSINDEX);
 			//lua_pcall (lua, 0, 0, 0);
 
 			// Push the function name onto the stack
 			lua_pushstring (lua, "rightText");
-			lua_gettable (lua, LUA_GLOBALSINDEX);  
+			lua_gettable (lua, LUA_GLOBALSINDEX);
 			lua_pcall (lua, 0, 0, 0);
 		}
 	}
@@ -70,9 +70,13 @@ std::vector<std::string> * CLuaHandler::searchForScripts(std::string fol)
 	std::vector<std::string> * ret = new std::vector<std::string> ();
 	boost::filesystem::path folder(fol);
 	if (!boost::filesystem::exists(folder))
+#ifndef __GNUC__
 		throw new std::exception("No such folder!");
+#else
+		throw std::exception();
+#endif
 	boost::filesystem::directory_iterator end_itr;
-	for 
+	for
 	  (
 	  boost::filesystem::directory_iterator it(folder);
 	  it!=end_itr;

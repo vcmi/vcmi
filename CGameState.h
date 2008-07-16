@@ -3,7 +3,11 @@
 
 #include "mapHandler.h"
 #include <set>
+#ifdef _WIN32
 #include <tchar.h>
+#else
+#include "tchar_amigaos4.h"
+#endif
 
 class CScriptCallback;
 class CCallback;
@@ -62,7 +66,7 @@ private:
 	std::map<int,PlayerState> players; //color <-> playerstate
 	std::set<CCPPObjectScript *> cppscripts;
 	std::map<int, std::map<std::string, CObjectScript*> > objscr; //custom user scripts (as for now only Lua)
-	
+
 
 	bool checkFunc(int obid, std::string name)
 	{
@@ -78,7 +82,11 @@ private:
 	CGHeroInstance * getHero(int ID, int mode)
 	{
 		if (mode != 0)
+#ifndef __GNUC__
 			throw new std::exception("gs->getHero: This mode is not supported!");
+#else
+			throw new std::exception();
+#endif
 		for ( std::map<int, PlayerState>::iterator i=players.begin() ; i!=players.end();i++)
 		{
 			for (int j=0;j<(*i).second.heroes.size();j++)
@@ -94,12 +102,16 @@ private:
 	bool battleAttackCreatureStack(int ID, int dest);
 	std::vector<int> battleGetRange(int ID); //called by std::vector<int> CCallback::battleGetAvailableHexes(int ID);
 public:
-	friend CCallback;
-	friend CPathfinder;;
-	friend CLuaCallback;
+	friend class CCallback;
+	friend class CPathfinder;;
+	friend class CLuaCallback;
+#ifndef __GNUC__
 	friend int _tmain(int argc, _TCHAR* argv[]);
+#else
+	friend int main(int argc, _TCHAR* argv[]);
+#endif
 	friend void initGameState(CGameInfo * cgi);
-	friend CScriptCallback;
+	friend class CScriptCallback;
 	friend void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	//CCallback * cb; //for communication between PlayerInterface/AI and GameState
 

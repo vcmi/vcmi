@@ -100,7 +100,7 @@ int CGObjectInstance::getOwner() const
 {
 	//if (state)
 	//	return state->owner;
-	//else 
+	//else
 		return tempOwner; //won't have owner
 }
 
@@ -154,7 +154,7 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 	return false;
 }
 
-	
+
 bool CGHeroInstance::isHero() const
 {
 	return true;
@@ -164,13 +164,13 @@ unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad
 	unsigned int ret = type->heroClass->terrCosts[ttype];
 	switch(rdtype)
 	{
-	case Eroad::dirtRoad:
+	case dirtRoad:
 		ret*=0.75;
 		break;
-	case Eroad::grazvelRoad:
+	case grazvelRoad:
 		ret*=0.667;
 		break;
-	case Eroad::cobblestoneRoad:
+	case cobblestoneRoad:
 		ret*=0.5;
 		break;
 	}

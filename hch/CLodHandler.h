@@ -44,7 +44,7 @@ struct Entry
 	Entry(){};
 };
 class CPCXConv
-{	
+{
 public:
 	unsigned char * pcx, *bmp;
 	int pcxs, bmps;
