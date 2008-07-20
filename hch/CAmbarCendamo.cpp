@@ -7,7 +7,7 @@
 #include "CTownHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "../SDL_Extensions.h"
-#include "boost\filesystem.hpp"
+#include "boost/filesystem.hpp"
 #include "../CGameState.h"
 #include "CLodHandler.h"
 #include <set>

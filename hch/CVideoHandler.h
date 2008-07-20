@@ -114,7 +114,7 @@ struct SMKStruct
 class DLLHandler
 {
 public:
-#ifndef __amigaos4__
+#if !defined(__amigaos4__) && !defined(__unix__)
 	HINSTANCE dll;
 #else
 	void *dll;
@@ -131,7 +131,7 @@ class CBIKHandler
 public:
 	DLLHandler ourLib;
 	int newmode;
-#ifndef __amigaos4__
+#if !defined(__amigaos4__) && !defined(__unix__)
 	HANDLE hBinkFile;
 #else
 	void *hBinkFile;

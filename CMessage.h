@@ -2,7 +2,7 @@
 #define CMESSAGE_H
 
 #include "global.h"
-#include "SDL_TTF.h"
+#include "SDL_ttf.h"
 #include "SDL.h"
 #include "CPreGame.h"
 

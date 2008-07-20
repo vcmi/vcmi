@@ -1,6 +1,8 @@
 #pragma once
 #include "global.h"
+extern "C" {
 #include "lstate.h"
+}
 #include <set>
 #include <map>
 class CLua;

@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "CMessage.h"
-#include "SDL_TTF.h"
+#include "SDL_ttf.h"
 #include "hch/CSemiDefHandler.h"
 #include "hch/CDefHandler.h"
 #include "CGameInfo.h"

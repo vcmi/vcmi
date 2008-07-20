@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "SDL_Extensions.h"
-#include "SDL_TTF.h"
+#include "SDL_ttf.h"
 #include "CGameInfo.h"
 #include <iostream>
 #include <utility>

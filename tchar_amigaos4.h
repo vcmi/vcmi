@@ -42,6 +42,9 @@
  * NOTE: This tests _UNICODE, which is different from the UNICODE define
  *       used to differentiate Win32 API calls.
  */
+#ifdef __unix__
+#define _TCHAR char*
+#endif
 #ifdef	_UNICODE
 
 

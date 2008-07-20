@@ -2,7 +2,7 @@
 //
 #include "stdafx.h"
 #include "SDL.h"
-#include "SDL_TTF.h"
+#include "SDL_ttf.h"
 #include "hch/CVideoHandler.h"
 #include "SDL_mixer.h"
 #include "hch/CBuildingHandler.h"

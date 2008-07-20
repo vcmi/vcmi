@@ -1030,7 +1030,7 @@ void LClickableArea::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
-		#ifndef __amigaos4__
+		#if !defined(__amigaos4__) && !defined(__unix__)
 		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
 		#else
 		#warning error here!
@@ -1050,7 +1050,7 @@ void RClickableArea::clickRight(boost::logic::tribool down)
 {
 	if(!down)
 	{
-		#ifndef __amigaos4__
+		#if !defined(__amigaos4__) && !defined(__unix__)
 		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
 		#else
 		#warning error here!
@@ -1062,7 +1062,7 @@ void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
-		#ifndef __amigaos4__
+		#if !defined(__amigaos4__) && !defined(__unix__)
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
 		#else
 		#warning error here!
@@ -1110,7 +1110,7 @@ void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
 {
 	if((!down) && pressedL)
 	{
-#ifndef __amigaos4__
+#if !defined(__amigaos4__) && !defined(__unix__)
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(1, new SComponent(SComponent::Etype(baseType), type, bonus)));
 #else
 #warning error here!

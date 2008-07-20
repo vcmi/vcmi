@@ -1,6 +1,6 @@
-	#include "stdafx.h"
+#include "stdafx.h"
 #include "CGameInterface.h"
-#include "CAdvMapInterface.h"
+#include "CAdvmapInterface.h"
 #include "CMessage.h"
 #include "mapHandler.h"
 #include "SDL_Extensions.h"
@@ -44,12 +44,12 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	; //TODO: handle AI library on Linux
 #endif
 	char * temp = new char[50];
-#ifndef __amigaos4__
+#if !defined(__amigaos4__) && !defined(__unix__)
 	getName(temp);
 #endif
 	std::cout << "Loaded .dll with AI named " << temp << std::endl;
 	delete temp;
-#ifndef __amigaos4__
+#if !defined(__amigaos4__) && !defined(__unix__)
 	ret = getAI();
 	ret->init(cb);
 #else

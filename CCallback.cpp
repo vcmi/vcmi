@@ -14,7 +14,9 @@
 #include "CPlayerInterface.h"
 #include "hch/CBuildingHandler.h"
 
+extern "C" {
 LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
+}
 
 int CCallback::lowestSpeed(CGHeroInstance * chi)
 {

@@ -93,7 +93,7 @@ public:
 	IntSelBut( SDL_Rect Pos, T Fun,CDefHandler* Imgs, bool Sel=false, CPoinGroup<T>* gr=NULL, int My=-1)
 		: Button<T>(Pos,Fun,Imgs,Sel,gr),key(My){ourPoinGroup=gr;};
 	void select(bool on=true) {(*this).Button<T>::select(on);ourPoinGroup->setYour(this);
-		#ifndef __amigaos4__
+		#if !defined(__amigaos4__) && !defined(__unix__)
 		CPG->printRating();
 		#else
 		#warning not compile here

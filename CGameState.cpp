@@ -2,7 +2,7 @@
 #include "CGameInterface.h"
 #include "CPlayerInterface.h"
 #include <algorithm>
-#include "SDL_Thread.h"
+#include "SDL_thread.h"
 #include "SDL_Extensions.h"
 #include "CBattleInterface.h" //for CBattleHex
 #include <queue>

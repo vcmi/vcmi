@@ -2,12 +2,14 @@
 #include "CLua.h"
 #include "CLuaHandler.h"
 #include "hch/CHeroHandler.h"
+extern "C" {
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
 #include "lobject.h"
 #include "lgc.h"
 #include "lapi.h"
+}
 #include "CGameInfo.h"
 #include "CGameState.h"
 #include <sstream>
