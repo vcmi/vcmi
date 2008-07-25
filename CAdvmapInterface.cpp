@@ -4,6 +4,7 @@
 #include "CPlayerInterface.h"
 #include "hch/CPreGameTextHandler.h"
 #include "hch/CGeneralTextHandler.h"
+#include "hch/CDefHandler.h"
 #include "hch/CTownHandler.h"
 #include "CPathfinder.h"
 #include "CGameInfo.h"

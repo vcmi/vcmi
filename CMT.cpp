@@ -1,35 +1,19 @@
 // CMT.cpp : Defines the entry point for the console application.
 //
 #include "stdafx.h"
-#include "SDL_TTF.h"
-#include "hch/CVideoHandler.h"
-#include "SDL_mixer.h"
-#include "hch/CBuildingHandler.h"
-#include "SDL_Extensions.h"
-#include "SDL_framerate.h"
 #include <cmath>
 #include <string>
 #include <vector>
-#include "zlib.h"
 #include <cmath>
-#include "hch/CArtHandler.h"
-#include "hch/CHeroHandler.h"
-#include "hch/CCreatureHandler.h"
-#include "hch/CAbilityHandler.h"
-#include "hch/CSpellHandler.h"
-#include "hch/CBuildingHandler.h"
-#include "hch/CObjectHandler.h"
+#include <boost/thread.hpp>
+#include "SDL_TTF.h"
+#include "SDL_mixer.h"
+#include "SDL_Extensions.h"
+#include "SDL_framerate.h"
 #include "CGameInfo.h"
-#include "hch/CMusicHandler.h"
-#include "hch/CLodHandler.h"
-#include "hch/CDefHandler.h"
-#include "hch/CTownHandler.h"
-#include "hch/CDefObjInfoHandler.h"
-#include "hch/CAmbarCendamo.h"
 #include "mapHandler.h"
 #include "global.h"
 #include "CPreGame.h"
-#include "hch/CGeneralTextHandler.h"
 #include "CConsoleHandler.h"
 #include "CCursorHandler.h"
 #include "CScreenHandler.h"
@@ -40,10 +24,22 @@
 #include "CLuaHandler.h"
 #include "CLua.h"
 #include "CAdvmapInterface.h"
+#include "hch/CBuildingHandler.h"
+#include "hch/CVideoHandler.h"
+#include "hch/CAbilityHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CCreatureHandler.h"
+#include "hch/CSpellHandler.h"
+#include "hch/CBuildingHandler.h"
+#include "hch/CMusicHandler.h"
+#include "hch/CLodHandler.h"
+#include "hch/CDefHandler.h"
+#include "hch/CAmbarCendamo.h"
+#include "hch/CGeneralTextHandler.h"
 #include "client/Graphics.h"
-#include <boost/thread.hpp>
+#include "Client/Client.h"
 #include "lib/Connection.h"
-#include <boost/crc.hpp>
+#include "lib/VCMI_Lib.h"
 std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Surface * screen, * screen2;
@@ -108,6 +104,13 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->bitmaph->init("Data\\H3bitmap.lod","Data");
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph);
+
+		CGI->arth = VLC->arth;
+		CGI->townh = VLC->townh;
+		CGI->heroh = VLC->heroh;
+		CGI->objh = VLC->objh;
+		CGI->dobjinfo = VLC->dobjinfo;
+
 		THC std::cout<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 
 		//cgi->curh->initCursor();
@@ -116,18 +119,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->screenh = new CScreenHandler;
 		cgi->screenh->initScreen();
 		THC std::cout<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
-		cgi->townh = new CTownHandler;
-		cgi->townh->loadNames();
-		THC std::cout<<"\tTown handler: "<<pomtime.getDif()<<std::endl;
+
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
 		THC std::cout<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
-		CHeroHandler * heroh = new CHeroHandler;
-		heroh->loadHeroes();
-		heroh->loadPortraits();
-		cgi->heroh = heroh;
-		THC std::cout<<"\tHero handler: "<<pomtime.getDif()<<std::endl;
+
 		THC std::cout<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		graphics = new Graphics();
@@ -148,24 +145,12 @@ int _tmain(int argc, _TCHAR* argv[])
 		cpg->mush = mush;
 		StartInfo *options = new StartInfo(cpg->runLoop());
 ///////////////////////////////////////////////////////////////////////////////////////
-		cgi->dobjinfo = new CDefObjInfoHandler;
-		cgi->dobjinfo->load();
-		THC std::cout<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
 
 		cgi->state = new CGameState();
-		cgi->state->scenarioOps = options;
 		THC std::cout<<"\tGamestate: "<<pomtime.getDif()<<std::endl;
 
 		THC tmh.getDif();pomtime.getDif();//reset timers
-		CArtHandler * arth = new CArtHandler;
-		arth->loadArtifacts();
-		cgi->arth = arth;
-		THC std::cout<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
 
-		CCreatureHandler * creh = new CCreatureHandler();
-		creh->loadCreatures();
-		cgi->creh = creh;
-		THC std::cout<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
 
 		CSpellHandler * spellh = new CSpellHandler;
 		spellh->loadSpells();
@@ -177,78 +162,21 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->buildh = buildh;
 		THC std::cout<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
 
-		CObjectHandler * objh = new CObjectHandler;
-		objh->loadObjects();
-		cgi->objh = objh;
-		THC std::cout<<"\tObject handler: "<<pomtime.getDif()<<std::endl;
 
 
 		cgi->pathf = new CPathfinder();
 		THC std::cout<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
-		cgi->consoleh->cb = new CCallback(cgi->state,-1);
 		cgi->consoleh->runConsole();
 		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
-//////////////////////////////////loading map and connecting
-		CConnection c("localhost","3030",NAME,std::cout);
+
+		std::ofstream lll("client_log.txt");
+		CConnection c("localhost","3030",NAME,lll);
 		THC std::cout<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
-		std::string mapname = cpg->ourScenSel->mapsel.ourMaps[cpg->ourScenSel->mapsel.selected].filename;
-		std::cout<<"Opening map file: "<<mapname<<"\t\t"<<std::flush;
-		gzFile map = gzopen(mapname.c_str(),"rb");
-		std::vector<unsigned char> mapstr; int pom;
-		while((pom=gzgetc(map))>=0)
-		{
-			mapstr.push_back(pom);
-		}
-		gzclose(map);
-		unsigned char *initTable = new unsigned char[mapstr.size()];
-		for(int ss=0; ss<mapstr.size(); ++ss)
-		{
-			initTable[ss] = mapstr[ss];
-		}
-		std::cout<<"done."<<std::endl;
-////////////////////////////////////////////////////
-		ui8 pom8;
-		c << uint8_t(2) << uint8_t(1) << mapname;
-		c >> pom8;
-		if(pom8) throw "Server cannot open the map!";
-		c < *options;
-		c << ui8(options->playerInfos.size());
-		for(int i=0;i<options->playerInfos.size();i++)
-			c << ui8(options->playerInfos[i].color);
-		boost::crc_32_type  result;
-		result.process_bytes(initTable,mapstr.size());
-		std::cout << "\tMap checksum: "<<result.checksum();
-		std::cout << "\t" << sizeof(result.checksum());
-		THC std::cout<<"\tSending info to the server: "<<tmh.getDif()<<std::endl;
-		Mapa * mapa = new Mapa(initTable);
+		CClient cl(&c,options);
 
 
 
-		THC std::cout<<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
-		cgi->state->init(options,mapa,8);
-
-		CMapHandler * mh = cgi->mh = new CMapHandler();
-		THC std::cout<<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
-		mh->map = mapa;
-		THC std::cout<<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
-		mh->loadDefs();
-		THC std::cout<<"Reading terrain defs: "<<tmh.getDif()<<std::endl;
-		mh->init();
-		THC std::cout<<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
-
-		for (int i=0; i<cgi->state->scenarioOps->playerInfos.size();i++) //initializing interfaces
-		{ 
-
-			if(!cgi->state->scenarioOps->playerInfos[i].human)
-				cgi->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(new CCallback(cgi->state,cgi->state->scenarioOps->playerInfos[i].color),"EmptyAI.dll")));
-			else 
-			{
-				cgi->state->currentPlayer=cgi->state->scenarioOps->playerInfos[i].color;
-				cgi->playerint.push_back(new CPlayerInterface(cgi->state->scenarioOps->playerInfos[i].color,i));
-				((CPlayerInterface*)(cgi->playerint[i]))->init(new CCallback(cgi->state,cgi->state->scenarioOps->playerInfos[i].color));
-			}
-		}
 		///claculating FoWs for minimap
 		/****************************Minimaps' FoW******************************************/
 		//for(int g=0; g<cgi->playerint.size(); ++g)
@@ -281,19 +209,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	}
 
 		//}
-
-		while(1) //main game loop, one execution per turn
-		{
-			cgi->consoleh->cb->newTurn();
-			for (int i=0;i<cgi->playerint.size();i++)
-			{
-				cgi->state->currentPlayer=cgi->playerint[i]->playerID;
-				try
-				{
-					cgi->playerint[i]->yourTurn();
-				}HANDLE_EXCEPTION
-			}
-		}
+		cl.run();
 	}
 	else
 	{

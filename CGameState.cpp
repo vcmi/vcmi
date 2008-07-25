@@ -249,8 +249,37 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	map->defs.insert(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
 	if(!cur->defInfo){std::cout<<"Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;return;}
 }
-void CGameState::init(StartInfo * si, Mapa * map, int seed)
+
+int CGameState::getDate(int mode) const
 {
+	int temp;
+	switch (mode)
+	{
+	case 0:
+		return day;
+		break;
+	case 1:
+		temp = (day)%7;
+		if (temp)
+			return temp;
+		else return 7;
+		break;
+	case 2:
+		temp = ((day-1)/7)+1;
+		if (!(temp%4))
+			return 4;
+		else 
+			return (temp%4);
+		break;
+	case 3:
+		return ((day-1)/28)+1;
+		break;
+	}
+	return 0;
+}
+void CGameState::init(StartInfo * si, Mapa * map, int Seed)
+{
+	seed = Seed;
 	ran.seed((long)seed);
 	scenarioOps = si;
 	this->map = map;
@@ -313,7 +342,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int seed)
 		startres.push_back(k);
 	}
 	tis.close();
-	for (std::map<int,PlayerState>::iterator i = players.begin(); i!=players.end(); i++)
+	for (std::map<ui8,PlayerState>::iterator i = players.begin(); i!=players.end(); i++)
 	{
 		(*i).second.resources.resize(RESOURCE_QUANTITY);
 		for (int x=0;x<RESOURCE_QUANTITY;x++)
@@ -391,7 +420,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int seed)
 
 	}
 	/*************************FOG**OF**WAR******************************************/		
-	for(std::map<int, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
+	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
 	{
 		k->second.fogOfWarMap.resize(map->width);
 		for(int g=0; g<map->width; ++g)
@@ -439,7 +468,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int seed)
 		players[vti->getOwner()].towns.push_back(vti);
 	}
 
-	for(std::map<int, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
+	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
 	{
 		if(k->first==-1 || k->first==255)
 			continue;

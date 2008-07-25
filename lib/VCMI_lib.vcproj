@@ -124,7 +124,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -140,7 +140,7 @@
 				AdditionalDependencies="zdll.lib"
 				Version=""
 				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="0"
@@ -435,6 +435,10 @@
 			</File>
 			<File
 				RelativePath="..\map.h"
+				>
+			</File>
+			<File
+				RelativePath=".\NetPacks.h"
 				>
 			</File>
 			<File

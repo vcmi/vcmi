@@ -112,10 +112,15 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				FavorSizeOrSpeed="1"
+				OmitFramePointers="true"
+				EnableFiberSafeOptimizations="true"
+				StringPooling="true"
 				RuntimeLibrary="2"
-				EnableFunctionLevelLinking="true"
+				EnableFunctionLevelLinking="false"
 				WarningLevel="3"
-				DebugInformationFormat="3"
+				DebugInformationFormat="0"
+				DisableSpecificWarnings="4251"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -130,7 +135,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
 				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
-				GenerateDebugInformation="true"
+				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"
@@ -182,6 +187,10 @@
 			>
 			<File
 				RelativePath=".\CGameHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CVCMIServer.h"
 				>
 			</File>
 		</Filter>

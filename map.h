@@ -448,6 +448,7 @@ public:
 struct DLL_EXPORT Mapa
 {
 	Eformat version; // version of map Eformat
+	ui32 checksum;
 	int twoLevel; // if map has underground level
 	int difficulty; // 0 easy - 4 impossible
 	int levelLimit;
@@ -478,7 +479,8 @@ struct DLL_EXPORT Mapa
 	std::vector<CGHeroInstance*> heroes;
 	std::vector<CGTownInstance*> towns;
 
-	Mapa(unsigned char * bufor); //creates map from decompressed .h3m data
+	void initFromBytes(unsigned char * bufor); //creates map from decompressed .h3m data
+	Mapa(std::string filename); //creates map structure from .h3m file
 	CGHeroInstance * getHero(int ID, int mode=0);
 };
 #endif //MAPD_H

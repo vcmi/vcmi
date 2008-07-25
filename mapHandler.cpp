@@ -10,11 +10,12 @@
 #include "CLua.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CTownHandler.h"
-#include "client\Graphics.h"
+#include "client/Graphics.h"
 #include <iomanip>
 #include <sstream>
 #include "hch/CObjectHandler.h"
 #include "map.h"
+#include "hch/CDefHandler.h"
 extern SDL_Surface * screen;
 std::string nameFromType (EterrainType typ)
 {
@@ -567,6 +568,8 @@ void CMapHandler::init()
 {
 	timeHandler th;
 	th.getDif();
+	loadDefs();
+	THC std::cout<<"Reading terrain defs: "<<th.getDif()<<std::endl;
 	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
 	std::for_each(map->defs.begin(),map->defs.end(),processDef); //and non-h3m defs
 	THC std::cout<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
@@ -876,17 +879,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	//borders printed
 	return su;
 }
-
-SDL_Surface * CMapHandler::terrBitmap(int x, int y)
-{
-	return ttiles[x+Woff][y+Hoff][0].terbitmap[0];
-}
-
-SDL_Surface * CMapHandler::undTerrBitmap(int x, int y)
-{
-	return ttiles[x+Woff][y+Hoff][0].terbitmap[1];
-}
-
 SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl)
 {
 	int size = visibilityMap.size()-1;							//is tile visible. arrangement: (like num keyboard)
@@ -1325,12 +1317,6 @@ bool CMapHandler::hideObject(CGObjectInstance *obj)
 	} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
 	return true;
 }
-
-std::string CMapHandler::getRandomizedDefName(CGDefInfo *di, CGObjectInstance * obj)
-{
-	return std::string();
-}
-
 bool CMapHandler::removeObject(CGObjectInstance *obj)
 {
 	hideObject(obj);

@@ -4,6 +4,8 @@
 #include "hch/CObjectHandler.h"
 #include "hch/CDefObjInfoHandler.h"
 #include "lib/VCMI_Lib.h"
+#include <zlib.h>
+#include <boost/crc.hpp>
 std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
 {
 	std::map<int,int> mapa;
@@ -440,7 +442,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 		}
 	}
 }
-Mapa::Mapa(unsigned char * bufor)
+void Mapa::initFromBytes(unsigned char * bufor)
 {
 	THC timeHandler th;
 	th.getDif();
@@ -2288,6 +2290,29 @@ borderguardend:
 	//map readed, bufor no longer needed
 	delete[] bufor; bufor=NULL;
 }	
+
+Mapa::Mapa(std::string filename)
+{
+	std::cout<<"Opening map file: "<<filename<<"\t "<<std::flush;
+	gzFile map = gzopen(filename.c_str(),"rb");
+	std::vector<unsigned char> mapstr; int pom;
+	while((pom=gzgetc(map))>=0)
+	{
+		mapstr.push_back(pom);
+	}
+	gzclose(map);
+	unsigned char *initTable = new unsigned char[mapstr.size()];
+	for(int ss=0; ss<mapstr.size(); ++ss)
+	{
+		initTable[ss] = mapstr[ss];
+	}
+	std::cout<<"done."<<std::endl;
+	boost::crc_32_type  result;
+	result.process_bytes(initTable,mapstr.size());
+	std::cout << "\tOur map checksum: "<<result.checksum() << std::endl;
+	initFromBytes(initTable);
+}
+
 CGHeroInstance * Mapa::getHero(int ID, int mode)
 {
 	if (mode != 0)

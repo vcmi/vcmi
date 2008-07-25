@@ -2,12 +2,12 @@
 #include "CLua.h"
 #include "CLuaHandler.h"
 #include "hch/CHeroHandler.h"
-#include "lua.h"
-#include "lualib.h"
-#include "lauxlib.h"
-#include "lobject.h"
-#include "lgc.h"
-#include "lapi.h"
+//#include "lua.h"
+//#include "lualib.h"
+//#include "lauxlib.h"
+//#include "lobject.h"
+//#include "lgc.h"
+//#include "lapi.h"
 #include "CGameInfo.h"
 #include "CGameState.h"
 #include <sstream>
@@ -26,10 +26,11 @@
 #pragma warning (disable : 4311)
 bool getGlobalFunc(lua_State * L, std::string fname)
 {
-	unsigned int hash = lua_calchash(fname.c_str(), fname.size());
-	lua_pushhstring(L, hash, fname.c_str(), fname.size());
-	lua_gettable(L, LUA_GLOBALSINDEX);
-	return lua_isfunction(L, -1);
+	//unsigned int hash = lua_calchash(fname.c_str(), fname.size());
+	//lua_pushhstring(L, hash, fname.c_str(), fname.size());
+	//lua_gettable(L, LUA_GLOBALSINDEX);
+	//return lua_isfunction(L, -1);
+	return false;
 }
 
 CObjectScript::CObjectScript()
@@ -65,20 +66,20 @@ CLua::CLua()
 }
 void CLua::open(std::string initpath)
 {
-	LST = lua_open();
-	opened = true;
-	LUA_OPEN_LIB(LST, luaopen_base);
-	LUA_OPEN_LIB(LST, luaopen_io);
-	if ((luaL_loadfile (LST, initpath.c_str())) == 0)
-	{
-		lua_pcall (LST, 0, LUA_MULTRET, 0);
-	}
-	else
-	{
-		std::string temp = "Cannot open script ";
-		temp += initpath;
-		throw std::exception(temp.c_str());
-	}
+	//LST = lua_open();
+	//opened = true;
+	//LUA_OPEN_LIB(LST, luaopen_base);
+	//LUA_OPEN_LIB(LST, luaopen_io);
+	//if ((luaL_loadfile (LST, initpath.c_str())) == 0)
+	//{
+	//	lua_pcall (LST, 0, LUA_MULTRET, 0);
+	//}
+	//else
+	//{
+	//	std::string temp = "Cannot open script ";
+	//	temp += initpath;
+	//	throw std::exception(temp.c_str());
+	//}
 }
 void CLua::registerCLuaCallback()
 {
@@ -86,31 +87,31 @@ void CLua::registerCLuaCallback()
 
 CLua::~CLua()
 {
-	//std::cout << "Usuwam obiekt clua "<<this<<std::endl;
-	if (opened)
-	{
-		std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
-		lua_close(LST);
-	}
+	////std::cout << "Usuwam obiekt clua "<<this<<std::endl;
+	//if (opened)
+	//{
+	//	std::cout << "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"<<std::endl;
+	//	lua_close(LST);
+	//}
 }
 
 void CLua::findF(std::string fname)
 {
-	 lua_getfield(is, LUA_GLOBALSINDEX, fname.c_str()); /* function to be called */
+	// lua_getfield(is, LUA_GLOBALSINDEX, fname.c_str()); /* function to be called */
 }
 void CLua::findF2(std::string fname)
 {
-	lua_pushstring (is, fname.c_str());
-	lua_gettable (is, LUA_GLOBALSINDEX); 
+	//lua_pushstring (is, fname.c_str());
+	//lua_gettable (is, LUA_GLOBALSINDEX); 
 }
 void CLua::findFS(std::string fname)
 {
-	lua_settop(is, 0);
-	if (!getGlobalFunc(is,fname)) 
-	{
-		lua_settop(is, 0);
-		throw new std::exception((fname + ": function not defined").c_str()); // the call is not defined
-	}
+	//lua_settop(is, 0);
+	//if (!getGlobalFunc(is,fname)) 
+	//{
+	//	lua_settop(is, 0);
+	//	throw new std::exception((fname + ": function not defined").c_str()); // the call is not defined
+	//}
 }
 #undef LST
 
@@ -139,40 +140,40 @@ std::string CLuaObjectScript::genFN(std::string base, int ID)
 
 void CLuaObjectScript::newObject(CGObjectInstance *os)
 {
-	findF(genFN("newObject",os->ID));
-	lua_pushinteger(is, (int)os);
-	if (lua_pcall (is, 1, 0, 0))
-	{
-		lua_settop(is, 0);
-		throw new  std::exception(("Failed to call "+genFN("newObject",os->ID)+" function in lua script.").c_str());
-	}
-	lua_settop(is, 0);
+	//findF(genFN("newObject",os->ID));
+	//lua_pushinteger(is, (int)os);
+	//if (lua_pcall (is, 1, 0, 0))
+	//{
+	//	lua_settop(is, 0);
+	//	throw new  std::exception(("Failed to call "+genFN("newObject",os->ID)+" function in lua script.").c_str());
+	//}
+	//lua_settop(is, 0);
 	return;
 }
 void CLuaObjectScript::onHeroVisit(CGObjectInstance *os, int heroID)
 {
-	findF(genFN("heroVisit",os->ID));
-	lua_pushinteger(is, (int)os);
-	lua_pushinteger(is, heroID);
-	if (lua_pcall (is, 2, 0, 0))
-	{
-		lua_settop(is, 0);
-		throw new  std::exception(("Failed to call "+genFN("heroVisit",os->ID)+" function in lua script.").c_str());
-	}
-	lua_settop(is, 0);
+	//findF(genFN("heroVisit",os->ID));
+	//lua_pushinteger(is, (int)os);
+	//lua_pushinteger(is, heroID);
+	//if (lua_pcall (is, 2, 0, 0))
+	//{
+	//	lua_settop(is, 0);
+	//	throw new  std::exception(("Failed to call "+genFN("heroVisit",os->ID)+" function in lua script.").c_str());
+	//}
+	//lua_settop(is, 0);
 }
 std::string CLuaObjectScript::hoverText(CGObjectInstance *os)
 {
-	findF(genFN("hoverText",os->ID));
-	lua_pushinteger(is, (int)os);
-	if (lua_pcall (is, 1, 1, 0))
-	{
-		lua_settop(is, 0);
-		throw new  std::exception(("Failed to call "+genFN("hoverText",os->ID)+" function in lua script.").c_str());
-	}
-	std::string ret = lua_tostring(is,1);
-	lua_settop(is, 0);
-	return ret;
+	//findF(genFN("hoverText",os->ID));
+	//lua_pushinteger(is, (int)os);
+	//if (lua_pcall (is, 1, 1, 0))
+	//{
+	//	lua_settop(is, 0);
+	//	throw new  std::exception(("Failed to call "+genFN("hoverText",os->ID)+" function in lua script.").c_str());
+	//}
+	//std::string ret = lua_tostring(is,1);
+	//lua_settop(is, 0);
+	return "";
 }
 
 std::string CCPPObjectScript::hoverText(CGObjectInstance *os)

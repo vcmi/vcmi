@@ -1,6 +1,6 @@
 #pragma once
 #include "global.h"
-#include "lstate.h"
+//#include "lstate.h"
 #include <set>
 #include <map>
 class CLua;
@@ -13,6 +13,7 @@ class SComponent;
 class CSelectableComponent;
 class CGameState;
 struct Mapa;
+struct lua_State;
 enum ESLan{UNDEF=-1,CPP,ERM,LUA};
 class CObjectScript
 {

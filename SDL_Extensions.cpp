@@ -9,7 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include "hch/CDefHandler.h"
 #include <map>
-#include "client\Graphics.h"
+#include "client/Graphics.h"
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {

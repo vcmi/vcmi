@@ -14,63 +14,8 @@
 #include "CPlayerInterface.h"
 #include "hch/CBuildingHandler.h"
 #include "hch/CObjectHandler.h"
-LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
+//LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
 
-int CCallback::lowestSpeed(CGHeroInstance * chi)
-{
-	int min = 150;
-	for (  std::map<int,std::pair<CCreature*,int> >::iterator i = chi->army.slots.begin(); 
-		   i!=chi->army.slots.end();		 i++													)
-	{
-		if (min>(*i).second.first->speed)
-			min = (*i).second.first->speed;
-	}
-	return min;
-}
-int CCallback::valMovePoints(CGHeroInstance * chi)
-{
-	int ret = 1270+70*lowestSpeed(chi);
-	if (ret>2000) 
-		ret=2000;
-	
-	//TODO: additional bonuses (but they aren't currently stored in chi)
-
-	return ret;
-}
-void CCallback::newTurn()
-{
-	//std::map<int, PlayerState>::iterator i = gs->players.begin() ;
-	gs->day++;
-	for (std::set<CCPPObjectScript *>::iterator i=gs->cppscripts.begin();i!=gs->cppscripts.end();i++)
-	{
-		(*i)->newTurn();
-	}
-	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
-	{
-		//handle heroes/////////////////////////////
-		for (int j=0;j<(*i).second.heroes.size();j++)
-		{
-			(*i).second.heroes[j]->movement = valMovePoints((*i).second.heroes[j]);
-		}
-
-
-		//handle towns/////////////////////////////
-		for(int j=0;j<i->second.towns.size();j++)
-		{
-			i->second.towns[j]->builded=0;
-			if(getDate(1)==1) //first day of week
-			{
-				for(int k=0;k<CREATURES_PER_TOWN;k++)
-				{
-					if(i->second.towns[j]->creatureDwelling(k))//there is dwelling
-						i->second.towns[j]->strInfo.creatures[k]+=i->second.towns[j]->creatureGrowth(k);
-				}
-			}
-			if((gs->day>1) && i->first<PLAYER_LIMIT)
-				i->second.resources[6]+=i->second.towns[j]->dailyIncome();
-		}
-	}
-}
 bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 {
 	CGHeroInstance * hero = NULL;
@@ -93,7 +38,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 	else //idtype==1; player<0
 	{
 
-		for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)
+		for(std::map<ui8, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)
 		{
 			for (int i=0; i<(*j).second.heroes.size();i++)
 			{
@@ -193,7 +138,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 
 				//notify interfacesabout move
 				int nn=0; //number of interfece of currently browsed player
-				for(std::map<int, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
+				for(std::map<ui8, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
 				{
 					if (j->first > PLAYER_LIMIT)
 						break;
@@ -425,30 +370,7 @@ std::vector<int> CCallback::getResourceAmount()
 }
 int CCallback::getDate(int mode)
 {
-	int temp;
-	switch (mode)
-	{
-	case 0:
-		return gs->day;
-		break;
-	case 1:
-		temp = (gs->day)%7;
-		if (temp)
-			return temp;
-		else return 7;
-		break;
-	case 2:
-		temp = ((gs->day-1)/7)+1;
-		if (!(temp%4))
-			return 4;
-		else 
-			return (temp%4);
-		break;
-	case 3:
-		return ((gs->day-1)/28)+1;
-		break;
-	}
-	return 0;
+	return gs->getDate(mode);
 }
 bool CCallback::verifyPath(CPath * path, bool blockSea)
 {
@@ -504,7 +426,7 @@ bool CCallback::isVisible(int3 pos, int Player)
 std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur)
 {
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
-	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		for (int j=0;j<(*i).second.towns.size();j++)
 		{
@@ -519,7 +441,7 @@ std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur)
 std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur)
 {
 	std::vector < const CGHeroInstance *> ret = std::vector < const CGHeroInstance *>();
-	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		for (int j=0;j<(*i).second.heroes.size();j++)
 		{
@@ -1037,77 +959,68 @@ void CScriptCallback::startBattle(int heroID, CCreatureSet * army, int3 tile) //
 }
 void CLuaCallback::registerFuncs(lua_State * L)
 {
-	lua_newtable(L);
-
-#define REGISTER_C_FUNC(x) \
-	lua_pushstring(L, #x);      \
-	lua_pushcfunction(L, x);    \
-	lua_rawset(L, -3)
-
-	REGISTER_C_FUNC(getPos);
-	REGISTER_C_FUNC(changePrimSkill);
-	REGISTER_C_FUNC(getGnrlText);
-	REGISTER_C_FUNC(getSelectedHero);
-
-	/*
-	REGISTER_C_FUNC(changePrimSkill);
-	REGISTER_C_FUNC(getGnrlText);
-	REGISTER_C_FUNC(changePrimSkill);
-	REGISTER_C_FUNC(getGnrlText);
-	REGISTER_C_FUNC(changePrimSkill);
-	REGISTER_C_FUNC(getGnrlText);*/
-	
-
-	lua_setglobal(L, "vcmi");
-	#undef REGISTER_C_FUNC
+//	lua_newtable(L);
+//
+//#define REGISTER_C_FUNC(x) \
+//	lua_pushstring(L, #x);      \
+//	lua_pushcfunction(L, x);    \
+//	lua_rawset(L, -3)
+//
+//	REGISTER_C_FUNC(getPos);
+//	REGISTER_C_FUNC(changePrimSkill);
+//	REGISTER_C_FUNC(getGnrlText);
+//	REGISTER_C_FUNC(getSelectedHero);
+//
+//	lua_setglobal(L, "vcmi");
+//	#undef REGISTER_C_FUNC
 }
 int CLuaCallback::getPos(lua_State * L)//(CGObjectInstance * object);
 {	
-	const int args = lua_gettop(L); // number of arguments
-	if ((args < 1) || !lua_isnumber(L, 1) )
-		luaL_error(L,
-			"Incorrect arguments to getPos([Object address])");
-	CGObjectInstance * object = (CGObjectInstance *)(lua_tointeger(L, 1));
-	lua_pushinteger(L,object->pos.x);
-	lua_pushinteger(L,object->pos.y);
-	lua_pushinteger(L,object->pos.z);
+	//const int args = lua_gettop(L); // number of arguments
+	//if ((args < 1) || !lua_isnumber(L, 1) )
+	//	luaL_error(L,
+	//		"Incorrect arguments to getPos([Object address])");
+	//CGObjectInstance * object = (CGObjectInstance *)(lua_tointeger(L, 1));
+	//lua_pushinteger(L,object->pos.x);
+	//lua_pushinteger(L,object->pos.y);
+	//lua_pushinteger(L,object->pos.z);
 	return 3;
 }
 int CLuaCallback::changePrimSkill(lua_State * L)//(int ID, int which, int val);
 {	
-	const int args = lua_gettop(L); // number of arguments
-	if ((args < 1) || !lua_isnumber(L, 1) ||
-	    ((args >= 2) && !lua_isnumber(L, 2)) ||
-	    ((args >= 3) && !lua_isnumber(L, 3))		)
-	{
-		luaL_error(L,
-			"Incorrect arguments to changePrimSkill([Hero ID], [Which Primary skill], [Change by])");
-	}
-	int ID = lua_tointeger(L, 1),
-		which = lua_tointeger(L, 2),
-		val = lua_tointeger(L, 3);
+	//const int args = lua_gettop(L); // number of arguments
+	//if ((args < 1) || !lua_isnumber(L, 1) ||
+	//    ((args >= 2) && !lua_isnumber(L, 2)) ||
+	//    ((args >= 3) && !lua_isnumber(L, 3))		)
+	//{
+	//	luaL_error(L,
+	//		"Incorrect arguments to changePrimSkill([Hero ID], [Which Primary skill], [Change by])");
+	//}
+	//int ID = lua_tointeger(L, 1),
+	//	which = lua_tointeger(L, 2),
+	//	val = lua_tointeger(L, 3);
 
-	CScriptCallback::changePrimSkill(ID,which,val);
+	//CScriptCallback::changePrimSkill(ID,which,val);
 
 	return 0;
 }
 int CLuaCallback::getGnrlText(lua_State * L) //(int which),returns string
 {
-	const int args = lua_gettop(L); // number of arguments
-	if ((args < 1) || !lua_isnumber(L, 1) )
-		luaL_error(L,
-			"Incorrect arguments to getGnrlText([Text ID])");
-	int which = lua_tointeger(L,1);
-	lua_pushstring(L,CGI->generaltexth->allTexts[which].c_str());
+	//const int args = lua_gettop(L); // number of arguments
+	//if ((args < 1) || !lua_isnumber(L, 1) )
+	//	luaL_error(L,
+	//		"Incorrect arguments to getGnrlText([Text ID])");
+	//int which = lua_tointeger(L,1);
+	//lua_pushstring(L,CGI->generaltexth->allTexts[which].c_str());
 	return 1;
 }
 int CLuaCallback::getSelectedHero(lua_State * L) //(),returns int (ID of hero, -1 if no hero is seleceted)
 {
-	int ret;
-	if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
-		ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
-	else 
-		ret = -1;
-	lua_pushinteger(L,ret);
+	//int ret;
+	//if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
+	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
+	//else 
+	//	ret = -1;
+	//lua_pushinteger(L,ret);
 	return 1;
 }

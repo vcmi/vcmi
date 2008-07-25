@@ -2,8 +2,6 @@
 #define MAPHANDLER_H
 #include "global.h"
 #include <SDL.h>
-#include "hch/CDefHandler.h"
-#include <boost/logic/tribool.hpp>
 #include <list>
 #include <set>
 const int Woff = 12; //width of map's frame
@@ -13,7 +11,8 @@ class CGObjectInstance;
 class CGHeroInstance;
 struct Mapa;
 class CGDefInfo;
-
+class CGObjectInstance;
+class CDefHandler;
 struct TerrainTile2
 {
 	int3 pos; //this tile's position
@@ -81,8 +80,6 @@ public:
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;
 
-	std::vector< std::vector< std::vector<unsigned char> > > visibility; //true means that pointed place is visible //not used now
-	//std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;
 	std::vector<CDefHandler*> defs;
@@ -92,8 +89,6 @@ public:
 	std::vector<std::vector<std::vector<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
 	void loadDefs();
-	char & visAccess(int x, int y);
-	char & undVisAccess(int x, int y);
 	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl);
 
 	int getCost(int3 & a, int3 & b, const CGHeroInstance * hero);
@@ -107,20 +102,13 @@ public:
 	bool recalculateHideVisPos(int3& pos); //recalculates position for hidden / visitable positions
 	bool recalculateHideVisPosUnderObj(CGObjectInstance * obj, bool withBorder = false); //recalculates position for hidden / visitable positions under given object
 	void init();
-	int pickHero(int owner);
-	std::pair<int,int> pickObject(CGObjectInstance *obj);
-	void randomizeObject(CGObjectInstance *cur);
 	void calculateBlockedPos();
 	void initObjectRects();
 	void borderAndTerrainBitmapInit();
 	void roadsRiverTerrainInit();
 	void prepareFOWDefs();
-	void randomizeObjects();
 
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap = NULL, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL); //if extSurf is specified, blit to it
-	SDL_Surface * terrBitmap(int x, int y);
-	SDL_Surface * undTerrBitmap(int x, int y);
-	std::string getRandomizedDefName(CGDefInfo* di, CGObjectInstance * obj = NULL); //objinstance needed only for heroes and towns
 	unsigned char getHeroFrameNum(const unsigned char & dir, const bool & isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
 	static unsigned char getDir(const int3 & a, const int3 & b); //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]

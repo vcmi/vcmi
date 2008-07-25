@@ -85,11 +85,8 @@ struct HeroMoveDetails
 class CCallback : public ICallback
 {
 private:
-	void newTurn();
 	CCallback(CGameState * GS, int Player):gs(GS),player(Player){};
 	CGameState * gs;
-	int lowestSpeed(CGHeroInstance * chi); //speed of the slowest stack
-	int valMovePoints(CGHeroInstance * chi); 
 	bool isVisible(int3 pos, int Player);
 
 protected:
@@ -148,7 +145,7 @@ public:
 	
 
 //friends
-	friend int _tmain(int argc, _TCHAR* argv[]);
+	friend class CClient;
 };
 class CScriptCallback
 {
@@ -174,7 +171,8 @@ public:
 	void startBattle(int heroID, CCreatureSet * army, int3 tile); //for hero<=>neutral army
 
 	//friends
-	friend CGameState;
+	friend class CGameState;
+	friend class CClient;
 };
 class CLuaCallback : public CScriptCallback
 {
@@ -186,6 +184,7 @@ private:
 	static int getGnrlText(lua_State * L);//(int ID, int which, int val);
 	static int getSelectedHero(lua_State * L);//()
 
-	friend CGameState;
+	friend class CGameState;
+	friend class CClient;
 };
 #endif //CCALLBACK_H

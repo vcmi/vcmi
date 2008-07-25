@@ -21,16 +21,16 @@ struct StartInfo
 		bool human;
 		template <typename Handler> 	void serialize(Handler &h, const int version)
 		{
-			h && castle;
-			h && hero;
-			h && heroPortrait;
-			h && heroName;
-			h && bonus;
-			h && color;
-			h && serial;
-			h && handicap;
-			h && name;
-			h && human;
+			h & castle;
+			h & hero;
+			h & heroPortrait;
+			h & heroName;
+			h & bonus;
+			h & color;
+			h & serial;
+			h & handicap;
+			h & name;
+			h & human;
 		}
 	};
 	si32 difficulty; //0=easy; 4=impossible
@@ -44,12 +44,12 @@ struct StartInfo
 				return playerInfos[i];
 		throw new std::exception("Cannot find info about player");
 	}
-	template <typename Handler> 	void serialize(Handler &h, const int version)
+	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h && difficulty;
+		h & difficulty;
 		h & playerInfos;
-		h && turnTime;
-		h && mapname;
+		h & turnTime;
+		h & mapname;
 	}
 };
 

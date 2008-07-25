@@ -1,6 +1,6 @@
 #include "../global.h"
 
-
+class CLodHandler;
 //class CMapHandler;
 class CArtHandler;
 class CHeroHandler;
@@ -55,4 +55,7 @@ public:
 	//StartInfo scenarioOps;
 };
 
-extern LibClasses * VLC;
+extern DLL_EXPORT LibClasses * VLC;
+
+
+DLL_EXPORT void initDLL(CLodHandler *b);

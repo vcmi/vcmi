@@ -66,11 +66,12 @@ class DLL_EXPORT CGameState
 {
 private:
 	StartInfo* scenarioOps;
-	int currentPlayer; //ID of player currently having turn
+	ui32 seed;
+	ui8 currentPlayer; //ID of player currently having turn
 	BattleInfo *curB; //current battle
-	int day; //total number of days in game
+	ui32 day; //total number of days in game
 	Mapa * map;
-	std::map<int,PlayerState> players; //ID <-> playerstate
+	std::map<ui8,PlayerState> players; //ID <-> playerstate
 	std::set<CCPPObjectScript *> cppscripts; //C++ scripts
 	std::map<int, std::map<std::string, CObjectScript*> > objscr; //non-C++ scripts 
 	
@@ -88,7 +89,7 @@ private:
 		return false;
 	}
 
-	void init(StartInfo * si, Mapa * map, int seed);
+	void init(StartInfo * si, Mapa * map, int Seed);
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);
 	int pickHero(int owner);
@@ -98,15 +99,17 @@ private:
 	bool battleAttackCreatureStack(int ID, int dest);
 	std::vector<int> battleGetRange(int ID); //called by std::vector<int> CCallback::battleGetAvailableHexes(int ID);
 public:
-	friend CCallback;
-	friend CPathfinder;;
-	friend CLuaCallback;
-	friend int _tmain(int argc, _TCHAR* argv[]);
+	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	
+	friend class CCallback;
+	friend class CPathfinder;;
+	friend class CLuaCallback;
+	friend class CClient;
 	friend void initGameState(Mapa * map, CGameInfo * cgi);
-	friend CScriptCallback;
+	friend class CScriptCallback;
 	friend void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	friend class CMapHandler;
-	friend class CVCMIServer;
+	friend class CGameHandler;
 };
 
 #endif //CGAMESTATE_H

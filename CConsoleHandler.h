@@ -7,7 +7,7 @@ class CConsoleHandler
 public:
 	void runConsole();
 
-	friend int _tmain(int argc, _TCHAR* argv[]);
+	friend class CClient;
 };
 
 #endif //CCONSOLEHANDLER_H
