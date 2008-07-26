@@ -60,7 +60,7 @@ struct SerializationLevel
 		//else
 		typename mpl::eval_if<
 			boost::is_array<T>,
-			mpl::int_<Wrong>,
+			mpl::int_<Primitive>,
 		//else
 		typename mpl::eval_if<
 			boost::is_enum<T>,
@@ -91,7 +91,7 @@ public:
 	}
 	
 	template<class T>
-	Serializer & operator&(T & t){
+	COSer & operator&(T & t){
 		return * this->This() << t;
 	}
 };
@@ -112,7 +112,7 @@ public:
 	}
 	
 	template<class T>
-	Serializer & operator&(T & t){
+	CISer & operator&(T & t){
 		return * this->This() >> t;
 	}
 };
@@ -176,7 +176,7 @@ class DLL_EXPORT CConnection
 	std::ostream &out;
 	CConnection(void);
 	void init();
-	boost::mutex *mx;
+	boost::mutex *rmx, *wmx; // read/write mutexes
 public:
 
 	template <typename T>
@@ -234,9 +234,10 @@ public:
 	template <typename T>
 	void saveSerializable(const std::set<T> &data)
 	{
-		boost::uint32_t length = data.size();
+		std::set<T> &d = const_cast<std::set<T> &>(data);
+		boost::uint32_t length = d.size();
 		*this << length;
-		for(std::set<T>::iterator i=data.begin();i!=data.end();i++)
+		for(std::set<T>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
 	}
 	template <typename T>
@@ -244,7 +245,6 @@ public:
 	{
 		boost::uint32_t length;
 		*this >> length;
-		data.resize(length);
 		T ins;
 		for(ui32 i=0;i<length;i++)
 		{
@@ -287,8 +287,6 @@ public:
 		typex::invoke(*this, data);
 	}
 
-	//CSender send;
-	//CReceiver rec;
 	boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * socket;
 	bool logging;
 	bool connected;

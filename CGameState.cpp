@@ -20,7 +20,8 @@
 #include "CLua.h"
 #include "CCallback.h"
 #include "CLuaHandler.h"
-
+#include "lib/NetPacks.h"
+#include <boost/foreach.hpp>
 
 boost::rand48 ran;
 class CMP_stack
@@ -35,6 +36,30 @@ public:
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO)
 	:creature(C),amount(A),owner(O), alive(true), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints)
 {
+}
+void CGameState::apply(IPack * pack)
+{
+	switch(pack->getType())
+	{
+	case 101://NewTurn
+		{
+			NewTurn * n = static_cast<NewTurn*>(pack);
+			day = n->day;
+			BOOST_FOREACH(NewTurn::Hero h, n->heroes) //give mana/movement point
+			{
+				static_cast<CGHeroInstance*>(map->objects[h.id])->movement = h.move;
+				static_cast<CGHeroInstance*>(map->objects[h.id])->mana = h.mana;
+			}
+			BOOST_FOREACH(NewTurn::Resources h, n->res) //give resources
+			{
+				for(int i=0;i<RESOURCE_QUANTITY;i++)
+					players[h.player].resources[i] = h.resources[i];
+			}
+			if(n->resetBuilded) //reset amount of structures set in this turn in towns
+				BOOST_FOREACH(CGTownInstance* t, map->towns)
+					t->builded = 0;
+		}
+	}
 }
 int CGameState::pickHero(int owner)
 {
@@ -279,6 +304,7 @@ int CGameState::getDate(int mode) const
 }
 void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
+	day = 0;
 	seed = Seed;
 	ran.seed((long)seed);
 	scenarioOps = si;

@@ -8,6 +8,7 @@
 #include "../CCallback.h"
 #include "../CPlayerInterface.h"
 #include "../CConsoleHandler.h"
+#include "../lib/NetPacks.h"
 
 CClient::CClient(void)
 {
@@ -74,11 +75,24 @@ void CClient::process(int what)
 	switch (what)
 	{
 	case 100: //one of our interaces has turn
-		ui8 player;
-		*serv >> player;//who?
-		CGI->playerint[gs->players[player].serial]->yourTurn();
-		*serv << ui16(100); //report that we ended turn
-		break;
+		{
+			ui8 player;
+			*serv >> player;//who?
+			std::cout << "It's turn of "<<(unsigned)player<<" player."<<std::endl;
+			CGI->playerint[gs->players[player].serial]->yourTurn();
+			*serv << ui16(100); //report that we ended turn
+			std::cout << "Player "<<(unsigned)player<<" end his turn."<<std::endl;
+			break;
+		}
+	case 101:
+		{
+			NewTurn n;
+			*serv >> n;
+			std::cout << "New day: "<<(unsigned)n.day<<". Applying changes... ";
+			gs->apply(&n);
+			std::cout << "done!"<<std::endl;
+			break;
+		}
 	default:
 		throw std::exception("Not supported server message!");
 		break;

@@ -38,7 +38,11 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 		}
 	}
 }
-
+template <typename T>void CGameHandler::sendToAllClients(CPack<T> * info)
+{
+	BOOST_FOREACH(CConnection* c, conns)
+		*c << info->getType() << *info->This();
+}
 CGameHandler::CGameHandler(void)
 {
 	gs = NULL;
@@ -76,37 +80,46 @@ int valMovePoints(CGHeroInstance * chi)
 }
 void CGameHandler::newTurn()
 {
-	//std::map<int, PlayerState>::iterator i = gs->players.begin() ;
-	gs->day++;
+	NewTurn n;
+	n.day = gs->day + 1;
+
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
-		//handle heroes/////////////////////////////
-		for (unsigned j=0;j<(*i).second.heroes.size();j++)
+		if(i->first>=PLAYER_LIMIT) continue;
+		NewTurn::Resources r;
+		r.player = i->first;
+		for(int j=0;j<RESOURCE_QUANTITY;j++)
+			r.resources[j] = i->second.resources[j];
+		
+		for (unsigned j=0;j<(*i).second.heroes.size();j++) //handle heroes
 		{
-			(*i).second.heroes[j]->movement = valMovePoints((*i).second.heroes[j]);
+			NewTurn::Hero h;
+			h.id = (*i).second.heroes[j]->id;
+			h.move = valMovePoints((*i).second.heroes[j]);
+			h.mana = (*i).second.heroes[j]->mana;
+			n.heroes.insert(h);
 		}
-
-
-		//handle towns/////////////////////////////
-		for(unsigned j=0;j<i->second.towns.size();j++)
+		for(unsigned j=0;j<i->second.towns.size();j++)//handle towns
 		{
 			i->second.towns[j]->builded=0;
-			if(gs->getDate(1)==1) //first day of week
-			{
-				for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
-				{
-					if(i->second.towns[j]->creatureDwelling(k))//there is dwelling (k-level)
-						i->second.towns[j]->strInfo.creatures[k]+=i->second.towns[j]->creatureGrowth(k);
-				}
-			}
-			if((gs->day>1) && i->first<PLAYER_LIMIT)
-				i->second.resources[6]+=i->second.towns[j]->dailyIncome();
+			//if(gs->getDate(1)==1) //first day of week
+			//{
+			//	for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
+			//	{
+			//		if(i->second.towns[j]->creatureDwelling(k))//there is dwelling (k-level)
+			//			i->second.towns[j]->strInfo.creatures[k]+=i->second.towns[j]->creatureGrowth(k);
+			//	}
+			//}
+			if((gs->day>1) && i->first<PLAYER_LIMIT)//not the first day and town not neutral
+				r.resources[6] += i->second.towns[j]->dailyIncome();
 		}
+		n.res.insert(r);
 	}	
-	for (std::set<CCPPObjectScript *>::iterator i=gs->cppscripts.begin();i!=gs->cppscripts.end();i++)
-	{
-		(*i)->newTurn();
-	}
+	sendToAllClients(&n);
+	//for (std::set<CCPPObjectScript *>::iterator i=gs->cppscripts.begin();i!=gs->cppscripts.end();i++)
+	//{
+	//	(*i)->newTurn();
+	//}
 }
 void CGameHandler::run()
 {	
@@ -136,6 +149,7 @@ void CGameHandler::run()
 	}
 	while (1)
 	{
+		newTurn();
 		for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
 		{
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0) continue; //players has not towns/castle - loser

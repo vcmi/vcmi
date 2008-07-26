@@ -5,6 +5,8 @@ class CVCMIServer;
 class CGameState;
 class CConnection;
 struct StartInfo;
+template <typename T> struct CPack;
+
 class CGameHandler
 {
 	CGameState *gs;
@@ -16,6 +18,7 @@ public:
 	~CGameHandler(void);
 	void init(StartInfo *si, int Seed);
 	void handleConnection(std::set<int> players, CConnection &c);
+	template <typename T>void sendToAllClients(CPack<T> * info);
 	void run();
 	void newTurn();
 

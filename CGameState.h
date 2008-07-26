@@ -23,6 +23,7 @@ struct StartInfo;
 struct SDL_Surface;
 class CMapHandler;
 class CPathfinder;
+struct IPack;
 
 struct DLL_EXPORT PlayerState
 {
@@ -90,6 +91,7 @@ private:
 	}
 
 	void init(StartInfo * si, Mapa * map, int Seed);
+	void apply(IPack * pack);
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);
 	int pickHero(int owner);

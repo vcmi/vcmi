@@ -2,6 +2,7 @@
 #pragma warning(disable:4355)
 #include "Connection.h"
 #include <boost/asio.hpp>
+#include <boost/thread.hpp>
 using namespace boost;
 using namespace boost::asio::ip;
 
@@ -31,6 +32,8 @@ void CConnection::init()
 	(*this) << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
 	(*this) >> pom >> pom >> contactEndianess;
 	out << "Established connection with "<<pom<<std::endl;
+	wmx = new boost::mutex;
+	rmx = new boost::mutex;
 }
 
 CConnection::CConnection(std::string host, std::string port, std::string Name, std::ostream & Out)
@@ -63,14 +66,14 @@ CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp
 }
 int CConnection::write(const void * data, unsigned size)
 {
-	LOG("wysylam dane o rozmiarze " << size << std::endl);
+	LOG("Sending " << size << " byte(s) of data" <<std::endl);
 	int ret;
 	ret = asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size)));
 	return ret;
 }
 int CConnection::read(void * data, unsigned size)
 {
-	LOG("odbieram dane o rozmiarze " << size << std::endl);
+	LOG("Receiving " << size << " byte(s) of data" <<std::endl);
 	int ret = asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size)));
 	return ret;
 }
@@ -80,4 +83,6 @@ CConnection::~CConnection(void)
 		socket->close();
 	delete socket;
 	delete io_service;
+	delete wmx;
+	delete rmx;
 }
