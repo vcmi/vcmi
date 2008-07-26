@@ -50,7 +50,6 @@ CGameHandler::~CGameHandler(void)
 }
 void CGameHandler::init(StartInfo *si, int Seed)
 {
-
 	Mapa *map = new Mapa(si->mapname);
 	gs = new CGameState();
 	gs->init(si,map,Seed);
@@ -115,7 +114,7 @@ void CGameHandler::run()
 	{//init conn.
 		ui8 quantity, pom;
 		//ui32 seed;
-		(*cc) << gs->scenarioOps->mapname;// << gs->map->checksum << seed;
+		(*cc) << gs->scenarioOps->mapname << gs->map->checksum << gs->seed;
 		(*cc) >> quantity;
 		for(int i=0;i<quantity;i++)
 		{

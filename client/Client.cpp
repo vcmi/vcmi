@@ -15,11 +15,11 @@ CClient::CClient(void)
 CClient::CClient(CConnection *con, StartInfo *si)
 	:serv(con)
 {
-	timeHandler tmh, pomtime;
+	timeHandler tmh;
 	CConnection &c(*con);
 ////////////////////////////////////////////////////
 	ui8 pom8;
-	c << ui8(2) << ui8(1);
+	c << ui8(2) << ui8(1); //new game; one client
 	c << *si;
 	c >> pom8;
 	if(pom8) throw "Server cannot open the map!";

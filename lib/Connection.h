@@ -4,25 +4,13 @@
 #include <vector>
 #include <set>
 
-#include <boost/type_traits/is_pointer.hpp>
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
-#include <boost/type_traits/is_volatile.hpp>
-#include <boost/type_traits/is_const.hpp>
-#include <boost/type_traits/is_same.hpp>
-#include <boost/type_traits/remove_all_extents.hpp>
-#include <boost/serialization/is_abstract.hpp>
 
 #include <boost/mpl/eval_if.hpp>
-#include <boost/mpl/and.hpp>
-#include <boost/mpl/less.hpp>
-#include <boost/mpl/greater_equal.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
-#include <boost/mpl/list.hpp>
-#include <boost/mpl/empty.hpp>
-#include <boost/mpl/not.hpp>
 
 const int version = 63;
 class CConnection;
@@ -243,16 +231,27 @@ public:
 		for(ui32 i=0;i<length;i++)
 			*this >> data[i];
 	}
-	//template <typename T>
-	//void saveSerializable(T &data)
-	//{
-	//	data.serialize(*static_cast<COSer*>(this),version);
-	//}
-	//template <typename T>
-	//void loadSerializable(T &data)
-	//{
-	//	data.serialize(*static_cast<CISer*>(this),version);
-	//}
+	template <typename T>
+	void saveSerializable(const std::set<T> &data)
+	{
+		boost::uint32_t length = data.size();
+		*this << length;
+		for(std::set<T>::iterator i=data.begin();i!=data.end();i++)
+			*this << *i;
+	}
+	template <typename T>
+	void loadSerializable(std::set<T> &data)
+	{
+		boost::uint32_t length;
+		*this >> length;
+		data.resize(length);
+		T ins;
+		for(ui32 i=0;i<length;i++)
+		{
+			*this >> ins;
+			data.insert(ins);
+		}
+	}
 
 	template <typename T>
 	void save(const T &data)
@@ -270,6 +269,7 @@ public:
 			>::type typex;
 		typex::invoke(*this, data);
 	}
+
 	template <typename T>
 	void load(T &data)
 	{
@@ -309,106 +309,3 @@ public:
 	int readLine(void * data, unsigned maxSize);
 	~CConnection(void);
 };
-
-
-//DLL_EXPORT CConnection & operator<<(CConnection &c, const std::string &data);
-//DLL_EXPORT CConnection & operator>>(CConnection &c, std::string &data);
-//DLL_EXPORT CConnection & operator<<(CConnection &c, const char * &data);
-//DLL_EXPORT CConnection & operator>>(CConnection &c, char * &data);
-//
-//template <typename T> CConnection & operator<<(CConnection &c, std::vector<T> &data)
-//{
-//	boost::uint32_t length = data.size();
-//	c << length;
-//	for(ui32 i=0;i<length;i++)
-//		c << data[i];
-//	return c;
-//}
-//template <typename T> CConnection & operator>>(CConnection &c,  std::vector<T> &data)
-//{
-//	boost::uint32_t length;
-//	c >> length;
-//	data.resize(length);
-//	for(ui32 i=0;i<length;i++)
-//		c >> data[i];
-//	return c;
-//}
-//template <typename T> CConnection & operator<<(CConnection &c, std::set<T> &data)
-//{
-//	boost::uint32_t length = data.size();
-//	c << length;
-//	for(std::set<T>::iterator i=data.begin();i!=data.end();i++)
-//		c << *i;
-//	return c;
-//}
-//template <typename T> CConnection & operator>>(CConnection &c,  std::set<T> &data)
-//{
-//	boost::uint32_t length;
-//	c >> length;
-//	data.resize(length);
-//	T pom;
-//	for(int i=0;i<length;i++)
-//	{
-//		c >> pom;
-//		data.insert(pom);
-//	}
-//	return c;
-//}
-//template <typename T> CConnection & operator<<(CConnection &c, const T &data)
-//{
-//	c.write(&data,sizeof(data));
-//	return c;
-//}
-//template <typename T> CConnection & operator>>(CConnection &c, T &data)
-//{
-//	c.read(&data,sizeof(data));
-//	return c;
-//}
-//template <typename T> CConnection & operator<(CConnection &c, std::vector<T> &data)
-//{
-//	boost::uint32_t length = data.size();
-//	c << length;
-//	for(ui32 i=0;i<length;i++)
-//		data[i].serialize(c.send,version);
-//	return c;
-//}
-//template <typename T> CConnection & operator>(CConnection &c,  std::vector<T> &data)
-//{
-//	boost::uint32_t length;
-//	c >> length;
-//	data.resize(length);
-//	for(ui32 i=0;i<length;i++)
-//		data[i].serialize(c.rec,version);
-//	return c;
-//}
-//template <typename T> CConnection & operator<(CConnection &c, std::set<T> &data)
-//{
-//	boost::uint32_t length = data.size();
-//	c << length;
-//	for(std::set<T>::iterator i=data.begin();i!=data.end();i++)
-//		i->serialize(c.send,version);
-//	return c;
-//}
-//template <typename T> CConnection & operator>(CConnection &c,  std::set<T> &data)
-//{
-//	boost::uint32_t length;
-//	c >> length;
-//	data.resize(length);
-//	T pom;
-//	for(int i=0;i<length;i++)
-//	{
-//		pom.serialize(c.rec,version);
-//		data.insert(pom);
-//	}
-//	return c;
-//}
-//template <typename T> CConnection & operator<(CConnection &c, T &data)
-//{
-//	data.serialize(c.send,version);
-//	return c;
-//}
-//template <typename T> CConnection & operator>(CConnection &c, T &data)
-//{
-//	data.serialize(c.rec,version);
-//	return c;
-//}

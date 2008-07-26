@@ -18,38 +18,6 @@ using namespace boost::asio::ip;
 #define LIL_ENDIAN
 #endif
 
-//CConnection & operator<<(CConnection &c, const std::string &data)
-//{
-//	boost::uint32_t length = data.size();
-//	c << length;
-//	c.write(data.c_str(),length);
-//	return c;
-//}
-//CConnection & operator>>(CConnection &c, std::string &data)
-//{
-//	boost::uint32_t length;
-//	c >> length;
-//	data.resize(length);
-//	c.read((void*)data.c_str(),length);
-//	return c;
-//}
-//CConnection & operator<<(CConnection &c, const char * &data)
-//{
-//	boost::uint32_t length = strlen(data);
-//	c << length;
-//	c.write(data,length);
-//	return c;
-//}
-//CConnection & operator>>(CConnection &c, char * &data)
-//{
-//	boost::uint32_t length;
-//	c >> length;
-//	std::cout <<"Alokujemy " <<length << " bajtow."<<std::endl;
-//	data = new char[length];
-//	c.read(data,length);
-//	return c;
-//}
-
 void CConnection::init()
 {
 #ifdef LIL_ENDIAN

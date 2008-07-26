@@ -176,7 +176,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\server_main.cpp"
+				RelativePath=".\CVCMIServer.cpp"
 				>
 			</File>
 		</Filter>
