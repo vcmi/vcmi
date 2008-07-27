@@ -1858,7 +1858,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nt->builded = 0;
 				nt->destroyed = 0;
 				nt->garrisonHero = NULL;
-				if(nt->ID=98)
+				if(nt->ID==98)
 					towns.push_back(nt);
 				break;
 			}

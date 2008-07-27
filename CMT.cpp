@@ -109,6 +109,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		initDLL(cgi->bitmaph);
 
 		CGI->arth = VLC->arth;
+		CGI->creh = VLC->creh;
 		CGI->townh = VLC->townh;
 		CGI->heroh = VLC->heroh;
 		CGI->objh = VLC->objh;
