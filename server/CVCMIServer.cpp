@@ -19,6 +19,7 @@ using namespace boost;
 using namespace boost::asio;
 using namespace boost::asio::ip;
 
+bool end = false;
 
 CVCMIServer::CVCMIServer()
 : io(new io_service()), acceptor(new tcp::acceptor(*io, tcp::endpoint(tcp::v4(), 3030)))
@@ -26,8 +27,8 @@ CVCMIServer::CVCMIServer()
 }
 CVCMIServer::~CVCMIServer()
 {
-	delete io;
-	delete acceptor;
+	//delete io;
+	//delete acceptor;
 }
 
 void CVCMIServer::newGame(CConnection &c)
@@ -96,7 +97,7 @@ void CVCMIServer::start()
 	}
 	CConnection connection(s,NAME,std::cout);
 	std::cout<<"Got connection!" << std::endl;
-	while(1)
+	while(!end)
 	{
 		uint8_t mode;
 		connection >> mode;
@@ -127,17 +128,9 @@ int _tmain(int argc, _TCHAR* argv[])
 	{
 		io_service io_service;
 		CVCMIServer server;
-		while(1)
+		while(!end)
 			server.start();
 		io_service.run();
-	}
-	catch (std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
-	catch(...)
-	{
-		;
-	}
+	} HANDLE_EXCEPTION
   return 0;
 }

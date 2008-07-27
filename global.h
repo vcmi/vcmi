@@ -31,10 +31,6 @@ enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHE
 	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
 class CGameInfo;
 extern CGameInfo* CGI;
-#define CURPLINT (((CPlayerInterface*)((CGI)->playerint[(CGI)->state->currentPlayer]))) 
-#define LOCPLINT (((CPlayerInterface*)((CGI)->playerint[(CGI)->localPlayer]))) 
-//CURPLINT gives pointer to the interface of human player which is currently making turn, 
-//LOCPLINT gives pointer to the interface which is currently showed (on this machine)
 
 #define HEROI_TYPE (0)
 #define TOWNI_TYPE (1)

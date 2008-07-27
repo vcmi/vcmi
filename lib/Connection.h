@@ -176,8 +176,8 @@ class DLL_EXPORT CConnection
 	std::ostream &out;
 	CConnection(void);
 	void init();
-	boost::mutex *rmx, *wmx; // read/write mutexes
 public:
+	boost::mutex *rmx, *wmx; // read/write mutexes
 
 	template <typename T>
 	void savePrimitive(const T &data)

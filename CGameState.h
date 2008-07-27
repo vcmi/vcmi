@@ -25,6 +25,11 @@ class CMapHandler;
 class CPathfinder;
 struct IPack;
 
+namespace boost
+{
+	class shared_mutex;
+}
+
 struct DLL_EXPORT PlayerState
 {
 public:
@@ -78,18 +83,11 @@ private:
 	
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 
-	bool checkFunc(int obid, std::string name)
-	{
-		if (objscr.find(obid)!=objscr.end())
-		{
-			if(objscr[obid].find(name)!=objscr[obid].end())
-			{
-				return true;
-			}
-		}
-		return false;
-	}
+	boost::shared_mutex *mx;
 
+	CGameState();
+	~CGameState();
+	bool checkFunc(int obid, std::string name);
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void apply(IPack * pack);
 	void randomizeObject(CGObjectInstance *cur);

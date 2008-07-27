@@ -524,4 +524,6 @@ public:
 	void show(SDL_Surface * to = NULL);
 };
 
+extern CPlayerInterface * LOCPLINT;
+
 #endif //CPLAYERINTERFACE_H

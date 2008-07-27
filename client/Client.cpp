@@ -9,14 +9,17 @@
 #include "../CPlayerInterface.h"
 #include "../CConsoleHandler.h"
 #include "../lib/NetPacks.h"
-
+#include <boost/bind.hpp>
+#include <boost/thread.hpp>
 CClient::CClient(void)
 {
 }
 CClient::CClient(CConnection *con, StartInfo *si)
 	:serv(con)
-{
+{		
 	timeHandler tmh;
+	CGI->state = new CGameState();
+	THC std::cout<<"\tGamestate: "<<tmh.getDif()<<std::endl;
 	CConnection &c(*con);
 ////////////////////////////////////////////////////
 	ui8 pom8;
@@ -55,17 +58,17 @@ CClient::CClient(CConnection *con, StartInfo *si)
 
 	for (int i=0; i<CGI->state->scenarioOps->playerInfos.size();i++) //initializing interfaces
 	{ 
-
+		CCallback *cb = new CCallback(CGI->state,CGI->state->scenarioOps->playerInfos[i].color,this);
 		if(!CGI->state->scenarioOps->playerInfos[i].human)
-			CGI->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(new CCallback(CGI->state,CGI->state->scenarioOps->playerInfos[i].color),"EmptyAI.dll")));
+			CGI->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,"EmptyAI.dll")));
 		else 
 		{
 			CGI->state->currentPlayer=CGI->state->scenarioOps->playerInfos[i].color;
 			CGI->playerint.push_back(new CPlayerInterface(CGI->state->scenarioOps->playerInfos[i].color,i));
-			((CPlayerInterface*)(CGI->playerint[i]))->init(new CCallback(CGI->state,CGI->state->scenarioOps->playerInfos[i].color));
+			((CPlayerInterface*)(CGI->playerint[i]))->init(cb);
 		}
 	}
-	CGI->consoleh->cb = new CCallback(CGI->state,-1);
+	CGI->consoleh->cb = new CCallback(CGI->state,-1,this);
 }
 CClient::~CClient(void)
 {
@@ -79,9 +82,7 @@ void CClient::process(int what)
 			ui8 player;
 			*serv >> player;//who?
 			std::cout << "It's turn of "<<(unsigned)player<<" player."<<std::endl;
-			CGI->playerint[gs->players[player].serial]->yourTurn();
-			*serv << ui16(100); //report that we ended turn
-			std::cout << "Player "<<(unsigned)player<<" end his turn."<<std::endl;
+			boost::thread(boost::bind(&CGameInterface::yourTurn,CGI->playerint[gs->players[player].serial]));
 			break;
 		}
 	case 101:
@@ -109,16 +110,4 @@ void CClient::run()
 			process(typ);
 		}
 	} HANDLE_EXCEPTION
-	//while(1) //main game loop, one execution per turn
-	//{
-	//	CGI->consoleh->cb->newTurn();
-	//	for (int i=0;i<CGI->playerint.size();i++)
-	//	{
-	//		CGI->state->currentPlayer=CGI->playerint[i]->playerID;
-	//		try
-	//		{
-	//			CGI->playerint[i]->yourTurn();
-	//		}HANDLE_EXCEPTION
-	//	}
-	//}
 }

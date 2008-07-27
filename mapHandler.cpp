@@ -568,33 +568,40 @@ void CMapHandler::init()
 {
 	timeHandler th;
 	th.getDif();
-	loadDefs();
+	loadDefs();	//loading castles' defs
 	THC std::cout<<"Reading terrain defs: "<<th.getDif()<<std::endl;
+
+	std::ifstream ifs("config/townsDefs.txt");
+	int ccc;
+	ifs>>ccc;
+	for(int i=0;i<ccc*2;i++)
+	{
+		CGDefInfo *n;
+		if(i<ccc)
+		{
+			n = CGI->state->villages[i];
+			map->defs.insert(CGI->state->forts[i]);
+		}
+		else 
+			n = CGI->state->capitols[i%ccc];
+		ifs >> n->name;
+		map->defs.insert(n);
+	} 
+	std::cout<<"\tLoading town def info: "<<th.getDif()<<std::endl;
+
+	for(int i=0;i<map->heroes.size();i++)
+	{
+		if(!map->heroes[i]->defInfo->handler)
+		{
+			map->heroes[i]->defInfo->handler = graphics->flags1[0];
+			map->heroes[i]->defInfo->width = map->heroes[i]->defInfo->handler->ourImages[0].bitmap->w/32;
+			map->heroes[i]->defInfo->height = map->heroes[i]->defInfo->handler->ourImages[0].bitmap->h/32;
+		}
+	}
+
 	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
 	std::for_each(map->defs.begin(),map->defs.end(),processDef); //and non-h3m defs
 	THC std::cout<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
-
-	//loading castles' defs
-	//std::ifstream ifs("config/townsDefs.txt");
-	//int ccc;
-	//ifs>>ccc;
-	//for(int i=0;i<ccc*2;i++)
-	//{
-	//	//CGDefInfo * n = new CGDefInfo(*CGI->dobjinfo->castles[i%ccc]);
-	//	ifs >> n->name;
-	//	if (!(n->handler = CDefHandler::giveDef(n->name)))
-	//		std::cout << "Cannot open "<<n->name<<std::endl;
-	//	else
-	//	{
-	//		n->width = n->handler->ourImages[0].bitmap->w/32;
-	//		n->height = n->handler->ourImages[0].bitmap->h/32;
-	//	}
-	//	if(i<ccc)
-	//		villages[i]=n;
-	//	else
-	//		capitols[i%ccc]=n;
-	//	alphaTransformDef(n);
-	//} 
 
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
@@ -603,7 +610,7 @@ void CMapHandler::init()
 			usedHeroes.insert(map->players[i].heroesNames[j].heroID);
 		}
 	}
-	std::cout<<"\tLoading town defs, picking random factions and heroes: "<<th.getDif()<<std::endl;
+	std::cout<<"\tChecking used heroes: "<<th.getDif()<<std::endl;
 
 
 
@@ -615,29 +622,6 @@ void CMapHandler::init()
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
 	borderAndTerrainBitmapInit();
 	std::cout<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
-
-	//giving starting hero
-	//for(int i=0;i<PLAYER_LIMIT;i++)
-	//{
-	//	if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==RoE))
-	//	{
-	//		int3 hpos = map->players[i].posOfMainTown;
-	//		hpos.x+=1;// hpos.y+=1;
-	//		int j;
-	//		for(j=0;j<CGI->state->scenarioOps->playerInfos.size();j++)
-	//			if(CGI->state->scenarioOps->playerInfos[j].color==i)
-	//				break;
-	//		if(j==CGI->state->scenarioOps->playerInfos.size())
-	//			continue;
-	//		int h=pickHero(i);
-	//		CGHeroInstance * nnn = (CGHeroInstance*)createObject(34,h,hpos,i);
-	//		nnn->defInfo->handler = graphics->flags1[0];
-	//		map->heroes.push_back(nnn);
-	//		map->objects.push_back(nnn);
-	//	}
-	//}
-	std::cout<<"\tGiving starting heroes: "<<th.getDif()<<std::endl;
-
 	initObjectRects();
 	std::cout<<"\tMaking object rects: "<<th.getDif()<<std::endl;
 	calculateBlockedPos();
@@ -1188,74 +1172,6 @@ std::vector < CGObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
 			ret.push_back(curi);
 	}
 	return ret;
-}
-
-CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int owner)
-{
-	CGObjectInstance * nobj;
-	switch(id)
-	{
-	case 34: //hero
-		{
-			CGHeroInstance * nobj;
-			nobj = new CGHeroInstance();
-			nobj->pos = pos;
-			nobj->tempOwner = owner;
-			nobj->defInfo = new CGDefInfo();
-			nobj->defInfo->id = 34;
-			nobj->defInfo->subid = subid;
-			nobj->defInfo->printPriority = 0;
-			nobj->type = CGI->heroh->heroes[subid];
-			for(int i=0;i<6;i++)
-			{
-				nobj->defInfo->blockMap[i]=255;
-				nobj->defInfo->visitMap[i]=0;
-			}
-			nobj->ID = id;
-			nobj->subID = subid;
-			nobj->defInfo->handler=NULL;
-			nobj->defInfo->blockMap[5] = 253;
-			nobj->defInfo->visitMap[5] = 2;
-			nobj->artifacts.resize(20);
-			nobj->artifWorn[16] = 3;
-			nobj->primSkills.resize(4);
-			nobj->primSkills[0] = nobj->type->heroClass->initialAttack;
-			nobj->primSkills[1] = nobj->type->heroClass->initialDefence;
-			nobj->primSkills[2] = nobj->type->heroClass->initialPower;
-			nobj->primSkills[3] = nobj->type->heroClass->initialKnowledge;
-			nobj->mana = 10 * nobj->primSkills[3];
-			return nobj;
-		}
-	case 98: //town
-		nobj = new CGTownInstance;
-		break;
-	default: //rest of objects
-		nobj = new CGObjectInstance;
-		nobj->defInfo = CGI->dobjinfo->gobjs[id][subid];
-		break;
-	}
-	nobj->ID = id;
-	nobj->subID = subid;
-	if(!nobj->defInfo)
-		std::cout <<"No def declaration for " <<id <<" "<<subid<<std::endl;
-	nobj->pos = pos;
-	//nobj->state = NULL;//new CLuaObjectScript();
-	nobj->tempOwner = owner;
-	nobj->info = NULL;
-	nobj->defInfo->id = id;
-	nobj->defInfo->subid = subid;
-
-	//assigning defhandler
-	if(nobj->ID==34 || nobj->ID==98)
-		return nobj;
-	nobj->defInfo = CGI->dobjinfo->gobjs[id][subid];
-	if(!nobj->defInfo->handler)
-	{
-		nobj->defInfo->handler = CDefHandler::giveDef(nobj->defInfo->name);
-		nobj->defInfo->width = nobj->defInfo->handler->ourImages[0].bitmap->w/32;
-		nobj->defInfo->height = nobj->defInfo->handler->ourImages[0].bitmap->h/32;
-	}
-	return nobj;
 }
 
 std::string CMapHandler::getDefName(int id, int subid)

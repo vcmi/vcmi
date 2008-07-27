@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <queue>
 #include "CPlayerInterface.h"
 #include "CAdvmapInterface.h"
 #include "CMessage.h"
@@ -20,6 +21,7 @@
 #include "CCastleInterface.h"
 #include "CHeroWindow.h"
 #include "timeHandler.h"
+#include <boost/thread.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "hch/CPreGameTextHandler.h"
@@ -35,6 +37,9 @@ using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
 extern bool continueReadingConsole;
+CPlayerInterface * LOCPLINT;
+extern std::queue<SDL_Event> events;
+extern boost::mutex eventsM;
 
 class OCM_HLP_CGIN
 {
@@ -894,6 +899,7 @@ void TimeInterested::deactivate()
 }
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
+	LOCPLINT = this;
 	playerID=Player;
 	serialID=serial;
 	CGI->localPlayer = playerID;
@@ -920,6 +926,7 @@ void CPlayerInterface::init(ICallback * CB)
 }
 void CPlayerInterface::yourTurn()
 {
+	LOCPLINT = this;
 	makingTurn = true;
 	CGI->localPlayer = serialID;
 	unsigned char & animVal = LOCPLINT->adventureInt->anim; //for animations handling
@@ -977,10 +984,13 @@ void CPlayerInterface::yourTurn()
 				timeinterested[i]->tick();
 		}
 		LOCPLINT->adventureInt->updateScreen = false;
-		while (SDL_PollEvent(&sEvent))  //wait for event...
+		eventsM.lock();
+		while(!events.empty())
 		{
-			handleEvent(&sEvent);
+			handleEvent(&events.front());
+			events.pop();
 		}
+		eventsM.unlock();
 		if (!castleInt) //stuff for advMapInt
 		{
 			++LOCPLINT->adventureInt->animValHitCount; //for animations
@@ -1047,6 +1057,7 @@ void CPlayerInterface::yourTurn()
 		SDL_framerateDelay(mainFPSmng);
 	}
 	adventureInt->hide();
+	cb->endTurn();
 }
 
 inline void subRect(const int & x, const int & y, const int & z, SDL_Rect & r, const int & hid)
@@ -2051,7 +2062,7 @@ CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 	pos.x=x;
 	pos.y=y;
 	if(maxw >= 0)
-		pos.w = std::min(bg->w,maxw);
+		pos.w = min(bg->w,maxw);
 	else
 		pos.w=bg->w;
 	pos.h=bg->h;
@@ -2437,7 +2448,7 @@ void CTownList::mouseMoved (SDL_MouseMotionEvent & sEvent)
 		LOCPLINT->statusbar->clear();
 		return;
 	};
-	LOCPLINT->statusbar->print(items[from+ny]->state->hoverText(const_cast<CGTownInstance*>(items[from+ny])));
+	LOCPLINT->statusbar->print(items[from+ny]->name);
 }
 
 void CTownList::clickLeft(tribool down)
@@ -2630,7 +2641,7 @@ void CRecrutationWindow::clickLeft(tribool down)
 		if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 		{
 			which = i;	
-			int newAmount = std::min(amounts[i],creatures[i].amount);
+			int newAmount = min(amounts[i],creatures[i].amount);
 			slider->amount = newAmount;
 			if(slider->value > newAmount)
 				slider->moveTo(newAmount);
@@ -2727,7 +2738,7 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecrutationWindow::sliderMoved,this, _1),1,std::min(amounts[0],creatures[0].amount),0,true);
+	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecrutationWindow::sliderMoved,this, _1),1,min(amounts[0],creatures[0].amount),0,true);
 	std::string pom;
 	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
 	printAtMiddle(CGI->generaltexth->allTexts[465],205,231,GEOR13,zwykly,bitmap); //available t

@@ -216,17 +216,17 @@ void CMinimap::deactivate()
 }
 void CMinimap::showTile(int3 pos)
 {
-	int mw = map[0]->w, mh = map[0]->h;
-	double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
-	for (int ii=0; ii<wo; ii++)
-	{
-		for (int jj=0; jj<ho; jj++)
-		{
-			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
-				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
+	//int mw = map[0]->w, mh = map[0]->h;
+	//double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
+	//for (int ii=0; ii<wo; ii++)
+	//{
+	//	for (int jj=0; jj<ho; jj++)
+	//	{
+	//		if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
+	//			CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
 
-		}
-	}
+	//	}
+	//}
 }
 void CMinimap::hideTile(int3 pos)
 {
@@ -598,10 +598,6 @@ CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap("ZRESBAR.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	//std::vector<SDL_Color> kolory;
-	//SDL_Color p1={40,65,139,255}, p2={36,59,125,255}, p3={35,56,121,255};
-	//kolory+=p1,p2,p3;
-	//blueToPlayersAdv(bg,LOCPLINT->playerID,2,&kolory);
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,3,575);
 

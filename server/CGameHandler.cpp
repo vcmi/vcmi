@@ -12,7 +12,8 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CHeroHandler.h"
-
+#include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
+extern bool end;
 bool makingTurn;
 boost::condition_variable cTurn;
 boost::mutex mTurn;
@@ -20,22 +21,40 @@ boost::shared_mutex gsm;
 
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
-	ui16 pom;
-	while(1)
+	try
 	{
-		c >> pom;
-		switch(pom)
+		ui16 pom;
+		while(!end)
 		{
-		case 100: //my interface end its turn
-			mTurn.lock();
-			makingTurn = false;
-			mTurn.unlock();
-			cTurn.notify_all();
-			break;
-		default:
-			throw std::exception("Not supported client message!");
-			break;
+			c >> pom;
+			switch(pom)
+			{
+			case 100: //my interface end its turn
+				mTurn.lock();
+				makingTurn = false;
+				mTurn.unlock();
+				cTurn.notify_all();
+				break;
+			default:
+				throw std::exception("Not supported client message!");
+				break;
+			}
 		}
+	}
+	catch (const std::exception& e)
+	{
+		std::cerr << e.what() << std::endl;
+		end = true;
+	}
+	catch (const std::exception * e)
+	{
+		std::cerr << e->what()<< std::endl;	
+		end = true;
+		delete e;
+	}
+	catch(...)
+	{
+		end = true;
 	}
 }
 template <typename T>void CGameHandler::sendToAllClients(CPack<T> * info)
@@ -110,11 +129,12 @@ void CGameHandler::newTurn()
 			//			i->second.towns[j]->strInfo.creatures[k]+=i->second.towns[j]->creatureGrowth(k);
 			//	}
 			//}
-			if((gs->day>1) && i->first<PLAYER_LIMIT)//not the first day and town not neutral
+			if((gs->day) && i->first<PLAYER_LIMIT)//not the first day and town not neutral
 				r.resources[6] += i->second.towns[j]->dailyIncome();
 		}
 		n.res.insert(r);
 	}	
+	gs->apply(&n);
 	sendToAllClients(&n);
 	//for (std::set<CCPPObjectScript *>::iterator i=gs->cppscripts.begin();i!=gs->cppscripts.end();i++)
 	//{
@@ -147,7 +167,7 @@ void CGameHandler::run()
 
 		boost::thread(boost::bind(&CGameHandler::handleConnection,this,pom,boost::ref(**i)));
 	}
-	while (1)
+	while (!end)
 	{
 		newTurn();
 		for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
@@ -157,9 +177,11 @@ void CGameHandler::run()
 			*connections[i->first] << ui16(100) << i->first;    
 			//wait till turn is done
 			boost::unique_lock<boost::mutex> lock(mTurn);
-			while(makingTurn)
+			while(makingTurn && !end)
 			{
-				cTurn.wait(lock);
+				boost::posix_time::time_duration p;
+				p= boost::posix_time::seconds(1);
+				cTurn.timed_wait(lock,p);
 			}
 
 		}

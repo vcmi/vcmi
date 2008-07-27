@@ -462,7 +462,7 @@ struct DLL_EXPORT Mapa
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<CGHeroInstance*> predefinedHeroes;
 	std::vector<CGDefInfo *> defy; // list of .def files with definitions from .h3m (may be custom)
-	std::set<CGDefInfo *> defs; // other defInfos - for randomized objects, objects added or modified by script
+	std::set<CGDefInfo *> defs; // other defInfos - for randomized objects, objects added or modified by scripts
 	PlayerInfo players[8]; // info about players
 	std::vector<int> teams;  // teams[i] = team of player no i 
 	LossCondition lossCondition;

@@ -4,6 +4,7 @@
 #include <cmath>
 #include <string>
 #include <vector>
+#include <queue>
 #include <cmath>
 #include <boost/thread.hpp>
 #include "SDL_TTF.h"
@@ -44,6 +45,10 @@ std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Surface * screen, * screen2;
 extern SDL_Surface * CSDL_Ext::std32bppSurface;
+
+std::queue<SDL_Event> events;
+boost::mutex eventsM;
+
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
 {
@@ -56,9 +61,7 @@ void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * sc
 }
 int _tmain(int argc, _TCHAR* argv[])
 { 
-	//boost::thread servthr(boost::bind(system,"VCMI_server.exe")); //runs server executable; 
-												//TODO: add versions for other platforms
-
+	std::cout.flags(ios::unitbuf);
 	std::cout << NAME << std::endl;
 	srand ( time(NULL) );
 	CPG=NULL;
@@ -146,9 +149,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		StartInfo *options = new StartInfo(cpg->runLoop());
 ///////////////////////////////////////////////////////////////////////////////////////
 
-		cgi->state = new CGameState();
-		THC std::cout<<"\tGamestate: "<<pomtime.getDif()<<std::endl;
-
+		boost::thread servthr(boost::bind(system,"VCMI_server.exe > server_log.txt")); //runs server executable; 
+												//TODO: will it work on non-windows platforms?
 		THC tmh.getDif();pomtime.getDif();//reset timers
 
 
@@ -173,9 +175,23 @@ int _tmain(int argc, _TCHAR* argv[])
 		std::ofstream lll("client_log.txt");
 		CConnection c("localhost","3030",NAME,lll);
 		THC std::cout<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
+
 		CClient cl(&c,options);
+		boost::thread t(boost::bind(&CClient::run,&cl));
 
-
+		SDL_Event ev;
+		while(1) //main SDL events loop
+		{
+			SDL_WaitEvent(&ev);
+			if(ev.type==SDL_QUIT) 
+			{
+				t.interrupt();
+				exit(0);
+			}
+			eventsM.lock();
+			events.push(ev);
+			eventsM.unlock();
+		}
 
 		///claculating FoWs for minimap
 		/****************************Minimaps' FoW******************************************/
@@ -209,7 +225,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	}
 
 		//}
-		cl.run();
 	}
 	else
 	{

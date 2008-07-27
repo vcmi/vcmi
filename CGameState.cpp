@@ -22,6 +22,8 @@
 #include "CLuaHandler.h"
 #include "lib/NetPacks.h"
 #include <boost/foreach.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/shared_mutex.hpp>
 
 boost::rand48 ran;
 class CMP_stack
@@ -33,12 +35,80 @@ public:
 	}
 } cmpst ;
 
+CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
+{
+	CGObjectInstance * nobj;
+	switch(id)
+	{
+	case 34: //hero
+		{
+			CGHeroInstance * nobj;
+			nobj = new CGHeroInstance();
+			nobj->pos = pos;
+			nobj->tempOwner = owner;
+			nobj->defInfo = new CGDefInfo();
+			nobj->defInfo->id = 34;
+			nobj->defInfo->subid = subid;
+			nobj->defInfo->printPriority = 0;
+			nobj->type = VLC->heroh->heroes[subid];
+			for(int i=0;i<6;i++)
+			{
+				nobj->defInfo->blockMap[i]=255;
+				nobj->defInfo->visitMap[i]=0;
+			}
+			nobj->ID = id;
+			nobj->subID = subid;
+			nobj->defInfo->handler=NULL;
+			nobj->defInfo->blockMap[5] = 253;
+			nobj->defInfo->visitMap[5] = 2;
+			nobj->artifacts.resize(20);
+			nobj->artifWorn[16] = 3;
+			nobj->primSkills.resize(4);
+			nobj->primSkills[0] = nobj->type->heroClass->initialAttack;
+			nobj->primSkills[1] = nobj->type->heroClass->initialDefence;
+			nobj->primSkills[2] = nobj->type->heroClass->initialPower;
+			nobj->primSkills[3] = nobj->type->heroClass->initialKnowledge;
+			nobj->mana = 10 * nobj->primSkills[3];
+			return nobj;
+		}
+	case 98: //town
+		nobj = new CGTownInstance;
+		break;
+	default: //rest of objects
+		nobj = new CGObjectInstance;
+		nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
+		break;
+	}
+	nobj->ID = id;
+	nobj->subID = subid;
+	if(!nobj->defInfo)
+		std::cout <<"No def declaration for " <<id <<" "<<subid<<std::endl;
+	nobj->pos = pos;
+	//nobj->state = NULL;//new CLuaObjectScript();
+	nobj->tempOwner = owner;
+	nobj->info = NULL;
+	nobj->defInfo->id = id;
+	nobj->defInfo->subid = subid;
+
+	//assigning defhandler
+	if(nobj->ID==34 || nobj->ID==98)
+		return nobj;
+	nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
+	//if(!nobj->defInfo->handler)
+	//{
+	//	nobj->defInfo->handler = CDefHandler::giveDef(nobj->defInfo->name);
+	//	nobj->defInfo->width = nobj->defInfo->handler->ourImages[0].bitmap->w/32;
+	//	nobj->defInfo->height = nobj->defInfo->handler->ourImages[0].bitmap->h/32;
+	//}
+	return nobj;
+}
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO)
 	:creature(C),amount(A),owner(O), alive(true), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints)
 {
 }
 void CGameState::apply(IPack * pack)
 {
+	mx->lock();
 	switch(pack->getType())
 	{
 	case 101://NewTurn
@@ -60,6 +130,7 @@ void CGameState::apply(IPack * pack)
 					t->builded = 0;
 		}
 	}
+	mx->unlock();
 }
 int CGameState::pickHero(int owner)
 {
@@ -302,6 +373,26 @@ int CGameState::getDate(int mode) const
 	}
 	return 0;
 }
+CGameState::CGameState()
+{
+	mx = new boost::shared_mutex();
+}
+CGameState::~CGameState()
+{
+	delete mx;
+}
+bool CGameState::checkFunc(int obid, std::string name)
+{
+	if (objscr.find(obid)!=objscr.end())
+	{
+		if(objscr[obid].find(name)!=objscr[obid].end())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
 void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
 	day = 0;
@@ -339,9 +430,29 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	}
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
+	//giving starting hero
+	for(int i=0;i<PLAYER_LIMIT;i++)
+	{
+		if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==RoE))
+		{
+			int3 hpos = map->players[i].posOfMainTown;
+			hpos.x+=1;// hpos.y+=1;
+			int j;
+			for(j=0; j<scenarioOps->playerInfos.size(); j++)
+				if(scenarioOps->playerInfos[j].color == i)
+					break;
+			if(j == scenarioOps->playerInfos.size())
+				continue;
+			int h=pickHero(i);
+			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(34,h,hpos,i));
+			nnn->id = map->objects.size();
+			//nnn->defInfo->handler = graphics->flags1[0];
+			map->heroes.push_back(nnn);
+			map->objects.push_back(nnn);
+		}
+	}
+	//std::cout<<"\tGiving starting heroes: "<<th.getDif()<<std::endl;
 
-
-		day=0;
 	/*********creating players entries in gs****************************************/
 	for (int i=0; i<scenarioOps->playerInfos.size();i++)
 	{

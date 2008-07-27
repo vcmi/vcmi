@@ -4,6 +4,7 @@ struct StartInfo;
 class CGameState;
 class CGameInterface;
 class CConnection;
+class CCallback;
 class CClient
 {
 	CGameState *gs;
@@ -16,4 +17,6 @@ public:
 
 	void process(int what);
 	void run();
+
+	friend class CCallback;
 };

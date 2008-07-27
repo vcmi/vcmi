@@ -14,6 +14,9 @@
 #include "CPlayerInterface.h"
 #include "hch/CBuildingHandler.h"
 #include "hch/CObjectHandler.h"
+#include "lib/Connection.h"
+#include "client/Client.h"
+#include <boost/thread.hpp>
 //LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
 
 bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
@@ -205,7 +208,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 			if(	(   found  = (ID == t->town->basicCreatures[av->first])   ) //creature is available among basic cretures
 				|| (found  = (ID == t->town->upgradedCreatures[av->first]))			)//creature is available among upgraded cretures
 			{
-				amount = std::min(amount,av->second); //reduce recruited amount up to available amount
+				amount = min(amount,av->second); //reduce recruited amount up to available amount
 				ser = av->first;
 				break;
 			}
@@ -271,6 +274,13 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int new
 {
 	//TODO: write
 	return false;
+}
+void CCallback::endTurn()
+{
+	std::cout << "Player "<<(unsigned)player<<" end his turn."<<std::endl;
+	cl->serv->wmx->lock();
+	*cl->serv << ui16(100); //report that we ended turn
+	cl->serv->wmx->unlock();
 }
 UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 {

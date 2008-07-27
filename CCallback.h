@@ -17,6 +17,7 @@ class CGTownInstance;
 struct StartInfo;
 class CStack;
 struct lua_State;
+class CClient;
 //structure gathering info about upgrade possibilites
 struct UpgradeInfo
 {
@@ -39,6 +40,7 @@ public:
 	virtual void recruitCreatures(const CGObjectInstance *obj, int ID, int amount)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
+	virtual void endTurn()=0;
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)=0;
@@ -85,8 +87,9 @@ struct HeroMoveDetails
 class CCallback : public ICallback
 {
 private:
-	CCallback(CGameState * GS, int Player):gs(GS),player(Player){};
+	CCallback(CGameState * GS, int Player, CClient *C):gs(GS),player(Player),cl(C){};
 	CGameState * gs;
+	CClient *cl;
 	bool isVisible(int3 pos, int Player);
 
 protected:
@@ -106,7 +109,7 @@ public:
 	void recruitCreatures(const CGObjectInstance *obj, int ID, int amount);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);
 	bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1);
-
+	void endTurn();
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea);
