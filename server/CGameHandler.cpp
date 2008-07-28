@@ -3,6 +3,7 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/bind.hpp>
 #include "CGameHandler.h"
+#include "../CLua.h"
 #include "../CGameState.h"
 #include "../StartInfo.h"
 #include "../map.h"
@@ -19,6 +20,11 @@ boost::condition_variable cTurn;
 boost::mutex mTurn;
 boost::shared_mutex gsm;
 
+double neighbours(int3 a, int3 b)
+{
+	return std::sqrt( (double)(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+}
+
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
 	try
@@ -29,12 +35,126 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			c >> pom;
 			switch(pom)
 			{
-			case 100: //my interface end its turn
-				mTurn.lock();
-				makingTurn = false;
-				mTurn.unlock();
-				cTurn.notify_all();
-				break;
+			case 100: //my interface ended its turn
+				{
+					mTurn.lock();
+					makingTurn = false;
+					mTurn.unlock();
+					cTurn.notify_all();
+					break;
+				}
+			case 501://interface wants to move hero
+				{
+					int3 start, end;
+					si32 id;
+					c >> id >> start >> end;
+					int3 hmpos = end + int3(-1,0,0);
+					TerrainTile t = (hmpos.z) ? (gs->map->undergroungTerrain[hmpos.x][hmpos.y]) : (gs->map->terrain[hmpos.x][hmpos.y]);
+					CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[id]);
+					int cost = (double)h->getTileCost(t.tertype,t.malle,t.nuine) * neighbours(start,end);
+
+					TryMoveHero tmh;
+					tmh.id = id;
+					tmh.start = tmh.end = start;
+					tmh.end = end;
+					tmh.result = 0;
+					tmh.movePoints = h->movement;
+
+					if((h->getOwner() != gs->currentPlayer) || //not turn of that hero
+						(neighbours(start,end)>=1.5) || //tiles are not neighouring
+						(h->movement < cost) || //lack of movement points
+						(t.tertype == rock) || //rock
+						(!h->canWalkOnSea() && t.tertype == water) ||
+						(t.blocked && !t.visitable) ) //tile is blocked andnot visitable
+						goto fail;
+
+					//we start moving
+					bool blockvis = false;
+					tmh.movePoints = h->movement = (h->movement-cost); //take move points
+					BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
+					{
+						if(obj->blockVisit)
+						{
+							blockvis = true;
+							break;
+						}
+					}
+
+					if(blockvis)//interaction with blocking object (like resources)
+					{
+						gs->apply(&tmh);
+						sendToAllClients(&tmh);
+						BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
+						{
+							if (obj->blockVisit)
+							{
+								if(gs->checkFunc(obj->ID,"heroVisit")) //script function
+									gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
+								if(obj->state) //hard-coded function
+									obj->state->onHeroVisit(obj,h->subID);
+							}
+						}
+						break;
+					}
+					else //normal move
+					{
+						tmh.result = 1;
+
+						BOOST_FOREACH(CGObjectInstance *obj, ((start.z) ? (gs->map->undergroungTerrain[start.x][start.y]) : (gs->map->terrain[start.x][start.y])).visitableObjects)
+						{
+							//TODO: allow to handle this in script-languages
+							if(obj->state) //hard-coded function
+								obj->state->onHeroLeave(obj,h->subID);
+						}
+
+						//reveal fog of war
+						int heroSight = h->getSightDistance();
+						int xbeg = start.x - heroSight - 2;
+						if(xbeg < 0)
+							xbeg = 0;
+						int xend = start.x + heroSight + 2;
+						if(xend >= gs->map->width)
+							xend = gs->map->width;
+						int ybeg = start.y - heroSight - 2;
+						if(ybeg < 0)
+							ybeg = 0;
+						int yend = start.y + heroSight + 2;
+						if(yend >= gs->map->height)
+							yend = gs->map->height;
+						for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
+						{
+							for(int yd=ybeg; yd<yend; ++yd)
+							{
+								int deltaX = (hmpos.x-xd)*(hmpos.x-xd);
+								int deltaY = (hmpos.y-yd)*(hmpos.y-yd);
+								if(deltaX+deltaY<h->getSightDistance()*h->getSightDistance())
+								{
+									if(gs->players[h->getOwner()].fogOfWarMap[xd][yd][hmpos.z] == 0)
+									{
+										tmh.fowRevealed.insert(int3(xd,yd,hmpos.z));
+									}
+								}
+							}
+						}
+
+						gs->apply(&tmh);
+						sendToAllClients(&tmh);
+
+						//call objects if they arevisited
+						BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
+						{
+							if(gs->checkFunc(obj->ID,"heroVisit")) //script function
+								gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
+							if(obj->state) //hard-coded function
+								obj->state->onHeroVisit(obj,h->subID);
+						}
+					}
+					break;
+				fail:
+					gs->apply(&tmh);
+					sendToAllClients(&tmh);
+					break;
+				}
 			default:
 				throw std::exception("Not supported client message!");
 				break;
@@ -79,7 +199,7 @@ void CGameHandler::init(StartInfo *si, int Seed)
 }
 int lowestSpeed(CGHeroInstance * chi)
 {
-	std::map<int,std::pair<CCreature*,int> >::iterator i = chi->army.slots.begin();
+	std::map<si32,std::pair<CCreature*,si32> >::iterator i = chi->army.slots.begin();
 	int ret = (*i++).second.first->speed;
 	for (;i!=chi->army.slots.end();i++)
 	{
@@ -174,6 +294,7 @@ void CGameHandler::run()
 		{
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0) continue; //players has not towns/castle - loser
 			makingTurn = true;
+			gs->currentPlayer = i->first;
 			*connections[i->first] << ui16(100) << i->first;    
 			//wait till turn is done
 			boost::unique_lock<boost::mutex> lock(mTurn);

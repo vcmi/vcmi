@@ -263,6 +263,11 @@ struct DLL_EXPORT TerrainTile
 	Eroad malle; // type of Eroad (0 if there is no Eriver)
 	unsigned char roadDir; // direction of Eroad
 	unsigned char siodmyTajemniczyBajt; //bitfield, info whether this tile is coastal and how to rotate tile graphics
+
+	bool visitable; //false = not visitable; true = visitable
+	bool blocked; //false = free; true = blocked;
+
+	std::vector <CGObjectInstance*> visitableObjects; //pointers to objects hero can visit while being on this tile
 };
 struct DLL_EXPORT SheroName //name of starting hero
 {

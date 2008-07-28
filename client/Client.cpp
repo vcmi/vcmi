@@ -11,6 +11,9 @@
 #include "../lib/NetPacks.h"
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include "../hch/CObjectHandler.h"
+CSharedCond<std::set<IPack*> > mess(new std::set<IPack*>);
+
 CClient::CClient(void)
 {
 }
@@ -58,17 +61,18 @@ CClient::CClient(CConnection *con, StartInfo *si)
 
 	for (int i=0; i<CGI->state->scenarioOps->playerInfos.size();i++) //initializing interfaces
 	{ 
-		CCallback *cb = new CCallback(CGI->state,CGI->state->scenarioOps->playerInfos[i].color,this);
-		if(!CGI->state->scenarioOps->playerInfos[i].human)
-			CGI->playerint.push_back(static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,"EmptyAI.dll")));
+		ui8 color = gs->scenarioOps->playerInfos[i].color;
+		CCallback *cb = new CCallback(gs,color,this);
+		if(!gs->scenarioOps->playerInfos[i].human)
+			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,"EmptyAI.dll"));
 		else 
 		{
-			CGI->state->currentPlayer=CGI->state->scenarioOps->playerInfos[i].color;
-			CGI->playerint.push_back(new CPlayerInterface(CGI->state->scenarioOps->playerInfos[i].color,i));
-			((CPlayerInterface*)(CGI->playerint[i]))->init(cb);
+			gs->currentPlayer = color;
+			playerint[color] = new CPlayerInterface(color,i);
+			playerint[color]->init(cb);
 		}
 	}
-	CGI->consoleh->cb = new CCallback(CGI->state,-1,this);
+	CGI->consoleh->cb = new CCallback(gs,-1,this);
 }
 CClient::~CClient(void)
 {
@@ -82,7 +86,7 @@ void CClient::process(int what)
 			ui8 player;
 			*serv >> player;//who?
 			std::cout << "It's turn of "<<(unsigned)player<<" player."<<std::endl;
-			boost::thread(boost::bind(&CGameInterface::yourTurn,CGI->playerint[gs->players[player].serial]));
+			boost::thread(boost::bind(&CGameInterface::yourTurn,playerint[player]));
 			break;
 		}
 	case 101:
@@ -92,6 +96,42 @@ void CClient::process(int what)
 			std::cout << "New day: "<<(unsigned)n.day<<". Applying changes... ";
 			gs->apply(&n);
 			std::cout << "done!"<<std::endl;
+			break;
+		}
+	case 501: //hero movement response - we have to notify interfaces and callback
+		{
+			TryMoveHero *th = new TryMoveHero;
+			*serv >> *th;
+			std::cout << "HeroMove: id="<<th->id<<"\tResult: "<<(unsigned)th->result<<"\tPosition "<<th->end<<std::endl;
+
+			gs->apply(th);
+			int player = gs->map->objects[th->id]->getOwner();
+
+			if(playerint[player])
+			{
+				for(std::set<int3>::iterator i=th->fowRevealed.begin(); i != th->fowRevealed.end(); i++)
+					playerint[player]->tileRevealed(*i);
+				//boost::function<void(int3)> tr = boost::bind(&CGameInterface::tileRevealed,playerint[player]);
+				//std::for_each(th->fowRevealed.begin(),th->fowRevealed.end(),tr);
+			}
+
+			//notify interfacesabout move
+			int nn=0; //number of interfece of currently browsed player
+			for(std::map<ui8, CGameInterface*>::iterator i=playerint.begin();i!=playerint.end();i++)
+			{
+				if(gs->players[i->first].fogOfWarMap[th->start.x-1][th->start.y][th->start.z] || gs->players[i->first].fogOfWarMap[th->end.x-1][th->end.y][th->end.z])
+				{
+					HeroMoveDetails hmd(th->start,th->end,static_cast<CGHeroInstance*>(gs->map->objects[th->id]));
+					hmd.successful = th->result;
+					i->second->heroMoved(hmd);
+				}
+			}
+
+			//add info for callback
+			mess.mx->lock();
+			mess.res->insert(th);
+			mess.mx->unlock();
+			mess.cv->notify_all();
 			break;
 		}
 	default:

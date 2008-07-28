@@ -58,8 +58,6 @@ public:
 	CPathfinder * pathf;
 	CCursorHandler * curh;
 	CScreenHandler * screenh;
-	int localPlayer;
-	std::vector<CGameInterface *> playerint;
 };
 
 #endif //CGAMEINFO_H

@@ -78,6 +78,8 @@ public:
 
 struct HeroMoveDetails
 {
+	HeroMoveDetails(){};
+	HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho);
 	int3 src, dst; //source and destination points
 	CGHeroInstance * ho; //object instance of this hero
 	int owner;
@@ -152,8 +154,10 @@ public:
 };
 class CScriptCallback
 {
+	CScriptCallback(){};
 public:
 	CGameState * gs;
+	CClient *cl;
 
 	//get info
 	static int3 getPos(CGObjectInstance * ob);
@@ -162,7 +166,7 @@ public:
 	int getDate(int mode=0);
 
 	//do sth
-	static void changePrimSkill(int ID, int which, int val);
+	void changePrimSkill(int ID, int which, int val);
 	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components); //TODO: obslugiwac nulle
 	void showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker);
 	void giveResource(int player, int which, int val);

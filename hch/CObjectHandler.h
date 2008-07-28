@@ -53,7 +53,7 @@ class DLL_EXPORT CGObjectInstance
 public:
 	int3 pos; //h3m pos
 	int ID, subID; //normal ID (this one from OH3 maps ;]) - eg. town=98; hero=34
-	int id;//number of object in CObjectHandler's vector		
+	si32 id;//number of object in CObjectHandler's vector		
 	CGDefInfo * defInfo;
 	CCPPObjectScript * state;
 	CSpecObjInfo * info;

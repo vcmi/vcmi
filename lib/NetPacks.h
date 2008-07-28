@@ -1,13 +1,28 @@
 #include "../global.h"
 struct IPack
 {
-	virtual ui16 getType()=0;
+	virtual ui16 getType()const = 0 ;
+	//template<ui16 Type>
+	//static bool isType(const IPack * ip)
+	//{
+	//	return Type == ip->getType();
+	//}
+	template<ui16 Type>
+	static bool isType(IPack * ip)
+	{
+		return Type == ip->getType();
+	}
+	//template<ui16 Type>
+	//static bool isType(const IPack & ip)
+	//{
+	//	return Type == ip.getType();
+	//}
 };
 template <typename T> struct CPack
 	:public IPack
 {
 	ui16 type; 
-	ui16 getType(){return type;}
+	ui16 getType() const{return type;}
 	T* This(){return static_cast<T*>(this);};
 };
 struct NewTurn : public CPack<NewTurn> //101
@@ -42,5 +57,19 @@ struct NewTurn : public CPack<NewTurn> //101
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & heroes & res & day & resetBuilded;
+	}
+}; 
+struct TryMoveHero : public CPack<TryMoveHero> //501
+{
+	TryMoveHero(){type = 501;};
+
+	ui32 id, movePoints;
+	ui8 result;
+	int3 start, end;
+	std::set<int3> fowRevealed; //revealed tiles
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & result & start & end & movePoints & fowRevealed;
 	}
 }; 

@@ -926,6 +926,8 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			terrain[z][c].malle = (Eroad)bufor[i++];
 			terrain[z][c].roadDir = bufor[i++];
 			terrain[z][c].siodmyTajemniczyBajt = bufor[i++];
+			terrain[z][c].blocked = 0;
+			terrain[z][c].visitable = 0;
 		}
 	}
 	if (twoLevel) // read underground terrain
@@ -941,6 +943,8 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				undergroungTerrain[z][c].malle = (Eroad)bufor[i++];
 				undergroungTerrain[z][c].roadDir = bufor[i++];
 				undergroungTerrain[z][c].siodmyTajemniczyBajt = bufor[i++];
+				undergroungTerrain[z][c].blocked = 0;
+				undergroungTerrain[z][c].visitable = 0;
 			}
 		}
 	}
@@ -2289,6 +2293,34 @@ borderguardend:
 
 	//map readed, bufor no longer needed
 	delete[] bufor; bufor=NULL;
+
+	
+	for(int f=0; f<objects.size(); ++f) //calculationg blocked / visitable positions
+	{
+		if(!objects[f]->defInfo)
+			continue;
+		CDefHandler * curd = objects[f]->defInfo->handler;
+		for(int fx=0; fx<8; ++fx)
+		{
+			for(int fy=0; fy<6; ++fy)
+			{
+				int xVal = objects[f]->pos.x + fx - 7;
+				int yVal = objects[f]->pos.y + fy - 5;
+				int zVal = objects[f]->pos.z;
+				if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+				{
+					TerrainTile & curt = (zVal) ? (undergroungTerrain[xVal][yVal]) : (terrain[xVal][yVal]);
+					if(((objects[f]->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+					{
+						curt.visitableObjects.push_back(objects[f]);
+						curt.visitable = true;
+					}
+					if(!((objects[f]->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+						curt.blocked = true;
+				}
+			}
+		}
+	}
 }	
 
 Mapa::Mapa(std::string filename)

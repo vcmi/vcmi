@@ -128,6 +128,20 @@ void CGameState::apply(IPack * pack)
 			if(n->resetBuilded) //reset amount of structures set in this turn in towns
 				BOOST_FOREACH(CGTownInstance* t, map->towns)
 					t->builded = 0;
+			break;
+		}
+	case 501://hero try-move
+		{
+			TryMoveHero * n = static_cast<TryMoveHero*>(pack);
+			CGHeroInstance *h = static_cast<CGHeroInstance*>(map->objects[n->id]);
+			h->movement = n->movePoints;
+			if(n->result)
+				h->pos = n->end;
+			else
+				h->pos = n->start;			
+			BOOST_FOREACH(int3 t, n->fowRevealed)
+				players[h->getOwner()].fogOfWarMap[t.x][t.y][t.z] = 1;
+			break;
 		}
 	}
 	mx->unlock();

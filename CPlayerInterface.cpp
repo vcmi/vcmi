@@ -340,7 +340,7 @@ void CGarrisonInt::createSlots()
 	{
 		sup = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
 		for
-			(std::map<int,std::pair<CCreature*,int> >::const_iterator i=set1->slots.begin();
+			(std::map<si32,std::pair<CCreature*,si32> >::const_iterator i=set1->slots.begin();
 			i!=set1->slots.end(); i++)
 		{
 			(*sup)[i->first] = 
@@ -354,7 +354,7 @@ void CGarrisonInt::createSlots()
 	{	
 		sdown = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
 		for
-			(std::map<int,std::pair<CCreature*,int> >::const_iterator i=set2->slots.begin();
+			(std::map<si32,std::pair<CCreature*,si32> >::const_iterator i=set2->slots.begin();
 			i!=set2->slots.end(); i++)
 		{
 			(*sdown)[i->first] = 
@@ -902,13 +902,11 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	LOCPLINT = this;
 	playerID=Player;
 	serialID=serial;
-	CGI->localPlayer = playerID;
 	human=true;
 }
 void CPlayerInterface::init(ICallback * CB)
 {
 	cb = dynamic_cast<CCallback*>(CB);
-	CGI->localPlayer = serialID;
 	adventureInt = new CAdvMapInt(playerID);
 	castleInt = NULL;
 	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
@@ -928,7 +926,6 @@ void CPlayerInterface::yourTurn()
 {
 	LOCPLINT = this;
 	makingTurn = true;
-	CGI->localPlayer = serialID;
 	unsigned char & animVal = LOCPLINT->adventureInt->anim; //for animations handling
 	unsigned char & heroAnimVal = LOCPLINT->adventureInt->heroAnim;
 	adventureInt->infoBar.newDay(cb->getDate(1));

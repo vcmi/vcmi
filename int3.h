@@ -5,26 +5,26 @@ class CCreature;
 class CCreatureSet //seven combined creatures
 {
 public:
-	std::map<int,std::pair<CCreature*,int> > slots;
+	std::map<si32,std::pair<CCreature*,si32> > slots;
 	bool formation; //false - wide, true - tight
 };
 
 class int3
 {
 public:
-	int x,y,z;
+	si32 x,y,z;
 	inline int3():x(0),y(0),z(0){}; //c-tor, x/y/z initialized to 0
-	inline int3(const int & X, const int & Y, const int & Z):x(X),y(Y),z(Z){}; //c-tor
+	inline int3(const si32 & X, const si32 & Y, const si32 & Z):x(X),y(Y),z(Z){}; //c-tor
 	inline ~int3(){} // d-tor - does nothing
 	inline int3 operator+(const int3 & i) const
 		{return int3(x+i.x,y+i.y,z+i.z);}
-	inline int3 operator+(const int i) const //increases all components by int
+	inline int3 operator+(const si32 i) const //increases all components by si32
 		{return int3(x+i,y+i,z+i);}
 	inline int3 operator-(const int3 & i) const
 		{return int3(x-i.x,y-i.y,z-i.z);}
-	inline int3 operator-(const int i) const
+	inline int3 operator-(const si32 i) const
 		{return int3(x-i,y-i,z-i);}
-	inline int3 operator-() const //increases all components by int
+	inline int3 operator-() const //increases all components by si32
 		{return int3(-x,-y,-z);}
 	inline void operator+=(const int3 & i)
 	{
@@ -32,7 +32,7 @@ public:
 		y+=i.y;
 		z+=i.z;
 	}	
-	inline void operator+=(const int & i)
+	inline void operator+=(const si32 & i)
 	{
 		x+=i;
 		y+=i;
@@ -44,7 +44,7 @@ public:
 		y-=i.y;
 		z-=i.z;
 	}	
-	inline void operator-=(const int & i)
+	inline void operator-=(const si32 & i)
 	{
 		x+=i;
 		y+=i;
@@ -69,6 +69,10 @@ public:
 		if (x>i.x)
 			return false;
 		return false;
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & x & y & z;
 	}
 };
 inline std::istream & operator>>(std::istream & str, int3 & dest)

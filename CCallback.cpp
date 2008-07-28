@@ -17,8 +17,16 @@
 #include "lib/Connection.h"
 #include "client/Client.h"
 #include <boost/thread.hpp>
+#include <boost/foreach.hpp>
+#include "lib/NetPacks.h"
 //LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
+extern CSharedCond<std::set<IPack*> > mess;
 
+HeroMoveDetails::HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho)
+	:src(Src),dst(Dst),ho(Ho)
+{
+	owner = ho->getOwner();
+};
 bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 {
 	CGHeroInstance * hero = NULL;
@@ -69,120 +77,123 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		return false;
 	for(int i=ourPath->nodes.size()-1; i>0; i--)
 	{
-		int3 stpos, endpos;
-		stpos = int3(ourPath->nodes[i].coord.x, ourPath->nodes[i].coord.y, hero->pos.z);
-		endpos = int3(ourPath->nodes[i-1].coord.x, ourPath->nodes[i-1].coord.y, hero->pos.z);
-		HeroMoveDetails curd;
-		curd.src = stpos;
-		curd.dst = endpos;
-		curd.ho = hero;
-		curd.owner = hero->getOwner();
-		/*if(player!=-1)
-		{
-			hero->pos = endpos;
-		}*/
-		if(hero->movement >= (ourPath->nodes.size()>=2 ?  (*(ourPath->nodes.end()-2)).dist : 0) - ourPath->nodes[i].dist  || player==-1)
-		{ //performing move
-			hero->movement -= (ourPath->nodes.size()>=2 ?  (*(ourPath->nodes.end()-2)).dist : 0) - ourPath->nodes[i].dist;
-			ourPath->nodes.pop_back();
-			
-			std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.dst,false));
-			bool blockvis = false;
-			for (int pit = 0; pit<vis.size();pit++)
-				if (vis[pit]->blockVisit)
-					blockvis = true;
+		int3 stpos(ourPath->nodes[i].coord.x, ourPath->nodes[i].coord.y, hero->pos.z), 
+			endpos(ourPath->nodes[i-1].coord.x, ourPath->nodes[i-1].coord.y, hero->pos.z);
+		HeroMoveDetails curd(stpos,endpos,hero);
 
-			if (!blockvis)
-			{
-				curd.successful = true;
-				hero->pos = curd.dst;
-
-				//inform leaved objects
-				std::vector< CGObjectInstance * > leave = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.src,false));
-				for (int iii=0; iii<leave.size(); iii++) //if object is visitable we call onHeroVisit
-				{
-					//TODO: allow to handle this in LUA
-					if(leave[iii]->state) //hard-coded function
-						leave[iii]->state->onHeroLeave(leave[iii],curd.ho->subID);
-				}
-
-
-				//reveal fog of war
-				int heroSight = hero->getSightDistance();
-				int xbeg = stpos.x - heroSight - 2;
-				if(xbeg < 0)
-					xbeg = 0;
-				int xend = stpos.x + heroSight + 2;
-				if(xend >= CGI->mh->map->width)
-					xend = CGI->mh->map->width;
-				int ybeg = stpos.y - heroSight - 2;
-				if(ybeg < 0)
-					ybeg = 0;
-				int yend = stpos.y + heroSight + 2;
-				if(yend >= CGI->mh->map->height)
-					yend = CGI->mh->map->height;
-				for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
-				{
-					for(int yd=ybeg; yd<yend; ++yd)
-					{
-						int deltaX = (hero->getPosition(false).x-xd)*(hero->getPosition(false).x-xd);
-						int deltaY = (hero->getPosition(false).y-yd)*(hero->getPosition(false).y-yd);
-						if(deltaX+deltaY<hero->getSightDistance()*hero->getSightDistance())
-						{
-							if(gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] == 0)
-							{
-								CGI->playerint[gs->players[player].serial]->tileRevealed(int3(xd, yd, hero->getPosition(false).z));
-							}
-							gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] = 1;
-						}
-					}
-				}
-
-
-				//notify interfacesabout move
-				int nn=0; //number of interfece of currently browsed player
-				for(std::map<ui8, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
-				{
-					if (j->first > PLAYER_LIMIT)
-						break;
-					if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
-					{ //player should be notified
-						CGI->playerint[j->second.serial]->heroMoved(curd);
-					}
-					++nn;
-				}
-
-
-				//call objects if they arevisited
-				for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
-				{
-					if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
-						gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
-					if(vis[iii]->state) //hard-coded function
-						vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
-				}
-			}
-			else //interaction with blocking object (like resources)
-			{
-				curd.successful = false;
-				CGI->playerint[gs->players[hero->getOwner()].serial]->heroMoved(curd);
-				for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
-				{
-					if (vis[iii]->blockVisit)
-					{
-						if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
-							gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
-						if(vis[iii]->state) //hard-coded function
-							vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
-					}
-				}
+		*cl->serv << ui16(501) << hero->id << stpos << endpos;
+		{//wait till there is server answer
+			boost::unique_lock<boost::mutex> lock(*mess.mx);
+			while(std::find_if(mess.res->begin(),mess.res->end(),IPack::isType<501>) == mess.res->end())
+				mess.cv->wait(lock);
+			std::set<IPack*>::iterator itr = std::find_if(mess.res->begin(),mess.res->end(),IPack::isType<501>);
+			TryMoveHero tmh = *static_cast<TryMoveHero*>(*itr);
+			mess.res->erase(itr);
+			if(!tmh.result)
 				return false;
-			}
-
 		}
-		else
-			return true; //move ended - no more movement points
 	}
+
+	//	if(hero->movement >= (ourPath->nodes.size()>=2 ?  (*(ourPath->nodes.end()-2)).dist : 0) - ourPath->nodes[i].dist  || player==-1)
+	//	{ //performing move
+	//		hero->movement -= (ourPath->nodes.size()>=2 ?  (*(ourPath->nodes.end()-2)).dist : 0) - ourPath->nodes[i].dist;
+	//		ourPath->nodes.pop_back();
+	//		
+	//		std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.dst,false));
+	//		bool blockvis = false;
+	//		for (int pit = 0; pit<vis.size();pit++)
+	//			if (vis[pit]->blockVisit)
+	//				blockvis = true;
+
+	//		if (!blockvis)
+	//		{
+	//			curd.successful = true;
+	//			hero->pos = curd.dst;
+
+	//			//inform leaved objects
+	//			std::vector< CGObjectInstance * > leave = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.src,false));
+	//			for (int iii=0; iii<leave.size(); iii++) //if object is visitable we call onHeroVisit
+	//			{
+	//				//TODO: allow to handle this in LUA
+	//				if(leave[iii]->state) //hard-coded function
+	//					leave[iii]->state->onHeroLeave(leave[iii],curd.ho->subID);
+	//			}
+
+
+	//			//reveal fog of war
+	//			int heroSight = hero->getSightDistance();
+	//			int xbeg = stpos.x - heroSight - 2;
+	//			if(xbeg < 0)
+	//				xbeg = 0;
+	//			int xend = stpos.x + heroSight + 2;
+	//			if(xend >= CGI->mh->map->width)
+	//				xend = CGI->mh->map->width;
+	//			int ybeg = stpos.y - heroSight - 2;
+	//			if(ybeg < 0)
+	//				ybeg = 0;
+	//			int yend = stpos.y + heroSight + 2;
+	//			if(yend >= CGI->mh->map->height)
+	//				yend = CGI->mh->map->height;
+	//			for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
+	//			{
+	//				for(int yd=ybeg; yd<yend; ++yd)
+	//				{
+	//					int deltaX = (hero->getPosition(false).x-xd)*(hero->getPosition(false).x-xd);
+	//					int deltaY = (hero->getPosition(false).y-yd)*(hero->getPosition(false).y-yd);
+	//					if(deltaX+deltaY<hero->getSightDistance()*hero->getSightDistance())
+	//					{
+	//						if(gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] == 0)
+	//						{
+	//							cl->playerint[player]->tileRevealed(int3(xd, yd, hero->getPosition(false).z));
+	//						}
+	//						gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] = 1;
+	//					}
+	//				}
+	//			}
+
+
+	//			//notify interfacesabout move
+	//			int nn=0; //number of interfece of currently browsed player
+	//			for(std::map<ui8, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
+	//			{
+	//				if (j->first > PLAYER_LIMIT)
+	//					break;
+	//				if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
+	//				{ //player should be notified
+	//					cl->playerint[j->second.color]->heroMoved(curd);
+	//				}
+	//				++nn;
+	//			}
+
+
+	//			//call objects if they arevisited
+	//			for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
+	//			{
+	//				if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
+	//					gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
+	//				if(vis[iii]->state) //hard-coded function
+	//					vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
+	//			}
+	//		}
+	//		else //interaction with blocking object (like resources)
+	//		{
+	//			curd.successful = false;
+	//			cl->playerint[gs->players[hero->getOwner()].color]->heroMoved(curd);
+	//			for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
+	//			{
+	//				if (vis[iii]->blockVisit)
+	//				{
+	//					if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
+	//						gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
+	//					if(vis[iii]->state) //hard-coded function
+	//						vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
+	//				}
+	//			}
+	//			return false;
+	//		}
+
+	//	}
+	//}
 	return true;
 }
 
@@ -254,7 +265,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 			t->army.slots[slot].first = &CGI->creh->creatures[ID];
 			t->army.slots[slot].second = amount;
 		}
-		CGI->playerint[gs->players[player].serial]->garrisonChanged(obj);
+		cl->playerint[player]->garrisonChanged(obj);
 
 	}
 	//TODO: recruit from dwellings on the adventure map
@@ -267,7 +278,7 @@ bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 		return false;
 	CArmedInstance *ob = const_cast<CArmedInstance*>(obj);
 	ob->army.slots.erase(stackPos);
-	CGI->playerint[gs->players[player].serial]->garrisonChanged(obj);
+	cl->playerint[player]->garrisonChanged(obj);
 	return true;
 }
 bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int newID)
@@ -515,27 +526,9 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 		S2->slots.erase(p2);
 
 	if(s1->tempOwner<PLAYER_LIMIT)
-	{
-		for(int b=0; b<CGI->playerint.size(); ++b)
-		{
-			if(CGI->playerint[b]->playerID == s1->tempOwner)
-			{
-				CGI->playerint[b]->garrisonChanged(s1);
-				break;
-			}
-		}
-	}
+		cl->playerint[s1->tempOwner]->garrisonChanged(s1);
 	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
-	{
-		for(int b=0; b<CGI->playerint.size(); ++b)
-		{
-			if(CGI->playerint[b]->playerID == s2->tempOwner)
-			{
-				CGI->playerint[b]->garrisonChanged(s2);
-				break;
-			}
-		}
-	}
+		cl->playerint[s2->tempOwner]->garrisonChanged(s2);
 	return 0;
 }
 
@@ -555,27 +548,10 @@ int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s
 	S1->slots.erase(p1);
 
 	if(s1->tempOwner<PLAYER_LIMIT)
-	{
-		for(int b=0; b<CGI->playerint.size(); ++b)
-		{
-			if(CGI->playerint[b]->playerID == s1->tempOwner)
-			{
-				CGI->playerint[b]->garrisonChanged(s1);
-				break;
-			}
-		}
-	}
+		cl->playerint[s1->tempOwner]->garrisonChanged(s1);
+
 	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
-	{
-		for(int b=0; b<CGI->playerint.size(); ++b)
-		{
-			if(CGI->playerint[b]->playerID == s2->tempOwner)
-			{
-				CGI->playerint[b]->garrisonChanged(s2);
-				break;
-			}
-		}
-	}
+		cl->playerint[s2->tempOwner]->garrisonChanged(s2);
 	return 0;
 }
 int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)
@@ -597,25 +573,11 @@ int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2
 
 	if(s1->tempOwner<PLAYER_LIMIT)
 	{
-		for(int b=0; b<CGI->playerint.size(); ++b)
-		{
-			if(CGI->playerint[b]->playerID == s1->tempOwner)
-			{
-				CGI->playerint[b]->garrisonChanged(s1);
-				break;
-			}
-		}
+		cl->playerint[s1->tempOwner]->garrisonChanged(s1);
 	}
 	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
 	{
-		for(int b=0; b<CGI->playerint.size(); ++b)
-		{
-			if(CGI->playerint[b]->playerID == s2->tempOwner)
-			{
-				CGI->playerint[b]->garrisonChanged(s2);
-				break;
-			}
-		}
+		cl->playerint[s2->tempOwner]->garrisonChanged(s2);
 	}
 	return 0;
 }
@@ -686,7 +648,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, int buildingID)
 	for(int i=0;i<7;i++)
 		gs->players[player].resources[i]-=b->resources[i];
 	t->builded++;
-	CGI->playerint[CGI->state->players[player].serial]->buildChanged(town,buildingID,1);
+	cl->playerint[player]->buildChanged(town,buildingID,1);
 	return true;
 }
 
@@ -782,18 +744,11 @@ int3 CScriptCallback::getPos(CGObjectInstance * ob)
 }
 void CScriptCallback::changePrimSkill(int ID, int which, int val)
 {	
-	CGHeroInstance * hero = CGI->state->map->getHero(ID,0);
+	CGHeroInstance * hero = gs->map->getHero(ID,0);
 	if (which<PRIMARY_SKILLS)
 	{
 		hero->primSkills[which]+=val;
-		for (int i=0; i<CGI->playerint.size(); i++)
-		{
-			if (CGI->playerint[i]->playerID == hero->getOwner())
-			{
-				CGI->playerint[i]->heroPrimarySkillChanged(hero, which, val);
-				break;
-			}
-		}
+		cl->playerint[hero->getOwner()]->heroPrimarySkillChanged(hero, which, val);
 	}
 	else if (which==4)
 	{
@@ -830,24 +785,25 @@ void CScriptCallback::showInfoDialog(int player, std::string text, std::vector<S
 	//TODO: upewniac sie ze mozemy to zrzutowac (przy customowych interfejsach cos moze sie kopnac)
 	if (player>=0)
 	{
-		CGameInterface * temp = CGI->playerint[CGI->state->players[player].serial];
+		CGameInterface * temp = cl->playerint[player];
 		if (temp->human)
 			((CPlayerInterface*)(temp))->showInfoDialog(text,*components);
 		return;
 	}
 	else
 	{
-		for (int i=0; i<CGI->playerint.size();i++)
+		typedef std::pair<const ui8, CGameInterface*> intf;
+		BOOST_FOREACH(intf & i, cl->playerint)
 		{
-			if (CGI->playerint[i]->human)
-				((CPlayerInterface*)(CGI->playerint[i]))->showInfoDialog(text,*components);
+			if (i.second->human)
+				((CPlayerInterface*)(i.second))->showInfoDialog(text,*components);
 		}
 	}
 }
 
 void CScriptCallback::showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker)
 {
-	CGameInterface * temp = CGI->playerint[CGI->state->players[player].serial];
+	CGameInterface * temp = cl->playerint[player];
 	if (temp->human)
 		((CPlayerInterface*)(temp))->showSelDialog(text,*components,(int)asker);
 	return;
@@ -891,11 +847,11 @@ int CScriptCallback::getDate(int mode)
 void CScriptCallback::giveResource(int player, int which, int val)
 {
 	gs->players[player].resources[which]+=val;
-	CGI->playerint[gs->players[player].serial]->receivedResource(which,val);
+	cl->playerint[player]->receivedResource(which,val);
 }
 void CScriptCallback::showCompInfo(int player, SComponent * comp)
 {
-	CPlayerInterface * i = dynamic_cast<CPlayerInterface*>(CGI->playerint[gs->players[player].serial]);
+	CPlayerInterface * i = dynamic_cast<CPlayerInterface*>(cl->playerint[player]);
 	if(i)
 		i->showComp(*comp);
 }
@@ -905,15 +861,8 @@ void CScriptCallback::heroVisitCastle(CGObjectInstance * ob, int heroID)
 	if(n = dynamic_cast<CGTownInstance*>(ob))
 	{
 		n->visitingHero = CGI->state->map->getHero(heroID,0);
-		CGI->state->map->getHero(heroID,0)->visitedTown = n;
-		for(int b=0; b<CGI->playerint.size(); ++b)
-		{
-			if(CGI->playerint[b]->playerID == getHeroOwner(heroID))
-			{
-				CGI->playerint[b]->heroVisitsTown(CGI->state->map->getHero(heroID,0),n);
-				break;
-			}
-		}
+		gs->map->getHero(heroID,0)->visitedTown = n;
+		cl->playerint[getHeroOwner(heroID)]->heroVisitsTown(CGI->state->map->getHero(heroID,0),n);
 	}
 	else
 		return;

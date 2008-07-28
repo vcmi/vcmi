@@ -1325,7 +1325,7 @@ unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool 
 		case 8:
 			return 11;
 		default:
-			return -1; //should never happen
+			throw std::exception("Something very wrong1.");
 		}
 	}
 	else //if(isMoving)
@@ -1349,7 +1349,7 @@ unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool 
 		case 8:
 			return 14;
 		default:
-			return -1; //should never happen
+			throw std::exception("Something very wrong2.");
 		}
 	}
 }

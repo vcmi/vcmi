@@ -5,10 +5,37 @@ class CGameState;
 class CGameInterface;
 class CConnection;
 class CCallback;
+
+namespace boost
+{
+	class mutex;
+	class condition_variable;
+}
+
+template <typename T>
+struct CSharedCond
+{
+	boost::mutex *mx;
+	boost::condition_variable *cv;
+	T *res;
+	CSharedCond(T*R)
+	{
+		res = R;
+		mx = new boost::mutex;
+		cv = new boost::condition_variable;
+	}
+	~CSharedCond()
+	{
+		delete res;
+		delete mx;
+		delete cv;
+	}
+};
+
 class CClient
 {
 	CGameState *gs;
-	std::map<int,CGameInterface *> playerint;
+	std::map<ui8,CGameInterface *> playerint;
 	CConnection *serv;
 public:
 	CClient(void);
@@ -19,4 +46,5 @@ public:
 	void run();
 
 	friend class CCallback;
+	friend class CScriptCallback;
 };
