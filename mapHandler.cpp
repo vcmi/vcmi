@@ -229,7 +229,7 @@ void CMapHandler::roadsRiverTerrainInit()
 			{
 				TerrainTile2 &pom(ttiles[i][j][k]);
 				pom.pos = int3(i, j, k);
-				pom.tileInfo = &( k  ?  map->undergroungTerrain[i][j]  :  map->terrain[i][j] );
+				pom.tileInfo = &(map->terrain[i][j][k]);
 				if(pom.tileInfo->malle)
 				{
 					int cDir;
@@ -267,33 +267,16 @@ void CMapHandler::roadsRiverTerrainInit()
 		{
 			for(int k=0; k<=map->twoLevel; ++k)
 			{
-				TerrainTile** pomm = map->terrain;
-				if(k==0)
-				{
-					pomm = map->terrain;
-				}
-				else
-				{
-					pomm = map->undergroungTerrain;
-				}
-				if(pomm[i][j].nuine)
+				if(map->terrain[i][j][k].nuine)
 				{
 					int cDir;
 					bool rotH, rotV;
-					if(k==0)
-					{
-						ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[map->terrain[i][j].nuine-1]->ourImages[map->terrain[i][j].rivDir].bitmap);
-						cDir = map->terrain[i][j].rivDir;
-						rotH = (map->terrain[i][j].siodmyTajemniczyBajt >> 3) & 1;
-						rotV = (map->terrain[i][j].siodmyTajemniczyBajt >> 2) & 1;
-					}
-					else
-					{
-						ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[map->undergroungTerrain[i][j].nuine-1]->ourImages[map->undergroungTerrain[i][j].rivDir].bitmap);
-						cDir = map->undergroungTerrain[i][j].rivDir;
-						rotH = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt >> 3) & 1;
-						rotV = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt >> 2) & 1;
-					}
+
+					ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[map->terrain[i][j][k].nuine-1]->ourImages[map->terrain[i][j][k].rivDir].bitmap);
+					cDir = map->terrain[i][j][k].rivDir;
+					rotH = (map->terrain[i][j][k].siodmyTajemniczyBajt >> 3) & 1;
+					rotV = (map->terrain[i][j][k].siodmyTajemniczyBajt >> 2) & 1;
+
 					if(rotH)
 					{
 						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::hFlip(ttiles[i][j][k].rivbitmap[0]);
@@ -372,9 +355,9 @@ void CMapHandler::borderAndTerrainBitmapInit()
 				//TerrainTile zz = map->terrain[i-Woff][j-Hoff];
 				std::string name;
 				if (k>0)
-					name = nameFromType(map->undergroungTerrain[i][j].tertype);
+					name = nameFromType(map->terrain[i][j][1].tertype);
 				else
-					name = nameFromType(map->terrain[i][j].tertype);
+					name = nameFromType(map->terrain[i][j][0].tertype);
 				for (unsigned int m=0; m<defs.size(); m++)
 				{
 					try
@@ -385,15 +368,15 @@ void CMapHandler::borderAndTerrainBitmapInit()
 						{
 							int ktora;
 							if (k==0)
-								ktora = map->terrain[i][j].terview;
+								ktora = map->terrain[i][j][0].terview;
 							else
-								ktora = map->undergroungTerrain[i][j].terview;
+								ktora = map->terrain[i][j][1].terview;
 							ttiles[i][j][k].terbitmap.push_back(defs[m]->ourImages[ktora].bitmap);
 							int zz;
 							if (k==0)
-								zz = (map->terrain[i][j].siodmyTajemniczyBajt)%4;
+								zz = (map->terrain[i][j][0].siodmyTajemniczyBajt)%4;
 							else
-								zz = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt)%4;
+								zz = (map->terrain[i][j][1].siodmyTajemniczyBajt)%4;
 							switch (zz)
 							{
 							case 1:
@@ -1380,16 +1363,16 @@ void CMapHandler::loadDefs()
 	{
 		for (int j=0; j<map->width; j++)
 		{
-			if (loadedTypes.find(map->terrain[i][j].tertype)==loadedTypes.end())
+			if (loadedTypes.find(map->terrain[i][j][0].tertype)==loadedTypes.end())
 			{
-				CDefHandler  *sdh = CDefHandler::giveDef(nameFromType(map->terrain[i][j].tertype).c_str());
-				loadedTypes.insert(map->terrain[i][j].tertype);
+				CDefHandler  *sdh = CDefHandler::giveDef(nameFromType(map->terrain[i][j][0].tertype).c_str());
+				loadedTypes.insert(map->terrain[i][j][0].tertype);
 				defs.push_back(sdh);
 			}
-			if (map->twoLevel && loadedTypes.find(map->undergroungTerrain[i][j].tertype)==loadedTypes.end())
+			if (map->twoLevel && loadedTypes.find(map->terrain[i][j][1].tertype)==loadedTypes.end())
 			{
-				CDefHandler  *sdh = CDefHandler::giveDef(nameFromType(map->undergroungTerrain[i][j].tertype).c_str());
-				loadedTypes.insert(map->undergroungTerrain[i][j].tertype);
+				CDefHandler  *sdh = CDefHandler::giveDef(nameFromType(map->terrain[i][j][1].tertype).c_str());
+				loadedTypes.insert(map->terrain[i][j][1].tertype);
 				defs.push_back(sdh);
 			}
 		}

@@ -451,14 +451,12 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	areAnyPLayers = readChar(bufor,i); //invalid on some maps
 	height = width = (readNormalNr(bufor,i)); i+=4; // wymiary mapy
 	twoLevel = readChar(bufor,i); //czy sa lochy
-	terrain = new TerrainTile*[width]; // allocate memory 
+	terrain = new TerrainTile**[width]; // allocate memory 
 	for (int ii=0;ii<width;ii++)
-		terrain[ii] = new TerrainTile[height]; // allocate memory 
-	if (twoLevel)
 	{
-		undergroungTerrain = new TerrainTile*[width]; // allocate memory 
-		for (int ii=0;ii<width;ii++)
-			undergroungTerrain[ii] = new TerrainTile[height]; // allocate memory 
+		terrain[ii] = new TerrainTile*[height]; // allocate memory 
+		for(int jj=0;jj<=height;jj++)
+			terrain[ii][jj] = new TerrainTile[twoLevel+1];
 	}
 	int pom;
 	name = readString(bufor,i);
@@ -919,15 +917,15 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	{
 		for (int z=0; z<height; z++)
 		{
-			terrain[z][c].tertype = (EterrainType)(bufor[i++]);
-			terrain[z][c].terview = bufor[i++];
-			terrain[z][c].nuine = (Eriver)bufor[i++];
-			terrain[z][c].rivDir = bufor[i++];
-			terrain[z][c].malle = (Eroad)bufor[i++];
-			terrain[z][c].roadDir = bufor[i++];
-			terrain[z][c].siodmyTajemniczyBajt = bufor[i++];
-			terrain[z][c].blocked = 0;
-			terrain[z][c].visitable = 0;
+			terrain[z][c][0].tertype = (EterrainType)(bufor[i++]);
+			terrain[z][c][0].terview = bufor[i++];
+			terrain[z][c][0].nuine = (Eriver)bufor[i++];
+			terrain[z][c][0].rivDir = bufor[i++];
+			terrain[z][c][0].malle = (Eroad)bufor[i++];
+			terrain[z][c][0].roadDir = bufor[i++];
+			terrain[z][c][0].siodmyTajemniczyBajt = bufor[i++];
+			terrain[z][c][0].blocked = 0;
+			terrain[z][c][0].visitable = 0;
 		}
 	}
 	if (twoLevel) // read underground terrain
@@ -936,15 +934,15 @@ void Mapa::initFromBytes(unsigned char * bufor)
 		{
 			for (int z=0; z<height; z++)
 			{
-				undergroungTerrain[z][c].tertype = (EterrainType)(bufor[i++]);
-				undergroungTerrain[z][c].terview = bufor[i++];
-				undergroungTerrain[z][c].nuine = (Eriver)bufor[i++];
-				undergroungTerrain[z][c].rivDir = bufor[i++];
-				undergroungTerrain[z][c].malle = (Eroad)bufor[i++];
-				undergroungTerrain[z][c].roadDir = bufor[i++];
-				undergroungTerrain[z][c].siodmyTajemniczyBajt = bufor[i++];
-				undergroungTerrain[z][c].blocked = 0;
-				undergroungTerrain[z][c].visitable = 0;
+				terrain[z][c][1].tertype = (EterrainType)(bufor[i++]);
+				terrain[z][c][1].terview = bufor[i++];
+				terrain[z][c][1].nuine = (Eriver)bufor[i++];
+				terrain[z][c][1].rivDir = bufor[i++];
+				terrain[z][c][1].malle = (Eroad)bufor[i++];
+				terrain[z][c][1].roadDir = bufor[i++];
+				terrain[z][c][1].siodmyTajemniczyBajt = bufor[i++];
+				terrain[z][c][1].blocked = 0;
+				terrain[z][c][1].visitable = 0;
 			}
 		}
 	}
@@ -2309,7 +2307,7 @@ borderguardend:
 				int zVal = objects[f]->pos.z;
 				if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
 				{
-					TerrainTile & curt = (zVal) ? (undergroungTerrain[xVal][yVal]) : (terrain[xVal][yVal]);
+					TerrainTile & curt = terrain[xVal][yVal][zVal];
 					if(((objects[f]->defInfo->visitMap[fy] >> (7 - fx)) & 1))
 					{
 						curt.visitableObjects.push_back(objects[f]);

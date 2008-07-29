@@ -462,8 +462,7 @@ struct DLL_EXPORT Mapa
 	std::string name;  //name of map
 	std::string description;  //and description
 	int height, width; 
-	TerrainTile** terrain; 
-	TerrainTile** undergroungTerrain; // used only if there is underground level
+	TerrainTile*** terrain; 
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<CGHeroInstance*> predefinedHeroes;

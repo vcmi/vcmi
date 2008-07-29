@@ -49,7 +49,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					si32 id;
 					c >> id >> start >> end;
 					int3 hmpos = end + int3(-1,0,0);
-					TerrainTile t = (hmpos.z) ? (gs->map->undergroungTerrain[hmpos.x][hmpos.y]) : (gs->map->terrain[hmpos.x][hmpos.y]);
+					TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
 					CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[id]);
 					int cost = (double)h->getTileCost(t.tertype,t.malle,t.nuine) * distance(start,end);
 
@@ -103,7 +103,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					{
 						tmh.result = 1;
 
-						BOOST_FOREACH(CGObjectInstance *obj, ((start.z) ? (gs->map->undergroungTerrain[start.x][start.y]) : (gs->map->terrain[start.x][start.y])).visitableObjects)
+						BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[start.x][start.y][start.z].visitableObjects)
 						{
 							//TODO: allow to handle this in script-languages
 							if(obj->state) //hard-coded function
