@@ -100,34 +100,34 @@ int internalFunc(void * callback)
 			//		//LOCPLINT->adventureInt->terrain.currentPath = CGI->pathf->getPath(src,dst,CGI->heroh->heroInstances[0]);
 			//		break;
 			//	}
-			case 'D': //pos description
-				readed>>src;
-				CGI->mh->getObjDescriptions(src);
-				break;
-			case 'I': 
-				{
-					SDL_Surface * temp = LOCPLINT->infoWin(NULL);
-					blitAtWR(temp,605,389);
-					SDL_FreeSurface(temp);
-					break;
-				}
-			case 'T': //test rect
-				readed>>src;
-				for(int g=0; g<8; ++g)
-				{
-					for(int v=0; v<8; ++v)
-					{
-						int3 csrc = src;
-						csrc.y+=g;
-						csrc.x+=v;
-						if(CGI->mh->getObjDescriptions(csrc).size())
-							std::cout<<'x';
-						else
-							std::cout<<'o';
-					}
-					std::cout<<std::endl;
-				}
-				break;
+			//case 'D': //pos description
+			//	readed>>src;
+			//	CGI->mh->getObjDescriptions(src);
+			//	break;
+			//case 'I': 
+			//	{
+			//		SDL_Surface * temp = LOCPLINT->infoWin(NULL);
+			//		blitAtWR(temp,605,389);
+			//		SDL_FreeSurface(temp);
+			//		break;
+			//	}
+			//case 'T': //test rect
+			//	readed>>src;
+			//	for(int g=0; g<8; ++g)
+			//	{
+			//		for(int v=0; v<8; ++v)
+			//		{
+			//			int3 csrc = src;
+			//			csrc.y+=g;
+			//			csrc.x+=v;
+			//			if(CGI->mh->getObjDescriptions(csrc).size())
+			//				std::cout<<'x';
+			//			else
+			//				std::cout<<'o';
+			//		}
+			//		std::cout<<std::endl;
+			//	}
+			//	break;
 			//case 'A':  //hide everything from map
 			//	for(int c=0; c<CGI->objh->objInstances.size(); ++c)
 			//	{

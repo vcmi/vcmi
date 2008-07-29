@@ -20,7 +20,7 @@ boost::condition_variable cTurn;
 boost::mutex mTurn;
 boost::shared_mutex gsm;
 
-double neighbours(int3 a, int3 b)
+double distance(int3 a, int3 b)
 {
 	return std::sqrt( (double)(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
 }
@@ -51,24 +51,25 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					int3 hmpos = end + int3(-1,0,0);
 					TerrainTile t = (hmpos.z) ? (gs->map->undergroungTerrain[hmpos.x][hmpos.y]) : (gs->map->terrain[hmpos.x][hmpos.y]);
 					CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[id]);
-					int cost = (double)h->getTileCost(t.tertype,t.malle,t.nuine) * neighbours(start,end);
+					int cost = (double)h->getTileCost(t.tertype,t.malle,t.nuine) * distance(start,end);
 
 					TryMoveHero tmh;
 					tmh.id = id;
-					tmh.start = tmh.end = start;
+					tmh.start = start;
 					tmh.end = end;
 					tmh.result = 0;
 					tmh.movePoints = h->movement;
 
 					if((h->getOwner() != gs->currentPlayer) || //not turn of that hero
-						(neighbours(start,end)>=1.5) || //tiles are not neighouring
+						(distance(start,end)>=1.5) || //tiles are not neighouring
 						(h->movement < cost) || //lack of movement points
 						(t.tertype == rock) || //rock
 						(!h->canWalkOnSea() && t.tertype == water) ||
 						(t.blocked && !t.visitable) ) //tile is blocked andnot visitable
 						goto fail;
 
-					//we start moving
+					
+					//check if there is blocking visitable object
 					bool blockvis = false;
 					tmh.movePoints = h->movement = (h->movement-cost); //take move points
 					BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
@@ -80,10 +81,12 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						}
 					}
 
+
+					//we start moving
 					if(blockvis)//interaction with blocking object (like resources)
 					{
 						gs->apply(&tmh);
-						sendToAllClients(&tmh);
+						sendToAllClients(&tmh); //failed to move to that tile but we visit object
 						BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 						{
 							if (obj->blockVisit)

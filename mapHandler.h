@@ -13,27 +13,17 @@ struct Mapa;
 class CGDefInfo;
 class CGObjectInstance;
 class CDefHandler;
+struct TerrainTile;
+
 struct TerrainTile2
 {
-	int3 pos; //this tile's position
-	EterrainType terType; //type of terrain tile
-
-	Eroad malle; //type of road
-	unsigned char roaddir; //type of road tile
-
-	Eriver nuine; //type of river
-	unsigned char  rivdir; //type of river tile
-
+	int3 pos;
+	const TerrainTile *tileInfo;
 	std::vector<SDL_Surface *> terbitmap; //frames of terrain animation
 	std::vector<SDL_Surface *> rivbitmap; //frames of river animation
 	std::vector<SDL_Surface *> roadbitmap; //frames of road animation
 
-	bool visitable; //false = not visitable; true = visitable
-	bool blocked; //false = free; true = blocked;
-
-	std::vector < std::pair<CGObjectInstance*,SDL_Rect> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
-	std::vector <CGObjectInstance*> visitableObjects; //pointers to objects hero is visiting being on this tile
-
+	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
 };
 
 //pathfinder
@@ -93,7 +83,7 @@ public:
 
 	int getCost(int3 & a, int3 & b, const CGHeroInstance * hero);
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
-	std::vector< CGObjectInstance * > getVisitableObjs(int3 pos); //returns vector of visitable objects at certain position
+	//std::vector< CGObjectInstance * > getVisitableObjs(int3 pos); //returns vector of visitable objects at certain position
 	CGObjectInstance * createObject(int id, int subid, int3 pos, int owner=254); //creates a new object with a certain id and subid
 	std::string getDefName(int id, int subid); //returns name of def for object with given id and subid
 	bool printObject(CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map

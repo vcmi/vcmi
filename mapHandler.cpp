@@ -77,7 +77,7 @@ std::string nameFromType (EterrainType typ)
 class OCM_HLP
 {
 public:
-	bool operator ()(const std::pair<CGObjectInstance*, SDL_Rect> & a, const std::pair<CGObjectInstance*, SDL_Rect> & b)
+	bool operator ()(const std::pair<const CGObjectInstance*, SDL_Rect> & a, const std::pair<const CGObjectInstance*, SDL_Rect> & b)
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -227,37 +227,23 @@ void CMapHandler::roadsRiverTerrainInit()
 		{
 			for (int k=0; k<=map->twoLevel; ++k)
 			{
-				TerrainTile** pomm = map->terrain; ;
-				if (k==0)
-					pomm = map->terrain;
-				else
-					pomm = map->undergroungTerrain;
-				if(pomm[i][j].malle)
+				TerrainTile2 &pom(ttiles[i][j][k]);
+				pom.pos = int3(i, j, k);
+				pom.tileInfo = &( k  ?  map->undergroungTerrain[i][j]  :  map->terrain[i][j] );
+				if(pom.tileInfo->malle)
 				{
 					int cDir;
 					bool rotV, rotH;
-					if(k==0)
-					{
-						int roadpom = map->terrain[i][j].malle-1,
-							impom = map->terrain[i][j].roadDir;
-						SDL_Surface *pom1 = roadDefs[roadpom]->ourImages[impom].bitmap;
-						ttiles[i][j][k].roadbitmap.push_back(pom1);
-						cDir = map->terrain[i][j].roadDir;
 
-						rotH = (map->terrain[i][j].siodmyTajemniczyBajt >> 5) & 1;
-						rotV = (map->terrain[i][j].siodmyTajemniczyBajt >> 4) & 1;
-					}
-					else
-					{
-						int pom111 = map->undergroungTerrain[i][j].malle-1,
-							pom777 = map->undergroungTerrain[i][j].roadDir;
-						SDL_Surface *pom1 = roadDefs[pom111]->ourImages[pom777].bitmap;
-						ttiles[i][j][k].roadbitmap.push_back(pom1);
-						cDir = map->undergroungTerrain[i][j].roadDir;
+					int roadpom = pom.tileInfo->malle-1,
+						impom = pom.tileInfo->roadDir;
+					SDL_Surface *pom1 = roadDefs[roadpom]->ourImages[impom].bitmap;
+					ttiles[i][j][k].roadbitmap.push_back(pom1);
+					cDir = pom.tileInfo->roadDir;
 
-						rotH = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt >> 5) & 1;
-						rotV = (map->undergroungTerrain[i][j].siodmyTajemniczyBajt >> 4) & 1;
-					}
+					rotH = (pom.tileInfo->siodmyTajemniczyBajt >> 5) & 1;
+					rotV = (pom.tileInfo->siodmyTajemniczyBajt >> 4) & 1;
+
 					if(rotH)
 					{
 						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::hFlip(ttiles[i][j][k].roadbitmap[0]);
@@ -274,32 +260,6 @@ void CMapHandler::roadsRiverTerrainInit()
 			}
 		}
 	}
-
-	//initializing simple values
-	for (int i=0; i<CGI->mh->map->width; i++) //jest po szerokoœci
-	{
-		for (int j=0; j<CGI->mh->map->height;j++) //po wysokoœci
-		{
-			for(int k=0; k<ttiles[0][0].size(); ++k)
-			{
-				ttiles[i][j][k].pos = int3(i, j, k);
-				ttiles[i][j][k].blocked = false;
-				ttiles[i][j][k].visitable = false;
-				if(i<0 || j<0 || i>=CGI->mh->map->width || j>=CGI->mh->map->height)
-				{
-					ttiles[i][j][k].blocked = true;
-					continue;
-				}
-				ttiles[i][j][k].terType = (k==0 ? CGI->mh->map->terrain[i][j].tertype : CGI->mh->map->undergroungTerrain[i][j].tertype);
-				ttiles[i][j][k].malle = (k==0 ? CGI->mh->map->terrain[i][j].malle : CGI->mh->map->undergroungTerrain[i][j].malle);
-				ttiles[i][j][k].nuine = (k==0 ? CGI->mh->map->terrain[i][j].nuine : CGI->mh->map->undergroungTerrain[i][j].nuine);
-				ttiles[i][j][k].rivdir = (k==0 ? CGI->mh->map->terrain[i][j].rivDir : CGI->mh->map->undergroungTerrain[i][j].rivDir);
-				ttiles[i][j][k].roaddir = (k==0 ? CGI->mh->map->terrain[i][j].roadDir : CGI->mh->map->undergroungTerrain[i][j].roadDir);
-
-			}
-		}
-	}
-	//simple values initialized
 
 	for (int i=0; i<map->width; i++) //jest po szerokoœci
 	{
@@ -517,29 +477,29 @@ void CMapHandler::initObjectRects()
 }
 void CMapHandler::calculateBlockedPos()
 {
-	for(int f=0; f<map->objects.size(); ++f) //calculationg blocked / visitable positions
-	{
-		if(!map->objects[f]->defInfo)
-			continue;
-		CDefHandler * curd = map->objects[f]->defInfo->handler;
-		for(int fx=0; fx<8; ++fx)
-		{
-			for(int fy=0; fy<6; ++fy)
-			{
-				int xVal = map->objects[f]->pos.x + fx - 7;
-				int yVal = map->objects[f]->pos.y + fy - 5;
-				int zVal = map->objects[f]->pos.z;
-				if(xVal>=0 && xVal<ttiles.size()-Woff && yVal>=0 && yVal<ttiles[0].size()-Hoff)
-				{
-					TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
-					if(((map->objects[f]->defInfo->visitMap[fy] >> (7 - fx)) & 1))
-						curt.visitable = true;
-					if(!((map->objects[f]->defInfo->blockMap[fy] >> (7 - fx)) & 1))
-						curt.blocked = true;
-				}
-			}
-		}
-	}
+	//for(int f=0; f<map->objects.size(); ++f) //calculationg blocked / visitable positions
+	//{
+	//	if(!map->objects[f]->defInfo)
+	//		continue;
+	//	CDefHandler * curd = map->objects[f]->defInfo->handler;
+	//	for(int fx=0; fx<8; ++fx)
+	//	{
+	//		for(int fy=0; fy<6; ++fy)
+	//		{
+	//			int xVal = map->objects[f]->pos.x + fx - 7;
+	//			int yVal = map->objects[f]->pos.y + fy - 5;
+	//			int zVal = map->objects[f]->pos.z;
+	//			if(xVal>=0 && xVal<ttiles.size()-Woff && yVal>=0 && yVal<ttiles[0].size()-Hoff)
+	//			{
+	//				TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
+	//				if(((map->objects[f]->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+	//					curt.tileInfo->visitable = true;
+	//				if(!((map->objects[f]->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+	//					curt.tileInfo->blocked = true;
+	//			}
+	//		}
+	//	}
+	//}
 }
 void processDef (CGDefInfo* def)
 {
@@ -714,7 +674,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
 				pp.h = sr.h;
 				pp.w = sr.w;
-				CGHeroInstance * themp = (dynamic_cast<CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
+				const CGHeroInstance * themp = (dynamic_cast<const CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
 
 				if(themp && themp->moveDir && !themp->isStanding && themp->ID!=62) //last condition - this is not prison
 				{
@@ -767,7 +727,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						bufr.w = 96;
 						if(bufr.x-extRect->x>-64)
 							SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, su, &bufr);
-						themp->flagPrinted = true;
 					}
 				}
 				else
@@ -821,7 +780,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 			else 
 			{
-				if(MARK_BLOCKED_POSITIONS &&  ttiles[x+bx][y+by][level].blocked) //temporary hiding blocked positions
+				if(MARK_BLOCKED_POSITIONS &&  ttiles[x+bx][y+by][level].tileInfo->blocked) //temporary hiding blocked positions
 				{
 					SDL_Rect sr;
 					sr.y=by*32;
@@ -839,7 +798,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 					SDL_FreeSurface(ns);
 				}
-				if(MARK_VISITABLE_POSITIONS &&  ttiles[x+bx][y+by][level].visitable) //temporary hiding visitable positions
+				if(MARK_VISITABLE_POSITIONS &&  ttiles[x+bx][y+by][level].tileInfo->visitable) //temporary hiding visitable positions
 				{
 					SDL_Rect sr;
 					sr.y=by*32;
@@ -1128,13 +1087,13 @@ int CMapHandler::getCost(int3 &a, int3 &b, const CGHeroInstance *hero)
 {
 	int ret=-1;
 	if(a.x>=CGI->mh->map->width && a.y>=CGI->mh->map->height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->map->width-1][CGI->mh->map->width-1][a.z].malle];
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->map->width-1][CGI->mh->map->width-1][a.z].tileInfo->malle];
 	else if(a.x>=CGI->mh->map->width && a.y<CGI->mh->map->height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->map->width-1][a.y][a.z].malle];
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[CGI->mh->map->width-1][a.y][a.z].tileInfo->malle];
 	else if(a.x<CGI->mh->map->width && a.y>=CGI->mh->map->height)
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][CGI->mh->map->width-1][a.z].malle];
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][CGI->mh->map->width-1][a.z].tileInfo->malle];
 	else
-		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].malle];
+		ret = hero->type->heroClass->terrCosts[CGI->mh->ttiles[a.x][a.y][a.z].tileInfo->malle];
 	if(!(a.x==b.x || a.y==b.y))
 		ret*=1.41421;
 
@@ -1142,37 +1101,17 @@ int CMapHandler::getCost(int3 &a, int3 &b, const CGHeroInstance *hero)
 	return ret;
 }
 
-std::vector < std::string > CMapHandler::getObjDescriptions(int3 pos)
-{
-	std::vector < std::pair<CGObjectInstance*,SDL_Rect > > objs = ttiles[pos.x][pos.y][pos.z].objects;
-	std::vector<std::string> ret;
-	for(int g=0; g<objs.size(); ++g)
-	{
-		if( (5-(objs[g].first->pos.y-pos.y)) >= 0 && (5-(objs[g].first->pos.y-pos.y)) < 6 && (objs[g].first->pos.x-pos.x) >= 0 && (objs[g].first->pos.x-pos.x)<7 && objs[g].first->defInfo &&
-			(((objs[g].first->defInfo->blockMap[5-(objs[g].first->pos.y-pos.y)])>>((objs[g].first->pos.x-pos.x)))&1)==0
-			) //checking position blocking
-		{
-			//unsigned char * blm = objs[g].first->defInfo->blockMap;
-			if (objs[g].first->state)
-				ret.push_back(objs[g].first->state->hoverText(objs[g].first));
-			else
-				ret.push_back(CGI->objh->objects[objs[g].first->ID].name);
-		}
-	}
-	return ret;
-}
-
-std::vector < CGObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
-{
-	std::vector < CGObjectInstance * > ret;
-	for(int h=0; h<ttiles[pos.x][pos.y][pos.z].objects.size(); ++h)
-	{
-		CGObjectInstance * curi = ttiles[pos.x][pos.y][pos.z].objects[h].first;
-		if(curi->visitableAt(- curi->pos.x + pos.x + curi->getWidth() - 1, -curi->pos.y + pos.y + curi->getHeight() - 1))
-			ret.push_back(curi);
-	}
-	return ret;
-}
+//std::vector < CGObjectInstance * > CMapHandler::getVisitableObjs(int3 pos)
+//{
+//	std::vector < CGObjectInstance * > ret;
+//	for(int h=0; h<ttiles[pos.x][pos.y][pos.z].objects.size(); ++h)
+//	{
+//		CGObjectInstance * curi = ttiles[pos.x][pos.y][pos.z].objects[h].first;
+//		if(curi->visitableAt(- curi->pos.x + pos.x + curi->getWidth() - 1, -curi->pos.y + pos.y + curi->getHeight() - 1))
+//			ret.push_back(curi);
+//	}
+//	return ret;
+//}
 
 std::string CMapHandler::getDefName(int id, int subid)
 {
@@ -1221,7 +1160,7 @@ bool CMapHandler::hideObject(CGObjectInstance *obj)
 		{
 			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
-				std::vector < std::pair<CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects;
+				std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects;
 				for(int dd=0; dd<ctile.size(); ++dd)
 				{
 					if(ctile[dd].first->id==obj->id)
@@ -1245,60 +1184,60 @@ bool CMapHandler::removeObject(CGObjectInstance *obj)
 
 bool CMapHandler::recalculateHideVisPos(int3 &pos)
 {
-	ttiles[pos.x][pos.y][pos.z].visitable = false;
-	ttiles[pos.x][pos.y][pos.z].blocked = false;
-	for(int i=0; i<ttiles[pos.x][pos.y][pos.z].objects.size(); ++i)
-	{
-		CDefHandler * curd = ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->handler;
-		for(int fx=0; fx<8; ++fx)
-		{
-			for(int fy=0; fy<6; ++fy)
-			{
-				int xVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.x + fx - 7;
-				int yVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.y + fy - 5;
-				int zVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.z;
-				if(xVal>=0 && xVal<ttiles.size()-Woff && yVal>=0 && yVal<ttiles[0].size()-Hoff)
-				{
-					TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
-					if(((ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->visitMap[fy] >> (7 - fx)) & 1))
-						curt.visitable = true;
-					if(!((ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->blockMap[fy] >> (7 - fx)) & 1))
-						curt.blocked = true;
-				}
-			}
-		}
-	}
+	//ttiles[pos.x][pos.y][pos.z].tileInfo->visitable = false;
+	//ttiles[pos.x][pos.y][pos.z].tileInfo->blocked = false;
+	//for(int i=0; i<ttiles[pos.x][pos.y][pos.z].objects.size(); ++i)
+	//{
+	//	CDefHandler * curd = ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->handler;
+	//	for(int fx=0; fx<8; ++fx)
+	//	{
+	//		for(int fy=0; fy<6; ++fy)
+	//		{
+	//			int xVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.x + fx - 7;
+	//			int yVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.y + fy - 5;
+	//			int zVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.z;
+	//			if(xVal>=0 && xVal<ttiles.size()-Woff && yVal>=0 && yVal<ttiles[0].size()-Hoff)
+	//			{
+	//				TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
+	//				if(((ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+	//					curt.tileInfo->visitable = true;
+	//				if(!((ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+	//					curt.tileInfo->blocked = true;
+	//			}
+	//		}
+	//	}
+	//}
 	return true;
 }
 
 bool CMapHandler::recalculateHideVisPosUnderObj(CGObjectInstance *obj, bool withBorder)
 {
-	if(withBorder)
-	{
-		for(int fx=-1; fx<=obj->defInfo->handler->ourImages[0].bitmap->w/32; ++fx)
-		{
-			for(int fy=-1; fy<=obj->defInfo->handler->ourImages[0].bitmap->h/32; ++fy)
-			{
-				if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
-				{
-					recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z));
-				}
-			}
-		}
-	}
-	else
-	{
-		for(int fx=0; fx<obj->defInfo->handler->ourImages[0].bitmap->w/32; ++fx)
-		{
-			for(int fy=0; fy<obj->defInfo->handler->ourImages[0].bitmap->h/32; ++fy)
-			{
-				if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
-				{
-					recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z));
-				}
-			}
-		}
-	}
+	//if(withBorder)
+	//{
+	//	for(int fx=-1; fx<=obj->defInfo->handler->ourImages[0].bitmap->w/32; ++fx)
+	//	{
+	//		for(int fy=-1; fy<=obj->defInfo->handler->ourImages[0].bitmap->h/32; ++fy)
+	//		{
+	//			if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+	//			{
+	//				recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z));
+	//			}
+	//		}
+	//	}
+	//}
+	//else
+	//{
+	//	for(int fx=0; fx<obj->defInfo->handler->ourImages[0].bitmap->w/32; ++fx)
+	//	{
+	//		for(int fy=0; fy<obj->defInfo->handler->ourImages[0].bitmap->h/32; ++fy)
+	//		{
+	//			if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+	//			{
+	//				recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z));
+	//			}
+	//		}
+	//	}
+	//}
 	return true;
 }
 

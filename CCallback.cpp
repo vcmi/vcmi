@@ -93,107 +93,6 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 				return false;
 		}
 	}
-
-	//	if(hero->movement >= (ourPath->nodes.size()>=2 ?  (*(ourPath->nodes.end()-2)).dist : 0) - ourPath->nodes[i].dist  || player==-1)
-	//	{ //performing move
-	//		hero->movement -= (ourPath->nodes.size()>=2 ?  (*(ourPath->nodes.end()-2)).dist : 0) - ourPath->nodes[i].dist;
-	//		ourPath->nodes.pop_back();
-	//		
-	//		std::vector< CGObjectInstance * > vis = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.dst,false));
-	//		bool blockvis = false;
-	//		for (int pit = 0; pit<vis.size();pit++)
-	//			if (vis[pit]->blockVisit)
-	//				blockvis = true;
-
-	//		if (!blockvis)
-	//		{
-	//			curd.successful = true;
-	//			hero->pos = curd.dst;
-
-	//			//inform leaved objects
-	//			std::vector< CGObjectInstance * > leave = CGI->mh->getVisitableObjs(CGHeroInstance::convertPosition(curd.src,false));
-	//			for (int iii=0; iii<leave.size(); iii++) //if object is visitable we call onHeroVisit
-	//			{
-	//				//TODO: allow to handle this in LUA
-	//				if(leave[iii]->state) //hard-coded function
-	//					leave[iii]->state->onHeroLeave(leave[iii],curd.ho->subID);
-	//			}
-
-
-	//			//reveal fog of war
-	//			int heroSight = hero->getSightDistance();
-	//			int xbeg = stpos.x - heroSight - 2;
-	//			if(xbeg < 0)
-	//				xbeg = 0;
-	//			int xend = stpos.x + heroSight + 2;
-	//			if(xend >= CGI->mh->map->width)
-	//				xend = CGI->mh->map->width;
-	//			int ybeg = stpos.y - heroSight - 2;
-	//			if(ybeg < 0)
-	//				ybeg = 0;
-	//			int yend = stpos.y + heroSight + 2;
-	//			if(yend >= CGI->mh->map->height)
-	//				yend = CGI->mh->map->height;
-	//			for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
-	//			{
-	//				for(int yd=ybeg; yd<yend; ++yd)
-	//				{
-	//					int deltaX = (hero->getPosition(false).x-xd)*(hero->getPosition(false).x-xd);
-	//					int deltaY = (hero->getPosition(false).y-yd)*(hero->getPosition(false).y-yd);
-	//					if(deltaX+deltaY<hero->getSightDistance()*hero->getSightDistance())
-	//					{
-	//						if(gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] == 0)
-	//						{
-	//							cl->playerint[player]->tileRevealed(int3(xd, yd, hero->getPosition(false).z));
-	//						}
-	//						gs->players[player].fogOfWarMap[xd][yd][hero->getPosition(false).z] = 1;
-	//					}
-	//				}
-	//			}
-
-
-	//			//notify interfacesabout move
-	//			int nn=0; //number of interfece of currently browsed player
-	//			for(std::map<ui8, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)//CGI->state->players.size(); ++j) //for testing
-	//			{
-	//				if (j->first > PLAYER_LIMIT)
-	//					break;
-	//				if(j->second.fogOfWarMap[stpos.x-1][stpos.y][stpos.z] || j->second.fogOfWarMap[endpos.x-1][endpos.y][endpos.z])
-	//				{ //player should be notified
-	//					cl->playerint[j->second.color]->heroMoved(curd);
-	//				}
-	//				++nn;
-	//			}
-
-
-	//			//call objects if they arevisited
-	//			for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
-	//			{
-	//				if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
-	//					gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
-	//				if(vis[iii]->state) //hard-coded function
-	//					vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
-	//			}
-	//		}
-	//		else //interaction with blocking object (like resources)
-	//		{
-	//			curd.successful = false;
-	//			cl->playerint[gs->players[hero->getOwner()].color]->heroMoved(curd);
-	//			for (int iii=0; iii<vis.size(); iii++) //if object is visitable we call onHeroVisit
-	//			{
-	//				if (vis[iii]->blockVisit)
-	//				{
-	//					if(gs->checkFunc(vis[iii]->ID,"heroVisit")) //script function
-	//						gs->objscr[vis[iii]->ID]["heroVisit"]->onHeroVisit(vis[iii],curd.ho->subID);
-	//					if(vis[iii]->state) //hard-coded function
-	//						vis[iii]->state->onHeroVisit(vis[iii],curd.ho->subID);
-	//				}
-	//			}
-	//			return false;
-	//		}
-
-	//	}
-	//}
 	return true;
 }
 
@@ -393,12 +292,30 @@ int CCallback::getDate(int mode)
 {
 	return gs->getDate(mode);
 }
+std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
+{
+	std::vector<std::string> ret;
+	//BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[i][j]
+	//{
+	//	if( (5-(objs[g].first->pos.y-pos.y)) >= 0 && (5-(objs[g].first->pos.y-pos.y)) < 6 && (objs[g].first->pos.x-pos.x) >= 0 && (objs[g].first->pos.x-pos.x)<7 && objs[g].first->defInfo &&
+	//		(((objs[g].first->defInfo->blockMap[5-(objs[g].first->pos.y-pos.y)])>>((objs[g].first->pos.x-pos.x)))&1)==0
+	//		) //checking position blocking
+	//	{
+	//		//unsigned char * blm = objs[g].first->defInfo->blockMap;
+	//		if (objs[g].first->state)
+	//			ret.push_back(objs[g].first->state->hoverText(objs[g].first));
+	//		else
+	//			ret.push_back(CGI->objh->objects[objs[g].first->ID].name);
+	//	}
+	//}
+	return ret;
+}
 bool CCallback::verifyPath(CPath * path, bool blockSea)
 {
 	for (int i=0;i<path->nodes.size();i++)
 	{
-		if ( CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].blocked 
-			&& (! (CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].visitable)))
+		if ( CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->blocked 
+			&& (! (CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->visitable)))
 			return false; //path is wrong - one of the tiles is blocked
 
 		if (blockSea)
@@ -407,15 +324,15 @@ bool CCallback::verifyPath(CPath * path, bool blockSea)
 				continue;
 
 			if (
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].terType==EterrainType::water)
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype==EterrainType::water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType!=EterrainType::water))
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype!=EterrainType::water))
 				  ||
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].terType!=EterrainType::water)
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype!=EterrainType::water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType==EterrainType::water))
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==EterrainType::water))
 				  ||
-				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].terType==EterrainType::rock)
+				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==EterrainType::rock)
 					
 				)
 				return false;
@@ -424,13 +341,6 @@ bool CCallback::verifyPath(CPath * path, bool blockSea)
 
 	}
 	return true;
-}
-
-std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
-{
-	if(gs->players[player].fogOfWarMap[pos.x][pos.y][pos.z])
-		return CGI->mh->getObjDescriptions(pos);
-	else return std::vector< std::string > ();
 }
 
 std::vector< std::vector< std::vector<unsigned char> > > & CCallback::getVisibilityMap()
@@ -654,7 +564,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, int buildingID)
 
 int CCallback::battleGetBattlefieldType()
 {
-	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].terType;
+	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].tileInfo->tertype;
 }
 
 int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield 

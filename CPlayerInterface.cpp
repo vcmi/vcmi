@@ -44,7 +44,7 @@ extern boost::mutex eventsM;
 class OCM_HLP_CGIN
 {
 public:
-	bool operator ()(const std::pair<CGObjectInstance*,SDL_Rect>  & a, const std::pair<CGObjectInstance*,SDL_Rect> & b) const
+	bool operator ()(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b) const
 	{
 		return (*a.first)<(*b.first);
 	}

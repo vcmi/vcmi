@@ -146,9 +146,9 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 			{
 				int mx=(CGI->mh->sizes.x*x)/pos.w;
 				int my=(CGI->mh->sizes.y*y)/pos.h;
-				if (CGI->mh->ttiles[mx][my][i].blocked && (!CGI->mh->ttiles[mx][my][i].visitable))
-					SDL_PutPixel(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].b);
-				else SDL_PutPixel(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].terType].r,colors[CGI->mh->ttiles[mx][my][i].terType].g,colors[CGI->mh->ttiles[mx][my][i].terType].b);
+				if (CGI->mh->ttiles[mx][my][i].tileInfo->blocked && (!CGI->mh->ttiles[mx][my][i].tileInfo->visitable))
+					SDL_PutPixel(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
+				else SDL_PutPixel(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
 			}
 		}
 		map.push_back(pom);

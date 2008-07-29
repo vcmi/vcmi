@@ -2316,7 +2316,10 @@ borderguardend:
 						curt.visitable = true;
 					}
 					if(!((objects[f]->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+					{
+						curt.blockingObjects.push_back(objects[f]);
 						curt.blocked = true;
+					}
 				}
 			}
 		}

@@ -268,6 +268,7 @@ struct DLL_EXPORT TerrainTile
 	bool blocked; //false = free; true = blocked;
 
 	std::vector <CGObjectInstance*> visitableObjects; //pointers to objects hero can visit while being on this tile
+	std::vector <CGObjectInstance*> blockingObjects; //pointers to objects that are blocking this tile
 };
 struct DLL_EXPORT SheroName //name of starting hero
 {

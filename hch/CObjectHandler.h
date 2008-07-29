@@ -88,7 +88,6 @@ public:
 					//		8 4
 					//		765
 	bool isStanding;
-	bool flagPrinted;
 	CHero * type;
 	int exp; //experience point
 	int level; //current level of hero
