@@ -1,6 +1,7 @@
 #pragma once
 #include "../global.h"
 #include <set>
+class CConnection;
 namespace boost
 {
 	namespace asio

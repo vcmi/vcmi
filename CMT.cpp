@@ -50,15 +50,7 @@ std::queue<SDL_Event> events;
 boost::mutex eventsM;
 
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
-void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
-{
-	std::vector<int> tempv = script->yourObjects();
-	for (int i=0;i<tempv.size();i++)
-	{
-		(*mapa)[tempv[i]]=script;
-	}
-	CGI->state->cppscripts.insert(script);
-}
+
 int _tmain(int argc, _TCHAR* argv[])
 { 
 	std::cout.flags(ios::unitbuf);

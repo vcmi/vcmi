@@ -152,46 +152,4 @@ public:
 //friends
 	friend class CClient;
 };
-class CScriptCallback
-{
-	CScriptCallback(){};
-public:
-	CGameState * gs;
-	CClient *cl;
-
-	//get info
-	static int3 getPos(CGObjectInstance * ob);
-	int getHeroOwner(int heroID);
-	int getSelectedHero();
-	int getDate(int mode=0);
-
-	//do sth
-	void changePrimSkill(int ID, int which, int val);
-	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components); //TODO: obslugiwac nulle
-	void showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker);
-	void giveResource(int player, int which, int val);
-	void showCompInfo(int player, SComponent * comp);
-	void heroVisitCastle(CGObjectInstance * ob, int heroID);
-	void stopHeroVisitCastle(CGObjectInstance * ob, int heroID);
-	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack
-	void startBattle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2); //use hero=NULL for no hero
-	void startBattle(int heroID, CCreatureSet * army, int3 tile); //for hero<=>neutral army
-
-	//friends
-	friend class CGameState;
-	friend class CClient;
-};
-class CLuaCallback : public CScriptCallback
-{
-private:
-
-	static void registerFuncs(lua_State * L);
-	static int getPos(lua_State * L);//(CGObjectInstance * object);
-	static int changePrimSkill(lua_State * L);//(int ID, int which, int val);
-	static int getGnrlText(lua_State * L);//(int ID, int which, int val);
-	static int getSelectedHero(lua_State * L);//()
-
-	friend class CGameState;
-	friend class CClient;
-};
 #endif //CCALLBACK_H

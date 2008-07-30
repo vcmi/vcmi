@@ -3,6 +3,7 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <boost/bind.hpp>
 #include "CGameHandler.h"
+#include "CScriptCallback.h"
 #include "../CLua.h"
 #include "../CGameState.h"
 #include "../StartInfo.h"
@@ -23,6 +24,27 @@ boost::shared_mutex gsm;
 double distance(int3 a, int3 b)
 {
 	return std::sqrt( (double)(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
+}
+//bool CGameState::checkFunc(int obid, std::string name)
+//{
+//	if (objscr.find(obid)!=objscr.end())
+//	{
+//		if(objscr[obid].find(name)!=objscr[obid].end())
+//		{
+//			return true;
+//		}
+//	}
+//	return false;
+//}
+
+void CGameHandler::handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
+{
+	std::vector<int> tempv = script->yourObjects();
+	for (unsigned i=0;i<tempv.size();i++)
+	{
+		(*mapa)[tempv[i]]=script;
+	}
+	cppscripts.insert(script);
 }
 
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
@@ -51,7 +73,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					int3 hmpos = end + int3(-1,0,0);
 					TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
 					CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[id]);
-					int cost = (double)h->getTileCost(t.tertype,t.malle,t.nuine) * distance(start,end);
+					int cost = (int)((double)h->getTileCost(t.tertype,t.malle,t.nuine) * distance(start,end));
 
 					TryMoveHero tmh;
 					tmh.id = id;
@@ -85,16 +107,15 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					//we start moving
 					if(blockvis)//interaction with blocking object (like resources)
 					{
-						gs->apply(&tmh);
-						sendToAllClients(&tmh); //failed to move to that tile but we visit object
+						sendAndApply(&tmh); //failed to move to that tile but we visit object
 						BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 						{
 							if (obj->blockVisit)
 							{
-								if(gs->checkFunc(obj->ID,"heroVisit")) //script function
-									gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
+								//if(gs->checkFunc(obj->ID,"heroVisit")) //script function
+								//	gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
 								if(obj->state) //hard-coded function
-									obj->state->onHeroVisit(obj,h->subID);
+									obj->state->onHeroVisit(obj->id,h->subID);
 							}
 						}
 						break;
@@ -107,7 +128,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						{
 							//TODO: allow to handle this in script-languages
 							if(obj->state) //hard-coded function
-								obj->state->onHeroLeave(obj,h->subID);
+								obj->state->onHeroLeave(obj->id,h->subID);
 						}
 
 						//reveal fog of war
@@ -140,22 +161,19 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 							}
 						}
 
-						gs->apply(&tmh);
-						sendToAllClients(&tmh);
+						sendAndApply(&tmh);
 
-						//call objects if they arevisited
-						BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
+						BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)//call objects if they are visited
 						{
-							if(gs->checkFunc(obj->ID,"heroVisit")) //script function
-								gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
+							//if(gs->checkFunc(obj->ID,"heroVisit")) //script function
+							//	gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
 							if(obj->state) //hard-coded function
-								obj->state->onHeroVisit(obj,h->subID);
+								obj->state->onHeroVisit(obj->id,h->id);
 						}
 					}
 					break;
 				fail:
-					gs->apply(&tmh);
-					sendToAllClients(&tmh);
+					sendAndApply(&tmh);
 					break;
 				}
 			default:
@@ -180,11 +198,6 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 		end = true;
 	}
 }
-template <typename T>void CGameHandler::sendToAllClients(CPack<T> * info)
-{
-	BOOST_FOREACH(CConnection* c, conns)
-		*c << info->getType() << *info->This();
-}
 CGameHandler::CGameHandler(void)
 {
 	gs = NULL;
@@ -198,7 +211,68 @@ void CGameHandler::init(StartInfo *si, int Seed)
 {
 	Mapa *map = new Mapa(si->mapname);
 	gs = new CGameState();
-	gs->init(si,map,Seed);
+	gs->init(si,map,Seed);	
+
+	/****************************SCRIPTS************************************************/
+	//std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &objscr; //alias for easier access
+	/****************************C++ OBJECT SCRIPTS************************************************/
+	std::map<int,CCPPObjectScript*> scripts;
+	CScriptCallback * csc = new CScriptCallback();
+	csc->gh = this;
+	handleCPPObjS(&scripts,new CVisitableOPH(csc));
+	handleCPPObjS(&scripts,new CVisitableOPW(csc));
+	handleCPPObjS(&scripts,new CPickable(csc));
+	handleCPPObjS(&scripts,new CMines(csc));
+	handleCPPObjS(&scripts,new CTownScript(csc));
+	handleCPPObjS(&scripts,new CHeroScript(csc));
+	handleCPPObjS(&scripts,new CMonsterS(csc));
+	handleCPPObjS(&scripts,new CCreatureGen(csc));
+	//created map
+
+	/****************************LUA OBJECT SCRIPTS************************************************/
+	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
+	//for (int i=0; i<lf->size(); i++)
+	//{
+	//	try
+	//	{
+	//		std::vector<std::string> * temp =  CLuaHandler::functionList((*lf)[i]);
+	//		CLuaObjectScript * objs = new CLuaObjectScript((*lf)[i]);
+	//		CLuaCallback::registerFuncs(objs->is);
+	//		//objs
+	//		for (int j=0; j<temp->size(); j++)
+	//		{
+	//			int obid ; //obj ID
+	//			int dspos = (*temp)[j].find_first_of('_');
+	//			obid = atoi((*temp)[j].substr(dspos+1,(*temp)[j].size()-dspos-1).c_str());
+	//			std::string fname = (*temp)[j].substr(0,dspos);
+	//			if (skrypty->find(obid)==skrypty->end())
+	//				skrypty->insert(std::pair<int, std::map<std::string, CObjectScript*> >(obid,std::map<std::string,CObjectScript*>()));
+	//			(*skrypty)[obid].insert(std::pair<std::string, CObjectScript*>(fname,objs));
+	//		}
+	//		delete temp;
+	//	}HANDLE_EXCEPTION
+	//}
+	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
+	//std::string temps("newObject");
+	for (unsigned i=0; i<map->objects.size(); i++)
+	{
+		//c++ scripts
+		if (scripts.find(map->objects[i]->ID) != scripts.end())
+		{
+			map->objects[i]->state = scripts[map->objects[i]->ID];
+			map->objects[i]->state->newObject(map->objects[i]->id);
+		}
+		else 
+		{
+			map->objects[i]->state = NULL;
+		}
+
+		//// lua scripts
+		//if(checkFunc(map->objects[i]->ID,temps))
+		//	(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
+	}
+
+	//delete lf;
 }
 int lowestSpeed(CGHeroInstance * chi)
 {
@@ -257,8 +331,7 @@ void CGameHandler::newTurn()
 		}
 		n.res.insert(r);
 	}	
-	gs->apply(&n);
-	sendToAllClients(&n);
+	sendAndApply(&n);
 	//for (std::set<CCPPObjectScript *>::iterator i=gs->cppscripts.begin();i!=gs->cppscripts.end();i++)
 	//{
 	//	(*i)->newTurn();

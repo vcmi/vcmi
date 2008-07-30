@@ -78,8 +78,6 @@ private:
 	ui32 day; //total number of days in game
 	Mapa * map;
 	std::map<ui8,PlayerState> players; //ID <-> playerstate
-	std::set<CCPPObjectScript *> cppscripts; //C++ scripts
-	std::map<int, std::map<std::string, CObjectScript*> > objscr; //non-C++ scripts 
 	
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 
@@ -87,7 +85,6 @@ private:
 
 	CGameState();
 	~CGameState();
-	bool checkFunc(int obid, std::string name);
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void apply(IPack * pack);
 	void randomizeObject(CGObjectInstance *cur);

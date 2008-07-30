@@ -8,7 +8,6 @@
 #include "mapHandler.h"
 #include "CGameState.h"
 #include "CPlayerInterface.h"
-#include "CLua.h"
 #include "hch/CGeneralTextHandler.h"
 #include "CAdvmapInterface.h"
 #include "CPlayerInterface.h"
@@ -99,8 +98,8 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 void CCallback::selectionMade(int selection, int asker)
 {
 	//todo - jak bedzie multiplayer po sieci, to moze wymagac przerobek zaleznych od obranego modelu
-	IChosen * ask = (IChosen *)asker;
-	ask->chosen(selection);
+	//IChosen * ask = (IChosen *)asker;
+	//ask->chosen(selection);
 }
 void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount)
 {
@@ -295,19 +294,8 @@ int CCallback::getDate(int mode)
 std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
 {
 	std::vector<std::string> ret;
-	//BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[i][j]
-	//{
-	//	if( (5-(objs[g].first->pos.y-pos.y)) >= 0 && (5-(objs[g].first->pos.y-pos.y)) < 6 && (objs[g].first->pos.x-pos.x) >= 0 && (objs[g].first->pos.x-pos.x)<7 && objs[g].first->defInfo &&
-	//		(((objs[g].first->defInfo->blockMap[5-(objs[g].first->pos.y-pos.y)])>>((objs[g].first->pos.x-pos.x)))&1)==0
-	//		) //checking position blocking
-	//	{
-	//		//unsigned char * blm = objs[g].first->defInfo->blockMap;
-	//		if (objs[g].first->state)
-	//			ret.push_back(objs[g].first->state->hoverText(objs[g].first));
-	//		else
-	//			ret.push_back(CGI->objh->objects[objs[g].first->ID].name);
-	//	}
-	//}
+	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].blockingObjects)
+		ret.push_back(obj->hoverName);
 	return ret;
 }
 bool CCallback::verifyPath(CPath * path, bool blockSea)
@@ -646,250 +634,4 @@ bool CCallback::battleIsStackMine(int ID)
 			return CGI->state->curB->stacks[h]->owner == player;
 	}
 	return false;
-}
-
-int3 CScriptCallback::getPos(CGObjectInstance * ob)
-{
-	return ob->pos;
-}
-void CScriptCallback::changePrimSkill(int ID, int which, int val)
-{	
-	CGHeroInstance * hero = gs->map->getHero(ID,0);
-	if (which<PRIMARY_SKILLS)
-	{
-		hero->primSkills[which]+=val;
-		cl->playerint[hero->getOwner()]->heroPrimarySkillChanged(hero, which, val);
-	}
-	else if (which==4)
-	{
-		hero->exp+=val;
-		if(hero->exp >= CGI->heroh->reqExp(hero->level+1)) //new level
-		{
-			hero->level++;
-			std::cout << hero->name <<" got level "<<hero->level<<std::endl;
-			int r = rand()%100, pom=0, x=0;
-			int std::pair<int,int>::*g  =  (hero->level>9) ? (&std::pair<int,int>::second) : (&std::pair<int,int>::first);
-			for(;x<PRIMARY_SKILLS;x++)
-			{
-				pom += hero->type->heroClass->primChance[x].*g;
-				if(r<pom)
-					break;
-			}
-			std::cout << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
-			hero->primSkills[x]++;
-
-			//TODO: dac dwie umiejetnosci 2-rzedne to wyboru
-
-		}
-		//TODO - powiadomic interfejsy, sprawdzic czy nie ma awansu itp
-	}
-}
-
-int CScriptCallback::getHeroOwner(int heroID)
-{
-	CGHeroInstance * hero = CGI->state->map->getHero(heroID,0);
-	return hero->getOwner();
-}
-void CScriptCallback::showInfoDialog(int player, std::string text, std::vector<SComponent*> * components)
-{
-	//TODO: upewniac sie ze mozemy to zrzutowac (przy customowych interfejsach cos moze sie kopnac)
-	if (player>=0)
-	{
-		CGameInterface * temp = cl->playerint[player];
-		if (temp->human)
-			((CPlayerInterface*)(temp))->showInfoDialog(text,*components);
-		return;
-	}
-	else
-	{
-		typedef std::pair<const ui8, CGameInterface*> intf;
-		BOOST_FOREACH(intf & i, cl->playerint)
-		{
-			if (i.second->human)
-				((CPlayerInterface*)(i.second))->showInfoDialog(text,*components);
-		}
-	}
-}
-
-void CScriptCallback::showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker)
-{
-	CGameInterface * temp = cl->playerint[player];
-	if (temp->human)
-		((CPlayerInterface*)(temp))->showSelDialog(text,*components,(int)asker);
-	return;
-}
-int CScriptCallback::getSelectedHero()
-{	
-	int ret;
-	if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
-		ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
-	else 
-		ret = -1;;
-	return ret;
-}
-int CScriptCallback::getDate(int mode)
-{
-	int temp;
-	switch (mode)
-	{
-	case 0:
-		return gs->day;
-		break;
-	case 1:
-		temp = (gs->day)%7;
-		if (temp)
-			return temp;
-		else return 7;
-		break;
-	case 2:
-		temp = ((gs->day-1)/7)+1;
-		if (!(temp%4))
-			return 4;
-		else 
-			return (temp%4);
-		break;
-	case 3:
-		return ((gs->day-1)/28)+1;
-		break;
-	}
-	return 0;
-}
-void CScriptCallback::giveResource(int player, int which, int val)
-{
-	gs->players[player].resources[which]+=val;
-	cl->playerint[player]->receivedResource(which,val);
-}
-void CScriptCallback::showCompInfo(int player, SComponent * comp)
-{
-	CPlayerInterface * i = dynamic_cast<CPlayerInterface*>(cl->playerint[player]);
-	if(i)
-		i->showComp(*comp);
-}
-void CScriptCallback::heroVisitCastle(CGObjectInstance * ob, int heroID)
-{
-	CGTownInstance * n;
-	if(n = dynamic_cast<CGTownInstance*>(ob))
-	{
-		n->visitingHero = CGI->state->map->getHero(heroID,0);
-		gs->map->getHero(heroID,0)->visitedTown = n;
-		cl->playerint[getHeroOwner(heroID)]->heroVisitsTown(CGI->state->map->getHero(heroID,0),n);
-	}
-	else
-		return;
-}
-
-void CScriptCallback::stopHeroVisitCastle(CGObjectInstance * ob, int heroID)
-{
-	CGTownInstance * n;
-	if(n = dynamic_cast<CGTownInstance*>(ob))
-	{
-		CGI->state->map->getHero(heroID,0)->visitedTown = NULL;
-		if(n->visitingHero && n->visitingHero->type->ID == heroID)
-			n->visitingHero = NULL;
-		return;
-	}
-	else
-		return;
-}
-void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
-{
-	CGHeroInstance* h = gs->map->getHero(hid,0);
-	if(position<0)
-	{
-		for(int i=0;i<h->artifacts.size();i++)
-		{
-			if(!h->artifacts[i])
-			{
-				h->artifacts[i] = artid;
-				return;
-			}
-		}
-		h->artifacts.push_back(artid);
-		return;
-	}
-	else
-	{
-		if(h->artifWorn[position]) //slot is occupied
-		{
-			giveHeroArtifact(h->artifWorn[position],hid,-1);
-		}
-		h->artifWorn[position] = artid;
-	}
-}
-
-void CScriptCallback::startBattle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2) //use hero=NULL for no hero
-{
-	gs->battle(army1,army2,tile,hero1,hero2);
-}
-void CScriptCallback::startBattle(int heroID, CCreatureSet * army, int3 tile) //for hero<=>neutral army
-{
-	CGHeroInstance* h = gs->map->getHero(heroID,0);
-	gs->battle(&h->army,army,tile,h,NULL);
-}
-void CLuaCallback::registerFuncs(lua_State * L)
-{
-//	lua_newtable(L);
-//
-//#define REGISTER_C_FUNC(x) \
-//	lua_pushstring(L, #x);      \
-//	lua_pushcfunction(L, x);    \
-//	lua_rawset(L, -3)
-//
-//	REGISTER_C_FUNC(getPos);
-//	REGISTER_C_FUNC(changePrimSkill);
-//	REGISTER_C_FUNC(getGnrlText);
-//	REGISTER_C_FUNC(getSelectedHero);
-//
-//	lua_setglobal(L, "vcmi");
-//	#undef REGISTER_C_FUNC
-}
-int CLuaCallback::getPos(lua_State * L)//(CGObjectInstance * object);
-{	
-	//const int args = lua_gettop(L); // number of arguments
-	//if ((args < 1) || !lua_isnumber(L, 1) )
-	//	luaL_error(L,
-	//		"Incorrect arguments to getPos([Object address])");
-	//CGObjectInstance * object = (CGObjectInstance *)(lua_tointeger(L, 1));
-	//lua_pushinteger(L,object->pos.x);
-	//lua_pushinteger(L,object->pos.y);
-	//lua_pushinteger(L,object->pos.z);
-	return 3;
-}
-int CLuaCallback::changePrimSkill(lua_State * L)//(int ID, int which, int val);
-{	
-	//const int args = lua_gettop(L); // number of arguments
-	//if ((args < 1) || !lua_isnumber(L, 1) ||
-	//    ((args >= 2) && !lua_isnumber(L, 2)) ||
-	//    ((args >= 3) && !lua_isnumber(L, 3))		)
-	//{
-	//	luaL_error(L,
-	//		"Incorrect arguments to changePrimSkill([Hero ID], [Which Primary skill], [Change by])");
-	//}
-	//int ID = lua_tointeger(L, 1),
-	//	which = lua_tointeger(L, 2),
-	//	val = lua_tointeger(L, 3);
-
-	//CScriptCallback::changePrimSkill(ID,which,val);
-
-	return 0;
-}
-int CLuaCallback::getGnrlText(lua_State * L) //(int which),returns string
-{
-	//const int args = lua_gettop(L); // number of arguments
-	//if ((args < 1) || !lua_isnumber(L, 1) )
-	//	luaL_error(L,
-	//		"Incorrect arguments to getGnrlText([Text ID])");
-	//int which = lua_tointeger(L,1);
-	//lua_pushstring(L,CGI->generaltexth->allTexts[which].c_str());
-	return 1;
-}
-int CLuaCallback::getSelectedHero(lua_State * L) //(),returns int (ID of hero, -1 if no hero is seleceted)
-{
-	//int ret;
-	//if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
-	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
-	//else 
-	//	ret = -1;
-	//lua_pushinteger(L,ret);
-	return 1;
 }

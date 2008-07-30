@@ -3,10 +3,6 @@
 #include <queue>
 #include <fstream>
 #include "CGameState.h"
-#include "CGameInterface.h"
-#include "CPlayerInterface.h"
-#include "SDL_Extensions.h"
-#include "CBattleInterface.h" //for CBattleHex
 #include <boost/random/linear_congruential.hpp>
 #include "hch/CDefObjInfoHandler.h"
 #include "hch/CArtHandler.h"
@@ -17,14 +13,10 @@
 #include "lib/VCMI_Lib.h"
 #include "map.h"
 #include "StartInfo.h"
-#include "CLua.h"
-#include "CCallback.h"
-#include "CLuaHandler.h"
 #include "lib/NetPacks.h"
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
-
 boost::rand48 ran;
 class CMP_stack
 {
@@ -143,6 +135,28 @@ void CGameState::apply(IPack * pack)
 				players[h->getOwner()].fogOfWarMap[t.x][t.y][t.z] = 1;
 			break;
 		}
+	case 1001://set object property
+		{
+			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);
+			int CGObjectInstance::*point;
+			switch(p->what)
+			{
+			case 1:
+				point = &CGObjectInstance::tempOwner;
+				break;
+			case 2:
+				point = &CGObjectInstance::blockVisit;
+				break;
+			}
+			map->objects[p->id]->*point = p->val;
+			break;
+		}
+	//case 1002://set hover name
+	//	{
+	//		SetHoverName * shn = static_cast<SetHoverName*>(pack);
+	//		map->objects[shn->id]->hoverName = toString(shn->name);
+	//		break;
+	//	}
 	}
 	mx->unlock();
 }
@@ -395,18 +409,6 @@ CGameState::~CGameState()
 {
 	delete mx;
 }
-bool CGameState::checkFunc(int obid, std::string name)
-{
-	if (objscr.find(obid)!=objscr.end())
-	{
-		if(objscr[obid].find(name)!=objscr[obid].end())
-		{
-			return true;
-		}
-	}
-	return false;
-}
-
 void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
 	day = 0;
@@ -441,6 +443,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		randomizeObject(map->objects[no]);
 		if(map->objects[no]->ID==26)
 			map->objects[no]->defInfo->handler=NULL;
+		map->objects[no]->hoverName = VLC->objh->names[map->objects[no]->ID];
 	}
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
@@ -651,67 +654,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			}
 		}
 	}
-
-	///****************************SCRIPTS************************************************/
-	//std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &objscr; //alias for easier access
-	///****************************C++ OBJECT SCRIPTS************************************************/
-	//std::map<int,CCPPObjectScript*> scripts;
-	//CScriptCallback * csc = new CScriptCallback();
-	//csc->gs = this;
-	//handleCPPObjS(&scripts,new CVisitableOPH(csc));
-	//handleCPPObjS(&scripts,new CVisitableOPW(csc));
-	//handleCPPObjS(&scripts,new CPickable(csc));
-	//handleCPPObjS(&scripts,new CMines(csc));
-	//handleCPPObjS(&scripts,new CTownScript(csc));
-	//handleCPPObjS(&scripts,new CHeroScript(csc));
-	//handleCPPObjS(&scripts,new CMonsterS(csc));
-	//handleCPPObjS(&scripts,new CCreatureGen(csc));
-	////created map
-
-	///****************************LUA OBJECT SCRIPTS************************************************/
-	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
-	//for (int i=0; i<lf->size(); i++)
-	//{
-	//	try
-	//	{
-	//		std::vector<std::string> * temp =  CLuaHandler::functionList((*lf)[i]);
-	//		CLuaObjectScript * objs = new CLuaObjectScript((*lf)[i]);
-	//		CLuaCallback::registerFuncs(objs->is);
-	//		//objs
-	//		for (int j=0; j<temp->size(); j++)
-	//		{
-	//			int obid ; //obj ID
-	//			int dspos = (*temp)[j].find_first_of('_');
-	//			obid = atoi((*temp)[j].substr(dspos+1,(*temp)[j].size()-dspos-1).c_str());
-	//			std::string fname = (*temp)[j].substr(0,dspos);
-	//			if (skrypty->find(obid)==skrypty->end())
-	//				skrypty->insert(std::pair<int, std::map<std::string, CObjectScript*> >(obid,std::map<std::string,CObjectScript*>()));
-	//			(*skrypty)[obid].insert(std::pair<std::string, CObjectScript*>(fname,objs));
-	//		}
-	//		delete temp;
-	//	}HANDLE_EXCEPTION
-	//}
-	///****************************INITIALIZING OBJECT SCRIPTS************************************************/
-	//std::string temps("newObject");
-	//for (int i=0; i<map->objects.size(); i++)
-	//{
-	//	//c++ scripts
-	//	if (scripts.find(map->objects[i]->ID) != scripts.end())
-	//	{
-	//		map->objects[i]->state = scripts[map->objects[i]->ID];
-	//		map->objects[i]->state->newObject(map->objects[i]);
-	//	}
-	//	else 
-	//	{
-	//		map->objects[i]->state = NULL;
-	//	}
-
-	//	// lua scripts
-	//	if(checkFunc(map->objects[i]->ID,temps))
-	//		(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
-	//}
-
-	//delete lf;
 }
 void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2)
 {/*

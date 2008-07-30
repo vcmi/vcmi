@@ -176,6 +176,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\CLua.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CScriptCallback.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\CVCMIServer.cpp"
 				>
 			</File>
@@ -187,6 +195,14 @@
 			>
 			<File
 				RelativePath=".\CGameHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\CLua.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CScriptCallback.h"
 				>
 			</File>
 			<File

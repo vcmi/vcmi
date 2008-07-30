@@ -252,7 +252,16 @@ public:
 			data.insert(ins);
 		}
 	}
-
+	template <typename T1, typename T2>
+	void saveSerializable(const std::pair<T1,T2> &data)
+	{
+		*this << data.first << data.second;
+	}
+	template <typename T1, typename T2>
+	void loadSerializable(std::pair<T1,T2> &data)
+	{
+		*this >> data.first >> data.second;
+	}
 	template <typename T>
 	void save(const T &data)
 	{

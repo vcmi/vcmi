@@ -1,29 +1,26 @@
 #include "stdafx.h"
-#include "CLua.h"
-#include "CLuaHandler.h"
+#include <sstream>
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include "hch/CHeroHandler.h"
+#include "hch/CObjectHandler.h"
+#include "hch/CTownHandler.h"
+#include "hch/CArtHandler.h"
+#include "hch/CDefObjInfoHandler.h"
 //#include "lua.h"
 //#include "lualib.h"
 //#include "lauxlib.h"
 //#include "lobject.h"
 //#include "lgc.h"
 //#include "lapi.h"
-#include "CGameInfo.h"
+#include "CLua.h"
 #include "CGameState.h"
-#include <sstream>
-#include "hch/CObjectHandler.h"
-#include "hch/CTownHandler.h"
-#include "hch/CArtHandler.h"
-#include "CCallback.h"
-#include "hch/CGeneralTextHandler.h"
-#include <sstream>
-#include "CPlayerInterface.h"
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include "hch/CDefObjInfoHandler.h"
+#include "lib/VCMI_Lib.h"
 #include "map.h"
-#include "maphandler.h"
+#include "server/CScriptCallback.h"
+#include "lib/NetPacks.h"
 #pragma warning (disable : 4311)
+#define DEFOS const CGObjectInstance *os = cb->getObj(objid)
 bool getGlobalFunc(lua_State * L, std::string fname)
 {
 	//unsigned int hash = lua_calchash(fname.c_str(), fname.size());
@@ -138,7 +135,7 @@ std::string CLuaObjectScript::genFN(std::string base, int ID)
 	return sts.str();
 }
 
-void CLuaObjectScript::newObject(CGObjectInstance *os)
+void CLuaObjectScript::newObject(int objid)
 {
 	//findF(genFN("newObject",os->ID));
 	//lua_pushinteger(is, (int)os);
@@ -150,7 +147,7 @@ void CLuaObjectScript::newObject(CGObjectInstance *os)
 	//lua_settop(is, 0);
 	return;
 }
-void CLuaObjectScript::onHeroVisit(CGObjectInstance *os, int heroID)
+void CLuaObjectScript::onHeroVisit(int objid, int heroID)
 {
 	//findF(genFN("heroVisit",os->ID));
 	//lua_pushinteger(is, (int)os);
@@ -162,43 +159,75 @@ void CLuaObjectScript::onHeroVisit(CGObjectInstance *os, int heroID)
 	//}
 	//lua_settop(is, 0);
 }
-std::string CLuaObjectScript::hoverText(CGObjectInstance *os)
-{
-	//findF(genFN("hoverText",os->ID));
-	//lua_pushinteger(is, (int)os);
-	//if (lua_pcall (is, 1, 1, 0))
-	//{
-	//	lua_settop(is, 0);
-	//	throw new  std::exception(("Failed to call "+genFN("hoverText",os->ID)+" function in lua script.").c_str());
-	//}
-	//std::string ret = lua_tostring(is,1);
-	//lua_settop(is, 0);
-	return "";
-}
+//std::string CLuaObjectScript::hoverText(int objid)
+//{
+//	//findF(genFN("hoverText",os->ID));
+//	//lua_pushinteger(is, (int)os);
+//	//if (lua_pcall (is, 1, 1, 0))
+//	//{
+//	//	lua_settop(is, 0);
+//	//	throw new  std::exception(("Failed to call "+genFN("hoverText",os->ID)+" function in lua script.").c_str());
+//	//}
+//	//std::string ret = lua_tostring(is,1);
+//	//lua_settop(is, 0);
+//	return "";
+//}
 
-std::string CCPPObjectScript::hoverText(CGObjectInstance *os)
-{
-	return CGI->objh->objects[os->defInfo->id].name;
-}
-
-void CVisitableOPH::newObject(CGObjectInstance *os)
+void CVisitableOPH::newObject(int objid)
 {
 	visitors.insert
-		(std::pair<CGObjectInstance*,std::set<int> >(os,std::set<int>()));
+		(std::pair<int,std::set<int> >(objid,std::set<int>()));
+
+	DEFOS;
+	MetaString hovername;
+	int pom;
+	switch(os->ID)
+	{
+	case 51:
+		pom = 8; 
+		break;
+	case 23:
+		pom = 7;
+		break;
+	case 61:
+		pom = 11; 
+		break;
+	case 32:
+		pom = 4; 
+		break;
+	case 100:
+		pom = 5; 
+		break;
+	default:
+		throw new std::exception("Unsupported ID in CVisitableOPH::hoverText");
+	}
+
+	hovername << std::pair<ui8,ui32>(3,os->ID) << " " << std::pair<ui8,ui32>(2,pom);
+	cb->setHoverName(objid,&hovername);
+
+	//int heroID = cb->getSelectedHero();
+	//if (heroID>=0)
+	//{
+		//add += ( (visitors[os].find(heroID) == visitors[os].end()) 
+		//		? 
+		//	(VLC->generaltexth->allTexts[353])  //not visited
+		//		: 
+		//	( VLC->generaltexth->allTexts[352]) ); //visited
+	//}
 };
 
-void CVisitableOPH::onHeroVisit(CGObjectInstance *os, int heroID)
+void CVisitableOPH::onHeroVisit(int objid, int heroID)
 {
-	if (visitors.find(os)!=visitors.end())
+	if (visitors.find(objid)!=visitors.end())
 	{
-		if(visitors[os].find(heroID)==visitors[os].end())
+		if(visitors[objid].find(heroID)==visitors[objid].end())
 		{
-			onNAHeroVisit(os,heroID, false);
-			visitors[os].insert(heroID);
+			onNAHeroVisit(objid,heroID, false);
+			visitors[objid].insert(heroID);
 		}
 		else
 		{
-			onNAHeroVisit(os,heroID, true);
+			onNAHeroVisit(objid,heroID, true);
 		}
 	}
 	else
@@ -206,8 +235,9 @@ void CVisitableOPH::onHeroVisit(CGObjectInstance *os, int heroID)
 		throw new std::exception("Skrypt nie zainicjalizowal instancji tego obiektu. :(");
 	}
 };
-void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited)
+void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 {
+	const CGObjectInstance *os = cb->getObj(objid);
 	int w=0, ot=0, vvv=1;
 	switch(os->ID)
 	{
@@ -242,30 +272,26 @@ void CVisitableOPH::onNAHeroVisit(CGObjectInstance *os, int heroID, bool already
 		case 61:
 		case 32:
 			{
-				cb->changePrimSkill(heroID,w,vvv);
-				std::vector<SComponent*> weko;
-				weko.push_back(new SComponent(SComponent::primskill,w,vvv)); 
-				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko); 
-				//for (int ii=0; ii<weko.size();ii++)
-				//	delete weko[ii];
-				break;
+				//cb->changePrimSkill(heroID,w,vvv);
+				//std::vector<SComponent*> weko;
+				//weko.push_back(new SComponent(SComponent::primskill,w,vvv)); 
+				//cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&weko); 
+				//break;
 			}
 		case 100:
 			{
-				cb->changePrimSkill(heroID,w,vvv);
-				std::vector<SComponent*> weko;
-				weko.push_back(new SComponent(SComponent::experience,0,vvv)); 
-				cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&weko); 
-				//for (int ii=0; ii<weko.size();ii++)
-				//	delete weko[ii];
-				break;
+				//cb->changePrimSkill(heroID,w,vvv);
+				//std::vector<SComponent*> weko;
+				//weko.push_back(new SComponent(SComponent::experience,0,vvv)); 
+				//cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&weko); 
+				//break;
 			}
 		}
 	}
 	else
 	{
 		ot++;
-		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[ot],&std::vector<SComponent*>());
+		cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&std::vector<SComponent*>());
 	}
 }
 
@@ -280,126 +306,93 @@ std::vector<int> CVisitableOPH::yourObjects()
 	return ret;
 }
 
-std::string CVisitableOPH::hoverText(CGObjectInstance *os)
+void CVisitableOPW::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 {
-	std::string add;
-	int pom;
-	switch(os->ID)
-	{
-	case 51:
-		pom = 8; 
-		break;
-	case 23:
-		pom = 7;
-		break;
-	case 61:
-		pom = 11; 
-		break;
-	case 32:
-		pom = 4; 
-		break;
-	case 100:
-		pom = 5; 
-		break;
-	default:
-		throw new std::exception("Unsupported ID in CVisitableOPH::hoverText");
-	}
-	add = " " + CGI->objh->xtrainfo[pom] + " ";
-	int heroID = cb->getSelectedHero();
-	if (heroID>=0)
-	{
-		add += ( (visitors[os].find(heroID) == visitors[os].end()) 
-				? 
-			(CGI->generaltexth->allTexts[353])  //not visited
-				: 
-			( CGI->generaltexth->allTexts[352]) ); //visited
-	}
-	return CGI->objh->objects[os->defInfo->id].name + add;
-}
-
-void CVisitableOPW::onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited)
-{
-	int mid;
-	switch (os->ID)
-	{
-	case 55:
-		mid = 92;
-		break;
-	case 112:
-		mid = 170;
-		break;
-	case 109:
-		mid = 164;
-		break;
-	}
-	if (alreadyVisited)
-	{
-		if (os->ID!=112)
-			mid++;
-		else 
-			mid--;
-		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[mid],&std::vector<SComponent*>()); //TODO: maybe we have memory leak with these windows
-	}
-	else
-	{
-		int type, sub, val;
-		type = SComponent::resource;
-		switch (os->ID)
-		{
-		case 55:
-			if (rand()%2)
-			{
-				sub = 5;
-				val = 5;
-			}
-			else
-			{
-				sub = 6;
-				val = 500;
-			}
-			break;
-		case 112:
-			mid = 170;
-			sub = (rand() % 5) + 1;
-			val = (rand() % 4) + 3;
-			break;
-		case 109:
-			mid = 164;
-			sub = 6;
-			if(cb->getDate(2)<2)
-				val = 500;
-			else
-				val = 1000;
-		}
-		SComponent * com = new SComponent((SComponent::Etype)type,sub,val);
-		std::vector<SComponent*> weko;
-		weko.push_back(com);
-		cb->giveResource(cb->getHeroOwner(heroID),sub,val);
-		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->advobtxt[mid],&weko);
-		visited[os] = true;
-	}
+	//int mid;
+	//switch (os->ID)
+	//{
+	//case 55:
+	//	mid = 92;
+	//	break;
+	//case 112:
+	//	mid = 170;
+	//	break;
+	//case 109:
+	//	mid = 164;
+	//	break;
+	//}
+	//if (alreadyVisited)
+	//{
+	//	if (os->ID!=112)
+	//		mid++;
+	//	else 
+	//		mid--;
+	//	cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[mid],&std::vector<SComponent*>()); //TODO: maybe we have memory leak with these windows
+	//}
+	//else
+	//{
+	//	int type, sub, val;
+	//	type = SComponent::resource;
+	//	switch (os->ID)
+	//	{
+	//	case 55:
+	//		if (rand()%2)
+	//		{
+	//			sub = 5;
+	//			val = 5;
+	//		}
+	//		else
+	//		{
+	//			sub = 6;
+	//			val = 500;
+	//		}
+	//		break;
+	//	case 112:
+	//		mid = 170;
+	//		sub = (rand() % 5) + 1;
+	//		val = (rand() % 4) + 3;
+	//		break;
+	//	case 109:
+	//		mid = 164;
+	//		sub = 6;
+	//		if(cb->getDate(2)<2)
+	//			val = 500;
+	//		else
+	//			val = 1000;
+	//	}
+	//	SComponent * com = new SComponent((SComponent::Etype)type,sub,val);
+	//	std::vector<SComponent*> weko;
+	//	weko.push_back(com);
+	//	cb->giveResource(cb->getHeroOwner(heroID),sub,val);
+	//	cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[mid],&weko);
+	//	visited[os] = true;
+	//}
 }
 void CVisitableOPW::newTurn ()
 {
 	if (cb->getDate(1)==1)
 	{
-		for (std::map<CGObjectInstance*,bool>::iterator i = visited.begin(); i != visited.end(); i++)
+		for (std::map<int,bool>::iterator i = visited.begin(); i != visited.end(); i++)
 		{
 			(*i).second = false;
 		}
 	}
 } 
-void CVisitableOPW::newObject(CGObjectInstance *os)
+void CVisitableOPW::newObject(int objid)
 {
-	visited.insert(std::pair<CGObjectInstance*,bool>(os,false));
+	visited.insert(std::pair<int,bool>(objid,false));
+	DEFOS;
+	MetaString ms;
+	ms << std::pair<ui8,ui32>(3,os->ID) << " " << std::pair<ui8,ui32>(1,visited[objid] ? 352 : 353);
+	cb->setHoverName(objid,&ms);
 }
 
-void CVisitableOPW::onHeroVisit(CGObjectInstance *os, int heroID)
+void CVisitableOPW::onHeroVisit(int objid, int heroID)
 {
-	if(visited[os])
-		onNAHeroVisit(os,heroID,true);
+	if(visited[objid])
+		onNAHeroVisit(objid,heroID,true);
 	else 
-		onNAHeroVisit(os,heroID,false);
+		onNAHeroVisit(objid,heroID,false);
 }
 
 std::vector<int> CVisitableOPW::yourObjects() //returns IDs of objects which are handled by script
@@ -411,38 +404,43 @@ std::vector<int> CVisitableOPW::yourObjects() //returns IDs of objects which are
 	return ret;
 }
 
-std::string CVisitableOPW::hoverText(CGObjectInstance *os)
+void CMines::newObject(int objid)
 {
-	return CGI->objh->objects[os->defInfo->id].name + " " + ( (visited[os]) ? (CGI->generaltexth->allTexts[352]) : (CGI->generaltexth->allTexts[353]))  ;
+	ourObjs.push_back(objid);
+	cb->setOwner(objid,NEUTRAL_PLAYER);
+	DEFOS;
+	MetaString ms;
+	ms << std::pair<ui8,ui32>(3,os->ID);
+	cb->setHoverName(objid,&ms);
 }
-
-void CMines::newObject(CGObjectInstance *os)
+void CMines::onHeroVisit(int objid, int heroID)
 {
-	ourObjs.push_back(os);
-	os->tempOwner = NEUTRAL_PLAYER;
-}
-void CMines::onHeroVisit(CGObjectInstance *os, int heroID)
-{
-	int vv = 1;
-	if (os->subID==0 || os->subID==2)
-		vv++;
-	else if (os->subID==6)
-		vv = 1000;
-	if (os->tempOwner == cb->getHeroOwner(heroID))
-	{
-		//TODO: garrison
-	}
-	else
-	{
-		if (os->subID==7)
-			return; //TODO: support for abandoned mine
-		os->tempOwner = cb->getHeroOwner(heroID);
-		SComponent * com = new SComponent(SComponent::Etype::resource,os->subID,vv);
-		com->subtitle+=CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
-		std::vector<SComponent*> weko;
-		weko.push_back(com);
-		cb->showInfoDialog(cb->getHeroOwner(heroID),CGI->objh->mines[os->subID].second,&weko);
-	}
+	DEFOS;
+	const CGHeroInstance *h = cb->getHero(heroID);
+	cb->setOwner(objid,h->tempOwner);
+	MetaString ms;
+	ms << std::pair<ui8,ui32>(9,os->subID) << " " << std::pair<ui8,ui32>(6,23+h->tempOwner);
+	cb->setHoverName(objid,&ms);
+	//int vv = 1;
+	//if (os->subID==0 || os->subID==2)
+	//	vv++;
+	//else if (os->subID==6)
+	//	vv = 1000;
+	//if (os->tempOwner == cb->getHeroOwner(heroID))
+	//{
+	//	//TODO: garrison
+	//}
+	//else
+	//{
+	//	if (os->subID==7)
+	//		return; //TODO: support for abandoned mine
+	//	os->tempOwner = cb->getHeroOwner(heroID);
+	//	SComponent * com = new SComponent(SComponent::Etype::resource,os->subID,vv);
+	//	com->subtitle+=VLC->generaltexth->allTexts[3].substr(2,VLC->generaltexth->allTexts[3].length()-2);
+	//	std::vector<SComponent*> weko;
+	//	weko.push_back(com);
+	//	cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->mines[os->subID].second,&weko);
+	//}
 }
 std::vector<int> CMines::yourObjects()
 {
@@ -450,36 +448,48 @@ std::vector<int> CMines::yourObjects()
 	ret.push_back(53);
 	return ret;
 }
-std::string CMines::hoverText(CGObjectInstance *os)
-{
-	if (os->tempOwner == NEUTRAL_PLAYER)
-		return CGI->objh->mines[os->subID].first;
-	else
-		return CGI->objh->mines[os->subID].first + " " + CGI->generaltexth->arraytxt[23+os->tempOwner];
-
-}
 void CMines::newTurn ()
 {
-	for (int i=0;i<ourObjs.size();i++)
+	const CGObjectInstance * obj;
+	for (unsigned i=0;i<ourObjs.size();i++)
 	{
-		if (ourObjs[i]->tempOwner == NEUTRAL_PLAYER)
+		obj = cb->getObj(ourObjs[i]);
+		if (obj->tempOwner == NEUTRAL_PLAYER)
 			continue;
 		int vv = 1;
-		if (ourObjs[i]->subID==0 || ourObjs[i]->subID==2)
+		if (obj->subID==0 || obj->subID==2)
 			vv++;
-		else if (ourObjs[i]->subID==6)
+		else if (obj->subID==6)
 			vv = 1000;
-		cb->giveResource(ourObjs[i]->tempOwner,ourObjs[i]->subID,vv);
+		cb->giveResource(obj->tempOwner,obj->subID,vv);
 	}
 }
 
 
-void CPickable::newObject(CGObjectInstance *os)
+void CPickable::newObject(int objid)
 {
-	os->blockVisit = true;
+	cb->setBlockVis(objid,true);
+
+	MetaString ms;
+	DEFOS;
+	switch (os->ID)
+	{
+	case 79:
+		ms << std::pair<ui8,ui32>(4,os->ID);
+		break;
+	case 5:
+		ms << std::pair<ui8,ui32>(5,os->ID);
+		break;
+	default:
+		ms << std::pair<ui8,ui32>(3,os->ID);
+		break;
+	}
+
+	cb->setHoverName(objid,&ms);
 }
-void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
+void CPickable::onHeroVisit(int objid, int heroID)
 {
+	DEFOS;
 	switch(os->ID)
 	{
 	case 5:
@@ -489,109 +499,93 @@ void CPickable::onHeroVisit(CGObjectInstance *os, int heroID)
 		}
 	case 79:
 		{
-			//TODO: handle guards (when battles are finished)
-			CResourceObjInfo * t2 = static_cast<CResourceObjInfo *>(os->info);
-			int val;
-			if(t2->amount)
-				val = t2->amount;
-			else
-			{
-				switch(os->subID)
-				{
-				case 6:
-					val = 500 + (rand()%6)*100;
-					break;
-				case 0: case 2:
-					val = 6 + (rand()%5);
-					break;
-				default:
-					val = 3 + (rand()%3);
-					break;
-				}
-			}
-			if(t2->message.length())
-				cb->showInfoDialog(cb->getHeroOwner(heroID),t2->message,&std::vector<SComponent*>());
-			SComponent ccc(SComponent::resource,os->subID,val);
-			ccc.description = CGI->objh->advobtxt[113];
-			boost::algorithm::replace_first(ccc.description,"%s",CGI->objh->restypes[os->subID]);
-			cb->giveResource(cb->getHeroOwner(heroID),os->subID,val);
-			cb->showCompInfo(cb->getHeroOwner(heroID),&ccc);
+			////TODO: handle guards (when battles are finished)
+			//CResourceObjInfo * t2 = static_cast<CResourceObjInfo *>(os->info);
+			//int val;
+			//if(t2->amount)
+			//	val = t2->amount;
+			//else
+			//{
+			//	switch(os->subID)
+			//	{
+			//	case 6:
+			//		val = 500 + (rand()%6)*100;
+			//		break;
+			//	case 0: case 2:
+			//		val = 6 + (rand()%5);
+			//		break;
+			//	default:
+			//		val = 3 + (rand()%3);
+			//		break;
+			//	}
+			//}
+			//if(t2->message.length())
+			//	cb->showInfoDialog(cb->getHeroOwner(heroID),t2->message,&std::vector<SComponent*>());
+			//SComponent ccc(SComponent::resource,os->subID,val);
+			//ccc.description = VLC->objh->advobtxt[113];
+			//boost::algorithm::replace_first(ccc.description,"%s",VLC->objh->restypes[os->subID]);
+			//cb->giveResource(cb->getHeroOwner(heroID),os->subID,val);
+			//cb->showCompInfo(cb->getHeroOwner(heroID),&ccc);
 			break;
 		}
 	case 101:
 		{
-			if (os->subID)
-				break; //not OH3 treasure chest
-			int wyn = rand()%100;
-			if (wyn<32)
-			{
-				tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1000));
-				tempStore.push_back(new CSelectableComponent(SComponent::experience,0,500));
-			}//1k/0.5k
-			else if(wyn<64)
-			{
-				tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1500));
-				tempStore.push_back(new CSelectableComponent(SComponent::experience,0,1000));
-			}//1.5k/1k
-			else if(wyn<95)
-			{
-				tempStore.push_back(new CSelectableComponent(SComponent::resource,6,2000));
-				tempStore.push_back(new CSelectableComponent(SComponent::experience,0,1500));
-			}//2k/1.5k
-			else
-			{
-				if (1/*TODO: backpack is full*/)
-				{
-					tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1000));
-					tempStore.push_back(new CSelectableComponent(SComponent::experience,0,500));
-				}
-				else
-				{
-					//TODO: give treasure artifact
-					break;
-				}
-			}//random treasure artifact, or (if backapack is full) 1k/0.5k
-			tempStore[1]->ID = heroID;
-			player = cb->getHeroOwner(heroID);
-			cb->showSelDialog(player,CGI->objh->advobtxt[146],&tempStore,this);
+			//if (os->subID)
+			//	break; //not OH3 treasure chest
+			//int wyn = rand()%100;
+			//if (wyn<32)
+			//{
+			//	tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1000));
+			//	tempStore.push_back(new CSelectableComponent(SComponent::experience,0,500));
+			//}//1k/0.5k
+			//else if(wyn<64)
+			//{
+			//	tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1500));
+			//	tempStore.push_back(new CSelectableComponent(SComponent::experience,0,1000));
+			//}//1.5k/1k
+			//else if(wyn<95)
+			//{
+			//	tempStore.push_back(new CSelectableComponent(SComponent::resource,6,2000));
+			//	tempStore.push_back(new CSelectableComponent(SComponent::experience,0,1500));
+			//}//2k/1.5k
+			//else
+			//{
+			//	if (1/*TODO: backpack is full*/)
+			//	{
+			//		tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1000));
+			//		tempStore.push_back(new CSelectableComponent(SComponent::experience,0,500));
+			//	}
+			//	else
+			//	{
+			//		//TODO: give treasure artifact
+			//		break;
+			//	}
+			//}//random treasure artifact, or (if backapack is full) 1k/0.5k
+			//tempStore[1]->ID = heroID;
+			//player = cb->getHeroOwner(heroID);
+			//cb->showSelDialog(player,VLC->objh->advobtxt[146],&tempStore,this);
 			break;
 		}
 	}
-	CGI->mh->removeObject(os);
+	//VLC->mh->removeObject(os);
 }
 void CPickable::chosen(int which)
 {
-	switch(tempStore[which]->type)
-	{
-	case SComponent::resource:
-		cb->giveResource(player,tempStore[which]->subtype,tempStore[which]->val);
-		break;
-	case SComponent::experience:
-		cb->changePrimSkill(tempStore[which]->ID,4,tempStore[which]->val);
-		break;
-	default:
-		throw new std::exception("Unhandled choice");
-		
-	}
-	for (int i=0;i<tempStore.size();i++)
-		delete tempStore[i];
-	tempStore.clear();
-}
-
-std::string CPickable::hoverText(CGObjectInstance *os)
-{
-	switch (os->ID)
-	{
-	case 79:
-		return CGI->objh->restypes[os->subID];
-		break;
-	case 5:
-		return CGI->arth->artifacts[os->subID].name;
-		break;
-	default:
-		return CGI->objh->objects[os->defInfo->id].name;
-		break;
-	}
+	//switch(tempStore[which]->type)
+	//{
+	//case SComponent::resource:
+	//	cb->giveResource(player,tempStore[which]->subtype,tempStore[which]->val);
+	//	break;
+	//case SComponent::experience:
+	//	cb->changePrimSkill(tempStore[which]->ID,4,tempStore[which]->val);
+	//	break;
+	//default:
+	//	throw new std::exception("Unhandled choice");
+	//	
+	//}
+	//for (int i=0;i<tempStore.size();i++)
+	//	delete tempStore[i];
+	//tempStore.clear();
 }
 
 std::vector<int> CPickable::yourObjects() //returns IDs of objects which are handled by script
@@ -603,20 +597,22 @@ std::vector<int> CPickable::yourObjects() //returns IDs of objects which are han
 	return ret;
 }
 
-void CTownScript::onHeroVisit(CGObjectInstance *os, int heroID)
+void CTownScript::onHeroVisit(int objid, int heroID)
 {
-	cb->heroVisitCastle(os,heroID);
+	cb->heroVisitCastle(objid,heroID);
 }
-void CTownScript::onHeroLeave(CGObjectInstance *os, int heroID)
+
+void CTownScript::newObject(int objid)
 {
-	cb->stopHeroVisitCastle(os,heroID);
+	MetaString ms;
+	const CGTownInstance * n = cb->getTown(objid);
+	ms << n->name << ", " << n->town->name;
+	cb->setHoverName(objid,&ms);
 }
-std::string CTownScript::hoverText(CGObjectInstance *os)
+
+void CTownScript::onHeroLeave(int objid, int heroID)
 {
-	CGTownInstance * n;
-	if(n = dynamic_cast<CGTownInstance*>(os))
-		return n->name + ", " + n->town->name;
-	else return "";
+	cb->stopHeroVisitCastle(objid,heroID);
 }
 
 std::vector<int> CTownScript::yourObjects() //returns IDs of objects which are handled by script
@@ -626,27 +622,28 @@ std::vector<int> CTownScript::yourObjects() //returns IDs of objects which are h
 	return ret;
 }
 
-void CHeroScript::newObject(CGObjectInstance *os)
+void CHeroScript::newObject(int objid)
 {
-	os->blockVisit = true;
-	heroes.insert(std::pair<int,CGObjectInstance*>(os->subID,os));
+	cb->setBlockVis(objid,true);
 }
 
-void CHeroScript::onHeroVisit(CGObjectInstance *os, int heroID)
+void CHeroScript::onHeroVisit(int objid, int heroID)
 {
 	//TODO: check for allies
-	if(static_cast<CGHeroInstance*>(heroes[heroID])->tempOwner == static_cast<CGHeroInstance*>(os)->tempOwner) //one of allied cases
+	const CGHeroInstance *my = cb->getHero(objid), 
+		*vis = cb->getHero(objid);
+	if(my->tempOwner == vis->tempOwner) //one of allied cases
 	{
 		//exchange
 	}
 	else
 	{
 		cb->startBattle(
-			&(static_cast<CGHeroInstance*>(heroes[heroID]))->army,
-			&(static_cast<CGHeroInstance*>(os))->army,
-			os->pos,
-			static_cast<CGHeroInstance*>(heroes[heroID]),
-			static_cast<CGHeroInstance*>(os));
+			&my->army,
+			&vis->army,
+			my->pos,
+			my,
+			vis);
 	}
 }
 std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are handled by script
@@ -655,64 +652,66 @@ std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are h
 	ret.push_back(34); //hero
 	return ret;
 }
-std::string CHeroScript::hoverText(CGObjectInstance *os)
-{
-	CGHeroInstance* h = static_cast<CGHeroInstance*>(os);
-	std::string ret = CGI->generaltexth->allTexts[15];
-	boost::algorithm::replace_first(ret,"%s",h->name);
-	boost::algorithm::replace_first(ret,"%s",h->type->heroClass->name);
-	return ret;
-}
-void CMonsterS::newObject(CGObjectInstance *os)
+//std::string CHeroScript::hoverText(int objid)
+//{
+//	//CGHeroInstance* h = static_cast<CGHeroInstance*>(os);
+//	//std::string ret = VLC->generaltexth->allTexts[15];
+//	//boost::algorithm::replace_first(ret,"%s",h->name);
+//	//boost::algorithm::replace_first(ret,"%s",h->type->heroClass->name);
+//	//return ret;
+//	return "";
+//}
+void CMonsterS::newObject(int objid)
 {
 	//os->blockVisit = true;
-	switch(CGI->creh->creatures[os->subID].level)
+	DEFOS;
+	switch(VLC->creh->creatures[os->subID].level)
 	{
 	case 1:
-		((CCreatureObjInfo*)os->info)->number = rand()%31+20;
+		amounts[objid] = rand()%31+20;
 		break;
 	case 2:
-		((CCreatureObjInfo*)os->info)->number = rand()%16+15;
+		amounts[objid] = rand()%16+15;
 		break;
 	case 3:
-		((CCreatureObjInfo*)os->info)->number = rand()%16+10;
+		amounts[objid] = rand()%16+10;
 		break;
 	case 4:
-		((CCreatureObjInfo*)os->info)->number = rand()%11+10;
+		amounts[objid] = rand()%11+10;
 		break;
 	case 5:
-		((CCreatureObjInfo*)os->info)->number = rand()%9+8;
+		amounts[objid] = rand()%9+8;
 		break;
 	case 6:
-		((CCreatureObjInfo*)os->info)->number = rand()%8+5;
+		amounts[objid] = rand()%8+5;
 		break;
 	case 7:
-		((CCreatureObjInfo*)os->info)->number = rand()%7+3;
+		amounts[objid] = rand()%7+3;
 		break;
 	case 8:
-		((CCreatureObjInfo*)os->info)->number = rand()%4+2;
+		amounts[objid] = rand()%4+2;
 		break;
 	case 9:
-		((CCreatureObjInfo*)os->info)->number = rand()%3+2;
+		amounts[objid] = rand()%3+2;
 		break;
 	case 10:
-		((CCreatureObjInfo*)os->info)->number = rand()%3+1;
+		amounts[objid] = rand()%3+1;
 		break;
 
 	}
 
-}
-std::string CMonsterS::hoverText(CGObjectInstance *os)
-{
-	int pom = CCreature::getQuantityID(((CCreatureObjInfo*)os->info)->number);
+	MetaString ms;
+	int pom = CCreature::getQuantityID(amounts[objid]);
 	pom = 174 + 3*pom + 1;
-	return CGI->generaltexth->arraytxt[pom] + " " + CGI->creh->creatures[os->subID].namePl;
+	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,os->subID);
+	cb->setHoverName(objid,&ms);
 }
-void CMonsterS::onHeroVisit(CGObjectInstance *os, int heroID)
+void CMonsterS::onHeroVisit(int objid, int heroID)
 {
+	DEFOS;
 	CCreatureSet set;
 	//TODO: zrobic secik w sposob wyrafinowany
-	set.slots[0] = std::pair<CCreature*,int>(&CGI->creh->creatures[os->subID],((CCreatureObjInfo*)os->info)->number);
+	set.slots[0] = std::pair<CCreature*,int>(&VLC->creh->creatures[os->subID],((CCreatureObjInfo*)os->info)->number);
 	cb->startBattle(heroID,&set,os->pos);
 }
 std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script
@@ -723,15 +722,15 @@ std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are han
 }
 
 
-void CCreatureGen::newObject(CGObjectInstance *os)
+void CCreatureGen::newObject(int objid)
 {
-	amount[os] = CGI->creh->creatures[CGI->objh->cregens[os->subID]].growth;
+	DEFOS;
+	amount[objid] = VLC->creh->creatures[VLC->objh->cregens[os->subID]].growth;
+	MetaString ms;
+	ms << std::pair<ui8,ui32>(8,os->subID);
+	cb->setHoverName(objid,&ms);
 }
-std::string CCreatureGen::hoverText(CGObjectInstance *os)
-{
-	return CGI->objh->creGens[os->subID];
-}
-void CCreatureGen::onHeroVisit(CGObjectInstance *os, int heroID)
+void CCreatureGen::onHeroVisit(int objid, int heroID)
 {
 }
 std::vector<int> CCreatureGen::yourObjects() //returns IDs of objects which are handled by script

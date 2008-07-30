@@ -320,10 +320,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CLua.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\CLuaHandler.cpp"
 				>
 			</File>

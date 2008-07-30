@@ -213,7 +213,7 @@ void CPathfinder::CalcH(Coordinate* node)
 		y = CGI->mh->map->height-1;
 
 	//Get the movement cost.
-	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].tileInfo->tertype, CGI->mh->map->terrain[x][y][0].malle,CGI->mh->map->terrain[x][y][0].nuine);
+	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].tileInfo->tertype, CGI->mh->map->terrain[x][y][node->z].malle,CGI->mh->map->terrain[x][y][node->z].nuine);
 	
 	node->h = ret;
 }

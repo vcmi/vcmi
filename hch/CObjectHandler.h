@@ -42,12 +42,6 @@ public:
 	}
 };
 
-class DLL_EXPORT CObject //typical object that can be encountered on a map
-{
-public:
-	std::string name; //object's name
-};
-
 class DLL_EXPORT CGObjectInstance
 {
 public:
@@ -58,9 +52,10 @@ public:
 	CCPPObjectScript * state;
 	CSpecObjInfo * info;
 	unsigned char animPhaseShift;
+	std::string hoverName;
 
 	int tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
-	bool blockVisit;
+	int blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
 	
 	virtual bool isHero() const;
 	int getOwner() const; 
@@ -172,7 +167,7 @@ public:
 class DLL_EXPORT CObjectHandler
 {
 public:
-	std::vector<CObject> objects; //vector of objects; i-th object in vector has subnumber i
+	std::vector<std::string> names; //vector of objects; i-th object in vector has subnumber i
 	std::vector<int> cregens; //type 17. dwelling subid -> creature ID
 	void loadObjects();
 

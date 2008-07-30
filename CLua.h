@@ -28,10 +28,10 @@ public:
 
 	//functions to be called in script
 	//virtual void init(){};
-	virtual void newObject(CGObjectInstance *os){};
-	virtual void onHeroVisit(CGObjectInstance *os, int heroID){};
-	virtual void onHeroLeave(CGObjectInstance *os, int heroID){};
-	virtual std::string hoverText(CGObjectInstance *os){return "";};
+	virtual void newObject(int objid){};
+	virtual void onHeroVisit(int objid, int heroID){};
+	virtual void onHeroLeave(int objid, int heroID){};
+	virtual std::string hoverText(int objid){return "";};
 	virtual void newTurn (){}; 
 
 
@@ -83,122 +83,101 @@ public:
 	static std::string genFN(std::string base, int ID);
 
 	void init();
-	void newObject(CGObjectInstance *os);
-	void onHeroVisit(CGObjectInstance *os, int heroID);
-	std::string hoverText(CGObjectInstance *os);
-
-	friend CGameState;
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
 };
 class CCPPObjectScript: public CObjectScript
 {
-protected:
+public:
 	CScriptCallback * cb;
 	CCPPObjectScript(CScriptCallback * CB){cb=CB;};
-public:
 	virtual std::vector<int> yourObjects()=0; //returns IDs of objects which are handled by script
-	virtual std::string hoverText(CGObjectInstance *os);
 };
 class CVisitableOPH : public CCPPObjectScript  //once per hero
 {
+public:
 	CVisitableOPH(CScriptCallback * CB):CCPPObjectScript(CB){};
-	std::map<CGObjectInstance*,std::set<int> > visitors;
+	std::map<int,std::set<int> > visitors;
 	
-	void onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited);
-	void newObject(CGObjectInstance *os);
-	void onHeroVisit(CGObjectInstance *os, int heroID);
+	void onNAHeroVisit(int objid, int heroID, bool alreadyVisited);
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-	std::string hoverText(CGObjectInstance *os);
-
-	friend CGameState;
 };
 
 class CVisitableOPW : public CCPPObjectScript  //once per week
 {
+public:
 	CVisitableOPW(CScriptCallback * CB):CCPPObjectScript(CB){};
-	std::map<CGObjectInstance*,bool> visited;
-	void onNAHeroVisit(CGObjectInstance *os, int heroID, bool alreadyVisited);
-	void newObject(CGObjectInstance *os);
-	void onHeroVisit(CGObjectInstance *os, int heroID);
+	std::map<int,bool> visited;
+	void onNAHeroVisit(int objid, int heroID, bool alreadyVisited);
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-	std::string hoverText(CGObjectInstance *os);
 	void newTurn (); 
-
-	friend CGameState;
 };
 
 class CMines : public CCPPObjectScript  //flaggable, and giving resource at each day
 {
+public:
 	CMines(CScriptCallback * CB):CCPPObjectScript(CB){};
 
-	std::vector<CGObjectInstance*> ourObjs;
+	std::vector<int> ourObjs;
 
-	void newObject(CGObjectInstance *os);
-	void onHeroVisit(CGObjectInstance *os, int heroID);
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-	std::string hoverText(CGObjectInstance *os);
 	void newTurn (); 
-
-	friend CGameState;
 };
 
 class CPickable : public CCPPObjectScript, public IChosen  //pickable - resources, artifacts, etc
 {
+public:
 	std::vector<CSelectableComponent*> tempStore;
 	int player;
 
 	CPickable(CScriptCallback * CB):CCPPObjectScript(CB){};
 	void chosen(int which);
-	void newObject(CGObjectInstance *os);
-	void onHeroVisit(CGObjectInstance *os, int heroID);
-	std::string hoverText(CGObjectInstance *os);
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-
-	friend CGameState;
 };
 
 class CTownScript : public CCPPObjectScript  //pickable - resources, artifacts, etc
 {
+public:
 	CTownScript(CScriptCallback * CB):CCPPObjectScript(CB){};
-	void onHeroVisit(CGObjectInstance *os, int heroID);
-	void onHeroLeave(CGObjectInstance *os, int heroID);
-	std::string hoverText(CGObjectInstance *os);
+	void onHeroVisit(int objid, int heroID);
+	void onHeroLeave(int objid, int heroID);
+	void newObject(int objid);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-
-	friend CGameState;
 };
 
 class CHeroScript : public CCPPObjectScript
 {
-	std::map<int, CGObjectInstance*> heroes;
+public:
 	CHeroScript(CScriptCallback * CB):CCPPObjectScript(CB){};
-	void newObject(CGObjectInstance *os);
-	void onHeroVisit(CGObjectInstance *os, int heroID);
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-	std::string hoverText(CGObjectInstance *os);
-
-	friend CGameState;
 };
 
 class CMonsterS : public CCPPObjectScript
 {
-	std::map<int, CGObjectInstance*> heroes;
+public:
+	std::map<int, int> amounts; //monster id -> stack quantity
 	CMonsterS(CScriptCallback * CB):CCPPObjectScript(CB){};
-	void newObject(CGObjectInstance *os);
-	std::string hoverText(CGObjectInstance *os);
-	void onHeroVisit(CGObjectInstance *os, int heroID);
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-
-	friend CGameState;
 };
 
 class CCreatureGen : public CCPPObjectScript
 {
-	std::map<CGObjectInstance*, int> amount; //amount of creatures in each dwelling
+public:
+	std::map<int, int> amount; //amount of creatures in each dwelling
 	CCreatureGen(CScriptCallback * CB):CCPPObjectScript(CB){};
-	void newObject(CGObjectInstance *os);
-	std::string hoverText(CGObjectInstance *os);
-	void onHeroVisit(CGObjectInstance *os, int heroID);
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-
-	friend CGameState;
 };

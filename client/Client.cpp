@@ -12,7 +12,68 @@
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
 #include "../hch/CObjectHandler.h"
+#include "../hch/CGeneralTextHandler.h"
+#include "../hch/CArtHandler.h"
+#include <boost/thread/shared_mutex.hpp>
 CSharedCond<std::set<IPack*> > mess(new std::set<IPack*>);
+
+std::string toString(MetaString &ms)
+{
+	std::string ret;
+	for(int i=0;i<ms.message.size();i++)
+	{
+		if(ms.message[i]>0)
+		{
+			ret += ms.strings[ms.message[i]-1];
+		}
+		else
+		{
+			std::vector<std::string> *vec;
+			int type = ms.texts[-ms.message[i]-1].first;
+			if(type == 5)
+			{
+				ret += CGI->arth->artifacts[ms.texts[-ms.message[i]-1].second].name;
+				continue;
+			}
+			else if(type == 7)
+			{
+				ret += CGI->creh->creatures[ms.texts[-ms.message[i]-1].second].namePl;
+				continue;
+			}
+			else if(type == 9)
+			{
+				ret += CGI->objh->mines[ms.texts[-ms.message[i]-1].second].first;
+				continue;
+			}
+			else
+			{
+				switch(type)
+				{
+				case 1:
+					vec = &CGI->generaltexth->allTexts;
+					break;
+				case 2:
+					vec = &CGI->objh->xtrainfo;
+					break;
+				case 3:
+					vec = &CGI->objh->names;
+					break;
+				case 4:
+					vec = &CGI->objh->restypes;
+					break;
+				case 6:
+					vec = &CGI->generaltexth->arraytxt;
+					break;
+				case 8:
+					vec = &CGI->objh->creGens;
+					break;
+				}
+				ret += (*vec)[ms.texts[-ms.message[i]-1].second];
+			}
+		}
+	}
+	return ret;
+}
 
 CClient::CClient(void)
 {
@@ -100,7 +161,7 @@ void CClient::process(int what)
 		}
 	case 501: //hero movement response - we have to notify interfaces and callback
 		{
-			TryMoveHero *th = new TryMoveHero;
+			TryMoveHero *th = new TryMoveHero; //will be deleted by callback after processing
 			*serv >> *th;
 			std::cout << "HeroMove: id="<<th->id<<"\tResult: "<<(unsigned)th->result<<"\tPosition "<<th->end<<std::endl;
 
@@ -134,6 +195,26 @@ void CClient::process(int what)
 			mess.cv->notify_all();
 			break;
 		}
+	case 1001:
+		{
+			SetObjectProperty sop;
+			*serv >> sop;
+			std::cout << "Setting " << (unsigned)sop.what << " property of " << sop.id <<" object to "<<sop.val<<std::endl;
+			gs->apply(&sop);
+			break;
+		}
+	case 1002:
+		{
+			SetHoverName shn;
+			*serv >> shn;
+			std::cout << "Setting a name of " << shn.id <<" object to "<< toString(shn.name) <<std::endl;
+			gs->mx->lock();
+			gs->map->objects[shn.id]->hoverName = toString(shn.name);
+			gs->mx->unlock();
+			break;
+		}
+	case 9999:
+		break;
 	default:
 		throw std::exception("Not supported server message!");
 		break;
