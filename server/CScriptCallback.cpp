@@ -87,8 +87,9 @@ int CScriptCallback::getHeroOwner(int heroID)
 	//return hero->getOwner();
 	return -1;
 }
-void CScriptCallback::showInfoDialog(int player, std::string text, std::vector<SComponent*> * components)
+void CScriptCallback::showInfoDialog(InfoWindow *iw)
 {
+	gh->sendToAllClients(iw);
 	//TODO: upewniac sie ze mozemy to zrzutowac (przy customowych interfejsach cos moze sie kopnac)
 	//if (player>=0)
 	//{
@@ -153,6 +154,11 @@ int CScriptCallback::getDate(int mode)
 }
 void CScriptCallback::giveResource(int player, int which, int val)
 {
+	SetResource sr;
+	sr.player = player;
+	sr.resid = which;
+	sr.val = (gh->gs->players[player].resources[which]+val);
+	gh->sendAndApply(&sr);
 	//gh->gs->players[player].resources[which]+=val;
 	//sv->playerint[player]->receivedResource(which,val);
 }

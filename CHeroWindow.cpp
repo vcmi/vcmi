@@ -1034,10 +1034,10 @@ void LClickableArea::deactivate()
 }
 void LClickableArea::clickLeft(boost::logic::tribool down)
 {
-	if(!down)
-	{
-		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
-	}
+	//if(!down)
+	//{
+	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
+	//}
 }
 
 void RClickableArea::activate()
@@ -1050,10 +1050,10 @@ void RClickableArea::deactivate()
 }
 void RClickableArea::clickRight(boost::logic::tribool down)
 {
-	if(!down)
-	{
-		LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
-	}
+	//if(!down)
+	//{
+	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
+	//}
 }
 
 void LRClickableAreaWText::clickLeft(boost::logic::tribool down)

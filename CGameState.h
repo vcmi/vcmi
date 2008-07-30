@@ -104,7 +104,6 @@ public:
 	friend class CClient;
 	friend void initGameState(Mapa * map, CGameInfo * cgi);
 	friend class CScriptCallback;
-	friend void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	friend class CMapHandler;
 	friend class CGameHandler;
 };

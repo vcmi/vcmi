@@ -29,20 +29,26 @@ std::string toString(MetaString &ms)
 		else
 		{
 			std::vector<std::string> *vec;
-			int type = ms.texts[-ms.message[i]-1].first;
+			int type = ms.texts[-ms.message[i]-1].first,
+				ser = ms.texts[-ms.message[i]-1].second;
 			if(type == 5)
 			{
-				ret += CGI->arth->artifacts[ms.texts[-ms.message[i]-1].second].name;
+				ret += CGI->arth->artifacts[ser].name;
 				continue;
 			}
 			else if(type == 7)
 			{
-				ret += CGI->creh->creatures[ms.texts[-ms.message[i]-1].second].namePl;
+				ret += CGI->creh->creatures[ser].namePl;
 				continue;
 			}
 			else if(type == 9)
 			{
-				ret += CGI->objh->mines[ms.texts[-ms.message[i]-1].second].first;
+				ret += CGI->objh->mines[ser].first;
+				continue;
+			}
+			else if(type == 10)
+			{
+				ret += CGI->objh->mines[ser].second;
 				continue;
 			}
 			else
@@ -68,7 +74,7 @@ std::string toString(MetaString &ms)
 					vec = &CGI->objh->creGens;
 					break;
 				}
-				ret += (*vec)[ms.texts[-ms.message[i]-1].second];
+				ret += (*vec)[ser];
 			}
 		}
 	}
@@ -158,6 +164,22 @@ void CClient::process(int what)
 			gs->apply(&n);
 			std::cout << "done!"<<std::endl;
 			break;
+		}
+	case 102: //set resource amount
+		{
+			SetResource sr;
+			*serv >> sr;
+			std::cout << "Set amount of "<<CGI->objh->restypes[sr.resid] 
+			  << " of player "<<(unsigned)sr.player <<" to "<<sr.val<<std::endl;
+			gs->apply(&sr);
+			playerint[sr.player]->receivedResource(sr.resid,sr.val);
+			break;
+		}
+	case 103: //show info dialog
+		{
+			InfoWindow iw;
+			*serv >> iw;
+			
 		}
 	case 501: //hero movement response - we have to notify interfaces and callback
 		{

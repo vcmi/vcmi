@@ -14,6 +14,7 @@ class CGTownInstance;
 class CGameState;
 struct lua_State;
 struct MetaString;
+struct InfoWindow;
 class CScriptCallback
 {
 	CScriptCallback(void);
@@ -35,7 +36,7 @@ public:
 	void setOwner(int objid, ui8 owner);
 	void setHoverName(int objid, MetaString * name);
 	void changePrimSkill(int ID, int which, int val);
-	void showInfoDialog(int player, std::string text, std::vector<SComponent*> * components); //TODO: obslugiwac nulle
+	void showInfoDialog(InfoWindow *iw);
 	void showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker);
 	void giveResource(int player, int which, int val);
 	void showCompInfo(int player, SComponent * comp);

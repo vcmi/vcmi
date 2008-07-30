@@ -291,7 +291,7 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 	else
 	{
 		ot++;
-		cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&std::vector<SComponent*>());
+		//cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&std::vector<SComponent*>());
 	}
 }
 
@@ -415,36 +415,32 @@ void CMines::newObject(int objid)
 }
 void CMines::onHeroVisit(int objid, int heroID)
 {
+	//TODO: this is code for standard mines, no support for abandoned mine (subId==7)
 	DEFOS;
 	const CGHeroInstance *h = cb->getHero(heroID);
 	cb->setOwner(objid,h->tempOwner);
 	MetaString ms;
 	ms << std::pair<ui8,ui32>(9,os->subID) << " " << std::pair<ui8,ui32>(6,23+h->tempOwner);
 	cb->setHoverName(objid,&ms);
-	//int vv = 1;
-	//if (os->subID==0 || os->subID==2)
-	//	vv++;
-	//else if (os->subID==6)
-	//	vv = 1000;
-	//if (os->tempOwner == cb->getHeroOwner(heroID))
-	//{
-	//	//TODO: garrison
-	//}
-	//else
-	//{
-	//	if (os->subID==7)
-	//		return; //TODO: support for abandoned mine
-	//	os->tempOwner = cb->getHeroOwner(heroID);
-	//	SComponent * com = new SComponent(SComponent::Etype::resource,os->subID,vv);
-	//	com->subtitle+=VLC->generaltexth->allTexts[3].substr(2,VLC->generaltexth->allTexts[3].length()-2);
-	//	std::vector<SComponent*> weko;
-	//	weko.push_back(com);
-	//	cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->mines[os->subID].second,&weko);
-	//}
+	ms.clear();
+
+	int vv=1; //amount of resource per turn	
+	if (os->subID==0 || os->subID==2)
+		vv++;
+	else if (os->subID==6)
+		vv = 1000;
+
+	InfoWindow iw;
+	iw.text << std::pair<ui8,ui32>(10,os->subID);
+	iw.player = h->tempOwner;
+	iw.components.push_back(Component(2,os->subID,vv,-1));
+	cb->showInfoDialog(&iw);
+	//TODO: leaving garrison
+
 }
 std::vector<int> CMines::yourObjects()
 {
-	std::vector<int> ret(1);
+	std::vector<int> ret;
 	ret.push_back(53);
 	return ret;
 }

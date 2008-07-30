@@ -213,22 +213,6 @@ void CGameHandler::init(StartInfo *si, int Seed)
 	gs = new CGameState();
 	gs->init(si,map,Seed);	
 
-	/****************************SCRIPTS************************************************/
-	//std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &objscr; //alias for easier access
-	/****************************C++ OBJECT SCRIPTS************************************************/
-	std::map<int,CCPPObjectScript*> scripts;
-	CScriptCallback * csc = new CScriptCallback();
-	csc->gh = this;
-	handleCPPObjS(&scripts,new CVisitableOPH(csc));
-	handleCPPObjS(&scripts,new CVisitableOPW(csc));
-	handleCPPObjS(&scripts,new CPickable(csc));
-	handleCPPObjS(&scripts,new CMines(csc));
-	handleCPPObjS(&scripts,new CTownScript(csc));
-	handleCPPObjS(&scripts,new CHeroScript(csc));
-	handleCPPObjS(&scripts,new CMonsterS(csc));
-	handleCPPObjS(&scripts,new CCreatureGen(csc));
-	//created map
-
 	/****************************LUA OBJECT SCRIPTS************************************************/
 	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
 	//for (int i=0; i<lf->size(); i++)
@@ -252,25 +236,6 @@ void CGameHandler::init(StartInfo *si, int Seed)
 	//		delete temp;
 	//	}HANDLE_EXCEPTION
 	//}
-	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
-	//std::string temps("newObject");
-	for (unsigned i=0; i<map->objects.size(); i++)
-	{
-		//c++ scripts
-		if (scripts.find(map->objects[i]->ID) != scripts.end())
-		{
-			map->objects[i]->state = scripts[map->objects[i]->ID];
-			map->objects[i]->state->newObject(map->objects[i]->id);
-		}
-		else 
-		{
-			map->objects[i]->state = NULL;
-		}
-
-		//// lua scripts
-		//if(checkFunc(map->objects[i]->ID,temps))
-		//	(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
-	}
 
 	//delete lf;
 }
@@ -363,6 +328,42 @@ void CGameHandler::run()
 
 		boost::thread(boost::bind(&CGameHandler::handleConnection,this,pom,boost::ref(**i)));
 	}
+
+	/****************************SCRIPTS************************************************/
+	//std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &objscr; //alias for easier access
+	/****************************C++ OBJECT SCRIPTS************************************************/
+	std::map<int,CCPPObjectScript*> scripts;
+	CScriptCallback * csc = new CScriptCallback();
+	csc->gh = this;
+	handleCPPObjS(&scripts,new CVisitableOPH(csc));
+	handleCPPObjS(&scripts,new CVisitableOPW(csc));
+	handleCPPObjS(&scripts,new CPickable(csc));
+	handleCPPObjS(&scripts,new CMines(csc));
+	handleCPPObjS(&scripts,new CTownScript(csc));
+	handleCPPObjS(&scripts,new CHeroScript(csc));
+	handleCPPObjS(&scripts,new CMonsterS(csc));
+	handleCPPObjS(&scripts,new CCreatureGen(csc));
+
+	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
+	//std::string temps("newObject");
+	for (unsigned i=0; i<gs->map->objects.size(); i++)
+	{
+		//c++ scripts
+		if (scripts.find(gs->map->objects[i]->ID) != scripts.end())
+		{
+			gs->map->objects[i]->state = scripts[gs->map->objects[i]->ID];
+			gs->map->objects[i]->state->newObject(gs->map->objects[i]->id);
+		}
+		else 
+		{
+			gs->map->objects[i]->state = NULL;
+		}
+
+		//// lua scripts
+		//if(checkFunc(map->objects[i]->ID,temps))
+		//	(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
+	}
+
 	while (!end)
 	{
 		newTurn();

@@ -10,6 +10,7 @@ class CCallback;
 class ICallback;
 class CGlobalAI;
 class CGHeroInstance;
+class Component;
 class CSelectableComponent;
 struct HeroMoveDetails;
 class CGHeroInstance;
@@ -59,6 +60,7 @@ public:
 	virtual void tileRevealed(int3 pos){};
 	virtual void tileHidden(int3 pos){};
 	virtual void receivedResource(int type, int val){};
+	virtual void showInfoDialog(std::string text, std::vector<Component*> &components)=0{};
 	virtual void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)=0{};
 	virtual void garrisonChanged(const CGObjectInstance * obj){};
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished

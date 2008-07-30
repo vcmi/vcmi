@@ -154,7 +154,7 @@ public:
 };
 
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
-{ //okno usuwa swoje komponenty w chwili zamkniecia 
+{ //window deletes its components when closed
 public:
 	CSCButton<CInfoWindow> okb;
 	std::vector<SComponent*> components;
@@ -320,6 +320,7 @@ public:
 	void heroCreated(const CGHeroInstance* hero);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
+	void showInfoDialog(std::string text, std::vector<Component*> &components);
 	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void garrisonChanged(const CGObjectInstance * obj);
@@ -350,8 +351,8 @@ public:
 	void handleMouseMotion(SDL_Event *sEvent);
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos);
+	void removeObjToBlit(IShowable* obj);	
 	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
-	void removeObjToBlit(IShowable* obj);
 
 	CPlayerInterface(int Player, int serial);//c-tor
 };

@@ -33,6 +33,7 @@
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
 #include "map.h"
+#include "lib/NetPacks.h"
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
@@ -40,6 +41,14 @@ extern bool continueReadingConsole;
 CPlayerInterface * LOCPLINT;
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
+
+SComponent toSComponent(const Component *c)
+{
+	SComponent ret((SComponent::Etype)c->type,c->subtype,c->val);
+	if(c->type == 2)
+		ret.subtitle+=CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
+	return ret;
+}
 
 class OCM_HLP_CGIN
 {
@@ -2014,6 +2023,24 @@ void CPlayerInterface::showComp(SComponent comp)
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
+void CPlayerInterface::showInfoDialog(std::string text, std::vector<Component*> &components)
+{
+	curint->deactivate(); //dezaktywacja starego interfejsu
+	std::vector<SComponent*> intComps;
+	CInfoWindow * temp = CMessage::genIWindow(text,LOCPLINT->playerID,32,intComps);
+	LOCPLINT->objsToBlit.push_back(temp);
+	temp->pos.x=300-(temp->pos.w/2);
+	temp->pos.y=300-(temp->pos.h/2);
+	temp->okb.pos.x = temp->okb.posr.x + temp->pos.x;
+	temp->okb.pos.y = temp->okb.posr.y + temp->pos.y;
+	temp->okb.activate();
+	for (int i=0;i<temp->components.size();i++)
+	{
+		temp->components[i]->activate();
+		temp->components[i]->pos.x += temp->pos.x;
+		temp->components[i]->pos.y += temp->pos.y;
+	}
+}
 void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> & components)
 {
 	curint->deactivate(); //dezaktywacja starego interfejsu
