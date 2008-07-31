@@ -1,8 +1,17 @@
 #pragma once
 #include "global.h"
+
+
+#ifndef _MSC_VER
 extern "C" {
+#endif
+
 #include "lstate.h"
+
+#ifndef _MSC_VER
 }
+#endif
+
 #include <set>
 #include <map>
 class CLua;

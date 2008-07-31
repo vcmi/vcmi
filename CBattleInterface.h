@@ -93,6 +93,8 @@ private:
 		int dest; //atacked hex
 		int frame, maxframe; //frame of animation, number of frames of animation
 		bool reversing;
+		bool shooting;
+		int shootingGroup; //if shooting is true, print this animation group
 	} * attackingInfo;
 	void attackingShowHelper();
 	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
@@ -105,9 +107,10 @@ private:
 		int creID; //ID of creature that shot this projectile
 		int frameNum; //frame to display form projectile animation
 		bool spin; //if true, frameNum will be increased
+		int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
 	};
 	std::list<SProjectileInfo> projectiles;
-	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
+	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
 
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
@@ -140,13 +143,14 @@ public:
 	//call-ins
 	void newStack(CStack stack); //new stack appeared on battlefield
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
-	void stackKilled(int ID, int dmg, int killed, int IDby); //stack has been killed (but corpses remain)
+	void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool startMoving, bool endMoving); //stack with id number moved to destHex
-	void stackIsAttacked(int ID, int dmg, int killed, int IDby); //called when stack id attacked by stack with id IDby
+	void stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting); //called when stack id attacked by stack with id IDby
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
+	void stackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
 
 	friend class CBattleHex;
 };

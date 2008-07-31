@@ -14,9 +14,15 @@
 #include "CPlayerInterface.h"
 #include "hch/CBuildingHandler.h"
 
+#ifndef _MSC_VER
 extern "C" {
+#endif
+
 LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
+
+#ifndef _MSC_VER
 }
+#endif
 
 int CCallback::lowestSpeed(CGHeroInstance * chi)
 {
@@ -770,18 +776,7 @@ int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield
 }
 int CCallback::battleGetStack(int pos)
 {
-	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
-	{
-		if(CGI->state->curB->stacks[g]->position == pos ||
-				( CGI->state->curB->stacks[g]->creature->isDoubleWide() &&
-					( (CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position-1 == pos) ||
-						(!CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position+1 == pos)
-					)
-				)
-			)
-			return CGI->state->curB->stacks[g]->ID;
-	}
-	return -1;
+	return CGI->state->battleGetStack(pos);
 }
 
 CStack CCallback::battleGetStackByID(int ID)

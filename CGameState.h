@@ -100,6 +100,9 @@ private:
 	void battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2);
 	bool battleMoveCreatureStack(int ID, int dest);
 	bool battleAttackCreatureStack(int ID, int dest);
+	bool battleShootCreatureStack(int ID, int dest);
+	int battleGetStack(int pos); //returns ID of stack at given tile
+	static int calculateDmg(const CStack* attacker, const CStack* defender); //TODO: add additional conditions and require necessary data
 	std::vector<int> battleGetRange(int ID); //called by std::vector<int> CCallback::battleGetAvailableHexes(int ID);
 public:
 	friend class CCallback;

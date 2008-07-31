@@ -1,10 +1,17 @@
 #include "stdafx.h"
 
+#ifndef _MSC_VER
 extern "C" {
+#endif
+
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h" 
+
+#ifndef _MSC_VER
 }
+#endif
+
 //#include <luabind/luabind.hpp>
 //#include <luabind/function.hpp>
 //#include <luabind/class.hpp>

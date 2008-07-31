@@ -239,6 +239,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 						}
 					case 7: //shoot
 						{
+							battleShootCreatureStack(ba.stackNumber, ba.destinationTile);
 							break;
 						}
 					}
@@ -430,43 +431,7 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 		{
 			LOCPLINT->battleStackAttacking(ID, path[v]);
 			//counting dealt damage
-			int numberOfCres = curStack->amount; //number of attacking creatures
-			int attackDefenseBonus = curStack->creature->attack - curB->stacks[numberOfStackAtEnd]->creature->defence;
-			int damageBase = 0;
-			if(curStack->creature->damageMax == curStack->creature->damageMin) //constant damage
-			{
-				damageBase = curStack->creature->damageMin;
-			}
-			else
-			{
-				damageBase = rand()%(curStack->creature->damageMax - curStack->creature->damageMin) + curStack->creature->damageMin + 1;
-			}
-
-			float dmgBonusMultiplier = 1.0;
-			if(attackDefenseBonus < 0) //decreasing dmg
-			{
-				if(0.02f * (-attackDefenseBonus) > 0.3f)
-				{
-					dmgBonusMultiplier += -0.3f;
-				}
-				else
-				{
-					dmgBonusMultiplier += 0.02f * attackDefenseBonus;
-				}
-			}
-			else //increasing dmg
-			{
-				if(0.05f * attackDefenseBonus > 4.0f)
-				{
-					dmgBonusMultiplier += 4.0f;
-				}
-				else
-				{
-					dmgBonusMultiplier += 0.05f * attackDefenseBonus;
-				}
-			}
-
-			int finalDmg = (float)damageBase * (float)curStack->amount * dmgBonusMultiplier;
+			int finalDmg = calculateDmg(curStack, curB->stacks[numberOfStackAtEnd]);
 
 			//applying damages
 			int cresKilled = finalDmg / curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
@@ -487,12 +452,12 @@ bool CGameState::battleMoveCreatureStack(int ID, int dest)
 			if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
 			{
 				curB->stacks[numberOfStackAtEnd]->amount = 0;
-				LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore) , ID);
+				LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore) , ID, false);
 				curB->stacks[numberOfStackAtEnd]->alive = false;
 			}
 			else
 			{
-				LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID);
+				LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID, false);
 			}
 
 			//damage applied
@@ -518,6 +483,125 @@ bool CGameState::battleAttackCreatureStack(int ID, int dest)
 		return false;
 	//LOCPLINT->cb->
 	return true;
+}
+
+bool CGameState::battleShootCreatureStack(int ID, int dest)
+{
+	CStack * curStack = NULL;
+	for(int y=0; y<curB->stacks.size(); ++y)
+	{
+		if(curB->stacks[y]->ID == ID)
+		{
+			curStack = curB->stacks[y];
+			break;
+		}
+	}
+	if(!curStack)
+		return false;
+	int IDOfStackAtEnd = battleGetStack(dest);
+	int numberOfStackAtEnd = -1;
+	for(int v=0; v<curB->stacks.size(); ++v)
+	{
+		if(curB->stacks[v]->ID == IDOfStackAtEnd)
+		{
+			numberOfStackAtEnd = v;
+			break;
+		}
+	}
+
+	if(IDOfStackAtEnd == -1 || curB->stacks[numberOfStackAtEnd]->owner == curStack->owner)
+		return false;
+
+	LOCPLINT->battleStackIsShooting(ID, dest);
+
+	//counting dealt damage
+	int finalDmg = calculateDmg(curStack, curB->stacks[numberOfStackAtEnd]);
+
+	//applying damages
+	int cresKilled = finalDmg / curB->stacks[ID]->creature->hitPoints;
+	int damageFirst = finalDmg % curB->stacks[ID]->creature->hitPoints;
+
+	if( curB->stacks[numberOfStackAtEnd]->firstHPleft <= damageFirst )
+	{
+		curB->stacks[numberOfStackAtEnd]->amount -= 1;
+		curB->stacks[numberOfStackAtEnd]->firstHPleft += curB->stacks[numberOfStackAtEnd]->creature->hitPoints - damageFirst;
+	}
+	else
+	{
+		curB->stacks[numberOfStackAtEnd]->firstHPleft -= damageFirst;
+	}
+
+	int cresInstackBefore = curB->stacks[numberOfStackAtEnd]->amount; 
+	curB->stacks[numberOfStackAtEnd]->amount -= cresKilled;
+	if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
+	{
+		curB->stacks[numberOfStackAtEnd]->amount = 0;
+		LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID, true);
+		curB->stacks[numberOfStackAtEnd]->alive = false;
+	}
+	else
+	{
+		LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID, true);
+	}
+
+	//damage applied
+	return true;
+}
+
+int CGameState::battleGetStack(int pos)
+{
+	for(int g=0; g<curB->stacks.size(); ++g)
+	{
+		if(curB->stacks[g]->position == pos ||
+				( curB->stacks[g]->creature->isDoubleWide() &&
+					( (curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos) ||
+						(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == pos)
+					)
+				)
+			)
+			return curB->stacks[g]->ID;
+	}
+	return -1;
+}
+
+int CGameState::calculateDmg(const CStack* attacker, const CStack* defender)
+{
+	int attackDefenseBonus = attacker->creature->attack - defender->creature->defence;
+	int damageBase = 0;
+	if(attacker->creature->damageMax == attacker->creature->damageMin) //constant damage
+	{
+		damageBase = attacker->creature->damageMin;
+	}
+	else
+	{
+		damageBase = rand()%(attacker->creature->damageMax - attacker->creature->damageMin) + attacker->creature->damageMin + 1;
+	}
+
+	float dmgBonusMultiplier = 1.0;
+	if(attackDefenseBonus < 0) //decreasing dmg
+	{
+		if(0.02f * (-attackDefenseBonus) > 0.3f)
+		{
+			dmgBonusMultiplier += -0.3f;
+		}
+		else
+		{
+			dmgBonusMultiplier += 0.02f * attackDefenseBonus;
+		}
+	}
+	else //increasing dmg
+	{
+		if(0.05f * attackDefenseBonus > 4.0f)
+		{
+			dmgBonusMultiplier += 4.0f;
+		}
+		else
+		{
+			dmgBonusMultiplier += 0.05f * attackDefenseBonus;
+		}
+	}
+
+	return (float)damageBase * (float)attacker->amount * dmgBonusMultiplier;
 }
 
 std::vector<int> CGameState::battleGetRange(int ID)

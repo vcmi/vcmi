@@ -2,14 +2,22 @@
 #include "CLua.h"
 #include "CLuaHandler.h"
 #include "hch/CHeroHandler.h"
+
+#ifndef _MSC_VER
 extern "C" {
+#endif
+
 #include "lua.h"
 #include "lualib.h"
 #include "lauxlib.h"
 #include "lobject.h"
 #include "lgc.h"
 #include "lapi.h"
+
+#ifndef _MSC_VER
 }
+#endif
+
 #include "CGameInfo.h"
 #include "CGameState.h"
 #include <sstream>
