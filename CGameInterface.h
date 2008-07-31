@@ -72,8 +72,8 @@ public:
 	virtual void battleEnd(CCreatureSet * army1, CCreatureSet * army2, CArmedInstance *hero1, CArmedInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner){};
 	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)=0;
 	virtual void battleStackAttacking(int ID, int dest)=0;
-	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby)=0;
-	virtual void battleStackKilled(int ID, int dmg, int killed, int IDby)=0;
+	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting)=0;
+	virtual void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)=0;
 	//
 
 };
@@ -91,8 +91,8 @@ public:
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving){};
 	virtual void battleStackAttacking(int ID, int dest){};
-	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby){};
-	virtual void battleStackKilled(int ID, int dmg, int killed, int IDby){};
+	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting){};
+	virtual void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting){};
 	virtual BattleAction activeStack(int stackID) {BattleAction ba; ba.actionType = 3; ba.stackNumber = stackID; return ba;};
 };
 #endif //CGAMEINTERFACE_H
