@@ -85,6 +85,16 @@ struct TryMoveHero : public CPack<TryMoveHero> //501
 		h & id & result & start & end & movePoints & fowRevealed;
 	}
 }; 
+struct SetGarrisons : public CPack<SetGarrisons> //502
+{
+	SetGarrisons(){type = 502;};
+	std::map<ui32,CCreatureSet> garrs;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & garrs;
+	}
+}; 
 struct MetaString : public CPack<MetaString> //2001 helper for object scrips
 {
 	std::vector<std::string> strings;

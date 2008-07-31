@@ -342,11 +342,11 @@ void CGarrisonInt::createSlots()
 	{
 		sup = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
 		for
-			(std::map<si32,std::pair<CCreature*,si32> >::const_iterator i=set1->slots.begin();
+			(std::map<si32,std::pair<ui32,si32> >::const_iterator i=set1->slots.begin();
 			i!=set1->slots.end(); i++)
 		{
 			(*sup)[i->first] = 
-				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y,i->first, 0, i->second.first,i->second.second);
+				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y,i->first, 0, &CGI->creh->creatures[i->second.first],i->second.second);
 		}
 		for(int i=0; i<sup->size(); i++)
 			if((*sup)[i] == NULL)
@@ -356,11 +356,11 @@ void CGarrisonInt::createSlots()
 	{	
 		sdown = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
 		for
-			(std::map<si32,std::pair<CCreature*,si32> >::const_iterator i=set2->slots.begin();
+			(std::map<si32,std::pair<ui32,si32> >::const_iterator i=set2->slots.begin();
 			i!=set2->slots.end(); i++)
 		{
 			(*sdown)[i->first] = 
-				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y + 64 + intery,i->first,1, i->second.first,i->second.second);
+				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y + 64 + intery,i->first,1, &CGI->creh->creatures[i->second.first],i->second.second);
 		}
 		for(int i=0; i<sup->size(); i++)
 			if((*sdown)[i] == NULL)

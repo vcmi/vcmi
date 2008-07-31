@@ -720,7 +720,7 @@ void CMonsterS::onHeroVisit(int objid, int heroID)
 	DEFOS;
 	CCreatureSet set;
 	//TODO: zrobic secik w sposob wyrafinowany
-	set.slots[0] = std::pair<CCreature*,int>(&VLC->creh->creatures[os->subID],((CCreatureObjInfo*)os->info)->number);
+	set.slots[0] = std::pair<ui32,si32>(os->subID,((CCreatureObjInfo*)os->info)->number);
 	cb->startBattle(heroID,&set,os->pos);
 }
 std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script

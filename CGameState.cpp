@@ -141,6 +141,13 @@ void CGameState::apply(IPack * pack)
 				players[h->getOwner()].fogOfWarMap[t.x][t.y][t.z] = 1;
 			break;
 		}
+	case 502:
+		{
+			SetGarrisons * n = static_cast<SetGarrisons*>(pack);
+			for(std::map<ui32,CCreatureSet>::iterator i = n->garrs.begin(); i!=n->garrs.end(); i++)
+				static_cast<CArmedInstance*>(map->objects[i->first])->army = i->second;
+			break;
+		}
 	case 1001://set object property
 		{
 			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);
@@ -568,7 +575,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 					}
 					continue;
 				}
-				vhi->army.slots[x-pom2].first = &(VLC->creh->creatures[pom]);
+				vhi->army.slots[x-pom2].first = pom;
 				if((pom = (vhi->type->highStack[x]-vhi->type->lowStack[x])) > 0)
 					vhi->army.slots[x-pom2].second = (ran()%pom)+vhi->type->lowStack[x];
 				else 
@@ -674,7 +681,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 	curB->side2=(hero2)?(hero2->tempOwner):(-1);
 	curB->round = -2;
 	curB->stackActionPerformed = false;
-	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army1->slots.begin(); i!=army1->slots.end(); i++)
+	for(std::map<int,std::pair<ui32,si32> >::iterator i = army1->slots.begin(); i!=army1->slots.end(); i++)
 	{
 		stacks.push_back(new CStack(i->second.first,i->second.second,0, stacks.size(), true));
 		stacks[stacks.size()-1]->ID = stacks.size()-1;
@@ -729,7 +736,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 	default: //fault
 		break;
 	}
-	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army2->slots.begin(); i!=army2->slots.end(); i++)
+	for(std::map<int,std::pair<ui32,si32> >::iterator i = army2->slots.begin(); i!=army2->slots.end(); i++)
 		stacks.push_back(new CStack(i->second.first,i->second.second,1, stacks.size(), false));
 	switch(army2->slots.size()) //for defender
 	{

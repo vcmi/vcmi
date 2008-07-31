@@ -15,6 +15,7 @@
 #include "../hch/CTownHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
+#include "../lib/VCMI_Lib.h"
 extern bool end;
 bool makingTurn;
 boost::condition_variable cTurn;
@@ -176,6 +177,54 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					sendAndApply(&tmh);
 					break;
 				}
+			case 502: //swap creatures in garrison
+				{
+					ui8 what, p1, p2; si32 id1, id2;
+					c >> what >> id1 >> p1 >> id2 >> p2;
+					CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1]),
+						*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2]);
+					CCreatureSet *S1 = &s1->army, *S2 = &s2->army;
+					
+					if(what==1) //swap
+					{
+						int pom = S2->slots[p2].first;
+						S2->slots[p2].first = S1->slots[p1].first;
+						S1->slots[p1].first = pom;
+						int pom2 = S2->slots[p2].second;
+						S2->slots[p2].second = S1->slots[p1].second;
+						S1->slots[p1].second = pom2;
+
+						if(!S1->slots[p1].first)
+							S1->slots.erase(p1);
+						if(!S2->slots[p2].first)
+							S2->slots.erase(p2);
+					}
+					else if(what==2)//merge
+					{
+						if(S1->slots[p1].first != S2->slots[p2].first) break; //not same creature
+						S2->slots[p2].second += S1->slots[p1].second;
+						S1->slots[p1].first = NULL;
+						S1->slots[p1].second = 0;
+						S1->slots.erase(p1);
+					}
+					else if(what==3) //split
+					{
+						si32 val;
+						c >> val;
+						if(S2->slots.find(p2) != S2->slots.end()) break; //slot not free
+						S2->slots[p2].first = S1->slots[p1].first;
+						S2->slots[p2].second = val;
+						S1->slots[p1].second -= val;
+						if(!S1->slots[p1].second) //if we've moved all creatures
+							S1->slots.erase(p1); 
+					}
+					SetGarrisons sg;
+					sg.garrs[id1] = *S1;
+					if(s1 != s2)
+						sg.garrs[id2] = *S2;
+					sendAndApply(&sg);
+					break;
+				}
 			default:
 				throw std::exception("Not supported client message!");
 				break;
@@ -241,11 +290,11 @@ void CGameHandler::init(StartInfo *si, int Seed)
 }
 int lowestSpeed(CGHeroInstance * chi)
 {
-	std::map<si32,std::pair<CCreature*,si32> >::iterator i = chi->army.slots.begin();
-	int ret = (*i++).second.first->speed;
+	std::map<si32,std::pair<ui32,si32> >::iterator i = chi->army.slots.begin();
+	int ret = VLC->creh->creatures[(*i++).second.first].speed;
 	for (;i!=chi->army.slots.end();i++)
 	{
-		ret = min(ret,(*i).second.first->speed);
+		ret = min(ret,VLC->creh->creatures[(*i).second.first].speed);
 	}
 	return ret;
 }

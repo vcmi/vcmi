@@ -136,11 +136,11 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 
 		//recruit
 		int slot = -1; //slot ID
-		std::pair<int,std::pair<CCreature*,int> > parb;	
+		std::pair<si32,std::pair<ui32,si32> > parb;	
 
 		for(int i=0;i<7;i++) //TODO: if there is already stack of same creatures it should be used always
 		{
-			if((!t->army.slots[i].first) || (t->army.slots[i].first->idNumber == ID)) //slot is free or there is saem creature
+			if(((!t->army.slots[i].first) && (!t->army.slots[i].second)) || (t->army.slots[i].first == ID)) //slot is free or there is saem creature
 			{
 				slot = i;
 				break;
@@ -160,7 +160,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 		}
 		else //create new stack in the garrison
 		{
-			t->army.slots[slot].first = &CGI->creh->creatures[ID];
+			t->army.slots[slot].first = ID;
 			t->army.slots[slot].second = amount;
 		}
 		cl->playerint[player]->garrisonChanged(obj);
@@ -194,7 +194,7 @@ void CCallback::endTurn()
 UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 {
 	UpgradeInfo ret;
-	CCreature *base = ((CArmedInstance*)obj)->army.slots[stackPos].first;
+	CCreature *base = &CGI->creh->creatures[((CArmedInstance *)obj)->army.slots[stackPos].first];
 	if((obj->ID == 98)  ||  ((obj->ID == 34) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
 	{
 		CGTownInstance * t;
@@ -404,79 +404,29 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 
 int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
 {
-	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
-	if (false)
-	{
-		//TODO: check if we are allowed to swap these creatures
+	if(s1->tempOwner != player   ||   s2->tempOwner != player)
 		return -1;
-	}
 
-	CCreature * pom = S2->slots[p2].first;
-	S2->slots[p2].first = S1->slots[p1].first;
-	S1->slots[p1].first = pom;
-	int pom2 = S2->slots[p2].second;
-	S2->slots[p2].second = S1->slots[p1].second;
-	S1->slots[p1].second = pom2;
-
-	if(!S1->slots[p1].first)
-		S1->slots.erase(p1);
-	if(!S2->slots[p2].first)
-		S2->slots.erase(p2);
-
-	if(s1->tempOwner<PLAYER_LIMIT)
-		cl->playerint[s1->tempOwner]->garrisonChanged(s1);
-	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
-		cl->playerint[s2->tempOwner]->garrisonChanged(s2);
+	*cl->serv << ui16(502) << ui8(1) << s1->id << ui8(p1) << s2->id << ui8(p2);
 	return 0;
 }
 
 int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
 {	
-	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
-	if ((S1->slots[p1].first != S2->slots[p2].first) && (true /*we are allowed to*/))
+	if ((s1->tempOwner!= player  ||  s2->tempOwner!=player))
 	{
 		return -1;
 	}
-
-
-	S2->slots[p2].second += S1->slots[p1].second;
-	S1->slots[p1].first = NULL;
-	S1->slots[p1].second = 0;
-
-	S1->slots.erase(p1);
-
-	if(s1->tempOwner<PLAYER_LIMIT)
-		cl->playerint[s1->tempOwner]->garrisonChanged(s1);
-
-	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
-		cl->playerint[s2->tempOwner]->garrisonChanged(s2);
+	*cl->serv << ui16(502) << ui8(2) << s1->id << ui8(p1) << s2->id << ui8(p2);
 	return 0;
 }
 int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)
 {
-	if(!val)
-		return -1;
-	CCreatureSet *S1 = const_cast<CCreatureSet*>(getGarrison(s1)), *S2 = const_cast<CCreatureSet*>(getGarrison(s2));
-	if ((S1->slots[p1].second<val) && (true /*we are allowed to*/))
+	if (s1->tempOwner!= player  ||  s2->tempOwner!=player || (!val))
 	{
 		return -1;
 	}
-
-	S2->slots[p2].first = S1->slots[p1].first;
-	S2->slots[p2].second = val;
-	S1->slots[p1].second -= val;
-	if(!S1->slots[p1].second) //if we've moved all creatures
-		S1->slots.erase(p1); 
-
-
-	if(s1->tempOwner<PLAYER_LIMIT)
-	{
-		cl->playerint[s1->tempOwner]->garrisonChanged(s1);
-	}
-	if((s2->tempOwner<PLAYER_LIMIT) && (s2 != s1))
-	{
-		cl->playerint[s2->tempOwner]->garrisonChanged(s2);
-	}
+	*cl->serv << ui16(502) << ui8(3) << s1->id << ui8(p1) << s2->id << ui8(p2) << si32(val);
 	return 0;
 }
 

@@ -179,8 +179,8 @@ unsigned int CGHeroInstance::getLowestCreatureSpeed()
 	unsigned int sl = 100;
 	for(int h=0; h<army.slots.size(); ++h)
 	{
-		if(army.slots[h].first->speed<sl)
-			sl = army.slots[h].first->speed;
+		if(VLC->creh->creatures[army.slots[h].first].speed<sl)
+			sl = VLC->creh->creatures[army.slots[h].first].speed;
 	}
 	return sl;
 }

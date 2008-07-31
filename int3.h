@@ -5,8 +5,12 @@ class CCreature;
 class CCreatureSet //seven combined creatures
 {
 public:
-	std::map<si32,std::pair<CCreature*,si32> > slots;
-	bool formation; //false - wide, true - tight
+	std::map<si32,std::pair<ui32,si32> > slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
+	bool formation; //false - wide, true - tight	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & slots & formation;
+	}
 };
 
 class int3

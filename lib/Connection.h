@@ -262,6 +262,25 @@ public:
 	{
 		*this >> data.first >> data.second;
 	}
+	template <typename T1, typename T2>
+	void saveSerializable(const std::map<T1,T2> &data)
+	{
+		*this << ui32(data.size());
+		for(std::map<T1,T2>::const_iterator i=data.begin();i!=data.end();i++)
+			*this << i->first << i->second;
+	}
+	template <typename T1, typename T2>
+	void loadSerializable(std::map<T1,T2> &data)
+	{
+		ui32 length;
+		*this >> length;
+		T1 t;
+		for(int i=0;i<length;i++)
+		{
+			*this >> t;
+			*this >> data[t];
+		}
+	}
 	template <typename T>
 	void save(const T &data)
 	{

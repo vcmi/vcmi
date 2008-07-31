@@ -170,16 +170,16 @@ CCreatureSet readCreatureSet(unsigned char * bufor, int &i, int number, bool ver
 	if(version)
 	{
 		CCreatureSet ret;
-		std::pair<CCreature *, int> ins;
+		std::pair<ui32,si32> ins;
 		for(int ir=0;ir<number;ir++)
 		{
 			int rettt = readNormalNr(bufor,i+ir*4, 2);
 			if(rettt==0xffff) continue;
 			if(rettt>32768)
 				rettt = 65536-rettt+VLC->creh->creatures.size()-16;
-			ins.first = &(VLC->creh->creatures[rettt]);
+			ins.first = rettt;
 			ins.second = readNormalNr(bufor,i+ir*4+2, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(ir,ins);
+			std::pair<si32,std::pair<ui32,si32> > tt(ir,ins);
 			ret.slots.insert(tt);
 		}
 		i+=number*4;
@@ -188,16 +188,16 @@ CCreatureSet readCreatureSet(unsigned char * bufor, int &i, int number, bool ver
 	else
 	{
 		CCreatureSet ret;
-		std::pair<CCreature *, int> ins;
+		std::pair<ui32,si32> ins;
 		for(int ir=0;ir<number;ir++)
 		{
 			int rettt = readNormalNr(bufor,i+ir*3, 1);
 			if(rettt==0xff) continue;
 			if(rettt>220)
 				rettt = 256-rettt+VLC->creh->creatures.size()-16;
-			ins.first = &(VLC->creh->creatures[rettt]);
+			ins.first = rettt;
 			ins.second = readNormalNr(bufor,i+ir*3+1, 2);
-			std::pair<int,std::pair<CCreature *, int> > tt(ir,ins);
+			std::pair<si32,std::pair<ui32,si32> > tt(ir,ins);
 			ret.slots.insert(tt);
 		}
 		i+=number*3;
@@ -455,7 +455,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	for (int ii=0;ii<width;ii++)
 	{
 		terrain[ii] = new TerrainTile*[height]; // allocate memory 
-		for(int jj=0;jj<=height;jj++)
+		for(int jj=0;jj<height;jj++)
 			terrain[ii][jj] = new TerrainTile[twoLevel+1];
 	}
 	int pom;
@@ -2342,6 +2342,7 @@ Mapa::Mapa(std::string filename)
 	std::cout<<"done."<<std::endl;
 	boost::crc_32_type  result;
 	result.process_bytes(initTable,mapstr.size());
+	checksum = result.checksum();
 	std::cout << "\tOur map checksum: "<<result.checksum() << std::endl;
 	initFromBytes(initTable);
 }

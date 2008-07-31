@@ -114,7 +114,10 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	std::cout << "\tOur checksum for the map: "<< mapa->checksum << std::endl;
 
 	if(mapa->checksum != sum)
+	{
+		throw std::exception("Wrong checksum");
 		exit(-1);
+	}
 	std::cout << "\tUsing random seed: "<<seed << std::endl;
 
 	gs = CGI->state;
@@ -221,6 +224,15 @@ void CClient::process(int what)
 			mess.res->insert(th);
 			mess.mx->unlock();
 			mess.cv->notify_all();
+			break;
+		}
+	case 502:
+		{
+			SetGarrisons sg;
+			*serv >> sg;
+			gs->apply(&sg);
+			for(std::map<ui32,CCreatureSet>::iterator i = sg.garrs.begin(); i!=sg.garrs.end(); i++)
+				playerint[gs->map->objects[i->first]->tempOwner]->garrisonChanged(gs->map->objects[i->first]);
 			break;
 		}
 	case 1001:
