@@ -42,13 +42,6 @@ CPlayerInterface * LOCPLINT;
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 
-SComponent toSComponent(const Component *c)
-{
-	SComponent ret((SComponent::Etype)c->type,c->subtype,c->val);
-	if(c->type == 2)
-		ret.subtitle+=CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
-	return ret;
-}
 
 class OCM_HLP_CGIN
 {
@@ -537,7 +530,7 @@ void CInfoPopup::show(SDL_Surface * to)
 	blitAt(bitmap,pos.x,pos.y,(to)?(to):(screen));
 }
 
-SComponent::SComponent(Etype Type, int Subtype, int Val)
+void SComponent::init(Etype Type, int Subtype, int Val)
 {
 	std::ostringstream oss;
 	switch (Type)
@@ -565,7 +558,22 @@ SComponent::SComponent(Etype Type, int Subtype, int Val)
 	pos.w = temp->w;
 	pos.h = temp->h;
 }
+SComponent::SComponent(Etype Type, int Subtype, int Val)
+{
+	init(Type,Subtype,Val);
+}
 
+SComponent::SComponent(const Component &c)
+{
+	init((Etype)c.id,c.subtype,c.val);
+	switch(c.id)
+	{
+	case resource:
+		if(c.when==1)
+			subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
+		break;
+	}
+}
 SDL_Surface * SComponent::getImg()
 {
 	switch (type)
@@ -2027,6 +2035,8 @@ void CPlayerInterface::showInfoDialog(std::string text, std::vector<Component*> 
 {
 	curint->deactivate(); //dezaktywacja starego interfejsu
 	std::vector<SComponent*> intComps;
+	for(int i=0;i<components.size();i++)
+		intComps.push_back(new SComponent(*components[i]));
 	CInfoWindow * temp = CMessage::genIWindow(text,LOCPLINT->playerID,32,intComps);
 	LOCPLINT->objsToBlit.push_back(temp);
 	temp->pos.x=300-(temp->pos.w/2);

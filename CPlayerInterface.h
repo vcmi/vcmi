@@ -207,8 +207,9 @@ public:
 	std::string description; //r-click
 	std::string subtitle; 
 
+	void init(Etype Type, int Subtype, int Val);
 	SComponent(Etype Type, int Subtype, int Val);
-	//SComponent(const & SComponent r);
+	SComponent(const Component &c);
 	
 	void clickRight (boost::logic::tribool down);
 	virtual SDL_Surface * getImg();

@@ -122,6 +122,12 @@ void CGameState::apply(IPack * pack)
 					t->builded = 0;
 			break;
 		}
+	case 102: //set resource amount
+		{
+			SetResource *sr = static_cast<SetResource*>(pack);
+			players[sr->player].resources[sr->resid] = sr->val;
+			break;
+		}
 	case 501://hero try-move
 		{
 			TryMoveHero * n = static_cast<TryMoveHero*>(pack);

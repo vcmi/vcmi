@@ -88,7 +88,7 @@ struct TryMoveHero : public CPack<TryMoveHero> //501
 struct MetaString : public CPack<MetaString> //2001 helper for object scrips
 {
 	std::vector<std::string> strings;
-	std::vector<std::pair<ui8,ui32> > texts; //pairs<text handler type, text number>; types: 1 - generaltexthandler->all; 2 - objh->xtrainfo; 3 - objh->names; 4 - objh->restypes; 5 - arth->artifacts[id].name; 6 - generaltexth->arraytxt; 7 - creh->creatures[os->subID].namePl; 8 - objh->creGens; 9 - objh->mines[ID].first; 10 - objh->mines[ID].second
+	std::vector<std::pair<ui8,ui32> > texts; //pairs<text handler type, text number>; types: 1 - generaltexthandler->all; 2 - objh->xtrainfo; 3 - objh->names; 4 - objh->restypes; 5 - arth->artifacts[id].name; 6 - generaltexth->arraytxt; 7 - creh->creatures[os->subID].namePl; 8 - objh->creGens; 9 - objh->mines[ID].first; 10 - objh->mines[ID].second; 11 - objh->advobtxt
 	std::vector<si32> message;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -119,16 +119,16 @@ struct MetaString : public CPack<MetaString> //2001 helper for object scrips
 }; 
 struct Component : public CPack<Component> //2002 helper for object scrips informations
 {
-	ui16 type, subtype; //types: 0 - primskill; 1 - secskill; 2 - resource; 3 - creature; 4 - artifact; 5 - experience
+	ui16 id, subtype; //ids: 0 - primskill; 1 - secskill; 2 - resource; 3 - creature; 4 - artifact; 5 - experience
 	si32 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type & subtype & val & when;
+		h & id & subtype & val & when;
 	}
 	Component(){type = 2002;};
-	Component(ui16 Type, ui16 Subtype, si32 Val, si16 When):type(Type),subtype(Subtype),val(Val),when(When){type = 2002;};
+	Component(ui16 Type, ui16 Subtype, si32 Val, si16 When):id(Type),subtype(Subtype),val(Val),when(When){type = 2002;};
 };
 
 struct InfoWindow : public CPack<InfoWindow> //103  - displays simple info window

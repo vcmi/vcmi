@@ -83,9 +83,7 @@ void CScriptCallback::changePrimSkill(int ID, int which, int val)
 
 int CScriptCallback::getHeroOwner(int heroID)
 {
-	//CGHeroInstance * hero = CGI->state->map->getHero(heroID,0);
-	//return hero->getOwner();
-	return -1;
+	return gh->gs->map->objects[heroID]->tempOwner;
 }
 void CScriptCallback::showInfoDialog(InfoWindow *iw)
 {
@@ -127,30 +125,7 @@ int CScriptCallback::getSelectedHero()
 }
 int CScriptCallback::getDate(int mode)
 {
-	int temp;
-	switch (mode)
-	{
-	case 0:
-		return gh->gs->day;
-		break;
-	case 1:
-		temp = (gh->gs->day)%7;
-		if (temp)
-			return temp;
-		else return 7;
-		break;
-	case 2:
-		temp = ((gh->gs->day-1)/7)+1;
-		if (!(temp%4))
-			return 4;
-		else 
-			return (temp%4);
-		break;
-	case 3:
-		return ((gh->gs->day-1)/28)+1;
-		break;
-	}
-	return 0;
+	return gh->gs->getDate(mode);
 }
 void CScriptCallback::giveResource(int player, int which, int val)
 {
@@ -159,8 +134,6 @@ void CScriptCallback::giveResource(int player, int which, int val)
 	sr.resid = which;
 	sr.val = (gh->gs->players[player].resources[which]+val);
 	gh->sendAndApply(&sr);
-	//gh->gs->players[player].resources[which]+=val;
-	//sv->playerint[player]->receivedResource(which,val);
 }
 void CScriptCallback::showCompInfo(int player, SComponent * comp)
 {

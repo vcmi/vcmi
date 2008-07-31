@@ -297,10 +297,10 @@ void CGameHandler::newTurn()
 		n.res.insert(r);
 	}	
 	sendAndApply(&n);
-	//for (std::set<CCPPObjectScript *>::iterator i=gs->cppscripts.begin();i!=gs->cppscripts.end();i++)
-	//{
-	//	(*i)->newTurn();
-	//}
+	for (std::set<CCPPObjectScript *>::iterator i=cppscripts.begin();i!=cppscripts.end();i++)
+	{
+		(*i)->newTurn();
+	}
 }
 void CGameHandler::run()
 {	

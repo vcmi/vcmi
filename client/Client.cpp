@@ -73,6 +73,8 @@ std::string toString(MetaString &ms)
 				case 8:
 					vec = &CGI->objh->creGens;
 					break;
+				case 11:
+					vec = &CGI->objh->advobtxt;
 				}
 				ret += (*vec)[ser];
 			}
@@ -179,7 +181,11 @@ void CClient::process(int what)
 		{
 			InfoWindow iw;
 			*serv >> iw;
-			
+			std::vector<Component*> comps;
+			for(int i=0;i<iw.components.size();i++)
+				comps.push_back(&iw.components[i]);
+			playerint[iw.player]->showInfoDialog(toString(iw.text),comps);
+			break;
 		}
 	case 501: //hero movement response - we have to notify interfaces and callback
 		{

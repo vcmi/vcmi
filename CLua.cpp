@@ -201,7 +201,6 @@ void CVisitableOPH::newObject(int objid)
 	default:
 		throw new std::exception("Unsupported ID in CVisitableOPH::hoverText");
 	}
-
 	hovername << std::pair<ui8,ui32>(3,os->ID) << " " << std::pair<ui8,ui32>(2,pom);
 	cb->setHoverName(objid,&hovername);
 
@@ -308,74 +307,88 @@ std::vector<int> CVisitableOPH::yourObjects()
 
 void CVisitableOPW::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 {
-	//int mid;
-	//switch (os->ID)
-	//{
-	//case 55:
-	//	mid = 92;
-	//	break;
-	//case 112:
-	//	mid = 170;
-	//	break;
-	//case 109:
-	//	mid = 164;
-	//	break;
-	//}
-	//if (alreadyVisited)
-	//{
-	//	if (os->ID!=112)
-	//		mid++;
-	//	else 
-	//		mid--;
-	//	cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[mid],&std::vector<SComponent*>()); //TODO: maybe we have memory leak with these windows
-	//}
-	//else
-	//{
-	//	int type, sub, val;
-	//	type = SComponent::resource;
-	//	switch (os->ID)
-	//	{
-	//	case 55:
-	//		if (rand()%2)
-	//		{
-	//			sub = 5;
-	//			val = 5;
-	//		}
-	//		else
-	//		{
-	//			sub = 6;
-	//			val = 500;
-	//		}
-	//		break;
-	//	case 112:
-	//		mid = 170;
-	//		sub = (rand() % 5) + 1;
-	//		val = (rand() % 4) + 3;
-	//		break;
-	//	case 109:
-	//		mid = 164;
-	//		sub = 6;
-	//		if(cb->getDate(2)<2)
-	//			val = 500;
-	//		else
-	//			val = 1000;
-	//	}
-	//	SComponent * com = new SComponent((SComponent::Etype)type,sub,val);
-	//	std::vector<SComponent*> weko;
-	//	weko.push_back(com);
-	//	cb->giveResource(cb->getHeroOwner(heroID),sub,val);
-	//	cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[mid],&weko);
-	//	visited[os] = true;
-	//}
+	DEFOS;
+	int mid;
+	switch (os->ID)
+	{
+	case 55:
+		mid = 92;
+		break;
+	case 112:
+		mid = 170;
+		break;
+	case 109:
+		mid = 164;
+		break;
+	}
+	if (alreadyVisited)
+	{
+		if (os->ID!=112)
+			mid++;
+		else 
+			mid--;
+
+		InfoWindow iw;
+		iw.player = cb->getHero(heroID)->tempOwner;
+		iw.text << std::pair<ui8,ui32>(11,mid);
+		cb->showInfoDialog(&iw);
+	}
+	else
+	{
+		int type, sub, val;
+		type = 2;
+		switch (os->ID)
+		{
+		case 55:
+			if (rand()%2)
+			{
+				sub = 5;
+				val = 5;
+			}
+			else
+			{
+				sub = 6;
+				val = 500;
+			}
+			break;
+		case 112:
+			mid = 170;
+			sub = (rand() % 5) + 1;
+			val = (rand() % 4) + 3;
+			break;
+		case 109:
+			mid = 164;
+			sub = 6;
+			if(cb->getDate(2)<2)
+				val = 500;
+			else
+				val = 1000;
+		}
+		int player = cb->getHeroOwner(heroID);
+		cb->giveResource(player,sub,val);
+		InfoWindow iw;
+		iw.player = player;
+		iw.components.push_back(Component(type,sub,val,0));
+		iw.text << std::pair<ui8,ui32>(11,mid);
+		cb->showInfoDialog(&iw);
+		visited[objid] = true;
+		MetaString ms; //set text to "visited"
+		ms << std::pair<ui8,ui32>(3,os->ID) << " " << std::pair<ui8,ui32>(1,352);
+		cb->setHoverName(objid,&ms);
+	}
 }
 void CVisitableOPW::newTurn ()
 {
-	if (cb->getDate(1)==1)
+	if (cb->getDate(1)==1) //first day of week
 	{
 		for (std::map<int,bool>::iterator i = visited.begin(); i != visited.end(); i++)
 		{
 			(*i).second = false;
+			MetaString ms; //set text to "not visited"
+			ms << std::pair<ui8,ui32>(3,cb->getObj(i->first)->ID) << " " << std::pair<ui8,ui32>(1,353);
+			cb->setHoverName(i->first,&ms);
 		}
+
 	}
 } 
 void CVisitableOPW::newObject(int objid)
@@ -418,6 +431,8 @@ void CMines::onHeroVisit(int objid, int heroID)
 	//TODO: this is code for standard mines, no support for abandoned mine (subId==7)
 	DEFOS;
 	const CGHeroInstance *h = cb->getHero(heroID);
+	if(h->tempOwner == os->tempOwner)
+		return; //TODO: leaving garrison
 	cb->setOwner(objid,h->tempOwner);
 	MetaString ms;
 	ms << std::pair<ui8,ui32>(9,os->subID) << " " << std::pair<ui8,ui32>(6,23+h->tempOwner);
@@ -435,8 +450,6 @@ void CMines::onHeroVisit(int objid, int heroID)
 	iw.player = h->tempOwner;
 	iw.components.push_back(Component(2,os->subID,vv,-1));
 	cb->showInfoDialog(&iw);
-	//TODO: leaving garrison
-
 }
 std::vector<int> CMines::yourObjects()
 {
@@ -471,10 +484,10 @@ void CPickable::newObject(int objid)
 	switch (os->ID)
 	{
 	case 79:
-		ms << std::pair<ui8,ui32>(4,os->ID);
+		ms << std::pair<ui8,ui32>(4,os->subID);
 		break;
 	case 5:
-		ms << std::pair<ui8,ui32>(5,os->ID);
+		ms << std::pair<ui8,ui32>(5,os->subID);
 		break;
 	default:
 		ms << std::pair<ui8,ui32>(3,os->ID);
