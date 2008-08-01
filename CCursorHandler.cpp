@@ -9,17 +9,6 @@ extern SDL_Surface * screen;
 
 void CCursorHandler::initCursor()
 {
-#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-    int rmask = 0xff000000;
-    int gmask = 0x00ff0000;
-    int bmask = 0x0000ff00;
-    int amask = 0x000000ff;
-#else
-    int rmask = 0x000000ff;
-    int gmask = 0x0000ff00;
-    int bmask = 0x00ff0000;
-    int amask = 0xff000000;
-#endif
 	mode = number = xpos = ypos = 0;
 	help = CSDL_Ext::newSurface(32,32);
 	cursors.push_back(CDefHandler::giveDef("CRADVNTR.DEF"));

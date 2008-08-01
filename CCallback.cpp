@@ -357,17 +357,15 @@ std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur)
 }
 std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur)
 {
-	std::vector < const CGHeroInstance *> ret = std::vector < const CGHeroInstance *>();
-	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	std::vector < const CGHeroInstance *> ret;
+	for(int i=0;i<gs->map->heroes.size();i++)
 	{
-		for (int j=0;j<(*i).second.heroes.size();j++)
+		if(	 (gs->map->heroes[i]->tempOwner==player) ||
+		   (isVisible(gs->map->heroes[i]->getPosition(false),player) && !onlyOur)	)
 		{
-			if ( ( isVisible((*i).second.heroes[j]->getPosition(false),player) ) || (*i).first==player)
-			{
-				ret.push_back((*i).second.heroes[j]);
-			}
+			ret.push_back(gs->map->heroes[i]);
 		}
-	} //	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+	}
 	return ret;
 }
 
@@ -430,12 +428,9 @@ int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2
 
 bool CCallback::dismissHero(const CGHeroInstance *hero)
 {
-	CGHeroInstance * Vhero = const_cast<CGHeroInstance *>(hero);
-	CGI->mh->removeObject(Vhero);
-	std::vector<CGHeroInstance*>::iterator nitr = find(CGI->state->players[player].heroes.begin(), CGI->state->players[player].heroes.end(), Vhero);
-	CGI->state->players[player].heroes.erase(nitr);
-	LOCPLINT->adventureInt->heroList.updateHList();
-	return false;
+	if(player!=hero->tempOwner) return false;
+	*cl->serv << ui16(500) << hero->id;
+	return true;
 }
 
 int CCallback::getMySerial()

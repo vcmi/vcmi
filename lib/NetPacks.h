@@ -82,6 +82,17 @@ struct SetResources : public CPack<SetResources> //104
 		h & player & res;
 	}
 }; 
+struct RemoveHero : public CPack<RemoveHero> //500
+{
+	RemoveHero(){type = 500;};
+	RemoveHero(si32 ID){id = ID;type = 500;};
+	si32 id;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id;
+	}
+}; 
 struct TryMoveHero : public CPack<TryMoveHero> //501
 {
 	TryMoveHero(){type = 501;};

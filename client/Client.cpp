@@ -200,6 +200,17 @@ void CClient::process(int what)
 			playerint[sr.player]->receivedResource(-1,-1);
 			break;
 		}
+	case 500:
+		{
+			RemoveHero rh;
+			*serv >> rh;
+			CGHeroInstance *h = static_cast<CGHeroInstance*>(gs->map->objects[rh.id]);
+			std::cout << "Removing hero with id = "<<(unsigned)rh.id<<std::endl;
+			CGI->mh->removeObject(h);
+			gs->apply(&rh);
+			playerint[h->tempOwner]->heroKilled(h);
+			break;
+		}
 	case 501: //hero movement response - we have to notify interfaces and callback
 		{
 			TryMoveHero *th = new TryMoveHero; //will be deleted by callback after processing

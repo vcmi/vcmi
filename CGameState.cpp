@@ -135,6 +135,18 @@ void CGameState::apply(IPack * pack)
 				players[sr->player].resources[i] = sr->res[i];
 			break;
 		}
+	case 500:
+		{
+			RemoveHero *rh = static_cast<RemoveHero*>(pack);
+			CGHeroInstance *h = static_cast<CGHeroInstance*>(map->objects[rh->id]);
+			std::vector<CGHeroInstance*>::iterator nitr = std::find(map->heroes.begin(), map->heroes.end(),h);
+			map->heroes.erase(nitr);
+			int player = h->tempOwner;
+			nitr = std::find(players[player].heroes.begin(), players[player].heroes.end(), h);
+			players[player].heroes.erase(nitr);
+			map->objects[h->id] = NULL;
+			break;
+		}
 	case 501://hero try-move
 		{
 			TryMoveHero * n = static_cast<TryMoveHero*>(pack);

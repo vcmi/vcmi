@@ -1158,10 +1158,7 @@ bool CMapHandler::hideObject(CGObjectInstance *obj)
 bool CMapHandler::removeObject(CGObjectInstance *obj)
 {
 	hideObject(obj);
-	std::vector<CGObjectInstance *>::iterator db = std::find(map->objects.begin(), map->objects.end(), obj);
-	recalculateHideVisPosUnderObj(*db);
-	delete *db;
-	map->objects.erase(db);
+	recalculateHideVisPosUnderObj(obj);
 	return true;
 }
 

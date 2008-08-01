@@ -67,6 +67,14 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					cTurn.notify_all();
 					break;
 				}
+			case 500:
+				{
+					si32 id;
+					c >> id;
+					RemoveHero rh(id);
+					sendAndApply(&rh);
+					break;
+				}
 			case 501://interface wants to move hero
 				{
 					int3 start, end;

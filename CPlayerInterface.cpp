@@ -6,7 +6,6 @@
 #include "mapHandler.h"
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
-#include "CScreenHandler.h"
 #include "CCursorHandler.h"
 #include "CCallback.h"
 #include "SDL_Extensions.h"
@@ -1569,7 +1568,9 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	graphics->heroWins.erase(hero->ID);
+	adventureInt->heroList.updateHList();
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
@@ -1850,6 +1851,7 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	SDL_FreeSurface(graphics->heroWins[hero->subID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
 	graphics->heroWins[hero->subID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
 	if (adventureInt->selection.selected == hero)
