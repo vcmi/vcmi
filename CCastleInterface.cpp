@@ -510,7 +510,9 @@ void CCastleInterface::deactivate()
 void CCastleInterface::addBuilding(int bid)
 {
 	//TODO: lepiej by bylo tylko dodawac co trzeba pamietajac o grupach
+	deactivate();
 	recreateBuildings();
+	activate();
 }
 
 void CCastleInterface::removeBuilding(int bid)
@@ -916,12 +918,12 @@ void CHallInterface::CBuildWindow::deactivate()
 }
 void CHallInterface::CBuildWindow::Buy()
 {
-	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,bid);
 	deactivate();
-	delete this;
-	delete LOCPLINT->castleInt->hallInt;
 	LOCPLINT->castleInt->hallInt = NULL;
 	LOCPLINT->castleInt->activate();
+	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,bid);
+	delete this;
+	delete LOCPLINT->castleInt->hallInt;
 	LOCPLINT->castleInt->showAll();
 }
 void CHallInterface::CBuildWindow::close()

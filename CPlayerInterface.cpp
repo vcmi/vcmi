@@ -957,7 +957,7 @@ void CPlayerInterface::yourTurn()
 	//initializing framerate keeper
 	mainFPSmng = new FPSmanager;
 	SDL_initFramerate(mainFPSmng);
-	SDL_setFramerate(mainFPSmng, 24);
+	SDL_setFramerate(mainFPSmng, 48);
 	SDL_Event sEvent;
 	//framerate keeper initialized
 	timeHandler th;
@@ -993,7 +993,7 @@ void CPlayerInterface::yourTurn()
 		//	}
 		//}
 		//water tiles updated
-		CGI->screenh->updateScreen();
+		//CGI->screenh->updateScreen();
 
 		pim->lock();
 
@@ -1016,7 +1016,7 @@ void CPlayerInterface::yourTurn()
 		if (!castleInt) //stuff for advMapInt
 		{
 			++LOCPLINT->adventureInt->animValHitCount; //for animations
-			if(LOCPLINT->adventureInt->animValHitCount == 4)
+			if(LOCPLINT->adventureInt->animValHitCount == 8)
 			{
 				LOCPLINT->adventureInt->animValHitCount = 0;
 				++animVal;
@@ -1074,9 +1074,9 @@ void CPlayerInterface::yourTurn()
 		for(int i=0;i<objsToBlit.size();i++)
 			objsToBlit[i]->show();
 		pim->unlock();
-		//SDL_Flip(screen);
+		CGI->curh->draw1();
 		CSDL_Ext::update(screen);
-		SDL_Delay(5); //give time for other apps
+		CGI->curh->draw2();
 		SDL_framerateDelay(mainFPSmng);
 	}
 	adventureInt->hide();
@@ -1146,7 +1146,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//initializing objects and performing first step of move
 	CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
-	boost::unique_lock<boost::mutex> un(*pim);
 	if (!details.successful)
 	{
 		ho->moveDir = getDir(details.src,details.dst);
@@ -1486,7 +1485,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		LOCPLINT->adventureInt->update(); //updating screen
 		CSDL_Ext::update(screen);
-		CGI->screenh->updateScreen();
+		//CGI->screenh->updateScreen();
 
 		++LOCPLINT->adventureInt->animValHitCount; //for animations
 		if(LOCPLINT->adventureInt->animValHitCount == 4)

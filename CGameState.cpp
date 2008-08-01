@@ -131,7 +131,7 @@ void CGameState::apply(IPack * pack)
 	case 104:
 		{
 			SetResources *sr = static_cast<SetResources*>(pack);
-			for(int i=0;sr->res.size();i++)
+			for(int i=0;i<sr->res.size();i++)
 				players[sr->player].resources[i] = sr->res[i];
 			break;
 		}

@@ -89,8 +89,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		//audio initialized 
 		cgi->consoleh = new CConsoleHandler;
 		cgi->mush = mush;
-		cgi->curh = new CCursorHandler; 
-		THC std::cout<<"\tInitializing sound and cursor: "<<pomtime.getDif()<<std::endl;
+		THC std::cout<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
 		cgi->spriteh->init("Data\\H3sprite.lod","Sprites");
@@ -112,8 +111,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		//cgi->curh->initCursor();
 		//cgi->curh->showGraphicCursor();
 		pomtime.getDif();
-		cgi->screenh = new CScreenHandler;
-		cgi->screenh->initScreen();
+		cgi->curh = new CCursorHandler; 
+		cgi->curh->initCursor();
+		//cgi->screenh = new CScreenHandler;
+		//cgi->screenh->initScreen();
 		THC std::cout<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
 
 		CAbilityHandler * abilh = new CAbilityHandler;

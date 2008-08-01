@@ -474,7 +474,7 @@ void CGameHandler::run()
 		newTurn();
 		for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
 		{
-			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0) continue; //players has not towns/castle - loser
+			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0 || i->first>=PLAYER_LIMIT  ) continue; //players has not towns/castle - loser
 			makingTurn = true;
 			gs->currentPlayer = i->first;
 			*connections[i->first] << ui16(100) << i->first;    

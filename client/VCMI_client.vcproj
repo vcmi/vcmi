@@ -358,10 +358,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CScreenHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\hch\CSndHandler.cpp"
 				>
 			</File>
@@ -513,10 +509,6 @@
 			</File>
 			<File
 				RelativePath="..\hch\CPreGameTextHandler.h"
-				>
-			</File>
-			<File
-				RelativePath="..\CScreenHandler.h"
 				>
 			</File>
 			<File
