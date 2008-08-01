@@ -20,7 +20,7 @@ extern SDL_Color zwykly;
 SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false)
 {
 	//initializing armies
 	this->army1 = army1;
@@ -267,7 +267,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	if(defendingHero)
 		defendingHero->show(to);
 
-	//showing units //a lot of work...
+	////showing units //a lot of work...
 	std::vector<int> stackAliveByHex[187];
 	//double loop because dead stacks should be printed first
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
@@ -433,6 +433,34 @@ void CBattleInterface::stackRemoved(CStack stack)
 
 void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)
 {
+	if(creAnims[ID]->getType() != 2)
+	{
+		return; //something went wrong
+	}
+	if(byShooting) //delay hit animation
+	{
+		CStack attacker = LOCPLINT->cb->battleGetStackByID(IDby);
+		while(true)
+		{
+			bool found = false;
+			for(std::list<SProjectileInfo>::const_iterator it = projectiles.begin(); it!=projectiles.end(); ++it)
+			{
+				if(it->creID == attacker.creature->idNumber)
+				{
+					found = true;
+					break;
+				}
+			}
+			if(!found)
+				break;
+			else
+			{
+				show();
+				CSDL_Ext::update();
+				SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			}
+		}
+	}
 	creAnims[ID]->setType(5); //death
 	for(int i=0; i<creAnims[ID]->framesInGroup(5)-1; ++i)
 	{
@@ -448,6 +476,8 @@ void CBattleInterface::stackActivated(int number)
 {
 	givenCommand = NULL;
 	activeStack = number;
+	shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(number);
+	myTurn = true;
 }
 
 void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, bool endMoving)
@@ -628,6 +658,34 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 
 void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting)
 {
+	if(creAnims[ID]->getType() != 2)
+	{
+		return; //something went wrong
+	}
+	if(byShooting) //delay hit animation
+	{
+		CStack attacker = LOCPLINT->cb->battleGetStackByID(IDby);
+		while(true)
+		{
+			bool found = false;
+			for(std::list<SProjectileInfo>::const_iterator it = projectiles.begin(); it!=projectiles.end(); ++it)
+			{
+				if(it->creID == attacker.creature->idNumber)
+				{
+					found = true;
+					break;
+				}
+			}
+			if(!found)
+				break;
+			else
+			{
+				show();
+				CSDL_Ext::update();
+				SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			}
+		}
+	}
 	creAnims[ID]->setType(3); //getting hit
 	for(int i=0; i<creAnims[ID]->framesInGroup(3); ++i)
 	{
@@ -642,6 +700,10 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
+	if(attackingInfo != NULL)
+	{
+		return; //something went wrong
+	}
 	CStack aStack = LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
 	if(aStack.creature->isDoubleWide())
 	{
@@ -725,6 +787,9 @@ void CBattleInterface::hexLclicked(int whichOne)
 {
 	if((whichOne%17)!=0 && (whichOne%17)!=16) //if player is trying to attack enemey unit or move creature stack
 	{
+		if(!myTurn)
+			return; //we are not permit to do anything
+
 		int atCre = LOCPLINT->cb->battleGetStack(whichOne); //creature at destination tile; -1 if there is no one
 		//LOCPLINT->cb->battleGetCreature();
 		if(atCre==-1) //normal move action
@@ -757,6 +822,10 @@ void CBattleInterface::hexLclicked(int whichOne)
 
 void CBattleInterface::stackIsShooting(int ID, int dest)
 {
+	if(attackingInfo != NULL)
+	{
+		return; //something went wrong
+	}
 	//projectile
 	float projectileAngle; //in radians; if positive, projectiles goes up
 	float straightAngle = 0.2f; //maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
@@ -825,7 +894,6 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 
 void CBattleInterface::showRange(SDL_Surface * to, int ID)
 {
-	std::vector<int> shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(ID);
 	for(int i=0; i<shadedHexes.size(); ++i)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(CBattleInterface::cellShade, NULL, to, &bfield[shadedHexes[i]].pos);

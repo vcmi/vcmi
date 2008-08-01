@@ -2058,6 +2058,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 	BattleAction ret = *(dynamic_cast<CBattleInterface*>(curint)->givenCommand);
 	delete dynamic_cast<CBattleInterface*>(curint)->givenCommand;
 	dynamic_cast<CBattleInterface*>(curint)->givenCommand = NULL;
+	dynamic_cast<CBattleInterface*>(curint)->myTurn = false;
 	return ret;
 }
 

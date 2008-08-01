@@ -84,6 +84,7 @@ private:
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
+	std::vector<int> shadedHexes; //hexes available for active stack
 	void showRange(SDL_Surface * to, int ID); //show helper funtion ot mark range of a unit
 
 	class CAttHelper
@@ -111,7 +112,7 @@ private:
 	};
 	std::list<SProjectileInfo> projectiles;
 	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
-
+	
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor
@@ -122,6 +123,7 @@ public:
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	static SDL_Surface * cellBorder, * cellShade;
 	BattleAction * givenCommand; //true if we have i.e. moved current unit
+	bool myTurn; //if true, interface is active (commands can be ordered
 
 	//button handle funcs:
 	void bOptionsf();
