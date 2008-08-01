@@ -11,6 +11,7 @@
 #include "../lib/NetPacks.h"
 #include <boost/bind.hpp>
 #include <boost/thread.hpp>
+#include <boost/foreach.hpp>
 #include "../hch/CObjectHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CArtHandler.h"
@@ -190,6 +191,15 @@ void CClient::process(int what)
 			playerint[iw.player]->showInfoDialog(toString(iw.text),comps);
 			break;
 		}
+	case 104:
+		{
+			SetResources sr;
+			*serv >> sr;
+			std::cout << "Set amount of resources of player "<<(unsigned)sr.player<<std::endl;
+			gs->apply(&sr);
+			playerint[sr.player]->receivedResource(-1,-1);
+			break;
+		}
 	case 501: //hero movement response - we have to notify interfaces and callback
 		{
 			TryMoveHero *th = new TryMoveHero; //will be deleted by callback after processing
@@ -233,6 +243,23 @@ void CClient::process(int what)
 			gs->apply(&sg);
 			for(std::map<ui32,CCreatureSet>::iterator i = sg.garrs.begin(); i!=sg.garrs.end(); i++)
 				playerint[gs->map->objects[i->first]->tempOwner]->garrisonChanged(gs->map->objects[i->first]);
+			break;
+		}
+	case 503:
+		{
+			SetStrInfo ssi;
+			*serv >> ssi;
+			gs->apply(&ssi);
+			//TODO: notify interfaces
+			break;
+		}
+	case 504:
+		{
+			NewStructures ns;
+			*serv >> ns;
+			gs->apply(&ns);
+			BOOST_FOREACH(si32 bid, ns.bid)
+				playerint[gs->map->objects[ns.tid]->tempOwner]->buildChanged(static_cast<CGTownInstance*>(gs->map->objects[ns.tid]),bid,1);
 			break;
 		}
 	case 1001:

@@ -7,6 +7,7 @@
 #include "../hch/CHeroHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CBuildingHandler.h"
 class CLodHandler;
 LibClasses * VLC = NULL;
 CLodHandler * bitmaph=NULL;
@@ -45,6 +46,10 @@ DLL_EXPORT void initDLL(CLodHandler *b)
 	VLC->dobjinfo = new CDefObjInfoHandler;
 	VLC->dobjinfo->load();
 	THC std::cout<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
+
+	VLC->buildh = new CBuildingHandler;
+	VLC->buildh->loadBuildings();
+	THC std::cout<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode)

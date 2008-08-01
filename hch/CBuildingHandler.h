@@ -2,13 +2,14 @@
 #define CBUILDINGHANDLER_H
 #include "../global.h"
 #include <map>
+#include <vector>
 //enum EbuildingType {NEUTRAL=-1, CASTLE, RAMPART, TOWER, INFERNO, NECROPOLIS, DUNGEON, STRONGHOLD, FORTRESS, CONFLUX};
 class DLL_EXPORT CBuilding //a typical building encountered in every castle ;]
 {
 public:
 	std::string name;
 	std::string refName; //reference name, for identification
-	int resources[7];
+	std::vector<int> resources;
 	std::string description;
 	//EbuildingType type; //type of building (occures in many castles or is specific for one castle)
 	//bool isDwelling; //true, if this building is a dwelling

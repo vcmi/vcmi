@@ -25,6 +25,11 @@ class CCreatureSet;
 class CGObjectInstance;
 class CSlider;
 
+namespace boost
+{
+	class mutex;
+};
+
 class IShowable
 {
 public:
@@ -292,6 +297,7 @@ class CPlayerInterface : public CGameInterface
 {
 public:
 	//minor interfaces
+	boost::mutex *pim;
 	bool makingTurn;
 	SDL_Event * current;
 	IActivable *curint;
@@ -356,6 +362,7 @@ public:
 	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
 
 	CPlayerInterface(int Player, int serial);//c-tor
+	~CPlayerInterface();//d-tor
 };
 class CStatusBar
 	: public CIntObject, public IStatusBar

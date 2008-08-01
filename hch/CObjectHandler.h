@@ -140,12 +140,17 @@ public:
 	const CGHeroInstance * garrisonHero, *visitingHero;
 	int identifier; //special identifier from h3m (only > RoE maps)
 	int alignment;
-	std::set<int> forbiddenBuildings, builtBuildings;
+	std::set<si32> forbiddenBuildings, builtBuildings;
 	std::vector<int> possibleSpells, obligatorySpells, availableSpells;
 
 	struct StrInfo
 	{
-		std::map<int,int> creatures; //level - available amount
+		std::map<si32,ui32> creatures; //level - available amount
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & creatures;
+		}
 	} strInfo;
 	std::set<CCastleEvent> events;
 

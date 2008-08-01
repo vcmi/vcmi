@@ -107,7 +107,7 @@ public:
 	int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
 	bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2);
-	bool buildBuilding(const CGTownInstance *town, int buildingID);
+	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
 	void recruitCreatures(const CGObjectInstance *obj, int ID, int amount);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);
 	bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1);
@@ -119,7 +119,7 @@ public:
 	std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap(); //returns visibility map (TODO: make it const)
 	const CGHeroInstance * getHeroInfo(int player, int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
 	int getResourceAmount(int type);
-	std::vector<int> getResourceAmount();
+	std::vector<si32> getResourceAmount();
 	int howManyHeroes();
 	const CGTownInstance * getTownInfo(int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
 	std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true);

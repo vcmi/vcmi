@@ -45,13 +45,13 @@ bool CCreature::isFlying()
 {
 	return boost::algorithm::find_first(abilityRefs, "FLYING_ARMY");
 }
-int CCreature::maxAmount(const std::vector<int> &res) const //how many creatures can be bought
+si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
 	int resAmnt = std::min(res.size(),cost.size());
 	for(int i=0;i<resAmnt;i++)
 		if(cost[i])
-			ret = std::min(ret,res[i]/cost[i]);
+			ret = std::min(ret,(int)(res[i]/cost[i]));
 	return ret;
 }
 

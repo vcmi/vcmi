@@ -9,7 +9,7 @@ class CCreatureHandler;
 //class CSpellHandler;
 //class CAmbarCendamo;
 //class CPreGameTextHandler;
-//class CBuildingHandler;
+class CBuildingHandler;
 class CObjectHandler;
 //class CMusicHandler;
 //class CSemiLodHandler;
@@ -37,7 +37,7 @@ public:
 	//CSpellHandler * spellh;
 	//CMapHandler * mh;
 	//CPreGameTextHandler * preth;
-	//CBuildingHandler * buildh;
+	CBuildingHandler * buildh;
 	CObjectHandler * objh;
 	//CMusicHandler * mush;
 	//CSemiLodHandler * sspriteh;

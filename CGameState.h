@@ -33,9 +33,9 @@ namespace boost
 struct DLL_EXPORT PlayerState
 {
 public:
-	int color, serial;
-	std::vector<std::vector<std::vector<unsigned char> > >  fogOfWarMap; //true - visible, false - hidden
-	std::vector<int> resources;
+	ui8 color, serial;
+	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
+	std::vector<si32> resources;
 	std::vector<CGHeroInstance *> heroes;
 	std::vector<CGTownInstance *> towns;
 	PlayerState():color(-1){};

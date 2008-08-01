@@ -28,6 +28,7 @@ unsigned int readNr(std::string &in, unsigned int &it)
 CBuilding * readBg(std::string &buf, unsigned int& it)
 {
 	CBuilding * nb = new CBuilding();
+	nb->resources.resize(RESOURCE_QUANTITY);
 	for(int res=0;res<7;res++)
 		nb->resources[res] = readNr(buf,it);
 	nb->refName = readTo(buf,it,'\n');

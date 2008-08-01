@@ -121,7 +121,7 @@ int CScriptCallback::getSelectedHero()
 	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
 	//else 
 	//	ret = -1;;
-	return ret;
+	return -1;
 }
 int CScriptCallback::getDate(int mode)
 {

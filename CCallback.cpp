@@ -112,7 +112,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 		//verify
 		bool found = false;
 		typedef std::pair<const int,int> Parka;
-		for(std::map<int,int>::iterator av=t->strInfo.creatures.begin();av!=t->strInfo.creatures.end();av++)
+		for(std::map<si32,ui32>::iterator av=t->strInfo.creatures.begin();av!=t->strInfo.creatures.end();av++)
 		{
 			if(	(   found  = (ID == t->town->basicCreatures[av->first])   ) //creature is available among basic cretures
 				|| (found  = (ID == t->town->upgradedCreatures[av->first]))			)//creature is available among upgraded cretures
@@ -172,11 +172,9 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 
 bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 {
-	if((player>=0)  &&  obj->tempOwner != player)
+	if(((player>=0)  &&  obj->tempOwner != player) || obj->army.slots.size()<2)
 		return false;
-	CArmedInstance *ob = const_cast<CArmedInstance*>(obj);
-	ob->army.slots.erase(stackPos);
-	cl->playerint[player]->garrisonChanged(obj);
+	*cl->serv << ui16(503) << obj->id <<  ui8(stackPos);
 	return true;
 }
 bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int newID)
@@ -202,7 +200,7 @@ UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 			t = static_cast<CGTownInstance *>(const_cast<CArmedInstance *>(obj));
 		else
 			t = static_cast<const CGHeroInstance*>(obj)->visitedTown;
-		for(std::set<int>::iterator i=t->builtBuildings.begin();  i!=t->builtBuildings.end(); i++)
+		for(std::set<si32>::iterator i=t->builtBuildings.begin();  i!=t->builtBuildings.end(); i++)
 		{
 			if( (*i) >= 37   &&   (*i) < 44 ) //upgraded creature dwelling
 			{
@@ -283,7 +281,7 @@ int CCallback::getResourceAmount(int type)
 {
 	return gs->players[player].resources[type];
 }
-std::vector<int> CCallback::getResourceAmount()
+std::vector<si32> CCallback::getResourceAmount()
 {
 	return gs->players[player].resources;
 }
@@ -472,31 +470,19 @@ bool CCallback::swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1,
 	return true;
 }
 
-bool CCallback::buildBuilding(const CGTownInstance *town, int buildingID)
+bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 {
 	CGTownInstance * t = const_cast<CGTownInstance *>(town);
-	CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
 
-	if(0/*not allowed*/)//TODO: check if we are allowed to build
+	if(town->tempOwner!=player)
 		return false;
-
-	if(buildingID>36) //upg dwelling
-	{
-		if(t->getHordeLevel(0) == (buildingID-37))
-			t->builtBuildings.insert(19);
-		else if(t->getHordeLevel(1) == (buildingID-37))
-			t->builtBuildings.insert(25);
-	}
-	else if(buildingID >= 30) //bas. dwelling
-	{
-		t->strInfo.creatures[buildingID-30] = CGI->creh->creatures[t->town->basicCreatures[buildingID-30]].growth;
-	}
-
-	t->builtBuildings.insert(buildingID);
+	CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
 	for(int i=0;i<7;i++)
-		gs->players[player].resources[i]-=b->resources[i];
-	t->builded++;
-	cl->playerint[player]->buildChanged(town,buildingID,1);
+		if(b->resources[i] > gs->players[player].resources[i])
+			return false; //lack of resources
+
+	*cl->serv << ui16(504) << town->id << buildingID;
+//TODO: check if we are allowed to build
 	return true;
 }
 

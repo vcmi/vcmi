@@ -13,6 +13,7 @@
 #include "../CLua.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../hch/CBuildingHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
 #include "../lib/VCMI_Lib.h"
@@ -223,6 +224,61 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					if(s1 != s2)
 						sg.garrs[id2] = *S2;
 					sendAndApply(&sg);
+					break;
+				}
+			case 503:
+				{
+					si32 id;
+					ui8 pos;
+					c >> id >> pos;
+					CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id]);
+					s1->army.slots.erase(pos);
+					SetGarrisons sg;
+					sg.garrs[id] = s1->army;
+					sendAndApply(&sg);
+					break;
+				}
+			case 504:
+				{
+					si32 tid, bid;
+					c >> tid >> bid;
+					CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid]);
+					CBuilding * b = VLC->buildh->buildings[t->subID][bid];
+					for(int i=0;i<RESOURCE_QUANTITY;i++)
+						if(b->resources[i] > gs->players[t->tempOwner].resources[i])
+							break; //no res
+					//TODO: check requirements
+					//TODO: check if building isn't forbidden
+
+					NewStructures ns;
+					ns.tid = tid;
+					if(bid>36) //upg dwelling
+					{
+						if(t->getHordeLevel(0) == (bid-37))
+							ns.bid.insert(19);
+						else if(t->getHordeLevel(1) == (bid-37))
+							ns.bid.insert(25);
+					}
+					else if(bid >= 30) //bas. dwelling
+					{
+						SetStrInfo ssi;
+						ssi.tid = tid;
+						ssi.cres = t->strInfo.creatures;
+						ssi.cres[bid-30] = VLC->creh->creatures[t->town->basicCreatures[bid-30]].growth;
+						sendAndApply(&ssi);
+					}
+
+					ns.bid.insert(bid);
+					ns.builded = t->builded + 1;
+					sendAndApply(&ns);
+
+					SetResources sr;
+					sr.player = t->tempOwner;
+					sr.res = gs->players[t->tempOwner].resources;
+					for(int i=0;i<7;i++)
+						sr.res[i]-=b->resources[i];
+					sendAndApply(&sr);
+
 					break;
 				}
 			default:

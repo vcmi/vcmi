@@ -31,7 +31,6 @@
 #include "hch/CHeroHandler.h"
 #include "hch/CCreatureHandler.h"
 #include "hch/CSpellHandler.h"
-#include "hch/CBuildingHandler.h"
 #include "hch/CMusicHandler.h"
 #include "hch/CLodHandler.h"
 #include "hch/CDefHandler.h"
@@ -106,6 +105,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CGI->heroh = VLC->heroh;
 		CGI->objh = VLC->objh;
 		CGI->dobjinfo = VLC->dobjinfo;
+		CGI->buildh = VLC->buildh;
 
 		THC std::cout<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 
@@ -151,12 +151,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		spellh->loadSpells();
 		cgi->spellh = spellh;		
 		THC std::cout<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
-
-		CBuildingHandler * buildh = new CBuildingHandler;
-		buildh->loadBuildings();
-		cgi->buildh = buildh;
-		THC std::cout<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
-
 
 
 		cgi->pathf = new CPathfinder();

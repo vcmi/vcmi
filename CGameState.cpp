@@ -128,6 +128,13 @@ void CGameState::apply(IPack * pack)
 			players[sr->player].resources[sr->resid] = sr->val;
 			break;
 		}
+	case 104:
+		{
+			SetResources *sr = static_cast<SetResources*>(pack);
+			for(int i=0;sr->res.size();i++)
+				players[sr->player].resources[i] = sr->res[i];
+			break;
+		}
 	case 501://hero try-move
 		{
 			TryMoveHero * n = static_cast<TryMoveHero*>(pack);
@@ -146,6 +153,21 @@ void CGameState::apply(IPack * pack)
 			SetGarrisons * n = static_cast<SetGarrisons*>(pack);
 			for(std::map<ui32,CCreatureSet>::iterator i = n->garrs.begin(); i!=n->garrs.end(); i++)
 				static_cast<CArmedInstance*>(map->objects[i->first])->army = i->second;
+			break;
+		}
+	case 503:
+		{
+			SetStrInfo *ssi = static_cast<SetStrInfo*>(pack);
+			static_cast<CGTownInstance*>(map->objects[ssi->tid])->strInfo.creatures = ssi->cres;
+			break;
+		}
+	case 504:
+		{
+			NewStructures *ns = static_cast<NewStructures*>(pack);
+			CGTownInstance*t = static_cast<CGTownInstance*>(map->objects[ns->tid]);
+			BOOST_FOREACH(si32 bid,ns->bid)
+				t->builtBuildings.insert(bid);
+			t->builded = ns->builded;
 			break;
 		}
 	case 1001://set object property

@@ -920,6 +920,11 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	playerID=Player;
 	serialID=serial;
 	human=true;
+	pim = new boost::mutex;
+}
+CPlayerInterface::~CPlayerInterface()
+{
+	delete pim;
 }
 void CPlayerInterface::init(ICallback * CB)
 {
@@ -989,6 +994,9 @@ void CPlayerInterface::yourTurn()
 		//}
 		//water tiles updated
 		CGI->screenh->updateScreen();
+
+		pim->lock();
+
 		int tv = th.getDif();
 		for (int i=0;i<timeinterested.size();i++)
 		{
@@ -1065,6 +1073,7 @@ void CPlayerInterface::yourTurn()
 		}
 		for(int i=0;i<objsToBlit.size();i++)
 			objsToBlit[i]->show();
+		pim->unlock();
 		//SDL_Flip(screen);
 		CSDL_Ext::update(screen);
 		SDL_Delay(5); //give time for other apps
@@ -1137,6 +1146,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//initializing objects and performing first step of move
 	CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
+	boost::unique_lock<boost::mutex> un(*pim);
 	if (!details.successful)
 	{
 		ho->moveDir = getDir(details.src,details.dst);
@@ -1878,6 +1888,7 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 }
 void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	if(obj->ID == 34) //hero
 	{
 		const CGHeroInstance * hh;
@@ -1922,6 +1933,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 		return;
 	if(castleInt->town!=town)
 		return;
+	boost::unique_lock<boost::mutex> un(*pim);
 	switch(what)
 	{
 	case 1:

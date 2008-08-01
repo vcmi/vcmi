@@ -71,6 +71,17 @@ struct SetResource : public CPack<SetResource> //102
 		h & player & resid & val;
 	}
 }; 
+struct SetResources : public CPack<SetResources> //104
+{
+	SetResources(){type = 104;};
+	ui8 player;
+	std::vector<si32> res; //res[resid] => res amount
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player & res;
+	}
+}; 
 struct TryMoveHero : public CPack<TryMoveHero> //501
 {
 	TryMoveHero(){type = 501;};
@@ -93,6 +104,29 @@ struct SetGarrisons : public CPack<SetGarrisons> //502
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & garrs;
+	}
+}; 
+struct SetStrInfo : public CPack<SetStrInfo> //503
+{
+	SetStrInfo(){type = 503;};
+	si32 tid;
+	std::map<si32,ui32> cres;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tid & cres;
+	}
+};  
+struct NewStructures : public CPack<NewStructures> //504
+{
+	NewStructures(){type = 504;};
+	si32 tid;
+	std::set<si32> bid;
+	si16 builded; 
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tid & bid & builded;
 	}
 }; 
 struct MetaString : public CPack<MetaString> //2001 helper for object scrips

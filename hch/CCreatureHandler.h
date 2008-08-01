@@ -40,7 +40,7 @@ public:
 
 	bool isDoubleWide(); //returns true if unit is double wide on battlefield
 	bool isFlying(); //returns true if it is a flying unit
-	int maxAmount(const std::vector<int> &res) const; //how many creatures can be bought
+	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
 
 	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 };

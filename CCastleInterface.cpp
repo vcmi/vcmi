@@ -533,7 +533,7 @@ void CCastleInterface::recreateBuildings()
 	std::set< std::pair<int,int> > s; //group - id
 
 
-		for (std::set<int>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
+	for (std::set<si32>::const_iterator i=town->builtBuildings.begin();i!=town->builtBuildings.end();i++)
 	{
 		if(CGI->townh->structures.find(town->subID) != CGI->townh->structures.end()) //we have info about structures in this town
 		{

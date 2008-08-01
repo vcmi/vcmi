@@ -6,10 +6,10 @@
 #include "lib/VCMI_Lib.h"
 #include <zlib.h>
 #include <boost/crc.hpp>
-std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
+std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 {
 	std::map<int,int> mapa;
-	std::set<int> ret;
+	std::set<si32> ret;
 	std::ifstream b5("config/buildings5.txt");
 	while(!b5.eof())
 	{
@@ -20,7 +20,7 @@ std::set<int> convertBuildings(const std::set<int> h3m, int castleID)
 		mapa[a]=b;
 	}
 
-	for(std::set<int>::const_iterator i=h3m.begin();i!=h3m.end();i++)
+	for(std::set<si32>::const_iterator i=h3m.begin();i!=h3m.end();i++)
 	{
 		if(mapa[*i]>=0)
 			ret.insert(mapa[*i]);
