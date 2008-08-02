@@ -81,6 +81,10 @@ std::string toString(MetaString &ms)
 			}
 		}
 	}
+	for(int i=0;i<ms.replacements.size();i++)
+	{
+		ret.replace(ret.find("%s"),2,ms.replacements[i]);
+	}
 	return ret;
 }
 

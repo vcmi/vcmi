@@ -145,10 +145,11 @@ struct MetaString : public CPack<MetaString> //2001 helper for object scrips
 	std::vector<std::string> strings;
 	std::vector<std::pair<ui8,ui32> > texts; //pairs<text handler type, text number>; types: 1 - generaltexthandler->all; 2 - objh->xtrainfo; 3 - objh->names; 4 - objh->restypes; 5 - arth->artifacts[id].name; 6 - generaltexth->arraytxt; 7 - creh->creatures[os->subID].namePl; 8 - objh->creGens; 9 - objh->mines[ID].first; 10 - objh->mines[ID].second; 11 - objh->advobtxt
 	std::vector<si32> message;
+	std::vector<std::string> replacements;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & strings & texts & message;
+		h & strings & texts & message & replacements;
 	}
 
 	MetaString& operator<<(const std::pair<ui8,ui32> &txt)

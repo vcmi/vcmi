@@ -568,7 +568,7 @@ SComponent::SComponent(const Component &c)
 	switch(c.id)
 	{
 	case resource:
-		if(c.when==1)
+		if(c.when == -1)
 			subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
 		break;
 	}

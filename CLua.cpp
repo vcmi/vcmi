@@ -634,6 +634,11 @@ std::vector<int> CTownScript::yourObjects() //returns IDs of objects which are h
 void CHeroScript::newObject(int objid)
 {
 	cb->setBlockVis(objid,true);
+	MetaString ms;
+	ms << std::pair<ui8,ui32>(1,15);
+	ms.replacements.push_back(cb->getHero(objid)->name);
+	ms.replacements.push_back(cb->getHero(objid)->type->heroClass->name);
+	cb->setHoverName(objid,&ms);
 }
 
 void CHeroScript::onHeroVisit(int objid, int heroID)
@@ -661,15 +666,6 @@ std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are h
 	ret.push_back(34); //hero
 	return ret;
 }
-//std::string CHeroScript::hoverText(int objid)
-//{
-//	//CGHeroInstance* h = static_cast<CGHeroInstance*>(os);
-//	//std::string ret = VLC->generaltexth->allTexts[15];
-//	//boost::algorithm::replace_first(ret,"%s",h->name);
-//	//boost::algorithm::replace_first(ret,"%s",h->type->heroClass->name);
-//	//return ret;
-//	return "";
-//}
 void CMonsterS::newObject(int objid)
 {
 	//os->blockVisit = true;
