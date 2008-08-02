@@ -731,7 +731,7 @@ void CHeroWindow::redrawCurBack()
 	blitAt(skillpics->ourImages[4].bitmap, 20, 230, curBack);
 	blitAt(skillpics->ourImages[3].bitmap, 162, 230, curBack);
 
-	blitAt(curHero->type->portraitLarge, 19, 19, curBack);
+	blitAt(CGI->heroh->largePortraits[curHero->portrait], 19, 19, curBack);
 
 	CSDL_Ext::printAtMiddle(curHero->name, 190, 40, GEORXX, tytulowy, curBack);
 
@@ -796,14 +796,14 @@ void CHeroWindow::redrawCurBack()
 	for(int g=0; g<LOCPLINT->cb->howManyHeroes(); ++g)
 	{
 		const CGHeroInstance * cur = LOCPLINT->cb->getHeroInfo(player, g, false);
-		blitAt(cur->type->portraitSmall, 611, 87+g*54, curBack);
+		blitAt(CGI->heroh->smallPortraits[cur->portrait], 611, 87+g*54, curBack);
 		//printing yellow border
 		if(cur->name == curHero->name)
 		{
-			for(int f=0; f<cur->type->portraitSmall->w; ++f)
+			for(int f=0; f<CGI->heroh->smallPortraits[cur->portrait]->w; ++f)
 			{
-				for(int h=0; h<cur->type->portraitSmall->h; ++h)
-					if(f==0 || h==0 || f==cur->type->portraitSmall->w-1 || h==cur->type->portraitSmall->h-1)
+				for(int h=0; h<CGI->heroh->smallPortraits[cur->portrait]->h; ++h)
+					if(f==0 || h==0 || f==CGI->heroh->smallPortraits[cur->portrait]->w-1 || h==CGI->heroh->smallPortraits[cur->portrait]->h-1)
 					{
 						CSDL_Ext::SDL_PutPixel(curBack, 611+f, 87+g*54+h, 240, 220, 120);
 					}

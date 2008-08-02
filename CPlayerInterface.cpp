@@ -1586,7 +1586,7 @@ SDL_Surface * CPlayerInterface::drawHeroInfoWin(const CGHeroInstance * curh)
 		SDL_itoa((*i).second.second,buf,10);
 		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
 	}
-	blitAt(curh->type->portraitLarge,11,12,ret);
+	blitAt(CGI->heroh->largePortraits[curh->portrait],11,12,ret);
 	SDL_itoa(curh->mana,buf,10);
 	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
 	delete[] buf;
@@ -2435,7 +2435,7 @@ void CHeroList::draw()
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
 		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
-		SDL_Surface * temp = LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->type->portraitSmall;
+		SDL_Surface * temp = CGI->heroh->smallPortraits[LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->portrait];
 		blitAt(temp,posporx,pospory+i*32);
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
 		{

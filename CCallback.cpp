@@ -847,7 +847,8 @@ bool CCallback::battleCanShoot(int ID, int dest) //TODO: finish
 {
 	if(battleGetStackByID(ID).creature->isShooting() 
 		&& battleGetStack(dest) != -1 
-		&& battleGetStackByPos(dest).owner != battleGetStackByID(ID).owner)
+		&& battleGetStackByPos(dest).owner != battleGetStackByID(ID).owner
+		&& battleGetStackByPos(dest).alive)
 		return true;
 	return false;
 }

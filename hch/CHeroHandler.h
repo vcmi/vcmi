@@ -26,8 +26,6 @@ public:
 	CHeroClass * heroClass;
 	EHeroClasses heroType; //hero class
 	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
-	SDL_Surface * portraitSmall; //48x32 px
-	SDL_Surface * portraitLarge; //58x64 px
 };
 
 class CHeroClass
@@ -50,6 +48,7 @@ public:
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
+	std::map<int, SDL_Surface *> smallPortraits, largePortraits; //there are more portraits than playable heroes! ; small - 48x32 px ; large - 58x64 px
 	CDefHandler * pskillsb, *resources; //82x93
 	CDefHandler * un44; //many things
 	std::vector<std::string> pskillsn;

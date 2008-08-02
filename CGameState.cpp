@@ -509,7 +509,7 @@ bool CGameState::battleShootCreatureStack(int ID, int dest)
 		}
 	}
 
-	if(IDOfStackAtEnd == -1 || curB->stacks[numberOfStackAtEnd]->owner == curStack->owner)
+	if(IDOfStackAtEnd == -1 || curB->stacks[numberOfStackAtEnd]->owner == curStack->owner || !curB->stacks[numberOfStackAtEnd]->alive)
 		return false;
 
 	LOCPLINT->battleStackIsShooting(ID, dest);

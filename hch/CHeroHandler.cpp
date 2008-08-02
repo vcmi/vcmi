@@ -14,22 +14,30 @@ CHeroHandler::~CHeroHandler()
 {
 	for (int j=0;j<heroes.size();j++)
 	{
-		if (heroes[j]->portraitSmall)
-			SDL_FreeSurface(heroes[j]->portraitSmall);
 		delete heroes[j];
+	}
+	for(std::map<int, SDL_Surface*>::iterator it = smallPortraits.begin(); it!=smallPortraits.end(); ++it)
+	{
+		delete it->second;
+	}
+	for(std::map<int, SDL_Surface*>::iterator it = largePortraits.begin(); it!=largePortraits.end(); ++it)
+	{
+		delete it->second;
 	}
 }
 void CHeroHandler::loadPortraits()
 {
 	std::ifstream of("config/portrety.txt");
-	for (int j=0;j<heroes.size();j++)
+	int numberOfPortraits;
+	of>>numberOfPortraits;
+	for (int j=0; j<numberOfPortraits; j++)
 	{
 		int ID;
 		of>>ID;
 		std::string path;
 		of>>path;
-		heroes[ID]->portraitSmall=CGI->bitmaph->loadBitmap(path);
-		if (!heroes[ID]->portraitSmall)
+		smallPortraits[ID] = CGI->bitmaph->loadBitmap(path);
+		if (!smallPortraits[ID])
 			std::cout<<"Can't read small portrait for "<<ID<<" ("<<path<<")\n";
 		for(int ff=0; ff<path.size(); ++ff) //size letter is usually third one, but there are exceptions an it should fix the problem
 		{
@@ -39,10 +47,10 @@ void CHeroHandler::loadPortraits()
 				break;
 			}
 		}
-		heroes[ID]->portraitLarge=CGI->bitmaph->loadBitmap(path);
-		if (!heroes[ID]->portraitLarge)
+		largePortraits[ID] = CGI->bitmaph->loadBitmap(path);
+		if (!largePortraits[ID])
 			std::cout<<"Can't read large portrait for "<<ID<<" ("<<path<<")\n";	
-		SDL_SetColorKey(heroes[ID]->portraitLarge,SDL_SRCCOLORKEY,SDL_MapRGB(heroes[ID]->portraitLarge->format,0,255,255));
+		SDL_SetColorKey(largePortraits[ID],SDL_SRCCOLORKEY,SDL_MapRGB(largePortraits[ID]->format,0,255,255));
 
 	}
 	of.close();
