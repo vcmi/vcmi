@@ -1119,7 +1119,7 @@ bool CMapHandler::printObject(CGObjectInstance *obj)
 			std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
 			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
-				TerrainTile2 & curt = 
+				TerrainTile2 & curt =
 					ttiles
 					  [obj->pos.x + fx - curd->ourImages[0].bitmap->w/32]
 				      [obj->pos.y + fy - curd->ourImages[0].bitmap->h/32]

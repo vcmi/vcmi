@@ -41,7 +41,7 @@ SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 		itoa((*i).second.second,buf,10);
 		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
 	}
-	blitAt(graphics->portraitLarge[curh->subID],11,12,ret);
+	blitAt(graphics->portraitLarge[curh->portrait],11,12,ret);
 	itoa(curh->mana,buf,10);
 	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
 	delete[] buf;
@@ -205,7 +205,9 @@ Graphics::Graphics()
 void Graphics::loadHeroPortraits()
 {	
 	std::ifstream of("config/portrety.txt");
-	for (int j=0;j<HEROES_QUANTITY;j++)
+	int numberOfPortraits;
+	of>>numberOfPortraits;
+	for (int j=0; j<numberOfPortraits; j++)
 	{
 		int ID;
 		of>>ID;

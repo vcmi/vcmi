@@ -3,7 +3,11 @@
 #include "global.h"
 #include <set>
 #include <vector>
+#ifdef _WIN32
 #include <tchar.h>
+#else
+#include "tchar_amigaos4.h"
+#endif
 
 class CScriptCallback;
 class CCallback;
@@ -78,7 +82,6 @@ private:
 	ui32 day; //total number of days in game
 	Mapa * map;
 	std::map<ui8,PlayerState> players; //ID <-> playerstate
-	
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 
 	boost::shared_mutex *mx;
@@ -94,6 +97,9 @@ private:
 	void battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2);
 	bool battleMoveCreatureStack(int ID, int dest);
 	bool battleAttackCreatureStack(int ID, int dest);
+	bool battleShootCreatureStack(int ID, int dest);
+	int battleGetStack(int pos); //returns ID of stack at given tile
+	static int calculateDmg(const CStack* attacker, const CStack* defender); //TODO: add additional conditions and require necessary data
 	std::vector<int> battleGetRange(int ID); //called by std::vector<int> CCallback::battleGetAvailableHexes(int ID);
 public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month

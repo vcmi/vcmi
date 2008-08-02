@@ -19,7 +19,11 @@ unsigned int readNr(std::string &in, unsigned int &it)
 		if(in[last]=='\t' || in[last]=='\n' || in[last]==' ' || in[last]=='\r' || in[last]=='\n')
 			break;
 	if(last==in.size())
+#ifndef __GNUC__
 		throw new std::exception("Cannot read number...");
+#else
+		throw new std::exception();
+#endif
 	std::stringstream ss(in.substr(it,last-it));
 	it+=(1+last-it);
 	ss >> last;
@@ -63,7 +67,7 @@ void CBuildingHandler::loadBuildings()
 		delete nb;
 	}
 
-	//reading 14 per faction dwellings 
+	//reading 14 per faction dwellings
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//dwellings - skip 2 lines
 	for(int i=0;i<F_NUMBER;i++)
 	{
@@ -106,7 +110,7 @@ void CBuildingHandler::loadBuildings()
 		buildings[fi][16]->description = readTo(buf,it,'\n');
 	}
 	/////done reading "BLDGNEUT.TXT"******************************
-	
+
 	buf = bitmaph->getTextFile("BLDGSPEC.TXT");
 	andame = buf.size(), it=0;
 	for(int f=0;f<F_NUMBER;f++)
@@ -135,7 +139,7 @@ void CBuildingHandler::loadBuildings()
 		}
 	}
 
-	char line[100]; //bufor 
+	char line[100]; //bufor
 	std::ifstream ofs("config/hall.txt");
 	int castles;
 	ofs>>castles;
@@ -170,12 +174,12 @@ void CBuildingHandler::loadBuildings()
 					(hall[tid].second)[j][box].push_back(last);
 					areboxes = it; //wyzeruje jak nie znajdzie kolejnej spacji = koniec linii
 					if(!it)
-						it = seppos+1; 
+						it = seppos+1;
 				}
 				box++;
 				it+=2;
 			}
 		}
 	}
-	
+
 }

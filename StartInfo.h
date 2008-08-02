@@ -42,7 +42,11 @@ struct StartInfo
 		for(unsigned int i=0; i<playerInfos.size(); ++i)
 			if(playerInfos[i].color == no)
 				return playerInfos[i];
+#ifndef __GNUC__
 		throw new std::exception("Cannot find info about player");
+#else
+		throw new std::exception();
+#endif
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

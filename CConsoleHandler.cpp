@@ -53,7 +53,7 @@ int internalFunc(void * callback)
 				boost::filesystem::create_directory("Extracted_txts");
 				std::cout<<"Command accepted. Opening .lod file...\t";
 				CLodHandler * txth = new CLodHandler;
-				txth->init(std::string("Data\\H3bitmap.lod"),"data");
+				txth->init(std::string(DATA_DIR "Data" PATHSEPARATOR "H3bitmap.lod"),"data");
 				std::cout<<"done.\nScanning .lod file\n";
 				int curp=0;
 				std::string pattern = ".TXT";
@@ -74,6 +74,9 @@ int internalFunc(void * callback)
 				std::cout<<"\rExtracting done :)\n";
 			}
 			vector<Coordinate>* p;
+			int heroX;
+			int heroY;
+			int heroZ;
 			switch (*cn.c_str())
 			{
 			//case 'P':
@@ -144,6 +147,7 @@ int internalFunc(void * callback)
 			//SDL_Delay(100);
 			//delete p;
 		}
+		SDL_Delay(10);
 	}
 	return -1;
 }

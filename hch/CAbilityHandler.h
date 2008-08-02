@@ -26,4 +26,4 @@ public:
 	void loadAbilities();
 };
 
-#endif CABILITYHANDLER_H
+#endif //CABILITYHANDLER_H

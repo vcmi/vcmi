@@ -17,7 +17,7 @@
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str), moi(false), offset(0)
-{	
+{
 	def = CDefHandler::giveDef(Str->defName);
 	max = def->ourImages.size();
 
@@ -88,7 +88,7 @@ void CBuildingRect::hover(bool on)
 			MotionInterested::activate();
 		moi = true;
 	}
-	else 
+	else
 	{
 		if(moi)
 			MotionInterested::deactivate();
@@ -102,7 +102,7 @@ void CBuildingRect::hover(bool on)
 }
 void CBuildingRect::clickLeft (tribool down)
 {
-	
+
 	if(area && (LOCPLINT->castleInt->hBuild==this) && !(indeterminate(down)) && (CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
 	{
 		if(pressedL && !down)
@@ -110,7 +110,7 @@ void CBuildingRect::clickLeft (tribool down)
 		ClickableL::clickLeft(down);
 	}
 
-	
+
 	//todo - handle
 }
 void CBuildingRect::clickRight (tribool down)
@@ -123,8 +123,8 @@ void CBuildingRect::clickRight (tribool down)
 		vinya->free = true;
 		vinya->bitmap = CMessage::drawBoxTextBitmapSub
 			(LOCPLINT->playerID,
-			CGI->buildh->buildings[str->townID][str->ID]->description, 
-			LOCPLINT->castleInt->bicons->ourImages[str->ID].bitmap, 
+			CGI->buildh->buildings[str->townID][str->ID]->description,
+			LOCPLINT->castleInt->bicons->ourImages[str->ID].bitmap,
 			CGI->buildh->buildings[str->townID][str->ID]->name);
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
@@ -194,7 +194,11 @@ std::string getBgName(int type) //TODO - co z tym zrobiæ?
 	case 8:
 		return "TBELBACK.bmp";
 	default:
+#ifndef __GNUC__
 		throw new std::exception("std::string getBgName(int type): invalid type");
+#else
+		throw new std::exception();
+#endif
 	}
 }
 class SORTHELP
@@ -209,7 +213,7 @@ public:
 } srthlp ;
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
-{	
+{
 	hall = NULL;
 	townInt = BitmapHandler::loadBitmap("TOWNSCRN.bmp");
 	cityBg = BitmapHandler::loadBitmap(getBgName(Town->subID));
@@ -283,7 +287,11 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 		defname = "HALLELEM.DEF";
 		break;
 	default:
+#ifndef __GNUC__
 		throw new std::exception("Bad town subID");
+#else
+		throw new std::exception();
+#endif
 	}
 	bicons = CDefHandler::giveDefEss(defname);
 	//blit buildings on bg
@@ -368,7 +376,7 @@ void CCastleInterface::enterHall()
 	hallInt->show();
 }
 void CCastleInterface::showAll(SDL_Surface * to)
-{	
+{
 	if (!to)
 		to=screen;
 	blitAt(cityBg,0,0,to);
@@ -377,7 +385,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 	townlist->draw();
 	statusbar->show();
 
-	garr->show(); 
+	garr->show();
 	int pom;
 
 	//draw fort icon
@@ -426,7 +434,7 @@ void CCastleInterface::showAll(SDL_Surface * to)
 	//print name and income
 	CSDL_Ext::printAt(town->name,85,389,GEOR13,zwykly,to);
 	char temp[10];
-	itoa(town->dailyIncome(),temp,10);
+	SDL_itoa(town->dailyIncome(),temp,10);
 	CSDL_Ext::printAtMiddle(temp,195,442,GEOR13,zwykly,to);
 
 	//blit town icon
@@ -476,13 +484,13 @@ void CCastleInterface::show(SDL_Surface * to)
 			blitAt(buildings[i]->def->ourImages[0].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
 			blitAt(buildings[i]->def->ourImages[frame].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
 		}
-		else 
+		else
 			blitAt(buildings[i]->def->ourImages[frame].bitmap,buildings[i]->pos.x,buildings[i]->pos.y,to);
 
 		if(hBuild==buildings[i] && hBuild->border) //if this this higlighted structure and has border we'll blit it
 			blitAt(hBuild->border,hBuild->pos,to);
 	}
-	
+
 }
 void CCastleInterface::activate()
 {
@@ -553,7 +561,7 @@ void CCastleInterface::recreateBuildings()
 					{
 						if(seti->first == st->group)
 						{
-							obecny = seti; 
+							obecny = seti;
 							break;
 						}
 					}
@@ -567,7 +575,11 @@ void CCastleInterface::recreateBuildings()
 								{
 									delete buildings[itpb];
 									buildings.erase(buildings.begin() + itpb);
+									#ifndef __GNUC__
 									obecny->second = st->ID;
+									#else
+									*(const_cast<int*>(&(obecny->second))) = st->ID;
+									#endif
 									buildings.push_back(new CBuildingRect(st));
 								}
 							}
@@ -588,7 +600,7 @@ void CCastleInterface::recreateBuildings()
 	std::sort(buildings.begin(),buildings.end(),srthlp);
 
 	//code for Mana Vortex (there are two sets of animation frames - one without mage guild and one with
-	if((town->subID == 5) && (town->builtBuildings.find(21)!=town->builtBuildings.end())) 
+	if((town->subID == 5) && (town->builtBuildings.find(21)!=town->builtBuildings.end()))
 	{
 		CBuildingRect *vortex = NULL;
 		for(int i=0;i<buildings.size();i++)
@@ -611,7 +623,7 @@ void CCastleInterface::recreateBuildings()
 		}
 	}
 	//code for the shipyard in the Castle
-	else if((town->subID == 0) && (town->builtBuildings.find(6)!=town->builtBuildings.end())) 
+	else if((town->subID == 0) && (town->builtBuildings.find(6)!=town->builtBuildings.end()))
 	{
 		CBuildingRect *shipyard = NULL;
 		for(int i=0;i<buildings.size();i++)
@@ -640,19 +652,19 @@ void CHallInterface::CResDataBar::show(SDL_Surface * to)
 	char * buf = new char[15];
 	for (int i=0;i<7;i++)
 	{
-		itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
+		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
 		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,GEOR13,zwykly);
 	}
 	std::vector<std::string> temp;
-	itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
-	itoa(LOCPLINT->cb->getDate(2),buf,10); temp.push_back(buf);
-	itoa(LOCPLINT->cb->getDate(1),buf,10); temp.push_back(buf);
+	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
+	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp.push_back(buf);
+	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp.push_back(buf);
 	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(
 		CGI->generaltexth->allTexts[62]
-			+": %s, " 
-			+ CGI->generaltexth->allTexts[63] 
-			+ ": %s, " 
-			+	CGI->generaltexth->allTexts[64] 
+			+": %s, "
+			+ CGI->generaltexth->allTexts[63]
+			+ ": %s, "
+			+	CGI->generaltexth->allTexts[64]
 			+ ": %s",temp)
 		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,GEOR13,zwykly);
 	temp.clear();
@@ -715,7 +727,7 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 	int pom, pom2=-1;
 	switch (state)
 	{
-	case 4: 
+	case 4:
 		pom = 0;
 		pom2 = 0;
 		break;
@@ -790,7 +802,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 			{
 				if(
 					(owner->town->builtBuildings.find(CGI->buildh->hall[owner->town->subID].second[i][j][k]))
-					== 
+					==
 					(owner->town->builtBuildings.end())						)
 				{
 					int x = 34 + 194*j,
@@ -828,7 +840,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 					}
 
 					//TODO: check if capital is already built, check if there is water for shipyard
-					
+
 
 
 
@@ -967,9 +979,9 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 			std::set<int> used;
 			used.insert(bid);
 			std::set<int> reqs;
-			
+
 			for(std::set<int>::iterator i=CGI->townh->requirements[tid][bid].begin();i!=CGI->townh->requirements[tid][bid].end();i++)
-				if (LOCPLINT->castleInt->town->builtBuildings.find(*i)   ==  LOCPLINT->castleInt->town->builtBuildings.end()) 
+				if (LOCPLINT->castleInt->town->builtBuildings.find(*i)   ==  LOCPLINT->castleInt->town->builtBuildings.end())
 					reqs.insert(*i);
 			while(true)
 			{
@@ -986,7 +998,7 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 								)
 						{
 							if(LOCPLINT->castleInt->town->builtBuildings.find(*j)   ==   //this building is not built
-													LOCPLINT->castleInt->town->builtBuildings.end()) 
+													LOCPLINT->castleInt->town->builtBuildings.end())
 							reqs.insert(*j);
 						}
 					}
@@ -1012,12 +1024,12 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 :tid(Tid),bid(Bid),mode(Mode), state(State)
 {
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPUBUILD.bmp");
+	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
 	bitmap = SDL_ConvertSurface(hhlp,screen->format,0); //na 8bitowej mapie by sie psulo
 	SDL_SetColorKey(hhlp,SDL_SRCCOLORKEY,SDL_MapRGB(hhlp->format,0,255,255));
 	SDL_FreeSurface(hhlp);
 	pos.x = screen->w/2 - bitmap->w/2;
 	pos.y = screen->h/2 - bitmap->h/2;
-	graphics->blueToPlayersAdv(bitmap,LOCPLINT->playerID);
 	blitAt(LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,125,50,bitmap);
 	std::vector<std::string> pom; pom.push_back(CGI->buildh->buildings[tid][bid]->name);
 	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->description,197,168,GEOR16,40,zwykly,bitmap);
@@ -1033,7 +1045,7 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	{
 		if(!CGI->buildh->buildings[tid][bid]->resources[cn])
 			continue;
-		itoa(CGI->buildh->buildings[tid][bid]->resources[cn],buf,10);
+		SDL_itoa(CGI->buildh->buildings[tid][bid]->resources[cn],buf,10);
 		if(it<4)
 		{
 			CSDL_Ext::printAtMiddle(buf,(bitmap->w/2-row1w/2)+77*it+16,ah+42,GEOR16,zwykly,bitmap);

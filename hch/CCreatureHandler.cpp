@@ -45,6 +45,10 @@ bool CCreature::isFlying()
 {
 	return boost::algorithm::find_first(abilityRefs, "FLYING_ARMY");
 }
+bool CCreature::isShooting()
+{
+	return boost::algorithm::find_first(abilityRefs, "SHOOTING_ARMY");
+}
 si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
@@ -318,7 +322,7 @@ void CCreatureHandler::loadCreatures()
 	}
 
 	//loading reference names
-	std::ifstream ifs("config/crerefnam.txt"); 
+	std::ifstream ifs("config/crerefnam.txt");
 	int tempi;
 	std::string temps;
 	for (;;)
@@ -333,7 +337,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.clear();
 	for(int i=1;i<=10;i++)
 		levelCreatures.insert(std::pair<int,std::vector<CCreature*> >(i,std::vector<CCreature*>()));
-	ifs.open("config/monsters.txt"); 
+	ifs.open("config/monsters.txt");
 	{
 		while(!ifs.eof())
 		{
@@ -349,7 +353,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.close();
 	ifs.clear();
 
-	ifs.open("config/cr_factions.txt"); 
+	ifs.open("config/cr_factions.txt");
 	while(!ifs.eof())
 	{
 		int id, fact;
@@ -359,7 +363,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.close();
 	ifs.clear();
 
-	ifs.open("config/cr_upgrade_list.txt"); 
+	ifs.open("config/cr_upgrade_list.txt");
 	while(!ifs.eof())
 	{
 		int id, up;
@@ -368,17 +372,21 @@ void CCreatureHandler::loadCreatures()
 	}
 	ifs.close();
 	ifs.clear();
-	
+
 	//loading unit animation def names
 	std::ifstream inp("config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
 	inp.seekg(0,std::ios::end); // na koniec
 	int andame2 = inp.tellg();  // read length
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame2]; // allocate memory 
+	char * bufor = new char[andame2]; // allocate memory
 	inp.read((char*)bufor, andame2); // read map file to buffer
 	inp.close();
 	buf = std::string(bufor);
+#ifndef __GNUC__
 	delete [andame2] bufor;
+#else
+	delete [] bufor;
+#endif
 
 	i = 0; //buf iterator
 	hmcr = 0;
@@ -410,6 +418,27 @@ void CCreatureHandler::loadCreatures()
 		creatures[s].animDefName = defName;
 	}
 	loadAnimationInfo();
+
+	//loading id to projectile mapping
+
+	std::ifstream inp2("config/cr_shots.TXT", std::ios::in | std::ios::binary); //this file is not in lod
+	char dump [200];
+	inp2.getline(dump, 200);
+	while(true)
+	{
+		int id;
+		std::string name;
+		bool spin;
+
+		inp2>>id;
+		if(id == -1)
+			break;
+		inp2>>name;
+		idToProjectile[id] = name;
+		inp2>>spin;
+		idToProjectileSpin[id] = spin;
+	}
+	inp2.close();
 }
 
 void CCreatureHandler::loadAnimationInfo()

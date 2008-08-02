@@ -8,6 +8,12 @@ public:
 	void runConsole();
 
 	friend class CClient;
+
+#ifndef __GNUC__
+	friend int _tmain(int argc, _TCHAR* argv[]);
+#else
+	friend int main(int argc, _TCHAR* argv[]);
+#endif
 };
 
 #endif //CCONSOLEHANDLER_H

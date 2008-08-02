@@ -2,7 +2,7 @@
 #include "../stdafx.h"
 #include "CTownHandler.h"
 #include "CLodHandler.h"
-#include <sstream> 
+#include <sstream>
 #include "../lib/VCMI_Lib.h"
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
@@ -33,7 +33,7 @@ void CTownHandler::loadNames()
 		}
 		town.typeID=si++;
 		town.bonus=towns.size();
-		if (town.bonus==8) town.bonus=3; 
+		if (town.bonus==8) town.bonus=3;
 		if (town.name.length())
 			towns.push_back(town);
 	}
@@ -122,7 +122,7 @@ void CTownHandler::loadNames()
 			{
 				i2->second->borderName = border;
 				i2->second->areaName = area;
-			}		
+			}
 			else
 				std::cout << "Warning2: No building "<<id<<" in the castle "<<town<<std::endl;
 		else
@@ -188,7 +188,7 @@ void CTownHandler::loadNames()
 						{
 							for(i=structures.begin();i!=structures.end();i++)
 							{
-								for(i2=i->second.begin(); i2!=i->second.end(); i2++) 
+								for(i2=i->second.begin(); i2!=i->second.end(); i2++)
 								{
 									if(i2->first == buildingID)
 									{
@@ -247,7 +247,7 @@ void CTownHandler::loadNames()
 		}
 		of.close();
 		of.clear();
-		
+
 		of.open("config/requirements.txt");
 		while(!of.eof())
 		{

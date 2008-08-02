@@ -8,7 +8,7 @@ class CLodHandler;
 class DLL_EXPORT CGDefInfo
 {
 public:
-	std::string name; 
+	std::string name;
 
 	unsigned char visitMap[6];
 	unsigned char blockMap[6];

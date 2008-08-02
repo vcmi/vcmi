@@ -102,7 +102,7 @@ int CGObjectInstance::getOwner() const
 {
 	//if (state)
 	//	return state->owner;
-	//else 
+	//else
 		return tempOwner; //won't have owner
 }
 
@@ -152,7 +152,7 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 	return false;
 }
 
-	
+
 bool CGHeroInstance::isHero() const
 {
 	return true;

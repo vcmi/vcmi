@@ -2,6 +2,10 @@
 #define CGAMEINFO_H
 #include "global.h"
 
+
+
+
+
 #include <vector>
 
 

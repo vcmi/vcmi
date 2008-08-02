@@ -35,7 +35,7 @@ public:
 		x+=i.x;
 		y+=i.y;
 		z+=i.z;
-	}	
+	}
 	inline void operator+=(const si32 & i)
 	{
 		x+=i;
@@ -47,15 +47,15 @@ public:
 		x-=i.x;
 		y-=i.y;
 		z-=i.z;
-	}	
+	}
 	inline void operator-=(const si32 & i)
 	{
 		x+=i;
 		y+=i;
 		z+=i;
-	}	
+	}
 	inline bool operator==(const int3 & i) const
-		{return (x==i.x) && (y==i.y) && (z==i.z);}	
+		{return (x==i.x) && (y==i.y) && (z==i.z);}
 	inline bool operator!=(const int3 & i) const
 		{return !(*this==i);}
 	inline bool operator<(const int3 & i) const

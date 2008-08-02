@@ -35,14 +35,14 @@ vector<Coordinate>* CPathfinder::GetPath(const CGHeroInstance* hero)
 	Hero = hero;
 
 	//Reset the queues
-	Open = priority_queue < vector<Coordinate>, vector<vector<Coordinate>>, Compare>();
+	Open = priority_queue < vector<Coordinate>, vector<vector<Coordinate> >, Compare>();
 	Closed.clear();
 
 	//Determine if the hero can move on water
 	int3 hpos = Hero->getPosition(false);
 	if (!Hero->canWalkOnSea())
 	{
-		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].tileInfo->tertype==EterrainType::water)
+		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].tileInfo->tertype==water)
 			blockLandSea=false;
 		else
 			blockLandSea=true;
@@ -138,14 +138,14 @@ bool CPathfinder::ExistsInClosed(Coordinate node)
 }
 
 /*
- * Adds the neighbors of the current node to the open cue so they can be considered in the 
+ * Adds the neighbors of the current node to the open cue so they can be considered in the
  * path creation.  If the node has a cost (f = g + h) less than zero, it isn't added to Open.
 */
 void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 {
 	//8 possible Nodes to add
-	//   
-	//   1  2  3 
+	//
+	//   1  2  3
 	//   4  X  5
 	//   6  7  8
 
@@ -193,13 +193,13 @@ void CPathfinder::CalcH(Coordinate* node)
 	 *  => Impossible to move there.
 	 */
 	if( (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->blocked && !(node->x==End.x && node->y==End.y && CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->visitable)) ||
-		(CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype==EterrainType::rock) ||
-		((blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype==EterrainType::water)) ||
+		(CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype==rock) ||
+		((blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype==water)) ||
 		(!CGI->state->players[Hero->tempOwner].fogOfWarMap[node->x][node->y][node->z]) ||
-		((!blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype!=EterrainType::water)))
+		((!blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype!=water)))
 	{
 		//Impossible.
-	
+
 		node->h = -1;
 		return;
 	}
@@ -214,7 +214,7 @@ void CPathfinder::CalcH(Coordinate* node)
 
 	//Get the movement cost.
 	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].tileInfo->tertype, CGI->mh->map->terrain[x][y][node->z].malle,CGI->mh->map->terrain[x][y][node->z].nuine);
-	
+
 	node->h = ret;
 }
 
@@ -247,7 +247,7 @@ CPath* CPathfinder::ConvertToOldFormat(vector<Coordinate>* p)
 
 		//Set coord
 		temp.coord = int3(p->at(i).x,p->at(i).y,p->at(i).z);
-		
+
 		//Set accesible
 		if(p->at(i).h == -1)
 		{

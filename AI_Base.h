@@ -4,3 +4,12 @@
 #include "CGameInterface.h"
 
 #define AI_INTERFACE_VER 1
+
+
+
+
+
+
+
+
+

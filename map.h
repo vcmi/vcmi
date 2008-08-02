@@ -1,6 +1,6 @@
 #ifndef MAPD_H
 #define MAPD_H
-#pragma warning (disable : 4482) 
+#pragma warning (disable : 4482)
 #include <string>
 #include <vector>
 #include <map>
@@ -10,7 +10,7 @@ class CGDefInfo;
 class CGObjectInstance;
 class CGHeroInstance;
 class CGTownInstance;
-enum ESortBy{name,playerAm,size,format, viccon,loscon};
+enum ESortBy{_name, _playerAm, _size, _format, _viccon, _loscon};
 enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TERRAINOBJ_DEF, 
 	EVENTOBJ_DEF, SIGN_DEF, GARRISON_DEF, ARTIFACT_DEF, WITCHHUT_DEF, SCHOLAR_DEF, PLAYERONLY_DEF, 
 	SHRINE_DEF, SPELLSCROLL_DEF, PANDORA_DEF, GRAIL_DEF, CREGEN_DEF, CREGEN2_DEF, CREGEN3_DEF, 
@@ -282,7 +282,7 @@ struct DLL_EXPORT PlayerInfo
 	bool canComputerPlay;
 	unsigned int AITactic; //(00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
 	unsigned int allowedFactions; //(01 - castle; 02 - rampart; 04 - tower; 08 - inferno; 16 - necropolis; 32 - dungeon; 64 - stronghold; 128 - fortress; 256 - conflux);
-	bool isFactionRandom; 
+	bool isFactionRandom;
 	unsigned int mainHeroPortrait; //it's ID of hero with choosen portrait; 255 if standard
 	std::string mainHeroName;
 	std::vector<SheroName> heroesNames;
@@ -375,7 +375,7 @@ class DLL_EXPORT CMapHeader
 public:
 	Eformat version; // version of map Eformat
 	bool areAnyPLayers; // if there are any playable players on map
-	int height, width; 
+	int height, width;
 	bool twoLevel; // if map has underground level
 	std::string name;  //name of map
 	std::string description;  //and description
@@ -385,7 +385,7 @@ public:
 	EvictoryConditions victoryCondition; //victory conditions
 	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
 	PlayerInfo players[8]; // info about players
-	std::vector<int> teams;  // teams[i] = team of player no i 
+	std::vector<int> teams;  // teams[i] = team of player no i
 	int howManyTeams;
 	CMapHeader(unsigned char *map); //an argument is a reference to string described a map (unpacked)
 };
@@ -410,17 +410,17 @@ class DLL_EXPORT mapSorter
 {
 public:
 	ESortBy sortBy;
-	bool operator()(CMapHeader & a, CMapHeader& b)
+	bool operator()(const CMapHeader & a, const CMapHeader& b)
 	{
 		switch (sortBy)
 		{
-		case ESortBy::format:
+		case _format:
 			return (a.version<b.version);
 			break;
-		case ESortBy::loscon:
+		case _loscon:
 			return (a.lossCondition.typeOfLossCon<b.lossCondition.typeOfLossCon);
 			break;
-		case ESortBy::playerAm:
+		case _playerAm:
 			int playerAmntB,humenPlayersB,playerAmntA,humenPlayersA;
 			playerAmntB=humenPlayersB=playerAmntA=humenPlayersA=0;
 			for (int i=0;i<8;i++)
@@ -435,13 +435,13 @@ public:
 			else
 				return (humenPlayersA<humenPlayersB);
 			break;
-		case ESortBy::size:
+		case _size:
 			return (a.width<b.width);
 			break;
-		case ESortBy::viccon:
+		case _viccon:
 			return (a.victoryCondition<b.victoryCondition);
 			break;
-		case ESortBy::name:
+		case _name:
 			return (a.name<b.name);
 			break;
 		default:

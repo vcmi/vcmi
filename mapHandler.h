@@ -5,7 +5,7 @@
 #include <list>
 #include <set>
 const int Woff = 12; //width of map's frame
-const int Hoff = 8; 
+const int Hoff = 8;
 
 class CGObjectInstance;
 class CGHeroInstance;

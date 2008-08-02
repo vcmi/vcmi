@@ -210,9 +210,9 @@ CMapHeader::CMapHeader(unsigned char *map)
 	this->areAnyPLayers = map[4]; //seems to be invalid
 	this->height = this->width = map[5]; // wymiary mapy
 	this->twoLevel = map[9]; //czy sa lochy
-	
+
 	int length = map[10]; //name length
-	int i=14, pom; 
+	int i=14, pom;
 	while (i-14<length)	//read name
 		this->name+=map[i++];
 	length = map[i] + map[i+1]*256; //description length
@@ -220,7 +220,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 	for (pom=0;pom<length;pom++)
 		this->description+=map[i++];
 	this->difficulty = map[i++]; // reading map difficulty
-	if(version!=Eformat::RoE)
+	if(version!=RoE)
 	{
 		this->levelLimit = map[i++]; // hero level limit
 	}
@@ -236,13 +236,13 @@ CMapHeader::CMapHeader(unsigned char *map)
 		{
 			switch(version)
 			{
-			case Eformat::SoD: case Eformat::WoG: 
+			case SoD: case WoG:
 				i+=13;
 				break;
-			case Eformat::AB:
+			case AB:
 				i+=12;
 				break;
-			case Eformat::RoE:
+			case RoE:
 				i+=6;
 				break;
 			}
@@ -251,39 +251,39 @@ CMapHeader::CMapHeader(unsigned char *map)
 
 		this->players[pom].AITactic = map[i++];
 
-		if(version == Eformat::SoD || version == Eformat::WoG)
+		if(version == SoD || version == WoG)
 			i++;
 
 		this->players[pom].allowedFactions = 0;
 		this->players[pom].allowedFactions += map[i++];
-		if(version != Eformat::RoE)
+		if(version != RoE)
 			this->players[pom].allowedFactions += (map[i++])*256;
 
 		this->players[pom].isFactionRandom = map[i++];
 		this->players[pom].hasMainTown = map[i++];
 		if (this->players[pom].hasMainTown)
 		{
-			if(version != Eformat::RoE)
+			if(version != RoE)
 			{
 				this->players[pom].generateHeroAtMainTown = map[i++];
 				this->players[pom].generateHero = map[i++];
 			}
 			this->players[pom].posOfMainTown.x = map[i++];
 			this->players[pom].posOfMainTown.y = map[i++];
-			this->players[pom].posOfMainTown.z = map[i++];	
+			this->players[pom].posOfMainTown.z = map[i++];
 		}
 		players[pom].p8= map[i++];
-		players[pom].p9= map[i++];		
+		players[pom].p9= map[i++];
 		if(players[pom].p9!=0xff)
 		{
 			players[pom].mainHeroPortrait = map[i++];
 			int nameLength = map[i++];
-			i+=3; 
+			i+=3;
 			for (int pp=0;pp<nameLength;pp++)
 				players[pom].mainHeroName+=map[i++];
 		}
 
-		if(version!=Eformat::RoE)
+		if(version!=RoE)
 		{
 			i++; ////heroes placeholders //domostwa
 			int heroCount = map[i++];
@@ -363,7 +363,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 				this->vicConDetails = new VicCon5();
 				((VicCon5*)this->vicConDetails)->locationOfHero.x = map[i+2];
 				((VicCon5*)this->vicConDetails)->locationOfHero.y = map[i+3];
-				((VicCon5*)this->vicConDetails)->locationOfHero.z = map[i+4];				
+				((VicCon5*)this->vicConDetails)->locationOfHero.z = map[i+4];
 				nr=3;
 				break;
 			}
@@ -372,7 +372,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 				this->vicConDetails = new VicCon6();
 				((VicCon6*)this->vicConDetails)->locationOfTown.x = map[i+2];
 				((VicCon6*)this->vicConDetails)->locationOfTown.y = map[i+3];
-				((VicCon6*)this->vicConDetails)->locationOfTown.z = map[i+4];				
+				((VicCon6*)this->vicConDetails)->locationOfTown.z = map[i+4];
 				nr=3;
 				break;
 			}
@@ -381,19 +381,19 @@ CMapHeader::CMapHeader(unsigned char *map)
 				this->vicConDetails = new VicCon7();
 				((VicCon7*)this->vicConDetails)->locationOfMonster.x = map[i+2];
 				((VicCon7*)this->vicConDetails)->locationOfMonster.y = map[i+3];
-				((VicCon7*)this->vicConDetails)->locationOfMonster.z = map[i+4];				
+				((VicCon7*)this->vicConDetails)->locationOfMonster.z = map[i+4];
 				nr=3;
 				break;
 			}
 		case takeDwellings:
-			{		
+			{
 				this->vicConDetails = new CspecificVictoryConidtions();
 				nr=3;
 				break;
 			}
 		case takeMines:
-			{	
-				this->vicConDetails = new CspecificVictoryConidtions();	
+			{
+				this->vicConDetails = new CspecificVictoryConidtions();
 				nr=3;
 				break;
 			}
@@ -403,7 +403,7 @@ CMapHeader::CMapHeader(unsigned char *map)
 				((VicCona*)this->vicConDetails)->artifactID =  map[i+2];
 				((VicCona*)this->vicConDetails)->destinationPlace.x = map[i+3];
 				((VicCona*)this->vicConDetails)->destinationPlace.y = map[i+4];
-				((VicCona*)this->vicConDetails)->destinationPlace.z = map[i+5];				
+				((VicCona*)this->vicConDetails)->destinationPlace.z = map[i+5];
 				nr=4;
 				break;
 			}
@@ -462,7 +462,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	name = readString(bufor,i);
 	description= readString(bufor,i);
 	difficulty = readChar(bufor,i); // reading map difficulty
-	if(version != Eformat::RoE)
+	if(version != RoE)
 		levelLimit = readChar(bufor,i); // hero level limit
 	else
 		levelLimit = 0;
@@ -474,13 +474,13 @@ void Mapa::initFromBytes(unsigned char * bufor)
 		{
 			switch(version)
 			{
-			case Eformat::SoD: case Eformat::WoG: 
+			case SoD: case WoG: 
 				i+=13;
 				break;
-			case Eformat::AB:
+			case AB:
 				i+=12;
 				break;
-			case Eformat::RoE:
+			case RoE:
 				i+=6;
 				break;
 			}
@@ -489,19 +489,19 @@ void Mapa::initFromBytes(unsigned char * bufor)
 
 		players[pom].AITactic = bufor[i++];
 
-		if(version == Eformat::SoD || version == Eformat::WoG)
+		if(version == SoD || version == WoG)
 			players[pom].p7= bufor[i++];	
 
 		players[pom].allowedFactions = 0;
 		players[pom].allowedFactions += bufor[i++];
-		if(version != Eformat::RoE)
+		if(version != RoE)
 			players[pom].allowedFactions += (bufor[i++])*256;
 
 		players[pom].isFactionRandom = bufor[i++];
 		players[pom].hasMainTown = bufor[i++];
 		if (players[pom].hasMainTown)
 		{
-			if(version != Eformat::RoE)
+			if(version != RoE)
 			{
 				players[pom].generateHeroAtMainTown = bufor[i++];
 				players[pom].generateHero = bufor[i++];
@@ -529,7 +529,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				players[pom].mainHeroName+=bufor[i++];
 		}
 
-		if(version != Eformat::RoE)
+		if(version != RoE)
 		{
 			i++; ////unknown byte
 			int heroCount = bufor[i++];
@@ -699,7 +699,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	for(int xx=0;xx<HEROES_QUANTITY;xx++)
 		allowedHeroes[xx] = true;
 
-	for(i; i<ist+ (version == Eformat::RoE ? 16 : 20) ; ++i)
+	for(i; i<ist+ (version == RoE ? 16 : 20) ; ++i)
 	{
 		unsigned char c = bufor[i];
 		for(int yy=0; yy<8; ++yy)

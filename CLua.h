@@ -1,6 +1,11 @@
 #pragma once
 #include "global.h"
 //#include "lstate.h"
+
+#ifndef _MSC_VER
+}
+#endif
+
 #include <set>
 #include <map>
 class CLua;
@@ -32,7 +37,7 @@ public:
 	virtual void onHeroVisit(int objid, int heroID){};
 	virtual void onHeroLeave(int objid, int heroID){};
 	virtual std::string hoverText(int objid){return "";};
-	virtual void newTurn (){}; 
+	virtual void newTurn (){};
 
 
 	//TODO: implement functions below:
@@ -71,7 +76,7 @@ public:
 	void findF2(std::string fname);
 	void findFS(std::string fname);
 
-	
+
 	friend CGameState;
 };
 
@@ -98,7 +103,7 @@ class CVisitableOPH : public CCPPObjectScript  //once per hero
 public:
 	CVisitableOPH(CScriptCallback * CB):CCPPObjectScript(CB){};
 	std::map<int,std::set<int> > visitors;
-	
+
 	void onNAHeroVisit(int objid, int heroID, bool alreadyVisited);
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
@@ -114,7 +119,7 @@ public:
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-	void newTurn (); 
+	void newTurn ();
 };
 
 class CMines : public CCPPObjectScript  //flaggable, and giving resource at each day
@@ -127,7 +132,7 @@ public:
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-	void newTurn (); 
+	void newTurn ();
 };
 
 class CPickable : public CCPPObjectScript, public IChosen  //pickable - resources, artifacts, etc

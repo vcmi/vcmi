@@ -218,7 +218,7 @@ void CLodHandler::extract(std::string FName)
 	for (int i=0;i<totalFiles;i++)
 	{
 		fseek(FLOD, entries[i].offset, 0);
-		std::string bufff = (FName.substr(0, FName.size()-4) + "\\" + (char*)entries[i].name);
+		std::string bufff = (DATA_DIR + FName.substr(0, FName.size()-4) + PATHSEPARATOR + (char*)entries[i].name);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
@@ -239,7 +239,7 @@ void CLodHandler::extract(std::string FName)
 				out.close();
 			}
 		}
-		else 
+		else
 		{
 			outp = new unsigned char[entries[i].size];
 			fread((char*)outp, 1, entries[i].size, FLOD);

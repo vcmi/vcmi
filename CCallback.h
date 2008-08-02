@@ -2,8 +2,13 @@
 #define CCALLBACK_H
 
 #include "global.h"
+#ifdef _WIN32
 #include "tchar.h"
-#include <set>
+#else
+#include "tchar_amigaos4.h"
+#endif
+#include "CGameState.h"
+
 class CGHeroInstance;
 class CGameState;
 struct CPath;
@@ -28,9 +33,9 @@ struct UpgradeInfo
 };
 
 class ICallback
-{	
+{
 public:
-	virtual bool moveHero(int ID, CPath * path, int idtype, int pathType=0)=0;//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero 
+	virtual bool moveHero(int ID, CPath * path, int idtype, int pathType=0)=0;//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero
 															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
 	virtual int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
 	virtual int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
@@ -63,7 +68,7 @@ public:
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield 
+	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield
 	virtual int battleGetStack(int pos)=0; //returns ID of stack on the tile
 	virtual CStack * battleGetStackByID(int ID)=0; //returns stack info by given ID
 	virtual CStack * battleGetStackByPos(int pos)=0; //returns stack info by given pos
@@ -74,6 +79,7 @@ public:
 	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
 	virtual std::vector<int> battleGetAvailableHexes(int ID)=0; //reutrns numbers of hexes reachable by creature with id ID
 	virtual bool battleIsStackMine(int ID)=0; //returns true if stack with id ID belongs to caller
+	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
 };
 
 struct HeroMoveDetails
@@ -99,7 +105,7 @@ protected:
 
 public:
 //commands
-	bool moveHero(int ID, CPath * path, int idtype, int pathType=0);//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero 
+	bool moveHero(int ID, CPath * path, int idtype, int pathType=0);//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero
 															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
 	void selectionMade(int selection, int asker);
 	int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2);
@@ -136,7 +142,7 @@ public:
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
-	int battleGetObstaclesAtTile(int tile); //returns bitfield 
+	int battleGetObstaclesAtTile(int tile); //returns bitfield
 	int battleGetStack(int pos); //returns ID of stack on the tile
 	CStack * battleGetStackByID(int ID); //returns stack info by given ID
 	CStack * battleGetStackByPos(int pos); //returns stack info by given pos
@@ -147,9 +153,16 @@ public:
 	//bool battleMoveCreature(int ID, int dest); //moves creature with id ID to dest if possible
 	std::vector<int> battleGetAvailableHexes(int ID); //reutrns numbers of hexes reachable by creature with id ID
 	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
-	
+	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
+
+
 
 //friends
 	friend class CClient;
+#ifndef __GNUC__
+	friend int _tmain(int argc, _TCHAR* argv[]);
+#else
+	friend int main(int argc, _TCHAR* argv[]);
+#endif
 };
 #endif //CCALLBACK_H

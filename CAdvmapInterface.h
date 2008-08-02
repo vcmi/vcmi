@@ -8,7 +8,7 @@
 #include "AdventureMapButton.h"
 class CDefHandler;
 class CCallback;
-struct CPath; 
+struct CPath;
 class CAdvMapInt;
 class CGHeroInstance;
 class CGTownInstance;
@@ -18,7 +18,7 @@ class CMinimap
 	: public ClickableL, public ClickableR, public Hoverable, public MotionInterested, public virtual CIntObject
 {
 public:
-	SDL_Surface * radar; 
+	SDL_Surface * radar;
 	SDL_Surface * temps;
 	std::map<int,SDL_Color> colors;
 	std::map<int,SDL_Color> colorsBlocked;
@@ -26,7 +26,7 @@ public:
 	//TODO flagged buildings
 	std::string statusbarTxt, rcText;
 
-	CMinimap(bool draw=true); 
+	CMinimap(bool draw=true);
 	void draw();
 	void redraw(int level=-1);// (level==-1) => redraw all levels
 	void updateRadar();
@@ -51,7 +51,7 @@ public:
 	CDefHandler * arrows;
 	CTerrainRect();
 	CPath * currentPath;
-	void activate(); 
+	void activate();
 	void deactivate();
 	void clickLeft(tribool down);
 	void clickRight(tribool down);
@@ -60,7 +60,7 @@ public:
 	void keyPressed (SDL_KeyboardEvent & key);
 	void show();
 	void showPath();
-	int3 whichTileIsIt(int x, int y); //x,y are cursor position 
+	int3 whichTileIsIt(int x, int y); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
 };
 class CResDataBar
@@ -72,7 +72,7 @@ public:
 	std::string datetext;
 
 	void clickRight (tribool down);
-	void activate(); 
+	void activate();
 	void deactivate();
 	CResDataBar();
 	~CResDataBar();
@@ -108,7 +108,7 @@ public:
 	int player;
 
 	std::vector<CDefHandler *> gems;
-	
+
 	bool scrollingLeft ;
 	bool scrollingRight ;
 	bool scrollingUp ;
@@ -128,7 +128,7 @@ public:
 		moveHero, //- move hero
 		spellbook,//- spellbook
 		advOptions, //- adventure options
-		sysOptions,//- system options	
+		sysOptions,//- system options
 		nextHero, //- next hero
 		endTurn;//- end turn
 	//CHeroList herolist;
@@ -137,13 +137,13 @@ public:
 
 	CStatusBar statusbar;
 	CResDataBar resdatabar;
-	
+
 	CHeroList heroList;
-	CTownList townList;	
+	CTownList townList;
 	CInfoBar infoBar;
 
 	CHeroWindow * heroWindow;
-	
+
 	struct CurrentSelection
 	{
 		int type; //0 - hero, 1 - town
@@ -153,8 +153,8 @@ public:
 
 	//fuctions binded to buttons
 	void fshowOverview();
-	void fswitchLevel(); 
-	void fshowQuestlog(); 
+	void fswitchLevel();
+	void fshowQuestlog();
 	void fsleepWake();
 	void fmoveHero();
 	void fshowSpellbok();

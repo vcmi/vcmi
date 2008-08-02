@@ -6,7 +6,7 @@
 #include <math.h>
 class CGHeroInstance;
 
-using namespace std; 
+using namespace std;
 
 class Coordinate
 {
@@ -54,7 +54,7 @@ class CPathfinder
 {
 private:
 	boost::logic::tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
-	
+
 	/*
 	 * Does the actual path calculation.  Don't call this directly, call GetPath instead.
 	 */
@@ -67,7 +67,7 @@ private:
 	bool ExistsInClosed(Coordinate node);
 
 	/*
-	 * Adds the neighbors of the current node to the open cue so they can be considered in the 
+	 * Adds the neighbors of the current node to the open cue so they can be considered in the
 	 * path creation.  If the node has a cost (f = g + h) less than zero, it isn't added to Open.
 	 */
 	void AddNeighbors(vector<Coordinate>* node);
@@ -84,7 +84,7 @@ private:
 
 public:
 	//Contains nodes to be searched
-	priority_queue < vector<Coordinate>, vector<vector<Coordinate>>, Compare> Open;
+	priority_queue < vector<Coordinate>, vector<vector<Coordinate> >, Compare > Open;
 
 	//History of nodes you have been to before
 	vector<Coordinate> Closed;
@@ -97,7 +97,7 @@ public:
 
 	//A reference to the Hero.
 	const CGHeroInstance* Hero;
-	
+
 	/*
 	 * Does basic input checking and setup for the path calculation.
 	 */

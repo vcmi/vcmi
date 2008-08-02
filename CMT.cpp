@@ -17,7 +17,6 @@
 #include "CPreGame.h"
 #include "CConsoleHandler.h"
 #include "CCursorHandler.h"
-#include "CScreenHandler.h"
 #include "CPathfinder.h"
 #include "CGameState.h"
 #include "CCallback.h"
@@ -44,12 +43,9 @@ std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Surface * screen, * screen2;
 extern SDL_Surface * CSDL_Ext::std32bppSurface;
-
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
-
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
-
 int _tmain(int argc, _TCHAR* argv[])
 { 
 	std::cout.flags(ios::unitbuf);
@@ -97,7 +93,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		cgi->bitmaph->init("Data\\H3bitmap.lod","Data");
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph);
-
 		CGI->arth = VLC->arth;
 		CGI->creh = VLC->creh;
 		CGI->townh = VLC->townh;
@@ -105,9 +100,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		CGI->objh = VLC->objh;
 		CGI->dobjinfo = VLC->dobjinfo;
 		CGI->buildh = VLC->buildh;
-
 		THC std::cout<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
-
 		//cgi->curh->initCursor();
 		//cgi->curh->showGraphicCursor();
 		pomtime.getDif();
@@ -116,12 +109,10 @@ int _tmain(int argc, _TCHAR* argv[])
 		//cgi->screenh = new CScreenHandler;
 		//cgi->screenh->initScreen();
 		THC std::cout<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
-
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
 		THC std::cout<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
-
 		THC std::cout<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		graphics = new Graphics();
@@ -142,31 +133,23 @@ int _tmain(int argc, _TCHAR* argv[])
 		cpg->mush = mush;
 		StartInfo *options = new StartInfo(cpg->runLoop());
 ///////////////////////////////////////////////////////////////////////////////////////
-
 		boost::thread servthr(boost::bind(system,"VCMI_server.exe > server_log.txt")); //runs server executable; 
 												//TODO: will it work on non-windows platforms?
 		THC tmh.getDif();pomtime.getDif();//reset timers
-
-
 		CSpellHandler * spellh = new CSpellHandler;
 		spellh->loadSpells();
 		cgi->spellh = spellh;		
 		THC std::cout<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
-
-
 		cgi->pathf = new CPathfinder();
 		THC std::cout<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
 		cgi->consoleh->runConsole();
 		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
-
 		std::ofstream lll("client_log.txt");
 		CConnection c("localhost","3030",NAME,lll);
 		THC std::cout<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
-
 		CClient cl(&c,options);
 		boost::thread t(boost::bind(&CClient::run,&cl));
-
 		SDL_Event ev;
 		while(1) //main SDL events loop
 		{
@@ -180,7 +163,6 @@ int _tmain(int argc, _TCHAR* argv[])
 			events.push(ev);
 			eventsM.unlock();
 		}
-
 		///claculating FoWs for minimap
 		/****************************Minimaps' FoW******************************************/
 		//for(int g=0; g<cgi->playerint.size(); ++g)
@@ -188,20 +170,16 @@ int _tmain(int argc, _TCHAR* argv[])
 		//	if(!cgi->playerint[g]->human)
 		//		continue;
 		//	CMinimap & mm = ((CPlayerInterface*)cgi->playerint[g])->adventureInt->minimap;
-
 		//	int mw = mm.map[0]->w, mh = mm.map[0]->h,
 		//		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
-
 		//	for(int d=0; d<cgi->mh->map->twoLevel+1; ++d)
 		//	{
 		//		SDL_Surface * pt = CSDL_Ext::newSurface(mm.pos.w, mm.pos.h, CSDL_Ext::std32bppSurface);
-
 		//		for (int i=0; i<mw; i++)
 		//		{
 		//			for (int j=0; j<mh; j++)
 		//			{
 		//				int3 pp( ((i*CGI->mh->sizes.x)/mw), ((j*CGI->mh->sizes.y)/mh), d );
-
 		//				if ( !((CPlayerInterface*)cgi->playerint[g])->cb->isVisible(pp) )
 		//				{
 		//					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
@@ -211,7 +189,6 @@ int _tmain(int argc, _TCHAR* argv[])
 		//		CSDL_Ext::update(pt);
 		//		mm.FoW.push_back(pt);
 		//	}
-
 		//}
 	}
 	else

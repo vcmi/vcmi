@@ -18,7 +18,6 @@
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
 #include "lib/NetPacks.h"
-//LUALIB_API int (luaL_error) (lua_State *L, const char *fmt, ...);
 extern CSharedCond<std::set<IPack*> > mess;
 
 HeroMoveDetails::HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho)
@@ -79,7 +78,6 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		int3 stpos(ourPath->nodes[i].coord.x, ourPath->nodes[i].coord.y, hero->pos.z), 
 			endpos(ourPath->nodes[i-1].coord.x, ourPath->nodes[i-1].coord.y, hero->pos.z);
 		HeroMoveDetails curd(stpos,endpos,hero);
-
 		*cl->serv << ui16(501) << hero->id << stpos << endpos;
 		{//wait till there is server answer
 			boost::unique_lock<boost::mutex> lock(*mess.mx);
@@ -288,6 +286,29 @@ std::vector<si32> CCallback::getResourceAmount()
 int CCallback::getDate(int mode)
 {
 	return gs->getDate(mode);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
 {
@@ -310,15 +331,15 @@ bool CCallback::verifyPath(CPath * path, bool blockSea)
 				continue;
 
 			if (
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype==EterrainType::water)
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype==water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype!=EterrainType::water))
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype!=water))
 				  ||
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype!=EterrainType::water)
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype!=water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==EterrainType::water))
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==water))
 				  ||
-				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==EterrainType::rock)
+				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==rock)
 					
 				)
 				return false;
@@ -401,6 +422,9 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
 {
 	if(s1->tempOwner != player   ||   s2->tempOwner != player)
+
+
+
 		return -1;
 
 	*cl->serv << ui16(502) << ui8(1) << s1->id << ui8(p1) << s2->id << ui8(p2);
@@ -493,18 +517,7 @@ int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield
 }
 int CCallback::battleGetStack(int pos)
 {
-	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
-	{
-		if(CGI->state->curB->stacks[g]->position == pos ||
-				( CGI->state->curB->stacks[g]->creature->isDoubleWide() && 
-					( (CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position-1 == pos) || 
-						(!CGI->state->curB->stacks[g]->attackerOwned && CGI->state->curB->stacks[g]->position+1 == pos)
-					) 
-				)
-			)
-			return CGI->state->curB->stacks[g]->ID;
-	}
-	return -1;
+	return CGI->state->battleGetStack(pos);
 }
 
 CStack* CCallback::battleGetStackByID(int ID)
@@ -564,5 +577,14 @@ bool CCallback::battleIsStackMine(int ID)
 		if(CGI->state->curB->stacks[h]->ID == ID) //creature found
 			return CGI->state->curB->stacks[h]->owner == player;
 	}
+	return false;
+}
+bool CCallback::battleCanShoot(int ID, int dest) //TODO: finish
+{
+	if(battleGetStackByID(ID)->creature->isShooting() 
+		&& battleGetStack(dest) != -1 
+		&& battleGetStackByPos(dest)->owner != battleGetStackByID(ID)->owner
+		&& battleGetStackByPos(dest)->alive)
+		return true;
 	return false;
 }

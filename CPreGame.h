@@ -9,6 +9,7 @@
 #include "map.h"
 #include "hch/CMusicHandler.h"
 class CPreGame;
+class CDefHandler;
 extern CPreGame * CPG;
 
 typedef void(CPreGame::*ttt)();
@@ -42,12 +43,12 @@ template <class T=ttt> struct Button: public HighButton
 	T fun;
 	virtual	void hover(bool on=true);
 	virtual void select(bool on=true);
-};	
+};
 template <class T=ttt> struct SetrButton: public Button<T>
 {
 	int key, * poin;
 	virtual void press(bool down=true);
-	SetrButton(){type=1;selectable=selected=false;state=0;highlightable=false;}
+	SetrButton(){int type=1;bool selectable=false;bool selected=false;int state=0;bool highlightable=false;}
 };
 template<class T=CPreGame>  class Slider
 { //
@@ -55,7 +56,7 @@ public:
 	bool vertical; // false means horizontal
 	SDL_Rect pos; // position
 	Button<void(Slider::*)()> up, down, //or left/right
-		slider; 
+		slider;
 	int positionsAmnt, capacity;// capacity - amount of positions dispplayed at once
 	int whereAreWe; // first displayed thing
 	bool moving;
@@ -78,7 +79,7 @@ template<class T=ttt>  struct IntBut: public Button<T>
 public:
 	int key;
 	int * what;
-	IntBut(){type=2;fun=NULL;highlightable=false;};
+	IntBut(){int type=2;int fun=NULL;bool highlightable=false;};
 	void set(){*what=key;};
 };
 template<class T=ttt>  struct IntSelBut: public Button<T>
@@ -88,8 +89,14 @@ public:
 	int key;
 	IntSelBut(){};
 	IntSelBut( SDL_Rect Pos, T Fun,CDefHandler* Imgs, bool Sel=false, CPoinGroup<T>* gr=NULL, int My=-1)
-		: Button(Pos,Fun,Imgs,Sel,gr),key(My){ourPoinGroup=gr;};
-	void select(bool on=true) {(*this).Button::select(on);ourPoinGroup->setYour(this);CPG->printRating();}
+		: Button<T>(Pos,Fun,Imgs,Sel,gr),key(My){ourPoinGroup=gr;};
+	void select(bool on=true) {(*this).Button<T>::select(on);ourPoinGroup->setYour(this);
+		#if !defined(__amigaos4__) && !defined(__unix__)
+		CPG->printRating();
+		#else
+		#warning not compile here
+		#endif
+		}
 };
 template <class T> class CPoinGroup :public CGroup<T>
 {
@@ -181,7 +188,7 @@ public:
 	ESortBy sortBy;
 	SDL_Surface * bg;
 	int selected; //selected map
-	CDefHandler * Dtypes, * Dvic; 
+	CDefHandler * Dtypes, * Dvic;
 	CDefHandler *Dsizes, * Dloss,
 		* sFlags;
 	std::vector<Mapa*> scenList;
@@ -228,7 +235,7 @@ public:
 } ;
 class CPreGame
 {
-public:	
+public:
 	std::string playerName;
 	int playerColor;
 	HighButton * highlighted;
@@ -240,13 +247,13 @@ public:
 	CMusicHandler * mush;
 	std::vector<HighButton *> btns;
 	CPreGameTextHandler * preth ;
-	SDL_Rect * currentMessage;	
+	SDL_Rect * currentMessage;
 	SDL_Surface * behindCurMes;
 	CDefHandler *ok, *cancel;
 	enum EState { //where are we?
 		mainMenu, newGame, loadGame, ScenarioList
 	} state;
-	struct menuItems { 
+	struct menuItems {
 		SDL_Surface * background, *bgAd;
 		CDefHandler *newGame, *loadGame, *highScores,*credits, *quit;
 		SDL_Rect lNewGame, lLoadGame, lHighScores, lCredits, lQuit;
@@ -263,15 +270,15 @@ public:
 	void scenHandleEv(SDL_Event& sEvent);
 	void begin(){run=false;ret.difficulty=ourScenSel->selectedDiff;};
 	void quitAskBox();
-	void quit(){exit(0);};  
-	void initScenSel(); 
-	void showScenSel();  
-	void showScenList(); 
+	void quit(){exit(0);};
+	void initScenSel();
+	void showScenSel();
+	void showScenList();
 	void initOptions();
-	void showOptions();  
-	void initNewMenu(); 
-	void showNewMenu();  
-	void showMainMenu();  
+	void showOptions();
+	void initNewMenu();
+	void showNewMenu();
+	void showMainMenu();
 	StartInfo runLoop(); // runs mainloop of PreGame
 	void initMainMenu(); //loads components for main menu
 	void highlightButton(int which, int on); //highlights one from 5 main menu buttons

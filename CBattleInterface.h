@@ -1,6 +1,7 @@
 #pragma once
 #include "global.h"
 #include "CPlayerInterface.h"
+#include <list>
 
 class CCreatureSet;
 class CGHeroInstance;
@@ -79,9 +80,11 @@ private:
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
+	std::map< int, CDefHandler * > idToProjectile; //projectiles of creaures (creatureID, defhandler)
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
+	std::vector<int> shadedHexes; //hexes available for active stack
 	void showRange(SDL_Surface * to, int ID); //show helper funtion ot mark range of a unit
 
 	class CAttHelper
@@ -91,10 +94,25 @@ private:
 		int dest; //atacked hex
 		int frame, maxframe; //frame of animation, number of frames of animation
 		bool reversing;
+		bool shooting;
+		int shootingGroup; //if shooting is true, print this animation group
 	} * attackingInfo;
 	void attackingShowHelper();
 	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
 
+	struct SProjectileInfo
+	{
+		int x, y; //position on the screen
+		int dx, dy; //change in position in one step
+		int step, lastStep; //to know when finish showing this projectile
+		int creID; //ID of creature that shot this projectile
+		int frameNum; //frame to display form projectile animation
+		bool spin; //if true, frameNum will be increased
+		int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
+	};
+	std::list<SProjectileInfo> projectiles;
+	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
+	
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor
@@ -105,6 +123,7 @@ public:
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	static SDL_Surface * cellBorder, * cellShade;
 	BattleAction * givenCommand; //true if we have i.e. moved current unit
+	bool myTurn; //if true, interface is active (commands can be ordered
 
 	//button handle funcs:
 	void bOptionsf();
@@ -126,13 +145,14 @@ public:
 	//call-ins
 	void newStack(CStack stack); //new stack appeared on battlefield
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
-	void stackKilled(int ID, int dmg, int killed, int IDby); //stack has been killed (but corpses remain)
+	void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool startMoving, bool endMoving); //stack with id number moved to destHex
-	void stackIsAttacked(int ID, int dmg, int killed, int IDby); //called when stack id attacked by stack with id IDby
+	void stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting); //called when stack id attacked by stack with id IDby
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
+	void stackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
 
-	friend CBattleHex;
+	friend class CBattleHex;
 };

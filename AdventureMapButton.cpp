@@ -74,7 +74,7 @@ void AdventureMapButton::clickLeft (tribool down)
 	{
 		state=1;
 	}
-	else 
+	else
 	{
 		state=0;
 	}

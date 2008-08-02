@@ -201,9 +201,15 @@ SDL_Surface * CPCXConv::getSurface()
 	}
 	else
 	{
+#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+		int bmask = 0xff0000;
+		int gmask = 0x00ff00;
+		int rmask = 0x0000ff;
+#else
 		int bmask = 0x0000ff;
 		int gmask = 0x00ff00;
 		int rmask = 0xff0000;
+#endif
 		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 24, rmask, gmask, bmask, 0);
 	}
 	if (format==PCX8B)
@@ -212,9 +218,15 @@ SDL_Surface * CPCXConv::getSurface()
 		for (int i=0;i<256;i++)
 		{
 			SDL_Color tp;
+#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+			tp.b = pcx[it++];
+			tp.g = pcx[it++];
+			tp.r = pcx[it++];
+#else
 			tp.r = pcx[it++];
 			tp.g = pcx[it++];
 			tp.b = pcx[it++];
+#endif
 			tp.unused = 0;
 			*(ret->format->palette->colors+i) = tp;
 		}

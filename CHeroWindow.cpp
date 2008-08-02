@@ -47,7 +47,6 @@ CHeroWindow::CHeroWindow(int playerColor):
 	gar3button = new AdventureMapButton(CGI->generaltexth->heroscrn[24], CGI->generaltexth->heroscrn[30], boost::bind(&CHeroWindow::gar3,this), 546, 527, "hsbtns7.def", false, NULL, false);
 	gar4button = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[32], boost::function<void()>(), 604, 527, "hsbtns9.def", false, NULL, false);
 
-	//boost::bind(&CGarrisonInt::splitClick,garInt)
 	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::leftArtRoller,this), 379, 364, "hsbtns3.def", false, NULL, false);
 	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::rightArtRoller,this), 632, 364, "hsbtns5.def", false, NULL, false);
 
@@ -191,7 +190,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	CGHeroInstance *hero = const_cast<CGHeroInstance*>(Hero); //but don't modify hero! - it's only for easy map reading
 	if(!hero) //something strange... no hero? it shouldn't happen
 	{
-		return; 
+		return;
 	}
 	curHero = hero;
 
@@ -236,7 +235,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
 			break;
 		}
-		
+
 		char * hlpp = new char[200];
 		sprintf(hlpp, CGI->generaltexth->heroscrn[21].c_str(), CGI->abilh->levels[hero->secSkills[g].second].c_str(), CGI->abilh->abilities[hero->secSkills[g].first]->name.c_str());
 		secSkillAreas[g]->hoverText = std::string(hlpp);
@@ -632,12 +631,12 @@ void CHeroWindow::deactivate()
 	}
 
 	for(int f=0; f<artWorn.size(); ++f)
-	{		
+	{
 		if(artWorn[f])
 			artWorn[f]->deactivate();
 	}
 	for(int f=0; f<backpack.size(); ++f)
-	{		
+	{
 		if(backpack[f])
 			backpack[f]->deactivate();
 	}
@@ -737,7 +736,7 @@ void CHeroWindow::redrawCurBack()
 	blitAt(skillpics->ourImages[4].bitmap, 20, 230, curBack);
 	blitAt(skillpics->ourImages[3].bitmap, 162, 230, curBack);
 
-	blitAt(graphics->portraitLarge[curHero->subID], 19, 19, curBack);
+	blitAt(graphics->portraitLarge[curHero->portrait], 19, 19, curBack);
 
 	CSDL_Ext::printAtMiddle(curHero->name, 190, 40, GEORXX, tytulowy, curBack);
 
@@ -802,14 +801,14 @@ void CHeroWindow::redrawCurBack()
 	for(int g=0; g<LOCPLINT->cb->howManyHeroes(); ++g)
 	{
 		const CGHeroInstance * cur = LOCPLINT->cb->getHeroInfo(player, g, false);
-		blitAt(graphics->portraitSmall[cur->subID], 611, 87+g*54, curBack);
+		blitAt(graphics->portraitSmall[cur->portrait], 611, 87+g*54, curBack);
 		//printing yellow border
 		if(cur->name == curHero->name)
 		{
-			for(int f=0; f<graphics->portraitSmall[cur->subID]->w; ++f)
+			for(int f=0; f<graphics->portraitSmall[cur->portrait]->w; ++f)
 			{
-				for(int h=0; h<graphics->portraitSmall[cur->subID]->h; ++h)
-					if(f==0 || h==0 || f==graphics->portraitSmall[cur->subID]->w-1 || h==graphics->portraitSmall[cur->subID]->h-1)
+				for(int h=0; h<graphics->portraitSmall[cur->portrait]->h; ++h)
+					if(f==0 || h==0 || f==graphics->portraitSmall[cur->portrait]->w-1 || h==graphics->portraitSmall[cur->portrait]->h-1)
 					{
 						CSDL_Ext::SDL_PutPixel(curBack, 611+f, 87+g*54+h, 240, 220, 120);
 					}
@@ -914,7 +913,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			if(this->fitsHere(ourWindow->activeArtPlace->ourArt) && ourWindow->activeArtPlace->fitsHere(this->ourArt))
 			{
 				//swap artifacts
-				
+
 				LOCPLINT->cb->swapArifacts(
 					ourWindow->curHero,
 					this->myNumber>=0,
@@ -936,7 +935,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 					text = ourArt->description;
 				else
 					text = std::string();
-				
+
 				ourWindow->activeArtPlace->clicked = false;
 				ourWindow->activeArtPlace = NULL;
 			}
@@ -1038,6 +1037,10 @@ void LClickableArea::clickLeft(boost::logic::tribool down)
 	//{
 	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
 	//}
+
+
+
+
 }
 
 void RClickableArea::activate()
@@ -1054,13 +1057,21 @@ void RClickableArea::clickRight(boost::logic::tribool down)
 	//{
 	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
 	//}
+
+
+
+
 }
 
 void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
+		#ifndef __amigaos4__
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
+		#else
+		#warning error here!
+		#endif
 	}
 }
 void LRClickableAreaWText::clickRight(boost::logic::tribool down)
@@ -1104,7 +1115,11 @@ void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
 {
 	if((!down) && pressedL)
 	{
+#ifndef __amigaos4__
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(1, new SComponent(SComponent::Etype(baseType), type, bonus)));
+#else
+#warning error here!
+#endif
 	}
 	ClickableL::clickLeft(down);
 }

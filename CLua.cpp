@@ -32,7 +32,7 @@ bool getGlobalFunc(lua_State * L, std::string fname)
 
 CObjectScript::CObjectScript()
 {
-	language = ESLan::UNDEF;
+	language = UNDEF;
 	//std::cout << "Tworze obiekt objectscript "<<this<<std::endl;
 }
 
@@ -77,6 +77,10 @@ void CLua::open(std::string initpath)
 	//	temp += initpath;
 	//	throw std::exception(temp.c_str());
 	//}
+
+
+
+
 }
 void CLua::registerCLuaCallback()
 {
@@ -109,12 +113,16 @@ void CLua::findFS(std::string fname)
 	//	lua_settop(is, 0);
 	//	throw new std::exception((fname + ": function not defined").c_str()); // the call is not defined
 	//}
+
+
+
+
 }
 #undef LST
 
 CLuaObjectScript::CLuaObjectScript(std::string filename)
 {
-	language = ESLan::LUA;
+	language = LUA;
 	open(filename);
 	//binit = bnewobject = bonherovisit = brightext = false;
 	//std::cout << "Tworze obiekt CLuaObjectScript "<<this<<std::endl;
@@ -145,6 +153,10 @@ void CLuaObjectScript::newObject(int objid)
 	//	throw new  std::exception(("Failed to call "+genFN("newObject",os->ID)+" function in lua script.").c_str());
 	//}
 	//lua_settop(is, 0);
+
+
+
+
 	return;
 }
 void CLuaObjectScript::onHeroVisit(int objid, int heroID)
@@ -158,6 +170,10 @@ void CLuaObjectScript::onHeroVisit(int objid, int heroID)
 	//	throw new  std::exception(("Failed to call "+genFN("heroVisit",os->ID)+" function in lua script.").c_str());
 	//}
 	//lua_settop(is, 0);
+
+
+
+
 }
 //std::string CLuaObjectScript::hoverText(int objid)
 //{
@@ -276,6 +292,8 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 				//weko.push_back(new SComponent(SComponent::primskill,w,vvv)); 
 				//cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&weko); 
 				//break;
+
+
 			}
 		case 100:
 			{
@@ -284,6 +302,8 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 				//weko.push_back(new SComponent(SComponent::experience,0,vvv)); 
 				//cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&weko); 
 				//break;
+
+
 			}
 		}
 	}
@@ -308,6 +328,46 @@ std::vector<int> CVisitableOPH::yourObjects()
 void CVisitableOPW::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 {
 	DEFOS;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 	int mid;
 	switch (os->ID)
 	{
@@ -450,6 +510,15 @@ void CMines::onHeroVisit(int objid, int heroID)
 	iw.player = h->tempOwner;
 	iw.components.push_back(Component(2,os->subID,vv,-1));
 	cb->showInfoDialog(&iw);
+
+
+
+
+
+
+
+
+
 }
 std::vector<int> CMines::yourObjects()
 {
@@ -595,6 +664,10 @@ void CPickable::chosen(int which)
 	//for (int i=0;i<tempStore.size();i++)
 	//	delete tempStore[i];
 	//tempStore.clear();
+
+
+
+
 }
 
 std::vector<int> CPickable::yourObjects() //returns IDs of objects which are handled by script

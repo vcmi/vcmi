@@ -36,7 +36,7 @@ CAdvMapInt::~CAdvMapInt()
 }
 CMinimap::CMinimap(bool draw)
 {
-	statusbarTxt = CGI->preth->zelp[291].first;  
+	statusbarTxt = CGI->preth->zelp[291].first;
 	rcText = CGI->preth->zelp[291].second;
 	pos.x=630;
 	pos.y=26;
@@ -64,7 +64,7 @@ CMinimap::CMinimap(bool draw)
 			SDL_PutPixel(radar,radar->w-1,i,255,75,125);
 		}
 	}
-	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));	
+	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));
 
 	//radar = CDefHandler::giveDef("RADAR.DEF");
 	std::ifstream is("config/minimap.txt",std::ifstream::in);
@@ -86,7 +86,7 @@ CMinimap::CMinimap(bool draw)
 		is >> pom;
 		vinya2.second.g=pom;
 		is >> pom;
-		vinya2.second.b=pom;	
+		vinya2.second.b=pom;
 		vinya.second.unused=vinya2.second.unused=255;
 		colors.insert(vinya);
 		colorsBlocked.insert(vinya2);
@@ -121,9 +121,9 @@ void CMinimap::draw()
 		}
 	}
 	//blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
-	
+
 	//draw radar
-	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)CGI->mh->sizes.x)))*pos.w, 
+	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)CGI->mh->sizes.x)))*pos.w,
 		by = (((float)LOCPLINT->adventureInt->position.y)/(((float)CGI->mh->sizes.y)))*pos.h;
 	blitAt(radar,bx,by,temps);
 	blitAt(temps,pos.x,pos.y);
@@ -173,7 +173,7 @@ void CMinimap::clickLeft (tribool down)
 	ClickableL::clickLeft(down);
 	if (!((bool)down))
 		return;
-	
+
 	float dx=((float)(LOCPLINT->current->motion.x-pos.x))/((float)pos.w),
 		dy=((float)(LOCPLINT->current->motion.y-pos.y))/((float)pos.h);
 
@@ -252,7 +252,7 @@ void CTerrainRect::activate()
 	Hoverable::activate();
 	KeyInterested::activate();
 	MotionInterested::activate();
-}; 
+};
 void CTerrainRect::deactivate()
 {
 	ClickableL::deactivate();
@@ -260,7 +260,7 @@ void CTerrainRect::deactivate()
 	Hoverable::deactivate();
 	KeyInterested::deactivate();
 	MotionInterested::deactivate();
-}; 
+};
 void CTerrainRect::clickLeft(tribool down)
 {
 	if ((down==false) || indeterminate(down))
@@ -307,7 +307,7 @@ void CTerrainRect::clickLeft(tribool down)
 	}
 	const CGHeroInstance * currentHero = (LOCPLINT->adventureInt->heroList.items.size())?(LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first):(NULL);
 	if(!currentHero)
-		return; 
+		return;
 	int3 bufpos = currentHero->getPosition(false);
 	//bufpos.x-=1;
 	if (mres)
@@ -330,7 +330,7 @@ void CTerrainRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	int3 pom=LOCPLINT->adventureInt->verifyPos(whichTileIsIt(sEvent.x,sEvent.y));
 	if (pom!=curHoveredTile)
 		curHoveredTile=pom;
-	else 
+	else
 		return;
 	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(pom);
 	if (temp.size())
@@ -618,13 +618,13 @@ void CResDataBar::draw()
 	char * buf = new char[15];
 	for (int i=0;i<7;i++)
 	{
-		itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
+		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
 		printAt(buf,txtpos[i].first,txtpos[i].second,GEOR13,zwykly);
 	}
 	std::vector<std::string> temp;
-	itoa(LOCPLINT->cb->getDate(3),buf,10); temp+=std::string(buf);
-	itoa(LOCPLINT->cb->getDate(2),buf,10); temp+=std::string(buf);
-	itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
+	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp+=std::string(buf);
+	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp+=std::string(buf);
+	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
 	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,GEOR13,zwykly);
 	temp.clear();
 	//updateRect(&pos,screen);
@@ -671,7 +671,7 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 		draw((const CGObjectInstance *)LOCPLINT->adventureInt->selection.selected);
 	}
 	if (!specific)
-		specific = (const CGObjectInstance *)LOCPLINT->adventureInt->selection.selected; 
+		specific = (const CGObjectInstance *)LOCPLINT->adventureInt->selection.selected;
 	//TODO: to rzutowanie wyglada groznie, ale dziala. Ale nie powinno wygladac groznie.
 
 	if(!specific)
@@ -744,7 +744,7 @@ void CInfoBar::newDay(int Day)
 	{
 		mode = 0; //showing day
 	}
-	else 
+	else
 	{
 		switch(LOCPLINT->cb->getDate(2))
 		{
@@ -866,7 +866,7 @@ townList(5,&genRect(192,48,747,196),747,196,747,372)
 	townList.genList();
 
 	heroWindow = new CHeroWindow(this->player);
-	
+
 	gems.push_back(CDefHandler::giveDef("agemLL.def"));
 	gems.push_back(CDefHandler::giveDef("agemLR.def"));
 	gems.push_back(CDefHandler::giveDef("agemUL.def"));
@@ -886,7 +886,7 @@ void CAdvMapInt::fswitchLevel()
 		underground.curimg=0;
 		underground.show();
 	}
-	else 
+	else
 	{
 		underground.curimg=1;
 		position.z++;
@@ -930,7 +930,7 @@ void CAdvMapInt::fendTurn()
 void CAdvMapInt::activate()
 {
 	LOCPLINT->curint = this;
-	LOCPLINT->statusbar = &statusbar;	
+	LOCPLINT->statusbar = &statusbar;
 	kingOverview.activate();
 	underground.activate();
 	questlog.activate();
@@ -1049,7 +1049,7 @@ CAdvMapInt::CurrentSelection::CurrentSelection()
 	selected=NULL;
 }
 void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * client)
-{	
+{
 	if (down)
 	{
 		boost::algorithm::erase_all(text,"\"");

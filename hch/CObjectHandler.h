@@ -56,10 +56,10 @@ public:
 
 	int tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
 	int blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
-	
+
 	virtual bool isHero() const;
-	int getOwner() const; 
-	void setOwner(int ow); 
+	int getOwner() const;
+	void setOwner(int ow);
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
 	bool visitableAt(int x, int y) const; //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)

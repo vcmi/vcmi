@@ -135,5 +135,5 @@ public:
 
 	//friends
 	friend void CArtPlace::clickLeft(tribool down);
-	friend CPlayerInterface;
+	friend class CPlayerInterface;
 };

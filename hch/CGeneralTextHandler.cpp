@@ -14,6 +14,7 @@ void CGeneralTextHandler::load()
 		if(buf[i]=='\r')
 			break;
 	}
+
 	i+=2;
 	for(int jj=0; jj<764; ++jj)
 	{
@@ -22,8 +23,8 @@ void CGeneralTextHandler::load()
 		allTexts.push_back(buflet);
 	}
 
-
 	std::string  strs = CGI->bitmaph->getTextFile("ARRAYTXT.TXT");
+
 	int itr=0;
 	while(itr<strs.length()-1)
 	{
