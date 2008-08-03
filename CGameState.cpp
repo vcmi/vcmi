@@ -32,7 +32,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 	curB->stackActionPerformed = false;
 	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army1->slots.begin(); i!=army1->slots.end(); i++)
 	{
-		stacks.push_back(new CStack(i->second.first,i->second.second,0, stacks.size(), true));
+		stacks.push_back(new CStack(i->second.first,i->second.second, hero1->tempOwner, stacks.size(), true));
 		stacks[stacks.size()-1]->ID = stacks.size()-1;
 	}
 	//initialization of positions
@@ -86,7 +86,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 		break;
 	}
 	for(std::map<int,std::pair<CCreature*,int> >::iterator i = army2->slots.begin(); i!=army2->slots.end(); i++)
-		stacks.push_back(new CStack(i->second.first,i->second.second,1, stacks.size(), false));
+		stacks.push_back(new CStack(i->second.first,i->second.second, hero2 ? hero2->tempOwner : 255, stacks.size(), false));
 	switch(army2->slots.size()) //for defender
 	{
 	case 0:
@@ -198,22 +198,12 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 			curB->stackActionPerformed = false;
 			if(stacks[i]->alive) //indicate posiibility of making action for this unit
 			{
-				unsigned char owner = (stacks[i]->owner)?(hero2 ? hero2->tempOwner : 255):(hero1->tempOwner);
-				unsigned char serialOwner = -1;
-				for(int g=0; g<CGI->playerint.size(); ++g)
-				{
-					if(CGI->playerint[g]->playerID == owner)
-					{
-						serialOwner = g;
-						break;
-					}
-				}
-				if(serialOwner==255) //neutral unit
+				if(stacks[i]->owner==255) //neutral unit
 				{
 				}
-				else if(CGI->playerint[serialOwner]->human)
+				else if(CGI->playerint[stacks[i]->owner]->human)
 				{
-					BattleAction ba = ((CPlayerInterface*)CGI->playerint[serialOwner])->activeStack(stacks[i]->ID);
+					BattleAction ba = ((CPlayerInterface*)CGI->playerint[stacks[i]->owner])->activeStack(stacks[i]->ID);
 					switch(ba.actionType)
 					{
 					case 2: //walk
@@ -246,7 +236,7 @@ void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, C
 				}
 				else
 				{
-					//CGI->playerint[serialOwner]->activeStack(stacks[i]->ID);
+					//CGI->playerint[stacks[i]->owner]->activeStack(stacks[i]->ID);
 				}
 			}
 			if(battleEnd)
