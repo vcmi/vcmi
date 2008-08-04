@@ -237,7 +237,7 @@ public:
 	void loadPointer(T &data)
 	{
 		std::cout<<"Allocating memory for pointer!"<<std::endl;
-		typedef boost::remove_pointer<T>::type npT;
+		typedef typename boost::remove_pointer<T>::type npT;
 		data = new npT;
 		*this >> *data;
 	}

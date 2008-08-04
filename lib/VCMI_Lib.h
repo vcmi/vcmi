@@ -1,3 +1,5 @@
+#ifndef VCMI_LIB_H
+#define VCMI_LIB_H
 #include "../global.h"
 
 class CLodHandler;
@@ -55,7 +57,13 @@ public:
 	//StartInfo scenarioOps;
 };
 
+#ifndef __GNUC__
+DLL_EXPORT LibClasses * VLC;
+#else
 extern DLL_EXPORT LibClasses * VLC;
+#endif
 
 
 DLL_EXPORT void initDLL(CLodHandler *b);
+
+#endif //VCMI_LIB_H

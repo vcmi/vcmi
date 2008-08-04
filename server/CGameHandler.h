@@ -3,6 +3,7 @@
 #include <set>
 #include "../CGameState.h"
 #include "../lib/Connection.h"
+#include <boost/thread.hpp>
 class CVCMIServer;
 class CGameState;
 //class CConnection;

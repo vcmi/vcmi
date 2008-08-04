@@ -1,6 +1,8 @@
 #ifndef CGAMESTATE_H
 #define CGAMESTATE_H
 #include "global.h"
+#include "../hch/CCreatureHandler.h"
+#include "lib/VCMI_Lib.h"
 #include <set>
 #include <vector>
 #ifdef _WIN32
