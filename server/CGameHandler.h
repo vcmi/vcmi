@@ -3,7 +3,9 @@
 #include <set>
 #include "../CGameState.h"
 #include "../lib/Connection.h"
+#ifndef _MSC_VER
 #include <boost/thread.hpp>
+#endif
 class CVCMIServer;
 class CGameState;
 //class CConnection;

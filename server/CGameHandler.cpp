@@ -315,7 +315,7 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 		{
 			if(!stacks[i]->alive) continue;//indicates imposiibility of making action for this dead unit
 			BattleSetActiveStack sas;
-			sas.stack = i;
+			sas.stack = stacks[i]->ID;
 			sendAndApply(&sas);
 
 			//wait for response about battle action
@@ -323,6 +323,7 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 			boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 			while(!battleMadeAction.data)
 				battleMadeAction.cond.wait(lock);
+			battleMadeAction.data = false;
 		}
 	}
 
@@ -584,7 +585,80 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					{
 					case 2: //walk
 						{
-							//battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
+							CStack *curStack = gs->curB->getStack(ba.stackNumber),
+								*stackAtEnd = gs->curB->getStackT(ba.destinationTile);
+
+							//initing necessary tables
+							bool accessibility[187];
+							if(curStack->creature->isDoubleWide())
+							{
+								gs->curB->getAccessibilityMapForTwoHex(accessibility,curStack->attackerOwned);
+								accessibility[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;//OUR second tile is for US accessible
+							}
+							else 
+								gs->curB->getAccessibilityMap(accessibility);
+							accessibility[curStack->position] = true; //OUR tile is for US accessible
+
+							//if(!stackAtEnd && !accessibility[dest])
+							//	return false;
+
+							//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
+							//	return false;
+
+							std::vector<int> path = gs->curB->getPath(curStack->position,ba.destinationTile,accessibility);
+
+							for(int v=path.size()-1; v>=0; --v)
+							{
+								if(v!=0 || !stackAtEnd) //it's not the last step or the last tile is free
+								{
+									//inform clients about move
+									BattleStackMoved sm;
+									sm.stack = curStack->ID;
+									sm.tile = path[v];
+									if(v==path.size()-1)//move start - set flag
+										sm.flags |= 1;
+									if(v==0 || (stackAtEnd && v==1)) //move end - set flag
+										sm.flags |= 2;
+									sendAndApply(&sm);
+								}
+								else //if it's last step and we should attack unit at the end
+								{
+									//LOCPLINT->battleStackAttacking(ID, path[v]);
+									////counting dealt damage
+									//int finalDmg = calculateDmg(curStack, curB->stacks[numberOfStackAtEnd]);
+
+									////applying damages
+									//int cresKilled = finalDmg / curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
+									//int damageFirst = finalDmg % curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
+
+									//if( curB->stacks[numberOfStackAtEnd]->firstHPleft <= damageFirst )
+									//{
+									//	curB->stacks[numberOfStackAtEnd]->amount -= 1;
+									//	curB->stacks[numberOfStackAtEnd]->firstHPleft += curB->stacks[numberOfStackAtEnd]->creature->hitPoints - damageFirst;
+									//}
+									//else
+									//{
+									//	curB->stacks[numberOfStackAtEnd]->firstHPleft -= damageFirst;
+									//}
+
+									//int cresInstackBefore = curB->stacks[numberOfStackAtEnd]->amount; 
+									//curB->stacks[numberOfStackAtEnd]->amount -= cresKilled;
+									//if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
+									//{
+									//	curB->stacks[numberOfStackAtEnd]->amount = 0;
+									//	LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore) , ID, false);
+									//	curB->stacks[numberOfStackAtEnd]->alive = false;
+									//}
+									//else
+									//{
+									//	LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID, false);
+									//}
+
+									//damage applied
+								}
+							}
+							//curB->stackActionPerformed = true;
+							//LOCPLINT->actionFinished(BattleAction());
 							break;
 						}
 					case 3: //defend

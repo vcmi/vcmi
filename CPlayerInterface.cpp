@@ -1993,6 +1993,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 	//tidy up
 	BattleAction ret = *(b->givenCommand->data);
 	delete b->givenCommand->data;
+	b->givenCommand->data = NULL;
 
 	//return command
 	return ret;
@@ -2010,6 +2011,7 @@ void CPlayerInterface::battleEnd(BattleResult *br)
 
 void CPlayerInterface::battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest, startMoving, endMoving);
 }
 

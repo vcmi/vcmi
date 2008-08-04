@@ -301,6 +301,28 @@ struct BattleResult : public CPack<BattleResult>//3003
 	}
 };
 
+struct BattleStackMoved : public CPack<BattleStackMoved>//3004
+{
+	ui32 stack, tile;
+	ui8 flags;
+
+
+
+	BattleStackMoved(){flags = 0; type = 3004;};
+	bool startMoving()
+	{
+		return flags & 1;
+	}
+	bool endMoving()
+	{
+		return flags & 2;
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stack & tile & flags;
+	}
+};
+
 struct ShowInInfobox : public CPack<ShowInInfobox> //107
 {
 	ShowInInfobox(){type = 107;};

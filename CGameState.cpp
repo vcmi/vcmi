@@ -86,6 +86,140 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	//}
 	return nobj;
 }
+CStack * BattleInfo::getStack(int stackID)
+{
+	for(int g=0; g<stacks.size(); ++g)
+	{
+		if(stacks[g]->ID == stackID)
+			return stacks[g];
+	}
+	return NULL;
+}
+CStack * BattleInfo::getStackT(int tileID)
+{
+	for(int g=0; g<stacks.size(); ++g)
+	{
+		if(stacks[g]->position == tileID 
+			|| (stacks[g]->creature->isDoubleWide() && stacks[g]->attackerOwned && stacks[g]->position-1 == tileID)
+			|| (stacks[g]->creature->isDoubleWide() && !stacks[g]->attackerOwned && stacks[g]->position+1 == tileID))
+		{
+			if(stacks[g]->alive)
+			{
+				return stacks[g];
+			}
+		}
+	}
+	return NULL;
+}
+void BattleInfo::getAccessibilityMap(bool *accessibility)
+{
+	memset(accessibility,1,187); //initialize array with trues
+	for(int g=0; g<stacks.size(); ++g)
+	{
+		if(!stacks[g]->alive) //we don't want to lock enemy's positions and this units' position
+			continue;
+
+		accessibility[stacks[g]->position] = false;
+		if(stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
+		{
+			if(stacks[g]->attackerOwned)
+				accessibility[stacks[g]->position-1] = false;
+			else
+				accessibility[stacks[g]->position+1] = false;
+		}
+	}
+}
+void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide) //send pointer to at least 187 allocated bytes
+{	
+	bool mac[187];
+	getAccessibilityMap(mac);
+	memcpy(accessibility,mac,187);
+
+	for(int b=0; b<187; ++b)
+	{
+		if( mac[b] && !(atackerSide ? mac[b-1] : mac[b+1]))
+		{
+			accessibility[b] = false;
+		}
+	}
+	//removing accessibility for side hexes
+	for(int v=0; v<187; ++v)
+		if(atackerSide ? (v%17)==1 : (v%17)==15)
+			accessibility[v] = false;
+}
+
+std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
+{							
+	int predecessor[187]; //for getting the Path
+	for(int b=0; b<187; ++b)
+		predecessor[b] = -1;
+	//bfsing
+	int dists[187]; //calculated distances
+	std::queue<int> hexq; //bfs queue
+	hexq.push(start);
+	for(int g=0; g<187; ++g)
+		dists[g] = 100000000;
+	dists[hexq.front()] = 0;
+	int curNext = -1; //for bfs loop only (helper var)
+	while(!hexq.empty()) //bfs loop
+	{
+		int curHex = hexq.front();
+		hexq.pop();
+		curNext = curHex - ( (curHex/17)%2 ? 18 : 17 );
+		if((curNext > 0) && (accessibility[curNext] || curNext==dest) && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
+		{
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
+		}
+		curNext = curHex - ( (curHex/17)%2 ? 17 : 16 );
+		if((curNext > 0) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
+		{
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
+		}
+		curNext = curHex - 1;
+		if((curNext > 0) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
+		{
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
+		}
+		curNext = curHex + 1;
+		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
+		{
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
+		}
+		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
+		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
+		{
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
+		}
+		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
+		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
+		{
+			hexq.push(curNext);
+			dists[curNext] = dists[curHex] + 1;
+			predecessor[curNext] = curHex;
+		}
+	}
+
+	//following the Path
+	std::vector<int> path;
+	int curElem = dest;
+	while(curElem != start)
+	{
+		path.push_back(curElem);
+		curElem = predecessor[curElem];
+	}
+	return path;
+}
+
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO)
 	:creature(C),amount(A),owner(O), alive(true), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints)
 {
@@ -238,6 +372,13 @@ void CGameState::apply(IPack * pack)
 				delete curB->stacks[i];
 			delete curB;
 			curB = NULL;
+			break;
+		}
+	case 3004:
+		{
+			BattleStackMoved *br = static_cast<BattleStackMoved*>(pack);
+			curB->getStack(br->stack)->position = br->tile;
+			break;
 		}
 	//case 1002://set hover name
 	//	{
@@ -749,254 +890,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		}
 	}
 }
-void CGameState::battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2)
-{/*
-	curB = new BattleInfo();
-	std::vector<CStack*> & stacks = (curB->stacks);
-
-	curB->army1=army1;
-	curB->army2=army2;
-	curB->hero1=dynamic_cast<CGHeroInstance*>(hero1);
-	curB->hero2=dynamic_cast<CGHeroInstance*>(hero2);
-	curB->side1=(hero1)?(hero1->tempOwner):(-1);
-	curB->side2=(hero2)?(hero2->tempOwner):(-1);
-	curB->round = -2;
-	curB->stackActionPerformed = false;
-	for(std::map<int,std::pair<ui32,si32> >::iterator i = army1->slots.begin(); i!=army1->slots.end(); i++)
-	{
-		stacks.push_back(new CStack(i->second.first,i->second.second,0, stacks.size(), true));
-		stacks[stacks.size()-1]->ID = stacks.size()-1;
-	}
-	//initialization of positions
-	switch(army1->slots.size()) //for attacker
-	{
-	case 0:
-		break;
-	case 1:
-		stacks[0]->position = 86; //6
-		break;
-	case 2:
-		stacks[0]->position = 35; //3
-		stacks[1]->position = 137; //9
-		break;
-	case 3:
-		stacks[0]->position = 35; //3
-		stacks[1]->position = 86; //6
-		stacks[2]->position = 137; //9
-		break;
-	case 4:
-		stacks[0]->position = 1; //1
-		stacks[1]->position = 69; //5
-		stacks[2]->position = 103; //7
-		stacks[3]->position = 171; //11
-		break;
-	case 5:
-		stacks[0]->position = 1; //1
-		stacks[1]->position = 35; //3
-		stacks[2]->position = 86; //6
-		stacks[3]->position = 137; //9
-		stacks[4]->position = 171; //11
-		break;
-	case 6:
-		stacks[0]->position = 1; //1
-		stacks[1]->position = 35; //3
-		stacks[2]->position = 69; //5
-		stacks[3]->position = 103; //7
-		stacks[4]->position = 137; //9
-		stacks[5]->position = 171; //11
-		break;
-	case 7:
-		stacks[0]->position = 1; //1
-		stacks[1]->position = 35; //3
-		stacks[2]->position = 69; //5
-		stacks[3]->position = 86; //6
-		stacks[4]->position = 103; //7
-		stacks[5]->position = 137; //9
-		stacks[6]->position = 171; //11
-		break;
-	default: //fault
-		break;
-	}
-	for(std::map<int,std::pair<ui32,si32> >::iterator i = army2->slots.begin(); i!=army2->slots.end(); i++)
-		stacks.push_back(new CStack(i->second.first,i->second.second,1, stacks.size(), false));
-	switch(army2->slots.size()) //for defender
-	{
-	case 0:
-		break;
-	case 1:
-		stacks[0+army1->slots.size()]->position = 100; //6
-		break;
-	case 2:
-		stacks[0+army1->slots.size()]->position = 49; //3
-		stacks[1+army1->slots.size()]->position = 151; //9
-		break;
-	case 3:
-		stacks[0+army1->slots.size()]->position = 49; //3
-		stacks[1+army1->slots.size()]->position = 100; //6
-		stacks[2+army1->slots.size()]->position = 151; //9
-		break;
-	case 4:
-		stacks[0+army1->slots.size()]->position = 15; //1
-		stacks[1+army1->slots.size()]->position = 83; //5
-		stacks[2+army1->slots.size()]->position = 117; //7
-		stacks[3+army1->slots.size()]->position = 185; //11
-		break;
-	case 5:
-		stacks[0+army1->slots.size()]->position = 15; //1
-		stacks[1+army1->slots.size()]->position = 49; //3
-		stacks[2+army1->slots.size()]->position = 100; //6
-		stacks[3+army1->slots.size()]->position = 151; //9
-		stacks[4+army1->slots.size()]->position = 185; //11
-		break;
-	case 6:
-		stacks[0+army1->slots.size()]->position = 15; //1
-		stacks[1+army1->slots.size()]->position = 49; //3
-		stacks[2+army1->slots.size()]->position = 83; //5
-		stacks[3+army1->slots.size()]->position = 117; //7
-		stacks[4+army1->slots.size()]->position = 151; //9
-		stacks[5+army1->slots.size()]->position = 185; //11
-		break;
-	case 7:
-		stacks[0+army1->slots.size()]->position = 15; //1
-		stacks[1+army1->slots.size()]->position = 49; //3
-		stacks[2+army1->slots.size()]->position = 83; //5
-		stacks[3+army1->slots.size()]->position = 100; //6
-		stacks[4+army1->slots.size()]->position = 117; //7
-		stacks[5+army1->slots.size()]->position = 151; //9
-		stacks[6+army1->slots.size()]->position = 185; //11
-		break;
-	default: //fault
-		break;
-	}
-	for(int g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
-	{
-		if((stacks[g]->position%17)==1 && stacks[g]->creature->isDoubleWide())
-		{
-			stacks[g]->position += 1;
-		}
-		else if((stacks[g]->position%17)==15 && stacks[g]->creature->isDoubleWide())
-		{
-			stacks[g]->position -= 1;
-		}
-	}
-	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
-
-	//for start inform players about battle
-	for(std::map<int, PlayerState>::iterator j=players.begin(); j!=players.end(); ++j)//->players.size(); ++j) //for testing
-	{
-		if (j->first > PLAYER_LIMIT)
-			break;
-		if(j->second.fogOfWarMap[tile.x][tile.y][tile.z])
-		{ //player should be notified
-			tribool side = tribool::indeterminate_value;
-			if(j->first == curB->side1) //player is attacker
-				side = false;
-			else if(j->first == curB->side2) //player is defender
-				side = true;
-			else 
-				continue; //no witnesses
-			if(VLC->playerint[j->second.serial]->human)
-			{
-				((CPlayerInterface*)( VLC->playerint[j->second.serial] ))->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side);
-			}
-			else
-			{
-				//VLC->playerint[j->second.serial]->battleStart(army1, army2, tile, curB->hero1, curB->hero2, side);
-			}
-		}
-	}
-
-	curB->round++;
-	if( (curB->hero1 && curB->hero1->getSecSkillLevel(19)>=0) || ( curB->hero2 && curB->hero2->getSecSkillLevel(19)>=0)  )//someone has tactics
-	{
-		//TODO: wywolania dla rundy -1, ograniczenie pola ruchu, etc
-	}
-
-	curB->round++;
-
-	//SDL_Thread * eventh = SDL_CreateThread(battleEventThread, NULL);
-
-	while(true) //till the end of the battle ;]
-	{
-		bool battleEnd = false;
-		//tell players about next round
-		for(int v=0; v<VLC->playerint.size(); ++v)
-			VLC->playerint[v]->battleNewRound(curB->round);
-
-		//stack loop
-		for(int i=0;i<stacks.size();i++)
-		{
-			curB->activeStack = i;
-			curB->stackActionPerformed = false;
-			if(stacks[i]->alive) //indicate posiibility of making action for this unit
-			{
-				unsigned char owner = (stacks[i]->owner)?(hero2 ? hero2->tempOwner : 255):(hero1->tempOwner);
-				unsigned char serialOwner = -1;
-				for(int g=0; g<VLC->playerint.size(); ++g)
-				{
-					if(VLC->playerint[g]->playerID == owner)
-					{
-						serialOwner = g;
-						break;
-					}
-				}
-				if(serialOwner==255) //neutral unit
-				{
-				}
-				else if(VLC->playerint[serialOwner]->human)
-				{
-					BattleAction ba = ((CPlayerInterface*)VLC->playerint[serialOwner])->activeStack(stacks[i]->ID);
-					switch(ba.actionType)
-					{
-					case 2: //walk
-						{
-							battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
-						}
-					case 3: //defend
-						{
-							break;
-						}
-					case 4: //retreat/flee
-						{
-							for(int v=0; v<VLC->playerint.size(); ++v) //tell about the end of this battle to interfaces
-								VLC->playerint[v]->battleEnd(army1, army2, hero1, hero2, std::vector<int>(), 0, false);
-							battleEnd = true;
-							break;
-						}
-					case 6: //walk or attack
-						{
-							battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
-							battleAttackCreatureStack(ba.stackNumber, ba.destinationTile);
-							break;
-						}
-					case 7: //shoot
-						{
-							battleShootCreatureStack(ba.stackNumber, ba.destinationTile);
-							break;
-						}
-					}
-				}
-				else
-				{
-					//VLC->playerint[serialOwner]->activeStack(stacks[i]->ID);
-				}
-			}
-			if(battleEnd)
-				break;
-			//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy
-		}
-		if(battleEnd)
-			break;
-		curB->round++;
-		SDL_Delay(50);
-	}
-
-	for(int i=0;i<stacks.size();i++)
-		delete stacks[i];
-	delete curB;
-	curB = NULL;*/
-}
-
 bool CGameState::battleMoveCreatureStack(int ID, int dest)
 {/*
 	//first checks

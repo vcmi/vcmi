@@ -18,6 +18,7 @@
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
 #include "lib/NetPacks.h"
+#include <boost/thread/shared_mutex.hpp>
 #ifdef min
 #undef min
 #endif
@@ -53,7 +54,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 	else //idtype==1; player<0
 	{
 
-		for(std::map<ui8, PlayerState>::iterator j=CGI->state->players.begin(); j!=CGI->state->players.end(); ++j)
+		for(std::map<ui8, PlayerState>::iterator j=gs->players.begin(); j!=gs->players.end(); ++j)
 		{
 			for (int i=0; i<(*j).second.heroes.size();i++)
 			{
@@ -264,10 +265,12 @@ const CGTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> 
 }
 int CCallback::howManyHeroes()
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].heroes.size();
 }
 const CGHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
 		return NULL;
 	if (!mode)
@@ -287,41 +290,22 @@ const CGHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //
 
 int CCallback::getResourceAmount(int type)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].resources[type];
 }
 std::vector<si32> CCallback::getResourceAmount()
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].resources;
 }
 int CCallback::getDate(int mode)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getDate(mode);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector<std::string> ret;
 	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].blockingObjects)
 		ret.push_back(obj->hoverName);
@@ -362,17 +346,20 @@ bool CCallback::verifyPath(CPath * path, bool blockSea)
 
 std::vector< std::vector< std::vector<unsigned char> > > & CCallback::getVisibilityMap()
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].fogOfWarMap;
 }
 
 
 bool CCallback::isVisible(int3 pos, int Player)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[Player].fogOfWarMap[pos.x][pos.y][pos.z];
 }
 
 std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
@@ -388,6 +375,7 @@ std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur)
 }
 std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGHeroInstance *> ret;
 	for(int i=0;i<gs->map->heroes.size();i++)
 	{
@@ -411,6 +399,7 @@ int CCallback::getMyColor()
 }
 int CCallback::getHeroSerial(const CGHeroInstance * hero)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	for (int i=0; i<gs->players[player].heroes.size();i++)
 	{
 		if (gs->players[player].heroes[i]==hero)
@@ -432,9 +421,6 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
 {
 	if(s1->tempOwner != player   ||   s2->tempOwner != player)
-
-
-
 		return -1;
 
 	*cl->serv << ui16(502) << ui8(1) << s1->id << ui8(p1) << s2->id << ui8(p2);
@@ -469,6 +455,7 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 
 int CCallback::getMySerial()
 {	
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].serial;
 }
 
@@ -517,7 +504,8 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 
 int CCallback::battleGetBattlefieldType()
 {
-	return CGI->mh->ttiles[CGI->state->curB->tile.x][CGI->state->curB->tile.y][CGI->state->curB->tile.z].tileInfo->tertype;
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	return CGI->mh->ttiles[gs->curB->tile.x][gs->curB->tile.y][gs->curB->tile.z].tileInfo->tertype;
 }
 
 int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield 
@@ -527,17 +515,15 @@ int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield
 }
 int CCallback::battleGetStack(int pos)
 {
-	return CGI->state->battleGetStack(pos);
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	return gs->battleGetStack(pos);
 }
 
 CStack* CCallback::battleGetStackByID(int ID)
 {
-	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
-	{
-		if(CGI->state->curB->stacks[g]->ID == ID)
-			return CGI->state->curB->stacks[g];
-	}
-	return NULL;
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	if(!gs->curB) return NULL;
+	return gs->curB->getStack(ID);
 }
 
 CStack* CCallback::battleGetStackByPos(int pos)
@@ -547,30 +533,33 @@ CStack* CCallback::battleGetStackByPos(int pos)
 
 int CCallback::battleGetPos(int stack)
 {
-	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	for(int g=0; g<gs->curB->stacks.size(); ++g)
 	{
-		if(CGI->state->curB->stacks[g]->ID == stack)
-			return CGI->state->curB->stacks[g]->position;
+		if(gs->curB->stacks[g]->ID == stack)
+			return gs->curB->stacks[g]->position;
 	}
 	return -1;
 }
 
 std::map<int, CStack> CCallback::battleGetStacks()
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::map<int, CStack> ret;
-	for(int g=0; g<CGI->state->curB->stacks.size(); ++g)
+	for(int g=0; g<gs->curB->stacks.size(); ++g)
 	{
-		ret[CGI->state->curB->stacks[g]->ID] = *(CGI->state->curB->stacks[g]);
+		ret[gs->curB->stacks[g]->ID] = *(gs->curB->stacks[g]);
 	}
 	return ret;
 }
 
 CCreature CCallback::battleGetCreature(int number)
 {
-	for(int h=0; h<CGI->state->curB->stacks.size(); ++h)
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	for(int h=0; h<gs->curB->stacks.size(); ++h)
 	{
-		if(CGI->state->curB->stacks[h]->ID == number) //creature found
-			return *(CGI->state->curB->stacks[h]->creature);
+		if(gs->curB->stacks[h]->ID == number) //creature found
+			return *(gs->curB->stacks[h]->creature);
 	}
 #ifndef __GNUC__
 	throw new std::exception("Cannot find the creature");
@@ -581,20 +570,23 @@ CCreature CCallback::battleGetCreature(int number)
 
 std::vector<int> CCallback::battleGetAvailableHexes(int ID)
 {
-	return CGI->state->battleGetRange(ID);
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	return gs->battleGetRange(ID);
 }
 
 bool CCallback::battleIsStackMine(int ID)
 {
-	for(int h=0; h<CGI->state->curB->stacks.size(); ++h)
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	for(int h=0; h<gs->curB->stacks.size(); ++h)
 	{
-		if(CGI->state->curB->stacks[h]->ID == ID) //creature found
-			return CGI->state->curB->stacks[h]->owner == player;
+		if(gs->curB->stacks[h]->ID == ID) //creature found
+			return gs->curB->stacks[h]->owner == player;
 	}
 	return false;
 }
 bool CCallback::battleCanShoot(int ID, int dest) //TODO: finish
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(battleGetStackByID(ID)->creature->isShooting() 
 		&& battleGetStack(dest) != -1 
 		&& battleGetStackByPos(dest)->owner != battleGetStackByID(ID)->owner

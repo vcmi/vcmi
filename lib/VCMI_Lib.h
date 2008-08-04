@@ -57,7 +57,7 @@ public:
 	//StartInfo scenarioOps;
 };
 
-#ifndef __GNUC__
+#ifdef __GNUC__
 DLL_EXPORT LibClasses * VLC;
 #else
 extern DLL_EXPORT LibClasses * VLC;

@@ -1,8 +1,10 @@
 #ifndef CGAMESTATE_H
 #define CGAMESTATE_H
 #include "global.h"
+#ifndef _MSC_VER
 #include "../hch/CCreatureHandler.h"
 #include "lib/VCMI_Lib.h"
+#endif
 #include <set>
 #include <vector>
 #ifdef _WIN32
@@ -61,6 +63,11 @@ struct DLL_EXPORT BattleInfo
 	{
 		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2;
 	}
+	CStack * getStack(int stackID);
+	CStack * getStackT(int tileID);
+	void getAccessibilityMap(bool *accessibility); //send pointer to at least 187 allocated bytes
+	void getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide); //send pointer to at least 187 allocated bytes
+	std::vector<int> getPath(int start, int dest, bool*accessibility);
 };
 
 class DLL_EXPORT CStack
@@ -122,7 +129,6 @@ private:
 
 	CGHeroInstance *getHero(int objid);
 
-	void battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2);
 	bool battleMoveCreatureStack(int ID, int dest);
 	bool battleAttackCreatureStack(int ID, int dest);
 	bool battleShootCreatureStack(int ID, int dest);

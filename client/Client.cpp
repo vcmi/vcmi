@@ -353,7 +353,7 @@ void CClient::process(int what)
 			*serv >> sas;
 			std::cout << "Active stack: " << sas.stack <<std::endl;
 			gs->apply(&sas);
-			boost::thread(boost::bind(&CClient::waitForMoveAndSend,this,gs->curB->stacks[sas.stack]->owner));
+			boost::thread(boost::bind(&CClient::waitForMoveAndSend,this,gs->curB->getStack(sas.stack)->owner));
 			break;
 		}
 	case 3003:
@@ -368,8 +368,18 @@ void CClient::process(int what)
 				playerint[gs->curB->side2]->battleEnd(&br);
 
 			gs->apply(&br);
-
-
+			break;
+		}
+	case 3004:
+		{
+			BattleStackMoved br;
+			*serv >> br;
+			std::cout << "Stack "<<br.stack <<" moves to the tile "<<br.tile<<std::endl;
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleStackMoved(br.stack,br.tile,br.flags&1,br.flags&2);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleStackMoved(br.stack,br.tile,br.flags&1,br.flags&2);
+			gs->apply(&br);
 			break;
 		}
 	case 9999:
