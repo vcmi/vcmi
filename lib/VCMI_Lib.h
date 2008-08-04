@@ -57,11 +57,7 @@ public:
 	//StartInfo scenarioOps;
 };
 
-#ifdef __GNUC__
-DLL_EXPORT LibClasses * VLC;
-#else
 extern DLL_EXPORT LibClasses * VLC;
-#endif
 
 
 DLL_EXPORT void initDLL(CLodHandler *b);
