@@ -77,10 +77,6 @@ void CLua::open(std::string initpath)
 	//	temp += initpath;
 	//	throw std::exception(temp.c_str());
 	//}
-
-
-
-
 }
 void CLua::registerCLuaCallback()
 {
@@ -113,10 +109,6 @@ void CLua::findFS(std::string fname)
 	//	lua_settop(is, 0);
 	//	throw new std::exception((fname + ": function not defined").c_str()); // the call is not defined
 	//}
-
-
-
-
 }
 #undef LST
 
@@ -153,10 +145,6 @@ void CLuaObjectScript::newObject(int objid)
 	//	throw new  std::exception(("Failed to call "+genFN("newObject",os->ID)+" function in lua script.").c_str());
 	//}
 	//lua_settop(is, 0);
-
-
-
-
 	return;
 }
 void CLuaObjectScript::onHeroVisit(int objid, int heroID)
@@ -170,10 +158,6 @@ void CLuaObjectScript::onHeroVisit(int objid, int heroID)
 	//	throw new  std::exception(("Failed to call "+genFN("heroVisit",os->ID)+" function in lua script.").c_str());
 	//}
 	//lua_settop(is, 0);
-
-
-
-
 }
 //std::string CLuaObjectScript::hoverText(int objid)
 //{
@@ -295,30 +279,33 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 		case 61:
 		case 32:
 			{
-				//cb->changePrimSkill(heroID,w,vvv);
-				//std::vector<SComponent*> weko;
-				//weko.push_back(new SComponent(SComponent::primskill,w,vvv)); 
-				//cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&weko); 
-				//break;
-
-
+				cb->changePrimSkill(heroID,w,vvv);
+				InfoWindow iw;
+				iw.components.push_back(Component(0,w,vvv,0));
+				iw.text << std::pair<ui8,ui32>(11,ot);
+				iw.player = cb->getHeroOwner(heroID);
+				cb->showInfoDialog(&iw);
+				break;
 			}
-		case 100:
+		case 100: //give 1000 exp
 			{
-				//cb->changePrimSkill(heroID,w,vvv);
-				//std::vector<SComponent*> weko;
-				//weko.push_back(new SComponent(SComponent::experience,0,vvv)); 
-				//cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&weko); 
-				//break;
-
-
+				cb->changePrimSkill(heroID,w,vvv);
+				InfoWindow iw;
+				iw.components.push_back(Component(0,4,vvv,0));
+				iw.player = cb->getHeroOwner(heroID);
+				iw.text << std::pair<ui8,ui32>(11,ot);
+				cb->showInfoDialog(&iw);
+				break;
 			}
 		}
 	}
 	else
 	{
 		ot++;
-		//cb->showInfoDialog(cb->getHeroOwner(heroID),VLC->objh->advobtxt[ot],&std::vector<SComponent*>());
+		InfoWindow iw;
+		iw.player = cb->getHeroOwner(heroID);
+		iw.text << std::pair<ui8,ui32>(11,ot);
+		cb->showInfoDialog(&iw);
 	}
 }
 
@@ -336,46 +323,6 @@ std::vector<int> CVisitableOPH::yourObjects()
 void CVisitableOPW::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 {
 	DEFOS;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 	int mid;
 	switch (os->ID)
 	{
@@ -518,15 +465,6 @@ void CMines::onHeroVisit(int objid, int heroID)
 	iw.player = h->tempOwner;
 	iw.components.push_back(Component(2,os->subID,vv,-1));
 	cb->showInfoDialog(&iw);
-
-
-
-
-
-
-
-
-
 }
 std::vector<int> CMines::yourObjects()
 {
@@ -585,33 +523,42 @@ void CPickable::onHeroVisit(int objid, int heroID)
 		}
 	case 79:
 		{
-			////TODO: handle guards (when battles are finished)
-			//CResourceObjInfo * t2 = static_cast<CResourceObjInfo *>(os->info);
-			//int val;
-			//if(t2->amount)
-			//	val = t2->amount;
-			//else
-			//{
-			//	switch(os->subID)
-			//	{
-			//	case 6:
-			//		val = 500 + (rand()%6)*100;
-			//		break;
-			//	case 0: case 2:
-			//		val = 6 + (rand()%5);
-			//		break;
-			//	default:
-			//		val = 3 + (rand()%3);
-			//		break;
-			//	}
-			//}
-			//if(t2->message.length())
-			//	cb->showInfoDialog(cb->getHeroOwner(heroID),t2->message,&std::vector<SComponent*>());
-			//SComponent ccc(SComponent::resource,os->subID,val);
-			//ccc.description = VLC->objh->advobtxt[113];
-			//boost::algorithm::replace_first(ccc.description,"%s",VLC->objh->restypes[os->subID]);
-			//cb->giveResource(cb->getHeroOwner(heroID),os->subID,val);
-			//cb->showCompInfo(cb->getHeroOwner(heroID),&ccc);
+			//TODO: handle guards (when battles are finished)
+			CResourceObjInfo * t2 = static_cast<CResourceObjInfo *>(os->info);
+			int val;
+			if(t2->amount)
+				val = t2->amount;
+			else
+			{
+				switch(os->subID)
+				{
+				case 6:
+					val = 500 + (rand()%6)*100;
+					break;
+				case 0: case 2:
+					val = 6 + (rand()%5);
+					break;
+				default:
+					val = 3 + (rand()%3);
+					break;
+				}
+			}
+			if(t2->message.length())
+			{
+				InfoWindow iw;
+				iw.player = cb->getHero(heroID)->tempOwner;
+				iw.text << t2->message;
+				cb->showInfoDialog(&iw);
+			}
+
+			cb->giveResource(cb->getHeroOwner(heroID),os->subID,val);
+
+			ShowInInfobox sii;
+			sii.player = cb->getHeroOwner(heroID);
+			sii.c = Component(2,os->subID,val,0);
+			sii.text << std::pair<ui8,ui32>(11,113);
+			sii.text.replacements.push_back(VLC->objh->restypes[os->subID]);
+			cb->showCompInfo(&sii);
 			break;
 		}
 	case 101:
@@ -672,10 +619,6 @@ void CPickable::chosen(int which)
 	//for (int i=0;i<tempStore.size();i++)
 	//	delete tempStore[i];
 	//tempStore.clear();
-
-
-
-
 }
 
 std::vector<int> CPickable::yourObjects() //returns IDs of objects which are handled by script
@@ -797,8 +740,8 @@ void CMonsterS::onHeroVisit(int objid, int heroID)
 	DEFOS;
 	CCreatureSet set;
 	//TODO: zrobic secik w sposob wyrafinowany
-	set.slots[0] = std::pair<ui32,si32>(os->subID,((CCreatureObjInfo*)os->info)->number);
-	cb->startBattle(heroID,&set,os->pos);
+	set.slots[0] = std::pair<ui32,si32>(os->subID,amounts[objid]);
+	cb->startBattle(heroID,set,os->pos);
 }
 std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script
 {

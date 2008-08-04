@@ -14,7 +14,7 @@
 #include "client/Graphics.h"
 #include <queue>
 #include <sstream>
-
+#include "lib/CondSh.h"
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
 #else
@@ -30,6 +30,7 @@ SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
 : printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false)
 {
+	givenCommand = new CondSh<BattleAction *>(NULL);
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
@@ -169,6 +170,7 @@ CBattleInterface::~CBattleInterface()
 	delete bConsoleUp;
 	delete bConsoleDown;
 	delete console;
+	delete givenCommand;
 
 	delete attackingHero;
 	delete defendingHero;
@@ -391,9 +393,7 @@ void CBattleInterface::bSurrenderf()
 
 void CBattleInterface::bFleef()
 {
-	BattleAction * ba = new BattleAction;
-	ba->actionType = 4;
-	givenCommand = ba;
+	giveCommand(4,0,0);
 }
 
 void CBattleInterface::bAutofightf()
@@ -410,10 +410,7 @@ void CBattleInterface::bWaitf()
 
 void CBattleInterface::bDefencef()
 {
-	BattleAction * ba = new BattleAction;
-	ba->actionType = 3;
-	ba->stackNumber = activeStack;
-	givenCommand = ba;
+	giveCommand(3,0,activeStack);
 }
 
 void CBattleInterface::bConsoleUpf()
@@ -482,7 +479,7 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 
 void CBattleInterface::stackActivated(int number)
 {
-	givenCommand = NULL;
+	//givenCommand = NULL;
 	activeStack = number;
 	shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(number);
 	myTurn = true;
@@ -791,6 +788,16 @@ void CBattleInterface::newRound(int number)
 	console->addText(CGI->generaltexth->allTexts[412]);
 }
 
+void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack)
+{
+	BattleAction * ba = new BattleAction(); //to be deleted by engine
+	ba->actionType = action;
+	ba->destinationTile = tile;
+	ba->stackNumber = stack;
+	givenCommand->setn(ba);
+	myTurn = false;
+}
+
 void CBattleInterface::hexLclicked(int whichOne)
 {
 	if((whichOne%17)!=0 && (whichOne%17)!=16) //if player is trying to attack enemey unit or move creature stack
@@ -802,28 +809,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 		//LOCPLINT->cb->battleGetCreature();
 		if(atCre==-1) //normal move action
 		{
-			BattleAction * ba = new BattleAction(); //to be deleted by engine
-			ba->actionType = 2;
-			ba->destinationTile = whichOne;
-			ba->stackNumber = activeStack;
-			givenCommand = ba;
+			giveCommand(2,whichOne,activeStack);
 		}
 		else if(LOCPLINT->cb->battleGetStackByID(atCre)->owner != attackingHeroInstance->tempOwner
 			&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)) //shooting
 		{
-			BattleAction * ba = new BattleAction(); //to be deleted by engine
-			ba->actionType = 7;
-			ba->destinationTile = whichOne;
-			ba->stackNumber = activeStack;
-			givenCommand = ba;
+			giveCommand(7,whichOne,activeStack);
 		}
 		else if(LOCPLINT->cb->battleGetStackByID(atCre)->owner != attackingHeroInstance->tempOwner) //attacking
 		{
-			BattleAction * ba = new BattleAction(); //to be deleted by engine
-			ba->actionType = 6;
-			ba->destinationTile = whichOne;
-			ba->stackNumber = activeStack;
-			givenCommand = ba;
+			giveCommand(6,whichOne,activeStack);
 		}
 	}
 }

@@ -8,6 +8,8 @@
 #include "../hch/CTownHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../lib/NetPacks.h"
+#include "../lib/VCMI_Lib.h"
+#include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 CScriptCallback::CScriptCallback(void)
@@ -48,37 +50,9 @@ int3 CScriptCallback::getPos(CGObjectInstance * ob)
 {
 	return ob->pos;
 }
-void CScriptCallback::changePrimSkill(int ID, int which, int val)
-{	
-	//CGHeroInstance * hero = gh->gs->map->getHero(ID,0);
-	//if (which<PRIMARY_SKILLS)
-	//{
-	//	hero->primSkills[which]+=val;
-	//	sv->playerint[hero->getOwner()]->heroPrimarySkillChanged(hero, which, val);
-	//}
-	//else if (which==4)
-	//{
-	//	hero->exp+=val;
-	//	if(hero->exp >= CGI->heroh->reqExp(hero->level+1)) //new level
-	//	{
-	//		hero->level++;
-	//		std::cout << hero->name <<" got level "<<hero->level<<std::endl;
-	//		int r = rand()%100, pom=0, x=0;
-	//		int std::pair<int,int>::*g  =  (hero->level>9) ? (&std::pair<int,int>::second) : (&std::pair<int,int>::first);
-	//		for(;x<PRIMARY_SKILLS;x++)
-	//		{
-	//			pom += hero->type->heroClass->primChance[x].*g;
-	//			if(r<pom)
-	//				break;
-	//		}
-	//		std::cout << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
-	//		hero->primSkills[x]++;
-
-	//		//TODO: dac dwie umiejetnosci 2-rzedne to wyboru
-
-	//	}
-	//	//TODO - powiadomic interfejsy, sprawdzic czy nie ma awansu itp
-	//}
+void CScriptCallback::changePrimSkill(int ID, int which, int val, bool abs)
+{
+	gh->changePrimSkill(ID, which, val, abs);
 }
 
 int CScriptCallback::getHeroOwner(int heroID)
@@ -116,7 +90,7 @@ void CScriptCallback::showSelDialog(int player, std::string text, std::vector<CS
 }
 int CScriptCallback::getSelectedHero()
 {	
-	int ret;
+	//int ret;
 	//if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
 	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
 	//else 
@@ -135,11 +109,9 @@ void CScriptCallback::giveResource(int player, int which, int val)
 	sr.val = (gh->gs->players[player].resources[which]+val);
 	gh->sendAndApply(&sr);
 }
-void CScriptCallback::showCompInfo(int player, SComponent * comp)
+void CScriptCallback::showCompInfo(ShowInInfobox * comp)
 {
-	//CPlayerInterface * i = dynamic_cast<CPlayerInterface*>(sv->playerint[player]);
-	//if(i)
-	//	i->showComp(*comp);
+	gh->sendToAllClients(comp);
 }
 void CScriptCallback::heroVisitCastle(int obj, int heroID)
 {
@@ -195,11 +167,12 @@ void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==
 
 void CScriptCallback::startBattle(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) //use hero=NULL for no hero
 {
-	//gh->gs->battle(army1,army2,tile,hero1,hero2);
+	boost::thread(boost::bind(&CGameHandler::startBattle,gh,*(CCreatureSet *)army1,*(CCreatureSet *)army2,tile,(CGHeroInstance *)hero1,(CGHeroInstance *)hero2));
 }
-void CScriptCallback::startBattle(int heroID, CCreatureSet * army, int3 tile) //for hero<=>neutral army
+void CScriptCallback::startBattle(int heroID, CCreatureSet army, int3 tile) //for hero<=>neutral army
 {
-	//CGHeroInstance* h = gh->gs->map->getHero(heroID,0);
+	CGHeroInstance* h = const_cast<CGHeroInstance*>(getHero(heroID));
+	startBattle(&h->army,&army,tile,h,NULL);
 	//gh->gs->battle(&h->army,army,tile,h,NULL);
 }
 void CLuaCallback::registerFuncs(lua_State * L)

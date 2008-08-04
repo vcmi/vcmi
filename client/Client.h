@@ -38,6 +38,8 @@ class CClient
 	CGameState *gs;
 	std::map<ui8,CGameInterface *> playerint;
 	CConnection *serv;
+
+	void waitForMoveAndSend(int color);
 public:
 	CClient(void);
 	CClient(CConnection *con, StartInfo *si);

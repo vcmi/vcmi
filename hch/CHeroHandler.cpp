@@ -6,6 +6,32 @@
 #include "../lib/VCMI_Lib.h"
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
+
+CHeroClass::CHeroClass()
+{
+	skillLimit = 8;
+}
+CHeroClass::~CHeroClass()
+{
+}
+int CHeroClass::chooseSecSkill(std::set<int> possibles) //picks secondary skill out from given possibilities
+{
+	if(possibles.size()==1)
+		return *possibles.begin();
+	int totalProb = 0;
+	for(std::set<int>::iterator i=possibles.begin(); i!=possibles.end(); i++)
+	{
+		totalProb += proSec[*i];
+	}
+	int ran = rand()%totalProb;
+	for(std::set<int>::iterator i=possibles.begin(); i!=possibles.end(); i++)
+	{
+		ran -= proSec[*i];
+		if(ran<0)
+			return *i;
+	}
+}
+
 CHeroHandler::~CHeroHandler()
 {}
 void CHeroHandler::loadPortraits()

@@ -18,14 +18,6 @@
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 boost::rand48 ran;
-class CMP_stack
-{
-public:
-	bool operator ()(const CStack* a, const CStack* b)
-	{
-		return (a->creature->speed)>(b->creature->speed);
-	}
-} cmpst ;
 
 CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 {
@@ -135,6 +127,26 @@ void CGameState::apply(IPack * pack)
 				players[sr->player].resources[i] = sr->res[i];
 			break;
 		}
+	case 105:
+		{
+			SetPrimSkill *sr = static_cast<SetPrimSkill*>(pack);
+			CGHeroInstance *hero = getHero(sr->id);
+			if(sr->which <4)
+			{
+				if(sr->abs)
+					hero->primSkills[sr->which] = sr->val;
+				else
+					hero->primSkills[sr->which] += sr->val;
+			}
+			else if(sr->which == 4) //XP
+			{
+				if(sr->abs)
+					hero->exp = sr->val;
+				else
+					hero->exp += sr->val;
+			}
+			break;
+		}
 	case 500:
 		{
 			RemoveHero *rh = static_cast<RemoveHero*>(pack);
@@ -198,6 +210,35 @@ void CGameState::apply(IPack * pack)
 			map->objects[p->id]->*point = p->val;
 			break;
 		}
+	case 3000:
+		{
+			BattleStart * bs = static_cast<BattleStart*>(pack);
+			curB = bs->info;
+			break;
+		}
+	case 3001:
+		{
+			BattleNextRound *ns = static_cast<BattleNextRound*>(pack);
+			curB->round = ns->round;
+			break;
+		}
+	case 3002:
+		{
+			BattleSetActiveStack *ns = static_cast<BattleSetActiveStack*>(pack);
+			curB->activeStack = ns->stack;
+			break;
+		}
+	case 3003:
+		{
+			BattleResult *br = static_cast<BattleResult*>(pack);
+
+			//TODO: give exp, artifacts to winner, decrease armies (casualties)
+
+			for(unsigned i=0;i<curB->stacks.size();i++)
+				delete curB->stacks[i];
+			delete curB;
+			curB = NULL;
+		}
 	//case 1002://set hover name
 	//	{
 	//		SetHoverName * shn = static_cast<SetHoverName*>(pack);
@@ -227,6 +268,12 @@ int CGameState::pickHero(int owner)
 				h=j;
 	}
 	return h;
+}
+CGHeroInstance *CGameState::getHero(int objid)
+{
+	if(objid<0 || objid>=map->objects.size())
+		return NULL;
+	return static_cast<CGHeroInstance *>(map->objects[objid]);
 }
 std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 {
@@ -460,7 +507,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
 	day = 0;
 	seed = Seed;
-	ran.seed((int32_t)seed);
+	ran.seed((boost::int32_t)seed);
 	scenarioOps = si;
 	this->map = map;
 

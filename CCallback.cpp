@@ -18,6 +18,12 @@
 #include <boost/thread.hpp>
 #include <boost/foreach.hpp>
 #include "lib/NetPacks.h"
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 extern CSharedCond<std::set<IPack*> > mess;
 
 HeroMoveDetails::HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho)

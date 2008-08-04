@@ -82,6 +82,18 @@ struct SetResources : public CPack<SetResources> //104
 		h & player & res;
 	}
 }; 
+struct SetPrimSkill : public CPack<SetPrimSkill> //105
+{
+	SetPrimSkill(){type = 105;};
+	ui8 abs; //0 - changes by value; 1 - sets to value
+	si32 id;
+	ui16 which, val;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & abs & id & which & val;
+	}
+}; 
 struct RemoveHero : public CPack<RemoveHero> //500
 {
 	RemoveHero(){type = 500;};
@@ -226,3 +238,78 @@ struct SetHoverName : public CPack<SetHoverName>//1002
 		h & id & name;
 	}
 };
+struct HeroLevelUp : public CPack<HeroLevelUp>//2000
+{
+	si32 id;
+	ui8 primskill, level;
+	std::set<ui16> skills;
+
+	HeroLevelUp(){type = 2000;};
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & primskill & level & skills;
+	}
+};
+struct BattleInfo;
+struct BattleStart : public CPack<BattleStart>//3000
+{
+	BattleInfo * info;
+
+	BattleStart(){type = 3000;};
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & info;
+	}
+};
+struct BattleNextRound : public CPack<BattleNextRound>//3001
+{
+	si32 round;
+
+	BattleNextRound(){type = 3001;};
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & round;
+	}
+};
+struct BattleSetActiveStack : public CPack<BattleSetActiveStack>//3002
+{
+	ui32 stack;
+
+	BattleSetActiveStack(){type = 3002;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stack;
+	}
+};
+struct BattleResult : public CPack<BattleResult>//3003
+{
+	ui8 result; //0 - normal victory; 1 - escape; 2 - surrender
+	ui8 winner; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
+	std::set<std::pair<ui32,si32> > s1, s2; //first => casualties of attackers - set of pairs crid<>number
+	ui32 exp[2]; //exp for attacker and defender
+	std::set<ui32> artifacts; //artifacts taken from loser to winner
+
+
+
+	BattleResult(){type = 3003;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & result & winner & s1 & s2 & exp & artifacts;
+	}
+};
+
+struct ShowInInfobox : public CPack<ShowInInfobox> //107
+{
+	ShowInInfobox(){type = 107;};
+	ui8 player;
+	Component c;
+	MetaString text;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player & c & text;
+	}
+}; 

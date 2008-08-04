@@ -21,7 +21,7 @@ public:
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in textformat
 	std::string animDefName;
-	int idNumber;
+	ui32 idNumber;
 	int faction; //-1 = neutral
 
 	///animation info

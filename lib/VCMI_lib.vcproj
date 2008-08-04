@@ -320,6 +320,10 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
+				RelativePath=".\BattleAction.h"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CAmbarCendamo.h"
 				>
 			</File>
@@ -353,6 +357,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CObjectHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CondSh.h"
 				>
 			</File>
 			<File

@@ -22,7 +22,12 @@
 extern SDL_Surface * screen;
 extern SDL_Color tytulowy, tlo, zwykly ;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
-
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 SDL_Color genRGB(int r, int g, int b, int a=0);
 //void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);

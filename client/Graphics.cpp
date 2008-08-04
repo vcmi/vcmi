@@ -15,6 +15,12 @@
 #include "../hch/CLodHandler.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 Graphics * graphics = NULL;
 SDL_Surface * Graphics::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from, int to)
 {

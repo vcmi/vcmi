@@ -16,6 +16,7 @@
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CArtHandler.h"
 #include <boost/thread/shared_mutex.hpp>
+#include "../lib/VCMI_Lib.h"
 CSharedCond<std::set<IPack*> > mess(new std::set<IPack*>);
 
 std::string toString(MetaString &ms)
@@ -208,6 +209,25 @@ void CClient::process(int what)
 			playerint[sr.player]->receivedResource(-1,-1);
 			break;
 		}
+	case 105:
+		{
+			SetPrimSkill sps;
+			*serv >> sps;
+			std::cout << "Changing hero primary skill"<<std::endl;
+			gs->apply(&sps);
+			playerint[gs->getHero(sps.id)->tempOwner]->heroPrimarySkillChanged(gs->getHero(sps.id),sps.which,sps.val);
+			break;
+		}
+	case 107:
+		{
+			ShowInInfobox sii;
+			*serv >> sii;
+			SComponent sc(sii.c);
+			sc.description = toString(sii.text);
+			if(playerint[sii.player]->human)
+				static_cast<CPlayerInterface*>(playerint[sii.player])->showComp(sc);
+			break;
+		}
 	case 500:
 		{
 			RemoveHero rh;
@@ -299,6 +319,59 @@ void CClient::process(int what)
 			gs->mx->unlock();
 			break;
 		}
+	case 3000:
+		{
+			BattleStart bs;
+			*serv >> bs; //uses new to allocate memory for battleInfo - must be deleted when battle is over
+			std::cout << "Starting battle!" <<std::endl;
+			gs->apply(&bs);
+
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleStart(&gs->curB->army1, &gs->curB->army2, gs->curB->tile, gs->getHero(gs->curB->hero1), gs->getHero(gs->curB->hero2), 0);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleStart(&gs->curB->army1, &gs->curB->army2, gs->curB->tile, gs->getHero(gs->curB->hero1), gs->getHero(gs->curB->hero2), 1);
+			
+			break;
+		}
+	case 3001:
+		{
+			BattleNextRound bnr;
+			*serv >> bnr;
+			std::cout << "Round nr " << bnr.round <<std::endl;
+			gs->apply(&bnr);
+
+			//tell players about next round
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleNewRound(bnr.round);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleNewRound(bnr.round);
+			break;
+		}
+	case 3002:
+		{
+			BattleSetActiveStack sas;
+			*serv >> sas;
+			std::cout << "Active stack: " << sas.stack <<std::endl;
+			gs->apply(&sas);
+			boost::thread(boost::bind(&CClient::waitForMoveAndSend,this,gs->curB->stacks[sas.stack]->owner));
+			break;
+		}
+	case 3003:
+		{
+			BattleResult br;
+			*serv >> br;
+			std::cout << "Battle ends. Winner: " << (unsigned)br.winner<< ". Type of end: "<< (unsigned)br.result <<std::endl;
+
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleEnd(&br);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleEnd(&br);
+
+			gs->apply(&br);
+
+
+			break;
+		}
 	case 9999:
 		break;
 	default:
@@ -309,6 +382,11 @@ void CClient::process(int what)
 #endif
 		break;
 	}
+}
+void CClient::waitForMoveAndSend(int color)
+{
+	BattleAction ba = playerint[color]->activeStack(gs->curB->activeStack);
+	*serv << ui16(3002) << ba;
 }
 void CClient::run()
 {

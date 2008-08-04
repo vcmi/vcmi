@@ -9,6 +9,7 @@ class CDefHandler;
 class CStack;
 class CCallback;
 class AdventureMapButton;
+template <typename T> struct CondSh;
 
 class CBattleHero : public IShowable, public CIntObject
 {
@@ -112,7 +113,7 @@ private:
 	};
 	std::list<SProjectileInfo> projectiles;
 	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
-	
+	void giveCommand(ui8 action, ui16 tile, ui32 stack);
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor
@@ -122,7 +123,7 @@ public:
 	CBattleHex bfield[187]; //11 lines, 17 hexes on each
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	static SDL_Surface * cellBorder, * cellShade;
-	BattleAction * givenCommand; //true if we have i.e. moved current unit
+	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
 	bool myTurn; //if true, interface is active (commands can be ordered
 
 	//button handle funcs:

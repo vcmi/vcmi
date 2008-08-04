@@ -47,29 +47,53 @@ public:
 
 struct DLL_EXPORT BattleInfo
 {
-	int side1, side2;
-	int round, activeStack;
-	int siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
+	ui8 side1, side2;
+	si32 round, activeStack;
+	ui8 siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
 	int3 tile; //for background and bonuses
-	CGHeroInstance *hero1, *hero2;
-	CCreatureSet * army1, * army2;
+	si32 hero1, hero2;
+	CCreatureSet army1, army2;
 	std::vector<CStack*> stacks;
-	bool stackActionPerformed; //true if current stack has been moved
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2;
+	}
 };
 
 class DLL_EXPORT CStack
 {
 public:
-	int ID; //unique ID of stack
+	ui32 ID; //unique ID of stack
 	CCreature * creature;
-	int amount;
-	int firstHPleft; //HP of first creature in stack
-	int owner;
-	bool attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
-	int position; //position on battlefield
-	bool alive; //true if it is alive
+	ui32 amount;
+	ui32 firstHPleft; //HP of first creature in stack
+	ui8 owner;
+	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
+	ui16 position; //position on battlefield
+	ui8 alive; //true if it is alive
+
 	CStack(CCreature * C, int A, int O, int I, bool AO);
 	CStack() : creature(NULL),amount(-1),owner(255), alive(true), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1){};
+
+	template <typename Handler> void save(Handler &h, const int version)
+	{
+		h & creature->idNumber;
+	}
+	template <typename Handler> void load(Handler &h, const int version)
+	{
+		ui32 id;
+		h & id;
+		creature = &VLC->creh->creatures[id];
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ID & amount & firstHPleft & owner & attackerOwned & position & alive;
+		if(h.saving)
+			save(h,version);
+		else
+			load(h,version);
+	}
 };
 
 class DLL_EXPORT CGameState
@@ -93,6 +117,8 @@ private:
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);
 	int pickHero(int owner);
+
+	CGHeroInstance *getHero(int objid);
 
 	void battle(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CArmedInstance *hero1, CArmedInstance *hero2);
 	bool battleMoveCreatureStack(int ID, int dest);

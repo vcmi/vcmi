@@ -3,7 +3,7 @@
 #include "../global.h"
 #include <string>
 #include <vector>
-
+#include <set>
 class CHeroClass;
 class CDefHandler;
 class CGameInfo;
@@ -26,6 +26,7 @@ public:
 class DLL_EXPORT CHeroClass
 {
 public:
+	ui32 skillLimit; //how many secondary skills can hero learn
 	std::string name;
 	float aggression;
 	int initialAttack, initialDefence, initialPower, initialKnowledge;
@@ -34,6 +35,9 @@ public:
 	int selectionProbability[9]; //probability of selection in towns
 	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterrain, lava, water, rock; -1 means terrain is imapassable
 	CDefHandler * moveAnim; //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
+	int chooseSecSkill(std::set<int> possibles); //picks secondary skill out from given possibilities
+	CHeroClass();
+	~CHeroClass();
 };
 
 class DLL_EXPORT CHeroHandler

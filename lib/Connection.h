@@ -6,13 +6,13 @@
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
+#include <boost/type_traits/is_pointer.hpp> 
+#include  <boost/type_traits/remove_pointer.hpp>
 
 #include <boost/mpl/eval_if.hpp>
 #include <boost/mpl/equal_to.hpp>
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
-
-#include <boost/thread.hpp>
 
 const int version = 63;
 class CConnection;
@@ -44,6 +44,7 @@ enum SerializationLvl
 {
 	Wrong=0,
 	Primitive,
+	Pointer,
 	Serializable
 };
 
@@ -65,10 +66,15 @@ struct SerializationLevel
 			mpl::int_<Primitive>,
 		//else
 		typename mpl::eval_if<
+			boost::is_pointer<T>,
+			mpl::int_<Pointer>,
+		//else
+		typename mpl::eval_if<
 			boost::is_enum<T>,
 			mpl::int_<Primitive>,
 		//else
 			mpl::int_<Wrong>
+		>
 		>
 		>
 		>
@@ -79,7 +85,8 @@ struct SerializationLevel
 template <typename Serializer> class DLL_EXPORT COSer
 {
 public:
-	COSer(){};
+	bool saving;
+	COSer(){saving=true;};
     Serializer * This()
 	{
 		return static_cast<Serializer*>(this);
@@ -100,7 +107,8 @@ public:
 template <typename Serializer> class DLL_EXPORT CISer
 {
 public:
-	CISer(){};
+	bool saving;
+	CISer(){saving = false;};
     Serializer * This()
 	{
 		return static_cast<Serializer*>(this);
@@ -141,6 +149,22 @@ struct LoadPrimitive
 	static void invoke(Ser &s, T &data)
 	{
 		s.loadPrimitive(data);
+	}
+};
+template<typename Ser,typename T>
+struct SavePointer
+{
+	static void invoke(Ser &s, const T &data)
+	{
+		s.savePointer(data);
+	}
+};
+template<typename Ser,typename T>
+struct LoadPointer
+{
+	static void invoke(Ser &s, T &data)
+	{
+		s.loadPointer(data);
 	}
 };
 template<typename Ser,typename T>
@@ -203,8 +227,20 @@ public:
 	void loadSerializable(T &data)
 	{
 		data.serialize(*static_cast<CISer<CConnection>*>(this),version);
+	}	
+	template <typename T>
+	void savePointer(const T &data)
+	{
+		*this << *data;
 	}
-	
+	template <typename T>
+	void loadPointer(T &data)
+	{
+		std::cout<<"Allocating memory for pointer!"<<std::endl;
+		typedef boost::remove_pointer<T>::type npT;
+		data = new npT;
+		*this >> *data;
+	}
 	template <typename T>
 	void saveSerializable(const std::vector<T> &data)
 	{
@@ -283,10 +319,14 @@ public:
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 				mpl::identity<SavePrimitive<CConnection,T> >,
 			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
+				mpl::identity<SavePointer<CConnection,T> >,
+			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
 				mpl::identity<SaveSerializable<CConnection,T> >,
 			//else
 				mpl::identity<SaveWrong<CConnection,T> >
+			>
 			>
 			>::type typex;
 		typex::invoke(*this, data);
@@ -300,10 +340,14 @@ public:
 			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
 				mpl::identity<LoadPrimitive<CConnection,T> >,
 			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
+				mpl::identity<LoadPointer<CConnection,T> >,
+			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
 				mpl::identity<LoadSerializable<CConnection,T> >,
 			//else
 				mpl::identity<LoadWrong<CConnection,T> >
+			>
 			>
 			>::type typex;
 		typex::invoke(*this, data);
@@ -330,9 +374,9 @@ public:
 	~CConnection(void);
 };
 
-template<> 
+template<> DLL_EXPORT 
 void CConnection::saveSerializable<std::string>(const std::string &data);
-template <>
+template <>DLL_EXPORT 
 void CConnection::loadSerializable<std::string>(std::string &data);
 
 

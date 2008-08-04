@@ -15,6 +15,7 @@ class CGameState;
 struct lua_State;
 struct MetaString;
 struct InfoWindow;
+struct ShowInInfobox;
 class CScriptCallback
 {
 	CScriptCallback(void);
@@ -35,16 +36,16 @@ public:
 	void setBlockVis(int objid, bool bv);
 	void setOwner(int objid, ui8 owner);
 	void setHoverName(int objid, MetaString * name);
-	void changePrimSkill(int ID, int which, int val);
+	void changePrimSkill(int ID, int which, int val, bool abs=false);
 	void showInfoDialog(InfoWindow *iw);
 	void showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker);
 	void giveResource(int player, int which, int val);
-	void showCompInfo(int player, SComponent * comp);
+	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);
 	void stopHeroVisitCastle(int obj, int heroID);
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack
 	void startBattle(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //use hero=NULL for no hero
-	void startBattle(int heroID, CCreatureSet * army, int3 tile); //for hero<=>neutral army
+	void startBattle(int heroID, CCreatureSet army, int3 tile); //for hero<=>neutral army
 
 	//friends
 	friend class CGameHandler;

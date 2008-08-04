@@ -33,6 +33,7 @@
 #include "client/Graphics.h"
 #include "map.h"
 #include "lib/NetPacks.h"
+#include "lib/CondSh.h"
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
@@ -564,7 +565,10 @@ SComponent::SComponent(Etype Type, int Subtype, int Val)
 
 SComponent::SComponent(const Component &c)
 {
-	init((Etype)c.id,c.subtype,c.val);
+	if(c.id==0 && c.subtype==4)
+		init(experience,0,c.val);
+	else
+		init((Etype)c.id,c.subtype,c.val);
 	switch(c.id)
 	{
 	case resource:
@@ -1142,6 +1146,7 @@ int getDir(int3 src, int3 dst)
 }
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	//initializing objects and performing first step of move
 	CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
@@ -1487,7 +1492,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		//CGI->screenh->updateScreen();
 
 		++LOCPLINT->adventureInt->animValHitCount; //for animations
-		if(LOCPLINT->adventureInt->animValHitCount == 4)
+		if(LOCPLINT->adventureInt->animValHitCount == 8)
 		{
 			LOCPLINT->adventureInt->animValHitCount = 0;
 			++LOCPLINT->adventureInt->anim;
@@ -1946,8 +1951,9 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 	}
 }
 
-void CPlayerInterface::battleStart(CCreatureSet * army1, CCreatureSet * army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, tribool side) //called by engine when battle starts; side=0 - left, side=1 - right
+void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) //called by engine when battle starts; side=0 - left, side=1 - right
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	curint->deactivate();
 	curint = new CBattleInterface(army1,army2,hero1,hero2);
 	curint->activate();
@@ -1974,45 +1980,27 @@ void CPlayerInterface::actionFinished(BattleAction action)//occurs AFTER every a
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
-	unsigned char showCount = 0;
-	dynamic_cast<CBattleInterface*>(curint)->stackActivated(stackID);
-	while(!dynamic_cast<CBattleInterface*>(curint)->givenCommand) //while current unit can perform an action
+	CBattleInterface *b = dynamic_cast<CBattleInterface*>(curint);
 	{
-		++showCount;
-		SDL_Event sEvent;
-		while (SDL_PollEvent(&sEvent))  //wait for event...
-		{
-			LOCPLINT->handleEvent(&sEvent);
-		}
-		if(showCount%2==0)
-			for(int i=0;i<objsToBlit.size();i++)
-				objsToBlit[i]->show();
-		//SDL_Flip(screen);
-		CSDL_Ext::update(screen);
-
-		/*timeHandler th;
-		th.getDif();
-		int tv = th.getDif();
-		for (int i=0;i<((CBattleInterface*)this->curint)->timeinterested.size();i++)
-		{
-			if (timeinterested[i]->toNextTick>=0)
-				timeinterested[i]->toNextTick-=tv;
-			if (timeinterested[i]->toNextTick<0)
-				timeinterested[i]->tick();
-		}*/
-
-		SDL_Delay(1); //give time for other apps
-		SDL_framerateDelay(mainFPSmng);
+		boost::unique_lock<boost::mutex> un(*pim);
+		b->stackActivated(stackID);
 	}
-	BattleAction ret = *(dynamic_cast<CBattleInterface*>(curint)->givenCommand);
-	delete dynamic_cast<CBattleInterface*>(curint)->givenCommand;
-	dynamic_cast<CBattleInterface*>(curint)->givenCommand = NULL;
-	dynamic_cast<CBattleInterface*>(curint)->myTurn = false;
+	//wait till BattleInterface sets its command
+	boost::unique_lock<boost::mutex> lock(b->givenCommand->mx);
+	while(!b->givenCommand->data)
+		b->givenCommand->cond.wait(lock);
+
+	//tidy up
+	BattleAction ret = *(b->givenCommand->data);
+	delete b->givenCommand->data;
+
+	//return command
 	return ret;
 }
 
-void CPlayerInterface::battleEnd(CCreatureSet * army1, CCreatureSet * army2, CArmedInstance *hero1, CArmedInstance *hero2, std::vector<int> capturedArtifacts, int expForWinner, bool winner)
+void CPlayerInterface::battleEnd(BattleResult *br)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	dynamic_cast<CBattleInterface*>(curint)->deactivate();
 	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),dynamic_cast<IShowable*>(curint)));
 	delete dynamic_cast<CBattleInterface*>(curint);
@@ -2047,6 +2035,7 @@ void CPlayerInterface::battleStackIsShooting(int ID, int dest)
 
 void CPlayerInterface::showComp(SComponent comp)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 

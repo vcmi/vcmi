@@ -17,13 +17,35 @@
 #include "../hch/CHeroHandler.h"
 #include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
 #include "../lib/VCMI_Lib.h"
-#include <boost/thread.hpp>
+#include "../lib/CondSh.h"
 #include <boost/thread/xtime.hpp>
 extern bool end2;
-bool makingTurn;
+#include "../lib/BattleAction.h"
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+#define NEW_ROUND 		BattleNextRound bnr;\
+		bnr.round = gs->curB->round + 1;\
+		sendAndApply(&bnr);
 boost::condition_variable cTurn;
 boost::mutex mTurn;
 boost::shared_mutex gsm;
+
+
+CondSh<bool> battleMadeAction;
+CondSh<BattleResult *> battleResult(NULL);
+
+class CMP_stack
+{
+public:
+	bool operator ()(const CStack* a, const CStack* b)
+	{
+		return (a->creature->speed)>(b->creature->speed);
+	}
+} cmpst ;
 
 double distance(int3 a, int3 b)
 {
@@ -51,6 +73,268 @@ void CGameHandler::handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObj
 	cppscripts.insert(script);
 }
 
+void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
+{
+	SetPrimSkill sps;
+	sps.id = ID;
+	sps.which = which;
+	sps.abs = abs;
+	sps.val = val;
+	sendAndApply(&sps);
+	if(which==4)
+	{
+		CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID]);
+		if(hero->exp >= VLC->heroh->reqExp(hero->level+1)) //new level
+		{
+			//hero->level++;
+
+			//give prim skill
+			std::cout << hero->name <<" got level "<<hero->level<<std::endl;
+			int r = rand()%100, pom=0, x=0;
+			int std::pair<int,int>::*g  =  (hero->level>9) ? (&std::pair<int,int>::second) : (&std::pair<int,int>::first);
+			for(;x<PRIMARY_SKILLS;x++)
+			{
+				pom += hero->type->heroClass->primChance[x].*g;
+				if(r<pom)
+					break;
+			}
+			std::cout << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
+			SetPrimSkill sps;
+			sps.id = ID;
+			sps.which = x;
+			sps.abs = false;
+			sps.val = 1;
+			sendAndApply(&sps);
+			hero->primSkills[x]++;
+
+			std::set<ui16> choice;
+
+			std::set<int> basicAndAdv, expert, none;
+			for(int i=0;i<SKILL_QUANTITY;i++) none.insert(i);
+			for(unsigned i=0;i<hero->secSkills.size();i++)
+			{
+				if(hero->secSkills[i].second < 2)
+					basicAndAdv.insert(hero->secSkills[i].first);
+				else
+					expert.insert(hero->secSkills[i].first);
+				none.erase(hero->secSkills[i].first);
+			}
+			if(hero->secSkills.size() < hero->type->heroClass->skillLimit) //free skill slot
+			{
+				choice.insert(hero->type->heroClass->chooseSecSkill(none)); //new skill
+			}
+			else
+			{
+				int s = hero->type->heroClass->chooseSecSkill(basicAndAdv);
+				choice.insert(s);
+				basicAndAdv.erase(s);
+			}
+			if(basicAndAdv.size())
+			{
+				choice.insert(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //new skill
+			}
+			else if(hero->secSkills.size() < hero->type->heroClass->skillLimit)
+			{
+				choice.insert(hero->type->heroClass->chooseSecSkill(none)); //new skill
+			}
+
+		}
+		//TODO - powiadomic interfejsy, sprawdzic czy nie ma awansu itp
+	}
+}
+
+void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2)
+{
+
+	BattleInfo *curB = new BattleInfo;
+	//battle start
+	{
+		battleResult.set(NULL);
+		std::vector<CStack*> & stacks = (curB->stacks);
+
+		curB->army1=army1;
+		curB->army2=army2;
+		curB->hero1=(hero1)?(hero1->id):(-1);
+		curB->hero2=(hero1)?(hero1->id):(-1);
+		curB->side1=(hero1)?(hero1->tempOwner):(-1);
+		curB->side2=(hero2)?(hero2->tempOwner):(-1);
+		curB->round = -2;
+		curB->activeStack = -1;
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
+		{
+			stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true));
+			stacks[stacks.size()-1]->ID = stacks.size()-1;
+		}
+		//initialization of positions
+		switch(army1.slots.size()) //for attacker
+		{
+		case 0:
+			break;
+		case 1:
+			stacks[0]->position = 86; //6
+			break;
+		case 2:
+			stacks[0]->position = 35; //3
+			stacks[1]->position = 137; //9
+			break;
+		case 3:
+			stacks[0]->position = 35; //3
+			stacks[1]->position = 86; //6
+			stacks[2]->position = 137; //9
+			break;
+		case 4:
+			stacks[0]->position = 1; //1
+			stacks[1]->position = 69; //5
+			stacks[2]->position = 103; //7
+			stacks[3]->position = 171; //11
+			break;
+		case 5:
+			stacks[0]->position = 1; //1
+			stacks[1]->position = 35; //3
+			stacks[2]->position = 86; //6
+			stacks[3]->position = 137; //9
+			stacks[4]->position = 171; //11
+			break;
+		case 6:
+			stacks[0]->position = 1; //1
+			stacks[1]->position = 35; //3
+			stacks[2]->position = 69; //5
+			stacks[3]->position = 103; //7
+			stacks[4]->position = 137; //9
+			stacks[5]->position = 171; //11
+			break;
+		case 7:
+			stacks[0]->position = 1; //1
+			stacks[1]->position = 35; //3
+			stacks[2]->position = 69; //5
+			stacks[3]->position = 86; //6
+			stacks[4]->position = 103; //7
+			stacks[5]->position = 137; //9
+			stacks[6]->position = 171; //11
+			break;
+		default: //fault
+			break;
+		}
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army2.slots.begin(); i!=army2.slots.end(); i++)
+			stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero2 ? hero2->tempOwner : 255, stacks.size(), false));
+		switch(army2.slots.size()) //for defender
+		{
+		case 0:
+			break;
+		case 1:
+			stacks[0+army1.slots.size()]->position = 100; //6
+			break;
+		case 2:
+			stacks[0+army1.slots.size()]->position = 49; //3
+			stacks[1+army1.slots.size()]->position = 151; //9
+			break;
+		case 3:
+			stacks[0+army1.slots.size()]->position = 49; //3
+			stacks[1+army1.slots.size()]->position = 100; //6
+			stacks[2+army1.slots.size()]->position = 151; //9
+			break;
+		case 4:
+			stacks[0+army1.slots.size()]->position = 15; //1
+			stacks[1+army1.slots.size()]->position = 83; //5
+			stacks[2+army1.slots.size()]->position = 117; //7
+			stacks[3+army1.slots.size()]->position = 185; //11
+			break;
+		case 5:
+			stacks[0+army1.slots.size()]->position = 15; //1
+			stacks[1+army1.slots.size()]->position = 49; //3
+			stacks[2+army1.slots.size()]->position = 100; //6
+			stacks[3+army1.slots.size()]->position = 151; //9
+			stacks[4+army1.slots.size()]->position = 185; //11
+			break;
+		case 6:
+			stacks[0+army1.slots.size()]->position = 15; //1
+			stacks[1+army1.slots.size()]->position = 49; //3
+			stacks[2+army1.slots.size()]->position = 83; //5
+			stacks[3+army1.slots.size()]->position = 117; //7
+			stacks[4+army1.slots.size()]->position = 151; //9
+			stacks[5+army1.slots.size()]->position = 185; //11
+			break;
+		case 7:
+			stacks[0+army1.slots.size()]->position = 15; //1
+			stacks[1+army1.slots.size()]->position = 49; //3
+			stacks[2+army1.slots.size()]->position = 83; //5
+			stacks[3+army1.slots.size()]->position = 100; //6
+			stacks[4+army1.slots.size()]->position = 117; //7
+			stacks[5+army1.slots.size()]->position = 151; //9
+			stacks[6+army1.slots.size()]->position = 185; //11
+			break;
+		default: //fault
+			break;
+		}
+		for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
+		{
+			if((stacks[g]->position%17)==1 && stacks[g]->creature->isDoubleWide())
+			{
+				stacks[g]->position += 1;
+			}
+			else if((stacks[g]->position%17)==15 && stacks[g]->creature->isDoubleWide())
+			{
+				stacks[g]->position -= 1;
+			}
+		}
+		std::stable_sort(stacks.begin(),stacks.end(),cmpst);
+
+		//block engaged players
+		if(hero1->tempOwner<PLAYER_LIMIT)
+			states[hero1->tempOwner] += 10;
+		if(hero2 && hero2->tempOwner<PLAYER_LIMIT)
+			states[hero2->tempOwner] += 10;
+
+		//send info about battles
+		BattleStart bs;
+		bs.info = curB;
+		sendAndApply(&bs);
+
+		NEW_ROUND;
+	}
+
+	//tactic round
+	{
+		NEW_ROUND;
+		if( (hero1 && hero1->getSecSkillLevel(19)>=0) || 
+			( hero2 && hero2->getSecSkillLevel(19)>=0)  )//someone has tactics
+		{
+			//TODO: tactic round (round -1)
+		}
+	}
+
+	//main loop
+	while(!battleResult.get()) //till the end of the battle ;]
+	{
+		NEW_ROUND;
+		std::vector<CStack*> & stacks = (gs->curB->stacks);
+		const BattleInfo & curB = *gs->curB;
+
+		//stack loop
+		for(unsigned i=0;i<stacks.size() && !battleResult.get();i++)
+		{
+			if(!stacks[i]->alive) continue;//indicates imposiibility of making action for this dead unit
+			BattleSetActiveStack sas;
+			sas.stack = i;
+			sendAndApply(&sas);
+
+			//wait for response about battle action
+
+			boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
+			while(!battleMadeAction.data)
+				battleMadeAction.cond.wait(lock);
+		}
+	}
+
+	//end battle, remove all info, free memory
+	sendAndApply(battleResult.data);
+	delete battleResult.data;
+	//for(int i=0;i<stacks.size();i++)
+	//	delete stacks[i];
+	//delete curB;
+	//curB = NULL;
+}
+
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
 	try
@@ -65,7 +349,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			case 100: //my interface ended its turn
 				{
 					mTurn.lock();
-					makingTurn = false;
+					states[gs->currentPlayer] = 0;
 					mTurn.unlock();
 					cTurn.notify_all();
 					break;
@@ -292,6 +576,47 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 
 					break;
 				}
+			case 3002:
+				{			
+					BattleAction ba;
+					c >> ba;
+					switch(ba.actionType)
+					{
+					case 2: //walk
+						{
+							//battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
+							break;
+						}
+					case 3: //defend
+						{
+							break;
+						}
+					case 4: //retreat/flee
+						{
+							//TODO: check if fleeing is possible (e.g. enemy may have Shackles of War)
+							//TODO: calculate casualties
+							//TODO: remove retreating hero from map and place it in recrutation list
+							BattleResult *br = new BattleResult;
+							br->result = 1;
+							battleResult.set(br);
+							break;
+						}
+					case 6: //walk or attack
+						{
+							//battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
+							//battleAttackCreatureStack(ba.stackNumber, ba.destinationTile);
+							break;
+						}
+					case 7: //shoot
+						{
+							//battleShootCreatureStack(ba.stackNumber, ba.destinationTile);
+							break;
+						}
+					}
+					battleMadeAction.setn(true);
+					//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy
+					break;
+				}
 			default:
 #ifndef __GNUC__
 				throw std::exception("Not supported client message!");
@@ -490,12 +815,12 @@ void CGameHandler::run()
 		for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
 		{
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0 || i->first>=PLAYER_LIMIT  ) continue; //players has not towns/castle - loser
-			makingTurn = true;
+			states[i->first] = 1;
 			gs->currentPlayer = i->first;
 			*connections[i->first] << ui16(100) << i->first;    
 			//wait till turn is done
 			boost::unique_lock<boost::mutex> lock(mTurn);
-			while(makingTurn && !end2)
+			while(states[i->first] && !end2)
 			{
 				boost::posix_time::time_duration p;
 				p= boost::posix_time::seconds(1);
@@ -503,7 +828,6 @@ void CGameHandler::run()
 				time.sec = static_cast<boost::xtime::xtime_sec_t>(p.total_seconds());
 				cTurn.timed_wait(lock,time);
 			}
-
 		}
 	}
 }

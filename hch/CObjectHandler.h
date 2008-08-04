@@ -84,7 +84,7 @@ public:
 					//		765
 	bool isStanding;
 	CHero * type;
-	int exp; //experience point
+	ui32 exp; //experience point
 	int level; //current level of hero
 	std::string name; //may be custom
 	std::string biography; //may be custom

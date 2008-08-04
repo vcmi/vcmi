@@ -22,6 +22,7 @@
 #include "CHeroWindow.h"
 #include "client/Graphics.h"
 #include "hch/CObjectHandler.h"
+#include <boost/thread.hpp>
 #include "map.h"
 #pragma warning (disable : 4355) 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
@@ -283,7 +284,9 @@ void CTerrainRect::clickLeft(tribool down)
 		if ( (currentPath->endPos()) == mp)
 		{ //move
 			CPath sended(*currentPath); //temporary path - engine will operate on it
+			LOCPLINT->pim->unlock();
 			mres = LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
+			LOCPLINT->pim->lock();
 			if(!mres)
 			{
 				delete currentPath;
