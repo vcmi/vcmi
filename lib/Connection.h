@@ -12,6 +12,8 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
 
+#include <boost/thread.hpp>
+
 const int version = 63;
 class CConnection;
 
@@ -190,30 +192,19 @@ public:
 		read(&data,sizeof(data));
 	}
 
+	
+	
 	template <typename T>
 	void saveSerializable(const T &data)
 	{
-		const_cast<T&>(data).serialize(*static_cast<COSer*>(this),version);
+		const_cast<T&>(data).serialize(*static_cast<COSer<CConnection>*>(this),version);
 	}
 	template <typename T>
 	void loadSerializable(T &data)
 	{
-		data.serialize(*static_cast<CISer*>(this),version);
+		data.serialize(*static_cast<CISer<CConnection>*>(this),version);
 	}
-	template <>
-	void saveSerializable<std::string>(const std::string &data)
-	{
-		*this << ui32(data.size());
-		write(data.c_str(),data.size());
-	}
-	template <>
-	void loadSerializable<std::string>(std::string &data)
-	{
-		ui32 l;
-		*this >> l;
-		data.resize(l);
-		read((void*)data.c_str(),l);
-	}
+	
 	template <typename T>
 	void saveSerializable(const std::vector<T> &data)
 	{
@@ -231,13 +222,14 @@ public:
 		for(ui32 i=0;i<length;i++)
 			*this >> data[i];
 	}
+	
 	template <typename T>
 	void saveSerializable(const std::set<T> &data)
 	{
 		std::set<T> &d = const_cast<std::set<T> &>(data);
 		boost::uint32_t length = d.size();
 		*this << length;
-		for(std::set<T>::iterator i=d.begin();i!=d.end();i++)
+		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
 	}
 	template <typename T>
@@ -252,6 +244,7 @@ public:
 			data.insert(ins);
 		}
 	}
+	
 	template <typename T1, typename T2>
 	void saveSerializable(const std::pair<T1,T2> &data)
 	{
@@ -262,11 +255,12 @@ public:
 	{
 		*this >> data.first >> data.second;
 	}
+	
 	template <typename T1, typename T2>
 	void saveSerializable(const std::map<T1,T2> &data)
 	{
 		*this << ui32(data.size());
-		for(std::map<T1,T2>::const_iterator i=data.begin();i!=data.end();i++)
+		for(typename std::map<T1,T2>::const_iterator i=data.begin();i!=data.end();i++)
 			*this << i->first << i->second;
 	}
 	template <typename T1, typename T2>
@@ -335,3 +329,10 @@ public:
 	int readLine(void * data, unsigned maxSize);
 	~CConnection(void);
 };
+
+template<> 
+void CConnection::saveSerializable<std::string>(const std::string &data);
+template <>
+void CConnection::loadSerializable<std::string>(std::string &data);
+
+

@@ -1,5 +1,6 @@
 #pragma once
 #include "../global.h"
+#include <boost/thread.hpp>
 struct StartInfo;
 class CGameState;
 class CGameInterface;

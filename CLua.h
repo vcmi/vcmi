@@ -1,5 +1,10 @@
 #pragma once
 #include "global.h"
+
+#ifndef _MSC_VER
+extern "C" {
+#endif
+
 //#include "lstate.h"
 
 #ifndef _MSC_VER
@@ -77,7 +82,7 @@ public:
 	void findFS(std::string fname);
 
 
-	friend CGameState;
+	friend class CGameState;
 };
 
 class CLuaObjectScript : public CLua, public CObjectScript

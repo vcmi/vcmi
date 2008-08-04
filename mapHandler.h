@@ -35,7 +35,7 @@ public:
 	int offset;
 	std::vector<T> inver;
 	PseudoV(){};
-	PseudoV(std::vector<T> &src, int offset, const T& fill)
+	PseudoV(std::vector<T> &src, int rest, int Offset, const T& fill)
 	{
 		inver.resize(Offset*2+rest);
 		offset=Offset;

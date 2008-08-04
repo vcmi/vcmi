@@ -79,7 +79,11 @@ std::vector<std::string> * CLuaHandler::searchForScripts(std::string fol)
 	std::vector<std::string> * ret = new std::vector<std::string> ();
 	boost::filesystem::path folder(fol);
 	if (!boost::filesystem::exists(folder))
+#ifndef __GNUC__
 		throw new std::exception("No such folder!");
+#else
+		throw new std::exception();
+#endif
 	boost::filesystem::directory_iterator end_itr;
 	for 
 	  (

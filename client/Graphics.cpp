@@ -21,7 +21,7 @@ SDL_Surface * Graphics::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface
 	char * buf = new char[10];
 	for (int i=from;i<to;i++)
 	{
-		itoa(curh->primSkills[i],buf,10);
+		SDL_itoa(curh->primSkills[i],buf,10);
 		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
 	}
 	delete[] buf;
@@ -38,11 +38,11 @@ SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 	for (std::map<si32,std::pair<ui32,si32> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
 	{
 		blitAt(graphics->smallImgs[(*i).second.first],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-		itoa((*i).second.second,buf,10);
+		SDL_itoa((*i).second.second,buf,10);
 		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
 	}
 	blitAt(graphics->portraitLarge[curh->portrait],11,12,ret);
-	itoa(curh->mana,buf,10);
+	SDL_itoa(curh->mana,buf,10);
 	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
 	delete[] buf;
 	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
@@ -62,14 +62,14 @@ SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 	blitAt(forts->ourImages[pom].bitmap,115,42,ret);
 	if((pom=curh->hallLevel())>=0)
 		blitAt(halls->ourImages[pom].bitmap,77,42,ret);
-	itoa(curh->dailyIncome(),buf,10);
+	SDL_itoa(curh->dailyIncome(),buf,10);
 	printAtMiddle(buf,167,70,GEORM,zwykly,ret);
 	for (std::map<si32,std::pair<ui32,si32> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
 	{
 		if(!i->second.first)
 			continue;
 		blitAt(graphics->smallImgs[(*i).second.first],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-		itoa((*i).second.second,buf,10);
+		SDL_itoa((*i).second.second,buf,10);
 		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
 	}
 
@@ -185,7 +185,7 @@ Graphics::Graphics()
 		tasks += GET_SURFACE(backgrounds[id],name);
 	}
 
-	CThreadHelper th(&tasks,max(1,boost::thread::hardware_concurrency()));
+	CThreadHelper th(&tasks,std::max((unsigned int)1,boost::thread::hardware_concurrency()));
 	th.run();
 
 	//handling 32x32px imgs
@@ -387,7 +387,11 @@ SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 	else if (ID==-3)
 		return smallIcons->ourImages[2+F_NUMBER*4].bitmap;
 	else if (ID>F_NUMBER || ID<-3)
+#ifndef __GNUC__
 		throw new std::exception("Invalid ID");
+#else
+		throw new std::exception();
+#endif
 	else
 	{
 		int pom = 3;

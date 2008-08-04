@@ -949,7 +949,7 @@ void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 			int z = gzgetc (tempf);
 			if (z>=0) 
 			{
-				sss[iii++] = unsigned char(z);
+				sss[iii++] = (unsigned char)z;
 			}
 			else break;
 		}
@@ -981,7 +981,7 @@ void MapSel::init()
 
 	int mapInd=0;
 	boost::thread_group group;
-	int cores = max(1,boost::thread::hardware_concurrency());
+	int cores = std::max((unsigned int)1,boost::thread::hardware_concurrency());
 	for(int ti=0;ti<cores;ti++)
 		group.create_thread(boost::bind(&MapSel::processMaps,this,boost::ref(pliczkiTemp),boost::ref(mapInd)));
 

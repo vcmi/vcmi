@@ -85,55 +85,55 @@ EDefType getDefType(CGDefInfo * a)
 	switch(a->id)
 	{
 	case 5: case 65: case 66: case 67: case 68: case 69:
-		return EDefType::ARTIFACT_DEF; //handled
+		return ARTIFACT_DEF; //handled
 	case 6:
-		return EDefType::PANDORA_DEF; //hanled
+		return PANDORA_DEF; //hanled
 	case 26:
-		return EDefType::EVENTOBJ_DEF; //handled
+		return EVENTOBJ_DEF; //handled
 	case 33:
-		return EDefType::GARRISON_DEF; //handled
+		return GARRISON_DEF; //handled
 	case 34: case 70: case 62: //70 - random hero //62 - prison
-		return EDefType::HERO_DEF; //handled
+		return HERO_DEF; //handled
 	case 36:
-		return EDefType::GRAIL_DEF; //hanled
+		return GRAIL_DEF; //hanled
 	case 53: case 17: case 18: case 19: case 20: case 42: case 87: case 220://cases 17 - 20 and 42 - tests
-		return EDefType::PLAYERONLY_DEF; //handled
+		return PLAYERONLY_DEF; //handled
 	case 54: case 71: case 72: case 73: case 74: case 75: case 162: case 163: case 164:
-		return EDefType::CREATURES_DEF; //handled
+		return CREATURES_DEF; //handled
 	case 59:
-		return EDefType::SIGN_DEF; //handled
+		return SIGN_DEF; //handled
 	case 77:
-		return EDefType::TOWN_DEF; //can be problematic, but handled
+		return TOWN_DEF; //can be problematic, but handled
 	case 79: case 76:
-		return EDefType::RESOURCE_DEF; //handled
+		return RESOURCE_DEF; //handled
 	case 81:
-		return EDefType::SCHOLAR_DEF; //handled
+		return SCHOLAR_DEF; //handled
 	case 83:
-		return EDefType::SEERHUT_DEF; //handled
+		return SEERHUT_DEF; //handled
 	case 91:
-		return EDefType::SIGN_DEF; //handled
+		return SIGN_DEF; //handled
 	case 88: case 89: case 90:
 		return SHRINE_DEF; //handled
 	case 93:
 		return SPELLSCROLL_DEF; //handled
 	case 98:
-		return EDefType::TOWN_DEF; //handled
+		return TOWN_DEF; //handled
 	case 113:
-		return EDefType::WITCHHUT_DEF; //handled
+		return WITCHHUT_DEF; //handled
 	case 214:
-		return EDefType::HEROPLACEHOLDER_DEF; //partially handled
+		return HEROPLACEHOLDER_DEF; //partially handled
 	case 215:
-		return EDefType::BORDERGUARD_DEF; //handled by analogy to seer huts ;]
+		return BORDERGUARD_DEF; //handled by analogy to seer huts ;]
 	case 216:
-		return EDefType::CREGEN2_DEF; //handled
+		return CREGEN2_DEF; //handled
 	case 217:
-		return EDefType::CREGEN_DEF; //handled
+		return CREGEN_DEF; //handled
 	case 218:
-		return EDefType::CREGEN3_DEF; //handled
+		return CREGEN3_DEF; //handled
 	case 219:
-		return EDefType::GARRISON_DEF; //handled
+		return GARRISON_DEF; //handled
 	default:
-		return EDefType::TERRAINOBJ_DEF; // nothing to be handled
+		return TERRAINOBJ_DEF; // nothing to be handled
 	}
 }
 int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = false)
@@ -1017,7 +1017,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 		int p = 99;
 		switch(getDefType(nobj->defInfo))
 		{
-		case EDefType::EVENTOBJ_DEF: //for event - objects
+		case EVENTOBJ_DEF: //for event - objects
 			{
 				CEventObjInfo * spec = new CEventObjInfo;
 				bool guardMess;
@@ -1091,7 +1091,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::HERO_DEF:
+		case HERO_DEF:
 			{
 				CGHeroInstance * nhi = new CGHeroInstance;
 				(*(static_cast<CGObjectInstance*>(nhi))) = *nobj;
@@ -1290,7 +1290,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SIGN_DEF:
+		case SIGN_DEF:
 			{
 				CSignObjInfo * spec = new CSignObjInfo;
 				int length = readNormalNr(bufor,i); i+=4;
@@ -1302,7 +1302,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SEERHUT_DEF:
+		case SEERHUT_DEF:
 			{
 				CSeerHutObjInfo * spec = new CSeerHutObjInfo;
 				if(version>RoE)
@@ -1599,7 +1599,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::WITCHHUT_DEF:
+		case WITCHHUT_DEF:
 			{
 				CWitchHutObjInfo * spec = new CWitchHutObjInfo;
 				if(version>RoE) //in reo we cannot specify it - all are allowed (I hope)
@@ -1629,7 +1629,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SCHOLAR_DEF:
+		case SCHOLAR_DEF:
 			{
 				CScholarObjInfo * spec = new CScholarObjInfo;
 				spec->bonusType = bufor[i]; ++i;
@@ -1652,7 +1652,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::GARRISON_DEF:
+		case GARRISON_DEF:
 			{
 				CGarrisonObjInfo * spec = new CGarrisonObjInfo;
 				spec->player = bufor[i]; ++i;
@@ -1669,7 +1669,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::ARTIFACT_DEF:
+		case ARTIFACT_DEF:
 			{
 				CArtifactObjInfo * spec = new CArtifactObjInfo;
 				bool areSettings = bufor[i]; ++i;
@@ -1693,7 +1693,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::RESOURCE_DEF:
+		case RESOURCE_DEF:
 			{
 				CResourceObjInfo * spec = new CResourceObjInfo;
 				bool isMessGuard = bufor[i]; ++i;
@@ -1720,7 +1720,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::TOWN_DEF:
+		case TOWN_DEF:
 			{
 				CGTownInstance * nt = new CGTownInstance();
 				(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
@@ -1864,7 +1864,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 					towns.push_back(nt);
 				break;
 			}
-		case EDefType::PLAYERONLY_DEF:
+		case PLAYERONLY_DEF:
 			{
 				CPlayerOnlyObjInfo * spec = new CPlayerOnlyObjInfo;
 				spec->player = bufor[i]; ++i;
@@ -1873,14 +1873,14 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SHRINE_DEF:
+		case SHRINE_DEF:
 			{
 				CShrineObjInfo * spec = new CShrineObjInfo;
 				spec->spell = bufor[i]; i+=4;
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::SPELLSCROLL_DEF:
+		case SPELLSCROLL_DEF:
 			{
 				CSpellScrollObjinfo * spec = new CSpellScrollObjinfo;
 				bool messg = bufor[i]; ++i;
@@ -1903,7 +1903,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::PANDORA_DEF:
+		case PANDORA_DEF:
 			{
 				CPandorasBoxObjInfo * spec = new CPandorasBoxObjInfo;
 				bool messg = bufor[i]; ++i;
@@ -1970,14 +1970,14 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				///////end of copied fragment
 				break;
 			}
-		case EDefType::GRAIL_DEF:
+		case GRAIL_DEF:
 			{
 				CGrailObjInfo * spec = new CGrailObjInfo;
 				spec->radius = readNormalNr(bufor,i); i+=4;
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::CREGEN_DEF:
+		case CREGEN_DEF:
 			{
 				CCreGenObjInfo * spec = new CCreGenObjInfo;
 				spec->player = readNormalNr(bufor,i); i+=4;
@@ -1996,7 +1996,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::CREGEN2_DEF:
+		case CREGEN2_DEF:
 			{
 				CCreGen2ObjInfo * spec = new CCreGen2ObjInfo;
 				spec->player = readNormalNr(bufor,i); i+=4;
@@ -2021,7 +2021,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::CREGEN3_DEF:
+		case CREGEN3_DEF:
 			{
 				CCreGen3ObjInfo * spec = new CCreGen3ObjInfo;
 				spec->player = bufor[i]; ++i;
@@ -2036,10 +2036,11 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				nobj->info = spec;
 				break;
 			}
-		case EDefType::BORDERGUARD_DEF:
+		case BORDERGUARD_DEF:
 			{
 				CBorderGuardObjInfo * spec = new CBorderGuardObjInfo;
 				spec->missionType = bufor[i]; ++i;
+				int len1, len2, len3;
 				switch(spec->missionType)
 				{
 				case 0:
@@ -2220,19 +2221,19 @@ void Mapa::initFromBytes(unsigned char * bufor)
 					}
 				}//internal switch end (seer huts)
 
-				int len1 = readNormalNr(bufor,i); i+=4;
+				len1 = readNormalNr(bufor,i); i+=4;
 				for(int ee=0; ee<len1; ++ee)
 				{
 					spec->firstVisitText += bufor[i]; ++i;
 				}
 
-				int len2 = readNormalNr(bufor,i); i+=4;
+				len2 = readNormalNr(bufor,i); i+=4;
 				for(int ee=0; ee<len2; ++ee)
 				{
 					spec->nextVisitText += bufor[i]; ++i;
 				}
 
-				int len3 = readNormalNr(bufor,i); i+=4;
+				len3 = readNormalNr(bufor,i); i+=4;
 				for(int ee=0; ee<len3; ++ee)
 				{
 					spec->completedText += bufor[i]; ++i;
@@ -2241,7 +2242,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 borderguardend:
 				break;
 			}
-		case EDefType::HEROPLACEHOLDER_DEF:
+		case HEROPLACEHOLDER_DEF:
 			{
 				i+=3; //TODO: handle it more properly
 				break;
@@ -2350,7 +2351,12 @@ Mapa::Mapa(std::string filename)
 CGHeroInstance * Mapa::getHero(int ID, int mode)
 {
 	if (mode != 0)
+#ifndef __GNUC__
 		throw new std::exception("gs->getHero: This mode is not supported!");
+#else
+		throw new std::exception();
+#endif
+
 	for(int i=0; i<heroes.size();i++)
 		if(heroes[i]->subID == ID)
 			return heroes[i];

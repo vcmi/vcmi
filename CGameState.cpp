@@ -460,7 +460,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
 	day = 0;
 	seed = Seed;
-	ran.seed((long)seed);
+	ran.seed((int32_t)seed);
 	scenarioOps = si;
 	this->map = map;
 

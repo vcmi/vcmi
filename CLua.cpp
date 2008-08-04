@@ -215,7 +215,11 @@ void CVisitableOPH::newObject(int objid)
 		pom = 5; 
 		break;
 	default:
+#ifndef __GNUC__
 		throw new std::exception("Unsupported ID in CVisitableOPH::hoverText");
+#else
+		throw new std::exception();
+#endif
 	}
 	hovername << std::pair<ui8,ui32>(3,os->ID) << " " << std::pair<ui8,ui32>(2,pom);
 	cb->setHoverName(objid,&hovername);
@@ -247,7 +251,11 @@ void CVisitableOPH::onHeroVisit(int objid, int heroID)
 	}
 	else
 	{
+#ifndef __GNUC__
 		throw new std::exception("Skrypt nie zainicjalizowal instancji tego obiektu. :(");
+#else
+		throw new std::exception();
+#endif
 	}
 };
 void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)

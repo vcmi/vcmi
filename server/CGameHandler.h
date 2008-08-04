@@ -1,9 +1,11 @@
 #pragma once
 #include "../global.h"
 #include <set>
+#include "../CGameState.h"
+#include "../lib/Connection.h"
 class CVCMIServer;
 class CGameState;
-class CConnection;
+//class CConnection;
 struct StartInfo;
 class CCPPObjectScript;
 class CScriptCallback;

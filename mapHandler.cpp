@@ -1101,7 +1101,11 @@ std::string CMapHandler::getDefName(int id, int subid)
 	CGDefInfo* temp = CGI->dobjinfo->gobjs[id][subid];
 	if(temp)
 		return temp->name;
+#ifndef __GNUC__
 	throw new std::exception("Def not found.");
+#else
+	throw new std::exception();
+#endif
 }
 
 bool CMapHandler::printObject(CGObjectInstance *obj)
@@ -1244,7 +1248,11 @@ unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool 
 		case 8:
 			return 11;
 		default:
+#ifndef __GNUC__
 			throw std::exception("Something very wrong1.");
+#else
+			throw std::exception();
+#endif
 		}
 	}
 	else //if(isMoving)
@@ -1268,7 +1276,11 @@ unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool 
 		case 8:
 			return 14;
 		default:
+#ifndef __GNUC__
 			throw std::exception("Something very wrong2.");
+#else
+			throw std::exception();
+#endif
 		}
 	}
 }

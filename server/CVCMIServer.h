@@ -27,6 +27,6 @@ public:
 	CVCMIServer();
 	~CVCMIServer();
 	void setUpConnection(CConnection *c, std::string mapname, si32 checksum);
-	void newGame(CConnection &c);
+	void newGame(CConnection *c);
 	void start();
 };

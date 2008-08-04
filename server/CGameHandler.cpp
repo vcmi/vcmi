@@ -17,7 +17,9 @@
 #include "../hch/CHeroHandler.h"
 #include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
 #include "../lib/VCMI_Lib.h"
-extern bool end;
+#include <boost/thread.hpp>
+#include <boost/thread/xtime.hpp>
+extern bool end2;
 bool makingTurn;
 boost::condition_variable cTurn;
 boost::mutex mTurn;
@@ -54,9 +56,10 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	try
 	{
 		ui16 pom;
-		while(!end)
+		while(!end2)
 		{
 			c >> pom;
+			bool blockvis = false;
 			switch(pom)
 			{
 			case 100: //my interface ended its turn
@@ -102,7 +105,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 
 					
 					//check if there is blocking visitable object
-					bool blockvis = false;
+					blockvis = false;
 					tmh.movePoints = h->movement = (h->movement-cost); //take move points
 					BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 					{
@@ -290,7 +293,11 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					break;
 				}
 			default:
+#ifndef __GNUC__
 				throw std::exception("Not supported client message!");
+#else
+				throw std::exception();
+#endif
 				break;
 			}
 		}
@@ -298,17 +305,17 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	catch (const std::exception& e)
 	{
 		std::cerr << e.what() << std::endl;
-		end = true;
+		end2 = true;
 	}
 	catch (const std::exception * e)
 	{
 		std::cerr << e->what()<< std::endl;	
-		end = true;
+		end2 = true;
 		delete e;
 	}
 	catch(...)
 	{
-		end = true;
+		end2 = true;
 	}
 }
 CGameHandler::CGameHandler(void)
@@ -358,7 +365,7 @@ int lowestSpeed(CGHeroInstance * chi)
 	int ret = VLC->creh->creatures[(*i++).second.first].speed;
 	for (;i!=chi->army.slots.end();i++)
 	{
-		ret = min(ret,VLC->creh->creatures[(*i).second.first].speed);
+		ret = std::min(ret,VLC->creh->creatures[(*i).second.first].speed);
 	}
 	return ret;
 }
@@ -477,7 +484,7 @@ void CGameHandler::run()
 		//	(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
 	}
 
-	while (!end)
+	while (!end2)
 	{
 		newTurn();
 		for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
@@ -488,11 +495,13 @@ void CGameHandler::run()
 			*connections[i->first] << ui16(100) << i->first;    
 			//wait till turn is done
 			boost::unique_lock<boost::mutex> lock(mTurn);
-			while(makingTurn && !end)
+			while(makingTurn && !end2)
 			{
 				boost::posix_time::time_duration p;
 				p= boost::posix_time::seconds(1);
-				cTurn.timed_wait(lock,p);
+				boost::xtime time={0,0};
+				time.sec = static_cast<boost::xtime::xtime_sec_t>(p.total_seconds());
+				cTurn.timed_wait(lock,time);
 			}
 
 		}

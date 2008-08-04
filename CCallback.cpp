@@ -68,7 +68,11 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 	if (pathType==0)
 		CPathfinder::convertPath(path,pathType);
 	if (pathType>1)
+#ifndef __GNUC__
 		throw std::exception("Unknown path format");
+#else
+		throw std::exception();
+#endif
 
 	CPath * ourPath = path; 
 	if(!ourPath)
@@ -115,7 +119,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount
 			if(	(   found  = (ID == t->town->basicCreatures[av->first])   ) //creature is available among basic cretures
 				|| (found  = (ID == t->town->upgradedCreatures[av->first]))			)//creature is available among upgraded cretures
 			{
-				amount = min(amount,av->second); //reduce recruited amount up to available amount
+				amount = std::min(amount,(int)av->second); //reduce recruited amount up to available amount
 				ser = av->first;
 				break;
 			}
@@ -562,7 +566,11 @@ CCreature CCallback::battleGetCreature(int number)
 		if(CGI->state->curB->stacks[h]->ID == number) //creature found
 			return *(CGI->state->curB->stacks[h]->creature);
 	}
+#ifndef __GNUC__
 	throw new std::exception("Cannot find the creature");
+#else
+	throw new std::exception();
+#endif
 }
 
 std::vector<int> CCallback::battleGetAvailableHexes(int ID)

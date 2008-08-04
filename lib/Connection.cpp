@@ -39,7 +39,7 @@ void CConnection::init()
 CConnection::CConnection(std::string host, std::string port, std::string Name, std::ostream & Out)
 :io_service(new asio::io_service), name(Name), out(Out)//, send(this), rec(this)
 {
-    system::error_code error = asio::error::host_not_found;
+	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
     tcp::resolver resolver(*io_service);
     tcp::resolver::iterator endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port));
@@ -58,7 +58,7 @@ CConnection::CConnection(
 CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > * acceptor, boost::asio::io_service *Io_service, std::string Name, std::ostream & Out)
 : out(Out), name(Name)//, send(this), rec(this)
 {
-    system::error_code error = asio::error::host_not_found;
+	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
 	acceptor->accept(*socket,error);
 	if (error){ delete socket;	throw "Can't establish connection :("; }
@@ -85,4 +85,20 @@ CConnection::~CConnection(void)
 	delete io_service;
 	delete wmx;
 	delete rmx;
+}
+
+template <>
+void CConnection::saveSerializable<std::string>(const std::string &data)
+{
+	*this << ui32(data.size());
+	write(data.c_str(),data.size());
+}
+
+template <>
+void CConnection::loadSerializable<std::string>(std::string &data)
+{
+	ui32 l;
+	*this >> l;
+	data.resize(l);
+	read((void*)data.c_str(),l);
 }

@@ -7,7 +7,7 @@
 #include <queue>
 #include <cmath>
 #include <boost/thread.hpp>
-#include "SDL_TTF.h"
+#include "SDL_ttf.h"
 #include "SDL_mixer.h"
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
@@ -36,7 +36,7 @@
 #include "hch/CAmbarCendamo.h"
 #include "hch/CGeneralTextHandler.h"
 #include "client/Graphics.h"
-#include "Client/Client.h"
+#include "client/Client.h"
 #include "lib/Connection.h"
 #include "lib/VCMI_Lib.h"
 std::string NAME = NAME_VER + std::string(" (client)");
@@ -46,7 +46,11 @@ extern SDL_Surface * CSDL_Ext::std32bppSurface;
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
+#ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
+#else
+int main(int argc, _TCHAR* argv[])
+#endif
 { 
 	std::cout.flags(ios::unitbuf);
 	std::cout << NAME << std::endl;
@@ -146,9 +150,9 @@ int _tmain(int argc, _TCHAR* argv[])
 		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
 		std::ofstream lll("client_log.txt");
-		CConnection c("localhost","3030",NAME,lll);
+		CConnection *c = new CConnection("localhost","3030",NAME,lll);
 		THC std::cout<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
-		CClient cl(&c,options);
+		CClient cl(c,options);
 		boost::thread t(boost::bind(&CClient::run,&cl));
 		SDL_Event ev;
 		while(1) //main SDL events loop

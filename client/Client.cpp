@@ -120,7 +120,11 @@ CClient::CClient(CConnection *con, StartInfo *si)
 
 	if(mapa->checksum != sum)
 	{
+#ifndef __GNUC__
 		throw std::exception("Wrong checksum");
+#else
+		throw std::exception();
+#endif
 		exit(-1);
 	}
 	std::cout << "\tUsing random seed: "<<seed << std::endl;
@@ -298,7 +302,11 @@ void CClient::process(int what)
 	case 9999:
 		break;
 	default:
+#ifndef __GNUC__
 		throw std::exception("Not supported server message!");
+#else
+		throw std::exception();
+#endif
 		break;
 	}
 }
@@ -314,3 +322,4 @@ void CClient::run()
 		}
 	} HANDLE_EXCEPTION
 }
+
