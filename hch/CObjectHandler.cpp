@@ -349,7 +349,7 @@ CGObjectInstance::~CGObjectInstance()
 }
 CGHeroInstance::CGHeroInstance()
 {
-	level = exp = -1;
+	portrait = level = exp = -1;
 	isStanding = true;
 	moveDir = 4;
 	mana = 0;

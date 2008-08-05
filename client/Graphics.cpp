@@ -36,8 +36,8 @@ SDL_Surface * Graphics::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface
 SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 {
 	char * buf = new char[10];
-	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	blueToPlayersAdv(hInfo,curh->tempOwner);
+	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
 	printAt(curh->name,75,15,GEOR13,zwykly,ret);
 	drawPrimarySkill(curh, ret);
@@ -53,7 +53,6 @@ SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 	delete[] buf;
 	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
 	blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
-	//SDL_SaveBMP(ret,"inf1.bmp");
 	return ret;
 }
 SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)

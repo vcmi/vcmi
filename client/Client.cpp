@@ -146,7 +146,9 @@ CClient::CClient(CConnection *con, StartInfo *si)
 		ui8 color = gs->scenarioOps->playerInfos[i].color;
 		CCallback *cb = new CCallback(gs,color,this);
 		if(!gs->scenarioOps->playerInfos[i].human)
+		{
 			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,"EmptyAI.dll"));
+		}
 		else 
 		{
 			gs->currentPlayer = color;
@@ -252,8 +254,7 @@ void CClient::process(int what)
 			{
 				for(std::set<int3>::iterator i=th->fowRevealed.begin(); i != th->fowRevealed.end(); i++)
 					playerint[player]->tileRevealed(*i);
-				//boost::function<void(int3)> tr = boost::bind(&CGameInterface::tileRevealed,playerint[player]);
-				//std::for_each(th->fowRevealed.begin(),th->fowRevealed.end(),tr);
+				//std::for_each(th->fowRevealed.begin(),th->fowRevealed.end(),boost::bind(&CGameInterface::tileRevealed,playerint[player],_1));
 			}
 
 			//notify interfacesabout move

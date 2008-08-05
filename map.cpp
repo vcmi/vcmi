@@ -1118,6 +1118,8 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				bool portrait=bufor[i]; ++i;
 				if (portrait)
 					i++; //TODO read portrait nr, save, open
+				else
+					nhi->portrait = nhi->subID;
 				
 				if(readChar(bufor,i))//true if hero has specified abilities
 				{

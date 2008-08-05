@@ -37,6 +37,21 @@ bool isItIn(const SDL_Rect * rect, int x, int y);
 namespace fs = boost::filesystem;
 namespace s = CSDL_Ext;
 
+HighButton::HighButton( SDL_Rect Pos, CDefHandler* Imgs, bool Sel, int id)
+{
+	type=0;
+	imgs=Imgs;
+	selectable=Sel;
+	selected=false;
+	state=0;
+	pos=Pos;
+	ID=id;
+	highlightable=false;
+};
+HighButton::HighButton()
+{
+	state=0;
+}
 void HighButton::show()
 {
 	blitAt(imgs->ourImages[state].bitmap,pos.x,pos.y);
@@ -51,8 +66,25 @@ void HighButton::press(bool down)
 	SDL_BlitSurface(imgs->ourImages[i].bitmap,NULL,screen,&pos);
 	updateRect(&pos);
 }
+Button::Button( SDL_Rect Pos, boost::function<void()> Fun,CDefHandler* Imgs, bool Sel, CGroup* gr, int id)
+	:HighButton(Pos,Imgs,Sel,id),ourGroup(gr),fun(Fun)
+{
+	type=1;
+};	
+Button::Button()
+{
+	ourGroup=NULL;type=1;
+};
 
-template <class T> void SetrButton<T>::press(bool down)
+SetrButton::SetrButton()
+{
+	type=1;
+	selectable=false;
+	selected=false;
+	state=0;
+	highlightable=false;
+}
+void SetrButton::press(bool down)
 {
 #ifndef __GNUC__
 	if (!down && state==1)
@@ -77,11 +109,11 @@ void HighButton::hover(bool on)
 	SDL_BlitSurface(imgs->ourImages[i].bitmap,NULL,screen,&pos);
 	updateRect(&pos);
 }
-template <class T> void Button<T>::hover(bool on)
+void Button::hover(bool on)
 {
 	HighButton::hover(on);
 }
-template <class T> void Button<T>::select(bool on)
+void Button::select(bool on)
 {
 	int i;
 	if (on) state=i=3;
@@ -96,11 +128,7 @@ template <class T> void Button<T>::select(bool on)
 	}
 }
 
-//void Slider::clickDown(int x, int y, bool bzgl=true);
-//void Slider::clickUp(int x, int y, bool bzgl=true);
-//void Slider::mMove(int x, int y, bool bzgl=true);
-
-template <> void Slider<CPreGame>::updateSlid()
+void Slider::updateSlid()
 {
 	float perc = ((float)whereAreWe)/((float)positionsAmnt-capacity);
 	float myh;
@@ -121,20 +149,19 @@ template <> void Slider<CPreGame>::updateSlid()
 	updateRect(&pos);
 }
 
-template<> void Slider<CPreGame>::moveDown()
+void Slider::moveDown()
 {
 	if (whereAreWe<positionsAmnt-capacity)
-		(CPG->*fun)(++whereAreWe);
+		fun(++whereAreWe);
 	updateSlid();
 }
-template<> void Slider<CPreGame>::moveUp()
+void Slider::moveUp()
 {
 	if (whereAreWe>0)
-		(CPG->*fun)(--whereAreWe);
+		fun(--whereAreWe);
 	updateSlid();
 }
-//void Slider::moveByOne(bool up);
-template<> Slider<CPreGame>::Slider(int x, int y, int h, int amnt, int cap, bool ver)
+Slider::Slider(int x, int y, int h, int amnt, int cap, bool ver)
 {
 	vertical=ver;
 	positionsAmnt = amnt;
@@ -142,26 +169,26 @@ template<> Slider<CPreGame>::Slider(int x, int y, int h, int amnt, int cap, bool
 	if (ver)
 	{
 		pos = genRect(h,16,x,y);
-		down = Button<void(Slider::*)()>(genRect(16,16,x,y+h-16),&Slider::moveDown,CDefHandler::giveDef("SCNRBDN.DEF"),false);
-		up = Button<void(Slider::*)()>(genRect(16,16,x,y),&Slider::moveUp,CDefHandler::giveDef("SCNRBUP.DEF"),false);
-		slider = Button<void(Slider::*)()>(genRect(16,16,x,y+16),NULL,CDefHandler::giveDef("SCNRBSL.DEF"),false);
+		down = Button(genRect(16,16,x,y+h-16),boost::bind(&Slider::moveDown,this),CDefHandler::giveDef("SCNRBDN.DEF"),false);
+		up = Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CDefHandler::giveDef("SCNRBUP.DEF"),false);
+		slider = Button(genRect(16,16,x,y+16),boost::function<void()>(),CDefHandler::giveDef("SCNRBSL.DEF"),false);
 	}
 	else
 	{
 		pos = genRect(16,h,x,y);
-		down = Button<void(Slider::*)()>(genRect(16,16,x+h-16,y),&Slider::moveDown,CDefHandler::giveDef("SCNRBRT.DEF"),false);
-		up = Button<void(Slider::*)()>(genRect(16,16,x,y),&Slider::moveUp,CDefHandler::giveDef("SCNRBLF.DEF"),false);
-		slider = Button<void(Slider::*)()>(genRect(16,16,x+16,y),NULL,CDefHandler::giveDef("SCNRBSL.DEF"),false);
+		down = Button(genRect(16,16,x+h-16,y),boost::bind(&Slider::moveDown,this),CDefHandler::giveDef("SCNRBRT.DEF"),false);
+		up = Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CDefHandler::giveDef("SCNRBLF.DEF"),false);
+		slider = Button(genRect(16,16,x+16,y),boost::function<void()>(),CDefHandler::giveDef("SCNRBSL.DEF"),false);
 	}
 	moving = false;
 	whereAreWe=0;
 }
-template<>void Slider<CPreGame>::deactivate()
+void Slider::deactivate()
 {
 	CPG->interested.erase(std::find(CPG->interested.begin(),CPG->interested.end(),this));
 }
 
-template<>void Slider<CPreGame>::activate()
+void Slider::activate()
 {
 	SDL_FillRect(screen,&pos,0);
 	up.show();
@@ -172,7 +199,7 @@ template<>void Slider<CPreGame>::activate()
 	CPG->interested.push_back(this);
 }
 
-template<>void Slider<CPreGame>::handleIt(SDL_Event sEvent)
+void Slider::handleIt(SDL_Event sEvent)
 {
 	if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_LEFT))
 	{
@@ -210,7 +237,7 @@ template<>void Slider<CPreGame>::handleIt(SDL_Event sEvent)
 			whereAreWe = pe*(positionsAmnt-capacity);
 			if (whereAreWe<0)whereAreWe=0;
 			updateSlid();
-			(CPG->*fun)(whereAreWe);
+			fun(whereAreWe);
 		}
 	}
 	else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_LEFT))
@@ -218,11 +245,11 @@ template<>void Slider<CPreGame>::handleIt(SDL_Event sEvent)
 
 		if ((down.state==1) && isItIn(&down.pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			(this->*down.fun)();
+			this->down.fun();
 		}
 		if ((up.state==1) && isItIn(&up.pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			(this->*up.fun)();
+			this->up.fun();
 		}
 		if (down.state==1) down.press(false);
 		if (up.state==1) up.press(false);
@@ -273,7 +300,7 @@ template<>void Slider<CPreGame>::handleIt(SDL_Event sEvent)
 				whereAreWe=ktory;
 				updateSlid();
 			}
-			(CPG->*fun)(whereAreWe);
+			fun(whereAreWe);
 		}
 	}
 
@@ -311,6 +338,31 @@ template<>void Slider<CPreGame>::handleIt(SDL_Event sEvent)
 		}
 
 	}*/
+}
+IntBut::IntBut()
+{
+	type=2;
+	fun=NULL;
+	highlightable=false;
+}
+void IntBut::set()
+{
+	*what=key;
+}
+void CPoinGroup::setYour(IntSelBut * your)
+{
+	*gdzie=your->key;
+};
+IntSelBut::IntSelBut( SDL_Rect Pos, boost::function<void()> Fun,CDefHandler* Imgs, bool Sel, CPoinGroup* gr, int My)
+	: Button(Pos,Fun,Imgs,Sel,gr),key(My)
+{
+	ourPoinGroup=gr;
+};
+void IntSelBut::select(bool on) 
+{
+	Button::select(on);
+	ourPoinGroup->setYour(this);
+	CPG->printRating();
 }
 /********************************************************************************************/
 void PreGameTab::show()
@@ -630,8 +682,8 @@ void Options::init()
 	rCastle = BitmapHandler::loadBitmap("HPSRAND0.bmp");
 	nHero = BitmapHandler::loadBitmap("HPSRAND6.bmp");
 	nCastle = BitmapHandler::loadBitmap("HPSRAND5.bmp");
-	turnLength = new Slider<>(57,557,195,11,1,false);
-	turnLength->fun=&CPreGame::setTurnLength;
+	turnLength = new Slider(57,557,195,11,1,false);
+	turnLength->fun=boost::bind(&CPreGame::setTurnLength,CPG,_1);
 
 	flags.push_back(CDefHandler::giveDef("AOFLGBR.DEF"));
 	flags.push_back(CDefHandler::giveDef("AOFLGBB.DEF"));
@@ -1047,7 +1099,7 @@ void MapSel::init()
 	loscon.key=_loscon;
 
 	nrplayer.poin=mapsize.poin=type.poin=name.poin=viccon.poin=loscon.poin=(int*)(&sortBy);
-	nrplayer.fun=mapsize.fun=type.fun=name.fun=viccon.fun=loscon.fun=&CPreGame::sortMaps;
+	nrplayer.fun=mapsize.fun=type.fun=name.fun=viccon.fun=loscon.fun=boost::bind(&CPreGame::sortMaps,CPG);
 
 	Dtypes = CDefHandler::giveDef("SCSELC.DEF");
 	Dvic = CDefHandler::giveDef("SCNRVICT.DEF");
@@ -1057,8 +1109,8 @@ void MapSel::init()
 	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
 	group.join_all();
 	std::sort(ourMaps.begin(),ourMaps.end(),mapSorter(_name));
-	slid = new Slider<>(375,92,480,ourMaps.size(),18,true);
-	slid->fun = &CPreGame::printMapsFrom;
+	slid = new Slider(375,92,480,ourMaps.size(),18,true);
+	slid->fun = boost::bind(&CPreGame::printMapsFrom,CPG,_1);
 }
 void MapSel::moveByOne(bool up)
 {
@@ -1083,9 +1135,9 @@ void MapSel::moveByOne(bool up)
 	select(help);
 	slid->updateSlid();
 }
-void MapSel::select(int which, bool updateMapsList)
+void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 {
-	bool dontSaveSettings = ((selected!=which) || (CPG->ret.playerInfos.size()==0));
+	bool dontSaveSettings = ((selected!=which) || (CPG->ret.playerInfos.size()==0) || forceSettingsUpdate);
 	selected = which;
 	CPG->ret.mapname = ourMaps[selected].filename;
 	if(updateMapsList)
@@ -1381,26 +1433,26 @@ void CPreGame::initScenSel()
 	SDL_SetColorKey(ourScenSel->randMap,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->randMap->format,0,255,255));
 	SDL_SetColorKey(ourScenSel->options,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->options->format,0,255,255));
 
-	ourScenSel->difficulty = new CPoinGroup<>();
+	ourScenSel->difficulty = new CPoinGroup();
 	ourScenSel->difficulty->type=1;
 	ourScenSel->selectedDiff=-77;
 	ourScenSel->difficulty->gdzie = &ourScenSel->selectedDiff;
-	ourScenSel->bEasy = IntSelBut<>(genRect(0,0,506,456),NULL,CDefHandler::giveDef("GSPBUT3.DEF"),true,ourScenSel->difficulty,0);
-	ourScenSel->bNormal = IntSelBut<>(genRect(0,0,538,456),NULL,CDefHandler::giveDef("GSPBUT4.DEF"),true,ourScenSel->difficulty,1);
-	ourScenSel->bHard = IntSelBut<>(genRect(0,0,570,456),NULL,CDefHandler::giveDef("GSPBUT5.DEF"),true,ourScenSel->difficulty,2);
-	ourScenSel->bExpert = IntSelBut<>(genRect(0,0,602,456),NULL,CDefHandler::giveDef("GSPBUT6.DEF"),true,ourScenSel->difficulty,3);
-	ourScenSel->bImpossible = IntSelBut<>(genRect(0,0,634,456),NULL,CDefHandler::giveDef("GSPBUT7.DEF"),true,ourScenSel->difficulty,4);
+	ourScenSel->bEasy = IntSelBut(genRect(0,0,506,456),NULL,CDefHandler::giveDef("GSPBUT3.DEF"),true,ourScenSel->difficulty,0);
+	ourScenSel->bNormal = IntSelBut(genRect(0,0,538,456),NULL,CDefHandler::giveDef("GSPBUT4.DEF"),true,ourScenSel->difficulty,1);
+	ourScenSel->bHard = IntSelBut(genRect(0,0,570,456),NULL,CDefHandler::giveDef("GSPBUT5.DEF"),true,ourScenSel->difficulty,2);
+	ourScenSel->bExpert = IntSelBut(genRect(0,0,602,456),NULL,CDefHandler::giveDef("GSPBUT6.DEF"),true,ourScenSel->difficulty,3);
+	ourScenSel->bImpossible = IntSelBut(genRect(0,0,634,456),NULL,CDefHandler::giveDef("GSPBUT7.DEF"),true,ourScenSel->difficulty,4);
 
-	ourScenSel->bBack = Button<>(genRect(0,0,584,535),&CPreGame::showNewMenu,CDefHandler::giveDef("SCNRBACK.DEF"));
-	ourScenSel->bBegin = Button<>(genRect(0,0,414,535),&CPreGame::begin,CDefHandler::giveDef("SCNRBEG.DEF"));
+	ourScenSel->bBack = Button(genRect(0,0,584,535),boost::bind(&CPreGame::showNewMenu,this),CDefHandler::giveDef("SCNRBACK.DEF"));
+	ourScenSel->bBegin = Button(genRect(0,0,414,535),boost::bind(&CPreGame::begin,this),CDefHandler::giveDef("SCNRBEG.DEF"));
+	ourScenSel->bScens = Button(genRect(0,0,414,81),boost::bind(&CPreGame::showScenList,this),CDefHandler::giveDef("GSPBUTT.DEF"));
 
-	ourScenSel->bScens = Button<>(genRect(0,0,414,81),&CPreGame::showScenList,CDefHandler::giveDef("GSPBUTT.DEF"));
 	for (int i=0; i<ourScenSel->bScens.imgs->ourImages.size(); i++)
 		CSDL_Ext::printAt(CGI->generaltexth->allTexts[500],25+i,2+i,GEOR13,zwykly,ourScenSel->bScens.imgs->ourImages[i].bitmap); //"Show Available Scenarios"
-	ourScenSel->bRandom = Button<>(genRect(0,0,414,105),&CPreGame::showScenList,CDefHandler::giveDef("GSPBUTT.DEF"));
+	ourScenSel->bRandom = Button(genRect(0,0,414,105),boost::bind(&CPreGame::showScenList,this),CDefHandler::giveDef("GSPBUTT.DEF"));
 	for (int i=0; i<ourScenSel->bRandom.imgs->ourImages.size(); i++)
 		CSDL_Ext::printAt(CGI->generaltexth->allTexts[740],25+i,2+i,GEOR13,zwykly,ourScenSel->bRandom.imgs->ourImages[i].bitmap);
-	ourScenSel->bOptions = Button<>(genRect(0,0,414,509),&CPreGame::showOptions,CDefHandler::giveDef("GSPBUTT.DEF"));
+	ourScenSel->bOptions = Button(genRect(0,0,414,509),boost::bind(&CPreGame::showOptions,this),CDefHandler::giveDef("GSPBUTT.DEF"));
 	for (int i=0; i<ourScenSel->bOptions.imgs->ourImages.size(); i++)
 		CSDL_Ext::printAt(CGI->generaltexth->allTexts[501],25+i,2+i,GEOR13,zwykly,ourScenSel->bOptions.imgs->ourImages[i].bitmap); //"Show Advanced Options"
 
@@ -1675,8 +1727,8 @@ void CPreGame::showAskBox (std::string data, void(*f1)(),void(*f2)())
 	(*btnspos)[0].y+=pos.y;
 	(*btnspos)[1].x+=pos.x;
 	(*btnspos)[1].y+=pos.y;
-	btns.push_back(new Button<>((*btnspos)[0],&CPreGame::quit,ok,false, NULL,2));
-	btns.push_back(new Button<>((*btnspos)[1],(&CPreGame::hideBox),cancel,false, NULL,2));
+	btns.push_back(new Button((*btnspos)[0],boost::bind(&CPreGame::quit,this),ok,false, NULL,2));
+	btns.push_back(new Button((*btnspos)[1],boost::bind(&CPreGame::hideBox,this),cancel,false, NULL,2));
 	delete cmh;
 	delete przyciski;
 	delete btnspos;
@@ -1728,7 +1780,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 			if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
 			{
 				btns[i]->press(true);
-				ourScenSel->pressed=(Button<>*)btns[i];
+				ourScenSel->pressed=(Button*)btns[i];
 			}
 		}
 		if ((currentTab==&ourScenSel->mapsel) && (sEvent.button.y>121) &&(sEvent.button.y<570)
@@ -1741,7 +1793,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 	}
 	else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_LEFT))
 	{
-		Button<> * prnr=ourScenSel->pressed;
+		Button * prnr=ourScenSel->pressed;
 		if (ourScenSel->pressed && ourScenSel->pressed->state==1)
 		{
 			ourScenSel->pressed->press(false);
@@ -1753,17 +1805,19 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 			{
 				if (btns[i]->selectable)
 					btns[i]->select(true);
-				if (btns[i]->type==1 && ((Button<>*)btns[i])->fun)
-					(this->*(((Button<>*)btns[i])->fun))();
+				if (btns[i]->type==1 && ((Button*)btns[i])->fun)
+					((Button*)btns[i])->fun();
 				int zz = btns.size();
 				if (i>=zz)
 					break;
 				if  (btns[i]==prnr && btns[i]->type==2)
 				{
-					((IntBut<> *)(btns[i]))->set();
+					((IntBut*)(btns[i]))->set();
 					ourScenSel->mapsel.slid->whereAreWe=0;
 					ourScenSel->mapsel.slid->updateSlid();
 					ourScenSel->mapsel.slid->positionsAmnt=ourScenSel->mapsel.countWL();
+					ourScenSel->mapsel.select(ourScenSel->mapsel.whichWL(0));
+					
 					ourScenSel->mapsel.printMaps(0);
 				}
 			}
@@ -1988,7 +2042,7 @@ StartInfo CPreGame::runLoop()
 					for (int i=0;i<btns.size(); i++)
 					{
 						if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
-							(this->*(((Button<>*)btns[i])->fun))();
+						((Button*)btns[i])->fun();
 						else
 						{
 							btns[i]->press(false);
@@ -2106,8 +2160,12 @@ void CPreGame::quitAskBox()
 }
 void CPreGame::sortMaps()
 {
-	std::sort(ourScenSel->mapsel.ourMaps.begin(),ourScenSel->mapsel.ourMaps.end(),mapSorter(ourScenSel->mapsel.sortBy));
-	ourScenSel->mapsel.select(0);
+	std::sort(ourScenSel->mapsel.ourMaps.begin(),ourScenSel->mapsel.ourMaps.end(),mapSorter(_name));
+	if(ourScenSel->mapsel.sortBy != _name)
+		std::stable_sort(ourScenSel->mapsel.ourMaps.begin(),ourScenSel->mapsel.ourMaps.end(),mapSorter(ourScenSel->mapsel.sortBy));
+	ourScenSel->mapsel.select(ourScenSel->mapsel.whichWL(0),false,true);
+	ourScenSel->mapsel.slid->whereAreWe=0;
+	ourScenSel->mapsel.slid->updateSlid();
 	printMapsFrom(0);
 }
 void CPreGame::setTurnLength(int on)
