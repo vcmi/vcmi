@@ -25,6 +25,7 @@ using namespace CSDL_Ext;
 
 CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 {
+	std::cout << "Opening "<<dllname/*<<" for player "<< cb->player*/<<std::endl;
 	dllname = "AI/"+dllname;
 	CGlobalAI * ret=NULL;
 	CGlobalAI*(*getAI)();

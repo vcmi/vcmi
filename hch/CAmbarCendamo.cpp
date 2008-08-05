@@ -1270,7 +1270,7 @@ void CAmbarCendamo::deh3m()
 				nhi->pos = nobj->pos;
 				nhi->type = spec->type;
 				nhi->army = spec->garrison;
-				nhi->portrait = -1; // TODO: przypisywac portret
+				nhi->portrait = nobj->subID; // TODO: przypisywac portret
 				nhi->artifWorn[8] = spec->artifWorn[8];
 				nhi->artifWorn[0] = spec->artifWorn[0];
 				nhi->artifacts = spec->artifacts;

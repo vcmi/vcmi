@@ -232,7 +232,7 @@ void CMapHandler::randomizeObject(CGObjectInstance *cur)
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
 		if(!h) {std::cout<<"Wrong random hero at "<<cur->pos<<std::endl; return;}
 		cur->ID = ran.first;
-		cur->subID = ran.second;
+		h->portrait = cur->subID = ran.second;
 		h->type = CGI->heroh->heroes[ran.second];
 		CGI->heroh->heroInstances.push_back(h);
 		CGI->objh->objInstances.erase(std::find(CGI->objh->objInstances.begin(),CGI->objh->objInstances.end(),h));
@@ -1432,6 +1432,7 @@ CGObjectInstance * CMapHandler::createObject(int id, int subid, int3 pos, int ow
 			nobj->artifWorn.resize(20);
 			nobj->artifacts.resize(20);
 			nobj->artifWorn[16] = &CGI->arth->artifacts[3];
+			nobj->portrait = subid;
 			nobj->primSkills.resize(4);
 			nobj->primSkills[0] = nobj->type->heroClass->initialAttack;
 			nobj->primSkills[1] = nobj->type->heroClass->initialDefence;

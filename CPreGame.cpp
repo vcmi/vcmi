@@ -1782,6 +1782,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 					ourScenSel->mapsel.slid->updateSlid();
 					ourScenSel->mapsel.slid->positionsAmnt=ourScenSel->mapsel.countWL();
 					ourScenSel->mapsel.select(ourScenSel->mapsel.whichWL(0));
+					
 					ourScenSel->mapsel.printMaps(0);
 				}
 			}
@@ -2127,6 +2128,8 @@ void CPreGame::sortMaps()
 	if(ourScenSel->mapsel.sortBy != _name)
 		std::stable_sort(ourScenSel->mapsel.ourMaps.begin(),ourScenSel->mapsel.ourMaps.end(),mapSorter(ourScenSel->mapsel.sortBy));
 	ourScenSel->mapsel.select(ourScenSel->mapsel.whichWL(0),false,true);
+	ourScenSel->mapsel.slid->whereAreWe=0;
+	ourScenSel->mapsel.slid->updateSlid();
 	printMapsFrom(0);
 }
 void CPreGame::setTurnLength(int on)
