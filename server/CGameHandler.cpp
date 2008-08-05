@@ -606,8 +606,8 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 							//	return false;
 
 							std::vector<int> path = gs->curB->getPath(curStack->position,ba.destinationTile,accessibility);
-
-							for(int v=path.size()-1; v>=0; --v)
+							int tilesToMove = std::max((int)path.size()-curStack->creature->speed, 0);
+							for(int v=path.size()-1; v>=tilesToMove; --v)
 							{
 								if(v!=0 || !stackAtEnd) //it's not the last step or the last tile is free
 								{

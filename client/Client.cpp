@@ -354,7 +354,18 @@ void CClient::process(int what)
 			*serv >> sas;
 			std::cout << "Active stack: " << sas.stack <<std::endl;
 			gs->apply(&sas);
-			boost::thread(boost::bind(&CClient::waitForMoveAndSend,this,gs->curB->getStack(sas.stack)->owner));
+			int owner = gs->curB->getStack(sas.stack)->owner;
+			if(owner >= PLAYER_LIMIT) //ugly workaround to skip neutral creatures - should be replaced with AI
+			{
+				BattleAction ba;
+				ba.stackNumber = sas.stack;
+				ba.actionType = 3;
+				*serv << ui16(3002) << ba;
+			}
+			else
+			{
+				boost::thread(boost::bind(&CClient::waitForMoveAndSend,this,owner));
+			}
 			break;
 		}
 	case 3003:

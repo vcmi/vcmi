@@ -129,6 +129,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility)
 				accessibility[stacks[g]->position+1] = false;
 		}
 	}
+	//TODO: obstacles
 }
 void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide) //send pointer to at least 187 allocated bytes
 {	
@@ -143,23 +144,22 @@ void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerS
 			accessibility[b] = false;
 		}
 	}
+
 	//removing accessibility for side hexes
 	for(int v=0; v<187; ++v)
 		if(atackerSide ? (v%17)==1 : (v%17)==15)
 			accessibility[v] = false;
 }
-
-std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
-{							
-	int predecessor[187]; //for getting the Path
+void BattleInfo::makeBFS(int start, bool*accessibility, int *predecessor, int *dists) //both pointers must point to the at least 187-elements int arrays
+{
+	//inits
 	for(int b=0; b<187; ++b)
 		predecessor[b] = -1;
-	//bfsing
-	int dists[187]; //calculated distances
+	for(int g=0; g<187; ++g)
+		dists[g] = 100000000;	
+	
 	std::queue<int> hexq; //bfs queue
 	hexq.push(start);
-	for(int g=0; g<187; ++g)
-		dists[g] = 100000000;
 	dists[hexq.front()] = 0;
 	int curNext = -1; //for bfs loop only (helper var)
 	while(!hexq.empty()) //bfs loop
@@ -167,50 +167,77 @@ std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
 		int curHex = hexq.front();
 		hexq.pop();
 		curNext = curHex - ( (curHex/17)%2 ? 18 : 17 );
-		if((curNext > 0) && (accessibility[curNext] || curNext==dest) && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
+		if((curNext > 0) && (accessibility[curNext]) && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex - ( (curHex/17)%2 ? 17 : 16 );
-		if((curNext > 0) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
+		if((curNext > 0) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex - 1;
-		if((curNext > 0) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
+		if((curNext > 0) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex + 1;
-		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
+		if((curNext < 187) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
-		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
+		if((curNext < 187) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
-		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
+		if((curNext < 187) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
 		{
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
 		}
 	}
+};
 
-	//following the Path
+std::vector<int> BattleInfo::getAccessibility(int stackID)
+{
+	std::vector<int> ret;
+	bool ac[187];
+	CStack *s = getStack(stackID);
+	if(s->creature->isDoubleWide())
+		getAccessibilityMapForTwoHex(ac,s->attackerOwned);
+	else
+		getAccessibilityMap(ac);
+
+	int pr[187], dist[187];
+	makeBFS(s->position,ac,pr,dist);
+	
+	for(int i=0;i<187;i++)
+		if(dist[i] <= s->creature->speed)
+			ret.push_back(i);
+
+	return ret;
+}
+std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
+{							
+	int predecessor[187]; //for getting the Path
+	int dist[187]; //calculated distances
+
+	makeBFS(start,accessibility,predecessor,dist);
+
+	//making the Path
 	std::vector<int> path;
 	int curElem = dest;
 	while(curElem != start)
@@ -895,225 +922,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		}
 	}
 }
-bool CGameState::battleMoveCreatureStack(int ID, int dest)
-{/*
-	//first checks
-	if(curB->stackActionPerformed) //because unit cannot be moved more than once
-		return false;
-
-	unsigned char owner = -1; //owner moved of unit
-	for(int g=0; g<curB->stacks.size(); ++g)
-	{
-		if(curB->stacks[g]->ID == ID)
-		{
-			owner = curB->stacks[g]->owner;
-			break;
-		}
-	}
-
-	bool stackAtEnd = false; //true if there is a stack at the end of the path (we should attack it)
-	int numberOfStackAtEnd = -1;
-	for(int g=0; g<curB->stacks.size(); ++g)
-	{
-		if(curB->stacks[g]->position == dest 
-			|| (curB->stacks[g]->creature->isDoubleWide() && curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == dest)
-			|| (curB->stacks[g]->creature->isDoubleWide() && !curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == dest))
-		{
-			if(curB->stacks[g]->alive)
-			{
-				stackAtEnd = true;
-				numberOfStackAtEnd = g;
-				break;
-			}
-		}
-	}
-
-	//selecting moved stack
-	CStack * curStack = NULL;
-	for(int y=0; y<curB->stacks.size(); ++y)
-	{
-		if(curB->stacks[y]->ID == ID)
-		{
-			curStack = curB->stacks[y];
-			break;
-		}
-	}
-	if(!curStack)
-		return false;
-	//initing necessary tables
-	bool accessibility[187]; //accesibility of hexes
-	for(int k=0; k<187; k++)
-		accessibility[k] = true;
-	for(int g=0; g<curB->stacks.size(); ++g)
-	{
-		if(curB->stacks[g]->ID != ID && curB->stacks[g]->alive) //we don't want to lock enemy's positions and this units' position
-		{
-			accessibility[curB->stacks[g]->position] = false;
-			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
-			{
-				if(curB->stacks[g]->attackerOwned)
-					accessibility[curB->stacks[g]->position-1] = false;
-				else
-					accessibility[curB->stacks[g]->position+1] = false;
-			}
-		}
-	}
-	accessibility[dest] = true;
-	if(curStack->creature->isDoubleWide()) //locking positions unreachable by two-hex creatures
-	{
-		bool mac[187];
-		for(int b=0; b<187; ++b)
-		{
-			//
-			//	&& (  ? (curStack->attackerOwned ? accessibility[curNext-1] : accessibility[curNext+1]) : true )
-			mac[b] = accessibility[b];
-			if( accessibility[b] && !(curStack->attackerOwned ? accessibility[b-1] : accessibility[b+1]))
-			{
-				mac[b] = false;
-			}
-		}
-		mac[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;
-		for(int v=0; v<187; ++v)
-			accessibility[v] = mac[v];
-		//removing accessibility for side hexes
-		for(int v=0; v<187; ++v)
-			if(curStack->attackerOwned ? (v%17)==1 : (v%17)==15)
-				accessibility[v] = false;
-	}
-	if(!stackAtEnd && !accessibility[dest])
-		return false;
-	int predecessor[187]; //for getting the Path
-	for(int b=0; b<187; ++b)
-		predecessor[b] = -1;
-	//bfsing
-	int dists[187]; //calculated distances
-	std::queue<int> hexq; //bfs queue
-	hexq.push(curStack->position);
-	for(int g=0; g<187; ++g)
-		dists[g] = 100000000;
-	dists[hexq.front()] = 0;
-	int curNext = -1; //for bfs loop only (helper var)
-	while(!hexq.empty()) //bfs loop
-	{
-		int curHex = hexq.front();
-		hexq.pop();
-		curNext = curHex - ( (curHex/17)%2 ? 18 : 17 );
-		if((curNext > 0) && (accessibility[curNext] || curNext==dest) && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex - ( (curHex/17)%2 ? 17 : 16 );
-		if((curNext > 0) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex - 1;
-		if((curNext > 0) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex + 1;
-		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
-		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
-		if((curNext < 187) && (accessibility[curNext] || curNext==dest)  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-	}
-	//following the Path
-	if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
-		return false;
-	std::vector<int> path;
-	int curElem = dest;
-	while(curElem!=curStack->position)
-	{
-		path.push_back(curElem);
-		curElem = predecessor[curElem];
-	}
-	for(int v=path.size()-1; v>=0; --v)
-	{
-		if(v!=0 || !stackAtEnd) //it's not the last step
-		{
-			LOCPLINT->battleStackMoved(ID, path[v], v==path.size()-1, v==0 || (stackAtEnd && v==1) );
-			curStack->position = path[v];
-		}
-		else //if it's last step and we should attack unit at the end
-		{
-			LOCPLINT->battleStackAttacking(ID, path[v]);
-			//counting dealt damage
-			int finalDmg = calculateDmg(curStack, curB->stacks[numberOfStackAtEnd]);
-
-			//applying damages
-			int cresKilled = finalDmg / curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
-			int damageFirst = finalDmg % curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
-
-			if( curB->stacks[numberOfStackAtEnd]->firstHPleft <= damageFirst )
-			{
-				curB->stacks[numberOfStackAtEnd]->amount -= 1;
-				curB->stacks[numberOfStackAtEnd]->firstHPleft += curB->stacks[numberOfStackAtEnd]->creature->hitPoints - damageFirst;
-			}
-			else
-			{
-				curB->stacks[numberOfStackAtEnd]->firstHPleft -= damageFirst;
-			}
-
-			int cresInstackBefore = curB->stacks[numberOfStackAtEnd]->amount; 
-			curB->stacks[numberOfStackAtEnd]->amount -= cresKilled;
-			if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
-			{
-				curB->stacks[numberOfStackAtEnd]->amount = 0;
-				LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore) , ID, false);
-				curB->stacks[numberOfStackAtEnd]->alive = false;
-			}
-			else
-			{
-				LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID, false);
-			}
-
-			//damage applied
-		}
-	}
-	curB->stackActionPerformed = true;
-	LOCPLINT->actionFinished(BattleAction());*/
-	return true;
-}
-
-bool CGameState::battleAttackCreatureStack(int ID, int dest)
-{
-	int attackedCreaure = -1; //-1 - there is no attacked creature
-	for(int b=0; b<curB->stacks.size(); ++b) //TODO: make upgrades for two-hex cres.
-	{
-		if(curB->stacks[b]->position == dest)
-		{
-			attackedCreaure = curB->stacks[b]->ID;
-			break;
-		}
-	}
-	if(attackedCreaure == -1)
-		return false;
-	//LOCPLINT->cb->
-	return true;
-}
 
 bool CGameState::battleShootCreatureStack(int ID, int dest)
 {/*
@@ -1236,130 +1044,6 @@ int CGameState::calculateDmg(const CStack* attacker, const CStack* defender)
 
 std::vector<int> CGameState::battleGetRange(int ID)
 {/*
-	int initialPlace=-1; //position of unit
-	int radius=-1; //range of unit
-	unsigned char owner = -1; //owner of unit
-	//selecting stack
-	CStack * curStack = NULL;
-	for(int y=0; y<curB->stacks.size(); ++y)
-	{
-		if(curB->stacks[y]->ID == ID)
-		{
-			curStack = curB->stacks[y];
-			break;
-		}
-	}
-
-	for(int g=0; g<curB->stacks.size(); ++g)
-	{
-		if(curB->stacks[g]->ID == ID)
-		{
-			initialPlace = curB->stacks[g]->position;
-			radius = curB->stacks[g]->creature->speed;
-			owner = curB->stacks[g]->owner;
-			break;
-		}
-	}
-
-	bool accessibility[187]; //accesibility of hexes
-	for(int k=0; k<187; k++)
-		accessibility[k] = true;
-	for(int g=0; g<curB->stacks.size(); ++g)
-	{
-		if(curB->stacks[g]->ID != ID && curB->stacks[g]->alive) //we don't want to lock current unit's position
-		{
-			accessibility[curB->stacks[g]->position] = false;
-			if(curB->stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
-			{
-				if(curB->stacks[g]->attackerOwned)
-					accessibility[curB->stacks[g]->position-1] = false;
-				else
-					accessibility[curB->stacks[g]->position+1] = false;
-			}
-		}
-	}
-
-	if(curStack->creature->isDoubleWide()) //locking positions unreachable by two-hex creatures
-	{
-		bool mac[187];
-		for(int b=0; b<187; ++b)
-		{
-			//
-			//	&& (  ? (curStack->attackerOwned ? accessibility[curNext-1] : accessibility[curNext+1]) : true )
-			mac[b] = accessibility[b];
-			if( accessibility[b] && !(curStack->attackerOwned ? accessibility[b-1] : accessibility[b+1]))
-			{
-				mac[b] = false;
-			}
-		}
-		mac[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;
-		for(int v=0; v<187; ++v)
-			accessibility[v] = mac[v];
-		//removing accessibility for side hexes
-		for(int v=0; v<187; ++v)
-			if(curStack->attackerOwned ? (v%17)==1 : (v%17)==15)
-				accessibility[v] = false;
-	}
-
-	int dists[187]; //calculated distances
-	std::queue<int> hexq; //bfs queue
-	hexq.push(initialPlace);
-	for(int g=0; g<187; ++g)
-		dists[g] = 100000000;
-	dists[initialPlace] = 0;
-	int curNext = -1; //for bfs loop only (helper var)
-	while(!hexq.empty()) //bfs loop
-	{
-		int curHex = hexq.front();
-		hexq.pop();
-		curNext = curHex - ( (curHex/17)%2 ? 18 : 17 );
-		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex - ( (curHex/17)%2 ? 17 : 16 );
-		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex - 1;
-		if((curNext > 0) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex + 1;
-		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
-		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
-		if((curNext < 187) && accessibility[curNext]  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-		}
-	}
-
-	std::vector<int> ret;
-
-	for(int i=0; i<187; ++i)
-	{
-		if(dists[i]<=radius)
-		{
-			ret.push_back(i);
-		}
-	}
-
 	std::vector<int> additionals;
 
 	//adding enemies' positions

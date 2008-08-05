@@ -67,7 +67,9 @@ struct DLL_EXPORT BattleInfo
 	CStack * getStackT(int tileID);
 	void getAccessibilityMap(bool *accessibility); //send pointer to at least 187 allocated bytes
 	void getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide); //send pointer to at least 187 allocated bytes
+	void makeBFS(int start, bool*accessibility, int *predecessor, int *dists); //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
 	std::vector<int> getPath(int start, int dest, bool*accessibility);
+	std::vector<int> getAccessibility(int stackID); //returns vector of accessible tiles (taking into account the creature range)
 };
 
 class DLL_EXPORT CStack

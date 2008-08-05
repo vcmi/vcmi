@@ -571,7 +571,8 @@ CCreature CCallback::battleGetCreature(int number)
 std::vector<int> CCallback::battleGetAvailableHexes(int ID)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->battleGetRange(ID);
+	return gs->curB->getAccessibility(ID);
+	//return gs->battleGetRange(ID);
 }
 
 bool CCallback::battleIsStackMine(int ID)
