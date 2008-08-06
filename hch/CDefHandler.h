@@ -1,32 +1,15 @@
 #ifndef CDEFHANDLER_H
 #define CDEFHANDLER_H
-
-#include "SDL.h"
-#include "CSemiDefHandler.h"
-
+#include "../client/CBitmapHandler.h"
+struct SDL_Surface;
 class CDefEssential;
+class CLodHandler;
 
-struct BMPHeader
+struct Cimage
 {
-	int fullSize, _h1, _h2, _h3, _c1, _c2, _c3, _c4, x, y,
-		dataSize1, dataSize2; //DataSize=X*Y+2*Y
-	unsigned char _c5[8];
-	void print(std::ostream & out);
-	BMPHeader(){_h1=_h2=0;for(int i=0;i<8;i++)_c5[i]=0;};
-};/*
-struct DEFHeader
-{
-	int type, width, height, groups;
-	unsigned char palette[767];
-};
-struct DEFGroup
-{
-	int ID, items, unknown1, unknown2;
-};*/
-
-struct BMPPalette
-{
-	unsigned char R,G,B,F;
+	int groupNumber;
+	std::string imName; //name without extension
+	SDL_Surface * bitmap;
 };
 
 class CDefHandler
@@ -49,6 +32,7 @@ private:
 
 
 public:
+	static CLodHandler * Spriteh;
 	std::string defName, curDir;
 	std::vector<Cimage> ourImages;
 	bool alphaTransformed;
@@ -62,8 +46,11 @@ public:
 	SDL_Surface * getSprite (int SIndex, unsigned char * FDef); //zapisuje klatke o zadanym numerze do "testtt.bmp"
 	void openDef(std::string name);
 	void expand(unsigned char N,unsigned char & BL, unsigned char & BR);
-	void openFromMemory(unsigned char * table, int size, std::string name);
+	void openFromMemory(unsigned char * table, std::string name);
 	CDefEssential * essentialize();
+
+	static CDefHandler * giveDef(std::string defName, CLodHandler * spriteh=NULL);
+	static CDefEssential * giveDefEss(std::string defName, CLodHandler * spriteh=NULL);
 };
 
 class CDefEssential //DefHandler with images only

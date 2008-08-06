@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "CAdvmapInterface.h"
-#include "hch/CLodHandler.h"
+#include "client/CBitmapHandler.h"
 #include "CPlayerInterface.h"
 #include "hch/CPreGameTextHandler.h"
 #include "hch/CGeneralTextHandler.h"
+#include "hch/CDefHandler.h"
 #include "hch/CTownHandler.h"
 #include "CPathfinder.h"
 #include "CGameInfo.h"
@@ -19,7 +20,11 @@
 #include <sstream>
 #include "AdventureMapButton.h"
 #include "CHeroWindow.h"
-#pragma warning (disable : 4355)
+#include "client/Graphics.h"
+#include "hch/CObjectHandler.h"
+#include <boost/thread.hpp>
+#include "map.h"
+#pragma warning (disable : 4355) 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
 using namespace boost::logic;
@@ -62,7 +67,7 @@ CMinimap::CMinimap(bool draw)
 	}
 	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));
 
-	//radar = CGI->spriteh->giveDef("RADAR.DEF");
+	//radar = CDefHandler::giveDef("RADAR.DEF");
 	std::ifstream is("config/minimap.txt",std::ifstream::in);
 	for (int i=0;i<TERRAIN_TYPES;i++)
 	{
@@ -112,11 +117,11 @@ void CMinimap::draw()
 		{
 			for (int jj=0; jj<ho; jj++)
 			{
-				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,CGI->playerColors[hh[i]->getOwner()].r,CGI->playerColors[hh[i]->getOwner()].g,CGI->playerColors[hh[i]->getOwner()].b);
+				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,graphics->playerColors[hh[i]->getOwner()].g,graphics->playerColors[hh[i]->getOwner()].b);
 			}
 		}
 	}
-	blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
+	//blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
 
 	//draw radar
 	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)CGI->mh->sizes.x)))*pos.w,
@@ -127,7 +132,7 @@ void CMinimap::draw()
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
-	(CGameInfo::mainObj);
+	(CGI);
 	for (int i=0; i<CGI->mh->sizes.z; i++)
 	{
 		SDL_Surface * pom ;
@@ -142,9 +147,9 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 			{
 				int mx=(CGI->mh->sizes.x*x)/pos.w;
 				int my=(CGI->mh->sizes.y*y)/pos.h;
-				if (CGI->mh->ttiles[mx][my][i].blocked && (!CGI->mh->ttiles[mx][my][i].visitable))
-					SDL_PutPixel(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].terType].b);
-				else SDL_PutPixel(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].terType].r,colors[CGI->mh->ttiles[mx][my][i].terType].g,colors[CGI->mh->ttiles[mx][my][i].terType].b);
+				if (CGI->mh->ttiles[mx][my][i].tileInfo->blocked && (!CGI->mh->ttiles[mx][my][i].tileInfo->visitable))
+					SDL_PutPixel(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
+				else SDL_PutPixel(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
 			}
 		}
 		map.push_back(pom);
@@ -212,17 +217,17 @@ void CMinimap::deactivate()
 }
 void CMinimap::showTile(int3 pos)
 {
-	int mw = map[0]->w, mh = map[0]->h;
-	double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
-	for (int ii=0; ii<wo; ii++)
-	{
-		for (int jj=0; jj<ho; jj++)
-		{
-			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
-				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
+	//int mw = map[0]->w, mh = map[0]->h;
+	//double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
+	//for (int ii=0; ii<wo; ii++)
+	//{
+	//	for (int jj=0; jj<ho; jj++)
+	//	{
+	//		if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
+	//			CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
 
-		}
-	}
+	//	}
+	//}
 }
 void CMinimap::hideTile(int3 pos)
 {
@@ -235,7 +240,7 @@ CTerrainRect::CTerrainRect():currentPath(NULL)
 	pos.y=6;
 	pos.w=593;
 	pos.h=547;
-	arrows = CGI->spriteh->giveDef("ADAG.DEF");
+	arrows = CDefHandler::giveDef("ADAG.DEF");
 	for(int y=0; y<arrows->ourImages.size(); ++y)
 	{
 		arrows->ourImages[y].bitmap = CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
@@ -259,7 +264,6 @@ void CTerrainRect::deactivate()
 };
 void CTerrainRect::clickLeft(tribool down)
 {
-	LOGE("Left mouse button down2");
 	if ((down==false) || indeterminate(down))
 		return;
 	if (LOCPLINT->adventureInt->selection.type != HEROI_TYPE)
@@ -280,7 +284,9 @@ void CTerrainRect::clickLeft(tribool down)
 		if ( (currentPath->endPos()) == mp)
 		{ //move
 			CPath sended(*currentPath); //temporary path - engine will operate on it
+			LOCPLINT->pim->unlock();
 			mres = LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
+			LOCPLINT->pim->lock();
 			if(!mres)
 			{
 				delete currentPath;
@@ -557,7 +563,7 @@ void CTerrainRect::show()
 	SDL_Surface * teren = CGI->mh->terrainRect
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
 		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
-		LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+		&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
 		screen,&genRect(547,594,7,6)
 		);
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
@@ -593,13 +599,9 @@ void CResDataBar::deactivate()
 }
 CResDataBar::CResDataBar()
 {
-	bg = CGI->bitmaph->loadBitmap("ZRESBAR.bmp");
+	bg = BitmapHandler::loadBitmap("ZRESBAR.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	//std::vector<SDL_Color> kolory;
-	//SDL_Color p1={40,65,139,255}, p2={36,59,125,255}, p3={35,56,121,255};
-	//kolory+=p1,p2,p3;
-	//blueToPlayersAdv(bg,LOCPLINT->playerID,2,&kolory);
-	blueToPlayersAdv(bg,LOCPLINT->playerID,2);
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,3,575);
 
 	txtpos  +=  (std::pair<int,int>(35,577)),(std::pair<int,int>(120,577)),(std::pair<int,int>(205,577)),
@@ -638,11 +640,11 @@ CInfoBar::CInfoBar()
 	pos.y=389;
 	pos.w=194;
 	pos.h=186;
-	day = CGI->spriteh->giveDef("NEWDAY.DEF");
-	week1 = CGI->spriteh->giveDef("NEWWEEK1.DEF");
-	week2 = CGI->spriteh->giveDef("NEWWEEK2.DEF");
-	week3 = CGI->spriteh->giveDef("NEWWEEK3.DEF");
-	week4 = CGI->spriteh->giveDef("NEWWEEK4.DEF");
+	day = CDefHandler::giveDef("NEWDAY.DEF");
+	week1 = CDefHandler::giveDef("NEWWEEK1.DEF");
+	week2 = CDefHandler::giveDef("NEWWEEK2.DEF");
+	week3 = CDefHandler::giveDef("NEWWEEK3.DEF");
+	week4 = CDefHandler::giveDef("NEWWEEK4.DEF");
 }
 CInfoBar::~CInfoBar()
 {
@@ -680,14 +682,14 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 
 	if(specific->ID == 34) //hero
 	{
-		if(LOCPLINT->heroWins.find(specific->subID)!=LOCPLINT->heroWins.end())
-			blitAt(LOCPLINT->heroWins[specific->subID],pos.x,pos.y);
+		if(graphics->heroWins.find(specific->subID)!=graphics->heroWins.end())
+			blitAt(graphics->heroWins[specific->subID],pos.x,pos.y);
 	}
 	else if (specific->ID == 98)
 	{
 		const CGTownInstance * t = static_cast<const CGTownInstance*>(specific);
-		if(LOCPLINT->townWins.find(t->identifier)!=LOCPLINT->townWins.end())
-			blitAt(LOCPLINT->townWins[t->identifier],pos.x,pos.y);
+		if(graphics->townWins.find(t->identifier)!=graphics->townWins.end())
+			blitAt(graphics->townWins[t->identifier],pos.x,pos.y);
 	}
 
 	//SDL_Surface * todr = LOCPLINT->infoWin(specific);
@@ -775,7 +777,7 @@ void CInfoBar::newDay(int Day)
 
 void CInfoBar::showComp(SComponent * comp, int time)
 {
-	SDL_Surface * b = CGI->bitmaph->loadBitmap("ADSTATOT.bmp");
+	SDL_Surface * b = BitmapHandler::loadBitmap("ADSTATOT.bmp");
 	blitAt(b,pos.x+8,pos.y+11);
 	blitAt(comp->getImg(),pos.x+52,pos.y+54);
 	printAtMiddle(comp->subtitle,pos.x+91,pos.y+158,GEOR13,zwykly);
@@ -849,8 +851,8 @@ townList(5,&genRect(192,48,747,196),747,196,747,372)
 {
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
 	LOCPLINT->adventureInt=this;
-	bg = CGI->bitmaph->loadBitmap("ADVMAP.bmp");
-	blueToPlayersAdv(bg,player);
+	bg = BitmapHandler::loadBitmap("ADVMAP.bmp");
+	graphics->blueToPlayersAdv(bg,player);
 	scrollingLeft = false;
 	scrollingRight  = false;
 	scrollingUp = false ;
@@ -868,10 +870,10 @@ townList(5,&genRect(192,48,747,196),747,196,747,372)
 
 	heroWindow = new CHeroWindow(this->player);
 
-	gems.push_back(CGI->spriteh->giveDef("agemLL.def"));
-	gems.push_back(CGI->spriteh->giveDef("agemLR.def"));
-	gems.push_back(CGI->spriteh->giveDef("agemUL.def"));
-	gems.push_back(CGI->spriteh->giveDef("agemUR.def"));
+	gems.push_back(CDefHandler::giveDef("agemLL.def"));
+	gems.push_back(CDefHandler::giveDef("agemLR.def"));
+	gems.push_back(CDefHandler::giveDef("agemUL.def"));
+	gems.push_back(CDefHandler::giveDef("agemUR.def"));
 }
 
 void CAdvMapInt::fshowOverview()
@@ -879,7 +881,7 @@ void CAdvMapInt::fshowOverview()
 }
 void CAdvMapInt::fswitchLevel()
 {
-	if(!CGI->ac->map.twoLevel)
+	if(!CGI->mh->map->twoLevel)
 		return;
 	if (position.z)
 	{

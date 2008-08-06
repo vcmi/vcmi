@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "CMessage.h"
 #include "SDL_ttf.h"
-#include "hch/CSemiDefHandler.h"
 #include "hch/CDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
@@ -10,12 +9,12 @@
 #include <boost/algorithm/string/replace.hpp>
 #include "CPlayerInterface.h"
 #include "hch/CDefHandler.h"
-#include "hch/CSemiDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include <sstream>
 #include "CLua.h"
 #include "hch/CGeneralTextHandler.h"
+#include "client/Graphics.h"
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 
@@ -51,7 +50,7 @@ void CMessage::init()
 	{
 		for (int i=0;i<PLAYER_LIMIT;i++)
 		{
-			CDefHandler * bluePieces = CGI->spriteh->giveDef("DIALGBOX.DEF");
+			CDefHandler * bluePieces = CDefHandler::giveDef("DIALGBOX.DEF");
 			std::vector<SDL_Surface *> n;
 			piecesOfBox.push_back(n);
 			if (i==1)
@@ -63,15 +62,15 @@ void CMessage::init()
 			}
 			for (int j=0;j<bluePieces->ourImages.size();j++)
 			{
-				CSDL_Ext::blueToPlayersAdv(bluePieces->ourImages[j].bitmap,i);
+				graphics->blueToPlayersAdv(bluePieces->ourImages[j].bitmap,i);
 				piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
 			}
 		}
-		NMessage::background = CGI->bitmaph->loadBitmap("DIBOXBCK.BMP");
+		NMessage::background = BitmapHandler::loadBitmap("DIBOXBCK.BMP");
 		SDL_SetColorKey(background,SDL_SRCCOLORKEY,SDL_MapRGB(background->format,0,255,255));
 	}
-	ok = CGI->spriteh->giveDef("IOKAY.DEF");
-	cancel = CGI->spriteh->giveDef("ICANCEL.DEF");
+	ok = CDefHandler::giveDef("IOKAY.DEF");
+	cancel = CDefHandler::giveDef("ICANCEL.DEF");
 }
 
 

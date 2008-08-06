@@ -7,6 +7,8 @@ class CConsoleHandler
 public:
 	void runConsole();
 
+	friend class CClient;
+
 #ifndef __GNUC__
 	friend int _tmain(int argc, _TCHAR* argv[]);
 #else

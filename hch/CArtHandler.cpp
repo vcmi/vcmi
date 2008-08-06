@@ -1,146 +1,47 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CArtHandler.h"
-#include "../CGameInfo.h"
-#include "CGeneralTextHandler.h"
 #include "CLodHandler.h"
-
+#include <boost/assign/std/vector.hpp>
+#include <boost/assign/list_of.hpp>
+#include "../lib/VCMI_Lib.h"
+void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
+extern CLodHandler *bitmaph;
+using namespace boost::assign;
+CArtHandler::CArtHandler()
+{
+	VLC->arth = this;
+}
 void CArtHandler::loadArtifacts()
 {
-	artDefs = CGI->spriteh->giveDef("ARTIFACT.DEF");
-
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("ARTRAITS.TXT");
+	std::vector<bool CArtifact::*> slots;
+	slots += &CArtifact::spellBook, &CArtifact::warMachine4, &CArtifact::warMachine3, &CArtifact::warMachine2, 
+	  &CArtifact::warMachine1, &CArtifact::misc5, &CArtifact::misc4, &CArtifact::misc3, &CArtifact::misc2, 
+	  &CArtifact::misc1, &CArtifact::feet, &CArtifact::lRing, &CArtifact::rRing, &CArtifact::torso, 
+	  &CArtifact::lHand, &CArtifact::rHand, &CArtifact::neck,	&CArtifact::shoulders, &CArtifact::head;
+	std::map<char,EartClass> classes = 
+	  map_list_of('S',SartClass)('T',TartClass)('N',NartClass)('J',JartClass)('R',RartClass);
+	std::string buf = bitmaph->getTextFile("ARTRAITS.TXT"), dump, pom;
 	int it=0;
-	std::string dump;
 	for(int i=0; i<2; ++i)
 	{
-		CGeneralTextHandler::loadToIt(dump,buf,it,3);
+		loadToIt(dump,buf,it,3);
 	}
 	for (int i=0; i<ARTIFACTS_QUANTITY; i++)
 	{
 		CArtifact nart;
-		std::string pom;
-		CGeneralTextHandler::loadToIt(nart.name,buf,it,4);
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
+		loadToIt(nart.name,buf,it,4);
+		loadToIt(pom,buf,it,4);
 		nart.price=atoi(pom.c_str());
-
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.spellBook=true;
-		else
-			nart.spellBook = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.warMachine4=true;
-		else
-			nart.warMachine4 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.warMachine3=true;
-		else
-			nart.warMachine3 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.warMachine2=true;
-		else
-			nart.warMachine2 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.warMachine1=true;
-		else
-			nart.warMachine1 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.misc5=true;
-		else
-			nart.misc5 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.misc4=true;
-		else
-			nart.misc4 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.misc3=true;
-		else
-			nart.misc3 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.misc2=true;
-		else
-			nart.misc2 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.misc1=true;
-		else
-			nart.misc1 = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.feet=true;
-		else
-			nart.feet = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.lRing=true;
-		else
-			nart.lRing = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.rRing=true;
-		else
-			nart.rRing = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.torso=true;
-		else
-			nart.torso = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.lHand=true;
-		else
-			nart.lHand = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.rHand=true;
-		else
-			nart.rHand = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.neck=true;
-		else
-			nart.neck = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.shoulders=true;
-		else
-			nart.shoulders = false;
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		if (pom[0]=='x')
-			nart.head=true;
-		else
-			nart.head = false;
-
-		CGeneralTextHandler::loadToIt(pom,buf,it,4);
-		switch (pom[0])
+		for(int j=0;j<slots.size();j++)
 		{
-		case 'S':
-			nart.aClass=SartClass;
-			break;
-		case 'T':
-			nart.aClass=TartClass;
-			break;
-		case 'N':
-			nart.aClass=NartClass;
-			break;
-		case 'J':
-			nart.aClass=JartClass;
-			break;
-		case 'R':
-			nart.aClass=RartClass;
-			break;
+			loadToIt(pom,buf,it,4);
+			nart.*slots[j] = (pom[0]=='x');
 		}
-		CGeneralTextHandler::loadToIt(nart.description,buf,it,3);
-		nart.id=artifacts.size();
-
+		loadToIt(pom,buf,it,4);
+		nart.aClass = classes[pom[0]];
+		loadToIt(nart.description,buf,it,3);
+		nart.id=i;
 		artifacts.push_back(nart);
 	}
 	for(int i=0;i<144;i++) //do 144, bo nie chcemy bzdurek

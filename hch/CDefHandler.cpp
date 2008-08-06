@@ -1,7 +1,9 @@
 #include "../stdafx.h"
+#include "SDL.h"
 #include "CDefHandler.h"
 #include <sstream>
-
+#include "CLodHandler.h"
+CLodHandler* CDefHandler::Spriteh = NULL;
 long long pow(long long a, int b)
 {
 	if (!b) return 1;
@@ -9,24 +11,6 @@ long long pow(long long a, int b)
 	while (--b)
 		a*=c;
 	return a;
-}
-void BMPHeader::print(std::ostream & out)
-{
-	CDefHandler::print(out,fullSize,4);
-	CDefHandler::print(out,_h1,4);
-	CDefHandler::print(out,_c1,4);
-	CDefHandler::print(out,_c2,4);
-	CDefHandler::print(out,x,4);
-	CDefHandler::print(out,y,4);
-	CDefHandler::print(out,_c3,2);
-	CDefHandler::print(out,_c4,2);
-	CDefHandler::print(out,_h2,4);
-	CDefHandler::print(out,_h3,4);
-	CDefHandler::print(out,dataSize1,4);
-	CDefHandler::print(out,dataSize2,4);
-	for (int i=0;i<8;i++)
-		out << _c5[i];
-	out.flush();
 }
 CDefHandler::CDefHandler()
 {
@@ -133,12 +117,11 @@ void CDefHandler::openDef(std::string name)
 	FDef = NULL;
 }
 
-void CDefHandler::openFromMemory(unsigned char *table, int size, std::string name)
+void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 {
 	int i,j, totalInBlock;
 	char Buffer[13];
 	defName=name;
-	int andame = size;
 	i = 0;
 	DEFType = readNormalNr(i,4,table); i+=4;
 	fullWidth = readNormalNr(i,4,table); i+=4;
@@ -576,3 +559,23 @@ CDefEssential * CDefHandler::essentialize()
 	notFreeImgs = true;
 	return ret;
 }
+
+CDefHandler * CDefHandler::giveDef(std::string defName, CLodHandler * spriteh)
+{
+	if(!spriteh) spriteh=Spriteh;
+	unsigned char * data = spriteh->giveFile(defName);
+	CDefHandler * nh = new CDefHandler();
+	nh->openFromMemory(data, defName);
+	nh->alphaTransformed = false;
+	delete [] data;
+	return nh;
+}
+CDefEssential * CDefHandler::giveDefEss(std::string defName, CLodHandler * spriteh)
+{
+	CDefEssential * ret;
+	CDefHandler * temp = giveDef(defName,spriteh);
+	ret = temp->essentialize();
+	delete temp;
+	return ret;
+}
+

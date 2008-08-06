@@ -70,7 +70,7 @@ public:
 	bool clicked;
 	CHeroWindow * ourWindow;
 	const CArtifact * ourArt;
-	CArtPlace(const CArtifact * const & art);
+	CArtPlace(const CArtifact * Art);
 	void clickLeft (tribool down);
 	void clickRight (tribool down);
 	void activate();
@@ -117,7 +117,7 @@ public:
 	int player;
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor
-	void setHero(const CGHeroInstance * hero); //sets main displayed hero
+	void setHero(const CGHeroInstance * Hero); //sets main displayed hero
 	void activate(); //activates hero window;
 	void deactivate(); //activates hero window;
 	virtual void show(SDL_Surface * to = NULL); //shows hero window

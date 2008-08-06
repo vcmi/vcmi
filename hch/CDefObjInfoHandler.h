@@ -2,8 +2,10 @@
 #define COBJINFOECTHANDLER_H
 #include <vector>
 #include <map>
+#include "../global.h"
 class CDefHandler;
-class CGDefInfo
+class CLodHandler;
+class DLL_EXPORT CGDefInfo
 {
 public:
 	std::string name;
@@ -14,7 +16,8 @@ public:
 	int id, subid; //of object described by this defInfo
 	int terrainAllowed, //on which terrain it is possible to place object
 		 terrainMenu; //in which menus in map editor object will be showed
-	int type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)
+	int width, height; //tiles
+	int type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)   
 	CDefHandler * handler;
 	int printPriority;
 	bool isVisitable();
@@ -27,19 +30,7 @@ public:
 	}
 	CGDefInfo();
 };
-struct DefObjInfo
-{
-	std::string defName;
-	int priority;
-	int type, subtype;
-	int objType;
-	unsigned char visitMap[6];
-	unsigned char blockMap[6];
-	bool operator==(const std::string & por) const;
-	bool isVisitable() const;
-};
-
-class CDefObjInfoHandler
+class DLL_EXPORT CDefObjInfoHandler
 {
 public:
 	std::map<int,std::map<int,CGDefInfo*> > gobjs;

@@ -9,8 +9,7 @@
 #include <boost/algorithm/string.hpp>
 #include "hch/CDefHandler.h"
 #include <map>
-
-extern SDL_Color playerColorPalette[256];
+#include "client/Graphics.h"
 
 SDL_Surface * CSDL_Ext::newSurface(int w, int h, SDL_Surface * mod) //creates new surface, with flags/format same as in surface given
 {
@@ -416,45 +415,6 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 	}
 	return ret;
 }
- //converts surface to cursor
-SDL_Cursor * CSDL_Ext::SurfaceToCursor(SDL_Surface *image, int hx, int hy)
-{
-	int             w, x, y;
-	Uint8           *data, *mask, *d, *m, r, g, b;
-	Uint32          color;
-	SDL_Cursor      *cursor;
-
-	w = (image->w + 7) / 8;
-	data = (Uint8 *)alloca(w * image->h * 2);
-	if (data == NULL)
-		return NULL;
-	memset(data, 0, w * image->h * 2);
-	mask = data + w * image->h;
-	if (SDL_MUSTLOCK(image))
-		SDL_LockSurface(image);
-	for (y = 0; y < image->h; y++)
-	{
-		d = data + y * w;
-		m = mask + y * w;
-		for (x = 0; x < image->w; x++)
-		{
-			color = CSDL_Ext::SDL_GetPixel(image, x, y);
-			if ((image->flags & SDL_SRCCOLORKEY) == 0 || color != image->format->colorkey)
-			{
-				SDL_GetRGB(color, image->format, &r, &g, &b);
-				color = (r + g + b) / 3;
-				m[x / 8] |= 128 >> (x & 7);
-				if (color < 128)
-					d[x / 8] |= 128 >> (x & 7);
-			}
-		}
-	}
-	if (SDL_MUSTLOCK(image))
-		SDL_UnlockSurface(image);
-	cursor = SDL_CreateCursor(data, mask, w, image->h, hx, hy);
-	return cursor;
-}
-
 Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte)
 {
     int bpp = surface->format->BytesPerPixel;
@@ -486,7 +446,7 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
         return *(Uint32 *)p;
 
     default:
-        return 0;       /* shouldn't happen, but avoids warnings */
+        return 0;       // shouldn't happen, but avoids warnings 
     }
 }
 
@@ -543,11 +503,6 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 		}
 	}
 	return src;
-}
-
-SDL_Surface * CSDL_Ext::secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha)
-{
-	return copySurface(src);
 }
 
 int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
@@ -747,132 +702,6 @@ void CSDL_Ext::update(SDL_Surface * what)
 	if(what)
 		SDL_UpdateRect(what, 0, 0, what->w, what->h);
 }
-
-void CSDL_Ext::blueToPlayers(SDL_Surface * sur, int player)
-{
-	if(sur->format->BitsPerPixel == 8)
-	{
-		for(int i=0; i<sur->format->palette->ncolors; ++i)
-		{
-			SDL_Color * cc = sur->format->palette->colors+i;
-			if(cc->r==0 && cc->g==0 && cc->b==255)
-			{
-				cc->r = CGameInfo::mainObj->playerColors[player].r;
-				cc->g = CGameInfo::mainObj->playerColors[player].g;
-				cc->b = CGameInfo::mainObj->playerColors[player].b;
-			}
-		}
-	}
-	else if(sur->format->BitsPerPixel == 24)
-	{
-		for(int y=0; y<sur->h; ++y)
-		{
-			for(int x=0; x<sur->w; ++x)
-			{
-				Uint8* cp = (Uint8*)sur->pixels + y+sur->pitch + x*3;
-/*
-				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-				{
-					if(cp[0]==0 && cp[1]==0 && cp[2]==255)
-					{
-						cp[0] = CGameInfo::mainObj->playerColors[player].r;
-						cp[1] = CGameInfo::mainObj->playerColors[player].g;
-						cp[2] = CGameInfo::mainObj->playerColors[player].b;
-					}
-				}
-				else
-				{
-
-*/
-					if(cp[0]==255 && cp[1]==0 && cp[2]==0)
-					{
-						cp[0] = CGameInfo::mainObj->playerColors[player].b;
-						cp[1] = CGameInfo::mainObj->playerColors[player].g;
-						cp[2] = CGameInfo::mainObj->playerColors[player].r;
-					}
-//				}
-			}
-		}
-	}
-}
-
-void CSDL_Ext::blueToPlayersAdv(SDL_Surface * sur, int player, int mode, void* additionalInfo)
-{
-	if(player==1) //it is actually blue...
-		return;
-	if(sur->format->BitsPerPixel == 8)
-	{
-		for(int i=0; i<32; ++i)
-		{
-			sur->format->palette->colors[224+i] = playerColorPalette[32*player+i];
-		}
-	}
-	else if(sur->format->BitsPerPixel == 24) //should never happen in general
-	{
-		for(int y=0; y<sur->h; ++y)
-		{
-			for(int x=0; x<sur->w; ++x)
-			{
-				Uint8* cp = (Uint8*)sur->pixels + y*sur->pitch + x*3;
-/*
-				if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-				{
-					if(cp[2]>cp[1] && cp[2]>cp[0])
-					{
-						std::vector<long long int> sort1;
-						sort1.push_back(cp[0]);
-						sort1.push_back(cp[1]);
-						sort1.push_back(cp[2]);
-						std::vector< std::pair<long long int, Uint8*> > sort2;
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].r, &(cp[0])));
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].g, &(cp[1])));
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].b, &(cp[2])));
-						std::sort(sort1.begin(), sort1.end());
-						if(sort2[0].first>sort2[1].first)
-							std::swap(sort2[0], sort2[1]);
-						if(sort2[1].first>sort2[2].first)
-							std::swap(sort2[1], sort2[2]);
-						if(sort2[0].first>sort2[1].first)
-							std::swap(sort2[0], sort2[1]);
-						for(int hh=0; hh<3; ++hh)
-						{
-							(*sort2[hh].second) = (sort1[hh] + sort2[hh].first)/2.2;
-						}
-					}
-				}
-				else
-*/
-				{
-					if(
-						((mode==0) && (cp[0]>cp[1]) && (cp[0]>cp[2])) ||
-						((mode==1) && (cp[2]<45) && (cp[0]>80) && (cp[1]<70) && ((cp[0]-cp[1])>40))
-					  )
-					{
-						std::vector<long long int> sort1;
-						sort1.push_back(cp[2]);
-						sort1.push_back(cp[1]);
-						sort1.push_back(cp[0]);
-						std::vector< std::pair<long long int, Uint8*> > sort2;
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].r, &(cp[2])));
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].g, &(cp[1])));
-						sort2.push_back(std::make_pair(CGameInfo::mainObj->playerColors[player].b, &(cp[0])));
-						std::sort(sort1.begin(), sort1.end());
-						if(sort2[0].first>sort2[1].first)
-							std::swap(sort2[0], sort2[1]);
-						if(sort2[1].first>sort2[2].first)
-							std::swap(sort2[1], sort2[2]);
-						if(sort2[0].first>sort2[1].first)
-							std::swap(sort2[0], sort2[1]);
-						for(int hh=0; hh<3; ++hh)
-						{
-							(*sort2[hh].second) = (sort1[hh]*0.8 + sort2[hh].first)/2;
-						}
-					}
-				}
-			}
-		}
-	}
-}
 void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 color)
 {
 	for(int i=0;i<w;i++)
@@ -893,9 +722,9 @@ void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)
 	if(sur->format->BitsPerPixel==8)
 	{
 		if(player != 255)
-			*(sur->format->palette->colors+5) = CGameInfo::mainObj->playerColors[player];
+			*(sur->format->palette->colors+5) = graphics->playerColors[player];
 		else
-			*(sur->format->palette->colors+5) = CGameInfo::mainObj->neutralColor;
+			*(sur->format->palette->colors+5) = *graphics->neutralColor;
 	}
 }
 int readNormalNr (std::istream &in, int bytCon)
@@ -915,15 +744,6 @@ int readNormalNr (std::istream &in, int bytCon)
 	else return -1;
 	return ret;
 }
-
-//void CSDL_Ext::fullAlphaTransform(SDL_Surface *& src)
-//{
-//	src = alphaTransform(src);
-//	//SDL_Surface * hlp2;
-//	//hlp2 = secondAlphaTransform(src, std32bppSurface);
-//	//SDL_FreeSurface(src);
-//	//src = hlp2;
-//}
 
 std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor)
 {

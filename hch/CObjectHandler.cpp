@@ -1,72 +1,74 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CObjectHandler.h"
-#include "../CGameInfo.h"
-#include "CGeneralTextHandler.h"
-#include "CLodHandler.h"
-#include "CAmbarCendamo.h"
-#include "../mapHandler.h"
 #include "CDefObjInfoHandler.h"
-#include "../CLua.h"
+#include "CLodHandler.h"
+#include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
 #include <boost/algorithm/string/replace.hpp>
 #include "CTownHandler.h"
+#include "CArtHandler.h"
+#include "../lib/VCMI_Lib.h"
+DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
+extern CLodHandler * bitmaph;
 void CObjectHandler::loadObjects()
 {
+	VLC->objh = this;
 	int ID=0;
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("OBJNAMES.TXT");
+	std::string buf = bitmaph->getTextFile("OBJNAMES.TXT");
 	int it=0;
 	while (it<buf.length()-1)
 	{
-		CObject nobj;
-		CGeneralTextHandler::loadToIt(nobj.name,buf,it,3);
-		if(nobj.name.size() && (nobj.name[nobj.name.size()-1]==(char)10 || nobj.name[nobj.name.size()-1]==(char)13 || nobj.name[nobj.name.size()-1]==(char)9))
-			nobj.name = nobj.name.substr(0, nobj.name.size()-1);
-		objects.push_back(nobj);
+		std::string nobj;
+		loadToIt(nobj,buf,it,3);
+		if(nobj.size() && (nobj[nobj.size()-1]==(char)10 || nobj[nobj.size()-1]==(char)13 || nobj[nobj.size()-1]==(char)9))
+			nobj = nobj.substr(0, nobj.size()-1);
+		names.push_back(nobj);
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("ADVEVENT.TXT");
+	buf = bitmaph->getTextFile("ADVEVENT.TXT");
 	it=0;
 	std::string temp;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		if (temp[0]=='\"')
 			temp = temp.substr(1,temp.length()-2);
 		boost::algorithm::replace_all(temp,"\"\"","\"");
 		advobtxt.push_back(temp);
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("XTRAINFO.TXT");
+	buf = bitmaph->getTextFile("XTRAINFO.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		xtrainfo.push_back(temp);
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("MINENAME.TXT");
+	buf = bitmaph->getTextFile("MINENAME.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		mines.push_back(std::pair<std::string,std::string>(temp,""));
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("MINEEVNT.TXT");
+	buf = bitmaph->getTextFile("MINEEVNT.TXT");
 	it=0;
 	int i=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		temp = temp.substr(1,temp.length()-2);
 		mines[i++].second = temp;
 	}
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("RESTYPES.TXT");
+	buf = bitmaph->getTextFile("RESTYPES.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		restypes.push_back(temp);
 	}
 
@@ -82,11 +84,11 @@ void CObjectHandler::loadObjects()
 	}
 	ifs.close();
 	ifs.clear();
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("ZCRGN1.TXT");
+	buf = bitmaph->getTextFile("ZCRGN1.TXT");
 	it=0;
 	while (it<buf.length()-1)
 	{
-		CGeneralTextHandler::loadToIt(temp,buf,it,3);
+		loadToIt(temp,buf,it,3);
 		creGens.push_back(temp);
 	}
 
@@ -113,11 +115,11 @@ void CGObjectInstance::setOwner(int ow)
 }
 int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 {
-	return defInfo->handler->ourImages[0].bitmap->w/32;
+	return defInfo->width;
 }
 int CGObjectInstance::getHeight() const //returns height of object graphic in tiles
 {
-	return defInfo->handler->ourImages[0].bitmap->h/32;
+	return defInfo->width;
 }
 bool CGObjectInstance::visitableAt(int x, int y) const //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
 {
@@ -145,10 +147,6 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 		return true;
 	if(!cmp.defInfo->isVisitable() && defInfo->isVisitable())
 		return false;
-	//if(defInfo->isOnDefList && !(cmp.defInfo->isOnDefList))
-	//	return true;
-	//if(cmp.defInfo->isOnDefList && !(defInfo->isOnDefList))
-	//	return false;
 	if(this->pos.x<cmp.pos.x)
 		return true;
 	return false;
@@ -181,8 +179,8 @@ unsigned int CGHeroInstance::getLowestCreatureSpeed()
 	unsigned int sl = 100;
 	for(int h=0; h<army.slots.size(); ++h)
 	{
-		if(army.slots[h].first->speed<sl)
-			sl = army.slots[h].first->speed;
+		if(VLC->creh->creatures[army.slots[h].first].speed<sl)
+			sl = VLC->creh->creatures[army.slots[h].first].speed;
 	}
 	return sl;
 }
@@ -239,7 +237,13 @@ int CGHeroInstance::getSecSkillLevel(const int & ID) const
 			return secSkills[i].second;
 	return -1;
 }
-
+const CArtifact * CGHeroInstance::getArt(int pos)
+{
+	if(artifWorn.find(pos)!=artifWorn.end())
+		return &VLC->arth->artifacts[artifWorn[pos]];
+	else 
+		return NULL;
+}
 
 int CGTownInstance::getSightDistance() const //returns sight distance
 {
@@ -277,7 +281,7 @@ int CGTownInstance::getHordeLevel(const int & HID)  const//HID - 0 or 1; returns
 }
 int CGTownInstance::creatureGrowth(const int & level) const
 {
-	int ret = CGI->creh->creatures[town->basicCreatures[level]].growth;
+	int ret = VLC->creh->creatures[town->basicCreatures[level]].growth;
 	switch(fortLevel())
 	{
 	case 3:
@@ -286,13 +290,13 @@ int CGTownInstance::creatureGrowth(const int & level) const
 		ret*=(1.5); break;
 	}
 	if(builtBuildings.find(26)!=builtBuildings.end()) //grail
-		ret+=CGI->creh->creatures[town->basicCreatures[level]].growth;
+		ret+=VLC->creh->creatures[town->basicCreatures[level]].growth;
 	if(getHordeLevel(0)==level)
 		if((builtBuildings.find(18)!=builtBuildings.end()) || (builtBuildings.find(19)!=builtBuildings.end()))
-			ret+=CGI->creh->creatures[town->basicCreatures[level]].hordeGrowth;
+			ret+=VLC->creh->creatures[town->basicCreatures[level]].hordeGrowth;
 	if(getHordeLevel(1)==level)
 		if((builtBuildings.find(24)!=builtBuildings.end()) || (builtBuildings.find(25)!=builtBuildings.end()))
-			ret+=CGI->creh->creatures[town->basicCreatures[level]].hordeGrowth;
+			ret+=VLC->creh->creatures[town->basicCreatures[level]].hordeGrowth;
 	return ret;
 }
 int CGTownInstance::dailyIncome() const
@@ -324,9 +328,7 @@ CGTownInstance::CGTownInstance()
 	builded=-1;
 	destroyed=-1;
 	garrisonHero=NULL;
-	//state->owner=-1;
 	town=NULL;
-	income = 500;
 	visitingHero = NULL;
 }
 
@@ -334,7 +336,7 @@ CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
 {
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
 	//state = new CLuaObjectScript();
-	//state = NULL;
+	state = NULL;
 	tempOwner = 254;
 	blockVisit = false;
 }
@@ -347,11 +349,12 @@ CGObjectInstance::~CGObjectInstance()
 }
 CGHeroInstance::CGHeroInstance()
 {
-	level = exp = -1;
+	portrait = level = exp = -1;
 	isStanding = true;
 	moveDir = 4;
 	mana = 0;
 	visitedTown = NULL;
+	type = NULL;
 }
 
 CGHeroInstance::~CGHeroInstance()

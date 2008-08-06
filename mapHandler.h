@@ -1,37 +1,29 @@
 #ifndef MAPHANDLER_H
 #define MAPHANDLER_H
-
-#include "hch/CAmbarCendamo.h"
-#include "hch/CSemiDefHandler.h"
-#include "CGameInfo.h"
-#include "hch/CDefHandler.h"
-#include <boost/logic/tribool.hpp>
-#include "hch/CObjectHandler.h"
+#include "global.h"
+#include <SDL.h>
 #include <list>
+#include <set>
 const int Woff = 12; //width of map's frame
 const int Hoff = 8;
 
+class CGObjectInstance;
+class CGHeroInstance;
+struct Mapa;
+class CGDefInfo;
+class CGObjectInstance;
+class CDefHandler;
+struct TerrainTile;
+
 struct TerrainTile2
 {
-	int3 pos; //this tile's position
-	EterrainType terType; //type of terrain tile
-
-	Eroad malle; //type of road
-	unsigned char roaddir; //type of road tile
-
-	Eriver nuine; //type of river
-	unsigned char  rivdir; //type of river tile
-
+	int3 pos;
+	const TerrainTile *tileInfo;
 	std::vector<SDL_Surface *> terbitmap; //frames of terrain animation
 	std::vector<SDL_Surface *> rivbitmap; //frames of river animation
 	std::vector<SDL_Surface *> roadbitmap; //frames of road animation
 
-	bool visitable; //false = not visitable; true = visitable
-	bool blocked; //false = free; true = blocked;
-
-	std::vector < std::pair<CGObjectInstance*,SDL_Rect> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
-	std::vector <CGObjectInstance*> visitableObjects; //pointers to objects hero is visiting being on this tile
-
+	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
 };
 
 //pathfinder
@@ -42,6 +34,18 @@ template <typename T> class PseudoV
 public:
 	int offset;
 	std::vector<T> inver;
+	PseudoV(){};
+	PseudoV(std::vector<T> &src, int rest, int Offset, const T& fill)
+	{
+		inver.resize(Offset*2+rest);
+		offset=Offset;
+		for(int i=0; i<offset;i++)
+			inver[i] = fill;
+		for(int i=0;i<src.size();i++)
+			inver[offset+i] = src[i];
+		for(int i=src.size(); i<src.size()+offset;i++)
+			inver[offset+i] = fill;
+	}
 	inline T & operator[](int n)
 	{
 		return inver[n+offset];
@@ -61,31 +65,25 @@ class CMapHandler
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles;
 	int3 sizes;
-	CAmbarCendamo * reader;
+	Mapa * map;
 	std::set<int> usedHeroes;
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;
 
-	PseudoV< PseudoV< PseudoV<unsigned char> > > visibility; //true means that pointed place is visible //not used now
-	//std::vector< std::vector<char> > undVisibility; //true means that pointed place is visible
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;
+	std::vector<CDefHandler*> defs;
 
 	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
-	std::map<int, CGDefInfo*> villages, forts, capitols;
-	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
-	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 
-	PseudoV< PseudoV< PseudoV<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
+	std::vector<std::vector<std::vector<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
-	char & visAccess(int x, int y);
-	char & undVisAccess(int x, int y);
-	SDL_Surface mirrorImage(SDL_Surface *src); //what is this??
-	SDL_Surface * getVisBitmap(int x, int y, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap, int lvl);
+	void loadDefs();
+	SDL_Surface * getVisBitmap(int x, int y, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl);
 
 	int getCost(int3 & a, int3 & b, const CGHeroInstance * hero);
 	std::vector< std::string > getObjDescriptions(int3 pos); //returns desriptions of objects blocking given position
-	std::vector< CGObjectInstance * > getVisitableObjs(int3 pos); //returns vector of visitable objects at certain position
+	//std::vector< CGObjectInstance * > getVisitableObjs(int3 pos); //returns vector of visitable objects at certain position
 	CGObjectInstance * createObject(int id, int subid, int3 pos, int owner=254); //creates a new object with a certain id and subid
 	std::string getDefName(int id, int subid); //returns name of def for object with given id and subid
 	bool printObject(CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map
@@ -94,20 +92,13 @@ public:
 	bool recalculateHideVisPos(int3& pos); //recalculates position for hidden / visitable positions
 	bool recalculateHideVisPosUnderObj(CGObjectInstance * obj, bool withBorder = false); //recalculates position for hidden / visitable positions under given object
 	void init();
-	int pickHero(int owner);
-	std::pair<int,int> pickObject(CGObjectInstance *obj);
-	void randomizeObject(CGObjectInstance *cur);
 	void calculateBlockedPos();
 	void initObjectRects();
 	void borderAndTerrainBitmapInit();
 	void roadsRiverTerrainInit();
 	void prepareFOWDefs();
-	void randomizeObjects();
 
-	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, PseudoV< PseudoV< PseudoV<unsigned char> > > & visibilityMap = CGI->mh->visibility, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL); //if extSurf is specified, blit to it
-	SDL_Surface * terrBitmap(int x, int y);
-	SDL_Surface * undTerrBitmap(int x, int y);
-	std::string getRandomizedDefName(CGDefInfo* di, CGObjectInstance * obj = NULL); //objinstance needed only for heroes and towns
+	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap = NULL, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL); //if extSurf is specified, blit to it
 	unsigned char getHeroFrameNum(const unsigned char & dir, const bool & isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
 	static unsigned char getDir(const int3 & a, const int3 & b); //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]

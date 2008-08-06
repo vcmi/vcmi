@@ -10,6 +10,7 @@ void CEmptyAI::init(ICallback * CB)
 }
 void CEmptyAI::yourTurn()
 {
+	cb->endTurn();
 }
 void CEmptyAI::heroKilled(const CGHeroInstance *)
 {

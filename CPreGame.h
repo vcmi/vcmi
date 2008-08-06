@@ -4,16 +4,15 @@
 #include <set>
 #include "SDL.h"
 #include "StartInfo.h"
-#include "hch/CSemiDefHandler.h"
-#include "hch/CSemiLodHandler.h"
-#include "hch/CPreGameTextHandler.h"
+#include "hch/CPreGameTextHandler.h" 
 #include "CMessage.h"
 #include "map.h"
 #include "hch/CMusicHandler.h"
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 class CPreGame;
-extern class CPreGame *CPG;
+class CDefHandler;
+extern CPreGame * CPG;
 
 typedef void(CPreGame::*ttt)();
 class CGroup;
@@ -204,6 +203,7 @@ public:
 	void moveByOne(bool up);
 	void printSelectedInfo();
 	void printFlags();
+	void processMaps(std::vector<std::string> &pliczkiTemp, int &index);
 	MapSel();
 	~MapSel();
 };

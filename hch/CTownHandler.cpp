@@ -1,24 +1,22 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CTownHandler.h"
-#include "../CGameInfo.h"
 #include "CLodHandler.h"
 #include <sstream>
-#include "CGeneralTextHandler.h"
+#include "../lib/VCMI_Lib.h"
+extern CLodHandler * bitmaph;
+void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 CTownHandler::CTownHandler()
 {
-	smallIcons = CGI->spriteh->giveDef("ITPA.DEF");
-	resources = CGI->spriteh->giveDef("RESOURCE.DEF");
+	VLC->townh = this;
 }
 CTownHandler::~CTownHandler()
-{
-	delete smallIcons;
-	//todo - delete structures info
-}
+{}
 void CTownHandler::loadNames()
 {
 	std::istringstream ins, names;
-	ins.str(CGI->bitmaph->getTextFile("TOWNTYPE.TXT"));
-	names.str(CGI->bitmaph->getTextFile("TOWNNAME.TXT"));
+	ins.str(bitmaph->getTextFile("TOWNTYPE.TXT"));
+	names.str(bitmaph->getTextFile("TOWNNAME.TXT"));
 	int si=0;
 	char bufname[75];
 	while (!ins.eof())
@@ -40,21 +38,21 @@ void CTownHandler::loadNames()
 			towns.push_back(town);
 	}
 
-	std::string  strs = CGI->bitmaph->getTextFile("TCOMMAND.TXT");
+	std::string  strs = bitmaph->getTextFile("TCOMMAND.TXT");
 	int itr=0;
 	while(itr<strs.length()-1)
 	{
 		std::string tmp;
-		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
+		loadToIt(tmp, strs, itr, 3);
 		tcommands.push_back(tmp);
 	}
 
-	strs = CGI->bitmaph->getTextFile("HALLINFO.TXT");
+	strs = bitmaph->getTextFile("HALLINFO.TXT");
 	itr=0;
 	while(itr<strs.length()-1)
 	{
 		std::string tmp;
-		CGeneralTextHandler::loadToIt(tmp, strs, itr, 3);
+		loadToIt(tmp, strs, itr, 3);
 		hcommands.push_back(tmp);
 	}
 
@@ -277,35 +275,3 @@ void CTownHandler::loadNames()
 		of.clear();
 	}
 }
-SDL_Surface * CTownHandler::getPic(int ID, bool fort, bool builded)
-{
-	if (ID==-1)
-		return smallIcons->ourImages[0].bitmap;
-	else if (ID==-2)
-		return smallIcons->ourImages[1].bitmap;
-	else if (ID==-3)
-		return smallIcons->ourImages[2+F_NUMBER*4].bitmap;
-	else if (ID>F_NUMBER || ID<-3)
-#ifndef __GNUC__
-		throw new std::exception("Invalid ID");
-#else
-		throw new std::exception();
-#endif
-	else
-	{
-		int pom = 3;
-		if(!fort)
-			pom+=F_NUMBER*2;
-		pom += ID*2;
-		if (!builded)
-			pom--;
-		return smallIcons->ourImages[pom].bitmap;
-	}
-}
-
-int CTownHandler::getTypeByDefName(std::string name)
-{
-	//TODO
-	return 0;
-}
-

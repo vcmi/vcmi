@@ -1,11 +1,11 @@
-#include "../stdafx.h"
+  #include "../stdafx.h"
 #include "CSpellHandler.h"
 #include "../CGameInfo.h"
 #include "CLodHandler.h"
 
 void CSpellHandler::loadSpells()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("SPTRAITS.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("SPTRAITS.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
 	int hmcr=0;

@@ -1,9 +1,10 @@
 #ifndef CGAMEINFO_H
 #define CGAMEINFO_H
+#include "global.h"
 
-#include "StartInfo.h"
-#include "SDL.h"
-#include "CPreGame.h"
+
+
+
 
 #include <vector>
 
@@ -40,7 +41,6 @@ class CDefHandler;
 class CGameInfo
 {
 public:
-	static CGameInfo * mainObj; //pointer to main CGameInfo object
 	CGameState * state;
 	CArtHandler * arth;
 	CHeroHandler * heroh;
@@ -48,7 +48,6 @@ public:
 	CAbilityHandler * abilh;
 	CSpellHandler * spellh;
 	CMapHandler * mh;
-	CAmbarCendamo * ac;
 	CPreGameTextHandler * preth;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
@@ -63,12 +62,6 @@ public:
 	CPathfinder * pathf;
 	CCursorHandler * curh;
 	CScreenHandler * screenh;
-	int localPlayer;
-	std::vector<CGameInterface *> playerint;
-	std::vector<SDL_Color> playerColors;
-	std::vector<CDefHandler *> playerColorInfo; //gems from adventure map interface
-	SDL_Color neutralColor;
-	StartInfo scenarioOps;
 };
 
 #endif //CGAMEINFO_H

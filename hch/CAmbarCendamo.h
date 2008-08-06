@@ -1,40 +1,19 @@
 #ifndef CAMBARCENDAMO_H
 #define CAMBARCENDAMO_H
 #include <iostream>
-#include <fstream>
 #include <string>
 #include <vector>
 #include "../global.h"
-#include "SDL.h"
 #include "../map.h"
-#include "CSemiDefHandler.h"
-#include "CDefHandler.h"
 #include "CCreatureHandler.h"
 
-enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TERRAINOBJ_DEF, EVENTOBJ_DEF, SIGN_DEF, GARRISON_DEF, ARTIFACT_DEF, WITCHHUT_DEF, SCHOLAR_DEF, PLAYERONLY_DEF, SHRINE_DEF, SPELLSCROLL_DEF, PANDORA_DEF, GRAIL_DEF, CREGEN_DEF, CREGEN2_DEF, CREGEN3_DEF, BORDERGUARD_DEF, HEROPLACEHOLDER_DEF};
-
-class CAmbarCendamo
+class DLL_EXPORT CAmbarCendamo 
 {
 public:
 /////////////////member variables
-	Mapa map;
-	std::ifstream * is; // stream used to read map file
-	int andame; // length of map file
-	unsigned char * bufor; // here we store map bytecode
-	std::vector<CDefHandler*> defs;
-/////////////////member functions
-	CAmbarCendamo (const char * tie); // c-tor; tie is the path of the map file
-	CAmbarCendamo (unsigned char * map); // c-tor; map is pointer to array containing map; it is not copied, so don't delete
-	~CAmbarCendamo (); // d-tor
-	int readNormalNr (int pos, int bytCon=4, bool cyclic = false); //read number from bytCon bytes starting from pos position in buffer ; if cyclic is true, number is treated as it were signed number with bytCon bytes
-	void teceDef (); // create files with info about defs
-	void deh3m(); // decode file, results are stored in map
-	void processMap(std::vector<std::string> & defsToUnpack); //choose castles, creatures, resources, artifacts...
-	////
-	std::vector<std::string> resDefNames;
-	////
-	void loadDefs();
-	EDefType getDefType(CGDefInfo * a); //returns type of object in def
-	CCreatureSet readCreatureSet(int pos, int number = 7); //reads creature set in most recently encountered format; reades number units (default is 7)
+	//Mapa* map;
+
+	//CAmbarCendamo (unsigned char * data); // c-tor; data is pointer to decompressed h3m data
+	//~CAmbarCendamo (); // d-tor
 };
 #endif //CAMBARCENDAMO_H

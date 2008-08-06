@@ -1,16 +1,14 @@
 #ifndef CCREATUREHANDLER_H
 #define CCREATUREHANDLER_H
-
-#include "../CPlayerInterface.h"
+#include "../global.h"
 #include <string>
 #include <vector>
 #include <map>
-#include "CDefHandler.h"
+#include <set>
 
-class CDefHandler;
-struct SDL_Surface;
+class CLodHandler;
 
-class CCreature
+class DLL_EXPORT CCreature
 {
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
@@ -23,7 +21,7 @@ public:
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in textformat
 	std::string animDefName;
-	int idNumber;
+	ui32 idNumber;
 	int faction; //-1 = neutral
 
 	///animation info
@@ -37,32 +35,20 @@ public:
 	bool isDefinite; //if the creature type is wotn dependent, it should be true
 	int indefLevel; //only if indefinite
 	bool indefUpgraded; //onlu if inddefinite
-	//end
-	//CDefHandler * battleAnimation;
-	//TODO - zdolnoœci - na typie wyliczeniowym czy czymœ
 
-	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
+	//TODO - zdolnoœci (abilities) - na typie wyliczeniowym czy czymœ - albo lepiej secie czegoœ
+
 	bool isDoubleWide(); //returns true if unit is double wide on battlefield
 	bool isFlying(); //returns true if it is a flying unit
 	bool isShooting(); //returns true if unit can shoot
-	int maxAmount(const std::vector<int> &res) const; //how many creatures can be bought
+	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
+	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 };
 
-class CCreatureSet //seven combined creatures
-{
-public:
-	std::map<int,std::pair<CCreature*,int> > slots;
-	//CCreature * slot1, * slot2, * slot3, * slot4, * slot5, * slot6, * slot7; //types of creatures on each slot
-	//unsigned int s1, s2, s3, s4, s5, s6, s7; //amounts of units in slots
-	bool formation; //false - wide, true - tight
-};
 
-class CCreatureHandler
+class DLL_EXPORT CCreatureHandler
 {
 public:
-	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
-	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
-	std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
 	std::vector<CCreature> creatures; //creature ID -> creature info
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
 	std::map<std::string,int> nameToID;
@@ -71,48 +57,6 @@ public:
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
-	void loadUnitAnimations();
+	CCreatureHandler();
 };
-
-class CCreatureAnimation : public CIntObject
-{
-private:
-	int totalEntries, DEFType, totalBlocks;
-	bool allowRepaint;
-	int length;
-	BMPPalette palette[256];
-	unsigned int * RWEntries;
-	int * RLEntries;
-	struct SEntry
-	{
-		std::string name;
-		int offset;
-		int group;
-	} ;
-	std::vector<SEntry> SEntries ;
-	char id[2];
-	std::string defName, curDir;
-	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
-	void putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc, const bool & yellowBorder) const;
-
-	////////////
-
-	unsigned char * FDef; //animation raw data
-	unsigned int curFrame; //number of currently displayed frame
-	unsigned int frames; //number of frames
-	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
-public:
-	int fullWidth, fullHeight; //read-only, please!
-	CCreatureAnimation(std::string name); //c-tor
-	~CCreatureAnimation(); //d-tor
-
-	void setType(int type); //sets type of animation and cleares framecount
-	int getType() const; //returns type of animation
-
-	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next
-	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next
-
-	int framesInGroup(int group) const; //retirns number of fromes in given group
-};
-
 #endif //CCREATUREHANDLER_H

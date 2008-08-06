@@ -34,9 +34,7 @@ namespace CSDL_Ext
 	Uint32 SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
 	SDL_Color SDL_GetPixelColor(SDL_Surface *surface, int x, int y);
 	SDL_Surface * alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
-	SDL_Surface * secondAlphaTransform(SDL_Surface * src, SDL_Surface * alpha); //alpha is a surface we want to blit src to
 	int blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
-	//void fullAlphaTransform(SDL_Surface *& src); //performs first and second alpha transform
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
 	void printTo(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)
 	void printToWR(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)
@@ -45,10 +43,6 @@ namespace CSDL_Ext
 	void printAtWB(std::string text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
 	void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
-	void blueToPlayers(SDL_Surface * sur, int player); //simple color substitution
-	void blueToPlayersAdv(SDL_Surface * sur, int player, int mode=0, void* additionalInfo=NULL); //substitute blue color by another one, makes it nicer keeping nuances
-																							//mode 1 is calibrated for hero infobox
-																							//mode 2 is calibrated for resbar and gets in additionalInfo a pointer to the set of (SDL_Color) which shouldn't be replaced
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 color);
 	void setPlayerColor(SDL_Surface * sur, unsigned char player); //sets correct color of flags; -1 for neutral
 	std::string processStr(std::string str, std::vector<std::string> & tor); //replaces %s in string

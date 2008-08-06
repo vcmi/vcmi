@@ -1,9 +1,10 @@
+#define VCMI_DLL
 #include "../stdafx.h"
-#include "../CGameInfo.h"
 #include "CBuildingHandler.h"
 #include "CLodHandler.h"
 #include <sstream>
 #include <fstream>
+extern CLodHandler * bitmaph;
 std::string readTo(std::string &in, unsigned int &it, char end)
 {
 	int pom = it;
@@ -31,6 +32,7 @@ unsigned int readNr(std::string &in, unsigned int &it)
 CBuilding * readBg(std::string &buf, unsigned int& it)
 {
 	CBuilding * nb = new CBuilding();
+	nb->resources.resize(RESOURCE_QUANTITY);
 	for(int res=0;res<7;res++)
 		nb->resources[res] = readNr(buf,it);
 	nb->refName = readTo(buf,it,'\n');
@@ -38,7 +40,7 @@ CBuilding * readBg(std::string &buf, unsigned int& it)
 }
 void CBuildingHandler::loadBuildings()
 {
-	std::string buf = CGameInfo::mainObj->bitmaph->getTextFile("BUILDING.TXT"), temp;
+	std::string buf = bitmaph->getTextFile("BUILDING.TXT"), temp;
 	unsigned int andame = buf.size(), it=0; //buf iterator
 
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//read 2 lines of file info
@@ -79,7 +81,7 @@ void CBuildingHandler::loadBuildings()
 	}
 	/////done reading BUILDING.TXT*****************************
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("BLDGNEUT.TXT");
+	buf = bitmaph->getTextFile("BLDGNEUT.TXT");
 	andame = buf.size(), it=0;
 
 	for(int b=0;b<15;b++)
@@ -109,7 +111,7 @@ void CBuildingHandler::loadBuildings()
 	}
 	/////done reading "BLDGNEUT.TXT"******************************
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("BLDGSPEC.TXT");
+	buf = bitmaph->getTextFile("BLDGSPEC.TXT");
 	andame = buf.size(), it=0;
 	for(int f=0;f<F_NUMBER;f++)
 	{
@@ -126,7 +128,7 @@ void CBuildingHandler::loadBuildings()
 	}
 	/////done reading BLDGSPEC.TXT*********************************
 
-	buf = CGameInfo::mainObj->bitmaph->getTextFile("DWELLING.TXT");
+	buf = bitmaph->getTextFile("DWELLING.TXT");
 	andame = buf.size(), it=0;
 	for(int f=0;f<F_NUMBER;f++)
 	{

@@ -32,45 +32,45 @@ CLuaHandler::~CLuaHandler()
 }
 void CLuaHandler::test()
 {
-	int iErr = 0;
-	lua_State *lua = lua_open ();  // Open Lua
-	LUA_OPEN_LIB(lua, luaopen_base);
-	LUA_OPEN_LIB(lua, luaopen_io);
-
-	//luabind::open(lua);
-	//luabind::module(lua)
-	//[
-	//	luabind::class_<int3>("int3")
-	//		//.def(luabind::constructor<>())
-	//		//.def(luabind::constructor<const int&,const int&,const int&>())
-	//		.def_readwrite("x", &int3::x)
-	//		.def_readwrite("y", &int3::y)
-	//		.def_readwrite("z", &int3::z)
-	//];
-	//luabind::module(lua)
-	//[
-	//	luabind::def("powitanie",&piszpowitanie2)
-	//];
+	//int iErr = 0;
+	//lua_State *lua = lua_open ();  // Open Lua
+	//LUA_OPEN_LIB(lua, luaopen_base);
+	//LUA_OPEN_LIB(lua, luaopen_io);
+	//if ((iErr = luaL_loadfile (lua, "scripts/lua/objects/0023_marletto_tower.lua")) == 0)
+	//{
+	//   // Call main...
+	//   if ((iErr = lua_pcall (lua, 0, LUA_MULTRET, 0)) == 0)
+	//   {    
+	//		lua_pushstring (lua, "rightText");
+	//		lua_gettable (lua, LUA_GLOBALSINDEX);  
+	//		lua_pcall (lua, 0, 0, 0);
+	//	}
+	//}
+	//lua_close (lua);
 
 
-	if ((iErr = luaL_loadfile (lua, "scripts/lua/objects/0023_marletto_tower.lua")) == 0)
-	{
-	   // Call main...
-	   if ((iErr = lua_pcall (lua, 0, LUA_MULTRET, 0)) == 0)
-	   {
 
-			//int ret = luabind::call_function<int>(lua, "helloWorld2");
-			//lua_pushstring (lua, "helloWorld2");
-			//lua_gettable (lua, LUA_GLOBALSINDEX);
-			//lua_pcall (lua, 0, 0, 0);
 
-			// Push the function name onto the stack
-			lua_pushstring (lua, "rightText");
-			lua_gettable (lua, LUA_GLOBALSINDEX);
-			lua_pcall (lua, 0, 0, 0);
-		}
-	}
-	lua_close (lua);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }
 
 
@@ -82,10 +82,10 @@ std::vector<std::string> * CLuaHandler::searchForScripts(std::string fol)
 #ifndef __GNUC__
 		throw new std::exception("No such folder!");
 #else
-		throw std::exception();
+		throw new std::exception();
 #endif
 	boost::filesystem::directory_iterator end_itr;
-	for
+	for 
 	  (
 	  boost::filesystem::directory_iterator it(folder);
 	  it!=end_itr;

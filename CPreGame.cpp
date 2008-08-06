@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "CPreGame.h"
+#include "hch/CDefHandler.h"
 #include "SDL.h"
 #include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
 #include "boost/algorithm/string.hpp"
@@ -11,16 +12,22 @@
 #include "CGameInfo.h"
 #include "hch/CGeneralTextHandler.h"
 #include "CCursorHandler.h"
-#include "CScreenHandler.h"
 #include "hch/CLodHandler.h"
 #include "hch/CTownHandler.h"
 #include "hch/CHeroHandler.h"
 #include <cmath>
-
+#include "client/Graphics.h"
+#include <boost/thread.hpp>
+#include <boost/bind.hpp>
 extern SDL_Surface * screen;
 extern SDL_Color tytulowy, tlo, zwykly ;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
-
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 SDL_Color genRGB(int r, int g, int b, int a=0);
 //void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
@@ -162,16 +169,16 @@ Slider::Slider(int x, int y, int h, int amnt, int cap, bool ver)
 	if (ver)
 	{
 		pos = genRect(h,16,x,y);
-		down = Button(genRect(16,16,x,y+h-16),boost::bind(&Slider::moveDown,this),CGI->spriteh->giveDef("SCNRBDN.DEF"),false);
-		up = Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CGI->spriteh->giveDef("SCNRBUP.DEF"),false);
-		slider = Button(genRect(16,16,x,y+16),boost::function<void()>(),CGI->spriteh->giveDef("SCNRBSL.DEF"),false);
+		down = Button(genRect(16,16,x,y+h-16),boost::bind(&Slider::moveDown,this),CDefHandler::giveDef("SCNRBDN.DEF"),false);
+		up = Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CDefHandler::giveDef("SCNRBUP.DEF"),false);
+		slider = Button(genRect(16,16,x,y+16),boost::function<void()>(),CDefHandler::giveDef("SCNRBSL.DEF"),false);
 	}
 	else
 	{
 		pos = genRect(16,h,x,y);
-		down = Button(genRect(16,16,x+h-16,y),boost::bind(&Slider::moveDown,this),CGI->spriteh->giveDef("SCNRBRT.DEF"),false);
-		up = Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CGI->spriteh->giveDef("SCNRBLF.DEF"),false);
-		slider = Button(genRect(16,16,x+16,y),boost::function<void()>(),CGI->spriteh->giveDef("SCNRBSL.DEF"),false);
+		down = Button(genRect(16,16,x+h-16,y),boost::bind(&Slider::moveDown,this),CDefHandler::giveDef("SCNRBRT.DEF"),false);
+		up = Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CDefHandler::giveDef("SCNRBLF.DEF"),false);
+		slider = Button(genRect(16,16,x+16,y),boost::function<void()>(),CDefHandler::giveDef("SCNRBSL.DEF"),false);
 	}
 	moving = false;
 	whereAreWe=0;
@@ -447,7 +454,7 @@ void Options::OptionSwitch::press(bool down)
 				for (;;)
 				{
 					ourOpt->castle+=dir;
-					if (((int)pow((double)2,ourOpt->castle))&ourInf->allowedFactions)
+					if (((int)pow((double)2,(int)ourOpt->castle))&ourInf->allowedFactions)
 					{
 						break;
 					}
@@ -585,7 +592,7 @@ void Options::showIcon (int what, int nr, bool abs) //what: -1=castle, 0=hero, 1
 			int pom=ourOpt->castle;
 			if (ourOpt->castle<F_NUMBER && ourOpt->castle>=0)
 			{
-				blitAtWR(CGI->townh->getPic(ourOpt->castle,true,false),176,130+50*se);
+				blitAtWR(graphics->getPic(ourOpt->castle,true,false),176,130+50*se);
 			}
 			else if (ourOpt->castle==-1)
 			{
@@ -608,7 +615,8 @@ void Options::showIcon (int what, int nr, bool abs) //what: -1=castle, 0=hero, 1
 			{
 				if(ourOpt->heroPortrait>=0)
 				{
-					blitAtWR(CGI->heroh->smallPortraits[ourOpt->heroPortrait],252,130+50*se);
+					//TODO: restore drawing hero portrait
+					//blitAtWR(CGI->heroh->heroes[ourOpt->heroPortrait]->portraitSmall,252,130+50*se);
 				}
 				else
 				{
@@ -617,7 +625,8 @@ void Options::showIcon (int what, int nr, bool abs) //what: -1=castle, 0=hero, 1
 			}
 			else
 			{
-				blitAtWR(CGI->heroh->smallPortraits[pom],252,130+50*se);
+				//TODO: restore drawing hero portrait
+				//blitAtWR(CGI->heroh->heroes[pom]->portraitSmall,252,130+50*se);
 			}
 			break;
 		}
@@ -664,35 +673,35 @@ Options::~Options()
 void Options::init()
 {
 	inited=true;
-	bg = CGI->bitmaph->loadBitmap("ADVOPTBK.bmp");
+	bg = BitmapHandler::loadBitmap("ADVOPTBK.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	left = CGI->spriteh->giveDef("ADOPLFA.DEF");
-	right = CGI->spriteh->giveDef("ADOPRTA.DEF");
-	bonuses = CGI->spriteh->giveDef("SCNRSTAR.DEF");
-	rHero = CGI->bitmaph->loadBitmap("HPSRAND1.bmp");
-	rCastle = CGI->bitmaph->loadBitmap("HPSRAND0.bmp");
-	nHero = CGI->bitmaph->loadBitmap("HPSRAND6.bmp");
-	nCastle = CGI->bitmaph->loadBitmap("HPSRAND5.bmp");
+	left = CDefHandler::giveDef("ADOPLFA.DEF");
+	right = CDefHandler::giveDef("ADOPRTA.DEF");
+	bonuses = CDefHandler::giveDef("SCNRSTAR.DEF");
+	rHero = BitmapHandler::loadBitmap("HPSRAND1.bmp");
+	rCastle = BitmapHandler::loadBitmap("HPSRAND0.bmp");
+	nHero = BitmapHandler::loadBitmap("HPSRAND6.bmp");
+	nCastle = BitmapHandler::loadBitmap("HPSRAND5.bmp");
 	turnLength = new Slider(57,557,195,11,1,false);
 	turnLength->fun=boost::bind(&CPreGame::setTurnLength,CPG,_1);
 
-	flags.push_back(CGI->spriteh->giveDef("AOFLGBR.DEF"));
-	flags.push_back(CGI->spriteh->giveDef("AOFLGBB.DEF"));
-	flags.push_back(CGI->spriteh->giveDef("AOFLGBY.DEF"));
-	flags.push_back(CGI->spriteh->giveDef("AOFLGBG.DEF"));
-	flags.push_back(CGI->spriteh->giveDef("AOFLGBO.DEF"));
-	flags.push_back(CGI->spriteh->giveDef("AOFLGBP.DEF"));
-	flags.push_back(CGI->spriteh->giveDef("AOFLGBT.DEF"));
-	flags.push_back(CGI->spriteh->giveDef("AOFLGBS.DEF"));
+	flags.push_back(CDefHandler::giveDef("AOFLGBR.DEF"));
+	flags.push_back(CDefHandler::giveDef("AOFLGBB.DEF"));
+	flags.push_back(CDefHandler::giveDef("AOFLGBY.DEF"));
+	flags.push_back(CDefHandler::giveDef("AOFLGBG.DEF"));
+	flags.push_back(CDefHandler::giveDef("AOFLGBO.DEF"));
+	flags.push_back(CDefHandler::giveDef("AOFLGBP.DEF"));
+	flags.push_back(CDefHandler::giveDef("AOFLGBT.DEF"));
+	flags.push_back(CDefHandler::giveDef("AOFLGBS.DEF"));
 
-	bgs.push_back(CGI->bitmaph->loadBitmap("ADOPRPNL.bmp"));
-	bgs.push_back(CGI->bitmaph->loadBitmap("ADOPBPNL.bmp"));
-	bgs.push_back(CGI->bitmaph->loadBitmap("ADOPYPNL.bmp"));
-	bgs.push_back(CGI->bitmaph->loadBitmap("ADOPGPNL.bmp"));
-	bgs.push_back(CGI->bitmaph->loadBitmap("ADOPOPNL.bmp"));
-	bgs.push_back(CGI->bitmaph->loadBitmap("ADOPPPNL.bmp"));
-	bgs.push_back(CGI->bitmaph->loadBitmap("ADOPTPNL.bmp"));
-	bgs.push_back(CGI->bitmaph->loadBitmap("ADOPSPNL.bmp"));
+	bgs.push_back(BitmapHandler::loadBitmap("ADOPRPNL.bmp"));
+	bgs.push_back(BitmapHandler::loadBitmap("ADOPBPNL.bmp"));
+	bgs.push_back(BitmapHandler::loadBitmap("ADOPYPNL.bmp"));
+	bgs.push_back(BitmapHandler::loadBitmap("ADOPGPNL.bmp"));
+	bgs.push_back(BitmapHandler::loadBitmap("ADOPOPNL.bmp")); 
+	bgs.push_back(BitmapHandler::loadBitmap("ADOPPPNL.bmp"));
+	bgs.push_back(BitmapHandler::loadBitmap("ADOPTPNL.bmp"));
+	bgs.push_back(BitmapHandler::loadBitmap("ADOPSPNL.bmp"));
 }
 void Options::show()
 {
@@ -970,73 +979,50 @@ void MapSel::show()
 	//SDL_Flip(screen);
 	CSDL_Ext::update(screen);
 }
+boost::mutex mx;
+void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
+{
+	bool areMaps=true;
+	int pom=-1;
+	while(areMaps)
+	{
+		mx.lock();
+		if(index>=pliczkiTemp.size())
+		{
+			mx.unlock();
+			break;
+		}
+		else
+		{
+			pom = index++;
+			mx.unlock();
+		}
+		gzFile tempf = gzopen(pliczkiTemp[pom].c_str(),"rb");
+		unsigned char * sss = new unsigned char[1000];
+		int iii=0;
+		while(true)
+		{
+			if (iii>=1000) break;
+			int z = gzgetc (tempf);
+			if (z>=0) 
+			{
+				sss[iii++] = (unsigned char)z;
+			}
+			else break;
+		}
+		gzclose(tempf);
+		if(iii<50) {std::cout<<"\t\tWarning: corrupted map file: "<<pliczkiTemp[pom]<<std::endl; continue;}
+		if (!sss[4]) continue; //nie ma graczy? mapa niegrywalna //ju¿ to kiedyœ komentowa³em- - to bzdura //tu calkiem pasuje...
+		CMapInfo mi(pliczkiTemp[pom],sss);
+		mx.lock();
+		ourMaps.push_back(mi);
+		mx.unlock();
+		delete[] sss;
+	}
+}
+
 void MapSel::init()
 {
-	bg = CGI->bitmaph->loadBitmap("SCSELBCK.bmp");
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	small.imgs = CGI->spriteh->giveDef("SCSMBUT.DEF");
-	small.fun = NULL;
-	small.pos = genRect(small.imgs->ourImages[0].bitmap->h,small.imgs->ourImages[0].bitmap->w,161,52);
-	small.ourGroup=NULL;
-	medium.imgs = CGI->spriteh->giveDef("SCMDBUT.DEF");
-	medium.fun = NULL;
-	medium.pos = genRect(medium.imgs->ourImages[0].bitmap->h,medium.imgs->ourImages[0].bitmap->w,208,52);
-	medium.ourGroup=NULL;
-	large.imgs = CGI->spriteh->giveDef("SCLGBUT.DEF");
-	large.fun = NULL;
-	large.pos = genRect(large.imgs->ourImages[0].bitmap->h,large.imgs->ourImages[0].bitmap->w,255,52);
-	large.ourGroup=NULL;
-	xlarge.imgs = CGI->spriteh->giveDef("SCXLBUT.DEF");
-	xlarge.fun = NULL;
-	xlarge.pos = genRect(xlarge.imgs->ourImages[0].bitmap->h,xlarge.imgs->ourImages[0].bitmap->w,302,52);
-	xlarge.ourGroup=NULL;
-	all.imgs = CGI->spriteh->giveDef("SCALBUT.DEF");
-	all.fun = NULL;
-	all.pos = genRect(all.imgs->ourImages[0].bitmap->h,all.imgs->ourImages[0].bitmap->w,349,52);
-	all.ourGroup=NULL;
-	all.selectable=xlarge.selectable=large.selectable=medium.selectable=small.selectable=false;
-	small.what=medium.what=large.what=xlarge.what=all.what=&sizeFilter;
-	small.key=36;medium.key=72;large.key=108;xlarge.key=144;all.key=0;
-//Button<> nrplayer, mapsize, type, name, viccon, loscon;
-	nrplayer.imgs = CGI->spriteh->giveDef("SCBUTT1.DEF");
-	nrplayer.fun = NULL;
-	nrplayer.pos = genRect(nrplayer.imgs->ourImages[0].bitmap->h,nrplayer.imgs->ourImages[0].bitmap->w,26,92);
-	nrplayer.key=_playerAm;
-
-	mapsize.imgs = CGI->spriteh->giveDef("SCBUTT2.DEF");
-	mapsize.fun = NULL;
-	mapsize.pos = genRect(mapsize.imgs->ourImages[0].bitmap->h,mapsize.imgs->ourImages[0].bitmap->w,58,92);
-	mapsize.key=_size;
-
-	type.imgs = CGI->spriteh->giveDef("SCBUTCP.DEF");
-	type.fun = NULL;
-	type.pos = genRect(type.imgs->ourImages[0].bitmap->h,type.imgs->ourImages[0].bitmap->w,91,92);
-	type.key=_format;
-
-	name.imgs = CGI->spriteh->giveDef("SCBUTT3.DEF");
-	name.fun = NULL;
-	name.pos = genRect(name.imgs->ourImages[0].bitmap->h,name.imgs->ourImages[0].bitmap->w,124,92);
-	name.key=_name;
-
-	viccon.imgs = CGI->spriteh->giveDef("SCBUTT4.DEF");
-	viccon.fun = NULL;
-	viccon.pos = genRect(viccon.imgs->ourImages[0].bitmap->h,viccon.imgs->ourImages[0].bitmap->w,309,92);
-	viccon.key=_viccon;
-
-	loscon.imgs = CGI->spriteh->giveDef("SCBUTT5.DEF");
-	loscon.fun = NULL;
-	loscon.pos = genRect(loscon.imgs->ourImages[0].bitmap->h,loscon.imgs->ourImages[0].bitmap->w,342,92);
-	loscon.key=_loscon;
-
-	nrplayer.poin=mapsize.poin=type.poin=name.poin=viccon.poin=loscon.poin=(int*)(&sortBy);
-	nrplayer.fun=mapsize.fun=type.fun=name.fun=viccon.fun=loscon.fun=boost::bind(&CPreGame::sortMaps,CPG);
-
-	Dtypes = CGI->spriteh->giveDef("SCSELC.DEF");
-	Dvic = CGI->spriteh->giveDef("SCNRVICT.DEF");
-	Dloss = CGI->spriteh->giveDef("SCNRLOSS.DEF");
-	//Dsizes = CPG->slh->giveDef("SCNRMPSZ.DEF");
-	Dsizes = CGI->spriteh->giveDef("SCNRMPSZ.DEF");
-	sFlags = CGI->spriteh->giveDef("ITGFLAGS.DEF");
 	//get map files names
 	std::vector<std::string> pliczkiTemp;
 	fs::path tie( (fs::initial_path<fs::path>())/"/maps" );
@@ -1049,31 +1035,79 @@ void MapSel::init()
 				pliczkiTemp.push_back("Maps/"+(dir->path().leaf()));
 		}
 	}
-	for (int i=0; i<pliczkiTemp.size();i++)
-	{
-		gzFile tempf = gzopen(pliczkiTemp[i].c_str(),"rb");
-		std::string sss;
-		int iii=0;
-		while(++iii)
-		{
-			if (iii>4000) break;
-			int z = gzgetc (tempf);
-			if (z>=0)
-			{
-				sss+=(unsigned char)z;
-			}
-			else break;
-		}
-		gzclose(tempf);
-		//if (sss[0]<28) continue; //zly format
-		if(iii<5) {std::cout<<"\t\tWarning: corrupted map file: "<<pliczkiTemp[i]<<std::endl; continue;}
-		if (!sss[4]) continue; //nie ma graczy? mapa niegrywalna //ju? to kiedy? komentowa?em- - to bzdura //tu calkiem pasuje...
-		unsigned char* file2 = new unsigned char[sss.length()];
-		for (int j=0;j<sss.length();j++)
-			file2[j]=sss[j];
-		ourMaps.push_back(CMapInfo(pliczkiTemp[i],file2));
-		delete[] file2;
-	}
+
+	int mapInd=0;
+	boost::thread_group group;
+	int cores = std::max((unsigned int)1,boost::thread::hardware_concurrency());
+	for(int ti=0;ti<cores;ti++)
+		group.create_thread(boost::bind(&MapSel::processMaps,this,boost::ref(pliczkiTemp),boost::ref(mapInd)));
+
+	bg = BitmapHandler::loadBitmap("SCSELBCK.bmp");
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	small.imgs = CDefHandler::giveDef("SCSMBUT.DEF");
+	small.fun = NULL;
+	small.pos = genRect(small.imgs->ourImages[0].bitmap->h,small.imgs->ourImages[0].bitmap->w,161,52);
+	small.ourGroup=NULL;
+	medium.imgs = CDefHandler::giveDef("SCMDBUT.DEF");
+	medium.fun = NULL;
+	medium.pos = genRect(medium.imgs->ourImages[0].bitmap->h,medium.imgs->ourImages[0].bitmap->w,208,52);
+	medium.ourGroup=NULL;
+	large.imgs = CDefHandler::giveDef("SCLGBUT.DEF");
+	large.fun = NULL;
+	large.pos = genRect(large.imgs->ourImages[0].bitmap->h,large.imgs->ourImages[0].bitmap->w,255,52);
+	large.ourGroup=NULL;
+	xlarge.imgs = CDefHandler::giveDef("SCXLBUT.DEF");
+	xlarge.fun = NULL;
+	xlarge.pos = genRect(xlarge.imgs->ourImages[0].bitmap->h,xlarge.imgs->ourImages[0].bitmap->w,302,52);
+	xlarge.ourGroup=NULL;
+	all.imgs = CDefHandler::giveDef("SCALBUT.DEF");
+	all.fun = NULL;
+	all.pos = genRect(all.imgs->ourImages[0].bitmap->h,all.imgs->ourImages[0].bitmap->w,349,52);
+	all.ourGroup=NULL;
+	all.selectable=xlarge.selectable=large.selectable=medium.selectable=small.selectable=false;
+	small.what=medium.what=large.what=xlarge.what=all.what=&sizeFilter;
+	small.key=36;medium.key=72;large.key=108;xlarge.key=144;all.key=0;
+//Button<> nrplayer, mapsize, type, name, viccon, loscon;
+	nrplayer.imgs = CDefHandler::giveDef("SCBUTT1.DEF");
+	nrplayer.fun = NULL;
+	nrplayer.pos = genRect(nrplayer.imgs->ourImages[0].bitmap->h,nrplayer.imgs->ourImages[0].bitmap->w,26,92);
+	nrplayer.key=_playerAm;
+
+	mapsize.imgs = CDefHandler::giveDef("SCBUTT2.DEF");
+	mapsize.fun = NULL;
+	mapsize.pos = genRect(mapsize.imgs->ourImages[0].bitmap->h,mapsize.imgs->ourImages[0].bitmap->w,58,92);
+	mapsize.key=_size;
+
+	type.imgs = CDefHandler::giveDef("SCBUTCP.DEF");
+	type.fun = NULL;
+	type.pos = genRect(type.imgs->ourImages[0].bitmap->h,type.imgs->ourImages[0].bitmap->w,91,92);
+	type.key=_format;
+
+	name.imgs = CDefHandler::giveDef("SCBUTT3.DEF");
+	name.fun = NULL;
+	name.pos = genRect(name.imgs->ourImages[0].bitmap->h,name.imgs->ourImages[0].bitmap->w,124,92);
+	name.key=_name;
+
+	viccon.imgs = CDefHandler::giveDef("SCBUTT4.DEF");
+	viccon.fun = NULL;
+	viccon.pos = genRect(viccon.imgs->ourImages[0].bitmap->h,viccon.imgs->ourImages[0].bitmap->w,309,92);
+	viccon.key=_viccon;
+
+	loscon.imgs = CDefHandler::giveDef("SCBUTT5.DEF");
+	loscon.fun = NULL;
+	loscon.pos = genRect(loscon.imgs->ourImages[0].bitmap->h,loscon.imgs->ourImages[0].bitmap->w,342,92);
+	loscon.key=_loscon;
+
+	nrplayer.poin=mapsize.poin=type.poin=name.poin=viccon.poin=loscon.poin=(int*)(&sortBy);
+	nrplayer.fun=mapsize.fun=type.fun=name.fun=viccon.fun=loscon.fun=boost::bind(&CPreGame::sortMaps,CPG);
+
+	Dtypes = CDefHandler::giveDef("SCSELC.DEF");
+	Dvic = CDefHandler::giveDef("SCNRVICT.DEF");
+	Dloss = CDefHandler::giveDef("SCNRLOSS.DEF");
+	//Dsizes = CPG->slh->giveDef("SCNRMPSZ.DEF");
+	Dsizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
+	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
+	group.join_all();
 	std::sort(ourMaps.begin(),ourMaps.end(),mapSorter(_name));
 	slid = new Slider(375,92,480,ourMaps.size(),18,true);
 	slid->fun = boost::bind(&CPreGame::printMapsFrom,CPG,_1);
@@ -1105,6 +1139,7 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 {
 	bool dontSaveSettings = ((selected!=which) || (CPG->ret.playerInfos.size()==0) || forceSettingsUpdate);
 	selected = which;
+	CPG->ret.mapname = ourMaps[selected].filename;
 	if(updateMapsList)
 		printMaps(slid->whereAreWe,18,0,true);
 	int serialC=0;
@@ -1385,14 +1420,14 @@ void CPreGame::initScenSel()
 {
 	ourScenSel = new ScenSel();
 	ourScenSel->listShowed=false;
-	if (rand()%2) ourScenSel->background=CGI->bitmaph->loadBitmap("ZPIC1000.bmp");
-	else ourScenSel->background=CGI->bitmaph->loadBitmap("ZPIC1001.bmp");
+	if (rand()%2) ourScenSel->background=BitmapHandler::loadBitmap("ZPIC1000.bmp");
+	else ourScenSel->background=BitmapHandler::loadBitmap("ZPIC1001.bmp");
 
 	ourScenSel->pressed=NULL;
 
-	ourScenSel->scenInf=CGI->bitmaph->loadBitmap("GSELPOP1.bmp");//SDL_LoadBMP("h3bitmap.lod\\GSELPOP1.bmp");
-	ourScenSel->randMap=CGI->bitmaph->loadBitmap("RANMAPBK.bmp");
-	ourScenSel->options=CGI->bitmaph->loadBitmap("ADVOPTBK.bmp");
+	ourScenSel->scenInf=BitmapHandler::loadBitmap("GSELPOP1.bmp");//SDL_LoadBMP("h3bitmap.lod\\GSELPOP1.bmp");
+	ourScenSel->randMap=BitmapHandler::loadBitmap("RANMAPBK.bmp");
+	ourScenSel->options=BitmapHandler::loadBitmap("ADVOPTBK.bmp");
 	SDL_SetColorKey(ourScenSel->scenInf,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->scenInf->format,0,255,255));
 	//SDL_SetColorKey(ourScenSel->scenList,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->scenList->format,0,255,255));
 	SDL_SetColorKey(ourScenSel->randMap,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->randMap->format,0,255,255));
@@ -1402,22 +1437,22 @@ void CPreGame::initScenSel()
 	ourScenSel->difficulty->type=1;
 	ourScenSel->selectedDiff=-77;
 	ourScenSel->difficulty->gdzie = &ourScenSel->selectedDiff;
-	ourScenSel->bEasy = IntSelBut(genRect(0,0,506,456),NULL,CGI->spriteh->giveDef("GSPBUT3.DEF"),true,ourScenSel->difficulty,0);
-	ourScenSel->bNormal = IntSelBut(genRect(0,0,538,456),NULL,CGI->spriteh->giveDef("GSPBUT4.DEF"),true,ourScenSel->difficulty,1);
-	ourScenSel->bHard = IntSelBut(genRect(0,0,570,456),NULL,CGI->spriteh->giveDef("GSPBUT5.DEF"),true,ourScenSel->difficulty,2);
-	ourScenSel->bExpert = IntSelBut(genRect(0,0,602,456),NULL,CGI->spriteh->giveDef("GSPBUT6.DEF"),true,ourScenSel->difficulty,3);
-	ourScenSel->bImpossible = IntSelBut(genRect(0,0,634,456),NULL,CGI->spriteh->giveDef("GSPBUT7.DEF"),true,ourScenSel->difficulty,4);
+	ourScenSel->bEasy = IntSelBut(genRect(0,0,506,456),NULL,CDefHandler::giveDef("GSPBUT3.DEF"),true,ourScenSel->difficulty,0);
+	ourScenSel->bNormal = IntSelBut(genRect(0,0,538,456),NULL,CDefHandler::giveDef("GSPBUT4.DEF"),true,ourScenSel->difficulty,1);
+	ourScenSel->bHard = IntSelBut(genRect(0,0,570,456),NULL,CDefHandler::giveDef("GSPBUT5.DEF"),true,ourScenSel->difficulty,2);
+	ourScenSel->bExpert = IntSelBut(genRect(0,0,602,456),NULL,CDefHandler::giveDef("GSPBUT6.DEF"),true,ourScenSel->difficulty,3);
+	ourScenSel->bImpossible = IntSelBut(genRect(0,0,634,456),NULL,CDefHandler::giveDef("GSPBUT7.DEF"),true,ourScenSel->difficulty,4);
 
-	ourScenSel->bBack = Button(genRect(0,0,584,535),boost::bind(&CPreGame::showNewMenu,this),CGI->spriteh->giveDef("SCNRBACK.DEF"));
-	ourScenSel->bBegin = Button(genRect(0,0,414,535),boost::bind(&CPreGame::begin,this),CGI->spriteh->giveDef("SCNRBEG.DEF"));
+	ourScenSel->bBack = Button(genRect(0,0,584,535),boost::bind(&CPreGame::showNewMenu,this),CDefHandler::giveDef("SCNRBACK.DEF"));
+	ourScenSel->bBegin = Button(genRect(0,0,414,535),boost::bind(&CPreGame::begin,this),CDefHandler::giveDef("SCNRBEG.DEF"));
+	ourScenSel->bScens = Button(genRect(0,0,414,81),boost::bind(&CPreGame::showScenList,this),CDefHandler::giveDef("GSPBUTT.DEF"));
 
-	ourScenSel->bScens = Button(genRect(0,0,414,81),boost::bind(&CPreGame::showScenList,this),CGI->spriteh->giveDef("GSPBUTT.DEF"));
 	for (int i=0; i<ourScenSel->bScens.imgs->ourImages.size(); i++)
 		CSDL_Ext::printAt(CGI->generaltexth->allTexts[500],25+i,2+i,GEOR13,zwykly,ourScenSel->bScens.imgs->ourImages[i].bitmap); //"Show Available Scenarios"
-	ourScenSel->bRandom = Button(genRect(0,0,414,105),boost::bind(&CPreGame::showScenList,this),CGI->spriteh->giveDef("GSPBUTT.DEF"));
+	ourScenSel->bRandom = Button(genRect(0,0,414,105),boost::bind(&CPreGame::showScenList,this),CDefHandler::giveDef("GSPBUTT.DEF"));
 	for (int i=0; i<ourScenSel->bRandom.imgs->ourImages.size(); i++)
 		CSDL_Ext::printAt(CGI->generaltexth->allTexts[740],25+i,2+i,GEOR13,zwykly,ourScenSel->bRandom.imgs->ourImages[i].bitmap);
-	ourScenSel->bOptions = Button(genRect(0,0,414,509),boost::bind(&CPreGame::showOptions,this),CGI->spriteh->giveDef("GSPBUTT.DEF"));
+	ourScenSel->bOptions = Button(genRect(0,0,414,509),boost::bind(&CPreGame::showOptions,this),CDefHandler::giveDef("GSPBUTT.DEF"));
 	for (int i=0; i<ourScenSel->bOptions.imgs->ourImages.size(); i++)
 		CSDL_Ext::printAt(CGI->generaltexth->allTexts[501],25+i,2+i,GEOR13,zwykly,ourScenSel->bOptions.imgs->ourImages[i].bitmap); //"Show Advanced Options"
 
@@ -1510,17 +1545,17 @@ void CPreGame::showOptions()
 void CPreGame::initNewMenu()
 {
 	ourNewMenu = new menuItems();
-	ourNewMenu->bgAd = CGI->bitmaph->loadBitmap("ZNEWGAM.bmp");
-	ourNewMenu->background = CGI->bitmaph->loadBitmap("ZPIC1005.bmp");
+	ourNewMenu->bgAd = BitmapHandler::loadBitmap("ZNEWGAM.bmp");
+	ourNewMenu->background = BitmapHandler::loadBitmap("ZPIC1005.bmp");
 	blitAt(ourNewMenu->bgAd,114,312,ourNewMenu->background);
 	 //loading menu buttons
-	ourNewMenu->newGame = CGI->spriteh->giveDef("ZTSINGL.DEF");
-	ourNewMenu->loadGame = CGI->spriteh->giveDef("ZTMULTI.DEF");
-	ourNewMenu->highScores = CGI->spriteh->giveDef("ZTCAMPN.DEF");
-	ourNewMenu->credits = CGI->spriteh->giveDef("ZTTUTOR.DEF");
-	ourNewMenu->quit = CGI->spriteh->giveDef("ZTBACK.DEF");
-	ok = CGI->spriteh->giveDef("IOKAY.DEF");
-	cancel = CGI->spriteh->giveDef("ICANCEL.DEF");
+	ourNewMenu->newGame = CDefHandler::giveDef("ZTSINGL.DEF");
+	ourNewMenu->loadGame = CDefHandler::giveDef("ZTMULTI.DEF");
+	ourNewMenu->highScores = CDefHandler::giveDef("ZTCAMPN.DEF");
+	ourNewMenu->credits = CDefHandler::giveDef("ZTTUTOR.DEF");
+	ourNewMenu->quit = CDefHandler::giveDef("ZTBACK.DEF");
+	ok = CDefHandler::giveDef("IOKAY.DEF");
+	cancel = CDefHandler::giveDef("ICANCEL.DEF");
 	// single scenario
 	ourNewMenu->lNewGame.h=ourNewMenu->newGame->ourImages[0].bitmap->h;
 	ourNewMenu->lNewGame.w=ourNewMenu->newGame->ourImages[0].bitmap->w;
@@ -1572,15 +1607,15 @@ void CPreGame::showNewMenu()
 void CPreGame::initMainMenu()
 {
 	ourMainMenu = new menuItems();
-	ourMainMenu->background = CGI->bitmaph->loadBitmap("ZPIC1005.bmp"); //SDL_LoadBMP("h3bitmap.lod\\ZPIC1005.bmp");
+	ourMainMenu->background = BitmapHandler::loadBitmap("ZPIC1005.bmp"); //SDL_LoadBMP("h3bitmap.lod\\ZPIC1005.bmp");
 	 //loading menu buttons
-	ourMainMenu->newGame = CGI->spriteh->giveDef("ZMENUNG.DEF");
-	ourMainMenu->loadGame = CGI->spriteh->giveDef("ZMENULG.DEF");
-	ourMainMenu->highScores = CGI->spriteh->giveDef("ZMENUHS.DEF");
-	ourMainMenu->credits = CGI->spriteh->giveDef("ZMENUCR.DEF");
-	ourMainMenu->quit = CGI->spriteh->giveDef("ZMENUQT.DEF");
-	ok = CGI->spriteh->giveDef("IOKAY.DEF");
-	cancel = CGI->spriteh->giveDef("ICANCEL.DEF");
+	ourMainMenu->newGame = CDefHandler::giveDef("ZMENUNG.DEF");
+	ourMainMenu->loadGame = CDefHandler::giveDef("ZMENULG.DEF");
+	ourMainMenu->highScores = CDefHandler::giveDef("ZMENUHS.DEF");
+	ourMainMenu->credits = CDefHandler::giveDef("ZMENUCR.DEF");
+	ourMainMenu->quit = CDefHandler::giveDef("ZMENUQT.DEF");
+	ok = CDefHandler::giveDef("IOKAY.DEF");
+	cancel = CDefHandler::giveDef("ICANCEL.DEF");
 	// new game button location
 	ourMainMenu->lNewGame.h=ourMainMenu->newGame->ourImages[0].bitmap->h;
 	ourMainMenu->lNewGame.w=ourMainMenu->newGame->ourImages[0].bitmap->w;
@@ -1820,7 +1855,6 @@ StartInfo CPreGame::runLoop()
 	SDL_Event sEvent;
 	while(run)
 	{
-		CGI->screenh->updateScreen();
 		try
 		{
 			if(SDL_PollEvent(&sEvent))  //wait for event...
@@ -2077,8 +2111,10 @@ StartInfo CPreGame::runLoop()
 		}
 		catch(...)
 		{ continue; }
-
-		SDL_Delay(1); //give time for other apps
+		CGI->curh->draw1();
+		SDL_Flip(screen);
+		CGI->curh->draw2();
+		SDL_Delay(20); //give time for other apps
 	}
 	return ret;
 }

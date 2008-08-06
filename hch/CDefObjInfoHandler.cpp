@@ -1,9 +1,11 @@
+#define VCMI_DLL
 #include "../stdafx.h"
 #include "CDefObjInfoHandler.h"
 #include "../CGameInfo.h"
 #include "CLodHandler.h"
 #include <sstream>
-
+#include "../lib/VCMI_Lib.h"
+extern CLodHandler * bitmaph;
 bool CGDefInfo::isVisitable()
 {
 	for (int i=0; i<6; i++)
@@ -17,15 +19,11 @@ CGDefInfo::CGDefInfo()
 {
 	visitDir = (8|16|32|64|128); //4,5,6,7,8 - any not-from-up direction
 }
-bool DefObjInfo::operator==(const std::string & por) const
-{
-	return this->defName == por;
-}
-
 void CDefObjInfoHandler::load()
 {
+	VLC->dobjinfo = this;
 	nodrze<int> ideki;
-	std::istringstream inp(CGameInfo::mainObj->bitmaph->getTextFile("ZOBJCTS.TXT"));
+	std::istringstream inp(bitmaph->getTextFile("ZOBJCTS.TXT"));
 	int objNumber;
 	inp>>objNumber;
 	for(int hh=0; hh<objNumber; ++hh)
@@ -62,8 +60,8 @@ void CDefObjInfoHandler::load()
 			}
 		}
 
-		for(int yy=0; yy<2; ++yy)
-			inp>>dump;
+		for(int yy=0; yy<2; ++yy) //first - on which types of terrain object can be placed; 
+			inp>>dump; //second -in which terrains' menus object in the editor will be available (?)
 		inp>>nobj->id;
 		inp>>nobj->subid;
 		inp>>nobj->type;
@@ -72,14 +70,4 @@ void CDefObjInfoHandler::load()
 		if(nobj->id==98)
 			castles[nobj->subid]=nobj;
 	}
-}
-
-bool DefObjInfo::isVisitable() const
-{
-	for(int g=0; g<6; ++g)
-	{
-		if(visitMap[g]!=0)
-			return true;
-	}
-	return false;
 }

@@ -5,7 +5,6 @@
 #include "mapHandler.h"
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
-#include "CScreenHandler.h"
 #include "CCursorHandler.h"
 #include "CCallback.h"
 #include "SDL_Extensions.h"
@@ -25,7 +24,6 @@ using namespace CSDL_Ext;
 
 CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 {
-	std::cout << "Opening "<<dllname/*<<" for player "<< cb->player*/<<std::endl;
 	dllname = "AI/"+dllname;
 	CGlobalAI * ret=NULL;
 	CGlobalAI*(*getAI)();

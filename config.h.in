@@ -54,6 +54,9 @@
 /* define if the Boost::System library is available */
 #undef HAVE_BOOST_SYSTEM
 
+/* define if the Boost::Thread library is available */
+#undef HAVE_BOOST_THREAD
+
 /* Define to 1 if you have the <fcntl.h> header file. */
 #undef HAVE_FCNTL_H
 

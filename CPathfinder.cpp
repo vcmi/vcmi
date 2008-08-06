@@ -5,6 +5,7 @@
 #include "hch/CAmbarCendamo.h"
 #include "mapHandler.h"
 #include "CGameState.h"
+#include "hch/CObjectHandler.h"
 
 using namespace std;
 
@@ -41,14 +42,14 @@ vector<Coordinate>* CPathfinder::GetPath(const CGHeroInstance* hero)
 	int3 hpos = Hero->getPosition(false);
 	if (!Hero->canWalkOnSea())
 	{
-		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].terType==water)
+		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].tileInfo->tertype==water)
 			blockLandSea=false;
 		else
 			blockLandSea=true;
 	}
 	else
 	{
-		blockLandSea = indeterminate;
+		blockLandSea = boost::logic::indeterminate;
 	}
 
 	CalcG(&Start);
@@ -191,11 +192,11 @@ void CPathfinder::CalcH(Coordinate* node)
 	 * If there is fog of war on the node.
 	 *  => Impossible to move there.
 	 */
-	if( (CGI->mh->ttiles[node->x][node->y][node->z].blocked && !(node->x==End.x && node->y==End.y && CGI->mh->ttiles[node->x][node->y][node->z].visitable)) ||
-		(CGI->mh->ttiles[node->x][node->y][node->z].terType==rock) ||
-		((blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].terType==water)) ||
+	if( (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->blocked && !(node->x==End.x && node->y==End.y && CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->visitable)) ||
+		(CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype==rock) ||
+		((blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype==water)) ||
 		(!CGI->state->players[Hero->tempOwner].fogOfWarMap[node->x][node->y][node->z]) ||
-		((!blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].terType!=water)))
+		((!blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype!=water)))
 	{
 		//Impossible.
 
@@ -206,13 +207,13 @@ void CPathfinder::CalcH(Coordinate* node)
 	int ret=-1;
 	int x = node->x;
 	int y = node->y;
-	if(node->x>=CGI->mh->reader->map.width)
-		x = CGI->mh->reader->map.width-1;
-	if(node->y>=CGI->mh->reader->map.height)
-		y = CGI->mh->reader->map.height-1;
+	if(node->x>=CGI->mh->map->width)
+		x = CGI->mh->map->width-1;
+	if(node->y>=CGI->mh->map->height)
+		y = CGI->mh->map->height-1;
 
 	//Get the movement cost.
-	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].terType, CGI->mh->reader->map.terrain[x][y].malle,CGI->mh->reader->map.terrain[x][y].nuine);
+	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].tileInfo->tertype, CGI->mh->map->terrain[x][y][node->z].malle,CGI->mh->map->terrain[x][y][node->z].nuine);
 
 	node->h = ret;
 }
