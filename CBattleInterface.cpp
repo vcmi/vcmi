@@ -7,6 +7,7 @@
 #include "hch/CObjectHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CDefHandler.h"
+#include "CCursorHandler.h"
 #include "CCallback.h"
 #include "CGameState.h"
 #include "hch/CGeneralTextHandler.h"
@@ -502,12 +503,12 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 		}
 	}
 
-	int mutPos = CBattleHex::mutualPosition(curStackPos, destHex);
+	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
 
 	if(LOCPLINT->cb->battleGetCreature(number).isDoubleWide() &&
 		((creDir[number] && mutPos == 5) || (creDir[number] && mutPos == 0) || (creDir[number] && mutPos == 4))) //for special cases
 	{
-		switch(CBattleHex::mutualPosition(curStackPos, destHex)) //reverse unit if necessary
+		switch(BattleInfo::mutualPosition(curStackPos, destHex)) //reverse unit if necessary
 		{
 		case 0:
 			if(creDir[number] == true)
@@ -538,7 +539,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 		creAnims[number]->setType(0);
 		for(int i=0; i<steps; ++i)
 		{
-			switch(CBattleHex::mutualPosition(curStackPos, destHex))
+			switch(BattleInfo::mutualPosition(curStackPos, destHex))
 			{
 			case 0:
 				creAnims[number]->pos.x -= hexWbase/(2*steps);
@@ -575,7 +576,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 	}
 	else //normal move instructions
 	{
-		switch(CBattleHex::mutualPosition(curStackPos, destHex)) //reverse unit if necessary
+		switch(BattleInfo::mutualPosition(curStackPos, destHex)) //reverse unit if necessary
 		{
 		case 0:
 			if(creDir[number] == true)
@@ -606,7 +607,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 		creAnims[number]->setType(0);
 		for(int i=0; i<steps; ++i)
 		{
-			switch(CBattleHex::mutualPosition(curStackPos, destHex))
+			switch(BattleInfo::mutualPosition(curStackPos, destHex))
 			{
 			case 0:
 				creAnims[number]->pos.x -= hexWbase/(2*steps);
@@ -645,9 +646,9 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		}
+		creAnims[number]->setType(2); //resetting to default
 	}
 
-	creAnims[number]->setType(2); //resetting to default
 	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
 	if(endMoving) //resetting to default
 	{
@@ -712,7 +713,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	CStack aStack = *LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
 	if(aStack.creature->isDoubleWide())
 	{
-		switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
+		switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
 		{
 			case 0:
 				//reverseCreature(ID, aStack.position, true);
@@ -733,7 +734,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	}
 	else //else for if(aStack.creature->isDoubleWide())
 	{
-		switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
+		switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
 		{
 			case 0:
 				reverseCreature(ID, aStack.position, true);
@@ -760,7 +761,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	attackingInfo->reversing = false;
 	attackingInfo->shooting = false;
 
-	switch(CBattleHex::mutualPosition(aStack.position, dest)) //attack direction
+	switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
 	{
 		case 0:
 			attackingInfo->maxframe = creAnims[ID]->framesInGroup(10);
@@ -796,6 +797,7 @@ void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack)
 	ba->stackNumber = stack;
 	givenCommand->setn(ba);
 	myTurn = false;
+	activeStack = -1;
 }
 
 void CBattleInterface::hexLclicked(int whichOne)
@@ -807,9 +809,10 @@ void CBattleInterface::hexLclicked(int whichOne)
 
 		int atCre = LOCPLINT->cb->battleGetStack(whichOne); //creature at destination tile; -1 if there is no one
 		//LOCPLINT->cb->battleGetCreature();
-		if(atCre==-1) //normal move action
+		if(atCre==-1) //no creature at that tile
 		{
-			giveCommand(2,whichOne,activeStack);
+			if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
+				giveCommand(2,whichOne,activeStack);
 		}
 		else if(LOCPLINT->cb->battleGetStackByID(atCre)->owner != attackingHeroInstance->tempOwner
 			&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)) //shooting
@@ -919,7 +922,7 @@ void CBattleInterface::attackingShowHelper()
 			{
 				if(aStack.creature->isDoubleWide())
 				{
-					switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 					{
 						case 0:
 							creAnims[attackingInfo->ID]->setType(10);
@@ -943,7 +946,7 @@ void CBattleInterface::attackingShowHelper()
 				}
 				else //else for if(aStack.creature->isDoubleWide())
 				{
-					switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 					{
 						case 0:
 							creAnims[attackingInfo->ID]->setType(10);
@@ -973,7 +976,7 @@ void CBattleInterface::attackingShowHelper()
 			CStack aStack = *LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
 			if(aStack.creature->isDoubleWide())
 			{
-				switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+				switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 				{
 					case 0:
 						//reverseCreature(ID, aStack.position, true);
@@ -994,7 +997,7 @@ void CBattleInterface::attackingShowHelper()
 			}
 			else //else for if(aStack.creature->isDoubleWide())
 			{
-				switch(CBattleHex::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+				switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 				{
 					case 0:
 						reverseCreature(attackingInfo->ID, aStack.position, true);
@@ -1186,24 +1189,6 @@ std::pair<int, int> CBattleHex::getXYUnitAnim(int hexNum, bool attacker, CCreatu
 	//returning
 	return ret;
 }
-
-signed char CBattleHex::mutualPosition(int hex1, int hex2)
-{
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
-		return 0;
-	if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
-		return 1;
-	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
-		return 5;
-	if(hex2 == hex1 + 1 && hex1%17 != 16) //right
-		return 2;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
-		return 4;
-	if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
-		return 3;
-	return -1;
-}
-
 void CBattleHex::activate()
 {
 	Hoverable::activate();

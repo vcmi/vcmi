@@ -592,12 +592,12 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 							bool accessibility[187];
 							if(curStack->creature->isDoubleWide())
 							{
-								gs->curB->getAccessibilityMapForTwoHex(accessibility,curStack->attackerOwned);
-								accessibility[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;//OUR second tile is for US accessible
+								gs->curB->getAccessibilityMapForTwoHex(accessibility,curStack->attackerOwned,curStack->ID);
+								//accessibility[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;//OUR second tile is for US accessible
 							}
 							else 
-								gs->curB->getAccessibilityMap(accessibility);
-							accessibility[curStack->position] = true; //OUR tile is for US accessible
+								gs->curB->getAccessibilityMap(accessibility,curStack->ID);
+							//accessibility[curStack->position] = true; //OUR tile is for US accessible
 
 							//if(!stackAtEnd && !accessibility[dest])
 							//	return false;
@@ -900,7 +900,8 @@ void CGameHandler::run()
 				p= boost::posix_time::seconds(1);
 				boost::xtime time={0,0};
 				time.sec = static_cast<boost::xtime::xtime_sec_t>(p.total_seconds());
-				cTurn.timed_wait(lock,time);
+				cTurn.wait(lock);
+				//cTurn.timed_wait(lock,time);
 			}
 		}
 	}

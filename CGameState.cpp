@@ -112,12 +112,12 @@ CStack * BattleInfo::getStackT(int tileID)
 	}
 	return NULL;
 }
-void BattleInfo::getAccessibilityMap(bool *accessibility)
+void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 {
 	memset(accessibility,1,187); //initialize array with trues
 	for(int g=0; g<stacks.size(); ++g)
 	{
-		if(!stacks[g]->alive) //we don't want to lock enemy's positions and this units' position
+		if(!stacks[g]->alive || stacks[g]->ID==stackToOmmit) //we don't want to lock position of this stack
 			continue;
 
 		accessibility[stacks[g]->position] = false;
@@ -131,10 +131,10 @@ void BattleInfo::getAccessibilityMap(bool *accessibility)
 	}
 	//TODO: obstacles
 }
-void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide) //send pointer to at least 187 allocated bytes
+void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide, int stackToOmmit) //send pointer to at least 187 allocated bytes
 {	
 	bool mac[187];
-	getAccessibilityMap(mac);
+	getAccessibilityMap(mac,stackToOmmit);
 	memcpy(accessibility,mac,187);
 
 	for(int b=0; b<187; ++b)
@@ -165,45 +165,13 @@ void BattleInfo::makeBFS(int start, bool*accessibility, int *predecessor, int *d
 	while(!hexq.empty()) //bfs loop
 	{
 		int curHex = hexq.front();
+		std::vector<int> neighbours = neighbouringTiles(curHex);
 		hexq.pop();
-		curNext = curHex - ( (curHex/17)%2 ? 18 : 17 );
-		if((curNext > 0) && (accessibility[curNext]) && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top left
+		for(int nr=0; nr<neighbours.size(); nr++)
 		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex - ( (curHex/17)%2 ? 17 : 16 );
-		if((curNext > 0) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //top right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex - 1;
-		if((curNext > 0) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex + 1;
-		if((curNext < 187) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //right
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex + ( (curHex/17)%2 ? 16 : 17 );
-		if((curNext < 187) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom left
-		{
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
-			predecessor[curNext] = curHex;
-		}
-		curNext = curHex + ( (curHex/17)%2 ? 17 : 18 );
-		if((curNext < 187) && (accessibility[curNext])  && (dists[curHex] + 1 < dists[curNext]) && (curNext)%17!=0 && (curNext)%17!=16) //bottom right
-		{
+			curNext = neighbours[nr];
+			if(!accessibility[curNext] || (dists[curHex]+1)>=dists[curNext])
+				continue;
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
 			predecessor[curNext] = curHex;
@@ -217,9 +185,9 @@ std::vector<int> BattleInfo::getAccessibility(int stackID)
 	bool ac[187];
 	CStack *s = getStack(stackID);
 	if(s->creature->isDoubleWide())
-		getAccessibilityMapForTwoHex(ac,s->attackerOwned);
+		getAccessibilityMapForTwoHex(ac,s->attackerOwned,stackID);
 	else
-		getAccessibilityMap(ac);
+		getAccessibilityMap(ac,stackID);
 
 	int pr[187], dist[187];
 	makeBFS(s->position,ac,pr,dist);
@@ -228,6 +196,35 @@ std::vector<int> BattleInfo::getAccessibility(int stackID)
 		if(dist[i] <= s->creature->speed)
 			ret.push_back(i);
 
+	return ret;
+}
+signed char BattleInfo::mutualPosition(int hex1, int hex2)
+{
+	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left
+		return 0;
+	if(hex2 == hex1 - ( (hex1/17)%2 ? 17 : 16 )) //top right
+		return 1;
+	if(hex2 == hex1 - 1 && hex1%17 != 0) //left
+		return 5;
+	if(hex2 == hex1 + 1 && hex1%17 != 16) //right
+		return 2;
+	if(hex2 == hex1 + ( (hex1/17)%2 ? 16 : 17 )) //bottom left
+		return 4;
+	if(hex2 == hex1 + ( (hex1/17)%2 ? 17 : 18 )) //bottom right
+		return 3;
+	return -1;
+}
+std::vector<int> BattleInfo::neighbouringTiles(int hex)
+{
+#define CHECK_AND_PUSH(tile) {int hlp = (tile); if(hlp>=0 && hlp<187 && (hlp%17!=16) && hlp%17) ret.push_back(hlp);}
+	std::vector<int> ret;
+	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 18 : 17 ));
+	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 17 : 16 ));
+	CHECK_AND_PUSH(hex - 1);
+	CHECK_AND_PUSH(hex + 1);
+	CHECK_AND_PUSH(hex + ( (hex/17)%2 ? 16 : 17 ));
+	CHECK_AND_PUSH(hex + ( (hex/17)%2 ? 17 : 18 ));
+#undef CHECK_AND_PUSH
 	return ret;
 }
 std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)

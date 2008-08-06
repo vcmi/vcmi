@@ -1016,7 +1016,7 @@ void CPlayerInterface::yourTurn()
 			events.pop();
 		}
 		eventsM.unlock();
-		if (!castleInt) //stuff for advMapInt
+		if (curint == adventureInt) //stuff for advMapInt
 		{
 			++LOCPLINT->adventureInt->animValHitCount; //for animations
 			if(LOCPLINT->adventureInt->animValHitCount == 8)
