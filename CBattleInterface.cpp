@@ -303,20 +303,12 @@ void CBattleInterface::show(SDL_Surface * to)
 			//printing amount
 			if(stacks[stackDeadByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
-				if(stacks[stackDeadByHex[b][v]].attackerOwned)
-				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackDeadByHex[b][v]]->pos.x + 220, creAnims[stackDeadByHex[b][v]]->pos.y + 260));
-					std::stringstream ss;
-					ss<<stacks[stackDeadByHex[b][v]].amount;
-					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackDeadByHex[b][v]]->pos.x + 220 + 14, creAnims[stackDeadByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
-				}
-				else
-				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackDeadByHex[b][v]]->pos.x + 202, creAnims[stackDeadByHex[b][v]]->pos.y + 260));
-					std::stringstream ss;
-					ss<<stacks[stackDeadByHex[b][v]].amount;
-					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackDeadByHex[b][v]]->pos.x + 202 + 14, creAnims[stackDeadByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
-				}
+				int xAdd = stacks[stackDeadByHex[b][v]].attackerOwned ? 220 : 202;
+
+				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackDeadByHex[b][v]]->pos.x + xAdd, creAnims[stackDeadByHex[b][v]]->pos.y + 260));
+				std::stringstream ss;
+				ss<<stacks[stackDeadByHex[b][v]].amount;
+				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackDeadByHex[b][v]]->pos.x + xAdd + 14, creAnims[stackDeadByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
 			}
 		}
 	}
@@ -328,20 +320,12 @@ void CBattleInterface::show(SDL_Surface * to)
 			//printing amount
 			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
-				if(stacks[stackAliveByHex[b][v]].attackerOwned)
-				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + 220, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
-					std::stringstream ss;
-					ss<<stacks[stackAliveByHex[b][v]].amount;
-					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackAliveByHex[b][v]]->pos.x + 220 + 14, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
-				}
-				else
-				{
-					CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + 202, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
-					std::stringstream ss;
-					ss<<stacks[stackAliveByHex[b][v]].amount;
-					CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackAliveByHex[b][v]]->pos.x + 202 + 14, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
-				}
+				int xAdd = stacks[stackAliveByHex[b][v]].attackerOwned ? 220 : 202;
+
+				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + xAdd, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
+				std::stringstream ss;
+				ss<<stacks[stackAliveByHex[b][v]].amount;
+				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackAliveByHex[b][v]]->pos.x + xAdd + 14, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
 			}
 		}
 	}
@@ -398,6 +382,7 @@ void CBattleInterface::bSurrenderf()
 void CBattleInterface::bFleef()
 {
 	giveCommand(4,0,0);
+	CGI->curh->changeGraphic(0, 0);
 }
 
 void CBattleInterface::bAutofightf()

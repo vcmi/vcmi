@@ -595,6 +595,9 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			sr.w = dstRect->w = w;
 			sr.h = dstRect->h = h;
 
+			if(SDL_LockSurface(dst))
+				return -1; //if we cannot lock the surface
+
 			if(dst->format->Rshift==0) //like in most surfaces
 			{
 				for(int y=0; y<sr.h; ++y)
@@ -679,6 +682,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 					}
 				}
 			}
+			SDL_UnlockSurface(dst);
 		}
 	}
 	return 0;
