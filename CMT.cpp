@@ -167,33 +167,6 @@ int main(int argc, _TCHAR* argv[])
 			events.push(ev);
 			eventsM.unlock();
 		}
-		///claculating FoWs for minimap
-		/****************************Minimaps' FoW******************************************/
-		//for(int g=0; g<cgi->playerint.size(); ++g)
-		//{
-		//	if(!cgi->playerint[g]->human)
-		//		continue;
-		//	CMinimap & mm = ((CPlayerInterface*)cgi->playerint[g])->adventureInt->minimap;
-		//	int mw = mm.map[0]->w, mh = mm.map[0]->h,
-		//		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
-		//	for(int d=0; d<cgi->mh->map->twoLevel+1; ++d)
-		//	{
-		//		SDL_Surface * pt = CSDL_Ext::newSurface(mm.pos.w, mm.pos.h, CSDL_Ext::std32bppSurface);
-		//		for (int i=0; i<mw; i++)
-		//		{
-		//			for (int j=0; j<mh; j++)
-		//			{
-		//				int3 pp( ((i*CGI->mh->sizes.x)/mw), ((j*CGI->mh->sizes.y)/mh), d );
-		//				if ( !((CPlayerInterface*)cgi->playerint[g])->cb->isVisible(pp) )
-		//				{
-		//					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
-		//				}
-		//			}
-		//		}
-		//		CSDL_Ext::update(pt);
-		//		mm.FoW.push_back(pt);
-		//	}
-		//}
 	}
 	else
 	{

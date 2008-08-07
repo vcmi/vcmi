@@ -93,6 +93,7 @@ CMinimap::CMinimap(bool draw)
 		colorsBlocked.insert(vinya2);
 	}
 	is.close();
+
 	if (draw)
 		redraw();
 }
@@ -121,7 +122,7 @@ void CMinimap::draw()
 			}
 		}
 	}
-	//blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
+	blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
 
 	//draw radar
 	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)CGI->mh->sizes.x)))*pos.w,
@@ -155,6 +156,30 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 		map.push_back(pom);
 
 	}
+
+	//FoW
+	int mw = map[0]->w, mh = map[0]->h,
+		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
+	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
+	{
+		if(level>=0 && d!=level)
+			continue;
+		SDL_Surface * pt = CSDL_Ext::newSurface(pos.w, pos.h, CSDL_Ext::std32bppSurface);
+		for (int i=0; i<mw; i++)
+		{
+			for (int j=0; j<mh; j++)
+			{
+				int3 pp( ((i*CGI->mh->sizes.x)/mw), ((j*CGI->mh->sizes.y)/mh), d );
+				if ( !LOCPLINT->cb->isVisible(pp) )
+				{
+					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
+				}
+			}
+		}
+		CSDL_Ext::update(pt);
+		FoW.push_back(pt);
+	}
+	//FoW end
 }
 void CMinimap::updateRadar()
 {}
@@ -217,17 +242,17 @@ void CMinimap::deactivate()
 }
 void CMinimap::showTile(int3 pos)
 {
-	//int mw = map[0]->w, mh = map[0]->h;
-	//double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
-	//for (int ii=0; ii<wo; ii++)
-	//{
-	//	for (int jj=0; jj<ho; jj++)
-	//	{
-	//		if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
-	//			CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
+	int mw = map[0]->w, mh = map[0]->h;
+	double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
+	for (int ii=0; ii<wo; ii++)
+	{
+		for (int jj=0; jj<ho; jj++)
+		{
+			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
+				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
 
-	//	}
-	//}
+		}
+	}
 }
 void CMinimap::hideTile(int3 pos)
 {

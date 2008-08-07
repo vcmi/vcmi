@@ -115,7 +115,7 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].b = kolory[i].z;
 		playerColors[i].unused = 0;
 	}
-	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84;//gray
+	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 0x0;//gray
 }	
 void Graphics::initializeBattleGraphics()
 {
