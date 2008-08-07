@@ -31,10 +31,21 @@ void CCursorHandler::cursorMove(int x, int y)
 }
 void CCursorHandler::draw1()
 {
-	SDL_BlitSurface(screen,&genRect(32,32,xpos,ypos),help,&genRect(32,32,0,0));
-	blitAt(cursors[mode]->ourImages[number].bitmap,xpos,ypos);
+	if(!Show) return;
+	switch(mode)
+	{
+	case 0:
+		SDL_BlitSurface(screen,&genRect(32,32,xpos,ypos),help,&genRect(32,32,0,0));
+		blitAt(cursors[mode]->ourImages[number].bitmap,xpos,ypos);
+		break;
+	case 1:
+		SDL_BlitSurface(screen,&genRect(32,32,xpos-16,ypos-16),help,&genRect(32,32,0,0));
+		blitAt(cursors[mode]->ourImages[number].bitmap,xpos-16,ypos-16);
+		break;
+	}
 }
 void CCursorHandler::draw2()
 {
+	if(!Show) return;
 	blitAt(help,xpos,ypos);
 }

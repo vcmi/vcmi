@@ -11,6 +11,7 @@ class CCursorHandler //handles cursor
 public:
 	int mode, number;
 	SDL_Surface * help;
+	bool Show;
 
 	std::vector<CDefHandler*> cursors;
 	int xpos, ypos; //position of cursor
@@ -19,6 +20,8 @@ public:
 	void changeGraphic(int type, int no); //changes cursor graphic for type type (0 - adventure, 1 - combat, 2 - default, 3 - spellbook) and frame no (not used for type 3)
 	void draw1();
 	void draw2();
+	void hide(){Show=0;};
+	void show(){Show=1;};
 };
 
 

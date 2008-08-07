@@ -299,7 +299,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackDeadByHex[b].size(); ++v)
 		{
-			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%2==0 || creAnims[stackDeadByHex[b][v]]->getType()!=2) && stacks[stackDeadByHex[b][v]].alive, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%4==0 || creAnims[stackDeadByHex[b][v]]->getType()!=2) && stacks[stackDeadByHex[b][v]].alive, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackDeadByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -324,7 +324,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackAliveByHex[b].size(); ++v)
 		{
-			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%2==0 || creAnims[stackAliveByHex[b][v]]->getType()!=2) && stacks[stackAliveByHex[b][v]].alive, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%4==0) && stacks[stackAliveByHex[b][v]].alive, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -359,6 +359,8 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		if((animCount+1)%4)
+			creAnims[number]->incrementFrame();
 	}
 	creDir[number] = !creDir[number];
 
@@ -369,7 +371,8 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 
 	if(wideTrick && curs.creature->isDoubleWide())
 	{
-		creAnims[number]->pos.x -= 44;
+		if(!creDir[number])
+			creAnims[number]->pos.x -= 44;
 	}
 
 	creAnims[number]->setType(7);
@@ -492,54 +495,43 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
 	int steps = creAnims[number]->framesInGroup(0);
 	int hexWbase = 44, hexHbase = 42;
+	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
 
 	if(startMoving) //animation of starting move
 	{
+		deactivate();
+		CGI->curh->hide();
+		creAnims[number]->setType(20);
+		//LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 		for(int i=0; i<creAnims[number]->framesInGroup(20); ++i)
 		{
 			show();
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			if((animCount+1)%4)
+				creAnims[number]->incrementFrame();
 		}
 	}
 
 	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
 
-	if(LOCPLINT->cb->battleGetCreature(number).isDoubleWide() &&
-		((creDir[number] && mutPos == 5) || (creDir[number] && mutPos == 0) || (creDir[number] && mutPos == 4))) //for special cases
 	{
-		switch(BattleInfo::mutualPosition(curStackPos, destHex)) //reverse unit if necessary
+		switch(mutPos) //reverse unit if necessary
 		{
-		case 0:
+		case 0:	case 4:	case 5:
 			if(creDir[number] == true)
-				reverseCreature(number, curStackPos, true);
+				reverseCreature(number, curStackPos, twoTiles);
 			break;
-		case 1:
+		case 1:	case 2: case 3:
 			if(creDir[number] == false)
-				reverseCreature(number, curStackPos, true);
-			break;
-		case 2:
-			if(creDir[number] == false)
-				reverseCreature(number, curStackPos, true);
-			break;
-		case 3:
-			if(creDir[number] == false)
-				reverseCreature(number, curStackPos, true);
-			break;
-		case 4:
-			if(creDir[number] == true)
-				reverseCreature(number, curStackPos, true);
-			break;
-		case 5:
-			if(creDir[number] == true)
-				reverseCreature(number, curStackPos, true);
+				reverseCreature(number, curStackPos, twoTiles);
 			break;
 		}
 		//moving instructions
 		creAnims[number]->setType(0);
 		for(int i=0; i<steps; ++i)
 		{
-			switch(BattleInfo::mutualPosition(curStackPos, destHex))
+			switch(mutPos)
 			{
 			case 0:
 				creAnims[number]->pos.x -= hexWbase/(2*steps);
@@ -567,98 +559,37 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 			show();
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		}
-		if( (LOCPLINT->cb->battleGetStackByID(number)->owner == attackingHeroInstance->tempOwner ) != creDir[number])
-		{
-			reverseCreature(number, curStackPos, true);
-		}
-
-	}
-	else //normal move instructions
-	{
-		switch(BattleInfo::mutualPosition(curStackPos, destHex)) //reverse unit if necessary
-		{
-		case 0:
-			if(creDir[number] == true)
-				reverseCreature(number, curStackPos);
-			break;
-		case 1:
-			if(creDir[number] == false)
-				reverseCreature(number, curStackPos);
-			break;
-		case 2:
-			if(creDir[number] == false)
-				reverseCreature(number, curStackPos);
-			break;
-		case 3:
-			if(creDir[number] == false)
-				reverseCreature(number, curStackPos);
-			break;
-		case 4:
-			if(creDir[number] == true)
-				reverseCreature(number, curStackPos);
-			break;
-		case 5:
-			if(creDir[number] == true)
-				reverseCreature(number, curStackPos);
-			break;
-		}
-		//moving instructions
-		creAnims[number]->setType(0);
-		for(int i=0; i<steps; ++i)
-		{
-			switch(BattleInfo::mutualPosition(curStackPos, destHex))
-			{
-			case 0:
-				creAnims[number]->pos.x -= hexWbase/(2*steps);
-				creAnims[number]->pos.y -= hexHbase/steps;
-				break;
-			case 1:
-				creAnims[number]->pos.x += hexWbase/(2*steps);
-				creAnims[number]->pos.y -= hexHbase/steps;
-				break;
-			case 2:
-				creAnims[number]->pos.x += hexWbase/steps;
-				break;
-			case 3:
-				creAnims[number]->pos.x += hexWbase/(2*steps);
-				creAnims[number]->pos.y += hexHbase/steps;
-				break;
-			case 4:
-				creAnims[number]->pos.x -= hexWbase/(2*steps);
-				creAnims[number]->pos.y += hexHbase/steps;
-				break;
-			case 5:
-				creAnims[number]->pos.x -= hexWbase/steps;
-				break;
-			}
-			show();
-			CSDL_Ext::update();
-			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			if((animCount+1)%4)
+				creAnims[number]->incrementFrame();
 		}
 	}
 
 	if(endMoving) //animation of ending move
 	{
+		creAnims[number]->setType(21);
 		for(int i=0; i<creAnims[number]->framesInGroup(21); ++i)
 		{
 			show();
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			if((animCount+1)%4)
+				creAnims[number]->incrementFrame();
 		}
 		creAnims[number]->setType(2); //resetting to default
+		activate();
+		CGI->curh->show();
 	}
 
 	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
 	if(endMoving) //resetting to default
 	{
 		if(creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))
-			reverseCreature(number, destHex);
-		//creDir[number] = (curs.owner == attackingHeroInstance->tempOwner);
+			reverseCreature(number, destHex, twoTiles);	
 	}
-
 	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], curs.creature);
 	creAnims[number]->pos.x = coords.first;
+	if(!endMoving && twoTiles && (creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))) //big creature is reversed
+		creAnims[number]->pos.x -= 44;
 	creAnims[number]->pos.y = coords.second;
 }
 
@@ -1231,6 +1162,20 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 		else //hovered pixel is inside hex
 		{
 			strictHovered = true;
+			if(myInterface->activeStack>=0)
+			{
+				if(std::find(myInterface->shadedHexes.begin(),myInterface->shadedHexes.end(),myNumber) == myInterface->shadedHexes.end())
+				{
+					CGI->curh->changeGraphic(1,0);
+				}
+				else
+				{
+					if(LOCPLINT->cb->battleGetStackByID(myInterface->activeStack)->creature->isFlying())
+						CGI->curh->changeGraphic(1,2);
+					else
+						CGI->curh->changeGraphic(1,1);
+				}
+			}
 		}
 	}
 

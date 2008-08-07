@@ -60,10 +60,13 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEn
 	totalEntries=0;
 	for (int z=0; z<totalBlocks; z++)
 	{
-		int unknown1 = readNormalNr(i,4); i+=4;
+		int group = readNormalNr(i,4); i+=4; //block ID
 		totalInBlock = readNormalNr(i,4); i+=4;
 		for (j=SEntries.size(); j<totalEntries+totalInBlock; j++)
+		{
 			SEntries.push_back(SEntry());
+			SEntries[j].group = group;
+		}
 		int unknown2 = readNormalNr(i,4); i+=4;
 		int unknown3 = readNormalNr(i,4); i+=4;
 		for (j=0; j<totalInBlock; j++)
@@ -80,7 +83,6 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEn
 		//totalEntries+=totalInBlock;
 		for(int hh=0; hh<totalInBlock; ++hh)
 		{
-			SEntries[totalEntries].group = z;
 			++totalEntries;
 		}
 	}
@@ -125,43 +127,41 @@ int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool at
 {
 	return nextFrame(dest,x-fullWidth/2,y-fullHeight/2,attacker,incrementFrame,yellowBorder,destRect);
 }
-int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder, SDL_Rect * destRect)
+void CCreatureAnimation::incrementFrame()
+{
+	curFrame++;
+	if(type!=-1)
+	{
+		if(curFrame==SEntries.size() || SEntries[curFrame].group!=type) //rewind
+		{
+			int j=-1; //first frame in displayed group
+			for(int g=0; g<SEntries.size(); ++g)
+			{
+				if(SEntries[g].group==type && j==-1)
+				{
+					j = g;
+					break;
+				}
+			}
+			if(curFrame!=-1)
+				curFrame = j;
+		}
+	}
+	else
+	{
+		if(curFrame>=frames)
+			curFrame = 0;
+	}
+}
+int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool IncrementFrame, bool yellowBorder, SDL_Rect * destRect)
 {
 	if(dest->format->BytesPerPixel<3)
 		return -1; //not enough depth
 
 	//increasing frame numer
-	int SIndex = -1;
-	if(incrementFrame)
-	{
-		SIndex = curFrame++;
-		if(type!=-1)
-		{
-			if(SEntries[curFrame].group!=type) //rewind
-			{
-				int j=-1; //first frame in displayed group
-				for(int g=0; g<SEntries.size(); ++g)
-				{
-					if(SEntries[g].group==type && j==-1)
-					{
-						j = g;
-						break;
-					}
-				}
-				if(curFrame!=-1)
-					curFrame = j;
-			}
-		}
-		else
-		{
-			if(curFrame>=frames)
-				curFrame = 0;
-		}
-	}
-	else
-	{
-		SIndex = curFrame;
-	}
+	int SIndex = curFrame;
+	if(IncrementFrame)
+		incrementFrame();
 	//frame number increased
 
 	long BaseOffset, 
