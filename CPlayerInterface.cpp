@@ -1076,10 +1076,10 @@ void CPlayerInterface::yourTurn()
 		}
 		for(int i=0;i<objsToBlit.size();i++)
 			objsToBlit[i]->show();
-		pim->unlock();
 		CGI->curh->draw1();
 		CSDL_Ext::update(screen);
 		CGI->curh->draw2();
+		pim->unlock();
 		SDL_framerateDelay(mainFPSmng);
 	}
 	adventureInt->hide();
@@ -1969,14 +1969,14 @@ void CPlayerInterface::battleNewRound(int round) //called at the beggining of ea
 	dynamic_cast<CBattleInterface*>(curint)->newRound(round);
 }
 
-void CPlayerInterface::actionStarted(BattleAction action)//occurs BEFORE every action taken by any stack or by the hero
-{
-}
-
-void CPlayerInterface::actionFinished(BattleAction action)//occurs AFTER every action taken by any stack or by the hero
-{
-	//dynamic_cast<CBattleInterface*>(curint)->givenCommand = -1;
-}
+//void CPlayerInterface::actionStarted(BattleAction action)//occurs BEFORE every action taken by any stack or by the hero
+//{
+//}
+//
+//void CPlayerInterface::actionFinished(BattleAction action)//occurs AFTER every action taken by any stack or by the hero
+//{
+//	//dynamic_cast<CBattleInterface*>(curint)->givenCommand = -1;
+//}
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
@@ -2014,17 +2014,18 @@ void CPlayerInterface::battleStackMoved(int ID, int dest, bool startMoving, bool
 	boost::unique_lock<boost::mutex> un(*pim);
 	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest, startMoving, endMoving);
 }
-
-void CPlayerInterface::battleStackAttacking(int ID, int dest)
+void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
-	dynamic_cast<CBattleInterface*>(curint)->stackAttacking(ID, dest);
+	boost::unique_lock<boost::mutex> un(*pim);
+	if(ba->shot())
+		dynamic_cast<CBattleInterface*>(curint)->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
+	else
+		dynamic_cast<CBattleInterface*>(curint)->stackAttacking( ba->stackAttacking, cb->battleGetPos(ba->bsa.stackAttacked) );
+	if(ba->killed())
+		dynamic_cast<CBattleInterface*>(curint)->stackKilled(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
+	else
+		dynamic_cast<CBattleInterface*>(curint)->stackIsAttacked(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
 }
-
-void CPlayerInterface::battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting)
-{
-	dynamic_cast<CBattleInterface*>(curint)->stackIsAttacked(ID, dmg, killed, IDby, byShooting);
-}
-
 void CPlayerInterface::battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)
 {
 	dynamic_cast<CBattleInterface*>(curint)->stackKilled(ID, dmg, killed, IDby, byShooting);
@@ -2970,7 +2971,8 @@ CCreInfoWindow::CCreInfoWindow
 		int hlp = log10f(c->defence)+2;
 		pom[hlp-1] = ' '; pom[hlp] = '(';
 		SDL_itoa(c->defence+State->defenseBonus,pom+hlp+1,10);
-		pom[hlp+2+(int)log10f(State->defenseBonus+c->defence)] = ')';
+		hlp += 2+(int)log10f(State->defenseBonus+c->defence);
+		pom[hlp] = ')'; pom[hlp+1] = '\0';
 	}
 	printToWR(pom,276,80,GEOR13,zwykly,bitmap);
 
@@ -2995,8 +2997,13 @@ CCreInfoWindow::CCreInfoWindow
 	SDL_itoa(c->hitPoints,pom,10);
 	printToWR(pom,276,137,GEOR13,zwykly,bitmap);
 
-	//remaining health - TODO: show during the battles
-	//printAt(CGI->preth->zelp[440].first,155,143,GEOR13,zwykly,bitmap);
+	//remaining health
+	if(State)
+	{
+		printAt(CGI->preth->zelp[440].first,155,143,GEOR13,zwykly,bitmap);
+		SDL_itoa(State->currentHealth,pom,10);
+		printToWR(pom,276,156,GEOR13,zwykly,bitmap);
+	}
 
 	//speed
 	printAt(CGI->preth->zelp[441].first,155,162,GEOR13,zwykly,bitmap);

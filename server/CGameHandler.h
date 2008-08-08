@@ -28,6 +28,7 @@ class CGameHandler
 
 	void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
+	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2); //use hero=NULL for no hero
 
 

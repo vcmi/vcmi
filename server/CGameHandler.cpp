@@ -18,7 +18,9 @@
 #include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CondSh.h"
+#ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
+#endif
 extern bool end2;
 #include "../lib/BattleAction.h"
 #ifdef min
@@ -335,7 +337,36 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 	//delete curB;
 	//curB = NULL;
 }
+void prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
+{
+	bat.stackAttacking = att->ID;
+	bat.bsa.stackAttacked = def->ID;
+	bat.bsa.damageAmount = BattleInfo::calculateDmg(att, def);//counting dealt damage
 
+	//applying damages
+	bat.bsa.killedAmount = bat.bsa.damageAmount / def->creature->hitPoints;
+	unsigned damageFirst = bat.bsa.damageAmount % def->creature->hitPoints;
+
+	if( def->firstHPleft <= damageFirst )
+	{
+		bat.bsa.killedAmount++;
+		bat.bsa.newHP = def->firstHPleft + def->creature->hitPoints - damageFirst;
+	}
+	else
+	{
+		bat.bsa.newHP = def->firstHPleft - damageFirst;
+	}
+
+	if(def->amount <= bat.bsa.killedAmount) //stack killed
+	{
+		bat.bsa.newAmount = 0;
+		bat.bsa.flags |= 1;
+	}
+	else
+	{
+		bat.bsa.newAmount = def->amount - bat.bsa.killedAmount;
+	}
+}
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
 	try
@@ -585,80 +616,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					{
 					case 2: //walk
 						{
-							CStack *curStack = gs->curB->getStack(ba.stackNumber),
-								*stackAtEnd = gs->curB->getStackT(ba.destinationTile);
-
-							//initing necessary tables
-							bool accessibility[187];
-							if(curStack->creature->isDoubleWide())
-							{
-								gs->curB->getAccessibilityMapForTwoHex(accessibility,curStack->attackerOwned,curStack->ID);
-								//accessibility[curStack->attackerOwned ? curStack->position+1 : curStack->position-1]=true;//OUR second tile is for US accessible
-							}
-							else 
-								gs->curB->getAccessibilityMap(accessibility,curStack->ID);
-							//accessibility[curStack->position] = true; //OUR tile is for US accessible
-
-							//if(!stackAtEnd && !accessibility[dest])
-							//	return false;
-
-							//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
-							//	return false;
-
-							std::vector<int> path = gs->curB->getPath(curStack->position,ba.destinationTile,accessibility);
-							int tilesToMove = std::max((int)path.size()-curStack->creature->speed, 0);
-							for(int v=path.size()-1; v>=tilesToMove; --v)
-							{
-								if(v!=0 || !stackAtEnd) //it's not the last step or the last tile is free
-								{
-									//inform clients about move
-									BattleStackMoved sm;
-									sm.stack = curStack->ID;
-									sm.tile = path[v];
-									if(v==path.size()-1)//move start - set flag
-										sm.flags |= 1;
-									if(v==0 || (stackAtEnd && v==1)) //move end - set flag
-										sm.flags |= 2;
-									sendAndApply(&sm);
-								}
-								else //if it's last step and we should attack unit at the end
-								{
-									//LOCPLINT->battleStackAttacking(ID, path[v]);
-									////counting dealt damage
-									//int finalDmg = calculateDmg(curStack, curB->stacks[numberOfStackAtEnd]);
-
-									////applying damages
-									//int cresKilled = finalDmg / curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
-									//int damageFirst = finalDmg % curB->stacks[numberOfStackAtEnd]->creature->hitPoints;
-
-									//if( curB->stacks[numberOfStackAtEnd]->firstHPleft <= damageFirst )
-									//{
-									//	curB->stacks[numberOfStackAtEnd]->amount -= 1;
-									//	curB->stacks[numberOfStackAtEnd]->firstHPleft += curB->stacks[numberOfStackAtEnd]->creature->hitPoints - damageFirst;
-									//}
-									//else
-									//{
-									//	curB->stacks[numberOfStackAtEnd]->firstHPleft -= damageFirst;
-									//}
-
-									//int cresInstackBefore = curB->stacks[numberOfStackAtEnd]->amount; 
-									//curB->stacks[numberOfStackAtEnd]->amount -= cresKilled;
-									//if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
-									//{
-									//	curB->stacks[numberOfStackAtEnd]->amount = 0;
-									//	LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore) , ID, false);
-									//	curB->stacks[numberOfStackAtEnd]->alive = false;
-									//}
-									//else
-									//{
-									//	LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID, false);
-									//}
-
-									//damage applied
-								}
-							}
-							//curB->stackActionPerformed = true;
-							//LOCPLINT->actionFinished(BattleAction());
+							moveStack(ba.stackNumber,ba.destinationTile);
 							break;
 						}
 					case 3: //defend
@@ -677,13 +635,29 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						}
 					case 6: //walk or attack
 						{
-							//battleMoveCreatureStack(ba.stackNumber, ba.destinationTile);
-							//battleAttackCreatureStack(ba.stackNumber, ba.destinationTile);
+							moveStack(ba.stackNumber,ba.destinationTile);
+							CStack *curStack = gs->curB->getStack(ba.stackNumber),
+								*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
+
+							if((curStack->position != ba.destinationTile) || //we wasn't able to reach destination tile
+								(BattleInfo::mutualPosition(ba.destinationTile,ba.additionalInfo)<0) ) //destination tile is not neighbouring with enemy stack
+								return;
+
+							BattleAttack bat;
+							prepareAttack(bat,curStack,stackAtEnd);
+							sendAndApply(&bat);
 							break;
 						}
 					case 7: //shoot
 						{
-							//battleShootCreatureStack(ba.stackNumber, ba.destinationTile);
+							CStack *curStack = gs->curB->getStack(ba.stackNumber),
+								*destStack= gs->curB->getStackT(ba.destinationTile);
+
+							BattleAttack bat;
+							prepareAttack(bat,curStack,destStack);
+							bat.flags |= 1;
+
+							sendAndApply(&bat);
 							break;
 						}
 					}
@@ -715,6 +689,39 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 	catch(...)
 	{
 		end2 = true;
+	}
+}
+void CGameHandler::moveStack(int stack, int dest)
+{							
+	CStack *curStack = gs->curB->getStack(stack),
+		*stackAtEnd = gs->curB->getStackT(dest);
+
+	//initing necessary tables
+	bool accessibility[187];
+	if(curStack->creature->isDoubleWide())
+		gs->curB->getAccessibilityMapForTwoHex(accessibility,curStack->attackerOwned,curStack->ID);
+	else 
+		gs->curB->getAccessibilityMap(accessibility,curStack->ID);
+
+	if((stackAtEnd && stackAtEnd->alive) || !accessibility[dest])
+		return;
+
+	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
+	//	return false;
+
+	std::vector<int> path = gs->curB->getPath(curStack->position,dest,accessibility);
+	int tilesToMove = std::max((int)path.size()-curStack->creature->speed, 0);
+	for(int v=path.size()-1; v>=tilesToMove; --v)
+	{
+		//inform clients about move
+		BattleStackMoved sm;
+		sm.stack = curStack->ID;
+		sm.tile = path[v];
+		if(v==path.size()-1) //move start - set flag
+			sm.flags |= 1;
+		if(v==0) //move end - set flag
+			sm.flags |= 2;
+		sendAndApply(&sm);
 	}
 }
 CGameHandler::CGameHandler(void)
@@ -898,10 +905,13 @@ void CGameHandler::run()
 			{
 				boost::posix_time::time_duration p;
 				p= boost::posix_time::seconds(1);
+#ifdef _MSC_VER
+				cTurn.timed_wait(lock,p); 
+#else
 				boost::xtime time={0,0};
 				time.sec = static_cast<boost::xtime::xtime_sec_t>(p.total_seconds());
-				cTurn.wait(lock);
-				//cTurn.timed_wait(lock,time);
+				cTurn.timed_wait(lock,time);
+#endif
 			}
 		}
 	}

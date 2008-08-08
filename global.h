@@ -89,4 +89,20 @@ const int MAX_BUILDING_PER_TURN = 1;
 		delete e;						\
 	}
 
+
+namespace vstd
+{
+	template <typename Container, typename Item>
+	bool contains(const Container & c, const Item &i)
+	{
+		return std::find(c.begin(),c.end(),i) != c.end();
+	}
+	template <typename Container, typename Item>
+	typename Container::iterator find(const Container & c, const Item &i)
+	{
+		return std::find(c.begin(),c.end(),i);
+	}
+
+}
+
 #endif //GLOBAL_H

@@ -150,7 +150,22 @@ int main(int argc, _TCHAR* argv[])
 		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
 		std::ofstream lll("client_log.txt");
-		CConnection *c = new CConnection("localhost","3030",NAME,lll);
+
+		CConnection *c=NULL;
+		while(!c)
+		{
+			try
+			{
+				std::cout << "Establishing connection...\t";
+				c = new CConnection("localhost","3030",NAME,lll);
+				std::cout << "done!" <<std::endl;
+			}
+			catch(...)
+			{
+				std::cout << "\nCannot establish connection! Retrying within 3 seconds" <<std::endl;
+				SDL_Delay(3000);
+			}
+		}
 		THC std::cout<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
 		CClient cl(c,options);
 		boost::thread t(boost::bind(&CClient::run,&cl));

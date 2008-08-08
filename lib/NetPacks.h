@@ -304,7 +304,7 @@ struct BattleResult : public CPack<BattleResult>//3003
 struct BattleStackMoved : public CPack<BattleStackMoved>//3004
 {
 	ui32 stack, tile;
-	ui8 flags;
+	ui8 flags; // 1 - start moving, 2 - end moving
 
 
 
@@ -320,6 +320,47 @@ struct BattleStackMoved : public CPack<BattleStackMoved>//3004
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stack & tile & flags;
+	}
+};
+
+struct BattleStackAttacked : public CPack<BattleStackAttacked>//3005
+{
+	ui32 stackAttacked;
+	ui32 newAmount, newHP, killedAmount, damageAmount;
+	ui8 flags; //1 - is stack killed
+
+
+	BattleStackAttacked(){flags = 0; type = 3005;};
+	bool killed() //if target stack was killed
+	{
+		return flags & 1;
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stackAttacked & newAmount & newHP & flags & killedAmount & damageAmount;
+	}
+};
+
+struct BattleAttack : public CPack<BattleAttack>//3006
+{
+	BattleStackAttacked bsa;
+	ui32 stackAttacking;
+	ui8 flags;
+
+
+
+	BattleAttack(){flags = 0; type = 3006;};
+	bool shot()//distance attack - decrease number of shots
+	{
+		return flags & 1;
+	}
+	bool killed() //if target stack was killed
+	{
+		return bsa.killed();
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & bsa & stackAttacking & flags;
 	}
 };
 

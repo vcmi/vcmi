@@ -461,6 +461,8 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		if((animCount+1)%4)
+			creAnims[ID]->incrementFrame();
 	}
 
 	printConsoleAttacked(ID, dmg, killed, IDby);
@@ -614,6 +616,8 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		if((animCount+1)%4)
+			creAnims[ID]->incrementFrame();
 	}
 	creAnims[ID]->setType(2);
 
@@ -680,22 +684,22 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
 	{
 		case 0:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(10);
+			attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
 			break;
 		case 1:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(10);
+			attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
 			break;
 		case 2:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
+			attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
 			break;
 		case 3:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
+			attackingInfo->maxframe = creAnims[ID]->framesInGroup(13);
 			break;
 		case 4:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
+			attackingInfo->maxframe = creAnims[ID]->framesInGroup(13);
 			break;
 		case 5:
-			attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
+			attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
 			break;
 	}
 }
@@ -705,12 +709,13 @@ void CBattleInterface::newRound(int number)
 	console->addText(CGI->generaltexth->allTexts[412]);
 }
 
-void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack)
+void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional)
 {
-	BattleAction * ba = new BattleAction(); //to be deleted by engine
+	BattleAction * ba = new BattleAction(); //is deleted in CPlayerInterface::activeStack()
 	ba->actionType = action;
 	ba->destinationTile = tile;
 	ba->stackNumber = stack;
+	ba->additionalInfo = additional;
 	givenCommand->setn(ba);
 	myTurn = false;
 	activeStack = -1;
@@ -737,7 +742,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 		}
 		else if(LOCPLINT->cb->battleGetStackByID(atCre)->owner != attackingHeroInstance->tempOwner) //attacking
 		{
-			giveCommand(6,whichOne,activeStack);
+			std::vector<int> n = BattleInfo::neighbouringTiles(whichOne);
+			for(int i=0;i<n.size();i++)
+			{
+				//TODO: now we are using first available tile, but in the future we should add possibility of choosing from which tile we want to attack
+				if(vstd::contains(shadedHexes,n[i]))
+				{
+					giveCommand(6,n[i],activeStack,whichOne);
+					return;
+				}
+			}
 		}
 	}
 }
@@ -1151,9 +1165,20 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 			{
 				if(std::find(myInterface->shadedHexes.begin(),myInterface->shadedHexes.end(),myNumber) == myInterface->shadedHexes.end())
 				{
-					CGI->curh->changeGraphic(1,0);
+					CStack *shere = LOCPLINT->cb->battleGetStackByPos(myNumber);
+					if(shere)
+					{
+						if(shere->owner == LOCPLINT->playerID) //our stack
+							CGI->curh->changeGraphic(1,5);
+						else if(LOCPLINT->cb->battleGetStackByID(myInterface->activeStack)->creature->isShooting()) //we can shoot enemy
+							CGI->curh->changeGraphic(1,3);
+						else //unavailable enemy
+							CGI->curh->changeGraphic(1,0);
+					}
+					else //empty unavailable tile
+						CGI->curh->changeGraphic(1,0);
 				}
-				else
+				else //available tile
 				{
 					if(LOCPLINT->cb->battleGetStackByID(myInterface->activeStack)->creature->isFlying())
 						CGI->curh->changeGraphic(1,2);
@@ -1199,6 +1224,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 	if(hovered && strictHovered && stID!=-1)
 	{
 		CStack myst = *LOCPLINT->cb->battleGetStackByID(stID); //stack info
+		if(!myst.alive) return;
 		StackState *pom = NULL;
 		if(down)
 		{
@@ -1210,6 +1236,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->defenseBonus = h->primSkills[1];
 				pom->luck = h->getCurrentLuck();
 				pom->morale = h->getCurrentMorale();
+				pom->currentHealth = myst.firstHPleft;
 			}
 			(new CCreInfoWindow(myst.creature->idNumber,0,pom,boost::function<void()>(),boost::function<void()>()))
 					->activate();

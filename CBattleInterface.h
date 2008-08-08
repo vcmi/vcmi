@@ -112,7 +112,7 @@ private:
 	};
 	std::list<SProjectileInfo> projectiles;
 	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
-	void giveCommand(ui8 action, ui16 tile, ui32 stack);
+	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor

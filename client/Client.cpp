@@ -394,6 +394,14 @@ void CClient::process(int what)
 			gs->apply(&br);
 			break;
 		}
+	case 3006:
+		{
+			BattleAttack ba;
+			*serv >> ba;
+			gs->apply(&ba);
+			LOCPLINT->battleAttack(&ba);
+			break;
+		}
 	case 9999:
 		break;
 	default:

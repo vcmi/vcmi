@@ -405,6 +405,23 @@ void CGameState::apply(IPack * pack)
 			curB->getStack(br->stack)->position = br->tile;
 			break;
 		}
+	case 3005:
+		{
+			BattleStackAttacked *br = static_cast<BattleStackAttacked*>(pack);
+			CStack * at = curB->getStack(br->stackAttacked);
+			at->amount = br->newAmount;
+			at->firstHPleft = br->newHP;
+			at->alive = !br->killed();
+			break;
+		}
+	case 3006:
+		{
+			BattleAttack *br = static_cast<BattleAttack*>(pack);
+			mx->unlock();
+			apply(&br->bsa);
+			mx->lock();
+			break;
+		}
 	//case 1002://set hover name
 	//	{
 	//		SetHoverName * shn = static_cast<SetHoverName*>(pack);
@@ -921,65 +938,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 }
 
 bool CGameState::battleShootCreatureStack(int ID, int dest)
-{/*
-	CStack * curStack = NULL;
-	for(int y=0; y<curB->stacks.size(); ++y)
-	{
-		if(curB->stacks[y]->ID == ID)
-		{
-			curStack = curB->stacks[y];
-			break;
-		}
-	}
-	if(!curStack)
-		return false;
-	int IDOfStackAtEnd = battleGetStack(dest);
-	int numberOfStackAtEnd = -1;
-	for(int v=0; v<curB->stacks.size(); ++v)
-	{
-		if(curB->stacks[v]->ID == IDOfStackAtEnd)
-		{
-			numberOfStackAtEnd = v;
-			break;
-		}
-	}
-
-	if(IDOfStackAtEnd == -1 || curB->stacks[numberOfStackAtEnd]->owner == curStack->owner || !curB->stacks[numberOfStackAtEnd]->alive)
-		return false;
-
-	LOCPLINT->battleStackIsShooting(ID, dest);
-
-	//counting dealt damage
-	int finalDmg = calculateDmg(curStack, curB->stacks[numberOfStackAtEnd]);
-
-	//applying damages
-	int cresKilled = finalDmg / curB->stacks[ID]->creature->hitPoints;
-	int damageFirst = finalDmg % curB->stacks[ID]->creature->hitPoints;
-
-	if( curB->stacks[numberOfStackAtEnd]->firstHPleft <= damageFirst )
-	{
-		curB->stacks[numberOfStackAtEnd]->amount -= 1;
-		curB->stacks[numberOfStackAtEnd]->firstHPleft += curB->stacks[numberOfStackAtEnd]->creature->hitPoints - damageFirst;
-	}
-	else
-	{
-		curB->stacks[numberOfStackAtEnd]->firstHPleft -= damageFirst;
-	}
-
-	int cresInstackBefore = curB->stacks[numberOfStackAtEnd]->amount; 
-	curB->stacks[numberOfStackAtEnd]->amount -= cresKilled;
-	if(curB->stacks[numberOfStackAtEnd]->amount<=0) //stack killed
-	{
-		curB->stacks[numberOfStackAtEnd]->amount = 0;
-		LOCPLINT->battleStackKilled(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID, true);
-		curB->stacks[numberOfStackAtEnd]->alive = false;
-	}
-	else
-	{
-		LOCPLINT->battleStackIsAttacked(curB->stacks[numberOfStackAtEnd]->ID, finalDmg, std::min(cresKilled, cresInstackBefore), ID, true);
-	}
-
-	//damage applied*/
+{
 	return true;
 }
 
@@ -990,7 +949,7 @@ int CGameState::battleGetStack(int pos)
 		if(curB->stacks[g]->position == pos ||
 				( curB->stacks[g]->creature->isDoubleWide() &&
 					( (curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos) ||
-						(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == pos)
+						(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos)
 					)
 				)
 			)
@@ -999,7 +958,7 @@ int CGameState::battleGetStack(int pos)
 	return -1;
 }
 
-int CGameState::calculateDmg(const CStack* attacker, const CStack* defender)
+int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender)
 {
 	int attackDefenseBonus = attacker->creature->attack - defender->creature->defence;
 	int damageBase = 0;
@@ -1038,49 +997,3 @@ int CGameState::calculateDmg(const CStack* attacker, const CStack* defender)
 
 	return (float)damageBase * (float)attacker->amount * dmgBonusMultiplier;
 }
-
-std::vector<int> CGameState::battleGetRange(int ID)
-{/*
-	std::vector<int> additionals;
-
-	//adding enemies' positions
-	for(int c=0; c<curB->stacks.size(); ++c)
-	{
-		if(curB->stacks[c]->alive && curB->stacks[c]->owner != owner)
-		{
-			for(int g=0; g<ret.size(); ++g)
-			{
-				if(CBattleHex::mutualPosition(ret[g], curB->stacks[c]->position) != -1)
-				{
-					additionals.push_back(curB->stacks[c]->position);
-				}
-				if(curB->stacks[c]->creature->isDoubleWide() && curB->stacks[c]->attackerOwned && CBattleHex::mutualPosition(ret[g], curB->stacks[c]->position-1) != -1)
-				{
-					additionals.push_back(curB->stacks[c]->position-1);
-				}
-				if(curB->stacks[c]->creature->isDoubleWide() && !curB->stacks[c]->attackerOwned && CBattleHex::mutualPosition(ret[g], curB->stacks[c]->position+1) != -1)
-				{
-					additionals.push_back(curB->stacks[c]->position+1);
-				}
-			}
-		}
-	}
-	for(int g=0; g<additionals.size(); ++g)
-	{
-		ret.push_back(additionals[g]);
-	}
-
-	std::sort(ret.begin(), ret.end());
-	std::vector<int>::iterator nend = std::unique(ret.begin(), ret.end());
-
-	std::vector<int> ret2;
-
-	for(std::vector<int>::iterator it = ret.begin(); it != nend; ++it)
-	{
-		ret2.push_back(*it);
-	}
-
-	return ret2;*/
-	return std::vector<int>();
-}
-

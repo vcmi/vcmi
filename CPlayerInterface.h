@@ -336,13 +336,12 @@ public:
 	void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void actionStarted(BattleAction action);//occurs BEFORE every action taken by any stack or by the hero
-	void actionFinished(BattleAction action);//occurs AFTER every action taken by any stack or by the hero
+	//void actionStarted(BattleAction action);//occurs BEFORE every action taken by any stack or by the hero
+	//void actionFinished(BattleAction action);//occurs AFTER every action taken by any stack or by the hero
 	BattleAction activeStack(int stackID); //called when it's turn of that stack
 	void battleEnd(BattleResult *br);
 	void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving);
-	void battleStackAttacking(int ID, int dest);
-	void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting);
+	void battleAttack(BattleAttack *ba);
 	void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting);
 	void battleStackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
 
