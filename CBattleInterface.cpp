@@ -728,19 +728,18 @@ void CBattleInterface::hexLclicked(int whichOne)
 		if(!myTurn)
 			return; //we are not permit to do anything
 
-		int atCre = LOCPLINT->cb->battleGetStack(whichOne); //creature at destination tile; -1 if there is no one
-		//LOCPLINT->cb->battleGetCreature();
-		if(atCre==-1) //no creature at that tile
+		CStack* dest = LOCPLINT->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
+		if(!dest || !dest->alive) //no creature at that tile
 		{
 			if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
 				giveCommand(2,whichOne,activeStack);
 		}
-		else if(LOCPLINT->cb->battleGetStackByID(atCre)->owner != attackingHeroInstance->tempOwner
+		else if(dest->owner != attackingHeroInstance->tempOwner
 			&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)) //shooting
 		{
 			giveCommand(7,whichOne,activeStack);
 		}
-		else if(LOCPLINT->cb->battleGetStackByID(atCre)->owner != attackingHeroInstance->tempOwner) //attacking
+		else if(dest->owner != attackingHeroInstance->tempOwner) //attacking
 		{
 			std::vector<int> n = BattleInfo::neighbouringTiles(whichOne);
 			for(int i=0;i<n.size();i++)

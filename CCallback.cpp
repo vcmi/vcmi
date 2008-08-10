@@ -110,72 +110,10 @@ void CCallback::selectionMade(int selection, int asker)
 	//IChosen * ask = (IChosen *)asker;
 	//ask->chosen(selection);
 }
-void CCallback::recruitCreatures(const CGObjectInstance *obj, int ID, int amount)
+void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)
 {
-	if(amount<=0) return;
-	if(obj->ID==98) //recruiting from town
-	{
-		int ser=-1; //used dwelling level
-		CGTownInstance *t = const_cast<CGTownInstance*>(static_cast<const CGTownInstance*>(obj));
-
-		//verify
-		bool found = false;
-		typedef std::pair<const int,int> Parka;
-		for(std::map<si32,ui32>::iterator av=t->strInfo.creatures.begin();av!=t->strInfo.creatures.end();av++)
-		{
-			if(	(   found  = (ID == t->town->basicCreatures[av->first])   ) //creature is available among basic cretures
-				|| (found  = (ID == t->town->upgradedCreatures[av->first]))			)//creature is available among upgraded cretures
-			{
-				amount = std::min(amount,(int)av->second); //reduce recruited amount up to available amount
-				ser = av->first;
-				break;
-			}
-		}
-		if(!found)	//no such creature
-			return;
-
-		if(amount > CGI->creh->creatures[ID].maxAmount(gs->players[player].resources))
-			return; //not enough resources
-
-		//for(int i=0;i<RESOURCE_QUANTITY;i++)
-		//	if (gs->players[player].resources[i]  <  (CGI->creh->creatures[ID].cost[i] * amount))
-		//		return; //not enough resources
-
-		if(amount<=0) return;
-
-		//recruit
-		int slot = -1; //slot ID
-		std::pair<si32,std::pair<ui32,si32> > parb;	
-
-		for(int i=0;i<7;i++) //TODO: if there is already stack of same creatures it should be used always
-		{
-			if(((!t->army.slots[i].first) && (!t->army.slots[i].second)) || (t->army.slots[i].first == ID)) //slot is free or there is saem creature
-			{
-				slot = i;
-				break;
-			}
-		}
-
-		if(slot<0) //no free slot
-			return;
-
-		for(int i=0;i<RESOURCE_QUANTITY;i++)
-			gs->players[player].resources[i]  -=  (CGI->creh->creatures[ID].cost[i] * amount);
-
-		t->strInfo.creatures[ser] -= amount;
-		if(t->army.slots[slot].first) //add new creatures to the existing stack
-		{
-			t->army.slots[slot].second += amount;
-		}
-		else //create new stack in the garrison
-		{
-			t->army.slots[slot].first = ID;
-			t->army.slots[slot].second = amount;
-		}
-		cl->playerint[player]->garrisonChanged(obj);
-
-	}
-	//TODO: recruit from dwellings on the adventure map
+	if(player!=obj->tempOwner) return;
+	*cl->serv << ui16(506) << obj->id << ID << amount;
 }
 
 

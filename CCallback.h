@@ -42,7 +42,7 @@ public:
 	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
 	virtual bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2)=0; //swaps artifacts between two given heroes
-	virtual void recruitCreatures(const CGObjectInstance *obj, int ID, int amount)=0;
+	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void endTurn()=0;
@@ -114,7 +114,7 @@ public:
 	bool dismissHero(const CGHeroInstance * hero);
 	bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2);
 	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
-	void recruitCreatures(const CGObjectInstance *obj, int ID, int amount);
+	void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);
 	bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1);
 	void endTurn();

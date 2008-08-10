@@ -280,6 +280,7 @@ void CClient::process(int what)
 		{
 			SetGarrisons sg;
 			*serv >> sg;
+			std::cout << "Setting garrisons." << std::endl;
 			gs->apply(&sg);
 			for(std::map<ui32,CCreatureSet>::iterator i = sg.garrs.begin(); i!=sg.garrs.end(); i++)
 				playerint[gs->map->objects[i->first]->tempOwner]->garrisonChanged(gs->map->objects[i->first]);
@@ -287,9 +288,9 @@ void CClient::process(int what)
 		}
 	case 503:
 		{
-			SetStrInfo ssi;
-			*serv >> ssi;
-			gs->apply(&ssi);
+			//SetStrInfo ssi;
+			//*serv >> ssi;
+			//gs->apply(&ssi);
 			//TODO: notify interfaces
 			break;
 		}
@@ -297,9 +298,19 @@ void CClient::process(int what)
 		{
 			NewStructures ns;
 			*serv >> ns;
+			std::cout << "New structure(s) in " << ns.tid << " - " << *ns.bid.begin() << std::endl;
 			gs->apply(&ns);
 			BOOST_FOREACH(si32 bid, ns.bid)
 				playerint[gs->map->objects[ns.tid]->tempOwner]->buildChanged(static_cast<CGTownInstance*>(gs->map->objects[ns.tid]),bid,1);
+			break;
+		}
+	case 506:
+		{
+			SetAvailableCreatures ns;
+			*serv >> ns;
+			std::cout << "Setting available creatures in " << ns.tid << std::endl;
+			gs->apply(&ns);
+			//TODO: do we need to inform interface? 
 			break;
 		}
 	case 1001:
@@ -398,6 +409,7 @@ void CClient::process(int what)
 		{
 			BattleAttack ba;
 			*serv >> ba;
+			std::cout << "Stack: " << ba.stackAttacking << " is attacking stack "<< ba.bsa.stackAttacked <<std::endl;
 			gs->apply(&ba);
 			LOCPLINT->battleAttack(&ba);
 			break;

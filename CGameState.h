@@ -128,6 +128,7 @@ private:
 	CGameState();
 	~CGameState();
 	void init(StartInfo * si, Mapa * map, int Seed);
+	void applyNL(IPack * pack);
 	void apply(IPack * pack);
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);

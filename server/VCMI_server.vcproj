@@ -43,7 +43,7 @@
 				MinimalRebuild="true"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
-				WarningLevel="3"
+				WarningLevel="2"
 				DebugInformationFormat="4"
 				DisableSpecificWarnings="4251"
 			/>

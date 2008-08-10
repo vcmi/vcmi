@@ -6,7 +6,18 @@ class CCreatureSet //seven combined creatures
 {
 public:
 	std::map<si32,std::pair<ui32,si32> > slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
-	bool formation; //false - wide, true - tight	
+	bool formation; //false - wide, true - tight
+	si32 getSlotFor(ui32 creature, ui32 slotsAmount=7) //returns -1 if no slot available
+	{
+		
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i=slots.begin(); i!=slots.end(); i++)
+			if(i->second.first == creature)
+				return i->first; //if there is already such creature we return its slot id
+		for(si32 i=0; i<slotsAmount; i++)
+			if(slots.find(i) == slots.end())
+				return i; //return first free slot
+		return -1; //no slot available
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & slots & formation;

@@ -588,10 +588,10 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					}
 					else if(bid >= 30) //bas. dwelling
 					{
-						SetStrInfo ssi;
+						SetAvailableCreatures ssi;
 						ssi.tid = tid;
-						ssi.cres = t->strInfo.creatures;
-						ssi.cres[bid-30] = VLC->creh->creatures[t->town->basicCreatures[bid-30]].growth;
+						ssi.creatures = t->strInfo.creatures;
+						ssi.creatures[bid-30] = VLC->creh->creatures[t->town->basicCreatures[bid-30]].growth;
 						sendAndApply(&ssi);
 					}
 
@@ -606,6 +606,62 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						sr.res[i]-=b->resources[i];
 					sendAndApply(&sr);
 
+					break;
+				}
+			case 506: //recruit creature
+				{
+					si32 objid, ser=-1; //ser - used dwelling level
+					ui32 crid, cram; //recruited creature id and amount
+					c >> objid >> crid >> cram;
+
+					CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[objid]);
+
+					//verify
+					bool found = false;
+					typedef std::pair<const int,int> Parka;
+					for(std::map<si32,ui32>::iterator av = t->strInfo.creatures.begin();  av!=t->strInfo.creatures.end();  av++)
+					{
+						if(	(   found  = (crid == t->town->basicCreatures[av->first])   ) //creature is available among basic cretures
+							|| (found  = (crid == t->town->upgradedCreatures[av->first]))			)//creature is available among upgraded cretures
+						{
+							cram = std::min(cram,av->second); //reduce recruited amount up to available amount
+							ser = av->first;
+							break;
+						}
+					}
+					int slot = t->army.getSlotFor(crid);
+
+					if(!found ||	//no such creature
+						cram > VLC->creh->creatures[crid].maxAmount(gs->players[t->tempOwner].resources) ||  //lack of resources
+						cram<=0	||
+						slot<0	) 
+						break;
+
+					//recruit
+					SetResources sr;
+					sr.player = t->tempOwner;
+					for(int i=0;i<RESOURCE_QUANTITY;i++)
+						sr.res[i]  =  gs->players[t->tempOwner].resources[i] - (VLC->creh->creatures[crid].cost[i] * cram);
+
+					SetAvailableCreatures sac;
+					sac.tid = objid;
+					sac.creatures = t->strInfo.creatures;
+					sac.creatures[ser] -= cram;
+
+					SetGarrisons sg;
+					sg.garrs[objid] = t->army;
+					if(sg.garrs[objid].slots.find(slot) == sg.garrs[objid].slots.end()) //take a free slot
+					{
+						sg.garrs[objid].slots[slot] = std::make_pair(crid,cram);
+					}
+					else //add creatures to a already existing stack
+					{
+						sg.garrs[objid].slots[slot].second += cram;
+					}
+
+					sendAndApply(&sr); 
+					sendAndApply(&sac);
+					sendAndApply(&sg);
 					break;
 				}
 			case 3002:
@@ -789,14 +845,15 @@ void CGameHandler::newTurn()
 {
 	NewTurn n;
 	n.day = gs->day + 1;
+	n.resetBuilded = true;
 
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		if(i->first>=PLAYER_LIMIT) continue;
-		NewTurn::Resources r;
+		SetResources r;
 		r.player = i->first;
 		for(int j=0;j<RESOURCE_QUANTITY;j++)
-			r.resources[j] = i->second.resources[j];
+			r.res[j] = i->second.resources[j];
 		
 		for (unsigned j=0;j<(*i).second.heroes.size();j++) //handle heroes
 		{
@@ -806,21 +863,24 @@ void CGameHandler::newTurn()
 			h.mana = (*i).second.heroes[j]->mana;
 			n.heroes.insert(h);
 		}
-		for(unsigned j=0;j<i->second.towns.size();j++)//handle towns
+		for(std::vector<CGTownInstance *>::iterator j=i->second.towns.begin();j!=i->second.towns.end();j++)//handle towns
 		{
-			i->second.towns[j]->builded=0;
-			//if(gs->getDate(1)==1) //first day of week
-			//{
-			//	for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
-			//	{
-			//		if(i->second.towns[j]->creatureDwelling(k))//there is dwelling (k-level)
-			//			i->second.towns[j]->strInfo.creatures[k]+=i->second.towns[j]->creatureGrowth(k);
-			//	}
-			//}
+			if(gs->getDate(1)==7) //first day of week
+			{
+				SetAvailableCreatures sac;
+				sac.tid = (**j).id;
+				sac.creatures = (**j).strInfo.creatures;
+				for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
+				{
+					if((**j).creatureDwelling(k))//there is dwelling (k-level)
+						sac.creatures[k] += (**j).creatureGrowth(k);
+				}
+				n.cres.push_back(sac);
+			}
 			if((gs->day) && i->first<PLAYER_LIMIT)//not the first day and town not neutral
-				r.resources[6] += i->second.towns[j]->dailyIncome();
+				r.res[6] += (**j).dailyIncome();
 		}
-		n.res.insert(r);
+		n.res.push_back(r);
 	}	
 	sendAndApply(&n);
 	for (std::set<CCPPObjectScript *>::iterator i=cppscripts.begin();i!=cppscripts.end();i++)

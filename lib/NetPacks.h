@@ -25,40 +25,17 @@ template <typename T> struct CPack
 	ui16 getType() const{return type;}
 	T* This(){return static_cast<T*>(this);};
 };
-struct NewTurn : public CPack<NewTurn> //101
+struct SetResources : public CPack<SetResources> //104
 {
-	struct Hero
-	{
-		ui32 id, move, mana; //id is a general serial id
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & id & move & mana;
-		}
-		bool operator<(const Hero&h)const{return id < h.id;}
-	};
-	struct Resources
-	{
-		ui8 player;
-		si32 resources[RESOURCE_QUANTITY];
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & player & resources;
-		}
-		bool operator<(const Resources&h)const{return player < h.player;}
-	};
-
-	std::set<Hero> heroes; //updates movement and mana points
-	std::set<Resources> res;//resource list
-	ui32 day;
-	bool resetBuilded;
-
-	NewTurn(){type = 101;};
+	SetResources(){res.resize(RESOURCE_QUANTITY);type = 104;};
+	ui8 player;
+	std::vector<si32> res; //res[resid] => res amount
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroes & res & day & resetBuilded;
+		h & player & res;
 	}
-}; 
+};
 struct SetResource : public CPack<SetResource> //102
 {
 	SetResource(){type = 102;};
@@ -69,17 +46,6 @@ struct SetResource : public CPack<SetResource> //102
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & resid & val;
-	}
-}; 
-struct SetResources : public CPack<SetResources> //104
-{
-	SetResources(){type = 104;};
-	ui8 player;
-	std::vector<si32> res; //res[resid] => res amount
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & player & res;
 	}
 }; 
 struct SetPrimSkill : public CPack<SetPrimSkill> //105
@@ -129,17 +95,6 @@ struct SetGarrisons : public CPack<SetGarrisons> //502
 		h & garrs;
 	}
 }; 
-struct SetStrInfo : public CPack<SetStrInfo> //503
-{
-	SetStrInfo(){type = 503;};
-	si32 tid;
-	std::map<si32,ui32> cres;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & tid & cres;
-	}
-};  
 struct NewStructures : public CPack<NewStructures> //504
 {
 	NewStructures(){type = 504;};
@@ -152,6 +107,52 @@ struct NewStructures : public CPack<NewStructures> //504
 		h & tid & bid & builded;
 	}
 }; 
+struct SetAvailableCreatures : public CPack<SetAvailableCreatures> //506
+{
+	SetAvailableCreatures(){type = 506;};
+	si32 tid;
+	std::map<si32,ui32> creatures;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tid & creatures;
+	}
+};  
+struct NewTurn : public CPack<NewTurn> //101
+{
+	struct Hero
+	{
+		ui32 id, move, mana; //id is a general serial id
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & id & move & mana;
+		}
+		bool operator<(const Hero&h)const{return id < h.id;}
+	};
+
+	std::set<Hero> heroes; //updates movement and mana points
+	std::vector<SetResources> res;//resource list
+	std::vector<SetAvailableCreatures> cres;//resource list
+	ui32 day;
+	bool resetBuilded;
+
+	NewTurn(){type = 101;};
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & heroes & cres & res & day & resetBuilded;
+	}
+}; 
+//struct SetStrInfo : public CPack<SetStrInfo> //503
+//{
+//	SetStrInfo(){type = 503;};
+//	SetAvailableCreatures sac;
+//
+//	template <typename Handler> void serialize(Handler &h, const int version)
+//	{
+//		h & sac;
+//	}
+//};  
 struct MetaString : public CPack<MetaString> //2001 helper for object scrips
 {
 	std::vector<std::string> strings;

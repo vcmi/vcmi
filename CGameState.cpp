@@ -249,9 +249,8 @@ CStack::CStack(CCreature * C, int A, int O, int I, bool AO)
 	:creature(C),amount(A),owner(O), alive(true), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints)
 {
 }
-void CGameState::apply(IPack * pack)
+void CGameState::applyNL(IPack * pack)
 {
-	mx->lock();
 	switch(pack->getType())
 	{
 	case 101://NewTurn
@@ -263,11 +262,10 @@ void CGameState::apply(IPack * pack)
 				static_cast<CGHeroInstance*>(map->objects[h.id])->movement = h.move;
 				static_cast<CGHeroInstance*>(map->objects[h.id])->mana = h.mana;
 			}
-			BOOST_FOREACH(NewTurn::Resources h, n->res) //give resources
-			{
-				for(int i=0;i<RESOURCE_QUANTITY;i++)
-					players[h.player].resources[i] = h.resources[i];
-			}
+			BOOST_FOREACH(SetResources h, n->res) //give resources
+				applyNL(&h);
+			BOOST_FOREACH(SetAvailableCreatures h, n->cres) //set available creatures in towns
+				applyNL(&h);
 			if(n->resetBuilded) //reset amount of structures set in this turn in towns
 				BOOST_FOREACH(CGTownInstance* t, map->towns)
 					t->builded = 0;
@@ -340,8 +338,8 @@ void CGameState::apply(IPack * pack)
 		}
 	case 503:
 		{
-			SetStrInfo *ssi = static_cast<SetStrInfo*>(pack);
-			static_cast<CGTownInstance*>(map->objects[ssi->tid])->strInfo.creatures = ssi->cres;
+			//SetStrInfo *ssi = static_cast<SetStrInfo*>(pack);
+			//static_cast<CGTownInstance*>(map->objects[ssi->tid])->strInfo.creatures = ssi->cres;
 			break;
 		}
 	case 504:
@@ -351,6 +349,12 @@ void CGameState::apply(IPack * pack)
 			BOOST_FOREACH(si32 bid,ns->bid)
 				t->builtBuildings.insert(bid);
 			t->builded = ns->builded;
+			break;
+		}
+	case 506:
+		{
+			SetAvailableCreatures *sac = static_cast<SetAvailableCreatures*>(pack);
+			static_cast<CGTownInstance*>(map->objects[sac->tid])->strInfo.creatures = sac->creatures;
 			break;
 		}
 	case 1001://set object property
@@ -417,18 +421,15 @@ void CGameState::apply(IPack * pack)
 	case 3006:
 		{
 			BattleAttack *br = static_cast<BattleAttack*>(pack);
-			mx->unlock();
-			apply(&br->bsa);
-			mx->lock();
+			applyNL(&br->bsa);
 			break;
 		}
-	//case 1002://set hover name
-	//	{
-	//		SetHoverName * shn = static_cast<SetHoverName*>(pack);
-	//		map->objects[shn->id]->hoverName = toString(shn->name);
-	//		break;
-	//	}
 	}
+}
+void CGameState::apply(IPack * pack)
+{
+	mx->lock();
+	applyNL(pack);
 	mx->unlock();
 }
 int CGameState::pickHero(int owner)
