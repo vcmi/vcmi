@@ -26,6 +26,7 @@ public:
 	std::vector<SDL_Surface *> portraitLarge; //58x64 px portraits of heroes
 	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
 	CDefHandler * pskillsb, *resources; //82x93
+	CDefHandler * pskillsm; //42x42
 	CDefHandler * un44; //many things
 	CDefHandler * smallIcons, *resources32; //resources 32x32
 	//creatures

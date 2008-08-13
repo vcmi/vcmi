@@ -22,7 +22,6 @@
 #include "CCallback.h"
 #include "CPlayerInterface.h"
 #include "CLuaHandler.h"
-#include "CLua.h"
 #include "CAdvmapInterface.h"
 #include "hch/CBuildingHandler.h"
 #include "hch/CVideoHandler.h"

@@ -3,6 +3,7 @@
 #include "global.h"
 #include <set>
 #include <vector>
+#include <boost/function.hpp>
 #include "lib/BattleAction.h"
 BOOST_TRIBOOL_THIRD_STATE(outOfRange)
 
@@ -55,9 +56,10 @@ public:
 	virtual void tileHidden(int3 pos){};
 	virtual void receivedResource(int type, int val){};
 	virtual void showInfoDialog(std::string text, std::vector<Component*> &components){};
-	virtual void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)=0;
+	virtual void showSelDialog(std::string text, std::vector<Component*> &components, ui32 askID){};
 	virtual void garrisonChanged(const CGObjectInstance * obj){};
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
+	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)=0; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	//battle call-ins
 	virtual void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning

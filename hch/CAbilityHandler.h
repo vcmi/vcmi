@@ -10,9 +10,7 @@ class CAbility
 {
 public:
 	std::string name;
-	std::string basicText;
-	std::string advText;
-	std::string expText;
+	std::vector <std::string> infoTexts; //0 - basic; 2 - advanced
 	int idNumber;
 	bool isAllowed; //true if we can use this hero's ability (map information)
 };

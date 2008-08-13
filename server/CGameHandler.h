@@ -3,31 +3,54 @@
 #include <set>
 #include "../CGameState.h"
 #include "../lib/Connection.h"
-#ifndef _MSC_VER
+#include <boost/function.hpp>
 #include <boost/thread.hpp>
-#endif
 class CVCMIServer;
 class CGameState;
-//class CConnection;
 struct StartInfo;
 class CCPPObjectScript;
 class CScriptCallback;
 template <typename T> struct CPack;
+template <typename T> struct Query;
 class CGHeroInstance;
+extern std::map<ui32, boost::function<void(ui32)> > callbacks; //question id => callback function - for selection dialogs
+extern boost::mutex gsm;
+
+struct PlayerStatus
+{
+	bool makingTurn, engagedIntoBattle;
+	std::set<ui32> queries;
+	PlayerStatus():makingTurn(false),engagedIntoBattle(false){};
+};
+class PlayerStatuses
+{
+public:
+	std::map<ui8,PlayerStatus> players;
+	boost::mutex mx;
+	boost::condition_variable cv; //notifies when any changes are made
+	void addPlayer(ui8 player);
+	PlayerStatus operator[](ui8 player);
+	bool hasQueries(ui8 player);
+	bool checkFlag(ui8 player, bool PlayerStatus::*flag);
+	void setFlag(ui8 player, bool PlayerStatus::*flag, bool val);
+	void addQuery(ui8 player, ui32 id);
+	void removeQuery(ui8 player, ui32 id);
+};
 class CGameHandler
 {
-
+	static ui32 QID;
 	CGameState *gs;
 	std::set<CCPPObjectScript *> cppscripts; //C++ scripts
 	//std::map<int, std::map<std::string, CObjectScript*> > objscr; //non-C++ scripts 
 
 	CVCMIServer *s;
 	std::map<int,CConnection*> connections; //player color -> connection to clinet with interface of that player
-	std::map<int,int> states; //player color -> player state
+	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
 	void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
+	void changeSecSkill(int ID, ui16 which, int val, bool abs=false);
 	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2); //use hero=NULL for no hero
 
@@ -37,6 +60,27 @@ public:
 	~CGameHandler(void);
 	void init(StartInfo *si, int Seed);
 	void handleConnection(std::set<int> players, CConnection &c);
+	template <typename T> void applyAndAsk(Query<T> * sel, ui8 player, boost::function<void(ui32)> &callback)
+	{
+		gsm.lock();
+		sel->id = QID;
+		callbacks[QID] = callback;
+		states.addQuery(player,QID);
+		QID++; 
+		sendAndApply(sel);
+		gsm.unlock();
+	}
+	template <typename T> void ask(Query<T> * sel, ui8 player, boost::function<void(ui32)> &callback)
+	{
+		gsm.lock();
+		sel->id = QID;
+		callbacks[QID] = callback;
+		states.addQuery(player,QID);
+		sendToAllClients(sel);
+		QID++; 
+		gsm.unlock();
+	}
+
 	template <typename T>void sendToAllClients(CPack<T> * info)
 	{
 		for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)

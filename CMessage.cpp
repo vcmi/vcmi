@@ -12,7 +12,6 @@
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include <sstream>
-#include "CLua.h"
 #include "hch/CGeneralTextHandler.h"
 #include "client/Graphics.h"
 SDL_Color tytulowy, tlo, zwykly ;
@@ -464,10 +463,10 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub(int player, std::string text, SDL_S
 CSelWindow * CMessage::genSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> & comps, int owner)
 {
 	CSelWindow * ret = new CSelWindow();
-	for(int i=0;i<comps.size();i++)
+	for(unsigned i=0;i<comps.size();i++)
 	{
 		ret->components.push_back(comps[i]);
-		comps[i]->owner = ret;
+		comps[i]->onSelect = boost::bind(&CSelWindow::selectionChange,ret,i);
 	}
 	std::vector<std::string> * tekst = breakText(text,charperline);
 	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(tekst);

@@ -15,7 +15,6 @@
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "CLua.h"
 #include "hch/CHeroHandler.h"
 #include <sstream>
 #include "AdventureMapButton.h"

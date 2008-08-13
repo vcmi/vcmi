@@ -4,7 +4,6 @@
 #include "CGameInterface.h"
 #include "SDL_framerate.h"
 #include <map>
-#include <boost/function.hpp>
 
 class CDefEssential;
 class AdventureMapButton;
@@ -169,9 +168,9 @@ public:
 	virtual ~CInfoWindow();
 };
 class CSelWindow : public CInfoWindow //component selection window
-{ //uwaga - to okno nie usuwa swoich komponentow przy usuwaniu, moga sie one jeszcze przydac skryptowi - tak wiec skrypt korzystajacyz tego okna musi je usunac
+{ //uwaga - to okno usuwa swoje komponenty przy zamykaniu
 public:
-	void selectionChange(CSelectableComponent * to);
+	void selectionChange(unsigned to);
 	void okClicked(boost::logic::tribool down);
 	void close();
 	CSelWindow(){};
@@ -204,7 +203,7 @@ class SComponent : public ClickableR
 public:
 	enum Etype
 	{
-		primskill, secskill, resource, creature, artifact, experience
+		primskill, secskill, resource, creature, artifact, experience, secskill44
 	} type;
 	int subtype;
 	int val;
@@ -218,6 +217,7 @@ public:
 
 	void clickRight (boost::logic::tribool down);
 	virtual SDL_Surface * getImg();
+	virtual void show(SDL_Surface * to = NULL);
 	virtual void activate();
 	virtual void deactivate();
 };
@@ -229,12 +229,15 @@ public:
 
 	bool customB;
 	SDL_Surface * border, *myBitmap;
-	CSelWindow * owner;
+	boost::function<void()> onSelect;
 
 
 	void clickLeft(boost::logic::tribool down);
-	CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner=NULL, SDL_Surface * Border=NULL);
+	void init(SDL_Surface * Border);
+	CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL);
+	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL);
 	~CSelectableComponent();
+	virtual void show(SDL_Surface * to = NULL);
 	void activate();
 	void deactivate();
 	void select(bool on);
@@ -328,10 +331,11 @@ public:
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
 	void showInfoDialog(std::string text, std::vector<Component*> &components);
-	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID);
+	void showSelDialog(std::string text, std::vector<Component*> &components, ui32 askID);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void garrisonChanged(const CGObjectInstance * obj);
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
+	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	//for battles
 	void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
@@ -530,6 +534,24 @@ public:
 	void dismissF();
 	void keyPressed (SDL_KeyboardEvent & key);
 	void deactivate();
+	void show(SDL_Surface * to = NULL);
+};
+
+class CLevelWindow : public IShowable, public CIntObject
+{
+public:
+	int heroType;
+	SDL_Surface *bitmap;
+	std::vector<CSelectableComponent *> comps; //skills to select
+	AdventureMapButton *ok;
+	boost::function<void(ui32)> cb;
+	
+	void close();
+	CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
+	~CLevelWindow();
+	void activate();
+	void deactivate();
+	void selectionChanged(unsigned to);
 	void show(SDL_Surface * to = NULL);
 };
 

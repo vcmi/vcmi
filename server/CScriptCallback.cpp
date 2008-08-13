@@ -12,6 +12,8 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
+
+
 CScriptCallback::CScriptCallback(void)
 {
 }
@@ -62,32 +64,13 @@ int CScriptCallback::getHeroOwner(int heroID)
 void CScriptCallback::showInfoDialog(InfoWindow *iw)
 {
 	gh->sendToAllClients(iw);
-	//TODO: upewniac sie ze mozemy to zrzutowac (przy customowych interfejsach cos moze sie kopnac)
-	//if (player>=0)
-	//{
-	//	CGameInterface * temp = sv->playerint[player];
-	//	if (temp->human)
-	//		((CPlayerInterface*)(temp))->showInfoDialog(text,*components);
-	//	return;
-	//}
-	//else
-	//{
-	//	typedef std::pair<const ui8, CGameInterface*> intf;
-	//	BOOST_FOREACH(intf & i, sv->playerint)
-	//	{
-	//		if (i.second->human)
-	//			((CPlayerInterface*)(i.second))->showInfoDialog(text,*components);
-	//	}
-	//}
 }
 
-void CScriptCallback::showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker)
+void CScriptCallback::showSelectionDialog(SelectionDialog *iw, boost::function<void(ui32),std::allocator<void> > &callback)
 {
-	//CGameInterface * temp = sv->playerint[player];
-	//if (temp->human)
-	//	((CPlayerInterface*)(temp))->showSelDialog(text,*components,(int)asker);
-	return;
+	gh->ask(iw,iw->player,callback);
 }
+
 int CScriptCallback::getSelectedHero()
 {	
 	//int ret;

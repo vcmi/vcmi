@@ -25,6 +25,11 @@ template <typename T> struct CPack
 	ui16 getType() const{return type;}
 	T* This(){return static_cast<T*>(this);};
 };
+template <typename T> struct Query
+	:public CPack<T>
+{
+	ui32 id;
+};
 struct SetResources : public CPack<SetResources> //104
 {
 	SetResources(){res.resize(RESOURCE_QUANTITY);type = 104;};
@@ -51,6 +56,18 @@ struct SetResource : public CPack<SetResource> //102
 struct SetPrimSkill : public CPack<SetPrimSkill> //105
 {
 	SetPrimSkill(){type = 105;};
+	ui8 abs; //0 - changes by value; 1 - sets to value
+	si32 id;
+	ui16 which, val;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & abs & id & which & val;
+	}
+}; 
+struct SetSecSkill : public CPack<SetSecSkill> //106
+{
+	SetSecSkill(){type = 106;};
 	ui8 abs; //0 - changes by value; 1 - sets to value
 	si32 id;
 	ui16 which, val;
@@ -239,19 +256,34 @@ struct SetHoverName : public CPack<SetHoverName>//1002
 		h & id & name;
 	}
 };
-struct HeroLevelUp : public CPack<HeroLevelUp>//2000
+struct HeroLevelUp : public Query<HeroLevelUp>//2000
 {
-	si32 id;
+	si32 heroid;
 	ui8 primskill, level;
-	std::set<ui16> skills;
+	std::vector<ui16> skills;
 
 	HeroLevelUp(){type = 2000;};
 	
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & primskill & level & skills;
+		h & id & heroid & primskill & level & skills;
 	}
 };
+
+struct SelectionDialog : public Query<SelectionDialog>//2001
+{
+	MetaString text;
+	std::vector<Component> components;
+	ui8 player;
+
+	SelectionDialog(){type = 2001;};
+	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & text & components & player;
+	}
+};
+
 struct BattleInfo;
 struct BattleStart : public CPack<BattleStart>//3000
 {

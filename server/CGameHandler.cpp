@@ -32,13 +32,14 @@ extern bool end2;
 #define NEW_ROUND 		BattleNextRound bnr;\
 		bnr.round = gs->curB->round + 1;\
 		sendAndApply(&bnr);
-boost::condition_variable cTurn;
-boost::mutex mTurn;
-boost::shared_mutex gsm;
 
+boost::mutex gsm;
+ui32 CGameHandler::QID = 1;
 
 CondSh<bool> battleMadeAction;
 CondSh<BattleResult *> battleResult(NULL);
+
+std::map<ui32, boost::function<void(ui32)> > callbacks; //question id => callback function - for selection dialogs
 
 class CMP_stack
 {
@@ -64,7 +65,86 @@ double distance(int3 a, int3 b)
 //	}
 //	return false;
 //}
-
+PlayerStatus PlayerStatuses::operator[](ui8 player)
+{
+	boost::unique_lock<boost::mutex> l(mx);
+	if(players.find(player) != players.end())
+	{
+		return players[player];
+	}
+	else
+	{
+		throw std::string("No such player!");
+	}
+}
+void PlayerStatuses::addPlayer(ui8 player)
+{
+	boost::unique_lock<boost::mutex> l(mx);
+	players[player];
+}
+bool PlayerStatuses::hasQueries(ui8 player)
+{
+	boost::unique_lock<boost::mutex> l(mx);
+	if(players.find(player) != players.end())
+	{
+		return players[player].queries.size();
+	}
+	else
+	{
+		throw std::string("No such player!");
+	}
+}
+bool PlayerStatuses::checkFlag(ui8 player, bool PlayerStatus::*flag)
+{
+	boost::unique_lock<boost::mutex> l(mx);
+	if(players.find(player) != players.end())
+	{
+		return players[player].*flag;
+	}
+	else
+	{
+		throw std::string("No such player!");
+	}
+}
+void PlayerStatuses::setFlag(ui8 player, bool PlayerStatus::*flag, bool val)
+{
+	boost::unique_lock<boost::mutex> l(mx);
+	if(players.find(player) != players.end())
+	{
+		players[player].*flag = val;
+	}
+	else
+	{
+		throw std::string("No such player!");
+	}
+	cv.notify_all();
+}
+void PlayerStatuses::addQuery(ui8 player, ui32 id)
+{
+	boost::unique_lock<boost::mutex> l(mx);
+	if(players.find(player) != players.end())
+	{
+		players[player].queries.insert(id);
+	}
+	else
+	{
+		throw std::string("No such player!");
+	}
+	cv.notify_all();
+}
+void PlayerStatuses::removeQuery(ui8 player, ui32 id)
+{
+	boost::unique_lock<boost::mutex> l(mx);
+	if(players.find(player) != players.end())
+	{
+		players[player].queries.erase(id);
+	}
+	else
+	{
+		throw std::string("No such player!");
+	}
+	cv.notify_all();
+}
 void CGameHandler::handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
 {
 	std::vector<int> tempv = script->yourObjects();
@@ -73,6 +153,21 @@ void CGameHandler::handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObj
 		(*mapa)[tempv[i]]=script;
 	}
 	cppscripts.insert(script);
+}
+template <typename T>
+void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
+{
+	fun(args[which]);
+}
+
+void CGameHandler::changeSecSkill(int ID, ui16 which, int val, bool abs)
+{
+	SetSecSkill sps;
+	sps.id = ID;
+	sps.which = which;
+	sps.abs = abs;
+	sps.val = val;
+	sendAndApply(&sps);
 }
 
 void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
@@ -83,13 +178,11 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 	sps.abs = abs;
 	sps.val = val;
 	sendAndApply(&sps);
-	if(which==4)
+	if(which==4) //only for exp - hero may level up
 	{
 		CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID]);
 		if(hero->exp >= VLC->heroh->reqExp(hero->level+1)) //new level
 		{
-			//hero->level++;
-
 			//give prim skill
 			std::cout << hero->name <<" got level "<<hero->level<<std::endl;
 			int r = rand()%100, pom=0, x=0;
@@ -107,10 +200,13 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 			sps.abs = false;
 			sps.val = 1;
 			sendAndApply(&sps);
-			hero->primSkills[x]++;
 
-			std::set<ui16> choice;
+			HeroLevelUp hlu;
+			hlu.heroid = ID;
+			hlu.primskill = x;
+			hlu.level = hero->level+1;
 
+			//picking sec. skills for choice
 			std::set<int> basicAndAdv, expert, none;
 			for(int i=0;i<SKILL_QUANTITY;i++) none.insert(i);
 			for(unsigned i=0;i<hero->secSkills.size();i++)
@@ -123,25 +219,24 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 			}
 			if(hero->secSkills.size() < hero->type->heroClass->skillLimit) //free skill slot
 			{
-				choice.insert(hero->type->heroClass->chooseSecSkill(none)); //new skill
+				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 			}
 			else
 			{
 				int s = hero->type->heroClass->chooseSecSkill(basicAndAdv);
-				choice.insert(s);
+				hlu.skills.push_back(s);
 				basicAndAdv.erase(s);
 			}
 			if(basicAndAdv.size())
 			{
-				choice.insert(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //new skill
+				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //new skill
 			}
 			else if(hero->secSkills.size() < hero->type->heroClass->skillLimit)
 			{
-				choice.insert(hero->type->heroClass->chooseSecSkill(none)); //new skill
+				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 			}
-
+			applyAndAsk(&hlu,hero->tempOwner,boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::changeSecSkill,this,ID,_1,1,0)),_1))); //call changeSecSkill with appropriate args when client responds
 		}
-		//TODO - powiadomic interfejsy, sprawdzic czy nie ma awansu itp
 	}
 }
 
@@ -154,10 +249,12 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 		battleResult.set(NULL);
 		std::vector<CStack*> & stacks = (curB->stacks);
 
+		curB->tile = tile;
+		curB->siege = 0; //TODO: add sieges
 		curB->army1=army1;
 		curB->army2=army2;
 		curB->hero1=(hero1)?(hero1->id):(-1);
-		curB->hero2=(hero1)?(hero1->id):(-1);
+		curB->hero2=(hero2)?(hero2->id):(-1);
 		curB->side1=(hero1)?(hero1->tempOwner):(-1);
 		curB->side2=(hero2)?(hero2->tempOwner):(-1);
 		curB->round = -2;
@@ -283,9 +380,9 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 
 		//block engaged players
 		if(hero1->tempOwner<PLAYER_LIMIT)
-			states[hero1->tempOwner] += 10;
+			states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,true);
 		if(hero2 && hero2->tempOwner<PLAYER_LIMIT)
-			states[hero2->tempOwner] += 10;
+			states.setFlag(hero2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
 
 		//send info about battles
 		BattleStart bs;
@@ -328,6 +425,12 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 			battleMadeAction.data = false;
 		}
 	}
+
+	//unblock engaged players
+	if(hero1->tempOwner<PLAYER_LIMIT)
+		states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,false);
+	if(hero2 && hero2->tempOwner<PLAYER_LIMIT)
+		states.setFlag(hero2->tempOwner,&PlayerStatus::engagedIntoBattle,false);
 
 	//end battle, remove all info, free memory
 	sendAndApply(battleResult.data);
@@ -380,10 +483,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			{
 			case 100: //my interface ended its turn
 				{
-					mTurn.lock();
-					states[gs->currentPlayer] = 0;
-					mTurn.unlock();
-					cTurn.notify_all();
+					states.setFlag(gs->currentPlayer,&PlayerStatus::makingTurn,false);
 					break;
 				}
 			case 500:
@@ -444,7 +544,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 								//if(gs->checkFunc(obj->ID,"heroVisit")) //script function
 								//	gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
 								if(obj->state) //hard-coded function
-									obj->state->onHeroVisit(obj->id,h->subID);
+									obj->state->onHeroVisit(obj->id,h->id);
 							}
 						}
 						break;
@@ -457,7 +557,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						{
 							//TODO: allow to handle this in script-languages
 							if(obj->state) //hard-coded function
-								obj->state->onHeroLeave(obj->id,h->subID);
+								obj->state->onHeroLeave(obj->id,h->id);
 						}
 
 						//reveal fog of war
@@ -662,6 +762,17 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					sendAndApply(&sr); 
 					sendAndApply(&sac);
 					sendAndApply(&sg);
+					break;
+				}
+			case 2001:
+				{
+					ui32 qid, answer;
+					c >> qid >> answer;
+					gsm.lock();
+					boost::function<void(ui32)> callb = callbacks[qid];
+					callbacks.erase(qid);
+					gsm.unlock();
+					callb(answer);
 					break;
 				}
 			case 3002:
@@ -949,6 +1060,8 @@ void CGameHandler::run()
 		//if(checkFunc(map->objects[i]->ID,temps))
 		//	(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
 	}
+	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
+		states.addPlayer(i->first);
 
 	while (!end2)
 	{
@@ -956,17 +1069,18 @@ void CGameHandler::run()
 		for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
 		{
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0 || i->first>=PLAYER_LIMIT  ) continue; //players has not towns/castle - loser
-			states[i->first] = 1;
+			states.setFlag(i->first,&PlayerStatus::makingTurn,true);
 			gs->currentPlayer = i->first;
 			*connections[i->first] << ui16(100) << i->first;    
+
 			//wait till turn is done
-			boost::unique_lock<boost::mutex> lock(mTurn);
-			while(states[i->first] && !end2)
+			boost::unique_lock<boost::mutex> lock(states.mx);
+			while(states.players[i->first].makingTurn && !end2)
 			{
 				boost::posix_time::time_duration p;
 				p= boost::posix_time::seconds(1);
 #ifdef _MSC_VER
-				cTurn.timed_wait(lock,p); 
+				states.cv.timed_wait(lock,p); 
 #else
 				boost::xtime time={0,0};
 				time.sec = static_cast<boost::xtime::xtime_sec_t>(p.total_seconds());

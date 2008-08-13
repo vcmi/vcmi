@@ -1,6 +1,7 @@
 #pragma once
 #include "../global.h"
 #include <vector>
+#include <boost/function.hpp>
 class CVCMIServer;
 class CGameHandler;
 class SComponent;
@@ -16,6 +17,7 @@ struct lua_State;
 struct MetaString;
 struct InfoWindow;
 struct ShowInInfobox;
+struct SelectionDialog;
 class CScriptCallback
 {
 	CScriptCallback(void);
@@ -38,7 +40,7 @@ public:
 	void setHoverName(int objid, MetaString * name);
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
 	void showInfoDialog(InfoWindow *iw);
-	void showSelDialog(int player, std::string text, std::vector<CSelectableComponent*>*components, IChosen * asker);
+	void showSelectionDialog(SelectionDialog *iw, boost::function<void(ui32),std::allocator<void> > &callback); //returns question id
 	void giveResource(int player, int which, int val);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);

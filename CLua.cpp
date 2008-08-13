@@ -1,5 +1,7 @@
 #include "stdafx.h"
 #include <sstream>
+#include <boost/bind.hpp>
+#include <boost/function.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "hch/CHeroHandler.h"
@@ -516,12 +518,12 @@ void CPickable::onHeroVisit(int objid, int heroID)
 	DEFOS;
 	switch(os->ID)
 	{
-	case 5:
+	case 5: //artifact
 		{
 			cb->giveHeroArtifact(os->subID,heroID,-1); //TODO: na pozycje
 			break;
 		}
-	case 79:
+	case 79: //resource
 		{
 			//TODO: handle guards (when battles are finished)
 			CResourceObjInfo * t2 = static_cast<CResourceObjInfo *>(os->info);
@@ -561,64 +563,60 @@ void CPickable::onHeroVisit(int objid, int heroID)
 			cb->showCompInfo(&sii);
 			break;
 		}
-	case 101:
+	case 101: //treasure chest
 		{
-			//if (os->subID)
-			//	break; //not OH3 treasure chest
-			//int wyn = rand()%100;
-			//if (wyn<32)
-			//{
-			//	tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1000));
-			//	tempStore.push_back(new CSelectableComponent(SComponent::experience,0,500));
-			//}//1k/0.5k
-			//else if(wyn<64)
-			//{
-			//	tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1500));
-			//	tempStore.push_back(new CSelectableComponent(SComponent::experience,0,1000));
-			//}//1.5k/1k
-			//else if(wyn<95)
-			//{
-			//	tempStore.push_back(new CSelectableComponent(SComponent::resource,6,2000));
-			//	tempStore.push_back(new CSelectableComponent(SComponent::experience,0,1500));
-			//}//2k/1.5k
-			//else
-			//{
-			//	if (1/*TODO: backpack is full*/)
-			//	{
-			//		tempStore.push_back(new CSelectableComponent(SComponent::resource,6,1000));
-			//		tempStore.push_back(new CSelectableComponent(SComponent::experience,0,500));
-			//	}
-			//	else
-			//	{
-			//		//TODO: give treasure artifact
-			//		break;
-			//	}
-			//}//random treasure artifact, or (if backapack is full) 1k/0.5k
-			//tempStore[1]->ID = heroID;
-			//player = cb->getHeroOwner(heroID);
-			//cb->showSelDialog(player,VLC->objh->advobtxt[146],&tempStore,this);
+			if (os->subID) //not OH3 treasure chest
+				break; 
+			int wyn = rand()%100, val=0;
+			if (wyn<32) //1k/0.5k
+			{
+				val = 1000;
+			}
+			else if(wyn<64) //1.5k/1k
+			{
+				val = 1500;
+			}
+			else if(wyn<95) //2k/1.5k
+			{
+				val = 2000;
+			}
+			else //random treasure artifact, or (if backapack is full) 1k/0.5k
+			{
+				if (1/*TODO: backpack is full*/)
+				{
+					val = 1000;
+				}
+				else
+				{
+					//TODO: give treasure artifact
+					break;
+				}
+			}
+			SelectionDialog sd;
+			sd.player = cb->getHeroOwner(heroID);
+			sd.text << std::pair<ui8,ui32>(11,146);
+			sd.components.push_back(Component(2,6,val,0));
+			sd.components.push_back(Component(5,0,val-500,0));
+			boost::function<void(ui32)> fun = boost::bind(&CPickable::chosen,this,_1,heroID,val);
+			cb->showSelectionDialog(&sd,fun);
 			break;
 		}
 	}
 	//VLC->mh->removeObject(os);
 }
-void CPickable::chosen(int which)
+void CPickable::chosen(ui32 which, int heroid, int val)
 {
-	//switch(tempStore[which]->type)
-	//{
-	//case SComponent::resource:
-	//	cb->giveResource(player,tempStore[which]->subtype,tempStore[which]->val);
-	//	break;
-	//case SComponent::experience:
-	//	cb->changePrimSkill(tempStore[which]->ID,4,tempStore[which]->val);
-	//	break;
-	//default:
-	//	throw new std::exception("Unhandled choice");
-	//	
-	//}
-	//for (int i=0;i<tempStore.size();i++)
-	//	delete tempStore[i];
-	//tempStore.clear();
+	switch(which)
+	{
+	case 0: //player pick gold
+		cb->giveResource(cb->getHeroOwner(heroid),6,val);
+		break;
+	case 1: //player pick exp
+		cb->changePrimSkill(heroid, 4, val-500);
+		break;
+	default:
+		throw std::string("Unhandled choice");
+	}
 }
 
 std::vector<int> CPickable::yourObjects() //returns IDs of objects which are handled by script

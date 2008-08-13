@@ -54,8 +54,8 @@ public:
 	unsigned char animPhaseShift;
 	std::string hoverName;
 
-	int tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
-	int blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
+	ui8 tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
+	ui8 blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
 
 	virtual bool isHero() const;
 	int getOwner() const;

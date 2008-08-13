@@ -17,10 +17,11 @@ void CAbilityHandler::loadAbilities()
 	for (int i=0; i<SKILL_QUANTITY; i++)
 	{
 		CAbility * nab = new CAbility; //new skill, that will be read
+		nab->infoTexts.resize(3);
 		loadToIt(nab->name,buf,it,4);
-		loadToIt(nab->basicText,buf,it,4);
-		loadToIt(nab->advText,buf,it,4);
-		loadToIt(nab->expText,buf,it,3);
+		loadToIt(nab->infoTexts[0],buf,it,4);
+		loadToIt(nab->infoTexts[1],buf,it,4);
+		loadToIt(nab->infoTexts[2],buf,it,3);
 		nab->idNumber = abilities.size();
 		abilities.push_back(nab);
 	}

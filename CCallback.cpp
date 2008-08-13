@@ -106,9 +106,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 
 void CCallback::selectionMade(int selection, int asker)
 {
-	//todo - jak bedzie multiplayer po sieci, to moze wymagac przerobek zaleznych od obranego modelu
-	//IChosen * ask = (IChosen *)asker;
-	//ask->chosen(selection);
+	*cl->serv << ui16(2001) << ui32(asker) << ui32(selection);
 }
 void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)
 {

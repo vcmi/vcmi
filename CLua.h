@@ -60,11 +60,6 @@ public:
 	CScript();
 	virtual ~CScript();
 };
-class IChosen
-{
-public:
-	virtual void chosen(int which)=0;
-};
 class CLua :public CScript
 {
 protected:
@@ -140,14 +135,11 @@ public:
 	void newTurn ();
 };
 
-class CPickable : public CCPPObjectScript, public IChosen  //pickable - resources, artifacts, etc
+class CPickable : public CCPPObjectScript //pickable - resources, artifacts, etc
 {
 public:
-	std::vector<CSelectableComponent*> tempStore;
-	int player;
-
 	CPickable(CScriptCallback * CB):CCPPObjectScript(CB){};
-	void chosen(int which);
+	void chosen(ui32 which, int heroid, int val); //val - value of treasure in gold
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script

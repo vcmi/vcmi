@@ -304,6 +304,29 @@ void CGameState::applyNL(IPack * pack)
 			}
 			break;
 		}
+	case 106:
+		{
+			SetSecSkill *sr = static_cast<SetSecSkill*>(pack);
+			CGHeroInstance *hero = getHero(sr->id);
+			if(hero->getSecSkillLevel(sr->which) < 0)
+			{
+				hero->secSkills.push_back(std::pair<int,int>(sr->which, (sr->abs)? (sr->val) : (sr->val-1)));
+			}
+			else
+			{
+				for(unsigned i=0;i<hero->secSkills.size();i++)
+				{
+					if(hero->secSkills[i].first == sr->which)
+					{
+						if(sr->abs)
+							hero->secSkills[i].second = sr->val;
+						else
+							hero->secSkills[i].second += sr->val;
+					}
+				}
+			}
+			break;
+		}
 	case 500:
 		{
 			RemoveHero *rh = static_cast<RemoveHero*>(pack);
@@ -360,7 +383,7 @@ void CGameState::applyNL(IPack * pack)
 	case 1001://set object property
 		{
 			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);
-			int CGObjectInstance::*point;
+			ui8 CGObjectInstance::*point;
 			switch(p->what)
 			{
 			case 1:
@@ -371,6 +394,12 @@ void CGameState::applyNL(IPack * pack)
 				break;
 			}
 			map->objects[p->id]->*point = p->val;
+			break;
+		}
+	case 2000:
+		{
+			HeroLevelUp * bs = static_cast<HeroLevelUp*>(pack);
+			getHero(bs->heroid)->level = bs->level;
 			break;
 		}
 	case 3000:

@@ -16,7 +16,7 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #define THC
 #endif
 
-#define NAME_VER ("VCMI \"Altanatse\" 0.7")
+#define NAME_VER ("VCMI 0.62")
 
 
 #ifdef _WIN32
@@ -96,6 +96,11 @@ namespace vstd
 	bool contains(const Container & c, const Item &i)
 	{
 		return std::find(c.begin(),c.end(),i) != c.end();
+	}
+	template <typename V, typename Item>
+	bool contains(const std::map<Item,V> & c, const Item &i)
+	{
+		return c.find(i)!=c.end();
 	}
 	template <typename Container, typename Item>
 	typename Container::iterator find(const Container & c, const Item &i)

@@ -27,7 +27,6 @@
 #include "hch/CObjectHandler.h"
 #include "CBattleInterface.h"
 #include "CGameInfo.h"
-#include "CLua.h"
 #include <cmath>
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
@@ -540,6 +539,10 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		oss << ((Val>0)?("+"):("-")) << Val << " " << CGI->heroh->pskillsn[Subtype];
 		subtitle = oss.str();
 		break;
+	case secskill44:
+		subtitle += CGI->abilh->levels[Val] + " " + CGI->abilh->abilities[Subtype]->name;
+		description = CGI->abilh->abilities[Subtype]->infoTexts[Val];
+		break;
 	case resource:
 		description = CGI->generaltexth->allTexts[242];
 		oss << Val;
@@ -569,13 +572,13 @@ SComponent::SComponent(const Component &c)
 		init(experience,0,c.val);
 	else
 		init((Etype)c.id,c.subtype,c.val);
-	switch(c.id)
-	{
-	case resource:
-		if(c.when == -1)
-			subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
-		break;
-	}
+
+	if(c.id==2 && c.when==-1)
+		subtitle += CGI->generaltexth->allTexts[3].substr(2,CGI->generaltexth->allTexts[3].length()-2);
+}
+void SComponent::show(SDL_Surface * to)
+{
+	blitAt(getImg(),pos.x,pos.y,to);
 }
 SDL_Surface * SComponent::getImg()
 {
@@ -583,6 +586,9 @@ SDL_Surface * SComponent::getImg()
 	{
 	case primskill:
 		return graphics->pskillsb->ourImages[subtype].bitmap;
+		break;
+	case secskill44:
+		return CGI->abilh->abils44->ourImages[subtype*3 + 3 + val].bitmap;
 		break;
 	case secskill:
 		return CGI->abilh->abils82->ourImages[subtype*3 + 3 + val].bitmap;
@@ -613,12 +619,11 @@ void CSelectableComponent::clickLeft(tribool down)
 {
 	if (down)
 	{
-		select(true);
-		owner->selectionChange(this);
+		if(onSelect)
+			onSelect();
 	}
 }
-CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWindow * Owner, SDL_Surface * Border)
-:SComponent(Type,Sub,Val),owner(Owner)
+void CSelectableComponent::init(SDL_Surface * Border)
 {
 	SDL_Surface * symb = SComponent::getImg();
 	myBitmap = CSDL_Ext::newSurface(symb->w+2,symb->h+2,screen);
@@ -647,6 +652,16 @@ CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, CSelWin
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
 	}
 	selected = false;
+}
+CSelectableComponent::CSelectableComponent(const Component &c, boost::function<void()> OnSelect, SDL_Surface * Border)
+:SComponent(c),onSelect(OnSelect)
+{
+	init(Border);
+}
+CSelectableComponent::CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect, SDL_Surface * Border)
+:SComponent(Type,Sub,Val),onSelect(OnSelect)
+{
+	init(Border);
 }
 CSelectableComponent::~CSelectableComponent()
 {
@@ -686,7 +701,11 @@ void CSelectableComponent::select(bool on)
 		return;
 	}
 }
-
+void CSelectableComponent::show(SDL_Surface * to)
+{
+	blitAt(myBitmap,pos.x,pos.y,to);
+	printAtMiddleWB(subtitle,pos.x+pos.w/2,pos.y+pos.h+14,GEOR13,12,zwykly,to);
+}
 void CSimpleWindow::show(SDL_Surface * to)
 {
 	if(!to)
@@ -702,22 +721,14 @@ CSimpleWindow::~CSimpleWindow()
 	}
 }
 
-void CSelWindow::selectionChange(CSelectableComponent * to)
+void CSelWindow::selectionChange(unsigned to)
 {
-	blitAt(to->getImg(),to->pos.x-pos.x,to->pos.y-pos.y,bitmap);
-	for (int i=0;i<components.size();i++)
+	for (unsigned i=0;i<components.size();i++)
 	{
-		if(components[i]==to)
-		{
-			if (to->selected)
-				continue;
-			else
-				to->select(true);
-		}
 		CSelectableComponent * pom = dynamic_cast<CSelectableComponent*>(components[i]);
 		if (!pom)
 			continue;
-		pom->select(false);
+		pom->select(i==to);
 		blitAt(pom->getImg(),pom->pos.x-pos.x,pom->pos.y-pos.y,bitmap);
 	}
 }
@@ -736,6 +747,7 @@ void CSelWindow::close()
 			ret = i;
 		}
 		components[i]->deactivate();
+		delete components[i];
 	}
 	components.clear();
 	okb.deactivate();
@@ -1869,10 +1881,16 @@ void CPlayerInterface::receivedResource(int type, int val)
 	adventureInt->resdatabar.draw();
 }
 
-void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)
+void CPlayerInterface::showSelDialog(std::string text, std::vector<Component*> &components, ui32 askID)
+//void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	adventureInt->hide(); //dezaktywacja starego interfejsu
-	CSelWindow * temp = CMessage::genSelWindow(text,LOCPLINT->playerID,35,components,playerID);
+	std::vector<CSelectableComponent*> intComps;
+	for(int i=0;i<components.size();i++)
+		intComps.push_back(new CSelectableComponent(*components[i])); //will be deleted by CSelWindow::close
+
+	CSelWindow * temp = CMessage::genSelWindow(text,LOCPLINT->playerID,35,intComps,playerID);
 	LOCPLINT->objsToBlit.push_back(temp);
 	temp->pos.x=300-(temp->pos.w/2);
 	temp->pos.y=300-(temp->pos.h/2);
@@ -1886,10 +1904,18 @@ void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableCo
 		temp->components[i]->pos.y += temp->pos.y;
 	}
 	temp->ID = askID;
-	components[0]->clickLeft(true);
+	intComps[0]->clickLeft(true);
+}
+void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
+{
+	boost::unique_lock<boost::mutex> un(*pim);
+	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
+	curint->deactivate();
+	lw->activate();
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	openTownWindow(town);
 }
 void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
@@ -3086,4 +3112,101 @@ void CCreInfoWindow::deactivate()
 		dismiss->deactivate();
 	if(upgrade)
 		upgrade->deactivate();
+}
+
+void CLevelWindow::close()
+{
+	deactivate();
+	for(int i=0;i<comps.size();i++)
+	{
+		if(comps[i]->selected)
+		{
+			cb(i);
+			break;
+		}
+	}
+	delete this;
+	LOCPLINT->curint->activate();
+}
+CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)
+{
+	heroType = hero->subID;
+	cb = callback;
+	for(int i=0;i<skills.size();i++)
+		comps.push_back(new CSelectableComponent(SComponent::secskill44,skills[i],hero->getSecSkillLevel(skills[i])+1,boost::bind(&CLevelWindow::selectionChanged,this,i)));
+	bitmap = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
+	graphics->blueToPlayersAdv(bitmap,hero->tempOwner);
+	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
+	pos.x = screen->w/2 - bitmap->w/2;
+	pos.y = screen->h/2 - bitmap->h/2;
+	pos.w = bitmap->w;
+	pos.h = bitmap->h;
+	ok = new AdventureMapButton("","",boost::bind(&CLevelWindow::close,this),pos.x+297,pos.y+413,"IOKAY.DEF");
+
+	//draw window
+	char buf[100], buf2[100];
+	strcpy(buf2,CGI->generaltexth->allTexts[444].c_str()); //%s has gained a level.
+	sprintf(buf,buf2,hero->name.c_str());
+	printAtMiddle(buf,192,35,GEOR16,zwykly,bitmap);
+
+	strcpy(buf2,CGI->generaltexth->allTexts[445].c_str()); //%s is now a level %d %s.
+	sprintf(buf,buf2,hero->name.c_str(),hero->level,hero->type->heroClass->name.c_str());
+	printAtMiddle(buf,192,162,GEOR16,zwykly,bitmap);
+
+	blitAt(graphics->pskillsm->ourImages[pskill].bitmap,174,190,bitmap);
+
+	printAtMiddle((CGI->generaltexth->primarySkillNames[pskill] + " +1"),192,252,GEOR16,zwykly,bitmap);
+
+	SDL_Surface * ort = TTF_RenderText_Blended(GEOR16,CGI->generaltexth->allTexts[4].c_str(),zwykly);
+	int curx = bitmap->w/2 - ( skills.size()*44   +   (skills.size()-1)*(36+ort->w) )/2;
+	for(int i=0;i<comps.size();i++)
+	{
+		comps[i]->pos.x = curx+pos.x;
+		comps[i]->pos.y = 326+pos.y;
+		if( i < (comps.size()-1) )
+		{
+			curx += 44 + 18; //skill width + margin to "or"
+			blitAt(ort,curx,346,bitmap);
+			curx += ort->w + 18;
+		}
+	}
+	SDL_FreeSurface(ort);
+
+}
+void CLevelWindow::selectionChanged(unsigned to)
+{
+	for(int i=0;i<comps.size();i++)
+		if(i==to)
+			comps[i]->select(true);
+		else
+			comps[i]->select(false);
+}
+CLevelWindow::~CLevelWindow()
+{
+	delete ok;
+	for(int i=0;i<comps.size();i++)
+		delete comps[i];
+	SDL_FreeSurface(bitmap);
+}
+void CLevelWindow::activate()
+{
+	LOCPLINT->objsToBlit.push_back(this);
+	ok->activate();
+	for(int i=0;i<comps.size();i++)
+		comps[i]->activate();
+}
+void CLevelWindow::deactivate()
+{
+	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+	ok->deactivate();
+	for(int i=0;i<comps.size();i++)
+		comps[i]->deactivate();
+}
+void CLevelWindow::show(SDL_Surface * to)
+{
+	blitAt(bitmap,pos.x,pos.y,screen);
+	blitAt(graphics->portraitLarge[heroType],170+pos.x,66+pos.y);
+	ok->show();
+	for(int i=0;i<comps.size();i++)
+		comps[i]->show();
 }

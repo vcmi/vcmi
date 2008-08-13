@@ -156,7 +156,7 @@ CClient::CClient(CConnection *con, StartInfo *si)
 			playerint[color]->init(cb);
 		}
 	}
-	CGI->consoleh->cb = new CCallback(gs,-1,this);
+	cb = CGI->consoleh->cb = new CCallback(gs,-1,this);
 }
 CClient::~CClient(void)
 {
@@ -218,6 +218,15 @@ void CClient::process(int what)
 			std::cout << "Changing hero primary skill"<<std::endl;
 			gs->apply(&sps);
 			playerint[gs->getHero(sps.id)->tempOwner]->heroPrimarySkillChanged(gs->getHero(sps.id),sps.which,sps.val);
+			break;
+		}
+	case 106:
+		{
+			SetSecSkill sr;
+			*serv >> sr;
+			std::cout << "Changing hero secondary skill"<<std::endl;
+			gs->apply(&sr);
+			//TODO? - maybe inform interfaces
 			break;
 		}
 	case 107:
@@ -329,6 +338,28 @@ void CClient::process(int what)
 			gs->mx->lock();
 			gs->map->objects[shn.id]->hoverName = toString(shn.name);
 			gs->mx->unlock();
+			break;
+		}
+	case 2000:
+		{
+			HeroLevelUp  bs;
+			*serv >> bs;
+			std::cout << "Hero levels up!" <<std::endl;
+			gs->apply(&bs);
+			CGHeroInstance *h = gs->getHero(bs.heroid);
+			if(vstd::contains(playerint,h->tempOwner))
+				playerint[h->tempOwner]->heroGotLevel(h,bs.primskill,bs.skills,boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,cb,_1,bs.id)));
+			break;
+		}
+	case 2001:
+		{
+			SelectionDialog sd;
+			*serv >> sd;
+			std::cout << "Showing selection dialog " <<std::endl;
+			std::vector<Component*> comps;
+			for(int i=0;i<sd.components.size();i++)
+				comps.push_back(&sd.components[i]);
+			playerint[sd.player]->showSelDialog(toString(sd.text),comps,sd.id);
 			break;
 		}
 	case 3000:

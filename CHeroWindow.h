@@ -88,7 +88,7 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	CStatusBar * ourBar; //heroWindow's statusBar
 
 	//general graphics
-	CDefHandler * skillpics, *flags;
+	CDefHandler *flags;
 
 	//buttons
 	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general

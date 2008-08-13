@@ -13,6 +13,7 @@ public:
 	void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID){};
 	void tileRevealed(int3 pos){};
 	void tileHidden(int3 pos){};
+	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 };
 
 #define NAME "EmptyAI 0.1"

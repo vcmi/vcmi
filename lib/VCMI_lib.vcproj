@@ -39,6 +39,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/MP2"
 				Optimization="0"
 				AdditionalIncludeDirectories="G:\vcmt\repa\include"
 				MinimalRebuild="true"

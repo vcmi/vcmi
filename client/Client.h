@@ -35,6 +35,7 @@ struct CSharedCond
 
 class CClient
 {
+	CCallback *cb;
 	CGameState *gs;
 	std::map<ui8,CGameInterface *> playerint;
 	CConnection *serv;

@@ -5,7 +5,6 @@
 #include "hch/CLodHandler.h"
 #include "hch/CPreGameTextHandler.h"
 #include "hch/CTownHandler.h"
-#include "CLua.h"
 #include "CCallback.h"
 #include "client/Graphics.h"
 AdventureMapButton::AdventureMapButton ()

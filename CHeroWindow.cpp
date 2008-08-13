@@ -62,7 +62,6 @@ CHeroWindow::CHeroWindow(int playerColor):
 		heroListMi[g]->id = g;
 	}
 
-	skillpics = CDefHandler::giveDef("pskil42.def");
 	flags = CDefHandler::giveDef("CREST58.DEF");
 	//areas
 	portraitArea = new LRClickableAreaWText();
@@ -126,7 +125,6 @@ CHeroWindow::~CHeroWindow()
 	if(curBack)
 		SDL_FreeSurface(curBack);
 
-	delete skillpics;
 	delete flags;
 
 	delete garInt;
@@ -219,22 +217,8 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	{
 		secSkillAreas[g]->type = hero->secSkills[g].first;
 		secSkillAreas[g]->bonus = hero->secSkills[g].second;
-		std::string hlp;
-		switch(hero->secSkills[g].second)
-		{
-		case 0: //basic level
-			hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->basicText;
-			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
-			break;
-		case 1: //adv level
-			hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->advText;
-			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
-			break;
-		case 2: //expert level
-			hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->expText;
-			secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
-			break;
-		}
+		std::string hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->infoTexts[hero->secSkills[g].second];
+		secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
 
 		char * hlpp = new char[200];
 		sprintf(hlpp, CGI->generaltexth->heroscrn[21].c_str(), CGI->abilh->levels[hero->secSkills[g].second].c_str(), CGI->abilh->abilities[hero->secSkills[g].first]->name.c_str());
@@ -729,12 +713,12 @@ void CHeroWindow::redrawCurBack()
 		SDL_FreeSurface(curBack);
 	curBack = SDL_DisplayFormat(background);
 
-	blitAt(skillpics->ourImages[0].bitmap, 32, 111, curBack);
-	blitAt(skillpics->ourImages[1].bitmap, 102, 111, curBack);
-	blitAt(skillpics->ourImages[2].bitmap, 172, 111, curBack);
-	blitAt(skillpics->ourImages[5].bitmap, 242, 111, curBack);
-	blitAt(skillpics->ourImages[4].bitmap, 20, 230, curBack);
-	blitAt(skillpics->ourImages[3].bitmap, 162, 230, curBack);
+	blitAt(graphics->pskillsm->ourImages[0].bitmap, 32, 111, curBack);
+	blitAt(graphics->pskillsm->ourImages[1].bitmap, 102, 111, curBack);
+	blitAt(graphics->pskillsm->ourImages[2].bitmap, 172, 111, curBack);
+	blitAt(graphics->pskillsm->ourImages[5].bitmap, 242, 111, curBack);
+	blitAt(graphics->pskillsm->ourImages[4].bitmap, 20, 230, curBack);
+	blitAt(graphics->pskillsm->ourImages[3].bitmap, 162, 230, curBack);
 
 	blitAt(graphics->portraitLarge[curHero->portrait], 19, 19, curBack);
 

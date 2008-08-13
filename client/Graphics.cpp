@@ -174,6 +174,7 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(halls,"ITMTLS.DEF");
 	tasks += GET_DEF_ESS(bigTownPic,"ITPT.DEF");
 	tasks += GET_DEF(pskillsb,"PSKILL.DEF");
+	tasks += GET_DEF(pskillsm,"PSKIL42.DEF");
 	tasks += GET_DEF(resources,"RESOUR82.DEF");
 	tasks += GET_DEF(un44,"UN44.DEF");
 	tasks += GET_DEF(smallIcons,"ITPA.DEF");

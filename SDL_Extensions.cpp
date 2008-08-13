@@ -44,6 +44,7 @@ void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 }
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
+	if(!dst) dst = screen;
 	SDL_Rect pom = genRect(src->h,src->w,x,y);
 	SDL_BlitSurface(src,NULL,dst,&pom);
 }
