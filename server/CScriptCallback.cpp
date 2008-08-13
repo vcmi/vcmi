@@ -105,29 +105,19 @@ void CScriptCallback::showCompInfo(ShowInInfobox * comp)
 }
 void CScriptCallback::heroVisitCastle(int obj, int heroID)
 {
-	//CGTownInstance * n;
-	//if(n = dynamic_cast<CGTownInstance*>(ob))
-	//{
-	//	n->visitingHero = CGI->state->map->getHero(heroID,0);
-	//	gh->gs->map->getHero(heroID,0)->visitedTown = n;
-	//	sv->playerint[getHeroOwner(heroID)]->heroVisitsTown(CGI->state->map->getHero(heroID,0),n);
-	//}
-	//else
-	//	return;
+	HeroVisitCastle vc;
+	vc.hid = heroID;
+	vc.tid = obj;
+	vc.flags |= 1;
+	gh->sendAndApply(&vc);
 }
 
 void CScriptCallback::stopHeroVisitCastle(int obj, int heroID)
 {
-	//CGTownInstance * n;
-	//if(n = dynamic_cast<CGTownInstance*>(ob))
-	//{
-	//	CGI->state->map->getHero(heroID,0)->visitedTown = NULL;
-	//	if(n->visitingHero && n->visitingHero->type->ID == heroID)
-	//		n->visitingHero = NULL;
-	//	return;
-	//}
-	//else
-	//	return;
+	HeroVisitCastle vc;
+	vc.hid = heroID;
+	vc.tid = obj;
+	gh->sendAndApply(&vc);
 }
 void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
 {

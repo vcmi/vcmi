@@ -553,7 +553,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					{
 						tmh.result = 1;
 
-						BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[start.x][start.y][start.z].visitableObjects)
+						BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[start.x-1][start.y][start.z].visitableObjects)
 						{
 							//TODO: allow to handle this in script-languages
 							if(obj->state) //hard-coded function

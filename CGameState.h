@@ -135,6 +135,7 @@ private:
 	int pickHero(int owner);
 
 	CGHeroInstance *getHero(int objid);
+	CGTownInstance *getTown(int objid);
 
 	bool battleMoveCreatureStack(int ID, int dest);
 	bool battleAttackCreatureStack(int ID, int dest);

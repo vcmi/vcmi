@@ -77,6 +77,25 @@ struct SetSecSkill : public CPack<SetSecSkill> //106
 		h & abs & id & which & val;
 	}
 }; 
+struct HeroVisitCastle : public CPack<HeroVisitCastle> //108
+{
+	HeroVisitCastle(){flags=0;type = 108;};
+	ui8 flags; //1 - start, 2 - garrison
+	ui32 tid, hid;
+
+	bool start() //if hero is entering castle (if false - leaving)
+	{
+		return flags & 1;
+	}
+	bool garrison() //if hero is entering/leaving garrison (if false - it's only visiting hero)
+	{
+		return flags & 2;
+	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & flags & tid & hid;
+	}
+}; 
 struct RemoveObject : public CPack<RemoveObject> //500
 {
 	RemoveObject(){type = 500;};

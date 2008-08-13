@@ -131,6 +131,7 @@ void CGarrisonSlot::clickRight (tribool down)
 		{
 			pom = new StackState();
 			const CGHeroInstance *h = static_cast<const CGHeroInstance *>(getObj());
+			pom->currentHealth = 0;
 			pom->attackBonus = h->primSkills[0];
 			pom->defenseBonus = h->primSkills[1];
 			pom->luck = h->getCurrentLuck();
@@ -3023,7 +3024,7 @@ CCreInfoWindow::CCreInfoWindow
 	printToWR(pom,276,137,GEOR13,zwykly,bitmap);
 
 	//remaining health
-	if(State)
+	if(State && State->currentHealth)
 	{
 		printAt(CGI->preth->zelp[440].first,155,143,GEOR13,zwykly,bitmap);
 		SDL_itoa(State->currentHealth,pom,10);

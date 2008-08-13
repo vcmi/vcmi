@@ -327,6 +327,43 @@ void CGameState::applyNL(IPack * pack)
 			}
 			break;
 		}
+	case 108:
+		{
+			HeroVisitCastle *vc = static_cast<HeroVisitCastle*>(pack);
+			CGHeroInstance *h = getHero(vc->hid);
+			CGTownInstance *t = getTown(vc->tid);
+			if(vc->start())
+			{
+				if(vc->garrison())
+				{
+					t->garrisonHero = h;
+					h->visitedTown = t;
+					h->inTownGarrison = true;
+				}
+				else
+				{
+					t->visitingHero = h;
+					h->visitedTown = t;
+					h->inTownGarrison = false;
+				}
+			}
+			else
+			{
+				if(vc->garrison())
+				{
+					t->garrisonHero = NULL;
+					h->visitedTown = NULL;
+					h->inTownGarrison = false;
+				}
+				else
+				{
+					t->visitingHero = NULL;
+					h->visitedTown = NULL;
+					h->inTownGarrison = false;
+				}
+			}
+			break;
+		}
 	case 500:
 		{
 			RemoveObject *rh = static_cast<RemoveObject*>(pack);
@@ -501,6 +538,12 @@ CGHeroInstance *CGameState::getHero(int objid)
 	if(objid<0 || objid>=map->objects.size())
 		return NULL;
 	return static_cast<CGHeroInstance *>(map->objects[objid]);
+}
+CGTownInstance *CGameState::getTown(int objid)
+{
+	if(objid<0 || objid>=map->objects.size())
+		return NULL;
+	return static_cast<CGTownInstance *>(map->objects[objid]);
 }
 std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 {
@@ -788,6 +831,17 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			int h=pickHero(i);
 			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(34,h,hpos,i));
 			nnn->id = map->objects.size();
+			hpos = map->players[i].posOfMainTown;hpos.x+=2;
+			for(int o=0;o<map->towns.size();o++) //find main town
+			{
+				if(map->towns[o]->pos == hpos)
+				{
+					map->towns[o]->visitingHero = nnn;
+					nnn->visitedTown = map->towns[o];
+					nnn->inTownGarrison = false;
+					break;
+				}
+			}
 			//nnn->defInfo->handler = graphics->flags1[0];
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);

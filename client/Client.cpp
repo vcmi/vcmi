@@ -239,6 +239,17 @@ void CClient::process(int what)
 				static_cast<CPlayerInterface*>(playerint[sii.player])->showComp(sc);
 			break;
 		}
+	case 108:
+		{
+			HeroVisitCastle vc;
+			*serv >> vc;
+			gs->apply(&vc);
+			if(vc.start() && !vc.garrison() && vstd::contains(playerint,gs->getHero(vc.hid)->tempOwner))
+			{
+				playerint[gs->getHero(vc.hid)->tempOwner]->heroVisitsTown(gs->getHero(vc.hid),gs->getTown(vc.tid));
+			}
+			break;
+		}
 	case 500:
 		{
 			RemoveObject rh;
