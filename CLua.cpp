@@ -602,7 +602,7 @@ void CPickable::onHeroVisit(int objid, int heroID)
 			break;
 		}
 	}
-	//VLC->mh->removeObject(os);
+	cb->removeObject(objid);
 }
 void CPickable::chosen(ui32 which, int heroid, int val)
 {

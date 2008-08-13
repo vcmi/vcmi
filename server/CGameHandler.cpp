@@ -490,7 +490,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 				{
 					si32 id;
 					c >> id;
-					RemoveHero rh(id);
+					RemoveObject rh(id);
 					sendAndApply(&rh);
 					break;
 				}

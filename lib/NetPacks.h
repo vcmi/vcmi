@@ -77,10 +77,10 @@ struct SetSecSkill : public CPack<SetSecSkill> //106
 		h & abs & id & which & val;
 	}
 }; 
-struct RemoveHero : public CPack<RemoveHero> //500
+struct RemoveObject : public CPack<RemoveObject> //500
 {
-	RemoveHero(){type = 500;};
-	RemoveHero(si32 ID){id = ID;type = 500;};
+	RemoveObject(){type = 500;};
+	RemoveObject(si32 ID){id = ID;type = 500;};
 	si32 id;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

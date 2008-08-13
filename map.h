@@ -485,6 +485,8 @@ struct DLL_EXPORT Mapa
 	std::vector<CGTownInstance*> towns;
 
 	void initFromBytes(unsigned char * bufor); //creates map from decompressed .h3m data
+	void addBlockVisTiles(CGObjectInstance * obj);
+	void removeBlockVisTiles(CGObjectInstance * obj);
 	Mapa(std::string filename); //creates map structure from .h3m file
 	CGHeroInstance * getHero(int ID, int mode=0);
 };

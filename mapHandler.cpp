@@ -1161,66 +1161,6 @@ bool CMapHandler::hideObject(CGObjectInstance *obj)
 bool CMapHandler::removeObject(CGObjectInstance *obj)
 {
 	hideObject(obj);
-	recalculateHideVisPosUnderObj(obj);
-	return true;
-}
-
-bool CMapHandler::recalculateHideVisPos(int3 &pos)
-{
-	//ttiles[pos.x][pos.y][pos.z].tileInfo->visitable = false;
-	//ttiles[pos.x][pos.y][pos.z].tileInfo->blocked = false;
-	//for(int i=0; i<ttiles[pos.x][pos.y][pos.z].objects.size(); ++i)
-	//{
-	//	CDefHandler * curd = ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->handler;
-	//	for(int fx=0; fx<8; ++fx)
-	//	{
-	//		for(int fy=0; fy<6; ++fy)
-	//		{
-	//			int xVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.x + fx - 7;
-	//			int yVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.y + fy - 5;
-	//			int zVal = ttiles[pos.x][pos.y][pos.z].objects[i].first->pos.z;
-	//			if(xVal>=0 && xVal<ttiles.size()-Woff && yVal>=0 && yVal<ttiles[0].size()-Hoff)
-	//			{
-	//				TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
-	//				if(((ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->visitMap[fy] >> (7 - fx)) & 1))
-	//					curt.tileInfo->visitable = true;
-	//				if(!((ttiles[pos.x][pos.y][pos.z].objects[i].first->defInfo->blockMap[fy] >> (7 - fx)) & 1))
-	//					curt.tileInfo->blocked = true;
-	//			}
-	//		}
-	//	}
-	//}
-	return true;
-}
-
-bool CMapHandler::recalculateHideVisPosUnderObj(CGObjectInstance *obj, bool withBorder)
-{
-	//if(withBorder)
-	//{
-	//	for(int fx=-1; fx<=obj->defInfo->handler->ourImages[0].bitmap->w/32; ++fx)
-	//	{
-	//		for(int fy=-1; fy<=obj->defInfo->handler->ourImages[0].bitmap->h/32; ++fy)
-	//		{
-	//			if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
-	//			{
-	//				recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z));
-	//			}
-	//		}
-	//	}
-	//}
-	//else
-	//{
-	//	for(int fx=0; fx<obj->defInfo->handler->ourImages[0].bitmap->w/32; ++fx)
-	//	{
-	//		for(int fy=0; fy<obj->defInfo->handler->ourImages[0].bitmap->h/32; ++fy)
-	//		{
-	//			if((obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
-	//			{
-	//				recalculateHideVisPos(int3(obj->pos.x + fx - obj->defInfo->handler->ourImages[0].bitmap->w/32 +1, obj->pos.y + fy - obj->defInfo->handler->ourImages[0].bitmap->h/32 + 1, obj->pos.z));
-	//			}
-	//		}
-	//	}
-	//}
 	return true;
 }
 

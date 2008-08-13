@@ -1579,7 +1579,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//ho->moveDir = 0; //move ended
 	ho->isStanding = true;
 	//move finished
-	CGI->mh->recalculateHideVisPosUnderObj(details.ho, true);
 	adventureInt->minimap.draw();
 	adventureInt->heroList.updateMove(ho);
 }

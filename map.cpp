@@ -2300,33 +2300,62 @@ borderguardend:
 	{
 		if(!objects[f]->defInfo)
 			continue;
-		CDefHandler * curd = objects[f]->defInfo->handler;
-		for(int fx=0; fx<8; ++fx)
+		addBlockVisTiles(objects[f]);
+
+	}
+}	
+void Mapa::removeBlockVisTiles(CGObjectInstance * obj)
+{
+	for(int fx=0; fx<8; ++fx)
+	{
+		for(int fy=0; fy<6; ++fy)
 		{
-			for(int fy=0; fy<6; ++fy)
+			int xVal = obj->pos.x + fx - 7;
+			int yVal = obj->pos.y + fy - 5;
+			int zVal = obj->pos.z;
+			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
 			{
-				int xVal = objects[f]->pos.x + fx - 7;
-				int yVal = objects[f]->pos.y + fy - 5;
-				int zVal = objects[f]->pos.z;
-				if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+				TerrainTile & curt = terrain[xVal][yVal][zVal];
+				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
 				{
-					TerrainTile & curt = terrain[xVal][yVal][zVal];
-					if(((objects[f]->defInfo->visitMap[fy] >> (7 - fx)) & 1))
-					{
-						curt.visitableObjects.push_back(objects[f]);
-						curt.visitable = true;
-					}
-					if(!((objects[f]->defInfo->blockMap[fy] >> (7 - fx)) & 1))
-					{
-						curt.blockingObjects.push_back(objects[f]);
-						curt.blocked = true;
-					}
+					curt.visitableObjects -= obj;
+					curt.visitable = curt.visitableObjects.size();
+				}
+				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+				{
+					curt.blockingObjects -= obj;
+					curt.blocked = curt.visitableObjects.size();
 				}
 			}
 		}
 	}
-}	
-
+}
+void Mapa::addBlockVisTiles(CGObjectInstance * obj)
+{
+	for(int fx=0; fx<8; ++fx)
+	{
+		for(int fy=0; fy<6; ++fy)
+		{
+			int xVal = obj->pos.x + fx - 7;
+			int yVal = obj->pos.y + fy - 5;
+			int zVal = obj->pos.z;
+			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+			{
+				TerrainTile & curt = terrain[xVal][yVal][zVal];
+				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+				{
+					curt.visitableObjects.push_back(obj);
+					curt.visitable = true;
+				}
+				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+				{
+					curt.blockingObjects.push_back(obj);
+					curt.blocked = true;
+				}
+			}
+		}
+	}
+}
 Mapa::Mapa(std::string filename)
 {
 	std::cout<<"Opening map file: "<<filename<<"\t "<<std::flush;

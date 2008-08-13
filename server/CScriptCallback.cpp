@@ -26,6 +26,13 @@ void CScriptCallback::setBlockVis(int objid, bool bv)
 	SetObjectProperty sop(objid,2,bv);
 	gh->sendAndApply(&sop);
 }
+void CScriptCallback::removeObject(int objid)
+{
+	RemoveObject ro;
+	ro.id = objid;
+	gh->sendAndApply(&ro);
+}
+
 void CScriptCallback::setOwner(int objid, ui8 owner)
 {
 	SetObjectProperty sop(objid,1,owner);

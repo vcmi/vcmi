@@ -35,6 +35,7 @@ public:
 	const CGTownInstance* getTown(int objid);
 
 	//do sth
+	void removeObject(int objid);
 	void setBlockVis(int objid, bool bv);
 	void setOwner(int objid, ui8 owner);
 	void setHoverName(int objid, MetaString * name);

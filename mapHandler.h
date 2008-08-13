@@ -89,8 +89,6 @@ public:
 	bool printObject(CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map
 	bool hideObject(CGObjectInstance * obj); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
 	bool removeObject(CGObjectInstance * obj); //removes object from each place in VCMI (I hope)
-	bool recalculateHideVisPos(int3& pos); //recalculates position for hidden / visitable positions
-	bool recalculateHideVisPosUnderObj(CGObjectInstance * obj, bool withBorder = false); //recalculates position for hidden / visitable positions under given object
 	void init();
 	void calculateBlockedPos();
 	void initObjectRects();

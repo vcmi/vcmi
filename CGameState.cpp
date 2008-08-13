@@ -329,14 +329,26 @@ void CGameState::applyNL(IPack * pack)
 		}
 	case 500:
 		{
-			RemoveHero *rh = static_cast<RemoveHero*>(pack);
-			CGHeroInstance *h = static_cast<CGHeroInstance*>(map->objects[rh->id]);
-			std::vector<CGHeroInstance*>::iterator nitr = std::find(map->heroes.begin(), map->heroes.end(),h);
-			map->heroes.erase(nitr);
-			int player = h->tempOwner;
-			nitr = std::find(players[player].heroes.begin(), players[player].heroes.end(), h);
-			players[player].heroes.erase(nitr);
-			map->objects[h->id] = NULL;
+			RemoveObject *rh = static_cast<RemoveObject*>(pack);
+			CGObjectInstance *obj = map->objects[rh->id];
+			if(obj->ID==34)
+			{
+				CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
+				std::vector<CGHeroInstance*>::iterator nitr = std::find(map->heroes.begin(), map->heroes.end(),h);
+				map->heroes.erase(nitr);
+				int player = h->tempOwner;
+				nitr = std::find(players[player].heroes.begin(), players[player].heroes.end(), h);
+				players[player].heroes.erase(nitr);
+			}
+			map->objects[rh->id] = NULL;	
+
+			//unblock tiles
+			if(obj->defInfo)
+			{
+				map->removeBlockVisTiles(obj);
+			}
+
+
 			break;
 		}
 	case 501://hero try-move
@@ -344,10 +356,12 @@ void CGameState::applyNL(IPack * pack)
 			TryMoveHero * n = static_cast<TryMoveHero*>(pack);
 			CGHeroInstance *h = static_cast<CGHeroInstance*>(map->objects[n->id]);
 			h->movement = n->movePoints;
-			if(n->result)
+			if(n->start!=n->end && n->result)
+			{
+				map->removeBlockVisTiles(h);
 				h->pos = n->end;
-			else
-				h->pos = n->start;			
+				map->addBlockVisTiles(h);
+			}
 			BOOST_FOREACH(int3 t, n->fowRevealed)
 				players[h->getOwner()].fogOfWarMap[t.x][t.y][t.z] = 1;
 			break;
