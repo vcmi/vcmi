@@ -111,6 +111,14 @@ public:
 	}
 };
 
+struct UpgradeInfo
+{
+	int oldID; //creature to be upgraded
+	std::vector<int> newID; //possible upgrades
+	std::vector<std::set<std::pair<int,int> > > cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>
+	UpgradeInfo(){oldID = -1;};
+};
+
 class DLL_EXPORT CGameState
 {
 private:
@@ -141,6 +149,7 @@ private:
 	bool battleAttackCreatureStack(int ID, int dest);
 	bool battleShootCreatureStack(int ID, int dest);
 	int battleGetStack(int pos); //returns ID of stack at given tile
+	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
 public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	

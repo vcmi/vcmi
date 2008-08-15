@@ -24,13 +24,6 @@ class CStack;
 struct lua_State;
 class CClient;
 //structure gathering info about upgrade possibilites
-struct UpgradeInfo
-{
-	int oldID; //creature to be upgraded
-	std::vector<int> newID; //possible upgrades
-	std::vector<std::set<std::pair<int,int> > > cost; // cost[upgrade_serial] -> set of pairs<resource_ID,resource_amount>
-	UpgradeInfo(){oldID = -1;};
-};
 
 class ICallback
 {

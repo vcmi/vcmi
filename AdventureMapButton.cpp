@@ -16,54 +16,13 @@ AdventureMapButton::AdventureMapButton ()
 	state=0;
 	actOnDown = false;
 }
-
-AdventureMapButton::AdventureMapButton
-( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton )
+AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton)
 {
-	callback = Callback;
-	actOnDown = false;
-	type=2;
-	abs=true;
-	active=false;
-	ourObj=NULL;
-	state=0;
-	name=Name;
-	helpBox=HelpBox;
-	colorChange = playerColoredButton;
-	int est = LOCPLINT->playerID;
-	CDefHandler * temp = CDefHandler::giveDef(defName); 
-	temp->notFreeImgs = true;
-	for (int i=0;i<temp->ourImages.size();i++)
-	{
-		imgs.resize(1);
-		imgs[0].push_back(temp->ourImages[i].bitmap);
-		if(playerColoredButton)
-			graphics->blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
-	}
-	delete temp;
-	if (add)
-	{
-		imgs.resize(imgs.size()+add->size());
-		for (int i=0; i<add->size();i++)
-		{
-			temp = CDefHandler::giveDef((*add)[i]);
-			temp->notFreeImgs = true;
-			for (int j=0;j<temp->ourImages.size();j++)
-			{
-				imgs[i+1].push_back(temp->ourImages[j].bitmap);
-				if(playerColoredButton)
-					graphics->blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
-			}
-			delete temp;
-		}
-		delete add;
-	}
-	pos.x=x;
-	pos.y=y;
-	pos.w = imgs[curimg][0]->w;
-	pos.h = imgs[curimg][0]->h  -1;
-	if (activ)
-		activate();
+	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);
+}
+AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, CFunctionList<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton )
+{
+	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);
 }
 
 
@@ -81,13 +40,13 @@ void AdventureMapButton::clickLeft (tribool down)
 	if (actOnDown && down)
 	{
 		pressedL=state;
-		if(!callback.empty())
+		//if(!callback.empty())
 			callback();
 	}
 	else if (pressedL && (down==false))
 	{
 		pressedL=state;
-		if(!callback.empty())
+		//if(!callback.empty())
 			callback();
 	}
 	else
@@ -139,6 +98,53 @@ void AdventureMapButton::deactivate()
 	KeyInterested::deactivate();
 }
 
+void AdventureMapButton::init( CFunctionList<void()> Callback, std::string Name, std::string HelpBox, bool playerColoredButton, std::string defName, std::vector<std::string> * add, int x, int y, bool activ )
+{
+	callback = Callback;
+	actOnDown = false;
+	type=2;
+	abs=true;
+	active=false;
+	ourObj=NULL;
+	state=0;
+	name=Name;
+	helpBox=HelpBox;
+	colorChange = playerColoredButton;
+	int est = LOCPLINT->playerID;
+	CDefHandler * temp = CDefHandler::giveDef(defName); 
+	temp->notFreeImgs = true;
+	for (int i=0;i<temp->ourImages.size();i++)
+	{
+		imgs.resize(1);
+		imgs[0].push_back(temp->ourImages[i].bitmap);
+		if(playerColoredButton)
+			graphics->blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
+	}
+	delete temp;
+	if (add)
+	{
+		imgs.resize(imgs.size()+add->size());
+		for (int i=0; i<add->size();i++)
+		{
+			temp = CDefHandler::giveDef((*add)[i]);
+			temp->notFreeImgs = true;
+			for (int j=0;j<temp->ourImages.size();j++)
+			{
+				imgs[i+1].push_back(temp->ourImages[j].bitmap);
+				if(playerColoredButton)
+					graphics->blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
+			}
+			delete temp;
+		}
+		delete add;
+	}
+	pos.x=x;
+	pos.y=y;
+	pos.w = imgs[curimg][0]->w;
+	pos.h = imgs[curimg][0]->h  -1;
+	if (activ)
+		activate();
+}
 
 void CSlider::sliderClicked()
 {

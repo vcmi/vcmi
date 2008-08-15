@@ -259,10 +259,6 @@
 			Name="Source Files"
 			>
 			<File
-				RelativePath="..\hch\CAmbarCendamo.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\hch\CArtHandler.cpp"
 				>
 			</File>
@@ -322,10 +318,6 @@
 			>
 			<File
 				RelativePath=".\BattleAction.h"
-				>
-			</File>
-			<File
-				RelativePath="..\hch\CAmbarCendamo.h"
 				>
 			</File>
 			<File

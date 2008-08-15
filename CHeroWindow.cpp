@@ -1,4 +1,5 @@
 #include "stdafx.h"
+#include <cstdlib>
 #include "global.h"
 #include "CHeroWindow.h"
 #include "CGameInfo.h"

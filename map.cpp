@@ -444,28 +444,725 @@ CMapHeader::CMapHeader(unsigned char *map)
 }
 void Mapa::initFromBytes(unsigned char * bufor)
 {
-	THC timeHandler th;
+	timeHandler th;
 	th.getDif();
 	int i=0;
-	version = (Eformat)(readNormalNr(bufor,i)); i+=4; //map version
-	areAnyPLayers = readChar(bufor,i); //invalid on some maps
-	height = width = (readNormalNr(bufor,i)); i+=4; // wymiary mapy
-	twoLevel = readChar(bufor,i); //czy sa lochy
-	terrain = new TerrainTile**[width]; // allocate memory 
-	for (int ii=0;ii<width;ii++)
+	readHeader(bufor, i);
+	std::cout<<"\tReading header: "<<th.getDif()<<std::endl;
+
+	readRumors(bufor, i);
+	std::cout<<"\tReading rumors: "<<th.getDif()<<std::endl;
+
+	readPredefinedHeroes(bufor, i);
+	std::cout<<"\tReading predefined heroes: "<<th.getDif()<<std::endl;
+
+	readTerrain(bufor, i);
+	std::cout<<"\tReading terrain: "<<th.getDif()<<std::endl;
+
+	readDefInfo(bufor, i);
+	std::cout<<"\tReading defs info: "<<th.getDif()<<std::endl;
+
+	readObjects(bufor, i);
+	std::cout<<"\tReading objects: "<<th.getDif()<<std::endl;
+	
+	readEvents(bufor, i);
+	std::cout<<"\tReading events: "<<th.getDif()<<std::endl;
+
+	//map readed, bufor no longer needed
+	delete[] bufor; bufor=NULL;
+
+	
+	for(int f=0; f<objects.size(); ++f) //calculationg blocked / visitable positions
 	{
-		terrain[ii] = new TerrainTile*[height]; // allocate memory 
-		for(int jj=0;jj<height;jj++)
-			terrain[ii][jj] = new TerrainTile[twoLevel+1];
+		if(!objects[f]->defInfo)
+			continue;
+		addBlockVisTiles(objects[f]);
+
 	}
-	int pom;
-	name = readString(bufor,i);
-	description= readString(bufor,i);
-	difficulty = readChar(bufor,i); // reading map difficulty
-	if(version != RoE)
-		levelLimit = readChar(bufor,i); // hero level limit
+}	
+void Mapa::removeBlockVisTiles(CGObjectInstance * obj)
+{
+	for(int fx=0; fx<8; ++fx)
+	{
+		for(int fy=0; fy<6; ++fy)
+		{
+			int xVal = obj->pos.x + fx - 7;
+			int yVal = obj->pos.y + fy - 5;
+			int zVal = obj->pos.z;
+			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+			{
+				TerrainTile & curt = terrain[xVal][yVal][zVal];
+				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+				{
+					curt.visitableObjects -= obj;
+					curt.visitable = curt.visitableObjects.size();
+				}
+				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+				{
+					curt.blockingObjects -= obj;
+					curt.blocked = curt.visitableObjects.size();
+				}
+			}
+		}
+	}
+}
+void Mapa::addBlockVisTiles(CGObjectInstance * obj)
+{
+	for(int fx=0; fx<8; ++fx)
+	{
+		for(int fy=0; fy<6; ++fy)
+		{
+			int xVal = obj->pos.x + fx - 7;
+			int yVal = obj->pos.y + fy - 5;
+			int zVal = obj->pos.z;
+			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
+			{
+				TerrainTile & curt = terrain[xVal][yVal][zVal];
+				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+				{
+					curt.visitableObjects.push_back(obj);
+					curt.visitable = true;
+				}
+				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+				{
+					curt.blockingObjects.push_back(obj);
+					curt.blocked = true;
+				}
+			}
+		}
+	}
+}
+Mapa::Mapa(std::string filename)
+{
+	std::cout<<"Opening map file: "<<filename<<"\t "<<std::flush;
+	gzFile map = gzopen(filename.c_str(),"rb");
+	std::vector<unsigned char> mapstr; int pom;
+	while((pom=gzgetc(map))>=0)
+	{
+		mapstr.push_back(pom);
+	}
+	gzclose(map);
+	unsigned char *initTable = new unsigned char[mapstr.size()];
+	for(int ss=0; ss<mapstr.size(); ++ss)
+	{
+		initTable[ss] = mapstr[ss];
+	}
+	std::cout<<"done."<<std::endl;
+	boost::crc_32_type  result;
+	result.process_bytes(initTable,mapstr.size());
+	checksum = result.checksum();
+	std::cout << "\tOur map checksum: "<<result.checksum() << std::endl;
+	initFromBytes(initTable);
+}
+
+CGHeroInstance * Mapa::getHero(int ID, int mode)
+{
+	if (mode != 0)
+#ifndef __GNUC__
+		throw new std::exception("gs->getHero: This mode is not supported!");
+#else
+		throw new std::exception();
+#endif
+
+	for(int i=0; i<heroes.size();i++)
+		if(heroes[i]->subID == ID)
+			return heroes[i];
+	return NULL;
+}
+
+int Mapa::loadSeerHut( unsigned char * bufor, int i, CGObjectInstance * nobj )
+{
+	CSeerHutObjInfo * spec = new CSeerHutObjInfo;
+	if(version>RoE)
+	{
+		spec->missionType = bufor[i]; ++i;
+		switch(spec->missionType)
+		{
+		case 0:
+			i+=3;
+			return i;
+		case 1:
+			{
+				spec->m1level = readNormalNr(bufor,i); i+=4;
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		case 2:
+			{
+				spec->m2attack = bufor[i]; ++i;
+				spec->m2defence = bufor[i]; ++i;
+				spec->m2power = bufor[i]; ++i;
+				spec->m2knowledge = bufor[i]; ++i;
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		case 3:
+			{
+				spec->m3bytes[0] = bufor[i]; ++i;
+				spec->m3bytes[1] = bufor[i]; ++i;
+				spec->m3bytes[2] = bufor[i]; ++i;
+				spec->m3bytes[3] = bufor[i]; ++i;
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		case 4:
+			{
+				spec->m4bytes[0] = bufor[i]; ++i;
+				spec->m4bytes[1] = bufor[i]; ++i;
+				spec->m4bytes[2] = bufor[i]; ++i;
+				spec->m4bytes[3] = bufor[i]; ++i;
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		case 5:
+			{
+				int artNumber = bufor[i]; ++i;
+				for(int yy=0; yy<artNumber; ++yy)
+				{
+					int artid = readNormalNr(bufor,i, 2); i+=2;
+					spec->m5arts.push_back(artid);
+				}
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		case 6:
+			{
+				int typeNumber = bufor[i]; ++i;
+				for(int hh=0; hh<typeNumber; ++hh)
+				{
+					int creType = readNormalNr(bufor,i, 2); i+=2;
+					int creNumb = readNormalNr(bufor,i, 2); i+=2;
+					spec->m6cre.push_back(&(VLC->creh->creatures[creType]));
+					spec->m6number.push_back(creNumb);
+				}
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		case 7:
+			{
+				spec->m7wood = readNormalNr(bufor,i); i+=4;
+				spec->m7mercury = readNormalNr(bufor,i); i+=4;
+				spec->m7ore = readNormalNr(bufor,i); i+=4;
+				spec->m7sulfur = readNormalNr(bufor,i); i+=4;
+				spec->m7crystal = readNormalNr(bufor,i); i+=4;
+				spec->m7gems = readNormalNr(bufor,i); i+=4;
+				spec->m7gold = readNormalNr(bufor,i); i+=4;
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		case 8:
+			{
+				int heroType = bufor[i]; ++i;
+				spec->m8hero = heroType;
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		case 9:
+			{
+				spec->m9player = bufor[i]; ++i;
+				int limit = readNormalNr(bufor,i); i+=4;
+				if(limit == ((int)0xffffffff))
+				{
+					spec->isDayLimit = false;
+					spec->lastDay = -1;
+				}
+				else
+				{
+					spec->isDayLimit = true;
+					spec->lastDay = limit;
+				}
+				break;
+			}
+		}//internal switch end (seer huts)
+
+		int len1 = readNormalNr(bufor,i); i+=4;
+		for(int ee=0; ee<len1; ++ee)
+		{
+			spec->firstVisitText += bufor[i]; ++i;
+		}
+
+		int len2 = readNormalNr(bufor,i); i+=4;
+		for(int ee=0; ee<len2; ++ee)
+		{
+			spec->nextVisitText += bufor[i]; ++i;
+		}
+
+		int len3 = readNormalNr(bufor,i); i+=4;
+		for(int ee=0; ee<len3; ++ee)
+		{
+			spec->completedText += bufor[i]; ++i;
+		}
+	}
+	else //RoE
+	{
+		int artID = bufor[i]; ++i;
+		if(artID!=255) //not none quest
+		{
+			spec->m5arts.push_back(artID);
+			spec->missionType = 5;
+		}
+		else
+		{
+			spec->missionType = 255;
+		}
+	}
+
+	if(spec->missionType!=255)
+	{
+		unsigned char rewardType = bufor[i]; ++i;
+		spec->rewardType = rewardType;
+
+		switch(rewardType)
+		{
+		case 1:
+			{
+				spec->r1exp = readNormalNr(bufor,i); i+=4;
+				break;
+			}
+		case 2:
+			{
+				spec->r2mana = readNormalNr(bufor,i); i+=4;
+				break;
+			}
+		case 3:
+			{
+				spec->r3morale = bufor[i]; ++i;
+				break;
+			}
+		case 4:
+			{
+				spec->r4luck = bufor[i]; ++i;
+				break;
+			}
+		case 5:
+			{
+				spec->r5type = bufor[i]; ++i;
+				spec->r5amount = readNormalNr(bufor,i, 3); i+=3;
+				i+=1;
+				break;
+			}
+		case 6:
+			{
+				spec->r6type = bufor[i]; ++i;
+				spec->r6amount = bufor[i]; ++i;
+				break;
+			}
+		case 7:
+			{
+				spec->r7ability = bufor[i]; ++i;
+				spec->r7level = bufor[i]; ++i;
+				break;
+			}
+		case 8:
+			{
+				spec->r8art = readNormalNr(bufor,i, (version == RoE ? 1 : 2)); i+=(version == RoE ? 1 : 2);
+				break;
+			}
+		case 9:
+			{
+				spec->r9spell = bufor[i]; ++i;
+				break;
+			}
+		case 10:
+			{
+				if(version>RoE)
+				{
+					spec->r10creature = readNormalNr(bufor,i, 2); i+=2;
+					spec->r10amount = readNormalNr(bufor,i, 2); i+=2;
+				}
+				else
+				{
+					spec->r10creature = bufor[i]; ++i;
+					spec->r10amount = readNormalNr(bufor,i, 2); i+=2;
+				}
+				break;
+			}
+		}// end of internal switch
+		i+=2;
+	}
+	else //missionType==255
+	{
+		i+=3;
+	}
+	nobj->info = spec;
+	return i;
+}
+
+void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
+{
+	CGTownInstance * nt = new CGTownInstance();
+	(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
+	delete nobj;
+	nobj = nt;
+	nt->identifier = 0;
+	if(version>RoE)
+	{	
+		readNormalNr(bufor,i); i+=4;
+	}
+	nt->tempOwner = bufor[i]; ++i;
+	if(readChar(bufor,i)) //has name
+		nt->name = readString(bufor,i);
+	if(readChar(bufor,i))//true if garrison isn't empty
+		nt->army = readCreatureSet(bufor,i,7,(version>RoE));
+	nt->army.formation = bufor[i]; ++i;
+	if(readChar(bufor,i)) //unusualBuildings
+	{
+		//built buildings
+		for(int byte=0;byte<6;byte++)
+		{
+			for(int bit=0;bit<8;bit++)
+				if(bufor[i] & (1<<bit))
+					nt->builtBuildings.insert(byte*8+bit);
+			i++;
+		}
+		//forbidden buildings
+		for(int byte=6;byte<12;byte++)
+		{
+			for(int bit=0;bit<8;bit++)
+				if(bufor[i] & (1<<bit))
+					nt->forbiddenBuildings.insert(byte*8+bit);
+			i++;
+		}
+		nt->builtBuildings = convertBuildings(nt->builtBuildings,nt->subID);
+		nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,nt->subID);
+	}
+	else //standard buildings
+	{
+		if(readChar(bufor,i)) //has fort
+			nt->builtBuildings.insert(7);
+		nt->builtBuildings.insert(-50); //means that set of standard building should be included
+	}
+
+	int ist = i;
+	if(version>RoE)
+	{
+		for(i; i<ist+9; ++i)
+		{
+			unsigned char c = bufor[i];
+			for(int yy=0; yy<8; ++yy)
+			{
+				if((i-ist)*8+yy < SPELLS_QUANTITY)
+				{
+					if(c == (c|((unsigned char)intPow(2, yy))))
+						nt->obligatorySpells.push_back((i-ist)*8+yy);
+				}
+			}
+		}
+	}
+
+	ist = i;
+	for(i; i<ist+9; ++i)
+	{
+		unsigned char c = bufor[i];
+		for(int yy=0; yy<8; ++yy)
+		{
+			if((i-ist)*8+yy < SPELLS_QUANTITY)
+			{
+				if(c != (c|((unsigned char)intPow(2, yy))))
+					nt->possibleSpells.push_back((i-ist)*8+yy);
+			}
+		}
+	}
+
+	/////// reading castle events //////////////////////////////////
+
+	int numberOfEvent = readNormalNr(bufor,i); i+=4;
+
+	for(int gh = 0; gh<numberOfEvent; ++gh)
+	{
+		CCastleEvent nce;
+		int nameLen = readNormalNr(bufor,i); i+=4;
+		for(int ll=0; ll<nameLen; ++ll)
+		{
+			nce.name += bufor[i]; ++i;
+		}
+
+		int messLen = readNormalNr(bufor,i); i+=4;
+		for(int ll=0; ll<messLen; ++ll)
+		{
+			nce.message += bufor[i]; ++i;
+		}
+
+		nce.wood = readNormalNr(bufor,i); i+=4;
+		nce.mercury = readNormalNr(bufor,i); i+=4;
+		nce.ore = readNormalNr(bufor,i); i+=4;
+		nce.sulfur = readNormalNr(bufor,i); i+=4;
+		nce.crystal = readNormalNr(bufor,i); i+=4;
+		nce.gems = readNormalNr(bufor,i); i+=4;
+		nce.gold = readNormalNr(bufor,i); i+=4;
+
+		nce.players = bufor[i]; ++i;
+		if(version > AB)
+		{
+			nce.forHuman = bufor[i]; ++i;
+		}
+		else
+			nce.forHuman = true;
+		nce.forComputer = bufor[i]; ++i;
+		nce.firstShow = readNormalNr(bufor,i, 2); i+=2;
+		nce.forEvery = bufor[i]; ++i;
+
+		i+=17;
+
+		for(int kk=0; kk<6; ++kk)
+		{
+			nce.bytes[kk] = bufor[i]; ++i;
+		}
+
+		for(int vv=0; vv<7; ++vv)
+		{
+			nce.gen[vv] = readNormalNr(bufor,i, 2); i+=2;
+		}
+		i+=4;
+		nt->events.insert(nce);
+	}//castle events have been read 
+
+	if(version > AB)
+	{
+		nt->alignment = bufor[i]; ++i;
+	}
 	else
-		levelLimit = 0;
+		nt->alignment = 0xff;
+	i+=3;
+
+	nt->builded = 0;
+	nt->destroyed = 0;
+	nt->garrisonHero = NULL;
+	if(nt->ID==98)
+		towns.push_back(nt);
+}
+
+void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
+{
+	CGHeroInstance * nhi = new CGHeroInstance;
+	(*(static_cast<CGObjectInstance*>(nhi))) = *nobj;
+	delete nobj;
+	nobj=nhi;
+	if(version>RoE)
+	{
+		nhi->identifier = readNormalNr(bufor,i, 4); i+=4;
+	}
+	nhi->setOwner(bufor[i]); ++i;
+	nhi->subID = readNormalNr(bufor,i, 1); ++i;
+	if(readChar(bufor,i))//true if hero has nonstandard name
+		nhi->name = readString(bufor,i);
+	if(version>AB)
+	{
+		if(readChar(bufor,i))//true if hore's experience is greater than 0
+		{	nhi->exp = readNormalNr(bufor,i); i+=4;	}
+		else
+			nhi->exp = -1;
+	}
+	else
+	{	nhi->exp = readNormalNr(bufor,i); i+=4;	}
+
+	bool portrait=bufor[i]; ++i;
+	if (portrait)
+		i++; //TODO read portrait nr, save, open
+	else
+		nhi->portrait = nhi->subID;
+
+	if(readChar(bufor,i))//true if hero has specified abilities
+	{
+		int howMany = readNormalNr(bufor,i); i+=4;
+		nhi->secSkills.resize(howMany);
+		for(int yy=0; yy<howMany; ++yy)
+		{
+			nhi->secSkills[yy].first = readNormalNr(bufor,i, 1); ++i;
+			nhi->secSkills[yy].second = readNormalNr(bufor,i, 1); ++i;
+		}
+	}
+	if(readChar(bufor,i))//true if hero has nonstandard garrison
+		nhi->army = readCreatureSet(bufor,i,7,(version>RoE));
+	nhi->army.formation =bufor[i]; ++i; //formation
+	bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
+	int artmask = version == RoE ? 0xff : 0xffff;
+	int artidlen = version == RoE ? 1 : 2;
+	if(artSet)
+	{
+		for(int pom=0;pom<16;pom++)
+		{
+			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
+			if(id!=artmask)
+				nhi->artifWorn[pom] = id;
+		}
+		//misc5 art //17
+		if(version>=SoD)
+		{
+			int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
+			if(id!=artmask)
+				nhi->artifWorn[16] = id;
+		}
+		//spellbook
+		int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
+		if(id!=artmask)
+			nhi->artifWorn[17] = id;
+		//19 //???what is that? gap in file or what? - it's probably fifth slot..
+		if(version>RoE)
+		{
+			id = readNormalNr(bufor,i, artidlen); i+=artidlen;
+			if(id!=artmask)
+				nhi->artifWorn[18] = id;
+		}
+		else
+			i+=1;
+		//bag artifacts //20
+		int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
+		if(amount>0)
+		{
+			for(int ss=0; ss<amount; ++ss)
+			{
+				id = readNormalNr(bufor,i, artidlen); i+=artidlen;
+				if(id!=artmask)
+					nhi->artifacts.push_back(id);
+			}
+		}
+	} //artifacts
+
+	nhi->patrol.patrolRadious = readNormalNr(bufor,i, 1); ++i;
+	if(nhi->patrol.patrolRadious == 0xff)
+		nhi->patrol.patrolling = false;
+	else 
+		nhi->patrol.patrolling = true;
+
+	if(version>RoE)
+	{
+		if(readChar(bufor,i))//true if hero has nonstandard (mapmaker defined) biography
+			nhi->biography = readString(bufor,i);
+		nhi->sex = !(bufor[i]); ++i;
+	}
+	//spells
+	if(version>AB)
+	{
+		bool areSpells = bufor[i]; ++i;
+
+		if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
+		{
+			int ist = i;
+			for(i; i<ist+9; ++i)
+			{
+				unsigned char c = bufor[i];
+				for(int yy=0; yy<8; ++yy)
+				{
+					if((i-ist)*8+yy < SPELLS_QUANTITY)
+					{
+						if(c == (c|((unsigned char)intPow(2, yy))))
+							nhi->spells.insert((i-ist)*8+yy);
+					}
+				}
+			}
+		}
+	}
+	else if(version==AB) //we can read one spell
+	{
+		unsigned char buff = bufor[i]; ++i;
+		if(buff!=254)
+		{
+			nhi->spells.insert(buff);
+		}
+	}
+	//spells loaded
+	if(version>AB)
+	{
+		if(readChar(bufor,i))//customPrimSkills
+		{
+			nhi->primSkills.resize(4);
+			for(int xx=0;xx<4;xx++)
+				nhi->primSkills[xx] = bufor[i++];
+		}
+	}
+	i+=16;
+	nhi->moveDir = 4;
+	nhi->isStanding = true;
+	nhi->level = -1;
+	nhi->mana = -1;
+	nhi->movement = -1;
+	if(nhi->ID==34)
+		heroes.push_back(nhi);
+}
+
+void Mapa::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
+{
 	for (pom=0;pom<8;pom++)
 	{
 		players[pom].canHumanPlay = bufor[i++];
@@ -516,7 +1213,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			players[pom].posOfMainTown.y = bufor[i++];
 			players[pom].posOfMainTown.z = bufor[i++];
 
-			
+
 		}
 		players[pom].p8= bufor[i++];
 		players[pom].p9= bufor[i++];		
@@ -548,6 +1245,10 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			}
 		}
 	}
+}
+
+void Mapa::loadViCLossConditions( unsigned char * bufor, int &i)
+{
 	victoryCondition = (EvictoryConditions)bufor[i++];
 	if (victoryCondition != winStandard) //specific victory conditions
 	{
@@ -662,26 +1363,68 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	switch (lossCondition.typeOfLossCon) //read loss conditions
 	{
 	case lossCastle:
-		  {
-			  lossCondition.castlePos.x=bufor[i++];
-			  lossCondition.castlePos.y=bufor[i++];
-			  lossCondition.castlePos.z=bufor[i++];
-			  break;
-		  }
+		{
+			lossCondition.castlePos.x=bufor[i++];
+			lossCondition.castlePos.y=bufor[i++];
+			lossCondition.castlePos.z=bufor[i++];
+			break;
+		}
 	case lossHero:
-		  {
-			  lossCondition.heroPos.x=bufor[i++];
-			  lossCondition.heroPos.y=bufor[i++];
-			  lossCondition.heroPos.z=bufor[i++];
-			  break;
-		  }
+		{
+			lossCondition.heroPos.x=bufor[i++];
+			lossCondition.heroPos.y=bufor[i++];
+			lossCondition.heroPos.z=bufor[i++];
+			break;
+		}
 	case timeExpires:
 		{
 			lossCondition.timeLimit = readNormalNr(bufor,i++,2);
 			i++;
-			 break;
+			break;
 		}
 	}
+}
+
+void Mapa::readRumors( unsigned char * bufor, int &i)
+{
+	int rumNr = readNormalNr(bufor,i,4);i+=4;
+	for (int it=0;it<rumNr;it++)
+	{
+		Rumor ourRumor;
+		int nameL = readNormalNr(bufor,i,4);i+=4; //read length of name of rumor
+		for (int zz=0; zz<nameL; zz++)
+			ourRumor.name+=bufor[i++];
+		nameL = readNormalNr(bufor,i,4);i+=4; //read length of rumor
+		for (int zz=0; zz<nameL; zz++)
+			ourRumor.text+=bufor[i++];
+		rumors.push_back(ourRumor); //add to our list
+	}
+}
+
+void Mapa::readHeader( unsigned char * bufor, int &i)
+{
+	version = (Eformat)(readNormalNr(bufor,i)); i+=4; //map version
+	areAnyPLayers = readChar(bufor,i); //invalid on some maps
+	height = width = (readNormalNr(bufor,i)); i+=4; // wymiary mapy
+	twoLevel = readChar(bufor,i); //czy sa lochy
+	terrain = new TerrainTile**[width]; // allocate memory 
+	for (int ii=0;ii<width;ii++)
+	{
+		terrain[ii] = new TerrainTile*[height]; // allocate memory 
+		for(int jj=0;jj<height;jj++)
+			terrain[ii][jj] = new TerrainTile[twoLevel+1];
+	}
+	int pom;
+	name = readString(bufor,i);
+	description= readString(bufor,i);
+	difficulty = readChar(bufor,i); // reading map difficulty
+	if(version != RoE)
+		levelLimit = readChar(bufor,i); // hero level limit
+	else
+		levelLimit = 0;
+	loadPlayerInfo(pom, bufor, i);
+	loadViCLossConditions(bufor, i);
+
 	howManyTeams=bufor[i++]; //read number of teams
 	if(howManyTeams>0) //read team numbers
 	{
@@ -795,21 +1538,10 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			}
 		}
 	}
-	THC std::cout<<"\tReading header: "<<th.getDif()<<std::endl;
+}
 
-	int rumNr = readNormalNr(bufor,i,4);i+=4;
-	for (int it=0;it<rumNr;it++)
-	{
-		Rumor ourRumor;
-		int nameL = readNormalNr(bufor,i,4);i+=4; //read length of name of rumor
-		for (int zz=0; zz<nameL; zz++)
-			ourRumor.name+=bufor[i++];
-		nameL = readNormalNr(bufor,i,4);i+=4; //read length of rumor
-		for (int zz=0; zz<nameL; zz++)
-			ourRumor.text+=bufor[i++];
-		rumors.push_back(ourRumor); //add to our list
-	}
-	THC std::cout<<"\tReading rumors: "<<th.getDif()<<std::endl;
+void Mapa::readPredefinedHeroes( unsigned char * bufor, int &i)
+{
 	switch(version)
 	{
 	case WoG: case SoD:
@@ -913,6 +1645,10 @@ void Mapa::initFromBytes(unsigned char * bufor)
 		i+=0;
 		break;
 	}
+}
+
+void Mapa::readTerrain( unsigned char * bufor, int &i)
+{
 	for (int c=0; c<width; c++) // reading terrain
 	{
 		for (int z=0; z<height; z++)
@@ -946,9 +1682,10 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			}
 		}
 	}
-	THC std::cout<<"\tReading terrain: "<<th.getDif()<<std::endl;
+}
 
-	//////READING DEF INFO///////
+void Mapa::readDefInfo( unsigned char * bufor, int &i)
+{
 	int defAmount = readNormalNr(bufor,i); i+=4;
 	defy.reserve(defAmount);
 	for (int idd = 0 ; idd<defAmount; idd++) // reading defs
@@ -987,9 +1724,10 @@ void Mapa::initFromBytes(unsigned char * bufor)
 		i+=16;
 		defy.push_back(vinya); // add this def to the vector
 	}
-	THC std::cout<<"\tReading defs info: "<<th.getDif()<<std::endl;
+}
 
-	////loading objects
+void Mapa::readObjects( unsigned char * bufor, int &i)
+{
 	int howManyObjs = readNormalNr(bufor,i, 4); i+=4;
 	for(int ww=0; ww<howManyObjs; ++ww) //comment this line to turn loading objects off
 	{
@@ -1093,151 +1831,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			}
 		case HERO_DEF:
 			{
-				CGHeroInstance * nhi = new CGHeroInstance;
-				(*(static_cast<CGObjectInstance*>(nhi))) = *nobj;
-				delete nobj;
-				nobj=nhi;
-				if(version>RoE)
-				{
-					nhi->identifier = readNormalNr(bufor,i, 4); i+=4;
-				}
-				nhi->setOwner(bufor[i]); ++i;
-				nhi->subID = readNormalNr(bufor,i, 1); ++i;
-				if(readChar(bufor,i))//true if hero has nonstandard name
-					nhi->name = readString(bufor,i);
-				if(version>AB)
-				{
-					if(readChar(bufor,i))//true if hore's experience is greater than 0
-					{	nhi->exp = readNormalNr(bufor,i); i+=4;	}
-					else
-						nhi->exp = -1;
-				}
-				else
-				{	nhi->exp = readNormalNr(bufor,i); i+=4;	}
-
-				bool portrait=bufor[i]; ++i;
-				if (portrait)
-					i++; //TODO read portrait nr, save, open
-				else
-					nhi->portrait = nhi->subID;
-				
-				if(readChar(bufor,i))//true if hero has specified abilities
-				{
-					int howMany = readNormalNr(bufor,i); i+=4;
-					nhi->secSkills.resize(howMany);
-					for(int yy=0; yy<howMany; ++yy)
-					{
-						nhi->secSkills[yy].first = readNormalNr(bufor,i, 1); ++i;
-						nhi->secSkills[yy].second = readNormalNr(bufor,i, 1); ++i;
-					}
-				}
-				if(readChar(bufor,i))//true if hero has nonstandard garrison
-					nhi->army = readCreatureSet(bufor,i,7,(version>RoE));
-				nhi->army.formation =bufor[i]; ++i; //formation
-				bool artSet = bufor[i]; ++i; //true if artifact set is not default (hero has some artifacts)
-				int artmask = version == RoE ? 0xff : 0xffff;
-				int artidlen = version == RoE ? 1 : 2;
-				if(artSet)
-				{
-					for(int pom=0;pom<16;pom++)
-					{
-						int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							nhi->artifWorn[pom] = id;
-					}
-					//misc5 art //17
-					if(version>=SoD)
-					{
-						int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							nhi->artifWorn[16] = id;
-					}
-					//spellbook
-					int id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-					if(id!=artmask)
-						nhi->artifWorn[17] = id;
-					//19 //???what is that? gap in file or what? - it's probably fifth slot..
-					if(version>RoE)
-					{
-						id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-						if(id!=artmask)
-							nhi->artifWorn[18] = id;
-					}
-					else
-						i+=1;
-					//bag artifacts //20
-					int amount = readNormalNr(bufor,i, 2); i+=2; //number of artifacts in hero's bag
-					if(amount>0)
-					{
-						for(int ss=0; ss<amount; ++ss)
-						{
-							id = readNormalNr(bufor,i, artidlen); i+=artidlen;
-							if(id!=artmask)
-								nhi->artifacts.push_back(id);
-						}
-					}
-				} //artifacts
-
-				nhi->patrol.patrolRadious = readNormalNr(bufor,i, 1); ++i;
-				if(nhi->patrol.patrolRadious == 0xff)
-					nhi->patrol.patrolling = false;
-				else 
-					nhi->patrol.patrolling = true;
-
-				if(version>RoE)
-				{
-					if(readChar(bufor,i))//true if hero has nonstandard (mapmaker defined) biography
-						nhi->biography = readString(bufor,i);
-					nhi->sex = !(bufor[i]); ++i;
-				}
-				//spells
-				if(version>AB)
-				{
-					bool areSpells = bufor[i]; ++i;
-
-					if(areSpells) //TODO: sprawdziæ //seems to be ok - tow
-					{
-						int ist = i;
-						for(i; i<ist+9; ++i)
-						{
-							unsigned char c = bufor[i];
-							for(int yy=0; yy<8; ++yy)
-							{
-								if((i-ist)*8+yy < SPELLS_QUANTITY)
-								{
-									if(c == (c|((unsigned char)intPow(2, yy))))
-										nhi->spells.insert((i-ist)*8+yy);
-								}
-							}
-						}
-					}
-				}
-				else if(version==AB) //we can read one spell
-				{
-					unsigned char buff = bufor[i]; ++i;
-					if(buff!=254)
-					{
-						nhi->spells.insert(buff);
-					}
-				}
-				//spells loaded
-				if(version>AB)
-				{
-					if(readChar(bufor,i))//customPrimSkills
-					{
-						nhi->primSkills.resize(4);
-						for(int xx=0;xx<4;xx++)
-							nhi->primSkills[xx] = bufor[i++];
-					}
-				}
-				i+=16;
-				nhi->moveDir = 4;
-				nhi->isStanding = true;
-				nhi->level = -1;
-				nhi->mana = -1;
-				nhi->movement = -1;
-				if(nhi->ID==34)
-					heroes.push_back(nhi);
+				loadHero(nobj, bufor, i);
 				break;
 			}
 		case CREATURES_DEF:
@@ -1306,299 +1900,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			}
 		case SEERHUT_DEF:
 			{
-				CSeerHutObjInfo * spec = new CSeerHutObjInfo;
-				if(version>RoE)
-				{
-					spec->missionType = bufor[i]; ++i;
-					switch(spec->missionType)
-					{
-					case 0:
-						i+=3;
-						continue;
-					case 1:
-						{
-							spec->m1level = readNormalNr(bufor,i); i+=4;
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					case 2:
-						{
-							spec->m2attack = bufor[i]; ++i;
-							spec->m2defence = bufor[i]; ++i;
-							spec->m2power = bufor[i]; ++i;
-							spec->m2knowledge = bufor[i]; ++i;
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					case 3:
-						{
-							spec->m3bytes[0] = bufor[i]; ++i;
-							spec->m3bytes[1] = bufor[i]; ++i;
-							spec->m3bytes[2] = bufor[i]; ++i;
-							spec->m3bytes[3] = bufor[i]; ++i;
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					case 4:
-						{
-							spec->m4bytes[0] = bufor[i]; ++i;
-							spec->m4bytes[1] = bufor[i]; ++i;
-							spec->m4bytes[2] = bufor[i]; ++i;
-							spec->m4bytes[3] = bufor[i]; ++i;
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					case 5:
-						{
-							int artNumber = bufor[i]; ++i;
-							for(int yy=0; yy<artNumber; ++yy)
-							{
-								int artid = readNormalNr(bufor,i, 2); i+=2;
-								spec->m5arts.push_back(artid);
-							}
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					case 6:
-						{
-							int typeNumber = bufor[i]; ++i;
-							for(int hh=0; hh<typeNumber; ++hh)
-							{
-								int creType = readNormalNr(bufor,i, 2); i+=2;
-								int creNumb = readNormalNr(bufor,i, 2); i+=2;
-								spec->m6cre.push_back(&(VLC->creh->creatures[creType]));
-								spec->m6number.push_back(creNumb);
-							}
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					case 7:
-						{
-							spec->m7wood = readNormalNr(bufor,i); i+=4;
-							spec->m7mercury = readNormalNr(bufor,i); i+=4;
-							spec->m7ore = readNormalNr(bufor,i); i+=4;
-							spec->m7sulfur = readNormalNr(bufor,i); i+=4;
-							spec->m7crystal = readNormalNr(bufor,i); i+=4;
-							spec->m7gems = readNormalNr(bufor,i); i+=4;
-							spec->m7gold = readNormalNr(bufor,i); i+=4;
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					case 8:
-						{
-							int heroType = bufor[i]; ++i;
-							spec->m8hero = heroType;
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					case 9:
-						{
-							spec->m9player = bufor[i]; ++i;
-							int limit = readNormalNr(bufor,i); i+=4;
-							if(limit == ((int)0xffffffff))
-							{
-								spec->isDayLimit = false;
-								spec->lastDay = -1;
-							}
-							else
-							{
-								spec->isDayLimit = true;
-								spec->lastDay = limit;
-							}
-							break;
-						}
-					}//internal switch end (seer huts)
-
-					int len1 = readNormalNr(bufor,i); i+=4;
-					for(int ee=0; ee<len1; ++ee)
-					{
-						spec->firstVisitText += bufor[i]; ++i;
-					}
-
-					int len2 = readNormalNr(bufor,i); i+=4;
-					for(int ee=0; ee<len2; ++ee)
-					{
-						spec->nextVisitText += bufor[i]; ++i;
-					}
-
-					int len3 = readNormalNr(bufor,i); i+=4;
-					for(int ee=0; ee<len3; ++ee)
-					{
-						spec->completedText += bufor[i]; ++i;
-					}
-				}
-				else //RoE
-				{
-					int artID = bufor[i]; ++i;
-					if(artID!=255) //not none quest
-					{
-						spec->m5arts.push_back(artID);
-						spec->missionType = 5;
-					}
-					else
-					{
-						spec->missionType = 255;
-					}
-				}
-
-				if(spec->missionType!=255)
-				{
-					unsigned char rewardType = bufor[i]; ++i;
-					spec->rewardType = rewardType;
-
-					switch(rewardType)
-					{
-					case 1:
-						{
-							spec->r1exp = readNormalNr(bufor,i); i+=4;
-							break;
-						}
-					case 2:
-						{
-							spec->r2mana = readNormalNr(bufor,i); i+=4;
-							break;
-						}
-					case 3:
-						{
-							spec->r3morale = bufor[i]; ++i;
-							break;
-						}
-					case 4:
-						{
-							spec->r4luck = bufor[i]; ++i;
-							break;
-						}
-					case 5:
-						{
-							spec->r5type = bufor[i]; ++i;
-							spec->r5amount = readNormalNr(bufor,i, 3); i+=3;
-							i+=1;
-							break;
-						}
-					case 6:
-						{
-							spec->r6type = bufor[i]; ++i;
-							spec->r6amount = bufor[i]; ++i;
-							break;
-						}
-					case 7:
-						{
-							spec->r7ability = bufor[i]; ++i;
-							spec->r7level = bufor[i]; ++i;
-							break;
-						}
-					case 8:
-						{
-							spec->r8art = readNormalNr(bufor,i, (version == RoE ? 1 : 2)); i+=(version == RoE ? 1 : 2);
-							break;
-						}
-					case 9:
-						{
-							spec->r9spell = bufor[i]; ++i;
-							break;
-						}
-					case 10:
-						{
-							if(version>RoE)
-							{
-								spec->r10creature = readNormalNr(bufor,i, 2); i+=2;
-								spec->r10amount = readNormalNr(bufor,i, 2); i+=2;
-							}
-							else
-							{
-								spec->r10creature = bufor[i]; ++i;
-								spec->r10amount = readNormalNr(bufor,i, 2); i+=2;
-							}
-							break;
-						}
-					}// end of internal switch
-					i+=2;
-				}
-				else //missionType==255
-				{
-					i+=3;
-				}
-				nobj->info = spec;
+				i = loadSeerHut(bufor, i, nobj);
 				break;
 			}
 		case WITCHHUT_DEF:
@@ -1606,7 +1908,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 				CWitchHutObjInfo * spec = new CWitchHutObjInfo;
 				if(version>RoE) //in reo we cannot specify it - all are allowed (I hope)
 				{
-					ist=i; //starting i for loop
+					int ist=i; //starting i for loop
 					for(i; i<ist+4; ++i)
 					{
 						unsigned char c = bufor[i];
@@ -1627,7 +1929,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 						spec->allowedAbilities.push_back(gg);
 					}
 				}
-				
+
 				nobj->info = spec;
 				break;
 			}
@@ -1724,146 +2026,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			}
 		case TOWN_DEF:
 			{
-				CGTownInstance * nt = new CGTownInstance();
-				(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
-				delete nobj;
-				nobj = nt;
-				nt->identifier = 0;
-				if(version>RoE)
-				{	
-					readNormalNr(bufor,i); i+=4;
-				}
-				nt->tempOwner = bufor[i]; ++i;
-				if(readChar(bufor,i)) //has name
-					nt->name = readString(bufor,i);
-				if(readChar(bufor,i))//true if garrison isn't empty
-					nt->army = readCreatureSet(bufor,i,7,(version>RoE));
-				nt->army.formation = bufor[i]; ++i;
-				if(readChar(bufor,i)) //unusualBuildings
-				{
-					//built buildings
-					for(int byte=0;byte<6;byte++)
-					{
-						for(int bit=0;bit<8;bit++)
-							if(bufor[i] & (1<<bit))
-								nt->builtBuildings.insert(byte*8+bit);
-						i++;
-					}
-					//forbidden buildings
-					for(int byte=6;byte<12;byte++)
-					{
-						for(int bit=0;bit<8;bit++)
-							if(bufor[i] & (1<<bit))
-								nt->forbiddenBuildings.insert(byte*8+bit);
-						i++;
-					}
-					nt->builtBuildings = convertBuildings(nt->builtBuildings,nt->subID);
-					nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,nt->subID);
-				}
-				else //standard buildings
-				{
-					if(readChar(bufor,i)) //has fort
-						nt->builtBuildings.insert(7);
-					nt->builtBuildings.insert(-50); //means that set of standard building should be included
-				}
-
-				int ist = i;
-				if(version>RoE)
-				{
-					for(i; i<ist+9; ++i)
-					{
-						unsigned char c = bufor[i];
-						for(int yy=0; yy<8; ++yy)
-						{
-							if((i-ist)*8+yy < SPELLS_QUANTITY)
-							{
-								if(c == (c|((unsigned char)intPow(2, yy))))
-									nt->obligatorySpells.push_back((i-ist)*8+yy);
-							}
-						}
-					}
-				}
-
-				ist = i;
-				for(i; i<ist+9; ++i)
-				{
-					unsigned char c = bufor[i];
-					for(int yy=0; yy<8; ++yy)
-					{
-						if((i-ist)*8+yy < SPELLS_QUANTITY)
-						{
-							if(c != (c|((unsigned char)intPow(2, yy))))
-								nt->possibleSpells.push_back((i-ist)*8+yy);
-						}
-					}
-				}
-
-				/////// reading castle events //////////////////////////////////
-
-				int numberOfEvent = readNormalNr(bufor,i); i+=4;
-
-				for(int gh = 0; gh<numberOfEvent; ++gh)
-				{
-					CCastleEvent nce;
-					int nameLen = readNormalNr(bufor,i); i+=4;
-					for(int ll=0; ll<nameLen; ++ll)
-					{
-						nce.name += bufor[i]; ++i;
-					}
-
-					int messLen = readNormalNr(bufor,i); i+=4;
-					for(int ll=0; ll<messLen; ++ll)
-					{
-						nce.message += bufor[i]; ++i;
-					}
-
-					nce.wood = readNormalNr(bufor,i); i+=4;
-					nce.mercury = readNormalNr(bufor,i); i+=4;
-					nce.ore = readNormalNr(bufor,i); i+=4;
-					nce.sulfur = readNormalNr(bufor,i); i+=4;
-					nce.crystal = readNormalNr(bufor,i); i+=4;
-					nce.gems = readNormalNr(bufor,i); i+=4;
-					nce.gold = readNormalNr(bufor,i); i+=4;
-
-					nce.players = bufor[i]; ++i;
-					if(version > AB)
-					{
-						nce.forHuman = bufor[i]; ++i;
-					}
-					else
-						nce.forHuman = true;
-					nce.forComputer = bufor[i]; ++i;
-					nce.firstShow = readNormalNr(bufor,i, 2); i+=2;
-					nce.forEvery = bufor[i]; ++i;
-
-					i+=17;
-
-					for(int kk=0; kk<6; ++kk)
-					{
-						nce.bytes[kk] = bufor[i]; ++i;
-					}
-
-					for(int vv=0; vv<7; ++vv)
-					{
-						nce.gen[vv] = readNormalNr(bufor,i, 2); i+=2;
-					}
-					i+=4;
-					nt->events.insert(nce);
-				}//castle events have been read 
-
-				if(version > AB)
-				{
-					nt->alignment = bufor[i]; ++i;
-				}
-				else
-					nt->alignment = 0xff;
-				i+=3;
-
-				nt->builded = 0;
-				nt->destroyed = 0;
-				nt->garrisonHero = NULL;
-				if(nt->ID==98)
-					towns.push_back(nt);
+				loadTown(nobj, bufor, i);
 				break;
 			}
 		case PLAYERONLY_DEF:
@@ -2251,10 +2414,11 @@ borderguardend:
 			}
 		} //end of main switch
 		objects.push_back(nobj);
-	}//end of loading objects
-	THC std::cout<<"\tReading objects: "<<th.getDif()<<std::endl;
-	
-	//loading events
+	}
+}
+
+void Mapa::readEvents( unsigned char * bufor, int &i )
+{
 	int numberOfEvents = readNormalNr(bufor,i); i+=4;
 	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)
 	{
@@ -2291,105 +2455,4 @@ borderguardend:
 		i+=18;
 		events.push_back(ne);
 	}
-
-	//map readed, bufor no longer needed
-	delete[] bufor; bufor=NULL;
-
-	
-	for(int f=0; f<objects.size(); ++f) //calculationg blocked / visitable positions
-	{
-		if(!objects[f]->defInfo)
-			continue;
-		addBlockVisTiles(objects[f]);
-
-	}
-}	
-void Mapa::removeBlockVisTiles(CGObjectInstance * obj)
-{
-	for(int fx=0; fx<8; ++fx)
-	{
-		for(int fy=0; fy<6; ++fy)
-		{
-			int xVal = obj->pos.x + fx - 7;
-			int yVal = obj->pos.y + fy - 5;
-			int zVal = obj->pos.z;
-			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
-			{
-				TerrainTile & curt = terrain[xVal][yVal][zVal];
-				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
-				{
-					curt.visitableObjects -= obj;
-					curt.visitable = curt.visitableObjects.size();
-				}
-				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
-				{
-					curt.blockingObjects -= obj;
-					curt.blocked = curt.visitableObjects.size();
-				}
-			}
-		}
-	}
-}
-void Mapa::addBlockVisTiles(CGObjectInstance * obj)
-{
-	for(int fx=0; fx<8; ++fx)
-	{
-		for(int fy=0; fy<6; ++fy)
-		{
-			int xVal = obj->pos.x + fx - 7;
-			int yVal = obj->pos.y + fy - 5;
-			int zVal = obj->pos.z;
-			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
-			{
-				TerrainTile & curt = terrain[xVal][yVal][zVal];
-				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
-				{
-					curt.visitableObjects.push_back(obj);
-					curt.visitable = true;
-				}
-				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
-				{
-					curt.blockingObjects.push_back(obj);
-					curt.blocked = true;
-				}
-			}
-		}
-	}
-}
-Mapa::Mapa(std::string filename)
-{
-	std::cout<<"Opening map file: "<<filename<<"\t "<<std::flush;
-	gzFile map = gzopen(filename.c_str(),"rb");
-	std::vector<unsigned char> mapstr; int pom;
-	while((pom=gzgetc(map))>=0)
-	{
-		mapstr.push_back(pom);
-	}
-	gzclose(map);
-	unsigned char *initTable = new unsigned char[mapstr.size()];
-	for(int ss=0; ss<mapstr.size(); ++ss)
-	{
-		initTable[ss] = mapstr[ss];
-	}
-	std::cout<<"done."<<std::endl;
-	boost::crc_32_type  result;
-	result.process_bytes(initTable,mapstr.size());
-	checksum = result.checksum();
-	std::cout << "\tOur map checksum: "<<result.checksum() << std::endl;
-	initFromBytes(initTable);
-}
-
-CGHeroInstance * Mapa::getHero(int ID, int mode)
-{
-	if (mode != 0)
-#ifndef __GNUC__
-		throw new std::exception("gs->getHero: This mode is not supported!");
-#else
-		throw new std::exception();
-#endif
-
-	for(int i=0; i<heroes.size();i++)
-		if(heroes[i]->subID == ID)
-			return heroes[i];
-	return NULL;
 }

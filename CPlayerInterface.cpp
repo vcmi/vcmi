@@ -157,11 +157,20 @@ void CGarrisonSlot::clickLeft(tribool down)
 			if(owner->highlighted == this) //view info
 			{
 				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(),ID);
-				(new CCreInfoWindow
-					(creature->idNumber,1,NULL,
-					(pom.oldID>=0)?(boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,-1)):(boost::function<void()>()), //if upgrade is possible we'll bind proper function in callback
-					 boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID)))
+				if(pom.oldID>=0)
+				{
+					(new CCreInfoWindow
+						(creature->idNumber,1,NULL,
+						boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,pom.newID[0]), //if upgrade is possible we'll bind proper function in callback
+						 boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID)))
+							->activate();
+				}
+				else
+				{
+					(new CCreInfoWindow
+						(creature->idNumber,1,NULL,0, boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID)) )
 						->activate();
+				}
 				owner->highlighted = NULL;
 				show();
 				refr = true;
@@ -454,39 +463,57 @@ void CGarrisonInt::deactivate()
 	deactiveteSlots();
 }
 
+CInfoWindow::CInfoWindow(std::string text, int player, int charperline, std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons)
+{
+	for(int i=0;i<Buttons.size();i++)
+	{
+		buttons.push_back(new AdventureMapButton("","",Buttons[i].second,0,0,Buttons[i].first));
+		if(!Buttons[i].second) //if no function, then by default we'll set it to close
+			buttons[i]->callback += boost::bind(&CInfoWindow::close,this);
+	}
+	for(int i=0;i<comps.size();i++)
+	{
+		components.push_back(comps[i]);
+	}
+	CMessage::drawIWindow(this,text,player,charperline);
+}
 CInfoWindow::CInfoWindow()
-:okb(NMessage::ok,NULL,&CInfoWindow::okClicked)
 {
-	okb.ourObj = this;
-	okb.delg = this;
-	okb.notFreeButton=true;
 }
-
-void CInfoWindow::okClicked(tribool down)
-{
-	if (!down)
-		close();
-}
-
 void CInfoWindow::close()
 {
-	for (int i=0;i<components.size();i++)
-	{
-		components[i]->deactivate();
-		delete components[i];
-	}
-	components.clear();
-	okb.deactivate();
-	SDL_FreeSurface(bitmap);
-	bitmap = NULL;
-	LOCPLINT->removeObjToBlit(this);
-	LOCPLINT->curint->activate();
+	deactivate();
 	delete this;
 }
-CInfoWindow::~CInfoWindow()
+void CInfoWindow::show(SDL_Surface * to)
 {
+	CSimpleWindow::show();
+	for(int i=0;i<buttons.size();i++)
+		buttons[i]->show();
 }
 
+CInfoWindow::~CInfoWindow()
+{
+	for (int i=0;i<components.size();i++)
+		delete components[i];
+	for(int i=0;i<buttons.size();i++)
+		delete buttons[i];
+}
+void CInfoWindow::activate()
+{
+	for (int i=0;i<components.size();i++)
+		components[i]->activate();
+	for(int i=0;i<buttons.size();i++)
+		buttons[i]->activate();
+}
+void CInfoWindow::deactivate()
+{
+	for (int i=0;i<components.size();i++)
+		components[i]->deactivate();
+	for(int i=0;i<buttons.size();i++)
+		buttons[i]->deactivate();
+	LOCPLINT->removeObjToBlit(this);
+}
 void CRClickPopup::clickRight (tribool down)
 {
 	if(down)
@@ -733,13 +760,22 @@ void CSelWindow::selectionChange(unsigned to)
 		blitAt(pom->getImg(),pom->pos.x-pos.x,pom->pos.y-pos.y,bitmap);
 	}
 }
-void CSelWindow::okClicked(tribool down)
+CSelWindow::CSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> &comps, std::vector<std::pair<std::string,boost::function<void()> > > &Buttons)
 {
-	if(!down)
-		close();
+	for(int i=0;i<Buttons.size();i++)
+	{
+		buttons.push_back(new AdventureMapButton("","",(Buttons[i].second)?(Buttons[i].second):(boost::bind(&CInfoWindow::close,this)),0,0,Buttons[i].first));
+	}
+	for(int i=0;i<comps.size();i++)
+	{
+		components.push_back(comps[i]);
+		comps[i]->onSelect = boost::bind(&CSelWindow::selectionChange,this,i);
+	}
+	CMessage::drawIWindow(this,text,player,charperline);
 }
 void CSelWindow::close()
 {
+	deactivate();
 	int ret = -1;
 	for (int i=0;i<components.size();i++)
 	{
@@ -747,14 +783,7 @@ void CSelWindow::close()
 		{
 			ret = i;
 		}
-		components[i]->deactivate();
-		delete components[i];
 	}
-	components.clear();
-	okb.deactivate();
-	SDL_FreeSurface(bitmap);
-	bitmap = NULL;
-	LOCPLINT->removeObjToBlit(this);
 	LOCPLINT->curint->activate();
 	LOCPLINT->cb->selectionMade(ret,ID);
 	delete this;
@@ -1881,7 +1910,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 	adventureInt->resdatabar.draw();
 }
 
-void CPlayerInterface::showSelDialog(std::string text, std::vector<Component*> &components, ui32 askID)
+void CPlayerInterface::showSelDialog(std::string &text, std::vector<Component*> &components, ui32 askID)
 //void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)
 {
 	boost::unique_lock<boost::mutex> un(*pim);
@@ -1889,20 +1918,12 @@ void CPlayerInterface::showSelDialog(std::string text, std::vector<Component*> &
 	std::vector<CSelectableComponent*> intComps;
 	for(int i=0;i<components.size();i++)
 		intComps.push_back(new CSelectableComponent(*components[i])); //will be deleted by CSelWindow::close
+	std::vector<std::pair<std::string,boost::function<void()> > > pom;
+	pom.push_back(std::pair<std::string,boost::function<void()> >("IOKAY.DEF",0));
 
-	CSelWindow * temp = CMessage::genSelWindow(text,LOCPLINT->playerID,35,intComps,playerID);
+	CSelWindow * temp = new CSelWindow(text,playerID,35,intComps,pom);
 	LOCPLINT->objsToBlit.push_back(temp);
-	temp->pos.x=300-(temp->pos.w/2);
-	temp->pos.y=300-(temp->pos.h/2);
-	temp->okb.pos.x = temp->okb.posr.x + temp->pos.x;
-	temp->okb.pos.y = temp->okb.posr.y + temp->pos.y;
-	temp->okb.activate();
-	for (int i=0;i<temp->components.size();i++)
-	{
-		temp->components[i]->activate();
-		temp->components[i]->pos.x += temp->pos.x;
-		temp->components[i]->pos.y += temp->pos.y;
-	}
+	temp->activate();
 	temp->ID = askID;
 	intComps[0]->clickLeft(true);
 }
@@ -2068,42 +2089,34 @@ void CPlayerInterface::showComp(SComponent comp)
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
-void CPlayerInterface::showInfoDialog(std::string text, std::vector<Component*> &components)
+void CPlayerInterface::showInfoDialog(std::string &text, std::vector<Component*> &components)
 {
-	curint->deactivate(); //dezaktywacja starego interfejsu
 	std::vector<SComponent*> intComps;
 	for(int i=0;i<components.size();i++)
 		intComps.push_back(new SComponent(*components[i]));
-	CInfoWindow * temp = CMessage::genIWindow(text,LOCPLINT->playerID,32,intComps);
-	LOCPLINT->objsToBlit.push_back(temp);
-	temp->pos.x=300-(temp->pos.w/2);
-	temp->pos.y=300-(temp->pos.h/2);
-	temp->okb.pos.x = temp->okb.posr.x + temp->pos.x;
-	temp->okb.pos.y = temp->okb.posr.y + temp->pos.y;
-	temp->okb.activate();
-	for (int i=0;i<temp->components.size();i++)
-	{
-		temp->components[i]->activate();
-		temp->components[i]->pos.x += temp->pos.x;
-		temp->components[i]->pos.y += temp->pos.y;
-	}
+	showInfoDialog(text,intComps);
 }
-void CPlayerInterface::showInfoDialog(std::string text, std::vector<SComponent*> & components)
+void CPlayerInterface::showInfoDialog(std::string &text, std::vector<SComponent*> & components)
 {
 	curint->deactivate(); //dezaktywacja starego interfejsu
-	CInfoWindow * temp = CMessage::genIWindow(text,LOCPLINT->playerID,32,components);
+
+	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	
+	CInfoWindow * temp = new CInfoWindow(text,playerID,32,components,pom);
+	temp->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
+	temp->activate();
 	LOCPLINT->objsToBlit.push_back(temp);
-	temp->pos.x=300-(temp->pos.w/2);
-	temp->pos.y=300-(temp->pos.h/2);
-	temp->okb.pos.x = temp->okb.posr.x + temp->pos.x;
-	temp->okb.pos.y = temp->okb.posr.y + temp->pos.y;
-	temp->okb.activate();
-	for (int i=0;i<temp->components.size();i++)
-	{
-		temp->components[i]->activate();
-		temp->components[i]->pos.x += temp->pos.x;
-		temp->components[i]->pos.y += temp->pos.y;
-	}
+}
+void CPlayerInterface::showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> funcs[2])
+{
+	curint->deactivate(); //dezaktywacja starego interfejsu
+	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",funcs[0]));
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",funcs[1]));
+	CInfoWindow * temp = new CInfoWindow(text,playerID,32,components,pom);
+	temp->activate();
+	LOCPLINT->objsToBlit.push_back(temp);
 }
 void CPlayerInterface::removeObjToBlit(IShowable* obj)
 {
@@ -2960,7 +2973,7 @@ void CCreInfoWindow::show(SDL_Surface * to)
 
 CCreInfoWindow::CCreInfoWindow
 		(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm)
-:ok(0),dismiss(0),upgrade(0),type(Type),dsm(Dsm)
+:ok(0),dismiss(0),upgrade(0),type(Type),dsm(Dsm),dependant(0)
 {
 	c = &CGI->creh->creatures[Cid];
 	bitmap = BitmapHandler::loadBitmap("CRSTKPU.bmp");
@@ -3045,7 +3058,10 @@ CCreInfoWindow::CCreInfoWindow
 	if(type)
 	{
 		if(Upg)
+		{
 			upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,Upg,pos.x+76,pos.y+237,"IVIEWCR.DEF");
+			upgrade->callback += boost::bind(&CCreInfoWindow::close,this);
+		}
 		if(Dsm)
 			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::dismissF,this),pos.x+21,pos.y+237,"IVIEWCR2.DEF");
 		ok = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF");
@@ -3114,6 +3130,19 @@ void CCreInfoWindow::deactivate()
 		upgrade->deactivate();
 }
 
+void CCreInfoWindow::onUpgradeYes()
+{
+	dependant->close();
+	dependant->deactivate();
+	delete dependant;
+ 
+	LOCPLINT->curint->activate();
+}
+
+void CCreInfoWindow::onUpgradeNo()
+{
+
+}
 void CLevelWindow::close()
 {
 	deactivate();

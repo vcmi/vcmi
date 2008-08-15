@@ -23,7 +23,6 @@ class CSelectableComponent;
 class CCreatureSet;
 class CGObjectInstance;
 class CSlider;
-
 namespace boost
 {
 	class mutex;
@@ -160,19 +159,22 @@ public:
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 { //window deletes its components when closed
 public:
-	CSCButton<CInfoWindow> okb;
+	std::vector<AdventureMapButton *> buttons;
 	std::vector<SComponent*> components;
-	virtual void okClicked(boost::logic::tribool down);
 	virtual void close();
+	virtual void show(SDL_Surface * to = NULL);
+	void activate();
+	void deactivate();
+	CInfoWindow(std::string text, int player, int charperline, std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons);
 	CInfoWindow();
-	virtual ~CInfoWindow();
+	~CInfoWindow();
 };
 class CSelWindow : public CInfoWindow //component selection window
 { //uwaga - to okno usuwa swoje komponenty przy zamykaniu
 public:
 	void selectionChange(unsigned to);
-	void okClicked(boost::logic::tribool down);
 	void close();
+	CSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> &comps, std::vector<std::pair<std::string,boost::function<void()> > > &Buttons);
 	CSelWindow(){};
 };
 
@@ -330,8 +332,8 @@ public:
 	void heroCreated(const CGHeroInstance* hero);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
-	void showInfoDialog(std::string text, std::vector<Component*> &components);
-	void showSelDialog(std::string text, std::vector<Component*> &components, ui32 askID);
+	void showInfoDialog(std::string &text, std::vector<Component*> &components);
+	void showSelDialog(std::string &text, std::vector<Component*> &components, ui32 askID);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void garrisonChanged(const CGObjectInstance * obj);
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
@@ -363,7 +365,8 @@ public:
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos);
 	void removeObjToBlit(IShowable* obj);	
-	void showInfoDialog(std::string text, std::vector<SComponent*> & components);
+	void showInfoDialog(std::string &text, std::vector<SComponent*> & components);
+	void showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> funcs[2]);
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor
@@ -524,6 +527,7 @@ public:
 	boost::function<void()> dsm;
 	CCreaturePic *anim;
 	CCreature *c;
+	CInfoWindow *dependant; //it may be dialog asking whther upgrade/dismiss stack (if opened)
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
 	CCreInfoWindow(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm);
@@ -535,6 +539,8 @@ public:
 	void keyPressed (SDL_KeyboardEvent & key);
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+	void onUpgradeYes();
+	void onUpgradeNo();
 };
 
 class CLevelWindow : public IShowable, public CIntObject

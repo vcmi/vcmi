@@ -1056,6 +1056,43 @@ int CGameState::battleGetStack(int pos)
 	return -1;
 }
 
+UpgradeInfo CGameState::getUpgradeInfo(CArmedInstance *obj, int stackPos)
+{
+	UpgradeInfo ret;
+	CCreature *base = &VLC->creh->creatures[obj->army.slots[stackPos].first];
+	if((obj->ID == 98)  ||  ((obj->ID == 34) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
+	{
+		CGTownInstance * t;
+		if(obj->ID == 98)
+			t = static_cast<CGTownInstance *>(const_cast<CArmedInstance *>(obj));
+		else
+			t = static_cast<const CGHeroInstance*>(obj)->visitedTown;
+		for(std::set<si32>::iterator i=t->builtBuildings.begin();  i!=t->builtBuildings.end(); i++)
+		{
+			if( (*i) >= 37   &&   (*i) < 44 ) //upgraded creature dwelling
+			{
+				int nid = t->town->upgradedCreatures[(*i)-37]; //upgrade offered by that building
+				if(base->upgrades.find(nid) != base->upgrades.end()) //possible upgrade
+				{
+					ret.newID.push_back(nid);
+					ret.cost.push_back(std::set<std::pair<int,int> >());
+					for(int j=0;j<RESOURCE_QUANTITY;j++)
+					{
+						int dif = VLC->creh->creatures[nid].cost[j] - base->cost[j];
+						if(dif)
+							ret.cost[ret.cost.size()-1].insert(std::make_pair(j,dif));
+					}
+				}
+			}
+		}//end for
+	}
+	//TODO: check if hero ability makes some upgrades possible
+
+	if(ret.newID.size())
+		ret.oldID = base->idNumber;
+
+	return ret;
+}
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender)
 {
 	int attackDefenseBonus = attacker->creature->attack - defender->creature->defence;

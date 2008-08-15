@@ -14,6 +14,7 @@
 #include <sstream>
 #include "hch/CGeneralTextHandler.h"
 #include "client/Graphics.h"
+#include "CAdvmapInterface.h"
 SDL_Color tytulowy, tlo, zwykly ;
 SDL_Rect genRect(int hh, int ww, int xx, int yy);
 
@@ -86,7 +87,7 @@ void CMessage::dispose()
 	delete ok;
 	delete cancel;
 }
-SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor)
+SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for window
 {
 	//prepare surface
 	SDL_Surface * ret = SDL_CreateRGBSurface(screen->flags, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
@@ -187,7 +188,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line, bool 
 	}
 	return ret;
 }
-std::pair<int, int> CMessage::getMaxSizes(std::vector< std::vector<CSelectableComponent*> > * komp)
+std::pair<int, int> CMessage::getMaxSizes(std::vector< std::vector<SComponent*> > * komp)
 {
 	std::pair<int,int> ret;
 	for (int i=0;i<komp->size();i++)
@@ -254,7 +255,6 @@ SDL_Surface * CMessage::blitCompsOnSur(std::vector<SComponent*> & comps, int max
 		brdtext = breakText(comps[0]->subtitle,12,true,true);
 	else
 		brdtext = NULL;
-	curh += 30;
 	comps[0]->pos.x = (ret->w/2) - ((comps[0]->getImg()->w)/2);
 	comps[0]->pos.y = curh;
 	blitAt(comps[0]->getImg(),comps[0]->pos.x,comps[0]->pos.y,ret);
@@ -268,7 +268,7 @@ SDL_Surface * CMessage::blitCompsOnSur(std::vector<SComponent*> & comps, int max
 	}
 	return ret;
 }
-SDL_Surface* CMessage::blitCompsOnSur(SDL_Surface * _or, std::vector< std::vector<CSelectableComponent*> > *  komp, int inter, int &curh, SDL_Surface *ret)
+SDL_Surface* CMessage::blitCompsOnSur(SDL_Surface * _or, std::vector< std::vector<SComponent*> > *  komp, int inter, int &curh, SDL_Surface *ret)
 {
 	for (int i=0;i<komp->size();i++)
 	{
@@ -279,7 +279,11 @@ SDL_Surface* CMessage::blitCompsOnSur(SDL_Surface * _or, std::vector< std::vecto
 			if(maxh<(*komp)[i][j]->getImg()->h)
 				maxh=(*komp)[i][j]->getImg()->h;
 		}
-		totalw += (inter*2+_or->w) * ((*komp)[i].size() - 1);
+		if(_or)
+			totalw += (inter*2+_or->w) * ((*komp)[i].size() - 1);
+		else
+			totalw += (inter) * ((*komp)[i].size() - 1);
+
 		curh+=maxh/2;
 		int curw = (ret->w/2)-(totalw/2);
 		for(int j=0;j<(*komp)[i].size();j++)
@@ -291,13 +295,17 @@ SDL_Surface* CMessage::blitCompsOnSur(SDL_Surface * _or, std::vector< std::vecto
 			curw += (*komp)[i][j]->getImg()->w;
 			if(j<((*komp)[i].size()-1))
 			{
-				curw+=inter;
-				blitAt(_or,curw,curh-(_or->h/2),ret);
-				curw+=_or->w;
+				if(_or)
+				{
+					curw+=inter;
+					blitAt(_or,curw,curh-(_or->h/2),ret);
+					curw+=_or->w;
+				}
 				curw+=inter;
 			}
 		}
 		curh+=maxh/2;
+		curh += 20; //todo: check subtitle length
 	}
 	return ret;
 }
@@ -347,79 +355,21 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int 
 	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,0);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
-	for (int i=0; i<txtg->size();i++)
-	{
-		int lw=0;
-		for (int j=0;j<(*txtg)[i].size();j++)
-			lw+=(*txtg)[i][j]->w;
-		int pw = ret->bitmap->w/2, ph =  ret->bitmap->h/2;
-		//int pw = Tmar, ph = Lmar;
-		pw -= lw/2;
-		ph -= (19*txtg->size())/2;
-
-		int tw = pw;
-		for (int j=0;j<(*txtg)[i].size();j++)
-		{
-				//std::stringstream n;
-				//n <<"temp_"<<i<<"__"<<j<<".bmp";
-			blitAt((*txtg)[i][j],tw,ph+i*19,ret->bitmap);
-				//SDL_SaveBMP(ret->bitmap,n.str().c_str());
-			tw+=(*txtg)[i][j]->w;
-			SDL_FreeSurface((*txtg)[i][j]);
-		}
-	}
-	return ret;
-}
-
-CInfoWindow * CMessage::genIWindow(std::string text, int player, int charperline, std::vector<SComponent*> & comps)
-{
-	//TODO: support for more than one component
-	CInfoWindow * ret = new CInfoWindow();
-	ret->components = comps;
-	std::vector<std::string> * brtext = breakText(text,charperline,true,true);
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext);
-	std::pair<int,int> txts = getMaxSizes(txtg);
-	txts.second = txts.second
-		+ ok->ourImages[0].bitmap->h //button
-		+ 15 //after button
-		+ 20; // space between subtitle and button
-	if (comps.size())
-			txts.second = txts.second
-			+ 30 //space to first component
-			+ comps[0]->getImg()->h
-			+ 5 //img <-> subtitle
-			+ 20; //subtitle //!!!!!!!!!!!!!!!!!!!!
-	ret->bitmap = drawBox1(txts.first+70,txts.second+70,0);
-	ret->pos.h=ret->bitmap->h;
-	ret->pos.w=ret->bitmap->w;
-	int curh = 30; //gorny margines
+	int curh = ret->bitmap->h/2 - (19*txtg->size())/2;
 	blitTextOnSur(txtg,curh,ret->bitmap);
-	if (comps.size())
-	{
-		blitCompsOnSur(comps,200,0,curh,ret->bitmap);
-	}
-	curh += 20; //to buttton
-	ret->okb.posr.x = (ret->bitmap->w/2) - (ret->okb.imgs[0][0]->w/2);
-	ret->okb.posr.y = curh;
-	ret->okb.show();
-	curh+=ret->okb.imgs[0][0]->h;
+	delete brtext;
+	delete txtg;
 	return ret;
 }
-std::vector< std::vector<CSelectableComponent*> > * CMessage::breakComps(std::vector<CSelectableComponent*> & comps,int maxw, SDL_Surface* _or)
+std::vector< std::vector<SComponent*> > * CMessage::breakComps(std::vector<SComponent*> & comps,int maxw, SDL_Surface* _or)
 {
-	std::vector< std::vector<CSelectableComponent*> > * ret = new std::vector< std::vector<CSelectableComponent*> >();
+	std::vector< std::vector<SComponent*> > * ret = new std::vector< std::vector<SComponent*> >();
 	ret->resize(1);
-	bool wywalicOr=false;
-	if (!_or)
-	{
-		_or = TTF_RenderText_Blended(GEOR13,CGI->generaltexth->allTexts[4].c_str(),zwykly);
-		wywalicOr=true;
-	}
 	int rvi = 0;
 	int curw = 0;
 	for(int i=0;i<comps.size();i++)
 	{
-		curw += (comps[i]->getImg()->w + 12 + _or->w);
+		curw += (comps[i]->getImg()->w + 12 + (_or ? _or->w : 0));
 		if (curw > maxw)
 		{
 			curw = 0;
@@ -427,10 +377,6 @@ std::vector< std::vector<CSelectableComponent*> > * CMessage::breakComps(std::ve
 			ret->resize(rvi+1);
 		}
 		(*ret)[rvi].push_back(comps[i]);
-	}
-	if (wywalicOr)
-	{
-		SDL_FreeSurface(_or);
 	}
 	return ret;
 }
@@ -460,44 +406,96 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub(int player, std::string text, SDL_S
 	return ret;
 }
 
+void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int charperline)
+{
+	std::vector<std::string> * brtext = breakText(text,charperline,true,true);
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext);
+	std::pair<int,int> txts = getMaxSizes(txtg);
+	if(ret->buttons.size())
+		txts.second += 20 + //before button
+		ok->ourImages[0].bitmap->h; //button
+	if (ret->components.size())
+		txts.second += 30 //space to first component
+		+ ret->components[0]->getImg()->h
+		+ 5 //img <-> subtitle
+		+ 20; //subtitle //TODO: check how much place will be needed for subtitle
+	ret->bitmap = drawBox1(txts.first+70,txts.second+70,0);
+	ret->pos.h=ret->bitmap->h;
+	ret->pos.w=ret->bitmap->w;
+	ret->pos.x=300-(ret->pos.w/2);
+	ret->pos.y=300-(ret->pos.h/2);
+	int curh = 30; //gorny margines
+	blitTextOnSur(txtg,curh,ret->bitmap);
+	if (ret->components.size())
+	{
+		curh += 30;
+		if(ret->components.size()==1)
+		{
+			blitCompsOnSur(ret->components,200,0,curh,ret->bitmap);
+		}
+		else
+		{
+			SDL_Surface * _or = 0;
+			if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
+				_or = TTF_RenderText_Blended(GEOR13,CGI->generaltexth->allTexts[4].c_str(),zwykly);
+			std::vector< std::vector<SComponent*> > * komp = breakComps(reinterpret_cast<std::vector<SComponent*>&>(ret->components),500,_or);
+			blitCompsOnSur(_or,komp,10,curh,ret->bitmap);
+			delete komp;
+		}
+	}
+	if(ret->buttons.size())
+	{
+		curh += 20; //to buttton
+		int bw = 20*(ret->buttons.size()-1); //total width of buttons - start with distance between them
+		for(int i=0; i<ret->buttons.size(); i++) //and add buttons width
+			bw+=ret->buttons[i]->imgs[0][0]->w; 
+		bw = (ret->bitmap->w/2) - (bw/2);
+		for(int i=0; i<ret->buttons.size(); i++)
+		{
+			ret->buttons[i]->pos.x = bw + ret->pos.x;
+			ret->buttons[i]->pos.y = curh + ret->pos.y;
+			bw += ret->buttons[i]->imgs[0][0]->w + 20;
+		}
+	}
+	for(int i=0; i<ret->components.size(); i++)
+	{
+		ret->components[i]->pos.x += ret->pos.x;
+		ret->components[i]->pos.y += ret->pos.y;
+	}
+	delete brtext;
+	delete txtg;
+}
 CSelWindow * CMessage::genSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> & comps, int owner)
 {
-	CSelWindow * ret = new CSelWindow();
-	for(unsigned i=0;i<comps.size();i++)
-	{
-		ret->components.push_back(comps[i]);
-		comps[i]->onSelect = boost::bind(&CSelWindow::selectionChange,ret,i);
-	}
-	std::vector<std::string> * tekst = breakText(text,charperline);
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(tekst);
-	std::pair<int,int> txts = getMaxSizes(txtg);
-	txts.first+=45; //side margins
-	int curh = 50; //top margin
-	SDL_Surface * _or = TTF_RenderText_Blended(GEOR13,CGI->generaltexth->allTexts[4].c_str(),zwykly);
-	std::vector< std::vector<CSelectableComponent*> > * komp = breakComps(comps,500,_or);
-	std::pair<int,int> txts2 = getMaxSizes(komp);
-	ret->pos.h = txts.second //wys. tekstu
-		+ txts2.second //wys komponentow
-		+ 20 //podpis pod komponentami
-		+ 55 //gorny margines
-		+ 60 //text <=> comps
-		+ 20 //comps <=> button
-		+ ok->ourImages[0].bitmap->h //button
-		+ 30; //bottom margin
-	ret->pos.w = std::max(txts.first,txts.second);
-	ret->bitmap = drawBox1(ret->pos.w,ret->pos.h,player);
-	blitTextOnSur(txtg,curh,ret->bitmap);
-	curh += 50;
-	blitCompsOnSur(_or,komp,10,curh,ret->bitmap);
-	curh += 30; //to buttton
-	ret->okb.posr.x = (ret->bitmap->w/2) - (ret->okb.imgs[0][0]->w/2);
-	ret->okb.posr.y = curh;
-	ret->okb.show();
-	curh+=ret->okb.imgs[0][0]->h;
-	SDL_FreeSurface(_or);
-	delete komp;
-	delete tekst;
-	return ret;
+	//CSelWindow * ret = new CSelWindow();
+	//std::vector<std::string> * tekst = breakText(text,charperline);
+	//std::vector<std::vector<SDL_Surface*> > * txtg = drawText(tekst);
+	//std::pair<int,int> txts = getMaxSizes(txtg);
+	//txts.first+=45; //side margins
+	//int curh = 50; //top margin
+	////std::pair<int,int> txts2 = getMaxSizes(komp);
+	//ret->pos.h = txts.second //wys. tekstu
+	//	//+ txts2.second //wys komponentow
+	//	+ 20 //podpis pod komponentami
+	//	+ 55 //gorny margines
+	//	+ 60 //text <=> comps
+	//	+ 20 //comps <=> button
+	//	+ ok->ourImages[0].bitmap->h //button
+	//	+ 30; //bottom margin
+	//ret->pos.w = std::max(txts.first,txts.second);
+	//ret->bitmap = drawBox1(ret->pos.w,ret->pos.h,player);
+	//blitTextOnSur(txtg,curh,ret->bitmap);
+	//curh += 50;
+	//blitCompsOnSur(_or,komp,10,curh,ret->bitmap);
+	//curh += 30; //to buttton
+	//ret->buttons[0]->pos.x = (ret->bitmap->w/2) - (ret->buttons[0]->imgs[0][0]->w/2);
+	//ret->buttons[0]->pos.y = curh;
+	//ret->buttons[0]->show();
+	//curh += ret->buttons[0]->imgs[0][0]->h;
+	//SDL_FreeSurface(_or);
+	//delete komp;
+	//delete tekst;
+	return NULL;
 }
 
 SDL_Surface * CMessage::genMessage

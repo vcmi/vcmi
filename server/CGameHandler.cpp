@@ -10,7 +10,6 @@
 #include "../map.h"
 #include "../lib/NetPacks.h"
 #include "../lib/Connection.h"
-#include "../CLua.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CBuildingHandler.h"
@@ -244,153 +243,9 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 {
 
 	BattleInfo *curB = new BattleInfo;
-	//battle start
-	{
-		battleResult.set(NULL);
-		std::vector<CStack*> & stacks = (curB->stacks);
+	setupBattle(curB, tile, army1, army2, hero1, hero2); //battle start
+	NEW_ROUND;
 
-		curB->tile = tile;
-		curB->siege = 0; //TODO: add sieges
-		curB->army1=army1;
-		curB->army2=army2;
-		curB->hero1=(hero1)?(hero1->id):(-1);
-		curB->hero2=(hero2)?(hero2->id):(-1);
-		curB->side1=(hero1)?(hero1->tempOwner):(-1);
-		curB->side2=(hero2)?(hero2->tempOwner):(-1);
-		curB->round = -2;
-		curB->activeStack = -1;
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
-		{
-			stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true));
-			stacks[stacks.size()-1]->ID = stacks.size()-1;
-		}
-		//initialization of positions
-		switch(army1.slots.size()) //for attacker
-		{
-		case 0:
-			break;
-		case 1:
-			stacks[0]->position = 86; //6
-			break;
-		case 2:
-			stacks[0]->position = 35; //3
-			stacks[1]->position = 137; //9
-			break;
-		case 3:
-			stacks[0]->position = 35; //3
-			stacks[1]->position = 86; //6
-			stacks[2]->position = 137; //9
-			break;
-		case 4:
-			stacks[0]->position = 1; //1
-			stacks[1]->position = 69; //5
-			stacks[2]->position = 103; //7
-			stacks[3]->position = 171; //11
-			break;
-		case 5:
-			stacks[0]->position = 1; //1
-			stacks[1]->position = 35; //3
-			stacks[2]->position = 86; //6
-			stacks[3]->position = 137; //9
-			stacks[4]->position = 171; //11
-			break;
-		case 6:
-			stacks[0]->position = 1; //1
-			stacks[1]->position = 35; //3
-			stacks[2]->position = 69; //5
-			stacks[3]->position = 103; //7
-			stacks[4]->position = 137; //9
-			stacks[5]->position = 171; //11
-			break;
-		case 7:
-			stacks[0]->position = 1; //1
-			stacks[1]->position = 35; //3
-			stacks[2]->position = 69; //5
-			stacks[3]->position = 86; //6
-			stacks[4]->position = 103; //7
-			stacks[5]->position = 137; //9
-			stacks[6]->position = 171; //11
-			break;
-		default: //fault
-			break;
-		}
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army2.slots.begin(); i!=army2.slots.end(); i++)
-			stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero2 ? hero2->tempOwner : 255, stacks.size(), false));
-		switch(army2.slots.size()) //for defender
-		{
-		case 0:
-			break;
-		case 1:
-			stacks[0+army1.slots.size()]->position = 100; //6
-			break;
-		case 2:
-			stacks[0+army1.slots.size()]->position = 49; //3
-			stacks[1+army1.slots.size()]->position = 151; //9
-			break;
-		case 3:
-			stacks[0+army1.slots.size()]->position = 49; //3
-			stacks[1+army1.slots.size()]->position = 100; //6
-			stacks[2+army1.slots.size()]->position = 151; //9
-			break;
-		case 4:
-			stacks[0+army1.slots.size()]->position = 15; //1
-			stacks[1+army1.slots.size()]->position = 83; //5
-			stacks[2+army1.slots.size()]->position = 117; //7
-			stacks[3+army1.slots.size()]->position = 185; //11
-			break;
-		case 5:
-			stacks[0+army1.slots.size()]->position = 15; //1
-			stacks[1+army1.slots.size()]->position = 49; //3
-			stacks[2+army1.slots.size()]->position = 100; //6
-			stacks[3+army1.slots.size()]->position = 151; //9
-			stacks[4+army1.slots.size()]->position = 185; //11
-			break;
-		case 6:
-			stacks[0+army1.slots.size()]->position = 15; //1
-			stacks[1+army1.slots.size()]->position = 49; //3
-			stacks[2+army1.slots.size()]->position = 83; //5
-			stacks[3+army1.slots.size()]->position = 117; //7
-			stacks[4+army1.slots.size()]->position = 151; //9
-			stacks[5+army1.slots.size()]->position = 185; //11
-			break;
-		case 7:
-			stacks[0+army1.slots.size()]->position = 15; //1
-			stacks[1+army1.slots.size()]->position = 49; //3
-			stacks[2+army1.slots.size()]->position = 83; //5
-			stacks[3+army1.slots.size()]->position = 100; //6
-			stacks[4+army1.slots.size()]->position = 117; //7
-			stacks[5+army1.slots.size()]->position = 151; //9
-			stacks[6+army1.slots.size()]->position = 185; //11
-			break;
-		default: //fault
-			break;
-		}
-		for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
-		{
-			if((stacks[g]->position%17)==1 && stacks[g]->creature->isDoubleWide())
-			{
-				stacks[g]->position += 1;
-			}
-			else if((stacks[g]->position%17)==15 && stacks[g]->creature->isDoubleWide())
-			{
-				stacks[g]->position -= 1;
-			}
-		}
-		std::stable_sort(stacks.begin(),stacks.end(),cmpst);
-
-		//block engaged players
-		if(hero1->tempOwner<PLAYER_LIMIT)
-			states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,true);
-		if(hero2 && hero2->tempOwner<PLAYER_LIMIT)
-			states.setFlag(hero2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
-
-		//send info about battles
-		BattleStart bs;
-		bs.info = curB;
-		sendAndApply(&bs);
-
-		NEW_ROUND;
-	}
 
 	//tactic round
 	{
@@ -764,6 +619,53 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					sendAndApply(&sg);
 					break;
 				}
+			case 507://upgrade creature
+				{
+					ui32 objid, upgID;
+					ui8 pos;
+					c >> objid >> pos >> upgID;
+					CArmedInstance *obj = static_cast<CArmedInstance*>(gs->map->objects[objid]);
+					UpgradeInfo ui = gs->getUpgradeInfo(obj,pos);
+					int player = obj->tempOwner;
+					int crQuantity = obj->army.slots[pos].second;
+
+					//check if upgrade is possible
+					if(ui.oldID<0 || !vstd::contains(ui.newID,upgID)) 
+						break;
+
+					//check if player has enough resources
+					for(int i=0;i<ui.cost.size();i++)
+					{
+						for (std::set<std::pair<int,int> >::iterator j=ui.cost[i].begin(); j!=ui.cost[i].end(); j++)
+						{
+							if(gs->players[player].resources[j->first] < j->second*crQuantity)
+								goto upgend;
+						}
+					}
+
+					//take resources
+					for(int i=0;i<ui.cost.size();i++)
+					{
+						for (std::set<std::pair<int,int> >::iterator j=ui.cost[i].begin(); j!=ui.cost[i].end(); j++)
+						{
+							SetResource sr;
+							sr.player = player;
+							sr.resid = j->first;
+							sr.val = gs->players[player].resources[j->first] - j->second*crQuantity;
+							sendAndApply(&sr);
+						}
+					}
+
+					{
+						//upgrade creature
+						SetGarrisons sg;
+						sg.garrs[objid] = obj->army;
+						sg.garrs[objid].slots[pos].first = upgID;
+						sendAndApply(&sg);	
+					}		
+upgend:
+					break;
+				}
 			case 2001:
 				{
 					ui32 qid, answer;
@@ -1015,7 +917,7 @@ void CGameHandler::run()
 			gsm.unlock();
 		}	
 	}
-
+	
 	for(std::set<CConnection*>::iterator i = conns.begin(); i!=conns.end();i++)
 	{
 		std::set<int> pom;
@@ -1089,4 +991,150 @@ void CGameHandler::run()
 			}
 		}
 	}
+}
+
+void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army1, CCreatureSet &army2, CGHeroInstance * hero1, CGHeroInstance * hero2 )
+{
+	battleResult.set(NULL);
+	std::vector<CStack*> & stacks = (curB->stacks);
+
+	curB->tile = tile;
+	curB->siege = 0; //TODO: add sieges
+	curB->army1=army1;
+	curB->army2=army2;
+	curB->hero1=(hero1)?(hero1->id):(-1);
+	curB->hero2=(hero2)?(hero2->id):(-1);
+	curB->side1=(hero1)?(hero1->tempOwner):(-1);
+	curB->side2=(hero2)?(hero2->tempOwner):(-1);
+	curB->round = -2;
+	curB->activeStack = -1;
+	for(std::map<si32,std::pair<ui32,si32> >::iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
+	{
+		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true));
+		stacks[stacks.size()-1]->ID = stacks.size()-1;
+	}
+	//initialization of positions
+	switch(army1.slots.size()) //for attacker
+	{
+	case 0:
+		break;
+	case 1:
+		stacks[0]->position = 86; //6
+		break;
+	case 2:
+		stacks[0]->position = 35; //3
+		stacks[1]->position = 137; //9
+		break;
+	case 3:
+		stacks[0]->position = 35; //3
+		stacks[1]->position = 86; //6
+		stacks[2]->position = 137; //9
+		break;
+	case 4:
+		stacks[0]->position = 1; //1
+		stacks[1]->position = 69; //5
+		stacks[2]->position = 103; //7
+		stacks[3]->position = 171; //11
+		break;
+	case 5:
+		stacks[0]->position = 1; //1
+		stacks[1]->position = 35; //3
+		stacks[2]->position = 86; //6
+		stacks[3]->position = 137; //9
+		stacks[4]->position = 171; //11
+		break;
+	case 6:
+		stacks[0]->position = 1; //1
+		stacks[1]->position = 35; //3
+		stacks[2]->position = 69; //5
+		stacks[3]->position = 103; //7
+		stacks[4]->position = 137; //9
+		stacks[5]->position = 171; //11
+		break;
+	case 7:
+		stacks[0]->position = 1; //1
+		stacks[1]->position = 35; //3
+		stacks[2]->position = 69; //5
+		stacks[3]->position = 86; //6
+		stacks[4]->position = 103; //7
+		stacks[5]->position = 137; //9
+		stacks[6]->position = 171; //11
+		break;
+	default: //fault
+		break;
+	}
+	for(std::map<si32,std::pair<ui32,si32> >::iterator i = army2.slots.begin(); i!=army2.slots.end(); i++)
+		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero2 ? hero2->tempOwner : 255, stacks.size(), false));
+	switch(army2.slots.size()) //for defender
+	{
+	case 0:
+		break;
+	case 1:
+		stacks[0+army1.slots.size()]->position = 100; //6
+		break;
+	case 2:
+		stacks[0+army1.slots.size()]->position = 49; //3
+		stacks[1+army1.slots.size()]->position = 151; //9
+		break;
+	case 3:
+		stacks[0+army1.slots.size()]->position = 49; //3
+		stacks[1+army1.slots.size()]->position = 100; //6
+		stacks[2+army1.slots.size()]->position = 151; //9
+		break;
+	case 4:
+		stacks[0+army1.slots.size()]->position = 15; //1
+		stacks[1+army1.slots.size()]->position = 83; //5
+		stacks[2+army1.slots.size()]->position = 117; //7
+		stacks[3+army1.slots.size()]->position = 185; //11
+		break;
+	case 5:
+		stacks[0+army1.slots.size()]->position = 15; //1
+		stacks[1+army1.slots.size()]->position = 49; //3
+		stacks[2+army1.slots.size()]->position = 100; //6
+		stacks[3+army1.slots.size()]->position = 151; //9
+		stacks[4+army1.slots.size()]->position = 185; //11
+		break;
+	case 6:
+		stacks[0+army1.slots.size()]->position = 15; //1
+		stacks[1+army1.slots.size()]->position = 49; //3
+		stacks[2+army1.slots.size()]->position = 83; //5
+		stacks[3+army1.slots.size()]->position = 117; //7
+		stacks[4+army1.slots.size()]->position = 151; //9
+		stacks[5+army1.slots.size()]->position = 185; //11
+		break;
+	case 7:
+		stacks[0+army1.slots.size()]->position = 15; //1
+		stacks[1+army1.slots.size()]->position = 49; //3
+		stacks[2+army1.slots.size()]->position = 83; //5
+		stacks[3+army1.slots.size()]->position = 100; //6
+		stacks[4+army1.slots.size()]->position = 117; //7
+		stacks[5+army1.slots.size()]->position = 151; //9
+		stacks[6+army1.slots.size()]->position = 185; //11
+		break;
+	default: //fault
+		break;
+	}
+	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
+	{
+		if((stacks[g]->position%17)==1 && stacks[g]->creature->isDoubleWide())
+		{
+			stacks[g]->position += 1;
+		}
+		else if((stacks[g]->position%17)==15 && stacks[g]->creature->isDoubleWide())
+		{
+			stacks[g]->position -= 1;
+		}
+	}
+	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
+
+	//block engaged players
+	if(hero1->tempOwner<PLAYER_LIMIT)
+		states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,true);
+	if(hero2 && hero2->tempOwner<PLAYER_LIMIT)
+		states.setFlag(hero2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
+
+	//send info about battles
+	BattleStart bs;
+	bs.info = curB;
+	sendAndApply(&bs);
 }

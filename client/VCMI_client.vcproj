@@ -445,10 +445,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\hch\CCreatureHandler.h"
-				>
-			</File>
-			<File
 				RelativePath="..\CCursorHandler.h"
 				>
 			</File>
@@ -522,6 +518,10 @@
 			</File>
 			<File
 				RelativePath="..\CThreadHelper.h"
+				>
+			</File>
+			<File
+				RelativePath=".\FunctionList.h"
 				>
 			</File>
 			<File

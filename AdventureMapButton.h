@@ -1,6 +1,6 @@
 #pragma once
 #include "CPlayerInterface.h"
-#include <boost/function.hpp>
+#include "client/FunctionList.h"
 #include <boost/bind.hpp>
 class AdventureMapButton 
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public CButtonBase
@@ -9,7 +9,7 @@ public:
 	std::string name; //for status bar 
 	std::string helpBox; //for right-click help
 	char key; //key shortcut
-	boost::function<void()> callback;
+	CFunctionList<void()> callback;
 	bool colorChange,
 		actOnDown; //runs when mouse is pressed down over it, not when up
 
@@ -21,7 +21,10 @@ public:
 	void deactivate(); // makes button inactive (but doesn't delete)
 
 	AdventureMapButton(); //c-tor
+	AdventureMapButton( std::string Name, std::string HelpBox, CFunctionList<void()> Callback, int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 	AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+
+	void init( CFunctionList<void()> Callback, std::string Name, std::string HelpBox, bool playerColoredButton, std::string defName, std::vector<std::string> * add, int x, int y, bool activ );
 };
 
 

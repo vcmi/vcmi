@@ -485,6 +485,19 @@ struct DLL_EXPORT Mapa
 	std::vector<CGTownInstance*> towns;
 
 	void initFromBytes(unsigned char * bufor); //creates map from decompressed .h3m data
+
+	void readEvents( unsigned char * bufor, int &i);
+	void readObjects( unsigned char * bufor, int &i);
+	void readDefInfo( unsigned char * bufor, int &i);
+	void readTerrain( unsigned char * bufor, int &i);
+	void readPredefinedHeroes( unsigned char * bufor, int &i);
+	void readHeader( unsigned char * bufor, int &i);
+	void readRumors( unsigned char * bufor, int &i);
+	void loadViCLossConditions( unsigned char * bufor, int &i);
+	void loadPlayerInfo( int &pom, unsigned char * bufor, int &i);
+	void loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
+	void loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
+	int loadSeerHut( unsigned char * bufor, int i, CGObjectInstance * nobj);
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj);
 	Mapa(std::string filename); //creates map structure from .h3m file
