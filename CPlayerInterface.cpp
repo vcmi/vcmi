@@ -137,7 +137,7 @@ void CGarrisonSlot::clickRight (tribool down)
 			pom->luck = h->getCurrentLuck();
 			pom->morale = h->getCurrentMorale();
 		}
-		(new CCreInfoWindow(creature->idNumber,0,pom,boost::function<void()>(),boost::function<void()>()))
+		(new CCreInfoWindow(creature->idNumber,0,pom,boost::function<void()>(),boost::function<void()>(),NULL))
 				->activate();
 	}
 	delete pom;
@@ -162,13 +162,13 @@ void CGarrisonSlot::clickLeft(tribool down)
 					(new CCreInfoWindow
 						(creature->idNumber,1,NULL,
 						boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,pom.newID[0]), //if upgrade is possible we'll bind proper function in callback
-						 boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID)))
+						 boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),&pom))
 							->activate();
 				}
 				else
 				{
 					(new CCreInfoWindow
-						(creature->idNumber,1,NULL,0, boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID)) )
+						(creature->idNumber,1,NULL,0, boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),NULL) )
 						->activate();
 				}
 				owner->highlighted = NULL;
@@ -2108,13 +2108,18 @@ void CPlayerInterface::showInfoDialog(std::string &text, std::vector<SComponent*
 	temp->activate();
 	LOCPLINT->objsToBlit.push_back(temp);
 }
-void CPlayerInterface::showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> funcs[2])
+void CPlayerInterface::showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur)
 {
-	curint->deactivate(); //dezaktywacja starego interfejsu
+	if(deactivateCur)
+		curint->deactivate(); //dezaktywacja starego interfejsu
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",funcs[0]));
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",funcs[1]));
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",onYes));
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",onNo));
 	CInfoWindow * temp = new CInfoWindow(text,playerID,32,components,pom);
+	if(onYes)
+		temp->buttons[0]->callback += boost::bind(&CInfoWindow::close,temp);
+	if(onNo)
+		temp->buttons[1]->callback += boost::bind(&CInfoWindow::close,temp);
 	temp->activate();
 	LOCPLINT->objsToBlit.push_back(temp);
 }
@@ -2961,8 +2966,8 @@ void CCreInfoWindow::show(SDL_Surface * to)
 {
 	char pom[15];
 	blitAt(bitmap,pos.x,pos.y,screen);
-	anim->blitPic(screen,pos.x+21,pos.y+48,(type) && anf);
-	anf=!anf;
+	anim->blitPic(screen,pos.x+21,pos.y+48,(type) && anf%4);
+	anf++;
 	if(upgrade)
 		upgrade->show();
 	if(dismiss)
@@ -2971,8 +2976,7 @@ void CCreInfoWindow::show(SDL_Surface * to)
 		ok->show();
 }
 
-CCreInfoWindow::CCreInfoWindow
-		(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm)
+CCreInfoWindow::CCreInfoWindow(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
 :ok(0),dismiss(0),upgrade(0),type(Type),dsm(Dsm),dependant(0)
 {
 	c = &CGI->creh->creatures[Cid];
@@ -3057,13 +3061,27 @@ CCreInfoWindow::CCreInfoWindow
 	//print abilities text - if r-click popup
 	if(type)
 	{
-		if(Upg)
+		if(Upg && ui)
 		{
-			upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,Upg,pos.x+76,pos.y+237,"IVIEWCR.DEF");
-			upgrade->callback += boost::bind(&CCreInfoWindow::close,this);
+			CFunctionList<void()> fs[2];
+			fs[0] += Upg;
+			fs[0] += boost::bind(&CCreInfoWindow::close,this);
+			std::vector<SComponent*> upgResCost;
+			for(std::set<std::pair<int,int> >::iterator i=ui->cost[0].begin(); i!=ui->cost[0].end(); i++)
+			{
+				upgResCost.push_back(new SComponent(SComponent::resource,i->first,i->second)); //will be deleted by CInfoWindow::close
+			}
+			boost::function<void()> fff = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],upgResCost,fs[0],fs[1],false);
+			upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,fff,pos.x+76,pos.y+237,"IVIEWCR.DEF");
 		}
 		if(Dsm)
-			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::dismissF,this),pos.x+21,pos.y+237,"IVIEWCR2.DEF");
+		{
+			CFunctionList<void()> fs[2];
+			fs[0] += Dsm;
+			fs[0] += boost::bind(&CCreInfoWindow::close,this);
+			boost::function<void()> fff = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false);
+			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,fff,pos.x+21,pos.y+237,"IVIEWCR2.DEF");
+		}
 		ok = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF");
 	}
 	else

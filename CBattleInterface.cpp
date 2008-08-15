@@ -1237,7 +1237,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->morale = h->getCurrentMorale();
 				pom->currentHealth = myst.firstHPleft;
 			}
-			(new CCreInfoWindow(myst.creature->idNumber,0,pom,boost::function<void()>(),boost::function<void()>()))
+			(new CCreInfoWindow(myst.creature->idNumber,0,pom,boost::function<void()>(),boost::function<void()>(),NULL))
 					->activate();
 		}
 		delete pom;

@@ -23,6 +23,7 @@ class CSelectableComponent;
 class CCreatureSet;
 class CGObjectInstance;
 class CSlider;
+struct UpgradeInfo;
 namespace boost
 {
 	class mutex;
@@ -366,7 +367,7 @@ public:
 	int3 repairScreenPos(int3 pos);
 	void removeObjToBlit(IShowable* obj);	
 	void showInfoDialog(std::string &text, std::vector<SComponent*> & components);
-	void showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> funcs[2]);
+	void showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur);
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor
@@ -522,7 +523,7 @@ class CCreInfoWindow : public IShowable, public KeyInterested, public ClickableR
 public:
 	int type;//0 - rclick popup; 1 - normal window
 	SDL_Surface *bitmap;
-	bool anf;
+	char anf;
 
 	boost::function<void()> dsm;
 	CCreaturePic *anim;
@@ -530,7 +531,7 @@ public:
 	CInfoWindow *dependant; //it may be dialog asking whther upgrade/dismiss stack (if opened)
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
-	CCreInfoWindow(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm);
+	CCreInfoWindow(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui);
 	~CCreInfoWindow();
 	void activate();
 	void close();
