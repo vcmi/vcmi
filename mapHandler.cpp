@@ -1107,7 +1107,7 @@ std::string CMapHandler::getDefName(int id, int subid)
 #endif
 }
 
-bool CMapHandler::printObject(CGObjectInstance *obj)
+bool CMapHandler::printObject(const CGObjectInstance *obj)
 {
 	CDefHandler * curd = obj->defInfo->handler;
 	for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
@@ -1119,7 +1119,7 @@ bool CMapHandler::printObject(CGObjectInstance *obj)
 			cr.h = 32;
 			cr.x = fx*32;
 			cr.y = fy*32;
-			std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
+			std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
 			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
 				TerrainTile2 & curt =
@@ -1137,7 +1137,7 @@ bool CMapHandler::printObject(CGObjectInstance *obj)
 	return true;
 }
 
-bool CMapHandler::hideObject(CGObjectInstance *obj)
+bool CMapHandler::hideObject(const CGObjectInstance *obj)
 {
 	CDefHandler * curd = obj->defInfo->handler;
 	for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)

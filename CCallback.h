@@ -39,6 +39,7 @@ public:
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void endTurn()=0;
+	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)=0;
@@ -111,6 +112,7 @@ public:
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);
 	bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1);
 	void endTurn();
+	void swapGarrisonHero(const CGTownInstance *town);
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea);

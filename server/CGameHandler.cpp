@@ -666,6 +666,72 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 upgend:
 					break;
 				}
+			case 508: //garrison swap
+				{
+					si32 tid;
+					c >> tid;
+					CGTownInstance *town = gs->getTown(tid);
+					if(!town->garrisonHero && town->visitingHero) //visiting => garrison, merge armies
+					{
+						CCreatureSet csn = town->visitingHero->army, cso = town->army;
+						while(!cso.slots.empty())//while there are unmoved creatures
+						{
+							int pos = csn.getSlotFor(cso.slots.begin()->first);
+							if(pos<0)
+								goto handleConEnd;
+							if(csn.slots.find(pos)!=csn.slots.end()) //add creatures to the existing stack
+							{
+								csn.slots[pos].second += cso.slots.begin()->second.second;
+							}
+							else //move stack on the free pos
+							{
+								csn.slots[pos].first = cso.slots.begin()->second.first;
+								csn.slots[pos].second = cso.slots.begin()->second.second;
+							}
+							cso.slots.erase(cso.slots.begin());
+						}
+						SetGarrisons sg;
+						sg.garrs[town->visitingHero->id] = csn;
+						sg.garrs[town->id] = csn;
+						sendAndApply(&sg);
+
+						SetHeroesInTown intown;
+						intown.tid = tid;
+						intown.visiting = -1;
+						intown.garrison = town->visitingHero->id;
+						sendAndApply(&intown);
+					}
+					else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
+					{
+						//town will be empty
+						SetGarrisons sg;
+						sg.garrs[tid] = CCreatureSet();
+						sendAndApply(&sg);
+
+						SetHeroesInTown intown;
+						intown.tid = tid;
+						intown.garrison = -1;
+						intown.visiting =  town->garrisonHero->id;
+						sendAndApply(&intown);
+					}
+					else if (town->garrisonHero && town->visitingHero) //swap visiting and garrison hero
+					{
+						SetGarrisons sg;
+						sg.garrs[town->id] = town->visitingHero->army;
+						sendAndApply(&sg);
+
+						SetHeroesInTown intown;
+						intown.tid = tid;
+						intown.garrison = town->visitingHero->id;
+						intown.visiting =  town->garrisonHero->id;
+						sendAndApply(&intown);
+					}
+					else
+					{
+						std::cout << "Warning, wrong garrison swap command for " << tid << std::endl;
+					}
+					break;
+				}
 			case 2001:
 				{
 					ui32 qid, answer;
@@ -759,6 +825,8 @@ upgend:
 	{
 		end2 = true;
 	}
+handleConEnd:
+	;
 }
 void CGameHandler::moveStack(int stack, int dest)
 {							

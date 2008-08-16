@@ -91,9 +91,6 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	CDefHandler *flags;
 
 	//buttons
-	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general
-		* gar1button, * gar2button, * gar3button, //garrison / formation handling
-		* leftArtRoll, * rightArtRoll;
 	AdventureMapButton * gar4button; //splitting
 	//std::vector< AdventureMapButton<CHeroWindow> * > heroList; //list of heroes
 	std::vector<LClickableAreaHero *> heroListMi; //new better list of heroes
@@ -114,6 +111,9 @@ class CHeroWindow: public IActivable, public IShowable, public virtual CIntObjec
 	LRClickableAreaWText * spellPointsArea;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 public:
+	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general
+		* gar1button, * gar2button, * gar3button, //garrison / formation handling
+		* leftArtRoll, * rightArtRoll;
 	int player;
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor

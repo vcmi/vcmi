@@ -24,6 +24,8 @@ class CCreatureSet;
 class CGObjectInstance;
 class CSlider;
 struct UpgradeInfo;
+template <typename T> struct CondSh; 
+
 namespace boost
 {
 	class mutex;
@@ -158,8 +160,9 @@ public:
 };
 
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
-{ //window deletes its components when closed
+{ //window able to delete its components when closed
 public:
+	bool delComps; //whether comps will be deleted
 	std::vector<AdventureMapButton *> buttons;
 	std::vector<SComponent*> components;
 	virtual void close();
@@ -303,6 +306,7 @@ class CPlayerInterface : public CGameInterface
 {
 public:
 	//minor interfaces
+	CondSh<bool> *showingDialog;
 	boost::mutex *pim;
 	bool makingTurn;
 	SDL_Event * current;
@@ -311,7 +315,6 @@ public:
 	CCastleInterface * castleInt;
 	FPSmanager * mainFPSmng;
 	IStatusBar *statusbar;
-
 	//to commucate with engine
 	CCallback * cb;
 
@@ -339,6 +342,7 @@ public:
 	void garrisonChanged(const CGObjectInstance * obj);
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
+	void heroInGarrisonChange(const CGTownInstance *town);
 	//for battles
 	void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
@@ -367,7 +371,7 @@ public:
 	int3 repairScreenPos(int3 pos);
 	void removeObjToBlit(IShowable* obj);	
 	void showInfoDialog(std::string &text, std::vector<SComponent*> & components);
-	void showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur);
+	void showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor
@@ -521,17 +525,20 @@ public:
 class CCreInfoWindow : public IShowable, public KeyInterested, public ClickableR
 {
 public:
+	bool active;
 	int type;//0 - rclick popup; 1 - normal window
 	SDL_Surface *bitmap;
 	char anf;
+	std::string count; //creature count in text format
 
 	boost::function<void()> dsm;
 	CCreaturePic *anim;
 	CCreature *c;
 	CInfoWindow *dependant; //it may be dialog asking whther upgrade/dismiss stack (if opened)
+	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
-	CCreInfoWindow(int Cid, int Type, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui);
+	CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui);
 	~CCreInfoWindow();
 	void activate();
 	void close();

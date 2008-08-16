@@ -498,3 +498,9 @@ bool CCallback::battleCanShoot(int ID, int dest) //TODO: finish
 		return true;
 	return false;
 }
+
+void CCallback::swapGarrisonHero( const CGTownInstance *town )
+{
+	if(town->tempOwner != player) return;
+	*cl->serv << ui16(508) << si32(town->id);
+}

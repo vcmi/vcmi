@@ -337,6 +337,17 @@ void CClient::process(int what)
 			//TODO: do we need to inform interface? 
 			break;
 		}
+	case 508:
+		{
+			SetHeroesInTown inTown;
+			*serv >> inTown;
+			std::cout << "Setting heroes in town " << inTown.tid << std::endl;
+			gs->apply(&inTown);
+			CGTownInstance *t = gs->getTown(inTown.tid);
+			if(vstd::contains(playerint,t->tempOwner))
+				playerint[t->tempOwner]->heroInGarrisonChange(t);
+			break;
+		}
 	case 1001:
 		{
 			SetObjectProperty sop;

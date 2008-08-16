@@ -291,12 +291,12 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 			}
 		case 100: //give 1000 exp
 			{
-				cb->changePrimSkill(heroID,w,vvv);
 				InfoWindow iw;
 				iw.components.push_back(Component(0,4,vvv,0));
 				iw.player = cb->getHeroOwner(heroID);
 				iw.text << std::pair<ui8,ui32>(11,ot);
 				cb->showInfoDialog(&iw);
+				cb->changePrimSkill(heroID,w,vvv);
 				break;
 			}
 		}

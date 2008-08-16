@@ -518,7 +518,7 @@ void CHeroWindow::quit()
 	}
 	deactivate();
 
-	LOCPLINT->adventureInt->activate();
+	LOCPLINT->curint->activate();
 
 	SDL_FreeSurface(curBack);
 	curBack = NULL;
@@ -544,7 +544,7 @@ void CHeroWindow::quit()
 
 void CHeroWindow::activate()
 {
-	LOCPLINT->curint = this;
+	//LOCPLINT->curint = this;
 	quitButton->activate();
 	dismissButton->activate();
 	questlogButton->activate();

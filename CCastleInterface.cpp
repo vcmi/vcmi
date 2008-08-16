@@ -14,6 +14,9 @@
 #include "hch/CGeneralTextHandler.h"
 #include "CCallback.h"
 #include "client/Graphics.h"
+#include "CHeroWindow.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str), moi(false), offset(0)
@@ -170,7 +173,116 @@ void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	//if(border)
 	//	blitAt(border,pos.x,pos.y);
 }
+void CHeroGSlot::hover (bool on)
+{
+	if(!on) return;
+	CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
+	std::string temp;
+	if(hero)
+	{
+		if(highlight)//view NNN
+		{
+			temp = CGI->townh->tcommands[4];
+			boost::algorithm::replace_first(temp,"%s",hero->name);
+		}
+		else if(other->hero && other->highlight)//exchange
+		{
+			temp = CGI->townh->tcommands[7];
+			boost::algorithm::replace_first(temp,"%s",hero->name);
+			boost::algorithm::replace_first(temp,"%s",other->hero->name);
+		}
+		else// select NNN (in ZZZ)
+		{
+			if(upg)//down - visiting
+			{
+				temp = CGI->townh->tcommands[32];
+				boost::algorithm::replace_first(temp,"%s",hero->name);
+			}
+			else //up - garrison
+			{
+				temp = CGI->townh->tcommands[12];
+				boost::algorithm::replace_first(temp,"%s",hero->name);
+			}
+		}
+	}
+	else //we are empty slot
+	{
+		if(other->highlight && other->hero) //move NNNN
+		{
+			temp = CGI->townh->tcommands[6];
+			boost::algorithm::replace_first(temp,"%s",other->hero->name);
+		}
+		else //empty
+		{
+			temp = CGI->generaltexth->allTexts[507];
+		}
+	}
+	if(temp.size())
+		LOCPLINT->statusbar->print(temp);
+}
+void CHeroGSlot::clickRight (boost::logic::tribool down)
+{
 
+}
+void CHeroGSlot::clickLeft(boost::logic::tribool down)
+{
+	if(!down)
+	{
+		CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
+		if(hero && highlight)
+		{
+			highlight = false;
+			LOCPLINT->openHeroWindow(hero);
+			LOCPLINT->adventureInt->heroWindow->quitButton->callback += boost::bind(&CCastleInterface::showAll,owner,screen,true);
+		}
+		else if(hero)
+		{
+			highlight = true;
+			owner->showAll();
+		}
+		else if(other->hero, other->highlight)
+		{
+			other->highlight = highlight = false;
+			LOCPLINT->cb->swapGarrisonHero(owner->town);
+		}
+		hover(false);hover(true); //refresh statusbar
+	}
+}
+void CHeroGSlot::activate()
+{
+	ClickableL::activate();
+	ClickableR::activate();
+	Hoverable::activate();
+}
+void CHeroGSlot::deactivate()
+{
+	ClickableL::deactivate();
+	ClickableR::deactivate();
+	Hoverable::deactivate();
+}
+void CHeroGSlot::show()
+{
+	if(hero) //there is hero
+		blitAt(graphics->portraitLarge[hero->portrait],pos);
+	else if(!upg) //up garrison
+		blitAt((static_cast<CCastleInterface*>(LOCPLINT->curint))->flag->ourImages[(static_cast<CCastleInterface*>(LOCPLINT->curint))->town->getOwner()].bitmap,pos);
+	if(highlight)
+		blitAt(graphics->bigImgs[-1],pos);
+}
+CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, CCastleInterface * Owner)
+{
+	owner = Owner;
+	pos.x = x;
+	pos.y = y;
+	pos.w = 58;
+	pos.h = 64;
+	hero = h;
+	upg = updown;
+	highlight = false;
+}
+CHeroGSlot::~CHeroGSlot()
+{
+}
 std::string getBgName(int type) //TODO - co z tym zrobiæ?
 {
 	switch (type)
@@ -213,6 +325,7 @@ public:
 } srthlp ;
 
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
+:hslotup(241,387,0,Town->garrisonHero,this),hslotdown(241,483,1,Town->visitingHero,this)
 {
 	hall = NULL;
 	townInt = BitmapHandler::loadBitmap("TOWNSCRN.bmp");
@@ -375,7 +488,7 @@ void CCastleInterface::enterHall()
 	hallInt->activate();
 	hallInt->show();
 }
-void CCastleInterface::showAll(SDL_Surface * to)
+void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/, bool forceTotalRedraw /*= false*/)
 {
 	if (!to)
 		to=screen;
@@ -445,11 +558,15 @@ void CCastleInterface::showAll(SDL_Surface * to)
 		pom++;
 	blitAt(graphics->bigTownPic->ourImages[pom].bitmap,15,387,to);
 
-	//flag
-	if(town->getOwner()<PLAYER_LIMIT)
-		blitAt(flag->ourImages[town->getOwner()].bitmap,241,387,to);
+	hslotup.show();
+	hslotdown.show();
 
+	pom=false;
+	if(forceTotalRedraw && !showing)
+		pom = showing = true;
 	show();
+	if(pom)
+		showing = false;
 }
 void CCastleInterface::townChange()
 {
@@ -466,7 +583,7 @@ void CCastleInterface::show(SDL_Surface * to)
 	if (!to)
 		to=screen;
 	count++;
-	if(count==4)
+	if(count==8)
 	{
 		count=0;
 		animval++;
@@ -503,6 +620,8 @@ void CCastleInterface::activate()
 	split->activate();
 	for(int i=0;i<buildings.size();i++)
 		buildings[i]->activate();
+	hslotdown.activate();
+	hslotup.activate();
 }
 void CCastleInterface::deactivate()
 {
@@ -513,6 +632,8 @@ void CCastleInterface::deactivate()
 	split->deactivate();
 	for(int i=0;i<buildings.size();i++)
 		buildings[i]->deactivate();
+	hslotdown.deactivate();
+	hslotup.deactivate();
 }
 
 void CCastleInterface::addBuilding(int bid)

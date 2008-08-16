@@ -431,6 +431,27 @@ void CGameState::applyNL(IPack * pack)
 			static_cast<CGTownInstance*>(map->objects[sac->tid])->strInfo.creatures = sac->creatures;
 			break;
 		}
+	case 508:
+		{
+			SetHeroesInTown *sac = static_cast<SetHeroesInTown*>(pack);
+			CGTownInstance *t = getTown(sac->tid);
+			CGHeroInstance *v  = getHero(sac->visiting), *g = getHero(sac->garrison);
+			t->visitingHero = v;
+			t->garrisonHero = g;
+			if(v)
+			{
+				v->visitedTown = t;
+				v->inTownGarrison = false;
+				map->addBlockVisTiles(v);
+			}
+			if(g)
+			{
+				g->visitedTown = t;
+				g->inTownGarrison = true;
+				map->removeBlockVisTiles(g);
+			}
+			break;
+		}
 	case 1001://set object property
 		{
 			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);

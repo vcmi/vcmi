@@ -154,6 +154,16 @@ struct SetAvailableCreatures : public CPack<SetAvailableCreatures> //506
 		h & tid & creatures;
 	}
 };  
+struct SetHeroesInTown : public CPack<SetHeroesInTown> //508
+{
+	SetHeroesInTown(){type = 508;};
+	si32 tid, visiting, garrison; //id of town, visiting hero, hero in garrison
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tid & visiting & garrison;
+	}
+};  
 struct NewTurn : public CPack<NewTurn> //101
 {
 	struct Hero

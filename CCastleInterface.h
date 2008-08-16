@@ -28,6 +28,24 @@ public:
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 };
 
+class CHeroGSlot : public ClickableL, public ClickableR, public Hoverable
+{
+public:
+	CCastleInterface *owner;
+	const CGHeroInstance *hero;
+	int upg; //0 - up garrison, 1 - down garrison
+	bool highlight;
+
+	void hover (bool on);
+	void clickRight (boost::logic::tribool down);
+	void clickLeft(boost::logic::tribool down);
+	void activate();
+	void deactivate();
+	void show();
+	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h,CCastleInterface * Owner);
+	~CHeroGSlot();
+};
+
 class CCastleInterface : public IShowable, public IActivable
 {
 public:
@@ -44,6 +62,7 @@ public:
 	CDefEssential* bicons; //150x70 buildings imgs
 	CTownList * townlist;
 
+	CHeroGSlot hslotup, hslotdown;
 	CGarrisonInt * garr;
 	AdventureMapButton *exit;
 	AdventureMapButton *split;
@@ -54,7 +73,7 @@ public:
 	~CCastleInterface();
 	void townChange();
 	void show(SDL_Surface * to=NULL);
-	void showAll(SDL_Surface * to=NULL);
+	void showAll(SDL_Surface * to=NULL, bool forceTotalRedraw = false);
 	void buildingClicked(int building);
 	void enterHall();
 	void close();
