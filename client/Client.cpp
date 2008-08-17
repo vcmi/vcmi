@@ -199,7 +199,8 @@ void CClient::process(int what)
 			std::vector<Component*> comps;
 			for(int i=0;i<iw.components.size();i++)
 				comps.push_back(&iw.components[i]);
-			playerint[iw.player]->showInfoDialog(toString(iw.text),comps);
+			std::string str = toString(iw.text);
+			playerint[iw.player]->showInfoDialog(str,comps);
 			break;
 		}
 	case 104:
@@ -374,7 +375,10 @@ void CClient::process(int what)
 			gs->apply(&bs);
 			CGHeroInstance *h = gs->getHero(bs.heroid);
 			if(vstd::contains(playerint,h->tempOwner))
-				playerint[h->tempOwner]->heroGotLevel(h,bs.primskill,bs.skills,boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,cb,_1,bs.id)));
+			{
+				boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,cb,_1,bs.id));
+				playerint[h->tempOwner]->heroGotLevel((const CGHeroInstance *)h,(int)bs.primskill,bs.skills, callback);
+			}
 			break;
 		}
 	case 2001:
@@ -385,7 +389,8 @@ void CClient::process(int what)
 			std::vector<Component*> comps;
 			for(int i=0;i<sd.components.size();i++)
 				comps.push_back(&sd.components[i]);
-			playerint[sd.player]->showSelDialog(toString(sd.text),comps,sd.id);
+			std::string str = toString(sd.text);
+			playerint[sd.player]->showSelDialog(str,comps,sd.id);
 			break;
 		}
 	case 3000:

@@ -3170,7 +3170,8 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 				fs[1] += boost::bind(&CCastleInterface::showAll,pom,screen,true);
 			}
 			fs[1] += boost::bind(&CCreInfoWindow::activate,this);
-			CFunctionList<void()> cfl = boost::bind(&CCreInfoWindow::deactivate,this);
+			CFunctionList<void()> cfl;
+			cfl = boost::bind(&CCreInfoWindow::deactivate,this);
 			cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false,false);
 			upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF");
 		}
@@ -3187,7 +3188,8 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 				fs[1] += boost::bind(&CCastleInterface::showAll,pom,screen,true);
 			}
 			fs[1] += boost::bind(&CCreInfoWindow::activate,this);
-			CFunctionList<void()> cfl = boost::bind(&CCreInfoWindow::deactivate,this);
+			CFunctionList<void()> cfl;
+		        cfl = boost::bind(&CCreInfoWindow::deactivate,this);
 			cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false,false);
 			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,cfl,pos.x+21,pos.y+237,"IVIEWCR2.DEF");
 		}

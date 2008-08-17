@@ -19,6 +19,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
+#include <cmath>
 using namespace boost::assign;
 using namespace CSDL_Ext;
 

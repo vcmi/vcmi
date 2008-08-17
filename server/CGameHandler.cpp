@@ -234,7 +234,8 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 			{
 				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 			}
-			applyAndAsk(&hlu,hero->tempOwner,boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::changeSecSkill,this,ID,_1,1,0)),_1))); //call changeSecSkill with appropriate args when client responds
+			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::changeSecSkill,this,ID,_1,1,0)),_1));
+			applyAndAsk(&hlu,hero->tempOwner,callback); //call changeSecSkill with appropriate args when client responds
 		}
 	}
 }
@@ -1054,7 +1055,7 @@ void CGameHandler::run()
 #else
 				boost::xtime time={0,0};
 				time.sec = static_cast<boost::xtime::xtime_sec_t>(p.total_seconds());
-				cTurn.timed_wait(lock,time);
+				states.cv.timed_wait(lock,time);
 #endif
 			}
 		}

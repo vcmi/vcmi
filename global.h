@@ -115,7 +115,7 @@ namespace vstd
 	template <typename Container, typename Item>
 	bool operator-=(Container &c, const Item &i)
 	{
-		Container::iterator itr = find(c,i);
+		typename Container::iterator itr = find(c,i);
 		if(itr == c.end())
 			return false;
 		c.erase(itr);
