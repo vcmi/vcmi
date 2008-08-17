@@ -35,6 +35,7 @@ class IShowable
 {
 public:
 	virtual void show(SDL_Surface * to = NULL)=0;
+	virtual ~IShowable(){};
 };
 
 class IStatusBar
@@ -54,7 +55,11 @@ public:
 	virtual void deactivate()=0;
 	virtual ~IActivable(){};
 };
-
+class IShowActivable : public IShowable, public IActivable
+{
+public:
+	virtual ~IShowActivable(){};
+};
 class CIntObject //interface object
 {
 public:
@@ -458,12 +463,13 @@ public:
 	void draw();
 };
 
-class CCreaturePic //draws 100x130 picture with creature on background, use nextFrame=true to get animation
+class CCreaturePic //draws picture with creature on background, use nextFrame=true to get animation
 {
 public:
+	bool big; //big => 100x130; !big => 100x120
 	CCreature *c;
 	CCreatureAnimation *anim;
-	CCreaturePic(CCreature *cre);
+	CCreaturePic(CCreature *cre, bool Big=true);
 	~CCreaturePic();
 	int blitPic(SDL_Surface *to, int x, int y, bool nextFrame);
 	SDL_Surface * getPic(bool nextFrame);
@@ -567,6 +573,15 @@ public:
 	void deactivate();
 	void selectionChanged(unsigned to);
 	void show(SDL_Surface * to = NULL);
+};
+
+class CMinorResDataBar : public IShowable, public CIntObject
+{
+public:
+	SDL_Surface *bg;
+	void show(SDL_Surface * to=NULL);
+	CMinorResDataBar();
+	~CMinorResDataBar();
 };
 
 extern CPlayerInterface * LOCPLINT;

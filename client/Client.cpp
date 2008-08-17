@@ -255,14 +255,14 @@ void CClient::process(int what)
 			RemoveObject rh;
 			*serv >> rh;
 			CGObjectInstance *obj = gs->map->objects[rh.id];
+			CGI->mh->removeObject(obj);
+			gs->apply(&rh);
 			if(obj->ID == 34)
 			{
-				CGHeroInstance *h = static_cast<CGHeroInstance*>(gs->map->objects[rh.id]);
+				CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
 				std::cout << "Removing hero with id = "<<(unsigned)rh.id<<std::endl;
 				playerint[h->tempOwner]->heroKilled(h);
 			}
-			CGI->mh->removeObject(obj);
-			gs->apply(&rh);
 			break;
 		}
 	case 501: //hero movement response - we have to notify interfaces and callback

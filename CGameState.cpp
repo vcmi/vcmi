@@ -376,6 +376,14 @@ void CGameState::applyNL(IPack * pack)
 				int player = h->tempOwner;
 				nitr = std::find(players[player].heroes.begin(), players[player].heroes.end(), h);
 				players[player].heroes.erase(nitr);
+				if(h->visitedTown)
+				{
+					if(h->inTownGarrison)
+						h->visitedTown->garrisonHero = NULL;
+					else
+						h->visitedTown->visitingHero = NULL;
+					h->visitedTown = NULL;
+				}
 			}
 			map->objects[rh->id] = NULL;	
 

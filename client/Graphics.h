@@ -15,6 +15,7 @@ public:
 	SDL_Color * neutralColor;
 	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
 	SDL_Surface * hInfo, *tInfo; //hero and town infobox bgs
+	SDL_Surface *heroInGarrison; //icon for town infobox
 	std::vector<std::pair<int, int> > slotsPos; //creature slot positions in infoboxes
 	CDefEssential *luck22, *luck30, *luck42, *luck82,
 		*morale22, *morale30, *morale42, *morale82,
@@ -33,6 +34,7 @@ public:
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> backgrounds; //castle ID -> 100x130 background creature image // -1 is for neutral
+	std::map<int,SDL_Surface*> backgroundsm; //castle ID -> 100x120 background creature image // -1 is for neutral
 	//for battles
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle

@@ -712,8 +712,8 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 	else if (specific->ID == 98)
 	{
 		const CGTownInstance * t = static_cast<const CGTownInstance*>(specific);
-		if(graphics->townWins.find(t->identifier)!=graphics->townWins.end())
-			blitAt(graphics->townWins[t->identifier],pos.x,pos.y);
+		if(graphics->townWins.find(t->id)!=graphics->townWins.end())
+			blitAt(graphics->townWins[t->id],pos.x,pos.y);
 	}
 
 	//SDL_Surface * todr = LOCPLINT->infoWin(specific);

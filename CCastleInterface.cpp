@@ -14,9 +14,14 @@
 #include "hch/CGeneralTextHandler.h"
 #include "CCallback.h"
 #include "client/Graphics.h"
+#include "client/CCreatureAnimation.h"
 #include "CHeroWindow.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/assign/std/vector.hpp> 
+using namespace boost::assign;
+using namespace CSDL_Ext;
+
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
 :str(Str), moi(false), offset(0)
@@ -456,23 +461,21 @@ void CCastleInterface::buildingClicked(int building)
 	}
 	if(building >= 30)
 	{
-		if(building>36)
-			building-=7;
-		std::vector<std::pair<int,int > > crs;
-		int amount = (const_cast<CGTownInstance*>(town))->strInfo.creatures[building-30]; //trzeba odconstowac, bo inaczej operator [] by sypal :(
-
-		if(town->builtBuildings.find(building+7) != town->builtBuildings.end()) //check if there is an upgraded building
-			crs.push_back(std::make_pair(town->town->upgradedCreatures[building-30],amount));
-
-		crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
-
-		CRecrutationWindow *rw = new CRecrutationWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
-		rw->activate();
+		LOCPLINT->curint->deactivate();
+		showRecruitmentWindow(building);
 	}
 	else
 	{
 		switch(building)
 		{
+		case 7: case 8: case 9:
+			{
+				CFortScreen *fs = new CFortScreen(this);
+				deactivate();
+				fs->activate();
+				fs->show();
+				break;
+			}
 		case 10: case 11: case 12: case 13:
 			enterHall();
 			break;
@@ -484,9 +487,10 @@ void CCastleInterface::buildingClicked(int building)
 void CCastleInterface::enterHall()
 {
 	deactivate();
-	hallInt = new CHallInterface(this);
-	hallInt->activate();
-	hallInt->show();
+	CHallInterface *h = new CHallInterface(this);
+	subInt = h;
+	h->activate();
+	h->show();
 }
 void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/, bool forceTotalRedraw /*= false*/)
 {
@@ -767,46 +771,23 @@ void CCastleInterface::recreateBuildings()
 		}
 	}
 }
-void CHallInterface::CResDataBar::show(SDL_Surface * to)
-{
-	blitAt(bg,pos.x,pos.y);
-	char * buf = new char[15];
-	for (int i=0;i<7;i++)
-	{
-		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,GEOR13,zwykly);
-	}
-	std::vector<std::string> temp;
-	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
-	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp.push_back(buf);
-	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp.push_back(buf);
-	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(
-		CGI->generaltexth->allTexts[62]
-			+": %s, "
-			+ CGI->generaltexth->allTexts[63]
-			+ ": %s, "
-			+	CGI->generaltexth->allTexts[64]
-			+ ": %s",temp)
-		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,GEOR13,zwykly);
-	temp.clear();
-	//updateRect(&pos,screen);
-	delete[] buf;
-}
-CHallInterface::CResDataBar::CResDataBar()
-{
-	bg = BitmapHandler::loadBitmap("Z2ESBAR.bmp");
-	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
-	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	pos.x = 7;
-	pos.y = 575;
-	pos.w = bg->w;
-	pos.h = bg->h;
-}
-CHallInterface::CResDataBar::~CResDataBar()
-{
-	SDL_FreeSurface(bg);
-}
 
+CRecrutationWindow * CCastleInterface::showRecruitmentWindow( int building )
+{
+	if(building>36)
+		building-=7;
+	std::vector<std::pair<int,int > > crs;
+	int amount = (const_cast<CGTownInstance*>(town))->strInfo.creatures[building-30]; //trzeba odconstowac, bo inaczej operator [] by sypal :(
+
+	if(town->builtBuildings.find(building+7) != town->builtBuildings.end()) //check if there is an upgraded building
+		crs.push_back(std::make_pair(town->town->upgradedCreatures[building-30],amount));
+
+	crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
+
+	CRecrutationWindow *rw = new CRecrutationWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
+	rw->activate();	
+	return rw;
+}
 void CHallInterface::CBuildingBox::hover(bool on)
 {
 	Hoverable::hover(on);
@@ -828,7 +809,7 @@ void CHallInterface::CBuildingBox::clickLeft (tribool down)
 {
 	if(pressedL && (!down))
 	{
-		LOCPLINT->castleInt->hallInt->deactivate();
+		LOCPLINT->castleInt->subInt->deactivate();
 		new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,0);
 	}
 	ClickableL::clickLeft(down);
@@ -837,13 +818,14 @@ void CHallInterface::CBuildingBox::clickRight (tribool down)
 {
 	if(down)
 	{
-		LOCPLINT->castleInt->hallInt->deactivate();
+		LOCPLINT->castleInt->subInt->deactivate();
 		new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,1);
 	}
 	ClickableR::clickRight(down);
 }
 void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 {
+	CHallInterface *hi = static_cast<CHallInterface*>(LOCPLINT->castleInt->subInt);
 	blitAt(LOCPLINT->castleInt->bicons->ourImages[BID].bitmap,pos.x,pos.y);
 	int pom, pom2=-1;
 	switch (state)
@@ -867,10 +849,10 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 		pom = 3;
 		break;
 	}
-	blitAt(LOCPLINT->castleInt->hallInt->bars->ourImages[pom].bitmap,pos.x-1,pos.y+71);
+	blitAt(hi->bars->ourImages[pom].bitmap,pos.x-1,pos.y+71);
 	if(pom2>=0)
-		blitAt(LOCPLINT->castleInt->hallInt->status->ourImages[pom2].bitmap,pos.x+135, pos.y+54);
-	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->name,pos.x-1+LOCPLINT->castleInt->hallInt->bars->ourImages[0].bitmap->w/2,pos.y+71+LOCPLINT->castleInt->hallInt->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly);
+		blitAt(hi->status->ourImages[pom2].bitmap,pos.x+135, pos.y+54);
+	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->name,pos.x-1+hi->bars->ourImages[0].bitmap->w/2,pos.y+71+hi->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly);
 }
 void CHallInterface::CBuildingBox::activate()
 {
@@ -1052,19 +1034,19 @@ void CHallInterface::CBuildWindow::deactivate()
 void CHallInterface::CBuildWindow::Buy()
 {
 	deactivate();
-	LOCPLINT->castleInt->hallInt = NULL;
+	LOCPLINT->castleInt->subInt = NULL;
 	LOCPLINT->castleInt->activate();
 	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,bid);
 	delete this;
-	delete LOCPLINT->castleInt->hallInt;
+	delete LOCPLINT->castleInt->subInt;
 	LOCPLINT->castleInt->showAll();
 }
 void CHallInterface::CBuildWindow::close()
 {
 	deactivate();
 	delete this;
-	LOCPLINT->castleInt->hallInt->activate();
-	LOCPLINT->castleInt->hallInt->show();
+	LOCPLINT->castleInt->subInt->activate();
+	LOCPLINT->castleInt->subInt->show();
 }
 void CHallInterface::CBuildWindow::clickRight (tribool down)
 {
@@ -1199,4 +1181,160 @@ CHallInterface::CBuildWindow::~CBuildWindow()
 		delete buy;
 		delete cancel;
 	}
+}
+
+
+CFortScreen::~CFortScreen()
+{
+	for(int i=0;i<crePics.size();i++)
+		delete crePics[i];
+	for (int i=0;i<recAreas.size();i++)
+		delete recAreas[i];
+	SDL_FreeSurface(bg);
+	delete exit;
+}
+
+void CFortScreen::show( SDL_Surface * to)
+{
+	blitAt(bg,0,0);
+	static unsigned char anim = 1;
+	for (int i=0; i<CREATURES_PER_TOWN; i++)
+	{
+		crePics[i]->blitPic(screen,positions[i].x+159,positions[i].y+4,!(anim%4));
+	}
+	anim++;
+	exit->show();
+}
+
+void CFortScreen::activate()
+{
+	LOCPLINT->curint = this;
+	exit->activate();
+	for (int i=0;i<recAreas.size();i++)
+	{
+		recAreas[i]->activate();
+	}
+	LOCPLINT->objsToBlit -= LOCPLINT->castleInt;
+	LOCPLINT->objsToBlit += this;
+}
+
+void CFortScreen::deactivate()
+{
+	exit->deactivate();
+	for (int i=0;i<recAreas.size();i++)
+	{
+		recAreas[i]->deactivate();
+	}
+	LOCPLINT->objsToBlit -= this;
+	LOCPLINT->objsToBlit += LOCPLINT->castleInt;
+}
+
+void CFortScreen::close()
+{
+	deactivate();
+	delete this;
+	LOCPLINT->castleInt->activate();
+	LOCPLINT->castleInt->showAll();
+}
+CFortScreen::CFortScreen( CCastleInterface * owner )
+{
+	bg = NULL;
+	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CFortScreen::close,this),748,556,"TPMAGE1.DEF",false,NULL,false);
+	positions += genRect(126,386,10,22),genRect(126,386,404,22),
+		genRect(126,386,10,155),genRect(126,386,404,155),
+		genRect(126,386,10,288),genRect(126,386,404,288),
+		genRect(126,386,206,421);//genRect(126,386,10,421),genRect(126,386,404,421);
+	draw(owner,true);
+}
+
+void CFortScreen::draw( CCastleInterface * owner, bool first)
+{
+	if(bg)
+		SDL_FreeSurface(bg);
+	char buf[20];
+	memset(buf,0,20);
+	SDL_Surface *bg2 = BitmapHandler::loadBitmap("TPCASTL7.bmp"),
+		*icons =  BitmapHandler::loadBitmap("ZPCAINFO.bmp");
+	SDL_SetColorKey(icons,SDL_SRCCOLORKEY,SDL_MapRGB(icons->format,0,255,255));
+	graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
+	bg = SDL_ConvertSurface(bg2,screen->format,0); 
+	SDL_FreeSurface(bg2);
+	printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->name,400,13,GEORXX,zwykly,bg);
+	for(int i=0;i<CREATURES_PER_TOWN; i++)
+	{
+		bool upgraded = owner->town->creatureDwelling(i,true);
+		bool present = owner->town->creatureDwelling(i,false);
+		CCreature *c = &CGI->creh->creatures[upgraded ? owner->town->town->upgradedCreatures[i] : owner->town->town->basicCreatures[i]];
+		printAtMiddle(c->namePl,positions[i].x+79,positions[i].y+10,GEOR13,zwykly,bg); //cr. name
+		blitAt(owner->bicons->ourImages[30+i+upgraded*7].bitmap,positions[i].x+4,positions[i].y+21,bg); //dwelling pic
+		printAtMiddle(CGI->buildh->buildings[owner->town->subID][30+i+upgraded*7]->name,positions[i].x+79,positions[i].y+100,GEOR13,zwykly,bg); //dwelling name
+		if(present) //if creature is present print avail able quantity
+		{
+			SDL_itoa(owner->town->strInfo.creatures.find(i)->second,buf,10);
+			printAtMiddle(CGI->generaltexth->allTexts[217] + buf,positions[i].x+79,positions[i].y+118,GEOR13,zwykly,bg);
+		}
+		blitAt(icons,positions[i].x+261,positions[i].y+3,bg);
+
+		//atttack
+		printAt(CGI->generaltexth->allTexts[190],positions[i].x+288,positions[i].y+5,GEOR13,zwykly,bg);
+		SDL_itoa(c->attack,buf,10);
+		printToWR(buf,positions[i].x+381,positions[i].y+18,GEOR13,zwykly,bg);
+
+		//defense
+		printAt(CGI->generaltexth->allTexts[191],positions[i].x+288,positions[i].y+25,GEOR13,zwykly,bg);
+		SDL_itoa(c->defence,buf,10);
+		printToWR(buf,positions[i].x+381,positions[i].y+38,GEOR13,zwykly,bg);
+
+		//damage
+		printAt(CGI->generaltexth->allTexts[199],positions[i].x+288,positions[i].y+46,GEOR13,zwykly,bg);
+		SDL_itoa(c->damageMin,buf,10);
+		int hlp=log10f(c->damageMin)+2;
+		buf[hlp-1]=' '; buf[hlp]='-'; buf[hlp+1]=' ';
+		SDL_itoa(c->damageMax,buf+hlp+2,10);
+		printToWR(buf,positions[i].x+381,positions[i].y+59,GEOR13,zwykly,bg);
+
+		//health
+		printAt(CGI->preth->zelp[439].first,positions[i].x+288,positions[i].y+66,GEOR13,zwykly,bg);
+		SDL_itoa(c->hitPoints,buf,10);
+		printToWR(buf,positions[i].x+381,positions[i].y+79,GEOR13,zwykly,bg);
+
+		//speed
+		printAt(CGI->preth->zelp[441].first,positions[i].x+288,positions[i].y+87,GEOR13,zwykly,bg);
+		SDL_itoa(c->speed,buf,10);
+		printToWR(buf,positions[i].x+381,positions[i].y+100,GEOR13,zwykly,bg);
+
+		if(present)//growth
+		{
+			printAt(CGI->generaltexth->allTexts[194],positions[i].x+288,positions[i].y+107,GEOR13,zwykly,bg);
+			SDL_itoa(owner->town->creatureGrowth(i),buf,10);
+			printToWR(buf,positions[i].x+381,positions[i].y+120,GEOR13,zwykly,bg);
+		}
+		if(first)
+		{
+			crePics.push_back(new CCreaturePic(c,false));
+			if(present)
+			{
+				recAreas.push_back(new RecArea(30+i+upgraded*7));
+				recAreas[recAreas.size()-1]->pos = positions[i];
+			}
+		}
+	}
+	SDL_FreeSurface(icons);
+}
+void CFortScreen::RecArea::clickLeft (tribool down)
+{
+	if(!down)
+	{
+		LOCPLINT->curint->deactivate();
+		CRecrutationWindow *rw = LOCPLINT->castleInt->showRecruitmentWindow(bid);
+		rw->buy->callback += boost::bind(&CFortScreen::draw, static_cast<CFortScreen*>(LOCPLINT->curint), LOCPLINT->castleInt, false);
+	}
+}
+void CFortScreen::RecArea::activate()
+{
+	ClickableL::activate();
+}
+void CFortScreen::RecArea::deactivate()
+{
+	ClickableL::deactivate();
 }

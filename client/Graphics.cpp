@@ -84,6 +84,8 @@ SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 		pom += F_NUMBER*2;
 	if(curh->builded >= MAX_BUILDING_PER_TURN)
 		pom++;
+	if(curh->garrisonHero)
+		blitAt(graphics->heroInGarrison,158,87,ret);
 	blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
 	delete[] buf;
 	return ret;
@@ -161,6 +163,7 @@ Graphics::Graphics()
 	tasks += boost::bind(&Graphics::initializeBattleGraphics,this);
 	tasks += GET_SURFACE(hInfo,"HEROQVBK.bmp");
 	tasks += GET_SURFACE(tInfo,"TOWNQVBK.bmp");
+	tasks += GET_SURFACE(heroInGarrison,"TOWNQKGH.bmp");
 	tasks += GET_DEF(artDefs,"ARTIFACT.DEF");
 	tasks += GET_DEF_ESS(forts,"ITMCLS.DEF");
 	tasks += GET_DEF_ESS(luck22,"ILCK22.DEF");
@@ -189,6 +192,8 @@ Graphics::Graphics()
 	{
 		ifs >> id >> name;
 		tasks += GET_SURFACE(backgrounds[id],name);
+		name.replace(0,5,"TPCAS");
+		tasks += GET_SURFACE(backgroundsm[id],name);
 	}
 
 	CThreadHelper th(&tasks,std::max((unsigned int)1,boost::thread::hardware_concurrency()));

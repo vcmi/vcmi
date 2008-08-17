@@ -55,7 +55,7 @@ public:
 	SDL_Surface * cityBg;
 	const CGTownInstance * town;
 	CStatusBar * statusbar;
-	CHallInterface * hallInt;
+	IShowActivable * subInt;
 	unsigned char animval, count;
 
 	CDefHandler *hall,*fort, *flag;
@@ -75,6 +75,8 @@ public:
 	void show(SDL_Surface * to=NULL);
 	void showAll(SDL_Surface * to=NULL, bool forceTotalRedraw = false);
 	void buildingClicked(int building);
+
+	CRecrutationWindow * showRecruitmentWindow(int building);
 	void enterHall();
 	void close();
 	void splitF();
@@ -84,18 +86,10 @@ public:
 	void removeBuilding(int bid);
 	void recreateBuildings();
 };
-
-class CHallInterface : public IShowable, public IActivable
+class CHallInterface : public IShowActivable
 {
 public:
-	class CResDataBar : public IShowable, public CIntObject
-	{
-	public:
-		SDL_Surface *bg;
-		void show(SDL_Surface * to=NULL);
-		CResDataBar();
-		~CResDataBar();
-	} resdatabar;
+	CMinorResDataBar resdatabar;
 
 	class CBuildingBox : public Hoverable, public ClickableL, public ClickableR
 	{
@@ -144,6 +138,35 @@ public:
 
 	CHallInterface(CCastleInterface * owner);
 	~CHallInterface();
+	void close();
+	void show(SDL_Surface * to=NULL);
+	void activate();
+	void deactivate();
+};
+
+class CFortScreen : public IShowActivable
+{
+	class RecArea : public ClickableL
+	{
+	public:
+		int bid;
+		RecArea(int BID):bid(BID){};
+		void clickLeft (tribool down);
+		void activate();
+		void deactivate();
+	};
+public:
+	CMinorResDataBar resdatabar;
+	AdventureMapButton *exit;
+	SDL_Surface * bg;
+	std::vector<SDL_Rect> positions;
+	std::vector<RecArea*> recAreas;
+	std::vector<CCreaturePic*> crePics;
+
+	CFortScreen(CCastleInterface * owner);
+
+	void draw( CCastleInterface * owner, bool first);
+	~CFortScreen();
 	void close();
 	void show(SDL_Surface * to=NULL);
 	void activate();

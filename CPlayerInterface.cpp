@@ -410,12 +410,18 @@ void CGarrisonInt::recreateSlots()
 {
 	splitting = false;
 	highlighted = NULL;
-	deactiveteSlots();
+	if(active)
+	{
+		deactiveteSlots();
+	}
 	deleteSlots();
 	createSlots();
-	ignoreEvent = true;
-	activeteSlots();
-	show();
+	if(active)
+	{
+		ignoreEvent = true;
+		activeteSlots();
+		show();
+	}
 }
 void CGarrisonInt::splitClick()
 {
@@ -438,6 +444,7 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, 
 	:interx(inx),intery(iny),sur(pomsur),highlighted(NULL),sup(NULL),sdown(NULL),oup(s1),odown(s2),
 	offx(OX),offy(OY)
 {
+	active = false;
 	splitting = false;
 	set1 = LOCPLINT->cb->getGarrison(s1);
 	set2 = LOCPLINT->cb->getGarrison(s2);
@@ -452,6 +459,7 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, 
 
 void CGarrisonInt::activate()
 {
+	active = true;
 	if(sup)
 	{
 		for(int i = 0; i<sup->size(); i++)
@@ -467,6 +475,7 @@ void CGarrisonInt::activate()
 }
 void CGarrisonInt::deactivate()
 {
+	active = false;
 	deactiveteSlots();
 }
 
@@ -999,7 +1008,7 @@ void CPlayerInterface::init(ICallback * CB)
 	for(int i=0;i<tt.size();i++)
 	{
 		SDL_Surface * pom = infoWin(tt[i]);
-		graphics->townWins.insert(std::pair<int,SDL_Surface*>(tt[i]->identifier,pom));
+		graphics->townWins.insert(std::pair<int,SDL_Surface*>(tt[i]->id,pom));
 	}
 }
 void CPlayerInterface::yourTurn()
@@ -1956,19 +1965,23 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
 	boost::unique_lock<boost::mutex> un(*pim);
 	//redraw infowindow
-	SDL_FreeSurface(graphics->townWins[town->subID]);
-	graphics->townWins[town->subID] = infoWin(town);
+	SDL_FreeSurface(graphics->townWins[town->id]);
+	graphics->townWins[town->id] = infoWin(town);
 	if(town->garrisonHero)
 	{
 		CGI->mh->hideObject(town->garrisonHero);
-		for(int i=0; i<adventureInt->heroList.items.size();i++)
+		if(adventureInt->heroList.items.size()==1) //it was the only hero
+			adventureInt->townList.select(0);
+		else
 		{
-			if(adventureInt->heroList.items[i].first == town->garrisonHero)
+			for(int i=0; i<adventureInt->heroList.items.size();i++)
 			{
-				adventureInt->heroList.items.erase(adventureInt->heroList.items.begin()+i);
-				if(adventureInt->heroList.selected >= adventureInt->heroList.items.size())
-					adventureInt->heroList.selected--;
-				break;
+				if(adventureInt->heroList.items[i].first == town->garrisonHero)
+				{
+					adventureInt->heroList.items.erase(adventureInt->heroList.items.begin()+i);
+						adventureInt->heroList.selected = adventureInt->heroList.items.size()-1;
+					break;
+				}
 			}
 		}
 	}
@@ -2011,7 +2024,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			hw->garInt->recreateSlots();
 			hw->garInt->show();
 		}
-		else if(castleInt == curint) //opened town window - redraw town garrsion slots (change is within hero garr)
+		else if(castleInt) //opened town window - redraw town garrsion slots (change is within hero garr)
 		{
 			castleInt->garr->highlighted = NULL;
 			castleInt->garr->recreateSlots();
@@ -2021,17 +2034,16 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 	else if (obj->ID == 98) //town
 	{
 		const CGTownInstance * tt;
-		if(tt = dynamic_cast<const CGTownInstance*>(obj))
+		if(tt = static_cast<const CGTownInstance*>(obj))
 		{
-			SDL_FreeSurface(graphics->townWins[tt->identifier]);
-			graphics->townWins[tt->identifier] = infoWin(tt);
+			SDL_FreeSurface(graphics->townWins[tt->id]);
+			graphics->townWins[tt->id] = infoWin(tt);
 		}
 
-		const CCastleInterface *ci = dynamic_cast<CCastleInterface*>(curint);
-		if(ci)
+		if(LOCPLINT->castleInt)
 		{
-			ci->garr->highlighted = NULL;
-			ci->garr->recreateSlots();
+			LOCPLINT->castleInt->garr->highlighted = NULL;
+			LOCPLINT->castleInt->garr->recreateSlots();
 		}
 	}
 }
@@ -2689,7 +2701,7 @@ void CTownList::clickRight(tribool down)
 		}
 
 		//show popup
-		CInfoPopup * ip = new CInfoPopup(graphics->townWins[items[from+ny]->identifier],LOCPLINT->current->motion.x-graphics->townWins[items[from+ny]->identifier]->w,LOCPLINT->current->motion.y-graphics->townWins[items[from+ny]->identifier]->h,false);
+		CInfoPopup * ip = new CInfoPopup(graphics->townWins[items[from+ny]->id],LOCPLINT->current->motion.x-graphics->townWins[items[from+ny]->id]->w,LOCPLINT->current->motion.y-graphics->townWins[items[from+ny]->id]->h,false);
 		ip->activate();
 	}
 	else
@@ -2737,8 +2749,8 @@ void CTownList::draw()
 }
 
 
-CCreaturePic::CCreaturePic(CCreature *cre)
-:c(cre)
+CCreaturePic::CCreaturePic(CCreature *cre, bool Big)
+:c(cre),big(Big)
 {
 	anim = new CCreatureAnimation(cre->animDefName);
 }
@@ -2748,8 +2760,17 @@ CCreaturePic::~CCreaturePic()
 }
 int CCreaturePic::blitPic(SDL_Surface *to, int x, int y, bool nextFrame)
 {
-	blitAt(graphics->backgrounds[c->faction],x,y);//curx-50,pos.y+130-65);
-	SDL_Rect dst = genRect(130,100,x,y);
+	SDL_Rect dst;
+	if(big)
+	{
+		blitAt(graphics->backgrounds[c->faction],x,y);//curx-50,pos.y+130-65);
+		dst = genRect(130,100,x,y);
+	}
+	else
+	{
+		blitAt(graphics->backgroundsm[c->faction],x,y);//curx-50,pos.y+130-65);
+		dst = genRect(120,100,x,y);
+	}
 	if(c->isDoubleWide())
 		x-=15;
 	return anim->nextFrameMiddle(to,x+70,y+45,true,nextFrame,false,&dst);
@@ -2921,10 +2942,7 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 	max = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF");
 	buy = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF");
 	cancel = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF");
-	LOCPLINT->curint->deactivate();
-	//AdventureMapButton( std::string Name, std::string HelpBox, void(T::*Function)(),
-	//int x, int y, std::string defName, T* Owner, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = true );//c-tor
-}//(int x, int y, int totalw, T*Owner,void(T::*Moved)(int to), int Capacity, int Amount, int Value, bool Horizontal)
+}
 CRecrutationWindow::~CRecrutationWindow()
 {
 	for(int i=0;i<creatures.size();i++)
@@ -3350,4 +3368,44 @@ void CLevelWindow::show(SDL_Surface * to)
 	ok->show();
 	for(int i=0;i<comps.size();i++)
 		comps[i]->show();
+}
+
+void CMinorResDataBar::show(SDL_Surface * to)
+{
+	blitAt(bg,pos.x,pos.y);
+	char * buf = new char[15];
+	for (int i=0;i<7;i++)
+	{
+		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
+		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,GEOR13,zwykly);
+	}
+	std::vector<std::string> temp;
+	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
+	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp.push_back(buf);
+	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp.push_back(buf);
+	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(
+		CGI->generaltexth->allTexts[62]
+	+": %s, "
+		+ CGI->generaltexth->allTexts[63]
+	+ ": %s, "
+		+	CGI->generaltexth->allTexts[64]
+	+ ": %s",temp)
+		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,GEOR13,zwykly);
+	temp.clear();
+	//updateRect(&pos,screen);
+	delete[] buf;
+}
+CMinorResDataBar::CMinorResDataBar()
+{
+	bg = BitmapHandler::loadBitmap("Z2ESBAR.bmp");
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
+	pos.x = 7;
+	pos.y = 575;
+	pos.w = bg->w;
+	pos.h = bg->h;
+}
+CMinorResDataBar::~CMinorResDataBar()
+{
+	SDL_FreeSurface(bg);
 }
