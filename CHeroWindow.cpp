@@ -1052,11 +1052,8 @@ void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
-		#if !defined(__amigaos4__) && !defined(__unix__)
-		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
-		#else
-		#warning error here!
-		#endif
+		std::vector<SComponent*> comp;
+		LOCPLINT->showInfoDialog(text, comp);
 	}
 }
 void LRClickableAreaWText::clickRight(boost::logic::tribool down)
@@ -1100,11 +1097,8 @@ void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
 {
 	if((!down) && pressedL)
 	{
-#if !defined(__amigaos4__) && !defined(__unix__)
-		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(1, new SComponent(SComponent::Etype(baseType), type, bonus)));
-#else
-#warning error here!
-#endif
+		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonus));
+		LOCPLINT->showInfoDialog(text, comp);
 	}
 	ClickableL::clickLeft(down);
 }

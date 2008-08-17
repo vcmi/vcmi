@@ -335,7 +335,7 @@ unsigned int CHeroHandler::reqExp(unsigned int level)
 void CHeroHandler::initTerrainCosts()
 {
 	std::ifstream inp;
-	inp.open("config\\TERCOSTS.TXT", std::ios_base::in|std::ios_base::binary);
+	inp.open("config" PATHSEPARATOR "TERCOSTS.TXT", std::ios_base::in|std::ios_base::binary);
 	int tynum;
 	inp>>tynum;
 	for(int i=0; i<2*tynum; i+=2)

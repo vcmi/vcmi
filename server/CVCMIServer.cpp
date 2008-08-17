@@ -127,7 +127,7 @@ int main(int argc, _TCHAR* argv[])
 #endif
 {
 	CLodHandler h3bmp;
-	h3bmp.init("Data\\H3bitmap.lod","Data");
+	h3bmp.init("Data/H3bitmap.lod","Data");
 	initDLL(&h3bmp);
 	srand ( (unsigned int)time(NULL) );
 	try

@@ -22,9 +22,11 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #ifdef _WIN32
 #define PATHSEPARATOR "\\"
 #define DATA_DIR ""
+#define SERVER_NAME "VCMI_server.exe"
 #else
 #define PATHSEPARATOR "/"
-#define DATA_DIR "/progdir/"
+#define DATA_DIR ""
+#define SERVER_NAME "./vcmiserver"
 #endif
 
 enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK}; //player's colors

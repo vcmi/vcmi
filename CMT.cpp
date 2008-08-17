@@ -76,11 +76,11 @@ int main(int argc, _TCHAR* argv[])
 		CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
 		THC std::cout<<"\tInitializing minors: "<<pomtime.getDif()<<std::endl;
 		TTF_Init();
-		TNRB16 = TTF_OpenFont("Fonts\\tnrb.ttf",16);
-		GEOR13 = TTF_OpenFont("Fonts\\georgia.ttf",13);
-		GEOR16 = TTF_OpenFont("Fonts\\georgia.ttf",16);
-		GEORXX = TTF_OpenFont("Fonts\\tnrb.ttf",22);
-		GEORM = TTF_OpenFont("Fonts\\georgia.ttf",10);
+		TNRB16 = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",16);
+		GEOR13 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",13);
+		GEOR16 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",16);
+		GEORXX = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",22);
+		GEORM = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",10);
 		atexit(TTF_Quit);
 		THC std::cout<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
 		CMusicHandler * mush = new CMusicHandler;  //initializing audio
@@ -91,9 +91,9 @@ int main(int argc, _TCHAR* argv[])
 		THC std::cout<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
-		cgi->spriteh->init("Data\\H3sprite.lod","Sprites");
+		cgi->spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
 		BitmapHandler::bitmaph = cgi->bitmaph = new CLodHandler;
-		cgi->bitmaph->init("Data\\H3bitmap.lod","Data");
+		cgi->bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
 		THC std::cout<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph);
 		CGI->arth = VLC->arth;
@@ -136,7 +136,7 @@ int main(int argc, _TCHAR* argv[])
 		cpg->mush = mush;
 		StartInfo *options = new StartInfo(cpg->runLoop());
 ///////////////////////////////////////////////////////////////////////////////////////
-		boost::thread servthr(boost::bind(system,"VCMI_server.exe > server_log.txt")); //runs server executable; 
+		boost::thread servthr(boost::bind(system,SERVER_NAME " > server_log.txt")); //runs server executable; 
 												//TODO: will it work on non-windows platforms?
 		THC tmh.getDif();pomtime.getDif();//reset timers
 		CSpellHandler * spellh = new CSpellHandler;

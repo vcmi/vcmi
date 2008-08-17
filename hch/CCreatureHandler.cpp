@@ -421,7 +421,7 @@ void CCreatureHandler::loadCreatures()
 
 	//loading id to projectile mapping
 
-	std::ifstream inp2("config/cr_shots.TXT", std::ios::in | std::ios::binary); //this file is not in lod
+	std::ifstream inp2("config" PATHSEPARATOR "cr_shots.txt", std::ios::in | std::ios::binary); //this file is not in lod
 	char dump [200];
 	inp2.getline(dump, 200);
 	while(true)
