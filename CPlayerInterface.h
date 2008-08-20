@@ -24,7 +24,7 @@ class CCreatureSet;
 class CGObjectInstance;
 class CSlider;
 struct UpgradeInfo;
-template <typename T> struct CondSh; 
+template <typename T> struct CondSh;
 
 namespace boost
 {
@@ -174,7 +174,7 @@ public:
 	virtual void show(SDL_Surface * to = NULL);
 	void activate();
 	void deactivate();
-	CInfoWindow(std::string text, int player, int charperline, std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons);
+	CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons);
 	CInfoWindow();
 	~CInfoWindow();
 };
@@ -341,8 +341,8 @@ public:
 	void heroCreated(const CGHeroInstance* hero);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void receivedResource(int type, int val);
-	void showInfoDialog(std::string &text, std::vector<Component*> &components);
-	void showSelDialog(std::string &text, std::vector<Component*> &components, ui32 askID);
+	void showInfoDialog(std::string &text, const std::vector<Component*> &components);
+	void showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void garrisonChanged(const CGObjectInstance * obj);
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
@@ -374,9 +374,9 @@ public:
 	void handleMouseMotion(SDL_Event *sEvent);
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos);
-	void removeObjToBlit(IShowable* obj);	
-	void showInfoDialog(std::string &text, std::vector<SComponent*> & components);
-	void showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
+	void removeObjToBlit(IShowable* obj);
+	void showInfoDialog(std::string &text, const std::vector<SComponent*> & components);
+	void showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor
@@ -565,7 +565,7 @@ public:
 	std::vector<CSelectableComponent *> comps; //skills to select
 	AdventureMapButton *ok;
 	boost::function<void(ui32)> cb;
-	
+
 	void close();
 	CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	~CLevelWindow();

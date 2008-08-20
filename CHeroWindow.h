@@ -80,7 +80,7 @@ public:
 	~CArtPlace();
 };
 
-class CHeroWindow: public IActivable, public IShowable, public virtual CIntObject
+class CHeroWindow: public IShowActivable, public virtual CIntObject
 {
 	SDL_Surface * background, * curBack;
 	const CGHeroInstance * curHero;

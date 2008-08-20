@@ -271,6 +271,20 @@ int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - c
 		return 0;
 	return -1;
 }
+int CGTownInstance::mageGuildLevel() const
+{
+	if ((builtBuildings.find(4))!=builtBuildings.end())
+		return 5;
+	if ((builtBuildings.find(3))!=builtBuildings.end())
+		return 4;
+	if ((builtBuildings.find(2))!=builtBuildings.end())
+		return 3;
+	if ((builtBuildings.find(1))!=builtBuildings.end())
+		return 2;
+	if ((builtBuildings.find(0))!=builtBuildings.end())
+		return 1;
+	return 0;
+}
 bool CGTownInstance::creatureDwelling(const int & level, bool upgraded) const
 {
 	return builtBuildings.find(30+level+upgraded*7)!=builtBuildings.end();
@@ -349,6 +363,7 @@ CGObjectInstance::~CGObjectInstance()
 }
 CGHeroInstance::CGHeroInstance()
 {
+	inTownGarrison = false;
 	portrait = level = exp = -1;
 	isStanding = true;
 	moveDir = 4;

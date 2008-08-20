@@ -118,6 +118,14 @@ void Graphics::loadPaletteAndColors()
 		playerColors[i].unused = 0;
 	}
 	neutralColor->r = 0x84; neutralColor->g = 0x84; neutralColor->b = 0x84; neutralColor->unused = 0x0;//gray
+
+	std::ifstream bback("config/mageBg.txt");
+	while(!bback.eof())
+	{
+		bback >> pals;
+		guildBgs.push_back(pals);
+	}
+	bback.close();
 }	
 void Graphics::initializeBattleGraphics()
 {

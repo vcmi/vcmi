@@ -363,10 +363,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\hch\CSpellHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\CThreadHelper.cpp"
 				>
 			</File>
@@ -513,10 +509,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\hch\CSpellHandler.h"
-				>
-			</File>
-			<File
 				RelativePath="..\CThreadHelper.h"
 				>
 			</File>
@@ -565,6 +557,10 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\ClassDiagram1.cd"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

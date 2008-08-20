@@ -8,6 +8,7 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CBuildingHandler.h"
+#include "../hch/CSpellHandler.h"
 class CLodHandler;
 LibClasses * VLC = NULL;
 CLodHandler * bitmaph=NULL;
@@ -50,6 +51,11 @@ DLL_EXPORT void initDLL(CLodHandler *b)
 	VLC->buildh = new CBuildingHandler;
 	VLC->buildh->loadBuildings();
 	THC std::cout<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
+
+	CSpellHandler * spellh = new CSpellHandler;
+	spellh->loadSpells();
+	VLC->spellh = spellh;		
+	THC std::cout<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode)
@@ -159,3 +165,10 @@ DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mod
 	}
 }
 
+
+DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode)
+{
+	std::string pom;
+	loadToIt(pom,src,iter,mode);
+	dest = atol(pom.c_str());
+}

@@ -7,6 +7,7 @@ class CGTownInstance;
 class CTownHandler;
 class CHallInterface;
 struct Structure;
+class CSpell;
 class AdventureMapButton;
 class CBuildingRect : public Hoverable, public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
 {
@@ -167,6 +168,38 @@ public:
 
 	void draw( CCastleInterface * owner, bool first);
 	~CFortScreen();
+	void close();
+	void show(SDL_Surface * to=NULL);
+	void activate();
+	void deactivate();
+};
+
+class CMageGuildScreen : public IShowActivable
+{
+public:	
+	class Scroll : public ClickableL, public Hoverable, public ClickableR
+	{
+	public:
+		CSpell *spell;
+
+		Scroll(CSpell *Spell):spell(Spell){};
+		void clickLeft (tribool down);
+		void clickRight (tribool down);
+		void hover(bool on);
+		void activate();
+		void deactivate();
+	};
+	std::vector<std::vector<SDL_Rect> > positions;
+
+	SDL_Surface *bg;
+	CDefEssential *scrolls, *scrolls2;
+	AdventureMapButton *exit;
+	std::vector<Scroll> spells;
+	CMinorResDataBar resdatabar;
+
+
+	CMageGuildScreen(CCastleInterface * owner);
+	~CMageGuildScreen();
 	void close();
 	void show(SDL_Surface * to=NULL);
 	void activate();

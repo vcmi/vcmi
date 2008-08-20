@@ -141,7 +141,8 @@ public:
 	int identifier; //special identifier from h3m (only > RoE maps)
 	int alignment;
 	std::set<si32> forbiddenBuildings, builtBuildings;
-	std::vector<int> possibleSpells, obligatorySpells, availableSpells;
+	std::vector<int> possibleSpells, obligatorySpells;
+	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
 
 	struct StrInfo
 	{
@@ -158,6 +159,7 @@ public:
 	int getSightDistance() const; //returns sight distance
 	int fortLevel() const; //0 - none, 1 - fort, 2 - citadel, 3 - castle
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
+	int mageGuildLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	bool creatureDwelling(const int & level, bool upgraded=false) const;
 	int getHordeLevel(const int & HID) const; //HID - 0 or 1; returns creature level or -1 if that horde structure is not present
 	int creatureGrowth(const int & level) const;

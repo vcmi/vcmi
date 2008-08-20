@@ -2,7 +2,7 @@
 #define CGAMESTATE_H
 #include "global.h"
 #ifndef _MSC_VER
-#include "../hch/CCreatureHandler.h"
+#include "hch/CCreatureHandler.h"
 #include "lib/VCMI_Lib.h"
 #endif
 #include <set>
@@ -152,7 +152,7 @@ private:
 	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
 public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	
+
 	friend class CCallback;
 	friend class CPathfinder;;
 	friend class CLuaCallback;

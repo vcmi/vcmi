@@ -165,13 +165,19 @@ void CGarrisonSlot::clickLeft(tribool down)
 						boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,pom.newID[0]), //if upgrade is possible we'll bind proper function in callback
 						 boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),&pom))
 							->activate();
-					LOCPLINT->curint->deactivate();
 				}
 				else
 				{
 					(new CCreInfoWindow
 						(creature->idNumber,1,count,NULL,0, boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),NULL) )
 						->activate();
+				}
+				if(LOCPLINT->curint == LOCPLINT->castleInt   &&   dynamic_cast<CHeroWindow*>(LOCPLINT->castleInt->subInt))
+				{
+					LOCPLINT->castleInt->subInt->deactivate();
+				}
+				else
+				{
 					LOCPLINT->curint->deactivate();
 				}
 				owner->highlighted = NULL;
@@ -479,7 +485,7 @@ void CGarrisonInt::deactivate()
 	deactiveteSlots();
 }
 
-CInfoWindow::CInfoWindow(std::string text, int player, int charperline, std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons)
+CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons)
 {
 	for(int i=0;i<Buttons.size();i++)
 	{
@@ -1932,7 +1938,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 	adventureInt->resdatabar.draw();
 }
 
-void CPlayerInterface::showSelDialog(std::string &text, std::vector<Component*> &components, ui32 askID)
+void CPlayerInterface::showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID)
 //void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)
 {
 	boost::unique_lock<boost::mutex> un(*pim);
@@ -1970,26 +1976,12 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	if(town->garrisonHero)
 	{
 		CGI->mh->hideObject(town->garrisonHero);
-		if(adventureInt->heroList.items.size()==1) //it was the only hero
-			adventureInt->townList.select(0);
-		else
-		{
-			for(int i=0; i<adventureInt->heroList.items.size();i++)
-			{
-				if(adventureInt->heroList.items[i].first == town->garrisonHero)
-				{
-					adventureInt->heroList.items.erase(adventureInt->heroList.items.begin()+i);
-						adventureInt->heroList.selected = adventureInt->heroList.items.size()-1;
-					break;
-				}
-			}
-		}
 	}
 	if(town->visitingHero)
 	{
 		CGI->mh->printObject(town->visitingHero);
-		adventureInt->heroList.items.push_back(std::pair<const CGHeroInstance*, CPath *>(town->visitingHero,NULL));
 	}
+	adventureInt->heroList.updateHList();
 
 	CCastleInterface *c = dynamic_cast<CCastleInterface*>(curint);
 	if(c)
@@ -2039,7 +2031,11 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			SDL_FreeSurface(graphics->townWins[tt->id]);
 			graphics->townWins[tt->id] = infoWin(tt);
 		}
-
+		if(tt->visitingHero)
+		{
+			SDL_FreeSurface(graphics->heroWins[tt->visitingHero->subID]);
+			graphics->heroWins[tt->visitingHero->subID] = infoWin(tt->visitingHero);
+		}
 		if(LOCPLINT->castleInt)
 		{
 			LOCPLINT->castleInt->garr->highlighted = NULL;
@@ -2049,11 +2045,20 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 }
 void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
 {
+	boost::unique_lock<boost::mutex> un(*pim);
+	switch (buildingID)
+	{
+	case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 15:
+		{
+			SDL_FreeSurface(graphics->townWins[town->id]);
+			graphics->townWins[town->id] = infoWin(town);
+			break;
+		}
+	}
 	if(curint!=castleInt)
 		return;
 	if(castleInt->town!=town)
 		return;
-	boost::unique_lock<boost::mutex> un(*pim);
 	switch(what)
 	{
 	case 1:
@@ -2156,14 +2161,14 @@ void CPlayerInterface::showComp(SComponent comp)
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
-void CPlayerInterface::showInfoDialog(std::string &text, std::vector<Component*> &components)
+void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<Component*> &components)
 {
 	std::vector<SComponent*> intComps;
 	for(int i=0;i<components.size();i++)
 		intComps.push_back(new SComponent(*components[i]));
 	showInfoDialog(text,intComps);
 }
-void CPlayerInterface::showInfoDialog(std::string &text, std::vector<SComponent*> & components)
+void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<SComponent*> & components)
 {
 	showingDialog->set(true);
 	curint->deactivate(); //dezaktywacja starego interfejsu
@@ -2176,7 +2181,7 @@ void CPlayerInterface::showInfoDialog(std::string &text, std::vector<SComponent*
 	temp->activate();
 	LOCPLINT->objsToBlit.push_back(temp);
 }
-void CPlayerInterface::showYesNoDialog(std::string &text, std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps)
+void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps)
 {
 	if(deactivateCur)
 		curint->deactivate(); //dezaktywacja starego interfejsu
@@ -2216,6 +2221,10 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 	adventureInt->heroWindow->setHero(hero);
 	this->objsToBlit.push_back(adventureInt->heroWindow);
 	curint->deactivate();
+	if(curint == castleInt)
+		castleInt->subInt = adventureInt->heroWindow;
+	adventureInt->heroWindow->quitButton->callback.funcs.clear();
+	adventureInt->heroWindow->quitButton->callback += boost::bind(&CHeroWindow::quit,adventureInt->heroWindow);
 	adventureInt->heroWindow->activate();
 }
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
@@ -2318,7 +2327,9 @@ void CHeroList::genList()
 	int howMany = LOCPLINT->cb->howManyHeroes();
 	for (int i=0;i<howMany;i++)
 	{
-		items.push_back(std::pair<const CGHeroInstance *,CPath *>(LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0),NULL));
+		const CGHeroInstance * h = LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0);
+		if(!h->inTownGarrison)
+			items.push_back(std::pair<const CGHeroInstance *,CPath *>(h,NULL));
 	}
 }
 void CHeroList::select(int which)
@@ -2506,15 +2517,16 @@ void CHeroList::draw()
 			blitAt(empty,posporx,pospory+i*32);
 			continue;
 		}
-		int pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->movement)/100;
+		const CGHeroInstance *cur = items[iT].first;
+		int pom = cur->movement / 100;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
 		blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32); //move point
-		pom = (LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->mana)/5; //bylo: .../10;
+		pom = cur->mana / 5; //bylo: .../10;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
 		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
-		SDL_Surface * temp = graphics->portraitSmall[LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,iT,0)->portrait];
+		SDL_Surface * temp = graphics->portraitSmall[cur->portrait];
 		blitAt(temp,posporx,pospory+i*32);
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
 		{
@@ -2860,7 +2872,7 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	cancel->show();
 	slider->show();
 	char pom[15];
-	SDL_itoa(creatures[which].amount,pom,10); //available
+	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
 	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,screen);
 	SDL_itoa(slider->value,pom,10); //recruit
 	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,screen);
@@ -3228,9 +3240,18 @@ void CCreInfoWindow::close()
 {
 	deactivate();
 	CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
-	if(c) c->showAll();
-	if(type)
-		LOCPLINT->curint->activate();
+	if(c && dynamic_cast<CHeroWindow*>(c->subInt))
+	{
+		if(type)
+			c->subInt->activate();
+	}
+	else
+	{
+		if(c)
+			c->showAll();
+		if(type)
+			LOCPLINT->curint->activate();
+	}
 	delete this;
 }
 void CCreInfoWindow::clickRight(boost::logic::tribool down)

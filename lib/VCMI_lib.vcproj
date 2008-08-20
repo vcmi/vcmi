@@ -295,6 +295,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CSpellHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CTownHandler.cpp"
 				>
 			</File>
@@ -358,6 +362,10 @@
 			</File>
 			<File
 				RelativePath=".\Connection.h"
+				>
+			</File>
+			<File
+				RelativePath="..\hch\CSpellHandler.h"
 				>
 			</File>
 			<File

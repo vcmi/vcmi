@@ -323,10 +323,21 @@ void CClient::process(int what)
 		{
 			NewStructures ns;
 			*serv >> ns;
-			std::cout << "New structure(s) in " << ns.tid << " - " << *ns.bid.begin() << std::endl;
+			CGTownInstance *town = static_cast<CGTownInstance*>(gs->map->objects[ns.tid]);
+			std::cout << "New structure(s) in " << ns.tid <<" " << town->name << " - " << *ns.bid.begin() << std::endl;
 			gs->apply(&ns);
 			BOOST_FOREACH(si32 bid, ns.bid)
-				playerint[gs->map->objects[ns.tid]->tempOwner]->buildChanged(static_cast<CGTownInstance*>(gs->map->objects[ns.tid]),bid,1);
+			{
+				if(bid==13) //for or capitol
+				{
+					town->defInfo = gs->capitols[town->subID];
+				}
+				if(bid ==7)
+				{
+					town->defInfo = gs->forts[town->subID];
+				}
+				playerint[town->tempOwner]->buildChanged(town,bid,1);
+			}
 			break;
 		}
 	case 506:

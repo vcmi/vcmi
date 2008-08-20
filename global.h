@@ -61,6 +61,7 @@ const int NEUTRAL_PLAYER=255;
 const int NAMES_PER_TOWN=16;
 const int CREATURES_PER_TOWN = 7; //without upgrades
 const int MAX_BUILDING_PER_TURN = 1;
+const int SPELL_LEVELS = 5;
 
 #define MARK_BLOCKED_POSITIONS false
 #define MARK_VISITABLE_POSITIONS false

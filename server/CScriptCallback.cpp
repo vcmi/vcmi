@@ -73,7 +73,7 @@ void CScriptCallback::showInfoDialog(InfoWindow *iw)
 	gh->sendToAllClients(iw);
 }
 
-void CScriptCallback::showSelectionDialog(SelectionDialog *iw, boost::function<void(ui32),std::allocator<void> > &callback)
+void CScriptCallback::showSelectionDialog(SelectionDialog *iw, boost::function<void(ui32)> &callback)
 {
 	gh->ask(iw,iw->player,callback);
 }

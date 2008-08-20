@@ -101,6 +101,7 @@ int main(int argc, _TCHAR* argv[])
 		CGI->townh = VLC->townh;
 		CGI->heroh = VLC->heroh;
 		CGI->objh = VLC->objh;
+		CGI->spellh = VLC->spellh;
 		CGI->dobjinfo = VLC->dobjinfo;
 		CGI->buildh = VLC->buildh;
 		THC std::cout<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
@@ -139,10 +140,6 @@ int main(int argc, _TCHAR* argv[])
 		boost::thread servthr(boost::bind(system,SERVER_NAME " > server_log.txt")); //runs server executable; 
 												//TODO: will it work on non-windows platforms?
 		THC tmh.getDif();pomtime.getDif();//reset timers
-		CSpellHandler * spellh = new CSpellHandler;
-		spellh->loadSpells();
-		cgi->spellh = spellh;		
-		THC std::cout<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
 		cgi->pathf = new CPathfinder();
 		THC std::cout<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
 		cgi->consoleh->runConsole();

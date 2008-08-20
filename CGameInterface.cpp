@@ -34,7 +34,10 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	if (!dll)
 	{
 		std::cout << "Cannot open AI library ("<<dllname<<"). Throwing..."<<std::endl;
+	#ifdef _MSC_VER
 		throw new std::exception("Cannot open AI library");
+	#endif
+		throw new std::exception();
 	}
 	//int len = dllname.size()+1;
 	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
@@ -43,12 +46,12 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	; //TODO: handle AI library on Linux
 #endif
 	char * temp = new char[50];
-#if !defined(__amigaos4__) && !defined(__unix__)
+#if _WIN32
 	getName(temp);
 #endif
 	std::cout << "Loaded .dll with AI named " << temp << std::endl;
 	delete temp;
-#if !defined(__amigaos4__) && !defined(__unix__)
+#if _WIN32
 	ret = getAI();
 	ret->init(cb);
 #else

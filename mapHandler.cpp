@@ -413,9 +413,8 @@ void CMapHandler::initObjectRects()
 	//initializing objects / rects
 	for(int f=0; f<map->objects.size(); ++f)
 	{
-		/*map->objects[f]->pos.x+=1;
-		map->objects[f]->pos.y+=1;*/
-		if(!map->objects[f]->defInfo)
+		if((map->objects[f]->ID==34 && static_cast<CGHeroInstance*>(map->objects[f])->inTownGarrison)
+			|| !map->objects[f]->defInfo)
 		{
 			continue;
 		}
@@ -489,7 +488,7 @@ void processDef (CGDefInfo* def)
 	def->width = def->handler->ourImages[0].bitmap->w/32;
 	def->height = def->handler->ourImages[0].bitmap->h/32;
 	CGDefInfo* pom = CGI->dobjinfo->gobjs[def->id][def->subid];
-	if(pom)
+	if(pom && def->id!=98)
 	{
 		pom->handler = def->handler;
 		pom->width = pom->handler->ourImages[0].bitmap->w/32;
@@ -566,8 +565,6 @@ void CMapHandler::init()
 	std::cout<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
 	initObjectRects();
 	std::cout<<"\tMaking object rects: "<<th.getDif()<<std::endl;
-	calculateBlockedPos();
-	std::cout<<"\tCalculating blockmap: "<<th.getDif()<<std::endl;
 }
 
 SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)

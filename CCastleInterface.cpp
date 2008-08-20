@@ -1,25 +1,26 @@
 #include "stdafx.h"
-#include "CCastleInterface.h"
-#include "hch/CObjectHandler.h"
-#include "CGameInfo.h"
-#include "hch/CLodHandler.h"
-#include "SDL_Extensions.h"
-#include "CAdvmapInterface.h"
-#include "hch/CTownHandler.h"
 #include "AdventureMapButton.h"
+#include "CAdvmapInterface.h"
+#include "CCallback.h"
+#include "CCastleInterface.h"
+#include "CGameInfo.h"
+#include "CHeroWindow.h"
+#include "CMessage.h"
+#include "SDL_Extensions.h"
+#include "client/CCreatureAnimation.h"
+#include "client/Graphics.h"
 #include "hch/CBuildingHandler.h"
 #include "hch/CDefHandler.h"
-#include <sstream>
-#include "CMessage.h"
 #include "hch/CGeneralTextHandler.h"
-#include "CCallback.h"
-#include "client/Graphics.h"
-#include "client/CCreatureAnimation.h"
-#include "CHeroWindow.h"
+#include "hch/CLodHandler.h"
+#include "hch/CObjectHandler.h"
+#include "hch/CSpellHandler.h"
+#include "hch/CTownHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
 #include <cmath>
+#include <sstream>
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
@@ -469,6 +470,12 @@ void CCastleInterface::buildingClicked(int building)
 	{
 		switch(building)
 		{
+		case 0: case 1: case 2: case 3: case 4:
+			{
+				deactivate();
+				(new CMageGuildScreen(this))->activate();
+				break;
+			}
 		case 7: case 8: case 9:
 			{
 				CFortScreen *fs = new CFortScreen(this);
@@ -944,10 +951,6 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 					}
 
 					//TODO: check if capital is already built, check if there is water for shipyard
-
-
-
-
 					break;
 				}
 			}
@@ -1205,6 +1208,8 @@ void CFortScreen::show( SDL_Surface * to)
 	}
 	anim++;
 	exit->show();
+	resdatabar.show();
+	LOCPLINT->statusbar->show();
 }
 
 void CFortScreen::activate()
@@ -1324,12 +1329,13 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 }
 void CFortScreen::RecArea::clickLeft (tribool down)
 {
-	if(!down)
+	if(!down && pressedL)
 	{
 		LOCPLINT->curint->deactivate();
 		CRecrutationWindow *rw = LOCPLINT->castleInt->showRecruitmentWindow(bid);
 		rw->buy->callback += boost::bind(&CFortScreen::draw, static_cast<CFortScreen*>(LOCPLINT->curint), LOCPLINT->castleInt, false);
 	}
+	ClickableL::clickLeft(down);
 }
 void CFortScreen::RecArea::activate()
 {
@@ -1338,4 +1344,111 @@ void CFortScreen::RecArea::activate()
 void CFortScreen::RecArea::deactivate()
 {
 	ClickableL::deactivate();
+}
+
+CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
+{
+	bg = BitmapHandler::loadBitmap("TPMAGE.bmp");
+	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CMageGuildScreen::close,this),748,556,"TPMAGE1.DEF",false,NULL,false);
+	scrolls = CDefHandler::giveDefEss("SPELLSCR.DEF");
+	scrolls2 = CDefHandler::giveDefEss("TPMAGES.DEF");
+	SDL_Surface *view = BitmapHandler::loadBitmap(graphics->guildBgs[owner->town->subID]);
+	SDL_SetColorKey(view,SDL_SRCCOLORKEY,SDL_MapRGB(view->format,0,255,255));
+	positions.resize(5);
+	positions[0] += genRect(61,83,222,445), genRect(61,83,312,445), genRect(61,83,402,445), genRect(61,83,520,445), genRect(61,83,610,445), genRect(61,83,700,445);
+	positions[1] += genRect(61,83,48,53), genRect(61,83,48,147), genRect(61,83,48,241), genRect(61,83,48,335), genRect(61,83,48,429);
+	positions[2] += genRect(61,83,570,82), genRect(61,83,672,82), genRect(61,83,570,157), genRect(61,83,672,157);
+	positions[3] += genRect(61,83,183,42), genRect(61,83,183,148), genRect(61,83,183,253);
+	positions[4] += genRect(61,83,491,325), genRect(61,83,591,325);
+	blitAt(view,332,76,bg);
+	for(int i=0; i<owner->town->town->mageLevel; i++)
+	{
+		int sp = 5 - i; //how many spells are available at this level
+		if(owner->town->subID==2 && vstd::contains(owner->town->builtBuildings,22)) sp++; //magic library in tower
+		for(int j=0; j<sp; j++)
+		{
+			if(i < owner->town->mageGuildLevel())
+			{
+				spells.push_back(Scroll(&CGI->spellh->spells[owner->town->spells[i][j]]));
+				spells[spells.size()-1].pos = positions[i][j];
+				blitAt(scrolls->ourImages[owner->town->spells[i][j]].bitmap,positions[i][j],bg);
+			}
+			else
+			{
+				blitAt(scrolls2->ourImages[1].bitmap,positions[i][j],bg);
+			}
+		}
+	}
+	SDL_FreeSurface(view);
+	delete scrolls2;
+}
+CMageGuildScreen::~CMageGuildScreen()
+{
+	delete exit;
+	delete scrolls;
+	SDL_FreeSurface(bg);
+}
+void CMageGuildScreen::close()
+{
+	deactivate();
+	delete this;
+	LOCPLINT->castleInt->activate();
+	LOCPLINT->castleInt->showAll();
+}
+void CMageGuildScreen::show(SDL_Surface * to)
+{
+	blitAt(bg,0,0);
+	resdatabar.show();
+	exit->show();
+}
+void CMageGuildScreen::activate()
+{
+	LOCPLINT->objsToBlit += this;
+	LOCPLINT->castleInt->subInt = this;
+	exit->activate();
+	for(int i=0;i<spells.size();i++)
+		spells[i].activate();
+}
+void CMageGuildScreen::deactivate()
+{
+	LOCPLINT->objsToBlit -= this;
+	exit->deactivate();
+	for(int i=0;i<spells.size();i++)
+		spells[i].deactivate();
+}
+void CMageGuildScreen::Scroll::clickLeft (tribool down)
+{
+
+}
+void CMageGuildScreen::Scroll::clickRight (tribool down)
+{
+	if(down)
+	{
+		CInfoPopup *vinya = new CInfoPopup();
+		vinya->free = true;
+		vinya->bitmap = CMessage::drawBoxTextBitmapSub
+			(LOCPLINT->playerID,
+			spell->descriptions[0],
+			static_cast<CMageGuildScreen*>(LOCPLINT->castleInt->subInt)->scrolls->ourImages[spell->id].bitmap,
+			spell->name);
+		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
+		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
+		vinya->activate();
+	}
+}
+void CMageGuildScreen::Scroll::hover(bool on)
+{
+
+}
+void CMageGuildScreen::Scroll::activate()
+{
+	ClickableL::activate();
+	ClickableR::activate();
+	Hoverable::activate();
+}
+void CMageGuildScreen::Scroll::deactivate()
+{
+	ClickableL::deactivate();
+	ClickableR::deactivate();
+	Hoverable::deactivate();
 }

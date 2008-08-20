@@ -8,6 +8,7 @@
 #include "SDL.h"
 #include "SDL_Extensions.h"
 #include "CAdvmapInterface.h"
+#include "CCastleInterface.h"
 #include "hch/CLodHandler.h"
 #include "AdventureMapButton.h"
 #include "hch/CObjectHandler.h"
@@ -39,7 +40,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 	garInt = NULL;
 	ourBar = new CStatusBar(72, 567, "ADROLLVR.bmp", 660);
 
-	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(), boost::bind(&CHeroWindow::quit,this), 674, 524, "hsbtns.def", false, NULL, false);
+	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(), boost::function<void()>(), 674, 524, "hsbtns.def", false, NULL, false);
 	dismissButton = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 519, 437, "hsbtns2.def", false, NULL, false);
 	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 379, 437, "hsbtns4.def", false, NULL, false);
 
@@ -509,24 +510,16 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 
 void CHeroWindow::quit()
 {
-	for(int i=0; i<LOCPLINT->objsToBlit.size(); ++i)
-	{
-		if( dynamic_cast<CHeroWindow*>( LOCPLINT->objsToBlit[i] ) )
-		{
-			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+i);
-		}
-	}
+	LOCPLINT->objsToBlit -= this;
+
 	deactivate();
 
+	if(LOCPLINT->curint == LOCPLINT->castleInt)
+		LOCPLINT->castleInt->subInt = NULL;
 	LOCPLINT->curint->activate();
 
 	SDL_FreeSurface(curBack);
 	curBack = NULL;
-	/*for(int v=0; v<LOCPLINT->lclickable.size(); ++v)
-	{
-		if(dynamic_cast<CArtPlace*>(LOCPLINT->lclickable[v]))
-			LOCPLINT->lclickable.erase(LOCPLINT->lclickable.begin()+v);
-	}*/
 
 	for(int g=0; g<artWorn.size(); ++g)
 	{
@@ -1052,8 +1045,7 @@ void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
 {
 	if(!down)
 	{
-		std::vector<SComponent*> comp;
-		LOCPLINT->showInfoDialog(text, comp);
+		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
 	}
 }
 void LRClickableAreaWText::clickRight(boost::logic::tribool down)

@@ -5,7 +5,6 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>
 #include "../lib/VCMI_Lib.h"
-void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
 CArtHandler::CArtHandler()

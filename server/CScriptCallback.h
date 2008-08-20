@@ -41,7 +41,7 @@ public:
 	void setHoverName(int objid, MetaString * name);
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
 	void showInfoDialog(InfoWindow *iw);
-	void showSelectionDialog(SelectionDialog *iw, boost::function<void(ui32),std::allocator<void> > &callback); //returns question id
+	void showSelectionDialog(SelectionDialog *iw, boost::function<void(ui32)> &callback); //returns question id
 	void giveResource(int player, int which, int val);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);

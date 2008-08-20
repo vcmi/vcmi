@@ -168,7 +168,6 @@ void CGameHandler::changeSecSkill(int ID, ui16 which, int val, bool abs)
 	sps.val = val;
 	sendAndApply(&sps);
 }
-
 void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 {
 	SetPrimSkill sps;
@@ -677,7 +676,7 @@ upgend:
 						CCreatureSet csn = town->visitingHero->army, cso = town->army;
 						while(!cso.slots.empty())//while there are unmoved creatures
 						{
-							int pos = csn.getSlotFor(cso.slots.begin()->first);
+							int pos = csn.getSlotFor(cso.slots.begin()->second.first);
 							if(pos<0)
 								goto handleConEnd;
 							if(csn.slots.find(pos)!=csn.slots.end()) //add creatures to the existing stack

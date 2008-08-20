@@ -248,6 +248,15 @@ void CTownHandler::loadNames()
 		of.close();
 		of.clear();
 
+		itr=0;
+		of.open("config/mageLevel.txt");
+		while(!of.eof())
+		{
+			of >> towns[itr++].mageLevel;
+		}
+		of.close();
+		of.clear();
+
 		of.open("config/requirements.txt");
 		while(!of.eof())
 		{

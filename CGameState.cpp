@@ -7,6 +7,7 @@
 #include "hch/CDefObjInfoHandler.h"
 #include "hch/CArtHandler.h"
 #include "hch/CTownHandler.h"
+#include "hch/CSpellHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CObjectHandler.h"
 #include "hch/CCreatureHandler.h"
@@ -18,6 +19,8 @@
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 boost::rand48 ran;
+
+
 
 CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 {
@@ -1018,6 +1021,8 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			vti->town = &VLC->townh->towns[vti->subID];
 		if (vti->name.length()==0) // if town hasn't name we draw it
 			vti->name=vti->town->names[ran()%vti->town->names.size()];
+
+		//init buildings
 		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings
 		{
 			vti->builtBuildings.erase(-50);
@@ -1027,6 +1032,39 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			if(ran()%2)
 				vti->builtBuildings.insert(31);
 		}
+
+		//init spells
+		vti->spells.resize(SPELL_LEVELS);
+		CSpell *s;
+		for(int z=0; z<vti->obligatorySpells.size();z++)
+		{
+			s = &VLC->spellh->spells[vti->obligatorySpells[z]];
+			vti->spells[s->level-1].push_back(s->id);
+			vti->possibleSpells -= s->id;
+		}
+		while(vti->possibleSpells.size())
+		{
+			ui32 total=0, sel=-1;
+			for(int ps=0;ps<vti->possibleSpells.size();ps++)
+				total += VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
+			int r = (total)? ran()%total : -1;
+			for(int ps=0; ps<vti->possibleSpells.size();ps++)
+			{
+				r -= VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
+				if(r<0)
+				{
+					sel = ps;
+					break;
+				}
+			}
+			if(sel<0)
+				sel=0;
+
+			CSpell *s = &VLC->spellh->spells[vti->possibleSpells[sel]];
+			vti->spells[s->level-1].push_back(s->id);
+			vti->possibleSpells -= s->id;
+		}
+		
 		players[vti->getOwner()].towns.push_back(vti);
 	}
 
@@ -1048,7 +1086,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			}
 		}
 
-		//init visiting heroes
+		//init visiting and garrisoned heroes
 		for(int l=0; l<k->second.heroes.size();l++)
 		{ 
 			for(int m=0; m<k->second.towns.size();m++)
@@ -1057,9 +1095,21 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 				if(vistile == k->second.heroes[l]->pos)
 				{
 					k->second.towns[m]->visitingHero = k->second.heroes[l];
-					break;
+					k->second.heroes[l]->visitedTown = k->second.towns[m];
+					k->second.heroes[l]->inTownGarrison = false;
+					goto mainplheloop;
+				}
+				else if(k->second.heroes[l]->pos == k->second.towns[m]->pos)
+				{
+					k->second.towns[m]->garrisonHero = k->second.heroes[l];
+					k->second.towns[m]->army = k->second.heroes[l]->army;
+					k->second.heroes[l]->visitedTown = k->second.towns[m];
+					k->second.heroes[l]->inTownGarrison = true;
+					k->second.heroes[l]->pos.x -= 1;
+					goto mainplheloop;
 				}
 			}
+mainplheloop:;
 		}
 	}
 }

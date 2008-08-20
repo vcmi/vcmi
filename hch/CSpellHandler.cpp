@@ -1,358 +1,69 @@
-  #include "../stdafx.h"
+#define VCMI_DLL
+#include "../stdafx.h"
 #include "CSpellHandler.h"
-#include "../CGameInfo.h"
 #include "CLodHandler.h"
-
+#include "../lib/VCMI_Lib.h"
+#include <boost/algorithm/string/replace.hpp>
+extern CLodHandler *bitmaph;
 void CSpellHandler::loadSpells()
 {
-	std::string buf = CGI->bitmaph->getTextFile("SPTRAITS.TXT");
-	int andame = buf.size();
-	int i=0; //buf iterator
-	int hmcr=0;
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			++hmcr;
-		if(hmcr==5)
-			break;
-	}
-	i+=2;
+	std::string buf = bitmaph->getTextFile("SPTRAITS.TXT"), pom;
+	int andame = buf.size(), i=0; //buf iterator
+	for(int z=0; z<5; ++z)
+		loadToIt(pom,buf,i,3);
+
 	bool combSpells=false; //true, if we are reading combat spells
 	while(i<andame)
 	{
 		if(spells.size()==81)
 			break;
 		CSpell nsp; //new currently being read spell
-		int befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.name = buf.substr(befi, i-befi);
-		++i;
 
+		loadToIt(nsp.name,buf,i,4);
 		if(nsp.name == std::string(""))
 		{
-			combSpells = true;
-			int hmcr=0;
-			for(i; i<andame; ++i)
-			{
-				if(buf[i]=='\r')
-					++hmcr;
-				if(hmcr==3)
-					break;
-			}
-			++i;
-			++i;
-			befi=i;
-			for(i; i<andame; ++i)
-			{
-				if(buf[i]=='\t')
-					break;
-			}
-			nsp.name = buf.substr(befi, i-befi);
-			++i;
+			for(int z=0; z<3; ++z)
+				loadToIt(pom,buf,i,3);
+			loadToIt(nsp.name,buf,i,4);
 		}
 
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.abbName = buf.substr(befi, i-befi);
-		++i;
+		loadToIt(nsp.abbName,buf,i,4);
+		loadToIt(nsp.level,buf,i,4);
 
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.level = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
+		loadToIt(pom,buf,i,4);
+		nsp.earth = pom[0]=='x' ? true : false;
+		loadToIt(pom,buf,i,4);
+		nsp.water = pom[0]=='x' ? true : false;
+		loadToIt(pom,buf,i,4);
+		nsp.fire = pom[0]=='x' ? true : false;
+		loadToIt(pom,buf,i,4);
+		nsp.air = pom[0]=='x' ? true : false;
 
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.earth = buf.substr(befi, i-befi)[0]=='x' ? true : false;
-		++i;
+		nsp.costs.resize(4);
+		for (int z = 0; z < 4 ; z++)
+			loadToIt(nsp.costs[z],buf,i,4);
+		loadToIt(nsp.power,buf,i,4);
+		nsp.powers.resize(4);
+		for (int z = 0; z < 4 ; z++)
+			loadToIt(nsp.powers[z],buf,i,4);
 
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.water = buf.substr(befi, i-befi)[0]=='x' ? true : false;
-		++i;
+		nsp.probabilities.resize(9);
+		for (int z = 0; z < 9 ; z++)
+			loadToIt(nsp.probabilities[z],buf,i,4);
 
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.fire = buf.substr(befi, i-befi)[0]=='x' ? true : false;
-		++i;
+		nsp.AIVals.resize(4);
+		for (int z = 0; z < 4 ; z++)
+			loadToIt(nsp.AIVals[z],buf,i,4);
 
-		befi=i;
-		for(i; i<andame; ++i)
+		nsp.descriptions.resize(4);
+		for (int z = 0; z < 4 ; z++)
 		{
-			if(buf[i]=='\t')
-				break;
+			loadToIt(nsp.descriptions[z],buf,i,4);
+			boost::algorithm::replace_all(nsp.descriptions[z],"\"","");
 		}
-		nsp.air = buf.substr(befi, i-befi)[0]=='x' ? true : false;
-		++i;
 
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.costNone = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.costBas = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.costAdv = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.costExp = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.power = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.powerNone = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.powerBas = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.powerAdv = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.powerExp = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.castle = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.rampart = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.tower = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.inferno = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.necropolis = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.dungeon = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.stronghold = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.fortress = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.conflux = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.none2 = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.bas2 = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.adv2 = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.exp2 = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.noneTip = buf.substr(befi, i-befi).c_str();
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.basTip = buf.substr(befi, i-befi).c_str();
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.advTip = buf.substr(befi, i-befi).c_str();
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		nsp.expTip = buf.substr(befi, i-befi).c_str();
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\r')
-				break;
-		}
-		nsp.attributes = buf.substr(befi, i-befi).c_str();
-		++i;
-		++i;
-		
+		loadToIt(nsp.attributes,buf,i,3);
+		nsp.id = spells.size();
 		nsp.combatSpell = combSpells;
 		spells.push_back(nsp);
 	}

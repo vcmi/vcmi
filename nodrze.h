@@ -189,7 +189,7 @@ template <typename T> void nodrze<T>::wypiszObficie(std::ostream & strum)
 template <typename T, class X> T* operator%(nodrze<T> & drzewko, X co)
 {
 	CLOG ("Szukam " <<co <<std::endl);
-#if !defined(__amigaos4__) && !defined(__unix__)
+#ifdef _MSC_VER
 	drzewko.wypiszObficie(*C->gl->loguj);
 #endif
 	wezel<T> * w = drzewko.korzen;

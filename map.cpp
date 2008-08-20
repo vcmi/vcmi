@@ -900,7 +900,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 		{
 			for(int bit=0;bit<8;bit++)
 				if(bufor[i] & (1<<bit))
-					nt->forbiddenBuildings.insert(byte*8+bit);
+					nt->forbiddenBuildings.insert((byte-6)*8+bit);
 			i++;
 		}
 		nt->builtBuildings = convertBuildings(nt->builtBuildings,nt->subID);

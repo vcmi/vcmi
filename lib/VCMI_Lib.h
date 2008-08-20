@@ -3,13 +3,11 @@
 #include "../global.h"
 
 class CLodHandler;
-//class CMapHandler;
 class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
 //class CAbilityHandler;
-//class CSpellHandler;
-//class CAmbarCendamo;
+class CSpellHandler;
 //class CPreGameTextHandler;
 class CBuildingHandler;
 class CObjectHandler;
@@ -20,13 +18,7 @@ class CTownHandler;
 //class CGeneralTextHandler;
 //class CConsoleHandler;
 //class CPathfinder;
-//class CCursorHandler;
-//class CScreenHandler;
 //class CGameState;
-//class CMapHandler;
-//class CGameInterface;
-//class CPreGame;
-//class CDefHandler;
 
 class LibClasses
 {
@@ -36,29 +28,21 @@ public:
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
 	//CAbilityHandler * abilh;
-	//CSpellHandler * spellh;
-	//CMapHandler * mh;
+	CSpellHandler * spellh;
 	//CPreGameTextHandler * preth;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
-	//CMusicHandler * mush;
-	//CSemiLodHandler * sspriteh;
 	CDefObjInfoHandler * dobjinfo;
 	CTownHandler * townh;
 	//CGeneralTextHandler * generaltexth;
 	//CConsoleHandler * consoleh;
 	//CPathfinder * pathf;
-	//CCursorHandler * curh;
-	//CScreenHandler * screenh;
-	//int localPlayer;
-	//std::vector<CGameInterface *> playerint;
-	//std::vector<SDL_Color> playerColors;
-	//SDL_Color neutralColor;
-	//StartInfo scenarioOps;
 };
 
 extern DLL_EXPORT LibClasses * VLC;
 
+DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
+DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode);
 
 DLL_EXPORT void initDLL(CLodHandler *b);
 
