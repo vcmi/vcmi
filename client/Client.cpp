@@ -360,6 +360,15 @@ void CClient::process(int what)
 				playerint[t->tempOwner]->heroInGarrisonChange(t);
 			break;
 		}
+	case 509:
+		{
+			SetHeroArtifacts sha;
+			*serv >> sha;
+			std::cout << "Setting artifacts of hero " << sha.hid << std::endl;
+			gs->apply(&sha);
+			//TODO: inform interfaces
+			break;
+		}
 	case 1001:
 		{
 			SetObjectProperty sop;

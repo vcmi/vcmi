@@ -222,6 +222,8 @@ std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> >
 			lw+=(*txtg)[i][j]->w;
 			ret.second+=(*txtg)[i][j]->h;
 		}
+		if(!(*txtg)[i].size())
+			ret.second+=19;
 		if (ret.first<lw)
 			ret.first=lw;
 	}
@@ -381,7 +383,7 @@ std::vector< std::vector<SComponent*> > * CMessage::breakComps(std::vector<SComp
 	return ret;
 }
 
-SDL_Surface * CMessage::drawBoxTextBitmapSub(int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline)
+SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline/*=30*/, int imgToBmp/*=55*/ )
 {
 	int curh;
 	std::vector<std::string> * tekst = breakText(text,charperline);
@@ -392,17 +394,19 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub(int player, std::string text, SDL_S
 	boxs.second =
 		(curh=45) //top margin
 		+ txts.second //text total height
-		+ 55 //text <=> img
+		+ imgToBmp //text <=> img
 		+ bitmap->h
 		+ 5 // to sibtitle
 		+ (*txtg)[0][0]->h
 		+ 30;
 	SDL_Surface *ret = drawBox1(boxs.first,boxs.second,player);
 	blitTextOnSur(txtg,curh,ret);
-	curh += 55;
+	curh += imgToBmp;
 	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
 	curh += bitmap->h + 5;
 	CSDL_Ext::printAtMiddle(sub,ret->w/2,curh+(  ((*txtg)[0][0]->h) / 2  ),GEOR13,zwykly,ret);
+	delete tekst;
+	delete txtg;
 	return ret;
 }
 

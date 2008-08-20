@@ -458,8 +458,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 
 	for(int g=0; g<artWorn.size(); ++g)
 	{
-		artWorn[g]->myNumber = g;
-		artWorn[g]->backNumber = -1;
+		artWorn[g]->slotID = g;
 		char * hll = new char[200];
 		sprintf(hll, CGI->generaltexth->heroscrn[1].c_str(), (artWorn[g]->ourArt ? artWorn[g]->ourArt->name.c_str() : ""));
 		artWorn[g]->hoverText = std::string(hll);
@@ -477,7 +476,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		add->pos.y = 365;
 		add->pos.h = add->pos.w = 44;
 		if(s<hero->artifacts.size() && hero->artifacts[s])
-			add->text = hero->getArt(s)->description;
+			add->text = hero->getArt(19+s)->description;
 		else
 			add->text = std::string();
 		add->ourWindow = this;
@@ -500,8 +499,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		add->neck = true;
 		add->shoulders = true;
 		add->head = true;
-		add->myNumber = -1;
-		add->backNumber = s;
+		add->slotID = 19+s;
 		backpack.push_back(add);
 	}
 	activeArtPlace = NULL;
@@ -890,15 +888,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			//chceck if swap is possible
 			if(this->fitsHere(ourWindow->activeArtPlace->ourArt) && ourWindow->activeArtPlace->fitsHere(this->ourArt))
 			{
-				//swap artifacts
-
-				LOCPLINT->cb->swapArifacts(
-					ourWindow->curHero,
-					this->myNumber>=0,
-					this->myNumber>=0 ? this->myNumber : (this->backNumber + ourWindow->backpackPos)%ourWindow->curHero->artifacts.size(),
-					ourWindow->curHero,
-					ourWindow->activeArtPlace->myNumber>=0,
-					ourWindow->activeArtPlace->myNumber>=0 ? ourWindow->activeArtPlace->myNumber : (ourWindow->activeArtPlace->backNumber + ourWindow->backpackPos)%ourWindow->curHero->artifacts.size());
+				LOCPLINT->cb->swapArifacts(ourWindow->curHero,slotID,ourWindow->curHero,ourWindow->activeArtPlace->slotID);
 
 				const CArtifact * pmh = ourArt;
 				ourArt = ourWindow->activeArtPlace->ourArt;

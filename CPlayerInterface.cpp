@@ -575,7 +575,7 @@ void CInfoPopup::close()
 	delete this;
 	if(LOCPLINT->curint == LOCPLINT->adventureInt)
 		LOCPLINT->adventureInt->show();
-	else if(LOCPLINT->curint == LOCPLINT->castleInt)
+	else if((LOCPLINT->curint == LOCPLINT->castleInt) && !LOCPLINT->castleInt->subInt)
 		LOCPLINT->castleInt->showAll();
 }
 void CInfoPopup::show(SDL_Surface * to)
@@ -3167,25 +3167,38 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	{
 		if(Upg && ui)
 		{
+			bool enough = true;
 			for(std::set<std::pair<int,int> >::iterator i=ui->cost[0].begin(); i!=ui->cost[0].end(); i++) //calculate upgrade cost
 			{
+				if(LOCPLINT->cb->getResourceAmount(i->first) < i->second*creatureCount)
+					enough = false;
 				upgResCost.push_back(new SComponent(SComponent::resource,i->first,i->second*creatureCount)); 
 			}
 
-			CFunctionList<void()> fs[2];
-			fs[0] += Upg;
-			fs[0] += boost::bind(&CCreInfoWindow::close,this);
-
-			CCastleInterface *pom;
-			if(pom=dynamic_cast<CCastleInterface*>(LOCPLINT->curint)) //if town screen is opened it needs to be redrawn
+			if(enough)
 			{
-				fs[1] += boost::bind(&CCastleInterface::showAll,pom,screen,true);
+				CFunctionList<void()> fs[2];
+				fs[0] += Upg;
+				fs[0] += boost::bind(&CCreInfoWindow::close,this);
+
+				CCastleInterface *pom;
+				if(pom=dynamic_cast<CCastleInterface*>(LOCPLINT->curint)) //if town screen is opened it needs to be redrawn
+				{
+					fs[1] += boost::bind(&CCastleInterface::showAll,pom,screen,true);
+				}
+				fs[1] += boost::bind(&CCreInfoWindow::activate,this);
+				CFunctionList<void()> cfl;
+				cfl = boost::bind(&CCreInfoWindow::deactivate,this);
+				cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false,false);
+				upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF");
 			}
-			fs[1] += boost::bind(&CCreInfoWindow::activate,this);
-			CFunctionList<void()> cfl;
-			cfl = boost::bind(&CCreInfoWindow::deactivate,this);
-			cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false,false);
-			upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF");
+			else
+			{
+				upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,boost::function<void()>(),pos.x+76,pos.y+237,"IVIEWCR.DEF");
+				upgrade->callback.funcs.clear();
+				upgrade->bitmapOffset = 2;
+			}
+
 		}
 		if(Dsm)
 		{

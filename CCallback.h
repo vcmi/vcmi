@@ -34,7 +34,7 @@ public:
 	virtual int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
 	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
-	virtual bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2)=0; //swaps artifacts between two given heroes
+	virtual bool swapArifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
@@ -106,7 +106,7 @@ public:
 	int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2); //first goes to the second
 	int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
-	bool swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2);
+	bool swapArifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
 	bool buildBuilding(const CGTownInstance *town, si32 buildingID);
 	void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount);
 	bool dismissCreature(const CArmedInstance *obj, int stackPos);

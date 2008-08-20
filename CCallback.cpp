@@ -136,20 +136,24 @@ void CCallback::endTurn()
 }
 UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getUpgradeInfo(const_cast<CArmedInstance*>(obj),stackPos);
 }
 
 const StartInfo * CCallback::getStartInfo()
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->scenarioOps;
 }
 
 int CCallback::howManyTowns()
 {
-	return gs->players[gs->currentPlayer].towns.size();
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	return gs->players[player].towns.size();
 }
 const CGTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if (!mode)
 		return gs->players[gs->currentPlayer].towns[val];
 	else 
@@ -293,6 +297,7 @@ std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur)
 
 bool CCallback::isVisible(int3 pos)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return isVisible(pos,player);
 }
 
@@ -312,6 +317,7 @@ int CCallback::getHeroSerial(const CGHeroInstance * hero)
 }
 const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!obj)
 		return NULL;
 	if(obj->ID == 34)
@@ -325,7 +331,6 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 {
 	if(s1->tempOwner != player   ||   s2->tempOwner != player)
 		return -1;
-
 	*cl->serv << ui16(502) << ui8(1) << s1->id << ui8(p1) << s2->id << ui8(p2);
 	return 0;
 }
@@ -362,31 +367,35 @@ int CCallback::getMySerial()
 	return gs->players[player].serial;
 }
 
-bool CCallback::swapArifacts(const CGHeroInstance * hero1, bool worn1, int pos1, const CGHeroInstance * hero2, bool worn2, int pos2)
+bool CCallback::swapArifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)
 {
-	if(!hero1 || !hero2) //incorrect data
+	if(player!=hero1->tempOwner || player!=hero2->tempOwner)
 		return false;
-	CGHeroInstance * Uhero1 = const_cast<CGHeroInstance *>(hero1);
-	CGHeroInstance * Uhero2 = const_cast<CGHeroInstance *>(hero2);
-
-	if(worn1 && worn2)
-	{
-		std::swap(Uhero1->artifWorn[pos1], Uhero2->artifWorn[pos2]);
-	}
-	else if(worn1 && !worn2)
-	{
-		std::swap(Uhero1->artifWorn[pos1], Uhero2->artifacts[pos2]);
-	}
-	else if(!worn1 && worn2)
-	{
-		std::swap(Uhero1->artifacts[pos1], Uhero2->artifWorn[pos2]);
-	}
-	else
-	{
-		std::swap(Uhero1->artifacts[pos1], Uhero2->artifacts[pos2]);
-	}
-	
+	*cl->serv << ui16(509) << hero1->id << pos1 << hero2->id << pos2;
 	return true;
+	//if(!hero1 || !hero2) //incorrect data
+	//	return false;
+	//CGHeroInstance * Uhero1 = const_cast<CGHeroInstance *>(hero1);
+	//CGHeroInstance * Uhero2 = const_cast<CGHeroInstance *>(hero2);
+
+	//if(worn1 && worn2)
+	//{
+	//	std::swap(Uhero1->artifWorn[pos1], Uhero2->artifWorn[pos2]);
+	//}
+	//else if(worn1 && !worn2)
+	//{
+	//	std::swap(Uhero1->artifWorn[pos1], Uhero2->artifacts[pos2]);
+	//}
+	//else if(!worn1 && worn2)
+	//{
+	//	std::swap(Uhero1->artifacts[pos1], Uhero2->artifWorn[pos2]);
+	//}
+	//else
+	//{
+	//	std::swap(Uhero1->artifacts[pos1], Uhero2->artifacts[pos2]);
+	//}
+	//
+	//return true;
 }
 
 bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
@@ -401,7 +410,6 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 			return false; //lack of resources
 
 	*cl->serv << ui16(504) << town->id << buildingID;
-//TODO: check if we are allowed to build
 	return true;
 }
 
@@ -431,6 +439,7 @@ CStack* CCallback::battleGetStackByID(int ID)
 
 CStack* CCallback::battleGetStackByPos(int pos)
 {
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return battleGetStackByID(battleGetStack(pos));
 }
 

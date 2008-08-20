@@ -2,6 +2,7 @@
 #include "CAdvmapInterface.h"
 #include "client/CBitmapHandler.h"
 #include "CPlayerInterface.h"
+#include "CCastleInterface.h"
 #include "hch/CPreGameTextHandler.h"
 #include "hch/CGeneralTextHandler.h"
 #include "hch/CDefHandler.h"
@@ -1098,6 +1099,8 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 			{
 				LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+(i));
 				delete pom;
+				if((LOCPLINT->curint == LOCPLINT->castleInt) && !LOCPLINT->castleInt->subInt)
+					LOCPLINT->castleInt->showAll(0,true);
 			}
 		}
 	}

@@ -456,7 +456,7 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 		}
 	}
 	creAnims[ID]->setType(5); //death
-	for(int i=0; i<creAnims[ID]->framesInGroup(5)-1; ++i)
+	for(int i=0; i<creAnims[ID]->framesInGroup(5); ++i)
 	{
 		show();
 		CSDL_Ext::update();

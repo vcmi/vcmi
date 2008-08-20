@@ -501,6 +501,11 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						if(!S1->slots[p1].second) //if we've moved all creatures
 							S1->slots.erase(p1); 
 					}
+					if((s1->ID==34 && !S1->slots.size()) //it's not allowed to take last stack from hero army!
+						|| (s2->ID==34 && !S2->slots.size()))
+					{
+						break;
+					}
 					SetGarrisons sg;
 					sg.garrs[id1] = *S1;
 					if(s1 != s2)
@@ -731,6 +736,53 @@ upgend:
 						std::cout << "Warning, wrong garrison swap command for " << tid << std::endl;
 					}
 					break;
+				}
+			case 509:
+				{
+					si32 hid1, hid2;
+					ui16 slot1, slot2;
+					c >> hid1 >> slot1 >> hid2 >> slot2;
+					CGHeroInstance *h1 = gs->getHero(hid1), *h2 = gs->getHero(hid2);
+					if((distance(h1->pos,h2->pos) > 1.0)   ||   (h1->tempOwner != h2->tempOwner))
+						break;
+					int a1=h1->getArtAtPos(slot1), a2=h2->getArtAtPos(slot2);
+
+					h2->setArtAtPos(slot2,a1);
+					h1->setArtAtPos(slot1,a2);
+// 					if(std::max(slot1,slot2) < 19)
+// 					{
+// 						if(vstd::contains(h1->artifWorn,slot1) && vstd::contains(h1->artifWorn,slot2))
+// 							std::swap(h1->artifWorn[slot1],h2->artifWorn[slot2]);
+// 						if(vstd::contains(h1->artifWorn,slot1))
+// 						{
+// 							h2->artifWorn[slot2] = h1->artifWorn[slot1];
+// 							h1->artifWorn.erase(slot1);
+// 						}
+// 						else if(vstd::contains(h2->artifWorn,slot2))
+// 						{
+// 							h1->artifWorn[slot1] = h2->artifWorn[slot2];
+// 							h2->artifWorn.erase(slot2);
+// 						}
+// 						else
+// 						{
+// 							std::cout << "Warning, wrong artifact swap command!" << std::endl;
+// 						}
+// 					}
+// 					else
+// 					{
+// 					}
+					SetHeroArtifacts sha;
+					sha.hid = hid1;
+					sha.artifacts = h1->artifacts;
+					sha.artifWorn = h1->artifWorn;
+					sendAndApply(&sha);
+					if(hid1 != hid2)
+					{
+						sha.hid = hid2;
+						sha.artifacts = h2->artifacts;
+						sha.artifWorn = h2->artifWorn;
+						sendAndApply(&sha);
+					}
 				}
 			case 2001:
 				{

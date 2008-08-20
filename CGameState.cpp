@@ -48,7 +48,6 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 			nobj->defInfo->handler=NULL;
 			nobj->defInfo->blockMap[5] = 253;
 			nobj->defInfo->visitMap[5] = 2;
-			nobj->artifacts.resize(20);
 			nobj->artifWorn[16] = 3;
 			nobj->portrait = subid;
 			nobj->primSkills.resize(4);
@@ -461,6 +460,14 @@ void CGameState::applyNL(IPack * pack)
 				g->inTownGarrison = true;
 				map->removeBlockVisTiles(g);
 			}
+			break;
+		}
+	case 509:
+		{
+			SetHeroArtifacts *sha = static_cast<SetHeroArtifacts*>(pack);
+			CGHeroInstance *h = getHero(sha->hid);
+			h->artifacts = sha->artifacts;
+			h->artifWorn = sha->artifWorn;
 			break;
 		}
 	case 1001://set object property

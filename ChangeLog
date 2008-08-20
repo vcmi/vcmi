@@ -1,0 +1,196 @@
+0.61 -> 0.62
+General:
+* threading and minor changes.
+* support for heroes starting in town garrisons
+* upgrading creatures
+* working gaining levels for heroes (including dialog with skill selection)
+* added fast graphical cursor
+* showing creature amount in the CCreInfoWindow
+
+Castles:
+* icon in infobox showing that there is hero in town garrison
+* fort/citadel/castle screen
+* taking last stack from the heroes army should be impossible (or at least harder)
+* fixed reading forbidden structures
+* randomizing spells in towns
+* viewing hero window in the town screen
+* possibility of moving hero into the garrison
+* partially done mage guild screen 
+
+Adventure Interface:
+* hopefully fixed problems with wrong town defs (village/fort/capitol)
+
+Hero Window:
+* bugfix: splitting stacks works in hero window
+* removed bug causing significant increase of CPU consumption
+
+Battles:
+* shooting
+* removed some displaying problems
+* showing last group of frames in creature animation won't crash
+* added start moving and end moving animations
+* fixed moving two-hex creatures
+* showing/hiding graphic cursor
+* a part of using graphic cursor
+* slightly optimized showing of battle interface
+* animation of getting hit / death by shooting is displayed when it should be
+* improved pathfinding in battles, removed problems with displaying movement, adventure map interface won't be called during battles.
+
+PreGame:
+* updates settings when selecting new map after changing sorting criteria
+* if sorting not by name, name will be used as a secondary criteria
+* when filter is applied a first available map is selected automatically
+* slider position updated after sorting in pregame
+
+0.6 -> 0.61 (Jun 15 2008)
+Improvements:
+* improved attacking in the battles
+* it's possible to kill hostile stack
+* animations won't go in the same phase
+* Better pathfinder
+* "%s" substitutions in Right-click information in town hall
+* windmill won't give wood
+* hover text for heroes
+* support for ZSoft-style PCX files in /Data
+* Splitting: when moving slider to the right so that 0 is left in old slot the army is moved
+* in the townlist in castle selected town will by placed on the 2nd place (not 3rd)
+* stack at the limit of unit's range can now be attacked
+* range of unit is now properly displayed
+* battle log is scrolled down when new event occurs
+* console is closed when application exits
+
+Bugfixes:
+* stack at the limit of unit's range can now be attacked
+* good background for the town hall screen in Stronghold
+* fixed typo in hall.txt
+* VCMI won't crash when r-click neutral stack during the battle
+* water won't blink behind shipyard in the Castle
+* fixed several memory leaks
+* properly displaying two-hex creatures in recruit/split/info window
+* corrupted map file won't cause crash on initializing main menu
+
+0.59 -> 0.6 (Jun 1 2008)
+* partially done attacking in battles
+* screen isn't now refreshed while blitting creature info window
+* r-click creature info windows in battles
+* no more divison by 0 in slider
+* "plural" reference names for Conflux creatures (starting armies of Conflux heroes should now be working)
+* fixed estate problems
+* fixed blinking mana vortex
+* grail increases creature growths
+* new pathfinder
+* several minor improvements
+
+0.58 -> 0.59 (May 24 2008 - closed, test release)
+* fixed memory leak in battles
+* blitting creature animations to rects in the recruitment window
+* fixed wrong creatures def names
+* better battle pathfinder and unit reversing
+* improved slider ( #58 )
+* fixed problems with horde buildings (won't block original dwellings)
+* giving primary skill when hero get level (but there is still no dialog)
+* if an upgraded creature is available it'll be shown as the first in a recruitment window
+* creature levels not messed in Fortress
+* war machines are added to the hero's inventory, not to the garrison
+* support for H3-style PCX graphics in Data/
+* VCMI won't crash when is unable to initialize audio system
+* fixed displaying wrong town defs
+* improvements in recruitment window (slider won't allow to select more creatures than we can afford)
+* creature info window (only r-click)
+* callback for buttons/lists based on boost::function
+* a lot of minor improvements
+
+0.55 -> 0.58 (Apr 20 2008 - closed, test release)
+Towns:
+* recruiting creatures
+* working creature growths (including castle and horde building influences)
+* towns give income
+* town hall screen
+* building buildings (requirements and cost are handled)
+* hints for structures
+* updating town infobox
+Garrisons:
+* merging stacks
+* splitting stacks
+Battles:
+* starting battles
+* displaying terrain, animations of heroes, units, grid, range of units, battle menu with console, amounts of units in stacks
+* leaving battle by pressing flee button
+* moving units in battles and displaying thier ranges
+* defend command for units
+General:
+* a number of minor fixes and improvements
+
+0.54 -> 0.55 (Feb 29 2008)
+* Sprites/ folder works for h3sprite.lod same as Data/ for h3bitmap.lod (but it's still experimental)
+* randomization quantity of creatures on the map
+* fix of Pandora's Box handling
+* reading disposed/predefined heroes
+* new command - "get txt" - VCMI will extract all .txt files from h3bitmap.lod to the Extracted_txts/ folder.
+* more detailed logs
+* reported problems with hero flags resolved
+* heroes cannot occupy the same tile
+* hints for most of creature generators
+* some minor stuff
+
+0.53b -> 0.54 (Feb 23 2008 - first public release)
+* given hero is placed in the town entrance
+* some objects such as river delta won't be blitted "on" hero
+* tiles under FoW are inaccessible
+* giving random hero on RoE maps
+* improved protection against hero duplication
+* fixed starting values of primary abilities of random heroes on RoE/AB maps
+* right click popups with infoboxes for heroes/towns lists
+* new interface coloring (many thanks to GrayFace ;])
+* fixed bug in object flag's coloring
+* added hints in town lists
+* eliminated square from city hints
+
+0.53 - 0.53b (Feb 20 2008)
+* added giving default buildings in towns
+* town infobox won't crash on empty town
+
+0.52 - 0.53 (Feb 18 2008):
+* hopefully the last bugfix of Pandora's Box
+* fixed blockmaps of generated heroes
+* disposed hero cannot be chosen in scenario settings (unless he is in prison)
+* fixed town randomization
+* fixed hero randomization
+* fixed displaying heroes in preGame
+* fixed selecting/deselecting artifact slots in hero window
+* much faster pathfinder
+* memory usage and load time significantly decreased
+* it's impossible to select empty artifact slot in hero window
+* fixed problem with FoW displaying on minimap on L-sized maps
+* fixed crashbug in hero list connected with heroes dismissing
+* mostly done town infobox
+* town daily income is properly calculated
+
+0.51 - 0.52 (Feb 7 2008):
+* [feature] giving starting hero
+* [feature] VCMI will try to use files from /Data folder instead of those from h3bitmap.lod
+* [feature] picked artifacts are added to hero's backpack
+* [feature] possibility of choosing player to play
+* [bugfix] ZELP.TXT file *should* be handled correctly even it is non-english
+* [bugfix] fixed crashbug in reading defs with negativ left/right margins
+* [bugfix] improved randomization
+* [bugfix] pathfinder can't be cheated (what caused errors)
+
+0.5 - 0.51 (Feb 3 2008):
+* close button properly closes (same does 'q' key)
+* two players can't have selected same hero
+* double click on "Show Available Scenarios" won't reset options
+* fixed possible crashbug in town/hero lists
+* fixed crashbug in initializing game caused by wrong prisons handling
+* fixed crashbug on reading hero's custom artifacts in RoE maps
+* fixed crashbug on reading custom Pandora's Box in RoE maps
+* fixed crashbug on reading blank Quest Guards
+* better console messages
+* map reading speed up (though it's still slow, especially on bigger maps)
+
+to 0.5 (Feb 2 2008 - first closed release):
+* Main menu and New game screens
+* Scenario selection, part of advanced options support
+* Partially done adventure map, town and hero interfaces
+* Moving hero
+* Interactions with several objects (mines, resources, mills, and others)

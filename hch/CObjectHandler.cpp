@@ -237,11 +237,45 @@ int CGHeroInstance::getSecSkillLevel(const int & ID) const
 			return secSkills[i].second;
 	return -1;
 }
+ui32 CGHeroInstance::getArtAtPos(ui16 pos) const
+{
+	if(pos<19)
+		if(vstd::contains(artifWorn,pos))
+			return artifWorn.find(pos)->second;
+		else
+			return -1;
+	else
+		if(pos-19 < artifacts.size())
+			return artifacts[pos-19];
+		else 
+			return -1;
+}
+void CGHeroInstance::setArtAtPos(ui16 pos, int art)
+{
+	if(art<0)
+	{
+		if(pos<19)
+			artifWorn.erase(pos);
+		else
+			artifacts -= artifacts[pos];
+	}
+	else
+	{
+		if(pos<19)
+			artifWorn[pos] = art;
+		else
+			if(pos-19 < artifacts.size())
+				artifacts[pos-19] = art;
+			else
+				artifacts.push_back(art);
+	}
+}
 const CArtifact * CGHeroInstance::getArt(int pos)
 {
-	if(artifWorn.find(pos)!=artifWorn.end())
-		return &VLC->arth->artifacts[artifWorn[pos]];
-	else 
+	int id = getArtAtPos(pos);
+	if(id>=0)
+		return &VLC->arth->artifacts[id];
+	else
 		return NULL;
 }
 

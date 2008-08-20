@@ -334,6 +334,7 @@ public:
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 :hslotup(241,387,0,Town->garrisonHero,this),hslotdown(241,483,1,Town->visitingHero,this)
 {
+	subInt = NULL;
 	hall = NULL;
 	townInt = BitmapHandler::loadBitmap("TOWNSCRN.bmp");
 	cityBg = BitmapHandler::loadBitmap(getBgName(Town->subID));
@@ -623,6 +624,11 @@ void CCastleInterface::show(SDL_Surface * to)
 }
 void CCastleInterface::activate()
 {
+	if(subInt)
+	{
+		subInt->activate();
+		return;
+	}
 	showing = true;
 	townlist->activate();
 	garr->activate();
@@ -637,6 +643,11 @@ void CCastleInterface::activate()
 }
 void CCastleInterface::deactivate()
 {
+	if(subInt)
+	{
+		subInt->deactivate();
+		return;
+	}
 	showing = false;
 	townlist->deactivate();
 	garr->deactivate();
@@ -980,6 +991,7 @@ CHallInterface::~CHallInterface()
 }
 void CHallInterface::close()
 {
+	LOCPLINT->castleInt->subInt = NULL;
 	deactivate();
 	delete this;
 	LOCPLINT->castleInt->activate();
@@ -1392,6 +1404,7 @@ void CMageGuildScreen::close()
 {
 	deactivate();
 	delete this;
+	LOCPLINT->castleInt->subInt = NULL;
 	LOCPLINT->castleInt->activate();
 	LOCPLINT->castleInt->showAll();
 }
@@ -1430,7 +1443,7 @@ void CMageGuildScreen::Scroll::clickRight (tribool down)
 			(LOCPLINT->playerID,
 			spell->descriptions[0],
 			static_cast<CMageGuildScreen*>(LOCPLINT->castleInt->subInt)->scrolls->ourImages[spell->id].bitmap,
-			spell->name);
+			spell->name,30,30);
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
 		vinya->activate();

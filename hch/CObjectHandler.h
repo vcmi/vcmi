@@ -107,8 +107,8 @@ public:
 	bool inTownGarrison; // if hero is in town garrison 
 	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 
-	std::vector<int> artifacts; //hero's artifacts from bag
-	std::map<int,int> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
+	std::vector<ui32> artifacts; //hero's artifacts from bag
+	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<int> spells; //known spells (spell IDs)
 
 	virtual bool isHero() const;
@@ -125,6 +125,8 @@ public:
 	int getCurrentLuck() const;
 	int getCurrentMorale() const;
 	int getSecSkillLevel(const int & ID) const; //-1 - no skill
+	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
+	void setArtAtPos(ui16 pos, int art);
 	const CArtifact * getArt(int pos);
 	CGHeroInstance();
 	virtual ~CGHeroInstance();

@@ -64,8 +64,7 @@ public:
 	bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4,
 		misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso,
 		lHand, rHand, neck, shoulders, head; //my types
-	int myNumber;
-	int backNumber; //number of artifact if this is backpack artplace
+	ui16 slotID; //0   	head	1 	shoulders		2 	neck		3 	right hand		4 	left hand		5 	torso		6 	right ring		7 	left ring		8 	feet		9 	misc. slot 1		10 	misc. slot 2		11 	misc. slot 3		12 	misc. slot 4		13 	ballista (war machine 1)		14 	ammo cart (war machine 2)		15 	first aid tent (war machine 3)		16 	catapult		17 	spell book		18 	misc. slot 5		19+ 	backpack slots
 
 	bool clicked;
 	CHeroWindow * ourWindow;
