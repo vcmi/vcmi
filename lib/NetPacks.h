@@ -246,7 +246,7 @@ struct MetaString : public CPack<MetaString> //2001 helper for object scrips
 }; 
 struct Component : public CPack<Component> //2002 helper for object scrips informations
 {
-	ui16 id, subtype; //ids: 0 - primskill; 1 - secskill; 2 - resource; 3 - creature; 4 - artifact; 5 - experience
+	ui16 id, subtype; //ids: 0 - primskill; 1 - secskill; 2 - resource; 3 - creature; 4 - artifact; 5 - experience (sub==0 exp points; sub==1 levels)
 	si32 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days
 
@@ -319,6 +319,20 @@ struct SelectionDialog : public Query<SelectionDialog>//2001
 
 	SelectionDialog(){type = 2001;};
 	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & text & components & player;
+	}
+};
+
+struct YesNoDialog : public Query<YesNoDialog>//2002
+{
+	MetaString text;
+	std::vector<Component> components;
+	ui8 player;
+
+	YesNoDialog(){type = 2002;};
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id & text & components & player;

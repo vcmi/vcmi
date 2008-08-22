@@ -1,5 +1,6 @@
 #pragma once
 #include "global.h"
+#include "client/FunctionList.h"
 
 #ifndef _MSC_VER
 extern "C" {
@@ -102,11 +103,13 @@ class CVisitableOPH : public CCPPObjectScript  //once per hero
 {
 public:
 	CVisitableOPH(CScriptCallback * CB):CCPPObjectScript(CB){};
+	std::map<int, int> typeOfTree; //0 - level for free; 1 - 2000 gold; 2 - 10 gems
 	std::map<int,std::set<int> > visitors;
 
 	void onNAHeroVisit(int objid, int heroID, bool alreadyVisited);
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
+	void treeSelected(int objid, int heroID, int resType, int resVal, int expVal, ui32 result);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
 };
 

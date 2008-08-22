@@ -930,7 +930,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		CGHeroInstance * vhi = (map->heroes[i]);
 		if(!vhi->type)
 			vhi->type = VLC->heroh->heroes[vhi->subID];
-		//vhi->subID = vhi->type->ID;
+
 		if (vhi->level<1)
 		{
 			vhi->exp=40+ran()%50;
@@ -957,6 +957,8 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		}
 		if (vhi->portrait < 0)
 			vhi->portrait = vhi->type->ID;
+
+		vhi->artifWorn[16] = 3;
 
 		//initial army
 		if (!vhi->army.slots.size()) //standard army

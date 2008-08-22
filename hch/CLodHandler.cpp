@@ -42,7 +42,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	{
 		unsigned char * outp = new unsigned char[ourEntry->realSize];
 		char name[30];memset(name,0,30);
-		strcat(name,"Sprites/");
+		strcat(name,"Data/");
 		strcat(name,(char*)ourEntry->name);
 		FILE * f = fopen(name,"rb");
 		int result = fread(outp,1,ourEntry->realSize,f);

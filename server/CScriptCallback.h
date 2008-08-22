@@ -1,7 +1,7 @@
 #pragma once
 #include "../global.h"
 #include <vector>
-#include <boost/function.hpp>
+#include "../client/FunctionList.h"
 class CVCMIServer;
 class CGameHandler;
 class SComponent;
@@ -18,6 +18,7 @@ struct MetaString;
 struct InfoWindow;
 struct ShowInInfobox;
 struct SelectionDialog;
+struct YesNoDialog;
 class CScriptCallback
 {
 	CScriptCallback(void);
@@ -28,6 +29,7 @@ public:
 	//get info
 	static int3 getPos(CGObjectInstance * ob);
 	int getHeroOwner(int heroID);
+	int getResource(int player, int which);
 	int getSelectedHero();
 	int getDate(int mode=0);
 	const CGObjectInstance* getObj(int objid);
@@ -41,7 +43,8 @@ public:
 	void setHoverName(int objid, MetaString * name);
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
 	void showInfoDialog(InfoWindow *iw);
-	void showSelectionDialog(SelectionDialog *iw, boost::function<void(ui32)> &callback); //returns question id
+	void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback);
+	void showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback); //returns question id
 	void giveResource(int player, int which, int val);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);

@@ -38,7 +38,7 @@ ui32 CGameHandler::QID = 1;
 CondSh<bool> battleMadeAction;
 CondSh<BattleResult *> battleResult(NULL);
 
-std::map<ui32, boost::function<void(ui32)> > callbacks; //question id => callback function - for selection dialogs
+std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback function - for selection dialogs
 
 class CMP_stack
 {
@@ -789,7 +789,7 @@ upgend:
 					ui32 qid, answer;
 					c >> qid >> answer;
 					gsm.lock();
-					boost::function<void(ui32)> callb = callbacks[qid];
+					CFunctionList<void(ui32)> callb = callbacks[qid];
 					callbacks.erase(qid);
 					gsm.unlock();
 					callb(answer);

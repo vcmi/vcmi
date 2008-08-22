@@ -605,7 +605,14 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	case experience:
 		description = CGI->generaltexth->allTexts[241];
 		oss << Val ;
-		subtitle = oss.str();
+		if(Subtype && Val==1)
+		{
+			subtitle = CGI->generaltexth->allTexts[442];
+		}
+		else
+		{
+			subtitle = oss.str();
+		}
 		break;
 	}
 	type = Type;
@@ -622,8 +629,8 @@ SComponent::SComponent(Etype Type, int Subtype, int Val)
 
 SComponent::SComponent(const Component &c)
 {
-	if(c.id==0 && c.subtype==4)
-		init(experience,0,c.val);
+	if(c.id==5)
+		init(experience,c.subtype,c.val);
 	else
 		init((Etype)c.id,c.subtype,c.val);
 
@@ -2199,6 +2206,29 @@ void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SCom
 	//	temp->buttons[0]->callback += boost::bind(&CInfoWindow::close,temp);
 	//if(onNo)
 	//	temp->buttons[1]->callback += boost::bind(&CInfoWindow::close,temp);
+	temp->activate();
+	LOCPLINT->objsToBlit.push_back(temp);
+}
+
+void CPlayerInterface::showYesNoDialog( std::string &text, const std::vector<Component*> &components, ui32 askID )
+{
+	boost::unique_lock<boost::mutex> un(*pim);
+	curint->deactivate(); //dezaktywacja starego interfejsu
+
+	std::vector<SComponent*> intComps;
+	for(int i=0;i<components.size();i++)
+		intComps.push_back(new SComponent(*components[i])); //will be deleted by CSelWindow::close
+	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
+
+	CInfoWindow * temp = new CInfoWindow(text,playerID,32,intComps,pom);
+	temp->buttons[0]->callback += boost::bind(&IActivable::activate,curint);
+	temp->buttons[1]->callback += boost::bind(&IActivable::activate,curint);
+	temp->buttons[0]->callback += boost::bind(&CCallback::selectionMade,cb,0,askID);
+	temp->buttons[1]->callback += boost::bind(&CCallback::selectionMade,cb,1,askID);
+	temp->delComps = true;
+
 	temp->activate();
 	LOCPLINT->objsToBlit.push_back(temp);
 }

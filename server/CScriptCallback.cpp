@@ -68,12 +68,19 @@ int CScriptCallback::getHeroOwner(int heroID)
 {
 	return gh->gs->map->objects[heroID]->tempOwner;
 }
+int CScriptCallback::getResource(int player, int which)
+{
+	return gh->gs->players[player].resources[which];
+}
 void CScriptCallback::showInfoDialog(InfoWindow *iw)
 {
 	gh->sendToAllClients(iw);
 }
-
-void CScriptCallback::showSelectionDialog(SelectionDialog *iw, boost::function<void(ui32)> &callback)
+void CScriptCallback::showYesNoDialog( YesNoDialog *iw, const CFunctionList<void(ui32)> &callback )
+{
+	gh->ask(iw,iw->player,callback);
+}
+void CScriptCallback::showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback)
 {
 	gh->ask(iw,iw->player,callback);
 }

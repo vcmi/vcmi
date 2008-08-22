@@ -413,6 +413,18 @@ void CClient::process(int what)
 			playerint[sd.player]->showSelDialog(str,comps,sd.id);
 			break;
 		}
+	case 2002:
+		{
+			YesNoDialog ynd;
+			*serv >> ynd;
+			std::cout << "Showing yes/no dialog " <<std::endl;
+			std::vector<Component*> comps;
+			for(int i=0;i<ynd.components.size();i++)
+				comps.push_back(&ynd.components[i]);
+			std::string str = toString(ynd.text);
+			playerint[ynd.player]->showYesNoDialog(str,comps,ynd.id);
+			break;
+		}
 	case 3000:
 		{
 			BattleStart bs;

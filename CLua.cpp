@@ -200,12 +200,12 @@ void CVisitableOPH::newObject(int objid)
 	case 100:
 		pom = 5; 
 		break;
+	case 102:
+		typeOfTree[objid] = rand()%3;
+		return;
 	default:
-#ifndef __GNUC__
-		throw new std::exception("Unsupported ID in CVisitableOPH::hoverText");
-#else
-		throw new std::exception();
-#endif
+		std::cout << "Unsupported ID in CVisitableOPH::hoverText" << std::endl;
+		return;
 	}
 	hovername << std::pair<ui8,ui32>(3,os->ID) << " " << std::pair<ui8,ui32>(2,pom);
 	cb->setHoverName(objid,&hovername);
@@ -223,12 +223,14 @@ void CVisitableOPH::newObject(int objid)
 
 void CVisitableOPH::onHeroVisit(int objid, int heroID)
 {
+	DEFOS;
 	if (visitors.find(objid)!=visitors.end())
 	{
 		if(visitors[objid].find(heroID)==visitors[objid].end())
 		{
 			onNAHeroVisit(objid,heroID, false);
-			visitors[objid].insert(heroID);
+			if(os->ID != 102)
+				visitors[objid].insert(heroID);
 		}
 		else
 		{
@@ -247,29 +249,35 @@ void CVisitableOPH::onHeroVisit(int objid, int heroID)
 void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 {
 	const CGObjectInstance *os = cb->getObj(objid);
-	int w=0, ot=0, vvv=1;
+	int id=0, subid=0, ot=0, val=1;
 	switch(os->ID)
 	{
 	case 51:
-		w=0;
+		subid=0;
 		ot=80;
 		break;
 	case 23:
-		w=1;
+		subid=1;
 		ot=39;
 		break;
 	case 61:
-		w=2;
+		subid=2;
 		ot=100;
 		break;
 	case 32:
-		w=3;
+		subid=3;
 		ot=59;
 		break;
 	case 100:
-		w=4;
+		id=5;
 		ot=143;
-		vvv=1000;
+		val=1000;
+		break;
+	case 102:
+		id = 5;
+		subid = 1;
+		ot = 146;
+		val = 1;
 		break;
 	}
 	if (!alreadyVisited)
@@ -281,22 +289,71 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 		case 61:
 		case 32:
 			{
-				cb->changePrimSkill(heroID,w,vvv);
+				cb->changePrimSkill(heroID,subid,val);
 				InfoWindow iw;
-				iw.components.push_back(Component(0,w,vvv,0));
+				iw.components.push_back(Component(0,subid,val,0));
 				iw.text << std::pair<ui8,ui32>(11,ot);
 				iw.player = cb->getHeroOwner(heroID);
 				cb->showInfoDialog(&iw);
 				break;
 			}
-		case 100: //give 1000 exp
+		case 100: //give exp
 			{
 				InfoWindow iw;
-				iw.components.push_back(Component(0,4,vvv,0));
+				iw.components.push_back(Component(id,subid,val,0));
 				iw.player = cb->getHeroOwner(heroID);
 				iw.text << std::pair<ui8,ui32>(11,ot);
 				cb->showInfoDialog(&iw);
-				cb->changePrimSkill(heroID,w,vvv);
+				cb->changePrimSkill(heroID,4,val);
+				break;
+			}
+		case 102:
+			{
+				const CGHeroInstance *h = cb->getHero(heroID);
+				val = VLC->heroh->reqExp(h->level) + VLC->heroh->reqExp(h->level+val);
+				if(!typeOfTree[objid])
+				{
+					visitors[objid].insert(heroID);
+					InfoWindow iw;
+					iw.components.push_back(Component(id,subid,1,0));
+					iw.player = cb->getHeroOwner(heroID);
+					iw.text << std::pair<ui8,ui32>(11,148);
+					cb->showInfoDialog(&iw);
+					cb->changePrimSkill(heroID,4,val);
+					break;
+				}
+				else
+				{
+					int res, resval;
+					if(typeOfTree[objid]==1)
+					{
+						res = 6;
+						resval = 2000;
+						ot = 149;
+					}
+					else
+					{
+						res = 5;
+						resval = 10;
+						ot = 151;
+					}
+
+					if(cb->getResource(h->tempOwner,res) < resval) //not enough resources
+					{
+						ot++;
+						InfoWindow iw;
+						iw.player = h->tempOwner;
+						iw.text << std::pair<ui8,ui32>(11,ot);
+						cb->showInfoDialog(&iw);
+						return;
+					}
+
+					YesNoDialog sd;
+					sd.player = cb->getHeroOwner(heroID);
+					sd.text << std::pair<ui8,ui32>(11,ot);
+					sd.components.push_back(Component(id,subid,val,0));
+					cb->showYesNoDialog(&sd,CFunctionList<void(ui32)>(boost::bind(&CVisitableOPH::treeSelected,this,objid,heroID,res,resval,val,_1)));
+				}
 				break;
 			}
 		}
@@ -313,15 +370,25 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 
 std::vector<int> CVisitableOPH::yourObjects()
 {
-	std::vector<int> ret(5);
-	ret.push_back(51);
-	ret.push_back(23);
-	ret.push_back(61);
-	ret.push_back(32);
-	ret.push_back(100);
+	std::vector<int> ret;
+	ret.push_back(51);//camp 
+	ret.push_back(23);//tower
+	ret.push_back(61);//axis
+	ret.push_back(32);//garden
+	ret.push_back(100);//stone
+	ret.push_back(102);//tree
 	return ret;
 }
 
+void CVisitableOPH::treeSelected( int objid, int heroID, int resType, int resVal, int expVal, ui32 result )
+{
+	if(result==0) //player agreed to give res for exp
+	{
+		cb->giveResource(cb->getHeroOwner(heroID),resType,-resVal); //take resource
+		cb->changePrimSkill(heroID,4,expVal); //give exp
+		visitors[objid].insert(heroID); //set state to visited
+	}
+}
 void CVisitableOPW::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 {
 	DEFOS;
@@ -621,7 +688,7 @@ void CPickable::chosen(ui32 which, int heroid, int val)
 
 std::vector<int> CPickable::yourObjects() //returns IDs of objects which are handled by script
 {
-	std::vector<int> ret(3);
+	std::vector<int> ret;
 	ret.push_back(79); //resource
 	ret.push_back(5); //artifact
 	ret.push_back(101); //treasure chest / commander stone
@@ -684,7 +751,7 @@ void CHeroScript::onHeroVisit(int objid, int heroID)
 }
 std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are handled by script
 {
-	std::vector<int> ret(1);
+	std::vector<int> ret;
 	ret.push_back(34); //hero
 	return ret;
 }
@@ -743,7 +810,7 @@ void CMonsterS::onHeroVisit(int objid, int heroID)
 }
 std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script
 {
-	std::vector<int> ret(1);
+	std::vector<int> ret;
 	ret.push_back(54); //monster
 	return ret;
 }

@@ -1,6 +1,7 @@
 #pragma once
 #include "../global.h"
 #include <set>
+#include "../client/FunctionList.h"
 #include "../CGameState.h"
 #include "../lib/Connection.h"
 #include <boost/function.hpp>
@@ -13,7 +14,7 @@ class CScriptCallback;
 template <typename T> struct CPack;
 template <typename T> struct Query;
 class CGHeroInstance;
-extern std::map<ui32, boost::function<void(ui32)> > callbacks; //question id => callback function - for selection dialogs
+extern std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback functions - for selection dialogs
 extern boost::mutex gsm;
 
 struct PlayerStatus
@@ -70,7 +71,7 @@ public:
 		sendAndApply(sel);
 		gsm.unlock();
 	}
-	template <typename T> void ask(Query<T> * sel, ui8 player, boost::function<void(ui32)> &callback)
+	template <typename T> void ask(Query<T> * sel, ui8 player, const CFunctionList<void(ui32)> &callback)
 	{
 		gsm.lock();
 		sel->id = QID;

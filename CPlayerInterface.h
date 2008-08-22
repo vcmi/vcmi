@@ -333,33 +333,35 @@ public:
 	std::vector<IShowable*> objsToBlit;
 
 	//overloaded funcs from CGameInterface
-	void yourTurn();
-	void heroMoved(const HeroMoveDetails & details);
-	void tileRevealed(int3 pos);
-	void tileHidden(int3 pos);
-	void heroKilled(const CGHeroInstance* hero);
+	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
+	void garrisonChanged(const CGObjectInstance * obj);
 	void heroCreated(const CGHeroInstance* hero);
+	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
+	void heroInGarrisonChange(const CGTownInstance *town);
+	void heroKilled(const CGHeroInstance* hero);
+	void heroMoved(const HeroMoveDetails & details);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
+	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void receivedResource(int type, int val);
 	void showInfoDialog(std::string &text, const std::vector<Component*> &components);
 	void showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
-	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
-	void garrisonChanged(const CGObjectInstance * obj);
-	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
-	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
-	void heroInGarrisonChange(const CGTownInstance *town);
+	void showYesNoDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
+	void tileHidden(int3 pos);
+	void tileRevealed(int3 pos);
+	void yourTurn();
+
 	//for battles
+	//void actionFinished(BattleAction action);//occurs AFTER every action taken by any stack or by the hero
+	//void actionStarted(BattleAction action);//occurs BEFORE every action taken by any stack or by the hero
+	BattleAction activeStack(int stackID); //called when it's turn of that stack
+	void battleAttack(BattleAttack *ba);
+	void battleEnd(BattleResult *br);
+	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
+	void battleStackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
+	void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting);
+	void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving);
 	void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
-	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	//void actionStarted(BattleAction action);//occurs BEFORE every action taken by any stack or by the hero
-	//void actionFinished(BattleAction action);//occurs AFTER every action taken by any stack or by the hero
-	BattleAction activeStack(int stackID); //called when it's turn of that stack
-	void battleEnd(BattleResult *br);
-	void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving);
-	void battleAttack(BattleAttack *ba);
-	void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting);
-	void battleStackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
 
 
 	//-------------//

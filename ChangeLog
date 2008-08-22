@@ -1,11 +1,11 @@
 0.61 -> 0.62
 General:
-* threading and minor changes.
+* restructured to the server-client model
 * support for heroes starting in town garrisons
 * upgrading creatures
 * working gaining levels for heroes (including dialog with skill selection)
-* added fast graphical cursor
-* showing creature amount in the CCreInfoWindow
+* added graphical cursor
+* showing creature amount in the creature info window
 
 Castles:
 * icon in infobox showing that there is hero in town garrison
@@ -41,6 +41,9 @@ PreGame:
 * if sorting not by name, name will be used as a secondary criteria
 * when filter is applied a first available map is selected automatically
 * slider position updated after sorting in pregame
+
+Objects:
+* support for the Tree of knowledge
 
 0.6 -> 0.61 (Jun 15 2008)
 Improvements:

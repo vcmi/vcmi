@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CConsoleHandler.h"
 #include "CAdvmapInterface.h"
+#include "CCastleInterface.h"
 #include "CPlayerInterface.h"
 #include "SDL.h"
 #include "SDL_thread.h"
@@ -48,6 +49,23 @@ int internalFunc(void * callback)
 
 			if(pom==std::string("die, fool"))
 				exit(0);
+			if(cn==std::string("activate"))
+			{
+				int what;
+				readed >> what;
+				switch (what)
+				{
+				case 0:
+					LOCPLINT->curint->activate();
+					break;
+				case 1:
+					LOCPLINT->adventureInt->activate();
+					break;
+				case 2:
+					LOCPLINT->castleInt->activate();
+					break;
+				}
+			}
 			else if(pom==std::string("get txt"))
 			{
 				boost::filesystem::create_directory("Extracted_txts");
