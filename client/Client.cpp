@@ -77,6 +77,10 @@ std::string toString(MetaString &ms)
 					break;
 				case 11:
 					vec = &CGI->objh->advobtxt;
+					break;
+				case 12:
+					vec = &CGI->generaltexth->artifEvents;
+					break;
 				}
 				ret += (*vec)[ser];
 			}
@@ -366,7 +370,9 @@ void CClient::process(int what)
 			*serv >> sha;
 			std::cout << "Setting artifacts of hero " << sha.hid << std::endl;
 			gs->apply(&sha);
-			//TODO: inform interfaces
+			CGHeroInstance *t = gs->getHero(sha.hid);
+			if(vstd::contains(playerint,t->tempOwner))
+				playerint[t->tempOwner]->heroArtifactSetChanged(t);
 			break;
 		}
 	case 1001:
@@ -537,3 +543,7 @@ void CClient::run()
 	} HANDLE_EXCEPTION
 }
 
+void CClient::close()
+{
+	serv->close();
+}

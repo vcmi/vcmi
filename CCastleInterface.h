@@ -47,7 +47,7 @@ public:
 	~CHeroGSlot();
 };
 
-class CCastleInterface : public IShowable, public IActivable
+class CCastleInterface : public CMainInterface
 {
 public:
 	bool showing;
@@ -56,7 +56,6 @@ public:
 	SDL_Surface * cityBg;
 	const CGTownInstance * town;
 	CStatusBar * statusbar;
-	IShowActivable * subInt;
 	unsigned char animval, count;
 
 	CDefHandler *hall,*fort, *flag;
@@ -76,7 +75,7 @@ public:
 	void show(SDL_Surface * to=NULL);
 	void showAll(SDL_Surface * to=NULL, bool forceTotalRedraw = false);
 	void buildingClicked(int building);
-
+	void enterMageGuild();
 	CRecrutationWindow * showRecruitmentWindow(int building);
 	void enterHall();
 	void close();
@@ -145,7 +144,7 @@ public:
 	void deactivate();
 };
 
-class CFortScreen : public IShowActivable
+class CFortScreen : public CMainInterface
 {
 	class RecArea : public ClickableL
 	{

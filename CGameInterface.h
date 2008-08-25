@@ -46,6 +46,7 @@ public:
 
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
 	virtual void garrisonChanged(const CGObjectInstance * obj){};
+	virtual void heroArtifactSetChanged(const CGHeroInstance*hero){};
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)=0; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void heroInGarrisonChange(const CGTownInstance *town){};

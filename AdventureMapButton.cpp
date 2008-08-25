@@ -16,10 +16,10 @@ AdventureMapButton::AdventureMapButton ()
 	state=0;
 	actOnDown = false;
 }
-AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton)
-{
-	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);
-}
+//AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton)
+//{
+//	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);
+//}
 AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, CFunctionList<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton )
 {
 	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);

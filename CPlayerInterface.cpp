@@ -12,6 +12,7 @@
 #include "hch/CLodHandler.h"
 #include "CPathfinder.h"
 #include <sstream>
+#include "hch/CArtHandler.h"
 #include "hch/CAbilityHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CTownHandler.h"
@@ -172,14 +173,10 @@ void CGarrisonSlot::clickLeft(tribool down)
 						(creature->idNumber,1,count,NULL,0, boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),NULL) )
 						->activate();
 				}
-				if(LOCPLINT->curint == LOCPLINT->castleInt   &&   dynamic_cast<CHeroWindow*>(LOCPLINT->castleInt->subInt))
-				{
-					LOCPLINT->castleInt->subInt->deactivate();
-				}
+				if(LOCPLINT->curint->subInt)
+					LOCPLINT->curint->subInt->deactivate();
 				else
-				{
 					LOCPLINT->curint->deactivate();
-				}
 				owner->highlighted = NULL;
 				show();
 				refr = true;
@@ -263,8 +260,8 @@ void CGarrisonSlot::show()
 		printTo(buf,pos.x+56,pos.y+62,GEOR16,zwykly);
 		if(owner->highlighted==this)
 			blitAt(graphics->bigImgs[-1],pos);
-		if(owner->update)
-			updateRect(&pos,screen);
+		//if(owner->update)
+		//	updateRect(&pos,screen);
 		delete [] buf;
 	}
 	else
@@ -273,8 +270,8 @@ void CGarrisonSlot::show()
 		SDL_BlitSurface(owner->sur,&jakis1,screen,&jakis2);
 		if(owner->splitting)
 			blitAt(graphics->bigImgs[-1],pos);
-		if(owner->update)
-			SDL_UpdateRect(screen,pos.x,pos.y,pos.w,pos.h);
+		//if(owner->update)
+		//	SDL_UpdateRect(screen,pos.x,pos.y,pos.w,pos.h);
 	}
 }
 CGarrisonInt::~CGarrisonInt()
@@ -588,6 +585,10 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	std::ostringstream oss;
 	switch (Type)
 	{
+	case artifact:
+		description = CGI->arth->artifacts[Subtype].description;
+		subtitle = CGI->arth->artifacts[Subtype].name;
+		break;
 	case primskill:
 		description = CGI->generaltexth->arraytxt[2+Subtype];
 		oss << ((Val>0)?("+"):("-")) << Val << " " << CGI->heroh->pskillsn[Subtype];
@@ -645,6 +646,9 @@ SDL_Surface * SComponent::getImg()
 {
 	switch (type)
 	{
+	case artifact:
+		return graphics->artDefs->ourImages[subtype].bitmap;
+		break;
 	case primskill:
 		return graphics->pskillsb->ourImages[subtype].bitmap;
 		break;
@@ -1942,6 +1946,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 
 void CPlayerInterface::receivedResource(int type, int val)
 {
+	boost::unique_lock<boost::mutex> un(*pim);
 	adventureInt->resdatabar.draw();
 }
 
@@ -2017,13 +2022,13 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			SDL_FreeSurface(graphics->heroWins[hh->subID]);
 			graphics->heroWins[hh->subID] = infoWin(hh);
 		}
-		CHeroWindow * hw = dynamic_cast<CHeroWindow *>(curint);
+		CHeroWindow * hw = dynamic_cast<CHeroWindow *>(curint->subInt);
 		if(hw)
 		{
 			hw->garInt->recreateSlots();
 			hw->garInt->show();
 		}
-		else if(castleInt) //opened town window - redraw town garrsion slots (change is within hero garr)
+		if(castleInt) //opened town window - redraw town garrsion slots (change is within hero garr)
 		{
 			castleInt->garr->highlighted = NULL;
 			castleInt->garr->recreateSlots();
@@ -2128,9 +2133,9 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 void CPlayerInterface::battleEnd(BattleResult *br)
 {
 	boost::unique_lock<boost::mutex> un(*pim);
-	dynamic_cast<CBattleInterface*>(curint)->deactivate();
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),dynamic_cast<IShowable*>(curint)));
-	delete dynamic_cast<CBattleInterface*>(curint);
+	curint->deactivate();
+	objsToBlit -= curint;
+	delete curint;
 	curint = adventureInt;
 	adventureInt->activate();
 }
@@ -2256,6 +2261,16 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 	adventureInt->heroWindow->quitButton->callback.funcs.clear();
 	adventureInt->heroWindow->quitButton->callback += boost::bind(&CHeroWindow::quit,adventureInt->heroWindow);
 	adventureInt->heroWindow->activate();
+}
+
+void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
+{
+	boost::unique_lock<boost::mutex> un(*pim);
+	if(curint->subInt == adventureInt->heroWindow)
+	{
+		//TODO: update hero window properly
+
+	}
 }
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 {
@@ -2827,9 +2842,6 @@ void CRecrutationWindow::close()
 	deactivate();
 	delete this;
 	LOCPLINT->curint->activate();
-	CCastleInterface *pom;
-	if(pom=dynamic_cast<CCastleInterface*>(LOCPLINT->curint))
-		pom->showAll();
 }
 void CRecrutationWindow::Max()
 {
@@ -3055,9 +3067,6 @@ void CSplitWindow::close()
 	deactivate();
 	delete this;
 	LOCPLINT->curint->activate();
-
-	CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
-	if(c) c->showAll();
 }
 void CSplitWindow::sliderMoved(int to)
 {
@@ -3210,12 +3219,6 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 				CFunctionList<void()> fs[2];
 				fs[0] += Upg;
 				fs[0] += boost::bind(&CCreInfoWindow::close,this);
-
-				CCastleInterface *pom;
-				if(pom=dynamic_cast<CCastleInterface*>(LOCPLINT->curint)) //if town screen is opened it needs to be redrawn
-				{
-					fs[1] += boost::bind(&CCastleInterface::showAll,pom,screen,true);
-				}
 				fs[1] += boost::bind(&CCreInfoWindow::activate,this);
 				CFunctionList<void()> cfl;
 				cfl = boost::bind(&CCreInfoWindow::deactivate,this);
@@ -3236,12 +3239,6 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 			//on dismiss confirmed
 			fs[0] += Dsm; //dismiss
 			fs[0] += boost::bind(&CCreInfoWindow::close,this);//close this window
-
-			CCastleInterface *pom;
-			if(pom=dynamic_cast<CCastleInterface*>(LOCPLINT->curint)) //if town screen is opened it needs to be redrawn
-			{
-				fs[1] += boost::bind(&CCastleInterface::showAll,pom,screen,true);
-			}
 			fs[1] += boost::bind(&CCreInfoWindow::activate,this);
 			CFunctionList<void()> cfl;
 		        cfl = boost::bind(&CCreInfoWindow::deactivate,this);
@@ -3282,14 +3279,14 @@ void CCreInfoWindow::activate()
 void CCreInfoWindow::close()
 {
 	deactivate();
-	CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
-	if(c && dynamic_cast<CHeroWindow*>(c->subInt))
+	if(dynamic_cast<CHeroWindow*>(LOCPLINT->curint->subInt))
 	{
 		if(type)
-			c->subInt->activate();
+			LOCPLINT->curint->subInt->activate();
 	}
 	else
 	{
+		CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
 		if(c)
 			c->showAll();
 		if(type)

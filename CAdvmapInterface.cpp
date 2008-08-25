@@ -980,7 +980,7 @@ void CAdvMapInt::deactivate()
 {
 	hide();
 }
-void CAdvMapInt::show()
+void CAdvMapInt::show(SDL_Surface *to)
 {
 	blitAt(bg,0,0);
 

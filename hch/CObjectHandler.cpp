@@ -257,7 +257,7 @@ void CGHeroInstance::setArtAtPos(ui16 pos, int art)
 		if(pos<19)
 			artifWorn.erase(pos);
 		else
-			artifacts -= artifacts[pos];
+			artifacts -= artifacts[pos-19];
 	}
 	else
 	{

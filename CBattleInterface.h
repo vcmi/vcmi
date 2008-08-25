@@ -69,7 +69,7 @@ public:
 	void scrollDown(unsigned int by = 1); //scrolls console up by 'by' positions
 };
 
-class CBattleInterface : public IActivable, public IShowable
+class CBattleInterface : public CMainInterface
 {
 private:
 	SDL_Surface * background, * menu, * amountBasic, * amountNormal;

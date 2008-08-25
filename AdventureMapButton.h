@@ -22,7 +22,7 @@ public:
 
 	AdventureMapButton(); //c-tor
 	AdventureMapButton( std::string Name, std::string HelpBox, CFunctionList<void()> Callback, int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
-	AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+	//AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 
 	void init( CFunctionList<void()> Callback, std::string Name, std::string HelpBox, bool playerColoredButton, std::string defName, std::vector<std::string> * add, int x, int y, bool activ );
 };

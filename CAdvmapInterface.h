@@ -98,7 +98,7 @@ public:
 	CDefHandler * getAnim(int mode);
 };
 /*****************************/
-class CAdvMapInt : public IActivable //adventure map interface
+class CAdvMapInt : public CMainInterface //adventure map interface
 {
 public:
 	CAdvMapInt(int Player);
@@ -166,7 +166,7 @@ public:
 	void activate();
 	void deactivate();
 
-	void show(); //shows and activates adv. map interface
+	void show(SDL_Surface * to=NULL); //shows and activates adv. map interface
 	void hide(); //deactivates advmap interface
 	void update(); //redraws terrain
 

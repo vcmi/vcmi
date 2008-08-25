@@ -372,6 +372,7 @@ public:
 	int write(const void * data, unsigned size);
 	int read(void * data, unsigned size);
 	int readLine(void * data, unsigned maxSize);
+	void close();
 	~CConnection(void);
 };
 

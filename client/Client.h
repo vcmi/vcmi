@@ -46,6 +46,7 @@ public:
 	CClient(CConnection *con, StartInfo *si);
 	~CClient(void);
 
+	void close();
 	void process(int what);
 	void run();
 

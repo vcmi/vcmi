@@ -71,7 +71,7 @@ SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 	printAtMiddle(buf,167,70,GEORM,zwykly,ret);
 	for (std::map<si32,std::pair<ui32,si32> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
 	{
-		if(!i->second.first)
+		if(!i->second.second)
 			continue;
 		blitAt(graphics->smallImgs[(*i).second.first],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
 		SDL_itoa((*i).second.second,buf,10);

@@ -417,7 +417,18 @@ void CGameState::applyNL(IPack * pack)
 		{
 			SetGarrisons * n = static_cast<SetGarrisons*>(pack);
 			for(std::map<ui32,CCreatureSet>::iterator i = n->garrs.begin(); i!=n->garrs.end(); i++)
-				static_cast<CArmedInstance*>(map->objects[i->first])->army = i->second;
+			{
+				CArmedInstance *ai = static_cast<CArmedInstance*>(map->objects[i->first]);
+				ai->army = i->second;
+				if(ai->ID==98 && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
+					const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->army = i->second;
+				else if(ai->ID==34)
+				{
+					CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
+					if(h->visitedTown && h->inTownGarrison)
+						h->visitedTown->army = i->second;
+				}
+			}
 			break;
 		}
 	case 503:
@@ -1101,24 +1112,25 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			for(int m=0; m<k->second.towns.size();m++)
 			{
 				int3 vistile = k->second.towns[m]->pos; vistile.x--; //tile next to the entrance
-				if(vistile == k->second.heroes[l]->pos)
+				if(vistile == k->second.heroes[l]->pos || k->second.heroes[l]->pos==k->second.towns[m]->pos)
 				{
 					k->second.towns[m]->visitingHero = k->second.heroes[l];
 					k->second.heroes[l]->visitedTown = k->second.towns[m];
 					k->second.heroes[l]->inTownGarrison = false;
-					goto mainplheloop;
+					if(k->second.heroes[l]->pos==k->second.towns[m]->pos)
+						k->second.heroes[l]->pos.x -= 1;
+					break;
 				}
-				else if(k->second.heroes[l]->pos == k->second.towns[m]->pos)
-				{
-					k->second.towns[m]->garrisonHero = k->second.heroes[l];
-					k->second.towns[m]->army = k->second.heroes[l]->army;
-					k->second.heroes[l]->visitedTown = k->second.towns[m];
-					k->second.heroes[l]->inTownGarrison = true;
-					k->second.heroes[l]->pos.x -= 1;
-					goto mainplheloop;
-				}
+				//else if(k->second.heroes[l]->pos == k->second.towns[m]->pos)
+				//{
+				//	k->second.towns[m]->garrisonHero = k->second.heroes[l];
+				//	k->second.towns[m]->army = k->second.heroes[l]->army;
+				//	k->second.heroes[l]->visitedTown = k->second.towns[m];
+				//	k->second.heroes[l]->inTownGarrison = true;
+				//	k->second.heroes[l]->pos.x -= 1;
+				//	goto mainplheloop;
+				//}
 			}
-mainplheloop:;
 		}
 	}
 }

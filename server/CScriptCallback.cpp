@@ -128,28 +128,20 @@ void CScriptCallback::stopHeroVisitCastle(int obj, int heroID)
 }
 void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
 {
-	CGHeroInstance* h = gh->gs->map->getHero(hid,0);
+	const CGHeroInstance* h = getHero(hid);
+
+	SetHeroArtifacts sha;
+	sha.hid = hid;
+	sha.artifacts = h->artifacts;
+	sha.artifWorn = h->artifWorn;
 	if(position<0)
-	{
-		for(unsigned i=0;i<h->artifacts.size();i++)
-		{
-			if(!h->artifacts[i])
-			{
-				h->artifacts[i] = artid;
-				return;
-			}
-		}
-		h->artifacts.push_back(artid);
-		return;
-	}
+		sha.artifacts.push_back(artid);
 	else
-	{
-		if(h->artifWorn[position]) //slot is occupied
-		{
-			giveHeroArtifact(h->artifWorn[position],hid,-1);
-		}
-		h->artifWorn[position] = artid;
-	}
+		if(!vstd::contains(sha.artifWorn,ui16(position)))
+			sha.artifWorn[position] = artid;
+		else
+			sha.artifacts.push_back(artid);
+	gh->sendAndApply(&sha);
 }
 
 void CScriptCallback::startBattle(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) //use hero=NULL for no hero

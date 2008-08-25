@@ -6,7 +6,7 @@
 
 void CGeneralTextHandler::load()
 {
-	std::string buf = CGI->bitmaph->getTextFile("GENRLTXT.TXT");
+	std::string buf = CGI->bitmaph->getTextFile("GENRLTXT.TXT"), tmp;
 	int andame = buf.size();
 	int i=0; //buf iterator
 	for(i; i<andame; ++i)
@@ -28,7 +28,6 @@ void CGeneralTextHandler::load()
 	int itr=0;
 	while(itr<strs.length()-1)
 	{
-		std::string tmp;
 		loadToIt(tmp, strs, itr, 3);
 		arraytxt.push_back(tmp);
 	}
@@ -37,7 +36,6 @@ void CGeneralTextHandler::load()
 	std::string strin = CGI->bitmaph->getTextFile("PRISKILL.TXT");
 	for(int hh=0; hh<4; ++hh)
 	{
-		std::string tmp;
 		loadToIt(tmp, strin, itr, 3);
 		primarySkillNames.push_back(tmp);
 	}
@@ -46,7 +44,6 @@ void CGeneralTextHandler::load()
 	std::string strin2 = CGI->bitmaph->getTextFile("JKTEXT.TXT");
 	for(int hh=0; hh<45; ++hh)
 	{
-		std::string tmp;
 		loadToIt(tmp, strin2, itr, 3);
 		jktexts.push_back(tmp);
 	}
@@ -55,8 +52,14 @@ void CGeneralTextHandler::load()
 	std::string strin3 = CGI->bitmaph->getTextFile("HEROSCRN.TXT");
 	for(int hh=0; hh<33; ++hh)
 	{
-		std::string tmp;
 		loadToIt(tmp, strin3, itr, 3);
 		heroscrn.push_back(tmp);
+	}
+
+	strin3 = CGI->bitmaph->getTextFile("ARTEVENT.TXT");
+	for(itr = 0; itr<strin3.size();itr++)
+	{
+		loadToIt(tmp, strin3, itr, 3);
+		artifEvents.push_back(tmp);
 	}
 }

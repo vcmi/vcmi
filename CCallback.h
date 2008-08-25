@@ -40,6 +40,7 @@ public:
 	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void endTurn()=0;
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
+	virtual void buyArtifact(const CGHeroInstance *hero, int aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)=0;
@@ -113,6 +114,7 @@ public:
 	bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1);
 	void endTurn();
 	void swapGarrisonHero(const CGTownInstance *town);
+	void buyArtifact(const CGHeroInstance *hero, int aid);
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea);

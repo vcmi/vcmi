@@ -615,8 +615,7 @@ void Options::showIcon (int what, int nr, bool abs) //what: -1=castle, 0=hero, 1
 			{
 				if(ourOpt->heroPortrait>=0)
 				{
-					//TODO: restore drawing hero portrait
-					//blitAtWR(CGI->heroh->heroes[ourOpt->heroPortrait]->portraitSmall,252,130+50*se);
+					blitAtWR(graphics->portraitSmall[ourOpt->heroPortrait],252,130+50*se);
 				}
 				else
 				{
@@ -625,8 +624,7 @@ void Options::showIcon (int what, int nr, bool abs) //what: -1=castle, 0=hero, 1
 			}
 			else
 			{
-				//TODO: restore drawing hero portrait
-				//blitAtWR(CGI->heroh->heroes[pom]->portraitSmall,252,130+50*se);
+				blitAtWR(graphics->portraitSmall[pom],252,130+50*se);
 			}
 			break;
 		}

@@ -588,6 +588,26 @@ void CPickable::onHeroVisit(int objid, int heroID)
 	case 5: //artifact
 		{
 			cb->giveHeroArtifact(os->subID,heroID,-1); //TODO: na pozycje
+			InfoWindow iw;
+			iw.player = cb->getHeroOwner(heroID);
+			iw.components.push_back(Component(4,os->subID,0,0));
+			iw.text << std::pair<ui8,ui32>(12,os->subID);
+			cb->showInfoDialog(&iw);
+			break;
+		}
+	case 12: //campfire
+		{
+			int val = (rand()%3) + 4, //4 - 6
+				res = rand()%6, 
+				owner = cb->getHeroOwner(heroID);
+			cb->giveResource(owner,res,val); //non-gold resource
+			cb->giveResource(owner,6,val*100);//gold
+			InfoWindow iw;
+			iw.player = owner;
+			iw.components.push_back(Component(2,6,val*100,0));
+			iw.components.push_back(Component(2,res,val,0));
+			iw.text << std::pair<ui8,ui32>(11,23);
+			cb->showInfoDialog(&iw);
 			break;
 		}
 	case 79: //resource
@@ -691,6 +711,7 @@ std::vector<int> CPickable::yourObjects() //returns IDs of objects which are han
 	std::vector<int> ret;
 	ret.push_back(79); //resource
 	ret.push_back(5); //artifact
+	ret.push_back(12); //resource
 	ret.push_back(101); //treasure chest / commander stone
 	return ret;
 }

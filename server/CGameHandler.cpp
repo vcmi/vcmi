@@ -477,9 +477,9 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						S2->slots[p2].second = S1->slots[p1].second;
 						S1->slots[p1].second = pom2;
 
-						if(!S1->slots[p1].first)
+						if(!S1->slots[p1].second)
 							S1->slots.erase(p1);
-						if(!S2->slots[p2].first)
+						if(!S2->slots[p2].second)
 							S2->slots.erase(p2);
 					}
 					else if(what==2)//merge
@@ -618,7 +618,6 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					{
 						sg.garrs[objid].slots[slot].second += cram;
 					}
-
 					sendAndApply(&sr); 
 					sendAndApply(&sac);
 					sendAndApply(&sg);
@@ -708,28 +707,30 @@ upgend:
 					}
 					else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
 					{
-						//town will be empty
-						SetGarrisons sg;
-						sg.garrs[tid] = CCreatureSet();
-						sendAndApply(&sg);
-
 						SetHeroesInTown intown;
 						intown.tid = tid;
 						intown.garrison = -1;
 						intown.visiting =  town->garrisonHero->id;
 						sendAndApply(&intown);
+
+						//town will be empty
+						SetGarrisons sg;
+						sg.garrs[tid] = CCreatureSet();
+						sendAndApply(&sg);
 					}
 					else if (town->garrisonHero && town->visitingHero) //swap visiting and garrison hero
 					{
 						SetGarrisons sg;
 						sg.garrs[town->id] = town->visitingHero->army;
-						sendAndApply(&sg);
+						sg.garrs[town->garrisonHero->id] = town->garrisonHero->army;
+						//sg.garrs[town->visitingHero->id] = town->visitingHero->army;
 
 						SetHeroesInTown intown;
 						intown.tid = tid;
 						intown.garrison = town->visitingHero->id;
 						intown.visiting =  town->garrisonHero->id;
 						sendAndApply(&intown);
+						sendAndApply(&sg);
 					}
 					else
 					{
@@ -737,7 +738,7 @@ upgend:
 					}
 					break;
 				}
-			case 509:
+			case 509: //swap artifacts
 				{
 					si32 hid1, hid2;
 					ui16 slot1, slot2;
@@ -749,28 +750,6 @@ upgend:
 
 					h2->setArtAtPos(slot2,a1);
 					h1->setArtAtPos(slot1,a2);
-// 					if(std::max(slot1,slot2) < 19)
-// 					{
-// 						if(vstd::contains(h1->artifWorn,slot1) && vstd::contains(h1->artifWorn,slot2))
-// 							std::swap(h1->artifWorn[slot1],h2->artifWorn[slot2]);
-// 						if(vstd::contains(h1->artifWorn,slot1))
-// 						{
-// 							h2->artifWorn[slot2] = h1->artifWorn[slot1];
-// 							h1->artifWorn.erase(slot1);
-// 						}
-// 						else if(vstd::contains(h2->artifWorn,slot2))
-// 						{
-// 							h1->artifWorn[slot1] = h2->artifWorn[slot2];
-// 							h2->artifWorn.erase(slot2);
-// 						}
-// 						else
-// 						{
-// 							std::cout << "Warning, wrong artifact swap command!" << std::endl;
-// 						}
-// 					}
-// 					else
-// 					{
-// 					}
 					SetHeroArtifacts sha;
 					sha.hid = hid1;
 					sha.artifacts = h1->artifacts;
@@ -783,6 +762,35 @@ upgend:
 						sha.artifWorn = h2->artifWorn;
 						sendAndApply(&sha);
 					}
+					break;
+				}
+			case 510: //buy artifact
+				{
+					ui32 hid;
+					si32 aid, bid;
+					c >> hid >> aid;
+					CGHeroInstance *hero = gs->getHero(hid);
+					CGTownInstance *town = hero->visitedTown;
+					if(aid==0)
+					{
+						if(!vstd::contains(town->builtBuildings,si32(0)))
+							break;
+						SetResource sr;
+						sr.player = hero->tempOwner;
+						sr.resid = 6;
+						sr.val = gs->players[hero->tempOwner].resources[6] - 500;
+						sendAndApply(&sr);
+
+						SetHeroArtifacts sha;
+						sha.hid = hid;
+						sha.artifacts = hero->artifacts;
+						sha.artifWorn = hero->artifWorn;
+						sha.artifWorn[17] = 0;
+						sendAndApply(&sha);
+					}
+					
+					//TODO: war machines
+					break;
 				}
 			case 2001:
 				{
@@ -1100,12 +1108,12 @@ void CGameHandler::run()
 			while(states.players[i->first].makingTurn && !end2)
 			{
 				boost::posix_time::time_duration p;
-				p= boost::posix_time::seconds(1);
+				p = boost::posix_time::milliseconds(200);
 #ifdef _MSC_VER
 				states.cv.timed_wait(lock,p); 
 #else
 				boost::xtime time={0,0};
-				time.sec = static_cast<boost::xtime::xtime_sec_t>(p.total_seconds());
+				time.nsec = static_cast<boost::xtime::xtime_nsec_t>(p.total_nanoseconds());
 				states.cv.timed_wait(lock,time);
 #endif
 			}

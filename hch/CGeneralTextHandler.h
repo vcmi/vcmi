@@ -13,6 +13,8 @@ public:
 	std::vector<std::string> primarySkillNames;
 	std::vector<std::string> jktexts;
 	std::vector<std::string> heroscrn;
+	std::vector<std::string> artifEvents;
+
 	void load();
 };
 

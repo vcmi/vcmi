@@ -171,7 +171,8 @@ int main(int argc, _TCHAR* argv[])
 			SDL_WaitEvent(&ev);
 			if(ev.type==SDL_QUIT) 
 			{
-				t.interrupt();
+				cl.close();
+				SDL_Delay(750);
 				exit(0);
 			}
 			eventsM.lock();

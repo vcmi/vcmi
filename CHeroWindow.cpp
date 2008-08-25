@@ -508,6 +508,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 
 void CHeroWindow::quit()
 {
+	LOCPLINT->curint->subInt = NULL;
 	LOCPLINT->objsToBlit -= this;
 
 	deactivate();
@@ -535,7 +536,7 @@ void CHeroWindow::quit()
 
 void CHeroWindow::activate()
 {
-	//LOCPLINT->curint = this;
+	LOCPLINT->curint->subInt = this;
 	quitButton->activate();
 	dismissButton->activate();
 	questlogButton->activate();

@@ -513,3 +513,9 @@ void CCallback::swapGarrisonHero( const CGTownInstance *town )
 	if(town->tempOwner != player) return;
 	*cl->serv << ui16(508) << si32(town->id);
 }
+
+void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
+{
+	if(hero->tempOwner != player) return;
+	*cl->serv << ui16(510) << hero->id << ui32(aid);
+}

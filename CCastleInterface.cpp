@@ -233,26 +233,32 @@ void CHeroGSlot::clickRight (boost::logic::tribool down)
 }
 void CHeroGSlot::clickLeft(boost::logic::tribool down)
 {
+	CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
 	if(!down)
 	{
-		CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
 		if(hero && highlight)
 		{
 			highlight = false;
 			LOCPLINT->openHeroWindow(hero);
 			LOCPLINT->adventureInt->heroWindow->quitButton->callback += boost::bind(&CCastleInterface::showAll,owner,screen,true);
 		}
-		else if(hero)
-		{
-			highlight = true;
-			owner->showAll();
-		}
-		else if(other->hero, other->highlight)
+		else if(other->hero && other->highlight)
 		{
 			other->highlight = highlight = false;
 			LOCPLINT->cb->swapGarrisonHero(owner->town);
 		}
+		else if(hero)
+		{
+			highlight = true;
+			owner->garr->highlighted = NULL;
+			owner->showAll();
+		}
 		hover(false);hover(true); //refresh statusbar
+	}
+	if(indeterminate(down) && !isItIn(&other->pos,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	{
+		other->highlight = highlight = false;
+		show();
 	}
 }
 void CHeroGSlot::activate()
@@ -374,7 +380,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	{
 		LOCPLINT->objsToBlit.push_back(this);
 		activate();
-		showAll();
 	}
 
 	std::string defname;
@@ -473,8 +478,28 @@ void CCastleInterface::buildingClicked(int building)
 		{
 		case 0: case 1: case 2: case 3: case 4:
 			{
-				deactivate();
-				(new CMageGuildScreen(this))->activate();
+				if(town->visitingHero && !vstd::contains(town->visitingHero->artifWorn,ui16(17))) //visiting hero doesn't have spellboks
+				{
+					if(LOCPLINT->cb->getResourceAmount(6) < 500) //not enough gold to buy spellbook
+					{
+						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213],std::vector<SComponent*>());
+					}
+					else
+					{
+						CFunctionList<void()> fl = boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,town->visitingHero,0);
+						fl += boost::bind(&CCastleInterface::enterMageGuild,this);
+						std::vector<SComponent*> vvv(1,new SComponent(SComponent::artifact,0,0));
+						LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214],vvv,
+							fl,boost::bind(&CCastleInterface::activate,this),
+							true,true);
+					}
+				}
+				else
+				{ 
+					deactivate();
+					enterMageGuild();
+
+				}
 				break;
 			}
 		case 7: case 8: case 9:
@@ -629,6 +654,8 @@ void CCastleInterface::activate()
 		subInt->activate();
 		return;
 	}
+	else
+		subInt = NULL;
 	showing = true;
 	townlist->activate();
 	garr->activate();
@@ -640,6 +667,7 @@ void CCastleInterface::activate()
 		buildings[i]->activate();
 	hslotdown.activate();
 	hslotup.activate();
+	showAll(0,true);
 }
 void CCastleInterface::deactivate()
 {
@@ -806,6 +834,11 @@ CRecrutationWindow * CCastleInterface::showRecruitmentWindow( int building )
 	CRecrutationWindow *rw = new CRecrutationWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 	rw->activate();	
 	return rw;
+}
+
+void CCastleInterface::enterMageGuild()
+{
+	(new CMageGuildScreen(this))->activate();
 }
 void CHallInterface::CBuildingBox::hover(bool on)
 {
@@ -995,7 +1028,6 @@ void CHallInterface::close()
 	deactivate();
 	delete this;
 	LOCPLINT->castleInt->activate();
-	LOCPLINT->castleInt->showAll();
 }
 void CHallInterface::show(SDL_Surface * to)
 {
@@ -1055,7 +1087,6 @@ void CHallInterface::CBuildWindow::Buy()
 	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,bid);
 	delete this;
 	delete LOCPLINT->castleInt->subInt;
-	LOCPLINT->castleInt->showAll();
 }
 void CHallInterface::CBuildWindow::close()
 {
@@ -1252,7 +1283,6 @@ void CFortScreen::close()
 	deactivate();
 	delete this;
 	LOCPLINT->castleInt->activate();
-	LOCPLINT->castleInt->showAll();
 }
 CFortScreen::CFortScreen( CCastleInterface * owner )
 {
@@ -1406,7 +1436,6 @@ void CMageGuildScreen::close()
 	delete this;
 	LOCPLINT->castleInt->subInt = NULL;
 	LOCPLINT->castleInt->activate();
-	LOCPLINT->castleInt->showAll();
 }
 void CMageGuildScreen::show(SDL_Surface * to)
 {

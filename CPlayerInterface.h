@@ -60,6 +60,11 @@ class IShowActivable : public IShowable, public IActivable
 public:
 	virtual ~IShowActivable(){};
 };
+class CMainInterface : public IShowActivable
+{
+public:
+	IShowActivable *subInt;
+};
 class CIntObject //interface object
 {
 public:
@@ -315,7 +320,7 @@ public:
 	boost::mutex *pim;
 	bool makingTurn;
 	SDL_Event * current;
-	IActivable *curint;
+	CMainInterface *curint;
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt;
 	FPSmanager * mainFPSmng;
@@ -335,6 +340,7 @@ public:
 	//overloaded funcs from CGameInterface
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
 	void garrisonChanged(const CGObjectInstance * obj);
+	void heroArtifactSetChanged(const CGHeroInstance*hero);
 	void heroCreated(const CGHeroInstance* hero);
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	void heroInGarrisonChange(const CGTownInstance *town);

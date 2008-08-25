@@ -9,6 +9,11 @@ public:
 
 	CFunctionList(int){};
 	CFunctionList(){};
+	template <typename Functor> 
+	CFunctionList(const Functor &f)
+	{
+		funcs.push_back(boost::function<Signature>(f));
+	}
 	CFunctionList(const boost::function<Signature> &first)
 	{
 		funcs.push_back(first);
@@ -22,11 +27,11 @@ public:
 		funcs.push_back(first);
 		return *this;
 	}
-	const boost::function<Signature> & operator=(const boost::function<Signature> &first)
-	{
-		funcs.push_back(first);
-		return first;
-	}
+	//CFunctionList<Signature> & operator=(const boost::function<Signature> &first)
+	//{
+	//	funcs.push_back(first);
+	//	return first;
+	//}
 	operator bool() const
 	{
 		return funcs.size();

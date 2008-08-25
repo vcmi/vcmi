@@ -79,14 +79,21 @@ int CConnection::read(void * data, unsigned size)
 }
 CConnection::~CConnection(void)
 {
-	if(socket)
-		socket->close();
-	delete socket;
+	close();
 	delete io_service;
 	delete wmx;
 	delete rmx;
 }
 
+void CConnection::close()
+{
+	if(socket)
+	{
+		socket->close();
+		delete socket;
+		socket = NULL;
+	}
+}
 template <>
 void CConnection::saveSerializable<std::string>(const std::string &data)
 {

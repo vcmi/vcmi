@@ -92,6 +92,17 @@ const int SPELL_LEVELS = 5;
 		delete e;						\
 	}
 
+#define HANDLE_EXCEPTIONC(COMMAND)  \
+	catch (const std::exception& e) {	\
+	COMMAND;							\
+	std::cerr << e.what() << std::endl;	\
+	}									\
+	catch (const std::exception * e)	\
+	{									\
+		COMMAND;						\
+		std::cerr << e->what()<< std::endl;	\
+		delete e;						\
+	}
 
 namespace vstd
 {

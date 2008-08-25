@@ -1,7 +1,7 @@
 0.61 -> 0.62
 General:
 * restructured to the server-client model
-* support for heroes starting in town garrisons
+* support for heroes placed in towns
 * upgrading creatures
 * working gaining levels for heroes (including dialog with skill selection)
 * added graphical cursor
@@ -16,6 +16,7 @@ Castles:
 * viewing hero window in the town screen
 * possibility of moving hero into the garrison
 * partially done mage guild screen 
+* if hero doesn't have a spell book, he can buy one in a mage guild
 
 Adventure Interface:
 * hopefully fixed problems with wrong town defs (village/fort/capitol)
@@ -44,6 +45,8 @@ PreGame:
 
 Objects:
 * support for the Tree of knowledge
+* support for Campfires
+* added event message when picking artifact
 
 0.6 -> 0.61 (Jun 15 2008)
 Improvements:
