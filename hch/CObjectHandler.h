@@ -79,10 +79,10 @@ public:
 class DLL_EXPORT CGHeroInstance : public CArmedInstance
 {
 public:
-	int moveDir; //format:	123
+	mutable int moveDir; //format:	123
 					//		8 4
 					//		765
-	bool isStanding;
+	mutable bool isStanding;
 	CHero * type;
 	ui32 exp; //experience point
 	int level; //current level of hero

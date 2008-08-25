@@ -1,9 +1,14 @@
-4
-5
-5
-5
-5
-5
-3
-3
-5
+9
+4	127
+5	4
+5	5
+5	1
+5	127
+5	3
+3	127
+3	127
+5	1
+
+FORMAT:
+#castles
+mage_guild_max_level	main_res (127 for wood&ore)

@@ -248,11 +248,11 @@ void CTownHandler::loadNames()
 		of.close();
 		of.clear();
 
-		itr=0;
 		of.open("config/mageLevel.txt");
-		while(!of.eof())
+		of >> si;
+		for(itr=0; itr<si; itr++)
 		{
-			of >> towns[itr++].mageLevel;
+			of >> towns[itr].mageLevel >> towns[itr].primaryRes;
 		}
 		of.close();
 		of.clear();

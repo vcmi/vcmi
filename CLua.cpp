@@ -293,7 +293,7 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 				InfoWindow iw;
 				iw.components.push_back(Component(0,subid,val,0));
 				iw.text << std::pair<ui8,ui32>(11,ot);
-				iw.player = cb->getHeroOwner(heroID);
+				iw.player = cb->getOwner(heroID);
 				cb->showInfoDialog(&iw);
 				break;
 			}
@@ -301,7 +301,7 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 			{
 				InfoWindow iw;
 				iw.components.push_back(Component(id,subid,val,0));
-				iw.player = cb->getHeroOwner(heroID);
+				iw.player = cb->getOwner(heroID);
 				iw.text << std::pair<ui8,ui32>(11,ot);
 				cb->showInfoDialog(&iw);
 				cb->changePrimSkill(heroID,4,val);
@@ -316,7 +316,7 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 					visitors[objid].insert(heroID);
 					InfoWindow iw;
 					iw.components.push_back(Component(id,subid,1,0));
-					iw.player = cb->getHeroOwner(heroID);
+					iw.player = cb->getOwner(heroID);
 					iw.text << std::pair<ui8,ui32>(11,148);
 					cb->showInfoDialog(&iw);
 					cb->changePrimSkill(heroID,4,val);
@@ -349,7 +349,7 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 					}
 
 					YesNoDialog sd;
-					sd.player = cb->getHeroOwner(heroID);
+					sd.player = cb->getOwner(heroID);
 					sd.text << std::pair<ui8,ui32>(11,ot);
 					sd.components.push_back(Component(id,subid,val,0));
 					cb->showYesNoDialog(&sd,CFunctionList<void(ui32)>(boost::bind(&CVisitableOPH::treeSelected,this,objid,heroID,res,resval,val,_1)));
@@ -362,7 +362,7 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 	{
 		ot++;
 		InfoWindow iw;
-		iw.player = cb->getHeroOwner(heroID);
+		iw.player = cb->getOwner(heroID);
 		iw.text << std::pair<ui8,ui32>(11,ot);
 		cb->showInfoDialog(&iw);
 	}
@@ -384,7 +384,7 @@ void CVisitableOPH::treeSelected( int objid, int heroID, int resType, int resVal
 {
 	if(result==0) //player agreed to give res for exp
 	{
-		cb->giveResource(cb->getHeroOwner(heroID),resType,-resVal); //take resource
+		cb->giveResource(cb->getOwner(heroID),resType,-resVal); //take resource
 		cb->changePrimSkill(heroID,4,expVal); //give exp
 		visitors[objid].insert(heroID); //set state to visited
 	}
@@ -448,7 +448,7 @@ void CVisitableOPW::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 			else
 				val = 1000;
 		}
-		int player = cb->getHeroOwner(heroID);
+		int player = cb->getOwner(heroID);
 		cb->giveResource(player,sub,val);
 		InfoWindow iw;
 		iw.player = player;
@@ -589,7 +589,7 @@ void CPickable::onHeroVisit(int objid, int heroID)
 		{
 			cb->giveHeroArtifact(os->subID,heroID,-1); //TODO: na pozycje
 			InfoWindow iw;
-			iw.player = cb->getHeroOwner(heroID);
+			iw.player = cb->getOwner(heroID);
 			iw.components.push_back(Component(4,os->subID,0,0));
 			iw.text << std::pair<ui8,ui32>(12,os->subID);
 			cb->showInfoDialog(&iw);
@@ -599,7 +599,7 @@ void CPickable::onHeroVisit(int objid, int heroID)
 		{
 			int val = (rand()%3) + 4, //4 - 6
 				res = rand()%6, 
-				owner = cb->getHeroOwner(heroID);
+				owner = cb->getOwner(heroID);
 			cb->giveResource(owner,res,val); //non-gold resource
 			cb->giveResource(owner,6,val*100);//gold
 			InfoWindow iw;
@@ -640,10 +640,10 @@ void CPickable::onHeroVisit(int objid, int heroID)
 				cb->showInfoDialog(&iw);
 			}
 
-			cb->giveResource(cb->getHeroOwner(heroID),os->subID,val);
+			cb->giveResource(cb->getOwner(heroID),os->subID,val);
 
 			ShowInInfobox sii;
-			sii.player = cb->getHeroOwner(heroID);
+			sii.player = cb->getOwner(heroID);
 			sii.c = Component(2,os->subID,val,0);
 			sii.text << std::pair<ui8,ui32>(11,113);
 			sii.text.replacements.push_back(VLC->objh->restypes[os->subID]);
@@ -680,7 +680,7 @@ void CPickable::onHeroVisit(int objid, int heroID)
 				}
 			}
 			SelectionDialog sd;
-			sd.player = cb->getHeroOwner(heroID);
+			sd.player = cb->getOwner(heroID);
 			sd.text << std::pair<ui8,ui32>(11,146);
 			sd.components.push_back(Component(2,6,val,0));
 			sd.components.push_back(Component(5,0,val-500,0));
@@ -696,7 +696,7 @@ void CPickable::chosen(ui32 which, int heroid, int val)
 	switch(which)
 	{
 	case 0: //player pick gold
-		cb->giveResource(cb->getHeroOwner(heroid),6,val);
+		cb->giveResource(cb->getOwner(heroid),6,val);
 		break;
 	case 1: //player pick exp
 		cb->changePrimSkill(heroid, 4, val-500);

@@ -64,7 +64,7 @@ void CScriptCallback::changePrimSkill(int ID, int which, int val, bool abs)
 	gh->changePrimSkill(ID, which, val, abs);
 }
 
-int CScriptCallback::getHeroOwner(int heroID)
+int CScriptCallback::getOwner(int heroID)
 {
 	return gh->gs->map->objects[heroID]->tempOwner;
 }

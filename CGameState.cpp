@@ -558,7 +558,8 @@ void CGameState::applyNL(IPack * pack)
 }
 void CGameState::apply(IPack * pack)
 {
-	mx->lock();
+	while(!mx->try_lock())
+		boost::this_thread::sleep(boost::posix_time::milliseconds(50)); //give other threads time to finish
 	applyNL(pack);
 	mx->unlock();
 }
@@ -930,7 +931,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		(*i).second.resources.resize(RESOURCE_QUANTITY);
 		for (int x=0;x<RESOURCE_QUANTITY;x++)
 			(*i).second.resources[x] = startres[x];
-
 	}
 
 	/*************************HEROES************************************************/
@@ -1030,6 +1030,49 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 					if(deltaX+deltaY<k->second.heroes[ch]->getSightDistance()*k->second.heroes[ch]->getSightDistance())
 						k->second.fogOfWarMap[xd][yd][k->second.heroes[ch]->getPosition(false).z] = 1;
 				}
+			}
+		}
+
+		//starting bonus
+		if(si->playerInfos[k->second.serial].bonus==brandom)
+			si->playerInfos[k->second.serial].bonus = ran()%3;
+		switch(si->playerInfos[k->second.serial].bonus)
+		{
+		case bgold:
+			k->second.resources[6] += 500 + (ran()%6)*100;
+			break;
+		case bresource:
+			{
+				int res = VLC->townh->towns[si->playerInfos[k->second.serial].castle].primaryRes;
+				if(res == 127)
+				{
+					k->second.resources[0] += 5 + ran()%6;
+					k->second.resources[2] += 5 + ran()%6;
+				}
+				else
+				{
+					k->second.resources[res] += 3 + ran()%4;
+				}
+				break;
+			}
+		case bartifact:
+			{
+				if(!k->second.heroes[0])
+				{
+					std::cout << "Cannot give starting artifact - no heroes!" << std::endl;
+					break;
+				}
+				CArtifact *toGive;
+				do 
+				{
+					toGive = VLC->arth->minors[ran() % VLC->arth->minors.size()];
+				} while (!map->allowedArtifact[toGive->id]);
+				CGHeroInstance *hero = k->second.heroes[0];
+				std::vector<ui16>::iterator slot = vstd::findFirstNot(hero->artifWorn,toGive->possibleSlots);
+				if(slot!=toGive->possibleSlots.end())
+					hero->artifWorn[*slot] = toGive->id;
+				else
+					hero->artifacts.push_back(toGive->id);
 			}
 		}
 	}

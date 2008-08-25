@@ -1229,7 +1229,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
 	boost::unique_lock<boost::mutex> un(*pim);
 	//initializing objects and performing first step of move
-	CGHeroInstance * ho = details.ho; //object representing this hero
+	const CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
 	if (!details.successful)
 	{
@@ -1644,8 +1644,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 	}
-	ho->pos = details.dst; //copy of hero's position
-	//ho->moveDir = 0; //move ended
 	ho->isStanding = true;
 	//move finished
 	adventureInt->minimap.draw();
@@ -2008,6 +2006,8 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
+	if(hero->tempOwner != town->tempOwner)
+		return;
 	boost::unique_lock<boost::mutex> un(*pim);
 	openTownWindow(town);
 }

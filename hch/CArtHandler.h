@@ -15,9 +15,12 @@ public:
 	std::string description;
 	//std::string desc2;
 	unsigned int price;
-	bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4, misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso, lHand, rHand, neck, shoulders, head;
+	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed
+	//bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4, misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso, lHand, rHand, neck, shoulders, head;
 	EartClass aClass;
 	int id;
+
+
 };
 
 class DLL_EXPORT CArtHandler //handles artifacts

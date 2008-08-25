@@ -28,7 +28,7 @@ public:
 
 	//get info
 	static int3 getPos(CGObjectInstance * ob);
-	int getHeroOwner(int heroID);
+	int getOwner(int heroID);
 	int getResource(int player, int which);
 	int getSelectedHero();
 	int getDate(int mode=0);

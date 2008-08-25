@@ -13,11 +13,8 @@ CArtHandler::CArtHandler()
 }
 void CArtHandler::loadArtifacts()
 {
-	std::vector<bool CArtifact::*> slots;
-	slots += &CArtifact::spellBook, &CArtifact::warMachine4, &CArtifact::warMachine3, &CArtifact::warMachine2, 
-	  &CArtifact::warMachine1, &CArtifact::misc5, &CArtifact::misc4, &CArtifact::misc3, &CArtifact::misc2, 
-	  &CArtifact::misc1, &CArtifact::feet, &CArtifact::lRing, &CArtifact::rRing, &CArtifact::torso, 
-	  &CArtifact::lHand, &CArtifact::rHand, &CArtifact::neck,	&CArtifact::shoulders, &CArtifact::head;
+	std::vector<ui16> slots;
+	slots += 17, 16, 15,14,13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
 	std::map<char,EartClass> classes = 
 	  map_list_of('S',SartClass)('T',TartClass)('N',NartClass)('J',JartClass)('R',RartClass);
 	std::string buf = bitmaph->getTextFile("ARTRAITS.TXT"), dump, pom;
@@ -35,7 +32,8 @@ void CArtHandler::loadArtifacts()
 		for(int j=0;j<slots.size();j++)
 		{
 			loadToIt(pom,buf,it,4);
-			nart.*slots[j] = (pom[0]=='x');
+			if(pom[0]=='x')
+				nart.possibleSlots.push_back(slots[j]);
 		}
 		loadToIt(pom,buf,it,4);
 		nart.aClass = classes[pom[0]];

@@ -312,7 +312,7 @@ void CTerrainRect::clickLeft(tribool down)
 			LOCPLINT->pim->unlock();
 			mres = LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
 			LOCPLINT->pim->lock();
-			if(!mres)
+			if(mres)
 			{
 				delete currentPath;
 				currentPath = NULL;

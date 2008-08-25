@@ -116,6 +116,17 @@ namespace vstd
 	{
 		return c.find(i)!=c.end();
 	}
+	template <typename Container1, typename Container2>
+	typename Container2::iterator findFirstNot(Container1 &c1, Container2 &c2)//returns first element of c2 not present in c1
+	{
+		typename Container2::iterator itr = c2.begin();
+		while(itr != c2.end())
+			if(!contains(c1,*itr))
+				return itr;
+			else
+				++itr;
+		return c2.end();
+	}
 	template <typename Container, typename Item>
 	typename Container::iterator find(const Container & c, const Item &i)
 	{

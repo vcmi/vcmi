@@ -241,7 +241,6 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 
 void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2)
 {
-
 	BattleInfo *curB = new BattleInfo;
 	setupBattle(curB, tile, army1, army2, hero1, hero2); //battle start
 	NEW_ROUND;
