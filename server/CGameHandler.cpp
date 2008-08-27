@@ -10,6 +10,7 @@
 #include "../map.h"
 #include "../lib/NetPacks.h"
 #include "../lib/Connection.h"
+#include "../hch/CArtHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CBuildingHandler.h"
@@ -787,8 +788,29 @@ upgend:
 						sha.artifWorn[17] = 0;
 						sendAndApply(&sha);
 					}
-					
-					//TODO: war machines
+					else if(aid < 7  &&  aid > 3) //war machine
+					{
+						int price = VLC->arth->artifacts[aid].price;
+						if(vstd::contains(hero->artifWorn,ui16(9+aid))  //hero already has this machine
+							|| !vstd::contains(town->builtBuildings,si32(16)) //no blackismith
+							|| gs->players[hero->tempOwner].resources[6] < price //no gold
+							|| town->town->warMachine!= aid ) //this machine is not available here (//TODO: support ballista yard in stronghold)
+						{
+							break;
+						}
+						SetResource sr;
+						sr.player = hero->tempOwner;
+						sr.resid = 6;
+						sr.val = gs->players[hero->tempOwner].resources[6] - price;
+						sendAndApply(&sr);
+
+						SetHeroArtifacts sha;
+						sha.hid = hid;
+						sha.artifacts = hero->artifacts;
+						sha.artifWorn = hero->artifWorn;
+						sha.artifWorn[9+aid] = aid;
+						sendAndApply(&sha);
+					}
 					break;
 				}
 			case 2001:

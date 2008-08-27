@@ -957,6 +957,11 @@ void CAdvMapInt::fendTurn()
 
 void CAdvMapInt::activate()
 {
+	if(subInt == heroWindow)
+	{
+		heroWindow->activate();
+		return;
+	}
 	LOCPLINT->curint = this;
 	LOCPLINT->statusbar = &statusbar;
 	kingOverview.activate();
@@ -978,6 +983,11 @@ void CAdvMapInt::activate()
 }
 void CAdvMapInt::deactivate()
 {
+	if(subInt == heroWindow)
+	{
+		heroWindow->deactivate();
+		return;
+	}
 	hide();
 }
 void CAdvMapInt::show(SDL_Surface *to)

@@ -1,4 +1,4 @@
-0.61 -> 0.62
+0.61 -> 0.62 (Aug 31 2008 hopefully)
 General:
 * restructured to the server-client model
 * support for heroes placed in towns
@@ -6,6 +6,7 @@ General:
 * working gaining levels for heroes (including dialog with skill selection)
 * added graphical cursor
 * showing creature amount in the creature info window
+* giving starting bonus
 
 Castles:
 * icon in infobox showing that there is hero in town garrison
@@ -15,7 +16,8 @@ Castles:
 * randomizing spells in towns
 * viewing hero window in the town screen
 * possibility of moving hero into the garrison
-* partially done mage guild screen 
+* mage guild screen 
+* support for blacksmith
 * if hero doesn't have a spell book, he can buy one in a mage guild
 
 Adventure Interface:

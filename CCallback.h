@@ -46,7 +46,7 @@ public:
 	virtual bool verifyPath(CPath * path, bool blockSea)=0;
 	virtual int getDate(int mode=0)=0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	virtual std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap()=0; //returns visibility map (TODO: make it const)
-	virtual const CGHeroInstance * getHeroInfo(int player, int val, bool mode)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	virtual const CGHeroInstance * getHeroInfo(int val, int mode=2)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
 	virtual int getResourceAmount(int type)=0;
 	virtual int howManyHeroes()=0;
 	virtual const CGTownInstance * getTownInfo(int val, bool mode)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
@@ -120,7 +120,7 @@ public:
 	bool verifyPath(CPath * path, bool blockSea);
 	int getDate(int mode=0); //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap(); //returns visibility map (TODO: make it const)
-	const CGHeroInstance * getHeroInfo(int player, int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
+	const CGHeroInstance * getHeroInfo(int val, int mode=2); //mode = 0 -> val = serial; mode = 1 -> val = ID
 	int getResourceAmount(int type);
 	std::vector<si32> getResourceAmount();
 	int howManyHeroes();

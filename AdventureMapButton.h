@@ -10,12 +10,13 @@ public:
 	std::string helpBox; //for right-click help
 	char key; //key shortcut
 	CFunctionList<void()> callback;
-	bool colorChange,
+	bool colorChange, blocked,
 		actOnDown; //runs when mouse is pressed down over it, not when up
 
 	void clickRight (tribool down);
 	void clickLeft (tribool down);
 	virtual void hover (bool on);
+	virtual void block(bool on); //if button is blocked then it'll change it's graphic to inactive (offset==2) and won't react on l-clicks
 	void keyPressed (SDL_KeyboardEvent & key);
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but doesn't delete)

@@ -219,7 +219,7 @@ class SComponent : public ClickableR
 public:
 	enum Etype
 	{
-		primskill, secskill, resource, creature, artifact, experience, secskill44
+		primskill, secskill, resource, creature, artifact, experience, secskill44, spell
 	} type;
 	int subtype;
 	int val;
@@ -230,12 +230,24 @@ public:
 	void init(Etype Type, int Subtype, int Val);
 	SComponent(Etype Type, int Subtype, int Val);
 	SComponent(const Component &c);
+	SComponent(){};
+	virtual ~SComponent(){};
 
 	void clickRight (boost::logic::tribool down);
 	virtual SDL_Surface * getImg();
 	virtual void show(SDL_Surface * to = NULL);
 	virtual void activate();
 	virtual void deactivate();
+};
+
+class CCustomImgComponent :  public SComponent
+{
+public:
+	bool free; //should surface be freed on delete
+	SDL_Surface *bmp;
+	SDL_Surface * getImg();
+	CCustomImgComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur);
+	~CCustomImgComponent();
 };
 
 class CSelectableComponent : public SComponent, public ClickableL

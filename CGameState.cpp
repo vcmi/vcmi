@@ -866,7 +866,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	}
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
-	//giving starting hero
+	/*********give starting hero****************************************/
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
 		if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==RoE))
@@ -893,12 +893,10 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 					break;
 				}
 			}
-			//nnn->defInfo->handler = graphics->flags1[0];
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);
 		}
 	}
-	//std::cout<<"\tGiving starting heroes: "<<th.getDif()<<std::endl;
 
 	/*********creating players entries in gs****************************************/
 	for (int i=0; i<scenarioOps->playerInfos.size();i++)
@@ -909,7 +907,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		players.insert(ins);
 	}
 	/******************RESOURCES****************************************************/
-	//TODO: zeby komputer dostawal inaczej niz gracz 
+	//TODO: computer player should receive other amount of resource than computer (depending on difficulty)
 	std::vector<int> startres;
 	std::ifstream tis("config/startres.txt");
 	int k;
@@ -988,7 +986,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 						break;
 					default:
 						pom-=145;
-						vhi->artifWorn[13+pom] = 4+pom;
+						vhi->artifWorn[12+pom] = 3+pom;
 						break;
 					}
 					continue;
@@ -1057,7 +1055,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			}
 		case bartifact:
 			{
-				if(!k->second.heroes[0])
+				if(!k->second.heroes.size())
 				{
 					std::cout << "Cannot give starting artifact - no heroes!" << std::endl;
 					break;
@@ -1065,7 +1063,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 				CArtifact *toGive;
 				do 
 				{
-					toGive = VLC->arth->minors[ran() % VLC->arth->minors.size()];
+					toGive = VLC->arth->treasures[ran() % VLC->arth->treasures.size()];
 				} while (!map->allowedArtifact[toGive->id]);
 				CGHeroInstance *hero = k->second.heroes[0];
 				std::vector<ui16>::iterator slot = vstd::findFirstNot(hero->artifWorn,toGive->possibleSlots);

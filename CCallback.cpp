@@ -175,22 +175,26 @@ int CCallback::howManyHeroes()
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].heroes.size();
 }
-const CGHeroInstance * CCallback::getHeroInfo(int player, int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
+const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
-		return NULL;
-	if (!mode)
+	//if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
+	//	return NULL;
+	if (!mode) //esrial id
 		if(val<gs->players[player].heroes.size())
 			return gs->players[player].heroes[val];
 		else return NULL;
-	else 
+	else if(mode==1) //it's hero type id
 	{
 		for (int i=0; i<gs->players[player].heroes.size();i++)
 		{
 			if (gs->players[player].heroes[i]->type->ID==val)
 				return gs->players[player].heroes[i];
 		}
+	}
+	else //object id
+	{
+		return static_cast<CGHeroInstance*>(gs->map->objects[val]);
 	}
 	return NULL;
 }

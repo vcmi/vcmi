@@ -9,6 +9,7 @@
 #include "SDL_Extensions.h"
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
+#include "hch/CArtHandler.h"
 #include "hch/CBuildingHandler.h"
 #include "hch/CDefHandler.h"
 #include "hch/CGeneralTextHandler.h"
@@ -269,6 +270,7 @@ void CHeroGSlot::activate()
 }
 void CHeroGSlot::deactivate()
 {
+	highlight = false;
 	ClickableL::deactivate();
 	ClickableR::deactivate();
 	Hoverable::deactivate();
@@ -513,6 +515,25 @@ void CCastleInterface::buildingClicked(int building)
 		case 10: case 11: case 12: case 13:
 			enterHall();
 			break;
+		case 16:
+			{
+				const CGHeroInstance *hero = town->visitingHero;
+				if(!hero)
+				{
+					std::string pom = CGI->generaltexth->allTexts[273];
+					boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID][16]->name);
+					LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>());
+					return;
+				}
+				int aid = town->town->warMachine;
+				int price = CGI->arth->artifacts[aid].price;
+				bool possible = (LOCPLINT->cb->getResourceAmount(6) >= price);
+				if(vstd::contains(hero->artifWorn,ui16(aid+9))) //hero already has machine
+					possible = false;
+				deactivate();
+				(new CBlacksmithDialog(possible,142+aid,aid,hero->id))->activate();
+				break;
+			}
 		default:
 			std::cout<<"This building isn't handled...\n";
 		}
@@ -1441,6 +1462,7 @@ void CMageGuildScreen::show(SDL_Surface * to)
 {
 	blitAt(bg,0,0);
 	resdatabar.show();
+	LOCPLINT->statusbar->show();
 	exit->show();
 }
 void CMageGuildScreen::activate()
@@ -1460,7 +1482,14 @@ void CMageGuildScreen::deactivate()
 }
 void CMageGuildScreen::Scroll::clickLeft (tribool down)
 {
-
+	if(down)
+	{
+		std::vector<SComponent*> comps(1,
+			new CCustomImgComponent(SComponent::spell,spell->id,0,
+			  static_cast<CMageGuildScreen*>(LOCPLINT->castleInt->subInt)->scrolls->ourImages[spell->id].bitmap,false)
+		);
+		LOCPLINT->showInfoDialog(spell->descriptions[0],comps);
+	}
 }
 void CMageGuildScreen::Scroll::clickRight (tribool down)
 {
@@ -1480,6 +1509,11 @@ void CMageGuildScreen::Scroll::clickRight (tribool down)
 }
 void CMageGuildScreen::Scroll::hover(bool on)
 {
+	Hoverable::hover(on);
+	if(on)
+		LOCPLINT->statusbar->print(spell->name);
+	else
+		LOCPLINT->statusbar->clear();
 
 }
 void CMageGuildScreen::Scroll::activate()
@@ -1493,4 +1527,72 @@ void CMageGuildScreen::Scroll::deactivate()
 	ClickableL::deactivate();
 	ClickableR::deactivate();
 	Hoverable::deactivate();
+}
+
+CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid)
+{
+	SDL_Surface *bg2 = BitmapHandler::loadBitmap("TPSMITH.bmp");
+	SDL_SetColorKey(bg2,SDL_SRCCOLORKEY,SDL_MapRGB(bg2->format,0,255,255));
+	graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
+	bmp = SDL_ConvertSurface(bg2,screen->format,0); 
+	SDL_FreeSurface(bg2);
+	bg2 = BitmapHandler::loadBitmap("TPSMITBK.bmp");
+	blitAt(bg2,64,50,bmp);
+	SDL_FreeSurface(bg2);
+	CCreatureAnimation cra(CGI->creh->creatures[creMachineID].animDefName);
+	cra.nextFrameMiddle(bmp,165,130,true,false);
+	char pom[75];
+	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID].nameSing.c_str()); //build a new ...
+	printAtMiddle(pom,165,28,GEORXX,tytulowy,bmp);
+	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,GEOR16,zwykly,bmp); //resource cost
+	SDL_itoa(CGI->arth->artifacts[aid].price,pom,10);
+	printAtMiddle(pom,165,290,GEOR13,zwykly,bmp);
+	pos.w = bmp->w;
+	pos.h = bmp->h;
+	pos.x = screen->w/2 - pos.w/2;
+	pos.y = screen->h/2 - pos.h/2;
+	buy = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 42,pos.y + 312,"IBUY30.DEF");
+	cancel = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 224,pos.y + 312,"ICANCEL.DEF");
+	if(possible)
+		buy->callback += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,LOCPLINT->cb->getHeroInfo(hid,2),aid);
+	else
+		buy->bitmapOffset = 2;
+	blitAt(graphics->resources32->ourImages[6].bitmap,148,244,bmp);
+}
+
+void CBlacksmithDialog::show( SDL_Surface * to/*=NULL*/ )
+{
+	blitAt(bmp,pos);
+	buy->show();
+	cancel->show();
+}
+
+void CBlacksmithDialog::activate()
+{
+	LOCPLINT->objsToBlit += this;
+	if(!buy->bitmapOffset)
+		buy->activate();
+	cancel->activate();
+}
+
+void CBlacksmithDialog::deactivate()
+{
+	LOCPLINT->objsToBlit -= this;
+	if(!buy->bitmapOffset)
+		buy->deactivate();
+	cancel->deactivate();
+}
+
+CBlacksmithDialog::~CBlacksmithDialog()
+{
+	SDL_FreeSurface(bmp);
+	delete cancel;
+	delete buy;
+}
+
+void CBlacksmithDialog::close()
+{
+	deactivate();
+	delete this;
+	LOCPLINT->curint->activate();
 }

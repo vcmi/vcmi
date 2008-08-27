@@ -16,7 +16,7 @@ public:
 	std::map<int,int> hordeLvl; //[0] - first horde building creature level; [1] - second horde building (-1 if not present)
 	ui32 mageLevel; //max available mage guild level
 	int bonus; //pic number
-	ui16 primaryRes;
+	ui16 primaryRes, warMachine;
 	ui8 typeID;
 };
 

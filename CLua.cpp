@@ -718,6 +718,11 @@ std::vector<int> CPickable::yourObjects() //returns IDs of objects which are han
 
 void CTownScript::onHeroVisit(int objid, int heroID)
 {
+
+	if(cb->getOwner(objid)!=cb->getOwner(heroID))
+	{
+		return;
+	}
 	cb->heroVisitCastle(objid,heroID);
 }
 

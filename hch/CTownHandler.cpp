@@ -252,7 +252,7 @@ void CTownHandler::loadNames()
 		of >> si;
 		for(itr=0; itr<si; itr++)
 		{
-			of >> towns[itr].mageLevel >> towns[itr].primaryRes;
+			of >> towns[itr].mageLevel >> towns[itr].primaryRes >> towns[itr].warMachine;
 		}
 		of.close();
 		of.clear();

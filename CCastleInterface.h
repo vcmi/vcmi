@@ -204,3 +204,17 @@ public:
 	void activate();
 	void deactivate();
 };
+
+class CBlacksmithDialog : public IShowable, public CIntObject
+{
+public:
+	AdventureMapButton *buy, *cancel;
+	SDL_Surface *bmp;
+
+	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid);
+	~CBlacksmithDialog();
+	void close();
+	void show(SDL_Surface * to=NULL);
+	void activate();
+	void deactivate();
+};

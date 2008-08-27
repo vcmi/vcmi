@@ -14,7 +14,7 @@ AdventureMapButton::AdventureMapButton ()
 	active=false;
 	ourObj=NULL;
 	state=0;
-	actOnDown = false;
+	blocked = actOnDown = false;
 }
 //AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton)
 //{
@@ -28,14 +28,12 @@ AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, C
 
 void AdventureMapButton::clickLeft (tribool down)
 {
+	if(blocked)
+		return;
 	if (down)
-	{
 		state=1;
-	}
 	else
-	{
 		state=0;
-	}
 	show();
 	if (actOnDown && down)
 	{
@@ -101,7 +99,7 @@ void AdventureMapButton::deactivate()
 void AdventureMapButton::init( CFunctionList<void()> Callback, std::string Name, std::string HelpBox, bool playerColoredButton, std::string defName, std::vector<std::string> * add, int x, int y, bool activ )
 {
 	callback = Callback;
-	actOnDown = false;
+	blocked = actOnDown = false;
 	type=2;
 	abs=true;
 	active=false;
@@ -144,6 +142,14 @@ void AdventureMapButton::init( CFunctionList<void()> Callback, std::string Name,
 	pos.h = imgs[curimg][0]->h  -1;
 	if (activ)
 		activate();
+}
+
+void AdventureMapButton::block( bool on )
+{
+	blocked = on;
+	state = 0;
+	bitmapOffset = on ? 2 : 0;
+	show();
 }
 
 void CSlider::sliderClicked()

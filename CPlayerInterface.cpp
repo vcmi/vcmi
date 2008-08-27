@@ -1,39 +1,40 @@
 #include "stdafx.h"
-#include <queue>
-#include "CPlayerInterface.h"
 #include "CAdvmapInterface.h"
-#include "CMessage.h"
-#include "mapHandler.h"
-#include "SDL_Extensions.h"
-#include "SDL_framerate.h"
-#include "CCursorHandler.h"
-#include "CCallback.h"
-#include "SDL_Extensions.h"
-#include "hch/CLodHandler.h"
-#include "CPathfinder.h"
-#include <sstream>
-#include "hch/CArtHandler.h"
-#include "hch/CAbilityHandler.h"
-#include "hch/CHeroHandler.h"
-#include "hch/CTownHandler.h"
-#include "SDL_framerate.h"
-#include "hch/CGeneralTextHandler.h"
-#include "CCastleInterface.h"
-#include "CHeroWindow.h"
-#include "timeHandler.h"
-#include <boost/thread.hpp>
-#include <boost/algorithm/string.hpp>
-#include <boost/algorithm/string/replace.hpp>
-#include "hch/CPreGameTextHandler.h"
-#include "hch/CObjectHandler.h"
 #include "CBattleInterface.h"
+#include "CCallback.h"
+#include "CCastleInterface.h"
+#include "CCursorHandler.h"
 #include "CGameInfo.h"
-#include <cmath>
+#include "CHeroWindow.h"
+#include "CMessage.h"
+#include "CPathfinder.h"
+#include "CPlayerInterface.h"
+#include "SDL_Extensions.h"
+#include "SDL_Extensions.h"
+#include "SDL_framerate.h"
+#include "SDL_framerate.h"
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
-#include "map.h"
-#include "lib/NetPacks.h"
+#include "hch/CAbilityHandler.h"
+#include "hch/CArtHandler.h"
+#include "hch/CGeneralTextHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CLodHandler.h"
+#include "hch/CObjectHandler.h"
+#include "hch/CPreGameTextHandler.h"
+#include "hch/CSpellHandler.h"
+#include "hch/CTownHandler.h"
 #include "lib/CondSh.h"
+#include "lib/NetPacks.h"
+#include "map.h"
+#include "mapHandler.h"
+#include "timeHandler.h"
+#include <boost/algorithm/string.hpp>
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/thread.hpp>
+#include <cmath>
+#include <queue>
+#include <sstream>
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
@@ -603,6 +604,10 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		oss << Val;
 		subtitle = oss.str();
 		break;
+	case spell:
+		description = CGI->spellh->spells[Subtype].descriptions[Val];
+		subtitle = CGI->spellh->spells[Subtype].name;
+		break;
 	case experience:
 		description = CGI->generaltexth->allTexts[241];
 		oss << Val ;
@@ -619,7 +624,7 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	type = Type;
 	subtype = Subtype;
 	val = Val;
-	SDL_Surface * temp = getImg();
+	SDL_Surface * temp = this->getImg();
 	pos.w = temp->w;
 	pos.h = temp->h;
 }
@@ -2259,6 +2264,7 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 	if(curint == castleInt)
 		castleInt->subInt = adventureInt->heroWindow;
 	adventureInt->heroWindow->quitButton->callback.funcs.clear();
+	adventureInt->heroWindow->quitButton->callback += boost::bind(&CHeroWindow::deactivate,adventureInt->heroWindow);
 	adventureInt->heroWindow->quitButton->callback += boost::bind(&CHeroWindow::quit,adventureInt->heroWindow);
 	adventureInt->heroWindow->activate();
 }
@@ -2372,7 +2378,7 @@ void CHeroList::genList()
 	int howMany = LOCPLINT->cb->howManyHeroes();
 	for (int i=0;i<howMany;i++)
 	{
-		const CGHeroInstance * h = LOCPLINT->cb->getHeroInfo(LOCPLINT->playerID,i,0);
+		const CGHeroInstance * h = LOCPLINT->cb->getHeroInfo(i,0);
 		if(!h->inTownGarrison)
 			items.push_back(std::pair<const CGHeroInstance *,CPath *>(h,NULL));
 	}
@@ -3471,4 +3477,21 @@ CMinorResDataBar::CMinorResDataBar()
 CMinorResDataBar::~CMinorResDataBar()
 {
 	SDL_FreeSurface(bg);
+}
+
+SDL_Surface * CCustomImgComponent::getImg()
+{
+	return bmp;
+}
+
+CCustomImgComponent::CCustomImgComponent( Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur )
+:bmp(sur), free(freeSur)
+{
+	init(Type,Subtype,Val);
+}
+
+CCustomImgComponent::~CCustomImgComponent()
+{
+	if(free)
+		SDL_FreeSurface(bmp);
 }

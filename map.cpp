@@ -1819,8 +1819,6 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				}
 				int gcre = readNormalNr(bufor,i, 1); ++i; //number of gained creatures
 				spec->creatures = readCreatureSet(bufor,i,gcre,(version>RoE));
-				if(version>RoE)
-					i+=gcre;
 				i+=8;
 				spec->availableFor = readNormalNr(bufor,i, 1); ++i;
 				spec->computerActivate = readNormalNr(bufor,i, 1); ++i;

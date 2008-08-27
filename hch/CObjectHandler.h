@@ -82,7 +82,7 @@ public:
 	mutable int moveDir; //format:	123
 					//		8 4
 					//		765
-	mutable bool isStanding;
+	mutable bool isStanding, tacticFormationEnabled;
 	CHero * type;
 	ui32 exp; //experience point
 	int level; //current level of hero
@@ -109,7 +109,7 @@ public:
 
 	std::vector<ui32> artifacts; //hero's artifacts from bag
 	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
-	std::set<int> spells; //known spells (spell IDs)
+	std::set<ui32> spells; //known spells (spell IDs)
 
 	virtual bool isHero() const;
 	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const;

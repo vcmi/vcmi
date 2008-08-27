@@ -301,8 +301,6 @@ void CHeroWindow::quit()
 	LOCPLINT->curint->subInt = NULL;
 	LOCPLINT->objsToBlit -= this;
 
-	deactivate();
-
 	if(LOCPLINT->curint == LOCPLINT->castleInt)
 		LOCPLINT->castleInt->subInt = NULL;
 	LOCPLINT->curint->activate();
@@ -415,9 +413,9 @@ void CHeroWindow::deactivate()
 
 void CHeroWindow::dismissCurrent()
 {
-	const CGHeroInstance * ch = curHero;
-	quit();
-	LOCPLINT->cb->dismissHero(ch);
+	CFunctionList<void()> ony = boost::bind(&CHeroWindow::quit,this);
+	ony += boost::bind(&CCallback::dismissHero,LOCPLINT->cb,curHero);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22],std::vector<SComponent*>(), ony, boost::bind(&CHeroWindow::activate,this), true, false);
 }
 
 void CHeroWindow::questlog()
@@ -567,7 +565,7 @@ void CHeroWindow::redrawCurBack()
 	//hero list blitting
 	for(int g=0; g<LOCPLINT->cb->howManyHeroes(); ++g)
 	{
-		const CGHeroInstance * cur = LOCPLINT->cb->getHeroInfo(player, g, false);
+		const CGHeroInstance * cur = LOCPLINT->cb->getHeroInfo(g, false);
 		blitAt(graphics->portraitSmall[cur->portrait], 611, 87+g*54, curBack);
 		//printing yellow border
 		if(cur->name == curHero->name)
@@ -848,7 +846,7 @@ void LClickableAreaHero::clickLeft(boost::logic::tribool down)
 	if(!down)
 	{
 		owner->deactivate();
-		const CGHeroInstance * buf = LOCPLINT->cb->getHeroInfo(owner->player, id, false);
+		const CGHeroInstance * buf = LOCPLINT->cb->getHeroInfo(id, false);
 		owner->setHero(buf);
 		owner->redrawCurBack();
 		owner->activate();
