@@ -32,6 +32,10 @@ public:
 	//	funcs.push_back(first);
 	//	return first;
 	//}
+	void clear()
+	{
+		funcs.clear();
+	}
 	operator bool() const
 	{
 		return funcs.size();

@@ -18,6 +18,8 @@
 #include "hch/CHeroHandler.h"
 #include "hch/CLodHandler.h"
 #include "hch/CObjectHandler.h"
+#include <boost/algorithm/string/replace.hpp>
+#include <boost/assign/list_of.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <cstdlib>
 #include <sstream>
@@ -46,10 +48,10 @@ CHeroWindow::CHeroWindow(int playerColor):
 	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 379, 437, "hsbtns4.def", false, NULL, false);
 
 	gar1button = new AdventureMapButton(CGI->generaltexth->heroscrn[23], CGI->generaltexth->heroscrn[29], boost::bind(&CHeroWindow::gar1,this), 546, 491, "hsbtns6.def", false, NULL, false);
-	gar2button = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::gar2,this), 604, 491, "hsbtns8.def", false, NULL, false);
 	gar3button = new AdventureMapButton(CGI->generaltexth->heroscrn[24], CGI->generaltexth->heroscrn[30], boost::bind(&CHeroWindow::gar3,this), 546, 527, "hsbtns7.def", false, NULL, false);
-	gar4button = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[32], boost::function<void()>(), 604, 527, "hsbtns9.def", false, NULL, false);
-
+	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 604, 491, false);
+	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), 604, 527, "hsbtns9.def", false, NULL, false);
+	boost::algorithm::replace_first(gar4button->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
 	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::leftArtRoller,this), 379, 364, "hsbtns3.def", false, NULL, false);
 	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::rightArtRoller,this), 632, 364, "hsbtns5.def", false, NULL, false);
 
@@ -195,9 +197,12 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	}
 	curHero = hero;
 
+	gar2button->callback.clear();
+	gar2button->callback2.clear();
+
 	char * prhlp = new char[200];
 	sprintf(prhlp, CGI->generaltexth->heroscrn[16].c_str(), curHero->name.c_str(), curHero->type->heroClass->name.c_str());
-	dismissButton->name = std::string(prhlp);
+	dismissButton->hoverTexts[0] = std::string(prhlp);
 	delete [] prhlp;
 
 	prhlp = new char[200];
@@ -293,6 +298,17 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		backpack.push_back(add);
 	}
 	activeArtPlace = NULL;
+	dismissButton->block(hero->visitedTown);
+	leftArtRoll->block(hero->artifacts.size()<6);
+	rightArtRoll->block(hero->artifacts.size()<6);
+	if(hero->getSecSkillLevel(19)<0)
+		gar2button->block(true);
+	else
+	{
+		gar2button->block(false);
+		gar2button->callback = boost::bind(vstd::assign<bool,bool>,boost::ref(hero->tacticFormationEnabled), true);
+		gar2button->callback2 = boost::bind(vstd::assign<bool,bool>,boost::ref(hero->tacticFormationEnabled), true);
+	}
 	redrawCurBack();
 }
 
@@ -423,10 +439,6 @@ void CHeroWindow::questlog()
 }
 
 void CHeroWindow::gar1()
-{
-}
-
-void CHeroWindow::gar2()
 {
 }
 

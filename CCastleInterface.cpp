@@ -452,6 +452,8 @@ void CCastleInterface::close()
 	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	deactivate();
 	LOCPLINT->castleInt = NULL;
+	if(town->visitingHero)
+		LOCPLINT->adventureInt->select(town->visitingHero);
 	LOCPLINT->adventureInt->activate();
 	delete this;
 }

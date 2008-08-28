@@ -43,8 +43,8 @@ enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHE
 class CGameInfo;
 extern CGameInfo* CGI;
 
-#define HEROI_TYPE (0)
-#define TOWNI_TYPE (1)
+#define HEROI_TYPE (34)
+#define TOWNI_TYPE (98)
 
 const int F_NUMBER = 9; //factions (town types) quantity
 const int PLAYER_LIMIT = 8; //player limit per map
@@ -132,6 +132,22 @@ namespace vstd
 	{
 		return std::find(c.begin(),c.end(),i);
 	}
+	template <typename T1, typename T2>
+	int findPos(const std::vector<T1> & c, const T2 &s)
+	{
+		for(int i=0;i<c.size();i++)
+			if(c[i] == s)
+				return i;
+		return -1;
+	}
+	template <typename T1, typename T2, typename Func>
+	int findPos(const std::vector<T1> & c, const T2 &s, Func &f) //Func(T1,T2) must say if these elements matches
+	{
+		for(int i=0;i<c.size();i++)
+			if(f(c[i],s))
+				return i;
+		return -1;
+	}
 	template <typename Container, typename Item>
 	typename Container::iterator find(Container & c, const Item &i)
 	{
@@ -145,6 +161,21 @@ namespace vstd
 			return false;
 		c.erase(itr);
 		return true;
+	}
+	template <typename t1, typename t2>
+	void assign(t1 &a1, const t2 &a2)
+	{
+		a1 = a2;
+	}
+	template <typename t1, typename t2, typename t3>
+	bool equal(const t1 &a1, const t3 t1::* point, const t2 &a2)
+	{
+		return a1.*point == a2;
+	}
+	template <typename t1, typename t2>
+	bool equal(const t1 &a1, const t2 &a2)
+	{
+		return a1 == a2;
 	}
 }
 using vstd::operator-=;

@@ -88,8 +88,8 @@ void CScriptCallback::showSelectionDialog(SelectionDialog *iw, const CFunctionLi
 int CScriptCallback::getSelectedHero()
 {	
 	//int ret;
-	//if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
-	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
+	//if (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE)
+	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection))->subID;
 	//else 
 	//	ret = -1;;
 	return -1;
@@ -214,8 +214,8 @@ int CLuaCallback::getGnrlText(lua_State * L) //(int which),returns string
 int CLuaCallback::getSelectedHero(lua_State * L) //(),returns int (ID of hero, -1 if no hero is seleceted)
 {
 	//int ret;
-	//if (LOCPLINT->adventureInt->selection.type == HEROI_TYPE)
-	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->subID;
+	//if (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE)
+	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection))->subID;
 	//else 
 	//	ret = -1;
 	//lua_pushinteger(L,ret);

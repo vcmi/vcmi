@@ -111,8 +111,9 @@ class CHeroWindow: public IShowActivable, public virtual CIntObject
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 public:
 	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general
-		* gar1button, * gar2button, * gar3button, //garrison / formation handling
+		* gar1button, * gar3button, //garrison / formation handling
 		* leftArtRoll, * rightArtRoll;
+	CHighlightableButton *gar2button;
 	int player;
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor

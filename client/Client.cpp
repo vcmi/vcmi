@@ -545,5 +545,7 @@ void CClient::run()
 
 void CClient::close()
 {
+	boost::unique_lock<boost::mutex>(*serv->wmx);
+	*serv << ui16(99);
 	serv->close();
 }

@@ -3,6 +3,7 @@
 #include "client/CBitmapHandler.h"
 #include "CPlayerInterface.h"
 #include "CCastleInterface.h"
+#include "CCursorHandler.h"
 #include "hch/CPreGameTextHandler.h"
 #include "hch/CGeneralTextHandler.h"
 #include "hch/CDefHandler.h"
@@ -291,18 +292,56 @@ void CTerrainRect::clickLeft(tribool down)
 {
 	if ((down==false) || indeterminate(down))
 		return;
-	if (LOCPLINT->adventureInt->selection.type != HEROI_TYPE)
-	{
-		if (currentPath)
-		{
-			delete currentPath;
-			currentPath = NULL;
-		}
-		return;
-	}
 	int3 mp = whichTileIsIt();
 	if ((mp.x<0) || (mp.y<0))
 		return;
+	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
+	if (LOCPLINT->adventureInt->selection->ID != HEROI_TYPE)
+	{
+		if (currentPath)
+		{
+			std::cout<<"Warning: Lost path?" << std::endl;
+			delete currentPath;
+			currentPath = NULL;
+		}
+		for(int i=0; i<objs.size();i++)
+		{
+			if(objs[i]->ID == 98) //town
+			{
+				if(LOCPLINT->adventureInt->selection == (objs[i]))
+				{
+					LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(objs[i]));
+				}
+				else
+				{
+					LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
+					return;
+				}
+			}
+			else if(objs[i]->ID == 34)
+			{
+				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
+				return;
+			}
+		}
+		return;
+	}
+	else
+	{
+		for(int i=0; i<objs.size();i++)
+		{
+			if(objs[i]->ID == 98) //town
+			{
+				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
+				return;
+			}
+			else if(objs[i]->ID == 34 && LOCPLINT->adventureInt->selection == (objs[i]))
+			{
+				LOCPLINT->openHeroWindow(static_cast<const CGHeroInstance*>(objs[i]));
+				return;
+			}
+		}
+	}
 	bool mres =true;
 	if (currentPath)
 	{
@@ -310,45 +349,38 @@ void CTerrainRect::clickLeft(tribool down)
 		{ //move
 			CPath sended(*currentPath); //temporary path - engine will operate on it
 			LOCPLINT->pim->unlock();
-			mres = LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
+			mres = LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection)->type->ID,&sended,1,0);
 			LOCPLINT->pim->lock();
 			if(mres)
 			{
 				delete currentPath;
 				currentPath = NULL;
-				int i=0;
-				for(;i<LOCPLINT->adventureInt->heroList.items.size();i++)
-				{
-					if(LOCPLINT->adventureInt->heroList.items[i].first->subID == ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID)
-					{
-						LOCPLINT->adventureInt->heroList.items[i].second = NULL;
-						break;
-					}
-				}
+				LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.getPosOfHero(LOCPLINT->adventureInt->selection)].second = NULL;
 			}
 		}
 		else
 		{
 			delete currentPath;
 			currentPath=NULL;
+			LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.getPosOfHero(LOCPLINT->adventureInt->selection)].second = NULL;
 		}
+		return;
 	}
 	const CGHeroInstance * currentHero = (LOCPLINT->adventureInt->heroList.items.size())?(LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first):(NULL);
-	if(!currentHero)
-		return;
-	int3 bufpos = currentHero->getPosition(false);
-	//bufpos.x-=1;
-	if (mres)
+	if(currentHero)
 	{
-		vector<Coordinate>* p;
-		p = CGI->pathf->GetPath(Coordinate(bufpos),Coordinate(mp),currentHero);
-
-		//Convert to old format.
-		currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->ConvertToOldFormat(p);
-
-		delete p;
-		//currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->getPath(bufpos,mp,currentHero,1);
+		int3 bufpos = currentHero->getPosition(false);
+		if (mres)
+		{
+			vector<Coordinate>* p;
+			p = CGI->pathf->GetPath(Coordinate(bufpos),Coordinate(mp),currentHero);
+			//Convert to old format.
+			currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->ConvertToOldFormat(p);
+			delete p;
+		}
+		return;
 	}
+	
 }
 void CTerrainRect::clickRight(tribool down)
 {
@@ -369,7 +401,31 @@ void CTerrainRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	{
 		LOCPLINT->adventureInt->statusbar.clear();
 	}
-
+	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getVisitableObjs(pom); 
+	for(int i=0; i<objs.size();i++)
+	{
+		if(objs[i]->ID == 98) //town
+		{
+			CGI->curh->changeGraphic(0,0);
+			return;
+		}
+	}
+	objs = LOCPLINT->cb->getBlockingObjs(pom);
+	for(int i=0; i<objs.size();i++)
+	{
+		if(objs[i]->ID == 98) //town
+		{
+			CGI->curh->changeGraphic(0,3);
+			return;
+		}
+		else if(objs[i]->ID == 34 //mouse over hero
+			&& (objs[i]==LOCPLINT->adventureInt->selection  ||  LOCPLINT->adventureInt->selection->ID==98)) //this hero is selected or we've selected a town
+		{
+			CGI->curh->changeGraphic(0,2);
+			return;
+		}
+	}
+	CGI->curh->changeGraphic(0,0);
 }
 void CTerrainRect::keyPressed (SDL_KeyboardEvent & key){}
 void CTerrainRect::hover(bool on)
@@ -547,7 +603,7 @@ void CTerrainRect::showPath()
 			}
 
 		}
-		if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > ((const CGHeroInstance*)(LOCPLINT->adventureInt->selection.selected))->movement)
+		if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > ((const CGHeroInstance*)(LOCPLINT->adventureInt->selection))->movement)
 			pn+=25;
 		if (pn>=0)
 		{
@@ -689,18 +745,10 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 	else if (mode==5)
 	{
 		mode = -1;
-		if(!LOCPLINT->adventureInt->selection.selected)
-		{
-			if (LOCPLINT->adventureInt->heroList.items.size())
-			{
-				LOCPLINT->adventureInt->heroList.select(0);
-			}
-		}
-		draw((const CGObjectInstance *)LOCPLINT->adventureInt->selection.selected);
+		draw(LOCPLINT->adventureInt->selection);
 	}
 	if (!specific)
-		specific = (const CGObjectInstance *)LOCPLINT->adventureInt->selection.selected;
-	//TODO: to rzutowanie wyglada groznie, ale dziala. Ale nie powinno wygladac groznie.
+		specific = LOCPLINT->adventureInt->selection;
 
 	if(!specific)
 		return;
@@ -874,6 +922,7 @@ endTurn(CGI->preth->zelp[302].first,CGI->preth->zelp[302].second,
 
 townList(5,&genRect(192,48,747,196),747,196,747,372)
 {
+	selection = NULL;
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
 	LOCPLINT->adventureInt=this;
 	bg = BitmapHandler::loadBitmap("ADVMAP.bmp");
@@ -931,12 +980,12 @@ void CAdvMapInt::fsleepWake()
 }
 void CAdvMapInt::fmoveHero()
 {
-	if (selection.type!=HEROI_TYPE)
+	if (selection->ID!=HEROI_TYPE)
 		return;
 	if (!terrain.currentPath)
 		return;
 	CPath sended(*(terrain.currentPath)); //temporary path - engine will operate on it
-	LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection.selected)->type->ID,&sended,1,0);
+	LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection)->type->ID,&sended,1,0);
 }
 void CAdvMapInt::fshowSpellbok()
 {
@@ -1008,6 +1057,7 @@ void CAdvMapInt::show(SDL_Surface *to)
 	minimap.draw();
 	heroList.draw();
 	townList.draw();
+	updateScreen = true;
 	update();
 
 	resdatabar.draw();
@@ -1015,8 +1065,6 @@ void CAdvMapInt::show(SDL_Surface *to)
 	statusbar.show();
 
 	infoBar.draw();
-
-	CSDL_Ext::update(screen);
 }
 void CAdvMapInt::hide()
 {
@@ -1041,24 +1089,71 @@ void CAdvMapInt::hide()
 }
 void CAdvMapInt::update()
 {
-	terrain.show();
-	blitAt(gems[2]->ourImages[LOCPLINT->playerID].bitmap,6,6);
-	blitAt(gems[0]->ourImages[LOCPLINT->playerID].bitmap,6,508);
-	blitAt(gems[1]->ourImages[LOCPLINT->playerID].bitmap,556,508);
-	blitAt(gems[3]->ourImages[LOCPLINT->playerID].bitmap,556,6);
-	//updateRect(&genRect(550,600,6,6));
+	++animValHitCount; //for animations
+	if(animValHitCount == 8)
+	{
+		animValHitCount = 0;
+		++anim;
+		updateScreen = true;
+
+	}
+	++heroAnim;
+	if(scrollingLeft)
+	{
+		if(position.x>-Woff)
+		{
+			position.x--;
+			updateScreen = true;
+			updateMinimap=true;
+		}
+	}
+	if(scrollingRight)
+	{
+		if(position.x<CGI->mh->map->width-19+4)
+		{
+			position.x++;
+			updateScreen = true;
+			updateMinimap=true;
+		}
+	}
+	if(scrollingUp)
+	{
+		if(position.y>-Hoff)
+		{
+			position.y--;
+			updateScreen = true;
+			updateMinimap=true;
+		}
+	}
+	if(scrollingDown)
+	{
+		if(position.y<CGI->mh->map->height-18+4)
+		{
+			position.y++;
+			updateScreen = true;
+			updateMinimap=true;
+		}
+	}
+	if(updateScreen)
+	{	
+		terrain.show();
+		blitAt(gems[2]->ourImages[LOCPLINT->playerID].bitmap,6,6);
+		blitAt(gems[0]->ourImages[LOCPLINT->playerID].bitmap,6,508);
+		blitAt(gems[1]->ourImages[LOCPLINT->playerID].bitmap,556,508);
+		blitAt(gems[3]->ourImages[LOCPLINT->playerID].bitmap,556,6);
+		updateScreen=false;
+	}
+	if (updateMinimap)
+	{
+		minimap.draw();
+		updateMinimap=false;
+	}
 }
 
 void CAdvMapInt::selectionChanged()
 {
 	const CGTownInstance *to = townList.items[townList.selected];
-	centerOn(to->pos);
-	selection.type = TOWNI_TYPE;
-	selection.selected = to;
-	terrain.currentPath = NULL;
-	townList.draw();
-	heroList.draw();
-	infoBar.draw(NULL);
+	select(to);
 }
 void CAdvMapInt::centerOn(int3 on)
 {
@@ -1080,11 +1175,6 @@ void CAdvMapInt::centerOn(int3 on)
 	LOCPLINT->adventureInt->position.z=on.z;
 	LOCPLINT->adventureInt->updateScreen=true;
 	updateMinimap=true;
-}
-CAdvMapInt::CurrentSelection::CurrentSelection()
-{
-	type=-1;
-	selected=NULL;
 }
 void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * client)
 {
@@ -1130,4 +1220,25 @@ int3 CAdvMapInt::verifyPos(int3 ver)
 	if (ver.z>=CGI->mh->sizes.z)
 		ver.z=CGI->mh->sizes.z-1;
 	return ver;
+}
+
+void CAdvMapInt::select(const CArmedInstance *sel )
+{
+	centerOn(sel->pos);
+	selection = sel;
+	if(sel->ID==98)
+	{
+		int pos = vstd::findPos(townList.items,sel);
+		townList.selected = pos;
+		terrain.currentPath = NULL;
+	}
+	else
+	{
+		int pos = heroList.getPosOfHero(sel);
+		heroList.selected = pos;
+		terrain.currentPath = heroList.items[pos].second;
+	}
+	townList.draw();
+	heroList.draw();
+	infoBar.draw(NULL);
 }

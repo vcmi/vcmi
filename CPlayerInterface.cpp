@@ -422,7 +422,7 @@ void CGarrisonInt::recreateSlots()
 	createSlots();
 	if(active)
 	{
-		ignoreEvent = true;
+		//ignoreEvent = true;
 		activeteSlots();
 		show();
 	}
@@ -831,56 +831,6 @@ void CSelWindow::close()
 	delete this;
 	//call owner with selection result
 }
-template <typename T>CSCButton<T>::CSCButton(CDefHandler * img, CIntObject * obj, void(T::*poin)(tribool), T* Delg)
-{
-	ourObj = obj;
-	delg = Delg;
-	func = poin;
-	imgs.resize(1);
-	for (int i =0; i<img->ourImages.size();i++)
-	{
-		imgs[0].push_back(img->ourImages[i].bitmap);
-	}
-	pos.w = imgs[0][0]->w;
-	pos.h = imgs[0][0]->h;
-	state = 0;
-}
-template <typename T> void CSCButton<T>::clickLeft (tribool down)
-{
-	if (down)
-	{
-		state=1;
-	}
-	else
-	{
-		state=0;
-	}
-	pressedL=state;
-	show();
-	if (delg)
-		(delg->*func)(down);
-}
-template <typename T> void CSCButton<T>::activate()
-{
-	ClickableL::activate();
-}
-template <typename T> void CSCButton<T>::deactivate()
-{
-	ClickableL::deactivate();
-}
-
-template <typename T> void CSCButton<T>::show(SDL_Surface * to)
-{
-	if (delg) //we blit on our owner's bitmap
-	{
-		blitAt(imgs[curimg][state],posr.x,posr.y,delg->bitmap);
-		//updateRect(&genRect(pos.h,pos.w,posr.x,posr.y),delg->bitmap);
-	}
-	else
-	{
-		CButtonBase::show(to);
-	}
-}
 CButtonBase::CButtonBase()
 {
 	bitmapOffset = 0;
@@ -1037,9 +987,11 @@ void CPlayerInterface::yourTurn()
 {
 	LOCPLINT = this;
 	makingTurn = true;
-	unsigned char & animVal = LOCPLINT->adventureInt->anim; //for animations handling
-	unsigned char & heroAnimVal = LOCPLINT->adventureInt->heroAnim;
 	adventureInt->infoBar.newDay(cb->getDate(1));
+	if(adventureInt->heroList.items.size())
+		adventureInt->select(adventureInt->heroList.items[0].first);
+	else
+		adventureInt->select(adventureInt->townList.items[0]);
 	adventureInt->activate();
 	//show rest of things
 
@@ -1047,45 +999,13 @@ void CPlayerInterface::yourTurn()
 	mainFPSmng = new FPSmanager;
 	SDL_initFramerate(mainFPSmng);
 	SDL_setFramerate(mainFPSmng, 48);
-	SDL_Event sEvent;
 	//framerate keeper initialized
 	timeHandler th;
 	th.getDif();
 	for(;makingTurn;) // main loop
 	{
-		//updating water tiles
-		//int wnumber = -1;
-		//for(int s=0; s<CGI->mh->reader->defs.size(); ++s)
-		//{
-		//	if(CGI->mh->reader->defs[s]->defName==std::string("WATRTL.DEF"))
-		//	{
-		//		wnumber = s;
-		//		break;
-		//	}
-		//}
-		//if(wnumber>=0)
-		//{
-		//	for(int g=0; g<CGI->mh->reader->defs[wnumber]->ourImages.size(); ++g)
-		//	{
-		//		SDL_Color tab[32];
-		//		for(int i=0; i<32; ++i)
-		//		{
-		//			tab[i] = CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[160 + (i+1)%32];
-		//		}
-		//		//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t1.bmp");
-		//		for(int i=0; i<32; ++i)
-		//		{
-		//			CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[160 + i] = tab[i];
-		//		}
-		//		//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t2.bmp");
-		//		CSDL_Ext::update(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap);
-		//	}
-		//}
-		//water tiles updated
-		//CGI->screenh->updateScreen();
-
+		updateWater();
 		pim->lock();
-
 		int tv = th.getDif();
 		for (int i=0;i<timeinterested.size();i++)
 		{
@@ -1104,61 +1024,7 @@ void CPlayerInterface::yourTurn()
 		eventsM.unlock();
 		if (curint == adventureInt) //stuff for advMapInt
 		{
-			++LOCPLINT->adventureInt->animValHitCount; //for animations
-			if(LOCPLINT->adventureInt->animValHitCount == 8)
-			{
-				LOCPLINT->adventureInt->animValHitCount = 0;
-				++animVal;
-				LOCPLINT->adventureInt->updateScreen = true;
-
-			}
-			++heroAnimVal;
-			if(LOCPLINT->adventureInt->scrollingLeft)
-			{
-				if(LOCPLINT->adventureInt->position.x>-Woff)
-				{
-					LOCPLINT->adventureInt->position.x--;
-					LOCPLINT->adventureInt->updateScreen = true;
-					adventureInt->updateMinimap=true;
-				}
-			}
-			if(LOCPLINT->adventureInt->scrollingRight)
-			{
-				if(LOCPLINT->adventureInt->position.x<CGI->mh->map->width-19+4)
-				{
-					LOCPLINT->adventureInt->position.x++;
-					LOCPLINT->adventureInt->updateScreen = true;
-					adventureInt->updateMinimap=true;
-				}
-			}
-			if(LOCPLINT->adventureInt->scrollingUp)
-			{
-				if(LOCPLINT->adventureInt->position.y>-Hoff)
-				{
-					LOCPLINT->adventureInt->position.y--;
-					LOCPLINT->adventureInt->updateScreen = true;
-					adventureInt->updateMinimap=true;
-				}
-			}
-			if(LOCPLINT->adventureInt->scrollingDown)
-			{
-				if(LOCPLINT->adventureInt->position.y<CGI->mh->map->height-18+4)
-				{
-					LOCPLINT->adventureInt->position.y++;
-					LOCPLINT->adventureInt->updateScreen = true;
-					adventureInt->updateMinimap=true;
-				}
-			}
-			if(LOCPLINT->adventureInt->updateScreen)
-			{
-				adventureInt->update();
-				adventureInt->updateScreen=false;
-			}
-			if (LOCPLINT->adventureInt->updateMinimap)
-			{
-				adventureInt->minimap.draw();
-				adventureInt->updateMinimap=false;
-			}
+			adventureInt->update();
 		}
 		for(int i=0;i<objsToBlit.size();i++)
 			objsToBlit[i]->show();
@@ -1241,10 +1107,11 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		ho->moveDir = getDir(details.src,details.dst);
 		ho->isStanding = true;
 		adventureInt->heroList.draw();
-		if (adventureInt->terrain.currentPath)
+		if (adventureInt->terrain.currentPath && ho->movement>145) //TODO: better condition on movement - check cost of endtile
 		{
 			delete adventureInt->terrain.currentPath;
 			adventureInt->terrain.currentPath = NULL;
+			adventureInt->heroList.items[adventureInt->heroList.getPosOfHero(ho)].second = NULL;
 		}
 		return;
 	}
@@ -1573,6 +1440,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 32), ho->id);
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
 		}
+		adventureInt->updateScreen = true;
 		LOCPLINT->adventureInt->update(); //updating screen
 		CSDL_Ext::update(screen);
 		//CGI->screenh->updateScreen();
@@ -1693,16 +1561,16 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 	}
 	else
 	{
-		switch (adventureInt->selection.type)
+		switch (adventureInt->selection->ID)
 		{
 		case HEROI_TYPE:
 			{
-				const CGHeroInstance * curh = (const CGHeroInstance *)adventureInt->selection.selected;
+				const CGHeroInstance * curh = (const CGHeroInstance *)adventureInt->selection;
 				return graphics->drawHeroInfoWin(curh);
 			}
 		case TOWNI_TYPE:
 			{
-				return graphics->drawTownInfoWin((const CGTownInstance *)adventureInt->selection.selected);
+				return graphics->drawTownInfoWin((const CGTownInstance *)adventureInt->selection);
 			}
 		default:
 			return NULL;
@@ -1713,18 +1581,21 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 
 void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 {
+	std::vector<int> hlp;
 	for (int i=0; i<hoverable.size();i++)
 	{
 		if (isItIn(&hoverable[i]->pos,sEvent->motion.x,sEvent->motion.y))
 		{
 			if (!hoverable[i]->hovered)
-				hoverable[i]->hover(true);
+				hlp.push_back(i);
 		}
 		else if (hoverable[i]->hovered)
 		{
 			hoverable[i]->hover(false);
 		}
 	}
+	for(int i=0; i<hlp.size();i++)
+		hoverable[hlp[i]]->hover(true);
 	for(int i=0; i<motioninterested.size();i++)
 	{
 		if (motioninterested[i]->strongInterest || isItIn(&motioninterested[i]->pos,sEvent->motion.x,sEvent->motion.y))
@@ -1942,7 +1813,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 	boost::unique_lock<boost::mutex> un(*pim);
 	SDL_FreeSurface(graphics->heroWins[hero->subID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
 	graphics->heroWins[hero->subID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
-	if (adventureInt->selection.selected == hero)
+	if (adventureInt->selection == hero)
 		adventureInt->infoBar.draw();
 	return;
 }
@@ -2274,9 +2145,44 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 	boost::unique_lock<boost::mutex> un(*pim);
 	if(curint->subInt == adventureInt->heroWindow)
 	{
-		//TODO: update hero window properly
-
+		adventureInt->heroWindow->deactivate();
+		adventureInt->heroWindow->setHero(adventureInt->heroWindow->curHero);
+		adventureInt->heroWindow->activate();
 	}
+}
+
+void CPlayerInterface::updateWater()
+{
+	//updating water tiles
+	//int wnumber = -1;
+	//for(int s=0; s<CGI->mh->reader->defs.size(); ++s)
+	//{
+	//	if(CGI->mh->reader->defs[s]->defName==std::string("WATRTL.DEF"))
+	//	{
+	//		wnumber = s;
+	//		break;
+	//	}
+	//}
+	//if(wnumber>=0)
+	//{
+	//	for(int g=0; g<CGI->mh->reader->defs[wnumber]->ourImages.size(); ++g)
+	//	{
+	//		SDL_Color tab[32];
+	//		for(int i=0; i<32; ++i)
+	//		{
+	//			tab[i] = CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[160 + (i+1)%32];
+	//		}
+	//		//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t1.bmp");
+	//		for(int i=0; i<32; ++i)
+	//		{
+	//			CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[160 + i] = tab[i];
+	//		}
+	//		//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t2.bmp");
+	//		CSDL_Ext::update(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap);
+	//	}
+	//}
+	//water tiles updated
+	//CGI->screenh->updateScreen();
 }
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 {
@@ -2388,7 +2294,8 @@ void CHeroList::select(int which)
 	if (which<0)
 	{
 		selected = which;
-		LOCPLINT->adventureInt->selection.selected = LOCPLINT->adventureInt->terrain.currentPath = NULL;
+		LOCPLINT->adventureInt->selection = NULL;
+		LOCPLINT->adventureInt->terrain.currentPath = NULL;
 		draw();
 		LOCPLINT->adventureInt->infoBar.draw(NULL);
 	}
@@ -2396,8 +2303,7 @@ void CHeroList::select(int which)
 		return;
 	selected = which;
 	LOCPLINT->adventureInt->centerOn(items[which].first->pos);
-	LOCPLINT->adventureInt->selection.type = HEROI_TYPE;
-	LOCPLINT->adventureInt->selection.selected = items[which].first;
+	LOCPLINT->adventureInt->selection = items[which].first;
 	LOCPLINT->adventureInt->terrain.currentPath = items[which].second;
 	draw();
 	LOCPLINT->adventureInt->townList.draw();
@@ -2428,7 +2334,7 @@ void CHeroList::clickLeft(tribool down)
 		int ny = hy/32;
 		if (ny>=5 || ny<0)
 			return;
-		if ( (ny+from)==selected && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
+		if ( (ny+from)==selected && (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE))
 			LOCPLINT->openHeroWindow(items[selected].first);//print hero screen
 		select(ny+from);
 	}
@@ -2579,7 +2485,7 @@ void CHeroList::draw()
 		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
 		SDL_Surface * temp = graphics->portraitSmall[cur->portrait];
 		blitAt(temp,posporx,pospory+i*32);
-		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == HEROI_TYPE))
+		if ((selected == iT) && (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE))
 		{
 			blitAt(selection,posporx,pospory+i*32);
 		}
@@ -2596,6 +2502,10 @@ void CHeroList::draw()
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
 }
 
+int CHeroList::getPosOfHero(const CArmedInstance* h)
+{
+	return vstd::findPos(items,h,boost::bind(vstd::equal<std::pair<const CGHeroInstance*, CPath *>,const CArmedInstance *,const CGHeroInstance*>,_1,&std::pair<const CGHeroInstance*, CPath *>::first,_2));
+}
 
 
 CTownList::~CTownList()
@@ -2701,7 +2611,7 @@ void CTownList::clickLeft(tribool down)
 		int ny = hy/32;
 		if (ny>SIZE || ny<0)
 			return;
-		if (SIZE==5 && (ny+from)==selected && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
+		if (SIZE==5 && (ny+from)==selected && (LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE))
 			LOCPLINT->openTownWindow(items[selected]);//print town screen
 		else
 			select(ny+from);
@@ -2795,7 +2705,7 @@ void CTownList::draw()
 
 		blitAt(graphics->getPic(items[iT]->subID,items[iT]->hasFort(),items[iT]->builded),posporx,pospory+i*32);
 
-		if ((selected == iT) && (LOCPLINT->adventureInt->selection.type == TOWNI_TYPE))
+		if ((selected == iT) && (LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE))
 		{
 			blitAt(graphics->getPic(-2),posporx,pospory+i*32);
 		}

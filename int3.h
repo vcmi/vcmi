@@ -1,6 +1,7 @@
 #ifndef INT3_H
 #define INT3_H
 #include <map>
+#include <vector>
 class CCreature;
 class CCreatureSet //seven combined creatures
 {

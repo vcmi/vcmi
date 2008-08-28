@@ -20,11 +20,17 @@ AdventureMapButton::AdventureMapButton ()
 //{
 //	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);
 //}
-AdventureMapButton::AdventureMapButton( std::string Name, std::string HelpBox, CFunctionList<void()> Callback, int x, int y, std::string defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton )
+AdventureMapButton::AdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton )
+{
+	std::map<int,std::string> pom;
+	pom[0] = Name;
+	init(Callback, pom, HelpBox, playerColoredButton, defName, add, x, y, activ);
+}
+
+AdventureMapButton::AdventureMapButton( const std::map<int,std::string> &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, bool activ/*=false*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
 {
 	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);
 }
-
 
 void AdventureMapButton::clickLeft (tribool down)
 {
@@ -62,11 +68,14 @@ void AdventureMapButton::clickRight (tribool down)
 void AdventureMapButton::hover (bool on)
 {
 	Hoverable::hover(on);
-	if(name.size()) //if there is no name, there is nohing to display also
+	std::string *name = (vstd::contains(hoverTexts,state)) 
+							? (&hoverTexts[state]) 
+							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
+	if(name) //if there is no name, there is nohing to display also
 	{
 		if (on)
-			LOCPLINT->statusbar->print(name);
-		else if (LOCPLINT->statusbar->getCurrent()==name)
+			LOCPLINT->statusbar->print(*name);
+		else if ( LOCPLINT->statusbar->getCurrent()==(*name) )
 			LOCPLINT->statusbar->clear();
 	}
 }
@@ -96,7 +105,7 @@ void AdventureMapButton::deactivate()
 	KeyInterested::deactivate();
 }
 
-void AdventureMapButton::init( CFunctionList<void()> Callback, std::string Name, std::string HelpBox, bool playerColoredButton, std::string defName, std::vector<std::string> * add, int x, int y, bool activ )
+void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, bool activ )
 {
 	callback = Callback;
 	blocked = actOnDown = false;
@@ -105,7 +114,7 @@ void AdventureMapButton::init( CFunctionList<void()> Callback, std::string Name,
 	active=false;
 	ourObj=NULL;
 	state=0;
-	name=Name;
+	hoverTexts = Name;
 	helpBox=HelpBox;
 	colorChange = playerColoredButton;
 	int est = LOCPLINT->playerID;
@@ -152,6 +161,41 @@ void AdventureMapButton::block( bool on )
 	show();
 }
 
+void CHighlightableButton::clickLeft( tribool down )
+{
+	if(blocked)
+		return;
+	if (down)
+		state=1;
+	else
+		state = selected ? 3 : 0;
+	show();
+	if (pressedL && (down==false))
+	{
+		pressedL=state;
+		selected = !selected;
+		state = selected ? 3 : 0;
+		if(selected)
+			callback();
+		else 
+			callback2();
+		if(hoverTexts.size()>1)
+		{
+			hover(false);
+			hover(true);
+		}
+	}
+	else
+	{
+		pressedL=state;
+	}
+} 
+
+CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, bool activ )
+{
+	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,activ);
+	callback2 = onDeselect;
+}
 void CSlider::sliderClicked()
 {
 	if(!moving)

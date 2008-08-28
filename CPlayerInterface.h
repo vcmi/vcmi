@@ -155,20 +155,6 @@ public:
 	virtual void activate();
 	virtual void deactivate();
 };
-template <typename T> class CSCButton: public CButtonBase, public ClickableL //prosty guzik, ktory tylko zmienia obrazek
-{
-public:
-	int3 posr; //position in the bitmap
-	int state;
-	T* delg;
-	void(T::*func)(boost::logic::tribool);
-	CSCButton(CDefHandler * img, CIntObject * obj, void(T::*poin)(boost::logic::tribool), T* Delg=NULL);
-	void clickLeft (boost::logic::tribool down);
-	void activate();
-	void deactivate();
-	void show(SDL_Surface * to = NULL);
-};
-
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 { //window able to delete its components when closed
 public:
@@ -367,7 +353,6 @@ public:
 	void tileHidden(int3 pos);
 	void tileRevealed(int3 pos);
 	void yourTurn();
-
 	//for battles
 	//void actionFinished(BattleAction action);//occurs AFTER every action taken by any stack or by the hero
 	//void actionStarted(BattleAction action);//occurs BEFORE every action taken by any stack or by the hero
@@ -383,7 +368,7 @@ public:
 
 
 	//-------------//
-
+	void updateWater();
 	void showComp(SComponent comp);
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
@@ -449,6 +434,7 @@ public:
 	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
 
 	CHeroList(int Size = 5);
+	int getPosOfHero(const CArmedInstance* h);
 	void genList();
 	void select(int which);
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);

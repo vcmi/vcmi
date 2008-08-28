@@ -144,12 +144,7 @@ public:
 
 	CHeroWindow * heroWindow;
 
-	struct CurrentSelection
-	{
-		int type; //0 - hero, 1 - town
-		const void* selected;
-		CurrentSelection(); //ctor
-	} selection;
+	const CArmedInstance *selection;
 
 	//fuctions binded to buttons
 	void fshowOverview();
@@ -170,6 +165,7 @@ public:
 	void hide(); //deactivates advmap interface
 	void update(); //redraws terrain
 
+	void select(const CArmedInstance *sel);
 	void selectionChanged();
 	void centerOn(int3 on);
 	int3 verifyPos(int3 ver);

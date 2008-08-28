@@ -523,3 +523,21 @@ void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
 	if(hero->tempOwner != player) return;
 	*cl->serv << ui16(510) << hero->id << ui32(aid);
 }
+
+std::vector < const CGObjectInstance * > CCallback::getBlockingObjs( int3 pos )
+{
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	std::vector<const CGObjectInstance *> ret;
+	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].blockingObjects)
+		ret.push_back(obj);
+	return ret;
+}
+
+std::vector < const CGObjectInstance * > CCallback::getVisitableObjs( int3 pos )
+{
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	std::vector<const CGObjectInstance *> ret;
+	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].visitableObjects)
+		ret.push_back(obj);
+	return ret;
+}
