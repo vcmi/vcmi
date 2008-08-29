@@ -353,6 +353,7 @@ public:
 	void tileHidden(int3 pos);
 	void tileRevealed(int3 pos);
 	void yourTurn();
+	void availableCreaturesChanged(const CGTownInstance *town);
 	//for battles
 	//void actionFinished(BattleAction action);//occurs AFTER every action taken by any stack or by the hero
 	//void actionStarted(BattleAction action);//occurs BEFORE every action taken by any stack or by the hero

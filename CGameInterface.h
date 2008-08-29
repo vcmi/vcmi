@@ -62,6 +62,7 @@ public:
 	virtual void tileHidden(int3 pos){};
 	virtual void tileRevealed(int3 pos){};
 	virtual void yourTurn(){};
+	virtual void availableCreaturesChanged(const CGTownInstance *town){};
 
 	//battle call-ins
 	//virtual void actionFinished(BattleAction action){};//occurs AFTER every action taken by any stack or by the hero

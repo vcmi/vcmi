@@ -2184,6 +2184,17 @@ void CPlayerInterface::updateWater()
 	//water tiles updated
 	//CGI->screenh->updateScreen();
 }
+
+void CPlayerInterface::availableCreaturesChanged( const CGTownInstance *town )
+{
+	boost::unique_lock<boost::mutex> un(*pim);
+	if(curint == castleInt)
+	{
+		CFortScreen *fs = dynamic_cast<CFortScreen*>(curint->subInt);
+		if(fs)
+			fs->draw(castleInt,false);
+	}
+}
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 {
 	bg=BitmapHandler::loadBitmap(name);

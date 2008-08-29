@@ -188,6 +188,7 @@ CBattleInterface::~CBattleInterface()
 
 void CBattleInterface::activate()
 {
+	subInt = NULL;
 	bOptions->activate();
 	bSurrender->activate();
 	bFlee->activate();
@@ -458,11 +459,11 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 	creAnims[ID]->setType(5); //death
 	for(int i=0; i<creAnims[ID]->framesInGroup(5); ++i)
 	{
+		if(i)
+			creAnims[ID]->incrementFrame();
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		if((animCount+1)%4)
-			creAnims[ID]->incrementFrame();
 	}
 
 	printConsoleAttacked(ID, dmg, killed, IDby);

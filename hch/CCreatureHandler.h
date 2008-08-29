@@ -49,6 +49,7 @@ public:
 class DLL_EXPORT CCreatureHandler
 {
 public:
+	std::set<int> notUsedMonsters;
 	std::vector<CCreature> creatures; //creature ID -> creature info
 	std::map<int,std::vector<CCreature*> > levelCreatures; //level -> list of creatures
 	std::map<std::string,int> nameToID;

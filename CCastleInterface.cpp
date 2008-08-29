@@ -508,8 +508,8 @@ void CCastleInterface::buildingClicked(int building)
 			}
 		case 7: case 8: case 9:
 			{
-				CFortScreen *fs = new CFortScreen(this);
 				deactivate();
+				CFortScreen *fs = new CFortScreen(this);
 				fs->activate();
 				fs->show();
 				break;
@@ -533,7 +533,7 @@ void CCastleInterface::buildingClicked(int building)
 				if(vstd::contains(hero->artifWorn,ui16(aid+9))) //hero already has machine
 					possible = false;
 				deactivate();
-				(new CBlacksmithDialog(possible,142+aid,aid,hero->id))->activate();
+				(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(aid,false),aid,hero->id))->activate();
 				break;
 			}
 		default:
@@ -677,8 +677,6 @@ void CCastleInterface::activate()
 		subInt->activate();
 		return;
 	}
-	else
-		subInt = NULL;
 	showing = true;
 	townlist->activate();
 	garr->activate();
@@ -1256,6 +1254,7 @@ CHallInterface::CBuildWindow::~CBuildWindow()
 
 CFortScreen::~CFortScreen()
 {
+	LOCPLINT->curint->subInt = NULL;
 	for(int i=0;i<crePics.size();i++)
 		delete crePics[i];
 	for (int i=0;i<recAreas.size();i++)
@@ -1280,7 +1279,7 @@ void CFortScreen::show( SDL_Surface * to)
 
 void CFortScreen::activate()
 {
-	LOCPLINT->curint = this;
+	LOCPLINT->curint->subInt = this;
 	exit->activate();
 	for (int i=0;i<recAreas.size();i++)
 	{
@@ -1309,6 +1308,7 @@ void CFortScreen::close()
 }
 CFortScreen::CFortScreen( CCastleInterface * owner )
 {
+	LOCPLINT->curint->subInt = this;
 	bg = NULL;
 	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CFortScreen::close,this),748,556,"TPMAGE1.DEF",false,NULL,false);
 	positions += genRect(126,386,10,22),genRect(126,386,404,22),
@@ -1398,7 +1398,6 @@ void CFortScreen::RecArea::clickLeft (tribool down)
 	{
 		LOCPLINT->curint->deactivate();
 		CRecrutationWindow *rw = LOCPLINT->castleInt->showRecruitmentWindow(bid);
-		rw->buy->callback += boost::bind(&CFortScreen::draw, static_cast<CFortScreen*>(LOCPLINT->curint), LOCPLINT->castleInt, false);
 	}
 	ClickableL::clickLeft(down);
 }
@@ -1542,7 +1541,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	blitAt(bg2,64,50,bmp);
 	SDL_FreeSurface(bg2);
 	CCreatureAnimation cra(CGI->creh->creatures[creMachineID].animDefName);
-	cra.nextFrameMiddle(bmp,165,130,true,false);
+	cra.nextFrameMiddle(bmp,170,120,true,false);
 	char pom[75];
 	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID].nameSing.c_str()); //build a new ...
 	printAtMiddle(pom,165,28,GEORXX,tytulowy,bmp);

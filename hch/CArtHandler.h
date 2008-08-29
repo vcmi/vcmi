@@ -29,6 +29,7 @@ public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector<CArtifact> artifacts;
 	void loadArtifacts();
+	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
 };
 

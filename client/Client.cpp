@@ -350,7 +350,9 @@ void CClient::process(int what)
 			*serv >> ns;
 			std::cout << "Setting available creatures in " << ns.tid << std::endl;
 			gs->apply(&ns);
-			//TODO: do we need to inform interface? 
+			CGTownInstance *t = gs->getTown(ns.tid);
+			if(vstd::contains(playerint,t->tempOwner))
+				playerint[t->tempOwner]->availableCreaturesChanged(t);
 			break;
 		}
 	case 508:
@@ -527,8 +529,13 @@ void CClient::process(int what)
 }
 void CClient::waitForMoveAndSend(int color)
 {
-	BattleAction ba = playerint[color]->activeStack(gs->curB->activeStack);
-	*serv << ui16(3002) << ba;
+	try
+	{
+		BattleAction ba = playerint[color]->activeStack(gs->curB->activeStack);
+		*serv << ui16(3002) << ba;
+		return;
+	}HANDLE_EXCEPTION
+	std::cout << "We should not be here!" << std::endl;
 }
 void CClient::run()
 {

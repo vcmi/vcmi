@@ -60,3 +60,34 @@ void CArtHandler::loadArtifacts()
 		}
 	}
 }
+
+int CArtHandler::convertMachineID(int id, bool creToArt )
+{
+	int dif = 142;
+	if(creToArt)
+	{
+		switch (id)
+		{
+		case 147:
+			dif--;
+			break;
+		case 148:
+			dif++;
+			break;
+		}
+		dif = -dif;
+	}
+	else
+	{
+		switch (id)
+		{
+		case 6:
+			dif--;
+			break;
+		case 5:
+			dif++;
+			break;
+		}
+	}
+	return id + dif;
+}

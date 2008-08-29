@@ -566,7 +566,7 @@ void CGameState::apply(IPack * pack)
 int CGameState::pickHero(int owner)
 {
 	int h=-1;
-	if(map->getHero(h = scenarioOps->getIthPlayersSettings(owner).hero,0)  &&  h>=0) //we haven't used selected hero
+	if(!map->getHero(h = scenarioOps->getIthPlayersSettings(owner).hero,0)  &&  h>=0) //we haven't used selected hero
 		return h;
 	int f = scenarioOps->getIthPlayersSettings(owner).castle;
 	int i=0;
@@ -615,7 +615,14 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 			return std::pair<int,int>(34,pickHero(obj->tempOwner));
 		}
 	case 71: //random monster
-		return std::pair<int,int>(54,ran()%(VLC->creh->creatures.size())); 
+		{
+			int r;
+			do 
+			{
+				r = ran()%197;
+			} while (vstd::contains(VLC->creh->notUsedMonsters,r));
+			return std::pair<int,int>(54,r); 
+		}
 	case 72: //random monster lvl1
 		return std::pair<int,int>(54,VLC->creh->levelCreatures[1][ran()%VLC->creh->levelCreatures[1].size()]->idNumber); 
 	case 73: //random monster lvl2
@@ -788,7 +795,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	map->defs.insert(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
 	if(!cur->defInfo)
 	{
-		std::cout<<"Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
+		std::cout<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
 		return;
 	}
 }
@@ -985,8 +992,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 						vhi->artifWorn[16] = 3;
 						break;
 					default:
-						pom-=145;
-						vhi->artifWorn[12+pom] = 3+pom;
+						vhi->artifWorn[9+CArtHandler::convertMachineID(pom,true)] = CArtHandler::convertMachineID(pom,true);
 						break;
 					}
 					continue;
@@ -1188,7 +1194,7 @@ int CGameState::battleGetStack(int pos)
 		if(curB->stacks[g]->position == pos ||
 				( curB->stacks[g]->creature->isDoubleWide() &&
 					( (curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos) ||
-						(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos)
+						(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == pos)
 					)
 				)
 			)

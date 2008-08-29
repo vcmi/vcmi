@@ -295,7 +295,7 @@ void CTerrainRect::clickLeft(tribool down)
 	int3 mp = whichTileIsIt();
 	if ((mp.x<0) || (mp.y<0))
 		return;
-	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
+	std::vector < const CGObjectInstance * > objs;
 	if (LOCPLINT->adventureInt->selection->ID != HEROI_TYPE)
 	{
 		if (currentPath)
@@ -304,9 +304,10 @@ void CTerrainRect::clickLeft(tribool down)
 			delete currentPath;
 			currentPath = NULL;
 		}
+		objs = LOCPLINT->cb->getBlockingObjs(mp);
 		for(int i=0; i<objs.size();i++)
 		{
-			if(objs[i]->ID == 98) //town
+			if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
 			{
 				if(LOCPLINT->adventureInt->selection == (objs[i]))
 				{
@@ -318,7 +319,7 @@ void CTerrainRect::clickLeft(tribool down)
 					return;
 				}
 			}
-			else if(objs[i]->ID == 34)
+			else if(objs[i]->ID == 34 && objs[i]->tempOwner == LOCPLINT->playerID)
 			{
 				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
 				return;
@@ -328,20 +329,28 @@ void CTerrainRect::clickLeft(tribool down)
 	}
 	else
 	{
+		objs = LOCPLINT->cb->getVisitableObjs(mp);
 		for(int i=0; i<objs.size();i++)
 		{
-			if(objs[i]->ID == 98) //town
+			if(objs[i]->ID == 98)
+				goto endchkpt;
+		}
+		objs = LOCPLINT->cb->getBlockingObjs(mp);
+		for(int i=0; i<objs.size();i++)
+		{
+			if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
 			{
 				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
 				return;
 			}
-			else if(objs[i]->ID == 34 && LOCPLINT->adventureInt->selection == (objs[i]))
+			else if(objs[i]->ID == 34 && objs[i]->tempOwner == LOCPLINT->playerID && LOCPLINT->adventureInt->selection == (objs[i]))
 			{
 				LOCPLINT->openHeroWindow(static_cast<const CGHeroInstance*>(objs[i]));
 				return;
 			}
 		}
 	}
+endchkpt:
 	bool mres =true;
 	if (currentPath)
 	{
@@ -413,13 +422,14 @@ void CTerrainRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	objs = LOCPLINT->cb->getBlockingObjs(pom);
 	for(int i=0; i<objs.size();i++)
 	{
-		if(objs[i]->ID == 98) //town
+		if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
 		{
 			CGI->curh->changeGraphic(0,3);
 			return;
 		}
 		else if(objs[i]->ID == 34 //mouse over hero
-			&& (objs[i]==LOCPLINT->adventureInt->selection  ||  LOCPLINT->adventureInt->selection->ID==98)) //this hero is selected or we've selected a town
+			&& (objs[i]==LOCPLINT->adventureInt->selection  ||  LOCPLINT->adventureInt->selection->ID==98)
+			&& objs[i]->tempOwner == LOCPLINT->playerID) //this hero is selected or we've selected a town
 		{
 			CGI->curh->changeGraphic(0,2);
 			return;
@@ -1068,6 +1078,7 @@ void CAdvMapInt::show(SDL_Surface *to)
 }
 void CAdvMapInt::hide()
 {
+	CGI->curh->changeGraphic(0,0);
 	kingOverview.deactivate();
 	underground.deactivate();
 	questlog.deactivate();

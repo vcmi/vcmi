@@ -498,9 +498,12 @@ struct DLL_EXPORT Mapa
 	void loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
 	void loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
 	int loadSeerHut( unsigned char * bufor, int i, CGObjectInstance * nobj);
+
+
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj);
 	Mapa(std::string filename); //creates map structure from .h3m file
 	CGHeroInstance * getHero(int ID, int mode=0);
+	bool isInTheMap(int3 pos);
 };
 #endif //MAPD_H

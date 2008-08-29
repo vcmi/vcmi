@@ -142,7 +142,14 @@ int main(int argc, _TCHAR* argv[])
 		THC tmh.getDif();pomtime.getDif();//reset timers
 		cgi->pathf = new CPathfinder();
 		THC std::cout<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
-		cgi->consoleh->runConsole();
+		if(argc>1)
+		{
+			std::cout << "Special mode without support for console!" << std::endl;
+		}
+		else
+		{
+			cgi->consoleh->runConsole();
+		}
 		THC std::cout<<"\tCallback and console: "<<pomtime.getDif()<<std::endl;
 		THC std::cout<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
 		std::ofstream lll("client_log.txt");

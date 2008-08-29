@@ -96,6 +96,7 @@ private:
 	CGameState * gs;
 	CClient *cl;
 	bool isVisible(int3 pos, int Player);
+	bool isVisible(CGObjectInstance *obj, int Player);
 
 protected:
 	int player;

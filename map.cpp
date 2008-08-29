@@ -1169,6 +1169,7 @@ void Mapa::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
 		players[pom].canComputerPlay = bufor[i++];
 		if ((!(players[pom].canHumanPlay || players[pom].canComputerPlay)))
 		{
+			memset(&players[pom],0,sizeof(PlayerInfo));
 			switch(version)
 			{
 			case SoD: case WoG: 
@@ -1187,7 +1188,9 @@ void Mapa::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
 		players[pom].AITactic = bufor[i++];
 
 		if(version == SoD || version == WoG)
-			players[pom].p7= bufor[i++];	
+			players[pom].p7= bufor[i++];
+		else
+			players[pom].p7= -1;
 
 		players[pom].allowedFactions = 0;
 		players[pom].allowedFactions += bufor[i++];
@@ -2451,4 +2454,11 @@ void Mapa::readEvents( unsigned char * bufor, int &i )
 		i+=18;
 		events.push_back(ne);
 	}
+}
+
+bool Mapa::isInTheMap( int3 pos )
+{
+	if(pos.x<0 || pos.y<0 || pos.z<0 || pos.x >= width || pos.y >= height || pos.z > twoLevel)
+		return false;
+	else return true;
 }

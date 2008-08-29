@@ -1,23 +1,24 @@
 #include "stdafx.h"
-#include "CCallback.h"
-#include "CPathfinder.h"
-#include "hch/CHeroHandler.h"
-#include "hch/CTownHandler.h"
-#include "CGameInfo.h"
-#include "hch/CAmbarCendamo.h"
-#include "mapHandler.h"
-#include "CGameState.h"
-#include "CPlayerInterface.h"
-#include "hch/CGeneralTextHandler.h"
 #include "CAdvmapInterface.h"
+#include "CCallback.h"
+#include "CGameInfo.h"
+#include "CGameState.h"
+#include "CPathfinder.h"
 #include "CPlayerInterface.h"
-#include "hch/CBuildingHandler.h"
-#include "hch/CObjectHandler.h"
-#include "lib/Connection.h"
+#include "CPlayerInterface.h"
 #include "client/Client.h"
-#include <boost/thread.hpp>
-#include <boost/foreach.hpp>
+#include "hch/CAmbarCendamo.h"
+#include "hch/CBuildingHandler.h"
+#include "hch/CDefObjInfoHandler.h"
+#include "hch/CGeneralTextHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CObjectHandler.h"
+#include "hch/CTownHandler.h"
+#include "lib/Connection.h"
 #include "lib/NetPacks.h"
+#include "mapHandler.h"
+#include <boost/foreach.hpp>
+#include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 #ifdef min
 #undef min
@@ -276,7 +277,7 @@ std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur)
 	{
 		for (int j=0;j<(*i).second.towns.size();j++)
 		{
-			if ( ( isVisible((*i).second.towns[j]->pos,player) ) || (*i).first==player)
+			if ( ( isVisible((*i).second.towns[j],player) ) || (*i).first==player)
 			{
 				ret.push_back((*i).second.towns[j]);
 			}
@@ -305,6 +306,22 @@ bool CCallback::isVisible(int3 pos)
 	return isVisible(pos,player);
 }
 
+bool CCallback::isVisible( CGObjectInstance *obj, int Player )
+{
+	//object is visible when at least one blocked tile is visible
+	for(int fx=0; fx<8; ++fx)
+	{
+		for(int fy=0; fy<6; ++fy)
+		{
+			int3 pos = obj->pos + int3(fx-7,fy-5,0);
+			if(gs->map->isInTheMap(pos) 
+				&& !((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1) 
+				&& isVisible(pos,Player)  )
+				return true;
+		}
+	}
+	return false;
+}
 int CCallback::getMyColor()
 {
 	return player;
@@ -377,29 +394,6 @@ bool CCallback::swapArifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHe
 		return false;
 	*cl->serv << ui16(509) << hero1->id << pos1 << hero2->id << pos2;
 	return true;
-	//if(!hero1 || !hero2) //incorrect data
-	//	return false;
-	//CGHeroInstance * Uhero1 = const_cast<CGHeroInstance *>(hero1);
-	//CGHeroInstance * Uhero2 = const_cast<CGHeroInstance *>(hero2);
-
-	//if(worn1 && worn2)
-	//{
-	//	std::swap(Uhero1->artifWorn[pos1], Uhero2->artifWorn[pos2]);
-	//}
-	//else if(worn1 && !worn2)
-	//{
-	//	std::swap(Uhero1->artifWorn[pos1], Uhero2->artifacts[pos2]);
-	//}
-	//else if(!worn1 && worn2)
-	//{
-	//	std::swap(Uhero1->artifacts[pos1], Uhero2->artifWorn[pos2]);
-	//}
-	//else
-	//{
-	//	std::swap(Uhero1->artifacts[pos1], Uhero2->artifacts[pos2]);
-	//}
-	//
-	//return true;
 }
 
 bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
@@ -526,8 +520,10 @@ void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
 
 std::vector < const CGObjectInstance * > CCallback::getBlockingObjs( int3 pos )
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector<const CGObjectInstance *> ret;
+	if(!gs->map->isInTheMap(pos))
+		return ret;
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].blockingObjects)
 		ret.push_back(obj);
 	return ret;
@@ -535,8 +531,10 @@ std::vector < const CGObjectInstance * > CCallback::getBlockingObjs( int3 pos )
 
 std::vector < const CGObjectInstance * > CCallback::getVisitableObjs( int3 pos )
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector<const CGObjectInstance *> ret;
+	if(!gs->map->isInTheMap(pos))
+		return ret;
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].visitableObjects)
 		ret.push_back(obj);
 	return ret;

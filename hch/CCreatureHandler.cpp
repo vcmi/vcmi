@@ -3,11 +3,13 @@
 #include "CCreatureHandler.h"
 #include "CLodHandler.h"
 #include <sstream>
+#include <boost/assign/std/set.hpp>
 #include <boost/assign/std/vector.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include "../lib/VCMI_Lib.h"
+using namespace boost::assign;
 extern CLodHandler * bitmaph;
 CCreatureHandler::CCreatureHandler()
 {
@@ -61,6 +63,7 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 
 void CCreatureHandler::loadCreatures()
 {
+	notUsedMonsters += 122,124,126,128,145,146,147,148,149,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191;
 	std::string buf = bitmaph->getTextFile("ZCRTRAIT.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
@@ -439,6 +442,8 @@ void CCreatureHandler::loadCreatures()
 		idToProjectileSpin[id] = spin;
 	}
 	inp2.close();
+
+	creatures[123].abilityRefs += "DOUBLE_WIDE";
 }
 
 void CCreatureHandler::loadAnimationInfo()
