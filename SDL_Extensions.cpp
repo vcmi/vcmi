@@ -601,11 +601,11 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 
 			if(dst->format->Rshift==0) //like in most surfaces
 			{
-				for(int y=0; y<sr.h; ++y)
+				for(Uint16 y=0; y<sr.h; ++y)
 				{
-					for(int x=0; x<sr.w; ++x)
+					for(Uint16 x=0; x<sr.w; ++x)
 					{
-						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
+						SDL_Color & tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
 						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
 
 						// According analyze, the values of tbc.unused are fixed,
@@ -650,11 +650,11 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			}
 			else if(dst->format->Rshift==16) //such as screen
 			{
-				for(int y=0; y<sr.h; ++y)
+				for(Uint16 y=0; y<sr.h; ++y)
 				{
-					for(int x=0; x<sr.w; ++x)
+					for(Uint16 x=0; x<sr.w; ++x)
 					{
-						SDL_Color tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
+						SDL_Color & tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
 						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
 
 						switch ((Uint32)tbc.unused)

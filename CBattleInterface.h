@@ -72,7 +72,7 @@ public:
 class CBattleInterface : public CMainInterface
 {
 private:
-	SDL_Surface * background, * menu, * amountBasic, * amountNormal;
+	SDL_Surface * background, * menu, * amountBasic, * amountNormal, * cellBorders, *shadedHexesGraphic;
 	AdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
 	CBattleConsole * console;
