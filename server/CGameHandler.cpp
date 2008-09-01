@@ -921,7 +921,7 @@ void CGameHandler::moveStack(int stack, int dest)
 	else 
 		gs->curB->getAccessibilityMap(accessibility,curStack->ID);
 
-	if((stackAtEnd && stackAtEnd->alive) || !accessibility[dest])
+	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive) || !accessibility[dest])
 		return;
 
 	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex

@@ -1,4 +1,4 @@
-0.61 -> 0.62 (Aug 31 2008 hopefully)
+0.61 -> 0.62 (Sep 01 2008)
 General:
 * restructured to the server-client model
 * support for heroes placed in towns
@@ -19,6 +19,8 @@ Castles:
 * mage guild screen 
 * support for blacksmith
 * if hero doesn't have a spell book, he can buy one in a mage guild
+* it's possible to build glyph of fear in fortress
+* creatures placeholders work properly
 
 Adventure Interface:
 * hopefully fixed problems with wrong town defs (village/fort/capitol)
@@ -38,6 +40,7 @@ Battles:
 * slightly optimized showing of battle interface
 * animation of getting hit / death by shooting is displayed when it should be
 * improved pathfinding in battles, removed problems with displaying movement, adventure map interface won't be called during battles.
+* minor optimizations
 
 PreGame:
 * updates settings when selecting new map after changing sorting criteria

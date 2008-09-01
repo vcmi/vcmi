@@ -514,6 +514,8 @@ void CMines::onHeroVisit(int objid, int heroID)
 {
 	//TODO: this is code for standard mines, no support for abandoned mine (subId==7)
 	DEFOS;
+	if(os->subID==7)
+		return;
 	const CGHeroInstance *h = cb->getHero(heroID);
 	if(h->tempOwner == os->tempOwner)
 		return; //TODO: leaving garrison

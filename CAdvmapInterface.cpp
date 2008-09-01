@@ -995,7 +995,9 @@ void CAdvMapInt::fmoveHero()
 	if (!terrain.currentPath)
 		return;
 	CPath sended(*(terrain.currentPath)); //temporary path - engine will operate on it
+	LOCPLINT->pim->unlock();
 	LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection)->type->ID,&sended,1,0);
+	LOCPLINT->pim->lock();
 }
 void CAdvMapInt::fshowSpellbok()
 {

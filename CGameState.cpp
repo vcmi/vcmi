@@ -1131,7 +1131,18 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			vti->spells[s->level-1].push_back(s->id);
 			vti->possibleSpells -= s->id;
 		}
-		
+
+		//init garrisons
+		for (std::map<si32,std::pair<ui32,si32> >::iterator j=vti->army.slots.begin(); j!=vti->army.slots.end();j++)
+		{
+			if(j->second.first > 196 && j->second.first < 211)
+			{
+				if(j->second.first%2)
+					j->second.first = vti->town->basicCreatures[ (j->second.first-197) / 2 ];
+				else
+					j->second.first = vti->town->upgradedCreatures[ (j->second.first-197) / 2 ];
+			}
+		}
 		players[vti->getOwner()].towns.push_back(vti);
 	}
 

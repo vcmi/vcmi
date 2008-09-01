@@ -63,7 +63,7 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 
 void CCreatureHandler::loadCreatures()
 {
-	notUsedMonsters += 122,124,126,128,145,146,147,148,149,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191;
+	notUsedMonsters += 122,124,126,128,145,146,147,148,149,160,161,162,163,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191;
 	std::string buf = bitmaph->getTextFile("ZCRTRAIT.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
@@ -443,7 +443,8 @@ void CCreatureHandler::loadCreatures()
 	}
 	inp2.close();
 
-	creatures[123].abilityRefs += "DOUBLE_WIDE";
+	creatures[122].abilityRefs += "DOUBLE_WIDE"; //water elemental should be treated as double-wide
+	creatures[123].abilityRefs += "DOUBLE_WIDE"; //ice elemental should be treated as double-wide
 }
 
 void CCreatureHandler::loadAnimationInfo()
