@@ -176,7 +176,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		}
 	}
 
-	shadedHexesGraphic = CSDL_Ext::newSurface(background->w, background->h, cellBorder);
+	backgroundWithHexes = CSDL_Ext::newSurface(background->w, background->h, screen);
 }
 
 CBattleInterface::~CBattleInterface()
@@ -186,7 +186,7 @@ CBattleInterface::~CBattleInterface()
 	SDL_FreeSurface(amountBasic);
 	SDL_FreeSurface(amountNormal);
 	SDL_FreeSurface(cellBorders);
-	SDL_FreeSurface(shadedHexesGraphic);
+	SDL_FreeSurface(backgroundWithHexes);
 	delete bOptions;
 	delete bSurrender;
 	delete bFlee;
@@ -253,12 +253,20 @@ void CBattleInterface::show(SDL_Surface * to)
 	++animCount;
 	if(!to) //"evaluating" to
 		to = screen;
-
-	//showing background
-	blitAt(background, 0, 0, to);
-	if(printCellBorders)
+	
+	//printing background and hexes
+	if(activeStack != -1 && creAnims[activeStack]->getType() != 0) //show everything with range
 	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, to, NULL);
+		blitAt(backgroundWithHexes, 0, 0, to);
+	}
+	else
+	{
+		//showing background
+		blitAt(background, 0, 0, to);
+		if(printCellBorders)
+		{
+			CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, to, NULL);
+		}
 	}
 	//printing hovered cell
 	for(int b=0; b<187; ++b)
@@ -270,11 +278,7 @@ void CBattleInterface::show(SDL_Surface * to)
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
 		}
 	}
-	//showing selected unit's range
-	if(activeStack != -1 && creAnims[activeStack]->getType() != 0) //don't show if unit is moving
-	{
-		showRange(to, activeStack);
-	}
+
 
 	//showing menu background and console
 	blitAt(menu, 0, 556, to);
@@ -494,24 +498,18 @@ void CBattleInterface::stackActivated(int number)
 	shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(number);
 	myTurn = true;
 
-	//preparating graphic with shaded hexes
-	//prepairing graphic with cell borders
-	shadedHexesGraphic = CSDL_Ext::newSurface(background->w, background->h, cellShade);
-	*shadedHexesGraphic->format->palette = *cellShade->format->palette;
+	//preparating background graphic with hexes and shaded hexes
+	blitAt(background, 0, 0, backgroundWithHexes);
+	if(printCellBorders)
+		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
+
 	for(int m=0; m<shadedHexes.size(); ++m) //rows
 	{
 		int i = shadedHexes[m]/17; //row
 		int j = shadedHexes[m]%17-1; //column
 		int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
 		int y = 86 + 42 * i;
-		for(int cellX = 0; cellX < cellShade->w; ++cellX)
-		{
-			for(int cellY = 0; cellY < cellShade->h; ++cellY)
-			{
-				if(y+cellY < shadedHexesGraphic->h && x+cellX < shadedHexesGraphic->w)
-					* ((Uint8*)shadedHexesGraphic->pixels + (y+cellY) * shadedHexesGraphic->pitch + (x+cellX)) |= * ((Uint8*)cellShade->pixels + cellY * cellShade->pitch + cellX);
-			}
-		}
+		CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, backgroundWithHexes, &genRect(cellShade->h, cellShade->w, x, y));
 	}
 }
 
@@ -872,7 +870,7 @@ void CBattleInterface::showRange(SDL_Surface * to, int ID)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(CBattleInterface::cellShade, NULL, to, &bfield[shadedHexes[i]].pos);
 	}*/
-	CSDL_Ext::blit8bppAlphaTo24bpp(shadedHexesGraphic, NULL, to, NULL);
+	//CSDL_Ext::blit8bppAlphaTo24bpp(shadedHexesGraphic, NULL, to, NULL);
 }
 
 

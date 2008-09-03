@@ -627,14 +627,14 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 							case 255:
 								break;
 							case 0:
-								p[0] = (Uint32)tbc.r;
-								p[1] = (Uint32)tbc.g;
-								p[2] = (Uint32)tbc.b;
+								p[0] = tbc.r;
+								p[1] = tbc.g;
+								p[2] = tbc.b;
 								break;
 							case 128:  // optimized
-								p[0] = ((Uint32)tbc.r + (Uint32)p[0]) >> 1;
-								p[1] = ((Uint32)tbc.g + (Uint32)p[1]) >> 1;
-								p[2] = ((Uint32)tbc.b + (Uint32)p[2]) >> 1;
+								p[0] = ((Uint16)tbc.r + (Uint16)p[0]) >> 1;
+								p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
+								p[2] = ((Uint16)tbc.b + (Uint16)p[2]) >> 1;
 								break;
 							default:
 								p[0] = ((((Uint32)p[0]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r) & 0xFF;
@@ -662,14 +662,14 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 							case 255:
 								break;
 							case 0:
-								p[2] = (Uint32)tbc.r;
-								p[1] = (Uint32)tbc.g;
-								p[0] = (Uint32)tbc.b;
+								p[2] = tbc.r;
+								p[1] = tbc.g;
+								p[0] = tbc.b;
 								break;
 							case 128:  // optimized
-								p[2] = ((Uint32)tbc.r + (Uint32)p[2]) >> 1;
-								p[1] = ((Uint32)tbc.g + (Uint32)p[1]) >> 1;
-								p[0] = ((Uint32)tbc.b + (Uint32)p[0]) >> 1;
+								p[2] = ((Uint16)tbc.r + (Uint16)p[2]) >> 1;
+								p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
+								p[0] = ((Uint16)tbc.b + (Uint16)p[0]) >> 1;
 								break;
 							default:
 								p[2] = ((((Uint32)p[2]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r) & 0xFF;
