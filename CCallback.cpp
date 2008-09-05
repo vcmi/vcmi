@@ -456,6 +456,11 @@ std::map<int, CStack> CCallback::battleGetStacks()
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::map<int, CStack> ret;
+	if(!gs->curB) //there is no battle
+	{
+		return ret;
+	}
+
 	for(int g=0; g<gs->curB->stacks.size(); ++g)
 	{
 		ret[gs->curB->stacks[g]->ID] = *(gs->curB->stacks[g]);

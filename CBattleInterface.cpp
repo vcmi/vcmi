@@ -16,6 +16,7 @@
 #include <queue>
 #include <sstream>
 #include "lib/CondSh.h"
+#include "lib/NetPacks.h"
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
 #else
@@ -24,12 +25,11 @@ const double M_PI = 3.14159265358979323846;
 #endif
 
 extern SDL_Surface * screen;
-extern TTF_Font * GEOR13;
+extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 extern SDL_Color zwykly;
-SDL_Surface * CBattleInterface::cellBorder, * CBattleInterface::cellShade;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL)
 {
 	givenCommand = new CondSh<BattleAction *>(NULL);
 	//initializing armies
@@ -157,14 +157,18 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 
 	//prepairing graphic with cell borders
 	cellBorders = CSDL_Ext::newSurface(background->w, background->h, cellBorder);
-	*cellBorders->format->palette = *cellBorder->format->palette;
+	//copying palette
+	for(int g=0; g<cellBorder->format->palette->ncolors; ++g) //we assume that cellBorders->format->palette->ncolors == 256
+	{
+		cellBorders->format->palette->colors[g] = cellBorder->format->palette->colors[g];
+	}
+	//palette copied
 	for(int i=0; i<11; ++i) //rows
 	{
 		for(int j=0; j<15; ++j) //columns
 		{
 			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
 			int y = 86 + 42 * i;
-			//SDL_BlitSurface(cellBorder, NULL, cellBorders, &genRect(cellBorder->h, cellBorder->w, x, y));
 			for(int cellX = 0; cellX < cellBorder->w; ++cellX)
 			{
 				for(int cellY = 0; cellY < cellBorder->h; ++cellY)
@@ -197,6 +201,7 @@ CBattleInterface::~CBattleInterface()
 	delete bConsoleUp;
 	delete bConsoleDown;
 	delete console;
+	delete resWindow;
 	delete givenCommand;
 
 	delete attackingHero;
@@ -354,6 +359,12 @@ void CBattleInterface::show(SDL_Surface * to)
 	}
 	//units shown
 	projectileShowHelper(to);//showing projectiles
+
+	//showing window with result of battle
+	if(resWindow)
+	{
+		resWindow->show(to);
+	}
 }
 
 bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
@@ -864,6 +875,14 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	attackingInfo->maxframe = creAnims[ID]->framesInGroup(attackingInfo->shootingGroup);
 }
 
+void CBattleInterface::battleFinished(const BattleResult& br)
+{
+	deactivate();
+
+	resWindow = new CBattleReslutWindow(br, genRect(561, 470, 165, 19), this);
+	resWindow->activate();
+}
+
 void CBattleInterface::showRange(SDL_Surface * to, int ID)
 {
 	/*for(int i=0; i<shadedHexes.size(); ++i)
@@ -1189,9 +1208,9 @@ CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strict
 
 void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 {
-	if(CBattleInterface::cellShade)
+	if(myInterface->cellShade)
 	{
-		if(CSDL_Ext::SDL_GetPixel(CBattleInterface::cellShade, sEvent.x-pos.x, sEvent.y-pos.y) == 0) //hovered pixel is outside hex
+		if(CSDL_Ext::SDL_GetPixel(myInterface->cellShade, sEvent.x-pos.x, sEvent.y-pos.y) == 0) //hovered pixel is outside hex
 		{
 			strictHovered = false;
 		}
@@ -1357,4 +1376,113 @@ void CBattleConsole::scrollDown(unsigned int by)
 {
 	if(lastShown + by < texts.size())
 		lastShown += by;
+}
+
+CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, SDL_Rect & pos, const CBattleInterface * owner)
+{
+	this->pos = pos;
+	background = BitmapHandler::loadBitmap("CPRESULT.BMP", true);
+	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
+	SDL_Surface * pom = SDL_ConvertSurface(background, screen->format, screen->flags);
+	SDL_FreeSurface(background);
+	background = pom;
+	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleReslutWindow::bExitf,this), 549, 524, "iok6432.def", false, NULL, false);
+
+	if(br.winner==0) //attacker won
+	{
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 60, 122, GEOR16, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 410, 122, GEOR16, zwykly, background);
+	}
+	else //if(br.winner==1)
+	{
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 60, 122, GEOR16, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 410, 122, GEOR16, zwykly, background);
+	}
+
+	
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[407], 235, 299, GEOR16, tytulowy, background);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[408], 235, 329, GEOR16, zwykly, background);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[409], 235, 426, GEOR16, zwykly, background);
+
+	std::string attackerName, defenderName;
+
+	if(owner->attackingHeroInstance) //a hero attacked
+	{
+		SDL_BlitSurface(graphics->portraitLarge[owner->attackingHeroInstance->portrait], NULL, background, &genRect(64, 58, 21, 38));
+		//setting attackerName
+		attackerName = owner->attackingHeroInstance->name;
+	}
+	else //a monster attacked
+	{
+		int bestMonsterID = -1;
+		int bestPower = 0;
+		for(std::map<si32,std::pair<ui32,si32> >::const_iterator it = owner->army1->slots.begin(); it!=owner->army1->slots.end(); ++it)
+		{
+			if( CGI->creh->creatures[it->first].AIValue > bestPower)
+			{
+				bestPower = CGI->creh->creatures[it->first].AIValue;
+				bestMonsterID = it->first;
+			}
+		}
+		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 21, 38));
+		//setting attackerName
+		attackerName =  CGI->creh->creatures[bestMonsterID].namePl;
+	}
+	if(owner->defendingHeroInstance) //a hero defended
+	{
+		SDL_BlitSurface(graphics->portraitLarge[owner->defendingHeroInstance->portrait], NULL, background, &genRect(64, 58, 391, 38));
+		//setting defenderName
+		defenderName = owner->defendingHeroInstance->name;
+	}
+	else //a monster defended
+	{
+		int bestMonsterID = -1;
+		int bestPower = 0;
+		for(std::map<si32,std::pair<ui32,si32> >::const_iterator it = owner->army2->slots.begin(); it!=owner->army2->slots.end(); ++it)
+		{
+			if( CGI->creh->creatures[it->first].AIValue > bestPower)
+			{
+				bestPower = CGI->creh->creatures[it->first].AIValue;
+				bestMonsterID = it->first;
+			}
+		}
+		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 391, 38));
+		//setting defenderName
+		defenderName =  CGI->creh->creatures[bestMonsterID].namePl;
+	}
+
+	//printing attacker and defender's names
+	CSDL_Ext::printAtMiddle(attackerName, 156, 44, GEOR16, zwykly, background);
+	CSDL_Ext::printAtMiddle(defenderName, 314, 44, GEOR16, zwykly, background);
+
+}
+
+CBattleReslutWindow::~CBattleReslutWindow()
+{
+	SDL_FreeSurface(background);
+}
+
+void CBattleReslutWindow::activate()
+{
+	exit->activate();
+}
+
+void CBattleReslutWindow::deactivate()
+{
+	exit->deactivate();
+}
+
+void CBattleReslutWindow::show(SDL_Surface *to)
+{
+	//evaluating to
+	if(!to)
+		to = screen;
+
+	SDL_BlitSurface(background, NULL, to, &pos);
+	exit->show(to);
+}
+
+void CBattleReslutWindow::bExitf()
+{
+	LOCPLINT->battleResultQuited();
 }

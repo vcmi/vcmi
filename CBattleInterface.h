@@ -9,6 +9,7 @@ class CDefHandler;
 class CStack;
 class CCallback;
 class AdventureMapButton;
+struct BattleResult;
 template <typename T> struct CondSh;
 
 class CBattleHero : public IShowable, public CIntObject
@@ -69,6 +70,22 @@ public:
 	void scrollDown(unsigned int by = 1); //scrolls console up by 'by' positions
 };
 
+class CBattleReslutWindow : public IShowable, public CIntObject, public IActivable
+{
+private:
+	SDL_Surface * background;
+	AdventureMapButton * exit;
+public:
+	CBattleReslutWindow(const BattleResult & br, SDL_Rect & pos, const CBattleInterface * owner); //c-tor
+	~CBattleReslutWindow(); //d-tor
+
+	void bExitf();
+
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to = 0);
+};
+
 class CBattleInterface : public CMainInterface
 {
 private:
@@ -121,9 +138,10 @@ public:
 	bool printCellBorders; //if true, cell borders will be printed
 	CBattleHex bfield[187]; //11 lines, 17 hexes on each
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
-	static SDL_Surface * cellBorder, * cellShade;
+	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
 	bool myTurn; //if true, interface is active (commands can be ordered
+	CBattleReslutWindow * resWindow; //window of end of battle
 
 	//button handle funcs:
 	void bOptionsf();
@@ -153,6 +171,8 @@ public:
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
+	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
 
 	friend class CBattleHex;
+	friend class CBattleReslutWindow;
 };

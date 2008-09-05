@@ -1200,6 +1200,8 @@ bool CGameState::battleShootCreatureStack(int ID, int dest)
 
 int CGameState::battleGetStack(int pos)
 {
+	if(!curB)
+		return -1;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
 		if(curB->stacks[g]->position == pos ||

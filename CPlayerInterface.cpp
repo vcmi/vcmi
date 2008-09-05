@@ -2008,8 +2008,13 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 
 void CPlayerInterface::battleEnd(BattleResult *br)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
-	curint->deactivate();
+	((CBattleInterface*)curint)->battleFinished(*br);
+}
+
+void CPlayerInterface::battleResultQuited()
+{
+	//boost::unique_lock<boost::mutex> un(*pim);
+	((CBattleInterface*)curint)->resWindow->deactivate();
 	objsToBlit -= curint;
 	delete curint;
 	curint = adventureInt;

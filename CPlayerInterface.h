@@ -360,6 +360,7 @@ public:
 	BattleAction activeStack(int stackID); //called when it's turn of that stack
 	void battleAttack(BattleAttack *ba);
 	void battleEnd(BattleResult *br);
+	void battleResultQuited();
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleStackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
 	void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting);
