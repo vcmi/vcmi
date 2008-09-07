@@ -552,6 +552,23 @@ void CGameState::applyNL(IPack * pack)
 			at->amount = br->newAmount;
 			at->firstHPleft = br->newHP;
 			at->alive = !br->killed();
+			
+			if(br->killedAmount>0) //setting casualities
+			{
+				bool found = false;
+				for(std::set<std::pair<ui32,si32> >::iterator it = curB->cas[1 - at->attackerOwned].begin(); it!=curB->cas[1 - at->attackerOwned].end(); ++it)
+				{
+					if(it->first == at->creature->idNumber)
+					{
+						found = true;
+						it->second += br->killedAmount;
+					}
+				}
+				if(!found)
+				{
+					curB->cas[1 - at->attackerOwned].insert(std::make_pair(at->creature->idNumber, br->killedAmount));
+				}
+			}
 			break;
 		}
 	case 3006:

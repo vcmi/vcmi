@@ -866,6 +866,9 @@ upgend:
 							//TODO: remove retreating hero from map and place it in recrutation list
 							BattleResult *br = new BattleResult;
 							br->result = 1;
+							br->winner = !ba.side; //fleeing side loses
+							br->s1 = gs->curB->cas[0]; //setting casualities
+							br->s2 = gs->curB->cas[1]; //as above - second side ;]
 							battleResult.set(br);
 							break;
 						}

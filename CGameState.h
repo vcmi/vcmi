@@ -58,10 +58,11 @@ struct DLL_EXPORT BattleInfo
 	si32 hero1, hero2;
 	CCreatureSet army1, army2;
 	std::vector<CStack*> stacks;
+	std::set<std::pair<ui32,si32> > cas[2]; //first => casualties of attackers - set of pairs crid<>number
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2;
+		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2 & cas[0] & cas[1];
 	}
 	CStack * getStack(int stackID);
 	CStack * getStackT(int tileID);

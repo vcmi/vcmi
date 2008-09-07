@@ -1391,13 +1391,13 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, SDL_Rect & pos,
 
 	if(br.winner==0) //attacker won
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 60, 122, GEOR16, zwykly, background);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 410, 122, GEOR16, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 60, 122, GEOR13, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 410, 122, GEOR13, zwykly, background);
 	}
 	else //if(br.winner==1)
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 60, 122, GEOR16, zwykly, background);
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 410, 122, GEOR16, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[411], 60, 122, GEOR13, zwykly, background);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[410], 410, 122, GEOR13, zwykly, background);
 	}
 
 	
@@ -1455,6 +1455,41 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, SDL_Rect & pos,
 	//printing attacker and defender's names
 	CSDL_Ext::printAtMiddle(attackerName, 156, 44, GEOR16, zwykly, background);
 	CSDL_Ext::printAtMiddle(defenderName, 314, 44, GEOR16, zwykly, background);
+	//printing casualities
+	if(br.s1.size()==0)
+	{
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[523], 235, 360, GEOR16, zwykly, background);
+	}
+	else
+	{
+		int xPos = 235 - (br.s1.size()*32 + (br.s1.size() - 1)*10)/2; //increment by 42 with each picture
+		int yPos = 344;
+		for(std::set<std::pair<ui32,si32> >::const_iterator it=br.s1.begin(); it!=br.s1.end(); ++it)
+		{
+			blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
+			std::stringstream amount;
+			amount<<it->second;
+			CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, GEOR13, zwykly, background);
+			xPos += 42;
+		}
+	}
+	if(br.s2.size()==0)
+	{
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[523], 235, 457, GEOR16, zwykly, background);
+	}
+	else
+	{
+		int xPos = 235 - (br.s2.size()*32 + (br.s2.size() - 1)*10)/2; //increment by 42 with each picture
+		int yPos = 441;
+		for(std::set<std::pair<ui32,si32> >::const_iterator it=br.s2.begin(); it!=br.s2.end(); ++it)
+		{
+			blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
+			std::stringstream amount;
+			amount<<it->second;
+			CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, GEOR13, zwykly, background);
+			xPos += 42;
+		}
+	}
 
 }
 
