@@ -192,6 +192,7 @@ Graphics::Graphics()
 	tasks += GET_DEF(resources32,"RESOURCE.DEF");
 	tasks += GET_DEF(smi,"CPRSMALL.DEF");
 	tasks += GET_DEF(smi2,"TWCRPORT.DEF");
+	tasks += GET_DEF(flags,"CREST58.DEF");
 
 	std::ifstream ifs("config/cr_bgs.txt"); 
 	int id;

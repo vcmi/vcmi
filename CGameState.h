@@ -130,6 +130,7 @@ private:
 	Mapa * map;
 	std::map<ui8,PlayerState> players; //ID <-> playerstate
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
+	std::vector<ui32> resVals;
 
 	boost::shared_mutex *mx;
 
@@ -150,6 +151,7 @@ private:
 	bool battleShootCreatureStack(int ID, int dest);
 	int battleGetStack(int pos); //returns ID of stack at given tile
 	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
+	float getMarketEfficiency(int player, int mode=0);
 public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 

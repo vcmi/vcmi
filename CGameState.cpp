@@ -21,6 +21,12 @@
 boost::rand48 ran;
 
 
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 
 CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 {
@@ -931,11 +937,21 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		startres.push_back(k);
 	}
 	tis.close();
+	tis.clear();
 	for (std::map<ui8,PlayerState>::iterator i = players.begin(); i!=players.end(); i++)
 	{
 		(*i).second.resources.resize(RESOURCE_QUANTITY);
 		for (int x=0;x<RESOURCE_QUANTITY;x++)
 			(*i).second.resources[x] = startres[x];
+	}
+
+	tis.open("config/resources.txt");
+	tis >> k;
+	int pom;
+	for(int i=0;i<k;i++)
+	{
+		tis >> pom;
+		resVals.push_back(pom);
 	}
 
 	/*************************HEROES************************************************/
@@ -1251,6 +1267,18 @@ UpgradeInfo CGameState::getUpgradeInfo(CArmedInstance *obj, int stackPos)
 	if(ret.newID.size())
 		ret.oldID = base->idNumber;
 
+	return ret;
+}
+
+float CGameState::getMarketEfficiency( int player, int mode/*=0*/ )
+{
+	boost::shared_lock<boost::shared_mutex> lock(*mx);
+	if(mode) return -1; //todo - support other modes
+	int mcount = 0;
+	for(int i=0;i<players[player].towns.size();i++)
+		if(vstd::contains(players[player].towns[i]->builtBuildings,14))
+			mcount++;
+	float ret = std::min(((float)mcount+1.0f)/20.0f,0.5f);
 	return ret;
 }
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender)

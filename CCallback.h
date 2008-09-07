@@ -41,6 +41,7 @@ public:
 	virtual void endTurn()=0;
 	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, int aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
+	virtual void trade(int mode, int id1, int id2, int val1)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)=0;
@@ -62,6 +63,7 @@ public:
 	virtual const StartInfo * getStartInfo()=0;
 	virtual std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos)=0;
 	virtual std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos)=0;
+	virtual void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0)=0;
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -118,6 +120,7 @@ public:
 	void endTurn();
 	void swapGarrisonHero(const CGTownInstance *town);
 	void buyArtifact(const CGHeroInstance *hero, int aid);
+	void trade(int mode, int id1, int id2, int val1);
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea);
@@ -138,9 +141,10 @@ public:
 	int getMySerial();
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj);
 	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos);
-	virtual const StartInfo * getStartInfo();
+	const StartInfo * getStartInfo();
 	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos);
 	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos);
+	void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0);
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship

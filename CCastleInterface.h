@@ -58,7 +58,7 @@ public:
 	CStatusBar * statusbar;
 	unsigned char animval, count;
 
-	CDefHandler *hall,*fort, *flag;
+	CDefHandler *hall,*fort;
 	CDefEssential* bicons; //150x70 buildings imgs
 	CTownList * townlist;
 

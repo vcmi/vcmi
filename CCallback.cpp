@@ -28,6 +28,21 @@
 #endif
 extern CSharedCond<std::set<IPack*> > mess;
 
+int gcd(int x, int y)
+{
+	int temp;
+	if (y > x)
+		swap(x,y);
+	while (y != 0)
+	{
+		temp = y;
+		y = x-y;
+		x = temp;
+		if (y > x)
+			swap(x,y);
+	}
+	return x;
+}
 HeroMoveDetails::HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho)
 	:src(Src),dst(Dst),ho(Ho)
 {
@@ -543,4 +558,30 @@ std::vector < const CGObjectInstance * > CCallback::getVisitableObjs( int3 pos )
 	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].visitableObjects)
 		ret.push_back(obj);
 	return ret;
+}
+
+void CCallback::getMarketOffer( int t1, int t2, int &give, int &rec, int mode/*=0*/ )
+{
+	if(mode) return; //TODO - support
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	//if(gs->resVals[t1] >= gs->resVals[t2])
+	float r = gs->resVals[t1],
+		g = gs->resVals[t2] / gs->getMarketEfficiency(player,mode);
+	if(r>g)
+	{
+		rec = r / g;
+		give = 1;
+	}
+	else
+	{
+		give = g / r;
+		rec = 1;
+	}
+}
+
+void CCallback::trade( int mode, int id1, int id2, int val1 )
+{
+	int p1, p2;
+	getMarketOffer(id1,id2,p1,p2,mode);
+	*cl->serv << ui16(511) << ui8(player) << ui32(mode)  << ui32(id1) << ui32(id2) << ui32(val1);
 }

@@ -280,7 +280,7 @@ void CHeroGSlot::show()
 	if(hero) //there is hero
 		blitAt(graphics->portraitLarge[hero->portrait],pos);
 	else if(!upg) //up garrison
-		blitAt((static_cast<CCastleInterface*>(LOCPLINT->curint))->flag->ourImages[(static_cast<CCastleInterface*>(LOCPLINT->curint))->town->getOwner()].bitmap,pos);
+		blitAt(graphics->flags->ourImages[(static_cast<CCastleInterface*>(LOCPLINT->curint))->town->getOwner()].bitmap,pos);
 	if(highlight)
 		blitAt(graphics->bigImgs[-1],pos);
 }
@@ -348,7 +348,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	cityBg = BitmapHandler::loadBitmap(getBgName(Town->subID));
 	hall = CDefHandler::giveDef("ITMTL.DEF");
 	fort = CDefHandler::giveDef("ITMCL.DEF");
-	flag =  CDefHandler::giveDef("CREST58.DEF");
 	hBuild = NULL;
 	count=0;
 	town = Town;
@@ -436,7 +435,6 @@ CCastleInterface::~CCastleInterface()
 	delete split;
 	delete hall;
 	delete fort;
-	delete flag;
 	delete garr;
 	delete townlist;
 	delete statusbar;
@@ -517,6 +515,13 @@ void CCastleInterface::buildingClicked(int building)
 		case 10: case 11: case 12: case 13:
 			enterHall();
 			break;
+		case 14: 
+			{
+				deactivate();
+				CMarketplaceWindow *cmw = new CMarketplaceWindow(0);
+				cmw->activate();
+				break;
+			}
 		case 16:
 			{
 				const CGHeroInstance *hero = town->visitingHero;

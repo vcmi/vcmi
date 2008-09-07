@@ -42,10 +42,48 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
     tcp::resolver resolver(*io_service);
-    tcp::resolver::iterator endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port));
-    socket->connect(*endpoint_iterator, error);
-	if (error){ delete socket;	throw "Can't establish connection :("; }
-	init();
+    tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port),error);
+	if(error)
+	{
+		std::cout << "Problem with resolving. " << std::endl << error <<std::endl;
+		goto connerror1;
+	}
+	pom = endpoint_iterator;
+	if(pom != end)
+		std::cout<<"Found endpoints:" << std::endl;
+	else
+	{
+		std::cout<< "Critical problem: No endpoints found!" << std::endl;
+		goto connerror1;
+	}
+	while(pom != end)
+	{
+		std::cout << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;
+		pom++;
+	}
+	while(endpoint_iterator != end)
+	{
+		socket->connect(*endpoint_iterator, error);
+		if(!error)
+		{
+			init();
+			return;
+		}
+		else
+		{
+			std::cout << "Problem with connecting. " << std::endl;
+		}
+	}
+
+	//we shouldn't be here - error handling
+connerror1:
+	if(error)
+		std::cout << error <<std::endl;
+	else
+		std::cout << "No error info. " << std::endl;
+	delete io_service;
+	delete socket;	
+	throw std::string("Can't establish connection :(");
 }
 CConnection::CConnection(
 			boost::asio::basic_stream_socket<boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * Socket, 

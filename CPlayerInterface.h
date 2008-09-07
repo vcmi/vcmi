@@ -592,6 +592,48 @@ public:
 	~CMinorResDataBar();
 };
 
+class CMarketplaceWindow : public IShowActivable, public CIntObject
+{
+public:
+	class CTradeableItem : public ClickableL
+	{
+	public:
+		int type; //0 - res, 1 - artif big, 2 - artif small, 3 - player flag
+		int id;
+		bool left;
+		CFunctionList<void()> callback;
+
+		void activate();
+		void deactivate();
+		void show(SDL_Surface * to=NULL);
+		void clickLeft(boost::logic::tribool down);
+		SDL_Surface *getSurface();
+		CTradeableItem(int Type, int ID, bool Left);
+	};
+
+	SDL_Surface *bg;
+	std::vector<CTradeableItem*> left, right;
+	std::vector<std::string> rSubs;
+	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
+
+	int mode,//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
+		r1, r2; 
+	AdventureMapButton *ok, *max, *deal;
+	CSlider *slider;
+
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to=NULL);
+	void setMax();
+	void sliderMoved(int to);
+	void makeDeal();
+	void selectionChanged(bool side); //true == left
+	CMarketplaceWindow(int Mode=0);
+	~CMarketplaceWindow();
+	void setMode(int mode);
+	void clear();
+};
+
 extern CPlayerInterface * LOCPLINT;
 
 #endif //CPLAYERINTERFACE_H

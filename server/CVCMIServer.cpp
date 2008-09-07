@@ -26,6 +26,7 @@ bool end2 = false;
 CVCMIServer::CVCMIServer()
 : io(new io_service()), acceptor(new tcp::acceptor(*io, tcp::endpoint(tcp::v4(), 3030)))
 {
+	std::cout << "CVCMIServer created!" <<std::endl;
 }
 CVCMIServer::~CVCMIServer()
 {
@@ -94,9 +95,10 @@ void CVCMIServer::start()
 	acceptor->accept(*s,error);
 	if (error)
 	{
-		std::cout<<"Got connection but there is an error " << std::endl;
+		std::cout<<"Got connection but there is an error " << std::endl << error;
 		return;
 	}
+	std::cout<<"We've accepted someone... " << std::endl;
 	CConnection *connection = new CConnection(s,NAME,std::cout);
 	std::cout<<"Got connection!" << std::endl;
 	while(!end2)

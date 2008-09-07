@@ -63,6 +63,7 @@ public:
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 	void moveRight();
 	void moveTo(int to);
+	void block(bool on);
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but doesn't delete)
 	void show(SDL_Surface * to = NULL);

@@ -813,6 +813,26 @@ upgend:
 					}
 					break;
 				}
+			case 511: //trade at marketplace
+				{
+					ui8 player;
+					ui32 mode, id1, id2, val;
+					c >> player >> mode >> id1 >> id2 >> val;
+					val = std::min(si32(val),gs->players[player].resources[id1]);
+					double uzysk = (double)gs->resVals[id1] * val * gs->getMarketEfficiency(player);
+					uzysk /= gs->resVals[id2];
+					SetResource sr;
+					sr.player = player;
+					sr.resid = id1;
+					sr.val = gs->players[player].resources[id1] - val;
+					sendAndApply(&sr);
+
+					sr.resid = id2;
+					sr.val = gs->players[player].resources[id2] + (int)uzysk;
+					sendAndApply(&sr);
+
+					break;
+				}
 			case 2001:
 				{
 					ui32 qid, answer;
@@ -954,9 +974,11 @@ CGameHandler::~CGameHandler(void)
 void CGameHandler::init(StartInfo *si, int Seed)
 {
 	Mapa *map = new Mapa(si->mapname);
+	std::cout << "Map loaded!" << std::endl;
 	gs = new CGameState();
+	std::cout << "Gamestate created!" << std::endl;
 	gs->init(si,map,Seed);	
-
+	std::cout << "Gamestate initialized!" << std::endl;
 	/****************************LUA OBJECT SCRIPTS************************************************/
 	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
 	//for (int i=0; i<lf->size(); i++)

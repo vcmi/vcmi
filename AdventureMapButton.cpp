@@ -116,7 +116,6 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	state=0;
 	hoverTexts = Name;
 	helpBox=HelpBox;
-	colorChange = playerColoredButton;
 	int est = LOCPLINT->playerID;
 	CDefHandler * temp = CDefHandler::giveDef(defName); 
 	temp->notFreeImgs = true;
@@ -319,4 +318,11 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	slider.actOnDown = true;
 
 	moveTo(value);
+}
+
+void CSlider::block( bool on )
+{
+	left.block(on);
+	right.block(on);
+	slider.block(on);
 }

@@ -30,6 +30,7 @@ public:
 	CDefHandler * pskillsm; //42x42
 	CDefHandler * un44; //many things
 	CDefHandler * smallIcons, *resources32; //resources 32x32
+	CDefHandler * flags;
 	//creatures
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border

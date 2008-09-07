@@ -477,8 +477,8 @@ void Mapa::initFromBytes(unsigned char * bufor)
 		if(!objects[f]->defInfo)
 			continue;
 		addBlockVisTiles(objects[f]);
-
 	}
+	std::cout<<"\tCalculating blocked/visitable tiles: "<<th.getDif()<<std::endl;
 }	
 void Mapa::removeBlockVisTiles(CGObjectInstance * obj)
 {

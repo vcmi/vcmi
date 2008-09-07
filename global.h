@@ -16,7 +16,7 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #define THC
 #endif
 
-#define NAME_VER ("VCMI 0.62")
+#define NAME_VER ("VCMI 0.63")
 
 
 #ifdef _WIN32
@@ -141,7 +141,7 @@ namespace vstd
 		return -1;
 	}
 	template <typename T1, typename T2, typename Func>
-	int findPos(const std::vector<T1> & c, const T2 &s, Func &f) //Func(T1,T2) must say if these elements matches
+	int findPos(const std::vector<T1> & c, const T2 &s, const Func &f) //Func(T1,T2) must say if these elements matches
 	{
 		for(int i=0;i<c.size();i++)
 			if(f(c[i],s))
@@ -161,6 +161,11 @@ namespace vstd
 			return false;
 		c.erase(itr);
 		return true;
+	}
+	template <typename t1>
+	void delObj(t1 *a1)
+	{
+		delete a1;
 	}
 	template <typename t1, typename t2>
 	void assign(t1 &a1, const t2 &a2)
