@@ -29,4 +29,5 @@ libvcmi_a_SOURCES = \
 ../hch/CTownHandler.h \
 ../map.h \
 ./NetPacks.h \
-./VCMI_Lib.h
+./VCMI_Lib.h \
+../hch/CSpellHandler.cpp

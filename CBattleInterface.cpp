@@ -879,7 +879,8 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	deactivate();
 
-	resWindow = new CBattleReslutWindow(br, genRect(561, 470, 165, 19), this);
+	SDL_Rect temp_rect = genRect(561, 470, 165, 19);
+	resWindow = new CBattleReslutWindow(br, temp_rect, this);
 	resWindow->activate();
 }
 

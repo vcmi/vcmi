@@ -32,7 +32,6 @@ vcmiclient_SOURCES =  \
 ../CPreGame.cpp \
 ../hch/CPreGameTextHandler.cpp \
 ../hch/CSndHandler.cpp \
-../hch/CSpellHandler.cpp \
 ../CThreadHelper.cpp \
 ./Graphics.cpp \
 ../mapHandler.cpp \
