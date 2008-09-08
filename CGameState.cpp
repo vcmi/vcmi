@@ -561,7 +561,11 @@ void CGameState::applyNL(IPack * pack)
 					if(it->first == at->creature->idNumber)
 					{
 						found = true;
-						it->second += br->killedAmount;
+						std::pair<ui32,si32>  mod = *it;
+						mod.second += br->killedAmount;
+
+						curB->cas[1 - at->attackerOwned].insert(it, mod);
+						curB->cas[1 - at->attackerOwned].erase(it);
 					}
 				}
 				if(!found)
