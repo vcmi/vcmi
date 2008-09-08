@@ -376,7 +376,7 @@ struct BattleResult : public CPack<BattleResult>//3003
 {
 	ui8 result; //0 - normal victory; 1 - escape; 2 - surrender
 	ui8 winner; //0 - attacker, 1 - defender, [2 - draw (should be possible?)]
-	std::set<std::pair<ui32,si32> > s1, s2; //first => casualties of attackers - set of pairs crid<>number
+	std::set<std::pair<ui32,si32> > casualties[2]; //first => casualties of attackers - set of pairs crid<>number
 	ui32 exp[2]; //exp for attacker and defender
 	std::set<ui32> artifacts; //artifacts taken from loser to winner
 
@@ -385,7 +385,7 @@ struct BattleResult : public CPack<BattleResult>//3003
 	BattleResult(){type = 3003;};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & result & winner & s1 & s2 & exp & artifacts;
+		h & result & winner & casualties[0] & casualties[1] & exp & artifacts;
 	}
 };
 

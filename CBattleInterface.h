@@ -147,6 +147,7 @@ public:
 	void bOptionsf();
 	void bSurrenderf();
 	void bFleef();
+	void reallyFlee(); //performs fleeing without asking player
 	void bAutofightf();
 	void bSpellf();
 	void bWaitf();

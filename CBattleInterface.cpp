@@ -415,6 +415,14 @@ void CBattleInterface::bSurrenderf()
 
 void CBattleInterface::bFleef()
 {
+	
+	CFunctionList<void()> ony = boost::bind(&CBattleInterface::activate,this);
+	ony += boost::bind(&CBattleInterface::reallyFlee,this);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<SComponent*>(), ony, boost::bind(&CBattleInterface::activate,this), true, false);
+}
+
+void CBattleInterface::reallyFlee()
+{
 	giveCommand(4,0,0);
 	CGI->curh->changeGraphic(0, 0);
 }
@@ -1456,41 +1464,61 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, SDL_Rect & pos,
 	CSDL_Ext::printAtMiddle(attackerName, 156, 44, GEOR16, zwykly, background);
 	CSDL_Ext::printAtMiddle(defenderName, 314, 44, GEOR16, zwykly, background);
 	//printing casualities
-	if(br.s1.size()==0)
+	for(int step = 0; step < 2; ++step)
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[523], 235, 360, GEOR16, zwykly, background);
-	}
-	else
-	{
-		int xPos = 235 - (br.s1.size()*32 + (br.s1.size() - 1)*10)/2; //increment by 42 with each picture
-		int yPos = 344;
-		for(std::set<std::pair<ui32,si32> >::const_iterator it=br.s1.begin(); it!=br.s1.end(); ++it)
+		if(br.casualties[step].size()==0)
 		{
-			blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
-			std::stringstream amount;
-			amount<<it->second;
-			CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, GEOR13, zwykly, background);
-			xPos += 42;
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[523], 235, 360 + 97*step, GEOR16, zwykly, background);
+		}
+		else
+		{
+			int xPos = 235 - (br.casualties[step].size()*32 + (br.casualties[step].size() - 1)*10)/2; //increment by 42 with each picture
+			int yPos = 344 + step*97;
+			for(std::set<std::pair<ui32,si32> >::const_iterator it=br.casualties[step].begin(); it!=br.casualties[step].end(); ++it)
+			{
+				blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
+				std::stringstream amount;
+				amount<<it->second;
+				CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, GEOR13, zwykly, background);
+				xPos += 42;
+			}
 		}
 	}
-	if(br.s2.size()==0)
+	//printing result description
+	bool weAreAttacker = (LOCPLINT->playerID == owner->attackingHeroInstance->tempOwner);
+	switch(br.result)
 	{
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[523], 235, 457, GEOR16, zwykly, background);
-	}
-	else
-	{
-		int xPos = 235 - (br.s2.size()*32 + (br.s2.size() - 1)*10)/2; //increment by 42 with each picture
-		int yPos = 441;
-		for(std::set<std::pair<ui32,si32> >::const_iterator it=br.s2.begin(); it!=br.s2.end(); ++it)
+	case 0: //normal victory
+		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
-			blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
-			std::stringstream amount;
-			amount<<it->second;
-			CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, GEOR13, zwykly, background);
-			xPos += 42;
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[304], 235, 235, GEOR13, zwykly, background);
 		}
+		else
+		{
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, GEOR13, zwykly, background);
+		}
+		break;
+	case 1: //flee
+		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
+		{
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[303], 235, 235, GEOR13, zwykly, background);
+		}
+		else
+		{
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, GEOR13, zwykly, background);
+		}
+		break;
+	case 2: //surrender
+		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
+		{
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[302], 235, 235, GEOR13, zwykly, background);
+		}
+		else
+		{
+			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 235, GEOR13, zwykly, background);
+		}
+		break;
 	}
-
 }
 
 CBattleReslutWindow::~CBattleReslutWindow()

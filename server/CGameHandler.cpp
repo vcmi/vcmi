@@ -279,6 +279,25 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 				battleMadeAction.cond.wait(lock);
 			battleMadeAction.data = false;
 		}
+		//checking winning condition
+		bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarily
+		hasStack[0] = hasStack[1] = false;
+		for(int b = 0; b<stacks.size(); ++b)
+		{
+			if(stacks[b]->alive)
+			{
+				hasStack[1-stacks[b]->attackerOwned] = true;
+			}
+		}
+		if(!hasStack[0] || !hasStack[1]) //somebody has won
+		{
+			BattleResult *br = new BattleResult;
+			br->result = 0;
+			br->winner = hasStack[1]; //fleeing side loses
+			br->casualties[0] = gs->curB->cas[0]; //setting casualities
+			br->casualties[1] = gs->curB->cas[1]; //as above - second side ;]
+			battleResult.set(br);
+		}
 	}
 
 	//unblock engaged players
@@ -319,6 +338,7 @@ void prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 	{
 		bat.bsa.newAmount = 0;
 		bat.bsa.flags |= 1;
+		bat.bsa.killedAmount = def->amount; //we cannot kill more creatures than we have
 	}
 	else
 	{
@@ -867,8 +887,8 @@ upgend:
 							BattleResult *br = new BattleResult;
 							br->result = 1;
 							br->winner = !ba.side; //fleeing side loses
-							br->s1 = gs->curB->cas[0]; //setting casualities
-							br->s2 = gs->curB->cas[1]; //as above - second side ;]
+							br->casualties[0] = gs->curB->cas[0]; //setting casualities
+							br->casualties[1] = gs->curB->cas[1]; //as above - second side ;]
 							battleResult.set(br);
 							break;
 						}
