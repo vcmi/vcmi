@@ -126,7 +126,7 @@ void CVCMIServer::start()
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
 #else
-int main(int argc, _TCHAR* argv[])
+int main(int argc, char** argv)
 #endif
 {
 	if(argc > 1)

@@ -12,7 +12,7 @@ public:
 #ifndef __GNUC__
 	friend int _tmain(int argc, _TCHAR* argv[]);
 #else
-	friend int main(int argc, _TCHAR* argv[]);
+	friend int main(int argc, char **argv);
 #endif
 };
 

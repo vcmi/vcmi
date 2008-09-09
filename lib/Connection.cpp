@@ -39,6 +39,7 @@ void CConnection::init()
 CConnection::CConnection(std::string host, std::string port, std::string Name, std::ostream & Out)
 :io_service(new asio::io_service), name(Name), out(Out)//, send(this), rec(this)
 {
+	int i;
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
     tcp::resolver resolver(*io_service);
@@ -56,7 +57,7 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
 		std::cout<< "Critical problem: No endpoints found!" << std::endl;
 		goto connerror1;
 	}
-	int i=0;
+	i=0;
 	while(pom != end)
 	{
 		std::cout << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;

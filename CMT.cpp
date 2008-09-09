@@ -48,7 +48,7 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
 #else
-int main(int argc, _TCHAR* argv[])
+int main(int argc, char** argv)
 #endif
 { 
 	int port;
