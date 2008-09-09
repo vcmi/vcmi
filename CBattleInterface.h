@@ -142,6 +142,7 @@ public:
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
 	bool myTurn; //if true, interface is active (commands can be ordered
 	CBattleReslutWindow * resWindow; //window of end of battle
+	bool showStackQueue; //if true, queue of stacks will be shown
 
 	//button handle funcs:
 	void bOptionsf();

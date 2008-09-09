@@ -28,8 +28,17 @@ extern SDL_Surface * screen;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 extern SDL_Color zwykly;
 
+class CMP_stack2
+{
+public:
+	bool operator ()(const CStack& a, const CStack& b)
+	{
+		return (a.creature->speed)>(b.creature->speed);
+	}
+} cmpst2 ;
+
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false)
 {
 	givenCommand = new CondSh<BattleAction *>(NULL);
 	//initializing armies
@@ -359,6 +368,59 @@ void CBattleInterface::show(SDL_Surface * to)
 	}
 	//units shown
 	projectileShowHelper(to);//showing projectiles
+
+	//showing queue of stacks
+	if(showStackQueue)
+	{
+		int xPos = 400 - ( stacks.size() * 42 )/2;
+		int yPos = 10;
+
+		std::vector<CStack> stacksSorted;
+		for(int v=0; v<stacks.size(); ++v)
+		{
+			stacksSorted.push_back(stacks[v]);
+		}
+		std::stable_sort(stacksSorted.begin(), stacksSorted.end(), cmpst2);
+		int startFrom = -1;
+		for(int n=0; n<stacksSorted.size(); ++n)
+		{
+			if(stacksSorted[n].ID == activeStack)
+			{
+				startFrom = n;
+				break;
+			}
+		}
+		if(startFrom != -1)
+		{
+			for(int b=startFrom; b<stacksSorted.size()+startFrom; ++b)
+			{
+				SDL_BlitSurface(graphics->smallImgs[-2], NULL, to, &genRect(32, 32, xPos, yPos));
+				//printing colored border
+				for(int xFrom = xPos-1; xFrom<xPos+33; ++xFrom)
+				{
+					for(int yFrom = yPos-1; yFrom<yPos+33; ++yFrom)
+					{
+						if(xFrom == xPos-1 || xFrom == xPos+32 || yFrom == yPos-1 || yFrom == yPos+32)
+						{
+							SDL_Color pc;
+							if(stacksSorted[b % stacksSorted.size()].owner != 255)
+							{
+								pc = graphics->playerColors[stacksSorted[b % stacksSorted.size()].owner];
+							}
+							else
+							{
+								pc = *graphics->neutralColor;
+							}
+							CSDL_Ext::SDL_PutPixel(to, xFrom, yFrom, pc.r, pc.g, pc.b);
+						}
+					}
+				}
+				//colored border printed
+				SDL_BlitSurface(graphics->smallImgs[stacksSorted[b % stacksSorted.size()].creature->idNumber], NULL, to, &genRect(32, 32, xPos, yPos));
+				xPos += 42;
+			}
+		}
+	}
 
 	//showing window with result of battle
 	if(resWindow)
@@ -886,6 +948,7 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	deactivate();
+	CGI->curh->changeGraphic(0,0);
 
 	SDL_Rect temp_rect = genRect(561, 470, 165, 19);
 	resWindow = new CBattleReslutWindow(br, temp_rect, this);

@@ -1676,6 +1676,14 @@ void CPlayerInterface::handleKeyUp(SDL_Event *sEvent)
 			adventureInt->endTurn.clickLeft(false);
 			break;
 		}
+	case (SDLK_c):
+		{
+			if( dynamic_cast<CBattleInterface*> (curint) )
+			{
+				dynamic_cast<CBattleInterface*> (curint)->showStackQueue = false;
+			}
+			break;
+		}
 	}
 }
 void CPlayerInterface::handleKeyDown(SDL_Event *sEvent)
@@ -1721,6 +1729,14 @@ void CPlayerInterface::handleKeyDown(SDL_Event *sEvent)
 	case (SDLK_e):
 		{
 			adventureInt->endTurn.clickLeft(true);
+			break;
+		}
+	case (SDLK_c):
+		{
+			if( dynamic_cast<CBattleInterface*> (curint) )
+			{
+				dynamic_cast<CBattleInterface*> (curint)->showStackQueue = true;
+			}
 			break;
 		}
 	}
