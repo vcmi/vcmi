@@ -569,12 +569,12 @@ void CCallback::getMarketOffer( int t1, int t2, int &give, int &rec, int mode/*=
 		g = gs->resVals[t2] / gs->getMarketEfficiency(player,mode);
 	if(r>g)
 	{
-		rec = r / g;
+		rec = ceil(r / g);
 		give = 1;
 	}
 	else
 	{
-		give = g / r;
+		give = ceil(g / r);
 		rec = 1;
 	}
 }

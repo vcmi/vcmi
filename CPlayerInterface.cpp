@@ -1822,7 +1822,8 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	boost::unique_lock<boost::mutex> un(*pim);
-	adventureInt->resdatabar.draw();
+	if(!curint->subInt)
+		adventureInt->resdatabar.draw();
 }
 
 void CPlayerInterface::showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID)

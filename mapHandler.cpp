@@ -494,7 +494,7 @@ void processDef (CGDefInfo* def)
 		pom->width = pom->handler->ourImages[0].bitmap->w/32;
 		pom->height = pom->handler->ourImages[0].bitmap->h/32;
 	}
-	else
+	else if(def->id != 34 && def->id != 98)
 		std::cout << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
 	if(!def->handler->alphaTransformed)
 	{

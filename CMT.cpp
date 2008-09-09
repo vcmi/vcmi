@@ -51,6 +51,20 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, _TCHAR* argv[])
 #endif
 { 
+	int port;
+	if(argc > 1)
+	{
+#ifdef _MSC_VER
+		port = _tstoi(argv[1]);
+#else
+		port = _ttoi(argv[1]);
+#endif
+	}
+	else
+	{
+		port = 3030;
+		std::cout << "Port " << port << " will be used." << std::endl;
+	}
 	std::cout.flags(ios::unitbuf);
 	std::cout << NAME << std::endl;
 	srand ( time(NULL) );
@@ -137,7 +151,9 @@ int main(int argc, _TCHAR* argv[])
 		cpg->mush = mush;
 		StartInfo *options = new StartInfo(cpg->runLoop());
 ///////////////////////////////////////////////////////////////////////////////////////
-		boost::thread servthr(boost::bind(system,SERVER_NAME " > server_log.txt")); //runs server executable; 
+		char portc[10]; SDL_itoa(port,portc,10);
+		std::string comm = std::string(SERVER_NAME) + " " + portc + " > server_log.txt";
+		boost::thread servthr(boost::bind(system,comm.c_str())); //runs server executable; 
 												//TODO: will it work on non-windows platforms?
 		THC tmh.getDif();pomtime.getDif();//reset timers
 		cgi->pathf = new CPathfinder();
@@ -160,7 +176,7 @@ int main(int argc, _TCHAR* argv[])
 			try
 			{
 				std::cout << "Establishing connection...\t";
-				c = new CConnection("localhost","3030",NAME,lll);
+				c = new CConnection("127.0.0.1",portc,NAME,lll);
 				std::cout << "done!" <<std::endl;
 			}
 			catch(...)

@@ -45,7 +45,7 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
     tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port),error);
 	if(error)
 	{
-		std::cout << "Problem with resolving. " << std::endl << error <<std::endl;
+		std::cout << "Problem with resolving: " << std::endl << error <<std::endl;
 		goto connerror1;
 	}
 	pom = endpoint_iterator;

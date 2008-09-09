@@ -22,9 +22,10 @@ using namespace boost::asio;
 using namespace boost::asio::ip;
 
 bool end2 = false;
+int port = 3030;
 
 CVCMIServer::CVCMIServer()
-: io(new io_service()), acceptor(new tcp::acceptor(*io, tcp::endpoint(tcp::v4(), 3030)))
+: io(new io_service()), acceptor(new tcp::acceptor(*io, tcp::endpoint(tcp::v4(), port)))
 {
 	std::cout << "CVCMIServer created!" <<std::endl;
 }
@@ -128,6 +129,15 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, _TCHAR* argv[])
 #endif
 {
+	if(argc > 1)
+	{
+#ifdef _MSC_VER
+		port = _tstoi(argv[1]);
+#else
+		port = _ttoi(argv[1]);
+#endif
+	}
+	std::cout << "Port " << port << " will be used." << std::endl;
 	CLodHandler h3bmp;
 	h3bmp.init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
 	initDLL(&h3bmp);
