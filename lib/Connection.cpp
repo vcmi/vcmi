@@ -56,13 +56,16 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
 		std::cout<< "Critical problem: No endpoints found!" << std::endl;
 		goto connerror1;
 	}
+	int i=0;
 	while(pom != end)
 	{
-		std::cout << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;
+		std::cout << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;
 		pom++;
 	}
+	i=0;
 	while(endpoint_iterator != end)
 	{
+		std::cout << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")" << std::endl;
 		socket->connect(*endpoint_iterator, error);
 		if(!error)
 		{
@@ -71,18 +74,20 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
 		}
 		else
 		{
-			std::cout << "Problem with connecting. " << std::endl;
+			std::cout << "Problem with connecting: " << std::endl <<  error << std::endl;
 		}
+		endpoint_iterator++;
 	}
 
 	//we shouldn't be here - error handling
 connerror1:
+	std::cout << "Something went wrong... checking for error info" << std::endl;
 	if(error)
 		std::cout << error <<std::endl;
 	else
 		std::cout << "No error info. " << std::endl;
 	delete io_service;
-	delete socket;	
+	//delete socket;	
 	throw std::string("Can't establish connection :(");
 }
 CConnection::CConnection(
@@ -99,7 +104,12 @@ CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);
 	acceptor->accept(*socket,error);
-	if (error){ delete socket;	throw "Can't establish connection :("; }
+	if (error)
+	{ 
+		std::cout << "Error on accepting: " << std::endl << error << std::endl;
+		delete socket;	
+		throw "Can't establish connection :("; 
+	}
 	init();
 }
 int CConnection::write(const void * data, unsigned size)

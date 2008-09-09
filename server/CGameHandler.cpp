@@ -271,32 +271,11 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 			BattleSetActiveStack sas;
 			sas.stack = stacks[i]->ID;
 			sendAndApply(&sas);
-
-			//wait for response about battle action
-
 			boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 			while(!battleMadeAction.data)
 				battleMadeAction.cond.wait(lock);
 			battleMadeAction.data = false;
-		}
-		//checking winning condition
-		bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarily
-		hasStack[0] = hasStack[1] = false;
-		for(int b = 0; b<stacks.size(); ++b)
-		{
-			if(stacks[b]->alive)
-			{
-				hasStack[1-stacks[b]->attackerOwned] = true;
-			}
-		}
-		if(!hasStack[0] || !hasStack[1]) //somebody has won
-		{
-			BattleResult *br = new BattleResult;
-			br->result = 0;
-			br->winner = hasStack[1]; //fleeing side loses
-			br->casualties[0] = gs->curB->cas[0]; //setting casualities
-			br->casualties[1] = gs->curB->cas[1]; //as above - second side ;]
-			battleResult.set(br);
+			checkForBattleEnd(stacks);
 		}
 	}
 
@@ -887,8 +866,7 @@ upgend:
 							BattleResult *br = new BattleResult;
 							br->result = 1;
 							br->winner = !ba.side; //fleeing side loses
-							br->casualties[0] = gs->curB->cas[0]; //setting casualities
-							br->casualties[1] = gs->curB->cas[1]; //as above - second side ;]
+							gs->curB->calculateCasualties(br->casualties);
 							battleResult.set(br);
 							break;
 						}
@@ -1204,7 +1182,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	curB->activeStack = -1;
 	for(std::map<si32,std::pair<ui32,si32> >::iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
 	{
-		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true));
+		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true,i->first));
 		stacks[stacks.size()-1]->ID = stacks.size()-1;
 	}
 	//initialization of positions
@@ -1258,7 +1236,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 		break;
 	}
 	for(std::map<si32,std::pair<ui32,si32> >::iterator i = army2.slots.begin(); i!=army2.slots.end(); i++)
-		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero2 ? hero2->tempOwner : 255, stacks.size(), false));
+		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero2 ? hero2->tempOwner : 255, stacks.size(), false, i->first));
 	switch(army2.slots.size()) //for defender
 	{
 	case 0:
@@ -1331,4 +1309,26 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	BattleStart bs;
 	bs.info = curB;
 	sendAndApply(&bs);
+}
+
+void CGameHandler::checkForBattleEnd( std::vector<CStack*> &stacks )
+{
+	//checking winning condition
+	bool hasStack[2]; //hasStack[0] - true if attacker has a living stack; defender similarily
+	hasStack[0] = hasStack[1] = false;
+	for(int b = 0; b<stacks.size(); ++b)
+	{
+		if(stacks[b]->alive)
+		{
+			hasStack[1-stacks[b]->attackerOwned] = true;
+		}
+	}
+	if(!hasStack[0] || !hasStack[1]) //somebody has won
+	{
+		BattleResult *br = new BattleResult;
+		br->result = 0;
+		br->winner = hasStack[1]; //fleeing side loses
+		gs->curB->calculateCasualties(br->casualties);
+		battleResult.set(br);
+	}
 }

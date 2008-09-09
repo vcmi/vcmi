@@ -253,8 +253,8 @@ std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
 	return path;
 }
 
-CStack::CStack(CCreature * C, int A, int O, int I, bool AO)
-	:creature(C),amount(A),owner(O), alive(true), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints)
+CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
+	:creature(C),amount(A), baseAmount(A), owner(O), alive(true), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), slot(S)
 {
 }
 void CGameState::applyNL(IPack * pack)
@@ -552,27 +552,6 @@ void CGameState::applyNL(IPack * pack)
 			at->amount = br->newAmount;
 			at->firstHPleft = br->newHP;
 			at->alive = !br->killed();
-			
-			if(br->killedAmount>0) //setting casualities
-			{
-				bool found = false;
-				for(std::set<std::pair<ui32,si32> >::iterator it = curB->cas[1 - at->attackerOwned].begin(); it!=curB->cas[1 - at->attackerOwned].end(); ++it)
-				{
-					if(it->first == at->creature->idNumber)
-					{
-						found = true;
-						std::pair<ui32,si32>  mod = *it;
-						mod.second += br->killedAmount;
-
-						curB->cas[1 - at->attackerOwned].insert(it, mod);
-						curB->cas[1 - at->attackerOwned].erase(it);
-					}
-				}
-				if(!found)
-				{
-					curB->cas[1 - at->attackerOwned].insert(std::make_pair(at->creature->idNumber, br->killedAmount));
-				}
-			}
 			break;
 		}
 	case 3006:
@@ -1340,4 +1319,39 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender)
 	}
 
 	return (float)damageBase * (float)attacker->amount * dmgBonusMultiplier;
+}
+
+void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualties )
+{
+	for(int i=0; i<stacks.size();i++)//setting casualties
+	{
+		if(!stacks[i]->alive)
+		{
+			casualties[!stacks[i]->attackerOwned].insert(std::pair<ui32,si32>(stacks[i]->creature->idNumber,stacks[i]->baseAmount));
+		}
+		else if(stacks[i]->amount != stacks[i]->baseAmount)
+		{
+			casualties[!stacks[i]->attackerOwned].insert(std::pair<ui32,si32>(stacks[i]->creature->idNumber,stacks[i]->baseAmount - stacks[i]->amount));
+		}
+	}
+	//if(br->killedAmount>0) 
+	//{
+	//	bool found = false;
+	//	for(std::set<std::pair<ui32,si32> >::iterator it = curB->cas[1 - at->attackerOwned].begin(); it!=curB->cas[1 - at->attackerOwned].end(); ++it)
+	//	{
+	//		if(it->first == at->creature->idNumber)
+	//		{
+	//			found = true;
+	//			std::pair<ui32,si32>  mod = *it;
+	//			mod.second += br->killedAmount;
+
+	//			curB->cas[1 - at->attackerOwned].insert(it, mod);
+	//			curB->cas[1 - at->attackerOwned].erase(it);
+	//		}
+	//	}
+	//	if(!found)
+	//	{
+	//		curB->cas[1 - at->attackerOwned].insert(std::make_pair(at->creature->idNumber, br->killedAmount));
+	//	}
+	//}
 }

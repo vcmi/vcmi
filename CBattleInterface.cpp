@@ -1449,10 +1449,10 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, SDL_Rect & pos,
 		int bestPower = 0;
 		for(std::map<si32,std::pair<ui32,si32> >::const_iterator it = owner->army2->slots.begin(); it!=owner->army2->slots.end(); ++it)
 		{
-			if( CGI->creh->creatures[it->first].AIValue > bestPower)
+			if( CGI->creh->creatures[it->second.first].AIValue > bestPower)
 			{
-				bestPower = CGI->creh->creatures[it->first].AIValue;
-				bestMonsterID = it->first;
+				bestPower = CGI->creh->creatures[it->second.first].AIValue;
+				bestMonsterID = it->second.first;
 			}
 		}
 		SDL_BlitSurface(graphics->bigImgs[bestMonsterID], NULL, background, &genRect(64, 58, 391, 38));

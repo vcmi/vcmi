@@ -58,11 +58,10 @@ struct DLL_EXPORT BattleInfo
 	si32 hero1, hero2;
 	CCreatureSet army1, army2;
 	std::vector<CStack*> stacks;
-	std::set<std::pair<ui32,si32> > cas[2]; //first => casualties of attackers - set of pairs crid<>number
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2 & cas[0] & cas[1];
+		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2;
 	}
 	CStack * getStack(int stackID);
 	CStack * getStackT(int tileID);
@@ -75,6 +74,7 @@ struct DLL_EXPORT BattleInfo
 	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	static std::vector<int> neighbouringTiles(int hex);
 	static int calculateDmg(const CStack* attacker, const CStack* defender); //TODO: add additional conditions and require necessary data
+	void calculateCasualties(std::set<std::pair<ui32,si32> > *casualties);
 };
 
 class DLL_EXPORT CStack
@@ -82,15 +82,15 @@ class DLL_EXPORT CStack
 public:
 	ui32 ID; //unique ID of stack
 	CCreature * creature;
-	ui32 amount;
+	ui32 amount, baseAmount;
 	ui32 firstHPleft; //HP of first creature in stack
-	ui8 owner;
+	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (255 for neutrals/called creatures)
 	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	ui16 position; //position on battlefield
 	ui8 alive; //true if it is alive
 
-	CStack(CCreature * C, int A, int O, int I, bool AO);
-	CStack() : creature(NULL),amount(-1),owner(255), alive(true), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1){};
+	CStack(CCreature * C, int A, int O, int I, bool AO, int S);
+	CStack() : creature(NULL),amount(-1),owner(255), alive(true), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1){};
 
 	template <typename Handler> void save(Handler &h, const int version)
 	{
@@ -104,7 +104,7 @@ public:
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & amount & firstHPleft & owner & attackerOwned & position & alive;
+		h & ID & amount & baseAmount & firstHPleft & owner & attackerOwned & position & alive;
 		if(h.saving)
 			save(h,version);
 		else
