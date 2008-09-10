@@ -25,6 +25,7 @@
 #include "hch/CObjectHandler.h"
 #include <boost/thread.hpp>
 #include "map.h"
+#include "client/CSpellWindow.h"
 #pragma warning (disable : 4355) 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
@@ -1001,6 +1002,14 @@ void CAdvMapInt::fmoveHero()
 }
 void CAdvMapInt::fshowSpellbok()
 {
+	if (selection->ID!=HEROI_TYPE) //checking necessary values
+		return;
+
+	LOCPLINT->curint->deactivate();
+
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, 90, 2), ((const CGHeroInstance*)LOCPLINT->adventureInt->selection));
+	spellWindow->activate();
+	LOCPLINT->objsToBlit.push_back(spellWindow);
 }
 void CAdvMapInt::fadventureOPtions()
 {
