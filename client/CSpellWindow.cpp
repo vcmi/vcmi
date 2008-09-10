@@ -53,7 +53,8 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHer
 	schoolF = CDefHandler::giveDef("SplevF.def");
 	schoolA = CDefHandler::giveDef("SplevA.def");
 
-	exitBtn = new ClickableArea(genRect(45, 35, 569, 407), boost::bind(&CSpellWindow::fexitb, this));
+	SDL_Rect temp_rect = genRect(45, 35, 569, 407);
+	exitBtn = new ClickableArea(temp_rect, boost::bind(&CSpellWindow::fexitb, this));
 	statusBar = new CStatusBar(97, 571, "Spelroll.bmp");
 }
 
