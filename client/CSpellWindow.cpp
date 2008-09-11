@@ -84,16 +84,25 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHer
 
 
 	statusBar = new CStatusBar(97, 571, "Spelroll.bmp");
-	exitBtn = new SpellbookInteractiveArea(genRect(45, 35, 569, 407), boost::bind(&CSpellWindow::fexitb, this), CGI->preth->zelp[460].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[460].first)), boost::bind(&CStatusBar::clear, statusBar));
-	battleSpells = new SpellbookInteractiveArea(genRect(45, 35, 311, 407), boost::bind(&CSpellWindow::fbattleSpellsb, this), CGI->preth->zelp[453].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[453].first)), boost::bind(&CStatusBar::clear, statusBar));
-	adventureSpells = new SpellbookInteractiveArea(genRect(45, 35, 445, 407), boost::bind(&CSpellWindow::fadvSpellsb, this), CGI->preth->zelp[452].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[452].first)), boost::bind(&CStatusBar::clear, statusBar));
-	manaPoints = new SpellbookInteractiveArea(genRect(45, 35, 508, 407), boost::bind(&CSpellWindow::fmanaPtsb, this), CGI->preth->zelp[459].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[459].first)), boost::bind(&CStatusBar::clear, statusBar));
+	SDL_Rect temp_rect = genRect(45, 35, 569, 407);
+	exitBtn = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fexitb, this), CGI->preth->zelp[460].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[460].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(45, 35, 311, 407);
+	battleSpells = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fbattleSpellsb, this), CGI->preth->zelp[453].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[453].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(45, 35, 445, 407);
+	adventureSpells = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fadvSpellsb, this), CGI->preth->zelp[452].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[452].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(45, 35, 508, 407);
+	manaPoints = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fmanaPtsb, this), CGI->preth->zelp[459].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[459].first)), boost::bind(&CStatusBar::clear, statusBar));
 
-	selectSpellsA = new SpellbookInteractiveArea(genRect(36, 56, 639, 96), boost::bind(&CSpellWindow::fspellsAb, this), CGI->preth->zelp[454].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[454].first)), boost::bind(&CStatusBar::clear, statusBar));
-	selectSpellsE = new SpellbookInteractiveArea(genRect(36, 56, 639, 153), boost::bind(&CSpellWindow::fspellsEb, this), CGI->preth->zelp[457].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[457].first)), boost::bind(&CStatusBar::clear, statusBar));
-	selectSpellsF = new SpellbookInteractiveArea(genRect(36, 56, 639, 212), boost::bind(&CSpellWindow::fspellsFb, this), CGI->preth->zelp[455].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[455].first)), boost::bind(&CStatusBar::clear, statusBar));
-	selectSpellsW = new SpellbookInteractiveArea(genRect(36, 56, 639, 272), boost::bind(&CSpellWindow::fspellsWb, this), CGI->preth->zelp[456].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[456].first)), boost::bind(&CStatusBar::clear, statusBar));
-	selectSpellsAll = new SpellbookInteractiveArea(genRect(36, 56, 639, 332), boost::bind(&CSpellWindow::fspellsAllb, this), CGI->preth->zelp[458].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[458].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(36, 56, 639, 96);
+	selectSpellsA = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsAb, this), CGI->preth->zelp[454].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[454].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(36, 56, 639, 153);
+	selectSpellsE = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsEb, this), CGI->preth->zelp[457].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[457].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(36, 56, 639, 212);
+	selectSpellsF = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsFb, this), CGI->preth->zelp[455].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[455].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(36, 56, 639, 272);
+	selectSpellsW = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsWb, this), CGI->preth->zelp[456].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[456].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(36, 56, 639, 332);
+	selectSpellsAll = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsAllb, this), CGI->preth->zelp[458].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[458].first)), boost::bind(&CStatusBar::clear, statusBar));
 }
 
 CSpellWindow::~CSpellWindow()
