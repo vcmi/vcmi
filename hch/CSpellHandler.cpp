@@ -13,6 +13,8 @@ void CSpellHandler::loadSpells()
 		loadToIt(pom,buf,i,3);
 
 	bool combSpells=false; //true, if we are reading combat spells
+	bool creatureAbility=false; //if true, only creature can use this spell
+	int ifHit = 0;
 	while(i<andame)
 	{
 		if(spells.size()==81)
@@ -22,9 +24,18 @@ void CSpellHandler::loadSpells()
 		loadToIt(nsp.name,buf,i,4);
 		if(nsp.name == std::string(""))
 		{
+			if(ifHit == 0)
+			{
+				combSpells = true;
+			}
+			if(ifHit == 1)
+			{
+				creatureAbility = true;
+			}
 			for(int z=0; z<3; ++z)
 				loadToIt(pom,buf,i,3);
 			loadToIt(nsp.name,buf,i,4);
+			++ifHit;
 		}
 
 		loadToIt(nsp.abbName,buf,i,4);
@@ -65,6 +76,7 @@ void CSpellHandler::loadSpells()
 		loadToIt(nsp.attributes,buf,i,3);
 		nsp.id = spells.size();
 		nsp.combatSpell = combSpells;
+		nsp.creatureAbility = creatureAbility;
 		spells.push_back(nsp);
 	}
 }

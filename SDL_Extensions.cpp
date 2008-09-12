@@ -141,7 +141,7 @@ void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SD
 		break;
 	}
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-(temp->w/2),y-(temp->h/2)));
-	SDL_UpdateRect(dst,x-(temp->w/2),y-(temp->h/2),temp->w,temp->h);
+	//SDL_UpdateRect(dst,x-(temp->w/2),y-(temp->h/2),temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
 void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
@@ -199,7 +199,7 @@ void CSDL_Ext::printTo(std::string text, int x, int y, TTF_Font * font, SDL_Colo
 		break;
 	}
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
-	SDL_UpdateRect(dst,x-temp->w,y-temp->h,temp->w,temp->h);
+	//SDL_UpdateRect(dst,x-temp->w,y-temp->h,temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
 

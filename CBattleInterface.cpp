@@ -13,6 +13,7 @@
 #include "hch/CGeneralTextHandler.h"
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
+#include "client/CSpellWindow.h"
 #include <queue>
 #include <sstream>
 #include "lib/CondSh.h"
@@ -495,6 +496,17 @@ void CBattleInterface::bAutofightf()
 
 void CBattleInterface::bSpellf()
 {
+	CGI->curh->changeGraphic(0,0);
+	LOCPLINT->curint->deactivate();
+
+	const CGHeroInstance * chi = NULL;
+	if(attackingHeroInstance->tempOwner == LOCPLINT->playerID)
+		chi = attackingHeroInstance;
+	else
+		chi = defendingHeroInstance;
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, 90, 2), chi);
+	spellWindow->activate();
+	LOCPLINT->objsToBlit.push_back(spellWindow);
 }
 
 void CBattleInterface::bWaitf()
@@ -700,9 +712,11 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 
 void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting)
 {
-	if(creAnims[ID]->getType() != 2)
+	while(creAnims[ID]->getType() != 2 || (attackingInfo && attackingInfo->IDby == IDby))
 	{
-		return; //something went wrong
+		show();
+		CSDL_Ext::update();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	if(byShooting) //delay hit animation
 	{
@@ -744,51 +758,105 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
-	if(attackingInfo != NULL)
+	while(attackingInfo != NULL)
 	{
-		return; //something went wrong
+		show();
+		CSDL_Ext::update();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	CStack aStack = *LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
-	if(aStack.creature->isDoubleWide())
+	if(aStack.attackerOwned)
 	{
-		switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
+		if(aStack.creature->isDoubleWide())
 		{
-			case 0:
-				//reverseCreature(ID, aStack.position, true);
-				break;
-			case 1:
-				break;
-			case 2:
-				break;
-			case 3:
-				break;
-			case 4:
-				//reverseCreature(ID, aStack.position, true);
-				break;
-			case 5:
-				reverseCreature(ID, aStack.position, true);
-				break;
+			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
+			{
+				case 0:
+					//reverseCreature(ID, aStack.position, true);
+					break;
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				case 4:
+					//reverseCreature(ID, aStack.position, true);
+					break;
+				case 5:
+					reverseCreature(ID, aStack.position, true);
+					break;
+			}
+		}
+		else //else for if(aStack.creature->isDoubleWide())
+		{
+			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
+			{
+				case 0:
+					reverseCreature(ID, aStack.position, true);
+					break;
+				case 1:
+					break;
+				case 2:
+					break;
+				case 3:
+					break;
+				case 4:
+					reverseCreature(ID, aStack.position, true);
+					break;
+				case 5:
+					reverseCreature(ID, aStack.position, true);
+					break;
+			}
 		}
 	}
-	else //else for if(aStack.creature->isDoubleWide())
+	else //if(aStack.attackerOwned)
 	{
-		switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
+		if(aStack.creature->isDoubleWide())
 		{
-			case 0:
-				reverseCreature(ID, aStack.position, true);
-				break;
-			case 1:
-				break;
-			case 2:
-				break;
-			case 3:
-				break;
-			case 4:
-				reverseCreature(ID, aStack.position, true);
-				break;
-			case 5:
-				reverseCreature(ID, aStack.position, true);
-				break;
+			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
+			{
+				case 0:
+					//reverseCreature(ID, aStack.position, true);
+					break;
+				case 1:
+					break;
+				case 2:
+					reverseCreature(ID, aStack.position, true);
+					break;
+				case 3:
+					break;
+				case 4:
+					//reverseCreature(ID, aStack.position, true);
+					break;
+				case 5:
+					//reverseCreature(ID, aStack.position, true);
+					break;
+			}
+		}
+		else //else for if(aStack.creature->isDoubleWide())
+		{
+			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
+			{
+				case 0:
+					//reverseCreature(ID, aStack.position, true);
+					break;
+				case 1:
+					reverseCreature(ID, aStack.position, true);
+					break;
+				case 2:
+					reverseCreature(ID, aStack.position, true);
+					break;
+				case 3:
+					reverseCreature(ID, aStack.position, true);
+					break;
+				case 4:
+					//reverseCreature(ID, aStack.position, true);
+					break;
+				case 5:
+					//reverseCreature(ID, aStack.position, true);
+					break;
+			}
 		}
 	}
 
@@ -796,6 +864,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	attackingInfo->dest = dest;
 	attackingInfo->frame = 0;
 	attackingInfo->ID = ID;
+	attackingInfo->IDby = LOCPLINT->cb->battleGetStackByPos(dest)->ID;
 	attackingInfo->reversing = false;
 	attackingInfo->shooting = false;
 
@@ -1031,47 +1100,103 @@ void CBattleInterface::attackingShowHelper()
 		else if(attackingInfo->frame == (attackingInfo->maxframe - 1))
 		{
 			attackingInfo->reversing = true;
-			CStack aStack = *LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
-			if(aStack.creature->isDoubleWide())
+
+			CStack* aStackp = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
+			if(aStackp == NULL)
+				return;
+			CStack aStack = *aStackp;
+			if(aStack.attackerOwned)
 			{
-				switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+				if(aStack.creature->isDoubleWide())
 				{
-					case 0:
-						//reverseCreature(ID, aStack.position, true);
-						break;
-					case 1:
-						break;
-					case 2:
-						break;
-					case 3:
-						break;
-					case 4:
-						//reverseCreature(ID, aStack.position, true);
-						break;
-					case 5:
-						reverseCreature(attackingInfo->ID, aStack.position, true);
-						break;
+					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+					{
+						case 0:
+							//reverseCreature(ID, aStack.position, true);
+							break;
+						case 1:
+							break;
+						case 2:
+							break;
+						case 3:
+							break;
+						case 4:
+							//reverseCreature(ID, aStack.position, true);
+							break;
+						case 5:
+							reverseCreature(attackingInfo->ID, aStack.position, true);
+							break;
+					}
+				}
+				else //else for if(aStack.creature->isDoubleWide())
+				{
+					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+					{
+						case 0:
+							reverseCreature(attackingInfo->ID, aStack.position, true);
+							break;
+						case 1:
+							break;
+						case 2:
+							break;
+						case 3:
+							break;
+						case 4:
+							reverseCreature(attackingInfo->ID, aStack.position, true);
+							break;
+						case 5:
+							reverseCreature(attackingInfo->ID, aStack.position, true);
+							break;
+					}
 				}
 			}
-			else //else for if(aStack.creature->isDoubleWide())
+			else //if(aStack.attackerOwned)
 			{
-				switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+				if(aStack.creature->isDoubleWide())
 				{
-					case 0:
-						reverseCreature(attackingInfo->ID, aStack.position, true);
-						break;
-					case 1:
-						break;
-					case 2:
-						break;
-					case 3:
-						break;
-					case 4:
-						reverseCreature(attackingInfo->ID, aStack.position, true);
-						break;
-					case 5:
-						reverseCreature(attackingInfo->ID, aStack.position, true);
-						break;
+					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+					{
+						case 0:
+							//reverseCreature(ID, aStack.position, true);
+							break;
+						case 1:
+							break;
+						case 2:
+							reverseCreature(attackingInfo->ID, aStack.position, true);
+							break;
+						case 3:
+							break;
+						case 4:
+							//reverseCreature(ID, aStack.position, true);
+							break;
+						case 5:
+							//reverseCreature(ID, aStack.position, true);
+							break;
+					}
+				}
+				else //else for if(aStack.creature->isDoubleWide())
+				{
+					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+					{
+						case 0:
+							//reverseCreature(ID, aStack.position, true);
+							break;
+						case 1:
+							reverseCreature(attackingInfo->ID, aStack.position, true);
+							break;
+						case 2:
+							reverseCreature(attackingInfo->ID, aStack.position, true);
+							break;
+						case 3:
+							reverseCreature(attackingInfo->ID, aStack.position, true);
+							break;
+						case 4:
+							//reverseCreature(ID, aStack.position, true);
+							break;
+						case 5:
+							//reverseCreature(ID, aStack.position, true);
+							break;
+					}
 				}
 			}
 			attackingInfo->reversing = false;

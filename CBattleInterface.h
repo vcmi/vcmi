@@ -108,6 +108,7 @@ private:
 	{
 	public:
 		int ID; //attacking stack
+		int IDby; //attacked stack
 		int dest; //atacked hex
 		int frame, maxframe; //frame of animation, number of frames of animation
 		bool reversing;

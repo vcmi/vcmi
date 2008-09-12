@@ -23,6 +23,7 @@ public:
 	std::vector<std::string> descriptions; //descriptions of spell for skill levels: 0 - none, 1 - basic, etc
 	std::string attributes; //reference only attributes
 	bool combatSpell; //is this spell combat (true) or adventure (false)
+	bool creatureAbility; //if true, only creatures can use this spell
 };
 
 class DLL_EXPORT CSpellHandler

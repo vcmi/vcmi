@@ -2,6 +2,7 @@
 #include "Graphics.h"
 #include "../hch/CDefHandler.h"
 #include "../hch/CObjectHandler.h"
+#include "../hch/CSpellHandler.h"
 #include "../hch/CPreGameTextHandler.h"
 #include "../CAdvmapInterface.h"
 #include "../CGameInfo.h"
@@ -53,6 +54,7 @@ void SpellbookInteractiveArea::activate()
 	ClickableL::activate();
 	ClickableR::activate();
 	Hoverable::activate();
+
 }
 void SpellbookInteractiveArea::deactivate()
 {
@@ -61,8 +63,115 @@ void SpellbookInteractiveArea::deactivate()
 	Hoverable::deactivate();
 }
 
-CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero): selectedTab(4)
+CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero): selectedTab(4), spellSite(0), battleSpellsOnly(true)
 {
+	//for testing only
+	for(ui32 v=0; v<CGI->spellh->spells.size(); ++v)
+	{
+		((CGHeroInstance*)(myHero))->spells.insert(v);
+	}
+
+	//initializing sizes of spellbook's parts
+	for(int b=0; b<5; ++b)
+		sitesPerTabAdv[b] = 0;
+	for(int b=0; b<5; ++b)
+		sitesPerTabBattle[b] = 0;
+	for(std::set<ui32>::const_iterator g = myHero->spells.begin(); g!=myHero->spells.end(); ++g)
+	{
+		if(CGI->spellh->spells[*g].creatureAbility)
+			continue; //currently we don't want tu put here creature abilities
+		if(CGI->spellh->spells[*g].air)
+		{
+			if(CGI->spellh->spells[*g].combatSpell)
+			{
+				++(sitesPerTabBattle[0]);
+				++(sitesPerTabBattle[4]);
+			}
+			else
+			{
+				++(sitesPerTabAdv[0]);
+				++(sitesPerTabAdv[4]);
+			}
+		}
+		if(CGI->spellh->spells[*g].fire)
+		{
+			if(CGI->spellh->spells[*g].combatSpell)
+			{
+				++(sitesPerTabBattle[1]);
+				++(sitesPerTabBattle[4]);
+			}
+			else
+			{
+				++(sitesPerTabAdv[1]);
+				++(sitesPerTabAdv[4]);
+			}
+		}
+		if(CGI->spellh->spells[*g].water)
+		{
+			if(CGI->spellh->spells[*g].combatSpell)
+			{
+				++(sitesPerTabBattle[2]);
+				++(sitesPerTabBattle[4]);
+			}
+			else
+			{
+				++(sitesPerTabAdv[2]);
+				++(sitesPerTabAdv[4]);
+			}
+		}
+		if(CGI->spellh->spells[*g].earth)
+		{
+			if(CGI->spellh->spells[*g].combatSpell)
+			{
+				++(sitesPerTabBattle[3]);
+				++(sitesPerTabBattle[4]);
+			}
+			else
+			{
+				++(sitesPerTabAdv[3]);
+				++(sitesPerTabAdv[4]);
+			}
+		}
+	}
+	if(sitesPerTabAdv[4] % 12 == 0)
+		sitesPerTabAdv[4]/=12;
+	else
+		sitesPerTabAdv[4] = sitesPerTabAdv[4]/12 + 1;
+
+	for(int v=0; v<4; ++v)
+	{
+		if(sitesPerTabAdv[v] <= 10)
+			sitesPerTabAdv[v] = 1;
+		else
+		{
+			if((sitesPerTabAdv[v] - 10) % 12 == 0)
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - 10) / 12 + 1;
+			else
+				sitesPerTabAdv[v] = (sitesPerTabAdv[v] - 10) / 12 + 2;
+		}
+	}
+	
+	if(sitesPerTabBattle[4] % 12 == 0)
+		sitesPerTabBattle[4]/=12;
+	else
+		sitesPerTabBattle[4] = sitesPerTabBattle[4]/12 + 1;
+
+	for(int v=0; v<4; ++v)
+	{
+		if(sitesPerTabBattle[v] <= 10)
+			sitesPerTabBattle[v] = 1;
+		else
+		{
+			if((sitesPerTabBattle[v] - 10) % 12 == 0)
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - 10) / 12 + 1;
+			else
+				sitesPerTabBattle[v] = (sitesPerTabBattle[v] - 10) / 12 + 2;
+		}
+	}
+
+
+	//numbers of spell pages computed
+
 	pos = myRect;
 	background = BitmapHandler::loadBitmap("SpelBack.bmp");
 	graphics->blueToPlayersAdv(background, myHero->tempOwner);
@@ -71,8 +180,8 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHer
 	mana<<myHero->mana;
 	CSDL_Ext::printAtMiddle(mana.str(), 434, 425, GEOR16, tytulowy, background);
 
-	leftCorner = BitmapHandler::loadBitmap("SpelTrnL.bmp");
-	rightCorner = BitmapHandler::loadBitmap("SpelTrnL.bmp");
+	leftCorner = BitmapHandler::loadBitmap("SpelTrnL.bmp", true);
+	rightCorner = BitmapHandler::loadBitmap("SpelTrnR.bmp", true);
 	spells = CDefHandler::giveDef("Spells.def");
 	spellTab = CDefHandler::giveDef("SpelTab.def");
 	schools = CDefHandler::giveDef("Schools.def");
@@ -103,6 +212,11 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHer
 	selectSpellsW = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsWb, this), CGI->preth->zelp[456].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[456].first)), boost::bind(&CStatusBar::clear, statusBar));
 	temp_rect = genRect(36, 56, 639, 332);
 	selectSpellsAll = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fspellsAllb, this), CGI->preth->zelp[458].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[458].first)), boost::bind(&CStatusBar::clear, statusBar));
+
+	temp_rect = genRect(leftCorner->h, leftCorner->w, 187, 79);
+	lCorner = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fLcornerb, this), CGI->preth->zelp[450].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[450].first)), boost::bind(&CStatusBar::clear, statusBar));
+	temp_rect = genRect(rightCorner->h, rightCorner->w, 577, 76);
+	rCorner = new SpellbookInteractiveArea(temp_rect, boost::bind(&CSpellWindow::fRcornerb, this), CGI->preth->zelp[451].second, boost::bind(&CStatusBar::print, statusBar, (CGI->preth->zelp[451].first)), boost::bind(&CStatusBar::clear, statusBar));
 }
 
 CSpellWindow::~CSpellWindow()
@@ -129,6 +243,9 @@ CSpellWindow::~CSpellWindow()
 	delete selectSpellsF;
 	delete selectSpellsW;
 	delete selectSpellsAll;
+
+	delete lCorner;
+	delete rCorner;
 }
 
 void CSpellWindow::fexitb()
@@ -150,10 +267,12 @@ void CSpellWindow::fexitb()
 
 void CSpellWindow::fadvSpellsb()
 {
+	battleSpellsOnly = false;
 }
 
 void CSpellWindow::fbattleSpellsb()
 {
+	battleSpellsOnly = true;
 }
 
 void CSpellWindow::fmanaPtsb()
@@ -163,26 +282,43 @@ void CSpellWindow::fmanaPtsb()
 void CSpellWindow::fspellsAb()
 {
 	selectedTab = 0;
+	spellSite = 0;
 }
 
 void CSpellWindow::fspellsEb()
 {
 	selectedTab = 3;
+	spellSite = 0;
 }
 
 void CSpellWindow::fspellsFb()
 {
 	selectedTab = 1;
+	spellSite = 0;
 }
 
 void CSpellWindow::fspellsWb()
 {
 	selectedTab = 2;
+	spellSite = 0;
 }
 
 void CSpellWindow::fspellsAllb()
 {
 	selectedTab = 4;
+	spellSite = 0;
+}
+
+void CSpellWindow::fLcornerb()
+{
+	if(spellSite>0)
+		--spellSite;
+}
+
+void CSpellWindow::fRcornerb()
+{
+	if((spellSite + 1) < (battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab]))
+		++spellSite;
 }
 
 void CSpellWindow::show(SDL_Surface *to)
@@ -194,6 +330,20 @@ void CSpellWindow::show(SDL_Surface *to)
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 614, 96, to);
 	
 	statusBar->show();
+
+	if(selectedTab!=4 && spellSite == 0)
+	{
+		blitAt(schools->ourImages[selectedTab].bitmap, 207, 76, to);
+	}
+
+	if(spellSite!=0)
+	{
+		blitAt(leftCorner, lCorner->pos.x, lCorner->pos.y, to);
+	}
+	if((spellSite+1) != (battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab]) )
+	{
+		blitAt(rightCorner, rCorner->pos.x, rCorner->pos.y, to);
+	}
 }
 
 void CSpellWindow::activate()
@@ -208,6 +358,9 @@ void CSpellWindow::activate()
 	selectSpellsF->activate();
 	selectSpellsW->activate();
 	selectSpellsAll->activate();
+
+	lCorner->activate();
+	rCorner->activate();
 }
 
 void CSpellWindow::deactivate()
@@ -222,4 +375,7 @@ void CSpellWindow::deactivate()
 	selectSpellsF->deactivate();
 	selectSpellsW->deactivate();
 	selectSpellsAll->deactivate();
+	
+	lCorner->deactivate();
+	rCorner->deactivate();
 }

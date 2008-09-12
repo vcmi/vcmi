@@ -35,8 +35,15 @@ private:
 
 	SpellbookInteractiveArea * exitBtn, * battleSpells, * adventureSpells, * manaPoints;
 	SpellbookInteractiveArea * selectSpellsA, * selectSpellsE, * selectSpellsF, * selectSpellsW, * selectSpellsAll;
+	SpellbookInteractiveArea * lCorner, * rCorner;
 	CStatusBar * statusBar;
+
+	Uint8 sitesPerTabAdv[5];
+	Uint8 sitesPerTabBattle[5];
+
+	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
 	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
+	Uint8 spellSite; //changes when corners are clicked
 public:
 	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero); //c-tor
 	~CSpellWindow(); //d-tor
@@ -51,6 +58,9 @@ public:
 	void fspellsFb();
 	void fspellsWb();
 	void fspellsAllb();
+
+	void fLcornerb();
+	void fRcornerb();
 
 	void activate();
 	void deactivate();

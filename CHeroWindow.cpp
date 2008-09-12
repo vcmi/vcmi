@@ -10,6 +10,7 @@
 #include "SDL_Extensions.h"
 #include "client/CBitmapHandler.h"
 #include "client/Graphics.h"
+#include "client/CSpellWindow.h"
 #include "global.h"
 #include "hch/CAbilityHandler.h"
 #include "hch/CArtHandler.h"
@@ -674,8 +675,22 @@ void CArtPlace::activate()
 void CArtPlace::clickLeft(boost::logic::tribool down)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
+	
+	if(ourArt && !down) //we are spellbook
+	{
+		if(ourArt->id == 0)
+		{
+			ourWindow->deactivate();
+
+			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, 90, 2), ourWindow->curHero);
+			spellWindow->activate();
+			LOCPLINT->objsToBlit.push_back(spellWindow);
+		}
+	}
 	if(!down && !clicked) //not clicked before
 	{
+		if(ourArt && ourArt->id == 0)
+			return; //this is handled separately
 		if(!ourWindow->activeArtPlace) //nothing has benn clicked
 		{
 			if(ourArt) //to prevent selecting empty slots (bugfix to what GrayFace reported)
@@ -730,6 +745,8 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 	}
 	else if(!down && clicked)
 	{
+		if(ourArt && ourArt->id == 0)
+			return; //this is handled separately
 		clicked = false;
 		ourWindow->activeArtPlace = NULL;
 	}
