@@ -112,7 +112,7 @@ CStack * BattleInfo::getStackT(int tileID)
 			|| (stacks[g]->creature->isDoubleWide() && stacks[g]->attackerOwned && stacks[g]->position-1 == tileID)
 			|| (stacks[g]->creature->isDoubleWide() && !stacks[g]->attackerOwned && stacks[g]->position+1 == tileID))
 		{
-			if(stacks[g]->alive)
+			if(stacks[g]->alive())
 			{
 				return stacks[g];
 			}
@@ -125,7 +125,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 	memset(accessibility,1,187); //initialize array with trues
 	for(int g=0; g<stacks.size(); ++g)
 	{
-		if(!stacks[g]->alive || stacks[g]->ID==stackToOmmit) //we don't want to lock position of this stack
+		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit) //we don't want to lock position of this stack
 			continue;
 
 		accessibility[stacks[g]->position] = false;
@@ -254,8 +254,9 @@ std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
 }
 
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
-	:creature(C),amount(A), baseAmount(A), owner(O), alive(true), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), slot(S)
+	:creature(C),amount(A), baseAmount(A), owner(O), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), slot(S), counterAttacks(0)
 {
+	state.insert(ALIVE);
 }
 void CGameState::applyNL(IPack * pack)
 {
@@ -370,6 +371,18 @@ void CGameState::applyNL(IPack * pack)
 					h->inTownGarrison = false;
 				}
 			}
+			break;
+		}
+	case 109:
+		{
+			ChangeSpells *rh = static_cast<ChangeSpells*>(pack);
+			CGHeroInstance *hero = getHero(rh->hid);
+			if(rh->learn)
+				BOOST_FOREACH(ui32 sid, rh->spells)
+					hero->spells.insert(sid);
+			else
+				BOOST_FOREACH(ui32 sid, rh->spells)
+					hero->spells.erase(sid);
 			break;
 		}
 	case 500:
@@ -519,6 +532,8 @@ void CGameState::applyNL(IPack * pack)
 		{
 			BattleNextRound *ns = static_cast<BattleNextRound*>(pack);
 			curB->round = ns->round;
+			for(int i=0; i<curB->stacks.size();i++)
+				curB->stacks[i]->counterAttacks = 0;
 			break;
 		}
 	case 3002:
@@ -551,12 +566,15 @@ void CGameState::applyNL(IPack * pack)
 			CStack * at = curB->getStack(br->stackAttacked);
 			at->amount = br->newAmount;
 			at->firstHPleft = br->newHP;
-			at->alive = !br->killed();
+			if(br->killed())
+				at->state -= ALIVE;
 			break;
 		}
 	case 3006:
 		{
 			BattleAttack *br = static_cast<BattleAttack*>(pack);
+			if(br->counter())
+				curB->getStack(br->stackAttacking)->counterAttacks++;
 			applyNL(&br->bsa);
 			break;
 		}
@@ -1325,7 +1343,7 @@ void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualtie
 {
 	for(int i=0; i<stacks.size();i++)//setting casualties
 	{
-		if(!stacks[i]->alive)
+		if(!stacks[i]->alive())
 		{
 			casualties[!stacks[i]->attackerOwned].insert(std::pair<ui32,si32>(stacks[i]->creature->idNumber,stacks[i]->baseAmount));
 		}
@@ -1334,24 +1352,4 @@ void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualtie
 			casualties[!stacks[i]->attackerOwned].insert(std::pair<ui32,si32>(stacks[i]->creature->idNumber,stacks[i]->baseAmount - stacks[i]->amount));
 		}
 	}
-	//if(br->killedAmount>0) 
-	//{
-	//	bool found = false;
-	//	for(std::set<std::pair<ui32,si32> >::iterator it = curB->cas[1 - at->attackerOwned].begin(); it!=curB->cas[1 - at->attackerOwned].end(); ++it)
-	//	{
-	//		if(it->first == at->creature->idNumber)
-	//		{
-	//			found = true;
-	//			std::pair<ui32,si32>  mod = *it;
-	//			mod.second += br->killedAmount;
-
-	//			curB->cas[1 - at->attackerOwned].insert(it, mod);
-	//			curB->cas[1 - at->attackerOwned].erase(it);
-	//		}
-	//	}
-	//	if(!found)
-	//	{
-	//		curB->cas[1 - at->attackerOwned].insert(std::make_pair(at->creature->idNumber, br->killedAmount));
-	//	}
-	//}
 }

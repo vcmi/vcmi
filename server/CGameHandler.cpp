@@ -240,11 +240,12 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 	}
 }
 
-void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2)
+void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb)
 {
 	BattleInfo *curB = new BattleInfo;
-	setupBattle(curB, tile, army1, army2, hero1, hero2); //battle start
+	setupBattle(curB, tile, army1, army2, hero1, hero2); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 	NEW_ROUND;
+	//TODO: pre-tactic stuff, call scripts etc.
 
 
 	//tactic round
@@ -267,15 +268,15 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 		//stack loop
 		for(unsigned i=0;i<stacks.size() && !battleResult.get();i++)
 		{
-			if(!stacks[i]->alive) continue;//indicates imposiibility of making action for this dead unit
+			if(!stacks[i]->alive()) continue;//indicates imposiibility of making action for this dead unit
 			BattleSetActiveStack sas;
 			sas.stack = stacks[i]->ID;
 			sendAndApply(&sas);
 			boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
-			while(!battleMadeAction.data)
+			while(!battleMadeAction.data  &&  !battleResult.get()) //active stack hasn't made its action and battle is still going
 				battleMadeAction.cond.wait(lock);
 			battleMadeAction.data = false;
-			checkForBattleEnd(stacks);
+			checkForBattleEnd(stacks); //check if this action ended the battle
 		}
 	}
 
@@ -287,6 +288,8 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 
 	//end battle, remove all info, free memory
 	sendAndApply(battleResult.data);
+	if(cb)
+		cb(battleResult.data);
 	delete battleResult.data;
 	//for(int i=0;i<stacks.size();i++)
 	//	delete stacks[i];
@@ -565,6 +568,14 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						sr.res[i]-=b->resources[i];
 					sendAndApply(&sr);
 
+					if(bid<5) //it's mage guild
+					{
+						if(t->visitingHero)
+							giveSpells(t,t->visitingHero);
+						if(t->garrisonHero)
+							giveSpells(t,t->garrisonHero);
+					}
+
 					break;
 				}
 			case 506: //recruit creature
@@ -770,7 +781,7 @@ upgend:
 					c >> hid >> aid;
 					CGHeroInstance *hero = gs->getHero(hid);
 					CGTownInstance *town = hero->visitedTown;
-					if(aid==0)
+					if(aid==0) //spellbok
 					{
 						if(!vstd::contains(town->builtBuildings,si32(0)))
 							break;
@@ -786,6 +797,8 @@ upgend:
 						sha.artifWorn = hero->artifWorn;
 						sha.artifWorn[17] = 0;
 						sendAndApply(&sha);
+
+						giveSpells(town,hero);
 					}
 					else if(aid < 7  &&  aid > 3) //war machine
 					{
@@ -883,6 +896,14 @@ upgend:
 							BattleAttack bat;
 							prepareAttack(bat,curStack,stackAtEnd);
 							sendAndApply(&bat);
+							//counterattack
+							if(!vstd::contains(curStack->abilities,NO_ENEMY_RETALIATION)
+								&& !stackAtEnd->counterAttacks	) //TODO: support for multiple retaliatons per turn
+							{
+								prepareAttack(bat,stackAtEnd,curStack);
+								bat.flags |= 2;
+								sendAndApply(&bat);
+							}
 							break;
 						}
 					case 7: //shoot
@@ -942,7 +963,7 @@ void CGameHandler::moveStack(int stack, int dest)
 	else 
 		gs->curB->getAccessibilityMap(accessibility,curStack->ID);
 
-	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive) || !accessibility[dest])
+	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility[dest])
 		return;
 
 	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
@@ -1050,6 +1071,18 @@ void CGameHandler::newTurn()
 		}
 		for(std::vector<CGTownInstance *>::iterator j=i->second.towns.begin();j!=i->second.towns.end();j++)//handle towns
 		{
+			if(vstd::contains((**j).builtBuildings,15)) //there is resource silo
+			{
+				if((**j).town->primaryRes == 127) //we'll give wood and ore
+				{
+					r.res[0] += 1;
+					r.res[2] += 1;
+				}
+				else
+				{
+					r.res[(**j).town->primaryRes] += 1;
+				}
+			}
 			if(gs->getDate(1)==7) //first day of week
 			{
 				SetAvailableCreatures sac;
@@ -1318,17 +1351,36 @@ void CGameHandler::checkForBattleEnd( std::vector<CStack*> &stacks )
 	hasStack[0] = hasStack[1] = false;
 	for(int b = 0; b<stacks.size(); ++b)
 	{
-		if(stacks[b]->alive)
+		if(stacks[b]->alive())
 		{
 			hasStack[1-stacks[b]->attackerOwned] = true;
 		}
 	}
 	if(!hasStack[0] || !hasStack[1]) //somebody has won
 	{
-		BattleResult *br = new BattleResult;
+		BattleResult *br = new BattleResult; //will be deleted at the end of startBattle(...)
 		br->result = 0;
 		br->winner = hasStack[1]; //fleeing side loses
 		gs->curB->calculateCasualties(br->casualties);
 		battleResult.set(br);
 	}
+}
+
+void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h )
+{
+	if(!vstd::contains(h->artifWorn,17))
+		return; //hero hasn't spellbok
+	ChangeSpells cs;
+	cs.hid = h->id;
+	cs.learn = true;
+	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(7)+4);i++)
+	{
+		for(int j=0; j<t->spellsAtLevel(i+1,true); j++)
+		{
+			if(!vstd::contains(h->spells,t->spells[i][j]))
+				cs.spells.insert(t->spells[i][j]);
+		}
+	}
+	if(cs.spells.size())
+		sendAndApply(&cs);
 }

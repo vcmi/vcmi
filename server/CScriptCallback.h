@@ -1,6 +1,7 @@
 #pragma once
 #include "../global.h"
 #include <vector>
+#include <set>
 #include "../client/FunctionList.h"
 class CVCMIServer;
 class CGameHandler;
@@ -19,6 +20,7 @@ struct InfoWindow;
 struct ShowInInfobox;
 struct SelectionDialog;
 struct YesNoDialog;
+struct BattleResult;
 class CScriptCallback
 {
 	CScriptCallback(void);
@@ -37,6 +39,7 @@ public:
 	const CGTownInstance* getTown(int objid);
 
 	//do sth
+	void changeSpells(int hid, bool give, const std::set<ui32> &spells);
 	void removeObject(int objid);
 	void setBlockVis(int objid, bool bv);
 	void setOwner(int objid, ui8 owner);
@@ -50,8 +53,8 @@ public:
 	void heroVisitCastle(int obj, int heroID);
 	void stopHeroVisitCastle(int obj, int heroID);
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack
-	void startBattle(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2); //use hero=NULL for no hero
-	void startBattle(int heroID, CCreatureSet army, int3 tile); //for hero<=>neutral army
+	void startBattle(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
+	void startBattle(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
 
 	//friends
 	friend class CGameHandler;

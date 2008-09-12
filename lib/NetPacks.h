@@ -96,6 +96,18 @@ struct HeroVisitCastle : public CPack<HeroVisitCastle> //108
 		h & flags & tid & hid;
 	}
 }; 
+struct ChangeSpells : public CPack<ChangeSpells> //109
+{
+	ChangeSpells(){type = 109;};
+	ui8 learn; //1 - gives spell, 0 - takes
+	ui32 hid;
+	std::set<ui32> spells;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & learn & hid & spells;
+	}
+}; 
 struct RemoveObject : public CPack<RemoveObject> //500
 {
 	RemoveObject(){type = 500;};
@@ -441,6 +453,10 @@ struct BattleAttack : public CPack<BattleAttack>//3006
 	bool shot()//distance attack - decrease number of shots
 	{
 		return flags & 1;
+	}
+	bool counter()//is it counterattack?
+	{
+		return flags & 2;
 	}
 	bool killed() //if target stack was killed
 	{

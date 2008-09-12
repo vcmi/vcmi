@@ -1,6 +1,6 @@
 #pragma once
-#include "global.h"
-#include "CPlayerInterface.h"
+#include "../global.h"
+#include "../CPlayerInterface.h"
 
 struct SDL_Surface;
 class CDefHandler;

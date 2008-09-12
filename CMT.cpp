@@ -6,6 +6,8 @@
 #include <vector>
 #include <queue>
 #include <cmath>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/thread.hpp>
 #include "SDL_ttf.h"
 #include "SDL_mixer.h"
@@ -37,6 +39,7 @@
 #include "client/Graphics.h"
 #include "client/Client.h"
 #include "lib/Connection.h"
+#include "lib/Interprocess.h"
 #include "lib/VCMI_Lib.h"
 std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
@@ -45,6 +48,7 @@ extern SDL_Surface * CSDL_Ext::std32bppSurface;
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
+namespace intpr = boost::interprocess;
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
 #else
@@ -149,16 +153,23 @@ int main(int argc, char** argv)
 		THC std::cout<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		THC std::cout<<"Initialization of VCMI (togeter): "<<total.getDif()<<std::endl;
 		cpg->mush = mush;
+
 		StartInfo *options = new StartInfo(cpg->runLoop());
-///////////////////////////////////////////////////////////////////////////////////////
+		tmh.getDif();
+	////////////////////////SERVER STARTING/////////////////////////////////////////////////
 		char portc[10]; SDL_itoa(port,portc,10);
+		intpr::shared_memory_object smo(intpr::open_or_create,"vcmi_memory",intpr::read_write);
+		smo.truncate(sizeof(ServerReady));
+		intpr::mapped_region mr(smo,intpr::read_write);
+		ServerReady *sr = new(mr.get_address())ServerReady();
 		std::string comm = std::string(SERVER_NAME) + " " + portc + " > server_log.txt";
-		boost::thread servthr(boost::bind(system,comm.c_str())); //runs server executable; 
-												//TODO: will it work on non-windows platforms?
+		boost::thread servthr(boost::bind(system,comm.c_str())); //runs server executable; 	//TODO: will it work on non-windows platforms?
+		THC std::cout<<"Preparing shared memory and starting server: "<<tmh.getDif()<<std::endl;
+	///////////////////////////////////////////////////////////////////////////////////////
 		THC tmh.getDif();pomtime.getDif();//reset timers
 		cgi->pathf = new CPathfinder();
 		THC std::cout<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
-		if(argc>1)
+		if(argc>2)
 		{
 			std::cout << "Special mode without support for console!" << std::endl;
 		}
@@ -171,6 +182,17 @@ int main(int argc, char** argv)
 		std::ofstream lll("client_log.txt");
 
 		CConnection *c=NULL;
+		//wait until server is ready
+		std::cout<<"Waiting for server... " << std::flush;
+		{
+			intpr::scoped_lock<intpr::interprocess_mutex> slock(sr->mutex);
+			while(!sr->ready)
+			{
+				sr->cond.wait(slock);
+			}
+		}
+		intpr::shared_memory_object::remove("vcmi_memory");
+		std::cout << tmh.getDif()<<std::endl;
 		while(!c)
 		{
 			try

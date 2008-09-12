@@ -117,6 +117,7 @@ void CScriptCallback::heroVisitCastle(int obj, int heroID)
 	vc.tid = obj;
 	vc.flags |= 1;
 	gh->sendAndApply(&vc);
+	gh->giveSpells(getTown(obj),getHero(heroID));
 }
 
 void CScriptCallback::stopHeroVisitCastle(int obj, int heroID)
@@ -144,15 +145,24 @@ void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==
 	gh->sendAndApply(&sha);
 }
 
-void CScriptCallback::startBattle(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2) //use hero=NULL for no hero
+void CScriptCallback::startBattle(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb) //use hero=NULL for no hero
 {
-	boost::thread(boost::bind(&CGameHandler::startBattle,gh,*(CCreatureSet *)army1,*(CCreatureSet *)army2,tile,(CGHeroInstance *)hero1,(CGHeroInstance *)hero2));
+	boost::thread(boost::bind(&CGameHandler::startBattle,gh,*(CCreatureSet *)army1,*(CCreatureSet *)army2,tile,(CGHeroInstance *)hero1,(CGHeroInstance *)hero2,cb));
 }
-void CScriptCallback::startBattle(int heroID, CCreatureSet army, int3 tile) //for hero<=>neutral army
+void CScriptCallback::startBattle(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) //for hero<=>neutral army
 {
 	CGHeroInstance* h = const_cast<CGHeroInstance*>(getHero(heroID));
-	startBattle(&h->army,&army,tile,h,NULL);
+	startBattle(&h->army,&army,tile,h,NULL,cb);
 	//gh->gs->battle(&h->army,army,tile,h,NULL);
+}
+
+void CScriptCallback::changeSpells( int hid, bool give, const std::set<ui32> &spells )
+{
+	ChangeSpells cs;
+	cs.hid = hid;
+	cs.spells = spells;
+	cs.learn = give;
+	gh->sendAndApply(&cs);
 }
 void CLuaCallback::registerFuncs(lua_State * L)
 {

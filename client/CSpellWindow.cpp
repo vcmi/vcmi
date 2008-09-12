@@ -1,11 +1,11 @@
 #include "CSpellWindow.h"
-#include "client/Graphics.h"
-#include "hch/CDefHandler.h"
-#include "hch/CObjectHandler.h"
-#include "hch/CPreGameTextHandler.h"
-#include "CAdvmapInterface.h"
-#include "CGameInfo.h"
-#include "SDL_Extensions.h"
+#include "Graphics.h"
+#include "../hch/CDefHandler.h"
+#include "../hch/CObjectHandler.h"
+#include "../hch/CPreGameTextHandler.h"
+#include "../CAdvmapInterface.h"
+#include "../CGameInfo.h"
+#include "../SDL_Extensions.h"
 #include <boost/bind.hpp>
 #include <sstream>
 

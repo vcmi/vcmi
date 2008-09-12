@@ -255,6 +255,14 @@ void CClient::process(int what)
 			}
 			break;
 		}
+	case 109:
+		{
+			ChangeSpells vc;
+			*serv >> vc;
+			std::cout << "Changing spells of hero "<<vc.hid<<std::endl;
+			gs->apply(&vc);
+			break;
+		}
 	case 500:
 		{
 			RemoveObject rh;

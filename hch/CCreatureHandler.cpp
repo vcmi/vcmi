@@ -40,16 +40,16 @@ int CCreature::getQuantityID(int quantity)
 
 bool CCreature::isDoubleWide()
 {
-	return boost::algorithm::find_first(abilityRefs, "DOUBLE_WIDE");
+	return vstd::contains(abilities,DOUBLE_WIDE);
 }
 
 bool CCreature::isFlying()
 {
-	return boost::algorithm::find_first(abilityRefs, "FLYING_ARMY");
+	return vstd::contains(abilities,FLYING);
 }
 bool CCreature::isShooting()
 {
-	return boost::algorithm::find_first(abilityRefs, "SHOOTING_ARMY");
+	return vstd::contains(abilities,SHOOTER);
 }
 si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
 {
@@ -306,6 +306,12 @@ void CCreatureHandler::loadCreatures()
 		}
 		ncre.abilityRefs = buf.substr(befi, i-befi);
 		i+=2;
+		if(boost::algorithm::find_first(ncre.abilityRefs, "DOUBLE_WIDE"))
+			ncre.abilities.insert(DOUBLE_WIDE);
+		if(boost::algorithm::find_first(ncre.abilityRefs, "FLYING_ARMY"))
+			ncre.abilities.insert(FLYING);
+		if(boost::algorithm::find_first(ncre.abilityRefs, "SHOOTING_ARMY"))
+			ncre.abilities.insert(SHOOTER);
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
 			ncre.idNumber = creatures.size();
@@ -443,8 +449,10 @@ void CCreatureHandler::loadCreatures()
 	}
 	inp2.close();
 
-	creatures[122].abilityRefs += "DOUBLE_WIDE"; //water elemental should be treated as double-wide
-	creatures[123].abilityRefs += "DOUBLE_WIDE"; //ice elemental should be treated as double-wide
+
+
+	creatures[122].abilities.insert(DOUBLE_WIDE);//water elemental should be treated as double-wide
+	creatures[123].abilities.insert(DOUBLE_WIDE);//ice elemental should be treated as double-wide
 }
 
 void CCreatureHandler::loadAnimationInfo()

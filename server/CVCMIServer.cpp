@@ -9,20 +9,27 @@
 #endif
 #include "CVCMIServer.h"
 #include <boost/crc.hpp>
-#include <boost/serialization/split_member.hpp>
+#include <boost/interprocess/mapped_region.hpp>
+#include <boost/interprocess/shared_memory_object.hpp>
 #include "../StartInfo.h"
 #include "../map.h"
 #include "../hch/CLodHandler.h" 
+#include "../lib/Interprocess.h"
 #include "../lib/VCMI_Lib.h"
 #include "CGameHandler.h"
 std::string NAME = NAME_VER + std::string(" (server)");
-using boost::asio::ip::tcp;
 using namespace boost;
 using namespace boost::asio;
 using namespace boost::asio::ip;
+namespace intpr = boost::interprocess;
 
 bool end2 = false;
 int port = 3030;
+
+void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code *error)
+{
+	ac->accept(*s,*error);
+}
 
 CVCMIServer::CVCMIServer()
 : io(new io_service()), acceptor(new tcp::acceptor(*io, tcp::endpoint(tcp::v4(), port)))
@@ -90,10 +97,29 @@ void CVCMIServer::newGame(CConnection *c)
 }
 void CVCMIServer::start()
 {
+	ServerReady *sr = NULL;
+	intpr::mapped_region *mr;
+	try
+	{
+		intpr::shared_memory_object smo(intpr::open_only,"vcmi_memory",intpr::read_write);
+		mr = new intpr::mapped_region(smo,intpr::read_write);
+		sr = (ServerReady*)mr->get_address();
+	}
+	catch(...)
+	{
+		intpr::shared_memory_object smo(intpr::create_only,"vcmi_memory",intpr::read_write);
+		smo.truncate(sizeof(ServerReady));
+		mr = new intpr::mapped_region(smo,intpr::read_write);
+		sr = new(mr->get_address())ServerReady();
+	}
+
 	boost::system::error_code error;
 	std::cout<<"Listening for connections at port " << acceptor->local_endpoint().port() << std::endl;
 	tcp::socket * s = new tcp::socket(acceptor->io_service());
-	acceptor->accept(*s,error);
+	boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
+	sr->setToTrueAndNotify();
+	delete mr;
+	acc.join();
 	if (error)
 	{
 		std::cout<<"Got connection but there is an error " << std::endl << error;
@@ -147,7 +173,9 @@ int main(int argc, char** argv)
 		io_service io_service;
 		CVCMIServer server;
 		while(!end2)
+		{
 			server.start();
+		}
 		io_service.run();
 	} HANDLE_EXCEPTION
   return 0;

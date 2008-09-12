@@ -320,13 +320,13 @@ void CBattleInterface::show(SDL_Surface * to)
 	//double loop because dead stacks should be printed first
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		if(j->second.alive)
+		if(j->second.alive())
 			stackAliveByHex[j->second.position].push_back(j->second.ID);
 	}
 	std::vector<int> stackDeadByHex[187];
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		if(!j->second.alive)
+		if(!j->second.alive())
 			stackDeadByHex[j->second.position].push_back(j->second.ID);
 	}
 
@@ -336,7 +336,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackDeadByHex[b].size(); ++v)
 		{
-			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%4==0 || creAnims[stackDeadByHex[b][v]]->getType()!=2) && stacks[stackDeadByHex[b][v]].alive, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%4==0 || creAnims[stackDeadByHex[b][v]]->getType()!=2) && stacks[stackDeadByHex[b][v]].alive(), stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackDeadByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -353,7 +353,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackAliveByHex[b].size(); ++v)
 		{
-			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%4==0) && stacks[stackAliveByHex[b][v]].alive, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%4==0) && stacks[stackAliveByHex[b][v]].alive(), stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -847,7 +847,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 			return; //we are not permit to do anything
 
 		CStack* dest = LOCPLINT->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
-		if(!dest || !dest->alive) //no creature at that tile
+		if(!dest || !dest->alive()) //no creature at that tile
 		{
 			if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
 				giveCommand(2,whichOne,activeStack);
@@ -1321,7 +1321,7 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 	{
 		if(myInterface->console->alterTxt.size() == 0 && LOCPLINT->cb->battleGetStack(myNumber) != -1 &&
 			LOCPLINT->cb->battleGetStackByPos(myNumber)->owner != LOCPLINT->playerID &&
-			LOCPLINT->cb->battleGetStackByPos(myNumber)->alive)
+			LOCPLINT->cb->battleGetStackByPos(myNumber)->alive())
 		{
 			char tabh[160];
 			CStack attackedStack = *LOCPLINT->cb->battleGetStackByPos(myNumber);
@@ -1352,7 +1352,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 	if(hovered && strictHovered && stID!=-1)
 	{
 		CStack myst = *LOCPLINT->cb->battleGetStackByID(stID); //stack info
-		if(!myst.alive) return;
+		if(!myst.alive()) return;
 		StackState *pom = NULL;
 		if(down)
 		{

@@ -366,6 +366,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\CSpellWindow.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\CThreadHelper.cpp"
 				>
 			</File>
@@ -509,6 +513,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CSndHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CSpellWindow.h"
 				>
 			</File>
 			<File

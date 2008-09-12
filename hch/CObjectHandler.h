@@ -168,6 +168,7 @@ public:
 	bool hasFort() const;
 	bool hasCapitol() const;
 	int dailyIncome() const;
+	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 
 	CGTownInstance();
 	virtual ~CGTownInstance();

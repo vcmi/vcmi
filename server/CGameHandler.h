@@ -11,6 +11,7 @@ class CGameState;
 struct StartInfo;
 class CCPPObjectScript;
 class CScriptCallback;
+struct BattleResult;
 template <typename T> struct CPack;
 template <typename T> struct Query;
 class CGHeroInstance;
@@ -52,8 +53,9 @@ class CGameHandler
 	void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
 	void changeSecSkill(int ID, ui16 which, int val, bool abs=false);
+	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	void moveStack(int stack, int dest);
-	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2); //use hero=NULL for no hero
+	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
 
 	void checkForBattleEnd( std::vector<CStack*> &stacks );
 	void setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army1, CCreatureSet &army2, CGHeroInstance * hero1, CGHeroInstance * hero2 );

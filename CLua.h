@@ -25,6 +25,7 @@ class CSelectableComponent;
 class CGameState;
 struct Mapa;
 struct lua_State;
+struct BattleResult;
 enum ESLan{UNDEF=-1,CPP,ERM,LUA};
 class CObjectScript
 {
@@ -175,6 +176,7 @@ public:
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+	void endBattleWith(const CGObjectInstance *monster, BattleResult *result);
 };
 
 class CCreatureGen : public CCPPObjectScript

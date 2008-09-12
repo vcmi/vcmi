@@ -720,7 +720,7 @@ std::vector<int> CPickable::yourObjects() //returns IDs of objects which are han
 
 void CTownScript::onHeroVisit(int objid, int heroID)
 {
-
+	DEFOS;
 	if(cb->getOwner(objid)!=cb->getOwner(heroID))
 	{
 		return;
@@ -774,7 +774,8 @@ void CHeroScript::onHeroVisit(int objid, int heroID)
 			&vis->army,
 			my->pos,
 			my,
-			vis);
+			vis,
+			0);
 	}
 }
 std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are handled by script
@@ -834,7 +835,7 @@ void CMonsterS::onHeroVisit(int objid, int heroID)
 	CCreatureSet set;
 	//TODO: zrobic secik w sposob wyrafinowany
 	set.slots[0] = std::pair<ui32,si32>(os->subID,amounts[objid]);
-	cb->startBattle(heroID,set,os->pos);
+	cb->startBattle(heroID,set,os->pos,boost::bind(&CMonsterS::endBattleWith,this,os,_1));
 }
 std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script
 {
@@ -843,6 +844,17 @@ std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are han
 	return ret;
 }
 
+void CMonsterS::endBattleWith(const CGObjectInstance *monster, BattleResult *result )
+{
+	if(result->winner==0)
+	{
+		cb->removeObject(monster->id);
+	}
+	else
+	{
+		//TODO: remove casualties
+	}
+}
 
 void CCreatureGen::newObject(int objid)
 {

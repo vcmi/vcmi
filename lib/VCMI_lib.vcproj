@@ -373,6 +373,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\Interprocess.h"
+				>
+			</File>
+			<File
 				RelativePath="..\map.h"
 				>
 			</File>

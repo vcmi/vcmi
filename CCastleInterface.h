@@ -28,7 +28,6 @@ public:
 	void clickRight (tribool down);
 	void mouseMoved (SDL_MouseMotionEvent & sEvent);
 };
-
 class CHeroGSlot : public ClickableL, public ClickableR, public Hoverable
 {
 public:

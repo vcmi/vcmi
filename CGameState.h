@@ -78,19 +78,22 @@ struct DLL_EXPORT BattleInfo
 };
 
 class DLL_EXPORT CStack
-{
+{ 
 public:
 	ui32 ID; //unique ID of stack
 	CCreature * creature;
 	ui32 amount, baseAmount;
 	ui32 firstHPleft; //HP of first creature in stack
-	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (255 for neutrals/called creatures)
+	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
 	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	ui16 position; //position on battlefield
-	ui8 alive; //true if it is alive
+	ui8 counterAttacks; //how many counter attacks has this stack perfomed in current round
+
+	std::set<EAbilities> abilities;
+	std::set<ECombatInfo> state;
 
 	CStack(CCreature * C, int A, int O, int I, bool AO, int S);
-	CStack() : creature(NULL),amount(-1),owner(255), alive(true), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1){};
+	CStack() : creature(NULL),amount(-1),owner(255), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1), counterAttacks(0){};
 
 	template <typename Handler> void save(Handler &h, const int version)
 	{
@@ -101,14 +104,19 @@ public:
 		ui32 id;
 		h & id;
 		creature = &VLC->creh->creatures[id];
+		abilities = creature->abilities;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & amount & baseAmount & firstHPleft & owner & attackerOwned & position & alive;
+		h & ID & amount & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks;
 		if(h.saving)
 			save(h,version);
 		else
 			load(h,version);
+	}
+	bool alive()
+	{
+		return vstd::contains(state,ALIVE);
 	}
 };
 

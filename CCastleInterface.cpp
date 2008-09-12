@@ -522,6 +522,11 @@ void CCastleInterface::buildingClicked(int building)
 				cmw->activate();
 				break;
 			}
+		case 15:
+			{
+				LOCPLINT->showInfoDialog(CGI->buildh->buildings[town->subID][15]->description,std::vector<SComponent*>());
+				break;
+			}
 		case 16:
 			{
 				const CGHeroInstance *hero = town->visitingHero;
@@ -1432,8 +1437,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	blitAt(view,332,76,bg);
 	for(int i=0; i<owner->town->town->mageLevel; i++)
 	{
-		int sp = 5 - i; //how many spells are available at this level
-		if(owner->town->subID==2 && vstd::contains(owner->town->builtBuildings,22)) sp++; //magic library in tower
+		int sp = owner->town->spellsAtLevel(i+1,false);
 		for(int j=0; j<sp; j++)
 		{
 			if(i < owner->town->mageGuildLevel())

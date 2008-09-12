@@ -234,6 +234,8 @@ std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector<std::string> ret;
+	if(!isVisible(pos,player))
+		return ret;
 	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].blockingObjects)
 		ret.push_back(obj->hoverName);
 	return ret;
@@ -521,7 +523,7 @@ bool CCallback::battleCanShoot(int ID, int dest) //TODO: finish
 	if(battleGetStackByID(ID)->creature->isShooting() 
 		&& battleGetStack(dest) != -1 
 		&& battleGetStackByPos(dest)->owner != battleGetStackByID(ID)->owner
-		&& battleGetStackByPos(dest)->alive)
+		&& battleGetStackByPos(dest)->alive())
 		return true;
 	return false;
 }

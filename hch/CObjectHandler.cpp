@@ -412,6 +412,16 @@ CGHeroInstance::~CGHeroInstance()
 
 CGTownInstance::~CGTownInstance()
 {}
+
+int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
+{
+	if(checkGuild && mageGuildLevel() < level)
+		return 0;
+	int ret = 6 - level; //how many spells are available at this level
+	if(subID == 2   &&   vstd::contains(builtBuildings,22)) //magic library in Tower
+		ret++; 
+	return ret;
+}
 CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
 {
 	pos = right.pos;

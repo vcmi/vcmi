@@ -40,6 +40,12 @@ enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
 enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHEMIST, HERO_WIZARD,
 	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD,
 	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
+enum EAbilities {DOUBLE_WIDE, FLYING, SHOOTER, TWO_HEX_ATTACK, SIEGE_ABILITY, SIEGE_WEAPON, 
+KING1, KING2, KING3, MIND_IMMUNITY, NO_OBSTACLE_PENALTY, NO_CLOSE_COMBAT_PENALTY, 
+JOUSTING, FIRE_IMMUNITY, TWICE_ATTACK, NO_ENEMY_RETALIATION, NO_MORAL_PENALTY, 
+UNDEAD, MULTI_HEAD_ATTACK, EXTENDED_RADIOUS_SHOOTER, GHOST, RAISES_MORALE,
+LOWERS_MORALE, DRAGON, STRIKE_AND_RETURN, FEARLESS, REBIRTH}; //some flags are used only for battles
+enum ECombatInfo{ALIVE = REBIRTH+1, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING};
 class CGameInfo;
 extern CGameInfo* CGI;
 
@@ -111,8 +117,8 @@ namespace vstd
 	{
 		return std::find(c.begin(),c.end(),i) != c.end();
 	}
-	template <typename V, typename Item>
-	bool contains(const std::map<Item,V> & c, const Item &i)
+	template <typename V, typename Item, typename Item2>
+	bool contains(const std::map<Item,V> & c, const Item2 &i)
 	{
 		return c.find(i)!=c.end();
 	}
