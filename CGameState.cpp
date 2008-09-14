@@ -256,6 +256,7 @@ std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	:creature(C),amount(A), baseAmount(A), owner(O), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), slot(S), counterAttacks(0)
 {
+	abilities = C->abilities;
 	state.insert(ALIVE);
 }
 void CGameState::applyNL(IPack * pack)

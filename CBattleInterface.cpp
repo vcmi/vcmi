@@ -922,7 +922,8 @@ void CBattleInterface::hexLclicked(int whichOne)
 				giveCommand(2,whichOne,activeStack);
 		}
 		else if(dest->owner != attackingHeroInstance->tempOwner
-			&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)) //shooting
+			&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)
+			&& BattleInfo::mutualPosition(LOCPLINT->cb->battleGetPos(activeStack),whichOne) < 0 ) //shooting
 		{
 			giveCommand(7,whichOne,activeStack);
 		}

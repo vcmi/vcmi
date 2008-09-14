@@ -898,22 +898,40 @@ upgend:
 							sendAndApply(&bat);
 							//counterattack
 							if(!vstd::contains(curStack->abilities,NO_ENEMY_RETALIATION)
+								&& stackAtEnd->alive()
 								&& !stackAtEnd->counterAttacks	) //TODO: support for multiple retaliatons per turn
 							{
 								prepareAttack(bat,stackAtEnd,curStack);
 								bat.flags |= 2;
 								sendAndApply(&bat);
 							}
+
+							if(vstd::contains(curStack->abilities,TWICE_ATTACK)
+								&& curStack->alive())
+							{
+								bat.flags = 0;
+								prepareAttack(bat,curStack,stackAtEnd);
+								sendAndApply(&bat);
+							}
 							break;
 						}
 					case 7: //shoot
 						{
+							//TODO: check arrows count
+							//TODO: check if stack isn't blocked by enemy
 							CStack *curStack = gs->curB->getStack(ba.stackNumber),
 								*destStack= gs->curB->getStackT(ba.destinationTile);
 
 							BattleAttack bat;
 							prepareAttack(bat,curStack,destStack);
 							bat.flags |= 1;
+
+							if(vstd::contains(curStack->abilities,TWICE_ATTACK)
+								&& curStack->alive())
+							{
+								prepareAttack(bat,curStack,destStack);
+								sendAndApply(&bat);
+							}
 
 							sendAndApply(&bat);
 							break;

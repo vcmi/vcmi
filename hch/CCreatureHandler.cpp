@@ -312,6 +312,10 @@ void CCreatureHandler::loadCreatures()
 			ncre.abilities.insert(FLYING);
 		if(boost::algorithm::find_first(ncre.abilityRefs, "SHOOTING_ARMY"))
 			ncre.abilities.insert(SHOOTER);
+		if(boost::algorithm::find_first(ncre.abilityRefs, "const_two_attacks"))
+			ncre.abilities.insert(TWICE_ATTACK);
+		if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))
+			ncre.abilities.insert(NO_ENEMY_RETALIATION);
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
 			ncre.idNumber = creatures.size();
@@ -453,6 +457,7 @@ void CCreatureHandler::loadCreatures()
 
 	creatures[122].abilities.insert(DOUBLE_WIDE);//water elemental should be treated as double-wide
 	creatures[123].abilities.insert(DOUBLE_WIDE);//ice elemental should be treated as double-wide
+	creatures[140].abilities.insert(DOUBLE_WIDE);//boar should be treated as double-wide
 }
 
 void CCreatureHandler::loadAnimationInfo()
