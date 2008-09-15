@@ -226,7 +226,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	{
 		secSkillAreas[g]->type = hero->secSkills[g].first;
 		secSkillAreas[g]->bonus = hero->secSkills[g].second;
-		std::string hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->infoTexts[hero->secSkills[g].second];
+		std::string hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->infoTexts[hero->secSkills[g].second-1];
 		secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
 
 		char * hlpp = new char[200];

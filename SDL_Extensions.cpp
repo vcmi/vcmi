@@ -170,7 +170,7 @@ void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Colo
 		break;
 	}
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x,y));
-	SDL_UpdateRect(dst,x,y,temp->w,temp->h);
+	//SDL_UpdateRect(dst,x,y,temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
 void CSDL_Ext::printTo(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)

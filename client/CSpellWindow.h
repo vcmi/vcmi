@@ -27,15 +27,30 @@ public:
 class CSpellWindow : public IShowActivable, public CIntObject
 {
 private:
+	class SpellArea : public ClickableL, public ClickableR, public Hoverable
+	{
+	public:
+		int mySpell;
+		CSpellWindow * owner;
+
+		SpellArea(SDL_Rect pos, CSpellWindow * owner);
+		void clickLeft(boost::logic::tribool down);
+		void clickRight(boost::logic::tribool down);
+		void hover(bool on);
+		void activate();
+		void deactivate();
+	};
+
 	SDL_Surface * background, * leftCorner, * rightCorner;
 	CDefHandler * spells, //pictures of spells
 		* spellTab, //school select
 		* schools, //schools' pictures
-		* schoolW, * schoolE, * schoolF, * schoolA; //schools' 'borders'
+		* schoolBorders [4]; //schools' 'borders': [0]: air, [1]: fire, [2]: water, [3]: earth
 
 	SpellbookInteractiveArea * exitBtn, * battleSpells, * adventureSpells, * manaPoints;
 	SpellbookInteractiveArea * selectSpellsA, * selectSpellsE, * selectSpellsF, * selectSpellsW, * selectSpellsAll;
 	SpellbookInteractiveArea * lCorner, * rCorner;
+	SpellArea * spellAreas[12];
 	CStatusBar * statusBar;
 
 	Uint8 sitesPerTabAdv[5];
@@ -44,6 +59,11 @@ private:
 	bool battleSpellsOnly; //if true, only battle spells are displayed; if false, only adventure map spells are displayed
 	Uint8 selectedTab; // 0 - air magic, 1 - fire magic, 2 - water magic, 3 - earth magic, 4 - all schools
 	Uint8 spellSite; //changes when corners are clicked
+	std::set<ui32> mySpells; //all spels in this spellbook
+	Uint8 schoolLvls[4]; //levels of magic for different schools: [0]: air, [1]: fire, [2]: water, [3]: earth; 0 - none, 1 - beginner, 2 - medium, 3 - expert
+
+	void computeSpellsPerArea(); //recalculates spellAreas::mySpell
+
 public:
 	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero); //c-tor
 	~CSpellWindow(); //d-tor
