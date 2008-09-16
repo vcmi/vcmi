@@ -116,7 +116,7 @@ void CSDL_Ext::printAtWB(std::string text, int x, int y, TTF_Font * font, int ch
 		SDL_FreeSurface(wesu[i]);
 	delete ws;
 }
-void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
+void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality, bool refresh)
 {
 	if(text.length()==0) return;
 	SDL_Surface * temp;
@@ -141,7 +141,8 @@ void CSDL_Ext::printAtMiddle(std::string text, int x, int y, TTF_Font * font, SD
 		break;
 	}
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-(temp->w/2),y-(temp->h/2)));
-	//SDL_UpdateRect(dst,x-(temp->w/2),y-(temp->h/2),temp->w,temp->h);
+	if(refresh)
+		SDL_UpdateRect(dst,x-(temp->w/2),y-(temp->h/2),temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
 void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
@@ -170,7 +171,7 @@ void CSDL_Ext::printAt(std::string text, int x, int y, TTF_Font * font, SDL_Colo
 		break;
 	}
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x,y));
-	//SDL_UpdateRect(dst,x,y,temp->w,temp->h);
+	SDL_UpdateRect(dst,x,y,temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
 void CSDL_Ext::printTo(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality)
@@ -199,7 +200,7 @@ void CSDL_Ext::printTo(std::string text, int x, int y, TTF_Font * font, SDL_Colo
 		break;
 	}
 	SDL_BlitSurface(temp,NULL,dst,&genRect(temp->h,temp->w,x-temp->w,y-temp->h));
-	//SDL_UpdateRect(dst,x-temp->w,y-temp->h,temp->w,temp->h);
+	SDL_UpdateRect(dst,x-temp->w,y-temp->h,temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
 

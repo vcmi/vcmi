@@ -12,16 +12,20 @@ class AdventureMapButton;
 struct BattleResult;
 template <typename T> struct CondSh;
 
-class CBattleHero : public IShowable, public CIntObject
+class CBattleHero : public IShowable, public ClickableL
 {
 public:
 	bool flip; //false if it's attacking hero, true otherwise
 	CDefHandler * dh, *flag; //animation and flag
+	const CGHeroInstance * myHero; //this animation's hero instance
 	int phase; //stage of animation
 	int image; //frame of animation
 	unsigned char flagAnim, flagAnimCount; //for flag animation
 	void show(SDL_Surface * to); //prints next frame of animation to to
-	CBattleHero(std::string defName, int phaseG, int imageG, bool filpG, unsigned char player); //c-tor
+	void activate();
+	void deactivate();
+	void clickLeft(boost::logic::tribool down);
+	CBattleHero(std::string defName, int phaseG, int imageG, bool filpG, unsigned char player, const CGHeroInstance * hero); //c-tor
 	~CBattleHero(); //d-tor
 };
 

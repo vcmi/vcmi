@@ -460,6 +460,37 @@ void CSpellWindow::show(SDL_Surface *to)
 	}
 }
 
+class SpellbookSpellSorter
+{
+public:
+	bool operator()(const int & a, const int & b)
+	{
+		CSpell A = CGI->spellh->spells[a];
+		CSpell B = CGI->spellh->spells[b];
+		if(A.level<B.level)
+			return true;
+		if(A.level>B.level)
+			return false;
+		if(A.air && !B.air)
+			return true;
+		if(!A.air && B.air)
+			return false;
+		if(A.fire && !B.fire)
+			return true;
+		if(!A.fire && B.fire)
+			return false;
+		if(A.water && !B.water)
+			return true;
+		if(!A.water && B.water)
+			return false;
+		if(A.earth && !B.earth)
+			return true;
+		if(!A.earth && B.earth)
+			return false;
+		return A.name < B.name;
+	}
+} spellsorter;
+
 void CSpellWindow::computeSpellsPerArea()
 {
 	std::vector<ui32> spellsCurSite;
@@ -476,6 +507,7 @@ void CSpellWindow::computeSpellsPerArea()
 			spellsCurSite.push_back(*it);
 		}
 	}
+	std::sort(spellsCurSite.begin(), spellsCurSite.end(), spellsorter);
 	if(selectedTab == 4)
 	{
 		if(spellsCurSite.size() > 12)
@@ -587,7 +619,7 @@ void CSpellWindow::SpellArea::clickLeft(boost::logic::tribool down)
 
 void CSpellWindow::SpellArea::clickRight(boost::logic::tribool down)
 {
-	if(down)
+	if(down && mySpell != -1)
 	{
 		CInfoPopup *vinya = new CInfoPopup();
 		vinya->free = true;
@@ -605,15 +637,18 @@ void CSpellWindow::SpellArea::clickRight(boost::logic::tribool down)
 void CSpellWindow::SpellArea::hover(bool on)
 {
 	Hoverable::hover(on);
-	if(on)
+	if(mySpell != -1)
 	{
-		std::stringstream ss;
-		ss<<CGI->spellh->spells[mySpell].name<<" ("<<CGI->generaltexth->allTexts[171+CGI->spellh->spells[mySpell].level]<<")";
-		owner->statusBar->print(ss.str());
-	}
-	else
-	{
-		owner->statusBar->clear();
+		if(on)
+		{
+			std::stringstream ss;
+			ss<<CGI->spellh->spells[mySpell].name<<" ("<<CGI->generaltexth->allTexts[171+CGI->spellh->spells[mySpell].level]<<")";
+			owner->statusBar->print(ss.str());
+		}
+		else
+		{
+			owner->statusBar->clear();
+		}
 	}
 }
 

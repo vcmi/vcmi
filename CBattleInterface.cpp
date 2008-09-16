@@ -101,7 +101,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	//loading hero animations
 	if(hero1) // attacking hero
 	{
-		attackingHero = new CBattleHero(graphics->battleHeroes[hero1->type->heroType], 0, 0, false, hero1->tempOwner);
+		attackingHero = new CBattleHero(graphics->battleHeroes[hero1->type->heroType], 0, 0, false, hero1->tempOwner, hero1->tempOwner == LOCPLINT->playerID ? hero1 : NULL);
 		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, -40, 0);
 	}
 	else
@@ -110,7 +110,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	}
 	if(hero2) // defending hero
 	{
-		defendingHero = new CBattleHero(graphics->battleHeroes[hero2->type->heroType], 0, 0, true, hero2->tempOwner);
+		defendingHero = new CBattleHero(graphics->battleHeroes[hero2->type->heroType], 0, 0, true, hero2->tempOwner, hero2->tempOwner == LOCPLINT->playerID ? hero2 : NULL);
 		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, 690, 0);
 	}
 	else
@@ -243,6 +243,10 @@ void CBattleInterface::activate()
 	{
 		bfield[b].activate();
 	}
+	if(attackingHero)
+		attackingHero->activate();
+	if(defendingHero)
+		defendingHero->activate();
 }
 
 void CBattleInterface::deactivate()
@@ -260,6 +264,10 @@ void CBattleInterface::deactivate()
 	{
 		bfield[b].deactivate();
 	}
+	if(attackingHero)
+		attackingHero->deactivate();
+	if(defendingHero)
+		defendingHero->deactivate();
 }
 
 void CBattleInterface::show(SDL_Surface * to)
@@ -1311,7 +1319,28 @@ void CBattleHero::show(SDL_Surface *to)
 	}
 }
 
-CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG, unsigned char player): phase(phaseG), image(imageG), flip(flipG), flagAnim(0)
+void CBattleHero::activate()
+{
+	ClickableL::activate();
+}
+void CBattleHero::deactivate()
+{
+	ClickableL::deactivate();
+}
+void CBattleHero::clickLeft(boost::logic::tribool down)
+{
+	if(!down && myHero)
+	{
+		CGI->curh->changeGraphic(0,0);
+		LOCPLINT->curint->deactivate();
+
+		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, 90, 2), myHero);
+		spellWindow->activate();
+		LOCPLINT->objsToBlit.push_back(spellWindow);
+	}
+}
+
+CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero): phase(phaseG), image(imageG), flip(flipG), flagAnim(0), myHero(hero)
 {
 	dh = CDefHandler::giveDef( defName );
 	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images

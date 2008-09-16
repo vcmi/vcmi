@@ -259,7 +259,7 @@ void CGarrisonSlot::show()
 		char* buf = new char[15];
 		SDL_itoa(count,buf,10);
 		blitAt(graphics->bigImgs[creature->idNumber],pos);
-		printTo(buf,pos.x+56,pos.y+62,GEOR16,zwykly);
+		printToWR(buf,pos.x+56,pos.y+62,GEOR16,zwykly);
 		if(owner->highlighted==this)
 			blitAt(graphics->bigImgs[-1],pos);
 		//if(owner->update)
