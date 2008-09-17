@@ -762,7 +762,7 @@ void CHeroScript::onHeroVisit(int objid, int heroID)
 {
 	//TODO: check for allies
 	const CGHeroInstance *my = cb->getHero(objid), 
-		*vis = cb->getHero(objid);
+		*vis = cb->getHero(heroID);
 	if(my->tempOwner == vis->tempOwner) //one of allied cases
 	{
 		//exchange
@@ -770,11 +770,11 @@ void CHeroScript::onHeroVisit(int objid, int heroID)
 	else
 	{
 		cb->startBattle(
-			&my->army,
 			&vis->army,
-			my->pos,
-			my,
+			&my->army,
+			vis->pos,
 			vis,
+			my,
 			0);
 	}
 }
