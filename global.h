@@ -17,7 +17,8 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #endif
 
 #define NAME_VER ("VCMI 0.63")
-
+#define CONSOLE_LOGGING_LEVEL 5
+#define FILE_LOGGING_LEVEL 6
 
 #ifdef _WIN32
 #define PATHSEPARATOR "\\"
@@ -87,28 +88,6 @@ const int SPELL_LEVELS = 5;
 		#define DLL_EXPORT
 	#endif
 #endif
-
-#define HANDLE_EXCEPTION  \
-	catch (const std::exception& e) {	\
-	std::cerr << e.what() << std::endl;	\
-	}									\
-	catch (const std::exception * e)	\
-	{									\
-		std::cerr << e->what()<< std::endl;	\
-		delete e;						\
-	}
-
-#define HANDLE_EXCEPTIONC(COMMAND)  \
-	catch (const std::exception& e) {	\
-	COMMAND;							\
-	std::cerr << e.what() << std::endl;	\
-	}									\
-	catch (const std::exception * e)	\
-	{									\
-		COMMAND;						\
-		std::cerr << e->what()<< std::endl;	\
-		delete e;						\
-	}
 
 namespace vstd
 {
@@ -190,4 +169,63 @@ namespace vstd
 	}
 }
 using vstd::operator-=;
+
+#include "CConsoleHandler.h"
+extern std::ostream *logfile;
+extern CConsoleHandler *console;
+template <int lvl> class CLogger
+{
+public:
+	CLogger<lvl>& operator<<(std::ostream& (*fun)(std::ostream&))
+	{
+		if(lvl < CONSOLE_LOGGING_LEVEL)
+			std::cout << fun;
+		if((lvl < FILE_LOGGING_LEVEL) && logfile)
+			*logfile << fun;
+		return *this;
+	}
+
+	template<typename T> 
+	CLogger<lvl> & operator<<(const T & data)
+	{
+		if(lvl < CONSOLE_LOGGING_LEVEL)
+			if(console)
+				console->print(data,lvl);
+			else
+				std::cout << data << std::flush;
+		if((lvl < FILE_LOGGING_LEVEL) && logfile)
+			*logfile << data << std::flush;
+		return *this;
+	}
+};
+
+extern CLogger<0> log0; //green - standard progress info
+extern CLogger<1> log1; //red - big errors
+extern CLogger<2> log2; //magenta - major warnings
+extern CLogger<3> log3; //yellow - minor warnings
+extern CLogger<4> log4; //white - detailed log info
+extern CLogger<5> log5; //gray - minor log info
+
+#define HANDLE_EXCEPTION  \
+	catch (const std::exception& e) {	\
+	log1 << e.what() << std::endl;	\
+	}									\
+	catch (const std::exception * e)	\
+	{									\
+		log1 << e->what()<< std::endl;	\
+		delete e;						\
+	}
+
+#define HANDLE_EXCEPTIONC(COMMAND)  \
+	catch (const std::exception& e) {	\
+	COMMAND;							\
+	log1 << e.what() << std::endl;	\
+	}									\
+	catch (const std::exception * e)	\
+	{									\
+		COMMAND;						\
+		log1 << e->what()<< std::endl;	\
+		delete e;						\
+	}
+
 #endif //GLOBAL_H

@@ -338,6 +338,11 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			bool blockvis = false;
 			switch(pom)
 			{
+			case 99: //end!
+				{
+					log0 << "We have been requested to close.\n";
+					exit(0);
+				}
 			case 100: //my interface ended its turn
 				{
 					states.setFlag(gs->currentPlayer,&PlayerStatus::makingTurn,false);
@@ -953,12 +958,12 @@ upgend:
 	}
 	catch (const std::exception& e)
 	{
-		std::cerr << e.what() << std::endl;
+		log1 << e.what() << std::endl;
 		end2 = true;
 	}
 	catch (const std::exception * e)
 	{
-		std::cerr << e->what()<< std::endl;	
+		log1 << e->what()<< std::endl;	
 		end2 = true;
 		delete e;
 	}

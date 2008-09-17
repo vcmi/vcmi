@@ -396,7 +396,7 @@ void Graphics::loadHeroFlags()
 	grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[1]),false));
 	grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[0]),false));
 	grupa.join_all();
-	std::cout << "Loading and transforming heroes' flags: "<<th.getDif()<<std::endl;
+	log0 << "Loading and transforming heroes' flags: "<<th.getDif()<<std::endl;
 }
 SDL_Surface * Graphics::getPic(int ID, bool fort, bool builded)
 {

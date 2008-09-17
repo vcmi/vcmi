@@ -4,6 +4,7 @@
 #include "CGameInterface.h"
 #include "SDL_framerate.h"
 #include <map>
+#include <list>
 
 class CDefEssential;
 class AdventureMapButton;
@@ -327,12 +328,12 @@ public:
 	CCallback * cb;
 
 	//GUI elements
-	std::vector<ClickableL*> lclickable;
-	std::vector<ClickableR*> rclickable;
-	std::vector<Hoverable*> hoverable;
-	std::vector<KeyInterested*> keyinterested;
-	std::vector<MotionInterested*> motioninterested;
-	std::vector<TimeInterested*> timeinterested;
+	std::list<ClickableL*> lclickable;
+	std::list<ClickableR*> rclickable;
+	std::list<Hoverable*> hoverable;
+	std::list<KeyInterested*> keyinterested;
+	std::list<MotionInterested*> motioninterested;
+	std::list<TimeInterested*> timeinterested;
 	std::vector<IShowable*> objsToBlit;
 
 	//overloaded funcs from CGameInterface

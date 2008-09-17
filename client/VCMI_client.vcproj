@@ -294,10 +294,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CConsoleHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath=".\CCreatureAnimation.cpp"
 				>
 			</File>
@@ -437,10 +433,6 @@
 			</File>
 			<File
 				RelativePath="..\CCastleInterface.h"
-				>
-			</File>
-			<File
-				RelativePath="..\CConsoleHandler.h"
 				>
 			</File>
 			<File

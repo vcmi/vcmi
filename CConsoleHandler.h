@@ -1,19 +1,26 @@
 #ifndef CCONSOLEHANDLER_H
 #define CCONSOLEHANDLER_H
-class CCallback;
-class CConsoleHandler
+namespace boost
 {
-	CCallback * cb;
+	template<typename signature>
+	class function;
+}
+class DLL_EXPORT CConsoleHandler
+{
 public:
-	void runConsole();
-
-	friend class CClient;
-
-#ifndef __GNUC__
-	friend int _tmain(int argc, _TCHAR* argv[]);
-#else
-	friend int main(int argc, char **argv);
-#endif
+	boost::function<void(const std::string &)> *cb;
+	int curLvl;
+	int run();
+	void setColor(int level);
+	CConsoleHandler();
+	~CConsoleHandler();
+	static void killConsole(void *hThread); //for windows only, use native handle to the thread
+	template<typename T> void print(const T &data, int level)
+	{
+		setColor(level);
+		std::cout << data << std::flush;
+		setColor(-1);
+	}
 };
 
 #endif //CCONSOLEHANDLER_H

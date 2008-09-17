@@ -267,6 +267,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\CConsoleHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CCreatureHandler.cpp"
 				>
 			</File>
@@ -330,6 +334,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CBuildingHandler.h"
+				>
+			</File>
+			<File
+				RelativePath="..\CConsoleHandler.h"
 				>
 			</File>
 			<File

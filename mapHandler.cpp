@@ -456,32 +456,6 @@ void CMapHandler::initObjectRects()
 		}
 	}
 }
-void CMapHandler::calculateBlockedPos()
-{
-	//for(int f=0; f<map->objects.size(); ++f) //calculationg blocked / visitable positions
-	//{
-	//	if(!map->objects[f]->defInfo)
-	//		continue;
-	//	CDefHandler * curd = map->objects[f]->defInfo->handler;
-	//	for(int fx=0; fx<8; ++fx)
-	//	{
-	//		for(int fy=0; fy<6; ++fy)
-	//		{
-	//			int xVal = map->objects[f]->pos.x + fx - 7;
-	//			int yVal = map->objects[f]->pos.y + fy - 5;
-	//			int zVal = map->objects[f]->pos.z;
-	//			if(xVal>=0 && xVal<ttiles.size()-Woff && yVal>=0 && yVal<ttiles[0].size()-Hoff)
-	//			{
-	//				TerrainTile2 & curt = ttiles[xVal][yVal][zVal];
-	//				if(((map->objects[f]->defInfo->visitMap[fy] >> (7 - fx)) & 1))
-	//					curt.tileInfo->visitable = true;
-	//				if(!((map->objects[f]->defInfo->blockMap[fy] >> (7 - fx)) & 1))
-	//					curt.tileInfo->blocked = true;
-	//			}
-	//		}
-	//	}
-	//}
-}
 void processDef (CGDefInfo* def)
 {
 	def->handler=CDefHandler::giveDef(def->name);
@@ -495,7 +469,7 @@ void processDef (CGDefInfo* def)
 		pom->height = pom->handler->ourImages[0].bitmap->h/32;
 	}
 	else if(def->id != 34 && def->id != 98)
-		std::cout << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
+		log3 << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
 	if(!def->handler->alphaTransformed)
 	{
 		for(int yy=0; yy<def->handler->ourImages.size(); ++yy)
@@ -510,7 +484,7 @@ void CMapHandler::init()
 	timeHandler th;
 	th.getDif();
 	loadDefs();	//loading castles' defs
-	THC std::cout<<"Reading terrain defs: "<<th.getDif()<<std::endl;
+	log0<<"Reading terrain defs: "<<th.getDif()<<std::endl;
 
 	std::ifstream ifs("config/townsDefs.txt");
 	int ccc;
@@ -527,10 +501,10 @@ void CMapHandler::init()
 			n = CGI->state->capitols[i%ccc];
 		ifs >> n->name;
 		if(!n)
-			std::cout << "*HUGE* Warning - missing town def for " << i << std::endl;
+			log1 << "*HUGE* Warning - missing town def for " << i << std::endl;
 		map->defs.insert(n);
 	} 
-	std::cout<<"\tLoading town def info: "<<th.getDif()<<std::endl;
+	log0<<"\tLoading town def info: "<<th.getDif()<<std::endl;
 
 	for(int i=0;i<map->heroes.size();i++)
 	{
@@ -544,7 +518,7 @@ void CMapHandler::init()
 
 	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
 	std::for_each(map->defs.begin(),map->defs.end(),processDef); //and non-h3m defs
-	THC std::cout<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
+	log0<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
 
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
@@ -553,20 +527,20 @@ void CMapHandler::init()
 			usedHeroes.insert(map->players[i].heroesNames[j].heroID);
 		}
 	}
-	std::cout<<"\tChecking used heroes: "<<th.getDif()<<std::endl;
+	log0<<"\tChecking used heroes: "<<th.getDif()<<std::endl;
 
 
 
 	for(int h=0; h<map->defy.size(); ++h) //initializing loaded def handler's info	{
 		CGI->mh->loadedDefs.insert(std::make_pair(map->defy[h]->name, map->defy[h]->handler));
-	std::cout<<"\tCollecting loaded def's handlers: "<<th.getDif()<<std::endl;
+	log0<<"\tCollecting loaded def's handlers: "<<th.getDif()<<std::endl;
 
 	prepareFOWDefs();
 	roadsRiverTerrainInit();	//road's and river's DefHandlers; and simple values initialization
 	borderAndTerrainBitmapInit();
-	std::cout<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
+	log0<<"\tPreparing FoW, roads, rivers,borders: "<<th.getDif()<<std::endl;
 	initObjectRects();
-	std::cout<<"\tMaking object rects: "<<th.getDif()<<std::endl;
+	log0<<"\tMaking object rects: "<<th.getDif()<<std::endl;
 }
 
 SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect)

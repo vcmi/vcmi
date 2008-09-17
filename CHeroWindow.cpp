@@ -687,7 +687,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			LOCPLINT->objsToBlit.push_back(spellWindow);
 		}
 	}
-	if(!down && !clicked) //not clicked before
+	if(!down && !clicked && pressedL) //not clicked before
 	{
 		if(ourArt && ourArt->id == 0)
 			return; //this is handled separately
@@ -750,6 +750,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 		clicked = false;
 		ourWindow->activeArtPlace = NULL;
 	}
+	ClickableL::clickLeft(down);
 }
 void CArtPlace::clickRight(boost::logic::tribool down)
 {
@@ -840,10 +841,11 @@ void RClickableArea::clickRight(boost::logic::tribool down)
 
 void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
 {
-	if(!down)
+	if(!down && pressedL)
 	{
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
 	}
+	ClickableL::clickLeft(down);
 }
 void LRClickableAreaWText::clickRight(boost::logic::tribool down)
 {

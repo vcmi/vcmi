@@ -22,7 +22,14 @@ using namespace boost;
 using namespace boost::asio;
 using namespace boost::asio::ip;
 namespace intpr = boost::interprocess;
-
+CLogger<0> log0;
+CLogger<1> log1;
+CLogger<2> log2;
+CLogger<3> log3;
+CLogger<4> log4;
+CLogger<5> log5;
+CConsoleHandler *console = NULL;
+std::ostream *logfile = NULL;
 bool end2 = false;
 int port = 3030;
 
@@ -155,6 +162,9 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
+	logfile = new std::ofstream("VCMI_Server_log.txt");
+	console = new CConsoleHandler;
+	boost::thread t(boost::bind(&CConsoleHandler::run,::console));
 	if(argc > 1)
 	{
 #ifdef _MSC_VER
@@ -166,7 +176,7 @@ int main(int argc, char** argv)
 	std::cout << "Port " << port << " will be used." << std::endl;
 	CLodHandler h3bmp;
 	h3bmp.init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
-	initDLL(&h3bmp);
+	initDLL(&h3bmp,console,logfile);
 	srand ( (unsigned int)time(NULL) );
 	try
 	{

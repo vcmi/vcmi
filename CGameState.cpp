@@ -927,6 +927,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			}
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);
+			map->addBlockVisTiles(nnn);
 		}
 	}
 

@@ -44,6 +44,6 @@ extern DLL_EXPORT LibClasses * VLC;
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode);
 
-DLL_EXPORT void initDLL(CLodHandler *b);
+DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *Logfile);
 
 #endif //VCMI_LIB_H

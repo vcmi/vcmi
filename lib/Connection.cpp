@@ -46,27 +46,27 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
     tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port),error);
 	if(error)
 	{
-		std::cout << "Problem with resolving: " << std::endl << error <<std::endl;
+		log1 << "Problem with resolving: " << std::endl << error <<std::endl;
 		goto connerror1;
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
-		std::cout<<"Found endpoints:" << std::endl;
+		log0<<"Found endpoints:" << std::endl;
 	else
 	{
-		std::cout<< "Critical problem: No endpoints found!" << std::endl;
+		log1 << "Critical problem: No endpoints found!" << std::endl;
 		goto connerror1;
 	}
 	i=0;
 	while(pom != end)
 	{
-		std::cout << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;
+		log0 << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;
 		pom++;
 	}
 	i=0;
 	while(endpoint_iterator != end)
 	{
-		std::cout << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")" << std::endl;
+		log0 << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")" << std::endl;
 		socket->connect(*endpoint_iterator, error);
 		if(!error)
 		{
@@ -75,18 +75,18 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
 		}
 		else
 		{
-			std::cout << "Problem with connecting: " << std::endl <<  error << std::endl;
+			log1 << "Problem with connecting: " << std::endl <<  error << std::endl;
 		}
 		endpoint_iterator++;
 	}
 
 	//we shouldn't be here - error handling
 connerror1:
-	std::cout << "Something went wrong... checking for error info" << std::endl;
+	log1 << "Something went wrong... checking for error info" << std::endl;
 	if(error)
 		std::cout << error <<std::endl;
 	else
-		std::cout << "No error info. " << std::endl;
+		log1 << "No error info. " << std::endl;
 	delete io_service;
 	//delete socket;	
 	throw std::string("Can't establish connection :(");
@@ -115,14 +115,14 @@ CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp
 }
 int CConnection::write(const void * data, unsigned size)
 {
-	LOG("Sending " << size << " byte(s) of data" <<std::endl);
+	//LOG("Sending " << size << " byte(s) of data" <<std::endl);
 	int ret;
 	ret = asio::write(*socket,asio::const_buffers_1(asio::const_buffer(data,size)));
 	return ret;
 }
 int CConnection::read(void * data, unsigned size)
 {
-	LOG("Receiving " << size << " byte(s) of data" <<std::endl);
+	//LOG("Receiving " << size << " byte(s) of data" <<std::endl);
 	int ret = asio::read(*socket,asio::mutable_buffers_1(asio::mutable_buffer(data,size)));
 	return ret;
 }

@@ -40,7 +40,6 @@ using namespace boost::assign;
 using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
-extern bool continueReadingConsole;
 CPlayerInterface * LOCPLINT;
 extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
@@ -887,7 +886,7 @@ void ClickableL::clickLeft(tribool down)
 }
 void ClickableL::activate()
 {
-	LOCPLINT->lclickable.push_back(this);
+	LOCPLINT->lclickable.push_front(this);
 }
 void ClickableL::deactivate()
 {
@@ -907,7 +906,7 @@ void ClickableR::clickRight(tribool down)
 }
 void ClickableR::activate()
 {
-	LOCPLINT->rclickable.push_back(this);
+	LOCPLINT->rclickable.push_front(this);
 }
 void ClickableR::deactivate()
 {
@@ -915,7 +914,7 @@ void ClickableR::deactivate()
 }
 void Hoverable::activate()
 {
-	LOCPLINT->hoverable.push_back(this);
+	LOCPLINT->hoverable.push_front(this);
 }
 void Hoverable::deactivate()
 {
@@ -927,7 +926,7 @@ void Hoverable::hover(bool on)
 }
 void KeyInterested::activate()
 {
-	LOCPLINT->keyinterested.push_back(this);
+	LOCPLINT->keyinterested.push_front(this);
 }
 void KeyInterested::deactivate()
 {
@@ -936,7 +935,7 @@ void KeyInterested::deactivate()
 }
 void MotionInterested::activate()
 {
-	LOCPLINT->motioninterested.push_back(this);
+	LOCPLINT->motioninterested.push_front(this);
 }
 void MotionInterested::deactivate()
 {
@@ -1008,12 +1007,14 @@ void CPlayerInterface::yourTurn()
 		updateWater();
 		pim->lock();
 		int tv = th.getDif();
-		for (int i=0;i<timeinterested.size();i++)
+		std::list<TimeInterested*> hlp = timeinterested;
+		for (std::list<TimeInterested*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
-			if (timeinterested[i]->toNextTick>=0)
-				timeinterested[i]->toNextTick-=tv;
-			if (timeinterested[i]->toNextTick<0)
-				timeinterested[i]->tick();
+			if(!vstd::contains(timeinterested,*i)) continue;
+			if ((*i)->toNextTick>=0)
+				(*i)->toNextTick-=tv;
+			if ((*i)->toNextTick<0)
+				(*i)->tick();
 		}
 		LOCPLINT->adventureInt->updateScreen = false;
 		eventsM.lock();
@@ -1582,26 +1583,26 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 
 void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 {
-	std::vector<int> hlp;
-	for (int i=0; i<hoverable.size();i++)
+	std::vector<Hoverable*> hlp;
+	for(std::list<Hoverable*>::iterator i=hoverable.begin(); i != hoverable.end();i++)
 	{
-		if (isItIn(&hoverable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+		if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 		{
-			if (!hoverable[i]->hovered)
-				hlp.push_back(i);
+			if (!(*i)->hovered)
+				hlp.push_back((*i));
 		}
-		else if (hoverable[i]->hovered)
+		else if ((*i)->hovered)
 		{
-			hoverable[i]->hover(false);
+			(*i)->hover(false);
 		}
 	}
 	for(int i=0; i<hlp.size();i++)
-		hoverable[hlp[i]]->hover(true);
-	for(int i=0; i<motioninterested.size();i++)
+		hlp[i]->hover(true);
+	for(std::list<MotionInterested*>::iterator i=motioninterested.begin(); i != motioninterested.end();i++)
 	{
-		if (motioninterested[i]->strongInterest || isItIn(&motioninterested[i]->pos,sEvent->motion.x,sEvent->motion.y))
+		if ((*i)->strongInterest || isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 		{
-			motioninterested[i]->mouseMoved(sEvent->motion);
+			(*i)->mouseMoved(sEvent->motion);
 		}
 	}
 	if(sEvent->motion.x<15)
@@ -1710,12 +1711,11 @@ void CPlayerInterface::handleKeyDown(SDL_Event *sEvent)
 			LOCPLINT->adventureInt->scrollingDown = true;
 			break;
 		}
-	case (SDLK_q):
-		{
-			continueReadingConsole = false;
-			exit(0);
-			break;
-		}
+	//case (SDLK_q):
+	//	{
+	//		exit(0);
+	//		break;
+	//	}
 	case (SDLK_u):
 		{
 			adventureInt->underground.clickLeft(true);
@@ -1767,46 +1767,54 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 
 	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
-		for(int i=0; i<lclickable.size();i++)
+		std::list<ClickableL*> hlp = lclickable;
+		for(std::list<ClickableL*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
-			if (isItIn(&lclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			if(!vstd::contains(lclickable,*i)) continue;
+			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 			{
-				lclickable[i]->clickLeft(true);
+				(*i)->clickLeft(true);
 			}
 		}
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
-		for(int i=0; i<lclickable.size();i++)
+		std::list<ClickableL*> hlp = lclickable;
+		for(std::list<ClickableL*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
-			if (isItIn(&lclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			if(!vstd::contains(lclickable,*i)) continue;
+			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 			{
-				lclickable[i]->clickLeft(false);
+				(*i)->clickLeft(false);
 			}
 			else
-				lclickable[i]->clickLeft(boost::logic::indeterminate);
+				(*i)->clickLeft(boost::logic::indeterminate);
 		}
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{
-		for(int i=0; i<rclickable.size();i++)
+		std::list<ClickableR*> hlp = rclickable;
+		for(std::list<ClickableR*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
-			if (isItIn(&rclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			if(!vstd::contains(rclickable,*i)) continue;
+			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 			{
-				rclickable[i]->clickRight(true);
+				(*i)->clickRight(true);
 			}
 		}
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{
-		for(int i=0; i<rclickable.size();i++)
+		std::list<ClickableR*> hlp = rclickable;
+		for(std::list<ClickableR*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
-			if (isItIn(&rclickable[i]->pos,sEvent->motion.x,sEvent->motion.y))
+			if(!vstd::contains(rclickable,*i)) continue;
+			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 			{
-				rclickable[i]->clickRight(false);
+				(*i)->clickRight(false);
 			}
 			else
-				rclickable[i]->clickRight(boost::logic::indeterminate);
+				(*i)->clickRight(boost::logic::indeterminate);
 		}
 	}
 	current = NULL;
