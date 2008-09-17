@@ -18,6 +18,7 @@
 #include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
 #include "../lib/VCMI_Lib.h"
 #include "../lib/CondSh.h"
+#include <fstream>
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif
@@ -1221,6 +1222,24 @@ void CGameHandler::run()
 	}
 }
 
+namespace CGH
+{
+	using namespace std;
+	void readItTo(ifstream & input, vector< vector<int> > & dest)
+	{
+		for(int j=0; j<7; ++j)
+		{
+			std::vector<int> pom;
+			for(int g=0; g<j+1; ++g)
+			{
+				int hlp; input>>hlp;
+				pom.push_back(hlp);
+			}
+			dest.push_back(pom);
+		}
+	}
+}
+
 void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army1, CCreatureSet &army2, CGHeroInstance * hero1, CGHeroInstance * hero2 )
 {
 	battleResult.set(NULL);
@@ -1242,106 +1261,49 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 		stacks[stacks.size()-1]->ID = stacks.size()-1;
 	}
 	//initialization of positions
-	switch(army1.slots.size()) //for attacker
+	std::ifstream positions;
+	positions.open("config" PATHSEPARATOR "battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
+	if(!positions.is_open())
 	{
-	case 0:
-		break;
-	case 1:
-		stacks[0]->position = 86; //6
-		break;
-	case 2:
-		stacks[0]->position = 35; //3
-		stacks[1]->position = 137; //9
-		break;
-	case 3:
-		stacks[0]->position = 35; //3
-		stacks[1]->position = 86; //6
-		stacks[2]->position = 137; //9
-		break;
-	case 4:
-		stacks[0]->position = 1; //1
-		stacks[1]->position = 69; //5
-		stacks[2]->position = 103; //7
-		stacks[3]->position = 171; //11
-		break;
-	case 5:
-		stacks[0]->position = 1; //1
-		stacks[1]->position = 35; //3
-		stacks[2]->position = 86; //6
-		stacks[3]->position = 137; //9
-		stacks[4]->position = 171; //11
-		break;
-	case 6:
-		stacks[0]->position = 1; //1
-		stacks[1]->position = 35; //3
-		stacks[2]->position = 69; //5
-		stacks[3]->position = 103; //7
-		stacks[4]->position = 137; //9
-		stacks[5]->position = 171; //11
-		break;
-	case 7:
-		stacks[0]->position = 1; //1
-		stacks[1]->position = 35; //3
-		stacks[2]->position = 69; //5
-		stacks[3]->position = 86; //6
-		stacks[4]->position = 103; //7
-		stacks[5]->position = 137; //9
-		stacks[6]->position = 171; //11
-		break;
-	default: //fault
-		break;
+		log0<<"Unable to open battleStartpos.txt!"<<std::endl;
 	}
+	std::string dump;
+	positions>>dump; positions>>dump;
+	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight;
+	CGH::readItTo(positions, attackerLoose);
+	positions>>dump;
+	CGH::readItTo(positions, defenderLoose);
+	positions>>dump;
+	positions>>dump;
+	CGH::readItTo(positions, attackerTight);
+	positions>>dump;
+	CGH::readItTo(positions, defenderTight);
+	positions.close();
+	
+	if(army1.formation)
+		for(int b=0; b<army1.slots.size(); ++b) //tight
+		{
+			stacks[b]->position = attackerTight[army1.slots.size()-1][b];
+		}
+	else
+		for(int b=0; b<army1.slots.size(); ++b) //loose
+		{
+			stacks[b]->position = attackerLoose[army1.slots.size()-1][b];
+		}
 	for(std::map<si32,std::pair<ui32,si32> >::iterator i = army2.slots.begin(); i!=army2.slots.end(); i++)
 		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero2 ? hero2->tempOwner : 255, stacks.size(), false, i->first));
-	switch(army2.slots.size()) //for defender
-	{
-	case 0:
-		break;
-	case 1:
-		stacks[0+army1.slots.size()]->position = 100; //6
-		break;
-	case 2:
-		stacks[0+army1.slots.size()]->position = 49; //3
-		stacks[1+army1.slots.size()]->position = 151; //9
-		break;
-	case 3:
-		stacks[0+army1.slots.size()]->position = 49; //3
-		stacks[1+army1.slots.size()]->position = 100; //6
-		stacks[2+army1.slots.size()]->position = 151; //9
-		break;
-	case 4:
-		stacks[0+army1.slots.size()]->position = 15; //1
-		stacks[1+army1.slots.size()]->position = 83; //5
-		stacks[2+army1.slots.size()]->position = 117; //7
-		stacks[3+army1.slots.size()]->position = 185; //11
-		break;
-	case 5:
-		stacks[0+army1.slots.size()]->position = 15; //1
-		stacks[1+army1.slots.size()]->position = 49; //3
-		stacks[2+army1.slots.size()]->position = 100; //6
-		stacks[3+army1.slots.size()]->position = 151; //9
-		stacks[4+army1.slots.size()]->position = 185; //11
-		break;
-	case 6:
-		stacks[0+army1.slots.size()]->position = 15; //1
-		stacks[1+army1.slots.size()]->position = 49; //3
-		stacks[2+army1.slots.size()]->position = 83; //5
-		stacks[3+army1.slots.size()]->position = 117; //7
-		stacks[4+army1.slots.size()]->position = 151; //9
-		stacks[5+army1.slots.size()]->position = 185; //11
-		break;
-	case 7:
-		stacks[0+army1.slots.size()]->position = 15; //1
-		stacks[1+army1.slots.size()]->position = 49; //3
-		stacks[2+army1.slots.size()]->position = 83; //5
-		stacks[3+army1.slots.size()]->position = 100; //6
-		stacks[4+army1.slots.size()]->position = 117; //7
-		stacks[5+army1.slots.size()]->position = 151; //9
-		stacks[6+army1.slots.size()]->position = 185; //11
-		break;
-	default: //fault
-		break;
-	}
+
+	if(army2.formation)
+		for(int b=0; b<army2.slots.size(); ++b) //tight
+		{
+			stacks[b+army1.slots.size()]->position = defenderTight[army2.slots.size()-1][b];
+		}
+	else
+		for(int b=0; b<army2.slots.size(); ++b) //loose
+		{
+			stacks[b+army1.slots.size()]->position = defenderLoose[army2.slots.size()-1][b];
+		}
+
 	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
 	{
 		if((stacks[g]->position%17)==1 && stacks[g]->creature->isDoubleWide())
