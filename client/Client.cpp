@@ -412,7 +412,7 @@ void CClient::process(int what)
 			CGHeroInstance *h = gs->getHero(bs.heroid);
 			if(vstd::contains(playerint,h->tempOwner))
 			{
-				boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,cb,_1,bs.id));
+				boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,LOCPLINT->cb,_1,bs.id));
 				playerint[h->tempOwner]->heroGotLevel((const CGHeroInstance *)h,(int)bs.primskill,bs.skills, callback);
 			}
 			break;

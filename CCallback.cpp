@@ -587,3 +587,9 @@ void CCallback::trade( int mode, int id1, int id2, int val1 )
 	getMarketOffer(id1,id2,p1,p2,mode);
 	*cl->serv << ui16(511) << ui8(player) << ui32(mode)  << ui32(id1) << ui32(id2) << ui32(val1);
 }
+
+void CCallback::setFormation(const CGHeroInstance * hero, bool loose)
+{
+	hero->looseFormation = loose;
+	*cl->serv << ui16(512) << hero->id << ui8(loose);
+}

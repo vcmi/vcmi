@@ -82,7 +82,7 @@ public:
 	mutable int moveDir; //format:	123
 					//		8 4
 					//		765
-	mutable bool isStanding, tacticFormationEnabled;
+	mutable ui8 isStanding, tacticFormationEnabled, looseFormation;
 	CHero * type;
 	ui32 exp; //experience point
 	int level; //current level of hero

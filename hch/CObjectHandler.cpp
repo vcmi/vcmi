@@ -397,6 +397,7 @@ CGObjectInstance::~CGObjectInstance()
 }
 CGHeroInstance::CGHeroInstance()
 {
+	looseFormation = true;
 	tacticFormationEnabled = inTownGarrison = false;
 	portrait = level = exp = -1;
 	isStanding = true;

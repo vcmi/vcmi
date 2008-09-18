@@ -36,6 +36,7 @@ public:
 	CHighlightableButton(const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, bool activ );
 	bool selected;
 	CFunctionList<void()> callback2; //when disselecting
+	void select(bool on);
 	void clickLeft (tribool down);
 };
 

@@ -159,6 +159,20 @@ void AdventureMapButton::block( bool on )
 	bitmapOffset = on ? 2 : 0;
 	show();
 }
+void CHighlightableButton::select(bool on)
+{
+	selected = on;
+	state = selected ? 3 : 0;
+	if(selected)
+		callback();
+	else 
+		callback2();
+	if(hoverTexts.size()>1)
+	{
+		hover(false);
+		hover(true);
+	}
+}
 
 void CHighlightableButton::clickLeft( tribool down )
 {
@@ -172,17 +186,7 @@ void CHighlightableButton::clickLeft( tribool down )
 	if (pressedL && (down==false))
 	{
 		pressedL=state;
-		selected = !selected;
-		state = selected ? 3 : 0;
-		if(selected)
-			callback();
-		else 
-			callback2();
-		if(hoverTexts.size()>1)
-		{
-			hover(false);
-			hover(true);
-		}
+		select(!selected);
 	}
 	else
 	{

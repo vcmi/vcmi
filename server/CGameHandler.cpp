@@ -851,6 +851,14 @@ upgend:
 
 					break;
 				}
+			case 512:
+				{
+					si32 hid;
+					ui8 formation;
+					c >> hid >> formation;
+					gs->getHero(hid)->army.formation = !formation;
+					break;
+				}
 			case 2001:
 				{
 					ui32 qid, answer;

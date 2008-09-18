@@ -157,6 +157,25 @@ namespace vstd
 	{
 		a1 = a2;
 	}
+	template <typename t1, typename t2>
+	struct assigner
+	{
+	public:
+		t1 &op1;
+		t2 op2;
+		assigner(t1 &a1, t2 a2)
+			:op1(a1), op2(a2)
+		{}
+		void operator()()
+		{
+			op1 = op2;
+		}
+	};
+	template <typename t1, typename t2>
+	assigner<t1,t2> assigno(t1 &a1, const t2 &a2)
+	{
+		return assigner<t1,t2>(a1,a2);
+	}
 	template <typename t1, typename t2, typename t3>
 	bool equal(const t1 &a1, const t3 t1::* point, const t2 &a2)
 	{
