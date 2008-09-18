@@ -1725,6 +1725,10 @@ void Mapa::readDefInfo( unsigned char * bufor, int &i)
 			vinya->visitMap[zi] = reverse(bytes[6+zi]);
 		}
 		i+=16;
+		if(vinya->id!=34)
+			vinya->visitDir = VLC->dobjinfo->gobjs[vinya->id][vinya->subid]->visitDir;
+		else
+			vinya->visitDir = 0xff;
 		defy.push_back(vinya); // add this def to the vector
 	}
 }

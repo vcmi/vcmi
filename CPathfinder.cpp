@@ -6,6 +6,7 @@
 #include "mapHandler.h"
 #include "CGameState.h"
 #include "hch/CObjectHandler.h"
+#include "hch/CDefObjInfoHandler.h"
 
 using namespace std;
 
@@ -168,9 +169,85 @@ void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 
 				if(c.g != -1 && c.h != -1)
 				{
-					vector<Coordinate> toAdd = *branch;
-					toAdd.push_back(c);
-					Open.push(toAdd);
+					bool pass = true; //checking for allowed visiting direction
+					for(int b=0; b<CGI->mh->ttiles[i][j][node.z].tileInfo->visitableObjects.size(); ++b) //checking destination tile
+					{
+						CGDefInfo * di = CGI->mh->ttiles[i][j][node.z].tileInfo->visitableObjects[b]->defInfo;
+						if( (i == node.x-1 && j == node.y-1) && !(di->visitDir & (1<<4)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x && j == node.y-1) && !(di->visitDir & (1<<5)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x+1 && j == node.y-1) && !(di->visitDir & (1<<6)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x+1 && j == node.y) && !(di->visitDir & (1<<7)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x+1 && j == node.y+1) && !(di->visitDir & (1<<0)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x && j == node.y+1) && !(di->visitDir & (1<<1)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x-1 && j == node.y+1) && !(di->visitDir & (1<<2)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x-1 && j == node.y) && !(di->visitDir & (1<<3)) )
+						{
+							pass = false; break;
+						}
+					}
+					for(int b=0; b<CGI->mh->ttiles[node.x][node.y][node.z].tileInfo->visitableObjects.size(); ++b) //checking source tile
+					{
+						CGDefInfo * di = CGI->mh->ttiles[node.x][node.y][node.z].tileInfo->visitableObjects[b]->defInfo;
+						if( (i == node.x-1 && j == node.y-1) && !(di->visitDir & (1<<0)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x && j == node.y-1) && !(di->visitDir & (1<<1)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x+1 && j == node.y-1) && !(di->visitDir & (1<<2)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x+1 && j == node.y) && !(di->visitDir & (1<<3)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x+1 && j == node.y+1) && !(di->visitDir & (1<<4)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x && j == node.y+1) && !(di->visitDir & (1<<5)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x-1 && j == node.y+1) && !(di->visitDir & (1<<6)) )
+						{
+							pass = false; break;
+						}
+						if( (i == node.x-1 && j == node.y) && !(di->visitDir & (1<<7)) )
+						{
+							pass = false; break;
+						}
+					}
+					if(pass)
+					{
+						vector<Coordinate> toAdd = *branch;
+						toAdd.push_back(c);
+						Open.push(toAdd);
+					}
 				}
 				//delete c;
 			}

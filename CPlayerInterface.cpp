@@ -1519,6 +1519,16 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 	}
+
+	//restoring good order of objects
+	std::stable_sort(CGI->mh->ttiles[details.dst.x-2][details.dst.y-1][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-2][details.dst.y-1][details.dst.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.dst.x-1][details.dst.y-1][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-1][details.dst.y-1][details.dst.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.dst.x][details.dst.y-1][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x][details.dst.y-1][details.dst.z].objects.end(), ocmptwo_cgin);
+
+	std::stable_sort(CGI->mh->ttiles[details.dst.x-2][details.dst.y][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-2][details.dst.y][details.dst.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.dst.x-1][details.dst.y][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-1][details.dst.y][details.dst.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.dst.x][details.dst.y][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x][details.dst.y][details.dst.z].objects.end(), ocmptwo_cgin);
+
 	ho->isStanding = true;
 	//move finished
 	adventureInt->minimap.draw();

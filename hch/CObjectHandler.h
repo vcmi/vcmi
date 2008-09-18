@@ -91,7 +91,7 @@ public:
 	int portrait; //may be custom
 	int mana; // remaining spell points
 	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
-	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (0 - basic, 1 - adv., 2 - expert)
+	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	int movement; //remaining movement points
 	int identifier; //from the map file
 	bool sex;

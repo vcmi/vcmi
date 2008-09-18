@@ -211,7 +211,7 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 			for(int i=0;i<SKILL_QUANTITY;i++) none.insert(i);
 			for(unsigned i=0;i<hero->secSkills.size();i++)
 			{
-				if(hero->secSkills[i].second < 2)
+				if(hero->secSkills[i].second < 3)
 					basicAndAdv.insert(hero->secSkills[i].first);
 				else
 					expert.insert(hero->secSkills[i].first);
