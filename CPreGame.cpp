@@ -1009,7 +1009,7 @@ void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 			else break;
 		}
 		gzclose(tempf);
-		if(iii<50) {log3<<"\t\tWarning: corrupted map file: "<<pliczkiTemp[pom]<<std::endl; continue;}
+		if(iii<50) {_log3<<"\t\tWarning: corrupted map file: "<<pliczkiTemp[pom]<<std::endl; continue;}
 		if (!sss[4]) continue; //nie ma graczy? mapa niegrywalna //ju¿ to kiedyœ komentowa³em- - to bzdura //tu calkiem pasuje...
 		CMapInfo mi(pliczkiTemp[pom],sss);
 		mx.lock();
@@ -1393,19 +1393,19 @@ CPreGame::CPreGame()
 	preth = new CPreGameTextHandler;
 	preth->loadTexts();
 	CGI->preth=preth;
-	log0<<"\tCPreGame: loading txts: "<<tmh.getDif()<<std::endl;
+	_log0<<"\tCPreGame: loading txts: "<<tmh.getDif()<<std::endl;
 	currentMessage=NULL;
 	behindCurMes=NULL;
 	initMainMenu();
-	log0<<"\tCPreGame: main menu initialization: "<<tmh.getDif()<<std::endl;
+	_log0<<"\tCPreGame: main menu initialization: "<<tmh.getDif()<<std::endl;
 	initNewMenu();
-	log0<<"\tCPreGame: newgame menu initialization: "<<tmh.getDif()<<std::endl;
+	_log0<<"\tCPreGame: newgame menu initialization: "<<tmh.getDif()<<std::endl;
 	initScenSel();
-	log0<<"\tCPreGame: scenario choice initialization: "<<tmh.getDif()<<std::endl;
+	_log0<<"\tCPreGame: scenario choice initialization: "<<tmh.getDif()<<std::endl;
 	initOptions();
-	log0<<"\tCPreGame: scenario options initialization: "<<tmh.getDif()<<std::endl;
+	_log0<<"\tCPreGame: scenario options initialization: "<<tmh.getDif()<<std::endl;
 	showMainMenu();
-	log0<<"\tCPreGame: displaying main menu: "<<tmh.getDif()<<std::endl;
+	_log0<<"\tCPreGame: displaying main menu: "<<tmh.getDif()<<std::endl;
 	CPG=this;
 	playerName="Player";
 }

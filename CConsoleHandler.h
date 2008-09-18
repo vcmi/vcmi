@@ -1,5 +1,16 @@
 #ifndef CCONSOLEHANDLER_H
 #define CCONSOLEHANDLER_H
+
+#ifndef _WIN32
+#define WORD std::string
+#endif
+
+#ifndef _WIN32
+#define	_kill_thread(a,b) pthread_cancel(a);
+#else
+#define _kill_thread(a,b) TerminateThread(a,b);
+#endif
+
 namespace boost
 {
 	template<typename signature>
@@ -14,7 +25,11 @@ public:
 	void setColor(int level);
 	CConsoleHandler();
 	~CConsoleHandler();
+#ifndef _WIN32
+	static void killConsole(pthread_t hThread); //for windows only, use native handle to the thread
+#else
 	static void killConsole(void *hThread); //for windows only, use native handle to the thread
+#endif
 	template<typename T> void print(const T &data, int level)
 	{
 		setColor(level);

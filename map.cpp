@@ -448,25 +448,25 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	th.getDif();
 	int i=0;
 	readHeader(bufor, i);
-	log0<<"\tReading header: "<<th.getDif()<<std::endl;
+	_log0<<"\tReading header: "<<th.getDif()<<std::endl;
 
 	readRumors(bufor, i);
-	log0<<"\tReading rumors: "<<th.getDif()<<std::endl;
+	_log0<<"\tReading rumors: "<<th.getDif()<<std::endl;
 
 	readPredefinedHeroes(bufor, i);
-	log0<<"\tReading predefined heroes: "<<th.getDif()<<std::endl;
+	_log0<<"\tReading predefined heroes: "<<th.getDif()<<std::endl;
 
 	readTerrain(bufor, i);
-	log0<<"\tReading terrain: "<<th.getDif()<<std::endl;
+	_log0<<"\tReading terrain: "<<th.getDif()<<std::endl;
 
 	readDefInfo(bufor, i);
-	log0<<"\tReading defs info: "<<th.getDif()<<std::endl;
+	_log0<<"\tReading defs info: "<<th.getDif()<<std::endl;
 
 	readObjects(bufor, i);
-	log0<<"\tReading objects: "<<th.getDif()<<std::endl;
+	_log0<<"\tReading objects: "<<th.getDif()<<std::endl;
 	
 	readEvents(bufor, i);
-	log0<<"\tReading events: "<<th.getDif()<<std::endl;
+	_log0<<"\tReading events: "<<th.getDif()<<std::endl;
 
 	//map readed, bufor no longer needed
 	delete[] bufor; bufor=NULL;
@@ -478,7 +478,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 			continue;
 		addBlockVisTiles(objects[f]);
 	}
-	log0<<"\tCalculating blocked/visitable tiles: "<<th.getDif()<<std::endl;
+	_log0<<"\tCalculating blocked/visitable tiles: "<<th.getDif()<<std::endl;
 }	
 void Mapa::removeBlockVisTiles(CGObjectInstance * obj)
 {
@@ -534,7 +534,7 @@ void Mapa::addBlockVisTiles(CGObjectInstance * obj)
 }
 Mapa::Mapa(std::string filename)
 {
-	log0<<"Opening map file: "<<filename<<"\t "<<std::flush;
+	_log0<<"Opening map file: "<<filename<<"\t "<<std::flush;
 	gzFile map = gzopen(filename.c_str(),"rb");
 	std::vector<unsigned char> mapstr; int pom;
 	while((pom=gzgetc(map))>=0)
@@ -547,11 +547,11 @@ Mapa::Mapa(std::string filename)
 	{
 		initTable[ss] = mapstr[ss];
 	}
-	log0<<"done."<<std::endl;
+	_log0<<"done."<<std::endl;
 	boost::crc_32_type  result;
 	result.process_bytes(initTable,mapstr.size());
 	checksum = result.checksum();
-	log0 << "\tOur map checksum: "<<result.checksum() << std::endl;
+	_log0 << "\tOur map checksum: "<<result.checksum() << std::endl;
 	initFromBytes(initTable);
 }
 

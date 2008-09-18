@@ -17,16 +17,16 @@
 #include <boost/algorithm/string.hpp>
 #include "boost/function.hpp"
 #include <boost/thread.hpp>
-#ifdef _MSC_VER
+
+#ifdef _WIN32
 #include <windows.h>
 HANDLE handleIn;
 HANDLE handleOut;
-WORD defColor;
 #endif
+WORD defColor;
 
 void CConsoleHandler::setColor(int level)
 {
-#ifdef _MSC_VER
 	WORD color;
 	switch(level)
 	{
@@ -34,28 +34,55 @@ void CConsoleHandler::setColor(int level)
 		color = defColor;
 		break;
 	case 0:
+#ifdef _WIN32
 		color = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+#else
+		color = "\x1b[1;40;32m";
+#endif
 		break;
 	case 1:
+#ifdef _WIN32
 		color = FOREGROUND_RED | FOREGROUND_INTENSITY;
+#else
+		color = "\x1b[1;40;31m";
+#endif
 		break;
 	case 2:
+#ifdef _WIN32
 		color = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+#else
+		color = "\x1b[1;40;35m";
+#endif
 		break;
 	case 3:
+#ifdef _WIN32
 		color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
+#else
+		color = "\x1b[1;40;32m";
+#endif
 		break;
 	case 4:
+#ifdef _WIN32
 		color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
+#else
+		color = "\x1b[1;40;39m";
+#endif
 		break;
 	case 5:
+#ifdef _WIN32
 		color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+#else
+		color = "\x1b[0;40;39m";
+#endif
 		break;
 	default:
 		color = defColor;
 		break;
 	}
+#ifdef _WIN32
 	SetConsoleTextAttribute(handleOut,color);
+#else
+	std::cout << color;
 #endif
 }
 
@@ -73,12 +100,14 @@ int CConsoleHandler::run()
 }
 CConsoleHandler::CConsoleHandler()
 {
-#ifdef _MSC_VER
+#ifdef _WIN32
 	handleIn = GetStdHandle(STD_INPUT_HANDLE);
 	handleOut = GetStdHandle(STD_OUTPUT_HANDLE);
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(handleOut,&csbi);
 	defColor = csbi.wAttributes;
+#else
+	defColor = "\x1b[0m";
 #endif
 	cb = new boost::function<void(const std::string &)>;
 }
@@ -86,11 +115,13 @@ CConsoleHandler::~CConsoleHandler()
 {
 	delete cb;
 }
+#ifndef _WIN32
+void CConsoleHandler::killConsole(pthread_t hThread)
+#else
 void CConsoleHandler::killConsole(void *hThread)
-{
-#ifdef _MSC_VER
-	log3 << "Killing console... ";
-	TerminateThread(hThread,0);
-	log3 << "done!\n";
 #endif
+{
+	_log3 << "Killing console... ";
+	_kill_thread(hThread,0);
+	_log3 << "done!\n";
 }

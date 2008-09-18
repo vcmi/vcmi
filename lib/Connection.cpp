@@ -46,27 +46,27 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
     tcp::resolver::iterator end, pom, endpoint_iterator = resolver.resolve(tcp::resolver::query(host,port),error);
 	if(error)
 	{
-		log1 << "Problem with resolving: " << std::endl << error <<std::endl;
+		_log1 << "Problem with resolving: " << std::endl << error <<std::endl;
 		goto connerror1;
 	}
 	pom = endpoint_iterator;
 	if(pom != end)
-		log0<<"Found endpoints:" << std::endl;
+		_log0<<"Found endpoints:" << std::endl;
 	else
 	{
-		log1 << "Critical problem: No endpoints found!" << std::endl;
+		_log1 << "Critical problem: No endpoints found!" << std::endl;
 		goto connerror1;
 	}
 	i=0;
 	while(pom != end)
 	{
-		log0 << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;
+		_log0 << "\t" << i << ": " << (boost::asio::ip::tcp::endpoint&)*pom << std::endl;
 		pom++;
 	}
 	i=0;
 	while(endpoint_iterator != end)
 	{
-		log0 << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")" << std::endl;
+		_log0 << "Trying connection to " << (boost::asio::ip::tcp::endpoint&)*endpoint_iterator << "  (" << i++ << ")" << std::endl;
 		socket->connect(*endpoint_iterator, error);
 		if(!error)
 		{
@@ -75,18 +75,18 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
 		}
 		else
 		{
-			log1 << "Problem with connecting: " << std::endl <<  error << std::endl;
+			_log1 << "Problem with connecting: " << std::endl <<  error << std::endl;
 		}
 		endpoint_iterator++;
 	}
 
 	//we shouldn't be here - error handling
 connerror1:
-	log1 << "Something went wrong... checking for error info" << std::endl;
+	_log1 << "Something went wrong... checking for error info" << std::endl;
 	if(error)
 		std::cout << error <<std::endl;
 	else
-		log1 << "No error info. " << std::endl;
+		_log1 << "No error info. " << std::endl;
 	delete io_service;
 	//delete socket;	
 	throw std::string("Can't establish connection :(");

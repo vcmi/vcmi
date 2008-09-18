@@ -218,32 +218,32 @@ public:
 	}
 };
 
-extern CLogger<0> log0; //green - standard progress info
-extern CLogger<1> log1; //red - big errors
-extern CLogger<2> log2; //magenta - major warnings
-extern CLogger<3> log3; //yellow - minor warnings
-extern CLogger<4> log4; //white - detailed log info
-extern CLogger<5> log5; //gray - minor log info
+extern CLogger<0> _log0; //green - standard progress info
+extern CLogger<1> _log1; //red - big errors
+extern CLogger<2> _log2; //magenta - major warnings
+extern CLogger<3> _log3; //yellow - minor warnings
+extern CLogger<4> _log4; //white - detailed log info
+extern CLogger<5> _log5; //gray - minor log info
 
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\
-	log1 << e.what() << std::endl;	\
+	_log1 << e.what() << std::endl;	\
 	}									\
 	catch (const std::exception * e)	\
 	{									\
-		log1 << e->what()<< std::endl;	\
+		_log1 << e->what()<< std::endl;	\
 		delete e;						\
 	}
 
 #define HANDLE_EXCEPTIONC(COMMAND)  \
 	catch (const std::exception& e) {	\
 	COMMAND;							\
-	log1 << e.what() << std::endl;	\
+	_log1 << e.what() << std::endl;	\
 	}									\
 	catch (const std::exception * e)	\
 	{									\
 		COMMAND;						\
-		log1 << e->what()<< std::endl;	\
+		_log1 << e->what()<< std::endl;	\
 		delete e;						\
 	}
 

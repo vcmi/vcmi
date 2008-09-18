@@ -14,7 +14,6 @@ vcmiclient_SOURCES =  \
 ./CBitmapHandler.cpp \
 ../CCallback.cpp \
 ../CCastleInterface.cpp \
-../CConsoleHandler.cpp \
 ./CCreatureAnimation.cpp \
 ../CCursorHandler.cpp \
 ../hch/CDefHandler.cpp \
@@ -49,7 +48,6 @@ vcmiclient_SOURCES =  \
 ../hch/CBuildingHandler.h \
 ../CCallback.h \
 ../CCastleInterface.h \
-../CConsoleHandler.h \
 ./CCreatureAnimation.h \
 ../hch/CCreatureHandler.h \
 ../CCursorHandler.h \

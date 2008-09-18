@@ -101,7 +101,7 @@ CClient::CClient(CConnection *con, StartInfo *si)
 {		
 	timeHandler tmh;
 	CGI->state = new CGameState();
-	log0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
+	_log0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
 	CConnection &c(*con);
 ////////////////////////////////////////////////////
 	ui8 pom8;
@@ -116,34 +116,34 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	ui32 seed, sum;
 	std::string mapname;
 	c >> mapname >> sum >> seed;
-	log0 <<"\tSending/Getting info to/from the server: "<<tmh.getDif()<<std::endl;
+	_log0 <<"\tSending/Getting info to/from the server: "<<tmh.getDif()<<std::endl;
 
 	Mapa * mapa = new Mapa(mapname);
-	log0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
-	log0 << "\tServer checksum for "<<mapname <<": "<<sum << std::endl;
-	log0 << "\tOur checksum for the map: "<< mapa->checksum << std::endl;
+	_log0 <<"Reading and detecting map file (together): "<<tmh.getDif()<<std::endl;
+	_log0 << "\tServer checksum for "<<mapname <<": "<<sum << std::endl;
+	_log0 << "\tOur checksum for the map: "<< mapa->checksum << std::endl;
 
 	if(mapa->checksum != sum)
 	{
-		log1 << "Wrong map checksum!!!" << std::endl;
+		_log1 << "Wrong map checksum!!!" << std::endl;
 #ifndef __GNUC__
 		throw std::exception("Wrong checksum");
 #else
 		throw std::exception();
 #endif
 	}
-	log0 << "\tUsing random seed: "<<seed << std::endl;
+	_log0 << "\tUsing random seed: "<<seed << std::endl;
 
 	gs = CGI->state;
 	gs->scenarioOps = si;
 	gs->init(si,mapa,seed);
 
 	CGI->mh = new CMapHandler();
-	log0 <<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
+	_log0 <<"Initializing GameState (together): "<<tmh.getDif()<<std::endl;
 	CGI->mh->map = mapa;
-	log0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
+	_log0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 	CGI->mh->init();
-	log0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
+	_log0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
 	for (int i=0; i<CGI->state->scenarioOps->playerInfos.size();i++) //initializing interfaces
 	{ 
@@ -173,7 +173,7 @@ void CClient::process(int what)
 		{
 			ui8 player;
 			*serv >> player;//who?
-			log5 << "It's turn of "<<(unsigned)player<<" player."<<std::endl;
+			_log5 << "It's turn of "<<(unsigned)player<<" player."<<std::endl;
 			boost::thread(boost::bind(&CGameInterface::yourTurn,playerint[player]));
 			break;
 		}
@@ -181,16 +181,16 @@ void CClient::process(int what)
 		{
 			NewTurn n;
 			*serv >> n;
-			log5 << "New day: "<<(unsigned)n.day<<". Applying changes... ";
+			_log5 << "New day: "<<(unsigned)n.day<<". Applying changes... ";
 			gs->apply(&n);
-			log5 << "done!"<<std::endl;
+			_log5 << "done!"<<std::endl;
 			break;
 		}
 	case 102: //set resource amount
 		{
 			SetResource sr;
 			*serv >> sr;
-			log5 << "Set amount of "<<CGI->objh->restypes[sr.resid] 
+			_log5 << "Set amount of "<<CGI->objh->restypes[sr.resid] 
 			  << " of player "<<(unsigned)sr.player <<" to "<<sr.val<<std::endl;
 			gs->apply(&sr);
 			playerint[sr.player]->receivedResource(sr.resid,sr.val);
@@ -211,7 +211,7 @@ void CClient::process(int what)
 		{
 			SetResources sr;
 			*serv >> sr;
-			log5 << "Set amount of resources of player "<<(unsigned)sr.player<<std::endl;
+			_log5 << "Set amount of resources of player "<<(unsigned)sr.player<<std::endl;
 			gs->apply(&sr);
 			playerint[sr.player]->receivedResource(-1,-1);
 			break;
@@ -220,7 +220,7 @@ void CClient::process(int what)
 		{
 			SetPrimSkill sps;
 			*serv >> sps;
-			log5 << "Changing hero primary skill"<<std::endl;
+			_log5 << "Changing hero primary skill"<<std::endl;
 			gs->apply(&sps);
 			playerint[gs->getHero(sps.id)->tempOwner]->heroPrimarySkillChanged(gs->getHero(sps.id),sps.which,sps.val);
 			break;
@@ -229,7 +229,7 @@ void CClient::process(int what)
 		{
 			SetSecSkill sr;
 			*serv >> sr;
-			log5 << "Changing hero secondary skill"<<std::endl;
+			_log5 << "Changing hero secondary skill"<<std::endl;
 			gs->apply(&sr);
 			//TODO? - maybe inform interfaces
 			break;
@@ -259,7 +259,7 @@ void CClient::process(int what)
 		{
 			ChangeSpells vc;
 			*serv >> vc;
-			log5 << "Changing spells of hero "<<vc.hid<<std::endl;
+			_log5 << "Changing spells of hero "<<vc.hid<<std::endl;
 			gs->apply(&vc);
 			break;
 		}
@@ -273,7 +273,7 @@ void CClient::process(int what)
 			if(obj->ID == 34)
 			{
 				CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
-				log5 << "Removing hero with id = "<<(unsigned)rh.id<<std::endl;
+				_log5 << "Removing hero with id = "<<(unsigned)rh.id<<std::endl;
 				playerint[h->tempOwner]->heroKilled(h);
 			}
 			break;
@@ -282,7 +282,7 @@ void CClient::process(int what)
 		{
 			TryMoveHero *th = new TryMoveHero; //will be deleted by callback after processing
 			*serv >> *th;
-			log5 << "HeroMove: id="<<th->id<<"\tResult: "<<(unsigned)th->result<<"\tPosition "<<th->end<<std::endl;
+			_log5 << "HeroMove: id="<<th->id<<"\tResult: "<<(unsigned)th->result<<"\tPosition "<<th->end<<std::endl;
 
 			gs->apply(th);
 			int player = gs->map->objects[th->id]->getOwner();
@@ -317,7 +317,7 @@ void CClient::process(int what)
 		{
 			SetGarrisons sg;
 			*serv >> sg;
-			log5 << "Setting garrisons." << std::endl;
+			_log5 << "Setting garrisons." << std::endl;
 			gs->apply(&sg);
 			for(std::map<ui32,CCreatureSet>::iterator i = sg.garrs.begin(); i!=sg.garrs.end(); i++)
 				playerint[gs->map->objects[i->first]->tempOwner]->garrisonChanged(gs->map->objects[i->first]);
@@ -336,7 +336,7 @@ void CClient::process(int what)
 			NewStructures ns;
 			*serv >> ns;
 			CGTownInstance *town = static_cast<CGTownInstance*>(gs->map->objects[ns.tid]);
-			log5 << "New structure(s) in " << ns.tid <<" " << town->name << " - " << *ns.bid.begin() << std::endl;
+			_log5 << "New structure(s) in " << ns.tid <<" " << town->name << " - " << *ns.bid.begin() << std::endl;
 			gs->apply(&ns);
 			BOOST_FOREACH(si32 bid, ns.bid)
 			{
@@ -356,7 +356,7 @@ void CClient::process(int what)
 		{
 			SetAvailableCreatures ns;
 			*serv >> ns;
-			log5 << "Setting available creatures in " << ns.tid << std::endl;
+			_log5 << "Setting available creatures in " << ns.tid << std::endl;
 			gs->apply(&ns);
 			CGTownInstance *t = gs->getTown(ns.tid);
 			if(vstd::contains(playerint,t->tempOwner))
@@ -367,7 +367,7 @@ void CClient::process(int what)
 		{
 			SetHeroesInTown inTown;
 			*serv >> inTown;
-			log5 << "Setting heroes in town " << inTown.tid << std::endl;
+			_log5 << "Setting heroes in town " << inTown.tid << std::endl;
 			gs->apply(&inTown);
 			CGTownInstance *t = gs->getTown(inTown.tid);
 			if(vstd::contains(playerint,t->tempOwner))
@@ -378,7 +378,7 @@ void CClient::process(int what)
 		{
 			SetHeroArtifacts sha;
 			*serv >> sha;
-			log5 << "Setting artifacts of hero " << sha.hid << std::endl;
+			_log5 << "Setting artifacts of hero " << sha.hid << std::endl;
 			gs->apply(&sha);
 			CGHeroInstance *t = gs->getHero(sha.hid);
 			if(vstd::contains(playerint,t->tempOwner))
@@ -389,7 +389,7 @@ void CClient::process(int what)
 		{
 			SetObjectProperty sop;
 			*serv >> sop;
-			log5 << "Setting " << (unsigned)sop.what << " property of " << sop.id <<" object to "<<sop.val<<std::endl;
+			_log5 << "Setting " << (unsigned)sop.what << " property of " << sop.id <<" object to "<<sop.val<<std::endl;
 			gs->apply(&sop);
 			break;
 		}
@@ -397,7 +397,7 @@ void CClient::process(int what)
 		{
 			SetHoverName shn;
 			*serv >> shn;
-			log5 << "Setting a name of " << shn.id <<" object to "<< toString(shn.name) <<std::endl;
+			_log5 << "Setting a name of " << shn.id <<" object to "<< toString(shn.name) <<std::endl;
 			gs->mx->lock();
 			gs->map->objects[shn.id]->hoverName = toString(shn.name);
 			gs->mx->unlock();
@@ -407,7 +407,7 @@ void CClient::process(int what)
 		{
 			HeroLevelUp  bs;
 			*serv >> bs;
-			log5 << "Hero levels up!" <<std::endl;
+			_log5 << "Hero levels up!" <<std::endl;
 			gs->apply(&bs);
 			CGHeroInstance *h = gs->getHero(bs.heroid);
 			if(vstd::contains(playerint,h->tempOwner))
@@ -421,7 +421,7 @@ void CClient::process(int what)
 		{
 			SelectionDialog sd;
 			*serv >> sd;
-			log5 << "Showing selection dialog " <<std::endl;
+			_log5 << "Showing selection dialog " <<std::endl;
 			std::vector<Component*> comps;
 			for(int i=0;i<sd.components.size();i++)
 				comps.push_back(&sd.components[i]);
@@ -433,7 +433,7 @@ void CClient::process(int what)
 		{
 			YesNoDialog ynd;
 			*serv >> ynd;
-			log5 << "Showing yes/no dialog " <<std::endl;
+			_log5 << "Showing yes/no dialog " <<std::endl;
 			std::vector<Component*> comps;
 			for(int i=0;i<ynd.components.size();i++)
 				comps.push_back(&ynd.components[i]);
@@ -445,7 +445,7 @@ void CClient::process(int what)
 		{
 			BattleStart bs;
 			*serv >> bs; //uses new to allocate memory for battleInfo - must be deleted when battle is over
-			log5 << "Starting battle!" <<std::endl;
+			_log5 << "Starting battle!" <<std::endl;
 			gs->apply(&bs);
 
 			if(playerint.find(gs->curB->side1) != playerint.end())
@@ -459,7 +459,7 @@ void CClient::process(int what)
 		{
 			BattleNextRound bnr;
 			*serv >> bnr;
-			log5 << "Round nr " << bnr.round <<std::endl;
+			_log5 << "Round nr " << bnr.round <<std::endl;
 			gs->apply(&bnr);
 
 			//tell players about next round
@@ -473,7 +473,7 @@ void CClient::process(int what)
 		{
 			BattleSetActiveStack sas;
 			*serv >> sas;
-			log5 << "Active stack: " << sas.stack <<std::endl;
+			_log5 << "Active stack: " << sas.stack <<std::endl;
 			gs->apply(&sas);
 			int owner = gs->curB->getStack(sas.stack)->owner;
 			if(owner >= PLAYER_LIMIT) //ugly workaround to skip neutral creatures - should be replaced with AI
@@ -493,7 +493,7 @@ void CClient::process(int what)
 		{
 			BattleResult br;
 			*serv >> br;
-			log5 << "Battle ends. Winner: " << (unsigned)br.winner<< ". Type of end: "<< (unsigned)br.result <<std::endl;
+			_log5 << "Battle ends. Winner: " << (unsigned)br.winner<< ". Type of end: "<< (unsigned)br.result <<std::endl;
 
 			if(playerint.find(gs->curB->side1) != playerint.end())
 				playerint[gs->curB->side1]->battleEnd(&br);
@@ -507,7 +507,7 @@ void CClient::process(int what)
 		{
 			BattleStackMoved br;
 			*serv >> br;
-			log5 << "Stack "<<br.stack <<" moves to the tile "<<br.tile<<std::endl;
+			_log5 << "Stack "<<br.stack <<" moves to the tile "<<br.tile<<std::endl;
 			if(playerint.find(gs->curB->side1) != playerint.end())
 				playerint[gs->curB->side1]->battleStackMoved(br.stack,br.tile,br.flags&1,br.flags&2);
 			if(playerint.find(gs->curB->side2) != playerint.end())
@@ -519,7 +519,7 @@ void CClient::process(int what)
 		{
 			BattleAttack ba;
 			*serv >> ba;
-			log5 << "Stack: " << ba.stackAttacking << " is attacking stack "<< ba.bsa.stackAttacked <<std::endl;
+			_log5 << "Stack: " << ba.stackAttacking << " is attacking stack "<< ba.bsa.stackAttacked <<std::endl;
 			gs->apply(&ba);
 			LOCPLINT->battleAttack(&ba);
 			break;
@@ -543,7 +543,7 @@ void CClient::waitForMoveAndSend(int color)
 		*serv << ui16(3002) << ba;
 		return;
 	}HANDLE_EXCEPTION
-	log1 << "We should not be here!" << std::endl;
+	_log1 << "We should not be here!" << std::endl;
 }
 void CClient::run()
 {
@@ -560,10 +560,10 @@ void CClient::run()
 
 void CClient::close()
 {
-	log3 << "Connection has been requested to be closed.\n";
+	_log3 << "Connection has been requested to be closed.\n";
 	boost::unique_lock<boost::mutex>(*serv->wmx);
 	*serv << ui16(99);
-	log3 << "Sended closing signal to the server\n";
+	_log3 << "Sended closing signal to the server\n";
 	serv->close();
-	log3 << "Our socket has been closed.\n";
+	_log3 << "Our socket has been closed.\n";
 }

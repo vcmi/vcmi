@@ -16,6 +16,8 @@ libvcmi_a_SOURCES = \
 ../map.cpp \
 ../stdafx.cpp \
 ./VCMI_Lib.cpp \
+../hch/CSpellHandler.cpp \
+../CConsoleHandler.cpp \
 ../hch/CAmbarCendamo.h \
 ../hch/CArtHandler.h \
 ../hch/CBuildingHandler.h \
@@ -30,4 +32,4 @@ libvcmi_a_SOURCES = \
 ../map.h \
 ./NetPacks.h \
 ./VCMI_Lib.h \
-../hch/CSpellHandler.cpp
+../CConsoleHandler.h 

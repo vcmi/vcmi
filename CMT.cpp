@@ -51,14 +51,14 @@ extern SDL_Surface * CSDL_Ext::std32bppSurface;
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
-CLogger<0> log0;
-CLogger<1> log1;
-CLogger<2> log2;
-CLogger<3> log3;
-CLogger<4> log4;
-CLogger<5> log5;
-CConsoleHandler *console = NULL;
-std::ostream *logfile = NULL;
+extern CLogger<0> _log0;
+extern CLogger<1> _log1;
+extern CLogger<2> _log2;
+extern CLogger<3> _log3;
+extern CLogger<4> _log4;
+extern CLogger<5> _log5;
+extern CConsoleHandler *console;// = NULL;
+extern std::ostream *logfile;// = NULL;
 namespace intpr = boost::interprocess;
 void processCommand(const std::string &message);
 #ifndef __GNUC__
@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 		*::console->cb = &processCommand;
 		console = new boost::thread(boost::bind(&CConsoleHandler::run,::console));
 	}
-	log0 << "\tConsole and logifle ready!" << std::endl;
+	_log0 << "\tConsole and logifle ready!" << std::endl;
 	int port;
 	if(argc > 1)
 	{
@@ -92,10 +92,10 @@ int main(int argc, char** argv)
 	else
 	{
 		port = 3030;
-		log0 << "Port " << port << " will be used." << std::endl;
+		_log0 << "Port " << port << " will be used." << std::endl;
 	}
 	std::cout.flags(ios::unitbuf);
-	log0 << NAME << std::endl;
+	_log0 << NAME << std::endl;
 	srand ( time(NULL) );
 	CPG=NULL;
 	atexit(SDL_Quit);
@@ -104,13 +104,13 @@ int main(int argc, char** argv)
 	//luatest.test(); 
 		//CBIKHandler cb;
 		//cb.open("CSECRET.BIK");
-	log0 << "Starting... " << std::endl;
+	_log0 << "Starting... " << std::endl;
 	THC timeHandler tmh, total, pomtime;
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO)==0)
 	{
 		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);  //initializing important global surface
-		log0 <<"\tInitializing screen: "<<pomtime.getDif();
-			log0 << std::endl;
+		_log0 <<"\tInitializing screen: "<<pomtime.getDif();
+			_log0 << std::endl;
 		SDL_WM_SetCaption(NAME.c_str(),""); //set window title
 		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 			int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
@@ -118,7 +118,7 @@ int main(int argc, char** argv)
 			int rmask = 0x000000ff;	int gmask = 0x0000ff00;	int bmask = 0x00ff0000;	int amask = 0xff000000;
 		#endif
 		CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
-		log0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
+		_log0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
 		TTF_Init();
 		TNRB16 = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",16);
 		GEOR13 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",13);
@@ -126,18 +126,18 @@ int main(int argc, char** argv)
 		GEORXX = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",22);
 		GEORM = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",10);
 		atexit(TTF_Quit);
-		THC log0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
+		THC _log0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
 		CMusicHandler * mush = new CMusicHandler;  //initializing audio
 		mush->initMusics();
 		//audio initialized 
 		cgi->mush = mush;
-		THC log0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
-		THC log0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
+		THC _log0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
+		THC _log0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
 		cgi->spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
 		BitmapHandler::bitmaph = cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
-		THC log0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
+		THC _log0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph,::console,logfile);
 		CGI->arth = VLC->arth;
 		CGI->creh = VLC->creh;
@@ -147,7 +147,7 @@ int main(int argc, char** argv)
 		CGI->spellh = VLC->spellh;
 		CGI->dobjinfo = VLC->dobjinfo;
 		CGI->buildh = VLC->buildh;
-		log0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
+		_log0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		//cgi->curh->initCursor();
 		//cgi->curh->showGraphicCursor();
 		pomtime.getDif();
@@ -155,28 +155,28 @@ int main(int argc, char** argv)
 		cgi->curh->initCursor();
 		//cgi->screenh = new CScreenHandler;
 		//cgi->screenh->initScreen();
-		log0<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
+		_log0<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
-		log0<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
-		log0<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
+		_log0<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
+		_log0<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		graphics = new Graphics();
-		log0<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
+		_log0<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
 		std::vector<CDefHandler **> animacje;
 		for(std::vector<CHeroClass *>::iterator i = cgi->heroh->heroClasses.begin();i!=cgi->heroh->heroClasses.end();i++)
 			animacje.push_back(&((*i)->*(&CHeroClass::moveAnim)));
 		graphics->loadHeroAnim(animacje);
-		log0<<"\tHero animations: "<<tmh.getDif()<<std::endl;
-		log0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
+		_log0<<"\tHero animations: "<<tmh.getDif()<<std::endl;
+		_log0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
 		CMessage::init();
 		cgi->generaltexth = new CGeneralTextHandler;
 		cgi->generaltexth->load();
-		log0<<"Preparing more handlers: "<<tmh.getDif()<<std::endl;
+		_log0<<"Preparing more handlers: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
-		log0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
-		log0<<"Initialization of VCMI (togeter): "<<total.getDif()<<std::endl;
+		_log0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
+		_log0<<"Initialization of VCMI (togeter): "<<total.getDif()<<std::endl;
 		cpg->mush = mush;
 
 		StartInfo *options = new StartInfo(cpg->runLoop());
@@ -189,17 +189,17 @@ int main(int argc, char** argv)
 		ServerReady *sr = new(mr.get_address())ServerReady();
 		std::string comm = std::string(SERVER_NAME) + " " + portc + " > server_log.txt";
 		boost::thread servthr(boost::bind(system,comm.c_str())); //runs server executable; 	//TODO: will it work on non-windows platforms?
-		log0<<"Preparing shared memory and starting server: "<<tmh.getDif()<<std::endl;
+		_log0<<"Preparing shared memory and starting server: "<<tmh.getDif()<<std::endl;
 	///////////////////////////////////////////////////////////////////////////////////////
 		tmh.getDif();pomtime.getDif();//reset timers
 		cgi->pathf = new CPathfinder();
-		log0<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
-		log0<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
+		_log0<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
+		_log0<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
 		std::ofstream lll("client_log.txt");
 
 		CConnection *c=NULL;
 		//wait until server is ready
-		log0<<"Waiting for server... ";
+		_log0<<"Waiting for server... ";
 		{
 			intpr::scoped_lock<intpr::interprocess_mutex> slock(sr->mutex);
 			while(!sr->ready)
@@ -208,21 +208,21 @@ int main(int argc, char** argv)
 			}
 		}
 		intpr::shared_memory_object::remove("vcmi_memory");
-		log0 << tmh.getDif()<<std::endl;
+		_log0 << tmh.getDif()<<std::endl;
 		while(!c)
 		{
 			try
 			{
-				log0 << "Establishing connection...\n";
+				_log0 << "Establishing connection...\n";
 				c = new CConnection("127.0.0.1",portc,NAME,lll);
 			}
 			catch(...)
 			{
-				log1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
+				_log1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
 				SDL_Delay(2000);
 			}
 		}
-		THC log0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
+		THC _log0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
 		CClient cl(c,options);
 		boost::thread t(boost::bind(&CClient::run,&cl));
 		SDL_Event ev;
@@ -232,9 +232,11 @@ int main(int argc, char** argv)
 			if(ev.type==SDL_QUIT) 
 			{
 				cl.close();
+#ifndef __unix__
 				::console->killConsole(console->native_handle());
+#endif
 				SDL_Delay(750);
-				log0 << "Ending...\n";
+				_log0 << "Ending...\n";
 				exit(0);
 			}
 			eventsM.lock();
@@ -244,7 +246,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		log1<<"Something was wrong: "<<SDL_GetError()<<std::endl;
+		_log1<<"Something was wrong: "<<SDL_GetError()<<std::endl;
 		return -1;
 	}
 }
@@ -282,10 +284,10 @@ void processCommand(const std::string &message)
 	else if(message=="get txt")
 	{
 		boost::filesystem::create_directory("Extracted_txts");
-		log0<<"Command accepted. Opening .lod file...\t";
+		_log0<<"Command accepted. Opening .lod file...\t";
 		CLodHandler * txth = new CLodHandler;
 		txth->init(std::string(DATA_DIR "Data" PATHSEPARATOR "H3bitmap.lod"),"data");
-		log0<<"done.\nScanning .lod file\n";
+		_log0<<"done.\nScanning .lod file\n";
 		int curp=0;
 		std::string pattern = ".TXT";
 		for(int i=0;i<txth->entries.size(); i++)
@@ -300,9 +302,9 @@ void processCommand(const std::string &message)
 			if(p2!=curp)
 			{
 				curp = p2;
-				log0<<"\r"<<curp<<"%";
+				_log0<<"\r"<<curp<<"%";
 			}
 		}
-		log0<<"\rExtracting done :)\n";
+		_log0<<"\rExtracting done :)\n";
 	}
 }
