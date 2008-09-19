@@ -145,7 +145,7 @@ bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int new
 }
 void CCallback::endTurn()
 {
-	std::cout << "Player "<<(unsigned)player<<" end his turn."<<std::endl;
+	tlog5 << "Player "<<(unsigned)player<<" end his turn."<<std::endl;
 	cl->serv->wmx->lock();
 	*cl->serv << ui16(100); //report that we ended turn
 	cl->serv->wmx->unlock();

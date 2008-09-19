@@ -301,7 +301,7 @@ void CTerrainRect::clickLeft(tribool down)
 	{
 		if (currentPath)
 		{
-			std::cout<<"Warning: Lost path?" << std::endl;
+			tlog2<<"Warning: Lost path?" << std::endl;
 			delete currentPath;
 			currentPath = NULL;
 		}

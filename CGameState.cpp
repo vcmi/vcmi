@@ -75,7 +75,7 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	nobj->ID = id;
 	nobj->subID = subid;
 	if(!nobj->defInfo)
-		std::cout <<"No def declaration for " <<id <<" "<<subid<<std::endl;
+		tlog3 <<"No def declaration for " <<id <<" "<<subid<<std::endl;
 	nobj->pos = pos;
 	//nobj->state = NULL;//new CLuaObjectScript();
 	nobj->tempOwner = owner;
@@ -602,7 +602,7 @@ int CGameState::pickHero(int owner)
 	} while( map->getHero(h)  &&  i<175);
 	if(i>174) //probably no free heroes - there's no point in further search, we'll take first free
 	{
-		std::cout << "Warning: cannot find free hero - trying to get first available..."<<std::endl;
+		tlog3 << "Warning: cannot find free hero - trying to get first available..."<<std::endl;
 		for(int j=0; j<HEROES_PER_TYPE * 2 * F_NUMBER; j++)
 			if(!map->getHero(j))
 				h=j;
@@ -717,7 +717,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 			for(int i=0;i<VLC->objh->cregens.size();i++)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
-			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
+			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
 			return std::pair<int,int>(17,0); 
 		}
 	case 217:
@@ -754,7 +754,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 			for(int i=0;i<VLC->objh->cregens.size();i++)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
-			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
+			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
 			return std::pair<int,int>(17,0); 
 		}
 	case 218:
@@ -765,7 +765,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 			for(int i=0;i<VLC->objh->cregens.size();i++)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
-			std::cout << "Cannot find a dwelling for creature "<<cid <<std::endl;
+			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
 			return std::pair<int,int>(17,0); 
 		}
 	}
@@ -791,7 +791,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	else if(ran.first==34)//special code for hero
 	{
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
-		if(!h) {std::cout<<"Wrong random hero at "<<cur->pos<<std::endl; return;}
+		if(!h) {tlog2<<"Wrong random hero at "<<cur->pos<<std::endl; return;}
 		cur->ID = ran.first;
 		h->portrait = cur->subID = ran.second;
 		h->type = VLC->heroh->heroes[ran.second];
@@ -801,7 +801,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	else if(ran.first==98)//special code for town
 	{
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
-		if(!t) {std::cout<<"Wrong random town at "<<cur->pos<<std::endl; return;}
+		if(!t) {tlog2<<"Wrong random town at "<<cur->pos<<std::endl; return;}
 		cur->ID = ran.first;
 		cur->subID = ran.second;
 		t->town = &VLC->townh->towns[ran.second];
@@ -820,7 +820,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	map->defs.insert(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
 	if(!cur->defInfo)
 	{
-		std::cout<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
+		tlog1<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
 		return;
 	}
 }
@@ -1099,7 +1099,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			{
 				if(!k->second.heroes.size())
 				{
-					std::cout << "Cannot give starting artifact - no heroes!" << std::endl;
+					tlog5 << "Cannot give starting artifact - no heroes!" << std::endl;
 					break;
 				}
 				CArtifact *toGive;

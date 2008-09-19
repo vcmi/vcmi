@@ -44,7 +44,7 @@ std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 		}
 		else
 		{
-			std::cout<<"Conversion warning: unknown building "<<*i<<" in castle "<<castleID<<std::endl;
+			tlog3<<"Conversion warning: unknown building "<<*i<<" in castle "<<castleID<<std::endl;
 		}
 	}
 

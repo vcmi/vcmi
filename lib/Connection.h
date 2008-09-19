@@ -237,7 +237,7 @@ public:
 	template <typename T>
 	void loadPointer(T &data)
 	{
-		std::cout<<"Allocating memory for pointer!"<<std::endl;
+		tlog5<<"Allocating memory for pointer!"<<std::endl;
 		typedef typename boost::remove_pointer<T>::type npT;
 		data = new npT;
 		*this >> *data;

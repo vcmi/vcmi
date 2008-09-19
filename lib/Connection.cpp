@@ -84,7 +84,7 @@ CConnection::CConnection(std::string host, std::string port, std::string Name, s
 connerror1:
 	tlog1 << "Something went wrong... checking for error info" << std::endl;
 	if(error)
-		std::cout << error <<std::endl;
+		tlog1 << error <<std::endl;
 	else
 		tlog1 << "No error info. " << std::endl;
 	delete io_service;
@@ -107,7 +107,7 @@ CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp
 	acceptor->accept(*socket,error);
 	if (error)
 	{ 
-		std::cout << "Error on accepting: " << std::endl << error << std::endl;
+		tlog1 << "Error on accepting: " << std::endl << error << std::endl;
 		delete socket;	
 		throw "Can't establish connection :("; 
 	}

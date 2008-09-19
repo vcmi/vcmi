@@ -277,7 +277,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	Entry *e = bitmaph->entries.znajdz(fname);
 	if(!e)
 	{
-		std::cout<<"File "<<fname<<" not found"<<std::endl;
+		tlog2<<"File "<<fname<<" not found"<<std::endl;
 		return NULL;
 	}
 	if(e->offset<0)
@@ -339,7 +339,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 		int res=bitmaph->infs2(pcd,e->size,e->realSize,pcx);
 		if(res!=0)
 		{
-			std::cout<<"an error "<<res<<" occured while extracting file "<<fname<<std::endl;
+			tlog2<<"an error "<<res<<" occured while extracting file "<<fname<<std::endl;
 		}
 		delete [] pcd;
 	}

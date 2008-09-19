@@ -52,11 +52,11 @@ CBuildingRect::CBuildingRect(Structure *Str)
 	if (border = BitmapHandler::loadBitmap(str->borderName))
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
 	else
-		std::cout << "Warning: no border for "<<Str->ID<<std::endl;
+		tlog2 << "Warning: no border for "<<Str->ID<<std::endl;
 	if (area = BitmapHandler::loadBitmap(str->areaName))
 		;//SDL_SetColorKey(area,SDL_SRCCOLORKEY,SDL_MapRGB(area->format,0,255,255));
 	else
-		std::cout << "Warning: no area for "<<Str->ID<<std::endl;
+		tlog2 << "Warning: no area for "<<Str->ID<<std::endl;
 }
 
 CBuildingRect::~CBuildingRect()
@@ -460,7 +460,7 @@ void CCastleInterface::splitF()
 }
 void CCastleInterface::buildingClicked(int building)
 {
-	std::cout<<"You've clicked on "<<building<<std::endl;
+	tlog5<<"You've clicked on "<<building<<std::endl;
 	if(building==19 || building==18)
 	{
 		building = town->town->hordeLvl[0] + 30;
@@ -547,7 +547,7 @@ void CCastleInterface::buildingClicked(int building)
 				break;
 			}
 		default:
-			std::cout<<"This building isn't handled...\n";
+			tlog4<<"This building isn't handled...\n";
 		}
 	}
 }

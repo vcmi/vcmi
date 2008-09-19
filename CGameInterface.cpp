@@ -33,7 +33,7 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	HINSTANCE dll = LoadLibraryA(dllname.c_str());
 	if (!dll)
 	{
-		std::cout << "Cannot open AI library ("<<dllname<<"). Throwing..."<<std::endl;
+		tlog1 << "Cannot open AI library ("<<dllname<<"). Throwing..."<<std::endl;
 	#ifdef _MSC_VER
 		throw new std::exception("Cannot open AI library");
 	#endif
@@ -49,7 +49,7 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 #if _WIN32
 	getName(temp);
 #endif
-	std::cout << "Loaded .dll with AI named " << temp << std::endl;
+	tlog0 << "Loaded .dll with AI named " << temp << std::endl;
 	delete temp;
 #if _WIN32
 	ret = getAI();

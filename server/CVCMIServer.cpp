@@ -33,7 +33,7 @@ void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code *error
 CVCMIServer::CVCMIServer()
 : io(new io_service()), acceptor(new tcp::acceptor(*io, tcp::endpoint(tcp::v4(), port)))
 {
-	std::cout << "CVCMIServer created!" <<std::endl;
+	tlog4 << "CVCMIServer created!" <<std::endl;
 }
 CVCMIServer::~CVCMIServer()
 {
@@ -83,7 +83,7 @@ void CVCMIServer::newGame(CConnection *c)
 			acceptor->accept(*s,error);
 			if(error) //retry
 			{
-				std::cout<<"Cannot establish connection - retrying..." << std::endl;
+				tlog3<<"Cannot establish connection - retrying..." << std::endl;
 				i--;
 				continue;
 			}
@@ -113,7 +113,7 @@ void CVCMIServer::start()
 	}
 
 	boost::system::error_code error;
-	std::cout<<"Listening for connections at port " << acceptor->local_endpoint().port() << std::endl;
+	tlog0<<"Listening for connections at port " << acceptor->local_endpoint().port() << std::endl;
 	tcp::socket * s = new tcp::socket(acceptor->io_service());
 	boost::thread acc(boost::bind(vaccept,acceptor,s,&error));
 	sr->setToTrueAndNotify();
@@ -121,12 +121,12 @@ void CVCMIServer::start()
 	acc.join();
 	if (error)
 	{
-		std::cout<<"Got connection but there is an error " << std::endl << error;
+		tlog2<<"Got connection but there is an error " << std::endl << error;
 		return;
 	}
-	std::cout<<"We've accepted someone... " << std::endl;
+	tlog0<<"We've accepted someone... " << std::endl;
 	CConnection *connection = new CConnection(s,NAME,std::cout);
-	std::cout<<"Got connection!" << std::endl;
+	tlog0<<"Got connection!" << std::endl;
 	while(!end2)
 	{
 		uint8_t mode;
@@ -165,7 +165,7 @@ int main(int argc, char** argv)
 		port = _ttoi(argv[1]);
 #endif
 	}
-	std::cout << "Port " << port << " will be used." << std::endl;
+	tlog0 << "Port " << port << " will be used." << std::endl;
 	CLodHandler h3bmp;
 	h3bmp.init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
 	initDLL(&h3bmp,console,logfile);

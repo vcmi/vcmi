@@ -1872,9 +1872,13 @@ StartInfo CPreGame::runLoop()
 				else if (sEvent.type==SDL_KEYDOWN)
 				{
 					if (sEvent.key.keysym.sym==SDLK_q)
-						{
-							exit(0);
-						}
+					{
+						exit(0);
+					}
+					if(sEvent.key.keysym.sym==SDLK_F4 && (sEvent.key.keysym.mod & KMOD_LALT)) //Alt+F4
+					{
+						exit(0);
+					}
 					/*if (state==EState::newGame)
 					{
 						switch (sEvent.key.keysym.sym)

@@ -184,7 +184,7 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 		if(hero->exp >= VLC->heroh->reqExp(hero->level+1)) //new level
 		{
 			//give prim skill
-			std::cout << hero->name <<" got level "<<hero->level<<std::endl;
+			tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
 			int r = rand()%100, pom=0, x=0;
 			int std::pair<int,int>::*g  =  (hero->level>9) ? (&std::pair<int,int>::second) : (&std::pair<int,int>::first);
 			for(;x<PRIMARY_SKILLS;x++)
@@ -193,7 +193,7 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 				if(r<pom)
 					break;
 			}
-			std::cout << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
+			tlog5 << "Bohater dostaje umiejetnosc pierwszorzedna " << x << " (wynik losowania "<<r<<")"<<std::endl; 
 			SetPrimSkill sps;
 			sps.id = ID;
 			sps.which = x;
@@ -750,7 +750,7 @@ upgend:
 					}
 					else
 					{
-						std::cout << "Warning, wrong garrison swap command for " << tid << std::endl;
+						tlog3 << "Warning, wrong garrison swap command for " << tid << std::endl;
 					}
 					break;
 				}
@@ -1028,11 +1028,11 @@ CGameHandler::~CGameHandler(void)
 void CGameHandler::init(StartInfo *si, int Seed)
 {
 	Mapa *map = new Mapa(si->mapname);
-	std::cout << "Map loaded!" << std::endl;
+	tlog0 << "Map loaded!" << std::endl;
 	gs = new CGameState();
-	std::cout << "Gamestate created!" << std::endl;
+	tlog0 << "Gamestate created!" << std::endl;
 	gs->init(si,map,Seed);	
-	std::cout << "Gamestate initialized!" << std::endl;
+	tlog0 << "Gamestate initialized!" << std::endl;
 	/****************************LUA OBJECT SCRIPTS************************************************/
 	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
 	//for (int i=0; i<lf->size(); i++)

@@ -99,9 +99,9 @@ void CTownHandler::loadNames()
 					if((i2=(i->second.find(buildingID=atoi(s.c_str()))))!=(i->second.end()))
 						i2->second->pos.z=itr++;
 					else
-						std::cout << "Warning1: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
+						tlog3 << "Warning1: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
 				else
-					std::cout << "Warning1: Castle "<<castleID<<" not defined."<<std::endl;
+					tlog3 << "Warning1: Castle "<<castleID<<" not defined."<<std::endl;
 		}
 	}
 	of.close();
@@ -124,9 +124,9 @@ void CTownHandler::loadNames()
 				i2->second->areaName = area;
 			}
 			else
-				std::cout << "Warning2: No building "<<id<<" in the castle "<<town<<std::endl;
+				tlog3 << "Warning2: No building "<<id<<" in the castle "<<town<<std::endl;
 		else
-			std::cout << "Warning2: Castle "<<town<<" not defined."<<std::endl;
+			tlog3 << "Warning2: Castle "<<town<<" not defined."<<std::endl;
 
 	}
 	of.close();
@@ -138,7 +138,7 @@ void CTownHandler::loadNames()
 	of >> format;
 	if(format!=1)
 	{
-		std::cout << "Unhandled format of buildings4.txt \n";
+		tlog1 << "Unhandled format of buildings4.txt \n";
 	}
 	else
 	{
@@ -180,9 +180,9 @@ void CTownHandler::loadNames()
 								if((i2=(i->second.find(buildingID)))!=(i->second.end()))
 									i2->second->group = itr;
 								else
-									std::cout << "Warning3: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
+									tlog3 << "Warning3: No building "<<buildingID<<" in the castle "<<castleID<<std::endl;
 							else
-								std::cout << "Warning3: Castle "<<castleID<<" not defined."<<std::endl;
+								tlog3 << "Warning3: Castle "<<castleID<<" not defined."<<std::endl;
 						}
 						else //set group for selected building in ALL castles
 						{

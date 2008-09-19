@@ -81,8 +81,8 @@ void CGarrisonSlot::hover (bool on)
 				}
 				else
 				{
-					std::cout << "Warning - shouldn't be - highlighted void slot "<<owner->highlighted<<std::endl;
-					std::cout << "Highlighted set to NULL"<<std::endl;
+					tlog2 << "Warning - shouldn't be - highlighted void slot "<<owner->highlighted<<std::endl;
+					tlog2 << "Highlighted set to NULL"<<std::endl;
 					owner->highlighted = NULL;
 				}
 			}
@@ -1720,6 +1720,14 @@ void CPlayerInterface::handleKeyDown(SDL_Event *sEvent)
 		{
 			LOCPLINT->adventureInt->scrollingDown = true;
 			break;
+		}
+	case (SDLK_F4):
+		{
+			if(sEvent->key.keysym.mod & KMOD_LALT) //Alt+F4
+			{
+				exit(0);
+				break;
+			}
 		}
 	//case (SDLK_q):
 	//	{
