@@ -485,6 +485,14 @@ void CTerrainRect::showPath()
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y-1)
 			{
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 2;
+				}
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 3;
+				}
 				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
 				{
 					pn = 4;
@@ -496,6 +504,14 @@ void CTerrainRect::showPath()
 				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
 				{
 					pn = 22;
+				}
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 23;
+				}
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				{
+					pn = 24;
 				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y-1)
@@ -561,6 +577,14 @@ void CTerrainRect::showPath()
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1)
 			{
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 6;
+				}
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 7;
+				}
 				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
 				{
 					pn = 8;
@@ -572,6 +596,14 @@ void CTerrainRect::showPath()
 				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
 				{
 					pn = 18;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				{
+					pn = 19;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				{
+					pn = 20;
 				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y+1)

@@ -1273,7 +1273,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	positions.open("config" PATHSEPARATOR "battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
 	if(!positions.is_open())
 	{
-		tlog0<<"Unable to open battleStartpos.txt!"<<std::endl;
+		tlog1<<"Unable to open battleStartpos.txt!"<<std::endl;
 	}
 	std::string dump;
 	positions>>dump; positions>>dump;
