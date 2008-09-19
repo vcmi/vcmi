@@ -121,7 +121,7 @@ void CConsoleHandler::killConsole(pthread_t hThread)
 void CConsoleHandler::killConsole(void *hThread)
 #endif
 {
-	_log3 << "Killing console... ";
+	tlog3 << "Killing console... ";
 	_kill_thread(hThread,0);
-	_log3 << "done!\n";
+	tlog3 << "done!\n";
 }

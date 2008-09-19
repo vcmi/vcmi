@@ -588,8 +588,8 @@ void CCallback::trade( int mode, int id1, int id2, int val1 )
 	*cl->serv << ui16(511) << ui8(player) << ui32(mode)  << ui32(id1) << ui32(id2) << ui32(val1);
 }
 
-void CCallback::setFormation(const CGHeroInstance * hero, bool loose)
+void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 {
-	hero->looseFormation = loose;
-	*cl->serv << ui16(512) << hero->id << ui8(loose);
+	const_cast<CGHeroInstance*>(hero)->army.formation = tight;
+	*cl->serv << ui16(512) << hero->id << ui8(tight);
 }

@@ -564,10 +564,6 @@
 			RelativePath="..\ChangeLog"
 			>
 		</File>
-		<File
-			RelativePath=".\ttt.txt"
-			>
-		</File>
 	</Files>
 	<Globals>
 	</Globals>

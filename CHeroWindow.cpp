@@ -50,6 +50,8 @@ CHeroWindow::CHeroWindow(int playerColor):
 
 	gar1button = new CHighlightableButton(0,0,map_list_of(0,CGI->generaltexth->heroscrn[23]), CGI->generaltexth->heroscrn[29], false, "hsbtns6.def" , NULL,546, 491, false);
 	gar3button = new CHighlightableButton(0,0,map_list_of(0,CGI->generaltexth->heroscrn[24]), CGI->generaltexth->heroscrn[30], false,  "hsbtns7.def", NULL, 546, 527, false);
+	gar1button->onlyOn = gar3button->onlyOn = true;
+
 	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 604, 491, false);
 	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), 604, 527, "hsbtns9.def", false, NULL, false);
 	boost::algorithm::replace_first(gar4button->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
@@ -311,17 +313,15 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		gar2button->callback2 = vstd::assigno(hero->tacticFormationEnabled,false);
 	}
 	gar1button->callback.clear();
-	gar1button->callback = vstd::assigno(hero->looseFormation,true);
 	gar1button->callback += boost::bind(&CHighlightableButton::select, gar3button, false);
-	gar1button->callback += boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, true);
+	gar1button->callback += boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, false);
 	gar3button->callback.clear();
-	gar3button->callback = vstd::assigno(hero->looseFormation,false);
 	gar3button->callback += boost::bind(&CHighlightableButton::select, gar1button, false);
-	gar3button->callback += boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, false);
-	if(hero->looseFormation)
-		gar1button->select(true);
-	else
+	gar3button->callback += boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, true);
+	if(hero->army.formation)
 		gar3button->select(true);
+	else
+		gar1button->select(true);
 	redrawCurBack();
 }
 

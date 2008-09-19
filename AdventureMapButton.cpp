@@ -186,7 +186,8 @@ void CHighlightableButton::clickLeft( tribool down )
 	if (pressedL && (down==false))
 	{
 		pressedL=state;
-		select(!selected);
+		if(!onlyOn || !selected)
+			select(!selected);
 	}
 	else
 	{
@@ -196,6 +197,7 @@ void CHighlightableButton::clickLeft( tribool down )
 
 CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, bool activ )
 {
+	onlyOn = false;
 	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,activ);
 	callback2 = onDeselect;
 }

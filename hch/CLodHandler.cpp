@@ -31,7 +31,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	Entry * ourEntry = entries.znajdz(Entry(defName));
 	if(!ourEntry) //nothing's been found
 	{
-		_log1<<"Cannot find file: "<<defName;
+		tlog1<<"Cannot find file: "<<defName;
 		return NULL;
 	}
 	if(length) *length = ourEntry->realSize;
@@ -47,7 +47,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 		FILE * f = fopen(name,"rb");
 		int result = fread(outp,1,ourEntry->realSize,f);
 		mutex->unlock();
-		if(result<0) {_log1<<"Error in file reading: "<<name<<std::endl;delete[] outp; return NULL;}
+		if(result<0) {tlog1<<"Error in file reading: "<<name<<std::endl;delete[] outp; return NULL;}
 		else
 			return outp;
 	}
@@ -228,7 +228,7 @@ void CLodHandler::extract(std::string FName)
 			out.open(bufff.c_str(), std::ios::binary);
 			if(!out.is_open())
 			{
-				_log1<<"Unable to create "<<bufff;
+				tlog1<<"Unable to create "<<bufff;
 			}
 			else
 			{
@@ -251,7 +251,7 @@ void CLodHandler::extract(std::string FName)
 			destin.close();
 			if(decRes!=0)
 			{
-				_log1<<"LOD Extraction error"<<"  "<<decRes<<" while extracting to "<<bufff<<std::endl;
+				tlog1<<"LOD Extraction error"<<"  "<<decRes<<" while extracting to "<<bufff<<std::endl;
 			}
 		}
 		delete[] outp;
@@ -279,7 +279,7 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 			out.open(bufff.c_str(), std::ios::binary);
 			if(!out.is_open())
 			{
-				_log1<<"Unable to create "<<bufff;
+				tlog1<<"Unable to create "<<bufff;
 			}
 			else
 			{
@@ -302,7 +302,7 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 			destin.close();
 			if(decRes!=0)
 			{
-				_log1<<"LOD Extraction error"<<"  "<<decRes<<" while extracting to "<<bufff<<std::endl;
+				tlog1<<"LOD Extraction error"<<"  "<<decRes<<" while extracting to "<<bufff<<std::endl;
 			}
 		}
 		delete[] outp;
@@ -391,7 +391,7 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		}
 	}
 	else
-		_log1<<"Warning: No "+dirName+"/ folder!"<<std::endl;
+		tlog1<<"Warning: No "+dirName+"/ folder!"<<std::endl;
 }
 std::string CLodHandler::getTextFile(std::string name)
 {

@@ -341,7 +341,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			{
 			case 99: //end!
 				{
-					_log0 << "We have been requested to close.\n";
+					tlog0 << "We have been requested to close.\n";
 					exit(0);
 				}
 			case 100: //my interface ended its turn
@@ -856,7 +856,7 @@ upgend:
 					si32 hid;
 					ui8 formation;
 					c >> hid >> formation;
-					gs->getHero(hid)->army.formation = !formation;
+					gs->getHero(hid)->army.formation = formation;
 					break;
 				}
 			case 2001:
@@ -967,12 +967,12 @@ upgend:
 	}
 	catch (const std::exception& e)
 	{
-		_log1 << e.what() << std::endl;
+		tlog1 << e.what() << std::endl;
 		end2 = true;
 	}
 	catch (const std::exception * e)
 	{
-		_log1 << e->what()<< std::endl;	
+		tlog1 << e->what()<< std::endl;	
 		end2 = true;
 		delete e;
 	}
@@ -1273,7 +1273,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	positions.open("config" PATHSEPARATOR "battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
 	if(!positions.is_open())
 	{
-		_log0<<"Unable to open battleStartpos.txt!"<<std::endl;
+		tlog0<<"Unable to open battleStartpos.txt!"<<std::endl;
 	}
 	std::string dump;
 	positions>>dump; positions>>dump;

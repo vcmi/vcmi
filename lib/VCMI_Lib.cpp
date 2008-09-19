@@ -12,14 +12,14 @@
 class CLodHandler;
 LibClasses * VLC = NULL;
 CLodHandler * bitmaph=NULL;
-CLogger<0> _log0;
-CLogger<1> _log1;
-CLogger<2> _log2;
-CLogger<3> _log3;
-CLogger<4> _log4;
-CLogger<5> _log5;
-CConsoleHandler *console = NULL;
-std::ostream *logfile = NULL;
+DLL_EXPORT CLogger<0> tlog0;
+DLL_EXPORT CLogger<1> tlog1;
+DLL_EXPORT CLogger<2> tlog2;
+DLL_EXPORT CLogger<3> tlog3;
+DLL_EXPORT CLogger<4> tlog4;
+DLL_EXPORT CLogger<5> tlog5;
+DLL_EXPORT CConsoleHandler *console = NULL;
+DLL_EXPORT std::ostream *logfile = NULL;
 DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *Logfile)
 {
 	console = Console;
@@ -32,39 +32,39 @@ DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *
 	heroh->loadHeroes();
 	heroh->loadPortraits();
 	VLC->heroh = heroh;
-	_log0 <<"\tHero handler: "<<pomtime.getDif()<<std::endl;
+	tlog0 <<"\tHero handler: "<<pomtime.getDif()<<std::endl;
 
 	CArtHandler * arth = new CArtHandler;
 	arth->loadArtifacts();
 	VLC->arth = arth;
-	_log0<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
 
 	CCreatureHandler * creh = new CCreatureHandler();
 	creh->loadCreatures();
 	VLC->creh = creh;
-	_log0<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
 
 	VLC->townh = new CTownHandler;
 	VLC->townh->loadNames();
-	_log0<<"\tTown handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tTown handler: "<<pomtime.getDif()<<std::endl;
 
 	CObjectHandler * objh = new CObjectHandler;
 	objh->loadObjects();
 	VLC->objh = objh;
-	_log0<<"\tObject handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tObject handler: "<<pomtime.getDif()<<std::endl;
 
 	VLC->dobjinfo = new CDefObjInfoHandler;
 	VLC->dobjinfo->load();
-	_log0<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
 
 	VLC->buildh = new CBuildingHandler;
 	VLC->buildh->loadBuildings();
-	_log0<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
 
 	CSpellHandler * spellh = new CSpellHandler;
 	spellh->loadSpells();
 	VLC->spellh = spellh;		
-	_log0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode)

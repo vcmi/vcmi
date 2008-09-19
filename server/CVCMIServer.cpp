@@ -22,14 +22,6 @@ using namespace boost;
 using namespace boost::asio;
 using namespace boost::asio::ip;
 namespace intpr = boost::interprocess;
-extern CLogger<0> _log0;
-extern CLogger<1> _log1;
-extern CLogger<2> _log2;
-extern CLogger<3> _log3;
-extern CLogger<4> _log4;
-extern CLogger<5> _log5;
-extern CConsoleHandler *console;// = NULL;
-extern std::ostream *logfile;// = NULL;
 bool end2 = false;
 int port = 3030;
 

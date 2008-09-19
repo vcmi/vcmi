@@ -190,8 +190,8 @@ namespace vstd
 using vstd::operator-=;
 
 #include "CConsoleHandler.h"
-extern std::ostream *logfile;
-extern CConsoleHandler *console;
+extern DLL_EXPORT std::ostream *logfile;
+extern DLL_EXPORT CConsoleHandler *console;
 template <int lvl> class CLogger
 {
 public:
@@ -218,32 +218,32 @@ public:
 	}
 };
 
-extern CLogger<0> _log0; //green - standard progress info
-extern CLogger<1> _log1; //red - big errors
-extern CLogger<2> _log2; //magenta - major warnings
-extern CLogger<3> _log3; //yellow - minor warnings
-extern CLogger<4> _log4; //white - detailed log info
-extern CLogger<5> _log5; //gray - minor log info
+extern DLL_EXPORT CLogger<0> tlog0; //green - standard progress info
+extern DLL_EXPORT CLogger<1> tlog1; //red - big errors
+extern DLL_EXPORT CLogger<2> tlog2; //magenta - major warnings
+extern DLL_EXPORT CLogger<3> tlog3; //yellow - minor warnings
+extern DLL_EXPORT CLogger<4> tlog4; //white - detailed log info
+extern DLL_EXPORT CLogger<5> tlog5; //gray - minor log info
 
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\
-	_log1 << e.what() << std::endl;	\
+	tlog1 << e.what() << std::endl;	\
 	}									\
 	catch (const std::exception * e)	\
 	{									\
-		_log1 << e->what()<< std::endl;	\
+		tlog1 << e->what()<< std::endl;	\
 		delete e;						\
 	}
 
 #define HANDLE_EXCEPTIONC(COMMAND)  \
 	catch (const std::exception& e) {	\
 	COMMAND;							\
-	_log1 << e.what() << std::endl;	\
+	tlog1 << e.what() << std::endl;	\
 	}									\
 	catch (const std::exception * e)	\
 	{									\
 		COMMAND;						\
-		_log1 << e->what()<< std::endl;	\
+		tlog1 << e->what()<< std::endl;	\
 		delete e;						\
 	}
 
