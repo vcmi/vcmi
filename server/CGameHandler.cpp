@@ -241,6 +241,23 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 	}
 }
 
+CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInfo *bat)
+{
+	CCreatureSet ret(set);
+	for(int i=0; i<bat->stacks.size();i++)
+	{
+		CStack *st = bat->stacks[i];
+		if(st->owner==color && vstd::contains(set.slots,st->slot) && st->amount < set.slots.find(st->slot)->second.second)
+		{
+			if(st->alive())
+				ret.slots[st->slot].second = st->amount;
+			else
+				ret.slots.erase(st->slot);
+		}
+	}
+	return ret;
+}
+
 void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb)
 {
 	BattleInfo *curB = new BattleInfo;
@@ -285,17 +302,35 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 	if(hero1->tempOwner<PLAYER_LIMIT)
 		states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,false);
 	if(hero2 && hero2->tempOwner<PLAYER_LIMIT)
-		states.setFlag(hero2->tempOwner,&PlayerStatus::engagedIntoBattle,false);
+		states.setFlag(hero2->tempOwner,&PlayerStatus::engagedIntoBattle,false);	
+
+	//casualties among heroes armies
+	SetGarrisons sg;
+	if(hero1)
+		sg.garrs[hero1->id] = takeCasualties(hero1->tempOwner,hero1->army,gs->curB);
+	if(hero2)
+		sg.garrs[hero2->id] = takeCasualties(hero2->tempOwner,hero2->army,gs->curB);
+	sendAndApply(&sg);
 
 	//end battle, remove all info, free memory
 	sendAndApply(battleResult.data);
 	if(cb)
 		cb(battleResult.data);
+
+	//if one hero has lost we will erase him
+	if(battleResult.data->winner!=0 && hero1)
+	{
+		RemoveObject ro(hero1->id);
+		sendAndApply(&ro);
+	}
+	if(battleResult.data->winner!=1 && hero2)
+	{
+		RemoveObject ro(hero2->id);
+		sendAndApply(&ro);
+	}
+
 	delete battleResult.data;
-	//for(int i=0;i<stacks.size();i++)
-	//	delete stacks[i];
-	//delete curB;
-	//curB = NULL;
+
 }
 void prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 {
@@ -349,7 +384,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					states.setFlag(gs->currentPlayer,&PlayerStatus::makingTurn,false);
 					break;
 				}
-			case 500:
+			case 500: //dismiss hero
 				{
 					si32 id;
 					c >> id;
@@ -521,7 +556,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					sendAndApply(&sg);
 					break;
 				}
-			case 503:
+			case 503: //disband creature
 				{
 					si32 id;
 					ui8 pos;
@@ -533,7 +568,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					sendAndApply(&sg);
 					break;
 				}
-			case 504:
+			case 504: //build structure
 				{
 					si32 tid, bid;
 					c >> tid >> bid;
@@ -1368,7 +1403,7 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 	cs.learn = true;
 	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(7)+4);i++)
 	{
-		for(int j=0; j<t->spellsAtLevel(i+1,true); j++)
+		for(int j=0; j<t->spellsAtLevel(i+1,true) && j<t->spells[i].size(); j++)
 		{
 			if(!vstd::contains(h->spells,t->spells[i][j]))
 				cs.spells.insert(t->spells[i][j]);

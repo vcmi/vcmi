@@ -1440,7 +1440,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 		int sp = owner->town->spellsAtLevel(i+1,false);
 		for(int j=0; j<sp; j++)
 		{
-			if(i < owner->town->mageGuildLevel())
+			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()<j)
 			{
 				spells.push_back(Scroll(&CGI->spellh->spells[owner->town->spells[i][j]]));
 				spells[spells.size()-1].pos = positions[i][j];

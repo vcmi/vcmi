@@ -505,6 +505,12 @@ void CGameState::applyNL(IPack * pack)
 	case 1001://set object property
 		{
 			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);
+			if(p->what == 3) //set creatures amount
+			{
+				tlog5 << "Setting creatures amount in " << p->id << std::endl;
+				static_cast<CCreatureObjInfo*>(map->objects[p->id]->info)->number = p->val;
+				break;
+			}
 			ui8 CGObjectInstance::*point;
 			switch(p->what)
 			{
@@ -894,7 +900,12 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	{
 		randomizeObject(map->objects[no]);
 		if(map->objects[no]->ID==26)
+		{
 			map->objects[no]->defInfo->handler=NULL;
+			map->removeBlockVisTiles(map->objects[no]);
+			map->objects[no]->defInfo->blockMap[5] = 255;
+			map->addBlockVisTiles(map->objects[no]);
+		}
 		map->objects[no]->hoverName = VLC->objh->names[map->objects[no]->ID];
 	}
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;

@@ -458,6 +458,8 @@ void CMapHandler::initObjectRects()
 }
 void processDef (CGDefInfo* def)
 {
+	if(def->id == 26)
+		return;
 	def->handler=CDefHandler::giveDef(def->name);
 	def->width = def->handler->ourImages[0].bitmap->w/32;
 	def->height = def->handler->ourImages[0].bitmap->h/32;

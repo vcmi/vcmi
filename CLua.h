@@ -171,7 +171,6 @@ public:
 class CMonsterS : public CCPPObjectScript
 {
 public:
-	std::map<int, int> amounts; //monster id -> stack quantity
 	CMonsterS(CScriptCallback * CB):CCPPObjectScript(CB){};
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);

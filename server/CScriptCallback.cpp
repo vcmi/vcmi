@@ -33,6 +33,12 @@ void CScriptCallback::removeObject(int objid)
 	gh->sendAndApply(&ro);
 }
 
+void CScriptCallback::setAmount(int objid, ui32 val)
+{
+	SetObjectProperty sop(objid,3,val);
+	gh->sendAndApply(&sop);
+}
+
 void CScriptCallback::setOwner(int objid, ui8 owner)
 {
 	SetObjectProperty sop(objid,1,owner);

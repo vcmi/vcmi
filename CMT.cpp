@@ -221,7 +221,7 @@ int main(int argc, char** argv)
 		while(1) //main SDL events loop
 		{
 			SDL_WaitEvent(&ev);
-			if(ev.type==SDL_QUIT) 
+			if((ev.type==SDL_QUIT)  ||  (ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
 			{
 				cl.close();
 #ifndef __unix__

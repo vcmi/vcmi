@@ -957,7 +957,7 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	playerID=Player;
 	serialID=serial;
 	human=true;
-	pim = new boost::mutex;
+	pim = new boost::recursive_mutex;
 	showingDialog = new CondSh<bool>(false);
 }
 CPlayerInterface::~CPlayerInterface()
@@ -1100,7 +1100,7 @@ int getDir(int3 src, int3 dst)
 }
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	//initializing objects and performing first step of move
 	const CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
@@ -1536,7 +1536,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	graphics->heroWins.erase(hero->ID);
 	adventureInt->heroList.updateHList();
 }
@@ -1721,19 +1721,6 @@ void CPlayerInterface::handleKeyDown(SDL_Event *sEvent)
 			LOCPLINT->adventureInt->scrollingDown = true;
 			break;
 		}
-	case (SDLK_F4):
-		{
-			if(sEvent->key.keysym.mod & KMOD_LALT) //Alt+F4
-			{
-				exit(0);
-				break;
-			}
-		}
-	//case (SDLK_q):
-	//	{
-	//		exit(0);
-	//		break;
-	//	}
 	case (SDLK_u):
 		{
 			adventureInt->underground.clickLeft(true);
@@ -1853,7 +1840,7 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	SDL_FreeSurface(graphics->heroWins[hero->subID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
 	graphics->heroWins[hero->subID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
 	if (adventureInt->selection == hero)
@@ -1863,7 +1850,7 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 
 void CPlayerInterface::receivedResource(int type, int val)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(!curint->subInt)
 		adventureInt->resdatabar.draw();
 }
@@ -1871,7 +1858,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 void CPlayerInterface::showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID)
 //void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	adventureInt->hide(); //dezaktywacja starego interfejsu
 	std::vector<CSelectableComponent*> intComps;
 	for(int i=0;i<components.size();i++)
@@ -1892,14 +1879,14 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 		while(showingDialog->data)
 			showingDialog->cond.wait(un);
 	}
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
 	curint->deactivate();
 	lw->activate();
 }
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	//redraw infowindow
 	SDL_FreeSurface(graphics->townWins[town->id]);
 	graphics->townWins[town->id] = infoWin(town);
@@ -1928,12 +1915,12 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 {
 	if(hero->tempOwner != town->tempOwner)
 		return;
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	openTownWindow(town);
 }
 void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(obj->ID == 34) //hero
 	{
 		const CGHeroInstance * hh;
@@ -1977,7 +1964,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 }
 void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	switch (buildingID)
 	{
 	case 7: case 8: case 9: case 10: case 11: case 12: case 13: case 15:
@@ -2004,7 +1991,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 
 void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) //called by engine when battle starts; side=0 - left, side=1 - right
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curint->deactivate();
 	curint = new CBattleInterface(army1,army2,hero1,hero2);
 	curint->activate();
@@ -2033,7 +2020,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 {
 	CBattleInterface *b = dynamic_cast<CBattleInterface*>(curint);
 	{
-		boost::unique_lock<boost::mutex> un(*pim);
+		boost::unique_lock<boost::recursive_mutex> un(*pim);
 		b->stackActivated(stackID);
 	}
 	//wait till BattleInterface sets its command
@@ -2057,7 +2044,7 @@ void CPlayerInterface::battleEnd(BattleResult *br)
 
 void CPlayerInterface::battleResultQuited()
 {
-	//boost::unique_lock<boost::mutex> un(*pim);
+	//boost::unique_lock<boost::recursive_mutex> un(*pim);
 	((CBattleInterface*)curint)->resWindow->deactivate();
 	objsToBlit -= curint;
 	delete curint;
@@ -2067,12 +2054,12 @@ void CPlayerInterface::battleResultQuited()
 
 void CPlayerInterface::battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest, startMoving, endMoving);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(ba->shot())
 		dynamic_cast<CBattleInterface*>(curint)->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
 	else
@@ -2094,7 +2081,7 @@ void CPlayerInterface::battleStackIsShooting(int ID, int dest)
 
 void CPlayerInterface::showComp(SComponent comp)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
@@ -2108,6 +2095,7 @@ void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<Compo
 void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<SComponent*> & components)
 {
 	showingDialog->set(true);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curint->deactivate(); //dezaktywacja starego interfejsu
 
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
@@ -2120,6 +2108,7 @@ void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<SComp
 }
 void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(deactivateCur)
 		curint->deactivate(); //dezaktywacja starego interfejsu
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
@@ -2142,7 +2131,7 @@ void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SCom
 
 void CPlayerInterface::showYesNoDialog( std::string &text, const std::vector<Component*> &components, ui32 askID )
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curint->deactivate(); //dezaktywacja starego interfejsu
 
 	std::vector<SComponent*> intComps;
@@ -2164,20 +2153,24 @@ void CPlayerInterface::showYesNoDialog( std::string &text, const std::vector<Com
 }
 void CPlayerInterface::removeObjToBlit(IShowable* obj)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	objsToBlit.erase
 		(std::find(objsToBlit.begin(),objsToBlit.end(),obj));
 	//delete obj;
 }
 void CPlayerInterface::tileRevealed(int3 pos)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	adventureInt->minimap.showTile(pos);
 }
 void CPlayerInterface::tileHidden(int3 pos)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	adventureInt->minimap.hideTile(pos);
 }
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	adventureInt->heroWindow->setHero(hero);
 	this->objsToBlit.push_back(adventureInt->heroWindow);
 	curint->deactivate();
@@ -2191,7 +2184,7 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 
 void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(curint->subInt == adventureInt->heroWindow)
 	{
 		adventureInt->heroWindow->deactivate();
@@ -2236,7 +2229,7 @@ void CPlayerInterface::updateWater()
 
 void CPlayerInterface::availableCreaturesChanged( const CGTownInstance *town )
 {
-	boost::unique_lock<boost::mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(curint == castleInt)
 	{
 		CFortScreen *fs = dynamic_cast<CFortScreen*>(curint->subInt);

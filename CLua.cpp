@@ -791,40 +791,40 @@ void CMonsterS::newObject(int objid)
 	switch(VLC->creh->creatures[os->subID].level)
 	{
 	case 1:
-		amounts[objid] = rand()%31+20;
+		cb->setAmount(objid,rand()%31+20);
 		break;
 	case 2:
-		amounts[objid] = rand()%16+15;
+		cb->setAmount(objid,rand()%16+15);
 		break;
 	case 3:
-		amounts[objid] = rand()%16+10;
+		cb->setAmount(objid,rand()%16+10);
 		break;
 	case 4:
-		amounts[objid] = rand()%11+10;
+		cb->setAmount(objid,rand()%11+10);
 		break;
 	case 5:
-		amounts[objid] = rand()%9+8;
+		cb->setAmount(objid,rand()%9+8);
 		break;
 	case 6:
-		amounts[objid] = rand()%8+5;
+		cb->setAmount(objid,rand()%8+5);
 		break;
 	case 7:
-		amounts[objid] = rand()%7+3;
+		cb->setAmount(objid,rand()%7+3);
 		break;
 	case 8:
-		amounts[objid] = rand()%4+2;
+		cb->setAmount(objid,rand()%4+2);
 		break;
 	case 9:
-		amounts[objid] = rand()%3+2;
+		cb->setAmount(objid,rand()%3+2);
 		break;
 	case 10:
-		amounts[objid] = rand()%3+1;
+		cb->setAmount(objid,rand()%3+1);
 		break;
 
 	}
 
 	MetaString ms;
-	int pom = CCreature::getQuantityID(amounts[objid]);
+	int pom = CCreature::getQuantityID(((CCreatureObjInfo*)(os->info))->number);
 	pom = 174 + 3*pom + 1;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,os->subID);
 	cb->setHoverName(objid,&ms);
@@ -834,7 +834,7 @@ void CMonsterS::onHeroVisit(int objid, int heroID)
 	DEFOS;
 	CCreatureSet set;
 	//TODO: zrobic secik w sposob wyrafinowany
-	set.slots[0] = std::pair<ui32,si32>(os->subID,amounts[objid]);
+	set.slots[0] = std::pair<ui32,si32>(os->subID,((CCreatureObjInfo*)(os->info))->number);
 	cb->startBattle(heroID,set,os->pos,boost::bind(&CMonsterS::endBattleWith,this,os,_1));
 }
 std::vector<int> CMonsterS::yourObjects() //returns IDs of objects which are handled by script
@@ -852,7 +852,11 @@ void CMonsterS::endBattleWith(const CGObjectInstance *monster, BattleResult *res
 	}
 	else
 	{
-		//TODO: remove casualties
+		int killedAmount=0;
+		for(std::set<std::pair<ui32,si32> >::iterator i=result->casualties[1].begin(); i!=result->casualties[1].end(); i++)
+			if(i->first == monster->subID)
+				killedAmount += i->second;
+		cb->setAmount(monster->id,((CCreatureObjInfo*)(monster->info))->number - killedAmount);
 	}
 }
 

@@ -1,3 +1,32 @@
+0.62 -> 0.63 (Sep 28 2008???)
+* very significant optimization of battles 
+* battle summary window
+* fixed crashbug on exiting battle 
+* mostly done morketplace 
+* confirm window is shown before retreat 
+* it's possible to use other port than 3030 by passing it as an additional argument
+* removed some redundant warnings
+* stack queue in battle (shows when 'c' key is pressed) 
+* partially done spellbook
+* fixed crashbug with battles on swamps and rough terrain
+* counterattacks
+* heroes learn spells in towns
+* it's possible to attack enemy hero
+* setting army formation
+* fixed bug with disappearing head of a hero in adventure map
+* some objects are no longer accessible from the top 
+* no tooltips for objects under FoW
+* working resource silo
+* neutral monster army disappears when defeated
+* Alt+F4 quits the game
+* dead stacks won't be displayed in battle queue 
+* possibly fixed bug with the mage guild when no spells available
+* events won't be shown and won't block movement
+* casualties among hero army and neutral creatures are saved
+* it's possible to build lighthouse
+* increased thread-safety (may prevent some crashes)
+* minor fixes
+
 0.61 -> 0.62 (Sep 01 2008)
 General:
 * restructured to the server-client model

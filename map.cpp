@@ -500,7 +500,7 @@ void Mapa::removeBlockVisTiles(CGObjectInstance * obj)
 				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
 				{
 					curt.blockingObjects -= obj;
-					curt.blocked = curt.visitableObjects.size();
+					curt.blocked = curt.blockingObjects.size();
 				}
 			}
 		}

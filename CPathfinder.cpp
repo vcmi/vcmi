@@ -172,7 +172,10 @@ void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 					bool pass = true; //checking for allowed visiting direction
 					for(int b=0; b<CGI->mh->ttiles[i][j][node.z].tileInfo->visitableObjects.size(); ++b) //checking destination tile
 					{
-						CGDefInfo * di = CGI->mh->ttiles[i][j][node.z].tileInfo->visitableObjects[b]->defInfo;
+						const TerrainTile * pom = CGI->mh->ttiles[i][j][node.z].tileInfo;
+						if(!vstd::contains(pom->blockingObjects,pom->visitableObjects[b]))
+							break;
+						CGDefInfo * di = pom->visitableObjects[b]->defInfo;
 						if( (i == node.x-1 && j == node.y-1) && !(di->visitDir & (1<<4)) )
 						{
 							pass = false; break;
@@ -208,7 +211,10 @@ void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 					}
 					for(int b=0; b<CGI->mh->ttiles[node.x][node.y][node.z].tileInfo->visitableObjects.size(); ++b) //checking source tile
 					{
-						CGDefInfo * di = CGI->mh->ttiles[node.x][node.y][node.z].tileInfo->visitableObjects[b]->defInfo;
+						const TerrainTile * pom = CGI->mh->ttiles[node.x][node.y][node.z].tileInfo;
+						if(!vstd::contains(pom->blockingObjects,pom->visitableObjects[b]))
+							break;
+						CGDefInfo * di = pom->visitableObjects[b]->defInfo;
 						if( (i == node.x-1 && j == node.y-1) && !(di->visitDir & (1<<0)) )
 						{
 							pass = false; break;
@@ -269,11 +275,12 @@ void CPathfinder::CalcH(Coordinate* node)
 	 * If there is fog of war on the node.
 	 *  => Impossible to move there.
 	 */
-	if( (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->blocked && !(node->x==End.x && node->y==End.y && CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->visitable)) ||
-		(CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype==rock) ||
-		((blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype==water)) ||
+	const TerrainTile *pom = CGI->mh->ttiles[node->x][node->y][node->z].tileInfo;
+	if( (pom->blocked && !(node->x==End.x && node->y==End.y && pom->visitable)) ||
+		(pom->tertype==rock) ||
+		((blockLandSea) && (pom->tertype==water)) ||
 		(!CGI->state->players[Hero->tempOwner].fogOfWarMap[node->x][node->y][node->z]) ||
-		((!blockLandSea) && (CGI->mh->ttiles[node->x][node->y][node->z].tileInfo->tertype!=water)))
+		((!blockLandSea) && (pom->tertype!=water)))
 	{
 		//Impossible.
 

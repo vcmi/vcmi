@@ -30,6 +30,7 @@ template <typename T> struct CondSh;
 namespace boost
 {
 	class mutex;
+	class recursive_mutex;
 };
 
 class IShowable
@@ -316,7 +317,7 @@ class CPlayerInterface : public CGameInterface
 public:
 	//minor interfaces
 	CondSh<bool> *showingDialog;
-	boost::mutex *pim;
+	boost::recursive_mutex *pim;
 	bool makingTurn;
 	SDL_Event * current;
 	CMainInterface *curint;
