@@ -43,6 +43,7 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 			nobj->defInfo->id = 34;
 			nobj->defInfo->subid = subid;
 			nobj->defInfo->printPriority = 0;
+			nobj->defInfo->visitDir = 0xff;
 			nobj->type = VLC->heroh->heroes[subid];
 			for(int i=0;i<6;i++)
 			{

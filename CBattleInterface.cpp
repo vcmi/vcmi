@@ -387,7 +387,8 @@ void CBattleInterface::show(SDL_Surface * to)
 		std::vector<CStack> stacksSorted;
 		for(int v=0; v<stacks.size(); ++v)
 		{
-			stacksSorted.push_back(stacks[v]);
+			if(stacks[v].alive()) //we don't want dead stacks to be there
+				stacksSorted.push_back(stacks[v]);
 		}
 		std::stable_sort(stacksSorted.begin(), stacksSorted.end(), cmpst2);
 		int startFrom = -1;
