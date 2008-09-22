@@ -362,7 +362,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackAliveByHex[b].size(); ++v)
 		{
-			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%4==0) && stacks[stackAliveByHex[b][v]].alive(), stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%4==0) && creAnims[stackAliveByHex[b][v]]->getType()!=0 && creAnims[stackAliveByHex[b][v]]->getType()!=20 && creAnims[stackAliveByHex[b][v]]->getType()!=21, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -449,7 +449,7 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		if((animCount+1)%4)
+		if((animCount+1)%4==0)
 			creAnims[number]->incrementFrame();
 	}
 	creDir[number] = !creDir[number];
@@ -581,9 +581,9 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 		}
 	}
 	creAnims[ID]->setType(5); //death
-	for(int i=0; i<creAnims[ID]->framesInGroup(5); ++i)
+	for(int i=0; i<creAnims[ID]->framesInGroup(5)*3+1; ++i)
 	{
-		if(i)
+		if((animCount%4)==0)
 			creAnims[ID]->incrementFrame();
 		show();
 		CSDL_Ext::update();
@@ -619,22 +619,22 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 {
 	//a few useful variables
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
-	int steps = creAnims[number]->framesInGroup(0);
+	int steps = creAnims[number]->framesInGroup(0)*3.5;
 	int hexWbase = 44, hexHbase = 42;
 	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
 
-	if(startMoving) //animation of starting move
+	if(startMoving && creAnims[number]->framesInGroup(20)!=0) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
 		deactivate();
 		CGI->curh->hide();
 		creAnims[number]->setType(20);
 		//LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
-		for(int i=0; i<creAnims[number]->framesInGroup(20); ++i)
+		for(int i=0; i<creAnims[number]->framesInGroup(20)*3+1; ++i)
 		{
 			show();
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			if((animCount+1)%4)
+			if((animCount+1)%4==0)
 				creAnims[number]->incrementFrame();
 		}
 	}
@@ -655,51 +655,65 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 		}
 		//moving instructions
 		creAnims[number]->setType(0);
+		float posX = creAnims[number]->pos.x, posY = creAnims[number]->pos.y; // for precise calculations ;]
 		for(int i=0; i<steps; ++i)
 		{
 			switch(mutPos)
 			{
 			case 0:
-				creAnims[number]->pos.x -= hexWbase/(2*steps);
-				creAnims[number]->pos.y -= hexHbase/steps;
+				posX -= ((float)hexWbase)/(2.0f*steps);
+				creAnims[number]->pos.x = posX;
+				posY -= ((float)hexHbase)/((float)steps);
+				creAnims[number]->pos.y = posY;
 				break;
 			case 1:
-				creAnims[number]->pos.x += hexWbase/(2*steps);
-				creAnims[number]->pos.y -= hexHbase/steps;
+				posX += ((float)hexWbase)/(2.0f*steps);
+				creAnims[number]->pos.x = posX;
+				posY -= ((float)hexHbase)/((float)steps);
+				creAnims[number]->pos.y = posY;
 				break;
 			case 2:
-				creAnims[number]->pos.x += hexWbase/steps;
+				posX += ((float)hexWbase)/((float)steps);
+				creAnims[number]->pos.x = posX;
 				break;
 			case 3:
-				creAnims[number]->pos.x += hexWbase/(2*steps);
-				creAnims[number]->pos.y += hexHbase/steps;
+				posX += ((float)hexWbase)/(2.0f*steps);
+				creAnims[number]->pos.x = posX;
+				posY += ((float)hexHbase)/((float)steps);
+				creAnims[number]->pos.y = posY;
 				break;
 			case 4:
-				creAnims[number]->pos.x -= hexWbase/(2*steps);
-				creAnims[number]->pos.y += hexHbase/steps;
+				posX -= ((float)hexWbase)/(2.0f*steps);
+				creAnims[number]->pos.x = posX;
+				posY += ((float)hexHbase)/((float)steps);
+				creAnims[number]->pos.y = posY;
 				break;
 			case 5:
-				creAnims[number]->pos.x -= hexWbase/steps;
+				posX -= ((float)hexWbase)/((float)steps);
+				creAnims[number]->pos.x = posX;
 				break;
 			}
 			show();
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			if((animCount+1)%4)
+			if((animCount+1)%4==0)
 				creAnims[number]->incrementFrame();
 		}
 	}
 
 	if(endMoving) //animation of ending move
 	{
-		creAnims[number]->setType(21);
-		for(int i=0; i<creAnims[number]->framesInGroup(21); ++i)
+		if(creAnims[number]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
 		{
-			show();
-			CSDL_Ext::update();
-			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			if((animCount+1)%4)
-				creAnims[number]->incrementFrame();
+			creAnims[number]->setType(21);
+			for(int i=0; i<creAnims[number]->framesInGroup(21)*3+1; ++i)
+			{
+				show();
+				CSDL_Ext::update();
+				SDL_framerateDelay(LOCPLINT->mainFPSmng);
+				if((animCount+1)%4==0)
+					creAnims[number]->incrementFrame();
+			}
 		}
 		creAnims[number]->setType(2); //resetting to default
 		activate();
@@ -752,13 +766,13 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 		}
 	}
 	creAnims[ID]->setType(3); //getting hit
-	for(int i=0; i<creAnims[ID]->framesInGroup(3); ++i)
+	for(int i=0; i<creAnims[ID]->framesInGroup(3)*3+1; ++i)
 	{
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		if((animCount+1)%4)
-			creAnims[ID]->incrementFrame();
+		/*if((animCount+1)%4==0)
+			creAnims[ID]->incrementFrame();*/
 	}
 	creAnims[ID]->setType(2);
 
@@ -767,7 +781,7 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
-	while(attackingInfo != NULL)
+	while(attackingInfo != NULL || creAnims[ID]->getType()!=2)
 	{
 		show();
 		CSDL_Ext::update();
@@ -872,6 +886,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	attackingInfo = new CAttHelper;
 	attackingInfo->dest = dest;
 	attackingInfo->frame = 0;
+	attackingInfo->hitCount = 0;
 	attackingInfo->ID = ID;
 	attackingInfo->IDby = LOCPLINT->cb->battleGetStackByPos(dest)->ID;
 	attackingInfo->reversing = false;
@@ -980,7 +995,7 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	if(projectileAngle > straightAngle) //upper shot
 	{
 		spi.x = xycoord.first + 200 + LOCPLINT->cb->battleGetCreature(ID).upperRightMissleOffsetX;
-		spi.y = xycoord.second + 150 - LOCPLINT->cb->battleGetCreature(ID).upperRightMissleOffsetY;
+		spi.y = xycoord.second + 100 - LOCPLINT->cb->battleGetCreature(ID).upperRightMissleOffsetY;
 	}
 	else if(projectileAngle < -straightAngle) //lower shot
 	{
@@ -990,7 +1005,7 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	else //straight shot
 	{
 		spi.x = xycoord.first + 200 + LOCPLINT->cb->battleGetCreature(ID).rightMissleOffsetX;
-		spi.y = xycoord.second + 150 - LOCPLINT->cb->battleGetCreature(ID).rightMissleOffsetY;
+		spi.y = xycoord.second + 125 - LOCPLINT->cb->battleGetCreature(ID).rightMissleOffsetY;
 	}
 	spi.lastStep = sqrt((float)((destcoord.first - spi.x)*(destcoord.first - spi.x) + (destcoord.second - spi.y) * (destcoord.second - spi.y))) / 40;
 	spi.dx = (destcoord.first - spi.x) / spi.lastStep;
@@ -1012,15 +1027,16 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	attackingInfo = new CAttHelper;
 	attackingInfo->dest = dest;
 	attackingInfo->frame = 0;
+	attackingInfo->hitCount = 0;
 	attackingInfo->ID = ID;
 	attackingInfo->reversing = false;
 	attackingInfo->shooting = true;
 	if(projectileAngle > straightAngle) //upper shot
 		attackingInfo->shootingGroup = 14;
 	else if(projectileAngle < -straightAngle) //lower shot
-		attackingInfo->shootingGroup = 15;
-	else //straight shot
 		attackingInfo->shootingGroup = 16;
+	else //straight shot
+		attackingInfo->shootingGroup = 15;
 	attackingInfo->maxframe = creAnims[ID]->framesInGroup(attackingInfo->shootingGroup);
 }
 
@@ -1062,22 +1078,22 @@ void CBattleInterface::attackingShowHelper()
 					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 					{
 						case 0:
-							creAnims[attackingInfo->ID]->setType(10);
+							creAnims[attackingInfo->ID]->setType(11);
 							break;
 						case 1:
-							creAnims[attackingInfo->ID]->setType(10);
+							creAnims[attackingInfo->ID]->setType(11);
 							break;
 						case 2:
-							creAnims[attackingInfo->ID]->setType(11);
+							creAnims[attackingInfo->ID]->setType(12);
 							break;
 						case 3:
-							creAnims[attackingInfo->ID]->setType(12);
+							creAnims[attackingInfo->ID]->setType(13);
 							break;
 						case 4:
-							creAnims[attackingInfo->ID]->setType(12);
+							creAnims[attackingInfo->ID]->setType(13);
 							break;
 						case 5:
-							creAnims[attackingInfo->ID]->setType(11);
+							creAnims[attackingInfo->ID]->setType(12);
 							break;
 					}
 				}
@@ -1086,22 +1102,22 @@ void CBattleInterface::attackingShowHelper()
 					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 					{
 						case 0:
-							creAnims[attackingInfo->ID]->setType(10);
+							creAnims[attackingInfo->ID]->setType(11);
 							break;
 						case 1:
-							creAnims[attackingInfo->ID]->setType(10);
+							creAnims[attackingInfo->ID]->setType(11);
 							break;
 						case 2:
-							creAnims[attackingInfo->ID]->setType(11);
+							creAnims[attackingInfo->ID]->setType(12);
 							break;
 						case 3:
-							creAnims[attackingInfo->ID]->setType(12);
+							creAnims[attackingInfo->ID]->setType(13);
 							break;
 						case 4:
-							creAnims[attackingInfo->ID]->setType(12);
+							creAnims[attackingInfo->ID]->setType(13);
 							break;
 						case 5:
-							creAnims[attackingInfo->ID]->setType(11);
+							creAnims[attackingInfo->ID]->setType(12);
 							break;
 					}
 				}
@@ -1216,7 +1232,9 @@ void CBattleInterface::attackingShowHelper()
 		}
 		if(attackingInfo)
 		{
-			attackingInfo->frame++;
+			attackingInfo->hitCount++;
+			if(attackingInfo->hitCount%4 == 0)
+				attackingInfo->frame++;
 		}
 	}
 }
