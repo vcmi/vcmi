@@ -39,7 +39,7 @@ public:
 } cmpst2 ;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(1)
 {
 	givenCommand = new CondSh<BattleAction *>(NULL);
 	//initializing armies
@@ -345,7 +345,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackDeadByHex[b].size(); ++v)
 		{
-			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%4==0 || creAnims[stackDeadByHex[b][v]]->getType()!=2) && stacks[stackDeadByHex[b][v]].alive(), stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%(4/animSpeed)==0 || creAnims[stackDeadByHex[b][v]]->getType()!=2) && stacks[stackDeadByHex[b][v]].alive(), stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackDeadByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -362,7 +362,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackAliveByHex[b].size(); ++v)
 		{
-			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%4==0) && creAnims[stackAliveByHex[b][v]]->getType()!=0 && creAnims[stackAliveByHex[b][v]]->getType()!=20 && creAnims[stackAliveByHex[b][v]]->getType()!=21, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%(4/animSpeed)==0) && creAnims[stackAliveByHex[b][v]]->getType()!=0 && creAnims[stackAliveByHex[b][v]]->getType()!=20 && creAnims[stackAliveByHex[b][v]]->getType()!=21, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -449,7 +449,7 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		if((animCount+1)%4==0)
+		if((animCount+1)%(4/animSpeed)==0)
 			creAnims[number]->incrementFrame();
 	}
 	creDir[number] = !creDir[number];
@@ -479,6 +479,12 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 
 void CBattleInterface::bOptionsf()
 {
+	CGI->curh->changeGraphic(0,0);
+	LOCPLINT->curint->deactivate();
+
+	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(genRect(431, 481, 160, 84), this);
+	optionsWin->activate();
+	LOCPLINT->objsToBlit.push_back(optionsWin);
 }
 
 void CBattleInterface::bSurrenderf()
@@ -583,7 +589,7 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 	creAnims[ID]->setType(5); //death
 	for(int i=0; i<creAnims[ID]->framesInGroup(5)*3+1; ++i)
 	{
-		if((animCount%4)==0)
+		if((animCount%(4/animSpeed))==0)
 			creAnims[ID]->incrementFrame();
 		show();
 		CSDL_Ext::update();
@@ -619,7 +625,18 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 {
 	//a few useful variables
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
-	int steps = creAnims[number]->framesInGroup(0)*3.5;
+	int steps;
+	switch(animSpeed)
+	{
+	case 1:
+		steps = creAnims[number]->framesInGroup(0)*3.5;
+		break;
+	case 2:
+		steps = creAnims[number]->framesInGroup(0)*2.2;
+		break;
+	case 4:
+		steps = creAnims[number]->framesInGroup(0);
+	}
 	int hexWbase = 44, hexHbase = 42;
 	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
 
@@ -634,7 +651,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 			show();
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			if((animCount+1)%4==0)
+			if((animCount+1)%(4/animSpeed)==0)
 				creAnims[number]->incrementFrame();
 		}
 	}
@@ -696,7 +713,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 			show();
 			CSDL_Ext::update();
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			if((animCount+1)%4==0)
+			if((animCount+1)%(4/animSpeed)==0)
 				creAnims[number]->incrementFrame();
 		}
 	}
@@ -711,7 +728,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 				show();
 				CSDL_Ext::update();
 				SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				if((animCount+1)%4==0)
+				if((animCount+1)%(4/animSpeed)==0)
 					creAnims[number]->incrementFrame();
 			}
 		}
@@ -771,7 +788,7 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		/*if((animCount+1)%4==0)
+		/*if((animCount+1)%(4/animSpeed)==0)
 			creAnims[ID]->incrementFrame();*/
 	}
 	creAnims[ID]->setType(2);
@@ -1233,7 +1250,7 @@ void CBattleInterface::attackingShowHelper()
 		if(attackingInfo)
 		{
 			attackingInfo->hitCount++;
-			if(attackingInfo->hitCount%4 == 0)
+			if(attackingInfo->hitCount%(4/animSpeed) == 0)
 				attackingInfo->frame++;
 		}
 	}
@@ -1786,4 +1803,97 @@ void CBattleReslutWindow::show(SDL_Surface *to)
 void CBattleReslutWindow::bExitf()
 {
 	LOCPLINT->battleResultQuited();
+}
+
+CBattleOptionsWindow::CBattleOptionsWindow(SDL_Rect & position, CBattleInterface *owner): myInt(owner)
+{
+	pos = position;
+	background = BitmapHandler::loadBitmap("comopbck.bmp", true);
+	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
+
+	check = CDefHandler::giveDef("SYSOPCHK.DEF");
+
+	setToDefault = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def", false, NULL, false);
+	std::swap(setToDefault->imgs[0][0], setToDefault->imgs[0][1]);
+	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def", false, NULL, false);
+	std::swap(exit->imgs[0][0], exit->imgs[0][1]);
+
+	//printing texts to background
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[392], 240, 32, GEOR16, tytulowy, background); //window title
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[393], 122, 211, GEOR16, tytulowy, background); //animation speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 292, GEOR16, tytulowy, background); //music volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 358, GEOR16, tytulowy, background); //effects' volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[396], 353, 64, GEOR16, tytulowy, background); //auto - combat options
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[397], 353, 264, GEOR16, tytulowy, background); //creature info
+
+		//auto - combat options
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[398], 283, 87, GEOR16, zwykly, background); //creatures
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[399], 283, 117, GEOR16, zwykly, background); //spells
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[400], 283, 147, GEOR16, zwykly, background); //catapult
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[151], 283, 177, GEOR16, zwykly, background); //ballista
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[401], 283, 207, GEOR16, zwykly, background); //first aid tent
+
+		//creature info
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[402], 283, 286, GEOR16, zwykly, background); //all stats
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[403], 283, 316, GEOR16, zwykly, background); //spells only
+	
+		//general options
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[404], 61, 58, GEOR16, zwykly, background); //hex grid
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[405], 61, 91, GEOR16, zwykly, background); //movement shadow
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[406], 61, 124, GEOR16, zwykly, background); //cursor shadow
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 61, 157, GEOR16, zwykly, background); //spellbook animation
+	//texts printed
+}
+
+CBattleOptionsWindow::~CBattleOptionsWindow()
+{
+	SDL_FreeSurface(background);
+
+	delete setToDefault;
+	delete exit;
+	delete check;
+}
+
+void CBattleOptionsWindow::activate()
+{
+	setToDefault->activate();
+	exit->activate();
+}
+
+void CBattleOptionsWindow::deactivate()
+{
+	setToDefault->deactivate();
+	exit->deactivate();
+}
+
+void CBattleOptionsWindow::show(SDL_Surface *to)
+{
+	if(!to) //"evaluating" to
+		to = screen;
+
+	SDL_BlitSurface(background, NULL, to, &pos);
+
+	setToDefault->show(to);
+	exit->show(to);
+}
+
+void CBattleOptionsWindow::bDefaultf()
+{
+}
+
+void CBattleOptionsWindow::bExitf()
+{
+	deactivate();
+
+	for(int g=0; g<LOCPLINT->objsToBlit.size(); ++g)
+	{
+		if(dynamic_cast<CBattleOptionsWindow*>(LOCPLINT->objsToBlit[g]))
+		{
+			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+g);
+			break;
+		}
+	}
+
+	delete this;
+	LOCPLINT->curint->activate();
 }

@@ -90,6 +90,25 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
+class CBattleOptionsWindow : public IShowable, public CIntObject, public IActivable
+{
+private:
+	CBattleInterface * myInt;
+	SDL_Surface * background;
+	AdventureMapButton * setToDefault, * exit;
+	CDefHandler * check;
+public:
+	CBattleOptionsWindow(SDL_Rect & position, CBattleInterface * owner); //c-tor
+	~CBattleOptionsWindow(); //d-tor
+
+	void bDefaultf();
+	void bExitf();
+
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to = 0);
+};
+
 class CBattleInterface : public CMainInterface
 {
 private:
@@ -107,6 +126,7 @@ private:
 	int activeStack; //number of active stack; -1 - no one
 	std::vector<int> shadedHexes; //hexes available for active stack
 	void showRange(SDL_Surface * to, int ID); //show helper funtion ot mark range of a unit
+	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 
 	class CAttHelper
 	{
