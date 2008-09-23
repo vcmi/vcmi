@@ -1101,10 +1101,23 @@ int getDir(int3 src, int3 dst)
 void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+
+	int3 buff = details.ho->pos;
+	buff.x-=11;
+	buff.y-=9;
+	buff = repairScreenPos(buff);
+	LOCPLINT->adventureInt->position = buff; //actualizing screen pos
+
+	if(adventureInt == curint)
+		adventureInt->minimap.draw();
+
+	if(details.style)
+		return;
+
 	//initializing objects and performing first step of move
 	const CGHeroInstance * ho = details.ho; //object representing this hero
 	int3 hp = details.src;
-	if (!details.successful)
+	if (!details.successful) //hero failed to move
 	{
 		ho->moveDir = getDir(details.src,details.dst);
 		ho->isStanding = true;
@@ -1123,11 +1136,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
 	}
 
-	int3 buff = details.ho->pos;
-	buff.x-=11;
-	buff.y-=9;
-	buff = repairScreenPos(buff);
-	LOCPLINT->adventureInt->position = buff; //actualizing screen pos
 
 	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 	{

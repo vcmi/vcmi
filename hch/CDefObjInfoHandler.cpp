@@ -66,7 +66,7 @@ void CDefObjInfoHandler::load()
 		inp>>nobj->id;
 		inp>>nobj->subid;
 		inp>>nobj->type;
-		if(nobj->type == 2 || nobj->type == 3 || nobj->type == 4 || nobj->type == 5 || nobj->id == 111) //creature, hero, artifact, resource or whripool
+		if(nobj->type == 2 || nobj->type == 3 || nobj->type == 4 || nobj->type == 5 || nobj->id == 111 || nobj->id == 33) //creature, hero, artifact, resource or whripool or garrison
 			nobj->visitDir = 0xff;
 		else
 			nobj->visitDir = (8|16|32|64|128); //disabled visiting from the top

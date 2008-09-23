@@ -39,7 +39,7 @@ public:
 
 
 	//functions to be called in script
-	//virtual void init(){};
+	//virtual void init(){}; //called when game is ready
 	virtual void newObject(int objid){};
 	virtual void onHeroVisit(int objid, int heroID){};
 	virtual void onHeroLeave(int objid, int heroID){};
@@ -186,4 +186,15 @@ public:
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+};
+
+class CTeleports : public CCPPObjectScript
+{
+public:
+	std::map<int,std::map<int, std::vector<int> > > objs; //map[ID][subID] => vector of ids
+
+	void newObject(int objid);
+	void onHeroVisit(int objid, int heroID);
+	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
+	CTeleports(CScriptCallback * CB):CCPPObjectScript(CB){};
 };

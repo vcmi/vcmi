@@ -39,6 +39,37 @@ void CScriptCallback::setAmount(int objid, ui32 val)
 	gh->sendAndApply(&sop);
 }
 
+void CScriptCallback::moveHero(int hid, int3 pos, bool instant)
+{
+	if(!instant)
+	{
+		tlog1 << "Not supported call to CScriptCallback::moveHero\n";
+		return;
+	}
+	CGHeroInstance *h = const_cast<CGHeroInstance *>(getHero(hid));
+	//check if destination tile is free
+	BOOST_FOREACH(CGObjectInstance* obj, gh->gs->map->terrain[pos.x-1][pos.y][pos.z].blockingObjects)
+	{
+		if(obj->ID==34)
+		{
+			if(obj->tempOwner==h->tempOwner) 
+				return;//TODO: exchange
+			//TODO: check for ally
+			CGHeroInstance *dh = static_cast<CGHeroInstance *>(obj);
+			startBattle(&h->army,&dh->army,pos,h,dh,0);
+			return;
+		}
+	}
+	TryMoveHero tmh;
+	tmh.start = h->pos;
+	tmh.end = pos;
+	tmh.id = hid;
+	tmh.movePoints = h->movement;
+	tmh.result = instant+1;
+	tmh.fowRevealed = gh->gs->tilesToReveal(CGHeroInstance::convertPosition(pos,false),h->getSightDistance(),h->tempOwner);
+	gh->sendAndApply(&tmh);
+}
+
 void CScriptCallback::setOwner(int objid, ui8 owner)
 {
 	SetObjectProperty sop(objid,1,owner);

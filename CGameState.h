@@ -87,13 +87,13 @@ public:
 	ui8 owner, slot;  //owner - player colour (255 for neutrals), slot - position in garrison (may be 255 for neutrals/called creatures)
 	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	ui16 position; //position on battlefield
-	ui8 counterAttacks; //how many counter attacks has this stack perfomed in current round
+	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 
 	std::set<EAbilities> abilities;
 	std::set<ECombatInfo> state;
 
 	CStack(CCreature * C, int A, int O, int I, bool AO, int S);
-	CStack() : creature(NULL),amount(-1),owner(255), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1), counterAttacks(0){};
+	CStack() : creature(NULL),amount(-1),owner(255), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1), counterAttacks(1){};
 
 	template <typename Handler> void save(Handler &h, const int version)
 	{
@@ -161,6 +161,7 @@ private:
 	int battleGetStack(int pos); //returns ID of stack at given tile
 	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
 	float getMarketEfficiency(int player, int mode=0);
+	std::set<int3> tilesToReveal(int3 pos, int radious, int player); //if player==-1 => adds all tiles in radious
 public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 

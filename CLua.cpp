@@ -873,7 +873,72 @@ void CCreatureGen::onHeroVisit(int objid, int heroID)
 }
 std::vector<int> CCreatureGen::yourObjects() //returns IDs of objects which are handled by script
 {
-	std::vector<int> ret(1);
+	std::vector<int> ret;
 	ret.push_back(17); //cregen1
+	return ret;
+}
+
+void CTeleports::newObject(int objid)
+{
+	DEFOS;
+	objs[os->ID][os->subID].push_back(objid);
+}
+
+void CTeleports::onHeroVisit(int objid, int heroID)
+{
+	DEFOS;
+	int destinationid=-1;
+	switch(os->ID)
+	{
+	case 43: //one way - find correspong exit monolith
+		if(vstd::contains(objs,44) && vstd::contains(objs[44],os->subID) && objs[44][os->subID].size())
+			destinationid = objs[44][os->subID][rand()%objs[44][os->subID].size()];
+		else
+			tlog2 << "Cannot find corresponding exit monolith for "<<objid << std::endl;
+		break;
+	case 45: //two way monolith - pick any other one
+		if(vstd::contains(objs,45) && vstd::contains(objs[45],os->subID) && objs[45][os->subID].size()>1)
+			while ((destinationid = objs[45][os->subID][rand()%objs[45][os->subID].size()])==objid);
+		else
+			tlog2 << "Cannot find corresponding exit monolith for "<<objid << std::endl;
+		break;
+	case 103: //find nearest subterranean gate on the other level
+		{
+			std::pair<int,double> best(-1,150000); //pair<id,dist>
+			for(int i=0; i<objs[103][0].size(); i++)
+			{
+				if(cb->getObj(objs[103][0][i])->pos.z == os->pos.z) continue; //gates on our level are not interesting
+				double hlp = cb->getObj(objs[103][0][i])->pos.dist2d(os->pos);
+				if(hlp<best.second)
+				{
+					best.first = objs[103][0][i];
+					best.second = hlp;
+				}
+			}
+			if(best.first<0)
+				return;
+			else 
+				destinationid = best.first;
+			break;
+		}
+	}
+	if(destinationid < 0)
+	{
+		tlog2 << "Cannot find exit... :( \n";
+		return;
+	}
+	cb->moveHero(heroID,(os->ID!=103)
+		?(CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true))
+		:(cb->getObj(destinationid)->pos),
+	true);
+}
+
+std::vector<int> CTeleports::yourObjects() //returns IDs of objects which are handled by script
+{
+	std::vector<int> ret;
+	ret.push_back(43); 
+	ret.push_back(44); 
+	ret.push_back(45); 
+	ret.push_back(103); 
 	return ret;
 }

@@ -284,7 +284,16 @@ void CClient::process(int what)
 			*serv >> *th;
 			tlog5 << "HeroMove: id="<<th->id<<"\tResult: "<<(unsigned)th->result<<"\tPosition "<<th->end<<std::endl;
 
+			HeroMoveDetails hmd(th->start,th->end,static_cast<CGHeroInstance*>(gs->map->objects[th->id]));
+			hmd.style = th->result-1;
+			hmd.successful = th->result;
+			if(th->result>1)
+				CGI->mh->removeObject(hmd.ho);
+
 			gs->apply(th);
+			
+			if(th->result>1)
+				CGI->mh->printObject(hmd.ho);
 			int player = gs->map->objects[th->id]->getOwner();
 
 			if(playerint[player])
@@ -295,22 +304,22 @@ void CClient::process(int what)
 			}
 
 			//notify interfacesabout move
-			int nn=0; //number of interfece of currently browsed player
 			for(std::map<ui8, CGameInterface*>::iterator i=playerint.begin();i!=playerint.end();i++)
 			{
 				if(gs->players[i->first].fogOfWarMap[th->start.x-1][th->start.y][th->start.z] || gs->players[i->first].fogOfWarMap[th->end.x-1][th->end.y][th->end.z])
 				{
-					HeroMoveDetails hmd(th->start,th->end,static_cast<CGHeroInstance*>(gs->map->objects[th->id]));
-					hmd.successful = th->result;
 					i->second->heroMoved(hmd);
 				}
 			}
 
 			//add info for callback
-			mess.mx->lock();
-			mess.res->insert(th);
-			mess.mx->unlock();
-			mess.cv->notify_all();
+			if(th->result<2)
+			{
+				mess.mx->lock();
+				mess.res->insert(th);
+				mess.mx->unlock();
+				mess.cv->notify_all();
+			}
 			break;
 		}
 	case 502:

@@ -56,6 +56,7 @@ public:
 	void startBattle(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
 	void startBattle(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
 	void setAmount(int objid, ui32 val);
+	void moveHero(int hid, int3 pos, bool instant);
 
 	//friends
 	friend class CGameHandler;

@@ -124,7 +124,7 @@ struct TryMoveHero : public CPack<TryMoveHero> //501
 	TryMoveHero(){type = 501;};
 
 	ui32 id, movePoints;
-	ui8 result;
+	ui8 result; //0 - failed; 1- succes -normal move; 2 - teleportation, 3 - instant jump
 	int3 start, end;
 	std::set<int3> fowRevealed; //revealed tiles
 

@@ -397,6 +397,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					int3 start, end;
 					si32 id;
 					c >> id >> start >> end;
+					tlog5 << "Interface wants to move hero "<<id << " from "<<start << " to " << end << std::endl;
 					int3 hmpos = end + int3(-1,0,0);
 					TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
 					CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[id]);
@@ -445,6 +446,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 									obj->state->onHeroVisit(obj->id,h->id);
 							}
 						}
+						tlog5 << "Blocing visit at " << hmpos << std::endl;
 						break;
 					}
 					else //normal move
@@ -457,38 +459,9 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 							if(obj->state) //hard-coded function
 								obj->state->onHeroLeave(obj->id,h->id);
 						}
-
-						//reveal fog of war
-						int heroSight = h->getSightDistance();
-						int xbeg = start.x - heroSight - 2;
-						if(xbeg < 0)
-							xbeg = 0;
-						int xend = start.x + heroSight + 2;
-						if(xend >= gs->map->width)
-							xend = gs->map->width;
-						int ybeg = start.y - heroSight - 2;
-						if(ybeg < 0)
-							ybeg = 0;
-						int yend = start.y + heroSight + 2;
-						if(yend >= gs->map->height)
-							yend = gs->map->height;
-						for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
-						{
-							for(int yd=ybeg; yd<yend; ++yd)
-							{
-								int deltaX = (hmpos.x-xd)*(hmpos.x-xd);
-								int deltaY = (hmpos.y-yd)*(hmpos.y-yd);
-								if(deltaX+deltaY<h->getSightDistance()*h->getSightDistance())
-								{
-									if(gs->players[h->getOwner()].fogOfWarMap[xd][yd][hmpos.z] == 0)
-									{
-										tmh.fowRevealed.insert(int3(xd,yd,hmpos.z));
-									}
-								}
-							}
-						}
-
+						tmh.fowRevealed = gs->tilesToReveal(h->getPosition(false),h->getSightDistance(),h->tempOwner);
 						sendAndApply(&tmh);
+						tlog5 << "Moved to " <<tmh.end<<std::endl;
 
 						BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)//call objects if they are visited
 						{
@@ -498,8 +471,10 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 								obj->state->onHeroVisit(obj->id,h->id);
 						}
 					}
+					tlog5 << "Movement end!\n";
 					break;
 				fail:
+					tlog2 << "Movement failed to " << tmh.end << std::endl;
 					sendAndApply(&tmh);
 					break;
 				}
@@ -577,8 +552,17 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					for(int i=0;i<RESOURCE_QUANTITY;i++)
 						if(b->resources[i] > gs->players[t->tempOwner].resources[i])
 							break; //no res
-					//TODO: check requirements
-					//TODO: check if building isn't forbidden
+
+					for( std::set<int>::iterator ri  =  VLC->townh->requirements[t->subID][bid].begin();
+						 ri != VLC->townh->requirements[t->subID][bid].end();
+						 ri++ )
+					{
+						if(!vstd::contains(t->builtBuildings,*ri))
+							break; //lack of requirements - cannot build
+					}
+
+					if(vstd::contains(t->forbiddenBuildings,bid))
+						break; //this building is forbidden
 
 					NewStructures ns;
 					ns.tid = tid;
@@ -948,7 +932,7 @@ upgend:
 							//counterattack
 							if(!vstd::contains(curStack->abilities,NO_ENEMY_RETALIATION)
 								&& stackAtEnd->alive()
-								&& !stackAtEnd->counterAttacks	) //TODO: support for multiple retaliatons per turn
+								&& stackAtEnd->counterAttacks	) //TODO: support for multiple retaliatons per turn
 							{
 								prepareAttack(bat,stackAtEnd,curStack);
 								bat.flags |= 2;
@@ -991,23 +975,18 @@ upgend:
 					break;
 				}
 			default:
-#ifndef __GNUC__
-				throw std::exception("Not supported client message!");
-#else
-				throw std::exception();
-#endif
-				break;
+				throw std::string("Not supported client message!");
 			}
 		}
 	}
 	catch (const std::exception& e)
 	{
-		tlog1 << e.what() << std::endl;
+		tlog1 << "Exception during handling connection: " << e.what() << std::endl;
 		end2 = true;
 	}
 	catch (const std::exception * e)
 	{
-		tlog1 << e->what()<< std::endl;	
+		tlog1 << "Exception during handling connection: " << e->what()<< std::endl;	
 		end2 = true;
 		delete e;
 	}
@@ -1016,7 +995,7 @@ upgend:
 		end2 = true;
 	}
 handleConEnd:
-	;
+	tlog1 << "Ended handling connection\n";
 }
 void CGameHandler::moveStack(int stack, int dest)
 {							
@@ -1214,6 +1193,7 @@ void CGameHandler::run()
 	handleCPPObjS(&scripts,new CHeroScript(csc));
 	handleCPPObjS(&scripts,new CMonsterS(csc));
 	handleCPPObjS(&scripts,new CCreatureGen(csc));
+	handleCPPObjS(&scripts,new CTeleports(csc));
 
 	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
 	//std::string temps("newObject");

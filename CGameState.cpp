@@ -255,7 +255,7 @@ std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
 }
 
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
-	:creature(C),amount(A), baseAmount(A), owner(O), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), slot(S), counterAttacks(0)
+	:creature(C),amount(A), baseAmount(A), owner(O), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), slot(S), counterAttacks(1)
 {
 	abilities = C->abilities;
 	state.insert(ALIVE);
@@ -541,7 +541,7 @@ void CGameState::applyNL(IPack * pack)
 			BattleNextRound *ns = static_cast<BattleNextRound*>(pack);
 			curB->round = ns->round;
 			for(int i=0; i<curB->stacks.size();i++)
-				curB->stacks[i]->counterAttacks = 0;
+				curB->stacks[i]->counterAttacks = 1;
 			break;
 		}
 	case 3002:
@@ -582,7 +582,7 @@ void CGameState::applyNL(IPack * pack)
 		{
 			BattleAttack *br = static_cast<BattleAttack*>(pack);
 			if(br->counter())
-				curB->getStack(br->stackAttacking)->counterAttacks++;
+				curB->getStack(br->stackAttacking)->counterAttacks--;
 			applyNL(&br->bsa);
 			break;
 		}
@@ -1313,6 +1313,40 @@ float CGameState::getMarketEfficiency( int player, int mode/*=0*/ )
 	float ret = std::min(((float)mcount+1.0f)/20.0f,0.5f);
 	return ret;
 }
+
+std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player)
+{		
+	std::set<int3> ret;
+	int xbeg = pos.x - radious - 2;
+	if(xbeg < 0)
+		xbeg = 0;
+	int xend = pos.x + radious + 2;
+	if(xend >= map->width)
+		xend = map->width;
+	int ybeg = pos.y - radious - 2;
+	if(ybeg < 0)
+		ybeg = 0;
+	int yend = pos.y + radious + 2;
+	if(yend >= map->height)
+		yend = map->height;
+	for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
+	{
+		for(int yd=ybeg; yd<yend; ++yd)
+		{
+			int deltaX = (pos.x-xd)*(pos.x-xd);
+			int deltaY = (pos.y-yd)*(pos.y-yd);
+			if(deltaX+deltaY<radious*radious)
+			{
+				if(player<0 || players[player].fogOfWarMap[xd][yd][pos.z]==0)
+				{
+					ret.insert(int3(xd,yd,pos.z));
+				}
+			}
+		}
+	}
+	return ret;
+}
+
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender)
 {
 	int attackDefenseBonus = attacker->creature->attack - defender->creature->defence;

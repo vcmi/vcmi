@@ -88,7 +88,7 @@ struct HeroMoveDetails
 	HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho);
 	int3 src, dst; //source and destination points
 	CGHeroInstance * ho; //object instance of this hero
-	int owner;
+	int owner, style; //style: 0 - normal move, 1 - teleport, 2 - instant jump
 	bool successful;
 };
 
