@@ -2,6 +2,7 @@
 #define INT3_H
 #include <map>
 #include <vector>
+#include <cmath>
 class CCreature;
 class CCreatureSet //seven combined creatures
 {

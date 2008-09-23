@@ -190,7 +190,7 @@ unsigned char * CDefHandler::writeNormalNr (int nr, int bytCon)
 		if(ret!=NULL)
 			break;
 	}
-	long long amp = pow((float)256,bytCon-1);
+	long long amp = pow(256,bytCon-1);
 	for (int i=bytCon-1; i>=0;i--)
 	{
 		int test2 = nr/(amp);

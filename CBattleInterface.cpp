@@ -482,7 +482,8 @@ void CBattleInterface::bOptionsf()
 	CGI->curh->changeGraphic(0,0);
 	LOCPLINT->curint->deactivate();
 
-	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(genRect(431, 481, 160, 84), this);
+	SDL_Rect temp_rect = genRect(431, 481, 160, 84);
+	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(temp_rect, this);
 	optionsWin->activate();
 	LOCPLINT->objsToBlit.push_back(optionsWin);
 }
