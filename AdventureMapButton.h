@@ -40,8 +40,25 @@ public:
 	void clickLeft (tribool down);
 };
 
+class CHighlightableButtonsGroup
+{
+public:
+	CFunctionList2<void(int)> onChange; //called when changing selected button with new button's id
+	std::vector<CHighlightableButton*> buttons;
 
-//template<typename T>
+	//void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid);
+	void addButton(CHighlightableButton* bt);//add existing button, it'll be deleted by CHighlightableButtonsGroup destructor
+	void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect=0); //creates new button
+	CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange);
+	~CHighlightableButtonsGroup();
+	void activate();
+	void deactivate();
+	void select(int id, bool mode); //mode==0: id is serial; mode==1: id is unique button id
+	void selectionChanged(int to);
+	void show(SDL_Surface * to = NULL);
+};
+
+
 class CSlider : public IShowable, public MotionInterested, public ClickableL
 {
 public:

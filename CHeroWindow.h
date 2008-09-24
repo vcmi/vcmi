@@ -106,7 +106,8 @@ class CHeroWindow: public IShowActivable, public virtual CIntObject
 public:
 	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general
 		* leftArtRoll, * rightArtRoll;
-	CHighlightableButton *gar2button, *gar1button, *gar3button; //garrison / formation handling;
+	CHighlightableButton *gar2button; //garrison / formation handling;
+	CHighlightableButtonsGroup *formations;
 	int player;
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor
@@ -118,10 +119,6 @@ public:
 	void quit(); //stops displaying hero window
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
-	void gar1(); //garrison / formation handling
-	void gar2(); //garrison / formation handling
-	void gar3(); //garrison / formation handling
-	void gar4(); //garrison / formation handling
 	void leftArtRoller(); //scrolls artifacts in bag left
 	void rightArtRoller(); //scrolls artifacts in bag right
 	void switchHero(); //changes displayed hero

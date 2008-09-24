@@ -201,6 +201,68 @@ CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelec
 	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,activ);
 	callback2 = onDeselect;
 }
+void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
+{
+	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
+	buttons.push_back(bt);
+}
+void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect)
+{
+	CHighlightableButton *bt = new CHighlightableButton(OnSelect,0,tooltip,HelpBox,false,defName,0,x,y,0);
+	bt->ID = uid;
+	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
+	bt->onlyOn = true;
+	buttons.push_back(bt);
+}	
+CHighlightableButtonsGroup::CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange)
+{
+	onChange = OnChange;
+}
+CHighlightableButtonsGroup::~CHighlightableButtonsGroup()
+{
+	for(int i=0;i<buttons.size();i++)
+		delete buttons[i];
+}
+void CHighlightableButtonsGroup::activate()
+{
+	for(int i=0;i<buttons.size();i++)
+		buttons[i]->activate();
+}
+void CHighlightableButtonsGroup::deactivate()
+{
+	for(int i=0;i<buttons.size();i++)
+		buttons[i]->deactivate();
+}
+void CHighlightableButtonsGroup::select(int id, bool mode)
+{
+	CHighlightableButton *bt = NULL;
+	if(mode)
+	{
+		for(int i=0;i<buttons.size() && !bt;i++)
+			if (buttons[i]->ID == id)
+				bt = buttons[i];
+	}
+	else
+	{
+		bt = buttons[id];
+	}
+	bt->select(true);
+	selectionChanged(bt->ID);
+}
+
+void CHighlightableButtonsGroup::selectionChanged(int to)
+{
+	for(int i=0;i<buttons.size();i++)
+		if(buttons[i]->ID!=to && buttons[i]->selected)
+			buttons[i]->select(false);
+	onChange(to);
+}
+void CHighlightableButtonsGroup::show(SDL_Surface * to )
+{
+	for(int i=0;i<buttons.size();i++)
+		buttons[i]->show();
+}
+
 void CSlider::sliderClicked()
 {
 	if(!moving)

@@ -48,9 +48,12 @@ CHeroWindow::CHeroWindow(int playerColor):
 	dismissButton = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 519, 437, "hsbtns2.def", false, NULL, false);
 	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 379, 437, "hsbtns4.def", false, NULL, false);
 
-	gar1button = new CHighlightableButton(0,0,map_list_of(0,CGI->generaltexth->heroscrn[23]), CGI->generaltexth->heroscrn[29], false, "hsbtns6.def" , NULL,546, 491, false);
-	gar3button = new CHighlightableButton(0,0,map_list_of(0,CGI->generaltexth->heroscrn[24]), CGI->generaltexth->heroscrn[30], false,  "hsbtns7.def", NULL, 546, 527, false);
-	gar1button->onlyOn = gar3button->onlyOn = true;
+	formations = new CHighlightableButtonsGroup(0);
+	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def",546, 491, 0);
+	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def",546, 527, 1);
+	//gar1button = new CHighlightableButton(0,0,map_list_of(0,CGI->generaltexth->heroscrn[23]), CGI->generaltexth->heroscrn[29], false, "hsbtns6.def" , NULL,546, 491, false);
+	//gar3button = new CHighlightableButton(0,0,map_list_of(0,CGI->generaltexth->heroscrn[24]), CGI->generaltexth->heroscrn[30], false,  "hsbtns7.def", NULL, 546, 527, false);
+
 
 	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 604, 491, false);
 	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), 604, 527, "hsbtns9.def", false, NULL, false);
@@ -120,9 +123,8 @@ CHeroWindow::~CHeroWindow()
 	delete quitButton;
 	delete dismissButton;
 	delete questlogButton;
-	delete gar1button;
+	delete formations;
 	delete gar2button;
-	delete gar3button;
 	delete gar4button;
 	delete leftArtRoll;
 	delete rightArtRoll;
@@ -171,9 +173,8 @@ void CHeroWindow::show(SDL_Surface *to)
 	quitButton->show();
 	dismissButton->show();
 	questlogButton->show();
-	gar1button->show();
+	formations->show();
 	gar2button->show();
-	gar3button->show();
 	gar4button->show();
 	leftArtRoll->show();
 	rightArtRoll->show();
@@ -312,16 +313,10 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		gar2button->callback = vstd::assigno(hero->tacticFormationEnabled,true);
 		gar2button->callback2 = vstd::assigno(hero->tacticFormationEnabled,false);
 	}
-	gar1button->callback.clear();
-	gar1button->callback += boost::bind(&CHighlightableButton::select, gar3button, false);
-	gar1button->callback += boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, false);
-	gar3button->callback.clear();
-	gar3button->callback += boost::bind(&CHighlightableButton::select, gar1button, false);
-	gar3button->callback += boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, true);
-	if(hero->army.formation)
-		gar3button->select(true);
-	else
-		gar1button->select(true);
+
+	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, _1);
+	formations->select(hero->army.formation,true);
+
 	redrawCurBack();
 }
 
@@ -357,9 +352,8 @@ void CHeroWindow::activate()
 	quitButton->activate();
 	dismissButton->activate();
 	questlogButton->activate();
-	gar1button->activate();
 	gar2button->activate();
-	gar3button->activate();
+	formations->activate();
 	gar4button->activate();
 	leftArtRoll->activate();
 	rightArtRoll->activate();
@@ -403,9 +397,8 @@ void CHeroWindow::deactivate()
 	quitButton->deactivate();
 	dismissButton->deactivate();
 	questlogButton->deactivate();
-	gar1button->deactivate();
 	gar2button->deactivate();
-	gar3button->deactivate();
+	formations->deactivate();
 	gar4button->deactivate();
 	leftArtRoll->deactivate();
 	rightArtRoll->deactivate();
@@ -450,19 +443,6 @@ void CHeroWindow::dismissCurrent()
 void CHeroWindow::questlog()
 {
 }
-
-void CHeroWindow::gar1()
-{
-}
-
-void CHeroWindow::gar3()
-{
-}
-
-void CHeroWindow::gar4()
-{
-}
-
 void CHeroWindow::leftArtRoller()
 {
 	if(curHero->artifacts.size()>5) //if it is <=5, we have nothing to scroll
