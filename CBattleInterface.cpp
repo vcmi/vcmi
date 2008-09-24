@@ -11,6 +11,7 @@
 #include "CCallback.h"
 #include "CGameState.h"
 #include "hch/CGeneralTextHandler.h"
+#include "hch/CPreGameTextHandler.h"
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
 #include "client/CSpellWindow.h"
@@ -18,6 +19,7 @@
 #include <sstream>
 #include "lib/CondSh.h"
 #include "lib/NetPacks.h"
+#include <boost/assign/list_of.hpp>
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
 #else
@@ -39,7 +41,7 @@ public:
 } cmpst2 ;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(1)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true)
 {
 	givenCommand = new CondSh<BattleAction *>(NULL);
 	//initializing armies
@@ -227,6 +229,23 @@ CBattleInterface::~CBattleInterface()
 		delete g->second;
 }
 
+void CBattleInterface::setPrintCellBorders(bool set)
+{
+	printCellBorders = set;
+	redrawBackgroundWithHexes(activeStack);
+}
+
+void CBattleInterface::setPrintStackRange(bool set)
+{
+	printStackRange = set;
+	redrawBackgroundWithHexes(activeStack);
+}
+
+void CBattleInterface::setPrintMouseShadow(bool set)
+{
+	printMouseShadow = set;
+}
+
 void CBattleInterface::activate()
 {
 	subInt = NULL;
@@ -292,13 +311,16 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	//printing hovered cell
-	for(int b=0; b<187; ++b)
+	if(printMouseShadow)
 	{
-		if(bfield[b].strictHovered && bfield[b].hovered)
+		for(int b=0; b<187; ++b)
 		{
-			int x = 14 + ((b/17)%2==0 ? 22 : 0) + 44*(b%17);
-			int y = 86 + 42 * (b/17);
-			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
+			if(bfield[b].strictHovered && bfield[b].hovered)
+			{
+				int x = 14 + ((b/17)%2==0 ? 22 : 0) + 44*(b%17);
+				int y = 86 + 42 * (b/17);
+				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
+			}
 		}
 	}
 
@@ -444,7 +466,8 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	if(creAnims[number]==NULL)
 		return false; //there is no such creature
 	creAnims[number]->setType(8);
-	for(int g=0; g<creAnims[number]->framesInGroup(8); ++g)
+	int firstFrame = creAnims[number]->getFrame();
+	for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(8) + firstFrame - 1; ++g)
 	{
 		show();
 		CSDL_Ext::update();
@@ -466,7 +489,8 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	}
 
 	creAnims[number]->setType(7);
-	for(int g=0; g<creAnims[number]->framesInGroup(7); ++g)
+	firstFrame = creAnims[number]->getFrame();
+	for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(7) + firstFrame - 1; ++g)
 	{
 		show();
 		CSDL_Ext::update();
@@ -588,7 +612,8 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 		}
 	}
 	creAnims[ID]->setType(5); //death
-	for(int i=0; i<creAnims[ID]->framesInGroup(5)*3+1; ++i)
+	int firstFrame = creAnims[ID]->getFrame();
+	for(int i=0; creAnims[ID]->getFrame() != creAnims[ID]->framesInGroup(5) + firstFrame - 1; ++i)
 	{
 		if((animCount%(4/animSpeed))==0)
 			creAnims[ID]->incrementFrame();
@@ -604,40 +629,15 @@ void CBattleInterface::stackActivated(int number)
 {
 	//givenCommand = NULL;
 	activeStack = number;
-	shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(number);
 	myTurn = true;
-
-	//preparating background graphic with hexes and shaded hexes
-	blitAt(background, 0, 0, backgroundWithHexes);
-	if(printCellBorders)
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
-
-	for(int m=0; m<shadedHexes.size(); ++m) //rows
-	{
-		int i = shadedHexes[m]/17; //row
-		int j = shadedHexes[m]%17-1; //column
-		int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
-		int y = 86 + 42 * i;
-		CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, backgroundWithHexes, &genRect(cellShade->h, cellShade->w, x, y));
-	}
+	redrawBackgroundWithHexes(number);
 }
 
 void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, bool endMoving)
 {
 	//a few useful variables
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
-	int steps;
-	switch(animSpeed)
-	{
-	case 1:
-		steps = creAnims[number]->framesInGroup(0)*3.5;
-		break;
-	case 2:
-		steps = creAnims[number]->framesInGroup(0)*2.2;
-		break;
-	case 4:
-		steps = creAnims[number]->framesInGroup(0);
-	}
+	int steps = creAnims[number]->framesInGroup(0)*getAnimSpeedMultiplier()-1;
 	int hexWbase = 44, hexHbase = 42;
 	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
 
@@ -647,7 +647,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 		CGI->curh->hide();
 		creAnims[number]->setType(20);
 		//LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
-		for(int i=0; i<creAnims[number]->framesInGroup(20)*3+1; ++i)
+		for(int i=0; i<creAnims[number]->framesInGroup(20)*getAnimSpeedMultiplier()-1; ++i)
 		{
 			show();
 			CSDL_Ext::update();
@@ -724,7 +724,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, boo
 		if(creAnims[number]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
 		{
 			creAnims[number]->setType(21);
-			for(int i=0; i<creAnims[number]->framesInGroup(21)*3+1; ++i)
+			for(int i=0; i<creAnims[number]->framesInGroup(21)*getAnimSpeedMultiplier()-1; ++i)
 			{
 				show();
 				CSDL_Ext::update();
@@ -784,7 +784,8 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 		}
 	}
 	creAnims[ID]->setType(3); //getting hit
-	for(int i=0; i<creAnims[ID]->framesInGroup(3)*3+1; ++i)
+	int firstFrame = creAnims[ID]->getFrame();
+	for(int i=0; creAnims[ID]->getFrame() != creAnims[ID]->framesInGroup(3) + firstFrame - 1; ++i)
 	{
 		show();
 		CSDL_Ext::update();
@@ -1068,15 +1069,28 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	resWindow->activate();
 }
 
-void CBattleInterface::showRange(SDL_Surface * to, int ID)
+void CBattleInterface::setAnimSpeed(int set)
 {
-	/*for(int i=0; i<shadedHexes.size(); ++i)
-	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(CBattleInterface::cellShade, NULL, to, &bfield[shadedHexes[i]].pos);
-	}*/
-	//CSDL_Ext::blit8bppAlphaTo24bpp(shadedHexesGraphic, NULL, to, NULL);
+	animSpeed = set;
 }
 
+int CBattleInterface::getAnimSpeed() const
+{
+	return animSpeed;
+}
+
+float CBattleInterface::getAnimSpeedMultiplier() const
+{
+	switch(animSpeed)
+	{
+	case 1:
+		return 3.5f;
+	case 2:
+		return 2.2f;
+	case 4:
+		return 1.0f;
+	}
+}
 
 void CBattleInterface::attackingShowHelper()
 {
@@ -1257,6 +1271,28 @@ void CBattleInterface::attackingShowHelper()
 	}
 }
 
+void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
+{
+	shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(activeStack);
+
+	//preparating background graphic with hexes and shaded hexes
+	blitAt(background, 0, 0, backgroundWithHexes);
+	if(printCellBorders)
+		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
+
+	if(printStackRange)
+	{
+		for(int m=0; m<shadedHexes.size(); ++m) //rows
+		{
+			int i = shadedHexes[m]/17; //row
+			int j = shadedHexes[m]%17-1; //column
+			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
+			int y = 86 + 42 * i;
+			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, backgroundWithHexes, &genRect(cellShade->h, cellShade->w, x, y));
+		}
+	}
+}
+
 void CBattleInterface::printConsoleAttacked(int ID, int dmg, int killed, int IDby)
 {
 	char tabh[200];
@@ -1332,6 +1368,8 @@ void CBattleHero::show(SDL_Surface *to)
 	{
 		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 31, 39));
 	}
+	++flagAnimCount;
+	if(flagAnimCount%4==0)
 	{
 		++flagAnim;
 		flagAnim %= flag->ourImages.size();
@@ -1411,7 +1449,7 @@ CBattleHero::~CBattleHero()
 	delete flag;
 }
 
-std::pair<int, int> CBattleHex::getXYUnitAnim(int hexNum, bool attacker, CCreature * creature)
+std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CCreature * creature)
 {
 	std::pair<int, int> ret = std::make_pair(-500, -500); //returned value
 	ret.second = -139 + 42 * (hexNum/17); //counting y
@@ -1642,7 +1680,7 @@ void CBattleConsole::scrollDown(unsigned int by)
 		lastShown += by;
 }
 
-CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, SDL_Rect & pos, const CBattleInterface * owner)
+CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, const SDL_Rect & pos, const CBattleInterface * owner)
 {
 	this->pos = pos;
 	background = BitmapHandler::loadBitmap("CPRESULT.BMP", true);
@@ -1806,17 +1844,29 @@ void CBattleReslutWindow::bExitf()
 	LOCPLINT->battleResultQuited();
 }
 
-CBattleOptionsWindow::CBattleOptionsWindow(SDL_Rect & position, CBattleInterface *owner): myInt(owner)
+CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner): myInt(owner)
 {
 	pos = position;
 	background = BitmapHandler::loadBitmap("comopbck.bmp", true);
 	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
 
-	check = CDefHandler::giveDef("SYSOPCHK.DEF");
+	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->preth->zelp[427].first)(3,CGI->preth->zelp[427].first), CGI->preth->zelp[427].second, false, "sysopchk.def", NULL, 185, 140, false);
+	viewGrid->select(owner->printCellBorders);
+	movementShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintStackRange, owner, true), boost::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->preth->zelp[428].first)(3,CGI->preth->zelp[428].first), CGI->preth->zelp[428].second, false, "sysopchk.def", NULL, 185, 173, false);
+	movementShadow->select(owner->printStackRange);
+	mouseShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintMouseShadow, owner, true), boost::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->preth->zelp[429].first)(3,CGI->preth->zelp[429].first), CGI->preth->zelp[429].second, false, "sysopchk.def", NULL, 185, 207, false);
+	mouseShadow->select(owner->printMouseShadow);
 
-	setToDefault = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def", false, NULL, false);
+	animSpeeds = new CHighlightableButtonsGroup(0);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[422].first),CGI->preth->zelp[422].second, "sysopb9.def",188, 309, 1);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[423].first),CGI->preth->zelp[423].second, "sysob10.def",252, 309, 2);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[424].first),CGI->preth->zelp[424].second, "sysob11.def",315, 309, 4);
+	animSpeeds->select(owner->getAnimSpeed(), 1);
+	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
+
+	setToDefault = new AdventureMapButton (CGI->preth->zelp[392].first, CGI->preth->zelp[392].second, boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def", false, NULL, false);
 	std::swap(setToDefault->imgs[0][0], setToDefault->imgs[0][1]);
-	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def", false, NULL, false);
+	exit = new AdventureMapButton (CGI->preth->zelp[393].first, CGI->preth->zelp[393].second, boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def", false, NULL, false);
 	std::swap(exit->imgs[0][0], exit->imgs[0][1]);
 
 	//printing texts to background
@@ -1852,19 +1902,31 @@ CBattleOptionsWindow::~CBattleOptionsWindow()
 
 	delete setToDefault;
 	delete exit;
-	delete check;
+
+	delete viewGrid;
+	delete movementShadow;
+	delete animSpeeds;
+	delete mouseShadow;
 }
 
 void CBattleOptionsWindow::activate()
 {
 	setToDefault->activate();
 	exit->activate();
+	viewGrid->activate();
+	movementShadow->activate();
+	animSpeeds->activate();
+	mouseShadow->activate();
 }
 
 void CBattleOptionsWindow::deactivate()
 {
 	setToDefault->deactivate();
 	exit->deactivate();
+	viewGrid->deactivate();
+	movementShadow->deactivate();
+	animSpeeds->deactivate();
+	mouseShadow->deactivate();
 }
 
 void CBattleOptionsWindow::show(SDL_Surface *to)
@@ -1876,6 +1938,10 @@ void CBattleOptionsWindow::show(SDL_Surface *to)
 
 	setToDefault->show(to);
 	exit->show(to);
+	viewGrid->show(to);
+	movementShadow->show(to);
+	animSpeeds->show(to);
+	mouseShadow->show(to);
 }
 
 void CBattleOptionsWindow::bDefaultf()

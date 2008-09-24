@@ -9,6 +9,8 @@ class CDefHandler;
 class CStack;
 class CCallback;
 class AdventureMapButton;
+class CHighlightableButton;
+class CHighlightableButtonsGroup;
 struct BattleResult;
 template <typename T> struct CondSh;
 
@@ -41,7 +43,7 @@ public:
 	//CStack * ourStack;
 	bool hovered, strictHovered;
 	CBattleInterface * myInterface; //interface that owns me
-	static std::pair<int, int> getXYUnitAnim(int hexNum, bool attacker, CCreature * creature); //returns (x, y) of left top corner of animation
+	static std::pair<int, int> getXYUnitAnim(const int & hexNum, const bool & attacker, const CCreature * creature); //returns (x, y) of left top corner of animation
 	//for user interactions
 	void hover (bool on);
 	void activate();
@@ -80,7 +82,7 @@ private:
 	SDL_Surface * background;
 	AdventureMapButton * exit;
 public:
-	CBattleReslutWindow(const BattleResult & br, SDL_Rect & pos, const CBattleInterface * owner); //c-tor
+	CBattleReslutWindow(const BattleResult & br, const SDL_Rect & pos, const CBattleInterface * owner); //c-tor
 	~CBattleReslutWindow(); //d-tor
 
 	void bExitf();
@@ -96,9 +98,10 @@ private:
 	CBattleInterface * myInt;
 	SDL_Surface * background;
 	AdventureMapButton * setToDefault, * exit;
-	CDefHandler * check;
+	CHighlightableButton * viewGrid, * movementShadow, * mouseShadow;
+	CHighlightableButtonsGroup * animSpeeds;
 public:
-	CBattleOptionsWindow(SDL_Rect & position, CBattleInterface * owner); //c-tor
+	CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface * owner); //c-tor
 	~CBattleOptionsWindow(); //d-tor
 
 	void bDefaultf();
@@ -125,8 +128,8 @@ private:
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
 	std::vector<int> shadedHexes; //hexes available for active stack
-	void showRange(SDL_Surface * to, int ID); //show helper funtion ot mark range of a unit
 	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
+	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 
 	class CAttHelper
 	{
@@ -141,6 +144,7 @@ private:
 		int shootingGroup; //if shooting is true, print this animation group
 	} * attackingInfo;
 	void attackingShowHelper();
+	void redrawBackgroundWithHexes(int activeStack);
 	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
 
 	struct SProjectileInfo
@@ -162,6 +166,14 @@ public:
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling
 	bool printCellBorders; //if true, cell borders will be printed
+	void setPrintCellBorders(bool set); //set for above member
+	bool printStackRange; //if true,range of active stack will be printed
+	void setPrintStackRange(bool set); //set for above member
+	bool printMouseShadow; //if true, hex under mouse will be shaded
+	void setPrintMouseShadow(bool set); //set for above member
+	void setAnimSpeed(int set); //set for animSpeed
+	int getAnimSpeed() const; //get for animSpeed
+
 	CBattleHex bfield[187]; //11 lines, 17 hexes on each
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;

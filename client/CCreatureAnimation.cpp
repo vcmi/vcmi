@@ -153,6 +153,12 @@ void CCreatureAnimation::incrementFrame()
 			curFrame = 0;
 	}
 }
+
+int CCreatureAnimation::getFrame() const
+{
+	return curFrame;
+}
+
 int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool IncrementFrame, bool yellowBorder, SDL_Rect * destRect)
 {
 	if(dest->format->BytesPerPixel<3)

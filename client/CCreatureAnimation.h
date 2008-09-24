@@ -41,6 +41,7 @@ public:
 	int nextFrame(SDL_Surface * dest, int x, int y, bool attacker, bool incrementFrame = true, bool yellowBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, bool IncrementFrame = true, bool yellowBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	void incrementFrame();
+	int getFrame() const;
 
 	int framesInGroup(int group) const; //retirns number of fromes in given group
 };

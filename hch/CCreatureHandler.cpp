@@ -15,7 +15,7 @@ CCreatureHandler::CCreatureHandler()
 {
 	VLC->creh = this;
 }
-int CCreature::getQuantityID(int quantity)
+int CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
 		return 0;
@@ -38,16 +38,16 @@ int CCreature::getQuantityID(int quantity)
 	return 8;
 }
 
-bool CCreature::isDoubleWide()
+bool CCreature::isDoubleWide() const
 {
 	return vstd::contains(abilities,DOUBLE_WIDE);
 }
 
-bool CCreature::isFlying()
+bool CCreature::isFlying() const
 {
 	return vstd::contains(abilities,FLYING);
 }
-bool CCreature::isShooting()
+bool CCreature::isShooting() const
 {
 	return vstd::contains(abilities,SHOOTER);
 }

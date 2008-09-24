@@ -39,11 +39,11 @@ public:
 
 	//TODO - zdolnoœci (abilities) - na typie wyliczeniowym czy czymœ - albo lepiej secie czegoœ
 
-	bool isDoubleWide(); //returns true if unit is double wide on battlefield
-	bool isFlying(); //returns true if it is a flying unit
-	bool isShooting(); //returns true if unit can shoot
+	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
+	bool isFlying() const; //returns true if it is a flying unit
+	bool isShooting() const; //returns true if unit can shoot
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
-	static int getQuantityID(int quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
+	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 };
 
 

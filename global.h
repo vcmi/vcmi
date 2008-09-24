@@ -3,9 +3,11 @@
 #include <iostream>
 #include <boost/logic/tribool.hpp>
 #include <boost/cstdint.hpp>
+typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
 typedef boost::uint32_t ui32;  //unsigned int 32 bits (4 bytes)
 typedef boost::uint16_t ui16; //unsigned int 16 bits (2 bytes)
 typedef boost::uint8_t ui8; //unsigned int 8 bits (1 byte)
+typedef boost::int64_t si64; //signed int 64 bits (8 bytes)
 typedef boost::int32_t si32; //signed int 32 bits (4 bytes)
 typedef boost::int16_t si16; //signed int 16 bits (2 bytes)
 typedef boost::int8_t si8; //signed int 8 bits (1 byte)

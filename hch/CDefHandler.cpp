@@ -190,7 +190,7 @@ unsigned char * CDefHandler::writeNormalNr (int nr, int bytCon)
 		if(ret!=NULL)
 			break;
 	}
-	long long amp = pow(256,bytCon-1);
+	long long amp = pow((long long int)256,bytCon-1);
 	for (int i=bytCon-1; i>=0;i--)
 	{
 		int test2 = nr/(amp);
@@ -564,6 +564,8 @@ CDefHandler * CDefHandler::giveDef(std::string defName, CLodHandler * spriteh)
 {
 	if(!spriteh) spriteh=Spriteh;
 	unsigned char * data = spriteh->giveFile(defName);
+	if(!data)
+		throw "bad def name!";
 	CDefHandler * nh = new CDefHandler();
 	nh->openFromMemory(data, defName);
 	nh->alphaTransformed = false;
