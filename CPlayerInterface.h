@@ -44,7 +44,7 @@ class IStatusBar
 {
 public:
 	virtual ~IStatusBar(){}; //d-tor
-	virtual void print(std::string text)=0; //prints text and refreshes statusbar
+	virtual void print(const std::string & text)=0; //prints text and refreshes statusbar
 	virtual void clear()=0;//clears statusbar and refreshes
 	virtual void show()=0; //shows statusbar (with current text)
 	virtual std::string getCurrent()=0;
@@ -134,7 +134,7 @@ class KeyInterested : public virtual CIntObject
 {
 public:
 	virtual ~KeyInterested(){};
-	virtual void keyPressed (SDL_KeyboardEvent & key)=0;
+	virtual void keyPressed (const SDL_KeyboardEvent & key)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
@@ -144,7 +144,7 @@ public:
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
 	MotionInterested(){strongInterest=false;};
 	virtual ~MotionInterested(){};
-	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
+	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
@@ -400,7 +400,7 @@ public:
 
 	CStatusBar(int x, int y, std::string name="ADROLLVR.bmp", int maxw=-1); //c-tor
 	~CStatusBar(); //d-tor
-	void print(std::string text); //prints text and refreshes statusbar
+	void print(const std::string & text); //prints text and refreshes statusbar
 	void clear();//clears statusbar and refreshes
 	void show(); //shows statusbar (with current text)
 	std::string getCurrent();
@@ -424,7 +424,7 @@ public:
 	void clickLeft(boost::logic::tribool down);
 	void activate();
 	void deactivate();
-	virtual void mouseMoved (SDL_MouseMotionEvent & sEvent)=0;
+	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0;
 	virtual void genList()=0;
 	virtual void select(int which)=0;
 	virtual void draw()=0;
@@ -441,11 +441,11 @@ public:
 	int getPosOfHero(const CArmedInstance* h);
 	void genList();
 	void select(int which);
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void clickLeft(boost::logic::tribool down);
 	void clickRight(boost::logic::tribool down);
 	void hover (bool on);
-	void keyPressed (SDL_KeyboardEvent & key);
+	void keyPressed (const SDL_KeyboardEvent & key);
 	void updateHList();
 	void updateMove(const CGHeroInstance* which); //draws move points bar
 	void redrawAllOne(int which);
@@ -465,11 +465,11 @@ public:
 	~CTownList();
 	void genList();
 	void select(int which);
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void clickLeft(boost::logic::tribool down);
 	void clickRight(boost::logic::tribool down);
 	void hover (bool on);
-	void keyPressed (SDL_KeyboardEvent & key);
+	void keyPressed (const SDL_KeyboardEvent & key);
 	void draw();
 };
 
@@ -534,7 +534,7 @@ public:
 	void close();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
-	void keyPressed (SDL_KeyboardEvent & key);
+	void keyPressed (const SDL_KeyboardEvent & key);
 	void sliderMoved(int to);
 };
 
@@ -560,7 +560,7 @@ public:
 	void close();
 	void clickRight(boost::logic::tribool down);
 	void dismissF();
-	void keyPressed (SDL_KeyboardEvent & key);
+	void keyPressed (const SDL_KeyboardEvent & key);
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
 	void onUpgradeYes();
@@ -634,6 +634,24 @@ public:
 	~CMarketplaceWindow();
 	void setMode(int mode);
 	void clear();
+};
+
+class CSystemOptionsWindow : public IShowActivable, public CIntObject
+{
+private:
+	SDL_Surface * background; //background of window
+	AdventureMapButton * quitGame, * backToMap;
+public:
+	CSystemOptionsWindow(const SDL_Rect & pos); //c-tor
+	~CSystemOptionsWindow(); //d-tor
+
+	//functions for butons
+	void bquitf(); //quit game
+	void breturnf(); //return to game
+
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to = NULL);
 };
 
 extern CPlayerInterface * LOCPLINT;

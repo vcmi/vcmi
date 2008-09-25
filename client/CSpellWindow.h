@@ -21,7 +21,7 @@ public:
 	void activate();
 	void deactivate();
 
-	SpellbookInteractiveArea(SDL_Rect & myRect, boost::function<void()> funcL, std::string textR, boost::function<void()> funcHon, boost::function<void()> funcHoff);//c-tor
+	SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff);//c-tor
 };
 
 class CSpellWindow : public IShowActivable, public CIntObject

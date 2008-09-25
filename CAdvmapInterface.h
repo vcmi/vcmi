@@ -34,7 +34,7 @@ public:
 	void clickRight (tribool down);
 	void clickLeft (tribool down);
 	void hover (bool on);
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but don't deletes)
 	void hideTile(int3 pos); //puts FoW
@@ -56,11 +56,11 @@ public:
 	void clickLeft(tribool down);
 	void clickRight(tribool down);
 	void hover(bool on);
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
-	void keyPressed (SDL_KeyboardEvent & key);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
+	void keyPressed (const SDL_KeyboardEvent & key);
 	void show();
 	void showPath();
-	int3 whichTileIsIt(int x, int y); //x,y are cursor position
+	int3 whichTileIsIt(const int & x, const int & y); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
 };
 class CResDataBar

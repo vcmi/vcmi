@@ -143,7 +143,7 @@ void CBuildingRect::clickRight (tribool down)
 	}
 }
 
-void CBuildingRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
+void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(area)
 	{

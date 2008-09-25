@@ -2269,7 +2269,7 @@ void CStatusBar::clear()
 	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
 	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),screen,&pom);
 }
-void CStatusBar::print(std::string text)
+void CStatusBar::print(const std::string & text)
 {
 	current=text;
 	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
@@ -2432,7 +2432,7 @@ void CHeroList::clickLeft(tribool down)
 
 	}
 }
-void CHeroList::mouseMoved (SDL_MouseMotionEvent & sEvent)
+void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
@@ -2502,7 +2502,7 @@ void CHeroList::clickRight(tribool down)
 void CHeroList::hover (bool on)
 {
 }
-void CHeroList::keyPressed (SDL_KeyboardEvent & key)
+void CHeroList::keyPressed (const SDL_KeyboardEvent & key)
 {
 }
 void CHeroList::updateHList()
@@ -2617,7 +2617,7 @@ void CTownList::select(int which)
 		fun();
 }
 
-void CTownList::mouseMoved (SDL_MouseMotionEvent & sEvent)
+void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
@@ -2749,7 +2749,7 @@ void CTownList::hover (bool on)
 {
 }
 
-void CTownList::keyPressed (SDL_KeyboardEvent & key)
+void CTownList::keyPressed (const SDL_KeyboardEvent & key)
 {
 }
 
@@ -3070,7 +3070,7 @@ void CSplitWindow::show(SDL_Surface * to)
 	anim->blitPic(screen,pos.x+20,pos.y+54,false);
 	anim->blitPic(screen,pos.x+177,pos.y+54,false);
 }
-void CSplitWindow::keyPressed (SDL_KeyboardEvent & key)
+void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
 	//TODO: make manual typing possible
 }
@@ -3287,7 +3287,7 @@ void CCreInfoWindow::dismissF()
 	dsm();
 	close();
 }
-void CCreInfoWindow::keyPressed (SDL_KeyboardEvent & key)
+void CCreInfoWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
 }
 void CCreInfoWindow::deactivate()
@@ -3732,4 +3732,88 @@ void CMarketplaceWindow::selectionChanged(bool side)
 			rSubs[i] = oss.str();
 		}
 	}
+}
+
+CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos)
+{
+	this->pos = pos;
+	background = BitmapHandler::loadBitmap("SysOpbck.bmp", true);
+	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
+
+	//printing texts
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[568], 240, 32, GEOR16, tytulowy, background); //window title
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[569], 122, 65, GEOR16, tytulowy, background); //hero speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[570], 122, 131, GEOR16, tytulowy, background); //enemy speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[571], 122, 197, GEOR16, tytulowy, background); //map scroll speed
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[20], 122, 263, GEOR16, tytulowy, background); //video quality
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[394], 122, 348, GEOR16, tytulowy, background); //music volume
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[395], 122, 414, GEOR16, tytulowy, background); //effects volume
+
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[572], 283, 57, GEOR16, zwykly, background); //show move path
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[573], 283, 89, GEOR16, zwykly, background); //show hero reminder
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[574], 283, 121, GEOR16, zwykly, background); //quick combat
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[575], 283, 153, GEOR16, zwykly, background); //video subtitles
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[576], 283, 185, GEOR16, zwykly, background); //town building outlines
+	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 283, 217, GEOR16, zwykly, background); //spell book animation
+
+	//setting up buttons
+	quitGame = new AdventureMapButton (CGI->preth->zelp[324].first, CGI->preth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 405, 471, "soquit.def", false, NULL, false);
+	std::swap(quitGame->imgs[0][0], quitGame->imgs[0][1]);
+	backToMap = new AdventureMapButton (CGI->preth->zelp[325].first, CGI->preth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 516, 471, "soretrn.def", false, NULL, false);
+	std::swap(backToMap->imgs[0][0], backToMap->imgs[0][1]);
+}
+
+CSystemOptionsWindow::~CSystemOptionsWindow()
+{
+	SDL_FreeSurface(background);
+
+	delete quitGame;
+	delete backToMap;
+}
+
+void CSystemOptionsWindow::bquitf()
+{
+	this->deactivate();
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), boost::bind(exit, 0), boost::bind(&CSystemOptionsWindow::activate, this), false, false);
+}
+
+void CSystemOptionsWindow::breturnf()
+{
+	deactivate();
+
+	for(int g=0; g<LOCPLINT->objsToBlit.size(); ++g)
+	{
+		if(dynamic_cast<CSystemOptionsWindow*>(LOCPLINT->objsToBlit[g]))
+		{
+			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+g);
+			break;
+		}
+	}
+
+	delete this;
+	LOCPLINT->curint->activate();
+}
+
+void CSystemOptionsWindow::activate()
+{
+	quitGame->activate();
+	backToMap->activate();
+}
+
+void CSystemOptionsWindow::deactivate()
+{
+	quitGame->deactivate();
+	backToMap->deactivate();
+}
+
+void CSystemOptionsWindow::show(SDL_Surface *to)
+{
+	//evaluating to
+	if(!to)
+		to = screen;
+
+	SDL_BlitSurface(background, NULL, to, &pos);
+
+	quitGame->show(to);
+	backToMap->show(to);
 }

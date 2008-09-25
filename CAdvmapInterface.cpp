@@ -219,7 +219,7 @@ void CMinimap::hover (bool on)
 	else if (LOCPLINT->adventureInt->statusbar.current==statusbarTxt)
 		LOCPLINT->adventureInt->statusbar.clear();
 }
-void CMinimap::mouseMoved (SDL_MouseMotionEvent & sEvent)
+void CMinimap::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if (pressedL)
 	{
@@ -395,7 +395,7 @@ endchkpt:
 void CTerrainRect::clickRight(tribool down)
 {
 }
-void CTerrainRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
+void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	int3 pom=LOCPLINT->adventureInt->verifyPos(whichTileIsIt(sEvent.x,sEvent.y));
 	if (pom!=curHoveredTile)
@@ -438,7 +438,7 @@ void CTerrainRect::mouseMoved (SDL_MouseMotionEvent & sEvent)
 	}
 	CGI->curh->changeGraphic(0,0);
 }
-void CTerrainRect::keyPressed (SDL_KeyboardEvent & key){}
+void CTerrainRect::keyPressed (const SDL_KeyboardEvent & key){}
 void CTerrainRect::hover(bool on)
 {
 	if (!on)
@@ -698,7 +698,7 @@ void CTerrainRect::show()
 	}
 }
 
-int3 CTerrainRect::whichTileIsIt(int x, int y)
+int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
 {
 	int3 ret;
 	ret.x = LOCPLINT->adventureInt->position.x + ((LOCPLINT->current->motion.x-pos.x)/32);
@@ -1048,6 +1048,11 @@ void CAdvMapInt::fadventureOPtions()
 }
 void CAdvMapInt::fsystemOptions()
 {
+	LOCPLINT->curint->deactivate();
+
+	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(genRect(487, 481, 159, 57));
+	sysopWindow->activate();
+	LOCPLINT->objsToBlit.push_back(sysopWindow);
 }
 void CAdvMapInt::fnextHero()
 {

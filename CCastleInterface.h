@@ -26,7 +26,7 @@ public:
 	void hover(bool on);
 	void clickLeft (tribool down);
 	void clickRight (tribool down);
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 };
 class CHeroGSlot : public ClickableL, public ClickableR, public Hoverable
 {

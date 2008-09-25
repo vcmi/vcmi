@@ -27,7 +27,7 @@ public:
 	void activate();
 	void deactivate();
 	void clickLeft(boost::logic::tribool down);
-	CBattleHero(std::string defName, int phaseG, int imageG, bool filpG, unsigned char player, const CGHeroInstance * hero); //c-tor
+	CBattleHero(const std::string & defName, int phaseG, int imageG, bool filpG, unsigned char player, const CGHeroInstance * hero); //c-tor
 	~CBattleHero(); //d-tor
 };
 
@@ -48,7 +48,7 @@ public:
 	void hover (bool on);
 	void activate();
 	void deactivate();
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void clickLeft(boost::logic::tribool down);
 	void clickRight(boost::logic::tribool down);
 	CBattleHex();
@@ -69,9 +69,9 @@ public:
 	CBattleConsole(); //c-tor
 	~CBattleConsole(); //d-tor
 	void show(SDL_Surface * to = 0);
-	bool addText(std::string text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
+	bool addText(const std::string & text); //adds text at the last position; returns false if failed (e.g. text longer than 70 characters)
 	void eraseText(unsigned int pos); //erases added text at position pos
-	void changeTextAt(std::string text, unsigned int pos); //if we have more than pos texts, pos-th is changed to given one
+	void changeTextAt(const std::string & text, unsigned int pos); //if we have more than pos texts, pos-th is changed to given one
 	void scrollUp(unsigned int by = 1); //scrolls console up by 'by' positions
 	void scrollDown(unsigned int by = 1); //scrolls console up by 'by' positions
 };
@@ -112,7 +112,7 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
-class CBattleInterface : public CMainInterface
+class CBattleInterface : public CMainInterface, public MotionInterested
 {
 private:
 	SDL_Surface * background, * menu, * amountBasic, * amountNormal, * cellBorders, * backgroundWithHexes;
@@ -160,6 +160,7 @@ private:
 	std::list<SProjectileInfo> projectiles;
 	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
+	bool isTileAttackable(int number); //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor
@@ -198,6 +199,7 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
 	bool reverseCreature(int number, int hex, bool wideTrick = false); //reverses animation of given creature playing animation of reversing
 
 	//call-ins

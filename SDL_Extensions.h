@@ -36,12 +36,12 @@ namespace CSDL_Ext
 	SDL_Surface * alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	int blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect); //blits 8 bpp surface with alpha channel to 24 bpp surface
 	Uint32 colorToUint32(const SDL_Color * color); //little endian only
-	void printTo(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)
-	void printToWR(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)
-	void printAtMiddle(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2, bool refresh = false); // quality: 0 - lowest, 1 - medium, 2 - highest
-	void printAtMiddleWB(std::string text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
-	void printAtWB(std::string text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
-	void printAt(std::string text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
+	void printTo(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)
+	void printToWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2);// quality: 0 - lowest, 1 - medium, 2 - highest; prints at right bottom corner of specific area. position of corner indicated by (x, y)
+	void printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2, bool refresh = false); // quality: 0 - lowest, 1 - medium, 2 - highest
+	void printAtMiddleWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
+	void printAtWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
+	void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 color);
 	void setPlayerColor(SDL_Surface * sur, unsigned char player); //sets correct color of flags; -1 for neutral

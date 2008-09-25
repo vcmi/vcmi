@@ -248,6 +248,7 @@ void CBattleInterface::setPrintMouseShadow(bool set)
 
 void CBattleInterface::activate()
 {
+	MotionInterested::activate();
 	subInt = NULL;
 	bOptions->activate();
 	bSurrender->activate();
@@ -270,6 +271,7 @@ void CBattleInterface::activate()
 
 void CBattleInterface::deactivate()
 {
+	MotionInterested::deactivate();
 	bOptions->deactivate();
 	bSurrender->deactivate();
 	bFlee->deactivate();
@@ -461,6 +463,85 @@ void CBattleInterface::show(SDL_Surface * to)
 	}
 }
 
+void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
+{
+	if(activeStack>=0)
+	{
+		int myNumber = -1; //number of hovered tile
+		for(int g=0; g<187; ++g)
+		{
+			if(bfield[g].hovered && bfield[g].strictHovered)
+			{
+				myNumber = g;
+				break;
+			}
+		}
+		if(myNumber == -1)
+		{
+			CGI->curh->changeGraphic(1, 6);
+		}
+		else
+		{
+			if(std::find(shadedHexes.begin(),shadedHexes.end(),myNumber) == shadedHexes.end())
+			{
+				CStack *shere = LOCPLINT->cb->battleGetStackByPos(myNumber);
+				if(shere)
+				{
+					if(shere->owner == LOCPLINT->playerID) //our stack
+						CGI->curh->changeGraphic(1,5);
+					else if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isShooting()) //we can shoot enemy
+						CGI->curh->changeGraphic(1,3);
+					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
+					{
+						int fromHex = -1;
+						for(int b=0; b<187; ++b)
+							if(bfield[b].hovered && !bfield[b].strictHovered)
+							{
+								fromHex = b;
+								break;
+							}
+						if(fromHex!=-1 && fromHex%17!=0 && fromHex%17!=16)
+						{
+							switch(BattleInfo::mutualPosition(fromHex, myNumber))
+							{
+							case 0:
+								CGI->curh->changeGraphic(1,12);
+								break;
+							case 1:
+								CGI->curh->changeGraphic(1,7);
+								break;
+							case 2:
+								CGI->curh->changeGraphic(1,8);
+								break;
+							case 3:
+								CGI->curh->changeGraphic(1,9);
+								break;
+							case 4:
+								CGI->curh->changeGraphic(1,10);
+								break;
+							case 5:
+								CGI->curh->changeGraphic(1,11);
+								break;
+							}
+						}
+					}
+					else //unavailable enemy
+						CGI->curh->changeGraphic(1,0);
+				}
+				else //empty unavailable tile
+					CGI->curh->changeGraphic(1,0);
+			}
+			else //available tile
+			{
+				if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isFlying())
+					CGI->curh->changeGraphic(1,2);
+				else
+					CGI->curh->changeGraphic(1,1);
+			}
+		}
+	}
+}
+
 bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 {
 	if(creAnims[number]==NULL)
@@ -518,7 +599,6 @@ void CBattleInterface::bSurrenderf()
 
 void CBattleInterface::bFleef()
 {
-	
 	CFunctionList<void()> ony = boost::bind(&CBattleInterface::activate,this);
 	ony += boost::bind(&CBattleInterface::reallyFlee,this);
 	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<SComponent*>(), ony, boost::bind(&CBattleInterface::activate,this), true, false);
@@ -951,6 +1031,16 @@ void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 addit
 	activeStack = -1;
 }
 
+bool CBattleInterface::isTileAttackable(int number)
+{
+	for(int b=0; b<shadedHexes.size(); ++b)
+	{
+		if(BattleInfo::mutualPosition(shadedHexes[b], number) != -1 || shadedHexes[b] == number)
+			return true;
+	}
+	return false;
+}
+
 void CBattleInterface::hexLclicked(int whichOne)
 {
 	if((whichOne%17)!=0 && (whichOne%17)!=16) //if player is trying to attack enemey unit or move creature stack
@@ -972,15 +1062,36 @@ void CBattleInterface::hexLclicked(int whichOne)
 		}
 		else if(dest->owner != attackingHeroInstance->tempOwner) //attacking
 		{
-			std::vector<int> n = BattleInfo::neighbouringTiles(whichOne);
-			for(int i=0;i<n.size();i++)
+			//std::vector<int> n = BattleInfo::neighbouringTiles(whichOne);
+			//for(int i=0;i<n.size();i++)
+			//{
+			//	//TODO: now we are using first available tile, but in the future we should add possibility of choosing from which tile we want to attack
+			//	if(vstd::contains(shadedHexes,n[i]))
+			//	{
+			//		giveCommand(6,n[i],activeStack,whichOne);
+			//		return;
+			//	}
+			//}
+			switch(CGI->curh->number)
 			{
-				//TODO: now we are using first available tile, but in the future we should add possibility of choosing from which tile we want to attack
-				if(vstd::contains(shadedHexes,n[i]))
-				{
-					giveCommand(6,n[i],activeStack,whichOne);
-					return;
-				}
+			case 12:
+				giveCommand(6,whichOne + ( (whichOne/17)%2 ? 17 : 18 ),activeStack,whichOne);
+				break;
+			case 7:
+				giveCommand(6,whichOne + ( (whichOne/17)%2 ? 16 : 17 ),activeStack,whichOne);
+				break;
+			case 8:
+				giveCommand(6,whichOne - 1,activeStack,whichOne);
+				break;
+			case 9:
+				giveCommand(6,whichOne - ( (whichOne/17)%2 ? 18 : 17 ),activeStack,whichOne);
+				break;
+			case 10:
+				giveCommand(6,whichOne - ( (whichOne/17)%2 ? 17 : 16 ),activeStack,whichOne);
+				break;
+			case 11:
+				giveCommand(6,whichOne + 1,activeStack,whichOne);
+				break;
 			}
 		}
 	}
@@ -1089,6 +1200,8 @@ float CBattleInterface::getAnimSpeedMultiplier() const
 		return 2.2f;
 	case 4:
 		return 1.0f;
+	default:
+		return 0.0f;
 	}
 }
 
@@ -1415,7 +1528,7 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 	}
 }
 
-CBattleHero::CBattleHero(std::string defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero): phase(phaseG), image(imageG), flip(flipG), flagAnim(0), myHero(hero)
+CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero): phase(phaseG), image(imageG), flip(flipG), flagAnim(0), myHero(hero)
 {
 	dh = CDefHandler::giveDef( defName );
 	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images
@@ -1508,7 +1621,7 @@ CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strict
 {
 }
 
-void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
+void CBattleHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
 	if(myInterface->cellShade)
 	{
@@ -1519,31 +1632,6 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 		else //hovered pixel is inside hex
 		{
 			strictHovered = true;
-			if(myInterface->activeStack>=0)
-			{
-				if(std::find(myInterface->shadedHexes.begin(),myInterface->shadedHexes.end(),myNumber) == myInterface->shadedHexes.end())
-				{
-					CStack *shere = LOCPLINT->cb->battleGetStackByPos(myNumber);
-					if(shere)
-					{
-						if(shere->owner == LOCPLINT->playerID) //our stack
-							CGI->curh->changeGraphic(1,5);
-						else if(LOCPLINT->cb->battleGetStackByID(myInterface->activeStack)->creature->isShooting()) //we can shoot enemy
-							CGI->curh->changeGraphic(1,3);
-						else //unavailable enemy
-							CGI->curh->changeGraphic(1,0);
-					}
-					else //empty unavailable tile
-						CGI->curh->changeGraphic(1,0);
-				}
-				else //available tile
-				{
-					if(LOCPLINT->cb->battleGetStackByID(myInterface->activeStack)->creature->isFlying())
-						CGI->curh->changeGraphic(1,2);
-					else
-						CGI->curh->changeGraphic(1,1);
-				}
-			}
 		}
 	}
 
@@ -1555,7 +1643,7 @@ void CBattleHex::mouseMoved(SDL_MouseMotionEvent &sEvent)
 		{
 			char tabh[160];
 			CStack attackedStack = *LOCPLINT->cb->battleGetStackByPos(myNumber);
-			std::string attackedName = attackedStack.amount == 1 ? attackedStack.creature->nameSing : attackedStack.creature->namePl;
+			const std::string & attackedName = attackedStack.amount == 1 ? attackedStack.creature->nameSing : attackedStack.creature->namePl;
 			sprintf(tabh, CGI->generaltexth->allTexts[220].c_str(), attackedName.c_str());
 			myInterface->console->alterTxt = std::string(tabh);
 			setAlterText = true;
@@ -1632,7 +1720,7 @@ void CBattleConsole::show(SDL_Surface * to)
 	}
 }
 
-bool CBattleConsole::addText(std::string text)
+bool CBattleConsole::addText(const std::string & text)
 {
 	if(text.size()>70)
 		return false; //text too long!
@@ -1661,7 +1749,7 @@ void CBattleConsole::eraseText(unsigned int pos)
 	}
 }
 
-void CBattleConsole::changeTextAt(std::string text, unsigned int pos)
+void CBattleConsole::changeTextAt(const std::string & text, unsigned int pos)
 {
 	if(pos >= texts.size()) //no such pos
 		return;

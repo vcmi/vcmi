@@ -18,13 +18,13 @@ void CCursorHandler::initCursor()
 	SDL_ShowCursor(SDL_DISABLE);
 }
 
-void CCursorHandler::changeGraphic(int type, int no)
+void CCursorHandler::changeGraphic(const int & type, const int & no)
 {
 	mode = type;
 	number = no;
 }
 
-void CCursorHandler::cursorMove(int x, int y)
+void CCursorHandler::cursorMove(const int & x, const int & y)
 {
 	xpos = x;
 	ypos = y;

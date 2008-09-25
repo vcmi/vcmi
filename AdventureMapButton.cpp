@@ -90,7 +90,7 @@ void AdventureMapButton::activate()
 	KeyInterested::activate();
 }
 
-void AdventureMapButton::keyPressed (SDL_KeyboardEvent & key)
+void AdventureMapButton::keyPressed (const SDL_KeyboardEvent & key)
 {
 	//TODO: check if it's shortcut
 }
@@ -272,7 +272,7 @@ void CSlider::sliderClicked()
 	}
 }
 
-void CSlider::mouseMoved (SDL_MouseMotionEvent & sEvent)
+void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	float v = sEvent.x - pos.x - 24;
 	v/= (pos.w - 48);

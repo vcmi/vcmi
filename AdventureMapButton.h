@@ -17,7 +17,7 @@ public:
 	virtual void clickLeft (tribool down);
 	void hover (bool on);
 	void block(bool on); //if button is blocked then it'll change it's graphic to inactive (offset==2) and won't react on l-clicks
-	void keyPressed (SDL_KeyboardEvent & key);
+	void keyPressed (const SDL_KeyboardEvent & key);
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but doesn't delete)
 
@@ -78,7 +78,7 @@ public:
 	void sliderClicked();
 	void moveLeft();
 	void clickLeft (tribool down);
-	void mouseMoved (SDL_MouseMotionEvent & sEvent);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void moveRight();
 	void moveTo(int to);
 	void block(bool on);

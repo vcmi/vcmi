@@ -16,7 +16,7 @@ extern SDL_Surface * screen;
 extern SDL_Color tytulowy, zwykly ;
 extern TTF_Font *GEOR16;
 
-SpellbookInteractiveArea::SpellbookInteractiveArea(SDL_Rect & myRect, boost::function<void()> funcL, std::string textR, boost::function<void()> funcHon, boost::function<void()> funcHoff)
+SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff)
 {
 	pos = myRect;
 	onLeft = funcL;
