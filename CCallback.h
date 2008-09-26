@@ -45,26 +45,28 @@ public:
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
 
 //get info
-	virtual bool verifyPath(CPath * path, bool blockSea)=0;
-	virtual int getDate(int mode=0)=0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	virtual std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap()=0; //returns visibility map (TODO: make it const)
-	virtual const CGHeroInstance * getHeroInfo(int val, int mode=2)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
-	virtual int getResourceAmount(int type)=0;
-	virtual int howManyHeroes()=0;
-	virtual const CGTownInstance * getTownInfo(int val, bool mode)=0; //mode = 0 -> val = serial; mode = 1 -> val = ID
-	virtual int howManyTowns()=0;
-	virtual std::vector < std::string > getObjDescriptions(int3 pos)=0; //returns descriptions of objects at pos in order from the lowest to the highest
-	virtual std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true)=0;
-	virtual bool isVisible(int3 pos)=0;
-	virtual int getMyColor()=0;
-	virtual int getMySerial()=0;
-	virtual int getHeroSerial(const CGHeroInstance * hero)=0;
-	virtual const CCreatureSet* getGarrison(const CGObjectInstance *obj)=0;
-	virtual UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos)=0;
-	virtual const StartInfo * getStartInfo()=0;
-	virtual std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos)=0;
-	virtual std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos)=0;
-	virtual void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0)=0;
+	virtual bool verifyPath(CPath * path, bool blockSea)const =0;
+	virtual int getDate(int mode=0)const =0; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	virtual std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap()const =0; //returns visibility map (TODO: make it const)
+	virtual const CGHeroInstance * getHeroInfo(int val, int mode=2)const =0; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	virtual int getResourceAmount(int type)const =0;
+	virtual int howManyHeroes()const =0;
+	virtual const CGTownInstance * getTownInfo(int val, bool mode)const =0; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	virtual int howManyTowns()const =0;
+	virtual std::vector < std::string > getObjDescriptions(int3 pos)const =0; //returns descriptions of objects at pos in order from the lowest to the highest
+	virtual std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true)const =0;
+	virtual bool isVisible(int3 pos)const =0;
+	virtual int getMyColor()const =0;
+	virtual int getMySerial()const =0;
+	virtual int getHeroSerial(const CGHeroInstance * hero)const =0;
+	virtual const CCreatureSet* getGarrison(const CGObjectInstance *obj)const =0;
+	virtual UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos)const =0;
+	virtual const StartInfo * getStartInfo()const =0;
+	virtual std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos)const =0;
+	virtual std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos)const =0;
+	virtual void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0)const =0;
+	virtual std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const =0;
+	virtual int3 getMapSize() const =0; //returns size of map - z is 1 for one - level map and 2 for two level map
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -98,8 +100,8 @@ private:
 	CCallback(CGameState * GS, int Player, CClient *C):gs(GS),player(Player),cl(C){};
 	CGameState * gs;
 	CClient *cl;
-	bool isVisible(int3 pos, int Player);
-	bool isVisible(CGObjectInstance *obj, int Player);
+	bool isVisible(int3 pos, int Player) const;
+	bool isVisible(CGObjectInstance *obj, int Player) const;
 
 protected:
 	int player;
@@ -125,28 +127,30 @@ public:
 	void setFormation(const CGHeroInstance * hero, bool tight);
 
 //get info
-	bool verifyPath(CPath * path, bool blockSea);
-	int getDate(int mode=0); //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
-	std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap(); //returns visibility map (TODO: make it const)
-	const CGHeroInstance * getHeroInfo(int val, int mode=2); //mode = 0 -> val = serial; mode = 1 -> val = ID
-	int getResourceAmount(int type);
-	std::vector<si32> getResourceAmount();
-	int howManyHeroes();
-	const CGTownInstance * getTownInfo(int val, bool mode); //mode = 0 -> val = serial; mode = 1 -> val = ID
-	std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true);
-	int howManyTowns();
-	std::vector < std::string > getObjDescriptions(int3 pos); //returns descriptions of objects at pos in order from the lowest to the highest
-	std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true);
-	bool isVisible(int3 pos);
-	int getMyColor();
-	int getHeroSerial(const CGHeroInstance * hero);
-	int getMySerial();
-	const CCreatureSet* getGarrison(const CGObjectInstance *obj);
-	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos);
-	const StartInfo * getStartInfo();
-	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos);
-	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos);
-	void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0);
+	bool verifyPath(CPath * path, bool blockSea) const;
+	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap() const; //returns visibility map (TODO: make it const)
+	const CGHeroInstance * getHeroInfo(int val, int mode=2) const; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	int getResourceAmount(int type) const;
+	std::vector<si32> getResourceAmount() const;
+	int howManyHeroes() const;
+	const CGTownInstance * getTownInfo(int val, bool mode) const; //mode = 0 -> val = serial; mode = 1 -> val = ID
+	std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true) const;
+	int howManyTowns()const;
+	std::vector < std::string > getObjDescriptions(int3 pos) const; //returns descriptions of objects at pos in order from the lowest to the highest
+	std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true) const;
+	bool isVisible(int3 pos) const;
+	int getMyColor() const;
+	int getHeroSerial(const CGHeroInstance * hero) const;
+	int getMySerial() const;
+	const CCreatureSet* getGarrison(const CGObjectInstance *obj) const;
+	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos) const;
+	const StartInfo * getStartInfo() const;
+	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos) const;
+	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos) const;
+	void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0) const;
+	std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
+	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship

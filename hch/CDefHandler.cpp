@@ -169,6 +169,8 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	{
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
+	RWEntries = new unsigned int[fullHeight];
+	RLEntries = new int[fullHeight];
 	for(int i=0; i<SEntries.size(); ++i)
 	{
 		Cimage nimg;
@@ -337,7 +339,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef)
 					((char*)(ret->pixels))[ftcp++]='\0';
 			}
 		}
-		RLEntries = new int[SpriteHeight];
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			RLEntries[i]=readNormalNr(BaseOffset,4,FDef);BaseOffset+=4;
@@ -388,8 +389,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef)
 					((char*)(ret->pixels))[ftcp++]='\0';
 			}
 		}
-		delete [] RLEntries;
-		RLEntries = NULL;
 		if (BottomMargin>0)
 		{
 			for (int i=0;i<BottomMargin;i++)
@@ -409,7 +408,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef)
 					((char*)(ret->pixels))[ftcp++]='\0';
 			}
 		}
-		RWEntries = new unsigned int[SpriteHeight];
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor+i*2*(SpriteWidth/32);
@@ -457,8 +455,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef)
 					((char*)(ret->pixels))[ftcp++]='\0';
 			}
 		}
-		delete [] RWEntries;
-		RWEntries = NULL;
 		if (BottomMargin>0)
 		{
 			for (int i=0;i<BottomMargin;i++)
@@ -480,7 +476,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef)
 					((char*)(ret->pixels))[ftcp++]='\0';
 			}
 		}
-		RWEntries = new unsigned int[SpriteHeight];
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor+i*2*(SpriteWidth/32);
@@ -535,8 +530,6 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef)
 					((char*)(ret->pixels))[ftcp++]='\0';
 			}
 		}
-		delete [] RWEntries;
-		RWEntries=NULL;
 		if (BottomMargin>0)
 		{
 			for (int i=0;i<BottomMargin;i++)

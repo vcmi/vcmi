@@ -62,7 +62,8 @@ public:
 	void setOwner(int ow);
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
-	bool visitableAt(int x, int y) const; //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
+	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
+	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) form left top tile of image (x, y in tiles)
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
 	CGObjectInstance();
 	virtual ~CGObjectInstance();

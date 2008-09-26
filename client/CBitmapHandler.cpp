@@ -34,15 +34,14 @@ void CPCXConv::openPCX(char * PCX, int len)
 }
 void CPCXConv::fromFile(std::string path)
 {
-	std::ifstream * is = new std::ifstream();
-	is -> open(path.c_str(),std::ios::binary);
-	is->seekg(0,std::ios::end); // to the end
-	pcxs = is->tellg();  // read length
-	is->seekg(0,std::ios::beg); // wracamy na poczatek
+	std::ifstream is;
+	is.open(path.c_str(),std::ios::binary);
+	is.seekg(0,std::ios::end); // to the end
+	pcxs = is.tellg();  // read length
+	is.seekg(0,std::ios::beg); // wracamy na poczatek
 	pcx = new unsigned char[pcxs]; // allocate memory 
-	is->read((char*)pcx, pcxs); // read map file to buffer
-	is->close();
-	delete is;
+	is.read((char*)pcx, pcxs); // read map file to buffer
+	is.close();
 }
 void CPCXConv::saveBMP(std::string path)
 {

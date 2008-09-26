@@ -150,24 +150,24 @@ void CCallback::endTurn()
 	*cl->serv << ui16(100); //report that we ended turn
 	cl->serv->wmx->unlock();
 }
-UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos)
+UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getUpgradeInfo(const_cast<CArmedInstance*>(obj),stackPos);
 }
 
-const StartInfo * CCallback::getStartInfo()
+const StartInfo * CCallback::getStartInfo() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->scenarioOps;
 }
 
-int CCallback::howManyTowns()
+int CCallback::howManyTowns() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].towns.size();
 }
-const CGTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
+const CGTownInstance * CCallback::getTownInfo(int val, bool mode) const //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if (!mode)
@@ -186,12 +186,12 @@ const CGTownInstance * CCallback::getTownInfo(int val, bool mode) //mode = 0 -> 
 	}
 	return NULL;
 }
-int CCallback::howManyHeroes()
+int CCallback::howManyHeroes() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].heroes.size();
 }
-const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) //mode = 0 -> val = serial; mode = 1 -> val = ID
+const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	//if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
@@ -215,22 +215,22 @@ const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) //mode = 0 -> v
 	return NULL;
 }
 
-int CCallback::getResourceAmount(int type)
+int CCallback::getResourceAmount(int type) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].resources[type];
 }
-std::vector<si32> CCallback::getResourceAmount()
+std::vector<si32> CCallback::getResourceAmount() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].resources;
 }
-int CCallback::getDate(int mode)
+int CCallback::getDate(int mode) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getDate(mode);
 }
-std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
+std::vector < std::string > CCallback::getObjDescriptions(int3 pos) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector<std::string> ret;
@@ -240,7 +240,7 @@ std::vector < std::string > CCallback::getObjDescriptions(int3 pos)
 		ret.push_back(obj->hoverName);
 	return ret;
 }
-bool CCallback::verifyPath(CPath * path, bool blockSea)
+bool CCallback::verifyPath(CPath * path, bool blockSea) const
 {
 	for (int i=0;i<path->nodes.size();i++)
 	{
@@ -273,20 +273,20 @@ bool CCallback::verifyPath(CPath * path, bool blockSea)
 	return true;
 }
 
-std::vector< std::vector< std::vector<unsigned char> > > & CCallback::getVisibilityMap()
+std::vector< std::vector< std::vector<unsigned char> > > & CCallback::getVisibilityMap() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].fogOfWarMap;
 }
 
 
-bool CCallback::isVisible(int3 pos, int Player)
+bool CCallback::isVisible(int3 pos, int Player) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[Player].fogOfWarMap[pos.x][pos.y][pos.z];
 }
 
-std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur)
+std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
@@ -302,7 +302,7 @@ std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur)
 	} //	for ( std::map<int, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	return ret;
 }
-std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur)
+std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGHeroInstance *> ret;
@@ -317,13 +317,13 @@ std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur)
 	return ret;
 }
 
-bool CCallback::isVisible(int3 pos)
+bool CCallback::isVisible(int3 pos) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return isVisible(pos,player);
 }
 
-bool CCallback::isVisible( CGObjectInstance *obj, int Player )
+bool CCallback::isVisible( CGObjectInstance *obj, int Player ) const
 {
 	//object is visible when at least one blocked tile is visible
 	for(int fx=0; fx<8; ++fx)
@@ -339,11 +339,11 @@ bool CCallback::isVisible( CGObjectInstance *obj, int Player )
 	}
 	return false;
 }
-int CCallback::getMyColor()
+int CCallback::getMyColor() const
 {
 	return player;
 }
-int CCallback::getHeroSerial(const CGHeroInstance * hero)
+int CCallback::getHeroSerial(const CGHeroInstance * hero) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	for (int i=0; i<gs->players[player].heroes.size();i++)
@@ -353,7 +353,7 @@ int CCallback::getHeroSerial(const CGHeroInstance * hero)
 	}
 	return -1;
 }
-const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj)
+const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!obj)
@@ -399,7 +399,7 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 	return true;
 }
 
-int CCallback::getMySerial()
+int CCallback::getMySerial() const
 {	
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].serial;
@@ -540,7 +540,7 @@ void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
 	*cl->serv << ui16(510) << hero->id << ui32(aid);
 }
 
-std::vector < const CGObjectInstance * > CCallback::getBlockingObjs( int3 pos )
+std::vector < const CGObjectInstance * > CCallback::getBlockingObjs( int3 pos ) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	if(!gs->map->isInTheMap(pos))
@@ -551,7 +551,7 @@ std::vector < const CGObjectInstance * > CCallback::getBlockingObjs( int3 pos )
 	return ret;
 }
 
-std::vector < const CGObjectInstance * > CCallback::getVisitableObjs( int3 pos )
+std::vector < const CGObjectInstance * > CCallback::getVisitableObjs( int3 pos ) const
 {
 	std::vector<const CGObjectInstance *> ret;
 	if(!gs->map->isInTheMap(pos))
@@ -562,7 +562,7 @@ std::vector < const CGObjectInstance * > CCallback::getVisitableObjs( int3 pos )
 	return ret;
 }
 
-void CCallback::getMarketOffer( int t1, int t2, int &give, int &rec, int mode/*=0*/ )
+void CCallback::getMarketOffer( int t1, int t2, int &give, int &rec, int mode/*=0*/ ) const
 {
 	if(mode) return; //TODO - support
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -579,6 +579,27 @@ void CCallback::getMarketOffer( int t1, int t2, int &give, int &rec, int mode/*=
 		give = ceil(g / r);
 		rec = 1;
 	}
+}
+
+std::vector < const CGObjectInstance * > CCallback::getFlaggableObjects(int3 pos) const
+{
+	if(!isVisible(pos, LOCPLINT->playerID))
+		return std::vector < const CGObjectInstance * >();
+
+	std::vector < const CGObjectInstance * > ret;
+
+	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[pos.x][pos.y][pos.z].objects;
+	for(int b=0; b<objs.size(); ++b)
+	{
+		if(objs[b].first->tempOwner!=254 && !((objs[b].first->defInfo->blockMap[pos.y - objs[b].first->pos.y + 5] >> (objs[b].first->pos.x - pos.x)) & 1))
+			ret.push_back(CGI->mh->ttiles[pos.x][pos.y][pos.z].objects[b].first);
+	}
+	return ret;
+}
+
+int3 CCallback::getMapSize() const
+{
+	return CGI->mh->sizes;
 }
 
 void CCallback::trade( int mode, int id1, int id2, int val1 )

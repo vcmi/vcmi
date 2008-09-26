@@ -121,11 +121,19 @@ int CGObjectInstance::getHeight() const //returns height of object graphic in ti
 {
 	return defInfo->width;
 }
-bool CGObjectInstance::visitableAt(int x, int y) const //returns true if ibject is visitable at location (x, y) form left top tile of image (x, y in tiles)
+bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
 {
 	if(x<0 || y<0 || x>=getWidth() || y>=getHeight() || defInfo==NULL)
 		return false;
 	if((defInfo->visitMap[y+6-getHeight()] >> (7-(8-getWidth()+x) )) & 1)
+		return true;
+	return false;
+}
+bool CGObjectInstance::blockingAt(int x, int y) const
+{
+	if(x<0 || y<0 || x>=getWidth() || y>=getHeight() || defInfo==NULL)
+		return false;
+	if((defInfo->blockMap[y+6-getHeight()] >> (7-(8-getWidth()+x) )) & 1)
 		return true;
 	return false;
 }

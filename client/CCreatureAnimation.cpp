@@ -95,6 +95,7 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEn
 	curFrame = 0;
 	type = -1;
 	frames = totalEntries;
+	RLEntries = new int[fullHeight];
 }
 
 int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, bool cyclic)
@@ -173,9 +174,8 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	long BaseOffset, 
 		SpriteWidth, SpriteHeight, //sprite format
 		LeftMargin, RightMargin, TopMargin,BottomMargin,
-		i, add, FullHeight,FullWidth,
-		TotalRowLength, // length of read segment
-		RowAdd;
+		i, FullHeight,FullWidth,
+		TotalRowLength; // length of read segment
 	unsigned char SegmentType, SegmentLength;
 	
 	i=BaseOffset=SEntries[SIndex].offset;
@@ -189,8 +189,6 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	TopMargin = readNormalNr(i,4,FDef);i+=4;
 	RightMargin = FullWidth - SpriteWidth - LeftMargin;
 	BottomMargin = FullHeight - SpriteHeight - TopMargin;
-	
-	add = 4 - FullWidth%4;
 
 	int BaseOffsetor = BaseOffset = i;
 
@@ -202,10 +200,9 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 		{
 			for (int i=0;i<TopMargin;i++)
 			{
-				ftcp+=FullWidth+add;
+				ftcp+=FullWidth;
 			}
 		}
-		RLEntries = new int[SpriteHeight];
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			RLEntries[i]=readNormalNr(BaseOffset,4,FDef);BaseOffset+=4;
@@ -226,8 +223,8 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 				{
 					for (int k=0;k<=SegmentLength;k++)
 					{
-						int xB = (attacker ? ftcp%(FullWidth+add) : (FullWidth+add) - ftcp%(FullWidth+add) - 1) + x;
-						int yB = ftcp/(FullWidth+add) + y;
+						int xB = (attacker ? ftcp%FullWidth : FullWidth - ftcp%FullWidth - 1) + x;
+						int yB = ftcp/FullWidth + y;
 						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
 						{
 							if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
@@ -244,8 +241,8 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 				{
 					for (int k=0;k<SegmentLength+1;k++)
 					{
-						int xB = (attacker ? ftcp%(FullWidth+add) : (FullWidth+add) - ftcp%(FullWidth+add) - 1) + x;
-						int yB = ftcp/(FullWidth+add) + y;
+						int xB = (attacker ? ftcp%FullWidth : FullWidth - ftcp%FullWidth - 1) + x;
+						int yB = ftcp/FullWidth + y;
 						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
 						{
 							if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
@@ -256,25 +253,16 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 					TotalRowLength+=SegmentLength+1;
 				}
 			}while(TotalRowLength<SpriteWidth);
-			RowAdd=SpriteWidth-TotalRowLength;
 			if (RightMargin>0)
 			{
 				ftcp+=RightMargin;
 			}
-			if (add>0)
-			{
-				ftcp+=add+RowAdd;
-			}
 		}
-		delete [] RLEntries;
-		RLEntries = NULL;
 		if (BottomMargin>0)
 		{
-			ftcp += BottomMargin * (FullWidth+add);
+			ftcp += BottomMargin * FullWidth;
 		}
 	}
-
-	//SDL_UpdateRect(dest, x, y, FullWidth+add, FullHeight);
 
 	return 0;
 }

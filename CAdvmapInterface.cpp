@@ -39,14 +39,15 @@ CAdvMapInt::~CAdvMapInt()
 }
 CMinimap::CMinimap(bool draw)
 {
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	statusbarTxt = CGI->preth->zelp[291].first;
 	rcText = CGI->preth->zelp[291].second;
 	pos.x=630;
 	pos.y=26;
 	pos.h=pos.w=144;
 
-	int rx = (((float)19)/(CGI->mh->sizes.x))*((float)pos.w),
-		ry = (((float)18)/(CGI->mh->sizes.y))*((float)pos.h);
+	int rx = (((float)19)/(mapSizes.x))*((float)pos.w),
+		ry = (((float)18)/(mapSizes.y))*((float)pos.h);
 
 	radar = newSurface(rx,ry);
 	temps = newSurface(144,144);
@@ -101,13 +102,14 @@ CMinimap::CMinimap(bool draw)
 }
 void CMinimap::draw()
 {
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	//draw terrain
 	blitAt(map[LOCPLINT->adventureInt->position.z],0,0,temps);
 
 	//draw heroes
 	std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
 	int mw = map[0]->w, mh = map[0]->h,
-		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
+		wo = mw/mapSizes.x, ho = mh/mapSizes.y;
 
 	for (int i=0; i<hh.size();i++)
 	{
@@ -115,7 +117,7 @@ void CMinimap::draw()
 		if(hpos.z!=LOCPLINT->adventureInt->position.z)
 			continue;
 		//float zawx = ((float)hpos.x/CGI->mh->sizes.x), zawy = ((float)hpos.y/CGI->mh->sizes.y);
-		int3 maplgp ( (hpos.x*mw)/CGI->mh->sizes.x, (hpos.y*mh)/CGI->mh->sizes.y, hpos.z );
+		int3 maplgp ( (hpos.x*mw)/mapSizes.x, (hpos.y*mh)/mapSizes.y, hpos.z );
 		for (int ii=0; ii<wo; ii++)
 		{
 			for (int jj=0; jj<ho; jj++)
@@ -124,18 +126,45 @@ void CMinimap::draw()
 			}
 		}
 	}
+
+	//draw flaggable objects
+	for(int x=0; x<mapSizes.x; ++x)
+	{
+		for(int y=0; y<mapSizes.y; ++y)
+		{
+			std::vector < const CGObjectInstance * > oo = LOCPLINT->cb->getFlaggableObjects(int3(x, y, LOCPLINT->adventureInt->position.z));
+			for(int v=0; v<oo.size(); ++v)
+			{
+				if(!dynamic_cast< const CGHeroInstance * >(oo[v])) //heroes have been printed
+				{
+					int3 maplgp ( (x*mw)/mapSizes.x, (y*mh)/mapSizes.y, LOCPLINT->adventureInt->position.z );
+					for (int ii=0; ii<wo; ii++)
+					{
+						for (int jj=0; jj<ho; jj++)
+						{
+							if(oo[v]->tempOwner == 255)
+								SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,graphics->neutralColor->g,graphics->neutralColor->b);
+							else
+								SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].r,graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].b);
+						}
+					}
+				}
+			}
+		}
+	}
+
 	blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
 
 	//draw radar
-	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)CGI->mh->sizes.x)))*pos.w,
-		by = (((float)LOCPLINT->adventureInt->position.y)/(((float)CGI->mh->sizes.y)))*pos.h;
+	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)mapSizes.x)))*pos.w,
+		by = (((float)LOCPLINT->adventureInt->position.y)/(((float)mapSizes.y)))*pos.h;
 	blitAt(radar,bx,by,temps);
 	blitAt(temps,pos.x,pos.y);
 	//SDL_UpdateRect(screen,pos.x,pos.y,pos.w,pos.h);
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
-	(CGI);
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	for (int i=0; i<CGI->mh->sizes.z; i++)
 	{
 		SDL_Surface * pom ;
@@ -148,8 +177,8 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 		{
 			for (int y=0;y<pos.h;y++)
 			{
-				int mx=(CGI->mh->sizes.x*x)/pos.w;
-				int my=(CGI->mh->sizes.y*y)/pos.h;
+				int mx=(mapSizes.x*x)/pos.w;
+				int my=(mapSizes.y*y)/pos.h;
 				if (CGI->mh->ttiles[mx][my][i].tileInfo->blocked && (!CGI->mh->ttiles[mx][my][i].tileInfo->visitable))
 					SDL_PutPixel(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
 				else SDL_PutPixel(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
@@ -161,7 +190,7 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 
 	//FoW
 	int mw = map[0]->w, mh = map[0]->h,
-		wo = mw/CGI->mh->sizes.x, ho = mh/CGI->mh->sizes.y;
+		wo = mw/mapSizes.x, ho = mh/mapSizes.y;
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
 	{
 		if(level>=0 && d!=level)
@@ -171,7 +200,7 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 		{
 			for (int j=0; j<mh; j++)
 			{
-				int3 pp( ((i*CGI->mh->sizes.x)/mw), ((j*CGI->mh->sizes.y)/mh), d );
+				int3 pp( ((i*mapSizes.x)/mw), ((j*mapSizes.y)/mh), d );
 				if ( !LOCPLINT->cb->isVisible(pp) )
 				{
 					CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0);
