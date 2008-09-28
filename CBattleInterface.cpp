@@ -713,8 +713,9 @@ void CBattleInterface::stackActivated(int number)
 	redrawBackgroundWithHexes(number);
 }
 
-void CBattleInterface::stackMoved(int number, int destHex, bool startMoving, bool endMoving)
+void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 {
+	bool startMoving = creAnims[number]->type==20;
 	//a few useful variables
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
 	int steps = creAnims[number]->framesInGroup(0)*getAnimSpeedMultiplier()-1;

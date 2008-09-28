@@ -65,14 +65,14 @@ public:
 	virtual void availableCreaturesChanged(const CGTownInstance *town){};
 
 	//battle call-ins
-	//virtual void actionFinished(BattleAction action){};//occurs AFTER every action taken by any stack or by the hero
-	//virtual void actionStarted(BattleAction action){};//occurs BEFORE every action taken by any stack or by the hero
+	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
+	virtual void actionStarted(const BattleAction *action){};//occurs BEFORE every action taken by any stack or by the hero
 	virtual BattleAction activeStack(int stackID)=0; //called when it's turn of that stack
 	virtual void battleAttack(BattleAttack *ba){};
 	virtual void battleEnd(BattleResult *br){};
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)=0;
-	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)=0;
+	virtual void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting){};
+	virtual void battleStackMoved(int ID, int dest){};
 	virtual void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
 	//

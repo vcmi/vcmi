@@ -86,6 +86,15 @@ public:
 		gsm.unlock();
 	}
 
+	template <typename T>void sendDataToClients(const T & data)
+	{
+		for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
+		{
+			(*i)->wmx->lock();
+			**i << data;
+			(*i)->wmx->unlock();
+		}
+	}
 	template <typename T>void sendToAllClients(CPack<T> * info)
 	{
 		for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)

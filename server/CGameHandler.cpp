@@ -890,14 +890,16 @@ upgend:
 					break;
 				}
 			case 3002:
-				{			
+				{	
 					BattleAction ba;
 					c >> ba;
 					switch(ba.actionType)
 					{
 					case 2: //walk
 						{
-							moveStack(ba.stackNumber,ba.destinationTile);
+							sendAndApply(&StartAction(ba)); //start movement
+							moveStack(ba.stackNumber,ba.destinationTile); //move
+							sendDataToClients(ui16(3008)); //endmovement
 							break;
 						}
 					case 3: //defend
@@ -918,6 +920,7 @@ upgend:
 						}
 					case 6: //walk or attack
 						{
+							sendAndApply(&StartAction(ba)); //start movement and attack
 							moveStack(ba.stackNumber,ba.destinationTile);
 							CStack *curStack = gs->curB->getStack(ba.stackNumber),
 								*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
@@ -940,18 +943,22 @@ upgend:
 							}
 
 							if(vstd::contains(curStack->abilities,TWICE_ATTACK)
-								&& curStack->alive())
+								&& curStack->alive()
+								&& stackAtEnd->alive()  )
 							{
 								bat.flags = 0;
 								prepareAttack(bat,curStack,stackAtEnd);
 								sendAndApply(&bat);
 							}
+							sendDataToClients(ui16(3008)); //end movement and attack
 							break;
 						}
 					case 7: //shoot
 						{
 							//TODO: check arrows count
 							//TODO: check if stack isn't blocked by enemy
+
+							sendAndApply(&StartAction(ba)); //start shooting
 							CStack *curStack = gs->curB->getStack(ba.stackNumber),
 								*destStack= gs->curB->getStackT(ba.destinationTile);
 
@@ -967,11 +974,48 @@ upgend:
 							}
 
 							sendAndApply(&bat);
+							sendDataToClients(ui16(3008)); //end shooting
 							break;
 						}
 					}
 					battleMadeAction.setn(true);
-					//sprawdzic czy po tej akcji ktoras strona nie wygrala bitwy
+					break;
+				}
+			case 3003: //custom action (probably spell)
+				{
+					BattleAction ba;
+					c >> ba;
+					switch(ba.actionType)
+					{
+					case 1: //hero casts spell
+						{
+							CGHeroInstance *h = (ba.side) ? gs->curB->hero2 : gs->curB->hero1;
+							CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
+							int skill = 0;
+
+							if(s->fire)
+								skill = std::max(skill,h->getSecSkillLevel(14);
+							if(s->air)
+								skill = std::max(skill,h->getSecSkillLevel(15);
+							if(s->water)
+								skill = std::max(skill,h->getSecSkillLevel(16);
+							if(s->earth)
+								skill = std::max(skill,h->getSecSkillLevel(17);
+
+							if(  !vstd::contains(h->spells,ba.additionalInfo) //hero doesn't know this spell
+								|| (h->mana < s->costs[skill]) //not enough mana
+								|| 0     )//TODO: hero has already casted a spell in this round
+							{
+								goto customactionend;
+							}
+
+							sendAndApply(&StartAction(ba)); //start spell casting
+							//TODO: spell efects
+							sendDataToClients(ui16(3008)); //end casting
+							break;
+						}
+					}
+customactionend:
 					break;
 				}
 			default:
@@ -1023,10 +1067,6 @@ void CGameHandler::moveStack(int stack, int dest)
 		BattleStackMoved sm;
 		sm.stack = curStack->ID;
 		sm.tile = path[v];
-		if(v==path.size()-1) //move start - set flag
-			sm.flags |= 1;
-		if(v==0) //move end - set flag
-			sm.flags |= 2;
 		sendAndApply(&sm);
 	}
 }

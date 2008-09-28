@@ -452,6 +452,12 @@ CStack* CCallback::battleGetStackByID(int ID)
 	return gs->curB->getStack(ID);
 }
 
+int CCallback::battleMakeAction(BattleAction* action)
+{
+	*cl->serv << ui16(3003) << *action;
+	return 0;
+}
+
 CStack* CCallback::battleGetStackByPos(int pos)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

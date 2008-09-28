@@ -29,8 +29,8 @@ private:
 	unsigned char * FDef; //animation raw data
 	unsigned int curFrame; //number of currently displayed frame
 	unsigned int frames; //number of frames
-	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
 public:
+	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
 	int fullWidth, fullHeight; //read-only, please!
 	CCreatureAnimation(std::string name); //c-tor
 	~CCreatureAnimation(); //d-tor

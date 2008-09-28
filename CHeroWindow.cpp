@@ -194,6 +194,7 @@ void CHeroWindow::show(SDL_Surface *to)
 
 void CHeroWindow::setHero(const CGHeroInstance *Hero)
 {
+	char bufor[400];
 	CGHeroInstance *hero = const_cast<CGHeroInstance*>(Hero); //but don't modify hero! - it's only for easy map reading
 	if(!hero) //something strange... no hero? it shouldn't happen
 	{
@@ -204,15 +205,11 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	gar2button->callback.clear();
 	gar2button->callback2.clear();
 
-	char * prhlp = new char[200];
-	sprintf(prhlp, CGI->generaltexth->heroscrn[16].c_str(), curHero->name.c_str(), curHero->type->heroClass->name.c_str());
-	dismissButton->hoverTexts[0] = std::string(prhlp);
-	delete [] prhlp;
+	sprintf(bufor, CGI->generaltexth->heroscrn[16].c_str(), curHero->name.c_str(), curHero->type->heroClass->name.c_str());
+	dismissButton->hoverTexts[0] = std::string(bufor);
 
-	prhlp = new char[200];
-	sprintf(prhlp, CGI->generaltexth->allTexts[15].c_str(), curHero->name.c_str(), curHero->type->heroClass->name.c_str());
-	portraitArea->hoverText = std::string(prhlp);
-	delete [] prhlp;
+	sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), curHero->name.c_str(), curHero->type->heroClass->name.c_str());
+	portraitArea->hoverText = std::string(bufor);
 
 	portraitArea->text = hero->biography;
 
@@ -232,20 +229,15 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		std::string hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->infoTexts[hero->secSkills[g].second-1];
 		secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
 
-		char * hlpp = new char[200];
-		sprintf(hlpp, CGI->generaltexth->heroscrn[21].c_str(), CGI->abilh->levels[hero->secSkills[g].second-1].c_str(), CGI->abilh->abilities[hero->secSkills[g].first]->name.c_str());
-		secSkillAreas[g]->hoverText = std::string(hlpp);
-		delete [] hlpp;
+		sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->abilh->levels[hero->secSkills[g].second-1].c_str(), CGI->abilh->abilities[hero->secSkills[g].first]->name.c_str());
+		secSkillAreas[g]->hoverText = std::string(bufor);
 	}
 
-	char * th = new char[200];
-	sprintf(th, CGI->generaltexth->allTexts[2].substr(1, CGI->generaltexth->allTexts[2].size()-2).c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
-	expArea->text = std::string(th);
-	delete [] th;
-	th = new char[400];
-	sprintf(th, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->primSkills[3]*10);
-	spellPointsArea->text = std::string(th);
-	delete [] th;
+	sprintf(bufor, CGI->generaltexth->allTexts[2].substr(1, CGI->generaltexth->allTexts[2].size()-2).c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
+	expArea->text = std::string(bufor);
+
+	sprintf(bufor, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->primSkills[3]*10);
+	spellPointsArea->text = std::string(bufor);
 
 	for(int g=0; g<artWorn.size(); ++g)
 	{
@@ -277,19 +269,31 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	for(int g=0; g<artWorn.size(); ++g)
 	{
 		artWorn[g]->slotID = g;
-		char * hll = new char[200];
-		sprintf(hll, CGI->generaltexth->heroscrn[1].c_str(), (artWorn[g]->ourArt ? artWorn[g]->ourArt->name.c_str() : ""));
-		artWorn[g]->hoverText = std::string(hll);
-		delete [] hll;
+		if(artWorn[g]->ourArt)
+		{
+			sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), artWorn[g]->ourArt->name.c_str());
+			artWorn[g]->hoverText = std::string(bufor);
+		}
+		else
+		{
+			artWorn[g]->hoverText = CGI->generaltexth->allTexts[507];
+		}
 	}
 
 	for(int s=0; s<5; ++s)
 	{
 		CArtPlace * add;
 		if( s < curHero->artifacts.size() )
+		{
 			add = new CArtPlace(&CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]]);
+			sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), add->ourArt->name.c_str());
+			add->hoverText = bufor;
+		}
 		else
+		{
 			add = new CArtPlace(NULL);
+			add->hoverText = CGI->generaltexth->allTexts[507];
+		}
 		add->pos.x = 403 + 46*s;
 		add->pos.y = 365;
 		add->pos.h = add->pos.w = 44;

@@ -1,4 +1,5 @@
 #include "../global.h"
+#include "BattleAction.h"
 struct IPack
 {
 	virtual ui16 getType()const = 0 ;
@@ -404,22 +405,10 @@ struct BattleResult : public CPack<BattleResult>//3003
 struct BattleStackMoved : public CPack<BattleStackMoved>//3004
 {
 	ui32 stack, tile;
-	ui8 flags; // 1 - start moving, 2 - end moving
-
-
-
-	BattleStackMoved(){flags = 0; type = 3004;};
-	bool startMoving()
-	{
-		return flags & 1;
-	}
-	bool endMoving()
-	{
-		return flags & 2;
-	}
+	BattleStackMoved(){type = 3004;};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stack & tile & flags;
+		h & stack & tile;
 	}
 };
 
@@ -465,6 +454,17 @@ struct BattleAttack : public CPack<BattleAttack>//3006
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bsa & stackAttacking & flags;
+	}
+};
+
+struct StartAction : public CPack<StartAction>//3007
+{
+	BattleAction ba;
+	StartAction(){type = 3007;};
+	StartAction(const BattleAction &act){ba = act; type = 3007;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ba;
 	}
 };
 

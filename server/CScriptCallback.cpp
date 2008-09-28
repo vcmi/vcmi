@@ -4,6 +4,7 @@
 #include "CGameHandler.h"
 #include "../CGameState.h"
 #include "../map.h"
+#include "../hch/CArtHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CHeroHandler.h"
@@ -173,12 +174,33 @@ void CScriptCallback::giveHeroArtifact(int artid, int hid, int position) //pos==
 	sha.artifacts = h->artifacts;
 	sha.artifWorn = h->artifWorn;
 	if(position<0)
-		sha.artifacts.push_back(artid);
+	{
+		if(position == -2)
+		{
+			int i;
+			for(i=0; i<VLC->arth->artifacts[artid].possibleSlots.size(); i++) //try to put artifact into first avaialble slot
+			{
+				if( !vstd::contains(sha.artifWorn,VLC->arth->artifacts[artid].possibleSlots[i]) )
+				{
+					sha.artifWorn[VLC->arth->artifacts[artid].possibleSlots[i]] = artid;
+					break;
+				}
+			}
+			if(i==VLC->arth->artifacts[artid].possibleSlots.size()) //if haven't find proper slot, use backpack
+				sha.artifacts.push_back(artid);
+		}
+		else //should be -1 => putartifact into backpack
+		{
+			sha.artifacts.push_back(artid);
+		}
+	}
 	else
+	{
 		if(!vstd::contains(sha.artifWorn,ui16(position)))
 			sha.artifWorn[position] = artid;
 		else
 			sha.artifacts.push_back(artid);
+	}
 	gh->sendAndApply(&sha);
 }
 

@@ -2012,17 +2012,19 @@ void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObs
 
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	dynamic_cast<CBattleInterface*>(curint)->newRound(round);
 }
 
-//void CPlayerInterface::actionStarted(BattleAction action)//occurs BEFORE every action taken by any stack or by the hero
-//{
-//}
-//
-//void CPlayerInterface::actionFinished(BattleAction action)//occurs AFTER every action taken by any stack or by the hero
-//{
-//	//dynamic_cast<CBattleInterface*>(curint)->givenCommand = -1;
-//}
+void CPlayerInterface::actionStarted(const BattleAction* action)
+{
+	curAction = action;
+}
+
+void CPlayerInterface::actionFinished(const BattleAction* action)
+{
+	curAction = NULL;
+}
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
@@ -2047,12 +2049,13 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 
 void CPlayerInterface::battleEnd(BattleResult *br)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	((CBattleInterface*)curint)->battleFinished(*br);
 }
 
 void CPlayerInterface::battleResultQuited()
 {
-	//boost::unique_lock<boost::recursive_mutex> un(*pim);
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	((CBattleInterface*)curint)->resWindow->deactivate();
 	objsToBlit -= curint;
 	delete curint;
@@ -2060,10 +2063,10 @@ void CPlayerInterface::battleResultQuited()
 	adventureInt->activate();
 }
 
-void CPlayerInterface::battleStackMoved(int ID, int dest, bool startMoving, bool endMoving)
+void CPlayerInterface::battleStackMoved(int ID, int dest)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest, startMoving, endMoving);
+	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest,dest==curAction->destinationTile);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
@@ -2082,10 +2085,10 @@ void CPlayerInterface::battleStackKilled(int ID, int dmg, int killed, int IDby, 
 	dynamic_cast<CBattleInterface*>(curint)->stackKilled(ID, dmg, killed, IDby, byShooting);
 }
 
-void CPlayerInterface::battleStackIsShooting(int ID, int dest)
-{
-	dynamic_cast<CBattleInterface*>(curint)->stackIsShooting(ID, dest);
-}
+//void CPlayerInterface::battleStackIsShooting(int ID, int dest)
+//{
+//	dynamic_cast<CBattleInterface*>(curint)->stackIsShooting(ID, dest);
+//}
 
 void CPlayerInterface::showComp(SComponent comp)
 {

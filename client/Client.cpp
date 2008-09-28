@@ -167,6 +167,7 @@ CClient::~CClient(void)
 }
 void CClient::process(int what)
 {
+	static BattleAction curbaction;
 	switch (what)
 	{
 	case 100: //one of our interaces has turn
@@ -518,9 +519,9 @@ void CClient::process(int what)
 			*serv >> br;
 			tlog5 << "Stack "<<br.stack <<" moves to the tile "<<br.tile<<std::endl;
 			if(playerint.find(gs->curB->side1) != playerint.end())
-				playerint[gs->curB->side1]->battleStackMoved(br.stack,br.tile,br.flags&1,br.flags&2);
+				playerint[gs->curB->side1]->battleStackMoved(br.stack,br.tile);
 			if(playerint.find(gs->curB->side2) != playerint.end())
-				playerint[gs->curB->side2]->battleStackMoved(br.stack,br.tile,br.flags&1,br.flags&2);
+				playerint[gs->curB->side2]->battleStackMoved(br.stack,br.tile);
 			gs->apply(&br);
 			break;
 		}
@@ -533,14 +534,34 @@ void CClient::process(int what)
 			LOCPLINT->battleAttack(&ba);
 			break;
 		}
+	case 3007:
+		{
+			*serv >> curbaction;
+			tlog5 << "Action started. ID: " << curbaction.actionType << ". Destination: "<< curbaction.destinationTile <<std::endl;
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->actionStarted(&curbaction);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->actionStarted(&curbaction);
+			break;
+		}
+	case 3008:
+		{
+			tlog5 << "Action ended!\n";
+			if(!gs->curB)
+			{
+				tlog2 << "There is no battle state!\n";
+				break;
+			}
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->actionFinished(&curbaction);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->actionFinished(&curbaction);
+			break;
+		}
 	case 9999:
 		break;
 	default:
-#ifndef __GNUC__
-		throw std::exception("Not supported server message!");
-#else
-		throw std::exception();
-#endif
+		throw std::string("Not supported server message!");
 		break;
 	}
 }

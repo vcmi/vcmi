@@ -75,7 +75,7 @@ public:
 	virtual CStack * battleGetStackByID(int ID)=0; //returns stack info by given ID
 	virtual CStack * battleGetStackByPos(int pos)=0; //returns stack info by given pos
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
-	//virtual int battleMakeAction(BattleAction* action)=0;//perform action with an active stack (or custom action)
+	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
 	virtual CCreature battleGetCreature(int number)=0; //returns type of creature by given number of stack
 	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
@@ -159,10 +159,9 @@ public:
 	CStack * battleGetStackByID(int ID); //returns stack info by given ID
 	CStack * battleGetStackByPos(int pos); //returns stack info by given pos
 	int battleGetPos(int stack); //returns position (tile ID) of stack
-	//int battleMakeAction(BattleAction* action);//perform action with an active stack (or custom action)
+	int battleMakeAction(BattleAction* action);//for casting spells by hero - DO NOT use it for moving active stack
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
 	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
-	//bool battleMoveCreature(int ID, int dest); //moves creature with id ID to dest if possible
 	std::vector<int> battleGetAvailableHexes(int ID); //reutrns numbers of hexes reachable by creature with id ID
 	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
 	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest

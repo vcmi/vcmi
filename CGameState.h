@@ -140,6 +140,7 @@ private:
 	std::map<ui8,PlayerState> players; //ID <-> playerstate
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 	std::vector<ui32> resVals;
+	std::vector<CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
 
 	boost::shared_mutex *mx;
 

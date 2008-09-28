@@ -977,9 +977,9 @@ void MapSel::show()
 	//SDL_Flip(screen);
 	CSDL_Ext::update(screen);
 }
-boost::mutex mx;
 void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 {
+	static boost::mutex mx;
 	bool areMaps=true;
 	int pom=-1;
 	while(areMaps)

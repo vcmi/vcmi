@@ -589,7 +589,7 @@ void CPickable::onHeroVisit(int objid, int heroID)
 	{
 	case 5: //artifact
 		{
-			cb->giveHeroArtifact(os->subID,heroID,-1); //TODO: na pozycje
+			cb->giveHeroArtifact(os->subID,heroID,-2);
 			InfoWindow iw;
 			iw.player = cb->getOwner(heroID);
 			iw.components.push_back(Component(4,os->subID,0,0));
