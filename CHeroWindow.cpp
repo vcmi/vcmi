@@ -228,7 +228,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	for(int g=0; g<hero->secSkills.size(); ++g)
 	{
 		secSkillAreas[g]->type = hero->secSkills[g].first;
-		secSkillAreas[g]->bonus = hero->secSkills[g].second-1;
+		secSkillAreas[g]->bonus = hero->secSkills[g].second;
 		std::string hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->infoTexts[hero->secSkills[g].second-1];
 		secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
 
@@ -305,7 +305,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	dismissButton->block(hero->visitedTown);
 	leftArtRoll->block(hero->artifacts.size()<6);
 	rightArtRoll->block(hero->artifacts.size()<6);
-	if(hero->getSecSkillLevel(19)<0)
+	if(hero->getSecSkillLevel(19)==0)
 		gar2button->block(true);
 	else
 	{

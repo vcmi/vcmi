@@ -269,8 +269,8 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 	//tactic round
 	{
 		NEW_ROUND;
-		if( (hero1 && hero1->getSecSkillLevel(19)>=0) || 
-			( hero2 && hero2->getSecSkillLevel(19)>=0)  )//someone has tactics
+		if( (hero1 && hero1->getSecSkillLevel(19)>0) || 
+			( hero2 && hero2->getSecSkillLevel(19)>0)  )//someone has tactics
 		{
 			//TODO: tactic round (round -1)
 		}
@@ -1083,11 +1083,44 @@ int lowestSpeed(CGHeroInstance * chi)
 	}
 	return ret;
 }
-int valMovePoints(CGHeroInstance * chi)
+int valMovePoints(CGHeroInstance * chi, bool onLand)
 {
 	int ret = 1270+70*lowestSpeed(chi);
 	if (ret>2000) 
 		ret=2000;
+
+	if(onLand)
+	{
+		//logistics:
+		switch(chi->getSecSkillLevel(2))
+		{
+		case 1:
+			ret *= 1.1f;
+			break;
+		case 2:
+			ret *= 1.2f;
+			break;
+		case 3:
+			ret *= 1.3f;
+			break;
+		}
+	}
+	else
+	{
+		//navigation:
+		switch(chi->getSecSkillLevel(2))
+		{
+		case 1:
+			ret *= 1.5f;
+			break;
+		case 2:
+			ret *= 2.0f;
+			break;
+		case 3:
+			ret *= 2.5f;
+			break;
+		}
+	}
 	
 	//TODO: additional bonuses (but they aren't currently stored in chi)
 
@@ -1111,9 +1144,22 @@ void CGameHandler::newTurn()
 		{
 			NewTurn::Hero h;
 			h.id = (*i).second.heroes[j]->id;
-			h.move = valMovePoints((*i).second.heroes[j]);
+			h.move = valMovePoints((*i).second.heroes[j], true); //TODO: check if hero is really on the land
 			h.mana = (*i).second.heroes[j]->mana;
 			n.heroes.insert(h);
+			//handle estates
+			switch((*i).second.heroes[j]->getSecSkillLevel(13))
+			{
+			case 1: //basic
+				r.res[6] += 125;
+				break;
+			case 2: //advanced
+				r.res[6] += 250;
+				break;
+			case 3: //expert
+				r.res[6] += 500;
+				break;
+			}
 		}
 		for(std::vector<CGTownInstance *>::iterator j=i->second.towns.begin();j!=i->second.towns.end();j++)//handle towns
 		{

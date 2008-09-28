@@ -168,6 +168,43 @@ bool CGHeroInstance::isHero() const
 unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const
 {
 	unsigned int ret = type->heroClass->terrCosts[ttype];
+	//applying pathfinding skill
+	switch(getSecSkillLevel(0))
+	{
+	case 1: //basic
+		switch(ttype)
+		{
+		case rough:
+			ret = 100;
+			break;
+		case sand: case snow:
+			if(ret>125)
+				ret = 125;
+			break;
+		case swamp:
+			if(ret>150)
+				ret = 150;
+			break;
+		}
+		break;
+	case 2: //advanced
+		switch(ttype)
+		{
+		case rough: case sand: case snow:
+			ret = 100;
+			break;
+		case swamp:
+			if(ret>125)
+				ret = 125;
+			break;
+		}
+		break;
+	case 3: //expert
+		ret = 100;
+		break;
+	}
+
+	//calculating road influence
 	switch(rdtype)
 	{
 	case dirtRoad:
@@ -213,7 +250,7 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 }
 int CGHeroInstance::getSightDistance() const //returns sight distance of this hero
 {
-	return 6;
+	return 6 + getSecSkillLevel(3); //default + scouting
 }
 void CGHeroInstance::setPosition(int3 Pos, bool h3m) //as above, but sets position
 {
@@ -243,7 +280,7 @@ int CGHeroInstance::getSecSkillLevel(const int & ID) const
 	for(int i=0;i<secSkills.size();i++)
 		if(secSkills[i].first==ID)
 			return secSkills[i].second;
-	return -1;
+	return 0;
 }
 ui32 CGHeroInstance::getArtAtPos(ui16 pos) const
 {
@@ -278,7 +315,7 @@ void CGHeroInstance::setArtAtPos(ui16 pos, int art)
 				artifacts.push_back(art);
 	}
 }
-const CArtifact * CGHeroInstance::getArt(int pos)
+const CArtifact * CGHeroInstance::getArt(int pos) const
 {
 	int id = getArtAtPos(pos);
 	if(id>=0)

@@ -125,10 +125,10 @@ public:
 	bool canWalkOnSea() const;
 	int getCurrentLuck() const;
 	int getCurrentMorale() const;
-	int getSecSkillLevel(const int & ID) const; //-1 - no skill
+	int getSecSkillLevel(const int & ID) const; //0 - no skill
 	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
 	void setArtAtPos(ui16 pos, int art);
-	const CArtifact * getArt(int pos);
+	const CArtifact * getArt(int pos) const;
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
 };

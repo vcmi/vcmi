@@ -596,8 +596,8 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = oss.str();
 		break;
 	case secskill44:
-		subtitle += CGI->abilh->levels[Val] + " " + CGI->abilh->abilities[Subtype]->name;
-		description = CGI->abilh->abilities[Subtype]->infoTexts[Val];
+		subtitle += CGI->abilh->levels[Val-1] + " " + CGI->abilh->abilities[Subtype]->name;
+		description = CGI->abilh->abilities[Subtype]->infoTexts[Val-1];
 		break;
 	case resource:
 		description = CGI->generaltexth->allTexts[242];
@@ -658,10 +658,10 @@ SDL_Surface * SComponent::getImg()
 		return graphics->pskillsb->ourImages[subtype].bitmap;
 		break;
 	case secskill44:
-		return CGI->abilh->abils44->ourImages[subtype*3 + 3 + val].bitmap;
+		return CGI->abilh->abils44->ourImages[subtype*3 + 3 + val - 1].bitmap;
 		break;
 	case secskill:
-		return CGI->abilh->abils82->ourImages[subtype*3 + 3 + val].bitmap;
+		return CGI->abilh->abils82->ourImages[subtype*3 + 3 + val - 1].bitmap;
 		break;
 	case resource:
 		return graphics->resources->ourImages[subtype].bitmap;

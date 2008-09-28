@@ -319,9 +319,9 @@ void CGameState::applyNL(IPack * pack)
 		{
 			SetSecSkill *sr = static_cast<SetSecSkill*>(pack);
 			CGHeroInstance *hero = getHero(sr->id);
-			if(hero->getSecSkillLevel(sr->which) < 0)
+			if(hero->getSecSkillLevel(sr->which) == 0)
 			{
-				hero->secSkills.push_back(std::pair<int,int>(sr->which, (sr->abs)? (sr->val) : (sr->val-1)));
+				hero->secSkills.push_back(std::pair<int,int>(sr->which, sr->val));
 			}
 			else
 			{
