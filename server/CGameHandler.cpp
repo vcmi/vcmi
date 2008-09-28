@@ -12,6 +12,7 @@
 #include "../lib/Connection.h"
 #include "../hch/CArtHandler.h"
 #include "../hch/CObjectHandler.h"
+#include "../hch/CSpellHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CBuildingHandler.h"
 #include "../hch/CHeroHandler.h"
@@ -989,18 +990,18 @@ upgend:
 					{
 					case 1: //hero casts spell
 						{
-							CGHeroInstance *h = (ba.side) ? gs->curB->hero2 : gs->curB->hero1;
+							CGHeroInstance *h = (ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
 							CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
 							int skill = 0;
 
 							if(s->fire)
-								skill = std::max(skill,h->getSecSkillLevel(14);
+								skill = std::max(skill,h->getSecSkillLevel(14));
 							if(s->air)
-								skill = std::max(skill,h->getSecSkillLevel(15);
+								skill = std::max(skill,h->getSecSkillLevel(15));
 							if(s->water)
-								skill = std::max(skill,h->getSecSkillLevel(16);
+								skill = std::max(skill,h->getSecSkillLevel(16));
 							if(s->earth)
-								skill = std::max(skill,h->getSecSkillLevel(17);
+								skill = std::max(skill,h->getSecSkillLevel(17));
 
 							if(  !vstd::contains(h->spells,ba.additionalInfo) //hero doesn't know this spell
 								|| (h->mana < s->costs[skill]) //not enough mana
