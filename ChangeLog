@@ -1,4 +1,5 @@
-0.62 -> 0.63 (Sep 28 2008???)
+0.62 -> 0.63 (Oct 01 2008???)
+* coloured console output, logging all info to txt files
 * very significant optimization of battles 
 * battle summary window
 * fixed crashbug on exiting battle 
@@ -25,6 +26,19 @@
 * casualties among hero army and neutral creatures are saved
 * it's possible to build lighthouse
 * increased thread-safety (may prevent some crashes)
+* better animation handling in battles
+* working Subterranean Gates, Monoliths
+* directional attack in battles 
+* minimap shows all flaggable objects (towns, mines, etc.) 
+* mostly done battle options (although they're not saved)
+* added handling of navigation, logistics, pathfinding, scouting end estates secondary skill
+* artifact info in backpack
+* artifacts we pick up go to the appropriate slot (if free) 
+* added receiving exp (and leveling-up) after a won battle 
+* added support for archery, offence and armorer secondary abilities
+* hero's primary skills accounted for damage dealt by creatures in battle
+* magical hero are given spellbook at the beginning
+* added initial secondary skills for heroes 
 * minor fixes
 
 0.61 -> 0.62 (Sep 01 2008)

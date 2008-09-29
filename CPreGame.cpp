@@ -1455,7 +1455,9 @@ void CPreGame::initScenSel()
 		CSDL_Ext::printAt(CGI->generaltexth->allTexts[501],25+i,2+i,GEOR13,zwykly,ourScenSel->bOptions.imgs->ourImages[i].bitmap); //"Show Advanced Options"
 
 	CPG=this;
+	tlog5 << "\t\tLoaded graphics\n";
 	ourScenSel->mapsel.init();
+	tlog5 << "\t\tLoaded maps\n";
 }
 
 void CPreGame::showScenSel()
