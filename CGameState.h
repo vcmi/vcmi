@@ -73,7 +73,7 @@ struct DLL_EXPORT BattleInfo
 
 	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	static std::vector<int> neighbouringTiles(int hex);
-	static int calculateDmg(const CStack* attacker, const CStack* defender); //TODO: add additional conditions and require necessary data
+	static int calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting); //TODO: add additional conditions and require necessary data
 	void calculateCasualties(std::set<std::pair<ui32,si32> > *casualties);
 };
 

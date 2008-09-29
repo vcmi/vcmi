@@ -27,7 +27,7 @@ SDL_Surface * Graphics::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface
 	char * buf = new char[10];
 	for (int i=from;i<to;i++)
 	{
-		SDL_itoa(curh->primSkills[i],buf,10);
+		SDL_itoa(curh->getPrimSkillLevel(i),buf,10);
 		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
 	}
 	delete[] buf;

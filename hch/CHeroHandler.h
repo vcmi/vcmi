@@ -20,6 +20,7 @@ public:
 	bool isAllowed; //true if we can play with this hero (depends on map)
 	CHeroClass * heroClass;
 	EHeroClasses heroType; //hero class
+	std::vector<std::pair<int,int> > secSkillsInit; //initial secondaryskills; first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
 	//bool operator<(CHero& drugi){if (ID < drugi.ID) return true; else return false;}
 };
 
@@ -35,7 +36,7 @@ public:
 	int selectionProbability[9]; //probability of selection in towns
 	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterrain, lava, water, rock; -1 means terrain is imapassable
 	CDefHandler * moveAnim; //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
-	int chooseSecSkill(std::set<int> possibles); //picks secondary skill out from given possibilities
+	int chooseSecSkill(const std::set<int> & possibles) const; //picks secondary skill out from given possibilities
 	CHeroClass();
 	~CHeroClass();
 };

@@ -1052,6 +1052,10 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 			nhi->secSkills[yy].second = readNormalNr(bufor,i, 1); ++i;
 		}
 	}
+	else //set default secondary skils
+	{
+		nhi->secSkills.push_back(std::make_pair(-1, -1));
+	}
 	if(readChar(bufor,i))//true if hero has nonstandard garrison
 		nhi->army = readCreatureSet(bufor,i,7,(version>RoE));
 	nhi->army.formation =bufor[i]; ++i; //formation

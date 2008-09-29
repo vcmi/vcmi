@@ -275,6 +275,10 @@ int CGHeroInstance::getCurrentMorale() const
 	//TODO: write it
 	return 0;
 }
+int CGHeroInstance::getPrimSkillLevel(int id) const
+{
+	return primSkills[id];
+}
 int CGHeroInstance::getSecSkillLevel(const int & ID) const
 {
 	for(int i=0;i<secSkills.size();i++)

@@ -134,8 +134,8 @@ void CGarrisonSlot::clickRight (tribool down)
 			pom = new StackState();
 			const CGHeroInstance *h = static_cast<const CGHeroInstance *>(getObj());
 			pom->currentHealth = 0;
-			pom->attackBonus = h->primSkills[0];
-			pom->defenseBonus = h->primSkills[1];
+			pom->attackBonus = h->getPrimSkillLevel(0);
+			pom->defenseBonus = h->getPrimSkillLevel(1);
 			pom->luck = h->getCurrentLuck();
 			pom->morale = h->getCurrentMorale();
 		}

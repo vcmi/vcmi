@@ -14,17 +14,17 @@ CHeroClass::CHeroClass()
 CHeroClass::~CHeroClass()
 {
 }
-int CHeroClass::chooseSecSkill(std::set<int> possibles) //picks secondary skill out from given possibilities
+int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks secondary skill out from given possibilities
 {
 	if(possibles.size()==1)
 		return *possibles.begin();
 	int totalProb = 0;
-	for(std::set<int>::iterator i=possibles.begin(); i!=possibles.end(); i++)
+	for(std::set<int>::const_iterator i=possibles.begin(); i!=possibles.end(); i++)
 	{
 		totalProb += proSec[*i];
 	}
 	int ran = rand()%totalProb;
-	for(std::set<int>::iterator i=possibles.begin(); i!=possibles.end(); i++)
+	for(std::set<int>::const_iterator i=possibles.begin(); i!=possibles.end(); i++)
 	{
 		ran -= proSec[*i];
 		if(ran<0)
@@ -111,6 +111,35 @@ void CHeroHandler::loadHeroes()
 		nher->ID = heroes.size();
 		heroes.push_back(nher);
 	}
+	//loading initial secondary skills
+	std::ifstream inp;
+	inp.open("config" PATHSEPARATOR "heroes_sec_skills.txt", std::ios_base::in|std::ios_base::binary);
+	if(!inp.is_open())
+	{
+		tlog1<<"missing file: config/heroes_sec_skills.txt"<<std::endl;
+	}
+	else
+	{
+		inp>>dump;
+		int hid; //ID of currently read hero
+		int secQ; //number of secondary abilities
+		while(true)
+		{
+			inp>>hid;
+			if(hid == -1)
+				break;
+			inp>>secQ;
+			for(int g=0; g<secQ; ++g)
+			{
+				int a, b;
+				inp>>a; inp>>b;
+				heroes[hid]->secSkillsInit.push_back(std::make_pair(a, b));
+			}
+		}
+		inp.close();
+	}
+	//initial skills loaded
+
 	loadSpecialAbilities();
 	loadBiographies();
 	loadHeroClasses();

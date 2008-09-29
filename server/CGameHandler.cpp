@@ -349,11 +349,11 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 	delete battleResult.data;
 
 }
-void prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
+void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def, bool shooting)
 {
 	bat.stackAttacking = att->ID;
 	bat.bsa.stackAttacked = def->ID;
-	bat.bsa.damageAmount = BattleInfo::calculateDmg(att, def);//counting dealt damage
+	bat.bsa.damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), shooting);//counting dealt damage
 
 	//applying damages
 	bat.bsa.killedAmount = bat.bsa.damageAmount / def->creature->hitPoints;
@@ -948,14 +948,14 @@ upgend:
 								return;
 
 							BattleAttack bat;
-							prepareAttack(bat,curStack,stackAtEnd);
+							prepareAttack(bat,curStack,stackAtEnd,false);
 							sendAndApply(&bat);
 							//counterattack
 							if(!vstd::contains(curStack->abilities,NO_ENEMY_RETALIATION)
 								&& stackAtEnd->alive()
 								&& stackAtEnd->counterAttacks	) //TODO: support for multiple retaliatons per turn
 							{
-								prepareAttack(bat,stackAtEnd,curStack);
+								prepareAttack(bat,stackAtEnd,curStack,false);
 								bat.flags |= 2;
 								sendAndApply(&bat);
 							}
@@ -965,7 +965,7 @@ upgend:
 								&& stackAtEnd->alive()  )
 							{
 								bat.flags = 0;
-								prepareAttack(bat,curStack,stackAtEnd);
+								prepareAttack(bat,curStack,stackAtEnd,false);
 								sendAndApply(&bat);
 							}
 							sendDataToClients(ui16(3008)); //end movement and attack
@@ -981,13 +981,13 @@ upgend:
 								*destStack= gs->curB->getStackT(ba.destinationTile);
 
 							BattleAttack bat;
-							prepareAttack(bat,curStack,destStack);
+							prepareAttack(bat,curStack,destStack,true);
 							bat.flags |= 1;
 
 							if(vstd::contains(curStack->abilities,TWICE_ATTACK)
 								&& curStack->alive())
 							{
-								prepareAttack(bat,curStack,destStack);
+								prepareAttack(bat,curStack,destStack,true);
 								sendAndApply(&bat);
 							}
 

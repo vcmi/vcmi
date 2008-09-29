@@ -56,13 +56,18 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 			nobj->defInfo->blockMap[5] = 253;
 			nobj->defInfo->visitMap[5] = 2;
 			nobj->artifWorn[16] = 3;
+			if(nobj->type->heroType % 2 == 1) //it's a magical hero
+			{
+				nobj->artifWorn[17] = 0; //give him spellbook
+			}
 			nobj->portrait = subid;
 			nobj->primSkills.resize(4);
 			nobj->primSkills[0] = nobj->type->heroClass->initialAttack;
 			nobj->primSkills[1] = nobj->type->heroClass->initialDefence;
 			nobj->primSkills[2] = nobj->type->heroClass->initialPower;
 			nobj->primSkills[3] = nobj->type->heroClass->initialKnowledge;
-			nobj->mana = 10 * nobj->primSkills[3];
+			nobj->secSkills = nobj->type->secSkillsInit; //copying initial secondary skills
+			nobj->mana = 10 * nobj->getPrimSkillLevel(3);
 			return nobj;
 		}
 	case 98: //town
@@ -1000,7 +1005,10 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			vhi->exp=40+ran()%50;
 			vhi->level = 1;
 		}
-		if (vhi->level>1) ;//TODO dodac um dr, ale potrzebne los
+		if(vhi->secSkills.size() == 1 && vhi->secSkills[0] == std::make_pair(-1, -1)) //set secondary skills to default
+		{
+			vhi->secSkills = vhi->type->secSkillsInit;
+		}
 		if ((!vhi->primSkills.size()) || (vhi->primSkills[0]<0))
 		{
 			if (vhi->primSkills.size()<PRIMARY_SKILLS)
@@ -1010,7 +1018,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			vhi->primSkills[2] = vhi->type->heroClass->initialPower;
 			vhi->primSkills[3] = vhi->type->heroClass->initialKnowledge;
 		}
-		vhi->mana = vhi->primSkills[3]*10;
+		vhi->mana = vhi->getPrimSkillLevel(3)*10;
 		if (!vhi->name.length())
 		{
 			vhi->name = vhi->type->name;
@@ -1023,6 +1031,10 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			vhi->portrait = vhi->type->ID;
 
 		vhi->artifWorn[16] = 3;
+		if(vhi->type->heroType % 2 == 1) //it's a magical hero
+		{
+			vhi->artifWorn[17] = 0; //give him spellbook
+		}
 
 		//initial army
 		if (!vhi->army.slots.size()) //standard army
@@ -1050,6 +1062,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 					vhi->army.slots[x-pom2].second = (ran()%pom)+vhi->type->lowStack[x];
 				else 
 					vhi->army.slots[x-pom2].second = +vhi->type->lowStack[x];
+				vhi->army.formation = false;
 			}
 		}
 
@@ -1347,9 +1360,9 @@ std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player)
 	return ret;
 }
 
-int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender)
+int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
 {
-	int attackDefenseBonus = attacker->creature->attack - defender->creature->defence;
+	int attackDefenseBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0) - (defender->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0));
 	int damageBase = 0;
 	if(attacker->creature->damageMax == attacker->creature->damageMin) //constant damage
 	{
@@ -1360,7 +1373,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender)
 		damageBase = rand()%(attacker->creature->damageMax - attacker->creature->damageMin) + attacker->creature->damageMin + 1;
 	}
 
-	float dmgBonusMultiplier = 1.0;
+	float dmgBonusMultiplier = 1.0f;
 	if(attackDefenseBonus < 0) //decreasing dmg
 	{
 		if(0.02f * (-attackDefenseBonus) > 0.3f)
@@ -1381,6 +1394,55 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender)
 		else
 		{
 			dmgBonusMultiplier += 0.05f * attackDefenseBonus;
+		}
+	}
+	//handling secondary abilities
+	if(attackerHero)
+	{
+		if(shooting)
+		{
+			switch(attackerHero->getSecSkillLevel(1)) //archery
+			{
+			case 1: //basic
+				dmgBonusMultiplier *= 1.1f;
+				break;
+			case 2: //advanced
+				dmgBonusMultiplier *= 1.25f;
+				break;
+			case 3: //expert
+				dmgBonusMultiplier *= 1.5f;
+				break;
+			}
+		}
+		else
+		{
+			switch(attackerHero->getSecSkillLevel(22)) //offence
+			{
+			case 1: //basic
+				dmgBonusMultiplier *= 1.1f;
+				break;
+			case 2: //advanced
+				dmgBonusMultiplier *= 1.2f;
+				break;
+			case 3: //expert
+				dmgBonusMultiplier *= 1.3f;
+				break;
+			}
+		}
+	}
+	if(defendingHero)
+	{
+		switch(defendingHero->getSecSkillLevel(23)) //armourer
+		{
+		case 1: //basic
+			dmgBonusMultiplier *= 0.95f;
+			break;
+		case 2: //advanced
+			dmgBonusMultiplier *= 0.9f;
+			break;
+		case 3: //expert
+			dmgBonusMultiplier *= 0.85f;
+			break;
 		}
 	}
 

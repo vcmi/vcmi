@@ -220,7 +220,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 
 	for(int g=0; g<primSkillAreas.size(); ++g)
 	{
-		primSkillAreas[g]->bonus = hero->primSkills[g];
+		primSkillAreas[g]->bonus = hero->getPrimSkillLevel(g);
 	}
 	for(int g=0; g<hero->secSkills.size(); ++g)
 	{
@@ -236,7 +236,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	sprintf(bufor, CGI->generaltexth->allTexts[2].substr(1, CGI->generaltexth->allTexts[2].size()-2).c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
 	expArea->text = std::string(bufor);
 
-	sprintf(bufor, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->primSkills[3]*10);
+	sprintf(bufor, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->getPrimSkillLevel(3)*10);
 	spellPointsArea->text = std::string(bufor);
 
 	for(int g=0; g<artWorn.size(); ++g)
@@ -551,19 +551,19 @@ void CHeroWindow::redrawCurBack()
 
 	//printing primary skills' amounts
 	std::stringstream primarySkill1;
-	primarySkill1<<curHero->primSkills[0];
+	primarySkill1<<curHero->getPrimSkillLevel(0);
 	CSDL_Ext::printAtMiddle(primarySkill1.str(), 53, 165, TNRB16, zwykly, curBack);
 
 	std::stringstream primarySkill2;
-	primarySkill2<<curHero->primSkills[1];
+	primarySkill2<<curHero->getPrimSkillLevel(1);
 	CSDL_Ext::printAtMiddle(primarySkill2.str(), 123, 165, TNRB16, zwykly, curBack);
 
 	std::stringstream primarySkill3;
-	primarySkill3<<curHero->primSkills[2];
+	primarySkill3<<curHero->getPrimSkillLevel(2);
 	CSDL_Ext::printAtMiddle(primarySkill3.str(), 193, 165, TNRB16, zwykly, curBack);
 
 	std::stringstream primarySkill4;
-	primarySkill4<<curHero->primSkills[3];
+	primarySkill4<<curHero->getPrimSkillLevel(3);
 	CSDL_Ext::printAtMiddle(primarySkill4.str(), 263, 165, TNRB16, zwykly, curBack);
 
 	blitAt(graphics->luck42->ourImages[curHero->getCurrentLuck()+3].bitmap, 239, 182, curBack);
@@ -650,7 +650,7 @@ void CHeroWindow::redrawCurBack()
 	CSDL_Ext::printAt(expstr.str(), 69, 247, GEOR16, zwykly, curBack);
 	CSDL_Ext::printAt(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 212, 231, GEOR13, tytulowy, curBack);
 	std::stringstream manastr;
-	manastr<<curHero->mana<<'/'<<curHero->primSkills[3]*10;
+	manastr<<curHero->mana<<'/'<<curHero->getPrimSkillLevel(3)*10;
 	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
 }
 

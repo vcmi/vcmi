@@ -92,7 +92,7 @@ public:
 	int portrait; //may be custom
 	int mana; // remaining spell points
 	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
-	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert)
+	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	int movement; //remaining movement points
 	int identifier; //from the map file
 	bool sex;
@@ -125,6 +125,7 @@ public:
 	bool canWalkOnSea() const;
 	int getCurrentLuck() const;
 	int getCurrentMorale() const;
+	int getPrimSkillLevel(int id) const;
 	int getSecSkillLevel(const int & ID) const; //0 - no skill
 	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
 	void setArtAtPos(ui16 pos, int art);
