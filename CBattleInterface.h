@@ -217,4 +217,5 @@ public:
 
 	friend class CBattleHex;
 	friend class CBattleReslutWindow;
+	friend class CPlayerInterface;
 };

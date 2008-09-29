@@ -722,12 +722,10 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	int hexWbase = 44, hexHbase = 42;
 	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
 
-	if(startMoving && creAnims[number]->framesInGroup(20)!=0) //animation of starting move; some units don't have this animation (ie. halberdier)
+	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
 		deactivate();
 		CGI->curh->hide();
-		creAnims[number]->setType(20);
-		//LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 		for(int i=0; i<creAnims[number]->framesInGroup(20)*getAnimSpeedMultiplier()-1; ++i)
 		{
 			show();
@@ -1175,7 +1173,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 {
 	deactivate();
 	CGI->curh->changeGraphic(0,0);
-
+	
 	SDL_Rect temp_rect = genRect(561, 470, 165, 19);
 	resWindow = new CBattleReslutWindow(br, temp_rect, this);
 	resWindow->activate();
@@ -1910,6 +1908,7 @@ CBattleReslutWindow::~CBattleReslutWindow()
 
 void CBattleReslutWindow::activate()
 {
+	LOCPLINT->showingDialog->set(true);
 	exit->activate();
 }
 

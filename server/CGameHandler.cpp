@@ -56,6 +56,15 @@ double distance(int3 a, int3 b)
 {
 	return std::sqrt( (double)(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
 }
+void giveExp(BattleResult &r)
+{
+	r.exp[0] = 0;
+	r.exp[1] = 0;
+	for(std::set<std::pair<ui32,si32> >::iterator i = r.casualties[!r.winner].begin(); i!=r.casualties[!r.winner].end(); i++)
+	{
+		r.exp[r.winner] += VLC->creh->creatures[i->first].hitPoints * i->second;
+	}
+}
 //bool CGameState::checkFunc(int obid, std::string name)
 //{
 //	if (objscr.find(obid)!=objscr.end())
@@ -314,6 +323,7 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 	sendAndApply(&sg);
 
 	//end battle, remove all info, free memory
+	giveExp(*battleResult.data);
 	sendAndApply(battleResult.data);
 	if(cb)
 		cb(battleResult.data);
@@ -329,6 +339,12 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 		RemoveObject ro(hero2->id);
 		sendAndApply(&ro);
 	}
+
+	//give exp
+	if(battleResult.data->exp[0] && hero1)
+		changePrimSkill(hero1->id,4,battleResult.data->exp[0]);
+	if(battleResult.data->exp[1] && hero2)
+		changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
 
 	delete battleResult.data;
 
@@ -916,6 +932,7 @@ upgend:
 							br->result = 1;
 							br->winner = !ba.side; //fleeing side loses
 							gs->curB->calculateCasualties(br->casualties);
+							giveExp(*br);
 							battleResult.set(br);
 							break;
 						}

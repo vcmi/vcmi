@@ -2019,6 +2019,12 @@ void CPlayerInterface::battleNewRound(int round) //called at the beggining of ea
 void CPlayerInterface::actionStarted(const BattleAction* action)
 {
 	curAction = action;
+	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))
+		&& static_cast<CBattleInterface*>(curint)->creAnims[action->stackNumber]->framesInGroup(20)
+		)
+	{
+		static_cast<CBattleInterface*>(curint)->creAnims[action->stackNumber]->setType(20);
+	}
 }
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
@@ -2061,6 +2067,7 @@ void CPlayerInterface::battleResultQuited()
 	delete curint;
 	curint = adventureInt;
 	adventureInt->activate();
+	LOCPLINT->showingDialog->setn(false);
 }
 
 void CPlayerInterface::battleStackMoved(int ID, int dest)
