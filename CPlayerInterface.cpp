@@ -1616,7 +1616,8 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 	}
 	for(int i=0; i<hlp.size();i++)
 		hlp[i]->hover(true);
-	for(std::list<MotionInterested*>::iterator i=motioninterested.begin(); i != motioninterested.end();i++)
+	std::list<MotionInterested*> miCopy = motioninterested;
+	for(std::list<MotionInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
 	{
 		if ((*i)->strongInterest || isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 		{
@@ -2073,7 +2074,7 @@ void CPlayerInterface::battleResultQuited()
 void CPlayerInterface::battleStackMoved(int ID, int dest)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest,dest==curAction->destinationTile);
+	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest, dest==curAction->destinationTile);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
@@ -2081,7 +2082,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	if(ba->shot())
 		dynamic_cast<CBattleInterface*>(curint)->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
 	else
-		dynamic_cast<CBattleInterface*>(curint)->stackAttacking( ba->stackAttacking, cb->battleGetPos(ba->bsa.stackAttacked) );
+		dynamic_cast<CBattleInterface*>(curint)->stackAttacking( ba->stackAttacking, curAction->additionalInfo );
 	if(ba->killed())
 		dynamic_cast<CBattleInterface*>(curint)->stackKilled(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
 	else

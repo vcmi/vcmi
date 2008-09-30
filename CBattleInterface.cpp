@@ -41,8 +41,9 @@ public:
 } cmpst2 ;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true), printMouseShadow(true)
 {
+	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
 	//initializing armies
 	this->army1 = army1;
@@ -585,7 +586,7 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 void CBattleInterface::bOptionsf()
 {
 	CGI->curh->changeGraphic(0,0);
-	LOCPLINT->curint->deactivate();
+	deactivate();
 
 	SDL_Rect temp_rect = genRect(431, 481, 160, 84);
 	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(temp_rect, this);
@@ -617,7 +618,7 @@ void CBattleInterface::bAutofightf()
 void CBattleInterface::bSpellf()
 {
 	CGI->curh->changeGraphic(0,0);
-	LOCPLINT->curint->deactivate();
+	deactivate();
 
 	const CGHeroInstance * chi = NULL;
 	if(attackingHeroInstance->tempOwner == LOCPLINT->playerID)
@@ -811,9 +812,9 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 				if((animCount+1)%(4/animSpeed)==0)
 					creAnims[number]->incrementFrame();
 			}
+			activate();
 		}
 		creAnims[number]->setType(2); //resetting to default
-		activate();
 		CGI->curh->show();
 	}
 
