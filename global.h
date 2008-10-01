@@ -18,7 +18,7 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #define THC
 #endif
 
-#define NAME_VER ("VCMI 0.62d")
+#define NAME_VER ("VCMI 0.63")
 #define CONSOLE_LOGGING_LEVEL 5
 #define FILE_LOGGING_LEVEL 6
 

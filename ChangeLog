@@ -1,45 +1,53 @@
-0.62 -> 0.63 (Oct 01 2008???)
+0.62 -> 0.63 (Oct 01 2008)
+GENERAL:
 * coloured console output, logging all info to txt files
-* very significant optimization of battles 
-* battle summary window
-* fixed crashbug on exiting battle 
-* mostly done morketplace 
-* confirm window is shown before retreat 
 * it's possible to use other port than 3030 by passing it as an additional argument
 * removed some redundant warnings
-* stack queue in battle (shows when 'c' key is pressed) 
 * partially done spellbook
-* fixed crashbug with battles on swamps and rough terrain
-* counterattacks
-* heroes learn spells in towns
+* Alt+F4 quits the game
+* some crashbugs was fixed
+* added handling of navigation, logistics, pathfinding, scouting end estates secondary skill
+* magical hero are given spellbook at the beginning
+* added initial secondary skills for heroes 
+
+BATTLES:
+* very significant optimization of battles 
+* battle summary window
+* fixed crashbug occurring sometimes on exiting battle 
+* confirm window is shown before retreat 
+* graphic stack queue in battle (shows when 'c' key is pressed)
 * it's possible to attack enemy hero
+* neutral monster army disappears when defeated
+* casualties among hero army and neutral creatures are saved
+* better animation handling in battles
+* directional attack in battles 
+* mostly done battle options (although they're not saved)
+* added receiving exp (and leveling-up) after a won battle 
+* added support for archery, offence and armourer secondary abilities 
+* hero's primary skills accounted for damage dealt by creatures in battle
+
+TOWNS:
+* mostly done marketplace 
+* fixed crashbug with battles on swamps and rough terrain
+* counterattacks 
+* heroes can learn new spells in towns
+* working resource silo
+* fixed bug with the mage guild when no spells available
+* it's possible to build lighthouse
+
+HERO WINDOW:
 * setting army formation
+* tooltips for artifacts in backpack
+
+ADVENTURE INTERFACE:
 * fixed bug with disappearing head of a hero in adventure map
 * some objects are no longer accessible from the top 
 * no tooltips for objects under FoW
-* working resource silo
-* neutral monster army disappears when defeated
-* Alt+F4 quits the game
-* dead stacks won't be displayed in battle queue 
-* possibly fixed bug with the mage guild when no spells available
-* events won't be shown and won't block movement
-* casualties among hero army and neutral creatures are saved
-* it's possible to build lighthouse
-* increased thread-safety (may prevent some crashes)
-* better animation handling in battles
+* events won't be shown
 * working Subterranean Gates, Monoliths
-* directional attack in battles 
 * minimap shows all flaggable objects (towns, mines, etc.) 
-* mostly done battle options (although they're not saved)
-* added handling of navigation, logistics, pathfinding, scouting end estates secondary skill
-* artifact info in backpack
-* artifacts we pick up go to the appropriate slot (if free) 
-* added receiving exp (and leveling-up) after a won battle 
-* added support for archery, offence and armorer secondary abilities
-* hero's primary skills accounted for damage dealt by creatures in battle
-* magical hero are given spellbook at the beginning
-* added initial secondary skills for heroes 
-* minor fixes
+* artifacts we pick up go to the appropriate slot (if free)
+
 
 0.61 -> 0.62 (Sep 01 2008)
 General:
