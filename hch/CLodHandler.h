@@ -46,6 +46,7 @@ public:
 	nodrze<Entry> entries;
 	unsigned int totalFiles;
 	boost::mutex *mutex;
+	std::string myDir; //load files from this dir instead of .lod file
 
 	int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
 	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler

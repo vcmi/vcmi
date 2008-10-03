@@ -403,7 +403,6 @@ endchkpt:
 			currentPath=NULL;
 			LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.getPosOfHero(LOCPLINT->adventureInt->selection)].second = NULL;
 		}
-		return;
 	}
 	const CGHeroInstance * currentHero = (LOCPLINT->adventureInt->heroList.items.size())?(LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first):(NULL);
 	if(currentHero)
@@ -488,62 +487,77 @@ void CTerrainRect::showPath()
 		}
 		else
 		{
+			/*
+			 * notation of arrow direction:
+			 * 1 2 3
+			 * 4 5 6
+			 * 7 8 9
+			 * ie. 157 means an arrow from left upper tile to left bottom tile through 5 (all arrows go through 5 in this notation)
+			*/
 			std::vector<CPathNode> & cv = currentPath->nodes;
-			if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y-1)
+			if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y-1) //15x
 			{
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //156
 				{
 					pn = 3;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //159
 				{
 					pn = 12;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //158
 				{
 					pn = 21;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //157
 				{
 					pn = 22;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //153
 				{
 					pn = 2;
 				}
-			}
-			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y-1)
-			{
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
-				{
-					pn = 2;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
-				{
-					pn = 3;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
-				{
-					pn = 4;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
-				{
-					pn = 13;
-				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
-				{
-					pn = 22;
-				}
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //154
 				{
 					pn = 23;
 				}
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //152
+				{
+					pn = 1;
+				}
+			}
+			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y-1) //25x
+			{
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //253
+				{
+					pn = 2;
+				}
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //256
+				{
+					pn = 3;
+				}
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //259
+				{
+					pn = 4;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //258
+				{
+					pn = 13;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //257
+				{
+					pn = 22;
+				}
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //254
+				{
+					pn = 23;
+				}
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //251
 				{
 					pn = 24;
 				}
 			}
-			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y-1)
+			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y-1) //35x
 			{
 				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
 				{
@@ -566,7 +580,7 @@ void CTerrainRect::showPath()
 					pn = 4;
 				}
 			}
-			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y)
+			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y) //65x
 			{
 				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
 				{
@@ -581,7 +595,7 @@ void CTerrainRect::showPath()
 					pn = 24;
 				}
 			}
-			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y+1)
+			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y+1) //95x
 			{
 				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
 				{
@@ -604,7 +618,7 @@ void CTerrainRect::showPath()
 					pn = 18;
 				}
 			}
-			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1)
+			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1) //85x
 			{
 				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
 				{
@@ -635,7 +649,7 @@ void CTerrainRect::showPath()
 					pn = 20;
 				}
 			}
-			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y+1)
+			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y+1) //75x
 			{
 				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
 				{
@@ -658,7 +672,7 @@ void CTerrainRect::showPath()
 					pn = 20;
 				}
 			}
-			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y)
+			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y) //45x
 			{
 				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
 				{

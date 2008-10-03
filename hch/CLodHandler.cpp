@@ -42,7 +42,8 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	{
 		unsigned char * outp = new unsigned char[ourEntry->realSize];
 		char name[30];memset(name,0,30);
-		strcat(name,"Data/");
+		strcat(name, myDir.c_str());
+		strcat(name, PATHSEPARATOR);
 		strcat(name,(char*)ourEntry->name);
 		FILE * f = fopen(name,"rb");
 		int result = fread(outp,1,ourEntry->realSize,f);
@@ -327,6 +328,7 @@ int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
 
 void CLodHandler::init(std::string lodFile, std::string dirName)
 {
+	myDir = dirName;
 	mutex = new boost::mutex;
 	std::string Ts;
 	FLOD = fopen(lodFile.c_str(), "rb");

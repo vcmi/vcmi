@@ -157,7 +157,7 @@ void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 	{
 		for(int j = node.y-1; j < node.y+2; j++)
 		{
-			if(i >= 0 && j >= 0 && i < CGI->mh->sizes.x && j < CGI->mh->sizes.y)
+			if(i >= 0 && j >= 0 && i < CGI->mh->sizes.x && j < CGI->mh->sizes.y && (i!=node.x || j!=node.y))
 			{
 				c = Coordinate(i,j,node.z);
 
@@ -166,6 +166,11 @@ void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 
 				//Calculate the movement cost
 				CalcH(&c);
+
+				if(i!=node.x && j!=node.y)
+					c.diagonal = true;
+				else
+					c.diagonal = false;
 
 				if(c.g != -1 && c.h != -1)
 				{
@@ -255,7 +260,6 @@ void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
 						Open.push(toAdd);
 					}
 				}
-				//delete c;
 			}
 		}
 	}
@@ -401,11 +405,17 @@ bool Compare::operator()(const vector<Coordinate>& a, const vector<Coordinate>& 
 
 	for(int i = 0; i < a.size(); i++)
 	{
-		aTotal += a[i].g*a[i].h;
+		double add = a[i].g*a[i].h;
+		if(a[i].diagonal)
+			add*=1.41421356;
+		aTotal += add;
 	}
 	for(int i = 0; i < b.size(); i++)
 	{
-		bTotal += b[i].g*b[i].h;
+		double add = b[i].g*b[i].h;
+		if(b[i].diagonal)
+			add*=1.41421356;
+		bTotal += add;
 	}
 
 	return aTotal > bTotal;
@@ -418,4 +428,5 @@ void Coordinate::operator =(const Coordinate &other)
 	this->z = other.z;
 	this->g = other.g;
 	this->h = other.h;
+	this->diagonal = other.diagonal;
 }

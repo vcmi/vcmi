@@ -16,11 +16,12 @@ public:
 	int z;
 	float g; //Distance from goal
 	int h; //Movement cost
+	bool diagonal; //if true, this tile will be crossed by diagonal
 
-	Coordinate() : x(NULL), y(NULL), z(NULL), g(NULL), h(NULL) {}
-	Coordinate(int3 xyz) : x(xyz.x), y(xyz.y), z(xyz.z){}
-	Coordinate(int xCor, int yCor, int zCor) : x(xCor), y(yCor), z(zCor){}
-	Coordinate(int xCor, int yCor, int zCor, int dist, int penalty) : x(xCor), y(yCor), z(zCor), g(dist), h(penalty){}
+	Coordinate() : x(NULL), y(NULL), z(NULL), g(NULL), h(NULL), diagonal(false) {}
+	Coordinate(int3 xyz) : x(xyz.x), y(xyz.y), z(xyz.z), diagonal(false){}
+	Coordinate(int xCor, int yCor, int zCor) : x(xCor), y(yCor), z(zCor), diagonal(false){}
+	Coordinate(int xCor, int yCor, int zCor, int dist, int penalty) : x(xCor), y(yCor), z(zCor), g(dist), h(penalty), diagonal(false){}
 	void operator=(const Coordinate& other);
 };
 
