@@ -2082,7 +2082,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	if(ba->shot())
 		dynamic_cast<CBattleInterface*>(curint)->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
 	else
-		dynamic_cast<CBattleInterface*>(curint)->stackAttacking( ba->stackAttacking, curAction->additionalInfo );
+		dynamic_cast<CBattleInterface*>(curint)->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile : curAction->additionalInfo );
 	if(ba->killed())
 		dynamic_cast<CBattleInterface*>(curint)->stackKilled(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
 	else

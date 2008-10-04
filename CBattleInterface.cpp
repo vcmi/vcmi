@@ -370,7 +370,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackDeadByHex[b].size(); ++v)
 		{
-			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%(4/animSpeed)==0 || creAnims[stackDeadByHex[b][v]]->getType()!=2) && stacks[stackDeadByHex[b][v]].alive(), stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%(4/animSpeed)==0) && creAnims[stackDeadByHex[b][v]]->getType()!=5, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackDeadByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -1011,6 +1011,8 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 		case 5:
 			attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
 			break;
+		default:
+			tlog1<<"Critical Error! Wrong dest in stackAttacking!"<<std::endl;
 	}
 }
 
