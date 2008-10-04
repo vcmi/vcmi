@@ -501,7 +501,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 								fromHex = b;
 								break;
 							}
-						if(fromHex!=-1 && fromHex%17!=0 && fromHex%17!=16)
+							if(fromHex!=-1 && fromHex%17!=0 && fromHex%17!=16 && vstd::contains(shadedHexes, fromHex))
 						{
 							switch(BattleInfo::mutualPosition(fromHex, myNumber))
 							{
@@ -723,9 +723,9 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	int hexWbase = 44, hexHbase = 42;
 	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
 
+	deactivate();
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
-		deactivate();
 		CGI->curh->hide();
 		for(int i=0; i<creAnims[number]->framesInGroup(20)*getAnimSpeedMultiplier()-1; ++i)
 		{
@@ -812,11 +812,11 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 				if((animCount+1)%(4/animSpeed)==0)
 					creAnims[number]->incrementFrame();
 			}
-			activate();
 		}
 		creAnims[number]->setType(2); //resetting to default
 		CGI->curh->show();
 	}
+	activate();
 
 	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
 	if(endMoving) //resetting to default
@@ -1140,6 +1140,8 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 		spi.y = xycoord.second + 125 - LOCPLINT->cb->battleGetCreature(ID).rightMissleOffsetY;
 	}
 	spi.lastStep = sqrt((float)((destcoord.first - spi.x)*(destcoord.first - spi.x) + (destcoord.second - spi.y) * (destcoord.second - spi.y))) / 40;
+	if(spi.lastStep == 0)
+		spi.lastStep = 1;
 	spi.dx = (destcoord.first - spi.x) / spi.lastStep;
 	spi.dy = (destcoord.second - spi.y) / spi.lastStep;
 	//set starting frame
