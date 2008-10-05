@@ -455,7 +455,7 @@ void CCreatureHandler::loadCreatures()
 
 
 
-	creatures[122].abilities.insert(DOUBLE_WIDE);//water elemental should be treated as double-wide
+	creatures[115].abilities.insert(DOUBLE_WIDE);//water elemental should be treated as double-wide
 	creatures[123].abilities.insert(DOUBLE_WIDE);//ice elemental should be treated as double-wide
 	creatures[140].abilities.insert(DOUBLE_WIDE);//boar should be treated as double-wide
 }

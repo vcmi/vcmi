@@ -554,8 +554,6 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		if((animCount+1)%(4/animSpeed)==0)
-			creAnims[number]->incrementFrame();
 	}
 	creDir[number] = !creDir[number];
 
