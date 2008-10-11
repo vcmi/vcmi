@@ -21,6 +21,7 @@ class CCreatureSet;
 class CArmedInstance;
 struct BattleResult;
 struct BattleAttack;
+struct BattleStackAttacked;
 class CObstacle
 {
 	int ID;
@@ -68,15 +69,13 @@ public:
 	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero
 	virtual void actionStarted(const BattleAction *action){};//occurs BEFORE every action taken by any stack or by the hero
 	virtual BattleAction activeStack(int stackID)=0; //called when it's turn of that stack
-	virtual void battleAttack(BattleAttack *ba){};
+	virtual void battleAttack(BattleAttack *ba){}; //called when stack is performing attack
+	virtual void battleStackAttacked(BattleStackAttacked * bsa){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(BattleResult *br){};
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting){};
 	virtual void battleStackMoved(int ID, int dest){};
 	virtual void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
-	//
-
 };
 class CAIHandler
 {
@@ -93,7 +92,6 @@ public:
 	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving){};
 	virtual void battleStackAttacking(int ID, int dest){};
 	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting){};
-	virtual void battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting){};
 	virtual BattleAction activeStack(int stackID) {BattleAction ba; ba.actionType = 3; ba.stackNumber = stackID; return ba;};
 };
 #endif //CGAMEINTERFACE_H

@@ -530,8 +530,15 @@ void CClient::process(int what)
 			BattleAttack ba;
 			*serv >> ba;
 			tlog5 << "Stack: " << ba.stackAttacking << " is attacking stack "<< ba.bsa.stackAttacked <<std::endl;
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleAttack(&ba);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleAttack(&ba);
 			gs->apply(&ba);
-			LOCPLINT->battleAttack(&ba);
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleStackAttacked(&ba.bsa);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleStackAttacked(&ba.bsa);
 			break;
 		}
 	case 3007:

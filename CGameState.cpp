@@ -212,6 +212,21 @@ std::vector<int> BattleInfo::getAccessibility(int stackID)
 
 	return ret;
 }
+bool BattleInfo::isStackBlocked(int ID)
+{
+	CStack *our = getStack(ID);
+	for(int i=0; i<stacks.size();i++)
+	{
+		if( !stacks[i]->alive()
+			|| stacks[i]->owner==our->owner
+		  )
+			continue; //we ommit dead and allied stacks
+		if( mutualPosition(stacks[i]->position,our->position) >= 0 )
+			return true;
+	}
+	return false;
+}
+
 signed char BattleInfo::mutualPosition(int hex1, int hex2)
 {
 	if(hex2 == hex1 - ( (hex1/17)%2 ? 18 : 17 )) //top left

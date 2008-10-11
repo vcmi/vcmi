@@ -2025,7 +2025,7 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 		)
 	{
 		static_cast<CBattleInterface*>(curint)->creAnims[action->stackNumber]->setType(20);
-	}
+}
 }
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
@@ -2088,10 +2088,10 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	else
 		dynamic_cast<CBattleInterface*>(curint)->stackIsAttacked(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
 }
-void CPlayerInterface::battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)
-{
-	dynamic_cast<CBattleInterface*>(curint)->stackKilled(ID, dmg, killed, IDby, byShooting);
-}
+//void CPlayerInterface::battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)
+//{
+//	dynamic_cast<CBattleInterface*>(curint)->stackKilled(ID, dmg, killed, IDby, byShooting);
+//}
 
 //void CPlayerInterface::battleStackIsShooting(int ID, int dest)
 //{

@@ -523,13 +523,16 @@ bool CCallback::battleIsStackMine(int ID)
 	}
 	return false;
 }
-bool CCallback::battleCanShoot(int ID, int dest) //TODO: finish
+bool CCallback::battleCanShoot(int ID, int dest) //TODO: check arrows amount
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	if(battleGetStackByID(ID)->creature->isShooting() 
-		&& battleGetStack(dest) != -1 
-		&& battleGetStackByPos(dest)->owner != battleGetStackByID(ID)->owner
-		&& battleGetStackByPos(dest)->alive())
+	CStack *our=battleGetStackByID(ID), *dst=battleGetStackByPos(dest);
+	if(!our || !dst) return false; 
+	if(vstd::contains(our->abilities,SHOOTER)//it's shooter
+		&& our->owner != dst->owner
+		&& dst->alive()
+		&& !gs->curB->isStackBlocked(ID)
+		)
 		return true;
 	return false;
 }

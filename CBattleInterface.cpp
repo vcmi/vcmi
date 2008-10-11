@@ -490,7 +490,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 				{
 					if(shere->owner == LOCPLINT->playerID) //our stack
 						CGI->curh->changeGraphic(1,5);
-					else if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isShooting()) //we can shoot enemy
+					else if(LOCPLINT->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
 						CGI->curh->changeGraphic(1,3);
 					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
 					{

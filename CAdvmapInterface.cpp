@@ -1200,40 +1200,43 @@ void CAdvMapInt::update()
 
 	}
 	++heroAnim;
-	if(scrollingLeft)
+	if(animValHitCount % 4)
 	{
-		if(position.x>-Woff)
+		if(scrollingLeft)
 		{
-			position.x--;
-			updateScreen = true;
-			updateMinimap=true;
+			if(position.x>-Woff)
+			{
+				position.x--;
+				updateScreen = true;
+				updateMinimap=true;
+			}
 		}
-	}
-	if(scrollingRight)
-	{
-		if(position.x<CGI->mh->map->width-19+4)
+		if(scrollingRight)
 		{
-			position.x++;
-			updateScreen = true;
-			updateMinimap=true;
+			if(position.x<CGI->mh->map->width-19+4)
+			{
+				position.x++;
+				updateScreen = true;
+				updateMinimap=true;
+			}
 		}
-	}
-	if(scrollingUp)
-	{
-		if(position.y>-Hoff)
+		if(scrollingUp)
 		{
-			position.y--;
-			updateScreen = true;
-			updateMinimap=true;
+			if(position.y>-Hoff)
+			{
+				position.y--;
+				updateScreen = true;
+				updateMinimap=true;
+			}
 		}
-	}
-	if(scrollingDown)
-	{
-		if(position.y<CGI->mh->map->height-18+4)
+		if(scrollingDown)
 		{
-			position.y++;
-			updateScreen = true;
-			updateMinimap=true;
+			if(position.y<CGI->mh->map->height-18+4)
+			{
+				position.y++;
+				updateScreen = true;
+				updateMinimap=true;
+			}
 		}
 	}
 	if(updateScreen)
