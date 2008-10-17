@@ -6,6 +6,7 @@
 #include "../hch/CPreGameTextHandler.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../CAdvmapInterface.h"
+#include "../CBattleInterface.h"
 #include "../CGameInfo.h"
 #include "../SDL_Extensions.h"
 #include "../CMessage.h"
@@ -615,6 +616,12 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 void CSpellWindow::SpellArea::clickLeft(boost::logic::tribool down)
 {
+	owner->fexitb();
+	//we will cast a spell
+	if(dynamic_cast<CBattleInterface*>(LOCPLINT->curint)) //if battle window is open
+	{
+		dynamic_cast<CBattleInterface*>(LOCPLINT->curint)->castThisSpell(mySpell);
+	}
 }
 
 void CSpellWindow::SpellArea::clickRight(boost::logic::tribool down)

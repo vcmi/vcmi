@@ -296,6 +296,7 @@ CTerrainRect::CTerrainRect():currentPath(NULL)
 	pos.y=6;
 	pos.w=593;
 	pos.h=547;
+	moveX = moveY = 0;
 	arrows = CDefHandler::giveDef("ADAG.DEF");
 	for(int y=0; y<arrows->ourImages.size(); ++y)
 	{
@@ -731,7 +732,7 @@ void CTerrainRect::show()
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
 		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
 		&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-		screen,&genRect(547,594,7,6)
+		screen, &genRect(547, 594, 7, 6)
 		);
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
@@ -1093,7 +1094,7 @@ void CAdvMapInt::fsystemOptions()
 {
 	LOCPLINT->curint->deactivate();
 
-	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(genRect(487, 481, 159, 57));
+	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(genRect(487, 481, 159, 57), LOCPLINT);
 	sysopWindow->activate();
 	LOCPLINT->objsToBlit.push_back(sysopWindow);
 }

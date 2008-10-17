@@ -45,8 +45,9 @@ class CTerrainRect
 	public MotionInterested
 {
 public:
-	int tilesw, tilesh;
+	int tilesw, tilesh; //width and height of terrain to blit in tiles
 	int3 curHoveredTile;
+	int moveX, moveY; //shift between actual position of screen and the one we wil blit; ranges from -31 to 31 (in pixels)
 
 	CDefHandler * arrows;
 	CTerrainRect();

@@ -32,6 +32,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
+#include <boost/assign/list_of.hpp>
 #include <boost/thread.hpp>
 #include <cmath>
 #include <queue>
@@ -959,6 +960,7 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	human=true;
 	pim = new boost::recursive_mutex;
 	showingDialog = new CondSh<bool>(false);
+	heroMoveSpeed = 2;
 }
 CPlayerInterface::~CPlayerInterface()
 {
@@ -1328,10 +1330,14 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//first initializing done
 	SDL_framerateDelay(mainFPSmng); // after first move
 	//main moving
-	for(int i=1; i<32; i+=4)
+	for(int i=1; i<32; i+=2*heroMoveSpeed)
 	{
 		if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 		{
+			//seting advmap shift
+			adventureInt->terrain.moveX = i-32;
+			adventureInt->terrain.moveY = i-32;
+
 			subRect(hp.x-3, hp.y-2, hp.z, genRect(32, 32, -31+i, -31+i), ho->id);
 			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 1+i, -31+i), ho->id);
 			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 33+i, -31+i), ho->id);
@@ -1349,6 +1355,9 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
 		{
+			//seting advmap shift
+			adventureInt->terrain.moveY = i-32;
+
 			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 0, -31+i), ho->id);
 			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 32, -31+i), ho->id);
 			subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 64, -31+i), ho->id);
@@ -1363,6 +1372,10 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
 		{
+			//seting advmap shift
+			adventureInt->terrain.moveX = -i+32;
+			adventureInt->terrain.moveY = i-32;
+
 			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, -1-i, -31+i), ho->id);
 			subRect(hp.x-1, hp.y-2, hp.z, genRect(32, 32, 31-i, -31+i), ho->id);
 			subRect(hp.x, hp.y-2, hp.z, genRect(32, 32, 63-i, -31+i), ho->id);
@@ -1380,6 +1393,9 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
 		{
+			//seting advmap shift
+			adventureInt->terrain.moveX = -i+32;
+
 			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 0), ho->id);
 			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, 0), ho->id);
 			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, 0), ho->id);
@@ -1392,6 +1408,11 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
 		{
+			
+			//seting advmap shift
+			adventureInt->terrain.moveX = -i+32;
+			adventureInt->terrain.moveY = -i+32;
+
 			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, -1-i), ho->id);
 			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31-i, -1-i), ho->id);
 			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 63-i, -1-i), ho->id);
@@ -1409,6 +1430,9 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
 		{
+			//seting advmap shift
+			adventureInt->terrain.moveY = -i+32;
+
 			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1-i), ho->id);
 			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1-i), ho->id);
 			subRect(hp.x, hp.y-1, hp.z, genRect(32, 32, 64, -1-i), ho->id);
@@ -1423,6 +1447,10 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
 		{
+			//seting advmap shift
+			adventureInt->terrain.moveX = i-32;
+			adventureInt->terrain.moveY = -i+32;
+
 			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, -1-i), ho->id);
 			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, -1-i), ho->id);
 			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, -1-i), ho->id);
@@ -1440,6 +1468,9 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
 		{
+			//seting advmap shift
+			adventureInt->terrain.moveX = i-32;
+
 			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 0), ho->id);
 			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1+i, 0), ho->id);
 			subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 33+i, 0), ho->id);
@@ -1469,6 +1500,10 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	} //for(int i=1; i<32; i+=4)
 	//main moving done
 	//finishing move
+
+	//restoring adventureInt->terrain.move*
+	adventureInt->terrain.moveX = adventureInt->terrain.moveY = 0;
+
 	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 	{
 		delObjRect(hp.x, hp.y-2, hp.z, ho->id);
@@ -1527,6 +1562,15 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 	}
+
+	//restoring good rects
+	subRect(details.dst.x-2, details.dst.y-1, details.dst.z, genRect(32, 32, 0, 0), ho->id);
+	subRect(details.dst.x-1, details.dst.y-1, details.dst.z, genRect(32, 32, 32, 0), ho->id);
+	subRect(details.dst.x, details.dst.y-1, details.dst.z, genRect(32, 32, 64, 0), ho->id);
+
+	subRect(details.dst.x-2, details.dst.y, details.dst.z, genRect(32, 32, 0, 32), ho->id);
+	subRect(details.dst.x-1, details.dst.y, details.dst.z, genRect(32, 32, 32, 32), ho->id);
+	subRect(details.dst.x, details.dst.y, details.dst.z, genRect(32, 32, 64, 32), ho->id);
 
 	//restoring good order of objects
 	std::stable_sort(CGI->mh->ttiles[details.dst.x-2][details.dst.y-1][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-2][details.dst.y-1][details.dst.z].objects.end(), ocmptwo_cgin);
@@ -2025,12 +2069,20 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 		)
 	{
 		static_cast<CBattleInterface*>(curint)->creAnims[action->stackNumber]->setType(20);
+	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //deactivating interface when move is started
+	{
+		static_cast<CBattleInterface*>(curint)->deactivate();
+	}
 }
 }
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
 {
 	curAction = NULL;
+	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
+	{
+		static_cast<CBattleInterface*>(curint)->activate();
+	}
 }
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
@@ -3745,7 +3797,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	}
 }
 
-CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos)
+CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface * owner)
 {
 	this->pos = pos;
 	background = BitmapHandler::loadBitmap("SysOpbck.bmp", true);
@@ -3772,6 +3824,14 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos)
 	std::swap(quitGame->imgs[0][0], quitGame->imgs[0][1]);
 	backToMap = new AdventureMapButton (CGI->preth->zelp[325].first, CGI->preth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 516, 471, "soretrn.def", false, NULL, false);
 	std::swap(backToMap->imgs[0][0], backToMap->imgs[0][1]);
+
+	heroMoveSpeed = new CHighlightableButtonsGroup(0);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[349].first),CGI->preth->zelp[349].second, "sysopb1.def", 187, 134, 1);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[350].first),CGI->preth->zelp[350].second, "sysopb2.def", 235, 134, 2);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[351].first),CGI->preth->zelp[351].second, "sysopb3.def", 283, 134, 4);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[352].first),CGI->preth->zelp[352].second, "sysopb4.def", 331, 134, 8);
+	heroMoveSpeed->select(owner->heroMoveSpeed, 1);
+	heroMoveSpeed->onChange = boost::bind(&CPlayerInterface::setHeroMoveSpeed, owner, _1);
 }
 
 CSystemOptionsWindow::~CSystemOptionsWindow()
@@ -3780,6 +3840,7 @@ CSystemOptionsWindow::~CSystemOptionsWindow()
 
 	delete quitGame;
 	delete backToMap;
+	delete heroMoveSpeed;
 }
 
 void CSystemOptionsWindow::bquitf()
@@ -3809,12 +3870,14 @@ void CSystemOptionsWindow::activate()
 {
 	quitGame->activate();
 	backToMap->activate();
+	heroMoveSpeed->activate();
 }
 
 void CSystemOptionsWindow::deactivate()
 {
 	quitGame->deactivate();
 	backToMap->deactivate();
+	heroMoveSpeed->deactivate();
 }
 
 void CSystemOptionsWindow::show(SDL_Surface *to)
@@ -3827,4 +3890,5 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 
 	quitGame->show(to);
 	backToMap->show(to);
+	heroMoveSpeed->show(to);
 }

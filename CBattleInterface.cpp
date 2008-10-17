@@ -41,7 +41,7 @@ public:
 } cmpst2 ;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true), printMouseShadow(true)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true), printMouseShadow(true), spellDestSelectMode(false), spellToCast(NULL)
 {
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
@@ -104,7 +104,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	//loading hero animations
 	if(hero1) // attacking hero
 	{
-		attackingHero = new CBattleHero(graphics->battleHeroes[hero1->type->heroType], 0, 0, false, hero1->tempOwner, hero1->tempOwner == LOCPLINT->playerID ? hero1 : NULL);
+		attackingHero = new CBattleHero(graphics->battleHeroes[hero1->type->heroType], 0, 0, false, hero1->tempOwner, hero1->tempOwner == LOCPLINT->playerID ? hero1 : NULL, this);
 		attackingHero->pos = genRect(attackingHero->dh->ourImages[0].bitmap->h, attackingHero->dh->ourImages[0].bitmap->w, -40, 0);
 	}
 	else
@@ -113,7 +113,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	}
 	if(hero2) // defending hero
 	{
-		defendingHero = new CBattleHero(graphics->battleHeroes[hero2->type->heroType], 0, 0, true, hero2->tempOwner, hero2->tempOwner == LOCPLINT->playerID ? hero2 : NULL);
+		defendingHero = new CBattleHero(graphics->battleHeroes[hero2->type->heroType], 0, 0, true, hero2->tempOwner, hero2->tempOwner == LOCPLINT->playerID ? hero2 : NULL, this);
 		defendingHero->pos = genRect(defendingHero->dh->ourImages[0].bitmap->h, defendingHero->dh->ourImages[0].bitmap->w, 690, 0);
 	}
 	else
@@ -466,7 +466,7 @@ void CBattleInterface::show(SDL_Surface * to)
 
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
-	if(activeStack>=0)
+	if(activeStack>=0 && !spellDestSelectMode)
 	{
 		int myNumber = -1; //number of hovered tile
 		for(int g=0; g<187; ++g)
@@ -721,7 +721,6 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	int hexWbase = 44, hexHbase = 42;
 	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
 
-	deactivate();
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
 		CGI->curh->hide();
@@ -814,7 +813,6 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 		creAnims[number]->setType(2); //resetting to default
 		CGI->curh->show();
 	}
-	activate();
 
 	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
 	if(endMoving) //resetting to default
@@ -1047,51 +1045,61 @@ void CBattleInterface::hexLclicked(int whichOne)
 	{
 		if(!myTurn)
 			return; //we are not permit to do anything
-
-		CStack* dest = LOCPLINT->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
-		if(!dest || !dest->alive()) //no creature at that tile
+		if(spellDestSelectMode)
 		{
-			if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
-				giveCommand(2,whichOne,activeStack);
+			spellToCast->destinationTile = whichOne;
+			LOCPLINT->cb->battleMakeAction(spellToCast);
+			spellToCast = NULL;
+			spellDestSelectMode = false;
+			CGI->curh->changeGraphic(1, 6);
 		}
-		else if(dest->owner != attackingHeroInstance->tempOwner
-			&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)
-			&& BattleInfo::mutualPosition(LOCPLINT->cb->battleGetPos(activeStack),whichOne) < 0 ) //shooting
+		else
 		{
-			giveCommand(7,whichOne,activeStack);
-		}
-		else if(dest->owner != attackingHeroInstance->tempOwner) //attacking
-		{
-			//std::vector<int> n = BattleInfo::neighbouringTiles(whichOne);
-			//for(int i=0;i<n.size();i++)
-			//{
-			//	//TODO: now we are using first available tile, but in the future we should add possibility of choosing from which tile we want to attack
-			//	if(vstd::contains(shadedHexes,n[i]))
-			//	{
-			//		giveCommand(6,n[i],activeStack,whichOne);
-			//		return;
-			//	}
-			//}
-			switch(CGI->curh->number)
+			CStack* dest = LOCPLINT->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
+			if(!dest || !dest->alive()) //no creature at that tile
 			{
-			case 12:
-				giveCommand(6,whichOne + ( (whichOne/17)%2 ? 17 : 18 ),activeStack,whichOne);
-				break;
-			case 7:
-				giveCommand(6,whichOne + ( (whichOne/17)%2 ? 16 : 17 ),activeStack,whichOne);
-				break;
-			case 8:
-				giveCommand(6,whichOne - 1,activeStack,whichOne);
-				break;
-			case 9:
-				giveCommand(6,whichOne - ( (whichOne/17)%2 ? 18 : 17 ),activeStack,whichOne);
-				break;
-			case 10:
-				giveCommand(6,whichOne - ( (whichOne/17)%2 ? 17 : 16 ),activeStack,whichOne);
-				break;
-			case 11:
-				giveCommand(6,whichOne + 1,activeStack,whichOne);
-				break;
+				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
+					giveCommand(2,whichOne,activeStack);
+			}
+			else if(dest->owner != attackingHeroInstance->tempOwner
+				&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)
+				&& BattleInfo::mutualPosition(LOCPLINT->cb->battleGetPos(activeStack),whichOne) < 0 ) //shooting
+			{
+				giveCommand(7,whichOne,activeStack);
+			}
+			else if(dest->owner != attackingHeroInstance->tempOwner) //attacking
+			{
+				//std::vector<int> n = BattleInfo::neighbouringTiles(whichOne);
+				//for(int i=0;i<n.size();i++)
+				//{
+				//	//TODO: now we are using first available tile, but in the future we should add possibility of choosing from which tile we want to attack
+				//	if(vstd::contains(shadedHexes,n[i]))
+				//	{
+				//		giveCommand(6,n[i],activeStack,whichOne);
+				//		return;
+				//	}
+				//}
+				switch(CGI->curh->number)
+				{
+				case 12:
+					giveCommand(6,whichOne + ( (whichOne/17)%2 ? 17 : 18 ),activeStack,whichOne);
+					break;
+				case 7:
+					giveCommand(6,whichOne + ( (whichOne/17)%2 ? 16 : 17 ),activeStack,whichOne);
+					break;
+				case 8:
+					giveCommand(6,whichOne - 1,activeStack,whichOne);
+					break;
+				case 9:
+					giveCommand(6,whichOne - ( (whichOne/17)%2 ? 18 : 17 ),activeStack,whichOne);
+					break;
+				case 10:
+					giveCommand(6,whichOne - ( (whichOne/17)%2 ? 17 : 16 ),activeStack,whichOne);
+					break;
+				case 11:
+					giveCommand(6,whichOne + 1,activeStack,whichOne);
+					break;
+				}
 			}
 		}
 	}
@@ -1180,6 +1188,18 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	SDL_Rect temp_rect = genRect(561, 470, 165, 19);
 	resWindow = new CBattleReslutWindow(br, temp_rect, this);
 	resWindow->activate();
+}
+
+void CBattleInterface::castThisSpell(int spellID)
+{
+	BattleAction * ba = new BattleAction;
+	ba->actionType = 1;
+	ba->additionalInfo = spellID; //spell number
+	ba->destinationTile = -1;
+	ba->side = defendingHeroInstance ? (LOCPLINT->playerID == defendingHeroInstance->tempOwner) : false;
+	spellToCast = ba;
+	spellDestSelectMode = true;
+	CGI->curh->changeGraphic(3, 0); 
 }
 
 void CBattleInterface::setAnimSpeed(int set)
@@ -1521,6 +1541,11 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 {
 	if(!down && myHero)
 	{
+		for(int it=0; it<187; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
+		{
+			if(myOwner->bfield[it].hovered && myOwner->bfield[it].strictHovered)
+				return;
+		}
 		CGI->curh->changeGraphic(0,0);
 		LOCPLINT->curint->deactivate();
 
@@ -1530,7 +1555,7 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 	}
 }
 
-CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero): phase(phaseG), image(imageG), flip(flipG), flagAnim(0), myHero(hero)
+CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner): phase(phaseG), image(imageG), flip(flipG), flagAnim(0), myHero(hero), myOwner(owner)
 {
 	dh = CDefHandler::giveDef( defName );
 	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images

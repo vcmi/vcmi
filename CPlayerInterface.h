@@ -8,6 +8,7 @@
 
 class CDefEssential;
 class AdventureMapButton;
+class CHighlightableButtonsGroup;
 class CDefHandler;
 struct HeroMoveDetails;
 class CDefEssential;
@@ -319,6 +320,8 @@ public:
 	CondSh<bool> *showingDialog;
 	boost::recursive_mutex *pim;
 	bool makingTurn;
+	int heroMoveSpeed;
+	void setHeroMoveSpeed(int newSpeed) {heroMoveSpeed = newSpeed;}; //set for the member above
 	SDL_Event * current;
 	CMainInterface *curint;
 	CAdvMapInt * adventureInt;
@@ -640,8 +643,9 @@ class CSystemOptionsWindow : public IShowActivable, public CIntObject
 private:
 	SDL_Surface * background; //background of window
 	AdventureMapButton * quitGame, * backToMap;
+	CHighlightableButtonsGroup * heroMoveSpeed;
 public:
-	CSystemOptionsWindow(const SDL_Rect & pos); //c-tor
+	CSystemOptionsWindow(const SDL_Rect & pos, CPlayerInterface * owner); //c-tor
 	~CSystemOptionsWindow(); //d-tor
 
 	//functions for butons

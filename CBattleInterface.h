@@ -14,12 +14,15 @@ class CHighlightableButtonsGroup;
 struct BattleResult;
 template <typename T> struct CondSh;
 
+class CBattleInterface;
+
 class CBattleHero : public IShowable, public ClickableL
 {
 public:
 	bool flip; //false if it's attacking hero, true otherwise
 	CDefHandler * dh, *flag; //animation and flag
 	const CGHeroInstance * myHero; //this animation's hero instance
+	const CBattleInterface * myOwner; //battle interface to which this animation is assigned
 	int phase; //stage of animation
 	int image; //frame of animation
 	unsigned char flagAnim, flagAnimCount; //for flag animation
@@ -27,11 +30,9 @@ public:
 	void activate();
 	void deactivate();
 	void clickLeft(boost::logic::tribool down);
-	CBattleHero(const std::string & defName, int phaseG, int imageG, bool filpG, unsigned char player, const CGHeroInstance * hero); //c-tor
+	CBattleHero(const std::string & defName, int phaseG, int imageG, bool filpG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner); //c-tor
 	~CBattleHero(); //d-tor
 };
-
-class CBattleInterface;
 
 class CBattleHex : public Hoverable, public MotionInterested, public ClickableL, public ClickableR
 {
@@ -131,6 +132,9 @@ private:
 	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 
+	bool spellDestSelectMode; //if true, player is choosing destination for his spell
+	BattleAction * spellToCast; //spell for which player is choosing destination
+
 	class CAttHelper
 	{
 	public:
@@ -214,6 +218,7 @@ public:
 	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
+	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
 
 	friend class CBattleHex;
 	friend class CBattleReslutWindow;
