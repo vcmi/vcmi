@@ -1049,6 +1049,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 		{
 			spellToCast->destinationTile = whichOne;
 			LOCPLINT->cb->battleMakeAction(spellToCast);
+			delete spellToCast;
 			spellToCast = NULL;
 			spellDestSelectMode = false;
 			CGI->curh->changeGraphic(1, 6);

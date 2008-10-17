@@ -33,7 +33,7 @@ void CCursorHandler::draw1()
 {
 	if(!Show) return;
 	int x = xpos, y = ypos;
-	if(mode==1 && number!=6)
+	if((mode==1 && number!=6) || mode ==3)
 	{
 		x-=16;
 		y-=16;

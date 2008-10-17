@@ -616,11 +616,14 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 
 void CSpellWindow::SpellArea::clickLeft(boost::logic::tribool down)
 {
-	owner->fexitb();
-	//we will cast a spell
-	if(dynamic_cast<CBattleInterface*>(LOCPLINT->curint)) //if battle window is open
+	if(!down && mySpell!=-1)
 	{
-		dynamic_cast<CBattleInterface*>(LOCPLINT->curint)->castThisSpell(mySpell);
+		//we will cast a spell
+		if(dynamic_cast<CBattleInterface*>(LOCPLINT->curint)) //if battle window is open
+		{
+			dynamic_cast<CBattleInterface*>(LOCPLINT->curint)->castThisSpell(mySpell);
+		}
+		owner->fexitb();
 	}
 }
 
