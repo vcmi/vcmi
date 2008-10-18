@@ -89,7 +89,6 @@ void CConsoleHandler::setColor(int level)
 int CConsoleHandler::run()
 {
 	char buffer[500];
-	std::string readed;
 	while(true)
 	{
 		std::cin.getline(buffer, 500);

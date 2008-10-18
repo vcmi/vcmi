@@ -2137,10 +2137,15 @@ void CPlayerInterface::battleStackMoved(int ID, int dest)
 void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	battleInt->spellCasted(sc);
 }
 void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	if(bsa->killed())
+		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false, bsa->effect);
+	else
+		battleInt->stackIsAttacked(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false, bsa->effect);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {

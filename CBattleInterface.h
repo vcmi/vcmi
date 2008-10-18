@@ -12,6 +12,7 @@ class AdventureMapButton;
 class CHighlightableButton;
 class CHighlightableButtonsGroup;
 struct BattleResult;
+struct SpellCasted;
 template <typename T> struct CondSh;
 
 class CBattleInterface;
@@ -209,15 +210,16 @@ public:
 	//call-ins
 	void newStack(CStack stack); //new stack appeared on battlefield
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
-	void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
+	void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting, ui32 effects = 0); //stack has been killed (but corpses remain); effects - additional optional spell effect (AC format)
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool endMoving); //stack with id number moved to destHex
-	void stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting); //called when stack id attacked by stack with id IDby
+	void stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting, ui32 effects = 0); //called when stack id attacked by stack with id IDby; effects - additional optional spell effect (AC format)
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
+	void spellCasted(SpellCasted * sc); //called when a hero casts a spell
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
 
 	friend class CBattleHex;

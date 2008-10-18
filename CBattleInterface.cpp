@@ -387,7 +387,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackAliveByHex[b].size(); ++v)
 		{
-			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%(4/animSpeed)==0) && creAnims[stackAliveByHex[b][v]]->getType()!=0 && creAnims[stackAliveByHex[b][v]]->getType()!=20 && creAnims[stackAliveByHex[b][v]]->getType()!=21, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%(4/animSpeed)==0) && creAnims[stackAliveByHex[b][v]]->getType()!=0 && creAnims[stackAliveByHex[b][v]]->getType()!=5 && creAnims[stackAliveByHex[b][v]]->getType()!=20 && creAnims[stackAliveByHex[b][v]]->getType()!=21, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -660,7 +660,7 @@ void CBattleInterface::stackRemoved(CStack stack)
 	creAnims.erase(stack.ID);
 }
 
-void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)
+void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting, ui32 effects)
 {
 	if(creAnims[ID]->getType() != 2)
 	{
@@ -691,17 +691,22 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 		}
 	}
 	creAnims[ID]->setType(5); //death
-	int firstFrame = creAnims[ID]->getFrame();
-	for(int i=0; creAnims[ID]->getFrame() != creAnims[ID]->framesInGroup(5) + firstFrame - 1; ++i)
+	//int firstFrame = creAnims[ID]->getFrame();
+	int increments = 0;
+	while(increments < creAnims[ID]->framesInGroup(5)-1)
 	{
 		if((animCount%(4/animSpeed))==0)
+		{
 			creAnims[ID]->incrementFrame();
+			++increments;
+		}
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 
-	printConsoleAttacked(ID, dmg, killed, IDby);
+	if(effects == 0)
+		printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
 void CBattleInterface::stackActivated(int number)
@@ -827,7 +832,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	creAnims[number]->pos.y = coords.second;
 }
 
-void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting)
+void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting, ui32 effects)
 {
 	while(creAnims[ID]->getType() != 2 || (attackingInfo && attackingInfo->IDby == IDby))
 	{
@@ -871,7 +876,8 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 	}
 	creAnims[ID]->setType(2);
 
-	printConsoleAttacked(ID, dmg, killed, IDby);
+	if(effects == 0)
+		printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
 void CBattleInterface::stackAttacking(int ID, int dest)
@@ -1189,6 +1195,60 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	SDL_Rect temp_rect = genRect(561, 470, 165, 19);
 	resWindow = new CBattleReslutWindow(br, temp_rect, this);
 	resWindow->activate();
+}
+
+void CBattleInterface::spellCasted(SpellCasted * sc)
+{
+	switch(sc->id)
+	{
+	case 15: //magic arrow
+		{
+			//initial variables
+			std::vector< std::string > anims;
+			anims.push_back("C20SPX0.DEF"); anims.push_back("C20SPX1.DEF"); anims.push_back("C20SPX2.DEF"); anims.push_back("C20SPX3.DEF"); anims.push_back("C20SPX4.DEF");
+			std::string animToDisplay;
+			std::pair<int, int> srccoord = sc->side ? std::make_pair(770, 60) : std::make_pair(30, 60);
+			std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(sc->tile, !sc->side, LOCPLINT->cb->battleGetStackByPos(sc->tile)->creature); //position attacked by arrow
+			destcoord.first += 250; destcoord.second += 240;
+
+			//animation angle
+			float angle = atan2(float(destcoord.first - srccoord.first), float(destcoord.second - srccoord.second));
+
+			//choosign animation by angle
+			if(angle > 1.50)
+				animToDisplay = anims[0];
+			else if(angle > 1.20)
+				animToDisplay = anims[1];
+			else if(angle > 0.90)
+				animToDisplay = anims[2];
+			else if(angle > 0.60)
+				animToDisplay = anims[3];
+			else
+				animToDisplay = anims[4];
+
+			//displaying animation
+			int steps = sqrt((float)((destcoord.first - srccoord.first)*(destcoord.first - srccoord.first) + (destcoord.second - srccoord.second) * (destcoord.second - srccoord.second))) / 40;
+			if(steps <= 0)
+				steps = 1;
+
+			CDefHandler * animDef = CDefHandler::giveDef(animToDisplay);
+
+			int dx = (destcoord.first - srccoord.first - animDef->ourImages[0].bitmap->w)/steps, dy = (destcoord.second - srccoord.second - animDef->ourImages[0].bitmap->h)/steps;
+
+			for(int g=0; g<steps; ++g)
+			{
+				show();
+				SDL_Rect & srcr = animDef->ourImages[g%animDef->ourImages.size()].bitmap->clip_rect;
+				SDL_Rect dstr = genRect(srcr.h, srcr.w, srccoord.first + g*dx, srccoord.second + g*dy);
+				SDL_BlitSurface(animDef->ourImages[g%animDef->ourImages.size()].bitmap, &srcr, screen, &dstr);
+				CSDL_Ext::update();
+				SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			}
+
+			int b=0;
+			break;
+		}
+	}
 }
 
 void CBattleInterface::castThisSpell(int spellID)
