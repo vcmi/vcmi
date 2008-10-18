@@ -37,6 +37,12 @@
 #include <cmath>
 #include <queue>
 #include <sstream>
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
@@ -1905,11 +1911,24 @@ void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int 
 		adventureInt->infoBar.draw();
 	return;
 }
-
+void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	SDL_FreeSurface(graphics->heroWins[hero->subID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
+	graphics->heroWins[hero->subID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
+	if (adventureInt->selection == hero)
+		adventureInt->infoBar.draw();
+}
+void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	if(adventureInt == curint)
+		adventureInt->heroList.draw();
+}
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(!curint->subInt)
+	if(curint==adventureInt || curint==castleInt)
 		adventureInt->resdatabar.draw();
 }
 
@@ -1987,8 +2006,8 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			SDL_FreeSurface(graphics->heroWins[hh->subID]);
 			graphics->heroWins[hh->subID] = infoWin(hh);
 		}
-		CHeroWindow * hw = dynamic_cast<CHeroWindow *>(curint->subInt);
-		if(hw)
+		CHeroWindow * hw = adventureInt->heroWindow;
+		if(hw == curint->subInt)
 		{
 			hw->garInt->recreateSlots();
 			hw->garInt->show();
@@ -2019,6 +2038,8 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			LOCPLINT->castleInt->garr->recreateSlots();
 		}
 	}
+	if(curint == adventureInt)
+		adventureInt->infoBar.draw();
 }
 void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
 {
@@ -2068,23 +2089,25 @@ void CPlayerInterface::battleNewRound(int round) //called at the beggining of ea
 
 void CPlayerInterface::actionStarted(const BattleAction* action)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curAction = action;
 	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))
 		&& battleInt->creAnims[action->stackNumber]->framesInGroup(20)
 		)
 	{
 		battleInt->creAnims[action->stackNumber]->setType(20);
-	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //deactivating interface when move is started
+	}
+	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //deactivating interface when move is started
 	{
 		battleInt->deactivate();
 	}
 }
-}
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curAction = NULL;
-	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
+	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
 	{
 		battleInt->activate();
 	}
@@ -2238,15 +2261,21 @@ void CPlayerInterface::removeObjToBlit(IShowable* obj)
 		(std::find(objsToBlit.begin(),objsToBlit.end(),obj));
 	//delete obj;
 }
-void CPlayerInterface::tileRevealed(int3 pos)
+void CPlayerInterface::tileRevealed(const std::set<int3> &pos)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	adventureInt->minimap.showTile(pos);
+	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
+		adventureInt->minimap.showTile(*i);
+	if(curint == adventureInt)
+		adventureInt->minimap.draw();
 }
-void CPlayerInterface::tileHidden(int3 pos)
+void CPlayerInterface::tileHidden(const std::set<int3> &pos)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	adventureInt->minimap.hideTile(pos);
+	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
+		adventureInt->minimap.hideTile(*i);
+	if(curint == adventureInt)
+		adventureInt->minimap.draw();
 }
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
@@ -2440,8 +2469,8 @@ void CHeroList::select(int which)
 	LOCPLINT->adventureInt->terrain.currentPath = items[which].second;
 	draw();
 	LOCPLINT->adventureInt->townList.draw();
-
 	LOCPLINT->adventureInt->infoBar.draw(NULL);
+	LOCPLINT->cb->setSelection(items[which].first);
 }
 void CHeroList::clickLeft(tribool down)
 {
@@ -2592,7 +2621,7 @@ void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {
 	int ser = LOCPLINT->cb->getHeroSerial(which);
 	ser -= from;
-	int pom = (which->movement)/100;
+	int pom = std::min((which->movement)/100,(int)mobile->ourImages.size()-1);
 	blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
 }
 void CHeroList::draw()

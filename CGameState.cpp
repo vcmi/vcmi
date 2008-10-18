@@ -407,6 +407,27 @@ void CGameState::applyNL(IPack * pack)
 					hero->spells.erase(sid);
 			break;
 		}
+	case 110:
+		{
+			SetMana *rh = static_cast<SetMana*>(pack);
+			CGHeroInstance *hero = getHero(rh->hid);
+			hero->mana = rh->val;
+			break;
+		}
+	case 111:
+		{
+			SetMovePoints *rh = static_cast<SetMovePoints*>(pack);
+			CGHeroInstance *hero = getHero(rh->hid);
+			hero->movement = rh->val;
+			break;
+		}
+	case 112:
+		{
+			FoWChange *rh = static_cast<FoWChange*>(pack);
+			BOOST_FOREACH(int3 t, rh->tiles)
+				players[rh->player].fogOfWarMap[t.x][t.y][t.z] = rh->mode;
+			break;
+		}
 	case 500:
 		{
 			RemoveObject *rh = static_cast<RemoveObject*>(pack);

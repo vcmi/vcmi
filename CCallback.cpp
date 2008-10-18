@@ -623,3 +623,8 @@ void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 	const_cast<CGHeroInstance*>(hero)->army.formation = tight;
 	*cl->serv << ui16(512) << hero->id << ui8(tight);
 }
+
+void CCallback::setSelection(const CArmedInstance * obj)
+{
+	*cl->serv << ui16(514) << obj->id;
+}

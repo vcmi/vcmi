@@ -37,8 +37,8 @@ public:
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but don't deletes)
-	void hideTile(int3 pos); //puts FoW
-	void showTile(int3 pos); //removes FoW
+	void hideTile(const int3 &pos); //puts FoW
+	void showTile(const int3 &pos); //removes FoW
 };
 class CTerrainRect
 	:  public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject, public KeyInterested,

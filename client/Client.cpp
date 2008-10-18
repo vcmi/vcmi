@@ -264,6 +264,42 @@ void CClient::process(int what)
 			gs->apply(&vc);
 			break;
 		}
+	case 110:
+		{
+			SetMana sm;
+			*serv >> sm;
+			tlog5 << "Setting mana value of hero "<<sm.hid<<" to "<<sm.val<<std::endl;
+			gs->apply(&sm);
+			CGHeroInstance *h = gs->getHero(sm.hid);
+			if(vstd::contains(playerint,h->tempOwner))
+				playerint[h->tempOwner]->heroManaPointsChanged(h);
+			break;
+		}
+	case 111:
+		{
+			SetMovePoints smp;
+			*serv >> smp;
+			tlog5 << "Setting movement points of hero "<<smp.hid<<" to "<<smp.val<<std::endl;
+			gs->apply(&smp);
+			CGHeroInstance *h = gs->getHero(smp.hid);
+			if(vstd::contains(playerint,h->tempOwner))
+				playerint[h->tempOwner]->heroMovePointsChanged(h);
+			break;
+		}
+	case 112:
+		{
+			FoWChange fc;
+			*serv >> fc;
+			tlog5 << "Changing FoW of player "<<(int)fc.player<<std::endl;
+			gs->apply(&fc);
+			if(!vstd::contains(playerint,fc.player))
+				break;
+			if(fc.mode)
+				playerint[fc.player]->tileRevealed(fc.tiles);
+			else
+				playerint[fc.player]->tileHidden(fc.tiles);
+			break;
+		}
 	case 500:
 		{
 			RemoveObject rh;
@@ -299,8 +335,7 @@ void CClient::process(int what)
 
 			if(playerint[player])
 			{
-				for(std::set<int3>::iterator i=th->fowRevealed.begin(); i != th->fowRevealed.end(); i++)
-					playerint[player]->tileRevealed(*i);
+				playerint[player]->tileRevealed(th->fowRevealed);
 				//std::for_each(th->fowRevealed.begin(),th->fowRevealed.end(),boost::bind(&CGameInterface::tileRevealed,playerint[player],_1));
 			}
 
@@ -393,6 +428,14 @@ void CClient::process(int what)
 			CGHeroInstance *t = gs->getHero(sha.hid);
 			if(vstd::contains(playerint,t->tempOwner))
 				playerint[t->tempOwner]->heroArtifactSetChanged(t);
+			break;
+		}
+	case 513:
+		{
+			ui8 color;
+			std::string message;
+			*serv >> color >> message;
+			tlog4 << "Player "<<(int)color<<" sends a message: " << message << std::endl;
 			break;
 		}
 	case 1001:

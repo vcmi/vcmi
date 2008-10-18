@@ -52,13 +52,14 @@ std::queue<SDL_Event> events;
 boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 namespace intpr = boost::interprocess;
-void processCommand(const std::string &message);
+void processCommand(const std::string &message, CClient *&client);
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
 #else
 int main(int argc, char** argv)
 #endif
 { 
+	CClient *client = NULL;
 	boost::thread *console = NULL;
 	if(argc>2)
 	{
@@ -68,7 +69,7 @@ int main(int argc, char** argv)
 	{
 		logfile = new std::ofstream("VCMI_Client_log.txt");
 		::console = new CConsoleHandler;
-		*::console->cb = &processCommand;
+		*::console->cb = boost::bind(processCommand,_1,boost::ref(client));
 		console = new boost::thread(boost::bind(&CConsoleHandler::run,::console));
 	}
 	tlog0 << "\tConsole and logifle ready!" << std::endl;
@@ -212,6 +213,7 @@ int main(int argc, char** argv)
 		}
 		THC tlog0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
 		CClient cl(c,options);
+		client = &cl;
 		boost::thread t(boost::bind(&CClient::run,&cl));
 		SDL_Event ev;
 		while(1) //main SDL events loop
@@ -239,7 +241,7 @@ int main(int argc, char** argv)
 	}
 }
 
-void processCommand(const std::string &message)
+void processCommand(const std::string &message, CClient *&client)
 {
 	std::istringstream readed;
 	readed.str(message);
@@ -294,5 +296,9 @@ void processCommand(const std::string &message)
 			}
 		}
 		tlog0<<"\rExtracting done :)\n";
+	}
+	else if(client && client->serv && client->serv->connected) //send to server
+	{
+		*client->serv << ui16(513) << message;
 	}
 }

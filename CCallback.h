@@ -43,6 +43,7 @@ public:
 	virtual void buyArtifact(const CGHeroInstance *hero, int aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
 	virtual void trade(int mode, int id1, int id2, int val1)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
+	virtual void setSelection(const CArmedInstance * obj)=0;
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)const =0;
@@ -125,6 +126,7 @@ public:
 	void buyArtifact(const CGHeroInstance *hero, int aid);
 	void trade(int mode, int id1, int id2, int val1);
 	void setFormation(const CGHeroInstance * hero, bool tight);
+	void setSelection(const CArmedInstance * obj);
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea) const;

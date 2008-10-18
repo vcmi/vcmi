@@ -42,11 +42,12 @@ struct DLL_EXPORT PlayerState
 {
 public:
 	ui8 color, serial;
+	ui32 currentSelection; //id of hero/town, 0xffffffff if none
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
 	std::vector<si32> resources;
 	std::vector<CGHeroInstance *> heroes;
 	std::vector<CGTownInstance *> towns;
-	PlayerState():color(-1){};
+	PlayerState():color(-1),currentSelection(0xffffffff){};
 };
 
 struct DLL_EXPORT BattleInfo

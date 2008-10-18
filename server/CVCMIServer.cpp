@@ -156,7 +156,7 @@ int main(int argc, char** argv)
 {
 	logfile = new std::ofstream("VCMI_Server_log.txt");
 	console = new CConsoleHandler;
-	boost::thread t(boost::bind(&CConsoleHandler::run,::console));
+	//boost::thread t(boost::bind(&CConsoleHandler::run,::console));
 	if(argc > 1)
 	{
 #ifdef _MSC_VER

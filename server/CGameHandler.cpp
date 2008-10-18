@@ -899,6 +899,112 @@ upgend:
 					gs->getHero(hid)->army.formation = formation;
 					break;
 				}
+			case 513:
+				{
+					std::string message;
+					c >> message;
+					bool cheated=true;
+					sendDataToClients(ui16(513));
+					sendDataToClients(ui8(*players.begin()));
+					sendDataToClients(message);
+					if(message == "vcmiistari") //give all spells and 999 mana
+					{
+						SetMana sm;
+						ChangeSpells cs;
+						cs.learn = 1;
+						for(int i=0;i<VLC->spellh->spells.size();i++)
+							cs.spells.insert(i);
+						sm.hid = cs.hid = gs->players[*players.begin()].currentSelection;
+						sm.val = 999;
+						if(gs->getHero(cs.hid))
+						{
+							sendAndApply(&cs);
+							sendAndApply(&sm);
+						}
+					}
+					else if(message == "vcmiainur") //gives 5 archangels into each slot
+					{
+						SetGarrisons sg;
+						CGHeroInstance *hero = gs->getHero(gs->players[*players.begin()].currentSelection);
+						if(!hero) break;
+						sg.garrs[hero->id] = hero->army;
+						for(int i=0;i<7;i++)
+							if(!vstd::contains(sg.garrs[hero->id].slots,i))
+								sg.garrs[hero->id].slots[i] = std::pair<ui32,si32>(13,5);
+						sendAndApply(&sg);
+					}
+					else if(message == "vcmiangband") //gives 10 black knightinto each slot
+					{
+						SetGarrisons sg;
+						CGHeroInstance *hero = gs->getHero(gs->players[*players.begin()].currentSelection);
+						if(!hero) break;
+						sg.garrs[hero->id] = hero->army;
+						for(int i=0;i<7;i++)
+							if(!vstd::contains(sg.garrs[hero->id].slots,i))
+								sg.garrs[hero->id].slots[i] = std::pair<ui32,si32>(66,10);
+						sendAndApply(&sg);
+					}
+					else if(message == "vcminoldor") //all war machines
+					{
+						CGHeroInstance *hero = gs->getHero(gs->players[*players.begin()].currentSelection);
+						if(!hero) break;
+						SetHeroArtifacts sha;
+						sha.hid = hero->id;
+						sha.artifacts = hero->artifacts;
+						sha.artifWorn = hero->artifWorn;
+						sha.artifWorn[13] = 4;
+						sha.artifWorn[14] = 5;
+						sha.artifWorn[15] = 6;
+						sendAndApply(&sha);
+					}
+					else if(message == "vcminahar") //1000000 movement points
+					{
+						CGHeroInstance *hero = gs->getHero(gs->players[*players.begin()].currentSelection);
+						if(!hero) break;
+						SetMovePoints smp;
+						smp.hid = hero->id;
+						smp.val = 1000000;
+						sendAndApply(&smp);
+					}
+					else if(message == "vcmiformenos") //give resources
+					{
+						SetResources sr;
+						sr.player = *players.begin();
+						sr.res = gs->players[sr.player].resources;
+						for(int i=0;i<7;i++)
+							sr.res[i] += 100;
+						sr.res[6] += 19900;
+						sendAndApply(&sr);
+					}
+					else if(message == "vcmieagles") //reveal FoW
+					{
+						FoWChange fc;
+						fc.player = *players.begin();
+						for(int i=0;i<gs->map->width;i++)
+							for(int j=0;j<gs->map->height;j++)
+								for(int k=0;k<gs->map->twoLevel+1;k++)
+									if(!gs->players[fc.player].fogOfWarMap[i][j][k])
+										fc.tiles.insert(int3(i,j,k));
+						sendAndApply(&fc);
+					}
+					else
+						cheated = false;
+					if(cheated)
+					{
+						message = "CHEATER!!!";
+						sendDataToClients(ui16(513));
+						sendDataToClients(ui8(*players.begin()));
+						sendDataToClients(message);
+					}
+					break;
+				}
+			case 514:
+				{
+					ui32 id;
+					c >> id;
+					gs->players[*players.begin()].currentSelection = id;
+					break;
+				}
 			case 2001:
 				{
 					ui32 qid, answer;
@@ -1269,7 +1375,7 @@ void CGameHandler::newTurn()
 			NewTurn::Hero hth;
 			hth.id = h->id;
 			hth.move = valMovePoints(h, true); //TODO: check if hero is really on the land
-			hth.mana = std::min(h->mana+1+h->getSecSkillLevel(8), h->manaLimit()); //hero regains 1 mana point + mysticism lvel
+			hth.mana = std::max(h->mana,std::min(h->mana+1+h->getSecSkillLevel(8), h->manaLimit())); //hero regains 1 mana point + mysticism lvel
 			n.heroes.insert(hth);
 			
 			switch(h->getSecSkillLevel(13)) //handle estates - give gols

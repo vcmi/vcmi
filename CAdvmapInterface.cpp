@@ -272,7 +272,7 @@ void CMinimap::deactivate()
 	ClickableR::deactivate();
 	Hoverable::deactivate();
 }
-void CMinimap::showTile(int3 pos)
+void CMinimap::showTile(const int3 &pos)
 {
 	int mw = map[0]->w, mh = map[0]->h;
 	double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
@@ -282,11 +282,10 @@ void CMinimap::showTile(int3 pos)
 		{
 			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
 				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
-
 		}
 	}
 }
-void CMinimap::hideTile(int3 pos)
+void CMinimap::hideTile(const int3 &pos)
 {
 }
 CTerrainRect::CTerrainRect():currentPath(NULL)
@@ -1331,6 +1330,7 @@ int3 CAdvMapInt::verifyPos(int3 ver)
 
 void CAdvMapInt::select(const CArmedInstance *sel )
 {
+	LOCPLINT->cb->setSelection(sel);
 	centerOn(sel->pos);
 	selection = sel;
 	if(sel->ID==98)

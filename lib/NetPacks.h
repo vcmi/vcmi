@@ -109,6 +109,37 @@ struct ChangeSpells : public CPack<ChangeSpells> //109
 		h & learn & hid & spells;
 	}
 }; 
+
+struct SetMana : public CPack<SetMana> //110
+{
+	SetMana(){type = 110;};
+	ui32 hid, val;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & val & hid;
+	}
+}; 
+struct SetMovePoints : public CPack<SetMovePoints> //111
+{
+	SetMovePoints(){type = 111;};
+	ui32 hid, val;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & val & hid;
+	}
+}; 
+struct FoWChange : public CPack<FoWChange> //112
+{
+	FoWChange(){type = 112;};
+	std::set<int3> tiles;
+	ui8 player, mode; //mode==0 - hide, mode==1 - reveal
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tiles & player;
+	}
+}; 
 struct RemoveObject : public CPack<RemoveObject> //500
 {
 	RemoveObject(){type = 500;};

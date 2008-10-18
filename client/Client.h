@@ -6,7 +6,8 @@ class CGameState;
 class CGameInterface;
 class CConnection;
 class CCallback;
-
+class CClient;
+void processCommand(const std::string &message, CClient *&client);
 namespace boost
 {
 	class mutex;
@@ -50,6 +51,7 @@ public:
 	void process(int what);
 	void run();
 
-	friend class CCallback;
-	friend class CScriptCallback;
+	friend class CCallback; //handling players actions
+	friend class CScriptCallback; //for objects scripts
+	friend void processCommand(const std::string &message, CClient *&client); //handling console
 };

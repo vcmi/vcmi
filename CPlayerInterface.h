@@ -353,13 +353,15 @@ public:
 	void heroKilled(const CGHeroInstance* hero);
 	void heroMoved(const HeroMoveDetails & details);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
+	void heroManaPointsChanged(const CGHeroInstance * hero);
+	void heroMovePointsChanged(const CGHeroInstance * hero);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void receivedResource(int type, int val);
 	void showInfoDialog(std::string &text, const std::vector<Component*> &components);
 	void showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
 	void showYesNoDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
-	void tileHidden(int3 pos);
-	void tileRevealed(int3 pos);
+	void tileHidden(const std::set<int3> &pos);
+	void tileRevealed(const std::set<int3> &pos);
 	void yourTurn();
 	void availableCreaturesChanged(const CGTownInstance *town);
 	//for battles

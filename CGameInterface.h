@@ -55,14 +55,16 @@ public:
 	virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroMoved(const HeroMoveDetails & details){};
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val){};
+	virtual void heroManaPointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after spell casts
+	virtual void heroMovePointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after movement
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};
 	virtual void init(ICallback * CB){};
 	virtual void receivedResource(int type, int val){};
 	virtual void showInfoDialog(std::string &text, const std::vector<Component*> &components){};
 	virtual void showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID){};
 	virtual void showYesNoDialog(std::string &text, const std::vector<Component*> &components, ui32 askID){};
-	virtual void tileHidden(int3 pos){};
-	virtual void tileRevealed(int3 pos){};
+	virtual void tileHidden(const std::set<int3> &pos){};
+	virtual void tileRevealed(const std::set<int3> &pos){};
 	virtual void yourTurn(){};
 	virtual void availableCreaturesChanged(const CGTownInstance *town){};
 
