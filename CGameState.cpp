@@ -606,6 +606,15 @@ void CGameState::applyNL(IPack * pack)
 			applyNL(&br->bsa);
 			break;
 		}
+	case 3009:
+		{
+			SpellCasted *sc = static_cast<SpellCasted*>(pack);
+			CGHeroInstance *h = (sc->side) ? getHero(curB->hero2) : getHero(curB->hero1);
+			if(h)
+				h->mana -= VLC->spellh->spells[sc->id].costs[sc->skill];
+			//TODO: counter
+			break;
+		}
 	}
 }
 void CGameState::apply(IPack * pack)

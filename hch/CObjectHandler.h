@@ -120,7 +120,8 @@ public:
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	int getSightDistance() const; //returns sight distance of this hero
-	void setPosition(int3 Pos, bool h3m); //as above, but sets position
+	int manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
+	//void setPosition(int3 Pos, bool h3m); //as above, but sets position
 
 	bool canWalkOnSea() const;
 	int getCurrentLuck() const;

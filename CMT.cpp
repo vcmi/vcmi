@@ -140,13 +140,9 @@ int main(int argc, char** argv)
 		CGI->dobjinfo = VLC->dobjinfo;
 		CGI->buildh = VLC->buildh;
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
-		//cgi->curh->initCursor();
-		//cgi->curh->showGraphicCursor();
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler; 
 		cgi->curh->initCursor();
-		//cgi->screenh = new CScreenHandler;
-		//cgi->screenh->initScreen();
 		tlog0<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
@@ -187,7 +183,7 @@ int main(int argc, char** argv)
 		cgi->pathf = new CPathfinder();
 		tlog0<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
 		tlog0<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
-		std::ofstream lll("client_log.txt");
+		std::ofstream logs("client_log.txt");
 
 		CConnection *c=NULL;
 		//wait until server is ready
@@ -206,7 +202,7 @@ int main(int argc, char** argv)
 			try
 			{
 				tlog0 << "Establishing connection...\n";
-				c = new CConnection("127.0.0.1",portc,NAME,lll);
+				c = new CConnection("127.0.0.1",portc,NAME,logs);
 			}
 			catch(...)
 			{
@@ -281,10 +277,10 @@ void processCommand(const std::string &message)
 		txth->init(std::string(DATA_DIR "Data" PATHSEPARATOR "H3bitmap.lod"),"data");
 		tlog0<<"done.\nScanning .lod file\n";
 		int curp=0;
-		std::string pattern = ".TXT";
+		std::string pattern = ".TXT", pom;
 		for(int i=0;i<txth->entries.size(); i++)
 		{
-			std::string pom = txth->entries[i].nameStr;
+			pom = txth->entries[i].nameStr;
 			if(boost::algorithm::find_last(pom,pattern))
 			{
 				txth->extractFile(std::string("Extracted_txts\\")+pom,pom);

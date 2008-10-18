@@ -13,6 +13,7 @@ class CCPPObjectScript;
 class CScriptCallback;
 struct BattleResult;
 struct BattleAttack;
+struct BattleStackAttacked;
 template <typename T> struct CPack;
 template <typename T> struct Query;
 class CGHeroInstance;
@@ -58,6 +59,7 @@ class CGameHandler
 	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
 	void prepareAttack(BattleAttack &bat, CStack *att, CStack *def); //if last parameter is true, attack is by shooting, if false it's a melee attack
+	void prepareAttacked(BattleStackAttacked &bsa, CStack *def);
 
 	void checkForBattleEnd( std::vector<CStack*> &stacks );
 	void setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army1, CCreatureSet &army2, CGHeroInstance * hero1, CGHeroInstance * hero2 );

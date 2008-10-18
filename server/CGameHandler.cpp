@@ -349,36 +349,39 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 	delete battleResult.data;
 
 }
+void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
+{	
+	bsa.killedAmount = bsa.damageAmount / def->creature->hitPoints;
+	unsigned damageFirst = bsa.damageAmount % def->creature->hitPoints;
+
+	if( def->firstHPleft <= damageFirst )
+	{
+		bsa.killedAmount++;
+		bsa.newHP = def->firstHPleft + def->creature->hitPoints - damageFirst;
+	}
+	else
+	{
+		bsa.newHP = def->firstHPleft - damageFirst;
+	}
+
+	if(def->amount <= bsa.killedAmount) //stack killed
+	{
+		bsa.newAmount = 0;
+		bsa.flags |= 1;
+		bsa.killedAmount = def->amount; //we cannot kill more creatures than we have
+	}
+	else
+	{
+		bsa.newAmount = def->amount - bsa.killedAmount;
+	}
+}
+
 void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 {
 	bat.stackAttacking = att->ID;
 	bat.bsa.stackAttacked = def->ID;
 	bat.bsa.damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot());//counting dealt damage
-
-	//applying damages
-	bat.bsa.killedAmount = bat.bsa.damageAmount / def->creature->hitPoints;
-	unsigned damageFirst = bat.bsa.damageAmount % def->creature->hitPoints;
-
-	if( def->firstHPleft <= damageFirst )
-	{
-		bat.bsa.killedAmount++;
-		bat.bsa.newHP = def->firstHPleft + def->creature->hitPoints - damageFirst;
-	}
-	else
-	{
-		bat.bsa.newHP = def->firstHPleft - damageFirst;
-	}
-
-	if(def->amount <= bat.bsa.killedAmount) //stack killed
-	{
-		bat.bsa.newAmount = 0;
-		bat.bsa.flags |= 1;
-		bat.bsa.killedAmount = def->amount; //we cannot kill more creatures than we have
-	}
-	else
-	{
-		bat.bsa.newAmount = def->amount - bat.bsa.killedAmount;
-	}
+	prepareAttacked(bat.bsa,def);
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
@@ -427,12 +430,13 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					tmh.result = 0;
 					tmh.movePoints = h->movement;
 
-					if((h->getOwner() != gs->currentPlayer) || //not turn of that hero
-						(distance(start,end)>=1.5) || //tiles are not neighouring
-						(h->movement < cost) || //lack of movement points
-						(t.tertype == rock) || //rock
-						(!h->canWalkOnSea() && t.tertype == water) ||
-						(t.blocked && !t.visitable) ) //tile is blocked andnot visitable
+					if((h->getOwner() != gs->currentPlayer) //not turn of that hero
+						|| (distance(start,end)>=1.5) //tiles are not neighouring
+						|| (h->movement < cost) //lack of movement points
+						|| (t.tertype == rock)  //rock
+						|| (!h->canWalkOnSea() && t.tertype == water)
+						|| (t.blocked && !t.visitable) //tile is blocked andnot visitable
+						) 
 						goto fail;
 
 					
@@ -1008,8 +1012,19 @@ upgend:
 					case 1: //hero casts spell
 						{
 							CGHeroInstance *h = (ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
+							if(!h)
+							{
+								tlog2 << "Wrong caster!\n";
+								goto customactionend;
+							}
+							if(ba.additionalInfo >= VLC->spellh->spells.size())
+							{
+								tlog2 << "Wrong spell id (" << ba.additionalInfo << ")!\n";
+								goto customactionend;
+							}
+
 							CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
-							int skill = 0;
+							int skill = 0; //skill level
 
 							if(s->fire)
 								skill = std::max(skill,h->getSecSkillLevel(14));
@@ -1020,15 +1035,66 @@ upgend:
 							if(s->earth)
 								skill = std::max(skill,h->getSecSkillLevel(17));
 
-							if(  !vstd::contains(h->spells,ba.additionalInfo) //hero doesn't know this spell
-								|| (h->mana < s->costs[skill]) //not enough mana
+							//TODO: skill level may be different on special terrain
+
+							if( // !vstd::contains(h->spells,ba.additionalInfo) //hero doesn't know this spell 
+								/*||*/ (h->mana < s->costs[skill]) //not enough mana
+								|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
 								|| 0     )//TODO: hero has already casted a spell in this round
 							{
+								tlog2 << "Spell cannot be casted!\n";
 								goto customactionend;
 							}
 
 							sendAndApply(&StartAction(ba)); //start spell casting
-							//TODO: spell efects
+
+							//TODO: check resistances
+
+							SpellCasted sc;
+							sc.side = ba.side;
+							sc.id = ba.additionalInfo;
+							sc.skill = skill;
+							sc.tile = ba.destinationTile;
+							sendAndApply(&sc);
+							switch(ba.additionalInfo) //spell id
+							{
+							case 15://magic arrow
+								{
+									CStack * attacked = gs->curB->getStackT(ba.destinationTile);
+									if(!attacked) break;
+									BattleStackAttacked bsa;
+									bsa.flags |= 2;
+									bsa.effect = 64;
+									bsa.damageAmount = h->primSkills[2] * 10; //TODO: use skill level
+									bsa.stackAttacked = attacked->ID;
+									prepareAttacked(bsa,attacked);
+									sendAndApply(&bsa);
+									break;
+								}
+							case 53: //haste
+								{
+									break;
+								}
+							}
+
+							//TODO: spells to support possibly soon (list by Zamolxis):
+							/*- Magic Arrow
+							- Haste
+							- Bless
+							- Bloodlust
+							- Curse
+							- Dispel
+							- Shield
+							- Slow
+							- Stone Skin
+							- Lightning Bolt
+							- Ice Bolt
+							- Precision
+							- Blind
+							- Fire Wall
+							- Weakness
+							- Death Ripple */
+
 							sendDataToClients(ui16(3008)); //end casting
 							break;
 						}
@@ -1198,15 +1264,15 @@ void CGameHandler::newTurn()
 		for(int j=0;j<RESOURCE_QUANTITY;j++)
 			r.res[j] = i->second.resources[j];
 		
-		for (unsigned j=0;j<(*i).second.heroes.size();j++) //handle heroes
+		BOOST_FOREACH(CGHeroInstance *h, (*i).second.heroes)
 		{
-			NewTurn::Hero h;
-			h.id = (*i).second.heroes[j]->id;
-			h.move = valMovePoints((*i).second.heroes[j], true); //TODO: check if hero is really on the land
-			h.mana = (*i).second.heroes[j]->mana;
-			n.heroes.insert(h);
-			//handle estates
-			switch((*i).second.heroes[j]->getSecSkillLevel(13))
+			NewTurn::Hero hth;
+			hth.id = h->id;
+			hth.move = valMovePoints(h, true); //TODO: check if hero is really on the land
+			hth.mana = std::min(h->mana+1+h->getSecSkillLevel(8), h->manaLimit()); //hero regains 1 mana point + mysticism lvel
+			n.heroes.insert(hth);
+			
+			switch(h->getSecSkillLevel(13)) //handle estates - give gols
 			{
 			case 1: //basic
 				r.res[6] += 125;
@@ -1263,10 +1329,10 @@ void CGameHandler::run()
 		ui8 quantity, pom;
 		//ui32 seed;
 		(*cc) << gs->scenarioOps->mapname << gs->map->checksum << gs->seed;
-		(*cc) >> quantity;
+		(*cc) >> quantity; //how many players will be handled at that client
 		for(int i=0;i<quantity;i++)
 		{
-			(*cc) >> pom;
+			(*cc) >> pom; //read player color
 			gsm.lock();
 			connections[pom] = cc;
 			gsm.unlock();

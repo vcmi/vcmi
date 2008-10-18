@@ -416,7 +416,8 @@ struct BattleStackAttacked : public CPack<BattleStackAttacked>//3005
 {
 	ui32 stackAttacked;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
-	ui8 flags; //1 - is stack killed
+	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown
+	ui32 effect; //set only if flag 2 is present
 
 
 	BattleStackAttacked(){flags = 0; type = 3005;};
@@ -424,9 +425,13 @@ struct BattleStackAttacked : public CPack<BattleStackAttacked>//3005
 	{
 		return flags & 1;
 	}
+	bool isEffect() //if target stack was killed
+	{
+		return flags & 2;
+	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stackAttacked & newAmount & newHP & flags & killedAmount & damageAmount;
+		h & stackAttacked & newAmount & newHP & flags & killedAmount & damageAmount & effect;
 	}
 };
 
@@ -465,6 +470,19 @@ struct StartAction : public CPack<StartAction>//3007
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ba;
+	}
+};
+
+struct SpellCasted : public CPack<SpellCasted>//3009
+{
+	ui8 side; //which hero casted spell: 0 - attacker, 1 - defender
+	ui32 id;
+	ui8 skill;
+	ui16 tile; //destination tile (may not be set in some global/mass spells
+	SpellCasted(){type = 3009;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & side & id & skill & tile;
 	}
 };
 

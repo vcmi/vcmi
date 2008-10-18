@@ -15,6 +15,7 @@ void CObjectHandler::loadObjects()
 {
 	VLC->objh = this;
 	int ID=0;
+	tlog5 << "\t\tReading OBJNAMES \n";
 	std::string buf = bitmaph->getTextFile("OBJNAMES.TXT");
 	int it=0;
 	while (it<buf.length()-1)
@@ -26,6 +27,7 @@ void CObjectHandler::loadObjects()
 		names.push_back(nobj);
 	}
 
+	tlog5 << "\t\tReading ADVEVENT \n";
 	buf = bitmaph->getTextFile("ADVEVENT.TXT");
 	it=0;
 	std::string temp;
@@ -38,6 +40,7 @@ void CObjectHandler::loadObjects()
 		advobtxt.push_back(temp);
 	}
 
+	tlog5 << "\t\tReading XTRAINFO \n";
 	buf = bitmaph->getTextFile("XTRAINFO.TXT");
 	it=0;
 	while (it<buf.length()-1)
@@ -46,6 +49,7 @@ void CObjectHandler::loadObjects()
 		xtrainfo.push_back(temp);
 	}
 
+	tlog5 << "\t\tReading MINENAME \n";
 	buf = bitmaph->getTextFile("MINENAME.TXT");
 	it=0;
 	while (it<buf.length()-1)
@@ -54,6 +58,7 @@ void CObjectHandler::loadObjects()
 		mines.push_back(std::pair<std::string,std::string>(temp,""));
 	}
 
+	tlog5 << "\t\tReading MINEEVNT \n";
 	buf = bitmaph->getTextFile("MINEEVNT.TXT");
 	it=0;
 	int i=0;
@@ -64,6 +69,7 @@ void CObjectHandler::loadObjects()
 		mines[i++].second = temp;
 	}
 
+	tlog5 << "\t\tReading RESTYPES \n";
 	buf = bitmaph->getTextFile("RESTYPES.TXT");
 	it=0;
 	while (it<buf.length()-1)
@@ -72,6 +78,7 @@ void CObjectHandler::loadObjects()
 		restypes.push_back(temp);
 	}
 
+	tlog5 << "\t\tReading cregens \n";
 	cregens.resize(110); //TODO: hardcoded value - change
 	for(int i=0; i<cregens.size();i++)
 		cregens[i]=-1;
@@ -84,6 +91,8 @@ void CObjectHandler::loadObjects()
 	}
 	ifs.close();
 	ifs.clear();
+
+	tlog5 << "\t\tReading ZCRGN1 \n";
 	buf = bitmaph->getTextFile("ZCRGN1.TXT");
 	it=0;
 	while (it<buf.length()-1)
@@ -91,7 +100,7 @@ void CObjectHandler::loadObjects()
 		loadToIt(temp,buf,it,3);
 		creGens.push_back(temp);
 	}
-
+	tlog5 << "\t\tDone loading objects!\n";
 }
 
 bool CGObjectInstance::isHero() const
@@ -252,13 +261,25 @@ int CGHeroInstance::getSightDistance() const //returns sight distance of this he
 {
 	return 6 + getSecSkillLevel(3); //default + scouting
 }
-void CGHeroInstance::setPosition(int3 Pos, bool h3m) //as above, but sets position
+
+int CGHeroInstance::manaLimit() const
 {
-	if (h3m)
-		pos = Pos;
-	else
-		pos = convertPosition(Pos,true);
+	double modifier = 1.0;
+	switch(getSecSkillLevel(24)) //intelligence level
+	{
+	case 1:		modifier+=0.25;		break;
+	case 2:		modifier+=0.5;		break;
+	case 3:		modifier+=1.0;		break;
+	}
+	return 10*primSkills[3]*modifier;
 }
+//void CGHeroInstance::setPosition(int3 Pos, bool h3m) //as above, but sets position
+//{
+//	if (h3m)
+//		pos = Pos;
+//	else
+//		pos = convertPosition(Pos,true);
+//}
 
 bool CGHeroInstance::canWalkOnSea() const
 {

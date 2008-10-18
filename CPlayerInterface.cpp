@@ -961,6 +961,11 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	pim = new boost::recursive_mutex;
 	showingDialog = new CondSh<bool>(false);
 	heroMoveSpeed = 2;
+	//initializing framerate keeper
+	mainFPSmng = new FPSmanager;
+	SDL_initFramerate(mainFPSmng);
+	SDL_setFramerate(mainFPSmng, 48);
+	//framerate keeper initialized
 }
 CPlayerInterface::~CPlayerInterface()
 {
@@ -972,12 +977,6 @@ void CPlayerInterface::init(ICallback * CB)
 	cb = dynamic_cast<CCallback*>(CB);
 	adventureInt = new CAdvMapInt(playerID);
 	castleInt = NULL;
-	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
-	for(int i=0;i<hh.size();i++)
-	{
-		SDL_Surface * pom = infoWin(hh[i]);
-		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
-	}
 	std::vector<const CGTownInstance*> tt = cb->getTownsInfo(false);
 	for(int i=0;i<tt.size();i++)
 	{
@@ -989,19 +988,25 @@ void CPlayerInterface::yourTurn()
 {
 	LOCPLINT = this;
 	makingTurn = true;
+
+	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!=graphics->heroWins.end();i++) //redraw hero infoboxes
+		SDL_FreeSurface(i->second);
+	graphics->heroWins.clear();
+	std::vector <const CGHeroInstance *> hh = cb->getHeroesInfo(false);
+	for(int i=0;i<hh.size();i++)
+	{
+		SDL_Surface * pom = infoWin(hh[i]);
+		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
+	}
+
 	adventureInt->infoBar.newDay(cb->getDate(1));
+
 	if(adventureInt->heroList.items.size())
 		adventureInt->select(adventureInt->heroList.items[0].first);
 	else
 		adventureInt->select(adventureInt->townList.items[0]);
 	adventureInt->activate();
-	//show rest of things
 
-	//initializing framerate keeper
-	mainFPSmng = new FPSmanager;
-	SDL_initFramerate(mainFPSmng);
-	SDL_setFramerate(mainFPSmng, 48);
-	//framerate keeper initialized
 	timeHandler th;
 	th.getDif();
 	for(;makingTurn;) // main loop
@@ -2046,7 +2051,7 @@ void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curint->deactivate();
-	curint = new CBattleInterface(army1,army2,hero1,hero2);
+	curint = battleInt = new CBattleInterface(army1,army2,hero1,hero2);
 	curint->activate();
 	LOCPLINT->objsToBlit.push_back(dynamic_cast<IShowable*>(curint));
 }
@@ -2058,20 +2063,20 @@ void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObs
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	dynamic_cast<CBattleInterface*>(curint)->newRound(round);
+	battleInt->newRound(round);
 }
 
 void CPlayerInterface::actionStarted(const BattleAction* action)
 {
 	curAction = action;
 	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))
-		&& static_cast<CBattleInterface*>(curint)->creAnims[action->stackNumber]->framesInGroup(20)
+		&& battleInt->creAnims[action->stackNumber]->framesInGroup(20)
 		)
 	{
-		static_cast<CBattleInterface*>(curint)->creAnims[action->stackNumber]->setType(20);
+		battleInt->creAnims[action->stackNumber]->setType(20);
 	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //deactivating interface when move is started
 	{
-		static_cast<CBattleInterface*>(curint)->deactivate();
+		battleInt->deactivate();
 	}
 }
 }
@@ -2081,13 +2086,13 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 	curAction = NULL;
 	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
 	{
-		static_cast<CBattleInterface*>(curint)->activate();
+		battleInt->activate();
 	}
 }
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack
 {
-	CBattleInterface *b = dynamic_cast<CBattleInterface*>(curint);
+	CBattleInterface *b = battleInt;
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
 		b->stackActivated(stackID);
@@ -2117,7 +2122,8 @@ void CPlayerInterface::battleResultQuited()
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	((CBattleInterface*)curint)->resWindow->deactivate();
 	objsToBlit -= curint;
-	delete curint;
+	delete battleInt;
+	battleInt = 0;
 	curint = adventureInt;
 	adventureInt->activate();
 	LOCPLINT->showingDialog->setn(false);
@@ -2126,30 +2132,28 @@ void CPlayerInterface::battleResultQuited()
 void CPlayerInterface::battleStackMoved(int ID, int dest)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	dynamic_cast<CBattleInterface*>(curint)->stackMoved(ID, dest, dest==curAction->destinationTile);
+	battleInt->stackMoved(ID, dest, dest==curAction->destinationTile);
+}
+void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+}
+void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(ba->shot())
-		dynamic_cast<CBattleInterface*>(curint)->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
+		battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
 	else
-		dynamic_cast<CBattleInterface*>(curint)->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile : curAction->additionalInfo );
+		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile : curAction->additionalInfo );
 	if(ba->killed())
-		dynamic_cast<CBattleInterface*>(curint)->stackKilled(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
+		battleInt->stackKilled(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
 	else
-		dynamic_cast<CBattleInterface*>(curint)->stackIsAttacked(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
+		battleInt->stackIsAttacked(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
 }
-//void CPlayerInterface::battleStackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)
-//{
-//	dynamic_cast<CBattleInterface*>(curint)->stackKilled(ID, dmg, killed, IDby, byShooting);
-//}
-
-//void CPlayerInterface::battleStackIsShooting(int ID, int dest)
-//{
-//	dynamic_cast<CBattleInterface*>(curint)->stackIsShooting(ID, dest);
-//}
-
 void CPlayerInterface::showComp(SComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

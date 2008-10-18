@@ -15,6 +15,7 @@ class CDefEssential;
 class CGHeroInstance;
 class CAdvMapInt;
 class CCastleInterface;
+class CBattleInterface;
 class CStack;
 class SComponent;
 class CCreature;
@@ -326,6 +327,7 @@ public:
 	CMainInterface *curint;
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt;
+	CBattleInterface * battleInt;
 	FPSmanager * mainFPSmng;
 	IStatusBar *statusbar;
 	//to commucate with engine
@@ -369,6 +371,8 @@ public:
 	void battleResultQuited();
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleStackMoved(int ID, int dest);
+	void battleSpellCasted(SpellCasted *sc);
+	void battleStackAttacked(BattleStackAttacked * bsa);
 	void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 
@@ -378,7 +382,7 @@ public:
 	void showComp(SComponent comp);
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
-	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero //TODO - gdy sie dorobi sensowna hierarchie klas ins. to wywalic tego brzydkiego void*
+	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero
 	void handleEvent(SDL_Event * sEvent);
 	void handleKeyDown(SDL_Event *sEvent);
 	void handleKeyUp(SDL_Event *sEvent);

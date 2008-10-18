@@ -65,6 +65,7 @@
 				ShowProgress="0"
 				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateDebugInformation="true"
+				OptimizeReferences="1"
 				TargetMachine="1"
 				Profile="true"
 			/>

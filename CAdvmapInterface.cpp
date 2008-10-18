@@ -26,6 +26,7 @@
 #include <boost/thread.hpp>
 #include "map.h"
 #include "client/CSpellWindow.h"
+#include "lib/CondSh.h"
 #pragma warning (disable : 4355) 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
@@ -1201,7 +1202,7 @@ void CAdvMapInt::update()
 
 	}
 	++heroAnim;
-	if(animValHitCount % 4)
+	if((animValHitCount % 4) && !LOCPLINT->showingDialog->get())
 	{
 		if(scrollingLeft)
 		{

@@ -525,6 +525,17 @@ void CClient::process(int what)
 			gs->apply(&br);
 			break;
 		}
+	case 3005:
+		{
+			BattleStackAttacked bsa;
+			*serv >> bsa;
+			gs->apply(&bsa);
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleStackAttacked(&bsa);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleStackAttacked(&bsa);
+			break;
+		}
 	case 3006:
 		{
 			BattleAttack ba;
@@ -544,7 +555,7 @@ void CClient::process(int what)
 	case 3007:
 		{
 			*serv >> curbaction;
-			tlog5 << "Action started. ID: " << curbaction.actionType << ". Destination: "<< curbaction.destinationTile <<std::endl;
+			tlog5 << "Action started. ID: " << (int)curbaction.actionType << ". Destination: "<< curbaction.destinationTile <<std::endl;
 			if(playerint.find(gs->curB->side1) != playerint.end())
 				playerint[gs->curB->side1]->actionStarted(&curbaction);
 			if(playerint.find(gs->curB->side2) != playerint.end())
@@ -563,6 +574,19 @@ void CClient::process(int what)
 				playerint[gs->curB->side1]->actionFinished(&curbaction);
 			if(playerint.find(gs->curB->side2) != playerint.end())
 				playerint[gs->curB->side2]->actionFinished(&curbaction);
+			break;
+		}
+	case 3009:
+		{
+			tlog5 << "Spell casted!\n";
+			SpellCasted sc;
+			*serv >> sc;
+			gs->apply(&sc);
+			//todo - apply
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleSpellCasted(&sc);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleSpellCasted(&sc);
 			break;
 		}
 	case 9999:

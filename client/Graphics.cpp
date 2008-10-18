@@ -24,18 +24,17 @@ using namespace CSDL_Ext;
 Graphics * graphics = NULL;
 SDL_Surface * Graphics::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from, int to)
 {
-	char * buf = new char[10];
+	char buf[10];
 	for (int i=from;i<to;i++)
 	{
 		SDL_itoa(curh->getPrimSkillLevel(i),buf,10);
 		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
 	}
-	delete[] buf;
 	return ret;
 }
 SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 {
-	char * buf = new char[10];
+	char buf[10];
 	blueToPlayersAdv(hInfo,curh->tempOwner);
 	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
@@ -50,14 +49,13 @@ SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 	blitAt(graphics->portraitLarge[curh->portrait],11,12,ret);
 	SDL_itoa(curh->mana,buf,10);
 	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
-	delete[] buf;
 	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
 	blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
 	return ret;
 }
 SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 {
-	char * buf = new char[10];
+	char buf[10];
 	blueToPlayersAdv(tInfo,curh->tempOwner);
 	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
@@ -87,7 +85,6 @@ SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 	if(curh->garrisonHero)
 		blitAt(graphics->heroInGarrison,158,87,ret);
 	blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
-	delete[] buf;
 	return ret;
 }
 

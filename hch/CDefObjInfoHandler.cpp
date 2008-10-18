@@ -27,6 +27,7 @@ void CDefObjInfoHandler::load()
 	std::istringstream inp(bitmaph->getTextFile("ZOBJCTS.TXT"));
 	int objNumber;
 	inp>>objNumber;
+	std::string mapStr;
 	for(int hh=0; hh<objNumber; ++hh)
 	{
 		CGDefInfo* nobj = new CGDefInfo();
@@ -41,7 +42,6 @@ void CDefObjInfoHandler::load()
 			nobj->blockMap[o] = 0xff;
 			nobj->visitMap[o] = 0x00;
 		}
-		std::string mapStr;
 		inp>>mapStr;
 		std::reverse(mapStr.begin(), mapStr.end());
 		for(int v=0; v<mapStr.size(); ++v)
