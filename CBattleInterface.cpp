@@ -405,6 +405,23 @@ void CBattleInterface::show(SDL_Surface * to)
 	//units shown
 	projectileShowHelper(to);//showing projectiles
 
+	//showing spell effects
+	std::vector< std::list<SBattleEffect>::iterator > toErase;
+	for(std::list<SBattleEffect>::iterator it = battleEffects.begin(); it!=battleEffects.end(); ++it)
+	{
+		blitAt(it->anim->ourImages[it->frame].bitmap, it->x, it->y, to);
+		++(it->frame);
+
+		if(it->frame == it->maxFrame)
+			toErase.push_back(it);
+	}
+	
+	for(int b=0; b<toErase.size(); ++b)
+	{
+		delete toErase[b]->anim;
+		battleEffects.erase(toErase[b]);
+	}
+
 	//showing queue of stacks
 	if(showStackQueue)
 	{
@@ -666,7 +683,7 @@ void CBattleInterface::stackRemoved(CStack stack)
 	creAnims.erase(stack.ID);
 }
 
-void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting, ui32 effects)
+void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)
 {
 	if(creAnims[ID]->getType() != 2)
 	{
@@ -711,7 +728,7 @@ void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool b
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 
-	if(effects == 0)
+	if(IDby!=-1)
 		printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
@@ -838,7 +855,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	creAnims[number]->pos.y = coords.second;
 }
 
-void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting, ui32 effects)
+void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting)
 {
 	while(creAnims[ID]->getType() != 2 || (attackingInfo && attackingInfo->IDby == IDby))
 	{
@@ -882,7 +899,7 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 	}
 	creAnims[ID]->setType(2);
 
-	if(effects == 0)
+	if(IDby!=-1)
 		printConsoleAttacked(ID, dmg, killed, IDby);
 }
 
@@ -1269,6 +1286,25 @@ void CBattleInterface::castThisSpell(int spellID)
 	CGI->curh->changeGraphic(3, 0); 
 }
 
+void CBattleInterface::displayEffect(ui32 effect, int destTile, bool affected)
+{
+	if(graphics->battleACToDef[effect].size() != 0)
+	{
+		SBattleEffect be;
+		be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+		be.frame = 0;
+		be.maxFrame = be.anim->ourImages.size();
+		std::pair<int, int> coords = CBattleHex::getXYUnitAnim(destTile, affected, NULL);
+		coords.first += 250; coords.second += 240;
+		coords.first -= be.anim->ourImages[0].bitmap->w/2;
+		coords.second -= be.anim->ourImages[0].bitmap->h/2;
+		be.x = coords.first; be.y = coords.second;
+
+		battleEffects.push_back(be);
+	}
+	//battleEffects 
+}
+
 void CBattleInterface::setAnimSpeed(int set)
 {
 	animSpeed = set;
@@ -1587,7 +1623,7 @@ void CBattleHero::show(SDL_Surface *to)
 			SDL_Rect posb = pos;
 			CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[i].bitmap, NULL, to, &posb);
 			++image;
-			if(dh->ourImages[i+1].groupNumber!=phase) //back to appropriate frame
+			if(dh->ourImages[(i+1)%dh->ourImages.size()].groupNumber!=phase) //back to appropriate frame
 			{
 				image = 0;
 			}
@@ -1604,6 +1640,13 @@ void CBattleHero::deactivate()
 {
 	ClickableL::deactivate();
 }
+
+void CBattleHero::setPhase(int newPhase)
+{
+	phase = newPhase;
+	image = 0;
+}
+
 void CBattleHero::clickLeft(boost::logic::tribool down)
 {
 	if(!down && myHero)
@@ -1670,7 +1713,7 @@ std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & a
 		ret.first = -219 + 22 * ( ((hexNum/17) + 1)%2 ) + 44 * (hexNum % 17);
 	}
 	//shifting position for double - hex creatures
-	if(creature->isDoubleWide())
+	if(creature && creature->isDoubleWide())
 	{
 		if(attacker)
 		{

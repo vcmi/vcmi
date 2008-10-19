@@ -148,6 +148,34 @@ void Graphics::initializeBattleGraphics()
 	{
 		bher>>battleHeroes[i];
 	}
+
+	//initialization of AC->def name mapping
+	std::ifstream acd;
+	acd.open("config/AC_desc.txt", std::ios::binary);
+	if(!acd.is_open())
+	{
+		tlog1<<"lack of config/AC_desc.txt file!"<<std::endl;
+	}
+	else
+	{
+		std::string buf;
+		acd>>buf;
+		int ACid, numberOfDefs;
+		while(true)
+		{
+			std::vector< std::string > toAdd;
+			acd>>ACid;
+			if(ACid == -1)
+				break;
+			acd>>numberOfDefs;
+			for(int g=0; g<numberOfDefs; ++g)
+			{
+				acd>>buf;
+				toAdd.push_back(buf);
+			}
+			battleACToDef[ACid] = toAdd;
+		}
+	}
 }
 Graphics::Graphics()
 {

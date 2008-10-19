@@ -30,6 +30,7 @@ public:
 	void show(SDL_Surface * to); //prints next frame of animation to to
 	void activate();
 	void deactivate();
+	void setPhase(int newPhase);
 	void clickLeft(boost::logic::tribool down);
 	CBattleHero(const std::string & defName, int phaseG, int imageG, bool filpG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner); //c-tor
 	~CBattleHero(); //d-tor
@@ -166,6 +167,14 @@ private:
 	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(int number); //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
+
+	struct SBattleEffect
+	{
+		int x, y; //position on the screen
+		int frame, maxFrame;
+		CDefHandler * anim; //animation to display
+	};
+	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2); //c-tor
 	~CBattleInterface(); //d-tor
@@ -211,10 +220,10 @@ public:
 	//call-ins
 	void newStack(CStack stack); //new stack appeared on battlefield
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
-	void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting, ui32 effects = 0); //stack has been killed (but corpses remain); effects - additional optional spell effect (AC format)
+	void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool endMoving); //stack with id number moved to destHex
-	void stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting, ui32 effects = 0); //called when stack id attacked by stack with id IDby; effects - additional optional spell effect (AC format)
+	void stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting); //called when stack id attacked by stack with id IDby
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
 	void newRound(int number); //caled when round is ended; number is the number of round
 	void hexLclicked(int whichOne); //hex only call-in
@@ -222,6 +231,7 @@ public:
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
 	void spellCasted(SpellCasted * sc); //called when a hero casts a spell
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
+	void displayEffect(ui32 effect, int destTile, bool affected); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
 
 	friend class CBattleHex;
 	friend class CBattleReslutWindow;

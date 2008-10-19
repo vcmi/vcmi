@@ -1998,6 +1998,13 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 	{
 		battleInt->deactivate();
 	}
+	if(action->actionType == 1)
+	{
+		if(action->side)
+			battleInt->defendingHero->setPhase(4);
+		else
+			battleInt->attackingHero->setPhase(4);
+	}
 }
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
@@ -2007,6 +2014,13 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
 	{
 		battleInt->activate();
+	}
+	if(action->actionType == 1)
+	{
+		if(action->side)
+			battleInt->defendingHero->setPhase(0);
+		else
+			battleInt->attackingHero->setPhase(0);
 	}
 }
 
@@ -2061,11 +2075,12 @@ void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
 }
 void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 {
+	battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position, cb->battleGetStackByID(bsa->stackAttacked)->attackerOwned);
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(bsa->killed())
-		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false, bsa->effect);
+		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false);
 	else
-		battleInt->stackIsAttacked(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false, bsa->effect);
+		battleInt->stackIsAttacked(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
