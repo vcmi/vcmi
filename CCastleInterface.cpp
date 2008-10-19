@@ -357,9 +357,9 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 
 	townlist = new CTownList(3,&genRect(128,48,744,414),744,414,744,526);
 	exit = new AdventureMapButton
-		(CGI->townh->tcommands[8],"",boost::bind(&CCastleInterface::close,this),744,544,"TSBTNS.DEF",false,NULL,false);
+		(CGI->townh->tcommands[8],"",boost::bind(&CCastleInterface::close,this),744,544,"TSBTNS.DEF",SDLK_RETURN);
 	split = new AdventureMapButton
-		(CGI->townh->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),744,382,"TSBTNS.DEF",false,NULL,false);
+		(CGI->townh->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),744,382,"TSBTNS.DEF");
 	statusbar = new CStatusBar(8,555,"TSTATBAR.bmp",732);
 
 	townlist->fun = boost::bind(&CCastleInterface::townChange,this);
@@ -975,7 +975,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
 	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	exit = new AdventureMapButton
-		(CGI->townh->tcommands[8],"",boost::bind(&CHallInterface::close,this),748,556,"TPMAGE1.DEF",false,NULL,false);
+		(CGI->townh->tcommands[8],"",boost::bind(&CHallInterface::close,this),748,556,"TPMAGE1.DEF",SDLK_RETURN);
 
 	//preparing boxes with buildings//
 	boxes.resize(5);
@@ -1243,9 +1243,9 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	if(!mode)
 	{
 		buy = new AdventureMapButton
-			("","",boost::bind(&CBuildWindow::Buy,this),pos.x+45,pos.y+446,"IBUY30.DEF",false,NULL,false);
+			("","",boost::bind(&CBuildWindow::Buy,this),pos.x+45,pos.y+446,"IBUY30.DEF",SDLK_RETURN);
 		cancel = new AdventureMapButton
-			("","",boost::bind(&CBuildWindow::close,this),pos.x+290,pos.y+445,"ICANCEL.DEF",false,NULL,false);
+			("","",boost::bind(&CBuildWindow::close,this),pos.x+290,pos.y+445,"ICANCEL.DEF",SDLK_ESCAPE);
 		if(state!=7)
 			buy->state=2;
 	}
@@ -1320,7 +1320,7 @@ CFortScreen::CFortScreen( CCastleInterface * owner )
 {
 	LOCPLINT->curint->subInt = this;
 	bg = NULL;
-	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CFortScreen::close,this),748,556,"TPMAGE1.DEF",false,NULL,false);
+	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CFortScreen::close,this),748,556,"TPMAGE1.DEF",SDLK_RETURN);
 	positions += genRect(126,386,10,22),genRect(126,386,404,22),
 		genRect(126,386,10,155),genRect(126,386,404,155),
 		genRect(126,386,10,288),genRect(126,386,404,288),
@@ -1423,7 +1423,7 @@ void CFortScreen::RecArea::deactivate()
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 {
 	bg = BitmapHandler::loadBitmap("TPMAGE.bmp");
-	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CMageGuildScreen::close,this),748,556,"TPMAGE1.DEF",false,NULL,false);
+	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CMageGuildScreen::close,this),748,556,"TPMAGE1.DEF",SDLK_RETURN);
 	scrolls = CDefHandler::giveDefEss("SPELLSCR.DEF");
 	scrolls2 = CDefHandler::giveDefEss("TPMAGES.DEF");
 	SDL_Surface *view = BitmapHandler::loadBitmap(graphics->guildBgs[owner->town->subID]);
@@ -1561,8 +1561,8 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	pos.h = bmp->h;
 	pos.x = screen->w/2 - pos.w/2;
 	pos.y = screen->h/2 - pos.h/2;
-	buy = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 42,pos.y + 312,"IBUY30.DEF");
-	cancel = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 224,pos.y + 312,"ICANCEL.DEF");
+	buy = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 42,pos.y + 312,"IBUY30.DEF",SDLK_RETURN);
+	cancel = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 224,pos.y + 312,"ICANCEL.DEF",SDLK_ESCAPE);
 	if(possible)
 		buy->callback += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,LOCPLINT->cb->getHeroInfo(hid,2),aid);
 	else

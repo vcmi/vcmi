@@ -8,7 +8,7 @@ class AdventureMapButton
 public:
 	std::map<int,std::string> hoverTexts; //state -> text for statusbar
 	std::string helpBox; //for right-click help
-	char key; //key shortcut
+	int ourKey; //key shortcut
 	CFunctionList<void()> callback;
 	bool colorChange, blocked,
 		actOnDown; //runs when mouse is pressed down over it, not when up
@@ -22,18 +22,18 @@ public:
 	void deactivate(); // makes button inactive (but doesn't delete)
 
 	AdventureMapButton(); //c-tor
-	AdventureMapButton( const std::map<int,std::string> &, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
-	AdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+	AdventureMapButton( const std::map<int,std::string> &, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+	AdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 	//AdventureMapButton( std::string Name, std::string HelpBox, boost::function<void()> Callback, int x, int y, std::string defName, bool activ=false,  std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 
-	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, bool activ );
+	void init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key );
 };
 
 class CHighlightableButton 
 	: public AdventureMapButton
 {
 public:
-	CHighlightableButton(const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, bool activ );
+	CHighlightableButton(const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key=0 );
 	bool selected, onlyOn;
 	CFunctionList<void()> callback2; //when disselecting
 	void select(bool on);
@@ -48,7 +48,7 @@ public:
 
 	//void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid);
 	void addButton(CHighlightableButton* bt);//add existing button, it'll be deleted by CHighlightableButtonsGroup destructor
-	void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect=0); //creates new button
+	void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect=0, int key=0); //creates new button
 	CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange);
 	~CHighlightableButtonsGroup();
 	void activate();

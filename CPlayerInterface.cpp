@@ -496,7 +496,10 @@ CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const st
 	{
 		buttons.push_back(new AdventureMapButton("","",Buttons[i].second,0,0,Buttons[i].first));
 		if(!Buttons[i].second) //if no function, then by default we'll set it to close
+		{
+			buttons[i]->ourKey = SDLK_RETURN;
 			buttons[i]->callback += boost::bind(&CInfoWindow::close,this);
+		}
 	}
 	for(int i=0;i<comps.size();i++)
 	{
@@ -504,7 +507,7 @@ CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const st
 	}
 	CMessage::drawIWindow(this,text,player,charperline);
 }
-CInfoWindow::CInfoWindow()
+CInfoWindow::CInfoWindow() 
 {
 }
 void CInfoWindow::close()
@@ -1712,128 +1715,22 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 		LOCPLINT->adventureInt->scrollingDown = false;
 	}
 }
-void CPlayerInterface::handleKeyUp(SDL_Event *sEvent)
-{
-	switch (sEvent->key.keysym.sym)
-	{
-	case SDLK_LEFT:
-		{
-			LOCPLINT->adventureInt->scrollingLeft = false;
-			break;
-		}
-	case (SDLK_RIGHT):
-		{
-			LOCPLINT->adventureInt->scrollingRight = false;
-			break;
-		}
-	case (SDLK_UP):
-		{
-			LOCPLINT->adventureInt->scrollingUp = false;
-			break;
-		}
-	case (SDLK_DOWN):
-		{
-			LOCPLINT->adventureInt->scrollingDown = false;
-			break;
-		}
-	case (SDLK_u):
-		{
-			adventureInt->underground.clickLeft(false);
-			break;
-		}
-	case (SDLK_m):
-		{
-			adventureInt->moveHero.clickLeft(false);
-			break;
-		}
-	case (SDLK_e):
-		{
-			adventureInt->endTurn.clickLeft(false);
-			break;
-		}
-	case (SDLK_c):
-		{
-			if( dynamic_cast<CBattleInterface*> (curint) )
-			{
-				dynamic_cast<CBattleInterface*> (curint)->showStackQueue = false;
-			}
-			break;
-		}
-	}
-}
-void CPlayerInterface::handleKeyDown(SDL_Event *sEvent)
-{
-	switch (sEvent->key.keysym.sym)
-	{
-	case SDLK_LEFT:
-		{
-			LOCPLINT->adventureInt->scrollingLeft = true;
-			break;
-		}
-	case (SDLK_RIGHT):
-		{
-			LOCPLINT->adventureInt->scrollingRight = true;
-			break;
-		}
-	case (SDLK_UP):
-		{
-			LOCPLINT->adventureInt->scrollingUp = true;
-			break;
-		}
-	case (SDLK_DOWN):
-		{
-			LOCPLINT->adventureInt->scrollingDown = true;
-			break;
-		}
-	case (SDLK_u):
-		{
-			adventureInt->underground.clickLeft(true);
-			break;
-		}
-	case (SDLK_m):
-		{
-			adventureInt->moveHero.clickLeft(true);
-			break;
-		}
-	case (SDLK_e):
-		{
-			adventureInt->endTurn.clickLeft(true);
-			break;
-		}
-	case (SDLK_c):
-		{
-			if( dynamic_cast<CBattleInterface*> (curint) )
-			{
-				dynamic_cast<CBattleInterface*> (curint)->showStackQueue = true;
-			}
-			break;
-		}
-	}
-}
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 {
 	current = sEvent;
 
-	if(sEvent->type == SDL_MOUSEMOTION)
+	if (sEvent->type==SDL_KEYDOWN || sEvent->type==SDL_KEYUP)
 	{
-		CGI->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
+		std::list<KeyInterested*> miCopy = keyinterested;
+		for(std::list<KeyInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
+			if(vstd::contains(keyinterested,*i))
+				(**i).keyPressed(sEvent->key);
 	}
-
-	if(sEvent->type==SDL_QUIT)
-		exit(0);
-	else if (sEvent->type==SDL_KEYDOWN)
-	{
-		handleKeyDown(sEvent);
-	} //keydown end
-	else if(sEvent->type==SDL_KEYUP)
-	{
-		handleKeyUp(sEvent);
-	}//keyup end
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
+		CGI->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
 		handleMouseMotion(sEvent);
-	} //mousemotion end
-
+	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
 		std::list<ClickableL*> hlp = lclickable;
@@ -3071,9 +2968,9 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 		curx += 120;
 	}
 
-	max = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF");
-	buy = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF");
-	cancel = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF");
+	max = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF",SDLK_m);
+	buy = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF",SDLK_RETURN);
+	cancel = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF",SDLK_ESCAPE);
 	if(!creatures[0].amount)
 	{
 		max->block(true);
@@ -3104,8 +3001,8 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	ok = new AdventureMapButton("","",boost::bind(&CSplitWindow::split,this),pos.x+20,pos.y+263,"IOK6432.DEF");
-	cancel = new AdventureMapButton("","",boost::bind(&CSplitWindow::close,this),pos.x+214,pos.y+263,"ICN6432.DEF");
+	ok = new AdventureMapButton("","",boost::bind(&CSplitWindow::split,this),pos.x+20,pos.y+263,"IOK6432.DEF",SDLK_RETURN);
+	cancel = new AdventureMapButton("","",boost::bind(&CSplitWindow::close,this),pos.x+214,pos.y+263,"ICN6432.DEF",SDLK_ESCAPE);
 	slider = new CSlider(pos.x+21,pos.y+194,257,boost::bind(&CSplitWindow::sliderMoved,this,_1),1,max,0,true);
 	a1 = max;
 	a2 = 0;
@@ -3306,7 +3203,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 				CFunctionList<void()> cfl;
 				cfl = boost::bind(&CCreInfoWindow::deactivate,this);
 				cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false,false);
-				upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF");
+				upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
 			{
@@ -3326,9 +3223,9 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 			CFunctionList<void()> cfl;
 		        cfl = boost::bind(&CCreInfoWindow::deactivate,this);
 			cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false,false);
-			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,cfl,pos.x+21,pos.y+237,"IVIEWCR2.DEF");
+			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,cfl,pos.x+21,pos.y+237,"IVIEWCR2.DEF",SDLK_d);
 		}
-		ok = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF");
+		ok = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF",SDLK_RETURN);
 	}
 	else
 	{
@@ -3446,7 +3343,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	ok = new AdventureMapButton("","",boost::bind(&CLevelWindow::close,this),pos.x+297,pos.y+413,"IOKAY.DEF");
+	ok = new AdventureMapButton("","",boost::bind(&CLevelWindow::close,this),pos.x+297,pos.y+413,"IOKAY.DEF",SDLK_RETURN);
 
 	//draw window
 	char buf[100], buf2[100];
@@ -3694,7 +3591,7 @@ CMarketplaceWindow::CMarketplaceWindow(int Mode)
 	slider = new CSlider(pos.x+231,pos.y+490,137,boost::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
 	setMode(mode);
 	hLeft = hRight = NULL;
-	ok = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::deactivate,this),pos.x+516,pos.y+520,"IOK6432.DEF");
+	ok = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::deactivate,this),pos.x+516,pos.y+520,"IOK6432.DEF",SDLK_RETURN);
 	ok->callback += boost::bind(&CMarketplaceWindow::clear,this); //clear
 	ok->callback += boost::bind(vstd::delObj<CMarketplaceWindow>,this); //will delete
 	ok->callback += boost::bind(&CMainInterface::activate,LOCPLINT->curint);
@@ -3858,9 +3755,9 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 283, 217, GEOR16, zwykly, background); //spell book animation
 
 	//setting up buttons
-	quitGame = new AdventureMapButton (CGI->preth->zelp[324].first, CGI->preth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 405, 471, "soquit.def", false, NULL, false);
+	quitGame = new AdventureMapButton (CGI->preth->zelp[324].first, CGI->preth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 405, 471, "soquit.def", SDLK_q);
 	std::swap(quitGame->imgs[0][0], quitGame->imgs[0][1]);
-	backToMap = new AdventureMapButton (CGI->preth->zelp[325].first, CGI->preth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 516, 471, "soretrn.def", false, NULL, false);
+	backToMap = new AdventureMapButton (CGI->preth->zelp[325].first, CGI->preth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 516, 471, "soretrn.def", SDLK_RETURN);
 	std::swap(backToMap->imgs[0][0], backToMap->imgs[0][1]);
 
 	heroMoveSpeed = new CHighlightableButtonsGroup(0);

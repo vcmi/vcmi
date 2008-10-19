@@ -308,7 +308,6 @@ void CTerrainRect::activate()
 	ClickableL::activate();
 	ClickableR::activate();
 	Hoverable::activate();
-	KeyInterested::activate();
 	MotionInterested::activate();
 };
 void CTerrainRect::deactivate()
@@ -316,7 +315,6 @@ void CTerrainRect::deactivate()
 	ClickableL::deactivate();
 	ClickableR::deactivate();
 	Hoverable::deactivate();
-	KeyInterested::deactivate();
 	MotionInterested::deactivate();
 };
 void CTerrainRect::clickLeft(tribool down)
@@ -467,7 +465,6 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 	CGI->curh->changeGraphic(0,0);
 }
-void CTerrainRect::keyPressed (const SDL_KeyboardEvent & key){}
 void CTerrainRect::hover(bool on)
 {
 	if (!on)
@@ -978,34 +975,34 @@ CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(7,556),
 kingOverview(CGI->preth->zelp[293].first,CGI->preth->zelp[293].second,
-			 boost::bind(&CAdvMapInt::fshowOverview,this), 679, 196, "IAM002.DEF", false,NULL,true),
+			 boost::bind(&CAdvMapInt::fshowOverview,this), 679, 196, "IAM002.DEF", SDLK_k, NULL,true),
 
 underground(CGI->preth->zelp[294].first,CGI->preth->zelp[294].second,
-			boost::bind(&CAdvMapInt::fswitchLevel,this), 711, 196, "IAM010.DEF", false, new std::vector<std::string>(1,std::string("IAM003.DEF")),true),
+			boost::bind(&CAdvMapInt::fswitchLevel,this), 711, 196, "IAM010.DEF", SDLK_u, new std::vector<std::string>(1,std::string("IAM003.DEF")),true),
 
 questlog(CGI->preth->zelp[295].first,CGI->preth->zelp[295].second,
-		 boost::bind(&CAdvMapInt::fshowQuestlog,this), 679, 228, "IAM004.DEF", false,NULL,true),
+		 boost::bind(&CAdvMapInt::fshowQuestlog,this), 679, 228, "IAM004.DEF", SDLK_q, NULL,true),
 
 sleepWake(CGI->preth->zelp[296].first,CGI->preth->zelp[296].second,
-		  boost::bind(&CAdvMapInt::fsleepWake,this), 711, 228, "IAM005.DEF", false,NULL,true),
+		  boost::bind(&CAdvMapInt::fsleepWake,this), 711, 228, "IAM005.DEF", SDLK_w, NULL,true),
 
 moveHero(CGI->preth->zelp[297].first,CGI->preth->zelp[297].second,
-		  boost::bind(&CAdvMapInt::fmoveHero,this), 679, 260, "IAM006.DEF", false,NULL,true),
+		  boost::bind(&CAdvMapInt::fmoveHero,this), 679, 260, "IAM006.DEF", SDLK_m, NULL,true),
 
 spellbook(CGI->preth->zelp[298].first,CGI->preth->zelp[298].second,
-		  boost::bind(&CAdvMapInt::fshowSpellbok,this), 711, 260, "IAM007.DEF", false,NULL,true),
+		  boost::bind(&CAdvMapInt::fshowSpellbok,this), 711, 260, "IAM007.DEF", SDLK_c, NULL,true),
 
 advOptions(CGI->preth->zelp[299].first,CGI->preth->zelp[299].second,
-		  boost::bind(&CAdvMapInt::fadventureOPtions,this), 679, 292, "IAM008.DEF", false,NULL,true),
+		  boost::bind(&CAdvMapInt::fadventureOPtions,this), 679, 292, "IAM008.DEF", SDLK_a, NULL,true),
 
 sysOptions(CGI->preth->zelp[300].first,CGI->preth->zelp[300].second,
-		  boost::bind(&CAdvMapInt::fsystemOptions,this), 711, 292, "IAM009.DEF", false,NULL,true),
+		  boost::bind(&CAdvMapInt::fsystemOptions,this), 711, 292, "IAM009.DEF", SDLK_o, NULL,true),
 
 nextHero(CGI->preth->zelp[301].first,CGI->preth->zelp[301].second,
-		  boost::bind(&CAdvMapInt::fnextHero,this), 679, 324, "IAM000.DEF", false,NULL,true),
+		  boost::bind(&CAdvMapInt::fnextHero,this), 679, 324, "IAM000.DEF", SDLK_h, NULL,true),
 
 endTurn(CGI->preth->zelp[302].first,CGI->preth->zelp[302].second,
-		  boost::bind(&CAdvMapInt::fendTurn,this), 679, 356, "IAM001.DEF", false,NULL,true),
+		  boost::bind(&CAdvMapInt::fendTurn,this), 679, 356, "IAM001.DEF", SDLK_e, NULL,true),
 
 townList(5,&genRect(192,48,747,196),747,196,747,372)
 {
@@ -1130,10 +1127,12 @@ void CAdvMapInt::activate()
 	heroList.activate();
 	townList.activate();
 	terrain.activate();
+	KeyInterested::activate();
 	show();
 }
 void CAdvMapInt::deactivate()
 {
+	KeyInterested::deactivate();
 	if(subInt == heroWindow)
 	{
 		heroWindow->deactivate();
@@ -1281,6 +1280,28 @@ void CAdvMapInt::centerOn(int3 on)
 	LOCPLINT->adventureInt->position.z=on.z;
 	LOCPLINT->adventureInt->updateScreen=true;
 	updateMinimap=true;
+}
+void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
+{
+	bool CAdvMapInt::* scrollDir;
+	switch(key.keysym.sym)
+	{
+	case SDLK_UP: 
+		scrollDir = &CAdvMapInt::scrollingUp; 
+		break;
+	case SDLK_LEFT: 
+		scrollDir = &CAdvMapInt::scrollingLeft; 
+		break;
+	case SDLK_RIGHT: 
+		scrollDir = &CAdvMapInt::scrollingRight; 
+		break;
+	case SDLK_DOWN: 
+		scrollDir = &CAdvMapInt::scrollingDown; 
+		break;
+	default: 
+		return;
+	}
+	this->*scrollDir = key.state==SDL_PRESSED;
 }
 void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * client)
 {

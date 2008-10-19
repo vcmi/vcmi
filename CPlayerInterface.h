@@ -136,7 +136,7 @@ class KeyInterested : public virtual CIntObject
 {
 public:
 	virtual ~KeyInterested(){};
-	virtual void keyPressed (const SDL_KeyboardEvent & key)=0;
+	virtual void keyPressed(const SDL_KeyboardEvent & key)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };

@@ -114,7 +114,7 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
-class CBattleInterface : public CMainInterface, public MotionInterested
+class CBattleInterface : public CMainInterface, public MotionInterested, public KeyInterested
 {
 private:
 	SDL_Surface * background, * menu, * amountBasic, * amountNormal, * cellBorders, * backgroundWithHexes;
@@ -204,6 +204,7 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
 	bool reverseCreature(int number, int hex, bool wideTrick = false); //reverses animation of given creature playing animation of reversing
 

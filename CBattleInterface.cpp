@@ -85,15 +85,15 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	CSDL_Ext::update();
 
 	//preparing buttons and console
-	bOptions = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bOptionsf,this), 3, 561, "icm003.def", false, NULL, false);
-	bSurrender = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bSurrenderf,this), 54, 561, "icm001.def", false, NULL, false);
-	bFlee = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bFleef,this), 105, 561, "icm002.def", false, NULL, false);
-	bAutofight  = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bAutofightf,this), 157, 561, "icm004.def", false, NULL, false);
-	bSpell = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bSpellf,this), 645, 561, "icm005.def", false, NULL, false);
-	bWait = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bWaitf,this), 696, 561, "icm006.def", false, NULL, false);
-	bDefence = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bDefencef,this), 747, 561, "icm007.def", false, NULL, false);
-	bConsoleUp = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleUpf,this), 624, 561, "ComSlide.def", false, NULL, false);
-	bConsoleDown = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleDownf,this), 624, 580, "ComSlide.def", false, NULL, false);
+	bOptions = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bOptionsf,this), 3, 561, "icm003.def", SDLK_o);
+	bSurrender = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bSurrenderf,this), 54, 561, "icm001.def", SDLK_s);
+	bFlee = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bFleef,this), 105, 561, "icm002.def", SDLK_r);
+	bAutofight  = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bAutofightf,this), 157, 561, "icm004.def", SDLK_a);
+	bSpell = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bSpellf,this), 645, 561, "icm005.def", SDLK_c);
+	bWait = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bWaitf,this), 696, 561, "icm006.def", SDLK_w);
+	bDefence = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bDefencef,this), 747, 561, "icm007.def", SDLK_d);
+	bConsoleUp = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleUpf,this), 624, 561, "ComSlide.def", SDLK_UP);
+	bConsoleDown = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleDownf,this), 624, 580, "ComSlide.def", SDLK_DOWN);
 	bConsoleDown->bitmapOffset = 2;
 	console = new CBattleConsole();
 	console->pos.x = 211;
@@ -249,6 +249,7 @@ void CBattleInterface::setPrintMouseShadow(bool set)
 
 void CBattleInterface::activate()
 {
+	KeyInterested::activate();
 	MotionInterested::activate();
 	subInt = NULL;
 	bOptions->activate();
@@ -272,6 +273,7 @@ void CBattleInterface::activate()
 
 void CBattleInterface::deactivate()
 {
+	KeyInterested::deactivate();
 	MotionInterested::deactivate();
 	bOptions->deactivate();
 	bSurrender->deactivate();
@@ -463,7 +465,11 @@ void CBattleInterface::show(SDL_Surface * to)
 		resWindow->show(to);
 	}
 }
-
+void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
+{
+	if(key.keysym.sym == SDLK_q)
+		showStackQueue = key.state==SDL_PRESSED;
+}
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
 	if(activeStack>=0 && !spellDestSelectMode)
@@ -1864,7 +1870,7 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, const SDL_Rect 
 	SDL_Surface * pom = SDL_ConvertSurface(background, screen->format, screen->flags);
 	SDL_FreeSurface(background);
 	background = pom;
-	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleReslutWindow::bExitf,this), 549, 524, "iok6432.def", false, NULL, false);
+	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleReslutWindow::bExitf,this), 549, 524, "iok6432.def", SDLK_RETURN);
 
 	if(br.winner==0) //attacker won
 	{
@@ -2041,9 +2047,9 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	animSpeeds->select(owner->getAnimSpeed(), 1);
 	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
 
-	setToDefault = new AdventureMapButton (CGI->preth->zelp[392].first, CGI->preth->zelp[392].second, boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def", false, NULL, false);
+	setToDefault = new AdventureMapButton (CGI->preth->zelp[392].first, CGI->preth->zelp[392].second, boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def");
 	std::swap(setToDefault->imgs[0][0], setToDefault->imgs[0][1]);
-	exit = new AdventureMapButton (CGI->preth->zelp[393].first, CGI->preth->zelp[393].second, boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def", false, NULL, false);
+	exit = new AdventureMapButton (CGI->preth->zelp[393].first, CGI->preth->zelp[393].second, boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def",SDLK_RETURN);
 	std::swap(exit->imgs[0][0], exit->imgs[0][1]);
 
 	//printing texts to background

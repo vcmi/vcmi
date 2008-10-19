@@ -41,8 +41,7 @@ public:
 	void showTile(const int3 &pos); //removes FoW
 };
 class CTerrainRect
-	:  public ClickableL, public ClickableR, public Hoverable, public virtual CIntObject, public KeyInterested,
-	public MotionInterested
+	:  public ClickableL, public ClickableR, public Hoverable, public MotionInterested
 {
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
@@ -58,7 +57,6 @@ public:
 	void clickRight(tribool down);
 	void hover(bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void keyPressed (const SDL_KeyboardEvent & key);
 	void show();
 	void showPath();
 	int3 whichTileIsIt(const int & x, const int & y); //x,y are cursor position
@@ -99,7 +97,7 @@ public:
 	CDefHandler * getAnim(int mode);
 };
 /*****************************/
-class CAdvMapInt : public CMainInterface //adventure map interface
+class CAdvMapInt : public CMainInterface, public KeyInterested //adventure map interface
 {
 public:
 	CAdvMapInt(int Player);
@@ -171,6 +169,7 @@ public:
 	void centerOn(int3 on);
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, tribool down, CIntObject * client);
+	void keyPressed(const SDL_KeyboardEvent & key);
 
 
 };

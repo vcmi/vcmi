@@ -44,22 +44,20 @@ CHeroWindow::CHeroWindow(int playerColor):
 	garInt = NULL;
 	ourBar = new CStatusBar(72, 567, "ADROLLVR.bmp", 660);
 
-	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(), boost::function<void()>(), 674, 524, "hsbtns.def", false, NULL, false);
-	dismissButton = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 519, 437, "hsbtns2.def", false, NULL, false);
-	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 379, 437, "hsbtns4.def", false, NULL, false);
+	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(), boost::function<void()>(), 674, 524, "hsbtns.def", SDLK_RETURN);
+	dismissButton = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 519, 437, "hsbtns2.def", SDLK_d);
+	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 379, 437, "hsbtns4.def", SDLK_q);
 
 	formations = new CHighlightableButtonsGroup(0);
-	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def",546, 491, 0);
-	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def",546, 527, 1);
-	//gar1button = new CHighlightableButton(0,0,map_list_of(0,CGI->generaltexth->heroscrn[23]), CGI->generaltexth->heroscrn[29], false, "hsbtns6.def" , NULL,546, 491, false);
-	//gar3button = new CHighlightableButton(0,0,map_list_of(0,CGI->generaltexth->heroscrn[24]), CGI->generaltexth->heroscrn[30], false,  "hsbtns7.def", NULL, 546, 527, false);
+	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def",546, 491, 0, 0, SDLK_t);
+	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def",546, 527, 1, 0, SDLK_l);
 
 
-	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 604, 491, false);
+	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 604, 491, SDLK_b);
 	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), 604, 527, "hsbtns9.def", false, NULL, false);
 	boost::algorithm::replace_first(gar4button->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
-	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::leftArtRoller,this), 379, 364, "hsbtns3.def", false, NULL, false);
-	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::rightArtRoller,this), 632, 364, "hsbtns5.def", false, NULL, false);
+	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::leftArtRoller,this), 379, 364, "hsbtns3.def", SDLK_LEFT);
+	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::rightArtRoller,this), 632, 364, "hsbtns5.def", SDLK_RIGHT);
 
 	for(int g=0; g<8; ++g)
 	{

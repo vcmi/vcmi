@@ -20,16 +20,16 @@ AdventureMapButton::AdventureMapButton ()
 //{
 //	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);
 //}
-AdventureMapButton::AdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, bool activ,  std::vector<std::string> * add, bool playerColoredButton )
+AdventureMapButton::AdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y,  const std::string &defName,int key, std::vector<std::string> * add, bool playerColoredButton )
 {
 	std::map<int,std::string> pom;
 	pom[0] = Name;
-	init(Callback, pom, HelpBox, playerColoredButton, defName, add, x, y, activ);
+	init(Callback, pom, HelpBox, playerColoredButton, defName, add, x, y, key);
 }
 
-AdventureMapButton::AdventureMapButton( const std::map<int,std::string> &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, bool activ/*=false*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
+AdventureMapButton::AdventureMapButton( const std::map<int,std::string> &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
 {
-	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, activ);
+	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, key);
 }
 
 void AdventureMapButton::clickLeft (tribool down)
@@ -90,9 +90,15 @@ void AdventureMapButton::activate()
 	KeyInterested::activate();
 }
 
-void AdventureMapButton::keyPressed (const SDL_KeyboardEvent & key)
+void AdventureMapButton::keyPressed(const SDL_KeyboardEvent & key)
 {
-	//TODO: check if it's shortcut
+	if(key.keysym.sym == ourKey)
+	{
+		if(key.state == SDL_PRESSED)
+			clickLeft(true);
+		else
+			clickLeft(false);
+	}
 }
 
 void AdventureMapButton::deactivate()
@@ -105,7 +111,7 @@ void AdventureMapButton::deactivate()
 	KeyInterested::deactivate();
 }
 
-void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, bool activ )
+void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
 {
 	callback = Callback;
 	blocked = actOnDown = false;
@@ -113,6 +119,7 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	abs=true;
 	active=false;
 	ourObj=NULL;
+	ourKey = key;
 	state=0;
 	hoverTexts = Name;
 	helpBox=HelpBox;
@@ -148,8 +155,6 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	pos.y=y;
 	pos.w = imgs[curimg][0]->w;
 	pos.h = imgs[curimg][0]->h  -1;
-	if (activ)
-		activate();
 }
 
 void AdventureMapButton::block( bool on )
@@ -195,10 +200,10 @@ void CHighlightableButton::clickLeft( tribool down )
 	}
 } 
 
-CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, bool activ )
+CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key )
 {
 	onlyOn = false;
-	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,activ);
+	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,key);
 	callback2 = onDeselect;
 }
 void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
@@ -206,9 +211,9 @@ void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
 	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	buttons.push_back(bt);
 }
-void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect)
+void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect, int key)
 {
-	CHighlightableButton *bt = new CHighlightableButton(OnSelect,0,tooltip,HelpBox,false,defName,0,x,y,0);
+	CHighlightableButton *bt = new CHighlightableButton(OnSelect,0,tooltip,HelpBox,false,defName,0,x,y,key);
 	bt->ID = uid;
 	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	bt->onlyOn = true;
