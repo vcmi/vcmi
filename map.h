@@ -356,7 +356,7 @@ struct DLL_EXPORT DisposedHero
 	int ID;
 	int portrait; //0xFF - default
 	std::string name;
-	bool players[8]; //who can hire this hero
+	ui8 players; //who can hire this hero (bitfield)
 };
 
 class DLL_EXPORT CMapEvent

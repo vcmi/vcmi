@@ -88,10 +88,10 @@ void CConsoleHandler::setColor(int level)
 
 int CConsoleHandler::run()
 {
-	char buffer[500];
+	char buffer[5000];
 	while(true)
 	{
-		std::cin.getline(buffer, 500);
+		std::cin.getline(buffer, 5000);
 		if(cb && *cb)
 			(*cb)(buffer);
 	}

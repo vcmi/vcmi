@@ -140,6 +140,18 @@ struct FoWChange : public CPack<FoWChange> //112
 		h & tiles & player;
 	}
 }; 
+
+struct SetAvailableHeroes : public CPack<SetAvailableHeroes> //113
+{
+	SetAvailableHeroes(){type = 113;};
+	ui8 player;
+	ui32 hid1, hid2;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player & hid1 & hid2;
+	}
+};
+
 struct RemoveObject : public CPack<RemoveObject> //500
 {
 	RemoveObject(){type = 500;};
@@ -218,6 +230,19 @@ struct SetHeroArtifacts : public CPack<SetHeroArtifacts> //509
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hid & artifacts & artifWorn;
+	}
+};  
+
+struct HeroRecruited : public CPack<HeroRecruited> //515
+{
+	HeroRecruited(){type = 515;};
+	si32 hid, tid; //subID of hero
+	int3 tile;
+	ui8 player;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid & tid & tile & player;
 	}
 };  
 struct NewTurn : public CPack<NewTurn> //101

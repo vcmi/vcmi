@@ -47,6 +47,7 @@ public:
 	std::vector<si32> resources;
 	std::vector<CGHeroInstance *> heroes;
 	std::vector<CGTownInstance *> towns;
+	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
 	PlayerState():color(-1),currentSelection(0xffffffff){};
 };
 
@@ -142,7 +143,12 @@ private:
 	std::map<ui8,PlayerState> players; //ID <-> playerstate
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 	std::vector<ui32> resVals;
-	std::vector<CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
+
+	struct HeroesPool
+	{
+		std::map<ui32,CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
+		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero
+	} hpool; //we have here all heroes available on this map that are not hired
 
 	boost::shared_mutex *mx;
 

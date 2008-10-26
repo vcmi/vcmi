@@ -6,11 +6,14 @@
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
 #include "CArtHandler.h"
 #include "../lib/VCMI_Lib.h"
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 extern CLodHandler * bitmaph;
+extern boost::rand48 ran;
+
 void CObjectHandler::loadObjects()
 {
 	VLC->objh = this;
@@ -307,6 +310,57 @@ int CGHeroInstance::getSecSkillLevel(const int & ID) const
 			return secSkills[i].second;
 	return 0;
 }
+int lowestSpeed(const CGHeroInstance * chi)
+{
+	std::map<si32,std::pair<ui32,si32> >::const_iterator i = chi->army.slots.begin();
+	int ret = VLC->creh->creatures[(*i++).second.first].speed;
+	for (;i!=chi->army.slots.end();i++)
+	{
+		ret = std::min(ret,VLC->creh->creatures[(*i).second.first].speed);
+	}
+	return ret;
+}
+
+int CGHeroInstance::maxMovePoints(bool onLand) const
+{
+	int ret = 1270+70*lowestSpeed(this);
+	if (ret>2000) 
+		ret=2000;
+
+	if(onLand)
+	{
+		//logistics:
+		switch(getSecSkillLevel(2))
+		{
+		case 1:
+			ret *= 1.1f;
+			break;
+		case 2:
+			ret *= 1.2f;
+			break;
+		case 3:
+			ret *= 1.3f;
+			break;
+		}
+	}
+	else
+	{
+		//navigation:
+		switch(getSecSkillLevel(2))
+		{
+		case 1:
+			ret *= 1.5f;
+			break;
+		case 2:
+			ret *= 2.0f;
+			break;
+		case 3:
+			ret *= 2.5f;
+			break;
+		}
+	}
+	return ret;
+}
 ui32 CGHeroInstance::getArtAtPos(ui16 pos) const
 {
 	if(pos<19)
@@ -348,7 +402,6 @@ const CArtifact * CGHeroInstance::getArt(int pos) const
 	else
 		return NULL;
 }
-
 int CGTownInstance::getSightDistance() const //returns sight distance
 {
 	return 10;
@@ -442,7 +495,6 @@ bool CGTownInstance::hasCapitol() const
 }
 CGTownInstance::CGTownInstance()
 {
-	pos = int3(-1,-1,-1);
 	builded=-1;
 	destroyed=-1;
 	garrisonHero=NULL;
@@ -452,9 +504,13 @@ CGTownInstance::CGTownInstance()
 
 CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
 {
+	pos = int3(-1,-1,-1);
 	//std::cout << "Tworze obiekt "<<this<<std::endl;
 	//state = new CLuaObjectScript();
+	ID = subID = id = -1;
+	defInfo = NULL;
 	state = NULL;
+	info = NULL;
 	tempOwner = 254;
 	blockVisit = false;
 }
@@ -467,13 +523,102 @@ CGObjectInstance::~CGObjectInstance()
 }
 CGHeroInstance::CGHeroInstance()
 {
+	ID = 34;
 	tacticFormationEnabled = inTownGarrison = false;
-	portrait = level = exp = -1;
+	mana = movement = portrait = level = -1;
 	isStanding = true;
 	moveDir = 4;
-	mana = 0;
+	exp = 0;
 	visitedTown = NULL;
 	type = NULL;
+	secSkills.push_back(std::make_pair(-1, -1));
+}
+
+void CGHeroInstance::initHero(int SUBID)
+{
+	subID = SUBID;
+	initHero();
+}
+
+void CGHeroInstance::initHero()
+{
+	if(!defInfo)
+	{
+		defInfo = new CGDefInfo();
+		defInfo->id = 34;
+		defInfo->subid = subID;
+		defInfo->printPriority = 0;
+		defInfo->visitDir = 0xff;
+	}
+	if(!type)
+		type = VLC->heroh->heroes[subID];
+	for(int i=0;i<6;i++)
+	{
+		defInfo->blockMap[i]=255;
+		defInfo->visitMap[i]=0;
+	}
+	defInfo->handler=NULL;
+	defInfo->blockMap[5] = 253;
+	defInfo->visitMap[5] = 2;
+
+	artifWorn[16] = 3;
+	if(type->heroType % 2 == 1) //it's a magical hero
+	{
+		artifWorn[17] = 0; //give him spellbook
+	}
+
+	if(portrait < 0)
+		portrait = subID;
+	if((!primSkills.size()) || (primSkills[0]<0))
+	{
+		primSkills.resize(4);
+		primSkills[0] = type->heroClass->initialAttack;
+		primSkills[1] = type->heroClass->initialDefence;
+		primSkills[2] = type->heroClass->initialPower;
+		primSkills[3] = type->heroClass->initialKnowledge;
+	}
+	if(secSkills.size() == 1 && secSkills[0] == std::make_pair(-1, -1)) //set secondary skills to default
+		secSkills = type->secSkillsInit;
+	if(mana < 0)
+		mana = manaLimit();
+	if (!name.length())
+		name = type->name;
+	if (!biography.length())
+		biography = type->biography;		
+	if (level<1)
+	{
+		exp=40+  (ran())  % 50;
+		level = 1;
+	}
+	
+	if (!army.slots.size()) //standard army//initial army
+	{
+		int pom, pom2=0;
+		for(int x=0;x<3;x++)
+		{
+			pom = (VLC->creh->nameToID[type->refTypeStack[x]]);
+			if(pom>=145 && pom<=149) //war machine
+			{
+				pom2++;
+				switch (pom)
+				{
+				case 145: //catapult
+					artifWorn[16] = 3;
+					break;
+				default:
+					artifWorn[9+CArtHandler::convertMachineID(pom,true)] = CArtHandler::convertMachineID(pom,true);
+					break;
+				}
+				continue;
+			}
+			army.slots[x-pom2].first = pom;
+			if((pom = (type->highStack[x]-type->lowStack[x])) > 0)
+				army.slots[x-pom2].second = (ran()%pom)+type->lowStack[x];
+			else 
+				army.slots[x-pom2].second = +type->lowStack[x];
+			army.formation = false;
+		}
+	}
 }
 
 CGHeroInstance::~CGHeroInstance()

@@ -225,6 +225,7 @@ int main(int argc, char** argv)
 #ifndef __unix__
 				::console->killConsole(console->native_handle());
 #endif
+				LOCPLINT->pim->lock();
 				SDL_Delay(750);
 				tlog0 << "Ending...\n";
 				exit(0);

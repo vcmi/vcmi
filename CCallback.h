@@ -44,6 +44,7 @@ public:
 	virtual void trade(int mode, int id1, int id2, int val1)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
 	virtual void setSelection(const CArmedInstance * obj)=0;
+	virtual void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)=0;
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)const =0;
@@ -68,6 +69,7 @@ public:
 	virtual void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0)const =0;
 	virtual std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const =0;
 	virtual int3 getMapSize() const =0; //returns size of map - z is 1 for one - level map and 2 for two level map
+	virtual std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const =0; //heroes that can be recruited
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -127,6 +129,7 @@ public:
 	void trade(int mode, int id1, int id2, int val1);
 	void setFormation(const CGHeroInstance * hero, bool tight);
 	void setSelection(const CArmedInstance * obj);
+	void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero);
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea) const;
@@ -153,6 +156,7 @@ public:
 	void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0) const;
 	std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
+	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const; //heroes that can be recruited
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship

@@ -128,9 +128,12 @@ public:
 	int getCurrentMorale() const;
 	int getPrimSkillLevel(int id) const;
 	int getSecSkillLevel(const int & ID) const; //0 - no skill
+	int maxMovePoints(bool onLand) const;
 	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
 	void setArtAtPos(ui16 pos, int art);
 	const CArtifact * getArt(int pos) const;
+	void initHero(); 
+	void initHero(int SUBID); 
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
 };

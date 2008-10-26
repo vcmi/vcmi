@@ -316,8 +316,9 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		gar2button->callback2 = vstd::assigno(hero->tacticFormationEnabled,false);
 	}
 
-	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, _1);
+	formations->onChange = 0;
 	formations->select(hero->army.formation,true);
+	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, _1);
 
 	redrawCurBack();
 }

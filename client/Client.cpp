@@ -300,6 +300,14 @@ void CClient::process(int what)
 				playerint[fc.player]->tileHidden(fc.tiles);
 			break;
 		}
+	case 113:
+		{
+			SetAvailableHeroes sav;
+			*serv >> sav;
+			tlog5 << "Setting available heroes for player "<<(int)sav.player<<std::endl;
+			gs->apply(&sav);
+			break;
+		}
 	case 500:
 		{
 			RemoveObject rh;
@@ -436,6 +444,19 @@ void CClient::process(int what)
 			std::string message;
 			*serv >> color >> message;
 			tlog4 << "Player "<<(int)color<<" sends a message: " << message << std::endl;
+			break;
+		}
+	case 515:
+		{
+			HeroRecruited hr;
+			*serv >> hr;
+			tlog5 << "New hero bought\n";
+			CGHeroInstance *h = gs->hpool.heroesPool[hr.hid];
+			gs->apply(&hr);
+			CGI->mh->initHeroDef(h);
+			//CGI->mh->printObject(h);
+			playerint[h->tempOwner]->heroCreated(h);
+			playerint[h->tempOwner]->heroInGarrisonChange(gs->getTown(hr.tid));
 			break;
 		}
 	case 1001:

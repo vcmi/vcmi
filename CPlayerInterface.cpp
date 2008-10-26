@@ -1608,8 +1608,10 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(graphics->heroWins.find(hero->subID)==graphics->heroWins.end())
 		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hero->subID,infoWin(hero)));
+	adventureInt->heroList.updateHList();
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
@@ -1682,37 +1684,40 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 			(*i)->mouseMoved(sEvent->motion);
 		}
 	}
-	if(sEvent->motion.x<15)
+	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL])
 	{
-		LOCPLINT->adventureInt->scrollingLeft = true;
-	}
-	else
-	{
-		LOCPLINT->adventureInt->scrollingLeft = false;
-	}
-	if(sEvent->motion.x>screen->w-15)
-	{
-		LOCPLINT->adventureInt->scrollingRight = true;
-	}
-	else
-	{
-		LOCPLINT->adventureInt->scrollingRight = false;
-	}
-	if(sEvent->motion.y<15)
-	{
-		LOCPLINT->adventureInt->scrollingUp = true;
-	}
-	else
-	{
-		LOCPLINT->adventureInt->scrollingUp = false;
-	}
-	if(sEvent->motion.y>screen->h-15)
-	{
-		LOCPLINT->adventureInt->scrollingDown = true;
-	}
-	else
-	{
-		LOCPLINT->adventureInt->scrollingDown = false;
+		if(sEvent->motion.x<15)
+		{
+			LOCPLINT->adventureInt->scrollingLeft = true;
+		}
+		else
+		{
+			LOCPLINT->adventureInt->scrollingLeft = false;
+		}
+		if(sEvent->motion.x>screen->w-15)
+		{
+			LOCPLINT->adventureInt->scrollingRight = true;
+		}
+		else
+		{
+			LOCPLINT->adventureInt->scrollingRight = false;
+		}
+		if(sEvent->motion.y<15)
+		{
+			LOCPLINT->adventureInt->scrollingUp = true;
+		}
+		else
+		{
+			LOCPLINT->adventureInt->scrollingUp = false;
+		}
+		if(sEvent->motion.y>screen->h-15)
+		{
+			LOCPLINT->adventureInt->scrollingDown = true;
+		}
+		else
+		{
+			LOCPLINT->adventureInt->scrollingDown = false;
+		}
 	}
 }
 void CPlayerInterface::handleEvent(SDL_Event *sEvent)
@@ -3841,4 +3846,139 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 	quitGame->show(to);
 	backToMap->show(to);
 	heroMoveSpeed->show(to);
+}
+
+CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2, const std::string &gossip)
+:h1(selected,0,72,299,H1),h2(selected,1,162,299,H2)
+{
+	selected = 0;
+	bg = BitmapHandler::loadBitmap("TPTAVERN.bmp");
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
+	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,GEOR16,tytulowy,bg);
+	printAtMiddle("2500",320,328,GEOR13,zwykly,bg);
+	printAtMiddle(CGI->generaltexth->jktexts[38],146,283,GEOR16,tytulowy,bg);
+	printAtMiddleWB(gossip,200,220,GEOR13,50,zwykly,bg);
+	pos.w = bg->w;
+	pos.h = bg->h;
+	pos.x = (screen->w-bg->w)/2;
+	pos.y = (screen->h-bg->h)/2;
+	h1.pos.x += pos.x;
+	h2.pos.x += pos.x;
+	h1.pos.y += pos.y;
+	h2.pos.y += pos.y;
+	cancel = new AdventureMapButton("","",boost::bind(&CTavernWindow::close,this),pos.x+310,pos.y+428,"ICANCEL.DEF",SDLK_ESCAPE);
+	recruit = new AdventureMapButton("","",boost::bind(&CTavernWindow::recruitb,this),pos.x+272,pos.y+355,"TPTAV01.DEF",SDLK_RETURN);
+	thiefGuild = new AdventureMapButton("","",0,pos.x+22,pos.y+428,"TPTAV02.DEF",SDLK_t);
+}
+
+void CTavernWindow::recruitb()
+{
+	const CGHeroInstance *toBuy = (selected ? h2 : h1).h;
+	close();
+	LOCPLINT->cb->recruitHero(LOCPLINT->castleInt->town,toBuy);
+}
+
+CTavernWindow::~CTavernWindow()
+{
+	SDL_FreeSurface(bg);
+	delete cancel;
+	delete thiefGuild;
+	delete recruit;
+}
+
+void CTavernWindow::activate()
+{
+	LOCPLINT->objsToBlit += this;
+	LOCPLINT->curint->subInt = this;
+	thiefGuild->activate();
+	cancel->activate();
+	h1.activate();
+	h2.activate();
+	recruit->activate();
+}
+
+void CTavernWindow::deactivate()
+{
+	LOCPLINT->objsToBlit -= this;
+	thiefGuild->deactivate();
+	cancel->deactivate();
+	h1.deactivate();
+	h2.deactivate();
+	recruit->deactivate();
+}
+
+void CTavernWindow::close()
+{
+	LOCPLINT->curint->subInt = NULL;
+	deactivate();
+	delete this;
+	LOCPLINT->curint->activate();
+}
+
+void CTavernWindow::show(SDL_Surface * to)
+{
+	blitAt(bg,pos.x,pos.y,screen);
+	h1.show();
+	h2.show();
+	thiefGuild->show();
+	cancel->show();
+	recruit->show();
+
+	
+	HeroPortrait *sel = selected ? &h2 : &h1;
+	char descr[300];
+	int artifs = sel->h->artifWorn.size()+sel->h->artifacts.size() - 1; //artifacts amount; - 1 is for catapult
+	if(vstd::contains(sel->h->artifWorn,0)) artifs--; //spellbook doesn't count neither
+	sprintf_s(descr,300,CGI->generaltexth->allTexts[215].c_str(),
+		sel->h->name.c_str(),sel->h->level,sel->h->type->heroClass->name.c_str(),artifs);
+	printAtMiddleWB(descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,screen);
+	CSDL_Ext::drawBorder(screen,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
+}
+
+void CTavernWindow::HeroPortrait::clickLeft(boost::logic::tribool down)
+{
+	if(pressedL && !down)
+		as();
+	ClickableL::clickLeft(down);
+}
+void CTavernWindow::HeroPortrait::activate()
+{
+	ClickableL::activate();
+	ClickableR::activate();
+}
+void CTavernWindow::HeroPortrait::deactivate()
+{
+	ClickableL::deactivate();
+	ClickableR::deactivate();
+}
+void CTavernWindow::HeroPortrait::clickRight(boost::logic::tribool down)
+{
+	if(down)
+	{
+		LOCPLINT->adventureInt->heroWindow->setHero(h);
+		LOCPLINT->objsToBlit += LOCPLINT->adventureInt->heroWindow;
+		LOCPLINT->curint->deactivate();
+		ClickableR::activate();
+	}
+	else if(vstd::contains(LOCPLINT->objsToBlit,LOCPLINT->adventureInt->heroWindow))
+	{
+		LOCPLINT->objsToBlit -= LOCPLINT->adventureInt->heroWindow;
+		ClickableR::deactivate();
+		LOCPLINT->castleInt->showAll(0,true);
+		LOCPLINT->curint->subInt->activate();
+	}
+}
+CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
+:as(sel,id)
+{
+	h = H;
+	pos.x = x;
+	pos.y = y;
+	pos.w = 58;
+	pos.h = 64;
+}
+	
+void CTavernWindow::HeroPortrait::show(SDL_Surface * to)
+{
+	blitAt(graphics->portraitLarge[h->subID],pos);
 }

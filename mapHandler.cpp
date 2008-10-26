@@ -481,6 +481,12 @@ void processDef (CGDefInfo* def)
 		}
 	}
 }
+void CMapHandler::initHeroDef(CGHeroInstance * h)
+{
+	h->defInfo->handler = graphics->flags1[0];
+	h->defInfo->width = h->defInfo->handler->ourImages[0].bitmap->w/32;
+	h->defInfo->height = h->defInfo->handler->ourImages[0].bitmap->h/32;
+}
 void CMapHandler::init()
 {
 	timeHandler th;
@@ -512,9 +518,7 @@ void CMapHandler::init()
 	{
 		if(!map->heroes[i]->defInfo->handler)
 		{
-			map->heroes[i]->defInfo->handler = graphics->flags1[0];
-			map->heroes[i]->defInfo->width = map->heroes[i]->defInfo->handler->ourImages[0].bitmap->w/32;
-			map->heroes[i]->defInfo->height = map->heroes[i]->defInfo->handler->ourImages[0].bitmap->h/32;
+			initHeroDef(map->heroes[i]);
 		}
 	}
 

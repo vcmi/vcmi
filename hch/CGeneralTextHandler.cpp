@@ -16,10 +16,12 @@ void CGeneralTextHandler::load()
 	}
 
 	i+=2;
+	std::string buflet;
 	for(int jj=0; jj<764; ++jj)
 	{
-		std::string buflet;
 		loadToIt(buflet, buf, i, 2);
+		if(buflet[0] == '"'  &&  buflet[buflet.size()-1] == '"')
+			buflet = buflet.substr(1,buflet.size()-2);
 		allTexts.push_back(buflet);
 	}
 

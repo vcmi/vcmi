@@ -1015,15 +1015,38 @@ void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 {
 	CGHeroInstance * nhi = new CGHeroInstance;
+	int identifier = 0;
+	if(version>RoE)
+	{
+		identifier = readNormalNr(bufor,i, 4); i+=4;
+	}
+	nobj->setOwner(bufor[i]); ++i;
+	nobj->subID = readNormalNr(bufor,i, 1); ++i;	
+	
+	for(int j=0; j<predefinedHeroes.size(); j++)
+	{
+		if(predefinedHeroes[j]->subID == nobj->subID)
+		{
+			*nhi = *predefinedHeroes[j];
+			break;
+		}
+	}
+
 	(*(static_cast<CGObjectInstance*>(nhi))) = *nobj;
 	delete nobj;
 	nobj=nhi;
-	if(version>RoE)
+	nhi->portrait = nhi->subID;
+
+	for(int j=0; j<disposedHeroes.size(); j++)
 	{
-		nhi->identifier = readNormalNr(bufor,i, 4); i+=4;
+		if(disposedHeroes[j].ID == nhi->subID)
+		{
+			nhi->name = disposedHeroes[j].name;
+			nhi->portrait = disposedHeroes[j].portrait;
+			break;
+		}
 	}
-	nhi->setOwner(bufor[i]); ++i;
-	nhi->subID = readNormalNr(bufor,i, 1); ++i;
+	nhi->identifier = identifier;
 	if(readChar(bufor,i))//true if hero has nonstandard name
 		nhi->name = readString(bufor,i);
 	if(version>AB)
@@ -1038,10 +1061,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 
 	bool portrait=bufor[i]; ++i;
 	if (portrait)
-		i++; //TODO read portrait nr, save, open
-	else
-		nhi->portrait = nhi->subID;
-
+		nhi->portrait = readChar(bufor,i);
 	if(readChar(bufor,i))//true if hero has specified abilities
 	{
 		int howMany = readNormalNr(bufor,i); i+=4;
@@ -1051,10 +1071,6 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 			nhi->secSkills[yy].first = readNormalNr(bufor,i, 1); ++i;
 			nhi->secSkills[yy].second = readNormalNr(bufor,i, 1); ++i;
 		}
-	}
-	else //set default secondary skils
-	{
-		nhi->secSkills.push_back(std::make_pair(-1, -1));
 	}
 	if(readChar(bufor,i))//true if hero has nonstandard garrison
 		nhi->army = readCreatureSet(bufor,i,7,(version>RoE));
@@ -1471,15 +1487,16 @@ void Mapa::readHeader( unsigned char * bufor, int &i)
 			int lenbuf = readNormalNr(bufor,i); i+=4;
 			for (int zz=0; zz<lenbuf; zz++)
 				disposedHeroes[g].name+=bufor[i++];
-			int players = bufor[i++];
-			for(int zz=0;zz<8;zz++)
-			{
-				int por = (1<<zz);
-				if(players & por)
-					disposedHeroes[g].players[zz] = true;
-				else 
-					disposedHeroes[g].players[zz] = false;
-			}
+			disposedHeroes[g].players = bufor[i++];
+			//int players = bufor[i++];
+			//for(int zz=0;zz<8;zz++)
+			//{
+			//	int por = (1<<zz);
+			//	if(players & por)
+			//		disposedHeroes[g].players[zz] = true;
+			//	else 
+			//		disposedHeroes[g].players[zz] = false;
+			//}
 		}
 	}
 

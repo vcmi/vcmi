@@ -628,3 +628,20 @@ void CCallback::setSelection(const CArmedInstance * obj)
 {
 	*cl->serv << ui16(514) << obj->id;
 }
+
+void CCallback::recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)
+{
+	ui8 i=0;
+	for(;i<gs->players[player].availableHeroes.size();i++)
+		if(gs->players[player].availableHeroes[i] == hero)
+			break;
+	if(i>1) return;
+	*cl->serv << ui16(515) << town->id << i;
+}
+
+std::vector<const CGHeroInstance *> CCallback::getAvailableHeroes(const CGTownInstance * town) const
+{
+	std::vector<const CGHeroInstance *> ret(gs->players[player].availableHeroes.size());
+	std::copy(gs->players[player].availableHeroes.begin(),gs->players[player].availableHeroes.end(),ret.begin());
+	return ret;
+}	

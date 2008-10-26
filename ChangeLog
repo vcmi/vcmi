@@ -1,3 +1,33 @@
+0.63 -> 0.64 (Nov 01 2008 ?)
+* sprites from /Sprites folder are handled correctly now
+* several fixes for pathfinder and path arrows
+* clicking on a tile in advmap view when a path is shown will not only hide it but also calculate a new one 
+* water elemental will really be treated as 2 hex creature
+* potential infinite loop in reverseCreature removed
+* better handling of battle cursor 
+* better handling disposed/predefined heroes
+* fixed blocked shooter behavior
+* slowed map scrolling 
+* blocked scrolling adventure map with mouse when left ctrl is pressed
+* blocked map scrolling when dialog window is opened
+* it's possible in battles to check remeaining HP of neutral stacks
+* heroes regain 1 mana point each turn
+* support for mistycisim and intelligence skills
+* partial support for Magic Arrow spell
+* fixed memory leak
+* fixed bug with dying unit
+* scholar will be accessible from the top
+* partially done tavern and hero recruitment
+* minor changes 
+* Added some kind of simple chatting functionality through console. Implemented several WoG cheats equivalents:
+	a) woggaladriel -> vcmiainur
+	b) wogoliphaunt -> vcminoldor
+	c) wogshadowfax -> vcminahar
+	d) wogeyeofsauron -> vcmieagles
+	e) wogisengard -> vcmiformenos
+	f) wogsaruman -> vcmiistari
+	g) wogpathofthedead -> vcmiangband 
+
 0.62 -> 0.63 (Oct 01 2008)
 GENERAL:
 * coloured console output, logging all info to txt files

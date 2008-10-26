@@ -478,7 +478,7 @@ void CCastleInterface::buildingClicked(int building)
 	{
 		switch(building)
 		{
-		case 0: case 1: case 2: case 3: case 4:
+		case 0: case 1: case 2: case 3: case 4: //mage guild
 			{
 				if(town->visitingHero && !vstd::contains(town->visitingHero->artifWorn,ui16(17))) //visiting hero doesn't have spellboks
 				{
@@ -500,11 +500,18 @@ void CCastleInterface::buildingClicked(int building)
 				{ 
 					deactivate();
 					enterMageGuild();
-
 				}
 				break;
 			}
-		case 7: case 8: case 9:
+		case 5: //tavern
+			{
+				std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(town);
+				CTavernWindow *tv = new CTavernWindow(h[0],h[1],"GOSSIP TEST");
+				deactivate();
+				tv->activate();
+				break;
+			}
+		case 7: case 8: case 9: //fort/citadel/castle
 			{
 				deactivate();
 				CFortScreen *fs = new CFortScreen(this);
@@ -512,22 +519,22 @@ void CCastleInterface::buildingClicked(int building)
 				fs->show();
 				break;
 			}
-		case 10: case 11: case 12: case 13:
+		case 10: case 11: case 12: case 13: //hall
 			enterHall();
 			break;
-		case 14: 
+		case 14:  //marketplace
 			{
 				deactivate();
 				CMarketplaceWindow *cmw = new CMarketplaceWindow(0);
 				cmw->activate();
 				break;
 			}
-		case 15:
+		case 15: //resource silo
 			{
 				LOCPLINT->showInfoDialog(CGI->buildh->buildings[town->subID][15]->description,std::vector<SComponent*>());
 				break;
 			}
-		case 16:
+		case 16: //blacksmith
 			{
 				const CGHeroInstance *hero = town->visitingHero;
 				if(!hero)

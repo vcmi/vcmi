@@ -1005,6 +1005,28 @@ upgend:
 					gs->players[*players.begin()].currentSelection = id;
 					break;
 				}
+			case 515:
+				{
+					ui32 tid;
+					ui8 hid;
+					c >> tid >> hid;
+					CGTownInstance *t = gs->getTown(tid);
+					if(!vstd::contains(players,t->tempOwner) //not our town
+					  || !vstd::contains(t->builtBuildings,5) //no tavern in the town
+					  || gs->players[t->tempOwner].resources[6]<2500 //not enough gold
+					  || t->visitingHero //there is visiting hero - no place
+					  || gs->players[t->tempOwner].heroes.size()>7 //8 hero limit
+					  )
+						break;
+					CGHeroInstance *nh = gs->players[t->tempOwner].availableHeroes[hid];
+					HeroRecruited hr;
+					hr.tid = tid;
+					hr.hid = nh->subID;
+					hr.player = t->tempOwner;
+					hr.tile = t->pos - int3(1,0,0);
+					sendAndApply(&hr);
+					break;
+				}
 			case 2001:
 				{
 					ui32 qid, answer;
@@ -1303,67 +1325,36 @@ void CGameHandler::init(StartInfo *si, int Seed)
 
 	//delete lf;
 }
-int lowestSpeed(CGHeroInstance * chi)
-{
-	std::map<si32,std::pair<ui32,si32> >::iterator i = chi->army.slots.begin();
-	int ret = VLC->creh->creatures[(*i++).second.first].speed;
-	for (;i!=chi->army.slots.end();i++)
-	{
-		ret = std::min(ret,VLC->creh->creatures[(*i).second.first].speed);
-	}
-	return ret;
-}
-int valMovePoints(CGHeroInstance * chi, bool onLand)
-{
-	int ret = 1270+70*lowestSpeed(chi);
-	if (ret>2000) 
-		ret=2000;
 
-	if(onLand)
-	{
-		//logistics:
-		switch(chi->getSecSkillLevel(2))
-		{
-		case 1:
-			ret *= 1.1f;
-			break;
-		case 2:
-			ret *= 1.2f;
-			break;
-		case 3:
-			ret *= 1.3f;
-			break;
-		}
-	}
-	else
-	{
-		//navigation:
-		switch(chi->getSecSkillLevel(2))
-		{
-		case 1:
-			ret *= 1.5f;
-			break;
-		case 2:
-			ret *= 2.0f;
-			break;
-		case 3:
-			ret *= 2.5f;
-			break;
-		}
-	}
-	
-	//TODO: additional bonuses (but they aren't currently stored in chi)
-
-	return ret;
-}
 void CGameHandler::newTurn()
 {
+	tlog5 << "Turn " << gs->day+1 << std::endl;
 	NewTurn n;
 	n.day = gs->day + 1;
 	n.resetBuilded = true;
 
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
+		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
+		{
+			SetAvailableHeroes sah;
+			sah.player = i->first;
+			int r;
+			if(!gs->hpool.heroesPool.size()) return;
+			for(int a=0;a<2;a++)
+			{
+				r = rand() % gs->hpool.heroesPool.size();
+				std::map<ui32,CGHeroInstance *>::iterator ch = gs->hpool.heroesPool.begin();
+				while(r--) ch++;
+				if(a) sah.hid2 = ch->first;
+				else sah.hid1 = ch->first;
+			}
+			sendAndApply(&sah);
+			//TODO: guarantee that heroes are different
+			//TODO: first hero should be from initial player town
+			//TODO: use selectionProbability from CHeroClass
+			//int town = gs->scenarioOps->getIthPlayersSettings(i->first).castle;
+		}
 		if(i->first>=PLAYER_LIMIT) continue;
 		SetResources r;
 		r.player = i->first;
@@ -1374,7 +1365,7 @@ void CGameHandler::newTurn()
 		{
 			NewTurn::Hero hth;
 			hth.id = h->id;
-			hth.move = valMovePoints(h, true); //TODO: check if hero is really on the land
+			hth.move = h->maxMovePoints(true); //TODO: check if hero is really on the land
 			hth.mana = std::max(h->mana,std::min(h->mana+1+h->getSecSkillLevel(8), h->manaLimit())); //hero regains 1 mana point + mysticism lvel
 			n.heroes.insert(hth);
 			
@@ -1423,6 +1414,7 @@ void CGameHandler::newTurn()
 		n.res.push_back(r);
 	}	
 	sendAndApply(&n);
+	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
 	for (std::set<CCPPObjectScript *>::iterator i=cppscripts.begin();i!=cppscripts.end();i++)
 	{
 		(*i)->newTurn();

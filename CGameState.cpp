@@ -28,6 +28,7 @@ boost::rand48 ran;
 #undef max
 #endif
 
+
 CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 {
 	CGObjectInstance * nobj;
@@ -35,39 +36,11 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	{
 	case 34: //hero
 		{
-			CGHeroInstance * nobj;
-			nobj = new CGHeroInstance();
+			CGHeroInstance * nobj = new CGHeroInstance();
 			nobj->pos = pos;
 			nobj->tempOwner = owner;
-			nobj->defInfo = new CGDefInfo();
-			nobj->defInfo->id = 34;
-			nobj->defInfo->subid = subid;
-			nobj->defInfo->printPriority = 0;
-			nobj->defInfo->visitDir = 0xff;
-			nobj->type = VLC->heroh->heroes[subid];
-			for(int i=0;i<6;i++)
-			{
-				nobj->defInfo->blockMap[i]=255;
-				nobj->defInfo->visitMap[i]=0;
-			}
-			nobj->ID = id;
 			nobj->subID = subid;
-			nobj->defInfo->handler=NULL;
-			nobj->defInfo->blockMap[5] = 253;
-			nobj->defInfo->visitMap[5] = 2;
-			nobj->artifWorn[16] = 3;
-			if(nobj->type->heroType % 2 == 1) //it's a magical hero
-			{
-				nobj->artifWorn[17] = 0; //give him spellbook
-			}
-			nobj->portrait = subid;
-			nobj->primSkills.resize(4);
-			nobj->primSkills[0] = nobj->type->heroClass->initialAttack;
-			nobj->primSkills[1] = nobj->type->heroClass->initialDefence;
-			nobj->primSkills[2] = nobj->type->heroClass->initialPower;
-			nobj->primSkills[3] = nobj->type->heroClass->initialKnowledge;
-			nobj->secSkills = nobj->type->secSkillsInit; //copying initial secondary skills
-			nobj->mana = 10 * nobj->getPrimSkillLevel(3);
+			//nobj->initHero(ran);
 			return nobj;
 		}
 	case 98: //town
@@ -93,12 +66,6 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	if(nobj->ID==34 || nobj->ID==98)
 		return nobj;
 	nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
-	//if(!nobj->defInfo->handler)
-	//{
-	//	nobj->defInfo->handler = CDefHandler::giveDef(nobj->defInfo->name);
-	//	nobj->defInfo->width = nobj->defInfo->handler->ourImages[0].bitmap->w/32;
-	//	nobj->defInfo->height = nobj->defInfo->handler->ourImages[0].bitmap->h/32;
-	//}
 	return nobj;
 }
 CStack * BattleInfo::getStack(int stackID)
@@ -428,6 +395,14 @@ void CGameState::applyNL(IPack * pack)
 				players[rh->player].fogOfWarMap[t.x][t.y][t.z] = rh->mode;
 			break;
 		}
+	case 113:
+		{
+			SetAvailableHeroes *rh = static_cast<SetAvailableHeroes*>(pack);
+			players[rh->player].availableHeroes.clear();
+			players[rh->player].availableHeroes.push_back(hpool.heroesPool[rh->hid1]);
+			players[rh->player].availableHeroes.push_back(hpool.heroesPool[rh->hid2]);
+			break;
+		}
 	case 500:
 		{
 			RemoveObject *rh = static_cast<RemoveObject*>(pack);
@@ -541,6 +516,31 @@ void CGameState::applyNL(IPack * pack)
 			CGHeroInstance *h = getHero(sha->hid);
 			h->artifacts = sha->artifacts;
 			h->artifWorn = sha->artifWorn;
+			break;
+		}
+	case 515:
+		{
+			HeroRecruited *sha = static_cast<HeroRecruited*>(pack);
+			CGHeroInstance *h = hpool.heroesPool[sha->hid];
+			CGTownInstance *t = getTown(sha->tid);
+			h->setOwner(sha->player);
+			h->pos = sha->tile;
+			h->movement =  h->maxMovePoints(true);
+
+			hpool.heroesPool.erase(sha->hid);
+			if(h->id < 0)
+			{
+				h->id = map->objects.size();
+				map->objects.push_back(h);
+			}
+			else
+				map->objects[h->id] = h;
+			map->heroes.push_back(h);
+			players[h->tempOwner].heroes.push_back(h);
+			map->addBlockVisTiles(h);
+			t->visitingHero = h;
+			h->visitedTown = t;
+			h->inTownGarrison = false;
 			break;
 		}
 	case 1001://set object property
@@ -987,6 +987,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 					break;
 				}
 			}
+			nnn->initHero();
 			map->heroes.push_back(nnn);
 			map->objects.push_back(nnn);
 			map->addBlockVisTiles(nnn);
@@ -1037,82 +1038,41 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	}
 
 	/*************************HEROES************************************************/
+	std::set<int> hids;
+	for(int i=0; i<map->allowedHeroes.size(); i++) //add to hids all allowed heroes
+		if(map->allowedHeroes[i])
+			hids.insert(i);
 	for (int i=0; i<map->heroes.size();i++) //heroes instances
 	{
 		if (map->heroes[i]->getOwner()<0)
+		{
+			tlog2 << "Warning - hero with uninitialized owner!\n";
 			continue;
+		}
 		CGHeroInstance * vhi = (map->heroes[i]);
-		if(!vhi->type)
-			vhi->type = VLC->heroh->heroes[vhi->subID];
-
-		if (vhi->level<1)
-		{
-			vhi->exp=40+ran()%50;
-			vhi->level = 1;
-		}
-		if(vhi->secSkills.size() == 1 && vhi->secSkills[0] == std::make_pair(-1, -1)) //set secondary skills to default
-		{
-			vhi->secSkills = vhi->type->secSkillsInit;
-		}
-		if ((!vhi->primSkills.size()) || (vhi->primSkills[0]<0))
-		{
-			if (vhi->primSkills.size()<PRIMARY_SKILLS)
-				vhi->primSkills.resize(PRIMARY_SKILLS);
-			vhi->primSkills[0] = vhi->type->heroClass->initialAttack;
-			vhi->primSkills[1] = vhi->type->heroClass->initialDefence;
-			vhi->primSkills[2] = vhi->type->heroClass->initialPower;
-			vhi->primSkills[3] = vhi->type->heroClass->initialKnowledge;
-		}
-		vhi->mana = vhi->getPrimSkillLevel(3)*10;
-		if (!vhi->name.length())
-		{
-			vhi->name = vhi->type->name;
-		}
-		if (!vhi->biography.length())
-		{
-			vhi->biography = vhi->type->biography;
-		}
-		if (vhi->portrait < 0)
-			vhi->portrait = vhi->type->ID;
-
-		vhi->artifWorn[16] = 3;
-		if(vhi->type->heroType % 2 == 1) //it's a magical hero
-		{
-			vhi->artifWorn[17] = 0; //give him spellbook
-		}
-
-		//initial army
-		if (!vhi->army.slots.size()) //standard army
-		{
-			int pom, pom2=0;
-			for(int x=0;x<3;x++)
-			{
-				pom = (VLC->creh->nameToID[vhi->type->refTypeStack[x]]);
-				if(pom>=145 && pom<=149) //war machine
-				{
-					pom2++;
-					switch (pom)
-					{
-					case 145: //catapult
-						vhi->artifWorn[16] = 3;
-						break;
-					default:
-						vhi->artifWorn[9+CArtHandler::convertMachineID(pom,true)] = CArtHandler::convertMachineID(pom,true);
-						break;
-					}
-					continue;
-				}
-				vhi->army.slots[x-pom2].first = pom;
-				if((pom = (vhi->type->highStack[x]-vhi->type->lowStack[x])) > 0)
-					vhi->army.slots[x-pom2].second = (ran()%pom)+vhi->type->lowStack[x];
-				else 
-					vhi->army.slots[x-pom2].second = +vhi->type->lowStack[x];
-				vhi->army.formation = false;
-			}
-		}
-
+		vhi->initHero();
 		players[vhi->getOwner()].heroes.push_back(vhi);
-
+		hids.erase(vhi->subID);
+	}
+	for(int i=0; i<map->predefinedHeroes.size(); i++)
+	{
+		if(!vstd::contains(hids,map->predefinedHeroes[i]->subID))
+			continue;
+		map->predefinedHeroes[i]->initHero();
+		hpool.heroesPool[map->predefinedHeroes[i]->subID] = map->predefinedHeroes[i];
+		hpool.pavailable[map->predefinedHeroes[i]->subID] = 0xff;
+		hids.erase(map->predefinedHeroes[i]->subID);
+	}
+	BOOST_FOREACH(int hid, hids) //all not used allowed heroes go into the pool
+	{
+		CGHeroInstance * vhi = new CGHeroInstance();
+		vhi->initHero(hid);
+		hpool.heroesPool[hid] = vhi;
+		hpool.pavailable[hid] = 0xff;
+	}
+	for(int i=0; i<map->disposedHeroes.size(); i++)
+	{
+		hpool.pavailable[map->disposedHeroes[i].ID] = map->disposedHeroes[i].players;
 	}
 	/*************************FOG**OF**WAR******************************************/		
 	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)

@@ -1132,12 +1132,12 @@ void CAdvMapInt::activate()
 }
 void CAdvMapInt::deactivate()
 {
-	KeyInterested::deactivate();
 	if(subInt == heroWindow)
 	{
 		heroWindow->deactivate();
 		return;
 	}
+	KeyInterested::deactivate();
 	hide();
 }
 void CAdvMapInt::show(SDL_Surface *to)

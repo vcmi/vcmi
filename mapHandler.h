@@ -89,6 +89,7 @@ public:
 	bool printObject(const CGObjectInstance * obj); //puts appropriate things to ttiles, so obj will be visible on map
 	bool hideObject(const CGObjectInstance * obj); //removes appropriate things from ttiles, so obj will be no longer visible on map (but still will exist)
 	bool removeObject(CGObjectInstance * obj); //removes object from each place in VCMI (I hope)
+	void initHeroDef(CGHeroInstance * h);
 	void init();
 	void calculateBlockedPos();
 	void initObjectRects();
