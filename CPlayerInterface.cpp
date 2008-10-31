@@ -2080,8 +2080,11 @@ void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
 }
 void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 {
-	battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position, cb->battleGetStackByID(bsa->stackAttacked)->attackerOwned);
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	if(bsa->isEffect())
+	{
+		battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position, cb->battleGetStackByID(bsa->stackAttacked)->attackerOwned);
+	}
 	if(bsa->killed())
 		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false);
 	else
@@ -2094,10 +2097,10 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 		battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
 	else
 		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile : curAction->additionalInfo );
-	if(ba->killed())
+	/*if(ba->killed())
 		battleInt->stackKilled(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
 	else
-		battleInt->stackIsAttacked(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
+		battleInt->stackIsAttacked(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());*/
 }
 void CPlayerInterface::showComp(SComponent comp)
 {
