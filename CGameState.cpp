@@ -247,6 +247,62 @@ CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	abilities = C->abilities;
 	state.insert(ALIVE);
 }
+
+CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, int notThatOne)
+{
+	if(player<0 || player>=PLAYER_LIMIT)
+	{
+		tlog1 << "Cannot pick hero for " << town->name << ". Wrong owner!\n";
+		return NULL;
+	}
+	std::vector<CGHeroInstance *> pool;
+	int sum=0, r;
+	if(native)
+	{
+		for(std::map<ui32,CGHeroInstance *>::iterator i=heroesPool.begin(); i!=heroesPool.end(); i++)
+		{
+			if(pavailable[i->first] & 1<<player
+			  && i->second->type->heroType/2 == town->typeID
+			  && i->second->subID != notThatOne
+			  )
+			{
+				pool.push_back(i->second);
+			}
+		}
+		if(!pool.size())
+			return pickHeroFor(false,player,town,notThatOne);
+		else
+			return pool[rand()%pool.size()];
+	}
+	else
+	{
+		for(std::map<ui32,CGHeroInstance *>::iterator i=heroesPool.begin(); i!=heroesPool.end(); i++)
+		{
+			if(pavailable[i->first] & 1<<player
+				&& i->second->subID != notThatOne
+			  )
+			{
+				pool.push_back(i->second);
+				sum += i->second->type->heroClass->selectionProbability[town->typeID];
+			}
+		}
+		if(!pool.size())
+		{
+			tlog1 << "There are no heroes available for player " << player<<"!\n";
+			return NULL;
+		}
+		r = rand()%sum;
+		for(int i=0; i<pool.size(); i++)
+		{
+			r -= pool[i]->type->heroClass->selectionProbability[town->typeID];
+			if(r<0)
+				return pool[i];
+		}
+		return pool[pool.size()-1];
+	}
+}
+
+
 void CGameState::applyNL(IPack * pack)
 {
 	switch(pack->getType())
@@ -401,6 +457,16 @@ void CGameState::applyNL(IPack * pack)
 			players[rh->player].availableHeroes.clear();
 			players[rh->player].availableHeroes.push_back(hpool.heroesPool[rh->hid1]);
 			players[rh->player].availableHeroes.push_back(hpool.heroesPool[rh->hid2]);
+			if(rh->flags & 1)
+			{
+				hpool.heroesPool[rh->hid1]->army.slots.clear();
+				hpool.heroesPool[rh->hid1]->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[hpool.heroesPool[rh->hid1]->type->refTypeStack[0]],1);
+			}
+			if(rh->flags & 2)
+			{
+				hpool.heroesPool[rh->hid2]->army.slots.clear();
+				hpool.heroesPool[rh->hid2]->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[hpool.heroesPool[rh->hid2]->type->refTypeStack[0]],1);
+			}
 			break;
 		}
 	case 500:
@@ -622,8 +688,11 @@ void CGameState::applyNL(IPack * pack)
 	case 3006:
 		{
 			BattleAttack *br = static_cast<BattleAttack*>(pack);
+			CStack *attacker = curB->getStack(br->stackAttacking);
 			if(br->counter())
-				curB->getStack(br->stackAttacking)->counterAttacks--;
+				attacker->counterAttacks--;
+			if(br->shot())
+				attacker->shots--;
 			applyNL(&br->bsa);
 			break;
 		}

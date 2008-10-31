@@ -64,6 +64,7 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 void CCreatureHandler::loadCreatures()
 {
 	notUsedMonsters += 122,124,126,128,145,146,147,148,149,160,161,162,163,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191;
+	tlog5 << "\t\tReading ZCRTRAIT.TXT" << std::endl;
 	std::string buf = bitmaph->getTextFile("ZCRTRAIT.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
@@ -319,21 +320,11 @@ void CCreatureHandler::loadCreatures()
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
 			ncre.idNumber = creatures.size();
-			ncre.isDefinite = true;
 			creatures.push_back(ncre);
 		}
 	}
-	for(int bb=1; bb<8; ++bb)
-	{
-		CCreature ncre;
-		ncre.isDefinite = false;
-		ncre.indefLevel = bb;
-		ncre.indefUpgraded = false;
-		creatures.push_back(ncre);
-		ncre.indefUpgraded = true;
-		creatures.push_back(ncre);
-	}
 
+	tlog5 << "\t\tReading config/crerefnam.txt" << std::endl;
 	//loading reference names
 	std::ifstream ifs("config/crerefnam.txt");
 	int tempi;
@@ -350,6 +341,8 @@ void CCreatureHandler::loadCreatures()
 	ifs.clear();
 	for(int i=1;i<=10;i++)
 		levelCreatures.insert(std::pair<int,std::vector<CCreature*> >(i,std::vector<CCreature*>()));
+
+	tlog5 << "\t\tReading config/monsters.txt" << std::endl;
 	ifs.open("config/monsters.txt");
 	{
 		while(!ifs.eof())
@@ -366,6 +359,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.close();
 	ifs.clear();
 
+	tlog5 << "\t\tReading config/cr_factions.txt" << std::endl;
 	ifs.open("config/cr_factions.txt");
 	while(!ifs.eof())
 	{
@@ -376,6 +370,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.close();
 	ifs.clear();
 
+	tlog5 << "\t\tReading config/cr_upgrade_list.txt" << std::endl;
 	ifs.open("config/cr_upgrade_list.txt");
 	while(!ifs.eof())
 	{
@@ -387,6 +382,7 @@ void CCreatureHandler::loadCreatures()
 	ifs.clear();
 
 	//loading unit animation def names
+	tlog5 << "\t\tReading config/CREDEFS.TXT" << std::endl;
 	std::ifstream inp("config/CREDEFS.TXT", std::ios::in | std::ios::binary); //this file is not in lod
 	inp.seekg(0,std::ios::end); // na koniec
 	int andame2 = inp.tellg();  // read length
@@ -395,11 +391,7 @@ void CCreatureHandler::loadCreatures()
 	inp.read((char*)bufor, andame2); // read map file to buffer
 	inp.close();
 	buf = std::string(bufor);
-#ifndef __GNUC__
-	delete [andame2] bufor;
-#else
 	delete [] bufor;
-#endif
 
 	i = 0; //buf iterator
 	hmcr = 0;
@@ -409,8 +401,10 @@ void CCreatureHandler::loadCreatures()
 			break;
 	}
 	i+=2;
-	for(int s=0; s<creatures.size()-16; ++s)
+	tlog5 << "We have "<<creatures.size() << " creatures\n";
+	for(int s=0; s<creatures.size(); ++s)
 	{
+		//tlog5 <<"\t\t\t" << s <<". Reading defname. \n";
 		int befi=i;
 		std::string rub;
 		for(i; i<andame2; ++i)
@@ -430,10 +424,12 @@ void CCreatureHandler::loadCreatures()
 		std::string defName = buf.substr(befi, i-befi);
 		creatures[s].animDefName = defName;
 	}
+	tlog5 << "\t\tReading CRANIM.TXT.txt" << std::endl;
 	loadAnimationInfo();
 
 	//loading id to projectile mapping
 
+	tlog5 << "\t\tReading config/cr_shots.txt" << std::endl;
 	std::ifstream inp2("config" PATHSEPARATOR "cr_shots.txt", std::ios::in | std::ios::binary); //this file is not in lod
 	char dump [200];
 	inp2.getline(dump, 200);
@@ -474,8 +470,9 @@ void CCreatureHandler::loadAnimationInfo()
 			break;
 	}
 	i+=2;
-	for(int dd=0; dd<creatures.size()-16; ++dd)
+	for(int dd=0; dd<creatures.size(); ++dd)
 	{
+		//tlog5 << "\t\t\tReading animation info for creature " << dd << std::endl;
 		loadUnitAnimInfo(creatures[dd], buf, i);
 	}
 	return;

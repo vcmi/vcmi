@@ -1819,6 +1819,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->defenseBonus = h->primSkills[1];
 				pom->luck = h->getCurrentLuck();
 				pom->morale = h->getCurrentMorale();
+				pom->shotsLeft = myst.shots;
 			}
 			pom->currentHealth = myst.firstHPleft;
 			(new CCreInfoWindow(myst.creature->idNumber,0,myst.amount,pom,boost::function<void()>(),boost::function<void()>(),NULL))

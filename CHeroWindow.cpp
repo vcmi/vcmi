@@ -231,7 +231,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		secSkillAreas[g]->hoverText = std::string(bufor);
 	}
 
-	sprintf(bufor, CGI->generaltexth->allTexts[2].substr(1, CGI->generaltexth->allTexts[2].size()-2).c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
+	sprintf(bufor, CGI->generaltexth->allTexts[2].c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
 	expArea->text = std::string(bufor);
 
 	sprintf(bufor, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->getPrimSkillLevel(3)*10);

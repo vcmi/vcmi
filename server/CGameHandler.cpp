@@ -987,6 +987,11 @@ upgend:
 										fc.tiles.insert(int3(i,j,k));
 						sendAndApply(&fc);
 					}
+					else if(message == "vcmiglorfindel")
+					{
+						CGHeroInstance *hero = gs->getHero(gs->players[*players.begin()].currentSelection);
+						changePrimSkill(hero->id,4,VLC->heroh->reqExp(hero->level+1) - VLC->heroh->reqExp(hero->level));
+					}
 					else
 						cheated = false;
 					if(cheated)
@@ -1019,12 +1024,26 @@ upgend:
 					  )
 						break;
 					CGHeroInstance *nh = gs->players[t->tempOwner].availableHeroes[hid];
+
 					HeroRecruited hr;
 					hr.tid = tid;
 					hr.hid = nh->subID;
 					hr.player = t->tempOwner;
 					hr.tile = t->pos - int3(1,0,0);
 					sendAndApply(&hr);
+
+					SetAvailableHeroes sah;
+					(hid ? sah.hid2 : sah.hid1) = gs->hpool.pickHeroFor(false,t->tempOwner,t->town)->subID;
+					(hid ? sah.hid1 : sah.hid2) = gs->players[t->tempOwner].availableHeroes[!hid]->subID;
+					sah.player = t->tempOwner;
+					sah.flags = hid+1;
+					sendAndApply(&sah);
+
+					SetResource sr;
+					sr.player = t->tempOwner;
+					sr.resid = 6;
+					sr.val = gs->players[t->tempOwner].resources[6] - 2500;
+					sendAndApply(&sr);
 					break;
 				}
 			case 2001:
@@ -1075,8 +1094,9 @@ upgend:
 							CStack *curStack = gs->curB->getStack(ba.stackNumber),
 								*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
 
-							if((curStack->position != ba.destinationTile) || //we wasn't able to reach destination tile
-								(BattleInfo::mutualPosition(ba.destinationTile,ba.additionalInfo)<0) ) //destination tile is not neighbouring with enemy stack
+							if( curStack->position != ba.destinationTile //we wasn't able to reach destination tile
+							  || BattleInfo::mutualPosition(ba.destinationTile,ba.additionalInfo) < 0 //destination tile is not neighbouring with enemy stack
+							  ) 
 								return;
 
 							BattleAttack bat;
@@ -1105,25 +1125,33 @@ upgend:
 						}
 					case 7: //shoot
 						{
-							//TODO: check arrows count
-							//TODO: check if stack isn't blocked by enemy
-
-							sendAndApply(&StartAction(ba)); //start shooting
 							CStack *curStack = gs->curB->getStack(ba.stackNumber),
 								*destStack= gs->curB->getStackT(ba.destinationTile);
+							if(!curStack //our stack exists
+							  || !destStack //there is a stack at destination tile
+							  || !curStack->shots //stack has shots
+							  || gs->curB->isStackBlocked(curStack->ID) //we are not blocked
+							  || !vstd::contains(curStack->abilities,SHOOTER) //our stack is shooting unit
+							  )
+								break;
+
+							sendAndApply(&StartAction(ba)); //start shooting
 
 							BattleAttack bat;
 							prepareAttack(bat,curStack,destStack);
 							bat.flags |= 1;
+							sendAndApply(&bat);
 
-							if(vstd::contains(curStack->abilities,TWICE_ATTACK)
-								&& curStack->alive())
+							if(vstd::contains(curStack->abilities,TWICE_ATTACK) //if unit shots twice let's make another shot
+							  && curStack->alive()
+							  && destStack->alive()
+							  && curStack->shots
+							  )
 							{
 								prepareAttack(bat,curStack,destStack);
 								sendAndApply(&bat);
 							}
 
-							sendAndApply(&bat);
 							sendDataToClients(ui16(3008)); //end shooting
 							break;
 						}
@@ -1335,25 +1363,15 @@ void CGameHandler::newTurn()
 
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
+		if(i->first == 255) continue;
 		if(gs->getDate(1)==7) //first day of week - new heroes in tavern
 		{
 			SetAvailableHeroes sah;
 			sah.player = i->first;
-			int r;
-			if(!gs->hpool.heroesPool.size()) return;
-			for(int a=0;a<2;a++)
-			{
-				r = rand() % gs->hpool.heroesPool.size();
-				std::map<ui32,CGHeroInstance *>::iterator ch = gs->hpool.heroesPool.begin();
-				while(r--) ch++;
-				if(a) sah.hid2 = ch->first;
-				else sah.hid1 = ch->first;
-			}
+			//TODO: - will fail when there are not enough available heroes
+			sah.hid1 = gs->hpool.pickHeroFor(true,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle])->subID;
+			sah.hid2 = gs->hpool.pickHeroFor(false,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle],sah.hid1)->subID;
 			sendAndApply(&sah);
-			//TODO: guarantee that heroes are different
-			//TODO: first hero should be from initial player town
-			//TODO: use selectionProbability from CHeroClass
-			//int town = gs->scenarioOps->getIthPlayersSettings(i->first).castle;
 		}
 		if(i->first>=PLAYER_LIMIT) continue;
 		SetResources r;
@@ -1369,7 +1387,7 @@ void CGameHandler::newTurn()
 			hth.mana = std::max(h->mana,std::min(h->mana+1+h->getSecSkillLevel(8), h->manaLimit())); //hero regains 1 mana point + mysticism lvel
 			n.heroes.insert(hth);
 			
-			switch(h->getSecSkillLevel(13)) //handle estates - give gols
+			switch(h->getSecSkillLevel(13)) //handle estates - give gold
 			{
 			case 1: //basic
 				r.res[6] += 125;

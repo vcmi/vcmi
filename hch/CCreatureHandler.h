@@ -32,13 +32,6 @@ public:
 	int troopCountLocationOffset, attackClimaxFrame;
 	///end of anim info
 
-	//for some types of towns
-	bool isDefinite; //if the creature type is wotn dependent, it should be true
-	int indefLevel; //only if indefinite
-	bool indefUpgraded; //onlu if inddefinite
-
-	//TODO - zdolnoœci (abilities) - na typie wyliczeniowym czy czymœ - albo lepiej secie czegoœ
-
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
 	bool isFlying() const; //returns true if it is a flying unit
 	bool isShooting() const; //returns true if unit can shoot

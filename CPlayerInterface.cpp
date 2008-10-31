@@ -2086,9 +2086,9 @@ void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 		battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position, cb->battleGetStackByID(bsa->stackAttacked)->attackerOwned);
 	}
 	if(bsa->killed())
-		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false);
+		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7 );
 	else
-		battleInt->stackIsAttacked(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, -1, false);
+		battleInt->stackIsAttacked(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
@@ -3129,7 +3129,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	anim = new CCreaturePic(c);
 	if(!type) anim->anim->setType(1);
 
-	char pom[25];int hlp=0;
+	char pom[75];int hlp=0;
 
 	if(creatureCount)
 	{
@@ -3169,7 +3169,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	if(c->shots)
 	{
 		printAt(CGI->generaltexth->allTexts[198],155,86,GEOR13,zwykly,bitmap);
-		SDL_itoa(c->shots,pom,10);
+		if(State)
+			sprintf(pom,"%d(%d)",c->shots,State->shotsLeft);
+		else
+			SDL_itoa(c->shots,pom,10);
 		printToWR(pom,276,99,GEOR13,zwykly,bitmap);
 	}
 
@@ -3930,8 +3933,10 @@ void CTavernWindow::show(SDL_Surface * to)
 	
 	HeroPortrait *sel = selected ? &h2 : &h1;
 	char descr[300];
-	int artifs = sel->h->artifWorn.size()+sel->h->artifacts.size() - 1; //artifacts amount; - 1 is for catapult
-	if(vstd::contains(sel->h->artifWorn,0)) artifs--; //spellbook doesn't count neither
+	int artifs = sel->h->artifWorn.size()+sel->h->artifacts.size();
+	for(int i=13; i<=17; i++) //war machines and spellbook doesn't count
+		if(vstd::contains(sel->h->artifWorn,i)) 
+			artifs--;
 	sprintf_s(descr,300,CGI->generaltexth->allTexts[215].c_str(),
 		sel->h->name.c_str(),sel->h->level,sel->h->type->heroClass->name.c_str(),artifs);
 	printAtMiddleWB(descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,screen);

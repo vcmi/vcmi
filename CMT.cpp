@@ -277,7 +277,7 @@ void processCommand(const std::string &message, CClient *&client)
 		boost::filesystem::create_directory("Extracted_txts");
 		tlog0<<"Command accepted. Opening .lod file...\t";
 		CLodHandler * txth = new CLodHandler;
-		txth->init(std::string(DATA_DIR "Data" PATHSEPARATOR "H3bitmap.lod"),"data");
+		txth->init(std::string(DATA_DIR "Data" PATHSEPARATOR "H3bitmap.lod"),"");
 		tlog0<<"done.\nScanning .lod file\n";
 		int curp=0;
 		std::string pattern = ".TXT", pom;

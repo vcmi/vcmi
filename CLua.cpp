@@ -310,7 +310,7 @@ void CVisitableOPH::onNAHeroVisit(int objid, int heroID, bool alreadyVisited)
 		case 102:
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
-				val = VLC->heroh->reqExp(h->level) + VLC->heroh->reqExp(h->level+val);
+				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
 				if(!typeOfTree[objid])
 				{
 					visitors[objid].insert(heroID);

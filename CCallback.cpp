@@ -523,7 +523,7 @@ bool CCallback::battleIsStackMine(int ID)
 	}
 	return false;
 }
-bool CCallback::battleCanShoot(int ID, int dest) //TODO: check arrows amount
+bool CCallback::battleCanShoot(int ID, int dest)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	CStack *our=battleGetStackByID(ID), *dst=battleGetStackByPos(dest);
@@ -532,6 +532,7 @@ bool CCallback::battleCanShoot(int ID, int dest) //TODO: check arrows amount
 		&& our->owner != dst->owner
 		&& dst->alive()
 		&& !gs->curB->isStackBlocked(ID)
+		&& our->shots
 		)
 		return true;
 	return false;

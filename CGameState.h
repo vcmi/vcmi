@@ -13,6 +13,7 @@
 #include "tchar_amigaos4.h"
 #endif
 
+class CTown;
 class CScriptCallback;
 class CCallback;
 class CLuaCallback;
@@ -91,6 +92,7 @@ public:
 	ui8 attackerOwned; //if true, this stack is owned by attakcer (this one from left hand side of battle)
 	ui16 position; //position on battlefield
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
+	si16 shots; //how many shots left
 
 	std::set<EAbilities> abilities;
 	std::set<ECombatInfo> state;
@@ -108,6 +110,7 @@ public:
 		h & id;
 		creature = &VLC->creh->creatures[id];
 		abilities = creature->abilities;
+		shots = creature->shots;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -144,10 +147,12 @@ private:
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 	std::vector<ui32> resVals;
 
-	struct HeroesPool
+	struct DLL_EXPORT HeroesPool
 	{
 		std::map<ui32,CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
 		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero
+
+		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, int notThatOne=-1);
 	} hpool; //we have here all heroes available on this map that are not hired
 
 	boost::shared_mutex *mx;
