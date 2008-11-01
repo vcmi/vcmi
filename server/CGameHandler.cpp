@@ -1097,7 +1097,10 @@ upgend:
 							if( curStack->position != ba.destinationTile //we wasn't able to reach destination tile
 							  || BattleInfo::mutualPosition(ba.destinationTile,ba.additionalInfo) < 0 //destination tile is not neighbouring with enemy stack
 							  ) 
-								return;
+							{
+								sendDataToClients(ui16(3008)); //end movement and attack
+								break;
+							}
 
 							BattleAttack bat;
 							prepareAttack(bat,curStack,stackAtEnd);

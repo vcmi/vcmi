@@ -89,18 +89,6 @@ void AdventureMapButton::activate()
 	Hoverable::activate();
 	KeyInterested::activate();
 }
-
-void AdventureMapButton::keyPressed(const SDL_KeyboardEvent & key)
-{
-	if(key.keysym.sym == ourKey)
-	{
-		if(key.state == SDL_PRESSED)
-			clickLeft(true);
-		else
-			clickLeft(false);
-	}
-}
-
 void AdventureMapButton::deactivate()
 {
 	if (!active) return;
@@ -119,7 +107,7 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	abs=true;
 	active=false;
 	ourObj=NULL;
-	ourKey = key;
+	assignedKeys.insert(key);
 	state=0;
 	hoverTexts = Name;
 	helpBox=HelpBox;

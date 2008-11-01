@@ -60,6 +60,19 @@ public:
 		return (*a.first)<(*b.first);
 	}
 } ocmptwo_cgin ;
+
+
+void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
+{
+	if(vstd::contains(assignedKeys,key.keysym.sym))
+	{
+		if(key.state == SDL_PRESSED)
+			clickLeft(true);
+		else
+			clickLeft(false);
+	}
+}
+
 void CGarrisonSlot::hover (bool on)
 {
 	Hoverable::hover(on);
@@ -497,7 +510,8 @@ CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const st
 		buttons.push_back(new AdventureMapButton("","",Buttons[i].second,0,0,Buttons[i].first));
 		if(!Buttons[i].second) //if no function, then by default we'll set it to close
 		{
-			buttons[i]->ourKey = SDLK_RETURN;
+			buttons[i]->assignedKeys.insert(SDLK_RETURN);
+			buttons[i]->assignedKeys.insert(SDLK_ESCAPE);
 			buttons[i]->callback += boost::bind(&CInfoWindow::close,this);
 		}
 	}
@@ -751,11 +765,13 @@ CSelectableComponent::~CSelectableComponent()
 }
 void CSelectableComponent::activate()
 {
+	KeyInterested::activate();
 	SComponent::activate();
 	ClickableL::activate();
 }
 void CSelectableComponent::deactivate()
 {
+	KeyInterested::deactivate();
 	SComponent::deactivate();
 	ClickableL::deactivate();
 }
@@ -3362,6 +3378,8 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	cb = callback;
 	for(int i=0;i<skills.size();i++)
 		comps.push_back(new CSelectableComponent(SComponent::secskill44,skills[i],hero->getSecSkillLevel(skills[i])+1,boost::bind(&CLevelWindow::selectionChanged,this,i)));
+	comps[0]->assignedKeys.insert(SDLK_1);
+	comps[1]->assignedKeys.insert(SDLK_2);
 	bitmap = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
 	graphics->blueToPlayersAdv(bitmap,hero->tempOwner);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
@@ -3370,7 +3388,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
 	ok = new AdventureMapButton("","",boost::bind(&CLevelWindow::close,this),pos.x+297,pos.y+413,"IOKAY.DEF",SDLK_RETURN);
-
+	ok->block(true);
 	//draw window
 	char buf[100], buf2[100];
 	strcpy(buf2,CGI->generaltexth->allTexts[444].c_str()); //%s has gained a level.
@@ -3403,6 +3421,8 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 }
 void CLevelWindow::selectionChanged(unsigned to)
 {
+	if(ok->blocked)
+		ok->block(false);
 	for(int i=0;i<comps.size();i++)
 		if(i==to)
 			comps[i]->select(true);

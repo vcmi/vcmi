@@ -140,6 +140,17 @@ public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
+
+class KeyShortcut : public KeyInterested, public ClickableL
+{
+public:
+	std::set<int> assignedKeys;
+	KeyShortcut(){};
+	KeyShortcut(int key){assignedKeys.insert(key);};
+	KeyShortcut(std::set<int> Keys):assignedKeys(Keys){};
+	virtual void keyPressed(const SDL_KeyboardEvent & key);
+};
+
 class MotionInterested: public virtual CIntObject
 {
 public:
@@ -240,7 +251,7 @@ public:
 	~CCustomImgComponent();
 };
 
-class CSelectableComponent : public SComponent, public ClickableL
+class CSelectableComponent : public SComponent, public KeyShortcut
 {
 public:
 	bool selected;
@@ -248,7 +259,6 @@ public:
 	bool customB;
 	SDL_Surface * border, *myBitmap;
 	boost::function<void()> onSelect;
-
 
 	void clickLeft(boost::logic::tribool down);
 	void init(SDL_Surface * Border);
