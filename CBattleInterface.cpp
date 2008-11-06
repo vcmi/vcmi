@@ -426,7 +426,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing queue of stacks
 	if(showStackQueue)
 	{
-		int xPos = 400 - ( stacks.size() * 42 )/2;
+		int xPos = 400 - ( stacks.size() * 37 )/2;
 		int yPos = 10;
 
 		std::vector<CStack> stacksSorted;
@@ -472,7 +472,7 @@ void CBattleInterface::show(SDL_Surface * to)
 				}
 				//colored border printed
 				SDL_BlitSurface(graphics->smallImgs[stacksSorted[b % stacksSorted.size()].creature->idNumber], NULL, to, &genRect(32, 32, xPos, yPos));
-				xPos += 42;
+				xPos += 37;
 			}
 		}
 	}
@@ -1281,6 +1281,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	ba->actionType = 1;
 	ba->additionalInfo = spellID; //spell number
 	ba->destinationTile = -1;
+	ba->stackNumber = (attackingHeroInstance->tempOwner == LOCPLINT->playerID) ? -1 : -2;
 	ba->side = defendingHeroInstance ? (LOCPLINT->playerID == defendingHeroInstance->tempOwner) : false;
 	spellToCast = ba;
 	spellDestSelectMode = true;

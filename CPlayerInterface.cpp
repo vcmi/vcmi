@@ -3143,7 +3143,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	graphics->blueToPlayersAdv(bitmap,LOCPLINT->playerID);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	anim = new CCreaturePic(c);
-	if(!type) anim->anim->setType(1);
+	if(!type) anim->anim->setType(2);
 
 	char pom[75];int hlp=0;
 
@@ -3160,7 +3160,11 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	SDL_itoa(c->attack,pom,10);
 	if(State && State->attackBonus)
 	{
-		int hlp = log10f(c->attack)+2;
+		int hlp;
+		if(c->attack > 0)
+			hlp = log10f(c->attack)+2;
+		else
+			hlp = 2;
 		pom[hlp-1] = ' '; pom[hlp] = '(';
 		SDL_itoa(c->attack+State->attackBonus,pom+hlp+1,10);
 		hlp += 2+(int)log10f(State->attackBonus+c->attack);
@@ -3173,7 +3177,11 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	SDL_itoa(c->defence,pom,10);
 	if(State && State->defenseBonus)
 	{
-		int hlp = log10f(c->defence)+2;
+		int hlp;
+		if(c->defence > 0)
+			hlp = log10f(c->defence)+2;
+		else
+			hlp = 2;
 		pom[hlp-1] = ' '; pom[hlp] = '(';
 		SDL_itoa(c->defence+State->defenseBonus,pom+hlp+1,10);
 		hlp += 2+(int)log10f(State->defenseBonus+c->defence);
@@ -3195,7 +3203,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	//damage
 	printAt(CGI->generaltexth->allTexts[199],155,105,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->damageMin,pom,10);
-	hlp=log10f(c->damageMin)+2;
+	if(c->damageMin > 0)
+		hlp = log10f(c->damageMin)+2;
+	else
+		hlp = 2;
 	pom[hlp-1]=' '; pom[hlp]='-'; pom[hlp+1]=' ';
 	SDL_itoa(c->damageMax,pom+hlp+2,10);
 	printToWR(pom,276,118,GEOR13,zwykly,bitmap);

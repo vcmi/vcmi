@@ -138,7 +138,7 @@ void CCreatureAnimation::incrementFrame()
 			int j=-1; //first frame in displayed group
 			for(int g=0; g<SEntries.size(); ++g)
 			{
-				if(SEntries[g].group==type && j==-1)
+				if(SEntries[g].group==type)
 				{
 					j = g;
 					break;

@@ -1627,6 +1627,44 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			stacks[g]->position -= 1;
 		}
 	}
+	//adding war machines
+	if(hero1)
+	{
+		if(hero1->artifWorn[13]) //ballista
+		{
+			stacks.push_back(new CStack(&VLC->creh->creatures[146], 1, hero1->tempOwner, stacks.size(), true, 255));
+			stacks[stacks.size()-1]->position = 52;
+		}
+		if(hero1->artifWorn[14]) //ammo cart
+		{
+			stacks.push_back(new CStack(&VLC->creh->creatures[148], 1, hero1->tempOwner, stacks.size(), true, 255));
+			stacks[stacks.size()-1]->position = 18;
+		}
+		if(hero1->artifWorn[15]) //first aid tent
+		{
+			stacks.push_back(new CStack(&VLC->creh->creatures[147], 1, hero1->tempOwner, stacks.size(), true, 255));
+			stacks[stacks.size()-1]->position = 154;
+		}
+	}
+	if(hero2)
+	{
+		if(hero2->artifWorn[13]) //ballista
+		{
+			stacks.push_back(new CStack(&VLC->creh->creatures[146], 1, hero2->tempOwner, stacks.size(), false, 255));
+			stacks[stacks.size()-1]->position = 66;
+		}
+		if(hero2->artifWorn[14]) //ammo cart
+		{
+			stacks.push_back(new CStack(&VLC->creh->creatures[148], 1, hero2->tempOwner, stacks.size(), false, 255));
+			stacks[stacks.size()-1]->position = 32;
+		}
+		if(hero2->artifWorn[15]) //first aid tent
+		{
+			stacks.push_back(new CStack(&VLC->creh->creatures[147], 1, hero2->tempOwner, stacks.size(), false, 255));
+			stacks[stacks.size()-1]->position = 168;
+		}
+	}
+	//war machiens added
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
 	//block engaged players

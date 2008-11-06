@@ -1376,7 +1376,11 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 		//damage
 		printAt(CGI->generaltexth->allTexts[199],positions[i].x+288,positions[i].y+46,GEOR13,zwykly,bg);
 		SDL_itoa(c->damageMin,buf,10);
-		int hlp=log10f(c->damageMin)+2;
+		int hlp;
+		if(c->damageMin > 0)
+			hlp = log10f(c->damageMin)+2;
+		else
+			hlp = 2;
 		buf[hlp-1]=' '; buf[hlp]='-'; buf[hlp+1]=' ';
 		SDL_itoa(c->damageMax,buf+hlp+2,10);
 		printToWR(buf,positions[i].x+381,positions[i].y+59,GEOR13,zwykly,bg);
