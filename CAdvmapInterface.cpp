@@ -1,32 +1,33 @@
-#include "stdafx.h"
+#include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
-#include "client/CBitmapHandler.h"
-#include "CPlayerInterface.h"
+#include "CCallback.h"
 #include "CCastleInterface.h"
 #include "CCursorHandler.h"
-#include "hch/CPreGameTextHandler.h"
-#include "hch/CGeneralTextHandler.h"
-#include "hch/CDefHandler.h"
-#include "hch/CTownHandler.h"
-#include "CPathfinder.h"
 #include "CGameInfo.h"
-#include "SDL_Extensions.h"
-#include "CCallback.h"
-#include <boost/assign/std/vector.hpp>
-#include "mapHandler.h"
+#include "CHeroWindow.h"
 #include "CMessage.h"
+#include "CPathfinder.h"
+#include "CPlayerInterface.h"
+#include "SDL_Extensions.h"
+#include "client/CBitmapHandler.h"
+#include "client/CConfigHandler.h"
+#include "client/CSpellWindow.h"
+#include "client/Graphics.h"
+#include "hch/CDefHandler.h"
+#include "hch/CGeneralTextHandler.h"
+#include "hch/CHeroHandler.h"
+#include "hch/CObjectHandler.h"
+#include "hch/CPreGameTextHandler.h"
+#include "hch/CTownHandler.h"
+#include "lib/CondSh.h"
+#include "map.h"
+#include "mapHandler.h"
+#include "stdafx.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "hch/CHeroHandler.h"
-#include <sstream>
-#include "AdventureMapButton.h"
-#include "CHeroWindow.h"
-#include "client/Graphics.h"
-#include "hch/CObjectHandler.h"
+#include <boost/assign/std/vector.hpp>
 #include <boost/thread.hpp>
-#include "map.h"
-#include "client/CSpellWindow.h"
-#include "lib/CondSh.h"
+#include <sstream>
 #pragma warning (disable : 4355) 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 
@@ -1309,8 +1310,8 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 	{
 		boost::algorithm::erase_all(text,"\"");
 		CSimpleWindow * temp = CMessage::genWindow(text,LOCPLINT->playerID);
-		temp->pos.x=300-(temp->pos.w/2);
-		temp->pos.y=300-(temp->pos.h/2);
+		temp->pos.x=screen->w/2-(temp->pos.w/2);
+		temp->pos.y=screen->h/2-(temp->pos.h/2);
 		temp->owner = client;
 		LOCPLINT->objsToBlit.push_back(temp);
 	}

@@ -274,7 +274,7 @@ int CGHeroInstance::manaLimit() const
 	case 2:		modifier+=0.5;		break;
 	case 3:		modifier+=1.0;		break;
 	}
-	return 10*primSkills[3]*modifier;
+	return 10*getPrimSkillLevel(3)*modifier;
 }
 //void CGHeroInstance::setPosition(int3 Pos, bool h3m) //as above, but sets position
 //{
@@ -312,6 +312,11 @@ int CGHeroInstance::getSecSkillLevel(const int & ID) const
 }
 int lowestSpeed(const CGHeroInstance * chi)
 {
+	if(!chi->army.slots.size())
+	{
+		tlog1 << "Error! Hero " << chi->id << " ("<<chi->name<<") has no army!\n";
+		return 20;
+	}
 	std::map<si32,std::pair<ui32,si32> >::const_iterator i = chi->army.slots.begin();
 	int ret = VLC->creh->creatures[(*i++).second.first].speed;
 	for (;i!=chi->army.slots.end();i++)
@@ -569,7 +574,7 @@ void CGHeroInstance::initHero()
 
 	if(portrait < 0)
 		portrait = subID;
-	if((!primSkills.size()) || (primSkills[0]<0))
+	if((!primSkills.size()) || (getPrimSkillLevel(0)<0))
 	{
 		primSkills.resize(4);
 		primSkills[0] = type->heroClass->initialAttack;

@@ -543,6 +543,17 @@ struct SpellCasted : public CPack<SpellCasted>//3009
 	}
 };
 
+struct SetStackEffect : public CPack<SetStackEffect> //3010
+{
+	ui32 stack;
+	CStack::StackEffect effect;
+	SetStackEffect(){type = 3010;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stack & effect;
+	}
+};
+
 struct ShowInInfobox : public CPack<ShowInInfobox> //107
 {
 	ShowInInfobox(){type = 107;};

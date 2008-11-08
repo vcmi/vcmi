@@ -287,7 +287,8 @@ void CGarrisonSlot::show()
 	}
 	else
 	{
-		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), jakis2 = pos;
+		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), 
+			jakis2 = pos;
 		SDL_BlitSurface(owner->sur,&jakis1,screen,&jakis2);
 		if(owner->splitting)
 			blitAt(graphics->bigImgs[-1],pos);
@@ -382,7 +383,8 @@ void CGarrisonInt::createSlots()
 			i!=set1->slots.end(); i++)
 		{
 			(*sup)[i->first] =
-				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y,i->first, 0, &CGI->creh->creatures[i->second.first],i->second.second);
+				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y,i->first, 0, 
+									&CGI->creh->creatures[i->second.first],i->second.second);
 		}
 		for(int i=0; i<sup->size(); i++)
 			if((*sup)[i] == NULL)
@@ -396,7 +398,8 @@ void CGarrisonInt::createSlots()
 			i!=set2->slots.end(); i++)
 		{
 			(*sdown)[i->first] =
-				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y + 64 + intery,i->first,1, &CGI->creh->creatures[i->second.first],i->second.second);
+				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y + 64 + intery,i->first,1, 
+									&CGI->creh->creatures[i->second.first],i->second.second);
 		}
 		for(int i=0; i<sup->size(); i++)
 			if((*sdown)[i] == NULL)
@@ -464,7 +467,8 @@ void CGarrisonInt::splitStacks(int am2)
 		am2);
 
 }
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CArmedInstance *s1, const CArmedInstance *s2)
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CArmedInstance *s1, 
+						   const CArmedInstance *s2)
 	:interx(inx),intery(iny),sur(pomsur),highlighted(NULL),sup(NULL),sdown(NULL),oup(s1),odown(s2),
 	offx(OX),offy(OY)
 {
@@ -2527,13 +2531,16 @@ void CHeroList::clickRight(tribool down)
 		}
 
 		//show popup
-		CInfoPopup * ip = new CInfoPopup(graphics->heroWins[items[from+ny].first->subID],LOCPLINT->current->motion.x-graphics->heroWins[items[from+ny].first->subID]->w,LOCPLINT->current->motion.y-graphics->heroWins[items[from+ny].first->subID]->h,false);
+		CInfoPopup * ip = new CInfoPopup(graphics->heroWins[items[from+ny].first->subID],
+										LOCPLINT->current->motion.x-graphics->heroWins[items[from+ny].first->subID]->w,
+										LOCPLINT->current->motion.y-graphics->heroWins[items[from+ny].first->subID]->h,false
+										);
 		ip->activate();
 	}
 	else
 	{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[303].second,down,this);
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[304].second,down,this);
+		LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[303].second,down,this);
+		LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[304].second,down,this);
 	}
 }
 void CHeroList::hover (bool on)
@@ -2555,8 +2562,12 @@ void CHeroList::updateHList()
 }
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {
-	int ser = LOCPLINT->cb->getHeroSerial(which);
+	int ser = -1;
+	for(int i=0; i<items.size() && ser<0; i++)
+		if(items[i].first->subID == which->subID)
+			ser = i;
 	ser -= from;
+	if(ser<0 || ser > SIZE) return;
 	int pom = std::min((which->movement)/100,(int)mobile->ourImages.size()-1);
 	blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
 }

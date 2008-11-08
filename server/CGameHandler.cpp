@@ -56,6 +56,19 @@ double distance(int3 a, int3 b)
 {
 	return std::sqrt( (double)(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
 }
+int getSchoolLevel(const CGHeroInstance *h, const CSpell *s)
+{
+	int ret = 0;
+	if(s->fire)
+		ret = std::max(ret,h->getSecSkillLevel(14));
+	if(s->air)
+		ret = std::max(ret,h->getSecSkillLevel(15));
+	if(s->water)
+		ret = std::max(ret,h->getSecSkillLevel(16));
+	if(s->earth)
+		ret = std::max(ret,h->getSecSkillLevel(17));
+	return ret;
+}
 void giveExp(BattleResult &r)
 {
 	r.exp[0] = 0;
@@ -1224,7 +1237,7 @@ upgend:
 									BattleStackAttacked bsa;
 									bsa.flags |= 2;
 									bsa.effect = 64;
-									bsa.damageAmount = h->primSkills[2] * 10; //TODO: use skill level
+									bsa.damageAmount = h->getPrimSkillLevel(2) * 10  +  s->powers[getSchoolLevel(h,s)]; 
 									bsa.stackAttacked = attacked->ID;
 									prepareAttacked(bsa,attacked);
 									sendAndApply(&bsa);
@@ -1232,6 +1245,12 @@ upgend:
 								}
 							case 53: //haste
 								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 53;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
 									break;
 								}
 							}

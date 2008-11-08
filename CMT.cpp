@@ -41,6 +41,7 @@
 #include "hch/CGeneralTextHandler.h"
 #include "client/Graphics.h"
 #include "client/Client.h"
+#include "client/CConfigHandler.h"
 #include "lib/Connection.h"
 #include "lib/Interprocess.h"
 #include "lib/VCMI_Lib.h"
@@ -59,49 +60,30 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 { 
+	tlog0 << "Starting... " << std::endl;
+	THC timeHandler tmh, total, pomtime;
 	CClient *client = NULL;
 	boost::thread *console = NULL;
-	if(argc>2)
-	{
-		std::cout << "Special mode without new support for console!" << std::endl;
-	}
-	else
-	{
-		logfile = new std::ofstream("VCMI_Client_log.txt");
-		::console = new CConsoleHandler;
-		*::console->cb = boost::bind(processCommand,_1,boost::ref(client));
-		console = new boost::thread(boost::bind(&CConsoleHandler::run,::console));
-	}
-	tlog0 << "\tConsole and logifle ready!" << std::endl;
-	int port;
-	if(argc > 1)
-	{
-#ifdef _MSC_VER
-		port = _tstoi(argv[1]);
-#else
-		port = _ttoi(argv[1]);
-#endif
-	}
-	else
-	{
-		port = 3030;
-		tlog0 << "Port " << port << " will be used." << std::endl;
-	}
+
 	std::cout.flags(ios::unitbuf);
+	logfile = new std::ofstream("VCMI_Client_log.txt");
+	::console = new CConsoleHandler;
+	*::console->cb = boost::bind(processCommand,_1,boost::ref(client));
+	console = new boost::thread(boost::bind(&CConsoleHandler::run,::console));
+	tlog0 <<"Creating console and logfile: "<<pomtime.getDif() << std::endl;
+
+	conf.init();
+	tlog0 <<"Loading settings: "<<pomtime.getDif() << std::endl;
 	tlog0 << NAME << std::endl;
+
 	srand ( time(NULL) );
 	CPG=NULL;
 	atexit(SDL_Quit);
 	CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
-	//CLuaHandler luatest;
-	//luatest.test(); 
-		//CBIKHandler cb;
-		//cb.open("CSECRET.BIK");
-	tlog0 << "Starting... " << std::endl;
-	THC timeHandler tmh, total, pomtime;
+
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO)==0)
 	{
-		screen = SDL_SetVideoMode(800,600,24,SDL_SWSURFACE|SDL_DOUBLEBUF/*|SDL_FULLSCREEN*/);  //initializing important global surface
+		screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
 		tlog0 <<"\tInitializing screen: "<<pomtime.getDif();
 			tlog0 << std::endl;
 		SDL_WM_SetCaption(NAME.c_str(),""); //set window title
@@ -124,13 +106,13 @@ int main(int argc, char** argv)
 		mush->initMusics();
 		//audio initialized 
 		cgi->mush = mush;
-		THC tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
-		THC tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
+		tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
+		tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
 		cgi->spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
 		BitmapHandler::bitmaph = cgi->bitmaph = new CLodHandler;
 		cgi->bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
-		THC tlog0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
+		tlog0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph,::console,logfile);
 		CGI->arth = VLC->arth;
 		CGI->creh = VLC->creh;
@@ -171,7 +153,7 @@ int main(int argc, char** argv)
 		StartInfo *options = new StartInfo(cpg->runLoop());
 		tmh.getDif();
 	////////////////////////SERVER STARTING/////////////////////////////////////////////////
-		char portc[10]; SDL_itoa(port,portc,10);
+		char portc[10]; SDL_itoa(conf.cc.port,portc,10);
 		intpr::shared_memory_object smo(intpr::open_or_create,"vcmi_memory",intpr::read_write);
 		smo.truncate(sizeof(ServerReady));
 		intpr::mapped_region mr(smo,intpr::read_write);
@@ -203,7 +185,7 @@ int main(int argc, char** argv)
 			try
 			{
 				tlog0 << "Establishing connection...\n";
-				c = new CConnection("127.0.0.1",portc,NAME,logs);
+				c = new CConnection(conf.cc.server,portc,NAME,logs);
 			}
 			catch(...)
 			{

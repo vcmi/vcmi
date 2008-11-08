@@ -96,10 +96,22 @@ public:
 
 	std::set<EAbilities> abilities;
 	std::set<ECombatInfo> state;
+	struct StackEffect
+	{
+		ui16 id; //spell id
+		ui8 level; //skill level
+		ui16 turnsRemain; 
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & id & level & turnsRemain;
+		}
+	};
+	std::vector<StackEffect> effects;
 
 	CStack(CCreature * C, int A, int O, int I, bool AO, int S);
 	CStack() : creature(NULL),amount(-1),owner(255), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1), counterAttacks(1){};
-
+	StackEffect * getEffect(ui16 id); //effect id (SP)
+	ui32 speed();
 	template <typename Handler> void save(Handler &h, const int version)
 	{
 		h & creature->idNumber;

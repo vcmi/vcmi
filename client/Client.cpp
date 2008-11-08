@@ -1,22 +1,23 @@
-#include "Client.h"
-#include "../lib/Connection.h"
-#include "../StartInfo.h"
-#include "../map.h"
-#include "../CGameState.h"
-#include "../CGameInfo.h"
-#include "../mapHandler.h"
 #include "../CCallback.h"
-#include "../CPlayerInterface.h"
 #include "../CConsoleHandler.h"
-#include "../lib/NetPacks.h"
-#include <boost/bind.hpp>
-#include <boost/thread.hpp>
-#include <boost/foreach.hpp>
-#include "../hch/CObjectHandler.h"
-#include "../hch/CGeneralTextHandler.h"
+#include "../CGameInfo.h"
+#include "../CGameState.h"
+#include "../CPlayerInterface.h"
+#include "../StartInfo.h"
 #include "../hch/CArtHandler.h"
-#include <boost/thread/shared_mutex.hpp>
+#include "../hch/CGeneralTextHandler.h"
+#include "../hch/CObjectHandler.h"
+#include "../lib/Connection.h"
+#include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
+#include "../map.h"
+#include "../mapHandler.h"
+#include "CConfigHandler.h"
+#include "Client.h"
+#include <boost/bind.hpp>
+#include <boost/foreach.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/shared_mutex.hpp>
 CSharedCond<std::set<IPack*> > mess(new std::set<IPack*>);
 
 std::string toString(MetaString &ms)
@@ -126,11 +127,7 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	if(mapa->checksum != sum)
 	{
 		tlog1 << "Wrong map checksum!!!" << std::endl;
-#ifndef __GNUC__
-		throw std::exception("Wrong checksum");
-#else
-		throw std::exception();
-#endif
+		throw std::string("Wrong checksum");
 	}
 	tlog0 << "\tUsing random seed: "<<seed << std::endl;
 
@@ -151,7 +148,7 @@ CClient::CClient(CConnection *con, StartInfo *si)
 		CCallback *cb = new CCallback(gs,color,this);
 		if(!gs->scenarioOps->playerInfos[i].human)
 		{
-			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,"EmptyAI.dll"));
+			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
 		}
 		else 
 		{
@@ -160,7 +157,6 @@ CClient::CClient(CConnection *con, StartInfo *si)
 			playerint[color]->init(cb);
 		}
 	}
-	//cb = CGI->consoleh->cb = new CCallback(gs,-1,this);
 }
 CClient::~CClient(void)
 {
@@ -646,7 +642,23 @@ void CClient::process(int what)
 			SpellCasted sc;
 			*serv >> sc;
 			gs->apply(&sc);
-			//todo - apply
+			if(playerint.find(gs->curB->side1) != playerint.end())
+				playerint[gs->curB->side1]->battleSpellCasted(&sc);
+			if(playerint.find(gs->curB->side2) != playerint.end())
+				playerint[gs->curB->side2]->battleSpellCasted(&sc);
+			break;
+		}
+	case 3010:
+		{
+			tlog5 << "Effect set!\n";
+			SetStackEffect sse;
+			*serv >> sse;
+			gs->apply(&sse);
+			SpellCasted sc;
+			sc.id = sse.stack;
+			sc.side = 3; //doesn't matter
+			sc.skill = sse.effect.level;
+			sc.tile = gs->curB->getStack(sse.stack)->position;
 			if(playerint.find(gs->curB->side1) != playerint.end())
 				playerint[gs->curB->side1]->battleSpellCasted(&sc);
 			if(playerint.find(gs->curB->side2) != playerint.end())

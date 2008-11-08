@@ -426,8 +426,8 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	ret->bitmap = drawBox1(txts.first+70,txts.second+70,0);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
-	ret->pos.x=400-(ret->pos.w/2);
-	ret->pos.y=300-(ret->pos.h/2);
+	ret->pos.x=screen->w/2-(ret->pos.w/2);
+	ret->pos.y=screen->h/2-(ret->pos.h/2);
 	int curh = 30; //gorny margines
 	blitTextOnSur(txtg,curh,ret->bitmap);
 	if (ret->components.size())

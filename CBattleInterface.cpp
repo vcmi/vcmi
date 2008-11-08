@@ -426,7 +426,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing queue of stacks
 	if(showStackQueue)
 	{
-		int xPos = 400 - ( stacks.size() * 37 )/2;
+		int xPos = screen->w/2 - ( stacks.size() * 37 )/2;
 		int yPos = 10;
 
 		std::vector<CStack> stacksSorted;
@@ -1238,7 +1238,7 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			//animation angle
 			float angle = atan2(float(destcoord.first - srccoord.first), float(destcoord.second - srccoord.second));
 
-			//choosign animation by angle
+			//choosing animation by angle
 			if(angle > 1.50)
 				animToDisplay = anims[0];
 			else if(angle > 1.20)
@@ -1272,6 +1272,9 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			int b=0;
 			break;
 		}
+	case 53://haste
+		displayEffect(31,sc->tile,LOCPLINT->cb->battleGetStackByPos(sc->tile)->owner);
+		break;
 	}
 }
 
@@ -1817,8 +1820,8 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 			const CGHeroInstance *h = myst.owner == myInterface->attackingHeroInstance->tempOwner ? myInterface->attackingHeroInstance : myInterface->defendingHeroInstance;
 			if(h)
 			{
-				pom->attackBonus = h->primSkills[0];
-				pom->defenseBonus = h->primSkills[1];
+				pom->attackBonus = h->getPrimSkillLevel(0);
+				pom->defenseBonus = h->getPrimSkillLevel(1);
 				pom->luck = h->getCurrentLuck();
 				pom->morale = h->getCurrentMorale();
 				pom->shotsLeft = myst.shots;

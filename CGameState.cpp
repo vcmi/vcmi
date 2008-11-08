@@ -248,6 +248,36 @@ CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	state.insert(ALIVE);
 }
 
+ui32 CStack::speed()
+{
+	int premy=0;
+	StackEffect *effect = 0;
+	//haste effect check
+	effect = getEffect(53);
+	if(effect)
+		premy += VLC->spellh->spells[effect->id].powers[effect->level];
+	//slow effect check
+	effect = getEffect(54);
+	if(effect)
+		premy -= VLC->spellh->spells[effect->id].powers[effect->level];
+	//prayer effect check
+	effect = getEffect(48);
+	if(effect)
+		premy -= VLC->spellh->spells[effect->id].powers[effect->level];
+	//bind effect check
+	effect = getEffect(72);
+	if(effect) 
+		premy = -creature->speed;
+	return creature->speed + premy;
+}
+
+CStack::StackEffect * CStack::getEffect(ui16 id)
+{
+	for (int i=0; i< effects.size(); i++)
+		if(effects[i].id == id)
+			return &effects[i];
+	return NULL;
+}
 CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, int notThatOne)
 {
 	if(player<0 || player>=PLAYER_LIMIT)
@@ -703,6 +733,13 @@ void CGameState::applyNL(IPack * pack)
 			if(h)
 				h->mana -= VLC->spellh->spells[sc->id].costs[sc->skill];
 			//TODO: counter
+			break;
+		}
+	case 3010:
+		{
+			SetStackEffect *sc = static_cast<SetStackEffect*>(pack);
+			CStack *stack = curB->getStack(sc->stack);
+			stack->effects.push_back(sc->effect);
 			break;
 		}
 	}
