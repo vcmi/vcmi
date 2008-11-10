@@ -741,7 +741,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 			else 
 			{
-				if(MARK_BLOCKED_POSITIONS &&  ttiles[x+bx][y+by][level].tileInfo->blocked) //temporary hiding blocked positions
+#ifdef MARK_BLOCKED_POSITIONS
+				if(ttiles[x+bx][y+by][level].tileInfo->blocked) //temporary hiding blocked positions
 				{
 					SDL_Rect sr;
 					sr.y=by*32;
@@ -759,7 +760,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 					SDL_FreeSurface(ns);
 				}
-				if(MARK_VISITABLE_POSITIONS &&  ttiles[x+bx][y+by][level].tileInfo->visitable) //temporary hiding visitable positions
+#endif
+#ifdef MARK_VISITABLE_POSITIONS
+				if(ttiles[x+bx][y+by][level].tileInfo->visitable) //temporary hiding visitable positions
 				{
 					SDL_Rect sr;
 					sr.y=by*32;
@@ -777,6 +780,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 					SDL_FreeSurface(ns);
 				}
+#endif
 			}
 		}
 	}

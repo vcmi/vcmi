@@ -166,7 +166,7 @@ private:
 	std::list<SProjectileInfo> projectiles;
 	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
-	bool isTileAttackable(int number); //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
+	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
 
 	struct SBattleEffect
 	{
@@ -189,7 +189,7 @@ public:
 	void setAnimSpeed(int set); //set for animSpeed
 	int getAnimSpeed() const; //get for animSpeed
 
-	CBattleHex bfield[187]; //11 lines, 17 hexes on each
+	CBattleHex bfield[BFIELD_SIZE]; //11 lines, 17 hexes on each
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
@@ -231,7 +231,7 @@ public:
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
 	void spellCasted(SpellCasted * sc); //called when a hero casts a spell
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
-	void displayEffect(ui32 effect, int destTile, bool affected); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
+	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
 
 	friend class CBattleHex;
 	friend class CBattleReslutWindow;

@@ -1,6 +1,6 @@
 //WoG_Ac_format_to_def_names_mapping
 0 1 C10SPW.DEF
-1 1 C03SPA.DEF
+1 1 C03SPA0.DEF
 2 1 C01SPA0.DEF
 3 1 C02SPA0.DEF
 4 1 SP12_.DEF

@@ -72,8 +72,13 @@ const int CREATURES_PER_TOWN = 7; //without upgrades
 const int MAX_BUILDING_PER_TURN = 1;
 const int SPELL_LEVELS = 5;
 
-#define MARK_BLOCKED_POSITIONS false
-#define MARK_VISITABLE_POSITIONS false
+#define BFIELD_WIDTH (17)
+#define BFIELD_HEIGHT (11)
+#define BFIELD_SIZE ((BFIELD_WIDTH) * (BFIELD_HEIGHT))
+
+//uncomment to make it work
+//#define MARK_BLOCKED_POSITIONS
+//#define MARK_VISITABLE_POSITIONS
 
 #define DEFBYPASS
 

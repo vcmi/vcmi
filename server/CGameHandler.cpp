@@ -46,9 +46,9 @@ std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback 
 class CMP_stack
 {
 public:
-	bool operator ()(const CStack* a, const CStack* b)
+	inline bool operator ()(const CStack* a, const CStack* b)
 	{
-		return (a->creature->speed)>(b->creature->speed);
+		return (a->speed())>(b->speed());
 	}
 } cmpst ;
 
@@ -1243,6 +1243,32 @@ upgend:
 									sendAndApply(&bsa);
 									break;
 								}
+							case 16://ice bolt
+								{
+									CStack * attacked = gs->curB->getStackT(ba.destinationTile);
+									if(!attacked) break;
+									BattleStackAttacked bsa;
+									bsa.flags |= 2;
+									bsa.effect = 46;
+									bsa.damageAmount = h->getPrimSkillLevel(2) * 20  +  s->powers[getSchoolLevel(h,s)]; 
+									bsa.stackAttacked = attacked->ID;
+									prepareAttacked(bsa,attacked);
+									sendAndApply(&bsa);
+									break;
+								}
+							case 17://lightning bolt
+								{
+									CStack * attacked = gs->curB->getStackT(ba.destinationTile);
+									if(!attacked) break;
+									BattleStackAttacked bsa;
+									bsa.flags |= 2;
+									bsa.effect = 38;
+									bsa.damageAmount = h->getPrimSkillLevel(2) * 25  +  s->powers[getSchoolLevel(h,s)]; 
+									bsa.stackAttacked = attacked->ID;
+									prepareAttacked(bsa,attacked);
+									sendAndApply(&bsa);
+									break;
+								}
 							case 53: //haste
 								{
 									SetStackEffect sse;
@@ -1309,7 +1335,7 @@ void CGameHandler::moveStack(int stack, int dest)
 		*stackAtEnd = gs->curB->getStackT(dest);
 
 	//initing necessary tables
-	bool accessibility[187];
+	bool accessibility[BFIELD_SIZE];
 	if(curStack->creature->isDoubleWide())
 		gs->curB->getAccessibilityMapForTwoHex(accessibility,curStack->attackerOwned,curStack->ID);
 	else 
@@ -1322,7 +1348,7 @@ void CGameHandler::moveStack(int stack, int dest)
 	//	return false;
 
 	std::vector<int> path = gs->curB->getPath(curStack->position,dest,accessibility);
-	int tilesToMove = std::max((int)path.size()-curStack->creature->speed, 0);
+	int tilesToMove = std::max((int)(path.size() - curStack->speed()), 0);
 	for(int v=path.size()-1; v>=tilesToMove; --v)
 	{
 		//inform clients about move

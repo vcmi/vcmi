@@ -95,7 +95,7 @@ CStack * BattleInfo::getStackT(int tileID)
 }
 void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 {
-	memset(accessibility,1,187); //initialize array with trues
+	memset(accessibility,1,BFIELD_SIZE); //initialize array with trues
 	for(int g=0; g<stacks.size(); ++g)
 	{
 		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit) //we don't want to lock position of this stack
@@ -114,11 +114,11 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 }
 void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide, int stackToOmmit) //send pointer to at least 187 allocated bytes
 {	
-	bool mac[187];
+	bool mac[BFIELD_SIZE];
 	getAccessibilityMap(mac,stackToOmmit);
-	memcpy(accessibility,mac,187);
+	memcpy(accessibility,mac,BFIELD_SIZE);
 
-	for(int b=0; b<187; ++b)
+	for(int b=0; b<BFIELD_SIZE; ++b)
 	{
 		if( mac[b] && !(atackerSide ? mac[b-1] : mac[b+1]))
 		{
@@ -127,16 +127,16 @@ void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerS
 	}
 
 	//removing accessibility for side hexes
-	for(int v=0; v<187; ++v)
+	for(int v=0; v<BFIELD_SIZE; ++v)
 		if(atackerSide ? (v%17)==1 : (v%17)==15)
 			accessibility[v] = false;
 }
 void BattleInfo::makeBFS(int start, bool*accessibility, int *predecessor, int *dists) //both pointers must point to the at least 187-elements int arrays
 {
 	//inits
-	for(int b=0; b<187; ++b)
+	for(int b=0; b<BFIELD_SIZE; ++b)
 		predecessor[b] = -1;
-	for(int g=0; g<187; ++g)
+	for(int g=0; g<BFIELD_SIZE; ++g)
 		dists[g] = 100000000;	
 	
 	std::queue<int> hexq; //bfs queue
@@ -163,18 +163,18 @@ void BattleInfo::makeBFS(int start, bool*accessibility, int *predecessor, int *d
 std::vector<int> BattleInfo::getAccessibility(int stackID)
 {
 	std::vector<int> ret;
-	bool ac[187];
+	bool ac[BFIELD_SIZE];
 	CStack *s = getStack(stackID);
 	if(s->creature->isDoubleWide())
 		getAccessibilityMapForTwoHex(ac,s->attackerOwned,stackID);
 	else
 		getAccessibilityMap(ac,stackID);
 
-	int pr[187], dist[187];
+	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
 	makeBFS(s->position,ac,pr,dist);
 	
-	for(int i=0;i<187;i++)
-		if(dist[i] <= s->creature->speed)
+	for(int i=0;i<BFIELD_SIZE;i++)
+		if(dist[i] <= s->speed())
 			ret.push_back(i);
 
 	return ret;
@@ -212,7 +212,7 @@ signed char BattleInfo::mutualPosition(int hex1, int hex2)
 }
 std::vector<int> BattleInfo::neighbouringTiles(int hex)
 {
-#define CHECK_AND_PUSH(tile) {int hlp = (tile); if(hlp>=0 && hlp<187 && (hlp%17!=16) && hlp%17) ret.push_back(hlp);}
+#define CHECK_AND_PUSH(tile) {int hlp = (tile); if(hlp>=0 && hlp<BFIELD_SIZE && (hlp%17!=16) && hlp%17) ret.push_back(hlp);}
 	std::vector<int> ret;
 	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 18 : 17 ));
 	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 17 : 16 ));
@@ -225,8 +225,8 @@ std::vector<int> BattleInfo::neighbouringTiles(int hex)
 }
 std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
 {							
-	int predecessor[187]; //for getting the Path
-	int dist[187]; //calculated distances
+	int predecessor[BFIELD_SIZE]; //for getting the Path
+	int dist[BFIELD_SIZE]; //calculated distances
 
 	makeBFS(start,accessibility,predecessor,dist);
 
@@ -248,10 +248,10 @@ CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	state.insert(ALIVE);
 }
 
-ui32 CStack::speed()
+ui32 CStack::speed() const
 {
 	int premy=0;
-	StackEffect *effect = 0;
+	const StackEffect *effect = 0;
 	//haste effect check
 	effect = getEffect(53);
 	if(effect)
@@ -271,7 +271,7 @@ ui32 CStack::speed()
 	return creature->speed + premy;
 }
 
-CStack::StackEffect * CStack::getEffect(ui16 id)
+const CStack::StackEffect * CStack::getEffect(ui16 id) const
 {
 	for (int i=0; i< effects.size(); i++)
 		if(effects[i].id == id)

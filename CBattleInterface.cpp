@@ -34,9 +34,9 @@ extern SDL_Color zwykly;
 class CMP_stack2
 {
 public:
-	bool operator ()(const CStack& a, const CStack& b)
+	inline bool operator ()(const CStack& a, const CStack& b)
 	{
-		return (a.creature->speed)>(b.creature->speed);
+		return (a.speed())>(b.speed());
 	}
 } cmpst2 ;
 
@@ -127,12 +127,12 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	CSDL_Ext::alphaTransform(cellBorder);
 	cellShade = BitmapHandler::loadBitmap("CCELLSHD.BMP");
 	CSDL_Ext::alphaTransform(cellShade);
-	for(int h=0; h<187; ++h)
+	for(int h=0; h<BFIELD_SIZE; ++h)
 	{
 		bfield[h].myNumber = h;
 
-		int x = 14 + ((h/17)%2==0 ? 22 : 0) + 44*(h%17);
-		int y = 86 + 42 * (h/17);
+		int x = 14 + ((h/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(h%BFIELD_WIDTH);
+		int y = 86 + 42 * (h/BFIELD_WIDTH);
 		bfield[h].pos = genRect(cellShade->h, cellShade->w, x, y);
 		bfield[h].accesible = true;
 		bfield[h].myInterface = this;
@@ -177,9 +177,9 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		cellBorders->format->palette->colors[g] = cellBorder->format->palette->colors[g];
 	}
 	//palette copied
-	for(int i=0; i<11; ++i) //rows
+	for(int i=0; i<BFIELD_HEIGHT; ++i) //rows
 	{
-		for(int j=0; j<15; ++j) //columns
+		for(int j=0; j<BFIELD_WIDTH-2; ++j) //columns
 		{
 			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
 			int y = 86 + 42 * i;
@@ -262,7 +262,7 @@ void CBattleInterface::activate()
 	bDefence->activate();
 	bConsoleUp->activate();
 	bConsoleDown->activate();
-	for(int b=0; b<187; ++b)
+	for(int b=0; b<BFIELD_SIZE; ++b)
 	{
 		bfield[b].activate();
 	}
@@ -285,7 +285,7 @@ void CBattleInterface::deactivate()
 	bDefence->deactivate();
 	bConsoleUp->deactivate();
 	bConsoleDown->deactivate();
-	for(int b=0; b<187; ++b)
+	for(int b=0; b<BFIELD_SIZE; ++b)
 	{
 		bfield[b].deactivate();
 	}
@@ -319,12 +319,12 @@ void CBattleInterface::show(SDL_Surface * to)
 	//printing hovered cell
 	if(printMouseShadow)
 	{
-		for(int b=0; b<187; ++b)
+		for(int b=0; b<BFIELD_SIZE; ++b)
 		{
 			if(bfield[b].strictHovered && bfield[b].hovered)
 			{
-				int x = 14 + ((b/17)%2==0 ? 22 : 0) + 44*(b%17);
-				int y = 86 + 42 * (b/17);
+				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH);
+				int y = 86 + 42 * (b/BFIELD_WIDTH);
 				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
 			}
 		}
@@ -353,14 +353,14 @@ void CBattleInterface::show(SDL_Surface * to)
 		defendingHero->show(to);
 
 	////showing units //a lot of work...
-	std::vector<int> stackAliveByHex[187];
+	std::vector<int> stackAliveByHex[BFIELD_SIZE];
 	//double loop because dead stacks should be printed first
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
 		if(j->second.alive())
 			stackAliveByHex[j->second.position].push_back(j->second.ID);
 	}
-	std::vector<int> stackDeadByHex[187];
+	std::vector<int> stackDeadByHex[BFIELD_SIZE];
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
 		if(!j->second.alive())
@@ -369,7 +369,7 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	attackingShowHelper(); // handle attack animation
 
-	for(int b=0; b<187; ++b) //showing dead stacks
+	for(int b=0; b<BFIELD_SIZE; ++b) //showing dead stacks
 	{
 		for(int v=0; v<stackDeadByHex[b].size(); ++v)
 		{
@@ -386,7 +386,7 @@ void CBattleInterface::show(SDL_Surface * to)
 			}
 		}
 	}
-	for(int b=0; b<187; ++b) //showing alive stacks
+	for(int b=0; b<BFIELD_SIZE; ++b) //showing alive stacks
 	{
 		for(int v=0; v<stackAliveByHex[b].size(); ++v)
 		{
@@ -493,7 +493,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	if(activeStack>=0 && !spellDestSelectMode)
 	{
 		int myNumber = -1; //number of hovered tile
-		for(int g=0; g<187; ++g)
+		for(int g=0; g<BFIELD_SIZE; ++g)
 		{
 			if(bfield[g].hovered && bfield[g].strictHovered)
 			{
@@ -519,7 +519,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
 					{
 						int fromHex = -1;
-						for(int b=0; b<187; ++b)
+						for(int b=0; b<BFIELD_SIZE; ++b)
 							if(bfield[b].hovered && !bfield[b].strictHovered)
 							{
 								fromHex = b;
@@ -1059,7 +1059,7 @@ void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 addit
 	activeStack = -1;
 }
 
-bool CBattleInterface::isTileAttackable(int number)
+bool CBattleInterface::isTileAttackable(const int & number) const
 {
 	for(int b=0; b<shadedHexes.size(); ++b)
 	{
@@ -1090,26 +1090,20 @@ void CBattleInterface::hexLclicked(int whichOne)
 			if(!dest || !dest->alive()) //no creature at that tile
 			{
 				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
+				{
+					CGI->curh->changeGraphic(1, 6); //cursor should be changed
 					giveCommand(2,whichOne,activeStack);
+				}
 			}
 			else if(dest->owner != attackingHeroInstance->tempOwner
 				&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)
 				&& BattleInfo::mutualPosition(LOCPLINT->cb->battleGetPos(activeStack),whichOne) < 0 ) //shooting
 			{
+				CGI->curh->changeGraphic(1, 6); //cursor should be changed
 				giveCommand(7,whichOne,activeStack);
 			}
 			else if(dest->owner != attackingHeroInstance->tempOwner) //attacking
 			{
-				//std::vector<int> n = BattleInfo::neighbouringTiles(whichOne);
-				//for(int i=0;i<n.size();i++)
-				//{
-				//	//TODO: now we are using first available tile, but in the future we should add possibility of choosing from which tile we want to attack
-				//	if(vstd::contains(shadedHexes,n[i]))
-				//	{
-				//		giveCommand(6,n[i],activeStack,whichOne);
-				//		return;
-				//	}
-				//}
 				switch(CGI->curh->number)
 				{
 				case 12:
@@ -1131,6 +1125,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 					giveCommand(6,whichOne + 1,activeStack,whichOne);
 					break;
 				}
+				CGI->curh->changeGraphic(1, 6); //cursor should be changed
 			}
 		}
 	}
@@ -1223,13 +1218,23 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 
 void CBattleInterface::spellCasted(SpellCasted * sc)
 {
+	std::vector< std::string > anims; //for magic arrow and ice bolt
 	switch(sc->id)
 	{
 	case 15: //magic arrow
 		{
-			//initial variables
-			std::vector< std::string > anims;
+			//initialization of anims
 			anims.push_back("C20SPX0.DEF"); anims.push_back("C20SPX1.DEF"); anims.push_back("C20SPX2.DEF"); anims.push_back("C20SPX3.DEF"); anims.push_back("C20SPX4.DEF");
+		}
+	case 16: //ice bolt
+		{
+			if(anims.size() == 0) //initialiaztion of anims
+			{
+				anims.push_back("C08SPW0.DEF"); anims.push_back("C08SPW1.DEF"); anims.push_back("C08SPW2.DEF"); anims.push_back("C08SPW3.DEF"); anims.push_back("C08SPW4.DEF");
+			}
+		} //end of ice bolt only part
+		{ //common ice bolt and magic arrow part
+			//initial variables
 			std::string animToDisplay;
 			std::pair<int, int> srccoord = sc->side ? std::make_pair(770, 60) : std::make_pair(30, 60);
 			std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(sc->tile, !sc->side, LOCPLINT->cb->battleGetStackByPos(sc->tile)->creature); //position attacked by arrow
@@ -1270,11 +1275,18 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			}
 
 			int b=0;
+			break; //for 15 and 16 cases
+		}
+	case 17: //lightning bolt
+		{
+			displayEffect(1, sc->tile);
 			break;
 		}
 	case 53://haste
-		displayEffect(31,sc->tile,LOCPLINT->cb->battleGetStackByPos(sc->tile)->owner);
-		break;
+		{
+			displayEffect(31, sc->tile);
+			break;
+		}
 	}
 }
 
@@ -1291,7 +1303,7 @@ void CBattleInterface::castThisSpell(int spellID)
 	CGI->curh->changeGraphic(3, 0); 
 }
 
-void CBattleInterface::displayEffect(ui32 effect, int destTile, bool affected)
+void CBattleInterface::displayEffect(ui32 effect, int destTile)
 {
 	if(graphics->battleACToDef[effect].size() != 0)
 	{
@@ -1299,11 +1311,19 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile, bool affected)
 		be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
 		be.frame = 0;
 		be.maxFrame = be.anim->ourImages.size();
-		std::pair<int, int> coords = CBattleHex::getXYUnitAnim(destTile, affected, NULL);
-		coords.first += 250; coords.second += 240;
-		coords.first -= be.anim->ourImages[0].bitmap->w/2;
-		coords.second -= be.anim->ourImages[0].bitmap->h/2;
-		be.x = coords.first; be.y = coords.second;
+		be.x = 22 * ( ((destTile/BFIELD_WIDTH) + 1)%2 ) + 44 * (destTile % BFIELD_WIDTH) + 50;
+		be.y = 100 + 42 * (destTile/BFIELD_WIDTH);
+
+		if(effect != 1)
+		{
+			be.x -= be.anim->ourImages[0].bitmap->w/2;
+			be.y -= be.anim->ourImages[0].bitmap->h/2;
+		}
+		else if(effect == 1)
+		{
+			be.x -= be.anim->ourImages[0].bitmap->w;
+			be.y -= be.anim->ourImages[0].bitmap->h;
+		}
 
 		battleEffects.push_back(be);
 	}
@@ -1656,7 +1676,7 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 {
 	if(!down && myHero)
 	{
-		for(int it=0; it<187; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
+		for(int it=0; it<BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
 			if(myOwner->bfield[it].hovered && myOwner->bfield[it].strictHovered)
 				return;
@@ -1707,15 +1727,15 @@ CBattleHero::~CBattleHero()
 std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CCreature * creature)
 {
 	std::pair<int, int> ret = std::make_pair(-500, -500); //returned value
-	ret.second = -139 + 42 * (hexNum/17); //counting y
+	ret.second = -139 + 42 * (hexNum/BFIELD_WIDTH); //counting y
 	//counting x
 	if(attacker)
 	{
-		ret.first = -160 + 22 * ( ((hexNum/17) + 1)%2 ) + 44 * (hexNum % 17);
+		ret.first = -160 + 22 * ( ((hexNum/BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % BFIELD_WIDTH);
 	}
 	else
 	{
-		ret.first = -219 + 22 * ( ((hexNum/17) + 1)%2 ) + 44 * (hexNum % 17);
+		ret.first = -219 + 22 * ( ((hexNum/BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % BFIELD_WIDTH);
 	}
 	//shifting position for double - hex creatures
 	if(creature && creature->isDoubleWide())

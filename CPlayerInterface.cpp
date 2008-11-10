@@ -2103,7 +2103,7 @@ void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(bsa->isEffect())
 	{
-		battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position, cb->battleGetStackByID(bsa->stackAttacked)->attackerOwned);
+		battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position);
 	}
 	if(bsa->killed())
 		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7 );
