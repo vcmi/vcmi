@@ -212,7 +212,7 @@ signed char BattleInfo::mutualPosition(int hex1, int hex2)
 }
 std::vector<int> BattleInfo::neighbouringTiles(int hex)
 {
-#define CHECK_AND_PUSH(tile) {int hlp = (tile); if(hlp>=0 && hlp<BFIELD_SIZE && (hlp%17!=16) && hlp%17) ret.push_back(hlp);}
+#define CHECK_AND_PUSH(tile) {int hlp = (tile); if(hlp>=0 && hlp<BFIELD_SIZE && (hlp%BFIELD_WIDTH!=16) && hlp%BFIELD_WIDTH) ret.push_back(hlp);}
 	std::vector<int> ret;
 	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 18 : 17 ));
 	CHECK_AND_PUSH(hex - ( (hex/17)%2 ? 17 : 16 ));

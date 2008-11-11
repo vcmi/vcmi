@@ -18,9 +18,7 @@ private:
 	int totalEntries, DEFType, totalBlocks, fullWidth, fullHeight;
 	bool allowRepaint;
 	int length;
-	BMPPalette palette[256];
 	unsigned int * RWEntries;
-	int * RLEntries;
 	struct SEntry
 	{
 		std::string name;
@@ -28,8 +26,6 @@ private:
 		int group;
 	} ;
 	std::vector<SEntry> SEntries ;
-	char id[2];
-
 
 public:
 	static CLodHandler * Spriteh;
@@ -43,7 +39,7 @@ public:
 	static void print (std::ostream & stream, int nr, int bytcon);
 	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
 	static unsigned char *writeNormalNr (int nr, int bytCon);
-	SDL_Surface * getSprite (int SIndex, unsigned char * FDef); //zapisuje klatke o zadanym numerze do "testtt.bmp"
+	SDL_Surface * getSprite (int SIndex, unsigned char * FDef, BMPPalette * palette); //zapisuje klatke o zadanym numerze do "testtt.bmp"
 	void openDef(std::string name);
 	void expand(unsigned char N,unsigned char & BL, unsigned char & BR);
 	void openFromMemory(unsigned char * table, std::string name);

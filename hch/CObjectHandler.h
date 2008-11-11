@@ -132,6 +132,7 @@ public:
 	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
 	void setArtAtPos(ui16 pos, int art);
 	const CArtifact * getArt(int pos) const;
+	int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	void initHero(); 
 	void initHero(int SUBID); 
 	CGHeroInstance();

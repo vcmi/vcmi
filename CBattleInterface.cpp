@@ -7,6 +7,7 @@
 #include "hch/CObjectHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CDefHandler.h"
+#include "hch/CSpellHandler.h"
 #include "CCursorHandler.h"
 #include "CCallback.h"
 #include "CGameState.h"
@@ -410,7 +411,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	std::vector< std::list<SBattleEffect>::iterator > toErase;
 	for(std::list<SBattleEffect>::iterator it = battleEffects.begin(); it!=battleEffects.end(); ++it)
 	{
-		blitAt(it->anim->ourImages[it->frame].bitmap, it->x, it->y, to);
+		blitAt(it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap, it->x, it->y, to);
 		++(it->frame);
 
 		if(it->frame == it->maxFrame)
@@ -562,6 +563,51 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					CGI->curh->changeGraphic(1,2);
 				else
 					CGI->curh->changeGraphic(1,1);
+			}
+		}
+	}
+	else if(spellDestSelectMode)
+	{
+		int myNumber = -1; //number of hovered tile
+		for(int g=0; g<BFIELD_SIZE; ++g)
+		{
+			if(bfield[g].hovered && bfield[g].strictHovered)
+			{
+				myNumber = g;
+				break;
+			}
+		}
+		if(myNumber == -1)
+		{
+			CGI->curh->changeGraphic(1, 0);
+		}
+		else
+		{
+			switch(spellSelMode)
+			{
+			case 0:
+				CGI->curh->changeGraphic(3, 0);
+				break;
+			case 1:
+				if(LOCPLINT->cb->battleGetStackByPos(myNumber) && LOCPLINT->playerID == LOCPLINT->cb->battleGetStackByPos(myNumber)->owner )
+					CGI->curh->changeGraphic(3, 0);
+				else
+					CGI->curh->changeGraphic(1, 0);
+				break;
+			case 2:
+				if(LOCPLINT->cb->battleGetStackByPos(myNumber) && LOCPLINT->playerID != LOCPLINT->cb->battleGetStackByPos(myNumber)->owner )
+					CGI->curh->changeGraphic(3, 0);
+				else
+					CGI->curh->changeGraphic(1, 0);
+				break;
+			case 3:
+				if(LOCPLINT->cb->battleGetStackByPos(myNumber))
+					CGI->curh->changeGraphic(3, 0);
+				else
+					CGI->curh->changeGraphic(1, 0);
+				break;
+			case 4: //TODO: implement this case
+				break;
 			}
 		}
 	}
@@ -1077,12 +1123,35 @@ void CBattleInterface::hexLclicked(int whichOne)
 			return; //we are not permit to do anything
 		if(spellDestSelectMode)
 		{
-			spellToCast->destinationTile = whichOne;
-			LOCPLINT->cb->battleMakeAction(spellToCast);
-			delete spellToCast;
-			spellToCast = NULL;
-			spellDestSelectMode = false;
-			CGI->curh->changeGraphic(1, 6);
+			//checking destination
+			bool allowCasting = true;
+			switch(spellSelMode)
+			{
+			case 1:
+				if(!LOCPLINT->cb->battleGetStackByPos(whichOne) || LOCPLINT->playerID != LOCPLINT->cb->battleGetStackByPos(whichOne)->owner )
+					allowCasting = false;
+				break;
+			case 2:
+				if(!LOCPLINT->cb->battleGetStackByPos(whichOne) || LOCPLINT->playerID == LOCPLINT->cb->battleGetStackByPos(whichOne)->owner )
+					allowCasting = false;
+				break;
+			case 3:
+				if(!LOCPLINT->cb->battleGetStackByPos(whichOne))
+					allowCasting = false;
+				break;
+			case 4: //TODO: implement this case
+				break;
+			}
+			//destination checked
+			if(allowCasting)
+			{
+				spellToCast->destinationTile = whichOne;
+				LOCPLINT->cb->battleMakeAction(spellToCast);
+				delete spellToCast;
+				spellToCast = NULL;
+				spellDestSelectMode = false;
+				CGI->curh->changeGraphic(1, 6);
+			}
 		}
 		else
 		{
@@ -1282,9 +1351,14 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			displayEffect(1, sc->tile);
 			break;
 		}
-	case 53://haste
+	case 53: //haste
 		{
 			displayEffect(31, sc->tile);
+			break;
+		}
+	case 54: //slow
+		{
+			displayEffect(19, sc->tile);
 			break;
 		}
 	}
@@ -1300,6 +1374,22 @@ void CBattleInterface::castThisSpell(int spellID)
 	ba->side = defendingHeroInstance ? (LOCPLINT->playerID == defendingHeroInstance->tempOwner) : false;
 	spellToCast = ba;
 	spellDestSelectMode = true;
+
+	//choosing possible tragets
+	const CGHeroInstance * castingHero = (attackingHeroInstance->tempOwner == LOCPLINT->playerID) ? attackingHeroInstance : attackingHeroInstance;
+	spellSelMode = 0;
+	if(CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET") != std::string::npos)
+	{
+		spellSelMode = 3;
+	}
+	if(CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET_2") != std::string::npos)
+	{
+		if(castingHero && castingHero->getSpellSecLevel(spellID) < 3)
+			spellSelMode = 3;
+		else //TODO: no destination chould apply in this case
+		{
+		}
+	}
 	CGI->curh->changeGraphic(3, 0); 
 }
 
@@ -1311,8 +1401,8 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile)
 		be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
 		be.frame = 0;
 		be.maxFrame = be.anim->ourImages.size();
-		be.x = 22 * ( ((destTile/BFIELD_WIDTH) + 1)%2 ) + 44 * (destTile % BFIELD_WIDTH) + 50;
-		be.y = 100 + 42 * (destTile/BFIELD_WIDTH);
+		be.x = 22 * ( ((destTile/BFIELD_WIDTH) + 1)%2 ) + 44 * (destTile % BFIELD_WIDTH) + 45;
+		be.y = 105 + 42 * (destTile/BFIELD_WIDTH);
 
 		if(effect != 1)
 		{

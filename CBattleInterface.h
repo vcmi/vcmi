@@ -135,6 +135,7 @@ private:
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
+	int spellSelMode; //0 - any location, 1 - any firendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle
 	BattleAction * spellToCast; //spell for which player is choosing destination
 
 	class CAttHelper

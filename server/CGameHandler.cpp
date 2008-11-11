@@ -1279,6 +1279,16 @@ upgend:
 									sendAndApply(&sse);
 									break;
 								}
+							case 54: //slow
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 54;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
 							}
 
 							//TODO: spells to support possibly soon (list by Zamolxis):

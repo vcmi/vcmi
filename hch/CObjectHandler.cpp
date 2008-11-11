@@ -5,6 +5,7 @@
 #include "CLodHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
+#include "CSpellHandler.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
@@ -407,6 +408,33 @@ const CArtifact * CGHeroInstance::getArt(int pos) const
 	else
 		return NULL;
 }
+
+int CGHeroInstance::getSpellSecLevel(int spell) const
+{
+	int bestslvl = 0;
+	if(VLC->spellh->spells[spell].air)
+		if(getSecSkillLevel(15) >= bestslvl)
+		{
+			bestslvl = getSecSkillLevel(15);
+		}
+	if(VLC->spellh->spells[spell].fire)
+		if(getSecSkillLevel(14) >= bestslvl)
+		{
+			bestslvl = getSecSkillLevel(14);
+		}
+	if(VLC->spellh->spells[spell].water)
+		if(getSecSkillLevel(16) >= bestslvl)
+		{
+			bestslvl = getSecSkillLevel(16);
+		}
+	if(VLC->spellh->spells[spell].earth)
+		if(getSecSkillLevel(17) >= bestslvl)
+		{
+			bestslvl = getSecSkillLevel(17);
+		}
+	return bestslvl;
+}
+
 int CGTownInstance::getSightDistance() const //returns sight distance
 {
 	return 10;

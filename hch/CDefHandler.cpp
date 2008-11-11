@@ -16,7 +16,6 @@ CDefHandler::CDefHandler()
 {
 	//FDef = NULL;
 	RWEntries = NULL;
-	RLEntries = NULL;
 	notFreeImgs = false;
 }
 CDefHandler::~CDefHandler()
@@ -25,8 +24,6 @@ CDefHandler::~CDefHandler()
 		//delete [] FDef;
 	if (RWEntries)
 		delete [] RWEntries;
-	if (RLEntries)
-		delete [] RLEntries;
 	if (notFreeImgs)
 		return;
 	for (int i=0; i<ourImages.size(); i++)
@@ -47,6 +44,7 @@ void CDefHandler::openDef(std::string name)
 {
 	int i,j, totalInBlock;
 	char Buffer[13];
+	BMPPalette palette[256];
 	defName=name;
 
 	int andame;
@@ -108,7 +106,7 @@ void CDefHandler::openDef(std::string name)
 	for(int i=0; i<SEntries.size(); ++i)
 	{
 		Cimage nimg;
-		nimg.bitmap = getSprite(i, FDef);
+		nimg.bitmap = getSprite(i, FDef, palette);
 		nimg.imName = SEntries[i].name;
 		nimg.groupNumber = SEntries[i].group;
 		ourImages.push_back(nimg);
@@ -121,6 +119,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 {
 	int i,j, totalInBlock;
 	char Buffer[13];
+	BMPPalette palette[256];
 	defName=name;
 	i = 0;
 	DEFType = readNormalNr(i,4,table); i+=4;
@@ -170,11 +169,10 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
 	RWEntries = new unsigned int[fullHeight];
-	RLEntries = new int[fullHeight];
 	for(int i=0; i<SEntries.size(); ++i)
 	{
 		Cimage nimg;
-		nimg.bitmap = getSprite(i, table);
+		nimg.bitmap = getSprite(i, table, palette);
 		nimg.imName = SEntries[i].name;
 		nimg.groupNumber = SEntries[i].group;
 		ourImages.push_back(nimg);
@@ -241,7 +239,7 @@ void CDefHandler::print (std::ostream & stream, int nr, int bytcon)
 	free(temp);
 }
 
-SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef)
+SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalette * palette)
 {
 	SDL_Surface * ret=NULL;
 
@@ -341,11 +339,11 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef)
 		}
 		for (int i=0;i<SpriteHeight;i++)
 		{
-			RLEntries[i]=readNormalNr(BaseOffset,4,FDef);BaseOffset+=4;
+			RWEntries[i]=readNormalNr(BaseOffset,4,FDef);BaseOffset+=4;
 		}
 		for (int i=0;i<SpriteHeight;i++)
 		{
-			BaseOffset=BaseOffsetor+RLEntries[i];
+			BaseOffset=BaseOffsetor+RWEntries[i];
 			if (LeftMargin>0)
 			{
 				for (int j=0;j<LeftMargin;j++)
