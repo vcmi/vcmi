@@ -1117,7 +1117,7 @@ bool CBattleInterface::isTileAttackable(const int & number) const
 
 void CBattleInterface::hexLclicked(int whichOne)
 {
-	if((whichOne%17)!=0 && (whichOne%17)!=16) //if player is trying to attack enemey unit or move creature stack
+	if((whichOne%BFIELD_WIDTH)!=0 && (whichOne%BFIELD_WIDTH)!=(BFIELD_WIDTH-1)) //if player is trying to attack enemey unit or move creature stack
 	{
 		if(!myTurn)
 			return; //we are not permit to do anything
@@ -1349,6 +1349,11 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 	case 17: //lightning bolt
 		{
 			displayEffect(1, sc->tile);
+			break;
+		}
+	case 18: //implosion
+		{
+			displayEffect(10, sc->tile);
 			break;
 		}
 	case 53: //haste

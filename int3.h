@@ -32,16 +32,18 @@ public:
 	si32 x,y,z;
 	inline int3():x(0),y(0),z(0){}; //c-tor, x/y/z initialized to 0
 	inline int3(const si32 & X, const si32 & Y, const si32 & Z):x(X),y(Y),z(Z){}; //c-tor
+	inline int3(const int3 & val) : x(val.x), y(val.y), z(val.z){} //copy c-tor
+	inline int3 operator=(const int3 & val) {x = val.x; y = val.y; z = val.z; return *this;} //assignemt operator
 	inline ~int3(){} // d-tor - does nothing
-	inline int3 operator+(const int3 & i) const
+	inline int3 operator+(const int3 & i) const //returns int3 with coordinates increased by corresponding coordinate of given int3
 		{return int3(x+i.x,y+i.y,z+i.z);}
-	inline int3 operator+(const si32 i) const //increases all components by si32
+	inline int3 operator+(const si32 i) const //returns int3 with coordinates increased by given numer
 		{return int3(x+i,y+i,z+i);}
-	inline int3 operator-(const int3 & i) const
+	inline int3 operator-(const int3 & i) const //returns int3 with coordinates decreased by corresponding coordinate of given int3
 		{return int3(x-i.x,y-i.y,z-i.z);}
-	inline int3 operator-(const si32 i) const
+	inline int3 operator-(const si32 i) const //returns int3 with coordinates decreased by given numer
 		{return int3(x-i,y-i,z-i);}
-	inline int3 operator-() const //increases all components by si32
+	inline int3 operator-() const //returns opposite position
 		{return int3(-x,-y,-z);}
 	inline double dist2d(const int3 other) const //distance (z coord is not used)
 		{return std::sqrt((double)(x-other.x)*(x-other.x) + (y-other.y)*(y-other.y));}

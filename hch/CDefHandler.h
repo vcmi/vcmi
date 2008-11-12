@@ -28,7 +28,7 @@ private:
 	std::vector<SEntry> SEntries ;
 
 public:
-	int w, h; //width and height
+	int width, height; //width and height
 	static CLodHandler * Spriteh;
 	std::string defName, curDir;
 	std::vector<Cimage> ourImages;

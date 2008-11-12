@@ -7,10 +7,8 @@ class CCreatureAnimation : public CIntObject
 {
 private:
 	int totalEntries, DEFType, totalBlocks;
-	bool allowRepaint;
 	int length;
 	BMPPalette palette[256];
-	unsigned int * RWEntries;
 	int * RLEntries;
 	struct SEntry
 	{
@@ -19,10 +17,9 @@ private:
 		int group;
 	} ;
 	std::vector<SEntry> SEntries ;
-	char id[2];
 	std::string defName, curDir;
-	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
-	void putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc, const bool & yellowBorder) const;
+	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL) const;
+	void inline putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc, const bool & yellowBorder) const;
 
 	////////////
 

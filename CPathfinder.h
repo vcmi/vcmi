@@ -47,8 +47,8 @@ struct CPath
 {
 	std::vector<CPathNode> nodes; //just get node by node
 
-	int3 startPos(); // start point
-	int3 endPos(); //destination point
+	int3 startPos() const; // start point
+	int3 endPos() const; //destination point
 };
 
 class CPathfinder
@@ -65,7 +65,7 @@ private:
  	 * Determines if the given node exists in the closed list, returns true if it does.  This is
 	 * used to ensure you dont check the same node twice.
 	 */
-	bool ExistsInClosed(Coordinate node);
+	bool ExistsInClosed(const Coordinate & node) const;
 
 	/*
 	 * Adds the neighbors of the current node to the open cue so they can be considered in the

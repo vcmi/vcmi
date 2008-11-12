@@ -59,8 +59,8 @@ void CDefHandler::openDef(std::string name)
 	delete is;
 	i = 0;
 	DEFType = readNormalNr(i,4,FDef); i+=4;
-	w = readNormalNr(i,4,FDef); i+=4;
-	h = readNormalNr(i,4,FDef); i+=4;
+	width = readNormalNr(i,4,FDef); i+=4;
+	height = readNormalNr(i,4,FDef); i+=4;
 	i=0xc;
 	totalBlocks = readNormalNr(i,4,FDef); i+=4;
 
@@ -123,8 +123,8 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	defName=name;
 	i = 0;
 	DEFType = readNormalNr(i,4,table); i+=4;
-	w = readNormalNr(i,4,table); i+=4;
-	h = readNormalNr(i,4,table); i+=4;
+	width = readNormalNr(i,4,table); i+=4;
+	height = readNormalNr(i,4,table); i+=4;
 	i=0xc;
 	totalBlocks = readNormalNr(i,4,table); i+=4;
 
@@ -168,7 +168,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	{
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
-	RWEntries = new unsigned int[h];
+	RWEntries = new unsigned int[height];
 	for(int i=0; i<SEntries.size(); ++i)
 	{
 		Cimage nimg;
@@ -337,10 +337,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 					((char*)(ret->pixels))[ftcp++]='\0';
 			}
 		}
-		for (int i=0;i<SpriteHeight;i++)
-		{
-			RWEntries[i]=readNormalNr(BaseOffset,4,FDef);BaseOffset+=4;
-		}
+		memcpy(RWEntries, FDef+BaseOffset, SpriteHeight*sizeof(int));
+		BaseOffset += sizeof(int) * SpriteHeight;
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor+RWEntries[i];

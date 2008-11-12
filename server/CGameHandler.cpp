@@ -1230,7 +1230,7 @@ upgend:
 							sendAndApply(&sc);
 							switch(ba.additionalInfo) //spell id
 							{
-							case 15://magic arrow
+							case 15: //magic arrow
 								{
 									CStack * attacked = gs->curB->getStackT(ba.destinationTile);
 									if(!attacked) break;
@@ -1243,7 +1243,7 @@ upgend:
 									sendAndApply(&bsa);
 									break;
 								}
-							case 16://ice bolt
+							case 16: //ice bolt
 								{
 									CStack * attacked = gs->curB->getStackT(ba.destinationTile);
 									if(!attacked) break;
@@ -1256,7 +1256,7 @@ upgend:
 									sendAndApply(&bsa);
 									break;
 								}
-							case 17://lightning bolt
+							case 17: //lightning bolt
 								{
 									CStack * attacked = gs->curB->getStackT(ba.destinationTile);
 									if(!attacked) break;
@@ -1264,6 +1264,19 @@ upgend:
 									bsa.flags |= 2;
 									bsa.effect = 38;
 									bsa.damageAmount = h->getPrimSkillLevel(2) * 25  +  s->powers[getSchoolLevel(h,s)]; 
+									bsa.stackAttacked = attacked->ID;
+									prepareAttacked(bsa,attacked);
+									sendAndApply(&bsa);
+									break;
+								}
+							case 18: //implosion
+								{
+									CStack * attacked = gs->curB->getStackT(ba.destinationTile);
+									if(!attacked) break;
+									BattleStackAttacked bsa;
+									bsa.flags |= 2;
+									bsa.effect = 10;
+									bsa.damageAmount = h->getPrimSkillLevel(2) * 75  +  s->powers[getSchoolLevel(h,s)]; 
 									bsa.stackAttacked = attacked->ID;
 									prepareAttacked(bsa,attacked);
 									sendAndApply(&bsa);

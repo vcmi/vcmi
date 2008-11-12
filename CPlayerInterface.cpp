@@ -2362,17 +2362,17 @@ CHeroList::CHeroList(int Size)
 	selection = BitmapHandler::loadBitmap("HPSYYY.bmp");
 	SDL_SetColorKey(selection,SDL_SRCCOLORKEY,SDL_MapRGB(selection->format,0,255,255));
 
-	pos = genRect(32*SIZE+arrup->h+arrdo->h,std::max(arrup->w,arrdo->w),conf.go()->ac.hlistX,conf.go()->ac.hlistY);
+	pos = genRect(32*SIZE+arrup->height+arrdo->height, std::max(arrup->width,arrdo->width), conf.go()->ac.hlistX, conf.go()->ac.hlistY);
 
-	arrupp = genRect(arrup->h,arrup->w,pos.x,pos.y);
-	arrdop = genRect(arrdo->h,arrdo->w,pos.x,pos.y+32*SIZE+arrup->h);
+	arrupp = genRect(arrup->height, arrup->width, pos.x, pos.y);
+	arrdop = genRect(arrdo->height, arrdo->width, pos.x, pos.y+32*SIZE+arrup->height);
  //32px per hero
 	posmobx = pos.x+1;
-	posmoby = pos.y+arrup->h+1;
-	posporx = pos.x+mobile->w+2;
-	pospory = pos.y+arrup->h;
-	posmanx = pos.x+1+50+mobile->w;
-	posmany = pos.y+arrup->h+1;
+	posmoby = pos.y+arrup->height+1;
+	posporx = pos.x+mobile->width+2;
+	pospory = pos.y+arrup->height;
+	posmanx = pos.x+1+50+mobile->width;
+	posmany = pos.y+arrup->height+1;
 
 	from = 0;
 	pressed = indeterminate;
@@ -2633,16 +2633,16 @@ CTownList::CTownList(int Size, int x, int y, std::string arrupg, std::string arr
 	arrdo = CDefHandler::giveDef(arrdog);
 	pos.x = x;
 	pos.y = y;
-	pos.w = std::max(arrdo->w,arrup->h);
+	pos.w = std::max(arrdo->width, arrup->height);
 
 	arrupp.x=x;
 	arrupp.y=y;
-	arrupp.w=arrup->w;
-	arrupp.h=arrup->h;
+	arrupp.w=arrup->width;
+	arrupp.h=arrup->height;
 	arrdop.x=x;
-	arrdop.y=y+arrup->h+32*SIZE;
-	arrdop.w=arrdo->w;
-	arrdop.h=arrdo->h;
+	arrdop.y=y+arrup->height+32*SIZE;
+	arrdop.w=arrdo->width;
+	arrdop.h=arrdo->height;
 	posporx = arrdop.x;
 	pospory = arrupp.y + arrupp.h;
 

@@ -33,7 +33,7 @@ void CCreatureAnimation::setType(int type)
 	}
 }
 
-CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEntries(NULL)
+CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL)
 {
 	FDef = CDefHandler::Spriteh->giveFile(name); //load main file
 
@@ -98,7 +98,7 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), RWEn
 	RLEntries = new int[fullHeight];
 }
 
-int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, bool cyclic)
+int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str) const
 {
 	int ret=0;
 	int amp=1;
@@ -107,7 +107,7 @@ int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, 
 		for (int i=0; i<bytCon; i++)
 		{
 			ret+=str[pos+i]*amp;
-			amp*=256;
+			amp<<=8; //amp*=256;
 		}
 	}
 	else 
@@ -115,12 +115,8 @@ int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str, 
 		for (int i=0; i<bytCon; i++)
 		{
 			ret+=FDef[pos+i]*amp;
-			amp*=256;
+			amp<<=8; //amp*=256;
 		}
-	}
-	if(cyclic && bytCon<4 && ret>=amp/2)
-	{
-		ret = ret-amp;
 	}
 	return ret;
 }
@@ -198,15 +194,10 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	{
 		if (TopMargin>0)
 		{
-			for (int i=0;i<TopMargin;i++)
-			{
-				ftcp+=FullWidth;
-			}
+			ftcp+=FullWidth * TopMargin;
 		}
-		for (int i=0;i<SpriteHeight;i++)
-		{
-			RLEntries[i]=readNormalNr(BaseOffset,4,FDef);BaseOffset+=4;
-		}
+		memcpy(RLEntries, FDef+BaseOffset, SpriteHeight*sizeof(int));
+		BaseOffset += sizeof(int) * SpriteHeight;
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor+RLEntries[i];
@@ -281,8 +272,6 @@ int CCreatureAnimation::framesInGroup(int group) const
 CCreatureAnimation::~CCreatureAnimation()
 {
 	delete [] FDef;
-	if (RWEntries)
-		delete [] RWEntries;
 	if (RLEntries)
 		delete [] RLEntries;
 }

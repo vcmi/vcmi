@@ -127,7 +127,7 @@ vector<Coordinate>* CPathfinder::CalcPath()
  * Determines if the given node exists in the closed list, returns true if it does.  This is
  * used to ensure you dont check the same node twice.
 */
-bool CPathfinder::ExistsInClosed(Coordinate node)
+bool CPathfinder::ExistsInClosed(const Coordinate & node) const
 {
 	for(int i = 0; i < Closed.size(); i++)
 	{
@@ -386,11 +386,11 @@ void CPathfinder::convertPath(CPath * path, unsigned int mode) //mode=0 -> from 
 	}
 }
 
-int3 CPath::startPos()
+int3 CPath::startPos() const
 {
 	return int3(nodes[nodes.size()-1].coord.x,nodes[nodes.size()-1].coord.y,nodes[nodes.size()-1].coord.z);
 }
-int3 CPath::endPos()
+int3 CPath::endPos() const
 {
 	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
 }
