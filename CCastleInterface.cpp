@@ -355,7 +355,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	//garrison
 	garr = new CGarrisonInt(305,387,4,32,townInt,243,13,town,town->visitingHero);
 
-	townlist = new CTownList(3,&genRect(128,48,744,414),744,414,744,526);
+	townlist = new CTownList(3,744,414,"IAM014.DEF","IAM015.DEF");//744,526);
 	exit = new AdventureMapButton
 		(CGI->townh->tcommands[8],"",boost::bind(&CCastleInterface::close,this),744,544,"TSBTNS.DEF",SDLK_RETURN);
 	split = new AdventureMapButton

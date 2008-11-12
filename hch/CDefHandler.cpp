@@ -59,8 +59,8 @@ void CDefHandler::openDef(std::string name)
 	delete is;
 	i = 0;
 	DEFType = readNormalNr(i,4,FDef); i+=4;
-	fullWidth = readNormalNr(i,4,FDef); i+=4;
-	fullHeight = readNormalNr(i,4,FDef); i+=4;
+	w = readNormalNr(i,4,FDef); i+=4;
+	h = readNormalNr(i,4,FDef); i+=4;
 	i=0xc;
 	totalBlocks = readNormalNr(i,4,FDef); i+=4;
 
@@ -123,8 +123,8 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	defName=name;
 	i = 0;
 	DEFType = readNormalNr(i,4,table); i+=4;
-	fullWidth = readNormalNr(i,4,table); i+=4;
-	fullHeight = readNormalNr(i,4,table); i+=4;
+	w = readNormalNr(i,4,table); i+=4;
+	h = readNormalNr(i,4,table); i+=4;
 	i=0xc;
 	totalBlocks = readNormalNr(i,4,table); i+=4;
 
@@ -168,7 +168,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	{
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
-	RWEntries = new unsigned int[fullHeight];
+	RWEntries = new unsigned int[h];
 	for(int i=0; i<SEntries.size(); ++i)
 	{
 		Cimage nimg;

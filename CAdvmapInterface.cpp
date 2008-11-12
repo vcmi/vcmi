@@ -30,7 +30,7 @@
 #include <sstream>
 #pragma warning (disable : 4355) 
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
-
+#define ADVOPT (conf.go()->ac)
 using namespace boost::logic;
 using namespace boost::assign;
 using namespace CSDL_Ext;
@@ -44,15 +44,16 @@ CMinimap::CMinimap(bool draw)
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	statusbarTxt = CGI->preth->zelp[291].first;
 	rcText = CGI->preth->zelp[291].second;
-	pos.x=630;
-	pos.y=26;
-	pos.h=pos.w=144;
+	pos.x=ADVOPT.minimapX;//630
+	pos.y=ADVOPT.minimapY;//26
+	pos.h=ADVOPT.minimapW;//144
+	pos.w=ADVOPT.minimapH;//144
 
 	int rx = (((float)19)/(mapSizes.x))*((float)pos.w),
 		ry = (((float)18)/(mapSizes.y))*((float)pos.h);
 
 	radar = newSurface(rx,ry);
-	temps = newSurface(144,144);
+	temps = newSurface(pos.w,pos.h);
 	SDL_FillRect(radar,NULL,0x00FFFF);
 	for (int i=0; i<radar->w; i++)
 	{
@@ -124,7 +125,8 @@ void CMinimap::draw()
 		{
 			for (int jj=0; jj<ho; jj++)
 			{
-				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,graphics->playerColors[hh[i]->getOwner()].g,graphics->playerColors[hh[i]->getOwner()].b);
+				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,
+						graphics->playerColors[hh[i]->getOwner()].g,graphics->playerColors[hh[i]->getOwner()].b);
 			}
 		}
 	}
@@ -145,9 +147,11 @@ void CMinimap::draw()
 						for (int jj=0; jj<ho; jj++)
 						{
 							if(oo[v]->tempOwner == 255)
-								SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,graphics->neutralColor->g,graphics->neutralColor->b);
+								SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,
+									graphics->neutralColor->g,graphics->neutralColor->b);
 							else
-								SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].r,graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].b);
+								SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].r,
+									graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].b);
 						}
 					}
 				}
@@ -765,10 +769,10 @@ void CResDataBar::deactivate()
 }
 CResDataBar::CResDataBar()
 {
-	bg = BitmapHandler::loadBitmap("ZRESBAR.bmp");
+	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	pos = genRect(bg->h,bg->w,3,575);
+	pos = genRect(bg->h,bg->w,ADVOPT.resdatabarX,ADVOPT.resdatabarY);
 
 	txtpos  +=  (std::pair<int,int>(35,577)),(std::pair<int,int>(120,577)),(std::pair<int,int>(205,577)),
 		(std::pair<int,int>(290,577)),(std::pair<int,int>(375,577)),(std::pair<int,int>(460,577)),
@@ -974,43 +978,44 @@ void CInfoBar::tick()
 
 CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
-statusbar(7,556),
+statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
 kingOverview(CGI->preth->zelp[293].first,CGI->preth->zelp[293].second,
-			 boost::bind(&CAdvMapInt::fshowOverview,this), 679, 196, "IAM002.DEF", SDLK_k, NULL,true),
+			 boost::bind(&CAdvMapInt::fshowOverview,this),&ADVOPT.kingOverview, SDLK_k),
 
 underground(CGI->preth->zelp[294].first,CGI->preth->zelp[294].second,
-			boost::bind(&CAdvMapInt::fswitchLevel,this), 711, 196, "IAM010.DEF", SDLK_u, new std::vector<std::string>(1,std::string("IAM003.DEF")),true),
+			boost::bind(&CAdvMapInt::fswitchLevel,this),&ADVOPT.underground, SDLK_u),
 
 questlog(CGI->preth->zelp[295].first,CGI->preth->zelp[295].second,
-		 boost::bind(&CAdvMapInt::fshowQuestlog,this), 679, 228, "IAM004.DEF", SDLK_q, NULL,true),
+		 boost::bind(&CAdvMapInt::fshowQuestlog,this),&ADVOPT.questlog, SDLK_q),
 
 sleepWake(CGI->preth->zelp[296].first,CGI->preth->zelp[296].second,
-		  boost::bind(&CAdvMapInt::fsleepWake,this), 711, 228, "IAM005.DEF", SDLK_w, NULL,true),
+		  boost::bind(&CAdvMapInt::fsleepWake,this), &ADVOPT.sleepWake, SDLK_w),
 
 moveHero(CGI->preth->zelp[297].first,CGI->preth->zelp[297].second,
-		  boost::bind(&CAdvMapInt::fmoveHero,this), 679, 260, "IAM006.DEF", SDLK_m, NULL,true),
+		  boost::bind(&CAdvMapInt::fmoveHero,this), &ADVOPT.moveHero, SDLK_m),
 
 spellbook(CGI->preth->zelp[298].first,CGI->preth->zelp[298].second,
-		  boost::bind(&CAdvMapInt::fshowSpellbok,this), 711, 260, "IAM007.DEF", SDLK_c, NULL,true),
+		  boost::bind(&CAdvMapInt::fshowSpellbok,this), &ADVOPT.spellbook, SDLK_c),
 
 advOptions(CGI->preth->zelp[299].first,CGI->preth->zelp[299].second,
-		  boost::bind(&CAdvMapInt::fadventureOPtions,this), 679, 292, "IAM008.DEF", SDLK_a, NULL,true),
+		  boost::bind(&CAdvMapInt::fadventureOPtions,this), &ADVOPT.advOptions, SDLK_a),
 
 sysOptions(CGI->preth->zelp[300].first,CGI->preth->zelp[300].second,
-		  boost::bind(&CAdvMapInt::fsystemOptions,this), 711, 292, "IAM009.DEF", SDLK_o, NULL,true),
+		  boost::bind(&CAdvMapInt::fsystemOptions,this), &ADVOPT.sysOptions, SDLK_o),
 
 nextHero(CGI->preth->zelp[301].first,CGI->preth->zelp[301].second,
-		  boost::bind(&CAdvMapInt::fnextHero,this), 679, 324, "IAM000.DEF", SDLK_h, NULL,true),
+		  boost::bind(&CAdvMapInt::fnextHero,this), &ADVOPT.nextHero, SDLK_h),
 
 endTurn(CGI->preth->zelp[302].first,CGI->preth->zelp[302].second,
-		  boost::bind(&CAdvMapInt::fendTurn,this), 679, 356, "IAM001.DEF", SDLK_e, NULL,true),
+		  boost::bind(&CAdvMapInt::fendTurn,this), &ADVOPT.endTurn, SDLK_e),
 
-townList(5,&genRect(192,48,747,196),747,196,747,372)
+townList(5,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD),//(5,&genRect(192,48,747,196),747,196,747,372),
+heroList(ADVOPT.hlistSize)
 {
 	selection = NULL;
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
 	LOCPLINT->adventureInt=this;
-	bg = BitmapHandler::loadBitmap("ADVMAP.bmp");
+	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
 	graphics->blueToPlayersAdv(bg,player);
 	scrollingLeft = false;
 	scrollingRight  = false;
@@ -1029,10 +1034,10 @@ townList(5,&genRect(192,48,747,196),747,196,747,372)
 
 	heroWindow = new CHeroWindow(this->player);
 
-	gems.push_back(CDefHandler::giveDef("agemLL.def"));
-	gems.push_back(CDefHandler::giveDef("agemLR.def"));
-	gems.push_back(CDefHandler::giveDef("agemUL.def"));
-	gems.push_back(CDefHandler::giveDef("agemUR.def"));
+	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[0]));
+	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[1]));
+	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[2]));
+	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[3]));
 }
 
 void CAdvMapInt::fshowOverview()
@@ -1243,10 +1248,8 @@ void CAdvMapInt::update()
 	if(updateScreen)
 	{	
 		terrain.show();
-		blitAt(gems[2]->ourImages[LOCPLINT->playerID].bitmap,6,6);
-		blitAt(gems[0]->ourImages[LOCPLINT->playerID].bitmap,6,508);
-		blitAt(gems[1]->ourImages[LOCPLINT->playerID].bitmap,556,508);
-		blitAt(gems[3]->ourImages[LOCPLINT->playerID].bitmap,556,6);
+		for(int i=0;i<4;i++)
+			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i]);
 		updateScreen=false;
 	}
 	if (updateMinimap)

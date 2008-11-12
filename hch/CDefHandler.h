@@ -15,7 +15,7 @@ struct Cimage
 class CDefHandler
 {
 private:
-	int totalEntries, DEFType, totalBlocks, fullWidth, fullHeight;
+	int totalEntries, DEFType, totalBlocks;
 	bool allowRepaint;
 	int length;
 	unsigned int * RWEntries;
@@ -28,6 +28,7 @@ private:
 	std::vector<SEntry> SEntries ;
 
 public:
+	int w, h; //width and height
 	static CLodHandler * Spriteh;
 	std::string defName, curDir;
 	std::vector<Cimage> ourImages;

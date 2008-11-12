@@ -455,7 +455,7 @@ public:
 	std::vector<std::pair<const CGHeroInstance*, CPath *> > items;
 	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
 
-	CHeroList(int Size = 5);
+	CHeroList(int Size);
 	int getPosOfHero(const CArmedInstance* h);
 	void genList();
 	void select(int which);
@@ -479,7 +479,7 @@ public:
 	std::vector<const CGTownInstance*> items;
 	int posporx,pospory;
 
-	CTownList(int Size, SDL_Rect * Pos, int arupx, int arupy, int ardox, int ardoy);
+	CTownList(int Size, int x, int y, std::string arrupg, std::string arrdog);
 	~CTownList();
 	void genList();
 	void select(int which);

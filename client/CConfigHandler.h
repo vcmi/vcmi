@@ -10,23 +10,37 @@ namespace config
 		std::string server, //server address (e.g. 127.0.0.1)
 			defaultAI; //dll name
 	};
+	struct ButtonInfo
+	{
+		std::string defName;
+		std::vector<std::string> additionalDefs;
+		int x, y; //position on the screen
+		bool playerColoured; //if true button will be colored to main player's color (works properly only for appropriate 8bpp graphics)
+	};
 	struct AdventureMapConfig
 	{
-		struct ButtonInfo
-		{
-			std::string hoverName, //shows in statusbar when hovered
-				helpBox, //shows in pop-up when r-clicked
-				defName;
-			std::vector<std::string> additionalDefs;
-			void (CAdvMapInt::*func)(); //function in advmapint bound to that button
-			int x, y; //position on the screen
-			bool playerColoured; //if true button will be colored to main player's color (works properly only for appropriate 8bpp graphics)
-		};
-		struct Minimap
-		{
-			int x, y, w, h;
-		} minimap;
-		std::vector<ButtonInfo> buttons;
+		//minimap properties
+		int minimapX, minimapY, minimapW, minimapH;
+		//statusbar
+		int statusbarX, statusbarY; //pos
+		std::string statusbarG; //graphic name
+		//resdatabar
+		int resdatabarX, resdatabarY; //pos
+		std::string resdatabarG; //graphic name
+		//general properties
+		std::string mainGraphic;
+		//buttons
+		ButtonInfo kingOverview, underground, questlog,	sleepWake, moveHero, spellbook,	advOptions,
+			sysOptions,	nextHero, endTurn;
+		//hero list
+		int hlistX, hlistY, hlistSize;
+		std::string hlistMB, hlistMN, hlistAU, hlistAD;
+		//town list
+		int tlistX, tlistY, tlistSize;
+		std::string tlistAU, tlistAD;
+		//gems
+		int gemX[4], gemY[4];
+		std::vector<std::string> gemG;
 	};
 	struct GUIOptions
 	{
@@ -36,7 +50,8 @@ namespace config
 	{
 	public:
 		ClientConfig cc;
-		GUIOptions gc;
+		std::map<std::pair<int,int>, GUIOptions > guiOptions;
+		GUIOptions *go(); //return pointer to gui options appropriate for used screen resolution
 		void init();
 		CConfigHandler(void);
 		~CConfigHandler(void);

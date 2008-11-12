@@ -13,6 +13,7 @@
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
 #include "SDL_framerate.h"
+#include "client/CConfigHandler.h"
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
 #include "hch/CAbilityHandler.h"
@@ -2353,33 +2354,35 @@ CList::CList(int Size)
 CHeroList::CHeroList(int Size)
 :CList(Size)
 {
-	pos = genRect(192,64,609,196);
-
-	arrupp = genRect(16,64,609,196);
-	arrdop = genRect(16,64,609,372);
- //32px per hero
-	posmobx = 610;
-	posmoby = 213;
-	posporx = 617;
-	pospory = 212;
-	posmanx = 666;
-	posmany = 213;
-
-	arrup = CDefHandler::giveDef("IAM012.DEF");
-	arrdo = CDefHandler::giveDef("IAM013.DEF");
-	mobile = CDefHandler::giveDef("IMOBIL.DEF");
-	mana = CDefHandler::giveDef("IMANA.DEF");
+	arrup = CDefHandler::giveDef(conf.go()->ac.hlistAU);
+	arrdo = CDefHandler::giveDef(conf.go()->ac.hlistAD);
+	mobile = CDefHandler::giveDef(conf.go()->ac.hlistMB);
+	mana = CDefHandler::giveDef(conf.go()->ac.hlistMN);
 	empty = BitmapHandler::loadBitmap("HPSXXX.bmp");
 	selection = BitmapHandler::loadBitmap("HPSYYY.bmp");
 	SDL_SetColorKey(selection,SDL_SRCCOLORKEY,SDL_MapRGB(selection->format,0,255,255));
+
+	pos = genRect(32*SIZE+arrup->h+arrdo->h,std::max(arrup->w,arrdo->w),conf.go()->ac.hlistX,conf.go()->ac.hlistY);
+
+	arrupp = genRect(arrup->h,arrup->w,pos.x,pos.y);
+	arrdop = genRect(arrdo->h,arrdo->w,pos.x,pos.y+32*SIZE+arrup->h);
+ //32px per hero
+	posmobx = pos.x+1;
+	posmoby = pos.y+arrup->h+1;
+	posporx = pos.x+mobile->w+2;
+	pospory = pos.y+arrup->h;
+	posmanx = pos.x+1+50+mobile->w;
+	posmany = pos.y+arrup->h+1;
+
 	from = 0;
 	pressed = indeterminate;
 }
 
 void CHeroList::init()
 {
-	bg = CSDL_Ext::newSurface(68,193,screen);
-	SDL_BlitSurface(LOCPLINT->adventureInt->bg,&genRect(193,68,607,196),bg,&genRect(193,68,0,0));
+	int w = pos.w+1, h = pos.h+4;
+	bg = CSDL_Ext::newSurface(w,h,screen);
+	SDL_BlitSurface(LOCPLINT->adventureInt->bg,&genRect(w,h,pos.x,pos.y),bg,&genRect(w,h,0,0));
 }
 void CHeroList::genList()
 {
@@ -2423,7 +2426,7 @@ void CHeroList::clickLeft(tribool down)
 			pressed = true;
 			return;
 		}
-		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>SIZE))
 		{
 			blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
 			pressed = false;
@@ -2434,7 +2437,7 @@ void CHeroList::clickLeft(tribool down)
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		int ny = hy/32;
-		if (ny>=5 || ny<0)
+		if (ny>=SIZE || ny<0)
 			return;
 		if ( (ny+from)==selected && (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE))
 			LOCPLINT->openHeroWindow(items[selected].first);//print hero screen
@@ -2485,7 +2488,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
-		if ((items.size()-from)  >  5)
+		if ((items.size()-from)  >  SIZE)
 			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[304].first);
 		else
 			LOCPLINT->adventureInt->statusbar.clear();
@@ -2496,7 +2499,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	int ny = hy/32;
-	if ((ny>5 || ny<0) || (from+ny>=items.size()))
+	if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
 	{
 		LOCPLINT->adventureInt->statusbar.clear();
 		return;
@@ -2525,7 +2528,7 @@ void CHeroList::clickRight(tribool down)
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		int ny = hy/32;
-		if ((ny>5 || ny<0) || (from+ny>=items.size()))
+		if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
 		{
 			return;
 		}
@@ -2573,7 +2576,7 @@ void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 }
 void CHeroList::draw()
 {
-	for (int iT=0+from;iT<5+from;iT++)
+	for (int iT=0+from;iT<SIZE+from;iT++)
 	{
 		int i = iT-from;
 		if (iT>=items.size())
@@ -2588,7 +2591,7 @@ void CHeroList::draw()
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
 		blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32); //move point
-		pom = cur->mana / 5; //bylo: .../10;
+		pom = cur->mana / 5;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
 		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
@@ -2605,7 +2608,7 @@ void CHeroList::draw()
 	else
 		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
 
-	if (items.size()-from>5)
+	if (items.size()-from > SIZE)
 		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
 	else
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
@@ -2623,21 +2626,23 @@ CTownList::~CTownList()
 	delete arrdo;
 }
 
-CTownList::CTownList(int Size, SDL_Rect * Pos, int arupx, int arupy, int ardox, int ardoy)
+CTownList::CTownList(int Size, int x, int y, std::string arrupg, std::string arrdog)
 :CList(Size)
 {
-	pos = *Pos;
-	arrup = CDefHandler::giveDef("IAM014.DEF");
-	arrdo = CDefHandler::giveDef("IAM015.DEF");
+	arrup = CDefHandler::giveDef(arrupg);
+	arrdo = CDefHandler::giveDef(arrdog);
+	pos.x = x;
+	pos.y = y;
+	pos.w = std::max(arrdo->w,arrup->h);
 
-	arrupp.x=arupx;
-	arrupp.y=arupy;
-	arrupp.w=arrup->ourImages[0].bitmap->w;
-	arrupp.h=arrup->ourImages[0].bitmap->h;
-	arrdop.x=ardox;
-	arrdop.y=ardoy;
-	arrdop.w=arrdo->ourImages[0].bitmap->w;
-	arrdop.h=arrdo->ourImages[0].bitmap->h;
+	arrupp.x=x;
+	arrupp.y=y;
+	arrupp.w=arrup->w;
+	arrupp.h=arrup->h;
+	arrdop.x=x;
+	arrdop.y=y+arrup->h+32*SIZE;
+	arrdop.w=arrdo->w;
+	arrdop.h=arrdo->h;
 	posporx = arrdop.x;
 	pospory = arrupp.y + arrupp.h;
 

@@ -6,6 +6,7 @@
 #include "hch/CPreGameTextHandler.h"
 #include "hch/CTownHandler.h"
 #include "CCallback.h"
+#include "client/CConfigHandler.h"
 #include "client/Graphics.h"
 AdventureMapButton::AdventureMapButton ()
 {
@@ -32,6 +33,12 @@ AdventureMapButton::AdventureMapButton( const std::map<int,std::string> &Name, c
 	init(Callback, Name, HelpBox, playerColoredButton, defName, add, x, y, key);
 }
 
+AdventureMapButton::AdventureMapButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &Callback, config::ButtonInfo *info, int key/*=0*/ )
+{
+	std::map<int,std::string> pom;
+	pom[0] = Name;
+	init(Callback, pom, HelpBox, info->playerColoured, info->defName, &info->additionalDefs, info->x, info->y, key);
+}
 void AdventureMapButton::clickLeft (tribool down)
 {
 	if(blocked)
@@ -122,7 +129,7 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 			graphics->blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
 	}
 	delete temp;
-	if (add)
+	if (add && add->size())
 	{
 		imgs.resize(imgs.size()+add->size());
 		for (int i=0; i<add->size();i++)
@@ -137,7 +144,7 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 			}
 			delete temp;
 		}
-		delete add;
+		//delete add;
 	}
 	pos.x=x;
 	pos.y=y;
