@@ -188,8 +188,16 @@ bool BattleInfo::isStackBlocked(int ID)
 			|| stacks[i]->owner==our->owner
 		  )
 			continue; //we ommit dead and allied stacks
-		if( mutualPosition(stacks[i]->position,our->position) >= 0 )
-			return true;
+		if(stacks[i]->creature->isDoubleWide())
+		{
+			if( mutualPosition(stacks[i]->position, our->position) >= 0  || mutualPosition(stacks[i]->position + (stacks[i]->attackerOwned ? -1 : 1), our->position) >= 0)
+				return true;
+		}
+		else
+		{
+			if( mutualPosition(stacks[i]->position, our->position) >= 0 )
+				return true;
+		}
 	}
 	return false;
 }

@@ -634,8 +634,16 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 
 	if(wideTrick && curs.creature->isDoubleWide())
 	{
-		if(!creDir[number])
-			creAnims[number]->pos.x -= 44;
+		if(curs.attackerOwned)
+		{
+			if(!creDir[number])
+				creAnims[number]->pos.x -= 44;
+		}
+		else
+		{
+			if(creDir[number])
+				creAnims[number]->pos.x += 44;
+		}
 	}
 
 	creAnims[number]->setType(7);
@@ -959,6 +967,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	CStack aStack = *LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
+	int reversedShift = 0; //shift of attacking stack's position due to reversing
 	if(aStack.attackerOwned)
 	{
 		if(aStack.creature->isDoubleWide())
@@ -979,6 +988,13 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 					break;
 				case 5:
 					reverseCreature(ID, aStack.position, true);
+					break;
+				case -1:
+					if(BattleInfo::mutualPosition(aStack.position + (aStack.attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
+					{
+						reverseCreature(ID, aStack.position, true);
+						reversedShift = (aStack.attackerOwned ? -1 : 1);
+					}
 					break;
 			}
 		}
@@ -1026,6 +1042,13 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 				case 5:
 					//reverseCreature(ID, aStack.position, true);
 					break;
+				case -1:
+					if(BattleInfo::mutualPosition(aStack.position + (aStack.attackerOwned ? -1 : 1), dest) >= 0) //if reversing stack will make its position adjacent to dest
+					{
+						reverseCreature(ID, aStack.position, true);
+						reversedShift = (aStack.attackerOwned ? -1 : 1);
+					}
+					break;
 			}
 		}
 		else //else for if(aStack.creature->isDoubleWide())
@@ -1061,9 +1084,10 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	attackingInfo->ID = ID;
 	attackingInfo->IDby = LOCPLINT->cb->battleGetStackByPos(dest)->ID;
 	attackingInfo->reversing = false;
+	attackingInfo->posShiftDueToDist = reversedShift;
 	attackingInfo->shooting = false;
 
-	switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
+	switch(BattleInfo::mutualPosition(aStack.position + reversedShift, dest)) //attack direction
 	{
 		case 0:
 			attackingInfo->maxframe = creAnims[ID]->framesInGroup(11);
@@ -1165,8 +1189,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 				}
 			}
 			else if(dest->owner != attackingHeroInstance->tempOwner
-				&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne)
-				&& BattleInfo::mutualPosition(LOCPLINT->cb->battleGetPos(activeStack),whichOne) < 0 ) //shooting
+				&& LOCPLINT->cb->battleCanShoot(activeStack, whichOne) ) //shooting
 			{
 				CGI->curh->changeGraphic(1, 6); //cursor should be changed
 				giveCommand(7,whichOne,activeStack);
@@ -1265,6 +1288,7 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	attackingInfo->hitCount = 0;
 	attackingInfo->ID = ID;
 	attackingInfo->reversing = false;
+	attackingInfo->posShiftDueToDist = 0;
 	attackingInfo->shooting = true;
 	if(projectileAngle > straightAngle) //upper shot
 		attackingInfo->shootingGroup = 14;
@@ -1465,7 +1489,7 @@ void CBattleInterface::attackingShowHelper()
 			{
 				if(aStack.creature->isDoubleWide())
 				{
-					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
+					switch(BattleInfo::mutualPosition(aStack.position+attackingInfo->posShiftDueToDist, attackingInfo->dest)) //attack direction
 					{
 						case 0:
 							creAnims[attackingInfo->ID]->setType(11);
@@ -1542,6 +1566,12 @@ void CBattleInterface::attackingShowHelper()
 						case 5:
 							reverseCreature(attackingInfo->ID, aStack.position, true);
 							break;
+						case -1:
+							if(attackingInfo->posShiftDueToDist) //if reversing stack will make its position adjacent to dest
+							{
+								reverseCreature(attackingInfo->ID, aStack.position, true);
+							}
+							break;
 					}
 				}
 				else //else for if(aStack.creature->isDoubleWide())
@@ -1587,6 +1617,12 @@ void CBattleInterface::attackingShowHelper()
 							break;
 						case 5:
 							//reverseCreature(ID, aStack.position, true);
+							break;
+						case -1:
+							if(attackingInfo->posShiftDueToDist) //if reversing stack will make its position adjacent to dest
+							{
+								reverseCreature(attackingInfo->ID, aStack.position, true);
+							}
 							break;
 					}
 				}

@@ -346,17 +346,18 @@ unsigned int CHeroHandler::level(unsigned int experience)
 unsigned int CHeroHandler::reqExp(unsigned int level)
 {
 	level-=1;
-	if(level<=expPerLevel.size())
+	if(level<expPerLevel.size())
 		return expPerLevel[level];
 	else
 	{
 		unsigned int exp = expPerLevel[expPerLevel.size()-1];
-		level-=expPerLevel.size();
+		level-=(expPerLevel.size()-1);
 		while(level>0)
 		{
 			--level;
 			exp*=1.2;
 		}
+		return exp;
 	}
 	return -1;
 }

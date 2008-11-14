@@ -147,6 +147,7 @@ private:
 		int frame, maxframe; //frame of animation, number of frames of animation
 		int hitCount; //for delaying animation
 		bool reversing;
+		int posShiftDueToDist;
 		bool shooting;
 		int shootingGroup; //if shooting is true, print this animation group
 	} * attackingInfo;

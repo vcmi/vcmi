@@ -618,10 +618,14 @@ void CGHeroInstance::initHero()
 		name = type->name;
 	if (!biography.length())
 		biography = type->biography;		
-	if (level<1)
+	if (exp == -1)
 	{
 		exp=40+  (ran())  % 50;
 		level = 1;
+	}
+	else
+	{
+		level = VLC->heroh->level(exp);
 	}
 	
 	if (!army.slots.size()) //standard army//initial army
