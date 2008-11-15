@@ -2305,7 +2305,7 @@ CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 	pos.x=x;
 	pos.y=y;
 	if(maxw >= 0)
-		pos.w = min(bg->w,maxw);
+		pos.w = std::min(bg->w,maxw);
 	else
 		pos.w=bg->w;
 	pos.h=bg->h;
@@ -2908,7 +2908,7 @@ void CRecrutationWindow::clickLeft(tribool down)
 		if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 		{
 			which = i;
-			int newAmount = min(amounts[i],creatures[i].amount);
+			int newAmount = std::min(amounts[i],creatures[i].amount);
 			slider->amount = newAmount;
 			if(slider->value > newAmount)
 				slider->moveTo(newAmount);
@@ -3005,7 +3005,7 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
-	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecrutationWindow::sliderMoved,this, _1),1,min(amounts[0],creatures[0].amount),0,true);
+	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecrutationWindow::sliderMoved,this, _1),1,std::min(amounts[0],creatures[0].amount),0,true);
 	std::string pom;
 	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
 	printAtMiddle(CGI->generaltexth->allTexts[465],205,231,GEOR13,zwykly,bitmap); //available t

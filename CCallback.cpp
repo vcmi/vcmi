@@ -32,14 +32,14 @@ int gcd(int x, int y)
 {
 	int temp;
 	if (y > x)
-		swap(x,y);
+		std::swap(x,y);
 	while (y != 0)
 	{
 		temp = y;
 		y = x-y;
 		x = temp;
 		if (y > x)
-			swap(x,y);
+			std::swap(x,y);
 	}
 	return x;
 }

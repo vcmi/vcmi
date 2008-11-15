@@ -8,371 +8,152 @@
 #include "hch/CObjectHandler.h"
 #include "hch/CDefObjInfoHandler.h"
 
-using namespace std;
+using namespace boost::logic;
 
-vector<Coordinate>* CPathfinder::GetPath(Coordinate start, Coordinate end, const CGHeroInstance* hero)
+int3 CPath::startPos()
 {
-	Start = start;
-	End = end;
-	return GetPath(hero);
+	return int3(nodes[nodes.size()-1].coord.x,nodes[nodes.size()-1].coord.y,nodes[nodes.size()-1].coord.z);
+}
+int3 CPath::endPos()
+{
+	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
 }
 
-/*
- * Does basic input checking and setup for the path calculation.
-*/
-vector<Coordinate>* CPathfinder::GetPath(const CGHeroInstance* hero)
+CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, unsigned char type) //TODO: test it (seems to be finished, but relies on unwritten functions :()
 {
 	//check input
-	if ((Start.x < 0)||(Start.y < 0)||(Start.z < 0)||(End.x < 0)||(End.y < 0)||(End.z < 0))
+	if ((src.x < 0)||(src.y < 0)||(src.z < 0)||(dest.x < 0)||(dest.y < 0)||(dest.z < 0))
 	{
 		return NULL;
 	}
-	if ((Start.x >= CGI->mh->sizes.x)||(Start.y >= CGI->mh->sizes.y)||(Start.z >= CGI->mh->sizes.z)
-			||(End.x >= CGI->mh->sizes.x)||(End.y >= CGI->mh->sizes.y)||(End.z >= CGI->mh->sizes.z))
+	if ((src.x >= CGI->mh->sizes.x)||(src.y >= CGI->mh->sizes.y)||(src.z >= CGI->mh->sizes.z)
+			||(dest.x >= CGI->mh->sizes.x)||(dest.y >= CGI->mh->sizes.y)||(dest.z >= CGI->mh->sizes.z))
 	{
 		return NULL;
 	}
 
-	Hero = hero;
+	int3 hpos = hero->getPosition(false);
 
-	//Reset the queues
-	Open = priority_queue < vector<Coordinate>, vector<vector<Coordinate> >, Compare>();
-	Closed.clear();
-
-	//Determine if the hero can move on water
-	int3 hpos = Hero->getPosition(false);
-	if (!Hero->canWalkOnSea())
+	tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
+	if (!hero->canWalkOnSea())
 	{
-		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].tileInfo->tertype==water)
+		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].tileInfo->tertype==EterrainType::water)
 			blockLandSea=false;
 		else
 			blockLandSea=true;
 	}
 	else
 	{
-		blockLandSea = boost::logic::indeterminate;
+		blockLandSea = indeterminate;
 	}
 
-	CalcG(&Start);
-	Start.h = 0;
-	CalcG(&End);
-	CalcH(&End);
-
-	//If it is impossible to get to where the user clicked, dont return a path.
-	if(End.h == -1)
+	//graph initialization
+	graph.resize(CGI->mh->sizes.x);
+	for(int i=0; i<graph.size(); ++i)
 	{
-		return NULL;
-	}
-
-	//Add the Start node to the open list.
-	vector<Coordinate> startPath;
-	startPath.push_back(Start);
-	Open.push(startPath);
-
-	//Calculate the path.
-	vector<Coordinate>* toReturn =  CalcPath();
-
-	if(toReturn != NULL)
-	{
-		//Flip the route since it is calculated in reverse
-		int size = toReturn->size();
-		for(int i = 0; i < size/2; i++)
+		graph[i].resize(CGI->mh->sizes.y);
+		for(int j=0; j<graph[i].size(); ++j)
 		{
-			Coordinate t = toReturn->at(i);
-			(*toReturn)[i] = toReturn->at(size-1-i);
-			(*toReturn)[size-1-i] = t;
+			graph[i][j].accesible = !CGI->mh->ttiles[i][j][src.z].tileInfo->blocked;
+			if(i==dest.x && j==dest.y && CGI->mh->ttiles[i][j][src.z].tileInfo->visitable)
+				graph[i][j].accesible = true; //for allowing visiting objects
+			graph[i][j].dist = -1;
+			graph[i][j].theNodeBefore = NULL;
+			graph[i][j].visited = false;
+			graph[i][j].coord.x = i;
+			graph[i][j].coord.y = j;
+			graph[i][j].coord.z = dest.z;
+			if (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==EterrainType::rock)
+				graph[i][j].accesible = false;
+			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==EterrainType::water))
+				graph[i][j].accesible = false;
+			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype!=EterrainType::water))
+				graph[i][j].accesible = false;
+			if(graph[i][j].accesible)
+				graph[i][j].accesible = CGI->state->players[hero->tempOwner].fogOfWarMap[i][j][src.z];
 		}
 	}
 
-	return toReturn;
-}
+	//graph initialized
 
-/*
- * Does the actual path calculation.  Don't call this directly, call GetPath instead.
-*/
-vector<Coordinate>* CPathfinder::CalcPath()
-{
-	if(Open.empty())
+	graph[src.x][src.y].dist = 0;
+
+	std::queue<CPathNode> mq;
+	mq.push(graph[src.x][src.y]);
+
+	unsigned int curDist = 4000000000;
+
+	while(!mq.empty())
 	{
-		return NULL;
-	}
-
-	//Find the path in open with the smallest cost (f = g + h)
-	//and remove it from open
-	vector<Coordinate>* branch = new vector<Coordinate>();
-	*branch = Open.top();
-	Open.pop();
-
-	//Don't search elements in the closed list, for they have been visited already.
-	if(!ExistsInClosed(branch->back()))
-	{
-		//Add it to the closed list.
-		Closed.push_back(branch->back());
-
-		//If it is the destination
-		if(branch->back().x == End.x && branch->back().y == End.y && branch->back().z == End.z)
+		CPathNode cp = mq.front();
+		mq.pop();
+		if ((cp.coord.x == dest.x) && (cp.coord.y==dest.y))
 		{
-			return branch;
-		}
-
-		//Add neighbors to the open list
-		AddNeighbors(branch);
-	}
-	delete branch;
-
-	return CalcPath();
-}
-
-/*
- * Determines if the given node exists in the closed list, returns true if it does.  This is
- * used to ensure you dont check the same node twice.
-*/
-bool CPathfinder::ExistsInClosed(const Coordinate & node) const
-{
-	for(int i = 0; i < Closed.size(); i++)
-	{
-		if(node.x == Closed[i].x && node.y == Closed[i].y && node.z == Closed[i].z)
-			return true;
-	}
-
-	return false;
-}
-
-/*
- * Adds the neighbors of the current node to the open cue so they can be considered in the
- * path creation.  If the node has a cost (f = g + h) less than zero, it isn't added to Open.
-*/
-void CPathfinder::AddNeighbors(vector<Coordinate>* branch)
-{
-	//8 possible Nodes to add
-	//
-	//   1  2  3
-	//   4  X  5
-	//   6  7  8
-
-	Coordinate node = branch->back();
-	Coordinate c;
-
-	for(int i = node.x-1; i<node.x+2;i++)
-	{
-		for(int j = node.y-1; j < node.y+2; j++)
-		{
-			if(i >= 0 && j >= 0 && i < CGI->mh->sizes.x && j < CGI->mh->sizes.y && (i!=node.x || j!=node.y))
-			{
-				c = Coordinate(i,j,node.z);
-
-				//Calculate the distance from the end node
-				CalcG(&c);
-
-				//Calculate the movement cost
-				CalcH(&c);
-
-				if(i!=node.x && j!=node.y)
-					c.diagonal = true;
-				else
-					c.diagonal = false;
-
-				if(c.g != -1 && c.h != -1)
-				{
-					bool pass = true; //checking for allowed visiting direction
-					for(int b=0; b<CGI->mh->ttiles[i][j][node.z].tileInfo->visitableObjects.size(); ++b) //checking destination tile
-					{
-						const TerrainTile * pom = CGI->mh->ttiles[i][j][node.z].tileInfo;
-						if(!vstd::contains(pom->blockingObjects,pom->visitableObjects[b]))
-							break;
-						CGDefInfo * di = pom->visitableObjects[b]->defInfo;
-						if( (i == node.x-1 && j == node.y-1) && !(di->visitDir & (1<<4)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x && j == node.y-1) && !(di->visitDir & (1<<5)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x+1 && j == node.y-1) && !(di->visitDir & (1<<6)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x+1 && j == node.y) && !(di->visitDir & (1<<7)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x+1 && j == node.y+1) && !(di->visitDir & (1<<0)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x && j == node.y+1) && !(di->visitDir & (1<<1)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x-1 && j == node.y+1) && !(di->visitDir & (1<<2)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x-1 && j == node.y) && !(di->visitDir & (1<<3)) )
-						{
-							pass = false; break;
-						}
-					}
-					for(int b=0; b<CGI->mh->ttiles[node.x][node.y][node.z].tileInfo->visitableObjects.size(); ++b) //checking source tile
-					{
-						const TerrainTile * pom = CGI->mh->ttiles[node.x][node.y][node.z].tileInfo;
-						if(!vstd::contains(pom->blockingObjects,pom->visitableObjects[b]))
-							break;
-						CGDefInfo * di = pom->visitableObjects[b]->defInfo;
-						if( (i == node.x-1 && j == node.y-1) && !(di->visitDir & (1<<0)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x && j == node.y-1) && !(di->visitDir & (1<<1)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x+1 && j == node.y-1) && !(di->visitDir & (1<<2)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x+1 && j == node.y) && !(di->visitDir & (1<<3)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x+1 && j == node.y+1) && !(di->visitDir & (1<<4)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x && j == node.y+1) && !(di->visitDir & (1<<5)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x-1 && j == node.y+1) && !(di->visitDir & (1<<6)) )
-						{
-							pass = false; break;
-						}
-						if( (i == node.x-1 && j == node.y) && !(di->visitDir & (1<<7)) )
-						{
-							pass = false; break;
-						}
-					}
-					if(pass)
-					{
-						vector<Coordinate> toAdd = *branch;
-						toAdd.push_back(c);
-						Open.push(toAdd);
-					}
-				}
-			}
-		}
-	}
-
-}
-
-/*
- * Calculates the movement cost of the node.  Returns -1 if it is impossible to travel on.
-*/
-void CPathfinder::CalcH(Coordinate* node)
-{
-	/*
-	 * If the terrain is blocked
-	 * If the terrain is rock
-	 * If the Hero cant walk on water and node is in water
-	 * If the Hero is on water and the node is not.
-	 * If there is fog of war on the node.
-	 *  => Impossible to move there.
-	 */
-	const TerrainTile *pom = CGI->mh->ttiles[node->x][node->y][node->z].tileInfo;
-	if( (pom->blocked && !(node->x==End.x && node->y==End.y && pom->visitable)) ||
-		(pom->tertype==rock) ||
-		((blockLandSea) && (pom->tertype==water)) ||
-		(!CGI->state->players[Hero->tempOwner].fogOfWarMap[node->x][node->y][node->z]) ||
-		((!blockLandSea) && (pom->tertype!=water)))
-	{
-		//Impossible.
-
-		node->h = -1;
-		return;
-	}
-
-	int ret=-1;
-	int x = node->x;
-	int y = node->y;
-	if(node->x>=CGI->mh->map->width)
-		x = CGI->mh->map->width-1;
-	if(node->y>=CGI->mh->map->height)
-		y = CGI->mh->map->height-1;
-
-	//Get the movement cost.
-	ret = Hero->getTileCost(CGI->mh->ttiles[x][y][node->z].tileInfo->tertype, CGI->mh->map->terrain[x][y][node->z].malle,CGI->mh->map->terrain[x][y][node->z].nuine);
-
-	node->h = ret;
-}
-
-/*
- * Calculates distance from node to end node.
-*/
-void CPathfinder::CalcG(Coordinate* node)
-{
-	float dist = (End.x-node->x) * (End.x-node->x) + (End.y-node->y) * (End.y-node->y);
-	node->g = sqrt(dist);
-	return;
-}
-
-/*
- * Converts the old Pathfinder format for compatibility reasons. This should be replaced
- * eventually by making the need for it obsolete.
-*/
-CPath* CPathfinder::ConvertToOldFormat(vector<Coordinate>* p)
-{
-	if(p == NULL)
-		return NULL;
-
-	CPath* path = new CPath();
-
-	std::vector<int> costs; //vector with costs of tiles
-
-	for(int i = 0; i < p->size(); i++)
-	{
-		CPathNode temp;
-
-		//Set coord
-		temp.coord = int3(p->at(i).x,p->at(i).y,p->at(i).z);
-
-		//Set accesible
-		if(p->at(i).h == -1)
-		{
-			temp.accesible = false;
+			if (cp.dist < curDist)
+				curDist=cp.dist;
 		}
 		else
 		{
-			temp.accesible = true;
+			if (cp.dist > curDist)
+				continue;
 		}
-		//set diagonality
-		float diagonal = 1.0f; //by default
-		if(i>0)
+		if(cp.coord.x>0)
 		{
-			if(p->at(i-1).x != temp.coord.x && p->at(i-1).y != temp.coord.y)
-			{
-				diagonal = sqrt(2.0f);
-			}
+			CPathNode & dp = graph[cp.coord.x-1][cp.coord.y];
+			processNode(dp, hero, mq, cp, src, false);
 		}
-
-		//Set distance
-		costs.push_back( i==0 ? 0 : p->at(i - 1).h * diagonal );
-
-		//theNodeBefore is never used outside of pathfinding?
-
-		//Set visited
-		temp.visited = false;
-
-		path->nodes.push_back(temp);
+		if(cp.coord.y>0)
+		{
+			CPathNode & dp = graph[cp.coord.x][cp.coord.y-1];
+			processNode(dp, hero, mq, cp, src, false);
+		}
+		if(cp.coord.x>0 && cp.coord.y>0)
+		{
+			CPathNode & dp = graph[cp.coord.x-1][cp.coord.y-1];
+			processNode(dp, hero, mq, cp, src, true);
+		}
+		if(cp.coord.x<graph.size()-1)
+		{
+			CPathNode & dp = graph[cp.coord.x+1][cp.coord.y];
+			processNode(dp, hero, mq, cp, src, false);
+		}
+		if(cp.coord.y<graph[0].size()-1)
+		{
+			CPathNode & dp = graph[cp.coord.x][cp.coord.y+1];
+			processNode(dp, hero, mq, cp, src, false);
+		}
+		if(cp.coord.x<graph.size()-1 && cp.coord.y<graph[0].size()-1)
+		{
+			CPathNode & dp = graph[cp.coord.x+1][cp.coord.y+1];
+			processNode(dp, hero, mq, cp, src, true);
+		}
+		if(cp.coord.x>0 && cp.coord.y<graph[0].size()-1)
+		{
+			CPathNode & dp = graph[cp.coord.x-1][cp.coord.y+1];
+			processNode(dp, hero, mq, cp, src, true);
+		}
+		if(cp.coord.x<graph.size()-1 && cp.coord.y>0)
+		{
+			CPathNode & dp = graph[cp.coord.x+1][cp.coord.y-1];
+			processNode(dp, hero, mq, cp, src, true);
+		}
 	}
 
-	costs.push_back(0);
-	for(int i=path->nodes.size()-1; i>=0; --i)
+	CPathNode curNode = graph[dest.x][dest.y];
+	if(!curNode.theNodeBefore)
+		return NULL;
+
+	CPath * ret = new CPath;
+
+	while(curNode.coord!=graph[src.x][src.y].coord)
 	{
-		path->nodes[i].dist = costs[i+1] + ((i == path->nodes.size()-1) ? 0 : path->nodes[i+1].dist);
+		ret->nodes.push_back(curNode);
+		curNode = *(curNode.theNodeBefore);
 	}
 
-	return path;
+	ret->nodes.push_back(graph[src.x][src.y]);
+
+	return ret;
 }
 
 void CPathfinder::convertPath(CPath * path, unsigned int mode) //mode=0 -> from 'manifest' to 'object'
@@ -386,47 +167,60 @@ void CPathfinder::convertPath(CPath * path, unsigned int mode) //mode=0 -> from 
 	}
 }
 
-int3 CPath::startPos() const
+void CPathfinder::processNode(CPathNode & dp, const CGHeroInstance * hero, std::queue<CPathNode> & mq, const CPathNode & cp, const int3 & src, bool diagonal)
 {
-	return int3(nodes[nodes.size()-1].coord.x,nodes[nodes.size()-1].coord.y,nodes[nodes.size()-1].coord.z);
-}
-int3 CPath::endPos() const
-{
-	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
-}
-
-/*
- * The function used by the priority cue to determine which node to put at the top.
-*/
-bool Compare::operator()(const vector<Coordinate>& a, const vector<Coordinate>& b)
-{
-	double aTotal=0;
-	double bTotal=0;
-
-	for(int i = 0; i < a.size(); i++)
+	const TerrainTile * tinfo = CGI->mh->ttiles[dp.coord.x][dp.coord.y][src.z].tileInfo;
+	int cost = hero->getTileCost(tinfo->tertype, tinfo->malle, tinfo->nuine);
+	if(diagonal)
+		cost *= std::sqrt(2.0);
+	if((dp.dist==-1 || (dp.dist > cp.dist + cost)) && dp.accesible && checkForVisitableDir(cp.coord, dp.coord) && checkForVisitableDir(dp.coord, cp.coord))
 	{
-		double add = a[i].g*a[i].h;
-		if(a[i].diagonal)
-			add*=1.41421356;
-		aTotal += add;
+		dp.dist = cp.dist + cost;
+		dp.theNodeBefore = &graph[cp.coord.x][cp.coord.y];
+		mq.push(dp);
 	}
-	for(int i = 0; i < b.size(); i++)
-	{
-		double add = b[i].g*b[i].h;
-		if(b[i].diagonal)
-			add*=1.41421356;
-		bTotal += add;
-	}
-
-	return aTotal > bTotal;
 }
 
-void Coordinate::operator =(const Coordinate &other)
+bool CPathfinder::checkForVisitableDir(const int3 & src, const int3 & dst) const
 {
-	this->x = other.x;
-	this->y = other.y;
-	this->z = other.z;
-	this->g = other.g;
-	this->h = other.h;
-	this->diagonal = other.diagonal;
+	for(int b=0; b<CGI->mh->ttiles[dst.x][dst.y][dst.z].tileInfo->visitableObjects.size(); ++b) //checking destination tile
+	{
+		const TerrainTile * pom = CGI->mh->ttiles[dst.x][dst.y][dst.z].tileInfo;
+		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b]))
+			continue;
+		CGDefInfo * di = pom->visitableObjects[b]->defInfo;
+		if( (dst.x == src.x-1 && dst.y == src.y-1) && !(di->visitDir & (1<<4)) )
+		{
+			return false;
+		}
+		if( (dst.x == src.x && dst.y == src.y-1) && !(di->visitDir & (1<<5)) )
+		{
+			return false;
+		}
+		if( (dst.x == src.x+1 && dst.y == src.y-1) && !(di->visitDir & (1<<6)) )
+		{
+			return false;
+		}
+		if( (dst.x == src.x+1 && dst.y == src.y) && !(di->visitDir & (1<<7)) )
+		{
+			return false;
+		}
+		if( (dst.x == src.x+1 && dst.y == src.y+1) && !(di->visitDir & (1<<0)) )
+		{
+			return false;
+		}
+		if( (dst.x == src.x && dst.y == src.y+1) && !(di->visitDir & (1<<1)) )
+		{
+			return false;
+		}
+		if( (dst.x == src.x-1 && dst.y == src.y+1) && !(di->visitDir & (1<<2)) )
+		{
+			return false;
+		}
+		if( (dst.x == src.x-1 && dst.y == src.y) && !(di->visitDir & (1<<3)) )
+		{
+			return false;
+		}
+	}
+	return true;
 }

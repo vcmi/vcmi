@@ -414,11 +414,10 @@ endchkpt:
 		int3 bufpos = currentHero->getPosition(false);
 		if (mres)
 		{
-			vector<Coordinate>* p;
-			p = CGI->pathf->GetPath(Coordinate(bufpos),Coordinate(mp),currentHero);
-			//Convert to old format.
-			currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = CGI->pathf->ConvertToOldFormat(p);
-			delete p;
+			CPath * path;
+			path = CGI->pathf->getPath(bufpos, mp, currentHero);
+			//assign
+			currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = path;
 		}
 		return;
 	}

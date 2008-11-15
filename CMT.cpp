@@ -65,7 +65,7 @@ int main(int argc, char** argv)
 	CClient *client = NULL;
 	boost::thread *console = NULL;
 
-	std::cout.flags(ios::unitbuf);
+	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream("VCMI_Client_log.txt");
 	::console = new CConsoleHandler;
 	*::console->cb = boost::bind(processCommand,_1,boost::ref(client));
