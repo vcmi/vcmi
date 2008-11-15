@@ -274,6 +274,8 @@ void CSlider::sliderClicked()
 
 void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
+	if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  ) 
+		return;
 	float v = sEvent.x - pos.x - 24;
 	v/= (pos.w - 48);
 	v*=amount;
