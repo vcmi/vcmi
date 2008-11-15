@@ -124,8 +124,19 @@ void CGarrisonSlot::hover (bool on)
 		{
 			if(owner->highlighted)
 			{
+				const CArmedInstance *highl = owner->highlighted->getObj(); 
+				if(  highl->needsLastStack()		//we are moving stack from hero's
+				  && highl->army.slots.size() == 1	//it's only stack
+				  && owner->highlighted->upg != upg	//we're moving it to the other garrison
+				  )
+				{
+					temp = CGI->townh->tcommands[5]; //cannot move last stack!
+				}
+				else
+				{
 					temp = CGI->townh->tcommands[6];
 					boost::algorithm::replace_first(temp,"%s",owner->highlighted->creature->nameSing);
+				}
 			}
 			else
 			{
@@ -1935,7 +1946,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			hw->garInt->recreateSlots();
 			hw->garInt->show();
 		}
-		if(castleInt) //opened town window - redraw town garrsion slots (change is within hero garr)
+		if(castleInt) //opened town window - redraw town garrison slots (change is within hero garr)
 		{
 			castleInt->garr->highlighted = NULL;
 			castleInt->garr->recreateSlots();

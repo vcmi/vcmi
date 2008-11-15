@@ -338,7 +338,7 @@ unsigned int CHeroHandler::level(unsigned int experience)
 	for(int i=expPerLevel.size()-1; i>=0; --i)
 	{
 		if(experience>=expPerLevel[i])
-			return i+add;
+			return 1+i+add;
 	}
 	return -1;
 }

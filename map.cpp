@@ -1054,7 +1054,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 		if(readChar(bufor,i))//true if hore's experience is greater than 0
 		{	nhi->exp = readNormalNr(bufor,i); i+=4;	}
 		else
-			nhi->exp = -1;
+			nhi->exp = 0xffffffff;
 	}
 	else
 	{	nhi->exp = readNormalNr(bufor,i); i+=4;	}

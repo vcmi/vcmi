@@ -561,7 +561,7 @@ CGHeroInstance::CGHeroInstance()
 	mana = movement = portrait = level = -1;
 	isStanding = true;
 	moveDir = 4;
-	exp = 0;
+	exp = 0xffffffff;
 	visitedTown = NULL;
 	type = NULL;
 	secSkills.push_back(std::make_pair(-1, -1));
@@ -618,7 +618,7 @@ void CGHeroInstance::initHero()
 		name = type->name;
 	if (!biography.length())
 		biography = type->biography;		
-	if (exp == -1)
+	if (exp == 0xffffffff)
 	{
 		exp=40+  (ran())  % 50;
 		level = 1;
@@ -662,6 +662,10 @@ CGHeroInstance::~CGHeroInstance()
 {
 }
 
+bool CGHeroInstance::needsLastStack() const
+{
+	return true;
+}
 CGTownInstance::~CGTownInstance()
 {}
 
@@ -673,6 +677,13 @@ int CGTownInstance::spellsAtLevel(int level, bool checkGuild) const
 	if(subID == 2   &&   vstd::contains(builtBuildings,22)) //magic library in Tower
 		ret++; 
 	return ret;
+}
+
+bool CGTownInstance::needsLastStack() const
+{
+	if(garrisonHero)
+		return true;
+	else return false;
 }
 CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
 {

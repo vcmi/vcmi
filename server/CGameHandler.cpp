@@ -518,50 +518,50 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					c >> what >> id1 >> p1 >> id2 >> p2;
 					CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id1]),
 						*s2 = static_cast<CArmedInstance*>(gs->map->objects[id2]);
-					CCreatureSet *S1 = &s1->army, *S2 = &s2->army;
+					CCreatureSet temp1 = s1->army, temp2 = s2->army,
+						&S1 = temp1, &S2 = (s1!=s2)?(temp2):(temp1);
 					
 					if(what==1) //swap
 					{
-						int pom = S2->slots[p2].first;
-						S2->slots[p2].first = S1->slots[p1].first;
-						S1->slots[p1].first = pom;
-						int pom2 = S2->slots[p2].second;
-						S2->slots[p2].second = S1->slots[p1].second;
-						S1->slots[p1].second = pom2;
+						std::swap(S1.slots[p1],S2.slots[p2]);
 
-						if(!S1->slots[p1].second)
-							S1->slots.erase(p1);
-						if(!S2->slots[p2].second)
-							S2->slots.erase(p2);
+						if(!S1.slots[p1].second)
+							S1.slots.erase(p1);
+						if(!S2.slots[p2].second)
+							S2.slots.erase(p2);
 					}
 					else if(what==2)//merge
 					{
-						if(S1->slots[p1].first != S2->slots[p2].first) break; //not same creature
-						S2->slots[p2].second += S1->slots[p1].second;
-						S1->slots[p1].first = NULL;
-						S1->slots[p1].second = 0;
-						S1->slots.erase(p1);
+						if(S1.slots[p1].first != S2.slots[p2].first) break; //not same creature
+						S2.slots[p2].second += S1.slots[p1].second;
+						S1.slots.erase(p1);
 					}
 					else if(what==3) //split
 					{
 						si32 val;
 						c >> val;
-						if(S2->slots.find(p2) != S2->slots.end()) break; //slot not free
-						S2->slots[p2].first = S1->slots[p1].first;
-						S2->slots[p2].second = val;
-						S1->slots[p1].second -= val;
-						if(!S1->slots[p1].second) //if we've moved all creatures
-							S1->slots.erase(p1); 
+						if(	vstd::contains(S2.slots,p2)		//dest. slot not free
+						  || !vstd::contains(S1.slots,p1)	//no creatures to split
+						  || S1.slots[p1].second < val		//not enough creatures
+						  || val<1							//val must be positive
+						) 
+							break; 
+						S2.slots[p2].first = S1.slots[p1].first;
+						S2.slots[p2].second = val;
+						S1.slots[p1].second -= val;
+						if(!S1.slots[p1].second) //if we've moved all creatures
+							S1.slots.erase(p1); 
 					}
-					if((s1->ID==34 && !S1->slots.size()) //it's not allowed to take last stack from hero army!
-						|| (s2->ID==34 && !S2->slots.size()))
+					if((s1->needsLastStack() && !S1.slots.size()) //it's not allowed to take last stack from hero army!
+					  || (s2->needsLastStack() && !S2.slots.size())
+					)
 					{
-						break;
+						break; //leave without applying changes to garrison
 					}
 					SetGarrisons sg;
-					sg.garrs[id1] = *S1;
+					sg.garrs[id1] = S1;
 					if(s1 != s2)
-						sg.garrs[id2] = *S2;
+						sg.garrs[id2] = S2;
 					sendAndApply(&sg);
 					break;
 				}

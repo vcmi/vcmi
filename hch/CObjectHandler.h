@@ -75,6 +75,7 @@ class  DLL_EXPORT CArmedInstance: public CGObjectInstance
 {
 public:
 	CCreatureSet army; //army
+	virtual bool needsLastStack() const=0; //true if last stack cannot be taken
 };
 
 class DLL_EXPORT CGHeroInstance : public CArmedInstance
@@ -112,6 +113,7 @@ public:
 	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ui32> spells; //known spells (spell IDs)
 
+	bool needsLastStack()const;
 	virtual bool isHero() const;
 	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const;
 	unsigned int getLowestCreatureSpeed();
@@ -165,6 +167,7 @@ public:
 	std::set<CCastleEvent> events;
 
 
+	bool needsLastStack() const;
 	int getSightDistance() const; //returns sight distance
 	int fortLevel() const; //0 - none, 1 - fort, 2 - citadel, 3 - castle
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol

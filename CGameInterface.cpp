@@ -24,6 +24,7 @@ using namespace CSDL_Ext;
 
 CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 {
+	char temp[50];
 	dllname = "AI/"+dllname;
 	CGlobalAI * ret=NULL;
 	CGlobalAI*(*getAI)();
@@ -34,26 +35,18 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	if (!dll)
 	{
 		tlog1 << "Cannot open AI library ("<<dllname<<"). Throwing..."<<std::endl;
-	#ifdef _MSC_VER
-		throw new std::exception("Cannot open AI library");
-	#endif
-		throw new std::exception();
+		throw new std::string("Cannot open AI library");
 	}
 	//int len = dllname.size()+1;
 	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
 	getAI = (CGlobalAI*(*)())GetProcAddress(dll,"GetNewAI");
+	getName(temp);
 #else
 	; //TODO: handle AI library on Linux
 #endif
-	char * temp = new char[50];
-#if _WIN32
-	getName(temp);
-#endif
 	tlog0 << "Loaded .dll with AI named " << temp << std::endl;
-	delete temp;
 #if _WIN32
 	ret = getAI();
-	ret->init(cb);
 #else
 	//ret = new CEmptyAI();
 #endif

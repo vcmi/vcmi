@@ -110,9 +110,11 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	c << *si;
 	c >> pom8;
 	if(pom8) throw "Server cannot open the map!";
-	c << ui8(si->playerInfos.size());
+	c << ui8(si->playerInfos.size()+1); //number of players + neutral
 	for(int i=0;i<si->playerInfos.size();i++)
-		c << ui8(si->playerInfos[i].color);
+		c << ui8(si->playerInfos[i].color); //players
+	c << ui8(255); // neutrals
+
 
 	ui32 seed, sum;
 	std::string mapname;
@@ -142,21 +144,20 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	CGI->mh->init();
 	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
-	for (int i=0; i<CGI->state->scenarioOps->playerInfos.size();i++) //initializing interfaces
+	for (int i=0; i<CGI->state->scenarioOps->playerInfos.size();i++) //initializing interfaces for players
 	{ 
 		ui8 color = gs->scenarioOps->playerInfos[i].color;
 		CCallback *cb = new CCallback(gs,color,this);
 		if(!gs->scenarioOps->playerInfos[i].human)
-		{
 			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
-		}
 		else 
-		{
-			gs->currentPlayer = color;
 			playerint[color] = new CPlayerInterface(color,i);
-			playerint[color]->init(cb);
-		}
+		gs->currentPlayer = color;
+		playerint[color]->init(cb);
 	}
+	playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
+	playerint[255]->init(new CCallback(gs,255,this));
+
 }
 CClient::~CClient(void)
 {
@@ -166,11 +167,12 @@ void CClient::process(int what)
 	static BattleAction curbaction;
 	switch (what)
 	{
-	case 100: //one of our interaces has turn
+	case 100: //one of our interfaces has turn
 		{
 			ui8 player;
 			*serv >> player;//who?
 			tlog5 << "It's turn of "<<(unsigned)player<<" player."<<std::endl;
+			gs->currentPlayer = player;
 			boost::thread(boost::bind(&CGameInterface::yourTurn,playerint[player]));
 			break;
 		}
@@ -343,9 +345,10 @@ void CClient::process(int what)
 				//std::for_each(th->fowRevealed.begin(),th->fowRevealed.end(),boost::bind(&CGameInterface::tileRevealed,playerint[player],_1));
 			}
 
-			//notify interfacesabout move
+			//notify interfaces about move
 			for(std::map<ui8, CGameInterface*>::iterator i=playerint.begin();i!=playerint.end();i++)
 			{
+				if(i->first >= PLAYER_LIMIT) continue;
 				if(gs->players[i->first].fogOfWarMap[th->start.x-1][th->start.y][th->start.z] || gs->players[i->first].fogOfWarMap[th->end.x-1][th->end.y][th->end.z])
 				{
 					i->second->heroMoved(hmd);
@@ -546,17 +549,7 @@ void CClient::process(int what)
 			tlog5 << "Active stack: " << sas.stack <<std::endl;
 			gs->apply(&sas);
 			int owner = gs->curB->getStack(sas.stack)->owner;
-			if(owner >= PLAYER_LIMIT) //ugly workaround to skip neutral creatures - should be replaced with AI
-			{
-				BattleAction ba;
-				ba.stackNumber = sas.stack;
-				ba.actionType = 3;
-				*serv << ui16(3002) << ba;
-			}
-			else
-			{
-				boost::thread(boost::bind(&CClient::waitForMoveAndSend,this,owner));
-			}
+			boost::thread(boost::bind(&CClient::waitForMoveAndSend,this,owner));
 			break;
 		}
 	case 3003:
