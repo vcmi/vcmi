@@ -686,7 +686,13 @@ void CGameState::applyNL(IPack * pack)
 			BattleNextRound *ns = static_cast<BattleNextRound*>(pack);
 			curB->round = ns->round;
 			for(int i=0; i<curB->stacks.size();i++)
+			{
+				curB->stacks[i]->state -= DEFENDING;
+				curB->stacks[i]->state -= WAITING;
+				curB->stacks[i]->state -= MOVED;
+				curB->stacks[i]->state -= HAD_MORALE;
 				curB->stacks[i]->counterAttacks = 1;
+			}
 			break;
 		}
 	case 3002:
@@ -732,6 +738,24 @@ void CGameState::applyNL(IPack * pack)
 			if(br->shot())
 				attacker->shots--;
 			applyNL(&br->bsa);
+			break;
+		}
+	case 3007:
+		{
+			StartAction *br = static_cast<StartAction*>(pack);
+				CStack *st = curB->getStack(br->ba.stackNumber);
+			switch(br->ba.actionType)
+			{
+			case 3:
+				st->state.insert(DEFENDING);
+				break;
+			case 8:
+				st->state.insert(WAITING);
+				break;
+			case 2: case 6: case 7: case 9: case 10:
+				st->state.insert(MOVED);
+				break;
+			}
 			break;
 		}
 	case 3009:
@@ -1581,4 +1605,31 @@ void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualtie
 			casualties[!stacks[i]->attackerOwned].insert(std::pair<ui32,si32>(stacks[i]->creature->idNumber,stacks[i]->baseAmount - stacks[i]->amount));
 		}
 	}
+}
+
+CStack * BattleInfo::getNextStack()
+{
+	CStack *current = getStack(activeStack);
+	for (int i = 0; i <  stacks.size(); i++)  //find fastest not moved/waited stack (stacks vector is sorted by speed)
+	{
+		if(vstd::contains(stacks[i]->state,DEFENDING)
+			||vstd::contains(stacks[i]->state,WAITING)
+			||vstd::contains(stacks[i]->state,MOVED)
+			||!stacks[i]->alive()
+			||stacks[i] == current
+		  )
+			continue;
+		return stacks[i];
+	}
+	for (int i = stacks.size() - 1; i >= 0 ; i--) //find slowest waiting stack
+	{
+		if(vstd::contains(stacks[i]->state,DEFENDING)
+			||vstd::contains(stacks[i]->state,MOVED)
+			||!stacks[i]->alive()
+			||stacks[i] == current
+		  )
+			continue;
+		return stacks[i];
+	}
+	return NULL; //all stacks moved or defending!
 }

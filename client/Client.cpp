@@ -613,6 +613,7 @@ void CClient::process(int what)
 				playerint[gs->curB->side1]->actionStarted(&curbaction);
 			if(playerint.find(gs->curB->side2) != playerint.end())
 				playerint[gs->curB->side2]->actionStarted(&curbaction);
+			gs->apply(&StartAction(curbaction));
 			break;
 		}
 	case 3008:

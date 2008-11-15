@@ -307,11 +307,11 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 		const BattleInfo & curB = *gs->curB;
 
 		//stack loop
-		for(unsigned i=0;i<stacks.size() && !battleResult.get();i++)
+		CStack *next;
+		while(!battleResult.get() && (next=gs->curB->getNextStack()))
 		{
-			if(!stacks[i]->alive()) continue;//indicates imposiibility of making action for this dead unit
 			BattleSetActiveStack sas;
-			sas.stack = stacks[i]->ID;
+			sas.stack = next->ID;
 			sendAndApply(&sas);
 			boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
 			while(!battleMadeAction.data  &&  !battleResult.get()) //active stack hasn't made its action and battle is still going
@@ -1080,18 +1080,21 @@ upgend:
 						{
 							sendAndApply(&StartAction(ba)); //start movement
 							moveStack(ba.stackNumber,ba.destinationTile); //move
-							sendDataToClients(ui16(3008)); //endmovement
+							sendDataToClients(ui16(3008)); //end movement
 							break;
 						}
 					case 3: //defend
+					case 8: //wait
 						{
+							sendAndApply(&StartAction(ba));
+							sendDataToClients(ui16(3008));
 							break;
 						}
 					case 4: //retreat/flee
 						{
 							//TODO: check if fleeing is possible (e.g. enemy may have Shackles of War)
 							//TODO: calculate casualties
-							//TODO: remove retreating hero from map and place it in recrutation list
+							//TODO: remove retreating hero from map and place it in recruitment list
 							BattleResult *br = new BattleResult;
 							br->result = 1;
 							br->winner = !ba.side; //fleeing side loses

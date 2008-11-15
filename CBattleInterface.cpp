@@ -170,7 +170,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	}
 
 
-	//prepairing graphic with cell borders
+	//preparing graphic with cell borders
 	cellBorders = CSDL_Ext::newSurface(background->w, background->h, cellBorder);
 	//copying palette
 	for(int g=0; g<cellBorder->format->palette->ncolors; ++g) //we assume that cellBorders->format->palette->ncolors == 256
@@ -708,6 +708,7 @@ void CBattleInterface::bSpellf()
 
 void CBattleInterface::bWaitf()
 {
+	giveCommand(8,0,activeStack);
 }
 
 void CBattleInterface::bDefencef()
@@ -793,6 +794,7 @@ void CBattleInterface::stackActivated(int number)
 	activeStack = number;
 	myTurn = true;
 	redrawBackgroundWithHexes(number);
+	bWait->block(vstd::contains(LOCPLINT->cb->battleGetStackByID(number)->state,WAITING)); //block waiting button if stack has been already waiting
 }
 
 void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
