@@ -131,6 +131,9 @@ int main(int argc, char** argv)
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
 		tlog0<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
+		CGI->preth = new CPreGameTextHandler;
+		CGI->preth->loadTexts();
+		tlog0<<"\tCPreGameTextHandler: "<<pomtime.getDif()<<std::endl;
 		tlog0<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		graphics = new Graphics();
@@ -253,6 +256,12 @@ void processCommand(const std::string &message, CClient *&client)
 			LOCPLINT->castleInt->activate();
 			break;
 		}
+	}
+	else if(cn=="save")
+	{
+		std::string fname;
+		readed >> fname;
+		client->save(fname);
 	}
 	else if(message=="get txt")
 	{

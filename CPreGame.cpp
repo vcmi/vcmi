@@ -109,6 +109,11 @@ void HighButton::hover(bool on)
 	SDL_BlitSurface(imgs->ourImages[i].bitmap,NULL,screen,&pos);
 	updateRect(&pos);
 }
+
+HighButton::~HighButton()
+{
+	delete imgs;
+}
 void Button::hover(bool on)
 {
 	HighButton::hover(on);
@@ -136,15 +141,15 @@ void Slider::updateSlid()
 	{
 		myh=perc*((float)pos.h-48)+pos.y+16;
 		SDL_FillRect(screen,&genRect(pos.h-32,pos.w,pos.x,pos.y+16),0);
-		blitAt(slider.imgs->ourImages[0].bitmap,pos.x,(int)myh);
-		slider.pos.y=(int)myh;
+		blitAt(slider->imgs->ourImages[0].bitmap,pos.x,(int)myh);
+		slider->pos.y=(int)myh;
 	}
 	else
 	{
 		myh=perc*((float)pos.w-48)+pos.x+16;
 		SDL_FillRect(screen,&genRect(pos.h,pos.w-32,pos.x+16,pos.y),0);
-		blitAt(slider.imgs->ourImages[0].bitmap,(int)myh,pos.y);
-		slider.pos.x=(int)myh;
+		blitAt(slider->imgs->ourImages[0].bitmap,(int)myh,pos.y);
+		slider->pos.x=(int)myh;
 	}
 	updateRect(&pos);
 }
@@ -169,16 +174,16 @@ Slider::Slider(int x, int y, int h, int amnt, int cap, bool ver)
 	if (ver)
 	{
 		pos = genRect(h,16,x,y);
-		down = Button(genRect(16,16,x,y+h-16),boost::bind(&Slider::moveDown,this),CDefHandler::giveDef("SCNRBDN.DEF"),false);
-		up = Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CDefHandler::giveDef("SCNRBUP.DEF"),false);
-		slider = Button(genRect(16,16,x,y+16),boost::function<void()>(),CDefHandler::giveDef("SCNRBSL.DEF"),false);
+		down = new Button(genRect(16,16,x,y+h-16),boost::bind(&Slider::moveDown,this),CDefHandler::giveDef("SCNRBDN.DEF"),false);
+		up = new Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CDefHandler::giveDef("SCNRBUP.DEF"),false);
+		slider = new Button(genRect(16,16,x,y+16),boost::function<void()>(),CDefHandler::giveDef("SCNRBSL.DEF"),false);
 	}
 	else
 	{
 		pos = genRect(16,h,x,y);
-		down = Button(genRect(16,16,x+h-16,y),boost::bind(&Slider::moveDown,this),CDefHandler::giveDef("SCNRBRT.DEF"),false);
-		up = Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CDefHandler::giveDef("SCNRBLF.DEF"),false);
-		slider = Button(genRect(16,16,x+16,y),boost::function<void()>(),CDefHandler::giveDef("SCNRBSL.DEF"),false);
+		down = new Button(genRect(16,16,x+h-16,y),boost::bind(&Slider::moveDown,this),CDefHandler::giveDef("SCNRBRT.DEF"),false);
+		up = new Button(genRect(16,16,x,y),boost::bind(&Slider::moveUp,this),CDefHandler::giveDef("SCNRBLF.DEF"),false);
+		slider = new Button(genRect(16,16,x+16,y),boost::function<void()>(),CDefHandler::giveDef("SCNRBSL.DEF"),false);
 	}
 	moving = false;
 	whereAreWe=0;
@@ -191,9 +196,9 @@ void Slider::deactivate()
 void Slider::activate()
 {
 	SDL_FillRect(screen,&pos,0);
-	up.show();
-	down.show();
-	slider.show();
+	up->show();
+	down->show();
+	slider->show();
 	//SDL_Flip(screen);
 	CSDL_Ext::update(screen);
 	CPG->interested.push_back(this);
@@ -203,17 +208,17 @@ void Slider::handleIt(SDL_Event sEvent)
 {
 	if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_LEFT))
 	{
-		if (isItIn(&down.pos,sEvent.motion.x,sEvent.motion.y))
+		if (isItIn(&down->pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			down.press();
+			down->press();
 		}
-		else if (isItIn(&up.pos,sEvent.motion.x,sEvent.motion.y))
+		else if (isItIn(&up->pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			up.press();
+			up->press();
 		}
-		else if (isItIn(&slider.pos,sEvent.motion.x,sEvent.motion.y))
+		else if (isItIn(&slider->pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			//slider.press();
+			//slider->press();
 			moving=true;
 		}
 		else if (isItIn(&pos,sEvent.motion.x,sEvent.motion.y))
@@ -243,19 +248,19 @@ void Slider::handleIt(SDL_Event sEvent)
 	else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_LEFT))
 	{
 
-		if ((down.state==1) && isItIn(&down.pos,sEvent.motion.x,sEvent.motion.y))
+		if ((down->state==1) && isItIn(&down->pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			this->down.fun();
+			this->down->fun();
 		}
-		if ((up.state==1) && isItIn(&up.pos,sEvent.motion.x,sEvent.motion.y))
+		if ((up->state==1) && isItIn(&up->pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			this->up.fun();
+			this->up->fun();
 		}
-		if (down.state==1) down.press(false);
-		if (up.state==1) up.press(false);
+		if (down->state==1) down->press(false);
+		if (up->state==1) up->press(false);
 		if (moving)
 		{
-			//slider.press();
+			//slider->press();
 			moving=false;
 		}
 	}
@@ -324,20 +329,27 @@ void Slider::handleIt(SDL_Event sEvent)
 		}
 
 
-		if (isItIn(&down.pos,sEvent.motion.x,sEvent.motion.y))
+		if (isItIn(&down->pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			(this->*down.fun)();
+			(this->*down->fun)();
 		}
-		if (isItIn(&up.pos,sEvent.motion.x,sEvent.motion.y))
+		if (isItIn(&up->pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			(this->*up.fun)();
+			(this->*up->fun)();
 		}
-		if (isItIn(&slider.pos,sEvent.motion.x,sEvent.motion.y))
+		if (isItIn(&slider->pos,sEvent.motion.x,sEvent.motion.y))
 		{
-			(this->*slider.fun)();
+			(this->*slider->fun)();
 		}
 
 	}*/
+}
+
+Slider::~Slider()
+{
+	delete up;
+	delete down;
+	delete slider;
 }
 IntBut::IntBut()
 {
@@ -982,6 +994,7 @@ void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 	static boost::mutex mx;
 	bool areMaps=true;
 	int pom=-1;
+	unsigned char sss[1000];
 	while(areMaps)
 	{
 		mx.lock();
@@ -996,7 +1009,6 @@ void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 			mx.unlock();
 		}
 		gzFile tempf = gzopen(pliczkiTemp[pom].c_str(),"rb");
-		unsigned char * sss = new unsigned char[1000];
 		int iii=0;
 		while(true)
 		{
@@ -1009,13 +1021,22 @@ void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 			else break;
 		}
 		gzclose(tempf);
-		if(iii<50) {tlog3<<"\t\tWarning: corrupted map file: "<<pliczkiTemp[pom]<<std::endl; continue;}
-		if (!sss[4]) continue; //nie ma graczy? mapa niegrywalna //ju¿ to kiedyœ komentowa³em- - to bzdura //tu calkiem pasuje...
+
+		if(iii<50) 
+		{
+			tlog3<<"\t\tWarning: corrupted map file: "<<pliczkiTemp[pom]<<std::endl; 
+			continue;
+		}
+		if (!sss[4])
+		{
+			//tlog3 << "\t\tSkipping " << pliczkiTemp[pom] << " - map marked as unplayable.\n";
+			continue;
+		}
+
 		CMapInfo mi(pliczkiTemp[pom],sss);
 		mx.lock();
 		ourMaps.push_back(mi);
 		mx.unlock();
-		delete[] sss;
 	}
 }
 
@@ -1221,14 +1242,14 @@ void MapSel::printSelectedInfo()
 
 	int temp = ourMaps[selected].victoryCondition+1;
 	if (temp>20) temp=0;
-	std::string sss = CPG->preth->victoryConditions[temp];
-	if (temp && ourMaps[selected].vicConDetails->allowNormalVictory) sss+= "/" + CPG->preth->victoryConditions[0];
+	std::string sss = CGI->preth->victoryConditions[temp];
+	if (temp && ourMaps[selected].vicConDetails->allowNormalVictory) sss+= "/" + CGI->preth->victoryConditions[0];
 	CSDL_Ext::printAt(sss,452,310,GEOR13,zwykly);
 
 
 	temp = ourMaps[selected].lossCondition.typeOfLossCon+1;
 	if (temp>20) temp=0;
-	sss = CPG->preth->lossCondtions[temp];
+	sss = CGI->preth->lossCondtions[temp];
 	CSDL_Ext::printAt(sss,452,370,GEOR13,zwykly);
 
 	//blit descrption
@@ -1245,19 +1266,19 @@ void MapSel::printSelectedInfo()
 	switch (ourMaps[selected].difficulty)
 	{
 	case 0:
-		diff=gdiff(CPG->preth->zelp[24].second);
+		diff=gdiff(CGI->preth->zelp[24].second);
 		break;
 	case 1:
-		diff=gdiff(CPG->preth->zelp[25].second);
+		diff=gdiff(CGI->preth->zelp[25].second);
 		break;
 	case 2:
-		diff=gdiff(CPG->preth->zelp[26].second);
+		diff=gdiff(CGI->preth->zelp[26].second);
 		break;
 	case 3:
-		diff=gdiff(CPG->preth->zelp[27].second);
+		diff=gdiff(CGI->preth->zelp[27].second);
 		break;
 	case 4:
-		diff=gdiff(CPG->preth->zelp[28].second);
+		diff=gdiff(CGI->preth->zelp[28].second);
 		break;
 	}
 	temp=-1;
@@ -1383,6 +1404,7 @@ void CPreGame::showScenList()
 }
 CPreGame::CPreGame()
 {
+	CPG=this;
 	highlighted=NULL;
 	currentTab=NULL;
 	run=true;
@@ -1390,23 +1412,20 @@ CPreGame::CPreGame()
 	tytulowy.r=229;tytulowy.g=215;tytulowy.b=123;tytulowy.unused=0;
 	zwykly.r=255;zwykly.g=255;zwykly.b=255;zwykly.unused=0; //gbr
 	tlo.r=66;tlo.g=44;tlo.b=24;tlo.unused=0;
-	preth = new CPreGameTextHandler;
-	preth->loadTexts();
-	CGI->preth=preth;
-	tlog0<<"\tCPreGame: loading txts: "<<tmh.getDif()<<std::endl;
 	currentMessage=NULL;
 	behindCurMes=NULL;
 	initMainMenu();
 	tlog0<<"\tCPreGame: main menu initialization: "<<tmh.getDif()<<std::endl;
 	initNewMenu();
 	tlog0<<"\tCPreGame: newgame menu initialization: "<<tmh.getDif()<<std::endl;
+	initLoadMenu();
+	tlog0<<"\tCPreGame: loadgame menu initialization: "<<tmh.getDif()<<std::endl;
 	initScenSel();
 	tlog0<<"\tCPreGame: scenario choice initialization: "<<tmh.getDif()<<std::endl;
 	initOptions();
 	tlog0<<"\tCPreGame: scenario options initialization: "<<tmh.getDif()<<std::endl;
 	showMainMenu();
 	tlog0<<"\tCPreGame: displaying main menu: "<<tmh.getDif()<<std::endl;
-	CPG=this;
 	playerName="Player";
 }
 void CPreGame::initOptions()
@@ -1417,44 +1436,6 @@ void CPreGame::initOptions()
 void CPreGame::initScenSel()
 {
 	ourScenSel = new ScenSel();
-	ourScenSel->listShowed=false;
-	if (rand()%2) ourScenSel->background=BitmapHandler::loadBitmap("ZPIC1000.bmp");
-	else ourScenSel->background=BitmapHandler::loadBitmap("ZPIC1001.bmp");
-
-	ourScenSel->pressed=NULL;
-
-	ourScenSel->scenInf=BitmapHandler::loadBitmap("GSELPOP1.bmp");//SDL_LoadBMP("h3bitmap.lod\\GSELPOP1.bmp");
-	ourScenSel->randMap=BitmapHandler::loadBitmap("RANMAPBK.bmp");
-	ourScenSel->options=BitmapHandler::loadBitmap("ADVOPTBK.bmp");
-	SDL_SetColorKey(ourScenSel->scenInf,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->scenInf->format,0,255,255));
-	//SDL_SetColorKey(ourScenSel->scenList,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->scenList->format,0,255,255));
-	SDL_SetColorKey(ourScenSel->randMap,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->randMap->format,0,255,255));
-	SDL_SetColorKey(ourScenSel->options,SDL_SRCCOLORKEY,SDL_MapRGB(ourScenSel->options->format,0,255,255));
-
-	ourScenSel->difficulty = new CPoinGroup();
-	ourScenSel->difficulty->type=1;
-	ourScenSel->selectedDiff=-77;
-	ourScenSel->difficulty->gdzie = &ourScenSel->selectedDiff;
-	ourScenSel->bEasy = IntSelBut(genRect(0,0,506,456),NULL,CDefHandler::giveDef("GSPBUT3.DEF"),true,ourScenSel->difficulty,0);
-	ourScenSel->bNormal = IntSelBut(genRect(0,0,538,456),NULL,CDefHandler::giveDef("GSPBUT4.DEF"),true,ourScenSel->difficulty,1);
-	ourScenSel->bHard = IntSelBut(genRect(0,0,570,456),NULL,CDefHandler::giveDef("GSPBUT5.DEF"),true,ourScenSel->difficulty,2);
-	ourScenSel->bExpert = IntSelBut(genRect(0,0,602,456),NULL,CDefHandler::giveDef("GSPBUT6.DEF"),true,ourScenSel->difficulty,3);
-	ourScenSel->bImpossible = IntSelBut(genRect(0,0,634,456),NULL,CDefHandler::giveDef("GSPBUT7.DEF"),true,ourScenSel->difficulty,4);
-
-	ourScenSel->bBack = Button(genRect(0,0,584,535),boost::bind(&CPreGame::showNewMenu,this),CDefHandler::giveDef("SCNRBACK.DEF"));
-	ourScenSel->bBegin = Button(genRect(0,0,414,535),boost::bind(&CPreGame::begin,this),CDefHandler::giveDef("SCNRBEG.DEF"));
-	ourScenSel->bScens = Button(genRect(0,0,414,81),boost::bind(&CPreGame::showScenList,this),CDefHandler::giveDef("GSPBUTT.DEF"));
-
-	for (int i=0; i<ourScenSel->bScens.imgs->ourImages.size(); i++)
-		CSDL_Ext::printAt(CGI->generaltexth->allTexts[500],25+i,2+i,GEOR13,zwykly,ourScenSel->bScens.imgs->ourImages[i].bitmap); //"Show Available Scenarios"
-	ourScenSel->bRandom = Button(genRect(0,0,414,105),boost::bind(&CPreGame::showScenList,this),CDefHandler::giveDef("GSPBUTT.DEF"));
-	for (int i=0; i<ourScenSel->bRandom.imgs->ourImages.size(); i++)
-		CSDL_Ext::printAt(CGI->generaltexth->allTexts[740],25+i,2+i,GEOR13,zwykly,ourScenSel->bRandom.imgs->ourImages[i].bitmap);
-	ourScenSel->bOptions = Button(genRect(0,0,414,509),boost::bind(&CPreGame::showOptions,this),CDefHandler::giveDef("GSPBUTT.DEF"));
-	for (int i=0; i<ourScenSel->bOptions.imgs->ourImages.size(); i++)
-		CSDL_Ext::printAt(CGI->generaltexth->allTexts[501],25+i,2+i,GEOR13,zwykly,ourScenSel->bOptions.imgs->ourImages[i].bitmap); //"Show Advanced Options"
-
-	CPG=this;
 	tlog5 << "\t\tLoaded graphics\n";
 	ourScenSel->mapsel.init();
 	tlog5 << "\t\tLoaded maps\n";
@@ -1554,8 +1535,6 @@ void CPreGame::initNewMenu()
 	ourNewMenu->highScores = CDefHandler::giveDef("ZTCAMPN.DEF");
 	ourNewMenu->credits = CDefHandler::giveDef("ZTTUTOR.DEF");
 	ourNewMenu->quit = CDefHandler::giveDef("ZTBACK.DEF");
-	ok = CDefHandler::giveDef("IOKAY.DEF");
-	cancel = CDefHandler::giveDef("ICANCEL.DEF");
 	// single scenario
 	ourNewMenu->lNewGame.h=ourNewMenu->newGame->ourImages[0].bitmap->h;
 	ourNewMenu->lNewGame.w=ourNewMenu->newGame->ourImages[0].bitmap->w;
@@ -1627,6 +1606,7 @@ void CPreGame::initMainMenu()
 	ourMainMenu->lLoadGame.w=ourMainMenu->loadGame->ourImages[0].bitmap->w;
 	ourMainMenu->lLoadGame.x=532;
 	ourMainMenu->lLoadGame.y=132;
+	ourMainMenu->fLoadGame=&CPreGame::showLoadMenu;
 	//high scores
 	ourMainMenu->lHighScores.h=ourMainMenu->highScores->ourImages[0].bitmap->h;
 	ourMainMenu->lHighScores.w=ourMainMenu->highScores->ourImages[0].bitmap->w;
@@ -1696,7 +1676,7 @@ void CPreGame::highlightButton(int which, int on)
 void CPreGame::showCenBox (std::string data)
 {
 	CMessage * cmh = new CMessage();
-	SDL_Surface * infoBox = cmh->genMessage(preth->getTitle(data), preth->getDescr(data));
+	SDL_Surface * infoBox = cmh->genMessage(CGI->preth->getTitle(data), CGI->preth->getDescr(data));
 	behindCurMes = CSDL_Ext::newSurface(infoBox->w,infoBox->h,screen);
 	SDL_Rect pos = genRect(infoBox->h,infoBox->w,
 		(screen->w/2)-(infoBox->w/2),(screen->h/2)-(infoBox->h/2));
@@ -1714,7 +1694,7 @@ void CPreGame::showAskBox (std::string data, void(*f1)(),void(*f2)())
 	std::vector<SDL_Rect> * btnspos= new std::vector<SDL_Rect>(0);
 	przyciski->push_back(ok);
 	przyciski->push_back(cancel);
-	SDL_Surface * infoBox = cmh->genMessage(preth->getTitle(data), preth->getDescr(data), yesOrNO, przyciski, btnspos);
+	SDL_Surface * infoBox = cmh->genMessage(CGI->preth->getTitle(data), CGI->preth->getDescr(data), yesOrNO, przyciski, btnspos);
 	behindCurMes = CSDL_Ext::newSurface(infoBox->w,infoBox->h,screen);
 	SDL_Rect pos = genRect(infoBox->h,infoBox->w,
 		(screen->w/2)-(infoBox->w/2),(screen->h/2)-(infoBox->h/2));
@@ -1761,6 +1741,8 @@ CPreGame::menuItems * CPreGame::currentItems()
 		return ourMainMenu;
 	case newGame:
 		return ourNewMenu;
+	case loadGame:
+		return ourLoadMenu;
 	default:
 		return NULL;
 	}
@@ -2065,6 +2047,7 @@ StartInfo CPreGame::runLoop()
 					{
 						highlightButton(2,2);
 						current->highlighted=2;
+						(this->*(current->fLoadGame))();
 					}
 					else if (isItIn(&current->lHighScores,sEvent.motion.x,sEvent.motion.y))
 					{
@@ -2129,31 +2112,31 @@ std::string CPreGame::buttonText(int which)
 		switch (which)
 		{
 		case 0:
-			return CPG->preth->zelp[3].second;
+			return CGI->preth->zelp[3].second;
 		case 1:
-			return CPG->preth->zelp[4].second;
+			return CGI->preth->zelp[4].second;
 		case 2:
-			return CPG->preth->zelp[5].second;
+			return CGI->preth->zelp[5].second;
 		case 3:
-			return CPG->preth->zelp[6].second;
+			return CGI->preth->zelp[6].second;
 		case 4:
-			return CPG->preth->zelp[7].second;
+			return CGI->preth->zelp[7].second;
 		}
 	}
-	else if (state==newGame)
+	else if (state==newGame || state==loadGame)
 	{
 		switch (which)
 		{
 		case 0:
-			return CPG->preth->zelp[10].second;
+			return CGI->preth->zelp[10].second;
 		case 1:
-			return CPG->preth->zelp[11].second;
+			return CGI->preth->zelp[11].second;
 		case 2:
-			return CPG->preth->zelp[12].second;
+			return CGI->preth->zelp[12].second;
 		case 3:
-			return CPG->preth->zelp[13].second;
+			return CGI->preth->zelp[13].second;
 		case 4:
-			return CPG->preth->zelp[14].second;
+			return CGI->preth->zelp[14].second;
 		}
 	}
 	return std::string();
@@ -2223,4 +2206,140 @@ void CPreGame::setTurnLength(int on)
 		CSDL_Ext::printAtMiddle(os.str(),323,563,GEOR13);
 	}
 	else CSDL_Ext::printAtMiddle("Unlimited",323,563,GEOR13);
+}
+
+void CPreGame::showLoadMenu()
+{
+	if (currentTab/*==&ourScenSel->mapsel*/)
+		currentTab->hide();
+	btns.clear();
+	interested.clear();
+	handleOther=NULL;
+	state = loadGame;
+	SDL_BlitSurface(ourLoadMenu->background,NULL,screen,NULL);
+	SDL_BlitSurface(ourLoadMenu->newGame->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lNewGame);
+	SDL_BlitSurface(ourLoadMenu->loadGame->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lLoadGame);
+	SDL_BlitSurface(ourLoadMenu->highScores->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lHighScores);
+	SDL_BlitSurface(ourLoadMenu->credits->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lCredits);
+	SDL_BlitSurface(ourLoadMenu->quit->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lQuit);
+	//SDL_Flip(screen);
+	CSDL_Ext::update(screen);
+	first = true;
+}
+
+void CPreGame::initLoadMenu()
+{
+	ourLoadMenu = new menuItems();
+	ourLoadMenu->bgAd = BitmapHandler::loadBitmap("ZLOADGAM.bmp");
+	ourLoadMenu->background = BitmapHandler::loadBitmap("ZPIC1005.bmp");
+	blitAt(ourLoadMenu->bgAd,114,312,ourLoadMenu->background);
+	//loading menu buttons
+	ourLoadMenu->newGame = CDefHandler::giveDef("ZTSINGL.DEF");
+	ourLoadMenu->loadGame = CDefHandler::giveDef("ZTMULTI.DEF");
+	ourLoadMenu->highScores = CDefHandler::giveDef("ZTCAMPN.DEF");
+	ourLoadMenu->credits = CDefHandler::giveDef("ZTTUTOR.DEF");
+	ourLoadMenu->quit = CDefHandler::giveDef("ZTBACK.DEF");
+	// single scenario
+	ourLoadMenu->lNewGame.h=ourLoadMenu->newGame->ourImages[0].bitmap->h;
+	ourLoadMenu->lNewGame.w=ourLoadMenu->newGame->ourImages[0].bitmap->w;
+	ourLoadMenu->lNewGame.x=545;
+	ourLoadMenu->lNewGame.y=4;
+	ourLoadMenu->fNewGame=&CPreGame::showScenSel;
+	//multiplayer
+	ourLoadMenu->lLoadGame.h=ourLoadMenu->loadGame->ourImages[0].bitmap->h;
+	ourLoadMenu->lLoadGame.w=ourLoadMenu->loadGame->ourImages[0].bitmap->w;
+	ourLoadMenu->lLoadGame.x=568;
+	ourLoadMenu->lLoadGame.y=120;
+	//campaign
+	ourLoadMenu->lHighScores.h=ourLoadMenu->highScores->ourImages[0].bitmap->h;
+	ourLoadMenu->lHighScores.w=ourLoadMenu->highScores->ourImages[0].bitmap->w;
+	ourLoadMenu->lHighScores.x=541;
+	ourLoadMenu->lHighScores.y=233;
+	//tutorial
+	ourLoadMenu->lCredits.h=ourLoadMenu->credits->ourImages[0].bitmap->h;
+	ourLoadMenu->lCredits.w=ourLoadMenu->credits->ourImages[0].bitmap->w;
+	ourLoadMenu->lCredits.x=545;
+	ourLoadMenu->lCredits.y=358;
+	//back
+	ourLoadMenu->lQuit.h=ourLoadMenu->quit->ourImages[0].bitmap->h;
+	ourLoadMenu->lQuit.w=ourLoadMenu->quit->ourImages[0].bitmap->w;
+	ourLoadMenu->lQuit.x=582;
+	ourLoadMenu->lQuit.y=464;
+	ourLoadMenu->fQuit=&CPreGame::showMainMenu;
+
+	ourLoadMenu->highlighted=0;
+}
+
+CPreGame::~CPreGame()
+{
+	delete ourMainMenu;
+	delete ourNewMenu;
+	delete ourLoadMenu;
+
+	delete ok;
+	delete cancel;
+}
+
+CPreGame::menuItems::menuItems()
+{
+}
+
+CPreGame::menuItems::~menuItems()
+{
+	delete this->newGame;
+	delete this->loadGame;
+	delete this->highScores;
+	delete this->credits;
+	delete this->quit;
+	SDL_FreeSurface(bgAd);
+	SDL_FreeSurface(background);
+}
+
+ScenSel::ScenSel()
+:
+	difficulty(new CPoinGroup()),
+	bEasy(genRect(0,0,506,456),NULL,CDefHandler::giveDef("GSPBUT3.DEF"),true,difficulty,0),
+	bNormal(genRect(0,0,538,456),NULL,CDefHandler::giveDef("GSPBUT4.DEF"),true,difficulty,1),
+	bHard(genRect(0,0,570,456),NULL,CDefHandler::giveDef("GSPBUT5.DEF"),true,difficulty,2),
+	bExpert(genRect(0,0,602,456),NULL,CDefHandler::giveDef("GSPBUT6.DEF"),true,difficulty,3),
+	bImpossible(genRect(0,0,634,456),NULL,CDefHandler::giveDef("GSPBUT7.DEF"),true,difficulty,4),
+	bBack(genRect(0,0,584,535),boost::bind(&CPreGame::showNewMenu,CPG),CDefHandler::giveDef("SCNRBACK.DEF")),
+	bBegin(genRect(0,0,414,535),boost::bind(&CPreGame::begin,CPG),CDefHandler::giveDef("SCNRBEG.DEF")),
+	bScens(genRect(0,0,414,81),boost::bind(&CPreGame::showScenList,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
+	bRandom(genRect(0,0,414,105),boost::bind(&CPreGame::showScenList,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
+	bOptions(genRect(0,0,414,509),boost::bind(&CPreGame::showOptions,CPG),CDefHandler::giveDef("GSPBUTT.DEF"))
+{
+	pressed=NULL;
+	listShowed=false;
+	if (rand()%2) 
+		background = BitmapHandler::loadBitmap("ZPIC1000.bmp");
+	else 
+		background = BitmapHandler::loadBitmap("ZPIC1001.bmp");
+
+	scenInf = BitmapHandler::loadBitmap("GSELPOP1.bmp");
+	randMap = BitmapHandler::loadBitmap("RANMAPBK.bmp");
+	options = BitmapHandler::loadBitmap("ADVOPTBK.bmp");
+	SDL_SetColorKey(scenInf,SDL_SRCCOLORKEY,SDL_MapRGB(scenInf->format,0,255,255));
+	SDL_SetColorKey(randMap,SDL_SRCCOLORKEY,SDL_MapRGB(randMap->format,0,255,255));
+	SDL_SetColorKey(options,SDL_SRCCOLORKEY,SDL_MapRGB(options->format,0,255,255));
+
+	difficulty->type=1;
+	selectedDiff=-77;
+	difficulty->gdzie = &selectedDiff;
+
+	for (int i=0; i<bScens.imgs->ourImages.size(); i++)
+		CSDL_Ext::printAt(CGI->generaltexth->allTexts[500],25+i,2+i,GEOR13,zwykly,bScens.imgs->ourImages[i].bitmap); //"Show Available Scenarios"
+	for (int i=0; i<bRandom.imgs->ourImages.size(); i++)
+		CSDL_Ext::printAt(CGI->generaltexth->allTexts[740],25+i,2+i,GEOR13,zwykly,bRandom.imgs->ourImages[i].bitmap);
+	for (int i=0; i<bOptions.imgs->ourImages.size(); i++)
+		CSDL_Ext::printAt(CGI->generaltexth->allTexts[501],25+i,2+i,GEOR13,zwykly,bOptions.imgs->ourImages[i].bitmap); //"Show Advanced Options"
+}
+
+ScenSel::~ScenSel()
+{
+	delete difficulty;
+	SDL_FreeSurface(scenInf);
+	SDL_FreeSurface(randMap);
+	SDL_FreeSurface(background);
+	SDL_FreeSurface(options);
 }

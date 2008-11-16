@@ -28,6 +28,7 @@ struct HighButton
 	int state;
 	HighButton( SDL_Rect Pos, CDefHandler* Imgs, bool Sel=false, int id=-1);
 	HighButton();
+	~HighButton();
 	bool selectable, selected;
 	bool highlightable, highlighted;
 	virtual void show();
@@ -56,8 +57,8 @@ class Slider
 public:
 	bool vertical; // false means horizontal
 	SDL_Rect pos; // position
-	Button up, down, //or left/right
-		slider;
+	Button *up, *down, //or left/right
+		*slider;
 	int positionsAmnt, capacity;// capacity - amount of positions dispplayed at once
 	int whereAreWe; // first displayed thing
 	bool moving;
@@ -70,6 +71,7 @@ public:
 	void deactivate();
 	void activate();
 	Slider(int x, int y, int h, int amnt, int cap, bool ver);
+	~Slider();
 	void updateSlid();
 	void handleIt(SDL_Event sev);
 };
@@ -188,6 +190,7 @@ public:
 	std::vector<SDL_Surface*> scenImgs;
 	//int current;
 	std::vector<CMapInfo> ourMaps;
+	std::vector<CMapInfo> ourGames;
 	IntBut small, medium, large, xlarge, all;
 	SetrButton nrplayer, mapsize, type, name, viccon, loscon;
 	Slider *slid, *descslid;
@@ -210,6 +213,7 @@ public:
 class ScenSel
 {
 public:
+	CPoinGroup * difficulty;
 	bool listShowed;
 	//RanSel ransel;
 	MapSel mapsel;
@@ -217,14 +221,14 @@ public:
 	Button bScens, bOptions, bRandom, bBegin, bBack;
 	IntSelBut	bEasy, bNormal, bHard, bExpert, bImpossible;
 	Button * pressed;
-	CPoinGroup * difficulty;
 	std::vector<Mapa> maps;
 	int selectedDiff;
 	void initRanSel();
 	void showRanSel();
 	void hideRanSel();
 	void genScenList();
-	~ScenSel(){delete difficulty;};
+	ScenSel();
+	~ScenSel();
 } ;
 class CPreGame
 {
@@ -239,7 +243,6 @@ public:
 	std::vector<Slider *> interested;
 	CMusicHandler * mush;
 	std::vector<HighButton *> btns;
-	CPreGameTextHandler * preth ;
 	SDL_Rect * currentMessage;
 	SDL_Surface * behindCurMes;
 	CDefHandler *ok, *cancel;
@@ -247,16 +250,19 @@ public:
 		mainMenu, newGame, loadGame, ScenarioList
 	} state;
 	struct menuItems {
+		menuItems();
+		~menuItems();
 		SDL_Surface * background, *bgAd;
 		CDefHandler *newGame, *loadGame, *highScores,*credits, *quit;
 		SDL_Rect lNewGame, lLoadGame, lHighScores, lCredits, lQuit;
 		ttt fNewGame, fLoadGame, fHighScores, fCredits, fQuit;
 		int highlighted;//0=none; 1=new game; 2=load game; 3=high score; 4=credits; 5=quit
-	} * ourMainMenu, * ourNewMenu;
+	} * ourMainMenu, * ourNewMenu, * ourLoadMenu;
 	ScenSel * ourScenSel;
 	Options * ourOptions;
 	std::string map; //selected map
 	CPreGame(); //c-tor
+	~CPreGame();//d-tor
 	std::string buttonText(int which);
 	menuItems * currentItems();
 	void(CPreGame::*handleOther)(SDL_Event&);
@@ -270,7 +276,9 @@ public:
 	void initOptions();
 	void showOptions();
 	void initNewMenu();
+	void initLoadMenu();
 	void showNewMenu();
+	void showLoadMenu();
 	void showMainMenu();
 	StartInfo runLoop(); // runs mainloop of PreGame
 	void initMainMenu(); //loads components for main menu

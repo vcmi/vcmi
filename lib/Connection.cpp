@@ -3,6 +3,7 @@
 #include "Connection.h"
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
+#include <fstream>
 using namespace boost;
 using namespace boost::asio::ip;
 
@@ -143,18 +144,24 @@ void CConnection::close()
 		socket = NULL;
 	}
 }
-template <>
-void CConnection::saveSerializable<std::string>(const std::string &data)
+
+CSaveFile::CSaveFile( const std::string &fname )
+	:sfile(new std::ofstream(fname.c_str()))
 {
-	*this << ui32(data.size());
-	write(data.c_str(),data.size());
+	if(!(*sfile))
+	{
+		tlog1 << "Error: cannot open to write " << fname << std::endl;
+		sfile = NULL;
+	}
 }
 
-template <>
-void CConnection::loadSerializable<std::string>(std::string &data)
+CSaveFile::~CSaveFile()
 {
-	ui32 l;
-	*this >> l;
-	data.resize(l);
-	read((void*)data.c_str(),l);
+	delete sfile;
+}
+
+int CSaveFile::write( const void * data, unsigned size )
+{
+	sfile->write((char *)data,size);
+	return size;
 }

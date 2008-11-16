@@ -24,7 +24,12 @@ struct PlayerStatus
 {
 	bool makingTurn, engagedIntoBattle;
 	std::set<ui32> queries;
+
 	PlayerStatus():makingTurn(false),engagedIntoBattle(false){};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & makingTurn & engagedIntoBattle & queries;
+	}
 };
 class PlayerStatuses
 {
@@ -32,6 +37,7 @@ public:
 	std::map<ui8,PlayerStatus> players;
 	boost::mutex mx;
 	boost::condition_variable cv; //notifies when any changes are made
+
 	void addPlayer(ui8 player);
 	PlayerStatus operator[](ui8 player);
 	bool hasQueries(ui8 player);
@@ -39,6 +45,10 @@ public:
 	void setFlag(ui8 player, bool PlayerStatus::*flag, bool val);
 	void addQuery(ui8 player, ui32 id);
 	void removeQuery(ui8 player, ui32 id);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & players;
+	}
 };
 class CGameHandler
 {
@@ -69,6 +79,10 @@ public:
 	~CGameHandler(void);
 	void init(StartInfo *si, int Seed);
 	void handleConnection(std::set<int> players, CConnection &c);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & QID & gs & cppscripts & states;
+	}
 	template <typename T> void applyAndAsk(Query<T> * sel, ui8 player, boost::function<void(ui32)> &callback)
 	{
 		gsm.lock();

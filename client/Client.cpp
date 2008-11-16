@@ -698,3 +698,8 @@ void CClient::close()
 	serv->close();
 	tlog3 << "Our socket has been closed.\n";
 }
+
+void CClient::save(const std::string & fname)
+{
+	*serv << ui16(98) << fname;
+}

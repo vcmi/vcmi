@@ -48,6 +48,7 @@ public:
 	~CClient(void);
 
 	void close();
+	void save(const std::string & fname);
 	void process(int what);
 	void run();
 

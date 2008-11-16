@@ -50,6 +50,11 @@ public:
 	std::vector<CGTownInstance *> towns;
 	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
 	PlayerState():color(-1),currentSelection(0xffffffff){};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & color & serial & currentSelection & fogOfWarMap & resources;
+		//TODO: vectors of heroes/towns
+	}
 };
 
 struct DLL_EXPORT BattleInfo
@@ -156,7 +161,7 @@ private:
 	BattleInfo *curB; //current battle
 	ui32 day; //total number of days in game
 	Mapa * map;
-	std::map<ui8,PlayerState> players; //ID <-> playerstate
+	std::map<ui8,PlayerState> players; //ID <-> player state
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
 	std::vector<ui32> resVals;
 
@@ -191,6 +196,12 @@ private:
 	std::set<int3> tilesToReveal(int3 pos, int radious, int player); //if player==-1 => adds all tiles in radious
 public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & scenarioOps & seed & currentPlayer & day & map & players & resVals;
+		//TODO: villages, forts, capitols - will need reloading
+		//TODO: hero pool
+	}
 
 	friend class CCallback;
 	friend class CPathfinder;;

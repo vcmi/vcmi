@@ -99,6 +99,10 @@ public:
 	CScriptCallback * cb;
 	CCPPObjectScript(CScriptCallback * CB){cb=CB;};
 	virtual std::vector<int> yourObjects()=0; //returns IDs of objects which are handled by script
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		//TODO: write
+	}
 };
 class CVisitableOPH : public CCPPObjectScript  //once per hero
 {

@@ -103,6 +103,79 @@ public:
 	template<class T>
 	COSer & operator&(T & t){
 		return * this->This() << t;
+	}	
+	
+
+
+	int write(const void * data, unsigned size);
+	template <typename T>
+	void savePrimitive(const T &data)
+	{
+		this->This()->write(&data,sizeof(data));
+	}
+	template <typename T>
+	void savePointer(const T &data)
+	{
+		*this << *data;
+	}
+	template <typename T>
+	void save(const T &data)
+	{
+		typedef 
+			//if
+			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
+			mpl::identity<SavePrimitive<Serializer,T> >,
+			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
+			mpl::identity<SavePointer<Serializer,T> >,
+			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
+			mpl::identity<SaveSerializable<Serializer,T> >,
+			//else
+			mpl::identity<SaveWrong<Serializer,T> >
+			>
+			>
+			>::type typex;
+		typex::invoke(* this->This(), data);
+	}
+	template <typename T>
+	void saveSerializable(const T &data)
+	{
+		const_cast<T&>(data).serialize(*this,version);
+	}
+	template <typename T>
+	void saveSerializable(const std::vector<T> &data)
+	{
+		boost::uint32_t length = data.size();
+		*this << length;
+		for(ui32 i=0;i<length;i++)
+			*this << data[i];
+	}
+	template <typename T>
+	void saveSerializable(const std::set<T> &data)
+	{
+		std::set<T> &d = const_cast<std::set<T> &>(data);
+		boost::uint32_t length = d.size();
+		*this << length;
+		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
+			*this << *i;
+	}
+	void saveSerializable(const std::string &data)
+	{
+		*this << ui32(data.size());
+		this->This()->write(data.c_str(),data.size());
+	}
+	template <typename T1, typename T2>
+	void saveSerializable(const std::pair<T1,T2> &data)
+	{
+		*this << data.first << data.second;
+	}
+	template <typename T1, typename T2>
+	void saveSerializable(const std::map<T1,T2> &data)
+	{
+		*this << ui32(data.size());
+		for(typename std::map<T1,T2>::const_iterator i=data.begin();i!=data.end();i++)
+			*this << i->first << i->second;
 	}
 };
 template <typename Serializer> class DLL_EXPORT CISer
@@ -125,7 +198,94 @@ public:
 	template<class T>
 	CISer & operator&(T & t){
 		return * this->This() >> t;
+	}	
+
+	int write(const void * data, unsigned size);
+	template <typename T>
+	void load(T &data)
+	{
+		typedef 
+			//if
+			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
+			mpl::identity<LoadPrimitive<Serializer,T> >,
+			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
+			mpl::identity<LoadPointer<Serializer,T> >,
+			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
+			mpl::identity<LoadSerializable<Serializer,T> >,
+			//else
+			mpl::identity<LoadWrong<Serializer,T> >
+			>
+			>
+			>::type typex;
+		typex::invoke(* this->This(), data);
 	}
+	template <typename T>
+	void loadPrimitive(T &data)
+	{
+		this->This()->read(&data,sizeof(data));
+	}
+	template <typename T>
+	void loadSerializable(T &data)
+	{
+		data.serialize(*this,version);
+	}	
+	template <typename T>
+	void loadPointer(T &data)
+	{
+		tlog5<<"Allocating memory for pointer!"<<std::endl;
+		typedef typename boost::remove_pointer<T>::type npT;
+		data = new npT;
+		*this >> *data;
+	}
+	template <typename T>
+	void loadSerializable(std::vector<T> &data)
+	{
+		boost::uint32_t length;
+		*this >> length;
+		data.resize(length);
+		for(ui32 i=0;i<length;i++)
+			*this >> data[i];
+	}
+	template <typename T>
+	void loadSerializable(std::set<T> &data)
+	{
+		boost::uint32_t length;
+		*this >> length;
+		T ins;
+		for(ui32 i=0;i<length;i++)
+		{
+			*this >> ins;
+			data.insert(ins);
+		}
+	}
+	template <typename T1, typename T2>
+	void loadSerializable(std::pair<T1,T2> &data)
+	{
+		*this >> data.first >> data.second;
+	}
+
+	template <typename T1, typename T2>
+	void loadSerializable(std::map<T1,T2> &data)
+	{
+		ui32 length;
+		*this >> length;
+		T1 t;
+		for(int i=0;i<length;i++)
+		{
+			*this >> t;
+			*this >> data[t];
+		}
+	}
+	void loadSerializable(std::string &data)
+	{
+		ui32 l;
+		*this >> l;
+		data.resize(l);
+		this->This()->read((void*)data.c_str(),l);
+	}
+
 };
 
 template<typename Ser,typename T>
@@ -195,165 +355,28 @@ struct LoadWrong
 };
 
 
+class DLL_EXPORT CSaveFile
+	: public COSer<CSaveFile>
+{
+	void dummyMagicFunction()
+	{
+		*this << std::string("This function makes stuff working.");
+	}
+public:
+	std::ofstream *sfile;
+	CSaveFile(const std::string &fname);
+	~CSaveFile();
+	int write(const void * data, unsigned size);
+};
+
 class DLL_EXPORT CConnection
 	:public CISer<CConnection>, public COSer<CConnection>
 {
-
-
 	std::ostream &out;
 	CConnection(void);
 	void init();
 public:
 	boost::mutex *rmx, *wmx; // read/write mutexes
-
-	template <typename T>
-	void savePrimitive(const T &data)
-	{
-		write(&data,sizeof(data));
-	}
-	template <typename T>
-	void loadPrimitive(T &data)
-	{
-		read(&data,sizeof(data));
-	}
-
-	
-	
-	template <typename T>
-	void saveSerializable(const T &data)
-	{
-		const_cast<T&>(data).serialize(*static_cast<COSer<CConnection>*>(this),version);
-	}
-	template <typename T>
-	void loadSerializable(T &data)
-	{
-		data.serialize(*static_cast<CISer<CConnection>*>(this),version);
-	}	
-	template <typename T>
-	void savePointer(const T &data)
-	{
-		*this << *data;
-	}
-	template <typename T>
-	void loadPointer(T &data)
-	{
-		tlog5<<"Allocating memory for pointer!"<<std::endl;
-		typedef typename boost::remove_pointer<T>::type npT;
-		data = new npT;
-		*this >> *data;
-	}
-	template <typename T>
-	void saveSerializable(const std::vector<T> &data)
-	{
-		boost::uint32_t length = data.size();
-		*this << length;
-		for(ui32 i=0;i<length;i++)
-			*this << data[i];
-	}
-	template <typename T>
-	void loadSerializable(std::vector<T> &data)
-	{
-		boost::uint32_t length;
-		*this >> length;
-		data.resize(length);
-		for(ui32 i=0;i<length;i++)
-			*this >> data[i];
-	}
-	
-	template <typename T>
-	void saveSerializable(const std::set<T> &data)
-	{
-		std::set<T> &d = const_cast<std::set<T> &>(data);
-		boost::uint32_t length = d.size();
-		*this << length;
-		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
-			*this << *i;
-	}
-	template <typename T>
-	void loadSerializable(std::set<T> &data)
-	{
-		boost::uint32_t length;
-		*this >> length;
-		T ins;
-		for(ui32 i=0;i<length;i++)
-		{
-			*this >> ins;
-			data.insert(ins);
-		}
-	}
-	
-	template <typename T1, typename T2>
-	void saveSerializable(const std::pair<T1,T2> &data)
-	{
-		*this << data.first << data.second;
-	}
-	template <typename T1, typename T2>
-	void loadSerializable(std::pair<T1,T2> &data)
-	{
-		*this >> data.first >> data.second;
-	}
-	
-	template <typename T1, typename T2>
-	void saveSerializable(const std::map<T1,T2> &data)
-	{
-		*this << ui32(data.size());
-		for(typename std::map<T1,T2>::const_iterator i=data.begin();i!=data.end();i++)
-			*this << i->first << i->second;
-	}
-	template <typename T1, typename T2>
-	void loadSerializable(std::map<T1,T2> &data)
-	{
-		ui32 length;
-		*this >> length;
-		T1 t;
-		for(int i=0;i<length;i++)
-		{
-			*this >> t;
-			*this >> data[t];
-		}
-	}
-	template <typename T>
-	void save(const T &data)
-	{
-		typedef 
-			//if
-			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
-				mpl::identity<SavePrimitive<CConnection,T> >,
-			//else if
-			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
-				mpl::identity<SavePointer<CConnection,T> >,
-			//else if
-			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
-				mpl::identity<SaveSerializable<CConnection,T> >,
-			//else
-				mpl::identity<SaveWrong<CConnection,T> >
-			>
-			>
-			>::type typex;
-		typex::invoke(*this, data);
-	}
-
-	template <typename T>
-	void load(T &data)
-	{
-		typedef 
-			//if
-			typename mpl::eval_if< mpl::equal_to<SerializationLevel<T>,mpl::int_<Primitive> >,
-				mpl::identity<LoadPrimitive<CConnection,T> >,
-			//else if
-			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
-				mpl::identity<LoadPointer<CConnection,T> >,
-			//else if
-			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
-				mpl::identity<LoadSerializable<CConnection,T> >,
-			//else
-				mpl::identity<LoadWrong<CConnection,T> >
-			>
-			>
-			>::type typex;
-		typex::invoke(*this, data);
-	}
-
 	boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * socket;
 	bool logging;
 	bool connected;
@@ -375,10 +398,3 @@ public:
 	void close();
 	~CConnection(void);
 };
-
-template<> DLL_EXPORT 
-void CConnection::saveSerializable<std::string>(const std::string &data);
-template <>DLL_EXPORT 
-void CConnection::loadSerializable<std::string>(std::string &data);
-
-

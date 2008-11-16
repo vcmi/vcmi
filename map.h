@@ -505,5 +505,9 @@ struct DLL_EXPORT Mapa
 	Mapa(std::string filename); //creates map structure from .h3m file
 	CGHeroInstance * getHero(int ID, int mode=0);
 	bool isInTheMap(int3 pos);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		//TODO: write
+	}
 };
 #endif //MAPD_H

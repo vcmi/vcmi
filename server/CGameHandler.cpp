@@ -407,6 +407,15 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			bool blockvis = false;
 			switch(pom)
 			{
+			case 98:
+				{
+					std::string fname;
+					c >> fname;
+					CSaveFile save(fname);
+					save << this;
+					//save << this;
+					break;
+				}
 			case 99: //end!
 				{
 					tlog0 << "We have been requested to close.\n";
