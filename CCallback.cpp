@@ -526,8 +526,15 @@ bool CCallback::battleIsStackMine(int ID)
 bool CCallback::battleCanShoot(int ID, int dest)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	CStack *our=battleGetStackByID(ID), *dst=battleGetStackByPos(dest);
+	CStack *our = battleGetStackByID(ID), *dst = battleGetStackByPos(dest);
 	if(!our || !dst) return false; 
+
+	for(int g=0; g<our->effects.size(); ++g)
+	{
+		if(61 == our->effects[g].id) //forgetfulness
+			return false;
+	}
+
 	if(vstd::contains(our->abilities,SHOOTER)//it's shooter
 		&& our->owner != dst->owner
 		&& dst->alive()

@@ -2120,7 +2120,12 @@ void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 	if(bsa->killed())
 		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7 );
 	else
-		battleInt->stackIsAttacked(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7);
+	{
+		std::vector<CBattleInterface::SStackAttackedInfo> arg;
+		CBattleInterface::SStackAttackedInfo to_put = {bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7};
+		arg.push_back(to_put);
+		battleInt->stacksAreAttacked(arg);
+	}
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {

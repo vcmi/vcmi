@@ -912,17 +912,28 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	creAnims[number]->pos.y = coords.second;
 }
 
-void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting)
+void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAttackedInfo> attackedInfos)
 {
-	while(creAnims[ID]->getType() != 2 || (attackingInfo && attackingInfo->IDby == IDby))
+	while(true)
 	{
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+
+		//checking break conditions
+		bool break_loop = true;
+		for(int g=0; g<attackedInfos.size(); ++g)
+		{
+			if(creAnims[attackedInfos[g].ID]->getType() != 2)
+				break_loop = false;
+			if(attackingInfo && attackingInfo->IDby == attackedInfos[g].IDby)
+				break_loop = false;
+		}
+		if(break_loop) break;
 	}
-	if(byShooting) //delay hit animation
+	if(attackedInfos.size() == 1 && attackedInfos[0].byShooting) //delay hit animation
 	{
-		CStack attacker = *LOCPLINT->cb->battleGetStackByID(IDby);
+		CStack attacker = *LOCPLINT->cb->battleGetStackByID(attackedInfos[0].IDby);
 		while(true)
 		{
 			bool found = false;
@@ -944,20 +955,41 @@ void CBattleInterface::stackIsAttacked(int ID, int dmg, int killed, int IDby, bo
 			}
 		}
 	}
-	creAnims[ID]->setType(3); //getting hit
-	int firstFrame = creAnims[ID]->getFrame();
-	for(int i=0; creAnims[ID]->getFrame() != creAnims[ID]->framesInGroup(3) + firstFrame - 1; ++i)
+	std::vector<int> animLengths;
+	int maxLen = 0;
+	for(int g=0; g<attackedInfos.size(); ++g)
+	{
+		creAnims[attackedInfos[g].ID]->setType(3); //getting hit
+		animLengths.push_back( creAnims[attackedInfos[g].ID]->framesInGroup(3) );
+		if(creAnims[attackedInfos[g].ID]->framesInGroup(3) > maxLen)
+		{
+			maxLen = creAnims[attackedInfos[g].ID]->framesInGroup(3);
+		}
+	}
+	for(int i=0; i<maxLen; ++i)
 	{
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		/*if((animCount+1)%(4/animSpeed)==0)
 			creAnims[ID]->incrementFrame();*/
+		for(int g=0; g<attackedInfos.size(); ++g)
+		{
+			if(i>=animLengths[g] && creAnims[attackedInfos[g].ID]->getType() == 3)
+				creAnims[attackedInfos[g].ID]->setType(2);
+		}
 	}
-	creAnims[ID]->setType(2);
+	for(int g=0; g<attackedInfos.size(); ++g)
+	{
+		if(creAnims[attackedInfos[g].ID]->getType() == 3)
+			creAnims[attackedInfos[g].ID]->setType(2);
+	}
 
-	if(IDby!=-1)
-		printConsoleAttacked(ID, dmg, killed, IDby);
+	for(int g=0; g<attackedInfos.size(); ++g)
+	{
+		if(attackedInfos[g].IDby!=-1)
+			printConsoleAttacked(attackedInfos[g].ID, attackedInfos[g].dmg, attackedInfos[g].killed, attackedInfos[g].IDby);
+	}
 }
 
 void CBattleInterface::stackAttacking(int ID, int dest)
@@ -1390,6 +1422,11 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 	case 54: //slow
 		{
 			displayEffect(19, sc->tile);
+			break;
+		}
+	case 61: //forgetfulness
+		{
+			displayEffect(42, sc->tile);
 			break;
 		}
 	}

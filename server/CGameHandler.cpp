@@ -1162,6 +1162,11 @@ upgend:
 							  || !vstd::contains(curStack->abilities,SHOOTER) //our stack is shooting unit
 							  )
 								break;
+							for(int g=0; g<curStack->effects.size(); ++g)
+							{
+								if(61 == curStack->effects[g].id) //forgetfulness
+									break;
+							}
 
 							sendAndApply(&StartAction(ba)); //start shooting
 
@@ -1309,6 +1314,16 @@ upgend:
 									SetStackEffect sse;
 									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
 									sse.effect.id = 54;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
+							case 61: //forgetfulness
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 61;
 									sse.effect.level = getSchoolLevel(h,s);
 									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
 									sendAndApply(&sse);

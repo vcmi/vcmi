@@ -1,7 +1,6 @@
 #ifndef MAPHANDLER_H
 #define MAPHANDLER_H
 #include "global.h"
-#include <SDL.h>
 #include <list>
 #include <set>
 const int Woff = 12; //width of map's frame
@@ -14,6 +13,8 @@ class CGDefInfo;
 class CGObjectInstance;
 class CDefHandler;
 struct TerrainTile;
+struct SDL_Surface;
+struct SDL_Rect;
 
 struct TerrainTile2
 {
