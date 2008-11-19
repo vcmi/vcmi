@@ -37,7 +37,7 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, u
 	tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
 	if (!hero->canWalkOnSea())
 	{
-		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].tileInfo->tertype==EterrainType::water)
+		if (CGI->mh->ttiles[hpos.x][hpos.y][hpos.z].tileInfo->tertype==water)
 			blockLandSea=false;
 		else
 			blockLandSea=true;
@@ -63,11 +63,11 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, u
 			graph[i][j].coord.x = i;
 			graph[i][j].coord.y = j;
 			graph[i][j].coord.z = dest.z;
-			if (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==EterrainType::rock)
+			if (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==rock)
 				graph[i][j].accesible = false;
-			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==EterrainType::water))
+			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==water))
 				graph[i][j].accesible = false;
-			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype!=EterrainType::water))
+			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype!=water))
 				graph[i][j].accesible = false;
 			if(graph[i][j].accesible)
 				graph[i][j].accesible = CGI->state->players[hero->tempOwner].fogOfWarMap[i][j][src.z];

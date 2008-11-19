@@ -6,6 +6,10 @@
 #include <map>
 #include <list>
 
+#ifdef __GNUC__
+#define sprintf_s snprintf 
+#endif
+
 class CDefEssential;
 class AdventureMapButton;
 class CHighlightableButtonsGroup;

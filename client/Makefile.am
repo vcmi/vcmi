@@ -36,6 +36,7 @@ vcmiclient_SOURCES =  \
 ../mapHandler.cpp \
 ../SDL_Extensions.cpp \
 ../SDL_framerate.cpp \
+./CConfigHandler.cpp \
 ./CSpellWindow.cpp \
 ../AdventureMapButton.h \
 ../AI_Base.h \
@@ -79,4 +80,5 @@ vcmiclient_SOURCES =  \
 ../StartInfo.h \
 ../stdafx.h \
 ../timeHandler.h \
-./CSpellWindow.h
+./CSpellWindow.h \
+./CConfigHandler.h

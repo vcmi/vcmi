@@ -49,6 +49,72 @@ enum SerializationLvl
 	Serializable
 };
 
+template<typename Ser,typename T>
+struct SavePrimitive
+{
+	static void invoke(Ser &s, const T &data)
+	{
+		s.savePrimitive(data);
+	}
+};
+template<typename Ser,typename T>
+struct SaveSerializable
+{
+	static void invoke(Ser &s, const T &data)
+	{
+		s.saveSerializable(data);
+	}
+};
+template<typename Ser,typename T>
+struct LoadPrimitive
+{
+	static void invoke(Ser &s, T &data)
+	{
+		s.loadPrimitive(data);
+	}
+};
+template<typename Ser,typename T>
+struct SavePointer
+{
+	static void invoke(Ser &s, const T &data)
+	{
+		s.savePointer(data);
+	}
+};
+template<typename Ser,typename T>
+struct LoadPointer
+{
+	static void invoke(Ser &s, T &data)
+	{
+		s.loadPointer(data);
+	}
+};
+template<typename Ser,typename T>
+struct LoadSerializable
+{
+	static void invoke(Ser &s, T &data)
+	{
+		s.loadSerializable(data);
+	}
+};
+
+template<typename Ser,typename T>
+struct SaveWrong
+{
+	static void invoke(Ser &s, const T &data)
+	{
+		throw std::exception("Wrong save serialization call!");
+	}
+};
+template<typename Ser,typename T>
+struct LoadWrong
+{
+	static void invoke(Ser &s, const T &data)
+	{
+		throw std::exception("Wrong load serialization call!");
+	}
+};
+
 template<typename T>
 struct SerializationLevel
 {    
@@ -286,72 +352,6 @@ public:
 		this->This()->read((void*)data.c_str(),l);
 	}
 
-};
-
-template<typename Ser,typename T>
-struct SavePrimitive
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		s.savePrimitive(data);
-	}
-};
-template<typename Ser,typename T>
-struct SaveSerializable
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		s.saveSerializable(data);
-	}
-};
-template<typename Ser,typename T>
-struct LoadPrimitive
-{
-	static void invoke(Ser &s, T &data)
-	{
-		s.loadPrimitive(data);
-	}
-};
-template<typename Ser,typename T>
-struct SavePointer
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		s.savePointer(data);
-	}
-};
-template<typename Ser,typename T>
-struct LoadPointer
-{
-	static void invoke(Ser &s, T &data)
-	{
-		s.loadPointer(data);
-	}
-};
-template<typename Ser,typename T>
-struct LoadSerializable
-{
-	static void invoke(Ser &s, T &data)
-	{
-		s.loadSerializable(data);
-	}
-};
-
-template<typename Ser,typename T>
-struct SaveWrong
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		throw std::exception("Wrong save serialization call!");
-	}
-};
-template<typename Ser,typename T>
-struct LoadWrong
-{
-	static void invoke(Ser &s, const T &data)
-	{
-		throw std::exception("Wrong load serialization call!");
-	}
 };
 
 
