@@ -10,6 +10,7 @@ void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 CHeroClass::CHeroClass()
 {
 	skillLimit = 8;
+	moveAnim = NULL;
 }
 CHeroClass::~CHeroClass()
 {
@@ -30,21 +31,11 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 		if(ran<0)
 			return *i;
 	}
+	throw std::string("Cannot pick secondary skill!");
 }
 
 CHeroHandler::~CHeroHandler()
 {}
-void CHeroHandler::loadPortraits()
-{
-	std::string  strs = bitmaph->getTextFile("PRISKILL.TXT");
-	int itr=0;
-	for (int i=0; i<PRIMARY_SKILLS; i++)
-	{
-		std::string tmp;
-		loadToIt(tmp, strs, itr, 3);
-		pskillsn.push_back(tmp);
-	}
-}
 void CHeroHandler::loadHeroes()
 {
 	VLC->heroh = this;
@@ -140,8 +131,6 @@ void CHeroHandler::loadHeroes()
 	}
 	//initial skills loaded
 
-	loadSpecialAbilities();
-	loadBiographies();
 	loadHeroClasses();
 	initHeroClasses();
 	expPerLevel.push_back(0);
@@ -162,33 +151,6 @@ void CHeroHandler::loadHeroes()
 	return;
 
 }
-void CHeroHandler::loadSpecialAbilities()
-{
-	std::string buf = bitmaph->getTextFile("HEROSPEC.TXT");
-	int it=0;
-	std::string dump;
-	for(int i=0; i<2; ++i)
-	{
-		loadToIt(dump,buf,it,3);
-	}
-	for (int i=0;i<heroes.size();i++)
-	{
-		loadToIt(heroes[i]->bonusName,buf,it,4);
-		loadToIt(heroes[i]->shortBonus,buf,it,4);
-		loadToIt(heroes[i]->longBonus,buf,it,3);
-	}
-}
-
-void CHeroHandler::loadBiographies()
-{	
-	std::string buf = bitmaph->getTextFile("HEROBIOS.TXT");
-	int it=0;
-	for (int i=0;i<heroes.size();i++)
-	{
-		loadToIt(heroes[i]->biography,buf,it,3);
-	}
-}
-
 void CHeroHandler::loadHeroClasses()
 {
 	std::string buf = bitmaph->getTextFile("HCTRAITS.TXT");

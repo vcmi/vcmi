@@ -89,11 +89,11 @@ public:
 	ui32 exp; //experience point
 	int level; //current level of hero
 	std::string name; //may be custom
-	std::string biography; //may be custom
+	std::string biography; //if custom
 	int portrait; //may be custom
 	int mana; // remaining spell points
 	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
-	std::vector<std::pair<int,int> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
+	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
 	int movement; //remaining movement points
 	int identifier; //from the map file
 	bool sex;
@@ -113,6 +113,7 @@ public:
 	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ui32> spells; //known spells (spell IDs)
 
+	const std::string &getBiography();
 	bool needsLastStack()const;
 	virtual bool isHero() const;
 	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const;

@@ -3,7 +3,7 @@
 #include "hch/CDefHandler.h"
 #include "CGameInfo.h"
 #include "hch/CLodHandler.h"
-#include "hch/CPreGameTextHandler.h"
+#include "hch/CGeneralTextHandler.h"
 #include "hch/CTownHandler.h"
 #include "CCallback.h"
 #include "client/CConfigHandler.h"

@@ -48,7 +48,6 @@ public:
 	CAbilityHandler * abilh;
 	CSpellHandler * spellh;
 	CMapHandler * mh;
-	CPreGameTextHandler * preth;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
 	CMusicHandler * mush;

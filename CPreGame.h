@@ -4,7 +4,6 @@
 #include <set>
 #include "SDL.h"
 #include "StartInfo.h"
-#include "hch/CPreGameTextHandler.h" 
 #include "CMessage.h"
 #include "map.h"
 #include "hch/CMusicHandler.h"

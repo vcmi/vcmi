@@ -122,18 +122,17 @@ int main(int argc, char** argv)
 		CGI->spellh = VLC->spellh;
 		CGI->dobjinfo = VLC->dobjinfo;
 		CGI->buildh = VLC->buildh;
+		CGI->generaltexth = VLC->generaltexth;
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler; 
 		cgi->curh->initCursor();
+		cgi->curh->show();
 		tlog0<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
 		CAbilityHandler * abilh = new CAbilityHandler;
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
 		tlog0<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
-		CGI->preth = new CPreGameTextHandler;
-		CGI->preth->loadTexts();
-		tlog0<<"\tCPreGameTextHandler: "<<pomtime.getDif()<<std::endl;
 		tlog0<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		graphics = new Graphics();
@@ -145,9 +144,7 @@ int main(int argc, char** argv)
 		tlog0<<"\tHero animations: "<<tmh.getDif()<<std::endl;
 		tlog0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
 		CMessage::init();
-		cgi->generaltexth = new CGeneralTextHandler;
-		cgi->generaltexth->load();
-		tlog0<<"Preparing more handlers: "<<tmh.getDif()<<std::endl;
+		tlog0<<"Message handler: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		tlog0<<"Initialization of VCMI (togeter): "<<total.getDif()<<std::endl;

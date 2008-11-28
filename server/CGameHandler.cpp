@@ -1,24 +1,25 @@
-#include <boost/foreach.hpp>
-#include <boost/thread.hpp>
-#include <boost/thread/shared_mutex.hpp>
-#include <boost/bind.hpp>
-#include "CGameHandler.h"
-#include "CScriptCallback.h"
-#include "../CLua.h"
 #include "../CGameState.h"
+#include "../CLua.h"
 #include "../StartInfo.h"
-#include "../map.h"
-#include "../lib/NetPacks.h"
-#include "../lib/Connection.h"
 #include "../hch/CArtHandler.h"
+#include "../hch/CBuildingHandler.h"
+#include "../hch/CDefObjInfoHandler.h"
+#include "../hch/CHeroHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CTownHandler.h"
-#include "../hch/CBuildingHandler.h"
-#include "../hch/CHeroHandler.h"
-#include "boost/date_time/posix_time/posix_time_types.hpp" //no i/o just types
-#include "../lib/VCMI_Lib.h"
 #include "../lib/CondSh.h"
+#include "../lib/Connection.h"
+#include "../lib/NetPacks.h"
+#include "../lib/VCMI_Lib.h"
+#include "../map.h"
+#include "CGameHandler.h"
+#include "CScriptCallback.h"
+#include <boost/bind.hpp>
+#include <boost/date_time/posix_time/posix_time_types.hpp> //no i/o just types
+#include <boost/foreach.hpp>
+#include <boost/thread.hpp>
+#include <boost/thread/shared_mutex.hpp>
 #include <fstream>
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
@@ -412,7 +413,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					std::string fname;
 					c >> fname;
 					CSaveFile save(fname);
-					save << this;
+					save << VLC->heroh << this;
 					//save << this;
 					break;
 				}

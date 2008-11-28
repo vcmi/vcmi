@@ -283,6 +283,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CGeneralTextHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CHeroHandler.cpp"
 				>
 			</File>
@@ -350,6 +354,10 @@
 			</File>
 			<File
 				RelativePath="..\CGameState.h"
+				>
+			</File>
+			<File
+				RelativePath="..\hch\CGeneralTextHandler.h"
 				>
 			</File>
 			<File

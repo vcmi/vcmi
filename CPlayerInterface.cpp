@@ -22,7 +22,6 @@
 #include "hch/CHeroHandler.h"
 #include "hch/CLodHandler.h"
 #include "hch/CObjectHandler.h"
-#include "hch/CPreGameTextHandler.h"
 #include "hch/CSpellHandler.h"
 #include "hch/CTownHandler.h"
 #include "lib/CondSh.h"
@@ -632,7 +631,7 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		break;
 	case primskill:
 		description = CGI->generaltexth->arraytxt[2+Subtype];
-		oss << ((Val>0)?("+"):("-")) << Val << " " << CGI->heroh->pskillsn[Subtype];
+		oss << ((Val>0)?("+"):("-")) << Val << " " << CGI->generaltexth->primarySkillNames[Subtype];
 		subtitle = oss.str();
 		break;
 	case secskill44:
@@ -1380,7 +1379,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	{
 		if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
 		{
-			//seting advmap shift
+			//setting advmap shift
 			adventureInt->terrain.moveX = i-32;
 			adventureInt->terrain.moveY = i-32;
 
@@ -1401,7 +1400,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
 		{
-			//seting advmap shift
+			//setting advmap shift
 			adventureInt->terrain.moveY = i-32;
 
 			subRect(hp.x-2, hp.y-2, hp.z, genRect(32, 32, 0, -31+i), ho->id);
@@ -1418,7 +1417,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
 		{
-			//seting advmap shift
+			//setting advmap shift
 			adventureInt->terrain.moveX = -i+32;
 			adventureInt->terrain.moveY = i-32;
 
@@ -1439,7 +1438,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
 		{
-			//seting advmap shift
+			//setting advmap shift
 			adventureInt->terrain.moveX = -i+32;
 
 			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1-i, 0), ho->id);
@@ -1455,7 +1454,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
 		{
 			
-			//seting advmap shift
+			//setting advmap shift
 			adventureInt->terrain.moveX = -i+32;
 			adventureInt->terrain.moveY = -i+32;
 
@@ -1476,7 +1475,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
 		{
-			//seting advmap shift
+			//setting advmap shift
 			adventureInt->terrain.moveY = -i+32;
 
 			subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1-i), ho->id);
@@ -1493,7 +1492,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
 		{
-			//seting advmap shift
+			//setting advmap shift
 			adventureInt->terrain.moveX = i-32;
 			adventureInt->terrain.moveY = -i+32;
 
@@ -1514,7 +1513,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		}
 		else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
 		{
-			//seting advmap shift
+			//setting advmap shift
 			adventureInt->terrain.moveX = i-32;
 
 			subRect(hp.x-3, hp.y-1, hp.z, genRect(32, 32, -31+i, 0), ho->id);
@@ -2497,7 +2496,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if (from>0)
-			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[303].first);
+			LOCPLINT->adventureInt->statusbar.print(CGI->generaltexth->zelp[303].first);
 		else
 			LOCPLINT->adventureInt->statusbar.clear();
 		return;
@@ -2505,7 +2504,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if ((items.size()-from)  >  SIZE)
-			LOCPLINT->adventureInt->statusbar.print(CGI->preth->zelp[304].first);
+			LOCPLINT->adventureInt->statusbar.print(CGI->generaltexth->zelp[304].first);
 		else
 			LOCPLINT->adventureInt->statusbar.clear();
 		return;
@@ -2533,11 +2532,11 @@ void CHeroList::clickRight(tribool down)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[303].second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
 		}
 		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[304].second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 		}
 		//if not buttons then heroes
 		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
@@ -2558,8 +2557,8 @@ void CHeroList::clickRight(tribool down)
 	}
 	else
 	{
-		LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[303].second,down,this);
-		LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[304].second,down,this);
+		LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
+		LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 	}
 }
 void CHeroList::hover (bool on)
@@ -2691,7 +2690,7 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if (from>0)
-			LOCPLINT->statusbar->print(CGI->preth->zelp[306].first);
+			LOCPLINT->statusbar->print(CGI->generaltexth->zelp[306].first);
 		else
 			LOCPLINT->statusbar->clear();
 		return;
@@ -2699,7 +2698,7 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		if ((items.size()-from)  >  SIZE)
-			LOCPLINT->statusbar->print(CGI->preth->zelp[307].first);
+			LOCPLINT->statusbar->print(CGI->generaltexth->zelp[307].first);
 		else
 			LOCPLINT->statusbar->clear();
 		return;
@@ -2741,7 +2740,10 @@ void CTownList::clickLeft(tribool down)
 		int ny = hy/32;
 		if (ny>SIZE || ny<0)
 			return;
-		if (SIZE==5 && (ny+from)==selected && (LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE))
+		if(LOCPLINT->curint == LOCPLINT->adventureInt
+		  && (ny+from)==selected 
+		  && LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE
+		  )
 			LOCPLINT->openTownWindow(items[selected]);//print town screen
 		else
 			select(ny+from);
@@ -2787,11 +2789,11 @@ void CTownList::clickRight(tribool down)
 		/***************************ARROWS*****************************************/
 		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[306].second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
 		}
 		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
 		{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[307].second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
 		}
 		//if not buttons then towns
 		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
@@ -2809,8 +2811,8 @@ void CTownList::clickRight(tribool down)
 	}
 	else
 	{
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[306].second,down,this);
-			LOCPLINT->adventureInt->handleRightClick(CGI->preth->zelp[307].second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
+			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
 	}
 }
 
@@ -3188,7 +3190,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	printAtMiddle(c->namePl,149,30,GEOR13,zwykly,bitmap); //creature name
 
 	//atttack
-	printAt(CGI->preth->zelp[435].first,155,48,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->zelp[435].first,155,48,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->attack,pom,10);
 	if(State && State->attackBonus)
 	{
@@ -3205,7 +3207,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	printToWR(pom,276,61,GEOR13,zwykly,bitmap);
 
 	//defense
-	printAt(CGI->preth->zelp[436].first,155,67,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->zelp[436].first,155,67,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->defence,pom,10);
 	if(State && State->defenseBonus)
 	{
@@ -3244,20 +3246,20 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	printToWR(pom,276,118,GEOR13,zwykly,bitmap);
 
 	//health
-	printAt(CGI->preth->zelp[439].first,155,124,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->zelp[439].first,155,124,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->hitPoints,pom,10);
 	printToWR(pom,276,137,GEOR13,zwykly,bitmap);
 
 	//remaining health
 	if(State && State->currentHealth)
 	{
-		printAt(CGI->preth->zelp[440].first,155,143,GEOR13,zwykly,bitmap);
+		printAt(CGI->generaltexth->zelp[440].first,155,143,GEOR13,zwykly,bitmap);
 		SDL_itoa(State->currentHealth,pom,10);
 		printToWR(pom,276,156,GEOR13,zwykly,bitmap);
 	}
 
 	//speed
-	printAt(CGI->preth->zelp[441].first,155,162,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->zelp[441].first,155,162,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->speed,pom,10);
 	printToWR(pom,276,175,GEOR13,zwykly,bitmap);
 
@@ -3288,11 +3290,11 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 				CFunctionList<void()> cfl;
 				cfl = boost::bind(&CCreInfoWindow::deactivate,this);
 				cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false,false);
-				upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF",SDLK_u);
+				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
 			{
-				upgrade = new AdventureMapButton("",CGI->preth->zelp[446].second,boost::function<void()>(),pos.x+76,pos.y+237,"IVIEWCR.DEF");
+				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,boost::function<void()>(),pos.x+76,pos.y+237,"IVIEWCR.DEF");
 				upgrade->callback.funcs.clear();
 				upgrade->bitmapOffset = 2;
 			}
@@ -3308,9 +3310,9 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 			CFunctionList<void()> cfl;
 		        cfl = boost::bind(&CCreInfoWindow::deactivate,this);
 			cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false,false);
-			dismiss = new AdventureMapButton("",CGI->preth->zelp[445].second,cfl,pos.x+21,pos.y+237,"IVIEWCR2.DEF",SDLK_d);
+			dismiss = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,pos.x+21,pos.y+237,"IVIEWCR2.DEF",SDLK_d);
 		}
-		ok = new AdventureMapButton("",CGI->preth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF",SDLK_RETURN);
+		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF",SDLK_RETURN);
 	}
 	else
 	{
@@ -3844,16 +3846,16 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 283, 217, GEOR16, zwykly, background); //spell book animation
 
 	//setting up buttons
-	quitGame = new AdventureMapButton (CGI->preth->zelp[324].first, CGI->preth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 405, 471, "soquit.def", SDLK_q);
+	quitGame = new AdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 405, 471, "soquit.def", SDLK_q);
 	std::swap(quitGame->imgs[0][0], quitGame->imgs[0][1]);
-	backToMap = new AdventureMapButton (CGI->preth->zelp[325].first, CGI->preth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 516, 471, "soretrn.def", SDLK_RETURN);
+	backToMap = new AdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 516, 471, "soretrn.def", SDLK_RETURN);
 	std::swap(backToMap->imgs[0][0], backToMap->imgs[0][1]);
 
 	heroMoveSpeed = new CHighlightableButtonsGroup(0);
-	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[349].first),CGI->preth->zelp[349].second, "sysopb1.def", 187, 134, 1);
-	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[350].first),CGI->preth->zelp[350].second, "sysopb2.def", 235, 134, 2);
-	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[351].first),CGI->preth->zelp[351].second, "sysopb3.def", 283, 134, 4);
-	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[352].first),CGI->preth->zelp[352].second, "sysopb4.def", 331, 134, 8);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[349].first),CGI->generaltexth->zelp[349].second, "sysopb1.def", 187, 134, 1);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[350].first),CGI->generaltexth->zelp[350].second, "sysopb2.def", 235, 134, 2);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[351].first),CGI->generaltexth->zelp[351].second, "sysopb3.def", 283, 134, 4);
+	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[352].first),CGI->generaltexth->zelp[352].second, "sysopb4.def", 331, 134, 8);
 	heroMoveSpeed->select(owner->heroMoveSpeed, 1);
 	heroMoveSpeed->onChange = boost::bind(&CPlayerInterface::setHeroMoveSpeed, owner, _1);
 }

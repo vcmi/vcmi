@@ -228,8 +228,15 @@ public:
 	}
 	void saveSerializable(const std::string &data)
 	{
-		*this << ui32(data.size());
-		this->This()->write(data.c_str(),data.size());
+		if(!data.length())
+		{
+			*this << ui8(0);
+		}
+		else
+		{
+			*this << ui32(data.length());
+			this->This()->write(data.c_str(),data.size());
+		}
 	}
 	template <typename T1, typename T2>
 	void saveSerializable(const std::pair<T1,T2> &data)
@@ -346,10 +353,14 @@ public:
 	}
 	void loadSerializable(std::string &data)
 	{
-		ui32 l;
-		*this >> l;
-		data.resize(l);
-		this->This()->read((void*)data.c_str(),l);
+		ui8 length[4];
+		*this >> length[0];
+		if(!length[0]) return;
+		*this >> length[1];
+		*this >> length[2];
+		*this >> length[3];
+		data.resize(*((ui32*)length));
+		this->This()->read((void*)data.c_str(),*((ui32*)length));
 	}
 
 };

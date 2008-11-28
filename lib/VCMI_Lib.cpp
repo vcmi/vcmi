@@ -9,6 +9,7 @@
 #include "../hch/CTownHandler.h"
 #include "../hch/CBuildingHandler.h"
 #include "../hch/CSpellHandler.h"
+#include "../hch/CGeneralTextHandler.h"
 class CLodHandler;
 LibClasses * VLC = NULL;
 CLodHandler * bitmaph=NULL;
@@ -30,7 +31,6 @@ DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *
 
 	CHeroHandler * heroh = new CHeroHandler;
 	heroh->loadHeroes();
-	heroh->loadPortraits();
 	VLC->heroh = heroh;
 	tlog0 <<"\tHero handler: "<<pomtime.getDif()<<std::endl;
 
@@ -65,6 +65,11 @@ DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *
 	spellh->loadSpells();
 	VLC->spellh = spellh;		
 	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
+
+	VLC->generaltexth = new CGeneralTextHandler;
+	VLC->generaltexth->loadTexts();
+	VLC->generaltexth->load();
+	tlog0<<"\tGeneral text handler: "<<pomtime.getDif()<<std::endl;
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode)

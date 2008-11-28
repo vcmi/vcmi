@@ -25,8 +25,12 @@ namespace config
 		int statusbarX, statusbarY; //pos
 		std::string statusbarG; //graphic name
 		//resdatabar
-		int resdatabarX, resdatabarY; //pos
+		int resdatabarX, resdatabarY, resDist, resDateDist, resOffsetX, resOffsetY; //pos
 		std::string resdatabarG; //graphic name
+		//infobox
+		int infoboxX, infoboxY;
+		//advmap
+		int tilesW, tilesH, advmapX, advmapY, advmapTrimX, advmapTrimY;
 		//general properties
 		std::string mainGraphic;
 		//buttons

@@ -49,6 +49,7 @@ public:
 class CCastleInterface : public CMainInterface
 {
 public:
+	SDL_Rect pos;
 	bool showing;
 	CBuildingRect * hBuild; //highlighted building
 	SDL_Surface * townInt;
@@ -89,6 +90,7 @@ class CHallInterface : public IShowActivable
 {
 public:
 	CMinorResDataBar resdatabar;
+	SDL_Rect pos;
 
 	class CBuildingBox : public Hoverable, public ClickableL, public ClickableR
 	{
@@ -143,7 +145,7 @@ public:
 	void deactivate();
 };
 
-class CFortScreen : public CMainInterface
+class CFortScreen : public CMainInterface, public CIntObject
 {
 	class RecArea : public ClickableL
 	{
@@ -172,7 +174,7 @@ public:
 	void deactivate();
 };
 
-class CMageGuildScreen : public IShowActivable
+class CMageGuildScreen : public IShowActivable, public CIntObject
 {
 public:	
 	class Scroll : public ClickableL, public Hoverable, public ClickableR

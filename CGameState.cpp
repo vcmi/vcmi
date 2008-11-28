@@ -1062,14 +1062,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	ran.seed((boost::int32_t)seed);
 	scenarioOps = si;
 	this->map = map;
-
-	for(int i=0;i<F_NUMBER;i++)
-	{
-		villages[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-		forts[i] = VLC->dobjinfo->castles[i];
-		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-	}
-
+	loadTownDInfos();
 	//picking random factions for players
 	for(int i=0;i<scenarioOps->playerInfos.size();i++)
 	{
@@ -1383,15 +1376,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 						k->second.heroes[l]->pos.x -= 1;
 					break;
 				}
-				//else if(k->second.heroes[l]->pos == k->second.towns[m]->pos)
-				//{
-				//	k->second.towns[m]->garrisonHero = k->second.heroes[l];
-				//	k->second.towns[m]->army = k->second.heroes[l]->army;
-				//	k->second.heroes[l]->visitedTown = k->second.towns[m];
-				//	k->second.heroes[l]->inTownGarrison = true;
-				//	k->second.heroes[l]->pos.x -= 1;
-				//	goto mainplheloop;
-				//}
 			}
 		}
 	}
@@ -1503,6 +1487,15 @@ std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player)
 	return ret;
 }
 
+void CGameState::loadTownDInfos()
+{
+	for(int i=0;i<F_NUMBER;i++)
+	{
+		villages[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
+		forts[i] = VLC->dobjinfo->castles[i];
+		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
+	}
+}
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
 {
 	int attackDefenseBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0) - (defender->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0));

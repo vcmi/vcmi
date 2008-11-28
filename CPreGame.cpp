@@ -770,10 +770,10 @@ void Options::show()
 		playersSoFar++;
 	}
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->allTexts[516],221,63,GEOR13,55,zwykly);
-	CSDL_Ext::printAtMiddleWB(CGI->preth->getTitle(CGI->preth->zelp[256].second),109,109,GEOR13,14);
-	CSDL_Ext::printAtMiddleWB(CGI->preth->getTitle(CGI->preth->zelp[259].second),201,109,GEOR13,10);
-	CSDL_Ext::printAtMiddleWB(CGI->preth->getTitle(CGI->preth->zelp[260].second),275,109,GEOR13,10);
-	CSDL_Ext::printAtMiddleWB(CGI->preth->getTitle(CGI->preth->zelp[261].second),354,109,GEOR13,10);
+	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[256].second),109,109,GEOR13,14);
+	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[259].second),201,109,GEOR13,10);
+	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[260].second),275,109,GEOR13,10);
+	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[261].second),354,109,GEOR13,10);
 	turnLength->activate();
 	for (int i=0;i<poptions.size();i++)
 		showIcon(-2,i,false);
@@ -992,10 +992,9 @@ void MapSel::show()
 void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 {
 	static boost::mutex mx;
-	bool areMaps=true;
-	int pom=-1;
+	int pom=-1, read;
 	unsigned char sss[1000];
-	while(areMaps)
+	while(true)
 	{
 		mx.lock();
 		if(index>=pliczkiTemp.size())
@@ -1009,25 +1008,14 @@ void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 			mx.unlock();
 		}
 		gzFile tempf = gzopen(pliczkiTemp[pom].c_str(),"rb");
-		int iii=0;
-		while(true)
-		{
-			if (iii>=1000) break;
-			int z = gzgetc (tempf);
-			if (z>=0) 
-			{
-				sss[iii++] = (unsigned char)z;
-			}
-			else break;
-		}
+		read = gzread(tempf, sss, 1000);
 		gzclose(tempf);
-
-		if(iii<50) 
+		if(read < 50)
 		{
 			tlog3<<"\t\tWarning: corrupted map file: "<<pliczkiTemp[pom]<<std::endl; 
 			continue;
 		}
-		if (!sss[4])
+		if (!sss[4]) //not a valid map
 		{
 			//tlog3 << "\t\tSkipping " << pliczkiTemp[pom] << " - map marked as unplayable.\n";
 			continue;
@@ -1048,12 +1036,13 @@ void MapSel::init()
 	fs::directory_iterator end_iter;
 	for ( fs::directory_iterator dir (tie); dir!=end_iter; ++dir )
 	{
-		if (fs::is_regular(dir->status()));
+		if (fs::is_regular_file(dir->status()));
 		{
-			if (boost::ends_with(dir->path().leaf(),std::string(".h3m")))
+			if (boost::ends_with(dir->path().filename(),".h3m"))
 				pliczkiTemp.push_back("Maps/"+(dir->path().leaf()));
 		}
 	}
+	ourMaps.reserve(pliczkiTemp.size());
 
 	int mapInd=0;
 	boost::thread_group group;
@@ -1233,7 +1222,7 @@ void MapSel::printSelectedInfo()
 	SDL_BlitSurface(CPG->ourScenSel->bOptions.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bOptions.pos);
 	SDL_BlitSurface(CPG->ourScenSel->bRandom.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bRandom.pos);
 	//blit texts
-	CSDL_Ext::printAt(CGI->preth->zelp[21].second,420,25,GEOR13);
+	CSDL_Ext::printAt(CGI->generaltexth->zelp[21].second,420,25,GEOR13);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[496],420,135,GEOR13);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[497],420,285,GEOR13);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[498],420,340,GEOR13);
@@ -1242,14 +1231,14 @@ void MapSel::printSelectedInfo()
 
 	int temp = ourMaps[selected].victoryCondition+1;
 	if (temp>20) temp=0;
-	std::string sss = CGI->preth->victoryConditions[temp];
-	if (temp && ourMaps[selected].vicConDetails->allowNormalVictory) sss+= "/" + CGI->preth->victoryConditions[0];
+	std::string sss = CGI->generaltexth->victoryConditions[temp];
+	if (temp && ourMaps[selected].vicConDetails->allowNormalVictory) sss+= "/" + CGI->generaltexth->victoryConditions[0];
 	CSDL_Ext::printAt(sss,452,310,GEOR13,zwykly);
 
 
 	temp = ourMaps[selected].lossCondition.typeOfLossCon+1;
 	if (temp>20) temp=0;
-	sss = CGI->preth->lossCondtions[temp];
+	sss = CGI->generaltexth->lossCondtions[temp];
 	CSDL_Ext::printAt(sss,452,370,GEOR13,zwykly);
 
 	//blit descrption
@@ -1266,19 +1255,19 @@ void MapSel::printSelectedInfo()
 	switch (ourMaps[selected].difficulty)
 	{
 	case 0:
-		diff=gdiff(CGI->preth->zelp[24].second);
+		diff=gdiff(CGI->generaltexth->zelp[24].second);
 		break;
 	case 1:
-		diff=gdiff(CGI->preth->zelp[25].second);
+		diff=gdiff(CGI->generaltexth->zelp[25].second);
 		break;
 	case 2:
-		diff=gdiff(CGI->preth->zelp[26].second);
+		diff=gdiff(CGI->generaltexth->zelp[26].second);
 		break;
 	case 3:
-		diff=gdiff(CGI->preth->zelp[27].second);
+		diff=gdiff(CGI->generaltexth->zelp[27].second);
 		break;
 	case 4:
-		diff=gdiff(CGI->preth->zelp[28].second);
+		diff=gdiff(CGI->generaltexth->zelp[28].second);
 		break;
 	}
 	temp=-1;
@@ -1676,7 +1665,7 @@ void CPreGame::highlightButton(int which, int on)
 void CPreGame::showCenBox (std::string data)
 {
 	CMessage * cmh = new CMessage();
-	SDL_Surface * infoBox = cmh->genMessage(CGI->preth->getTitle(data), CGI->preth->getDescr(data));
+	SDL_Surface * infoBox = cmh->genMessage(CGI->generaltexth->getTitle(data), CGI->generaltexth->getDescr(data));
 	behindCurMes = CSDL_Ext::newSurface(infoBox->w,infoBox->h,screen);
 	SDL_Rect pos = genRect(infoBox->h,infoBox->w,
 		(screen->w/2)-(infoBox->w/2),(screen->h/2)-(infoBox->h/2));
@@ -1694,7 +1683,7 @@ void CPreGame::showAskBox (std::string data, void(*f1)(),void(*f2)())
 	std::vector<SDL_Rect> * btnspos= new std::vector<SDL_Rect>(0);
 	przyciski->push_back(ok);
 	przyciski->push_back(cancel);
-	SDL_Surface * infoBox = cmh->genMessage(CGI->preth->getTitle(data), CGI->preth->getDescr(data), yesOrNO, przyciski, btnspos);
+	SDL_Surface * infoBox = cmh->genMessage(CGI->generaltexth->getTitle(data), CGI->generaltexth->getDescr(data), yesOrNO, przyciski, btnspos);
 	behindCurMes = CSDL_Ext::newSurface(infoBox->w,infoBox->h,screen);
 	SDL_Rect pos = genRect(infoBox->h,infoBox->w,
 		(screen->w/2)-(infoBox->w/2),(screen->h/2)-(infoBox->h/2));
@@ -2112,15 +2101,15 @@ std::string CPreGame::buttonText(int which)
 		switch (which)
 		{
 		case 0:
-			return CGI->preth->zelp[3].second;
+			return CGI->generaltexth->zelp[3].second;
 		case 1:
-			return CGI->preth->zelp[4].second;
+			return CGI->generaltexth->zelp[4].second;
 		case 2:
-			return CGI->preth->zelp[5].second;
+			return CGI->generaltexth->zelp[5].second;
 		case 3:
-			return CGI->preth->zelp[6].second;
+			return CGI->generaltexth->zelp[6].second;
 		case 4:
-			return CGI->preth->zelp[7].second;
+			return CGI->generaltexth->zelp[7].second;
 		}
 	}
 	else if (state==newGame || state==loadGame)
@@ -2128,15 +2117,15 @@ std::string CPreGame::buttonText(int which)
 		switch (which)
 		{
 		case 0:
-			return CGI->preth->zelp[10].second;
+			return CGI->generaltexth->zelp[10].second;
 		case 1:
-			return CGI->preth->zelp[11].second;
+			return CGI->generaltexth->zelp[11].second;
 		case 2:
-			return CGI->preth->zelp[12].second;
+			return CGI->generaltexth->zelp[12].second;
 		case 3:
-			return CGI->preth->zelp[13].second;
+			return CGI->generaltexth->zelp[13].second;
 		case 4:
-			return CGI->preth->zelp[14].second;
+			return CGI->generaltexth->zelp[14].second;
 		}
 	}
 	return std::string();

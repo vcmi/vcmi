@@ -8,7 +8,7 @@ clientSettings
 	fullscreen=0; //0 - windowed mode, 1 - fullscreen
 	server=127.0.0.1; //use 127.0.0.1 for localhost
 	localInformation=2; //0 - *all* information sent from server (safest and slowest); 1 - map information sent from server; 2 - all information local-storaged
-	defaultAI=EmptyAI.dll; 
+	defaultAI=GeniusAI.dll; 
 }
 GUISettings
 {
@@ -16,6 +16,8 @@ GUISettings
 	{
 		AdventureMap
 		{
+			AdvMap: x=7 y=6 tilesWidth=19 tilesHeight=18 trimX=15 trimY=29;
+			InfoBox: x=605 y=389;
 			gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=556 y=508 graphic=agemLR.def;
 			gem2: x=6 y=6 graphic=agemUL.def;
@@ -25,7 +27,7 @@ GUISettings
 			TownList: size=5 x=747 y=196 arrowUp=IAM014.DEF arrowDown=IAM015.DEF;
 			Minimap: width=144 height=144 x=630 y=26;
 			Statusbar: x=7 y=556 graphic=ADROLLVR.bmp;
-			ResDataBar: x=3 y=575 graphic=ZRESBAR.bmp;
+			ResDataBar: x=3 y=575 graphic=ZRESBAR.bmp offsetX=32 offsetY=2 resSpace=85 resDateSpace=85;
 			ButtonKingdomOv: x=679 y=196 graphic=IAM002.DEF playerColoured=1;
 			ButtonUnderground: x=711 y=196 graphic=IAM010.DEF playerColoured=1 additionalDefs=(IAM003.DEF);
 			ButtonQuestLog: x=679 y=228 graphic=IAM004.DEF playerColoured=1;
@@ -42,12 +44,57 @@ GUISettings
 	{
 		AdventureMap
 		{
+			AdvMap: x=7 y=6 tilesWidth=19 tilesHeight=18 trimX=15 trimY=29;
+			InfoBox: x=829 y=389;
+		 	gem0: x=6 y=508 graphic=agemLL.def;
+			gem1: x=780 y=508 graphic=agemLR.def;
+			gem2: x=6 y=6 graphic=agemUL.def;
+			gem3: x=780 y=6 graphic=agemUR.def;
+			background=ADVMAP3.pcx;
+			HeroList: size=5 x=832 y=196 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF;
+			TownList: size=5 x=970 y=196 arrowUp=IAM014.DEF arrowDown=IAM015.DEF;
+			Minimap: width=144 height=144 x=854 y=26;
+			Statusbar: x=8 y=556 graphic=ADROLLVR2.pcx;
+			ResDataBar: x=0 y=575 graphic=ZRESBAR2.pcx offsetX=32 offsetY=2 resSpace=85;
+			ButtonKingdomOv: x=902 y=196 graphic=IAM002.DEF playerColoured=1;
+			ButtonUnderground: x=934 y=196 graphic=IAM010.DEF playerColoured=1 additionalDefs=(IAM003.DEF);
+			ButtonQuestLog: x=902 y=228 graphic=IAM004.DEF playerColoured=1;
+			ButtonSleepWake: x=934 y=228 graphic=IAM005.DEF playerColoured=1;
+			ButtonMoveHero: x=902 y=260 graphic=IAM006.DEF playerColoured=1;
+			ButtonSpellbook: x=934 y=260 graphic=IAM007.DEF playerColoured=1;
+			ButtonAdvOptions: x=902 y=292 graphic=IAM008.DEF playerColoured=1;
+			ButtonSysOptions: x=934 y=292 graphic=IAM009.DEF playerColoured=1;
+			ButtonNextHero: x=902 y=324 graphic=IAM000.DEF playerColoured=1;
+			ButtonEndTurn: x=902 y=356 graphic=IAM001.DEF playerColoured=1;
+
 		};
 	}
 	1024x768 //setting specific for this resolution
 	{
 		AdventureMap
 		{
+			AdvMap: x=7 y=6 tilesWidth=26 tilesHeight=23 trimX=15 trimY=20;
+			InfoBox: x=829 y=557;
+			gem0: x=6 y=676 graphic=agemLL.def;
+			gem1: x=780 y=676 graphic=agemLR.def;
+			gem2: x=6 y=6 graphic=agemUL.def;
+			gem3: x=780 y=6 graphic=agemUR.def;
+			background=ADVMAP2.pcx;
+			HeroList: size=10 x=832 y=201 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF;
+			TownList: size=10 x=970 y=201 arrowUp=IAM014.DEF arrowDown=IAM015.DEF;
+			Minimap: width=144 height=144 x=854 y=26;
+			Statusbar: x=8 y=856 graphic=ADROLLVR2.pcx;
+			ResDataBar: x=0 y=743 graphic=ZRESBAR2.pcx offsetX=65 offsetY=2 resSpace=109 resDateSpace=135;
+			ButtonKingdomOv: x=903 y=197 graphic=IAM002.DEF playerColoured=1;
+			ButtonUnderground: x=903 y=230 graphic=IAM010.DEF playerColoured=1 additionalDefs=(IAM003.DEF);
+			ButtonQuestLog: x=903 y=261 graphic=IAM004.DEF playerColoured=1;
+			ButtonSleepWake: x=903 y=294 graphic=IAM005.DEF playerColoured=1;
+			ButtonMoveHero: x=903 y=327 graphic=IAM006.DEF playerColoured=1;
+			ButtonSpellbook: x=903 y=359 graphic=IAM007.DEF playerColoured=1;
+			ButtonAdvOptions: x=903 y=393 graphic=IAM008.DEF playerColoured=1;
+			ButtonSysOptions: x=903 y=426 graphic=IAM009.DEF playerColoured=1;
+			ButtonNextHero: x=903 y=491 graphic=IAM000.DEF playerColoured=1;
+			ButtonEndTurn: x=903 y=524 graphic=IAM001.DEF playerColoured=1;
 		};
 	}
 }

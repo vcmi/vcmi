@@ -33,8 +33,8 @@ CHeroWindow::CHeroWindow(int playerColor):
 	artWorn.resize(19);
 	background = BitmapHandler::loadBitmap("HEROSCR4.bmp");
 	graphics->blueToPlayersAdv(background, playerColor);
-	pos.x = 65;
-	pos.y = 8;
+	pos.x = screen->w/2 - background->w/2 - 65;
+	pos.y = screen->h/2 - background->h/2 - 8;
 	pos.h = background->h;
 	pos.w = background->w;
 	curBack = NULL;
@@ -42,47 +42,49 @@ CHeroWindow::CHeroWindow(int playerColor):
 	activeArtPlace = NULL;
 
 	garInt = NULL;
-	ourBar = new CStatusBar(72, 567, "ADROLLVR.bmp", 660);
+	ourBar = new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
 
-	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(), boost::function<void()>(), 674, 524, "hsbtns.def", SDLK_RETURN);
-	dismissButton = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), 519, 437, "hsbtns2.def", SDLK_d);
-	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), 379, 437, "hsbtns4.def", SDLK_q);
+	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(), boost::function<void()>(), pos.x+674, pos.y+524, "hsbtns.def", SDLK_RETURN);
+	dismissButton = new AdventureMapButton(std::string(), CGI->generaltexth->heroscrn[28], boost::bind(&CHeroWindow::dismissCurrent,this), pos.x+519, pos.y+437, "hsbtns2.def", SDLK_d);
+	questlogButton = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CHeroWindow::questlog,this), pos.x+379, pos.y+437, "hsbtns4.def", SDLK_q);
 
 	formations = new CHighlightableButtonsGroup(0);
-	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def",546, 491, 0, 0, SDLK_t);
-	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def",546, 527, 1, 0, SDLK_l);
+	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[23]),CGI->generaltexth->heroscrn[29], "hsbtns6.def", pos.x+546, pos.y+491, 0, 0, SDLK_t);
+	formations->addButton(map_list_of(0,CGI->generaltexth->heroscrn[24]),CGI->generaltexth->heroscrn[30], "hsbtns7.def", pos.x+546, pos.y+527, 1, 0, SDLK_l);
 
 
-	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, 604, 491, SDLK_b);
-	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), 604, 527, "hsbtns9.def", false, NULL, false);
+	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, pos.x+604, pos.y+491, SDLK_b);
+	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), pos.x+604, pos.y+527, "hsbtns9.def", false, NULL, false);
 	boost::algorithm::replace_first(gar4button->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
-	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::leftArtRoller,this), 379, 364, "hsbtns3.def", SDLK_LEFT);
-	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::rightArtRoller,this), 632, 364, "hsbtns5.def", SDLK_RIGHT);
+	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::leftArtRoller,this), pos.x+379, pos.y+364, "hsbtns3.def", SDLK_LEFT);
+	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::rightArtRoller,this), pos.x+632, pos.y+364, "hsbtns5.def", SDLK_RIGHT);
+
 
 	for(int g=0; g<8; ++g)
 	{
 		//heroList.push_back(new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::switchHero, 677, 95+g*54, "hsbtns5.def", this));
 		heroListMi.push_back(new LClickableAreaHero());
-		heroListMi[g]->pos.x = 677;
-		heroListMi[g]->pos.y = 95+g*54;
+		heroListMi[g]->pos.x = pos.x+677;
+		heroListMi[g]->pos.y = pos.y  +  95+g*54;
 		heroListMi[g]->pos.h = 32;
 		heroListMi[g]->pos.w = 48;
 		heroListMi[g]->owner = this;
 		heroListMi[g]->id = g;
 	}
 
+
 	flags = CDefHandler::giveDef("CREST58.DEF");
 	//areas
 	portraitArea = new LRClickableAreaWText();
-	portraitArea->pos.x = 83;
-	portraitArea->pos.y = 26;
+	portraitArea->pos.x = pos.x+83;
+	portraitArea->pos.y = pos.y  +  26;
 	portraitArea->pos.w = 58;
 	portraitArea->pos.h = 64;
 	for(int v=0; v<4; ++v)
 	{
 		primSkillAreas.push_back(new LRClickableAreaWTextComp());
-		primSkillAreas[v]->pos.x = 95 + 70*v;
-		primSkillAreas[v]->pos.y = 111;
+		primSkillAreas[v]->pos.x = pos.x+95 + 70*v;
+		primSkillAreas[v]->pos.y = pos.y  +  111;
 		primSkillAreas[v]->pos.w = 42;
 		primSkillAreas[v]->pos.h = 42;
 		primSkillAreas[v]->text = CGI->generaltexth->arraytxt[2+v].substr(1, CGI->generaltexth->arraytxt[2+v].size()-2);
@@ -91,15 +93,15 @@ CHeroWindow::CHeroWindow(int playerColor):
 		primSkillAreas[v]->baseType = 0;
 	}
 	expArea = new LRClickableAreaWText();
-	expArea->pos.x = 83;
-	expArea->pos.y = 236;
+	expArea->pos.x = pos.x+83;
+	expArea->pos.y = pos.y  +  236;
 	expArea->pos.w = 136;
 	expArea->pos.h = 42;
 	expArea->hoverText = CGI->generaltexth->heroscrn[9];
 
 	spellPointsArea = new LRClickableAreaWText();
-	spellPointsArea->pos.x = 227;
-	spellPointsArea->pos.y = 236;
+	spellPointsArea->pos.x = pos.x+227;
+	spellPointsArea->pos.y = pos.y  +  236;
 	spellPointsArea->pos.w = 136;
 	spellPointsArea->pos.h = 42;
 	spellPointsArea->hoverText = CGI->generaltexth->heroscrn[22];
@@ -107,12 +109,14 @@ CHeroWindow::CHeroWindow(int playerColor):
 	for(int i=0; i<8; ++i)
 	{
 		secSkillAreas.push_back(new LRClickableAreaWTextComp());
-		secSkillAreas[i]->pos.x = (i%2==0) ? (83) : (227);
-		secSkillAreas[i]->pos.y = 284 + 48 * (i/2);
+		secSkillAreas[i]->pos.x = pos.x  +  ((i%2==0) ? (83) : (227));
+		secSkillAreas[i]->pos.y = pos.y  +  (284 + 48 * (i/2));
 		secSkillAreas[i]->pos.w = 136;
 		secSkillAreas[i]->pos.h = 42;
 		secSkillAreas[i]->baseType = 1;
 	}
+	pos.x += 65;
+	pos.y += 8;
 }
 
 CHeroWindow::~CHeroWindow()
@@ -200,6 +204,9 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	}
 	curHero = hero;
 
+	pos.x -= 65;
+	pos.y -= 8;
+
 	gar2button->callback.clear();
 	gar2button->callback2.clear();
 
@@ -209,10 +216,10 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	sprintf(bufor, CGI->generaltexth->allTexts[15].c_str(), curHero->name.c_str(), curHero->type->heroClass->name.c_str());
 	portraitArea->hoverText = std::string(bufor);
 
-	portraitArea->text = hero->biography;
+	portraitArea->text = hero->getBiography();
 
 	delete garInt;
-	/*gar4button->owner = */garInt = new CGarrisonInt(80, 493, 8, 0, curBack, 13, 482, curHero);
+	/*gar4button->owner = */garInt = new CGarrisonInt(pos.x+80, pos.y+493, 8, 0, curBack, 13, 482, curHero);
 	garInt->update = false;
 	gar4button->callback =  boost::bind(&CGarrisonInt::splitClick,garInt);//actualization of callback function
 
@@ -249,11 +256,13 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 
 	std::vector<SDL_Rect> slotPos;
 
-	slotPos += genRect(44,44,509,30), genRect(44,44,567,240), genRect(44,44,509,80), genRect(44,44,383,68),
-		genRect(44,44,564,183), genRect(44,44,509,130), genRect(44,44,431,68), genRect(44,44,610,183),
-		genRect(44,44,515,295), genRect(44,44,383,143), genRect(44,44,399,194), genRect(44,44,415,245),
-		genRect(44,44,431,296), genRect(44,44,564,30), genRect(44,44,610,30), genRect(44,44,610,76),
-		genRect(44,44,610,122), genRect(44,44,610,310),	genRect(44,44,381,296);
+	slotPos += genRect(44,44,pos.x+509,pos.y+30), genRect(44,44,pos.x+567,pos.y+240), genRect(44,44,pos.x+509,pos.y+80), 
+		genRect(44,44,pos.x+383,pos.y+68), genRect(44,44,pos.x+564,pos.y+183), genRect(44,44,pos.x+509,pos.y+130), 
+		genRect(44,44,pos.x+431,pos.y+68), genRect(44,44,pos.x+610,pos.y+183), genRect(44,44,pos.x+515,pos.y+295), 
+		genRect(44,44,pos.x+383,pos.y+143), genRect(44,44,pos.x+399,pos.y+194), genRect(44,44,pos.x+415,pos.y+245),
+		genRect(44,44,pos.x+431,pos.y+296), genRect(44,44,pos.x+564,pos.y+30), genRect(44,44,pos.x+610,pos.y+30), 
+		genRect(44,44,pos.x+610,pos.y+76), genRect(44,44,pos.x+610,pos.y+122), genRect(44,44,pos.x+610,pos.y+310),	
+		genRect(44,44,pos.x+381,pos.y+296);
 
 	for (int g = 0; g < 19 ; g++)
 	{	
@@ -292,8 +301,8 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 			add = new CArtPlace(NULL);
 			add->hoverText = CGI->generaltexth->allTexts[507];
 		}
-		add->pos.x = 403 + 46*s;
-		add->pos.y = 365;
+		add->pos.x = pos.x + 403 + 46*s;
+		add->pos.y = pos.y + 365;
 		add->pos.h = add->pos.w = 44;
 		if(s<hero->artifacts.size() && hero->artifacts[s])
 			add->text = hero->getArt(19+s)->description;
@@ -319,6 +328,9 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	formations->onChange = 0;
 	formations->select(hero->army.formation,true);
 	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, _1);
+
+	pos.x += 65;
+	pos.y += 8;
 
 	redrawCurBack();
 }

@@ -17,7 +17,6 @@
 #include "hch/CGeneralTextHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CObjectHandler.h"
-#include "hch/CPreGameTextHandler.h"
 #include "hch/CTownHandler.h"
 #include "lib/CondSh.h"
 #include "map.h"
@@ -42,15 +41,15 @@ CAdvMapInt::~CAdvMapInt()
 CMinimap::CMinimap(bool draw)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	statusbarTxt = CGI->preth->zelp[291].first;
-	rcText = CGI->preth->zelp[291].second;
+	statusbarTxt = CGI->generaltexth->zelp[291].first;
+	rcText = CGI->generaltexth->zelp[291].second;
 	pos.x=ADVOPT.minimapX;//630
 	pos.y=ADVOPT.minimapY;//26
 	pos.h=ADVOPT.minimapW;//144
 	pos.w=ADVOPT.minimapH;//144
 
-	int rx = (((float)19)/(mapSizes.x))*((float)pos.w),
-		ry = (((float)18)/(mapSizes.y))*((float)pos.h);
+	int rx = (((float)ADVOPT.tilesW)/(mapSizes.x))*((float)pos.w),
+		ry = (((float)ADVOPT.tilesH)/(mapSizes.y))*((float)pos.h);
 
 	radar = newSurface(rx,ry);
 	temps = newSurface(pos.w,pos.h);
@@ -295,12 +294,12 @@ void CMinimap::hideTile(const int3 &pos)
 }
 CTerrainRect::CTerrainRect():currentPath(NULL)
 {
-	tilesw=19;
-	tilesh=18;
-	pos.x=7;
-	pos.y=6;
-	pos.w=593;
-	pos.h=547;
+	tilesw=ADVOPT.tilesW;
+	tilesh=ADVOPT.tilesH;
+	pos.x=ADVOPT.advmapX;
+	pos.y=ADVOPT.advmapY;
+	pos.w=tilesw*32 - ADVOPT.advmapTrimX;
+	pos.h=tilesh*32 - ADVOPT.advmapTrimY;
 	moveX = moveY = 0;
 	arrows = CDefHandler::giveDef("ADAG.DEF");
 	for(int y=0; y<arrows->ourImages.size(); ++y)
@@ -733,7 +732,7 @@ void CTerrainRect::show()
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
 		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
 		&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-		screen, &genRect(547, 594, 7, 6)
+		screen, &genRect(pos.h, pos.w, pos.x, pos.y)
 		);
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
@@ -773,11 +772,19 @@ CResDataBar::CResDataBar()
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	pos = genRect(bg->h,bg->w,ADVOPT.resdatabarX,ADVOPT.resdatabarY);
 
-	txtpos  +=  (std::pair<int,int>(35,577)),(std::pair<int,int>(120,577)),(std::pair<int,int>(205,577)),
-		(std::pair<int,int>(290,577)),(std::pair<int,int>(375,577)),(std::pair<int,int>(460,577)),
-		(std::pair<int,int>(545,577)),(std::pair<int,int>(620,577));
-	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63] + ": %s, " +
-		CGI->generaltexth->allTexts[64] + ": %s";
+	txtpos.resize(8);
+	for (int i = 0; i < 8 ; i++)
+	{
+		txtpos[i].first = pos.x + ADVOPT.resOffsetX + ADVOPT.resDist*i;
+		txtpos[i].second = pos.y + ADVOPT.resOffsetY;
+	}
+	txtpos[7].first = txtpos[6].first + ADVOPT.resDateDist;
+	//txtpos  +=  (std::pair<int,int>(32+pos.x,2+pos.y)),(std::pair<int,int>(117+pos.x,2+pos.y)),
+	//	(std::pair<int,int>(202+pos.x,2+pos.y)),(std::pair<int,int>(287+pos.x,2+pos.y)),
+	//	(std::pair<int,int>(372+pos.x,2+pos.y)),(std::pair<int,int>(457+pos.x,2+pos.y)),
+	//	(std::pair<int,int>(542+pos.x,2+pos.y)),(std::pair<int,int>(617+pos.x,2+pos.y));
+	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63] 
+				+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
 
 }
 CResDataBar::~CResDataBar()
@@ -805,8 +812,8 @@ void CResDataBar::draw()
 CInfoBar::CInfoBar()
 {
 	toNextTick = mode = pom = -1;
-	pos.x=605;
-	pos.y=389;
+	pos.x=ADVOPT.infoboxX;
+	pos.y=ADVOPT.infoboxY;
 	pos.w=194;
 	pos.h=186;
 	day = CDefHandler::giveDef("NEWDAY.DEF");
@@ -898,7 +905,7 @@ void CInfoBar::blitAnim(int mode)//0 - day, 1 - week
 		txt << CGI->generaltexth->allTexts[64] << " " << LOCPLINT->cb->getDate(1);
 	}
 	blitAt(anim->ourImages[pom].bitmap,pos.x+9,pos.y+10);
-	printAtMiddle(txt.str(),700,420,TNRB16,zwykly);
+	printAtMiddle(txt.str(),pos.x+95,pos.y+31,TNRB16,zwykly);
 	if (pom == anim->ourImages.size()-1)
 		toNextTick+=750;
 }
@@ -978,37 +985,37 @@ void CInfoBar::tick()
 CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),
-kingOverview(CGI->preth->zelp[293].first,CGI->preth->zelp[293].second,
+kingOverview(CGI->generaltexth->zelp[293].first,CGI->generaltexth->zelp[293].second,
 			 boost::bind(&CAdvMapInt::fshowOverview,this),&ADVOPT.kingOverview, SDLK_k),
 
-underground(CGI->preth->zelp[294].first,CGI->preth->zelp[294].second,
+underground(CGI->generaltexth->zelp[294].first,CGI->generaltexth->zelp[294].second,
 			boost::bind(&CAdvMapInt::fswitchLevel,this),&ADVOPT.underground, SDLK_u),
 
-questlog(CGI->preth->zelp[295].first,CGI->preth->zelp[295].second,
+questlog(CGI->generaltexth->zelp[295].first,CGI->generaltexth->zelp[295].second,
 		 boost::bind(&CAdvMapInt::fshowQuestlog,this),&ADVOPT.questlog, SDLK_q),
 
-sleepWake(CGI->preth->zelp[296].first,CGI->preth->zelp[296].second,
+sleepWake(CGI->generaltexth->zelp[296].first,CGI->generaltexth->zelp[296].second,
 		  boost::bind(&CAdvMapInt::fsleepWake,this), &ADVOPT.sleepWake, SDLK_w),
 
-moveHero(CGI->preth->zelp[297].first,CGI->preth->zelp[297].second,
+moveHero(CGI->generaltexth->zelp[297].first,CGI->generaltexth->zelp[297].second,
 		  boost::bind(&CAdvMapInt::fmoveHero,this), &ADVOPT.moveHero, SDLK_m),
 
-spellbook(CGI->preth->zelp[298].first,CGI->preth->zelp[298].second,
+spellbook(CGI->generaltexth->zelp[298].first,CGI->generaltexth->zelp[298].second,
 		  boost::bind(&CAdvMapInt::fshowSpellbok,this), &ADVOPT.spellbook, SDLK_c),
 
-advOptions(CGI->preth->zelp[299].first,CGI->preth->zelp[299].second,
+advOptions(CGI->generaltexth->zelp[299].first,CGI->generaltexth->zelp[299].second,
 		  boost::bind(&CAdvMapInt::fadventureOPtions,this), &ADVOPT.advOptions, SDLK_a),
 
-sysOptions(CGI->preth->zelp[300].first,CGI->preth->zelp[300].second,
+sysOptions(CGI->generaltexth->zelp[300].first,CGI->generaltexth->zelp[300].second,
 		  boost::bind(&CAdvMapInt::fsystemOptions,this), &ADVOPT.sysOptions, SDLK_o),
 
-nextHero(CGI->preth->zelp[301].first,CGI->preth->zelp[301].second,
+nextHero(CGI->generaltexth->zelp[301].first,CGI->generaltexth->zelp[301].second,
 		  boost::bind(&CAdvMapInt::fnextHero,this), &ADVOPT.nextHero, SDLK_h),
 
-endTurn(CGI->preth->zelp[302].first,CGI->preth->zelp[302].second,
+endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 		  boost::bind(&CAdvMapInt::fendTurn,this), &ADVOPT.endTurn, SDLK_e),
 
-townList(5,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD),//(5,&genRect(192,48,747,196),747,196,747,372),
+townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD),//(5,&genRect(192,48,747,196),747,196,747,372),
 heroList(ADVOPT.hlistSize)
 {
 	selection = NULL;
@@ -1218,7 +1225,7 @@ void CAdvMapInt::update()
 		}
 		if(scrollingRight)
 		{
-			if(position.x<CGI->mh->map->width-19+4)
+			if(position.x   <   CGI->mh->map->width - terrain.tilesw + 4 )
 			{
 				position.x++;
 				updateScreen = true;
@@ -1236,7 +1243,7 @@ void CAdvMapInt::update()
 		}
 		if(scrollingDown)
 		{
-			if(position.y<CGI->mh->map->height-18+4)
+			if(position.y  <  CGI->mh->map->height - terrain.tilesh + 4)
 			{
 				position.y++;
 				updateScreen = true;

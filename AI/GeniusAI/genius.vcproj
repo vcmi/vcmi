@@ -118,7 +118,7 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
-				Optimization="2"
+				Optimization="3"
 				EnableIntrinsicFunctions="true"
 				AdditionalIncludeDirectories="&quot;D:\!GameDevelopment\VCMI\libs\include&quot;;G:\vcmt\repa\include"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;GENIUS_EXPORTS"
@@ -140,9 +140,9 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib"
-				OutputFile="D:\Gry\heroes3\AI\genius.dll"
+				OutputFile="../GeniusAI.dll"
 				LinkIncremental="1"
-				AdditionalLibraryDirectories="C:\boost\boost_1_36_0\lib;&quot;D:\!GameDevelopment\VCMI\svn\trunk&quot;;&quot;D:\!GameDevelopment\VCMI\libs\lib&quot;;G:\vcmt\repa\libs"
+				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateManifest="false"
 				GenerateDebugInformation="true"
 				SubSystem="2"

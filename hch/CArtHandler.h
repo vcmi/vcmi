@@ -20,7 +20,10 @@ public:
 	EartClass aClass;
 	int id;
 
-
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & isAllowed & name & description & price & possibleSlots & aClass & id ;
+	}
 };
 
 class DLL_EXPORT CArtHandler //handles artifacts
@@ -28,9 +31,18 @@ class DLL_EXPORT CArtHandler //handles artifacts
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector<CArtifact> artifacts;
+
 	void loadArtifacts();
+	void sortArts();
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & artifacts;
+		if(!h.saving)
+			sortArts();
+	}
 };
 
 #endif // CARTHANDLER_H

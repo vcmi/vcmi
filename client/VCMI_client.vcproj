@@ -319,10 +319,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\hch\CGeneralTextHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\CHeroWindow.cpp"
 				>
 			</File>
@@ -356,10 +352,6 @@
 			</File>
 			<File
 				RelativePath="..\CPreGame.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\hch\CPreGameTextHandler.cpp"
 				>
 			</File>
 			<File
@@ -465,10 +457,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\hch\CGeneralTextHandler.h"
-				>
-			</File>
-			<File
 				RelativePath="..\hch\CHeroHandler.h"
 				>
 			</File>
@@ -506,10 +494,6 @@
 			</File>
 			<File
 				RelativePath="..\CPreGame.h"
-				>
-			</File>
-			<File
-				RelativePath="..\hch\CPreGameTextHandler.h"
 				>
 			</File>
 			<File

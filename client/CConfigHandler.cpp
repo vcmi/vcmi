@@ -207,8 +207,28 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 				| str_p("ResDataBar:") >>
 						*(	
 							(	"x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resdatabarX)]
-							  |	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resdatabarY)]
+							|	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resdatabarY)]
+							|	"offsetX=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resOffsetX)]
+							|	"offsetY=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resOffsetY)]
+							|	"resSpace=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resDist)]
+							|	"resDateSpace=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::resDateDist)]
 							  |	"graphic=" >> fname[SetAdventureStr(&AdventureMapConfig::resdatabarG)]
+							) 
+						 )
+				| str_p("InfoBox:") >>
+						*(	
+							(	"x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::infoboxX)]
+							  |	"y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::infoboxY)]
+							) 
+						 )
+				| str_p("AdvMap:") >>
+						*(	
+							(   "x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapX)]
+							  | "y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapY)]
+							  | "trimX=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapTrimX)]
+							  | "trimY=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapTrimY)]
+							  | "tilesWidth=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tilesW)]
+							  | "tilesHeight=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tilesH)]
 							) 
 						 )
 				| str_p("background=") >> fname[SetAdventureStr(&AdventureMapConfig::mainGraphic)]

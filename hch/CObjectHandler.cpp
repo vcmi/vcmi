@@ -3,6 +3,7 @@
 #include "CObjectHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CLodHandler.h"
+#include "CGeneralTextHandler.h"
 #include "CDefObjInfoHandler.h"
 #include "CHeroHandler.h"
 #include "CSpellHandler.h"
@@ -600,7 +601,7 @@ void CGHeroInstance::initHero()
 		artifWorn[17] = 0; //give him spellbook
 	}
 
-	if(portrait < 0)
+	if(portrait < 0 || portrait == 255)
 		portrait = subID;
 	if((!primSkills.size()) || (getPrimSkillLevel(0)<0))
 	{
@@ -610,14 +611,12 @@ void CGHeroInstance::initHero()
 		primSkills[2] = type->heroClass->initialPower;
 		primSkills[3] = type->heroClass->initialKnowledge;
 	}
-	if(secSkills.size() == 1 && secSkills[0] == std::make_pair(-1, -1)) //set secondary skills to default
+	if(secSkills.size() == 1 && secSkills[0] == std::pair<ui8,ui8>(-1, -1)) //set secondary skills to default
 		secSkills = type->secSkillsInit;
 	if(mana < 0)
 		mana = manaLimit();
 	if (!name.length())
 		name = type->name;
-	if (!biography.length())
-		biography = type->biography;		
 	if (exp == 0xffffffff)
 	{
 		exp=40+  (ran())  % 50;
@@ -665,6 +664,14 @@ CGHeroInstance::~CGHeroInstance()
 bool CGHeroInstance::needsLastStack() const
 {
 	return true;
+}
+
+const std::string & CGHeroInstance::getBiography()
+{
+	if (biography.length())
+		return biography;
+	else
+		return VLC->generaltexth->hTxts[subID].biography;		
 }
 CGTownInstance::~CGTownInstance()
 {}

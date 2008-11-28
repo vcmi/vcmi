@@ -178,6 +178,7 @@ private:
 	CGameState();
 	~CGameState();
 	void init(StartInfo * si, Mapa * map, int Seed);
+	void loadTownDInfos();
 	void applyNL(IPack * pack);
 	void apply(IPack * pack);
 	void randomizeObject(CGObjectInstance *cur);
@@ -199,7 +200,10 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & scenarioOps & seed & currentPlayer & day & map & players & resVals;
-		//TODO: villages, forts, capitols - will need reloading
+		if(!h.saving)
+		{
+			loadTownDInfos();
+		}
 		//TODO: hero pool
 	}
 

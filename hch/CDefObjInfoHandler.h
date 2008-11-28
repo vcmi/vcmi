@@ -28,6 +28,10 @@ public:
 		else
 			return subid<por.subid;
 	}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name & visitMap & blockMap & visitDir & id & subid &terrainAllowed & terrainMenu & width & height & type & printPriority;
+	}
 	CGDefInfo();
 };
 class DLL_EXPORT CDefObjInfoHandler

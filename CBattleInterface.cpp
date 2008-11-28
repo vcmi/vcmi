@@ -12,7 +12,6 @@
 #include "CCallback.h"
 #include "CGameState.h"
 #include "hch/CGeneralTextHandler.h"
-#include "hch/CPreGameTextHandler.h"
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
 #include "client/CSpellWindow.h"
@@ -2272,23 +2271,23 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	background = BitmapHandler::loadBitmap("comopbck.bmp", true);
 	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
 
-	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->preth->zelp[427].first)(3,CGI->preth->zelp[427].first), CGI->preth->zelp[427].second, false, "sysopchk.def", NULL, 185, 140, false);
+	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", NULL, 185, 140, false);
 	viewGrid->select(owner->printCellBorders);
-	movementShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintStackRange, owner, true), boost::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->preth->zelp[428].first)(3,CGI->preth->zelp[428].first), CGI->preth->zelp[428].second, false, "sysopchk.def", NULL, 185, 173, false);
+	movementShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintStackRange, owner, true), boost::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[428].first)(3,CGI->generaltexth->zelp[428].first), CGI->generaltexth->zelp[428].second, false, "sysopchk.def", NULL, 185, 173, false);
 	movementShadow->select(owner->printStackRange);
-	mouseShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintMouseShadow, owner, true), boost::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->preth->zelp[429].first)(3,CGI->preth->zelp[429].first), CGI->preth->zelp[429].second, false, "sysopchk.def", NULL, 185, 207, false);
+	mouseShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintMouseShadow, owner, true), boost::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[429].first)(3,CGI->generaltexth->zelp[429].first), CGI->generaltexth->zelp[429].second, false, "sysopchk.def", NULL, 185, 207, false);
 	mouseShadow->select(owner->printMouseShadow);
 
 	animSpeeds = new CHighlightableButtonsGroup(0);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[422].first),CGI->preth->zelp[422].second, "sysopb9.def",188, 309, 1);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[423].first),CGI->preth->zelp[423].second, "sysob10.def",252, 309, 2);
-	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->preth->zelp[424].first),CGI->preth->zelp[424].second, "sysob11.def",315, 309, 4);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[422].first),CGI->generaltexth->zelp[422].second, "sysopb9.def",188, 309, 1);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[423].first),CGI->generaltexth->zelp[423].second, "sysob10.def",252, 309, 2);
+	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[424].first),CGI->generaltexth->zelp[424].second, "sysob11.def",315, 309, 4);
 	animSpeeds->select(owner->getAnimSpeed(), 1);
 	animSpeeds->onChange = boost::bind(&CBattleInterface::setAnimSpeed, owner, _1);
 
-	setToDefault = new AdventureMapButton (CGI->preth->zelp[392].first, CGI->preth->zelp[392].second, boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def");
+	setToDefault = new AdventureMapButton (CGI->generaltexth->zelp[392].first, CGI->generaltexth->zelp[392].second, boost::bind(&CBattleOptionsWindow::bDefaultf,this), 405, 443, "codefaul.def");
 	std::swap(setToDefault->imgs[0][0], setToDefault->imgs[0][1]);
-	exit = new AdventureMapButton (CGI->preth->zelp[393].first, CGI->preth->zelp[393].second, boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def",SDLK_RETURN);
+	exit = new AdventureMapButton (CGI->generaltexth->zelp[393].first, CGI->generaltexth->zelp[393].second, boost::bind(&CBattleOptionsWindow::bExitf,this), 516, 443, "soretrn.def",SDLK_RETURN);
 	std::swap(exit->imgs[0][0], exit->imgs[0][1]);
 
 	//printing texts to background

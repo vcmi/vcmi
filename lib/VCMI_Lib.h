@@ -15,7 +15,7 @@ class CObjectHandler;
 //class CSemiLodHandler;
 class CDefObjInfoHandler;
 class CTownHandler;
-//class CGeneralTextHandler;
+class CGeneralTextHandler;
 //class CConsoleHandler;
 //class CPathfinder;
 //class CGameState;
@@ -23,27 +23,23 @@ class CTownHandler;
 class LibClasses
 {
 public:
-	//CGameState * state;
 	CArtHandler * arth;
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
-	//CAbilityHandler * abilh;
 	CSpellHandler * spellh;
-	//CPreGameTextHandler * preth;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
 	CDefObjInfoHandler * dobjinfo;
 	CTownHandler * townh;
-	//CGeneralTextHandler * generaltexth;
-	//CConsoleHandler * consoleh;
+	CGeneralTextHandler * generaltexth;
 	//CPathfinder * pathf;
 };
 
 extern DLL_EXPORT LibClasses * VLC;
+extern CLodHandler * bitmaph;
 
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode);
-
 DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *Logfile);
 
 #endif //VCMI_LIB_H

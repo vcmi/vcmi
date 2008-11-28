@@ -269,28 +269,45 @@ struct DLL_EXPORT TerrainTile
 
 	std::vector <CGObjectInstance*> visitableObjects; //pointers to objects hero can visit while being on this tile
 	std::vector <CGObjectInstance*> blockingObjects; //pointers to objects that are blocking this tile
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tertype & terview & nuine & rivDir & malle &roadDir & siodmyTajemniczyBajt;
+	}
 };
 struct DLL_EXPORT SheroName //name of starting hero
 {
 	int heroID;
 	std::string heroName;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & heroID & heroName;
+	}
 };
 struct DLL_EXPORT PlayerInfo
 {
-	int p7, p8, p9;
-	bool canHumanPlay;
-	bool canComputerPlay;
-	unsigned int AITactic; //(00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
-	unsigned int allowedFactions; //(01 - castle; 02 - rampart; 04 - tower; 08 - inferno; 16 - necropolis; 32 - dungeon; 64 - stronghold; 128 - fortress; 256 - conflux);
-	bool isFactionRandom;
-	unsigned int mainHeroPortrait; //it's ID of hero with choosen portrait; 255 if standard
+	si32 p7, p8, p9;
+	ui8 canHumanPlay;
+	ui8 canComputerPlay;
+	ui32 AITactic; //(00 - random, 01 -  warrior, 02 - builder, 03 - explorer)
+	ui32 allowedFactions; //(01 - castle; 02 - rampart; 04 - tower; 08 - inferno; 16 - necropolis; 32 - dungeon; 64 - stronghold; 128 - fortress; 256 - conflux);
+	ui8 isFactionRandom;
+	ui32 mainHeroPortrait; //it's ID of hero with choosen portrait; 255 if standard
 	std::string mainHeroName;
 	std::vector<SheroName> heroesNames;
-	bool hasMainTown;
-	bool generateHeroAtMainTown;
+	ui8 hasMainTown;
+	ui8 generateHeroAtMainTown;
 	int3 posOfMainTown;
-	int team;
-	bool generateHero;
+	ui8 team;
+	ui8 generateHero;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & p7 & p8 & p9 & canHumanPlay & canComputerPlay & AITactic & allowedFactions & isFactionRandom &
+			mainHeroPortrait & mainHeroName & heroesNames & hasMainTown & generateHeroAtMainTown &
+			posOfMainTown & team & generateHero;
+	}
 };
 struct DLL_EXPORT LossCondition
 {
@@ -298,6 +315,11 @@ struct DLL_EXPORT LossCondition
 	int3 castlePos;
 	int3 heroPos;
 	int timeLimit; // in days
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & typeOfLossCon & castlePos & heroPos & timeLimit;
+	}
 };
 struct DLL_EXPORT CspecificVictoryConidtions
 {
@@ -349,26 +371,41 @@ struct DLL_EXPORT VicCona : public CspecificVictoryConidtions //transport specif
 struct DLL_EXPORT Rumor
 {
 	std::string name, text;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name & text;
+	}
 };
 
 struct DLL_EXPORT DisposedHero
 {
-	int ID;
-	int portrait; //0xFF - default
+	ui32 ID;
+	ui16 portrait; //0xFF - default
 	std::string name;
 	ui8 players; //who can hire this hero (bitfield)
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ID & portrait & name & players;
+	}
 };
 
 class DLL_EXPORT CMapEvent
 {
 public:
 	std::string name, message;
-	int wood, mercury, ore, sulfur, crystal, gems, gold; //gained / taken resources
-	unsigned char players; //affected players
-	bool humanAffected;
-	bool computerAffected;
-	int firstOccurence;
-	int nextOccurence; //after nextOccurance day event will occure; if it it 0, event occures only one time;
+	si32 wood, mercury, ore, sulfur, crystal, gems, gold; //gained / taken resources
+	ui8 players; //affected players
+	ui8 humanAffected;
+	ui8 computerAffected;
+	ui32 firstOccurence;
+	ui32 nextOccurence; //after nextOccurance day event will occure; if it it 0, event occures only one time;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name & message & wood & mercury & ore & sulfur & crystal & gems & gold
+			& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
+	}
 };
 class DLL_EXPORT CMapHeader
 {
@@ -507,7 +544,34 @@ struct DLL_EXPORT Mapa
 	bool isInTheMap(int3 pos);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		//TODO: write
+		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & rumors & defy & defs
+			& players & teams & lossCondition & victoryCondition & howManyTeams & allowedSpell & allowedAbilities
+			& allowedArtifact &allowedHeroes & events;
+		//TODO: viccondetails
+		if(h.saving)
+		{
+			//saving terrain
+			for (int i = 0; i < width ; i++)
+				for (int j = 0; j < height ; j++)
+					for (int k = 0; k <= twoLevel ; k++)
+						h & terrain[i][j][k];
+		}
+		else
+		{
+			//loading terrain
+			terrain = new TerrainTile**[width]; // allocate memory 
+			for (int ii=0;ii<width;ii++)
+			{
+				terrain[ii] = new TerrainTile*[height]; // allocate memory 
+				for(int jj=0;jj<height;jj++)
+					terrain[ii][jj] = new TerrainTile[twoLevel+1];
+			}
+			for (int i = 0; i < width ; i++)
+				for (int j = 0; j < height ; j++)
+					for (int k = 0; k <= twoLevel ; k++)
+						h & terrain[i][j][k];
+		}
+		//TODO: recreate blockvis maps
 	}
 };
 #endif //MAPD_H
