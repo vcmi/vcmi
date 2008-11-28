@@ -131,6 +131,8 @@ private:
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
 	std::vector<int> shadedHexes; //hexes available for active stack
+	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
+	int currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 
@@ -223,15 +225,16 @@ public:
 	{
 		int ID; //id of attacked stack
 		int dmg; //damage dealt
-		int killed; //how many creatures in stack has been killed
+		int amountKilled; //how many creatures in stack has been killed
 		int IDby; //ID of attacking stack
 		bool byShooting; //if true, stack has been attacked by shooting
+		bool killed; //if true, stack has been killed
 	};
 
 	//call-ins
 	void newStack(CStack stack); //new stack appeared on battlefield
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
-	void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
+	//void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool endMoving); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked

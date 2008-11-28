@@ -115,7 +115,7 @@ public:
 	std::vector<StackEffect> effects;
 
 	CStack(CCreature * C, int A, int O, int I, bool AO, int S);
-	CStack() : creature(NULL),amount(-1),owner(255), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1), counterAttacks(1){};
+	CStack() : creature(NULL),amount(-1),owner(255), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1), counterAttacks(1), effects(), state(), abilities(){}
 	const StackEffect * getEffect(ui16 id) const; //effect id (SP)
 	ui32 speed() const;
 	template <typename Handler> void save(Handler &h, const int version)

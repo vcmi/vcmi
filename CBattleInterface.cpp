@@ -41,7 +41,9 @@ public:
 } cmpst2 ;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL), attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true), printMouseShadow(true), spellDestSelectMode(false), spellToCast(NULL)
+: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL),
+	attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true),
+	printMouseShadow(true), spellDestSelectMode(false), spellToCast(NULL), previouslyHoveredHex(-1)
 {
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
@@ -323,6 +325,14 @@ void CBattleInterface::show(SDL_Surface * to)
 		{
 			if(bfield[b].strictHovered && bfield[b].hovered)
 			{
+				if(previouslyHoveredHex == -1) previouslyHoveredHex = b; //something to start with
+				if(currentlyHoveredHex == -1) currentlyHoveredHex = b; //something to start with
+				if(currentlyHoveredHex != b) //repair hover info
+				{
+					previouslyHoveredHex = currentlyHoveredHex;
+					currentlyHoveredHex = b;
+				}
+				//print shade
 				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH);
 				int y = 86 + 42 * (b/BFIELD_WIDTH);
 				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
@@ -373,30 +383,22 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(int v=0; v<stackDeadByHex[b].size(); ++v)
 		{
-			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], (animCount%(4/animSpeed)==0) && creAnims[stackDeadByHex[b][v]]->getType()!=5, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
-			//printing amount
-			if(stacks[stackDeadByHex[b][v]].amount > 0) //don't print if stack is not alive
-			{
-				int xAdd = stacks[stackDeadByHex[b][v]].attackerOwned ? 220 : 202;
-
-				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackDeadByHex[b][v]]->pos.x + xAdd, creAnims[stackDeadByHex[b][v]]->pos.y + 260));
-				std::stringstream ss;
-				ss<<stacks[stackDeadByHex[b][v]].amount;
-				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackDeadByHex[b][v]]->pos.x + xAdd + 14, creAnims[stackDeadByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
-			}
+			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], false, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
 		}
 	}
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing alive stacks
 	{
 		for(int v=0; v<stackAliveByHex[b].size(); ++v)
 		{
-			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], (animCount%(4/animSpeed)==0) && creAnims[stackAliveByHex[b][v]]->getType()!=0 && creAnims[stackAliveByHex[b][v]]->getType()!=5 && creAnims[stackAliveByHex[b][v]]->getType()!=20 && creAnims[stackAliveByHex[b][v]]->getType()!=21, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			int animType = creAnims[stackAliveByHex[b][v]]->getType();
+			bool incrementFrame = (animCount%(4/animSpeed)==0) && animType!=0 && animType!=5 && animType!=20 && animType!=21 && animType!=3;
+			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x, creAnims[stackAliveByHex[b][v]]->pos.y, creDir[stackAliveByHex[b][v]], incrementFrame, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
 				int xAdd = stacks[stackAliveByHex[b][v]].attackerOwned ? 220 : 202;
 
-				CSDL_Ext::blit8bppAlphaTo24bpp(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + xAdd, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
+				SDL_BlitSurface(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + xAdd, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
 				std::stringstream ss;
 				ss<<stacks[stackAliveByHex[b][v]].amount;
 				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackAliveByHex[b][v]]->pos.x + xAdd + 14, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
@@ -407,21 +409,24 @@ void CBattleInterface::show(SDL_Surface * to)
 	projectileShowHelper(to);//showing projectiles
 
 	//showing spell effects
-	std::vector< std::list<SBattleEffect>::iterator > toErase;
-	for(std::list<SBattleEffect>::iterator it = battleEffects.begin(); it!=battleEffects.end(); ++it)
+	if(battleEffects.size())
 	{
-		blitAt(it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap, it->x, it->y, to);
-		++(it->frame);
+		std::vector< std::list<SBattleEffect>::iterator > toErase;
+		for(std::list<SBattleEffect>::iterator it = battleEffects.begin(); it!=battleEffects.end(); ++it)
+		{
+			blitAt(it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap, it->x, it->y, to);
+			++(it->frame);
 
-		if(it->frame == it->maxFrame)
-			toErase.push_back(it);
+			if(it->frame == it->maxFrame)
+				toErase.push_back(it);
+		}
+		for(int b=0; b<toErase.size(); ++b)
+		{
+			delete toErase[b]->anim;
+			battleEffects.erase(toErase[b]);
+		}
 	}
 	
-	for(int b=0; b<toErase.size(); ++b)
-	{
-		delete toErase[b]->anim;
-		battleEffects.erase(toErase[b]);
-	}
 
 	//showing queue of stacks
 	if(showStackQueue)
@@ -466,7 +471,7 @@ void CBattleInterface::show(SDL_Surface * to)
 							{
 								pc = *graphics->neutralColor;
 							}
-							CSDL_Ext::SDL_PutPixel(to, xFrom, yFrom, pc.r, pc.g, pc.b);
+							CSDL_Ext::SDL_PutPixelWithoutRefresh(to, xFrom, yFrom, pc.r, pc.g, pc.b);
 						}
 					}
 				}
@@ -518,14 +523,8 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						CGI->curh->changeGraphic(1,3);
 					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
 					{
-						int fromHex = -1;
-						for(int b=0; b<BFIELD_SIZE; ++b)
-							if(bfield[b].hovered && !bfield[b].strictHovered)
-							{
-								fromHex = b;
-								break;
-							}
-							if(fromHex!=-1 && fromHex%17!=0 && fromHex%17!=16 && vstd::contains(shadedHexes, fromHex))
+						int fromHex = previouslyHoveredHex;
+						if(fromHex!=-1 && fromHex%17!=0 && fromHex%17!=16 && vstd::contains(shadedHexes, fromHex))
 						{
 							switch(BattleInfo::mutualPosition(fromHex, myNumber))
 							{
@@ -738,55 +737,6 @@ void CBattleInterface::stackRemoved(CStack stack)
 	creAnims.erase(stack.ID);
 }
 
-void CBattleInterface::stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting)
-{
-	if(creAnims[ID]->getType() != 2)
-	{
-		return; //something went wrong
-	}
-	if(byShooting) //delay hit animation
-	{
-		CStack attacker = *LOCPLINT->cb->battleGetStackByID(IDby);
-		while(true)
-		{
-			bool found = false;
-			for(std::list<SProjectileInfo>::const_iterator it = projectiles.begin(); it!=projectiles.end(); ++it)
-			{
-				if(it->creID == attacker.creature->idNumber)
-				{
-					found = true;
-					break;
-				}
-			}
-			if(!found)
-				break;
-			else
-			{
-				show();
-				CSDL_Ext::update();
-				SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			}
-		}
-	}
-	creAnims[ID]->setType(5); //death
-	//int firstFrame = creAnims[ID]->getFrame();
-	int increments = 0;
-	while(increments < creAnims[ID]->framesInGroup(5)-1)
-	{
-		if((animCount%(4/animSpeed))==0)
-		{
-			creAnims[ID]->incrementFrame();
-			++increments;
-		}
-		show();
-		CSDL_Ext::update();
-		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-	}
-
-	if(IDby!=-1)
-		printConsoleAttacked(ID, dmg, killed, IDby);
-}
-
 void CBattleInterface::stackActivated(int number)
 {
 	//givenCommand = NULL;
@@ -913,6 +863,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 
 void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAttackedInfo> attackedInfos)
 {
+	//restoring default state of battleWindow by calling show func
 	while(true)
 	{
 		show();
@@ -954,40 +905,71 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 			}
 		}
 	}
-	std::vector<int> animLengths;
+	//initializing
+	std::map<int, int> animLengths;
+	std::map<int, int> increments;
 	int maxLen = 0;
 	for(int g=0; g<attackedInfos.size(); ++g)
 	{
-		creAnims[attackedInfos[g].ID]->setType(3); //getting hit
-		animLengths.push_back( creAnims[attackedInfos[g].ID]->framesInGroup(3) );
-		if(creAnims[attackedInfos[g].ID]->framesInGroup(3) > maxLen)
+		int animLen;
+		if(attackedInfos[g].killed)
 		{
-			maxLen = creAnims[attackedInfos[g].ID]->framesInGroup(3);
+			creAnims[attackedInfos[g].ID]->setType(5); //death
+			animLen = creAnims[attackedInfos[g].ID]->framesInGroup(5);
+		}
+		else
+		{
+			creAnims[attackedInfos[g].ID]->setType(3); //getting hit
+			animLen = creAnims[attackedInfos[g].ID]->framesInGroup(3);
+		}
+		animLengths.insert(std::make_pair(attackedInfos[g].ID, animLen));
+		increments.insert(std::make_pair(attackedInfos[g].ID, 0));
+		if(animLen > maxLen)
+		{
+			maxLen = animLen;
 		}
 	}
-	for(int i=0; i<maxLen; ++i)
+	//main showing loop
+	bool continueLoop = true;
+	while(continueLoop)
 	{
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		/*if((animCount+1)%(4/animSpeed)==0)
-			creAnims[ID]->incrementFrame();*/
 		for(int g=0; g<attackedInfos.size(); ++g)
 		{
-			if(i>=animLengths[g] && creAnims[attackedInfos[g].ID]->getType() == 3)
+			if((animCount+1)%(4/animSpeed)==0 && increments[attackedInfos[g].ID]<animLengths[attackedInfos[g].ID])
+			{
+				creAnims[attackedInfos[g].ID]->incrementFrame();
+				++(increments[attackedInfos[g].ID]);
+			}
+			if(increments[attackedInfos[g].ID]>=animLengths[attackedInfos[g].ID] && creAnims[attackedInfos[g].ID]->getType() == 3)
 				creAnims[attackedInfos[g].ID]->setType(2);
 		}
+		bool isAnotherOne = false; //if true, there is a stack whose hit/death anim must be continued
+		for(int g=0; g<attackedInfos.size(); ++g)
+		{
+			if(increments[attackedInfos[g].ID] < animLengths[attackedInfos[g].ID]-1)
+			{
+				isAnotherOne = true;
+				break;
+			}
+		}
+		if(!isAnotherOne)
+			continueLoop = false;
 	}
+	//restoring animType
 	for(int g=0; g<attackedInfos.size(); ++g)
 	{
 		if(creAnims[attackedInfos[g].ID]->getType() == 3)
 			creAnims[attackedInfos[g].ID]->setType(2);
 	}
 
+	//printing info to console
 	for(int g=0; g<attackedInfos.size(); ++g)
 	{
 		if(attackedInfos[g].IDby!=-1)
-			printConsoleAttacked(attackedInfos[g].ID, attackedInfos[g].dmg, attackedInfos[g].killed, attackedInfos[g].IDby);
+			printConsoleAttacked(attackedInfos[g].ID, attackedInfos[g].dmg, attackedInfos[g].amountKilled, attackedInfos[g].IDby);
 	}
 }
 

@@ -58,16 +58,16 @@ CMinimap::CMinimap(bool draw)
 	{
 		if (i%4 || (i==0))
 		{
-			SDL_PutPixel(radar,i,0,255,75,125);
-			SDL_PutPixel(radar,i,radar->h-1,255,75,125);
+			SDL_PutPixelWithoutRefresh(radar,i,0,255,75,125);
+			SDL_PutPixelWithoutRefresh(radar,i,radar->h-1,255,75,125);
 		}
 	}
 	for (int i=0; i<radar->h; i++)
 	{
 		if ((i%4) || (i==0))
 		{
-			SDL_PutPixel(radar,0,i,255,75,125);
-			SDL_PutPixel(radar,radar->w-1,i,255,75,125);
+			SDL_PutPixelWithoutRefresh(radar,0,i,255,75,125);
+			SDL_PutPixelWithoutRefresh(radar,radar->w-1,i,255,75,125);
 		}
 	}
 	SDL_SetColorKey(radar,SDL_SRCCOLORKEY,SDL_MapRGB(radar->format,0,255,255));
@@ -124,7 +124,7 @@ void CMinimap::draw()
 		{
 			for (int jj=0; jj<ho; jj++)
 			{
-				SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,
+				SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[hh[i]->getOwner()].r,
 						graphics->playerColors[hh[i]->getOwner()].g,graphics->playerColors[hh[i]->getOwner()].b);
 			}
 		}
@@ -146,10 +146,10 @@ void CMinimap::draw()
 						for (int jj=0; jj<ho; jj++)
 						{
 							if(oo[v]->tempOwner == 255)
-								SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,
+								SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,
 									graphics->neutralColor->g,graphics->neutralColor->b);
 							else
-								SDL_PutPixel(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].r,
+								SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].r,
 									graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].b);
 						}
 					}
@@ -185,8 +185,8 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 				int mx=(mapSizes.x*x)/pos.w;
 				int my=(mapSizes.y*y)/pos.h;
 				if (CGI->mh->ttiles[mx][my][i].tileInfo->blocked && (!CGI->mh->ttiles[mx][my][i].tileInfo->visitable))
-					SDL_PutPixel(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
-				else SDL_PutPixel(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
+					SDL_PutPixelWithoutRefresh(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
+				else SDL_PutPixelWithoutRefresh(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
 			}
 		}
 		map.push_back(pom);
@@ -285,7 +285,7 @@ void CMinimap::showTile(const int3 &pos)
 		for (int jj=0; jj<ho; jj++)
 		{
 			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
-				CSDL_Ext::SDL_PutPixel(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0,0);
+				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0);
 		}
 	}
 }

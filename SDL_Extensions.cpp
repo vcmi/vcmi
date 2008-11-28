@@ -27,7 +27,7 @@ bool isItIn(const SDL_Rect * rect, int x, int y)
 		return true;
 	else return false;
 }
-inline SDL_Rect genRect(int hh, int ww, int xx, int yy)
+inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
 {
 	SDL_Rect ret;
 	ret.h=hh;
@@ -233,47 +233,34 @@ void CSDL_Ext::printToWR(const std::string & text, int x, int y, TTF_Font * font
 	SDL_FreeSurface(temp);
 }
 
-void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC, Uint8 A)
+inline void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
 {
-	Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;
-/*
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
-	p[0] = R;
-	p[1] = G;
-	p[2] = B;
-#else
-*/
+	Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel;
+
 	p[0] = B;
 	p[1] = G;
 	p[2] = R;
 	if(ekran->format->BytesPerPixel==4)
 		p[3] = A;
-//#endif
+
 	SDL_UpdateRect(ekran, x, y, 1, 1);
 }
 
-void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC, Uint8 A)
+inline void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
 {
-     Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel-myC;
-/*
-#if (SDL_BYTEORDER == SDL_BIG_ENDIAN)
+	Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel;
+
 	p[0] = B;
 	p[1] = G;
 	p[2] = R;
-#else
-*/
-	p[0] = R;
-	p[1] = G;
-	p[2] = B;
 	if(ekran->format->BytesPerPixel==4)
 		p[3] = A;
-//#endif
 }
 
 ///**************/
 ///Reverses the toRot surface by the vertical axis
 ///**************/
-SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot, int myC)
+SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot)
 {
 	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
 	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
@@ -288,10 +275,10 @@ SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot, int myC)
 /*
 
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2], myC);
+						CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[0], p[1], p[2]);
 #else
 */
-						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0], myC);
+						CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
 //#endif
 				}
 			}
@@ -327,10 +314,10 @@ SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 					//int k=2;
 /*
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-						CSDL_Ext::SDL_PutPixel(ret, i, j, p[0], p[1], p[2]);
+						CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[0], p[1], p[2]);
 #else
 */
-						CSDL_Ext::SDL_PutPixel(ret, i, j, p[2], p[1], p[0]);
+						CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
 //#endif
 				}
 			}
@@ -367,10 +354,10 @@ SDL_Surface * CSDL_Ext::rotate02(SDL_Surface * toRot)
 				Uint8 *p = (Uint8 *)toRot->pixels + i * toRot->pitch + j * toRot->format->BytesPerPixel;
 /*
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-					SDL_PutPixel(ret, i, j, p[0], p[1], p[2]);
+					SDL_PutPixelWithoutRefresh(ret, i, j, p[0], p[1], p[2]);
 #else
 */
-					SDL_PutPixel(ret, i, j, p[2], p[1], p[0]);
+					SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
 //#endif
 			}
 		}
@@ -395,10 +382,10 @@ SDL_Surface * CSDL_Ext::rotate03(SDL_Surface * toRot)
 					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j - 1) * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel+2;
 /*
 #if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-						SDL_PutPixel(ret, i, j, p[0], p[1], p[2], 2);
+						SDL_PutPixelWithoutRefresh(ret, i, j, p[0], p[1], p[2], 0);
 #else
 */
-						SDL_PutPixel(ret, i, j, p[2], p[1], p[0], 2);
+						SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0], 0);
 //#endif
 				}
 			}
@@ -509,7 +496,6 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 
 int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {
-	static std::map<Uint8, int> st;
 	if(src && src->format->BytesPerPixel==1 && dst && (dst->format->BytesPerPixel==3 || dst->format->BytesPerPixel==4)) //everything's ok
 	{
 		SDL_Rect fulldst;
@@ -712,13 +698,13 @@ void CSDL_Ext::drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 co
 {
 	for(int i=0;i<w;i++)
 	{
-		SDL_PutPixel(sur,x+i,y,color.x,color.y,color.z);
-		SDL_PutPixel(sur,x+i,y+h-1,color.x,color.y,color.z);
+		SDL_PutPixelWithoutRefresh(sur,x+i,y,color.x,color.y,color.z);
+		SDL_PutPixelWithoutRefresh(sur,x+i,y+h-1,color.x,color.y,color.z);
 	}
 	for(int i=0; i<h;i++)
 	{
-		SDL_PutPixel(sur,x,y+i,color.x,color.y,color.z);
-		SDL_PutPixel(sur,x+w-1,y+i,color.x,color.y,color.z);
+		SDL_PutPixelWithoutRefresh(sur,x,y+i,color.x,color.y,color.z);
+		SDL_PutPixelWithoutRefresh(sur,x+w-1,y+i,color.x,color.y,color.z);
 	}
 }
 void CSDL_Ext::setPlayerColor(SDL_Surface * sur, unsigned char player)

@@ -20,13 +20,13 @@ template <typename T> int getIndexOf(const std::vector<T> & v, const T & val)
 			return i;
 	return -1;
 }
-SDL_Rect genRect(int hh, int ww, int xx, int yy);
+inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy);
 namespace CSDL_Ext
 {
 	extern SDL_Surface * std32bppSurface;
-	void SDL_PutPixel(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC=0, Uint8 A = 255); //myC influences the start of reading pixels
-	void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, int x, int y, Uint8 R, Uint8 G, Uint8 B, int myC=0, Uint8 A = 255); //myC influences the start of reading pixels ; without refreshing
-	SDL_Surface * rotate01(SDL_Surface * toRot, int myC = 2); //vertical flip
+	inline void SDL_PutPixel(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255); //myC influences the start of reading pixels
+	inline void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255); //myC influences the start of reading pixels ; without refreshing
+	SDL_Surface * rotate01(SDL_Surface * toRot); //vertical flip
 	SDL_Surface * hFlip(SDL_Surface * toRot); //horizontal flip
 	SDL_Surface * rotate02(SDL_Surface * toRot); //rotate 90 degrees left
 	SDL_Surface * rotate03(SDL_Surface * toRot); //rotate 180 degrees

@@ -47,7 +47,11 @@ public:
 		for(int i=src.size(); i<src.size()+offset;i++)
 			inver[offset+i] = fill;
 	}
-	inline T & operator[](int n)
+	inline T & operator[](const int & n)
+	{
+		return inver[n+offset];
+	}
+	inline const T & operator[](const int & n) const
 	{
 		return inver[n+offset];
 	}

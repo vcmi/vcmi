@@ -55,7 +55,7 @@ extern boost::mutex eventsM;
 class OCM_HLP_CGIN
 {
 public:
-	bool operator ()(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b) const
+	bool inline operator ()(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b) const
 	{
 		return (*a.first)<(*b.first);
 	}
@@ -750,13 +750,13 @@ void CSelectableComponent::init(SDL_Surface * Border)
 		SDL_FillRect(border,NULL,0x00FFFF);
 		for (int i=0;i<border->w;i++)
 		{
-			SDL_PutPixel(border,i,0,239,215,123);
-			SDL_PutPixel(border,i,(border->h)-1,239,215,123);
+			SDL_PutPixelWithoutRefresh(border,i,0,239,215,123);
+			SDL_PutPixelWithoutRefresh(border,i,(border->h)-1,239,215,123);
 		}
 		for (int i=0;i<border->h;i++)
 		{
-			SDL_PutPixel(border,0,i,239,215,123);
-			SDL_PutPixel(border,(border->w)-1,i,239,215,123);
+			SDL_PutPixelWithoutRefresh(border,0,i,239,215,123);
+			SDL_PutPixelWithoutRefresh(border,(border->w)-1,i,239,215,123);
 		}
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
 	}
@@ -2116,15 +2116,10 @@ void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 	{
 		battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position);
 	}
-	if(bsa->killed())
-		battleInt->stackKilled(bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7 );
-	else
-	{
-		std::vector<CBattleInterface::SStackAttackedInfo> arg;
-		CBattleInterface::SStackAttackedInfo to_put = {bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7};
-		arg.push_back(to_put);
-		battleInt->stacksAreAttacked(arg);
-	}
+	std::vector<CBattleInterface::SStackAttackedInfo> arg;
+	CBattleInterface::SStackAttackedInfo to_put = {bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7, bsa->killed()};
+	arg.push_back(to_put);
+	battleInt->stacksAreAttacked(arg);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {

@@ -595,7 +595,7 @@ void CHeroWindow::redrawCurBack()
 				for(int h=0; h<graphics->portraitSmall[cur->portrait]->h; ++h)
 					if(f==0 || h==0 || f==graphics->portraitSmall[cur->portrait]->w-1 || h==graphics->portraitSmall[cur->portrait]->h-1)
 					{
-						CSDL_Ext::SDL_PutPixel(curBack, 611+f, 87+g*54+h, 240, 220, 120);
+						CSDL_Ext::SDL_PutPixelWithoutRefresh(curBack, 611+f, 87+g*54+h, 240, 220, 120);
 					}
 			}
 		}
@@ -787,7 +787,7 @@ void CArtPlace::show(SDL_Surface *to)
 			{
 				if(i==0 || j==0 || i==pos.h-1 || j==pos.w-1)
 				{
-					CSDL_Ext::SDL_PutPixel(to, pos.x+j, pos.y+i, 240, 220, 120);
+					CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x+j, pos.y+i, 240, 220, 120);
 				}
 			}
 		}
