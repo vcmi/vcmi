@@ -1206,13 +1206,13 @@ void CAdvMapInt::update()
 	++animValHitCount; //for animations
 	if(animValHitCount == 8)
 	{
+		CGI->mh->updateWater();
 		animValHitCount = 0;
 		++anim;
 		updateScreen = true;
-
 	}
 	++heroAnim;
-	if((animValHitCount % 4) && !LOCPLINT->showingDialog->get())
+	if((animValHitCount % (4/LOCPLINT->mapScrollingSpeed)) == 0 && !LOCPLINT->showingDialog->get())
 	{
 		if(scrollingLeft)
 		{
@@ -1252,8 +1252,7 @@ void CAdvMapInt::update()
 		}
 	}
 	if(updateScreen)
-	{		
-		CGI->mh->updateWater();
+	{
 		terrain.show();
 		for(int i=0;i<4;i++)
 			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i]);

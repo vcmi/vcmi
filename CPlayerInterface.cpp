@@ -1001,6 +1001,7 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	pim = new boost::recursive_mutex;
 	showingDialog = new CondSh<bool>(false);
 	heroMoveSpeed = 2;
+	mapScrollingSpeed = 2;
 	//initializing framerate keeper
 	mainFPSmng = new FPSmanager;
 	SDL_initFramerate(mainFPSmng);
@@ -1529,16 +1530,6 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		adventureInt->updateScreen = true;
 		LOCPLINT->adventureInt->update(); //updating screen
 		CSDL_Ext::update(screen);
-		//CGI->screenh->updateScreen();
-
-		++LOCPLINT->adventureInt->animValHitCount; //for animations
-		if(LOCPLINT->adventureInt->animValHitCount == 8)
-		{
-			LOCPLINT->adventureInt->animValHitCount = 0;
-			++LOCPLINT->adventureInt->anim;
-			LOCPLINT->adventureInt->updateScreen = true;
-		}
-		++LOCPLINT->adventureInt->heroAnim;
 
 		SDL_Delay(5);
 		SDL_framerateDelay(mainFPSmng); //for animation purposes
@@ -3825,6 +3816,13 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[352].first),CGI->generaltexth->zelp[352].second, "sysopb4.def", 331, 134, 8);
 	heroMoveSpeed->select(owner->heroMoveSpeed, 1);
 	heroMoveSpeed->onChange = boost::bind(&CPlayerInterface::setHeroMoveSpeed, owner, _1);
+
+	mapScrollSpeed = new CHighlightableButtonsGroup(0);
+	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[357].first),CGI->generaltexth->zelp[357].second, "sysopb9.def", 187, 267, 1);
+	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[358].first),CGI->generaltexth->zelp[358].second, "sysob10.def", 251, 267, 2);
+	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[359].first),CGI->generaltexth->zelp[359].second, "sysob11.def", 315, 267, 4);
+	mapScrollSpeed->select(owner->mapScrollingSpeed, 1);
+	mapScrollSpeed->onChange = boost::bind(&CPlayerInterface::setMapScrollingSpeed, owner, _1);
 }
 
 CSystemOptionsWindow::~CSystemOptionsWindow()
@@ -3834,6 +3832,7 @@ CSystemOptionsWindow::~CSystemOptionsWindow()
 	delete quitGame;
 	delete backToMap;
 	delete heroMoveSpeed;
+	delete mapScrollSpeed;
 }
 
 void CSystemOptionsWindow::bquitf()
@@ -3864,6 +3863,7 @@ void CSystemOptionsWindow::activate()
 	quitGame->activate();
 	backToMap->activate();
 	heroMoveSpeed->activate();
+	mapScrollSpeed->activate();
 }
 
 void CSystemOptionsWindow::deactivate()
@@ -3871,6 +3871,7 @@ void CSystemOptionsWindow::deactivate()
 	quitGame->deactivate();
 	backToMap->deactivate();
 	heroMoveSpeed->deactivate();
+	mapScrollSpeed->deactivate();
 }
 
 void CSystemOptionsWindow::show(SDL_Surface *to)
@@ -3884,6 +3885,7 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 	quitGame->show(to);
 	backToMap->show(to);
 	heroMoveSpeed->show(to);
+	mapScrollSpeed->show(to);
 }
 
 CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2, const std::string &gossip)

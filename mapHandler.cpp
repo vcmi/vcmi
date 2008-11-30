@@ -746,7 +746,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	//borders printed
 	return su;
 }
-SDL_Surface * CMapHandler::getVisBitmap(int x, int y, std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl)
+SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl)
 {
 	int size = visibilityMap.size()-1;							//is tile visible. arrangement: (like num keyboard)
 	bool d7 = (x>0 && y>0) ? visibilityMap[x-1][y-1][lvl] : 0,	//789

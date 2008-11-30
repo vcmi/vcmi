@@ -336,7 +336,9 @@ public:
 	boost::recursive_mutex *pim;
 	bool makingTurn;
 	int heroMoveSpeed;
-	void setHeroMoveSpeed(int newSpeed) {heroMoveSpeed = newSpeed;}; //set for the member above
+	void setHeroMoveSpeed(int newSpeed) {heroMoveSpeed = newSpeed;} //set for the member above
+	int mapScrollingSpeed;
+	void setMapScrollingSpeed(int newSpeed) {mapScrollingSpeed = newSpeed;} //set the member above
 	SDL_Event * current;
 	CMainInterface *curint;
 	CAdvMapInt * adventureInt;
@@ -664,6 +666,7 @@ private:
 	SDL_Surface * background; //background of window
 	AdventureMapButton * quitGame, * backToMap;
 	CHighlightableButtonsGroup * heroMoveSpeed;
+	CHighlightableButtonsGroup * mapScrollSpeed;
 public:
 	CSystemOptionsWindow(const SDL_Rect & pos, CPlayerInterface * owner); //c-tor
 	~CSystemOptionsWindow(); //d-tor
