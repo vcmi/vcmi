@@ -2,6 +2,7 @@
 #include "../stdafx.h"
 #include "CArtHandler.h"
 #include "CLodHandler.h"
+#include "CGeneralTextHandler.h"
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>
 #include "../lib/VCMI_Lib.h"
@@ -23,10 +24,12 @@ void CArtHandler::loadArtifacts()
 	{
 		loadToIt(dump,buf,it,3);
 	}
+	VLC->generaltexth->artifNames.resize(ARTIFACTS_QUANTITY);
+	VLC->generaltexth->artifDescriptions.resize(ARTIFACTS_QUANTITY);
 	for (int i=0; i<ARTIFACTS_QUANTITY; i++)
 	{
 		CArtifact nart;
-		loadToIt(nart.name,buf,it,4);
+		loadToIt(VLC->generaltexth->artifNames[i],buf,it,4);
 		loadToIt(pom,buf,it,4);
 		nart.price=atoi(pom.c_str());
 		for(int j=0;j<slots.size();j++)
@@ -37,7 +40,7 @@ void CArtHandler::loadArtifacts()
 		}
 		loadToIt(pom,buf,it,4);
 		nart.aClass = classes[pom[0]];
-		loadToIt(nart.description,buf,it,3);
+		loadToIt(VLC->generaltexth->artifDescriptions[i],buf,it,3);
 		nart.id=i;
 		artifacts.push_back(nart);
 	}
@@ -95,4 +98,20 @@ void CArtHandler::sortArts()
 			break;
 		}
 	}
+}
+
+const std::string & CArtifact::Name() const
+{
+	if(name.size())
+		return name;
+	else
+		return VLC->generaltexth->artifNames[id];
+}
+
+const std::string & CArtifact::Description() const
+{
+	if(description.size())
+		return description;
+	else
+		return VLC->generaltexth->artifDescriptions[id];
 }

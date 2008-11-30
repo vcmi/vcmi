@@ -16,9 +16,9 @@
 #include "map.h"
 #include "hch/CDefHandler.h"
 extern SDL_Surface * screen;
-std::string nameFromType (EterrainType typ)
+std::string nameFromType (int typ)
 {
-	switch(typ)
+	switch((EterrainType)typ)
 	{
 		case dirt:
 		{
@@ -139,28 +139,6 @@ void CMapHandler::prepareFOWDefs()
 	{
 		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
 	}
-	//visibility.resize(map->width+2*Woff);
-	//for(int gg=0; gg<map->width+2*Woff; ++gg)
-	//{
-	//	visibility[gg].resize(map->height+2*Hoff);
-	//	for(int jj=0; jj<map->height+2*Hoff; ++jj)
-	//		visibility[gg][jj] = true;
-	//}
-
-	//visibility.resize(CGI->mh->map->width, Woff);
-	//for (int i=0-Woff;i<visibility.size()-Woff;i++)
-	//{
-	//	visibility[i].resize(CGI->mh->map->height,Hoff);
-	//}
-	//for (int i=0-Woff; i<visibility.size()-Woff; ++i)
-	//{
-	//	for (int j=0-Hoff; j<CGI->mh->map->height+Hoff; ++j)
-	//	{
-	//		visibility[i][j].resize(CGI->mh->map->twoLevel+1,0);
-	//		for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
-	//			visibility[i][j][k]=true;
-	//	}
-	//}
 
 	hideBitmap.resize(CGI->mh->map->width);
 	for (int i=0;i<hideBitmap.size();i++)
@@ -297,6 +275,17 @@ void CMapHandler::borderAndTerrainBitmapInit()
 {
 	CDefHandler * bord = CDefHandler::giveDef("EDG.DEF");
 	bord->notFreeImgs =  true;
+	terrainGraphics.resize(10);
+	for (int i = 0; i < 10 ; i++)
+	{
+		CDefHandler *hlp = CDefHandler::giveDef(nameFromType(i));
+		terrainGraphics[i].resize(hlp->ourImages.size());
+		hlp->notFreeImgs = true;
+		for(int j=0; j<hlp->ourImages.size();j++)
+			terrainGraphics[i][j] = hlp->ourImages[j].bitmap;
+		delete hlp;
+	}
+
 	for (int i=0-Woff; i<map->width+Woff; i++) //jest po szerokoœci
 	{
 		for (int j=0-Hoff; j<map->height+Hoff;j++) //po wysokoœci
@@ -307,99 +296,47 @@ void CMapHandler::borderAndTerrainBitmapInit()
 				{
 					if(i==-1 && j==-1)
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[16].bitmap);
+						ttiles[i][j][k].terbitmap = bord->ourImages[16].bitmap;
 						continue;
 					}
 					else if(i==-1 && j==(map->height))
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[19].bitmap);
+						ttiles[i][j][k].terbitmap = bord->ourImages[19].bitmap;
 						continue;
 					}
 					else if(i==(map->width) && j==-1)
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[17].bitmap);
+						ttiles[i][j][k].terbitmap = bord->ourImages[17].bitmap;
 						continue;
 					}
 					else if(i==(map->width) && j==(map->height))
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[18].bitmap);
+						ttiles[i][j][k].terbitmap = bord->ourImages[18].bitmap;
 						continue;
 					}
 					else if(j == -1 && i > -1 && i < map->height)
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[22+rand()%2].bitmap);
+						ttiles[i][j][k].terbitmap = bord->ourImages[22+rand()%2].bitmap;
 						continue;
 					}
 					else if(i == -1 && j > -1 && j < map->height)
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[33+rand()%2].bitmap);
+						ttiles[i][j][k].terbitmap = bord->ourImages[33+rand()%2].bitmap;
 						continue;
 					}
 					else if(j == map->height && i >-1 && i < map->width)
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[29+rand()%2].bitmap);
+						ttiles[i][j][k].terbitmap = bord->ourImages[29+rand()%2].bitmap;
 						continue;
 					}
 					else if(i == map->width && j > -1 && j < map->height)
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[25+rand()%2].bitmap);
+						ttiles[i][j][k].terbitmap = bord->ourImages[25+rand()%2].bitmap;
 						continue;
 					}
 					else
 					{
-						ttiles[i][j][k].terbitmap.push_back(bord->ourImages[rand()%16].bitmap);
-						continue;
-					}
-				}
-				//TerrainTile zz = map->terrain[i-Woff][j-Hoff];
-				std::string name;
-				if (k>0)
-					name = nameFromType(map->terrain[i][j][1].tertype);
-				else
-					name = nameFromType(map->terrain[i][j][0].tertype);
-				for (unsigned int m=0; m<defs.size(); m++)
-				{
-					try
-					{
-						if (defs[m]->defName != name)
-							continue;
-						else
-						{
-							int ktora;
-							if (k==0)
-								ktora = map->terrain[i][j][0].terview;
-							else
-								ktora = map->terrain[i][j][1].terview;
-							ttiles[i][j][k].terbitmap.push_back(defs[m]->ourImages[ktora].bitmap);
-							int zz;
-							if (k==0)
-								zz = (map->terrain[i][j][0].siodmyTajemniczyBajt)%4;
-							else
-								zz = (map->terrain[i][j][1].siodmyTajemniczyBajt)%4;
-							switch (zz)
-							{
-							case 1:
-								{
-									ttiles[i][j][k].terbitmap[0] = CSDL_Ext::rotate01(ttiles[i][j][k].terbitmap[0]);
-									break;
-								}
-							case 2:
-								{
-									ttiles[i][j][k].terbitmap[0] = CSDL_Ext::hFlip(ttiles[i][j][k].terbitmap[0]);
-									break;
-								}
-							case 3:
-								{
-									ttiles[i][j][k].terbitmap[0] = CSDL_Ext::rotate03(ttiles[i][j][k].terbitmap[0]);
-									break;
-								}
-							}
-
-							break;
-						}
-					}
-					catch (...)
-					{
+						ttiles[i][j][k].terbitmap = bord->ourImages[rand()%16].bitmap;
 						continue;
 					}
 				}
@@ -491,8 +428,6 @@ void CMapHandler::init()
 {
 	timeHandler th;
 	th.getDif();
-	loadDefs();	//loading castles' defs
-	tlog0<<"Reading terrain defs: "<<th.getDif()<<std::endl;
 
 	std::ifstream ifs("config/townsDefs.txt");
 	int ccc;
@@ -553,7 +488,6 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 {
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
-
 	//setting surface to blit at
 	SDL_Surface * su = NULL; //blitting surface CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
 	if(extSurf)
@@ -572,12 +506,38 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	{
 		for (int by=0; by<dy; by++)
 		{
+			const TerrainTile2 & tile = ttiles[x+bx][y+by][level];
 			SDL_Rect sr;
 			sr.y=by*32;
 			sr.x=bx*32;
 			sr.h=sr.w=32;
 			validateRectTerr(&sr, extRect);
-			SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
+			if(tile.terbitmap)
+			{
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap, &genRect(sr.h, sr.w, 0, 0), su, &sr);
+			}
+			else
+			{
+				switch(tile.tileInfo->siodmyTajemniczyBajt%4)
+				{
+				case 0:
+					SDL_BlitSurface(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
+						&genRect(sr.h, sr.w, 0, 0),su,&sr);
+					break;
+				case 1:
+					CSDL_Ext::blitWithRotate1(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
+						&genRect(sr.h, sr.w, 0, 0),su,&sr);
+					break;
+				case 2:
+					CSDL_Ext::blitWithRotate2(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
+						&genRect(sr.h, sr.w, 0, 0),su,&sr);
+					break;
+				default:
+					CSDL_Ext::blitWithRotate3(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
+						&genRect(sr.h, sr.w, 0, 0),su,&sr);
+					break;
+				}
+			}
 		}
 	}
 	////terrain printed
@@ -736,8 +696,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.x=bx*32;
 				sr.h=sr.w=32;
 				validateRectTerr(&sr, extRect);
-
-				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap[anim%ttiles[x+bx][y+by][level].terbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap,&genRect(sr.h, sr.w, 0, 0),su,&sr);
 			}
 			else 
 			{
@@ -1286,26 +1245,24 @@ unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
 	return -2; //shouldn't happen
 }
 
-
-void CMapHandler::loadDefs()
+void CMapHandler::updateWater() //shift colors in palettes of water tiles
 {
-	std::set<int> loadedTypes;
-	for (int i=0; i<map->width; i++)
+	SDL_Color palette[14];
+	for(int j=0; j<terrainGraphics[8].size(); j++)
 	{
-		for (int j=0; j<map->width; j++)
+		for(int i=0; i<12; ++i)
 		{
-			if (loadedTypes.find(map->terrain[i][j][0].tertype)==loadedTypes.end())
-			{
-				CDefHandler  *sdh = CDefHandler::giveDef(nameFromType(map->terrain[i][j][0].tertype).c_str());
-				loadedTypes.insert(map->terrain[i][j][0].tertype);
-				defs.push_back(sdh);
-			}
-			if (map->twoLevel && loadedTypes.find(map->terrain[i][j][1].tertype)==loadedTypes.end())
-			{
-				CDefHandler  *sdh = CDefHandler::giveDef(nameFromType(map->terrain[i][j][1].tertype).c_str());
-				loadedTypes.insert(map->terrain[i][j][1].tertype);
-				defs.push_back(sdh);
-			}
+			palette[(i+1)%12] = terrainGraphics[8][j]->format->palette->colors[229 + i];
 		}
+		SDL_SetColors(terrainGraphics[8][j],palette,229,12);
+		for(int i=0; i<14; ++i)
+		{
+			palette[(i+1)%14] = terrainGraphics[8][j]->format->palette->colors[242 + i];
+		}
+		SDL_SetColors(terrainGraphics[8][j],palette,242,14);
 	}
 }
+
+TerrainTile2::TerrainTile2()
+:terbitmap(0),tileInfo(0)
+{}

@@ -114,6 +114,7 @@ int main(int argc, char** argv)
 		cgi->bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
 		tlog0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph,::console,logfile);
+		CGI->generaltexth = VLC->generaltexth;
 		CGI->arth = VLC->arth;
 		CGI->creh = VLC->creh;
 		CGI->townh = VLC->townh;
@@ -122,7 +123,6 @@ int main(int argc, char** argv)
 		CGI->spellh = VLC->spellh;
 		CGI->dobjinfo = VLC->dobjinfo;
 		CGI->buildh = VLC->buildh;
-		CGI->generaltexth = VLC->generaltexth;
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler; 

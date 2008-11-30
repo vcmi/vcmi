@@ -22,6 +22,8 @@ public:
 	std::vector<std::string> jktexts;
 	std::vector<std::string> heroscrn;
 	std::vector<std::string> artifEvents;
+	std::vector<std::string> artifNames;
+	std::vector<std::string> artifDescriptions;
 
 	std::vector<std::pair<std::string,std::string> > zelp;
 	std::string lossCondtions[4];

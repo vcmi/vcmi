@@ -1392,13 +1392,13 @@ int CGameState::battleGetStack(int pos)
 		return -1;
 	for(int g=0; g<curB->stacks.size(); ++g)
 	{
-		if(curB->stacks[g]->position == pos ||
-				( curB->stacks[g]->creature->isDoubleWide() &&
-					( (curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos) ||
-						(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == pos)
-					)
-				)
-			)
+		if((curB->stacks[g]->position == pos 
+			  || (curB->stacks[g]->creature->isDoubleWide() 
+					&&( (curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos) 
+					||	(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == pos)	)
+			 ))
+		  && curB->stacks[g]->alive()
+		  )
 			return curB->stacks[g]->ID;
 	}
 	return -1;

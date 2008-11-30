@@ -20,11 +20,12 @@ struct TerrainTile2
 {
 	int3 pos;
 	const TerrainTile *tileInfo;
-	std::vector<SDL_Surface *> terbitmap; //frames of terrain animation
+	SDL_Surface * terbitmap; //frames of terrain animation
 	std::vector<SDL_Surface *> rivbitmap; //frames of river animation
 	std::vector<SDL_Surface *> roadbitmap; //frames of road animation
 
 	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > objects; //poiters to objects being on this tile with rects to be easier to blit this tile on screen
+	TerrainTile2();
 };
 
 //pathfinder
@@ -75,6 +76,7 @@ public:
 	CDefHandler * fullHide;
 	CDefHandler * partialHide;
 
+	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type] [rotation type]
 	std::vector<CDefHandler *> roadDefs;
 	std::vector<CDefHandler *> staticRiverDefs;
 	std::vector<CDefHandler*> defs;
@@ -103,6 +105,7 @@ public:
 	void prepareFOWDefs();
 
 	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap = NULL, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL); //if extSurf is specified, blit to it
+	void updateWater();
 	unsigned char getHeroFrameNum(const unsigned char & dir, const bool & isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
 	static unsigned char getDir(const int3 & a, const int3 & b); //returns direction number in range 0 - 7 (0 is left top, clockwise) [direction: form a to b]

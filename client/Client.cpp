@@ -36,7 +36,7 @@ std::string toString(MetaString &ms)
 				ser = ms.texts[-ms.message[i]-1].second;
 			if(type == 5)
 			{
-				ret += CGI->arth->artifacts[ser].name;
+				ret += CGI->arth->artifacts[ser].Name();
 				continue;
 			}
 			else if(type == 7)

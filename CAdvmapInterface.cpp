@@ -1252,7 +1252,8 @@ void CAdvMapInt::update()
 		}
 	}
 	if(updateScreen)
-	{	
+	{		
+		CGI->mh->updateWater();
 		terrain.show();
 		for(int i=0;i<4;i++)
 			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i]);

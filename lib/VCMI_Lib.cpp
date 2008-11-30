@@ -29,6 +29,11 @@ DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *
 	bitmaph=b;
 	VLC = new LibClasses;
 
+	VLC->generaltexth = new CGeneralTextHandler;
+	VLC->generaltexth->loadTexts();
+	VLC->generaltexth->load();
+	tlog0<<"\tGeneral text handler: "<<pomtime.getDif()<<std::endl;
+
 	CHeroHandler * heroh = new CHeroHandler;
 	heroh->loadHeroes();
 	VLC->heroh = heroh;
@@ -65,11 +70,6 @@ DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *
 	spellh->loadSpells();
 	VLC->spellh = spellh;		
 	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
-
-	VLC->generaltexth = new CGeneralTextHandler;
-	VLC->generaltexth->loadTexts();
-	VLC->generaltexth->load();
-	tlog0<<"\tGeneral text handler: "<<pomtime.getDif()<<std::endl;
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode)

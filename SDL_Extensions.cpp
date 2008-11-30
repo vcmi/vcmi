@@ -272,14 +272,7 @@ SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot)
 			{
 				{
 					Uint8 *p = (Uint8 *)toRot->pixels + j * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
-/*
-
-#if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-						CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[0], p[1], p[2]);
-#else
-*/
-						CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
-//#endif
+					CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
 				}
 			}
 		}
@@ -493,6 +486,54 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 	}
 	return src;
 }
+//	<=>
+void CSDL_Ext::blitWithRotate1(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24bpp dests
+{
+	Uint8 *dp, *sp = (Uint8 *)src->pixels;
+	for(int i=0; i<dstRect->h; i++)
+	{
+		dp = (Uint8 *)dst->pixels + (i+dstRect->y)*dst->pitch + (dstRect->x+dstRect->w)*dst->format->BytesPerPixel;
+		for(int j=0; j<dstRect->w; j++, sp++)
+		{
+			const SDL_Color * const color = src->format->palette->colors+(*sp);
+			*(--dp) = color->r;
+			*(--dp) = color->g;
+			*(--dp) = color->b;
+		}
+	}
+}
+
+void CSDL_Ext::blitWithRotate2(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24bpp dests
+{
+	Uint8 *dp, *sp = (Uint8 *)src->pixels;
+	for(int i=0; i<dstRect->h; i++)
+	{
+		dp = (Uint8 *)dst->pixels + (dstRect->y + dstRect->h - 1 - i)*dst->pitch + dstRect->x*dst->format->BytesPerPixel;
+		for(int j=0; j<dstRect->w; j++, sp++)
+		{
+			const SDL_Color * const color = src->format->palette->colors+(*sp);
+			*(dp++) = color->b;
+			*(dp++) = color->g;
+			*(dp++) = color->r;
+		}
+	}
+}
+
+void CSDL_Ext::blitWithRotate3(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24bpp dests
+{
+	Uint8 *dp, *sp = (Uint8 *)src->pixels;
+	for(int i=0; i<dstRect->h; i++)
+	{
+		dp = (Uint8 *)dst->pixels + (dstRect->y + dstRect->h - 1 - i)*dst->pitch + (dstRect->x+dstRect->w)*dst->format->BytesPerPixel;
+		for(int j=0; j<dstRect->w; j++, sp++)
+		{
+			const SDL_Color * const color = src->format->palette->colors+(*sp);
+			*(--dp) = color->r;
+			*(--dp) = color->g;
+			*(--dp) = color->b;
+		}
+	}
+}
 
 int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {
@@ -518,8 +559,9 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 		}
 
 		/* clip the source rectangle to the source surface */
-		if(srcRect) {
-				int maxw, maxh;
+		if(srcRect) 
+		{
+			int maxw, maxh;
 
 			srcx = srcRect->x;
 			w = srcRect->w;
@@ -543,7 +585,9 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			if(maxh < h)
 				h = maxh;
 
-		} else {
+		} 
+		else 
+		{
 				srcx = srcy = 0;
 			w = src->w;
 			h = src->h;

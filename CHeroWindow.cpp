@@ -269,7 +269,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		artWorn[g] = new CArtPlace(hero->getArt(g));
 		artWorn[g]->pos = slotPos[g];
 		if(hero->getArt(g))
-			artWorn[g]->text = hero->getArt(g)->description;
+			artWorn[g]->text = hero->getArt(g)->Description();
 		artWorn[g]->ourWindow = this;
 	}
 
@@ -278,7 +278,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		artWorn[g]->slotID = g;
 		if(artWorn[g]->ourArt)
 		{
-			sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), artWorn[g]->ourArt->name.c_str());
+			sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), artWorn[g]->ourArt->Name().c_str());
 			artWorn[g]->hoverText = std::string(bufor);
 		}
 		else
@@ -293,7 +293,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		if( s < curHero->artifacts.size() )
 		{
 			add = new CArtPlace(&CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]]);
-			sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), add->ourArt->name.c_str());
+			sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), add->ourArt->Name().c_str());
 			add->hoverText = bufor;
 		}
 		else
@@ -305,7 +305,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		add->pos.y = pos.y + 365;
 		add->pos.h = add->pos.w = 44;
 		if(s<hero->artifacts.size() && hero->artifacts[s])
-			add->text = hero->getArt(19+s)->description;
+			add->text = hero->getArt(19+s)->Description();
 		else
 			add->text = std::string();
 		add->ourWindow = this;
@@ -468,7 +468,7 @@ void CHeroWindow::leftArtRoller()
 		{
 			backpack[s]->ourArt = &CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]];
 			if(backpack[s]->ourArt)
-				backpack[s]->text = backpack[s]->ourArt->description;
+				backpack[s]->text = backpack[s]->ourArt->Description();
 			else
 				backpack[s]->text = std::string();
 		}
@@ -485,7 +485,7 @@ void CHeroWindow::rightArtRoller()
 		{
 			backpack[s]->ourArt = &CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ] ];
 			if(backpack[s]->ourArt)
-				backpack[s]->text = backpack[s]->ourArt->description;
+				backpack[s]->text = backpack[s]->ourArt->Description();
 			else
 				backpack[s]->text = std::string();
 		}
@@ -719,11 +719,11 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 
 				//set texts
 				if(pmh)
-					ourWindow->activeArtPlace->text = pmh->description;
+					ourWindow->activeArtPlace->text = pmh->Description();
 				else
 					ourWindow->activeArtPlace->text = std::string();
 				if(ourArt)
-					text = ourArt->description;
+					text = ourArt->Description();
 				else
 					text = std::string();
 

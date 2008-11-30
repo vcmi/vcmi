@@ -626,8 +626,8 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	switch (Type)
 	{
 	case artifact:
-		description = CGI->arth->artifacts[Subtype].description;
-		subtitle = CGI->arth->artifacts[Subtype].name;
+		description = CGI->arth->artifacts[Subtype].Description();
+		subtitle = CGI->arth->artifacts[Subtype].Name();
 		break;
 	case primskill:
 		description = CGI->generaltexth->arraytxt[2+Subtype];
@@ -2255,36 +2255,7 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 
 void CPlayerInterface::updateWater()
 {
-	//updating water tiles
-	//int wnumber = -1;
-	//for(int s=0; s<CGI->mh->reader->defs.size(); ++s)
-	//{
-	//	if(CGI->mh->reader->defs[s]->defName==std::string("WATRTL.DEF"))
-	//	{
-	//		wnumber = s;
-	//		break;
-	//	}
-	//}
-	//if(wnumber>=0)
-	//{
-	//	for(int g=0; g<CGI->mh->reader->defs[wnumber]->ourImages.size(); ++g)
-	//	{
-	//		SDL_Color tab[32];
-	//		for(int i=0; i<32; ++i)
-	//		{
-	//			tab[i] = CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[160 + (i+1)%32];
-	//		}
-	//		//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t1.bmp");
-	//		for(int i=0; i<32; ++i)
-	//		{
-	//			CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap->format->palette->colors[160 + i] = tab[i];
-	//		}
-	//		//SDL_SaveBMP(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap,"t2.bmp");
-	//		CSDL_Ext::update(CGI->mh->reader->defs[wnumber]->ourImages[g].bitmap);
-	//	}
-	//}
-	//water tiles updated
-	//CGI->screenh->updateScreen();
+
 }
 
 void CPlayerInterface::availableCreaturesChanged( const CGTownInstance *town )
@@ -2643,7 +2614,8 @@ CTownList::CTownList(int Size, int x, int y, std::string arrupg, std::string arr
 	arrdo = CDefHandler::giveDef(arrdog);
 	pos.x = x;
 	pos.y = y;
-	pos.w = std::max(arrdo->width, arrup->height);
+	pos.w = std::max(arrdo->width, arrup->width);
+	pos.h = arrdo->height + arrup->height + Size*32;
 
 	arrupp.x=x;
 	arrupp.y=y;

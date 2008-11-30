@@ -9,10 +9,11 @@ class CDefHandler;
 
 class DLL_EXPORT CArtifact //container for artifacts
 {
+	std::string name, description; //set if custom
 public:
+	const std::string &Name() const;
+	const std::string &Description() const;
 	bool isAllowed; //true if we can use this artifact (map information)
-	std::string name;
-	std::string description;
 	//std::string desc2;
 	unsigned int price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed

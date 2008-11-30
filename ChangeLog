@@ -1,11 +1,19 @@
-0.64 -> 0.next (???)  [as for r639]
+0.64 -> 0.next (???)  [as for r651]
 GENERAL:
 * move some settings to the config/settings.txt file
 * partial support for new screen resolutions
 * /Data and /Sprites subfolders can be used for adding files not present in .lod archives 
 * fixed crashbug occuring when hero levelled above 15 level
 
+ADVENTURE INTERFACE:
+* added water animation
+
+TOWN INTERFACE:
+* the scroll tab won't remain hanged to our mouse position if we move the mouse away from the scroll bar
+* fixed cloning creatures bug in garrisons (and related issues)
+
 BATTLES
+* support for the Wait command
 * magic arrow *really* works
 * war machines support partially added
 * queue of stacks narrowed
@@ -17,6 +25,10 @@ BATTLES
 	c) ice bolt
 	d) slow 
 	e) implosion
+	f) forgetfulness
+	
+AI:
+* Genius AI (first VCMI AI) will control computer creatures during the combat.
 
 GENERAL:
 * started making external settings file (will be used for support for non 800x600 screen resolutions) 
