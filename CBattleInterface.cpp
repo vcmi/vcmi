@@ -1135,6 +1135,7 @@ void CBattleInterface::newRound(int number)
 void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional)
 {
 	BattleAction * ba = new BattleAction(); //is deleted in CPlayerInterface::activeStack()
+	ba->side = defendingHeroInstance ? (LOCPLINT->playerID == defendingHeroInstance->tempOwner) : false;
 	ba->actionType = action;
 	ba->destinationTile = tile;
 	ba->stackNumber = stack;
@@ -1395,6 +1396,46 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			displayEffect(10, sc->tile);
 			break;
 		}
+	case 27: //shield
+		{
+			displayEffect(27, sc->tile);
+			break;
+		}
+	case 28: //air shield
+		{
+			displayEffect(2, sc->tile);
+			break;
+		}
+	case 41: //bless
+		{
+			displayEffect(36, sc->tile);
+			break;
+		}
+	case 42: //curse
+		{
+			displayEffect(40, sc->tile);
+			break;
+		}
+	case 43: //bloodlust
+		{
+			displayEffect(4, sc->tile); //TODO: give better animation for this spell
+			break;
+		}
+	case 45: //weakness
+		{
+			displayEffect(56, sc->tile); //TODO: give better animation for this spell
+			break;
+		}
+	case 46: //stone skin
+		{
+			displayEffect(54, sc->tile);
+			break;
+		}
+	case 48: //prayer
+		{
+			displayEffect(0, sc->tile);
+			break;
+		}
 	case 53: //haste
 		{
 			displayEffect(31, sc->tile);
@@ -1453,7 +1494,7 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile)
 		be.x = 22 * ( ((destTile/BFIELD_WIDTH) + 1)%2 ) + 44 * (destTile % BFIELD_WIDTH) + 45;
 		be.y = 105 + 42 * (destTile/BFIELD_WIDTH);
 
-		if(effect != 1)
+		if(effect != 1 && effect != 0)
 		{
 			be.x -= be.anim->ourImages[0].bitmap->w/2;
 			be.y -= be.anim->ourImages[0].bitmap->h/2;
@@ -1461,6 +1502,11 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile)
 		else if(effect == 1)
 		{
 			be.x -= be.anim->ourImages[0].bitmap->w;
+			be.y -= be.anim->ourImages[0].bitmap->h;
+		}
+		else if (effect == 0)
+		{
+			be.x -= be.anim->ourImages[0].bitmap->w/2;
 			be.y -= be.anim->ourImages[0].bitmap->h;
 		}
 

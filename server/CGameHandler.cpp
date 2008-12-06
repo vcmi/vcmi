@@ -1300,6 +1300,86 @@ upgend:
 									sendAndApply(&bsa);
 									break;
 								}
+							case 27: //shield
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 27;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
+							case 28: //air shield
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 28;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
+							case 41: //bless
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 41;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
+							case 42: //curse
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 42;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
+							case 43: //bloodlust
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 43;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
+							case 45: //weakness
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 45;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
+							case 46: //stone skin
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 46;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
+							case 48: //prayer
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 48;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = h->getPrimSkillLevel(2);
+									sendAndApply(&sse);
+									break;
+								}
 							case 53: //haste
 								{
 									SetStackEffect sse;

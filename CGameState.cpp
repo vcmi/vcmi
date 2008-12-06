@@ -271,7 +271,7 @@ ui32 CStack::speed() const
 	//prayer effect check
 	effect = getEffect(48);
 	if(effect)
-		premy -= VLC->spellh->spells[effect->id].powers[effect->level];
+		premy += VLC->spellh->spells[effect->id].powers[effect->level];
 	//bind effect check
 	effect = getEffect(72);
 	if(effect) 
@@ -1499,8 +1499,59 @@ void CGameState::loadTownDInfos()
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
 {
 	int attackDefenseBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0) - (defender->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0));
+	if(defender->getEffect(48)) //defender's prayer handling
+	{
+		if(defender->getEffect(48)->level<=1) //none or basic
+			attackDefenseBonus -= 2;
+		else //adv or expert
+			attackDefenseBonus -= 4;
+	}
+	if(attacker->getEffect(48)) //attacker's prayer handling
+	{
+		if(attacker->getEffect(48)->level<=1) //none or basic
+			attackDefenseBonus += 2;
+		else //adv or expert
+			attackDefenseBonus += 4;
+	}
+	if(defender->getEffect(46)) //stone skin handling
+	{
+		if(defender->getEffect(46)->level<=1) //none or basic
+			attackDefenseBonus -= 3;
+		else //adv or expert
+			attackDefenseBonus -= 6;
+	}
+	if(attacker->getEffect(45)) //weakness handling
+	{
+		if(attacker->getEffect(45)->level<=1) //none or basic
+			attackDefenseBonus -= 3;
+		else //adv or expert
+			attackDefenseBonus -= 6;
+	}
+	if(!shooting && attacker->getEffect(43)) //bloodlust handling
+	{
+		if(attacker->getEffect(43)->level<=1) //none or basic
+			attackDefenseBonus += 3;
+		else //adv or expert
+			attackDefenseBonus += 6;
+	}
 	int damageBase = 0;
-	if(attacker->creature->damageMax == attacker->creature->damageMin) //constant damage
+	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
+	{
+		damageBase = attacker->creature->damageMin;
+		if(attacker->getEffect(42)->level >= 2) //adv or expert
+		{
+			damageBase -= 1;
+		}
+	}
+	else if(attacker->getEffect(41)) //bless handling
+	{
+		damageBase = attacker->creature->damageMax;
+		if(attacker->getEffect(41)->level >= 2) //adv or expert
+		{
+			damageBase += 1;
+		}
+	}
+	else if(attacker->creature->damageMax == attacker->creature->damageMin) //constant damage
 	{
 		damageBase = attacker->creature->damageMin;
 	}
@@ -1580,6 +1631,26 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 			dmgBonusMultiplier *= 0.85f;
 			break;
 		}
+	}
+	//handling spell effects
+	if(!shooting && defender->getEffect(27)) //shield
+	{
+		if(defender->getEffect(27)->level<=1) //none or basic
+			dmgBonusMultiplier *= 0.85f;
+		else //adv or expert
+			dmgBonusMultiplier *= 0.7f;
+	}
+	if(shooting && defender->getEffect(28)) //air shield
+	{
+		if(defender->getEffect(28)->level<=1) //none or basic
+			dmgBonusMultiplier *= 0.75f;
+		else //adv or expert
+			dmgBonusMultiplier *= 0.5f;
+	}
+	if(attacker->getEffect(42)) //curse, second part of handling
+	{
+		if(attacker->getEffect(42)->level>=2) //adv or expert
+			dmgBonusMultiplier *= 0.8f;
 	}
 
 	return (float)damageBase * (float)attacker->amount * dmgBonusMultiplier;
