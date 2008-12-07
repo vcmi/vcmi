@@ -187,10 +187,11 @@ bool BattleInfo::isStackBlocked(int ID)
 		if( !stacks[i]->alive()
 			|| stacks[i]->owner==our->owner
 		  )
-			continue; //we ommit dead and allied stacks
+			continue; //we omit dead and allied stacks
 		if(stacks[i]->creature->isDoubleWide())
 		{
-			if( mutualPosition(stacks[i]->position, our->position) >= 0  || mutualPosition(stacks[i]->position + (stacks[i]->attackerOwned ? -1 : 1), our->position) >= 0)
+			if( mutualPosition(stacks[i]->position, our->position) >= 0  
+			  || mutualPosition(stacks[i]->position + (stacks[i]->attackerOwned ? -1 : 1), our->position) >= 0)
 				return true;
 		}
 		else
@@ -250,7 +251,8 @@ std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
 }
 
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
-	:creature(C),amount(A), baseAmount(A), owner(O), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), slot(S), counterAttacks(1), effects(), state()
+	:creature(C),amount(A), baseAmount(A), owner(O), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), 
+	shots(C->shots), slot(S), counterAttacks(1), effects(), state()
 {
 	abilities = C->abilities;
 	state.insert(ALIVE);

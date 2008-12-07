@@ -92,33 +92,7 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 		for (int j=0; j<w; j+=background->w-1)
 			SDL_BlitSurface(background,&genRect(background->h,background->w-1,1,0),ret,&genRect(h,w,j,i));
 	}
-
-	//obwodka I-szego rzedu pozioma
-	for (int i=0; i<w; i+=piecesOfBox[playerColor][6]->w)
-	{
-		SDL_BlitSurface
-			(piecesOfBox[playerColor][6],NULL,ret,&genRect(piecesOfBox[playerColor][6]->h,piecesOfBox[playerColor][6]->w,i,0));
-		SDL_BlitSurface
-			(piecesOfBox[playerColor][7],NULL,ret,&genRect(piecesOfBox[playerColor][7]->h,piecesOfBox[playerColor][7]->w,i,h-piecesOfBox[playerColor][7]->h));
-	}
-	//obwodka I-szego rzedu pionowa
-	for (int i=0; i<h; i+=piecesOfBox[playerColor][4]->h)
-	{
-		SDL_BlitSurface
-			(piecesOfBox[playerColor][4],NULL,ret,&genRect(piecesOfBox[playerColor][4]->h,piecesOfBox[playerColor][4]->w,0,i));
-		SDL_BlitSurface
-			(piecesOfBox[playerColor][5],NULL,ret,&genRect(piecesOfBox[playerColor][5]->h,piecesOfBox[playerColor][5]->w,w-piecesOfBox[playerColor][5]->w,i));
-	}
-	//corners
-	SDL_BlitSurface
-		(piecesOfBox[playerColor][0],NULL,ret,&genRect(piecesOfBox[playerColor][0]->h,piecesOfBox[playerColor][0]->w,0,0));
-	SDL_BlitSurface
-		(piecesOfBox[playerColor][1],NULL,ret,&genRect(piecesOfBox[playerColor][1]->h,piecesOfBox[playerColor][1]->w,w-piecesOfBox[playerColor][1]->w,0));
-	SDL_BlitSurface
-		(piecesOfBox[playerColor][2],NULL,ret,&genRect(piecesOfBox[playerColor][2]->h,piecesOfBox[playerColor][2]->w,0,h-piecesOfBox[playerColor][2]->h));
-	SDL_BlitSurface
-		(piecesOfBox[playerColor][3],NULL,ret,&genRect(piecesOfBox[playerColor][3]->h,piecesOfBox[playerColor][3]->w,w-piecesOfBox[playerColor][3]->w,h-piecesOfBox[playerColor][3]->h));
-	//box gotowy!
+	drawBorder(playerColor, ret, w, h);
 	return ret;
 }
 
@@ -562,4 +536,33 @@ SDL_Surface * CMessage::genMessage
 	}
 	delete tekst;
 	return ret;
+}
+
+void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x, int y)
+{	
+	//obwodka I-szego rzedu pozioma
+	for (int i=0; i<w-piecesOfBox[playerColor][6]->w; i+=piecesOfBox[playerColor][6]->w)
+	{
+		SDL_BlitSurface
+			(piecesOfBox[playerColor][6],NULL,ret,&genRect(piecesOfBox[playerColor][6]->h,piecesOfBox[playerColor][6]->w,x+i,y+0));
+		SDL_BlitSurface
+			(piecesOfBox[playerColor][7],NULL,ret,&genRect(piecesOfBox[playerColor][7]->h,piecesOfBox[playerColor][7]->w,x+i,y+h-piecesOfBox[playerColor][7]->h));
+	}
+	//obwodka I-szego rzedu pionowa
+	for (int i=0; i<h-piecesOfBox[playerColor][4]->h; i+=piecesOfBox[playerColor][4]->h)
+	{
+		SDL_BlitSurface
+			(piecesOfBox[playerColor][4],NULL,ret,&genRect(piecesOfBox[playerColor][4]->h,piecesOfBox[playerColor][4]->w,x+0,y+i));
+		SDL_BlitSurface
+			(piecesOfBox[playerColor][5],NULL,ret,&genRect(piecesOfBox[playerColor][5]->h,piecesOfBox[playerColor][5]->w,x+w-piecesOfBox[playerColor][5]->w,y+i));
+	}
+	//corners
+	SDL_BlitSurface
+		(piecesOfBox[playerColor][0],NULL,ret,&genRect(piecesOfBox[playerColor][0]->h,piecesOfBox[playerColor][0]->w,x+0,y+0));
+	SDL_BlitSurface
+		(piecesOfBox[playerColor][1],NULL,ret,&genRect(piecesOfBox[playerColor][1]->h,piecesOfBox[playerColor][1]->w,x+w-piecesOfBox[playerColor][1]->w,y+0));
+	SDL_BlitSurface
+		(piecesOfBox[playerColor][2],NULL,ret,&genRect(piecesOfBox[playerColor][2]->h,piecesOfBox[playerColor][2]->w,x+0,y+h-piecesOfBox[playerColor][2]->h));
+	SDL_BlitSurface
+		(piecesOfBox[playerColor][3],NULL,ret,&genRect(piecesOfBox[playerColor][3]->h,piecesOfBox[playerColor][3]->w,x+w-piecesOfBox[playerColor][3]->w,y+h-piecesOfBox[playerColor][3]->h));
 }

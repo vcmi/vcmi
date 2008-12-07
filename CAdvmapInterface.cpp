@@ -765,6 +765,23 @@ void CResDataBar::deactivate()
 {
 	ClickableR::deactivate();
 }
+CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
+{
+	bg = BitmapHandler::loadBitmap(defname);
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
+	pos = genRect(bg->h,bg->w,x,y);
+
+	txtpos.resize(8);
+	for (int i = 0; i < 8 ; i++)
+	{
+		txtpos[i].first = pos.x + offx + resdist*i;
+		txtpos[i].second = pos.y + offy;
+	}
+	txtpos[7].first = txtpos[6].first + datedist;
+	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63] 
+	+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
+}
 CResDataBar::CResDataBar()
 {
 	bg = BitmapHandler::loadBitmap(ADVOPT.resdatabarG);
@@ -779,14 +796,10 @@ CResDataBar::CResDataBar()
 		txtpos[i].second = pos.y + ADVOPT.resOffsetY;
 	}
 	txtpos[7].first = txtpos[6].first + ADVOPT.resDateDist;
-	//txtpos  +=  (std::pair<int,int>(32+pos.x,2+pos.y)),(std::pair<int,int>(117+pos.x,2+pos.y)),
-	//	(std::pair<int,int>(202+pos.x,2+pos.y)),(std::pair<int,int>(287+pos.x,2+pos.y)),
-	//	(std::pair<int,int>(372+pos.x,2+pos.y)),(std::pair<int,int>(457+pos.x,2+pos.y)),
-	//	(std::pair<int,int>(542+pos.x,2+pos.y)),(std::pair<int,int>(617+pos.x,2+pos.y));
 	datetext =  CGI->generaltexth->allTexts[62]+": %s, " + CGI->generaltexth->allTexts[63] 
 				+ ": %s, " + CGI->generaltexth->allTexts[64] + ": %s";
-
 }
+
 CResDataBar::~CResDataBar()
 {
 	SDL_FreeSurface(bg);

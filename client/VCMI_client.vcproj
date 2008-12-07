@@ -43,7 +43,7 @@
 				Optimization="0"
 				AdditionalIncludeDirectories="G:\vcmt\repa\include"
 				GeneratePreprocessedFile="0"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				WarningLevel="1"

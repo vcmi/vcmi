@@ -128,11 +128,11 @@ public:
 		h & id;
 		creature = &VLC->creh->creatures[id];
 		abilities = creature->abilities;
-		shots = creature->shots;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & amount & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks;
+		h & ID & amount & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
+			& shots;
 		if(h.saving)
 			save(h,version);
 		else

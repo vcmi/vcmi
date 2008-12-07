@@ -9,6 +9,7 @@ class CHallInterface;
 struct Structure;
 class CSpell;
 class AdventureMapButton;
+class CResDataBar;
 class CBuildingRect : public Hoverable, public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
 {
 public:
@@ -56,6 +57,7 @@ public:
 	SDL_Surface * cityBg;
 	const CGTownInstance * town;
 	CStatusBar * statusbar;
+	CResDataBar *resdatabar;
 	unsigned char animval, count;
 
 	CDefHandler *hall,*fort;

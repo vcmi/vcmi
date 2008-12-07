@@ -142,7 +142,6 @@ void CBuildingRect::clickRight (tribool down)
 		vinya->activate();
 	}
 }
-
 void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(area)
@@ -368,6 +367,8 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	split = new AdventureMapButton
 		(CGI->townh->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+744,pos.y+382,"TSBTNS.DEF");
 	statusbar = new CStatusBar(pos.x+7,pos.y+555,"TSTATBAR.bmp",732);
+	resdatabar = new CResDataBar("ZRESBAR.bmp",pos.x+3,pos.y+575,32,2,85,85);
+	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
 
 	townlist->fun = boost::bind(&CCastleInterface::townChange,this);
 	townlist->genList();
@@ -436,6 +437,7 @@ CCastleInterface::~CCastleInterface()
 	delete garr;
 	delete townlist;
 	delete statusbar;
+	delete resdatabar;
 	for(int i=0;i<buildings.size();i++)
 	{
 		delete buildings[i];
@@ -568,11 +570,14 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/, bool forceTotalRedraw
 {
 	if (!to)
 		to=screen;
+
+
 	blitAt(cityBg,pos,to);
 	blitAt(townInt,pos.x,pos.y+374,to);
 	LOCPLINT->adventureInt->resdatabar.draw();
 	townlist->draw();
 	statusbar->show();
+	resdatabar->draw();
 
 	garr->show();
 	int pom;
@@ -643,6 +648,8 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/, bool forceTotalRedraw
 	show();
 	if(pom)
 		showing = false;
+
+	CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 }
 void CCastleInterface::townChange()
 {

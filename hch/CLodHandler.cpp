@@ -10,6 +10,9 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
+#ifdef max
+#undef max
+#endif
 DLL_EXPORT int readNormalNr (int pos, int bytCon, unsigned char * str)
 {
 	int ret=0;
@@ -44,7 +47,7 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 		char name[30];memset(name,0,30);
 		strcat(name, myDir.c_str());
 		strcat(name, PATHSEPARATOR);
-		strcat(name,(char*)ourEntry->name);
+		strcat(name,ourEntry->nameStr.c_str());
 		FILE * f = fopen(name,"rb");
 		int result = fread(outp,1,ourEntry->realSize,f);
 		mutex->unlock();
@@ -391,11 +394,11 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 				}
 				else //file not present in lod - add entry for it
 				{
-					Entry e;
-					e.offset = -1;
-					e.nameStr = name;
-					e.realSize = e.size = boost::filesystem::file_size(dir->path());
-					entries.push_back(e);
+					Entry e2;
+					e2.offset = -1;
+					e2.nameStr = name;
+					e2.realSize = e2.size = boost::filesystem::file_size(dir->path());
+					entries.push_back(e2);
 				}
 			}
 		}

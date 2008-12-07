@@ -74,6 +74,7 @@ public:
 	void activate();
 	void deactivate();
 	CResDataBar();
+	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
 	~CResDataBar();
 
 	void draw();
