@@ -4,11 +4,15 @@
 #define VCMI_DLL
 
 #pragma warning (disable: 4100 4251 4245 4018 4081)
+#include "../../global.h"
 #include "../../AI_Base.h"
 #include "../../CCallback.h"
 #include "../../hch/CCreatureHandler.h"
+#include "../../hch/CObjectHandler.h"
 
 #pragma warning (default: 4100 4251 4245 4018 4081)
+
+#pragma warning (disable: 4100)
 
 namespace GeniusAI {
 
@@ -42,6 +46,9 @@ private:
 	int m_voteForDistance;
 	int m_voteForDistanceFromShooters;
 	int m_voteForHitPoints;
+
+	CBattleHelper(const CBattleHelper &);
+	CBattleHelper &operator=(const CBattleHelper &);
 };
 
 /**
@@ -57,7 +64,7 @@ private:
 		strategy_neutral,
 		strategy_defensive,
 		strategy_super_defensive,
-		strategy_stupid_attack /** only for debug and test purpose */
+		strategy_berserk_attack /** cause max damage, usually when creatures fight against overwhelming army*/
 	};
 	enum ECreatureRoleInBattle
 	{
@@ -80,8 +87,17 @@ private:
 		action_catapult = 9,			// Catapult 
 		action_monster_casts_spell = 10 // Monster casts a spell (i.e. Faerie Dragons)
 	};
+	struct SCreatureCasualties
+	{
+		int amount_max; // amount of creatures that will be dead
+		int amount_min;
+		int damage_max; // number of hit points that creature will lost
+		int damage_min;
+		int leftHitPoints_for_max; // number of hit points that will remain (for last unity)
+		int leftHitPoint_for_min; // scenario
+	};
 public:
-	CBattleLogic(ICallback *cb);
+	CBattleLogic(ICallback *cb, CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side);
 	~CBattleLogic();
 
 	void SetCurrentTurn(int turn);
@@ -89,9 +105,16 @@ public:
 	BattleAction MakeDecision(int stackID);
 private:
 	CBattleHelper m_battleHelper;
+	//BattleInfo m_battleInfo;
 	int m_iCurrentTurn;
 	bool m_bIsAttacker;
 	ICallback *m_cb;
+	CCreatureSet *m_army1;
+	CCreatureSet *m_army2; 
+	int3 m_tile; 
+	CGHeroInstance *m_hero1;
+	CGHeroInstance *m_hero2; 
+	bool m_side;
 
 	void MakeStatistics(int currentCreatureId); // before decision we have to make some calculation and simulation
 	// statistics
@@ -104,9 +127,19 @@ private:
 	creature_stat m_statDistanceFromShooters;
 	creature_stat m_statHitPoints;
 
-	std::vector<int> GetAvailableHexesForAttacker(CStack *defender);
+	typedef std::vector<std::pair<int, SCreatureCasualties> > creature_stat_casualties;
+	creature_stat_casualties m_statCasualties;
+
+	bool m_bEnemyDominates;
+
+	std::vector<int> GetAvailableHexesForAttacker(CStack *defender, CStack *attacker = NULL);
 
 	BattleAction MakeDefend(int stackID);
+
+	int PerformBerserkAttack(int stackID); // return ID of creature to attack, -2 means wait, -1 - defend
+	int PerformDefaultAction(int stackID);
+
+	void CBattleLogic::PrintBattleAction(const BattleAction &action);
 };
 
 class CGeniusAI : public CGlobalAI

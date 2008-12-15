@@ -107,7 +107,7 @@ void CGeniusAI::battleStackAttacked(BattleStackAttacked * bsa)
 void CGeniusAI::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side)
 {
 	assert(!m_battleLogic);
-	m_battleLogic = new CBattleLogic(m_cb);
+	m_battleLogic = new CBattleLogic(m_cb, army1, army2, tile, hero1, hero2, side);
 	assert(m_battleLogic);
 
 	MsgBox("** CGeniusAI::battleStart **");
@@ -234,7 +234,7 @@ CBattleHelper::CBattleHelper():
 	f.open("AI\\CBattleHelper.txt", std::ios::in);
 	if (f)
 	{
-		char c_line[512];
+		//char c_line[512];
 		std::string line;
 		while (std::getline(f, line, '\n'))
 		{
@@ -317,16 +317,19 @@ int CBattleHelper::GetBattleFieldPosition(int x, int y)
 
 int CBattleHelper::DecodeXPosition(int battleFieldPosition)
 {
-	return battleFieldPosition - (DecodeYPosition(battleFieldPosition) - 1) * 17;
+	int pos = battleFieldPosition - (DecodeYPosition(battleFieldPosition) - 1) * 17;
+	assert(pos > 0 && pos < 16);
+	return pos;
 }
 
 int CBattleHelper::DecodeYPosition(int battleFieldPosition)
 {
-	double y = battleFieldPosition / 17;
+	double y = (double)battleFieldPosition / 17.0;
 	if (y - (int)y > 0.0)
 	{
 		return (int)y + 1;
 	}
+	assert((int)y > 0 && (int)y <= 11);
 	return (int)y;
 }
 
@@ -358,10 +361,16 @@ int CBattleHelper::GetDistanceWithObstacles(int pointA, int pointB)
  *	Implementation of CBattleLogic class.
  */
 
-CBattleLogic::CBattleLogic(ICallback *cb) :
+CBattleLogic::CBattleLogic(ICallback *cb,  CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) :
 	m_cb(cb),
 	m_iCurrentTurn(-2),
-	m_bIsAttacker(false)
+	m_bIsAttacker(false),
+	m_army1(army1),
+	m_army2(army2),
+	m_tile(tile),
+	m_hero1(hero1),
+	m_hero2(hero2),
+	m_side(side)
 {
 	const int max_enemy_creatures = 12;
 	m_statMaxDamage.reserve(max_enemy_creatures);
@@ -417,21 +426,80 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 	m_statDistance.clear();
 	m_statDistance.clear();
 
+	m_statCasualties.clear();
+
+	int totalEnemyDamage = 0;
+	int totalEnemyHitPoints = 0;
+
+	int totalDamage = 0;
+	int totalHitPoints = 0;
+
 	for (map_stacks::const_iterator it = allStacks.begin(); it != allStacks.end(); ++it)
 	{
-		if (it->second.attackerOwned != m_bIsAttacker)
+		const CStack *st = &it->second;
+
+		if ((it->second.attackerOwned != 0) != m_bIsAttacker)
 		{
 			int id = it->first;
-			const CStack *st = &it->second;
 			if (st->amount < 1)
 			{
 				continue;
 			}
 			// make stats
+			int hitPoints = st->amount * st->creature->hitPoints - (st->creature->hitPoints - st->firstHPleft);
+
 			m_statMaxDamage.push_back(std::pair<int, int>(id, st->creature->damageMax * st->amount));
 			m_statMinDamage.push_back(std::pair<int, int>(id, st->creature->damageMin * st->amount));
-			m_statHitPoints.push_back(std::pair<int, int>(id, st->creature->hitPoints * st->amount));
+			m_statHitPoints.push_back(std::pair<int, int>(id, hitPoints));
 			m_statMaxSpeed.push_back(std::pair<int, int>(id, st->creature->speed));
+			
+			totalEnemyDamage += (st->creature->damageMax + st->creature->damageMin) * st->amount / 2;
+			totalEnemyHitPoints += hitPoints;
+				
+			// calculate casualties
+			SCreatureCasualties cs;
+			// hp * amount - damage * ( (att - def)>=0 )
+			// hit poionts
+			assert(hitPoints >= 0 && "CGeniusAI - creature cannot have hit points less than zero");
+			
+			CGHeroInstance *attackerHero = (m_side)? m_hero1 : m_hero2;
+			CGHeroInstance *defendingHero = (m_side)? m_hero2 : m_hero1;
+			
+			int attackDefenseBonus = currentStack->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0) - (st->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0));
+			float damageFactor = 1.0f;
+			if(attackDefenseBonus < 0) //decreasing dmg
+			{
+				if(0.02f * (-attackDefenseBonus) > 0.3f)
+				{
+					damageFactor += -0.3f;
+				}
+				else
+				{
+					damageFactor += 0.02f * attackDefenseBonus;
+				}
+			}
+			else //increasing dmg
+			{
+				if(0.05f * attackDefenseBonus > 4.0f)
+				{
+					damageFactor += 4.0f;
+				}
+				else
+				{
+					damageFactor += 0.05f * attackDefenseBonus;
+				}
+			}
+
+			cs.damage_max = (int)(currentStack->creature->damageMax * currentStack->amount * damageFactor);
+			cs.damage_min = (int)(currentStack->creature->damageMin * currentStack->amount * damageFactor);
+
+			cs.amount_max = cs.damage_max / st->creature->hitPoints;
+			cs.amount_min = cs.damage_min / st->creature->hitPoints;
+
+			cs.leftHitPoints_for_max = (hitPoints - cs.damage_max) % st->creature->hitPoints;
+			cs.leftHitPoint_for_min = (hitPoints - cs.damage_min) % st->creature->hitPoints;
+
+			m_statCasualties.push_back(std::pair<int, SCreatureCasualties>(id, cs));
 			
 			if (st->creature->isShooting() && st->shots > 0)
 			{
@@ -447,6 +515,27 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 				m_statDistance.push_back(std::pair<int, int>(id, m_battleHelper.GetDistanceWithObstacles(currentStack->position, st->position)));
 			}
 		}
+		else 
+		{
+			if (st->amount < 1)
+			{
+				continue;
+			}
+			int hitPoints = st->amount * st->creature->hitPoints - (st->creature->hitPoints - st->firstHPleft);
+
+			totalDamage += (st->creature->damageMax + st->creature->damageMin) * st->amount / 2;
+			totalHitPoints += hitPoints;
+		}
+	}
+	if ((float)totalDamage / (float)totalEnemyDamage < 0.5f &&
+		(float)totalHitPoints / (float)totalEnemyHitPoints < 0.5f)
+	{
+		m_bEnemyDominates = true;
+		MsgBox("** EnemyDominates!");
+	}
+	else
+	{
+		m_bEnemyDominates = false;
 	}
 	// sort max damage
 	std::sort(m_statMaxDamage.begin(), m_statMaxDamage.end(), 
@@ -466,45 +555,30 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 	// sort hit points
 	std::sort(m_statHitPoints.begin(), m_statHitPoints.end(), 
 		bind(&creature_stat::value_type::second, _1) > bind(&creature_stat::value_type::second, _2));
+	// sort casualties
+	std::sort(m_statCasualties.begin(), m_statCasualties.end(), 
+		bind(&creature_stat_casualties::value_type::second_type::damage_max, bind(&creature_stat_casualties::value_type::second, _1))
+		>
+		bind(&creature_stat_casualties::value_type::second_type::damage_max, bind(&creature_stat_casualties::value_type::second, _2)));
 }
 
 BattleAction CBattleLogic::MakeDecision(int stackID)
 {
 	MakeStatistics(stackID);
-	// first approach based on the statistics and weights
-	// if this solution was fine we would develop this idea
+	
 	int creature_to_attack = -1;
-	//
-	std::map<int, int> votes;
-
-	for (creature_stat::iterator it = m_statMaxDamage.begin(); it != m_statMaxDamage.end(); ++it)
+	
+	if (m_bEnemyDominates)
 	{
-		votes[it->first]  = 0;
+		creature_to_attack = PerformBerserkAttack(stackID);
 	}
-
-	votes[m_statMaxDamage.begin()->first] += m_battleHelper.GetVoteForMaxDamage();
-	votes[m_statMinDamage.begin()->first] += m_battleHelper.GetVoteForMinDamage();
-	if (m_statDistanceFromShooters.size()) 
+	else
 	{
-		votes[m_statDistanceFromShooters.begin()->first] += m_battleHelper.GetVoteForDistanceFromShooters();
+		creature_to_attack = PerformDefaultAction(stackID);
 	}
-	votes[m_statDistance.begin()->first] += m_battleHelper.GetVoteForDistance();
-	votes[m_statHitPoints.begin()->first] += m_battleHelper.GetVoteForHitPoints();
-	votes[m_statMaxSpeed.begin()->first] += m_battleHelper.GetVoteForMaxSpeed();
-
-
-	// get creature to attack
-
-	int max_vote = 0;
-
-	for (std::map<int, int>::iterator it = votes.begin(); it != votes.end(); ++it)
-	{
-		if (it->second > max_vote)
-		{
-			max_vote = it->second;
-			creature_to_attack = it->first;
-		}
-	}
+	std::string message("Creature will be attacked - ");
+	message += boost::lexical_cast<std::string>(creature_to_attack);
+	MsgBox(message.c_str());
 
 	if (creature_to_attack == -1)
 	{
@@ -518,14 +592,14 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 		ba.side = 1;
 		ba.actionType = action_shoot; // shoot
 		ba.stackNumber = stackID;
-		ba.destinationTile = m_cb->battleGetPos(creature_to_attack);
+		ba.destinationTile = (ui16)m_cb->battleGetPos(creature_to_attack);
 		return ba;
 	}
 	else
 	{
 		// go or go&attack
 		int dest_tile = -1; //m_cb->battleGetPos(creature_to_attack) + 1;
-		std::vector<int> av_tiles = GetAvailableHexesForAttacker(m_cb->battleGetStackByID(creature_to_attack));
+		std::vector<int> av_tiles = GetAvailableHexesForAttacker(m_cb->battleGetStackByID(creature_to_attack), m_cb->battleGetStackByID(stackID));
 		if (av_tiles.size() < 1)
 		{
 			// TODO: shouldn't be like that
@@ -535,6 +609,7 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 		// get the best tile - now the nearest
 
 		int prev_distance = m_battleHelper.InfiniteDistance;
+		int currentPos = m_cb->battleGetPos(stackID);
 
 		for (std::vector<int>::iterator it = av_tiles.begin(); it != av_tiles.end(); ++it)
 		{
@@ -544,15 +619,19 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 				prev_distance = dist;
 				dest_tile = *it;
 			}
+			if (*it == currentPos)
+			{
+				dest_tile = currentPos;
+				break;
+			}
 		}
 
 		std::vector<int> fields = m_cb->battleGetAvailableHexes(stackID);
-		
 		BattleAction ba; 
 		ba.side = 1;
 		//ba.actionType = 6; // go and attack
 		ba.stackNumber = stackID;
-		ba.destinationTile = dest_tile;
+		ba.destinationTile = (ui16)dest_tile;
 		ba.additionalInfo = m_cb->battleGetPos(creature_to_attack);
 		
 		int nearest_dist = m_battleHelper.InfiniteDistance;
@@ -564,6 +643,9 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 			{
 				// attack!
 				ba.actionType = action_walk_and_attack;
+#if defined _DEBUG
+				PrintBattleAction(ba);
+#endif
 				return ba;
 			}
 			int d = m_battleHelper.GetDistanceWithObstacles(dest_tile, *it);
@@ -573,14 +655,22 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 				nearest_pos = *it;
 			}
 		}
+		message = "Attacker position X=";
+		message += boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(nearest_pos)) + ", Y=";
+		message += boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(nearest_pos));
+		MsgBox(message.c_str());
+
 		ba.actionType = action_walk;
-		ba.destinationTile = nearest_pos;
+		ba.destinationTile = (ui16)nearest_pos;
 		ba.additionalInfo  = -1;
+#if defined _DEBUG
+		PrintBattleAction(ba);
+#endif
 		return ba;
 	}
 }
 
-std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender)
+std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender, CStack *attacker)
 {
 	int x = m_battleHelper.DecodeXPosition(defender->position);
 	int y = m_battleHelper.DecodeYPosition(defender->position);
@@ -635,7 +725,15 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender)
 	{
 		candidates.push_back(std::pair<int, int>(x + 1, y - 1));
 	}
-	// check if these field are empty
+	if (!leftLimit)
+	{
+		candidates.push_back(std::pair<int, int>(x - 1, y));
+	}
+	if (!rightLimit)
+	{
+		candidates.push_back(std::pair<int, int>(x + 1, y));
+	}
+	// check if these fields are empty
 	for (std::vector<std::pair<int, int> >::iterator it = candidates.begin(); it != candidates.end(); ++it)
 	{
 		int new_pos = m_battleHelper.GetBattleFieldPosition(it->first, it->second);
@@ -644,6 +742,13 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender)
 		if (st == NULL || st->amount < 1)
 		{
 			fields.push_back(new_pos);
+		}
+		else if (attacker)
+		{
+			if (attacker->ID == st->ID)
+			{
+				fields.push_back(new_pos);
+			}
 		}
 	}
 	return fields;
@@ -657,4 +762,152 @@ BattleAction CBattleLogic::MakeDefend(int stackID)
 	ba.stackNumber = stackID;
 	ba.additionalInfo = -1;
 	return ba;
+}
+
+int CBattleLogic::PerformBerserkAttack(int stackID)
+{
+	CCreature c = m_cb->battleGetCreature(stackID);
+	// attack to make biggest damage
+	int creature_to_attack = -1;
+	//if (m_statDistance.size() >= 2)
+	//{
+	//	creature_stat::const_iterator it = m_statDistance.begin();
+	//	creature_stat::const_iterator it2 = it + 1;
+	//	if (it->second < 
+	if (!m_statCasualties.empty())
+	{
+		creature_to_attack = m_statCasualties.begin()->first;
+		creature_stat_casualties::iterator it = m_statCasualties.begin();
+		for (; it != m_statCasualties.end(); ++it)
+		{
+			if (it->second.amount_min <= 0) // if nobody die after attack it won't make any sense
+			{
+				continue;
+			}
+			for (creature_stat::const_iterator it2 = m_statDistance.begin(); it2 != m_statDistance.end(); ++it2)
+			{
+				if (it2->first == it->first && it2->second - 1 <= c.speed)
+				{
+					return it->first;
+				}
+			}
+		}
+		return m_statCasualties.begin()->first;
+	}
+	return -1;
+}
+
+int CBattleLogic::PerformDefaultAction(int stackID)
+{
+	// first approach based on the statistics and weights
+	// if this solution was fine we would develop this idea
+	int creature_to_attack = -1;
+	//
+	std::map<int, int> votes;
+
+	for (creature_stat::iterator it = m_statMaxDamage.begin(); it != m_statMaxDamage.end(); ++it)
+	{
+		votes[it->first]  = 0;
+	}
+
+	votes[m_statMaxDamage.begin()->first] += m_battleHelper.GetVoteForMaxDamage();
+	votes[m_statMinDamage.begin()->first] += m_battleHelper.GetVoteForMinDamage();
+	if (m_statDistanceFromShooters.size()) 
+	{
+		votes[m_statDistanceFromShooters.begin()->first] += m_battleHelper.GetVoteForDistanceFromShooters();
+	}
+	votes[m_statDistance.begin()->first] += m_battleHelper.GetVoteForDistance();
+	votes[m_statHitPoints.begin()->first] += m_battleHelper.GetVoteForHitPoints();
+	votes[m_statMaxSpeed.begin()->first] += m_battleHelper.GetVoteForMaxSpeed();
+
+
+	// get creature to attack
+
+	int max_vote = 0;
+
+	for (std::map<int, int>::iterator it = votes.begin(); it != votes.end(); ++it)
+	{
+		if (it->second > max_vote)
+		{
+			max_vote = it->second;
+			creature_to_attack = it->first;
+		}
+	}
+	return creature_to_attack;
+}
+
+void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug purpose
+{
+	std::string message("Battle action \n");
+	message += "\taction type - ";
+	switch (action.actionType)
+	{
+	case 0:
+		message += "Cancel BattleAction\n";
+		break;
+	case 1:
+		message += "Hero cast a spell\n";
+		break;
+	case 2:
+		message += "Walk\n";
+		break;
+	case 3:
+		message += "Defend\n";
+		break;
+	case 4:
+		message += "Retreat from the battle\n";
+		break;
+	case 5:
+		message += "Surrender\n";
+		break;
+	case 6:
+		message += "Walk and Attack\n";
+		break;
+	case 7:
+		message += "Shoot\n";
+		break;
+	case 8:
+		message += "Wait\n";
+		break;
+	case 9:
+		message += "Catapult\n";
+		break;
+	case 10:
+		message += "Monster casts a spell\n";
+		break;
+	}
+	message += "\tDestination tile: X = ";
+	message += boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(action.destinationTile));
+	message += ", Y = " + boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(action.destinationTile));
+	message += "\nAdditional info: ";
+	if (action.actionType == 6 || action.actionType == 7)
+	{
+		message += "stack - " + boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(action.additionalInfo));
+		message += ", " + boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(action.additionalInfo));
+		message += ", creature - ";
+		CStack *c = m_cb->battleGetStackByPos(action.additionalInfo);
+		if (c && c->creature)
+		{
+			message += c->creature->nameRef;
+		}
+		else
+		{
+			message += "NULL";
+		}
+	}
+	else
+	{
+		message += boost::lexical_cast<std::string>(action.additionalInfo);
+	}
+
+	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+	
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(hConsole, &csbi);
+
+	SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+	
+	std::cout << message.c_str() << std::flush;
+
+	SetConsoleTextAttribute(hConsole, csbi.wAttributes);
 }
