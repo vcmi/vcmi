@@ -9,9 +9,10 @@
 #include "CMessage.h"
 #include "CPathfinder.h"
 #include "CPlayerInterface.h"
+//#include "SDL_Extensions.h"
 #include "SDL_Extensions.h"
-#include "SDL_Extensions.h"
-#include "SDL_framerate.h"
+//#include "SDL_framerate.h"
+
 #include "SDL_framerate.h"
 #include "client/CConfigHandler.h"
 #include "client/CCreatureAnimation.h"
@@ -52,9 +53,8 @@ extern std::queue<SDL_Event> events;
 extern boost::mutex eventsM;
 
 
-class OCM_HLP_CGIN
+struct OCM_HLP_CGIN
 {
-public:
 	bool inline operator ()(const std::pair<const CGObjectInstance*,SDL_Rect>  & a, const std::pair<const CGObjectInstance*,SDL_Rect> & b) const
 	{
 		return (*a.first)<(*b.first);
@@ -918,6 +918,11 @@ ClickableL::ClickableL()
 {
 	pressedL=false;
 }
+
+ClickableL::~ClickableL() {
+
+}
+
 void ClickableL::clickLeft(tribool down)
 {
 	if (down)
@@ -934,10 +939,16 @@ void ClickableL::deactivate()
 	LOCPLINT->lclickable.erase
 		(std::find(LOCPLINT->lclickable.begin(),LOCPLINT->lclickable.end(),this));
 }
+
 ClickableR::ClickableR()
 {
 	pressedR=false;
 }
+
+ClickableR::~ClickableR() {
+
+}
+
 void ClickableR::clickRight(tribool down)
 {
 	if (down)
@@ -953,10 +964,17 @@ void ClickableR::deactivate()
 {
 	LOCPLINT->rclickable.erase(std::find(LOCPLINT->rclickable.begin(),LOCPLINT->rclickable.end(),this));
 }
+//ClickableR
+
+Hoverable::~Hoverable() {
+
+}
+
 void Hoverable::activate()
 {
 	LOCPLINT->hoverable.push_front(this);
 }
+
 void Hoverable::deactivate()
 {
 	LOCPLINT->hoverable.erase(std::find(LOCPLINT->hoverable.begin(),LOCPLINT->hoverable.end(),this));
@@ -965,6 +983,12 @@ void Hoverable::hover(bool on)
 {
 	hovered=on;
 }
+//Hoverable
+
+KeyInterested::~KeyInterested() {
+    
+}
+
 void KeyInterested::activate()
 {
 	LOCPLINT->keyinterested.push_front(this);
@@ -974,6 +998,8 @@ void KeyInterested::deactivate()
 	LOCPLINT->
 		keyinterested.erase(std::find(LOCPLINT->keyinterested.begin(),LOCPLINT->keyinterested.end(),this));
 }
+//KeyInterested
+
 void MotionInterested::activate()
 {
 	LOCPLINT->motioninterested.push_front(this);
