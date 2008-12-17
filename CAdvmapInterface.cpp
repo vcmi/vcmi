@@ -765,7 +765,7 @@ void CResDataBar::deactivate()
 {
 	ClickableR::deactivate();
 }
-CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist)
+CResDataBar::CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int datedist)
 {
 	bg = BitmapHandler::loadBitmap(defname);
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
