@@ -111,7 +111,7 @@ class ClickableL : public virtual CIntObject  //for left-clicks
 public:
 	bool pressedL;
 	ClickableL();
-	virtual ~ClickableL(){};
+	virtual ~ClickableL();//{};
 	virtual void clickLeft (boost::logic::tribool down)=0;
 	virtual void activate();
 	virtual void deactivate();
@@ -121,7 +121,7 @@ class ClickableR : public virtual CIntObject //for right-clicks
 public:
 	bool pressedR;
 	ClickableR();
-	virtual ~ClickableR(){};
+	virtual ~ClickableR();//{};
 	virtual void clickRight (boost::logic::tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -130,7 +130,7 @@ class Hoverable  : public virtual CIntObject
 {
 public:
 	Hoverable(){hovered=false;}
-	virtual ~Hoverable(){};
+	virtual ~Hoverable();//{};
 	bool hovered;
 	virtual void hover (bool on)=0;
 	virtual void activate()=0;
@@ -139,7 +139,7 @@ public:
 class KeyInterested : public virtual CIntObject
 {
 public:
-	virtual ~KeyInterested(){};
+	virtual ~KeyInterested();//{};
 	virtual void keyPressed(const SDL_KeyboardEvent & key)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
