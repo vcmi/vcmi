@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="51">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>../CGameHandler.h</itemPath>
+      <itemPath>../../hch/CLodHandler.h</itemPath>
+      <itemPath>../../CLua.h</itemPath>
+      <itemPath>../CScriptCallback.h</itemPath>
+      <itemPath>../CVCMIServer.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>../CGameHandler.cpp</itemPath>
+      <itemPath>../../hch/CLodHandler.cpp</itemPath>
+      <itemPath>../../CLua.cpp</itemPath>
+      <itemPath>../CScriptCallback.cpp</itemPath>
+      <itemPath>../CVCMIServer.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>..</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <ccCompilerTool>
+          <includeDirectories>
+            <directoryPath>../../../../boost/include/boost-1_37</directoryPath>
+            <directoryPath>../..</directoryPath>
+          </includeDirectories>
+        </ccCompilerTool>
+        <linkerTool>
+          <linkerAddLib>
+            <directoryPath>../../../../boost/lib</directoryPath>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../lib/vcmi_lib"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../lib/vcmi_lib"
+                            BC="${MAKE}  -f Makefile-nb CONF=Debug"
+                            CC="${MAKE}  -f Makefile-nb CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libvcmi_lib.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+          <commandLine>-lboost_system-gcc43-mt-1_37 -lboost_thread-gcc43-mt-1_37 -lboost_filesystem-gcc43-mt-1_37 -lz</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="../../CLua.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CLua.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CLodHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CLodHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CGameHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CGameHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CScriptCallback.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CScriptCallback.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CVCMIServer.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CVCMIServer.h">
+        <itemTool>3</itemTool>
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="../../CLua.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CLua.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CLodHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CLodHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CGameHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CGameHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CScriptCallback.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CScriptCallback.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CVCMIServer.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CVCMIServer.h">
+        <itemTool>3</itemTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

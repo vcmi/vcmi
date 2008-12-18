@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="51">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>../BattleAction.h</itemPath>
+      <itemPath>../../hch/CArtHandler.h</itemPath>
+      <itemPath>../../hch/CBuildingHandler.h</itemPath>
+      <itemPath>../../CConsoleHandler.h</itemPath>
+      <itemPath>../../hch/CCreatureHandler.h</itemPath>
+      <itemPath>../../hch/CDefObjInfoHandler.h</itemPath>
+      <itemPath>../../CGameInfo.h</itemPath>
+      <itemPath>../../CGameState.h</itemPath>
+      <itemPath>../../hch/CGeneralTextHandler.h</itemPath>
+      <itemPath>../../hch/CHeroHandler.h</itemPath>
+      <itemPath>../../hch/CLodHandler.h</itemPath>
+      <itemPath>../../hch/CObjectHandler.h</itemPath>
+      <itemPath>../CondSh.h</itemPath>
+      <itemPath>../Connection.h</itemPath>
+      <itemPath>../../hch/CSpellHandler.h</itemPath>
+      <itemPath>../../hch/CTownHandler.h</itemPath>
+      <itemPath>../Interprocess.h</itemPath>
+      <itemPath>../../map.h</itemPath>
+      <itemPath>../NetPacks.h</itemPath>
+      <itemPath>../VCMI_Lib.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>../../hch/CArtHandler.cpp</itemPath>
+      <itemPath>../../hch/CBuildingHandler.cpp</itemPath>
+      <itemPath>../../CConsoleHandler.cpp</itemPath>
+      <itemPath>../../hch/CCreatureHandler.cpp</itemPath>
+      <itemPath>../../hch/CDefObjInfoHandler.cpp</itemPath>
+      <itemPath>../../CGameInfo.cpp</itemPath>
+      <itemPath>../../CGameState.cpp</itemPath>
+      <itemPath>../../hch/CGeneralTextHandler.cpp</itemPath>
+      <itemPath>../../hch/CHeroHandler.cpp</itemPath>
+      <itemPath>../../hch/CLodHandler.cpp</itemPath>
+      <itemPath>../../hch/CObjectHandler.cpp</itemPath>
+      <itemPath>../Connection.cpp</itemPath>
+      <itemPath>../../hch/CSpellHandler.cpp</itemPath>
+      <itemPath>../../hch/CTownHandler.cpp</itemPath>
+      <itemPath>../../map.cpp</itemPath>
+      <itemPath>../VCMI_Lib.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile-nb</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <projectmakefile>Makefile-nb</projectmakefile>
+  <confs>
+    <conf name="Debug" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <ccCompilerTool>
+          <includeDirectories>
+            <directoryPath>../../hch</directoryPath>
+            <directoryPath>../..</directoryPath>
+            <directoryPath>../../../../boost/include/boost-1_37</directoryPath>
+            <directoryPath>/usr/include/SDL</directoryPath>
+            <directoryPath>../../../../boost/include/boost-1_37/boost</directoryPath>
+          </includeDirectories>
+        </ccCompilerTool>
+        <linkerTool>
+          <output>dist/Debug/${PLATFORM}/libvcmi_lib.so</output>
+          <linkerAddLib>
+            <directoryPath>../../../../boost/lib</directoryPath>
+          </linkerAddLib>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="../../CConsoleHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CConsoleHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CGameInfo.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CGameInfo.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CGameState.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CGameState.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CArtHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CArtHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CBuildingHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CBuildingHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CCreatureHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CCreatureHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CDefObjInfoHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CDefObjInfoHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CGeneralTextHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CGeneralTextHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CHeroHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CHeroHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CLodHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CLodHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CObjectHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CObjectHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CSpellHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CSpellHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CTownHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CTownHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../map.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../map.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../BattleAction.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CondSh.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../Connection.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../Connection.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../Interprocess.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../NetPacks.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../VCMI_Lib.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../VCMI_Lib.h">
+        <itemTool>3</itemTool>
+      </item>
+    </conf>
+    <conf name="Release" type="2">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="../../CConsoleHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CConsoleHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CGameInfo.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CGameInfo.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CGameState.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CGameState.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CArtHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CArtHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CBuildingHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CBuildingHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CCreatureHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CCreatureHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CDefObjInfoHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CDefObjInfoHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CGeneralTextHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CGeneralTextHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CHeroHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CHeroHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CLodHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CLodHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CObjectHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CObjectHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CSpellHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CSpellHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CTownHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CTownHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../map.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../map.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../BattleAction.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CondSh.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../Connection.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../Connection.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../Interprocess.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../NetPacks.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../VCMI_Lib.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../VCMI_Lib.h">
+        <itemTool>3</itemTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>
