@@ -73,9 +73,8 @@ std::string nameFromType (int typ)
 	}
 	return std::string();
 }
-class OCM_HLP
+struct OCM_HLP
 {
-public:
 	bool operator ()(const std::pair<const CGObjectInstance*, SDL_Rect> & a, const std::pair<const CGObjectInstance*, SDL_Rect> & b)
 	{
 		return (*a.first)<(*b.first);
@@ -198,9 +197,9 @@ void CMapHandler::roadsRiverTerrainInit()
 
 
 
-	for (int i=0; i<map->width; i++) //jest po szerokoœci
+	for (int i=0; i<map->width; i++) //jest po szerokoï¿½ci
 	{
-		for (int j=0; j<map->height;j++) //po wysokoœci
+		for (int j=0; j<map->height;j++) //po wysokoï¿½ci
 		{
 			for (int k=0; k<=map->twoLevel; ++k)
 			{
@@ -238,9 +237,9 @@ void CMapHandler::roadsRiverTerrainInit()
 		}
 	}
 
-	for (int i=0; i<map->width; i++) //jest po szerokoœci
+	for (int i=0; i<map->width; i++) //jest po szerokoï¿½ci
 	{
-		for (int j=0; j<map->height;j++) //po wysokoœci
+		for (int j=0; j<map->height;j++) //po wysokoï¿½ci
 		{
 			for(int k=0; k<=map->twoLevel; ++k)
 			{
@@ -286,9 +285,9 @@ void CMapHandler::borderAndTerrainBitmapInit()
 		delete hlp;
 	}
 
-	for (int i=0-Woff; i<map->width+Woff; i++) //jest po szerokoœci
+	for (int i=0-Woff; i<map->width+Woff; i++) //jest po szerokoï¿½ci
 	{
-		for (int j=0-Hoff; j<map->height+Hoff;j++) //po wysokoœci
+		for (int j=0-Hoff; j<map->height+Hoff;j++) //po wysokoï¿½ci
 		{
 			for(int k=0; k<=map->twoLevel; ++k)
 			{
