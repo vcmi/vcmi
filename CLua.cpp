@@ -23,6 +23,7 @@
 #include "lib/NetPacks.h"
 #pragma warning (disable : 4311)
 #define DEFOS const CGObjectInstance *os = cb->getObj(objid)
+
 bool getGlobalFunc(lua_State * L, std::string fname)
 {
 	//unsigned int hash = lua_calchash(fname.c_str(), fname.size());
@@ -31,6 +32,39 @@ bool getGlobalFunc(lua_State * L, std::string fname)
 	//return lua_isfunction(L, -1);
 	return false;
 }
+
+
+
+void CObjectScript::newObject(int objid) {
+};
+
+void CObjectScript::onHeroVisit(int objid, int heroID) {
+};
+
+void CObjectScript::onHeroLeave(int objid, int heroID) {
+};
+
+std::string CObjectScript::hoverText(int objid) {
+    return "";
+};
+
+void CObjectScript::newTurn () {
+};
+
+void CObjectScript::equipArtefact(int HID, int AID, int slot, bool putOn) {
+}; //putOn==0 means that artifact is taken off
+
+void CObjectScript::battleStart(int phase) {
+}; //phase==0 - very start, before initialization of battle; phase==1 - just before battle starts
+
+void CObjectScript::battleNewTurn (int turn) {
+}; //turn==-1 is for tactic stage
+
+void CObjectScript::heroLevelUp (int HID) {
+}; //add possibility of changing available sec. skills
+//CObjectScript
+
+
 
 CObjectScript::CObjectScript()
 {
@@ -560,6 +594,9 @@ void CMines::newTurn ()
 	}
 }
 
+CPickable::CPickable(CScriptCallback * CB):CCPPObjectScript(CB) {
+
+};
 
 void CPickable::newObject(int objid)
 {
@@ -717,6 +754,9 @@ std::vector<int> CPickable::yourObjects() //returns IDs of objects which are han
 	ret.push_back(101); //treasure chest / commander stone
 	return ret;
 }
+//CPickable
+CTownScript::CTownScript(CScriptCallback * CB):CCPPObjectScript(CB) {
+};
 
 void CTownScript::onHeroVisit(int objid, int heroID)
 {
@@ -747,6 +787,9 @@ std::vector<int> CTownScript::yourObjects() //returns IDs of objects which are h
 	ret.push_back(98); //town
 	return ret;
 }
+//CTownScript
+CHeroScript::CHeroScript(CScriptCallback * CB):CCPPObjectScript(CB) {
+};
 
 void CHeroScript::newObject(int objid)
 {
@@ -784,6 +827,11 @@ std::vector<int> CHeroScript::yourObjects() //returns IDs of objects which are h
 	ret.push_back(34); //hero
 	return ret;
 }
+//CHeroScript
+
+CMonsterS::CMonsterS(CScriptCallback * CB):CCPPObjectScript(CB) {
+};
+
 void CMonsterS::newObject(int objid)
 {
 	//os->blockVisit = true;
@@ -859,6 +907,11 @@ void CMonsterS::endBattleWith(const CGObjectInstance *monster, BattleResult *res
 		cb->setAmount(monster->id,((CCreatureObjInfo*)(monster->info))->number - killedAmount);
 	}
 }
+//CMonsterS
+
+
+CCreatureGen::CCreatureGen(CScriptCallback * CB):CCPPObjectScript(CB) {
+};
 
 void CCreatureGen::newObject(int objid)
 {
@@ -868,15 +921,20 @@ void CCreatureGen::newObject(int objid)
 	ms << std::pair<ui8,ui32>(8,os->subID);
 	cb->setHoverName(objid,&ms);
 }
+
 void CCreatureGen::onHeroVisit(int objid, int heroID)
 {
 }
+
 std::vector<int> CCreatureGen::yourObjects() //returns IDs of objects which are handled by script
 {
 	std::vector<int> ret;
 	ret.push_back(17); //cregen1
 	return ret;
 }
+//CCreatureGen
+CTeleports::CTeleports(CScriptCallback * CB):CCPPObjectScript(CB) {
+};
 
 void CTeleports::newObject(int objid)
 {
@@ -942,3 +1000,16 @@ std::vector<int> CTeleports::yourObjects() //returns IDs of objects which are ha
 	ret.push_back(103); 
 	return ret;
 }
+//CTeleports
+CCPPObjectScript::CCPPObjectScript(CScriptCallback * CB) {
+    cb=CB;
+};
+
+CVisitableOPH::CVisitableOPH(CScriptCallback * CB):CCPPObjectScript(CB) {//:CCPPObjectScript(CB) {
+};
+
+CVisitableOPW::CVisitableOPW(CScriptCallback * CB):CCPPObjectScript(CB) {
+};
+
+CMines::CMines(CScriptCallback * CB):CCPPObjectScript(CB) {
+};

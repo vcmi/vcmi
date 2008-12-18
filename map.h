@@ -1,7 +1,7 @@
 #ifndef MAPD_H
 #define MAPD_H
 #pragma warning (disable : 4482)
-#include <string>
+#include <cstring>
 #include <vector>
 #include <map>
 #include <set>

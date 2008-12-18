@@ -1,3 +1,5 @@
+#ifndef CONNECTION_H
+#define CONNECTION_H
 #pragma once
 #include "../global.h"
 #include <string>
@@ -15,6 +17,7 @@
 #include <boost/mpl/int.hpp>
 #include <boost/mpl/identity.hpp>
 
+#include <boost/type_traits/is_array.hpp>
 const int version = 63;
 class CConnection;
 
@@ -409,3 +412,4 @@ public:
 	void close();
 	~CConnection(void);
 };
+#endif //CONNECTION_H

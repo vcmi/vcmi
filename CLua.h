@@ -27,10 +27,12 @@ struct Mapa;
 struct lua_State;
 struct BattleResult;
 enum ESLan{UNDEF=-1,CPP,ERM,LUA};
+
+
 class CObjectScript
 {
 public:
-	int owner, language;
+        int owner, language;
 	std::string filename;
 
 	int getOwner(){return owner;} //255 - neutral /  254 - not flaggable
@@ -40,20 +42,20 @@ public:
 
 	//functions to be called in script
 	//virtual void init(){}; //called when game is ready
-	virtual void newObject(int objid){};
-	virtual void onHeroVisit(int objid, int heroID){};
-	virtual void onHeroLeave(int objid, int heroID){};
-	virtual std::string hoverText(int objid){return "";};
-	virtual void newTurn (){};
+	virtual void newObject(int objid);
+	virtual void onHeroVisit(int objid, int heroID);
+	virtual void onHeroLeave(int objid, int heroID);
+	virtual std::string hoverText(int objid);
+	virtual void newTurn ();
 
 
 	//TODO: implement functions below:
-	virtual void equipArtefact(int HID, int AID, int slot, bool putOn){}; //putOn==0 means that artifact is taken off
-	virtual void battleStart(int phase){}; //phase==0 - very start, before initialization of battle; phase==1 - just before battle starts
-	virtual void battleNewTurn (int turn){}; //turn==-1 is for tactic stage
+	virtual void equipArtefact(int HID, int AID, int slot, bool putOn); //putOn==0 means that artifact is taken off
+	virtual void battleStart(int phase); //phase==0 - very start, before initialization of battle; phase==1 - just before battle starts
+	virtual void battleNewTurn (int turn); //turn==-1 is for tactic stage
 	//virtual void battleAction (int type,int destination, int stack, int owner, int){};
 	//virtual void mouseClick (down,left,screen?, pos??){};
-	virtual void heroLevelUp (int HID){}; //add possibility of changing available sec. skills
+	virtual void heroLevelUp (int HID); //add possibility of changing available sec. skills
 
 };
 class CScript
@@ -97,7 +99,7 @@ class CCPPObjectScript: public CObjectScript
 {
 public:
 	CScriptCallback * cb;
-	CCPPObjectScript(CScriptCallback * CB){cb=CB;};
+	CCPPObjectScript(CScriptCallback * CB);//{cb=CB;};
 	virtual std::vector<int> yourObjects()=0; //returns IDs of objects which are handled by script
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -107,7 +109,7 @@ public:
 class CVisitableOPH : public CCPPObjectScript  //once per hero
 {
 public:
-	CVisitableOPH(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CVisitableOPH(CScriptCallback * CB);//{};
 	std::map<int, int> typeOfTree; //0 - level for free; 1 - 2000 gold; 2 - 10 gems
 	std::map<int,std::set<int> > visitors;
 
@@ -121,7 +123,7 @@ public:
 class CVisitableOPW : public CCPPObjectScript  //once per week
 {
 public:
-	CVisitableOPW(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CVisitableOPW(CScriptCallback * CB);
 	std::map<int,bool> visited;
 	void onNAHeroVisit(int objid, int heroID, bool alreadyVisited);
 	void newObject(int objid);
@@ -133,7 +135,7 @@ public:
 class CMines : public CCPPObjectScript  //flaggable, and giving resource at each day
 {
 public:
-	CMines(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CMines(CScriptCallback * CB);
 
 	std::vector<int> ourObjs;
 
@@ -146,7 +148,7 @@ public:
 class CPickable : public CCPPObjectScript //pickable - resources, artifacts, etc
 {
 public:
-	CPickable(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CPickable(CScriptCallback * CB);//:CCPPObjectScript(CB);
 	void chosen(ui32 which, int heroid, int val); //val - value of treasure in gold
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
@@ -156,7 +158,7 @@ public:
 class CTownScript : public CCPPObjectScript  //pickable - resources, artifacts, etc
 {
 public:
-	CTownScript(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CTownScript(CScriptCallback * CB);//:CCPPObjectScript(CB){};
 	void onHeroVisit(int objid, int heroID);
 	void onHeroLeave(int objid, int heroID);
 	void newObject(int objid);
@@ -166,7 +168,7 @@ public:
 class CHeroScript : public CCPPObjectScript
 {
 public:
-	CHeroScript(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CHeroScript(CScriptCallback * CB);//:CCPPObjectScript(CB){};
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
@@ -175,7 +177,7 @@ public:
 class CMonsterS : public CCPPObjectScript
 {
 public:
-	CMonsterS(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CMonsterS(CScriptCallback * CB);//:CCPPObjectScript(CB){};
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
@@ -186,7 +188,7 @@ class CCreatureGen : public CCPPObjectScript
 {
 public:
 	std::map<int, int> amount; //amount of creatures in each dwelling
-	CCreatureGen(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CCreatureGen(CScriptCallback * CB);//:CCPPObjectScript(CB){};
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
@@ -200,5 +202,5 @@ public:
 	void newObject(int objid);
 	void onHeroVisit(int objid, int heroID);
 	std::vector<int> yourObjects(); //returns IDs of objects which are handled by script
-	CTeleports(CScriptCallback * CB):CCPPObjectScript(CB){};
+	CTeleports(CScriptCallback * CB);//:CCPPObjectScript(CB){};
 };
