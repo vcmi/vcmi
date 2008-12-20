@@ -1500,58 +1500,47 @@ void CGameState::loadTownDInfos()
 }
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
 {
-	int attackDefenseBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0) - (defender->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0));
+	int attackerAttackBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0);
+	if(attacker->getEffect(56)) //frenzy for attacker
+	{
+		attackerAttackBonus += (VLC->spellh->spells[attacker->getEffect(56)->id].powers[attacker->getEffect(56)->level]/100.0) *(attacker->creature->defence + (attackerHero ? attackerHero->getPrimSkillLevel(1) : 0));
+	}
+	int defenderDefenseBonus = defender->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0);
+	if(defender->getEffect(56)) //frenzy for defender
+	{
+		defenderDefenseBonus = 0;
+	}
+	int attackDefenseBonus = attackerAttackBonus - defenderDefenseBonus;
 	if(defender->getEffect(48)) //defender's prayer handling
 	{
-		if(defender->getEffect(48)->level<=1) //none or basic
-			attackDefenseBonus -= 2;
-		else //adv or expert
-			attackDefenseBonus -= 4;
+		attackDefenseBonus -= VLC->spellh->spells[defender->getEffect(48)->id].powers[defender->getEffect(48)->level];
 	}
 	if(attacker->getEffect(48)) //attacker's prayer handling
 	{
-		if(attacker->getEffect(48)->level<=1) //none or basic
-			attackDefenseBonus += 2;
-		else //adv or expert
-			attackDefenseBonus += 4;
+		attackDefenseBonus += VLC->spellh->spells[attacker->getEffect(48)->id].powers[attacker->getEffect(48)->level];
 	}
 	if(defender->getEffect(46)) //stone skin handling
 	{
-		if(defender->getEffect(46)->level<=1) //none or basic
-			attackDefenseBonus -= 3;
-		else //adv or expert
-			attackDefenseBonus -= 6;
+		attackDefenseBonus -= VLC->spellh->spells[defender->getEffect(46)->id].powers[defender->getEffect(46)->level];
 	}
 	if(attacker->getEffect(45)) //weakness handling
 	{
-		if(attacker->getEffect(45)->level<=1) //none or basic
-			attackDefenseBonus -= 3;
-		else //adv or expert
-			attackDefenseBonus -= 6;
+		attackDefenseBonus -= VLC->spellh->spells[attacker->getEffect(45)->id].powers[attacker->getEffect(45)->level];
 	}
 	if(!shooting && attacker->getEffect(43)) //bloodlust handling
 	{
-		if(attacker->getEffect(43)->level<=1) //none or basic
-			attackDefenseBonus += 3;
-		else //adv or expert
-			attackDefenseBonus += 6;
+		attackDefenseBonus += VLC->spellh->spells[attacker->getEffect(43)->id].powers[attacker->getEffect(43)->level];
 	}
 	int damageBase = 0;
 	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
 	{
 		damageBase = attacker->creature->damageMin;
-		if(attacker->getEffect(42)->level >= 2) //adv or expert
-		{
-			damageBase -= 1;
-		}
+		damageBase -= VLC->spellh->spells[attacker->getEffect(42)->id].powers[attacker->getEffect(42)->level];
 	}
 	else if(attacker->getEffect(41)) //bless handling
 	{
 		damageBase = attacker->creature->damageMax;
-		if(attacker->getEffect(41)->level >= 2) //adv or expert
-		{
-			damageBase += 1;
-		}
+		damageBase += VLC->spellh->spells[attacker->getEffect(41)->id].powers[attacker->getEffect(41)->level];
 	}
 	else if(attacker->creature->damageMax == attacker->creature->damageMin) //constant damage
 	{
@@ -1698,4 +1687,72 @@ CStack * BattleInfo::getNextStack()
 		return stacks[i];
 	}
 	return NULL; //all stacks moved or defending!
+}
+
+std::vector<CStack> BattleInfo::getStackQueue()
+{
+	std::vector<CStack> ret;
+	std::vector<int> taken; //if non-zero value, corresponding stack has been placed in ret
+	taken.resize(stacks.size());
+	for(int g=0; g<taken.size(); ++g)
+	{
+		taken[g] = 0;
+	}
+
+	for(int moved=0; moved<2; ++moved) //in first cycle we add stacks that can act in current turn, in second one the rest of them
+	{
+		for(int gc=0; gc<stacks.size(); ++gc)
+		{
+			int id = -1, speed = -1;
+			for(int i=0; i<stacks.size(); ++i) //find not waited stacks only
+			{
+				if((moved == 1 ||!vstd::contains(stacks[i]->state,DEFENDING))
+					&& stacks[i]->alive()
+					&& (moved == 1 || !vstd::contains(stacks[i]->state,MOVED))
+					&& !vstd::contains(stacks[i]->state,WAITING)
+					&& taken[i]==0)
+				{
+					if(speed == -1 || stacks[i]->speed() > speed)
+					{
+						id = i;
+						speed = stacks[i]->speed();
+					}
+				}
+			}
+			if(id != -1)
+			{
+				ret.push_back(*stacks[id]);
+				taken[id] = 1;
+			}
+			else //choose something from not moved stacks
+			{
+				int id = -1, speed = 10000; //infinite speed
+				for(int i=0; i<stacks.size(); ++i) //find waited stacks only
+				{
+					if((moved == 1 ||!vstd::contains(stacks[i]->state,DEFENDING))
+						&& stacks[i]->alive()
+						&& (moved == 1 || !vstd::contains(stacks[i]->state,MOVED))
+						&& vstd::contains(stacks[i]->state,WAITING)
+						&& taken[i]==0)
+					{
+						if(stacks[i]->speed() < speed) //slowest one
+						{
+							id = i;
+							speed = stacks[i]->speed();
+						}
+					}
+				}
+				if(id != -1)
+				{
+					ret.push_back(*stacks[id]);
+					taken[id] = 1;
+				}
+				else
+				{
+					break; //no stacks have been found, so none of them will be found in next iterations
+				}
+			}
+		}
+	}
+	return ret;
 }

@@ -72,6 +72,7 @@ struct DLL_EXPORT BattleInfo
 		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2;
 	}
 	CStack * getNextStack(); //which stack will have turn after current one
+	std::vector<CStack> getStackQueue(); //returns stack in order of their movement action
 	CStack * getStack(int stackID);
 	CStack * getStackT(int tileID);
 	void getAccessibilityMap(bool *accessibility, int stackToOmmit=-1); //send pointer to at least 187 allocated bytes

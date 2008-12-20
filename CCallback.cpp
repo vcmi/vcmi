@@ -491,6 +491,11 @@ std::map<int, CStack> CCallback::battleGetStacks()
 	return ret;
 }
 
+std::vector<CStack> CCallback::battleGetStackQueue()
+{
+	return gs->curB->getStackQueue();
+}
+
 CCreature CCallback::battleGetCreature(int number)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

@@ -1400,6 +1400,16 @@ upgend:
 									sendAndApply(&sse);
 									break;
 								}
+							case 56: //frenzy
+								{
+									SetStackEffect sse;
+									sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
+									sse.effect.id = 56;
+									sse.effect.level = getSchoolLevel(h,s);
+									sse.effect.turnsRemain = 1; //! - different duration
+									sendAndApply(&sse);
+									break;
+								}
 							case 61: //forgetfulness
 								{
 									SetStackEffect sse;

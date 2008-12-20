@@ -79,4 +79,27 @@ void CSpellHandler::loadSpells()
 		nsp.creatureAbility = creatureAbility;
 		spells.push_back(nsp);
 	}
+	//loading of additional spell traits
+	std::ifstream ast;
+	ast.open("config/spell_info.txt", std::ios::binary);
+	if(!ast.is_open())
+	{
+		tlog1<<"lack of config/spell_info.txt file!"<<std::endl;
+	}
+	else
+	{
+		//reading header
+		std::string dump;
+		for(int i=0; i<42; ++i) ast>>dump;
+		//reading exact info
+		int spellID;
+		ast>>spellID;
+		while(spellID != -1)
+		{
+			int buf;
+			ast>>buf;
+			spells[spellID].positiveness = buf;
+			ast>>spellID;
+		}
+	}
 }

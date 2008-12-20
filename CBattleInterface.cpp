@@ -435,12 +435,13 @@ void CBattleInterface::show(SDL_Surface * to)
 		int yPos = 10;
 
 		std::vector<CStack> stacksSorted;
-		for(int v=0; v<stacks.size(); ++v)
-		{
-			if(stacks[v].alive()) //we don't want dead stacks to be there
-				stacksSorted.push_back(stacks[v]);
-		}
-		std::stable_sort(stacksSorted.begin(), stacksSorted.end(), cmpst2);
+		stacksSorted = LOCPLINT->cb->battleGetStackQueue();
+		//for(int v=0; v<stacks.size(); ++v)
+		//{
+		//	if(stacks[v].alive()) //we don't want dead stacks to be there
+		//		stacksSorted.push_back(stacks[v]);
+		//}
+		//std::stable_sort(stacksSorted.begin(), stacksSorted.end(), cmpst2);
 		int startFrom = -1;
 		for(int n=0; n<stacksSorted.size(); ++n)
 		{
@@ -1446,6 +1447,11 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			displayEffect(19, sc->tile);
 			break;
 		}
+	case 56: //frenzy
+		{
+			displayEffect(17, sc->tile);
+			break;
+		}
 	case 61: //forgetfulness
 		{
 			displayEffect(42, sc->tile);
@@ -1470,14 +1476,39 @@ void CBattleInterface::castThisSpell(int spellID)
 	spellSelMode = 0;
 	if(CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET") != std::string::npos)
 	{
-		spellSelMode = 3;
+		switch(CGI->spellh->spells[spellID].positiveness)
+		{
+		case -1 :
+			spellSelMode = 2;
+			break;
+		case 0:
+			spellSelMode = 3;
+			break;
+		case 1:
+			spellSelMode = 1;
+			break;
+		}
 	}
 	if(CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET_2") != std::string::npos)
 	{
 		if(castingHero && castingHero->getSpellSecLevel(spellID) < 3)
-			spellSelMode = 3;
-		else //TODO: no destination chould apply in this case
 		{
+			switch(CGI->spellh->spells[spellID].positiveness)
+			{
+			case -1 :
+				spellSelMode = 2;
+				break;
+			case 0:
+				spellSelMode = 3;
+				break;
+			case 1:
+				spellSelMode = 1;
+				break;
+			}
+		}
+		else
+		{
+			spellSelMode = -1;
 		}
 	}
 	CGI->curh->changeGraphic(3, 0); 
