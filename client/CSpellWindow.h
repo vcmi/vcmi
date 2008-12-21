@@ -1,4 +1,10 @@
+#ifndef CSPELLWINDOW_H
+#define CSPELLWINDOW_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
 #include "../global.h"
 #include "../CPlayerInterface.h"
 
@@ -86,3 +92,4 @@ public:
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
 };
+#endif //CSPELLWINDOW_H

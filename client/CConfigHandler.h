@@ -1,3 +1,5 @@
+#ifndef CCONFIGHANDLER_H
+#define CCONFIGHANDLER_H
 #pragma once
 #include "../global.h"
 class CAdvMapInt;
@@ -62,3 +64,4 @@ namespace config
 	};
 }
 extern config::CConfigHandler conf;
+#endif //CCONFIGHANDLER_H

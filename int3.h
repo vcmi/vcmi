@@ -3,6 +3,8 @@
 #include <map>
 #include <vector>
 #include <cmath>
+
+
 class CCreature;
 class CCreatureSet //seven combined creatures
 {
@@ -10,14 +12,15 @@ public:
 	std::map<si32,std::pair<ui32,si32> > slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
 	bool formation; //false - wide, true - tight
 	si32 getSlotFor(ui32 creature, ui32 slotsAmount=7) //returns -1 if no slot available
-	{
-		
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i=slots.begin(); i!=slots.end(); i++)
-			if(i->second.first == creature)
+	{	
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i=slots.begin(); i!=slots.end(); ++i)
+			if(i->second.first == creature) {
 				return i->first; //if there is already such creature we return its slot id
-		for(si32 i=0; i<slotsAmount; i++)
-			if(slots.find(i) == slots.end())
+                        }
+		for(ui32 i=0; i<slotsAmount; i++)
+			if(slots.find(i) == slots.end()) {
 				return i; //return first free slot
+            }
 		return -1; //no slot available
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -34,7 +37,7 @@ public:
 	inline int3(const si32 & X, const si32 & Y, const si32 & Z):x(X),y(Y),z(Z){}; //c-tor
 	inline int3(const int3 & val) : x(val.x), y(val.y), z(val.z){} //copy c-tor
 	inline int3 operator=(const int3 & val) {x = val.x; y = val.y; z = val.z; return *this;} //assignemt operator
-	inline ~int3(){} // d-tor - does nothing
+	~int3() {} // d-tor - does nothing
 	inline int3 operator+(const int3 & i) const //returns int3 with coordinates increased by corresponding coordinate of given int3
 		{return int3(x+i.x,y+i.y,z+i.z);}
 	inline int3 operator+(const si32 i) const //returns int3 with coordinates increased by given numer

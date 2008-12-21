@@ -26,7 +26,7 @@ CDefHandler::~CDefHandler()
 		delete [] RWEntries;
 	if (notFreeImgs)
 		return;
-	for (int i=0; i<ourImages.size(); i++)
+	for (size_t i=0; i<ourImages.size(); ++i)
 	{
 		if (ourImages[i].bitmap)
 		{
@@ -37,7 +37,7 @@ CDefHandler::~CDefHandler()
 }
 CDefEssential::~CDefEssential()
 {
-	for(int i=0;i<ourImages.size();i++)
+	for(size_t i=0; i < ourImages.size(); ++i)
 		SDL_FreeSurface(ourImages[i].bitmap);
 }
 void CDefHandler::openDef(std::string name)
@@ -103,7 +103,7 @@ void CDefHandler::openDef(std::string name)
 	{
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
-	for(int i=0; i<SEntries.size(); ++i)
+	for(size_t i=0; i < SEntries.size(); ++i)
 	{
 		Cimage nimg;
 		nimg.bitmap = getSprite(i, FDef, palette);
@@ -140,12 +140,14 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 	totalEntries=0;
 	for (int z=0; z<totalBlocks; z++)
 	{
-		int unknown1 = readNormalNr(i,4,table); i+=4;
+		int unknown1 = readNormalNr(i,4,table); i+=4; //TODO use me
 		totalInBlock = readNormalNr(i,4,table); i+=4;
 		for (j=SEntries.size(); j<totalEntries+totalInBlock; j++)
 			SEntries.push_back(SEntry());
-		int unknown2 = readNormalNr(i,4,table); i+=4;
-		int unknown3 = readNormalNr(i,4,table); i+=4;
+		int unknown2 = readNormalNr(i,4,table); //TODO use me
+        i+=4;
+		int unknown3 = readNormalNr(i,4,table); //TODO use me
+        i+=4;
 		for (j=0; j<totalInBlock; j++)
 		{
 			for (int k=0;k<13;k++) Buffer[k]=table[i+k]; 
@@ -155,7 +157,8 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 		for (j=0; j<totalInBlock; j++)
 		{ 
 			SEntries[totalEntries+j].offset = readNormalNr(i,4,table);
-			int unknown4 = readNormalNr(i,4,table); i+=4;
+			int unknown4 = readNormalNr(i,4,table); //TODO use me
+            i+=4;
 		}
 		//totalEntries+=totalInBlock;
 		for(int hh=0; hh<totalInBlock; ++hh)
@@ -169,7 +172,7 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
 	}
 	RWEntries = new unsigned int[height];
-	for(int i=0; i<SEntries.size(); ++i)
+	for(size_t i=0; i < SEntries.size(); ++i)
 	{
 		Cimage nimg;
 		nimg.bitmap = getSprite(i, table, palette);
@@ -248,12 +251,12 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 		LeftMargin, RightMargin, TopMargin,BottomMargin,
 		i, add, FullHeight,FullWidth,
 		TotalRowLength, // dlugosc przeczytanego segmentu
-		NextSpriteOffset, RowAdd;
+		RowAdd;//, NextSpriteOffset; //TODO use me
 
-	unsigned char SegmentType, SegmentLength, BL, BR;
+	unsigned char SegmentType, SegmentLength;//, BL, BR; //TODO use me
 
 	i=BaseOffset=SEntries[SIndex].offset;
-	int prSize=readNormalNr(i,4,FDef);i+=4;
+//	int prSize=readNormalNr(i,4,FDef);i+=4; //TODO use me
 	int defType2 = readNormalNr(i,4,FDef);i+=4;
 	FullWidth = readNormalNr(i,4,FDef);i+=4;
 	FullHeight = readNormalNr(i,4,FDef);i+=4;

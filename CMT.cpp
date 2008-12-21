@@ -11,8 +11,8 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/thread.hpp>
-#include "SDL_ttf.h"
-#include "SDL_mixer.h"
+#include <SDL_ttf.h>
+#include <SDL_mixer.h>
 #include "SDL_Extensions.h"
 #include "SDL_framerate.h"
 #include "CGameInfo.h"
@@ -45,6 +45,8 @@
 #include "lib/Connection.h"
 #include "lib/Interprocess.h"
 #include "lib/VCMI_Lib.h"
+#include <cstdlib>
+
 std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Surface * screen, * screen2;
@@ -210,7 +212,7 @@ int main(int argc, char** argv)
 				LOCPLINT->pim->lock();
 				SDL_Delay(750);
 				tlog0 << "Ending...\n";
-				exit(0);
+				exit(EXIT_SUCCESS);
 			}
 			eventsM.lock();
 			events.push(ev);
@@ -232,11 +234,11 @@ void processCommand(const std::string &message, CClient *&client)
 	readed >> cn;
 	int3 src, dst;
 
-	int heronum;
+//	int heronum;//TODO use me
 	int3 dest;
 
 	if(message==std::string("die, fool"))
-		exit(0);
+		exit(EXIT_SUCCESS);
 	else if(cn==std::string("activate"))
 	{
 		int what;

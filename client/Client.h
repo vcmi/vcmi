@@ -1,4 +1,10 @@
+#ifndef CLIENT_H
+#define CLIENT_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
 #include "../global.h"
 #include <boost/thread.hpp>
 struct StartInfo;
@@ -56,3 +62,4 @@ public:
 	friend class CScriptCallback; //for objects scripts
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 };
+#endif //CLIENT_H

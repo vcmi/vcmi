@@ -118,29 +118,31 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	state=0;
 	hoverTexts = Name;
 	helpBox=HelpBox;
-	int est = LOCPLINT->playerID;
+	//int est = LOCPLINT->playerID; //TODO use me
 	CDefHandler * temp = CDefHandler::giveDef(defName); 
 	temp->notFreeImgs = true;
-	for (int i=0;i<temp->ourImages.size();i++)
+	for (size_t i=0;i<temp->ourImages.size();i++)
 	{
 		imgs.resize(1);
 		imgs[0].push_back(temp->ourImages[i].bitmap);
-		if(playerColoredButton)
+		if(playerColoredButton) {
 			graphics->blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
+                }
 	}
 	delete temp;
 	if (add && add->size())
 	{
 		imgs.resize(imgs.size()+add->size());
-		for (int i=0; i<add->size();i++)
+		for (size_t i=0; i<add->size();i++)
 		{
 			temp = CDefHandler::giveDef((*add)[i]);
 			temp->notFreeImgs = true;
-			for (int j=0;j<temp->ourImages.size();j++)
+			for (size_t j=0;j<temp->ourImages.size();j++)
 			{
 				imgs[i+1].push_back(temp->ourImages[j].bitmap);
-				if(playerColoredButton)
+				if(playerColoredButton) {
 					graphics->blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
+                                }
 			}
 			delete temp;
 		}
@@ -220,25 +222,28 @@ CHighlightableButtonsGroup::CHighlightableButtonsGroup(const CFunctionList2<void
 }
 CHighlightableButtonsGroup::~CHighlightableButtonsGroup()
 {
-	for(int i=0;i<buttons.size();i++)
-		delete buttons[i];
+	for(size_t i=0;i<buttons.size();i++) {
+		delete buttons[i]; //TODO smartpointers
+        }
 }
 void CHighlightableButtonsGroup::activate()
 {
-	for(int i=0;i<buttons.size();i++)
+	for(size_t i=0;i<buttons.size();i++) {
 		buttons[i]->activate();
+        }
 }
 void CHighlightableButtonsGroup::deactivate()
 {
-	for(int i=0;i<buttons.size();i++)
+	for(size_t i=0;i<buttons.size();i++) {
 		buttons[i]->deactivate();
+        }
 }
 void CHighlightableButtonsGroup::select(int id, bool mode)
 {
 	CHighlightableButton *bt = NULL;
 	if(mode)
 	{
-		for(int i=0;i<buttons.size() && !bt;i++)
+		for(size_t i=0;i<buttons.size() && !bt; ++i)
 			if (buttons[i]->ID == id)
 				bt = buttons[i];
 	}
@@ -252,15 +257,16 @@ void CHighlightableButtonsGroup::select(int id, bool mode)
 
 void CHighlightableButtonsGroup::selectionChanged(int to)
 {
-	for(int i=0;i<buttons.size();i++)
+	for(size_t i=0;i<buttons.size(); ++i)
 		if(buttons[i]->ID!=to && buttons[i]->selected)
 			buttons[i]->select(false);
 	onChange(to);
 }
 void CHighlightableButtonsGroup::show(SDL_Surface * to )
 {
-	for(int i=0;i<buttons.size();i++)
+	for(size_t i=0;i<buttons.size(); ++i) {
 		buttons[i]->show();
+        }
 }
 
 void CSlider::sliderClicked()

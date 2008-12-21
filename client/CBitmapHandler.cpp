@@ -55,7 +55,7 @@ void CPCXConv::convert()
 	BMPHeader bh;
 	BMPPalette pal[256];
 	Epcxformat format;
-	int fSize,i,y;
+	int fSize,y;//,i; //TODO use me 'i'
 	bool check1, check2;
 	unsigned char add;
 	int it=0;
@@ -157,7 +157,7 @@ void CPCXConv::convert()
 	std::string temp = out.str();
 	bmp = new unsigned char[temp.length()];
 	bmps=temp.length();
-	for (int a=0;a<temp.length();a++)
+	for (size_t a=0;a<temp.length();++a)
 	{
 		bmp[a]=temp[a];
 	}
@@ -169,7 +169,7 @@ SDL_Surface * CPCXConv::getSurface()
 
 	BMPHeader bh;
 	Epcxformat format;
-	int fSize,i,y;
+	int fSize,y;//,i; //TODO use me 'i'
 	bool check1, check2;
 	unsigned char add;
 	int it=0;
@@ -314,7 +314,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 					CPCXConv cp;
 					pcx = new unsigned char[e->realSize];
 					memcpy(pcx,sign,3);
-					int res = fread((char*)pcx+3, 1, e->realSize-3, f);
+					int res = fread((char*)pcx+3, 1, e->realSize-3, f); //TODO use me
 					fclose(f);
 					cp.openPCX((char*)pcx,e->realSize);
 					return cp.getSurface();

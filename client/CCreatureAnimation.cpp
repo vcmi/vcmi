@@ -14,7 +14,7 @@ void CCreatureAnimation::setType(int type)
 		if(SEntries[curFrame].group!=type) //rewind
 		{
 			int j=-1; //first frame in displayed group
-			for(int g=0; g<SEntries.size(); ++g)
+			for(size_t g=0; g<SEntries.size(); ++g)
 			{
 				if(SEntries[g].group==type && j==-1)
 				{
@@ -22,14 +22,16 @@ void CCreatureAnimation::setType(int type)
 					break;
 				}
 			}
-			if(curFrame!=-1)
+			if(curFrame != -1) {
 				curFrame = j;
+                        }
 		}
 	}
 	else
 	{
-		if(curFrame>=frames)
+		if(curFrame>=frames) {
 			curFrame = 0;
+                }
 	}
 }
 
@@ -67,8 +69,8 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL)
 			SEntries.push_back(SEntry());
 			SEntries[j].group = group;
 		}
-		int unknown2 = readNormalNr(i,4); i+=4;
-		int unknown3 = readNormalNr(i,4); i+=4;
+		int unknown2 = readNormalNr(i,4); i+=4; //TODO use me
+		int unknown3 = readNormalNr(i,4); i+=4; //TODO use me
 		for (j=0; j<totalInBlock; j++)
 		{
 			for (int k=0;k<13;k++) Buffer[k]=FDef[i+k]; 
@@ -78,7 +80,7 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL)
 		for (j=0; j<totalInBlock; j++)
 		{ 
 			SEntries[totalEntries+j].offset = readNormalNr(i,4);
-			int unknown4 = readNormalNr(i,4); i+=4;
+			int unknown4 = readNormalNr(i,4); i+=4; //TODO use me
 		}
 		//totalEntries+=totalInBlock;
 		for(int hh=0; hh<totalInBlock; ++hh)
@@ -132,7 +134,7 @@ void CCreatureAnimation::incrementFrame()
 		if(curFrame==SEntries.size() || SEntries[curFrame].group!=type) //rewind
 		{
 			int j=-1; //first frame in displayed group
-			for(int g=0; g<SEntries.size(); ++g)
+			for(size_t g=0; g<SEntries.size(); ++g)
 			{
 				if(SEntries[g].group==type)
 				{
@@ -175,7 +177,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 	unsigned char SegmentType, SegmentLength;
 	
 	i=BaseOffset=SEntries[SIndex].offset;
-	int prSize=readNormalNr(i,4,FDef);i+=4;
+	int prSize=readNormalNr(i,4,FDef);i+=4;//TODO use me
 	int defType2 = readNormalNr(i,4,FDef);i+=4;
 	FullWidth = readNormalNr(i,4,FDef);i+=4;
 	FullHeight = readNormalNr(i,4,FDef);i+=4;
@@ -261,7 +263,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 int CCreatureAnimation::framesInGroup(int group) const
 {
 	int ret = 0; //number of frames in given group
-	for(int g=0; g<SEntries.size(); ++g)
+	for(size_t g=0; g<SEntries.size(); ++g)
 	{
 		if(SEntries[g].group == group)
 			++ret;
@@ -276,10 +278,15 @@ CCreatureAnimation::~CCreatureAnimation()
 		delete [] RLEntries;
 }
 
-void CCreatureAnimation::putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc, const bool & yellowBorder) const
-{
-	if(palc!=0)
-	{
+inline void CCreatureAnimation::putPixel(
+        SDL_Surface * dest,
+        const int & ftcp,
+        const BMPPalette & color,
+        const unsigned char & palc,
+        const bool & yellowBorder
+) const {
+	
+    if(palc!=0) {
 		Uint8 * p = (Uint8*)dest->pixels + ftcp*3;
 		if(palc > 7) //normal color
 		{

@@ -1,7 +1,7 @@
 #ifndef CMUSICHANDLER_H
 #define CMUSICHANDLER_H
 
-#include "SDL_mixer.h"
+#include <SDL_mixer.h>
 #include "CSndHandler.h"
 
 class CMusicHandler

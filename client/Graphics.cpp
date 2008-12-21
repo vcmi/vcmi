@@ -236,13 +236,13 @@ Graphics::Graphics()
 
 	//handling 32x32px imgs
 	smi->notFreeImgs = true;
-	for (int i=0; i<smi->ourImages.size(); i++)
+	for (size_t i=0; i<smi->ourImages.size(); ++i)
 	{
 		smallImgs[i-2] = smi->ourImages[i].bitmap;
 	}
 	delete smi;
 	smi2->notFreeImgs = true;
-	for (int i=0; i<smi2->ourImages.size(); i++)
+	for (size_t i=0; i<smi2->ourImages.size(); ++i)
 	{
 		bigImgs[i-2] = smi2->ourImages[i].bitmap;
 	}
@@ -260,7 +260,7 @@ void Graphics::loadHeroPortraits()
 		std::string path;
 		of>>path;
 		portraitSmall.push_back(BitmapHandler::loadBitmap(path));
-		for(int ff=0; ff<path.size(); ++ff) //size letter is usually third one, but there are exceptions an it should fix the problem
+		for(size_t ff=0; ff<path.size(); ++ff) //size letter is usually third one, but there are exceptions an it should fix the problem
 		{
 			if(path[ff]=='S')
 			{
@@ -279,7 +279,7 @@ void Graphics::loadHeroAnim(std::vector<CDefHandler **> & anims)
 	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1
 	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12), std::make_pair(1,13),
 		std::make_pair(2,14), std::make_pair(3,15);
-	for(int i=0; i<anims.size();i++)
+	for(size_t i=0; i<anims.size(); ++i)
 	{
 		std::stringstream nm;
 		nm << "AH" << std::setw(2) << std::setfill('0') << i << "_.DEF";
@@ -312,7 +312,7 @@ void Graphics::loadHeroAnim(std::vector<CDefHandler **> & anims)
 				}
 			}
 		}
-		for(int ff=0; ff<(*anims[i])->ourImages.size(); ++ff)
+		for(size_t ff=0; ff<(*anims[i])->ourImages.size(); ++ff)
 		{
 			CSDL_Ext::alphaTransform((*anims[i])->ourImages[ff].bitmap);
 		}
@@ -328,9 +328,9 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, s
 	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12);
 	for(int q=0; q<8; ++q)
 	{
-		for(int o=0; o<(this->*pr.first)[q]->ourImages.size(); ++o)
+		for(size_t o=0; o<(this->*pr.first)[q]->ourImages.size(); ++o)
 		{
-			for(int p=0;p<rotations.size();p++)
+			for(size_t p=0;p<rotations.size();p++)
 			{
 				if((this->*pr.first)[q]->ourImages[o].groupNumber==rotations[p].first)
 				{
@@ -348,7 +348,7 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, s
 		}
 		if (mode)
 		{
-			for(int o=0; o<flags4[q]->ourImages.size(); ++o)
+			for(size_t o=0; o<flags4[q]->ourImages.size(); ++o)
 			{
 				if(flags4[q]->ourImages[o].groupNumber==1)
 				{
@@ -388,7 +388,7 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, s
 				}
 			}
 		}
-		for(int ff=0; ff<(this->*pr.first)[q]->ourImages.size(); ++ff)
+		for(size_t ff=0; ff<(this->*pr.first)[q]->ourImages.size(); ++ff)
 		{
 			SDL_SetColorKey((this->*pr.first)[q]->ourImages[ff].bitmap, SDL_SRCCOLORKEY,
 				SDL_MapRGB((this->*pr.first)[q]->ourImages[ff].bitmap->format, 0, 255, 255)
@@ -402,7 +402,7 @@ void Graphics::loadHeroFlags()
 {
 	using namespace boost::assign;
 	timeHandler th;
-	std::vector<CDefHandler *> Graphics::*point;
+//	std::vector<CDefHandler *> Graphics::*point; //TODO use me
 	std::pair<std::vector<CDefHandler *> Graphics::*, std::vector<const char *> > pr[4];
 	pr[0].first = &Graphics::flags1;
 	pr[0].second+=("ABF01L.DEF"),("ABF01G.DEF"),("ABF01R.DEF"),("ABF01D.DEF"),("ABF01B.DEF"),

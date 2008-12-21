@@ -27,7 +27,7 @@ using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
-:str(Str), moi(false), offset(0)
+:moi(false), offset(0), str(Str)
 {
 	def = CDefHandler::giveDef(Str->defName);
 	max = def->ourImages.size();
@@ -49,14 +49,18 @@ CBuildingRect::CBuildingRect(Structure *Str)
 		area = border = NULL;
 		return;
 	}
-	if (border = BitmapHandler::loadBitmap(str->borderName))
+	if (border = BitmapHandler::loadBitmap(str->borderName)) {//FIXME hmmm if '=' use () else '==' fatal mistake
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
-	else
+        }
+	else {
 		tlog2 << "Warning: no border for "<<Str->ID<<std::endl;
-	if (area = BitmapHandler::loadBitmap(str->areaName))
+        }
+	if (area = BitmapHandler::loadBitmap(str->areaName)) { //FIXME look up
 		;//SDL_SetColorKey(area,SDL_SRCCOLORKEY,SDL_MapRGB(area->format,0,255,255));
-	else
+        }
+	else {
 		tlog2 << "Warning: no area for "<<Str->ID<<std::endl;
+        }
 }
 
 CBuildingRect::~CBuildingRect()
@@ -297,7 +301,7 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, CCastl
 CHeroGSlot::~CHeroGSlot()
 {
 }
-std::string getBgName(int type) //TODO - co z tym zrobiæ?
+std::string getBgName(int type) //TODO - co z tym zrobiï¿½?
 {
 	switch (type)
 	{
@@ -438,7 +442,7 @@ CCastleInterface::~CCastleInterface()
 	delete townlist;
 	delete statusbar;
 	delete resdatabar;
-	for(int i=0;i<buildings.size();i++)
+	for(size_t i=0;i<buildings.size();i++)
 	{
 		delete buildings[i];
 	}
@@ -676,7 +680,7 @@ void CCastleInterface::show(SDL_Surface * to)
 
 
 	//blit buildings
-	for(int i=0;i<buildings.size();i++)
+	for(size_t i=0;i<buildings.size();i++)
 	{
 		int frame = ((animval)%(buildings[i]->max - buildings[i]->offset)) + buildings[i]->offset;
 		if(frame)
@@ -706,8 +710,9 @@ void CCastleInterface::activate()
 	LOCPLINT->statusbar = statusbar;
 	exit->activate();
 	split->activate();
-	for(int i=0;i<buildings.size();i++)
+	for(size_t i=0;i<buildings.size();i++) { //XXX pls use iterators or at() but not []
 		buildings[i]->activate();
+        }
 	hslotdown.activate();
 	hslotup.activate();
 	showAll(0,true);
@@ -724,8 +729,9 @@ void CCastleInterface::deactivate()
 	garr->deactivate();
 	exit->deactivate();
 	split->deactivate();
-	for(int i=0;i<buildings.size();i++)
+	for(size_t i=0;i<buildings.size();i++) { //XXX iterators
 		buildings[i]->deactivate();
+        }
 	hslotdown.deactivate();
 	hslotup.deactivate();
 }
@@ -746,7 +752,7 @@ void CCastleInterface::removeBuilding(int bid)
 
 void CCastleInterface::recreateBuildings()
 {
-	for(int i=0;i<buildings.size();i++)
+	for(size_t i=0;i<buildings.size();i++)
 	{
 		if(showing)
 			buildings[i]->deactivate();
@@ -784,14 +790,14 @@ void CCastleInterface::recreateBuildings()
 					{
 						if((*(CGI->townh->structures[town->subID][obecny->second])) < (*(CGI->townh->structures[town->subID][st->ID]))) //we have to replace old building with current one
 						{
-							for(int itpb = 0; itpb<buildings.size(); itpb++)
+							for(size_t itpb = 0; itpb<buildings.size(); itpb++)
 							{
 								if(buildings[itpb]->str->ID == obecny->second)
 								{
 									delete buildings[itpb];
 									buildings.erase(buildings.begin() + itpb);
 									#ifndef __GNUC__
-									obecny->second = st->ID;
+									obecny->second = st->ID; //XXX look closer!
 									#else
 									*(const_cast<int*>(&(obecny->second))) = st->ID;
 									#endif
@@ -818,7 +824,7 @@ void CCastleInterface::recreateBuildings()
 	if((town->subID == 5) && (town->builtBuildings.find(21)!=town->builtBuildings.end()))
 	{
 		CBuildingRect *vortex = NULL;
-		for(int i=0;i<buildings.size();i++)
+		for(size_t i=0;i<buildings.size();i++)
 		{
 			if(buildings[i]->str->ID==21)
 			{
@@ -841,7 +847,7 @@ void CCastleInterface::recreateBuildings()
 	else if((town->subID == 0) && (town->builtBuildings.find(6)!=town->builtBuildings.end()))
 	{
 		CBuildingRect *shipyard = NULL;
-		for(int i=0;i<buildings.size();i++)
+		for(size_t i=0;i<buildings.size();i++)
 		{
 			if(buildings[i]->str->ID==6)
 			{
@@ -995,11 +1001,11 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 
 	//preparing boxes with buildings//
 	boxes.resize(5);
-	for(int i=0;i<5;i++) //for each row
+	for(size_t i=0;i<5;i++) //for each row
 	{
-		for(int j=0; j<CGI->buildh->hall[owner->town->subID].second[i].size();j++) //for each box
+		for(size_t j=0; j<CGI->buildh->hall[owner->town->subID].second[i].size();j++) //for each box
 		{
-			int k=0;
+			size_t k=0;
 			for(;k<CGI->buildh->hall[owner->town->subID].second[i][j].size();k++)//we are looking for the first not build structure
 			{
 				if(
@@ -1064,9 +1070,9 @@ CHallInterface::~CHallInterface()
 	delete bars;
 	delete status;
 	SDL_FreeSurface(bg);
-	for(int i=0;i<boxes.size();i++)
-		for(int j=0;j<boxes[i].size();j++)
-			delete boxes[i][j];
+	for(size_t i=0;i<boxes.size();i++)
+		for(size_t j=0;j<boxes[i].size();j++)
+			delete boxes[i][j]; //TODO whats wrong with smartpointers?
 	delete exit;
 }
 void CHallInterface::close()
@@ -1076,29 +1082,30 @@ void CHallInterface::close()
 	delete this;
 	LOCPLINT->castleInt->activate();
 }
-void CHallInterface::show(SDL_Surface * to)
+void CHallInterface::show(SDL_Surface * to) //TODO use me
 {
 	blitAt(bg,pos);
 	resdatabar.show();
 	exit->show();
 	for(int i=0; i<5; i++)
 	{
-		for(int j=0;j<boxes[i].size();j++)
+		for(size_t j=0;j<boxes[i].size(); ++j)
 			boxes[i][j]->show();
 	}
 }
 void CHallInterface::activate()
 {
 	for(int i=0;i<5;i++)
-		for(int j=0;j<boxes[i].size();j++)
+		for(size_t j=0; j < boxes[i].size(); ++j) {
 			boxes[i][j]->activate();
+                }
 	exit->activate();
 }
 void CHallInterface::deactivate()
 {
 	for(int i=0;i<5;i++)
 	{
-		for(int j=0;j<boxes[i].size();j++)
+		for(size_t j=0;j<boxes[i].size();++j)
 		{
 			boxes[i][j]->deactivate();
 		}
@@ -1187,7 +1194,7 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 			}
 			while(true)
 			{
-				int czystych=0;
+				size_t czystych=0;
 				for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
 				{
 					if(used.find(*i)==used.end()) //we haven't added requirements for this building
@@ -1223,7 +1230,7 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 	return ret;
 }
 CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mode)
-:tid(Tid),bid(Bid),mode(Mode), state(State)
+:tid(Tid), bid(Bid), state(State), mode(Mode)
 {
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPUBUILD.bmp");
 	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
@@ -1237,7 +1244,13 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->description,197,168,GEOR16,40,zwykly,bitmap);
 	CSDL_Ext::printAtMiddleWB(getTextForState(state),197,248,GEOR13,50,zwykly,bitmap);
 	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(CGI->townh->hcommands[7],pom),197,30,GEOR16,tytulowy,bitmap);
-	int resamount=0; for(int i=0;i<7;i++) if(CGI->buildh->buildings[tid][bid]->resources[i]) resamount++;
+	int resamount=0; 
+        
+        for(int i=0;i<7;i++) {
+            if(CGI->buildh->buildings[tid][bid]->resources[i]) {
+                resamount++;
+            }
+        }
 	int ah = (resamount>4) ? 304 : 341;
 	int cn=-1, it=0;
 	int row1w = std::min(resamount,4) * 32 + (std::min(resamount,4)-1) * 45,
@@ -1286,9 +1299,9 @@ CHallInterface::CBuildWindow::~CBuildWindow()
 CFortScreen::~CFortScreen()
 {
 	LOCPLINT->curint->subInt = NULL;
-	for(int i=0;i<crePics.size();i++)
+	for(size_t i=0;i<crePics.size();i++)
 		delete crePics[i];
-	for (int i=0;i<recAreas.size();i++)
+	for (size_t i=0;i<recAreas.size();i++)
 		delete recAreas[i];
 	SDL_FreeSurface(bg);
 	delete exit;
@@ -1312,7 +1325,7 @@ void CFortScreen::activate()
 {
 	LOCPLINT->curint->subInt = this;
 	exit->activate();
-	for (int i=0;i<recAreas.size();i++)
+	for (size_t i=0;i<recAreas.size(); ++i)
 	{
 		recAreas[i]->activate();
 	}
@@ -1323,7 +1336,7 @@ void CFortScreen::activate()
 void CFortScreen::deactivate()
 {
 	exit->deactivate();
-	for (int i=0;i<recAreas.size();i++)
+	for (size_t i=0;i<recAreas.size();i++)
 	{
 		recAreas[i]->deactivate();
 	}
@@ -1435,7 +1448,7 @@ void CFortScreen::RecArea::clickLeft (tribool down)
 	if(!down && pressedL)
 	{
 		LOCPLINT->curint->deactivate();
-		CRecrutationWindow *rw = LOCPLINT->castleInt->showRecruitmentWindow(bid);
+		//CRecrutationWindow *rw = LOCPLINT->castleInt->showRecruitmentWindow(bid); //TODO use me
 	}
 	ClickableL::clickLeft(down);
 }
@@ -1467,10 +1480,10 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	positions[3] += genRect(61,83,183,42), genRect(61,83,183,148), genRect(61,83,183,253);
 	positions[4] += genRect(61,83,491,325), genRect(61,83,591,325);
 	blitAt(view,332,76,bg);
-	for(int i=0; i<owner->town->town->mageLevel; i++)
+	for(size_t i=0; i<owner->town->town->mageLevel; i++)
 	{
-		int sp = owner->town->spellsAtLevel(i+1,false);
-		for(int j=0; j<sp; j++)
+		size_t sp = owner->town->spellsAtLevel(i+1,false); //spell at level with -1 hmmm?
+		for(size_t j=0; j<sp; j++)
 		{
 			if(i<owner->town->mageGuildLevel() && owner->town->spells[i].size()>j)
 			{
@@ -1485,7 +1498,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 		}
 	}
 	SDL_FreeSurface(view);
-	for(int i=0;i<spells.size();i++)
+	for(size_t i=0;i<spells.size();i++)
 	{
 		spells[i].pos.x += pos.x;
 		spells[i].pos.y += pos.y;
@@ -1505,7 +1518,7 @@ void CMageGuildScreen::close()
 	LOCPLINT->castleInt->subInt = NULL;
 	LOCPLINT->castleInt->activate();
 }
-void CMageGuildScreen::show(SDL_Surface * to)
+void CMageGuildScreen::show(SDL_Surface * to) //TODO use me
 {
 	blitAt(bg,pos);
 	resdatabar.show();
@@ -1517,15 +1530,17 @@ void CMageGuildScreen::activate()
 	LOCPLINT->objsToBlit += this;
 	LOCPLINT->castleInt->subInt = this;
 	exit->activate();
-	for(int i=0;i<spells.size();i++)
+	for(size_t i=0;i<spells.size();i++) {
 		spells[i].activate();
+        }
 }
 void CMageGuildScreen::deactivate()
 {
 	LOCPLINT->objsToBlit -= this;
 	exit->deactivate();
-	for(int i=0;i<spells.size();i++)
+	for(size_t i=0;i<spells.size();i++) {
 		spells[i].deactivate();
+        }
 }
 void CMageGuildScreen::Scroll::clickLeft (tribool down)
 {

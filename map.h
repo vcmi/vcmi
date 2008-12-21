@@ -1,6 +1,8 @@
 #ifndef MAPD_H
 #define MAPD_H
+#ifdef _MSC_VER
 #pragma warning (disable : 4482)
+#endif
 #include <cstring>
 #include <vector>
 #include <map>

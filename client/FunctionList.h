@@ -1,4 +1,10 @@
+#ifndef FUNCTIONLIST_H
+#define FUNCTIONLIST_H
+
+#ifdef _MSC_VER
 #pragma  once
+#endif
+
 #include <boost/function.hpp>
 
 template<typename Signature>
@@ -38,15 +44,17 @@ public:
 	void operator()() const
 	{
 		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
-		for(int i=0;i<funcs2.size(); i++)
+		for(size_t i=0;i<funcs2.size(); ++i) {
 			funcs2[i]();
+                }
 	}
 	template <typename Arg> 
 	void operator()(const Arg & a) const
 	{
 		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
-		for(int i=0;i<funcs2.size(); i++)
+		for(int i=0;i<funcs2.size(); i++) {
 			funcs2[i](a);
+                }
 	}
 };
 
@@ -88,7 +96,10 @@ public:
 	void operator()(const Arg & a) const
 	{
 		std::vector<boost::function<Signature> > funcs2 = funcs; //backup
-		for(int i=0;i<funcs2.size(); i++)
+		for(size_t i=0;i<funcs2.size(); ++i) {
 			funcs2[i](a);
+                }
 	}
 };
+
+#endif //FUNCTIONLISt_H

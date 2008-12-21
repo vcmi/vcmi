@@ -27,8 +27,13 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/thread.hpp>
 #include <sstream>
-#pragma warning (disable : 4355) 
+
+#ifdef _MSC_VER
+#pragma warning (disable : 4355)
+#endif
+
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
+
 #define ADVOPT (conf.go()->ac)
 using namespace boost::logic;
 using namespace boost::assign;
@@ -113,7 +118,7 @@ void CMinimap::draw()
 	int mw = map[0]->w, mh = map[0]->h,
 		wo = mw/mapSizes.x, ho = mh/mapSizes.y;
 
-	for (int i=0; i<hh.size();i++)
+	for (size_t i=0; i < hh.size(); ++i)
 	{
 		int3 hpos = hh[i]->getPosition(false);
 		if(hpos.z!=LOCPLINT->adventureInt->position.z)
@@ -136,7 +141,7 @@ void CMinimap::draw()
 		for(int y=0; y<mapSizes.y; ++y)
 		{
 			std::vector < const CGObjectInstance * > oo = LOCPLINT->cb->getFlaggableObjects(int3(x, y, LOCPLINT->adventureInt->position.z));
-			for(int v=0; v<oo.size(); ++v)
+			for(size_t v=0; v<oo.size(); ++v)
 			{
 				if(!dynamic_cast< const CGHeroInstance * >(oo[v])) //heroes have been printed
 				{
@@ -170,7 +175,7 @@ void CMinimap::draw()
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
-	for (int i=0; i<CGI->mh->sizes.z; i++)
+	for (size_t i=0; i<CGI->mh->sizes.z; i++)
 	{
 		SDL_Surface * pom ;
 		if ((level>=0) && (i!=level))
@@ -194,8 +199,8 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 	}
 
 	//FoW
-	int mw = map[0]->w, mh = map[0]->h,
-		wo = mw/mapSizes.x, ho = mh/mapSizes.y;
+	int mw = map[0]->w, mh = map[0]->h;//,
+		//wo = mw/mapSizes.x, ho = mh/mapSizes.y; //TODO use me
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
 	{
 		if(level>=0 && d!=level)
@@ -302,7 +307,7 @@ CTerrainRect::CTerrainRect():currentPath(NULL)
 	pos.h=tilesh*32 - ADVOPT.advmapTrimY;
 	moveX = moveY = 0;
 	arrows = CDefHandler::giveDef("ADAG.DEF");
-	for(int y=0; y<arrows->ourImages.size(); ++y)
+	for(size_t y=0; y < arrows->ourImages.size(); ++y)
 	{
 		arrows->ourImages[y].bitmap = CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
 	}
@@ -338,7 +343,7 @@ void CTerrainRect::clickLeft(tribool down)
 			currentPath = NULL;
 		}
 		objs = LOCPLINT->cb->getBlockingObjs(mp);
-		for(int i=0; i<objs.size();i++)
+		for(size_t i=0; i < objs.size(); ++i)
 		{
 			if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
 			{
@@ -363,13 +368,13 @@ void CTerrainRect::clickLeft(tribool down)
 	else
 	{
 		objs = LOCPLINT->cb->getVisitableObjs(mp);
-		for(int i=0; i<objs.size();i++)
+		for(size_t i=0; i < objs.size(); ++i)
 		{
 			if(objs[i]->ID == 98)
 				goto endchkpt;
 		}
 		objs = LOCPLINT->cb->getBlockingObjs(mp);
-		for(int i=0; i<objs.size();i++)
+		for(size_t i=0; i < objs.size(); ++i)
 		{
 			if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
 			{
@@ -451,7 +456,7 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 		}
 	}
 	objs = LOCPLINT->cb->getBlockingObjs(pom);
-	for(int i=0; i<objs.size();i++)
+	for(size_t i=0; i < objs.size(); ++i)
 	{
 		if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
 		{
@@ -475,7 +480,7 @@ void CTerrainRect::hover(bool on)
 }
 void CTerrainRect::showPath()
 {
-	for (int i=0;i<currentPath->nodes.size()-1;i++)
+	for (size_t i=0; i < currentPath->nodes.size()-1; ++i)
 	{
 		int pn=-1;//number of picture
 		if (i==0) //last tile
@@ -728,7 +733,7 @@ void CTerrainRect::showPath()
 }
 void CTerrainRect::show()
 {
-	SDL_Surface * teren = CGI->mh->terrainRect
+	SDL_Surface * teren = CGI->mh->terrainRect //TODO use me
 		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
 		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
 		&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
@@ -1028,8 +1033,8 @@ nextHero(CGI->generaltexth->zelp[301].first,CGI->generaltexth->zelp[301].second,
 endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 		  boost::bind(&CAdvMapInt::fendTurn,this), &ADVOPT.endTurn, SDLK_e),
 
-townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD),//(5,&genRect(192,48,747,196),747,196,747,372),
-heroList(ADVOPT.hlistSize)
+heroList(ADVOPT.hlistSize),
+townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
 	selection = NULL;
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
@@ -1339,7 +1344,7 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 	}
 	else
 	{
-		for (int i=0;i<LOCPLINT->objsToBlit.size();i++)
+		for (size_t i=0; i < LOCPLINT->objsToBlit.size(); ++i)
 		{
 			//TODO: pewnie da sie to zrobic lepiej, ale nie chce mi sie. Wolajacy obiekt powinien informowac kogo spodziewa sie odwolac (null jesli down)
 			CSimpleWindow * pom = dynamic_cast<CSimpleWindow*>(LOCPLINT->objsToBlit[i]);

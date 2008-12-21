@@ -1,4 +1,11 @@
+#ifndef CBITMAPHANDLER_H
+#define CBITMAPHANDLER_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
+
 #include "../global.h"
 struct SDL_Surface;
 class CLodHandler;
@@ -37,3 +44,4 @@ namespace BitmapHandler
 	extern CLodHandler *bitmaph;
 	SDL_Surface * loadBitmap(std::string fname, bool setKey=false);
 };
+#endif //CBITMAPHANDLER_H

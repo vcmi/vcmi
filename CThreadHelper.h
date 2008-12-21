@@ -1,3 +1,6 @@
+#ifndef CTHREADHELPER_H
+#define CTHREADHELPER_H
+
 #include "global.h"
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
@@ -36,3 +39,4 @@ template <typename T> inline void setData(T * data, boost::function<T()> func)
 	(GET_DATA \
 		(CDefEssential*,DESTINATION,\
 		boost::function<CDefEssential*()>(boost::bind(CDefHandler::giveDefEss,DEF_NAME,(CLodHandler*)NULL))))
+#endif //CTHREADHELPER_H

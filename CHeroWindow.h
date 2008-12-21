@@ -1,4 +1,10 @@
+#ifndef CHEROWINDOW_H
+#define CHEROWINDOW_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
 #include "CPlayerInterface.h"
 
 class AdventureMapButton;
@@ -127,3 +133,4 @@ public:
 	friend void CArtPlace::clickLeft(tribool down);
 	friend class CPlayerInterface;
 };
+#endif //CHEROWINDOW_H

@@ -65,9 +65,14 @@ void SpellbookInteractiveArea::deactivate()
 	Hoverable::deactivate();
 }
 
-CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero): selectedTab(4), spellSite(0), battleSpellsOnly(true)
+CSpellWindow::CSpellWindow(
+        const SDL_Rect & myRect,
+        const CGHeroInstance * myHero):
+        battleSpellsOnly(true),
+        selectedTab(4),
+        spellSite(0)
 {
-	//for testing only
+	//XXX for testing only
 	//mySpells = myHero->spells;
 	for(ui32 v=0; v<CGI->spellh->spells.size(); ++v)
 	{
@@ -76,7 +81,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHer
 	}
 
 	for(int b=0; b<4; ++b) schoolLvls[b] = 0;
-	for(int b=0; b<myHero->secSkills.size(); ++b)
+	for(size_t b=0; b<myHero->secSkills.size(); ++b)
 	{
 		switch(myHero->secSkills[b].first)
 		{
@@ -304,7 +309,7 @@ void CSpellWindow::fexitb()
 {
 	deactivate();
 
-	for(int g=0; g<LOCPLINT->objsToBlit.size(); ++g)
+	for(size_t g=0; g<LOCPLINT->objsToBlit.size(); ++g) //TODO what about
 	{
 		if(dynamic_cast<CSpellWindow*>(LOCPLINT->objsToBlit[g]))
 		{
@@ -415,7 +420,7 @@ void CSpellWindow::show(SDL_Surface *to)
 	{
 		if(spellAreas[b]->mySpell == -1)
 			continue;
-		int b2 = -1;
+		//int b2 = -1; //TODO use me
 
 		blitAt(spells->ourImages[spellAreas[b]->mySpell].bitmap, spellAreas[b]->pos.x, spellAreas[b]->pos.y, to);
 
@@ -540,19 +545,21 @@ void CSpellWindow::computeSpellsPerArea()
 	//applying
 	if(selectedTab == 4 || spellSite != 0)
 	{
-		for(int c=0; c<12; ++c)
+		for(size_t c=0; c<12; ++c)
 		{
-			if(c<spellsCurSite.size())
+			if(c<spellsCurSite.size()) {
 				spellAreas[c]->mySpell = spellsCurSite[c];
-			else
+                        }
+			else {
 				spellAreas[c]->mySpell = -1;
+                        }
 		}
 	}
 	else
 	{
 		spellAreas[0]->mySpell = -1;
 		spellAreas[1]->mySpell = -1;
-		for(int c=0; c<10; ++c)
+		for(size_t c=0; c<10; ++c)
 		{
 			if(c<spellsCurSite.size())
 				spellAreas[c+2]->mySpell = spellsCurSite[c];

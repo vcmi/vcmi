@@ -1,6 +1,13 @@
+#ifndef CCASTLEINTERFACE_H
+#define CCASTLEINTERFACE_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
+
 #include "global.h"
-#include "SDL.h"
+#include <SDL.h>
 #include "CPlayerInterface.h"
 //#include "boost/tuple/tuple.hpp"
 class CGTownInstance;
@@ -221,3 +228,4 @@ public:
 	void activate();
 	void deactivate();
 };
+#endif //CCASTLEINTERFACE_H

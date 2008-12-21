@@ -1,4 +1,11 @@
+#ifndef CBATTLEINTERFACE_H
+#define CBATTLEINTERFACE_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
+
 #include "global.h"
 #include "CPlayerInterface.h"
 #include <list>
@@ -251,3 +258,4 @@ public:
 	friend class CBattleReslutWindow;
 	friend class CPlayerInterface;
 };
+#endif //CBATTLEINTERFACE_H

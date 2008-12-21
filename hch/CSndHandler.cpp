@@ -79,7 +79,7 @@ void CSndHandler::extract(std::string srcfile, std::string dstfile, bool caseSen
 {
 	if (caseSens)
 	{
-		for (int i=0;i<entries.size();i++)
+		for (size_t i=0;i<entries.size();++i)
 		{
 			if (entries[i].name==srcfile)
 				extract(i,dstfile);
@@ -88,7 +88,7 @@ void CSndHandler::extract(std::string srcfile, std::string dstfile, bool caseSen
 	else
 	{
 		std::transform(srcfile.begin(),srcfile.end(),srcfile.begin(),tolower);
-		for (int i=0;i<entries.size();i++)
+		for (size_t i=0;i<entries.size();++i)
 		{
 			if (entries[i].name==srcfile)
 			{
@@ -104,7 +104,7 @@ MemberFile CSndHandler::getFile(std::string name)
 {
 	MemberFile ret;
 	std::transform(name.begin(),name.end(),name.begin(),tolower);
-	for (int i=0;i<entries.size();i++)
+	for (size_t i=0;i<entries.size();++i)
 	{
 		if (entries[i].name==name)
 		{
@@ -219,7 +219,7 @@ void CVidHandler::extract(std::string srcfile, std::string dstfile, bool caseSen
 {
 	if (caseSens)
 	{
-		for (int i=0;i<entries.size();i++)
+		for (size_t i=0;i<entries.size();++i)
 		{
 			if (entries[i].name==srcfile)
 				extract(i,dstfile);
@@ -228,7 +228,7 @@ void CVidHandler::extract(std::string srcfile, std::string dstfile, bool caseSen
 	else
 	{
 		std::transform(srcfile.begin(),srcfile.end(),srcfile.begin(),tolower);
-		for (int i=0;i<entries.size();i++)
+		for (size_t i=0;i<entries.size();++i)
 		{
 			if (entries[i].name==srcfile)
 			{
@@ -244,7 +244,7 @@ MemberFile CVidHandler::getFile(std::string name)
 {
 	MemberFile ret;
 	std::transform(name.begin(),name.end(),name.begin(),tolower);
-	for (int i=0;i<entries.size();i++)
+	for (size_t i=0;i<entries.size();++i)
 	{
 		if (entries[i].name==name)
 		{

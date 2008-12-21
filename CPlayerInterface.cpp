@@ -311,14 +311,16 @@ CGarrisonInt::~CGarrisonInt()
 {
 	if(sup)
 	{
-		for(int i=0;i<sup->size();i++)
+		for(size_t i=0;i<sup->size();i++) {
 			delete (*sup)[i];
+                }
 		delete sup;
 	}
 	if(sdown)
 	{
-		for(int i=0;i<sdown->size();i++)
-			delete (*sdown)[i];
+		for(size_t i=0;i<sdown->size();i++) {
+			delete (*sdown)[i]; //XXX what about smartpointers? boost or auto_ptr from std
+                }
 		delete sdown;
 	}
 }
@@ -327,15 +329,18 @@ void CGarrisonInt::show()
 {
 	if(sup)
 	{
-		for(int i = 0; i<sup->size(); i++)
-			if((*sup)[i])
+		for(size_t i = 0; i<sup->size(); i++)
+			if((*sup)[i]) {
 				(*sup)[i]->show();
+                        }
 	}
 	if(sdown)
 	{
-		for(int i = 0; i<sdown->size(); i++)
-			if((*sdown)[i])
+		for(size_t i = 0; i<sdown->size(); i++) {
+			if((*sdown)[i]){
 				(*sdown)[i]->show();
+                        }
+                }
 	}
 }
 void CGarrisonInt::deactiveteSlots()

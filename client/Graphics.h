@@ -1,5 +1,13 @@
+#ifndef GRAPHICS_H
+#define GRAPHICS_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
 #include "../global.h"
+
+
 class CDefEssential;
 struct SDL_Surface;
 class CGHeroInstance;
@@ -58,3 +66,4 @@ public:
 };
 
 extern Graphics * graphics;
+#endif //GRAPHICS_H

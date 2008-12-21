@@ -61,7 +61,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 	}
 	else if (idtype==1 && player>=0) //looking for it in local area
 	{
-		for (int i=0; i<gs->players[player].heroes.size();i++)
+		for (size_t i=0; i < gs->players[player].heroes.size(); ++i)
 		{
 			if (gs->players[player].heroes[i]->type->ID == ID)
 				hero = gs->players[player].heroes[i];
@@ -72,7 +72,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 
 		for(std::map<ui8, PlayerState>::iterator j=gs->players.begin(); j!=gs->players.end(); ++j)
 		{
-			for (int i=0; i<(*j).second.heroes.size();i++)
+			for (size_t i=0; i < (*j).second.heroes.size(); ++i)
 			{
 				if ((*j).second.heroes[i]->type->ID == ID)
 				{
@@ -193,19 +193,23 @@ int CCallback::howManyHeroes() const
 }
 const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx); //TODO use me?
 	//if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
 	//	return NULL;
 	if (!mode) //esrial id
-		if(val<gs->players[player].heroes.size())
+		if(val<gs->players[player].heroes.size()) {
 			return gs->players[player].heroes[val];
-		else return NULL;
+        }
+		else {
+            return NULL;
+        }
 	else if(mode==1) //it's hero type id
 	{
-		for (int i=0; i<gs->players[player].heroes.size();i++)
+		for (size_t i=0; i < gs->players[player].heroes.size(); ++i)
 		{
-			if (gs->players[player].heroes[i]->type->ID==val)
+			if (gs->players[player].heroes[i]->type->ID==val) {
 				return gs->players[player].heroes[i];
+            }
 		}
 	}
 	else //object id
@@ -242,7 +246,7 @@ std::vector < std::string > CCallback::getObjDescriptions(int3 pos) const
 }
 bool CCallback::verifyPath(CPath * path, bool blockSea) const
 {
-	for (int i=0;i<path->nodes.size();i++)
+	for (size_t i=0; i < path->nodes.size(); ++i)
 	{
 		if ( CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->blocked 
 			&& (! (CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->visitable)))
@@ -292,7 +296,7 @@ std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur) cons
 	std::vector < const CGTownInstance *> ret = std::vector < const CGTownInstance *>();
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
-		for (int j=0;j<(*i).second.towns.size();j++)
+		for (size_t j=0; j < (*i).second.towns.size(); ++j)
 		{
 			if ( ( isVisible((*i).second.towns[j],player) ) || (*i).first==player)
 			{
@@ -306,7 +310,7 @@ std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur) con
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	std::vector < const CGHeroInstance *> ret;
-	for(int i=0;i<gs->map->heroes.size();i++)
+	for(size_t i=0;i<gs->map->heroes.size();i++)
 	{
 		if(	 (gs->map->heroes[i]->tempOwner==player) ||
 		   (isVisible(gs->map->heroes[i]->getPosition(false),player) && !onlyOur)	)
@@ -346,7 +350,7 @@ int CCallback::getMyColor() const
 int CCallback::getHeroSerial(const CGHeroInstance * hero) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	for (int i=0; i<gs->players[player].heroes.size();i++)
+	for (size_t i=0; i<gs->players[player].heroes.size();i++)
 	{
 		if (gs->players[player].heroes[i]==hero)
 			return i;
@@ -467,7 +471,7 @@ CStack* CCallback::battleGetStackByPos(int pos)
 int CCallback::battleGetPos(int stack)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	for(int g=0; g<gs->curB->stacks.size(); ++g)
+	for(size_t g=0; g<gs->curB->stacks.size(); ++g)
 	{
 		if(gs->curB->stacks[g]->ID == stack)
 			return gs->curB->stacks[g]->position;
@@ -484,7 +488,7 @@ std::map<int, CStack> CCallback::battleGetStacks()
 		return ret;
 	}
 
-	for(int g=0; g<gs->curB->stacks.size(); ++g)
+	for(size_t g=0; g<gs->curB->stacks.size(); ++g)
 	{
 		ret[gs->curB->stacks[g]->ID] = *(gs->curB->stacks[g]);
 	}
@@ -498,8 +502,8 @@ std::vector<CStack> CCallback::battleGetStackQueue()
 
 CCreature CCallback::battleGetCreature(int number)
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	for(int h=0; h<gs->curB->stacks.size(); ++h)
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx); //TODO use me?
+	for(size_t h=0; h<gs->curB->stacks.size(); ++h)
 	{
 		if(gs->curB->stacks[h]->ID == number) //creature found
 			return *(gs->curB->stacks[h]->creature);
@@ -520,8 +524,8 @@ std::vector<int> CCallback::battleGetAvailableHexes(int ID)
 
 bool CCallback::battleIsStackMine(int ID)
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	for(int h=0; h<gs->curB->stacks.size(); ++h)
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx); //TODO use me ?
+	for(size_t h=0; h<gs->curB->stacks.size(); ++h)
 	{
 		if(gs->curB->stacks[h]->ID == ID) //creature found
 			return gs->curB->stacks[h]->owner == player;
@@ -530,11 +534,11 @@ bool CCallback::battleIsStackMine(int ID)
 }
 bool CCallback::battleCanShoot(int ID, int dest)
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx); //TODO use me?
 	CStack *our = battleGetStackByID(ID), *dst = battleGetStackByPos(dest);
 	if(!our || !dst) return false; 
 
-	for(int g=0; g<our->effects.size(); ++g)
+	for(size_t g=0; g<our->effects.size(); ++g)
 	{
 		if(61 == our->effects[g].id) //forgetfulness
 			return false;
@@ -611,7 +615,7 @@ std::vector < const CGObjectInstance * > CCallback::getFlaggableObjects(int3 pos
 	std::vector < const CGObjectInstance * > ret;
 
 	std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[pos.x][pos.y][pos.z].objects;
-	for(int b=0; b<objs.size(); ++b)
+	for(size_t b=0; b<objs.size(); ++b)
 	{
 		if(objs[b].first->tempOwner!=254 && !((objs[b].first->defInfo->blockMap[pos.y - objs[b].first->pos.y + 5] >> (objs[b].first->pos.x - pos.x)) & 1))
 			ret.push_back(CGI->mh->ttiles[pos.x][pos.y][pos.z].objects[b].first);

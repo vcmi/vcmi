@@ -49,28 +49,33 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, u
 
 	//graph initialization
 	graph.resize(CGI->mh->sizes.x);
-	for(int i=0; i<graph.size(); ++i)
+	for(size_t i=0; i<graph.size(); ++i)
 	{
 		graph[i].resize(CGI->mh->sizes.y);
-		for(int j=0; j<graph[i].size(); ++j)
+		for(size_t j=0; j<graph[i].size(); ++j)
 		{
 			graph[i][j].accesible = !CGI->mh->ttiles[i][j][src.z].tileInfo->blocked;
-			if(i==dest.x && j==dest.y && CGI->mh->ttiles[i][j][src.z].tileInfo->visitable)
+			if(i==dest.x && j==dest.y && CGI->mh->ttiles[i][j][src.z].tileInfo->visitable) {
 				graph[i][j].accesible = true; //for allowing visiting objects
+                        }
 			graph[i][j].dist = -1;
 			graph[i][j].theNodeBefore = NULL;
 			graph[i][j].visited = false;
 			graph[i][j].coord.x = i;
 			graph[i][j].coord.y = j;
 			graph[i][j].coord.z = dest.z;
-			if (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==rock)
+			if (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==rock) {
 				graph[i][j].accesible = false;
-			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==water))
+                        }
+			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==water)) {
 				graph[i][j].accesible = false;
-			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype!=water))
+                        }
+			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype!=water)) {
 				graph[i][j].accesible = false;
-			if(graph[i][j].accesible)
+                        }
+			if(graph[i][j].accesible) {
 				graph[i][j].accesible = CGI->state->players[hero->tempOwner].fogOfWarMap[i][j][src.z];
+                        }
 		}
 	}
 
@@ -81,7 +86,7 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, u
 	std::queue<CPathNode> mq;
 	mq.push(graph[src.x][src.y]);
 
-	unsigned int curDist = 4000000000;
+	unsigned int curDist = 4000000000; //XXX 2 147 483 648 // only in C90 //but numeric limit shows 0-4294967295...confused
 
 	while(!mq.empty())
 	{

@@ -43,7 +43,7 @@ void CCursorHandler::draw1()
 		x-=12;
 		y-=10;
 	}
-	SDL_BlitSurface(screen,&genRect(32,32,x,y),help,&genRect(32,32,0,0));
+	SDL_BlitSurface(screen, &genRect(32,32,x,y), help, &genRect(32,32,0,0));
 	blitAt(cursors[mode]->ourImages[number].bitmap,x,y);
 }
 void CCursorHandler::draw2()

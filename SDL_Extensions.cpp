@@ -74,18 +74,19 @@ void CSDL_Ext::printAtMiddleWB(const std::string & text, int x, int y, TTF_Font 
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
 	std::vector<SDL_Surface*> wesu;
 	wesu.resize(ws->size());
-	for (int i=0;i<wesu.size();i++)
+	for (size_t i=0; i < wesu.size(); ++i) {
 		wesu[i]=TTF_RenderText_Blended(font,(*ws)[i].c_str(),kolor);
+    }
 
 	int tox=0, toy=0;
-	for (int i=0;i<wesu.size();i++)
+	for (size_t i=0; i < wesu.size(); ++i)
 	{
 		toy+=wesu[i]->h;
 		if (tox < wesu[i]->w)
 			tox=wesu[i]->w;
 	}
 	int evx, evy = y - (toy/2);
-	for (int i=0;i<wesu.size();i++)
+	for (size_t i=0; i < wesu.size(); ++i)
 	{
 		evx = (x - (tox/2)) + ((tox-wesu[i]->w)/2);
 		blitAt(wesu[i],evx,evy,dst);
@@ -93,7 +94,7 @@ void CSDL_Ext::printAtMiddleWB(const std::string & text, int x, int y, TTF_Font 
 	}
 
 
-	for (int i=0;i<wesu.size();i++)
+	for (size_t i=0; i < wesu.size(); ++i)
 		SDL_FreeSurface(wesu[i]);
 	delete ws;
 }
@@ -102,17 +103,17 @@ void CSDL_Ext::printAtWB(const std::string & text, int x, int y, TTF_Font * font
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
 	std::vector<SDL_Surface*> wesu;
 	wesu.resize(ws->size());
-	for (int i=0;i<wesu.size();i++)
+	for (size_t i=0; i < wesu.size(); ++i)
 		wesu[i]=TTF_RenderText_Blended(font,(*ws)[i].c_str(),kolor);
 
 	int evy = y;
-	for (int i=0;i<wesu.size();i++)
+	for (size_t i=0; i < wesu.size(); ++i)
 	{
 		blitAt(wesu[i],x,evy,dst);
 		evy+=wesu[i]->h;
 	}
 
-	for (int i=0;i<wesu.size();i++)
+	for (size_t i=0; i < wesu.size(); ++i)
 		SDL_FreeSurface(wesu[i]);
 	delete ws;
 }
@@ -783,7 +784,7 @@ int readNormalNr (std::istream &in, int bytCon)
 
 std::string CSDL_Ext::processStr(std::string str, std::vector<std::string> & tor)
 {
-	for (int i=0;(i<tor.size())&&(boost::find_first(str,"%s"));i++)
+	for (size_t i=0; (i<tor.size())&&(boost::find_first(str,"%s")); ++i)
 	{
 		boost::replace_first(str,"%s",tor[i]);
 	}

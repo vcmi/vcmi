@@ -1,4 +1,11 @@
+#ifndef ADVENTUREMAPBUTTON_H
+#define ADVENTUREMAPBUTTON_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
+
 #include "CPlayerInterface.h"
 #include "client/FunctionList.h"
 #include <boost/bind.hpp>
@@ -91,3 +98,4 @@ public:
 		int Value=0, bool Horizontal=true);
 	~CSlider();
 };	
+#endif //ADVENTUREMAPBUTTON_H

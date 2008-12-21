@@ -70,6 +70,12 @@ std::string nameFromType (int typ)
 			return std::string("ROCKTL.DEF");		
 			break;
 		}
+                case border:
+                    //TODO use me
+                    break;
+                default:
+                        //TODO do something here
+                break;
 	}
 	return std::string();
 }
@@ -134,23 +140,24 @@ void CMapHandler::prepareFOWDefs()
 	partialHide->ourImages.push_back(nw);
 	//necessaary rotations added
 
-	for(int i=0; i<partialHide->ourImages.size(); ++i)
+	for(size_t i=0; i<partialHide->ourImages.size(); ++i)
 	{
 		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
 	}
 
 	hideBitmap.resize(CGI->mh->map->width);
-	for (int i=0;i<hideBitmap.size();i++)
+	for (size_t i=0;i<hideBitmap.size();i++)
 	{
 		hideBitmap[i].resize(CGI->mh->map->height);
 	}
-	for (int i=0; i<hideBitmap.size(); ++i)
+	for (size_t i=0; i<hideBitmap.size(); ++i)
 	{
-		for (int j=0; j<CGI->mh->map->height; ++j)
+		for (int j=0; j < CGI->mh->map->height; ++j)
 		{
 			hideBitmap[i][j].resize(CGI->mh->map->twoLevel+1);
-			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
+			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k) {
 				hideBitmap[i][j][k] = rand()%fullHide->ourImages.size();
+                        }
 		}
 	}
 }
@@ -166,16 +173,16 @@ void CMapHandler::roadsRiverTerrainInit()
 	staticRiverDefs.push_back(CDefHandler::giveDef("icyrvr.def"));
 	staticRiverDefs.push_back(CDefHandler::giveDef("mudrvr.def"));
 	staticRiverDefs.push_back(CDefHandler::giveDef("lavrvr.def"));
-	for(int g=0; g<staticRiverDefs.size(); ++g)
+	for(size_t g=0; g<staticRiverDefs.size(); ++g)
 	{
-		for(int h=0; h<staticRiverDefs[g]->ourImages.size(); ++h)
+		for(size_t h=0; h < staticRiverDefs[g]->ourImages.size(); ++h)
 		{
 			CSDL_Ext::alphaTransform(staticRiverDefs[g]->ourImages[h].bitmap);
 		}
 	}
-	for(int g=0; g<roadDefs.size(); ++g)
+	for(size_t g=0; g<roadDefs.size(); ++g)
 	{
-		for(int h=0; h<roadDefs[g]->ourImages.size(); ++h)
+		for(size_t h=0; h < roadDefs[g]->ourImages.size(); ++h)
 		{
 			CSDL_Ext::alphaTransform(roadDefs[g]->ourImages[h].bitmap);
 		}
@@ -280,7 +287,7 @@ void CMapHandler::borderAndTerrainBitmapInit()
 		CDefHandler *hlp = CDefHandler::giveDef(nameFromType(i));
 		terrainGraphics[i].resize(hlp->ourImages.size());
 		hlp->notFreeImgs = true;
-		for(int j=0; j<hlp->ourImages.size();j++)
+		for(size_t j=0; j < hlp->ourImages.size(); ++j)
 			terrainGraphics[i][j] = hlp->ourImages[j].bitmap;
 		delete hlp;
 	}
@@ -347,7 +354,7 @@ void CMapHandler::borderAndTerrainBitmapInit()
 void CMapHandler::initObjectRects()
 {
 	//initializing objects / rects
-	for(int f=0; f<map->objects.size(); ++f)
+	for(size_t f=0; f < map->objects.size(); ++f)
 	{
 		if((map->objects[f]->ID==34 && static_cast<CGHeroInstance*>(map->objects[f])->inTownGarrison)
 			|| !map->objects[f]->defInfo)
@@ -410,7 +417,7 @@ void processDef (CGDefInfo* def)
 		tlog3 << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
 	if(!def->handler->alphaTransformed)
 	{
-		for(int yy=0; yy<def->handler->ourImages.size(); ++yy)
+		for(size_t yy=0; yy < def->handler->ourImages.size(); ++yy)
 		{
 			def->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
 			def->handler->alphaTransformed = true;
@@ -462,7 +469,7 @@ void CMapHandler::init()
 
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
-		for(int j=0; j<map->players[i].heroesNames.size();j++)
+		for(size_t j=0; j < map->players[i].heroesNames.size(); ++j)
 		{
 			usedHeroes.insert(map->players[i].heroesNames[j].heroID);
 		}
@@ -471,7 +478,7 @@ void CMapHandler::init()
 
 
 
-	for(int h=0; h<map->defy.size(); ++h) //initializing loaded def handler's info	{
+	for(size_t h=0; h<map->defy.size(); ++h) //initializing loaded def handler's info	{
 		CGI->mh->loadedDefs.insert(std::make_pair(map->defy[h]->name, map->defy[h]->handler));
 	tlog0<<"\tCollecting loaded def's handlers: "<<th.getDif()<<std::endl;
 
@@ -582,7 +589,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	{
 		for (int by=0; by<dy; by++)
 		{
-			for(int h=0; h<ttiles[x+bx][y+by][level].objects.size(); ++h)
+			for(int h=0; h < ttiles[x+bx][y+by][level].objects.size(); ++h)
 			{
 				SDL_Rect sr;
 				sr.w = 32;
@@ -605,7 +612,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						continue;
 					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
 
-					int gg;
+                    size_t gg;
 					for(gg=0; gg<iv.size(); ++gg)
 					{
 						if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
@@ -628,8 +635,8 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 						continue;
 					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
 
-					int gg;
-					for(gg=0; gg<iv.size(); ++gg)
+                    size_t gg;
+					for(gg=0; gg < iv.size(); ++gg)
 					{
 						if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
 						{
@@ -752,7 +759,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 		d8 = (y>0) ? visibilityMap[x][y-1][lvl] : 0,			//456
 		d9 = (y>0 && x<size) ? visibilityMap[x+1][y-1][lvl] : 0,//123
 		d4 = (x>0) ? visibilityMap[x-1][y][lvl] : 0,
-		d5 = visibilityMap[x][y][lvl],
+		d5 = visibilityMap[x][y][lvl], //TODO use me - OMFG
 		d6 = (x<size) ? visibilityMap[x+1][y][lvl] : 0,
 		d1 = (x>0 && y<size) ? visibilityMap[x-1][y+1][lvl] : 0,
 		d2 = (y<size) ? visibilityMap[x][y+1][lvl] : 0,
@@ -1063,7 +1070,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 			std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
 			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
-				TerrainTile2 & curt =
+				TerrainTile2 & curt = //TODO use me 
 					ttiles
 					  [obj->pos.x + fx - curd->ourImages[0].bitmap->w/32]
 				      [obj->pos.y + fy - curd->ourImages[0].bitmap->h/32]
@@ -1088,7 +1095,7 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj)
 			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
 				std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects;
-				for(int dd=0; dd<ctile.size(); ++dd)
+				for(size_t dd=0; dd < ctile.size(); ++dd)
 				{
 					if(ctile[dd].first->id==obj->id)
 						ctile.erase(ctile.begin() + dd);
@@ -1247,7 +1254,7 @@ unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
 void CMapHandler::updateWater() //shift colors in palettes of water tiles
 {
 	SDL_Color palette[14];
-	for(int j=0; j<terrainGraphics[8].size(); j++)
+	for(size_t j=0; j < terrainGraphics[8].size(); ++j)
 	{
 		for(int i=0; i<12; ++i)
 		{

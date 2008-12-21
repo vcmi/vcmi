@@ -23,7 +23,7 @@ CSharedCond<std::set<IPack*> > mess(new std::set<IPack*>);
 std::string toString(MetaString &ms)
 {
 	std::string ret;
-	for(int i=0;i<ms.message.size();i++)
+	for(size_t i=0;i<ms.message.size();++i)
 	{
 		if(ms.message[i]>0)
 		{
@@ -87,7 +87,7 @@ std::string toString(MetaString &ms)
 			}
 		}
 	}
-	for(int i=0;i<ms.replacements.size();i++)
+	for(size_t i=0; i < ms.replacements.size(); ++i)
 	{
 		ret.replace(ret.find("%s"),2,ms.replacements[i]);
 	}
@@ -111,8 +111,9 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	c >> pom8;
 	if(pom8) throw "Server cannot open the map!";
 	c << ui8(si->playerInfos.size()+1); //number of players + neutral
-	for(int i=0;i<si->playerInfos.size();i++)
+	for(size_t i=0;i<si->playerInfos.size();i++) {
 		c << ui8(si->playerInfos[i].color); //players
+        }
 	c << ui8(255); // neutrals
 
 
@@ -144,14 +145,16 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	CGI->mh->init();
 	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
-	for (int i=0; i<CGI->state->scenarioOps->playerInfos.size();i++) //initializing interfaces for players
+	for (size_t i=0; i<CGI->state->scenarioOps->playerInfos.size();++i) //initializing interfaces for players
 	{ 
 		ui8 color = gs->scenarioOps->playerInfos[i].color;
 		CCallback *cb = new CCallback(gs,color,this);
-		if(!gs->scenarioOps->playerInfos[i].human)
+		if(!gs->scenarioOps->playerInfos[i].human) {
 			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
-		else 
+                }
+		else {
 			playerint[color] = new CPlayerInterface(color,i);
+                }
 		gs->currentPlayer = color;
 		playerint[color]->init(cb);
 	}
@@ -200,8 +203,9 @@ void CClient::process(int what)
 			InfoWindow iw;
 			*serv >> iw;
 			std::vector<Component*> comps;
-			for(int i=0;i<iw.components.size();i++)
+			for(size_t i=0;i<iw.components.size();i++) {
 				comps.push_back(&iw.components[i]);
+                        }
 			std::string str = toString(iw.text);
 			playerint[iw.player]->showInfoDialog(str,comps);
 			break;
@@ -496,8 +500,9 @@ void CClient::process(int what)
 			*serv >> sd;
 			tlog5 << "Showing selection dialog " <<std::endl;
 			std::vector<Component*> comps;
-			for(int i=0;i<sd.components.size();i++)
+			for(size_t i=0; i < sd.components.size(); ++i) {
 				comps.push_back(&sd.components[i]);
+                        }
 			std::string str = toString(sd.text);
 			playerint[sd.player]->showSelDialog(str,comps,sd.id);
 			break;
@@ -508,8 +513,9 @@ void CClient::process(int what)
 			*serv >> ynd;
 			tlog5 << "Showing yes/no dialog " <<std::endl;
 			std::vector<Component*> comps;
-			for(int i=0;i<ynd.components.size();i++)
+			for(size_t i=0; i < ynd.components.size(); ++i) {
 				comps.push_back(&ynd.components[i]);
+                        }
 			std::string str = toString(ynd.text);
 			playerint[ynd.player]->showYesNoDialog(str,comps,ynd.id);
 			break;

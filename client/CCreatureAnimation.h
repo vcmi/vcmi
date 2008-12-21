@@ -1,4 +1,10 @@
+#ifndef CCREATUREANIMATION_H
+#define CCREATUREANIMATION_H
+
+#ifdef _MSC_VER
 #pragma once
+#endif
+
 #include "../global.h"
 #include "../CPlayerInterface.h"
 #include "../hch/CDefHandler.h"
@@ -19,12 +25,18 @@ private:
 	std::vector<SEntry> SEntries ;
 	std::string defName, curDir;
 	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL) const;
-	void inline putPixel(SDL_Surface * dest, const int & ftcp, const BMPPalette & color, const unsigned char & palc, const bool & yellowBorder) const;
+	void putPixel(
+                SDL_Surface * dest,
+                const int & ftcp,
+                const BMPPalette & color,
+                const unsigned char & palc,
+                const bool & yellowBorder
+        ) const;
 
 	////////////
 
 	unsigned char * FDef; //animation raw data
-	unsigned int curFrame; //number of currently displayed frame
+	int curFrame; //number of currently displayed frame
 	unsigned int frames; //number of frames
 public:
 	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
@@ -42,3 +54,4 @@ public:
 
 	int framesInGroup(int group) const; //retirns number of fromes in given group
 };
+#endif //CCREATUREANIMATION_H

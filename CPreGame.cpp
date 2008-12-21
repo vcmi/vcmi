@@ -1,11 +1,11 @@
 #include "stdafx.h"
 #include "CPreGame.h"
 #include "hch/CDefHandler.h"
-#include "SDL.h"
-#include "boost/filesystem.hpp"   // includes all needed Boost.Filesystem declarations
-#include "boost/algorithm/string.hpp"
+#include <SDL.h>
+#include <boost/filesystem.hpp>   // includes all needed Boost.Filesystem declarations
+#include <boost/algorithm/string.hpp>
 //#include "boost/foreach.hpp"
-#include "zlib.h"
+#include <zlib.h>
 #include "timeHandler.h"
 #include <sstream>
 #include "SDL_Extensions.h"
@@ -19,9 +19,12 @@
 #include "client/Graphics.h"
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+#include <cstdlib>
+
 extern SDL_Surface * screen;
 extern SDL_Color tytulowy, tlo, zwykly ;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
+
 #ifdef min
 #undef min
 #endif
@@ -270,7 +273,10 @@ void Slider::handleIt(SDL_Event sEvent)
 		case (SDLK_DOWN):
 			CPG->ourScenSel->mapsel.moveByOne(false);
 			break;
-		}
+                default:
+                    //TODO do something nasty here like logs entry..
+                break;
+                }
 	}
 	else if (moving && sEvent.type==SDL_MOUSEMOTION)
 	{
@@ -538,13 +544,13 @@ void Options::OptionSwitch::press(bool down)
 void Options::PlayerFlag::press(bool down)
 {
 	HighButton::press(down);
-	int i=0;
+	size_t i=0;
 	for(;i<CPG->ret.playerInfos.size();i++)
 		if(CPG->ret.playerInfos[i].color==color)
 			break;
 	if (CPG->ret.playerInfos[i].human || (!CPG->ourScenSel->mapsel.ourMaps[CPG->ourScenSel->mapsel.selected].players[CPG->ret.playerInfos[i].color].canHumanPlay))
 		return; //if this is already human player, or if human is forbidden
-	int j=0;
+	size_t j=0;
 	for(;j<CPG->ret.playerInfos.size();j++)
 		if(CPG->ret.playerInfos[j].human)
 			break;
@@ -583,7 +589,7 @@ void Options::showIcon (int what, int nr, bool abs) //what: -1=castle, 0=hero, 1
 	else
 	{
 		ab = nr;
-		for (int i=0; i<CPG->ret.playerInfos.size();i++)
+		for (size_t i=0; i<CPG->ret.playerInfos.size();++i)
 		{
 			if (CPG->ret.playerInfos[i].color==nr)
 			{
@@ -661,11 +667,15 @@ void Options::showIcon (int what, int nr, bool abs) //what: -1=castle, 0=hero, 1
 }
 Options::~Options()
 {
-	if (!inited) return;
-	for (int i=0; i<bgs.size();i++)
+	if (!inited) {
+            return;
+        }
+	for (size_t i=0; i<bgs.size();i++) {
 		SDL_FreeSurface(bgs[i]);
-	for (int i=0; i<flags.size();i++)
+        }
+	for (size_t i=0; i<flags.size();i++) {
 		delete flags[i];
+        }
 	SDL_FreeSurface(bg);
 	SDL_FreeSurface(rHero);
 	SDL_FreeSurface(rCastle);
@@ -716,7 +726,7 @@ void Options::show()
 	MapSel & ms = CPG->ourScenSel->mapsel;
 	blitAt(bg,3,6);
 	CPG->ourScenSel->listShowed=false;
-	for (int i=0;i<CPG->btns.size();i++)
+	for (size_t i=0; i < CPG->btns.size(); ++i)
 	{
 		if (CPG->btns[i]->ID!=10) //leave only right panel buttons
 		{
@@ -728,12 +738,13 @@ void Options::show()
 	CSDL_Ext::printAtMiddle("Advanced Options",225,35,GEORXX);
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[521],224,544,GEOR13); // Player Turn Duration
 	int playersSoFar=0;
-	for (int i=0;i<PLAYER_LIMIT;i++)
+	for (size_t i=0; i < PLAYER_LIMIT; ++i)
 	{
 		if (!(ms.ourMaps[ms.selected].players[i].canComputerPlay || ms.ourMaps[ms.selected].players[i].canComputerPlay))
 			continue;
-		for (int hi=0; hi<ms.ourMaps[ms.selected].players[i].heroesNames.size(); hi++)
+		for (size_t hi=0; hi<ms.ourMaps[ms.selected].players[i].heroesNames.size(); hi++) {
 			usedHeroes.insert(ms.ourMaps[ms.selected].players[i].heroesNames[hi].heroID);
+                }
 		blitAt(bgs[i],57,128+playersSoFar*50);
 		poptions.push_back(new PlayerOptions(playersSoFar,i));
 		poptions[poptions.size()-1]->nr=playersSoFar;
@@ -755,14 +766,17 @@ void Options::show()
 		{
 			poptions[poptions.size()-1]->flag.show();
 			CPG->btns.push_back(&poptions[poptions.size()-1]->flag);
-			if (ms.ourMaps[ms.selected].players[i].canComputerPlay)
+			if (ms.ourMaps[ms.selected].players[i].canComputerPlay) {
 				CSDL_Ext::printAtMiddleWB("Human or CPU",86,163+playersSoFar*50,GEORM,7,zwykly);
-			else
+                        }
+			else {
 				CSDL_Ext::printAtMiddleWB("Human",86,163+playersSoFar*50,GEORM,6,zwykly);
+                        }
 
 		}
-		else
+		else {
 			CSDL_Ext::printAtMiddleWB("CPU",86,163+playersSoFar*50,GEORM,6,zwykly);
+                }
 		playersSoFar++;
 	}
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->allTexts[516],221,63,GEOR13,55,zwykly);
@@ -771,8 +785,9 @@ void Options::show()
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[260].second),275,109,GEOR13,10);
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[261].second),354,109,GEOR13,10);
 	turnLength->activate();
-	for (int i=0;i<poptions.size();i++)
+	for (size_t i=0; i < poptions.size(); ++i) {
 		showIcon(-2,i,false);
+        }
 	for(int i=0;i<12;i++)
 		turnLength->moveDown();
 	//SDL_Flip(screen);
@@ -780,23 +795,28 @@ void Options::show()
 }
 void Options::hide()
 {
-	if (!showed) return;
+	if (!showed) {
+            return;
+        }
 	PreGameTab::hide();
-	for (int i=0; i<CPG->btns.size();i++)
+	for (size_t i=0; i < CPG->btns.size(); ++i)
 		if (CPG->btns[i]->ID==7)
 			CPG->btns.erase(CPG->btns.begin()+i--);
-	for (int i=0;i<poptions.size();i++)
+	for (size_t i=0;i<poptions.size();i++) {
 		delete poptions[i];
+        }
 	poptions.clear();
 	turnLength->deactivate();
 }
 MapSel::~MapSel()
 {
 	SDL_FreeSurface(bg);
-	for (int i=0;i<scenImgs.size();i++)
+	for (size_t i=0; i < scenImgs.size(); ++i) {
 		SDL_FreeSurface(scenImgs[i]);
-	for (int i=0;i<scenList.size();i++)
+        }
+	for (size_t i=0; i < scenList.size(); ++i) {
 		delete scenList[i];
+        }
 	delete sFlags;
 }
 int MapSel::countWL()
@@ -804,9 +824,12 @@ int MapSel::countWL()
 	int ret=0;
 	for (int i=0;i<ourMaps.size();i++)
 	{
-		if (sizeFilter && ((ourMaps[i].width) != sizeFilter))
+		if (sizeFilter && ((ourMaps[i].width) != sizeFilter)) {
 			continue;
-		else ret++;
+                }
+		else {
+                    ret++;
+                }
 	}
 	return ret;
 }
@@ -815,11 +838,14 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 	if (true)//
 	{
 		int help=-1;
-		for (int i=0;i<ourMaps.size();i++)
+		for (size_t i=0; i < ourMaps.size(); ++i)
 		{
-			if (sizeFilter && ((ourMaps[i].width) != sizeFilter))
+			if (sizeFilter && ((ourMaps[i].width) != sizeFilter)) {
 				continue;
-			else help++;
+                        }
+			else {
+                            help++;
+                        }
 			if (help==from)
 			{
 				from=i;
@@ -1468,7 +1494,7 @@ void CPreGame::showScenSel()
 		ourScenSel->mapsel.select(0,false);
 
 
-		for (int i=0;i<btns.size();i++)
+		for (size_t i=0; i < btns.size(); ++i)
 		{
 			btns[i]->pos.w=btns[i]->imgs->ourImages[0].bitmap->w;
 			btns[i]->pos.h=btns[i]->imgs->ourImages[0].bitmap->h;
@@ -1704,7 +1730,7 @@ void CPreGame::hideBox ()
 	SDL_BlitSurface(behindCurMes,NULL,screen,currentMessage);
 	SDL_UpdateRect
 		(screen,currentMessage->x,currentMessage->y,currentMessage->w,currentMessage->h);
-	for (int i=0;i<btns.size();i++)
+	for (size_t i=0; i < btns.size(); ++i)
 	{
 		if (btns[i]->ID==2)
 		{
@@ -1742,7 +1768,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 
 	if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_LEFT))
 	{
-		for (int i=0;i<btns.size(); i++)
+		for (size_t i=0; i < btns.size(); ++i)
 		{
 			if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
 			{
@@ -1766,7 +1792,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 			ourScenSel->pressed->press(false);
 			ourScenSel->pressed=NULL;
 		}
-		for (int i=0;i<btns.size(); i++)
+		for (size_t i=0; i < btns.size(); ++i)
 		{
 			if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
 			{
@@ -1802,7 +1828,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 				highlighted = NULL;
 			}
 		}
-		for (int i=0;i<btns.size();i++)
+		for (size_t i=0; i < btns.size(); ++i)
 		{
 			if (!btns[i]->highlightable)
 				continue;
@@ -1829,11 +1855,12 @@ StartInfo CPreGame::runLoop()
 				menuItems * current = currentItems();
 				if(sEvent.type==SDL_QUIT)
 				{
-					exit(0);
+					exit(EXIT_SUCCESS);
 					return ret;
 				}
-				for (int i=0;i<interested.size();i++)
+				for (size_t i=0; i < interested.size(); ++i) {
 					interested[i]->handleIt(sEvent);
+                }
 				if (!current)
 				{
 					(this->*handleOther)(sEvent);
@@ -1842,11 +1869,11 @@ StartInfo CPreGame::runLoop()
 				{
 					if (sEvent.key.keysym.sym==SDLK_q)
 					{
-						exit(0);
+						exit(EXIT_SUCCESS);
 					}
 					if(sEvent.key.keysym.sym==SDLK_F4 && (sEvent.key.keysym.mod & KMOD_LALT)) //Alt+F4
 					{
-						exit(0);
+						exit(EXIT_SUCCESS);
 					}
 					/*if (state==EState::newGame)
 					{
@@ -1972,7 +1999,7 @@ StartInfo CPreGame::runLoop()
 				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_LEFT))
 				{
 					mush->playClick();
-					for (int i=0;i<btns.size(); i++)
+					for (size_t i=0; i < btns.size(); ++i)
 					{
 						if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
 						{
@@ -2010,7 +2037,7 @@ StartInfo CPreGame::runLoop()
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_LEFT))
 				{
-					for (int i=0;i<btns.size(); i++)
+					for (size_t i=0; i < btns.size(); ++i)
 					{
 						if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
 						((Button*)btns[i])->fun();
@@ -2312,12 +2339,38 @@ ScenSel::ScenSel()
 	selectedDiff=-77;
 	difficulty->gdzie = &selectedDiff;
 
-	for (int i=0; i<bScens.imgs->ourImages.size(); i++)
-		CSDL_Ext::printAt(CGI->generaltexth->allTexts[500],25+i,2+i,GEOR13,zwykly,bScens.imgs->ourImages[i].bitmap); //"Show Available Scenarios"
-	for (int i=0; i<bRandom.imgs->ourImages.size(); i++)
-		CSDL_Ext::printAt(CGI->generaltexth->allTexts[740],25+i,2+i,GEOR13,zwykly,bRandom.imgs->ourImages[i].bitmap);
-	for (int i=0; i<bOptions.imgs->ourImages.size(); i++)
-		CSDL_Ext::printAt(CGI->generaltexth->allTexts[501],25+i,2+i,GEOR13,zwykly,bOptions.imgs->ourImages[i].bitmap); //"Show Advanced Options"
+	for (size_t i=0; i < bScens.imgs->ourImages.size(); ++i) {
+		CSDL_Ext::printAt(
+            CGI->generaltexth->allTexts[500],
+                25+i,
+                2+i,
+                GEOR13,
+                zwykly,
+                bScens.imgs->ourImages[i].bitmap
+        ); //"Show Available Scenarios"
+    }
+
+    for (size_t i=0; i < bRandom.imgs->ourImages.size(); ++i) {
+		CSDL_Ext::printAt(
+            CGI->generaltexth->allTexts[740],
+            25+i,
+            2+i,
+            GEOR13,
+            zwykly,
+            bRandom.imgs->ourImages[i].bitmap
+        );
+    }
+	
+    for (size_t i=0; i < bOptions.imgs->ourImages.size(); ++i) {
+		CSDL_Ext::printAt(
+            CGI->generaltexth->allTexts[501],
+            25+i,
+            2+i,
+            GEOR13,
+            zwykly,
+            bOptions.imgs->ourImages[i].bitmap
+        ); //"Show Advanced Options"
+    }
 }
 
 ScenSel::~ScenSel()

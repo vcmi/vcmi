@@ -1,6 +1,7 @@
 #ifndef GLOBAL_H
 #define GLOBAL_H
 #include <iostream>
+#include <algorithm> //std::find
 #include <boost/logic/tribool.hpp>
 #include <boost/cstdint.hpp>
 typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
@@ -127,7 +128,7 @@ namespace vstd
 	template <typename T1, typename T2>
 	int findPos(const std::vector<T1> & c, const T2 &s)
 	{
-		for(int i=0;i<c.size();i++)
+		for(size_t i=0; i < c.size(); ++i)
 			if(c[i] == s)
 				return i;
 		return -1;
@@ -135,7 +136,7 @@ namespace vstd
 	template <typename T1, typename T2, typename Func>
 	int findPos(const std::vector<T1> & c, const T2 &s, const Func &f) //Func(T1,T2) must say if these elements matches
 	{
-		for(int i=0;i<c.size();i++)
+		for(size_t i=0; i < c.size(); ++i)
 			if(f(c[i],s))
 				return i;
 		return -1;
@@ -214,13 +215,17 @@ public:
 	template<typename T> 
 	CLogger<lvl> & operator<<(const T & data)
 	{
-		if(lvl < CONSOLE_LOGGING_LEVEL)
-			if(console)
+		if(lvl < CONSOLE_LOGGING_LEVEL) {
+			if(console) {
 				console->print(data,lvl);
-			else
+                        }
+			else {
 				std::cout << data << std::flush;
-		if((lvl < FILE_LOGGING_LEVEL) && logfile)
+                        }
+                }
+		if((lvl < FILE_LOGGING_LEVEL) && logfile) {
 			*logfile << data << std::flush;
+                }
 		return *this;
 	}
 };
@@ -232,6 +237,7 @@ extern DLL_EXPORT CLogger<3> tlog3; //yellow - minor warnings
 extern DLL_EXPORT CLogger<4> tlog4; //white - detailed log info
 extern DLL_EXPORT CLogger<5> tlog5; //gray - minor log info
 
+//XXX pls dont - 'debug macros' are usually more trubble then its worth
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\
 	tlog1 << e.what() << std::endl;	\

@@ -2,13 +2,15 @@
 #define CPREGAME_H
 #include "global.h"
 #include <set>
-#include "SDL.h"
+#include <SDL.h>
 #include "StartInfo.h"
 #include "CMessage.h"
 #include "map.h"
 #include "hch/CMusicHandler.h"
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <cstdlib>
+
 class CPreGame;
 class CDefHandler;
 extern CPreGame * CPG;
@@ -94,7 +96,7 @@ public:
 class CPoinGroup :public CGroup
 {
 public:
-	int * gdzie; //where (po polsku, bo by by³o s³owo kluczowe :/)
+	int * gdzie; //where (po polsku, bo by byï¿½o sï¿½owo kluczowe :/)
 	void setYour(IntSelBut * your);
 };
 struct IntSelBut: public Button
@@ -268,7 +270,7 @@ public:
 	void scenHandleEv(SDL_Event& sEvent);
 	void begin(){run=false;ret.difficulty=ourScenSel->selectedDiff;};
 	void quitAskBox();
-	void quit(){exit(0);};
+	void quit(){exit(EXIT_SUCCESS);};
 	void initScenSel();
 	void showScenSel();
 	void showScenList();

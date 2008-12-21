@@ -5,7 +5,9 @@
 #ifdef _WIN32
 #include "tchar.h"
 #else
-#include "tchar_amigaos4.h"
+#include "tchar_amigaos4.h" //XXX this is mingw header are we need this for something? for 'true'
+//support of unicode we should use ICU or some boost wraper areound it
+//(boost using this lib during compilation i dont know what for exactly)
 #endif
 #include "CGameState.h"
 
@@ -101,7 +103,7 @@ struct HeroMoveDetails
 class CCallback : public ICallback
 {
 private:
-	CCallback(CGameState * GS, int Player, CClient *C):gs(GS),player(Player),cl(C){};
+	CCallback(CGameState * GS, int Player, CClient *C):gs(GS), cl(C), player(Player){};
 	CGameState * gs;
 	CClient *cl;
 	bool isVisible(int3 pos, int Player) const;
@@ -175,7 +177,7 @@ public:
 	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
 
 
-
+//XXX hmmm _tmain on _GNUC_ wtf?
 //friends
 	friend class CClient;
 #ifndef __GNUC__

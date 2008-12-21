@@ -131,23 +131,25 @@ CHeroWindow::~CHeroWindow()
 	delete leftArtRoll;
 	delete rightArtRoll;
 
-	for(int g=0; g<heroListMi.size(); ++g)
+	for(size_t g=0; g<heroListMi.size(); ++g) {
 		delete heroListMi[g];
+        }
 
-	if(curBack)
+	if(curBack) {
 		SDL_FreeSurface(curBack);
+        }
 
 	delete flags;
 
 	delete garInt;
 	delete ourBar;
 
-	for(int g=0; g<artWorn.size(); ++g)
+	for(size_t g=0; g<artWorn.size(); ++g)
 	{
 		delete artWorn[g];
 	}
 	artWorn.clear();
-	for(int g=0; g<backpack.size(); ++g)
+	for(size_t g=0; g<backpack.size(); ++g)
 	{
 		delete backpack[g];
 	}
@@ -156,11 +158,11 @@ CHeroWindow::~CHeroWindow()
 	delete portraitArea;
 	delete expArea;
 	delete spellPointsArea;
-	for(int v=0; v<primSkillAreas.size(); ++v)
+	for(size_t v=0; v<primSkillAreas.size(); ++v)
 	{
 		delete primSkillAreas[v];
 	}
-	for(int v=0; v<secSkillAreas.size(); ++v)
+	for(size_t v=0; v<secSkillAreas.size(); ++v)
 	{
 		delete secSkillAreas[v];
 	}
@@ -184,11 +186,11 @@ void CHeroWindow::show(SDL_Surface *to)
 	garInt->show();
 	ourBar->show();
 
-	for(int d=0; d<artWorn.size(); ++d)
+	for(size_t d=0; d<artWorn.size(); ++d)
 	{
 		artWorn[d]->show(to);
 	}
-	for(int d=0; d<backpack.size(); ++d)
+	for(size_t d=0; d<backpack.size(); ++d)
 	{
 		backpack[d]->show(to);
 	}
@@ -223,11 +225,11 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	garInt->update = false;
 	gar4button->callback =  boost::bind(&CGarrisonInt::splitClick,garInt);//actualization of callback function
 
-	for(int g=0; g<primSkillAreas.size(); ++g)
+	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
 		primSkillAreas[g]->bonus = hero->getPrimSkillLevel(g);
 	}
-	for(int g=0; g<hero->secSkills.size(); ++g)
+	for(size_t g=0; g<hero->secSkills.size(); ++g)
 	{
 		secSkillAreas[g]->type = hero->secSkills[g].first;
 		secSkillAreas[g]->bonus = hero->secSkills[g].second;
@@ -244,11 +246,11 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	sprintf(bufor, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->getPrimSkillLevel(3)*10);
 	spellPointsArea->text = std::string(bufor);
 
-	for(int g=0; g<artWorn.size(); ++g)
+	for(size_t g=0; g<artWorn.size(); ++g)
 	{
 		delete artWorn[g];
 	}
-	for(int g=0; g<backpack.size(); ++g)
+	for(size_t g=0; g<backpack.size(); ++g)
 	{
 		delete backpack[g];
 	}
@@ -273,7 +275,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		artWorn[g]->ourWindow = this;
 	}
 
-	for(int g=0; g<artWorn.size(); ++g)
+	for(size_t g=0; g<artWorn.size(); ++g)
 	{
 		artWorn[g]->slotID = g;
 		if(artWorn[g]->ourArt)
@@ -287,7 +289,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		}
 	}
 
-	for(int s=0; s<5; ++s)
+	for(size_t s=0; s<5; ++s)
 	{
 		CArtPlace * add;
 		if( s < curHero->artifacts.size() )
@@ -304,10 +306,12 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		add->pos.x = pos.x + 403 + 46*s;
 		add->pos.y = pos.y + 365;
 		add->pos.h = add->pos.w = 44;
-		if(s<hero->artifacts.size() && hero->artifacts[s])
+		if(s<hero->artifacts.size() && hero->artifacts[s]) {
 			add->text = hero->getArt(19+s)->Description();
-		else
+                }
+		else {
 			add->text = std::string();
+                }
 		add->ourWindow = this;
 		add->slotID = 19+s;
 		backpack.push_back(add);
@@ -347,12 +351,12 @@ void CHeroWindow::quit()
 	SDL_FreeSurface(curBack);
 	curBack = NULL;
 
-	for(int g=0; g<artWorn.size(); ++g)
+	for(size_t g=0; g<artWorn.size(); ++g)
 	{
 		delete artWorn[g];
 		artWorn[g] = NULL;
 	}
-	for(int g=0; g<backpack.size(); ++g)
+	for(size_t g=0; g<backpack.size(); ++g)
 	{
 		delete backpack[g];
 		backpack[g] = NULL;
@@ -379,27 +383,27 @@ void CHeroWindow::activate()
 	garInt->activate();
 	LOCPLINT->statusbar = ourBar;
 
-	for(int v=0; v<primSkillAreas.size(); ++v)
+	for(size_t v=0; v<primSkillAreas.size(); ++v)
 	{
 		primSkillAreas[v]->activate();
 	}
-	for(int v=0; v<curHero->secSkills.size(); ++v)
+	for(size_t v=0; v<curHero->secSkills.size(); ++v)
 	{
 		secSkillAreas[v]->activate();
 	}
 	redrawCurBack();
 
-	for(int f=0; f<artWorn.size(); ++f)
+	for(size_t f=0; f<artWorn.size(); ++f)
 	{
 		if(artWorn[f])
 			artWorn[f]->activate();
 	}
-	for(int f=0; f<backpack.size(); ++f)
+	for(size_t f=0; f<backpack.size(); ++f)
 	{
 		if(backpack[f])
 			backpack[f]->activate();
 	}
-	for(int e=0; e<heroListMi.size(); ++e)
+	for(size_t e=0; e<heroListMi.size(); ++e)
 	{
 		heroListMi[e]->activate();
 	}
@@ -423,26 +427,26 @@ void CHeroWindow::deactivate()
 
 	garInt->deactivate();
 
-	for(int v=0; v<primSkillAreas.size(); ++v)
+	for(size_t v=0; v<primSkillAreas.size(); ++v)
 	{
 		primSkillAreas[v]->deactivate();
 	}
-	for(int v=0; v<curHero->secSkills.size(); ++v)
+	for(size_t v=0; v<curHero->secSkills.size(); ++v)
 	{
 		secSkillAreas[v]->deactivate();
 	}
 
-	for(int f=0; f<artWorn.size(); ++f)
+	for(size_t f=0; f<artWorn.size(); ++f)
 	{
 		if(artWorn[f])
 			artWorn[f]->deactivate();
 	}
-	for(int f=0; f<backpack.size(); ++f)
+	for(size_t f=0; f<backpack.size(); ++f)
 	{
 		if(backpack[f])
 			backpack[f]->deactivate();
 	}
-	for(int e=0; e<heroListMi.size(); ++e)
+	for(size_t e=0; e<heroListMi.size(); ++e)
 	{
 		heroListMi[e]->deactivate();
 	}
@@ -464,7 +468,7 @@ void CHeroWindow::leftArtRoller()
 	{
 		backpackPos+=curHero->artifacts.size()-1; //set new offset
 
-		for(int s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
+		for(size_t s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
 		{
 			backpack[s]->ourArt = &CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]];
 			if(backpack[s]->ourArt)
@@ -481,7 +485,7 @@ void CHeroWindow::rightArtRoller()
 	{
 		backpackPos+=1; //set new offset
 
-		for(int s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
+		for(size_t s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
 		{
 			backpack[s]->ourArt = &CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ] ];
 			if(backpack[s]->ourArt)
@@ -665,7 +669,7 @@ void CHeroWindow::redrawCurBack()
 	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
 }
 
-CArtPlace::CArtPlace(const CArtifact* Art): ourArt(Art), active(false), clicked(false)/*,
+CArtPlace::CArtPlace(const CArtifact* Art): active(false), clicked(false), ourArt(Art)/*,
 	spellBook(false), warMachine1(false), warMachine2(false), warMachine3(false),
 	warMachine4(false),misc1(false), misc2(false), misc3(false), misc4(false),
 	misc5(false), feet(false), lRing(false), rRing(false), torso(false),
@@ -733,7 +737,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			else
 			{
 				int backID = -1;
-				for(int g=0; g<ourWindow->backpack.size(); ++g)
+				for(size_t g=0; g<ourWindow->backpack.size(); ++g)
 				{
 					if(ourWindow->backpack[g]==this) //if user wants to put something to backpack
 					{

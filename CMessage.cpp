@@ -51,12 +51,12 @@ void CMessage::init()
 			piecesOfBox.push_back(n);
 			if (i==1)
 			{
-				for (int j=0;j<bluePieces->ourImages.size();j++)
+				for (size_t j=0;j<bluePieces->ourImages.size();++j)
 				{
 					piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
 				}
 			}
-			for (int j=0;j<bluePieces->ourImages.size();j++)
+			for (size_t j=0;j<bluePieces->ourImages.size();++j)
 			{
 				graphics->blueToPlayersAdv(bluePieces->ourImages[j].bitmap,i);
 				piecesOfBox[i].push_back(bluePieces->ourImages[j].bitmap);
@@ -74,7 +74,7 @@ void CMessage::dispose()
 {
 	for (int i=0;i<PLAYER_LIMIT;i++)
 	{
-		for (int j=0;j<piecesOfBox[i].size();j++)
+		for (size_t j=0; j<piecesOfBox[i].size(); ++j)
 		{
 			SDL_FreeSurface(piecesOfBox[i][j]);
 		}
@@ -89,21 +89,22 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 	SDL_Surface * ret = SDL_CreateRGBSurface(screen->flags, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
 	for (int i=0; i<h; i+=background->h)//background
 	{
-		for (int j=0; j<w; j+=background->w-1)
-			SDL_BlitSurface(background,&genRect(background->h,background->w-1,1,0),ret,&genRect(h,w,j,i));
+		for (int j=0; j<w; j+=background->w-1) {
+			SDL_BlitSurface(background,&genRect(background->h,background->w-1,1,0),ret,&genRect(h,w,j,i)); //FIXME taking address of temporary
+                }
 	}
 	drawBorder(playerColor, ret, w, h);
 	return ret;
 }
 
-std::vector<std::string> * CMessage::breakText(std::string text, int line, bool userBreak, bool ifor)
+std::vector<std::string> * CMessage::breakText(std::string text, size_t line, bool userBreak, bool ifor) //TODO userBreak -- use me
 {
 	std::vector<std::string> * ret = new std::vector<std::string>();
 	while (text.length()>line)
 	{
 		int whereCut = -1, braces=0;
 		bool pom = true, opened=false;
-		for (int i=0; i<line+braces; i++)
+		for (size_t i=0; i<line+braces; i++)
 		{
 			if (text[i]==10) //end of line sign
 			{
@@ -111,7 +112,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line, bool 
 				pom=false;
 				break;
 			}
-			else if (ifor && (text[i]=='{') || (text[i]=='}')) // ignore braces
+			else if (ifor && ((text[i]=='{') || (text[i]=='}'))) // ignore braces
 			{
 				if (text[i]=='{')
 					opened=true;
@@ -141,7 +142,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line, bool 
 			text.insert(0,"{");
 		}
 	}
-	for (int i=0;i<text.length();i++)
+	for (size_t i=0;i<text.length();i++)
 	{
 		if (text[i]==10) //end of line sign
 		{
@@ -152,7 +153,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line, bool 
 	}
 	if (text.length() > 0)
 		ret->push_back(text);
-	for (int i=0; i<ret->size(); i++)
+	for (size_t i=0; i<ret->size(); i++)
 	{
 		boost::algorithm::trim((*ret)[i]);
 	}
@@ -161,11 +162,11 @@ std::vector<std::string> * CMessage::breakText(std::string text, int line, bool 
 std::pair<int, int> CMessage::getMaxSizes(std::vector< std::vector<SComponent*> > * komp)
 {
 	std::pair<int,int> ret;
-	for (int i=0;i<komp->size();i++)
+	for (size_t i=0;i<komp->size();i++)
 	{
 		int sumaw=0;
 		int maxh=0;
-		for(int j=0;j<(*komp)[i].size();j++)
+		for(size_t j=0;j<(*komp)[i].size();j++)
 		{
 			sumaw += (*komp)[i][j]->getImg()->w;
 			if (maxh < (*komp)[i][j]->getImg()->h)
@@ -184,10 +185,10 @@ std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> >
 	std::pair<int,int> ret;
 	ret.first = -1;
 	ret.second=0;
-	for (int i=0; i<txtg->size();i++) //szukamy najszerszej linii i lacznej wysokosci
+	for (size_t i=0; i<txtg->size();i++) //szukamy najszerszej linii i lacznej wysokosci
 	{
 		int lw=0;
-		for (int j=0;j<(*txtg)[i].size();j++)
+		for (size_t j=0;j<(*txtg)[i].size();j++)
 		{
 			lw+=(*txtg)[i][j]->w;
 			ret.second+=(*txtg)[i][j]->h;
@@ -201,16 +202,16 @@ std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> >
 }
 SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int & curh, SDL_Surface * ret)
 {
-	for (int i=0; i<txtg->size();i++)
+	for (size_t i=0; i<txtg->size();i++)
 	{
 		int lw=0;
-		for (int j=0;j<(*txtg)[i].size();j++)
+		for (size_t j=0;j<(*txtg)[i].size();j++)
 			lw+=(*txtg)[i][j]->w; //lw - laczna szerokosc linii
 		int pw = ret->w/2;
 		pw -= lw/2; //poczatek tekstu (x)
 
 		int tw = pw;
-		for (int j=0;j<(*txtg)[i].size();j++) //blit text
+		for (size_t j=0;j<(*txtg)[i].size();j++) //blit text
 		{
 			blitAt((*txtg)[i][j],tw,curh+i*19,ret);
 			tw+=(*txtg)[i][j]->w;
@@ -223,15 +224,17 @@ SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * 
 SDL_Surface * CMessage::blitCompsOnSur(std::vector<SComponent*> & comps, int maxw, int inter, int & curh, SDL_Surface * ret)
 {
 	std::vector<std::string> * brdtext;
-	if (comps.size())
+	if (comps.size()) {
 		brdtext = breakText(comps[0]->subtitle,12,true,true);
-	else
+        }
+	else {
 		brdtext = NULL;
+        }
 	comps[0]->pos.x = (ret->w/2) - ((comps[0]->getImg()->w)/2);
 	comps[0]->pos.y = curh;
 	blitAt(comps[0]->getImg(),comps[0]->pos.x,comps[0]->pos.y,ret);
 	curh += comps[0]->getImg()->h + 5; //obrazek + przerwa
-	for (int i=0; i<brdtext->size();i++) //descr.
+	for (size_t i=0; i < brdtext->size(); ++i) //descr.
 	{
 		SDL_Surface * tesu = TTF_RenderText_Blended(GEOR13,(*brdtext)[i].c_str(),zwykly);
 		blitAt(tesu,((comps[0]->getImg()->w - tesu->w)/2)+comps[0]->pos.x,curh,ret);
@@ -242,23 +245,26 @@ SDL_Surface * CMessage::blitCompsOnSur(std::vector<SComponent*> & comps, int max
 }
 SDL_Surface* CMessage::blitCompsOnSur(SDL_Surface * _or, std::vector< std::vector<SComponent*> > *  komp, int inter, int &curh, SDL_Surface *ret)
 {
-	for (int i=0;i<komp->size();i++)
+	for (size_t i=0;i<komp->size();i++)
 	{
 		int totalw=0, maxh=0;
-		for(int j=0;j<(*komp)[i].size();j++)
+		for(size_t j=0;j<(*komp)[i].size();j++)
 		{
 			totalw+=(*komp)[i][j]->getImg()->w;
-			if(maxh<(*komp)[i][j]->getImg()->h)
+			if(maxh<(*komp)[i][j]->getImg()->h) {
 				maxh=(*komp)[i][j]->getImg()->h;
+                        }
 		}
-		if(_or)
+		if(_or) {
 			totalw += (inter*2+_or->w) * ((*komp)[i].size() - 1);
-		else
+                }
+		else {
 			totalw += (inter) * ((*komp)[i].size() - 1);
+                }
 
 		curh+=maxh/2;
 		int curw = (ret->w/2)-(totalw/2);
-		for(int j=0;j<(*komp)[i].size();j++)
+		for(size_t j=0;j<(*komp)[i].size();j++)
 		{
 			blitAt((*komp)[i][j]->getImg(),curw,curh-((*komp)[i][j]->getImg()->h/2),ret);
 			(*komp)[i][j]->pos.x = curw;
@@ -285,11 +291,11 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 {
 	std::vector<std::vector<SDL_Surface*> > * txtg = new std::vector<std::vector<SDL_Surface*> >();
 	txtg->resize(brtext->size());
-	for (int i=0; i<brtext->size();i++) //foreach line
+	for (size_t i=0; i<brtext->size();i++) //foreach line
 	{
 		while((*brtext)[i].length()) //jesli zostalo cos
 		{
-			int z=0; bool br=true;
+			size_t z=0; bool br=true;
 			while( ((*brtext)[i][z]) != ('{') )
 			{
 				if (z >= (((*brtext)[i].length())-1))
@@ -339,7 +345,7 @@ std::vector< std::vector<SComponent*> > * CMessage::breakComps(std::vector<SComp
 	ret->resize(1);
 	int rvi = 0;
 	int curw = 0;
-	for(int i=0;i<comps.size();i++)
+	for(size_t i=0;i<comps.size();i++)
 	{
 		curw += (comps[i]->getImg()->w + 12 + (_or ? _or->w : 0));
 		if (curw > maxw)
@@ -421,17 +427,17 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	{
 		curh += 20; //to buttton
 		int bw = 20*(ret->buttons.size()-1); //total width of buttons - start with distance between them
-		for(int i=0; i<ret->buttons.size(); i++) //and add buttons width
+		for(size_t i=0; i<ret->buttons.size(); i++) //and add buttons width
 			bw+=ret->buttons[i]->imgs[0][0]->w; 
 		bw = (ret->bitmap->w/2) - (bw/2);
-		for(int i=0; i<ret->buttons.size(); i++)
+		for(size_t i=0; i<ret->buttons.size(); i++)
 		{
 			ret->buttons[i]->pos.x = bw + ret->pos.x;
 			ret->buttons[i]->pos.y = curh + ret->pos.y;
 			bw += ret->buttons[i]->imgs[0][0]->w + 20;
 		}
 	}
-	for(int i=0; i<ret->components.size(); i++)
+	for(size_t i=0; i<ret->components.size(); i++)
 	{
 		ret->components[i]->pos.x += ret->pos.x;
 		ret->components[i]->pos.y += ret->pos.y;
@@ -510,7 +516,7 @@ SDL_Surface * CMessage::genMessage
 		SDL_FreeSurface(titleText);
 	}
 	//draw text
-	for (int i=0; i<tekst->size(); i++)
+	for (size_t i=0; i<tekst->size(); i++)
 	{
 		int by = 37+i*21;
 		if (title.length()) by+=40;

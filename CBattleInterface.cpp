@@ -31,9 +31,8 @@ extern SDL_Surface * screen;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 extern SDL_Color zwykly;
 
-class CMP_stack2
+struct CMP_stack2
 {
-public:
 	inline bool operator ()(const CStack& a, const CStack& b)
 	{
 		return (a.speed())>(b.speed());
@@ -421,14 +420,14 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing dead stacks
 	{
-		for(int v=0; v<stackDeadByHex[b].size(); ++v)
+		for(size_t v=0; v<stackDeadByHex[b].size(); ++v)
 		{
 			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x, creAnims[stackDeadByHex[b][v]]->pos.y, creDir[stackDeadByHex[b][v]], false, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
 		}
 	}
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing alive stacks
 	{
-		for(int v=0; v<stackAliveByHex[b].size(); ++v)
+		for(size_t v=0; v<stackAliveByHex[b].size(); ++v)
 		{
 			int animType = creAnims[stackAliveByHex[b][v]]->getType();
 			bool incrementFrame = (animCount%(4/animSpeed)==0) && animType!=0 && animType!=5 && animType!=20 && animType!=21 && animType!=3;
@@ -468,7 +467,15 @@ void CBattleInterface::show(SDL_Surface * to)
 				//blitting amount
 				std::stringstream ss;
 				ss<<stacks[stackAliveByHex[b][v]].amount;
-				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackAliveByHex[b][v]]->pos.x + xAdd + 14, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
+				CSDL_Ext::printAtMiddleWB(
+                                        ss.str(),
+                                        creAnims[stackAliveByHex[b][v]]->pos.x + xAdd + 14,
+                                        creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4,
+                                        GEOR13,
+                                        20,
+                                        zwykly,
+                                        to
+                );
 			}
 		}
 	}
@@ -484,10 +491,11 @@ void CBattleInterface::show(SDL_Surface * to)
 			blitAt(it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap, it->x, it->y, to);
 			++(it->frame);
 
-			if(it->frame == it->maxFrame)
+			if(it->frame == it->maxFrame) {
 				toErase.push_back(it);
+                        }
 		}
-		for(int b=0; b<toErase.size(); ++b)
+		for(size_t b=0; b<toErase.size(); ++b)
 		{
 			delete toErase[b]->anim;
 			battleEffects.erase(toErase[b]);
@@ -504,7 +512,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		std::vector<CStack> stacksSorted;
 		stacksSorted = LOCPLINT->cb->battleGetStackQueue();
 		int startFrom = -1;
-		for(int n=0; n<stacksSorted.size(); ++n)
+		for(size_t n=0; n<stacksSorted.size(); ++n)
 		{
 			if(stacksSorted[n].ID == activeStack)
 			{
@@ -514,7 +522,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 		if(startFrom != -1)
 		{
-			for(int b=startFrom; b<stacksSorted.size()+startFrom; ++b)
+			for(size_t b=startFrom; b<stacksSorted.size()+startFrom; ++b)
 			{
 				SDL_BlitSurface(graphics->smallImgs[-2], NULL, to, &genRect(32, 32, xPos, yPos));
 				//printing colored border
@@ -552,8 +560,9 @@ void CBattleInterface::show(SDL_Surface * to)
 }
 void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
-	if(key.keysym.sym == SDLK_q)
+	if(key.keysym.sym == SDLK_q) {
 		showStackQueue = key.state==SDL_PRESSED;
+        }
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
@@ -934,12 +943,14 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 
 		//checking break conditions
 		bool break_loop = true;
-		for(int g=0; g<attackedInfos.size(); ++g)
+		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
-			if(creAnims[attackedInfos[g].ID]->getType() != 2)
+			if(creAnims[attackedInfos[g].ID]->getType() != 2) {
 				break_loop = false;
-			if(attackingInfo && attackingInfo->IDby == attackedInfos[g].IDby)
+                        }
+			if(attackingInfo && attackingInfo->IDby == attackedInfos[g].IDby) {
 				break_loop = false;
+                        }
 		}
 		if(break_loop) break;
 	}
@@ -971,7 +982,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 	std::map<int, int> animLengths;
 	std::map<int, int> increments;
 	int maxLen = 0;
-	for(int g=0; g<attackedInfos.size(); ++g)
+	for(size_t g=0; g<attackedInfos.size(); ++g)
 	{
 		int animLen;
 		if(attackedInfos[g].killed)
@@ -998,7 +1009,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		for(int g=0; g<attackedInfos.size(); ++g)
+		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
 			if((animCount+1)%(4/animSpeed)==0 && increments[attackedInfos[g].ID]<animLengths[attackedInfos[g].ID])
 			{
@@ -1009,7 +1020,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 				creAnims[attackedInfos[g].ID]->setType(2);
 		}
 		bool isAnotherOne = false; //if true, there is a stack whose hit/death anim must be continued
-		for(int g=0; g<attackedInfos.size(); ++g)
+		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
 			if(increments[attackedInfos[g].ID] < animLengths[attackedInfos[g].ID]-1)
 			{
@@ -1021,14 +1032,14 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 			continueLoop = false;
 	}
 	//restoring animType
-	for(int g=0; g<attackedInfos.size(); ++g)
+	for(size_t g=0; g<attackedInfos.size(); ++g)
 	{
 		if(creAnims[attackedInfos[g].ID]->getType() == 3)
 			creAnims[attackedInfos[g].ID]->setType(2);
 	}
 
 	//printing info to console
-	for(int g=0; g<attackedInfos.size(); ++g)
+	for(size_t g=0; g<attackedInfos.size(); ++g)
 	{
 		if(attackedInfos[g].IDby!=-1)
 			printConsoleAttacked(attackedInfos[g].ID, attackedInfos[g].dmg, attackedInfos[g].amountKilled, attackedInfos[g].IDby);
@@ -1209,7 +1220,7 @@ void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 addit
 
 bool CBattleInterface::isTileAttackable(const int & number) const
 {
-	for(int b=0; b<shadedHexes.size(); ++b)
+	for(size_t b=0; b<shadedHexes.size(); ++b)
 	{
 		if(BattleInfo::mutualPosition(shadedHexes[b], number) != -1 || shadedHexes[b] == number)
 			return true;
@@ -1445,7 +1456,7 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 				SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			}
 
-			int b=0;
+			int b=0; //TODO use me
 			break; //for 15 and 16 cases
 		}
 	case 17: //lightning bolt
@@ -1834,7 +1845,7 @@ void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
 
 	if(printStackRange)
 	{
-		for(int m=0; m<shadedHexes.size(); ++m) //rows
+		for(size_t m=0; m<shadedHexes.size(); ++m) //rows
 		{
 			int i = shadedHexes[m]/17; //row
 			int j = shadedHexes[m]%17-1; //column
@@ -1914,11 +1925,31 @@ void CBattleHero::show(SDL_Surface *to)
 	//animation of flag
 	if(flip)
 	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 752, 39));
+		CSDL_Ext::blit8bppAlphaTo24bpp(
+                        flag->ourImages[flagAnim].bitmap,
+                        NULL,
+                        screen,
+                        &genRect(
+                                flag->ourImages[flagAnim].bitmap->h,
+                                flag->ourImages[flagAnim].bitmap->w,
+                                752,
+                                39
+                        )
+                );
 	}
 	else
 	{
-		CSDL_Ext::blit8bppAlphaTo24bpp(flag->ourImages[flagAnim].bitmap, NULL, screen, &genRect(flag->ourImages[flagAnim].bitmap->h, flag->ourImages[flagAnim].bitmap->w, 31, 39));
+		CSDL_Ext::blit8bppAlphaTo24bpp(
+                        flag->ourImages[flagAnim].bitmap,
+                        NULL,
+                        screen,
+                        &genRect(
+                                flag->ourImages[flagAnim].bitmap->h,
+                                flag->ourImages[flagAnim].bitmap->w,
+                                31,
+                                39
+                        )
+                );
 	}
 	++flagAnimCount;
 	if(flagAnimCount%4==0)
@@ -2497,7 +2528,7 @@ void CBattleOptionsWindow::bExitf()
 {
 	deactivate();
 
-	for(int g=0; g<LOCPLINT->objsToBlit.size(); ++g)
+	for(size_t g=0; g<LOCPLINT->objsToBlit.size(); ++g)
 	{
 		if(dynamic_cast<CBattleOptionsWindow*>(LOCPLINT->objsToBlit[g]))
 		{

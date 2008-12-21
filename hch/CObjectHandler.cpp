@@ -19,16 +19,17 @@ extern boost::rand48 ran;
 void CObjectHandler::loadObjects()
 {
 	VLC->objh = this;
-	int ID=0;
+//	int ID=0; //TODO use me
 	tlog5 << "\t\tReading OBJNAMES \n";
 	std::string buf = bitmaph->getTextFile("OBJNAMES.TXT");
-	int it=0;
+	int it=0; //hope that -1 will not break this
 	while (it<buf.length()-1)
 	{
 		std::string nobj;
-		loadToIt(nobj,buf,it,3);
-		if(nobj.size() && (nobj[nobj.size()-1]==(char)10 || nobj[nobj.size()-1]==(char)13 || nobj[nobj.size()-1]==(char)9))
+		loadToIt(nobj, buf, it, 3);
+		if(nobj.size() && (nobj[nobj.size()-1]==(char)10 || nobj[nobj.size()-1]==(char)13 || nobj[nobj.size()-1]==(char)9)) {
 			nobj = nobj.substr(0, nobj.size()-1);
+                }
 		names.push_back(nobj);
 	}
 
@@ -39,8 +40,9 @@ void CObjectHandler::loadObjects()
 	while (it<buf.length()-1)
 	{
 		loadToIt(temp,buf,it,3);
-		if (temp[0]=='\"')
+		if (temp[0]=='\"') {
 			temp = temp.substr(1,temp.length()-2);
+                }
 		boost::algorithm::replace_all(temp,"\"\"","\"");
 		advobtxt.push_back(temp);
 	}
@@ -85,8 +87,9 @@ void CObjectHandler::loadObjects()
 
 	tlog5 << "\t\tReading cregens \n";
 	cregens.resize(110); //TODO: hardcoded value - change
-	for(int i=0; i<cregens.size();i++)
+	for(size_t i=0; i < cregens.size(); ++i) {
 		cregens[i]=-1;
+        }
 	std::ifstream ifs("config/cregens.txt");
 	while(!ifs.eof())
 	{
@@ -199,23 +202,34 @@ unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad
 			if(ret>150)
 				ret = 150;
 			break;
+                default:
+                    //TODO do something nasty here throw maybe? or some def value asing
+                    break;
 		}
 		break;
 	case 2: //advanced
 		switch(ttype)
 		{
-		case rough: case sand: case snow:
+		case rough: 
+                case sand:
+                case snow:
 			ret = 100;
 			break;
 		case swamp:
 			if(ret>125)
 				ret = 125;
 			break;
+                default:
+                        //TODO look up
+                    break;
 		}
 		break;
 	case 3: //expert
 		ret = 100;
 		break;
+        default:
+            //TODO look up
+            break;
 	}
 
 	//calculating road influence
@@ -230,13 +244,16 @@ unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad
 	case cobblestoneRoad:
 		ret*=0.5;
 		break;
+        default:
+            //TODO killllll me
+            break;
 	}
 	return ret;
 }
 unsigned int CGHeroInstance::getLowestCreatureSpeed()
 {
 	unsigned int sl = 100;
-	for(int h=0; h<army.slots.size(); ++h)
+	for(size_t h=0; h < army.slots.size(); ++h)
 	{
 		if(VLC->creh->creatures[army.slots[h].first].speed<sl)
 			sl = VLC->creh->creatures[army.slots[h].first].speed;
@@ -258,9 +275,12 @@ int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifes
 }
 int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 {
-	if (h3m)
+	if (h3m) {
 		return pos;
-	else return convertPosition(pos,false);
+        }
+	else {
+            return convertPosition(pos,false);
+        }
 }
 int CGHeroInstance::getSightDistance() const //returns sight distance of this hero
 {
@@ -307,7 +327,7 @@ int CGHeroInstance::getPrimSkillLevel(int id) const
 }
 int CGHeroInstance::getSecSkillLevel(const int & ID) const
 {
-	for(int i=0;i<secSkills.size();i++)
+	for(size_t i=0; i < secSkills.size(); ++i)
 		if(secSkills[i].first==ID)
 			return secSkills[i].second;
 	return 0;

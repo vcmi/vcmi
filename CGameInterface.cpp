@@ -27,8 +27,8 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	char temp[50];
 	dllname = "AI/"+dllname;
 	CGlobalAI * ret=NULL;
-	CGlobalAI*(*getAI)();
-	void(*getName)(char*);
+	CGlobalAI*(*getAI)(); //TODO use me
+	void(*getName)(char*); //TODO use me
 
 #ifdef _WIN32
 	HINSTANCE dll = LoadLibraryA(dllname.c_str());
