@@ -66,7 +66,6 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	graphics->blueToPlayersAdv(menu, hero1->tempOwner);
 
 	//preparing graphics for displaying amounts of creatures
-	amountBasic = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
 	amountNormal = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
 	CSDL_Ext::alphaTransform(amountNormal);
 	for(int g=0; g<amountNormal->format->palette->ncolors; ++g)
@@ -78,6 +77,45 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 			(amountNormal->format->palette->colors+g)->r = (float)((amountNormal->format->palette->colors+g)->r) * 0.54f;
 			(amountNormal->format->palette->colors+g)->g = (float)((amountNormal->format->palette->colors+g)->g) * 0.19f;
 			(amountNormal->format->palette->colors+g)->b = (float)((amountNormal->format->palette->colors+g)->b) * 0.93f;
+		}
+	}
+	amountPositive = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
+	CSDL_Ext::alphaTransform(amountPositive);
+	for(int g=0; g<amountPositive->format->palette->ncolors; ++g)
+	{
+		if((amountPositive->format->palette->colors+g)->b != 132 &&
+			(amountPositive->format->palette->colors+g)->g != 231 &&
+			(amountPositive->format->palette->colors+g)->r != 255) //it's not yellow border
+		{
+			(amountPositive->format->palette->colors+g)->r = (float)((amountPositive->format->palette->colors+g)->r) * 0.18f;
+			(amountPositive->format->palette->colors+g)->g = (float)((amountPositive->format->palette->colors+g)->g) * 1.00f;
+			(amountPositive->format->palette->colors+g)->b = (float)((amountPositive->format->palette->colors+g)->b) * 0.18f;
+		}
+	}
+	amountNegative = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
+	CSDL_Ext::alphaTransform(amountNegative);
+	for(int g=0; g<amountNegative->format->palette->ncolors; ++g)
+	{
+		if((amountNegative->format->palette->colors+g)->b != 132 &&
+			(amountNegative->format->palette->colors+g)->g != 231 &&
+			(amountNegative->format->palette->colors+g)->r != 255) //it's not yellow border
+		{
+			(amountNegative->format->palette->colors+g)->r = (float)((amountNegative->format->palette->colors+g)->r) * 1.00f;
+			(amountNegative->format->palette->colors+g)->g = (float)((amountNegative->format->palette->colors+g)->g) * 0.18f;
+			(amountNegative->format->palette->colors+g)->b = (float)((amountNegative->format->palette->colors+g)->b) * 0.18f;
+		}
+	}
+	amountEffNeutral = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
+	CSDL_Ext::alphaTransform(amountNegative);
+	for(int g=0; g<amountNegative->format->palette->ncolors; ++g)
+	{
+		if((amountNegative->format->palette->colors+g)->b != 132 &&
+			(amountNegative->format->palette->colors+g)->g != 231 &&
+			(amountNegative->format->palette->colors+g)->r != 255) //it's not yellow border
+		{
+			(amountNegative->format->palette->colors+g)->r = (float)((amountNegative->format->palette->colors+g)->r) * 1.00f;
+			(amountNegative->format->palette->colors+g)->g = (float)((amountNegative->format->palette->colors+g)->g) * 1.00f;
+			(amountNegative->format->palette->colors+g)->b = (float)((amountNegative->format->palette->colors+g)->b) * 0.18f;
 		}
 	}
 
@@ -203,8 +241,10 @@ CBattleInterface::~CBattleInterface()
 {
 	SDL_FreeSurface(background);
 	SDL_FreeSurface(menu);
-	SDL_FreeSurface(amountBasic);
 	SDL_FreeSurface(amountNormal);
+	SDL_FreeSurface(amountNegative);
+	SDL_FreeSurface(amountPositive);
+	SDL_FreeSurface(amountEffNeutral);
 	SDL_FreeSurface(cellBorders);
 	SDL_FreeSurface(backgroundWithHexes);
 	delete bOptions;
@@ -398,7 +438,34 @@ void CBattleInterface::show(SDL_Surface * to)
 			{
 				int xAdd = stacks[stackAliveByHex[b][v]].attackerOwned ? 220 : 202;
 
-				SDL_BlitSurface(amountNormal, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + xAdd, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
+				//blitting amoutn background box
+				SDL_Surface *amountBG = NULL;
+				if(stacks[stackAliveByHex[b][v]].effects.size() == 0)
+				{
+					amountBG = amountNormal;
+				}
+				else
+				{
+					int pos=0; //determining total positiveness of effects
+					for(int c=0; c<stacks[stackAliveByHex[b][v]].effects.size(); ++c)
+					{
+						pos += CGI->spellh->spells[ stacks[stackAliveByHex[b][v]].effects[c].id ].positiveness;
+					}
+					if(pos > 0)
+					{
+						amountBG = amountPositive;
+					}
+					else if(pos < 0)
+					{
+						amountBG = amountNegative;
+					}
+					else
+					{
+						amountBG = amountEffNeutral;
+					}
+				}
+				SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + xAdd, creAnims[stackAliveByHex[b][v]]->pos.y + 260));
+				//blitting amount
 				std::stringstream ss;
 				ss<<stacks[stackAliveByHex[b][v]].amount;
 				CSDL_Ext::printAtMiddleWB(ss.str(), creAnims[stackAliveByHex[b][v]]->pos.x + xAdd + 14, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4, GEOR13, 20, zwykly, to);
@@ -436,12 +503,6 @@ void CBattleInterface::show(SDL_Surface * to)
 
 		std::vector<CStack> stacksSorted;
 		stacksSorted = LOCPLINT->cb->battleGetStackQueue();
-		//for(int v=0; v<stacks.size(); ++v)
-		//{
-		//	if(stacks[v].alive()) //we don't want dead stacks to be there
-		//		stacksSorted.push_back(stacks[v]);
-		//}
-		//std::stable_sort(stacksSorted.begin(), stacksSorted.end(), cmpst2);
 		int startFrom = -1;
 		for(int n=0; n<stacksSorted.size(); ++n)
 		{
@@ -2073,6 +2134,10 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->luck = h->getCurrentLuck();
 				pom->morale = h->getCurrentMorale();
 				pom->shotsLeft = myst.shots;
+				for(int vb=0; vb<myst.effects.size(); ++vb)
+				{
+					pom->effects.insert(myst.effects[vb].id);
+				}
 			}
 			pom->currentHealth = myst.firstHPleft;
 			(new CCreInfoWindow(myst.creature->idNumber,0,myst.amount,pom,boost::function<void()>(),boost::function<void()>(),NULL))

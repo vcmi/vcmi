@@ -176,6 +176,7 @@ void Graphics::initializeBattleGraphics()
 			battleACToDef[ACid] = toAdd;
 		}
 	}
+	spellEffectsPics = CDefHandler::giveDef("SpellInt.def");
 }
 Graphics::Graphics()
 {

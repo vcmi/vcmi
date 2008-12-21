@@ -118,7 +118,7 @@ public:
 class CBattleInterface : public CMainInterface, public MotionInterested, public KeyInterested
 {
 private:
-	SDL_Surface * background, * menu, * amountBasic, * amountNormal, * cellBorders, * backgroundWithHexes;
+	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
 	AdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
 	CBattleConsole * console;

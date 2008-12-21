@@ -36,7 +36,7 @@ struct StackState
 	int attackBonus, defenseBonus, healthBonus, speedBonus;
 	int currentHealth;
 	int shotsLeft;
-	std::set<int> effects;
+	std::set<int> effects; //IDs of spells affecting stack
 	int morale, luck;
 };
 

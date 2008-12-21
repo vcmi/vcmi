@@ -40,6 +40,7 @@ public:
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
+	CDefHandler * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
 	std::vector<std::string> guildBgs;// name of bitmaps with imgs for mage guild screen
 	//functions
 	Graphics();	

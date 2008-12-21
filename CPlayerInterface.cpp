@@ -3302,6 +3302,21 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	{
 		printAtWB(c->abilityText,17,231,GEOR13,35,zwykly,bitmap);
 	}
+
+	//spell effects
+	if(State)
+	{
+		int printed=0; //how many effect pics have been printed
+		for(std::set<int>::const_iterator it = State->effects.begin(); it!=State->effects.end(); ++it)
+		{
+			blitAt(graphics->spellEffectsPics->ourImages[*it + 1].bitmap, 127 + 52 * printed, 186, bitmap); 
+			++printed;
+			if(printed >= 3)
+			{
+				break;
+			}
+		}
+	}
 }
 CCreInfoWindow::~CCreInfoWindow()
 {
