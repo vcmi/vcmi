@@ -140,7 +140,7 @@ void CBuildingRect::clickRight (tribool down)
 			(LOCPLINT->playerID,
 			CGI->buildh->buildings[str->townID][str->ID]->description,
 			LOCPLINT->castleInt->bicons->ourImages[str->ID].bitmap,
-			CGI->buildh->buildings[str->townID][str->ID]->name);
+			CGI->buildh->buildings[str->townID][str->ID]->Name());
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
 		vinya->activate();
@@ -165,8 +165,8 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 				if((*LOCPLINT->castleInt->hBuild)<(*this)) //set if we are on top
 				{
 					LOCPLINT->castleInt->hBuild = this;
-					if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->name.length())
-						LOCPLINT->statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->name);
+					if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->Name().length())
+						LOCPLINT->statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->Name());
 					else
 						LOCPLINT->statusbar->print(str->name);
 				}
@@ -174,8 +174,8 @@ void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			else //no building hovered
 			{
 				LOCPLINT->castleInt->hBuild = this;
-				if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->name.length())
-					LOCPLINT->statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->name);
+				if(CGI->buildh->buildings[str->townID][str->ID] && CGI->buildh->buildings[str->townID][str->ID]->Name().length())
+					LOCPLINT->statusbar->print(CGI->buildh->buildings[str->townID][str->ID]->Name());
 				else
 					LOCPLINT->statusbar->print(str->name);
 			}
@@ -193,12 +193,12 @@ void CHeroGSlot::hover (bool on)
 	{
 		if(highlight)//view NNN
 		{
-			temp = CGI->townh->tcommands[4];
+			temp = CGI->generaltexth->tcommands[4];
 			boost::algorithm::replace_first(temp,"%s",hero->name);
 		}
 		else if(other->hero && other->highlight)//exchange
 		{
-			temp = CGI->townh->tcommands[7];
+			temp = CGI->generaltexth->tcommands[7];
 			boost::algorithm::replace_first(temp,"%s",hero->name);
 			boost::algorithm::replace_first(temp,"%s",other->hero->name);
 		}
@@ -206,12 +206,12 @@ void CHeroGSlot::hover (bool on)
 		{
 			if(upg)//down - visiting
 			{
-				temp = CGI->townh->tcommands[32];
+				temp = CGI->generaltexth->tcommands[32];
 				boost::algorithm::replace_first(temp,"%s",hero->name);
 			}
 			else //up - garrison
 			{
-				temp = CGI->townh->tcommands[12];
+				temp = CGI->generaltexth->tcommands[12];
 				boost::algorithm::replace_first(temp,"%s",hero->name);
 			}
 		}
@@ -220,7 +220,7 @@ void CHeroGSlot::hover (bool on)
 	{
 		if(other->highlight && other->hero) //move NNNN
 		{
-			temp = CGI->townh->tcommands[6];
+			temp = CGI->generaltexth->tcommands[6];
 			boost::algorithm::replace_first(temp,"%s",other->hero->name);
 		}
 		else //empty
@@ -367,9 +367,9 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 
 	townlist = new CTownList(3,pos.x+744,pos.y+414,"IAM014.DEF","IAM015.DEF");//744,526);
 	exit = new AdventureMapButton
-		(CGI->townh->tcommands[8],"",boost::bind(&CCastleInterface::close,this),pos.x+744,pos.y+544,"TSBTNS.DEF",SDLK_RETURN);
+		(CGI->generaltexth->tcommands[8],"",boost::bind(&CCastleInterface::close,this),pos.x+744,pos.y+544,"TSBTNS.DEF",SDLK_RETURN);
 	split = new AdventureMapButton
-		(CGI->townh->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+744,pos.y+382,"TSBTNS.DEF");
+		(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+744,pos.y+382,"TSBTNS.DEF");
 	statusbar = new CStatusBar(pos.x+7,pos.y+555,"TSTATBAR.bmp",732);
 	resdatabar = new CResDataBar("ZRESBAR.bmp",pos.x+3,pos.y+575,32,2,85,85);
 	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
@@ -544,7 +544,7 @@ void CCastleInterface::buildingClicked(int building)
 				if(!hero)
 				{
 					std::string pom = CGI->generaltexth->allTexts[273];
-					boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID][16]->name);
+					boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID][16]->Name());
 					LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>());
 					return;
 				}
@@ -653,7 +653,8 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/, bool forceTotalRedraw
 	if(pom)
 		showing = false;
 
-	CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
+	if(screen->w != 800 || screen->h !=600)
+		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 }
 void CCastleInterface::townChange()
 {
@@ -896,11 +897,11 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	{
 		std::string toPrint;
 		if(state==8)
-			toPrint = CGI->townh->hcommands[5];
+			toPrint = CGI->generaltexth->hcommands[5];
 		else
-			toPrint = CGI->townh->hcommands[state];
+			toPrint = CGI->generaltexth->hcommands[state];
 		std::vector<std::string> name;
-		name.push_back(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->name);
+		name.push_back(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->Name());
 		LOCPLINT->statusbar->print(CSDL_Ext::processStr(toPrint,name));
 	}
 	else
@@ -953,7 +954,7 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 	blitAt(hi->bars->ourImages[pom].bitmap,pos.x-1,pos.y+71);
 	if(pom2>=0)
 		blitAt(hi->status->ourImages[pom2].bitmap,pos.x+135, pos.y+54);
-	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->name,pos.x-1+hi->bars->ourImages[0].bitmap->w/2,pos.y+71+hi->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly);
+	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->Name(),pos.x-1+hi->bars->ourImages[0].bitmap->w/2,pos.y+71+hi->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly);
 }
 void CHallInterface::CBuildingBox::activate()
 {
@@ -996,7 +997,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
 	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	exit = new AdventureMapButton
-		(CGI->townh->tcommands[8],"",boost::bind(&CHallInterface::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
+		(CGI->generaltexth->tcommands[8],"",boost::bind(&CHallInterface::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 
 	//preparing boxes with buildings//
@@ -1169,11 +1170,11 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 {
 	std::string ret;
 	if(state<7)
-		ret =  CGI->townh->hcommands[state];
+		ret =  CGI->generaltexth->hcommands[state];
 	switch (state)
 	{
 	case 4:	case 5: case 6:
-		ret.replace(ret.find_first_of("%s"),2,CGI->buildh->buildings[tid][bid]->name);
+		ret.replace(ret.find_first_of("%s"),2,CGI->buildh->buildings[tid][bid]->Name());
 		break;
 	case 7:
 		return CGI->generaltexth->allTexts[219]; //all prereq. are met
@@ -1222,7 +1223,7 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 			bool first=true;
 			for(std::set<int>::iterator i=reqs.begin();i!=reqs.end();i++)
 			{
-				ret+=(((first)?(" "):(", ")) + CGI->buildh->buildings[tid][*i]->name);
+				ret+=(((first)?(" "):(", ")) + CGI->buildh->buildings[tid][*i]->Name());
 				first = false;
 			}
 		}
@@ -1240,10 +1241,10 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	pos.x = screen->w/2 - bitmap->w/2;
 	pos.y = screen->h/2 - bitmap->h/2;
 	blitAt(LOCPLINT->castleInt->bicons->ourImages[bid].bitmap,125,50,bitmap);
-	std::vector<std::string> pom; pom.push_back(CGI->buildh->buildings[tid][bid]->name);
-	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->description,197,168,GEOR16,40,zwykly,bitmap);
+	std::vector<std::string> pom; pom.push_back(CGI->buildh->buildings[tid][bid]->Name());
+	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->Description(),197,168,GEOR16,40,zwykly,bitmap);
 	CSDL_Ext::printAtMiddleWB(getTextForState(state),197,248,GEOR13,50,zwykly,bitmap);
-	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(CGI->townh->hcommands[7],pom),197,30,GEOR16,tytulowy,bitmap);
+	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(CGI->generaltexth->hcommands[7],pom),197,30,GEOR16,tytulowy,bitmap);
 	int resamount=0; 
         
         for(int i=0;i<7;i++) {
@@ -1355,7 +1356,7 @@ CFortScreen::CFortScreen( CCastleInterface * owner )
 	pos = owner->pos;
 	LOCPLINT->curint->subInt = this;
 	bg = NULL;
-	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CFortScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
+	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CFortScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	positions += genRect(126,386,10,22),genRect(126,386,404,22),
 		genRect(126,386,10,155),genRect(126,386,404,155),
 		genRect(126,386,10,288),genRect(126,386,404,288),
@@ -1377,7 +1378,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 	graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
 	bg = SDL_ConvertSurface(bg2,screen->format,0); 
 	SDL_FreeSurface(bg2);
-	printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->name,400,13,GEORXX,zwykly,bg);
+	printAtMiddle(CGI->buildh->buildings[owner->town->subID][owner->town->fortLevel()+6]->Name(),400,13,GEORXX,zwykly,bg);
 	for(int i=0;i<CREATURES_PER_TOWN; i++)
 	{
 		bool upgraded = owner->town->creatureDwelling(i,true);
@@ -1385,7 +1386,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 		CCreature *c = &CGI->creh->creatures[upgraded ? owner->town->town->upgradedCreatures[i] : owner->town->town->basicCreatures[i]];
 		printAtMiddle(c->namePl,positions[i].x+79,positions[i].y+10,GEOR13,zwykly,bg); //cr. name
 		blitAt(owner->bicons->ourImages[30+i+upgraded*7].bitmap,positions[i].x+4,positions[i].y+21,bg); //dwelling pic
-		printAtMiddle(CGI->buildh->buildings[owner->town->subID][30+i+upgraded*7]->name,positions[i].x+79,positions[i].y+100,GEOR13,zwykly,bg); //dwelling name
+		printAtMiddle(CGI->buildh->buildings[owner->town->subID][30+i+upgraded*7]->Name(),positions[i].x+79,positions[i].y+100,GEOR13,zwykly,bg); //dwelling name
 		if(present) //if creature is present print avail able quantity
 		{
 			SDL_itoa(owner->town->strInfo.creatures.find(i)->second,buf,10);
@@ -1467,7 +1468,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	resdatabar.pos.x += pos.x;
 	resdatabar.pos.y += pos.y;
 	bg = BitmapHandler::loadBitmap("TPMAGE.bmp");
-	exit = new AdventureMapButton(CGI->townh->tcommands[8],"",boost::bind(&CMageGuildScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
+	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CMageGuildScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
 	scrolls = CDefHandler::giveDefEss("SPELLSCR.DEF");
 	scrolls2 = CDefHandler::giveDefEss("TPMAGES.DEF");

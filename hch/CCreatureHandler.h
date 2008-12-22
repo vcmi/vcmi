@@ -12,18 +12,18 @@ class DLL_EXPORT CCreature
 {
 public:
 	std::string namePl, nameSing, nameRef; //name in singular and plural form; and reference name
-	std::vector<int> cost; //cost[res_id] - amount of that resource
-	std::set<int> upgrades; // IDs of creatures to which this creature can be upgraded
-	int fightValue, AIValue, growth, hordeGrowth, hitPoints, speed, attack, defence, shots, spells;
-	int damageMin, damageMax;
-	int ammMin, ammMax;
-	int level; // 0 - unknown
+	std::vector<ui32> cost; //cost[res_id] - amount of that resource
+	std::set<ui32> upgrades; // IDs of creatures to which this creature can be upgraded
+	ui32 fightValue, AIValue, growth, hordeGrowth, hitPoints, speed, attack, defence, shots, spells;
+	ui32 damageMin, damageMax;
+	ui32 ammMin, ammMax;
+	ui8 level; // 0 - unknown
 	std::string abilityText; //description of abilities
 	std::string abilityRefs; //references to abilities, in textformat
 	std::string animDefName;
 	ui32 idNumber;
 	std::set<EAbilities> abilities;
-	int faction; //-1 = neutral
+	si8 faction; //-1 = neutral
 
 	///animation info
 	float timeBetweenFidgets, walkAnimationTime, attackAnimationTime, flightAnimationDistance;
@@ -37,6 +37,20 @@ public:
 	bool isShooting() const; //returns true if unit can shoot
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
 	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & namePl & nameSing & nameRef
+			& cost & upgrades 
+			& fightValue & AIValue & growth & hordeGrowth & hitPoints & speed & attack & defence & shots & spells
+			& damageMin & damageMax & ammMin & ammMax & level
+			& abilityText & abilityRefs & animDefName
+			& idNumber & abilities & faction
+
+			& timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance
+			& upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY
+			& missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
+	}
 };
 
 
@@ -53,5 +67,19 @@ public:
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
 	CCreatureHandler();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
+		h & notUsedMonsters & creatures & nameToID & idToProjectile & idToProjectileSpin;
+
+		if(!h.saving)
+		{
+			for (int i=0; i<creatures.size(); i++) //recreate levelCreatures map
+			{
+				levelCreatures[creatures[i].level].push_back(&creatures[i]);
+			}
+		}
+	}
 };
 #endif //CCREATUREHANDLER_H

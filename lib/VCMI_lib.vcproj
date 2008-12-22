@@ -42,7 +42,7 @@
 				AdditionalOptions="/MP2"
 				Optimization="0"
 				AdditionalIncludeDirectories="G:\vcmt\repa\include"
-				MinimalRebuild="true"
+				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
 				WarningLevel="2"
@@ -386,6 +386,10 @@
 			</File>
 			<File
 				RelativePath="..\hch\CTownHandler.h"
+				>
+			</File>
+			<File
+				RelativePath=".\IGameCallback.h"
 				>
 			</File>
 			<File

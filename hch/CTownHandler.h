@@ -8,8 +8,9 @@ class CHero;
 class CGTownInstance;
 class DLL_EXPORT CTown
 {
-public:
 	std::string name; //name of type
+public:
+
 	std::vector<std::string> names; //names of the town instances
 	std::vector<int> basicCreatures; //level (from 0) -> ID
 	std::vector<int> upgradedCreatures; //level (from 0) -> ID
@@ -18,6 +19,18 @@ public:
 	int bonus; //pic number
 	ui16 primaryRes, warMachine;
 	ui8 typeID;
+
+
+	const std::vector<std::string> & Names() const;
+	const std::string & Name() const;
+	void Name(const std::string & val) { name = val; }
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & names & basicCreatures & upgradedCreatures & hordeLvl & mageLevel & bonus 
+			& primaryRes & warMachine & typeID;
+	}
 };
 
 struct DLL_EXPORT Structure
@@ -26,6 +39,7 @@ struct DLL_EXPORT Structure
 	int3 pos;
 	std::string defName, borderName, areaName, name;
 	int townID, group;
+
 	bool operator<(const Structure & p2) const
 	{
 		if(pos.z != p2.pos.z)
@@ -39,13 +53,20 @@ class DLL_EXPORT CTownHandler
 {
 public:
 	std::vector<CTown> towns;
-	std::vector<std::string> tcommands, hcommands;
 	std::map<int,std::map<int, Structure*> > structures; // <town ID, <structure ID, structure>>
 	std::map<int, std::map<int,std::set<int> > > requirements; //requirements[town_id][structure_id] -> set of required buildings
 
 	CTownHandler();
 	~CTownHandler();
 	void loadNames();
+	void loadStructures();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & towns & requirements;
+		if(!h.saving)
+			loadStructures();
+	}
 };
 
 #endif //CTOWNHANDLER_H

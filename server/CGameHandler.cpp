@@ -1,5 +1,4 @@
 #include "../CGameState.h"
-#include "../CLua.h"
 #include "../StartInfo.h"
 #include "../hch/CArtHandler.h"
 #include "../hch/CBuildingHandler.h"
@@ -14,7 +13,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../map.h"
 #include "CGameHandler.h"
-#include "CScriptCallback.h"
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp> //no i/o just types
 #include <boost/foreach.hpp>
@@ -170,15 +168,15 @@ void PlayerStatuses::removeQuery(ui8 player, ui32 id)
 	}
 	cv.notify_all();
 }
-void CGameHandler::handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
-{
-	std::vector<int> tempv = script->yourObjects();
-	for (unsigned i=0;i<tempv.size();i++)
-	{
-		(*mapa)[tempv[i]]=script;
-	}
-	cppscripts.insert(script);
-}
+//void CGameHandler::handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
+//{
+//	std::vector<int> tempv = script->yourObjects();
+//	for (unsigned i=0;i<tempv.size();i++)
+//	{
+//		(*mapa)[tempv[i]]=script;
+//	}
+//	cppscripts.insert(script);
+//}
 template <typename T>
 void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
 {
@@ -413,7 +411,8 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					std::string fname;
 					c >> fname;
 					CSaveFile save(fname);
-					save << VLC->heroh << this;
+					save << VLC->arth << VLC->buildh << VLC->creh << VLC->dobjinfo << VLC->heroh  
+						<< VLC->spellh << VLC->townh << this;
 					//save << this;
 					break;
 				}
@@ -486,8 +485,8 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 							{
 								//if(gs->checkFunc(obj->ID,"heroVisit")) //script function
 								//	gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
-								if(obj->state) //hard-coded function
-									obj->state->onHeroVisit(obj->id,h->id);
+								//if(obj->state) //hard-coded function
+									obj->onHeroVisit(h);
 							}
 						}
 						tlog5 << "Blocing visit at " << hmpos << std::endl;
@@ -500,8 +499,8 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[start.x-1][start.y][start.z].visitableObjects)
 						{
 							//TODO: allow to handle this in script-languages
-							if(obj->state) //hard-coded function
-								obj->state->onHeroLeave(obj->id,h->id);
+							//if(obj->state) //hard-coded function
+								obj->onHeroLeave(h);
 						}
 						tmh.fowRevealed = gs->tilesToReveal(h->getPosition(false),h->getSightDistance(),h->tempOwner);
 						sendAndApply(&tmh);
@@ -511,8 +510,8 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 						{
 							//if(gs->checkFunc(obj->ID,"heroVisit")) //script function
 							//	gs->objscr[obj->ID]["heroVisit"]->onHeroVisit(obj,h->subID);
-							if(obj->state) //hard-coded function
-								obj->state->onHeroVisit(obj->id,h->id);
+							//if(obj->state) //hard-coded function
+								obj->onHeroVisit(h);
 						}
 					}
 					tlog5 << "Movement end!\n";
@@ -1510,12 +1509,17 @@ CGameHandler::~CGameHandler(void)
 }
 void CGameHandler::init(StartInfo *si, int Seed)
 {
+	IObjectInterface::cb = this;
 	Mapa *map = new Mapa(si->mapname);
 	tlog0 << "Map loaded!" << std::endl;
 	gs = new CGameState();
 	tlog0 << "Gamestate created!" << std::endl;
 	gs->init(si,map,Seed);	
 	tlog0 << "Gamestate initialized!" << std::endl;
+
+
+	for(int i=0; i<gs->map->objects.size(); i++)
+		gs->map->objects[i]->initObj();
 	/****************************LUA OBJECT SCRIPTS************************************************/
 	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
 	//for (int i=0; i<lf->size(); i++)
@@ -1622,10 +1626,8 @@ void CGameHandler::newTurn()
 	}	
 	sendAndApply(&n);
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
-	for (std::set<CCPPObjectScript *>::iterator i=cppscripts.begin();i!=cppscripts.end();i++)
-	{
-		(*i)->newTurn();
-	}
+	for(size_t i = 0; i<gs->map->objects.size(); i++)
+		gs->map->objects[i]->newTurn();
 }
 void CGameHandler::run()
 {	
@@ -1657,38 +1659,38 @@ void CGameHandler::run()
 	/****************************SCRIPTS************************************************/
 	//std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &objscr; //alias for easier access
 	/****************************C++ OBJECT SCRIPTS************************************************/
-	std::map<int,CCPPObjectScript*> scripts;
-	CScriptCallback * csc = new CScriptCallback();
-	csc->gh = this;
-	handleCPPObjS(&scripts,new CVisitableOPH(csc));
-	handleCPPObjS(&scripts,new CVisitableOPW(csc));
-	handleCPPObjS(&scripts,new CPickable(csc));
-	handleCPPObjS(&scripts,new CMines(csc));
-	handleCPPObjS(&scripts,new CTownScript(csc));
-	handleCPPObjS(&scripts,new CHeroScript(csc));
-	handleCPPObjS(&scripts,new CMonsterS(csc));
-	handleCPPObjS(&scripts,new CCreatureGen(csc));
-	handleCPPObjS(&scripts,new CTeleports(csc));
+	//std::map<int,CCPPObjectScript*> scripts;
+	//CScriptCallback * csc = new CScriptCallback();
+	//csc->gh = this;
+	//handleCPPObjS(&scripts,new CVisitableOPH(csc));
+	//handleCPPObjS(&scripts,new CVisitableOPW(csc));
+	//handleCPPObjS(&scripts,new CPickable(csc));
+	//handleCPPObjS(&scripts,new CMines(csc));
+	//handleCPPObjS(&scripts,new CTownScript(csc));
+	//handleCPPObjS(&scripts,new CHeroScript(csc));
+	//handleCPPObjS(&scripts,new CMonsterS(csc));
+	//handleCPPObjS(&scripts,new CCreatureGen(csc));
+	//handleCPPObjS(&scripts,new CTeleports(csc));
 
 	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
 	//std::string temps("newObject");
-	for (unsigned i=0; i<gs->map->objects.size(); i++)
-	{
+	//for (unsigned i=0; i<gs->map->objects.size(); i++)
+	//{
 		//c++ scripts
-		if (scripts.find(gs->map->objects[i]->ID) != scripts.end())
-		{
-			gs->map->objects[i]->state = scripts[gs->map->objects[i]->ID];
-			gs->map->objects[i]->state->newObject(gs->map->objects[i]->id);
-		}
-		else 
-		{
-			gs->map->objects[i]->state = NULL;
-		}
+		//if (scripts.find(gs->map->objects[i]->ID) != scripts.end())
+		//{
+		//	gs->map->objects[i]->state = scripts[gs->map->objects[i]->ID];
+		//	gs->map->objects[i]->state->newObject(gs->map->objects[i]->id);
+		//}
+		//else 
+		//{
+		//	gs->map->objects[i]->state = NULL;
+		//}
 
 		//// lua scripts
 		//if(checkFunc(map->objects[i]->ID,temps))
 		//	(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
-	}
+	//}
 	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
 		states.addPlayer(i->first);
 
@@ -1904,4 +1906,209 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 	}
 	if(cs.spells.size())
 		sendAndApply(&cs);
+}
+
+void CGameHandler::setBlockVis(int objid, bool bv)
+{
+	SetObjectProperty sop(objid,2,bv);
+	sendAndApply(&sop);
+}
+void CGameHandler::removeObject(int objid)
+{
+	RemoveObject ro;
+	ro.id = objid;
+	sendAndApply(&ro);
+}
+
+void CGameHandler::setAmount(int objid, ui32 val)
+{
+	SetObjectProperty sop(objid,3,val);
+	sendAndApply(&sop);
+}
+
+void CGameHandler::moveHero(int hid, int3 pos, bool instant)
+{
+	if(!instant)
+	{
+		tlog1 << "Not supported call to CGameHandler::moveHero\n";
+		return;
+	}
+	CGHeroInstance *h = const_cast<CGHeroInstance *>(getHero(hid));
+	//check if destination tile is free
+	BOOST_FOREACH(CGObjectInstance* obj, gs->map->terrain[pos.x-1][pos.y][pos.z].blockingObjects)
+	{
+		if(obj->ID==34)
+		{
+			if(obj->tempOwner==h->tempOwner) 
+				return;//TODO: exchange
+			//TODO: check for ally
+			CGHeroInstance *dh = static_cast<CGHeroInstance *>(obj);
+			startBattleI(&h->army,&dh->army,pos,h,dh,0);
+			return;
+		}
+	}
+	TryMoveHero tmh;
+	tmh.start = h->pos;
+	tmh.end = pos;
+	tmh.id = hid;
+	tmh.movePoints = h->movement;
+	tmh.result = instant+1;
+	tmh.fowRevealed = gs->tilesToReveal(CGHeroInstance::convertPosition(pos,false),h->getSightDistance(),h->tempOwner);
+	sendAndApply(&tmh);
+}
+
+void CGameHandler::setOwner(int objid, ui8 owner)
+{
+	SetObjectProperty sop(objid,1,owner);
+	sendAndApply(&sop);
+}
+const CGObjectInstance* CGameHandler::getObj(int objid)
+{
+	return gs->map->objects[objid];
+}
+const CGHeroInstance* CGameHandler::getHero(int objid)
+{
+	return dynamic_cast<const CGHeroInstance*>(gs->map->objects[objid]);
+}
+const CGTownInstance* CGameHandler::getTown(int objid)
+{
+	return dynamic_cast<const CGTownInstance*>(gs->map->objects[objid]);
+}
+void CGameHandler::setHoverName(int objid, MetaString* name)
+{
+	SetHoverName shn(objid, *name);
+	sendAndApply(&shn);
+}
+
+int CGameHandler::getOwner(int heroID)
+{
+	return gs->map->objects[heroID]->tempOwner;
+}
+int CGameHandler::getResource(int player, int which)
+{
+	return gs->players.find(player)->second.resources[which];
+}
+void CGameHandler::showInfoDialog(InfoWindow *iw)
+{
+	sendToAllClients(iw);
+}
+void CGameHandler::showYesNoDialog( YesNoDialog *iw, const CFunctionList<void(ui32)> &callback )
+{
+	ask(iw,iw->player,callback);
+}
+void CGameHandler::showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback)
+{
+	ask(iw,iw->player,callback);
+}
+
+int CGameHandler::getSelectedHero()
+{	
+	//int ret;
+	//if (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE)
+	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection))->subID;
+	//else 
+	//	ret = -1;;
+	return -1;
+}
+
+const CGHeroInstance* CGameHandler::getSelectedHero( int player )
+{
+	return getHero(gs->players.find(player)->second.currentSelection);
+}
+
+int CGameHandler::getDate(int mode)
+{
+	return getDate(mode);
+}
+void CGameHandler::giveResource(int player, int which, int val)
+{
+	SetResource sr;
+	sr.player = player;
+	sr.resid = which;
+	sr.val = (gs->players.find(player)->second.resources[which]+val);
+	sendAndApply(&sr);
+}
+void CGameHandler::showCompInfo(ShowInInfobox * comp)
+{
+	sendToAllClients(comp);
+}
+void CGameHandler::heroVisitCastle(int obj, int heroID)
+{
+	HeroVisitCastle vc;
+	vc.hid = heroID;
+	vc.tid = obj;
+	vc.flags |= 1;
+	sendAndApply(&vc);
+	giveSpells(getTown(obj),getHero(heroID));
+}
+
+void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
+{
+	HeroVisitCastle vc;
+	vc.hid = heroID;
+	vc.tid = obj;
+	sendAndApply(&vc);
+}
+void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
+{
+	const CGHeroInstance* h = getHero(hid);
+
+	SetHeroArtifacts sha;
+	sha.hid = hid;
+	sha.artifacts = h->artifacts;
+	sha.artifWorn = h->artifWorn;
+	if(position<0)
+	{
+		if(position == -2)
+		{
+			int i;
+			for(i=0; i<VLC->arth->artifacts[artid].possibleSlots.size(); i++) //try to put artifact into first avaialble slot
+			{
+				if( !vstd::contains(sha.artifWorn,VLC->arth->artifacts[artid].possibleSlots[i]) )
+				{
+					sha.artifWorn[VLC->arth->artifacts[artid].possibleSlots[i]] = artid;
+					break;
+				}
+			}
+			if(i==VLC->arth->artifacts[artid].possibleSlots.size()) //if haven't find proper slot, use backpack
+				sha.artifacts.push_back(artid);
+		}
+		else //should be -1 => putartifact into backpack
+		{
+			sha.artifacts.push_back(artid);
+		}
+	}
+	else
+	{
+		if(!vstd::contains(sha.artifWorn,ui16(position)))
+			sha.artifWorn[position] = artid;
+		else
+			sha.artifacts.push_back(artid);
+	}
+	sendAndApply(&sha);
+}
+
+void CGameHandler::startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb) //use hero=NULL for no hero
+{
+	boost::thread(boost::bind(&CGameHandler::startBattle,this,*(CCreatureSet *)army1,*(CCreatureSet *)army2,tile,(CGHeroInstance *)hero1,(CGHeroInstance *)hero2,cb));
+}
+void CGameHandler::startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) //for hero<=>neutral army
+{
+	CGHeroInstance* h = const_cast<CGHeroInstance*>(getHero(heroID));
+	startBattleI(&h->army,&army,tile,h,NULL,cb);
+	//battle(&h->army,army,tile,h,NULL);
+}
+
+void CGameHandler::changeSpells( int hid, bool give, const std::set<ui32> &spells )
+{
+	ChangeSpells cs;
+	cs.hid = hid;
+	cs.spells = spells;
+	cs.learn = give;
+	sendAndApply(&cs);
+}
+
+int CGameHandler::getCurrentPlayer()
+{
+	return gs->currentPlayer;
 }

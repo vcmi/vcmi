@@ -241,7 +241,7 @@ std::vector < std::string > CCallback::getObjDescriptions(int3 pos) const
 	if(!isVisible(pos,player))
 		return ret;
 	BOOST_FOREACH(const CGObjectInstance * obj, gs->map->terrain[pos.x][pos.y][pos.z].blockingObjects)
-		ret.push_back(obj->hoverName);
+		ret.push_back(obj->getHoverText());
 	return ret;
 }
 bool CCallback::verifyPath(CPath * path, bool blockSea) const

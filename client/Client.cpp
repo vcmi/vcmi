@@ -476,7 +476,7 @@ void CClient::process(int what)
 			*serv >> shn;
 			tlog5 << "Setting a name of " << shn.id <<" object to "<< toString(shn.name) <<std::endl;
 			gs->mx->lock();
-			gs->map->objects[shn.id]->hoverName = toString(shn.name);
+			//gs->map->objects[shn.id]->hoverName = toString(shn.name);
 			gs->mx->unlock();
 			break;
 		}

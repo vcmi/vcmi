@@ -4,6 +4,7 @@
 #include "CLodHandler.h"
 #include <sstream>
 #include "../lib/VCMI_Lib.h"
+#include "CGeneralTextHandler.h"
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 CTownHandler::CTownHandler()
@@ -11,51 +12,104 @@ CTownHandler::CTownHandler()
 	VLC->townh = this;
 }
 CTownHandler::~CTownHandler()
-{}
+{
+	for( std::map<int,std::map<int, Structure*> >::iterator i= structures.begin(); i!=structures.end(); i++)
+		for( std::map<int, Structure*>::iterator j = i->second.begin(); j!=i->second.end(); j++)
+			delete j->second;
+}
 void CTownHandler::loadNames()
 {
-	std::istringstream ins, names;
-	ins.str(bitmaph->getTextFile("TOWNTYPE.TXT"));
-	names.str(bitmaph->getTextFile("TOWNNAME.TXT"));
-	int si=0;
+	int si, itr;
 	char bufname[75];
-	while (!ins.eof())
+	for (si=0; si<F_NUMBER; si++)
 	{
 		CTown town;
-		ins.getline(bufname,50);
-		town.name = std::string(bufname);
-		town.name = town.name.substr(0,town.name.size()-1);
-		for (int i=0; i<NAMES_PER_TOWN; i++)
-		{
-			names.getline(bufname,50);
-			std::string pom(bufname);
-			town.names.push_back(pom.substr(0,pom.length()-1));
-		}
-		town.typeID=si++;
+		town.typeID=si;
 		town.bonus=towns.size();
 		if (town.bonus==8) town.bonus=3;
-		if (town.name.length())
-			towns.push_back(town);
+		towns.push_back(town);
 	}
 
-	std::string  strs = bitmaph->getTextFile("TCOMMAND.TXT");
-	int itr=0;
-	while(itr<strs.length()-1)
+	loadStructures();
+
+
+	std::ifstream of;
+	for(int x=0;x<towns.size();x++)
+		towns[x].basicCreatures.resize(7);
+
+	of.open("config/basicCres.txt");
+	while(!of.eof())
 	{
-		std::string tmp;
-		loadToIt(tmp, strs, itr, 3);
-		tcommands.push_back(tmp);
+		int tid, lid, cid; //town,level,creature
+		of >> tid >> lid >> cid;
+		if(lid < towns[tid].basicCreatures.size())
+			towns[tid].basicCreatures[lid]=cid;
 	}
+	of.close();
+	of.clear();
 
-	strs = bitmaph->getTextFile("HALLINFO.TXT");
-	itr=0;
-	while(itr<strs.length()-1)
+	for(int x=0;x<towns.size();x++)
+		towns[x].upgradedCreatures.resize(7);
+
+	of.open("config/creatures_upgr.txt");
+	while(!of.eof())
 	{
-		std::string tmp;
-		loadToIt(tmp, strs, itr, 3);
-		hcommands.push_back(tmp);
+		int tid, lid, cid; //town,level,creature
+		of >> tid >> lid >> cid;
+		if(lid < towns[tid].upgradedCreatures.size())
+			towns[tid].upgradedCreatures[lid]=cid;
 	}
+	of.close();
+	of.clear();
 
+	of.open("config/building_horde.txt");
+	while(!of.eof())
+	{
+		int tid, lid, cid; //town,horde serial,creature level
+		of >> tid >> lid >> cid;
+		towns[tid].hordeLvl[--lid] = cid;
+	}
+	of.close();
+	of.clear();
+
+	of.open("config/mageLevel.txt");
+	of >> si;
+	for(itr=0; itr<si; itr++)
+	{
+		of >> towns[itr].mageLevel >> towns[itr].primaryRes >> towns[itr].warMachine;
+	}
+	of.close();
+	of.clear();
+
+	of.open("config/requirements.txt");
+	while(!of.eof())
+	{
+		int ile, town, build, pom;
+		of >> ile;
+		for(int i=0;i<ile;i++)
+		{
+			of >> town;
+			while(true)
+			{
+				of.getline(bufname,75);if(!(*bufname))of.getline(bufname,75);
+				std::istringstream ifs(bufname);
+				ifs >> build;
+				if(build<0)
+					break;
+				while(!ifs.eof())
+				{
+					ifs >> pom;
+					requirements[town][build].insert(pom);
+				}
+			}
+		}
+	}
+	of.close();
+	of.clear();
+}
+
+void CTownHandler::loadStructures()
+{
 	//read buildings coords
 	std::ifstream of("config/buildings.txt");
 	while(!of.eof())
@@ -133,7 +187,7 @@ void CTownHandler::loadNames()
 	of.clear();
 
 	//read groups
-	itr = 0;
+	int itr = 0;
 	of.open("config/buildings4.txt");
 	of >> format;
 	if(format!=1)
@@ -209,78 +263,20 @@ void CTownHandler::loadNames()
 		}
 		of.close();
 		of.clear();
-
-		for(int x=0;x<towns.size();x++)
-			towns[x].basicCreatures.resize(7);
-
-		of.open("config/basicCres.txt");
-		while(!of.eof())
-		{
-			int tid, lid, cid; //town,level,creature
-			of >> tid >> lid >> cid;
-			if(lid < towns[tid].basicCreatures.size())
-				towns[tid].basicCreatures[lid]=cid;
-		}
-		of.close();
-		of.clear();
-
-		for(int x=0;x<towns.size();x++)
-			towns[x].upgradedCreatures.resize(7);
-
-		of.open("config/creatures_upgr.txt");
-		while(!of.eof())
-		{
-			int tid, lid, cid; //town,level,creature
-			of >> tid >> lid >> cid;
-			if(lid < towns[tid].upgradedCreatures.size())
-				towns[tid].upgradedCreatures[lid]=cid;
-		}
-		of.close();
-		of.clear();
-
-		of.open("config/building_horde.txt");
-		while(!of.eof())
-		{
-			int tid, lid, cid; //town,horde serial,creature level
-			of >> tid >> lid >> cid;
-			towns[tid].hordeLvl[--lid] = cid;
-		}
-		of.close();
-		of.clear();
-
-		of.open("config/mageLevel.txt");
-		of >> si;
-		for(itr=0; itr<si; itr++)
-		{
-			of >> towns[itr].mageLevel >> towns[itr].primaryRes >> towns[itr].warMachine;
-		}
-		of.close();
-		of.clear();
-
-		of.open("config/requirements.txt");
-		while(!of.eof())
-		{
-			int ile, town, build, pom;
-			of >> ile;
-			for(int i=0;i<ile;i++)
-			{
-				of >> town;
-				while(true)
-				{
-					of.getline(bufname,75);if(!(*bufname))of.getline(bufname,75);
-					std::istringstream ifs(bufname);
-					ifs >> build;
-					if(build<0)
-						break;
-					while(!ifs.eof())
-					{
-						ifs >> pom;
-						requirements[town][build].insert(pom);
-					}
-				}
-			}
-		}
-		of.close();
-		of.clear();
 	}
+}
+const std::string & CTown::Name() const
+{
+	if(name.length())
+		return name;
+	else
+		return VLC->generaltexth->townTypes[typeID];
+}
+
+const std::vector<std::string> & CTown::Names() const
+{
+	if(names.size())
+		return names;
+	else 
+		return VLC->generaltexth->townNames[typeID];
 }

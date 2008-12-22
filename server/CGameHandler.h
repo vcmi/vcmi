@@ -7,6 +7,7 @@
 #include "../client/FunctionList.h"
 #include "../CGameState.h"
 #include "../lib/Connection.h"
+#include "../lib/IGameCallback.h"
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
 class CVCMIServer;
@@ -53,11 +54,12 @@ public:
 		h & players;
 	}
 };
-class CGameHandler
+
+class CGameHandler : public IGameCallback
 {
 	static ui32 QID;
 	CGameState *gs;
-	std::set<CCPPObjectScript *> cppscripts; //C++ scripts
+	//std::set<CCPPObjectScript *> cppscripts; //C++ scripts
 	//std::map<int, std::map<std::string, CObjectScript*> > objscr; //non-C++ scripts 
 
 	CVCMIServer *s;
@@ -65,26 +67,58 @@ class CGameHandler
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
-	void handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script);
-	void changePrimSkill(int ID, int which, int val, bool abs=false);
 	void changeSecSkill(int ID, ui16 which, int val, bool abs=false);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
 	void prepareAttack(BattleAttack &bat, CStack *att, CStack *def); //if last parameter is true, attack is by shooting, if false it's a melee attack
 	void prepareAttacked(BattleStackAttacked &bsa, CStack *def);
-
 	void checkForBattleEnd( std::vector<CStack*> &stacks );
 	void setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army1, CCreatureSet &army2, CGHeroInstance * hero1, CGHeroInstance * hero2 );
 
 public:
 	CGameHandler(void);
 	~CGameHandler(void);
+
+	//////////////////////////////////////////////////////////////////////////
+	//from IGameCallback
+	//get info
+	int getOwner(int heroID);
+	int getResource(int player, int which);
+	int getSelectedHero();
+	int getDate(int mode=0);
+	const CGObjectInstance* getObj(int objid);
+	const CGHeroInstance* getHero(int objid);
+	const CGTownInstance* getTown(int objid);
+	const CGHeroInstance* getSelectedHero(int player); //NULL if no hero is selected
+	int getCurrentPlayer();
+
+	//do sth
+	void changeSpells(int hid, bool give, const std::set<ui32> &spells);
+	void removeObject(int objid);
+	void setBlockVis(int objid, bool bv);
+	void setOwner(int objid, ui8 owner);
+	void setHoverName(int objid, MetaString * name);
+	void changePrimSkill(int ID, int which, int val, bool abs=false);
+	void showInfoDialog(InfoWindow *iw);
+	void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback);
+	void showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback); //returns question id
+	void giveResource(int player, int which, int val);
+	void showCompInfo(ShowInInfobox * comp);
+	void heroVisitCastle(int obj, int heroID);
+	void stopHeroVisitCastle(int obj, int heroID);
+	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack; pos==-2 - default if available or backpack
+	void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
+	void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
+	void setAmount(int objid, ui32 val);
+	void moveHero(int hid, int3 pos, bool instant);
+	//////////////////////////////////////////////////////////////////////////
+
 	void init(StartInfo *si, int Seed);
 	void handleConnection(std::set<int> players, CConnection &c);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & QID & gs & cppscripts & states;
+		h & QID & gs & states;
 	}
 	template <typename T> void applyAndAsk(Query<T> * sel, ui8 player, boost::function<void(ui32)> &callback)
 	{

@@ -17,177 +17,13 @@ enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TER
 	EVENTOBJ_DEF, SIGN_DEF, GARRISON_DEF, ARTIFACT_DEF, WITCHHUT_DEF, SCHOLAR_DEF, PLAYERONLY_DEF, 
 	SHRINE_DEF, SPELLSCROLL_DEF, PANDORA_DEF, GRAIL_DEF, CREGEN_DEF, CREGEN2_DEF, CREGEN3_DEF, 
 	BORDERGUARD_DEF, HEROPLACEHOLDER_DEF};
-class DLL_EXPORT CSpecObjInfo //class with object - specific info (eg. different information for creatures and heroes); use inheritance to make object - specific classes
-{
-};
-class DLL_EXPORT CEventObjInfo : public CSpecObjInfo
-{
-public:
-	bool areGuarders; //true if there are
-	CCreatureSet guarders;
-	bool isMessage; //true if there is a message
-	std::string message;
-	unsigned int gainedExp;
-	int manaDiff; //amount of gained / lost mana
-	int moraleDiff; //morale modifier
-	int luckDiff; //luck modifier
-	int wood, mercury, ore, sulfur, crystal, gems, gold; //gained / lost resources
-	unsigned int attack; //added attack points
-	unsigned int defence; //added defence points
-	unsigned int power; //added power points
-	unsigned int knowledge; //added knowledge points
-	std::vector<int> abilities; //gained abilities
-	std::vector<int> abilityLevels; //levels of gained abilities
-	std::vector<int> artifacts; //gained artifacts
-	std::vector<int> spells; //gained spells
-	CCreatureSet creatures; //gained creatures
-	unsigned char availableFor; //players whom this event is available for
-	bool computerActivate; //true if computre player can activate this event
-	bool humanActivate; //true if human player can activate this event
-};
-class DLL_EXPORT CCreatureObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char bytes[4]; //mysterious bytes identifying creature
-	unsigned int number; //number of units (0 - random)
-	unsigned char character; //chracter of this set of creatures (0 - the most friendly, 4 - the most hostile)
-	std::string message; //message printed for attacking hero
-	int wood, mercury, ore, sulfur, crytal, gems, gold; //resources gained to hero that has won with monsters
-	int gainedArtifact; //ID of artifact gained to hero
-	bool neverFlees; //if true, the troops will never flee
-	bool notGrowingTeam; //if true, number of units won't grow
-};
-class DLL_EXPORT CSignObjInfo : public CSpecObjInfo
-{
-public:
-	std::string message; //message
-};
-class DLL_EXPORT CSeerHutObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
-	bool isDayLimit; //if true, there is a day limit
-	int lastDay; //after this day (first day is 0) mission cannot be completed
-	int m1level; //for mission 1	
-	int m2attack, m2defence, m2power, m2knowledge;//for mission 2
-	unsigned char m3bytes[4];//for mission 3
-	unsigned char m4bytes[4];//for mission 4
-	std::vector<int> m5arts;//for mission 5 - artifact ID
-	std::vector<CCreature *> m6cre;//for mission 6
-	std::vector<int> m6number;
-	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;	//for mission 7
-	int m8hero;//for mission 8 - hero ID
-	int m9player; //for mission 9 - number; from 0 to 7
 
-	std::string firstVisitText, nextVisitText, completedText;
-
-	char rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
-	//for reward 1
-	int r1exp;
-	//for reward 2
-	int r2mana;
-	//for reward 3
-	int r3morale;
-	//for reward 4
-	int r4luck;
-	//for reward 5
-	unsigned char r5type; //0 - wood, 1 - mercury, 2 - ore, 3 - sulfur, 4 - crystal, 5 - gems, 6 - gold
-	int r5amount;
-	//for reward 6
-	unsigned char r6type; //0 - attack, 1 - defence, 2 - power, 3 - knowledge
-	int r6amount;
-	//for reward 7
-	int r7ability; //ability id
-	unsigned char r7level; //1 - basic, 2 - advanced, 3 - expert
-	//for reward 8
-	int r8art;//artifact id
-	//for reward 9
-	int r9spell;//spell id
-	//for reward 10
-	int r10creature; //creature id
-	int r10amount;
-};
-class DLL_EXPORT CWitchHutObjInfo : public CSpecObjInfo
+class DLL_EXPORT CSpecObjInfo
 {
 public:
-	std::vector<int> allowedAbilities;
-};
-class DLL_EXPORT CScholarObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
-
-	unsigned char r0type;
-	int r1; //Ability ID
-	int r2; //Spell ID
-};
-class DLL_EXPORT CGarrisonObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char player; //255 - nobody; 0 - 7 - players
-	CCreatureSet units;
-	bool movableUnits; //if true, units can be moved
-};
-class DLL_EXPORT CArtifactObjInfo : public CSpecObjInfo
-{
-public:
-	bool areGuards;
-	std::string message;
-	CCreatureSet guards;
-};
-class DLL_EXPORT CResourceObjInfo : public CSpecObjInfo
-{
-public:
-	bool randomAmount;
-	int amount; //if not random
-	bool areGuards;
-	CCreatureSet guards;
-	std::string message;
-};
-class DLL_EXPORT CPlayerOnlyObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char player; //FF - nobody, 0 - 7
-};
-class DLL_EXPORT CShrineObjInfo : public CSpecObjInfo
-{
-public:
-	unsigned char spell; //number of spell or 255
-};
-class DLL_EXPORT CSpellScrollObjinfo : public CSpecObjInfo
-{
-public:
-	std::string message;
-	int spell;
-	bool areGuarders;
-	CCreatureSet guarders;
-};
-class DLL_EXPORT CPandorasBoxObjInfo : public CSpecObjInfo
-{
-public:
-	std::string message;
-	bool areGuarders;
-	CCreatureSet guarders;
-
-	//gained things:
-	unsigned int gainedExp;
-	int manaDiff;
-	int moraleDiff;
-	int luckDiff;
-	int wood, mercury, ore, sulfur, crystal, gems, gold;
-	int attack, defence, power, knowledge;
-	std::vector<int> abilities;
-	std::vector<int> abilityLevels;
-	std::vector<int> artifacts;
-	std::vector<int> spells;
-	CCreatureSet creatures;
+	virtual ~CSpecObjInfo(){};
 };
 
-class DLL_EXPORT CGrailObjInfo : public CSpecObjInfo
-{
-public:
-	int radius; //place grail at the distance lesser or equal radius from this place
-};
 class DLL_EXPORT CCreGenObjInfo : public CSpecObjInfo
 {
 public:
@@ -210,34 +46,6 @@ class DLL_EXPORT CCreGen3ObjInfo : public CSpecObjInfo
 public:
 	unsigned char player; //owner
 	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
-};
-class DLL_EXPORT CBorderGuardObjInfo : public CSpecObjInfo //copied form seer huts, seems to be similar
-{
-public:
-	char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
-	bool isDayLimit; //if true, there is a day limit
-	int lastDay; //after this day (first day is 0) mission cannot be completed
-	//for mission 1
-	int m1level;
-	//for mission 2
-	int m2attack, m2defence, m2power, m2knowledge;
-	//for mission 3
-	unsigned char m3bytes[4];
-	//for mission 4
-	unsigned char m4bytes[4];
-	//for mission 5
-	std::vector<int> m5arts; //artifacts id
-	//for mission 6
-	std::vector<CCreature *> m6cre;
-	std::vector<int> m6number;
-	//for mission 7
-	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;
-	//for mission 8
-	int m8hero; //hero id
-	//for mission 9
-	int m9player; //number; from 0 to 7
-
-	std::string firstVisitText, nextVisitText, completedText;
 };
 
 struct DLL_EXPORT Sresource
@@ -519,6 +327,9 @@ struct DLL_EXPORT Mapa
 	std::vector<bool> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
 	std::vector<CMapEvent> events;
 
+	int3 grailPos;
+	int grailRadious;
+
 	std::vector<CGObjectInstance*> objects;
 	std::vector<CGHeroInstance*> heroes;
 	std::vector<CGTownInstance*> towns;
@@ -536,7 +347,7 @@ struct DLL_EXPORT Mapa
 	void loadPlayerInfo( int &pom, unsigned char * bufor, int &i);
 	void loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
 	void loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
-	int loadSeerHut( unsigned char * bufor, int i, CGObjectInstance * nobj);
+	int loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj);
 
 
 	void addBlockVisTiles(CGObjectInstance * obj);

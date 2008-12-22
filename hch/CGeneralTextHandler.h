@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
+std::string readTo(std::string &in, unsigned int &it, char end);
 class DLL_EXPORT CGeneralTextHandler //Handles general texts
 {
 public:
@@ -21,9 +22,17 @@ public:
 	std::vector<std::string> primarySkillNames;
 	std::vector<std::string> jktexts;
 	std::vector<std::string> heroscrn;
+
+	//artifacts
 	std::vector<std::string> artifEvents;
 	std::vector<std::string> artifNames;
 	std::vector<std::string> artifDescriptions;
+
+	//towns
+	std::vector<std::string> tcommands, hcommands; //texts for town screen and town hall screen
+	std::vector<std::vector<std::string> > townNames; //[type id] => vec of names of instances
+	std::vector<std::string> townTypes; //castle, rampart, tower, etc
+	std::map<int, std::map<int, std::pair<std::string, std::string> > > buildings; //map[town id][building id] => pair<name, description>
 
 	std::vector<std::pair<std::string,std::string> > zelp;
 	std::string lossCondtions[4];

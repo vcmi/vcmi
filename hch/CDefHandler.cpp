@@ -256,7 +256,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 	unsigned char SegmentType, SegmentLength;//, BL, BR; //TODO use me
 
 	i=BaseOffset=SEntries[SIndex].offset;
-//	int prSize=readNormalNr(i,4,FDef);i+=4; //TODO use me
+	int prSize=readNormalNr(i,4,FDef);i+=4; //TODO use me
 	int defType2 = readNormalNr(i,4,FDef);i+=4;
 	FullWidth = readNormalNr(i,4,FDef);i+=4;
 	FullHeight = readNormalNr(i,4,FDef);i+=4;

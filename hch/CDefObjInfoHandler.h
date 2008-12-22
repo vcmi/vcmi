@@ -41,6 +41,18 @@ public:
 	std::map<int,CGDefInfo*> castles;
 	//std::vector<DefObjInfo> objs;
 	void load();
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & gobjs;
+
+		if(!h.saving) //recrete castles map
+			for(std::map<int,std::map<int,CGDefInfo*> >::iterator i=gobjs.begin(); i!=gobjs.end(); i++)
+				for(std::map<int,CGDefInfo*>::iterator j=i->second.begin(); j!=i->second.end(); j++)
+					if(j->second->id == 98)
+						castles[j->second->subid]=j->second;
+	}
 };
 
 #endif //COBJINFOECTHANDLER_H

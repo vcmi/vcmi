@@ -292,7 +292,7 @@ CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, con
 {
 	if(player<0 || player>=PLAYER_LIMIT)
 	{
-		tlog1 << "Cannot pick hero for " << town->name << ". Wrong owner!\n";
+		tlog1 << "Cannot pick hero for " << town->Name() << ". Wrong owner!\n";
 		return NULL;
 	}
 	std::vector<CGHeroInstance *> pool;
@@ -655,7 +655,7 @@ void CGameState::applyNL(IPack * pack)
 			if(p->what == 3) //set creatures amount
 			{
 				tlog5 << "Setting creatures amount in " << p->id << std::endl;
-				static_cast<CCreatureObjInfo*>(map->objects[p->id]->info)->number = p->val;
+				static_cast<CGCreature*>(map->objects[p->id])->army.slots[0].second = p->val;
 				break;
 			}
 			ui8 CGObjectInstance::*point;
@@ -1184,7 +1184,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		}
 		CGHeroInstance * vhi = (map->heroes[i]);
 		vhi->initHero();
-		players[vhi->getOwner()].heroes.push_back(vhi);
+		players.find(vhi->getOwner())->second.heroes.push_back(vhi);
 		hids.erase(vhi->subID);
 	}
 	for(int i=0; i<map->predefinedHeroes.size(); i++)
@@ -1286,7 +1286,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		if(!vti->town)
 			vti->town = &VLC->townh->towns[vti->subID];
 		if (vti->name.length()==0) // if town hasn't name we draw it
-			vti->name=vti->town->names[ran()%vti->town->names.size()];
+			vti->name = vti->town->Names()[ran()%vti->town->Names().size()];
 
 		//init buildings
 		if(vti->builtBuildings.find(-50)!=vti->builtBuildings.end()) //give standard set of buildings
@@ -1456,7 +1456,7 @@ float CGameState::getMarketEfficiency( int player, int mode/*=0*/ )
 	return ret;
 }
 
-std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player)
+std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player) const
 {		
 	std::set<int3> ret;
 	int xbeg = pos.x - radious - 2;
@@ -1479,7 +1479,7 @@ std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player)
 			int deltaY = (pos.y-yd)*(pos.y-yd);
 			if(deltaX+deltaY<radious*radious)
 			{
-				if(player<0 || players[player].fogOfWarMap[xd][yd][pos.z]==0)
+				if(player<0 || players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==0)
 				{
 					ret.insert(int3(xd,yd,pos.z));
 				}

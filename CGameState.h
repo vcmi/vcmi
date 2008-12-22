@@ -195,7 +195,7 @@ private:
 	int battleGetStack(int pos); //returns ID of stack at given tile
 	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
 	float getMarketEfficiency(int player, int mode=0);
-	std::set<int3> tilesToReveal(int3 pos, int radious, int player); //if player==-1 => adds all tiles in radious
+	std::set<int3> tilesToReveal(int3 pos, int radious, int player) const; //if player==-1 => adds all tiles in radious
 public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
