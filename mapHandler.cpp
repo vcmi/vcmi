@@ -155,9 +155,10 @@ void CMapHandler::prepareFOWDefs()
 		for (int j=0; j < CGI->mh->map->height; ++j)
 		{
 			hideBitmap[i][j].resize(CGI->mh->map->twoLevel+1);
-			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k) {
+			for(int k=0; k<CGI->mh->map->twoLevel+1; ++k)
+			{
 				hideBitmap[i][j][k] = rand()%fullHide->ourImages.size();
-                        }
+			}
 		}
 	}
 }

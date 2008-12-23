@@ -22,16 +22,18 @@ void CCreatureAnimation::setType(int type)
 					break;
 				}
 			}
-			if(curFrame != -1) {
+			if(curFrame != -1)
+			{
 				curFrame = j;
-                        }
+			}
 		}
 	}
 	else
 	{
-		if(curFrame>=frames) {
+		if(curFrame>=frames)
+		{
 			curFrame = 0;
-                }
+		}
 	}
 }
 
@@ -286,7 +288,8 @@ inline void CCreatureAnimation::putPixel(
         const bool & yellowBorder
 ) const {
 	
-    if(palc!=0) {
+    if(palc!=0)
+	{
 		Uint8 * p = (Uint8*)dest->pixels + ftcp*3;
 		if(palc > 7) //normal color
 		{

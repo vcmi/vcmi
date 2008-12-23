@@ -65,12 +65,10 @@ void SpellbookInteractiveArea::deactivate()
 	Hoverable::deactivate();
 }
 
-CSpellWindow::CSpellWindow(
-        const SDL_Rect & myRect,
-        const CGHeroInstance * myHero):
-        battleSpellsOnly(true),
-        selectedTab(4),
-        spellSite(0)
+CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero):
+	battleSpellsOnly(true),
+	selectedTab(4),
+	spellSite(0)
 {
 	//XXX for testing only
 	//mySpells = myHero->spells;
@@ -547,12 +545,14 @@ void CSpellWindow::computeSpellsPerArea()
 	{
 		for(size_t c=0; c<12; ++c)
 		{
-			if(c<spellsCurSite.size()) {
+			if(c<spellsCurSite.size())
+			{
 				spellAreas[c]->mySpell = spellsCurSite[c];
-                        }
-			else {
+			}
+			else
+			{
 				spellAreas[c]->mySpell = -1;
-                        }
+			}
 		}
 	}
 	else

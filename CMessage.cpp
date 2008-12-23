@@ -89,9 +89,10 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 	SDL_Surface * ret = SDL_CreateRGBSurface(screen->flags, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
 	for (int i=0; i<h; i+=background->h)//background
 	{
-		for (int j=0; j<w; j+=background->w-1) {
+		for (int j=0; j<w; j+=background->w-1)
+		{
 			SDL_BlitSurface(background,&genRect(background->h,background->w-1,1,0),ret,&genRect(h,w,j,i)); //FIXME taking address of temporary
-                }
+		}
 	}
 	drawBorder(playerColor, ret, w, h);
 	return ret;
@@ -224,12 +225,14 @@ SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * 
 SDL_Surface * CMessage::blitCompsOnSur(std::vector<SComponent*> & comps, int maxw, int inter, int & curh, SDL_Surface * ret)
 {
 	std::vector<std::string> * brdtext;
-	if (comps.size()) {
+	if (comps.size())
+	{
 		brdtext = breakText(comps[0]->subtitle,12,true,true);
-        }
-	else {
+	}
+	else
+	{
 		brdtext = NULL;
-        }
+	}
 	comps[0]->pos.x = (ret->w/2) - ((comps[0]->getImg()->w)/2);
 	comps[0]->pos.y = curh;
 	blitAt(comps[0]->getImg(),comps[0]->pos.x,comps[0]->pos.y,ret);
@@ -251,16 +254,19 @@ SDL_Surface* CMessage::blitCompsOnSur(SDL_Surface * _or, std::vector< std::vecto
 		for(size_t j=0;j<(*komp)[i].size();j++)
 		{
 			totalw+=(*komp)[i][j]->getImg()->w;
-			if(maxh<(*komp)[i][j]->getImg()->h) {
+			if(maxh<(*komp)[i][j]->getImg()->h)
+			{
 				maxh=(*komp)[i][j]->getImg()->h;
-                        }
+			}
 		}
-		if(_or) {
+		if(_or)
+		{
 			totalw += (inter*2+_or->w) * ((*komp)[i].size() - 1);
-                }
-		else {
+		}
+		else
+		{
 			totalw += (inter) * ((*komp)[i].size() - 1);
-                }
+		}
 
 		curh+=maxh/2;
 		int curw = (ret->w/2)-(totalw/2);

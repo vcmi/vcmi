@@ -14,13 +14,19 @@ public:
 	si32 getSlotFor(ui32 creature, ui32 slotsAmount=7) //returns -1 if no slot available
 	{	
 		for(std::map<si32,std::pair<ui32,si32> >::iterator i=slots.begin(); i!=slots.end(); ++i)
-			if(i->second.first == creature) {
+		{
+			if(i->second.first == creature)
+			{
 				return i->first; //if there is already such creature we return its slot id
-                        }
+			}
+		}
 		for(ui32 i=0; i<slotsAmount; i++)
-			if(slots.find(i) == slots.end()) {
+		{
+			if(slots.find(i) == slots.end())
+			{
 				return i; //return first free slot
-            }
+			}
+		}
 		return -1; //no slot available
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)

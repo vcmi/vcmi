@@ -74,9 +74,10 @@ void CSDL_Ext::printAtMiddleWB(const std::string & text, int x, int y, TTF_Font 
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
 	std::vector<SDL_Surface*> wesu;
 	wesu.resize(ws->size());
-	for (size_t i=0; i < wesu.size(); ++i) {
+	for (size_t i=0; i < wesu.size(); ++i)
+	{
 		wesu[i]=TTF_RenderText_Blended(font,(*ws)[i].c_str(),kolor);
-    }
+	}
 
 	int tox=0, toy=0;
 	for (size_t i=0; i < wesu.size(); ++i)
@@ -404,7 +405,8 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
     /* Here p is the address to the pixel we want to retrieve */
     Uint8 *p = (Uint8 *)surface->pixels + y * surface->pitch + x * bpp;
 
-    switch(bpp) {
+    switch(bpp)
+	{
     case 1:
 		if(colorByte)
 		{
@@ -544,18 +546,21 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 		int srcx, srcy, w, h;
 
 		/* Make sure the surfaces aren't locked */
-		if ( ! src || ! dst ) {
+		if ( ! src || ! dst )
+		{
 			SDL_SetError("SDL_UpperBlit: passed a NULL surface");
 			return(-1);
 		}
-		if ( src->locked || dst->locked ) {
+		if ( src->locked || dst->locked )
+		{
 			SDL_SetError("Surfaces must not be locked during blit");
 			return(-1);
 		}
 
 		/* If the destination rectangle is NULL, use the entire dest surface */
-		if ( dstRect == NULL ) {
-				fulldst.x = fulldst.y = 0;
+		if ( dstRect == NULL )
+		{
+			fulldst.x = fulldst.y = 0;
 			dstRect = &fulldst;
 		}
 
@@ -566,7 +571,8 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 
 			srcx = srcRect->x;
 			w = srcRect->w;
-			if(srcx < 0) {
+			if(srcx < 0)
+			{
 					w += srcx;
 				dstRect->x -= srcx;
 				srcx = 0;
@@ -577,7 +583,8 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 
 			srcy = srcRect->y;
 			h = srcRect->h;
-			if(srcy < 0) {
+			if(srcy < 0)
+			{
 					h += srcy;
 				dstRect->y -= srcy;
 				srcy = 0;
@@ -600,7 +607,8 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			int dx, dy;
 
 			dx = clip->x - dstRect->x;
-			if(dx > 0) {
+			if(dx > 0)
+			{
 				w -= dx;
 				dstRect->x += dx;
 				srcx += dx;
@@ -610,7 +618,8 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 				w -= dx;
 
 			dy = clip->y - dstRect->y;
-			if(dy > 0) {
+			if(dy > 0)
+			{
 				h -= dy;
 				dstRect->y += dy;
 				srcy += dy;

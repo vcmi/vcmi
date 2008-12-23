@@ -170,7 +170,8 @@ public:
 	}
 	
 	template<class T>
-	COSer & operator&(T & t){
+	COSer & operator&(T & t)
+	{
 		return * this->This() << t;
 	}	
 	
@@ -272,7 +273,8 @@ public:
 	}
 	
 	template<class T>
-	CISer & operator&(T & t){
+	CISer & operator&(T & t)
+	{
 		return * this->This() >> t;
 	}	
 

@@ -55,27 +55,32 @@ CPath * CPathfinder::getPath(int3 src, int3 dest, const CGHeroInstance * hero, u
 		for(size_t j=0; j<graph[i].size(); ++j)
 		{
 			graph[i][j].accesible = !CGI->mh->ttiles[i][j][src.z].tileInfo->blocked;
-			if(i==dest.x && j==dest.y && CGI->mh->ttiles[i][j][src.z].tileInfo->visitable) {
+			if(i==dest.x && j==dest.y && CGI->mh->ttiles[i][j][src.z].tileInfo->visitable)
+			{
 				graph[i][j].accesible = true; //for allowing visiting objects
-                        }
+			}
 			graph[i][j].dist = -1;
 			graph[i][j].theNodeBefore = NULL;
 			graph[i][j].visited = false;
 			graph[i][j].coord.x = i;
 			graph[i][j].coord.y = j;
 			graph[i][j].coord.z = dest.z;
-			if (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==rock) {
+			if (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==rock)
+			{
 				graph[i][j].accesible = false;
-                        }
-			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==water)) {
+			}
+			if ((blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype==water))
+			{
 				graph[i][j].accesible = false;
-                        }
-			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype!=water)) {
+			}
+			else if ((!blockLandSea) && (CGI->mh->ttiles[i][j][src.z].tileInfo->tertype!=water))
+			{
 				graph[i][j].accesible = false;
-                        }
-			if(graph[i][j].accesible) {
+			}
+			if(graph[i][j].accesible)
+			{
 				graph[i][j].accesible = CGI->state->players[hero->tempOwner].fogOfWarMap[i][j][src.z];
-                        }
+			}
 		}
 	}
 

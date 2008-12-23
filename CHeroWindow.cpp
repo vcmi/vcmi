@@ -131,13 +131,15 @@ CHeroWindow::~CHeroWindow()
 	delete leftArtRoll;
 	delete rightArtRoll;
 
-	for(size_t g=0; g<heroListMi.size(); ++g) {
+	for(size_t g=0; g<heroListMi.size(); ++g)
+	{
 		delete heroListMi[g];
-        }
+	}
 
-	if(curBack) {
+	if(curBack)
+	{
 		SDL_FreeSurface(curBack);
-        }
+	}
 
 	delete flags;
 
@@ -306,12 +308,14 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		add->pos.x = pos.x + 403 + 46*s;
 		add->pos.y = pos.y + 365;
 		add->pos.h = add->pos.w = 44;
-		if(s<hero->artifacts.size() && hero->artifacts[s]) {
+		if(s<hero->artifacts.size() && hero->artifacts[s])
+		{
 			add->text = hero->getArt(19+s)->Description();
-                }
-		else {
+		}
+		else
+		{
 			add->text = std::string();
-                }
+		}
 		add->ourWindow = this;
 		add->slotID = 19+s;
 		backpack.push_back(add);

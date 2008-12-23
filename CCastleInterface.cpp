@@ -27,7 +27,7 @@ using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
 CBuildingRect::CBuildingRect(Structure *Str)
-:moi(false), offset(0), str(Str)
+	:moi(false), offset(0), str(Str)
 {
 	def = CDefHandler::giveDef(Str->defName);
 	max = def->ourImages.size();
@@ -49,18 +49,22 @@ CBuildingRect::CBuildingRect(Structure *Str)
 		area = border = NULL;
 		return;
 	}
-	if (border = BitmapHandler::loadBitmap(str->borderName)) {//FIXME hmmm if '=' use () else '==' fatal mistake
+	if (border = BitmapHandler::loadBitmap(str->borderName)) //FIXME hmmm if '=' use () else '==' fatal mistake
+	{
 		SDL_SetColorKey(border,SDL_SRCCOLORKEY,SDL_MapRGB(border->format,0,255,255));
-        }
-	else {
+	}
+	else
+	{
 		tlog2 << "Warning: no border for "<<Str->ID<<std::endl;
-        }
-	if (area = BitmapHandler::loadBitmap(str->areaName)) { //FIXME look up
+	}
+	if (area = BitmapHandler::loadBitmap(str->areaName))//FIXME look up
+	{ 
 		;//SDL_SetColorKey(area,SDL_SRCCOLORKEY,SDL_MapRGB(area->format,0,255,255));
-        }
-	else {
+	}
+	else
+	{
 		tlog2 << "Warning: no area for "<<Str->ID<<std::endl;
-        }
+	}
 }
 
 CBuildingRect::~CBuildingRect()
@@ -711,9 +715,10 @@ void CCastleInterface::activate()
 	LOCPLINT->statusbar = statusbar;
 	exit->activate();
 	split->activate();
-	for(size_t i=0;i<buildings.size();i++) { //XXX pls use iterators or at() but not []
+	for(size_t i=0;i<buildings.size();i++) //XXX pls use iterators or at() but not []
+	{
 		buildings[i]->activate();
-        }
+	}
 	hslotdown.activate();
 	hslotup.activate();
 	showAll(0,true);
@@ -730,9 +735,10 @@ void CCastleInterface::deactivate()
 	garr->deactivate();
 	exit->deactivate();
 	split->deactivate();
-	for(size_t i=0;i<buildings.size();i++) { //XXX iterators
+	for(size_t i=0;i<buildings.size();i++) //XXX iterators
+	{
 		buildings[i]->deactivate();
-        }
+	}
 	hslotdown.deactivate();
 	hslotup.deactivate();
 }
@@ -1097,9 +1103,12 @@ void CHallInterface::show(SDL_Surface * to) //TODO use me
 void CHallInterface::activate()
 {
 	for(int i=0;i<5;i++)
-		for(size_t j=0; j < boxes[i].size(); ++j) {
+	{
+		for(size_t j=0; j < boxes[i].size(); ++j)
+		{
 			boxes[i][j]->activate();
-                }
+		}
+	}
 	exit->activate();
 }
 void CHallInterface::deactivate()
@@ -1245,13 +1254,15 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 	CSDL_Ext::printAtMiddleWB(CGI->buildh->buildings[tid][bid]->Description(),197,168,GEOR16,40,zwykly,bitmap);
 	CSDL_Ext::printAtMiddleWB(getTextForState(state),197,248,GEOR13,50,zwykly,bitmap);
 	CSDL_Ext::printAtMiddle(CSDL_Ext::processStr(CGI->generaltexth->hcommands[7],pom),197,30,GEOR16,tytulowy,bitmap);
+
 	int resamount=0; 
-        
-        for(int i=0;i<7;i++) {
-            if(CGI->buildh->buildings[tid][bid]->resources[i]) {
-                resamount++;
-            }
-        }
+	for(int i=0;i<7;i++)
+	{
+		if(CGI->buildh->buildings[tid][bid]->resources[i])
+		{
+			resamount++;
+		}
+	}
 	int ah = (resamount>4) ? 304 : 341;
 	int cn=-1, it=0;
 	int row1w = std::min(resamount,4) * 32 + (std::min(resamount,4)-1) * 45,
@@ -1531,17 +1542,19 @@ void CMageGuildScreen::activate()
 	LOCPLINT->objsToBlit += this;
 	LOCPLINT->castleInt->subInt = this;
 	exit->activate();
-	for(size_t i=0;i<spells.size();i++) {
+	for(size_t i=0;i<spells.size();i++)
+	{
 		spells[i].activate();
-        }
+	}
 }
 void CMageGuildScreen::deactivate()
 {
 	LOCPLINT->objsToBlit -= this;
 	exit->deactivate();
-	for(size_t i=0;i<spells.size();i++) {
+	for(size_t i=0;i<spells.size();i++)
+	{
 		spells[i].deactivate();
-        }
+	}
 }
 void CMageGuildScreen::Scroll::clickLeft (tribool down)
 {

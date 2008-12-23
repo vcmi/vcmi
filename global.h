@@ -215,17 +215,21 @@ public:
 	template<typename T> 
 	CLogger<lvl> & operator<<(const T & data)
 	{
-		if(lvl < CONSOLE_LOGGING_LEVEL) {
-			if(console) {
+		if(lvl < CONSOLE_LOGGING_LEVEL)
+		{
+			if(console)
+			{
 				console->print(data,lvl);
-                        }
-			else {
+			}
+			else
+			{
 				std::cout << data << std::flush;
-                        }
-                }
-		if((lvl < FILE_LOGGING_LEVEL) && logfile) {
+			}
+		}
+		if((lvl < FILE_LOGGING_LEVEL) && logfile)
+		{
 			*logfile << data << std::flush;
-                }
+		}
 		return *this;
 	}
 };

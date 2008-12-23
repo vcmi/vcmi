@@ -52,9 +52,10 @@ void CObjectHandler::loadObjects()
 	{
 		std::string nobj;
 		loadToIt(nobj, buf, it, 3);
-		if(nobj.size() && (nobj[nobj.size()-1]==(char)10 || nobj[nobj.size()-1]==(char)13 || nobj[nobj.size()-1]==(char)9)) {
+		if(nobj.size() && (nobj[nobj.size()-1]==(char)10 || nobj[nobj.size()-1]==(char)13 || nobj[nobj.size()-1]==(char)9))
+		{
 			nobj = nobj.substr(0, nobj.size()-1);
-                }
+		}
 		names.push_back(nobj);
 	}
 
@@ -65,9 +66,10 @@ void CObjectHandler::loadObjects()
 	while (it<buf.length()-1)
 	{
 		loadToIt(temp,buf,it,3);
-		if (temp[0]=='\"') {
+		if (temp[0]=='\"')
+		{
 			temp = temp.substr(1,temp.length()-2);
-                }
+		}
 		boost::algorithm::replace_all(temp,"\"\"","\"");
 		advobtxt.push_back(temp);
 	}
@@ -112,9 +114,10 @@ void CObjectHandler::loadObjects()
 
 	tlog5 << "\t\tReading cregens \n";
 	cregens.resize(110); //TODO: hardcoded value - change
-	for(size_t i=0; i < cregens.size(); ++i) {
+	for(size_t i=0; i < cregens.size(); ++i)
+	{
 		cregens[i]=-1;
-        }
+	}
 	std::ifstream ifs("config/cregens.txt");
 	while(!ifs.eof())
 	{
@@ -362,12 +365,14 @@ int3 CGHeroInstance::convertPosition(int3 src, bool toh3m) //toh3m=true: manifes
 }
 int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 {
-	if (h3m) {
+	if (h3m)
+	{
 		return pos;
-        }
-	else {
-            return convertPosition(pos,false);
-        }
+	}
+	else
+	{
+		return convertPosition(pos,false);
+	}
 }
 int CGHeroInstance::getSightDistance() const //returns sight distance of this hero
 {

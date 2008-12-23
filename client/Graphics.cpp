@@ -123,7 +123,8 @@ void Graphics::loadPaletteAndColors()
 		guildBgs.push_back(pals);
 	}
 	bback.close();
-}	
+}
+
 void Graphics::initializeBattleGraphics()
 {
 	std::ifstream bback("config/battleBack.txt");

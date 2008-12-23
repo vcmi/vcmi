@@ -197,19 +197,24 @@ const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 
 	//if (gs->currentPlayer!=player) //TODO: checking if we are allowed to give that info
 	//	return NULL;
 	if (!mode) //esrial id
-		if(val<gs->players[player].heroes.size()) {
+	{
+		if(val<gs->players[player].heroes.size())
+		{
 			return gs->players[player].heroes[val];
-        }
-		else {
-            return NULL;
-        }
+		}
+		else
+		{
+			return NULL;
+		}
+	}
 	else if(mode==1) //it's hero type id
 	{
 		for (size_t i=0; i < gs->players[player].heroes.size(); ++i)
 		{
-			if (gs->players[player].heroes[i]->type->ID==val) {
+			if (gs->players[player].heroes[i]->type->ID==val)
+			{
 				return gs->players[player].heroes[i];
-            }
+			}
 		}
 	}
 	else //object id

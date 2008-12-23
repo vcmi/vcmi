@@ -311,16 +311,18 @@ CGarrisonInt::~CGarrisonInt()
 {
 	if(sup)
 	{
-		for(size_t i=0;i<sup->size();i++) {
+		for(size_t i=0;i<sup->size();i++)
+		{
 			delete (*sup)[i];
-                }
+		}
 		delete sup;
 	}
 	if(sdown)
 	{
-		for(size_t i=0;i<sdown->size();i++) {
+		for(size_t i=0;i<sdown->size();i++)
+		{
 			delete (*sdown)[i]; //XXX what about smartpointers? boost or auto_ptr from std
-                }
+		}
 		delete sdown;
 	}
 }
@@ -330,17 +332,22 @@ void CGarrisonInt::show()
 	if(sup)
 	{
 		for(size_t i = 0; i<sup->size(); i++)
-			if((*sup)[i]) {
+		{
+			if((*sup)[i])
+			{
 				(*sup)[i]->show();
-                        }
+			}
+		}
 	}
 	if(sdown)
 	{
-		for(size_t i = 0; i<sdown->size(); i++) {
-			if((*sdown)[i]){
+		for(size_t i = 0; i<sdown->size(); i++)
+		{
+			if((*sdown)[i])
+			{
 				(*sdown)[i]->show();
-                        }
-                }
+			}
+		}
 	}
 }
 void CGarrisonInt::deactiveteSlots()
@@ -924,9 +931,8 @@ ClickableL::ClickableL()
 	pressedL=false;
 }
 
-ClickableL::~ClickableL() {
-
-}
+ClickableL::~ClickableL()
+{}
 
 void ClickableL::clickLeft(tribool down)
 {
@@ -950,9 +956,8 @@ ClickableR::ClickableR()
 	pressedR=false;
 }
 
-ClickableR::~ClickableR() {
-
-}
+ClickableR::~ClickableR()
+{}
 
 void ClickableR::clickRight(tribool down)
 {
@@ -971,9 +976,8 @@ void ClickableR::deactivate()
 }
 //ClickableR
 
-Hoverable::~Hoverable() {
-
-}
+Hoverable::~Hoverable()
+{}
 
 void Hoverable::activate()
 {
@@ -990,9 +994,8 @@ void Hoverable::hover(bool on)
 }
 //Hoverable
 
-KeyInterested::~KeyInterested() {
-    
-}
+KeyInterested::~KeyInterested()
+{}
 
 void KeyInterested::activate()
 {
@@ -2027,7 +2030,7 @@ void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curint->deactivate();
-	curint = battleInt = new CBattleInterface(army1,army2,hero1,hero2);
+	curint = battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
 	curint->activate();
 	LOCPLINT->objsToBlit.push_back(dynamic_cast<IShowable*>(curint));
 }
