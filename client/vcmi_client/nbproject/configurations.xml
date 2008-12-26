@@ -1,0 +1,595 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configurationDescriptor version="51">
+  <logicalFolder name="root" displayName="root" projectFiles="true">
+    <logicalFolder name="HeaderFiles"
+                   displayName="Header Files"
+                   projectFiles="true">
+      <itemPath>../../AdventureMapButton.h</itemPath>
+      <itemPath>../../AI_Base.h</itemPath>
+      <itemPath>../../hch/CAbilityHandler.h</itemPath>
+      <itemPath>../../CAdvmapInterface.h</itemPath>
+      <itemPath>../../hch/CAmbarCendamo.h</itemPath>
+      <itemPath>../../hch/CArtHandler.h</itemPath>
+      <itemPath>../../CBattleInterface.h</itemPath>
+      <itemPath>../CBitmapHandler.h</itemPath>
+      <itemPath>../../hch/CBuildingHandler.h</itemPath>
+      <itemPath>../../CCallback.h</itemPath>
+      <itemPath>../../CCastleInterface.h</itemPath>
+      <itemPath>../CConfigHandler.h</itemPath>
+      <itemPath>../CCreatureAnimation.h</itemPath>
+      <itemPath>../../CCursorHandler.h</itemPath>
+      <itemPath>../../hch/CDefHandler.h</itemPath>
+      <itemPath>../../CGameInfo.h</itemPath>
+      <itemPath>../../CGameInterface.h</itemPath>
+      <itemPath>../../hch/CHeroHandler.h</itemPath>
+      <itemPath>../../CHeroWindow.h</itemPath>
+      <itemPath>../Client.h</itemPath>
+      <itemPath>../../CLuaHandler.h</itemPath>
+      <itemPath>../../CMessage.h</itemPath>
+      <itemPath>../../hch/CMusicHandler.h</itemPath>
+      <itemPath>../../hch/CObjectHandler.h</itemPath>
+      <itemPath>../../CPathfinder.h</itemPath>
+      <itemPath>../../CPlayerInterface.h</itemPath>
+      <itemPath>../../CPreGame.h</itemPath>
+      <itemPath>../../hch/CSndHandler.h</itemPath>
+      <itemPath>../CSpellWindow.h</itemPath>
+      <itemPath>../../CThreadHelper.h</itemPath>
+      <itemPath>../FunctionList.h</itemPath>
+      <itemPath>../../global.h</itemPath>
+      <itemPath>../Graphics.h</itemPath>
+      <itemPath>../../int3.h</itemPath>
+      <itemPath>../../map.h</itemPath>
+      <itemPath>../../mapHandler.h</itemPath>
+      <itemPath>../../nodrze.h</itemPath>
+      <itemPath>../../SDL_framerate.h</itemPath>
+      <itemPath>../../StartInfo.h</itemPath>
+      <itemPath>../../stdafx.h</itemPath>
+      <itemPath>../../timeHandler.h</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ResourceFiles"
+                   displayName="Resource Files"
+                   projectFiles="true">
+    </logicalFolder>
+    <logicalFolder name="SourceFiles"
+                   displayName="Source Files"
+                   projectFiles="true">
+      <itemPath>../../AdventureMapButton.cpp</itemPath>
+      <itemPath>../../hch/CAbilityHandler.cpp</itemPath>
+      <itemPath>../../CAdvmapInterface.cpp</itemPath>
+      <itemPath>../../CBattleInterface.cpp</itemPath>
+      <itemPath>../CBitmapHandler.cpp</itemPath>
+      <itemPath>../../CCallback.cpp</itemPath>
+      <itemPath>../../CCastleInterface.cpp</itemPath>
+      <itemPath>../CConfigHandler.cpp</itemPath>
+      <itemPath>../CCreatureAnimation.cpp</itemPath>
+      <itemPath>../../CCursorHandler.cpp</itemPath>
+      <itemPath>../../hch/CDefHandler.cpp</itemPath>
+      <itemPath>../../CGameInfo.cpp</itemPath>
+      <itemPath>../../CGameInterface.cpp</itemPath>
+      <itemPath>../../CHeroWindow.cpp</itemPath>
+      <itemPath>../Client.cpp</itemPath>
+      <itemPath>../../CLuaHandler.cpp</itemPath>
+      <itemPath>../../CMessage.cpp</itemPath>
+      <itemPath>../../CMT.cpp</itemPath>
+      <itemPath>../../hch/CMusicHandler.cpp</itemPath>
+      <itemPath>../../hch/CObjectHandler.cpp</itemPath>
+      <itemPath>../../CPathfinder.cpp</itemPath>
+      <itemPath>../../CPlayerInterface.cpp</itemPath>
+      <itemPath>../../CPreGame.cpp</itemPath>
+      <itemPath>../../hch/CSndHandler.cpp</itemPath>
+      <itemPath>../../hch/CSpellHandler.cpp</itemPath>
+      <itemPath>../CSpellWindow.cpp</itemPath>
+      <itemPath>../../CThreadHelper.cpp</itemPath>
+      <itemPath>../Graphics.cpp</itemPath>
+      <itemPath>../../mapHandler.cpp</itemPath>
+      <itemPath>../../SDL_Extensions.cpp</itemPath>
+      <itemPath>../../SDL_framerate.cpp</itemPath>
+    </logicalFolder>
+    <logicalFolder name="ExternalFiles"
+                   displayName="Important Files"
+                   projectFiles="false">
+      <itemPath>Makefile</itemPath>
+    </logicalFolder>
+  </logicalFolder>
+  <sourceRootList>
+    <Elem>..</Elem>
+  </sourceRootList>
+  <projectmakefile>Makefile</projectmakefile>
+  <confs>
+    <conf name="Debug" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <ccCompilerTool>
+          <includeDirectories>
+            <directoryPath>/usr/include/SDL</directoryPath>
+            <directoryPath>../../../../boost/include/boost-1_37</directoryPath>
+            <directoryPath>..</directoryPath>
+            <directoryPath>../../hch</directoryPath>
+            <directoryPath>/usr/include/lua5.1</directoryPath>
+          </includeDirectories>
+          <commandLine>-D_GNU_SOURCE=1 -D_REENTRANT</commandLine>
+          <warningLevel>2</warningLevel>
+        </ccCompilerTool>
+        <linkerTool>
+          <output>dist/Debug/${PLATFORM}/vcmi_client</output>
+          <linkerAddLib>
+            <directoryPath>../../../../boost/lib</directoryPath>
+          </linkerAddLib>
+          <linkerLibItems>
+            <linkerLibProjectItem>
+              <makeArtifact PL="../../lib/vcmi_lib"
+                            CT="2"
+                            CN="Debug"
+                            AC="true"
+                            BL="true"
+                            WD="../../lib/vcmi_lib"
+                            BC="${MAKE}  -f Makefile-nb CONF=Debug"
+                            CC="${MAKE}  -f Makefile-nb CONF=Debug clean"
+                            OP="dist/Debug/GNU-Linux-x86/libvcmi_lib.so">
+              </makeArtifact>
+            </linkerLibProjectItem>
+          </linkerLibItems>
+          <commandLine>-lboost_system-gcc43-mt-1_37 -lboost_thread-gcc43-mt-1_37 -lboost_filesystem-gcc43-mt-1_37 -lSDL -lSDL_ttf -lSDL_image -lSDL_mixer</commandLine>
+        </linkerTool>
+      </compileType>
+      <item path="../../AI_Base.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../AdventureMapButton.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../AdventureMapButton.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CAdvmapInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CAdvmapInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CBattleInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CBattleInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CCallback.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CCallback.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CCastleInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CCastleInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CCursorHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CCursorHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CGameInfo.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CGameInfo.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CGameInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CGameInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CHeroWindow.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CHeroWindow.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CLuaHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CLuaHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CMT.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CMessage.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CMessage.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CPathfinder.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CPathfinder.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CPlayerInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CPlayerInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CPreGame.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CPreGame.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CThreadHelper.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CThreadHelper.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../SDL_Extensions.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../SDL_framerate.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../SDL_framerate.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../StartInfo.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../global.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CAbilityHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CAbilityHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CAmbarCendamo.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CArtHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CBuildingHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CDefHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CDefHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CHeroHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CMusicHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CMusicHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CObjectHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CObjectHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CSndHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CSndHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CSpellHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../int3.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../map.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../mapHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../mapHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../nodrze.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../stdafx.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../timeHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CBitmapHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CBitmapHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CConfigHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CConfigHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CCreatureAnimation.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CCreatureAnimation.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CSpellWindow.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CSpellWindow.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../Client.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../Client.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../FunctionList.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../Graphics.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../Graphics.h">
+        <itemTool>3</itemTool>
+      </item>
+    </conf>
+    <conf name="Release" type="1">
+      <toolsSet>
+        <developmentServer>localhost</developmentServer>
+        <compilerSet>GNU|GNU</compilerSet>
+        <platform>2</platform>
+      </toolsSet>
+      <compileType>
+        <cCompilerTool>
+          <developmentMode>5</developmentMode>
+        </cCompilerTool>
+        <ccCompilerTool>
+          <developmentMode>5</developmentMode>
+        </ccCompilerTool>
+        <fortranCompilerTool>
+          <developmentMode>5</developmentMode>
+        </fortranCompilerTool>
+        <linkerTool>
+          <linkerLibItems>
+          </linkerLibItems>
+        </linkerTool>
+      </compileType>
+      <item path="../../AI_Base.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../AdventureMapButton.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../AdventureMapButton.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CAdvmapInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CAdvmapInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CBattleInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CBattleInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CCallback.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CCallback.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CCastleInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CCastleInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CCursorHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CCursorHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CGameInfo.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CGameInfo.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CGameInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CGameInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CHeroWindow.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CHeroWindow.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CLuaHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CLuaHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CMT.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CMessage.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CMessage.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CPathfinder.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CPathfinder.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CPlayerInterface.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CPlayerInterface.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CPreGame.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CPreGame.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../CThreadHelper.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../CThreadHelper.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../SDL_Extensions.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../SDL_framerate.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../SDL_framerate.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../StartInfo.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../global.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CAbilityHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CAbilityHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CAmbarCendamo.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CArtHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CBuildingHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CDefHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CDefHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CHeroHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CMusicHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CMusicHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CObjectHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CObjectHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CSndHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../hch/CSndHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../hch/CSpellHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../int3.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../map.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../mapHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../../mapHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../nodrze.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../stdafx.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../../timeHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CBitmapHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CBitmapHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CConfigHandler.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CConfigHandler.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CCreatureAnimation.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CCreatureAnimation.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../CSpellWindow.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../CSpellWindow.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../Client.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../Client.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../FunctionList.h">
+        <itemTool>3</itemTool>
+      </item>
+      <item path="../Graphics.cpp">
+        <itemTool>1</itemTool>
+      </item>
+      <item path="../Graphics.h">
+        <itemTool>3</itemTool>
+      </item>
+    </conf>
+  </confs>
+</configurationDescriptor>

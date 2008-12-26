@@ -1,5 +1,5 @@
-#ifndef __GENIUS_AI__
-#define __GENIUS_AI__
+#ifndef __CGENIUSAI_H__
+#define __CGENIUSAI_H__
 
 #define VCMI_DLL
 
@@ -178,4 +178,4 @@ public:
 
 }
 
-#endif/*__GENIUS_AI__*/
+#endif // __CGENIUSAI_H__

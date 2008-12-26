@@ -1,5 +1,5 @@
-#ifndef CVIDEOHANDLEER_H
-#define CVIDEOHANDLEER_H
+#ifndef __CVIDEOHANDLER_H__
+#define __CVIDEOHANDLER_H__
 
 #include <stdio.h>
 #ifdef WIN32
@@ -147,4 +147,4 @@ public:
 	void open(std::string name);
 	void close();
 };
-#endif //CVIDEOHANDLEER_H
+#endif // __CVIDEOHANDLER_H__

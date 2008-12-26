@@ -1,5 +1,5 @@
-#ifndef MAPD_H
-#define MAPD_H
+#ifndef __MAP_H__
+#define __MAP_H__
 #ifdef _MSC_VER
 #pragma warning (disable : 4482)
 #endif
@@ -387,4 +387,4 @@ struct DLL_EXPORT Mapa
 		//TODO: recreate blockvis maps
 	}
 };
-#endif //MAPD_H
+#endif // __MAP_H__

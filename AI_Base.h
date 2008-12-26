@@ -1,9 +1,8 @@
-#ifndef AIBASE_H
-#define AIBASE_H
+#ifndef __AI_BASE_H__
+#define __AI_BASE_H__
+#ifndef __AI_BASE_H__
+#define __AI_BASE_H__
 
-#ifdef _MSC_VER
-#pragma once
-#endif
 
 #include <vector>
 #include <iostream>
@@ -11,4 +10,5 @@
 
 #define AI_INTERFACE_VER 1
 
-#endif //AIBASE_H
+#endif // __AI_BASE_H__
+#endif // __AI_BASE_H__

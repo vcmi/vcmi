@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __BATTLEACTION_H__
+#define __BATTLEACTION_H__
 struct BattleAction
 {
 	ui8 side; //who made this action: false - left, true - right player
@@ -10,4 +11,4 @@ struct BattleAction
 	{
 		h & side & stackNumber & actionType & destinationTile & additionalInfo;
 	}
-};
+};#endif // __BATTLEACTION_H__

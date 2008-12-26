@@ -1,9 +1,6 @@
 #ifndef GRAPHICS_H
 #define GRAPHICS_H
 
-#ifdef _MSC_VER
-#pragma once
-#endif
 
 #include "../global.h"
 

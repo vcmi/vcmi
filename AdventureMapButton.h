@@ -1,9 +1,6 @@
 #ifndef ADVENTUREMAPBUTTON_H
 #define ADVENTUREMAPBUTTON_H
 
-#ifdef _MSC_VER
-#pragma once
-#endif
 
 
 #include "CPlayerInterface.h"

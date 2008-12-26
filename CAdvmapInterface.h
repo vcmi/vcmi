@@ -1,5 +1,5 @@
-#ifndef CADVENTUREMAPINTERFACE_H
-#define CADVENTUREMAPINTERFACE_H
+#ifndef __CADVMAPINTERFACE_H__
+#define __CADVMAPINTERFACE_H__
 #include <typeinfo>
 #include "global.h"
 #include "SDL.h"
@@ -174,4 +174,4 @@ public:
 
 
 };
-#endif //CADVENTUREMAPINTERFACE_H
+#endif // __CADVMAPINTERFACE_H__

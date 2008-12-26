@@ -1,9 +1,6 @@
 #ifndef CHEROWINDOW_H
 #define CHEROWINDOW_H
 
-#ifdef _MSC_VER
-#pragma once
-#endif
 
 #include "CPlayerInterface.h"
 

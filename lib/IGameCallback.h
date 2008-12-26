@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __IGAMECALLBACK_H__
+#define __IGAMECALLBACK_H__
 
 #include "../global.h"
 #include <vector>
@@ -49,4 +50,4 @@ public:
 	virtual void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb)=0; //for hero<=>neutral army
 	virtual void setAmount(int objid, ui32 val)=0;
 	virtual void moveHero(int hid, int3 pos, bool instant)=0;
-};
+};#endif // __IGAMECALLBACK_H__

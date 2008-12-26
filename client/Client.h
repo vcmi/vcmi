@@ -1,9 +1,6 @@
 #ifndef CLIENT_H
 #define CLIENT_H
 
-#ifdef _MSC_VER
-#pragma once
-#endif
 
 #include "../global.h"
 #include <boost/thread.hpp>

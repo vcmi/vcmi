@@ -1,7 +1,6 @@
 #ifndef CGAMEHANDLER_H
 #define CGAMEHANDLER_H
 
-#pragma once
 #include "../global.h"
 #include <set>
 #include "../client/FunctionList.h"

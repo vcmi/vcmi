@@ -1,9 +1,6 @@
 #ifndef CCREATUREANIMATION_H
 #define CCREATUREANIMATION_H
 
-#ifdef _MSC_VER
-#pragma once
-#endif
 
 #include "../global.h"
 #include "../CPlayerInterface.h"

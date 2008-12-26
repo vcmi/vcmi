@@ -1,6 +1,5 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
-#pragma once
 #include "../global.h"
 #include <string>
 #include <vector>

@@ -1,4 +1,5 @@
-#pragma once
+#ifndef __CVCMISERVER_H__
+#define __CVCMISERVER_H__
 #include "../global.h"
 #include <set>
 class CConnection;
@@ -30,3 +31,4 @@ public:
 	void newGame(CConnection *c);
 	void start();
 };
+#endif // __CVCMISERVER_H__

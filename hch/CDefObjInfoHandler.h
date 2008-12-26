@@ -1,5 +1,5 @@
-#ifndef COBJINFOECTHANDLER_H
-#define COBJINFOECTHANDLER_H
+#ifndef __CDEFOBJINFOHANDLER_H__
+#define __CDEFOBJINFOHANDLER_H__
 #include <vector>
 #include <map>
 #include "../global.h"
@@ -55,4 +55,4 @@ public:
 	}
 };
 
-#endif //COBJINFOECTHANDLER_H
+#endif // __CDEFOBJINFOHANDLER_H__

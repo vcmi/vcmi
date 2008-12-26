@@ -1,5 +1,5 @@
-#ifndef __NODRZE_H__
-#define __NODRZE_H__
+#ifndef _NODRZE_H
+#define _NODRZE_H
 
 //don't look here, it's a horrible, partially working implementation of RB trees
 
@@ -909,4 +909,4 @@ template <typename T> void nodrze<T>::pre(std::ostream & strum, wezel<T> * wsk)
 	if (wsk->prawy != NIL)
 		pre(strum,wsk->prawy);
 };
-#endif // __NODRZE_H__
+#endif //_NODRZE_H
