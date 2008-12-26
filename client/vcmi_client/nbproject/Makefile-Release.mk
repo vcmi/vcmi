@@ -15,7 +15,7 @@ RANLIB=ranlib
 CC=gcc
 CCC=g++
 CXX=g++
-FC=
+FC=gfortran
 
 # Macros
 PLATFORM=GNU-Linux-x86
@@ -83,158 +83,127 @@ dist/Release/${PLATFORM}/vcmi_client: ${OBJECTFILES}
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSpellHandler.o: ../../hch/CSpellHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSpellHandler.o ../../hch/CSpellHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSpellHandler.o ../../hch/CSpellHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CLuaHandler.o: ../../CLuaHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CLuaHandler.o ../../CLuaHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CLuaHandler.o ../../CLuaHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CSpellWindow.o: ../CSpellWindow.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CSpellWindow.o ../CSpellWindow.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CSpellWindow.o ../CSpellWindow.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCastleInterface.o: ../../CCastleInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCastleInterface.o ../../CCastleInterface.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCastleInterface.o ../../CCastleInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCursorHandler.o: ../../CCursorHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCursorHandler.o ../../CCursorHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCursorHandler.o ../../CCursorHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CObjectHandler.o: ../../hch/CObjectHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CObjectHandler.o ../../hch/CObjectHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CObjectHandler.o ../../hch/CObjectHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CCreatureAnimation.o: ../CCreatureAnimation.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CCreatureAnimation.o ../CCreatureAnimation.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CCreatureAnimation.o ../CCreatureAnimation.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Client.o: ../Client.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Client.o ../Client.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Client.o ../Client.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInfo.o: ../../CGameInfo.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInfo.o ../../CGameInfo.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInfo.o ../../CGameInfo.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CHeroWindow.o: ../../CHeroWindow.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CHeroWindow.o ../../CHeroWindow.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CHeroWindow.o ../../CHeroWindow.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMessage.o: ../../CMessage.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMessage.o ../../CMessage.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMessage.o ../../CMessage.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPlayerInterface.o: ../../CPlayerInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPlayerInterface.o ../../CPlayerInterface.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPlayerInterface.o ../../CPlayerInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CAbilityHandler.o: ../../hch/CAbilityHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CAbilityHandler.o ../../hch/CAbilityHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CAbilityHandler.o ../../hch/CAbilityHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSndHandler.o: ../../hch/CSndHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSndHandler.o ../../hch/CSndHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSndHandler.o ../../hch/CSndHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CBattleInterface.o: ../../CBattleInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CBattleInterface.o ../../CBattleInterface.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CBattleInterface.o ../../CBattleInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../mapHandler.o: ../../mapHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../mapHandler.o ../../mapHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../mapHandler.o ../../mapHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPathfinder.o: ../../CPathfinder.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPathfinder.o ../../CPathfinder.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPathfinder.o ../../CPathfinder.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInterface.o: ../../CGameInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInterface.o ../../CGameInterface.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInterface.o ../../CGameInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPreGame.o: ../../CPreGame.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPreGame.o ../../CPreGame.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPreGame.o ../../CPreGame.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CBitmapHandler.o: ../CBitmapHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CBitmapHandler.o ../CBitmapHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CBitmapHandler.o ../CBitmapHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Graphics.o: ../Graphics.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Graphics.o ../Graphics.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Graphics.o ../Graphics.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CDefHandler.o: ../../hch/CDefHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CDefHandler.o ../../hch/CDefHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CDefHandler.o ../../hch/CDefHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../AdventureMapButton.o: ../../AdventureMapButton.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../AdventureMapButton.o ../../AdventureMapButton.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../AdventureMapButton.o ../../AdventureMapButton.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_Extensions.o: ../../SDL_Extensions.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_Extensions.o ../../SDL_Extensions.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_Extensions.o ../../SDL_Extensions.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CConfigHandler.o: ../CConfigHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CConfigHandler.o ../CConfigHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CConfigHandler.o ../CConfigHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CAdvmapInterface.o: ../../CAdvmapInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CAdvmapInterface.o ../../CAdvmapInterface.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CAdvmapInterface.o ../../CAdvmapInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CThreadHelper.o: ../../CThreadHelper.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CThreadHelper.o ../../CThreadHelper.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CThreadHelper.o ../../CThreadHelper.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CMusicHandler.o: ../../hch/CMusicHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CMusicHandler.o ../../hch/CMusicHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CMusicHandler.o ../../hch/CMusicHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_framerate.o: ../../SDL_framerate.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_framerate.o ../../SDL_framerate.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_framerate.o ../../SDL_framerate.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCallback.o: ../../CCallback.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCallback.o ../../CCallback.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCallback.o ../../CCallback.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMT.o: ../../CMT.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMT.o ../../CMT.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMT.o ../../CMT.cpp
 
 # Subprojects
 .build-subprojects:
@@ -246,8 +215,3 @@ ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMT.o: ../../CMT.c
 
 # Subprojects
 .clean-subprojects:
-
-# Enable dependency checking
-.dep.inc: .depcheck-impl
-
-include .dep.inc

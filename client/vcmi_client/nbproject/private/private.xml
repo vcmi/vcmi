@@ -6,12 +6,12 @@
             <line>67</line>
         </file>
         <file>
-            <url>file:/home/t0/vcmi/trunk/CPreGame.h</url>
-            <line>272</line>
-        </file>
-        <file>
             <url>file:/home/t0/vcmi/trunk/client/vcmi_client/../CSpellWindow.cpp</url>
             <line>638</line>
+        </file>
+        <file>
+            <url>file:/home/t0/vcmi/trunk/CPreGame.h</url>
+            <line>272</line>
         </file>
         <file>
             <url>file:/home/t0/vcmi/trunk/client/vcmi_client/../../CBattleInterface.cpp</url>

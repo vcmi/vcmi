@@ -15,7 +15,7 @@ RANLIB=ranlib
 CC=gcc
 CCC=g++
 CXX=g++
-FC=
+FC=gfortran
 
 # Macros
 PLATFORM=GNU-Linux-x86
@@ -29,10 +29,8 @@ OBJECTDIR=build/Debug/${PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CVCMIServer.o \
-	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../CLua.o \
 	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch/CLodHandler.o \
-	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o \
-	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CScriptCallback.o
+	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o
 
 # C Compiler Flags
 CFLAGS=
@@ -55,32 +53,19 @@ dist/Debug/${PLATFORM}/vcmi_server: ../../lib/vcmi_lib/dist/Debug/GNU-Linux-x86/
 
 dist/Debug/${PLATFORM}/vcmi_server: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug/${PLATFORM}
-	${LINK.cc} -lboost_system-gcc43-mt-1_37 -lboost_thread-gcc43-mt-1_37 -lboost_filesystem-gcc43-mt-1_37 -lz -o dist/Debug/${PLATFORM}/vcmi_server ${OBJECTFILES} ${LDLIBSOPTIONS} 
+	${LINK.cc} -lboost_system-mt -lboost_thread-mt -lboost_filesystem-mt -lz -o dist/Debug/${PLATFORM}/vcmi_server ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CVCMIServer.o: ../CVCMIServer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -I../../../../boost/include/boost-1_37 -I../.. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CVCMIServer.o ../CVCMIServer.cpp
-
-${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../CLua.o: ../../CLua.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -I../../../../boost/include/boost-1_37 -I../.. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../CLua.o ../../CLua.cpp
+	$(COMPILE.cc) -g -I../../../../boost/include/boost-1_37 -I../.. -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CVCMIServer.o ../CVCMIServer.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch/CLodHandler.o: ../../hch/CLodHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -g -I../../../../boost/include/boost-1_37 -I../.. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch/CLodHandler.o ../../hch/CLodHandler.cpp
+	$(COMPILE.cc) -g -I../../../../boost/include/boost-1_37 -I../.. -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch/CLodHandler.o ../../hch/CLodHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o: ../CGameHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -I../../../../boost/include/boost-1_37 -I../.. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o ../CGameHandler.cpp
-
-${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CScriptCallback.o: ../CScriptCallback.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -I../../../../boost/include/boost-1_37 -I../.. -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CScriptCallback.o ../CScriptCallback.cpp
+	$(COMPILE.cc) -g -I../../../../boost/include/boost-1_37 -I../.. -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o ../CGameHandler.cpp
 
 # Subprojects
 .build-subprojects:
@@ -94,8 +79,3 @@ ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CScriptCallback.o: ..
 # Subprojects
 .clean-subprojects:
 	cd ../../lib/vcmi_lib && ${MAKE}  -f Makefile-nb CONF=Debug clean
-
-# Enable dependency checking
-.dep.inc: .depcheck-impl
-
-include .dep.inc

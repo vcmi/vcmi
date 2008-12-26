@@ -15,7 +15,7 @@ RANLIB=ranlib
 CC=gcc
 CCC=g++
 CXX=g++
-FC=
+FC=gfortran
 
 # Macros
 PLATFORM=GNU-Linux-x86
@@ -81,162 +81,131 @@ dist/Debug/${PLATFORM}/vcmi_client: ../../lib/vcmi_lib/dist/Debug/GNU-Linux-x86/
 
 dist/Debug/${PLATFORM}/vcmi_client: ${OBJECTFILES}
 	${MKDIR} -p dist/Debug/${PLATFORM}
-	${LINK.cc} -lboost_system-gcc43-mt-1_37 -lboost_thread-gcc43-mt-1_37 -lboost_filesystem-gcc43-mt-1_37 -lSDL -lSDL_ttf -lSDL_image -lSDL_mixer -o dist/Debug/${PLATFORM}/vcmi_client ${OBJECTFILES} ${LDLIBSOPTIONS} 
+	${LINK.cc} -lboost_system-mt -lboost_thread-mt -lboost_filesystem-mt -lSDL -lSDL_ttf -lSDL_image -lSDL_mixer -o dist/Debug/${PLATFORM}/vcmi_client ${OBJECTFILES} ${LDLIBSOPTIONS} 
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSpellHandler.o: ../../hch/CSpellHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSpellHandler.o ../../hch/CSpellHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSpellHandler.o ../../hch/CSpellHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CLuaHandler.o: ../../CLuaHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CLuaHandler.o ../../CLuaHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CLuaHandler.o ../../CLuaHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CSpellWindow.o: ../CSpellWindow.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CSpellWindow.o ../CSpellWindow.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CSpellWindow.o ../CSpellWindow.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCastleInterface.o: ../../CCastleInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCastleInterface.o ../../CCastleInterface.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCastleInterface.o ../../CCastleInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCursorHandler.o: ../../CCursorHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCursorHandler.o ../../CCursorHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCursorHandler.o ../../CCursorHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CObjectHandler.o: ../../hch/CObjectHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CObjectHandler.o ../../hch/CObjectHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CObjectHandler.o ../../hch/CObjectHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CCreatureAnimation.o: ../CCreatureAnimation.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CCreatureAnimation.o ../CCreatureAnimation.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CCreatureAnimation.o ../CCreatureAnimation.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Client.o: ../Client.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Client.o ../Client.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Client.o ../Client.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInfo.o: ../../CGameInfo.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInfo.o ../../CGameInfo.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInfo.o ../../CGameInfo.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CHeroWindow.o: ../../CHeroWindow.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CHeroWindow.o ../../CHeroWindow.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CHeroWindow.o ../../CHeroWindow.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMessage.o: ../../CMessage.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMessage.o ../../CMessage.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMessage.o ../../CMessage.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPlayerInterface.o: ../../CPlayerInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPlayerInterface.o ../../CPlayerInterface.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPlayerInterface.o ../../CPlayerInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CAbilityHandler.o: ../../hch/CAbilityHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CAbilityHandler.o ../../hch/CAbilityHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CAbilityHandler.o ../../hch/CAbilityHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSndHandler.o: ../../hch/CSndHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSndHandler.o ../../hch/CSndHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CSndHandler.o ../../hch/CSndHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CBattleInterface.o: ../../CBattleInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CBattleInterface.o ../../CBattleInterface.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CBattleInterface.o ../../CBattleInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../mapHandler.o: ../../mapHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../mapHandler.o ../../mapHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../mapHandler.o ../../mapHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPathfinder.o: ../../CPathfinder.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPathfinder.o ../../CPathfinder.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPathfinder.o ../../CPathfinder.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInterface.o: ../../CGameInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInterface.o ../../CGameInterface.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CGameInterface.o ../../CGameInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPreGame.o: ../../CPreGame.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPreGame.o ../../CPreGame.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CPreGame.o ../../CPreGame.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CBitmapHandler.o: ../CBitmapHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CBitmapHandler.o ../CBitmapHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CBitmapHandler.o ../CBitmapHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Graphics.o: ../Graphics.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Graphics.o ../Graphics.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../Graphics.o ../Graphics.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CDefHandler.o: ../../hch/CDefHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CDefHandler.o ../../hch/CDefHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CDefHandler.o ../../hch/CDefHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../AdventureMapButton.o: ../../AdventureMapButton.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../AdventureMapButton.o ../../AdventureMapButton.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../AdventureMapButton.o ../../AdventureMapButton.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_Extensions.o: ../../SDL_Extensions.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_Extensions.o ../../SDL_Extensions.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_Extensions.o ../../SDL_Extensions.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CConfigHandler.o: ../CConfigHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CConfigHandler.o ../CConfigHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../CConfigHandler.o ../CConfigHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CAdvmapInterface.o: ../../CAdvmapInterface.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CAdvmapInterface.o ../../CAdvmapInterface.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CAdvmapInterface.o ../../CAdvmapInterface.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CThreadHelper.o: ../../CThreadHelper.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CThreadHelper.o ../../CThreadHelper.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CThreadHelper.o ../../CThreadHelper.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CMusicHandler.o: ../../hch/CMusicHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CMusicHandler.o ../../hch/CMusicHandler.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../hch/CMusicHandler.o ../../hch/CMusicHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_framerate.o: ../../SDL_framerate.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_framerate.o ../../SDL_framerate.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../SDL_framerate.o ../../SDL_framerate.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCallback.o: ../../CCallback.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCallback.o ../../CCallback.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CCallback.o ../../CCallback.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMT.o: ../../CMT.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../..
-	${RM} $@.d
-	$(COMPILE.cc) -g -Wall -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMT.o ../../CMT.cpp
+	$(COMPILE.cc) -g -I/usr/include/SDL -I../../../../boost/include/boost-1_37 -I.. -I../../hch -I/usr/include/lua5.1 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMT.o ../../CMT.cpp
 
 # Subprojects
 .build-subprojects:
@@ -250,8 +219,3 @@ ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/client/vcmi_client/../../CMT.o: ../../CMT.c
 # Subprojects
 .clean-subprojects:
 	cd ../../lib/vcmi_lib && ${MAKE}  -f Makefile-nb CONF=Debug clean
-
-# Enable dependency checking
-.dep.inc: .depcheck-impl
-
-include .dep.inc

@@ -11,4 +11,5 @@ struct BattleAction
 	{
 		h & side & stackNumber & actionType & destinationTile & additionalInfo;
 	}
-};#endif // __BATTLEACTION_H__
+};
+#endif // __BATTLEACTION_H__

@@ -112,7 +112,6 @@
             <directoryPath>/usr/include/lua5.1</directoryPath>
           </includeDirectories>
           <commandLine>-D_GNU_SOURCE=1 -D_REENTRANT</commandLine>
-          <warningLevel>2</warningLevel>
         </ccCompilerTool>
         <linkerTool>
           <output>dist/Debug/${PLATFORM}/vcmi_client</output>
@@ -133,7 +132,7 @@
               </makeArtifact>
             </linkerLibProjectItem>
           </linkerLibItems>
-          <commandLine>-lboost_system-gcc43-mt-1_37 -lboost_thread-gcc43-mt-1_37 -lboost_filesystem-gcc43-mt-1_37 -lSDL -lSDL_ttf -lSDL_image -lSDL_mixer</commandLine>
+          <commandLine>-lboost_system-mt -lboost_thread-mt -lboost_filesystem-mt -lSDL -lSDL_ttf -lSDL_image -lSDL_mixer</commandLine>
         </linkerTool>
       </compileType>
       <item path="../../AI_Base.h">

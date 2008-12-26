@@ -1,3 +1,5 @@
+#ifndef __NETPACKS_H__
+#define __NETPACKS_H__
 #include "../global.h"
 #include "BattleAction.h"
 struct IPack
@@ -565,4 +567,5 @@ struct ShowInInfobox : public CPack<ShowInInfobox> //107
 	{
 		h & player & c & text;
 	}
-}; 
+};
+#endif //__NETPACKS_H__

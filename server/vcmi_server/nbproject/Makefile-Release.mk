@@ -15,7 +15,7 @@ RANLIB=ranlib
 CC=gcc
 CCC=g++
 CXX=g++
-FC=
+FC=gfortran
 
 # Macros
 PLATFORM=GNU-Linux-x86
@@ -29,10 +29,8 @@ OBJECTDIR=build/Release/${PLATFORM}
 # Object Files
 OBJECTFILES= \
 	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CVCMIServer.o \
-	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../CLua.o \
 	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch/CLodHandler.o \
-	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o \
-	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CScriptCallback.o
+	${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o
 
 # C Compiler Flags
 CFLAGS=
@@ -57,28 +55,15 @@ dist/Release/${PLATFORM}/vcmi_server: ${OBJECTFILES}
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CVCMIServer.o: ../CVCMIServer.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CVCMIServer.o ../CVCMIServer.cpp
-
-${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../CLua.o: ../../CLua.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../CLua.o ../../CLua.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CVCMIServer.o ../CVCMIServer.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch/CLodHandler.o: ../../hch/CLodHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch/CLodHandler.o ../../hch/CLodHandler.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../../hch/CLodHandler.o ../../hch/CLodHandler.cpp
 
 ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o: ../CGameHandler.cpp 
 	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o ../CGameHandler.cpp
-
-${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CScriptCallback.o: ../CScriptCallback.cpp 
-	${MKDIR} -p ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/..
-	${RM} $@.d
-	$(COMPILE.cc) -O2 -MMD -MP -MF $@.d -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CScriptCallback.o ../CScriptCallback.cpp
+	$(COMPILE.cc) -O2 -o ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CGameHandler.o ../CGameHandler.cpp
 
 # Subprojects
 .build-subprojects:
@@ -90,8 +75,3 @@ ${OBJECTDIR}/_ext/home/t0/vcmi/trunk/server/vcmi_server/../CScriptCallback.o: ..
 
 # Subprojects
 .clean-subprojects:
-
-# Enable dependency checking
-.dep.inc: .depcheck-impl
-
-include .dep.inc
