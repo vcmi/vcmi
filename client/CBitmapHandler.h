@@ -1,5 +1,5 @@
-#ifndef CBITMAPHANDLER_H
-#define CBITMAPHANDLER_H
+#ifndef __CBITMAPHANDLER_H__
+#define __CBITMAPHANDLER_H__
 
 
 
@@ -41,4 +41,5 @@ namespace BitmapHandler
 	extern CLodHandler *bitmaph;
 	SDL_Surface * loadBitmap(std::string fname, bool setKey=false);
 };
-#endif //CBITMAPHANDLER_H
+
+#endif // __CBITMAPHANDLER_H__

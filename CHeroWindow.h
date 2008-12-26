@@ -1,5 +1,5 @@
-#ifndef CHEROWINDOW_H
-#define CHEROWINDOW_H
+#ifndef __CHEROWINDOW_H__
+#define __CHEROWINDOW_H__
 
 
 #include "CPlayerInterface.h"
@@ -130,4 +130,5 @@ public:
 	friend void CArtPlace::clickLeft(tribool down);
 	friend class CPlayerInterface;
 };
-#endif //CHEROWINDOW_H
+
+#endif // __CHEROWINDOW_H__

@@ -1,5 +1,5 @@
-#ifndef CLODHANDLER_H
-#define CLODHANDLER_H
+#ifndef __CLODHANDLER_H__
+#define __CLODHANDLER_H__
 #include "../global.h"
 #include <fstream>
 #include <vector>
@@ -58,4 +58,5 @@ public:
 	void init(std::string lodFile, std::string dirName);
 };
 
-#endif //CLODHANDLER_H
+
+#endif // __CLODHANDLER_H__

@@ -1,5 +1,5 @@
-#ifndef CAMBARCENDAMO_H
-#define CAMBARCENDAMO_H
+#ifndef __CAMBARCENDAMO_H__
+#define __CAMBARCENDAMO_H__
 #include <iostream>
 #include <string>
 #include <vector>
@@ -16,4 +16,5 @@ public:
 	//CAmbarCendamo (unsigned char * data); // c-tor; data is pointer to decompressed h3m data
 	//~CAmbarCendamo (); // d-tor
 };
-#endif //CAMBARCENDAMO_H
+
+#endif // __CAMBARCENDAMO_H__

@@ -1,5 +1,5 @@
-#ifndef SDL_EXTENSIONS_H
-#define SDL_EXTENSIONS_H
+#ifndef __SDL_EXTENSIONS_H__
+#define __SDL_EXTENSIONS_H__
 #include "SDL.h"
 #include "SDL_ttf.h"
 
@@ -53,4 +53,5 @@ namespace CSDL_Ext
 	SDL_Surface * copySurface(SDL_Surface * mod); //returns copy of given surface
 };
 
-#endif // SDL_EXTENSIONS_H
+
+#endif // __SDL_EXTENSIONS_H__

@@ -1,5 +1,5 @@
-#ifndef CBUILDINGHANDLER_H
-#define CBUILDINGHANDLER_H
+#ifndef __CBUILDINGHANDLER_H__
+#define __CBUILDINGHANDLER_H__
 #include "../global.h"
 #include <map>
 #include <vector>
@@ -35,4 +35,5 @@ public:
 	}
 };
 
-#endif //CBUILDINGHANDLER_H
+
+#endif // __CBUILDINGHANDLER_H__

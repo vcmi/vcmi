@@ -1,5 +1,5 @@
-#ifndef CSPELLWINDOW_H
-#define CSPELLWINDOW_H
+#ifndef __CSPELLWINDOW_H__
+#define __CSPELLWINDOW_H__
 
 
 #include "../global.h"
@@ -89,4 +89,5 @@ public:
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
 };
-#endif //CSPELLWINDOW_H
+
+#endif // __CSPELLWINDOW_H__

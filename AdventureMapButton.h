@@ -1,5 +1,5 @@
-#ifndef ADVENTUREMAPBUTTON_H
-#define ADVENTUREMAPBUTTON_H
+#ifndef __ADVENTUREMAPBUTTON_H__
+#define __ADVENTUREMAPBUTTON_H__
 
 
 
@@ -95,4 +95,5 @@ public:
 		int Value=0, bool Horizontal=true);
 	~CSlider();
 };	
-#endif //ADVENTUREMAPBUTTON_H
+
+#endif // __ADVENTUREMAPBUTTON_H__

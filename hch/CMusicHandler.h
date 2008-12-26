@@ -1,5 +1,5 @@
-#ifndef CMUSICHANDLER_H
-#define CMUSICHANDLER_H
+#ifndef __CMUSICHANDLER_H__
+#define __CMUSICHANDLER_H__
 
 #include <SDL_mixer.h>
 #include "CSndHandler.h"
@@ -17,4 +17,5 @@ public:
 };
 
 
-#endif //CMUSICHANDLER_H
+
+#endif // __CMUSICHANDLER_H__

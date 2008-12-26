@@ -1,5 +1,5 @@
-#ifndef CPLAYERINTERFACE_H
-#define CPLAYERINTERFACE_H
+#ifndef __CPLAYERINTERFACE_H__
+#define __CPLAYERINTERFACE_H__
 #include "global.h"
 #include "CGameInterface.h"
 #include "SDL_framerate.h"
@@ -713,4 +713,5 @@ public:
 
 extern CPlayerInterface * LOCPLINT;
 
-#endif //CPLAYERINTERFACE_H
+
+#endif // __CPLAYERINTERFACE_H__

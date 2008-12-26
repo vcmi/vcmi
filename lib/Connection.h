@@ -1,5 +1,5 @@
-#ifndef CONNECTION_H
-#define CONNECTION_H
+#ifndef __CONNECTION_H__
+#define __CONNECTION_H__
 #include "../global.h"
 #include <string>
 #include <vector>
@@ -413,4 +413,5 @@ public:
 	void close();
 	~CConnection(void);
 };
-#endif //CONNECTION_H
+
+#endif // __CONNECTION_H__

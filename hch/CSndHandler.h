@@ -1,5 +1,5 @@
-#ifndef CSNDHANDLER_H
-#define CSNDHANDLER_H
+#ifndef __CSNDHANDLER_H__
+#define __CSNDHANDLER_H__
 
 #include <vector>
 #include <fstream>
@@ -56,4 +56,5 @@ public:
 };
 
 
-#endif //CSNDHANDLER_H
+
+#endif // __CSNDHANDLER_H__

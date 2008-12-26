@@ -1,5 +1,5 @@
-#ifndef CTOWNHANDLER_H
-#define CTOWNHANDLER_H
+#ifndef __CTOWNHANDLER_H__
+#define __CTOWNHANDLER_H__
 #include "../global.h"
 #include <set>
 class CBuilding;
@@ -69,4 +69,5 @@ public:
 	}
 };
 
-#endif //CTOWNHANDLER_H
+
+#endif // __CTOWNHANDLER_H__

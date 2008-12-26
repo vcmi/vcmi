@@ -1,5 +1,5 @@
-#ifndef CABILITYHANDLER_H
-#define CABILITYHANDLER_H
+#ifndef __CABILITYHANDLER_H__
+#define __CABILITYHANDLER_H__
 
 #include <string>
 #include <vector>
@@ -24,4 +24,5 @@ public:
 	void loadAbilities();
 };
 
-#endif //CABILITYHANDLER_H
+
+#endif // __CABILITYHANDLER_H__

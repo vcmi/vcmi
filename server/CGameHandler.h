@@ -1,5 +1,5 @@
-#ifndef CGAMEHANDLER_H
-#define CGAMEHANDLER_H
+#ifndef __CGAMEHANDLER_H__
+#define __CGAMEHANDLER_H__
 
 #include "../global.h"
 #include <set>
@@ -169,4 +169,5 @@ public:
 	friend class CVCMIServer;
 	friend class CScriptCallback;
 };
-#endif //CGAMEHANDLER_H
+
+#endif // __CGAMEHANDLER_H__

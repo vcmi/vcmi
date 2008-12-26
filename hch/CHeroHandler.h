@@ -1,5 +1,5 @@
-#ifndef CHEROHANDLER_H
-#define CHEROHANDLER_H
+#ifndef __CHEROHANDLER_H__
+#define __CHEROHANDLER_H__
 #include "../global.h"
 #include <string>
 #include <vector>
@@ -79,4 +79,5 @@ public:
 		}
 	}
 };
-#endif //CHEROHANDLER_H
+
+#endif // __CHEROHANDLER_H__

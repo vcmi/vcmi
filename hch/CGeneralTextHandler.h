@@ -1,5 +1,5 @@
-#ifndef CGENERALTEXTHANDLER_H
-#define CGENERALTEXTHANDLER_H
+#ifndef __CGENERALTEXTHANDLER_H__
+#define __CGENERALTEXTHANDLER_H__
 #include "../global.h"
 #include <string>
 #include <vector>
@@ -46,4 +46,5 @@ public:
 };
 
 
-#endif //CGENERALTEXTHANDLER_H
+
+#endif // __CGENERALTEXTHANDLER_H__

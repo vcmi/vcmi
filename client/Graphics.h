@@ -1,5 +1,5 @@
-#ifndef GRAPHICS_H
-#define GRAPHICS_H
+#ifndef __GRAPHICS_H__
+#define __GRAPHICS_H__
 
 
 #include "../global.h"
@@ -63,4 +63,5 @@ public:
 };
 
 extern Graphics * graphics;
-#endif //GRAPHICS_H
+
+#endif // __GRAPHICS_H__

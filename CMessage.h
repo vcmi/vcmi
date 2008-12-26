@@ -1,5 +1,5 @@
-#ifndef CMESSAGE_H
-#define CMESSAGE_H
+#ifndef __CMESSAGE_H__
+#define __CMESSAGE_H__
 
 #include "global.h"
 #include <SDL_ttf.h>
@@ -49,4 +49,5 @@ public:
 //
 
 
-#endif //CMESSAGE_H
+
+#endif // __CMESSAGE_H__

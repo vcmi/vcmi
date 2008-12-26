@@ -1,5 +1,5 @@
-#ifndef CARTHANDLER_H
-#define CARTHANDLER_H
+#ifndef __CARTHANDLER_H__
+#define __CARTHANDLER_H__
 #include "../global.h"
 #include <string>
 #include <vector>
@@ -46,4 +46,5 @@ public:
 	}
 };
 
-#endif // CARTHANDLER_H
+
+#endif // __CARTHANDLER_H__

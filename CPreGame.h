@@ -1,5 +1,5 @@
-#ifndef CPREGAME_H
-#define CPREGAME_H
+#ifndef __CPREGAME_H__
+#define __CPREGAME_H__
 #include "global.h"
 #include <set>
 #include <SDL.h>
@@ -293,4 +293,5 @@ public:
 	void sortMaps();
 };
 
-#endif //CPREGAME_H
+
+#endif // __CPREGAME_H__

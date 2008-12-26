@@ -1,5 +1,5 @@
-#ifndef CCREATUREHANDLER_H
-#define CCREATUREHANDLER_H
+#ifndef __CCREATUREHANDLER_H__
+#define __CCREATUREHANDLER_H__
 #include "../global.h"
 #include <string>
 #include <vector>
@@ -82,4 +82,5 @@ public:
 		}
 	}
 };
-#endif //CCREATUREHANDLER_H
+
+#endif // __CCREATUREHANDLER_H__

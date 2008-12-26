@@ -1,5 +1,5 @@
-#ifndef STARTINFO_H
-#define STARTINFO_H
+#ifndef __STARTINFO_H__
+#define __STARTINFO_H__
 
 #include "global.h"
 #include <vector>
@@ -55,4 +55,5 @@ struct StartInfo
 	}
 };
 
-#endif
+
+#endif // __STARTINFO_H__

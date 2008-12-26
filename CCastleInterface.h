@@ -1,5 +1,5 @@
-#ifndef CCASTLEINTERFACE_H
-#define CCASTLEINTERFACE_H
+#ifndef __CCASTLEINTERFACE_H__
+#define __CCASTLEINTERFACE_H__
 
 
 
@@ -225,4 +225,5 @@ public:
 	void activate();
 	void deactivate();
 };
-#endif //CCASTLEINTERFACE_H
+
+#endif // __CCASTLEINTERFACE_H__

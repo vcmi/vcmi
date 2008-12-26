@@ -1,5 +1,5 @@
-#ifndef CPATHFINDER_H
-#define CPATHFINDER_H
+#ifndef __CPATHFINDER_H__
+#define __CPATHFINDER_H__
 #include "global.h"
 #include <queue>
 #include <vector>
@@ -39,4 +39,5 @@ public:
 	static void convertPath(CPath * path, unsigned int mode); //mode=0 -> from 'manifest' to 'object'
 };
 
-#endif //CPATHFINDER_H
+
+#endif // __CPATHFINDER_H__

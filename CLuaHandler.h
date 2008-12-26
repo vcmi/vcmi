@@ -1,5 +1,5 @@
-#ifndef CLUAHANDLER_H
-#define CLUAHANDLER_H
+#ifndef __CLUAHANDLER_H__
+#define __CLUAHANDLER_H__
 #include "global.h"
 #if (LUA_VERSION_NUM < 500)
 #  define LUA_OPEN_LIB(L, lib) lib(L)
@@ -20,4 +20,5 @@ public:
 
 	void test();
 };
-#endif //CLUAHANDLER_H
+
+#endif // __CLUAHANDLER_H__

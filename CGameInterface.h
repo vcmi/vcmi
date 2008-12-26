@@ -1,5 +1,5 @@
-#ifndef CGAMEINTERFACE_H
-#define CGAMEINTERFACE_H
+#ifndef __CGAMEINTERFACE_H__
+#define __CGAMEINTERFACE_H__
 #include "global.h"
 #include <set>
 #include <vector>
@@ -98,4 +98,5 @@ public:
 	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting){};
 	virtual BattleAction activeStack(int stackID) {BattleAction ba; ba.actionType = 3; ba.stackNumber = stackID; return ba;};
 };
-#endif //CGAMEINTERFACE_H
+
+#endif // __CGAMEINTERFACE_H__

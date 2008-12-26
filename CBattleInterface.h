@@ -1,5 +1,5 @@
-#ifndef CBATTLEINTERFACE_H
-#define CBATTLEINTERFACE_H
+#ifndef __CBATTLEINTERFACE_H__
+#define __CBATTLEINTERFACE_H__
 
 
 
@@ -255,4 +255,5 @@ public:
 	friend class CBattleReslutWindow;
 	friend class CPlayerInterface;
 };
-#endif //CBATTLEINTERFACE_H
+
+#endif // __CBATTLEINTERFACE_H__

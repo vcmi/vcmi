@@ -1,5 +1,5 @@
-#ifndef CCURSORHANDLER_H
-#define CCURSORHANDLER_H
+#ifndef __CCURSORHANDLER_H__
+#define __CCURSORHANDLER_H__
 #include "global.h"
 #include <vector>
 struct SDL_Thread;
@@ -25,4 +25,5 @@ public:
 };
 
 
-#endif //CCURSORHANDLER_H
+
+#endif // __CCURSORHANDLER_H__

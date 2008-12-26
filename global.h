@@ -1,5 +1,5 @@
-#ifndef GLOBAL_H
-#define GLOBAL_H
+#ifndef __GLOBAL_H__
+#define __GLOBAL_H__
 #include <iostream>
 #include <algorithm> //std::find
 #include <boost/logic/tribool.hpp>
@@ -267,4 +267,5 @@ extern DLL_EXPORT CLogger<5> tlog5; //gray - minor log info
 		delete e;						\
 	}
 
-#endif //GLOBAL_H
+
+#endif // __GLOBAL_H__

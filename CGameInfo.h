@@ -1,5 +1,5 @@
-#ifndef CGAMEINFO_H
-#define CGAMEINFO_H
+#ifndef __CGAMEINFO_H__
+#define __CGAMEINFO_H__
 #include "global.h"
 
 
@@ -63,4 +63,5 @@ public:
 	CScreenHandler * screenh;
 };
 
-#endif //CGAMEINFO_H
+
+#endif // __CGAMEINFO_H__

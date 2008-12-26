@@ -1,5 +1,5 @@
-#ifndef CGAMESTATE_H
-#define CGAMESTATE_H
+#ifndef __CGAMESTATE_H__
+#define __CGAMESTATE_H__
 #include "global.h"
 #ifndef _MSC_VER
 #include "hch/CCreatureHandler.h"
@@ -218,4 +218,5 @@ public:
 	friend class CGameHandler;
 };
 
-#endif //CGAMESTATE_H
+
+#endif // __CGAMESTATE_H__

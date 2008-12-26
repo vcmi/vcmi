@@ -1,5 +1,5 @@
-#ifndef CCALLBACK_H
-#define CCALLBACK_H
+#ifndef __CCALLBACK_H__
+#define __CCALLBACK_H__
 
 #include "global.h"
 #ifdef _WIN32
@@ -186,4 +186,5 @@ public:
 	friend int main(int argc, char** argv);
 #endif
 };
-#endif //CCALLBACK_H
+
+#endif // __CCALLBACK_H__

@@ -1,5 +1,5 @@
-#ifndef COBJECTHANDLER_H
-#define COBJECTHANDLER_H
+#ifndef __COBJECTHANDLER_H__
+#define __COBJECTHANDLER_H__
 #include "../global.h"
 #include <string>
 #include <vector>
@@ -435,4 +435,5 @@ public:
 };
 
 
-#endif //COBJECTHANDLER_H
+
+#endif // __COBJECTHANDLER_H__

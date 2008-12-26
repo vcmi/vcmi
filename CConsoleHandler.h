@@ -1,5 +1,5 @@
-#ifndef CCONSOLEHANDLER_H
-#define CCONSOLEHANDLER_H
+#ifndef __CCONSOLEHANDLER_H__
+#define __CCONSOLEHANDLER_H__
 
 #ifndef _WIN32
 #define WORD std::string
@@ -38,4 +38,5 @@ public:
 	}
 };
 
-#endif //CCONSOLEHANDLER_H
+
+#endif // __CCONSOLEHANDLER_H__

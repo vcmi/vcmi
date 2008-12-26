@@ -1,5 +1,5 @@
-#ifndef CSPELLHANDLER_H
-#define CSPELLHANDLER_H
+#ifndef __CSPELLHANDLER_H__
+#define __CSPELLHANDLER_H__
 
 #include <string>
 #include <vector>
@@ -46,4 +46,5 @@ public:
 	}
 };
 
-#endif //CSPELLHANDLER_H
+
+#endif // __CSPELLHANDLER_H__

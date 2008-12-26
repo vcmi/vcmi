@@ -1,5 +1,5 @@
-#ifndef CCREATUREANIMATION_H
-#define CCREATUREANIMATION_H
+#ifndef __CCREATUREANIMATION_H__
+#define __CCREATUREANIMATION_H__
 
 
 #include "../global.h"
@@ -51,4 +51,5 @@ public:
 
 	int framesInGroup(int group) const; //retirns number of fromes in given group
 };
-#endif //CCREATUREANIMATION_H
+
+#endif // __CCREATUREANIMATION_H__

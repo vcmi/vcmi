@@ -1,5 +1,5 @@
-#ifndef CLIENT_H
-#define CLIENT_H
+#ifndef __CLIENT_H__
+#define __CLIENT_H__
 
 
 #include "../global.h"
@@ -59,4 +59,5 @@ public:
 	friend class CScriptCallback; //for objects scripts
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 };
-#endif //CLIENT_H
+
+#endif // __CLIENT_H__

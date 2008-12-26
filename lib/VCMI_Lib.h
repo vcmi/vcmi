@@ -1,5 +1,5 @@
-#ifndef VCMI_LIB_H
-#define VCMI_LIB_H
+#ifndef __VCMI_LIB_H__
+#define __VCMI_LIB_H__
 #include "../global.h"
 
 class CLodHandler;
@@ -42,4 +42,5 @@ DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mod
 DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode);
 DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *Logfile);
 
-#endif //VCMI_LIB_H
+
+#endif // __VCMI_LIB_H__

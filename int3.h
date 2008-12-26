@@ -1,5 +1,5 @@
-#ifndef INT3_H
-#define INT3_H
+#ifndef __INT3_H__
+#define __INT3_H__
 #include <map>
 #include <vector>
 #include <cmath>
@@ -114,4 +114,5 @@ inline std::ostream & operator<<(std::ostream & str, const int3 & sth)
 {
 	return str<<sth.x<<' '<<sth.y<<' '<<sth.z;
 }
-#endif //INT3_H
+
+#endif // __INT3_H__

@@ -1,5 +1,5 @@
-#ifndef MAPHANDLER_H
-#define MAPHANDLER_H
+#ifndef __MAPHANDLER_H__
+#define __MAPHANDLER_H__
 #include "global.h"
 #include <list>
 #include <set>
@@ -112,4 +112,5 @@ public:
 
 };
 
-#endif //MAPHANDLER_H
+
+#endif // __MAPHANDLER_H__

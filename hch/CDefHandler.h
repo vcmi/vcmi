@@ -1,5 +1,5 @@
-#ifndef CDEFHANDLER_H
-#define CDEFHANDLER_H
+#ifndef __CDEFHANDLER_H__
+#define __CDEFHANDLER_H__
 #include "../client/CBitmapHandler.h"
 struct SDL_Surface;
 class CDefEssential;
@@ -57,4 +57,5 @@ public:
 	~CDefEssential();
 };
 
-#endif // CDEFHANDLER_H
+
+#endif // __CDEFHANDLER_H__
