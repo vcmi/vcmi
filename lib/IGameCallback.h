@@ -15,21 +15,24 @@ struct InfoWindow;
 struct MetaString;
 struct ShowInInfobox;
 struct BattleResult;
+class CGameState;
 
-class IGameCallback
+class DLL_EXPORT IGameCallback
 {
+protected:
+	CGameState *gs;
 public:
 	virtual ~IGameCallback(){};
 
-	virtual int getOwner(int heroID)=0;
-	virtual int getResource(int player, int which)=0;
-	virtual int getSelectedHero()=0;
-	virtual int getDate(int mode=0)=0;
-	virtual const CGObjectInstance* getObj(int objid)=0;
-	virtual const CGHeroInstance* getHero(int objid)=0;
-	virtual const CGTownInstance* getTown(int objid)=0;
-	virtual const CGHeroInstance* getSelectedHero(int player)=0; //NULL if no hero is selected
+	virtual int getOwner(int heroID);
+	virtual int getResource(int player, int which);
+	virtual int getDate(int mode=0);
+	virtual const CGObjectInstance* getObj(int objid);
+	virtual const CGHeroInstance* getHero(int objid);
+	virtual const CGTownInstance* getTown(int objid);
+	virtual const CGHeroInstance* getSelectedHero(int player); //NULL if no hero is selected
 	virtual int getCurrentPlayer()=0;
+	virtual int getSelectedHero()=0;
 
 	//do sth
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;
@@ -37,6 +40,7 @@ public:
 	virtual void setBlockVis(int objid, bool bv)=0;
 	virtual void setOwner(int objid, ui8 owner)=0;
 	virtual void setHoverName(int objid, MetaString * name)=0;
+	virtual void setObjProperty(int objid, int prop, int val)=0;
 	virtual void changePrimSkill(int ID, int which, int val, bool abs=false)=0;
 	virtual void showInfoDialog(InfoWindow *iw)=0;
 	virtual void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback)=0;

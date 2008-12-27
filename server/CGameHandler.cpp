@@ -1027,9 +1027,9 @@ upgend:
 				}
 			case 514:
 				{
-					ui32 id;
-					c >> id;
-					gs->players[*players.begin()].currentSelection = id;
+					SetSelection ss;
+					c >> ss;
+					sendAndApply(&ss);
 					break;
 				}
 			case 515:
@@ -1517,9 +1517,6 @@ void CGameHandler::init(StartInfo *si, int Seed)
 	gs->init(si,map,Seed);	
 	tlog0 << "Gamestate initialized!" << std::endl;
 
-
-	for(int i=0; i<gs->map->objects.size(); i++)
-		gs->map->objects[i]->initObj();
 	/****************************LUA OBJECT SCRIPTS************************************************/
 	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
 	//for (int i=0; i<lf->size(); i++)
@@ -1627,7 +1624,8 @@ void CGameHandler::newTurn()
 	sendAndApply(&n);
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
 	for(size_t i = 0; i<gs->map->objects.size(); i++)
-		gs->map->objects[i]->newTurn();
+		if(gs->map->objects[i])
+			gs->map->objects[i]->newTurn();
 }
 void CGameHandler::run()
 {	
@@ -1962,31 +1960,10 @@ void CGameHandler::setOwner(int objid, ui8 owner)
 	SetObjectProperty sop(objid,1,owner);
 	sendAndApply(&sop);
 }
-const CGObjectInstance* CGameHandler::getObj(int objid)
-{
-	return gs->map->objects[objid];
-}
-const CGHeroInstance* CGameHandler::getHero(int objid)
-{
-	return dynamic_cast<const CGHeroInstance*>(gs->map->objects[objid]);
-}
-const CGTownInstance* CGameHandler::getTown(int objid)
-{
-	return dynamic_cast<const CGTownInstance*>(gs->map->objects[objid]);
-}
 void CGameHandler::setHoverName(int objid, MetaString* name)
 {
 	SetHoverName shn(objid, *name);
 	sendAndApply(&shn);
-}
-
-int CGameHandler::getOwner(int heroID)
-{
-	return gs->map->objects[heroID]->tempOwner;
-}
-int CGameHandler::getResource(int player, int which)
-{
-	return gs->players.find(player)->second.resources[which];
 }
 void CGameHandler::showInfoDialog(InfoWindow *iw)
 {
@@ -2000,26 +1977,11 @@ void CGameHandler::showSelectionDialog(SelectionDialog *iw, const CFunctionList<
 {
 	ask(iw,iw->player,callback);
 }
-
-int CGameHandler::getSelectedHero()
-{	
-	//int ret;
-	//if (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE)
-	//	ret = ((CGHeroInstance*)(LOCPLINT->adventureInt->selection))->subID;
-	//else 
-	//	ret = -1;;
-	return -1;
-}
-
-const CGHeroInstance* CGameHandler::getSelectedHero( int player )
+int CGameHandler::getCurrentPlayer()
 {
-	return getHero(gs->players.find(player)->second.currentSelection);
+	return gs->currentPlayer;
 }
 
-int CGameHandler::getDate(int mode)
-{
-	return getDate(mode);
-}
 void CGameHandler::giveResource(int player, int which, int val)
 {
 	SetResource sr;
@@ -2108,7 +2070,16 @@ void CGameHandler::changeSpells( int hid, bool give, const std::set<ui32> &spell
 	sendAndApply(&cs);
 }
 
-int CGameHandler::getCurrentPlayer()
+int CGameHandler::getSelectedHero() 
 {
-	return gs->currentPlayer;
+	return IGameCallback::getSelectedHero(getCurrentPlayer())->id;
+}
+
+void CGameHandler::setObjProperty( int objid, int prop, int val )
+{
+	SetObjectProperty sob;
+	sob.id = objid;
+	sob.what = prop;
+	sob.val = val;
+	sendAndApply(&sob);
 }

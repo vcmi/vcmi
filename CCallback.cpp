@@ -648,7 +648,10 @@ void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 
 void CCallback::setSelection(const CArmedInstance * obj)
 {
-	*cl->serv << ui16(514) << obj->id;
+	SetSelection ss;
+	ss.player = player;
+	ss.id = obj->id;
+	*cl->serv << ui16(514) << ss;
 }
 
 void CCallback::recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)

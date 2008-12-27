@@ -57,7 +57,6 @@ public:
 class CGameHandler : public IGameCallback
 {
 	static ui32 QID;
-	CGameState *gs;
 	//std::set<CCPPObjectScript *> cppscripts; //C++ scripts
 	//std::map<int, std::map<std::string, CObjectScript*> > objscr; //non-C++ scripts 
 
@@ -82,15 +81,9 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	//from IGameCallback
 	//get info
-	int getOwner(int heroID);
-	int getResource(int player, int which);
-	int getSelectedHero();
-	int getDate(int mode=0);
-	const CGObjectInstance* getObj(int objid);
-	const CGHeroInstance* getHero(int objid);
-	const CGTownInstance* getTown(int objid);
-	const CGHeroInstance* getSelectedHero(int player); //NULL if no hero is selected
 	int getCurrentPlayer();
+	int getSelectedHero();
+
 
 	//do sth
 	void changeSpells(int hid, bool give, const std::set<ui32> &spells);
@@ -98,6 +91,7 @@ public:
 	void setBlockVis(int objid, bool bv);
 	void setOwner(int objid, ui8 owner);
 	void setHoverName(int objid, MetaString * name);
+	void setObjProperty(int objid, int prop, int val);
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
 	void showInfoDialog(InfoWindow *iw);
 	void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback);

@@ -577,203 +577,7 @@ int Mapa::loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj )
 
 	if(version>RoE)
 	{
-		hut->missionType = bufor[i]; ++i;
-		switch(hut->missionType)
-		{
-		case 0:
-			i+=3;
-			return i;
-		case 1:
-			{
-				hut->m1level = readNormalNr(bufor,i); i+=4;
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		case 2:
-			{
-				hut->m2attack = bufor[i]; ++i;
-				hut->m2defence = bufor[i]; ++i;
-				hut->m2power = bufor[i]; ++i;
-				hut->m2knowledge = bufor[i]; ++i;
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		case 3:
-			{
-				hut->m3bytes[0] = bufor[i]; ++i;
-				hut->m3bytes[1] = bufor[i]; ++i;
-				hut->m3bytes[2] = bufor[i]; ++i;
-				hut->m3bytes[3] = bufor[i]; ++i;
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		case 4:
-			{
-				hut->m4bytes[0] = bufor[i]; ++i;
-				hut->m4bytes[1] = bufor[i]; ++i;
-				hut->m4bytes[2] = bufor[i]; ++i;
-				hut->m4bytes[3] = bufor[i]; ++i;
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		case 5:
-			{
-				int artNumber = bufor[i]; ++i;
-				for(int yy=0; yy<artNumber; ++yy)
-				{
-					int artid = readNormalNr(bufor,i, 2); i+=2;
-					hut->m5arts.push_back(artid);
-				}
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		case 6:
-			{
-				int typeNumber = bufor[i]; ++i;
-				for(int hh=0; hh<typeNumber; ++hh)
-				{
-					int creType = readNormalNr(bufor,i, 2); i+=2;
-					int creNumb = readNormalNr(bufor,i, 2); i+=2;
-					hut->m6cre.push_back(&(VLC->creh->creatures[creType]));
-					hut->m6number.push_back(creNumb);
-				}
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		case 7:
-			{
-				hut->m7wood = readNormalNr(bufor,i); i+=4;
-				hut->m7mercury = readNormalNr(bufor,i); i+=4;
-				hut->m7ore = readNormalNr(bufor,i); i+=4;
-				hut->m7sulfur = readNormalNr(bufor,i); i+=4;
-				hut->m7crystal = readNormalNr(bufor,i); i+=4;
-				hut->m7gems = readNormalNr(bufor,i); i+=4;
-				hut->m7gold = readNormalNr(bufor,i); i+=4;
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		case 8:
-			{
-				int heroType = bufor[i]; ++i;
-				hut->m8hero = heroType;
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		case 9:
-			{
-				hut->m9player = bufor[i]; ++i;
-				int limit = readNormalNr(bufor,i); i+=4;
-				if(limit == ((int)0xffffffff))
-				{
-					hut->isDayLimit = false;
-					hut->lastDay = -1;
-				}
-				else
-				{
-					hut->isDayLimit = true;
-					hut->lastDay = limit;
-				}
-				break;
-			}
-		}//internal switch end (seer huts)
-
-		int len1 = readNormalNr(bufor,i); i+=4;
-		for(int ee=0; ee<len1; ++ee)
-		{
-			hut->firstVisitText += bufor[i]; ++i;
-		}
-
-		int len2 = readNormalNr(bufor,i); i+=4;
-		for(int ee=0; ee<len2; ++ee)
-		{
-			hut->nextVisitText += bufor[i]; ++i;
-		}
-
-		int len3 = readNormalNr(bufor,i); i+=4;
-		for(int ee=0; ee<len3; ++ee)
-		{
-			hut->completedText += bufor[i]; ++i;
-		}
+		loadQuest(hut,bufor,i);
 	}
 	else //RoE
 	{
@@ -1848,7 +1652,40 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				loadHero(nobj, bufor, i);
 				break;
 			}
-		case 54: case 71: case 72: case 73: case 74: case 75: case 162: case 163: case 164:
+		case 51: //Mercenary Camp
+		case 23: //Marletto Tower
+		case 61: // Star Axis
+		case 32: // Garden of Revelation
+		case 100: //Learning Stone
+		case 102: //Tree of Knowledge
+			{
+				nobj = new CGVisitableOPH();
+				break;
+			}
+		case 55: //mystical garden
+		case 112://windmill
+		case 109://water wheel
+			{
+				nobj = new CGVisitableOPW();
+				break;
+			}
+		case 43: //teleport
+		case 44: //teleport
+		case 45: //teleport
+		case 103://subterranean gate
+			{
+				nobj = new CGTeleport();
+				break;
+			}
+		case 12: //campfire
+		case 101: //treasure chest
+			{
+				nobj = new CGPickable();
+				break;
+			}
+		case 54:  //Monster 
+		case 71: case 72: case 73: case 74: case 75:	// Random Monster 1 - 4
+		case 162: case 163: case 164:					// Random Monster 5 - 7
 			{
 				CGCreature *cre = new CGCreature();
 				nobj = cre;
@@ -1971,7 +1808,8 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				i+=8;
 				break;
 			}
-		case 5: case 65: case 66: case 67: case 68: case 69: //artifact	
+		case 5: //artifact	
+		case 65: case 66: case 67: case 68: case 69: //random artifact
 		case 93: //spell scroll
 			{
 				CGArtifact *art = new CGArtifact();
@@ -1991,7 +1829,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				}
 				break;
 			}
-		case 76: case 79: //resource
+		case 76: case 79: //random resource; resource
 			{
 				CGResource *res = new CGResource();
 				nobj = res;
@@ -2011,12 +1849,22 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 
 				break;
 			}
-		case 77: case 98: //town
+		case 77: case 98: //random town; town
 			{
 				loadTown(nobj, bufor, i);
 				break;
 			}
-		case 53: case 17: case 18: case 19: case 20: case 42: case 87: case 220://cases 17 - 20 and 42 - tests
+		case 53: 
+			{
+				nobj = new CGMine();
+				nobj->setOwner(bufor[i++]);
+				i+=3;
+				break;
+			}
+		case 17: case 18: case 19: case 20: //dwellings
+		case 42: //lighthouse
+		case 87: //shipyard
+		case 220://mine (?)
 			{
 				nobj = new CGObjectInstance();
 				nobj->setOwner(bufor[i++]);
@@ -2157,206 +2005,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 			{
 				CGQuestGuard *guard = new CGQuestGuard();
 				nobj = guard;
-				guard->missionType = bufor[i]; ++i;
-				int len1, len2, len3;
-				switch(guard->missionType)
-				{
-				case 0:
-					{
-						goto borderguardend;
-						break;
-					}
-				case 1:
-					{
-						guard->m1level = readNormalNr(bufor,i); i+=4;
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				case 2:
-					{
-						guard->m2attack = bufor[i]; ++i;
-						guard->m2defence = bufor[i]; ++i;
-						guard->m2power = bufor[i]; ++i;
-						guard->m2knowledge = bufor[i]; ++i;
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				case 3:
-					{
-						guard->m3bytes[0] = bufor[i]; ++i;
-						guard->m3bytes[1] = bufor[i]; ++i;
-						guard->m3bytes[2] = bufor[i]; ++i;
-						guard->m3bytes[3] = bufor[i]; ++i;
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				case 4:
-					{
-						guard->m4bytes[0] = bufor[i]; ++i;
-						guard->m4bytes[1] = bufor[i]; ++i;
-						guard->m4bytes[2] = bufor[i]; ++i;
-						guard->m4bytes[3] = bufor[i]; ++i;
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				case 5:
-					{
-						int artNumber = bufor[i]; ++i;
-						for(int yy=0; yy<artNumber; ++yy)
-						{
-							guard->m5arts.push_back(readNormalNr(bufor,i, 2)); i+=2;
-						}
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				case 6:
-					{
-						int typeNumber = bufor[i]; ++i;
-						for(int hh=0; hh<typeNumber; ++hh)
-						{
-							int creType = readNormalNr(bufor,i, 2); i+=2;
-							int creNumb = readNormalNr(bufor,i, 2); i+=2;
-							guard->m6cre.push_back(&(VLC->creh->creatures[creType]));
-							guard->m6number.push_back(creNumb);
-						}
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				case 7:
-					{
-						guard->m7wood = readNormalNr(bufor,i); i+=4;
-						guard->m7mercury = readNormalNr(bufor,i); i+=4;
-						guard->m7ore = readNormalNr(bufor,i); i+=4;
-						guard->m7sulfur = readNormalNr(bufor,i); i+=4;
-						guard->m7crystal = readNormalNr(bufor,i); i+=4;
-						guard->m7gems = readNormalNr(bufor,i); i+=4;
-						guard->m7gold = readNormalNr(bufor,i); i+=4;
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				case 8:
-					{
-						int heroType = bufor[i]; ++i;
-						guard->m8hero = heroType;
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				case 9:
-					{
-						guard->m9player = bufor[i]; ++i;
-						int limit = readNormalNr(bufor,i); i+=4;
-						if(limit == ((int)0xffffffff))
-						{
-							guard->isDayLimit = false;
-							guard->lastDay = -1;
-						}
-						else
-						{
-							guard->isDayLimit = true;
-							guard->lastDay = limit;
-						}
-						break;
-					}
-				}//internal switch end (seer huts)
-
-				len1 = readNormalNr(bufor,i); i+=4;
-				for(int ee=0; ee<len1; ++ee)
-				{
-					guard->firstVisitText += bufor[i]; ++i;
-				}
-
-				len2 = readNormalNr(bufor,i); i+=4;
-				for(int ee=0; ee<len2; ++ee)
-				{
-					guard->nextVisitText += bufor[i]; ++i;
-				}
-
-				len3 = readNormalNr(bufor,i); i+=4;
-				for(int ee=0; ee<len3; ++ee)
-				{
-					guard->completedText += bufor[i]; ++i;
-				}
-borderguardend:
+				loadQuest(guard, bufor, i);
 				break;
 			}
 		case 214: //hero placeholder
@@ -2427,4 +2076,82 @@ bool Mapa::isInTheMap( int3 pos )
 	if(pos.x<0 || pos.y<0 || pos.z<0 || pos.x >= width || pos.y >= height || pos.z > twoLevel)
 		return false;
 	else return true;
+}
+
+void Mapa::loadQuest(CQuest * guard, unsigned char * bufor, int & i)
+{
+	guard->missionType = bufor[i]; ++i;
+	int len1, len2, len3;
+	switch(guard->missionType)
+	{
+	case 0:
+		return;
+	case 2:
+		{
+			guard->m2stats.resize(4);
+			for(int x=0; x<4; x++)
+			{
+				guard->m2stats[x] = bufor[i++];
+			}
+		}
+		break;
+	case 1:
+	case 3:
+	case 4:
+		{
+			guard->m13489val = readNormalNr(bufor,i); i+=4;
+			break;
+		}
+	case 5:
+		{
+			int artNumber = bufor[i]; ++i;
+			for(int yy=0; yy<artNumber; ++yy)
+			{
+				guard->m5arts.push_back(readNormalNr(bufor,i, 2)); i+=2;
+			}
+			break;
+		}
+	case 6:
+		{
+			int typeNumber = bufor[i]; ++i;
+			for(int hh=0; hh<typeNumber; ++hh)
+			{
+				ui32 creType = readNormalNr(bufor,i, 2); i+=2;
+				ui32 creNumb = readNormalNr(bufor,i, 2); i+=2;
+				guard->m6creatures.push_back(std::make_pair(creType,creNumb));
+			}
+			break;
+		}
+	case 7:
+		{
+			guard->m7resources.resize(7);
+			for(int x=0; x<7; x++)
+			{
+				guard->m7resources[x] = readNormalNr(bufor,i); 
+				i+=4;
+			}
+			break;
+		}
+	case 8:
+	case 9:
+		{
+			guard->m13489val = bufor[i]; ++i;
+			break;
+		}
+	}
+
+
+	int limit = readNormalNr(bufor,i); i+=4;
+	if(limit == ((int)0xffffffff))
+	{
+		guard->lastDay = -1;
+	}
+	else
+	{
+		guard->lastDay = limit;
+	}
+
+	guard->firstVisitText = readString(bufor,i);
+	guard->nextVisitText = readString(bufor,i);
+	guard->completedText = readString(bufor,i);
 }

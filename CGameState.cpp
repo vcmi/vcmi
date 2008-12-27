@@ -6,6 +6,7 @@
 #include <boost/random/linear_congruential.hpp>
 #include "hch/CDefObjInfoHandler.h"
 #include "hch/CArtHandler.h"
+#include "hch/CGeneralTextHandler.h"
 #include "hch/CTownHandler.h"
 #include "hch/CSpellHandler.h"
 #include "hch/CHeroHandler.h"
@@ -28,6 +29,79 @@ boost::rand48 ran;
 #undef max
 #endif
 
+std::string DLL_EXPORT toString(MetaString &ms)
+{
+	std::string ret;
+	for(size_t i=0;i<ms.message.size();++i)
+	{
+		if(ms.message[i]>0)
+		{
+			ret += ms.strings[ms.message[i]-1];
+		}
+		else
+		{
+			std::vector<std::string> *vec;
+			int type = ms.texts[-ms.message[i]-1].first,
+				ser = ms.texts[-ms.message[i]-1].second;
+			if(type == 5)
+			{
+				ret += VLC->arth->artifacts[ser].Name();
+				continue;
+			}
+			else if(type == 7)
+			{
+				ret += VLC->creh->creatures[ser].namePl;
+				continue;
+			}
+			else if(type == 9)
+			{
+				ret += VLC->objh->mines[ser].first;
+				continue;
+			}
+			else if(type == 10)
+			{
+				ret += VLC->objh->mines[ser].second;
+				continue;
+			}
+			else
+			{
+				switch(type)
+				{
+				case 1:
+					vec = &VLC->generaltexth->allTexts;
+					break;
+				case 2:
+					vec = &VLC->objh->xtrainfo;
+					break;
+				case 3:
+					vec = &VLC->objh->names;
+					break;
+				case 4:
+					vec = &VLC->objh->restypes;
+					break;
+				case 6:
+					vec = &VLC->generaltexth->arraytxt;
+					break;
+				case 8:
+					vec = &VLC->objh->creGens;
+					break;
+				case 11:
+					vec = &VLC->objh->advobtxt;
+					break;
+				case 12:
+					vec = &VLC->generaltexth->artifEvents;
+					break;
+				}
+				ret += (*vec)[ser];
+			}
+		}
+	}
+	for(size_t i=0; i < ms.replacements.size(); ++i)
+	{
+		ret.replace(ret.find("%s"),2,ms.replacements[i]);
+	}
+	return ret;
+}
 
 CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 {
@@ -624,6 +698,12 @@ void CGameState::applyNL(IPack * pack)
 			h->artifWorn = sha->artifWorn;
 			break;
 		}
+	case 514:
+		{
+			SetSelection *ss = static_cast<SetSelection*>(pack);
+			players[ss->player].currentSelection = ss->id;
+			break;
+		}
 	case 515:
 		{
 			HeroRecruited *sha = static_cast<HeroRecruited*>(pack);
@@ -652,23 +732,13 @@ void CGameState::applyNL(IPack * pack)
 	case 1001://set object property
 		{
 			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);
-			if(p->what == 3) //set creatures amount
-			{
-				tlog5 << "Setting creatures amount in " << p->id << std::endl;
-				static_cast<CGCreature*>(map->objects[p->id])->army.slots[0].second = p->val;
-				break;
-			}
-			ui8 CGObjectInstance::*point;
-			switch(p->what)
-			{
-			case 1:
-				point = &CGObjectInstance::tempOwner;
-				break;
-			case 2:
-				point = &CGObjectInstance::blockVisit;
-				break;
-			}
-			map->objects[p->id]->*point = p->val;
+			setObjProperty(p);
+			break;
+		}
+	case 1002:
+		{
+			SetHoverName *shn = static_cast<SetHoverName*>(pack);
+			map->objects[shn->id]->hoverName = toString(shn->name);
 			break;
 		}
 	case 2000:
@@ -1381,6 +1451,9 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			}
 		}
 	}
+
+	for(int i=0; i<map->objects.size(); i++)
+		map->objects[i]->initObj();
 }
 
 bool CGameState::battleShootCreatureStack(int ID, int dest)
@@ -1498,6 +1571,31 @@ void CGameState::loadTownDInfos()
 		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
 	}
 }
+
+void CGameState::setObjProperty( SetObjectProperty * p )
+{
+	CGObjectInstance *obj = map->objects[p->id];
+
+	switch(p->what)
+	{
+	case 1:
+		obj->tempOwner = p->val;
+		break;
+	case 2:
+		obj->blockVisit = p->val;
+		break;
+	case 3:
+		static_cast<CArmedInstance*>(obj)->army.slots[0].second = p->val;
+		break;
+	case 4: 
+		static_cast<CGVisitableOPH*>(obj)->visitors.insert(p->val);
+		break;
+	case 5:
+		static_cast<CGVisitableOPW*>(obj)->visited = p->val;
+		break;
+	}
+}
+
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
 {
 	int attackerAttackBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0);

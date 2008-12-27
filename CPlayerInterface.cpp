@@ -1076,6 +1076,8 @@ void CPlayerInterface::yourTurn()
 
 	adventureInt->infoBar.newDay(cb->getDate(1));
 
+	//select first hero if available.
+	//TODO: check if hero is slept
 	if(adventureInt->heroList.items.size())
 		adventureInt->select(adventureInt->heroList.items[0].first);
 	else
@@ -1193,7 +1195,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	if(adventureInt == curint)
 		adventureInt->minimap.draw();
 
-	if(details.style)
+	if(details.style>0)
 		return;
 
 	//initializing objects and performing first step of move

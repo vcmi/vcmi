@@ -4,6 +4,7 @@
 
 #include "../global.h"
 #include <boost/thread.hpp>
+#include "../lib/IGameCallback.h"
 struct StartInfo;
 class CGameState;
 class CGameInterface;
@@ -37,10 +38,9 @@ struct CSharedCond
 	}
 };
 
-class CClient
+class CClient : public IGameCallback
 {
 	CCallback *cb;
-	CGameState *gs;
 	std::map<ui8,CGameInterface *> playerint;
 	CConnection *serv;
 
@@ -54,9 +54,33 @@ public:
 	void save(const std::string & fname);
 	void process(int what);
 	void run();
+	//////////////////////////////////////////////////////////////////////////
+	//from IGameCallback
+	int getCurrentPlayer();
+	int getSelectedHero();
 
+	//not working yet, will be implement somewhen later with support for local-sim-based gameplay
+	void changeSpells(int hid, bool give, const std::set<ui32> &spells){};
+	void removeObject(int objid){};
+	void setBlockVis(int objid, bool bv){};
+	void setOwner(int objid, ui8 owner){};
+	void setHoverName(int objid, MetaString * name){};
+	void setObjProperty(int objid, int prop, int val){};
+	void changePrimSkill(int ID, int which, int val, bool abs=false){};
+	void showInfoDialog(InfoWindow *iw){};
+	void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback){};
+	void showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback){}; //returns question id
+	void giveResource(int player, int which, int val){};
+	void showCompInfo(ShowInInfobox * comp){};
+	void heroVisitCastle(int obj, int heroID){};
+	void stopHeroVisitCastle(int obj, int heroID){};
+	void giveHeroArtifact(int artid, int hid, int position){}; //pos==-1 - first free slot in backpack=0; pos==-2 - default if available or backpack
+	void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb){}; //use hero=NULL for no hero
+	void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb){}; //for hero<=>neutral army
+	void setAmount(int objid, ui32 val){};
+	void moveHero(int hid, int3 pos, bool instant){};
+	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions
-	friend class CScriptCallback; //for objects scripts
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
 };
 

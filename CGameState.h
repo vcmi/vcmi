@@ -33,6 +33,12 @@ struct SDL_Surface;
 class CMapHandler;
 class CPathfinder;
 struct IPack;
+struct SetObjectProperty;
+struct MetaString;
+
+
+std::string DLL_EXPORT toString(MetaString &ms);
+
 
 namespace boost
 {
@@ -181,6 +187,8 @@ private:
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void loadTownDInfos();
 	void applyNL(IPack * pack);
+
+	void setObjProperty( SetObjectProperty * p );
 	void apply(IPack * pack);
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);
@@ -213,7 +221,7 @@ public:
 	friend class CLuaCallback;
 	friend class CClient;
 	friend void initGameState(Mapa * map, CGameInfo * cgi);
-	friend class CScriptCallback;
+	friend class IGameCallback;
 	friend class CMapHandler;
 	friend class CGameHandler;
 };

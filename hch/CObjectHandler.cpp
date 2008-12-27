@@ -17,19 +17,20 @@
 #include "../CGameState.h"
 #include "../lib/NetPacks.h"
 
+std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
 IGameCallback * IObjectInterface::cb = NULL;
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 extern CLodHandler * bitmaph;
 extern boost::rand48 ran;
 
 
-void IObjectInterface::onHeroVisit(const CGHeroInstance * h) 
+void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
 {};
 
-void IObjectInterface::onHeroLeave(const CGHeroInstance * h) 
+void IObjectInterface::onHeroLeave(const CGHeroInstance * h) const 
 {};
 
-void IObjectInterface::newTurn () 
+void IObjectInterface::newTurn () const
 {};
 
 IObjectInterface::~IObjectInterface()
@@ -645,7 +646,7 @@ bool CGHeroInstance::needsLastStack() const
 {
 	return true;
 }
-void CGHeroInstance::onHeroVisit(const CGHeroInstance * h)
+void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	//TODO: check for allies
 	if(tempOwner == h->tempOwner) //our hero
@@ -673,7 +674,7 @@ const std::string & CGHeroInstance::getBiography() const
 }
 void CGHeroInstance::initObj()
 {
-	cb->setBlockVis(id,true);
+	blockVisit = true;
 }
 int CGTownInstance::getSightDistance() const //returns sight distance
 {
@@ -795,7 +796,7 @@ bool CGTownInstance::needsLastStack() const
 	else return false;
 }
 
-void CGTownInstance::onHeroVisit(const CGHeroInstance * h)
+void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	if(getOwner() != h->getOwner())
 	{
@@ -804,7 +805,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h)
 	cb->heroVisitCastle(id,h->id);
 }
 
-void CGTownInstance::onHeroLeave(const CGHeroInstance * h)
+void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 {
 	cb->stopHeroVisitCastle(id,h->id);
 }
@@ -813,28 +814,16 @@ void CGTownInstance::initObj()
 {
 	MetaString ms;
 	ms << name << ", " << town->Name();
-	cb->setHoverName(id,&ms);
+	hoverName = toString(ms);
 }
 
-//std::vector<int> CVisitableOPH::yourObjects()
-//{
-//	std::vector<int> ret;
-//	ret.push_back(51);//camp 
-//	ret.push_back(23);//tower
-//	ret.push_back(61);//axis
-//	ret.push_back(32);//garden
-//	ret.push_back(100);//stone
-//	ret.push_back(102);//tree
-//	return ret;
-//}
-
-void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h )
+void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(visitors.find(h->id)==visitors.end())
 	{
 		onNAHeroVisit(h->id, false);
 		if(ID != 102) //not tree
-			visitors.insert(h->id);
+			cb->setObjProperty(id,4,h->id); //add to the visitors
 	}
 	else
 	{
@@ -850,16 +839,16 @@ void CGVisitableOPH::initObj()
 		ttype = -1;
 }
 
-void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, int expVal, ui32 result )
+void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, int expVal, ui32 result ) const
 {
 	if(result==0) //player agreed to give res for exp
 	{
 		cb->giveResource(cb->getOwner(heroID),resType,-resVal); //take resource
 		cb->changePrimSkill(heroID,4,expVal); //give exp
-		visitors.insert(heroID); //set state to visited
+		cb->setObjProperty(id,4,heroID); //add to the visitors
 	}
 }
-void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited)
+void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 {
 	int id=0, subid=0, ot=0, val=1;
 	switch(ID)
@@ -925,7 +914,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited)
 				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
 				if(!ttype)
 				{
-					visitors.insert(heroID);
+					cb->setObjProperty(id,4,heroID); //add to the visitors
 					InfoWindow iw;
 					iw.components.push_back(Component(id,subid,1,0));
 					iw.player = cb->getOwner(heroID);
@@ -1010,9 +999,10 @@ const std::string & CGVisitableOPH::getHoverText() const
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 	if(h)
 	{
+		hoverName += ' ';
 		hoverName += (vstd::contains(visitors,h->id)) 
-						? (VLC->generaltexth->allTexts[353])  //not visited
-						: ( VLC->generaltexth->allTexts[352]); //visited
+							? (VLC->generaltexth->allTexts[352])  //visited
+							: ( VLC->generaltexth->allTexts[353]); //not visited
 	}
 	return hoverName;
 }
@@ -1022,13 +1012,12 @@ bool CArmedInstance::needsLastStack() const
 	return false;
 }
 
-void CGCreature::onHeroVisit( const CGHeroInstance * h )
+void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 {
-	army.slots[0].first = subID;
 	cb->startBattleI(h->id,army,pos,boost::bind(&CGCreature::endBattle,this,_1));
 }
 
-void CGCreature::endBattle( BattleResult *result )
+void CGCreature::endBattle( BattleResult *result ) const
 {
 	if(result->winner==0)
 	{
@@ -1040,12 +1029,19 @@ void CGCreature::endBattle( BattleResult *result )
 		for(std::set<std::pair<ui32,si32> >::iterator i=result->casualties[1].begin(); i!=result->casualties[1].end(); i++)
 			if(i->first == subID)
 				killedAmount += i->second;
-		cb->setAmount(id, army.slots[0].second - killedAmount);
+		cb->setAmount(id, army.slots.find(0)->second.second - killedAmount);	
+		
+		MetaString ms;
+		int pom = CCreature::getQuantityID(army.slots.find(0)->second.second);
+		pom = 174 + 3*pom + 1;
+		ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
+		cb->setHoverName(id,&ms);
 	}
 }
 
 void CGCreature::initObj()
 {
+	army.slots[0].first = subID;
 	si32 &amount = army.slots[0].second;
 	CCreature &c = VLC->creh->creatures[subID];
 	if(!amount)
@@ -1053,4 +1049,364 @@ void CGCreature::initObj()
 			amount = c.ammMax;
 		else
 			amount = c.ammMin + (ran() % (c.ammMax - c.ammMin));
+
+	MetaString ms;
+	int pom = CCreature::getQuantityID(army.slots.find(0)->second.second);
+	pom = 174 + 3*pom + 1;
+	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
+	hoverName = toString(ms);
+}
+
+void CGMine::onHeroVisit( const CGHeroInstance * h ) const
+{
+	if(subID == 7) //TODO: support for abandoned mine
+		return;
+
+	if(h->tempOwner == tempOwner) //we're visiting our mine
+		return; //TODO: leaving garrison
+
+	//TODO: check if mine is guarded
+	cb->setOwner(id,h->tempOwner); //not ours? flag it!
+
+	MetaString ms;
+	ms << std::pair<ui8,ui32>(9,subID) << " (" << std::pair<ui8,ui32>(6,23+h->tempOwner) << ")";
+	cb->setHoverName(id,&ms);
+
+	int vv=1; //amount of resource per turn	
+	if (subID==0 || subID==2)
+		vv++;
+	else if (subID==6)
+		vv = 1000;
+
+	InfoWindow iw;
+	iw.text << std::pair<ui8,ui32>(10,subID);
+	iw.player = h->tempOwner;
+	iw.components.push_back(Component(2,subID,vv,-1));
+	cb->showInfoDialog(&iw);
+}
+
+void CGMine::newTurn() const
+{
+	if (tempOwner == NEUTRAL_PLAYER)
+		return;
+	int vv = 1;
+	if (subID==0 || subID==2)
+		vv++;
+	else if (subID==6)
+		vv = 1000;
+	cb->giveResource(tempOwner,subID,vv);
+}
+
+void CGMine::initObj()
+{
+	MetaString ms;
+	ms << std::pair<ui8,ui32>(9,subID);
+	if(tempOwner >= PLAYER_LIMIT)
+		tempOwner = NEUTRAL_PLAYER;	
+	else
+		ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner) << ")";
+	hoverName = toString(ms);
+}
+
+void CGResource::initObj()
+{
+	blockVisit = true;
+	hoverName = VLC->objh->restypes[subID];
+
+	if(!amount)
+	{
+		switch(subID)
+		{
+		case 6:
+			amount = 500 + (rand()%6)*100;
+			break;
+		case 0: case 2:
+			amount = 6 + (rand()%5);
+			break;
+		default:
+			amount = 3 + (rand()%3);
+			break;
+		}
+	}
+}
+
+void CGResource::onHeroVisit( const CGHeroInstance * h ) const
+{
+	//TODO: handle guards (when battles are finished)
+	if(message.length())
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text << message;
+		cb->showInfoDialog(&iw);
+	}
+
+	cb->giveResource(h->tempOwner,subID,amount);
+
+	ShowInInfobox sii;
+	sii.player = h->tempOwner;
+	sii.c = Component(2,subID,amount,0);
+	sii.text << std::pair<ui8,ui32>(11,113);
+	sii.text.replacements.push_back(VLC->objh->restypes[subID]);
+	cb->showCompInfo(&sii);
+	cb->removeObject(id);
+}
+
+void CGVisitableOPW::newTurn() const
+{
+	if (cb->getDate(1)==1) //first day of week
+	{
+		cb->setObjProperty(id,5,false);
+		MetaString ms; //set text to "not visited"
+		ms << std::pair<ui8,ui32>(3,ID) << " " << std::pair<ui8,ui32>(1,353);
+		cb->setHoverName(id,&ms);
+	}
+}
+
+void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
+{
+	int mid;
+	switch (ID)
+	{
+	case 55:
+		mid = 92;
+		break;
+	case 112:
+		mid = 170;
+		break;
+	case 109:
+		mid = 164;
+		break;
+	}
+	if (visited)
+	{
+		if (ID!=112)
+			mid++;
+		else 
+			mid--;
+
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text << std::pair<ui8,ui32>(11,mid);
+		cb->showInfoDialog(&iw);
+	}
+	else
+	{
+		int type, sub, val;
+		type = 2;
+		switch (ID)
+		{
+		case 55:
+			if (rand()%2)
+			{
+				sub = 5;
+				val = 5;
+			}
+			else
+			{
+				sub = 6;
+				val = 500;
+			}
+			break;
+		case 112:
+			mid = 170;
+			sub = (rand() % 5) + 1;
+			val = (rand() % 4) + 3;
+			break;
+		case 109:
+			mid = 164;
+			sub = 6;
+			if(cb->getDate(2)<2)
+				val = 500;
+			else
+				val = 1000;
+		}
+		cb->giveResource(h->tempOwner,sub,val);
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.components.push_back(Component(type,sub,val,0));
+		iw.text << std::pair<ui8,ui32>(11,mid);
+		cb->showInfoDialog(&iw);
+		cb->setObjProperty(id,5,true);
+		MetaString ms; //set text to "visited"
+		ms << std::pair<ui8,ui32>(3,ID) << " " << std::pair<ui8,ui32>(1,352);
+		cb->setHoverName(id,&ms);
+	}
+}
+
+void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
+{
+	int destinationid=-1;
+	switch(ID)
+	{
+	case 43: //one way - find correspong exit monolith
+		if(vstd::contains(objs,44) && vstd::contains(objs[44],subID) && objs[44][subID].size())
+			destinationid = objs[44][subID][rand()%objs[44][subID].size()];
+		else
+			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
+		break;
+	case 45: //two way monolith - pick any other one
+		if(vstd::contains(objs,45) && vstd::contains(objs[45],subID) && objs[45][subID].size()>1)
+			while ((destinationid = objs[45][subID][rand()%objs[45][subID].size()])==id);
+		else
+			tlog2 << "Cannot find corresponding exit monolith for "<< id << std::endl;
+		break;
+	case 103: //find nearest subterranean gate on the other level
+		{
+			std::pair<int,double> best(-1,150000); //pair<id,dist>
+			for(int i=0; i<objs[103][0].size(); i++)
+			{
+				if(cb->getObj(objs[103][0][i])->pos.z == pos.z) continue; //gates on our level are not interesting
+				double hlp = cb->getObj(objs[103][0][i])->pos.dist2d(pos);
+				if(hlp<best.second)
+				{
+					best.first = objs[103][0][i];
+					best.second = hlp;
+				}
+			}
+			if(best.first<0)
+				return;
+			else 
+				destinationid = best.first;
+			break;
+		}
+	}
+	if(destinationid < 0)
+	{
+		tlog2 << "Cannot find exit... :( \n";
+		return;
+	}
+	cb->moveHero(h->id,
+				(ID!=103)
+					? (CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true))
+					: (cb->getObj(destinationid)->pos),
+				true);
+}
+
+void CGTeleport::initObj()
+{
+	objs[ID][subID].push_back(id);
+}
+
+void CGArtifact::initObj()
+{
+	blockVisit = true;
+	if(ID == 5)
+		hoverName = VLC->arth->artifacts[subID].Name();
+}
+
+void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
+{
+	cb->giveHeroArtifact(subID,h->id,-2);
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	iw.components.push_back(Component(4,subID,0,0));
+	iw.text << std::pair<ui8,ui32>(12,subID);
+	cb->showInfoDialog(&iw);
+}
+
+void CGPickable::initObj()
+{
+	blockVisit = true;
+	switch(ID)
+	{
+	case 12: //campfire
+		val2 = (ran()%3) + 4; //4 - 6
+		val1 = val2 * 100;
+		type = ran()%6; //given resource
+		break;
+	case 101: //treasure chest
+		{
+			int hlp = ran()%100;
+			if(hlp >= 95)
+			{
+				type = 1;
+				val1 = VLC->arth->treasures[ran()%VLC->arth->treasures.size()]->id;
+				return;
+			}
+			else if (hlp >= 65)
+			{
+				val1 = 2000;
+			}
+			else if(hlp >= 33)
+			{
+				val1 = 1500;
+			}
+			else
+			{
+				val1 = 1000;
+			}
+
+			val2 = val1 - 500;
+			type = 0;
+			break;
+		}
+	}
+}
+
+void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
+{
+
+	switch(ID)
+	{
+	case 12: //campfire
+		{
+			cb->giveResource(h->tempOwner,type,val2); //non-gold resource
+			cb->giveResource(h->tempOwner,6,val1);//gold
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.components.push_back(Component(2,6,val1,0));
+			iw.components.push_back(Component(2,type,val2,0));
+			iw.text << std::pair<ui8,ui32>(11,23);
+			cb->showInfoDialog(&iw);
+			break;
+		}
+	case 101: //treasure chest
+		{
+			if (subID) //not OH3 treasure chest
+			{
+				tlog2 << "Not supported WoG treasure chest!\n";
+				return; 
+			}
+
+			if(type) //there is an artifact
+			{
+				cb->giveHeroArtifact(val1,h->id,-2);
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.components.push_back(Component(4,val1,1,0));
+				iw.text << std::pair<ui8,ui32>(11,145);
+				iw.text.replacements.push_back(VLC->arth->artifacts[val1].Name());
+				cb->showInfoDialog(&iw);
+				break;
+			}
+			else
+			{
+				SelectionDialog sd;
+				sd.player = h->tempOwner;
+				sd.text << std::pair<ui8,ui32>(11,146);
+				sd.components.push_back(Component(2,6,val1,0));
+				sd.components.push_back(Component(5,0,val2,0));
+				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
+				cb->showSelectionDialog(&sd,fun);
+				return;
+			}
+		}
+	}
+	cb->removeObject(id);
+}
+
+void CGPickable::chosen( int which, int heroID ) const
+{
+	switch(which)
+	{
+	case 0: //player pick gold
+		cb->giveResource(cb->getOwner(heroID),6,val1);
+		break;
+	case 1: //player pick exp
+		cb->changePrimSkill(heroID, 4, val2);
+		break;
+	default:
+		throw std::string("Unhandled treasure choice");
+	}
 }

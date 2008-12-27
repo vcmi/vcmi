@@ -3,7 +3,7 @@
 clientSettings
 {
 	port=3030;
-	resolution=800x600; // format: WxH
+	resolution=1024x768; // format: WxH
 	bpp=24; // bpp!=24 => problems
 	fullscreen=0; //0 - windowed mode, 1 - fullscreen
 	server=127.0.0.1; //use 127.0.0.1 for localhost

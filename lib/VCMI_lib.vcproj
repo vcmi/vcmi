@@ -311,6 +311,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\IGameCallback.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\map.cpp"
 				>
 			</File>

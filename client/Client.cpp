@@ -18,81 +18,8 @@
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include <sstream>
 CSharedCond<std::set<IPack*> > mess(new std::set<IPack*>);
-
-std::string toString(MetaString &ms)
-{
-	std::string ret;
-	for(size_t i=0;i<ms.message.size();++i)
-	{
-		if(ms.message[i]>0)
-		{
-			ret += ms.strings[ms.message[i]-1];
-		}
-		else
-		{
-			std::vector<std::string> *vec;
-			int type = ms.texts[-ms.message[i]-1].first,
-				ser = ms.texts[-ms.message[i]-1].second;
-			if(type == 5)
-			{
-				ret += CGI->arth->artifacts[ser].Name();
-				continue;
-			}
-			else if(type == 7)
-			{
-				ret += CGI->creh->creatures[ser].namePl;
-				continue;
-			}
-			else if(type == 9)
-			{
-				ret += CGI->objh->mines[ser].first;
-				continue;
-			}
-			else if(type == 10)
-			{
-				ret += CGI->objh->mines[ser].second;
-				continue;
-			}
-			else
-			{
-				switch(type)
-				{
-				case 1:
-					vec = &CGI->generaltexth->allTexts;
-					break;
-				case 2:
-					vec = &CGI->objh->xtrainfo;
-					break;
-				case 3:
-					vec = &CGI->objh->names;
-					break;
-				case 4:
-					vec = &CGI->objh->restypes;
-					break;
-				case 6:
-					vec = &CGI->generaltexth->arraytxt;
-					break;
-				case 8:
-					vec = &CGI->objh->creGens;
-					break;
-				case 11:
-					vec = &CGI->objh->advobtxt;
-					break;
-				case 12:
-					vec = &CGI->generaltexth->artifEvents;
-					break;
-				}
-				ret += (*vec)[ser];
-			}
-		}
-	}
-	for(size_t i=0; i < ms.replacements.size(); ++i)
-	{
-		ret.replace(ret.find("%s"),2,ms.replacements[i]);
-	}
-	return ret;
-}
 
 CClient::CClient(void)
 {
@@ -101,6 +28,7 @@ CClient::CClient(CConnection *con, StartInfo *si)
 	:serv(con)
 {		
 	timeHandler tmh;
+	IObjectInterface::cb = this;
 	CGI->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
 	CConnection &c(*con);
@@ -449,6 +377,14 @@ void CClient::process(int what)
 			tlog4 << "Player "<<(int)color<<" sends a message: " << message << std::endl;
 			break;
 		}
+	case 514:
+		{
+			SetSelection ss;
+			*serv >> ss;
+			tlog5 << "Selection of player " << (int)ss.player << " set to " << ss.id << std::endl;
+			gs->apply(&ss);
+			break;
+		}
 	case 515:
 		{
 			HeroRecruited hr;
@@ -475,9 +411,7 @@ void CClient::process(int what)
 			SetHoverName shn;
 			*serv >> shn;
 			tlog5 << "Setting a name of " << shn.id <<" object to "<< toString(shn.name) <<std::endl;
-			gs->mx->lock();
-			//gs->map->objects[shn.id]->hoverName = toString(shn.name);
-			gs->mx->unlock();
+			gs->apply(&shn);
 			break;
 		}
 	case 2000:
@@ -668,8 +602,11 @@ void CClient::process(int what)
 	case 9999:
 		break;
 	default:
-		throw std::string("Not supported server message!");
-		break;
+		{
+			std::ostringstream ex;
+			ex << "Not supported server message (type=" << what <<")";
+			throw ex.str();
+		}
 	}
 }
 void CClient::waitForMoveAndSend(int color)
@@ -708,4 +645,14 @@ void CClient::close()
 void CClient::save(const std::string & fname)
 {
 	*serv << ui16(98) << fname;
+}
+
+int CClient::getCurrentPlayer()
+{
+	return gs->currentPlayer;
+}
+
+int CClient::getSelectedHero()
+{
+	return IGameCallback::getSelectedHero(getCurrentPlayer())->id;
 }

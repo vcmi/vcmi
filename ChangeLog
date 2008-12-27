@@ -1,12 +1,14 @@
-0.64 -> 0.next (???)  [as for r651]
+0.64 -> 0.next (???)  [as for r672]
 GENERAL:
 * move some settings to the config/settings.txt file
 * partial support for new screen resolutions
 * /Data and /Sprites subfolders can be used for adding files not present in .lod archives 
 * fixed crashbug occuring when hero levelled above 15 level
+* support for non-standard screen resolutions
 
 ADVENTURE INTERFACE:
 * added water animation
+* speed of scrolling map and hero movement can be adjusted in the System Options Window
 
 TOWN INTERFACE:
 * the scroll tab won't remain hanged to our mouse position if we move the mouse away from the scroll bar
@@ -18,6 +20,9 @@ BATTLES
 * war machines support partially added
 * queue of stacks narrowed
 * spell effect animation displaying improvements
+* positive/negative spells cannot be cast on hostile/our stacks
+* showing spell effects affecting stack in creature info window
+* more appropriate coloring of stack amount box when stack is affected by a spell 
 * several reported bugs fixed
 * new spells supported:
 	a) Haste 
@@ -26,12 +31,19 @@ BATTLES
 	d) slow 
 	e) implosion
 	f) forgetfulness
+	g) shield
+	h) air shield
+	i) bless
+	j) curse
+	k) bloodlust
+	l) weakness
+	m) stone skin
+	n) prayer 	
+	o) frenzy	
 	
-AI:
+AI PLAYER:
 * Genius AI (first VCMI AI) will control computer creatures during the combat.
 
-GENERAL:
-* started making external settings file (will be used for support for non 800x600 screen resolutions) 
 And a lot of minor fixes
 
 0.63 -> 0.64 (Nov 01 2008)

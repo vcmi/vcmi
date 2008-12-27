@@ -44,6 +44,21 @@ public:
 	}
 };
 
+class CQuest
+{
+public:
+	ui8 missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain playe
+	si32 lastDay; //after this day (first day is 0) mission cannot be completed; if -1 - no limit
+
+	ui32 m13489val;
+	std::vector<ui32> m2stats;
+	std::vector<ui16> m5arts; //artifacts id
+	std::vector<std::pair<ui32, ui32> > m6creatures; //pair[cre id, cre count]
+	std::vector<ui32> m7resources;
+
+	std::string firstVisitText, nextVisitText, completedText;
+};
+
 class DLL_EXPORT IObjectInterface
 {
 public:
@@ -52,9 +67,9 @@ public:
 	IObjectInterface();
 	virtual ~IObjectInterface();
 
-	virtual void onHeroVisit(const CGHeroInstance * h);
-	virtual void onHeroLeave(const CGHeroInstance * h);
-	virtual void newTurn();
+	virtual void onHeroVisit(const CGHeroInstance * h) const;
+	virtual void onHeroLeave(const CGHeroInstance * h) const;
+	virtual void newTurn() const;
 	virtual void initObj();
 };
 
@@ -167,7 +182,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	void initObj();
-	void onHeroVisit(const CGHeroInstance * h);
+	void onHeroVisit(const CGHeroInstance * h) const;
 };
 
 class DLL_EXPORT CGTownInstance : public CArmedInstance
@@ -215,8 +230,8 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 
-	void onHeroVisit(const CGHeroInstance * h);
-	void onHeroLeave(const CGHeroInstance * h);
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void onHeroLeave(const CGHeroInstance * h) const;
 	void initObj();
 };
 
@@ -227,10 +242,10 @@ public:
 	si8 ttype; //tree type - used only by trees of knowledge: 0 - give level for free; 1 - take 2000 gold; 2 - take 10 gems
 	const std::string & getHoverText() const;
 
-	void onHeroVisit(const CGHeroInstance * h);
-	void onNAHeroVisit(int heroID, bool alreadyVisited);
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
 	void initObj();
-	void treeSelected(int heroID, int resType, int resVal, int expVal, ui32 result); //handle player's anwer to the Tree of Knowledge dialog
+	void treeSelected(int heroID, int resType, int resVal, int expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
 };
 
 class DLL_EXPORT CGEvent : public CGObjectInstance //event objects
@@ -270,8 +285,8 @@ public:
 	ui8 neverFlees; //if true, the troops will never flee
 	ui8 notGrowingTeam; //if true, number of units won't grow
 
-	void onHeroVisit(const CGHeroInstance * h);
-	void endBattle(BattleResult *result);
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void endBattle(BattleResult *result) const;
 	void initObj();
 }; 
 
@@ -283,25 +298,9 @@ public:
 	std::string message;
 };
 
-class DLL_EXPORT CGSeerHut : public CGObjectInstance
+class DLL_EXPORT CGSeerHut : public CGObjectInstance, public CQuest
 {
 public:
-	unsigned char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
-	bool isDayLimit; //if true, there is a day limit
-	int lastDay; //after this day (first day is 0) mission cannot be completed
-	int m1level; //for mission 1	
-	int m2attack, m2defence, m2power, m2knowledge;//for mission 2
-	unsigned char m3bytes[4];//for mission 3
-	unsigned char m4bytes[4];//for mission 4
-	std::vector<int> m5arts;//for mission 5 - artifact ID
-	std::vector<CCreature *> m6cre;//for mission 6
-	std::vector<int> m6number;
-	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;	//for mission 7
-	int m8hero;//for mission 8 - hero ID
-	int m9player; //for mission 9 - number; from 0 to 7
-
-	std::string firstVisitText, nextVisitText, completedText;
-
 	char rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
 	//for reward 1
 	int r1exp;
@@ -357,6 +356,8 @@ class DLL_EXPORT CGArtifact : public CArmedInstance
 public:
 	std::string message;
 	ui32 spell; //if it's spell scroll
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();	
 };
 
 class DLL_EXPORT CGResource : public CArmedInstance
@@ -364,6 +365,18 @@ class DLL_EXPORT CGResource : public CArmedInstance
 public:
 	int amount; //0 if random
 	std::string message;
+
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();
+};
+
+class DLL_EXPORT CGPickable : public CGObjectInstance //campfire, treasure chest
+{
+	ui32 type, val1, val2;
+
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();
+	void chosen(int which, int heroID) const;
 };
 
 class DLL_EXPORT CGShrine : public CGObjectInstance
@@ -391,33 +404,34 @@ public:
 	CCreatureSet creatures;
 };
 
-class DLL_EXPORT CGQuestGuard : public CArmedInstance
+class DLL_EXPORT CGQuestGuard : public CGObjectInstance, public CQuest
 {
 public:
-	char missionType; //type of mission: 0 - no mission; 1 - reach level; 2 - reach main statistics values; 3 - win with a certain hero; 4 - win with a certain creature; 5 - collect some atifacts; 6 - have certain troops in army; 7 - collect resources; 8 - be a certain hero; 9 - be a certain player
-	bool isDayLimit; //if true, there is a day limit
-	int lastDay; //after this day (first day is 0) mission cannot be completed
-	//for mission 1
-	int m1level;
-	//for mission 2
-	int m2attack, m2defence, m2power, m2knowledge;
-	//for mission 3
-	unsigned char m3bytes[4];
-	//for mission 4
-	unsigned char m4bytes[4];
-	//for mission 5
-	std::vector<int> m5arts; //artifacts id
-	//for mission 6
-	std::vector<CCreature *> m6cre;
-	std::vector<int> m6number;
-	//for mission 7
-	int m7wood, m7mercury, m7ore, m7sulfur, m7crystal, m7gems, m7gold;
-	//for mission 8
-	int m8hero; //hero id
-	//for mission 9
-	int m9player; //number; from 0 to 7
+};
 
-	std::string firstVisitText, nextVisitText, completedText;
+class DLL_EXPORT CGMine : public CArmedInstance
+{
+public: 
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void newTurn() const;
+	void initObj();	
+};
+
+class DLL_EXPORT CGVisitableOPW : public CGObjectInstance //objects visitable OPW
+{
+public:
+	ui8 visited; //true if object has been visited this week
+
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void newTurn() const;
+};
+
+class DLL_EXPORT CGTeleport : public CGObjectInstance //teleports and subterranean gates
+{
+public:
+	static std::map<int,std::map<int, std::vector<int> > > objs; //map[ID][subID] => vector of ids
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();	
 };
 
 class DLL_EXPORT CObjectHandler

@@ -11,6 +11,7 @@
 class CGDefInfo;
 class CGObjectInstance;
 class CGHeroInstance;
+class CQuest;
 class CGTownInstance;
 enum ESortBy{_name, _playerAm, _size, _format, _viccon, _loscon};
 enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TERRAINOBJ_DEF, 
@@ -338,6 +339,7 @@ struct DLL_EXPORT Mapa
 
 	void readEvents( unsigned char * bufor, int &i);
 	void readObjects( unsigned char * bufor, int &i);
+	void loadQuest( CQuest * guard, unsigned char * bufor, int & i);
 	void readDefInfo( unsigned char * bufor, int &i);
 	void readTerrain( unsigned char * bufor, int &i);
 	void readPredefinedHeroes( unsigned char * bufor, int &i);
