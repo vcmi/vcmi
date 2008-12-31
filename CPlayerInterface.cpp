@@ -2579,7 +2579,7 @@ void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 			ser = i;
 	ser -= from;
 	if(ser<0 || ser > SIZE) return;
-	int pom = std::min((which->movement)/100,(int)mobile->ourImages.size()-1);
+	int pom = std::min((which->movement)/100,(si32)mobile->ourImages.size()-1);
 	blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
 }
 void CHeroList::draw()

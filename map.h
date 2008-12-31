@@ -303,13 +303,13 @@ struct DLL_EXPORT Mapa
 {
 	Eformat version; // version of map Eformat
 	ui32 checksum;
-	int twoLevel; // if map has underground level
-	int difficulty; // 0 easy - 4 impossible
-	int levelLimit;
-	bool areAnyPLayers; // if there are any playable players on map
+	ui32 twoLevel; // if map has underground level
+	ui8 difficulty; // 0 easy - 4 impossible
+	ui8 levelLimit;
+	ui8 areAnyPLayers; // if there are any playable players on map
 	std::string name;  //name of map
 	std::string description;  //and description
-	int height, width; 
+	ui32 height, width; 
 	TerrainTile*** terrain; 
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
@@ -317,15 +317,15 @@ struct DLL_EXPORT Mapa
 	std::vector<CGDefInfo *> defy; // list of .def files with definitions from .h3m (may be custom)
 	std::set<CGDefInfo *> defs; // other defInfos - for randomized objects, objects added or modified by scripts
 	PlayerInfo players[8]; // info about players
-	std::vector<int> teams;  // teams[i] = team of player no i 
+	std::vector<ui8> teams;  // teams[i] = team of player no i 
 	LossCondition lossCondition;
 	EvictoryConditions victoryCondition; //victory conditions
 	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
-	int howManyTeams;
-	std::vector<bool> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
-	std::vector<bool> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
-	std::vector<bool> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
-	std::vector<bool> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
+	ui8 howManyTeams;
+	std::vector<ui8> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
+	std::vector<ui8> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
+	std::vector<ui8> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
+	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
 	std::vector<CMapEvent> events;
 
 	int3 grailPos;
@@ -361,7 +361,7 @@ struct DLL_EXPORT Mapa
 	{
 		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & rumors & defy & defs
 			& players & teams & lossCondition & victoryCondition & howManyTeams & allowedSpell & allowedAbilities
-			& allowedArtifact &allowedHeroes & events;
+			& allowedArtifact &allowedHeroes & events & grailPos;
 		//TODO: viccondetails
 		if(h.saving)
 		{

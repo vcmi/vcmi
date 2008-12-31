@@ -57,7 +57,7 @@ double distance(int3 a, int3 b)
 }
 int getSchoolLevel(const CGHeroInstance *h, const CSpell *s)
 {
-	int ret = 0;
+	ui8 ret = 0;
 	if(s->fire)
 		ret = std::max(ret,h->getSecSkillLevel(14));
 	if(s->air)
@@ -1213,7 +1213,7 @@ upgend:
 							}
 
 							CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
-							int skill = 0; //skill level
+							ui8 skill = 0; //skill level
 
 							if(s->fire)
 								skill = std::max(skill,h->getSecSkillLevel(14));

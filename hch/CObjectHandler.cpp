@@ -154,7 +154,6 @@ CGObjectInstance::CGObjectInstance(): animPhaseShift(rand()%0xff)
 	//state = new CLuaObjectScript();
 	ID = subID = id = -1;
 	defInfo = NULL;
-	state = NULL;
 	info = NULL;
 	tempOwner = 254;
 	blockVisit = false;
@@ -166,34 +165,34 @@ CGObjectInstance::~CGObjectInstance()
 	//	delete state;
 	//state=NULL;
 }
-CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
-{
-	pos = right.pos;
-	ID = right.ID;
-	subID = right.subID;
-	id	= right.id;
-	defInfo = right.defInfo;
-	info = right.info;
-	blockVisit = right.blockVisit;
-	//state = new CLuaObjectScript(right.state->);
-	//*state = *right.state;
-	//state = right.state;
-	tempOwner = right.tempOwner;
-}
-CGObjectInstance& CGObjectInstance::operator=(const CGObjectInstance & right)
-{
-	pos = right.pos;
-	ID = right.ID;
-	subID = right.subID;
-	id	= right.id;
-	defInfo = right.defInfo;
-	info = right.info;
-	blockVisit = right.blockVisit;
-	//state = new CLuaObjectScript();
-	//*state = *right.state;
-	tempOwner = right.tempOwner;
-	return *this;
-}
+//CGObjectInstance::CGObjectInstance(const CGObjectInstance & right)
+//{
+//	pos = right.pos;
+//	ID = right.ID;
+//	subID = right.subID;
+//	id	= right.id;
+//	defInfo = right.defInfo;
+//	info = right.info;
+//	blockVisit = right.blockVisit;
+//	//state = new CLuaObjectScript(right.state->);
+//	//*state = *right.state;
+//	//state = right.state;
+//	tempOwner = right.tempOwner;
+//}
+//CGObjectInstance& CGObjectInstance::operator=(const CGObjectInstance & right)
+//{
+//	pos = right.pos;
+//	ID = right.ID;
+//	subID = right.subID;
+//	id	= right.id;
+//	defInfo = right.defInfo;
+//	info = right.info;
+//	blockVisit = right.blockVisit;
+//	//state = new CLuaObjectScript();
+//	//*state = *right.state;
+//	tempOwner = right.tempOwner;
+//	return *this;
+//}
 
 const std::string & CGObjectInstance::getHoverText() const
 {
@@ -380,7 +379,7 @@ int CGHeroInstance::getSightDistance() const //returns sight distance of this he
 	return 6 + getSecSkillLevel(3); //default + scouting
 }
 
-int CGHeroInstance::manaLimit() const
+si32 CGHeroInstance::manaLimit() const
 {
 	double modifier = 1.0;
 	switch(getSecSkillLevel(24)) //intelligence level
@@ -418,7 +417,7 @@ int CGHeroInstance::getPrimSkillLevel(int id) const
 {
 	return primSkills[id];
 }
-int CGHeroInstance::getSecSkillLevel(const int & ID) const
+ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 {
 	for(size_t i=0; i < secSkills.size(); ++i)
 		if(secSkills[i].first==ID)

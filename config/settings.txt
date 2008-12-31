@@ -86,7 +86,7 @@ GUISettings
 			Statusbar: x=8 y=723 graphic=ADROLLVR2.pcx;
 			ResDataBar: x=0 y=743 graphic=ZRESBAR2.pcx offsetX=65 offsetY=2 resSpace=109 resDateSpace=135;
 			ButtonKingdomOv: x=903 y=197 graphic=IAM002L.DEF playerColoured=1;
-			ButtonUnderground: x=903 y=230 graphic=IAM010L.DEF playerColoured=1 additionalDefs=(IAM003L.DEF);
+			ButtonUnderground: x=903 y=229 graphic=IAM010L.DEF playerColoured=1 additionalDefs=(IAM003L.DEF);
 			ButtonQuestLog: x=903 y=261 graphic=IAM004L.DEF playerColoured=1;
 			ButtonSleepWake: x=903 y=294 graphic=IAM005L.DEF playerColoured=1;
 			ButtonMoveHero: x=903 y=327 graphic=IAM006L.DEF playerColoured=1;

@@ -214,6 +214,23 @@ int main(int argc, char** argv)
 				tlog0 << "Ending...\n";
 				exit(EXIT_SUCCESS);
 			}
+			//else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+			//{
+			//	LOCPLINT->pim->lock();
+			//	screen2 = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, screen->format->BitsPerPixel, rmask, gmask, bmask, amask);
+			//	SDL_SaveBMP(screen,"scra");
+			//	SDL_SaveBMP(screen2,"scr2a");
+			//	int hlp = SDL_BlitSurface(screen,0,screen2,0);
+			//	SDL_SaveBMP(screen2,"scr2b");
+			//	screen = SDL_SetVideoMode(screen->w,screen->h,screen->format->BitsPerPixel,
+			//		SDL_SWSURFACE|SDL_DOUBLEBUF|((screen->flags&SDL_FULLSCREEN) ? 0 : SDL_FULLSCREEN));
+			//	SDL_SaveBMP(screen,"scrb");
+			//	SDL_BlitSurface(screen2,0,screen,0);
+			//	SDL_SaveBMP(screen,"scrc");
+			//	SDL_FreeSurface(screen2);
+			//	SDL_Flip(screen);
+			//	LOCPLINT->pim->unlock();
+			//}
 			eventsM.lock();
 			events.push(ev);
 			eventsM.unlock();

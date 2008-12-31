@@ -756,25 +756,14 @@ void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 	for(int gh = 0; gh<numberOfEvent; ++gh)
 	{
 		CCastleEvent nce;
-		int nameLen = readNormalNr(bufor,i); i+=4;
-		for(int ll=0; ll<nameLen; ++ll)
-		{
-			nce.name += bufor[i]; ++i;
-		}
+		nce.name = readString(bufor,i);
+		nce.message = readString(bufor,i);
 
-		int messLen = readNormalNr(bufor,i); i+=4;
-		for(int ll=0; ll<messLen; ++ll)
+		for(int x=0; x < 7; x++)
 		{
-			nce.message += bufor[i]; ++i;
+			nce.resources[x] = readNormalNr(bufor,i); 
+			i+=4;
 		}
-
-		nce.wood = readNormalNr(bufor,i); i+=4;
-		nce.mercury = readNormalNr(bufor,i); i+=4;
-		nce.ore = readNormalNr(bufor,i); i+=4;
-		nce.sulfur = readNormalNr(bufor,i); i+=4;
-		nce.crystal = readNormalNr(bufor,i); i+=4;
-		nce.gems = readNormalNr(bufor,i); i+=4;
-		nce.gold = readNormalNr(bufor,i); i+=4;
 
 		nce.players = bufor[i]; ++i;
 		if(version > AB)
@@ -783,6 +772,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 		}
 		else
 			nce.forHuman = true;
+
 		nce.forComputer = bufor[i]; ++i;
 		nce.firstShow = readNormalNr(bufor,i, 2); i+=2;
 		nce.forEvery = bufor[i]; ++i;

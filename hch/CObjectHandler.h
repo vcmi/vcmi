@@ -28,19 +28,23 @@ class DLL_EXPORT CCastleEvent
 {
 public:
 	std::string name, message;
-	int wood, mercury, ore, sulfur, crystal, gems, gold; //gain / loss of resources
-	unsigned char players; //players for whom this event can be applied
-	bool forHuman, forComputer;
-	int firstShow; //postpone of first encounter time in days
-	int forEvery; //every n days this event will occure
-
-	unsigned char bytes[6]; //build specific buildings (raw format, similar to town's)
-
-	int gen[7]; //additional creatures in i-th level dwelling
+	std::vector<si32> resources;  //gain / loss of resources
+	ui8 players; //players for whom this event can be applied
+	ui8 forHuman, forComputer;
+	ui32 firstShow; //postpone of first encounter time in days
+	ui32 forEvery; //every n days this event will occure
+	ui8 bytes[6]; //build specific buildings (raw format, similar to town's)
+	si32 gen[7]; //additional creatures in i-th level dwelling
 
 	bool operator<(const CCastleEvent &drugie) const
 	{
 		return firstShow<drugie.firstShow;
+	}
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name & message & resources & players & forHuman & forComputer & firstShow 
+			& forEvery & bytes & gen;
 	}
 };
 
@@ -57,6 +61,12 @@ public:
 	std::vector<ui32> m7resources;
 
 	std::string firstVisitText, nextVisitText, completedText;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & missionType & lastDay & m13489val & m2stats & m5arts & m6creatures & m7resources
+			& firstVisitText & nextVisitText & completedText;
+	}
 };
 
 class DLL_EXPORT IObjectInterface
@@ -79,14 +89,13 @@ protected:
 public:
 	mutable std::string hoverName;
 	int3 pos; //h3m pos
-	int ID, subID; //normal ID (this one from OH3 maps ;]) - eg. town=98; hero=34
+	si32 ID, subID; //normal ID (this one from OH3 maps ;]) - eg. town=98; hero=34
 	si32 id;//number of object in CObjectHandler's vector		
 	CGDefInfo * defInfo;
-	CCPPObjectScript * state;
 	CSpecObjInfo * info;
-	unsigned char animPhaseShift;
+	ui8 animPhaseShift;
 
-	ui8 tempOwner; //uzywane dla szybkosci, skrypt ma obowiazek aktualizowac te zmienna
+	ui8 tempOwner;
 	ui8 blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
 
 	int getOwner() const;
@@ -98,13 +107,20 @@ public:
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
 	CGObjectInstance();
 	virtual ~CGObjectInstance();
-	CGObjectInstance(const CGObjectInstance & right);
-	CGObjectInstance& operator=(const CGObjectInstance & right);
+	//CGObjectInstance(const CGObjectInstance & right);
+	//CGObjectInstance& operator=(const CGObjectInstance & right);
 	virtual const std::string & getHoverText() const;
 	//////////////////////////////////////////////////////////////////////////
 	void initObj();
 
 	friend class CGameHandler;
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hoverName & pos & ID & subID & id & animPhaseShift & tempOwner & blockVisit;
+		//TODO: definfo
+	}
 };
 
 class  DLL_EXPORT CArmedInstance: public CGObjectInstance
@@ -112,6 +128,11 @@ class  DLL_EXPORT CArmedInstance: public CGObjectInstance
 public:
 	CCreatureSet army; //army
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & army;
+	}
 };
 
 class DLL_EXPORT CGHeroInstance : public CArmedInstance
@@ -128,23 +149,23 @@ public:
 
 	CHero * type;
 	ui32 exp; //experience point
-	int level; //current level of hero
+	si32 level; //current level of hero
 	std::string name; //may be custom
 	std::string biography; //if custom
-	int portrait; //may be custom
-	int mana; // remaining spell points
-	std::vector<int> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
+	si32 portrait; //may be custom
+	si32 mana; // remaining spell points
+	std::vector<si32> primSkills; //0-attack, 1-defence, 2-spell power, 3-knowledge
 	std::vector<std::pair<ui8,ui8> > secSkills; //first - ID of skill, second - level of skill (1 - basic, 2 - adv., 3 - expert); if hero has ability (-1, -1) it meansthat it should have default secondary abilities
-	int movement; //remaining movement points
-	int identifier; //from the map file
-	bool sex;
+	si32 movement; //remaining movement points
+	si32 identifier; //from the map file
+	ui8 sex;
 	struct DLL_EXPORT Patrol
 	{
 		Patrol(){patrolling=false;patrolRadious=-1;};
 		bool patrolling;
 		int patrolRadious;
 	} patrol;
-	bool inTownGarrison; // if hero is in town garrison 
+	ui8 inTownGarrison; // if hero is in town garrison 
 	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 	std::vector<ui32> artifacts; //hero's artifacts from bag
 	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
@@ -152,6 +173,16 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & exp & level & name & biography & portrait & mana & primSkills & secSkills & movement
+			& identifier & sex & inTownGarrison & artifacts & artifWorn & spells;
+		//TODO: type
+		//TODO: visited town
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
 	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const;
@@ -160,12 +191,12 @@ public:
 	float getMultiplicativeMoveBonus() const;
 	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	int getSightDistance() const; //returns sight distance of this hero
-	int manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
+	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	bool canWalkOnSea() const;
 	int getCurrentLuck() const;
 	int getCurrentMorale() const;
 	int getPrimSkillLevel(int id) const;
-	int getSecSkillLevel(const int & ID) const; //0 - no skill
+	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
 	int maxMovePoints(bool onLand) const;
 	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
 	void setArtAtPos(ui16 pos, int art);
@@ -190,13 +221,13 @@ class DLL_EXPORT CGTownInstance : public CArmedInstance
 public:
 	CTown * town;
 	std::string name; // name of town
-	int builded; //how many buildings has been built this turn
-	int destroyed; //how many buildings has been destroyed this turn
+	si32 builded; //how many buildings has been built this turn
+	si32 destroyed; //how many buildings has been destroyed this turn
 	const CGHeroInstance * garrisonHero, *visitingHero;
-	int identifier; //special identifier from h3m (only > RoE maps)
-	int alignment;
+	ui32 identifier; //special identifier from h3m (only > RoE maps)
+	si32 alignment;
 	std::set<si32> forbiddenBuildings, builtBuildings;
-	std::vector<int> possibleSpells, obligatorySpells;
+	std::vector<ui32> possibleSpells, obligatorySpells;
 	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
 
 	struct StrInfo
@@ -209,6 +240,19 @@ public:
 		}
 	} strInfo;
 	std::set<CCastleEvent> events;
+
+	//////////////////////////////////////////////////////////////////////////
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & name & builded & destroyed & identifier & alignment & forbiddenBuildings & builtBuildings
+			& possibleSpells & obligatorySpells & spells & strInfo & events;
+		//TODO: town
+		//TODO: garrison/visiting hero
+	}
+
+	//////////////////////////////////////////////////////////////////////////
 
 
 	bool needsLastStack() const;
