@@ -44,75 +44,6 @@ void IObjectInterface::initObj()
 
 void CObjectHandler::loadObjects()
 {
-	VLC->objh = this;
-//	int ID=0; //TODO use me
-	tlog5 << "\t\tReading OBJNAMES \n";
-	std::string buf = bitmaph->getTextFile("OBJNAMES.TXT");
-	int it=0; //hope that -1 will not break this
-	while (it<buf.length()-1)
-	{
-		std::string nobj;
-		loadToIt(nobj, buf, it, 3);
-		if(nobj.size() && (nobj[nobj.size()-1]==(char)10 || nobj[nobj.size()-1]==(char)13 || nobj[nobj.size()-1]==(char)9))
-		{
-			nobj = nobj.substr(0, nobj.size()-1);
-		}
-		names.push_back(nobj);
-	}
-
-	tlog5 << "\t\tReading ADVEVENT \n";
-	buf = bitmaph->getTextFile("ADVEVENT.TXT");
-	it=0;
-	std::string temp;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		if (temp[0]=='\"')
-		{
-			temp = temp.substr(1,temp.length()-2);
-		}
-		boost::algorithm::replace_all(temp,"\"\"","\"");
-		advobtxt.push_back(temp);
-	}
-
-	tlog5 << "\t\tReading XTRAINFO \n";
-	buf = bitmaph->getTextFile("XTRAINFO.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		xtrainfo.push_back(temp);
-	}
-
-	tlog5 << "\t\tReading MINENAME \n";
-	buf = bitmaph->getTextFile("MINENAME.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		mines.push_back(std::pair<std::string,std::string>(temp,""));
-	}
-
-	tlog5 << "\t\tReading MINEEVNT \n";
-	buf = bitmaph->getTextFile("MINEEVNT.TXT");
-	it=0;
-	int i=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		temp = temp.substr(1,temp.length()-2);
-		mines[i++].second = temp;
-	}
-
-	tlog5 << "\t\tReading RESTYPES \n";
-	buf = bitmaph->getTextFile("RESTYPES.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		restypes.push_back(temp);
-	}
-
 	tlog5 << "\t\tReading cregens \n";
 	cregens.resize(110); //TODO: hardcoded value - change
 	for(size_t i=0; i < cregens.size(); ++i)
@@ -128,15 +59,6 @@ void CObjectHandler::loadObjects()
 	}
 	ifs.close();
 	ifs.clear();
-
-	tlog5 << "\t\tReading ZCRGN1 \n";
-	buf = bitmaph->getTextFile("ZCRGN1.TXT");
-	it=0;
-	while (it<buf.length()-1)
-	{
-		loadToIt(temp,buf,it,3);
-		creGens.push_back(temp);
-	}
 	tlog5 << "\t\tDone loading objects!\n";
 }
 int CGObjectInstance::getOwner() const
@@ -994,7 +916,7 @@ const std::string & CGVisitableOPH::getHoverText() const
 	default:
 		throw "Wrong CGVisitableOPH object ID!\n";
 	}
-	hoverName = VLC->objh->names[ID] + " " + VLC->objh->xtrainfo[pom];
+	hoverName = VLC->generaltexth->names[ID] + " " + VLC->generaltexth->xtrainfo[pom];
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 	if(h)
 	{
@@ -1110,7 +1032,7 @@ void CGMine::initObj()
 void CGResource::initObj()
 {
 	blockVisit = true;
-	hoverName = VLC->objh->restypes[subID];
+	hoverName = VLC->generaltexth->restypes[subID];
 
 	if(!amount)
 	{
@@ -1146,7 +1068,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 	sii.player = h->tempOwner;
 	sii.c = Component(2,subID,amount,0);
 	sii.text << std::pair<ui8,ui32>(11,113);
-	sii.text.replacements.push_back(VLC->objh->restypes[subID]);
+	sii.text.replacements.push_back(VLC->generaltexth->restypes[subID]);
 	cb->showCompInfo(&sii);
 	cb->removeObject(id);
 }

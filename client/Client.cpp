@@ -120,7 +120,7 @@ void CClient::process(int what)
 		{
 			SetResource sr;
 			*serv >> sr;
-			tlog5 << "Set amount of "<<CGI->objh->restypes[sr.resid] 
+			tlog5 << "Set amount of "<<CGI->generaltexth->restypes[sr.resid] 
 			  << " of player "<<(unsigned)sr.player <<" to "<<sr.val<<std::endl;
 			gs->apply(&sr);
 			playerint[sr.player]->receivedResource(sr.resid,sr.val);

@@ -119,7 +119,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hoverName & pos & ID & subID & id & animPhaseShift & tempOwner & blockVisit;
-		//TODO: definfo
+		//definfo is handled by map serializer
 	}
 };
 
@@ -131,6 +131,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CGObjectInstance&>(*this);
 		h & army;
 	}
 };
@@ -176,10 +177,17 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CArmedInstance&>(*this);
 		h & exp & level & name & biography & portrait & mana & primSkills & secSkills & movement
 			& identifier & sex & inTownGarrison & artifacts & artifWorn & spells;
-		//TODO: type
-		//TODO: visited town
+
+		ui8 standardType = (VLC->heroh->heroes[subID] == type);
+		h & standardType;
+		if(!standardType)
+			h & type;
+		else if(!h.saving)
+			type = VLC->heroh->heroes[subID];
+		//visitied town pointer will be restored by map serialization method
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -246,10 +254,18 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & static_cast<CArmedInstance&>(*this);
 		h & name & builded & destroyed & identifier & alignment & forbiddenBuildings & builtBuildings
 			& possibleSpells & obligatorySpells & spells & strInfo & events;
-		//TODO: town
-		//TODO: garrison/visiting hero
+
+		ui8 standardType = (&VLC->townh->towns[subID] == town);
+		h & standardType;
+		if(!standardType)
+			h & town;
+		else if(!h.saving)
+			town = &VLC->townh->towns[subID];
+
+		//garrison/visiting hero pointers will be restored in the map serialization
 	}
 
 	//////////////////////////////////////////////////////////////////////////
@@ -290,32 +306,41 @@ public:
 	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
 	void initObj();
 	void treeSelected(int heroID, int resType, int resVal, int expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & visitors & ttype;
+	}
 };
 
 class DLL_EXPORT CGEvent : public CGObjectInstance //event objects
 {
 public:
-	bool areGuarders; //true if there are
 	CCreatureSet guarders;
-	bool isMessage; //true if there is a message
 	std::string message;
-	unsigned int gainedExp;
-	int manaDiff; //amount of gained / lost mana
-	int moraleDiff; //morale modifier
-	int luckDiff; //luck modifier
-	int wood, mercury, ore, sulfur, crystal, gems, gold; //gained / lost resources
-	unsigned int attack; //added attack points
-	unsigned int defence; //added defence points
-	unsigned int power; //added power points
-	unsigned int knowledge; //added knowledge points
-	std::vector<int> abilities; //gained abilities
-	std::vector<int> abilityLevels; //levels of gained abilities
-	std::vector<int> artifacts; //gained artifacts
-	std::vector<int> spells; //gained spells
+	ui32 gainedExp;
+	si32 manaDiff; //amount of gained / lost mana
+	si32 moraleDiff; //morale modifier
+	si32 luckDiff; //luck modifier
+	std::vector<si32> resources;//gained / lost resources
+	std::vector<si32> primskills;//gained / lost resources
+	std::vector<si32> abilities; //gained abilities
+	std::vector<si32> abilityLevels; //levels of gained abilities
+	std::vector<si32> artifacts; //gained artifacts
+	std::vector<si32> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
-	unsigned char availableFor; //players whom this event is available for
-	bool computerActivate; //true if computre player can activate this event
-	bool humanActivate; //true if human player can activate this event
+	ui8 availableFor; //players whom this event is available for
+	ui8 computerActivate; //true if computre player can activate this event
+	ui8 humanActivate; //true if human player can activate this event
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & guarders & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
+			& abilities & abilityLevels & artifacts & spells & creatures & availableFor 
+			& computerActivate & humanActivate;
+	}
 };
 
 class DLL_EXPORT CGCreature : public CArmedInstance //creatures on map
@@ -332,6 +357,12 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void endBattle(BattleResult *result) const;
 	void initObj();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this);
+		h & identifier & character & message & resources & gainedArtifact & neverFlees & notGrowingTeam;
+	}
 }; 
 
 
@@ -340,42 +371,39 @@ class DLL_EXPORT CGSignBottle : public CGObjectInstance //signs and ocean bottle
 	//TODO: generate default message if sign is 'empty'
 public:
 	std::string message;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & message;
+	}
 };
 
 class DLL_EXPORT CGSeerHut : public CGObjectInstance, public CQuest
 {
 public:
-	char rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
-	//for reward 1
-	int r1exp;
-	//for reward 2
-	int r2mana;
-	//for reward 3
-	int r3morale;
-	//for reward 4
-	int r4luck;
-	//for reward 5
-	unsigned char r5type; //0 - wood, 1 - mercury, 2 - ore, 3 - sulfur, 4 - crystal, 5 - gems, 6 - gold
-	int r5amount;
-	//for reward 6
-	unsigned char r6type; //0 - attack, 1 - defence, 2 - power, 3 - knowledge
-	int r6amount;
-	//for reward 7
-	int r7ability; //ability id
-	unsigned char r7level; //1 - basic, 2 - advanced, 3 - expert
-	//for reward 8
-	int r8art;//artifact id
-	//for reward 9
-	int r9spell;//spell id
-	//for reward 10
-	int r10creature; //creature id
-	int r10amount;
+	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
+
+	si32 rID;
+	si32 rVal;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this) & static_cast<CQuest&>(*this);
+		h & rewardType & rID & rVal;
+	}
 };
 
 class DLL_EXPORT CGWitchHut : public CGObjectInstance
 {
 public:
-	std::vector<int> allowedAbilities;
+	std::vector<si32> allowedAbilities;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & allowedAbilities;
+	}
 };
 
 
@@ -387,12 +415,24 @@ public:
 	ui8 r0type;
 	ui32 r1; //Ability ID
 	ui32 r2; //Spell ID
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & bonusType & r0type & r1 & r2;
+	}
 };
 
 class DLL_EXPORT CGGarrison : public CArmedInstance
 {
 public:
-	bool removableUnits;
+	ui8 removableUnits;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this);
+		h & removableUnits;
+	}
 };
 
 class DLL_EXPORT CGArtifact : public CArmedInstance
@@ -402,31 +442,56 @@ public:
 	ui32 spell; //if it's spell scroll
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();	
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this);
+		h & message & spell;
+	}
 };
 
 class DLL_EXPORT CGResource : public CArmedInstance
 {
 public:
-	int amount; //0 if random
+	ui32 amount; //0 if random
 	std::string message;
 
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this);
+		h & amount & message;
+	}
 };
 
 class DLL_EXPORT CGPickable : public CGObjectInstance //campfire, treasure chest
 {
+public:
 	ui32 type, val1, val2;
 
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();
 	void chosen(int which, int heroID) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & type & val1 & val2;
+	}
 };
 
 class DLL_EXPORT CGShrine : public CGObjectInstance
 {
 public:
-	unsigned char spell; //number of spell or 255 if random
+	ui8 spell; //number of spell or 255 if random
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & spell;
+	}
 };
 
 class DLL_EXPORT CGPandoraBox : public CArmedInstance
@@ -435,22 +500,33 @@ public:
 	std::string message;
 
 	//gained things:
-	unsigned int gainedExp;
-	int manaDiff;
-	int moraleDiff;
-	int luckDiff;
-	int wood, mercury, ore, sulfur, crystal, gems, gold;
-	int attack, defence, power, knowledge;
-	std::vector<int> abilities;
-	std::vector<int> abilityLevels;
-	std::vector<int> artifacts;
-	std::vector<int> spells;
-	CCreatureSet creatures;
+	ui32 gainedExp;
+	si32 manaDiff; //amount of gained / lost mana
+	si32 moraleDiff; //morale modifier
+	si32 luckDiff; //luck modifier
+	std::vector<si32> resources;//gained / lost resources
+	std::vector<si32> primskills;//gained / lost resources
+	std::vector<si32> abilities; //gained abilities
+	std::vector<si32> abilityLevels; //levels of gained abilities
+	std::vector<si32> artifacts; //gained artifacts
+	std::vector<si32> spells; //gained spells
+	CCreatureSet creatures; //gained creatures
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this);
+		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
+			& abilities & abilityLevels & artifacts & spells & creatures;
+	}
 };
 
 class DLL_EXPORT CGQuestGuard : public CGObjectInstance, public CQuest
 {
 public:
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CQuest&>(*this) & static_cast<CGObjectInstance&>(*this);
+	}
 };
 
 class DLL_EXPORT CGMine : public CArmedInstance
@@ -459,6 +535,10 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void newTurn() const;
 	void initObj();	
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this);
+	}
 };
 
 class DLL_EXPORT CGVisitableOPW : public CGObjectInstance //objects visitable OPW
@@ -468,6 +548,12 @@ public:
 
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void newTurn() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & visited;
+	}
 };
 
 class DLL_EXPORT CGTeleport : public CGObjectInstance //teleports and subterranean gates
@@ -476,20 +562,18 @@ public:
 	static std::map<int,std::map<int, std::vector<int> > > objs; //map[ID][subID] => vector of ids
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();	
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
 };
 
 class DLL_EXPORT CObjectHandler
 {
 public:
-	std::vector<std::string> names; //vector of objects; i-th object in vector has subnumber i
 	std::vector<int> cregens; //type 17. dwelling subid -> creature ID
 	void loadObjects();
-
-	std::vector<std::string> creGens; //names of creatures' generators
-	std::vector<std::string> advobtxt;
-	std::vector<std::string> xtrainfo;
-	std::vector<std::string> restypes;
-	std::vector<std::pair<std::string,std::string> > mines; //first - name; second - event description
 };
 
 

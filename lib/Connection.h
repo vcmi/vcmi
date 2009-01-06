@@ -185,7 +185,10 @@ public:
 	template <typename T>
 	void savePointer(const T &data)
 	{
-		*this << *data;
+		ui8 hlp = (data!=NULL);
+		*this << hlp;
+		if(hlp)
+			*this << *data;
 	}
 	template <typename T>
 	void save(const T &data)
@@ -231,15 +234,8 @@ public:
 	}
 	void saveSerializable(const std::string &data)
 	{
-		if(!data.length())
-		{
-			*this << ui8(0);
-		}
-		else
-		{
-			*this << ui32(data.length());
-			this->This()->write(data.c_str(),data.size());
-		}
+		*this << ui32(data.length());
+		this->This()->write(data.c_str(),data.size());
 	}
 	template <typename T1, typename T2>
 	void saveSerializable(const std::pair<T1,T2> &data)
@@ -311,6 +307,14 @@ public:
 	template <typename T>
 	void loadPointer(T &data)
 	{
+		ui8 hlp;
+		*this >> hlp;
+		if(!hlp)
+		{
+			data = NULL;
+			return;
+		}
+
 		tlog5<<"Allocating memory for pointer!"<<std::endl;
 		typedef typename boost::remove_pointer<T>::type npT;
 		data = new npT;
@@ -357,14 +361,10 @@ public:
 	}
 	void loadSerializable(std::string &data)
 	{
-		ui8 length[4];
-		*this >> length[0];
-		if(!length[0]) return;
-		*this >> length[1];
-		*this >> length[2];
-		*this >> length[3];
-		data.resize(*((ui32*)length));
-		this->This()->read((void*)data.c_str(),*((ui32*)length));
+		ui32 length;
+		*this >> length;
+		data.resize(length);
+		this->This()->read((void*)data.c_str(),length);
 	}
 
 };
@@ -382,6 +382,20 @@ public:
 	CSaveFile(const std::string &fname);
 	~CSaveFile();
 	int write(const void * data, unsigned size);
+};
+
+class DLL_EXPORT CLoadFile
+	: public CISer<CLoadFile>
+{
+	void dummyMagicFunction()
+	{
+		*this >> std::string("This function makes stuff working.");
+	}
+public:
+	std::ifstream *sfile;
+	CLoadFile(const std::string &fname);
+	~CLoadFile();
+	int read(const void * data, unsigned size);
 };
 
 class DLL_EXPORT CConnection

@@ -55,12 +55,12 @@ std::string DLL_EXPORT toString(MetaString &ms)
 			}
 			else if(type == 9)
 			{
-				ret += VLC->objh->mines[ser].first;
+				ret += VLC->generaltexth->mines[ser].first;
 				continue;
 			}
 			else if(type == 10)
 			{
-				ret += VLC->objh->mines[ser].second;
+				ret += VLC->generaltexth->mines[ser].second;
 				continue;
 			}
 			else
@@ -71,22 +71,22 @@ std::string DLL_EXPORT toString(MetaString &ms)
 					vec = &VLC->generaltexth->allTexts;
 					break;
 				case 2:
-					vec = &VLC->objh->xtrainfo;
+					vec = &VLC->generaltexth->xtrainfo;
 					break;
 				case 3:
-					vec = &VLC->objh->names;
+					vec = &VLC->generaltexth->names;
 					break;
 				case 4:
-					vec = &VLC->objh->restypes;
+					vec = &VLC->generaltexth->restypes;
 					break;
 				case 6:
 					vec = &VLC->generaltexth->arraytxt;
 					break;
 				case 8:
-					vec = &VLC->objh->creGens;
+					vec = &VLC->generaltexth->creGens;
 					break;
 				case 11:
-					vec = &VLC->objh->advobtxt;
+					vec = &VLC->generaltexth->advobtxt;
 					break;
 				case 12:
 					vec = &VLC->generaltexth->artifEvents;
@@ -1084,7 +1084,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	//we have to replace normal random object
 	cur->ID = ran.first;
 	cur->subID = ran.second;
-	map->defs.insert(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
+	map->defy.push_back(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
 	if(!cur->defInfo)
 	{
 		tlog1<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
@@ -1159,7 +1159,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			map->objects[no]->defInfo->blockMap[5] = 255;
 			map->addBlockVisTiles(map->objects[no]);
 		}
-		map->objects[no]->hoverName = VLC->objh->names[map->objects[no]->ID];
+		map->objects[no]->hoverName = VLC->generaltexth->names[map->objects[no]->ID];
 	}
 	//std::cout<<"\tRandomizing objects: "<<th.getDif()<<std::endl;
 
@@ -1245,7 +1245,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	for(int i=0; i<map->allowedHeroes.size(); i++) //add to hids all allowed heroes
 		if(map->allowedHeroes[i])
 			hids.insert(i);
-	for (int i=0; i<map->heroes.size();i++) //heroes instances
+	for (int i=0; i<map->heroes.size();i++) //heroes instances initialization
 	{
 		if (map->heroes[i]->getOwner()<0)
 		{
@@ -1450,6 +1450,11 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 				}
 			}
 		}
+	}
+
+	for(int i=0; i<map->defy.size(); i++)
+	{
+		map->defy[i]->serial = i;
 	}
 
 	for(int i=0; i<map->objects.size(); i++)

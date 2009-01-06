@@ -922,13 +922,18 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 		if (!(ourMaps[(i-at)+from].name.length()))
 			ourMaps[(i-at)+from].name = "Unnamed";
 		CSDL_Ext::printAtMiddle(ourMaps[(i-at)+from].name,192,13,GEOR13,nasz,scenin, 2);
-		if (ourMaps[(i-at)+from].victoryCondition==winStandard)
+		if (ourMaps[(i-at)+from].victoryCondition.condition == winStandard)
 			temp=11;
-		else temp=ourMaps[(i-at)+from].victoryCondition;
+		else 
+			temp=ourMaps[(i-at)+from].victoryCondition.condition;
+
 		blitAt(Dvic->ourImages[temp].bitmap,285,2,scenin);
+
 		if (ourMaps[(i-at)+from].lossCondition.typeOfLossCon == lossStandard)
 			temp=3;
-		else temp=ourMaps[(i-at)+from].lossCondition.typeOfLossCon;
+		else 
+			temp=ourMaps[(i-at)+from].lossCondition.typeOfLossCon;
+
 		blitAt(Dloss->ourImages[temp].bitmap,318,2,scenin);
 
 		blitAt(scenin,24,121+(i-at)*25);
@@ -1251,10 +1256,10 @@ void MapSel::printSelectedInfo()
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[390],420,406,GEOR13,zwykly);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[391],585,406,GEOR13,zwykly);
 
-	int temp = ourMaps[selected].victoryCondition+1;
+	int temp = ourMaps[selected].victoryCondition.condition+1;
 	if (temp>20) temp=0;
 	std::string sss = CGI->generaltexth->victoryConditions[temp];
-	if (temp && ourMaps[selected].vicConDetails->allowNormalVictory) sss+= "/" + CGI->generaltexth->victoryConditions[0];
+	if (temp && ourMaps[selected].victoryCondition.allowNormalVictory) sss+= "/" + CGI->generaltexth->victoryConditions[0];
 	CSDL_Ext::printAt(sss,452,310,GEOR13,zwykly);
 
 
@@ -1312,7 +1317,7 @@ void MapSel::printSelectedInfo()
 		break;
 	}
 	blitAt(Dsizes->ourImages[temp].bitmap,714,28);
-	temp=ourMaps[selected].victoryCondition;
+	temp = ourMaps[selected].victoryCondition.condition;
 	if (temp>12) temp=11;
 	blitAt(Dvic->ourImages[temp].bitmap,420,308); //v
 	temp=ourMaps[selected].lossCondition.typeOfLossCon;

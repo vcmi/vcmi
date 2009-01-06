@@ -445,14 +445,15 @@ void CMapHandler::init()
 		if(i<ccc)
 		{
 			n = CGI->state->villages[i];
-			map->defs.insert(CGI->state->forts[i]);
+			map->defy.push_back(CGI->state->forts[i]);
 		}
 		else 
 			n = CGI->state->capitols[i%ccc];
 		ifs >> n->name;
 		if(!n)
 			tlog1 << "*HUGE* Warning - missing town def for " << i << std::endl;
-		map->defs.insert(n);
+		else
+			map->defy.push_back(n);
 	} 
 	tlog0<<"\tLoading town def info: "<<th.getDif()<<std::endl;
 
@@ -464,8 +465,14 @@ void CMapHandler::init()
 		}
 	}
 
+	//for(int i=0; i<map->defy.size(); i++)
+	//{
+	//	map->defy[i]->serial = i;
+	//	processDef(map->defy[i]);
+	//}
+
 	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
-	std::for_each(map->defs.begin(),map->defs.end(),processDef); //and non-h3m defs
+	//std::for_each(map->defs.begin(),map->defs.end(),processDef); //and non-h3m defs
 	tlog0<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
 
 	for(int i=0;i<PLAYER_LIMIT;i++)

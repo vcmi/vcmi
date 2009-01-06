@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
-std::string readTo(std::string &in, unsigned int &it, char end);
+std::string readTo(std::string &in, int &it, char end);
 class DLL_EXPORT CGeneralTextHandler //Handles general texts
 {
 public:
@@ -37,6 +37,15 @@ public:
 	std::vector<std::pair<std::string,std::string> > zelp;
 	std::string lossCondtions[4];
 	std::string victoryConditions[14];
+
+	//objects
+	std::vector<std::string> names; //vector of objects; i-th object in vector has subnumber i
+	std::vector<std::string> creGens; //names of creatures' generators
+	std::vector<std::string> advobtxt;
+	std::vector<std::string> xtrainfo;
+	std::vector<std::string> restypes;
+	std::vector<std::pair<std::string,std::string> > mines; //first - name; second - event description
+
 
 	std::string getTitle(std::string text);
 	std::string getDescr(std::string text);

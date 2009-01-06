@@ -7,7 +7,7 @@
 #include <sstream>
 #include <fstream>
 extern CLodHandler * bitmaph;
-unsigned int readNr(std::string &in, unsigned int &it)
+unsigned int readNr(std::string &in, int &it)
 {
 	int last=it;
 	for(;last<in.size();last++)
@@ -24,7 +24,7 @@ unsigned int readNr(std::string &in, unsigned int &it)
 	ss >> last;
 	return last;
 }
-CBuilding * readBg(std::string &buf, unsigned int& it)
+CBuilding * readBg(std::string &buf, int& it)
 {
 	CBuilding * nb = new CBuilding();
 	nb->resources.resize(RESOURCE_QUANTITY);
@@ -37,7 +37,8 @@ CBuilding * readBg(std::string &buf, unsigned int& it)
 void CBuildingHandler::loadBuildings()
 {
 	std::string buf = bitmaph->getTextFile("BUILDING.TXT"), temp;
-	unsigned int andame = buf.size(), it=0; //buf iterator
+	unsigned int andame = buf.size();
+	int it=0; //buf iterator
 
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//read 2 lines of file info
 

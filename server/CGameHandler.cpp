@@ -409,10 +409,21 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 			case 98:
 				{
 					std::string fname;
+					Mapa * mapa;
 					c >> fname;
-					CSaveFile save(fname);
-					save << VLC->arth << VLC->buildh << VLC->creh << VLC->dobjinfo << VLC->heroh  
-						<< VLC->spellh << VLC->townh << this;
+
+					{
+						CSaveFile save(fname);
+						save << gs->map;
+					}
+
+					{
+						CLoadFile load(fname);
+						load >> mapa;
+					}
+					//save << VLC->arth << VLC->buildh << VLC->creh << VLC->dobjinfo << VLC->heroh  
+					//	<< VLC->spellh << VLC->townh << this;
+
 					//save << this;
 					break;
 				}

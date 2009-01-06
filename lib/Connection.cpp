@@ -146,7 +146,7 @@ void CConnection::close()
 }
 
 CSaveFile::CSaveFile( const std::string &fname )
-	:sfile(new std::ofstream(fname.c_str()))
+	:sfile(new std::ofstream(fname.c_str(),std::ios::binary))
 {
 	if(!(*sfile))
 	{
@@ -163,5 +163,26 @@ CSaveFile::~CSaveFile()
 int CSaveFile::write( const void * data, unsigned size )
 {
 	sfile->write((char *)data,size);
+	return size;
+}
+
+CLoadFile::CLoadFile( const std::string &fname )
+:sfile(new std::ifstream(fname.c_str(),std::ios::binary))
+{
+	if(!(*sfile))
+	{
+		tlog1 << "Error: cannot open to read " << fname << std::endl;
+		sfile = NULL;
+	}
+}
+
+CLoadFile::~CLoadFile()
+{
+	delete sfile;
+}
+
+int CLoadFile::read( const void * data, unsigned size )
+{
+	sfile->read((char *)data,size);
 	return size;
 }

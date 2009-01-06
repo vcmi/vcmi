@@ -84,6 +84,12 @@ struct DLL_EXPORT TerrainTile
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & tertype & terview & nuine & rivDir & malle &roadDir & siodmyTajemniczyBajt;
+
+		if(!h.saving)
+		{
+			visitable = blocked = false;
+			//these flags (and obj vectors) will be restored in map serialization
+		}
 	}
 };
 struct DLL_EXPORT SheroName //name of starting hero
@@ -132,53 +138,22 @@ struct DLL_EXPORT LossCondition
 		h & typeOfLossCon & castlePos & heroPos & timeLimit;
 	}
 };
-struct DLL_EXPORT CspecificVictoryConidtions
+struct DLL_EXPORT CVictoryCondition
 {
-	bool allowNormalVictory;
-	bool appliesToAI;
+	EvictoryConditions condition; //ID of condition
+	ui8 allowNormalVictory, appliesToAI;
+
+	int3 pos; //pos of city to upgrade (3); pos of town to build grail, {-1,-1,-1} if not relevant (4); hero pos (5); town pos(6); monster pos (7); destination pos(8)
+	ui32 ID; //artifact ID (0); monster ID (1); resource ID (2); needed fort level in upgraded town (3); artifact ID (8)
+	ui32 count; //needed count for creatures (1) / resource (2); upgraded town hall level (3); 
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & condition & allowNormalVictory & appliesToAI & pos & ID & count;
+	}
 };
-struct DLL_EXPORT VicCon0 : public CspecificVictoryConidtions //acquire artifact
-{
-	int ArtifactID;
-};
-struct DLL_EXPORT VicCon1 : public CspecificVictoryConidtions //accumulate creatures
-{
-	int monsterID;
-	int neededQuantity;
-};
-struct DLL_EXPORT VicCon2 : public CspecificVictoryConidtions // accumulate resources
-{
-	int resourceID;
-	int neededQuantity;
-};
-struct DLL_EXPORT VicCon3 : public CspecificVictoryConidtions // upgrade specific town
-{
-	int3 posOfCity;
-	int councilNeededLevel; //0 - town; 1 - city; 2 - capitol
-	int fortNeededLevel;// 0 - fort; 1 - citadel; 2 - castle
-};
-struct DLL_EXPORT VicCon4 : public CspecificVictoryConidtions // build grail structure
-{
-	bool anyLocation;
-	int3 whereBuildGrail;
-};
-struct DLL_EXPORT VicCon5 : public CspecificVictoryConidtions // defeat a specific hero
-{
-	int3 locationOfHero;
-};
-struct DLL_EXPORT VicCon6 : public CspecificVictoryConidtions // capture a specific town
-{
-	int3 locationOfTown;
-};
-struct DLL_EXPORT VicCon7 : public CspecificVictoryConidtions // defeat a specific monster
-{
-	int3 locationOfMonster;
-};
-struct DLL_EXPORT VicCona : public CspecificVictoryConidtions //transport specific artifact
-{
-	int artifactID;
-	int3 destinationPlace;
-};
+
 struct DLL_EXPORT Rumor
 {
 	std::string name, text;
@@ -222,21 +197,24 @@ class DLL_EXPORT CMapHeader
 {
 public:
 	Eformat version; // version of map Eformat
-	bool areAnyPLayers; // if there are any playable players on map
-	int height, width;
-	bool twoLevel; // if map has underground level
+	ui8 areAnyPLayers; // if there are any playable players on map
+	si32 height, width, twoLevel; //sizes
 	std::string name;  //name of map
 	std::string description;  //and description
-	int difficulty; // 0 easy - 4 impossible
-	int levelLimit;
+	ui8 difficulty; // 0 easy - 4 impossible
+	ui8 levelLimit;
 	LossCondition lossCondition;
-	EvictoryConditions victoryCondition; //victory conditions
-	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
+	CVictoryCondition victoryCondition; //victory conditions
 	PlayerInfo players[8]; // info about players
-	std::vector<int> teams;  // teams[i] = team of player no i
-	int howManyTeams;
+	std::vector<ui8> teams;  // teams[i] = team of player no i
+	ui8 howManyTeams;
+	void initFromMemory(unsigned char *bufor, int &i);
+	void loadViCLossConditions( unsigned char * bufor, int &i);
+	void loadPlayerInfo( int &pom, unsigned char * bufor, int &i);
 	CMapHeader(unsigned char *map); //an argument is a reference to string described a map (unpacked)
+	CMapHeader();
 };
+
 class DLL_EXPORT CMapInfo : public CMapHeader
 {
 public:
@@ -287,7 +265,7 @@ public:
 			return (a.width<b.width);
 			break;
 		case _viccon:
-			return (a.victoryCondition<b.victoryCondition);
+			return (a.victoryCondition.condition < b.victoryCondition.condition);
 			break;
 		case _name:
 			return (a.name<b.name);
@@ -299,29 +277,14 @@ public:
 	};
 	mapSorter(ESortBy es):sortBy(es){};
 };
-struct DLL_EXPORT Mapa
+struct DLL_EXPORT Mapa : public CMapHeader
 {
-	Eformat version; // version of map Eformat
 	ui32 checksum;
-	ui32 twoLevel; // if map has underground level
-	ui8 difficulty; // 0 easy - 4 impossible
-	ui8 levelLimit;
-	ui8 areAnyPLayers; // if there are any playable players on map
-	std::string name;  //name of map
-	std::string description;  //and description
-	ui32 height, width; 
 	TerrainTile*** terrain; 
 	std::vector<Rumor> rumors;
 	std::vector<DisposedHero> disposedHeroes;
 	std::vector<CGHeroInstance*> predefinedHeroes;
 	std::vector<CGDefInfo *> defy; // list of .def files with definitions from .h3m (may be custom)
-	std::set<CGDefInfo *> defs; // other defInfos - for randomized objects, objects added or modified by scripts
-	PlayerInfo players[8]; // info about players
-	std::vector<ui8> teams;  // teams[i] = team of player no i 
-	LossCondition lossCondition;
-	EvictoryConditions victoryCondition; //victory conditions
-	CspecificVictoryConidtions * vicConDetails; // used only if vistory conditions aren't standard
-	ui8 howManyTeams;
 	std::vector<ui8> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
 	std::vector<ui8> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
 	std::vector<ui8> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
@@ -345,8 +308,6 @@ struct DLL_EXPORT Mapa
 	void readPredefinedHeroes( unsigned char * bufor, int &i);
 	void readHeader( unsigned char * bufor, int &i);
 	void readRumors( unsigned char * bufor, int &i);
-	void loadViCLossConditions( unsigned char * bufor, int &i);
-	void loadPlayerInfo( int &pom, unsigned char * bufor, int &i);
 	void loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
 	void loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
 	int loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj);
@@ -355,13 +316,20 @@ struct DLL_EXPORT Mapa
 	void addBlockVisTiles(CGObjectInstance * obj);
 	void removeBlockVisTiles(CGObjectInstance * obj);
 	Mapa(std::string filename); //creates map structure from .h3m file
+	Mapa();
 	CGHeroInstance * getHero(int ID, int mode=0);
 	bool isInTheMap(int3 pos);
-	template <typename Handler> void serialize(Handler &h, const int version)
+	template <typename TObject, typename Handler> void serializeObj(Handler &h, const int version, TObject ** obj)
 	{
-		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & rumors & defy & defs
-			& players & teams & lossCondition & victoryCondition & howManyTeams & allowedSpell & allowedAbilities
-			& allowedArtifact &allowedHeroes & events & grailPos;
+		h & *obj;
+	}
+	template <typename Handler> void serialize(Handler &h, const int formatVersion)
+	{
+		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPLayers & rumors;
+		
+		h & players & teams & lossCondition & victoryCondition & howManyTeams & allowedSpell 
+			& allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
+
 		//TODO: viccondetails
 		if(h.saving)
 		{
@@ -386,7 +354,172 @@ struct DLL_EXPORT Mapa
 					for (int k = 0; k <= twoLevel ; k++)
 						h & terrain[i][j][k];
 		}
-		//TODO: recreate blockvis maps
+
+		//definfos
+		std::vector<CGDefInfo*> defs;
+
+		if(h.saving) //create vector with all defs used on map
+		{
+			for(int i=0; i<objects.size(); i++)
+				objects[i]->defInfo->serial = -1; //set serial to serial -1 - indicates that def is not present in defs vector
+
+			for(int i=0; i<objects.size(); i++)
+			{
+				CGDefInfo *cur = objects[i]->defInfo;
+				if(cur->serial < 0)
+				{
+					cur->serial = defs.size();
+					defs.push_back(cur);
+				}
+			}
+		}
+
+		h & ((h.saving) ? defs : defy);
+
+		//objects
+		if(h.saving)
+		{
+			ui32 hlp = objects.size(); 
+			h & hlp;
+		}
+		else
+		{
+			ui32 hlp;
+			h & hlp;
+			objects.resize(hlp);
+		}
+
+		h & CGTeleport::objs;
+
+		for(int i=0; i<objects.size(); i++)
+		{
+			CGObjectInstance *&obj = objects[i];
+			ui32 hlp;
+			si32 shlp;
+			h & (h.saving ? (hlp=obj->ID) : hlp);
+			switch(hlp)
+			{
+				#define SERIALIZE(TYPE) (   serializeObj<TYPE>( h,version,(TYPE**) (&obj) )   )
+			case 34: case 70: case 62:
+				SERIALIZE(CGHeroInstance);
+				break;
+			case 98: case 77:
+				SERIALIZE(CGTownInstance);
+				break;
+			case 26: //for event objects
+				SERIALIZE(CGEvent);
+				break;
+			case 51: //Mercenary Camp
+			case 23: //Marletto Tower
+			case 61: // Star Axis
+			case 32: // Garden of Revelation
+			case 100: //Learning Stone
+			case 102: //Tree of Knowledge
+				SERIALIZE(CGVisitableOPH);
+				break;
+			case 55: //mystical garden
+			case 112://windmill
+			case 109://water wheel
+				SERIALIZE(CGVisitableOPW);
+				break;
+			case 43: //teleport
+			case 44: //teleport
+			case 45: //teleport
+			case 103://subterranean gate
+				SERIALIZE(CGTeleport);
+				break;
+			case 12: //campfire
+			case 101: //treasure chest
+				SERIALIZE(CGPickable);
+				break;
+			case 54:  //Monster 
+			case 71: case 72: case 73: case 74: case 75:	// Random Monster 1 - 4
+			case 162: case 163: case 164:	
+				SERIALIZE(CGCreature);
+				break;
+			case 59: case 91: //ocean bottle and sign
+				SERIALIZE(CGSignBottle);
+				break;
+			case 83: //seer's hut
+				SERIALIZE(CGSeerHut);
+				break;
+			case 113: //witch hut
+				SERIALIZE(CGWitchHut);
+				break;
+			case 81: //scholar
+				SERIALIZE(CGScholar);
+				break;
+			case 33: case 219: //garrison
+				SERIALIZE(CGGarrison);
+				break;
+			case 5: //artifact	
+			case 65: case 66: case 67: case 68: case 69: //random artifact
+			case 93: //spell scroll
+				SERIALIZE(CGArtifact);
+				break;
+			case 76: case 79: //random resource; resource
+				SERIALIZE(CGResource);
+				break;
+			case 53: 
+				SERIALIZE(CGMine);
+				break;
+			case 88: case 89: case 90: //spell shrine
+				SERIALIZE(CGShrine);
+				break;
+			case 6:
+				SERIALIZE(CGPandoraBox);
+				break;
+			case 217:
+			case 216:
+			case 218:
+				//TODO cregen
+				SERIALIZE(CGObjectInstance);
+				break;
+			case 215:
+				SERIALIZE(CGQuestGuard);
+				break;
+			default:
+				SERIALIZE(CGObjectInstance);
+			}
+
+#undef SERIALIZE
+
+			//definfo
+			h & (h.saving ? (shlp=obj->defInfo->serial) : shlp); //read / write pos of definfo in defs vector
+			if(!h.saving)
+				obj->defInfo = defy[shlp];
+		}
+
+		if(!h.saving)
+		{
+
+			for(int i=0; i<objects.size(); i++)
+			{
+				if(objects[i]->ID == 34)
+					heroes.push_back(static_cast<CGHeroInstance*>(objects[i]));
+				else if(objects[i]->ID == 98)
+					towns.push_back(static_cast<CGTownInstance*>(objects[i]));
+
+				addBlockVisTiles(objects[i]); //recreate blockvis map
+			}
+			for(int i=0; i<heroes.size(); i++) //if hero is visiting/garrisoned in town set appropriate pointers
+			{
+				int3 vistile = heroes[i]->pos; vistile.x++;
+				for(int j=0; j<towns.size(); j++)
+				{
+					if(vistile == towns[j]->pos) //hero stands on the town entrance
+					{
+						if(heroes[i]->inTownGarrison)
+							towns[j]->garrisonHero = heroes[i];
+						else
+							towns[j]->visitingHero = heroes[i];
+
+						heroes[i]->visitedTown = towns[j];
+					}
+				}
+			}
+
+		}
 	}
 };
 #endif // __MAP_H__

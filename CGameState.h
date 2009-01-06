@@ -178,6 +178,11 @@ private:
 		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero
 
 		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, int notThatOne=-1);
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & heroesPool & pavailable;
+		}
 	} hpool; //we have here all heroes available on this map that are not hired
 
 	boost::shared_mutex *mx;
@@ -208,12 +213,11 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & scenarioOps & seed & currentPlayer & day & map & players & resVals;
+		h & scenarioOps & seed & currentPlayer & day & map & players & resVals & hpool;
 		if(!h.saving)
 		{
 			loadTownDInfos();
 		}
-		//TODO: hero pool
 	}
 
 	friend class CCallback;

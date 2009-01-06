@@ -206,37 +206,54 @@ CCreatureSet readCreatureSet(unsigned char * bufor, int &i, int number, bool ver
 }
 CMapHeader::CMapHeader(unsigned char *map)
 {
-	this->version = (Eformat)map[0]; //wersja mapy
-	this->areAnyPLayers = map[4]; //seems to be invalid
-	this->height = this->width = map[5]; // wymiary mapy
-	this->twoLevel = map[9]; //czy sa lochy
+	int i=0;
+	initFromMemory(map,i);
+}
 
-	int length = map[10]; //name length
-	int i=14, pom;
-	while (i-14<length)	//read name
-		this->name+=map[i++];
-	length = map[i] + map[i+1]*256; //description length
-	i+=4;
-	for (pom=0;pom<length;pom++)
-		this->description+=map[i++];
-	this->difficulty = map[i++]; // reading map difficulty
-	if(version!=RoE)
-	{
-		this->levelLimit = map[i++]; // hero level limit
-	}
+CMapHeader::CMapHeader()
+{
+	areAnyPLayers = difficulty = levelLimit = howManyTeams = 0;
+	height = width = twoLevel = -1;
+}
+
+void CMapHeader::initFromMemory( unsigned char *bufor, int &i )
+{
+	version = (Eformat)(readNormalNr(bufor,i)); i+=4; //map version
+	areAnyPLayers = readChar(bufor,i); //invalid on some maps
+	height = width = (readNormalNr(bufor,i)); i+=4; // wymiary mapy
+	twoLevel = readChar(bufor,i); //czy sa lochy
+	int pom;
+	name = readString(bufor,i);
+	description= readString(bufor,i);
+	difficulty = readChar(bufor,i); // reading map difficulty
+	if(version != RoE)
+		levelLimit = readChar(bufor,i); // hero level limit
 	else
-	{
 		levelLimit = 0;
+	loadPlayerInfo(pom, bufor, i);
+	loadViCLossConditions(bufor, i);
+
+	howManyTeams=bufor[i++]; //read number of teams
+	if(howManyTeams>0) //read team numbers
+	{
+		for(int rr=0; rr<8; ++rr)
+		{
+			players[rr].team=bufor[i++];
+		}
 	}
+}
+void CMapHeader::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
+{
 	for (pom=0;pom<8;pom++)
 	{
-		this->players[pom].canHumanPlay = map[i++];
-		this->players[pom].canComputerPlay = map[i++];
-		if ((!(this->players[pom].canHumanPlay || this->players[pom].canComputerPlay)))
+		players[pom].canHumanPlay = bufor[i++];
+		players[pom].canComputerPlay = bufor[i++];
+		if ((!(players[pom].canHumanPlay || players[pom].canComputerPlay)))
 		{
+			memset(&players[pom],0,sizeof(PlayerInfo));
 			switch(version)
 			{
-			case SoD: case WoG:
+			case SoD: case WoG: 
 				i+=13;
 				break;
 			case AB:
@@ -249,204 +266,186 @@ CMapHeader::CMapHeader(unsigned char *map)
 			continue;
 		}
 
-		this->players[pom].AITactic = map[i++];
+		players[pom].AITactic = bufor[i++];
 
 		if(version == SoD || version == WoG)
-			i++;
+			players[pom].p7= bufor[i++];
+		else
+			players[pom].p7= -1;
 
-		this->players[pom].allowedFactions = 0;
-		this->players[pom].allowedFactions += map[i++];
+		players[pom].allowedFactions = 0;
+		players[pom].allowedFactions += bufor[i++];
 		if(version != RoE)
-			this->players[pom].allowedFactions += (map[i++])*256;
+			players[pom].allowedFactions += (bufor[i++])*256;
 
-		this->players[pom].isFactionRandom = map[i++];
-		this->players[pom].hasMainTown = map[i++];
-		if (this->players[pom].hasMainTown)
+		players[pom].isFactionRandom = bufor[i++];
+		players[pom].hasMainTown = bufor[i++];
+		if (players[pom].hasMainTown)
 		{
 			if(version != RoE)
 			{
-				this->players[pom].generateHeroAtMainTown = map[i++];
-				this->players[pom].generateHero = map[i++];
+				players[pom].generateHeroAtMainTown = bufor[i++];
+				players[pom].generateHero = bufor[i++];
 			}
-			this->players[pom].posOfMainTown.x = map[i++];
-			this->players[pom].posOfMainTown.y = map[i++];
-			this->players[pom].posOfMainTown.z = map[i++];
+			else
+			{
+				players[pom].generateHeroAtMainTown = false;
+				players[pom].generateHero = false;
+			}
+
+			players[pom].posOfMainTown.x = bufor[i++];
+			players[pom].posOfMainTown.y = bufor[i++];
+			players[pom].posOfMainTown.z = bufor[i++];
+
+
 		}
-		players[pom].p8= map[i++];
-		players[pom].p9= map[i++];
+		players[pom].p8= bufor[i++];
+		players[pom].p9= bufor[i++];		
 		if(players[pom].p9!=0xff)
 		{
-			players[pom].mainHeroPortrait = map[i++];
-			int nameLength = map[i++];
-			i+=3;
+			players[pom].mainHeroPortrait = bufor[i++];
+			int nameLength = bufor[i++];
+			i+=3; 
 			for (int pp=0;pp<nameLength;pp++)
-				players[pom].mainHeroName+=map[i++];
+				players[pom].mainHeroName+=bufor[i++];
 		}
 
-		if(version!=RoE)
+		if(version != RoE)
 		{
-			i++; ////heroes placeholders //domostwa
-			int heroCount = map[i++];
+			i++; ////unknown byte
+			int heroCount = bufor[i++];
 			i+=3;
 			for (int pp=0;pp<heroCount;pp++)
 			{
 				SheroName vv;
-				vv.heroID=map[i++];
-				int hnl = map[i++];
+				vv.heroID=bufor[i++];
+				int hnl = bufor[i++];
 				i+=3;
 				for (int zz=0;zz<hnl;zz++)
 				{
-					vv.heroName+=map[i++];
+					vv.heroName+=bufor[i++];
 				}
-				this->players[pom].heroesNames.push_back(vv);
+				players[pom].heroesNames.push_back(vv);
 			}
 		}
 	}
-	this->victoryCondition = (EvictoryConditions)map[i++];
-	if (this->victoryCondition != winStandard) //specific victory conditions
+}
+
+void CMapHeader::loadViCLossConditions( unsigned char * bufor, int &i)
+{
+	victoryCondition.condition = (EvictoryConditions)bufor[i++];
+	if (victoryCondition.condition != winStandard) //specific victory conditions
 	{
 		int nr;
-		switch (this->victoryCondition) //read victory conditions
+		switch (victoryCondition.condition) //read victory conditions
 		{
 		case artifact:
 			{
-				this->vicConDetails = new VicCon0();
-				((VicCon0*)this->vicConDetails)->ArtifactID = map[i+2];
+				victoryCondition.ID = bufor[i+2];
 				nr=(version==RoE ? 1 : 2);
 				break;
 			}
 		case gatherTroop:
 			{
-				this->vicConDetails = new VicCon1();
-				int temp1 = map[i+2];
-				int temp2 = map[i+3];
-				((VicCon1*)this->vicConDetails)->monsterID = map[i+2];
-				((VicCon1*)this->vicConDetails)->neededQuantity=readNormalNr(map, i+(version==RoE ? 3 : 4));
+				int temp1 = bufor[i+2];
+				int temp2 = bufor[i+3];
+				victoryCondition.ID = bufor[i+2];
+				victoryCondition.count = readNormalNr(bufor, i+(version==RoE ? 3 : 4));
 				nr=(version==RoE ? 5 : 6);
 				break;
 			}
 		case gatherResource:
 			{
-				this->vicConDetails = new VicCon2();
-				((VicCon2*)this->vicConDetails)->resourceID = map[i+2];
-				((VicCon2*)this->vicConDetails)->neededQuantity=readNormalNr(map, i+3);
+				victoryCondition.ID = bufor[i+2];
+				victoryCondition.count = readNormalNr(bufor, i+3);
 				nr=5;
 				break;
 			}
 		case buildCity:
 			{
-				this->vicConDetails = new VicCon3();
-				((VicCon3*)this->vicConDetails)->posOfCity.x = map[i+2];
-				((VicCon3*)this->vicConDetails)->posOfCity.y = map[i+3];
-				((VicCon3*)this->vicConDetails)->posOfCity.z = map[i+4];
-				((VicCon3*)this->vicConDetails)->councilNeededLevel = map[i+5];
-				((VicCon3*)this->vicConDetails)->fortNeededLevel = map[i+6];
+				victoryCondition.pos.x = bufor[i+2];
+				victoryCondition.pos.y = bufor[i+3];
+				victoryCondition.pos.z = bufor[i+4];
+				victoryCondition.count = bufor[i+5];
+				victoryCondition.ID = bufor[i+6];
 				nr=5;
 				break;
 			}
 		case buildGrail:
 			{
-				this->vicConDetails = new VicCon4();
-				if (map[i+4]>2)
-					((VicCon4*)this->vicConDetails)->anyLocation = true;
+				if (bufor[i+4]>2)
+					victoryCondition.pos = int3(-1,-1,-1);
 				else
 				{
-					((VicCon4*)this->vicConDetails)->whereBuildGrail.x = map[i+2];
-					((VicCon4*)this->vicConDetails)->whereBuildGrail.y = map[i+3];
-					((VicCon4*)this->vicConDetails)->whereBuildGrail.z = map[i+4];
+					victoryCondition.pos.x = bufor[i+2];
+					victoryCondition.pos.y = bufor[i+3];
+					victoryCondition.pos.z = bufor[i+4];
 				}
 				nr=3;
 				break;
 			}
 		case beatHero:
-			{
-				this->vicConDetails = new VicCon5();
-				((VicCon5*)this->vicConDetails)->locationOfHero.x = map[i+2];
-				((VicCon5*)this->vicConDetails)->locationOfHero.y = map[i+3];
-				((VicCon5*)this->vicConDetails)->locationOfHero.z = map[i+4];
-				nr=3;
-				break;
-			}
 		case captureCity:
-			{
-				this->vicConDetails = new VicCon6();
-				((VicCon6*)this->vicConDetails)->locationOfTown.x = map[i+2];
-				((VicCon6*)this->vicConDetails)->locationOfTown.y = map[i+3];
-				((VicCon6*)this->vicConDetails)->locationOfTown.z = map[i+4];
-				nr=3;
-				break;
-			}
 		case beatMonster:
 			{
-				this->vicConDetails = new VicCon7();
-				((VicCon7*)this->vicConDetails)->locationOfMonster.x = map[i+2];
-				((VicCon7*)this->vicConDetails)->locationOfMonster.y = map[i+3];
-				((VicCon7*)this->vicConDetails)->locationOfMonster.z = map[i+4];
+				victoryCondition.pos.x = bufor[i+2];
+				victoryCondition.pos.y = bufor[i+3];
+				victoryCondition.pos.z = bufor[i+4];
 				nr=3;
 				break;
 			}
 		case takeDwellings:
-			{
-				this->vicConDetails = new CspecificVictoryConidtions();
-				nr=3;
-				break;
-			}
 		case takeMines:
 			{
-				this->vicConDetails = new CspecificVictoryConidtions();
 				nr=3;
 				break;
 			}
 		case transportItem:
 			{
-				this->vicConDetails = new VicCona();
-				((VicCona*)this->vicConDetails)->artifactID =  map[i+2];
-				((VicCona*)this->vicConDetails)->destinationPlace.x = map[i+3];
-				((VicCona*)this->vicConDetails)->destinationPlace.y = map[i+4];
-				((VicCona*)this->vicConDetails)->destinationPlace.z = map[i+5];
+				victoryCondition.ID =  bufor[i+2];
+				victoryCondition.pos.x = bufor[i+3];
+				victoryCondition.pos.y = bufor[i+4];
+				victoryCondition.pos.z = bufor[i+5];
 				nr=4;
 				break;
 			}
 		}
-		this->vicConDetails->allowNormalVictory = map[i++];
-		this->vicConDetails->appliesToAI = map[i++];
+		victoryCondition.allowNormalVictory = bufor[i++];
+		victoryCondition.appliesToAI = bufor[i++];
 		i+=nr;
 	}
-	this->lossCondition.typeOfLossCon = (ElossCon)map[i++];
-	switch (this->lossCondition.typeOfLossCon) //read loss conditions
+	lossCondition.typeOfLossCon = (ElossCon)bufor[i++];
+	switch (lossCondition.typeOfLossCon) //read loss conditions
 	{
 	case lossCastle:
-		  {
-			  this->lossCondition.castlePos.x=map[i++];
-			  this->lossCondition.castlePos.y=map[i++];
-			  this->lossCondition.castlePos.z=map[i++];
-		  }
+		{
+			lossCondition.castlePos.x=bufor[i++];
+			lossCondition.castlePos.y=bufor[i++];
+			lossCondition.castlePos.z=bufor[i++];
+			break;
+		}
 	case lossHero:
-		  {
-			  this->lossCondition.heroPos.x=map[i++];
-			  this->lossCondition.heroPos.y=map[i++];
-			  this->lossCondition.heroPos.z=map[i++];
-		  }
+		{
+			lossCondition.heroPos.x=bufor[i++];
+			lossCondition.heroPos.y=bufor[i++];
+			lossCondition.heroPos.z=bufor[i++];
+			break;
+		}
 	case timeExpires:
 		{
-			this->lossCondition.timeLimit = readNormalNr(map, i++,2);
+			lossCondition.timeLimit = readNormalNr(bufor,i++,2);
 			i++;
-		}
-	}
-	this->howManyTeams=map[i++]; //read number of teams
-	if(this->howManyTeams>0) //read team numbers
-	{
-		for(int rr=0; rr<8; ++rr)
-		{
-			this->players[rr].team=map[i++];
+			break;
 		}
 	}
 }
+
 void Mapa::initFromBytes(unsigned char * bufor)
 {
+	int i=0;
+	initFromMemory(bufor,i);
 	timeHandler th;
 	th.getDif();
-	int i=0;
 	readHeader(bufor, i);
 	tlog0<<"\tReading header: "<<th.getDif()<<std::endl;
 
@@ -555,6 +554,10 @@ Mapa::Mapa(std::string filename)
 	initFromBytes(initTable);
 }
 
+Mapa::Mapa()
+{
+
+}
 CGHeroInstance * Mapa::getHero(int ID, int mode)
 {
 	if (mode != 0)
@@ -602,64 +605,64 @@ int Mapa::loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj )
 		{
 		case 1:
 			{
-				hut->r1exp = readNormalNr(bufor,i); i+=4;
+				hut->rVal = readNormalNr(bufor,i); i+=4;
 				break;
 			}
 		case 2:
 			{
-				hut->r2mana = readNormalNr(bufor,i); i+=4;
+				hut->rVal = readNormalNr(bufor,i); i+=4;
 				break;
 			}
 		case 3:
 			{
-				hut->r3morale = bufor[i]; ++i;
+				hut->rVal = bufor[i]; ++i;
 				break;
 			}
 		case 4:
 			{
-				hut->r4luck = bufor[i]; ++i;
+				hut->rVal = bufor[i]; ++i;
 				break;
 			}
 		case 5:
 			{
-				hut->r5type = bufor[i]; ++i;
-				hut->r5amount = readNormalNr(bufor,i, 3); i+=3;
+				hut->rID = bufor[i]; ++i;
+				hut->rVal = readNormalNr(bufor,i, 3); i+=3;
 				i+=1;
 				break;
 			}
 		case 6:
 			{
-				hut->r6type = bufor[i]; ++i;
-				hut->r6amount = bufor[i]; ++i;
+				hut->rID = bufor[i]; ++i;
+				hut->rVal = bufor[i]; ++i;
 				break;
 			}
 		case 7:
 			{
-				hut->r7ability = bufor[i]; ++i;
-				hut->r7level = bufor[i]; ++i;
+				hut->rID = bufor[i]; ++i;
+				hut->rVal = bufor[i]; ++i;
 				break;
 			}
 		case 8:
 			{
-				hut->r8art = readNormalNr(bufor,i, (version == RoE ? 1 : 2)); i+=(version == RoE ? 1 : 2);
+				hut->rID = readNormalNr(bufor,i, (version == RoE ? 1 : 2)); i+=(version == RoE ? 1 : 2);
 				break;
 			}
 		case 9:
 			{
-				hut->r9spell = bufor[i]; ++i;
+				hut->rID = bufor[i]; ++i;
 				break;
 			}
 		case 10:
 			{
 				if(version>RoE)
 				{
-					hut->r10creature = readNormalNr(bufor,i, 2); i+=2;
-					hut->r10amount = readNormalNr(bufor,i, 2); i+=2;
+					hut->rID = readNormalNr(bufor,i, 2); i+=2;
+					hut->rVal = readNormalNr(bufor,i, 2); i+=2;
 				}
 				else
 				{
-					hut->r10creature = bufor[i]; ++i;
-					hut->r10amount = readNormalNr(bufor,i, 2); i+=2;
+					hut->rID = bufor[i]; ++i;
+					hut->rVal = readNormalNr(bufor,i, 2); i+=2;
 				}
 				break;
 			}
@@ -975,233 +978,6 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 	nhi->movement = -1;
 }
 
-void Mapa::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
-{
-	for (pom=0;pom<8;pom++)
-	{
-		players[pom].canHumanPlay = bufor[i++];
-		players[pom].canComputerPlay = bufor[i++];
-		if ((!(players[pom].canHumanPlay || players[pom].canComputerPlay)))
-		{
-			memset(&players[pom],0,sizeof(PlayerInfo));
-			switch(version)
-			{
-			case SoD: case WoG: 
-				i+=13;
-				break;
-			case AB:
-				i+=12;
-				break;
-			case RoE:
-				i+=6;
-				break;
-			}
-			continue;
-		}
-
-		players[pom].AITactic = bufor[i++];
-
-		if(version == SoD || version == WoG)
-			players[pom].p7= bufor[i++];
-		else
-			players[pom].p7= -1;
-
-		players[pom].allowedFactions = 0;
-		players[pom].allowedFactions += bufor[i++];
-		if(version != RoE)
-			players[pom].allowedFactions += (bufor[i++])*256;
-
-		players[pom].isFactionRandom = bufor[i++];
-		players[pom].hasMainTown = bufor[i++];
-		if (players[pom].hasMainTown)
-		{
-			if(version != RoE)
-			{
-				players[pom].generateHeroAtMainTown = bufor[i++];
-				players[pom].generateHero = bufor[i++];
-			}
-			else
-			{
-				players[pom].generateHeroAtMainTown = false;
-				players[pom].generateHero = false;
-			}
-
-			players[pom].posOfMainTown.x = bufor[i++];
-			players[pom].posOfMainTown.y = bufor[i++];
-			players[pom].posOfMainTown.z = bufor[i++];
-
-
-		}
-		players[pom].p8= bufor[i++];
-		players[pom].p9= bufor[i++];		
-		if(players[pom].p9!=0xff)
-		{
-			players[pom].mainHeroPortrait = bufor[i++];
-			int nameLength = bufor[i++];
-			i+=3; 
-			for (int pp=0;pp<nameLength;pp++)
-				players[pom].mainHeroName+=bufor[i++];
-		}
-
-		if(version != RoE)
-		{
-			i++; ////unknown byte
-			int heroCount = bufor[i++];
-			i+=3;
-			for (int pp=0;pp<heroCount;pp++)
-			{
-				SheroName vv;
-				vv.heroID=bufor[i++];
-				int hnl = bufor[i++];
-				i+=3;
-				for (int zz=0;zz<hnl;zz++)
-				{
-					vv.heroName+=bufor[i++];
-				}
-				players[pom].heroesNames.push_back(vv);
-			}
-		}
-	}
-}
-
-void Mapa::loadViCLossConditions( unsigned char * bufor, int &i)
-{
-	victoryCondition = (EvictoryConditions)bufor[i++];
-	if (victoryCondition != winStandard) //specific victory conditions
-	{
-		int nr;
-		switch (victoryCondition) //read victory conditions
-		{
-		case artifact:
-			{
-				vicConDetails = new VicCon0();
-				((VicCon0*)vicConDetails)->ArtifactID = bufor[i+2];
-				nr=(version==RoE ? 1 : 2);
-				break;
-			}
-		case gatherTroop:
-			{
-				vicConDetails = new VicCon1();
-				int temp1 = bufor[i+2];
-				int temp2 = bufor[i+3];
-				((VicCon1*)vicConDetails)->monsterID = bufor[i+2];
-				((VicCon1*)vicConDetails)->neededQuantity=readNormalNr(bufor,i+(version==RoE ? 3 : 4));
-				nr=(version==RoE ? 5 : 6);
-				break;
-			}
-		case gatherResource:
-			{
-				vicConDetails = new VicCon2();
-				((VicCon2*)vicConDetails)->resourceID = bufor[i+2];
-				((VicCon2*)vicConDetails)->neededQuantity=readNormalNr(bufor,i+3);
-				nr=5;
-				break;
-			}
-		case buildCity:
-			{
-				vicConDetails = new VicCon3();
-				((VicCon3*)vicConDetails)->posOfCity.x = bufor[i+2];
-				((VicCon3*)vicConDetails)->posOfCity.y = bufor[i+3];
-				((VicCon3*)vicConDetails)->posOfCity.z = bufor[i+4];
-				((VicCon3*)vicConDetails)->councilNeededLevel = bufor[i+5];
-				((VicCon3*)vicConDetails)->fortNeededLevel = bufor[i+6];
-				nr=5;
-				break;
-			}
-		case buildGrail:
-			{
-				vicConDetails = new VicCon4();
-				if (bufor[i+4]>2)
-					((VicCon4*)vicConDetails)->anyLocation = true;
-				else
-				{
-					((VicCon4*)vicConDetails)->whereBuildGrail.x = bufor[i+2];
-					((VicCon4*)vicConDetails)->whereBuildGrail.y = bufor[i+3];
-					((VicCon4*)vicConDetails)->whereBuildGrail.z = bufor[i+4];
-				}
-				nr=3;
-				break;
-			}
-		case beatHero:
-			{
-				vicConDetails = new VicCon5();
-				((VicCon5*)vicConDetails)->locationOfHero.x = bufor[i+2];
-				((VicCon5*)vicConDetails)->locationOfHero.y = bufor[i+3];
-				((VicCon5*)vicConDetails)->locationOfHero.z = bufor[i+4];				
-				nr=3;
-				break;
-			}
-		case captureCity:
-			{
-				vicConDetails = new VicCon6();
-				((VicCon6*)vicConDetails)->locationOfTown.x = bufor[i+2];
-				((VicCon6*)vicConDetails)->locationOfTown.y = bufor[i+3];
-				((VicCon6*)vicConDetails)->locationOfTown.z = bufor[i+4];				
-				nr=3;
-				break;
-			}
-		case beatMonster:
-			{
-				vicConDetails = new VicCon7();
-				((VicCon7*)vicConDetails)->locationOfMonster.x = bufor[i+2];
-				((VicCon7*)vicConDetails)->locationOfMonster.y = bufor[i+3];
-				((VicCon7*)vicConDetails)->locationOfMonster.z = bufor[i+4];				
-				nr=3;
-				break;
-			}
-		case takeDwellings:
-			{		
-				vicConDetails = new CspecificVictoryConidtions();
-				nr=0;
-				break;
-			}
-		case takeMines:
-			{	
-				vicConDetails = new CspecificVictoryConidtions();	
-				nr=0;
-				break;
-			}
-		case transportItem:
-			{
-				vicConDetails = new VicCona();
-				((VicCona*)vicConDetails)->artifactID =  bufor[i+2];
-				((VicCona*)vicConDetails)->destinationPlace.x = bufor[i+3];
-				((VicCona*)vicConDetails)->destinationPlace.y = bufor[i+4];
-				((VicCona*)vicConDetails)->destinationPlace.z = bufor[i+5];				
-				nr=4;
-				break;
-			}
-		}
-		vicConDetails->allowNormalVictory = bufor[i++];
-		vicConDetails->appliesToAI = bufor[i++];
-		i+=nr;
-	}
-	lossCondition.typeOfLossCon = (ElossCon)bufor[i++];
-	switch (lossCondition.typeOfLossCon) //read loss conditions
-	{
-	case lossCastle:
-		{
-			lossCondition.castlePos.x=bufor[i++];
-			lossCondition.castlePos.y=bufor[i++];
-			lossCondition.castlePos.z=bufor[i++];
-			break;
-		}
-	case lossHero:
-		{
-			lossCondition.heroPos.x=bufor[i++];
-			lossCondition.heroPos.y=bufor[i++];
-			lossCondition.heroPos.z=bufor[i++];
-			break;
-		}
-	case timeExpires:
-		{
-			lossCondition.timeLimit = readNormalNr(bufor,i++,2);
-			i++;
-			break;
-		}
-	}
-}
-
 void Mapa::readRumors( unsigned char * bufor, int &i)
 {
 	int rumNr = readNormalNr(bufor,i,4);i+=4;
@@ -1220,36 +996,6 @@ void Mapa::readRumors( unsigned char * bufor, int &i)
 
 void Mapa::readHeader( unsigned char * bufor, int &i)
 {
-	version = (Eformat)(readNormalNr(bufor,i)); i+=4; //map version
-	areAnyPLayers = readChar(bufor,i); //invalid on some maps
-	height = width = (readNormalNr(bufor,i)); i+=4; // wymiary mapy
-	twoLevel = readChar(bufor,i); //czy sa lochy
-	terrain = new TerrainTile**[width]; // allocate memory 
-	for (int ii=0;ii<width;ii++)
-	{
-		terrain[ii] = new TerrainTile*[height]; // allocate memory 
-		for(int jj=0;jj<height;jj++)
-			terrain[ii][jj] = new TerrainTile[twoLevel+1];
-	}
-	int pom;
-	name = readString(bufor,i);
-	description= readString(bufor,i);
-	difficulty = readChar(bufor,i); // reading map difficulty
-	if(version != RoE)
-		levelLimit = readChar(bufor,i); // hero level limit
-	else
-		levelLimit = 0;
-	loadPlayerInfo(pom, bufor, i);
-	loadViCLossConditions(bufor, i);
-
-	howManyTeams=bufor[i++]; //read number of teams
-	if(howManyTeams>0) //read team numbers
-	{
-		for(int rr=0; rr<8; ++rr)
-		{
-			players[rr].team=bufor[i++];
-		}
-	}
 	//reading allowed heroes (20 bytes)
 	int ist;
 
@@ -1467,6 +1213,14 @@ void Mapa::readPredefinedHeroes( unsigned char * bufor, int &i)
 
 void Mapa::readTerrain( unsigned char * bufor, int &i)
 {
+	terrain = new TerrainTile**[width]; // allocate memory 
+	for (int ii=0;ii<width;ii++)
+	{
+		terrain[ii] = new TerrainTile*[height]; // allocate memory 
+		for(int jj=0;jj<height;jj++)
+			terrain[ii][jj] = new TerrainTile[twoLevel+1];
+	}
+
 	for (int c=0; c<width; c++) // reading terrain
 	{
 		for (int z=0; z<height; z++)
@@ -1577,40 +1331,37 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 					int messLong = readNormalNr(bufor,i, 4); i+=4;
 					if(messLong>0)
 					{
-						evnt->isMessage = true;
 						for(int yy=0; yy<messLong; ++yy)
 						{
 							evnt->message +=bufor[i+yy];
 						}
 						i+=messLong;
 					}
-					evnt->areGuarders = bufor[i]; ++i;
-					if(evnt->areGuarders)
+					if(bufor[i++])
 					{
 						evnt->guarders = readCreatureSet(bufor,i,7,(version>RoE)); 
 					}
 					i+=4;
 				}
-				else
-				{
-					evnt->isMessage = false;
-					evnt->areGuarders = false;
-				}
 				evnt->gainedExp = readNormalNr(bufor,i, 4); i+=4;
 				evnt->manaDiff = readNormalNr(bufor,i, 4); i+=4;
 				evnt->moraleDiff = readNormalNr(bufor,i, 1, true); ++i;
 				evnt->luckDiff = readNormalNr(bufor,i, 1, true); ++i;
-				evnt->wood = readNormalNr(bufor,i); i+=4;
-				evnt->mercury = readNormalNr(bufor,i); i+=4;
-				evnt->ore = readNormalNr(bufor,i); i+=4;
-				evnt->sulfur = readNormalNr(bufor,i); i+=4;
-				evnt->crystal = readNormalNr(bufor,i); i+=4;
-				evnt->gems = readNormalNr(bufor,i); i+=4;
-				evnt->gold = readNormalNr(bufor,i); i+=4;
-				evnt->attack = readNormalNr(bufor,i, 1); ++i;
-				evnt->defence = readNormalNr(bufor,i, 1); ++i;
-				evnt->power = readNormalNr(bufor,i, 1); ++i;
-				evnt->knowledge = readNormalNr(bufor,i, 1); ++i;
+
+				evnt->resources.resize(RESOURCE_QUANTITY);
+				for(int x=0; x<7; x++)
+				{
+					evnt->resources[x] = readNormalNr(bufor,i); 
+					i+=4;
+				}
+
+				evnt->primskills.resize(PRIMARY_SKILLS);
+				for(int x=0; x<4; x++)
+				{
+					evnt->primskills[x] = readNormalNr(bufor,i, 1); 
+					i++;
+				}
+
 				int gabn; //number of gained abilities
 				gabn = readNormalNr(bufor,i, 1); ++i;
 				for(int oo = 0; oo<gabn; ++oo)
@@ -1618,18 +1369,22 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 					evnt->abilities.push_back(readNormalNr(bufor,i, 1)); ++i;
 					evnt->abilityLevels.push_back(readNormalNr(bufor,i, 1)); ++i;
 				}
+
 				int gart = readNormalNr(bufor,i, 1); ++i; //number of gained artifacts
 				for(int oo = 0; oo<gart; ++oo)
 				{
 					evnt->artifacts.push_back(readNormalNr(bufor,i, (version == RoE ? 1 : 2))); i+=(version == RoE ? 1 : 2);
 				}
+
 				int gspel = readNormalNr(bufor,i, 1); ++i; //number of gained spells
 				for(int oo = 0; oo<gspel; ++oo)
 				{
 					evnt->spells.push_back(readNormalNr(bufor,i, 1)); ++i;
 				}
+
 				int gcre = readNormalNr(bufor,i, 1); ++i; //number of gained creatures
 				evnt->creatures = readCreatureSet(bufor,i,gcre,(version>RoE));
+
 				i+=8;
 				evnt->availableFor = readNormalNr(bufor,i, 1); ++i;
 				evnt->computerActivate = readNormalNr(bufor,i, 1); ++i;
@@ -1886,18 +1641,22 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				box->gainedExp = readNormalNr(bufor,i, 4); i+=4;
 				box->manaDiff = readNormalNr(bufor,i, 4); i+=4;
 				box->moraleDiff = readNormalNr(bufor,i, 1, true); ++i;
-				box->luckDiff = readNormalNr(bufor,i, 1, true); ++i;
-				box->wood = readNormalNr(bufor,i); i+=4;
-				box->mercury = readNormalNr(bufor,i); i+=4;
-				box->ore = readNormalNr(bufor,i); i+=4;
-				box->sulfur = readNormalNr(bufor,i); i+=4;
-				box->crystal = readNormalNr(bufor,i); i+=4;
-				box->gems = readNormalNr(bufor,i); i+=4;
-				box->gold = readNormalNr(bufor,i); i+=4;
-				box->attack = readNormalNr(bufor,i, 1); ++i;
-				box->defence = readNormalNr(bufor,i, 1); ++i;
-				box->power = readNormalNr(bufor,i, 1); ++i;
-				box->knowledge = readNormalNr(bufor,i, 1); ++i;
+				box->luckDiff = readNormalNr(bufor,i, 1, true); ++i;				
+				
+				box->resources.resize(RESOURCE_QUANTITY);
+				for(int x=0; x<7; x++)
+				{
+					box->resources[x] = readNormalNr(bufor,i); 
+					i+=4;
+				}
+
+				box->primskills.resize(PRIMARY_SKILLS);
+				for(int x=0; x<4; x++)
+				{
+					box->primskills[x] = readNormalNr(bufor,i, 1); 
+					i++;
+				}
+
 				int gabn; //number of gained abilities
 				gabn = readNormalNr(bufor,i, 1); ++i;
 				for(int oo = 0; oo<gabn; ++oo)
