@@ -199,7 +199,7 @@ void CMapHandler::roadsRiverTerrainInit()
 	}
 	for (int i=0-Woff;i<ttiles.size()-Woff;i++)
 	{
-		for (int j=0-Hoff;j<CGI->mh->map->height+Hoff;j++)
+		for (int j=0-Hoff;j<(int)CGI->mh->map->height+Hoff;j++)
 			ttiles[i][j].resize(CGI->mh->map->twoLevel+1,0);
 	}
 

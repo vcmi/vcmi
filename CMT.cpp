@@ -82,7 +82,6 @@ int main(int argc, char** argv)
 	CPG=NULL;
 	atexit(SDL_Quit);
 	CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
-
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO)==0)
 	{
 		screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
@@ -106,7 +105,7 @@ int main(int argc, char** argv)
 		THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
 		CMusicHandler * mush = new CMusicHandler;  //initializing audio
 		mush->initMusics();
-		//audio initialized 
+		//audio initialized
 		cgi->mush = mush;
 		tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 		tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
@@ -149,7 +148,7 @@ int main(int argc, char** argv)
 		tlog0<<"Message handler: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
-		tlog0<<"Initialization of VCMI (togeter): "<<total.getDif()<<std::endl;
+		tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 		cpg->mush = mush;
 
 		StartInfo *options = new StartInfo(cpg->runLoop());
@@ -214,23 +213,20 @@ int main(int argc, char** argv)
 				tlog0 << "Ending...\n";
 				exit(EXIT_SUCCESS);
 			}
-			//else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
-			//{
-			//	LOCPLINT->pim->lock();
-			//	screen2 = SDL_CreateRGBSurface(SDL_SWSURFACE, screen->w, screen->h, screen->format->BitsPerPixel, rmask, gmask, bmask, amask);
-			//	SDL_SaveBMP(screen,"scra");
-			//	SDL_SaveBMP(screen2,"scr2a");
-			//	int hlp = SDL_BlitSurface(screen,0,screen2,0);
-			//	SDL_SaveBMP(screen2,"scr2b");
-			//	screen = SDL_SetVideoMode(screen->w,screen->h,screen->format->BitsPerPixel,
-			//		SDL_SWSURFACE|SDL_DOUBLEBUF|((screen->flags&SDL_FULLSCREEN) ? 0 : SDL_FULLSCREEN));
-			//	SDL_SaveBMP(screen,"scrb");
-			//	SDL_BlitSurface(screen2,0,screen,0);
-			//	SDL_SaveBMP(screen,"scrc");
-			//	SDL_FreeSurface(screen2);
-			//	SDL_Flip(screen);
-			//	LOCPLINT->pim->unlock();
-			//}
+			else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+			{
+				LOCPLINT->pim->lock();
+				screen = SDL_SetVideoMode(screen->w,screen->h,screen->format->BitsPerPixel,
+					SDL_SWSURFACE|SDL_DOUBLEBUF|((screen->flags&SDL_FULLSCREEN) ? 0 : SDL_FULLSCREEN));
+				LOCPLINT->curint->show();
+				if(LOCPLINT->curint != LOCPLINT->adventureInt)
+					LOCPLINT->adventureInt->show();
+				if(LOCPLINT->curint == LOCPLINT->castleInt)
+					LOCPLINT->castleInt->showAll(0,true);
+				if(LOCPLINT->curint->subInt)
+					LOCPLINT->curint->subInt->show();
+				LOCPLINT->pim->unlock();
+			}
 			eventsM.lock();
 			events.push(ev);
 			eventsM.unlock();

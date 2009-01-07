@@ -1036,6 +1036,7 @@ endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 heroList(ADVOPT.hlistSize),
 townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
+	subInt = NULL;
 	selection = NULL;
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
 	LOCPLINT->adventureInt=this;
@@ -1110,7 +1111,7 @@ void CAdvMapInt::fshowSpellbok()
 
 	LOCPLINT->curint->deactivate();
 
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, 90, 2), ((const CGHeroInstance*)LOCPLINT->adventureInt->selection));
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ((const CGHeroInstance*)LOCPLINT->adventureInt->selection));
 	spellWindow->activate();
 	LOCPLINT->objsToBlit.push_back(spellWindow);
 }

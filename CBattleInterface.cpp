@@ -15,6 +15,7 @@
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
 #include "client/CSpellWindow.h"
+#include "client/CConfigHandler.h"
 #include <queue>
 #include <sstream>
 #include "lib/CondSh.h"
@@ -344,6 +345,9 @@ void CBattleInterface::show(SDL_Surface * to)
 	if(!to) //"evaluating" to
 		to = screen;
 	
+	SDL_Rect buf;
+	SDL_GetClipRect(to, &buf);
+	SDL_SetClipRect(to, &pos);
 	//printing background and hexes
 	if(activeStack != -1 && creAnims[activeStack]->getType() != 0) //show everything with range
 	{
@@ -489,7 +493,8 @@ void CBattleInterface::show(SDL_Surface * to)
 		std::vector< std::list<SBattleEffect>::iterator > toErase;
 		for(std::list<SBattleEffect>::iterator it = battleEffects.begin(); it!=battleEffects.end(); ++it)
 		{
-			blitAt(it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap, it->x + pos.x, it->y + pos.y, to);
+			SDL_Surface * bitmapToBlit = it->anim->ourImages[(it->frame)%it->anim->ourImages.size()].bitmap;
+			SDL_BlitSurface(bitmapToBlit, NULL, to, &genRect(bitmapToBlit->h, bitmapToBlit->w, pos.x + it->x, pos.y + it->y));
 			++(it->frame);
 
 			if(it->frame == it->maxFrame)
@@ -559,6 +564,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		resWindow->show(to);
 	}
+	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 }
 void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
@@ -773,7 +779,7 @@ void CBattleInterface::bSpellf()
 		chi = attackingHeroInstance;
 	else
 		chi = defendingHeroInstance;
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, 90, 2), chi);
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), chi);
 	spellWindow->activate();
 	LOCPLINT->objsToBlit.push_back(spellWindow);
 }
@@ -1451,6 +1457,9 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 
 			int dx = (destcoord.first - srccoord.first - animDef->ourImages[0].bitmap->w)/steps, dy = (destcoord.second - srccoord.second - animDef->ourImages[0].bitmap->h)/steps;
 
+			SDL_Rect buf;
+			SDL_GetClipRect(screen, &buf);
+			SDL_SetClipRect(screen, &pos); //setting rect we can blit to
 			for(int g=0; g<steps; ++g)
 			{
 				show();
@@ -1460,6 +1469,7 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 				CSDL_Ext::update();
 				SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			}
+			SDL_SetClipRect(screen, &buf); //restoring previous clip rect
 
 			int b=0; //TODO use me
 			break; //for 15 and 16 cases
@@ -2009,7 +2019,7 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 		CGI->curh->changeGraphic(0,0);
 		LOCPLINT->curint->deactivate();
 
-		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, 90, 2), myHero);
+		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), myHero);
 		spellWindow->activate();
 		LOCPLINT->objsToBlit.push_back(spellWindow);
 	}

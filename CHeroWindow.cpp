@@ -11,6 +11,7 @@
 #include "client/CBitmapHandler.h"
 #include "client/Graphics.h"
 #include "client/CSpellWindow.h"
+#include "client/CConfigHandler.h"
 #include "global.h"
 #include "hch/CAbilityHandler.h"
 #include "hch/CArtHandler.h"
@@ -24,6 +25,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <cstdlib>
 #include <sstream>
+
 extern SDL_Surface * screen;
 extern TTF_Font * GEOR16;
 using namespace boost::assign;
@@ -697,7 +699,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 		{
 			ourWindow->deactivate();
 
-			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, 90, 2), ourWindow->curHero);
+			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ourWindow->curHero);
 			spellWindow->activate();
 			LOCPLINT->objsToBlit.push_back(spellWindow);
 		}
