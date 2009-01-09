@@ -513,6 +513,10 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		 su = CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
 	}
 
+	SDL_Rect prevClip;
+	SDL_GetClipRect(su, &prevClip);
+	if(extRect) SDL_SetClipRect(su, extRect); //preventing blitting outside of that rect
+
 	if (((dx+x)>((map->width+Woff)) || (dy+y)>((map->height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
 		throw new std::string("terrainRect: out of range");
 	////printing terrain
@@ -757,6 +761,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 		}
 	}
+	SDL_SetClipRect(su, &prevClip); //restoring clip_rect
 	//borders printed
 	return su;
 }

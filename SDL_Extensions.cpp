@@ -611,7 +611,7 @@ void CSDL_Ext::blitWithRotate3clip(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surf
 			dp = (Uint8 *)dst->pixels + (dstRect->y + dstRect->h - 1 - i)*dst->pitch + (dstRect->x+dstRect->w)*dst->format->BytesPerPixel;
 			for(int j=0; j<dstRect->w; j++, sp++)
 			{
-				if((dstRect->x+dstRect->w - j-1) >= dst->clip_rect.x && (dstRect->x+dstRect->w - j-1) <= dst->clip_rect.x + dst->clip_rect.w)
+				if((dstRect->x+dstRect->w - j) >= dst->clip_rect.x && (dstRect->x+dstRect->w - j) <= dst->clip_rect.x + dst->clip_rect.w)
 				{
 					const SDL_Color * const color = src->format->palette->colors+(*sp);
 					*(--dp) = color->r;
