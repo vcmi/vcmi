@@ -57,7 +57,7 @@ public:
 	void hover(bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void show();
-	void showPath();
+	void showPath(const SDL_Rect * extRect);
 	int3 whichTileIsIt(const int & x, const int & y); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
 };

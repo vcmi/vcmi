@@ -478,7 +478,7 @@ void CTerrainRect::hover(bool on)
 	if (!on)
 		LOCPLINT->adventureInt->statusbar.clear();
 }
-void CTerrainRect::showPath()
+void CTerrainRect::showPath(const SDL_Rect * extRect)
 {
 	for (size_t i=0; i < currentPath->nodes.size()-1; ++i)
 	{
@@ -705,45 +705,91 @@ void CTerrainRect::showPath()
 				continue;
 			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
 				hvy = (y+arrows->ourImages[pn].bitmap->h)-(pos.y+pos.h);
-			if (hvx<0 && hvy<0)
+
+			SDL_Rect prevClip;
+			SDL_GetClipRect(screen, &prevClip);
+			SDL_SetClipRect(screen, extRect); //preventing blitting outside of that rect
+
+			if(ADVOPT.smoothMove) //version for smooth hero move, with pos shifts
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, screen, &genRect(32, 32, x, y));
+				if (hvx<0 && hvy<0)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, screen, &genRect(32, 32, x + moveX, y + moveY));
+				}
+				else if(hvx<0)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp
+						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0),
+						screen, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x + moveX, y + moveY));
+				}
+				else if (hvy<0)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp
+						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
+						screen, &genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY));
+				}
+				else
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp
+						(arrows->ourImages[pn].bitmap, &genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
+						screen, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x + moveX, y + moveY));
+				}
 			}
-			else if(hvx<0)
+			else //standard version
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp
-					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,0,0),
-					screen,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w,x,y));
+				if (hvx<0 && hvy<0)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp(arrows->ourImages[pn].bitmap, NULL, screen, &genRect(32, 32, x, y));
+				}
+				else if(hvx<0)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp
+						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, 0, 0),
+						screen, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w, x, y));
+				}
+				else if (hvy<0)
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp
+						(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
+						screen, &genRect(arrows->ourImages[pn].bitmap->h, arrows->ourImages[pn].bitmap->w-hvx, x, y));
+				}
+				else
+				{
+					CSDL_Ext::blit8bppAlphaTo24bpp
+						(arrows->ourImages[pn].bitmap, &genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx, 0, 0),
+						screen, &genRect(arrows->ourImages[pn].bitmap->h-hvy, arrows->ourImages[pn].bitmap->w-hvx, x, y));
+				}
 			}
-			else if (hvy<0)
-			{
-				CSDL_Ext::blit8bppAlphaTo24bpp
-					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,0,0),
-					screen,&genRect(arrows->ourImages[pn].bitmap->h,arrows->ourImages[pn].bitmap->w-hvx,x,y));
-			}
-			else
-			{
-				CSDL_Ext::blit8bppAlphaTo24bpp
-					(arrows->ourImages[pn].bitmap,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,0,0),
-					screen,&genRect(arrows->ourImages[pn].bitmap->h-hvy,arrows->ourImages[pn].bitmap->w-hvx,x,y));
-			}
+			SDL_SetClipRect(screen, &prevClip);
 
 		}
 	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
 }
 void CTerrainRect::show()
 {
-	SDL_Surface * teren = CGI->mh->terrainRect //TODO use me
-		(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
-		tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
-		&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-		screen, &genRect(pos.h, pos.w, pos.x, pos.y)
-		);
+	if(ADVOPT.smoothMove && (moveX != 0 || moveY != 0))
+	{
+		CGI->mh->terrainRectSmooth
+			(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
+			tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
+			&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+			screen, &genRect(pos.h, pos.w, pos.x, pos.y), moveX, moveY
+			);
+	}
+	else
+	{
+		CGI->mh->terrainRect
+			(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
+			tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
+			&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+			screen, &genRect(pos.h, pos.w, pos.x, pos.y)
+			);
+	}
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
 	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
 	{
-		showPath();
+		showPath(&genRect(pos.h, pos.w, pos.x, pos.y));
 	}
 }
 

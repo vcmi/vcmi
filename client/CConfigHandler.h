@@ -32,6 +32,7 @@ namespace config
 		int infoboxX, infoboxY;
 		//advmap
 		int tilesW, tilesH, advmapX, advmapY, advmapTrimX, advmapTrimY;
+		bool smoothMove;
 		//general properties
 		std::string mainGraphic;
 		//buttons

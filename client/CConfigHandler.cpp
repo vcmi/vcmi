@@ -229,6 +229,7 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 							  | "trimY=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapTrimY)]
 							  | "tilesWidth=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tilesW)]
 							  | "tilesHeight=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tilesH)]
+							  | "smoothMove=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::smoothMove)]
 							) 
 						 )
 				| str_p("background=") >> fname[SetAdventureStr(&AdventureMapConfig::mainGraphic)]

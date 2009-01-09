@@ -495,6 +495,7 @@ void CSDL_Ext::blitWithRotate1(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface 
 	Uint8 *dp, *sp = (Uint8 *)src->pixels;
 	for(int i=0; i<dstRect->h; i++)
 	{
+		sp += src->w - dstRect->w;
 		dp = (Uint8 *)dst->pixels + (i+dstRect->y)*dst->pitch + (dstRect->x+dstRect->w)*dst->format->BytesPerPixel;
 		for(int j=0; j<dstRect->w; j++, sp++)
 		{
@@ -502,6 +503,36 @@ void CSDL_Ext::blitWithRotate1(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface 
 			*(--dp) = color->r;
 			*(--dp) = color->g;
 			*(--dp) = color->b;
+		}
+	}
+}
+
+void CSDL_Ext::blitWithRotate1clip(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24bpp dests
+{
+	Uint8 *dp, *sp = (Uint8 *)src->pixels;
+	for(int i=0; i<dstRect->h; i++)
+	{
+		if(i + dstRect->y + 1 >= dst->clip_rect.y && i + dstRect->y + 1 <= dst->clip_rect.y + dst->clip_rect.h)
+		{
+			dp = (Uint8 *)dst->pixels + (i+dstRect->y)*dst->pitch + (dstRect->x+dstRect->w)*dst->format->BytesPerPixel;
+			for(int j=0; j<dstRect->w; j++, sp++)
+			{
+				if((dstRect->x+dstRect->w - j-1) >= dst->clip_rect.x && (dstRect->x+dstRect->w - j) <= dst->clip_rect.x + dst->clip_rect.w)
+				{
+					const SDL_Color * const color = src->format->palette->colors+(*sp);
+					*(--dp) = color->r;
+					*(--dp) = color->g;
+					*(--dp) = color->b;
+				}
+				else
+				{
+					dp-=3;
+				}
+			}
+		}
+		else
+		{
+			sp+=dstRect->w;
 		}
 	}
 }
@@ -519,6 +550,37 @@ void CSDL_Ext::blitWithRotate2(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface 
 			*(dp++) = color->g;
 			*(dp++) = color->r;
 		}
+		sp += src->w - dstRect->w;
+	}
+}
+
+void CSDL_Ext::blitWithRotate2clip(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24bpp dests
+{
+	Uint8 *dp, *sp = (Uint8 *)src->pixels;
+	for(int i=0; i<dstRect->h; i++)
+	{
+		if((dstRect->y + dstRect->h - i) >= dst->clip_rect.y && (dstRect->y + dstRect->h - i) <= dst->clip_rect.y + dst->clip_rect.h)
+		{
+			dp = (Uint8 *)dst->pixels + (dstRect->y + dstRect->h - 1 - i)*dst->pitch + dstRect->x*dst->format->BytesPerPixel;
+			for(int j=0; j<dstRect->w; j++, sp++)
+			{
+				if(j + dstRect->x >= dst->clip_rect.x && j + dstRect->x+1 <= dst->clip_rect.x + dst->clip_rect.w)
+				{
+					const SDL_Color * const color = src->format->palette->colors+(*sp);
+					*(dp++) = color->b;
+					*(dp++) = color->g;
+					*(dp++) = color->r;
+				}
+				else
+				{
+						dp+=3;
+				}
+			}
+		}
+		else
+		{
+			sp+=dstRect->w;
+		}
 	}
 }
 
@@ -527,6 +589,7 @@ void CSDL_Ext::blitWithRotate3(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface 
 	Uint8 *dp, *sp = (Uint8 *)src->pixels;
 	for(int i=0; i<dstRect->h; i++)
 	{
+		sp += src->w - dstRect->w;
 		dp = (Uint8 *)dst->pixels + (dstRect->y + dstRect->h - 1 - i)*dst->pitch + (dstRect->x+dstRect->w)*dst->format->BytesPerPixel;
 		for(int j=0; j<dstRect->w; j++, sp++)
 		{
@@ -534,6 +597,36 @@ void CSDL_Ext::blitWithRotate3(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface 
 			*(--dp) = color->r;
 			*(--dp) = color->g;
 			*(--dp) = color->b;
+		}
+	}
+}
+
+void CSDL_Ext::blitWithRotate3clip(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24bpp dests
+{
+	Uint8 *dp, *sp = (Uint8 *)src->pixels;
+	for(int i=0; i<dstRect->h; i++)
+	{
+		if((dstRect->y + dstRect->h - i) >= dst->clip_rect.y && (dstRect->y + dstRect->h - i) <= dst->clip_rect.y + dst->clip_rect.h)
+		{
+			dp = (Uint8 *)dst->pixels + (dstRect->y + dstRect->h - 1 - i)*dst->pitch + (dstRect->x+dstRect->w)*dst->format->BytesPerPixel;
+			for(int j=0; j<dstRect->w; j++, sp++)
+			{
+				if((dstRect->x+dstRect->w - j-1) >= dst->clip_rect.x && (dstRect->x+dstRect->w - j-1) <= dst->clip_rect.x + dst->clip_rect.w)
+				{
+					const SDL_Color * const color = src->format->palette->colors+(*sp);
+					*(--dp) = color->r;
+					*(--dp) = color->g;
+					*(--dp) = color->b;
+				}
+				else
+				{
+					dp -=3;
+				}
+			}
+		}
+		else
+		{
+			sp+=dstRect->w;
 		}
 	}
 }

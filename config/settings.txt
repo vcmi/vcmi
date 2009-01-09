@@ -3,7 +3,7 @@
 clientSettings
 {
 	port=3030;
-	resolution=1024x768; // format: WxH
+	resolution=800x600; // format: WxH
 	bpp=24; // bpp!=24 => problems
 	fullscreen=0; //0 - windowed mode, 1 - fullscreen
 	server=127.0.0.1; //use 127.0.0.1 for localhost
@@ -16,7 +16,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 tilesWidth=19 tilesHeight=18 trimX=15 trimY=29;
+			AdvMap: x=7 y=6 tilesWidth=19 tilesHeight=18 trimX=15 trimY=29 smoothMove=1;
 			InfoBox: x=605 y=389;
 			gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=556 y=508 graphic=agemLR.def;
@@ -44,7 +44,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 tilesWidth=19 tilesHeight=18 trimX=15 trimY=29;
+			AdvMap: x=7 y=6 tilesWidth=19 tilesHeight=18 trimX=15 trimY=29 smoothMove=1;
 			InfoBox: x=829 y=389;
 		 	gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=780 y=508 graphic=agemLR.def;
@@ -73,7 +73,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 tilesWidth=26 tilesHeight=23 trimX=15 trimY=20;
+			AdvMap: x=7 y=6 tilesWidth=26 tilesHeight=23 trimX=15 trimY=20 smoothMove=1;
 			InfoBox: x=829 y=557;
 			gem0: x=6 y=676 graphic=agemLL.def;
 			gem1: x=780 y=676 graphic=agemLR.def;

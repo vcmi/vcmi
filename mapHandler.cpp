@@ -760,6 +760,273 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	//borders printed
 	return su;
 }
+
+SDL_Surface * CMapHandler::terrainRectSmooth(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect, int moveX, int moveY)
+{
+	if(!otherHeroAnim)
+		heroAnim = anim; //the same, as it should be
+	//setting surface to blit at
+	SDL_Surface * su = NULL; //blitting surface CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
+	if(extSurf)
+	{
+		su = extSurf;
+	}
+	else
+	{
+		 su = CSDL_Ext::newSurface(dx*32, dy*32, CSDL_Ext::std32bppSurface);
+	}
+	SDL_Rect prevClip;
+	SDL_GetClipRect(su, &prevClip);
+	if(extRect) SDL_SetClipRect(su, extRect); //preventing blitting outside of that rect
+
+	if (((dx+x)>((map->width+Woff)) || (dy+y)>((map->height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
+		throw new std::string("terrainRect: out of range");
+	////printing terrain
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx+1; bx++)
+	{
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy+1; by++)
+		{
+			const TerrainTile2 & tile = ttiles[x+bx][y+by][level];
+			SDL_Rect sr;
+			sr.y=by*32 + moveY + extRect->y;
+			sr.x=bx*32 + moveX + extRect->x;
+			sr.h=sr.w=32;
+			//validateRectTerr(&sr, extRect);
+			if(tile.terbitmap)
+			{
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap, &genRect(sr.h, sr.w, 0, 0), su, &sr);
+			}
+			else
+			{
+				switch(tile.tileInfo->siodmyTajemniczyBajt%4)
+				{
+				case 0:
+					SDL_BlitSurface(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
+						&genRect(sr.h, sr.w, 0, 0),su,&sr);
+					break;
+				case 1:
+					CSDL_Ext::blitWithRotate1clip(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
+						&genRect(sr.h, sr.w, 0, 0),su,&sr);
+					break;
+				case 2:
+					CSDL_Ext::blitWithRotate2clip(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
+						&genRect(sr.h, sr.w, 0, 0),su,&sr);
+					break;
+				default:
+					CSDL_Ext::blitWithRotate3clip(terrainGraphics[tile.tileInfo->tertype][tile.tileInfo->terview],
+						&genRect(sr.h, sr.w, 0, 0),su,&sr);
+					break;
+				}
+			}
+		}
+	}
+	////terrain printed
+	////printing rivers
+	for (int bx=(moveX <= 0 ? 0 : -1); bx<dx+1; bx++)
+	{
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy+1; by++)
+		{
+			SDL_Rect sr;
+			sr.y=by*32 + moveY + extRect->y;
+			sr.x=bx*32 + moveX + extRect->x;
+			sr.h=sr.w=32;
+			//validateRectTerr(&sr, extRect);
+			if(ttiles[x+bx][y+by][level].rivbitmap.size())
+			{
+				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
+			}
+		}
+	}
+	////rivers printed
+	////printing roads
+	for (int bx=(moveX <= 0 ? 0 : -1); bx<dx+1; bx++)
+	{
+		for (int by=(moveY <= 0 ? 0 : -1) - 1; by<dy+1; by++)
+		{
+			if(y+by<=-4)
+				continue;
+			SDL_Rect sr;
+			sr.y=by*32+16 + moveY + extRect->y;
+			sr.x=bx*32 + moveX + extRect->x;
+			sr.h=sr.w=32;
+			//validateRectTerr(&sr, extRect);
+			if(ttiles[x+bx][y+by][level].roadbitmap.size())
+			{
+				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()], &genRect(sr.h, sr.w, 0, (by==-1 ? 16 : 0)),su,&sr);
+			}
+		}
+	}
+	////roads printed
+	////printing objects
+
+	for (int bx=(moveX <= 0 ? 0 : -1); bx<dx+1; bx++)
+	{
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy+1; by++)
+		{
+			for(int h=0; h < ttiles[x+bx][y+by][level].objects.size(); ++h)
+			{
+				SDL_Rect sr;
+				sr.w = 32;
+				sr.h = 32;
+				sr.x = (bx)*32 + moveX + extRect->x;
+				sr.y = (by)*32 + moveY + extRect->y;
+				//validateRectTerr(&sr, extRect);
+
+				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
+				pp.h = sr.h;
+				pp.w = sr.w;
+				const CGHeroInstance * themp = (dynamic_cast<const CGHeroInstance*>(ttiles[x+bx][y+by][level].objects[h].first));
+
+				if(themp && themp->moveDir && !themp->isStanding && themp->ID!=62) //last condition - this is not prison
+				{
+					int imgVal = 8;
+					SDL_Surface * tb;
+
+					if(themp->type==NULL)
+						continue;
+					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
+
+                    size_t gg;
+					for(gg=0; gg<iv.size(); ++gg)
+					{
+						if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
+						{
+							tb = iv[gg+heroAnim%imgVal].bitmap;
+							break;
+						}
+					}
+					CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
+					pp.y+=imgVal*2-32;
+					sr.y-=16;
+					SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, su, &sr);
+				}
+				else if(themp && themp->moveDir && themp->isStanding && themp->ID!=62) //last condition - this is not prison)
+				{
+					int imgVal = 8;
+					SDL_Surface * tb;
+
+					if(themp->type==NULL)
+						continue;
+					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
+
+                    size_t gg;
+					for(gg=0; gg < iv.size(); ++gg)
+					{
+						if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
+						{
+							tb = iv[gg].bitmap;
+							break;
+						}
+					}
+					CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,su,&sr);
+					if(themp->pos.x==x+bx && themp->pos.y==y+by)
+					{
+						SDL_Rect bufr = sr;
+						bufr.x-=2*32;
+						bufr.y-=1*32;
+						bufr.h = 64;
+						bufr.w = 96;
+						if(bufr.x-extRect->x>-64)
+							SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, su, &bufr);
+					}
+				}
+				else
+				{
+					int imgVal = ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages.size();
+					int phaseShift = ttiles[x+bx][y+by][level].objects[h].first->animPhaseShift;
+
+					//setting appropriate flag color
+					if((ttiles[x+bx][y+by][level].objects[h].first->tempOwner>=0 && ttiles[x+bx][y+by][level].objects[h].first->tempOwner<8) || ttiles[x+bx][y+by][level].objects[h].first->tempOwner==255)
+						CSDL_Ext::setPlayerColor(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[(anim+phaseShift)%imgVal].bitmap, ttiles[x+bx][y+by][level].objects[h].first->tempOwner);
+					
+					CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[(anim+phaseShift)%imgVal].bitmap,&pp,su,&sr);
+				}
+			}
+		}
+	}
+
+	////objects printed, printing shadow
+	for (int bx=(moveX <= 0 ? 0 : -1); bx<dx+1; bx++)
+	{
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy+1; by++)
+		{
+			SDL_Rect sr;
+			sr.y=by*32 + moveY + extRect->y;
+			sr.x=bx*32 + moveX + extRect->x;
+			sr.h=sr.w=32;
+			//validateRectTerr(&sr, extRect);
+			
+			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->map->width && by+y<CGI->mh->map->height && !(*visibilityMap)[bx+x][by+y][level])
+			{
+				SDL_Surface * hide = getVisBitmap(bx+x, by+y, *visibilityMap, level);
+				CSDL_Ext::blit8bppAlphaTo24bpp(hide, &genRect(sr.h, sr.w, 0, 0), su, &sr);
+			}
+		}
+	}
+	////shadow printed
+	//printing borders
+	for (int bx=(moveX <= 0 ? 0 : -1); bx<dx+1; bx++)
+	{
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy+1; by++)
+		{
+			if(bx+x<0 || by+y<0 || bx+x>map->width+(-1) || by+y>map->height+(-1))
+			{
+				SDL_Rect sr;
+				sr.y=by*32 + moveY + extRect->y;
+				sr.x=bx*32 + moveX + extRect->x;
+				sr.h=sr.w=32;
+				//validateRectTerr(&sr, extRect);
+				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap,&genRect(sr.h, sr.w, 0, 0),su,&sr);
+			}
+			else 
+			{
+#ifdef MARK_BLOCKED_POSITIONS
+				if(ttiles[x+bx][y+by][level].tileInfo->blocked) //temporary hiding blocked positions
+				{
+					SDL_Rect sr;
+					sr.y=by*32 + moveY;
+					sr.x=bx*32 + moveX;
+					sr.h=sr.w=32;
+					//validateRectTerr(&sr, extRect);
+
+					SDL_Surface * ns =  CSDL_Ext::newSurface(32, 32, CSDL_Ext::std32bppSurface);
+					for(int f=0; f<ns->w*ns->h*4; ++f)
+					{
+						*((unsigned char*)(ns->pixels) + f) = 128;
+					}
+
+					SDL_BlitSurface(ns,&genRect(sr.h, sr.w, 0, 0),su,&sr);
+
+					SDL_FreeSurface(ns);
+				}
+#endif
+#ifdef MARK_VISITABLE_POSITIONS
+				if(ttiles[x+bx][y+by][level].tileInfo->visitable) //temporary hiding visitable positions
+				{
+					SDL_Rect sr;
+					sr.y=by*32 + moveY;
+					sr.x=bx*32 + moveX;
+					sr.h=sr.w=32;
+					//validateRectTerr(&sr, extRect);
+
+					SDL_Surface * ns = CSDL_Ext::newSurface(32, 32, CSDL_Ext::std32bppSurface);
+					for(int f=0; f<ns->w*ns->h*4; ++f)
+					{
+						*((unsigned char*)(ns->pixels) + f) = 128;
+					}
+
+					SDL_BlitSurface(ns,&genRect(sr.h, sr.w, 0, 0),su,&sr);
+
+					SDL_FreeSurface(ns);
+				}
+#endif
+			}
+		}
+	}
+	//borders printed
+	SDL_SetClipRect(su, &prevClip); //restoring clip_rect
+	return su;
+}
 SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl)
 {
 	int size = visibilityMap.size()-1;							//is tile visible. arrangement: (like num keyboard)
