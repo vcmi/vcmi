@@ -85,6 +85,9 @@ public:
 
 	std::vector<std::vector<std::vector<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
+	CMapHandler();
+	~CMapHandler();
+
 	void loadDefs();
 	SDL_Surface * getVisBitmap(int x, int y, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl);
 

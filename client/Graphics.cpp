@@ -275,31 +275,32 @@ void Graphics::loadHeroPortraits()
 	}
 	of.close();
 }
-void Graphics::loadHeroAnim(std::vector<CDefHandler **> & anims)
+void Graphics::loadHeroAnim()
 {
+	heroAnims.resize(F_NUMBER * 2);
 	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1
 	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12), std::make_pair(1,13),
 		std::make_pair(2,14), std::make_pair(3,15);
-	for(size_t i=0; i<anims.size(); ++i)
+	for(size_t i=0; i<heroAnims.size(); ++i)
 	{
 		std::stringstream nm;
 		nm << "AH" << std::setw(2) << std::setfill('0') << i << "_.DEF";
 		std::string name = nm.str();
-		(*anims[i]) = CDefHandler::giveDef(name);
+		heroAnims[i] = CDefHandler::giveDef(name);
 		int pom = 0; //how many groups has been rotated
 		for(int o=7; pom<6; ++o)
 		{
 			for(int p=0;p<6;p++)
 			{
-				if((*anims[i])->ourImages[o].groupNumber==rotations[p].first)
+				if(heroAnims[i]->ourImages[o].groupNumber==rotations[p].first)
 				{
 					for(int e=0; e<8; ++e)
 					{
 						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01((*anims[i])->ourImages[o+e].bitmap);
+						nci.bitmap = CSDL_Ext::rotate01(heroAnims[i]->ourImages[o+e].bitmap);
 						nci.groupNumber = rotations[p].second;
 						nci.imName = std::string();
-						(*anims[i])->ourImages.push_back(nci);
+						heroAnims[i]->ourImages.push_back(nci);
 						if(pom>2) //we need only one frame for groups 13/14/15
 							break;
 					}
@@ -313,11 +314,11 @@ void Graphics::loadHeroAnim(std::vector<CDefHandler **> & anims)
 				}
 			}
 		}
-		for(size_t ff=0; ff<(*anims[i])->ourImages.size(); ++ff)
+		for(size_t ff=0; ff<heroAnims[i]->ourImages.size(); ++ff)
 		{
-			CSDL_Ext::alphaTransform((*anims[i])->ourImages[ff].bitmap);
+			CSDL_Ext::alphaTransform(heroAnims[i]->ourImages[ff].bitmap);
 		}
-		(*anims[i])->alphaTransformed = true;
+		heroAnims[i]->alphaTransformed = true;
 	}
 }
 

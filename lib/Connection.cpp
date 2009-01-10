@@ -32,13 +32,13 @@ void CConnection::init()
 	//we got connection
 	(*this) << std::string("Aiya!\n") << name << myEndianess; //identify ourselves
 	(*this) >> pom >> pom >> contactEndianess;
-	out << "Established connection with "<<pom<<std::endl;
+	tlog0 << "Established connection with "<<pom<<std::endl;
 	wmx = new boost::mutex;
 	rmx = new boost::mutex;
 }
 
-CConnection::CConnection(std::string host, std::string port, std::string Name, std::ostream & Out)
-:io_service(new asio::io_service), name(Name), out(Out)//, send(this), rec(this)
+CConnection::CConnection(std::string host, std::string port, std::string Name)
+:io_service(new asio::io_service), name(Name)
 {
 	int i;
 	boost::system::error_code error = asio::error::host_not_found;
@@ -94,14 +94,14 @@ connerror1:
 }
 CConnection::CConnection(
 			boost::asio::basic_stream_socket<boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * Socket, 
-			std::string Name, 
-			std::ostream & Out	)
-			:socket(Socket),io_service(&Socket->io_service()), out(Out), name(Name)//, send(this), rec(this)
+			std::string Name )
+			:socket(Socket),io_service(&Socket->io_service()), name(Name)//, send(this), rec(this)
 {
 	init();
 }
-CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > * acceptor, boost::asio::io_service *Io_service, std::string Name, std::ostream & Out)
-: out(Out), name(Name)//, send(this), rec(this)
+CConnection::CConnection(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp,boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > * acceptor, 
+						 boost::asio::io_service *Io_service, std::string Name)
+: name(Name)//, send(this), rec(this)
 {
 	boost::system::error_code error = asio::error::host_not_found;
 	socket = new tcp::socket(*io_service);

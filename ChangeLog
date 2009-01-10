@@ -1,4 +1,4 @@
-0.64 -> 0.next (???)  [as for r672]
+0.64 -> 0.next (???)  [as for r679]
 GENERAL:
 * move some settings to the config/settings.txt file
 * partial support for new screen resolutions
@@ -7,6 +7,7 @@ GENERAL:
 * support for non-standard screen resolutions
 
 ADVENTURE INTERFACE:
+* smooth map scrolling on hero movement
 * added water animation
 * speed of scrolling map and hero movement can be adjusted in the System Options Window
 
@@ -43,6 +44,11 @@ BATTLES
 	
 AI PLAYER:
 * Genius AI (first VCMI AI) will control computer creatures during the combat.
+
+OBJECTS:
+* Guardians property for resources is handled
+* support for Witch Hut
+* support for Arena
 
 And a lot of minor fixes
 

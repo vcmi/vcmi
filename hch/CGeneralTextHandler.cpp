@@ -17,88 +17,6 @@ std::string readTo(std::string &in, int &it, char end)
 }
 void CGeneralTextHandler::load()
 {
-	std::string buf = bitmaph->getTextFile("GENRLTXT.TXT"), tmp;
-	int andame = buf.size();
-	int i=0; //buf iterator
-	for(i; i<andame; ++i)
-	{
-		if(buf[i]=='\r')
-			break;
-	}
-
-	i+=2;
-	std::string buflet;
-	for(int jj=0; jj<764; ++jj)
-	{
-		loadToIt(buflet, buf, i, 2);
-		if(buflet[0] == '"'  &&  buflet[buflet.size()-1] == '"')
-			buflet = buflet.substr(1,buflet.size()-2);
-		allTexts.push_back(buflet);
-	}
-
-	std::string  strs = bitmaph->getTextFile("ARRAYTXT.TXT");
-
-	int itr=0;
-	while(itr<strs.length()-1)
-	{
-		loadToIt(tmp, strs, itr, 3);
-		arraytxt.push_back(tmp);
-	}
-
-	itr = 0;
-	std::string strin = bitmaph->getTextFile("PRISKILL.TXT");
-	for(int hh=0; hh<4; ++hh)
-	{
-		loadToIt(tmp, strin, itr, 3);
-		primarySkillNames.push_back(tmp);
-	}
-
-	itr = 0;
-	std::string strin2 = bitmaph->getTextFile("JKTEXT.TXT");
-	for(int hh=0; hh<45; ++hh)
-	{
-		loadToIt(tmp, strin2, itr, 3);
-		jktexts.push_back(tmp);
-	}
-
-	itr = 0;
-	std::string strin3 = bitmaph->getTextFile("HEROSCRN.TXT");
-	for(int hh=0; hh<33; ++hh)
-	{
-		loadToIt(tmp, strin3, itr, 3);
-		heroscrn.push_back(tmp);
-	}
-
-	strin3 = bitmaph->getTextFile("ARTEVENT.TXT");
-	for(itr = 0; itr<strin3.size();itr++)
-	{
-		loadToIt(tmp, strin3, itr, 3);
-		artifEvents.push_back(tmp);
-	}
-}
-
-
-std::string CGeneralTextHandler::getTitle(std::string text)
-{
-	std::string ret;
-	int i=0;
-	while ((text[i++]!='{'));
-	while ((text[i]!='}') && (i<text.length()))
-		ret+=text[i++];
-	return ret;
-}
-std::string CGeneralTextHandler::getDescr(std::string text)
-{
-	std::string ret;
-	int i=0;
-	while ((text[i++]!='}'));
-	i+=2;
-	while ((text[i]!='"') && (i<text.length()))
-		ret+=text[i++];
-	return ret;
-}
-void CGeneralTextHandler::loadTexts()
-{
 	std::string buf1 = bitmaph->getTextFile("ZELP.TXT");
 	int itr=0, eol=-1, eolnext=-1, pom;
 	eolnext = buf1.find_first_of('\r',itr);
@@ -335,7 +253,7 @@ void CGeneralTextHandler::loadTexts()
 		loadToIt(temp,buf,it,3);
 		restypes.push_back(temp);
 	}	
-	
+
 	tlog5 << "\t\tReading ZCRGN1 \n";
 	buf = bitmaph->getTextFile("ZCRGN1.TXT");
 	it=0;
@@ -344,4 +262,115 @@ void CGeneralTextHandler::loadTexts()
 		loadToIt(temp,buf,it,3);
 		creGens.push_back(temp);
 	}
+
+	buf = bitmaph->getTextFile("GENRLTXT.TXT");
+	std::string tmp;
+	andame = buf.size();
+	i=0; //buf iterator
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\r')
+			break;
+	}
+
+	i+=2;
+	std::string buflet;
+	for(int jj=0; jj<764; ++jj)
+	{
+		loadToIt(buflet, buf, i, 2);
+		if(buflet[0] == '"'  &&  buflet[buflet.size()-1] == '"')
+			buflet = buflet.substr(1,buflet.size()-2);
+		allTexts.push_back(buflet);
+	}
+
+	std::string  strs = bitmaph->getTextFile("ARRAYTXT.TXT");
+
+	itr=0;
+	while(itr<strs.length()-1)
+	{
+		loadToIt(tmp, strs, itr, 3);
+		arraytxt.push_back(tmp);
+	}
+
+	itr = 0;
+	std::string strin = bitmaph->getTextFile("PRISKILL.TXT");
+	for(int hh=0; hh<4; ++hh)
+	{
+		loadToIt(tmp, strin, itr, 3);
+		primarySkillNames.push_back(tmp);
+	}
+
+	itr = 0;
+	std::string strin2 = bitmaph->getTextFile("JKTEXT.TXT");
+	for(int hh=0; hh<45; ++hh)
+	{
+		loadToIt(tmp, strin2, itr, 3);
+		jktexts.push_back(tmp);
+	}
+
+	itr = 0;
+	std::string strin3 = bitmaph->getTextFile("HEROSCRN.TXT");
+	for(int hh=0; hh<33; ++hh)
+	{
+		loadToIt(tmp, strin3, itr, 3);
+		heroscrn.push_back(tmp);
+	}
+
+	strin3 = bitmaph->getTextFile("ARTEVENT.TXT");
+	for(itr = 0; itr<strin3.size();itr++)
+	{
+		loadToIt(tmp, strin3, itr, 3);
+		artifEvents.push_back(tmp);
+	}
+
+	buf = bitmaph->getTextFile("SSTRAITS.TXT");
+	it=0;
+
+	for(int i=0; i<2; ++i)
+		loadToIt(dump,buf,it,3);
+
+	skillName.resize(SKILL_QUANTITY);
+	skillInfoTexts.resize(SKILL_QUANTITY);
+	for (int i=0; i<SKILL_QUANTITY; i++)
+	{
+		skillInfoTexts[i].resize(3);
+		loadToIt(skillName[i],buf,it,4);
+		loadToIt(skillInfoTexts[i][0],buf,it,4);
+		loadToIt(skillInfoTexts[i][1],buf,it,4);
+		loadToIt(skillInfoTexts[i][2],buf,it,3);
+	}
+	buf = bitmaph->getTextFile("SKILLLEV.TXT");
+	it=0;
+	for(int i=0; i<6; ++i)
+	{
+		std::string buffo;
+		loadToIt(buffo,buf,it,3);
+		levels.push_back(buffo);
+	}
+}
+
+
+std::string CGeneralTextHandler::getTitle(std::string text)
+{
+	std::string ret;
+	int i=0;
+	while ((text[i++]!='{'));
+	while ((text[i]!='}') && (i<text.length()))
+		ret+=text[i++];
+	return ret;
+}
+std::string CGeneralTextHandler::getDescr(std::string text)
+{
+	std::string ret;
+	int i=0;
+	while ((text[i++]!='}'));
+	i+=2;
+	while ((text[i]!='"') && (i<text.length()))
+		ret+=text[i++];
+	return ret;
+}
+
+CGeneralTextHandler::CGeneralTextHandler()
+{
+
 }

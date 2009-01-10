@@ -1,12 +1,13 @@
-#include "../CGameState.h"
 #include "../StartInfo.h"
 #include "../hch/CArtHandler.h"
 #include "../hch/CBuildingHandler.h"
 #include "../hch/CDefObjInfoHandler.h"
+#include "../hch/CGeneralTextHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CTownHandler.h"
+#include "../CGameState.h"
 #include "../lib/CondSh.h"
 #include "../lib/Connection.h"
 #include "../lib/NetPacks.h"
@@ -183,15 +184,16 @@ void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
 	fun(args[which]);
 }
 
-void CGameHandler::changeSecSkill(int ID, ui16 which, int val, bool abs)
+void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*/ )
 {
-	SetSecSkill sps;
-	sps.id = ID;
-	sps.which = which;
-	sps.abs = abs;
-	sps.val = val;
-	sendAndApply(&sps);
+	SetSecSkill sss;
+	sss.id = ID;
+	sss.which = which;
+	sss.val = val;
+	sss.abs = abs;
+	sendAndApply(&sss);
 }
+
 void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 {
 	SetPrimSkill sps;
@@ -413,18 +415,16 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					c >> fname;
 
 					{
-						CSaveFile save(fname);
-						save << gs->map;
+						CSaveFile save(std::string("Games") + PATHSEPARATOR + fname + ".vlgm1");
+						char hlp[8] = "VCMISVG";
+						save << hlp << static_cast<CMapHeader&>(*gs->map) << *VLC << gs;
 					}
 
 					{
-						CLoadFile load(fname);
-						load >> mapa;
+						CSaveFile save(std::string("Games") + PATHSEPARATOR + fname + ".vsgm1");
+						save << *this;
 					}
-					//save << VLC->arth << VLC->buildh << VLC->creh << VLC->dobjinfo << VLC->heroh  
-					//	<< VLC->spellh << VLC->townh << this;
 
-					//save << this;
 					break;
 				}
 			case 99: //end!
@@ -1553,6 +1553,9 @@ void CGameHandler::init(StartInfo *si, int Seed)
 	//}
 
 	//delete lf;
+
+	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
+		states.addPlayer(i->first);
 }
 
 void CGameHandler::newTurn()
@@ -1638,13 +1641,15 @@ void CGameHandler::newTurn()
 		if(gs->map->objects[i])
 			gs->map->objects[i]->newTurn();
 }
-void CGameHandler::run()
+void CGameHandler::run(bool resume)
 {	
 	BOOST_FOREACH(CConnection *cc, conns)
 	{//init conn.
 		ui8 quantity, pom;
 		//ui32 seed;
-		(*cc) << gs->scenarioOps->mapname << gs->map->checksum << gs->seed;
+		if(!resume)
+			(*cc) << gs->scenarioOps->mapname << gs->map->checksum << gs->seed;
+
 		(*cc) >> quantity; //how many players will be handled at that client
 		for(int i=0;i<quantity;i++)
 		{
@@ -1700,14 +1705,23 @@ void CGameHandler::run()
 		//if(checkFunc(map->objects[i]->ID,temps))
 		//	(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
 	//}
-	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
-		states.addPlayer(i->first);
 
 	while (!end2)
 	{
-		newTurn();
-		for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
+
+		std::map<ui8,PlayerState>::iterator i;
+		if(!resume)
+			i = gs->players.begin();
+		else
+			i = gs->players.find(gs->currentPlayer);
+
+		for(; i != gs->players.end(); i++)
 		{
+			if(!resume)
+				newTurn();
+			else
+				resume = false;
+
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0 || i->first>=PLAYER_LIMIT  ) continue; //players has not towns/castle - loser
 			states.setFlag(i->first,&PlayerStatus::makingTurn,true);
 			gs->currentPlayer = i->first;

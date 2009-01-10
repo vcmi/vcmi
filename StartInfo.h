@@ -18,7 +18,7 @@ struct StartInfo
 		ui8 serial;
 		ui8 handicap;//0-no, 1-mild, 2-severe
 		std::string name;
-		bool human;
+		ui8 human;
 		template <typename Handler> 	void serialize(Handler &h, const int version)
 		{
 			h & castle;
@@ -33,6 +33,7 @@ struct StartInfo
 			h & human;
 		}
 	};
+	ui8 mode; //0 - new game; 1 - load game
 	si32 difficulty; //0=easy; 4=impossible
 	std::vector<PlayerSettings> playerInfos;
 	ui8 turnTime; //in minutes, 0=unlimited
@@ -48,6 +49,7 @@ struct StartInfo
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & mode;
 		h & difficulty;
 		h & playerInfos;
 		h & turnTime;

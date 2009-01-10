@@ -28,6 +28,7 @@ public:
 	std::map<int, std::pair<std::string,std::vector< std::vector< std::vector<int> > > > > hall; //map<castle ID, pair<hall bg name, std::vector< std::vector<building id> >[5]> - external vector is the vector of buildings in the row, internal is the list of buildings for the specific slot
 
 	void loadBuildings(); //main loader
+	~CBuildingHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

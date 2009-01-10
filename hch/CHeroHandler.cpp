@@ -10,7 +10,6 @@ void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 CHeroClass::CHeroClass()
 {
 	skillLimit = 8;
-	moveAnim = NULL;
 }
 CHeroClass::~CHeroClass()
 {
@@ -35,7 +34,17 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 }
 
 CHeroHandler::~CHeroHandler()
+{
+	for (int i = 0; i < heroes.size(); i++)
+		delete heroes[i];
+
+	for (int i = 0; i < heroClasses.size(); i++)
+		delete heroClasses[i];
+}
+
+CHeroHandler::CHeroHandler()
 {}
+
 void CHeroHandler::loadHeroes()
 {
 	VLC->heroh = this;

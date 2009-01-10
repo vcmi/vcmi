@@ -1089,7 +1089,7 @@ void CHallInterface::close()
 	delete this;
 	LOCPLINT->castleInt->activate();
 }
-void CHallInterface::show(SDL_Surface * to) //TODO use me
+void CHallInterface::show(SDL_Surface * to)
 {
 	blitAt(bg,pos);
 	resdatabar.show();
@@ -1460,7 +1460,7 @@ void CFortScreen::RecArea::clickLeft (tribool down)
 	if(!down && pressedL)
 	{
 		LOCPLINT->curint->deactivate();
-		//CRecrutationWindow *rw = LOCPLINT->castleInt->showRecruitmentWindow(bid); //TODO use me
+		CRecrutationWindow *rw = LOCPLINT->castleInt->showRecruitmentWindow(bid); //do not touch me
 	}
 	ClickableL::clickLeft(down);
 }
@@ -1530,7 +1530,7 @@ void CMageGuildScreen::close()
 	LOCPLINT->castleInt->subInt = NULL;
 	LOCPLINT->castleInt->activate();
 }
-void CMageGuildScreen::show(SDL_Surface * to) //TODO use me
+void CMageGuildScreen::show(SDL_Surface * to)
 {
 	blitAt(bg,pos);
 	resdatabar.show();

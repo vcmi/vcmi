@@ -67,6 +67,7 @@ public:
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
 	CCreatureHandler();
+	~CCreatureHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

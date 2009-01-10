@@ -629,3 +629,7 @@ void CCreatureHandler::loadUnitAnimInfo(CCreature & unit, std::string & src, int
 	}
 	i+=2;
 }
+
+CCreatureHandler::~CCreatureHandler()
+{
+}

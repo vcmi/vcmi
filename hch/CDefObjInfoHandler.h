@@ -41,8 +41,9 @@ class DLL_EXPORT CDefObjInfoHandler
 public:
 	std::map<int,std::map<int,CGDefInfo*> > gobjs;
 	std::map<int,CGDefInfo*> castles;
-	void load();
 
+	void load();
+	~CDefObjInfoHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -38,7 +38,6 @@ public:
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
 	int selectionProbability[9]; //probability of selection in towns
 	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock; -1 means terrain is imapassable
-	CDefHandler * moveAnim; //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 
 	int chooseSecSkill(const std::set<int> & possibles) const; //picks secondary skill out from given possibilities
 	CHeroClass();
@@ -60,11 +59,13 @@ public:
 
 	unsigned int level(unsigned int experience);
 	unsigned int reqExp(unsigned int level);
+
 	void loadHeroes();
 	void loadHeroClasses();
 	void initHeroClasses();
-	~CHeroHandler();
 	void initTerrainCosts();
+	CHeroHandler();
+	~CHeroHandler();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

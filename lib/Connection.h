@@ -401,7 +401,6 @@ public:
 class DLL_EXPORT CConnection
 	:public CISer<CConnection>, public COSer<CConnection>
 {
-	std::ostream &out;
 	CConnection(void);
 	void init();
 public:
@@ -414,13 +413,13 @@ public:
 	std::string name; //who uses this connection
 
 	CConnection
-		(std::string host, std::string port, std::string Name, std::ostream & Out);
+		(std::string host, std::string port, std::string Name);
 	CConnection
 		(boost::asio::basic_socket_acceptor<boost::asio::ip::tcp, boost::asio::socket_acceptor_service<boost::asio::ip::tcp> > * acceptor, 
-		boost::asio::io_service *Io_service, std::string Name, std::ostream & Out);
+		boost::asio::io_service *Io_service, std::string Name);
 	CConnection
 		(boost::asio::basic_stream_socket < boost::asio::ip::tcp , boost::asio::stream_socket_service<boost::asio::ip::tcp>  > * Socket, 
-		std::string Name, std::ostream & Out); //use immediately after accepting connection into socket
+		std::string Name); //use immediately after accepting connection into socket
 	int write(const void * data, unsigned size);
 	int read(void * data, unsigned size);
 	int readLine(void * data, unsigned maxSize);

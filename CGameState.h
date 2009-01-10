@@ -59,7 +59,6 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & serial & currentSelection & fogOfWarMap & resources;
-		//TODO: vectors of heroes/towns
 	}
 };
 
@@ -187,8 +186,6 @@ private:
 
 	boost::shared_mutex *mx;
 
-	CGameState();
-	~CGameState();
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void loadTownDInfos();
 	void applyNL(IPack * pack);
@@ -210,6 +207,8 @@ private:
 	float getMarketEfficiency(int player, int mode=0);
 	std::set<int3> tilesToReveal(int3 pos, int radious, int player) const; //if player==-1 => adds all tiles in radious
 public:
+	CGameState();
+	~CGameState();
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -217,6 +216,14 @@ public:
 		if(!h.saving)
 		{
 			loadTownDInfos();
+
+			//recreating towns/heroes vectors in players entries
+			for(int i=0; i<map->towns.size(); i++)
+				if(map->towns[i]->tempOwner < PLAYER_LIMIT)
+					players[map->towns[i]->tempOwner].towns.push_back(map->towns[i]);
+			for(int i=0; i<map->heroes.size(); i++)
+				if(map->heroes[i]->tempOwner < PLAYER_LIMIT)
+					players[map->heroes[i]->tempOwner].heroes.push_back(map->heroes[i]);
 		}
 	}
 

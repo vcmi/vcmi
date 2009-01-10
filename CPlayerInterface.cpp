@@ -646,9 +646,9 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		oss << ((Val>0)?("+"):("-")) << Val << " " << CGI->generaltexth->primarySkillNames[Subtype];
 		subtitle = oss.str();
 		break;
-	case secskill44:
-		subtitle += CGI->abilh->levels[Val-1] + " " + CGI->abilh->abilities[Subtype]->name;
-		description = CGI->abilh->abilities[Subtype]->infoTexts[Val-1];
+	case secskill44: case secskill:
+		subtitle += CGI->generaltexth->levels[Val-1] + " " + CGI->generaltexth->skillName[Subtype];
+		description = CGI->generaltexth->skillInfoTexts[Subtype][Val-1];
 		break;
 	case resource:
 		description = CGI->generaltexth->allTexts[242];

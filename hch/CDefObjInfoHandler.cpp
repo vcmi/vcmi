@@ -18,6 +18,7 @@ bool CGDefInfo::isVisitable()
 }
 CGDefInfo::CGDefInfo()
 {
+	handler = NULL;
 	serial = -1;
 	visitDir = (8|16|32|64|128); //4,5,6,7,8 - any not-from-up direction
 }
@@ -76,4 +77,11 @@ void CDefObjInfoHandler::load()
 		if(nobj->id==98)
 			castles[nobj->subid]=nobj;
 	}
+}
+
+CDefObjInfoHandler::~CDefObjInfoHandler()
+{
+	for(std::map<int,std::map<int,CGDefInfo*> >::iterator i=gobjs.begin(); i!=gobjs.end(); i++)
+		for(std::map<int,CGDefInfo*>::iterator j=i->second.begin(); j!=i->second.end(); j++)
+			delete j->second;
 }

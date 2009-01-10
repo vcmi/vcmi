@@ -306,6 +306,7 @@ public:
 	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
 	void initObj();
 	void treeSelected(int heroID, int resType, int resVal, int expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
+	void arenaSelected(int heroID, int primSkill) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -399,10 +400,14 @@ class DLL_EXPORT CGWitchHut : public CGObjectInstance
 public:
 	std::vector<si32> allowedAbilities;
 
+	ui32 ability;
+
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & allowedAbilities;
+		h & allowedAbilities & ability;
 	}
 };
 
@@ -457,7 +462,10 @@ public:
 	std::string message;
 
 	void onHeroVisit(const CGHeroInstance * h) const;
+	void collectRes(int player) const;
 	void initObj();
+	void fightForRes(ui32 wantToFight, const CGHeroInstance *h) const;
+	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -572,8 +580,13 @@ public:
 class DLL_EXPORT CObjectHandler
 {
 public:
-	std::vector<int> cregens; //type 17. dwelling subid -> creature ID
+	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
 	void loadObjects();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & cregens;
+	}
 };
 
 

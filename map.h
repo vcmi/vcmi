@@ -205,7 +205,7 @@ public:
 	ui8 levelLimit;
 	LossCondition lossCondition;
 	CVictoryCondition victoryCondition; //victory conditions
-	PlayerInfo players[8]; // info about players
+	std::vector<PlayerInfo> players; // info about players - size 8
 	std::vector<ui8> teams;  // teams[i] = team of player no i
 	ui8 howManyTeams;
 	void initFromMemory(unsigned char *bufor, int &i);
@@ -213,6 +213,13 @@ public:
 	void loadPlayerInfo( int &pom, unsigned char * bufor, int &i);
 	CMapHeader(unsigned char *map); //an argument is a reference to string described a map (unpacked)
 	CMapHeader();
+
+
+	template <typename Handler> void serialize(Handler &h, const int Version)
+	{
+		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPLayers;
+		h & players & teams & lossCondition & victoryCondition & howManyTeams;
+	}
 };
 
 class DLL_EXPORT CMapInfo : public CMapHeader
@@ -220,15 +227,9 @@ class DLL_EXPORT CMapInfo : public CMapHeader
 public:
 	std::string filename;
 	int playerAmnt, humenPlayers;
-	CMapInfo(std::string fname, unsigned char *map):CMapHeader(map),filename(fname)
-	{
-		playerAmnt=humenPlayers=0;
-		for (int i=0;i<PLAYER_LIMIT;i++)
-		{
-			if (players[i].canHumanPlay) {playerAmnt++;humenPlayers++;}
-			else if (players[i].canComputerPlay) {playerAmnt++;}
-		}
-	};
+	CMapInfo(){};
+	void countPlayers();
+	CMapInfo(std::string fname, unsigned char *map);
 };
 
 
@@ -317,6 +318,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	void removeBlockVisTiles(CGObjectInstance * obj);
 	Mapa(std::string filename); //creates map structure from .h3m file
 	Mapa();
+	~Mapa();
 	CGHeroInstance * getHero(int ID, int mode=0);
 	bool isInTheMap(int3 pos);
 	template <typename TObject, typename Handler> void serializeObj(Handler &h, const int version, TObject ** obj)
@@ -325,10 +327,8 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	}
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
-		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPLayers & rumors;
-		
-		h & players & teams & lossCondition & victoryCondition & howManyTeams & allowedSpell 
-			& allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
+		h & static_cast<CMapHeader&>(*this);
+		h & rumors & allowedSpell & allowedAbilities & allowedArtifact & allowedHeroes & events & grailPos;
 
 		//TODO: viccondetails
 		if(h.saving)

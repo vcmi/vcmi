@@ -1122,10 +1122,16 @@ int CGameState::getDate(int mode) const
 CGameState::CGameState()
 {
 	mx = new boost::shared_mutex();
+	map = NULL;
+	curB = NULL;
+	scenarioOps = NULL;
 }
 CGameState::~CGameState()
 {
 	delete mx;
+	delete map;
+	delete curB;
+	delete scenarioOps;
 }
 void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {

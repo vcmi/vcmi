@@ -46,12 +46,17 @@ public:
 	std::vector<std::string> restypes;
 	std::vector<std::pair<std::string,std::string> > mines; //first - name; second - event description
 
+	//sec skills
+	std::vector <std::string>  skillName;
+	std::vector <std::vector <std::string> > skillInfoTexts; //[id][level] : level 0 - basic; 2 - advanced
+	std::vector<std::string> levels;
 
 	std::string getTitle(std::string text);
 	std::string getDescr(std::string text);
 
 	void loadTexts();
 	void load();
+	CGeneralTextHandler();
 };
 
 

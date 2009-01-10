@@ -20,6 +20,7 @@
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <cstdlib>
+#include "lib/Connection.h"
 
 extern SDL_Surface * screen;
 extern SDL_Color tytulowy, tlo, zwykly ;
@@ -811,12 +812,10 @@ void Options::hide()
 MapSel::~MapSel()
 {
 	SDL_FreeSurface(bg);
-	for (size_t i=0; i < scenImgs.size(); ++i) {
+	for (size_t i=0; i < scenImgs.size(); ++i) 
+	{
 		SDL_FreeSurface(scenImgs[i]);
-        }
-	for (size_t i=0; i < scenList.size(); ++i) {
-		delete scenList[i];
-        }
+	}
 	delete sFlags;
 }
 int MapSel::countWL()
@@ -838,9 +837,9 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 	if (true)//
 	{
 		int help=-1;
-		for (size_t i=0; i < ourMaps.size(); ++i)
+		for (size_t i=0; i < curVector().size(); ++i)
 		{
-			if (sizeFilter && ((ourMaps[i].width) != sizeFilter)) {
+			if (sizeFilter && ((curVector()[i].width) != sizeFilter)) {
 				continue;
                         }
 			else {
@@ -857,7 +856,7 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 	SDL_Color nasz;
 	for (int i=at;i<to;i++)
 	{
-		if ((i-at+from) > ourMaps.size()-1)
+		if ((i-at+from) > curVector().size()-1)
 		{
 			SDL_Surface * scenin = CSDL_Ext::newSurface(351,25);
 			SDL_BlitSurface(bg,&genRect(25,351,22,(i-at)*25+115),scenin,NULL);
@@ -867,12 +866,12 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 			SDL_FreeSurface(scenin);
 			continue;
 		}
-		if (sizeFilter && ((ourMaps[(i-at)+from].width) != sizeFilter))
+		if (sizeFilter && ((curVector()[(i-at)+from].width) != sizeFilter))
 		{
 			to++;
 			at++;
 			from++;
-			if (((i-at)+from)>ourMaps.size()-1) break;
+			if (((i-at)+from)>curVector().size()-1) break;
 			else continue;
 		}
 		if ((i-at+from) == selected)
@@ -881,10 +880,10 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 		//SDL_Rect pier = genRect(25,351,24,126+(i*25));
 		SDL_BlitSurface(bg,&genRect(25,351,22,(i-at)*25+115),scenin,NULL);
 		int temp=-1;
-		std::ostringstream ostr(std::ostringstream::out); ostr << ourMaps[(i-at)+from].playerAmnt << "/" << ourMaps[(i-at)+from].humenPlayers;
+		std::ostringstream ostr(std::ostringstream::out); ostr << curVector()[(i-at)+from].playerAmnt << "/" << curVector()[(i-at)+from].humenPlayers;
 		CSDL_Ext::printAt(ostr.str(),6,4,GEOR13,nasz,scenin, 2);
 		std::string temp2;
-		switch (ourMaps[(i-at)+from].width)
+		switch (curVector()[(i-at)+from].width)
 		{
 		case 36:
 			temp2="S";
@@ -903,7 +902,7 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 			break;
 		}
 		CSDL_Ext::printAtMiddle(temp2,50,13,GEOR13,nasz,scenin, 2);
-		switch (ourMaps[(i-at)+from].version)
+		switch (curVector()[(i-at)+from].version)
 		{
 		case RoE:
 			temp=0;
@@ -918,21 +917,32 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 			temp=3;
 			break;
 		}
-		blitAt(Dtypes->ourImages[temp].bitmap,67,2,scenin);
-		if (!(ourMaps[(i-at)+from].name.length()))
-			ourMaps[(i-at)+from].name = "Unnamed";
-		CSDL_Ext::printAtMiddle(ourMaps[(i-at)+from].name,192,13,GEOR13,nasz,scenin, 2);
-		if (ourMaps[(i-at)+from].victoryCondition.condition == winStandard)
+		if (temp >= 0)
+			blitAt(Dtypes->ourImages[temp].bitmap,67,2,scenin);
+		else
+			tlog2 << "Warning: " << curVector()[(i-at)+from].filename << " has wrong version!\n";
+
+		if(CPG->fromnewgame)
+		{
+			if (!(curVector()[(i-at)+from].name.length()))
+				curVector()[(i-at)+from].name = "Unnamed";
+			CSDL_Ext::printAtMiddle(curVector()[(i-at)+from].name,192,13,GEOR13,nasz,scenin, 2);
+		}
+		else
+		{
+			CSDL_Ext::printAtMiddle(curVector()[(i-at)+from].filename,192,13,GEOR13,nasz,scenin, 2);
+		}
+		if (curVector()[(i-at)+from].victoryCondition.condition == winStandard)
 			temp=11;
 		else 
-			temp=ourMaps[(i-at)+from].victoryCondition.condition;
+			temp=curVector()[(i-at)+from].victoryCondition.condition;
 
 		blitAt(Dvic->ourImages[temp].bitmap,285,2,scenin);
 
-		if (ourMaps[(i-at)+from].lossCondition.typeOfLossCon == lossStandard)
+		if (curVector()[(i-at)+from].lossCondition.typeOfLossCon == lossStandard)
 			temp=3;
 		else 
-			temp=ourMaps[(i-at)+from].lossCondition.typeOfLossCon;
+			temp=curVector()[(i-at)+from].lossCondition.typeOfLossCon;
 
 		blitAt(Dloss->ourImages[temp].bitmap,318,2,scenin);
 
@@ -944,9 +954,9 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 int MapSel::whichWL(int nr)
 {
 	int help=-1;
-	for (int i=0;i<ourMaps.size();i++)
+	for (int i=0;i<curVector().size();i++)
 	{
-		if (sizeFilter && ((ourMaps[i].width) != sizeFilter))
+		if (sizeFilter && ((curVector()[i].width) != sizeFilter))
 			continue;
 		else help++;
 		if (help==nr)
@@ -1055,6 +1065,19 @@ void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 	}
 }
 
+void MapSel::processGames( std::vector<std::string> &pliczkiTemp, int &index )
+{
+	ourGames.resize(pliczkiTemp.size());
+
+	for(int i=0; i<pliczkiTemp.size(); i++)
+	{
+		CLoadFile lf(pliczkiTemp[i]);
+		ui8 sign[8]; 
+		lf >> sign >> static_cast<CMapHeader&>(ourGames[i]);
+		ourGames[i].filename = pliczkiTemp[i];
+		ourGames[i].countPlayers();
+	}
+}
 void MapSel::init()
 {
 	//get map files names
@@ -1146,16 +1169,29 @@ void MapSel::init()
 	std::sort(ourMaps.begin(),ourMaps.end(),mapSorter(_name));
 	slid = new Slider(375,92,480,ourMaps.size(),18,true);
 	slid->fun = boost::bind(&CPreGame::printMapsFrom,CPG,_1);
+
+	group.join_all();
+	pliczkiTemp.clear();
+	tie = fs::path( (fs::initial_path<fs::path>())/"/Games" );
+	for ( fs::directory_iterator dir (tie); dir!=end_iter; ++dir )
+	{
+		if (fs::is_regular_file(dir->status()));
+		{
+			if (boost::ends_with(dir->path().filename(),".vlgm1"))
+				pliczkiTemp.push_back("Games/"+(dir->path().leaf()));
+		}
+	}
+	processGames(pliczkiTemp,mapInd);
 }
 void MapSel::moveByOne(bool up)
 {
 	int help=selected;
 	if (up) selected--;
 	else selected ++;
-	for (int i=selected;i<ourMaps.size() && i>=0;)
+	for (int i=selected;i<curVector().size() && i>=0;)
 	{
 		help=i;
-		if (!(sizeFilter && ((ourMaps[i].width) != sizeFilter)))
+		if (!(sizeFilter && ((curVector()[i].width) != sizeFilter)))
 			break;
 		if (up)
 		{
@@ -1172,9 +1208,11 @@ void MapSel::moveByOne(bool up)
 }
 void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 {
+	if(which < 0)
+		return;
 	bool dontSaveSettings = ((selected!=which) || (CPG->ret.playerInfos.size()==0) || forceSettingsUpdate);
 	selected = which;
-	CPG->ret.mapname = ourMaps[selected].filename;
+	CPG->ret.mapname = curVector()[selected].filename;
 	if(updateMapsList)
 		printMaps(slid->whereAreWe,18,0,true);
 	int serialC=0;
@@ -1184,7 +1222,9 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 		bool wasntpl = true;
 		for (int i=0;i<PLAYER_LIMIT;i++)
 		{
-			if (!(ourMaps[selected].players[i].canComputerPlay || ourMaps[selected].players[i].canComputerPlay))
+			if (!(curVector()[selected].players[i].canComputerPlay 
+				|| curVector()[selected].players[i].canComputerPlay)	
+			  )
 				continue; // this caused some serious problems becouse of lack of simple bijection between two sets of player's numbers (one is returned by CPreGame, second is used in h3m)
 			StartInfo::PlayerSettings pset;
 			pset.color=(Ecolor)i;
@@ -1193,7 +1233,7 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 			pset.bonus=brandom;
 			pset.castle=-2;
 
-			if (ourMaps[which].players[i].canHumanPlay && wasntpl)
+			if (curVector()[which].players[i].canHumanPlay && wasntpl)
 			{
 				pset.name=CGI->generaltexth->allTexts[434]; //Player
 				pset.human = true;
@@ -1211,7 +1251,7 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 
 			for (int j=0;j<F_NUMBER;j++)
 			{
-				if (((int)pow((double)2,j))&ourMaps[selected].players[i].allowedFactions)
+				if (((int)pow((double)2,j))&curVector()[selected].players[i].allowedFactions)
 				{
 					if (pset.castle>=0)
 						pset.castle=-1;
@@ -1220,16 +1260,20 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 				}
 			}
 			pset.heroPortrait=-1;
-			if (!((ourMaps[which].players[i].generateHeroAtMainTown && ourMaps[which].players[i].hasMainTown) || ourMaps[which].players[i].p8))
+			if (!
+				((curVector()[which].players[i].generateHeroAtMainTown 
+					&& curVector()[which].players[i].hasMainTown) 
+				|| curVector()[which].players[i].p8)
+			  )
 				pset.hero=-2;
 			else
 				pset.hero=-1;
 
-			if(ourMaps[which].players[i].mainHeroName.length())
+			if(curVector()[which].players[i].mainHeroName.length())
 			{
-				pset.heroName = ourMaps[which].players[i].mainHeroName;
-				if((pset.heroPortrait = ourMaps[which].players[i].mainHeroPortrait)==255)
-					pset.heroPortrait = ourMaps[which].players[i].p9;
+				pset.heroName = curVector()[which].players[i].mainHeroName;
+				if((pset.heroPortrait = curVector()[which].players[i].mainHeroPortrait)==255)
+					pset.heroPortrait = curVector()[which].players[i].p9;
 			}
 			pset.handicap=0;
 			CPG->ret.playerInfos.push_back(pset);
@@ -1245,9 +1289,12 @@ void MapSel::printSelectedInfo()
 {
 	SDL_BlitSurface(CPG->ourScenSel->scenInf,&genRect(399,337,17,23),screen,&genRect(399,337,413,29));
 	SDL_BlitSurface(CPG->ourScenSel->scenInf,&genRect(50,91,18,447),screen,&genRect(50,91,414,453));
-	SDL_BlitSurface(CPG->ourScenSel->bScens.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bScens.pos);
-	SDL_BlitSurface(CPG->ourScenSel->bOptions.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bOptions.pos);
-	SDL_BlitSurface(CPG->ourScenSel->bRandom.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bRandom.pos);
+	if(CPG->fromnewgame)
+	{
+		SDL_BlitSurface(CPG->ourScenSel->bScens.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bScens.pos);
+		SDL_BlitSurface(CPG->ourScenSel->bOptions.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bOptions.pos);
+		SDL_BlitSurface(CPG->ourScenSel->bRandom.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bRandom.pos);
+	}
 	//blit texts
 	CSDL_Ext::printAt(CGI->generaltexth->zelp[21].second,420,25,GEOR13);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[496],420,135,GEOR13);
@@ -1256,30 +1303,32 @@ void MapSel::printSelectedInfo()
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[390],420,406,GEOR13,zwykly);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[391],585,406,GEOR13,zwykly);
 
-	int temp = ourMaps[selected].victoryCondition.condition+1;
+	CMapInfo &selMap = selectedMap();
+
+	int temp = selMap.victoryCondition.condition+1;
 	if (temp>20) temp=0;
 	std::string sss = CGI->generaltexth->victoryConditions[temp];
-	if (temp && ourMaps[selected].victoryCondition.allowNormalVictory) sss+= "/" + CGI->generaltexth->victoryConditions[0];
+	if (temp && selMap.victoryCondition.allowNormalVictory) sss+= "/" + CGI->generaltexth->victoryConditions[0];
 	CSDL_Ext::printAt(sss,452,310,GEOR13,zwykly);
 
 
-	temp = ourMaps[selected].lossCondition.typeOfLossCon+1;
+	temp = selMap.lossCondition.typeOfLossCon+1;
 	if (temp>20) temp=0;
 	sss = CGI->generaltexth->lossCondtions[temp];
 	CSDL_Ext::printAt(sss,452,370,GEOR13,zwykly);
 
 	//blit descrption
-	std::vector<std::string> desc = *CMessage::breakText(ourMaps[selected].description,50);
+	std::vector<std::string> desc = *CMessage::breakText(selMap.description,50);
 	for (int i=0;i<desc.size();i++)
 		CSDL_Ext::printAt(desc[i],417,152+i*13,GEOR13,zwykly);
 
 	if ((selected < 0) || (selected >= ourMaps.size()))
 		return;
-	if (ourMaps[selected].name.length())
-		CSDL_Ext::printAt(ourMaps[selected].name,420,41,GEORXX);
+	if (selMap.name.length())
+		CSDL_Ext::printAt(selMap.name,420,41,GEORXX);
 	else CSDL_Ext::printAt("Unnamed",420,41,GEORXX);
 	std::string diff;
-	switch (ourMaps[selected].difficulty)
+	switch (selMap.difficulty)
 	{
 	case 0:
 		diff=gdiff(CGI->generaltexth->zelp[24].second);
@@ -1298,7 +1347,7 @@ void MapSel::printSelectedInfo()
 		break;
 	}
 	temp=-1;
-	switch (ourMaps[selected].width)
+	switch (selMap.width)
 	{
 	case 36:
 		temp=0;
@@ -1317,10 +1366,10 @@ void MapSel::printSelectedInfo()
 		break;
 	}
 	blitAt(Dsizes->ourImages[temp].bitmap,714,28);
-	temp = ourMaps[selected].victoryCondition.condition;
+	temp = selMap.victoryCondition.condition;
 	if (temp>12) temp=11;
 	blitAt(Dvic->ourImages[temp].bitmap,420,308); //v
-	temp=ourMaps[selected].lossCondition.typeOfLossCon;
+	temp=selMap.lossCondition.typeOfLossCon;
 	if (temp>12) temp=3;
 	blitAt(Dloss->ourImages[temp].bitmap,420,366); //l
 
@@ -1331,15 +1380,16 @@ void MapSel::printSelectedInfo()
 }
 void MapSel::printFlags()
 {
+	CMapInfo &selMap = selectedMap();
 	int hy=405, fx=460, ex=640, myT;
-	if (ourMaps[selected].howManyTeams)
-		myT = ourMaps[selected].players[CPG->playerColor].team;
+	if (selMap.howManyTeams)
+		myT = selMap.players[CPG->playerColor].team;
 	else myT = -1;
 	for (int i=0;i<CPG->ret.playerInfos.size();i++)
 	{
 		if (myT>=0)
 		{
-			if(ourMaps[selected].players[CPG->ret.playerInfos[i].color].team==myT)
+			if(selMap.players[CPG->ret.playerInfos[i].color].team==myT)
 			{
 				blitAtWR(sFlags->ourImages[CPG->ret.playerInfos[i].color].bitmap,fx,hy);
 				fx+=sFlags->ourImages[CPG->ret.playerInfos[i].color].bitmap->w;
@@ -1375,6 +1425,23 @@ std::string MapSel::gdiff(std::string ss)
 		ret+=ss[i];
 	}
 	return ret;
+}
+
+CMapInfo & MapSel::selectedMap()
+{
+	if(CPG->fromnewgame)
+		return ourMaps[selected];
+	else
+		return ourGames[selected];
+}
+
+std::vector<CMapInfo> & MapSel::curVector()
+{
+
+	if (CPG->fromnewgame) 
+		return ourMaps;
+	else
+		return ourGames;
 }
 void CPreGame::printRating()
 {
@@ -1460,6 +1527,7 @@ void CPreGame::initScenSel()
 void CPreGame::showScenSel()
 {
 	state=ScenarioList;
+	ourScenSel->mapsel.slid->positionsAmnt = ourScenSel->mapsel.curVector().size();
 	SDL_BlitSurface(ourScenSel->background,NULL,screen,NULL);
 	SDL_BlitSurface(ourScenSel->scenInf,NULL,screen,&genRect(ourScenSel->scenInf->h,ourScenSel->scenInf->w,396,6));
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[494],427,438,GEOR13);//"Map Diff:"
@@ -1482,14 +1550,19 @@ void CPreGame::showScenSel()
 	//add buttons info
 	if(first)
 	{
-		btns.push_back(&ourScenSel->bEasy);
-		btns.push_back(&ourScenSel->bNormal);
-		btns.push_back(&ourScenSel->bHard);
-		btns.push_back(&ourScenSel->bExpert);
-		btns.push_back(&ourScenSel->bImpossible);
-		btns.push_back(&ourScenSel->bScens);
-		btns.push_back(&ourScenSel->bRandom);
-		btns.push_back(&ourScenSel->bOptions);
+		if(fromnewgame)
+		{
+			btns.push_back(&ourScenSel->bEasy);
+			btns.push_back(&ourScenSel->bNormal);
+			btns.push_back(&ourScenSel->bHard);
+			btns.push_back(&ourScenSel->bExpert);
+			btns.push_back(&ourScenSel->bImpossible);
+			btns.push_back(&ourScenSel->bScens);
+			btns.push_back(&ourScenSel->bRandom);
+			btns.push_back(&ourScenSel->bOptions);
+		}
+		else
+			ourScenSel->mapsel.show();
 		btns.push_back(&ourScenSel->bBegin);
 		btns.push_back(&ourScenSel->bBack);
 
@@ -1583,12 +1656,18 @@ void CPreGame::initNewMenu()
 }
 void CPreGame::showNewMenu()
 {
+	if(state == ScenarioList  &&  !fromnewgame)
+	{
+		showLoadMenu();
+		return;
+	}
 	if (currentTab/*==&ourScenSel->mapsel*/)
 		currentTab->hide();
 	btns.clear();
 	interested.clear();
 	handleOther=NULL;
 	state = newGame;
+	fromnewgame = true;
 	SDL_BlitSurface(ourNewMenu->background,NULL,screen,NULL);
 	SDL_BlitSurface(ourNewMenu->newGame->ourImages[0].bitmap,NULL,screen,&ourNewMenu->lNewGame);
 	SDL_BlitSurface(ourNewMenu->loadGame->ourImages[0].bitmap,NULL,screen,&ourNewMenu->lLoadGame);
@@ -2120,6 +2199,7 @@ StartInfo CPreGame::runLoop()
 		CGI->curh->draw2();
 		SDL_Delay(20); //give time for other apps
 	}
+	ret.mode = !fromnewgame;
 	return ret;
 }
 std::string CPreGame::buttonText(int which)
@@ -2233,6 +2313,7 @@ void CPreGame::showLoadMenu()
 	interested.clear();
 	handleOther=NULL;
 	state = loadGame;
+	fromnewgame = false;
 	SDL_BlitSurface(ourLoadMenu->background,NULL,screen,NULL);
 	SDL_BlitSurface(ourLoadMenu->newGame->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lNewGame);
 	SDL_BlitSurface(ourLoadMenu->loadGame->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lLoadGame);

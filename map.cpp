@@ -244,6 +244,7 @@ void CMapHeader::initFromMemory( unsigned char *bufor, int &i )
 }
 void CMapHeader::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
 {
+	players.resize(8);
 	for (pom=0;pom<8;pom++)
 	{
 		players[pom].canHumanPlay = bufor[i++];
@@ -467,10 +468,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	readEvents(bufor, i);
 	tlog0<<"\tReading events: "<<th.getDif()<<std::endl;
 
-	//map readed, bufor no longer needed
-	delete[] bufor; bufor=NULL;
-
-	
+	//map readed, bufor no longer needed	
 	for(int f=0; f<objects.size(); ++f) //calculationg blocked / visitable positions
 	{
 		if(!objects[f]->defInfo)
@@ -552,12 +550,28 @@ Mapa::Mapa(std::string filename)
 	checksum = result.checksum();
 	tlog0 << "\tOur map checksum: "<<result.checksum() << std::endl;
 	initFromBytes(initTable);
+	delete [] initTable;
 }
 
 Mapa::Mapa()
 {
+	terrain = NULL;
 
 }
+Mapa::~Mapa()
+{
+	if(terrain)
+	{
+		for (int ii=0;ii<width;ii++)
+		{
+			for(int jj=0;jj<height;jj++)
+				delete [] terrain[ii][jj];
+			delete [] terrain[ii];
+		}
+		delete [] terrain;
+	}
+}
+
 CGHeroInstance * Mapa::getHero(int ID, int mode)
 {
 	if (mode != 0)
@@ -1397,6 +1411,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				loadHero(nobj, bufor, i);
 				break;
 			}
+		case 4: //arena
 		case 51: //Mercenary Camp
 		case 23: //Marletto Tower
 		case 61: // Star Axis
@@ -1903,4 +1918,20 @@ void Mapa::loadQuest(CQuest * guard, unsigned char * bufor, int & i)
 	guard->firstVisitText = readString(bufor,i);
 	guard->nextVisitText = readString(bufor,i);
 	guard->completedText = readString(bufor,i);
+}
+
+void CMapInfo::countPlayers()
+{
+	playerAmnt=humenPlayers=0;
+	for (int i=0;i<PLAYER_LIMIT;i++)
+	{
+		if (players[i].canHumanPlay) {playerAmnt++;humenPlayers++;}
+		else if (players[i].canComputerPlay) {playerAmnt++;}
+	}
+}
+
+CMapInfo::CMapInfo( std::string fname, unsigned char *map )
+:CMapHeader(map),filename(fname)
+{
+	countPlayers();
 }

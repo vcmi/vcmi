@@ -3,6 +3,14 @@
 #include <boost/asio.hpp>
 #include "../global.h"
 #include "../lib/Connection.h"
+#include "../hch/CArtHandler.h"
+#include "../hch/CDefObjInfoHandler.h"
+#include "../hch/CGeneralTextHandler.h"
+#include "../hch/CHeroHandler.h"
+#include "../hch/CTownHandler.h"
+#include "../hch/CObjectHandler.h"
+#include "../hch/CBuildingHandler.h"
+#include "../hch/CSpellHandler.h"
 #include "zlib.h"
 #ifndef __GNUC__
 #include <tchar.h>
@@ -87,12 +95,12 @@ void CVCMIServer::newGame(CConnection *c)
 				i--;
 				continue;
 			}
-			cc = new CConnection(s,NAME,std::cout);
+			cc = new CConnection(s,NAME);
 		}	
 		gh.conns.insert(cc);
 	}
 
-	gh.run();
+	gh.run(false);
 }
 void CVCMIServer::start()
 {
@@ -125,7 +133,7 @@ void CVCMIServer::start()
 		return;
 	}
 	tlog0<<"We've accepted someone... " << std::endl;
-	CConnection *connection = new CConnection(s,NAME,std::cout);
+	CConnection *connection = new CConnection(s,NAME);
 	tlog0<<"Got connection!" << std::endl;
 	while(!end2)
 	{
@@ -144,8 +152,66 @@ void CVCMIServer::start()
 		case 2:
 			newGame(connection);
 			break;
+		case 3:
+			loadGame(connection);
+			break;
 		}
 	}
+}
+
+void CVCMIServer::loadGame( CConnection *c )
+{
+	std::string fname;
+	CGameHandler gh;
+	boost::system::error_code error;
+	ui8 clients;
+	*c >> clients >> fname; //how many clients should be connected - TODO: support more than one
+
+	{
+		char sig[8];
+		CMapHeader dum;
+
+		CLoadFile lf(fname + ".vlgm1");
+		lf >> sig >> dum;
+		tlog0 <<"Reading save signature"<<std::endl;
+
+		lf >> *VLC;
+		tlog0 <<"Reading handlers"<<std::endl;
+
+		lf >> (gh.gs);
+		tlog0 <<"Reading gamestate"<<std::endl;
+	}
+
+	{
+		CLoadFile lf(fname + ".vsgm1");
+		lf >> gh;
+	}
+
+	*c << ui8(0);
+
+	CConnection* cc; //tcp::socket * ss;
+	for(int i=0; i<clients; i++)
+	{
+		if(!i) 
+		{
+			cc=c;
+		}
+		else
+		{
+			tcp::socket * s = new tcp::socket(acceptor->io_service());
+			acceptor->accept(*s,error);
+			if(error) //retry
+			{
+				tlog3<<"Cannot establish connection - retrying..." << std::endl;
+				i--;
+				continue;
+			}
+			cc = new CConnection(s,NAME);
+		}	
+		gh.conns.insert(cc);
+	}
+
+	gh.run(true);
 }
 
 #ifndef __GNUC__

@@ -57,15 +57,11 @@ public:
 class CGameHandler : public IGameCallback
 {
 	static ui32 QID;
-	//std::set<CCPPObjectScript *> cppscripts; //C++ scripts
-	//std::map<int, std::map<std::string, CObjectScript*> > objscr; //non-C++ scripts 
-
 	CVCMIServer *s;
 	std::map<int,CConnection*> connections; //player color -> connection to clinet with interface of that player
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
-	void changeSecSkill(int ID, ui16 which, int val, bool abs=false);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
@@ -93,6 +89,7 @@ public:
 	void setHoverName(int objid, MetaString * name);
 	void setObjProperty(int objid, int prop, int val);
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
+	void changeSecSkill(int ID, int which, int val, bool abs=false); 
 	void showInfoDialog(InfoWindow *iw);
 	void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback);
 	void showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback); //returns question id
@@ -111,7 +108,7 @@ public:
 	void handleConnection(std::set<int> players, CConnection &c);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & QID & gs & states;
+		h & QID & states;
 	}
 	template <typename T> void applyAndAsk(Query<T> * sel, ui8 player, boost::function<void(ui32)> &callback)
 	{
@@ -157,7 +154,7 @@ public:
 		gs->apply(info);
 		sendToAllClients(info);
 	}
-	void run();
+	void run(bool resume);
 	void newTurn();
 
 	friend class CVCMIServer;

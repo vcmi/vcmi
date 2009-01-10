@@ -20,56 +20,15 @@ DLL_EXPORT CLogger<3> tlog3;
 DLL_EXPORT CLogger<4> tlog4;
 DLL_EXPORT CLogger<5> tlog5;
 DLL_EXPORT CConsoleHandler *console = NULL;
-DLL_EXPORT std::ostream *logfile = NULL;
+DLL_EXPORT std::ostream *logfile = NULL
+;
 DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *Logfile)
 {
 	console = Console;
 	logfile = Logfile;
-	timeHandler pomtime;
 	bitmaph=b;
 	VLC = new LibClasses;
-
-	VLC->generaltexth = new CGeneralTextHandler;
-	VLC->generaltexth->loadTexts();
-	VLC->generaltexth->load();
-	tlog0<<"\tGeneral text handler: "<<pomtime.getDif()<<std::endl;
-
-	CHeroHandler * heroh = new CHeroHandler;
-	heroh->loadHeroes();
-	VLC->heroh = heroh;
-	tlog0 <<"\tHero handler: "<<pomtime.getDif()<<std::endl;
-
-	CArtHandler * arth = new CArtHandler;
-	arth->loadArtifacts();
-	VLC->arth = arth;
-	tlog0<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
-
-	CCreatureHandler * creh = new CCreatureHandler();
-	creh->loadCreatures();
-	VLC->creh = creh;
-	tlog0<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
-
-	VLC->townh = new CTownHandler;
-	VLC->townh->loadNames();
-	tlog0<<"\tTown handler: "<<pomtime.getDif()<<std::endl;
-
-	CObjectHandler * objh = new CObjectHandler;
-	objh->loadObjects();
-	VLC->objh = objh;
-	tlog0<<"\tObject handler: "<<pomtime.getDif()<<std::endl;
-
-	VLC->dobjinfo = new CDefObjInfoHandler;
-	VLC->dobjinfo->load();
-	tlog0<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
-
-	VLC->buildh = new CBuildingHandler;
-	VLC->buildh->loadBuildings();
-	tlog0<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
-
-	CSpellHandler * spellh = new CSpellHandler;
-	spellh->loadSpells();
-	VLC->spellh = spellh;		
-	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
+	VLC->init();
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode)
@@ -185,4 +144,66 @@ DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode)
 	std::string pom;
 	loadToIt(pom,src,iter,mode);
 	dest = atol(pom.c_str());
+}
+
+void LibClasses::init()
+{
+	timeHandler pomtime;
+	generaltexth = new CGeneralTextHandler;
+	generaltexth->load();
+	tlog0<<"\tGeneral text handler: "<<pomtime.getDif()<<std::endl;
+
+	heroh = new CHeroHandler;
+	heroh->loadHeroes();
+	tlog0 <<"\tHero handler: "<<pomtime.getDif()<<std::endl;
+
+	arth = new CArtHandler;
+	arth->loadArtifacts();
+	tlog0<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
+
+	creh = new CCreatureHandler();
+	creh->loadCreatures();
+	tlog0<<"\tCreature handler: "<<pomtime.getDif()<<std::endl;
+
+	townh = new CTownHandler;
+	townh->loadNames();
+	tlog0<<"\tTown handler: "<<pomtime.getDif()<<std::endl;
+
+	objh = new CObjectHandler;
+	objh->loadObjects();
+	tlog0<<"\tObject handler: "<<pomtime.getDif()<<std::endl;
+
+	dobjinfo = new CDefObjInfoHandler;
+	dobjinfo->load();
+	tlog0<<"\tDef information handler: "<<pomtime.getDif()<<std::endl;
+
+	buildh = new CBuildingHandler;
+	buildh->loadBuildings();
+	tlog0<<"\tBuilding handler: "<<pomtime.getDif()<<std::endl;
+
+	spellh = new CSpellHandler;
+	spellh->loadSpells();
+	tlog0<<"\tSpell handler: "<<pomtime.getDif()<<std::endl;
+}
+
+void LibClasses::clear()
+{
+	delete generaltexth;
+	delete heroh;
+	delete arth;
+	delete creh;
+	delete townh;
+	delete objh;
+	delete dobjinfo;
+	delete buildh;
+	delete spellh;
+	generaltexth = NULL;
+	heroh = NULL;
+	arth = NULL;
+	creh = NULL;
+	townh = NULL;
+	objh = NULL;
+	dobjinfo = NULL;
+	buildh = NULL;
+	spellh = NULL;
 }

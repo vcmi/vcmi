@@ -743,7 +743,7 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 	if(visitors.find(h->id)==visitors.end())
 	{
 		onNAHeroVisit(h->id, false);
-		if(ID != 102) //not tree
+		if(ID != 102  &&  ID!=4) //not tree nor arena
 			cb->setObjProperty(id,4,h->id); //add to the visitors
 	}
 	else
@@ -774,6 +774,9 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 	int id=0, subid=0, ot=0, val=1;
 	switch(ID)
 	{
+	case 4:
+		ot = 0;
+		break;
 	case 51:
 		subid=0;
 		ot=80;
@@ -806,6 +809,16 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 	{
 		switch (ID)
 		{
+		case 4: //arena
+			{
+				SelectionDialog sd;
+				sd.text << std::pair<ui8,ui32>(11,ot);
+				sd.components.push_back(Component(0,0,2,0));
+				sd.components.push_back(Component(0,1,2,0));
+				sd.player = cb->getOwner(heroID);
+				cb->showSelectionDialog(&sd,boost::bind(&CGVisitableOPH::arenaSelected,this,heroID,_1));
+				return;
+			}
 		case 51:
 		case 23:
 		case 61:
@@ -835,7 +848,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
 				if(!ttype)
 				{
-					cb->setObjProperty(id,4,heroID); //add to the visitors
+					cb->setObjProperty(this->id,4,heroID); //add to the visitors
 					InfoWindow iw;
 					iw.components.push_back(Component(id,subid,1,0));
 					iw.player = cb->getOwner(heroID);
@@ -892,9 +905,12 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 
 const std::string & CGVisitableOPH::getHoverText() const
 {
-	int pom;
+	int pom = -1;
 	switch(ID)
 	{
+	case 4:
+		pom = -1;
+		break;
 	case 51:
 		pom = 8; 
 		break;
@@ -914,9 +930,11 @@ const std::string & CGVisitableOPH::getHoverText() const
 		pom = 18;
 		break;
 	default:
-		throw "Wrong CGVisitableOPH object ID!\n";
+		throw std::string("Wrong CGVisitableOPH object ID!\n");
 	}
-	hoverName = VLC->generaltexth->names[ID] + " " + VLC->generaltexth->xtrainfo[pom];
+	hoverName = VLC->generaltexth->names[ID];
+	if(pom >= 0)
+		hoverName += (" " + VLC->generaltexth->xtrainfo[pom]);
 	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
 	if(h)
 	{
@@ -926,6 +944,12 @@ const std::string & CGVisitableOPH::getHoverText() const
 							: ( VLC->generaltexth->allTexts[353]); //not visited
 	}
 	return hoverName;
+}
+
+void CGVisitableOPH::arenaSelected( int heroID, int primSkill ) const
+{
+	cb->setObjProperty(id,4,heroID); //add to the visitors
+	cb->changePrimSkill(heroID,primSkill,2);
 }
 
 bool CArmedInstance::needsLastStack() const
@@ -1053,24 +1077,57 @@ void CGResource::initObj()
 
 void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 {
-	//TODO: handle guards (when battles are finished)
-	if(message.length())
+	if(army.slots.size())
 	{
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-		iw.text << message;
-		cb->showInfoDialog(&iw);
+		if(message.size())
+		{
+			YesNoDialog ynd;
+			ynd.player = h->getOwner();
+			ynd.text << message;
+			cb->showYesNoDialog(&ynd,boost::bind(&CGResource::fightForRes,this,_1,h));
+		}
+		else
+		{
+			fightForRes(1,h);
+		}
 	}
+	else
+	{
+		if(message.length())
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.text << message;
+			cb->showInfoDialog(&iw);
+		}
+		collectRes(h->getOwner());
+	}
+}
 
-	cb->giveResource(h->tempOwner,subID,amount);
-
+void CGResource::collectRes( int player ) const
+{
+	cb->giveResource(player,subID,amount);
 	ShowInInfobox sii;
-	sii.player = h->tempOwner;
+	sii.player = player;
 	sii.c = Component(2,subID,amount,0);
 	sii.text << std::pair<ui8,ui32>(11,113);
 	sii.text.replacements.push_back(VLC->generaltexth->restypes[subID]);
 	cb->showCompInfo(&sii);
 	cb->removeObject(id);
+}
+
+void CGResource::fightForRes(ui32 wantToFight, const CGHeroInstance *h) const
+{
+	if(wantToFight)
+		return;
+
+	cb->startBattleI(h->id,army,pos,boost::bind(&CGResource::endBattle,this,_1,h));
+}
+
+void CGResource::endBattle( BattleResult *result, const CGHeroInstance *h ) const
+{
+	if(result->winner == 0) //attacker won
+		collectRes(h->getOwner());
 }
 
 void CGVisitableOPW::newTurn() const
@@ -1330,4 +1387,36 @@ void CGPickable::chosen( int which, int heroID ) const
 	default:
 		throw std::string("Unhandled treasure choice");
 	}
+	cb->removeObject(id);
+}
+
+void CGWitchHut::initObj()
+{
+	ability = allowedAbilities[ran()%allowedAbilities.size()];
+}
+
+void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
+{
+	InfoWindow iw;
+	iw.player = h->getOwner();
+
+	if(h->getSecSkillLevel(ability)) //you alredy know this skill
+	{
+		iw.text << std::pair<ui8,ui32>(11,172);
+		iw.text.replacements.push_back(VLC->generaltexth->skillName[ability]);
+	}
+	else if(h->secSkills.size() >= SKILL_PER_HERO) //already all skills slots used
+	{
+		iw.text << std::pair<ui8,ui32>(11,173);
+		iw.text.replacements.push_back(VLC->generaltexth->skillName[ability]);
+	}
+	else //give sec skill
+	{
+		iw.components.push_back(Component(1, ability, 1, 0));
+		iw.text << std::pair<ui8,ui32>(11,171);
+		iw.text.replacements.push_back(VLC->generaltexth->skillName[ability]);
+		cb->changeSecSkill(h->id,ability,1,true);
+	}
+
+	cb->showInfoDialog(&iw);
 }

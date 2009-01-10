@@ -8,8 +8,6 @@
 #include <cmath>
 #include <boost/algorithm/string.hpp>
 #include "boost/filesystem/operations.hpp"
-#include <boost/interprocess/mapped_region.hpp>
-#include <boost/interprocess/shared_memory_object.hpp>
 #include <boost/thread.hpp>
 #include <SDL_ttf.h>
 #include <SDL_mixer.h>
@@ -43,7 +41,6 @@
 #include "client/Client.h"
 #include "client/CConfigHandler.h"
 #include "lib/Connection.h"
-#include "lib/Interprocess.h"
 #include "lib/VCMI_Lib.h"
 #include <cstdlib>
 
@@ -54,7 +51,6 @@ extern SDL_Surface * CSDL_Ext::std32bppSurface;
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
-namespace intpr = boost::interprocess;
 void processCommand(const std::string &message, CClient *&client);
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
@@ -115,15 +111,7 @@ int main(int argc, char** argv)
 		cgi->bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
 		tlog0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph,::console,logfile);
-		CGI->generaltexth = VLC->generaltexth;
-		CGI->arth = VLC->arth;
-		CGI->creh = VLC->creh;
-		CGI->townh = VLC->townh;
-		CGI->heroh = VLC->heroh;
-		CGI->objh = VLC->objh;
-		CGI->spellh = VLC->spellh;
-		CGI->dobjinfo = VLC->dobjinfo;
-		CGI->buildh = VLC->buildh;
+		CGI->setFromLib();
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler; 
@@ -134,15 +122,13 @@ int main(int argc, char** argv)
 		abilh->loadAbilities();
 		cgi->abilh = abilh;
 		tlog0<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
+		cgi->pathf = new CPathfinder();
+		tlog0<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
 		tlog0<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		graphics = new Graphics();
+		graphics->loadHeroAnim();
 		tlog0<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
-		std::vector<CDefHandler **> animacje;
-		for(std::vector<CHeroClass *>::iterator i = cgi->heroh->heroClasses.begin();i!=cgi->heroh->heroClasses.end();i++)
-			animacje.push_back(&((*i)->*(&CHeroClass::moveAnim)));
-		graphics->loadHeroAnim(animacje);
-		tlog0<<"\tHero animations: "<<tmh.getDif()<<std::endl;
 		tlog0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
 		CMessage::init();
 		tlog0<<"Message handler: "<<tmh.getDif()<<std::endl;
@@ -152,52 +138,50 @@ int main(int argc, char** argv)
 		cpg->mush = mush;
 
 		StartInfo *options = new StartInfo(cpg->runLoop());
-		tmh.getDif();
-	////////////////////////SERVER STARTING/////////////////////////////////////////////////
-		char portc[10]; SDL_itoa(conf.cc.port,portc,10);
-		intpr::shared_memory_object smo(intpr::open_or_create,"vcmi_memory",intpr::read_write);
-		smo.truncate(sizeof(ServerReady));
-		intpr::mapped_region mr(smo,intpr::read_write);
-		ServerReady *sr = new(mr.get_address())ServerReady();
-		std::string comm = std::string(SERVER_NAME) + " " + portc + " > server_log.txt";
-		boost::thread servthr(boost::bind(system,comm.c_str())); //runs server executable; 	//TODO: will it work on non-windows platforms?
-		tlog0<<"Preparing shared memory and starting server: "<<tmh.getDif()<<std::endl;
-	///////////////////////////////////////////////////////////////////////////////////////
-		tmh.getDif();pomtime.getDif();//reset timers
-		cgi->pathf = new CPathfinder();
-		tlog0<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
-		tlog0<<"Handlers initialization (together): "<<tmh.getDif()<<std::endl;
-		std::ofstream logs("client_log.txt");
 
-		CConnection *c=NULL;
-		//wait until server is ready
-		tlog0<<"Waiting for server... ";
+		CClient cl;
+		if(options->mode == 0) //new game
 		{
-			intpr::scoped_lock<intpr::interprocess_mutex> slock(sr->mutex);
-			while(!sr->ready)
+			tmh.getDif();
+			char portc[10]; 
+			SDL_itoa(conf.cc.port,portc,10);
+			CClient::runServer(portc);
+			tlog0<<"Preparing shared memory and starting server: "<<tmh.getDif()<<std::endl;
+
+			tmh.getDif();pomtime.getDif();//reset timers
+
+			CConnection *c=NULL;
+			//wait until server is ready
+			tlog0<<"Waiting for server... ";
+			CClient::waitForServer();
+			tlog0 << tmh.getDif()<<std::endl;
+			while(!c)
 			{
-				sr->cond.wait(slock);
+				try
+				{
+					tlog0 << "Establishing connection...\n";
+					c = new CConnection(conf.cc.server,portc,NAME);
+				}
+				catch(...)
+				{
+					tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
+					SDL_Delay(2000);
+				}
 			}
+			THC tlog0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
+			cl.newGame(c,options);
+			client = &cl;
+			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
-		intpr::shared_memory_object::remove("vcmi_memory");
-		tlog0 << tmh.getDif()<<std::endl;
-		while(!c)
+		else //load game
 		{
-			try
-			{
-				tlog0 << "Establishing connection...\n";
-				c = new CConnection(conf.cc.server,portc,NAME,logs);
-			}
-			catch(...)
-			{
-				tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
-				SDL_Delay(2000);
-			}
+			std::string fname = options->mapname;
+			boost::algorithm::erase_last(fname,".vlgm1");
+			cl.load(fname);
+			client = &cl;
+			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
-		THC tlog0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
-		CClient cl(c,options);
-		client = &cl;
-		boost::thread t(boost::bind(&CClient::run,&cl));
+
 		SDL_Event ev;
 		while(1) //main SDL events loop
 		{
@@ -274,6 +258,12 @@ void processCommand(const std::string &message, CClient *&client)
 		std::string fname;
 		readed >> fname;
 		client->save(fname);
+	}
+	else if(cn=="load")
+	{
+		std::string fname;
+		readed >> fname;
+		client->load(fname);
 	}
 	else if(message=="get txt")
 	{

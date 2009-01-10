@@ -187,7 +187,6 @@ public:
 	CDefHandler * Dtypes, * Dvic;
 	CDefHandler *Dsizes, * Dloss,
 		* sFlags;
-	std::vector<Mapa*> scenList;
 	std::vector<SDL_Surface*> scenImgs;
 	//int current;
 	std::vector<CMapInfo> ourMaps;
@@ -208,6 +207,9 @@ public:
 	void printSelectedInfo();
 	void printFlags();
 	void processMaps(std::vector<std::string> &pliczkiTemp, int &index);
+	void processGames(std::vector<std::string> &pliczkiTemp, int &index);
+	CMapInfo &selectedMap();
+	std::vector<CMapInfo> &curVector();
 	MapSel();
 	~MapSel();
 };
@@ -241,6 +243,7 @@ public:
 	StartInfo ret;
 	bool run;
 	bool first; //hasn't we showed the scensel
+	bool fromnewgame;
 	std::vector<Slider *> interested;
 	CMusicHandler * mush;
 	std::vector<HighButton *> btns;
@@ -259,7 +262,7 @@ public:
 		ttt fNewGame, fLoadGame, fHighScores, fCredits, fQuit;
 		int highlighted;//0=none; 1=new game; 2=load game; 3=high score; 4=credits; 5=quit
 	} * ourMainMenu, * ourNewMenu, * ourLoadMenu;
-	ScenSel * ourScenSel;
+	ScenSel *ourScenSel;
 	Options * ourOptions;
 	std::string map; //selected map
 	CPreGame(); //c-tor

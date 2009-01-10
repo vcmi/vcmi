@@ -51,7 +51,9 @@ public:
 	~CClient(void);
 
 	void close();
+	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 	void save(const std::string & fname);
+	void load(const std::string & fname);
 	void process(int what);
 	void run();
 	//////////////////////////////////////////////////////////////////////////
@@ -67,6 +69,7 @@ public:
 	void setHoverName(int objid, MetaString * name){};
 	void setObjProperty(int objid, int prop, int val){};
 	void changePrimSkill(int ID, int which, int val, bool abs=false){};
+	void changeSecSkill(int ID, int which, int val, bool abs=false){}; 
 	void showInfoDialog(InfoWindow *iw){};
 	void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback){};
 	void showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback){}; //returns question id
@@ -82,6 +85,10 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
+	
+	
+	static void runServer(const char * portc);
+	static void waitForServer();
 };
 
 #endif // __CLIENT_H__

@@ -404,7 +404,16 @@ void processDef (CGDefInfo* def)
 {
 	if(def->id == 26)
 		return;
-	def->handler=CDefHandler::giveDef(def->name);
+	if(def->name.size())
+	{
+		def->handler = CDefHandler::giveDef(def->name);
+	}
+	else
+	{
+		tlog2 << "No def name for " << def->id << "  " << def->subid << std::endl;
+		def->handler = NULL;
+		return;
+	}
 	def->width = def->handler->ourImages[0].bitmap->w/32;
 	def->height = def->handler->ourImages[0].bitmap->h/32;
 	CGDefInfo* pom = CGI->dobjinfo->gobjs[def->id][def->subid];
@@ -518,7 +527,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	if(extRect) SDL_SetClipRect(su, extRect); //preventing blitting outside of that rect
 
 	if (((dx+x)>((map->width+Woff)) || (dy+y)>((map->height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
-		throw new std::string("terrainRect: out of range");
+		throw std::string("terrainRect: out of range");
 	////printing terrain
 	for (int bx=0; bx<dx; bx++)
 	{
@@ -622,7 +631,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 					if(themp->type==NULL)
 						continue;
-					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
+					std::vector<Cimage> & iv = graphics->heroAnims[themp->type->heroType]->ourImages;
 
                     size_t gg;
 					for(gg=0; gg<iv.size(); ++gg)
@@ -645,7 +654,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 					if(themp->type==NULL)
 						continue;
-					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
+					std::vector<Cimage> & iv = graphics->heroAnims[themp->type->heroType]->ourImages;
 
                     size_t gg;
 					for(gg=0; gg < iv.size(); ++gg)
@@ -785,7 +794,7 @@ SDL_Surface * CMapHandler::terrainRectSmooth(int x, int y, int dx, int dy, int l
 	if(extRect) SDL_SetClipRect(su, extRect); //preventing blitting outside of that rect
 
 	if (((dx+x)>((map->width+Woff)) || (dy+y)>((map->height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
-		throw new std::string("terrainRect: out of range");
+		throw std::string("terrainRect: out of range");
 	////printing terrain
 	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx+1; bx++)
 	{
@@ -889,7 +898,7 @@ SDL_Surface * CMapHandler::terrainRectSmooth(int x, int y, int dx, int dy, int l
 
 					if(themp->type==NULL)
 						continue;
-					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
+					std::vector<Cimage> & iv = graphics->heroAnims[themp->type->heroType]->ourImages;
 
                     size_t gg;
 					for(gg=0; gg<iv.size(); ++gg)
@@ -912,7 +921,7 @@ SDL_Surface * CMapHandler::terrainRectSmooth(int x, int y, int dx, int dy, int l
 
 					if(themp->type==NULL)
 						continue;
-					std::vector<Cimage> & iv = themp->type->heroClass->moveAnim->ourImages;
+					std::vector<Cimage> & iv = graphics->heroAnims[themp->type->heroType]->ourImages;
 
                     size_t gg;
 					for(gg=0; gg < iv.size(); ++gg)
@@ -1328,11 +1337,7 @@ std::string CMapHandler::getDefName(int id, int subid)
 	CGDefInfo* temp = CGI->dobjinfo->gobjs[id][subid];
 	if(temp)
 		return temp->name;
-#ifndef __GNUC__
-	throw new std::exception("Def not found.");
-#else
-	throw new std::exception();
-#endif
+	throw std::string("Def not found.");
 }
 
 bool CMapHandler::printObject(const CGObjectInstance *obj)
@@ -1415,11 +1420,7 @@ unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool 
 		case 8:
 			return 11;
 		default:
-#ifndef __GNUC__
-			throw std::exception("Something very wrong1.");
-#else
-			throw std::exception();
-#endif
+			throw std::string("Something very wrong1.");
 		}
 	}
 	else //if(isMoving)
@@ -1443,11 +1444,7 @@ unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool 
 		case 8:
 			return 14;
 		default:
-#ifndef __GNUC__
-			throw std::exception("Something very wrong2.");
-#else
-			throw std::exception();
-#endif
+			throw std::string("Something very wrong2.");
 		}
 	}
 }
@@ -1547,6 +1544,18 @@ void CMapHandler::updateWater() //shift colors in palettes of water tiles
 		}
 		SDL_SetColors(terrainGraphics[8][j],palette,242,14);
 	}
+}
+
+CMapHandler::~CMapHandler()
+{
+	delete fullHide;
+	delete partialHide;
+}
+
+CMapHandler::CMapHandler()
+{
+	fullHide = NULL;
+	partialHide = NULL;
 }
 
 TerrainTile2::TerrainTile2()

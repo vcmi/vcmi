@@ -237,10 +237,10 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	{
 		secSkillAreas[g]->type = hero->secSkills[g].first;
 		secSkillAreas[g]->bonus = hero->secSkills[g].second;
-		std::string hlp = CGI->abilh->abilities[ hero->secSkills[g].first ]->infoTexts[hero->secSkills[g].second-1];
+		std::string hlp = CGI->generaltexth->skillInfoTexts[ hero->secSkills[g].first ][hero->secSkills[g].second-1];
 		secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
 
-		sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->abilh->levels[hero->secSkills[g].second-1].c_str(), CGI->abilh->abilities[hero->secSkills[g].first]->name.c_str());
+		sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[hero->secSkills[g].second-1].c_str(), CGI->generaltexth->skillName[hero->secSkills[g].first].c_str());
 		secSkillAreas[g]->hoverText = std::string(bufor);
 	}
 
@@ -615,50 +615,50 @@ void CHeroWindow::redrawCurBack()
 	if(curHero->secSkills.size()>=1)
 	{
 		blitAt(CGI->abilh->abils44->ourImages[curHero->secSkills[0].first*3+3+curHero->secSkills[0].second-1].bitmap, 18, 276, curBack);
-		CSDL_Ext::printAt(CGI->abilh->levels[curHero->secSkills[0].second-1], 69, 279, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt(CGI->abilh->abilities[curHero->secSkills[0].first]->name, 69, 299, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[0].second-1], 69, 279, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[0].first], 69, 299, GEOR13, zwykly, curBack);
 	}
 	if(curHero->secSkills.size()>=2)
 	{
 		blitAt(CGI->abilh->abils44->ourImages[curHero->secSkills[1].first*3+3+curHero->secSkills[1].second-1].bitmap, 161, 276, curBack);
-		CSDL_Ext::printAt(CGI->abilh->levels[curHero->secSkills[1].second-1], 213, 279, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt(CGI->abilh->abilities[curHero->secSkills[1].first]->name, 213, 299, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[1].second-1], 213, 279, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[1].first], 213, 299, GEOR13, zwykly, curBack);
 	}
 	if(curHero->secSkills.size()>=3)
 	{
 		blitAt(CGI->abilh->abils44->ourImages[curHero->secSkills[2].first*3+3+curHero->secSkills[2].second-1].bitmap, 18, 324, curBack);
-		CSDL_Ext::printAt(CGI->abilh->levels[curHero->secSkills[2].second-1], 69, 327, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt(CGI->abilh->abilities[curHero->secSkills[2].first]->name, 69, 347, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[2].second-1], 69, 327, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[2].first], 69, 347, GEOR13, zwykly, curBack);
 	}
 	if(curHero->secSkills.size()>=4)
 	{
 		blitAt(CGI->abilh->abils44->ourImages[curHero->secSkills[3].first*3+3+curHero->secSkills[3].second-1].bitmap, 161, 324, curBack);
-		CSDL_Ext::printAt(CGI->abilh->levels[curHero->secSkills[3].second-1], 213, 327, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt(CGI->abilh->abilities[curHero->secSkills[3].first]->name, 213, 347, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[3].second-1], 213, 327, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[3].first], 213, 347, GEOR13, zwykly, curBack);
 	}
 	if(curHero->secSkills.size()>=5)
 	{
 		blitAt(CGI->abilh->abils44->ourImages[curHero->secSkills[4].first*3+3+curHero->secSkills[4].second-1].bitmap, 18, 372, curBack);
-		CSDL_Ext::printAt(CGI->abilh->levels[curHero->secSkills[4].second-1], 69, 375, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt(CGI->abilh->abilities[curHero->secSkills[4].first]->name, 69, 395, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[4].second-1], 69, 375, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[4].first], 69, 395, GEOR13, zwykly, curBack);
 	}
 	if(curHero->secSkills.size()>=6)
 	{
 		blitAt(CGI->abilh->abils44->ourImages[curHero->secSkills[5].first*3+3+curHero->secSkills[5].second-1].bitmap, 161, 372, curBack);
-		CSDL_Ext::printAt(CGI->abilh->levels[curHero->secSkills[5].second-1], 213, 375, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt(CGI->abilh->abilities[curHero->secSkills[5].first]->name, 213, 395, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[5].second-1], 213, 375, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[5].first], 213, 395, GEOR13, zwykly, curBack);
 	}
 	if(curHero->secSkills.size()>=7)
 	{
 		blitAt(CGI->abilh->abils44->ourImages[curHero->secSkills[6].first*3+3+curHero->secSkills[6].second-1].bitmap, 18, 420, curBack);
-		CSDL_Ext::printAt(CGI->abilh->levels[curHero->secSkills[6].second-1], 69, 423, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt(CGI->abilh->abilities[curHero->secSkills[6].first]->name, 69, 443, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[6].second-1], 69, 423, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[6].first], 69, 443, GEOR13, zwykly, curBack);
 	}
 	if(curHero->secSkills.size()>=8)
 	{
 		blitAt(CGI->abilh->abils44->ourImages[curHero->secSkills[7].first*3+3+curHero->secSkills[7].second-1].bitmap, 161, 420, curBack);
-		CSDL_Ext::printAt(CGI->abilh->levels[curHero->secSkills[7].second-1], 213, 423, GEOR13, zwykly, curBack);
-		CSDL_Ext::printAt(CGI->abilh->abilities[curHero->secSkills[7].first]->name, 213, 443, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->levels[curHero->secSkills[7].second-1], 213, 423, GEOR13, zwykly, curBack);
+		CSDL_Ext::printAt(CGI->generaltexth->skillName[curHero->secSkills[7].first], 213, 443, GEOR13, zwykly, curBack);
 	}
 
 	//printing special ability

@@ -20,7 +20,7 @@ class CGeneralTextHandler;
 //class CPathfinder;
 //class CGameState;
 
-class LibClasses
+class DLL_EXPORT LibClasses
 {
 public:
 	CArtHandler * arth;
@@ -33,6 +33,19 @@ public:
 	CTownHandler * townh;
 	CGeneralTextHandler * generaltexth;
 	//CPathfinder * pathf;
+
+	void init(); //uses standard config file
+	void clear(); //deletes all handlers and its data
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		if(!h.saving)
+		{
+			generaltexth = new CGeneralTextHandler;
+			generaltexth->load();
+		}
+		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh;
+	}
 };
 
 extern DLL_EXPORT LibClasses * VLC;

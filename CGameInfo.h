@@ -61,6 +61,9 @@ public:
 	CPathfinder * pathf;
 	CCursorHandler * curh;
 	CScreenHandler * screenh;
+
+	CGameInfo();
+	void setFromLib();
 };
 
 

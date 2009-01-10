@@ -42,6 +42,7 @@ public:
 	virtual void setHoverName(int objid, MetaString * name)=0;
 	virtual void setObjProperty(int objid, int prop, int val)=0;
 	virtual void changePrimSkill(int ID, int which, int val, bool abs=false)=0;
+	virtual void changeSecSkill(int ID, int which, int val, bool abs=false)=0; 
 	virtual void showInfoDialog(InfoWindow *iw)=0;
 	virtual void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
 	virtual void showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback)=0; //returns question id
