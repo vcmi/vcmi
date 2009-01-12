@@ -32,12 +32,14 @@ SharedMem sm;
 
 CClient::CClient(void)
 {
+	IObjectInterface::cb = this;
 	serv = NULL;
 	gs = NULL;
 	cb = NULL;
 }
 CClient::CClient(CConnection *con, StartInfo *si)
 {
+	IObjectInterface::cb = this;
 	newGame(con,si);
 }
 CClient::~CClient(void)
@@ -703,7 +705,6 @@ int CClient::getSelectedHero()
 void CClient::newGame( CConnection *con, StartInfo *si )
 {
 	timeHandler tmh;
-	IObjectInterface::cb = this;
 	CGI->state = new CGameState();
 	tlog0 <<"\tGamestate: "<<tmh.getDif()<<std::endl;
 	serv = con;

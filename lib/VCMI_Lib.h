@@ -39,12 +39,13 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh;
 		if(!h.saving)
 		{
 			generaltexth = new CGeneralTextHandler;
 			generaltexth->load();
+			arth->loadArtifacts(true);
 		}
-		h & heroh & arth & creh & townh & objh & dobjinfo & buildh & spellh;
 	}
 };
 

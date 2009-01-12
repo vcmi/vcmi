@@ -38,11 +38,6 @@ extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 using namespace boost::logic;
 using namespace boost::assign;
 using namespace CSDL_Ext;
-CAdvMapInt::~CAdvMapInt()
-{
-	SDL_FreeSurface(bg);
-	delete heroWindow;
-}
 CMinimap::CMinimap(bool draw)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -106,6 +101,11 @@ CMinimap::CMinimap(bool draw)
 
 	if (draw)
 		redraw();
+}
+CMinimap::~CMinimap()
+{
+	SDL_FreeSurface(radar);
+	SDL_FreeSurface(temps);
 }
 void CMinimap::draw()
 {
@@ -297,7 +297,9 @@ void CMinimap::showTile(const int3 &pos)
 void CMinimap::hideTile(const int3 &pos)
 {
 }
-CTerrainRect::CTerrainRect():currentPath(NULL)
+
+CTerrainRect::CTerrainRect()
+	:currentPath(NULL)
 {
 	tilesw=ADVOPT.tilesW;
 	tilesh=ADVOPT.tilesH;
@@ -311,6 +313,10 @@ CTerrainRect::CTerrainRect():currentPath(NULL)
 	{
 		arrows->ourImages[y].bitmap = CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
 	}
+}
+CTerrainRect::~CTerrainRect()
+{
+	delete arrows;
 }
 void CTerrainRect::activate()
 {
@@ -805,6 +811,7 @@ int3 CTerrainRect::whichTileIsIt()
 {
 	return whichTileIsIt(LOCPLINT->current->motion.x,LOCPLINT->current->motion.y);
 }
+
 void CResDataBar::clickRight (tribool down)
 {
 }
@@ -1109,6 +1116,15 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[1]));
 	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[2]));
 	gems.push_back(CDefHandler::giveDef(ADVOPT.gemG[3]));
+}
+
+CAdvMapInt::~CAdvMapInt()
+{
+	SDL_FreeSurface(bg);
+	delete heroWindow;
+
+	for(int i=0; i<gems.size(); i++)
+		delete gems[i];
 }
 
 void CAdvMapInt::fshowOverview()

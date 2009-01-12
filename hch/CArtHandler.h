@@ -33,7 +33,7 @@ public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector<CArtifact> artifacts;
 
-	void loadArtifacts();
+	void loadArtifacts(bool onlyTxt);
 	void sortArts();
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();

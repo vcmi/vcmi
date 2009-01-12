@@ -12,7 +12,7 @@ CArtHandler::CArtHandler()
 {
 	VLC->arth = this;
 }
-void CArtHandler::loadArtifacts()
+void CArtHandler::loadArtifacts(bool onlyTxt)
 {
 	std::vector<ui16> slots;
 	slots += 17, 16, 15,14,13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
@@ -42,7 +42,8 @@ void CArtHandler::loadArtifacts()
 		nart.aClass = classes[pom[0]];
 		loadToIt(VLC->generaltexth->artifDescriptions[i],buf,it,3);
 		nart.id=i;
-		artifacts.push_back(nart);
+		if(!onlyTxt)
+			artifacts.push_back(nart);
 	}
 	sortArts();
 }

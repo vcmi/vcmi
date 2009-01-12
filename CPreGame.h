@@ -221,7 +221,7 @@ public:
 	//RanSel ransel;
 	MapSel mapsel;
 	SDL_Surface * background, *scenInf, *scenList, *randMap, *options ;
-	Button bScens, bOptions, bRandom, bBegin, bBack;
+	Button bScens, bOptions, bRandom, bBegin, bLoad, bBack;
 	IntSelBut	bEasy, bNormal, bHard, bExpert, bImpossible;
 	Button * pressed;
 	std::vector<Mapa> maps;

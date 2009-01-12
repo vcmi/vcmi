@@ -1088,7 +1088,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		else
 		{
-			fightForRes(1,h);
+			fightForRes(0,h);
 		}
 	}
 	else
@@ -1116,9 +1116,9 @@ void CGResource::collectRes( int player ) const
 	cb->removeObject(id);
 }
 
-void CGResource::fightForRes(ui32 wantToFight, const CGHeroInstance *h) const
+void CGResource::fightForRes(ui32 refusedFight, const CGHeroInstance *h) const
 {
-	if(wantToFight)
+	if(refusedFight)
 		return;
 
 	cb->startBattleI(h->id,army,pos,boost::bind(&CGResource::endBattle,this,_1,h));

@@ -26,6 +26,7 @@ public:
 	std::string statusbarTxt, rcText;
 
 	CMinimap(bool draw=true);
+	~CMinimap();
 	void draw();
 	void redraw(int level=-1);// (level==-1) => redraw all levels
 	void updateRadar();
@@ -49,6 +50,7 @@ public:
 
 	CDefHandler * arrows;
 	CTerrainRect();
+	~CTerrainRect();
 	CPath * currentPath;
 	void activate();
 	void deactivate();

@@ -376,7 +376,11 @@ void CMapHandler::initObjectRects()
 					cr.y = fy<<5; //fy*32
 					std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(map->objects[f],cr);
 					
-					if((map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+					if(    (map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)  >=  0 
+						&& (map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)  <  ttiles.size() - Woff 
+						&& (map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)  >=  0 
+						&& (map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)  <  ttiles[0].size() - Hoff
+					  )
 					{
 						//TerrainTile2 & curt =
 						//	ttiles
@@ -474,14 +478,7 @@ void CMapHandler::init()
 		}
 	}
 
-	//for(int i=0; i<map->defy.size(); i++)
-	//{
-	//	map->defy[i]->serial = i;
-	//	processDef(map->defy[i]);
-	//}
-
 	std::for_each(map->defy.begin(),map->defy.end(),processDef); //load h3m defs
-	//std::for_each(map->defs.begin(),map->defs.end(),processDef); //and non-h3m defs
 	tlog0<<"\tUnpacking and handling defs: "<<th.getDif()<<std::endl;
 
 	for(int i=0;i<PLAYER_LIMIT;i++)
@@ -1550,6 +1547,17 @@ CMapHandler::~CMapHandler()
 {
 	delete fullHide;
 	delete partialHide;
+
+	for(int i=0; i < map->defy.size(); i++)
+		delete map->defy[i];
+
+	for(int i=0; i < roadDefs.size(); i++)
+		delete delete roadDefs[i];
+
+	for(int i=0; i < staticRiverDefs.size(); i++)
+		delete delete staticRiverDefs[i];
+
+	//TODO: delete border graphics
 }
 
 CMapHandler::CMapHandler()

@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "CPreGame.h"
 #include "hch/CDefHandler.h"
+#include <ctime>
 #include <SDL.h>
 #include <boost/filesystem.hpp>   // includes all needed Boost.Filesystem declarations
 #include <boost/algorithm/string.hpp>
@@ -992,7 +993,7 @@ void MapSel::show()
 	//blit bg
 	blitAt(bg,3,6);
 	CSDL_Ext::printAt("Map Sizes",55,60,GEOR13);
-	CSDL_Ext::printAt("Select a Scenario to Play",110,25,TNRB16);
+	CSDL_Ext::printAt(CGI->generaltexth->arraytxt[CPG->fromnewgame ? 229 : 230],110,25,TNRB16); //Select a Scenario to Play : Load a Saved Game
 	//size buttons
 	small.show();
 	medium.show();
@@ -1172,16 +1173,25 @@ void MapSel::init()
 
 	group.join_all();
 	pliczkiTemp.clear();
+	std::vector<std::string> datestemp;
 	tie = fs::path( (fs::initial_path<fs::path>())/"/Games" );
 	for ( fs::directory_iterator dir (tie); dir!=end_iter; ++dir )
 	{
 		if (fs::is_regular_file(dir->status()));
 		{
 			if (boost::ends_with(dir->path().filename(),".vlgm1"))
+			{
 				pliczkiTemp.push_back("Games/"+(dir->path().leaf()));
+				std::time_t time = fs::last_write_time(dir->path());
+				datestemp.push_back(std::asctime(std::gmtime(&time)));
+			}
 		}
 	}
 	processGames(pliczkiTemp,mapInd);
+	for (int i = 0; i < ourGames.size(); i++)
+	{
+		ourGames[i].date = datestemp[i];
+	}
 }
 void MapSel::moveByOne(bool up)
 {
@@ -1374,6 +1384,8 @@ void MapSel::printSelectedInfo()
 	blitAt(Dloss->ourImages[temp].bitmap,420,366); //l
 
 	CSDL_Ext::printAtMiddle(diff,458,477,GEOR13,zwykly);
+
+	CSDL_Ext::printTo(selMap.date,704,40,GEOR13,zwykly);
 	//SDL_Flip(screen);
 	printFlags();
 	CSDL_Ext::update(screen);
@@ -1539,7 +1551,7 @@ void CPreGame::showScenSel()
 	SDL_BlitSurface(ourScenSel->bHard.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bHard.pos);
 	SDL_BlitSurface(ourScenSel->bExpert.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bExpert.pos);
 	SDL_BlitSurface(ourScenSel->bImpossible.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bImpossible.pos);
-	SDL_BlitSurface(ourScenSel->bBegin.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bBegin.pos);
+	SDL_BlitSurface((fromnewgame ? ourScenSel->bBegin : ourScenSel->bLoad).imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bBegin.pos);
 	SDL_BlitSurface(ourScenSel->bBack.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bBack.pos);
 	//blitAt(ourScenSel->bScens.imgs->ourImages[0].bitmap,ourScenSel->bScens.pos.x,ourScenSel->bScens.pos.y);
 	//blitAt(ourScenSel->bRandom.imgs->ourImages[0].bitmap,414,105);
@@ -1563,7 +1575,7 @@ void CPreGame::showScenSel()
 		}
 		else
 			ourScenSel->mapsel.show();
-		btns.push_back(&ourScenSel->bBegin);
+		btns.push_back(&(fromnewgame ? ourScenSel->bBegin : ourScenSel->bLoad));
 		btns.push_back(&ourScenSel->bBack);
 
 		ourScenSel->selectedDiff=1;
@@ -2403,6 +2415,7 @@ ScenSel::ScenSel()
 	bImpossible(genRect(0,0,634,456),NULL,CDefHandler::giveDef("GSPBUT7.DEF"),true,difficulty,4),
 	bBack(genRect(0,0,584,535),boost::bind(&CPreGame::showNewMenu,CPG),CDefHandler::giveDef("SCNRBACK.DEF")),
 	bBegin(genRect(0,0,414,535),boost::bind(&CPreGame::begin,CPG),CDefHandler::giveDef("SCNRBEG.DEF")),
+	bLoad(genRect(0,0,414,535),boost::bind(&CPreGame::begin,CPG),CDefHandler::giveDef("SCNRLOD.DEF")),
 	bScens(genRect(0,0,414,81),boost::bind(&CPreGame::showScenList,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
 	bRandom(genRect(0,0,414,105),boost::bind(&CPreGame::showScenList,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
 	bOptions(genRect(0,0,414,509),boost::bind(&CPreGame::showOptions,CPG),CDefHandler::giveDef("GSPBUTT.DEF"))

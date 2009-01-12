@@ -226,6 +226,7 @@ class DLL_EXPORT CMapInfo : public CMapHeader
 {
 public:
 	std::string filename;
+	std::string date;
 	int playerAmnt, humenPlayers;
 	CMapInfo(){};
 	void countPlayers();
@@ -409,6 +410,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			case 26: //for event objects
 				SERIALIZE(CGEvent);
 				break;
+			case 4: //arena
 			case 51: //Mercenary Camp
 			case 23: //Marletto Tower
 			case 61: // Star Axis

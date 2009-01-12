@@ -464,7 +464,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void collectRes(int player) const;
 	void initObj();
-	void fightForRes(ui32 wantToFight, const CGHeroInstance *h) const;
+	void fightForRes(ui32 refusedFight, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

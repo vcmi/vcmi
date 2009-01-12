@@ -1512,6 +1512,7 @@ void CGameHandler::moveStack(int stack, int dest)
 CGameHandler::CGameHandler(void)
 {
 	gs = NULL;
+	IObjectInterface::cb = this;
 }
 
 CGameHandler::~CGameHandler(void)
@@ -1520,7 +1521,6 @@ CGameHandler::~CGameHandler(void)
 }
 void CGameHandler::init(StartInfo *si, int Seed)
 {
-	IObjectInterface::cb = this;
 	Mapa *map = new Mapa(si->mapname);
 	tlog0 << "Map loaded!" << std::endl;
 	gs = new CGameState();

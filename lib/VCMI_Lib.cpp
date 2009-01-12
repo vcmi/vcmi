@@ -158,7 +158,7 @@ void LibClasses::init()
 	tlog0 <<"\tHero handler: "<<pomtime.getDif()<<std::endl;
 
 	arth = new CArtHandler;
-	arth->loadArtifacts();
+	arth->loadArtifacts(false);
 	tlog0<<"\tArtifact handler: "<<pomtime.getDif()<<std::endl;
 
 	creh = new CCreatureHandler();
