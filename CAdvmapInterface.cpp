@@ -435,6 +435,47 @@ endchkpt:
 }
 void CTerrainRect::clickRight(tribool down)
 {
+	int3 mp = whichTileIsIt();
+	if ((mp.x<0) 
+		|| (mp.y<0) 
+		|| down != true
+	  )
+	{
+		LOCPLINT->adventureInt->handleRightClick("",down,this);
+		return;
+	}
+
+	std::vector < const CGObjectInstance * > objs = LOCPLINT->cb->getBlockingObjs(mp);
+	if(!objs.size())
+		return;
+
+	const CGObjectInstance * obj = objs[objs.size()-1];
+	switch(obj->ID)
+	{
+	case 34:
+		{
+			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[obj->subID],
+				LOCPLINT->current->motion.x-graphics->heroWins[obj->subID]->w,
+				LOCPLINT->current->motion.y-graphics->heroWins[obj->subID]->h,false
+				);
+			ip->activate();
+			break;
+		}
+	case 98:
+		{
+			CInfoPopup * ip = new CInfoPopup(graphics->townWins[obj->id],
+				LOCPLINT->current->motion.x-graphics->townWins[obj->id]->w,
+				LOCPLINT->current->motion.y-graphics->townWins[obj->id]->h,false
+				);
+			ip->activate();
+			break;
+		}
+	default:
+		{
+			LOCPLINT->adventureInt->handleRightClick(obj->getHoverText(),down,this);
+			break;
+		}
+	}
 }
 void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {

@@ -10,6 +10,7 @@ ADVENTURE INTERFACE:
 * smooth map scrolling on hero movement
 * added water animation
 * speed of scrolling map and hero movement can be adjusted in the System Options Window
+* partial handling r-clicks on adventure map
 
 TOWN INTERFACE:
 * the scroll tab won't remain hanged to our mouse position if we move the mouse away from the scroll bar

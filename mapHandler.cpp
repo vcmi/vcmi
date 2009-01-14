@@ -1552,10 +1552,10 @@ CMapHandler::~CMapHandler()
 		delete map->defy[i];
 
 	for(int i=0; i < roadDefs.size(); i++)
-		delete delete roadDefs[i];
+		delete roadDefs[i];
 
 	for(int i=0; i < staticRiverDefs.size(); i++)
-		delete delete staticRiverDefs[i];
+		delete staticRiverDefs[i];
 
 	//TODO: delete border graphics
 }
