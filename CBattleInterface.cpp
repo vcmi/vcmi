@@ -8,6 +8,7 @@
 #include "hch/CHeroHandler.h"
 #include "hch/CDefHandler.h"
 #include "hch/CSpellHandler.h"
+#include "CMessage.h"
 #include "CCursorHandler.h"
 #include "CCallback.h"
 #include "CGameState.h"
@@ -564,7 +565,12 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		resWindow->show(to);
 	}
+
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
+
+	//printing border around interface
+	if(screen->w != 800 || screen->h !=600)
+		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 }
 void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 {
