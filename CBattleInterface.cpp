@@ -385,6 +385,8 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 
+	
+	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
 	//showing menu background and console
 	blitAt(menu, pos.x, 556 + pos.y, to);
@@ -400,6 +402,10 @@ void CBattleInterface::show(SDL_Surface * to)
 	bDefence->show(to);
 	bConsoleUp->show(to);
 	bConsoleDown->show(to);
+
+	
+	SDL_GetClipRect(to, &buf);
+	SDL_SetClipRect(to, &pos);
 
 	//showing hero animations
 	if(attackingHero)
@@ -1418,6 +1424,26 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 void CBattleInterface::spellCasted(SpellCasted * sc)
 {
 	std::vector< std::string > anims; //for magic arrow and ice bolt
+
+#define DISPLAY2(SP_ID) \
+			if(sc->skill < 3) \
+			{ \
+				displayEffect(SP_ID, sc->tile); \
+			} \
+			else \
+			{ \
+				std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks(); \
+				for(std::map<int, CStack>::iterator it = stacks.begin(); it!=stacks.end(); ++it) \
+				{ \
+					if((CGI->spellh->spells[sc->id].positiveness >= 0 && it->second.owner == LOCPLINT->playerID) \
+						||(CGI->spellh->spells[sc->id].positiveness <= 0 && it->second.owner != LOCPLINT->playerID ) \
+						) \
+					{ \
+						displayEffect(SP_ID, it->second.position); \
+					} \
+				} \
+			}  
+
 	switch(sc->id)
 	{
 	case 15: //magic arrow
@@ -1492,65 +1518,68 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 		}
 	case 27: //shield
 		{
-			displayEffect(27, sc->tile);
+			DISPLAY2(27);
 			break;
 		}
 	case 28: //air shield
 		{
-			displayEffect(2, sc->tile);
+			DISPLAY2(2);
 			break;
 		}
 	case 41: //bless
 		{
-			displayEffect(36, sc->tile);
+			DISPLAY2(36);
 			break;
 		}
 	case 42: //curse
 		{
-			displayEffect(40, sc->tile);
+			DISPLAY2(40);
 			break;
 		}
 	case 43: //bloodlust
 		{
-			displayEffect(4, sc->tile); //TODO: give better animation for this spell
+			DISPLAY2(4);
+			//TODO: give better animation for this spell
 			break;
 		}
 	case 45: //weakness
 		{
-			displayEffect(56, sc->tile); //TODO: give better animation for this spell
+			DISPLAY2(56);
+			//TODO: give better animation for this spell
 			break;
 		}
 	case 46: //stone skin
 		{
-			displayEffect(54, sc->tile);
+			DISPLAY2(54);
 			break;
 		}
 	case 48: //prayer
 		{
-			displayEffect(0, sc->tile);
+			DISPLAY2(0);
 			break;
 		}
 	case 53: //haste
 		{
-			displayEffect(31, sc->tile);
+			DISPLAY2(31);
 			break;
 		}
 	case 54: //slow
 		{
-			displayEffect(19, sc->tile);
+			DISPLAY2(19);
 			break;
 		}
 	case 56: //frenzy
 		{
-			displayEffect(17, sc->tile);
+			DISPLAY2(17);
 			break;
 		}
 	case 61: //forgetfulness
 		{
-			displayEffect(42, sc->tile);
+			DISPLAY2(42);
 			break;
 		}
 	}
+#undef DISPLAY2
 }
 
 void CBattleInterface::castThisSpell(int spellID)
