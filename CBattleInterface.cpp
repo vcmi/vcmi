@@ -616,7 +616,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
 					{
 						int fromHex = previouslyHoveredHex;
-						if(fromHex!=-1 && fromHex%17!=0 && fromHex%17!=16 && vstd::contains(shadedHexes, fromHex))
+						if(fromHex!=-1 && fromHex%BFIELD_WIDTH!=0 && fromHex%BFIELD_WIDTH!=(BFIELD_WIDTH-1) && vstd::contains(shadedHexes, fromHex))
 						{
 							switch(BattleInfo::mutualPosition(fromHex, myNumber))
 							{
@@ -1311,19 +1311,19 @@ void CBattleInterface::hexLclicked(int whichOne)
 				switch(CGI->curh->number)
 				{
 				case 12:
-					giveCommand(6,whichOne + ( (whichOne/17)%2 ? 17 : 18 ),activeStack,whichOne);
+					giveCommand(6,whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 ),activeStack,whichOne);
 					break;
 				case 7:
-					giveCommand(6,whichOne + ( (whichOne/17)%2 ? 16 : 17 ),activeStack,whichOne);
+					giveCommand(6,whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH-1 : BFIELD_WIDTH ),activeStack,whichOne);
 					break;
 				case 8:
 					giveCommand(6,whichOne - 1,activeStack,whichOne);
 					break;
 				case 9:
-					giveCommand(6,whichOne - ( (whichOne/17)%2 ? 18 : 17 ),activeStack,whichOne);
+					giveCommand(6,whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH ),activeStack,whichOne);
 					break;
 				case 10:
-					giveCommand(6,whichOne - ( (whichOne/17)%2 ? 17 : 16 ),activeStack,whichOne);
+					giveCommand(6,whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 ),activeStack,whichOne);
 					break;
 				case 11:
 					giveCommand(6,whichOne + 1,activeStack,whichOne);
@@ -1345,12 +1345,13 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	float projectileAngle; //in radians; if positive, projectiles goes up
 	float straightAngle = 0.2f; //maximal angle in radians between straight horizontal line and shooting line for which shot is considered to be straight (absoulte value)
 	int fromHex = LOCPLINT->cb->battleGetPos(ID);
-	projectileAngle = atan2(float(abs(dest - fromHex)/17), float(abs(dest - fromHex)%17));
+	projectileAngle = atan2(float(abs(dest - fromHex)/BFIELD_WIDTH), float(abs(dest - fromHex)%BFIELD_WIDTH));
 	if(fromHex < dest)
 		projectileAngle = -projectileAngle;
 
 	SProjectileInfo spi;
 	spi.creID = LOCPLINT->cb->battleGetStackByID(ID)->creature->idNumber;
+	spi.reverse = !LOCPLINT->cb->battleGetStackByID(ID)->attackerOwned;
 
 	spi.step = 0;
 	spi.frameNum = 0;
@@ -1424,25 +1425,6 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 void CBattleInterface::spellCasted(SpellCasted * sc)
 {
 	std::vector< std::string > anims; //for magic arrow and ice bolt
-
-#define DISPLAY2(SP_ID) \
-			if(sc->skill < 3) \
-			{ \
-				displayEffect(SP_ID, sc->tile); \
-			} \
-			else \
-			{ \
-				std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks(); \
-				for(std::map<int, CStack>::iterator it = stacks.begin(); it!=stacks.end(); ++it) \
-				{ \
-					if((CGI->spellh->spells[sc->id].positiveness >= 0 && it->second.owner == LOCPLINT->playerID) \
-						||(CGI->spellh->spells[sc->id].positiveness <= 0 && it->second.owner != LOCPLINT->playerID ) \
-						) \
-					{ \
-						displayEffect(SP_ID, it->second.position); \
-					} \
-				} \
-			}  
 
 	switch(sc->id)
 	{
@@ -1518,68 +1500,67 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 		}
 	case 27: //shield
 		{
-			DISPLAY2(27);
+			displayEffect(27, sc->tile);
 			break;
 		}
 	case 28: //air shield
 		{
-			DISPLAY2(2);
+			displayEffect(2, sc->tile);
 			break;
 		}
 	case 41: //bless
 		{
-			DISPLAY2(36);
+			displayEffect(36, sc->tile);
 			break;
 		}
 	case 42: //curse
 		{
-			DISPLAY2(40);
+			displayEffect(40, sc->tile);
 			break;
 		}
 	case 43: //bloodlust
 		{
-			DISPLAY2(4);
+			displayEffect(4, sc->tile);
 			//TODO: give better animation for this spell
 			break;
 		}
 	case 45: //weakness
 		{
-			DISPLAY2(56);
+			displayEffect(56, sc->tile);
 			//TODO: give better animation for this spell
 			break;
 		}
 	case 46: //stone skin
 		{
-			DISPLAY2(54);
+			displayEffect(54, sc->tile);
 			break;
 		}
 	case 48: //prayer
 		{
-			DISPLAY2(0);
+			displayEffect(0, sc->tile);
 			break;
 		}
 	case 53: //haste
 		{
-			DISPLAY2(31);
+			displayEffect(31, sc->tile);
 			break;
 		}
 	case 54: //slow
 		{
-			DISPLAY2(19);
+			displayEffect(19, sc->tile);
 			break;
 		}
 	case 56: //frenzy
 		{
-			DISPLAY2(17);
+			displayEffect(17, sc->tile);
 			break;
 		}
 	case 61: //forgetfulness
 		{
-			DISPLAY2(42);
+			displayEffect(42, sc->tile);
 			break;
 		}
 	}
-#undef DISPLAY2
 }
 
 void CBattleInterface::castThisSpell(int spellID)
@@ -1633,7 +1614,19 @@ void CBattleInterface::castThisSpell(int spellID)
 			spellSelMode = -1;
 		}
 	}
-	CGI->curh->changeGraphic(3, 0); 
+	if(spellSelMode == -1) //user does not have to select location
+	{
+		spellToCast->destinationTile = -1;
+		LOCPLINT->cb->battleMakeAction(spellToCast);
+		delete spellToCast;
+		spellToCast = NULL;
+		spellDestSelectMode = false;
+		CGI->curh->changeGraphic(1, 6);
+	}
+	else
+	{
+		CGI->curh->changeGraphic(3, 0); 
+	}
 }
 
 void CBattleInterface::displayEffect(ui32 effect, int destTile)
@@ -1897,8 +1890,8 @@ void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
 	{
 		for(size_t m=0; m<shadedHexes.size(); ++m) //rows
 		{
-			int i = shadedHexes[m]/17; //row
-			int j = shadedHexes[m]%17-1; //column
+			int i = shadedHexes[m]/BFIELD_WIDTH; //row
+			int j = shadedHexes[m]%BFIELD_WIDTH-1; //column
 			int x = 58 + (i%2==0 ? 22 : 0) + 44*j;
 			int y = 86 + 42 * i;
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, backgroundWithHexes, &genRect(cellShade->h, cellShade->w, x, y));
@@ -1946,7 +1939,16 @@ void CBattleInterface::projectileShowHelper(SDL_Surface * to)
 		dst.w = idToProjectile[it->creID]->ourImages[it->frameNum].bitmap->w;
 		dst.x = it->x;
 		dst.y = it->y;
-		CSDL_Ext::blit8bppAlphaTo24bpp(idToProjectile[it->creID]->ourImages[it->frameNum].bitmap, NULL, to, &dst);
+		if(it->reverse)
+		{
+			SDL_Surface * rev = CSDL_Ext::rotate01(idToProjectile[it->creID]->ourImages[it->frameNum].bitmap);
+			CSDL_Ext::blit8bppAlphaTo24bpp(rev, NULL, to, &dst);
+			SDL_FreeSurface(rev);
+		}
+		else
+		{
+			CSDL_Ext::blit8bppAlphaTo24bpp(idToProjectile[it->creID]->ourImages[it->frameNum].bitmap, NULL, to, &dst);
+		}
 		//actualizing projectile
 		++it->step;
 		if(it->step == it->lastStep)

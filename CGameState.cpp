@@ -343,7 +343,7 @@ ui32 CStack::speed() const
 	//slow effect check
 	effect = getEffect(54);
 	if(effect)
-		premy -= VLC->spellh->spells[effect->id].powers[effect->level];
+		premy -= (creature->speed * VLC->spellh->spells[effect->id].powers[effect->level])/100;
 	//prayer effect check
 	effect = getEffect(48);
 	if(effect)

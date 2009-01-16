@@ -541,7 +541,7 @@ void CClient::process(int what)
 			*serv >> sse;
 			gs->apply(&sse);
 			SpellCasted sc;
-			sc.id = sse.stack;
+			sc.id = sse.effect.id;
 			sc.side = 3; //doesn't matter
 			sc.skill = sse.effect.level;
 			sc.tile = gs->curB->getStack(sse.stack)->position;
