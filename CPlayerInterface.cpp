@@ -2880,7 +2880,7 @@ int CCreaturePic::blitPic(SDL_Surface *to, int x, int y, bool nextFrame)
 	}
 	if(c->isDoubleWide())
 		x-=15;
-	return anim->nextFrameMiddle(to,x+70,y+45,true,nextFrame,false,&dst);
+	return anim->nextFrameMiddle(to,x+78,y+(big ? 55 : 45),true,nextFrame,false,&dst);
 }
 SDL_Surface * CCreaturePic::getPic(bool nextFrame)
 {
@@ -2937,10 +2937,29 @@ void CRecrutationWindow::clickLeft(tribool down)
 		curx += 120;
 	}
 }
+void CRecrutationWindow::clickRight( boost::logic::tribool down )
+{
+	if(down)
+	{
+		int curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+		for(int i=0;i<creatures.size();i++)
+		{
+			if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+			{
+				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID,0,0,NULL,NULL,NULL,NULL);
+				popup->activate();
+				break;
+			}
+			curx += 120;
+		}
+	}
+}
+
 void CRecrutationWindow::activate()
 {
 	LOCPLINT->objsToBlit.push_back(this);
 	ClickableL::activate();
+	ClickableR::activate();
 	buy->activate();
 	max->activate();
 	cancel->activate();
@@ -2950,6 +2969,7 @@ void CRecrutationWindow::deactivate()
 {
 	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	ClickableL::deactivate();
+	ClickableR::deactivate();
 	buy->deactivate();
 	max->deactivate();
 	cancel->deactivate();
@@ -3189,10 +3209,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 		count = pom;
 	}
 
-	printAtMiddle(c->namePl,149,30,GEOR13,zwykly,bitmap); //creature name
+	printAtMiddle(c->namePl,149,30,GEOR13,tytulowy,bitmap); //creature name
 
 	//atttack
-	printAt(CGI->generaltexth->zelp[435].first,155,48,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->primarySkillNames[0],155,48,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->attack,pom,10);
 	if(State && State->attackBonus)
 	{
@@ -3209,7 +3229,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	printToWR(pom,276,61,GEOR13,zwykly,bitmap);
 
 	//defense
-	printAt(CGI->generaltexth->zelp[436].first,155,67,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->primarySkillNames[1],155,67,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->defence,pom,10);
 	if(State && State->defenseBonus)
 	{
@@ -3248,14 +3268,14 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	printToWR(pom,276,118,GEOR13,zwykly,bitmap);
 
 	//health
-	printAt(CGI->generaltexth->zelp[439].first,155,124,GEOR13,zwykly,bitmap);
+	printAt(CGI->generaltexth->allTexts[388],155,124,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->hitPoints,pom,10);
 	printToWR(pom,276,137,GEOR13,zwykly,bitmap);
 
 	//remaining health
 	if(State && State->currentHealth)
 	{
-		printAt(CGI->generaltexth->zelp[440].first,155,143,GEOR13,zwykly,bitmap);
+		printAt(CGI->generaltexth->allTexts[200],155,143,GEOR13,zwykly,bitmap);
 		SDL_itoa(State->currentHealth,pom,10);
 		printToWR(pom,276,156,GEOR13,zwykly,bitmap);
 	}
@@ -3371,7 +3391,7 @@ void CCreInfoWindow::close()
 	else
 	{
 		CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
-		if(c)
+		if(c && !c->subInt)
 			c->showAll();
 		if(type)
 			LOCPLINT->curint->activate();
@@ -3398,7 +3418,7 @@ void CCreInfoWindow::deactivate()
 	active = false;
 	if(!type)
 		ClickableR::deactivate();
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+	LOCPLINT->objsToBlit -= static_cast<IShowable*>(this);
 	if(ok)
 		ok->deactivate();
 	if(dismiss)

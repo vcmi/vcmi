@@ -509,7 +509,7 @@ public:
 	SDL_Surface * getPic(bool nextFrame);
 };
 
-class CRecrutationWindow : public IShowable, public ClickableL
+class CRecrutationWindow : public IShowable, public ClickableL, public ClickableR
 {
 public:
 	struct creinfo
@@ -533,6 +533,7 @@ public:
 	void Cancel();
 	void sliderMoved(int to);
 	void clickLeft(boost::logic::tribool down);
+	void clickRight(boost::logic::tribool down);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);

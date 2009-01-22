@@ -142,7 +142,7 @@ void CBuildingRect::clickRight (tribool down)
 		vinya->free = true;
 		vinya->bitmap = CMessage::drawBoxTextBitmapSub
 			(LOCPLINT->playerID,
-			CGI->buildh->buildings[str->townID][str->ID]->description,
+			CGI->buildh->buildings[str->townID][str->ID]->Description(),
 			LOCPLINT->castleInt->bicons->ourImages[str->ID].bitmap,
 			CGI->buildh->buildings[str->townID][str->ID]->Name());
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
@@ -1467,12 +1467,18 @@ void CFortScreen::RecArea::clickLeft (tribool down)
 void CFortScreen::RecArea::activate()
 {
 	ClickableL::activate();
+	ClickableR::activate();
 }
 void CFortScreen::RecArea::deactivate()
 {
 	ClickableL::deactivate();
+	ClickableR::deactivate();
 }
 
+void CFortScreen::RecArea::clickRight( tribool down )
+{
+	clickLeft(down);; //r-click does same as l-click - opens recr. window
+}
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 {
 	pos = owner->pos;

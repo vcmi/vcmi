@@ -1,10 +1,12 @@
-0.64 -> 0.next (???)  [as for r679]
+0.64 -> 0.next (???)  [as for r681]
 GENERAL:
 * move some settings to the config/settings.txt file
 * partial support for new screen resolutions
 * /Data and /Sprites subfolders can be used for adding files not present in .lod archives 
 * fixed crashbug occuring when hero levelled above 15 level
 * support for non-standard screen resolutions
+* F4 toggles between full-screen and windowed mode (experimental)
+* minor improvements in creature card window
 
 ADVENTURE INTERFACE:
 * smooth map scrolling on hero movement

@@ -153,12 +153,13 @@ public:
 
 class CFortScreen : public CMainInterface, public CIntObject
 {
-	class RecArea : public ClickableL
+	class RecArea : public ClickableL, public ClickableR
 	{
 	public:
 		int bid;
 		RecArea(int BID):bid(BID){};
 		void clickLeft (tribool down);
+		void clickRight (tribool down);
 		void activate();
 		void deactivate();
 	};
