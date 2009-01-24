@@ -835,22 +835,23 @@ int MapSel::countWL()
 }
 void MapSel::printMaps(int from, int to, int at, bool abs)
 {
-	if (true)//
+	if(slid->positionsAmnt < slid->capacity)
+		from = 0;
+	int help=-1;
+	for (size_t i=0; i < curVector().size(); ++i)
 	{
-		int help=-1;
-		for (size_t i=0; i < curVector().size(); ++i)
+		if (sizeFilter && ((curVector()[i].width) != sizeFilter)) 
 		{
-			if (sizeFilter && ((curVector()[i].width) != sizeFilter)) {
-				continue;
-                        }
-			else {
-                            help++;
-                        }
-			if (help==from)
-			{
-				from=i;
-				break;
-			}
+			continue;
+		}
+		else 
+		{
+			help++;
+		}
+		if (help==from)
+		{
+			from=i;
+			break;
 		}
 	}
 	SDL_Surface * scenin = CSDL_Ext::newSurface(351,25);

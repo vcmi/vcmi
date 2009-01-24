@@ -1,0 +1,29 @@
+VCMI PROJECT CODE CONTRIBUTORS:
+
+Micha³ Urbañczyk aka Tow,        <impono@gmail.com>
+   * project originator; programming, making releases, website
+maintenance, reverse engineering, general support.
+
+Tow dragon,                <matcio1@gmail.com>
+   * general suport, battle support, support for many Heroes 3 config files
+
+Stefan Pavlov aka Ste,            <mailste@gmail.com>
+   * minor fixes in pregame
+
+Yifeng Sun aka phoebus118,        <pkusunyifeng@gmail.com>
+   * a part of .snd handling, minor fixes and updates
+
+Andrea Palmate aka afxgroup,        <andrea@amigasoft.net>
+   * GCC/AmigaOS4 compatibility updates and makefile
+
+Vadim Glazunov aka neweagle,        <neweagle@gmail.com>
+   * minor GCC/Linux compatibility changes
+
+Rafal R. aka ambtrip,            <ambtrip@wp.pl>
+   * GeniusAI (battles)
+
+Lukasz Wychrystenko aka tezeriusz,    <t0@czlug.icis.pcz.pl>
+   * minor GCC/Linux compatibility changes, code review
+
+Xiaomin Ding                <dingding303@gmail.com>
+   * smack videos player

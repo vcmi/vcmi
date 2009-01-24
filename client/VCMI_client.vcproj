@@ -327,10 +327,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CLuaHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\CMessage.cpp"
 				>
 			</File>
@@ -469,10 +465,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CLuaHandler.h"
-				>
-			</File>
-			<File
 				RelativePath="..\CMessage.h"
 				>
 			</File>
@@ -555,6 +547,10 @@
 		</Filter>
 		<File
 			RelativePath="..\ChangeLog"
+			>
+		</File>
+		<File
+			RelativePath="C:\Documents and Settings\Micha³\Moje dokumenty\net.txt"
 			>
 		</File>
 	</Files>
