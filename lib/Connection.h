@@ -22,6 +22,9 @@ class CConnection;
 
 namespace mpl = boost::mpl;
 
+template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];  
+#define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
+
 namespace boost
 {
 	namespace asio
@@ -47,6 +50,7 @@ enum SerializationLvl
 {
 	Wrong=0,
 	Primitive,
+	Array,
 	Pointer,
 	Serializable
 };
@@ -92,6 +96,22 @@ struct LoadPointer
 	}
 };
 template<typename Ser,typename T>
+struct SaveArray
+{
+	static void invoke(Ser &s, const T &data)
+	{
+		s.saveArray(data);
+	}
+};
+template<typename Ser,typename T>
+struct LoadArray
+{
+	static void invoke(Ser &s, T &data)
+	{
+		s.loadArray(data);
+	}
+};
+template<typename Ser,typename T>
 struct LoadSerializable
 {
 	static void invoke(Ser &s, T &data)
@@ -105,7 +125,7 @@ struct SaveWrong
 {
 	static void invoke(Ser &s, const T &data)
 	{
-		throw std::exception("Wrong save serialization call!");
+		throw std::string("Wrong save serialization call!");
 	}
 };
 template<typename Ser,typename T>
@@ -113,7 +133,7 @@ struct LoadWrong
 {
 	static void invoke(Ser &s, const T &data)
 	{
-		throw std::exception("Wrong load serialization call!");
+		throw std::string("Wrong load serialization call!");
 	}
 };
 
@@ -132,7 +152,7 @@ struct SerializationLevel
 		//else
 		typename mpl::eval_if<
 			boost::is_array<T>,
-			mpl::int_<Primitive>,
+			mpl::int_<Array>,
 		//else
 		typename mpl::eval_if<
 			boost::is_pointer<T>,
@@ -191,6 +211,13 @@ public:
 			*this << *data;
 	}
 	template <typename T>
+	void saveArray(const T &data)
+	{
+		ui32 size = ARRAY_COUNT(data);
+		for(ui32 i=0; i < size; i++)
+			*this << data[i];
+	}
+	template <typename T>
 	void save(const T &data)
 	{
 		typedef 
@@ -201,10 +228,14 @@ public:
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
 			mpl::identity<SavePointer<Serializer,T> >,
 			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Array> >,
+			mpl::identity<SaveArray<Serializer,T> >,
+			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
 			mpl::identity<SaveSerializable<Serializer,T> >,
 			//else
 			mpl::identity<SaveWrong<Serializer,T> >
+			>
 			>
 			>
 			>::type typex;
@@ -285,10 +316,14 @@ public:
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Pointer> >,
 			mpl::identity<LoadPointer<Serializer,T> >,
 			//else if
+			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Array> >,
+			mpl::identity<LoadArray<Serializer,T> >,
+			//else if
 			typename mpl::eval_if<mpl::equal_to<SerializationLevel<T>,mpl::int_<Serializable> >,
 			mpl::identity<LoadSerializable<Serializer,T> >,
 			//else
 			mpl::identity<LoadWrong<Serializer,T> >
+			>
 			>
 			>
 			>::type typex;
@@ -304,6 +339,13 @@ public:
 	{
 		data.serialize(*this,version);
 	}	
+	template <typename T>
+	void loadArray(T &data)
+	{
+		ui32 size = ARRAY_COUNT(data);
+		for(ui32 i=0; i < size; i++)
+			*this >> data[i];
+	}
 	template <typename T>
 	void loadPointer(T &data)
 	{

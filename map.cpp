@@ -775,7 +775,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 		CCastleEvent nce;
 		nce.name = readString(bufor,i);
 		nce.message = readString(bufor,i);
-
+		nce.resources.resize(RESOURCE_QUANTITY);
 		for(int x=0; x < 7; x++)
 		{
 			nce.resources[x] = readNormalNr(bufor,i); 

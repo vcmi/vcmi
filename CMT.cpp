@@ -199,8 +199,12 @@ int main(int argc, char** argv)
 			else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
 			{
 				LOCPLINT->pim->lock();
-				screen = SDL_SetVideoMode(screen->w,screen->h,screen->format->BitsPerPixel,
-					SDL_SWSURFACE|SDL_DOUBLEBUF|((screen->flags&SDL_FULLSCREEN) ? 0 : SDL_FULLSCREEN));
+				bool full = !(screen->flags&SDL_FULLSCREEN);
+				SDL_QuitSubSystem(SDL_INIT_VIDEO);
+				SDL_InitSubSystem(SDL_INIT_VIDEO);
+				screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(full?SDL_FULLSCREEN:0));  //initializing important global surface
+				SDL_WM_SetCaption(NAME.c_str(),""); //set window title
+				SDL_ShowCursor(SDL_DISABLE);
 				LOCPLINT->curint->show();
 				if(LOCPLINT->curint != LOCPLINT->adventureInt)
 					LOCPLINT->adventureInt->show();

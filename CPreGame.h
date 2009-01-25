@@ -27,9 +27,10 @@ struct HighButton
 	SDL_Rect pos;
 	CDefHandler* imgs;
 	int state;
+	bool freeimgs;
 	HighButton( SDL_Rect Pos, CDefHandler* Imgs, bool Sel=false, int id=-1);
 	HighButton();
-	~HighButton();
+	virtual ~HighButton();
 	bool selectable, selected;
 	bool highlightable, highlighted;
 	virtual void show();

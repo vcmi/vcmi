@@ -48,14 +48,39 @@ HighButton::HighButton( SDL_Rect Pos, CDefHandler* Imgs, bool Sel, int id)
 	pos=Pos;
 	ID=id;
 	highlightable=false;
+	freeimgs = false;
 };
 HighButton::HighButton()
 {
+	freeimgs = true;
 	state=0;
+}
+HighButton::~HighButton()
+{
+	if(freeimgs)
+		delete imgs;
 }
 void HighButton::show()
 {
 	blitAt(imgs->ourImages[state].bitmap,pos.x,pos.y);
+	updateRect(&pos);
+}
+
+void HighButton::hover(bool on)
+{
+	if (!highlightable) return;
+	int i;
+	if (on)
+	{
+		state=i=3;
+		highlighted=true;
+	}
+	else
+	{
+		state=i=0;
+		highlighted=false;
+	}
+	SDL_BlitSurface(imgs->ourImages[i].bitmap,NULL,screen,&pos);
 	updateRect(&pos);
 }
 
@@ -92,28 +117,6 @@ void SetrButton::press(bool down)
 		*poin=key;
 #endif
 	HighButton::press(down);
-}
-void HighButton::hover(bool on)
-{
-	if (!highlightable) return;
-	int i;
-	if (on)
-	{
-		state=i=3;
-		highlighted=true;
-	}
-	else
-	{
-		state=i=0;
-		highlighted=false;
-	}
-	SDL_BlitSurface(imgs->ourImages[i].bitmap,NULL,screen,&pos);
-	updateRect(&pos);
-}
-
-HighButton::~HighButton()
-{
-	delete imgs;
 }
 void Button::hover(bool on)
 {
@@ -835,6 +838,7 @@ int MapSel::countWL()
 }
 void MapSel::printMaps(int from, int to, int at, bool abs)
 {
+	if (!slid->positionsAmnt) return; //no maps to print
 	if(slid->positionsAmnt < slid->capacity)
 		from = 0;
 	int help=-1;
@@ -1182,6 +1186,11 @@ void MapSel::init()
 		{
 			if (boost::ends_with(dir->path().filename(),".vlgm1"))
 			{
+				if( fs::file_size(dir->path()) < 16000 )
+				{
+					tlog3 << "Savegame " << dir->path() << " seems to be corrupted and will be ommited.\n";
+					continue;
+				}
 				pliczkiTemp.push_back("Games/"+(dir->path().leaf()));
 				std::time_t time = fs::last_write_time(dir->path());
 				datestemp.push_back(std::asctime(std::gmtime(&time)));
@@ -1219,6 +1228,7 @@ void MapSel::moveByOne(bool up)
 }
 void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 {
+	if(!curVector().size()) return;
 	if(which < 0)
 		return;
 	bool dontSaveSettings = ((selected!=which) || (CPG->ret.playerInfos.size()==0) || forceSettingsUpdate);

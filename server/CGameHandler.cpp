@@ -1702,21 +1702,7 @@ customactionend:
 			}
 		}
 	}
-	catch (const std::exception& e)
-	{
-		tlog1 << "Exception during handling connection: " << e.what() << std::endl;
-		end2 = true;
-	}
-	catch (const std::exception * e)
-	{
-		tlog1 << "Exception during handling connection: " << e->what()<< std::endl;	
-		end2 = true;
-		delete e;
-	}
-	catch(...)
-	{
-		end2 = true;
-	}
+	HANDLE_EXCEPTION(end2 = true);
 handleConEnd:
 	tlog1 << "Ended handling connection\n";
 }
@@ -1948,6 +1934,10 @@ void CGameHandler::run(bool resume)
 
 	while (!end2)
 	{
+		if(!resume)
+			newTurn();
+		else
+			resume = false;
 
 		std::map<ui8,PlayerState>::iterator i;
 		if(!resume)
@@ -1957,10 +1947,6 @@ void CGameHandler::run(bool resume)
 
 		for(; i != gs->players.end(); i++)
 		{
-			if(!resume)
-				newTurn();
-			else
-				resume = false;
 
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0 || i->first>=PLAYER_LIMIT  ) continue; //players has not towns/castle - loser
 			states.setFlag(i->first,&PlayerStatus::makingTurn,true);
