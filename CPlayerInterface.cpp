@@ -2076,6 +2076,48 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 		else
 			battleInt->attackingHero->setPhase(4);
 	}
+	if(action->actionType == 3) //defend
+	{
+		char txt[2000];
+		CStack * stack = cb->battleGetStackByID(action->stackNumber);
+		if(stack)
+		{
+			if(stack->amount == 1)
+			{
+				sprintf(txt, CGI->generaltexth->allTexts[120].c_str(), stack->creature->nameSing.c_str(), 0);
+			}
+			else
+			{
+				sprintf(txt, CGI->generaltexth->allTexts[121].c_str(), stack->creature->namePl.c_str(), 0);
+			}
+			LOCPLINT->battleInt->console->addText(txt);
+		}
+		else
+		{
+			tlog1<<"Somthing wrong with stackNumber in actionStarted -> actionType 3"<<std::endl;
+		}
+	}
+	if(action->actionType == 8) //wait
+	{
+		char txt[2000];
+		CStack * stack = cb->battleGetStackByID(action->stackNumber);
+		if(stack)
+		{
+			if(stack->amount == 1)
+			{
+				sprintf(txt, CGI->generaltexth->allTexts[136].c_str(), stack->creature->nameSing.c_str());
+			}
+			else
+			{
+				sprintf(txt, CGI->generaltexth->allTexts[137].c_str(), stack->creature->namePl.c_str());
+			}
+			LOCPLINT->battleInt->console->addText(txt);
+		}
+		else
+		{
+			tlog1<<"Somthing wrong with stackNumber in actionStarted -> actionType 8"<<std::endl;
+		}
+	}
 }
 
 void CPlayerInterface::actionFinished(const BattleAction* action)
