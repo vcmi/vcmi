@@ -1780,7 +1780,6 @@ CStack * BattleInfo::getNextStack()
 			||vstd::contains(stacks[i]->state,WAITING)
 			||vstd::contains(stacks[i]->state,MOVED)
 			||!stacks[i]->alive()
-			||stacks[i] == current
 		  )
 			continue;
 		return stacks[i];
@@ -1790,7 +1789,6 @@ CStack * BattleInfo::getNextStack()
 		if(vstd::contains(stacks[i]->state,DEFENDING)
 			||vstd::contains(stacks[i]->state,MOVED)
 			||!stacks[i]->alive()
-			||stacks[i] == current
 		  )
 			continue;
 		return stacks[i];

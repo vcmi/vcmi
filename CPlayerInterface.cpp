@@ -213,7 +213,10 @@ void CGarrisonSlot::clickLeft(tribool down)
 				show();
 				refr = true;
 			}
-			else if( !creature && owner->splitting)//split
+			else if(!creature 
+				&& (owner->splitting 
+					|| SDL_GetKeyState(NULL)[SDLK_LSHIFT] 
+					||  SDL_GetKeyState(NULL)[SDLK_RSHIFT]))//split
 			{
 				owner->p2 = ID;
 				owner->pb = upg;

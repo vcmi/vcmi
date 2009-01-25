@@ -1188,7 +1188,7 @@ void MapSel::init()
 			{
 				if( fs::file_size(dir->path()) < 16000 )
 				{
-					tlog3 << "Savegame " << dir->path() << " seems to be corrupted and will be ommited.\n";
+					tlog3 << "\t\tWarning: savegame " << dir->path().filename() << " seems to be corrupted and will be ommited.\n";
 					continue;
 				}
 				pliczkiTemp.push_back("Games/"+(dir->path().leaf()));

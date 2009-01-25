@@ -1,4 +1,4 @@
-0.64 -> 0.next (???)  [as for r681]
+0.64 -> 0.next (???)  [as for r689]
 GENERAL:
 * move some settings to the config/settings.txt file
 * partial support for new screen resolutions
@@ -6,6 +6,7 @@ GENERAL:
 * fixed crashbug occuring when hero levelled above 15 level
 * support for non-standard screen resolutions
 * F4 toggles between full-screen and windowed mode (experimental)
+* splitting stacks the shift+click
 * minor improvements in creature card window
 
 ADVENTURE INTERFACE:
@@ -27,6 +28,7 @@ BATTLES
 * positive/negative spells cannot be cast on hostile/our stacks
 * showing spell effects affecting stack in creature info window
 * more appropriate coloring of stack amount box when stack is affected by a spell 
+* battle console displays notifications about wait/defend commands 
 * several reported bugs fixed
 * new spells supported:
 	a) Haste 
