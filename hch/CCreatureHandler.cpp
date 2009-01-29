@@ -313,6 +313,8 @@ void CCreatureHandler::loadCreatures()
 			ncre.abilities.insert(FLYING);
 		if(boost::algorithm::find_first(ncre.abilityRefs, "SHOOTING_ARMY"))
 			ncre.abilities.insert(SHOOTER);
+		if(boost::algorithm::find_first(ncre.abilityRefs, "SIEGE_WEAPON"))
+			ncre.abilities.insert(SIEGE_WEAPON);
 		if(boost::algorithm::find_first(ncre.abilityRefs, "const_two_attacks"))
 			ncre.abilities.insert(TWICE_ATTACK);
 		if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))

@@ -127,13 +127,13 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	CSDL_Ext::update();
 
 	//preparing buttons and console
-	bOptions = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bOptionsf,this), 3 + pos.x, 561 + pos.y, "icm003.def", SDLK_o);
-	bSurrender = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bSurrenderf,this), 54 + pos.x, 561 + pos.y, "icm001.def", SDLK_s);
-	bFlee = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bFleef,this), 105 + pos.x, 561 + pos.y, "icm002.def", SDLK_r);
-	bAutofight  = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bAutofightf,this), 157 + pos.x, 561 + pos.y, "icm004.def", SDLK_a);
-	bSpell = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bSpellf,this), 645 + pos.x, 561 + pos.y, "icm005.def", SDLK_c);
-	bWait = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bWaitf,this), 696 + pos.x, 561 + pos.y, "icm006.def", SDLK_w);
-	bDefence = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bDefencef,this), 747 + pos.x, 561 + pos.y, "icm007.def", SDLK_d);
+	bOptions = new AdventureMapButton (CGI->generaltexth->zelp[381].first, CGI->generaltexth->zelp[381].second, boost::bind(&CBattleInterface::bOptionsf,this), 3 + pos.x, 561 + pos.y, "icm003.def", SDLK_o);
+	bSurrender = new AdventureMapButton (CGI->generaltexth->zelp[379].first, CGI->generaltexth->zelp[379].second, boost::bind(&CBattleInterface::bSurrenderf,this), 54 + pos.x, 561 + pos.y, "icm001.def", SDLK_s);
+	bFlee = new AdventureMapButton (CGI->generaltexth->zelp[380].first, CGI->generaltexth->zelp[380].second, boost::bind(&CBattleInterface::bFleef,this), 105 + pos.x, 561 + pos.y, "icm002.def", SDLK_r);
+	bAutofight  = new AdventureMapButton (CGI->generaltexth->zelp[382].first, CGI->generaltexth->zelp[382].second, boost::bind(&CBattleInterface::bAutofightf,this), 157 + pos.x, 561 + pos.y, "icm004.def", SDLK_a);
+	bSpell = new AdventureMapButton (CGI->generaltexth->zelp[385].first, CGI->generaltexth->zelp[385].second, boost::bind(&CBattleInterface::bSpellf,this), 645 + pos.x, 561 + pos.y, "icm005.def", SDLK_c);
+	bWait = new AdventureMapButton (CGI->generaltexth->zelp[386].first, CGI->generaltexth->zelp[386].second, boost::bind(&CBattleInterface::bWaitf,this), 696 + pos.x, 561 + pos.y, "icm006.def", SDLK_w);
+	bDefence = new AdventureMapButton (CGI->generaltexth->zelp[387].first, CGI->generaltexth->zelp[387].second, boost::bind(&CBattleInterface::bDefencef,this), 747 + pos.x, 561 + pos.y, "icm007.def", SDLK_d);
 	bDefence->assignedKeys.insert(SDLK_SPACE);
 	bConsoleUp = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleUpf,this), 624 + pos.x, 561 + pos.y, "ComSlide.def", SDLK_UP);
 	bConsoleDown = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleInterface::bConsoleDownf,this), 624 + pos.x, 580 + pos.y, "ComSlide.def", SDLK_DOWN);
@@ -601,18 +601,37 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		if(myNumber == -1)
 		{
 			CGI->curh->changeGraphic(1, 6);
+			if(console->whoSetAlter == 0)
+			{
+				console->alterTxt = "";
+			}
 		}
 		else
 		{
 			if(std::find(shadedHexes.begin(),shadedHexes.end(),myNumber) == shadedHexes.end())
 			{
 				CStack *shere = LOCPLINT->cb->battleGetStackByPos(myNumber);
+				CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
 				if(shere)
 				{
 					if(shere->owner == LOCPLINT->playerID) //our stack
+					{
 						CGI->curh->changeGraphic(1,5);
+						//setting console text
+						char buf[500];
+						sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->amount == 1 ? shere->creature->nameSing.c_str() : shere->creature->namePl.c_str());
+						console->alterTxt = buf;
+						console->whoSetAlter = 0;
+					}
 					else if(LOCPLINT->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
+					{
 						CGI->curh->changeGraphic(1,3);
+						//setting console text
+						char buf[500];
+						sprintf(buf, CGI->generaltexth->allTexts[296].c_str(), shere->amount == 1 ? shere->creature->nameSing.c_str() : shere->creature->namePl.c_str(), sactive->shots, "?");
+						console->alterTxt = buf;
+						console->whoSetAlter = 0;
+					}
 					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
 					{
 						int fromHex = previouslyHoveredHex;
@@ -642,17 +661,41 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						}
 					}
 					else //unavailable enemy
+					{
 						CGI->curh->changeGraphic(1,0);
+						console->alterTxt = "";
+						console->whoSetAlter = 0;
+					}
 				}
 				else //empty unavailable tile
+				{
 					CGI->curh->changeGraphic(1,0);
+					console->alterTxt = "";
+					console->whoSetAlter = 0;
+				}
 			}
 			else //available tile
 			{
+				CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
 				if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isFlying())
+				{
 					CGI->curh->changeGraphic(1,2);
+					//setting console text
+					char buf[500];
+					sprintf(buf, CGI->generaltexth->allTexts[295].c_str(), sactive->amount == 1 ? sactive->creature->nameSing.c_str() : sactive->creature->namePl.c_str());
+					console->alterTxt = buf;
+					console->whoSetAlter = 0;
+				}
 				else
+				{
 					CGI->curh->changeGraphic(1,1);
+					//setting console text
+					char buf[500];
+					sprintf(buf, CGI->generaltexth->allTexts[294].c_str(), sactive->amount == 1 ? sactive->creature->nameSing.c_str() : sactive->creature->namePl.c_str());
+					console->alterTxt = buf;
+					console->whoSetAlter = 0;
+				}
+
 			}
 		}
 	}
@@ -670,31 +713,80 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		if(myNumber == -1)
 		{
 			CGI->curh->changeGraphic(1, 0);
+			//setting console text
+			console->alterTxt = CGI->generaltexth->allTexts[23];
+			console->whoSetAlter = 0;
 		}
 		else
 		{
+			CStack * stackUnder = LOCPLINT->cb->battleGetStackByPos(myNumber);
 			switch(spellSelMode)
 			{
 			case 0:
 				CGI->curh->changeGraphic(3, 0);
+				//setting console text
+				char buf[500];
+				sprintf(buf, CGI->generaltexth->allTexts[26].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str());
+				console->alterTxt = buf;
+				console->whoSetAlter = 0;
 				break;
 			case 1:
-				if(LOCPLINT->cb->battleGetStackByPos(myNumber) && LOCPLINT->playerID == LOCPLINT->cb->battleGetStackByPos(myNumber)->owner )
+				if(stackUnder && LOCPLINT->playerID == stackUnder->owner )
+				{
 					CGI->curh->changeGraphic(3, 0);
+					//setting console text
+					char buf[500];
+					std::string creName = stackUnder->amount > 1 ? stackUnder->creature->namePl : stackUnder->creature->nameSing;
+						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str(), creName.c_str());
+					console->alterTxt = buf;
+					console->whoSetAlter = 0;
+					break;
+				}
 				else
+				{
 					CGI->curh->changeGraphic(1, 0);
+					//setting console text
+					console->alterTxt = CGI->generaltexth->allTexts[23];
+					console->whoSetAlter = 0;
+				}
 				break;
 			case 2:
-				if(LOCPLINT->cb->battleGetStackByPos(myNumber) && LOCPLINT->playerID != LOCPLINT->cb->battleGetStackByPos(myNumber)->owner )
+				if(stackUnder && LOCPLINT->playerID != stackUnder->owner )
+				{
 					CGI->curh->changeGraphic(3, 0);
+					//setting console text
+					char buf[500];
+					std::string creName = stackUnder->amount > 1 ? stackUnder->creature->namePl : stackUnder->creature->nameSing;
+						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str(), creName.c_str());
+					console->alterTxt = buf;
+					console->whoSetAlter = 0;
+				}
 				else
+				{
 					CGI->curh->changeGraphic(1, 0);
+					//setting console text
+					console->alterTxt = CGI->generaltexth->allTexts[23];
+					console->whoSetAlter = 0;
+				}
 				break;
 			case 3:
-				if(LOCPLINT->cb->battleGetStackByPos(myNumber))
+				if(stackUnder)
+				{
 					CGI->curh->changeGraphic(3, 0);
+					//setting console text
+					char buf[500];
+					std::string creName = stackUnder->amount > 1 ? stackUnder->creature->namePl : stackUnder->creature->nameSing;
+						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str(), creName.c_str());
+					console->alterTxt = buf;
+					console->whoSetAlter = 0;
+				}
 				else
+				{
 					CGI->curh->changeGraphic(1, 0);
+					//setting console text
+					console->alterTxt = CGI->generaltexth->allTexts[23];
+					console->whoSetAlter = 0;
+				}
 				break;
 			case 4: //TODO: implement this case
 				break;
@@ -948,8 +1040,10 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	}
 	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], curs.creature);
 	creAnims[number]->pos.x = coords.first;
-	if(!endMoving && twoTiles && (creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))) //big creature is reversed
+	if(!endMoving && twoTiles && (curs.owner == attackingHeroInstance->tempOwner) && (creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))) //big attacker creature is reversed
 		creAnims[number]->pos.x -= 44;
+	else if(!endMoving && twoTiles && (curs.owner != attackingHeroInstance->tempOwner) && (creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))) //big defender creature is reversed
+		creAnims[number]->pos.x += 44;
 	creAnims[number]->pos.y = coords.second;
 }
 
@@ -2231,7 +2325,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 	}
 }
 
-CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt("")
+CBattleConsole::CBattleConsole() : lastShown(-1), alterTxt(""), whoSetAlter(0)
 {
 }
 

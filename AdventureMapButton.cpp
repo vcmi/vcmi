@@ -8,6 +8,7 @@
 #include "CCallback.h"
 #include "client/CConfigHandler.h"
 #include "client/Graphics.h"
+#include "CBattleInterface.h"
 AdventureMapButton::AdventureMapButton ()
 {
 	type=2;
@@ -80,10 +81,26 @@ void AdventureMapButton::hover (bool on)
 							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
 	if(name) //if there is no name, there is nohing to display also
 	{
-		if (on)
-			LOCPLINT->statusbar->print(*name);
-		else if ( LOCPLINT->statusbar->getCurrent()==(*name) )
-			LOCPLINT->statusbar->clear();
+		if (LOCPLINT->curint == static_cast<CMainInterface*>(LOCPLINT->battleInt)) //for battle buttons
+		{
+			if(on && LOCPLINT->battleInt->console->alterTxt == "")
+			{
+				LOCPLINT->battleInt->console->alterTxt = *name;
+				LOCPLINT->battleInt->console->whoSetAlter = 1;
+			}
+			else if (LOCPLINT->battleInt->console->alterTxt == *name)
+			{
+				LOCPLINT->battleInt->console->alterTxt = "";
+				LOCPLINT->battleInt->console->whoSetAlter = 0;
+			}
+		}
+		else //for other buttons
+		{
+			if (on)
+				LOCPLINT->statusbar->print(*name);
+			else if ( LOCPLINT->statusbar->getCurrent()==(*name) )
+				LOCPLINT->statusbar->clear();
+		}
 	}
 }
 
@@ -125,9 +142,10 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	{
 		imgs.resize(1);
 		imgs[0].push_back(temp->ourImages[i].bitmap);
-		if(playerColoredButton) {
+		if(playerColoredButton)
+		{
 			graphics->blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
-                }
+		}
 	}
 	delete temp;
 	if (add && add->size())
@@ -140,9 +158,10 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 			for (size_t j=0;j<temp->ourImages.size();j++)
 			{
 				imgs[i+1].push_back(temp->ourImages[j].bitmap);
-				if(playerColoredButton) {
+				if(playerColoredButton)
+				{
 					graphics->blueToPlayersAdv(imgs[1+i][j],LOCPLINT->playerID);
-                                }
+				}
 			}
 			delete temp;
 		}

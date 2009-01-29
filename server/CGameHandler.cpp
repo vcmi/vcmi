@@ -1144,7 +1144,8 @@ upgend:
 							//counterattack
 							if(!vstd::contains(curStack->abilities,NO_ENEMY_RETALIATION)
 								&& stackAtEnd->alive()
-								&& stackAtEnd->counterAttacks	) //TODO: support for multiple retaliatons per turn
+								&& stackAtEnd->counterAttacks
+								&& !vstd::contains(stackAtEnd->abilities, SIEGE_WEAPON)) //TODO: support for multiple retaliatons per turn
 							{
 								prepareAttack(bat,stackAtEnd,curStack);
 								bat.flags |= 2;
