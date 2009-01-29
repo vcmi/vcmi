@@ -343,6 +343,7 @@ int CBattleHelper::GetShortestDistance(int pointA, int pointB)
 	int y1 = DecodeYPosition(pointA);
 	//
 	int x2 = DecodeXPosition(pointB);
+	//x2 += (x2 % 2)? 0 : 1;
 	int y2 = DecodeYPosition(pointB);
 	//
 	double dx = x1 - x2;
@@ -360,7 +361,6 @@ int CBattleHelper::GetDistanceWithObstacles(int pointA, int pointB)
 /**
  *	Implementation of CBattleLogic class.
  */
-
 CBattleLogic::CBattleLogic(ICallback *cb,  CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) :
 	m_cb(cb),
 	m_iCurrentTurn(-2),
@@ -491,7 +491,16 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 			}
 
 			cs.damage_max = (int)(currentStack->creature->damageMax * currentStack->amount * damageFactor);
+			if (cs.damage_max > hitPoints)
+			{
+				cs.damage_max = hitPoints;
+			}
+
 			cs.damage_min = (int)(currentStack->creature->damageMin * currentStack->amount * damageFactor);
+			if (cs.damage_min > hitPoints)
+			{
+				cs.damage_min = hitPoints;
+			}
 
 			cs.amount_max = cs.damage_max / st->creature->hitPoints;
 			cs.amount_min = cs.damage_min / st->creature->hitPoints;
@@ -564,6 +573,9 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 
 BattleAction CBattleLogic::MakeDecision(int stackID)
 {
+	CStack *attackerStack = m_cb->battleGetStackByID(stackID);
+	assert(attackerStack != NULL);
+
 	MakeStatistics(stackID);
 	
 	int creature_to_attack = -1;
@@ -637,6 +649,29 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 		int nearest_dist = m_battleHelper.InfiniteDistance;
 		int nearest_pos = -1;
 
+		// if double wide calculate tail
+		int tail_pos = -1;
+		if (attackerStack->creature->isDoubleWide())
+		{
+			int x_pos = m_battleHelper.DecodeXPosition(attackerStack->position);
+			int y_pos = m_battleHelper.DecodeYPosition(attackerStack->position);
+			if (attackerStack->attackerOwned)
+			{
+				x_pos -= 1;
+			}
+			else
+			{
+				x_pos += 1;
+			}
+			tail_pos = m_battleHelper.GetBattleFieldPosition(x_pos, y_pos);
+			if (dest_tile == tail_pos)
+			{
+				ba.actionType = action_walk_and_attack;
+				PrintBattleAction(ba);
+				return ba;
+			}
+		}
+
 		for (std::vector<int>::const_iterator it = fields.begin(); it != fields.end(); ++it)
 		{
 			if (*it == dest_tile)
@@ -674,74 +709,145 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender, CS
 {
 	int x = m_battleHelper.DecodeXPosition(defender->position);
 	int y = m_battleHelper.DecodeYPosition(defender->position);
+	bool defenderIsDW = defender->creature->isDoubleWide();
+	bool attackerIsDW = attacker->creature->isDoubleWide();
 	// TOTO: should be std::vector<int> but for debug purpose std::pair is used
-	std::vector<std::pair<int, int> > candidates;
+	typedef std::pair<int, int> hexPoint;
+	std::list<hexPoint> candidates;
 	std::vector<int> fields;
-	// find neighbourhood
-	bool upLimit = false;
-	bool downLimit = false;
-	bool leftLimit = false;
-	bool rightLimit = false;
-	
-	if (x == 1)
+	if (defenderIsDW)
 	{
-		leftLimit = true;
-	}
-	else if (x == m_battleHelper.BattlefieldWidth) // x+ 1
-	{
-		rightLimit = true;
-	}
-	
-	if (y == 1)
-	{
-		upLimit = true;
-	}
-	else if (y == m_battleHelper.BattlefieldHeight)
-	{
-		downLimit = true;
-	}
+		if (defender->attackerOwned)
+		{
+			// from left side
+			if (!(y % 2))
+			{
+				// up
+				candidates.push_back(hexPoint(x - 2, y - 1));
+				candidates.push_back(hexPoint(x - 1, y - 1));
+				candidates.push_back(hexPoint(x, y - 1));
+				// down
+				candidates.push_back(hexPoint(x - 2, y + 1));
+				candidates.push_back(hexPoint(x - 1, y + 1));
+				candidates.push_back(hexPoint(x, y + 1));
+			}
+			else
+			{
+				// up
+				candidates.push_back(hexPoint(x - 1, y - 1));
+				candidates.push_back(hexPoint(x, y - 1));
+				candidates.push_back(hexPoint(x + 1, y - 1));
+				// down
+				candidates.push_back(hexPoint(x - 1, y + 1));
+				candidates.push_back(hexPoint(x, y + 1));
+				candidates.push_back(hexPoint(x + 1, y + 1));
 
-	if (!downLimit)
-	{
-		candidates.push_back(std::pair<int, int>(x, y + 1));
+			}
+			candidates.push_back(hexPoint(x - 2, y));
+			candidates.push_back(hexPoint(x + 1, y));
+			
+		}
+		else
+		{
+			// from right
+			if (!(y % 2))
+			{
+				// up
+				candidates.push_back(hexPoint(x - 1, y - 1));
+				candidates.push_back(hexPoint(x, y - 1));
+				candidates.push_back(hexPoint(x + 1, y - 1));
+				// down
+				candidates.push_back(hexPoint(x - 1, y + 1));
+				candidates.push_back(hexPoint(x, y + 1));
+				candidates.push_back(hexPoint(x + 1, y + 1));
+			}
+			else
+			{
+				// up
+				candidates.push_back(hexPoint(x, y - 1));
+				candidates.push_back(hexPoint(x + 1, y - 1));
+				candidates.push_back(hexPoint(x + 2, y - 1));
+				// down
+				candidates.push_back(hexPoint(x, y + 1));
+				candidates.push_back(hexPoint(x + 1, y + 1));
+				candidates.push_back(hexPoint(x + 2, y + 1));
+			}
+			candidates.push_back(hexPoint(x - 1, y));
+			candidates.push_back(hexPoint(x + 2, y));
+		}
 	}
-	if (!downLimit && !leftLimit)
+	else
 	{
-		candidates.push_back(std::pair<int, int>(x - 1, y + 1));
+		if (!(y % 2)) // even line
+		{
+			// up
+			candidates.push_back(hexPoint(x - 1, y - 1));
+			candidates.push_back(hexPoint(x, y - 1));
+			// down
+			candidates.push_back(hexPoint(x - 1, y + 1));
+			candidates.push_back(hexPoint(x, y + 1));
+		}
+		else // odd line
+		{
+			// up
+			candidates.push_back(hexPoint(x, y - 1));
+			candidates.push_back(hexPoint(x + 1, y - 1));
+			// down
+			candidates.push_back(hexPoint(x, y + 1));
+			candidates.push_back(hexPoint(x + 1, y + 1));
+		}
+
+		candidates.push_back(hexPoint(x + 1, y));
+		candidates.push_back(hexPoint(x - 1, y));
 	}
-	if (!downLimit && !rightLimit)
+	
+	// remove fields which are out of bounds or obstacles
+	for (std::list<hexPoint>::iterator it = candidates.begin(); it != candidates.end(); ++it)
 	{
-		candidates.push_back(std::pair<int, int>(x + 1, y  + 1));
-	}
-	if (!upLimit)
-	{
-		candidates.push_back(std::pair<int, int>(x, y - 1));
-	}
-	if (!upLimit && !leftLimit)
-	{
-		candidates.push_back(std::pair<int, int>(x - 1, y - 1));
-	}
-	if (!upLimit && !rightLimit)
-	{
-		candidates.push_back(std::pair<int, int>(x + 1, y - 1));
-	}
-	if (!leftLimit)
-	{
-		candidates.push_back(std::pair<int, int>(x - 1, y));
-	}
-	if (!rightLimit)
-	{
-		candidates.push_back(std::pair<int, int>(x + 1, y));
-	}
-	// check if these fields are empty
-	for (std::vector<std::pair<int, int> >::iterator it = candidates.begin(); it != candidates.end(); ++it)
-	{
+		if (it->first < 1 || it->first > m_battleHelper.BattlefieldWidth ||
+			it->second < 1 || it->second > m_battleHelper.BattlefieldHeight)
+		{
+			// field is out of bounds
+			//it = candidates.erase(it);
+			continue;
+		}
+
 		int new_pos = m_battleHelper.GetBattleFieldPosition(it->first, it->second);
-		CStack *st = m_cb->battleGetStackByPos(new_pos);
-		// int obstacle = m_cb->battleGetObstaclesAtTile(new_pos); // TODO: wait for battleGetObstaclesAtTile function
+		CStack *st = m_cb->battleGetStackByPos(new_pos);	
+
 		if (st == NULL || st->amount < 1)
 		{
+			if (attackerIsDW)
+			{
+				int tail_pos = -1;
+				if (attacker->attackerOwned) // left side
+				{
+					int tail_pos_x = it->first - 1;
+					if (tail_pos_x < 1)
+					{
+						continue;
+					}
+					tail_pos = m_battleHelper.GetBattleFieldPosition(it->first, it->second);
+				}
+				else // right side
+				{
+					int tail_pos_x = it->first + 1;
+					if (tail_pos_x > m_battleHelper.BattlefieldWidth)
+					{
+						continue;
+					}
+					tail_pos = m_battleHelper.GetBattleFieldPosition(it->first, it->second);
+				}
+				assert(tail_pos >= 0 && "Error during calculation position of double wide creature");
+				CStack *tailStack = m_cb->battleGetStackByPos(tail_pos);
+				if (st != NULL && st->amount >= 1)
+				{
+					continue;
+				}
+			}
+			
 			fields.push_back(new_pos);
+			
 		}
 		else if (attacker)
 		{
@@ -750,6 +856,8 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender, CS
 				fields.push_back(new_pos);
 			}
 		}
+		//
+		//++it;
 	}
 	return fields;
 }
@@ -764,16 +872,15 @@ BattleAction CBattleLogic::MakeDefend(int stackID)
 	return ba;
 }
 
+/**
+ * The main idea is to perform maximum casualties.
+ */
 int CBattleLogic::PerformBerserkAttack(int stackID)
 {
 	CCreature c = m_cb->battleGetCreature(stackID);
 	// attack to make biggest damage
 	int creature_to_attack = -1;
-	//if (m_statDistance.size() >= 2)
-	//{
-	//	creature_stat::const_iterator it = m_statDistance.begin();
-	//	creature_stat::const_iterator it2 = it + 1;
-	//	if (it->second < 
+
 	if (!m_statCasualties.empty())
 	{
 		creature_to_attack = m_statCasualties.begin()->first;
