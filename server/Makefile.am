@@ -7,10 +7,6 @@ vcmiserver_LDFLAGS = -L$(top_builddir)/lib
 vcmiserver_LDADD += -lvcmi
 vcmiserver_SOURCES = \
 ./CGameHandler.cpp \
-../CLua.cpp \
-./CScriptCallback.cpp \
 ./CVCMIServer.cpp \
 ./CGameHandler.h \
-../CLua.h \
-./CScriptCallback.h \
 ./CVCMIServer.h

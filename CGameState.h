@@ -4,6 +4,7 @@
 #ifndef _MSC_VER
 #include "hch/CCreatureHandler.h"
 #include "lib/VCMI_Lib.h"
+#include "map.h"
 #endif
 #include <set>
 #include <vector>

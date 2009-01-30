@@ -431,7 +431,8 @@ class DLL_EXPORT CLoadFile
 {
 	void dummyMagicFunction()
 	{
-		*this >> std::string("This function makes stuff working.");
+		std::string dummy = "This function makes stuff working.";
+		*this >> dummy;
 	}
 public:
 	std::ifstream *sfile;

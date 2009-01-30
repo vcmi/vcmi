@@ -8,6 +8,10 @@
 #include <map>
 #include <set>
 #include "global.h"
+#ifndef _MSC_VER
+#include "hch/CObjectHandler.h"
+#include "hch/CDefObjInfoHandler.h"
+#endif
 class CGDefInfo;
 class CGObjectInstance;
 class CGHeroInstance;

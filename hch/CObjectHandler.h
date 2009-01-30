@@ -6,6 +6,11 @@
 #include <set>
 #include <map>
 #include "CCreatureHandler.h"
+#ifndef _MSC_VER
+#include "CHeroHandler.h"
+#include "CTownHandler.h"
+#include "../lib/VCMI_Lib.h"
+#endif
 
 using boost::logic::tribool;
 class IGameCallback;
