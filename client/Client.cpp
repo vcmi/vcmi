@@ -28,22 +28,27 @@
 CSharedCond<std::set<IPack*> > mess(new std::set<IPack*>);
 extern std::string NAME;
 namespace intpr = boost::interprocess;
-SharedMem sm;
 
-CClient::CClient(void)
+void CClient::init()
 {
-	IObjectInterface::cb = this;
 	serv = NULL;
 	gs = NULL;
 	cb = NULL;
+	shared = new SharedMem();
+}
+
+CClient::CClient(void)
+{
+	init();
 }
 CClient::CClient(CConnection *con, StartInfo *si)
 {
-	IObjectInterface::cb = this;
+	init();
 	newGame(con,si);
 }
 CClient::~CClient(void)
 {
+	delete shared;
 }
 void CClient::process(int what)
 {
@@ -779,12 +784,9 @@ void CClient::runServer(const char * portc)
 
 void CClient::waitForServer()
 {
+	intpr::scoped_lock<intpr::interprocess_mutex> slock(shared->sr->mutex);
+	while(!shared->sr->ready)
 	{
-		intpr::scoped_lock<intpr::interprocess_mutex> slock(sm.sr->mutex);
-		while(!sm.sr->ready)
-		{
-			sm.sr->cond.wait(slock);
-		}
+		shared->sr->cond.wait(slock);
 	}
-	intpr::shared_memory_object::remove("vcmi_memory");
 }

@@ -1658,16 +1658,19 @@ void CPreGame::initNewMenu()
 	ourNewMenu->lLoadGame.w=ourNewMenu->loadGame->ourImages[0].bitmap->w;
 	ourNewMenu->lLoadGame.x=568;
 	ourNewMenu->lLoadGame.y=120;
+	ourNewMenu->fLoadGame = NULL;
 	//campaign
 	ourNewMenu->lHighScores.h=ourNewMenu->highScores->ourImages[0].bitmap->h;
 	ourNewMenu->lHighScores.w=ourNewMenu->highScores->ourImages[0].bitmap->w;
 	ourNewMenu->lHighScores.x=541;
 	ourNewMenu->lHighScores.y=233;
+	ourNewMenu->fHighScores = NULL;
 	//tutorial
 	ourNewMenu->lCredits.h=ourNewMenu->credits->ourImages[0].bitmap->h;
 	ourNewMenu->lCredits.w=ourNewMenu->credits->ourImages[0].bitmap->w;
 	ourNewMenu->lCredits.x=545;
 	ourNewMenu->lCredits.y=358;
+	ourNewMenu->fCredits = NULL;
 	//back
 	ourNewMenu->lQuit.h=ourNewMenu->quit->ourImages[0].bitmap->h;
 	ourNewMenu->lQuit.w=ourNewMenu->quit->ourImages[0].bitmap->w;
@@ -1730,11 +1733,13 @@ void CPreGame::initMainMenu()
 	ourMainMenu->lHighScores.w=ourMainMenu->highScores->ourImages[0].bitmap->w;
 	ourMainMenu->lHighScores.x=524;
 	ourMainMenu->lHighScores.y=251;
+	ourMainMenu->fHighScores = NULL;
 	//credits
 	ourMainMenu->lCredits.h=ourMainMenu->credits->ourImages[0].bitmap->h;
 	ourMainMenu->lCredits.w=ourMainMenu->credits->ourImages[0].bitmap->w;
 	ourMainMenu->lCredits.x=557;
 	ourMainMenu->lCredits.y=359;
+	ourMainMenu->fCredits = NULL;
 	//quit
 	ourMainMenu->lQuit.h=ourMainMenu->quit->ourImages[0].bitmap->h;
 	ourMainMenu->lQuit.w=ourMainMenu->quit->ourImages[0].bitmap->w;

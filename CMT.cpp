@@ -152,7 +152,7 @@ int main(int argc, char** argv)
 			CConnection *c=NULL;
 			//wait until server is ready
 			tlog0<<"Waiting for server... ";
-			CClient::waitForServer();
+			cl.waitForServer();
 			tlog0 << tmh.getDif()<<std::endl;
 			while(!c)
 			{

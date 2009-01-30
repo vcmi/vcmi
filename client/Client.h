@@ -10,6 +10,7 @@ class CGameState;
 class CGameInterface;
 class CConnection;
 class CCallback;
+struct SharedMem;
 class CClient;
 void processCommand(const std::string &message, CClient *&client);
 namespace boost
@@ -43,6 +44,7 @@ class CClient : public IGameCallback
 	CCallback *cb;
 	std::map<ui8,CGameInterface *> playerint;
 	CConnection *serv;
+	SharedMem *shared;
 
 	void waitForMoveAndSend(int color);
 public:
@@ -50,6 +52,7 @@ public:
 	CClient(CConnection *con, StartInfo *si);
 	~CClient(void);
 
+	void init();
 	void close();
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 	void save(const std::string & fname);
@@ -88,7 +91,7 @@ public:
 	
 	
 	static void runServer(const char * portc);
-	static void waitForServer();
+	void waitForServer();
 };
 
 #endif // __CLIENT_H__

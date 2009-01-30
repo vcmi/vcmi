@@ -36,4 +36,8 @@ struct SharedMem
 		smo.truncate(sizeof(ServerReady));
 		sr = new(mr.get_address())ServerReady();
 	};
+	~SharedMem()
+	{
+		boost::interprocess::shared_memory_object::remove("vcmi_memory");
+	}
 };

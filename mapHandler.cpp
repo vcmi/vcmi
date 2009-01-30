@@ -408,18 +408,21 @@ void processDef (CGDefInfo* def)
 {
 	if(def->id == 26)
 		return;
-	if(def->name.size())
+	if(!def->handler) //if object has already set handler (eg. heroes) it should not be overwritten
 	{
-		def->handler = CDefHandler::giveDef(def->name);
+		if(def->name.size())
+		{
+			def->handler = CDefHandler::giveDef(def->name);
+		}
+		else
+		{
+			tlog2 << "No def name for " << def->id << "  " << def->subid << std::endl;
+			def->handler = NULL;
+			return;
+		}
+		def->width = def->handler->ourImages[0].bitmap->w/32;
+		def->height = def->handler->ourImages[0].bitmap->h/32;
 	}
-	else
-	{
-		tlog2 << "No def name for " << def->id << "  " << def->subid << std::endl;
-		def->handler = NULL;
-		return;
-	}
-	def->width = def->handler->ourImages[0].bitmap->w/32;
-	def->height = def->handler->ourImages[0].bitmap->h/32;
 	CGDefInfo* pom = CGI->dobjinfo->gobjs[def->id][def->subid];
 	if(pom && def->id!=98)
 	{
