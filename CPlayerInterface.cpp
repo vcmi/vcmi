@@ -3328,6 +3328,18 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	//speed
 	printAt(CGI->generaltexth->zelp[441].first,155,162,GEOR13,zwykly,bitmap);
 	SDL_itoa(c->speed,pom,10);
+	if(State && State->speedBonus)
+	{
+		int hlp;
+		if(c->speed > 0)
+			hlp = log10f(c->speed)+2;
+		else
+			hlp = 2;
+		pom[hlp-1] = ' '; pom[hlp] = '(';
+		SDL_itoa(c->speed + State->speedBonus, pom+hlp+1, 10);
+		hlp += 2+(int)log10f(c->speed + State->speedBonus);
+		pom[hlp] = ')'; pom[hlp+1] = '\0';
+	}
 	printToWR(pom,276,175,GEOR13,zwykly,bitmap);
 
 

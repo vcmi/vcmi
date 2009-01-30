@@ -566,13 +566,14 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 
+	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
+
 	//showing window with result of battle
 	if(resWindow)
 	{
 		resWindow->show(to);
 	}
 
-	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
 	//printing border around interface
 	if(screen->w != 800 || screen->h !=600)
@@ -2310,6 +2311,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->defenseBonus = h->getPrimSkillLevel(1);
 				pom->luck = h->getCurrentLuck();
 				pom->morale = h->getCurrentMorale();
+				pom->speedBonus = myst.speed() - myst.creature->speed;
 			}
 
 			pom->shotsLeft = myst.shots;

@@ -1130,8 +1130,16 @@ upgend:
 							CStack *curStack = gs->curB->getStack(ba.stackNumber),
 								*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
 
-							if( curStack->position != ba.destinationTile //we wasn't able to reach destination tile
-							  || BattleInfo::mutualPosition(ba.destinationTile,ba.additionalInfo) < 0 //destination tile is not neighbouring with enemy stack
+							if(curStack->position != ba.destinationTile) //we wasn't able to reach destination tile
+							{
+								tlog3<<"We cannot move this stack to its destination "<<curStack->creature->namePl<<std::endl;
+							}
+
+							if( (BattleInfo::mutualPosition(ba.destinationTile, ba.additionalInfo) < 0 //destination tile is not neighbouring with enemy stack
+									&& !curStack->creature->isDoubleWide())
+								|| (curStack->creature->isDoubleWide()
+									&& (BattleInfo::mutualPosition(ba.destinationTile, ba.additionalInfo) < 0)
+									&& (BattleInfo::mutualPosition(ba.destinationTile + (curStack->attackerOwned ? -1 : 1), ba.additionalInfo) < 0))
 							  ) 
 							{
 								sendDataToClients(ui16(3008)); //end movement and attack
