@@ -34,7 +34,10 @@ void CClient::init()
 	serv = NULL;
 	gs = NULL;
 	cb = NULL;
-	shared = new SharedMem();
+	try
+	{
+		shared = new SharedMem();
+	} HANDLE_EXCEPTION
 }
 
 CClient::CClient(void)
