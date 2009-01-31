@@ -14,7 +14,9 @@ AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD
 AC_PROG_CC
 AC_PROG_CPP
-AC_PROG_RANLIB
+AC_ENABLE_SHARED
+AC_DISABLE_STATIC
+AC_PROG_LIBTOOL
 
 CFLAGS="-g"
 CXXFLAGS="-g"
@@ -75,4 +77,4 @@ AC_FUNC_SELECT_ARGTYPES
 AC_CHECK_FUNCS([lua_pushhstring lua_calchash],, AC_MSG_ERROR([Lua required fuctions not found]))
 AC_CHECK_FUNCS([atexit memset pow select sqrt])
 
-AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile)
+AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile)

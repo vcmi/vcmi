@@ -1007,14 +1007,25 @@ void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug pu
 		message += boost::lexical_cast<std::string>(action.additionalInfo);
 	}
 
+#ifdef _WIN32
 	HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 	
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(hConsole, &csbi);
-
 	SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
+
+#else
+	std::string color;
+	color = "\x1b[1;40;32m";
+	std::cout << color;
+#endif
 	
 	std::cout << message.c_str() << std::flush;
 
+#ifdef _WIN32
 	SetConsoleTextAttribute(hConsole, csbi.wAttributes);
+#else
+	color = "\x1b[0m";
+	std::cout << color;
+#endif
 }

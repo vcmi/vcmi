@@ -14,6 +14,10 @@
 
 #pragma warning (disable: 4100)
 
+#ifdef __GNUC__
+#define strcpy_s(a, b, c) strncpy(a, c, b)
+#endif
+
 namespace GeniusAI {
 
 class CBattleHelper

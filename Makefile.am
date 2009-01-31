@@ -3,7 +3,7 @@ EXTRA_DIST = aclocal/m4
 #bin_PROGRAMS = vcmi
 #vcmi_LDADD = $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_THREAD_LIB)
 AM_CXXFLAGS = $(BOOST_CPPFLAGS)
-SUBDIRS = lib client server
+SUBDIRS = lib client server AI
 #vcmi_SOURCES = \
 #	       AdventureMapButton.cpp  CGameState.cpp        \
 #	       AdventureMapButton.h    CGameState.h          global.h \
