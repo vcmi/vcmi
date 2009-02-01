@@ -1418,6 +1418,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		case 32: // Garden of Revelation
 		case 100: //Learning Stone
 		case 102: //Tree of Knowledge
+		case 41: //Library of Enlightenment
 			{
 				nobj = new CGVisitableOPH();
 				break;
@@ -1584,6 +1585,9 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 					{
 						art->army = readCreatureSet(bufor,i,7,(version>RoE));
 					}
+				}
+				if(areSettings || defInfo->id==93)
+				{
 					art->spell = readNormalNr(bufor,i); 
 					i+=4;
 				}

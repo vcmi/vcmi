@@ -413,18 +413,19 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					std::string fname;
 					Mapa * mapa;
 					c >> fname;
-
 					{
+						sendMessageTo(c,"Serializing game info...");
 						CSaveFile save(std::string("Games") + PATHSEPARATOR + fname + ".vlgm1");
 						char hlp[8] = "VCMISVG";
-						save << hlp << static_cast<CMapHeader&>(*gs->map) << *VLC << gs;
+						save << hlp << version << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps->difficulty << *VLC << gs;
 					}
 
 					{
+						sendMessageTo(c,"Serializing server info...");
 						CSaveFile save(std::string("Games") + PATHSEPARATOR + fname + ".vsgm1");
 						save << *this;
 					}
-
+					sendMessageTo(c,"Game has been succesfully saved!");
 					break;
 				}
 			case 99: //end!
@@ -2342,4 +2343,9 @@ void CGameHandler::setObjProperty( int objid, int prop, int val )
 	sob.what = prop;
 	sob.val = val;
 	sendAndApply(&sob);
+}
+
+void CGameHandler::sendMessageTo( CConnection &c, std::string message )
+{
+	c << ui16(95) << message;
 }

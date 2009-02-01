@@ -34,7 +34,7 @@ struct StartInfo
 		}
 	};
 	ui8 mode; //0 - new game; 1 - load game
-	si32 difficulty; //0=easy; 4=impossible
+	ui8 difficulty; //0=easy; 4=impossible
 	std::vector<PlayerSettings> playerInfos;
 	ui8 turnTime; //in minutes, 0=unlimited
 	std::string mapname;

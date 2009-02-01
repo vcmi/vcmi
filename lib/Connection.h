@@ -17,7 +17,7 @@
 #include <boost/mpl/identity.hpp>
 
 #include <boost/type_traits/is_array.hpp>
-const int version = 63;
+const ui32 version = 63;
 class CConnection;
 
 namespace mpl = boost::mpl;
@@ -189,7 +189,7 @@ public:
 	}
 	
 	template<class T>
-	COSer & operator&(T & t)
+	COSer & operator&(const T & t)
 	{
 		return * this->This() << t;
 	}	

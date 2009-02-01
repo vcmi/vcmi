@@ -371,6 +371,10 @@ void CSlider::clickLeft (tribool down)
 		moveTo(rw*amount);
 		return;
 	}
+	else
+	{
+		moving = false;
+	}
 	if(moving)
 	{
 		MotionInterested::deactivate();

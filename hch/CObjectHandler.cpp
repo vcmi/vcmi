@@ -475,25 +475,9 @@ void CGHeroInstance::initHero(int SUBID)
 
 void CGHeroInstance::initHero()
 {
-	if(!defInfo)
-	{
-		defInfo = new CGDefInfo();
-		defInfo->id = 34;
-		defInfo->subid = subID;
-		defInfo->printPriority = 0;
-		defInfo->visitDir = 0xff;
-	}
+	initHeroDefInfo();
 	if(!type)
 		type = VLC->heroh->heroes[subID];
-	for(int i=0;i<6;i++)
-	{
-		defInfo->blockMap[i]=255;
-		defInfo->visitMap[i]=0;
-	}
-	defInfo->handler=NULL;
-	defInfo->blockMap[5] = 253;
-	defInfo->visitMap[5] = 2;
-
 	artifWorn[16] = 3;
 	if(type->heroType % 2 == 1) //it's a magical hero
 	{
@@ -559,6 +543,25 @@ void CGHeroInstance::initHero()
 	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
 }
 
+void CGHeroInstance::initHeroDefInfo()
+{
+	if(!defInfo)
+	{
+		defInfo = new CGDefInfo();
+		defInfo->id = 34;
+		defInfo->subid = subID;
+		defInfo->printPriority = 0;
+		defInfo->visitDir = 0xff;
+	}
+	for(int i=0;i<6;i++)
+	{
+		defInfo->blockMap[i]=255;
+		defInfo->visitMap[i]=0;
+	}
+	defInfo->handler=NULL;
+	defInfo->blockMap[5] = 253;
+	defInfo->visitMap[5] = 2;
+}
 CGHeroInstance::~CGHeroInstance()
 {
 }
@@ -597,6 +600,7 @@ void CGHeroInstance::initObj()
 {
 	blockVisit = true;
 }
+
 int CGTownInstance::getSightDistance() const //returns sight distance
 {
 	return 10;
@@ -743,7 +747,7 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 	if(visitors.find(h->id)==visitors.end())
 	{
 		onNAHeroVisit(h->id, false);
-		if(ID != 102  &&  ID!=4) //not tree nor arena
+		if(ID != 102  &&  ID!=4  && ID!=41) //not tree nor arena nor library of enlightenment
 			cb->setObjProperty(id,4,h->id); //add to the visitors
 	}
 	else
@@ -803,6 +807,9 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		subid = 1;
 		ot = 146;
 		val = 1;
+		break;
+	case 41:
+		ot = 66;
 		break;
 	}
 	if (!alreadyVisited)
@@ -891,6 +898,30 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				}
 				break;
 			}
+		case 41:
+			{
+				const CGHeroInstance *h = cb->getHero(heroID);
+				if(h->level  <  10 - 2*h->getSecSkillLevel(4)) //not enough level
+				{
+					InfoWindow iw;
+					iw.player = cb->getOwner(heroID);
+					iw.text << std::pair<ui8,ui32>(11,68);
+					cb->showInfoDialog(&iw);
+				}
+				else
+				{
+					cb->setObjProperty(this->id,4,heroID); //add to the visitors
+					cb->changePrimSkill(heroID,0,2);
+					cb->changePrimSkill(heroID,1,2);
+					cb->changePrimSkill(heroID,2,2);
+					cb->changePrimSkill(heroID,3,2);
+					InfoWindow iw;
+					iw.player = cb->getOwner(heroID);
+					iw.text << std::pair<ui8,ui32>(11,66);
+					cb->showInfoDialog(&iw);
+				}
+				break;
+			}
 		}
 	}
 	else
@@ -928,6 +959,8 @@ const std::string & CGVisitableOPH::getHoverText() const
 		break;
 	case 102:
 		pom = 18;
+		break;
+	case 41:
 		break;
 	default:
 		throw std::string("Wrong CGVisitableOPH object ID!\n");
@@ -1276,6 +1309,7 @@ void CGArtifact::initObj()
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 {
 	cb->giveHeroArtifact(subID,h->id,-2);
+	cb->removeObject(id);
 	InfoWindow iw;
 	iw.player = h->tempOwner;
 	iw.components.push_back(Component(4,subID,0,0));

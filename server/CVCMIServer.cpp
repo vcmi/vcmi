@@ -169,11 +169,12 @@ void CVCMIServer::loadGame( CConnection *c )
 	*c >> clients >> fname; //how many clients should be connected - TODO: support more than one
 
 	{
+		ui32 ver;
 		char sig[8];
 		CMapHeader dum;
 
 		CLoadFile lf(fname + ".vlgm1");
-		lf >> sig >> dum;
+		lf >> sig >> ver >> dum >> *sig;
 		tlog0 <<"Reading save signature"<<std::endl;
 
 		lf >> *VLC;

@@ -31,6 +31,7 @@ namespace intpr = boost::interprocess;
 
 void CClient::init()
 {
+	IObjectInterface::cb = this;
 	serv = NULL;
 	gs = NULL;
 	cb = NULL;
@@ -58,6 +59,13 @@ void CClient::process(int what)
 	static BattleAction curbaction;
 	switch (what)
 	{
+	case 95: //system message
+		{
+			std::string m;
+			*serv >> m;
+			tlog4 << "System message from server: " << m << std::endl;
+			break;
+		}
 	case 100: //one of our interfaces has turn
 		{
 			ui8 player;
@@ -635,12 +643,13 @@ void CClient::load( const std::string & fname )
 	tlog0 <<"Restarting server: "<<tmh.getDif()<<std::endl;
 
 	{
+		ui32 ver;
 		char sig[8];
 		CMapHeader dum;
 		CGI->mh = new CMapHandler();
 
 		CLoadFile lf(fname + ".vlgm1");
-		lf >> sig >> dum;
+		lf >> sig >> ver >> dum >> *sig;
 		tlog0 <<"Reading save signature: "<<tmh.getDif()<<std::endl;
 			
 		lf >> *VLC;

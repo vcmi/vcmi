@@ -1074,12 +1074,18 @@ void MapSel::processMaps(std::vector<std::string> &pliczkiTemp, int &index)
 void MapSel::processGames( std::vector<std::string> &pliczkiTemp, int &index )
 {
 	ourGames.resize(pliczkiTemp.size());
+	ui32 hlp;
 
 	for(int i=0; i<pliczkiTemp.size(); i++)
 	{
 		CLoadFile lf(pliczkiTemp[i]);
 		ui8 sign[8]; 
-		lf >> sign >> static_cast<CMapHeader&>(ourGames[i]);
+		lf >> sign >> hlp >> static_cast<CMapHeader&>(ourGames[i]) >> ourGames[i].seldiff;
+		if(hlp != version)
+		{
+			tlog3 << "\t" << ourGames[i].filename << " seems to be too " << ((hlp>version) ? "new" : "old") << " and will be ommited.\n";
+			continue;
+		}
 		ourGames[i].filename = pliczkiTemp[i];
 		ourGames[i].countPlayers();
 	}
@@ -1308,6 +1314,8 @@ MapSel::MapSel():selected(0),sizeFilter(0)
 }
 void MapSel::printSelectedInfo()
 {
+	CMapInfo &selMap = selectedMap();
+
 	SDL_BlitSurface(CPG->ourScenSel->scenInf,&genRect(399,337,17,23),screen,&genRect(399,337,413,29));
 	SDL_BlitSurface(CPG->ourScenSel->scenInf,&genRect(50,91,18,447),screen,&genRect(50,91,414,453));
 	if(CPG->fromnewgame)
@@ -1316,6 +1324,19 @@ void MapSel::printSelectedInfo()
 		SDL_BlitSurface(CPG->ourScenSel->bOptions.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bOptions.pos);
 		SDL_BlitSurface(CPG->ourScenSel->bRandom.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bRandom.pos);
 	}
+	else
+	{
+		CPG->ourScenSel->bEasy.state = 2 + (selMap.seldiff==0);
+		CPG->ourScenSel->bNormal.state = 2 + (selMap.seldiff==1);
+		CPG->ourScenSel->bHard.state = 2 + (selMap.seldiff==2);
+		CPG->ourScenSel->bExpert.state = 2 + (selMap.seldiff==3);
+		CPG->ourScenSel->bImpossible.state = 2 + (selMap.seldiff==4);
+		CPG->ourScenSel->bEasy.show();
+		CPG->ourScenSel->bNormal.show();
+		CPG->ourScenSel->bHard.show();
+		CPG->ourScenSel->bExpert.show();
+		CPG->ourScenSel->bImpossible.show();
+	}
 	//blit texts
 	CSDL_Ext::printAt(CGI->generaltexth->zelp[21].second,420,25,GEOR13);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[496],420,135,GEOR13);
@@ -1323,8 +1344,6 @@ void MapSel::printSelectedInfo()
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[498],420,340,GEOR13);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[390],420,406,GEOR13,zwykly);
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[391],585,406,GEOR13,zwykly);
-
-	CMapInfo &selMap = selectedMap();
 
 	int temp = selMap.victoryCondition.condition+1;
 	if (temp>20) temp=0;
@@ -2165,13 +2184,15 @@ StartInfo CPreGame::runLoop()
 					{
 						highlightButton(1,2);
 						current->highlighted=1;
-						(this->*(current->fNewGame))();
+						if(current->fNewGame)
+							(this->*(current->fNewGame))();
 					}
 					else if (isItIn(&current->lLoadGame,sEvent.motion.x,sEvent.motion.y))
 					{
 						highlightButton(2,2);
 						current->highlighted=2;
-						(this->*(current->fLoadGame))();
+						if(current->fLoadGame)
+							(this->*(current->fLoadGame))();
 					}
 					else if (isItIn(&current->lHighScores,sEvent.motion.x,sEvent.motion.y))
 					{
@@ -2187,7 +2208,8 @@ StartInfo CPreGame::runLoop()
 					{
 						highlightButton(5,2);
 						current->highlighted=5;
-						(this->*(current->fQuit))();
+						if(current->fQuit)
+							(this->*(current->fQuit))();
 					}
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONDOWN) && (sEvent.button.button == SDL_BUTTON_RIGHT))
@@ -2376,16 +2398,19 @@ void CPreGame::initLoadMenu()
 	ourLoadMenu->lLoadGame.w=ourLoadMenu->loadGame->ourImages[0].bitmap->w;
 	ourLoadMenu->lLoadGame.x=568;
 	ourLoadMenu->lLoadGame.y=120;
+	ourLoadMenu->fLoadGame = NULL;
 	//campaign
 	ourLoadMenu->lHighScores.h=ourLoadMenu->highScores->ourImages[0].bitmap->h;
 	ourLoadMenu->lHighScores.w=ourLoadMenu->highScores->ourImages[0].bitmap->w;
 	ourLoadMenu->lHighScores.x=541;
 	ourLoadMenu->lHighScores.y=233;
+	ourLoadMenu->fHighScores = NULL;
 	//tutorial
 	ourLoadMenu->lCredits.h=ourLoadMenu->credits->ourImages[0].bitmap->h;
 	ourLoadMenu->lCredits.w=ourLoadMenu->credits->ourImages[0].bitmap->w;
 	ourLoadMenu->lCredits.x=545;
 	ourLoadMenu->lCredits.y=358;
+	ourLoadMenu->fCredits = NULL;
 	//back
 	ourLoadMenu->lQuit.h=ourLoadMenu->quit->ourImages[0].bitmap->h;
 	ourLoadMenu->lQuit.w=ourLoadMenu->quit->ourImages[0].bitmap->w;

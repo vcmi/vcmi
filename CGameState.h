@@ -60,6 +60,27 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & serial & currentSelection & fogOfWarMap & resources;
+
+		ui32 size;
+		if(h.saving) //write subids of available heroes
+		{
+			size = availableHeroes.size();
+			h & size;
+			for(size_t i=0; i < size; i++)
+				h & availableHeroes[i]->subID;
+		}
+		else
+		{
+			ui32 hid; 
+			h & size;
+			for(size_t i=0; i < size; i++)
+			{
+				//fill availableHeroes with dummy hero instances, holding subids
+				h & hid;
+				availableHeroes.push_back(new CGHeroInstance);
+				availableHeroes[availableHeroes.size()-1]->subID = hid;
+			}
+		}
 	}
 };
 
@@ -225,6 +246,16 @@ public:
 			for(int i=0; i<map->heroes.size(); i++)
 				if(map->heroes[i]->tempOwner < PLAYER_LIMIT)
 					players[map->heroes[i]->tempOwner].heroes.push_back(map->heroes[i]);
+			//recreating available heroes
+			for(std::map<ui8,PlayerState>::iterator i=players.begin(); i!=players.end(); i++)
+			{
+				for(size_t j=0; j < i->second.availableHeroes.size(); j++)
+				{
+					ui32 hlp = i->second.availableHeroes[j]->subID;
+					delete i->second.availableHeroes[j];
+					i->second.availableHeroes[j] = hpool.heroesPool[hlp];
+				}
+			}
 		}
 	}
 

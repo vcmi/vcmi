@@ -62,6 +62,7 @@ class CGameHandler : public IGameCallback
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
+	void sendMessageTo(CConnection &c, std::string message);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero

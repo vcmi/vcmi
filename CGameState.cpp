@@ -721,6 +721,8 @@ void CGameState::applyNL(IPack * pack)
 			}
 			else
 				map->objects[h->id] = h;
+
+			h->initHeroDefInfo();
 			map->heroes.push_back(h);
 			players[h->tempOwner].heroes.push_back(h);
 			map->addBlockVisTiles(h);

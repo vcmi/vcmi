@@ -454,6 +454,11 @@ void CTerrainRect::clickRight(tribool down)
 	{
 	case 34:
 		{
+			if(!vstd::contains(graphics->heroWins,obj->subID))
+			{
+				tlog3 << "Warning - no infowin for hero " << obj->subID << std::endl;
+				break;
+			}
 			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[obj->subID],
 				LOCPLINT->current->motion.x-graphics->heroWins[obj->subID]->w,
 				LOCPLINT->current->motion.y-graphics->heroWins[obj->subID]->h,false
@@ -463,6 +468,11 @@ void CTerrainRect::clickRight(tribool down)
 		}
 	case 98:
 		{
+			if(!vstd::contains(graphics->townWins,obj->subID))
+			{
+				tlog3 << "Warning - no infowin for town " << obj->subID << std::endl;
+				break;
+			}
 			CInfoPopup * ip = new CInfoPopup(graphics->townWins[obj->id],
 				LOCPLINT->current->motion.x-graphics->townWins[obj->id]->w,
 				LOCPLINT->current->motion.y-graphics->townWins[obj->id]->h,false

@@ -229,6 +229,7 @@ public:
 class DLL_EXPORT CMapInfo : public CMapHeader
 {
 public:
+	ui8 seldiff; //selected difficulty (only in saved games)
 	std::string filename;
 	std::string date;
 	int playerAmnt, humenPlayers;
@@ -366,10 +367,12 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		if(h.saving) //create vector with all defs used on map
 		{
 			for(int i=0; i<objects.size(); i++)
-				objects[i]->defInfo->serial = -1; //set serial to serial -1 - indicates that def is not present in defs vector
+				if(objects[i])
+					objects[i]->defInfo->serial = -1; //set serial to serial -1 - indicates that def is not present in defs vector
 
 			for(int i=0; i<objects.size(); i++)
 			{
+				if(!objects[i]) continue;
 				CGDefInfo *cur = objects[i]->defInfo;
 				if(cur->serial < 0)
 				{

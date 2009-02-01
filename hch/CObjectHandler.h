@@ -221,6 +221,7 @@ public:
 
 	void initHero(); 
 	void initHero(int SUBID); 
+	void initHeroDefInfo();
 	CGHeroInstance();
 	virtual ~CGHeroInstance();
 
