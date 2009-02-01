@@ -1779,7 +1779,6 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		case 214: //hero placeholder
 			{
 				i+=3; //TODO: handle it more properly
-				break;
 			}
 		default:
 			nobj = new CGObjectInstance();

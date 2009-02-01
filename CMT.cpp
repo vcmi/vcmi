@@ -79,7 +79,7 @@ int main(int argc, char** argv)
 	CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO)==0)
 	{
-		screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
+		screen = SDL_SetVideoMode(800,600,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
 		tlog0 <<"\tInitializing screen: "<<pomtime.getDif();
 			tlog0 << std::endl;
 		SDL_WM_SetCaption(NAME.c_str(),""); //set window title
@@ -138,6 +138,14 @@ int main(int argc, char** argv)
 
 		StartInfo *options = new StartInfo(cpg->runLoop());
 
+		if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
+		{
+			SDL_QuitSubSystem(SDL_INIT_VIDEO);
+			SDL_InitSubSystem(SDL_INIT_VIDEO);
+			screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
+			SDL_WM_SetCaption(NAME.c_str(),""); //set window title
+			SDL_ShowCursor(SDL_DISABLE);
+		}
 		CClient cl;
 		if(options->mode == 0) //new game
 		{
@@ -267,6 +275,25 @@ void processCommand(const std::string &message, CClient *&client)
 		std::string fname;
 		readed >> fname;
 		client->load(fname);
+	}
+	else if(cn=="resolution")
+	{
+		std::map<std::pair<int,int>, config::GUIOptions >::iterator j;
+		int i=1, hlp=1;
+		tlog4 << "Available screen resolutions:\n";
+		for(j=conf.guiOptions.begin(); j!=conf.guiOptions.end(); j++)
+			tlog4 << i++ <<". " << j->first.first << " x " << j->first.second << std::endl;
+		tlog4 << "Type number from 1 to " << i-1 << " to set appropriate resolution or 0 to cancel.\n";
+		std::cin >> i;
+		if(!i)
+			return;
+		else
+		{
+			for(j=conf.guiOptions.begin(); j!=conf.guiOptions.end() && hlp++<i; j++);
+			conf.cc.resx = j->first.first;
+			conf.cc.resy = j->first.second;
+			tlog0 << "Screen resolution set to " << conf.cc.resx << " x " << conf.cc.resy <<". It will be aplied when the game starts.\n";
+		}
 	}
 	else if(message=="get txt")
 	{
