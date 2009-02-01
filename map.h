@@ -402,8 +402,16 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		for(int i=0; i<objects.size(); i++)
 		{
 			CGObjectInstance *&obj = objects[i];
+			ui8 exists = (obj!=NULL);
 			ui32 hlp;
 			si32 shlp;
+			h & exists;
+			if(!exists)
+			{
+				if(!h.saving)
+					obj = 0;
+				continue;
+			}
 			h & (h.saving ? (hlp=obj->ID) : hlp);
 			switch(hlp)
 			{
@@ -504,6 +512,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 
 			for(int i=0; i<objects.size(); i++)
 			{
+				if(!objects[i]) continue;
 				if(objects[i]->ID == 34)
 					heroes.push_back(static_cast<CGHeroInstance*>(objects[i]));
 				else if(objects[i]->ID == 98)

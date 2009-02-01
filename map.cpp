@@ -1585,8 +1585,9 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 					{
 						art->army = readCreatureSet(bufor,i,7,(version>RoE));
 					}
+					i+=4;
 				}
-				if(areSettings || defInfo->id==93)
+				if(defInfo->id==93)
 				{
 					art->spell = readNormalNr(bufor,i); 
 					i+=4;
