@@ -357,6 +357,7 @@ void CMapHandler::initObjectRects()
 	//initializing objects / rects
 	for(size_t f=0; f < map->objects.size(); ++f)
 	{
+		if(!map->objects[f]) continue;
 		if((map->objects[f]->ID==34 && static_cast<CGHeroInstance*>(map->objects[f])->inTownGarrison)
 			|| !map->objects[f]->defInfo)
 		{
