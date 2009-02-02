@@ -3,8 +3,8 @@
 #include "global.h"
 #include <list>
 #include <set>
-const int Woff = 12; //width of map's frame
-const int Hoff = 8;
+const int Woff = 13; //width of map's frame
+const int Hoff = 10;
 
 class CGObjectInstance;
 class CGHeroInstance;
@@ -107,8 +107,7 @@ public:
 	void roadsRiverTerrainInit();
 	void prepareFOWDefs();
 
-	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect);
-	SDL_Surface * terrainRectSmooth(int x, int y, int dx, int dy, int level=0, unsigned char anim=0, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap = NULL, bool otherHeroAnim = false, unsigned char heroAnim = 0, SDL_Surface * extSurf = NULL, SDL_Rect * extRect = NULL, int moveX = 0, int moveY = 0); //if extSurf is specified, blit to it
+	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect, int moveX, int moveY, bool smooth);
 	void updateWater();
 	unsigned char getHeroFrameNum(const unsigned char & dir, const bool & isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper

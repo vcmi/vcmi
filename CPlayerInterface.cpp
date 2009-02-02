@@ -1197,14 +1197,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	int3 buff = details.ho->pos;
-	buff.x-=11;
-	buff.y-=9;
-	buff = repairScreenPos(buff);
-	LOCPLINT->adventureInt->position = buff; //actualizing screen pos
-
-	if(adventureInt == curint)
-		adventureInt->minimap.draw();
+	adventureInt->centerOn(details.ho->pos); //centering screen on hero
 
 	if(details.style>0)
 		return;

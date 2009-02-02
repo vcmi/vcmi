@@ -622,132 +622,164 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y-1) //35x
 			{
-				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1)
+				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //358
 				{
 					pn = 5;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //357
 				{
 					pn = 14;
 				}
-				else if(cv[i-1].coord.x+1 == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //354
 				{
 					pn = 23;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //351
 				{
 					pn = 24;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //359
 				{
 					pn = 4;
 				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y) //65x
 			{
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //657
 				{
 					pn = 6;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //654
 				{
 					pn = 15;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //651
 				{
 					pn = 24;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //652
+				{
+					pn = 17;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //658
+				{
+					pn = 5;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //653
+				{
+					pn = 18;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //659
+				{
+					pn = 4;
 				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y+1) //95x
 			{
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //954
 				{
 					pn = 7;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //951
 				{
 					pn = 16;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //952
 				{
 					pn = 17;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //957
 				{
 					pn = 6;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //953
 				{
 					pn = 18;
 				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1) //85x
 			{
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //857
 				{
 					pn = 6;
 				}
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y)
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y) //854
 				{
 					pn = 7;
 				}
-				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //851
 				{
 					pn = 8;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //852
 				{
 					pn = 9;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //853
 				{
 					pn = 18;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //856
 				{
 					pn = 19;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //859
 				{
 					pn = 20;
 				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y+1) //75x
 			{
-				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1)
+				if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //752
 				{
 					pn = 1;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //753
 				{
 					pn = 10;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //756
 				{
 					pn = 19;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //751
 				{
 					pn = 8;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //759
 				{
 					pn = 20;
 				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y) //45x
 			{
-				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1)
+				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //453
 				{
 					pn = 2;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //456
 				{
 					pn = 11;
 				}
-				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1)
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y+1) //459
 				{
 					pn = 20;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //452
+				{
+					pn = 1;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //456
+				{
+					pn = 21;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y-1) //451
+				{
+					pn = 8;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x-1 && cv[i-1].coord.y == cv[i].coord.y+1) //457
+				{
+					pn = 22;
 				}
 			}
 
@@ -824,24 +856,13 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 }
 void CTerrainRect::show()
 {
-	if(ADVOPT.smoothMove && (moveX != 0 || moveY != 0))
-	{
-		CGI->mh->terrainRectSmooth
+	CGI->mh->terrainRect
 			(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
 			tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
 			&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-			screen, &genRect(pos.h, pos.w, pos.x, pos.y), moveX, moveY
+			screen, &genRect(pos.h, pos.w, pos.x, pos.y), moveX, moveY, ADVOPT.smoothMove && (moveX != 0 || moveY != 0)
 			);
-	}
-	else
-	{
-		CGI->mh->terrainRect
-			(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
-			tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
-			&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-			screen, &genRect(pos.h, pos.w, pos.x, pos.y)
-			);
-	}
+	
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
 	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
@@ -1357,7 +1378,7 @@ void CAdvMapInt::update()
 		}
 		if(scrollingRight)
 		{
-			if(position.x   <   CGI->mh->map->width - terrain.tilesw + 4 )
+			if(position.x   <   CGI->mh->map->width - terrain.tilesw + Woff )
 			{
 				position.x++;
 				updateScreen = true;
@@ -1375,7 +1396,7 @@ void CAdvMapInt::update()
 		}
 		if(scrollingDown)
 		{
-			if(position.y  <  CGI->mh->map->height - terrain.tilesh + 4)
+			if(position.y  <  CGI->mh->map->height - terrain.tilesh + Hoff)
 			{
 				position.y++;
 				updateScreen = true;
@@ -1407,15 +1428,7 @@ void CAdvMapInt::centerOn(int3 on)
 	on.x -= (LOCPLINT->adventureInt->terrain.tilesw/2);
 	on.y -= (LOCPLINT->adventureInt->terrain.tilesh/2);
 
-	if (on.x<0)
-		on.x=-(Woff/2);
-	else if((on.x+LOCPLINT->adventureInt->terrain.tilesw)  >  (CGI->mh->sizes.x))
-		on.x=CGI->mh->sizes.x-LOCPLINT->adventureInt->terrain.tilesw+(Woff/2);
-
-	if (on.y<0)
-		on.y = -(Hoff/2);
-	else if((on.y+LOCPLINT->adventureInt->terrain.tilesh)  >  (CGI->mh->sizes.y))
-		on.y = CGI->mh->sizes.y-LOCPLINT->adventureInt->terrain.tilesh+(Hoff/2);
+	on = LOCPLINT->repairScreenPos(on);
 
 	LOCPLINT->adventureInt->position.x=on.x;
 	LOCPLINT->adventureInt->position.y=on.y;
