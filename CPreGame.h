@@ -221,7 +221,7 @@ public:
 	bool listShowed;
 	//RanSel ransel;
 	MapSel mapsel;
-	SDL_Surface * background, *scenInf, *scenList, *randMap, *options ;
+	SDL_Surface * background, *savenameStrip, *scenInf, *scenList, *randMap, *options ;
 	Button bScens, bOptions, bRandom, bBegin, bLoad, bBack;
 	IntSelBut	bEasy, bNormal, bHard, bExpert, bImpossible;
 	Button * pressed;
@@ -244,7 +244,7 @@ public:
 	StartInfo ret;
 	bool run;
 	bool first; //hasn't we showed the scensel
-	bool fromnewgame;
+	int fromnewgame; //1 - new game; 0 - load game; 2 - save game
 	std::vector<Slider *> interested;
 	CMusicHandler * mush;
 	std::vector<HighButton *> btns;

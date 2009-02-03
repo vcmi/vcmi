@@ -33,6 +33,41 @@ template <typename T> struct Query
 {
 	ui32 id;
 };
+
+struct MetaString : public CPack<MetaString> //2001 helper for object scrips
+{
+	std::vector<std::string> strings;
+	std::vector<std::pair<ui8,ui32> > texts; //pairs<text handler type, text number>; types: 1 - generaltexthandler->all; 2 - objh->xtrainfo; 3 - objh->names; 4 - objh->restypes; 5 - arth->artifacts[id].name; 6 - generaltexth->arraytxt; 7 - creh->creatures[os->subID].namePl; 8 - objh->creGens; 9 - objh->mines[ID].first; 10 - objh->mines[ID].second; 11 - objh->advobtxt
+	std::vector<si32> message;
+	std::vector<std::string> replacements;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & strings & texts & message & replacements;
+	}
+
+	MetaString& operator<<(const std::pair<ui8,ui32> &txt)
+	{
+		message.push_back(-((si32)texts.size())-1);
+		texts.push_back(txt);
+		return *this;
+	}
+	MetaString& operator<<(const std::string &txt)
+	{
+		message.push_back(strings.size()+1);
+		strings.push_back(txt);
+		return *this;
+	}
+	void clear()
+	{
+		strings.clear();
+		texts.clear();
+		message.clear();
+	}
+
+	MetaString(){type = 2001;};
+}; 
+
 struct SetResources : public CPack<SetResources> //104
 {
 	SetResources(){res.resize(RESOURCE_QUANTITY);type = 104;};
@@ -152,6 +187,23 @@ struct SetAvailableHeroes : public CPack<SetAvailableHeroes> //113
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & hid1 & hid2 & flags;
+	}
+};
+
+struct GiveBonus :  public CPack<GiveBonus> //115
+{
+	GiveBonus(){type = 115;};
+
+	ui8 bduration;
+	ui8 btype;
+	si32 bval;
+	ui32 bid;
+	ui32 hid;
+	MetaString bdescr;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & bduration & btype & bval & bid & hid & bdescr;
 	}
 };
 
@@ -295,39 +347,6 @@ struct NewTurn : public CPack<NewTurn> //101
 //		h & sac;
 //	}
 //};  
-struct MetaString : public CPack<MetaString> //2001 helper for object scrips
-{
-	std::vector<std::string> strings;
-	std::vector<std::pair<ui8,ui32> > texts; //pairs<text handler type, text number>; types: 1 - generaltexthandler->all; 2 - objh->xtrainfo; 3 - objh->names; 4 - objh->restypes; 5 - arth->artifacts[id].name; 6 - generaltexth->arraytxt; 7 - creh->creatures[os->subID].namePl; 8 - objh->creGens; 9 - objh->mines[ID].first; 10 - objh->mines[ID].second; 11 - objh->advobtxt
-	std::vector<si32> message;
-	std::vector<std::string> replacements;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & strings & texts & message & replacements;
-	}
-
-	MetaString& operator<<(const std::pair<ui8,ui32> &txt)
-	{
-		message.push_back(-((si32)texts.size())-1);
-		texts.push_back(txt);
-		return *this;
-	}
-	MetaString& operator<<(const std::string &txt)
-	{
-		message.push_back(strings.size()+1);
-		strings.push_back(txt);
-		return *this;
-	}
-	void clear()
-	{
-		strings.clear();
-		texts.clear();
-		message.clear();
-	}
-
-	MetaString(){type = 2001;};
-}; 
 struct Component : public CPack<Component> //2002 helper for object scrips informations
 {
 	ui16 id, subtype; //ids: 0 - primskill; 1 - secskill; 2 - resource; 3 - creature; 4 - artifact; 5 - experience (sub==0 exp points; sub==1 levels)

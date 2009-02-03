@@ -105,6 +105,8 @@ class CHeroWindow: public IShowActivable, public virtual CIntObject
 	std::vector<LRClickableAreaWTextComp *> primSkillAreas;
 	LRClickableAreaWText * expArea;
 	LRClickableAreaWText * spellPointsArea;
+	LRClickableAreaWTextComp * luck;
+	LRClickableAreaWTextComp * morale;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 public:
 	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general

@@ -583,6 +583,13 @@ void CGameState::applyNL(IPack * pack)
 			}
 			break;
 		}
+	case 115:
+		{
+			GiveBonus *rh = static_cast<GiveBonus*>(pack);
+			CGHeroInstance *h = getHero(rh->hid);
+			h->bonuses.push_back(CGHeroInstance::Bonus(rh->bduration,rh->btype,rh->bval,rh->bid,toString(rh->bdescr)));
+			break;
+		}
 	case 500:
 		{
 			RemoveObject *rh = static_cast<RemoveObject*>(pack);

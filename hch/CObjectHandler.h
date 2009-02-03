@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <map>
+#include <list>
 #include "CCreatureHandler.h"
 #ifndef _MSC_VER
 #include "CHeroHandler.h"
@@ -165,18 +166,41 @@ public:
 	si32 movement; //remaining movement points
 	si32 identifier; //from the map file
 	ui8 sex;
-	struct DLL_EXPORT Patrol
-	{
-		Patrol(){patrolling=false;patrolRadious=-1;};
-		bool patrolling;
-		int patrolRadious;
-	} patrol;
 	ui8 inTownGarrison; // if hero is in town garrison 
 	CGTownInstance * visitedTown; //set if hero is visiting town or in the town garrison
 	std::vector<ui32> artifacts; //hero's artifacts from bag
 	std::map<ui16,ui32> artifWorn; //map<position,artifact_id>; positions: 0 - head; 1 - shoulders; 2 - neck; 3 - right hand; 4 - left hand; 5 - torso; 6 - right ring; 7 - left ring; 8 - feet; 9 - misc1; 10 - misc2; 11 - misc3; 12 - misc4; 13 - mach1; 14 - mach2; 15 - mach3; 16 - mach4; 17 - spellbook; 18 - misc5
 	std::set<ui32> spells; //known spells (spell IDs)
 
+	struct DLL_EXPORT Patrol
+	{
+		Patrol(){patrolling=false;patrolRadious=-1;};
+		ui8 patrolling;
+		si32 patrolRadious;
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & patrolling & patrolRadious;
+		}
+	} patrol;
+
+	struct DLL_EXPORT Bonus
+	{
+		ui8 duration; //0 - Permanent, 1 - OneBattle, 2 - OneDay, 3 - OneWeek
+		ui8 type; //0 - none, 1 - movement; 2 - morale; 3 - luck
+		si32 val;
+		ui32 id;
+		std::string description;
+
+		Bonus(ui8 Dur, ui8 Type, si32 Val, ui32 ID, std::string Desc)
+			:duration(Dur), type(Type), val(Val), id(ID), description(Desc)
+		{}
+		Bonus(){};
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & duration & type & val & id;
+		}
+	};
+	std::list<Bonus> bonuses;
 	//////////////////////////////////////////////////////////////////////////
 
 
@@ -184,7 +208,7 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & exp & level & name & biography & portrait & mana & primSkills & secSkills & movement
-			& identifier & sex & inTownGarrison & artifacts & artifWorn & spells;
+			& identifier & sex & inTownGarrison & artifacts & artifWorn & spells & patrol & bonuses;
 
 		ui8 standardType = (VLC->heroh->heroes[subID] == type);
 		h & standardType;
@@ -207,7 +231,8 @@ public:
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	bool canWalkOnSea() const;
 	int getCurrentLuck() const;
-	int getCurrentMorale() const;
+	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered
+	std::vector<std::pair<int,std::string> > getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
 	int getPrimSkillLevel(int id) const;
 	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
 	int maxMovePoints(bool onLand) const;
@@ -216,6 +241,7 @@ public:
 	const CArtifact * getArt(int pos) const;
 	int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
+
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -452,6 +478,9 @@ public:
 	std::string message;
 	ui32 spell; //if it's spell scroll
 	void onHeroVisit(const CGHeroInstance * h) const;
+	void fightForArt(ui32 refusedFight, const CGHeroInstance *h) const;
+	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
+	void pick( const CGHeroInstance * h ) const;
 	void initObj();	
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -582,6 +611,21 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 	}
 };
+
+class DLL_EXPORT CGDwelling : public CGObjectInstance //teleports and subterranean gates
+{
+public:
+	static std::map<int,std::map<int, std::vector<int> > > objs; //map[ID][subID] => vector of ids
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();	
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+
 
 class DLL_EXPORT CObjectHandler
 {

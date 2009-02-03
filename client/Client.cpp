@@ -206,6 +206,14 @@ void CClient::process(int what)
 			gs->apply(&sav);
 			break;
 		}
+	case 115:
+		{
+			GiveBonus gb;
+			*serv >> gb;
+			tlog5 << "Hero receives bonus\n";
+			gs->apply(&gb);
+			break;
+		}
 	case 500:
 		{
 			RemoveObject rh;

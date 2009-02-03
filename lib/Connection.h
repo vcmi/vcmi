@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <list>
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
@@ -263,6 +264,15 @@ public:
 		for(typename std::set<T>::iterator i=d.begin();i!=d.end();i++)
 			*this << *i;
 	}
+	template <typename T>
+	void saveSerializable(const std::list<T> &data)
+	{
+		std::list<T> &d = const_cast<std::list<T> &>(data);
+		boost::uint32_t length = d.size();
+		*this << length;
+		for(typename std::list<T>::iterator i=d.begin();i!=d.end();i++)
+			*this << *i;
+	}
 	void saveSerializable(const std::string &data)
 	{
 		*this << ui32(data.length());
@@ -381,6 +391,18 @@ public:
 		{
 			*this >> ins;
 			data.insert(ins);
+		}
+	}
+	template <typename T>
+	void loadSerializable(std::list<T> &data)
+	{
+		boost::uint32_t length;
+		*this >> length;
+		T ins;
+		for(ui32 i=0;i<length;i++)
+		{
+			*this >> ins;
+			data.push_back(ins);
 		}
 	}
 	template <typename T1, typename T2>

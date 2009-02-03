@@ -224,7 +224,7 @@ class SComponent : public ClickableR
 public:
 	enum Etype
 	{
-		primskill, secskill, resource, creature, artifact, experience, secskill44, spell
+		primskill, secskill, resource, creature, artifact, experience, secskill44, spell, morale, luck
 	} type;
 	int subtype;
 	int val;

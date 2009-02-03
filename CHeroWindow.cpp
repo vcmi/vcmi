@@ -101,6 +101,12 @@ CHeroWindow::CHeroWindow(int playerColor):
 	expArea->pos.h = 42;
 	expArea->hoverText = CGI->generaltexth->heroscrn[9];
 
+	morale = new LRClickableAreaWTextComp();
+	morale->pos = genRect(45,53,pos.x+240,pos.y+187);
+
+	luck = new LRClickableAreaWTextComp();
+	luck->pos = genRect(45,53,pos.x+298,pos.y+187);
+
 	spellPointsArea = new LRClickableAreaWText();
 	spellPointsArea->pos.x = pos.x+227;
 	spellPointsArea->pos.y = pos.y  +  236;
@@ -161,6 +167,8 @@ CHeroWindow::~CHeroWindow()
 
 	delete portraitArea;
 	delete expArea;
+	delete luck;
+	delete morale;
 	delete spellPointsArea;
 	for(size_t v=0; v<primSkillAreas.size(); ++v)
 	{
@@ -339,6 +347,18 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	formations->select(hero->army.formation,true);
 	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, _1);
 
+	std::vector<std::pair<int,std::string> > mrl = hero->getCurrentMoraleModifiers();
+	int mrlv = hero->getCurrentMorale();
+	int mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
+	morale->hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
+	morale->baseType = SComponent::morale;
+	morale->bonus = mrlv;
+	morale->text = CGI->generaltexth->arraytxt[88];
+	boost::algorithm::replace_first(morale->text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
+	for(int it=0; it < mrl.size(); it++)
+		morale->text += mrl[it].second;
+
+
 	pos.x += 65;
 	pos.y += 8;
 
@@ -385,6 +405,8 @@ void CHeroWindow::activate()
 	portraitArea->activate();
 	expArea->activate();
 	spellPointsArea->activate();
+	morale->activate();
+	luck->activate();
 
 	garInt->activate();
 	LOCPLINT->statusbar = ourBar;
@@ -430,6 +452,8 @@ void CHeroWindow::deactivate()
 	portraitArea->deactivate();
 	expArea->deactivate();
 	spellPointsArea->deactivate();
+	morale->activate();
+	luck->activate();
 
 	garInt->deactivate();
 
@@ -830,10 +854,6 @@ void LClickableArea::clickLeft(boost::logic::tribool down)
 	//{
 	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
 	//}
-
-
-
-
 }
 
 void RClickableArea::activate()
@@ -850,10 +870,6 @@ void RClickableArea::clickRight(boost::logic::tribool down)
 	//{
 	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
 	//}
-
-
-
-
 }
 
 void LRClickableAreaWText::clickLeft(boost::logic::tribool down)

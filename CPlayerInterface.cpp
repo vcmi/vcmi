@@ -168,7 +168,7 @@ void CGarrisonSlot::clickRight (tribool down)
 			pom->attackBonus = h->getPrimSkillLevel(0);
 			pom->defenseBonus = h->getPrimSkillLevel(1);
 			pom->luck = h->getCurrentLuck();
-			pom->morale = h->getCurrentMorale();
+			pom->morale = h->getCurrentMorale(ID);
 		}
 		(new CCreInfoWindow(creature->idNumber,0,count,pom,boost::function<void()>(),boost::function<void()>(),NULL))
 				->activate();
@@ -723,6 +723,9 @@ SDL_Surface * SComponent::getImg()
 	case experience:
 		return graphics->pskillsb->ourImages[4].bitmap;
 		break;
+	case morale:
+		return graphics->morale82->ourImages[val+3].bitmap;
+		break;
 	}
 	return NULL;
 }
@@ -1197,7 +1200,14 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	adventureInt->centerOn(details.ho->pos); //centering screen on hero
+	int3 buff = details.ho->pos;
+	buff.x-=11;
+	buff.y-=9;
+	buff = repairScreenPos(buff);
+	LOCPLINT->adventureInt->position = buff; //actualizing screen pos
+
+	if(adventureInt == curint)
+		adventureInt->minimap.draw();
 
 	if(details.style>0)
 		return;

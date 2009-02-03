@@ -1136,20 +1136,37 @@ upgend:
 								tlog3<<"We cannot move this stack to its destination "<<curStack->creature->namePl<<std::endl;
 							}
 
-							if( (BattleInfo::mutualPosition(ba.destinationTile, ba.additionalInfo) < 0 //destination tile is not neighbouring with enemy stack
-									&& !curStack->creature->isDoubleWide())
-								|| (curStack->creature->isDoubleWide()
-									&& (BattleInfo::mutualPosition(ba.destinationTile, ba.additionalInfo) < 0)
-									&& (BattleInfo::mutualPosition(ba.destinationTile + (curStack->attackerOwned ? -1 : 1), ba.additionalInfo) < 0))
-							  ) 
+							if(!stackAtEnd)
 							{
+								tlog3 << "There is no stack on " << ba.additionalInfo << " tile (no attack)!";
+								break;
+							}
+
+							ui16 curpos = curStack->position, 
+								enemypos = stackAtEnd->position;
+
+
+							if( !(
+								(BattleInfo::mutualPosition(curpos, enemypos) >= 0)						//front <=> front
+								|| (curStack->creature->isDoubleWide()									//back <=> front
+									&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos) >= 0)
+								|| (stackAtEnd->creature->isDoubleWide()									//front <=> back
+									&& BattleInfo::mutualPosition(curpos, enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
+								|| (stackAtEnd->creature->isDoubleWide() && curStack->creature->isDoubleWide()//back <=> back
+									&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
+								)
+							)
+							{
+								tlog3 << "Attack cannot be performed!";
 								sendDataToClients(ui16(3008)); //end movement and attack
 								break;
 							}
 
+							//attack
 							BattleAttack bat;
 							prepareAttack(bat,curStack,stackAtEnd);
 							sendAndApply(&bat);
+
 							//counterattack
 							if(!vstd::contains(curStack->abilities,NO_ENEMY_RETALIATION)
 								&& stackAtEnd->alive()
@@ -1161,6 +1178,7 @@ upgend:
 								sendAndApply(&bat);
 							}
 
+							//second attack
 							if(vstd::contains(curStack->abilities,TWICE_ATTACK)
 								&& curStack->alive()
 								&& stackAtEnd->alive()  )

@@ -839,6 +839,7 @@ int MapSel::countWL()
 void MapSel::printMaps(int from, int to, int at, bool abs)
 {
 	if (!slid->positionsAmnt) return; //no maps to print
+	slid->capacity = (CPG->fromnewgame == 2  ?  16  : 18);
 	if(slid->positionsAmnt < slid->capacity)
 		from = 0;
 	int help=-1;
@@ -928,7 +929,7 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 		else
 			tlog2 << "Warning: " << curVector()[(i-at)+from].filename << " has wrong version!\n";
 
-		if(CPG->fromnewgame)
+		if(CPG->fromnewgame == 1)
 		{
 			if (!(curVector()[(i-at)+from].name.length()))
 				curVector()[(i-at)+from].name = "Unnamed";
@@ -998,7 +999,7 @@ void MapSel::show()
 	//blit bg
 	blitAt(bg,3,6);
 	CSDL_Ext::printAt("Map Sizes",55,60,GEOR13);
-	CSDL_Ext::printAt(CGI->generaltexth->arraytxt[CPG->fromnewgame ? 229 : 230],110,25,TNRB16); //Select a Scenario to Play : Load a Saved Game
+	CSDL_Ext::printAt(CGI->generaltexth->arraytxt[CPG->fromnewgame==1 ? 229 : 230],110,25,TNRB16); //Select a Scenario to Play : Load a Saved Game
 	//size buttons
 	small.show();
 	medium.show();
@@ -1318,7 +1319,7 @@ void MapSel::printSelectedInfo()
 
 	SDL_BlitSurface(CPG->ourScenSel->scenInf,&genRect(399,337,17,23),screen,&genRect(399,337,413,29));
 	SDL_BlitSurface(CPG->ourScenSel->scenInf,&genRect(50,91,18,447),screen,&genRect(50,91,414,453));
-	if(CPG->fromnewgame)
+	if(CPG->fromnewgame==1)
 	{
 		SDL_BlitSurface(CPG->ourScenSel->bScens.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bScens.pos);
 		SDL_BlitSurface(CPG->ourScenSel->bOptions.imgs->ourImages[0].bitmap,NULL,screen,&CPG->ourScenSel->bOptions.pos);
@@ -1471,7 +1472,7 @@ std::string MapSel::gdiff(std::string ss)
 
 CMapInfo & MapSel::selectedMap()
 {
-	if(CPG->fromnewgame)
+	if(CPG->fromnewgame==1)
 		return ourMaps[selected];
 	else
 		return ourGames[selected];
@@ -1480,7 +1481,7 @@ CMapInfo & MapSel::selectedMap()
 std::vector<CMapInfo> & MapSel::curVector()
 {
 
-	if (CPG->fromnewgame) 
+	if (CPG->fromnewgame==1) 
 		return ourMaps;
 	else
 		return ourGames;
@@ -1581,7 +1582,7 @@ void CPreGame::showScenSel()
 	SDL_BlitSurface(ourScenSel->bHard.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bHard.pos);
 	SDL_BlitSurface(ourScenSel->bExpert.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bExpert.pos);
 	SDL_BlitSurface(ourScenSel->bImpossible.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bImpossible.pos);
-	SDL_BlitSurface((fromnewgame ? ourScenSel->bBegin : ourScenSel->bLoad).imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bBegin.pos);
+	SDL_BlitSurface((fromnewgame==1 ? ourScenSel->bBegin : ourScenSel->bLoad).imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bBegin.pos);
 	SDL_BlitSurface(ourScenSel->bBack.imgs->ourImages[0].bitmap,NULL,screen,&ourScenSel->bBack.pos);
 	//blitAt(ourScenSel->bScens.imgs->ourImages[0].bitmap,ourScenSel->bScens.pos.x,ourScenSel->bScens.pos.y);
 	//blitAt(ourScenSel->bRandom.imgs->ourImages[0].bitmap,414,105);
@@ -1592,7 +1593,7 @@ void CPreGame::showScenSel()
 	//add buttons info
 	if(first)
 	{
-		if(fromnewgame)
+		if(fromnewgame==1)
 		{
 			btns.push_back(&ourScenSel->bEasy);
 			btns.push_back(&ourScenSel->bNormal);
@@ -1605,7 +1606,7 @@ void CPreGame::showScenSel()
 		}
 		else
 			ourScenSel->mapsel.show();
-		btns.push_back(&(fromnewgame ? ourScenSel->bBegin : ourScenSel->bLoad));
+		btns.push_back(&(fromnewgame==1 ? ourScenSel->bBegin : ourScenSel->bLoad));
 		btns.push_back(&ourScenSel->bBack);
 
 		ourScenSel->selectedDiff=1;
@@ -2468,6 +2469,7 @@ ScenSel::ScenSel()
 	else 
 		background = BitmapHandler::loadBitmap("ZPIC1001.bmp");
 
+	savenameStrip = BitmapHandler::loadBitmap("GSSTRIP.bmp");
 	scenInf = BitmapHandler::loadBitmap("GSELPOP1.bmp");
 	randMap = BitmapHandler::loadBitmap("RANMAPBK.bmp");
 	options = BitmapHandler::loadBitmap("ADVOPTBK.bmp");

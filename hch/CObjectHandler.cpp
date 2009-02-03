@@ -330,11 +330,6 @@ int CGHeroInstance::getCurrentLuck() const
 	//TODO: write it
 	return 0;
 }
-int CGHeroInstance::getCurrentMorale() const
-{
-	//TODO: write it
-	return 0;
-}
 int CGHeroInstance::getPrimSkillLevel(int id) const
 {
 	return primSkills[id];
@@ -599,6 +594,60 @@ const std::string & CGHeroInstance::getBiography() const
 void CGHeroInstance::initObj()
 {
 	blockVisit = true;
+}
+
+int CGHeroInstance::getCurrentMorale( int stack, bool town ) const
+{
+	int ret = 0;
+	std::vector<std::pair<int,std::string> > mods = getCurrentMoraleModifiers(stack,town);
+	for(int i=0; i < mods.size(); i++)
+		ret += mods[i].first;
+	return ret;
+}
+
+std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifiers( int stack/*=-1*/, bool town/*=false*/ ) const
+{
+	//TODO: check if stack is undead/mechanic/elemental => always neutrl morale
+	std::vector<std::pair<int,std::string> > ret;
+
+	//various morale bonuses (from buildings, artifacts, etc)
+	for(std::list<Bonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+		if(i->type == 2)
+			ret.push_back(std::make_pair(i->val, i->description));
+
+	//leadership
+	if(getSecSkillLevel(6)) 
+		ret.push_back(std::make_pair(getSecSkillLevel(6),VLC->generaltexth->arraytxt[104+getSecSkillLevel(6)]));
+
+
+	//number of alignments and presence of undead
+	if(stack>=0)
+	{
+		std::set<si8> factions;
+		for(std::map<si32,std::pair<ui32,si32> >::const_iterator i=army.slots.begin(); i!=army.slots.end(); i++)
+			factions.insert(VLC->creh->creatures[i->second.first].faction);
+
+		if(factions.size() == 1)
+			ret.push_back(std::pair<int,std::string>(1,VLC->generaltexth->arraytxt[115])); //All troops of one alignment +1
+		else
+		{
+			if(VLC->generaltexth->arraytxt[114].length() <= 100)
+			{
+				char buf[150];
+				std::sprintf(buf,VLC->generaltexth->arraytxt[114].c_str(),factions.size(),2-factions.size());
+				ret.push_back(std::pair<int,std::string>(2-factions.size(),buf)); //Troops of %d alignments %d
+			}
+			else
+			{
+				ret.push_back(std::pair<int,std::string>(2-factions.size(),"")); //Troops of %d alignments %d
+			}
+		}
+
+		if(vstd::contains(factions,4))
+			ret.push_back(std::pair<int,std::string>(-1,VLC->generaltexth->arraytxt[116])); //Undead in group -1
+	}
+
+	return ret;
 }
 
 int CGTownInstance::getSightDistance() const //returns sight distance
@@ -1151,10 +1200,8 @@ void CGResource::collectRes( int player ) const
 
 void CGResource::fightForRes(ui32 refusedFight, const CGHeroInstance *h) const
 {
-	if(refusedFight)
-		return;
-
-	cb->startBattleI(h->id,army,pos,boost::bind(&CGResource::endBattle,this,_1,h));
+	if(!refusedFight)
+		cb->startBattleI(h->id,army,pos,boost::bind(&CGResource::endBattle,this,_1,h));
 }
 
 void CGResource::endBattle( BattleResult *result, const CGHeroInstance *h ) const
@@ -1308,15 +1355,51 @@ void CGArtifact::initObj()
 
 void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 {
-	cb->giveHeroArtifact(subID,h->id,-2);
-	cb->removeObject(id);
-	InfoWindow iw;
-	iw.player = h->tempOwner;
-	iw.components.push_back(Component(4,subID,0,0));
-	iw.text << std::pair<ui8,ui32>(12,subID);
-	cb->showInfoDialog(&iw);
+	if(!army.slots.size())
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.components.push_back(Component(4,subID,0,0));
+		if(message.length())
+			iw.text <<  message;
+		else
+			iw.text << std::pair<ui8,ui32>(12,subID);
+		cb->showInfoDialog(&iw);
+		pick(h);
+	}
+	else
+	{
+		if(message.size())
+		{
+			YesNoDialog ynd;
+			ynd.player = h->getOwner();
+			ynd.text << message;
+			cb->showYesNoDialog(&ynd,boost::bind(&CGArtifact::fightForArt,this,_1,h));
+		}
+		else
+		{
+			fightForArt(0,h);
+		}
+	}
 }
 
+void CGArtifact::pick(const CGHeroInstance * h) const
+{
+	cb->giveHeroArtifact(subID,h->id,-2);
+	cb->removeObject(id);
+}
+
+void CGArtifact::fightForArt( ui32 refusedFight, const CGHeroInstance *h ) const
+{
+	if(!refusedFight)
+		cb->startBattleI(h->id,army,pos,boost::bind(&CGArtifact::endBattle,this,_1,h));
+}
+
+void CGArtifact::endBattle( BattleResult *result, const CGHeroInstance *h ) const
+{
+	if(result->winner == 0) //attacker won
+		pick(h);
+}
 void CGPickable::initObj()
 {
 	blockVisit = true;
@@ -1453,4 +1536,14 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	cb->showInfoDialog(&iw);
+}
+
+void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
+{
+
+}
+
+void CGDwelling::initObj()
+{
+
 }
