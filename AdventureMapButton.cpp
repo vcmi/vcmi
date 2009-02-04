@@ -55,7 +55,7 @@ void AdventureMapButton::clickLeft (tribool down)
 		//if(!callback.empty())
 			callback();
 	}
-	else if (pressedL && (down==false))
+	else if (!actOnDown && pressedL && (down==false))
 	{
 		pressedL=state;
 		//if(!callback.empty())
@@ -370,10 +370,6 @@ void CSlider::clickLeft (tribool down)
 		if (rw<0) return;
 		moveTo(rw*amount);
 		return;
-	}
-	else
-	{
-		moving = false;
 	}
 	if(moving)
 	{

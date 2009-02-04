@@ -3520,8 +3520,12 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	cb = callback;
 	for(int i=0;i<skills.size();i++)
 		comps.push_back(new CSelectableComponent(SComponent::secskill44,skills[i],hero->getSecSkillLevel(skills[i])+1,boost::bind(&CLevelWindow::selectionChanged,this,i)));
-	comps[0]->assignedKeys.insert(SDLK_1);
-	comps[1]->assignedKeys.insert(SDLK_2);
+	if(comps.size())
+	{
+		comps[0]->assignedKeys.insert(SDLK_1);
+		if(comps.size() > 1)
+			comps[1]->assignedKeys.insert(SDLK_2);
+	}
 	bitmap = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
 	graphics->blueToPlayersAdv(bitmap,hero->tempOwner);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
