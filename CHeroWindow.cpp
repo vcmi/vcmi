@@ -358,6 +358,16 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	for(int it=0; it < mrl.size(); it++)
 		morale->text += mrl[it].second;
 
+	mrl = hero->getCurrentLuckModifiers();
+	mrlv = hero->getCurrentLuck();
+	mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
+	luck->hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
+	luck->baseType = SComponent::luck;
+	luck->bonus = mrlv;
+	luck->text = CGI->generaltexth->arraytxt[62];
+	boost::algorithm::replace_first(luck->text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
+	for(int it=0; it < mrl.size(); it++)
+		luck->text += mrl[it].second;
 
 	pos.x += 65;
 	pos.y += 8;

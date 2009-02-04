@@ -1777,6 +1777,14 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				loadQuest(guard, bufor, i);
 				break;
 			}
+		case 28: //faerie ring
+		case 14: //Swan pond
+		case 38: //idol of fortune
+		case 30: //Fountain of Fortune
+			{
+				nobj = new CGBonusingObject();
+				break;
+			}
 		case 214: //hero placeholder
 			{
 				i+=3; //TODO: handle it more properly

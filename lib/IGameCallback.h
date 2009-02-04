@@ -6,6 +6,8 @@
 #include <set>
 #include "../client/FunctionList.h"
 
+struct SetMovePoints;
+struct GiveBonus;
 class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
@@ -55,5 +57,7 @@ public:
 	virtual void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb)=0; //for hero<=>neutral army
 	virtual void setAmount(int objid, ui32 val)=0;
 	virtual void moveHero(int hid, int3 pos, bool instant)=0;
+	virtual void giveHeroBonus(GiveBonus * bonus)=0;
+	virtual void setMovePoints(SetMovePoints * smp)=0;
 };
 #endif // __IGAMECALLBACK_H__

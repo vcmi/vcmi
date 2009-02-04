@@ -2367,3 +2367,13 @@ void CGameHandler::sendMessageTo( CConnection &c, std::string message )
 {
 	c << ui16(95) << message;
 }
+
+void CGameHandler::giveHeroBonus( GiveBonus * bonus )
+{
+	sendAndApply(bonus);
+}
+
+void CGameHandler::setMovePoints( SetMovePoints * smp )
+{
+	sendAndApply(smp);
+}

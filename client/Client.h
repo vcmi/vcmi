@@ -85,6 +85,8 @@ public:
 	void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb){}; //for hero<=>neutral army
 	void setAmount(int objid, ui32 val){};
 	void moveHero(int hid, int3 pos, bool instant){};
+	void giveHeroBonus(GiveBonus * bonus){};
+	void setMovePoints(SetMovePoints * smp){};
 	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console

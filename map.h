@@ -495,6 +495,12 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			case 215:
 				SERIALIZE(CGQuestGuard);
 				break;
+			case 28: //faerie ring
+			case 14: //Swan pond
+			case 38: //idol of fortune
+			case 30: //Fountain of Fortune
+				SERIALIZE(CGBonusingObject);
+				break;
 			default:
 				SERIALIZE(CGObjectInstance);
 			}

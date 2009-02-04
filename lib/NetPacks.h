@@ -2,6 +2,8 @@
 #define __NETPACKS_H__
 #include "../global.h"
 #include "BattleAction.h"
+#include "HeroBonus.h"
+
 struct IPack
 {
 	virtual ui16 getType()const = 0 ;
@@ -194,16 +196,13 @@ struct GiveBonus :  public CPack<GiveBonus> //115
 {
 	GiveBonus(){type = 115;};
 
-	ui8 bduration;
-	ui8 btype;
-	si32 bval;
-	ui32 bid;
 	ui32 hid;
+	HeroBonus bonus;
 	MetaString bdescr;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & bduration & btype & bval & bid & hid & bdescr;
+		h & bonus & hid & bdescr;
 	}
 };
 

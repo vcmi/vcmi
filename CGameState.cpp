@@ -587,7 +587,8 @@ void CGameState::applyNL(IPack * pack)
 		{
 			GiveBonus *rh = static_cast<GiveBonus*>(pack);
 			CGHeroInstance *h = getHero(rh->hid);
-			h->bonuses.push_back(CGHeroInstance::Bonus(rh->bduration,rh->btype,rh->bval,rh->bid,toString(rh->bdescr)));
+			h->bonuses.push_back(rh->bonus);
+			h->bonuses.back().description = toString(rh->bdescr);
 			break;
 		}
 	case 500:

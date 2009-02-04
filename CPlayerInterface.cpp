@@ -155,21 +155,24 @@ const CArmedInstance * CGarrisonSlot::getObj()
 	return 	(!upg)?(owner->oup):(owner->odown);
 }
 
+StackState* getStackState(const CGObjectInstance *obj, int pos, bool town)
+{
+	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(obj);
+	if(!h) return NULL;
+	StackState *pom = new StackState();
+	pom->currentHealth = 0;
+	pom->attackBonus = h->getPrimSkillLevel(0);
+	pom->defenseBonus = h->getPrimSkillLevel(1);
+	pom->luck = h->getCurrentLuck();
+	pom->morale = h->getCurrentMorale(pos,town);
+	return pom;
+}
+
 void CGarrisonSlot::clickRight (tribool down)
 {
-	StackState *pom = NULL;
+	StackState *pom = getStackState(getObj(),ID,LOCPLINT->curint == LOCPLINT->castleInt);
 	if(down && creature)
 	{
-		if(getObj()->ID == 34)
-		{
-			pom = new StackState();
-			const CGHeroInstance *h = static_cast<const CGHeroInstance *>(getObj());
-			pom->currentHealth = 0;
-			pom->attackBonus = h->getPrimSkillLevel(0);
-			pom->defenseBonus = h->getPrimSkillLevel(1);
-			pom->luck = h->getCurrentLuck();
-			pom->morale = h->getCurrentMorale(ID);
-		}
 		(new CCreInfoWindow(creature->idNumber,0,count,pom,boost::function<void()>(),boost::function<void()>(),NULL))
 				->activate();
 		//LOCPLINT->curint->deactivate();
@@ -190,11 +193,12 @@ void CGarrisonSlot::clickLeft(tribool down)
 		{
 			if(owner->highlighted == this) //view info
 			{
+				StackState *pom2 = getStackState(getObj(),ID,LOCPLINT->curint == LOCPLINT->castleInt);
 				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(),ID);
 				if(pom.oldID>=0)
 				{
 					(new CCreInfoWindow
-						(creature->idNumber,1,count,NULL,
+						(creature->idNumber,1,count,pom2,
 						boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,pom.newID[0]), //if upgrade is possible we'll bind proper function in callback
 						 boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),&pom))
 							->activate();
@@ -202,7 +206,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 				else
 				{
 					(new CCreInfoWindow
-						(creature->idNumber,1,count,NULL,0, boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),NULL) )
+						(creature->idNumber,1,count,pom2,0, boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),NULL) )
 						->activate();
 				}
 				if(LOCPLINT->curint->subInt)
@@ -212,6 +216,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 				owner->highlighted = NULL;
 				show();
 				refr = true;
+				delete pom2;
 			}
 			else if(!creature 
 				&& (owner->splitting 
@@ -725,6 +730,9 @@ SDL_Surface * SComponent::getImg()
 		break;
 	case morale:
 		return graphics->morale82->ourImages[val+3].bitmap;
+		break;
+	case luck:
+		return graphics->luck82->ourImages[val+3].bitmap;
 		break;
 	}
 	return NULL;

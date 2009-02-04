@@ -393,6 +393,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\HeroBonus.h"
+				>
+			</File>
+			<File
 				RelativePath=".\IGameCallback.h"
 				>
 			</File>

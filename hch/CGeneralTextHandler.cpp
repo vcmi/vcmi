@@ -289,6 +289,8 @@ void CGeneralTextHandler::load()
 	while(itr<strs.length()-1)
 	{
 		loadToIt(tmp, strs, itr, 3);
+		if(tmp[0] == '"' && tmp[tmp.size()-1] == '"')
+			tmp = tmp.substr(1,tmp.size()-2);
 		arraytxt.push_back(tmp);
 	}
 

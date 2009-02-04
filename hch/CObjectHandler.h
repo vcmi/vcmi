@@ -7,6 +7,7 @@
 #include <map>
 #include <list>
 #include "CCreatureHandler.h"
+#include "../lib/HeroBonus.h"
 #ifndef _MSC_VER
 #include "CHeroHandler.h"
 #include "CTownHandler.h"
@@ -183,24 +184,7 @@ public:
 		}
 	} patrol;
 
-	struct DLL_EXPORT Bonus
-	{
-		ui8 duration; //0 - Permanent, 1 - OneBattle, 2 - OneDay, 3 - OneWeek
-		ui8 type; //0 - none, 1 - movement; 2 - morale; 3 - luck
-		si32 val;
-		ui32 id;
-		std::string description;
-
-		Bonus(ui8 Dur, ui8 Type, si32 Val, ui32 ID, std::string Desc)
-			:duration(Dur), type(Type), val(Val), id(ID), description(Desc)
-		{}
-		Bonus(){};
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & duration & type & val & id;
-		}
-	};
-	std::list<Bonus> bonuses;
+	std::list<HeroBonus> bonuses;
 	//////////////////////////////////////////////////////////////////////////
 
 
@@ -220,6 +204,7 @@ public:
 	}
 
 	//////////////////////////////////////////////////////////////////////////
+	const HeroBonus *getBonus(int from, int id) const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
 	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const;
@@ -230,7 +215,8 @@ public:
 	int getSightDistance() const; //returns sight distance of this hero
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	bool canWalkOnSea() const;
-	int getCurrentLuck() const;
+	int getCurrentLuck(int stack=-1, bool town=false) const;
+	std::vector<std::pair<int,std::string> > getCurrentLuckModifiers(int stack=-1, bool town=false) const; //args as above
 	int getCurrentMorale(int stack=-1, bool town=false) const; //if stack - position of creature, if -1 then morale for hero is calculated; town - if bonuses from town (tavern) should be considered
 	std::vector<std::pair<int,std::string> > getCurrentMoraleModifiers(int stack=-1, bool town=false) const; //args as above
 	int getPrimSkillLevel(int id) const;
@@ -618,6 +604,18 @@ public:
 	static std::map<int,std::map<int, std::vector<int> > > objs; //map[ID][subID] => vector of ids
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();	
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+class DLL_EXPORT CGBonusingObject : public CGObjectInstance //objects giving bonuses to luck/morale/movement
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+	const std::string & getHoverText() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

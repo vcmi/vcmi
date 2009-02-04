@@ -325,11 +325,6 @@ bool CGHeroInstance::canWalkOnSea() const
 	//TODO: write it - it should check if hero is flying, or something similiar
 	return false;
 }
-int CGHeroInstance::getCurrentLuck() const
-{
-	//TODO: write it
-	return 0;
-}
 int CGHeroInstance::getPrimSkillLevel(int id) const
 {
 	return primSkills[id];
@@ -602,6 +597,10 @@ int CGHeroInstance::getCurrentMorale( int stack, bool town ) const
 	std::vector<std::pair<int,std::string> > mods = getCurrentMoraleModifiers(stack,town);
 	for(int i=0; i < mods.size(); i++)
 		ret += mods[i].first;
+	if(ret > 3)
+		return 3;
+	if(ret < -3)
+		return -3;
 	return ret;
 }
 
@@ -611,21 +610,34 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 	std::vector<std::pair<int,std::string> > ret;
 
 	//various morale bonuses (from buildings, artifacts, etc)
-	for(std::list<Bonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-		if(i->type == 2)
+	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+		if(i->type == HeroBonus::MORALE)
 			ret.push_back(std::make_pair(i->val, i->description));
 
 	//leadership
 	if(getSecSkillLevel(6)) 
 		ret.push_back(std::make_pair(getSecSkillLevel(6),VLC->generaltexth->arraytxt[104+getSecSkillLevel(6)]));
 
+	//town structures
+	if(town && visitedTown)
+	{
+		if(visitedTown->subID == 0  &&  vstd::contains(visitedTown->builtBuildings,22)) //castle, brotherhood of sword built
+			ret.push_back(std::pair<int,std::string>(2,VLC->generaltexth->buildings[0][22].first + " +2"));
+		else if(vstd::contains(visitedTown->builtBuildings,5)) //tavern is built
+			ret.push_back(std::pair<int,std::string>(2,VLC->generaltexth->buildings[0][5].first + " +1"));
+	}
 
 	//number of alignments and presence of undead
 	if(stack>=0)
 	{
+		bool archangelInArmy = false;
 		std::set<si8> factions;
 		for(std::map<si32,std::pair<ui32,si32> >::const_iterator i=army.slots.begin(); i!=army.slots.end(); i++)
+		{
 			factions.insert(VLC->creh->creatures[i->second.first].faction);
+			if(i->second.first == 13)
+				archangelInArmy = true;
+		}
 
 		if(factions.size() == 1)
 			ret.push_back(std::pair<int,std::string>(1,VLC->generaltexth->arraytxt[115])); //All troops of one alignment +1
@@ -645,9 +657,53 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 
 		if(vstd::contains(factions,4))
 			ret.push_back(std::pair<int,std::string>(-1,VLC->generaltexth->arraytxt[116])); //Undead in group -1
+
+		if(archangelInArmy)
+		{
+			char buf[100];
+			sprintf(buf,VLC->generaltexth->arraytxt[117].c_str(),VLC->creh->creatures[13].namePl);
+			ret.push_back(std::pair<int,std::string>(-1,VLC->generaltexth->arraytxt[116])); //%s in group +1
+		}
 	}
 
 	return ret;
+}
+
+int CGHeroInstance::getCurrentLuck( int stack/*=-1*/, bool town/*=false*/ ) const
+{
+	int ret = 0;
+	std::vector<std::pair<int,std::string> > mods = getCurrentLuckModifiers(stack,town);
+	for(int i=0; i < mods.size(); i++)
+		ret += mods[i].first;
+	if(ret > 3)
+		return 3;
+	if(ret < -3)
+		return -3;
+	return ret;
+}
+
+std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentLuckModifiers( int stack/*=-1*/, bool town/*=false*/ ) const
+{
+	std::vector<std::pair<int,std::string> > ret;
+
+	//various morale bonuses (from buildings, artifacts, etc)
+	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+		if(i->type == HeroBonus::LUCK)
+			ret.push_back(std::make_pair(i->val, i->description));
+
+	//luck skill
+	if(getSecSkillLevel(9)) 
+		ret.push_back(std::make_pair(getSecSkillLevel(9),VLC->generaltexth->arraytxt[73+getSecSkillLevel(9)]));
+
+	return ret;
+}
+
+const HeroBonus * CGHeroInstance::getBonus( int from, int id ) const
+{
+	for (std::list<HeroBonus>::const_iterator i=bonuses.begin(); i!=bonuses.end(); i++)
+		if(i->source == from  &&  i->id == id)
+			return &*i;
+	return NULL;
 }
 
 int CGTownInstance::getSightDistance() const //returns sight distance
@@ -1546,4 +1602,71 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 void CGDwelling::initObj()
 {
 
+}
+
+void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
+{
+	bool visited = h->getBonus(HeroBonus::OBJECT,ID);
+	int messageID, bonusType, bonusVal;
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+
+	switch(ID)
+	{
+	case 14: //swan pond
+		messageID = 29;
+		bonusType = HeroBonus::LUCK;
+		bonusVal = 2;
+	case 28: //Faerie Ring
+		messageID = 49;
+		bonusType = HeroBonus::LUCK;
+		bonusVal = 1;
+		break;
+	case 30: //fountain of fortune
+		messageID = 55;
+		bonusType = HeroBonus::LUCK;
+		bonusVal = rand()%5 - 1;
+		break;
+	case 38: //idol of fortune
+		messageID = 62;
+		bonusType = HeroBonus::IDOL_OF_FORTUNE_BONUS;
+		bonusVal = 1;
+		break;
+	}
+	if(visited)
+	{
+		messageID++;
+	}
+	else
+	{
+		iw.components.push_back(Component(9,0,1,0));
+		GiveBonus gbonus;
+		gbonus.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::LUCK,HeroBonus::OBJECT, bonusVal, ID,"");
+		gbonus.hid = h->id;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,71);
+		cb->giveHeroBonus(&gbonus);
+		if(ID==14) //swan pond - take all move points
+		{
+			SetMovePoints smp;
+			smp.hid = h->id;
+			smp.val = 0;
+			cb->setMovePoints(&smp);
+		}
+	}
+	iw.text << std::pair<ui8,ui32>(11,messageID);
+	cb->showInfoDialog(&iw);
+}
+
+const std::string & CGBonusingObject::getHoverText() const
+{
+	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
+	hoverName = VLC->generaltexth->names[ID];
+	if(h) 
+	{
+		if(!h->getBonus(HeroBonus::OBJECT,ID))
+			hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
+		else
+			hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
+	}
+	return hoverName;
 }
