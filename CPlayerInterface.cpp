@@ -2221,7 +2221,18 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	if(ba->shot())
 		battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
 	else
-		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile : curAction->additionalInfo );
+	{
+		CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
+		int shift = 0;
+		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		{
+			if(attacker->attackerOwned)
+				shift = 1;
+			else
+				shift = -1;
+		}
+		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo );
+	}
 }
 void CPlayerInterface::showComp(SComponent comp)
 {
