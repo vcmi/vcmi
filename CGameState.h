@@ -103,10 +103,10 @@ struct DLL_EXPORT BattleInfo
 	CStack * getStack(int stackID);
 	CStack * getStackT(int tileID);
 	void getAccessibilityMap(bool *accessibility, int stackToOmmit=-1); //send pointer to at least 187 allocated bytes
-	void getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide, int stackToOmmit=-1); //send pointer to at least 187 allocated bytes
+	void getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide, int stackToOmmit=-1, bool addOccupiable = false); //send pointer to at least 187 allocated bytes
 	void makeBFS(int start, bool*accessibility, int *predecessor, int *dists); //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
 	std::vector<int> getPath(int start, int dest, bool*accessibility);
-	std::vector<int> getAccessibility(int stackID); //returns vector of accessible tiles (taking into account the creature range)
+	std::vector<int> getAccessibility(int stackID, bool addOccupiable); //returns vector of accessible tiles (taking into account the creature range)
 
 	bool isStackBlocked(int ID); //returns true if there is neighbouring enemy stack
 	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)

@@ -186,24 +186,28 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 	}
 	//TODO: obstacles
 }
-void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide, int stackToOmmit) //send pointer to at least 187 allocated bytes
+void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide, int stackToOmmit, bool addOccupiable) //send pointer to at least 187 allocated bytes
 {	
 	bool mac[BFIELD_SIZE];
 	getAccessibilityMap(mac,stackToOmmit);
 	memcpy(accessibility,mac,BFIELD_SIZE);
 
-	for(int b=0; b<BFIELD_SIZE; ++b)
-	{
-		if( mac[b] && !(atackerSide ? mac[b-1] : mac[b+1]))
-		{
-			accessibility[b] = false;
-		}
-	}
 
-	//removing accessibility for side hexes
-	for(int v=0; v<BFIELD_SIZE; ++v)
-		if(atackerSide ? (v%17)==1 : (v%17)==15)
-			accessibility[v] = false;
+	if(!addOccupiable)
+	{
+		for(int b=0; b<BFIELD_SIZE; ++b)
+		{
+			if( mac[b] && !(atackerSide ? mac[b-1] : mac[b+1]))
+			{
+				accessibility[b] = false;
+			}
+		}
+
+		//removing accessibility for side hexes
+		for(int v=0; v<BFIELD_SIZE; ++v)
+			if(atackerSide ? (v%BFIELD_WIDTH)==1 : (v%BFIELD_WIDTH)==(BFIELD_WIDTH - 2))
+				accessibility[v] = false;
+	}
 }
 void BattleInfo::makeBFS(int start, bool*accessibility, int *predecessor, int *dists) //both pointers must point to the at least 187-elements int arrays
 {
@@ -234,13 +238,13 @@ void BattleInfo::makeBFS(int start, bool*accessibility, int *predecessor, int *d
 	}
 };
 
-std::vector<int> BattleInfo::getAccessibility(int stackID)
+std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 {
 	std::vector<int> ret;
 	bool ac[BFIELD_SIZE];
 	CStack *s = getStack(stackID);
 	if(s->creature->isDoubleWide())
-		getAccessibilityMapForTwoHex(ac,s->attackerOwned,stackID);
+		getAccessibilityMapForTwoHex(ac,s->attackerOwned,stackID,addOccupiable);
 	else
 		getAccessibilityMap(ac,stackID);
 

@@ -85,7 +85,7 @@ public:
 	virtual std::vector<CStack> battleGetStackQueue()=0; //returns vector of stack in order of their move sequence
 	virtual CCreature battleGetCreature(int number)=0; //returns type of creature by given number of stack
 	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
-	virtual std::vector<int> battleGetAvailableHexes(int ID)=0; //reutrns numbers of hexes reachable by creature with id ID
+	virtual std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable)=0; //reutrns numbers of hexes reachable by creature with id ID
 	virtual bool battleIsStackMine(int ID)=0; //returns true if stack with id ID belongs to caller
 	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
 };
@@ -172,7 +172,7 @@ public:
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
 	std::vector<CStack> battleGetStackQueue(); //returns vector of stack in order of their move sequence
 	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
-	std::vector<int> battleGetAvailableHexes(int ID); //reutrns numbers of hexes reachable by creature with id ID
+	std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable); //reutrns numbers of hexes reachable by creature with id ID
 	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
 	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
 

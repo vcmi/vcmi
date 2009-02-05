@@ -638,7 +638,7 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 			}
 		}
 
-		std::vector<int> fields = m_cb->battleGetAvailableHexes(stackID);
+		std::vector<int> fields = m_cb->battleGetAvailableHexes(stackID, false);
 		BattleAction ba; 
 		ba.side = 1;
 		//ba.actionType = 6; // go and attack

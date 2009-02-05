@@ -1392,7 +1392,18 @@ void CBattleInterface::hexLclicked(int whichOne)
 				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
 				{
 					CGI->curh->changeGraphic(1, 6); //cursor should be changed
-					giveCommand(2,whichOne,activeStack);
+					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide())
+					{
+						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
+						if(vstd::contains(acc, whichOne))
+							giveCommand(2,whichOne,activeStack);
+						else
+							giveCommand(2,whichOne + (LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned ? 1 : -1),activeStack);
+					}
+					else
+					{
+						giveCommand(2,whichOne,activeStack);
+					}
 				}
 			}
 			else if(dest->owner != attackingHeroInstance->tempOwner
@@ -1412,7 +1423,18 @@ void CBattleInterface::hexLclicked(int whichOne)
 					giveCommand(6,whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH-1 : BFIELD_WIDTH ),activeStack,whichOne);
 					break;
 				case 8:
-					giveCommand(6,whichOne - 1,activeStack,whichOne);
+					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide() && !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
+					{
+						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
+						if(vstd::contains(acc, whichOne))
+							giveCommand(6,whichOne - 1,activeStack,whichOne);
+						else
+							giveCommand(6,whichOne - 2,activeStack,whichOne);
+					}
+					else
+					{
+						giveCommand(6,whichOne - 1,activeStack,whichOne);
+					}
 					break;
 				case 9:
 					giveCommand(6,whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH ),activeStack,whichOne);
@@ -1421,7 +1443,18 @@ void CBattleInterface::hexLclicked(int whichOne)
 					giveCommand(6,whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 ),activeStack,whichOne);
 					break;
 				case 11:
-					giveCommand(6,whichOne + 1,activeStack,whichOne);
+					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide() && LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
+					{
+						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
+						if(vstd::contains(acc, whichOne))
+							giveCommand(6,whichOne + 1,activeStack,whichOne);
+						else
+							giveCommand(6,whichOne + 2,activeStack,whichOne);
+					}
+					else
+					{
+						giveCommand(6,whichOne + 1,activeStack,whichOne);
+					}
 					break;
 				}
 				CGI->curh->changeGraphic(1, 6); //cursor should be changed
@@ -1974,7 +2007,7 @@ void CBattleInterface::attackingShowHelper()
 
 void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
 {
-	shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(activeStack);
+	shadedHexes = LOCPLINT->cb->battleGetAvailableHexes(activeStack, true);
 
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);

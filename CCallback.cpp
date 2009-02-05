@@ -520,10 +520,10 @@ CCreature CCallback::battleGetCreature(int number)
 #endif
 }
 
-std::vector<int> CCallback::battleGetAvailableHexes(int ID)
+std::vector<int> CCallback::battleGetAvailableHexes(int ID, bool addOccupiable)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->curB->getAccessibility(ID);
+	return gs->curB->getAccessibility(ID, addOccupiable);
 	//return gs->battleGetRange(ID);
 }
 

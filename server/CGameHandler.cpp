@@ -1786,6 +1786,21 @@ void CGameHandler::moveStack(int stack, int dest)
 	else 
 		gs->curB->getAccessibilityMap(accessibility,curStack->ID);
 
+	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
+	if(!stackAtEnd && curStack->creature->isDoubleWide() && !accessibility[dest])
+	{
+		if(curStack->attackerOwned)
+		{
+			if(accessibility[dest+1])
+				dest+=1;
+		}
+		else
+		{
+			if(accessibility[dest-1])
+				dest-=1;
+		}
+	}
+
 	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility[dest])
 		return;
 
@@ -2181,7 +2196,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	}
 	if(hero2)
 	{
-		if(hero1->getArt(13)) //ballista
+		if(hero2->getArt(13)) //ballista
 		{
 			stacks.push_back(new CStack(&VLC->creh->creatures[146], 1, hero2->tempOwner, stacks.size(), false, 255));
 			stacks[stacks.size()-1]->position = 66;
