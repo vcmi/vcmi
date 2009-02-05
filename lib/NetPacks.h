@@ -505,7 +505,7 @@ struct BattleStackAttacked : public CPack<BattleStackAttacked>//3005
 {
 	ui32 stackAttacked;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
-	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown
+	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown; 4 - lucky hit
 	ui32 effect; //set only if flag 2 is present
 
 
@@ -517,6 +517,10 @@ struct BattleStackAttacked : public CPack<BattleStackAttacked>//3005
 	bool isEffect() //if target stack was killed
 	{
 		return flags & 2;
+	}
+	bool lucky()
+	{
+		return flags & 4;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

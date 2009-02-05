@@ -499,6 +499,11 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			case 14: //Swan pond
 			case 38: //idol of fortune
 			case 30: //Fountain of Fortune
+			case 64: //Rally Flag
+			case 56: //oasis
+			case 96: //temple
+			case 110://Watering Hole
+			case 31: //Fountain of Youth
 				SERIALIZE(CGBonusingObject);
 				break;
 			default:

@@ -23,6 +23,7 @@ struct BattleResult;
 struct BattleAttack;
 struct BattleStackAttacked;
 struct SpellCasted;
+struct HeroBonus;
 class CObstacle
 {
 	int ID;
@@ -67,6 +68,7 @@ public:
 	virtual void tileRevealed(const std::set<int3> &pos){};
 	virtual void yourTurn(){};
 	virtual void availableCreaturesChanged(const CGTownInstance *town){};
+	virtual void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 
 	//battle call-ins
 	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero

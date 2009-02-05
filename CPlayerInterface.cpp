@@ -1887,19 +1887,12 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	SDL_FreeSurface(graphics->heroWins[hero->subID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
-	graphics->heroWins[hero->subID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
-	if (adventureInt->selection == hero)
-		adventureInt->infoBar.draw();
-	return;
+	redrawHeroWin(hero);
 }
 void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	SDL_FreeSurface(graphics->heroWins[hero->subID]);//TODO: moznaby zmieniac jedynie fragment bitmapy zwiazany z dana umiejetnoscia
-	graphics->heroWins[hero->subID] = infoWin(hero); //a nie przerysowywac calosc. Troche roboty, obecnie chyba nie wartej swieczki.
-	if (adventureInt->selection == hero)
-		adventureInt->infoBar.draw();
+	redrawHeroWin(hero);
 }
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
@@ -2079,10 +2072,13 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 	{
 		battleInt->creAnims[action->stackNumber]->setType(20);
 	}
-	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //deactivating interface when move is started
-	{
-		battleInt->deactivate();
-	}
+
+
+	battleInt->deactivate();
+
+	CStack *stack = cb->battleGetStackByID(action->stackNumber);
+	char txt[400];
+
 	if(action->actionType == 1)
 	{
 		if(action->side)
@@ -2090,47 +2086,36 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 		else
 			battleInt->attackingHero->setPhase(4);
 	}
-	if(action->actionType == 3) //defend
+	if(!stack)
 	{
-		char txt[2000];
-		CStack * stack = cb->battleGetStackByID(action->stackNumber);
-		if(stack)
-		{
-			if(stack->amount == 1)
-			{
-				sprintf(txt, CGI->generaltexth->allTexts[120].c_str(), stack->creature->nameSing.c_str(), 0);
-			}
-			else
-			{
-				sprintf(txt, CGI->generaltexth->allTexts[121].c_str(), stack->creature->namePl.c_str(), 0);
-			}
-			LOCPLINT->battleInt->console->addText(txt);
-		}
-		else
-		{
-			tlog1<<"Somthing wrong with stackNumber in actionStarted -> actionType 3"<<std::endl;
-		}
+		tlog1<<"Something wrong with stackNumber in actionStarted"<<std::endl;
+		return;
 	}
-	if(action->actionType == 8) //wait
+
+	int txtid = 0;
+	switch(action->actionType)
 	{
-		char txt[2000];
-		CStack * stack = cb->battleGetStackByID(action->stackNumber);
-		if(stack)
-		{
-			if(stack->amount == 1)
-			{
-				sprintf(txt, CGI->generaltexth->allTexts[136].c_str(), stack->creature->nameSing.c_str());
-			}
-			else
-			{
-				sprintf(txt, CGI->generaltexth->allTexts[137].c_str(), stack->creature->namePl.c_str());
-			}
-			LOCPLINT->battleInt->console->addText(txt);
-		}
-		else
-		{
-			tlog1<<"Somthing wrong with stackNumber in actionStarted -> actionType 8"<<std::endl;
-		}
+	case 3: //defend
+		txtid = 120;
+		break;
+	case 8: //wait
+		txtid = 136;
+		break;
+	case 11: //bad morale
+		txtid = -34; //negative -> no separate singular/plural form		
+		battleInt->displayEffect(30,stack->position);
+		break;
+	}
+
+	if(txtid > 0  &&  stack->amount != 1)
+		txtid++; //move to plural text
+	else if(txtid < 0)
+		txtid = -txtid;
+
+	if(txtid)
+	{
+		sprintf(txt, CGI->generaltexth->allTexts[txtid].c_str(),  (stack->amount != 1) ? stack->creature->namePl.c_str() : stack->creature->nameSing.c_str(), 0);
+		LOCPLINT->battleInt->console->addText(txt);
 	}
 }
 
@@ -2156,6 +2141,16 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 	CBattleInterface *b = battleInt;
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
+
+		CStack *stack = cb->battleGetStackByID(stackID);
+		if(vstd::contains(stack->state,MOVED)) //this stack has moved and makes second action -> high morale
+		{
+			std::string hlp = CGI->generaltexth->allTexts[33];
+			boost::algorithm::replace_first(hlp,"%s",(stack->amount != 1) ? stack->creature->namePl : stack->creature->nameSing);
+			battleInt->displayEffect(20,stack->position);
+			battleInt->console->addText(hlp);
+		}
+
 		b->stackActivated(stackID);
 	}
 	//wait till BattleInterface sets its command
@@ -2215,14 +2210,18 @@ void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	if(ba->bsa.lucky()) //lucky hit
+	{
+		CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
+		std::string hlp = CGI->generaltexth->allTexts[45];
+		boost::algorithm::replace_first(hlp,"%s",(stack->amount != 1) ? stack->creature->namePl.c_str() : stack->creature->nameSing.c_str());
+		battleInt->console->addText(hlp);
+		battleInt->displayEffect(18,stack->position);
+	}
 	if(ba->shot())
 		battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
 	else
 		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile : curAction->additionalInfo );
-	/*if(ba->killed())
-		battleInt->stackKilled(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());
-	else
-		battleInt->stackIsAttacked(ba->bsa.stackAttacked, ba->bsa.damageAmount, ba->bsa.killedAmount, ba->stackAttacking, ba->shot());*/
 }
 void CPlayerInterface::showComp(SComponent comp)
 {
@@ -2359,6 +2358,21 @@ void CPlayerInterface::availableCreaturesChanged( const CGTownInstance *town )
 			fs->draw(castleInt,false);
 	}
 }
+
+void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const HeroBonus &bonus, bool gain )
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	redrawHeroWin(hero);
+}
+
+void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
+{
+	SDL_FreeSurface(graphics->heroWins[hero->subID]);
+	graphics->heroWins[hero->subID] = infoWin(hero); 
+	if (adventureInt->selection == hero)
+		adventureInt->infoBar.draw();
+}
+
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 {
 	bg=BitmapHandler::loadBitmap(name);

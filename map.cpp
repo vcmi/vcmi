@@ -1781,6 +1781,11 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		case 14: //Swan pond
 		case 38: //idol of fortune
 		case 30: //Fountain of Fortune
+		case 64: //Rally Flag
+		case 56: //oasis
+		case 96: //temple
+		case 110://Watering Hole
+		case 31: //Fountain of Youth
 			{
 				nobj = new CGBonusingObject();
 				break;

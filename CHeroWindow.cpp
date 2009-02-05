@@ -462,8 +462,8 @@ void CHeroWindow::deactivate()
 	portraitArea->deactivate();
 	expArea->deactivate();
 	spellPointsArea->deactivate();
-	morale->activate();
-	luck->activate();
+	morale->deactivate();
+	luck->deactivate();
 
 	garInt->deactivate();
 

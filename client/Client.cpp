@@ -212,6 +212,9 @@ void CClient::process(int what)
 			*serv >> gb;
 			tlog5 << "Hero receives bonus\n";
 			gs->apply(&gb);
+			CGHeroInstance *h = gs->getHero(gb.hid);
+			if(vstd::contains(playerint,h->tempOwner))
+				playerint[h->tempOwner]->heroBonusChanged(h,h->bonuses.back(),true);
 			break;
 		}
 	case 500:

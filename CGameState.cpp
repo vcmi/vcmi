@@ -362,6 +362,20 @@ const CStack::StackEffect * CStack::getEffect(ui16 id) const
 			return &effects[i];
 	return NULL;
 }
+
+si8 CStack::Morale() const
+{
+	si8 ret = morale;
+	//premies from spells/other effects
+	return ret;
+}
+
+si8 CStack::Luck() const
+{
+	si8 ret = luck;
+	//premies from spells/other effects
+	return ret;
+}
 CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, int notThatOne)
 {
 	if(player<0 || player>=PLAYER_LIMIT)
@@ -781,14 +795,14 @@ void CGameState::applyNL(IPack * pack)
 		{
 			BattleSetActiveStack *ns = static_cast<BattleSetActiveStack*>(pack);
 			curB->activeStack = ns->stack;
+			CStack *st = curB->getStack(ns->stack);
+			if(vstd::contains(st->state,MOVED))
+				st->state.insert(HAD_MORALE);
 			break;
 		}
 	case 3003:
 		{
 			BattleResult *br = static_cast<BattleResult*>(pack);
-
-			//TODO: give exp, artifacts to winner, decrease armies (casualties)
-
 			for(unsigned i=0;i<curB->stacks.size();i++)
 				delete curB->stacks[i];
 			delete curB;
@@ -834,7 +848,7 @@ void CGameState::applyNL(IPack * pack)
 			case 8:
 				st->state.insert(WAITING);
 				break;
-			case 2: case 6: case 7: case 9: case 10:
+			case 2: case 6: case 7: case 9: case 10: case 11:
 				st->state.insert(MOVED);
 				break;
 			}

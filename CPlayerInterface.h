@@ -380,6 +380,7 @@ public:
 	void tileRevealed(const std::set<int3> &pos);
 	void yourTurn();
 	void availableCreaturesChanged(const CGTownInstance *town);
+	void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain);//if gain hero received bonus, else he lost it
 	//for battles
 	void actionFinished(const BattleAction* action);//occurs AFTER action taken by active stack or by the hero
 	void actionStarted(const BattleAction* action);//occurs BEFORE action taken by active stack or by the hero
@@ -396,6 +397,7 @@ public:
 
 
 	//-------------//
+	void redrawHeroWin(const CGHeroInstance * hero);
 	void updateWater();
 	void showComp(SComponent comp);
 	void openTownWindow(const CGTownInstance * town); //shows townscreen

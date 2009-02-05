@@ -9,6 +9,7 @@
 #include "CSpellHandler.h"
 #include <boost/bind.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
 #include "CArtHandler.h"
@@ -611,7 +612,7 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 
 	//various morale bonuses (from buildings, artifacts, etc)
 	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-		if(i->type == HeroBonus::MORALE)
+		if(i->type == HeroBonus::MORALE   ||   i->type == HeroBonus::MORALE_AND_LUCK)
 			ret.push_back(std::make_pair(i->val, i->description));
 
 	//leadership
@@ -688,7 +689,7 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentLuckModifiers
 
 	//various morale bonuses (from buildings, artifacts, etc)
 	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-		if(i->type == HeroBonus::LUCK)
+		if(i->type == HeroBonus::LUCK   ||   i->type == HeroBonus::MORALE_AND_LUCK)
 			ret.push_back(std::make_pair(i->val, i->description));
 
 	//luck skill
@@ -1608,48 +1609,108 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 {
 	bool visited = h->getBonus(HeroBonus::OBJECT,ID);
 	int messageID, bonusType, bonusVal;
+	int bonusMove = 0;
 	InfoWindow iw;
 	iw.player = h->tempOwner;
+	GiveBonus gbonus;
+	gbonus.hid = h->id;
+	gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
+	gbonus.bonus.source = HeroBonus::OBJECT;
+	gbonus.bonus.id = ID;
 
 	switch(ID)
 	{
 	case 14: //swan pond
 		messageID = 29;
-		bonusType = HeroBonus::LUCK;
-		bonusVal = 2;
+		gbonus.bonus.type = HeroBonus::LUCK;
+		gbonus.bonus.val = 2;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,67);
+		bonusMove = -h->movement;
+		break;
 	case 28: //Faerie Ring
 		messageID = 49;
-		bonusType = HeroBonus::LUCK;
-		bonusVal = 1;
+		gbonus.bonus.type = HeroBonus::LUCK;
+		gbonus.bonus.val = 1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,71);
 		break;
 	case 30: //fountain of fortune
 		messageID = 55;
-		bonusType = HeroBonus::LUCK;
-		bonusVal = rand()%5 - 1;
+		gbonus.bonus.type = HeroBonus::LUCK;
+		gbonus.bonus.val = rand()%5 - 1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,69);
+		gbonus.bdescr.replacements.push_back((gbonus.bonus.val<0 ? "-" : "+") + boost::lexical_cast<std::string>(gbonus.bonus.val));
 		break;
 	case 38: //idol of fortune
 		messageID = 62;
-		bonusType = HeroBonus::IDOL_OF_FORTUNE_BONUS;
-		bonusVal = 1;
+		if(cb->getDate(1) == 7) //7th day of week
+			gbonus.bonus.type = HeroBonus::MORALE_AND_LUCK;
+		else
+			gbonus.bonus.type = (cb->getDate(1)%2) ? HeroBonus::LUCK : HeroBonus::MORALE;
+		gbonus.bonus.val = 1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,68);
+		break;
+	case 64: //Rally Flag
+		messageID = 111;
+		gbonus.bonus.type = HeroBonus::MORALE_AND_LUCK;
+		gbonus.bonus.val = 1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,102);
+		bonusMove = 400;
+		break;
+	case 56: //oasis
+		messageID = 95;
+		gbonus.bonus.type = HeroBonus::MORALE;
+		gbonus.bonus.val = 1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,95);
+		bonusMove = 800;
+		break;
+	case 96: //temple
+		messageID = 140;
+		gbonus.bonus.type = HeroBonus::MORALE;
+		if(cb->getDate(1)==7) //sunday
+		{
+			gbonus.bonus.val = 2;
+			gbonus.bdescr <<  std::pair<ui8,ui32>(6,97);
+		}
+		else
+		{
+			gbonus.bonus.val = 1;
+			gbonus.bdescr <<  std::pair<ui8,ui32>(6,96);
+		}
+		break;
+	case 110://Watering Hole
+		messageID = 166;
+		gbonus.bonus.type = HeroBonus::MORALE;
+		gbonus.bonus.val = 1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,100);
+		bonusMove = 400;
+		break;
+	case 31: //Fountain of Youth
+		messageID = 57;
+		gbonus.bonus.type = HeroBonus::MORALE;
+		gbonus.bonus.val = 1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,103);
+		bonusMove = 400;
 		break;
 	}
 	if(visited)
 	{
-		messageID++;
+		if(ID==64 || ID==96  ||  ID==56)
+			messageID--;
+		else
+			messageID++;
 	}
 	else
 	{
-		iw.components.push_back(Component(9,0,1,0));
-		GiveBonus gbonus;
-		gbonus.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::LUCK,HeroBonus::OBJECT, bonusVal, ID,"");
-		gbonus.hid = h->id;
-		gbonus.bdescr <<  std::pair<ui8,ui32>(6,71);
+		if(gbonus.bonus.type == HeroBonus::MORALE   ||   gbonus.bonus.type == HeroBonus::MORALE_AND_LUCK)
+			iw.components.push_back(Component(8,0,gbonus.bonus.val,0));
+		if(gbonus.bonus.type == HeroBonus::LUCK   ||   gbonus.bonus.type == HeroBonus::MORALE_AND_LUCK)
+			iw.components.push_back(Component(9,0,gbonus.bonus.val,0));
 		cb->giveHeroBonus(&gbonus);
-		if(ID==14) //swan pond - take all move points
+		if(bonusMove) //swan pond - take all move points
 		{
 			SetMovePoints smp;
 			smp.hid = h->id;
-			smp.val = 0;
+			smp.val = h->movement + bonusMove;
 			cb->setMovePoints(&smp);
 		}
 	}

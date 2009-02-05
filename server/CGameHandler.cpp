@@ -311,14 +311,49 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 		CStack *next;
 		while(!battleResult.get() && (next=gs->curB->getNextStack()))
 		{
-			BattleSetActiveStack sas;
-			sas.stack = next->ID;
-			sendAndApply(&sas);
-			boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
-			while(!battleMadeAction.data  &&  !battleResult.get()) //active stack hasn't made its action and battle is still going
-				battleMadeAction.cond.wait(lock);
-			battleMadeAction.data = false;
+			next->state -= WAITING; //if stack was waiting it'll now make move, so it won't be "waiting" anymore
+
+			//check for bad morale => freeze
+			if(next->Morale() < 0)
+			{
+				if( rand()%24   <   (-next->Morale())*2 )
+				{
+					//unit loses its turn - empty freeze action
+					BattleAction ba;
+					ba.actionType = 11;
+					ba.additionalInfo = 1;
+					ba.side = !next->attackerOwned;
+					ba.stackNumber = next->ID;
+					sendAndApply(&StartAction(ba));
+					sendDataToClients(ui16(3008));
+					checkForBattleEnd(stacks); //check if this "action" ended the battle (not likely but who knows...)
+					continue;
+				}
+			}
+
+askInterfaceForMove:
+			//ask interface and wait for answer
+			{
+				BattleSetActiveStack sas;
+				sas.stack = next->ID;
+				sendAndApply(&sas);
+				boost::unique_lock<boost::mutex> lock(battleMadeAction.mx);
+				while(!battleMadeAction.data  &&  !battleResult.get()) //active stack hasn't made its action and battle is still going
+					battleMadeAction.cond.wait(lock);
+				battleMadeAction.data = false;
+			}
+			//we're after action, all results applied
 			checkForBattleEnd(stacks); //check if this action ended the battle
+
+			//check for good morale
+			if(!vstd::contains(next->state,HAD_MORALE)  //only one extra move per turn possible
+				&& !vstd::contains(next->state,DEFENDING)
+				&& !vstd::contains(next->state,WAITING)
+				&&  next->alive()
+				&&  next->Morale() > 0
+			)
+				if(rand()%24 < next->Morale()) //this stack hasn't got morale this turn
+					goto askInterfaceForMove; //move this stack once more
 		}
 	}
 
@@ -395,6 +430,11 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 	bat.stackAttacking = att->ID;
 	bat.bsa.stackAttacked = def->ID;
 	bat.bsa.damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot());//counting dealt damage
+	if(att->Luck() > 0  &&  rand()%24 < att->Luck())
+	{
+		bat.bsa.damageAmount *= 2;
+		bat.bsa.flags |= 4;
+	}
 	prepareAttacked(bat.bsa,def);
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
@@ -2035,6 +2075,20 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	for(std::map<si32,std::pair<ui32,si32> >::iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
 	{
 		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true,i->first));
+		
+		//base luck/morale calculations
+		//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
+		if(hero1)
+		{
+			stacks.back()->morale = hero1->getCurrentMorale(i->first,false);
+			stacks.back()->luck = hero1->getCurrentLuck(i->first,false);
+		}
+		else
+		{
+			stacks.back()->morale = 0;
+			stacks.back()->luck = 0;
+		}
+
 		stacks[stacks.size()-1]->ID = stacks.size()-1;
 	}
 	//initialization of positions
@@ -2068,7 +2122,21 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			stacks[b]->position = attackerLoose[army1.slots.size()-1][b];
 		}
 	for(std::map<si32,std::pair<ui32,si32> >::iterator i = army2.slots.begin(); i!=army2.slots.end(); i++)
+	{
 		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero2 ? hero2->tempOwner : 255, stacks.size(), false, i->first));
+		//base luck/morale calculations
+		//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
+		if(hero2)
+		{
+			stacks.back()->morale = hero2->getCurrentMorale(i->first,false);
+			stacks.back()->luck = hero2->getCurrentLuck(i->first,false);
+		}
+		else
+		{
+			stacks.back()->morale = 0;
+			stacks.back()->luck = 0;
+		}
+	}
 
 	if(army2.formation)
 		for(int b=0; b<army2.slots.size(); ++b) //tight
