@@ -2506,7 +2506,17 @@ void CHeroList::select(int which)
 	selected = which;
 	LOCPLINT->adventureInt->centerOn(items[which].first->pos);
 	LOCPLINT->adventureInt->selection = items[which].first;
-	LOCPLINT->adventureInt->terrain.currentPath = items[which].second;
+	//recalculationg path in case of something has changed on map
+	if(items[which].second)
+	{
+		CPath * newPath = CGI->pathf->getPath(items[which].second->startPos(), items[which].second->endPos(), items[which].first);
+		LOCPLINT->adventureInt->terrain.currentPath = items[which].second = newPath;
+	}
+	else
+	{
+		LOCPLINT->adventureInt->terrain.currentPath = NULL;
+	}
+	//recalculated and assigned
 	draw();
 	LOCPLINT->adventureInt->townList.draw();
 	LOCPLINT->adventureInt->infoBar.draw(NULL);

@@ -195,8 +195,9 @@ int lowestSpeed(const CGHeroInstance * chi)
 	return ret;
 }
 
-unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const
+unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype, const int & remaingMP) const
 {
+	if(remaingMP <= 100) return 100; //workaround for strange behaviour manifested by Heroes III
 	unsigned int ret = type->heroClass->terrCosts[ttype];
 	//applying pathfinding skill
 	switch(getSecSkillLevel(0))

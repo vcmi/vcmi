@@ -207,7 +207,7 @@ public:
 	const HeroBonus *getBonus(int from, int id) const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
-	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype) const;
+	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype, const int & remaingMP) const;
 	unsigned int getLowestCreatureSpeed() const;
 	unsigned int getAdditiveMoveBonus() const;
 	float getMultiplicativeMoveBonus() const;

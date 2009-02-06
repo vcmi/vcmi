@@ -495,7 +495,9 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					int3 hmpos = end + int3(-1,0,0);
 					TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
 					CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[id]);
-					int cost = (int)((double)h->getTileCost(t.tertype,t.malle,t.nuine) * distance(start,end));
+					double dist = distance(start,end);
+					if(h->movement <= 145) dist = 1.0f; //workaround for strange behaviour manifested by Heroes III
+					int cost = (int)((double)h->getTileCost(t.tertype,t.malle,t.nuine, h->movement) * dist);
 
 					TryMoveHero tmh;
 					tmh.id = id;
