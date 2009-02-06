@@ -1668,6 +1668,26 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			displayEffect(0, sc->tile);
 			break;
 		}
+	case 49: //mirth
+		{
+			displayEffect(20, sc->tile);
+			break;
+		}
+	case 50: //sorrow
+		{
+			displayEffect(30, sc->tile);
+			break;
+		}
+	case 51: //fortune
+		{
+			displayEffect(18, sc->tile);
+			break;
+		}
+	case 52: //misfortune
+		{
+			displayEffect(48, sc->tile);
+			break;
+		}
 	case 53: //haste
 		{
 			displayEffect(31, sc->tile);
@@ -2342,8 +2362,8 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 			{
 				pom->attackBonus = h->getPrimSkillLevel(0);
 				pom->defenseBonus = h->getPrimSkillLevel(1);
-				pom->luck = h->getCurrentLuck();
-				pom->morale = h->getCurrentMorale();
+				pom->luck = myst.Luck();
+				pom->morale = myst.Morale();
 				pom->speedBonus = myst.speed() - myst.creature->speed;
 			}
 

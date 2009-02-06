@@ -1318,6 +1318,33 @@ upgend:
 
 							//TODO: check resistances
 
+#define SPELL_CAST_TEMPLATE_1(NUMBER, DURATION) SetStackEffect sse; \
+									if(getSchoolLevel(h,s) < 3)  /*not expert */ \
+									{ \
+										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID; \
+										sse.effect.id = (NUMBER); \
+										sse.effect.level = getSchoolLevel(h,s); \
+										sse.effect.turnsRemain = (DURATION); /*! - any duration */ \
+										sendAndApply(&sse); \
+									} \
+									else \
+									{ \
+										for(int it=0; it<gs->curB->stacks.size(); ++it) \
+										{ \
+											/*if it's non negative spell and our unit or non positive spell and hostile unit */ \
+											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner) \
+												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner ) \
+												) \
+											{ \
+												sse.stack = gs->curB->stacks[it]->ID; \
+												sse.effect.id = (NUMBER); \
+												sse.effect.level = getSchoolLevel(h,s); \
+												sse.effect.turnsRemain = (DURATION); \
+												sendAndApply(&sse); \
+											} \
+										} \
+									}
+
 							SpellCasted sc;
 							sc.side = ba.side;
 							sc.id = ba.additionalInfo;
@@ -1380,362 +1407,82 @@ upgend:
 								}
 							case 27: //shield
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 27;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 27;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(27, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 28: //air shield
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 28;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 28;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(28, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 41: //bless
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 41;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 41;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(41, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 42: //curse
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 42;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 42;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(42, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 43: //bloodlust
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 43;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 43;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(43, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 45: //weakness
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 45;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 45;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(45, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 46: //stone skin
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 46;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 46;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(46, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 48: //prayer
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 48;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 48;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(48, h->getPrimSkillLevel(2))
+									break;
+								}
+							case 49: //mirth
+								{
+									SPELL_CAST_TEMPLATE_1(49, h->getPrimSkillLevel(2))
+									break;
+								}
+							case 50: //sorrow
+								{
+									SPELL_CAST_TEMPLATE_1(50, h->getPrimSkillLevel(2))
+									break;
+								}
+							case 51: //fortune
+								{
+									SPELL_CAST_TEMPLATE_1(51, h->getPrimSkillLevel(2))
+									break;
+								}
+							case 52: //misfortune
+								{
+									SPELL_CAST_TEMPLATE_1(52, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 53: //haste
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 53;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 53;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(53, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 54: //slow
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 54;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 54;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(54, h->getPrimSkillLevel(2))
 									break;
 								}
 							case 56: //frenzy
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 56;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = 1; //! - different duration
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 56;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(56, 1)
 									break;
 								}
 							case 61: //forgetfulness
 								{
-									SetStackEffect sse;
-									if(getSchoolLevel(h,s) < 3) //not expert
-									{
-										sse.stack = gs->curB->getStackT(ba.destinationTile)->ID;
-										sse.effect.id = 61;
-										sse.effect.level = getSchoolLevel(h,s);
-										sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-										sendAndApply(&sse);
-									}
-									else
-									{
-										for(int it=0; it<gs->curB->stacks.size(); ++it)
-										{
-											//if it's non negative spell and our unit or non positive spell and hostile unit
-											if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-												||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-												)
-											{
-												sse.stack = gs->curB->stacks[it]->ID;
-												sse.effect.id = 61;
-												sse.effect.level = getSchoolLevel(h,s);
-												sse.effect.turnsRemain = h->getPrimSkillLevel(2);
-												sendAndApply(&sse);
-											}
-										}
-									}
+									SPELL_CAST_TEMPLATE_1(61, h->getPrimSkillLevel(2))
 									break;
 								}
 							}
@@ -1773,6 +1520,7 @@ customactionend:
 	HANDLE_EXCEPTION(end2 = true);
 handleConEnd:
 	tlog1 << "Ended handling connection\n";
+#undef SPELL_CAST_TEMPLATE_1
 }
 void CGameHandler::moveStack(int stack, int dest)
 {							
@@ -2182,16 +1930,22 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 		{
 			stacks.push_back(new CStack(&VLC->creh->creatures[146], 1, hero1->tempOwner, stacks.size(), true, 255));
 			stacks[stacks.size()-1]->position = 52;
+			stacks.back()->morale = hero1->getCurrentMorale(stacks.back()->ID,false);
+			stacks.back()->luck = hero1->getCurrentLuck(stacks.back()->ID,false);
 		}
 		if(hero1->getArt(14)) //ammo cart
 		{
 			stacks.push_back(new CStack(&VLC->creh->creatures[148], 1, hero1->tempOwner, stacks.size(), true, 255));
 			stacks[stacks.size()-1]->position = 18;
+			stacks.back()->morale = hero1->getCurrentMorale(stacks.back()->ID,false);
+			stacks.back()->luck = hero1->getCurrentLuck(stacks.back()->ID,false);
 		}
 		if(hero1->getArt(15)) //first aid tent
 		{
 			stacks.push_back(new CStack(&VLC->creh->creatures[147], 1, hero1->tempOwner, stacks.size(), true, 255));
 			stacks[stacks.size()-1]->position = 154;
+			stacks.back()->morale = hero1->getCurrentMorale(stacks.back()->ID,false);
+			stacks.back()->luck = hero1->getCurrentLuck(stacks.back()->ID,false);
 		}
 	}
 	if(hero2)
@@ -2200,16 +1954,22 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 		{
 			stacks.push_back(new CStack(&VLC->creh->creatures[146], 1, hero2->tempOwner, stacks.size(), false, 255));
 			stacks[stacks.size()-1]->position = 66;
+			stacks.back()->morale = hero2->getCurrentMorale(stacks.back()->ID,false);
+			stacks.back()->luck = hero2->getCurrentLuck(stacks.back()->ID,false);
 		}
 		if(hero2->getArt(14)) //ammo cart
 		{
 			stacks.push_back(new CStack(&VLC->creh->creatures[148], 1, hero2->tempOwner, stacks.size(), false, 255));
 			stacks[stacks.size()-1]->position = 32;
+			stacks.back()->morale = hero2->getCurrentMorale(stacks.back()->ID,false);
+			stacks.back()->luck = hero2->getCurrentLuck(stacks.back()->ID,false);
 		}
 		if(hero2->getArt(15)) //first aid tent
 		{
 			stacks.push_back(new CStack(&VLC->creh->creatures[147], 1, hero2->tempOwner, stacks.size(), false, 255));
 			stacks[stacks.size()-1]->position = 168;
+			stacks.back()->morale = hero2->getCurrentMorale(stacks.back()->ID,false);
+			stacks.back()->luck = hero2->getCurrentLuck(stacks.back()->ID,false);
 		}
 	}
 	//war machiens added

@@ -370,14 +370,32 @@ const CStack::StackEffect * CStack::getEffect(ui16 id) const
 si8 CStack::Morale() const
 {
 	si8 ret = morale;
-	//premies from spells/other effects
+	if(getEffect(49)) //mirth
+	{
+		ret += VLC->spellh->spells[49].powers[getEffect(49)->level];
+	}
+	if(getEffect(50)) //sorrow
+	{
+		ret -= VLC->spellh->spells[50].powers[getEffect(50)->level];
+	}
+	if(ret > 3) ret = 3;
+	if(ret < -3) ret = -3;
 	return ret;
 }
 
 si8 CStack::Luck() const
 {
 	si8 ret = luck;
-	//premies from spells/other effects
+	if(getEffect(51)) //fortune
+	{
+		ret += VLC->spellh->spells[51].powers[getEffect(51)->level];
+	}
+	if(getEffect(52)) //misfortune
+	{
+		ret -= VLC->spellh->spells[52].powers[getEffect(52)->level];
+	}
+	if(ret > 3) ret = 3;
+	if(ret < -3) ret = -3;
 	return ret;
 }
 CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, int notThatOne)
