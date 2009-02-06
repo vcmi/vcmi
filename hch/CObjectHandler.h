@@ -623,6 +623,19 @@ public:
 	}
 };
 
+class DLL_EXPORT CGMagicWell : public CGObjectInstance //objects giving bonuses to luck/morale/movement
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+	const std::string & getHoverText() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+
 
 
 class DLL_EXPORT CObjectHandler

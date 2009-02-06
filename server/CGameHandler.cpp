@@ -2460,3 +2460,11 @@ void CGameHandler::setMovePoints( SetMovePoints * smp )
 {
 	sendAndApply(smp);
 }
+
+void CGameHandler::setManaPoints( int hid, int val )
+{
+	SetMana sm;
+	sm.hid = hid;
+	sm.val = val;
+	sendAndApply(&sm);
+}

@@ -40,6 +40,13 @@ AdventureMapButton::AdventureMapButton( const std::string &Name, const std::stri
 	pom[0] = Name;
 	init(Callback, pom, HelpBox, info->playerColoured, info->defName, &info->additionalDefs, info->x, info->y, key);
 }
+
+AdventureMapButton::AdventureMapButton( const std::pair<std::string, std::string> help, const CFunctionList<void()> &Callback, int x, int y, const std::string &defName, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
+{
+	std::map<int,std::string> pom;
+	pom[0] = help.first;
+	init(Callback, pom, help.second, playerColoredButton, defName, add, x, y, key);
+}
 void AdventureMapButton::clickLeft (tribool down)
 {
 	if(blocked)
@@ -79,7 +86,7 @@ void AdventureMapButton::hover (bool on)
 	std::string *name = (vstd::contains(hoverTexts,state)) 
 							? (&hoverTexts[state]) 
 							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
-	if(name) //if there is no name, there is nohing to display also
+	if(name && !blocked) //if there is no name, there is nohing to display also
 	{
 		if (LOCPLINT->curint == static_cast<CMainInterface*>(LOCPLINT->battleInt)) //for battle buttons
 		{

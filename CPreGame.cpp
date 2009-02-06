@@ -38,6 +38,48 @@ CPreGame * CPG;
 namespace fs = boost::filesystem;
 namespace s = CSDL_Ext;
 
+int getNextCastle(int current, PlayerInfo * ourInf, bool next=true) //next=flase => previous castle
+{
+	int dir = next ? 1 : -1;
+	if (current==-2) //no castle - no change
+		return current;
+	else if (current==-1) //random => first/last available
+	{
+		int pom = (next) ? (0) : (F_NUMBER-1); // last or first
+		for (;pom>=0 && pom<F_NUMBER;pom+=dir)
+		{
+			if (((int)pow((double)2,pom))&ourInf->allowedFactions)
+			{
+				current=pom;
+				break;
+			}
+			else continue;
+		}
+	}
+	else // next/previous available
+	{
+		for (;;)
+		{
+			current+=dir;
+			if (((int)pow((double)2,(int)current))&ourInf->allowedFactions)
+			{
+				break;
+			}
+			if (current>=F_NUMBER || current<0)
+			{
+				double p1 = log((double)ourInf->allowedFactions)/log(2.0f)+0.000001f;
+				double check = p1-((int)p1);
+				if (check < 0.001)
+					current=(int)p1;
+				else
+					current=-1;
+				break;
+			}
+		}
+	}
+	return current;
+}
+
 HighButton::HighButton( SDL_Rect Pos, CDefHandler* Imgs, bool Sel, int id)
 {
 	type=0;
@@ -441,6 +483,7 @@ int Options::nextAllowedHero(int min, int max, int incl, int dir) //incl 0 - wla
 	}
 	return -1;
 }
+
 void Options::OptionSwitch::press(bool down)
 {
 	HighButton::press(down);
@@ -452,50 +495,21 @@ void Options::OptionSwitch::press(bool down)
 	{
 	case -1: //castle change
 		{
-			int oCas = ourOpt->castle;
-			if (ourOpt->castle==-2) //no castle - no change
-				return;
-			else if (ourOpt->castle==-1) //random => first/last available
-			{
-				int pom = (left) ? (F_NUMBER-1) : (0); // last or first
-				for (;pom>=0 && pom<F_NUMBER;pom+=dir)
-				{
-					if (((int)pow((double)2,pom))&ourInf->allowedFactions)
-					{
-						ourOpt->castle=pom;
-						break;
-					}
-					else continue;
-				}
-			}
-			else // next/previous available
-			{
-				for (;;)
-				{
-					ourOpt->castle+=dir;
-					if (((int)pow((double)2,(int)ourOpt->castle))&ourInf->allowedFactions)
-					{
-						break;
-					}
-					if (ourOpt->castle>=F_NUMBER || ourOpt->castle<0)
-					{
-						double p1 = log((double)ourInf->allowedFactions)/log(2.0f)+0.000001f;
-						double check = p1-((int)p1);
-						if (check < 0.001)
-							ourOpt->castle=(int)p1;
-						else
-							ourOpt->castle=-1;
-						break;
-					}
-				}
-			}
+			int nCas = getNextCastle(ourOpt->castle,ourInf,!left);
 
-			if (oCas!=ourOpt->castle) //changed castle
+			if (nCas!=ourOpt->castle) //changed castle
 			{
-				ourOpt->hero=-1;
-				ourOpt->bonus = brandom;
-				CPG->ourOptions->showIcon(0,serialID,false);
-				CPG->ourOptions->showIcon(1,serialID,false);
+				ourOpt->castle = nCas;
+				if(ourOpt->hero != -2)
+				{
+					ourOpt->hero=-1;
+					CPG->ourOptions->showIcon(0,serialID,false);
+				}
+				if(ourOpt->bonus==bresource)
+				{
+					ourOpt->bonus = brandom;
+					CPG->ourOptions->showIcon(1,serialID,false);
+				}
 			}
 			break;
 		}
@@ -754,18 +768,29 @@ void Options::show()
 		poptions.push_back(new PlayerOptions(playersSoFar,i));
 		poptions[poptions.size()-1]->nr=playersSoFar;
 		poptions[poptions.size()-1]->color=(Ecolor)i;
-		poptions[poptions.size()-1]->Cleft.show();
-		poptions[poptions.size()-1]->Cright.show();
-		poptions[poptions.size()-1]->Hleft.show();
-		poptions[poptions.size()-1]->Hright.show();
+
+		if(CPG->ret.playerInfos[playersSoFar].hero != -2)
+		{
+			poptions[poptions.size()-1]->Hleft.show();
+			poptions[poptions.size()-1]->Hright.show();
+			CPG->btns.push_back(&poptions[poptions.size()-1]->Hleft);
+			CPG->btns.push_back(&poptions[poptions.size()-1]->Hright);
+		}
+
+		if(getNextCastle(CPG->ret.playerInfos[playersSoFar].castle,&ms.ourMaps[ms.selected].players[i]) != CPG->ret.playerInfos[playersSoFar].castle)
+		{
+			poptions[poptions.size()-1]->Cleft.show();
+			poptions[poptions.size()-1]->Cright.show();
+			CPG->btns.push_back(&poptions[poptions.size()-1]->Cleft);
+			CPG->btns.push_back(&poptions[poptions.size()-1]->Cright);
+		}
+
 		poptions[poptions.size()-1]->Bleft.show();
 		poptions[poptions.size()-1]->Bright.show();
-		CPG->btns.push_back(&poptions[poptions.size()-1]->Cleft);
-		CPG->btns.push_back(&poptions[poptions.size()-1]->Cright);
-		CPG->btns.push_back(&poptions[poptions.size()-1]->Hleft);
-		CPG->btns.push_back(&poptions[poptions.size()-1]->Hright);
 		CPG->btns.push_back(&poptions[poptions.size()-1]->Bleft);
 		CPG->btns.push_back(&poptions[poptions.size()-1]->Bright);
+
+
 		CSDL_Ext::printAtMiddle(CPG->ret.playerInfos[playersSoFar].name,111,137+playersSoFar*50,GEOR13,zwykly);
 		if (ms.ourMaps[ms.selected].players[i].canHumanPlay)
 		{
@@ -1289,7 +1314,7 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 			}
 			pset.heroPortrait=-1;
 			if (!
-				((curVector()[which].players[i].generateHeroAtMainTown 
+				(((curVector()[which].players[i].generateHeroAtMainTown || curVector()[which].version==RoE)
 					&& curVector()[which].players[i].hasMainTown) 
 				|| curVector()[which].players[i].p8)
 			  )

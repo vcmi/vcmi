@@ -1790,6 +1790,11 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				nobj = new CGBonusingObject();
 				break;
 			}
+		case 49: //Magic Well
+			{
+				nobj = new CGMagicWell();
+				break;
+			}
 		case 214: //hero placeholder
 			{
 				i+=3; //TODO: handle it more properly
@@ -1830,13 +1835,11 @@ void Mapa::readEvents( unsigned char * bufor, int &i )
 		{
 			ne.message +=bufor[i]; ++i;
 		}
-		ne.wood = readNormalNr(bufor,i); i+=4;
-		ne.mercury = readNormalNr(bufor,i); i+=4;
-		ne.ore = readNormalNr(bufor,i); i+=4;
-		ne.sulfur = readNormalNr(bufor,i); i+=4;
-		ne.crystal = readNormalNr(bufor,i); i+=4;
-		ne.gems = readNormalNr(bufor,i); i+=4;
-		ne.gold = readNormalNr(bufor,i); i+=4;
+		ne.resources.resize(RESOURCE_QUANTITY);
+		for(int k=0; k < 7; k++)
+		{
+			ne.resources[k] = readNormalNr(bufor,i); i+=4;
+		}
 		ne.players = bufor[i]; ++i;
 		if(version>AB)
 		{

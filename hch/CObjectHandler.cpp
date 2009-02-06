@@ -1731,3 +1731,46 @@ const std::string & CGBonusingObject::getHoverText() const
 	}
 	return hoverName;
 }
+
+void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
+{
+	int message;
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	if(h->getBonus(HeroBonus::OBJECT,ID)) //has already visited Well today
+	{
+		message = 78;
+	}
+	else if(h->mana < h->manaLimit())
+	{
+		GiveBonus gbonus;
+		gbonus.bonus.type = HeroBonus::NONE;
+		gbonus.hid = h->id;
+		gbonus.bonus.duration = HeroBonus::ONE_DAY;
+		gbonus.bonus.source = HeroBonus::OBJECT;
+		gbonus.bonus.id = ID;
+		cb->giveHeroBonus(&gbonus);
+		cb->setManaPoints(h->id,h->manaLimit());
+		message = 77;
+	}
+	else
+	{
+		message = 79;
+	}
+	iw.text << std::pair<ui8,ui32>(11,message); //"A second drink at the well in one day will not help you."
+	cb->showInfoDialog(&iw);
+}
+
+const std::string & CGMagicWell::getHoverText() const
+{
+	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
+	hoverName = VLC->generaltexth->names[ID];
+	if(h) 
+	{
+		if(!h->getBonus(HeroBonus::OBJECT,ID))
+			hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
+		else
+			hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
+	}
+	return hoverName;
+}

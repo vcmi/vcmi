@@ -434,7 +434,6 @@ CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, con
 	}
 }
 
-
 void CGameState::applyNL(IPack * pack)
 {
 	switch(pack->getType())
@@ -455,6 +454,11 @@ void CGameState::applyNL(IPack * pack)
 			if(n->resetBuilded) //reset amount of structures set in this turn in towns
 				BOOST_FOREACH(CGTownInstance* t, map->towns)
 					t->builded = 0;
+			BOOST_FOREACH(CGHeroInstance *h, map->heroes)
+				h->bonuses.remove_if(HeroBonus::OneDay);
+			if(getDate(1) == 7) //new week
+				BOOST_FOREACH(CGHeroInstance *h, map->heroes)
+					h->bonuses.remove_if(HeroBonus::OneDay);
 			break;
 		}
 	case 102: //set resource amount

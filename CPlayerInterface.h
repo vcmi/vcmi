@@ -527,6 +527,7 @@ public:
 	CSlider *slider;
 	AdventureMapButton *max, *buy, *cancel;
 	SDL_Surface *bitmap;
+	CStatusBar *bar;
 	int which; //which creature is active
 
 	void close();

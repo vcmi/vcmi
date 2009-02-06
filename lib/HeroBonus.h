@@ -23,4 +23,17 @@ struct DLL_EXPORT HeroBonus
 	{
 		h & duration & type & source & val & id & description;
 	}
+
+	static bool OneDay(const HeroBonus &hb)
+	{
+		return hb.duration==HeroBonus::ONE_DAY;
+	}
+	static bool OneWeek(const HeroBonus &hb)
+	{
+		return hb.duration==HeroBonus::ONE_WEEK;
+	}
+	static bool OneBattle(const HeroBonus &hb)
+	{
+		return hb.duration==HeroBonus::ONE_BATTLE;
+	}
 };

@@ -7,6 +7,7 @@
 #include <vector>
 #include <map>
 #include <set>
+#include <list>
 #include "global.h"
 #ifndef _MSC_VER
 #include "hch/CObjectHandler.h"
@@ -185,15 +186,15 @@ class DLL_EXPORT CMapEvent
 {
 public:
 	std::string name, message;
-	si32 wood, mercury, ore, sulfur, crystal, gems, gold; //gained / taken resources
+	std::vector<si32> resources; //gained / taken resources
 	ui8 players; //affected players
 	ui8 humanAffected;
 	ui8 computerAffected;
 	ui32 firstOccurence;
-	ui32 nextOccurence; //after nextOccurance day event will occure; if it it 0, event occures only one time;
+	ui32 nextOccurence; //after nextOccurance day event will occur; if it it 0, event occures only one time;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & message & wood & mercury & ore & sulfur & crystal & gems & gold
+		h & name & message & resources
 			& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
 	}
 };
@@ -296,7 +297,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	std::vector<ui8> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
 	std::vector<ui8> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
 	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
-	std::vector<CMapEvent> events;
+	std::list<CMapEvent> events;
 
 	int3 grailPos;
 	int grailRadious;
@@ -505,6 +506,9 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			case 110://Watering Hole
 			case 31: //Fountain of Youth
 				SERIALIZE(CGBonusingObject);
+				break;
+			case 49: //Magic Well
+				SERIALIZE(CGMagicWell);
 				break;
 			default:
 				SERIALIZE(CGObjectInstance);

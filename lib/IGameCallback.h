@@ -59,5 +59,6 @@ public:
 	virtual void moveHero(int hid, int3 pos, bool instant)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
+	virtual void setManaPoints(int hid, int val)=0;
 };
 #endif // __IGAMECALLBACK_H__

@@ -2372,6 +2372,7 @@ void CPlayerInterface::availableCreaturesChanged( const CGTownInstance *town )
 
 void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const HeroBonus &bonus, bool gain )
 {
+	if(bonus.type == HeroBonus::NONE)	return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	redrawHeroWin(hero);
 }
@@ -2989,6 +2990,7 @@ void CRecrutationWindow::Cancel()
 }
 void CRecrutationWindow::sliderMoved(int to)
 {
+	buy->block(!to);
 }
 void CRecrutationWindow::clickLeft(tribool down)
 {
@@ -3045,6 +3047,7 @@ void CRecrutationWindow::activate()
 	max->activate();
 	cancel->activate();
 	slider->activate();
+	LOCPLINT->statusbar = bar;
 }
 void CRecrutationWindow::deactivate()
 {
@@ -3089,6 +3092,7 @@ void CRecrutationWindow::show(SDL_Surface * to)
 		curx += 120;
 	}
 	c++;
+	bar->show();
 }
 CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &Creatures, const boost::function<void(int,int)> &Recruit) //creatures - pairs<creature_ID,amount>
 :recruit(Recruit)
@@ -3115,6 +3119,10 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 	pos.y = screen->h/2 - bitmap->h/2;
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
+	bar = new CStatusBar(pos.x+8, pos.y+370, "APHLFTRT.bmp", 471);
+	max = new AdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecrutationWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF",SDLK_m);
+	buy = new AdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecrutationWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF",SDLK_RETURN);
+	cancel = new AdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecrutationWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF",SDLK_ESCAPE);
 	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecrutationWindow::sliderMoved,this, _1),1,std::min(amounts[0],creatures[0].amount),0,true);
 	std::string pom;
 	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
@@ -3144,14 +3152,12 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 		curx += 120;
 	}
 
-	max = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF",SDLK_m);
-	buy = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF",SDLK_RETURN);
-	cancel = new AdventureMapButton("","",boost::bind(&CRecrutationWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF",SDLK_ESCAPE);
-	if(!creatures[0].amount)
+	if(!creatures[0].amount ||  !amounts[0])
 	{
 		max->block(true);
-		buy->block(true);
+		slider->block(true);
 	}
+	//buy->block(true); //not needed, will be blocked by initing slider on 0
 }
 CRecrutationWindow::~CRecrutationWindow()
 {
@@ -3164,6 +3170,7 @@ CRecrutationWindow::~CRecrutationWindow()
 	delete cancel;
 	SDL_FreeSurface(bitmap);
 	delete slider;
+	delete bar;
 }
 
 CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
