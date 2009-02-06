@@ -108,7 +108,7 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	CGObjectInstance * nobj;
 	switch(id)
 	{
-	case 34: //hero
+	case HEROI_TYPE: //hero
 		{
 			CGHeroInstance * nobj = new CGHeroInstance();
 			nobj->pos = pos;
@@ -117,7 +117,7 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 			//nobj->initHero(ran);
 			return nobj;
 		}
-	case 98: //town
+	case TOWNI_TYPE: //town
 		nobj = new CGTownInstance;
 		break;
 	default: //rest of objects
@@ -137,7 +137,7 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	nobj->defInfo->subid = subid;
 
 	//assigning defhandler
-	if(nobj->ID==34 || nobj->ID==98)
+	if(nobj->ID==HEROI_TYPE || nobj->ID==TOWNI_TYPE)
 		return nobj;
 	nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
 	return nobj;
@@ -635,7 +635,7 @@ void CGameState::applyNL(IPack * pack)
 		{
 			RemoveObject *rh = static_cast<RemoveObject*>(pack);
 			CGObjectInstance *obj = map->objects[rh->id];
-			if(obj->ID==34)
+			if(obj->ID==HEROI_TYPE)
 			{
 				CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
 				std::vector<CGHeroInstance*>::iterator nitr = std::find(map->heroes.begin(), map->heroes.end(),h);
@@ -685,9 +685,9 @@ void CGameState::applyNL(IPack * pack)
 			{
 				CArmedInstance *ai = static_cast<CArmedInstance*>(map->objects[i->first]);
 				ai->army = i->second;
-				if(ai->ID==98 && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
+				if(ai->ID==TOWNI_TYPE && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
 					const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->army = i->second;
-				else if(ai->ID==34)
+				else if(ai->ID==HEROI_TYPE)
 				{
 					CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
 					if(h->visitedTown && h->inTownGarrison)
@@ -954,7 +954,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 		return std::pair<int,int>(5,VLC->arth->relics[ran()%VLC->arth->relics.size()]->id);
 	case 70: //random hero
 		{
-			return std::pair<int,int>(34,pickHero(obj->tempOwner));
+			return std::pair<int,int>(HEROI_TYPE,pickHero(obj->tempOwner));
 		}
 	case 71: //random monster
 		{
@@ -991,7 +991,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 				f = scenarioOps->getIthPlayersSettings(align).castle;
 			}
 			if(f<0) f = ran()%VLC->townh->towns.size();
-			return std::pair<int,int>(98,f); 
+			return std::pair<int,int>(TOWNI_TYPE,f); 
 		}
 	case 162: //random monster lvl5
 		return std::pair<int,int>(54,VLC->creh->levelCreatures[5][ran()%VLC->creh->levelCreatures[5].size()]->idNumber);
@@ -1013,7 +1013,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 						faction = map->objects[i]->subID;
 						break;
 					}
-					else if(map->objects[i]->ID==98 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
 					{
 						faction = map->objects[i]->subID;
 						break;
@@ -1051,7 +1051,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 						faction = map->objects[i]->subID;
 						break;
 					}
-					else if(map->objects[i]->ID==98 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
+					else if(map->objects[i]->ID==TOWNI_TYPE && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
 					{
 						faction = map->objects[i]->subID;
 						break;
@@ -1093,7 +1093,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	std::pair<int,int> ran = pickObject(cur);
 	if(ran.first<0 || ran.second<0) //this is not a random object, or we couldn't find anything
 	{
-		if(cur->ID==98) //town - set def
+		if(cur->ID==TOWNI_TYPE) //town - set def
 		{
 			CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 			if(t->hasCapitol())
@@ -1105,7 +1105,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		}
 		return;
 	}
-	else if(ran.first==34)//special code for hero
+	else if(ran.first==HEROI_TYPE)//special code for hero
 	{
 		CGHeroInstance *h = dynamic_cast<CGHeroInstance *>(cur);
 		if(!h) {tlog2<<"Wrong random hero at "<<cur->pos<<std::endl; return;}
@@ -1115,7 +1115,7 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 		map->heroes.push_back(h);
 		return; //TODO: maybe we should do something with definfo?
 	}
-	else if(ran.first==98)//special code for town
+	else if(ran.first==TOWNI_TYPE)//special code for town
 	{
 		CGTownInstance *t = dynamic_cast<CGTownInstance*>(cur);
 		if(!t) {tlog2<<"Wrong random town at "<<cur->pos<<std::endl; return;}
@@ -1233,7 +1233,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			if(j == scenarioOps->playerInfos.size())
 				continue;
 			int h=pickHero(i);
-			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(34,h,hpos,i));
+			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(HEROI_TYPE,h,hpos,i));
 			nnn->id = map->objects.size();
 			hpos = map->players[i].posOfMainTown;hpos.x+=2;
 			for(int o=0;o<map->towns.size();o++) //find main town
@@ -1544,10 +1544,10 @@ UpgradeInfo CGameState::getUpgradeInfo(CArmedInstance *obj, int stackPos)
 {
 	UpgradeInfo ret;
 	CCreature *base = &VLC->creh->creatures[obj->army.slots[stackPos].first];
-	if((obj->ID == 98)  ||  ((obj->ID == 34) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
+	if((obj->ID == TOWNI_TYPE)  ||  ((obj->ID == HEROI_TYPE) && static_cast<const CGHeroInstance*>(obj)->visitedTown))
 	{
 		CGTownInstance * t;
-		if(obj->ID == 98)
+		if(obj->ID == TOWNI_TYPE)
 			t = static_cast<CGTownInstance *>(const_cast<CArmedInstance *>(obj));
 		else
 			t = static_cast<const CGHeroInstance*>(obj)->visitedTown;

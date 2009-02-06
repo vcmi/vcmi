@@ -10,7 +10,6 @@ class CLodHandler;
 class CArtHandler;
 class CHeroHandler;
 class CCreatureHandler;
-//class CAbilityHandler;
 class CSpellHandler;
 //class CPreGameTextHandler;
 class CBuildingHandler;

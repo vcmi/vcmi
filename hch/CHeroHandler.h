@@ -56,6 +56,19 @@ public:
 	std::vector<CHero*> heroes; //by³o nodrze
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<int> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
+	
+	struct SBallisticsLevelInfo
+	{
+		ui8 keep, tower, gate, wall; //chance to hit in percent (eg. 87 is 87%)
+		ui8 shots; //how many shots we have
+		ui8 noDmg, oneDmg, twoDmg; //chances for shot dealing certain dmg in percent (eg. 87 is 87%); must sum to 100
+		ui8 sum; //I don't know if it is useful for anything, but it's in config file
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & keep & tower & gate & wall & shots & noDmg & oneDmg & twoDmg & sum;
+		}
+	};
+	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
 	unsigned int level(unsigned int experience);
 	unsigned int reqExp(unsigned int level);
@@ -69,7 +82,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel;
+		h & heroClasses & heroes & expPerLevel & ballistics;
 		if(!h.saving)
 		{
 			//restore class pointers

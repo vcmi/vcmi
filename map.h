@@ -528,9 +528,9 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			for(int i=0; i<objects.size(); i++)
 			{
 				if(!objects[i]) continue;
-				if(objects[i]->ID == 34)
+				if(objects[i]->ID == HEROI_TYPE)
 					heroes.push_back(static_cast<CGHeroInstance*>(objects[i]));
-				else if(objects[i]->ID == 98)
+				else if(objects[i]->ID == TOWNI_TYPE)
 					towns.push_back(static_cast<CGTownInstance*>(objects[i]));
 
 				addBlockVisTiles(objects[i]); //recreate blockvis map

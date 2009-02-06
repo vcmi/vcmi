@@ -367,9 +367,9 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj) const
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!obj)
 		return NULL;
-	if(obj->ID == 34)
+	if(obj->ID == HEROI_TYPE)
 		return &(dynamic_cast<const CGHeroInstance*>(obj))->army;
-	else if(obj->ID == 98)
+	else if(obj->ID == TOWNI_TYPE)
 		return &(dynamic_cast<const CGTownInstance*>(obj)->army);
 	else return NULL;
 }

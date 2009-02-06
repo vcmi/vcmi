@@ -17,7 +17,6 @@
 #include "client/CConfigHandler.h"
 #include "client/CCreatureAnimation.h"
 #include "client/Graphics.h"
-#include "hch/CAbilityHandler.h"
 #include "hch/CArtHandler.h"
 #include "hch/CGeneralTextHandler.h"
 #include "hch/CHeroHandler.h"
@@ -717,10 +716,10 @@ SDL_Surface * SComponent::getImg()
 		return graphics->pskillsb->ourImages[subtype].bitmap;
 		break;
 	case secskill44:
-		return CGI->abilh->abils44->ourImages[subtype*3 + 3 + val - 1].bitmap;
+		return graphics->abils44->ourImages[subtype*3 + 3 + val - 1].bitmap;
 		break;
 	case secskill:
-		return CGI->abilh->abils82->ourImages[subtype*3 + 3 + val - 1].bitmap;
+		return graphics->abils82->ourImages[subtype*3 + 3 + val - 1].bitmap;
 		break;
 	case resource:
 		return graphics->resources->ourImages[subtype].bitmap;
@@ -1708,10 +1707,10 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 	{
 		switch (specific->ID)
 		{
-		case 34:
+		case HEROI_TYPE:
 			return graphics->drawHeroInfoWin(dynamic_cast<const CGHeroInstance*>(specific));
 			break;
-		case 98:
+		case TOWNI_TYPE:
 			return graphics->drawTownInfoWin(dynamic_cast<const CGTownInstance*>(specific));
 			break;
 		default:
@@ -1973,7 +1972,7 @@ void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownIn
 void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(obj->ID == 34) //hero
+	if(obj->ID == HEROI_TYPE) //hero
 	{
 		const CGHeroInstance * hh;
 		if(hh = dynamic_cast<const CGHeroInstance*>(obj))
@@ -1994,7 +1993,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		}
 
 	}
-	else if (obj->ID == 98) //town
+	else if (obj->ID == TOWNI_TYPE) //town
 	{
 		const CGTownInstance * tt;
 		if(tt = static_cast<const CGTownInstance*>(obj))

@@ -157,8 +157,42 @@ void CHeroHandler::loadHeroes()
 	expPerLevel.push_back(22100);
 	expPerLevel.push_back(26420);
 	expPerLevel.push_back(31604);
-	return;
 
+	//ballistics info
+	buf = bitmaph->getTextFile("BALLIST.TXT");
+	it = 0;
+	for(int i=0; i<22; ++i)
+	{
+		loadToIt(dump,buf,it,4);
+	}
+	for(int lvl=0; lvl<4; ++lvl)
+	{
+		CHeroHandler::SBallisticsLevelInfo bli;
+		si32 tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.keep = tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.tower = tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.gate = tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.wall = tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.shots = tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.noDmg = tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.oneDmg = tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.twoDmg = tempNum;
+		loadToIt(tempNum,buf,it,4);
+		bli.sum = tempNum;
+		if(lvl!=3)
+		{
+			loadToIt(dump,buf,it,4);
+		}
+		ballistics.push_back(bli);
+	}
 }
 void CHeroHandler::loadHeroClasses()
 {

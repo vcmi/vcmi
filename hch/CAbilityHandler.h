@@ -17,7 +17,7 @@ class CAbilityHandler
 {
 public:
 	std::vector<CAbility *> abilities;
-	CDefHandler * abils32, * abils44, * abils82;
+
 	void loadAbilities();
 };
 

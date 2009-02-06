@@ -2057,7 +2057,7 @@ void CGameHandler::moveHero(int hid, int3 pos, bool instant)
 	//check if destination tile is free
 	BOOST_FOREACH(CGObjectInstance* obj, gs->map->terrain[pos.x-1][pos.y][pos.z].blockingObjects)
 	{
-		if(obj->ID==34)
+		if(obj->ID==HEROI_TYPE)
 		{
 			if(obj->tempOwner==h->tempOwner) 
 				return;//TODO: exchange

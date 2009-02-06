@@ -48,6 +48,8 @@ public:
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
 	CDefHandler * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
 	std::vector<std::string> guildBgs;// name of bitmaps with imgs for mage guild screen
+	//abilities
+	CDefHandler * abils32, * abils44, * abils82;
 	//functions
 	Graphics();	
 	void initializeBattleGraphics();
