@@ -302,7 +302,7 @@ public:
 	int interx, intery;
 	CGarrisonSlot *highlighted;
 
-	SDL_Surface *sur;
+	SDL_Surface *&sur;
 	int offx, offy, p2;
 	bool ignoreEvent, update, active, splitting, pb;
 
@@ -324,7 +324,7 @@ public:
 	void splitClick();
 	void splitStacks(int am2);
 
-	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CArmedInstance *s1, const CArmedInstance *s2=NULL);
+	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *&pomsur, int OX, int OY, const CArmedInstance *s1, const CArmedInstance *s2=NULL);
 	~CGarrisonInt();
 };
 

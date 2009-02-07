@@ -171,7 +171,7 @@
 		</Configuration>
 		<Configuration
 			Name="RD|Win32"
-			OutputDirectory="$(SolutionDir)$(ConfigurationName)"
+			OutputDirectory="$(SolutionDir)$(ConfigurationName)\bin"
 			IntermediateDirectory="$(ConfigurationName)"
 			ConfigurationType="2"
 			CharacterSet="1"
@@ -194,10 +194,11 @@
 			/>
 			<Tool
 				Name="VCCLCompilerTool"
+				AdditionalOptions="/Oy-"
 				Optimization="3"
 				EnableIntrinsicFunctions="true"
 				FavorSizeOrSpeed="1"
-				OmitFramePointers="true"
+				OmitFramePointers="false"
 				EnableFiberSafeOptimizations="true"
 				WholeProgramOptimization="true"
 				AdditionalIncludeDirectories="G:\vcmt\repa\include"
@@ -206,6 +207,8 @@
 				BasicRuntimeChecks="0"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
+				AssemblerOutput="2"
+				AssemblerListingLocation="$(SolutionDir)$(ConfigurationName)\"
 				WarningLevel="3"
 				DebugInformationFormat="3"
 			/>
@@ -224,6 +227,7 @@
 				Version=""
 				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateDebugInformation="true"
+				GenerateMapFile="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="0"

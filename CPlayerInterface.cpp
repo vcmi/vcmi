@@ -497,7 +497,7 @@ void CGarrisonInt::splitStacks(int am2)
 		am2);
 
 }
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *pomsur, int OX, int OY, const CArmedInstance *s1, 
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *&pomsur, int OX, int OY, const CArmedInstance *s1, 
 						   const CArmedInstance *s2)
 	:interx(inx),intery(iny),sur(pomsur),highlighted(NULL),sup(NULL),sdown(NULL),oup(s1),odown(s2),
 	offx(OX),offy(OY)
@@ -878,6 +878,8 @@ CSelWindow::CSelWindow(std::string text, int player, int charperline, std::vecto
 	{
 		components.push_back(comps[i]);
 		comps[i]->onSelect = boost::bind(&CSelWindow::selectionChange,this,i);
+		if(i<9)
+			comps[i]->assignedKeys.insert(SDLK_1+i);
 	}
 	CMessage::drawIWindow(this,text,player,charperline);
 }
@@ -2222,17 +2224,18 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	else
 	{
 		CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
-		int shift = 0;
-		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)
-		{
-			if(attacker->attackerOwned)
-				shift = 1;
-			else
-				shift = -1;
-		}
-		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo );
+		int shift = 0;		
+		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)		
+		{			
+			if(attacker->attackerOwned)				
+				shift = 1;			
+			else				
+				shift = -1;		
+		}		
+		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo );	
 	}
 }
+
 void CPlayerInterface::showComp(SComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

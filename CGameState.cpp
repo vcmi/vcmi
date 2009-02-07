@@ -476,7 +476,7 @@ void CGameState::applyNL(IPack * pack)
 				h->bonuses.remove_if(HeroBonus::OneDay);
 			if(getDate(1) == 7) //new week
 				BOOST_FOREACH(CGHeroInstance *h, map->heroes)
-					h->bonuses.remove_if(HeroBonus::OneDay);
+					h->bonuses.remove_if(HeroBonus::OneWeek);
 			break;
 		}
 	case 102: //set resource amount

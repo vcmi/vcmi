@@ -242,7 +242,10 @@ void CGeneralTextHandler::load()
 	{
 		loadToIt(temp,buf,it,3);
 		temp = temp.substr(1,temp.length()-2);
-		mines[i++].second = temp;
+		if(i < mines.size())
+			mines[i++].second = temp;
+		else
+			tlog2 << "Warning - too much entries in MINEEVNT. Omitting this one: " << temp << std::endl;
 	}
 
 	tlog5 << "\t\tReading RESTYPES \n";

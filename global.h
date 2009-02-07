@@ -249,22 +249,24 @@ extern DLL_EXPORT CLogger<5> tlog5; //gray - minor log info
 	catch (const std::exception * e)	\
 	{									\
 		tlog1 << e->what()<< std::endl;	\
-		delete e;						\
+		throw;							\
 	}									\
 	catch (const std::string& e) {		\
-		tlog1 << e << std::endl;	\
+		tlog1 << e << std::endl;		\
+		throw;							\
 	}
 
 #define HANDLE_EXCEPTIONC(COMMAND)  \
 	catch (const std::exception& e) {	\
-	COMMAND;							\
-	tlog1 << e.what() << std::endl;	\
+		COMMAND;						\
+		tlog1 << e.what() << std::endl;	\
+		throw;							\
 	}									\
 	catch (const std::exception * e)	\
 	{									\
 		COMMAND;						\
 		tlog1 << e->what()<< std::endl;	\
-		delete e;						\
+		throw;							\
 	}
 
 
