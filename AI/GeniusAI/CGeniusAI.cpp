@@ -11,7 +11,7 @@
 #include <boost/algorithm/string.hpp>
 
 using namespace boost::lambda;
-
+using namespace std;
 using namespace GeniusAI;
 
 #if defined (_MSC_VER) && (_MSC_VER >= 1020)
@@ -573,137 +573,56 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 
 BattleAction CBattleLogic::MakeDecision(int stackID)
 {
-	CStack *attackerStack = m_cb->battleGetStackByID(stackID);
-	assert(attackerStack != NULL);
-
 	MakeStatistics(stackID);
-	
-	int creature_to_attack = -1;
+
+	list<int> creatures;
+	int additionalInfo;
 	
 	if (m_bEnemyDominates)
 	{
-		creature_to_attack = PerformBerserkAttack(stackID);
+		creatures = PerformBerserkAttack(stackID, additionalInfo);
 	}
 	else
 	{
-		creature_to_attack = PerformDefaultAction(stackID);
+		creatures = PerformDefaultAction(stackID, additionalInfo);
 	}
+	/*
 	std::string message("Creature will be attacked - ");
 	message += boost::lexical_cast<std::string>(creature_to_attack);
 	MsgBox(message.c_str());
+	*/
 
-	if (creature_to_attack == -1)
+	if (additionalInfo == -1 || creatures.empty())
 	{
 		// defend
 		return MakeDefend(stackID);
 	}
-	if (m_cb->battleCanShoot(stackID, m_cb->battleGetPos(creature_to_attack)))
+	else if (additionalInfo == -2)
 	{
-		// shoot
-		BattleAction ba; 
-		ba.side = 1;
-		ba.actionType = action_shoot; // shoot
-		ba.stackNumber = stackID;
-		ba.destinationTile = (ui16)m_cb->battleGetPos(creature_to_attack);
-		return ba;
+		return MakeWait(stackID);
 	}
-	else
+
+	list<int>::iterator it, eit;
+	eit = creatures.end();
+	for (it = creatures.begin(); it != eit; ++it)
 	{
-		// go or go&attack
-		int dest_tile = -1; //m_cb->battleGetPos(creature_to_attack) + 1;
-		std::vector<int> av_tiles = GetAvailableHexesForAttacker(m_cb->battleGetStackByID(creature_to_attack), m_cb->battleGetStackByID(stackID));
-		if (av_tiles.size() < 1)
+		BattleAction ba = MakeAttack(stackID, *it);
+		if (ba.actionType != action_walk_and_attack)
 		{
-			// TODO: shouldn't be like that
-			return MakeDefend(stackID);
+			continue;
 		}
-		
-		// get the best tile - now the nearest
-
-		int prev_distance = m_battleHelper.InfiniteDistance;
-		int currentPos = m_cb->battleGetPos(stackID);
-
-		for (std::vector<int>::iterator it = av_tiles.begin(); it != av_tiles.end(); ++it)
+		else
 		{
-			int dist = m_battleHelper.GetDistanceWithObstacles(*it, m_cb->battleGetPos(stackID));
-			if (dist < prev_distance)
-			{
-				prev_distance = dist;
-				dest_tile = *it;
-			}
-			if (*it == currentPos)
-			{
-				dest_tile = currentPos;
-				break;
-			}
+			PrintBattleAction(ba);
+			return ba;
 		}
-
-		std::vector<int> fields = m_cb->battleGetAvailableHexes(stackID, false);
-		BattleAction ba; 
-		ba.side = 1;
-		//ba.actionType = 6; // go and attack
-		ba.stackNumber = stackID;
-		ba.destinationTile = (ui16)dest_tile;
-		ba.additionalInfo = m_cb->battleGetPos(creature_to_attack);
-		
-		int nearest_dist = m_battleHelper.InfiniteDistance;
-		int nearest_pos = -1;
-
-		// if double wide calculate tail
-		int tail_pos = -1;
-		if (attackerStack->creature->isDoubleWide())
-		{
-			int x_pos = m_battleHelper.DecodeXPosition(attackerStack->position);
-			int y_pos = m_battleHelper.DecodeYPosition(attackerStack->position);
-			if (attackerStack->attackerOwned)
-			{
-				x_pos -= 1;
-			}
-			else
-			{
-				x_pos += 1;
-			}
-			tail_pos = m_battleHelper.GetBattleFieldPosition(x_pos, y_pos);
-			if (dest_tile == tail_pos)
-			{
-				ba.actionType = action_walk_and_attack;
-				PrintBattleAction(ba);
-				return ba;
-			}
-		}
-
-		for (std::vector<int>::const_iterator it = fields.begin(); it != fields.end(); ++it)
-		{
-			if (*it == dest_tile)
-			{
-				// attack!
-				ba.actionType = action_walk_and_attack;
-#if defined _DEBUG
-				PrintBattleAction(ba);
-#endif
-				return ba;
-			}
-			int d = m_battleHelper.GetDistanceWithObstacles(dest_tile, *it);
-			if (d < nearest_dist)
-			{
-				nearest_dist = d;
-				nearest_pos = *it;
-			}
-		}
-		message = "Attacker position X=";
-		message += boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(nearest_pos)) + ", Y=";
-		message += boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(nearest_pos));
-		MsgBox(message.c_str());
-
-		ba.actionType = action_walk;
-		ba.destinationTile = (ui16)nearest_pos;
-		ba.additionalInfo  = -1;
-#if defined _DEBUG
-		PrintBattleAction(ba);
-#endif
-		return ba;
 	}
+	BattleAction ba = MakeAttack(stackID, *creatures.begin());
+	PrintBattleAction(ba);
+	return ba;
 }
+
+
 
 std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender, CStack *attacker)
 {
@@ -872,43 +791,168 @@ BattleAction CBattleLogic::MakeDefend(int stackID)
 	return ba;
 }
 
+BattleAction CBattleLogic::MakeWait(int stackID)
+{
+	BattleAction ba; 
+	ba.side = 1;
+	ba.actionType = action_wait;
+	ba.stackNumber = stackID;
+	ba.additionalInfo = -1;
+	return ba;
+}
+
+BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
+{
+	if (m_cb->battleCanShoot(attackerID, m_cb->battleGetPos(destinationID)))
+	{
+		// shoot
+		BattleAction ba; 
+		ba.side = 1;
+		ba.additionalInfo = -1;
+		ba.actionType = action_shoot; // shoot
+		ba.stackNumber = attackerID;
+		ba.destinationTile = (ui16)m_cb->battleGetPos(destinationID);
+		return ba;
+	}
+	else
+	{
+		// go or go&attack
+		int dest_tile = -1;
+		std::vector<int> av_tiles = GetAvailableHexesForAttacker(m_cb->battleGetStackByID(destinationID), m_cb->battleGetStackByID(attackerID));
+		if (av_tiles.size() < 1)
+		{
+			return MakeDefend(attackerID);
+		}
+		
+		// get the best tile - now the nearest
+
+		int prev_distance = m_battleHelper.InfiniteDistance;
+		int currentPos = m_cb->battleGetPos(attackerID);
+
+		for (std::vector<int>::iterator it = av_tiles.begin(); it != av_tiles.end(); ++it)
+		{
+			int dist = m_battleHelper.GetDistanceWithObstacles(*it, m_cb->battleGetPos(attackerID));
+			if (dist < prev_distance)
+			{
+				prev_distance = dist;
+				dest_tile = *it;
+			}
+			if (*it == currentPos)
+			{
+				dest_tile = currentPos;
+				break;
+			}
+		}
+
+		std::vector<int> fields = m_cb->battleGetAvailableHexes(attackerID, false);
+		BattleAction ba; 
+		ba.side = 1;
+		//ba.actionType = 6; // go and attack
+		ba.stackNumber = attackerID;
+		ba.destinationTile = (ui16)dest_tile;
+		ba.additionalInfo = m_cb->battleGetPos(destinationID);
+		
+		int nearest_dist = m_battleHelper.InfiniteDistance;
+		int nearest_pos = -1;
+
+		// if double wide calculate tail
+		CStack *attackerStack = m_cb->battleGetStackByID(attackerID);
+		assert(attackerStack != NULL);
+		
+		int tail_pos = -1;
+		if (attackerStack->creature->isDoubleWide())
+		{
+			int x_pos = m_battleHelper.DecodeXPosition(attackerStack->position);
+			int y_pos = m_battleHelper.DecodeYPosition(attackerStack->position);
+			if (attackerStack->attackerOwned)
+			{
+				x_pos -= 1;
+			}
+			else
+			{
+				x_pos += 1;
+			}
+			// if creature can perform attack without movement - do it!
+			tail_pos = m_battleHelper.GetBattleFieldPosition(x_pos, y_pos);
+			if (dest_tile == tail_pos)
+			{
+				ba.additionalInfo = dest_tile;
+				ba.actionType = action_walk_and_attack;
+				PrintBattleAction(ba);
+				return ba;
+			}
+		}
+
+		for (std::vector<int>::const_iterator it = fields.begin(); it != fields.end(); ++it)
+		{
+			if (*it == dest_tile)
+			{
+				// attack!
+				ba.actionType = action_walk_and_attack;
+#if defined _DEBUG
+				PrintBattleAction(ba);
+#endif
+				return ba;
+			}
+			int d = m_battleHelper.GetDistanceWithObstacles(dest_tile, *it);
+			if (d < nearest_dist)
+			{
+				nearest_dist = d;
+				nearest_pos = *it;
+			}
+		}
+		string message;
+		message = "Attacker position X=";
+		message += boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(nearest_pos)) + ", Y=";
+		message += boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(nearest_pos));
+		MsgBox(message.c_str());
+
+		ba.actionType = action_walk;
+		ba.destinationTile = (ui16)nearest_pos;
+		ba.additionalInfo  = -1;
+#if defined _DEBUG
+		PrintBattleAction(ba);
+#endif
+		return ba;
+	}
+}
 /**
  * The main idea is to perform maximum casualties.
  */
-int CBattleLogic::PerformBerserkAttack(int stackID)
+list<int> CBattleLogic::PerformBerserkAttack(int stackID, int &additionalInfo)
 {
 	CCreature c = m_cb->battleGetCreature(stackID);
 	// attack to make biggest damage
-	int creature_to_attack = -1;
+	list<int> creatures;
 
 	if (!m_statCasualties.empty())
 	{
-		creature_to_attack = m_statCasualties.begin()->first;
+		//creature_to_attack = m_statCasualties.begin()->first;
 		creature_stat_casualties::iterator it = m_statCasualties.begin();
 		for (; it != m_statCasualties.end(); ++it)
 		{
-			if (it->second.amount_min <= 0) // if nobody die after attack it won't make any sense
+			if (it->second.amount_min <= 0)
 			{
+				creatures.push_back(it->first);
 				continue;
 			}
 			for (creature_stat::const_iterator it2 = m_statDistance.begin(); it2 != m_statDistance.end(); ++it2)
 			{
 				if (it2->first == it->first && it2->second - 1 <= c.speed)
 				{
-					return it->first;
+					creatures.push_front(it->first);
 				}
 			}
 		}
-		return m_statCasualties.begin()->first;
+		creatures.push_back(m_statCasualties.begin()->first);
 	}
-	return -1;
+	return creatures;
 }
 
-int CBattleLogic::PerformDefaultAction(int stackID)
+list<int> CBattleLogic::PerformDefaultAction(int stackID, int &additionalInfo)
 {
 	// first approach based on the statistics and weights
 	// if this solution was fine we would develop this idea
-	int creature_to_attack = -1;
 	//
 	std::map<int, int> votes;
 
@@ -932,15 +976,18 @@ int CBattleLogic::PerformDefaultAction(int stackID)
 
 	int max_vote = 0;
 
+	list<int> creatures;
+
 	for (std::map<int, int>::iterator it = votes.begin(); it != votes.end(); ++it)
 	{
 		if (it->second > max_vote)
 		{
 			max_vote = it->second;
-			creature_to_attack = it->first;
+			creatures.push_front(it->first);
 		}
 	}
-	return creature_to_attack;
+	additionalInfo = 0; // list contains creatures which shoud be attacked
+	return creatures;
 }
 
 void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug purpose
@@ -987,7 +1034,7 @@ void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug pu
 	message += boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(action.destinationTile));
 	message += ", Y = " + boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(action.destinationTile));
 	message += "\nAdditional info: ";
-	if (action.actionType == 6 || action.actionType == 7)
+	if (action.actionType == 6)// || action.actionType == 7)
 	{
 		message += "stack - " + boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(action.additionalInfo));
 		message += ", " + boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(action.additionalInfo));

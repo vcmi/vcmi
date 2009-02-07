@@ -18,6 +18,8 @@
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
 
+using namespace std;
+
 namespace GeniusAI {
 
 class CBattleHelper
@@ -105,7 +107,9 @@ public:
 	~CBattleLogic();
 
 	void SetCurrentTurn(int turn);
-
+	/**
+	 * Get the final decision.
+	 */
 	BattleAction MakeDecision(int stackID);
 private:
 	CBattleHelper m_battleHelper;
@@ -120,7 +124,6 @@ private:
 	CGHeroInstance *m_hero2; 
 	bool m_side;
 
-	void MakeStatistics(int currentCreatureId); // before decision we have to make some calculation and simulation
 	// statistics
 	typedef std::vector<std::pair<int, int> > creature_stat; // first - creature id, second - value
 	creature_stat m_statMaxDamage;
@@ -135,14 +138,42 @@ private:
 	creature_stat_casualties m_statCasualties;
 
 	bool m_bEnemyDominates;
-
+	/**
+	 * Before decision we have to make some calculation and simulation.
+	 */
+	void MakeStatistics(int currentCreatureId);
+	/**
+	 * Helper function. It's used for performing an attack action.
+	 */
 	std::vector<int> GetAvailableHexesForAttacker(CStack *defender, CStack *attacker = NULL);
-
+	/**
+	 * Just make defend action.
+	 */
 	BattleAction MakeDefend(int stackID);
-
-	int PerformBerserkAttack(int stackID); // return ID of creature to attack, -2 means wait, -1 - defend
-	int PerformDefaultAction(int stackID);
-
+	/**
+	 * Just make wait action.
+	 */
+	BattleAction MakeWait(int stackID);
+	/**
+	 * Make an attack action if it's possible.
+	 * If it's not possible then function returns defend action.
+	 */
+	BattleAction MakeAttack(int attackerID, int destinationID);
+	/**
+	 * Berserk mode - do maximum casualties.
+	 * Return vector wiht IDs of creatures to attack,
+	 * additional info: -2 means wait, -1 - defend, 0 - make attack
+	 */
+	list<int> PerformBerserkAttack(int stackID, int &additionalInfo);
+	/**
+	 * Normal mode - equilibrium between casualties and yields.
+	 * Return vector wiht IDs of creatures to attack,
+	 * additional info: -2 means wait, -1 - defend, 0 - make attack
+	 */
+	list<int> PerformDefaultAction(int stackID, int &additionalInfo);
+	/**
+	 * Only for debug purpose.
+	 */
 	void CBattleLogic::PrintBattleAction(const BattleAction &action);
 };
 
