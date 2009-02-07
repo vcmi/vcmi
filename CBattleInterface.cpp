@@ -364,20 +364,20 @@ void CBattleInterface::show(SDL_Surface * to)
 		}
 	}
 	//printing hovered cell
-	if(printMouseShadow)
+	for(int b=0; b<BFIELD_SIZE; ++b)
 	{
-		for(int b=0; b<BFIELD_SIZE; ++b)
+		if(bfield[b].strictHovered && bfield[b].hovered)
 		{
-			if(bfield[b].strictHovered && bfield[b].hovered)
+			if(previouslyHoveredHex == -1) previouslyHoveredHex = b; //something to start with
+			if(currentlyHoveredHex == -1) currentlyHoveredHex = b; //something to start with
+			if(currentlyHoveredHex != b) //repair hover info
 			{
-				if(previouslyHoveredHex == -1) previouslyHoveredHex = b; //something to start with
-				if(currentlyHoveredHex == -1) currentlyHoveredHex = b; //something to start with
-				if(currentlyHoveredHex != b) //repair hover info
-				{
-					previouslyHoveredHex = currentlyHoveredHex;
-					currentlyHoveredHex = b;
-				}
-				//print shade
+				previouslyHoveredHex = currentlyHoveredHex;
+				currentlyHoveredHex = b;
+			}
+			//print shade
+			if(printMouseShadow)
+			{
 				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
 				int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
 				CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
@@ -521,7 +521,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	if(showStackQueue)
 	{
 		int xPos = screen->w/2 - ( stacks.size() * 37 )/2;
-		int yPos = 10;
+		int yPos = (screen->h - 600)/2 + 10;
 
 		std::vector<CStack> stacksSorted;
 		stacksSorted = LOCPLINT->cb->battleGetStackQueue();
@@ -1545,7 +1545,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	deactivate();
 	CGI->curh->changeGraphic(0,0);
 	
-	SDL_Rect temp_rect = genRect(561, 470, 165, 19);
+	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	resWindow = new CBattleReslutWindow(br, temp_rect, this);
 	resWindow->activate();
 }
@@ -2465,7 +2465,7 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, const SDL_Rect 
 	SDL_Surface * pom = SDL_ConvertSurface(background, screen->format, screen->flags);
 	SDL_FreeSurface(background);
 	background = pom;
-	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleReslutWindow::bExitf,this), 549, 524, "iok6432.def", SDLK_RETURN);
+	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleReslutWindow::bExitf,this), 384 + pos.x, 505 + pos.y, "iok6432.def", SDLK_RETURN);
 
 	if(br.winner==0) //attacker won
 	{

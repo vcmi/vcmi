@@ -50,6 +50,22 @@ public:
 	}
 };
 
+struct DLL_EXPORT SObstacleInfo
+{
+	int ID;
+	std::string defName, 
+		blockmap, //blockmap: X - blocked, N - not blocked, L - description goes to the next line, staring with the left bottom hex
+		allowedTerrains; /*terrains[i]: 1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   
+			7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees  
+			14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field  
+			20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough 
+			24. ship to ship   25. ship*/
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ID & defName & blockmap & allowedTerrains;
+	}
+};
+
 class DLL_EXPORT CHeroHandler
 {
 public:
@@ -70,6 +86,10 @@ public:
 	};
 	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
+	std::map<int, SObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
+
+	void loadObstacles();
+
 	unsigned int level(unsigned int experience);
 	unsigned int reqExp(unsigned int level);
 
@@ -82,7 +102,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics;
+		h & heroClasses & heroes & expPerLevel & ballistics & obstacles;
 		if(!h.saving)
 		{
 			//restore class pointers

@@ -45,6 +45,35 @@ CHeroHandler::~CHeroHandler()
 CHeroHandler::CHeroHandler()
 {}
 
+void CHeroHandler::loadObstacles()
+{
+	std::ifstream inp;
+	inp.open("config" PATHSEPARATOR "obstacles.txt", std::ios_base::in|std::ios_base::binary);
+	if(!inp.is_open())
+	{
+		tlog1<<"missing file: config/heroes_sec_skills.txt"<<std::endl;
+	}
+	else
+	{
+		std::string dump;
+		for(int i=0; i<99; ++i)
+		{
+			inp>>dump;
+		}
+		while(true)
+		{
+			SObstacleInfo obi;
+			inp>>obi.ID;
+			if(obi.ID == -1) break;
+			inp>>obi.defName;
+			inp>>obi.blockmap;
+			inp>>obi.allowedTerrains;
+			obstacles[obi.ID] = obi;
+		}
+		inp.close();
+	}
+}
+
 void CHeroHandler::loadHeroes()
 {
 	VLC->heroh = this;
