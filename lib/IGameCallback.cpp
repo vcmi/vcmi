@@ -3,6 +3,7 @@
 #include "../CGameState.h"
 #include "../map.h"
 #include "../hch/CObjectHandler.h"
+#include "../StartInfo.h"
 
 const CGObjectInstance* IGameCallback::getObj(int objid)
 {
@@ -33,4 +34,9 @@ int IGameCallback::getDate(int mode)
 const CGHeroInstance* IGameCallback::getSelectedHero( int player )
 {
 	return getHero(gs->players.find(player)->second.currentSelection);
+}
+
+const PlayerSettings * IGameCallback::getPlayerSettings( int color )
+{
+	return &gs->scenarioOps->getIthPlayersSettings(color);
 }

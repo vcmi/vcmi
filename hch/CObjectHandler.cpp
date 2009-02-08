@@ -17,6 +17,7 @@
 #include "../lib/IGameCallback.h"
 #include "../CGameState.h"
 #include "../lib/NetPacks.h"
+#include "../StartInfo.h"
 
 std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
 IGameCallback * IObjectInterface::cb = NULL;
@@ -1774,4 +1775,35 @@ const std::string & CGMagicWell::getHoverText() const
 			hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
 	}
 	return hoverName;
+}
+
+void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
+{
+	/*if(!(availableFor & (1 << h->tempOwner))) 
+		return;
+	if(cb->getPlayerSettings(h->tempOwner)->human)
+	{
+		if(humanActivate)
+			activated(h);
+	}
+	else if(computerActivate)
+		activated(h);*/
+}
+
+void CGEvent::endBattle( BattleResult *result ) const
+{
+	if(result->winner)
+		return;
+	//give
+}
+
+void CGEvent::activated( const CGHeroInstance * h ) const
+{
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	iw.text << message;
+	cb->showInfoDialog(&iw);
+	if(guarders)
+		cb->startBattleI(h->id,guarders,pos,boost::bind(&CGEvent::endBattle,this,_1));
+	cb->removeObject(id);
 }

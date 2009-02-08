@@ -190,8 +190,8 @@ public:
 		* sFlags;
 	std::vector<SDL_Surface*> scenImgs;
 	//int current;
-	std::vector<CMapInfo> ourMaps;
-	std::vector<CMapInfo> ourGames;
+	std::vector<CMapInfo*> ourMaps;
+	std::vector<CMapInfo*> ourGames;
 	IntBut small, medium, large, xlarge, all;
 	SetrButton nrplayer, mapsize, type, name, viccon, loscon;
 	Slider *slid, *descslid;
@@ -207,10 +207,10 @@ public:
 	void moveByOne(bool up);
 	void printSelectedInfo();
 	void printFlags();
-	void processMaps(std::vector<std::string> &pliczkiTemp, int &index);
-	void processGames(std::vector<std::string> &pliczkiTemp, int &index);
+	void processMaps(const std::vector<std::string> &pliczkiTemp, int start, int threads);
+	void processGames(const std::vector<std::string> &pliczkiTemp);
 	CMapInfo &selectedMap();
-	std::vector<CMapInfo> &curVector();
+	std::vector<CMapInfo*> &curVector();
 	MapSel();
 	~MapSel();
 };

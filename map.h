@@ -244,25 +244,25 @@ class DLL_EXPORT mapSorter
 {
 public:
 	ESortBy sortBy;
-	bool operator()(const CMapHeader & a, const CMapHeader& b)
+	bool operator()(CMapHeader *a, CMapHeader *b)
 	{
 		switch (sortBy)
 		{
 		case _format:
-			return (a.version<b.version);
+			return (a->version<b->version);
 			break;
 		case _loscon:
-			return (a.lossCondition.typeOfLossCon<b.lossCondition.typeOfLossCon);
+			return (a->lossCondition.typeOfLossCon<b->lossCondition.typeOfLossCon);
 			break;
 		case _playerAm:
 			int playerAmntB,humenPlayersB,playerAmntA,humenPlayersA;
 			playerAmntB=humenPlayersB=playerAmntA=humenPlayersA=0;
 			for (int i=0;i<8;i++)
 			{
-				if (a.players[i].canHumanPlay) {playerAmntA++;humenPlayersA++;}
-				else if (a.players[i].canComputerPlay) {playerAmntA++;}
-				if (b.players[i].canHumanPlay) {playerAmntB++;humenPlayersB++;}
-				else if (b.players[i].canComputerPlay) {playerAmntB++;}
+				if (a->players[i].canHumanPlay) {playerAmntA++;humenPlayersA++;}
+				else if (a->players[i].canComputerPlay) {playerAmntA++;}
+				if (b->players[i].canHumanPlay) {playerAmntB++;humenPlayersB++;}
+				else if (b->players[i].canComputerPlay) {playerAmntB++;}
 			}
 			if (playerAmntB!=playerAmntA)
 				return (playerAmntA<playerAmntB);
@@ -270,16 +270,16 @@ public:
 				return (humenPlayersA<humenPlayersB);
 			break;
 		case _size:
-			return (a.width<b.width);
+			return (a->width<b->width);
 			break;
 		case _viccon:
-			return (a.victoryCondition.condition < b.victoryCondition.condition);
+			return (a->victoryCondition.condition < b->victoryCondition.condition);
 			break;
 		case _name:
-			return (a.name<b.name);
+			return (a->name<b->name);
 			break;
 		default:
-			return (a.name<b.name);
+			return (a->name<b->name);
 			break;
 		}
 	};

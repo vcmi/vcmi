@@ -360,6 +360,10 @@ public:
 			& abilities & abilityLevels & artifacts & spells & creatures & availableFor 
 			& computerActivate & humanActivate;
 	}
+
+	void activated(const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void endBattle(BattleResult *result) const;
 };
 
 class DLL_EXPORT CGCreature : public CArmedInstance //creatures on map

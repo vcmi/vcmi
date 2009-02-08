@@ -33,6 +33,10 @@ public:
 	{
 		h & slots & formation;
 	}
+	operator bool() const
+	{
+		return slots.size();
+	}
 };
 
 class int3

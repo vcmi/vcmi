@@ -18,6 +18,7 @@ struct MetaString;
 struct ShowInInfobox;
 struct BattleResult;
 class CGameState;
+struct PlayerSettings;
 
 class DLL_EXPORT IGameCallback
 {
@@ -35,6 +36,7 @@ public:
 	virtual const CGHeroInstance* getSelectedHero(int player); //NULL if no hero is selected
 	virtual int getCurrentPlayer()=0;
 	virtual int getSelectedHero()=0;
+	virtual const PlayerSettings * getPlayerSettings(int color);
 
 	//do sth
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;
