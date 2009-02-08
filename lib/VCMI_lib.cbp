@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Lib" />
+		<Option platforms="Windows;" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option platforms="Windows;" />
+				<Option output="..\..\..\..\Install\Heroes3\VCMI_lib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\..\..\Install\Heroes3" />
+				<Option object_output="Debug Win32" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="Release Win32">
+				<Option platforms="Windows;" />
+				<Option output="..\..\..\..\Install\Heroes3\VCMI_lib" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\..\..\Install\Heroes3" />
+				<Option object_output="Release Win32" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-Os" />
+					<Add option="-O3" />
+					<Add option="-O2" />
+					<Add option="-O1" />
+					<Add option="-O" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-std=c++98" />
+			<Add option="-Wfatal-errors" />
+			<Add option="-Wextra" />
+			<Add option="-D_WIN32" />
+			<Add option="-D_WIN32_WINNT" />
+			<Add directory="$(#boost.include)" />
+			<Add directory="$(#sdl.include)" />
+			<Add directory="$(#zlib.include)" />
+		</Compiler>
+		<Linker>
+			<Add option="-lzlib1" />
+			<Add option="-llibboost_thread-mgw43-mt-1_37" />
+			<Add option="-llibboost_system-mgw43-mt-1_37" />
+			<Add option="-llibboost_filesystem-mgw43-mt-1_37" />
+			<Add option="-lwsock32" />
+			<Add option="-lws2_32" />
+			<Add library="..\..\..\mingw\lib\libws2_32.a" />
+			<Add directory="$(#boost.lib)" />
+			<Add directory="$(#sdl.lib)" />
+			<Add directory="$(#zlib.lib)" />
+		</Linker>
+		<Unit filename="..\CConsoleHandler.cpp" />
+		<Unit filename="..\CConsoleHandler.h" />
+		<Unit filename="..\CGameState.cpp" />
+		<Unit filename="..\CGameState.h" />
+		<Unit filename="..\hch\CArtHandler.cpp" />
+		<Unit filename="..\hch\CArtHandler.h" />
+		<Unit filename="..\hch\CBuildingHandler.cpp" />
+		<Unit filename="..\hch\CBuildingHandler.h" />
+		<Unit filename="..\hch\CCreatureHandler.cpp" />
+		<Unit filename="..\hch\CCreatureHandler.h" />
+		<Unit filename="..\hch\CDefObjInfoHandler.cpp" />
+		<Unit filename="..\hch\CDefObjInfoHandler.h" />
+		<Unit filename="..\hch\CGeneralTextHandler.cpp" />
+		<Unit filename="..\hch\CGeneralTextHandler.h" />
+		<Unit filename="..\hch\CHeroHandler.cpp" />
+		<Unit filename="..\hch\CHeroHandler.h" />
+		<Unit filename="..\hch\CLodHandler.cpp" />
+		<Unit filename="..\hch\CLodHandler.h" />
+		<Unit filename="..\hch\CObjectHandler.cpp" />
+		<Unit filename="..\hch\CObjectHandler.h" />
+		<Unit filename="..\hch\CSpellHandler.cpp" />
+		<Unit filename="..\hch\CSpellHandler.h" />
+		<Unit filename="..\hch\CTownHandler.cpp" />
+		<Unit filename="..\hch\CTownHandler.h" />
+		<Unit filename="BattleAction.h" />
+		<Unit filename="CondSh.h" />
+		<Unit filename="Connection.cpp" />
+		<Unit filename="Connection.h" />
+		<Unit filename="IGameCallback.cpp" />
+		<Unit filename="IGameCallback.h" />
+		<Unit filename="Interprocess.h" />
+		<Unit filename="NetPacks.h" />
+		<Unit filename="VCMI_Lib.cpp" />
+		<Unit filename="VCMI_Lib.h" />
+		<Unit filename="..\map.cpp" />
+		<Unit filename="..\map.h" />
+		<Unit filename="..\stdafx.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

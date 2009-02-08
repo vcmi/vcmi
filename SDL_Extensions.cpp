@@ -27,15 +27,7 @@ bool isItIn(const SDL_Rect * rect, int x, int y)
 		return true;
 	else return false;
 }
-inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
-{
-	SDL_Rect ret;
-	ret.h=hh;
-	ret.w=ww;
-	ret.x=xx;
-	ret.y=yy;
-	return ret;
-}
+
 void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
 	SDL_Rect pom = genRect(src->h,src->w,x,y);
@@ -248,16 +240,7 @@ inline void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, const int & x, const int 
 	SDL_UpdateRect(ekran, x, y, 1, 1);
 }
 
-inline void CSDL_Ext::SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A)
-{
-	Uint8 *p = (Uint8 *)ekran->pixels + y * ekran->pitch + x * ekran->format->BytesPerPixel;
 
-	p[0] = B;
-	p[1] = G;
-	p[2] = R;
-	if(ekran->format->BytesPerPixel==4)
-		p[3] = A;
-}
 
 ///**************/
 ///Reverses the toRot surface by the vertical axis
@@ -431,7 +414,7 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
         return *(Uint32 *)p;
 
     default:
-        return 0;       // shouldn't happen, but avoids warnings 
+        return 0;       // shouldn't happen, but avoids warnings
     }
 }
 
@@ -658,7 +641,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 		}
 
 		/* clip the source rectangle to the source surface */
-		if(srcRect) 
+		if(srcRect)
 		{
 			int maxw, maxh;
 
@@ -686,8 +669,8 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			if(maxh < h)
 				h = maxh;
 
-		} 
-		else 
+		}
+		else
 		{
 				srcx = srcy = 0;
 			w = src->w;

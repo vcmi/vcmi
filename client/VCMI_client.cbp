@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="Client" />
+		<Option platforms="Windows;" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug Win32">
+				<Option platforms="Windows;" />
+				<Option output="..\..\..\..\Install\Heroes3\VCMI_client" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\..\..\Install\Heroes3" />
+				<Option object_output="Debug Win32" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+			</Target>
+			<Target title="Release Win32">
+				<Option platforms="Windows;" />
+				<Option output="..\..\..\..\Install\Heroes3\VCMI_client" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="..\..\..\..\Install\Heroes3" />
+				<Option object_output="Release Win32" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Option use_console_runner="0" />
+				<Compiler>
+					<Add option="-fexpensive-optimizations" />
+					<Add option="-Os" />
+					<Add option="-O3" />
+					<Add option="-O2" />
+					<Add option="-O1" />
+					<Add option="-O" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-D_WIN32" />
+			<Add option="-D_WIN32_WINDOWS" />
+			<Add directory="$(#boost.include)" />
+			<Add directory="$(#sdl.include)" />
+			<Add directory="$(#zlib.include)" />
+		</Compiler>
+		<Linker>
+			<Add option="-lSDL" />
+			<Add option="-lSDL_image" />
+			<Add option="-lSDL_ttf" />
+			<Add option="-lSDL_mixer" />
+			<Add option="-lzlib1" />
+			<Add option="-llibboost_thread-mgw43-mt-1_37" />
+			<Add option="-llibboost_system-mgw43-mt-1_37" />
+			<Add option="-llibboost_filesystem-mgw43-mt-1_37" />
+			<Add library="..\..\..\..\Install\Heroes3\libVCMI_lib.a" />
+			<Add directory="$(#sdl.lib)" />
+			<Add directory="$(#boost.lib)" />
+			<Add directory="$(#zlib.lib)" />
+		</Linker>
+		<Unit filename="..\AI_Base.h" />
+		<Unit filename="..\AdventureMapButton.cpp" />
+		<Unit filename="..\AdventureMapButton.h" />
+		<Unit filename="..\CAdvmapInterface.cpp" />
+		<Unit filename="..\CAdvmapInterface.h" />
+		<Unit filename="..\CBattleInterface.cpp" />
+		<Unit filename="..\CBattleInterface.h" />
+		<Unit filename="..\CCallback.cpp" />
+		<Unit filename="..\CCallback.h" />
+		<Unit filename="..\CCastleInterface.cpp" />
+		<Unit filename="..\CCastleInterface.h" />
+		<Unit filename="..\CCursorHandler.cpp" />
+		<Unit filename="..\CCursorHandler.h" />
+		<Unit filename="..\CGameInfo.cpp" />
+		<Unit filename="..\CGameInfo.h" />
+		<Unit filename="..\CGameInterface.cpp" />
+		<Unit filename="..\CGameInterface.h" />
+		<Unit filename="..\CHeroWindow.cpp" />
+		<Unit filename="..\CHeroWindow.h" />
+		<Unit filename="..\CMT.cpp" />
+		<Unit filename="..\CMessage.cpp" />
+		<Unit filename="..\CMessage.h" />
+		<Unit filename="..\CPathfinder.cpp" />
+		<Unit filename="..\CPathfinder.h" />
+		<Unit filename="..\CPlayerInterface.cpp" />
+		<Unit filename="..\CPlayerInterface.h" />
+		<Unit filename="..\CPreGame.cpp" />
+		<Unit filename="..\CPreGame.h" />
+		<Unit filename="..\CThreadHelper.cpp" />
+		<Unit filename="..\CThreadHelper.h" />
+		<Unit filename="..\ChangeLog" />
+		<Unit filename="..\SDL_Extensions.cpp" />
+		<Unit filename="..\SDL_Extensions.h" />
+		<Unit filename="..\SDL_framerate.cpp" />
+		<Unit filename="..\SDL_framerate.h" />
+		<Unit filename="..\StartInfo.h" />
+		<Unit filename="CBitmapHandler.cpp" />
+		<Unit filename="CBitmapHandler.h" />
+		<Unit filename="CConfigHandler.cpp" />
+		<Unit filename="CConfigHandler.h" />
+		<Unit filename="CCreatureAnimation.cpp" />
+		<Unit filename="CCreatureAnimation.h" />
+		<Unit filename="CSpellWindow.cpp" />
+		<Unit filename="CSpellWindow.h" />
+		<Unit filename="Client.cpp" />
+		<Unit filename="Client.h" />
+		<Unit filename="FunctionList.h" />
+		<Unit filename="Graphics.cpp" />
+		<Unit filename="Graphics.h" />
+		<Unit filename="..\global.h" />
+		<Unit filename="..\hch\CAbilityHandler.cpp" />
+		<Unit filename="..\hch\CAbilityHandler.h" />
+		<Unit filename="..\hch\CAmbarCendamo.h" />
+		<Unit filename="..\hch\CArtHandler.h" />
+		<Unit filename="..\hch\CBuildingHandler.h" />
+		<Unit filename="..\hch\CDefHandler.cpp" />
+		<Unit filename="..\hch\CDefHandler.h" />
+		<Unit filename="..\hch\CHeroHandler.h" />
+		<Unit filename="..\hch\CMusicHandler.cpp" />
+		<Unit filename="..\hch\CMusicHandler.h" />
+		<Unit filename="..\hch\CObjectHandler.h" />
+		<Unit filename="..\hch\CSndHandler.cpp" />
+		<Unit filename="..\hch\CSndHandler.h" />
+		<Unit filename="..\int3.h" />
+		<Unit filename="..\map.h" />
+		<Unit filename="..\mapHandler.cpp" />
+		<Unit filename="..\mapHandler.h" />
+		<Unit filename="..\nodrze.h" />
+		<Unit filename="..\stdafx.h" />
+		<Unit filename="..\timeHandler.h" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<debugger />
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

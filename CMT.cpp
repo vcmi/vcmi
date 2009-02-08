@@ -43,6 +43,9 @@
 #include "lib/VCMI_Lib.h"
 #include <cstdlib>
 
+#if __MINGW32__
+#undef main
+#endif
 std::string NAME = NAME_VER + std::string(" (client)");
 DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Surface * screen, * screen2;
@@ -56,7 +59,7 @@ int _tmain(int argc, _TCHAR* argv[])
 #else
 int main(int argc, char** argv)
 #endif
-{ 
+{
 	tlog0 << "Starting... " << std::endl;
 	THC timeHandler tmh, total, pomtime;
 	CClient *client = NULL;
@@ -113,7 +116,7 @@ int main(int argc, char** argv)
 		CGI->setFromLib();
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
-		cgi->curh = new CCursorHandler; 
+		cgi->curh = new CCursorHandler;
 		cgi->curh->initCursor();
 		cgi->curh->show();
 		tlog0<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
@@ -150,7 +153,7 @@ int main(int argc, char** argv)
 		if(options->mode == 0) //new game
 		{
 			tmh.getDif();
-			char portc[10]; 
+			char portc[10];
 			SDL_itoa(conf.cc.port,portc,10);
 			CClient::runServer(portc);
 			tlog0<<"Preparing shared memory and starting server: "<<tmh.getDif()<<std::endl;
