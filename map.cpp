@@ -874,7 +874,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 
 	bool portrait=bufor[i]; ++i;
 	if (portrait)
-		nhi->portrait = readChar(bufor,i);
+		nhi->portrait = bufor[i++];
 	if(readChar(bufor,i))//true if hero has specified abilities
 	{
 		int howMany = readNormalNr(bufor,i); i+=4;
@@ -1309,7 +1309,21 @@ void Mapa::readDefInfo( unsigned char * bufor, int &i)
 		}
 		i+=16;
 		if(vinya->id!=34 && vinya->id!=70)
-			vinya->visitDir = VLC->dobjinfo->gobjs[vinya->id][vinya->subid]->visitDir;
+		{
+			CGDefInfo *h = VLC->dobjinfo->gobjs[vinya->id][vinya->subid];
+			if(!h) 
+			{
+				//remove fake entry
+				VLC->dobjinfo->gobjs[vinya->id].erase(vinya->subid);
+				if(VLC->dobjinfo->gobjs[vinya->id].size())
+					VLC->dobjinfo->gobjs.erase(vinya->id);
+				tlog2<<"\t\tWarning: no defobjinfo entry for object ID="<<vinya->id<<" subID=" << vinya->subid<<std::endl;
+			}
+			else
+			{
+				vinya->visitDir = VLC->dobjinfo->gobjs[vinya->id][vinya->subid]->visitDir;
+			}
+		}
 		else
 			vinya->visitDir = 0xff;
 		defy.push_back(vinya); // add this def to the vector

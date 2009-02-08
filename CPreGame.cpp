@@ -505,11 +505,11 @@ void Options::OptionSwitch::press(bool down)
 					ourOpt->hero=-1;
 					CPG->ourOptions->showIcon(0,serialID,false);
 				}
-				if(ourOpt->bonus==bresource)
+				if(nCas < 0 && ourOpt->bonus==bresource)
 				{
 					ourOpt->bonus = brandom;
-					CPG->ourOptions->showIcon(1,serialID,false);
 				}
+				CPG->ourOptions->showIcon(1,serialID,false);
 			}
 			break;
 		}
@@ -538,23 +538,27 @@ void Options::OptionSwitch::press(bool down)
 		}
 	case 1: //bonus change
 		{
-			if (dir>0 && ourOpt->bonus==bresource)
-				ourOpt->bonus=brandom;
-			else if (dir<0 && ourOpt->bonus==brandom)
-				ourOpt->bonus=bresource;
-			else ourOpt->bonus=(Ebonus)(ourOpt->bonus+dir);
-			if (ourOpt->hero==-2 && ourOpt->bonus==bartifact) //no hero - can't be artifact
+			ourOpt->bonus += dir;
+
+			if (ourOpt->hero==-2 && !ourInf->heroesNames.size() && ourOpt->bonus==bartifact) //no hero - can't be artifact
 			{
-				if (dir>0)
+				if (dir<0)
 					ourOpt->bonus=brandom;
 				else ourOpt->bonus=bgold;
 			}
-			if (ourOpt->castle==-1 && ourOpt->bonus==bresource)
+
+			if(ourOpt->bonus > bresource)
+				ourOpt->bonus = brandom;
+			if(ourOpt->bonus < brandom)
+				ourOpt->bonus = bresource;
+
+			if (ourOpt->castle==-1 && ourOpt->bonus==bresource) //random castle - can't be resource
 			{
 				if (dir<0)
 					ourOpt->bonus=bgold;
 				else ourOpt->bonus=brandom;
 			}
+
 			break;
 		}
 	}
@@ -769,7 +773,7 @@ void Options::show()
 		poptions[poptions.size()-1]->nr=playersSoFar;
 		poptions[poptions.size()-1]->color=(Ecolor)i;
 
-		if(CPG->ret.playerInfos[playersSoFar].hero != -2)
+		if(CPG->ret.playerInfos[playersSoFar].hero == -1)
 		{
 			poptions[poptions.size()-1]->Hleft.show();
 			poptions[poptions.size()-1]->Hright.show();
