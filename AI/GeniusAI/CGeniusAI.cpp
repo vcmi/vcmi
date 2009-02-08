@@ -14,7 +14,7 @@ using namespace boost::lambda;
 using namespace std;
 using namespace GeniusAI;
 
-#if defined (_MSC_VER) && (_MSC_VER >= 1020) && (__MINGW32__)
+#if defined (_MSC_VER) && (_MSC_VER >= 1020) || (__MINGW32__)
 #include <windows.h>
 #endif
 

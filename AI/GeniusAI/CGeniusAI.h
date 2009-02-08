@@ -81,16 +81,16 @@ private:
 	};
 	enum EActionType
 	{
-		action_cancel = 0,				// Cancel BattleAction   
-		action_cast_spell = 1,			// Hero cast a spell   
-		action_walk = 2,				// Walk   
-		action_defend = 3,				// Defend   
-		action_retreat = 4,				// Retreat from the battle   
-		action_surrender = 5,			// Surrender   
-		action_walk_and_attack = 6,		// Walk and Attack   
-		action_shoot = 7,				// Shoot    
-		action_wait = 8,				// Wait   
-		action_catapult = 9,			// Catapult 
+		action_cancel = 0,				// Cancel BattleAction
+		action_cast_spell = 1,			// Hero cast a spell
+		action_walk = 2,				// Walk
+		action_defend = 3,				// Defend
+		action_retreat = 4,				// Retreat from the battle
+		action_surrender = 5,			// Surrender
+		action_walk_and_attack = 6,		// Walk and Attack
+		action_shoot = 7,				// Shoot
+		action_wait = 8,				// Wait
+		action_catapult = 9,			// Catapult
 		action_monster_casts_spell = 10 // Monster casts a spell (i.e. Faerie Dragons)
 	};
 	struct SCreatureCasualties
@@ -118,10 +118,10 @@ private:
 	bool m_bIsAttacker;
 	ICallback *m_cb;
 	CCreatureSet *m_army1;
-	CCreatureSet *m_army2; 
-	int3 m_tile; 
+	CCreatureSet *m_army2;
+	int3 m_tile;
 	CGHeroInstance *m_hero1;
-	CGHeroInstance *m_hero2; 
+	CGHeroInstance *m_hero2;
 	bool m_side;
 
 	// statistics
@@ -174,7 +174,7 @@ private:
 	/**
 	 * Only for debug purpose.
 	 */
-	void CBattleLogic::PrintBattleAction(const BattleAction &action);
+	void PrintBattleAction(const BattleAction &action);
 };
 
 class CGeniusAI : public CGlobalAI

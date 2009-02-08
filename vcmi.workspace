@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
 <CodeBlocks_workspace_file>
 	<Workspace title="VCMI">
-		<Project filename="client\VCMI_client.cbp" />
+		<Project filename="client\VCMI_client.cbp" active="1" />
 		<Project filename="server\VCMI_server.cbp" />
-		<Project filename="lib\VCMI_lib.cbp" active="1" />
+		<Project filename="lib\VCMI_lib.cbp" />
 		<Project filename="AI\GeniusAI\genius.cbp" />
 	</Workspace>
 </CodeBlocks_workspace_file>
