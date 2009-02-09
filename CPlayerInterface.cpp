@@ -1231,7 +1231,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	int3 hp = details.src;
 	if (!details.successful) //hero failed to move
 	{
-		if(ho->movement < 50)
+		if(ho->movement > 50)
 			ho->moveDir = getDir(details.src,details.dst);
 		ho->isStanding = true;
 		adventureInt->heroList.draw();
