@@ -44,7 +44,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 tilesWidth=19 tilesHeight=18 trimX=15 trimY=29 smoothMove=1;
+			AdvMap: x=7 y=6 tilesWidth=26 tilesHeight=18 trimX=15 trimY=29 smoothMove=1;
 			InfoBox: x=829 y=389;
 		 	gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=780 y=508 graphic=agemLR.def;
@@ -55,7 +55,7 @@ GUISettings
 			TownList: size=5 x=970 y=196 arrowUp=IAM014.DEF arrowDown=IAM015.DEF;
 			Minimap: width=144 height=144 x=854 y=26;
 			Statusbar: x=8 y=556 graphic=ADROLLVR2.pcx;
-			ResDataBar: x=0 y=575 graphic=ZRESBAR2.pcx offsetX=32 offsetY=2 resSpace=85;
+			ResDataBar: x=0 y=575 graphic=ZRESBAR2.pcx offsetX=65 offsetY=2 resSpace=109 resDateSpace=135;
 			ButtonKingdomOv: x=902 y=196 graphic=IAM002.DEF playerColoured=1;
 			ButtonUnderground: x=934 y=196 graphic=IAM010.DEF playerColoured=1 additionalDefs=(IAM003.DEF);
 			ButtonQuestLog: x=902 y=228 graphic=IAM004.DEF playerColoured=1;

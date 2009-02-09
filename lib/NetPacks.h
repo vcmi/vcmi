@@ -184,7 +184,7 @@ struct SetAvailableHeroes : public CPack<SetAvailableHeroes> //113
 {
 	SetAvailableHeroes(){type = 113;flags=0;};
 	ui8 player;
-	ui32 hid1, hid2;
+	si32 hid1, hid2;
 	ui8 flags; //1 - reset army of hero1; 2 - reset army of hero 2
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

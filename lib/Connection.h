@@ -23,9 +23,6 @@ class CConnection;
 
 namespace mpl = boost::mpl;
 
-template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];  
-#define ARRAY_COUNT(arr)    (sizeof(_ArrayCountObj(arr)))
-
 namespace boost
 {
 	namespace asio

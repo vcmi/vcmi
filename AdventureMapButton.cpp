@@ -86,7 +86,7 @@ void AdventureMapButton::hover (bool on)
 	std::string *name = (vstd::contains(hoverTexts,state)) 
 							? (&hoverTexts[state]) 
 							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
-	if(name && !blocked) //if there is no name, there is nohing to display also
+	if(name && blocked!=1) //if there is no name, there is nohing to display also
 	{
 		if (LOCPLINT->curint == static_cast<CMainInterface*>(LOCPLINT->battleInt)) //for battle buttons
 		{
@@ -180,7 +180,7 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	pos.h = imgs[curimg][0]->h  -1;
 }
 
-void AdventureMapButton::block( bool on )
+void AdventureMapButton::block( ui8 on )
 {
 	blocked = on;
 	state = 0;

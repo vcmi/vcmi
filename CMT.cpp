@@ -290,9 +290,13 @@ void processCommand(const std::string &message, CClient *&client)
 		std::cin >> i;
 		if(!i)
 			return;
+		else if(i < 0  ||  i >= conf.guiOptions.size())
+		{
+			tlog1 << "Invalid resolution ID! Not a number between 0 and  " << conf.guiOptions.size() << ". No settings changed.\n";
+		}
 		else
 		{
-			for(j=conf.guiOptions.begin(); j!=conf.guiOptions.end() && hlp++<i; j++);
+			for(j=conf.guiOptions.begin(); j!=conf.guiOptions.end() && hlp++<i; j++); //move j to the i-th resolution info
 			conf.cc.resx = j->first.first;
 			conf.cc.resy = j->first.second;
 			tlog0 << "Screen resolution set to " << conf.cc.resx << " x " << conf.cc.resy <<". It will be aplied when the game starts.\n";

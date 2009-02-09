@@ -1307,8 +1307,8 @@ upgend:
 
 							//TODO: skill level may be different on special terrain
 
-							if( // !vstd::contains(h->spells,ba.additionalInfo) //hero doesn't know this spell 
-								/*||*/ (h->mana < s->costs[skill]) //not enough mana
+							if(  !vstd::contains(h->spells,ba.additionalInfo) //hero doesn't know this spell 
+								|| (h->mana < s->costs[skill]) //not enough mana
 								|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
 								|| 0     )//TODO: hero has already casted a spell in this round
 							{
@@ -1631,9 +1631,16 @@ void CGameHandler::newTurn()
 		{
 			SetAvailableHeroes sah;
 			sah.player = i->first;
-			//TODO: - will fail when there are not enough available heroes
-			sah.hid1 = gs->hpool.pickHeroFor(true,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle])->subID;
-			sah.hid2 = gs->hpool.pickHeroFor(false,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle],sah.hid1)->subID;
+			CGHeroInstance *h = gs->hpool.pickHeroFor(true,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle]);
+			if(h)
+				sah.hid1 = h->subID;
+			else
+				sah.hid1 = -1;
+			h = gs->hpool.pickHeroFor(false,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle],sah.hid1);
+			if(h)
+				sah.hid2 = h->subID;
+			else
+				sah.hid2 = -1;
 			sendAndApply(&sah);
 		}
 		if(i->first>=PLAYER_LIMIT) continue;

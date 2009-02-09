@@ -687,20 +687,23 @@ public:
 class CTavernWindow : public IShowActivable, public CIntObject
 {
 public:
-	class HeroPortrait : public ClickableL, public ClickableR
+	class HeroPortrait : public ClickableL, public ClickableR, public Hoverable
 	{
 	public:
+		std::string hoverName;
 		vstd::assigner<int,int> as;
 		const CGHeroInstance *h;
 		void activate();
 		void deactivate();
 		void clickLeft(boost::logic::tribool down);
 		void clickRight(boost::logic::tribool down);
+		void hover (bool on);
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
 		void show(SDL_Surface * to = NULL);
 	} h1, h2;
 
 	SDL_Surface *bg;
+	CStatusBar *bar;
 	int selected;//0 (left) or 1 (right)
 
 	AdventureMapButton *thiefGuild, *cancel, *recruit;

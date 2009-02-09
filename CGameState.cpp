@@ -617,17 +617,21 @@ void CGameState::applyNL(IPack * pack)
 		{
 			SetAvailableHeroes *rh = static_cast<SetAvailableHeroes*>(pack);
 			players[rh->player].availableHeroes.clear();
-			players[rh->player].availableHeroes.push_back(hpool.heroesPool[rh->hid1]);
-			players[rh->player].availableHeroes.push_back(hpool.heroesPool[rh->hid2]);
-			if(rh->flags & 1)
+
+			CGHeroInstance *h = (rh->hid1>=0 ?  hpool.heroesPool[rh->hid1] : NULL);
+			players[rh->player].availableHeroes.push_back(h);
+			if(h  &&  rh->flags & 1)
 			{
-				hpool.heroesPool[rh->hid1]->army.slots.clear();
-				hpool.heroesPool[rh->hid1]->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[hpool.heroesPool[rh->hid1]->type->refTypeStack[0]],1);
+				h->army.slots.clear();
+				h->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
 			}
+
+			h = (rh->hid2>=0 ?  hpool.heroesPool[rh->hid2] : NULL);
+			players[rh->player].availableHeroes.push_back(h);
 			if(rh->flags & 2)
 			{
-				hpool.heroesPool[rh->hid2]->army.slots.clear();
-				hpool.heroesPool[rh->hid2]->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[hpool.heroesPool[rh->hid2]->type->refTypeStack[0]],1);
+				h->army.slots.clear();
+				h->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
 			}
 			break;
 		}

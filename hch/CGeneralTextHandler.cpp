@@ -306,25 +306,33 @@ void CGeneralTextHandler::load()
 	}
 
 	itr = 0;
-	std::string strin2 = bitmaph->getTextFile("JKTEXT.TXT");
+	strin = bitmaph->getTextFile("JKTEXT.TXT");
 	for(int hh=0; hh<45; ++hh)
 	{
-		loadToIt(tmp, strin2, itr, 3);
+		loadToIt(tmp, strin, itr, 3);
 		jktexts.push_back(tmp);
 	}
 
 	itr = 0;
-	std::string strin3 = bitmaph->getTextFile("HEROSCRN.TXT");
+	strin = bitmaph->getTextFile("TVRNINFO.TXT");
+	for(int hh=0; hh<8; ++hh)
+	{
+		loadToIt(tmp, strin, itr, 3);
+		tavernInfo.push_back(tmp);
+	}
+
+	itr = 0;
+	strin = bitmaph->getTextFile("HEROSCRN.TXT");
 	for(int hh=0; hh<33; ++hh)
 	{
-		loadToIt(tmp, strin3, itr, 3);
+		loadToIt(tmp, strin, itr, 3);
 		heroscrn.push_back(tmp);
 	}
 
-	strin3 = bitmaph->getTextFile("ARTEVENT.TXT");
-	for(itr = 0; itr<strin3.size();itr++)
+	strin = bitmaph->getTextFile("ARTEVENT.TXT");
+	for(itr = 0; itr<strin.size();itr++)
 	{
-		loadToIt(tmp, strin3, itr, 3);
+		loadToIt(tmp, strin, itr, 3);
 		artifEvents.push_back(tmp);
 	}
 

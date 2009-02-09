@@ -330,7 +330,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		backpack.push_back(add);
 	}
 	activeArtPlace = NULL;
-	dismissButton->block(hero->visitedTown);
+	dismissButton->block(!!hero->visitedTown);
 	leftArtRoll->block(hero->artifacts.size()<6);
 	rightArtRoll->block(hero->artifacts.size()<6);
 	if(hero->getSecSkillLevel(19)==0)

@@ -29,6 +29,7 @@
 #include "map.h"
 #include "mapHandler.h"
 #include "timeHandler.h"
+#include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
@@ -874,6 +875,10 @@ CSelWindow::CSelWindow(std::string text, int player, int charperline, std::vecto
 	{
 		buttons.push_back(new AdventureMapButton("","",(Buttons[i].second)?(Buttons[i].second):(boost::bind(&CInfoWindow::close,this)),0,0,Buttons[i].first));
 	}
+
+	if(Buttons.size() == 1) //only one button - assign enter to it
+		buttons[0]->assignedKeys.insert(SDLK_RETURN);
+
 	for(int i=0;i<comps.size();i++)
 	{
 		components.push_back(comps[i]);
@@ -1226,7 +1231,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	int3 hp = details.src;
 	if (!details.successful) //hero failed to move
 	{
-		ho->moveDir = getDir(details.src,details.dst);
+		if(ho->movement < 50)
+			ho->moveDir = getDir(details.src,details.dst);
 		ho->isStanding = true;
 		adventureInt->heroList.draw();
 		if (adventureInt->terrain.currentPath && ho->movement>145) //TODO: better condition on movement - check cost of endtile
@@ -4086,7 +4092,10 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2, const std::string &gossip)
 :h1(selected,0,72,299,H1),h2(selected,1,162,299,H2)
 {
-	selected = 0;
+	if(H1)
+		selected = 0;
+	else
+		selected = -1;
 	bg = BitmapHandler::loadBitmap("TPTAVERN.bmp");
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,GEOR16,tytulowy,bg);
@@ -4097,13 +4106,43 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 	pos.h = bg->h;
 	pos.x = (screen->w-bg->w)/2;
 	pos.y = (screen->h-bg->h)/2;
+	bar = new CStatusBar(pos.x+8, pos.y+478, "APHLFTRT.bmp", 380);
 	h1.pos.x += pos.x;
 	h2.pos.x += pos.x;
 	h1.pos.y += pos.y;
 	h2.pos.y += pos.y;
-	cancel = new AdventureMapButton("","",boost::bind(&CTavernWindow::close,this),pos.x+310,pos.y+428,"ICANCEL.DEF",SDLK_ESCAPE);
+
+	cancel = new AdventureMapButton(CGI->generaltexth->tavernInfo[7],"",boost::bind(&CTavernWindow::close,this),pos.x+310,pos.y+428,"ICANCEL.DEF",SDLK_ESCAPE);
 	recruit = new AdventureMapButton("","",boost::bind(&CTavernWindow::recruitb,this),pos.x+272,pos.y+355,"TPTAV01.DEF",SDLK_RETURN);
-	thiefGuild = new AdventureMapButton("","",0,pos.x+22,pos.y+428,"TPTAV02.DEF",SDLK_t);
+	thiefGuild = new AdventureMapButton(CGI->generaltexth->tavernInfo[5],"",0,pos.x+22,pos.y+428,"TPTAV02.DEF",SDLK_t);
+
+	if(LOCPLINT->cb->getResourceAmount(6) < 2500) //not enough gold
+	{
+		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[0]; //Cannot afford a Hero
+		recruit->block(2);
+	}
+	else if(LOCPLINT->cb->howManyHeroes() >= 8)
+	{
+		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[1]; //Cannot recruit. You already have %d Heroes.
+		boost::algorithm::replace_first(recruit->hoverTexts[0],"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes()));
+		recruit->block(2);
+	}
+	else if(LOCPLINT->castleInt && LOCPLINT->castleInt->town->visitingHero)
+	{
+		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[2]; //Cannot recruit. You already have a Hero in this town.
+		recruit->block(2);
+	}
+	else
+	{
+		if(H1)
+		{
+			recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[3]; //Recruit %s the %s
+			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",H1->name);
+			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",H1->type->heroClass->name);
+		}
+		else
+			recruit->block(1);
+	}
 }
 
 void CTavernWindow::recruitb()
@@ -4119,6 +4158,7 @@ CTavernWindow::~CTavernWindow()
 	delete cancel;
 	delete thiefGuild;
 	delete recruit;
+	delete bar;
 }
 
 void CTavernWindow::activate()
@@ -4127,9 +4167,12 @@ void CTavernWindow::activate()
 	LOCPLINT->curint->subInt = this;
 	thiefGuild->activate();
 	cancel->activate();
-	h1.activate();
-	h2.activate();
+	if(h1.h)
+		h1.activate();
+	if(h2.h)
+		h2.activate();
 	recruit->activate();
+	LOCPLINT->statusbar = bar;
 }
 
 void CTavernWindow::deactivate()
@@ -4137,8 +4180,10 @@ void CTavernWindow::deactivate()
 	LOCPLINT->objsToBlit -= this;
 	thiefGuild->deactivate();
 	cancel->deactivate();
-	h1.deactivate();
-	h2.deactivate();
+	if(h1.h)
+		h1.deactivate();
+	if(h2.h)
+		h2.deactivate();
 	recruit->deactivate();
 }
 
@@ -4153,23 +4198,28 @@ void CTavernWindow::close()
 void CTavernWindow::show(SDL_Surface * to)
 {
 	blitAt(bg,pos.x,pos.y,screen);
-	h1.show();
-	h2.show();
+	if(h1.h)
+		h1.show();
+	if(h2.h)
+		h2.show();
 	thiefGuild->show();
 	cancel->show();
 	recruit->show();
+	bar->show();
 
-	
-	HeroPortrait *sel = selected ? &h2 : &h1;
-	char descr[300];
-	int artifs = sel->h->artifWorn.size()+sel->h->artifacts.size();
-	for(int i=13; i<=17; i++) //war machines and spellbook doesn't count
-		if(vstd::contains(sel->h->artifWorn,i)) 
-			artifs--;
-	sprintf_s(descr,300,CGI->generaltexth->allTexts[215].c_str(),
-		sel->h->name.c_str(),sel->h->level,sel->h->type->heroClass->name.c_str(),artifs);
-	printAtMiddleWB(descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,screen);
-	CSDL_Ext::drawBorder(screen,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
+	if(selected >= 0)
+	{
+		HeroPortrait *sel = selected ? &h2 : &h1;
+		char descr[300];
+		int artifs = sel->h->artifWorn.size()+sel->h->artifacts.size();
+		for(int i=13; i<=17; i++) //war machines and spellbook doesn't count
+			if(vstd::contains(sel->h->artifWorn,i)) 
+				artifs--;
+		sprintf_s(descr,300,CGI->generaltexth->allTexts[215].c_str(),
+			sel->h->name.c_str(),sel->h->level,sel->h->type->heroClass->name.c_str(),artifs);
+		printAtMiddleWB(descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,screen);
+		CSDL_Ext::drawBorder(screen,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
+	}
 }
 
 void CTavernWindow::HeroPortrait::clickLeft(boost::logic::tribool down)
@@ -4182,11 +4232,13 @@ void CTavernWindow::HeroPortrait::activate()
 {
 	ClickableL::activate();
 	ClickableR::activate();
+	Hoverable::activate();
 }
 void CTavernWindow::HeroPortrait::deactivate()
 {
 	ClickableL::deactivate();
 	ClickableR::deactivate();
+	Hoverable::deactivate();
 }
 void CTavernWindow::HeroPortrait::clickRight(boost::logic::tribool down)
 {
@@ -4213,9 +4265,23 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 	pos.y = y;
 	pos.w = 58;
 	pos.h = 64;
+	if(H)
+	{
+		hoverName = CGI->generaltexth->tavernInfo[4];
+		boost::algorithm::replace_first(hoverName,"%s",H->name);
+	}
 }
 	
 void CTavernWindow::HeroPortrait::show(SDL_Surface * to)
 {
 	blitAt(graphics->portraitLarge[h->subID],pos);
+}
+
+void CTavernWindow::HeroPortrait::hover( bool on )
+{
+	Hoverable::hover(on);
+	if(on)
+		LOCPLINT->statusbar->print(hoverName);
+	else
+		LOCPLINT->statusbar->clear();
 }

@@ -16,13 +16,14 @@ public:
 	std::map<int,std::string> hoverTexts; //state -> text for statusbar
 	std::string helpBox; //for right-click help
 	CFunctionList<void()> callback;
-	bool colorChange, blocked,
+	bool colorChange, 
 		actOnDown; //runs when mouse is pressed down over it, not when up
+	ui8 blocked;
 
 	void clickRight (tribool down);
 	virtual void clickLeft (tribool down);
 	void hover (bool on);
-	void block(bool on); //if button is blocked then it'll change it's graphic to inactive (offset==2) and won't react on l-clicks
+	void block(ui8 on); //if button is blocked then it'll change it's graphic to inactive (offset==2) and won't react on l-clicks
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but doesn't delete)
 

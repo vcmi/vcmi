@@ -30,6 +30,7 @@ public:
 
 	//towns
 	std::vector<std::string> tcommands, hcommands; //texts for town screen and town hall screen
+	std::vector<std::string> tavernInfo;
 	std::vector<std::vector<std::string> > townNames; //[type id] => vec of names of instances
 	std::vector<std::string> townTypes; //castle, rampart, tower, etc
 	std::map<int, std::map<int, std::pair<std::string, std::string> > > buildings; //map[town id][building id] => pair<name, description>
@@ -54,7 +55,6 @@ public:
 	std::string getTitle(std::string text);
 	std::string getDescr(std::string text);
 
-	void loadTexts();
 	void load();
 	CGeneralTextHandler();
 };
