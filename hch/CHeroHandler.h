@@ -50,7 +50,7 @@ public:
 	}
 };
 
-struct DLL_EXPORT SObstacleInfo
+struct DLL_EXPORT CObstacleInfo
 {
 	int ID;
 	std::string defName, 
@@ -60,6 +60,9 @@ struct DLL_EXPORT SObstacleInfo
 			14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field  
 			20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough 
 			24. ship to ship   25. ship*/
+	int getWidth(); //returns width of obstacle in hexes
+	int getHeight(); //returns height of obstacle in hexes
+	std::vector<int> getBlocked(int hex); //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & defName & blockmap & allowedTerrains;
@@ -86,7 +89,7 @@ public:
 	};
 	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
-	std::map<int, SObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
+	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
 
 	void loadObstacles();
 

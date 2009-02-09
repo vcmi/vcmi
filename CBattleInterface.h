@@ -29,6 +29,7 @@ public:
 	const CGHeroInstance * myHero; //this animation's hero instance
 	const CBattleInterface * myOwner; //battle interface to which this animation is assigned
 	int phase; //stage of animation
+	int nextPhase; //stage of animation to be set after current phase is fully displayed
 	int image; //frame of animation
 	unsigned char flagAnim, flagAnimCount; //for flag animation
 	void show(SDL_Surface * to); //prints next frame of animation to to
@@ -132,6 +133,7 @@ private:
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
 	std::map< int, CDefHandler * > idToProjectile; //projectiles of creaures (creatureID, defhandler)
+	std::map< int, CDefHandler * > idToObstacle; //obstacles located on the battlefield
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one

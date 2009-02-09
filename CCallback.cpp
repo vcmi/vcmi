@@ -440,7 +440,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 int CCallback::battleGetBattlefieldType()
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return CGI->mh->ttiles[gs->curB->tile.x][gs->curB->tile.y][gs->curB->tile.z].tileInfo->tertype;
+	return gs->battleGetBattlefieldType();
 }
 
 int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield 
@@ -448,6 +448,16 @@ int CCallback::battleGetObstaclesAtTile(int tile) //returns bitfield
 	//TODO - write
 	return -1;
 }
+
+std::vector<CObstacleInstance> CCallback::battleGetAllObstacles()
+{
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	if(gs->curB)
+		return gs->curB->obstacles;
+	else
+		return std::vector<CObstacleInstance>();
+}
+
 int CCallback::battleGetStack(int pos)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

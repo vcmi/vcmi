@@ -84,6 +84,16 @@ public:
 	}
 };
 
+struct DLL_EXPORT CObstacleInstance
+{
+	int ID; //ID of obstacle
+	int pos; //position on battlefield
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ID & pos;
+	}
+};
+
 struct DLL_EXPORT BattleInfo
 {
 	ui8 side1, side2;
@@ -93,10 +103,11 @@ struct DLL_EXPORT BattleInfo
 	si32 hero1, hero2;
 	CCreatureSet army1, army2;
 	std::vector<CStack*> stacks;
+	std::vector<CObstacleInstance> obstacles;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2;
+		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2 & obstacles;
 	}
 	CStack * getNextStack(); //which stack will have turn after current one
 	std::vector<CStack> getStackQueue(); //returns stack in order of their movement action
@@ -228,6 +239,7 @@ private:
 	bool battleAttackCreatureStack(int ID, int dest);
 	bool battleShootCreatureStack(int ID, int dest);
 	int battleGetStack(int pos); //returns ID of stack at given tile
+	int battleGetBattlefieldType(int3 tile = int3());//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
 	float getMarketEfficiency(int player, int mode=0);
 	std::set<int3> tilesToReveal(int3 pos, int radious, int player) const; //if player==-1 => adds all tiles in radious

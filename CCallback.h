@@ -76,6 +76,7 @@ public:
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield
+	virtual std::vector<CObstacleInstance> battleGetAllObstacles()=0; //returns all obstacles on the battlefield
 	virtual int battleGetStack(int pos)=0; //returns ID of stack on the tile
 	virtual CStack * battleGetStackByID(int ID)=0; //returns stack info by given ID
 	virtual CStack * battleGetStackByPos(int pos)=0; //returns stack info by given pos
@@ -164,6 +165,7 @@ public:
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	int battleGetObstaclesAtTile(int tile); //returns bitfield
+	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
 	int battleGetStack(int pos); //returns ID of stack on the tile
 	CStack * battleGetStackByID(int ID); //returns stack info by given ID
 	CStack * battleGetStackByPos(int pos); //returns stack info by given pos

@@ -1977,6 +1977,62 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	//war machiens added
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
+	//randomize obstacles
+	bool obAv[BFIELD_SIZE]; //availability of hexes for obstacles;
+	std::vector<int> possibleObstacles;
+
+	for(int i=0; i<BFIELD_SIZE; ++i)
+	{
+		if(i%17 < 4 || i%17 > 12)
+		{
+			obAv[i] = false;
+		}
+		else
+		{
+			obAv[i] = true;
+		}
+	}
+
+	int terType = gs->battleGetBattlefieldType(tile); //TODO: merge it with battleGetBattlefieldType
+
+	for(std::map<int, CObstacleInfo>::const_iterator g=VLC->heroh->obstacles.begin(); g!=VLC->heroh->obstacles.end(); ++g)
+	{
+		if(g->second.allowedTerrains[terType] == '1')
+		{
+			possibleObstacles.push_back(g->first);
+		}
+	}
+
+	srand(time(NULL));
+	if(possibleObstacles.size() > 0) //we cannot place any obstacles when we don't have them
+	{
+		int toBlock = rand()%6 + 6; //how many hexes should be blocked by obstacles
+		while(toBlock>0)
+		{
+			CObstacleInstance coi;
+			coi.ID = possibleObstacles[rand()%possibleObstacles.size()];
+			coi.pos = rand()%BFIELD_SIZE;
+			std::vector<int> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
+			bool badObstacle = false;
+			for(int b=0; b<block.size(); ++b)
+			{
+				if(!obAv[block[b]])
+				{
+					badObstacle = true;
+					break;
+				}
+			}
+			if(badObstacle) continue;
+			//obstacle can be placed
+			curB->obstacles.push_back(coi);
+			for(int b=0; b<block.size(); ++b)
+			{
+				obAv[block[b]] = false;
+			}
+			toBlock -= block.size();
+		}
+	}
+
 	//block engaged players
 	if(hero1->tempOwner<PLAYER_LIMIT)
 		states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,true);

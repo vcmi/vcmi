@@ -237,6 +237,17 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	}
 
 	backgroundWithHexes = CSDL_Ext::newSurface(background->w, background->h, screen);
+
+	//preparing obstacle defs
+	std::vector<CObstacleInstance> obst = LOCPLINT->cb->battleGetAllObstacles();
+	for(int t=0; t<obst.size(); ++t)
+	{
+		idToObstacle[obst[t].ID] = CDefHandler::giveDef(CGI->heroh->obstacles[obst[t].ID].defName);
+		for(int n=0; n<idToObstacle[obst[t].ID]->ourImages.size(); ++n)
+		{
+			SDL_SetColorKey(idToObstacle[obst[t].ID]->ourImages[n].bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(idToObstacle[obst[t].ID]->ourImages[n].bitmap->format,0,255,255));
+		}
+	}
 }
 
 CBattleInterface::~CBattleInterface()
@@ -272,6 +283,9 @@ CBattleInterface::~CBattleInterface()
 		delete g->second;
 
 	for(std::map< int, CDefHandler * >::iterator g=idToProjectile.begin(); g!=idToProjectile.end(); ++g)
+		delete g->second;
+
+	for(std::map< int, CDefHandler * >::iterator g=idToObstacle.begin(); g!=idToObstacle.end(); ++g)
 		delete g->second;
 }
 
@@ -406,6 +420,16 @@ void CBattleInterface::show(SDL_Surface * to)
 	
 	SDL_GetClipRect(to, &buf);
 	SDL_SetClipRect(to, &pos);
+
+	//showing obstacles
+	std::vector<CObstacleInstance> obstacles = LOCPLINT->cb->battleGetAllObstacles();
+	for(int b=0; b<obstacles.size(); ++b)
+	{
+		int x = ((obstacles[b].pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(obstacles[b].pos%BFIELD_WIDTH);
+		int y = 86 + 42 * (obstacles[b].pos/BFIELD_WIDTH);
+		std::vector<Cimage> &images = idToObstacle[obstacles[b].ID]->ourImages;
+		blitAt(images[((animCount+1)/(4/animSpeed))%images.size()].bitmap, x, y, to);
+	}
 
 	//showing hero animations
 	if(attackingHero)
@@ -2167,9 +2191,17 @@ void CBattleHero::show(SDL_Surface *to)
 		{
 			SDL_Rect posb = pos;
 			CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[i].bitmap, NULL, to, &posb);
-			++image;
-			if(dh->ourImages[(i+1)%dh->ourImages.size()].groupNumber!=phase) //back to appropriate frame
+			if(phase != 4 || image != 4)
 			{
+				++image;
+				if(dh->ourImages[(i+1)%dh->ourImages.size()].groupNumber!=phase) //back to appropriate frame
+				{
+					image = 0;
+				}
+			}
+			if(phase == 4 && nextPhase != -1 && image == 7)
+			{
+				phase = nextPhase;
 				image = 0;
 			}
 			break;
@@ -2188,8 +2220,16 @@ void CBattleHero::deactivate()
 
 void CBattleHero::setPhase(int newPhase)
 {
-	phase = newPhase;
-	image = 0;
+	if(phase != 4)
+	{
+		phase = newPhase;
+		image = 0;
+	}
+	else
+	{
+		++image;
+		nextPhase = newPhase;
+	}
 }
 
 void CBattleHero::clickLeft(boost::logic::tribool down)
@@ -2210,7 +2250,7 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 	}
 }
 
-CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner): phase(phaseG), image(imageG), flip(flipG), flagAnim(0), myHero(hero), myOwner(owner)
+CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner): phase(phaseG), image(imageG), flip(flipG), flagAnim(0), myHero(hero), myOwner(owner), nextPhase(-1)
 {
 	dh = CDefHandler::giveDef( defName );
 	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images

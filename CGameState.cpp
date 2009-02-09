@@ -184,7 +184,15 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 				accessibility[stacks[g]->position+1] = false;
 		}
 	}
-	//TODO: obstacles
+	//obstacles
+	for(int b=0; b<obstacles.size(); ++b)
+	{
+		std::vector<int> blocked = VLC->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
+		for(int c=0; c<blocked.size(); ++c)
+		{
+			accessibility[blocked[c]] = false;
+		}
+	}
 }
 void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide, int stackToOmmit, bool addOccupiable) //send pointer to at least 187 allocated bytes
 {	
@@ -1538,6 +1546,16 @@ int CGameState::battleGetStack(int pos)
 			return curB->stacks[g]->ID;
 	}
 	return -1;
+}
+
+int CGameState::battleGetBattlefieldType(int3 tile)
+{
+	if(tile!=int3())
+		return map->terrain[tile.x][tile.y][tile.z].tertype;
+	else if(curB)
+		return map->terrain[curB->tile.x][curB->tile.y][curB->tile.z].tertype;
+	else
+		return -1;
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(CArmedInstance *obj, int stackPos)

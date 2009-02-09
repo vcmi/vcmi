@@ -33,6 +33,74 @@ int CHeroClass::chooseSecSkill(const std::set<int> & possibles) const //picks se
 	throw std::string("Cannot pick secondary skill!");
 }
 
+int CObstacleInfo::getWidth()
+{
+	int ret = 1;
+	int line = 1;
+	for(int h=0; h<blockmap.size(); ++h)
+	{
+		int cur = - line/2;
+		switch(blockmap[h])
+		{
+		case 'X' : case 'N':
+			++cur;
+			break;
+		case 'L':
+			if(cur > ret)
+				ret = cur;
+			++line;
+			break;
+		}
+	}
+	return ret;
+}
+
+int CObstacleInfo::getHeight()
+{
+	int ret = 1;
+	for(int h=0; h<blockmap.size(); ++h)
+	{
+		if(blockmap[h] == 'L')
+		{
+			++ret;
+		}
+	}
+	return ret;
+}
+
+std::vector<int> CObstacleInfo::getBlocked(int hex)
+{
+	std::vector<int> ret;
+	int cur = hex; //currently browsed hex
+	int curBeg = hex; //beginning of current line
+	for(int h=0; h<blockmap.size(); ++h)
+	{
+		switch(blockmap[h])
+		{
+		case 'X':
+			ret.push_back(cur);
+			++cur;
+			break;
+		case 'L':
+			if((cur/17)%2 == 0)
+			{
+				cur = curBeg + 17;
+				curBeg = cur;
+			}
+			else
+			{
+				cur = curBeg + 16;
+				curBeg = cur;
+			}
+			break;
+		case 'N':
+			++cur;
+			break;
+		}
+	}
+	return ret;
+}
+
 CHeroHandler::~CHeroHandler()
 {
 	for (int i = 0; i < heroes.size(); i++)
@@ -62,7 +130,7 @@ void CHeroHandler::loadObstacles()
 		}
 		while(true)
 		{
-			SObstacleInfo obi;
+			CObstacleInfo obi;
 			inp>>obi.ID;
 			if(obi.ID == -1) break;
 			inp>>obi.defName;
