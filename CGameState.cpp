@@ -1554,12 +1554,36 @@ int CGameState::battleGetStack(int pos)
 
 int CGameState::battleGetBattlefieldType(int3 tile)
 {
-	if(tile!=int3())
-		return map->terrain[tile.x][tile.y][tile.z].tertype;
-	else if(curB)
-		return map->terrain[curB->tile.x][curB->tile.y][curB->tile.z].tertype;
-	else
+	if(tile==int3() && curB)
+		tile = curB->tile;
+	else if(tile==int3() && !curB)
 		return -1;
+
+	switch(map->terrain[tile.x][tile.y][tile.z].tertype)
+	{
+	case dirt:
+		return rand()%3+3;
+	case sand:
+		return 2; //TODO: coast support
+	case grass:
+		return rand()%2+6;
+	case snow:
+		return rand()%2+10;
+	case swamp:
+		return 13;
+	case rough:
+		return 23;
+	case subterranean:
+		return 12;
+	case lava:
+		return 8;
+	case water:
+		return 25;
+	case rock:
+		return 15;
+	default:
+		return -1;
+	}
 }
 
 UpgradeInfo CGameState::getUpgradeInfo(CArmedInstance *obj, int stackPos)

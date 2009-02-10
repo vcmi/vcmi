@@ -128,8 +128,8 @@ void Graphics::loadPaletteAndColors()
 void Graphics::initializeBattleGraphics()
 {
 	std::ifstream bback("config/battleBack.txt");
-	battleBacks.resize(9);
-	for(int i=0; i<9; ++i) //9 - number of terrains battle can be fought on
+	battleBacks.resize(26);
+	for(int i=1; i<26; ++i) //25 - number of terrains battle can be fought on
 	{
 		int am;
 		bback>>am;

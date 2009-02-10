@@ -2000,7 +2000,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 		}
 	}
 
-	int terType = gs->battleGetBattlefieldType(tile); //TODO: merge it with battleGetBattlefieldType
+	int terType = gs->battleGetBattlefieldType(tile);
 
 	for(std::map<int, CObstacleInfo>::const_iterator g=VLC->heroh->obstacles.begin(); g!=VLC->heroh->obstacles.end(); ++g)
 	{
