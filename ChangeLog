@@ -1,30 +1,69 @@
-0.7 -> 0.71 (as for r707)
+0.7 -> 0.71 (as for r725)
 GENERAL:
+* fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
 * morale/luck system and corresponding sec. skills supported 
 * fixed crash when hero get level and has less than two sec. skills to choose between 
+* added keybindings for components in selection window (eg. for treasure chest dialog): 1, 2, and so on. Selection dialog can be closed with Enter key
+* proper handling of custom portraits of heroes
+* fixed problems with non-hero/town defs not present in def list but present on map (occurring probably only in case of def substitution in map editor)
+* fixed crash when there was no hero available to hire for some player 
+* fixed problems with 1024x600 screen resolution
+* updating blockmap/visitmap of randomized objects 
 
 ADVENTURE INTERFACE:
 * added missing path arrows
 * corrected centering on hero's position 
+* recalculating hero path after reselecting hero
+* further changes in pathfinder making it more like original one
+* orientation of hero can't be change if movement points are exhausted 
+* campfire, borderguard, bordergate, questguard will be accessible from the top 
 
 BATTLES:
+* spells not known by hero can't be casted 
 * spell books won't be placed in War Machine slots after battle
+* attack is now possible when hex under cursor is not displayed 
+* fixes for two-hex creatures attacks
+* fixed positions of stack queue and battle result window when resolution is != 800x600 
+* corrected duration of frenzy spell which was incorrect in certain cases 
+* corrected hero spell casting animation
+* better support for battle backgrounds 
+* blocked "save" command during battle 
+New spells supported:
+ - Mirth
+ - Sorrow
+ - Fortune
+ - Misfortune
 
 TOWN INTERFACE:
 * Rampart's Treasury requires Miner's Guild 
+* minor improvements in Recruitment Window
+* fixed crash occuring when clicking on hero portrait in Tavern Window, minor improvements for Tavern Window
+* proper updating resdatabar after building structure in town or buying creatures (non 800x600 res)
+* fixed blinking resdatabar in town screen when buying (800x600) 
+
+
+PREGAME:
+* added scrolling scenario list with mouse wheel
+* fixed mouse slow downs
+* cannot select heroes for computer player (pregame) 
+* no crash if uses gives wrong resolution ID number
+* minor fixes
 
 OBJECTS:
 New objects supported:
  * Magic Well
- *	Faerie Ring
- *	Swan Pond
- *	Idol of Fortune
- *	Fountain of Fortune
- *	Rally Flag
- *	Oasis
- *	Temple
- *	Watering Hole
- *	Fountain of Youth
+ * Faerie Ring
+ * Swan Pond
+ * Idol of Fortune
+ * Fountain of Fortune
+ * Rally Flag
+ * Oasis
+ * Temple
+ * Watering Hole
+ * Fountain of Youth
+ 
+ AI PLAYER:
+ Minor improvements and fixes.
 
 
 0.64 -> 0.7 (Feb 01 2009)
