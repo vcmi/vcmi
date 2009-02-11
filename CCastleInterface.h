@@ -167,7 +167,7 @@ public:
 	CMinorResDataBar resdatabar;
 	AdventureMapButton *exit;
 	SDL_Surface * bg;
-	std::vector<SDL_Rect> positions;
+	std::vector<Rect> positions;
 	std::vector<RecArea*> recAreas;
 	std::vector<CCreaturePic*> crePics;
 

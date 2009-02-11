@@ -3,7 +3,6 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 
-
 extern SDL_Surface * screen;
 extern SDL_Color tytulowy, tlo, zwykly ;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;

@@ -1167,10 +1167,7 @@ townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlis
 	LOCPLINT->adventureInt=this;
 	bg = BitmapHandler::loadBitmap(ADVOPT.mainGraphic);
 	graphics->blueToPlayersAdv(bg,player);
-	scrollingLeft = false;
-	scrollingRight  = false;
-	scrollingUp = false ;
-	scrollingDown = false ;
+	scrollingDir = 0;
 	updateScreen  = false;
 	anim=0;
 	animValHitCount=0; //animation frame
@@ -1365,43 +1362,32 @@ void CAdvMapInt::update()
 		updateScreen = true;
 	}
 	++heroAnim;
-	if((animValHitCount % (4/LOCPLINT->mapScrollingSpeed)) == 0 && !LOCPLINT->showingDialog->get())
+
+	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
+	if((animValHitCount % (4/LOCPLINT->mapScrollingSpeed)) == 0 
+		&& 
+			(!LOCPLINT->showingDialog->get()
+				&& !LOCPLINT->curint->subInt)
+			|| SDL_GetKeyState(NULL)[SDLK_LCTRL] 
+			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
+	)
 	{
-		if(scrollingLeft)
+		if( (scrollingDir & LEFT)   &&  (position.x>-Woff) )
+			position.x--;
+
+		if( (scrollingDir & RIGHT)  &&  (position.x   <   CGI->mh->map->width - terrain.tilesw + Woff) )
+			position.x++;
+
+		if( (scrollingDir & UP)  &&  (position.y>-Hoff) )
+			position.y--;
+
+		if( (scrollingDir & DOWN)  &&  (position.y  <  CGI->mh->map->height - terrain.tilesh + Hoff) )
+			position.y++;
+
+		if(scrollingDir)
 		{
-			if(position.x>-Woff)
-			{
-				position.x--;
-				updateScreen = true;
-				updateMinimap=true;
-			}
-		}
-		if(scrollingRight)
-		{
-			if(position.x   <   CGI->mh->map->width - terrain.tilesw + Woff )
-			{
-				position.x++;
-				updateScreen = true;
-				updateMinimap=true;
-			}
-		}
-		if(scrollingUp)
-		{
-			if(position.y>-Hoff)
-			{
-				position.y--;
-				updateScreen = true;
-				updateMinimap=true;
-			}
-		}
-		if(scrollingDown)
-		{
-			if(position.y  <  CGI->mh->map->height - terrain.tilesh + Hoff)
-			{
-				position.y++;
-				updateScreen = true;
-				updateMinimap=true;
-			}
+			updateScreen = true;
+			updateMinimap=true;
 		}
 	}
 	if(updateScreen)
@@ -1438,25 +1424,31 @@ void CAdvMapInt::centerOn(int3 on)
 }
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 {
-	bool CAdvMapInt::* scrollDir;
+	ui8 Dir;
 	switch(key.keysym.sym)
 	{
 	case SDLK_UP: 
-		scrollDir = &CAdvMapInt::scrollingUp; 
+		Dir = UP;
 		break;
 	case SDLK_LEFT: 
-		scrollDir = &CAdvMapInt::scrollingLeft; 
+		Dir = LEFT;
 		break;
 	case SDLK_RIGHT: 
-		scrollDir = &CAdvMapInt::scrollingRight; 
+		Dir = RIGHT;
 		break;
 	case SDLK_DOWN: 
-		scrollDir = &CAdvMapInt::scrollingDown; 
+		Dir = DOWN;
 		break;
 	default: 
 		return;
 	}
-	this->*scrollDir = key.state==SDL_PRESSED;
+	if(key.state == SDL_PRESSED //arrow is pressed
+		&& (SDL_GetKeyState(NULL)[SDLK_LCTRL] 
+			|| SDL_GetKeyState(NULL)[SDLK_RCTRL])
+	)
+		scrollingDir |= Dir;
+	else
+		scrollingDir &= ~Dir;
 }
 void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * client)
 {

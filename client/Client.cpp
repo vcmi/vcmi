@@ -626,6 +626,12 @@ void CClient::close()
 
 void CClient::save(const std::string & fname)
 {
+	if(gs->curB)
+	{
+		tlog1 << "Game cannot be saved during battle!\n";
+		return;
+	}
+
 	*serv << ui16(98) << fname;
 }
 

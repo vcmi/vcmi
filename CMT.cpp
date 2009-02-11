@@ -290,7 +290,7 @@ void processCommand(const std::string &message, CClient *&client)
 		std::cin >> i;
 		if(!i)
 			return;
-		else if(i < 0  ||  i >= conf.guiOptions.size())
+		else if(i < 0  ||  i > conf.guiOptions.size())
 		{
 			tlog1 << "Invalid resolution ID! Not a number between 0 and  " << conf.guiOptions.size() << ". No settings changed.\n";
 		}

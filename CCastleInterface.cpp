@@ -1336,6 +1336,7 @@ void CFortScreen::show( SDL_Surface * to)
 void CFortScreen::activate()
 {
 	LOCPLINT->curint->subInt = this;
+	LOCPLINT->statusbar = LOCPLINT->castleInt->statusbar;
 	exit->activate();
 	for (size_t i=0;i<recAreas.size(); ++i)
 	{
@@ -1373,8 +1374,7 @@ CFortScreen::CFortScreen( CCastleInterface * owner )
 		genRect(126,386,10,288),genRect(126,386,404,288),
 		genRect(126,386,206,421);
 	draw(owner,true);
-	resdatabar.pos.x += pos.x;
-	resdatabar.pos.y += pos.y;
+	resdatabar.pos += pos;
 }
 
 void CFortScreen::draw( CCastleInterface * owner, bool first)
@@ -1449,7 +1449,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 			if(present)
 			{
 				recAreas.push_back(new RecArea(30+i+upgraded*7));
-				recAreas[recAreas.size()-1]->pos = positions[i];
+				recAreas.back()->pos = positions[i] + pos;
 			}
 		}
 	}

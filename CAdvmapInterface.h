@@ -110,10 +110,8 @@ public:
 
 	std::vector<CDefHandler *> gems;
 
-	bool scrollingLeft ;
-	bool scrollingRight ;
-	bool scrollingUp ;
-	bool scrollingDown ;
+	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
+	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
 	bool updateScreen, updateMinimap ;
 	unsigned char anim, animValHitCount; //animation frame
 	unsigned char heroAnim, heroAnimValHitCount; //animation frame

@@ -515,7 +515,9 @@ void Options::OptionSwitch::press(bool down)
 		}
 	case 0: //hero change
 		{
-			if (ourOpt->castle<0)
+			if (ourOpt->castle<0
+				|| !ourOpt->human
+				)
 			{
 				break;
 			}
@@ -579,6 +581,11 @@ void Options::PlayerFlag::press(bool down)
 			break;
 	CPG->ret.playerInfos[i].human = true;
 	CPG->ret.playerInfos[j].human = false;
+	if(CPG->ret.playerInfos[j].hero >= 0)
+	{
+		CPG->ret.playerInfos[j].hero = -1;
+		CPG->ourOptions->showIcon(0,j,false);
+	}
 	std::string pom = CPG->ret.playerInfos[i].name;
 	CPG->ret.playerInfos[i].name = CPG->ret.playerInfos[j].name;
 	CPG->ret.playerInfos[j].name = pom;
@@ -2007,7 +2014,7 @@ StartInfo CPreGame::runLoop()
 	{
 		try
 		{
-			if(SDL_PollEvent(&sEvent))  //wait for event...
+			while(SDL_PollEvent(&sEvent))  //handle all events
 			{
 				menuItems * current = currentItems();
 				if(sEvent.type==SDL_QUIT)
@@ -2267,9 +2274,8 @@ StartInfo CPreGame::runLoop()
 					hideBox();
 				}
 			}
-		}
-		catch(...)
-		{ continue; }
+		} HANDLE_EXCEPTION
+
 		CGI->curh->draw1();
 		SDL_Flip(screen);
 		CGI->curh->draw2();

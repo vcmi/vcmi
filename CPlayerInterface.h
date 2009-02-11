@@ -39,6 +39,89 @@ namespace boost
 	class recursive_mutex;
 };
 
+struct Point
+{
+	int x, y;
+
+	//constructors
+	Point(){};
+	Point(int X, int Y)
+		:x(X),y(Y)
+	{};
+	Point(const int3 &a)
+		:x(a.x),y(a.y)
+	{}
+
+
+
+	Point operator+(const Point &b)
+	{
+		return Point(x+b.x,y+b.y);
+	}
+	Point operator-(const Point &b)
+	{
+		return Point(x+b.x,y+b.y);
+	}
+	bool operator<(const Point &b)
+	{
+		return x < b.x   &&   y < b.y;
+	}
+};
+
+struct Rect : public SDL_Rect
+{
+	Rect()
+	{
+		x = y = w = h = -1;
+	}
+	Rect(int X, int Y, int W, int H)
+	{
+		x = X;
+		y = Y;
+		w = W;
+		h = H;
+	};
+	Rect(const SDL_Rect & r)
+	{
+		x = r.x;
+		y = r.y;
+		w = r.w;
+		h = r.h;
+	};
+	bool isIn(int qx, int qy)
+	{
+		if (qx > x   &&   qx<x+w   &&   qy>y   &&   qy<y+h)
+			return true;
+		return false;
+	}
+	bool isIn(const Point &q)
+	{
+		return isIn(q.x,q.y);
+	}
+	Point topLeft()
+	{
+		return Point(x,y);
+	}
+	Point bottomRight()
+	{
+		return Point(x+w,y+h);
+	}
+	Rect operator+(const Rect &p)
+	{
+		return Rect(x+p.x,y+p.y,w,h);
+	}
+	Rect operator+(const Point &p)
+	{
+		return Rect(x+p.x,y+p.y,w,h);
+	}
+	Rect& operator+=(const Rect &p)
+	{
+		x += p.x;
+		y += p.y;
+		return *this;
+	}
+};
+
 class IShowable
 {
 public:
@@ -76,8 +159,14 @@ public:
 class CIntObject //interface object
 {
 public:
-	SDL_Rect pos;
+	Rect pos;
 	int ID;
+
+	//virtual bool isIn(int x, int y)
+	//{
+	//	return pos.isIn(x,y);
+	//}
+	virtual ~CIntObject(){};
 };
 class CSimpleWindow : public virtual CIntObject, public IShowable
 {

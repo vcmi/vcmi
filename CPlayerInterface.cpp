@@ -900,9 +900,9 @@ void CSelWindow::close()
 		}
 	}
 	LOCPLINT->curint->activate();
+	LOCPLINT->showingDialog->setn(false);
 	LOCPLINT->cb->selectionMade(ret,ID);
 	delete this;
-	//call owner with selection result
 }
 CButtonBase::CButtonBase()
 {
@@ -1748,6 +1748,7 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 
 void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 {
+	//sending active, hovered hoverable objects hover() call
 	std::vector<Hoverable*> hlp;
 	for(std::list<Hoverable*>::iterator i=hoverable.begin(); i != hoverable.end();i++)
 	{
@@ -1763,6 +1764,8 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 	}
 	for(int i=0; i<hlp.size();i++)
 		hlp[i]->hover(true);
+
+	//sending active, MotionInterested objects mouseMoved() call
 	std::list<MotionInterested*> miCopy = motioninterested;
 	for(std::list<MotionInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
 	{
@@ -1771,39 +1774,41 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 			(*i)->mouseMoved(sEvent->motion);
 		}
 	}
+
+	//adventure map scrolling with mouse
 	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL])
 	{
 		if(sEvent->motion.x<15)
 		{
-			LOCPLINT->adventureInt->scrollingLeft = true;
+			adventureInt->scrollingDir |= CAdvMapInt::LEFT;
 		}
 		else
 		{
-			LOCPLINT->adventureInt->scrollingLeft = false;
+			adventureInt->scrollingDir &= ~CAdvMapInt::LEFT;
 		}
 		if(sEvent->motion.x>screen->w-15)
 		{
-			LOCPLINT->adventureInt->scrollingRight = true;
+			adventureInt->scrollingDir |= CAdvMapInt::RIGHT;
 		}
 		else
 		{
-			LOCPLINT->adventureInt->scrollingRight = false;
+			adventureInt->scrollingDir &= ~CAdvMapInt::RIGHT;
 		}
 		if(sEvent->motion.y<15)
 		{
-			LOCPLINT->adventureInt->scrollingUp = true;
+			adventureInt->scrollingDir |= CAdvMapInt::UP;
 		}
 		else
 		{
-			LOCPLINT->adventureInt->scrollingUp = false;
+			adventureInt->scrollingDir &= ~CAdvMapInt::UP;
 		}
 		if(sEvent->motion.y>screen->h-15)
 		{
-			LOCPLINT->adventureInt->scrollingDown = true;
+			adventureInt->scrollingDir |= CAdvMapInt::DOWN;
 		}
 		else
 		{
-			LOCPLINT->adventureInt->scrollingDown = false;
+			adventureInt->scrollingDir &= ~CAdvMapInt::DOWN;
 		}
 	}
 }
@@ -1910,14 +1915,17 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(curint==adventureInt || curint==castleInt)
+	if(curint==adventureInt  ||  screen->h > 600  ||  screen->w > 800)
 		adventureInt->resdatabar.draw();
+	if(curint==castleInt && !curint->subInt)
+		castleInt->resdatabar->draw();
 }
 
 void CPlayerInterface::showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID)
 //void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	LOCPLINT->showingDialog->setn(true);
 	adventureInt->hide(); //dezaktywacja starego interfejsu
 	std::vector<CSelectableComponent*> intComps;
 	for(int i=0;i<components.size();i++)
@@ -1939,6 +1947,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 			showingDialog->cond.wait(un);
 	}
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	LOCPLINT->showingDialog->setn(true);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
 	curint->deactivate();
 	lw->activate();
@@ -2257,8 +2266,8 @@ void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<Compo
 }
 void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<SComponent*> & components)
 {
-	showingDialog->set(true);
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	showingDialog->set(true);
 	curint->deactivate(); //dezaktywacja starego interfejsu
 
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
@@ -2272,6 +2281,7 @@ void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<SComp
 void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	LOCPLINT->showingDialog->setn(true);
 	if(deactivateCur)
 		curint->deactivate(); //dezaktywacja starego interfejsu
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
@@ -2295,6 +2305,7 @@ void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SCom
 void CPlayerInterface::showYesNoDialog( std::string &text, const std::vector<Component*> &components, ui32 askID )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	LOCPLINT->showingDialog->setn(false);
 	curint->deactivate(); //dezaktywacja starego interfejsu
 
 	std::vector<SComponent*> intComps;

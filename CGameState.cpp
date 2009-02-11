@@ -1146,12 +1146,15 @@ void CGameState::randomizeObject(CGObjectInstance *cur)
 	//we have to replace normal random object
 	cur->ID = ran.first;
 	cur->subID = ran.second;
+	map->removeBlockVisTiles(cur); //recalculate blockvis tiles - picked object might have different than random placeholder
 	map->defy.push_back(cur->defInfo = VLC->dobjinfo->gobjs[ran.first][ran.second]);
 	if(!cur->defInfo)
 	{
 		tlog1<<"*BIG* WARNING: Missing def declaration for "<<cur->ID<<" "<<cur->subID<<std::endl;
 		return;
 	}
+
+	map->addBlockVisTiles(cur);
 }
 
 int CGameState::getDate(int mode) const
