@@ -1925,15 +1925,18 @@ CPreGame::menuItems * CPreGame::currentItems()
 
 void CPreGame::scenHandleEv(SDL_Event& sEvent)
 {
-	if(sEvent.button.button == SDL_BUTTON_WHEELUP)
+	if(currentTab==&ourScenSel->mapsel)
 	{
-		ourScenSel->mapsel.slid->moveUp();
-		return;
-	}
-	else if(sEvent.button.button == SDL_BUTTON_WHEELDOWN)
-	{
-		ourScenSel->mapsel.slid->moveDown();
-		return;
+		if(sEvent.button.button == SDL_BUTTON_WHEELUP)
+		{
+			ourScenSel->mapsel.slid->moveUp();
+			return;
+		}
+		else if(sEvent.button.button == SDL_BUTTON_WHEELDOWN)
+		{
+			ourScenSel->mapsel.slid->moveDown();
+			return;
+		}
 	}
 	if(sEvent.type == SDL_MOUSEMOTION)
 	{

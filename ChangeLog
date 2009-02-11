@@ -1,4 +1,4 @@
-0.7 -> 0.71 (as for r725)
+0.7 -> 0.71 (as for r726)
 GENERAL:
 * fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
 * morale/luck system and corresponding sec. skills supported 
@@ -19,6 +19,7 @@ ADVENTURE INTERFACE:
 * campfire, borderguard, bordergate, questguard will be accessible from the top 
 
 BATTLES:
+* partial support for battle obstackles
 * spells not known by hero can't be casted 
 * spell books won't be placed in War Machine slots after battle
 * attack is now possible when hex under cursor is not displayed 
