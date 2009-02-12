@@ -30,6 +30,7 @@ class CGTownInstance;
 class CArtifact;
 class CGDefInfo;
 class CSpecObjInfo;
+struct TerrainTile;
 
 class DLL_EXPORT CCastleEvent
 {
@@ -207,7 +208,7 @@ public:
 	const HeroBonus *getBonus(int from, int id) const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
-	unsigned int getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype, const int & remaingMP) const;
+	unsigned int getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	unsigned int getLowestCreatureSpeed() const;
 	unsigned int getAdditiveMoveBonus() const;
 	float getMultiplicativeMoveBonus() const;

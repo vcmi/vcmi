@@ -18,6 +18,7 @@
 #include "../CGameState.h"
 #include "../lib/NetPacks.h"
 #include "../StartInfo.h"
+#include "../Map.h"
 
 std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
 IGameCallback * IObjectInterface::cb = NULL;
@@ -196,72 +197,37 @@ int lowestSpeed(const CGHeroInstance * chi)
 	return ret;
 }
 
-unsigned int CGHeroInstance::getTileCost(const EterrainType & ttype, const Eroad & rdtype, const Eriver & rvtype, const int & remaingMP) const
+unsigned int CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainTile &from) const
 {
-	if(remaingMP <= 100) return 100; //workaround for strange behaviour manifested by Heroes III
-	unsigned int ret = type->heroClass->terrCosts[ttype];
-	//applying pathfinding skill
-	switch(getSecSkillLevel(0))
-	{
-	case 1: //basic
-		switch(ttype)
-		{
-		case rough:
-			ret = 100;
-			break;
-		case sand: case snow:
-			if(ret>125)
-				ret = 125;
-			break;
-		case swamp:
-			if(ret>150)
-				ret = 150;
-			break;
-        default:
-            //TODO do something nasty here throw maybe? or some def value asing
-            break;
-		}
-		break;
-	case 2: //advanced
-		switch(ttype)
-		{
-		case rough: 
-                case sand:
-                case snow:
-			ret = 100;
-			break;
-		case swamp:
-			if(ret>125)
-				ret = 125;
-			break;
-        default:
-            //TODO look up
-            break;
-		}
-		break;
-	case 3: //expert
-		ret = 100;
-		break;
-    default:
-        //TODO look up
-        break;
-	}
+	//TODO: check if all creatures are on its native terrain and change cost appropriately
 
-	//calculating road influence
-	switch(rdtype)
+	//base move cost
+	unsigned ret = 100;
+	
+	//if there is road both on dest and src tiles - use road movement cost
+	if(dest.malle && from.malle) 
 	{
-	case dirtRoad:
-		ret*=0.75;
-		break;
-	case grazvelRoad:
-		ret*=0.667;
-		break;
-	case cobblestoneRoad:
-		ret*=0.5;
-		break;
-    default:
-        //TODO killllll me
-        break;
+		int road = std::min(dest.malle,from.malle); //used road ID
+		switch(road)
+		{
+		case dirtRoad:
+			ret = 75;
+			break;
+		case grazvelRoad:
+			ret = 65;
+			break;
+		case cobblestoneRoad:
+			ret = 50;
+			break;
+		default:
+			tlog1 << "Unknown road type: " << road << "... Something wrong!\n";
+			break;
+		}
+	}
+	else 
+	{
+		ret = std::max(type->heroClass->terrCosts[dest.tertype],type->heroClass->terrCosts[from.tertype]); //take cost of worse of two tiles
+		ret = std::max(ret - 25*unsigned(getSecSkillLevel(0)), 100u); //reduce 25% of terrain penalty for each pathfinding level
 	}
 	return ret;
 }

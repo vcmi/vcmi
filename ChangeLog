@@ -19,7 +19,7 @@ ADVENTURE INTERFACE:
 * campfire, borderguard, bordergate, questguard will be accessible from the top 
 
 BATTLES:
-* partial support for battle obstackles
+* partial support for battle obstacles
 * spells not known by hero can't be casted 
 * spell books won't be placed in War Machine slots after battle
 * attack is now possible when hex under cursor is not displayed 

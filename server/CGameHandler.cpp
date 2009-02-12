@@ -495,9 +495,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					int3 hmpos = end + int3(-1,0,0);
 					TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
 					CGHeroInstance *h = static_cast<CGHeroInstance *>(gs->map->objects[id]);
-					double dist = distance(start,end);
-					if(h->movement <= 145) dist = 1.0f; //workaround for strange behaviour manifested by Heroes III
-					int cost = (int)((double)h->getTileCost(t.tertype,t.malle,t.nuine, h->movement) * dist);
+					int cost = gs->getMovementCost(h,start,end,h->movement);
 
 					TryMoveHero tmh;
 					tmh.id = id;
@@ -508,7 +506,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 
 					if((h->getOwner() != gs->currentPlayer) //not turn of that hero
 						|| (distance(start,end)>=1.5) //tiles are not neighouring
-						|| (h->movement < cost) //lack of movement points
+						|| (h->movement < cost  &&  h->movement < 100) //lack of movement points
 						|| (t.tertype == rock)  //rock
 						|| (!h->canWalkOnSea() && t.tertype == water)
 						|| (t.blocked && !t.visitable) //tile is blocked andnot visitable
@@ -518,7 +516,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					
 					//check if there is blocking visitable object
 					blockvis = false;
-					tmh.movePoints = h->movement = (h->movement-cost); //take move points
+					tmh.movePoints = h->movement = std::max(si32(0),h->movement-cost); //take move points
 					BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 					{
 						if(obj->blockVisit)

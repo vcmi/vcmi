@@ -359,7 +359,7 @@ void CMapHeader::loadViCLossConditions( unsigned char * bufor, int &i)
 			{
 				victoryCondition.ID = bufor[i+2];
 				victoryCondition.count = readNormalNr(bufor, i+3);
-				nr=5;
+				nr = 5;
 				break;
 			}
 		case buildCity:
@@ -369,7 +369,7 @@ void CMapHeader::loadViCLossConditions( unsigned char * bufor, int &i)
 				victoryCondition.pos.z = bufor[i+4];
 				victoryCondition.count = bufor[i+5];
 				victoryCondition.ID = bufor[i+6];
-				nr=5;
+				nr = 5;
 				break;
 			}
 		case buildGrail:
@@ -382,7 +382,7 @@ void CMapHeader::loadViCLossConditions( unsigned char * bufor, int &i)
 					victoryCondition.pos.y = bufor[i+3];
 					victoryCondition.pos.z = bufor[i+4];
 				}
-				nr=3;
+				nr = 3;
 				break;
 			}
 		case beatHero:
@@ -392,13 +392,13 @@ void CMapHeader::loadViCLossConditions( unsigned char * bufor, int &i)
 				victoryCondition.pos.x = bufor[i+2];
 				victoryCondition.pos.y = bufor[i+3];
 				victoryCondition.pos.z = bufor[i+4];
-				nr=3;
+				nr = 3;
 				break;
 			}
 		case takeDwellings:
 		case takeMines:
 			{
-				nr=3;
+				nr = 0;
 				break;
 			}
 		case transportItem:
@@ -407,7 +407,7 @@ void CMapHeader::loadViCLossConditions( unsigned char * bufor, int &i)
 				victoryCondition.pos.x = bufor[i+3];
 				victoryCondition.pos.y = bufor[i+4];
 				victoryCondition.pos.z = bufor[i+5];
-				nr=4;
+				nr = 4;
 				break;
 			}
 		}
@@ -1954,6 +1954,10 @@ void Mapa::loadQuest(CQuest * guard, unsigned char * bufor, int & i)
 	guard->completedText = readString(bufor,i);
 }
 
+TerrainTile & Mapa::getTile( int3 tile )
+{
+	return terrain[tile.x][tile.y][tile.z];
+}
 void CMapInfo::countPlayers()
 {
 	playerAmnt=humenPlayers=0;

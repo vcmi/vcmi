@@ -940,7 +940,7 @@ int CGameState::pickHero(int owner)
 }
 CGHeroInstance *CGameState::getHero(int objid)
 {
-	if(objid<0 || objid>=map->objects.size())
+	if(objid<0 || objid>=map->objects.size() || map->objects[objid]->ID!=34)
 		return NULL;
 	return static_cast<CGHeroInstance *>(map->objects[objid]);
 }
@@ -1704,6 +1704,98 @@ void CGameState::setObjProperty( SetObjectProperty * p )
 		static_cast<CGVisitableOPW*>(obj)->visited = p->val;
 		break;
 	}
+}
+
+void CGameState::getNeighbours(int3 tile, std::vector<int3> &vec, bool onLand)
+{
+	vec.clear();
+	int3 hlp;
+	bool weAreOnLand = (map->getTile(tile).tertype != 8);
+	if(tile.x > 0)
+	{
+		hlp = int3(tile.x-1,tile.y,tile.z);
+		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.y > 0)
+	{
+		hlp = int3(tile.x,tile.y-1,tile.z);
+		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x > 0   &&   tile.y > 0)
+	{
+		hlp = int3(tile.x-1,tile.y-1,tile.z);
+		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x > 0   &&   tile.y < map->height-1)
+	{
+		hlp = int3(tile.x-1,tile.y+1,tile.z);
+		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.y < map->height-1)
+	{
+		hlp = int3(tile.x,tile.y+1,tile.z);
+		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x < map->width-1)
+	{
+		hlp = int3(tile.x+1,tile.y,tile.z);
+		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x < map->width-1   &&   tile.y > 0)
+	{
+		hlp = int3(tile.x+1,tile.y-1,tile.z);
+		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x < map->width-1   &&   tile.y < map->height-1)
+	{
+		hlp = int3(tile.x+1,tile.y+1,tile.z);
+		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+}
+
+int CGameState::getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, int remainingMovePoints, bool checkLast)
+{
+	TerrainTile &s = map->terrain[src.x][src.y][src.z],
+		&d = map->terrain[dest.x][dest.y][dest.z];
+
+	//get basic cost
+	int ret = h->getTileCost(d,s);
+
+	if(src.x!=dest.x && src.y!=dest.y) //diagonal move costs too much but normal move is possible
+	{
+		int old = ret;
+		ret *= 1.414;
+		if(ret > remainingMovePoints  &&  remainingMovePoints > old)
+		{
+			return remainingMovePoints;
+		}
+	}
+
+
+	int left = remainingMovePoints-ret;
+	if(checkLast  &&  left > 0  &&  remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
+	{
+		std::vector<int3> vec;
+		getNeighbours(dest,vec,true);
+		for(size_t i=0; i < vec.size(); i++)
+		{
+			int fcost = getMovementCost(h,dest,vec[i],left,false);
+			if(fcost <= left)
+			{
+				return ret;
+			}
+		}
+		ret = remainingMovePoints;
+	}
+	return ret;
 }
 
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)

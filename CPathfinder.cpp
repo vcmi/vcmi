@@ -178,11 +178,9 @@ void CPathfinder::convertPath(CPath * path, unsigned int mode) //mode=0 -> from 
 }
 
 void CPathfinder::processNode(CPathNode & dp, const CGHeroInstance * hero, std::queue<CPathNode> & mq, const CPathNode & cp, const int3 & src, bool diagonal)
-{
+{	
 	const TerrainTile * tinfo = CGI->mh->ttiles[dp.coord.x][dp.coord.y][src.z].tileInfo;
-	int cost = hero->getTileCost(tinfo->tertype, tinfo->malle, tinfo->nuine, hero->movement - cp.dist);
-	if(diagonal && (hero->movement - cp.dist) > 145) //second condition - workaround for strange behaviour manifested by Heroes III
-		cost *= std::sqrt(2.0);
+	int cost = CGI->state->getMovementCost(hero,cp.coord,dp.coord,hero->movement - cp.dist);
 	if((dp.dist==-1 || (dp.dist > cp.dist + cost)) && dp.accesible && checkForVisitableDir(cp.coord, dp.coord) && checkForVisitableDir(dp.coord, cp.coord))
 	{
 		dp.dist = cp.dist + cost;

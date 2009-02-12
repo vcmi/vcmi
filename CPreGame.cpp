@@ -1106,7 +1106,7 @@ void MapSel::processGames(const std::vector<std::string> &pliczkiTemp)
 		lf >> sign >> hlp;
 		if(hlp != version)
 		{
-			tlog3 << "\t" << pliczkiTemp[i] << " seems to be too " << ((hlp>version) ? "new" : "old") << " and will be ommited.\n";
+			tlog3 << "\t\t" << pliczkiTemp[i] << " seems to be too " << ((hlp>version) ? "new" : "old") << " and will be ommited.\n";
 			ourGames[i] = NULL;
 			continue;
 		}
@@ -1239,8 +1239,12 @@ void MapSel::init()
 	processGames(pliczkiTemp);
 	for (int i = 0; i < ourGames.size(); i++)
 	{
-		ourGames[i]->date = datestemp[i];
+		if(ourGames[i])
+			ourGames[i]->date = datestemp[i];
 	}
+	maps = std::remove_if(ourGames.begin(),ourGames.end(),isNull);
+	ourGames.erase(maps,ourGames.end());
+	std::sort(ourGames.begin(),ourGames.end(),mapSorter(_name));
 }
 void MapSel::moveByOne(bool up)
 {

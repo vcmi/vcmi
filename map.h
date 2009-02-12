@@ -326,6 +326,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	Mapa(std::string filename); //creates map structure from .h3m file
 	Mapa();
 	~Mapa();
+	TerrainTile &getTile(int3 tile);
 	CGHeroInstance * getHero(int ID, int mode=0);
 	bool isInTheMap(int3 pos);
 	template <typename TObject, typename Handler> void serializeObj(Handler &h, const int version, TObject ** obj)

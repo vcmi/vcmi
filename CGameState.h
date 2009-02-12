@@ -231,10 +231,8 @@ private:
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);
 	int pickHero(int owner);
-
 	CGHeroInstance *getHero(int objid);
 	CGTownInstance *getTown(int objid);
-
 	bool battleMoveCreatureStack(int ID, int dest);
 	bool battleAttackCreatureStack(int ID, int dest);
 	bool battleShootCreatureStack(int ID, int dest);
@@ -246,6 +244,8 @@ private:
 public:
 	CGameState();
 	~CGameState();
+	void getNeighbours(int3 tile, std::vector<int3> &vec, bool onLand);
+	int getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

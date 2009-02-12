@@ -1067,7 +1067,7 @@ void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug pu
 	std::cout << color;
 #endif
 
-	std::cout << message.c_str() << std::flush;
+	std::cout << message.c_str() << std::endl;
 
 #ifdef _WIN32
 	SetConsoleTextAttribute(hConsole, csbi.wAttributes);
