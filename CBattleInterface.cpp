@@ -1419,10 +1419,11 @@ void CBattleInterface::hexLclicked(int whichOne)
 					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide())
 					{
 						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
+						int shiftedDest = whichOne + (LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned ? 1 : -1);
 						if(vstd::contains(acc, whichOne))
 							giveCommand(2,whichOne,activeStack);
-						else
-							giveCommand(2,whichOne + (LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned ? 1 : -1),activeStack);
+						else if(vstd::contains(acc, shiftedDest))
+							giveCommand(2,shiftedDest,activeStack);
 					}
 					else
 					{

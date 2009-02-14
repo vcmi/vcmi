@@ -486,6 +486,11 @@ CStack* CCallback::battleGetStackByPos(int pos)
 int CCallback::battleGetPos(int stack)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	if(!gs->curB)
+	{
+		tlog2<<"battleGetPos called when there is no battle!"<<std::endl;
+		return -1;
+	}
 	for(size_t g=0; g<gs->curB->stacks.size(); ++g)
 	{
 		if(gs->curB->stacks[g]->ID == stack)
@@ -512,12 +517,21 @@ std::map<int, CStack> CCallback::battleGetStacks()
 
 std::vector<CStack> CCallback::battleGetStackQueue()
 {
+	if(!gs->curB)
+	{
+		tlog2<<"battleGetStackQueue called when there is not battle!"<<std::endl;
+		return std::vector<CStack>();
+	}
 	return gs->curB->getStackQueue();
 }
 
 CCreature CCallback::battleGetCreature(int number)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx); //TODO use me?
+	if(!gs->curB)
+	{
+		tlog2<<"battleGetCreature called when there is no battle!"<<std::endl;
+	}
 	for(size_t h=0; h<gs->curB->stacks.size(); ++h)
 	{
 		if(gs->curB->stacks[h]->ID == number) //creature found
@@ -533,13 +547,23 @@ CCreature CCallback::battleGetCreature(int number)
 std::vector<int> CCallback::battleGetAvailableHexes(int ID, bool addOccupiable)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	if(!gs->curB)
+	{
+		tlog2<<"battleGetAvailableHexes called when there is no battle!"<<std::endl;
+		return std::vector<int>();
+	}
 	return gs->curB->getAccessibility(ID, addOccupiable);
 	//return gs->battleGetRange(ID);
 }
 
 bool CCallback::battleIsStackMine(int ID)
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx); //TODO use me ?
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	if(!gs->curB)
+	{
+		tlog2<<"battleIsStackMine called when there is no battle!"<<std::endl;
+		return false;
+	}
 	for(size_t h=0; h<gs->curB->stacks.size(); ++h)
 	{
 		if(gs->curB->stacks[h]->ID == ID) //creature found
@@ -549,9 +573,9 @@ bool CCallback::battleIsStackMine(int ID)
 }
 bool CCallback::battleCanShoot(int ID, int dest)
 {
-	boost::shared_lock<boost::shared_mutex> lock(*gs->mx); //TODO use me?
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	CStack *our = battleGetStackByID(ID), *dst = battleGetStackByPos(dest);
-	if(!our || !dst) return false; 
+	if(!our || !dst || !gs->curB) return false; 
 
 	for(size_t g=0; g<our->effects.size(); ++g)
 	{

@@ -190,7 +190,8 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 		std::vector<int> blocked = VLC->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
 		for(int c=0; c<blocked.size(); ++c)
 		{
-			accessibility[blocked[c]] = false;
+			if(blocked[c] >=0 && blocked[c] < BFIELD_SIZE)
+				accessibility[blocked[c]] = false;
 		}
 	}
 }
@@ -199,23 +200,6 @@ void BattleInfo::getAccessibilityMapForTwoHex(bool *accessibility, bool atackerS
 	bool mac[BFIELD_SIZE];
 	getAccessibilityMap(mac,stackToOmmit);
 	memcpy(accessibility,mac,BFIELD_SIZE);
-
-
-	if(!addOccupiable)
-	{
-		for(int b=0; b<BFIELD_SIZE; ++b)
-		{
-			if( mac[b] && !(atackerSide ? mac[b-1] : mac[b+1]))
-			{
-				accessibility[b] = false;
-			}
-		}
-
-		//removing accessibility for side hexes
-		for(int v=0; v<BFIELD_SIZE; ++v)
-			if(atackerSide ? (v%BFIELD_WIDTH)==1 : (v%BFIELD_WIDTH)==(BFIELD_WIDTH - 2))
-				accessibility[v] = false;
-	}
 }
 void BattleInfo::makeBFS(int start, bool*accessibility, int *predecessor, int *dists) //both pointers must point to the at least 187-elements int arrays
 {
@@ -258,10 +242,53 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 
 	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
 	makeBFS(s->position,ac,pr,dist);
+
+	if(s->creature->isDoubleWide())
+	{
+		if(!addOccupiable)
+		{
+			std::vector<int> rem;
+			for(int b=0; b<BFIELD_SIZE; ++b)
+			{
+				if( ac[b] && !(s->attackerOwned ? ac[b-1] : ac[b+1]))
+				{
+					rem.push_back(b);
+				}
+			}
+
+			for(int g=0; g<rem.size(); ++g)
+			{
+				ac[rem[g]] = false;
+			}
+
+			//removing accessibility for side hexes
+			for(int v=0; v<BFIELD_SIZE; ++v)
+				if(s->attackerOwned ? (v%BFIELD_WIDTH)==1 : (v%BFIELD_WIDTH)==(BFIELD_WIDTH - 2))
+					ac[v] = false;
+		}
+		else
+		{
+			std::vector<int> rem;
+			for(int b=0; b<BFIELD_SIZE; ++b)
+			{
+				if( ac[b] && !ac[b-1] && !ac[b+1] && b%BFIELD_WIDTH != 0 && b%BFIELD_WIDTH != (BFIELD_WIDTH-1))
+				{
+					rem.push_back(b);
+				}
+			}
+
+			for(int g=0; g<rem.size(); ++g)
+			{
+				ac[rem[g]] = false;
+			}
+		}
+	}
 	
 	for(int i=0;i<BFIELD_SIZE;i++)
-		if(dist[i] <= s->speed())
+		if(dist[i] <= s->speed() && ac[i])
+		{
 			ret.push_back(i);
+		}
 
 	return ret;
 }
@@ -1561,6 +1588,34 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 		tile = curB->tile;
 	else if(tile==int3() && !curB)
 		return -1;
+
+	//std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[tile.x][tile.y][tile.z].objects;
+	//for(int g=0; g<objs.size(); ++g)
+	//{
+	//	switch(objs[g].first->ID)
+	//	{
+	//	case 222: //clover field
+	//		return 19;
+	//	case 223: //cursed ground
+	//		return 22;
+	//	case 224: //evil fog
+	//		return 20;
+	//	case 225: //favourable winds
+	//		return 21;
+	//	case 226: //fiery fields
+	//		return 14;
+	//	case 227: //holy ground
+	//		return 18;
+	//	case 228: //lucid pools
+	//		return 17;
+	//	case 229: //magic clouds
+	//		return 16;
+	//	case 230: //magic plains
+	//		return 9;
+	//	case 231: //rocklands
+	//		return 15;
+	//	}
+	//}
 
 	switch(map->terrain[tile.x][tile.y][tile.z].tertype)
 	{

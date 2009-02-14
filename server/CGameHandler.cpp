@@ -241,18 +241,16 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 					expert.insert(hero->secSkills[i].first);
 				none.erase(hero->secSkills[i].first);
 			}
-			//first offered skill
 			if(hero->secSkills.size() < hero->type->heroClass->skillLimit) //free skill slot
 			{
 				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 			}
-			else if(basicAndAdv.size())
+			else
 			{
 				int s = hero->type->heroClass->chooseSecSkill(basicAndAdv);
 				hlu.skills.push_back(s);
 				basicAndAdv.erase(s);
 			}
-			//second offered skill
 			if(basicAndAdv.size())
 			{
 				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //new skill
@@ -261,21 +259,8 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 			{
 				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 			}
-			
-			if(hlu.skills.size() > 1) //apply and ask for secondary skill
-			{
-				boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::changeSecSkill,this,ID,_1,1,0)),_1));
-				applyAndAsk(&hlu,hero->tempOwner,callback); //call changeSecSkill with appropriate args when client responds
-			}
-			else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
-			{
-				changeSecSkill(ID,hlu.skills.back(),1,false);
-				sendAndApply(&hlu);
-			}
-			else //apply and send info
-			{
-				sendAndApply(&hlu);
-			}
+			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::changeSecSkill,this,ID,_1,1,0)),_1));
+			applyAndAsk(&hlu,hero->tempOwner,callback); //call changeSecSkill with appropriate args when client responds
 		}
 	}
 }
@@ -1544,10 +1529,15 @@ void CGameHandler::moveStack(int stack, int dest)
 
 	//initing necessary tables
 	bool accessibility[BFIELD_SIZE];
-	if(curStack->creature->isDoubleWide())
-		gs->curB->getAccessibilityMapForTwoHex(accessibility,curStack->attackerOwned,curStack->ID);
-	else 
-		gs->curB->getAccessibilityMap(accessibility,curStack->ID);
+	std::vector<int> accessible = gs->curB->getAccessibility(curStack->ID, false);
+	for(int b=0; b<BFIELD_SIZE; ++b)
+	{
+		accessibility[b] = false;
+	}
+	for(int g=0; g<accessible.size(); ++g)
+	{
+		accessibility[accessible[g]] = true;
+	}
 
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
 	if(!stackAtEnd && curStack->creature->isDoubleWide() && !accessibility[dest])
@@ -2047,7 +2037,8 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			curB->obstacles.push_back(coi);
 			for(int b=0; b<block.size(); ++b)
 			{
-				obAv[block[b]] = false;
+				if(block[b] >= 0 && block[b] < BFIELD_SIZE)
+					obAv[block[b]] = false;
 			}
 			toBlock -= block.size();
 		}
