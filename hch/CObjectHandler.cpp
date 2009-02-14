@@ -434,7 +434,8 @@ void CGHeroInstance::initHero(int SUBID)
 
 void CGHeroInstance::initHero()
 {
-	initHeroDefInfo();
+	if(ID == 34)
+		initHeroDefInfo();
 	if(!type)
 		type = VLC->heroh->heroes[subID];
 	artifWorn[16] = 3;
@@ -504,7 +505,7 @@ void CGHeroInstance::initHero()
 
 void CGHeroInstance::initHeroDefInfo()
 {
-	if(!defInfo)
+	if(!defInfo  ||  defInfo->id != 34)
 	{
 		defInfo = new CGDefInfo();
 		defInfo->id = 34;
@@ -531,20 +532,43 @@ bool CGHeroInstance::needsLastStack() const
 }
 void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	//TODO: check for allies
-	if(tempOwner == h->tempOwner) //our hero
+	if (ID == 34) //hero
 	{
-		//exchange
+		//TODO: check for allies
+		if(tempOwner == h->tempOwner) //our hero
+		{
+			//exchange
+		}
+		else
+		{
+			cb->startBattleI(
+				&h->army,
+				&army,
+				h->pos,
+				h,
+				this,
+				0);
+		}
 	}
-	else
+	else if(ID == 62) //prison
 	{
-		cb->startBattleI(
-			&h->army,
-			&army,
-			h->pos,
-			h,
-			this,
-			0);
+		if(cb->getHeroCount(h->tempOwner,false) < 8) //free hero slot
+		{
+			cb->setObjProperty(id,6,34); //set ID to 34
+			cb->giveHero(id,h->tempOwner); //recreates def and adds hero to player
+
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.text << std::pair<ui8,ui32>(11,102);
+			cb->showInfoDialog(&iw);
+		}
+		else //already 8 wandering heroes
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.text << std::pair<ui8,ui32>(11,103);
+			cb->showInfoDialog(&iw);
+		}
 	}
 }
 

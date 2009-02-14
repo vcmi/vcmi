@@ -377,6 +377,19 @@ void CClient::process(int what)
 			playerint[h->tempOwner]->heroInGarrisonChange(gs->getTown(hr.tid));
 			break;
 		}
+	case 516:
+		{
+			GiveHero hr;
+			*serv >> hr;
+			tlog5 << "Players receives hero\n";
+			CGHeroInstance *h = gs->getHero(hr.id);
+			CGI->mh->hideObject(h);
+			gs->apply(&hr);
+			CGI->mh->initHeroDef(h);
+			CGI->mh->printObject(h);
+			playerint[h->tempOwner]->heroCreated(h);
+			break;
+		}
 	case 1001:
 		{
 			SetObjectProperty sop;

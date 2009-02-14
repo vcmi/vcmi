@@ -9,6 +9,8 @@ GENERAL:
 * fixed crash when there was no hero available to hire for some player 
 * fixed problems with 1024x600 screen resolution
 * updating blockmap/visitmap of randomized objects 
+* fixed crashes on loading maps with flag all mines/dwelling victory condition
+* further fixes for leveling-up (stability and identical offered skills bug)
 
 ADVENTURE INTERFACE:
 * added missing path arrows
@@ -16,19 +18,22 @@ ADVENTURE INTERFACE:
 * recalculating hero path after reselecting hero
 * further changes in pathfinder making it more like original one
 * orientation of hero can't be change if movement points are exhausted 
-* campfire, borderguard, bordergate, questguard will be accessible from the top 
+* campfire, borderguard, bordergate, questguard will be accessible from the top
+* new movement cost calculation algorithm
 
 BATTLES:
 * partial support for battle obstacles
 * spells not known by hero can't be casted 
 * spell books won't be placed in War Machine slots after battle
 * attack is now possible when hex under cursor is not displayed 
-* fixes for two-hex creatures attacks
+* fixes for two-hex creatures actions
+* a few tweaks in battle path/available hexes calculation (more of them is needed)
 * fixed positions of stack queue and battle result window when resolution is != 800x600 
 * corrected duration of frenzy spell which was incorrect in certain cases 
 * corrected hero spell casting animation
 * better support for battle backgrounds 
 * blocked "save" command during battle 
+* spellbook displays only spells known by Hero
 New spells supported:
  - Mirth
  - Sorrow
@@ -52,6 +57,7 @@ PREGAME:
 
 OBJECTS:
 New objects supported:
+ * Prison
  * Magic Well
  * Faerie Ring
  * Swan Pond

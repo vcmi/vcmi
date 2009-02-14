@@ -311,6 +311,19 @@ struct HeroRecruited : public CPack<HeroRecruited> //515
 		h & hid & tid & tile & player;
 	}
 };  
+
+struct GiveHero : public CPack<GiveHero> //516
+{
+	GiveHero(){type = 516;};
+	ui32 id; //object id
+	ui8 player;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & player;
+	}
+};  
+
 struct NewTurn : public CPack<NewTurn> //101
 {
 	struct Hero
@@ -376,7 +389,7 @@ struct InfoWindow : public CPack<InfoWindow> //103  - displays simple info windo
 struct SetObjectProperty : public CPack<SetObjectProperty>//1001
 {
 	ui32 id;
-	ui8 what; //1 - owner; 2 - blockvis
+	ui8 what; //1 - owner; 2 - blockvis; 3 - first stack count; 4 - visitors; 5 - visited; 6 - ID (if 34 then also def is replaced)
 	ui32 val;
 	SetObjectProperty(){type = 1001;};
 	SetObjectProperty(ui32 ID, ui8 What, ui32 Val):id(ID),what(What),val(Val){type = 1001;};

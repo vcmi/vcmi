@@ -322,7 +322,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 
 
 	void addBlockVisTiles(CGObjectInstance * obj);
-	void removeBlockVisTiles(CGObjectInstance * obj);
+	void removeBlockVisTiles(CGObjectInstance * obj, bool total=false);
 	Mapa(std::string filename); //creates map structure from .h3m file
 	Mapa();
 	~Mapa();

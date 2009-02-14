@@ -40,3 +40,15 @@ const PlayerSettings * IGameCallback::getPlayerSettings( int color )
 {
 	return &gs->scenarioOps->getIthPlayersSettings(color);
 }
+
+int IGameCallback::getHeroCount( int player, bool includeGarrisoned )
+{
+	int ret = 0;
+	if(includeGarrisoned)
+		return gs->players[player].heroes.size();
+	else
+		for(int i=0; i < gs->players[player].heroes.size(); i++)
+			if(!gs->players[player].heroes[i]->inTownGarrison)
+				ret++;
+	return ret;
+}

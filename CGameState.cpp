@@ -821,6 +821,20 @@ void CGameState::applyNL(IPack * pack)
 			h->inTownGarrison = false;
 			break;
 		}
+	case 516:
+		{
+			GiveHero *sha = static_cast<GiveHero*>(pack);
+			CGHeroInstance *h = getHero(sha->id);
+			map->removeBlockVisTiles(h,true);
+			h->setOwner(sha->player);
+			h->movement =  h->maxMovePoints(true);
+			h->initHeroDefInfo();
+			map->heroes.push_back(h);
+			players[h->tempOwner].heroes.push_back(h);
+			map->addBlockVisTiles(h);
+			h->inTownGarrison = false;
+			break;
+		}
 	case 1001://set object property
 		{
 			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);
@@ -1559,7 +1573,11 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	}
 
 	for(int i=0; i<map->objects.size(); i++)
+	{
 		map->objects[i]->initObj();
+		if(map->objects[i]->ID == 62) //prison also needs to initialize hero
+			static_cast<CGHeroInstance*>(map->objects[i])->initHero();
+	}
 }
 
 bool CGameState::battleShootCreatureStack(int ID, int dest)
@@ -1760,6 +1778,9 @@ void CGameState::setObjProperty( SetObjectProperty * p )
 		break;
 	case 5:
 		static_cast<CGVisitableOPW*>(obj)->visited = p->val;
+		break;
+	case 6:
+		obj->ID = p->val;
 		break;
 	}
 }

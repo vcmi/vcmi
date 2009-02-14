@@ -2315,3 +2315,11 @@ void CGameHandler::setManaPoints( int hid, int val )
 	sm.val = val;
 	sendAndApply(&sm);
 }
+
+void CGameHandler::giveHero( int id, int player )
+{
+	GiveHero gh;
+	gh.id = id;
+	gh.player = player;
+	sendAndApply(&gh);
+}

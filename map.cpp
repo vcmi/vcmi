@@ -477,7 +477,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	}
 	tlog0<<"\tCalculating blocked/visitable tiles: "<<th.getDif()<<std::endl;
 }	
-void Mapa::removeBlockVisTiles(CGObjectInstance * obj)
+void Mapa::removeBlockVisTiles(CGObjectInstance * obj, bool total)
 {
 	for(int fx=0; fx<8; ++fx)
 	{
@@ -489,12 +489,12 @@ void Mapa::removeBlockVisTiles(CGObjectInstance * obj)
 			if(xVal>=0 && xVal<width && yVal>=0 && yVal<height)
 			{
 				TerrainTile & curt = terrain[xVal][yVal][zVal];
-				if(((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
+				if(total || ((obj->defInfo->visitMap[fy] >> (7 - fx)) & 1))
 				{
 					curt.visitableObjects -= obj;
 					curt.visitable = curt.visitableObjects.size();
 				}
-				if(!((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
+				if(total || !((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1))
 				{
 					curt.blockingObjects -= obj;
 					curt.blocked = curt.blockingObjects.size();

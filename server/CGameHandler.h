@@ -106,6 +106,7 @@ public:
 	void giveHeroBonus(GiveBonus * bonus);
 	void setMovePoints(SetMovePoints * smp);
 	void setManaPoints(int hid, int val);
+	void giveHero(int id, int player);
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, int Seed);

@@ -37,6 +37,7 @@ public:
 	virtual int getCurrentPlayer()=0;
 	virtual int getSelectedHero()=0;
 	virtual const PlayerSettings * getPlayerSettings(int color);
+	virtual int getHeroCount(int player, bool includeGarrisoned);
 
 	//do sth
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;
@@ -62,5 +63,6 @@ public:
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(int hid, int val)=0;
+	virtual void giveHero(int id, int player)=0;
 };
 #endif // __IGAMECALLBACK_H__

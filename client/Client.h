@@ -88,6 +88,7 @@ public:
 	void giveHeroBonus(GiveBonus * bonus){};
 	void setMovePoints(SetMovePoints * smp){};
 	void setManaPoints(int hid, int val){};
+	void giveHero(int id, int player){};
 	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console
