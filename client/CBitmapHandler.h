@@ -29,7 +29,6 @@ public:
 	void fromFile(std::string path);
 	void saveBMP(std::string path);
 	void openPCX(char * PCX, int len);
-	void openPCX();
 	void convert();
 	SDL_Surface * getSurface(); //for standard H3 PCX
 	//SDL_Surface * getSurfaceZ(); //for ZSoft PCX
