@@ -70,13 +70,13 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHer
 	selectedTab(4),
 	spellSite(0)
 {
-	mySpells = myHero->spells;
 	//XXX for testing only
-	//for(ui32 v=0; v<CGI->spellh->spells.size(); ++v)
-	//{
-	//	if(!CGI->spellh->spells[v].creatureAbility)
-	//		mySpells.insert(v);
-	//}
+	//mySpells = myHero->spells;
+	for(ui32 v=0; v<CGI->spellh->spells.size(); ++v)
+	{
+		if(!CGI->spellh->spells[v].creatureAbility)
+			mySpells.insert(v);
+	}
 
 	for(int b=0; b<4; ++b) schoolLvls[b] = 0;
 	for(size_t b=0; b<myHero->secSkills.size(); ++b)

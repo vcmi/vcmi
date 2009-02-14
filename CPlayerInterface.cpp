@@ -1947,6 +1947,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 			showingDialog->cond.wait(un);
 	}
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	LOCPLINT->showingDialog->setn(true);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
 	curint->deactivate();
 	lw->activate();
@@ -2100,7 +2101,6 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 			battleInt->defendingHero->setPhase(4);
 		else
 			battleInt->attackingHero->setPhase(4);
-		return;
 	}
 	if(!stack)
 	{
@@ -3582,17 +3582,18 @@ void CLevelWindow::close()
 	}
 	delete this;
 	LOCPLINT->curint->activate();
-	LOCPLINT->showingDialog->setn(false);
 }
 CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)
 {
-	LOCPLINT->showingDialog->setn(true);
 	heroType = hero->subID;
 	cb = callback;
 	for(int i=0;i<skills.size();i++)
-	{
 		comps.push_back(new CSelectableComponent(SComponent::secskill44,skills[i],hero->getSecSkillLevel(skills[i])+1,boost::bind(&CLevelWindow::selectionChanged,this,i)));
-		comps.back()->assignedKeys.insert(SDLK_1 + i);
+	if(comps.size())
+	{
+		comps[0]->assignedKeys.insert(SDLK_1);
+		if(comps.size() > 1)
+			comps[1]->assignedKeys.insert(SDLK_2);
 	}
 	bitmap = BitmapHandler::loadBitmap("LVLUPBKG.bmp");
 	graphics->blueToPlayersAdv(bitmap,hero->tempOwner);
@@ -3602,6 +3603,7 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
 	ok = new AdventureMapButton("","",boost::bind(&CLevelWindow::close,this),pos.x+297,pos.y+413,"IOKAY.DEF",SDLK_RETURN);
+	ok->block(true);
 	//draw window
 	char buf[100], buf2[100];
 	strcpy(buf2,CGI->generaltexth->allTexts[444].c_str()); //%s has gained a level.
@@ -3629,16 +3631,6 @@ CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<u
 			curx += ort->w + 18;
 		}
 	}
-
-	if(comps.size() > 1)
-	{
-		ok->block(true);
-	}
-	else if(comps.size() == 1)
-	{
-		comps[0]->select(true);
-	}
-
 	SDL_FreeSurface(ort);
 
 }

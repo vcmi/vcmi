@@ -167,7 +167,7 @@ SDL_Surface * CPCXConv::getSurface()
 {
 	SDL_Surface * ret;
 
-	int width = -1, height = -1;
+	BMPHeader bh;
 	Epcxformat format;
 	int fSize,y;//,i; //TODO use me 'i'
 	bool check1, check2;
@@ -175,13 +175,13 @@ SDL_Surface * CPCXConv::getSurface()
 	int it=0;
 
 	fSize = readNormalNr(it,4,pcx);it+=4;
-	width = readNormalNr(it,4,pcx);it+=4;
-	height = readNormalNr(it,4,pcx);it+=4;
-	if (fSize==width*height*3)
+	bh.x = readNormalNr(it,4,pcx);it+=4;
+	bh.y = readNormalNr(it,4,pcx);it+=4;
+	if (fSize==bh.x*bh.y*3)
 		check1=true;
 	else 
 		check1=false;
-	if (fSize==width*height)
+	if (fSize==bh.x*bh.y)
 		check2=true;
 	else 
 		check2=false;
@@ -191,12 +191,12 @@ SDL_Surface * CPCXConv::getSurface()
 		format=PCX8B;
 	else 
 		return NULL;
-	add = 4 - width%4;
+	add = 4 - bh.x%4;
 	if (add==4)
 		add=0;
 	if (format==PCX8B)
 	{
-		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width+add, height, 8, 0, 0, 0, 0);
+		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 8, 0, 0, 0, 0);
 	}
 	else
 	{
@@ -209,7 +209,7 @@ SDL_Surface * CPCXConv::getSurface()
 		int gmask = 0x00ff00;
 		int rmask = 0xff0000;
 #endif
-		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, width+add, height, 24, rmask, gmask, bmask, 0);
+		ret = SDL_CreateRGBSurface(SDL_SWSURFACE, bh.x+add, bh.y, 24, rmask, gmask, bmask, 0);
 	}
 	if (format==PCX8B)
 	{
@@ -229,10 +229,10 @@ SDL_Surface * CPCXConv::getSurface()
 			tp.unused = 0;
 			*(ret->format->palette->colors+i) = tp;
 		}
-		for (y=height;y>0;y--)
+		for (y=bh.y;y>0;y--)
 		{
-			it=0xC+(y-1)*width;
-			for (int j=0;j<width;j++)
+			it=0xC+(y-1)*bh.x;
+			for (int j=0;j<bh.x;j++)
 			{
 				*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * j) = pcx[it+j];
 			}
@@ -240,17 +240,17 @@ SDL_Surface * CPCXConv::getSurface()
 			{
 				for (int j=0;j<add;j++)
 				{
-					*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * (j+width)) = 0;
+					*((char*)ret->pixels + ret->pitch * (y-1) + ret->format->BytesPerPixel * (j+bh.x)) = 0;
 				}
 			}
 		}
 	}
 	else
 	{
-		for (y=height; y>0; y--)
+		for (y=bh.y; y>0; y--)
 		{
-			it=0xC+(y-1)*width*3;
-			for (int j=0;j<width*3;j++)
+			it=0xC+(y-1)*bh.x*3;
+			for (int j=0;j<bh.x*3;j++)
 			{
 				*((char*)ret->pixels + ret->pitch * (y-1) + j) = pcx[it+j];
 			}
@@ -258,7 +258,7 @@ SDL_Surface * CPCXConv::getSurface()
 			{
 				for (int j=0;j<add*3;j++)
 				{
-					*((char*)ret->pixels + ret->pitch * (y-1) + (j+width*3)) = 0;
+					*((char*)ret->pixels + ret->pitch * (y-1) + (j+bh.x*3)) = 0;
 				}
 			}
 		}
@@ -269,10 +269,7 @@ SDL_Surface * CPCXConv::getSurface()
 SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 {
 	if(!fname.size())
-	{
-		tlog2 << "Call to loadBitmap with void fname!\n";
 		return NULL;
-	}
 	unsigned char * pcx;
 	std::transform(fname.begin(),fname.end(),fname.begin(),toupper);
 	fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".PCX");
@@ -298,10 +295,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 			fname.replace(fname.find_first_of('.'),fname.find_first_of('.')+4,".PCX");
 			f = fopen(fname.c_str(),"r");
 			if(!f)
-			{
-				tlog1 << "Cannot open " << fname << " - not present as bmp nor as pcx.\n";
 				return NULL; 
-			}
 			fread(sign,1,3,f);
 			if(sign[0]=='B' && sign[1]=='M') //BMP named as PCX - people (eg. Kulex) sometimes use such files
 			{
@@ -344,7 +338,7 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 		int res=bitmaph->infs2(pcd,e->size,e->realSize,pcx);
 		if(res!=0)
 		{
-			tlog2<<"an error "<<res<<" occurred while extracting file "<<fname<<std::endl;
+			tlog2<<"an error "<<res<<" occured while extracting file "<<fname<<std::endl;
 		}
 		delete [] pcd;
 	}
