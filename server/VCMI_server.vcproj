@@ -41,7 +41,6 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP2"
 				Optimization="0"
-				AdditionalIncludeDirectories="&quot;E:\C++\Lua_includes&quot;;&quot;E:\vcmi\rep - assembla\trunk\lua src&quot;;&quot;E:\vcmi\rep - assembla\trunk&quot;;&quot;E:\C++\boost_1_36_0&quot;;&quot;E:\C++\SDL_mixer-1.2.7\include&quot;;&quot;E:\C++\SDL_ttf-2.0.8\include&quot;;&quot;E:\C++\zlib 1.2.3 binaries\include&quot;;&quot;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\include&quot;;&quot;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\include&quot;"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -61,7 +60,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
-				AdditionalLibraryDirectories="&quot;E:\vcmi\rep - assembla\trunk&quot;;&quot;E:\C++\lua bin&quot;;&quot;E:\C++\boost_1_36_0\lib&quot;;&quot;E:\C++\SDL_mixer-1.2.7\lib&quot;;&quot;E:\C++\SDL_ttf-2.0.8\lib&quot;;&quot;E:\C++\zlib 1.2.3 binaries\lib&quot;;&quot;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\lib&quot;;&quot;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\lib&quot;"
+				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -117,7 +116,6 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
-				AdditionalIncludeDirectories="&quot;E:\C++\Lua_includes&quot;;&quot;E:\vcmi\rep - assembla\trunk\lua src&quot;;&quot;E:\vcmi\rep - assembla\trunk&quot;;&quot;E:\C++\boost_1_36_0&quot;;&quot;E:\C++\SDL_mixer-1.2.7\include&quot;;&quot;E:\C++\SDL_ttf-2.0.8\include&quot;;&quot;E:\C++\zlib 1.2.3 binaries\include&quot;;&quot;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\include&quot;;&quot;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\include&quot;"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
@@ -137,8 +135,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
-				OutputFile="F:\3DO\Heroes3\$(ProjectName).exe"
-				AdditionalLibraryDirectories="&quot;E:\vcmi\rep - assembla\trunk&quot;;&quot;E:\C++\lua bin&quot;;&quot;E:\C++\boost_1_36_0\lib&quot;;&quot;E:\C++\SDL_mixer-1.2.7\lib&quot;;&quot;E:\C++\SDL_ttf-2.0.8\lib&quot;;&quot;E:\C++\zlib 1.2.3 binaries\lib&quot;;&quot;E:\C++\SDL-1.2.11\devlibs - visual\SDL-1.2.11\lib&quot;;&quot;E:\C++\SDL_Image 1.2.5\SDL_image-1.2.5\lib&quot;"
+				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
 				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
