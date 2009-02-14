@@ -99,6 +99,11 @@ int main(int argc, char** argv)
 		GEOR16 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",16);
 		GEORXX = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",22);
 		GEORM = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",10);
+		if(! (TNRB16 && GEOR16 && GEORXX && GEORM))
+		{
+			tlog1 << "One of the fonts couldn't be loaded!\n";
+			throw "One of the fonts couldn't be loaded!\n";
+		}
 		atexit(TTF_Quit);
 		THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
 		CMusicHandler * mush = new CMusicHandler;  //initializing audio

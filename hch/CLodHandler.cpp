@@ -335,6 +335,11 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 	mutex = new boost::mutex;
 	std::string Ts;
 	FLOD = fopen(lodFile.c_str(), "rb");
+	if(!FLOD)
+	{
+		tlog1 << "Cannot open " << lodFile << std::endl;
+		return;
+	}
 	fseek(FLOD, 8, 0);
 	unsigned char temp[4];
 	fread((char*)temp, 1, 4, FLOD);
@@ -404,7 +409,9 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 		}
 	}
 	else
+	{
 		tlog1<<"Warning: No "+dirName+"/ folder!"<<std::endl;
+	}
 }
 std::string CLodHandler::getTextFile(std::string name)
 {

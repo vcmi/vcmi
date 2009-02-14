@@ -56,7 +56,10 @@ void CMusicHandler::initMusics()
 	//winScenario = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Win Scenario.mp3");
 
 	click = Mix_LoadWAV(DATA_DIR "MP3" PATHSEPARATOR "snd1.wav");
-	click->volume = 30;
+	if(!click) 
+		tlog1 << "Cannot open " DATA_DIR "MP3" PATHSEPARATOR "snd1.wav\n";
+	else
+		click->volume = 30;
 
 	this->sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
 }

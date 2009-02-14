@@ -12,11 +12,10 @@ CSndHandler::CSndHandler(std::string fname):CHUNK(65535)
 {
 	file.open(fname.c_str(),std::ios::binary);
 	if (!file.is_open())
-#ifndef __GNUC__
-		throw new std::exception((std::string("Cannot open ")+fname).c_str());
-#else
-		throw new std::exception();
-#endif
+	{
+		tlog1 << "Cannot open " << fname << std::endl;
+		throw std::string("Cannot open ")+fname;
+	}
 	int nr = readNormalNr(0,4);
 	char tempc;
 	for (int i=0;i<nr;i++)

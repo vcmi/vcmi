@@ -41,6 +41,7 @@
 				Name="VCCLCompilerTool"
 				AdditionalOptions="/MP2"
 				Optimization="0"
+				AdditionalIncludeDirectories="..\..\include"
 				MinimalRebuild="false"
 				BasicRuntimeChecks="3"
 				RuntimeLibrary="3"
@@ -60,7 +61,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
-				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
+				AdditionalLibraryDirectories="../../libs;../"
 				GenerateDebugInformation="true"
 				TargetMachine="1"
 			/>
@@ -116,6 +117,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="true"
 				EnableFiberSafeOptimizations="true"
+				AdditionalIncludeDirectories="..\..\include"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
@@ -135,7 +137,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
-				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
+				AdditionalLibraryDirectories="../../libs;../"
 				GenerateDebugInformation="false"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
@@ -194,6 +196,7 @@
 				FavorSizeOrSpeed="1"
 				OmitFramePointers="false"
 				EnableFiberSafeOptimizations="true"
+				AdditionalIncludeDirectories="..\..\include"
 				StringPooling="true"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
@@ -215,7 +218,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
-				AdditionalLibraryDirectories="G:\vcmt\repa\libs"
+				AdditionalLibraryDirectories="../../libs;../"
 				GenerateDebugInformation="true"
 				GenerateMapFile="true"
 				OptimizeReferences="2"

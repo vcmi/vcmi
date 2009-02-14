@@ -241,16 +241,21 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 					expert.insert(hero->secSkills[i].first);
 				none.erase(hero->secSkills[i].first);
 			}
+
+			//first offered skill
 			if(hero->secSkills.size() < hero->type->heroClass->skillLimit) //free skill slot
 			{
 				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
+				none.erase(hlu.skills.back());
 			}
-			else
+			else if(basicAndAdv.size())
 			{
 				int s = hero->type->heroClass->chooseSecSkill(basicAndAdv);
 				hlu.skills.push_back(s);
 				basicAndAdv.erase(s);
 			}
+
+			//second offered skill
 			if(basicAndAdv.size())
 			{
 				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(basicAndAdv)); //new skill
@@ -259,8 +264,21 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 			{
 				hlu.skills.push_back(hero->type->heroClass->chooseSecSkill(none)); //new skill
 			}
-			boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::changeSecSkill,this,ID,_1,1,0)),_1));
-			applyAndAsk(&hlu,hero->tempOwner,callback); //call changeSecSkill with appropriate args when client responds
+
+			if(hlu.skills.size() > 1) //apply and ask for secondary skill
+			{
+				boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(callWith<ui16>,hlu.skills,boost::function<void(ui16)>(boost::bind(&CGameHandler::changeSecSkill,this,ID,_1,1,0)),_1));
+				applyAndAsk(&hlu,hero->tempOwner,callback); //call changeSecSkill with appropriate args when client responds
+			}
+			else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
+			{
+				changeSecSkill(ID,hlu.skills.back(),1,false);
+				sendAndApply(&hlu);
+			}
+			else //apply and send info
+			{
+				sendAndApply(&hlu);
+			}
 		}
 	}
 }

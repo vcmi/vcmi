@@ -390,7 +390,10 @@ ui32 CStack::speed() const
 	//bind effect check
 	effect = getEffect(72);
 	if(effect) 
-		premy = -creature->speed;
+	{
+		premy = creature->speed; //don't use '- creature->speed' - speed is unsigned!
+		premy = -premy;
+	}
 	return creature->speed + premy;
 }
 

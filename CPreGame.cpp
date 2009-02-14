@@ -1126,7 +1126,11 @@ void MapSel::init()
 {
 	//get map files names
 	std::vector<std::string> pliczkiTemp;
-	fs::path tie( (fs::initial_path<fs::path>())/"/Maps" );
+	if(!boost::filesystem::exists("Maps"))
+	{
+		tlog1 << "Cannot find /Maps directory!\n";
+	}
+	fs::path tie( (fs::initial_path<fs::path>())/"Maps" );
 	fs::directory_iterator end_iter;
 	for ( fs::directory_iterator dir (tie); dir!=end_iter; ++dir )
 	{
@@ -1218,6 +1222,10 @@ void MapSel::init()
 
 	pliczkiTemp.clear();
 	std::vector<std::string> datestemp;
+	if(!boost::filesystem::exists("Games"))
+	{
+		tlog1 << "Cannot find /Games directory!\n";
+	}
 	tie = fs::path( (fs::initial_path<fs::path>())/"/Games" );
 	for ( fs::directory_iterator dir (tie); dir!=end_iter; ++dir )
 	{
