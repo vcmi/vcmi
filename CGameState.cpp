@@ -887,6 +887,16 @@ void CGameState::applyNL(IPack * pack)
 			BattleResult *br = static_cast<BattleResult*>(pack);
 			for(unsigned i=0;i<curB->stacks.size();i++)
 				delete curB->stacks[i];
+
+			//remove any "until next battle" bonuses
+			CGHeroInstance *h;
+			h = getHero(curB->hero1);
+			if(h)
+				h->bonuses.remove_if(HeroBonus::OneBattle);
+			h = getHero(curB->hero2);
+			if(h) 
+				h->bonuses.remove_if(HeroBonus::OneBattle);
+
 			delete curB;
 			curB = NULL;
 			break;

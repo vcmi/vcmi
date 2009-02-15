@@ -1323,7 +1323,7 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 		case 109:
 			mid = 164;
 			sub = 6;
-			if(cb->getDate(2)<2)
+			if(cb->getDate(0)<8)
 				val = 500;
 			else
 				val = 1000;

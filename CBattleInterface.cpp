@@ -953,6 +953,16 @@ void CBattleInterface::stackActivated(int number)
 	myTurn = true;
 	redrawBackgroundWithHexes(number);
 	bWait->block(vstd::contains(LOCPLINT->cb->battleGetStackByID(number)->state,WAITING)); //block waiting button if stack has been already waiting
+
+	//block cast spell button if hero doesn't have a spellbook
+	if(attackingHeroInstance && attackingHeroInstance->tempOwner==LOCPLINT->cb->battleGetStackByID(number)->owner)
+	{
+		bSpell->block(!attackingHeroInstance->getArt(17));
+	}
+	else if(defendingHeroInstance && defendingHeroInstance->tempOwner==LOCPLINT->cb->battleGetStackByID(number)->owner)
+	{
+		bSpell->block(!defendingHeroInstance->getArt(17));
+	}
 }
 
 void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
@@ -2235,7 +2245,7 @@ void CBattleHero::setPhase(int newPhase)
 
 void CBattleHero::clickLeft(boost::logic::tribool down)
 {
-	if(!down && myHero)
+	if(!down && myHero && myHero->getArt(17))
 	{
 		for(int it=0; it<BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
