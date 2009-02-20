@@ -271,7 +271,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 			std::vector<int> rem;
 			for(int b=0; b<BFIELD_SIZE; ++b)
 			{
-				if( ac[b] && !ac[b-1] && !ac[b+1] && b%BFIELD_WIDTH != 0 && b%BFIELD_WIDTH != (BFIELD_WIDTH-1))
+				if( ac[b] && (!ac[b-1] || dist[b-1] > s->speed() ) && ( !ac[b+1] || dist[b+1] > s->speed() ) && b%BFIELD_WIDTH != 0 && b%BFIELD_WIDTH != (BFIELD_WIDTH-1))
 				{
 					rem.push_back(b);
 				}

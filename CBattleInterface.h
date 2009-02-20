@@ -228,6 +228,7 @@ public:
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
 	bool reverseCreature(int number, int hex, bool wideTrick = false); //reverses animation of given creature playing animation of reversing
+	void handleStartMoving(int number); //animation of starting move; some units don't have this animation (ie. halberdier)
 
 	struct SStackAttackedInfo
 	{

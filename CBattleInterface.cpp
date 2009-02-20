@@ -866,6 +866,18 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	return true;
 }
 
+void CBattleInterface::handleStartMoving(int number)
+{
+	for(int i=0; i<creAnims[number]->framesInGroup(20)*getAnimSpeedMultiplier()-1; ++i)
+	{
+		show();
+		CSDL_Ext::update();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		if((animCount+1)%(4/animSpeed)==0)
+			creAnims[number]->incrementFrame();
+	}
+}
+
 void CBattleInterface::bOptionsf()
 {
 	CGI->curh->changeGraphic(0,0);
@@ -967,7 +979,7 @@ void CBattleInterface::stackActivated(int number)
 
 void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 {
-	bool startMoving = creAnims[number]->type==20;
+	bool startMoving = creAnims[number]->getType()==20;
 	//a few useful variables
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
 	int steps = creAnims[number]->framesInGroup(0)*getAnimSpeedMultiplier()-1;
@@ -977,14 +989,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
 		CGI->curh->hide();
-		for(int i=0; i<creAnims[number]->framesInGroup(20)*getAnimSpeedMultiplier()-1; ++i)
-		{
-			show();
-			CSDL_Ext::update();
-			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			if((animCount+1)%(4/animSpeed)==0)
-				creAnims[number]->incrementFrame();
-		}
+		handleStartMoving(number);
 	}
 
 	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
@@ -1200,6 +1205,11 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 
 void CBattleInterface::stackAttacking(int ID, int dest)
 {
+	if(attackingInfo == NULL && creAnims[ID]->getType() == 20)
+	{
+		handleStartMoving(ID);
+		creAnims[ID]->setType(2);
+	}
 	while(attackingInfo != NULL || creAnims[ID]->getType()!=2)
 	{
 		show();

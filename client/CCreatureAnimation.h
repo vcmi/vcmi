@@ -15,7 +15,6 @@ private:
 	int * RLEntries;
 	struct SEntry
 	{
-		std::string name;
 		int offset;
 		int group;
 	} ;
@@ -33,8 +32,9 @@ private:
 	////////////
 
 	unsigned char * FDef; //animation raw data
-	int curFrame; //number of currently displayed frame
+	int curFrame, internalFrame; //number of currently displayed frame
 	unsigned int frames; //number of frames
+	std::map<int, std::vector<int> > frameGroups; //groups of frames; [groupID] -> vector of frame IDs in group
 public:
 	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
 	int fullWidth, fullHeight; //read-only, please!

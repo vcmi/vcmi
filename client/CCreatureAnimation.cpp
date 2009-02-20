@@ -8,25 +8,10 @@ int CCreatureAnimation::getType() const
 void CCreatureAnimation::setType(int type)
 {
 	this->type = type;
-	curFrame = 0;
+	internalFrame = 0;
 	if(type!=-1)
 	{
-		if(SEntries[curFrame].group!=type) //rewind
-		{
-			int j=-1; //first frame in displayed group
-			for(size_t g=0; g<SEntries.size(); ++g)
-			{
-				if(SEntries[g].group==type && j==-1)
-				{
-					j = g;
-					break;
-				}
-			}
-			if(curFrame != -1)
-			{
-				curFrame = j;
-			}
-		}
+		curFrame = frameGroups[type][0];
 	}
 	else
 	{
@@ -37,7 +22,7 @@ void CCreatureAnimation::setType(int type)
 	}
 }
 
-CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL)
+CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), internalFrame(0)
 {
 	FDef = CDefHandler::Spriteh->giveFile(name); //load main file
 
@@ -64,35 +49,28 @@ CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL)
 	totalEntries=0;
 	for (int z=0; z<totalBlocks; z++)
 	{
+		std::vector<int> frameIDs;
 		int group = readNormalNr(i,4); i+=4; //block ID
 		totalInBlock = readNormalNr(i,4); i+=4;
 		for (j=SEntries.size(); j<totalEntries+totalInBlock; j++)
 		{
 			SEntries.push_back(SEntry());
 			SEntries[j].group = group;
+			frameIDs.push_back(j);
 		}
 		int unknown2 = readNormalNr(i,4); i+=4; //TODO use me
 		int unknown3 = readNormalNr(i,4); i+=4; //TODO use me
-		for (j=0; j<totalInBlock; j++)
-		{
-			for (int k=0;k<13;k++) Buffer[k]=FDef[i+k]; 
-			i+=13;
-			SEntries[totalEntries+j].name=Buffer;
-		}
+		i+=13*totalInBlock; //ommiting names
 		for (j=0; j<totalInBlock; j++)
 		{ 
-			SEntries[totalEntries+j].offset = readNormalNr(i,4);
-			int unknown4 = readNormalNr(i,4); i+=4; //TODO use me
+			SEntries[totalEntries+j].offset = readNormalNr(i,4); i+=4;
 		}
 		//totalEntries+=totalInBlock;
 		for(int hh=0; hh<totalInBlock; ++hh)
 		{
 			++totalEntries;
 		}
-	}
-	for(j=0; j<SEntries.size(); ++j)
-	{
-		SEntries[j].name = SEntries[j].name.substr(0, SEntries[j].name.find('.')+4);
+		frameGroups[group] = frameIDs;
 	}
 
 	//init vars
@@ -130,22 +108,12 @@ int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool at
 }
 void CCreatureAnimation::incrementFrame()
 {
-	curFrame++;
+	curFrame = frameGroups[type][(internalFrame++)%frameGroups[type].size()];
 	if(type!=-1)
 	{
-		if(curFrame==SEntries.size() || SEntries[curFrame].group!=type) //rewind
+		if(internalFrame == frameGroups[type].size()) //rewind
 		{
-			int j=-1; //first frame in displayed group
-			for(size_t g=0; g<SEntries.size(); ++g)
-			{
-				if(SEntries[g].group==type)
-				{
-					j = g;
-					break;
-				}
-			}
-			if(curFrame!=-1)
-				curFrame = j;
+			curFrame = frameGroups[type][0];
 		}
 	}
 	else
@@ -264,13 +232,9 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 
 int CCreatureAnimation::framesInGroup(int group) const
 {
-	int ret = 0; //number of frames in given group
-	for(size_t g=0; g<SEntries.size(); ++g)
-	{
-		if(SEntries[g].group == group)
-			++ret;
-	}
-	return ret;
+	if(frameGroups.find(group) == frameGroups.end())
+		return 0;
+	return frameGroups.find(group)->second.size();
 }
 
 CCreatureAnimation::~CCreatureAnimation()
@@ -286,8 +250,8 @@ inline void CCreatureAnimation::putPixel(
         const BMPPalette & color,
         const unsigned char & palc,
         const bool & yellowBorder
-) const {
-	
+) const
+{	
     if(palc!=0)
 	{
 		Uint8 * p = (Uint8*)dest->pixels + ftcp*3;

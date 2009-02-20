@@ -1005,7 +1005,10 @@ upgend:
 						ChangeSpells cs;
 						cs.learn = 1;
 						for(int i=0;i<VLC->spellh->spells.size();i++)
-							cs.spells.insert(i);
+						{
+							if(!VLC->spellh->spells[i].creatureAbility)
+								cs.spells.insert(i);
+						}
 						sm.hid = cs.hid = gs->players[*players.begin()].currentSelection;
 						sm.val = 999;
 						if(gs->getHero(cs.hid))

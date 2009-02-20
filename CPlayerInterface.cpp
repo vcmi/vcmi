@@ -2104,7 +2104,7 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 	}
 	if(!stack)
 	{
-		tlog1<<"Something wrong with stackNumber in actionStarted"<<std::endl;
+		tlog1<<"Something wrong with stackNumber in actionStarted. Stack number: "<<action->stackNumber<<std::endl;
 		return;
 	}
 
