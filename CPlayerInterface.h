@@ -58,9 +58,21 @@ struct Point
 	{
 		return Point(x+b.x,y+b.y);
 	}
+	Point& operator+=(const Point &b)
+	{
+		x += b.x;
+		y += b.y;
+		return *this;
+	}
 	Point operator-(const Point &b)
 	{
 		return Point(x+b.x,y+b.y);
+	}
+	Point& operator-=(const Point &b)
+	{
+		x -= b.x;
+		y -= b.y;
+		return *this;
 	}
 	bool operator<(const Point &b)
 	{
@@ -633,7 +645,7 @@ public:
 	~CRecrutationWindow();
 };
 
-class CSplitWindow : public IShowable, public KeyInterested
+class CSplitWindow : public IShowable, public KeyInterested, public ClickableL
 {
 public:
 	CGarrisonInt *gar;
@@ -651,6 +663,7 @@ public:
 	void close();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+	void clickLeft(boost::logic::tribool down);
 	void keyPressed (const SDL_KeyboardEvent & key);
 	void sliderMoved(int to);
 };

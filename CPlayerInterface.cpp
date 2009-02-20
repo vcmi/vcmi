@@ -3216,10 +3216,12 @@ CRecrutationWindow::~CRecrutationWindow()
 
 CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
 {
+	which = 1;
 	c=cid;
 	slider = NULL;
 	gar = Owner;
 	bitmap = BitmapHandler::loadBitmap("GPUCRDIV.bmp");
+	graphics->blueToPlayersAdv(bitmap,LOCPLINT->playerID);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	pos.x = screen->w/2 - bitmap->w/2;
 	pos.y = screen->h/2 - bitmap->h/2;
@@ -3247,6 +3249,7 @@ CSplitWindow::~CSplitWindow()
 }
 void CSplitWindow::activate()
 {
+	ClickableL::activate();
 	LOCPLINT->objsToBlit.push_back(this);
 	KeyInterested::activate();
 	ok->activate();
@@ -3255,6 +3258,7 @@ void CSplitWindow::activate()
 }
 void CSplitWindow::deactivate()
 {
+	ClickableL::deactivate();
 	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	KeyInterested::deactivate();
 	ok->deactivate();
@@ -3280,22 +3284,62 @@ void CSplitWindow::sliderMoved(int to)
 }
 void CSplitWindow::show(SDL_Surface * to)
 {
-	char pom[15];
 	blitAt(bitmap,pos.x,pos.y,screen);
 	ok->show();
 	cancel->show();
 	slider->show();
-	SDL_itoa(a1,pom,10);
-	printAtMiddle(pom,pos.x+70,pos.y+237,GEOR16,zwykly,screen);
-	SDL_itoa(a2,pom,10);
-	printAtMiddle(pom,pos.x+233,pos.y+237,GEOR16,zwykly,screen);
+	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,GEOR16,zwykly,screen);
+	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,GEOR16,zwykly,screen);
 	anim->blitPic(screen,pos.x+20,pos.y+54,false);
 	anim->blitPic(screen,pos.x+177,pos.y+54,false);
 }
 void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
-	//TODO: make manual typing possible
+	if(key.state != SDL_PRESSED)
+		return;
+
+	int &cur = (which ? a2 : a1), 
+		&sec = (which ? a1 : a2), 
+		ncur = cur;
+	if (key.keysym.sym == SDLK_BACKSPACE)
+	{
+		ncur /= 10;
+	}
+	else if(key.keysym.sym == SDLK_TAB)
+	{
+		which = !which;
+	}
+	else
+	{
+		int number = key.keysym.sym - SDLK_0;
+		if (number < 0   ||   number > 9) //not a number presses
+		{
+			return;
+		}
+		ncur = cur*10 + number;
+	}
+	int delta = ncur - cur;
+	if(delta > sec)
+	{
+		cur += sec;
+		sec = 0;
+	}
+	slider->moveTo(which ? ncur : a1+a2-ncur);
 }
+
+void CSplitWindow::clickLeft( boost::logic::tribool down )
+{
+	if(down)
+	{
+		Point click(LOCPLINT->current->motion.x,LOCPLINT->current->motion.y);
+		click -= pos.topLeft();
+		if(Rect(19,216,105,40).isIn(click))
+			which = 0;
+		else if(Rect(175,216,105,40).isIn(click))
+			which = 1;
+	}
+}
+
 
 void CCreInfoWindow::show(SDL_Surface * to)
 {

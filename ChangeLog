@@ -11,8 +11,10 @@ GENERAL:
 * updating blockmap/visitmap of randomized objects 
 * fixed crashes on loading maps with flag all mines/dwelling victory condition
 * further fixes for leveling-up (stability and identical offered skills bug)
+* support for numpad keyboard
 
 ADVENTURE INTERFACE:
+* added "Next hero" button functionality
 * added missing path arrows
 * corrected centering on hero's position 
 * recalculating hero path after reselecting hero
@@ -23,6 +25,8 @@ ADVENTURE INTERFACE:
 
 BATTLES:
 * partial support for battle obstacles
+* only one spell can be casted per turn
+* blocked opening sepllbook if hero doesn't have a one
 * spells not known by hero can't be casted 
 * spell books won't be placed in War Machine slots after battle
 * attack is now possible when hex under cursor is not displayed 
@@ -41,6 +45,8 @@ New spells supported:
  - Misfortune
 
 TOWN INTERFACE:
+* cannot build more than one capitol
+* cannot build shipyard if town is not near water
 * Rampart's Treasury requires Miner's Guild 
 * minor improvements in Recruitment Window
 * fixed crash occuring when clicking on hero portrait in Tavern Window, minor improvements for Tavern Window
@@ -56,6 +62,8 @@ PREGAME:
 * minor fixes
 
 OBJECTS:
+* windmill gives 500 gold only during first week ever (not every month)
+* After the first visit to the Witch Hut, right-click/hover tip mentions the skill available. 
 New objects supported:
  * Prison
  * Magic Well

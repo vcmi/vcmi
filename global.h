@@ -200,6 +200,28 @@ namespace vstd
 }
 using vstd::operator-=;
 
+template <typename t1, typename t2>
+t1 & amax(t1 &a, const t2 &b)
+{
+	if(a >= b)
+		return a;
+	else
+	{
+		a = b;
+		return a;
+	}
+}
+template <typename t1, typename t2>
+t1 & amin(t1 &a, const t2 &b)
+{
+	if(a <= b)
+		return a;
+	else
+	{
+		a = b;
+		return a;
+	}
+}
 #include "CConsoleHandler.h"
 extern DLL_EXPORT std::ostream *logfile;
 extern DLL_EXPORT CConsoleHandler *console;
