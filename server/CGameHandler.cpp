@@ -1323,10 +1323,11 @@ upgend:
 
 							//TODO: skill level may be different on special terrain
 
-							if(  !vstd::contains(h->spells,ba.additionalInfo) //hero doesn't know this spell 
+							if(   !(vstd::contains(h->spells,ba.additionalInfo)) //hero doesn't know this spell 
 								|| (h->mana < s->costs[skill]) //not enough mana
 								|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
-								|| 0     )//TODO: hero has already casted a spell in this round
+								|| (gs->curB->castedSpells[ba.side])     
+							)
 							{
 								tlog2 << "Spell cannot be casted!\n";
 								goto customactionend;
@@ -2322,4 +2323,13 @@ void CGameHandler::giveHero( int id, int player )
 	gh.id = id;
 	gh.player = player;
 	sendAndApply(&gh);
+}
+
+void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
+{
+	ChangeObjPos cop;
+	cop.objid = objid;
+	cop.nPos = newPos;
+	cop.flags = flags;
+	sendAndApply(&cop);
 }

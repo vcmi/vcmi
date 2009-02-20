@@ -305,10 +305,7 @@ void CMapHeader::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
 		if(players[pom].p9!=0xff)
 		{
 			players[pom].mainHeroPortrait = bufor[i++];
-			int nameLength = bufor[i++];
-			i+=3; 
-			for (int pp=0;pp<nameLength;pp++)
-				players[pom].mainHeroName+=bufor[i++];
+			players[pom].mainHeroName = readString(bufor,i);
 		}
 
 		if(version != RoE)

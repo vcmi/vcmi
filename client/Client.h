@@ -89,6 +89,7 @@ public:
 	void setMovePoints(SetMovePoints * smp){};
 	void setManaPoints(int hid, int val){};
 	void giveHero(int id, int player){};
+	void changeObjPos(int objid, int3 newPos, ui8 flags){};
 	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions
 	friend void processCommand(const std::string &message, CClient *&client); //handling console

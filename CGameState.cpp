@@ -673,6 +673,20 @@ void CGameState::applyNL(IPack * pack)
 			h->bonuses.back().description = toString(rh->bdescr);
 			break;
 		}
+	case 116:
+		{
+			ChangeObjPos *rh = static_cast<ChangeObjPos*>(pack);
+			CGObjectInstance *obj = map->objects[rh->objid];
+			if(!obj)
+			{
+				tlog1 << "Wrong ChangeObjPos: object " << rh->objid << " doesn't exist!\n";
+				return;
+			}
+			map->removeBlockVisTiles(obj);
+			obj->pos = rh->nPos;
+			map->addBlockVisTiles(obj);
+			break;
+		}
 	case 500:
 		{
 			RemoveObject *rh = static_cast<RemoveObject*>(pack);
@@ -862,6 +876,7 @@ void CGameState::applyNL(IPack * pack)
 	case 3001:
 		{
 			BattleNextRound *ns = static_cast<BattleNextRound*>(pack);
+			curB->castedSpells[0] = curB->castedSpells[1] = 0;
 			curB->round = ns->round;
 			for(int i=0; i<curB->stacks.size();i++)
 			{
@@ -951,8 +966,14 @@ void CGameState::applyNL(IPack * pack)
 			SpellCasted *sc = static_cast<SpellCasted*>(pack);
 			CGHeroInstance *h = (sc->side) ? getHero(curB->hero2) : getHero(curB->hero1);
 			if(h)
+			{
 				h->mana -= VLC->spellh->spells[sc->id].costs[sc->skill];
-			//TODO: counter
+				if(h->mana < 0) h->mana = 0;
+			}
+			if(sc->side >= 0 && sc->side < 2)
+			{
+				curB->castedSpells[sc->side]++;
+			}
 			break;
 		}
 	case 3010:
@@ -1803,49 +1824,49 @@ void CGameState::getNeighbours(int3 tile, std::vector<int3> &vec, bool onLand)
 	if(tile.x > 0)
 	{
 		hlp = int3(tile.x-1,tile.y,tile.z);
-		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
 	if(tile.y > 0)
 	{
 		hlp = int3(tile.x,tile.y-1,tile.z);
-		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
 	if(tile.x > 0   &&   tile.y > 0)
 	{
 		hlp = int3(tile.x-1,tile.y-1,tile.z);
-		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
 	if(tile.x > 0   &&   tile.y < map->height-1)
 	{
 		hlp = int3(tile.x-1,tile.y+1,tile.z);
-		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
 	if(tile.y < map->height-1)
 	{
 		hlp = int3(tile.x,tile.y+1,tile.z);
-		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
 	if(tile.x < map->width-1)
 	{
 		hlp = int3(tile.x+1,tile.y,tile.z);
-		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
 	if(tile.x < map->width-1   &&   tile.y > 0)
 	{
 		hlp = int3(tile.x+1,tile.y-1,tile.z);
-		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
 	if(tile.x < map->width-1   &&   tile.y < map->height-1)
 	{
 		hlp = int3(tile.x+1,tile.y+1,tile.z);
-		if((weAreOnLand == map->getTile(hlp).tertype!=8) && map->getTile(hlp).tertype!=9) 
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
 }

@@ -18,7 +18,7 @@
 #include "../CGameState.h"
 #include "../lib/NetPacks.h"
 #include "../StartInfo.h"
-#include "../Map.h"
+#include "../map.h"
 
 std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
 IGameCallback * IObjectInterface::cb = NULL;
@@ -554,6 +554,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 	{
 		if(cb->getHeroCount(h->tempOwner,false) < 8) //free hero slot
 		{
+			cb->changeObjPos(id,pos+int3(1,0,0),0);
 			cb->setObjProperty(id,6,34); //set ID to 34
 			cb->giveHero(id,h->tempOwner); //recreates def and adds hero to player
 

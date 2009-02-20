@@ -206,6 +206,20 @@ struct GiveBonus :  public CPack<GiveBonus> //115
 	}
 };
 
+struct ChangeObjPos : public CPack<ChangeObjPos> //116
+{
+	ChangeObjPos(){type = 116;};
+
+	ui32 objid;
+	int3 nPos;
+	ui8 flags; //bit flags: 1 - redraw
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & objid & nPos & flags;
+	}
+};
+
 struct RemoveObject : public CPack<RemoveObject> //500
 {
 	RemoveObject(){type = 500;};

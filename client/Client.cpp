@@ -217,6 +217,22 @@ void CClient::process(int what)
 				playerint[h->tempOwner]->heroBonusChanged(h,h->bonuses.back(),true);
 			break;
 		}
+	case 116:
+		{
+			ChangeObjPos sav;
+			*serv >> sav;
+			tlog5 << "Changing pos of object "<< sav.objid << std::endl;
+			CGObjectInstance *obj = gs->map->objects[sav.objid];
+			//TODO: redraw if neeeded
+			if(sav.flags & 1)
+				CGI->mh->hideObject(obj);
+
+			gs->apply(&sav);
+			
+			if(sav.flags & 1)
+				CGI->mh->printObject(obj);
+			break;
+		}
 	case 500:
 		{
 			RemoveObject rh;

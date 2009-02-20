@@ -64,5 +64,6 @@ public:
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(int hid, int val)=0;
 	virtual void giveHero(int id, int player)=0;
+	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
 };
 #endif // __IGAMECALLBACK_H__

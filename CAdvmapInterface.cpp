@@ -1259,6 +1259,18 @@ void CAdvMapInt::fsystemOptions()
 }
 void CAdvMapInt::fnextHero()
 {
+	if(!heroList.items.size()) //no wandering heroes
+		return; 
+
+	int start = heroList.selected;
+	int i = start;
+	do 
+	{
+		i++;
+		if(i >= heroList.items.size())
+			i = 0;
+	} while (!heroList.items[i].first->movement && i!=start);
+	heroList.select(i);
 }
 void CAdvMapInt::fendTurn()
 {
