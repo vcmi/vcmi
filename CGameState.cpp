@@ -6,6 +6,7 @@
 #include <boost/random/linear_congruential.hpp>
 #include "hch/CDefObjInfoHandler.h"
 #include "hch/CArtHandler.h"
+#include "hch/CBuildingHandler.h"
 #include "hch/CGeneralTextHandler.h"
 #include "hch/CTownHandler.h"
 #include "hch/CSpellHandler.h"
@@ -1882,6 +1883,53 @@ int CGameState::getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, in
 		}
 		ret = remainingMovePoints;
 	}
+	return ret;
+}
+
+int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
+{
+	int ret = 7; //allowed by default
+
+	//can we build it?
+	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
+		ret = 2; //forbidden
+	else if(t->builded >= MAX_BUILDING_PER_TURN)
+		ret = 5; //building limit
+
+	//checking resources
+	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
+	for(int res=0;res<7;res++) //TODO: support custom amount of resources
+	{
+		if(pom->resources[res] > players[t->tempOwner].resources[res])
+			ret = 6; //lack of res
+	}
+
+	//checking for requirements
+	for( std::set<int>::iterator ri  =  VLC->townh->requirements[t->subID][ID].begin();
+		ri != VLC->townh->requirements[t->subID][ID].end();
+		ri++ )
+	{
+		if(t->builtBuildings.find(*ri)==t->builtBuildings.end())
+			ret = 8; //lack of requirements - cannot build
+	}
+
+	if(ID == 13) //capitol
+	{
+		for(int in = 0; in < map->towns.size(); in++)
+		{
+			if(map->towns[in]->tempOwner==t->tempOwner  &&  vstd::contains(map->towns[in]->builtBuildings,13))
+			{
+				ret = 0; //no more than one capitol
+				break;
+			}
+		}
+	}
+	else if(ID == 6) //shipyard
+	{
+		if(map->getTile(t->pos + int3(-1,3,0)).tertype != water  &&  map->getTile(t->pos + int3(-3,3,0)).tertype != water)
+			ret = 1; //lack of water
+	}
+
 	return ret;
 }
 

@@ -704,3 +704,13 @@ std::vector<const CGHeroInstance *> CCallback::getAvailableHeroes(const CGTownIn
 	std::copy(gs->players[player].availableHeroes.begin(),gs->players[player].availableHeroes.end(),ret.begin());
 	return ret;
 }	
+
+const TerrainTile * CCallback::getTileInfo( int3 tile )
+{
+	return &gs->map->getTile(tile);
+}
+
+int CCallback::canBuildStructure( const CGTownInstance *t, int ID )
+{
+	return gs->canBuildStructure(t,ID);
+}

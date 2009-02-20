@@ -662,20 +662,12 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 					c >> tid >> bid;
 					CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[tid]);
 					CBuilding * b = VLC->buildh->buildings[t->subID][bid];
-					for(int i=0;i<RESOURCE_QUANTITY;i++)
-						if(b->resources[i] > gs->players[t->tempOwner].resources[i])
-							break; //no res
 
-					for( std::set<int>::iterator ri  =  VLC->townh->requirements[t->subID][bid].begin();
-						 ri != VLC->townh->requirements[t->subID][bid].end();
-						 ri++ )
+					if(gs->canBuildStructure(t,bid) != 7)
 					{
-						if(!vstd::contains(t->builtBuildings,*ri))
-							break; //lack of requirements - cannot build
+						sendMessageTo(c,"Cannot build that building!");
+						break;
 					}
-
-					if(vstd::contains(t->forbiddenBuildings,bid))
-						break; //this building is forbidden
 
 					NewStructures ns;
 					ns.tid = tid;

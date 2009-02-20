@@ -1029,32 +1029,7 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 						x+=97;
 					boxes[i].push_back(new CBuildingBox(CGI->buildh->hall[owner->town->subID].second[i][j][k],pos.x+x,pos.y+y));
 
-					boxes[i][boxes[i].size()-1]->state = 7; //allowed by default
-
-					//can we build it?
-					if(owner->town->forbiddenBuildings.find(CGI->buildh->hall[owner->town->subID].second[i][j][k])!=owner->town->forbiddenBuildings.end())
-						boxes[i][boxes[i].size()-1]->state = 2; //forbidden
-					else if(owner->town->builded >= MAX_BUILDING_PER_TURN)
-						boxes[i][boxes[i].size()-1]->state = 5; //building limit
-
-					//checking resources
-					CBuilding * pom = CGI->buildh->buildings[owner->town->subID][CGI->buildh->hall[owner->town->subID].second[i][j][k]];
-					for(int res=0;res<7;res++) //TODO: support custom amount of resources
-					{
-						if(pom->resources[res]>LOCPLINT->cb->getResourceAmount(res))
-							boxes[i][boxes[i].size()-1]->state = 6; //lack of res
-					}
-
-					//checking for requirements
-					for( std::set<int>::iterator ri  =  CGI->townh->requirements[owner->town->subID][ID].begin();
-						 ri != CGI->townh->requirements[owner->town->subID][ID].end();
-						 ri++ )
-					{
-						if(owner->town->builtBuildings.find(*ri)==owner->town->builtBuildings.end())
-							boxes[i][boxes[i].size()-1]->state = 8; //lack of requirements - cannot build
-					}
-
-					//TODO: check if capital is already built, check if there is water for shipyard
+					boxes[i].back()->state = LOCPLINT->cb->canBuildStructure(owner->town,ID);
 					break;
 				}
 			}

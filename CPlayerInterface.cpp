@@ -1818,10 +1818,22 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 
 	if (sEvent->type==SDL_KEYDOWN || sEvent->type==SDL_KEYUP)
 	{
+		SDL_KeyboardEvent key = sEvent->key;
+
+		//translate numpad keys
+		if (key.keysym.sym >= SDLK_KP0  && key.keysym.sym <= SDLK_KP9)
+		{
+			key.keysym.sym = (SDLKey) (key.keysym.sym - SDLK_KP0 + SDLK_0);
+		}
+		else if(key.keysym.sym == SDLK_KP_ENTER)
+		{
+			key.keysym.sym = (SDLKey)SDLK_RETURN;
+		}
+
 		std::list<KeyInterested*> miCopy = keyinterested;
 		for(std::list<KeyInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
 			if(vstd::contains(keyinterested,*i))
-				(**i).keyPressed(sEvent->key);
+				(**i).keyPressed(key);
 	}
 	else if(sEvent->type==SDL_MOUSEMOTION)
 	{
