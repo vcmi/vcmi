@@ -88,7 +88,8 @@ public:
 	virtual void onHeroVisit(const CGHeroInstance * h) const;
 	virtual void onHeroLeave(const CGHeroInstance * h) const;
 	virtual void newTurn() const;
-	virtual void initObj();
+	virtual void initObj(); //synchr
+	virtual void setProperty(ui8 what, ui32 val);//synchr
 };
 
 class DLL_EXPORT CGObjectInstance : protected IObjectInterface
@@ -120,6 +121,8 @@ public:
 	virtual const std::string & getHoverText() const;
 	//////////////////////////////////////////////////////////////////////////
 	void initObj();
+	void setProperty(ui8 what, ui32 val);//synchr
+	virtual void setPropertyDer(ui8 what, ui32 val);//synchr
 
 	friend class CGameHandler;
 
@@ -239,6 +242,8 @@ public:
 	virtual ~CGHeroInstance();
 
 	//////////////////////////////////////////////////////////////////////////
+
+	void setPropertyDer(ui8 what, ui32 val);//synchr
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
 };
@@ -321,6 +326,7 @@ public:
 	si8 ttype; //tree type - used only by trees of knowledge: 0 - give level for free; 1 - take 2000 gold; 2 - take 10 gems
 	const std::string & getHoverText() const;
 
+	void setPropertyDer(ui8 what, ui32 val);//synchr
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
 	void initObj();
@@ -422,9 +428,11 @@ class DLL_EXPORT CGWitchHut : public CGObjectInstance
 {
 public:
 	std::vector<si32> allowedAbilities;
-
 	ui32 ability;
+	std::set<ui8> playersVisited; //players who know what skill is given here (used for hover texts)
 
+	void setPropertyDer(ui8 what, ui32 val);//synchr
+	const std::string & getHoverText() const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -580,6 +588,7 @@ class DLL_EXPORT CGVisitableOPW : public CGObjectInstance //objects visitable OP
 public:
 	ui8 visited; //true if object has been visited this week
 
+	void setPropertyDer(ui8 what, ui32 val);//synchr
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void newTurn() const;
 

@@ -852,7 +852,11 @@ void CGameState::applyNL(IPack * pack)
 	case 1001://set object property
 		{
 			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);
-			setObjProperty(p);
+			CGObjectInstance *obj = map->objects[p->id];
+			if(!obj)
+				tlog1 << "Wrong object ID - property cannot be set!\n";
+			else
+				obj->setProperty(p->what,p->val);
 			break;
 		}
 	case 1002:
@@ -1786,33 +1790,6 @@ void CGameState::loadTownDInfos()
 		villages[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
 		forts[i] = VLC->dobjinfo->castles[i];
 		capitols[i] = new CGDefInfo(*VLC->dobjinfo->castles[i]);
-	}
-}
-
-void CGameState::setObjProperty( SetObjectProperty * p )
-{
-	CGObjectInstance *obj = map->objects[p->id];
-
-	switch(p->what)
-	{
-	case 1:
-		obj->tempOwner = p->val;
-		break;
-	case 2:
-		obj->blockVisit = p->val;
-		break;
-	case 3:
-		static_cast<CArmedInstance*>(obj)->army.slots[0].second = p->val;
-		break;
-	case 4: 
-		static_cast<CGVisitableOPH*>(obj)->visitors.insert(p->val);
-		break;
-	case 5:
-		static_cast<CGVisitableOPW*>(obj)->visited = p->val;
-		break;
-	case 6:
-		obj->ID = p->val;
-		break;
 	}
 }
 

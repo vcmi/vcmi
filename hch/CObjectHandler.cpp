@@ -45,6 +45,9 @@ IObjectInterface::IObjectInterface()
 void IObjectInterface::initObj()
 {}
 
+void IObjectInterface::setProperty( ui8 what, ui32 val )
+{}
+
 void CObjectHandler::loadObjects()
 {
 	tlog5 << "\t\tReading cregens \n";
@@ -180,6 +183,26 @@ bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen p
 void CGObjectInstance::initObj()
 {
 }
+
+void CGObjectInstance::setProperty( ui8 what, ui32 val )
+{
+	switch(what)
+	{
+	case 1:
+		tempOwner = val;
+		break;
+	case 2:
+		blockVisit = val;
+		break;
+	case 6:
+		ID = val;
+		break;
+	}
+	setPropertyDer(what, val);
+}
+
+void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
+{}
 
 int lowestSpeed(const CGHeroInstance * chi)
 {
@@ -700,6 +723,11 @@ const HeroBonus * CGHeroInstance::getBonus( int from, int id ) const
 	return NULL;
 }
 
+void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
+{
+	if(what == 3)
+		army.slots[0].second = val;
+}
 int CGTownInstance::getSightDistance() const //returns sight distance
 {
 	return 10;
@@ -1084,6 +1112,12 @@ void CGVisitableOPH::arenaSelected( int heroID, int primSkill ) const
 	cb->changePrimSkill(heroID,primSkill,2);
 }
 
+void CGVisitableOPH::setPropertyDer( ui8 what, ui32 val )
+{
+	if(what == 4)
+		visitors.insert(val);
+}
+
 bool CArmedInstance::needsLastStack() const
 {
 	return false;
@@ -1342,6 +1376,12 @@ void CGVisitableOPW::onHeroVisit( const CGHeroInstance * h ) const
 	}
 }
 
+void CGVisitableOPW::setPropertyDer( ui8 what, ui32 val )
+{
+	if(what == 5)
+		visited = val;
+}
+
 void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int destinationid=-1;
@@ -1566,6 +1606,8 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
+	if(!vstd::contains(playersVisited,h->tempOwner))
+		cb->setObjProperty(id,10,h->tempOwner);
 
 	if(h->getSecSkillLevel(ability)) //you alredy know this skill
 	{
@@ -1586,6 +1628,25 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	}
 
 	cb->showInfoDialog(&iw);
+}
+
+const std::string & CGWitchHut::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	if(vstd::contains(playersVisited,cb->getCurrentPlayer())) //TODO: use local player, not current
+	{
+		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
+		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
+		if(cb->getSelectedHero(cb->getCurrentPlayer())->getSecSkillLevel(ability)) //hero knows that ability
+			hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
+	}
+	return hoverName;
+}
+
+void CGWitchHut::setPropertyDer( ui8 what, ui32 val )
+{
+	if(what == 10)
+		playersVisited.insert(val);
 }
 
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const

@@ -497,7 +497,8 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	std::vector<std::string> temp = LOCPLINT->cb->getObjDescriptions(pom);
 	if (temp.size())
 	{
-		LOCPLINT->adventureInt->statusbar.print((*((temp.end())-1)));
+		boost::replace_all(temp.back(),"\n"," ");
+		LOCPLINT->adventureInt->statusbar.print(temp.back());
 	}
 	else
 	{
