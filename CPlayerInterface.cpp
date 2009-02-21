@@ -2093,11 +2093,13 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	curAction = action;
-	if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))
-		&& battleInt->creAnims[action->stackNumber]->framesInGroup(20)
-		)
+	if( (action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber))) )
 	{
-		battleInt->creAnims[action->stackNumber]->setType(20);
+		battleInt->moveStarted = true;
+		if(battleInt->creAnims[action->stackNumber]->framesInGroup(20))
+		{
+			battleInt->creAnims[action->stackNumber]->setType(20);
+		}
 	}
 
 
@@ -3003,7 +3005,7 @@ int CCreaturePic::blitPic(SDL_Surface *to, int x, int y, bool nextFrame)
 	}
 	if(c->isDoubleWide())
 		x-=15;
-	return anim->nextFrameMiddle(to,x+78,y+(big ? 55 : 45),true,nextFrame,false,&dst);
+	return anim->nextFrameMiddle(to,x+78,y+(big ? 55 : 45),true,0,nextFrame,false,false,&dst);
 }
 SDL_Surface * CCreaturePic::getPic(bool nextFrame)
 {

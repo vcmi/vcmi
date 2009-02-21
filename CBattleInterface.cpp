@@ -44,7 +44,7 @@ struct CMP_stack2
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect)
 : printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL),
 	attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true),
-	printMouseShadow(true), spellDestSelectMode(false), spellToCast(NULL), previouslyHoveredHex(-1)
+	printMouseShadow(true), spellDestSelectMode(false), spellToCast(NULL), previouslyHoveredHex(-1), moveStarted(false), mouseHoveredStack(-1)
 {
 	pos = myRect;
 	strongInterest = true;
@@ -458,7 +458,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(size_t v=0; v<stackDeadByHex[b].size(); ++v)
 		{
-			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x + pos.x, creAnims[stackDeadByHex[b][v]]->pos.y + pos.y, creDir[stackDeadByHex[b][v]], false, stackDeadByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			creAnims[stackDeadByHex[b][v]]->nextFrame(to, creAnims[stackDeadByHex[b][v]]->pos.x + pos.x, creAnims[stackDeadByHex[b][v]]->pos.y + pos.y, creDir[stackDeadByHex[b][v]], animCount, false); //increment always when moving, never if stack died
 		}
 	}
 	for(int b=0; b<BFIELD_SIZE; ++b) //showing alive stacks
@@ -466,8 +466,31 @@ void CBattleInterface::show(SDL_Surface * to)
 		for(size_t v=0; v<stackAliveByHex[b].size(); ++v)
 		{
 			int animType = creAnims[stackAliveByHex[b][v]]->getType();
-			bool incrementFrame = (animCount%(4/animSpeed)==0) && animType!=0 && animType!=5 && animType!=20 && animType!=21 && animType!=3;
-			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x + pos.x, creAnims[stackAliveByHex[b][v]]->pos.y + pos.y, creDir[stackAliveByHex[b][v]], incrementFrame, stackAliveByHex[b][v]==activeStack); //increment always when moving, never if stack died
+			bool incrementFrame = (animCount%(4/animSpeed)==0) && animType!=0 && animType!=5 && animType!=20 && animType!=21 && animType!=3 && animType!=2;
+			if(animType == 2)
+			{
+				if(standingFrame.find(stackAliveByHex[b][v])!=standingFrame.end())
+				{
+					incrementFrame = (animCount%(8/animSpeed)==0);
+					if(incrementFrame)
+					{
+						++standingFrame[stackAliveByHex[b][v]];
+						if(standingFrame[stackAliveByHex[b][v]] == creAnims[stackAliveByHex[b][v]]->framesInGroup(2))
+						{
+							standingFrame.erase(standingFrame.find(stackAliveByHex[b][v]));
+						}
+					}
+				}
+				else
+				{
+					if((rand()%50) == 0)
+					{
+						standingFrame.insert(std::make_pair(stackAliveByHex[b][v], 0));
+					}
+				}
+			}
+
+			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x + pos.x, creAnims[stackAliveByHex[b][v]]->pos.y + pos.y, creDir[stackAliveByHex[b][v]], animCount, incrementFrame, stackAliveByHex[b][v]==activeStack, stackAliveByHex[b][v]==mouseHoveredStack); //increment always when moving, never if stack died
 			//printing amount
 			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
 			{
@@ -614,6 +637,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
 	if(activeStack>=0 && !spellDestSelectMode)
 	{
+		mouseHoveredStack = -1;
 		int myNumber = -1; //number of hovered tile
 		for(int g=0; g<BFIELD_SIZE; ++g)
 		{
@@ -647,6 +671,11 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						sprintf(buf, CGI->generaltexth->allTexts[297].c_str(), shere->amount == 1 ? shere->creature->nameSing.c_str() : shere->creature->namePl.c_str());
 						console->alterTxt = buf;
 						console->whoSetAlter = 0;
+						mouseHoveredStack = shere->ID;
+						if(creAnims[shere->ID]->getType() == 2 && creAnims[shere->ID]->framesInGroup(1) > 0)
+						{
+							creAnims[shere->ID]->playOnce(1);
+						}
 					}
 					else if(LOCPLINT->cb->battleCanShoot(activeStack,myNumber)) //we can shoot enemy
 					{
@@ -988,8 +1017,13 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
-		CGI->curh->hide();
 		handleStartMoving(number);
+	}
+	if(moveStarted)
+	{
+		CGI->curh->hide();
+		creAnims[number]->setType(0);
+		moveStarted = false;
 	}
 
 	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
@@ -1007,7 +1041,6 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 			break;
 		}
 		//moving instructions
-		creAnims[number]->setType(0);
 		float posX = creAnims[number]->pos.x, posY = creAnims[number]->pos.y; // for precise calculations ;]
 		for(int i=0; i<steps; ++i)
 		{
@@ -1358,7 +1391,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 			attackingInfo->maxframe = creAnims[ID]->framesInGroup(12);
 			break;
 		default:
-			tlog1<<"Critical Error! Wrong dest in stackAttacking!"<<std::endl;
+			tlog1<<"Critical Error! Wrong dest in stackAttacking! dest: "<<dest<<" attacking stack pos: "<<aStack.position<<" reversed shift: "<<reversedShift<<std::endl;
 	}
 }
 

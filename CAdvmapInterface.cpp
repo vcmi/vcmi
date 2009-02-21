@@ -643,6 +643,14 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 				{
 					pn = 4;
 				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //356
+				{
+					pn = 3;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y-1) //352
+				{
+					pn = 17;
+				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x+1 && cv[i+1].coord.y == cv[i].coord.y) //65x
 			{
@@ -696,6 +704,14 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y-1) //953
 				{
 					pn = 18;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //956
+				{
+					pn = 19;
+				}
+				else if(cv[i-1].coord.x == cv[i].coord.x && cv[i-1].coord.y == cv[i].coord.y+1) //958
+				{
+					pn = 5;
 				}
 			}
 			else if (cv[i+1].coord.x == cv[i].coord.x && cv[i+1].coord.y == cv[i].coord.y+1) //85x

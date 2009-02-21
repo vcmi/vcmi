@@ -22,7 +22,7 @@ void CCreatureAnimation::setType(int type)
 	}
 }
 
-CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), internalFrame(0)
+CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), internalFrame(0), once(false)
 {
 	FDef = CDefHandler::Spriteh->giveFile(name); //load main file
 
@@ -102,9 +102,9 @@ int CCreatureAnimation::readNormalNr (int pos, int bytCon, unsigned char * str) 
 	}
 	return ret;
 }
-int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, bool incrementFrame, bool yellowBorder, SDL_Rect * destRect)
+int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool attacker, unsigned char animCount, bool incrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
 {
-	return nextFrame(dest,x-fullWidth/2,y-fullHeight/2,attacker,incrementFrame,yellowBorder,destRect);
+	return nextFrame(dest, x-fullWidth/2, y-fullHeight/2, attacker, animCount, incrementFrame, yellowBorder, blueBorder, destRect);
 }
 void CCreatureAnimation::incrementFrame()
 {
@@ -113,7 +113,16 @@ void CCreatureAnimation::incrementFrame()
 	{
 		if(internalFrame == frameGroups[type].size()) //rewind
 		{
-			curFrame = frameGroups[type][0];
+			if(once)
+			{
+				type = 2;
+				once = false;
+				curFrame = frameGroups[2][0];
+			}
+			else
+			{
+				curFrame = frameGroups[type][0];
+			}
 		}
 	}
 	else
@@ -128,7 +137,13 @@ int CCreatureAnimation::getFrame() const
 	return curFrame;
 }
 
-int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, bool IncrementFrame, bool yellowBorder, SDL_Rect * destRect)
+void CCreatureAnimation::playOnce(int type)
+{
+	setType(type);
+	once = true;
+}
+
+int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame, bool yellowBorder, bool blueBorder, SDL_Rect * destRect)
 {
 	if(dest->format->BytesPerPixel<3)
 		return -1; //not enough depth
@@ -182,6 +197,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 			{
 				SegmentType=FDef[BaseOffset++];
 				SegmentLength=FDef[BaseOffset++];
+				unsigned char aCountMod = (animCount & 0x20) ? ((animCount & 0x1e)>>1)<<4 : 0x0f - ((animCount & 0x1e)>>1)<<4;
 				if (SegmentType==0xFF)
 				{
 					for (int k=0;k<=SegmentLength;k++)
@@ -191,7 +207,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
 						{
 							if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
-								putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k], yellowBorder);
+								putPixel(dest, xB + yB*dest->w, palette[FDef[BaseOffset+k]], FDef[BaseOffset+k], yellowBorder, blueBorder, aCountMod);
 						}
 						ftcp++; //increment pos
 						if ((TotalRowLength+k+1)>=SpriteWidth)
@@ -209,7 +225,7 @@ int CCreatureAnimation::nextFrame(SDL_Surface *dest, int x, int y, bool attacker
 						if(xB>=0 && yB>=0 && xB<dest->w && yB<dest->h)
 						{
 							if(!destRect || (destRect->x <= xB && destRect->x + destRect->w > xB && destRect->y <= yB && destRect->y + destRect->h > yB))
-								putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType, yellowBorder);
+								putPixel(dest, xB + yB*dest->w, palette[SegmentType], SegmentType, yellowBorder, blueBorder, aCountMod);
 						}
 						ftcp++; //increment pos
 					}
@@ -249,7 +265,9 @@ inline void CCreatureAnimation::putPixel(
         const int & ftcp,
         const BMPPalette & color,
         const unsigned char & palc,
-        const bool & yellowBorder
+        const bool & yellowBorder,
+		const bool & blueBorder,
+		const unsigned char & animCount
 ) const
 {	
     if(palc!=0)
@@ -261,17 +279,35 @@ inline void CCreatureAnimation::putPixel(
 			p[1] = color.G;
 			p[2] = color.R;
 		}
-		else if(yellowBorder && (palc == 6 || palc == 7)) //dark yellow border
+		else if((yellowBorder || blueBorder) && (palc == 6 || palc == 7)) //dark yellow border
 		{
-			p[0] = 0;
-			p[1] = 0xff;
-			p[2] = 0xff;
+			if(blueBorder)
+			{
+				p[0] = 0x0f + animCount;
+				p[1] = 0x0f + animCount;
+				p[2] = 0;
+			}
+			else
+			{
+				p[0] = 0;
+				p[1] = 0x0f + animCount;
+				p[2] = 0x0f + animCount;
+			}
 		}
-		else if(yellowBorder && (palc == 5)) //yellow border
+		else if((yellowBorder || blueBorder) && (palc == 5)) //yellow border
 		{
-			p[0] = color.B;
-			p[1] = color.G;
-			p[2] = color.R;
+			if(blueBorder)
+			{
+				p[0] = color.R - 0xf0 + animCount;
+				p[1] = color.G - 0xf0 + animCount;
+				p[2] = color.B;
+			}
+			else
+			{
+				p[0] = color.B;
+				p[1] = color.G - 0xf0 + animCount;
+				p[2] = color.R - 0xf0 + animCount;
+			}
 		}
 		else if(palc < 5) //shadow
 		{ 

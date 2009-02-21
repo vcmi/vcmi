@@ -1597,7 +1597,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	blitAt(bg2,64,50,bmp);
 	SDL_FreeSurface(bg2);
 	CCreatureAnimation cra(CGI->creh->creatures[creMachineID].animDefName);
-	cra.nextFrameMiddle(bmp,170,120,true,false);
+	cra.nextFrameMiddle(bmp,170,120,true,0,false);
 	char pom[75];
 	sprintf(pom,CGI->generaltexth->allTexts[274].c_str(),CGI->creh->creatures[creMachineID].nameSing.c_str()); //build a new ...
 	printAtMiddle(pom,165,28,GEORXX,tytulowy,bmp);

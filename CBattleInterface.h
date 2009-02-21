@@ -137,11 +137,13 @@ private:
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
+	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none
 	std::vector<int> shadedHexes; //hexes available for active stack
 	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
 	int currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
 	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
+	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	int spellSelMode; //0 - any location, 1 - any firendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle, -1 - no location
@@ -208,6 +210,8 @@ public:
 	bool myTurn; //if true, interface is active (commands can be ordered
 	CBattleReslutWindow * resWindow; //window of end of battle
 	bool showStackQueue; //if true, queue of stacks will be shown
+
+	bool moveStarted; //if true, the creature that is already moving is going to make its first step
 
 	//button handle funcs:
 	void bOptionsf();
