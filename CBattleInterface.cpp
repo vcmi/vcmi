@@ -1212,7 +1212,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 		bool isAnotherOne = false; //if true, there is a stack whose hit/death anim must be continued
 		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
-			if(increments[attackedInfos[g].ID] < animLengths[attackedInfos[g].ID]-1)
+			if(increments[attackedInfos[g].ID] < animLengths[attackedInfos[g].ID] - 1)
 			{
 				isAnotherOne = true;
 				break;
@@ -2245,9 +2245,12 @@ void CBattleHero::show(SDL_Surface *to)
 		{
 			SDL_Rect posb = pos;
 			CSDL_Ext::blit8bppAlphaTo24bpp(dh->ourImages[i].bitmap, NULL, to, &posb);
-			if(phase != 4 || image != 4)
+			if(phase != 4 || nextPhase != -1 || image < 4)
 			{
-				++image;
+				if(flagAnimCount%2==0)
+				{
+					++image;
+				}
 				if(dh->ourImages[(i+1)%dh->ourImages.size()].groupNumber!=phase) //back to appropriate frame
 				{
 					image = 0;
@@ -2256,6 +2259,7 @@ void CBattleHero::show(SDL_Surface *to)
 			if(phase == 4 && nextPhase != -1 && image == 7)
 			{
 				phase = nextPhase;
+				nextPhase = -1;
 				image = 0;
 			}
 			break;
@@ -2281,14 +2285,13 @@ void CBattleHero::setPhase(int newPhase)
 	}
 	else
 	{
-		++image;
 		nextPhase = newPhase;
 	}
 }
 
 void CBattleHero::clickLeft(boost::logic::tribool down)
 {
-	if(!down && myHero && myHero->getArt(17))
+	if(!down && myHero) if(myHero->getArt(17)) //if both conditions are satisfied; for certain reason myHero->getArt(17) has been checked once even though myHero was NULL
 	{
 		for(int it=0; it<BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
