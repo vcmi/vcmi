@@ -1169,27 +1169,16 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 		}
 	}
 	//initializing
-	std::map<int, int> animLengths;
-	std::map<int, int> increments;
 	int maxLen = 0;
 	for(size_t g=0; g<attackedInfos.size(); ++g)
 	{
-		int animLen;
 		if(attackedInfos[g].killed)
 		{
 			creAnims[attackedInfos[g].ID]->setType(5); //death
-			animLen = creAnims[attackedInfos[g].ID]->framesInGroup(5);
 		}
 		else
 		{
 			creAnims[attackedInfos[g].ID]->setType(3); //getting hit
-			animLen = creAnims[attackedInfos[g].ID]->framesInGroup(3);
-		}
-		animLengths.insert(std::make_pair(attackedInfos[g].ID, animLen));
-		increments.insert(std::make_pair(attackedInfos[g].ID, 0));
-		if(animLen > maxLen)
-		{
-			maxLen = animLen;
 		}
 	}
 	//main showing loop
@@ -1201,18 +1190,17 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
-			if((animCount+1)%(4/animSpeed)==0 && increments[attackedInfos[g].ID]<animLengths[attackedInfos[g].ID])
+			if((animCount+1)%(4/animSpeed)==0 && !creAnims[attackedInfos[g].ID]->onLastFrameInGroup())
 			{
 				creAnims[attackedInfos[g].ID]->incrementFrame();
-				++(increments[attackedInfos[g].ID]);
 			}
-			if(increments[attackedInfos[g].ID]>=animLengths[attackedInfos[g].ID] && creAnims[attackedInfos[g].ID]->getType() == 3)
+			if(creAnims[attackedInfos[g].ID]->onLastFrameInGroup() && creAnims[attackedInfos[g].ID]->getType() == 3)
 				creAnims[attackedInfos[g].ID]->setType(2);
 		}
 		bool isAnotherOne = false; //if true, there is a stack whose hit/death anim must be continued
 		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
-			if(increments[attackedInfos[g].ID] < animLengths[attackedInfos[g].ID] - 1)
+			if(!creAnims[attackedInfos[g].ID]->onLastFrameInGroup())
 			{
 				isAnotherOne = true;
 				break;
