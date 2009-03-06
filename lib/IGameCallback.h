@@ -66,6 +66,6 @@ public:
 	virtual void giveHero(int id, int player)=0;
 	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
 
-	friend class CPackForClient;
+	friend struct CPackForClient;
 };
 #endif // __IGAMECALLBACK_H__

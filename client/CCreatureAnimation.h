@@ -36,8 +36,8 @@ private:
 	unsigned char * FDef; //animation raw data
 	int curFrame, internalFrame; //number of currently displayed frame
 	unsigned int frames; //number of frames
-	std::map<int, std::vector<int> > frameGroups; //groups of frames; [groupID] -> vector of frame IDs in group
 public:
+	std::map<int, std::vector<int> > frameGroups; //groups of frames; [groupID] -> vector of frame IDs in group
 	int type; //type of animation being displayed (-1 - whole animation, >0 - specified part [default: -1])
 	int fullWidth, fullHeight; //read-only, please!
 	CCreatureAnimation(std::string name); //c-tor
@@ -50,6 +50,7 @@ public:
 	int nextFrameMiddle(SDL_Surface * dest, int x, int y, bool attacker, unsigned char animCount, bool IncrementFrame = true, bool yellowBorder = false, bool blueBorder = false, SDL_Rect * destRect = NULL); //0 - success, any other - error //print next 
 	void incrementFrame();
 	int getFrame() const;
+	bool onLastFrameInGroup();
 
 	bool once;
 	void playOnce(int type); //plays once given stage of animation, then resets to 2

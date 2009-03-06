@@ -290,7 +290,7 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 }
 int CGHeroInstance::getSightDistance() const //returns sight distance of this hero
 {
-	return 6 + getSecSkillLevel(3); //default + scouting
+	return 5 + getSecSkillLevel(3); //default + scouting
 }
 
 si32 CGHeroInstance::manaLimit() const
@@ -302,7 +302,7 @@ si32 CGHeroInstance::manaLimit() const
 	case 2:		modifier+=0.5;		break;
 	case 3:		modifier+=1.0;		break;
 	}
-	return 10*getPrimSkillLevel(3)*modifier;
+	return si32(10*getPrimSkillLevel(3)*modifier);
 }
 //void CGHeroInstance::setPosition(int3 Pos, bool h3m) //as above, but sets position
 //{
@@ -334,19 +334,20 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	if (ret>2000) 
 		ret=2000;
 
+	double bonus = 0;
 	if(onLand)
 	{
 		//logistics:
 		switch(getSecSkillLevel(2))
 		{
 		case 1:
-			ret *= 1.1f;
+			bonus = 0.1;
 			break;
 		case 2:
-			ret *= 1.2f;
+			bonus = 0.2;
 			break;
 		case 3:
-			ret *= 1.3f;
+			bonus = 0.3;
 			break;
 		}
 	}
@@ -356,17 +357,17 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 		switch(getSecSkillLevel(2))
 		{
 		case 1:
-			ret *= 1.5f;
+			bonus = 0.5;
 			break;
 		case 2:
-			ret *= 2.0f;
+			bonus = 1.0;
 			break;
 		case 3:
-			ret *= 2.5f;
+			bonus = 1.5;
 			break;
 		}
 	}
-	return ret;
+	return int(ret + ret*bonus);
 }
 ui32 CGHeroInstance::getArtAtPos(ui16 pos) const
 {

@@ -16,15 +16,27 @@ struct CPack
 	CPack(){};
 	~CPack(){};
 	ui16 getType() const{return type;}
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+	}
 };
 
 struct CPackForClient : public CPack
 {
 	CGameState* GS(CClient *cl);
 
-	//virtual void applyFirstCl(CClient *cl){}; //called before applying to gs
-	//virtual void applyGs(CGameState *gs){};
-	//virtual void applyCl(CClient *cl){}; //called after applying to gs
+	void applyFirstCl(CClient *cl)//called before applying to gs
+	{
+		tlog1 << "CPackForClient::applyFirstCl - We should not be here!\n";
+	};
+	DLL_EXPORT void applyGs(CGameState *gs)
+	{
+		tlog1 << "CPackForClient::applyGs - We should not be here!\n";
+	};
+	void applyCl(CClient *cl)//called after applying to gs
+	{
+		tlog1 << "CPackForClient::applyCl - We should not be here!\n";
+	}; 
 };
 
 struct Query : public CPackForClient
@@ -72,8 +84,10 @@ struct SystemMessage : public CPackForClient //95
 	void applyCl(CClient *cl);
 
 	std::string text;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & text;
 	}
 };
 
@@ -81,11 +95,13 @@ struct YourTurn : public CPackForClient //100
 {
 	YourTurn(){type = 100;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 player;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		h & player;
 	}
 };
 
@@ -93,7 +109,7 @@ struct SetResource : public CPackForClient //102
 {
 	SetResource(){type = 102;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 player, resid;
 	si32 val;
@@ -107,7 +123,7 @@ struct SetResources : public CPackForClient //104
 {
 	SetResources(){res.resize(RESOURCE_QUANTITY);type = 104;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 player;
 	std::vector<si32> res; //res[resid] => res amount
@@ -122,7 +138,7 @@ struct SetPrimSkill : public CPackForClient //105
 {
 	SetPrimSkill(){type = 105;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 abs; //0 - changes by value; 1 - sets to value
 	si32 id;
@@ -137,7 +153,7 @@ struct SetSecSkill : public CPackForClient //106
 {
 	SetSecSkill(){type = 106;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 abs; //0 - changes by value; 1 - sets to value
 	si32 id;
@@ -152,7 +168,7 @@ struct HeroVisitCastle : public CPackForClient //108
 {
 	HeroVisitCastle(){flags=0;type = 108;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 flags; //1 - start, 2 - garrison
 	ui32 tid, hid;
@@ -174,7 +190,7 @@ struct ChangeSpells : public CPackForClient //109
 {
 	ChangeSpells(){type = 109;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 learn; //1 - gives spell, 0 - takes
 	ui32 hid;
@@ -190,7 +206,7 @@ struct SetMana : public CPackForClient //110
 {
 	SetMana(){type = 110;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 
 	ui32 hid, val;
@@ -204,7 +220,7 @@ struct SetMovePoints : public CPackForClient //111
 {
 	SetMovePoints(){type = 111;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 hid, val;
 
@@ -217,7 +233,7 @@ struct FoWChange : public CPackForClient //112
 {
 	FoWChange(){type = 112;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	std::set<int3> tiles;
 	ui8 player, mode; //mode==0 - hide, mode==1 - reveal
@@ -231,7 +247,7 @@ struct SetAvailableHeroes : public CPackForClient //113
 {
 	SetAvailableHeroes(){type = 113;flags=0;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 player;
 	si32 hid1, hid2;
@@ -246,7 +262,7 @@ struct GiveBonus :  public CPackForClient //115
 {
 	GiveBonus(){type = 115;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 hid;
 	HeroBonus bonus;
@@ -263,7 +279,7 @@ struct ChangeObjPos : public CPackForClient //116
 	ChangeObjPos(){type = 116;};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 objid;
 	int3 nPos;
@@ -281,7 +297,7 @@ struct RemoveObject : public CPackForClient //500
 	RemoveObject(si32 ID){id = ID;type = 500;};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 id;
 
@@ -311,7 +327,7 @@ struct SetGarrisons : public CPackForClient //502
 {
 	SetGarrisons(){type = 502;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	std::map<ui32,CCreatureSet> garrs;
 
@@ -324,7 +340,7 @@ struct NewStructures : public CPackForClient //504
 {
 	NewStructures(){type = 504;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 tid;
 	std::set<si32> bid;
@@ -339,7 +355,7 @@ struct SetAvailableCreatures : public CPackForClient //506
 {
 	SetAvailableCreatures(){type = 506;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 tid;
 	std::map<si32,ui32> creatures;
@@ -353,7 +369,7 @@ struct SetHeroesInTown : public CPackForClient //508
 {
 	SetHeroesInTown(){type = 508;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 tid, visiting, garrison; //id of town, visiting hero, hero in garrison
 
@@ -366,7 +382,7 @@ struct SetHeroArtifacts : public CPackForClient //509
 {
 	SetHeroArtifacts(){type = 509;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 hid;
 	std::vector<ui32> artifacts; //hero's artifacts from bag
@@ -378,10 +394,24 @@ struct SetHeroArtifacts : public CPackForClient //509
 	}
 };  
 
+struct PlayerMessage : public CPackForClient //513
+{
+	PlayerMessage(){type = 513;};
+	void applyCl(CClient *cl);
+
+	ui8 player;
+	std::string text;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & text & player;
+	}
+};  
+
 struct SetSelection : public CPackForClient //514
 {
 	SetSelection(){type = 514;};
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui8 player;
 	ui32 id;
@@ -396,7 +426,7 @@ struct HeroRecruited : public CPackForClient //515
 {
 	HeroRecruited(){type = 515;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 hid, tid; //subID of hero
 	int3 tile;
@@ -413,7 +443,7 @@ struct GiveHero : public CPackForClient //516
 	GiveHero(){type = 516;};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 id; //object id
 	ui8 player;
@@ -426,7 +456,7 @@ struct GiveHero : public CPackForClient //516
 
 struct NewTurn : public CPackForClient //101
 {
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	struct Hero
 	{
@@ -483,7 +513,7 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 
 struct SetObjectProperty : public CPackForClient//1001
 {
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 id;
 	ui8 what; //1 - owner; 2 - blockvis; 3 - first stack count; 4 - visitors; 5 - visited; 6 - ID (if 34 then also def is replaced)
@@ -499,7 +529,7 @@ struct SetObjectProperty : public CPackForClient//1001
 
 struct SetHoverName : public CPackForClient//1002
 {
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 id;
 	MetaString name;
@@ -514,7 +544,7 @@ struct SetHoverName : public CPackForClient//1002
 struct HeroLevelUp : public Query//2000
 {
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 heroid;
 	ui8 primskill, level;
@@ -565,7 +595,7 @@ struct BattleStart : public CPackForClient//3000
 {
 	BattleStart(){type = 3000;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	BattleInfo * info;
 
@@ -579,7 +609,7 @@ struct BattleNextRound : public CPackForClient//3001
 {	
 	BattleNextRound(){type = 3001;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	si32 round;
 
@@ -592,7 +622,7 @@ struct BattleSetActiveStack : public CPackForClient//3002
 {
 	BattleSetActiveStack(){type = 3002;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 stack;
 
@@ -638,7 +668,7 @@ struct BattleStackAttacked : public CPackForClient//3005
 {
 	BattleStackAttacked(){flags = 0; type = 3005;};
 	void applyCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	ui32 stackAttacked;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
@@ -667,7 +697,7 @@ struct BattleAttack : public CPackForClient//3006
 {
 	BattleAttack(){flags = 0; type = 3006;};
 	void applyFirstCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
 	BattleStackAttacked bsa;
@@ -697,7 +727,7 @@ struct StartAction : public CPackForClient//3007
 	StartAction(){type = 3007;};
 	StartAction(const BattleAction &act){ba = act; type = 3007;};
 	void applyFirstCl(CClient *cl);
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 
 	BattleAction ba;
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -710,6 +740,7 @@ struct EndAction : public CPackForClient//3008
 {
 	EndAction(){type = 3008;};
 	void applyCl(CClient *cl);
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 	}
@@ -718,7 +749,7 @@ struct EndAction : public CPackForClient//3008
 struct SpellCasted : public CPackForClient//3009
 {
 	SpellCasted(){type = 3009;};
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
 	ui8 side; //which hero casted spell: 0 - attacker, 1 - defender
@@ -734,7 +765,7 @@ struct SpellCasted : public CPackForClient//3009
 struct SetStackEffect : public CPackForClient //3010
 {
 	SetStackEffect(){type = 3010;};
-	void applyGs(CGameState *gs);
+	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
 	ui32 stack;
@@ -752,6 +783,7 @@ struct ShowInInfobox : public CPackForClient //107
 	Component c;
 	MetaString text;
 
+	void applyCl(CClient *cl);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & c & text;

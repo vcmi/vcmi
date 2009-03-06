@@ -7,6 +7,7 @@
 
 using namespace boost;
 using namespace boost::asio::ip;
+template<typename Serializer> DLL_EXPORT void registerTypes(Serializer &s); //defined elsewhere and explicitly instantiated for used serializers
 
 CTypeList typeList;
 

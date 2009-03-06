@@ -275,10 +275,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\hch\CAbilityHandler.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\CAdvmapInterface.cpp"
 				>
 			</File>
@@ -398,10 +394,6 @@
 			</File>
 			<File
 				RelativePath="..\AI_Base.h"
-				>
-			</File>
-			<File
-				RelativePath="..\hch\CAbilityHandler.h"
 				>
 			</File>
 			<File

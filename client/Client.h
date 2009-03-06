@@ -59,7 +59,6 @@ public:
 	void newGame(CConnection *con, StartInfo *si); //con - connection to server
 	void save(const std::string & fname);
 	void load(const std::string & fname);
-	void process(int what);
 	void run();
 	//////////////////////////////////////////////////////////////////////////
 	//from IGameCallback

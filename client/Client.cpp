@@ -25,8 +25,50 @@
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 #include <sstream>
+
+#undef DLL_EXPORT
+#define DLL_EXPORT
+#include "../lib/RegisterTypes.h"
 extern std::string NAME;
 namespace intpr = boost::interprocess;
+
+class CBaseForCLApply
+{
+public:
+	virtual void applyOnClAfter(CClient *cl, void *pack) const =0; 
+	virtual void applyOnClBefore(CClient *cl, void *pack) const =0; 
+};
+template <typename T> class CApplyOnCL : public CBaseForCLApply
+{
+public:
+	void applyOnClAfter(CClient *cl, void *pack) const
+	{
+		T *ptr = static_cast<T*>(pack);
+		ptr->applyCl(cl);
+	}
+	void applyOnClBefore(CClient *cl, void *pack) const
+	{
+		T *ptr = static_cast<T*>(pack);
+		ptr->applyFirstCl(cl);
+	}
+};
+
+class CCLApplier
+{
+public:
+	std::map<ui16,CBaseForCLApply*> apps; 
+
+	CCLApplier()
+	{
+		registerTypes2(*this);
+	}
+	template<typename T> void registerType(const T * t=NULL)
+	{
+		ui16 ID = typeList.registerType(&typeid(T));
+		apps[ID] = new CApplyOnCL<T>;
+	}
+
+} applier;
 
 void CClient::init()
 {
@@ -53,38 +95,6 @@ CClient::~CClient(void)
 {
 	delete shared;
 }
-void CClient::process(int what)
-{
-	switch (what)
-	{
-	case 107:
-		{
-			ShowInInfobox sii;
-			*serv >> sii;
-			SComponent sc(sii.c);
-			sc.description = toString(sii.text);
-			if(playerint[sii.player]->human)
-				static_cast<CPlayerInterface*>(playerint[sii.player])->showComp(sc);
-			break;
-		}
-	case 513:
-		{
-			ui8 color;
-			std::string message;
-			*serv >> color >> message;
-			tlog4 << "Player "<<(int)color<<" sends a message: " << message << std::endl;
-			break;
-		}
-	case 9999:
-		break;
-	default:
-		{
-			std::ostringstream ex;
-			ex << "Not supported server message (type=" << what <<")";
-			throw ex.str();
-		}
-	}
-}
 void CClient::waitForMoveAndSend(int color)
 {
 	try
@@ -97,14 +107,18 @@ void CClient::waitForMoveAndSend(int color)
 }
 void CClient::run()
 {
+	CPack *pack;
 	try
 	{
-		ui16 typ;
-		while(1)
-		{
-			*serv >> typ;
-			process(typ);
-		}
+		*serv >> pack;
+		CBaseForCLApply *apply = applier.apps[typeList.getTypeID(pack)];
+
+		apply->applyOnClBefore(this,pack);
+		gs->apply(pack);
+		apply->applyOnClAfter(this,pack);
+
+		delete pack;
+		pack = NULL;
 	} HANDLE_EXCEPTION
 }
 

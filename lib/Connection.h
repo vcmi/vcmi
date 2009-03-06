@@ -53,8 +53,6 @@ enum SerializationLvl
 	Serializable
 };
 
- template<typename Serializer> DLL_EXPORT void registerTypes(Serializer &s); //defined in .cpp and explicitly instantiated for used serializers
-
 class DLL_EXPORT CTypeList
 {
 	std::map<const type_info *,ui16> types;

@@ -35,6 +35,7 @@ class CMapHandler;
 class CPathfinder;
 struct SetObjectProperty;
 struct MetaString;
+struct CPack;
 
 
 std::string DLL_EXPORT toString(MetaString &ms);
@@ -228,6 +229,7 @@ public:
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);
 	int pickHero(int owner);
+	void apply(CPack *pack);
 	CGHeroInstance *getHero(int objid);
 	CGTownInstance *getTown(int objid);
 	bool battleMoveCreatureStack(int ID, int dest);

@@ -14,12 +14,15 @@
 #include "hch/CObjectHandler.h"
 #include "hch/CCreatureHandler.h"
 #include "lib/VCMI_Lib.h"
+#include "lib/Connection.h"
 #include "map.h"
 #include "StartInfo.h"
 #include "lib/NetPacks.h"
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+
+#include "lib/RegisterTypes.h"
 boost::rand48 ran;
 
 
@@ -29,6 +32,38 @@ boost::rand48 ran;
 #ifdef max
 #undef max
 #endif
+
+class CBaseForGSApply
+{
+public:
+	virtual void applyOnGS(CGameState *gs, void *pack) const =0; 
+};
+template <typename T> class CApplyOnGS : public CBaseForGSApply
+{
+public:
+	void applyOnGS(CGameState *gs, void *pack) const
+	{
+		T *ptr = static_cast<T*>(pack);
+		ptr->applyGs(gs);
+	}
+};
+
+class CGSApplier
+{
+public:
+	std::map<ui16,CBaseForGSApply*> apps; 
+
+	CGSApplier()
+	{
+		registerTypes2(*this);
+	}
+	template<typename T> void registerType(const T * t=NULL)
+	{
+		ui16 ID = typeList.registerType(&typeid(T));
+		apps[ID] = new CApplyOnGS<T>;
+	}
+
+} applier;
 
 std::string DLL_EXPORT toString(MetaString &ms)
 {
@@ -1432,6 +1467,11 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	}
 
 	return ret;
+}
+
+void CGameState::apply(CPack *pack)
+{
+	applier.apps[typeList.getTypeID(pack)]->applyOnGS(this,pack);
 }
 
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
