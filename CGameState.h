@@ -33,7 +33,6 @@ struct StartInfo;
 struct SDL_Surface;
 class CMapHandler;
 class CPathfinder;
-struct IPack;
 struct SetObjectProperty;
 struct MetaString;
 
@@ -198,7 +197,7 @@ struct UpgradeInfo
 
 class DLL_EXPORT CGameState
 {
-private:
+public:
 	StartInfo* scenarioOps;
 	ui32 seed;
 	ui8 currentPlayer; //ID of player currently having turn
@@ -226,9 +225,6 @@ private:
 
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void loadTownDInfos();
-	void applyNL(IPack * pack);
-
-	void apply(IPack * pack);
 	void randomizeObject(CGObjectInstance *cur);
 	std::pair<int,int> pickObject(CGObjectInstance *obj);
 	int pickHero(int owner);
@@ -243,7 +239,7 @@ private:
 	float getMarketEfficiency(int player, int mode=0);
 	std::set<int3> tilesToReveal(int3 pos, int radious, int player) const; //if player==-1 => adds all tiles in radious
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
-public:
+
 	CGameState();
 	~CGameState();
 	void getNeighbours(int3 tile, std::vector<int3> &vec, bool onLand);

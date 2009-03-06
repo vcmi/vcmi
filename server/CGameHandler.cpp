@@ -2328,3 +2328,25 @@ void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
 	cop.flags = flags;
 	sendAndApply(&cop);
 }
+
+void CGameHandler::applyAndAsk( Query * sel, ui8 player, boost::function<void(ui32)> &callback )
+{
+	gsm.lock();
+	sel->id = QID;
+	callbacks[QID] = callback;
+	states.addQuery(player,QID);
+	QID++; 
+	sendAndApply(sel);
+	gsm.unlock();
+}
+
+void CGameHandler::ask( Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback )
+{
+	gsm.lock();
+	sel->id = QID;
+	callbacks[QID] = callback;
+	states.addQuery(player,QID);
+	sendToAllClients(sel);
+	QID++; 
+	gsm.unlock();
+}

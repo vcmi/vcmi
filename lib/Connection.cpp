@@ -4,8 +4,11 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <fstream>
+
 using namespace boost;
 using namespace boost::asio::ip;
+
+CTypeList typeList;
 
 #define LOG(a) \
 	if(logging)\
@@ -148,6 +151,7 @@ void CConnection::close()
 CSaveFile::CSaveFile( const std::string &fname )
 	:sfile(new std::ofstream(fname.c_str(),std::ios::binary))
 {
+	registerTypes(*this);
 	if(!(*sfile))
 	{
 		tlog1 << "Error: cannot open to write " << fname << std::endl;
@@ -169,6 +173,7 @@ int CSaveFile::write( const void * data, unsigned size )
 CLoadFile::CLoadFile( const std::string &fname )
 :sfile(new std::ifstream(fname.c_str(),std::ios::binary))
 {
+	registerTypes(*this);
 	if(!(*sfile))
 	{
 		tlog1 << "Error: cannot open to read " << fname << std::endl;
@@ -185,4 +190,28 @@ int CLoadFile::read( const void * data, unsigned size )
 {
 	sfile->read((char *)data,size);
 	return size;
+}
+
+CTypeList::CTypeList()
+{
+
+}
+
+ui16 CTypeList::registerType( const type_info *type )
+{
+	std::map<const type_info *,ui16>::const_iterator i = types.find(type);
+	if(i != types.end())
+		return i->second;
+
+	ui16 id = types.size() + 1;
+	types[type] = id;
+	return id;
+}
+
+ui16 CTypeList::getTypeID( const type_info *type )
+{
+	if(vstd::contains(types,type))
+		return types[type];
+	else
+		return 0;
 }

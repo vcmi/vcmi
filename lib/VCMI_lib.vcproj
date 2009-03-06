@@ -323,6 +323,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\RegisterTypes.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\stdafx.cpp"
 				>
 			</File>

@@ -47,9 +47,7 @@
 #undef main
 #endif
 std::string NAME = NAME_VER + std::string(" (client)");
-DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Surface * screen, * screen2;
-extern SDL_Surface * CSDL_Ext::std32bppSurface;
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;

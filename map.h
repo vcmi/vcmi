@@ -329,10 +329,6 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	TerrainTile &getTile(int3 tile);
 	CGHeroInstance * getHero(int ID, int mode=0);
 	bool isInTheMap(int3 pos);
-	template <typename TObject, typename Handler> void serializeObj(Handler &h, const int version, TObject ** obj)
-	{
-		h & *obj;
-	}
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & static_cast<CMapHeader&>(*this);
@@ -404,119 +400,9 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		for(int i=0; i<objects.size(); i++)
 		{
 			CGObjectInstance *&obj = objects[i];
-			ui8 exists = (obj!=NULL);
-			ui32 hlp;
+			h & obj;
+
 			si32 shlp;
-			h & exists;
-			if(!exists)
-			{
-				if(!h.saving)
-					obj = 0;
-				continue;
-			}
-			h & (h.saving ? (hlp=obj->ID) : hlp);
-			switch(hlp)
-			{
-				#define SERIALIZE(TYPE) (   serializeObj<TYPE>( h,version,(TYPE**) (&obj) )   )
-			case 34: case 70: case 62:
-				SERIALIZE(CGHeroInstance);
-				break;
-			case 98: case 77:
-				SERIALIZE(CGTownInstance);
-				break;
-			case 26: //for event objects
-				SERIALIZE(CGEvent);
-				break;
-			case 4: //arena
-			case 51: //Mercenary Camp
-			case 23: //Marletto Tower
-			case 61: // Star Axis
-			case 32: // Garden of Revelation
-			case 100: //Learning Stone
-			case 102: //Tree of Knowledge
-				SERIALIZE(CGVisitableOPH);
-				break;
-			case 55: //mystical garden
-			case 112://windmill
-			case 109://water wheel
-				SERIALIZE(CGVisitableOPW);
-				break;
-			case 43: //teleport
-			case 44: //teleport
-			case 45: //teleport
-			case 103://subterranean gate
-				SERIALIZE(CGTeleport);
-				break;
-			case 12: //campfire
-			case 101: //treasure chest
-				SERIALIZE(CGPickable);
-				break;
-			case 54:  //Monster 
-			case 71: case 72: case 73: case 74: case 75:	// Random Monster 1 - 4
-			case 162: case 163: case 164:	
-				SERIALIZE(CGCreature);
-				break;
-			case 59: case 91: //ocean bottle and sign
-				SERIALIZE(CGSignBottle);
-				break;
-			case 83: //seer's hut
-				SERIALIZE(CGSeerHut);
-				break;
-			case 113: //witch hut
-				SERIALIZE(CGWitchHut);
-				break;
-			case 81: //scholar
-				SERIALIZE(CGScholar);
-				break;
-			case 33: case 219: //garrison
-				SERIALIZE(CGGarrison);
-				break;
-			case 5: //artifact	
-			case 65: case 66: case 67: case 68: case 69: //random artifact
-			case 93: //spell scroll
-				SERIALIZE(CGArtifact);
-				break;
-			case 76: case 79: //random resource; resource
-				SERIALIZE(CGResource);
-				break;
-			case 53: 
-				SERIALIZE(CGMine);
-				break;
-			case 88: case 89: case 90: //spell shrine
-				SERIALIZE(CGShrine);
-				break;
-			case 6:
-				SERIALIZE(CGPandoraBox);
-				break;
-			case 217:
-			case 216:
-			case 218:
-				//TODO cregen
-				SERIALIZE(CGObjectInstance);
-				break;
-			case 215:
-				SERIALIZE(CGQuestGuard);
-				break;
-			case 28: //faerie ring
-			case 14: //Swan pond
-			case 38: //idol of fortune
-			case 30: //Fountain of Fortune
-			case 64: //Rally Flag
-			case 56: //oasis
-			case 96: //temple
-			case 110://Watering Hole
-			case 31: //Fountain of Youth
-				SERIALIZE(CGBonusingObject);
-				break;
-			case 49: //Magic Well
-				SERIALIZE(CGMagicWell);
-				break;
-			default:
-				SERIALIZE(CGObjectInstance);
-			}
-
-#undef SERIALIZE
-
 			//definfo
 			h & (h.saving ? (shlp=obj->defInfo->serial) : shlp); //read / write pos of definfo in defs vector
 			if(!h.saving)

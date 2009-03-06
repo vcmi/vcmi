@@ -10,6 +10,7 @@ class CGameState;
 class CGameInterface;
 class CConnection;
 class CCallback;
+struct BattleAction;
 struct SharedMem;
 class CClient;
 void processCommand(const std::string &message, CClient *&client);
@@ -41,13 +42,14 @@ struct CSharedCond
 
 class CClient : public IGameCallback
 {
+public:
 	CCallback *cb;
 	std::map<ui8,CGameInterface *> playerint;
 	CConnection *serv;
 	SharedMem *shared;
+	BattleAction *curbaction;
 
 	void waitForMoveAndSend(int color);
-public:
 	CClient(void);
 	CClient(CConnection *con, StartInfo *si);
 	~CClient(void);

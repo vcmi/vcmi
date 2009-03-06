@@ -375,6 +375,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NetPacksClient.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\SDL_Extensions.cpp"
 				>
 			</File>
