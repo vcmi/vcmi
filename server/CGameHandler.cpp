@@ -1574,15 +1574,31 @@ void CGameHandler::moveStack(int stack, int dest)
 	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
 	//	return false;
 
-	std::vector<int> path = gs->curB->getPath(curStack->position,dest,accessibility);
-	int tilesToMove = std::max((int)(path.size() - curStack->speed()), 0);
-	for(int v=path.size()-1; v>=tilesToMove; --v)
+	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibility, curStack->creature->isFlying());
+	if(curStack->creature->isFlying())
 	{
-		//inform clients about move
-		BattleStackMoved sm;
-		sm.stack = curStack->ID;
-		sm.tile = path[v];
-		sendAndApply(&sm);
+		if(path.second <= curStack->speed() && path.first.size() > 0)
+		{
+			//inform clients about move
+			BattleStackMoved sm;
+			sm.stack = curStack->ID;
+			sm.tile = path.first[0];
+			sm.distance = path.second;
+			sendAndApply(&sm);
+		}
+	}
+	else //for non-flying creatures
+	{
+		int tilesToMove = std::max((int)(path.first.size() - curStack->speed()), 0);
+		for(int v=path.first.size()-1; v>=tilesToMove; --v)
+		{
+			//inform clients about move
+			BattleStackMoved sm;
+			sm.stack = curStack->ID;
+			sm.tile = path.first[v];
+			sm.distance = path.second;
+			sendAndApply(&sm);
+		}
 	}
 }
 CGameHandler::CGameHandler(void)

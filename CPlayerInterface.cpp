@@ -2215,10 +2215,10 @@ void CPlayerInterface::battleResultQuited()
 	LOCPLINT->showingDialog->setn(false);
 }
 
-void CPlayerInterface::battleStackMoved(int ID, int dest)
+void CPlayerInterface::battleStackMoved(int ID, int dest, int distance)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	battleInt->stackMoved(ID, dest, dest==curAction->destinationTile);
+	battleInt->stackMoved(ID, dest, dest==curAction->destinationTile, distance);
 }
 void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
 {

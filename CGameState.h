@@ -118,7 +118,7 @@ struct DLL_EXPORT BattleInfo
 	void getAccessibilityMap(bool *accessibility, int stackToOmmit=-1); //send pointer to at least 187 allocated bytes
 	void getAccessibilityMapForTwoHex(bool *accessibility, bool atackerSide, int stackToOmmit=-1, bool addOccupiable = false); //send pointer to at least 187 allocated bytes
 	void makeBFS(int start, bool*accessibility, int *predecessor, int *dists); //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
-	std::vector<int> getPath(int start, int dest, bool*accessibility);
+	std::pair< std::vector<int>, int > getPath(int start, int dest, bool*accessibility, bool flyingCreature); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
 	std::vector<int> getAccessibility(int stackID, bool addOccupiable); //returns vector of accessible tiles (taking into account the creature range)
 
 	bool isStackBlocked(int ID); //returns true if there is neighbouring enemy stack

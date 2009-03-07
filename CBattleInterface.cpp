@@ -466,7 +466,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		for(size_t v=0; v<stackAliveByHex[b].size(); ++v)
 		{
 			int animType = creAnims[stackAliveByHex[b][v]]->getType();
-			bool incrementFrame = (animCount%(4/animSpeed)==0) && animType!=0 && animType!=5 && animType!=20 && animType!=21 && animType!=3 && animType!=2;
+			bool incrementFrame = (animCount%(4/animSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
 			if(animType == 2)
 			{
 				if(standingFrame.find(stackAliveByHex[b][v])!=standingFrame.end())
@@ -854,8 +854,9 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	if(creAnims[number]==NULL)
 		return false; //there is no such creature
 	creAnims[number]->setType(8);
-	int firstFrame = creAnims[number]->getFrame();
-	for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(8) + firstFrame - 1; ++g)
+	//int firstFrame = creAnims[number]->getFrame();
+	//for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(8) + firstFrame - 1; ++g)
+	while(!creAnims[number]->onLastFrameInGroup())
 	{
 		show();
 		CSDL_Ext::update();
@@ -883,8 +884,9 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	}
 
 	creAnims[number]->setType(7);
-	firstFrame = creAnims[number]->getFrame();
-	for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(7) + firstFrame - 1; ++g)
+	//firstFrame = creAnims[number]->getFrame();
+	//for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(7) + firstFrame - 1; ++g)
+	while(!creAnims[number]->onLastFrameInGroup())
 	{
 		show();
 		CSDL_Ext::update();
@@ -1006,7 +1008,7 @@ void CBattleInterface::stackActivated(int number)
 	}
 }
 
-void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
+void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int distance)
 {
 	bool startMoving = creAnims[number]->getType()==20;
 	//a few useful variables
@@ -1014,6 +1016,10 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	int steps = creAnims[number]->framesInGroup(0)*getAnimSpeedMultiplier()-1;
 	int hexWbase = 44, hexHbase = 42;
 	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
+	CStack * movedStack = LOCPLINT->cb->battleGetStackByID(number);
+	
+	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack->creature);
+	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack->creature);
 
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
@@ -1027,78 +1033,102 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving)
 	}
 
 	int mutPos = BattleInfo::mutualPosition(curStackPos, destHex);
+	float stepX=0.0, stepY=0.0; //how far stack is moved in one frame; calculated later
 
+	//reverse unit if necessary
+	if((begPosition.first > endPosition.first) && creDir[number] == true)
 	{
-		switch(mutPos) //reverse unit if necessary
+		reverseCreature(number, curStackPos, twoTiles);
+	}
+	else if ((begPosition.first < endPosition.first) && creDir[number] == false)
+	{
+		reverseCreature(number, curStackPos, twoTiles);
+	}
+	if(creAnims[number]->getType() != 0)
+	{
+		creAnims[number]->setType(0);
+	}
+	//unit reversed
+
+	//step shift calculation
+	float posX = creAnims[number]->pos.x, posY = creAnims[number]->pos.y; // for precise calculations ;]
+	if(mutPos == -1 && movedStack->creature->isFlying()) 
+	{
+		steps *= distance;
+
+		stepX = (endPosition.first - (float)begPosition.first)/steps;
+		stepY = (endPosition.second - (float)begPosition.second)/steps;
+	}
+	else
+	{
+		switch(mutPos)
 		{
-		case 0:	case 4:	case 5:
-			if(creDir[number] == true)
-				reverseCreature(number, curStackPos, twoTiles);
+		case 0:
+			stepX = (-1.0)*((float)hexWbase)/(2.0f*steps);
+			stepY = (-1.0)*((float)hexHbase)/((float)steps);
 			break;
-		case 1:	case 2: case 3:
-			if(creDir[number] == false)
-				reverseCreature(number, curStackPos, twoTiles);
+		case 1:
+			stepX = ((float)hexWbase)/(2.0f*steps);
+			stepY = (-1.0)*((float)hexHbase)/((float)steps);
 			break;
-		}
-		//moving instructions
-		float posX = creAnims[number]->pos.x, posY = creAnims[number]->pos.y; // for precise calculations ;]
-		for(int i=0; i<steps; ++i)
-		{
-			switch(mutPos)
-			{
-			case 0:
-				posX -= ((float)hexWbase)/(2.0f*steps);
-				creAnims[number]->pos.x = posX;
-				posY -= ((float)hexHbase)/((float)steps);
-				creAnims[number]->pos.y = posY;
-				break;
-			case 1:
-				posX += ((float)hexWbase)/(2.0f*steps);
-				creAnims[number]->pos.x = posX;
-				posY -= ((float)hexHbase)/((float)steps);
-				creAnims[number]->pos.y = posY;
-				break;
-			case 2:
-				posX += ((float)hexWbase)/((float)steps);
-				creAnims[number]->pos.x = posX;
-				break;
-			case 3:
-				posX += ((float)hexWbase)/(2.0f*steps);
-				creAnims[number]->pos.x = posX;
-				posY += ((float)hexHbase)/((float)steps);
-				creAnims[number]->pos.y = posY;
-				break;
-			case 4:
-				posX -= ((float)hexWbase)/(2.0f*steps);
-				creAnims[number]->pos.x = posX;
-				posY += ((float)hexHbase)/((float)steps);
-				creAnims[number]->pos.y = posY;
-				break;
-			case 5:
-				posX -= ((float)hexWbase)/((float)steps);
-				creAnims[number]->pos.x = posX;
-				break;
-			}
-			show();
-			CSDL_Ext::update();
-			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			if((animCount+1)%(4/animSpeed)==0)
-				creAnims[number]->incrementFrame();
+		case 2:
+			stepX = ((float)hexWbase)/((float)steps);
+			stepY = 0.0;
+			break;
+		case 3:
+			stepX = ((float)hexWbase)/(2.0f*steps);
+			stepY = ((float)hexHbase)/((float)steps);
+			break;
+		case 4:
+			stepX = (-1.0)*((float)hexWbase)/(2.0f*steps);
+			stepY = ((float)hexHbase)/((float)steps);
+			break;
+		case 5:
+			stepX = (-1.0)*((float)hexWbase)/((float)steps);
+			stepY = 0.0;
+			break;
 		}
 	}
+	//step shifts calculated
+
+	//switch(mutPos) //reverse unit if necessary
+	//{
+	//case 0:	case 4:	case 5:
+	//	if(creDir[number] == true)
+	//		reverseCreature(number, curStackPos, twoTiles);
+	//	break;
+	//case 1:	case 2: case 3:
+	//	if(creDir[number] == false)
+	//		reverseCreature(number, curStackPos, twoTiles);
+	//	break;
+	//}
+
+	//moving instructions
+	for(int i=0; i<steps; ++i)
+	{
+		posX += stepX;
+		creAnims[number]->pos.x = posX;
+		posY += stepY;
+		creAnims[number]->pos.y = posY;
+		
+		show();
+		CSDL_Ext::update();
+		SDL_framerateDelay(LOCPLINT->mainFPSmng);
+	}
+	//unit moved
 
 	if(endMoving) //animation of ending move
 	{
 		if(creAnims[number]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
 		{
 			creAnims[number]->setType(21);
-			for(int i=0; i<creAnims[number]->framesInGroup(21)*getAnimSpeedMultiplier()-1; ++i)
+
+			//for(int i=0; i<creAnims[number]->framesInGroup(21)*getAnimSpeedMultiplier()-1; ++i)
+			while(!creAnims[number]->onLastFrameInGroup())
 			{
 				show();
 				CSDL_Ext::update();
 				SDL_framerateDelay(LOCPLINT->mainFPSmng);
-				if((animCount+1)%(4/animSpeed)==0)
-					creAnims[number]->incrementFrame();
 			}
 		}
 		creAnims[number]->setType(2); //resetting to default

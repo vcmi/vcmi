@@ -520,9 +520,9 @@ void CClient::process(int what)
 			*serv >> br;
 			tlog5 << "Stack "<<br.stack <<" moves to the tile "<<br.tile<<std::endl;
 			if(playerint.find(gs->curB->side1) != playerint.end())
-				playerint[gs->curB->side1]->battleStackMoved(br.stack,br.tile);
+				playerint[gs->curB->side1]->battleStackMoved(br.stack, br.tile, br.distance);
 			if(playerint.find(gs->curB->side2) != playerint.end())
-				playerint[gs->curB->side2]->battleStackMoved(br.stack,br.tile);
+				playerint[gs->curB->side2]->battleStackMoved(br.stack, br.tile, br.distance);
 			gs->apply(&br);
 			break;
 		}

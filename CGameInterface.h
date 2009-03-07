@@ -78,7 +78,7 @@ public:
 	virtual void battleStackAttacked(BattleStackAttacked * bsa){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(BattleResult *br){};
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackMoved(int ID, int dest){};
+	virtual void battleStackMoved(int ID, int dest, int distance){};
 	virtual void battleSpellCasted(SpellCasted *sc){};
 	virtual void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
@@ -95,7 +95,7 @@ public:
 	virtual void yourTurn(){};
 	virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroCreated(const CGHeroInstance*){};
-	virtual void battleStackMoved(int ID, int dest, bool startMoving, bool endMoving){};
+	virtual void battleStackMoved(int ID, int dest, int distance){};
 	virtual void battleStackAttacking(int ID, int dest){};
 	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting){};
 	virtual BattleAction activeStack(int stackID) {BattleAction ba; ba.actionType = 3; ba.stackNumber = stackID; return ba;};

@@ -249,7 +249,7 @@ public:
 	void stackRemoved(CStack stack); //stack disappeared from batlefiled
 	//void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
 	void stackActivated(int number); //active stack has been changed
-	void stackMoved(int number, int destHex, bool endMoving); //stack with id number moved to destHex
+	void stackMoved(int number, int destHex, bool endMoving, int distance); //stack with id number moved to destHex
 	void stacksAreAttacked(std::vector<SStackAttackedInfo> attackedInfos); //called when a certain amount of stacks has been attacked
 	void stackAttacking(int ID, int dest); //called when stack with id ID is attacking something on hex dest
 	void newRound(int number); //caled when round is ended; number is the number of round

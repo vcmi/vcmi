@@ -333,6 +333,7 @@ signed char BattleInfo::mutualPosition(int hex1, int hex2)
 		return 3;
 	return -1;
 }
+
 std::vector<int> BattleInfo::neighbouringTiles(int hex)
 {
 #define CHECK_AND_PUSH(tile) {int hlp = (tile); if(hlp>=0 && hlp<BFIELD_SIZE && (hlp%BFIELD_WIDTH!=16) && hlp%BFIELD_WIDTH) ret.push_back(hlp);}
@@ -346,12 +347,25 @@ std::vector<int> BattleInfo::neighbouringTiles(int hex)
 #undef CHECK_AND_PUSH
 	return ret;
 }
-std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
+std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool*accessibility, bool flyingCreature)
 {							
 	int predecessor[BFIELD_SIZE]; //for getting the Path
 	int dist[BFIELD_SIZE]; //calculated distances
 
-	makeBFS(start,accessibility,predecessor,dist);
+	if(flyingCreature)
+	{
+		bool acc[BFIELD_SIZE]; //full accessibility table
+		for(int b=0; b<BFIELD_SIZE; ++b) //initialization of acc
+		{
+			acc[b] = true;
+		}
+
+		makeBFS(start, acc, predecessor, dist);
+	}
+	else
+	{
+		makeBFS(start, accessibility, predecessor, dist);
+	}
 
 	//making the Path
 	std::vector<int> path;
@@ -361,7 +375,8 @@ std::vector<int> BattleInfo::getPath(int start, int dest, bool*accessibility)
 		path.push_back(curElem);
 		curElem = predecessor[curElem];
 	}
-	return path;
+
+	return std::make_pair(path, dist[dest]);
 }
 
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)

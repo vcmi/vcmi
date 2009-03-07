@@ -520,11 +520,11 @@ struct BattleResult : public CPack<BattleResult>//3003
 
 struct BattleStackMoved : public CPack<BattleStackMoved>//3004
 {
-	ui32 stack, tile;
+	ui32 stack, tile, distance;
 	BattleStackMoved(){type = 3004;};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stack & tile;
+		h & stack & tile & distance;
 	}
 };
 
