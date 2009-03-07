@@ -5,6 +5,7 @@
 #include <vector>
 #include <set>
 #include <list>
+#include <typeinfo>
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
@@ -20,7 +21,6 @@
 #include <boost/type_traits/is_array.hpp>
 const ui32 version = 703;
 class CConnection;
-
 namespace mpl = boost::mpl;
 
 namespace boost
@@ -52,6 +52,45 @@ enum SerializationLvl
 	Pointer,
 	Serializable
 };
+
+
+struct TypeComparer
+{
+	bool operator()(const type_info *a, const type_info *b)
+	{
+		return a->before(*b);
+	}
+};
+
+class DLL_EXPORT CTypeList
+{
+	typedef std::multimap<const type_info *,ui16,TypeComparer> TTypeMap;
+	 TTypeMap types;
+public:
+	CTypeList();
+	ui16 registerType(const type_info *type);
+	template <typename T> ui16 registerType(const T * t)
+	{
+		return registerType(getTypeInfo(t));
+	}
+
+	ui16 getTypeID(const type_info *type);
+	template <typename T> ui16 getTypeID(const T * t)
+	{
+		return getTypeID(getTypeInfo(t));
+	}
+
+
+	template <typename T> const type_info * getTypeInfo(const T * t = NULL)
+	{
+		if(t)
+			return &typeid(*t);
+		else
+			return &typeid(T);
+	}
+};
+
+extern DLL_EXPORT CTypeList typeList;
 
 template<typename Ser,typename T>
 struct SavePrimitive
@@ -169,11 +208,51 @@ struct SerializationLevel
 	static const int value = SerializationLevel::type::value;
 };
 
-template <typename Serializer> class DLL_EXPORT COSer
+class DLL_EXPORT CSerializerBase
+{
+public:
+};
+
+class DLL_EXPORT CSaverBase : public virtual CSerializerBase
+{
+};
+
+class CBasicPointerSaver
+{
+public:
+	virtual void savePtr(CSaverBase &ar, const void *data) const =0;
+};
+
+template <typename Serializer, typename T> class CPointerSaver : public CBasicPointerSaver
+{
+public:
+	void savePtr(CSaverBase &ar, const void *data) const
+	{
+		Serializer &s = static_cast<Serializer&>(ar);
+		const T *ptr = static_cast<const T*>(data);
+
+		//T is most derived known type, it's time to call actual serialize
+		const_cast<T&>(*ptr).serialize(s,version);
+	}
+};
+
+template <typename Serializer> class DLL_EXPORT COSer : public CSaverBase
 {
 public:
 	bool saving;
-	COSer(){saving=true;};
+	std::map<ui16,CBasicPointerSaver*> savers; // typeID => CPointerSaver<serializer,type>
+
+	COSer()
+	{
+		saving=true;
+	}
+
+	template<typename T> void registerType(const T * t=NULL)
+	{
+		ui16 ID = typeList.registerType(t);
+		savers[ID] = new CPointerSaver<COSer<Serializer>,T>;
+	}
+
     Serializer * This()
 	{
 		return static_cast<Serializer*>(this);
@@ -185,7 +264,7 @@ public:
 		this->This()->save(t);
 		return * this->This();
 	}
-	
+
 	template<class T>
 	COSer & operator&(const T & t)
 	{
@@ -200,14 +279,28 @@ public:
 	{
 		this->This()->write(&data,sizeof(data));
 	}
+
 	template <typename T>
 	void savePointer(const T &data)
 	{
+		//write if pointer is not NULL
 		ui8 hlp = (data!=NULL);
 		*this << hlp;
-		if(hlp)
-			*this << *data;
+
+		//if pointer is NULL then we don't need anything more...
+		if(!hlp)
+			return;
+
+		//write type identifier
+		ui16 tid = typeList.getTypeID(data);
+		*this << tid;
+
+		if(!tid)
+			*this << *data;	 //if type is unregistered simply write all data in a standard way
+		else
+			savers[tid]->savePtr(*this,data);  //call serializer specific for our real type
 	}
+
 	template <typename T>
 	void saveArray(const T &data)
 	{
@@ -288,11 +381,53 @@ public:
 			*this << i->first << i->second;
 	}
 };
-template <typename Serializer> class DLL_EXPORT CISer
+
+
+
+class DLL_EXPORT CLoaderBase : public virtual CSerializerBase
+{};
+
+class CBasicPointerLoader
+{
+public:
+	virtual void loadPtr(CLoaderBase &ar, void *data) const =0; //data is pointer to the ACTUAL POINTER
+};
+
+template <typename Serializer, typename T> class CPointerLoader : public CBasicPointerLoader
+{
+public:
+	void loadPtr(CLoaderBase &ar, void *data) const //data is pointer to the ACTUAL POINTER
+	{
+		Serializer &s = static_cast<Serializer&>(ar);
+		T *&ptr = *static_cast<T**>(data);
+
+		//create new object under pointer
+		typedef typename boost::remove_pointer<T>::type npT;
+		ptr = new npT;
+
+		//T is most derived known type, it's time to call actual serialize
+		ptr->serialize(s,version);
+	}
+};
+
+
+template <typename Serializer> class DLL_EXPORT CISer : public CLoaderBase
 {
 public:
 	bool saving;
-	CISer(){saving = false;};
+	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
+
+	CISer()
+	{
+		saving = false;
+	}
+
+	template<typename T> void registerType(const T * t=NULL)
+	{
+		ui16 ID = typeList.registerType(t);
+		loaders[ID] = new CPointerLoader<CISer<Serializer>,T>;
+	}
+
     Serializer * This()
 	{
 		return static_cast<Serializer*>(this);
@@ -364,10 +499,20 @@ public:
 			return;
 		}
 
-		tlog5<<"Allocating memory for pointer!"<<std::endl;
-		typedef typename boost::remove_pointer<T>::type npT;
-		data = new npT;
-		*this >> *data;
+		//get type id
+		ui16 tid;
+		*this >> tid;
+
+		if(!tid)
+		{
+			typedef typename boost::remove_pointer<T>::type npT;
+			data = new npT;
+			*this >> *data;
+		}
+		else
+		{
+			loaders[tid]->loadPtr(*this,&data);
+		}
 	}
 	template <typename T>
 	void loadSerializable(std::vector<T> &data)

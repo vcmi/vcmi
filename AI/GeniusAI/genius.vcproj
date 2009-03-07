@@ -49,6 +49,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="4"
 				DebugInformationFormat="4"
+				DisableSpecificWarnings="4512"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -127,6 +128,7 @@
 				UsePrecompiledHeader="0"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4512"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -210,6 +212,7 @@
 				ProgramDataBaseFileName="$(SolutionDir)$(ConfigurationName)\GeniusAI.pdb"
 				WarningLevel="3"
 				DebugInformationFormat="3"
+				DisableSpecificWarnings="4512"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"

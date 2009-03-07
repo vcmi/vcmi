@@ -9,8 +9,8 @@
 #include "../hch/CTownHandler.h"
 #include "../CGameState.h"
 #include "../lib/CondSh.h"
-#include "../lib/Connection.h"
 #include "../lib/NetPacks.h"
+#include "../lib/Connection.h"
 #include "../lib/VCMI_Lib.h"
 #include "../map.h"
 #include "CGameHandler.h"
@@ -24,7 +24,6 @@
 #include <boost/thread/xtime.hpp>
 #endif
 extern bool end2;
-#include "../lib/BattleAction.h"
 #ifdef min
 #undef min
 #endif
@@ -343,7 +342,7 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 					ba.side = !next->attackerOwned;
 					ba.stackNumber = next->ID;
 					sendAndApply(&StartAction(ba));
-					sendDataToClients(ui16(3008));
+					sendAndApply(&EndAction());
 					checkForBattleEnd(stacks); //check if this "action" ended the battle (not likely but who knows...)
 					continue;
 				}
@@ -988,9 +987,7 @@ upgend:
 					std::string message;
 					c >> message;
 					bool cheated=true;
-					sendDataToClients(ui16(513));
-					sendDataToClients(ui8(*players.begin()));
-					sendDataToClients(message);
+					sendAndApply(&PlayerMessage(*players.begin(),message));
 					if(message == "vcmiistari") //give all spells and 999 mana
 					{
 						SetMana sm;
@@ -1084,9 +1081,7 @@ upgend:
 					if(cheated)
 					{
 						message = "CHEATER!!!";
-						sendDataToClients(ui16(513));
-						sendDataToClients(ui8(*players.begin()));
-						sendDataToClients(message);
+						sendAndApply(&PlayerMessage(*players.begin(),message));
 					}
 					break;
 				}
@@ -1154,14 +1149,14 @@ upgend:
 						{
 							sendAndApply(&StartAction(ba)); //start movement
 							moveStack(ba.stackNumber,ba.destinationTile); //move
-							sendDataToClients(ui16(3008)); //end movement
+							sendAndApply(&EndAction());
 							break;
 						}
 					case 3: //defend
 					case 8: //wait
 						{
 							sendAndApply(&StartAction(ba));
-							sendDataToClients(ui16(3008));
+							sendAndApply(&EndAction());
 							break;
 						}
 					case 4: //retreat/flee
@@ -1211,7 +1206,7 @@ upgend:
 							)
 							{
 								tlog3 << "Attack cannot be performed!";
-								sendDataToClients(ui16(3008)); //end movement and attack
+								sendAndApply(&EndAction());
 								break;
 							}
 
@@ -1240,7 +1235,7 @@ upgend:
 								prepareAttack(bat,curStack,stackAtEnd);
 								sendAndApply(&bat);
 							}
-							sendDataToClients(ui16(3008)); //end movement and attack
+							sendAndApply(&EndAction());
 							break;
 						}
 					case 7: //shoot
@@ -1277,7 +1272,7 @@ upgend:
 								sendAndApply(&bat);
 							}
 
-							sendDataToClients(ui16(3008)); //end shooting
+							sendAndApply(&EndAction());
 							break;
 						}
 					}
@@ -1519,7 +1514,7 @@ upgend:
 							- Weakness
 							- Death Ripple */
 
-							sendDataToClients(ui16(3008)); //end casting
+							sendAndApply(&EndAction());
 							break;
 						}
 					}
@@ -1824,7 +1819,11 @@ void CGameHandler::run(bool resume)
 			if((i->second.towns.size()==0 && i->second.heroes.size()==0)  || i->second.color<0 || i->first>=PLAYER_LIMIT  ) continue; //players has not towns/castle - loser
 			states.setFlag(i->first,&PlayerStatus::makingTurn,true);
 			gs->currentPlayer = i->first;
-			*connections[i->first] << ui16(100) << i->first;    
+			{
+				YourTurn yt;
+				yt.player = i->first;
+				*connections[i->first] << &yt;    
+			}
 
 			//wait till turn is done
 			boost::unique_lock<boost::mutex> lock(states.mx);
@@ -2305,9 +2304,11 @@ void CGameHandler::setObjProperty( int objid, int prop, int val )
 	sendAndApply(&sob);
 }
 
-void CGameHandler::sendMessageTo( CConnection &c, std::string message )
+void CGameHandler::sendMessageTo( CConnection &c, const std::string &message )
 {
-	c << ui16(95) << message;
+	SystemMessage sm;
+	sm.text = message;
+	c << &sm;
 }
 
 void CGameHandler::giveHeroBonus( GiveBonus * bonus )
@@ -2343,4 +2344,42 @@ void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
 	cop.nPos = newPos;
 	cop.flags = flags;
 	sendAndApply(&cop);
+}
+
+void CGameHandler::applyAndAsk( Query * sel, ui8 player, boost::function<void(ui32)> &callback )
+{
+	gsm.lock();
+	sel->id = QID;
+	callbacks[QID] = callback;
+	states.addQuery(player,QID);
+	QID++; 
+	sendAndApply(sel);
+	gsm.unlock();
+}
+
+void CGameHandler::ask( Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback )
+{
+	gsm.lock();
+	sel->id = QID;
+	callbacks[QID] = callback;
+	states.addQuery(player,QID);
+	sendToAllClients(sel);
+	QID++; 
+	gsm.unlock();
+}
+
+void CGameHandler::sendToAllClients( CPack * info )
+{
+	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
+	{
+		(*i)->wmx->lock();
+		**i << info;
+		(*i)->wmx->unlock();
+	}
+}
+
+void CGameHandler::sendAndApply( CPack * info )
+{
+	gs->apply(info);
+	sendToAllClients(info);
 }

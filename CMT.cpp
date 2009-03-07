@@ -27,7 +27,6 @@
 #include "CAdvmapInterface.h"
 #include "hch/CBuildingHandler.h"
 #include "hch/CVideoHandler.h"
-#include "hch/CAbilityHandler.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CCreatureHandler.h"
 #include "hch/CSpellHandler.h"
@@ -47,9 +46,7 @@
 #undef main
 #endif
 std::string NAME = NAME_VER + std::string(" (client)");
-DLL_EXPORT void initDLL(CLodHandler *b);
 SDL_Surface * screen, * screen2;
-extern SDL_Surface * CSDL_Ext::std32bppSurface;
 std::queue<SDL_Event> events;
 boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
@@ -125,10 +122,6 @@ int main(int argc, char** argv)
 		cgi->curh->initCursor();
 		cgi->curh->show();
 		tlog0<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
-		CAbilityHandler * abilh = new CAbilityHandler;
-		abilh->loadAbilities();
-		cgi->abilh = abilh;
-		tlog0<<"\tAbility handler: "<<pomtime.getDif()<<std::endl;
 		cgi->pathf = new CPathfinder();
 		tlog0<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
 		tlog0<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;

@@ -4,8 +4,12 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <fstream>
+
 using namespace boost;
 using namespace boost::asio::ip;
+template<typename Serializer> DLL_EXPORT void registerTypes(Serializer &s); //defined elsewhere and explicitly instantiated for used serializers
+
+CTypeList typeList;
 
 #define LOG(a) \
 	if(logging)\
@@ -22,6 +26,8 @@ using namespace boost::asio::ip;
 
 void CConnection::init()
 {
+	registerTypes(static_cast<CISer<CConnection>&>(*this));
+	registerTypes(static_cast<COSer<CConnection>&>(*this));
 #ifdef LIL_ENDIAN
 	myEndianess = true;
 #else
@@ -148,6 +154,7 @@ void CConnection::close()
 CSaveFile::CSaveFile( const std::string &fname )
 	:sfile(new std::ofstream(fname.c_str(),std::ios::binary))
 {
+	registerTypes(*this);
 	if(!(*sfile))
 	{
 		tlog1 << "Error: cannot open to write " << fname << std::endl;
@@ -169,6 +176,7 @@ int CSaveFile::write( const void * data, unsigned size )
 CLoadFile::CLoadFile( const std::string &fname )
 :sfile(new std::ifstream(fname.c_str(),std::ios::binary))
 {
+	registerTypes(*this);
 	if(!(*sfile))
 	{
 		tlog1 << "Error: cannot open to read " << fname << std::endl;
@@ -185,4 +193,30 @@ int CLoadFile::read( const void * data, unsigned size )
 {
 	sfile->read((char *)data,size);
 	return size;
+}
+
+CTypeList::CTypeList()
+{
+
+}
+
+ui16 CTypeList::registerType( const type_info *type )
+{
+	TTypeMap::const_iterator i = types.find(type);
+	if(i != types.end())
+		return i->second; //type found, return ID
+
+	//type not found - add it to the list and return given ID
+	ui16 id = types.size() + 1;
+	types.insert(std::make_pair(type,id));
+	return id;
+}
+
+ui16 CTypeList::getTypeID( const type_info *type )
+{
+	TTypeMap::const_iterator i = types.find(type);
+	if(i != types.end())
+		return i->second;
+	else
+		return 0;
 }

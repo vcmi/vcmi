@@ -45,7 +45,6 @@ public:
 	CArtHandler * arth;
 	CHeroHandler * heroh;
 	CCreatureHandler * creh;
-	CAbilityHandler * abilh;
 	CSpellHandler * spellh;
 	CMapHandler * mh;
 	CBuildingHandler * buildh;

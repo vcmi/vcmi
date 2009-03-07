@@ -2092,7 +2092,7 @@ void CPlayerInterface::battleNewRound(int round) //called at the beggining of ea
 void CPlayerInterface::actionStarted(const BattleAction* action)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	curAction = action;
+	curAction = new BattleAction(*action);
 	if( (action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber))) )
 	{
 		battleInt->moveStarted = true;
@@ -2152,6 +2152,7 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 void CPlayerInterface::actionFinished(const BattleAction* action)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	delete curAction;
 	curAction = NULL;
 	//if((action->actionType==2 || (action->actionType==6 && action->destinationTile!=cb->battleGetPos(action->stackNumber)))) //activating interface when move is finished
 	{

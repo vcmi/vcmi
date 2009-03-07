@@ -26,7 +26,7 @@
 #ifdef max
 #undef max
 #endif
-extern CSharedCond<std::set<IPack*> > mess;
+extern CSharedCond<std::set<CPack*> > mess;
 
 int gcd(int x, int y)
 {
@@ -48,6 +48,12 @@ HeroMoveDetails::HeroMoveDetails(int3 Src, int3 Dst, CGHeroInstance*Ho)
 {
 	owner = ho->getOwner();
 };
+
+template <ui16 N> bool isType(CPack *pack)
+{
+	return pack->getType() == N;
+}
+
 bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 {
 	CGHeroInstance * hero = NULL;
@@ -108,13 +114,17 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		*cl->serv << ui16(501) << hero->id << stpos << endpos;
 		{//wait till there is server answer
 			boost::unique_lock<boost::mutex> lock(*mess.mx);
-			while(std::find_if(mess.res->begin(),mess.res->end(),IPack::isType<501>) == mess.res->end())
+			while(std::find_if(mess.res->begin(),mess.res->end(),&isType<501>) == mess.res->end())
 				mess.cv->wait(lock);
-			std::set<IPack*>::iterator itr = std::find_if(mess.res->begin(),mess.res->end(),IPack::isType<501>);
-			TryMoveHero tmh = *static_cast<TryMoveHero*>(*itr);
+			std::set<CPack*>::iterator itr = std::find_if(mess.res->begin(),mess.res->end(),&isType<501>);
+			TryMoveHero *tmh = static_cast<TryMoveHero*>(*itr);
 			mess.res->erase(itr);
-			if(!tmh.result)
+			if(!tmh->result)
+			{
+				delete tmh;
 				return false;
+			}
+			delete tmh;
 		}
 	}
 	return true;

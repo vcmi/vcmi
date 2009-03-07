@@ -323,6 +323,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\NetPacksLib.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\RegisterTypes.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\stdafx.cpp"
 				>
 			</File>
@@ -414,6 +422,10 @@
 			</File>
 			<File
 				RelativePath=".\NetPacks.h"
+				>
+			</File>
+			<File
+				RelativePath=".\RegisterTypes.h"
 				>
 			</File>
 			<File

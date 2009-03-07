@@ -14,12 +14,15 @@
 #include "hch/CObjectHandler.h"
 #include "hch/CCreatureHandler.h"
 #include "lib/VCMI_Lib.h"
+#include "lib/Connection.h"
 #include "map.h"
 #include "StartInfo.h"
 #include "lib/NetPacks.h"
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+
+#include "lib/RegisterTypes.h"
 boost::rand48 ran;
 
 
@@ -29,6 +32,38 @@ boost::rand48 ran;
 #ifdef max
 #undef max
 #endif
+
+class CBaseForGSApply
+{
+public:
+	virtual void applyOnGS(CGameState *gs, void *pack) const =0; 
+};
+template <typename T> class CApplyOnGS : public CBaseForGSApply
+{
+public:
+	void applyOnGS(CGameState *gs, void *pack) const
+	{
+		T *ptr = static_cast<T*>(pack);
+		ptr->applyGs(gs);
+	}
+};
+
+class CGSApplier
+{
+public:
+	std::map<ui16,CBaseForGSApply*> apps; 
+
+	CGSApplier()
+	{
+		registerTypes2(*this);
+	}
+	template<typename T> void registerType(const T * t=NULL)
+	{
+		ui16 ID = typeList.registerType(t);
+		apps[ID] = new CApplyOnGS<T>;
+	}
+
+} *applier = NULL;
 
 std::string DLL_EXPORT toString(MetaString &ms)
 {
@@ -506,512 +541,13 @@ CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, con
 	}
 }
 
-void CGameState::applyNL(IPack * pack)
-{
-	switch(pack->getType())
-	{
-	case 101://NewTurn
-		{
-			NewTurn * n = static_cast<NewTurn*>(pack);
-			day = n->day;
-			BOOST_FOREACH(NewTurn::Hero h, n->heroes) //give mana/movement point
-			{
-				static_cast<CGHeroInstance*>(map->objects[h.id])->movement = h.move;
-				static_cast<CGHeroInstance*>(map->objects[h.id])->mana = h.mana;
-			}
-			BOOST_FOREACH(SetResources h, n->res) //give resources
-				applyNL(&h);
-			BOOST_FOREACH(SetAvailableCreatures h, n->cres) //set available creatures in towns
-				applyNL(&h);
-			if(n->resetBuilded) //reset amount of structures set in this turn in towns
-				BOOST_FOREACH(CGTownInstance* t, map->towns)
-					t->builded = 0;
-			BOOST_FOREACH(CGHeroInstance *h, map->heroes)
-				h->bonuses.remove_if(HeroBonus::OneDay);
-			if(getDate(1) == 7) //new week
-				BOOST_FOREACH(CGHeroInstance *h, map->heroes)
-					h->bonuses.remove_if(HeroBonus::OneWeek);
-			break;
-		}
-	case 102: //set resource amount
-		{
-			SetResource *sr = static_cast<SetResource*>(pack);
-			players[sr->player].resources[sr->resid] = sr->val;
-			break;
-		}
-	case 104:
-		{
-			SetResources *sr = static_cast<SetResources*>(pack);
-			for(int i=0;i<sr->res.size();i++)
-				players[sr->player].resources[i] = sr->res[i];
-			break;
-		}
-	case 105:
-		{
-			SetPrimSkill *sr = static_cast<SetPrimSkill*>(pack);
-			CGHeroInstance *hero = getHero(sr->id);
-			if(sr->which <4)
-			{
-				if(sr->abs)
-					hero->primSkills[sr->which] = sr->val;
-				else
-					hero->primSkills[sr->which] += sr->val;
-			}
-			else if(sr->which == 4) //XP
-			{
-				if(sr->abs)
-					hero->exp = sr->val;
-				else
-					hero->exp += sr->val;
-			}
-			break;
-		}
-	case 106:
-		{
-			SetSecSkill *sr = static_cast<SetSecSkill*>(pack);
-			CGHeroInstance *hero = getHero(sr->id);
-			if(hero->getSecSkillLevel(sr->which) == 0)
-			{
-				hero->secSkills.push_back(std::pair<int,int>(sr->which, sr->val));
-			}
-			else
-			{
-				for(unsigned i=0;i<hero->secSkills.size();i++)
-				{
-					if(hero->secSkills[i].first == sr->which)
-					{
-						if(sr->abs)
-							hero->secSkills[i].second = sr->val;
-						else
-							hero->secSkills[i].second += sr->val;
-					}
-				}
-			}
-			break;
-		}
-	case 108:
-		{
-			HeroVisitCastle *vc = static_cast<HeroVisitCastle*>(pack);
-			CGHeroInstance *h = getHero(vc->hid);
-			CGTownInstance *t = getTown(vc->tid);
-			if(vc->start())
-			{
-				if(vc->garrison())
-				{
-					t->garrisonHero = h;
-					h->visitedTown = t;
-					h->inTownGarrison = true;
-				}
-				else
-				{
-					t->visitingHero = h;
-					h->visitedTown = t;
-					h->inTownGarrison = false;
-				}
-			}
-			else
-			{
-				if(vc->garrison())
-				{
-					t->garrisonHero = NULL;
-					h->visitedTown = NULL;
-					h->inTownGarrison = false;
-				}
-				else
-				{
-					t->visitingHero = NULL;
-					h->visitedTown = NULL;
-					h->inTownGarrison = false;
-				}
-			}
-			break;
-		}
-	case 109:
-		{
-			ChangeSpells *rh = static_cast<ChangeSpells*>(pack);
-			CGHeroInstance *hero = getHero(rh->hid);
-			if(rh->learn)
-				BOOST_FOREACH(ui32 sid, rh->spells)
-					hero->spells.insert(sid);
-			else
-				BOOST_FOREACH(ui32 sid, rh->spells)
-					hero->spells.erase(sid);
-			break;
-		}
-	case 110:
-		{
-			SetMana *rh = static_cast<SetMana*>(pack);
-			CGHeroInstance *hero = getHero(rh->hid);
-			hero->mana = rh->val;
-			break;
-		}
-	case 111:
-		{
-			SetMovePoints *rh = static_cast<SetMovePoints*>(pack);
-			CGHeroInstance *hero = getHero(rh->hid);
-			hero->movement = rh->val;
-			break;
-		}
-	case 112:
-		{
-			FoWChange *rh = static_cast<FoWChange*>(pack);
-			BOOST_FOREACH(int3 t, rh->tiles)
-				players[rh->player].fogOfWarMap[t.x][t.y][t.z] = rh->mode;
-			break;
-		}
-	case 113:
-		{
-			SetAvailableHeroes *rh = static_cast<SetAvailableHeroes*>(pack);
-			players[rh->player].availableHeroes.clear();
-
-			CGHeroInstance *h = (rh->hid1>=0 ?  hpool.heroesPool[rh->hid1] : NULL);
-			players[rh->player].availableHeroes.push_back(h);
-			if(h  &&  rh->flags & 1)
-			{
-				h->army.slots.clear();
-				h->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
-			}
-
-			h = (rh->hid2>=0 ?  hpool.heroesPool[rh->hid2] : NULL);
-			players[rh->player].availableHeroes.push_back(h);
-			if(rh->flags & 2)
-			{
-				h->army.slots.clear();
-				h->army.slots[0] = std::pair<ui32,si32>(VLC->creh->nameToID[h->type->refTypeStack[0]],1);
-			}
-			break;
-		}
-	case 115:
-		{
-			GiveBonus *rh = static_cast<GiveBonus*>(pack);
-			CGHeroInstance *h = getHero(rh->hid);
-			h->bonuses.push_back(rh->bonus);
-			h->bonuses.back().description = toString(rh->bdescr);
-			break;
-		}
-	case 116:
-		{
-			ChangeObjPos *rh = static_cast<ChangeObjPos*>(pack);
-			CGObjectInstance *obj = map->objects[rh->objid];
-			if(!obj)
-			{
-				tlog1 << "Wrong ChangeObjPos: object " << rh->objid << " doesn't exist!\n";
-				return;
-			}
-			map->removeBlockVisTiles(obj);
-			obj->pos = rh->nPos;
-			map->addBlockVisTiles(obj);
-			break;
-		}
-	case 500:
-		{
-			RemoveObject *rh = static_cast<RemoveObject*>(pack);
-			CGObjectInstance *obj = map->objects[rh->id];
-			if(obj->ID==HEROI_TYPE)
-			{
-				CGHeroInstance *h = static_cast<CGHeroInstance*>(obj);
-				std::vector<CGHeroInstance*>::iterator nitr = std::find(map->heroes.begin(), map->heroes.end(),h);
-				map->heroes.erase(nitr);
-				int player = h->tempOwner;
-				nitr = std::find(players[player].heroes.begin(), players[player].heroes.end(), h);
-				players[player].heroes.erase(nitr);
-				if(h->visitedTown)
-				{
-					if(h->inTownGarrison)
-						h->visitedTown->garrisonHero = NULL;
-					else
-						h->visitedTown->visitingHero = NULL;
-					h->visitedTown = NULL;
-				}
-			}
-			map->objects[rh->id] = NULL;	
-
-			//unblock tiles
-			if(obj->defInfo)
-			{
-				map->removeBlockVisTiles(obj);
-			}
-
-
-			break;
-		}
-	case 501://hero try-move
-		{
-			TryMoveHero * n = static_cast<TryMoveHero*>(pack);
-			CGHeroInstance *h = static_cast<CGHeroInstance*>(map->objects[n->id]);
-			h->movement = n->movePoints;
-			if(n->start!=n->end && n->result)
-			{
-				map->removeBlockVisTiles(h);
-				h->pos = n->end;
-				map->addBlockVisTiles(h);
-			}
-			BOOST_FOREACH(int3 t, n->fowRevealed)
-				players[h->getOwner()].fogOfWarMap[t.x][t.y][t.z] = 1;
-			break;
-		}
-	case 502:
-		{
-			SetGarrisons * n = static_cast<SetGarrisons*>(pack);
-			for(std::map<ui32,CCreatureSet>::iterator i = n->garrs.begin(); i!=n->garrs.end(); i++)
-			{
-				CArmedInstance *ai = static_cast<CArmedInstance*>(map->objects[i->first]);
-				ai->army = i->second;
-				if(ai->ID==TOWNI_TYPE && (static_cast<CGTownInstance*>(ai))->garrisonHero) //if there is a hero in garrison then we must update also his army
-					const_cast<CGHeroInstance*>((static_cast<CGTownInstance*>(ai))->garrisonHero)->army = i->second;
-				else if(ai->ID==HEROI_TYPE)
-				{
-					CGHeroInstance *h =  static_cast<CGHeroInstance*>(ai);
-					if(h->visitedTown && h->inTownGarrison)
-						h->visitedTown->army = i->second;
-				}
-			}
-			break;
-		}
-	case 503:
-		{
-			//SetStrInfo *ssi = static_cast<SetStrInfo*>(pack);
-			//static_cast<CGTownInstance*>(map->objects[ssi->tid])->strInfo.creatures = ssi->cres;
-			break;
-		}
-	case 504:
-		{
-			NewStructures *ns = static_cast<NewStructures*>(pack);
-			CGTownInstance*t = static_cast<CGTownInstance*>(map->objects[ns->tid]);
-			BOOST_FOREACH(si32 bid,ns->bid)
-				t->builtBuildings.insert(bid);
-			t->builded = ns->builded;
-			break;
-		}
-	case 506:
-		{
-			SetAvailableCreatures *sac = static_cast<SetAvailableCreatures*>(pack);
-			static_cast<CGTownInstance*>(map->objects[sac->tid])->strInfo.creatures = sac->creatures;
-			break;
-		}
-	case 508:
-		{
-			SetHeroesInTown *sac = static_cast<SetHeroesInTown*>(pack);
-			CGTownInstance *t = getTown(sac->tid);
-			CGHeroInstance *v  = getHero(sac->visiting), *g = getHero(sac->garrison);
-			t->visitingHero = v;
-			t->garrisonHero = g;
-			if(v)
-			{
-				v->visitedTown = t;
-				v->inTownGarrison = false;
-				map->addBlockVisTiles(v);
-			}
-			if(g)
-			{
-				g->visitedTown = t;
-				g->inTownGarrison = true;
-				map->removeBlockVisTiles(g);
-			}
-			break;
-		}
-	case 509:
-		{
-			SetHeroArtifacts *sha = static_cast<SetHeroArtifacts*>(pack);
-			CGHeroInstance *h = getHero(sha->hid);
-			h->artifacts = sha->artifacts;
-			h->artifWorn = sha->artifWorn;
-			break;
-		}
-	case 514:
-		{
-			SetSelection *ss = static_cast<SetSelection*>(pack);
-			players[ss->player].currentSelection = ss->id;
-			break;
-		}
-	case 515:
-		{
-			HeroRecruited *sha = static_cast<HeroRecruited*>(pack);
-			CGHeroInstance *h = hpool.heroesPool[sha->hid];
-			CGTownInstance *t = getTown(sha->tid);
-			h->setOwner(sha->player);
-			h->pos = sha->tile;
-			h->movement =  h->maxMovePoints(true);
-
-			hpool.heroesPool.erase(sha->hid);
-			if(h->id < 0)
-			{
-				h->id = map->objects.size();
-				map->objects.push_back(h);
-			}
-			else
-				map->objects[h->id] = h;
-
-			h->initHeroDefInfo();
-			map->heroes.push_back(h);
-			players[h->tempOwner].heroes.push_back(h);
-			map->addBlockVisTiles(h);
-			t->visitingHero = h;
-			h->visitedTown = t;
-			h->inTownGarrison = false;
-			break;
-		}
-	case 516:
-		{
-			GiveHero *sha = static_cast<GiveHero*>(pack);
-			CGHeroInstance *h = getHero(sha->id);
-			map->removeBlockVisTiles(h,true);
-			h->setOwner(sha->player);
-			h->movement =  h->maxMovePoints(true);
-			h->initHeroDefInfo();
-			map->heroes.push_back(h);
-			players[h->tempOwner].heroes.push_back(h);
-			map->addBlockVisTiles(h);
-			h->inTownGarrison = false;
-			break;
-		}
-	case 1001://set object property
-		{
-			SetObjectProperty *p = static_cast<SetObjectProperty*>(pack);
-			CGObjectInstance *obj = map->objects[p->id];
-			if(!obj)
-				tlog1 << "Wrong object ID - property cannot be set!\n";
-			else
-				obj->setProperty(p->what,p->val);
-			break;
-		}
-	case 1002:
-		{
-			SetHoverName *shn = static_cast<SetHoverName*>(pack);
-			map->objects[shn->id]->hoverName = toString(shn->name);
-			break;
-		}
-	case 2000:
-		{
-			HeroLevelUp * bs = static_cast<HeroLevelUp*>(pack);
-			getHero(bs->heroid)->level = bs->level;
-			break;
-		}
-	case 3000:
-		{
-			BattleStart * bs = static_cast<BattleStart*>(pack);
-			curB = bs->info;
-			break;
-		}
-	case 3001:
-		{
-			BattleNextRound *ns = static_cast<BattleNextRound*>(pack);
-			curB->castedSpells[0] = curB->castedSpells[1] = 0;
-			curB->round = ns->round;
-			for(int i=0; i<curB->stacks.size();i++)
-			{
-				curB->stacks[i]->state -= DEFENDING;
-				curB->stacks[i]->state -= WAITING;
-				curB->stacks[i]->state -= MOVED;
-				curB->stacks[i]->state -= HAD_MORALE;
-				curB->stacks[i]->counterAttacks = 1;
-			}
-			break;
-		}
-	case 3002:
-		{
-			BattleSetActiveStack *ns = static_cast<BattleSetActiveStack*>(pack);
-			curB->activeStack = ns->stack;
-			CStack *st = curB->getStack(ns->stack);
-			if(vstd::contains(st->state,MOVED))
-				st->state.insert(HAD_MORALE);
-			break;
-		}
-	case 3003:
-		{
-			BattleResult *br = static_cast<BattleResult*>(pack);
-			for(unsigned i=0;i<curB->stacks.size();i++)
-				delete curB->stacks[i];
-
-			//remove any "until next battle" bonuses
-			CGHeroInstance *h;
-			h = getHero(curB->hero1);
-			if(h)
-				h->bonuses.remove_if(HeroBonus::OneBattle);
-			h = getHero(curB->hero2);
-			if(h) 
-				h->bonuses.remove_if(HeroBonus::OneBattle);
-
-			delete curB;
-			curB = NULL;
-			break;
-		}
-	case 3004:
-		{
-			BattleStackMoved *br = static_cast<BattleStackMoved*>(pack);
-			curB->getStack(br->stack)->position = br->tile;
-			break;
-		}
-	case 3005:
-		{
-			BattleStackAttacked *br = static_cast<BattleStackAttacked*>(pack);
-			CStack * at = curB->getStack(br->stackAttacked);
-			at->amount = br->newAmount;
-			at->firstHPleft = br->newHP;
-			if(br->killed())
-				at->state -= ALIVE;
-			break;
-		}
-	case 3006:
-		{
-			BattleAttack *br = static_cast<BattleAttack*>(pack);
-			CStack *attacker = curB->getStack(br->stackAttacking);
-			if(br->counter())
-				attacker->counterAttacks--;
-			if(br->shot())
-				attacker->shots--;
-			applyNL(&br->bsa);
-			break;
-		}
-	case 3007:
-		{
-			StartAction *br = static_cast<StartAction*>(pack);
-				CStack *st = curB->getStack(br->ba.stackNumber);
-			switch(br->ba.actionType)
-			{
-			case 3:
-				st->state.insert(DEFENDING);
-				break;
-			case 8:
-				st->state.insert(WAITING);
-				break;
-			case 2: case 6: case 7: case 9: case 10: case 11:
-				st->state.insert(MOVED);
-				break;
-			}
-			break;
-		}
-	case 3009:
-		{
-			SpellCasted *sc = static_cast<SpellCasted*>(pack);
-			CGHeroInstance *h = (sc->side) ? getHero(curB->hero2) : getHero(curB->hero1);
-			if(h)
-			{
-				h->mana -= VLC->spellh->spells[sc->id].costs[sc->skill];
-				if(h->mana < 0) h->mana = 0;
-			}
-			if(sc->side >= 0 && sc->side < 2)
-			{
-				curB->castedSpells[sc->side]++;
-			}
-			break;
-		}
-	case 3010:
-		{
-			SetStackEffect *sc = static_cast<SetStackEffect*>(pack);
-			CStack *stack = curB->getStack(sc->stack);
-			stack->effects.push_back(sc->effect);
-			break;
-		}
-	}
-}
-void CGameState::apply(IPack * pack)
-{
-	while(!mx->try_lock())
-		boost::this_thread::sleep(boost::posix_time::milliseconds(50)); //give other threads time to finish
-	applyNL(pack);
-	mx->unlock();
-}
+//void CGameState::apply(CPack * pack)
+//{
+//	while(!mx->try_lock())
+//		boost::this_thread::sleep(boost::posix_time::milliseconds(50)); //give other threads time to finish
+//	//applyNL(pack);
+//	mx->unlock();
+//}
 int CGameState::pickHero(int owner)
 {
 	int h=-1;
@@ -1285,6 +821,7 @@ CGameState::CGameState()
 	map = NULL;
 	curB = NULL;
 	scenarioOps = NULL;
+	applier = new CGSApplier;
 }
 CGameState::~CGameState()
 {
@@ -1292,6 +829,7 @@ CGameState::~CGameState()
 	delete map;
 	delete curB;
 	delete scenarioOps;
+	delete applier;
 }
 void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
@@ -1946,6 +1484,11 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	}
 
 	return ret;
+}
+
+void CGameState::apply(CPack *pack)
+{
+	applier->apps[typeList.getTypeID(pack)]->applyOnGS(this,pack);
 }
 
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
