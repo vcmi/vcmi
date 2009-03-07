@@ -26,6 +26,8 @@ CTypeList typeList;
 
 void CConnection::init()
 {
+	registerTypes(static_cast<CISer<CConnection>&>(*this));
+	registerTypes(static_cast<COSer<CConnection>&>(*this));
 #ifdef LIL_ENDIAN
 	myEndianess = true;
 #else
@@ -200,19 +202,21 @@ CTypeList::CTypeList()
 
 ui16 CTypeList::registerType( const type_info *type )
 {
-	std::map<const type_info *,ui16>::const_iterator i = types.find(type);
+	TTypeMap::const_iterator i = types.find(type);
 	if(i != types.end())
-		return i->second;
+		return i->second; //type found, return ID
 
+	//type not found - add it to the list and return given ID
 	ui16 id = types.size() + 1;
-	types[type] = id;
+	types.insert(std::make_pair(type,id));
 	return id;
 }
 
 ui16 CTypeList::getTypeID( const type_info *type )
 {
-	if(vstd::contains(types,type))
-		return types[type];
+	TTypeMap::const_iterator i = types.find(type);
+	if(i != types.end())
+		return i->second;
 	else
 		return 0;
 }

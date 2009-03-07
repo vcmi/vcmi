@@ -64,14 +64,15 @@ public:
 	}
 	template<typename T> void registerType(const T * t=NULL)
 	{
-		ui16 ID = typeList.registerType(&typeid(T));
+		ui16 ID = typeList.registerType(t);
 		apps[ID] = new CApplyOnCL<T>;
 	}
 
-} applier;
+} *applier = NULL;
 
 void CClient::init()
 {
+	applier = new CCLApplier;
 	IObjectInterface::cb = this;
 	serv = NULL;
 	gs = NULL;
@@ -93,6 +94,7 @@ CClient::CClient(CConnection *con, StartInfo *si)
 }
 CClient::~CClient(void)
 {
+	delete applier;
 	delete shared;
 }
 void CClient::waitForMoveAndSend(int color)
@@ -108,18 +110,24 @@ void CClient::waitForMoveAndSend(int color)
 void CClient::run()
 {
 	CPack *pack;
-	try
+	while(1)
 	{
 		*serv >> pack;
-		CBaseForCLApply *apply = applier.apps[typeList.getTypeID(pack)];
-
-		apply->applyOnClBefore(this,pack);
-		gs->apply(pack);
-		apply->applyOnClAfter(this,pack);
-
+		CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)];
+		if(apply)
+		{
+			apply->applyOnClBefore(this,pack);
+			gs->apply(pack);
+			apply->applyOnClAfter(this,pack);
+			tlog5 << "Applied server message of type " << typeid(*pack).name() << std::endl;
+		}
+		else
+		{
+			tlog1 << "Unknown server message. Type: " << pack->type << ". Typeinfo: " << typeid(*pack).name() << std::endl;
+		}
 		delete pack;
 		pack = NULL;
-	} HANDLE_EXCEPTION
+	}
 }
 
 void CClient::close()

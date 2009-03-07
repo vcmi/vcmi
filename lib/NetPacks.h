@@ -14,28 +14,30 @@ struct CPack
 	ui16 type;
 
 	CPack(){};
-	~CPack(){};
+	virtual ~CPack(){};
 	ui16 getType() const{return type;}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
+		tlog1 << "CPack serialized... this should not happen!\n";
 	}
 };
 
 struct CPackForClient : public CPack
 {
 	CGameState* GS(CClient *cl);
+	CPackForClient(){type = 0;};
 
 	void applyFirstCl(CClient *cl)//called before applying to gs
 	{
-		tlog1 << "CPackForClient::applyFirstCl - We should not be here!\n";
+		//tlog1 << "CPackForClient::applyFirstCl - We should not be here!\n";
 	};
 	DLL_EXPORT void applyGs(CGameState *gs)
 	{
-		tlog1 << "CPackForClient::applyGs - We should not be here!\n";
+		//tlog1 << "CPackForClient::applyGs - We should not be here!\n";
 	};
 	void applyCl(CClient *cl)//called after applying to gs
 	{
-		tlog1 << "CPackForClient::applyCl - We should not be here!\n";
+		//tlog1 << "CPackForClient::applyCl - We should not be here!\n";
 	}; 
 };
 
@@ -311,7 +313,7 @@ struct TryMoveHero : public CPackForClient //501
 	TryMoveHero(){type = 501;};
 	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
-	void applyqGs(CGameState *gs);
+	void applyGs(CGameState *gs);
 
 	ui32 id, movePoints;
 	ui8 result; //0 - failed; 1- succes -normal move; 2 - teleportation, 3 - instant jump
@@ -397,6 +399,9 @@ struct SetHeroArtifacts : public CPackForClient //509
 struct PlayerMessage : public CPackForClient //513
 {
 	PlayerMessage(){type = 513;};
+	PlayerMessage(ui8 Player, const std::string &Text)
+		:player(Player),text(Text)
+	{type = 513;};
 	void applyCl(CClient *cl);
 
 	ui8 player;

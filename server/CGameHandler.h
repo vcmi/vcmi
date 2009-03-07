@@ -62,7 +62,7 @@ class CGameHandler : public IGameCallback
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
-	void sendMessageTo(CConnection &c, std::string message);
+	void sendMessageTo(CConnection &c, const std::string &message);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
@@ -153,24 +153,17 @@ public:
 	//}
 	void applyAndAsk(Query * sel, ui8 player, boost::function<void(ui32)> &callback);
 	void ask(Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback);
-	template <typename T>void sendDataToClients(const T & data)
-	{
-		for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
-		{
-			(*i)->wmx->lock();
-			**i << data;
-			(*i)->wmx->unlock();
-		}
-	}
-	void sendToAllClients(CPack * info)
-	{
-
-	}
-	void sendAndApply(CPack * info)
-	{
-		//gs->apply(info);
-		//sendToAllClients(info);
-	}
+	//template <typename T>void sendDataToClients(const T & data)
+	//{
+	//	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
+	//	{
+	//		(*i)->wmx->lock();
+	//		**i << data;
+	//		(*i)->wmx->unlock();
+	//	}
+	//}
+	void sendToAllClients(CPack * info);
+	void sendAndApply(CPack * info);
 	void run(bool resume);
 	void newTurn();
 

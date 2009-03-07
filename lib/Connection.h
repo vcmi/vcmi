@@ -53,21 +53,40 @@ enum SerializationLvl
 	Serializable
 };
 
+
+struct TypeComparer
+{
+	bool operator()(const type_info *a, const type_info *b)
+	{
+		return a->before(*b);
+	}
+};
+
 class DLL_EXPORT CTypeList
 {
-	std::map<const type_info *,ui16> types;
+	typedef std::multimap<const type_info *,ui16,TypeComparer> TTypeMap;
+	 TTypeMap types;
 public:
 	CTypeList();
 	ui16 registerType(const type_info *type);
 	template <typename T> ui16 registerType(const T * t)
 	{
-		return registerType(&typeid(*t));
+		return registerType(getTypeInfo(t));
 	}
 
 	ui16 getTypeID(const type_info *type);
 	template <typename T> ui16 getTypeID(const T * t)
 	{
-		return getTypeID(&typeid(*t));
+		return getTypeID(getTypeInfo(t));
+	}
+
+
+	template <typename T> const type_info * getTypeInfo(const T * t = NULL)
+	{
+		if(t)
+			return &typeid(*t);
+		else
+			return &typeid(T);
 	}
 };
 
@@ -230,8 +249,8 @@ public:
 
 	template<typename T> void registerType(const T * t=NULL)
 	{
-		ui16 ID = typeList.registerType(&typeid(T));
-		savers[ID] = new CPointerSaver<Serializer,T>;
+		ui16 ID = typeList.registerType(t);
+		savers[ID] = new CPointerSaver<COSer<Serializer>,T>;
 	}
 
     Serializer * This()
@@ -404,8 +423,8 @@ public:
 
 	template<typename T> void registerType(const T * t=NULL)
 	{
-		ui16 ID = typeList.registerType(&typeid(T));
-		loaders[ID] = new CPointerLoader<Serializer,T>;
+		ui16 ID = typeList.registerType(t);
+		loaders[ID] = new CPointerLoader<CISer<Serializer>,T>;
 	}
 
     Serializer * This()

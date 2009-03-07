@@ -59,11 +59,11 @@ public:
 	}
 	template<typename T> void registerType(const T * t=NULL)
 	{
-		ui16 ID = typeList.registerType(&typeid(T));
+		ui16 ID = typeList.registerType(t);
 		apps[ID] = new CApplyOnGS<T>;
 	}
 
-} applier;
+} *applier = NULL;
 
 std::string DLL_EXPORT toString(MetaString &ms)
 {
@@ -806,6 +806,7 @@ CGameState::CGameState()
 	map = NULL;
 	curB = NULL;
 	scenarioOps = NULL;
+	applier = new CGSApplier;
 }
 CGameState::~CGameState()
 {
@@ -813,6 +814,7 @@ CGameState::~CGameState()
 	delete map;
 	delete curB;
 	delete scenarioOps;
+	delete applier;
 }
 void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
@@ -1471,7 +1473,7 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 
 void CGameState::apply(CPack *pack)
 {
-	applier.apps[typeList.getTypeID(pack)]->applyOnGS(this,pack);
+	applier->apps[typeList.getTypeID(pack)]->applyOnGS(this,pack);
 }
 
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)

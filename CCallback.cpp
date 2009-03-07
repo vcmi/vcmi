@@ -117,10 +117,14 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 			while(std::find_if(mess.res->begin(),mess.res->end(),&isType<501>) == mess.res->end())
 				mess.cv->wait(lock);
 			std::set<CPack*>::iterator itr = std::find_if(mess.res->begin(),mess.res->end(),&isType<501>);
-			TryMoveHero tmh = *static_cast<TryMoveHero*>(*itr);
+			TryMoveHero *tmh = static_cast<TryMoveHero*>(*itr);
 			mess.res->erase(itr);
-			if(!tmh.result)
+			if(!tmh->result)
+			{
+				delete tmh;
 				return false;
+			}
+			delete tmh;
 		}
 	}
 	return true;
