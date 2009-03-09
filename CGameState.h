@@ -50,6 +50,7 @@ struct DLL_EXPORT PlayerState
 {
 public:
 	ui8 color, serial;
+	ui8 human; //true if human controlled player, false for AI
 	ui32 currentSelection; //id of hero/town, 0xffffffff if none
 	std::vector<std::vector<std::vector<ui8> > >  fogOfWarMap; //true - visible, false - hidden
 	std::vector<si32> resources;
@@ -59,7 +60,7 @@ public:
 	PlayerState():color(-1),currentSelection(0xffffffff){};
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & color & serial & currentSelection & fogOfWarMap & resources;
+		h & color & serial & human & currentSelection & fogOfWarMap & resources;
 
 		ui32 size;
 		if(h.saving) //write subids of available heroes

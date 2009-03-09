@@ -53,23 +53,6 @@ public:
 	unsigned char player; //owner
 	unsigned char minLevel, maxLevel; //minimal and maximal level of creature in dwelling: <0, 6>
 };
-
-struct DLL_EXPORT Sresource
-{
-	std::string resName; //name of this resource
-	int amount; //it can be greater and lesser than 0
-};
-struct DLL_EXPORT TimeEvent
-{
-	std::string eventName;
-	std::string message;
-	std::vector<Sresource> decIncRes; //decreases / increases of resources
-	unsigned int whichPlayers; //which players are affected by this event (+1 - first, +2 - second, +4 - third, +8 - fourth etc.)
-	bool areHumansAffected;
-	bool areCompsAffected;
-	int firstAfterNDays; //how many days after appears this event
-	int nextAfterNDays; //how many days after the epperance before appaers this event
-};
 struct DLL_EXPORT TerrainTile
 {
 	EterrainType tertype; // type of terrain
@@ -197,6 +180,10 @@ public:
 		h & name & message & resources
 			& players & humanAffected & computerAffected & firstOccurence & nextOccurence;
 	}
+	bool operator<(const CMapEvent &b) const
+	{
+		return firstOccurence < b.firstOccurence;
+	}
 };
 class DLL_EXPORT CMapHeader
 {
@@ -297,7 +284,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	std::vector<ui8> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
 	std::vector<ui8> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
 	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
-	std::list<CMapEvent> events;
+	std::list<CMapEvent*> events;
 
 	int3 grailPos;
 	int grailRadious;

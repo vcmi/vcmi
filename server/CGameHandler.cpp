@@ -52,14 +52,15 @@ std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback 
 class CBaseForGHApply
 {
 public:
-	virtual void applyOnGH(CGameHandler *gh, void *pack) const =0; 
+	virtual void applyOnGH(CGameHandler *gh, CConnection *c, void *pack) const =0; 
 };
 template <typename T> class CApplyOnGH : public CBaseForGHApply
 {
 public:
-	void applyOnGH(CGameHandler *gh, void *pack) const
+	void applyOnGH(CGameHandler *gh, CConnection *c, void *pack) const
 	{
 		T *ptr = static_cast<T*>(pack);
+		ptr->c = c;
 		ptr->applyGh(gh);
 	}
 };
@@ -495,22 +496,22 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
-	CPackForServer *pack = NULL;
+	CPack *pack = NULL;
 	try
 	{
 		while(!end2)
 		{
 			c >> pack;
+			tlog5 << "Received client message of type " << typeid(*pack).name() << std::endl;
 			CBaseForGHApply *apply = applier->apps[typeList.getTypeID(pack)];
 			if(apply)
 			{
-				pack->c = &c;
-				apply->applyOnGH(this,pack);
-				tlog5 << "Applied client message of type " << typeid(*pack).name() << std::endl;
+				apply->applyOnGH(this,&c,pack);
+				tlog5 << "Message successfully applied!\n";
 			}
 			else
 			{
-				tlog1 << "Unknown client message. Type: " << pack->type << ". Typeinfo: " << typeid(*pack).name() << std::endl;
+				tlog5 << "Message cannot be applied, cannot find applier!\n";
 			}
 			delete pack;
 			pack = NULL;
@@ -638,6 +639,11 @@ void CGameHandler::init(StartInfo *si, int Seed)
 		states.addPlayer(i->first);
 }
 
+bool evntCmp(const CMapEvent *a, const CMapEvent *b)
+{
+	return *a < *b;
+}
+
 void CGameHandler::newTurn()
 {
 	tlog5 << "Turn " << gs->day+1 << std::endl;
@@ -724,6 +730,10 @@ void CGameHandler::newTurn()
 	}	
 	sendAndApply(&n);
 	tlog5 << "Info about turn " << n.day << "has been sent!" << std::endl;
+
+	handleTimeEvents();
+
+	//call objects
 	for(size_t i = 0; i<gs->map->objects.size(); i++)
 		if(gs->map->objects[i])
 			gs->map->objects[i]->newTurn();
@@ -2380,6 +2390,61 @@ if(getSchoolLevel(h,s) < 3)  /*not expert */ \
 				}
 			}
 			sendAndApply(&EndAction());
+		}
+	}
+}
+
+void CGameHandler::handleTimeEvents()
+{
+	while(gs->map->events.size() && gs->map->events.front()->firstOccurence+1 == gs->day)
+	{
+		CMapEvent *ev = gs->map->events.front();
+		for(int player = 0; player < PLAYER_LIMIT; player++)
+		{
+			PlayerState *pinfo = gs->getPlayer(player);
+
+			if( pinfo  //player exists
+				&& (ev->players & 1<<player) //event is enabled to this player
+				&& ((ev->computerAffected && !pinfo->human) 
+				|| (ev->humanAffected && pinfo->human)
+				)
+				)
+			{
+				//give resources
+				SetResources sr;
+				sr.player = player;
+				sr.res = pinfo->resources;
+
+				//prepare dialog
+				InfoWindow iw;
+				iw.player = player;
+				iw.text << ev->message;
+				for (int i=0; i<ev->resources.size(); i++)
+				{
+					if(ev->resources[i]) //if resource is changed, we add it to the dialog
+					{
+						iw.components.push_back(Component(Component::RESOURCE,i,ev->resources[i],0));
+						sr.res[i] += ev->resources[i];
+					}
+				}
+				if (iw.components.size())
+				{
+					sendAndApply(&sr); //update player resources if changed
+				}
+
+				sendAndApply(&iw); //show dialog
+			}
+		} //PLAYERS LOOP
+
+		if(ev->nextOccurence)
+		{
+			ev->firstOccurence += ev->nextOccurence;
+			gs->map->events.sort(evntCmp);
+		}
+		else
+		{
+			delete ev;
+			gs->map->events.pop_front();
 		}
 	}
 }

@@ -567,6 +567,8 @@ Mapa::~Mapa()
 		}
 		delete [] terrain;
 	}
+	for(std::list<CMapEvent*>::iterator i = events.begin(); i != events.end(); i++)
+		delete *i;
 }
 
 CGHeroInstance * Mapa::getHero(int ID, int mode)
@@ -1833,34 +1835,34 @@ void Mapa::readEvents( unsigned char * bufor, int &i )
 	int numberOfEvents = readNormalNr(bufor,i); i+=4;
 	for(int yyoo=0; yyoo<numberOfEvents; ++yyoo)
 	{
-		CMapEvent ne;
-		ne.name = std::string();
-		ne.message = std::string();
+		CMapEvent *ne = new CMapEvent();
+		ne->name = std::string();
+		ne->message = std::string();
 		int nameLen = readNormalNr(bufor,i); i+=4;
 		for(int qq=0; qq<nameLen; ++qq)
 		{
-			ne.name += bufor[i]; ++i;
+			ne->name += bufor[i]; ++i;
 		}
 		int messLen = readNormalNr(bufor,i); i+=4;
 		for(int qq=0; qq<messLen; ++qq)
 		{
-			ne.message +=bufor[i]; ++i;
+			ne->message +=bufor[i]; ++i;
 		}
-		ne.resources.resize(RESOURCE_QUANTITY);
+		ne->resources.resize(RESOURCE_QUANTITY);
 		for(int k=0; k < 7; k++)
 		{
-			ne.resources[k] = readNormalNr(bufor,i); i+=4;
+			ne->resources[k] = readNormalNr(bufor,i); i+=4;
 		}
-		ne.players = bufor[i]; ++i;
+		ne->players = bufor[i]; ++i;
 		if(version>AB)
 		{
-			ne.humanAffected = bufor[i]; ++i;
+			ne->humanAffected = bufor[i]; ++i;
 		}
 		else
-			ne.humanAffected = true;
-		ne.computerAffected = bufor[i]; ++i;
-		ne.firstOccurence = bufor[i]; ++i;
-		ne.nextOccurence = bufor[i]; ++i;
+			ne->humanAffected = true;
+		ne->computerAffected = bufor[i]; ++i;
+		ne->firstOccurence = bufor[i]; ++i;
+		ne->nextOccurence = bufor[i]; ++i;
 		i+=18;
 		events.push_back(ne);
 	}

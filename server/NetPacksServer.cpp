@@ -3,7 +3,7 @@
 
 
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
-#define ERROR_AND_RETURN	{if(c) *c << &SystemMessage("You don't own this object!");	\
+#define ERROR_AND_RETURN	{if(c) *c << &SystemMessage("You are not allowed to perform this action!");	\
 							tlog1<<"Player is not allowed to perform this action!\n";	\
 							return;}
 #define ERROR_IF_NOT_OWNS(id)	if(!PLAYER_OWNS(id)) ERROR_AND_RETURN
@@ -117,13 +117,13 @@ void QueryReply::applyGh( CGameHandler *gh )
 
 void MakeAction::applyGh( CGameHandler *gh )
 {
-	if(gh->getPlayerAt(c) != GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner) ERROR_AND_RETURN;
+	if(gh->connections[GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner] != c) ERROR_AND_RETURN;
 	gh->makeBattleAction(ba);
 }
 
 void MakeCustomAction::applyGh( CGameHandler *gh )
 {
-	if(gh->getPlayerAt(c) != GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner) ERROR_AND_RETURN;
+	if(gh->connections[GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner] != c) ERROR_AND_RETURN;
 	gh->makeCustomAction(ba);
 }
 

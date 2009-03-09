@@ -102,7 +102,7 @@ void CClient::waitForMoveAndSend(int color)
 	try
 	{
 		BattleAction ba = playerint[color]->activeStack(gs->curB->activeStack);
-		*serv << ui16(3002) << ba;
+		*serv << &MakeAction(ba);
 		return;
 	}HANDLE_EXCEPTION
 	tlog1 << "We should not be here!" << std::endl;
@@ -113,17 +113,18 @@ void CClient::run()
 	while(1)
 	{
 		*serv >> pack;
+		tlog5 << "Received server message of type " << typeid(*pack).name() << std::endl;
 		CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)];
 		if(apply)
 		{
 			apply->applyOnClBefore(this,pack);
 			gs->apply(pack);
 			apply->applyOnClAfter(this,pack);
-			tlog5 << "Applied server message of type " << typeid(*pack).name() << std::endl;
+			tlog5 << "Message successfully applied!\n";
 		}
 		else
 		{
-			tlog1 << "Unknown server message. Type: " << pack->type << ". Typeinfo: " << typeid(*pack).name() << std::endl;
+			tlog5 << "Message cannot be applied, cannot find applier!\n";
 		}
 		delete pack;
 		pack = NULL;

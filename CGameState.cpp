@@ -907,6 +907,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		std::pair<int,PlayerState> ins(scenarioOps->playerInfos[i].color,PlayerState());
 		ins.second.color=ins.first;
 		ins.second.serial=i;
+		ins.second.human = scenarioOps->playerInfos[i].human;
 		players.insert(ins);
 	}
 	/******************RESOURCES****************************************************/

@@ -1049,9 +1049,11 @@ void TimeInterested::deactivate()
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
 	LOCPLINT = this;
+	curint = NULL;
 	playerID=Player;
 	serialID=serial;
 	human=true;
+	castleInt = NULL;
 	adventureInt = NULL;
 	pim = new boost::recursive_mutex;
 	showingDialog = new CondSh<bool>(false);
@@ -1079,7 +1081,6 @@ void CPlayerInterface::init(ICallback * CB)
 {
 	cb = dynamic_cast<CCallback*>(CB);
 	adventureInt = new CAdvMapInt(playerID);
-	castleInt = NULL;
 	std::vector<const CGTownInstance*> tt = cb->getTownsInfo(false);
 	for(int i=0;i<tt.size();i++)
 	{
@@ -1112,12 +1113,27 @@ void CPlayerInterface::yourTurn()
 		adventureInt->select(adventureInt->townList.items[0]);
 	adventureInt->activate();
 
+
 	timeHandler th;
 	th.getDif();
 	for(;makingTurn;) // main loop
 	{
+
 		updateWater();
 		pim->lock();
+
+
+		//if there are any waiting dialogs, show them
+		if(dialogs.size())
+		{
+			dialogs.front()->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
+			showingDialog->set(true);
+			curint->deactivate(); //dezaktywacja starego interfejsu
+			dialogs.front()->activate();
+			LOCPLINT->objsToBlit.push_back(dialogs.front());
+			dialogs.pop_front();
+		}
+
 		int tv = th.getDif();
 		std::list<TimeInterested*> hlp = timeinterested;
 		for (std::list<TimeInterested*>::iterator i=hlp.begin(); i != hlp.end();i++)
@@ -2279,19 +2295,27 @@ void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<Compo
 		intComps.push_back(new SComponent(*components[i]));
 	showInfoDialog(text,intComps);
 }
+
 void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<SComponent*> & components)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	showingDialog->set(true);
-	curint->deactivate(); //dezaktywacja starego interfejsu
 
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	
 	CInfoWindow * temp = new CInfoWindow(text,playerID,32,components,pom);
-	temp->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
-	temp->activate();
-	LOCPLINT->objsToBlit.push_back(temp);
+
+	if(makingTurn && curint)
+	{
+		temp->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
+		showingDialog->set(true);
+		curint->deactivate(); //dezaktywacja starego interfejsu
+		temp->activate();
+		LOCPLINT->objsToBlit.push_back(temp);
+	}
+	else
+	{
+		dialogs.push_back(temp);
+	}
 }
 void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps)
 {

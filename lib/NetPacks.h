@@ -472,7 +472,8 @@ struct NewTurn : public CPackForClient //101
 
 struct Component : public CPack //2002 helper for object scrips informations
 {
-	ui16 id, subtype; //ids: 0 - primskill; 1 - secskill; 2 - resource; 3 - creature; 4 - artifact; 5 - experience (sub==0 exp points; sub==1 levels)
+	enum {PRIM_SKILL,SEC_SKILL,RESOURCE,CREATURE,ARTIFACT,EXPERIENCE};
+	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
 	si32 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days
 
@@ -1008,7 +1009,7 @@ struct QueryReply : public CPackForServer
 struct MakeAction : public CPackForServer
 {
 	MakeAction(){};
-	MakeAction(const BattleAction &BA):ba(ba){};
+	MakeAction(const BattleAction &BA):ba(BA){};
 	BattleAction ba;
 
 	void applyGh(CGameHandler *gh);

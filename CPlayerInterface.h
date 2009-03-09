@@ -451,6 +451,8 @@ public:
 	CCallback * cb;
 	const BattleAction *curAction;
 
+	std::list<CInfoWindow *> dialogs;
+
 	//GUI elements
 	std::list<ClickableL*> lclickable;
 	std::list<ClickableR*> rclickable;
