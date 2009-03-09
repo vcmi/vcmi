@@ -59,7 +59,7 @@ public:
 	virtual void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb)=0; //use hero=NULL for no hero
 	virtual void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb)=0; //for hero<=>neutral army
 	virtual void setAmount(int objid, ui32 val)=0;
-	virtual void moveHero(int hid, int3 pos, bool instant)=0;
+	virtual void moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(int hid, int val)=0;
@@ -67,5 +67,6 @@ public:
 	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
 
 	friend struct CPackForClient;
+	friend struct CPackForServer;
 };
 #endif // __IGAMECALLBACK_H__

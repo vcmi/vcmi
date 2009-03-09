@@ -137,7 +137,7 @@ void CClient::close()
 
 	tlog3 << "Connection has been requested to be closed.\n";
 	boost::unique_lock<boost::mutex>(*serv->wmx);
-	*serv << ui16(99);
+	*serv << &CloseServer();
 	tlog3 << "Sent closing signal to the server\n";
 	serv->close();
 	tlog3 << "Our socket has been closed.\n";
@@ -151,7 +151,7 @@ void CClient::save(const std::string & fname)
 		return;
 	}
 
-	*serv << ui16(98) << fname;
+	*serv << &SaveGame(fname);
 }
 
 void CClient::load( const std::string & fname )

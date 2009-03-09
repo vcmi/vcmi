@@ -224,6 +224,7 @@ public:
 
 	boost::shared_mutex *mx;
 
+	PlayerState *getPlayer(ui8 color);
 	void init(StartInfo * si, Mapa * map, int Seed);
 	void loadTownDInfos();
 	void randomizeObject(CGObjectInstance *cur);
@@ -257,10 +258,10 @@ public:
 			//recreating towns/heroes vectors in players entries
 			for(int i=0; i<map->towns.size(); i++)
 				if(map->towns[i]->tempOwner < PLAYER_LIMIT)
-					players[map->towns[i]->tempOwner].towns.push_back(map->towns[i]);
+					getPlayer(map->towns[i]->tempOwner)->towns.push_back(map->towns[i]);
 			for(int i=0; i<map->heroes.size(); i++)
 				if(map->heroes[i]->tempOwner < PLAYER_LIMIT)
-					players[map->heroes[i]->tempOwner].heroes.push_back(map->heroes[i]);
+					getPlayer(map->heroes[i]->tempOwner)->heroes.push_back(map->heroes[i]);
 			//recreating available heroes
 			for(std::map<ui8,PlayerState>::iterator i=players.begin(); i!=players.end(); i++)
 			{

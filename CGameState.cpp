@@ -1116,7 +1116,8 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 					j->second.first = vti->town->upgradedCreatures[ (j->second.first-197) / 2 ];
 			}
 		}
-		players[vti->getOwner()].towns.push_back(vti);
+		if(vti->getOwner() != 255)
+			getPlayer(vti->getOwner())->towns.push_back(vti);
 	}
 
 	for(std::map<ui8, PlayerState>::iterator k=players.begin(); k!=players.end(); ++k)
@@ -1297,8 +1298,8 @@ float CGameState::getMarketEfficiency( int player, int mode/*=0*/ )
 	boost::shared_lock<boost::shared_mutex> lock(*mx);
 	if(mode) return -1; //todo - support other modes
 	int mcount = 0;
-	for(int i=0;i<players[player].towns.size();i++)
-		if(vstd::contains(players[player].towns[i]->builtBuildings,14))
+	for(int i=0;i<getPlayer(player)->towns.size();i++)
+		if(vstd::contains(getPlayer(player)->towns[i]->builtBuildings,14))
 			mcount++;
 	float ret = std::min(((float)mcount+1.0f)/20.0f,0.5f);
 	return ret;
@@ -1453,7 +1454,7 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
 	for(int res=0;res<7;res++) //TODO: support custom amount of resources
 	{
-		if(pom->resources[res] > players[t->tempOwner].resources[res])
+		if(pom->resources[res] > getPlayer(t->tempOwner)->resources[res])
 			ret = 6; //lack of res
 	}
 
@@ -1489,6 +1490,19 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 void CGameState::apply(CPack *pack)
 {
 	applier->apps[typeList.getTypeID(pack)]->applyOnGS(this,pack);
+}
+
+PlayerState * CGameState::getPlayer( ui8 color )
+{
+	if(vstd::contains(players,color))
+	{
+		return &players[color];
+	}
+	else 
+	{
+		tlog2 << "Warning: Cannot find info for player " << int(color) << std::endl;
+		return NULL;
+	}
 }
 
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
@@ -1637,7 +1651,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 			dmgBonusMultiplier *= 0.8f;
 	}
 
-	return (float)damageBase * (float)attacker->amount * dmgBonusMultiplier;
+	return int(  (float)damageBase * (float)attacker->amount * dmgBonusMultiplier  );
 }
 
 void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualties )

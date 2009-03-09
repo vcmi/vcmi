@@ -8,6 +8,8 @@
 
 class CClient;
 class CGameState;
+class CGameHandler;
+class CConnection;
 
 struct CPack
 {
@@ -20,26 +22,35 @@ struct CPack
 	{
 		tlog1 << "CPack serialized... this should not happen!\n";
 	}
+	DLL_EXPORT void applyGs(CGameState *gs)
+	{};
 };
 
 struct CPackForClient : public CPack
 {
-	CGameState* GS(CClient *cl);
-	CPackForClient(){type = 0;};
+	CPackForClient(){type = 1;};
 
+	CGameState* GS(CClient *cl);
 	void applyFirstCl(CClient *cl)//called before applying to gs
-	{
-		//tlog1 << "CPackForClient::applyFirstCl - We should not be here!\n";
-	};
-	DLL_EXPORT void applyGs(CGameState *gs)
-	{
-		//tlog1 << "CPackForClient::applyGs - We should not be here!\n";
-	};
+	{};
 	void applyCl(CClient *cl)//called after applying to gs
-	{
-		//tlog1 << "CPackForClient::applyCl - We should not be here!\n";
-	}; 
+	{}; 
 };
+
+struct CPackForServer : public CPack
+{
+	CConnection *c;
+	CGameState* GS(CGameHandler *gh);
+	CPackForServer()
+	{
+		type = 2; 
+		c = NULL;
+	};
+
+	void applyGh(CGameHandler *gh)//called after applying to gs
+	{}; 
+};
+
 
 struct Query : public CPackForClient
 {
@@ -80,8 +91,11 @@ struct MetaString : public CPack //2001 helper for object scrips
 	MetaString(){type = 2001;};
 }; 
 
+/***********************************************************************************************************/
+
 struct SystemMessage : public CPackForClient //95
 {
+	SystemMessage(const std::string Text) : text(Text){type = 95;};
 	SystemMessage(){type = 95;};
 	void applyCl(CClient *cl);
 
@@ -394,38 +408,7 @@ struct SetHeroArtifacts : public CPackForClient //509
 	{
 		h & hid & artifacts & artifWorn;
 	}
-};  
-
-struct PlayerMessage : public CPackForClient //513
-{
-	PlayerMessage(){type = 513;};
-	PlayerMessage(ui8 Player, const std::string &Text)
-		:player(Player),text(Text)
-	{type = 513;};
-	void applyCl(CClient *cl);
-
-	ui8 player;
-	std::string text;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & text & player;
-	}
-};  
-
-struct SetSelection : public CPackForClient //514
-{
-	SetSelection(){type = 514;};
-	DLL_EXPORT void applyGs(CGameState *gs);
-
-	ui8 player;
-	ui32 id;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id & player;
-	}
-};  
+};   
 
 struct HeroRecruited : public CPackForClient //515
 {
@@ -793,4 +776,296 @@ struct ShowInInfobox : public CPackForClient //107
 		h & player & c & text;
 	}
 };
+
+/***********************************************************************************************************/
+
+struct SaveGame : public CPackForServer
+{
+	SaveGame(){};
+	SaveGame(const std::string &Fname) :fname(Fname){};
+	std::string fname;
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & fname;
+	}
+};
+
+struct CloseServer : public CPackForServer
+{
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
+
+struct EndTurn : public CPackForServer
+{
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{}
+};
+
+struct DismissHero : public CPackForServer
+{
+	DismissHero(){};
+	DismissHero(si32 HID) : hid(hid) {};
+	si32 hid;
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid;
+	}
+};
+
+struct MoveHero : public CPackForServer
+{
+	MoveHero(){};
+	MoveHero(const int3 &Dest, si32 HID) : dest(Dest), hid(HID){};
+	int3 dest;
+	si32 hid;
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & dest & hid;
+	}
+};
+
+struct ArrangeStacks : public CPackForServer
+{
+	ArrangeStacks(){};
+	ArrangeStacks(ui8 W, ui8 P1, ui8 P2, si32 ID1, si32 ID2, si32 VAL)
+		:what(W),p1(P1),p2(P2),id1(ID1),id2(ID2),val(VAL) {};
+
+	ui8 what; //1 - swap; 2 - merge; 3 - split
+	ui8 p1, p2; //positions of first and second stack
+	si32 id1, id2; //ids of objects with garrison
+	si32 val;
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & what & p1 & p2 & id1 & id2 & val;
+	}
+};
+
+struct DisbandCreature : public CPackForServer
+{
+	DisbandCreature(){};
+	DisbandCreature(ui8 Pos, si32 ID):pos(Pos),id(ID){};
+	ui8 pos; //stack pos
+	si32 id; //object id
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & pos & id;
+	}
+};
+
+struct BuildStructure : public CPackForServer
+{
+	BuildStructure(){};
+	BuildStructure(si32 TID, si32 BID):tid(TID),bid(BID){};
+	si32 bid, tid; //structure and town ids
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tid & bid;
+	}
+};
+
+struct RecruitCreatures : public CPackForServer
+{
+	RecruitCreatures(){};
+	RecruitCreatures(si32 TID, si32 CRID, si32 Amount):tid(TID),crid(CRID),amount(Amount){};
+	si32 tid; //town id
+	ui32 crid, amount;//creature ID and amount
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tid & crid & amount;
+	}
+};
+
+struct UpgradeCreature : public CPackForServer
+{
+	UpgradeCreature(){};
+	UpgradeCreature(ui8 Pos, si32 ID, si32 CRID):pos(Pos),id(ID), cid(CRID){};
+	ui8 pos; //stack pos
+	si32 id; //object id
+	si32 cid; //id of type to which we want make upgrade
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & pos & id & cid;
+	}
+};
+
+struct GarrisonHeroSwap : public CPackForServer
+{
+	GarrisonHeroSwap(){};
+	GarrisonHeroSwap(si32 TID):tid(TID){};
+	si32 tid; 
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & tid;
+	}
+};
+
+struct ExchangeArtifacts : public CPackForServer
+{
+	ExchangeArtifacts(){};
+	ExchangeArtifacts(si32 H1, si32 H2, ui16 S1, ui16 S2)
+		:hid1(H1),hid2(H2),slot1(S1),slot2(S2){};
+	si32 hid1, hid2;
+	ui16 slot1, slot2;
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid1 & hid2 & slot1 & slot2;
+	}
+};
+
+struct BuyArtifact : public CPackForServer
+{
+	BuyArtifact(){};
+	BuyArtifact(si32 HID, si32 AID):hid(HID),aid(AID){};
+	si32 hid, aid; //hero and artifact id
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid & aid;
+	}
+};
+
+struct TradeOnMarketplace : public CPackForServer
+{
+	TradeOnMarketplace(){};
+	TradeOnMarketplace(ui8 Player, ui8 Mode, /*si32 ID, */ui32 R1, ui32 R2, ui32 Val)
+		:player(Player),mode(Mode),/*id(ID),*/r1(R1),r2(R2),val(Val){};
+	ui8 player;
+	ui8 mode;//0 - res<->res; 
+	//si32 id; //object id
+	ui32 r1, r2; //mode 0: r1 - sold resource, r2 - bought res
+	ui32 val; //units of sold resource
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player & mode & /*id & */r1 & r2 & val;
+	}
+};
+
+struct SetFormation : public CPackForServer
+{
+	SetFormation(){};
+	SetFormation(si32 HID, ui8 Formation):hid(HID),formation(Formation){};
+	si32 hid;
+	ui8 formation;
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid & formation;
+	}
+};
+
+struct HireHero : public CPackForServer
+{
+	HireHero(){};
+	HireHero(si32 HID, si32 TID):hid(HID),tid(TID){};
+	si32 hid, tid; //available hero serial and town id
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hid & tid;
+	}
+};
+
+struct QueryReply : public CPackForServer
+{
+	QueryReply(){};
+	QueryReply(ui32 QID, ui32 Answer):qid(QID),answer(Answer){};
+	ui32 qid, answer; //hero and artifact id
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & qid & answer;
+	}
+};
+
+struct MakeAction : public CPackForServer
+{
+	MakeAction(){};
+	MakeAction(const BattleAction &BA):ba(ba){};
+	BattleAction ba;
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ba;
+	}
+};
+
+struct MakeCustomAction : public CPackForServer
+{
+	MakeCustomAction(){};
+	MakeCustomAction(const BattleAction &BA):ba(ba){};
+	BattleAction ba;
+
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ba;
+	}
+};
+
+/***********************************************************************************************************/
+
+struct PlayerMessage : public CPackForClient, public CPackForServer //513
+{
+	PlayerMessage(){CPackForClient::type = 513;};
+	PlayerMessage(ui8 Player, const std::string &Text)
+		:player(Player),text(Text)
+	{CPackForClient::type = 513;};
+	void applyCl(CClient *cl);
+	void applyGs(CGameState *gs){};
+	void applyGh(CGameHandler *gh);
+
+	ui8 player;
+	std::string text;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & text & player;
+	}
+}; 
+
+
+struct SetSelection : public CPackForClient, public CPackForServer //514
+{
+	SetSelection(){CPackForClient::type = 514;};
+	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyGh(CGameHandler *gh);
+
+	ui8 player;
+	ui32 id;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & player;
+	}
+};  
+
 #endif //__NETPACKS_H__

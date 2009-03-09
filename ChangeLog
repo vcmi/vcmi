@@ -1,4 +1,4 @@
-0.7 -> 0.71 (as for r726)
+0.7 -> 0.71 (as for r751)
 GENERAL:
 * fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
 * morale/luck system and corresponding sec. skills supported 
@@ -30,7 +30,14 @@ BATTLES:
 * spells not known by hero can't be casted 
 * spell books won't be placed in War Machine slots after battle
 * attack is now possible when hex under cursor is not displayed 
+* glowing effect of yellow border around creatures
+* blue glowing border around hovered creature
+* made animation on battlefield more smooth
+* standing stacks have more static animation
 * fixes for two-hex creatures actions
+* fixed hero casting spell animation
+* corrected stack death animation
+* correct handling of flying creatures in battles
 * a few tweaks in battle path/available hexes calculation (more of them is needed)
 * fixed positions of stack queue and battle result window when resolution is != 800x600 
 * corrected duration of frenzy spell which was incorrect in certain cases 

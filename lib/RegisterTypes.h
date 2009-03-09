@@ -29,7 +29,7 @@ template<typename Serializer> DLL_EXPORT void registerTypes1(Serializer &s)
 }
 
 
-//second set of types - derivatives of CPack (network VCMI packages)
+//second set of types - derivatives of CPack for client (network VCMI packages)
 template<typename Serializer> DLL_EXPORT void registerTypes2(Serializer &s)
 {
 	s.registerType<SystemMessage>();
@@ -53,7 +53,6 @@ template<typename Serializer> DLL_EXPORT void registerTypes2(Serializer &s)
 	s.registerType<SetAvailableCreatures>();
 	s.registerType<SetHeroesInTown>();
 	s.registerType<SetHeroArtifacts>();
-	s.registerType<SetSelection>();
 	s.registerType<HeroRecruited>();
 	s.registerType<GiveHero>();
 	s.registerType<NewTurn>();
@@ -75,6 +74,35 @@ template<typename Serializer> DLL_EXPORT void registerTypes2(Serializer &s)
 	s.registerType<SpellCasted>();
 	s.registerType<SetStackEffect>();
 	s.registerType<ShowInInfobox>();
+
+	s.registerType<SetSelection>();
+	s.registerType<PlayerMessage>();
+}
+
+template<typename Serializer> DLL_EXPORT void registerTypes3(Serializer &s)
+{
+	s.registerType<SaveGame>();
+	s.registerType<CloseServer>();
+	s.registerType<EndTurn>();
+	s.registerType<DismissHero>();
+	s.registerType<MoveHero>();
+	s.registerType<ArrangeStacks>();
+	s.registerType<DisbandCreature>();
+	s.registerType<BuildStructure>();
+	s.registerType<RecruitCreatures>();
+	s.registerType<UpgradeCreature>();
+	s.registerType<GarrisonHeroSwap>();
+	s.registerType<ExchangeArtifacts>();
+	s.registerType<BuyArtifact>();
+	s.registerType<TradeOnMarketplace>();
+	s.registerType<SetFormation>();
+	s.registerType<HireHero>();
+	s.registerType<QueryReply>();
+	s.registerType<MakeAction>();
+	s.registerType<MakeCustomAction>();
+
+	s.registerType<SetSelection>();
+	s.registerType<PlayerMessage>();
 }
 
 //register all
@@ -82,4 +110,5 @@ template<typename Serializer> DLL_EXPORT void registerTypes(Serializer &s)
 {
 	registerTypes1(s);
 	registerTypes2(s);
+	registerTypes3(s);
 }

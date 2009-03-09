@@ -7,6 +7,7 @@
 #include "../CGameState.h"
 #include "../lib/Connection.h"
 #include "../lib/IGameCallback.h"
+#include "../lib/BattleAction.h"
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
 class CVCMIServer;
@@ -56,13 +57,13 @@ public:
 
 class CGameHandler : public IGameCallback
 {
+public:
 	static ui32 QID;
 	CVCMIServer *s;
 	std::map<int,CConnection*> connections; //player color -> connection to clinet with interface of that player
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
-	void sendMessageTo(CConnection &c, const std::string &message);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
@@ -71,7 +72,7 @@ class CGameHandler : public IGameCallback
 	void checkForBattleEnd( std::vector<CStack*> &stacks );
 	void setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army1, CCreatureSet &army2, CGHeroInstance * hero1, CGHeroInstance * hero2 );
 
-public:
+
 	CGameHandler(void);
 	~CGameHandler(void);
 
@@ -102,7 +103,7 @@ public:
 	void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
 	void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
 	void setAmount(int objid, ui32 val);
-	void moveHero(int hid, int3 pos, bool instant);
+	void moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255);
 	void giveHeroBonus(GiveBonus * bonus);
 	void setMovePoints(SetMovePoints * smp);
 	void setManaPoints(int hid, int val);
@@ -112,58 +113,38 @@ public:
 
 	void init(StartInfo *si, int Seed);
 	void handleConnection(std::set<int> players, CConnection &c);
+	int getPlayerAt(CConnection *c) const;
+
+	void playerMessage( ui8 player, const std::string &message);
+	void makeBattleAction(BattleAction &ba);
+	void makeCustomAction(BattleAction &ba);
+	void queryReply( ui32 qid, ui32 answer );
+	void hireHero( ui32 tid, ui8 hid );
+	void setFormation( si32 hid, ui8 formation );
+	void tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 );
+	void buyArtifact( ui32 hid, si32 aid );
+	void swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 );
+	void garrisonSwap(si32 tid);
+	void upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
+	void recruitCreatures(si32 objid, ui32 crid, ui32 cram);
+	void buildStructure(si32 tid, si32 bid);
+	void disbandCreature( si32 id, ui8 pos );
+	void arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val );
+	void save(const std::string &fname);
+	void close();
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & QID & states;
 	}
-	//template <typename T> void applyAndAsk(Query<T> * sel, ui8 player, boost::function<void(ui32)> &callback)
-	//{
-	//	gsm.lock();
-	//	sel->id = QID;
-	//	callbacks[QID] = callback;
-	//	states.addQuery(player,QID);
-	//	QID++; 
-	//	sendAndApply(sel);
-	//	gsm.unlock();
-	//}
-	//template <typename T> void ask(Query<T> * sel, ui8 player, const CFunctionList<void(ui32)> &callback)
-	//{
-	//	gsm.lock();
-	//	sel->id = QID;
-	//	callbacks[QID] = callback;
-	//	states.addQuery(player,QID);
-	//	sendToAllClients(sel);
-	//	QID++; 
-	//	gsm.unlock();
-	//}
 
-	//template <typename T>void sendToAllClients(CPack<T> * info)
-	//{
-	//	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
-	//	{
-	//		(*i)->wmx->lock();
-	//		**i << info->getType() << *info->This();
-	//		(*i)->wmx->unlock();
-	//	}
-	//}
-	//template <typename T>void sendAndApply(CPack<T> * info)
-	//{
-	//	gs->apply(info);
-	//	sendToAllClients(info);
-	//}
+	void sendMessageToAll(const std::string &message);
+	void sendMessageTo(CConnection &c, const std::string &message);
 	void applyAndAsk(Query * sel, ui8 player, boost::function<void(ui32)> &callback);
 	void ask(Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback);
-	//template <typename T>void sendDataToClients(const T & data)
-	//{
-	//	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
-	//	{
-	//		(*i)->wmx->lock();
-	//		**i << data;
-	//		(*i)->wmx->unlock();
-	//	}
-	//}
-	void sendToAllClients(CPack * info);
-	void sendAndApply(CPack * info);
+	void sendToAllClients(CPackForClient * info);
+	void sendAndApply(CPackForClient * info);
+
 	void run(bool resume);
 	void newTurn();
 

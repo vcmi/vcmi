@@ -41,6 +41,7 @@
 #include "lib/Connection.h"
 #include "lib/VCMI_Lib.h"
 #include <cstdlib>
+#include "lib/NetPacks.h"
 
 #if __MINGW32__
 #undef main
@@ -328,6 +329,6 @@ void processCommand(const std::string &message, CClient *&client)
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
-		*client->serv << ui16(513) << message;
+		*client->serv << &PlayerMessage(255,message);
 	}
 }

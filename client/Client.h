@@ -85,7 +85,7 @@ public:
 	void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb){}; //use hero=NULL for no hero
 	void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb){}; //for hero<=>neutral army
 	void setAmount(int objid, ui32 val){};
-	void moveHero(int hid, int3 pos, bool instant){};
+	void moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255){};
 	void giveHeroBonus(GiveBonus * bonus){};
 	void setMovePoints(SetMovePoints * smp){};
 	void setManaPoints(int hid, int val){};

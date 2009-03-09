@@ -14,13 +14,13 @@
 
 DLL_EXPORT void SetResource::applyGs( CGameState *gs )
 {
-	gs->players[player].resources[resid] = val;
+	gs->getPlayer(player)->resources[resid] = val;
 }
 
 DLL_EXPORT void SetResources::applyGs( CGameState *gs )
 {
 	for(int i=0;i<res.size();i++)
-		gs->players[player].resources[i] = res[i];
+		gs->getPlayer(player)->resources[i] = res[i];
 }
 
 DLL_EXPORT void SetPrimSkill::applyGs( CGameState *gs )
@@ -127,15 +127,15 @@ DLL_EXPORT void SetMovePoints::applyGs( CGameState *gs )
 DLL_EXPORT void FoWChange::applyGs( CGameState *gs )
 {
 	BOOST_FOREACH(int3 t, tiles)
-		gs->players[player].fogOfWarMap[t.x][t.y][t.z] = mode;
+		gs->getPlayer(player)->fogOfWarMap[t.x][t.y][t.z] = mode;
 }
 
 DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 {
-	gs->players[player].availableHeroes.clear();
+	gs->getPlayer(player)->availableHeroes.clear();
 
 	CGHeroInstance *h = (hid1>=0 ?  gs->hpool.heroesPool[hid1] : NULL);
-	gs->players[player].availableHeroes.push_back(h);
+	gs->getPlayer(player)->availableHeroes.push_back(h);
 	if(h  &&  flags & 1)
 	{
 		h->army.slots.clear();
@@ -143,7 +143,7 @@ DLL_EXPORT void SetAvailableHeroes::applyGs( CGameState *gs )
 	}
 
 	h = (hid2>=0 ?  gs->hpool.heroesPool[hid2] : NULL);
-	gs->players[player].availableHeroes.push_back(h);
+	gs->getPlayer(player)->availableHeroes.push_back(h);
 	if(flags & 2)
 	{
 		h->army.slots.clear();
@@ -180,8 +180,8 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 		std::vector<CGHeroInstance*>::iterator nitr = std::find(gs->map->heroes.begin(), gs->map->heroes.end(),h);
 		gs->map->heroes.erase(nitr);
 		int player = h->tempOwner;
-		nitr = std::find(gs->players[player].heroes.begin(), gs->players[player].heroes.end(), h);
-		gs->players[player].heroes.erase(nitr);
+		nitr = std::find(gs->getPlayer(player)->heroes.begin(), gs->getPlayer(player)->heroes.end(), h);
+		gs->getPlayer(player)->heroes.erase(nitr);
 		if(h->visitedTown)
 		{
 			if(h->inTownGarrison)
@@ -213,7 +213,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 		gs->map->addBlockVisTiles(h);
 	}
 	BOOST_FOREACH(int3 t, fowRevealed)
-		gs->players[h->getOwner()].fogOfWarMap[t.x][t.y][t.z] = 1;
+		gs->getPlayer(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
 }
 
 DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
@@ -295,7 +295,7 @@ DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 
 	h->initHeroDefInfo();
 	gs->map->heroes.push_back(h);
-	gs->players[h->tempOwner].heroes.push_back(h);
+	gs->getPlayer(h->getOwner())->heroes.push_back(h);
 	gs->map->addBlockVisTiles(h);
 	t->visitingHero = h;
 	h->visitedTown = t;
@@ -310,7 +310,7 @@ DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
 	h->movement =  h->maxMovePoints(true);
 	h->initHeroDefInfo();
 	gs->map->heroes.push_back(h);
-	gs->players[h->tempOwner].heroes.push_back(h);
+	gs->getPlayer(h->getOwner())->heroes.push_back(h);
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
 }
@@ -476,5 +476,5 @@ DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
 
 DLL_EXPORT void SetSelection::applyGs( CGameState *gs )
 {
-	gs->players[player].currentSelection = id;
+	gs->getPlayer(player)->currentSelection = id;
 }

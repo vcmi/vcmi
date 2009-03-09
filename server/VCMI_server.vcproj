@@ -264,6 +264,10 @@
 				RelativePath=".\CVCMIServer.cpp"
 				>
 			</File>
+			<File
+				RelativePath=".\NetPacksServer.cpp"
+				>
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"

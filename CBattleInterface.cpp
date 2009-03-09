@@ -1708,8 +1708,6 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 				SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			}
 			SDL_SetClipRect(screen, &buf); //restoring previous clip rect
-
-			int b=0; //TODO use me
 			break; //for 15 and 16 cases
 		}
 	case 17: //lightning bolt

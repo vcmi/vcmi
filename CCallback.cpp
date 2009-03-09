@@ -97,11 +97,7 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 	if (pathType==0)
 		CPathfinder::convertPath(path,pathType);
 	if (pathType>1)
-#ifndef __GNUC__
-		throw std::exception("Unknown path format");
-#else
-		throw std::exception();
-#endif
+		throw std::string("Unknown path format");
 
 	CPath * ourPath = path; 
 	if(!ourPath)
@@ -111,13 +107,14 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 		int3 stpos(ourPath->nodes[i].coord.x, ourPath->nodes[i].coord.y, hero->pos.z), 
 			endpos(ourPath->nodes[i-1].coord.x, ourPath->nodes[i-1].coord.y, hero->pos.z);
 		HeroMoveDetails curd(stpos,endpos,hero);
-		*cl->serv << ui16(501) << hero->id << stpos << endpos;
+		*cl->serv << &MoveHero(endpos,hero->id);
+
 		{//wait till there is server answer
 			boost::unique_lock<boost::mutex> lock(*mess.mx);
 			while(std::find_if(mess.res->begin(),mess.res->end(),&isType<501>) == mess.res->end())
 				mess.cv->wait(lock);
 			std::set<CPack*>::iterator itr = std::find_if(mess.res->begin(),mess.res->end(),&isType<501>);
-			TryMoveHero *tmh = static_cast<TryMoveHero*>(*itr);
+			TryMoveHero *tmh = dynamic_cast<TryMoveHero*>(*itr);
 			mess.res->erase(itr);
 			if(!tmh->result)
 			{
@@ -132,12 +129,12 @@ bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
 
 void CCallback::selectionMade(int selection, int asker)
 {
-	*cl->serv << ui16(2001) << ui32(asker) << ui32(selection);
+	*cl->serv << &QueryReply(asker,selection);
 }
 void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)
 {
 	if(player!=obj->tempOwner) return;
-	*cl->serv << ui16(506) << obj->id << ID << amount;
+	*cl->serv << &RecruitCreatures(obj->id,ID,amount);
 }
 
 
@@ -145,20 +142,18 @@ bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 {
 	if(((player>=0)  &&  obj->tempOwner != player) || obj->army.slots.size()<2)
 		return false;
-	*cl->serv << ui16(503) << obj->id <<  ui8(stackPos);
+	*cl->serv << &DisbandCreature(stackPos,obj->id);
 	return true;
 }
 bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int newID)
 {
-	*cl->serv << ui16(507) << obj->id <<  ui8(stackPos) << ui32(newID);
+	*cl->serv << &UpgradeCreature(stackPos,obj->id,newID);
 	return false;
 }
 void CCallback::endTurn()
 {
 	tlog5 << "Player "<<(unsigned)player<<" end his turn."<<std::endl;
-	cl->serv->wmx->lock();
-	*cl->serv << ui16(100); //report that we ended turn
-	cl->serv->wmx->unlock();
+	*cl->serv << &EndTurn(); //report that we ended turn
 }
 UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos) const
 {
@@ -388,7 +383,7 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 {
 	if(s1->tempOwner != player   ||   s2->tempOwner != player)
 		return -1;
-	*cl->serv << ui16(502) << ui8(1) << s1->id << ui8(p1) << s2->id << ui8(p2);
+	*cl->serv << &ArrangeStacks(1,p1,p2,s1->id,s2->id,0);
 	return 0;
 }
 
@@ -398,7 +393,7 @@ int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s
 	{
 		return -1;
 	}
-	*cl->serv << ui16(502) << ui8(2) << s1->id << ui8(p1) << s2->id << ui8(p2);
+	*cl->serv << &ArrangeStacks(2,p1,p2,s1->id,s2->id,0);
 	return 0;
 }
 int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)
@@ -407,14 +402,14 @@ int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2
 	{
 		return -1;
 	}
-	*cl->serv << ui16(502) << ui8(3) << s1->id << ui8(p1) << s2->id << ui8(p2) << si32(val);
+	*cl->serv << &ArrangeStacks(3,p1,p2,s1->id,s2->id,val);
 	return 0;
 }
 
 bool CCallback::dismissHero(const CGHeroInstance *hero)
 {
 	if(player!=hero->tempOwner) return false;
-	*cl->serv << ui16(500) << hero->id;
+	*cl->serv << &DismissHero(hero->id);
 	return true;
 }
 
@@ -443,7 +438,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 		if(b->resources[i] > gs->players[player].resources[i])
 			return false; //lack of resources
 
-	*cl->serv << ui16(504) << town->id << buildingID;
+	*cl->serv << &BuildStructure(town->id,buildingID);
 	return true;
 }
 
@@ -483,7 +478,7 @@ CStack* CCallback::battleGetStackByID(int ID)
 
 int CCallback::battleMakeAction(BattleAction* action)
 {
-	*cl->serv << ui16(3003) << *action;
+	*cl->serv << &MakeAction(*action);
 	return 0;
 }
 
@@ -612,7 +607,7 @@ void CCallback::swapGarrisonHero( const CGTownInstance *town )
 void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
 {
 	if(hero->tempOwner != player) return;
-	*cl->serv << ui16(510) << hero->id << ui32(aid);
+	*cl->serv << &BuyArtifact(hero->id,aid);
 }
 
 std::vector < const CGObjectInstance * > CCallback::getBlockingObjs( int3 pos ) const
@@ -681,13 +676,13 @@ void CCallback::trade( int mode, int id1, int id2, int val1 )
 {
 	int p1, p2;
 	getMarketOffer(id1,id2,p1,p2,mode);
-	*cl->serv << ui16(511) << ui8(player) << ui32(mode)  << ui32(id1) << ui32(id2) << ui32(val1);
+	*cl->serv << &TradeOnMarketplace(player,mode,id1,id2,val1);
 }
 
 void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 {
 	const_cast<CGHeroInstance*>(hero)->army.formation = tight;
-	*cl->serv << ui16(512) << hero->id << ui8(tight);
+	*cl->serv << &SetFormation(hero->id,tight);
 }
 
 void CCallback::setSelection(const CArmedInstance * obj)
@@ -695,17 +690,20 @@ void CCallback::setSelection(const CArmedInstance * obj)
 	SetSelection ss;
 	ss.player = player;
 	ss.id = obj->id;
-	*cl->serv << ui16(514) << ss;
+	*cl->serv << &ss;
 }
 
 void CCallback::recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)
 {
 	ui8 i=0;
-	for(;i<gs->players[player].availableHeroes.size();i++)
+	for(; i<gs->players[player].availableHeroes.size(); i++)
+	{
 		if(gs->players[player].availableHeroes[i] == hero)
-			break;
-	if(i>1) return;
-	*cl->serv << ui16(515) << town->id << i;
+		{
+			*cl->serv << &HireHero(town->id,i);
+			return;
+		}
+	}
 }
 
 std::vector<const CGHeroInstance *> CCallback::getAvailableHeroes(const CGTownInstance * town) const
