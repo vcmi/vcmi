@@ -601,7 +601,7 @@ bool CCallback::battleCanShoot(int ID, int dest)
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
 	if(town->tempOwner != player) return;
-	*cl->serv << ui16(508) << si32(town->id);
+	*cl->serv << &GarrisonHeroSwap(town->id);
 }
 
 void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)

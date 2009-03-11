@@ -107,6 +107,8 @@ public:
 	ui8 tempOwner;
 	ui8 blockVisit; //if non-zero then blocks the tile but is visitable from neighbouring tile
 
+	virtual int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
+	virtual int getSightRadious() const; //sight distance (should be used if player-owned structure)
 	int getOwner() const;
 	void setOwner(int ow);
 	int getWidth() const; //returns width of object graphic in tiles
@@ -206,6 +208,10 @@ public:
 			type = VLC->heroh->heroes[subID];
 		//visitied town pointer will be restored by map serialization method
 	}
+	//////////////////////////////////////////////////////////////////////////
+
+	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
+	int getSightRadious() const; //sight distance (should be used if player-owned structure)
 
 	//////////////////////////////////////////////////////////////////////////
 	const HeroBonus *getBonus(int from, int id) const;
@@ -216,7 +222,6 @@ public:
 	unsigned int getAdditiveMoveBonus() const;
 	float getMultiplicativeMoveBonus() const;
 	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
-	int getSightDistance() const; //returns sight distance of this hero
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	bool canWalkOnSea() const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
@@ -294,9 +299,12 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 
+	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
+	int getSightRadious() const; //returns sight distance
+
+	//////////////////////////////////////////////////////////////////////////
 
 	bool needsLastStack() const;
-	int getSightDistance() const; //returns sight distance
 	int fortLevel() const; //0 - none, 1 - fort, 2 - citadel, 3 - castle
 	int hallLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 	int mageGuildLevel() const; // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol

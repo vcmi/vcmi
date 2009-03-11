@@ -1229,7 +1229,7 @@ void CGameHandler::moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker)
 			{
 				obj->onHeroLeave(h);
 			}
-			tmh.fowRevealed = gs->tilesToReveal(h->convertPosition(dst,false),h->getSightDistance(),h->tempOwner);
+			tmh.fowRevealed = gs->tilesToReveal(h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner);
 			sendAndApply(&tmh);
 			tlog5 << "Moved to " <<tmh.end<<std::endl;
 
@@ -1256,7 +1256,7 @@ void CGameHandler::moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker)
 			}
 		}
 		tmh.result = instant+1;
-		tmh.fowRevealed = gs->tilesToReveal(h->convertPosition(dst,false),h->getSightDistance(),h->tempOwner);
+		tmh.fowRevealed = gs->tilesToReveal(h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner);
 		sendAndApply(&tmh);
 	}
 }

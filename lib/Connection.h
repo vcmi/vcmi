@@ -56,7 +56,7 @@ enum SerializationLvl
 
 struct TypeComparer
 {
-	bool operator()(const type_info *a, const type_info *b)
+	bool operator()(const type_info *a, const type_info *b) const
 	{
 		return a->before(*b);
 	}
@@ -69,7 +69,7 @@ class DLL_EXPORT CTypeList
 public:
 	CTypeList();
 	ui16 registerType(const type_info *type);
-	template <typename T> ui16 registerType(const T * t)
+	template <typename T> ui16 registerType(const T * t = NULL)
 	{
 		return registerType(getTypeInfo(t));
 	}

@@ -997,19 +997,38 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			for(int h=0; h<map->height; ++h)
 				for(int v=0; v<map->twoLevel+1; ++v)
 					k->second.fogOfWarMap[g][h][v] = 0;
-		for(int xd=0; xd<map->width; ++xd) //revealing part of map around heroes
+
+		BOOST_FOREACH(CGObjectInstance *obj, map->objects)
 		{
-			for(int yd=0; yd<map->height; ++yd)
+			if(obj->tempOwner != k->first) continue; //not a flagged object
+
+			int3 objCenter = obj->getSightCenter();
+			int radious = obj->getSightRadious();
+
+			for (int xd = std::max<int>(objCenter.x - radious , 0); xd <= std::min<int>(objCenter.x + radious, map->width - 1); xd++)
 			{
-				for(int ch=0; ch<k->second.heroes.size(); ++ch)
+				for (int yd = std::max<int>(objCenter.y - radious, 0); yd <= std::min<int>(objCenter.y + radious, map->height - 1); yd++)
 				{
-					int deltaX = (k->second.heroes[ch]->getPosition(false).x-xd)*(k->second.heroes[ch]->getPosition(false).x-xd);
-					int deltaY = (k->second.heroes[ch]->getPosition(false).y-yd)*(k->second.heroes[ch]->getPosition(false).y-yd);
-					if(deltaX+deltaY<k->second.heroes[ch]->getSightDistance()*k->second.heroes[ch]->getSightDistance())
-						k->second.fogOfWarMap[xd][yd][k->second.heroes[ch]->getPosition(false).z] = 1;
+					double distance = objCenter.dist2d(int3(xd,yd,objCenter.z)) - 0.5;
+					if(distance <= radious)
+						k->second.fogOfWarMap[xd][yd][objCenter.z] = 1;
 				}
 			}
 		}
+
+		//for(int xd=0; xd<map->width; ++xd) //revealing part of map around heroes
+		//{
+		//	for(int yd=0; yd<map->height; ++yd)
+		//	{
+		//		for(int ch=0; ch<k->second.heroes.size(); ++ch)
+		//		{
+		//			int deltaX = (k->second.heroes[ch]->getPosition(false).x-xd)*(k->second.heroes[ch]->getPosition(false).x-xd);
+		//			int deltaY = (k->second.heroes[ch]->getPosition(false).y-yd)*(k->second.heroes[ch]->getPosition(false).y-yd);
+		//			if(deltaX+deltaY<k->second.heroes[ch]->getSightDistance()*k->second.heroes[ch]->getSightDistance())
+		//				k->second.fogOfWarMap[xd][yd][k->second.heroes[ch]->getPosition(false).z] = 1;
+		//		}
+		//	}
+		//}
 
 		//starting bonus
 		if(si->playerInfos[k->second.serial].bonus==brandom)
@@ -1125,19 +1144,19 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	{
 		if(k->first==-1 || k->first==255)
 			continue;
-		for(int xd=0; xd<map->width; ++xd) //revealing part of map around towns
-		{
-			for(int yd=0; yd<map->height; ++yd)
-			{
-				for(int ch=0; ch<k->second.towns.size(); ++ch)
-				{
-					int deltaX = (k->second.towns[ch]->pos.x-xd)*(k->second.towns[ch]->pos.x-xd);
-					int deltaY = (k->second.towns[ch]->pos.y-yd)*(k->second.towns[ch]->pos.y-yd);
-					if(deltaX+deltaY<k->second.towns[ch]->getSightDistance()*k->second.towns[ch]->getSightDistance())
-						k->second.fogOfWarMap[xd][yd][k->second.towns[ch]->pos.z] = 1;
-				}
-			}
-		}
+	//	for(int xd=0; xd<map->width; ++xd) //revealing part of map around towns
+	//	{
+	//		for(int yd=0; yd<map->height; ++yd)
+	//		{
+	//			for(int ch=0; ch<k->second.towns.size(); ++ch)
+	//			{
+	//				int deltaX = (k->second.towns[ch]->pos.x-xd)*(k->second.towns[ch]->pos.x-xd);
+	//				int deltaY = (k->second.towns[ch]->pos.y-yd)*(k->second.towns[ch]->pos.y-yd);
+	//				if(deltaX+deltaY<k->second.towns[ch]->getSightDistance()*k->second.towns[ch]->getSightDistance())
+	//					k->second.fogOfWarMap[xd][yd][k->second.towns[ch]->pos.z] = 1;
+	//			}
+	//		}
+	//	}
 
 		//init visiting and garrisoned heroes
 		for(int l=0; l<k->second.heroes.size();l++)
@@ -1307,33 +1326,21 @@ float CGameState::getMarketEfficiency( int player, int mode/*=0*/ )
 }
 
 std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player) const
-{		
+{
 	std::set<int3> ret;
-	int xbeg = pos.x - radious - 2;
-	if(xbeg < 0)
-		xbeg = 0;
-	int xend = pos.x + radious + 2;
-	if(xend >= map->width)
-		xend = map->width;
-	int ybeg = pos.y - radious - 2;
-	if(ybeg < 0)
-		ybeg = 0;
-	int yend = pos.y + radious + 2;
-	if(yend >= map->height)
-		yend = map->height;
-	for(int xd=xbeg; xd<xend; ++xd) //revealing part of map around heroes
+	if(player >= PLAYER_LIMIT)
 	{
-		for(int yd=ybeg; yd<yend; ++yd)
+		tlog1 << "Illegal call to tilesToReveal!\n";
+		return ret;
+	}
+
+	for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, map->width); xd++)
+	{
+		for (int yd = std::max<int>(pos.y - radious, 0); std::min<int>(yd <= pos.y + radious, map->height); yd++)
 		{
-			int deltaX = (pos.x-xd)*(pos.x-xd);
-			int deltaY = (pos.y-yd)*(pos.y-yd);
-			if(deltaX+deltaY<radious*radious)
-			{
-				if(player<0 || players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==0)
-				{
-					ret.insert(int3(xd,yd,pos.z));
-				}
-			}
+			double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
+			if(distance <= radious  &&  (player<0 || players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==0))
+				ret.insert(int3(xd,yd,pos.z));
 		}
 	}
 	return ret;

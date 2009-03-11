@@ -197,7 +197,7 @@ int CLoadFile::read( const void * data, unsigned size )
 
 CTypeList::CTypeList()
 {
-
+	registerTypes(*this);
 }
 
 ui16 CTypeList::registerType( const type_info *type )

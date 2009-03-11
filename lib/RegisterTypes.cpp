@@ -16,4 +16,5 @@ void foofoofoo()
 	registerTypes((COSer<CConnection>&)*ccc);
 	registerTypes((CSaveFile&)*ccc);
 	registerTypes((CLoadFile&)*ccc);
+	registerTypes((CTypeList&)*ccc);
 }

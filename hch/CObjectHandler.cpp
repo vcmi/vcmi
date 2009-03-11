@@ -139,14 +139,21 @@ int CGObjectInstance::getWidth() const//returns width of object graphic in tiles
 }
 int CGObjectInstance::getHeight() const //returns height of object graphic in tiles
 {
-	return defInfo->width;
+	return defInfo->height;
 }
 bool CGObjectInstance::visitableAt(int x, int y) const //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
 {
-	if(x<0 || y<0 || x>=getWidth() || y>=getHeight() || defInfo==NULL)
+	if(defInfo==NULL)
+	{
+		tlog2 << "Warning: VisitableAt for obj "<<id<<": NULL defInfo!\n";
 		return false;
-	if((defInfo->visitMap[y+6-getHeight()] >> (7-(8-getWidth()+x) )) & 1)
+	}
+
+	if((defInfo->visitMap[y] >> (7-x) ) & 1)
+	{
 		return true;
+	}
+
 	return false;
 }
 bool CGObjectInstance::blockingAt(int x, int y) const
@@ -203,6 +210,21 @@ void CGObjectInstance::setProperty( ui8 what, ui32 val )
 
 void CGObjectInstance::setPropertyDer( ui8 what, ui32 val )
 {}
+
+int3 CGObjectInstance::getSightCenter() const
+{
+	//return vistiable tile if possible
+	for(int i=0; i < 8; i++)
+		for(int j=0; j < 6; j++)
+			if(visitableAt(i,j))
+				return(pos + int3(i-7, j-5, 0));
+	return pos;
+}
+
+int CGObjectInstance::getSightRadious() const
+{
+	return 3;
+}
 
 int lowestSpeed(const CGHeroInstance * chi)
 {
@@ -287,10 +309,6 @@ int3 CGHeroInstance::getPosition(bool h3m) const //h3m=true - returns position o
 	{
 		return convertPosition(pos,false);
 	}
-}
-int CGHeroInstance::getSightDistance() const //returns sight distance of this hero
-{
-	return 5 + getSecSkillLevel(3); //default + scouting
 }
 
 si32 CGHeroInstance::manaLimit() const
@@ -729,9 +747,20 @@ void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 	if(what == 3)
 		army.slots[0].second = val;
 }
-int CGTownInstance::getSightDistance() const //returns sight distance
+
+int3 CGHeroInstance::getSightCenter() const
 {
-	return 10;
+	return getPosition(false);
+}
+
+int CGHeroInstance::getSightRadious() const
+{
+	return 5 + getSecSkillLevel(3); //default + scouting
+}
+
+int CGTownInstance::getSightRadious() const //returns sight distance
+{
+	return 5;
 }
 int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
 {
@@ -868,6 +897,11 @@ void CGTownInstance::initObj()
 	MetaString ms;
 	ms << name << ", " << town->Name();
 	hoverName = toString(ms);
+}
+
+int3 CGTownInstance::getSightCenter() const
+{
+	return pos - int3(2,0,0);
 }
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const

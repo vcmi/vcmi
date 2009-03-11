@@ -468,9 +468,9 @@ void CTerrainRect::clickRight(tribool down)
 		}
 	case 98:
 		{
-			if(!vstd::contains(graphics->townWins,obj->subID))
+			if(!vstd::contains(graphics->townWins,obj->id))
 			{
-				tlog3 << "Warning - no infowin for town " << obj->subID << std::endl;
+				tlog3 << "Warning - no infowin for town " << obj->id << std::endl;
 				break;
 			}
 			CInfoPopup * ip = new CInfoPopup(graphics->townWins[obj->id],

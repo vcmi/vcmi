@@ -1943,6 +1943,8 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	if(!curint)
+		return;
 	if(curint==adventureInt  ||  screen->h > 600  ||  screen->w > 800)
 		adventureInt->resdatabar.draw();
 	if(curint==castleInt && !curint->subInt)
