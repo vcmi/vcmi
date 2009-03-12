@@ -49,7 +49,7 @@ using namespace CSDL_Ext;
 
 extern TTF_Font * GEOR16;
 CPlayerInterface * LOCPLINT;
-extern std::queue<SDL_Event> events;
+extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
 
@@ -1145,13 +1145,26 @@ void CPlayerInterface::yourTurn()
 				(*i)->tick();
 		}
 		LOCPLINT->adventureInt->updateScreen = false;
-		eventsM.lock();
-		while(!events.empty())
+
+		while(true)
 		{
-			handleEvent(&events.front());
-			events.pop();
+			SDL_Event *ev = NULL;
+			{
+				boost::unique_lock<boost::mutex> lock(eventsM);
+				if(!events.size())
+				{
+					break;
+				}
+				else
+				{
+					ev = events.front();
+					events.pop();
+				}
+			}
+			handleEvent(ev);
+			delete ev;
 		}
-		eventsM.unlock();
+
 		if (curint == adventureInt) //stuff for advMapInt
 		{
 			adventureInt->update();
@@ -1702,6 +1715,27 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//move finished
 	adventureInt->minimap.draw();
 	adventureInt->heroList.updateMove(ho);
+
+	//check if user cancelled movement
+	{
+		boost::unique_lock<boost::mutex> un(eventsM);
+		while(events.size())
+		{
+			SDL_Event *ev = events.front();
+			events.pop();
+			switch(ev->type)
+			{
+			case SDL_MOUSEBUTTONDOWN:
+				stillMoveHero = false;
+				break;
+			case SDL_KEYDOWN:
+				if(ev->key.keysym.sym < SDLK_F1)
+					stillMoveHero = false;
+				break;
+			}
+			delete ev;
+		}
+	}
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
@@ -2443,6 +2477,30 @@ void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
 	graphics->heroWins[hero->subID] = infoWin(hero); 
 	if (adventureInt->selection == hero)
 		adventureInt->infoBar.draw();
+}
+
+bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath * path )
+{
+	bool result = false;
+
+	if (!h || !path)
+		return false; //can't find hero
+
+	CPathfinder::convertPath(path,0);
+	stillMoveHero = true;
+
+	for(int i=path->nodes.size()-1; i>0; i--)
+	{
+		{
+			boost::unique_lock<boost::recursive_mutex> un(*pim);
+			if(!stillMoveHero)
+				return result;
+		}
+		int3 endpos(path->nodes[i-1].coord.x, path->nodes[i-1].coord.y, h->pos.z);
+		result = cb->moveHero(h,endpos);
+	}
+	stillMoveHero = false;
+	return result;
 }
 
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)

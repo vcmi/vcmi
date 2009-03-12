@@ -54,79 +54,26 @@ template <ui16 N> bool isType(CPack *pack)
 	return pack->getType() == N;
 }
 
-bool CCallback::moveHero(int ID, CPath * path, int idtype, int pathType)
+bool CCallback::moveHero(const CGHeroInstance *h, int3 dst) const
 {
-	CGHeroInstance * hero = NULL;
+	*cl->serv << &MoveHero(dst,h->id);
 
-	if (idtype==0)
-	{
-		if (player==-1)
-			hero=gs->players[player+1].heroes[ID];
-		else
-			hero=gs->players[player].heroes[ID];
-	}
-	else if (idtype==1 && player>=0) //looking for it in local area
-	{
-		for (size_t i=0; i < gs->players[player].heroes.size(); ++i)
+	{//wait till there is server answer
+		boost::unique_lock<boost::mutex> lock(*mess.mx);
+		while(std::find_if(mess.res->begin(),mess.res->end(),&isType<501>) == mess.res->end())
+			mess.cv->wait(lock);
+		std::set<CPack*>::iterator itr = std::find_if(mess.res->begin(),mess.res->end(),&isType<501>);
+		TryMoveHero *tmh = dynamic_cast<TryMoveHero*>(*itr);
+		mess.res->erase(itr);
+		if(!tmh->result)
 		{
-			if (gs->players[player].heroes[i]->type->ID == ID)
-				hero = gs->players[player].heroes[i];
-		}
-	}
-	else //idtype==1; player<0
-	{
-
-		for(std::map<ui8, PlayerState>::iterator j=gs->players.begin(); j!=gs->players.end(); ++j)
-		{
-			for (size_t i=0; i < (*j).second.heroes.size(); ++i)
-			{
-				if ((*j).second.heroes[i]->type->ID == ID)
-				{
-					hero = (*j).second.heroes[i];
-				}
-			}
-		}
-	}
-
-	if (!hero)
-		return false; //can't find hero
-	if(!verifyPath(path,!hero->canWalkOnSea()))//TODO: not check sea, if hero has flying or walking on water
-		return false; //invalid path
-
-	//check path format
-	if (pathType==0)
-		CPathfinder::convertPath(path,pathType);
-	if (pathType>1)
-		throw std::string("Unknown path format");
-
-	CPath * ourPath = path; 
-	if(!ourPath)
-		return false;
-	for(int i=ourPath->nodes.size()-1; i>0; i--)
-	{
-		int3 stpos(ourPath->nodes[i].coord.x, ourPath->nodes[i].coord.y, hero->pos.z), 
-			endpos(ourPath->nodes[i-1].coord.x, ourPath->nodes[i-1].coord.y, hero->pos.z);
-		HeroMoveDetails curd(stpos,endpos,hero);
-		*cl->serv << &MoveHero(endpos,hero->id);
-
-		{//wait till there is server answer
-			boost::unique_lock<boost::mutex> lock(*mess.mx);
-			while(std::find_if(mess.res->begin(),mess.res->end(),&isType<501>) == mess.res->end())
-				mess.cv->wait(lock);
-			std::set<CPack*>::iterator itr = std::find_if(mess.res->begin(),mess.res->end(),&isType<501>);
-			TryMoveHero *tmh = dynamic_cast<TryMoveHero*>(*itr);
-			mess.res->erase(itr);
-			if(!tmh->result)
-			{
-				delete tmh;
-				return false;
-			}
 			delete tmh;
+			return false;
 		}
+		delete tmh;
 	}
 	return true;
 }
-
 void CCallback::selectionMade(int selection, int asker)
 {
 	*cl->serv << &QueryReply(asker,selection);
@@ -700,7 +647,7 @@ void CCallback::recruitHero(const CGTownInstance *town, const CGHeroInstance *he
 	{
 		if(gs->players[player].availableHeroes[i] == hero)
 		{
-			*cl->serv << &HireHero(town->id,i);
+			*cl->serv << &HireHero(i,town->id);
 			return;
 		}
 	}

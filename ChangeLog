@@ -1,4 +1,4 @@
-0.7 -> 0.71 (as for r751)
+0.7 -> 0.71 (as for r754)
 GENERAL:
 * fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
 * morale/luck system and corresponding sec. skills supported 
@@ -12,6 +12,7 @@ GENERAL:
 * fixed crashes on loading maps with flag all mines/dwelling victory condition
 * further fixes for leveling-up (stability and identical offered skills bug)
 * support for numpad keyboard
+* support for timed events
 
 ADVENTURE INTERFACE:
 * added "Next hero" button functionality
@@ -22,6 +23,8 @@ ADVENTURE INTERFACE:
 * orientation of hero can't be change if movement points are exhausted 
 * campfire, borderguard, bordergate, questguard will be accessible from the top
 * new movement cost calculation algorithm
+* fixed sight radious calculation
+* it's possible to stop hero movement
 
 BATTLES:
 * partial support for battle obstacles

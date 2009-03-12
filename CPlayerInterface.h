@@ -450,6 +450,7 @@ public:
 	//to commucate with engine
 	CCallback * cb;
 	const BattleAction *curAction;
+	bool stillMoveHero;
 
 	std::list<CInfoWindow *> dialogs;
 
@@ -515,6 +516,7 @@ public:
 	void removeObjToBlit(IShowable* obj);
 	void showInfoDialog(std::string &text, const std::vector<SComponent*> & components);
 	void showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
+	bool moveHero(const CGHeroInstance *h, CPath * path);
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor

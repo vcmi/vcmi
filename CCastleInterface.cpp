@@ -1010,38 +1010,50 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	boxes.resize(5);
 	for(size_t i=0;i<5;i++) //for each row
 	{
-		for(size_t j=0; j<CGI->buildh->hall[owner->town->subID].second[i].size();j++) //for each box
+		std::vector< std::vector< std::vector<int> > > &boxList = CGI->buildh->hall[owner->town->subID].second;
+
+		for(size_t j=0; j<boxList[i].size();j++) //for each box
 		{
 			size_t k=0;
-			for(;k<CGI->buildh->hall[owner->town->subID].second[i][j].size();k++)//we are looking for the first not build structure
+			for(;k<boxList[i][j].size();k++)//we are looking for the first not build structure
 			{
-				if(
-					(owner->town->builtBuildings.find(CGI->buildh->hall[owner->town->subID].second[i][j][k]))
-					==
-					(owner->town->builtBuildings.end())						)
+				int bid = boxList[i][j][k];
+
+				if(!vstd::contains(owner->town->builtBuildings,bid))
 				{
 					int x = 34 + 194*j,
 						y = 37 + 104*i,
-						ID = CGI->buildh->hall[owner->town->subID].second[i][j][k];
-					if(CGI->buildh->hall[owner->town->subID].second[i].size() == 2) //only two boxes in this row
+						ID = bid;
+					if(boxList[i].size() == 2) //only two boxes in this row
 						x+=194;
-					else if(CGI->buildh->hall[owner->town->subID].second[i].size() == 3) //only three boxes in this row
+					else if(boxList[i].size() == 3) //only three boxes in this row
 						x+=97;
-					boxes[i].push_back(new CBuildingBox(CGI->buildh->hall[owner->town->subID].second[i][j][k],pos.x+x,pos.y+y));
+					boxes[i].push_back(new CBuildingBox(bid,pos.x+x,pos.y+y));
 
-					boxes[i].back()->state = LOCPLINT->cb->canBuildStructure(owner->town,ID);
+					//if this is horde dwelling for upgraded creatures and we already have one for basic creatures
+					if((bid == 25  &&  vstd::contains(owner->town->builtBuildings,24))
+						|| (bid == 19  &&  vstd::contains(owner->town->builtBuildings,18))
+					)
+					{
+						boxes[i].back()->state = 4; //already built
+					}
+					else
+					{
+						boxes[i].back()->state = LOCPLINT->cb->canBuildStructure(owner->town,ID);
+					}
+
 					break;
 				}
 			}
-			if(k==CGI->buildh->hall[owner->town->subID].second[i][j].size()) //all buildings built - let's take the last one
+			if(k == boxList[i][j].size()) //all buildings built - let's take the last one
 			{
 				int x = 34 + 194*j,
 					y = 37 + 104*i;
-				if(CGI->buildh->hall[owner->town->subID].second[i].size() == 2)
+				if(boxList[i].size() == 2)
 					x+=194;
-				else if(CGI->buildh->hall[owner->town->subID].second[i].size() == 3)
+				else if(boxList[i].size() == 3)
 					x+=97;
-				boxes[i].push_back(new CBuildingBox(CGI->buildh->hall[owner->town->subID].second[i][j][k-1],pos.x+x,pos.y+y));
+				boxes[i].push_back(new CBuildingBox(boxList[i][j][k-1],pos.x+x,pos.y+y));
 				boxes[i][boxes[i].size()-1]->state = 4; //already exists
 			}
 		}

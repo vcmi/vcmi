@@ -402,7 +402,7 @@ endchkpt:
 		{ //move
 			CPath sended(*currentPath); //temporary path - engine will operate on it
 			LOCPLINT->pim->unlock();
-			mres = LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection)->type->ID,&sended,1,0);
+			mres = LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection),&sended);
 			LOCPLINT->pim->lock();
 			if(mres)
 			{
@@ -1249,7 +1249,7 @@ void CAdvMapInt::fmoveHero()
 		return;
 	CPath sended(*(terrain.currentPath)); //temporary path - engine will operate on it
 	LOCPLINT->pim->unlock();
-	LOCPLINT->cb->moveHero( ((const CGHeroInstance*)LOCPLINT->adventureInt->selection)->type->ID,&sended,1,0);
+	LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection),&sended);
 	LOCPLINT->pim->lock();
 }
 void CAdvMapInt::fshowSpellbok()

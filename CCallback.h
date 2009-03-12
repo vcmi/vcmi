@@ -31,8 +31,7 @@ struct TerrainTile;
 class ICallback
 {
 public:
-	virtual bool moveHero(int ID, CPath * path, int idtype, int pathType=0)=0;//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero
-															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
+	virtual bool moveHero(const CGHeroInstance *h, int3 dst) const =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	virtual int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
 	virtual int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
 	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
@@ -118,8 +117,7 @@ protected:
 
 public:
 //commands
-	bool moveHero(int ID, CPath * path, int idtype, int pathType=0);//idtype: 0 - position in vector of heroes (of that player); 1 - ID of hero
-															//pathType: 0 - nodes are manifestation pos, 1 - nodes are object pos
+	bool moveHero(const CGHeroInstance *h, int3 dst) const; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	void selectionMade(int selection, int asker);
 	int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2);
 	int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2); //first goes to the second

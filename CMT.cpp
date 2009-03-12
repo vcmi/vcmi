@@ -48,7 +48,7 @@
 #endif
 std::string NAME = NAME_VER + std::string(" (client)");
 SDL_Surface * screen, * screen2;
-std::queue<SDL_Event> events;
+std::queue<SDL_Event*> events;
 boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 void processCommand(const std::string &message, CClient *&client);
@@ -191,11 +191,12 @@ int main(int argc, char** argv)
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 
-		SDL_Event ev;
+		SDL_Event *ev = NULL;
 		while(1) //main SDL events loop
 		{
-			SDL_WaitEvent(&ev);
-			if((ev.type==SDL_QUIT)  ||  (ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4 && (ev.key.keysym.mod & KMOD_ALT)))
+			ev = new SDL_Event();
+			SDL_WaitEvent(ev);
+			if((ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
 			{
 				cl.close();
 #ifndef __unix__
@@ -206,7 +207,7 @@ int main(int argc, char** argv)
 				tlog0 << "Ending...\n";
 				exit(EXIT_SUCCESS);
 			}
-			else if(ev.type == SDL_KEYDOWN && ev.key.keysym.sym==SDLK_F4)
+			else if(ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
 			{
 				LOCPLINT->pim->lock();
 				bool full = !(screen->flags&SDL_FULLSCREEN);
@@ -329,6 +330,6 @@ void processCommand(const std::string &message, CClient *&client)
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
-		*client->serv << &PlayerMessage(255,message);
+		*client->serv << &PlayerMessage(LOCPLINT->playerID,message);
 	}
 }
