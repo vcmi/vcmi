@@ -108,25 +108,28 @@ int CCreatureAnimation::nextFrameMiddle(SDL_Surface *dest, int x, int y, bool at
 }
 void CCreatureAnimation::incrementFrame()
 {
-	curFrame = frameGroups[type][(internalFrame++)%frameGroups[type].size()];
-	if(type!=-1)
+	if(type!=-1) //when a specific part of animation is played
 	{
+		internalFrame = (internalFrame + 1) % frameGroups[type].size();
+		curFrame = frameGroups[type][internalFrame];
+
 		if(internalFrame == frameGroups[type].size()) //rewind
 		{
-			if(once)
+			if(once) //playing animation once - return to standing animation
 			{
 				type = 2;
 				once = false;
 				curFrame = frameGroups[2][0];
 			}
-			else
+			else //
 			{
 				curFrame = frameGroups[type][0];
 			}
 		}
 	}
-	else
+	else //when whole animation is played
 	{
+		++curFrame;
 		if(curFrame>=frames)
 			curFrame = 0;
 	}

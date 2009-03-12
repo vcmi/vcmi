@@ -618,7 +618,6 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 		}
 	}
 	BattleAction ba = MakeAttack(stackID, *creatures.begin());
-	PrintBattleAction(ba);
 	return ba;
 }
 
@@ -845,6 +844,12 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		}
 
 		std::vector<int> fields = m_cb->battleGetAvailableHexes(attackerID, false);
+
+		if(fields.size() == 0)
+		{
+			return MakeDefend(attackerID);
+		}
+
 		BattleAction ba;
 		ba.side = 1;
 		//ba.actionType = 6; // go and attack

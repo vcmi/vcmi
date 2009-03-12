@@ -1129,7 +1129,7 @@ void Mapa::readPredefinedHeroes( unsigned char * bufor, int &i)
 				if(!custom)
 					continue;
 				CGHeroInstance * cgh = new CGHeroInstance;
-				cgh->ID = 34;
+				cgh->ID = HEROI_TYPE;
 				cgh->subID = z;
 				if(readChar(bufor,i))//true if hore's experience is greater than 0
 				{	cgh->exp = readNormalNr(bufor,i); i+=4;	}
@@ -1307,7 +1307,7 @@ void Mapa::readDefInfo( unsigned char * bufor, int &i)
 			vinya->visitMap[zi] = reverse(bytes[6+zi]);
 		}
 		i+=16;
-		if(vinya->id!=34 && vinya->id!=70)
+		if(vinya->id!=HEROI_TYPE && vinya->id!=70)
 		{
 			CGDefInfo *h = VLC->dobjinfo->gobjs[vinya->id][vinya->subid];
 			if(!h) 
@@ -1819,13 +1819,13 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		nobj->pos = pos;
 		nobj->ID = defInfo->id;
 		nobj->id = objects.size();
-		if(nobj->ID != 34)
+		if(nobj->ID != HEROI_TYPE)
 			nobj->subID = defInfo->subid;
 		nobj->defInfo = defInfo;
 		objects.push_back(nobj);
-		if(nobj->ID==98)
+		if(nobj->ID==TOWNI_TYPE)
 			towns.push_back(static_cast<CGTownInstance*>(nobj));
-		if(nobj->ID==34)
+		if(nobj->ID==HEROI_TYPE)
 			heroes.push_back(static_cast<CGHeroInstance*>(nobj));
 	}
 }

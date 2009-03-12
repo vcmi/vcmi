@@ -358,7 +358,7 @@ void CMapHandler::initObjectRects()
 	for(size_t f=0; f < map->objects.size(); ++f)
 	{
 		if(!map->objects[f]) continue;
-		if((map->objects[f]->ID==34 && static_cast<CGHeroInstance*>(map->objects[f])->inTownGarrison)
+		if((map->objects[f]->ID==HEROI_TYPE && static_cast<CGHeroInstance*>(map->objects[f])->inTownGarrison)
 			|| !map->objects[f]->defInfo)
 		{
 			continue;
@@ -425,13 +425,13 @@ void processDef (CGDefInfo* def)
 		def->height = def->handler->ourImages[0].bitmap->h/32;
 	}
 	CGDefInfo* pom = CGI->dobjinfo->gobjs[def->id][def->subid];
-	if(pom && def->id!=98)
+	if(pom && def->id!=TOWNI_TYPE)
 	{
 		pom->handler = def->handler;
 		pom->width = pom->handler->ourImages[0].bitmap->w/32;
 		pom->height = pom->handler->ourImages[0].bitmap->h/32;
 	}
-	else if(def->id != 34 && def->id != 98)
+	else if(def->id != HEROI_TYPE && def->id != TOWNI_TYPE)
 		tlog3 << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
 	if(!def->handler->alphaTransformed)
 	{

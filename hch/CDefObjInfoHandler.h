@@ -52,7 +52,7 @@ public:
 		if(!h.saving) //recrete castles map
 			for(std::map<int,std::map<int,CGDefInfo*> >::iterator i=gobjs.begin(); i!=gobjs.end(); i++)
 				for(std::map<int,CGDefInfo*>::iterator j=i->second.begin(); j!=i->second.end(); j++)
-					if(j->second->id == 98)
+					if(j->second->id == TOWNI_TYPE)
 						castles[j->second->subid]=j->second;
 	}
 };

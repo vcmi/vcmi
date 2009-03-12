@@ -351,7 +351,7 @@ void CTerrainRect::clickLeft(tribool down)
 		objs = LOCPLINT->cb->getBlockingObjs(mp);
 		for(size_t i=0; i < objs.size(); ++i)
 		{
-			if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
+			if(objs[i]->ID == TOWNI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID) //town
 			{
 				if(LOCPLINT->adventureInt->selection == (objs[i]))
 				{
@@ -363,7 +363,7 @@ void CTerrainRect::clickLeft(tribool down)
 					return;
 				}
 			}
-			else if(objs[i]->ID == 34 && objs[i]->tempOwner == LOCPLINT->playerID)
+			else if(objs[i]->ID == HEROI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID)
 			{
 				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
 				return;
@@ -376,18 +376,18 @@ void CTerrainRect::clickLeft(tribool down)
 		objs = LOCPLINT->cb->getVisitableObjs(mp);
 		for(size_t i=0; i < objs.size(); ++i)
 		{
-			if(objs[i]->ID == 98)
+			if(objs[i]->ID == TOWNI_TYPE)
 				goto endchkpt;
 		}
 		objs = LOCPLINT->cb->getBlockingObjs(mp);
 		for(size_t i=0; i < objs.size(); ++i)
 		{
-			if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
+			if(objs[i]->ID == TOWNI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID) //town
 			{
 				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
 				return;
 			}
-			else if(objs[i]->ID == 34 && objs[i]->tempOwner == LOCPLINT->playerID && LOCPLINT->adventureInt->selection == (objs[i]))
+			else if(objs[i]->ID == HEROI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID && LOCPLINT->adventureInt->selection == (objs[i]))
 			{
 				LOCPLINT->openHeroWindow(static_cast<const CGHeroInstance*>(objs[i]));
 				return;
@@ -452,7 +452,7 @@ void CTerrainRect::clickRight(tribool down)
 	const CGObjectInstance * obj = objs[objs.size()-1];
 	switch(obj->ID)
 	{
-	case 34:
+	case HEROI_TYPE:
 		{
 			if(!vstd::contains(graphics->heroWins,obj->subID))
 			{
@@ -466,7 +466,7 @@ void CTerrainRect::clickRight(tribool down)
 			ip->activate();
 			break;
 		}
-	case 98:
+	case TOWNI_TYPE:
 		{
 			if(!vstd::contains(graphics->townWins,obj->id))
 			{
@@ -507,7 +507,7 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getVisitableObjs(pom); 
 	for(int i=0; i<objs.size();i++)
 	{
-		if(objs[i]->ID == 98) //town
+		if(objs[i]->ID == TOWNI_TYPE) //town
 		{
 			CGI->curh->changeGraphic(0,0);
 			return;
@@ -516,13 +516,13 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	objs = LOCPLINT->cb->getBlockingObjs(pom);
 	for(size_t i=0; i < objs.size(); ++i)
 	{
-		if(objs[i]->ID == 98 && objs[i]->tempOwner == LOCPLINT->playerID) //town
+		if(objs[i]->ID == TOWNI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID) //town
 		{
 			CGI->curh->changeGraphic(0,3);
 			return;
 		}
-		else if(objs[i]->ID == 34 //mouse over hero
-			&& (objs[i]==LOCPLINT->adventureInt->selection  ||  LOCPLINT->adventureInt->selection->ID==98)
+		else if(objs[i]->ID == HEROI_TYPE //mouse over hero
+			&& (objs[i]==LOCPLINT->adventureInt->selection  ||  LOCPLINT->adventureInt->selection->ID==TOWNI_TYPE)
 			&& objs[i]->tempOwner == LOCPLINT->playerID) //this hero is selected or we've selected a town
 		{
 			CGI->curh->changeGraphic(0,2);
@@ -1008,12 +1008,12 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 	if(!specific)
 		return;
 
-	if(specific->ID == 34) //hero
+	if(specific->ID == HEROI_TYPE) //hero
 	{
 		if(graphics->heroWins.find(specific->subID)!=graphics->heroWins.end())
 			blitAt(graphics->heroWins[specific->subID],pos.x,pos.y);
 	}
-	else if (specific->ID == 98)
+	else if (specific->ID == TOWNI_TYPE)
 	{
 		const CGTownInstance * t = static_cast<const CGTownInstance*>(specific);
 		if(graphics->townWins.find(t->id)!=graphics->townWins.end())
@@ -1530,7 +1530,7 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 	LOCPLINT->cb->setSelection(sel);
 	centerOn(sel->pos);
 	selection = sel;
-	if(sel->ID==98)
+	if(sel->ID==TOWNI_TYPE)
 	{
 		int pos = vstd::findPos(townList.items,sel);
 		townList.selected = pos;

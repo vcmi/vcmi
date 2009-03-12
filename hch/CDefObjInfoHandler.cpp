@@ -89,7 +89,7 @@ void CDefObjInfoHandler::load()
 		}
 		inp >> nobj->printPriority;
 		gobjs[nobj->id][nobj->subid] = nobj;
-		if(nobj->id==98)
+		if(nobj->id==TOWNI_TYPE)
 			castles[nobj->subid]=nobj;
 	}
 }

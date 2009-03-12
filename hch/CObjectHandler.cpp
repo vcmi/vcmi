@@ -457,7 +457,7 @@ int CGHeroInstance::getSpellSecLevel(int spell) const
 
 CGHeroInstance::CGHeroInstance()
 {
-	ID = 34;
+	ID = HEROI_TYPE;
 	tacticFormationEnabled = inTownGarrison = false;
 	mana = movement = portrait = level = -1;
 	isStanding = true;
@@ -476,7 +476,7 @@ void CGHeroInstance::initHero(int SUBID)
 
 void CGHeroInstance::initHero()
 {
-	if(ID == 34)
+	if(ID == HEROI_TYPE)
 		initHeroDefInfo();
 	if(!type)
 		type = VLC->heroh->heroes[subID];
@@ -547,10 +547,10 @@ void CGHeroInstance::initHero()
 
 void CGHeroInstance::initHeroDefInfo()
 {
-	if(!defInfo  ||  defInfo->id != 34)
+	if(!defInfo  ||  defInfo->id != HEROI_TYPE)
 	{
 		defInfo = new CGDefInfo();
-		defInfo->id = 34;
+		defInfo->id = HEROI_TYPE;
 		defInfo->subid = subID;
 		defInfo->printPriority = 0;
 		defInfo->visitDir = 0xff;
@@ -574,7 +574,7 @@ bool CGHeroInstance::needsLastStack() const
 }
 void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 {
-	if (ID == 34) //hero
+	if (ID == HEROI_TYPE) //hero
 	{
 		//TODO: check for allies
 		if(tempOwner == h->tempOwner) //our hero
@@ -597,7 +597,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		if(cb->getHeroCount(h->tempOwner,false) < 8) //free hero slot
 		{
 			cb->changeObjPos(id,pos+int3(1,0,0),0);
-			cb->setObjProperty(id,6,34); //set ID to 34
+			cb->setObjProperty(id,6,HEROI_TYPE); //set ID to 34
 			cb->giveHero(id,h->tempOwner); //recreates def and adds hero to player
 
 			InfoWindow iw;
