@@ -116,7 +116,8 @@ void CMinimap::draw()
 	//draw heroes
 	std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
 	int mw = map[0]->w, mh = map[0]->h,
-		wo = mw/mapSizes.x, ho = mh/mapSizes.y;
+		wo = mw/mapSizes.x, ho = mh/mapSizes.y,
+		woShifted = wo, hoShifted = ho; //for better minimap rendering on L-sized maps
 
 	for (size_t i=0; i < hh.size(); ++i)
 	{
@@ -146,9 +147,34 @@ void CMinimap::draw()
 				if(!dynamic_cast< const CGHeroInstance * >(oo[v])) //heroes have been printed
 				{
 					int3 maplgp ( (x*mw)/mapSizes.x, (y*mh)/mapSizes.y, LOCPLINT->adventureInt->position.z );
-					for (int ii=0; ii<wo; ii++)
+					if(wo * mapSizes.x != mw) //miniap size in X is not multiple of map size in X
 					{
-						for (int jj=0; jj<ho; jj++)
+						std::vector < const CGObjectInstance * > op1x = LOCPLINT->cb->getFlaggableObjects(int3(x+1, y, LOCPLINT->adventureInt->position.z));
+						if(op1x.size()!=0)
+						{
+							woShifted = wo + 1;
+						}
+						else
+						{
+							woShifted = wo;
+						}
+					}
+					if(ho * mapSizes.y != mh) //miniap size in Y is not multiple of map size in Y
+					{
+						std::vector < const CGObjectInstance * > op1y = LOCPLINT->cb->getFlaggableObjects(int3(x, y+1, LOCPLINT->adventureInt->position.z));
+						if(op1y.size()!=0)
+						{
+							hoShifted = ho + 1;
+						}
+						else
+						{
+							hoShifted = ho;
+						}
+					}
+
+					for (int ii=0; ii<woShifted; ii++) //rendering flaggable objects
+					{
+						for (int jj=0; jj<hoShifted; jj++)
 						{
 							if(oo[v]->tempOwner == 255)
 								SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,
@@ -189,9 +215,13 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 			{
 				int mx=(mapSizes.x*x)/pos.w;
 				int my=(mapSizes.y*y)/pos.h;
-				if (CGI->mh->ttiles[mx][my][i].tileInfo->blocked && (!CGI->mh->ttiles[mx][my][i].tileInfo->visitable))
-					SDL_PutPixelWithoutRefresh(pom,x,y,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colorsBlocked[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
-				else SDL_PutPixelWithoutRefresh(pom,x,y,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].r,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].g,colors[CGI->mh->ttiles[mx][my][i].tileInfo->tertype].b);
+				const TerrainTile * tile = LOCPLINT->cb->getTileInfo(int3(mx, my, i));
+				if(tile)
+				{
+					if (tile->blocked && (!tile->visitable))
+						SDL_PutPixelWithoutRefresh(pom, x, y, colorsBlocked[tile->tertype].r, colorsBlocked[tile->tertype].g, colorsBlocked[tile->tertype].b);
+					else SDL_PutPixelWithoutRefresh(pom, x, y, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
+				}
 			}
 		}
 		map.push_back(pom);
@@ -222,6 +252,7 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 	}
 	//FoW end
 }
+
 void CMinimap::updateRadar()
 {}
 void CMinimap::clickRight (tribool down)
@@ -291,6 +322,14 @@ void CMinimap::showTile(const int3 &pos)
 		{
 			if ((pos.x*wo+ii<this->pos.w) && (pos.y*ho+jj<this->pos.h))
 				CSDL_Ext::SDL_PutPixelWithoutRefresh(FoW[pos.z],pos.x*wo+ii,pos.y*ho+jj,0,0,0,0);
+
+			const TerrainTile * tile = LOCPLINT->cb->getTileInfo(pos);
+			if(tile)
+			{
+				if (tile->blocked && (!tile->visitable))
+					SDL_PutPixelWithoutRefresh(map[pos.z], pos.x*wo+ii, pos.y*ho+jj, colorsBlocked[tile->tertype].r, colorsBlocked[tile->tertype].g, colorsBlocked[tile->tertype].b);
+				else SDL_PutPixelWithoutRefresh(map[pos.z], pos.x*wo+ii, pos.y*ho+jj, colors[tile->tertype].r, colors[tile->tertype].g, colors[tile->tertype].b);
+			}
 		}
 	}
 }

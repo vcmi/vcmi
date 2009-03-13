@@ -72,7 +72,7 @@ public:
 	virtual std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const =0;
 	virtual int3 getMapSize() const =0; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const =0; //heroes that can be recruited
-	virtual const TerrainTile * getTileInfo(int3 tile) = 0;
+	virtual const TerrainTile * getTileInfo(int3 tile) const = 0;
 	virtual int canBuildStructure(const CGTownInstance *t, int ID) =0;//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 
 //battle
@@ -162,7 +162,7 @@ public:
 	std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const; //heroes that can be recruited
-	const TerrainTile * getTileInfo(int3 tile);
+	const TerrainTile * getTileInfo(int3 tile) const;
 	int canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 
 	//battle

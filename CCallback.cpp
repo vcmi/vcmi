@@ -660,8 +660,10 @@ std::vector<const CGHeroInstance *> CCallback::getAvailableHeroes(const CGTownIn
 	return ret;
 }	
 
-const TerrainTile * CCallback::getTileInfo( int3 tile )
+const TerrainTile * CCallback::getTileInfo( int3 tile ) const
 {
+	if(!isVisible(tile, player)) return NULL;
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return &gs->map->getTile(tile);
 }
 

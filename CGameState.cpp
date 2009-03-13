@@ -1334,9 +1334,9 @@ std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player) cons
 		return ret;
 	}
 
-	for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, map->width); xd++)
+	for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, map->width-1); xd++)
 	{
-		for (int yd = std::max<int>(pos.y - radious, 0); std::min<int>(yd <= pos.y + radious, map->height); yd++)
+		for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>( pos.y + radious, map->height-1); yd++)
 		{
 			double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
 			if(distance <= radious  &&  (player<0 || players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==0))
