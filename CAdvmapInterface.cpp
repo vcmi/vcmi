@@ -116,8 +116,7 @@ void CMinimap::draw()
 	//draw heroes
 	std::vector <const CGHeroInstance *> hh = LOCPLINT->cb->getHeroesInfo(false);
 	int mw = map[0]->w, mh = map[0]->h,
-		wo = mw/mapSizes.x, ho = mh/mapSizes.y,
-		woShifted = wo, hoShifted = ho; //for better minimap rendering on L-sized maps
+		wo = mw/mapSizes.x, ho = mh/mapSizes.y;
 
 	for (size_t i=0; i < hh.size(); ++i)
 	{
@@ -136,58 +135,7 @@ void CMinimap::draw()
 		}
 	}
 
-	//draw flaggable objects
-	for(int x=0; x<mapSizes.x; ++x)
-	{
-		for(int y=0; y<mapSizes.y; ++y)
-		{
-			std::vector < const CGObjectInstance * > oo = LOCPLINT->cb->getFlaggableObjects(int3(x, y, LOCPLINT->adventureInt->position.z));
-			for(size_t v=0; v<oo.size(); ++v)
-			{
-				if(!dynamic_cast< const CGHeroInstance * >(oo[v])) //heroes have been printed
-				{
-					int3 maplgp ( (x*mw)/mapSizes.x, (y*mh)/mapSizes.y, LOCPLINT->adventureInt->position.z );
-					if(wo * mapSizes.x != mw) //miniap size in X is not multiple of map size in X
-					{
-						std::vector < const CGObjectInstance * > op1x = LOCPLINT->cb->getFlaggableObjects(int3(x+1, y, LOCPLINT->adventureInt->position.z));
-						if(op1x.size()!=0)
-						{
-							woShifted = wo + 1;
-						}
-						else
-						{
-							woShifted = wo;
-						}
-					}
-					if(ho * mapSizes.y != mh) //miniap size in Y is not multiple of map size in Y
-					{
-						std::vector < const CGObjectInstance * > op1y = LOCPLINT->cb->getFlaggableObjects(int3(x, y+1, LOCPLINT->adventureInt->position.z));
-						if(op1y.size()!=0)
-						{
-							hoShifted = ho + 1;
-						}
-						else
-						{
-							hoShifted = ho;
-						}
-					}
-
-					for (int ii=0; ii<woShifted; ii++) //rendering flaggable objects
-					{
-						for (int jj=0; jj<hoShifted; jj++)
-						{
-							if(oo[v]->tempOwner == 255)
-								SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->r,
-									graphics->neutralColor->g,graphics->neutralColor->b);
-							else
-								SDL_PutPixelWithoutRefresh(temps,maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].r,
-									graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].b);
-						}
-					}
-				}
-			}
-		}
-	}
+	blitAt(flObjs[LOCPLINT->adventureInt->position.z],0,0,temps);
 
 	blitAt(FoW[LOCPLINT->adventureInt->position.z],0,0,temps);
 
@@ -247,10 +195,40 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 				}
 			}
 		}
-		CSDL_Ext::update(pt);
 		FoW.push_back(pt);
 	}
 	//FoW end
+	//flaggable objects
+	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
+	{
+		if(level>=0 && d!=level)
+			continue;
+		SDL_Surface * pt = CSDL_Ext::newSurface(pos.w, pos.h, CSDL_Ext::std32bppSurface);
+		for (int i=0; i<mw; i++)
+		{
+			for (int j=0; j<mh; j++)
+			{
+				CSDL_Ext::SDL_PutPixelWithoutRefresh(pt,i,j,0,0,0,0);
+			}
+		}
+		flObjs.push_back(pt);
+	}
+	//showing tiles
+	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
+	{
+		if(level>=0 && d!=level)
+			continue;
+		for(int x=0; x<mapSizes.x; ++x)
+		{
+			for(int y=0; y<mapSizes.y; ++y)
+			{
+				if(LOCPLINT->cb->isVisible(int3(x, y, d)))
+				{
+					showTile(int3(x, y, d));
+				}
+			}
+		}
+	}
 }
 
 void CMinimap::updateRadar()
@@ -314,8 +292,10 @@ void CMinimap::deactivate()
 }
 void CMinimap::showTile(const int3 &pos)
 {
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	//drawing terrain
 	int mw = map[0]->w, mh = map[0]->h;
-	double wo = ((double)mw)/CGI->mh->sizes.x, ho = ((double)mh)/CGI->mh->sizes.y;
+	double wo = ((double)mw)/mapSizes.x, ho = ((double)mh)/mapSizes.y;
 	for (int ii=0; ii<wo; ii++)
 	{
 		for (int jj=0; jj<ho; jj++)
@@ -332,6 +312,54 @@ void CMinimap::showTile(const int3 &pos)
 			}
 		}
 	}
+	//drawing flaggable objects
+	int woShifted = wo, hoShifted = ho; //for better minimap rendering on L-sized maps
+	std::vector < const CGObjectInstance * > oo = LOCPLINT->cb->getFlaggableObjects(pos);
+	for(size_t v=0; v<oo.size(); ++v)
+	{
+		if(!dynamic_cast< const CGHeroInstance * >(oo[v])) //heroes have been printed
+		{
+			int3 maplgp ( (pos.x*mw)/mapSizes.x, (pos.y*mh)/mapSizes.y, pos.z );
+			if(((int)wo) * mapSizes.x != mw) //miniap size in X is not multiple of map size in X
+			{
+				std::vector < const CGObjectInstance * > op1x = LOCPLINT->cb->getFlaggableObjects(int3(pos.x+1, pos.y, pos.z));
+				if(op1x.size()!=0)
+				{
+					woShifted = wo + 1;
+				}
+				else
+				{
+					woShifted = wo;
+				}
+			}
+			if(((int)ho) * mapSizes.y != mh) //miniap size in Y is not multiple of map size in Y
+			{
+				std::vector < const CGObjectInstance * > op1y = LOCPLINT->cb->getFlaggableObjects(int3(pos.x, pos.y+1, pos.z));
+				if(op1y.size()!=0)
+				{
+					hoShifted = ho + 1;
+				}
+				else
+				{
+					hoShifted = ho;
+				}
+			}
+
+			for (int ii=0; ii<woShifted; ii++) //rendering flaggable objects
+			{
+				for (int jj=0; jj<hoShifted; jj++)
+				{
+					if(oo[v]->tempOwner == 255)
+						SDL_PutPixelWithoutRefresh(flObjs[pos.z],maplgp.x+ii,maplgp.y+jj,graphics->neutralColor->b,
+							graphics->neutralColor->g,graphics->neutralColor->r);
+					else
+						SDL_PutPixelWithoutRefresh(flObjs[pos.z],maplgp.x+ii,maplgp.y+jj,graphics->playerColors[oo[v]->getOwner()].b,
+							graphics->playerColors[oo[v]->getOwner()].g,graphics->playerColors[oo[v]->getOwner()].r);
+				}
+			}
+		}
+	}
+	//flaggable objects drawn
 }
 void CMinimap::hideTile(const int3 &pos)
 {

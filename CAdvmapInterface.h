@@ -22,7 +22,7 @@ public:
 	SDL_Surface * temps;
 	std::map<int,SDL_Color> colors;
 	std::map<int,SDL_Color> colorsBlocked;
-	std::vector<SDL_Surface *> map, FoW; //one bitmap for each level (terrain, Fog of War)
+	std::vector<SDL_Surface *> map, FoW, flObjs; //one bitmap for each level (terrain, Fog of War, flaggable objects)
 	std::string statusbarTxt, rcText;
 
 	CMinimap(bool draw=true);
