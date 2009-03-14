@@ -8,11 +8,12 @@ AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CXX
-AX_BOOST_BASE([1.33])
+AC_PROG_CXX
+AC_PROG_CC
+AX_BOOST_BASE([1.37])
 AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD
-AC_PROG_CC
 AC_PROG_CPP
 AC_ENABLE_SHARED
 AC_DISABLE_STATIC
@@ -28,17 +29,6 @@ LIBS="-L$stdcxx_path $LIBS"
 fi
 AC_CHECK_PROG(HAVE_SDL_CONFIG, sdl-config, yes, no)
 
-AC_ARG_WITH(lua-includes,AC_HELP_STRING([--with-lua-includes=INCLUDE_PATH],[Use Lua library headers installed at specified
-	     path(default=check)]),LUA_INCLUDES="$with_lua_includes")
-if test "$LUA_INCLUDES" != ""; then
-AC_SUBST([CPPFLAGS],["$CPPFLAGS -I$LUA_INCLUDES"])
-fi
-
-AC_ARG_WITH(lua-libs,AC_HELP_STRING([--with-lua-libs=INCLUDE_PATH],[Use Lua library installed at specified
-	     path(default=check)]),LUA_LIBS="$with_lua_libs")
-if test "$LUA_LIBS" != ""; then
-AC_SUBST([LIBS],["$LIBS -L$LUA_LIBS"])
-fi
 
 # Checks for libraries.
 if test "$HAVE_SDL_CONFIG" = no; then
@@ -54,12 +44,10 @@ CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
 AC_CHECK_LIB(SDL_mixer,main,,AC_MSG_ERROR([SDL_mixer library not found. Please install it.]))
 AC_CHECK_LIB(SDL_image,IMG_Load,,AC_MSG_ERROR([SDL_image library not found. Please install it.]))
 AC_CHECK_LIB(SDL_ttf,main,,AC_MSG_ERROR([SDL_ttf library not found. Please install it.]))
-AC_CHECK_LIB(lua,main,,AC_MSG_ERROR([lua library not found. Please install it.]))
 
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h])
-AC_CHECK_HEADER(lstate.h,,AC_MSG_ERROR([lstate.h header not found. Please install it.]))
 AC_LANG_PUSH(C++)
 CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
 AC_CHECK_HEADERS([boost/filesystem.hpp boost/algorithm/string.hpp boost/algorithm/string/replace.hpp boost/filesystem/operations.hpp boost/assign/std/vector.hpp boost/algorithm/string/find.hpp boost/function.hpp boost/bind.hpp],,AC_MSG_ERROR([Required boost headers not found. Please install it.]))
@@ -74,7 +62,6 @@ AC_C_INLINE
 AC_FUNC_ALLOCA
 AC_FUNC_MALLOC
 AC_FUNC_SELECT_ARGTYPES
-AC_CHECK_FUNCS([lua_pushhstring lua_calchash],, AC_MSG_ERROR([Lua required fuctions not found]))
 AC_CHECK_FUNCS([atexit memset pow select sqrt])
 
-AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile)
+AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile)
