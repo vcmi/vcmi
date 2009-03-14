@@ -200,7 +200,7 @@ CTypeList::CTypeList()
 	registerTypes(*this);
 }
 
-ui16 CTypeList::registerType( const type_info *type )
+ui16 CTypeList::registerType( const std::type_info *type )
 {
 	TTypeMap::const_iterator i = types.find(type);
 	if(i != types.end())
@@ -212,7 +212,7 @@ ui16 CTypeList::registerType( const type_info *type )
 	return id;
 }
 
-ui16 CTypeList::getTypeID( const type_info *type )
+ui16 CTypeList::getTypeID( const std::type_info *type )
 {
 	TTypeMap::const_iterator i = types.find(type);
 	if(i != types.end())

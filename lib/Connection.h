@@ -5,7 +5,7 @@
 #include <vector>
 #include <set>
 #include <list>
-#include <typeinfo>
+#include <typeinfo> //XXX this is in namespace std if you want w/o use typeinfo.h?
 
 #include <boost/type_traits/is_fundamental.hpp>
 #include <boost/type_traits/is_enum.hpp>
@@ -56,7 +56,7 @@ enum SerializationLvl
 
 struct TypeComparer
 {
-	bool operator()(const type_info *a, const type_info *b) const
+	bool operator()(const std::type_info *a, const std::type_info *b) const
 	{
 		return a->before(*b);
 	}
@@ -64,24 +64,24 @@ struct TypeComparer
 
 class DLL_EXPORT CTypeList
 {
-	typedef std::multimap<const type_info *,ui16,TypeComparer> TTypeMap;
+	typedef std::multimap<const std::type_info *,ui16,TypeComparer> TTypeMap;
 	 TTypeMap types;
 public:
 	CTypeList();
-	ui16 registerType(const type_info *type);
+	ui16 registerType(const std::type_info *type);
 	template <typename T> ui16 registerType(const T * t = NULL)
 	{
 		return registerType(getTypeInfo(t));
 	}
 
-	ui16 getTypeID(const type_info *type);
+	ui16 getTypeID(const std::type_info *type);
 	template <typename T> ui16 getTypeID(const T * t)
 	{
 		return getTypeID(getTypeInfo(t));
 	}
 
 
-	template <typename T> const type_info * getTypeInfo(const T * t = NULL)
+	template <typename T> const std::type_info * getTypeInfo(const T * t = NULL)
 	{
 		if(t)
 			return &typeid(*t);
