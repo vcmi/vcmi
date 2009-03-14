@@ -136,6 +136,20 @@ public:
 	}
 };
 
+class DLL_EXPORT CPlayersVisited: public CGObjectInstance
+{
+public:
+	std::set<ui8> players;
+
+	bool hasVisited(ui8 player) const;
+	void setPropertyDer(ui8 what, ui32 val);//synchr
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & players;
+	}
+};
+
 class  DLL_EXPORT CArmedInstance: public CGObjectInstance
 {
 public:
@@ -432,20 +446,18 @@ public:
 	}
 };
 
-class DLL_EXPORT CGWitchHut : public CGObjectInstance
+class DLL_EXPORT CGWitchHut : public CPlayersVisited
 {
 public:
 	std::vector<si32> allowedAbilities;
 	ui32 ability;
-	std::set<ui8> playersVisited; //players who know what skill is given here (used for hover texts)
 
-	void setPropertyDer(ui8 what, ui32 val);//synchr
 	const std::string & getHoverText() const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CGObjectInstance&>(*this) & static_cast<CPlayersVisited&>(*this);;
 		h & allowedAbilities & ability;
 	}
 };
@@ -532,7 +544,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGShrine : public CGObjectInstance
+class DLL_EXPORT CGShrine : public CPlayersVisited
 {
 public:
 	ui8 spell; //number of spell or 255 if random
@@ -542,7 +554,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
+		h & static_cast<CGObjectInstance&>(*this) & static_cast<CPlayersVisited&>(*this);;
 		h & spell;
 	}
 };

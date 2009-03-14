@@ -104,5 +104,6 @@ bool IGameCallback::isAllowed( int type, int id )
 		return gs->map->allowedSpell[id];
 	default:
 		tlog1 << "Wrong call to IGameCallback::isAllowed!\n";
+		return false;
 	}
 }

@@ -48,6 +48,17 @@ void IObjectInterface::initObj()
 void IObjectInterface::setProperty( ui8 what, ui32 val )
 {}
 
+void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
+{
+	if(what == 10)
+		players.insert(val);
+}
+
+bool CPlayersVisited::hasVisited( ui8 player ) const
+{
+	return vstd::contains(players,player);
+}
+
 void CObjectHandler::loadObjects()
 {
 	tlog5 << "\t\tReading cregens \n";
@@ -1641,7 +1652,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
-	if(!vstd::contains(playersVisited,h->tempOwner))
+	if(!hasVisited(h->tempOwner))
 		cb->setObjProperty(id,10,h->tempOwner);
 
 	if(h->getSecSkillLevel(ability)) //you alredy know this skill
@@ -1668,7 +1679,7 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 const std::string & CGWitchHut::getHoverText() const
 {
 	hoverName = VLC->generaltexth->names[ID];
-	if(vstd::contains(playersVisited,cb->getCurrentPlayer())) //TODO: use local player, not current
+	if(hasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
@@ -1678,11 +1689,6 @@ const std::string & CGWitchHut::getHoverText() const
 	return hoverName;
 }
 
-void CGWitchHut::setPropertyDer( ui8 what, ui32 val )
-{
-	if(what == 10)
-		playersVisited.insert(val);
-}
 
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {
@@ -1917,6 +1923,9 @@ void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 	}
 
+	if(!hasVisited(h->tempOwner))
+		cb->setObjProperty(id,10,h->tempOwner);
+
 	InfoWindow iw;
 	iw.player = h->getOwner();
 	iw.text.addTxt(MetaString::ADVOB_TXT,127 + ID - 88);
@@ -1976,5 +1985,14 @@ void CGShrine::initObj()
 
 const std::string & CGShrine::getHoverText() const
 {
+	hoverName = VLC->generaltexth->names[ID];
+	if(hasVisited(cb->getCurrentPlayer())) //TODO: use local player, not current
+	{
+		hoverName += "\n" + VLC->generaltexth->allTexts[355]; // + (learn %s)
+		boost::algorithm::replace_first(hoverName,"%s",VLC->spellh->spells[spell].name);
+		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
+		if(h && vstd::contains(h->spells,spell)) //hero knows that ability
+			hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
+	}
 	return hoverName;
 }
