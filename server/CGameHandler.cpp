@@ -1229,7 +1229,7 @@ void CGameHandler::moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker)
 			{
 				obj->onHeroLeave(h);
 			}
-			tmh.fowRevealed = gs->tilesToReveal(h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner);
+			getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
 			sendAndApply(&tmh);
 			tlog5 << "Moved to " <<tmh.end<<std::endl;
 
@@ -1256,7 +1256,7 @@ void CGameHandler::moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker)
 			}
 		}
 		tmh.result = instant+1;
-		tmh.fowRevealed = gs->tilesToReveal(h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner);
+		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
 		sendAndApply(&tmh);
 	}
 }
@@ -2406,9 +2406,9 @@ void CGameHandler::handleTimeEvents()
 			if( pinfo  //player exists
 				&& (ev->players & 1<<player) //event is enabled to this player
 				&& ((ev->computerAffected && !pinfo->human) 
-				|| (ev->humanAffected && pinfo->human)
+					|| (ev->humanAffected && pinfo->human)
 				)
-				)
+			)
 			{
 				//give resources
 				SetResources sr;

@@ -50,6 +50,8 @@ public:
 	std::vector<std::string> guildBgs;// name of bitmaps with imgs for mage guild screen
 	//abilities
 	CDefHandler * abils32, * abils44, * abils82;
+	//spells
+	CDefHandler *spellscr; //spell on the scroll 83x61
 	//functions
 	Graphics();	
 	void initializeBattleGraphics();

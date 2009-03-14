@@ -19,6 +19,7 @@ struct ShowInInfobox;
 struct BattleResult;
 class CGameState;
 struct PlayerSettings;
+struct CPackForClient;
 
 class DLL_EXPORT IGameCallback
 {
@@ -38,6 +39,8 @@ public:
 	virtual int getSelectedHero()=0;
 	virtual const PlayerSettings * getPlayerSettings(int color);
 	virtual int getHeroCount(int player, bool includeGarrisoned);
+	virtual void getTilesInRange(std::set<int3> &tiles, int3 pos, int radious, int player=-1, int mode=0); //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
+	virtual bool isAllowed(int type, int id); //type: 0 - spell
 
 	//do sth
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;
@@ -65,6 +68,8 @@ public:
 	virtual void setManaPoints(int hid, int val)=0;
 	virtual void giveHero(int id, int player)=0;
 	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
+	virtual void sendAndApply(CPackForClient * info)=0;
+
 
 	friend struct CPackForClient;
 	friend struct CPackForServer;

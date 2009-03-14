@@ -70,3 +70,39 @@ int IGameCallback::getHeroCount( int player, bool includeGarrisoned )
 				ret++;
 	return ret;
 }
+
+void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radious, int player/*=-1*/, int mode/*=0*/ )
+{
+	if(player >= PLAYER_LIMIT)
+	{
+		tlog1 << "Illegal call to getTilesInRange!\n";
+		return;
+	}
+
+	for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, gs->map->width - 1); xd++)
+	{
+		for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>(pos.y + radious, gs->map->height - 1); yd++)
+		{
+			double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
+			if(distance <= radious)
+			{
+				if(player < 0 
+					|| (mode == 1  && gs->players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==0)
+					|| (mode == -1 && gs->players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==1)
+				)
+					tiles.insert(int3(xd,yd,pos.z));
+			}
+		}
+	}
+}
+
+bool IGameCallback::isAllowed( int type, int id )
+{
+	switch(type)
+	{
+	case 0:
+		return gs->map->allowedSpell[id];
+	default:
+		tlog1 << "Wrong call to IGameCallback::isAllowed!\n";
+	}
+}

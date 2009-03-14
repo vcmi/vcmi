@@ -630,9 +630,12 @@ void CInfoPopup::close()
 	if(free)
 		SDL_FreeSurface(bitmap);
 	delete this;
+	if(LOCPLINT->curint->subInt)
+		return;
+
 	if(LOCPLINT->curint == LOCPLINT->adventureInt)
 		LOCPLINT->adventureInt->show();
-	else if((LOCPLINT->curint == LOCPLINT->castleInt) && !LOCPLINT->castleInt->subInt)
+	else if(LOCPLINT->curint == LOCPLINT->castleInt)
 		LOCPLINT->castleInt->showAll();
 }
 void CInfoPopup::show(SDL_Surface * to)
@@ -684,6 +687,11 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	subtype = Subtype;
 	val = Val;
 	SDL_Surface * temp = this->getImg();
+	if(!temp)
+	{
+		tlog1 << "Error: cannot find graphic for component with id=" << type << " subid=" << subtype << " val=" << val << std::endl;
+		return;
+	}
 	pos.w = temp->w;
 	pos.h = temp->h;
 }
@@ -696,6 +704,8 @@ SComponent::SComponent(const Component &c)
 {
 	if(c.id==5)
 		init(experience,c.subtype,c.val);
+	else if(c.id == Component::SPELL)
+		init(spell,c.subtype,c.val);
 	else
 		init((Etype)c.id,c.subtype,c.val);
 
@@ -733,6 +743,9 @@ SDL_Surface * SComponent::getImg()
 		break;
 	case luck:
 		return graphics->luck82->ourImages[val+3].bitmap;
+		break;
+	case spell:
+		return graphics->spellscr->ourImages[subtype].bitmap;
 		break;
 	}
 	return NULL;
@@ -1124,7 +1137,7 @@ void CPlayerInterface::yourTurn()
 
 
 		//if there are any waiting dialogs, show them
-		if(dialogs.size())
+		if(dialogs.size() && !showingDialog->get())
 		{
 			dialogs.front()->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
 			showingDialog->set(true);

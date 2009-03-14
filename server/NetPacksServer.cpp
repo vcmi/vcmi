@@ -136,5 +136,5 @@ void PlayerMessage::applyGh( CGameHandler *gh )
 void SetSelection::applyGh( CGameHandler *gh )
 {
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
-	gh->sendToAllClients(this);
+	gh->sendAndApply(this);
 }

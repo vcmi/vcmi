@@ -1808,6 +1808,11 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				nobj = new CGMagicWell();
 				break;
 			}
+		case 58: //Redwood Observatory
+			{
+				nobj = new CGObservatory();
+				break;
+			}
 		case 214: //hero placeholder
 			{
 				i+=3; //TODO: handle it more properly

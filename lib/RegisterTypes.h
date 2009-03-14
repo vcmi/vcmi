@@ -25,6 +25,7 @@ template<typename Serializer> DLL_EXPORT void registerTypes1(Serializer &s)
 	s.registerType<CGQuestGuard>();
 	s.registerType<CGBonusingObject>();
 	s.registerType<CGMagicWell>();
+	s.registerType<CGObservatory>();
 	s.registerType<CGObjectInstance>();
 }
 

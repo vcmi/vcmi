@@ -536,6 +536,9 @@ class DLL_EXPORT CGShrine : public CGObjectInstance
 {
 public:
 	ui8 spell; //number of spell or 255 if random
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();
+	const std::string & getHoverText() const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -657,6 +660,16 @@ public:
 	}
 };
 
+class DLL_EXPORT CGObservatory : public CGObjectInstance //Redwood observatory
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
 
 
 

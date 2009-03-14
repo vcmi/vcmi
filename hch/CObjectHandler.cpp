@@ -1894,3 +1894,87 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		cb->startBattleI(h->id,guarders,pos,boost::bind(&CGEvent::endBattle,this,_1));
 	cb->removeObject(id);
 }
+
+void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
+{
+	FoWChange fw;
+	fw.player = h->tempOwner;
+	fw.mode = 1;
+	cb->getTilesInRange(fw.tiles,pos,20,h->tempOwner,1);
+	cb->sendAndApply(&fw);
+
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	iw.text.addTxt(MetaString::ADVOB_TXT,98);
+	cb->showInfoDialog(&iw);
+}
+
+void CGShrine::onHeroVisit( const CGHeroInstance * h ) const
+{
+	if(spell == 255)
+	{
+		tlog1 << "Not initialized shrine visited!\n";
+		return;
+	}
+
+	InfoWindow iw;
+	iw.player = h->getOwner();
+	iw.text.addTxt(MetaString::ADVOB_TXT,127 + ID - 88);
+	iw.text.addTxt(MetaString::SPELL_NAME,spell);
+	iw.text << ".";
+
+	if(!h->getArt(17)) //no spellbook
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT,131);
+	}
+	else if(ID == 90  &&  !h->getSecSkillLevel(7)) //it's third level spell and hero doesn't have wisdom
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT,130);
+	}
+	else if(vstd::contains(h->spells,spell))//hero already knows the spell
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT,174);
+	}
+	else //give spell
+	{
+		std::set<ui32> spells;
+		spells.insert(spell);
+		cb->changeSpells(h->id,true,spells);
+
+		iw.components.push_back(Component(Component::SPELL,spell,0,0));
+	}
+
+	cb->showInfoDialog(&iw);
+}
+
+void CGShrine::initObj()
+{
+	if(spell == 255) //spell not set
+	{
+		int level = ID-87;
+		std::vector<ui32> possibilities;
+
+		//add all allowed spells of wanted level
+		for(int i=0; i<SPELLS_QUANTITY; i++)
+		{
+			if(VLC->spellh->spells[i].level == level
+				&& cb->isAllowed(0,VLC->spellh->spells[i].id))
+			{
+				possibilities.push_back(VLC->spellh->spells[i].id);
+			}
+		}
+
+		if(!possibilities.size())
+		{
+			tlog1 << "Error: cannot init shrine, no allowed spells!\n";
+			return;
+		}
+
+		spell = possibilities[ran() % possibilities.size()];
+	}
+}
+
+const std::string & CGShrine::getHoverText() const
+{
+	return hoverName;
+}

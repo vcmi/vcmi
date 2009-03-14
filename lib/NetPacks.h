@@ -59,6 +59,8 @@ struct Query : public CPackForClient
 
 struct MetaString : public CPack //2001 helper for object scrips
 {
+	enum {GENERAL_TXT=1, XTRAINFO_TXT, OBJ_NAMES, RES_NAMES, ART_NAMES, ARRAY_TXT, CRE_PL_NAMES, CREGENS, MINE_NAMES, 
+		MINE_EVNTS, ADVOB_TXT, ART_EVNTS, SPELL_NAME};
 	std::vector<std::string> strings;
 	std::vector<std::pair<ui8,ui32> > texts; //pairs<text handler type, text number>; types: 1 - generaltexthandler->all; 2 - objh->xtrainfo; 3 - objh->names; 4 - objh->restypes; 5 - arth->artifacts[id].name; 6 - generaltexth->arraytxt; 7 - creh->creatures[os->subID].namePl; 8 - objh->creGens; 9 - objh->mines[ID].first; 10 - objh->mines[ID].second; 11 - objh->advobtxt
 	std::vector<si32> message;
@@ -68,7 +70,10 @@ struct MetaString : public CPack //2001 helper for object scrips
 	{
 		h & strings & texts & message & replacements;
 	}
-
+	void addTxt(ui8 type, ui32 serial)
+	{
+		*this << std::make_pair(type,serial);
+	}
 	MetaString& operator<<(const std::pair<ui8,ui32> &txt)
 	{
 		message.push_back(-((si32)texts.size())-1);
@@ -472,7 +477,7 @@ struct NewTurn : public CPackForClient //101
 
 struct Component : public CPack //2002 helper for object scrips informations
 {
-	enum {PRIM_SKILL,SEC_SKILL,RESOURCE,CREATURE,ARTIFACT,EXPERIENCE};
+	enum {PRIM_SKILL,SEC_SKILL,RESOURCE,CREATURE,ARTIFACT,EXPERIENCE,SPELL};
 	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
 	si32 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days

@@ -99,6 +99,11 @@ std::string DLL_EXPORT toString(MetaString &ms)
 				ret += VLC->generaltexth->mines[ser].second;
 				continue;
 			}
+			else if(type == MetaString::SPELL_NAME)
+			{
+				ret += VLC->spellh->spells[ser].name;
+				continue;
+			}
 			else
 			{
 				switch(type)
@@ -1322,27 +1327,6 @@ float CGameState::getMarketEfficiency( int player, int mode/*=0*/ )
 		if(vstd::contains(getPlayer(player)->towns[i]->builtBuildings,14))
 			mcount++;
 	float ret = std::min(((float)mcount+1.0f)/20.0f,0.5f);
-	return ret;
-}
-
-std::set<int3> CGameState::tilesToReveal(int3 pos, int radious, int player) const
-{
-	std::set<int3> ret;
-	if(player >= PLAYER_LIMIT)
-	{
-		tlog1 << "Illegal call to tilesToReveal!\n";
-		return ret;
-	}
-
-	for (int xd = std::max<int>(pos.x - radious , 0); xd <= std::min<int>(pos.x + radious, map->width-1); xd++)
-	{
-		for (int yd = std::max<int>(pos.y - radious, 0); yd <= std::min<int>( pos.y + radious, map->height-1); yd++)
-		{
-			double distance = pos.dist2d(int3(xd,yd,pos.z)) - 0.5;
-			if(distance <= radious  &&  (player<0 || players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==0))
-				ret.insert(int3(xd,yd,pos.z));
-		}
-	}
 	return ret;
 }
 

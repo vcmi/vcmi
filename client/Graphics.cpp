@@ -223,6 +223,7 @@ Graphics::Graphics()
 	tasks += GET_DEF(abils32,"SECSK32.DEF");
 	tasks += GET_DEF(abils44,"SECSKILL.DEF");
 	tasks += GET_DEF(abils82,"SECSK82.DEF");
+	tasks += GET_DEF(spellscr,"SPELLSCR.DEF");
 
 	std::ifstream ifs("config/cr_bgs.txt"); 
 	int id;
