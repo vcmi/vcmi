@@ -75,7 +75,7 @@ public:
 		apps[ID] = new CApplyOnGS<T>;
 	}
 
-} *applier = NULL;
+} *applierGs = NULL;
 
 std::string DLL_EXPORT toString(MetaString &ms)
 {
@@ -838,7 +838,7 @@ CGameState::CGameState()
 	map = NULL;
 	curB = NULL;
 	scenarioOps = NULL;
-	applier = new CGSApplier;
+	applierGs = new CGSApplier;
 }
 CGameState::~CGameState()
 {
@@ -846,7 +846,7 @@ CGameState::~CGameState()
 	delete map;
 	delete curB;
 	delete scenarioOps;
-	delete applier;
+	delete applierGs;
 }
 void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
@@ -1493,7 +1493,7 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 
 void CGameState::apply(CPack *pack)
 {
-	applier->apps[typeList.getTypeID(pack)]->applyOnGS(this,pack);
+	applierGs->apps[typeList.getTypeID(pack)]->applyOnGS(this,pack);
 }
 
 PlayerState * CGameState::getPlayer( ui8 color )
