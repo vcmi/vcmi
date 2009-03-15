@@ -631,6 +631,8 @@ public:
 	int read(void * data, unsigned size);
 	int readLine(void * data, unsigned maxSize);
 	void close();
+    template<class T>
+    CConnection &operator&(const T&);
 	~CConnection(void);
 };
 

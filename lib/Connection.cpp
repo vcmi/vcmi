@@ -141,6 +141,15 @@ CConnection::~CConnection(void)
 	delete rmx;
 }
 
+template<class T>
+CConnection & CConnection::operator&(const T &t) {
+    throw new std::exception();
+//XXX this is temporaly ? solution to fix gcc (4.3.3, other?) compilation
+//    problem for more details contact t0@czlug.icis.pcz.pl or impono@gmail.com
+//    do not remove this exception it shoudnt be called
+    return *this;
+}
+
 void CConnection::close()
 {
 	if(socket)
