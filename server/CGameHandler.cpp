@@ -23,7 +23,7 @@
 
 #undef DLL_EXPORT
 #define DLL_EXPORT 
-#include "../lib/RegisterTypes.h"
+#include "../lib/RegisterTypes.cpp"
 #ifndef _MSC_VER
 #include <boost/thread/xtime.hpp>
 #endif

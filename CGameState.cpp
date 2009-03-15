@@ -22,7 +22,7 @@
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
-#include "lib/RegisterTypes.h"
+#include "lib/RegisterTypes.cpp"
 boost::rand48 ran;
 
 
@@ -32,6 +32,18 @@ boost::rand48 ran;
 #ifdef max
 #undef max
 #endif
+
+void foofoofoo()
+{
+	//never called function to force instantation of templates
+	int *ccc = NULL;
+	registerTypes((CISer<CConnection>&)*ccc);
+	registerTypes((COSer<CConnection>&)*ccc);
+	registerTypes((CSaveFile&)*ccc);
+	registerTypes((CLoadFile&)*ccc);
+	registerTypes((CTypeList&)*ccc);
+}
+
 
 class CBaseForGSApply
 {

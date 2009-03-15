@@ -11,106 +11,106 @@
 template<typename Serializer> DLL_EXPORT
 void registerTypes1(Serializer &s)
 {
-	s.registerType<CGHeroInstance>();
-	s.registerType<CGTownInstance>();
-	s.registerType<CGEvent>();
-	s.registerType<CGVisitableOPH>();
-	s.registerType<CGVisitableOPW>();
-	s.registerType<CGTeleport>();
-	s.registerType<CGPickable>();
-	s.registerType<CGCreature>();
-	s.registerType<CGSignBottle>();
-	s.registerType<CGSeerHut>();
-	s.registerType<CGWitchHut>();
-	s.registerType<CGScholar>();
-	s.registerType<CGGarrison>();
-	s.registerType<CGArtifact>();
-	s.registerType<CGResource>();
-	s.registerType<CGMine>();
-	s.registerType<CGShrine>();
-	s.registerType<CGPandoraBox>();
-	s.registerType<CGQuestGuard>();
-	s.registerType<CGBonusingObject>();
-	s.registerType<CGMagicWell>();
-	s.registerType<CGObservatory>();
-	s.registerType<CGObjectInstance>();
+	s.template registerType<CGHeroInstance>();
+	s.template registerType<CGTownInstance>();
+	s.template registerType<CGEvent>();
+	s.template registerType<CGVisitableOPH>();
+	s.template registerType<CGVisitableOPW>();
+	s.template registerType<CGTeleport>();
+	s.template registerType<CGPickable>();
+	s.template registerType<CGCreature>();
+	s.template registerType<CGSignBottle>();
+	s.template registerType<CGSeerHut>();
+	s.template registerType<CGWitchHut>();
+	s.template registerType<CGScholar>();
+	s.template registerType<CGGarrison>();
+	s.template registerType<CGArtifact>();
+	s.template registerType<CGResource>();
+	s.template registerType<CGMine>();
+	s.template registerType<CGShrine>();
+	s.template registerType<CGPandoraBox>();
+	s.template registerType<CGQuestGuard>();
+	s.template registerType<CGBonusingObject>();
+	s.template registerType<CGMagicWell>();
+	s.template registerType<CGObservatory>();
+	s.template registerType<CGObjectInstance>();
 }
 
 template<typename Serializer> DLL_EXPORT 
 void registerTypes2(Serializer &s)
 {
-	s.registerType<SystemMessage>();
-	s.registerType<YourTurn>();
-	s.registerType<SetResource>();
-	s.registerType<SetResources>();
-	s.registerType<SetPrimSkill>();
-	s.registerType<SetSecSkill>();
-	s.registerType<HeroVisitCastle>();
-	s.registerType<ChangeSpells>();
-	s.registerType<SetMana>();
-	s.registerType<SetMovePoints>();
-	s.registerType<FoWChange>();
-	s.registerType<SetAvailableHeroes>();
-	s.registerType<GiveBonus>();
-	s.registerType<ChangeObjPos>();
-	s.registerType<RemoveObject>();
-	s.registerType<TryMoveHero>();
-	s.registerType<SetGarrisons>();
-	s.registerType<NewStructures>();
-	s.registerType<SetAvailableCreatures>();
-	s.registerType<SetHeroesInTown>();
-	s.registerType<SetHeroArtifacts>();
-	s.registerType<HeroRecruited>();
-	s.registerType<GiveHero>();
-	s.registerType<NewTurn>();
-	s.registerType<InfoWindow>();
-	s.registerType<SetObjectProperty>();
-	s.registerType<SetHoverName>();
-	s.registerType<HeroLevelUp>();
-	s.registerType<SelectionDialog>();
-	s.registerType<YesNoDialog>();
-	s.registerType<BattleStart>();
-	s.registerType<BattleNextRound>();
-	s.registerType<BattleSetActiveStack>();
-	s.registerType<BattleResult>();
-	s.registerType<BattleStackMoved>();
-	s.registerType<BattleStackAttacked>();
-	s.registerType<BattleAttack>();
-	s.registerType<StartAction>();
-	s.registerType<EndAction>();
-	s.registerType<SpellCasted>();
-	s.registerType<SetStackEffect>();
-	s.registerType<ShowInInfobox>();
+	s.template registerType<SystemMessage>();
+	s.template registerType<YourTurn>();
+	s.template registerType<SetResource>();
+	s.template registerType<SetResources>();
+	s.template registerType<SetPrimSkill>();
+	s.template registerType<SetSecSkill>();
+	s.template registerType<HeroVisitCastle>();
+	s.template registerType<ChangeSpells>();
+	s.template registerType<SetMana>();
+	s.template registerType<SetMovePoints>();
+	s.template registerType<FoWChange>();
+	s.template registerType<SetAvailableHeroes>();
+	s.template registerType<GiveBonus>();
+	s.template registerType<ChangeObjPos>();
+	s.template registerType<RemoveObject>();
+	s.template registerType<TryMoveHero>();
+	s.template registerType<SetGarrisons>();
+	s.template registerType<NewStructures>();
+	s.template registerType<SetAvailableCreatures>();
+	s.template registerType<SetHeroesInTown>();
+	s.template registerType<SetHeroArtifacts>();
+	s.template registerType<HeroRecruited>();
+	s.template registerType<GiveHero>();
+	s.template registerType<NewTurn>();
+	s.template registerType<InfoWindow>();
+	s.template registerType<SetObjectProperty>();
+	s.template registerType<SetHoverName>();
+	s.template registerType<HeroLevelUp>();
+	s.template registerType<SelectionDialog>();
+	s.template registerType<YesNoDialog>();
+	s.template registerType<BattleStart>();
+	s.template registerType<BattleNextRound>();
+	s.template registerType<BattleSetActiveStack>();
+	s.template registerType<BattleResult>();
+	s.template registerType<BattleStackMoved>();
+	s.template registerType<BattleStackAttacked>();
+	s.template registerType<BattleAttack>();
+	s.template registerType<StartAction>();
+	s.template registerType<EndAction>();
+	s.template registerType<SpellCasted>();
+	s.template registerType<SetStackEffect>();
+	s.template registerType<ShowInInfobox>();
 
-	s.registerType<SetSelection>();
-	s.registerType<PlayerMessage>();
+	s.template registerType<SetSelection>();
+	s.template registerType<PlayerMessage>();
 }
 
 template<typename Serializer> DLL_EXPORT
 void registerTypes3(Serializer &s)
 {
-	s.registerType<SaveGame>();
-	s.registerType<CloseServer>();
-	s.registerType<EndTurn>();
-	s.registerType<DismissHero>();
-	s.registerType<MoveHero>();
-	s.registerType<ArrangeStacks>();
-	s.registerType<DisbandCreature>();
-	s.registerType<BuildStructure>();
-	s.registerType<RecruitCreatures>();
-	s.registerType<UpgradeCreature>();
-	s.registerType<GarrisonHeroSwap>();
-	s.registerType<ExchangeArtifacts>();
-	s.registerType<BuyArtifact>();
-	s.registerType<TradeOnMarketplace>();
-	s.registerType<SetFormation>();
-	s.registerType<HireHero>();
-	s.registerType<QueryReply>();
-	s.registerType<MakeAction>();
-	s.registerType<MakeCustomAction>();
+	s.template registerType<SaveGame>();
+	s.template registerType<CloseServer>();
+	s.template registerType<EndTurn>();
+	s.template registerType<DismissHero>();
+	s.template registerType<MoveHero>();
+	s.template registerType<ArrangeStacks>();
+	s.template registerType<DisbandCreature>();
+	s.template registerType<BuildStructure>();
+	s.template registerType<RecruitCreatures>();
+	s.template registerType<UpgradeCreature>();
+	s.template registerType<GarrisonHeroSwap>();
+	s.template registerType<ExchangeArtifacts>();
+	s.template registerType<BuyArtifact>();
+	s.template registerType<TradeOnMarketplace>();
+	s.template registerType<SetFormation>();
+	s.template registerType<HireHero>();
+	s.template registerType<QueryReply>();
+	s.template registerType<MakeAction>();
+	s.template registerType<MakeCustomAction>();
 
-	s.registerType<SetSelection>();
-	s.registerType<PlayerMessage>();
+	s.template registerType<SetSelection>();
+	s.template registerType<PlayerMessage>();
 }
 
 template<typename Serializer> DLL_EXPORT
@@ -119,16 +119,4 @@ void registerTypes(Serializer &s)
 	registerTypes1(s);
 	registerTypes2(s);
 	registerTypes3(s);
-}
-
-
-void foofoofoo()
-{
-	//never called function to force instantation of templates
-	int *ccc = NULL;
-	registerTypes((CISer<CConnection>&)*ccc);
-	registerTypes((COSer<CConnection>&)*ccc);
-	registerTypes((CSaveFile&)*ccc);
-	registerTypes((CLoadFile&)*ccc);
-	registerTypes((CTypeList&)*ccc);
 }

@@ -28,7 +28,7 @@
 
 #undef DLL_EXPORT
 #define DLL_EXPORT
-#include "../lib/RegisterTypes.h"
+#include "../lib/RegisterTypes.cpp"
 extern std::string NAME;
 namespace intpr = boost::interprocess;
 
