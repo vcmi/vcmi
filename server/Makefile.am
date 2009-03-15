@@ -8,5 +8,6 @@ vcmiserver_LDADD += -lvcmi
 vcmiserver_SOURCES = \
 ./CGameHandler.cpp \
 ./CVCMIServer.cpp \
+./NetPacksServer.cpp \
 ./CGameHandler.h \
 ./CVCMIServer.h

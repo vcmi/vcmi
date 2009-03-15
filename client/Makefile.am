@@ -8,12 +8,12 @@ vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_LDADD += -lvcmi
 vcmiclient_SOURCES =  \
 ../AdventureMapButton.cpp \
-../hch/CAbilityHandler.cpp \
 ../CAdvmapInterface.cpp \
 ../CBattleInterface.cpp \
 ./CBitmapHandler.cpp \
 ../CCallback.cpp \
 ../CCastleInterface.cpp \
+./CConfigHandler.cpp \
 ./CCreatureAnimation.cpp \
 ../CCursorHandler.cpp \
 ../hch/CDefHandler.cpp \
@@ -28,26 +28,24 @@ vcmiclient_SOURCES =  \
 ../CPlayerInterface.cpp \
 ../CPreGame.cpp \
 ../hch/CSndHandler.cpp \
+./CSpellWindow.cpp \
 ../CThreadHelper.cpp \
 ./Graphics.cpp \
 ../mapHandler.cpp \
+./NetPacksClient.cpp \
 ../SDL_Extensions.cpp \
 ../SDL_framerate.cpp \
-./CConfigHandler.cpp \
-./CSpellWindow.cpp \
 ../AdventureMapButton.h \
 ../AI_Base.h \
-../hch/CAbilityHandler.h \
 ../CAdvmapInterface.h \
 ../hch/CAmbarCendamo.h \
-../hch/CArtHandler.h \
 ../CBattleInterface.h \
 ./CBitmapHandler.h \
 ../hch/CBuildingHandler.h \
 ../CCallback.h \
 ../CCastleInterface.h \
+./CConfigHandler.h \
 ./CCreatureAnimation.h \
-../hch/CCreatureHandler.h \
 ../CCursorHandler.h \
 ../hch/CDefHandler.h \
 ../CGameInfo.h \
@@ -62,8 +60,9 @@ vcmiclient_SOURCES =  \
 ../CPlayerInterface.h \
 ../CPreGame.h \
 ../hch/CSndHandler.h \
-../hch/CSpellHandler.h \
+./CSpellWindow.h \
 ../CThreadHelper.h \
+./FunctionList.h \
 ../global.h \
 ./Graphics.h \
 ../int3.h \
@@ -73,6 +72,4 @@ vcmiclient_SOURCES =  \
 ../SDL_framerate.h \
 ../StartInfo.h \
 ../stdafx.h \
-../timeHandler.h \
-./CSpellWindow.h \
-./CConfigHandler.h
+../timeHandler.h
