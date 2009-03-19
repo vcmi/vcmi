@@ -210,8 +210,8 @@ struct DLL_EXPORT CPath
 {
 	std::vector<CPathNode> nodes; //just get node by node
 
-	int3 startPos(); // start point
-	int3 endPos(); //destination point
+	int3 startPos() const; // start point
+	int3 endPos() const; //destination point
 	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
 };
 

@@ -1924,9 +1924,9 @@ std::vector<CStack> BattleInfo::getStackQueue()
 	return ret;
 }
 
-int3 CPath::startPos()
+int3 CPath::startPos() const
 {
-	return int3(nodes[nodes.size()-1].coord.x,nodes[nodes.size()-1].coord.y,nodes[nodes.size()-1].coord.z);
+	return nodes[nodes.size()-1].coord;
 }
 void CPath::convert(ui8 mode) //mode=0 -> from 'manifest' to 'object'
 {
@@ -1939,7 +1939,7 @@ void CPath::convert(ui8 mode) //mode=0 -> from 'manifest' to 'object'
 	}
 }
 
-int3 CPath::endPos()
+int3 CPath::endPos() const
 {
-	return int3(nodes[0].coord.x,nodes[0].coord.y,nodes[0].coord.z);
+	return nodes[0].coord;
 }

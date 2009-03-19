@@ -110,11 +110,10 @@ void CCreatureAnimation::incrementFrame()
 {
 	if(type!=-1) //when a specific part of animation is played
 	{
-		internalFrame = (internalFrame + 1) % frameGroups[type].size();
-		curFrame = frameGroups[type][internalFrame];
-
+		++internalFrame;
 		if(internalFrame == frameGroups[type].size()) //rewind
 		{
+			internalFrame = 0;
 			if(once) //playing animation once - return to standing animation
 			{
 				type = 2;
@@ -126,6 +125,7 @@ void CCreatureAnimation::incrementFrame()
 				curFrame = frameGroups[type][0];
 			}
 		}
+		curFrame = frameGroups[type][internalFrame];
 	}
 	else //when whole animation is played
 	{
