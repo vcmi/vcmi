@@ -1493,14 +1493,17 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 {
 	if(!army.slots.size())
 	{
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-		iw.components.push_back(Component(4,subID,0,0));
-		if(message.length())
-			iw.text <<  message;
-		else
-			iw.text << std::pair<ui8,ui32>(12,subID);
-		cb->showInfoDialog(&iw);
+		if(ID == 5)
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.components.push_back(Component(4,subID,0,0));
+			if(message.length())
+				iw.text <<  message;
+			else
+				iw.text << std::pair<ui8,ui32>(12,subID);
+			cb->showInfoDialog(&iw);
+		}
 		pick(h);
 	}
 	else
@@ -1521,7 +1524,14 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGArtifact::pick(const CGHeroInstance * h) const
 {
-	cb->giveHeroArtifact(subID,h->id,-2);
+	if(ID == 5) //Artifact
+	{
+		cb->giveHeroArtifact(subID,h->id,-2);
+	}
+	else if(ID == 93) // Spell scroll 
+	{
+		//TODO: support for the spell scroll
+	}
 	cb->removeObject(id);
 }
 
@@ -1995,4 +2005,19 @@ const std::string & CGShrine::getHoverText() const
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[354]; // (Already learned)
 	}
 	return hoverName;
+}
+
+void CGSignBottle::initObj()
+{
+	//if no text is set than we pick random from the predefined ones
+	if(!message.size())
+		message = VLC->generaltexth->randsign[ran()%VLC->generaltexth->randsign.size()];
+}
+
+void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
+{
+	InfoWindow iw;
+	iw.player = h->getOwner();
+	iw.text << message;
+	cb->showInfoDialog(&iw);
 }

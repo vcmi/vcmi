@@ -6,7 +6,6 @@
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
-#include "CPathfinder.h"
 #include "CPlayerInterface.h"
 #include "SDL_Extensions.h"
 #include "client/CBitmapHandler.h"
@@ -491,10 +490,11 @@ endchkpt:
 		int3 bufpos = currentHero->getPosition(false);
 		if (mres)
 		{
-			CPath * path;
-			path = CGI->pathf->getPath(bufpos, mp, currentHero);
-			//assign
-			currentPath = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second = path;
+			CPath *& pathForCurhero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second;
+			if(pathForCurhero)
+				delete pathForCurhero;
+
+			currentPath = pathForCurhero = LOCPLINT->cb->getPath(bufpos, mp, currentHero);;
 		}
 		return;
 	}

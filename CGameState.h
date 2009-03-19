@@ -197,6 +197,24 @@ struct UpgradeInfo
 	UpgradeInfo(){oldID = -1;};
 };
 
+struct CPathNode
+{
+	bool accesible; //true if a hero can be on this node
+	int dist; //distance from the first node of searching; -1 is infinity
+	CPathNode * theNodeBefore;
+	int3 coord; //coordiantes
+	bool visited;
+};
+
+struct DLL_EXPORT CPath
+{
+	std::vector<CPathNode> nodes; //just get node by node
+
+	int3 startPos(); // start point
+	int3 endPos(); //destination point
+	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
+};
+
 class DLL_EXPORT CGameState
 {
 public:
@@ -242,10 +260,12 @@ public:
 	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
 	float getMarketEfficiency(int player, int mode=0);
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
+	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if dst tile is visitable from dst tile
+	CPath * getPath(int3 src, int3 dest, const CGHeroInstance * hero); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
 
 	CGameState();
 	~CGameState();
-	void getNeighbours(int3 tile, std::vector<int3> &vec, bool onLand);
+	void getNeighbours(int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand);
 	int getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -276,7 +296,6 @@ public:
 	}
 
 	friend class CCallback;
-	friend class CPathfinder;;
 	friend class CLuaCallback;
 	friend class CClient;
 	friend void initGameState(Mapa * map, CGameInfo * cgi);

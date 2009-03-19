@@ -1,4 +1,4 @@
-0.7 -> 0.71 (as for r754)
+0.7 -> 0.71 (as for r765)
 GENERAL:
 * fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
 * morale/luck system and corresponding sec. skills supported 
@@ -25,6 +25,7 @@ ADVENTURE INTERFACE:
 * new movement cost calculation algorithm
 * fixed sight radious calculation
 * it's possible to stop hero movement
+* faster minimap refreshing 
 
 BATTLES:
 * partial support for battle obstacles
@@ -37,6 +38,7 @@ BATTLES:
 * blue glowing border around hovered creature
 * made animation on battlefield more smooth
 * standing stacks have more static animation
+* probably fixed problem with displaying corpses on battlefield
 * fixes for two-hex creatures actions
 * fixed hero casting spell animation
 * corrected stack death animation
@@ -62,6 +64,7 @@ TOWN INTERFACE:
 * fixed crash occuring when clicking on hero portrait in Tavern Window, minor improvements for Tavern Window
 * proper updating resdatabar after building structure in town or buying creatures (non 800x600 res)
 * fixed blinking resdatabar in town screen when buying (800x600) 
+* fixed horde buildings displaying in town hall
 
 
 PREGAME:
@@ -86,6 +89,9 @@ New objects supported:
  * Temple
  * Watering Hole
  * Fountain of Youth
+ * support for Redwood Observatory
+ * support for Shrine of Magic Incantation / Gesture / Thought
+ * support for Sign / Ocean Bottle
  
  AI PLAYER:
  Minor improvements and fixes.

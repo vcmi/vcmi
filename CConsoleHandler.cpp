@@ -1,22 +1,7 @@
 #define VCMI_DLL
 #include "stdafx.h"
 #include "CConsoleHandler.h"
-#include "CAdvmapInterface.h"
-#include "CCastleInterface.h"
-#include "CPlayerInterface.h"
-#include "CGameInfo.h"
-#include "global.h"
-#include "CGameState.h"
-#include "CCallback.h"
-#include "CPathfinder.h"
-#include "mapHandler.h"
-#include <sstream>
-#include "SDL_Extensions.h"
-#include "hch/CHeroHandler.h"
-#include "hch/CLodHandler.h"
-#include <boost/algorithm/string.hpp>
 #include "boost/function.hpp"
-#include <boost/thread.hpp>
 
 #ifdef _WIN32
 #include <windows.h>

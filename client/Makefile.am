@@ -24,7 +24,6 @@ vcmiclient_SOURCES =  \
 ../CMessage.cpp \
 ../CMT.cpp \
 ../hch/CMusicHandler.cpp \
-../CPathfinder.cpp \
 ../CPlayerInterface.cpp \
 ../CPreGame.cpp \
 ../hch/CSndHandler.cpp \
@@ -56,7 +55,6 @@ vcmiclient_SOURCES =  \
 ../CMessage.h \
 ../hch/CMusicHandler.h \
 ../hch/CObjectHandler.h \
-../CPathfinder.h \
 ../CPlayerInterface.h \
 ../CPreGame.h \
 ../hch/CSndHandler.h \

@@ -36,7 +36,13 @@ void SetResource::applyCl( CClient *cl )
 
 void SetPrimSkill::applyCl( CClient *cl )
 {
-	cl->playerint[GS(cl)->getHero(id)->tempOwner]->heroPrimarySkillChanged(GS(cl)->getHero(id),which,val);
+	const CGHeroInstance *h = GS(cl)->getHero(id);
+	if(!h)
+	{
+		tlog1 << "Cannot find hero with ID " << id << std::endl;
+		return;
+	}
+	INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroPrimarySkillChanged,h,which,val);
 }
 
 void SetSecSkill::applyCl( CClient *cl )

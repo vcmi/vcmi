@@ -257,6 +257,15 @@ void CGeneralTextHandler::load()
 		restypes.push_back(temp);
 	}	
 
+	tlog5 << "\t\tReading RANDSIGN \n";
+	buf = bitmaph->getTextFile("RANDSIGN.TXT");
+	it=0;
+	while (it<buf.length()-1)
+	{
+		loadToIt(temp,buf,it,3);
+		randsign.push_back(temp);
+	}	
+
 	tlog5 << "\t\tReading ZCRGN1 \n";
 	buf = bitmaph->getTextFile("ZCRGN1.TXT");
 	it=0;

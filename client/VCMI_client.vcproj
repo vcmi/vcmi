@@ -339,10 +339,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CPathfinder.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\CPlayerInterface.cpp"
 				>
 			</File>
@@ -474,10 +470,6 @@
 			</File>
 			<File
 				RelativePath="..\hch\CObjectHandler.h"
-				>
-			</File>
-			<File
-				RelativePath="..\CPathfinder.h"
 				>
 			</File>
 			<File

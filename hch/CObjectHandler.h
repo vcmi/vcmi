@@ -420,9 +420,11 @@ public:
 
 class DLL_EXPORT CGSignBottle : public CGObjectInstance //signs and ocean bottles
 {
-	//TODO: generate default message if sign is 'empty'
 public:
 	std::string message;
+
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

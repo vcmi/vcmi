@@ -112,15 +112,18 @@ void CClient::run()
 	CPack *pack;
 	while(1)
 	{
+		tlog5 << "Listening... ";
 		*serv >> pack;
-		tlog5 << "Received server message of type " << typeid(*pack).name() << std::endl;
+		tlog5 << "\treceived server message of type " << typeid(*pack).name() << std::endl;
 		CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)];
 		if(apply)
 		{
 			apply->applyOnClBefore(this,pack);
+			tlog5 << "\tMade first apply on cl\n";
 			gs->apply(pack);
+			tlog5 << "\tApplied on gs\n";
 			apply->applyOnClAfter(this,pack);
-			tlog5 << "Message successfully applied!\n";
+			tlog5 << "\tMade second apply on cl\n";
 		}
 		else
 		{
@@ -171,7 +174,7 @@ void CClient::load( const std::string & fname )
 	for(std::map<ui8,CGameInterface *>::iterator i = playerint.begin(); i!=playerint.end(); i++)
 	{
 		delete i->second; //delete player interfaces
-		}
+	}
 	tlog0 <<"Deleting old data: "<<tmh.getDif()<<std::endl;
 
 	char portc[10];

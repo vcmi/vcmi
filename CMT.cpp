@@ -20,7 +20,6 @@
 #include "CCastleInterface.h"
 #include "CConsoleHandler.h"
 #include "CCursorHandler.h"
-#include "CPathfinder.h"
 #include "CGameState.h"
 #include "CCallback.h"
 #include "CPlayerInterface.h"
@@ -122,10 +121,7 @@ int main(int argc, char** argv)
 		cgi->curh = new CCursorHandler;
 		cgi->curh->initCursor();
 		cgi->curh->show();
-		tlog0<<"\tScreen handler: "<<pomtime.getDif()<<std::endl;
-		cgi->pathf = new CPathfinder();
-		tlog0<<"\tPathfinder: "<<pomtime.getDif()<<std::endl;
-		tlog0<<"Preparing first handlers: "<<tmh.getDif()<<std::endl;
+		tlog0<<"Screen handler: "<<pomtime.getDif()<<std::endl;
 		pomtime.getDif();
 		graphics = new Graphics();
 		graphics->loadHeroAnim();

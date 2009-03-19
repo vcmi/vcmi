@@ -7,7 +7,6 @@
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
-#include "CPathfinder.h"
 #include "CPlayerInterface.h"
 //#include "SDL_Extensions.h"
 #include "SDL_Extensions.h"
@@ -1799,10 +1798,10 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 				return graphics->drawTownInfoWin((const CGTownInstance *)adventureInt->selection);
 			}
 		default:
+			tlog1 << "Strange... selection is neither hero nor town\n";
 			return NULL;
 		}
 	}
-	return NULL;
 }
 
 void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
@@ -1969,6 +1968,8 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)
 {
+	if(which >= PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
+		return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	redrawHeroWin(hero);
 }
@@ -2482,6 +2483,11 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const HeroB
 
 void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
 {
+	if(!vstd::contains(graphics->heroWins,hero->subID))
+	{
+		tlog1 << "Cannot redraw infowindow for hero with subID=" << hero->subID << " - not present in our map\n";
+		return;
+	}
 	SDL_FreeSurface(graphics->heroWins[hero->subID]);
 	graphics->heroWins[hero->subID] = infoWin(hero); 
 	if (adventureInt->selection == hero)
@@ -2490,12 +2496,11 @@ void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
 
 bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath * path )
 {
-	bool result = false;
-
 	if (!h || !path)
 		return false; //can't find hero
 
-	CPathfinder::convertPath(path,0);
+	bool result = false;
+	path->convert(0);
 	stillMoveHero = true;
 
 	for(int i=path->nodes.size()-1; i>0; i--)
@@ -2637,7 +2642,8 @@ void CHeroList::select(int which)
 	//recalculationg path in case of something has changed on map
 	if(items[which].second)
 	{
-		CPath * newPath = CGI->pathf->getPath(items[which].second->startPos(), items[which].second->endPos(), items[which].first);
+		CPath * newPath = LOCPLINT->cb->getPath(items[which].second->startPos(), items[which].second->endPos(), items[which].first);
+		delete items[which].second;
 		LOCPLINT->adventureInt->terrain.currentPath = items[which].second = newPath;
 	}
 	else

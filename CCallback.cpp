@@ -3,7 +3,6 @@
 #include "CCallback.h"
 #include "CGameInfo.h"
 #include "CGameState.h"
-#include "CPathfinder.h"
 #include "CPlayerInterface.h"
 #include "CPlayerInterface.h"
 #include "client/Client.h"
@@ -670,4 +669,10 @@ const TerrainTile * CCallback::getTileInfo( int3 tile ) const
 int CCallback::canBuildStructure( const CGTownInstance *t, int ID )
 {
 	return gs->canBuildStructure(t,ID);
+}
+
+CPath * CCallback::getPath( int3 src, int3 dest, const CGHeroInstance * hero )
+{
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+	return gs->getPath(src,dest,hero);
 }

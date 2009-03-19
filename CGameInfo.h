@@ -57,7 +57,6 @@ public:
 	CLodHandler * bitmaph;
 	CGeneralTextHandler * generaltexth;
 	CConsoleHandler * consoleh;
-	CPathfinder * pathf;
 	CCursorHandler * curh;
 	CScreenHandler * screenh;
 

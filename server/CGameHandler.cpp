@@ -1162,7 +1162,7 @@ void CGameHandler::moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker)
 	tlog5 << "Player " <<int(asker) << " wants to move hero "<< hid << " from "<< h->pos << " to " << dst << std::endl;
 	int3 hmpos = dst + int3(-1,0,0);
 	TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
-	int cost = gs->getMovementCost(h,h->pos,dst,h->movement);
+	int cost = gs->getMovementCost(h,h->getPosition(false),CGHeroInstance::convertPosition(dst,false),h->movement);
 
 	//result structure for start - movement failed, no move points used
 	TryMoveHero tmh;
@@ -1993,11 +1993,11 @@ void CGameHandler::makeBattleAction( BattleAction &ba )
 			if( !(
 				(BattleInfo::mutualPosition(curpos, enemypos) >= 0)						//front <=> front
 				|| (curStack->creature->isDoubleWide()									//back <=> front
-				&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos) >= 0)
+					&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos) >= 0)
 				|| (stackAtEnd->creature->isDoubleWide()									//front <=> back
-				&& BattleInfo::mutualPosition(curpos, enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
+					&& BattleInfo::mutualPosition(curpos, enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
 				|| (stackAtEnd->creature->isDoubleWide() && curStack->creature->isDoubleWide()//back <=> back
-				&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
+					&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
 				)
 				)
 			{
