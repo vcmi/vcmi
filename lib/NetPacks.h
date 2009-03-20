@@ -1027,7 +1027,7 @@ struct MakeAction : public CPackForServer
 struct MakeCustomAction : public CPackForServer
 {
 	MakeCustomAction(){};
-	MakeCustomAction(const BattleAction &BA):ba(ba){};
+	MakeCustomAction(const BattleAction &BA):ba(BA){};
 	BattleAction ba;
 
 	void applyGh(CGameHandler *gh);

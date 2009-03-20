@@ -577,7 +577,7 @@ public:
 	void clickRight(boost::logic::tribool down);
 	void hover (bool on);
 	void keyPressed (const SDL_KeyboardEvent & key);
-	void updateHList();
+	void updateHList(const CGHeroInstance *toRemove=NULL); //removes specific hero from the list or recreates it
 	void updateMove(const CGHeroInstance* which); //draws move points bar
 	void redrawAllOne(int which);
 	void draw();

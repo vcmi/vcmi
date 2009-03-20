@@ -1926,6 +1926,8 @@ void CGameHandler::hireHero( ui32 tid, ui8 hid )
 	sr.resid = 6;
 	sr.val = gs->getPlayer(t->tempOwner)->resources[6] - 2500;
 	sendAndApply(&sr);
+
+	giveSpells(t,nh);
 }
 
 void CGameHandler::queryReply( ui32 qid, ui32 answer )

@@ -1,4 +1,4 @@
-0.7 -> 0.71 (as for r765)
+0.7 -> 0.71 (as for r769)
 GENERAL:
 * fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
 * morale/luck system and corresponding sec. skills supported 

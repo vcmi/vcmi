@@ -1749,7 +1749,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	graphics->heroWins.erase(hero->ID);
-	adventureInt->heroList.updateHList();
+	adventureInt->heroList.updateHList(hero);
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 {
@@ -2290,7 +2290,9 @@ void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
 }
 void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 {
+	tlog5 << "CPlayerInterface::battleStackAttacked - locking...";
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	tlog5 << "done!\n";
 	if(bsa->isEffect())
 	{
 		battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position);
@@ -2302,7 +2304,9 @@ void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
 {
+	tlog5 << "CPlayerInterface::battleAttack - locking...";
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	tlog5 << "done!\n";
 	if(ba->bsa.lucky()) //lucky hit
 	{
 		CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
@@ -2793,10 +2797,25 @@ void CHeroList::hover (bool on)
 void CHeroList::keyPressed (const SDL_KeyboardEvent & key)
 {
 }
-void CHeroList::updateHList()
+void CHeroList::updateHList(const CGHeroInstance *toRemove)
 {
-	items.clear();
-	genList();
+	if(toRemove) //remove specific hero
+	{
+		for (std::vector<std::pair<const CGHeroInstance*, CPath *> >::iterator i=items.begin(); i != items.end(); i++)
+		{
+			if(i->first == toRemove)
+			{
+				delete i->second;
+				items.erase(i);
+				break;
+			}
+		}
+	}
+	else
+	{
+		items.clear();
+		genList();
+	}
 	if(selected>=items.size())
 		select(items.size()-1);
 	if(items.size()==0)
@@ -4274,6 +4293,7 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 	else
 		selected = -1;
 	bg = BitmapHandler::loadBitmap("TPTAVERN.bmp");
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	printAtMiddle(CGI->generaltexth->jktexts[37],200,35,GEOR16,tytulowy,bg);
 	printAtMiddle("2500",320,328,GEOR13,zwykly,bg);
