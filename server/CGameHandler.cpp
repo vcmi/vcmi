@@ -2226,30 +2226,30 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 			//TODO: check resistances
 
 #define SPELL_CAST_TEMPLATE_1(NUMBER, DURATION) SetStackEffect sse; \
-if(getSchoolLevel(h,s) < 3)  /*not expert */ \
+			if(getSchoolLevel(h,s) < 3)  /*not expert */ \
 			{ \
-			sse.stacks.insert(gs->curB->getStackT(ba.destinationTile)->ID); \
-			sse.effect.id = (NUMBER); \
-			sse.effect.level = getSchoolLevel(h,s); \
-			sse.effect.turnsRemain = (DURATION); /*! - any duration */ \
-			sendAndApply(&sse); \
+				sse.stacks.insert(gs->curB->getStackT(ba.destinationTile)->ID); \
+				sse.effect.id = (NUMBER); \
+				sse.effect.level = getSchoolLevel(h,s); \
+				sse.effect.turnsRemain = (DURATION); /*! - any duration */ \
+				sendAndApply(&sse); \
 			} \
 			else \
 			{ \
-			for(int it=0; it<gs->curB->stacks.size(); ++it) \
-			{ \
-			/*if it's non negative spell and our unit or non positive spell and hostile unit */ \
-			if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner) \
-			||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner ) \
-			) \
-			{ \
-			sse.stacks.insert(gs->curB->stacks[it]->ID); \
-			sse.effect.id = (NUMBER); \
-			sse.effect.level = getSchoolLevel(h,s); \
-			sse.effect.turnsRemain = (DURATION); \
-			sendAndApply(&sse); \
-			} \
-			} \
+				for(int it=0; it<gs->curB->stacks.size(); ++it) \
+				{ \
+					/*if it's non negative spell and our unit or non positive spell and hostile unit */ \
+					if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner) \
+						||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner ) \
+						) \
+					{ \
+						sse.stacks.insert(gs->curB->stacks[it]->ID); \
+					} \
+				} \
+				sse.effect.id = (NUMBER); \
+				sse.effect.level = getSchoolLevel(h,s); \
+				sse.effect.turnsRemain = (DURATION); \
+				sendAndApply(&sse); \
 			}
 
 			SpellCasted sc;

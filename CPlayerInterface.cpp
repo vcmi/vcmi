@@ -2288,6 +2288,11 @@ void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->spellCasted(sc);
 }
+void CPlayerInterface::battleStacksEffectsSet(SetStackEffect & sse)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	battleInt->battleStacksEffectsSet(sse);
+}
 void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 {
 	tlog5 << "CPlayerInterface::battleStackAttacked - locking...";

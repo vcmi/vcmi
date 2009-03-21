@@ -379,14 +379,12 @@ void SetStackEffect::applyCl( CClient *cl )
 	sc.id = effect.id;
 	sc.side = 3; //doesn't matter
 	sc.skill = effect.level;
-	BOOST_FOREACH(ui32 stack, stacks)
-	{
-		sc.tile = GS(cl)->curB->getStack(stack)->position;
-		if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-			cl->playerint[GS(cl)->curB->side1]->battleSpellCasted(&sc);
-		if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-			cl->playerint[GS(cl)->curB->side2]->battleSpellCasted(&sc);
-	}
+
+	//informing about effects
+	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
+		cl->playerint[GS(cl)->curB->side1]->battleStacksEffectsSet(*this);
+	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
+		cl->playerint[GS(cl)->curB->side2]->battleStacksEffectsSet(*this);
 }
 
 CGameState* CPackForClient::GS( CClient *cl )
