@@ -2312,84 +2312,32 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 					sendAndApply(&bsa);
 					break;
 				}
-			case 27: //shield
-				{
-					SPELL_CAST_TEMPLATE_1(27, h->getPrimSkillLevel(2))
-						break;
-				}
+			case 27: //shield 
 			case 28: //air shield
-				{
-					SPELL_CAST_TEMPLATE_1(28, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 41: //bless
-				{
-					SPELL_CAST_TEMPLATE_1(41, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 42: //curse
-				{
-					SPELL_CAST_TEMPLATE_1(42, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 43: //bloodlust
-				{
-					SPELL_CAST_TEMPLATE_1(43, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 45: //weakness
-				{
-					SPELL_CAST_TEMPLATE_1(45, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 46: //stone skin
-				{
-					SPELL_CAST_TEMPLATE_1(46, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 48: //prayer
-				{
-					SPELL_CAST_TEMPLATE_1(48, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 49: //mirth
-				{
-					SPELL_CAST_TEMPLATE_1(49, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 50: //sorrow
-				{
-					SPELL_CAST_TEMPLATE_1(50, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 51: //fortune
-				{
-					SPELL_CAST_TEMPLATE_1(51, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 52: //misfortune
-				{
-					SPELL_CAST_TEMPLATE_1(52, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 53: //haste
-				{
-					SPELL_CAST_TEMPLATE_1(53, h->getPrimSkillLevel(2))
-						break;
-				}
 			case 54: //slow
 				{
-					SPELL_CAST_TEMPLATE_1(54, h->getPrimSkillLevel(2))
+					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, h->getPrimSkillLevel(2))
 						break;
 				}
 			case 56: //frenzy
 				{
-					SPELL_CAST_TEMPLATE_1(56, 1)
+					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, 1)
 						break;
 				}
 			case 61: //forgetfulness
 				{
-					SPELL_CAST_TEMPLATE_1(61, h->getPrimSkillLevel(2))
+					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, h->getPrimSkillLevel(2))
 						break;
 				}
 			}

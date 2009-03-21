@@ -5,9 +5,17 @@
 #include "SDL_framerate.h"
 #include <map>
 #include <list>
+#include <algorithm>
 
 #ifdef __GNUC__
 #define sprintf_s snprintf 
+#endif
+
+#ifdef max
+#undef max
+#endif
+#ifdef min
+#undef min
 #endif
 
 class CDefEssential;
@@ -92,37 +100,45 @@ struct Rect : public SDL_Rect
 		y = Y;
 		w = W;
 		h = H;
-	};
+	}
 	Rect(const SDL_Rect & r)
 	{
 		x = r.x;
 		y = r.y;
 		w = r.w;
 		h = r.h;
-	};
-	bool isIn(int qx, int qy)
+	}
+	bool isIn(int qx, int qy) const
 	{
 		if (qx > x   &&   qx<x+w   &&   qy>y   &&   qy<y+h)
 			return true;
 		return false;
 	}
-	bool isIn(const Point &q)
+	bool isIn(const Point &q) const
 	{
 		return isIn(q.x,q.y);
 	}
-	Point topLeft()
+	Point topLeft() const
 	{
 		return Point(x,y);
 	}
-	Point bottomRight()
+	Point topRight() const
+	{
+		return Point(x+w,y);
+	}
+	Point bottomLeft() const
+	{
+		return Point(x,y+h);
+	}
+	Point bottomRight() const
 	{
 		return Point(x+w,y+h);
 	}
-	Rect operator+(const Rect &p)
+	Rect operator+(const Rect &p) const
 	{
 		return Rect(x+p.x,y+p.y,w,h);
 	}
-	Rect operator+(const Point &p)
+	Rect operator+(const Point &p) const
 	{
 		return Rect(x+p.x,y+p.y,w,h);
 	}
@@ -131,6 +147,27 @@ struct Rect : public SDL_Rect
 		x += p.x;
 		y += p.y;
 		return *this;
+	}
+	Rect operator&(const Rect &p) const //rect intersection
+	{
+		bool intersect = isIn(p.topLeft()) || isIn(p.bottomRight()) || isIn(p.topRight()) || isIn(p.bottomLeft());
+
+		if(intersect)
+		{
+			Rect ret;
+			ret.x = std::max(this->x, p.x);
+			ret.y = std::max(this->y, p.y);
+			Point bR; //bottomRight point of returned rect
+			bR.x = std::min(this->w+this->x, p.w+p.x);
+			bR.y = std::min(this->h+this->y, p.h+p.y);
+			ret.w = bR.x - ret.x;
+			ret.h = bR.y - ret.y;
+			return ret;
+		}
+		else
+		{
+			return Rect();
+		}
 	}
 };
 
