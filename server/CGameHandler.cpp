@@ -485,14 +485,16 @@ void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
 void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 {
 	bat.stackAttacking = att->ID;
-	bat.bsa.stackAttacked = def->ID;
-	bat.bsa.damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot());//counting dealt damage
+	std::set<BattleStackAttacked>::iterator bsa = bat.bsa.insert(BattleStackAttacked()).first;
+
+	bsa->stackAttacked = def->ID;
+	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot());//counting dealt damage
 	if(att->Luck() > 0  &&  rand()%24 < att->Luck())
 	{
-		bat.bsa.damageAmount *= 2;
-		bat.bsa.flags |= 4;
+		bsa->damageAmount *= 2;
+		bsa->flags |= 4;
 	}
-	prepareAttacked(bat.bsa,def);
+	prepareAttacked(*bsa,def);
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
@@ -2226,7 +2228,7 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 #define SPELL_CAST_TEMPLATE_1(NUMBER, DURATION) SetStackEffect sse; \
 if(getSchoolLevel(h,s) < 3)  /*not expert */ \
 			{ \
-			sse.stack = gs->curB->getStackT(ba.destinationTile)->ID; \
+			sse.stacks.insert(gs->curB->getStackT(ba.destinationTile)->ID); \
 			sse.effect.id = (NUMBER); \
 			sse.effect.level = getSchoolLevel(h,s); \
 			sse.effect.turnsRemain = (DURATION); /*! - any duration */ \
@@ -2241,7 +2243,7 @@ if(getSchoolLevel(h,s) < 3)  /*not expert */ \
 			||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner ) \
 			) \
 			{ \
-			sse.stack = gs->curB->stacks[it]->ID; \
+			sse.stacks.insert(gs->curB->stacks[it]->ID); \
 			sse.effect.id = (NUMBER); \
 			sse.effect.level = getSchoolLevel(h,s); \
 			sse.effect.turnsRemain = (DURATION); \

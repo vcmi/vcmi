@@ -335,11 +335,11 @@ void BattleStackMoved::applyFirstCl( CClient *cl )
 
 void BattleStackAttacked::applyCl( CClient *cl )
 {
+	std::set<BattleStackAttacked> bsa;
+	bsa.insert(*this);
 
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleStackAttacked(this);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleStackAttacked(this);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStacksAttacked,bsa);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStacksAttacked,bsa);
 }
 
 void BattleAttack::applyFirstCl( CClient *cl )
@@ -352,10 +352,8 @@ void BattleAttack::applyFirstCl( CClient *cl )
 
 void BattleAttack::applyCl( CClient *cl )
 {
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleStackAttacked(&bsa);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleStackAttacked(&bsa);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStacksAttacked,bsa);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStacksAttacked,bsa);
 }
 
 void StartAction::applyFirstCl( CClient *cl )
@@ -381,11 +379,14 @@ void SetStackEffect::applyCl( CClient *cl )
 	sc.id = effect.id;
 	sc.side = 3; //doesn't matter
 	sc.skill = effect.level;
-	sc.tile = GS(cl)->curB->getStack(stack)->position;
-	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleSpellCasted(&sc);
-	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleSpellCasted(&sc);
+	BOOST_FOREACH(ui32 stack, stacks)
+	{
+		sc.tile = GS(cl)->curB->getStack(stack)->position;
+		if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
+			cl->playerint[GS(cl)->curB->side1]->battleSpellCasted(&sc);
+		if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
+			cl->playerint[GS(cl)->curB->side2]->battleSpellCasted(&sc);
+	}
 }
 
 CGameState* CPackForClient::GS( CClient *cl )

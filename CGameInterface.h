@@ -75,7 +75,7 @@ public:
 	virtual void actionStarted(const BattleAction *action){};//occurs BEFORE every action taken by any stack or by the hero
 	virtual BattleAction activeStack(int stackID)=0; //called when it's turn of that stack
 	virtual void battleAttack(BattleAttack *ba){}; //called when stack is performing attack
-	virtual void battleStackAttacked(BattleStackAttacked * bsa){}; //called when stack receives damage (after battleAttack())
+	virtual void battleStacksAttacked(std::set<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(BattleResult *br){};
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleStackMoved(int ID, int dest, int distance){};

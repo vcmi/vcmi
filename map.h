@@ -389,11 +389,14 @@ struct DLL_EXPORT Mapa : public CMapHeader
 			CGObjectInstance *&obj = objects[i];
 			h & obj;
 
-			si32 shlp;
-			//definfo
-			h & (h.saving ? (shlp=obj->defInfo->serial) : shlp); //read / write pos of definfo in defs vector
-			if(!h.saving)
-				obj->defInfo = defy[shlp];
+			if (obj)
+			{
+				si32 shlp;
+				//definfo
+				h & (h.saving ? (shlp=obj->defInfo->serial) : shlp); //read / write pos of definfo in defs vector
+				if(!h.saving)
+					obj->defInfo = defy[shlp];
+			}
 		}
 
 		if(!h.saving)

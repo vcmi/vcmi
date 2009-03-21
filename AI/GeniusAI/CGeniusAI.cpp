@@ -97,9 +97,9 @@ void CGeniusAI::battleAttack(BattleAttack *ba)
 /**
  * called when stack receives damage (after battleAttack())
  */
-void CGeniusAI::battleStackAttacked(BattleStackAttacked * bsa)
+void CGeniusAI::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 {
-	MsgBox("\t\t\tCGeniusAI::battleStackAttacked");
+	MsgBox("\t\t\tCGeniusAI::battleStacksAttacked");
 }
 /**
  * called by engine when battle starts; side=0 - left, side=1 - right

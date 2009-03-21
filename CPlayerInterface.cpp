@@ -2288,18 +2288,24 @@ void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->spellCasted(sc);
 }
-void CPlayerInterface::battleStackAttacked(BattleStackAttacked * bsa)
+void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 {
 	tlog5 << "CPlayerInterface::battleStackAttacked - locking...";
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	tlog5 << "done!\n";
-	if(bsa->isEffect())
-	{
-		battleInt->displayEffect(bsa->effect, cb->battleGetStackByID(bsa->stackAttacked)->position);
-	}
+
+
 	std::vector<CBattleInterface::SStackAttackedInfo> arg;
-	CBattleInterface::SStackAttackedInfo to_put = {bsa->stackAttacked, bsa->damageAmount, bsa->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7, bsa->killed()};
-	arg.push_back(to_put);
+	for(std::set<BattleStackAttacked>::iterator i = bsa.begin(); i != bsa.end(); i++)
+	{
+		if(i->isEffect())
+		{
+			battleInt->displayEffect(i->effect, cb->battleGetStackByID(i->stackAttacked)->position);
+		}
+		CBattleInterface::SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7, i->killed()};
+		arg.push_back(to_put);
+	}
+
 	battleInt->stacksAreAttacked(arg);
 }
 void CPlayerInterface::battleAttack(BattleAttack *ba)
@@ -2307,7 +2313,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	tlog5 << "CPlayerInterface::battleAttack - locking...";
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	tlog5 << "done!\n";
-	if(ba->bsa.lucky()) //lucky hit
+	if(ba->lucky()) //lucky hit
 	{
 		CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
 		std::string hlp = CGI->generaltexth->allTexts[45];
@@ -2315,8 +2321,13 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 		battleInt->console->addText(hlp);
 		battleInt->displayEffect(18,stack->position);
 	}
+	//TODO: bad luck?
+
 	if(ba->shot())
-		battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(ba->bsa.stackAttacked));
+	{
+		for(std::set<BattleStackAttacked>::iterator i = ba->bsa.begin(); i != ba->bsa.end(); i++)
+			battleInt->stackIsShooting(ba->stackAttacking,cb->battleGetPos(i->stackAttacked));
+	}
 	else
 	{
 		CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);

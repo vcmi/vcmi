@@ -665,7 +665,7 @@ struct BattleStackAttacked : public CPackForClient//3005
 
 	ui32 stackAttacked;
 	ui32 newAmount, newHP, killedAmount, damageAmount;
-	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown; 4 - lucky hit
+	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown;
 	ui32 effect; //set only if flag 2 is present
 
 	bool killed() //if target stack was killed
@@ -676,13 +676,13 @@ struct BattleStackAttacked : public CPackForClient//3005
 	{
 		return flags & 2;
 	}
-	bool lucky()
-	{
-		return flags & 4;
-	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stackAttacked & newAmount & newHP & flags & killedAmount & damageAmount & effect;
+	}
+	bool operator<(const BattleStackAttacked &b) const
+	{
+		return stackAttacked < b.stackAttacked;
 	}
 };
 
@@ -693,7 +693,7 @@ struct BattleAttack : public CPackForClient//3006
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	BattleStackAttacked bsa;
+	std::set<BattleStackAttacked> bsa;
 	ui32 stackAttacking;
 	ui8 flags;
 
@@ -705,10 +705,19 @@ struct BattleAttack : public CPackForClient//3006
 	{
 		return flags & 2;
 	}
-	bool killed() //if target stack was killed
+	bool lucky()
 	{
-		return bsa.killed();
+		return flags & 4;
 	}
+	bool unlucky()
+	{
+		//TODO: support?
+		return flags & 8;
+	}
+	//bool killed() //if target stack was killed
+	//{
+	//	return bsa.killed();
+	//}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & bsa & stackAttacking & flags;
@@ -761,11 +770,11 @@ struct SetStackEffect : public CPackForClient //3010
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	ui32 stack;
+	std::set<ui32> stacks;
 	CStack::StackEffect effect;
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stack & effect;
+		h & stacks & effect;
 	}
 };
 

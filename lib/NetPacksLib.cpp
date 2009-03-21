@@ -428,7 +428,8 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 		attacker->counterAttacks--;
 	if(shot())
 		attacker->shots--;
-	bsa.applyGs(gs);
+	BOOST_FOREACH(BattleStackAttacked &stackAttacked, bsa)
+		stackAttacked.applyGs(gs);
 }
 
 DLL_EXPORT void StartAction::applyGs( CGameState *gs )
@@ -464,8 +465,14 @@ DLL_EXPORT void SpellCasted::applyGs( CGameState *gs )
 
 DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 {
-	CStack *s = gs->curB->getStack(stack);
-	s->effects.push_back(effect);
+	BOOST_FOREACH(ui32 id, stacks)
+	{
+		CStack *s = gs->curB->getStack(id);
+		if(s)
+			s->effects.push_back(effect);
+		else
+			tlog1 << "Cannot find stack " << id << std::endl;
+	}
 }
 
 DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
