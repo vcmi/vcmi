@@ -1,8 +1,6 @@
 #ifndef __CBATTLEINTERFACE_H__
 #define __CBATTLEINTERFACE_H__
 
-
-
 #include "global.h"
 #include "CPlayerInterface.h"
 #include <list>
@@ -35,8 +33,8 @@ public:
 	void show(SDL_Surface * to); //prints next frame of animation to to
 	void activate();
 	void deactivate();
-	void setPhase(int newPhase);
-	void clickLeft(boost::logic::tribool down);
+	void setPhase(int newPhase); //sets phase of hero animation
+	void clickLeft(boost::logic::tribool down); //call-in
 	CBattleHero(const std::string & defName, int phaseG, int imageG, bool filpG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner); //c-tor
 	~CBattleHero(); //d-tor
 };
@@ -46,10 +44,10 @@ class CBattleHex : public Hoverable, public MotionInterested, public ClickableL,
 private:
 	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
 public:
-	unsigned int myNumber;
-	bool accesible;
+	unsigned int myNumber; //number of hex in commonly used format
+	bool accesible; //if true, this hex is accessible for units
 	//CStack * ourStack;
-	bool hovered, strictHovered;
+	bool hovered, strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
 	CBattleInterface * myInterface; //interface that owns me
 	static std::pair<int, int> getXYUnitAnim(const int & hexNum, const bool & attacker, const CCreature * creature); //returns (x, y) of left top corner of animation
 	//for user interactions
@@ -94,7 +92,7 @@ public:
 	CBattleReslutWindow(const BattleResult & br, const SDL_Rect & pos, const CBattleInterface * owner); //c-tor
 	~CBattleReslutWindow(); //d-tor
 
-	void bExitf();
+	void bExitf(); //exit button callback
 
 	void activate();
 	void deactivate();
@@ -113,8 +111,8 @@ public:
 	CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface * owner); //c-tor
 	~CBattleOptionsWindow(); //d-tor
 
-	void bDefaultf();
-	void bExitf();
+	void bDefaultf(); //dafault button callback
+	void bExitf(); //exit button callback
 
 	void activate();
 	void deactivate();
@@ -128,7 +126,7 @@ private:
 	AdventureMapButton * bOptions, * bSurrender, * bFlee, * bAutofight, * bSpell,
 		* bWait, * bDefence, * bConsoleUp, * bConsoleDown;
 	CBattleConsole * console;
-	CBattleHero * attackingHero, * defendingHero;
+	CBattleHero * attackingHero, * defendingHero; //fighting heroes
 	CCreatureSet * army1, * army2; //fighting armies
 	CGHeroInstance * attackingHeroInstance, * defendingHeroInstance;
 	std::map< int, CCreatureAnimation * > creAnims; //animations of creatures from fighting armies (order by BattleInfo's stacks' ID)
@@ -178,7 +176,7 @@ private:
 		int animStartDelay; //how many times projectile must be attempted to be shown till it's really show (decremented after hit)
 		bool reverse; //if true, projectile will be flipped by vertical asix
 	};
-	std::list<SProjectileInfo> projectiles;
+	std::list<SProjectileInfo> projectiles; //projectiles flying on battlefield
 	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles

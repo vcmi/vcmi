@@ -2892,7 +2892,11 @@ void CHeroList::draw()
 
 int CHeroList::getPosOfHero(const CArmedInstance* h)
 {
-	return vstd::findPos(items,h,boost::bind(vstd::equal<std::pair<const CGHeroInstance*, CPath *>,const CArmedInstance *,const CGHeroInstance*>,_1,&std::pair<const CGHeroInstance*, CPath *>::first,_2));
+	return vstd::findPos(
+		items,h,
+		boost::bind(vstd::equal<std::pair<const CGHeroInstance*, CPath *>,
+		const CArmedInstance *,const CGHeroInstance*>,_1,
+		&std::pair<const CGHeroInstance*, CPath *>::first,_2));
 }
 
 

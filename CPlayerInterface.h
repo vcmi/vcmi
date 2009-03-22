@@ -60,9 +60,7 @@ struct Point
 		:x(a.x),y(a.y)
 	{}
 
-
-
-	Point operator+(const Point &b)
+	Point operator+(const Point &b) const
 	{
 		return Point(x+b.x,y+b.y);
 	}
@@ -72,7 +70,7 @@ struct Point
 		y += b.y;
 		return *this;
 	}
-	Point operator-(const Point &b)
+	Point operator-(const Point &b) const
 	{
 		return Point(x+b.x,y+b.y);
 	}
@@ -82,7 +80,7 @@ struct Point
 		y -= b.y;
 		return *this;
 	}
-	bool operator<(const Point &b)
+	bool operator<(const Point &b) const //product order
 	{
 		return x < b.x   &&   y < b.y;
 	}
@@ -90,59 +88,67 @@ struct Point
 
 struct Rect : public SDL_Rect
 {
-	Rect()
+	Rect()//default c-tor
 	{
 		x = y = w = h = -1;
 	}
-	Rect(int X, int Y, int W, int H)
+	Rect(int X, int Y, int W, int H) //c-tor
 	{
 		x = X;
 		y = Y;
 		w = W;
 		h = H;
 	}
-	Rect(const SDL_Rect & r)
+	Rect(const SDL_Rect & r) //c-tor
 	{
 		x = r.x;
 		y = r.y;
 		w = r.w;
 		h = r.h;
 	}
-	bool isIn(int qx, int qy) const
+	bool isIn(int qx, int qy) const //determines if given point lies inside rect
 	{
 		if (qx > x   &&   qx<x+w   &&   qy>y   &&   qy<y+h)
 			return true;
 		return false;
 	}
-	bool isIn(const Point &q) const
+	bool isIn(const Point &q) const //determines if given point lies inside rect
 	{
 		return isIn(q.x,q.y);
 	}
-	Point topLeft() const
+	Point topLeft() const //top left corner of this rect
 	{
 		return Point(x,y);
 	}
-	Point topRight() const
+	Point topRight() const //top right corner of this rect
 	{
 		return Point(x+w,y);
 	}
-	Point bottomLeft() const
+	Point bottomLeft() const //bottom left corner of this rect
 	{
 		return Point(x,y+h);
 	}
-	Point bottomRight() const
+	Point bottomRight() const //bottom right corner of this rect
 	{
 		return Point(x+w,y+h);
 	}
-	Rect operator+(const Rect &p) const
+	Rect operator+(const Rect &p) const //moves this rect by p's rect position
 	{
 		return Rect(x+p.x,y+p.y,w,h);
 	}
-	Rect operator+(const Point &p) const
+	Rect operator+(const Point &p) const //moves this rect by p's point position
 	{
 		return Rect(x+p.x,y+p.y,w,h);
 	}
-	Rect& operator+=(const Rect &p)
+	Rect& operator=(const Rect &p) //assignment operator
+	{
+		x = p.x;
+		y = p.y;
+		w = p.w;
+		h = p.h;
+		return *this;
+	}
+	Rect& operator+=(const Rect &p) //works as operator+
 	{
 		x += p.x;
 		y += p.y;
@@ -150,7 +156,24 @@ struct Rect : public SDL_Rect
 	}
 	Rect operator&(const Rect &p) const //rect intersection
 	{
-		bool intersect = isIn(p.topLeft()) || isIn(p.bottomRight()) || isIn(p.topRight()) || isIn(p.bottomLeft());
+		bool intersect = true;
+
+		if(p.topLeft().y < y && p.bottomLeft().y < y) //rect p is above *this
+		{
+			intersect = false;
+		}
+		else if(p.topLeft().y > y+h && p.bottomLeft().y > y+h) //rect p is below *this
+		{
+			intersect = false;
+		}
+		else if(p.topLeft().x > x+w && p.topRight().x > x+w) //rect p is on the right hand side of this
+		{
+			intersect = false;
+		}
+		else if(p.topLeft().x < x && p.topRight().x < x) //rect p is on the left hand side of this
+		{
+			intersect = false;
+		}
 
 		if(intersect)
 		{
@@ -185,7 +208,7 @@ public:
 	virtual void print(const std::string & text)=0; //prints text and refreshes statusbar
 	virtual void clear()=0;//clears statusbar and refreshes
 	virtual void show()=0; //shows statusbar (with current text)
-	virtual std::string getCurrent()=0;
+	virtual std::string getCurrent()=0; //returns currently displayed text
 };
 
 class IActivable
@@ -208,47 +231,47 @@ public:
 class CIntObject //interface object
 {
 public:
-	Rect pos;
-	int ID;
+	Rect pos; //position of object on the screen
+	int ID; //object uniqe ID, rarely (if at all) used
 
 	//virtual bool isIn(int x, int y)
 	//{
 	//	return pos.isIn(x,y);
 	//}
-	virtual ~CIntObject(){};
+	virtual ~CIntObject(){}; //d-tor
 };
 class CSimpleWindow : public virtual CIntObject, public IShowable
 {
 public:
 	SDL_Surface * bitmap;
-	CIntObject * owner;
+	CIntObject * owner; //who made this window
 	virtual void show(SDL_Surface * to = NULL);
-	CSimpleWindow():bitmap(NULL),owner(NULL){};
-	virtual ~CSimpleWindow();
+	CSimpleWindow():bitmap(NULL),owner(NULL){}; //c-tor
+	virtual ~CSimpleWindow(); //d-tor
 };
 class CButtonBase : public virtual CIntObject, public IShowable, public IActivable //basic buttton class
 {
 public:
-	int bitmapOffset;
-	int type; //advmapbutton=2
-	bool abs;
-	bool active;
-	bool notFreeButton;
+	int bitmapOffset; //TODO: comment me
+	int type; //advmapbutton=2 //TODO: comment me
+	bool abs;//TODO: comment me
+	bool active; //if true, this button is active and can be pressed
+	bool notFreeButton; //TODO: comment me
 	CIntObject * ourObj; // "owner"
-	int state;
-	std::vector< std::vector<SDL_Surface*> > imgs;
-	int curimg;
+	int state; //TODO: comment me
+	std::vector< std::vector<SDL_Surface*> > imgs; //images for this button
+	int curimg; //curently displayed image from imgs
 	virtual void show(SDL_Surface * to = NULL);
 	virtual void activate()=0;
 	virtual void deactivate()=0;
-	CButtonBase();
-	virtual ~CButtonBase();
+	CButtonBase(); //c-tor
+	virtual ~CButtonBase(); //d-tor
 };
 class ClickableL : public virtual CIntObject  //for left-clicks
 {
 public:
-	bool pressedL;
-	ClickableL();
+	bool pressedL; //for determining if object is L-pressed
+	ClickableL(); //c-tor
 	virtual ~ClickableL();//{};
 	virtual void clickLeft (boost::logic::tribool down)=0;
 	virtual void activate();
@@ -257,8 +280,8 @@ public:
 class ClickableR : public virtual CIntObject //for right-clicks
 {
 public:
-	bool pressedR;
-	ClickableR();
+	bool pressedR; //for determining if object is R-pressed
+	ClickableR(); //c-tor
 	virtual ~ClickableR();//{};
 	virtual void clickRight (boost::logic::tribool down)=0;
 	virtual void activate()=0;
@@ -267,9 +290,9 @@ public:
 class Hoverable  : public virtual CIntObject
 {
 public:
-	Hoverable(){hovered=false;}
-	virtual ~Hoverable();//{};
-	bool hovered;
+	Hoverable(){hovered=false;} //c-tor
+	virtual ~Hoverable();//{}; //d-tor
+	bool hovered;  //for determining if object is hovered
 	virtual void hover (bool on)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -287,10 +310,10 @@ class KeyShortcut : public KeyInterested, public ClickableL
 {
 public:
 	std::set<int> assignedKeys;
-	KeyShortcut(){};
-	KeyShortcut(int key){assignedKeys.insert(key);};
-	KeyShortcut(std::set<int> Keys):assignedKeys(Keys){};
-	virtual void keyPressed(const SDL_KeyboardEvent & key);
+	KeyShortcut(){}; //c-tor
+	KeyShortcut(int key){assignedKeys.insert(key);}; //c-tor
+	KeyShortcut(std::set<int> Keys):assignedKeys(Keys){}; //c-tor
+	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
 };
 
 class MotionInterested: public virtual CIntObject
@@ -306,7 +329,7 @@ public:
 class TimeInterested: public virtual CIntObject
 {
 public:
-	virtual ~TimeInterested(){};
+	virtual ~TimeInterested(){}; //d-tor
 	int toNextTick;
 	virtual void tick()=0;
 	virtual void activate();
@@ -322,61 +345,62 @@ public:
 	virtual void show(SDL_Surface * to = NULL);
 	void activate();
 	void deactivate();
-	CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons);
-	CInfoWindow();
-	~CInfoWindow();
+	CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons); //c-tor
+	CInfoWindow(); //c-tor
+	~CInfoWindow(); //d-tor
 };
 class CSelWindow : public CInfoWindow //component selection window
-{ //uwaga - to okno usuwa swoje komponenty przy zamykaniu
+{ //warning - this window deletes its components by closing!
 public:
 	void selectionChange(unsigned to);
 	void close();
-	CSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> &comps, std::vector<std::pair<std::string,boost::function<void()> > > &Buttons);
-	CSelWindow(){};
+	CSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> &comps, std::vector<std::pair<std::string,boost::function<void()> > > &Buttons); //c-tor
+	CSelWindow(){}; //c-tor
+	//notification - this class inherits important destructor from CInfoWindow
 };
 
-class CRClickPopup : public IShowable, public ClickableR
+class CRClickPopup : public IShowable, public ClickableR //popup displayed on R-click
 {
 public:
 	virtual void activate();
 	virtual void deactivate();
 	virtual void close()=0;
 	void clickRight (boost::logic::tribool down);
-	virtual ~CRClickPopup(){};
+	virtual ~CRClickPopup(){}; //d-tor
 };
 
 class CInfoPopup : public CRClickPopup
 {
 public:
-	bool free;
-	SDL_Surface * bitmap;
-	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false);
+	bool free; //TODO: comment me
+	SDL_Surface * bitmap; //popup background
+	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
 	void close();
 	void show(SDL_Surface * to = NULL);
-	CInfoPopup(){free=false;bitmap=NULL;}
-	~CInfoPopup(){};
+	CInfoPopup(){free=false;bitmap=NULL;} //default c-tor
+	~CInfoPopup(){}; //d-tor
 };
 
-class SComponent : public ClickableR
+class SComponent : public ClickableR //common popup window component
 {
 public:
 	enum Etype
 	{
 		primskill, secskill, resource, creature, artifact, experience, secskill44, spell, morale, luck
-	} type;
-	int subtype;
-	int val;
+	} type; //component type
+	int subtype; //TODO: comment me
+	int val; //TODO: comment me
 
 	std::string description; //r-click
-	std::string subtitle;
+	std::string subtitle; //TODO: comment me
 
 	void init(Etype Type, int Subtype, int Val);
-	SComponent(Etype Type, int Subtype, int Val);
-	SComponent(const Component &c);
-	SComponent(){};
-	virtual ~SComponent(){};
+	SComponent(Etype Type, int Subtype, int Val); //c-tor
+	SComponent(const Component &c); //c-tor
+	SComponent(){}; //c-tor
+	virtual ~SComponent(){}; //d-tor
 
-	void clickRight (boost::logic::tribool down);
+	void clickRight (boost::logic::tribool down); //call-in
 	virtual SDL_Surface * getImg();
 	virtual void show(SDL_Surface * to = NULL);
 	virtual void activate();
@@ -387,43 +411,43 @@ class CCustomImgComponent :  public SComponent
 {
 public:
 	bool free; //should surface be freed on delete
-	SDL_Surface *bmp;
+	SDL_Surface *bmp; //our image
 	SDL_Surface * getImg();
-	CCustomImgComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur);
-	~CCustomImgComponent();
+	CCustomImgComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur); //c-tor
+	~CCustomImgComponent(); //d-tor
 };
 
 class CSelectableComponent : public SComponent, public KeyShortcut
 {
 public:
-	bool selected;
+	bool selected; //if true, this component is selected
 
-	bool customB;
+	bool customB; //TODO: comment me
 	SDL_Surface * border, *myBitmap;
-	boost::function<void()> onSelect;
+	boost::function<void()> onSelect; //function called on selection change
 
-	void clickLeft(boost::logic::tribool down);
+	void clickLeft(boost::logic::tribool down); //call-in
 	void init(SDL_Surface * Border);
-	CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL);
-	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL);
-	~CSelectableComponent();
+	CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL); //c-tor
+	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL); //c-tor
+	~CSelectableComponent(); //d-tor
 	virtual void show(SDL_Surface * to = NULL);
 	void activate();
 	void deactivate();
 	void select(bool on);
-	SDL_Surface * getImg();
+	SDL_Surface * getImg(); //returns myBitmap
 };
 class CGarrisonInt;
 class CGarrisonSlot : public ClickableL, public ClickableR, public Hoverable
 {
 public:
 	CGarrisonInt *owner;
-	const CCreature * creature;
-	int count;
+	const CCreature * creature; //creature in slot
+	int count; //number of creatures
 	int upg; //0 - up garrison, 1 - down garrison
-	bool active;
+	bool active; //TODO: comment me
 
-	virtual void hover (bool on);
+	virtual void hover (bool on); //call-in
 	const CArmedInstance * getObj();
 	void clickRight (boost::logic::tribool down);
 	void clickLeft(boost::logic::tribool down);
@@ -437,18 +461,18 @@ public:
 class CGarrisonInt :public CIntObject
 {
 public:
-	int interx, intery;
-	CGarrisonSlot *highlighted;
+	int interx, intery; //intervals between slots
+	CGarrisonSlot *highlighted; //choosen slot
 
-	SDL_Surface *&sur;
-	int offx, offy, p2;
+	SDL_Surface *&sur; //TODO: comment me
+	int offx, offy, p2; //TODO: comment me
 	bool ignoreEvent, update, active, splitting, pb;
 
-	const CCreatureSet *set1;
-	const CCreatureSet *set2;
+	const CCreatureSet *set1; //top set of creatures
+	const CCreatureSet *set2; //bottom set of creatures
 
-	std::vector<CGarrisonSlot*> *sup, *sdown;
-	const CArmedInstance *oup, *odown;
+	std::vector<CGarrisonSlot*> *sup, *sdown; //TODO: comment me
+	const CArmedInstance *oup, *odown; //TODO: comment me
 
 	void activate();
 	void deactivate();
@@ -459,31 +483,31 @@ public:
 	void createSlots();
 	void recreateSlots();
 
-	void splitClick();
-	void splitStacks(int am2);
+	void splitClick(); //handles click on split button
+	void splitStacks(int am2); //TODO: comment me
 
-	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *&pomsur, int OX, int OY, const CArmedInstance *s1, const CArmedInstance *s2=NULL);
-	~CGarrisonInt();
+	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *&pomsur, int OX, int OY, const CArmedInstance *s1, const CArmedInstance *s2=NULL); //c-tor
+	~CGarrisonInt(); //d-tor
 };
 
 class CPlayerInterface : public CGameInterface
 {
 public:
 	//minor interfaces
-	CondSh<bool> *showingDialog;
-	boost::recursive_mutex *pim;
-	bool makingTurn;
-	int heroMoveSpeed;
+	CondSh<bool> *showingDialog; //indicates if dialog box is displayed
+	boost::recursive_mutex *pim; //locks read/write of this
+	bool makingTurn; //indicates if player is already making his turn
+	int heroMoveSpeed; //speed of player's hero movement
 	void setHeroMoveSpeed(int newSpeed) {heroMoveSpeed = newSpeed;} //set for the member above
-	int mapScrollingSpeed;
+	int mapScrollingSpeed; //map scrolling speed
 	void setMapScrollingSpeed(int newSpeed) {mapScrollingSpeed = newSpeed;} //set the member above
-	SDL_Event * current;
+	SDL_Event * current; //current event
 	CMainInterface *curint;
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt;
 	CBattleInterface * battleInt;
 	FPSmanager * mainFPSmng;
-	IStatusBar *statusbar;
+	IStatusBar *statusbar; //advmap statusbar; should it be used by other windows with statusbar?
 	//to commucate with engine
 	CCallback * cb;
 	const BattleAction *curAction;
@@ -527,7 +551,7 @@ public:
 	void actionStarted(const BattleAction* action);//occurs BEFORE action taken by active stack or by the hero
 	BattleAction activeStack(int stackID); //called when it's turn of that stack
 	void battleAttack(BattleAttack *ba); //stack performs attack
-	void battleEnd(BattleResult *br);
+	void battleEnd(BattleResult *br); //end of battle
 	void battleResultQuited();
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleStackMoved(int ID, int dest, int distance);
@@ -541,7 +565,7 @@ public:
 	//-------------//
 	void redrawHeroWin(const CGHeroInstance * hero);
 	void updateWater();
-	void showComp(SComponent comp);
+	void showComp(SComponent comp); //TODO: comment me
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero
@@ -550,7 +574,7 @@ public:
 	void handleKeyUp(SDL_Event *sEvent);
 	void handleMouseMotion(SDL_Event *sEvent);
 	void init(ICallback * CB);
-	int3 repairScreenPos(int3 pos);
+	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void removeObjToBlit(IShowable* obj);
 	void showInfoDialog(std::string &text, const std::vector<SComponent*> & components);
 	void showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
@@ -572,28 +596,28 @@ public:
 	void print(const std::string & text); //prints text and refreshes statusbar
 	void clear();//clears statusbar and refreshes
 	void show(); //shows statusbar (with current text)
-	std::string getCurrent();
+	std::string getCurrent(); //getter for current
 };
 
 class CList
 	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject, public MotionInterested
 {
 public:
-	SDL_Surface * bg;
-	CDefHandler *arrup, *arrdo;
+	SDL_Surface * bg; //background bitmap
+	CDefHandler *arrup, *arrdo; //button arrows for scrolling list
 	SDL_Surface *empty, *selection;
 	SDL_Rect arrupp, arrdop; //positions of arrows
 	int posw, posh; //position width/height
 	int selected, //id of selected position, <0 if none
 		from;
-	const int SIZE;
+	const int SIZE; //size of list
 	boost::logic::tribool pressed; //true=up; false=down; indeterminate=none
 
-	CList(int Size = 5);
+	CList(int Size = 5); //c-tor
 	void clickLeft(boost::logic::tribool down);
 	void activate();
 	void deactivate();
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0;
+	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0; //call-in
 	virtual void genList()=0;
 	virtual void select(int which)=0;
 	virtual void draw()=0;
@@ -602,22 +626,22 @@ class CHeroList
 	: public CList
 {
 public:
-	CDefHandler *mobile, *mana;
+	CDefHandler *mobile, *mana; //mana and movement indicators
 	std::vector<std::pair<const CGHeroInstance*, CPath *> > items;
 	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
 
-	CHeroList(int Size);
-	int getPosOfHero(const CArmedInstance* h);
+	CHeroList(int Size); //c-tor
+	int getPosOfHero(const CArmedInstance* h); //hero's position on list
 	void genList();
-	void select(int which);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void clickLeft(boost::logic::tribool down);
-	void clickRight(boost::logic::tribool down);
-	void hover (bool on);
-	void keyPressed (const SDL_KeyboardEvent & key);
+	void select(int which); //call-in
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent); //call-in
+	void clickLeft(boost::logic::tribool down); //call-in
+	void clickRight(boost::logic::tribool down); //call-in
+	void hover (bool on); //call-in
+	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 	void updateHList(const CGHeroInstance *toRemove=NULL); //removes specific hero from the list or recreates it
 	void updateMove(const CGHeroInstance* which); //draws move points bar
-	void redrawAllOne(int which);
+	void redrawAllOne(int which); //not imeplemented
 	void draw();
 	void init();
 };
@@ -626,19 +650,19 @@ class CTownList
 	: public CList
 {
 public:
-	boost::function<void()> fun;
-	std::vector<const CGTownInstance*> items;
+	boost::function<void()> fun; //function called on selection change
+	std::vector<const CGTownInstance*> items; //towns on list
 	int posporx,pospory;
 
-	CTownList(int Size, int x, int y, std::string arrupg, std::string arrdog);
-	~CTownList();
+	CTownList(int Size, int x, int y, std::string arrupg, std::string arrdog); //c-tor
+	~CTownList(); //d-tor
 	void genList();
-	void select(int which);
-	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void clickLeft(boost::logic::tribool down);
-	void clickRight(boost::logic::tribool down);
-	void hover (bool on);
-	void keyPressed (const SDL_KeyboardEvent & key);
+	void select(int which); //call-in
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);  //call-in
+	void clickLeft(boost::logic::tribool down);  //call-in
+	void clickRight(boost::logic::tribool down); //call-in
+	void hover (bool on);  //call-in
+	void keyPressed (const SDL_KeyboardEvent & key);  //call-in
 	void draw();
 };
 
@@ -646,12 +670,12 @@ class CCreaturePic //draws picture with creature on background, use nextFrame=tr
 {
 public:
 	bool big; //big => 100x130; !big => 100x120
-	CCreature *c;
-	CCreatureAnimation *anim;
-	CCreaturePic(CCreature *cre, bool Big=true);
-	~CCreaturePic();
-	int blitPic(SDL_Surface *to, int x, int y, bool nextFrame);
-	SDL_Surface * getPic(bool nextFrame);
+	CCreature *c; //which creature's picture
+	CCreatureAnimation *anim; //displayed animation
+	CCreaturePic(CCreature *cre, bool Big=true); //c-tor
+	~CCreaturePic(); //d-tor
+	int blitPic(SDL_Surface *to, int x, int y, bool nextFrame); //prints creature on screen
+	SDL_Surface * getPic(bool nextFrame); //returns frame of animation
 };
 
 class CRecrutationWindow : public IShowable, public ClickableL, public ClickableR
@@ -660,16 +684,16 @@ public:
 	struct creinfo
 	{
 		SDL_Rect pos;
-		CCreaturePic *pic;
+		CCreaturePic *pic; //creature's animation
 		int ID, amount; //creature ID and available amount
 		std::vector<std::pair<int,int> > res; //res_id - cost_per_unit
 	};
 	std::vector<int> amounts; //how many creatures we can afford
-	std::vector<creinfo> creatures;
+	std::vector<creinfo> creatures; //recruitable creatures
 	boost::function<void(int,int)> recruit; //void (int ID, int amount) <-- call to recruit creatures
-	CSlider *slider;
+	CSlider *slider; //for selecting amount
 	AdventureMapButton *max, *buy, *cancel;
-	SDL_Surface *bitmap;
+	SDL_Surface *bitmap; //background
 	CStatusBar *bar;
 	int which; //which creature is active
 
@@ -683,8 +707,8 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
-	CRecrutationWindow(const std::vector<std::pair<int,int> > & Creatures, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount>
-	~CRecrutationWindow();
+	CRecrutationWindow(const std::vector<std::pair<int,int> > & Creatures, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount> //c-tor
+	~CRecrutationWindow(); //d-tor
 };
 
 class CSplitWindow : public IShowable, public KeyInterested, public ClickableL
@@ -692,47 +716,47 @@ class CSplitWindow : public IShowable, public KeyInterested, public ClickableL
 public:
 	CGarrisonInt *gar;
 	CSlider *slider;
-	CCreaturePic *anim;
+	CCreaturePic *anim; //creature's animation
 	AdventureMapButton *ok, *cancel;
-	SDL_Surface *bitmap;
-	int a1, a2, c;
-	bool which;
+	SDL_Surface *bitmap; //background
+	int a1, a2, c; //TODO: comment me
+	bool which; //TODO: comment me
 
-	CSplitWindow(int cid, int max, CGarrisonInt *Owner);
-	~CSplitWindow();
+	CSplitWindow(int cid, int max, CGarrisonInt *Owner); //c-tor
+	~CSplitWindow(); //d-tor
 	void activate();
 	void split();
 	void close();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
-	void clickLeft(boost::logic::tribool down);
-	void keyPressed (const SDL_KeyboardEvent & key);
+	void clickLeft(boost::logic::tribool down); //call-in
+	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 	void sliderMoved(int to);
 };
 
 class CCreInfoWindow : public IShowable, public KeyInterested, public ClickableR
 {
 public:
-	bool active;
+	bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
-	SDL_Surface *bitmap;
-	char anf;
+	SDL_Surface *bitmap; //background
+	char anf; //TODO: comment me
 	std::string count; //creature count in text format
 
-	boost::function<void()> dsm;
+	boost::function<void()> dsm; //TODO: comment me
 	CCreaturePic *anim;
 	CCreature *c;
 	CInfoWindow *dependant; //it may be dialog asking whther upgrade/dismiss stack (if opened)
 	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
-	CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui);
-	~CCreInfoWindow();
+	CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui); //c-tor
+	~CCreInfoWindow(); //d-tor
 	void activate();
 	void close();
-	void clickRight(boost::logic::tribool down);
+	void clickRight(boost::logic::tribool down); //call-in
 	void dismissF();
-	void keyPressed (const SDL_KeyboardEvent & key);
+	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
 	void onUpgradeYes();
@@ -743,14 +767,14 @@ class CLevelWindow : public IShowable, public CIntObject
 {
 public:
 	int heroType;
-	SDL_Surface *bitmap;
+	SDL_Surface *bitmap; //background
 	std::vector<CSelectableComponent *> comps; //skills to select
 	AdventureMapButton *ok;
 	boost::function<void(ui32)> cb;
 
 	void close();
-	CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
-	~CLevelWindow();
+	CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback); //c-tor
+	~CLevelWindow(); //d-tor
 	void activate();
 	void deactivate();
 	void selectionChanged(unsigned to);
@@ -760,10 +784,10 @@ public:
 class CMinorResDataBar : public IShowable, public CIntObject
 {
 public:
-	SDL_Surface *bg;
+	SDL_Surface *bg; //background bitmap
 	void show(SDL_Surface * to=NULL);
-	CMinorResDataBar();
-	~CMinorResDataBar();
+	CMinorResDataBar(); //c-tor
+	~CMinorResDataBar(); //d-tor
 };
 
 class CMarketplaceWindow : public IShowActivable, public CIntObject
@@ -785,13 +809,13 @@ public:
 		CTradeableItem(int Type, int ID, bool Left);
 	};
 
-	SDL_Surface *bg;
+	SDL_Surface *bg; //background
 	std::vector<CTradeableItem*> left, right;
-	std::vector<std::string> rSubs;
+	std::vector<std::string> rSubs; //offer caption
 	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
 
 	int mode,//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
-		r1, r2; 
+		r1, r2; //TODO: comment me
 	AdventureMapButton *ok, *max, *deal;
 	CSlider *slider;
 
@@ -802,9 +826,9 @@ public:
 	void sliderMoved(int to);
 	void makeDeal();
 	void selectionChanged(bool side); //true == left
-	CMarketplaceWindow(int Mode=0);
-	~CMarketplaceWindow();
-	void setMode(int mode);
+	CMarketplaceWindow(int Mode=0); //c-tor
+	~CMarketplaceWindow(); //d-tor
+	void setMode(int mode); //mode setter
 	void clear();
 };
 
@@ -844,9 +868,9 @@ public:
 		void hover (bool on);
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
 		void show(SDL_Surface * to = NULL);
-	} h1, h2;
+	} h1, h2; //recruitable heroes
 
-	SDL_Surface *bg;
+	SDL_Surface *bg; //background
 	CStatusBar *bar;
 	int selected;//0 (left) or 1 (right)
 
