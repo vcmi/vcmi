@@ -114,7 +114,7 @@ struct SMKStruct
 class DLLHandler
 {
 public:
-#if !defined(__amigaos4__) && !defined(__unix__)
+#if !defined(__amigaos4__) && !defined(__unix__) && !defined(__APPLE__)
 	HINSTANCE dll;
 #else
 	void *dll;
@@ -131,7 +131,7 @@ class CBIKHandler
 public:
 	DLLHandler ourLib;
 	int newmode;
-#if !defined(__amigaos4__) && !defined(__unix__)
+#if !defined(__amigaos4__) && !defined(__unix__) && !defined(__APPLE__)
 	HANDLE hBinkFile;
 #else
 	void *hBinkFile;

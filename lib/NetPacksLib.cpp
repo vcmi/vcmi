@@ -428,7 +428,7 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 		attacker->counterAttacks--;
 	if(shot())
 		attacker->shots--;
-	BOOST_FOREACH(BattleStackAttacked &stackAttacked, bsa)
+	BOOST_FOREACH(BattleStackAttacked stackAttacked, bsa)
 		stackAttacked.applyGs(gs);
 }
 

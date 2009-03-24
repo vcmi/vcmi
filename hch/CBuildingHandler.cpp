@@ -99,7 +99,7 @@ void CBuildingHandler::loadBuildings()
 		{
 			box = it = 0;
 			ofs.getline(line,100);
-			if(!line[0])
+			if(!line[0] || line[0] == '\n' || line[0] == '\r')
 				ofs.getline(line,100);
 			std::string linia(line);
 			bool areboxes=true;

@@ -668,11 +668,11 @@ struct BattleStackAttacked : public CPackForClient//3005
 	ui8 flags; //1 - is stack killed; 2 - is there special effect to be shown;
 	ui32 effect; //set only if flag 2 is present
 
-	bool killed() //if target stack was killed
+	bool killed() const//if target stack was killed
 	{
 		return flags & 1;
 	}
-	bool isEffect() //if target stack was killed
+	bool isEffect() const//if target stack was killed
 	{
 		return flags & 2;
 	}

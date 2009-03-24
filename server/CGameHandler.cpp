@@ -485,7 +485,8 @@ void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
 void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 {
 	bat.stackAttacking = att->ID;
-	std::set<BattleStackAttacked>::iterator bsa = bat.bsa.insert(BattleStackAttacked()).first;
+	std::set<BattleStackAttacked>::iterator i = bat.bsa.insert(BattleStackAttacked()).first;
+	BattleStackAttacked *bsa = (BattleStackAttacked *) &*i;
 
 	bsa->stackAttacked = def->ID;
 	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot());//counting dealt damage
@@ -836,13 +837,7 @@ void CGameHandler::run(bool resume)
 			{
 				boost::posix_time::time_duration p;
 				p = boost::posix_time::milliseconds(200);
-#ifdef _MSC_VER
 				states.cv.timed_wait(lock,p); 
-#else
-				boost::xtime time={0,0};
-				time.nsec = static_cast<boost::xtime::xtime_nsec_t>(p.total_nanoseconds());
-				states.cv.timed_wait(lock,time);
-#endif
 			}
 		}
 	}

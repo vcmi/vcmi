@@ -91,7 +91,9 @@ void CTownHandler::loadNames()
 			of >> town;
 			while(true)
 			{
-				of.getline(bufname,75);if(!(*bufname))of.getline(bufname,75);
+				of.getline(bufname,75);
+				if(!bufname[0] || bufname[0] == '\n' || bufname[0] == '\r')
+					of.getline(bufname,75);
 				std::istringstream ifs(bufname);
 				ifs >> build;
 				if(build<0)
