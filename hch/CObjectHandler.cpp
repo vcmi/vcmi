@@ -708,8 +708,8 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 		if(archangelInArmy)
 		{
 			char buf[100];
-			sprintf(buf,VLC->generaltexth->arraytxt[117].c_str(),VLC->creh->creatures[13].namePl);
-			ret.push_back(std::pair<int,std::string>(-1,VLC->generaltexth->arraytxt[116])); //%s in group +1
+			sprintf(buf,VLC->generaltexth->arraytxt[117].c_str(),VLC->creh->creatures[13].namePl.c_str());
+			ret.push_back(std::pair<int,std::string>(-1,buf)); //%s in group +1
 		}
 	}
 

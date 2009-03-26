@@ -563,6 +563,7 @@ public:
 
 
 	//-------------//
+	bool shiftPressed() const;
 	void redrawHeroWin(const CGHeroInstance * hero);
 	void updateWater();
 	void showComp(SComponent comp); //TODO: comment me
@@ -721,8 +722,9 @@ public:
 	SDL_Surface *bitmap; //background
 	int a1, a2, c; //TODO: comment me
 	bool which; //TODO: comment me
+	int last; //0/1/2 - at least one creature must be in the src/dst/both stacks; -1 - no restrictions
 
-	CSplitWindow(int cid, int max, CGarrisonInt *Owner); //c-tor
+	CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last = -1, int val=0); //c-tor; val - initial amount of second stack
 	~CSplitWindow(); //d-tor
 	void activate();
 	void split();

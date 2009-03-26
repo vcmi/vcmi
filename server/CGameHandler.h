@@ -133,6 +133,7 @@ public:
 	void save(const std::string &fname);
 	void close();
 	void handleTimeEvents();
+	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

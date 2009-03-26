@@ -309,8 +309,9 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  ) 
 		return;
 	float v = sEvent.x - pos.x - 24;
-	v/= (pos.w - 48);
 	v*=amount;
+	v/= (pos.w - 48);
+	v += 0.5f;
 	if(v!=value)
 	{
 		moveTo(v);
@@ -371,11 +372,11 @@ void CSlider::clickLeft (tribool down)
 {
 	if(down)
 	{
-		float pw = LOCPLINT->current->motion.x-pos.x-16;
-		float rw = pw / ((float)(pos.w-32));
+		float pw = LOCPLINT->current->motion.x-pos.x-24;
+		float rw = pw / ((float)(pos.w-48));
 		if (rw>1) return;
 		if (rw<0) return;
-		moveTo(rw*amount);
+		moveTo(rw*amount+0.5f);
 		return;
 	}
 	if(moving)

@@ -22,19 +22,36 @@ namespace NMessage
 	extern SDL_Surface * background ;
 }
 
+struct ComponentResolved
+{
+	SComponent *comp;
+
+	SDL_Surface *img;
+	std::vector<std::vector<SDL_Surface*> > * txt;
+
+	ComponentResolved();
+	ComponentResolved(SComponent *Comp);
+	~ComponentResolved();
+};
+
+struct ComponentsToBlit
+{
+	std::vector< std::vector<ComponentResolved*> > comps;
+	int w, h;
+
+	void blitCompsOnSur(SDL_Surface * _or, int inter, int &curh, SDL_Surface *ret);
+	ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, SDL_Surface* _or);
+	~ComponentsToBlit();
+};
+
 class CMessage
 {
 public:
 
 	static std::pair<int,int> getMaxSizes(std::vector<std::vector<SDL_Surface*> > * txtg);
-	static std::pair<int, int> getMaxSizes(std::vector< std::vector<SComponent*> > * komp);
-	static std::vector<std::vector<SDL_Surface*> > * drawText(std::vector<std::string> * brtext);
-	static SDL_Surface * blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int & curh, SDL_Surface * ret);
-	static SDL_Surface * blitCompsOnSur(std::vector<SComponent*> & comps, int maxw, int inter, int & curh, SDL_Surface * ret);
-	static SDL_Surface * blitCompsOnSur(SDL_Surface *_or, std::vector< std::vector<SComponent*> > *komp, int inter, int &curh, SDL_Surface *ret);
+	static std::vector<std::vector<SDL_Surface*> > * drawText(std::vector<std::string> * brtext, TTF_Font *font = NULL);
+	static SDL_Surface * blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int & curh, SDL_Surface * ret, int xCenterPos=-1); //xPos==-1 works as if ret->w/2
 	static void drawIWindow(CInfoWindow * ret, std::string text, int player, int charperline);
-	static std::vector< std::vector<SComponent*> > * breakComps(std::vector<SComponent*> &comps, int maxw, SDL_Surface* _or=NULL);
-	static CSelWindow * genSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> & comps, int owner);
 	static CSimpleWindow * genWindow(std::string text, int player, int Lmar=35, int Rmar=35, int Tmar=35, int Bmar=35);//supports h3 text formatting; player sets color of window, Lmar/Rmar/Tmar/Bmar are Left/Right/Top/Bottom margins
 	static SDL_Surface * genMessage(std::string title, std::string text, EWindowType type=infoOnly,
 								std::vector<CDefHandler*> *addPics=NULL, void * cb=NULL);
@@ -42,7 +59,6 @@ public:
 	static void drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x=0, int y=0);
 	static SDL_Surface * drawBoxTextBitmapSub(int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline=30, int imgToBmp=55);
 	static std::vector<std::string> * breakText(std::string text, size_t line=30, bool userBreak=true, bool ifor=true); //line - chars per line
-	CMessage();
 	static void init();
 	static void dispose();
 };

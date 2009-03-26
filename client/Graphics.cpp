@@ -408,7 +408,6 @@ void Graphics::loadHeroFlags()
 {
 	using namespace boost::assign;
 	timeHandler th;
-//	std::vector<CDefHandler *> Graphics::*point; //TODO use me
 	std::pair<std::vector<CDefHandler *> Graphics::*, std::vector<const char *> > pr[4];
 	pr[0].first = &Graphics::flags1;
 	pr[0].second+=("ABF01L.DEF"),("ABF01G.DEF"),("ABF01R.DEF"),("ABF01D.DEF"),("ABF01B.DEF"),

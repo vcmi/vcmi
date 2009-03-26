@@ -1412,6 +1412,9 @@ void CGameState::getNeighbours(int3 tile, std::vector<int3> &vec, const boost::l
 
 int CGameState::getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, int remainingMovePoints, bool checkLast)
 {
+	if(src == dest) //same tile
+		return 0;
+
 	TerrainTile &s = map->terrain[src.x][src.y][src.z],
 		&d = map->terrain[dest.x][dest.y][dest.z];
 

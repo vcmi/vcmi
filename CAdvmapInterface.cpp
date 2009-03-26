@@ -1535,6 +1535,17 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_DOWN: 
 		Dir = DOWN;
 		break;
+	case SDLK_SPACE: //space - try to revisit current object with selected hero
+		{
+			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(selection);
+			if(h && key.state == SDL_PRESSED)
+			{
+				LOCPLINT->pim->unlock();
+				LOCPLINT->cb->moveHero(h,h->pos);
+				LOCPLINT->pim->lock();
+			}
+		}
+		return;
 	default: 
 		return;
 	}

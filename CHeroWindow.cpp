@@ -88,7 +88,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 		primSkillAreas[v]->pos.y = pos.y  +  111;
 		primSkillAreas[v]->pos.w = 42;
 		primSkillAreas[v]->pos.h = 42;
-		primSkillAreas[v]->text = CGI->generaltexth->arraytxt[2+v].substr(1, CGI->generaltexth->arraytxt[2+v].size()-2);
+		primSkillAreas[v]->text = CGI->generaltexth->arraytxt[2+v];
 		primSkillAreas[v]->type = v;
 		primSkillAreas[v]->bonus = -1; // to be initilized when hero is being set
 		primSkillAreas[v]->baseType = 0;

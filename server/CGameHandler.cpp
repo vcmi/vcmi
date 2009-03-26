@@ -38,9 +38,6 @@ extern bool end2;
 		bnr.round = gs->curB->round + 1;\
 		sendAndApply(&bnr);
 
-
-#define COMPLAIN(text) sendMessageToAll(text);tlog1<<text<<std::endl;
-
 boost::mutex gsm;
 ui32 CGameHandler::QID = 1;
 
@@ -1197,7 +1194,7 @@ void CGameHandler::moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker)
 		tmh.movePoints = std::max(si32(0),h->movement-cost); //take move points
 		BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 		{
-			if(obj->blockVisit)
+			if(obj != h  &&  obj->blockVisit)
 			{
 				blockvis = true;
 				break;
@@ -1498,8 +1495,9 @@ void CGameHandler::arrangeStacks(si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, s
 
 	if(what==1) //swap
 	{
-		std::swap(S1.slots[p1],S2.slots[p2]);
+		std::swap(S1.slots[p1],S2.slots[p2]); //swap slots
 
+		//if one of them is empty, remove entry
 		if(!S1.slots[p1].second)
 			S1.slots.erase(p1);
 		if(!S2.slots[p2].second)
@@ -1509,7 +1507,7 @@ void CGameHandler::arrangeStacks(si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, s
 	{
 		if(S1.slots[p1].first != S2.slots[p2].first) //not same creature
 		{
-			COMPLAIN("Cannot merge different creatures stacks!");
+			complain("Cannot merge different creatures stacks!");
 			return; 
 		}
 
@@ -1518,30 +1516,51 @@ void CGameHandler::arrangeStacks(si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, s
 	}
 	else if(what==3) //split
 	{
-		if(	vstd::contains(S2.slots,p2)		//dest. slot not free
-			|| !vstd::contains(S1.slots,p1)	//no creatures to split
-			|| S1.slots[p1].second < val		//not enough creatures
-			|| val<1							//val must be positive
-		) 
+		//general conditions checking
+		if((!vstd::contains(S1.slots,p1) && complain("no creatures to split"))
+			|| (val<1  && complain("no creatures to split"))  )
 		{
-			COMPLAIN("Cannot split that stack!");
-			return; 
+			return;
 		}
 
-		S2.slots[p2].first = S1.slots[p1].first;
-		S2.slots[p2].second = val;
-		S1.slots[p1].second -= val;
+
+		if(vstd::contains(S2.slots,p2))	 //dest. slot not free - it must be "rebalancing"...
+		{
+			int total = S1.slots[p1].second + S2.slots[p2].second;
+			if( (total < val   &&   complain("Cannot split that stack, not enough creatures!"))
+				|| (S2.slots[p2].first != S1.slots[p1].first && complain("Cannot rebalance different creatures stacks!"))
+			)
+			{
+				return; 
+			}
+			
+			S2.slots[p2].second = val;
+			S1.slots[p1].second = total - val;
+		}
+		else //split one stack to the two
+		{
+			if(S1.slots[p1].second < val)//not enough creatures
+			{
+				complain("Cannot split that stack, not enough creatures!");
+				return; 
+			}
+			S2.slots[p2].first = S1.slots[p1].first;
+			S2.slots[p2].second = val;
+			S1.slots[p1].second -= val;
+		}
+
 		if(!S1.slots[p1].second) //if we've moved all creatures
-			S1.slots.erase(p1); 
+			S1.slots.erase(p1);
 	}
 	if((s1->needsLastStack() && !S1.slots.size()) //it's not allowed to take last stack from hero army!
 		|| (s2->needsLastStack() && !S2.slots.size())
 	)
 	{
-		COMPLAIN("Cannot take the last stack!");
+		complain("Cannot take the last stack!");
 		return; //leave without applying changes to garrison
 	}
 
+	//apply changes
 	SetGarrisons sg;
 	sg.garrs[id1] = S1;
 	if(s1 != s2)
@@ -1578,7 +1597,7 @@ void CGameHandler::disbandCreature(si32 id, ui8 pos)
 	CArmedInstance *s1 = static_cast<CArmedInstance*>(gs->map->objects[id]);
 	if(!vstd::contains(s1->army.slots,pos))
 	{
-		COMPLAIN("Illegal call to disbandCreature - no such stack in army!");
+		complain("Illegal call to disbandCreature - no such stack in army!");
 		return;
 	}
 	s1->army.slots.erase(pos);
@@ -1594,7 +1613,7 @@ void CGameHandler::buildStructure(si32 tid, si32 bid)
 
 	if(gs->canBuildStructure(t,bid) != 7)
 	{
-		COMPLAIN("Cannot build that building!");
+		complain("Cannot build that building!");
 		return;
 	}
 
@@ -1797,7 +1816,7 @@ void CGameHandler::garrisonSwap(si32 tid)
 	}
 	else
 	{
-		COMPLAIN("Cannot swap garrison hero!");
+		complain("Cannot swap garrison hero!");
 	}
 }
 
@@ -2394,4 +2413,11 @@ void CGameHandler::handleTimeEvents()
 			gs->map->events.pop_front();
 		}
 	}
+}
+
+bool CGameHandler::complain( const std::string &problem )
+{
+	sendMessageToAll("Server encountered a problem: " + problem);
+	tlog1 << problem << std::endl;
+	return true;
 }

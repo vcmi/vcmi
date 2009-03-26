@@ -217,16 +217,37 @@ void CGarrisonSlot::clickLeft(tribool down)
 				refr = true;
 				delete pom2;
 			}
-			else if(!creature 
-				&& (owner->splitting 
-					|| SDL_GetKeyState(NULL)[SDLK_LSHIFT] 
-					||  SDL_GetKeyState(NULL)[SDLK_RSHIFT]))//split
+			else if((owner->splitting || LOCPLINT->shiftPressed())
+				&& (!creature 
+					|| (creature == owner->highlighted->creature))
+			)
 			{
-				owner->p2 = ID;
-				owner->pb = upg;
+				owner->p2 = ID; //store the second stack pos
+				owner->pb = upg;//store the second stack owner (up or down army)
 				owner->splitting = false;
 				LOCPLINT->curint->deactivate();
-				CSplitWindow * spw = new CSplitWindow(owner->highlighted->creature->idNumber,owner->highlighted->count, owner);
+
+				int totalAmount = owner->highlighted->count;
+				if(creature) 
+					totalAmount += count;
+
+				int last = -1;
+				if(upg != owner->highlighted->upg) //not splitting within same army
+				{
+					if(owner->highlighted->getObj()->army.slots.size() == 1
+						&& owner->highlighted->getObj()->needsLastStack() )
+					{
+						last = 0;
+					}
+					if(getObj()->army.slots.size() == 1
+						&& getObj()->needsLastStack() )
+					{
+						last += 2;
+					}
+				}
+
+
+				CSplitWindow * spw = new CSplitWindow(owner->highlighted->creature->idNumber, totalAmount, owner, last, count);
 				spw->activate();
 				refr = true;
 			}
@@ -293,25 +314,24 @@ void CGarrisonSlot::show()
 {
 	if(creature)
 	{
-		char* buf = new char[15];
+		char buf[15];
 		SDL_itoa(count,buf,10);
 		blitAt(graphics->bigImgs[creature->idNumber],pos);
 		printToWR(buf,pos.x+56,pos.y+62,GEOR16,zwykly);
-		if(owner->highlighted==this)
+
+		if((owner->highlighted==this)
+			|| (owner->splitting && owner->highlighted->creature == creature))
+		{
 			blitAt(graphics->bigImgs[-1],pos);
-		//if(owner->update)
-		//	updateRect(&pos,screen);
-		delete [] buf;
+		}
 	}
-	else
+	else //empty slot
 	{
 		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), 
 			jakis2 = pos;
 		SDL_BlitSurface(owner->sur,&jakis1,screen,&jakis2);
 		if(owner->splitting)
 			blitAt(graphics->bigImgs[-1],pos);
-		//if(owner->update)
-		//	SDL_UpdateRect(screen,pos.x,pos.y,pos.w,pos.h);
 	}
 }
 CGarrisonInt::~CGarrisonInt()
@@ -1260,7 +1280,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	if(adventureInt == curint)
 		adventureInt->minimap.draw();
 
-	if(details.style>0)
+	if(details.style>0  ||  details.src == details.dst)
 		return;
 
 	//initializing objects and performing first step of move
@@ -2537,6 +2557,11 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath * path )
 	return result;
 }
 
+bool CPlayerInterface::shiftPressed() const
+{
+	return SDL_GetKeyState(NULL)[SDLK_LSHIFT]  ||  SDL_GetKeyState(NULL)[SDLK_RSHIFT];
+}
+
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 {
 	bg=BitmapHandler::loadBitmap(name);
@@ -3355,8 +3380,9 @@ CRecrutationWindow::~CRecrutationWindow()
 	delete bar;
 }
 
-CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
+CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int val)
 {
+	last = Last;
 	which = 1;
 	c=cid;
 	slider = NULL;
@@ -3370,9 +3396,10 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner)
 	pos.h = bitmap->h;
 	ok = new AdventureMapButton("","",boost::bind(&CSplitWindow::split,this),pos.x+20,pos.y+263,"IOK6432.DEF",SDLK_RETURN);
 	cancel = new AdventureMapButton("","",boost::bind(&CSplitWindow::close,this),pos.x+214,pos.y+263,"ICN6432.DEF",SDLK_ESCAPE);
-	slider = new CSlider(pos.x+21,pos.y+194,257,boost::bind(&CSplitWindow::sliderMoved,this,_1),1,max,0,true);
-	a1 = max;
-	a2 = 0;
+	int sliderPositions = max - (last>=0) - (last==2);
+	slider = new CSlider(pos.x+21,pos.y+194,257,boost::bind(&CSplitWindow::sliderMoved,this,_1),1,sliderPositions,val,true);
+	a1 = max-val;
+	a2 = val;
 	anim = new CCreaturePic(&CGI->creh->creatures[cid]);
 	anim->anim->setType(1);
 
@@ -3419,9 +3446,10 @@ void CSplitWindow::close()
 }
 void CSplitWindow::sliderMoved(int to)
 {
-	a2 = to;
+	int all = a1+a2;
+	a2 = to + (last==1 || last==2);
 	if(slider)
-		a1 = slider->amount - to;
+		a1 = all - a2;
 }
 void CSplitWindow::show(SDL_Surface * to)
 {
@@ -3453,7 +3481,7 @@ void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 	else
 	{
 		int number = key.keysym.sym - SDLK_0;
-		if (number < 0   ||   number > 9) //not a number presses
+		if (number < 0   ||   number > 9) //not a number pressed
 		{
 			return;
 		}
