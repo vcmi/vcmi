@@ -119,6 +119,27 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
+struct BattleSettings
+{
+	BattleSettings()
+	{
+		printCellBorders = true;
+		printStackRange = true;
+		animSpeed = 2;
+		printMouseShadow = true;
+	}
+	bool printCellBorders; //if true, cell borders will be printed
+	bool printStackRange; //if true,range of active stack will be printed
+	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
+	bool printMouseShadow; //if true, hex under mouse will be shaded
+
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & printCellBorders & printStackRange & printMouseShadow;
+	}
+};
+
 class CBattleInterface : public CMainInterface, public MotionInterested, public KeyInterested
 {
 private:
@@ -140,7 +161,6 @@ private:
 	std::vector<int> shadedHexes; //hexes available for active stack
 	int previouslyHoveredHex; //number of hex that was hovered by the cursor a while ago
 	int currentlyHoveredHex; //number of hex that is supposed to be hovered (for a while it may be inappropriately set, but will be renewed soon)
-	int animSpeed; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 	float getAnimSpeedMultiplier() const; //returns multiplier for number of frames in a group
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
@@ -193,14 +213,12 @@ public:
 	~CBattleInterface(); //d-tor
 
 	//std::vector<TimeInterested*> timeinterested; //animation handling
-	bool printCellBorders; //if true, cell borders will be printed
-	void setPrintCellBorders(bool set); //set for above member
-	bool printStackRange; //if true,range of active stack will be printed
-	void setPrintStackRange(bool set); //set for above member
-	bool printMouseShadow; //if true, hex under mouse will be shaded
-	void setPrintMouseShadow(bool set); //set for above member
-	void setAnimSpeed(int set); //set for animSpeed
-	int getAnimSpeed() const; //get for animSpeed
+	static BattleSettings settings;
+	void setPrintCellBorders(bool set); //if true, cell borders will be printed
+	void setPrintStackRange(bool set); //if true,range of active stack will be printed
+	void setPrintMouseShadow(bool set); //if true, hex under mouse will be shaded
+	void setAnimSpeed(int set); //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
+	int getAnimSpeed() const; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 
 	CBattleHex bfield[BFIELD_SIZE]; //11 lines, 17 hexes on each
 	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield

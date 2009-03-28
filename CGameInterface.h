@@ -25,6 +25,11 @@ struct BattleStackAttacked;
 struct SpellCasted;
 struct SetStackEffect;
 struct HeroBonus;
+class CLoadFile;
+class CSaveFile;
+template <typename Serializer> class CISer;
+template <typename Serializer> class COSer;
+
 class CObstacle
 {
 	int ID;
@@ -47,6 +52,7 @@ class CGameInterface
 public:
 	bool human;
 	int playerID, serialID;
+	std::string dllName;
 
 	virtual void buildChanged(const CGTownInstance *town, int buildingID, int what){}; //what: 1 - built, 2 - demolished
 	virtual void garrisonChanged(const CGObjectInstance * obj){};
@@ -70,6 +76,8 @@ public:
 	virtual void yourTurn(){};
 	virtual void availableCreaturesChanged(const CGTownInstance *town){};
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
+	virtual void serialize(COSer<CSaveFile> &h, const int version){}; //saving
+	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
 
 	//battle call-ins
 	virtual void actionFinished(const BattleAction *action){};//occurs AFTER every action taken by any stack or by the hero

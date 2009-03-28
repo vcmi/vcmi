@@ -29,11 +29,14 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
 	getName = (void(*)(char*))dlsym(dll,"GetAiName");
 	getAI = (CGlobalAI*(*)())dlsym(dll,"GetNewAI");
-	; //TODO: handle AI library on Linux
 #endif
 	getName(temp);
 	tlog0 << "Loaded .dll with AI named " << temp << std::endl;
 	ret = getAI();
-	 
+
+	if(!ret)
+		tlog1 << "Cannot get AI!\n";
+
+	ret->dllName = dllname;	 
 	return ret;
 }

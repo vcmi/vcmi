@@ -5,6 +5,7 @@
 #include "../global.h"
 #include <boost/thread.hpp>
 #include "../lib/IGameCallback.h"
+
 struct StartInfo;
 class CGameState;
 class CGameInterface;
@@ -44,6 +45,7 @@ class CClient : public IGameCallback
 {
 public:
 	CCallback *cb;
+	std::set<CCallback*> callbacks; //callbacks given to player interfaces
 	std::map<ui8,CGameInterface *> playerint;
 	CConnection *serv;
 	SharedMem *shared;
@@ -100,6 +102,10 @@ public:
 	
 	static void runServer(const char * portc);
 	void waitForServer();
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template <typename Handler> void serialize(Handler &h, const int version);
 };
 
 #endif // __CLIENT_H__

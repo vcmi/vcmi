@@ -1466,6 +1466,14 @@ void CGameHandler::sendAndApply( CPackForClient * info )
 
 void CGameHandler::save( const std::string &fname )
 {
+
+	{
+		tlog0 << "Ordering clients to serialize...\n";
+		SaveGame sg(fname);
+		//TODO: uncomment when client saving is ready
+		//sendToAllClients(&sg);
+	}
+
 	{
 		tlog0 << "Serializing game info...\n";
 		CSaveFile save(std::string("Games") + PATHSEPARATOR + fname + ".vlgm1");

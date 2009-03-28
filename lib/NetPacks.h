@@ -794,19 +794,6 @@ struct ShowInInfobox : public CPackForClient //107
 
 /***********************************************************************************************************/
 
-struct SaveGame : public CPackForServer
-{
-	SaveGame(){};
-	SaveGame(const std::string &Fname) :fname(Fname){};
-	std::string fname;
-
-	void applyGh(CGameHandler *gh);
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & fname;
-	}
-};
-
 struct CloseServer : public CPackForServer
 {
 	void applyGh(CGameHandler *gh);
@@ -1047,6 +1034,21 @@ struct MakeCustomAction : public CPackForServer
 };
 
 /***********************************************************************************************************/
+
+struct SaveGame : public CPackForClient, public CPackForServer
+{
+	SaveGame(){};
+	SaveGame(const std::string &Fname) :fname(Fname){};
+	std::string fname;
+
+	void applyCl(CClient *cl);
+	void applyGs(CGameState *gs){};
+	void applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & fname;
+	}
+};
 
 struct PlayerMessage : public CPackForClient, public CPackForServer //513
 {

@@ -546,6 +546,9 @@ public:
 	void yourTurn();
 	void availableCreaturesChanged(const CGTownInstance *town);
 	void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain);//if gain hero received bonus, else he lost it
+	void serialize(COSer<CSaveFile> &h, const int version); //saving
+	void serialize(CISer<CLoadFile> &h, const int version); //loading
+
 	//for battles
 	void actionFinished(const BattleAction* action);//occurs AFTER action taken by active stack or by the hero
 	void actionStarted(const BattleAction* action);//occurs BEFORE action taken by active stack or by the hero
@@ -583,7 +586,12 @@ public:
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor
+
+	//////////////////////////////////////////////////////////////////////////
+
+	template <typename Handler> void serializeTempl(Handler &h, const int version);
 };
+
 class CStatusBar
 	: public CIntObject, public IStatusBar
 {

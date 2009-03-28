@@ -33,6 +33,8 @@ extern SDL_Surface * screen;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 extern SDL_Color zwykly;
 
+BattleSettings CBattleInterface::settings;
+
 struct CMP_stack2
 {
 	inline bool operator ()(const CStack& a, const CStack& b)
@@ -42,9 +44,9 @@ struct CMP_stack2
 } cmpst2 ;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect)
-: printCellBorders(true), attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL),
-	attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), animSpeed(2), printStackRange(true),
-	printMouseShadow(true), spellDestSelectMode(false), spellToCast(NULL), previouslyHoveredHex(-1), moveStarted(false), mouseHoveredStack(-1)
+  : attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL),
+	attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), 
+	spellDestSelectMode(false), spellToCast(NULL), previouslyHoveredHex(-1), moveStarted(false), mouseHoveredStack(-1)
 {
 	pos = myRect;
 	strongInterest = true;
@@ -311,19 +313,19 @@ CBattleInterface::~CBattleInterface()
 
 void CBattleInterface::setPrintCellBorders(bool set)
 {
-	printCellBorders = set;
+	settings.printCellBorders = set;
 	redrawBackgroundWithHexes(activeStack);
 }
 
 void CBattleInterface::setPrintStackRange(bool set)
 {
-	printStackRange = set;
+	settings.printStackRange = set;
 	redrawBackgroundWithHexes(activeStack);
 }
 
 void CBattleInterface::setPrintMouseShadow(bool set)
 {
-	printMouseShadow = set;
+	settings.printMouseShadow = set;
 }
 
 void CBattleInterface::activate()
@@ -392,7 +394,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		//showing background
 		blitAt(background, pos.x, pos.y, to);
-		if(printCellBorders)
+		if(settings.printCellBorders)
 		{
 			CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, to, &pos);
 		}
@@ -410,7 +412,7 @@ void CBattleInterface::show(SDL_Surface * to)
 				currentlyHoveredHex = b;
 			}
 			//print shade
-			if(printMouseShadow)
+			if(settings.printMouseShadow)
 			{
 				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
 				int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
@@ -448,7 +450,7 @@ void CBattleInterface::show(SDL_Surface * to)
 		int x = ((obstacles[b].pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(obstacles[b].pos%BFIELD_WIDTH);
 		int y = 86 + 42 * (obstacles[b].pos/BFIELD_WIDTH);
 		std::vector<Cimage> &images = idToObstacle[obstacles[b].ID]->ourImages;
-		blitAt(images[((animCount+1)/(4/animSpeed))%images.size()].bitmap, x, y, to);
+		blitAt(images[((animCount+1)/(4/settings.animSpeed))%images.size()].bitmap, x, y, to);
 	}
 
 	//showing hero animations
@@ -488,13 +490,13 @@ void CBattleInterface::show(SDL_Surface * to)
 			int curStackID = stackAliveByHex[b][v];
 			const CStack &curStack = stacks[curStackID];
 			int animType = creAnims[curStackID]->getType();
-			bool incrementFrame = (animCount%(4/animSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
+			bool incrementFrame = (animCount%(4/settings.animSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
 
 			if(animType == 2)
 			{
 				if(standingFrame.find(curStackID)!=standingFrame.end())
 				{
-					incrementFrame = (animCount%(8/animSpeed)==0);
+					incrementFrame = (animCount%(8/settings.animSpeed)==0);
 					if(incrementFrame)
 					{
 						++standingFrame[curStackID];
@@ -934,7 +936,7 @@ void CBattleInterface::handleStartMoving(int number)
 		show();
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
-		if((animCount+1)%(4/animSpeed)==0)
+		if((animCount+1)%(4/settings.animSpeed)==0)
 			creAnims[number]->incrementFrame();
 	}
 }
@@ -1250,7 +1252,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
-			if((animCount+1)%(4/animSpeed)==0 && !creAnims[attackedInfos[g].ID]->onLastFrameInGroup())
+			if((animCount+1)%(4/settings.animSpeed)==0 && !creAnims[attackedInfos[g].ID]->onLastFrameInGroup())
 			{
 				creAnims[attackedInfos[g].ID]->incrementFrame();
 			}
@@ -1851,17 +1853,17 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile)
 
 void CBattleInterface::setAnimSpeed(int set)
 {
-	animSpeed = set;
+	settings.animSpeed = set;
 }
 
 int CBattleInterface::getAnimSpeed() const
 {
-	return animSpeed;
+	return settings.animSpeed;
 }
 
 float CBattleInterface::getAnimSpeedMultiplier() const
 {
-	switch(animSpeed)
+	switch(settings.animSpeed)
 	{
 	case 1:
 		return 3.5f;
@@ -2059,7 +2061,7 @@ void CBattleInterface::attackingShowHelper()
 		if(attackingInfo)
 		{
 			attackingInfo->hitCount++;
-			if(attackingInfo->hitCount%(4/animSpeed) == 0)
+			if(attackingInfo->hitCount%(4/settings.animSpeed) == 0)
 				attackingInfo->frame++;
 		}
 	}
@@ -2071,10 +2073,10 @@ void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
 
 	//preparating background graphic with hexes and shaded hexes
 	blitAt(background, 0, 0, backgroundWithHexes);
-	if(printCellBorders)
+	if(settings.printCellBorders)
 		CSDL_Ext::blit8bppAlphaTo24bpp(cellBorders, NULL, backgroundWithHexes, NULL);
 
-	if(printStackRange)
+	if(settings.printStackRange)
 	{
 		for(size_t m=0; m<shadedHexes.size(); ++m) //rows
 		{
@@ -2688,11 +2690,11 @@ CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInt
 	graphics->blueToPlayersAdv(background, LOCPLINT->playerID);
 
 	viewGrid = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintCellBorders, owner, true), boost::bind(&CBattleInterface::setPrintCellBorders, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[427].first)(3,CGI->generaltexth->zelp[427].first), CGI->generaltexth->zelp[427].second, false, "sysopchk.def", NULL, 185, 140, false);
-	viewGrid->select(owner->printCellBorders);
+	viewGrid->select(owner->settings.printCellBorders);
 	movementShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintStackRange, owner, true), boost::bind(&CBattleInterface::setPrintStackRange, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[428].first)(3,CGI->generaltexth->zelp[428].first), CGI->generaltexth->zelp[428].second, false, "sysopchk.def", NULL, 185, 173, false);
-	movementShadow->select(owner->printStackRange);
+	movementShadow->select(owner->settings.printStackRange);
 	mouseShadow = new CHighlightableButton(boost::bind(&CBattleInterface::setPrintMouseShadow, owner, true), boost::bind(&CBattleInterface::setPrintMouseShadow, owner, false), boost::assign::map_list_of(0,CGI->generaltexth->zelp[429].first)(3,CGI->generaltexth->zelp[429].first), CGI->generaltexth->zelp[429].second, false, "sysopchk.def", NULL, 185, 207, false);
-	mouseShadow->select(owner->printMouseShadow);
+	mouseShadow->select(owner->settings.printMouseShadow);
 
 	animSpeeds = new CHighlightableButtonsGroup(0);
 	animSpeeds->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[422].first),CGI->generaltexth->zelp[422].second, "sysopb9.def",188, 309, 1);

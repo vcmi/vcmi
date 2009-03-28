@@ -3,6 +3,7 @@
 #include "../client/Client.h"
 #include "../CPlayerInterface.h"
 #include "../CGameInfo.h"
+#include "../lib/Connection.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CDefObjInfoHandler.h"
 #include "../hch/CHeroHandler.h"
@@ -411,6 +412,11 @@ void YourTurn::applyCl( CClient *cl )
 	boost::thread(boost::bind(&CGameInterface::yourTurn,cl->playerint[player]));
 }
 
+void SaveGame::applyCl(CClient *cl)
+{
+	CSaveFile save("Games" PATHSEPARATOR + fname + ".vcgm1");
+	save << *cl;
+}
 
 void PlayerMessage::applyCl(CClient *cl)
 {

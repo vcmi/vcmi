@@ -82,6 +82,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SetStackEffect>();
 	s.template registerType<ShowInInfobox>();
 
+	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();
 	s.template registerType<PlayerMessage>();
 }
@@ -89,7 +90,6 @@ void registerTypes2(Serializer &s)
 template<typename Serializer> DLL_EXPORT
 void registerTypes3(Serializer &s)
 {
-	s.template registerType<SaveGame>();
 	s.template registerType<CloseServer>();
 	s.template registerType<EndTurn>();
 	s.template registerType<DismissHero>();
@@ -109,6 +109,7 @@ void registerTypes3(Serializer &s)
 	s.template registerType<MakeAction>();
 	s.template registerType<MakeCustomAction>();
 
+	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();
 	s.template registerType<PlayerMessage>();
 }

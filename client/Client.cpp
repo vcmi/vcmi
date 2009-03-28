@@ -342,3 +342,42 @@ void CClient::waitForServer()
 		shared->sr->cond.wait(slock);
 	}
 }
+
+template <typename Handler>
+void CClient::serialize( Handler &h, const int version )
+{
+	if(h.saving)
+	{
+		ui8 players = playerint.size();
+		h & players;
+
+		for(std::map<ui8,CGameInterface *>::iterator i = playerint.begin(); i != playerint.end(); i++)
+		{
+			h & i->first & i->second->dllName;
+			i->second->serialize(h,version);
+		}
+	}
+	else
+	{
+		ui8 players;
+		h & players;
+
+		for(int i=0; i < players; i++)
+		{
+			std::string dllname;
+			ui8 pid;
+			h & pid & dllname;
+
+			if(dllname.length())
+			{
+				CCallback *callback = new CCallback(gs,pid,this);
+				callbacks.insert(callback);
+				playerint[pid] =  CAIHandler::getNewAI(callback,dllname);
+				playerint[pid]->init(callback);
+			}
+		}
+	}
+}
+
+template void CClient::serialize( CISer<CLoadFile> &h, const int version );
+template void CClient::serialize( COSer<CSaveFile> &h, const int version );

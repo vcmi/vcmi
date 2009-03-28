@@ -21,6 +21,7 @@
 #include "hch/CHeroHandler.h"
 #include "hch/CLodHandler.h"
 #include "hch/CObjectHandler.h"
+#include "lib/Connection.h"
 #include "hch/CSpellHandler.h"
 #include "hch/CTownHandler.h"
 #include "lib/CondSh.h"
@@ -2524,6 +2525,23 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const HeroB
 	if(bonus.type == HeroBonus::NONE)	return;
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	redrawHeroWin(hero);
+}
+
+template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
+{
+	h & playerID & serialID;
+	h & heroMoveSpeed & mapScrollingSpeed;
+	h & CBattleInterface::settings;
+}
+
+void CPlayerInterface::serialize( COSer<CSaveFile> &h, const int version )
+{
+	serializeTempl(h,version);
+}
+
+void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
+{
+	serializeTempl(h,version);
 }
 
 void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
