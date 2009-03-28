@@ -260,7 +260,7 @@ struct FoWChange : public CPackForClient //112
 	ui8 player, mode; //mode==0 - hide, mode==1 - reveal
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & tiles & player;
+		h & tiles & player & mode;
 	}
 }; 
 

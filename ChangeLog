@@ -1,4 +1,4 @@
-0.7 -> 0.71 (as for r769)
+0.7 -> 0.71 (as for r779)
 GENERAL:
 * fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
 * morale/luck system and corresponding sec. skills supported 
@@ -11,6 +11,7 @@ GENERAL:
 * updating blockmap/visitmap of randomized objects 
 * fixed crashes on loading maps with flag all mines/dwelling victory condition
 * further fixes for leveling-up (stability and identical offered skills bug)
+* splitting window allows to rebalance two stack with the same creatures
 * support for numpad keyboard
 * support for timed events
 
@@ -26,6 +27,8 @@ ADVENTURE INTERFACE:
 * fixed sight radious calculation
 * it's possible to stop hero movement
 * faster minimap refreshing 
+* provisional support for "Save" button in System Options Window
+* it's possible to revisit object under hero by pressing Space
 
 BATTLES:
 * partial support for battle obstacles
@@ -42,8 +45,11 @@ BATTLES:
 * fixes for two-hex creatures actions
 * fixed hero casting spell animation
 * corrected stack death animation
+* battle settings will be remembered between battles
+* improved damage calculation formula
 * correct handling of flying creatures in battles
 * a few tweaks in battle path/available hexes calculation (more of them is needed)
+* amounts of units taking actions / being an object of actions won't be shown until action ends
 * fixed positions of stack queue and battle result window when resolution is != 800x600 
 * corrected duration of frenzy spell which was incorrect in certain cases 
 * corrected hero spell casting animation
@@ -65,7 +71,7 @@ TOWN INTERFACE:
 * proper updating resdatabar after building structure in town or buying creatures (non 800x600 res)
 * fixed blinking resdatabar in town screen when buying (800x600) 
 * fixed horde buildings displaying in town hall
-
+* forbidden buildings will be shown as forbidden, even if there are no res / other conditions are not fulfilled
 
 PREGAME:
 * added scrolling scenario list with mouse wheel

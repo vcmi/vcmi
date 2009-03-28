@@ -63,7 +63,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib"
-				OutputFile="../GeniusAI.dll"
+				OutputFile="$(OutDir)\GeniusAI.dll"
 				LinkIncremental="2"
 				AdditionalLibraryDirectories="../../../libs; ../../"
 				GenerateDebugInformation="true"
@@ -142,7 +142,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib"
-				OutputFile="../GeniusAI.dll"
+				OutputFile="$(OutDir)\GeniusAI.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../../libs; ../../"
 				GenerateManifest="false"
@@ -226,7 +226,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib"
-				OutputFile="../GeniusAI.dll"
+				OutputFile="$(OutDir)\GeniusAI.dll"
 				LinkIncremental="1"
 				AdditionalLibraryDirectories="../../../libs; ../../"
 				GenerateManifest="false"
