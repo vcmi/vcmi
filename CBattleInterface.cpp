@@ -485,19 +485,22 @@ void CBattleInterface::show(SDL_Surface * to)
 	{
 		for(size_t v=0; v<stackAliveByHex[b].size(); ++v)
 		{
-			int animType = creAnims[stackAliveByHex[b][v]]->getType();
+			int curStackID = stackAliveByHex[b][v];
+			const CStack &curStack = stacks[curStackID];
+			int animType = creAnims[curStackID]->getType();
 			bool incrementFrame = (animCount%(4/animSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
+
 			if(animType == 2)
 			{
-				if(standingFrame.find(stackAliveByHex[b][v])!=standingFrame.end())
+				if(standingFrame.find(curStackID)!=standingFrame.end())
 				{
 					incrementFrame = (animCount%(8/animSpeed)==0);
 					if(incrementFrame)
 					{
-						++standingFrame[stackAliveByHex[b][v]];
-						if(standingFrame[stackAliveByHex[b][v]] == creAnims[stackAliveByHex[b][v]]->framesInGroup(2))
+						++standingFrame[curStackID];
+						if(standingFrame[curStackID] == creAnims[curStackID]->framesInGroup(2))
 						{
-							standingFrame.erase(standingFrame.find(stackAliveByHex[b][v]));
+							standingFrame.erase(standingFrame.find(curStackID));
 						}
 					}
 				}
@@ -505,29 +508,36 @@ void CBattleInterface::show(SDL_Surface * to)
 				{
 					if((rand()%50) == 0)
 					{
-						standingFrame.insert(std::make_pair(stackAliveByHex[b][v], 0));
+						standingFrame.insert(std::make_pair(curStackID, 0));
 					}
 				}
 			}
 
-			creAnims[stackAliveByHex[b][v]]->nextFrame(to, creAnims[stackAliveByHex[b][v]]->pos.x + pos.x, creAnims[stackAliveByHex[b][v]]->pos.y + pos.y, creDir[stackAliveByHex[b][v]], animCount, incrementFrame, stackAliveByHex[b][v]==activeStack, stackAliveByHex[b][v]==mouseHoveredStack); //increment always when moving, never if stack died
+			creAnims[curStackID]->nextFrame(to, creAnims[curStackID]->pos.x + pos.x, creAnims[curStackID]->pos.y + pos.y, creDir[curStackID], animCount, incrementFrame, curStackID==activeStack, curStackID==mouseHoveredStack); //increment always when moving, never if stack died
+
 			//printing amount
-			if(stacks[stackAliveByHex[b][v]].amount > 0) //don't print if stack is not alive
+			if(curStack.amount > 0 //don't print if stack is not alive
+				&& !LOCPLINT->curAction
+					|| (LOCPLINT->curAction->stackNumber != curStackID //don't print if stack is currently taking an action
+						&& (LOCPLINT->curAction->actionType != 6  ||  curStack.position != LOCPLINT->curAction->additionalInfo) //nor if it's an object of attack
+						&& (LOCPLINT->curAction->destinationTile != curStack.position) //nor if it's on destination tile for current action
+					)
+			)
 			{
-				int xAdd = stacks[stackAliveByHex[b][v]].attackerOwned ? 220 : 202;
+				int xAdd = curStack.attackerOwned ? 220 : 202;
 
 				//blitting amoutn background box
 				SDL_Surface *amountBG = NULL;
-				if(stacks[stackAliveByHex[b][v]].effects.size() == 0)
+				if(curStack.effects.size() == 0)
 				{
 					amountBG = amountNormal;
 				}
 				else
 				{
 					int pos=0; //determining total positiveness of effects
-					for(int c=0; c<stacks[stackAliveByHex[b][v]].effects.size(); ++c)
+					for(int c=0; c<curStack.effects.size(); ++c)
 					{
-						pos += CGI->spellh->spells[ stacks[stackAliveByHex[b][v]].effects[c].id ].positiveness;
+						pos += CGI->spellh->spells[ curStack.effects[c].id ].positiveness;
 					}
 					if(pos > 0)
 					{
@@ -542,14 +552,14 @@ void CBattleInterface::show(SDL_Surface * to)
 						amountBG = amountEffNeutral;
 					}
 				}
-				SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[stackAliveByHex[b][v]]->pos.x + xAdd + pos.x, creAnims[stackAliveByHex[b][v]]->pos.y + 260 + pos.y));
+				SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[curStackID]->pos.x + xAdd + pos.x, creAnims[curStackID]->pos.y + 260 + pos.y));
 				//blitting amount
 				std::stringstream ss;
-				ss<<stacks[stackAliveByHex[b][v]].amount;
+				ss<<curStack.amount;
 				CSDL_Ext::printAtMiddleWB(
 					ss.str(),
-					creAnims[stackAliveByHex[b][v]]->pos.x + xAdd + 14 + pos.x,
-					creAnims[stackAliveByHex[b][v]]->pos.y + 260 + 4 + pos.y,
+					creAnims[curStackID]->pos.x + xAdd + 14 + pos.x,
+					creAnims[curStackID]->pos.y + 260 + 4 + pos.y,
 					GEOR13,
 					20,
 					zwykly,

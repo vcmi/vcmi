@@ -1455,12 +1455,6 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 {
 	int ret = 7; //allowed by default
 
-	//can we build it?
-	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
-		ret = 2; //forbidden
-	else if(t->builded >= MAX_BUILDING_PER_TURN)
-		ret = 5; //building limit
-
 	//checking resources
 	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
 	for(int res=0;res<7;res++) //TODO: support custom amount of resources
@@ -1477,6 +1471,12 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 		if(t->builtBuildings.find(*ri)==t->builtBuildings.end())
 			ret = 8; //lack of requirements - cannot build
 	}
+
+	//can we build it?
+	if(t->forbiddenBuildings.find(ID)!=t->forbiddenBuildings.end())
+		ret = 2; //forbidden
+	else if(t->builded >= MAX_BUILDING_PER_TURN)
+		ret = 5; //building limit
 
 	if(ID == 13) //capitol
 	{
@@ -1672,17 +1672,22 @@ bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
 {
-	int attackerAttackBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0);
+	int attackerAttackBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0),
+		defenderDefenseBonus = defender->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0),
+		attackDefenseBonus = 0,
+		minDmg = attacker->creature->damageMin * attacker->amount, 
+		maxDmg = attacker->creature->damageMax * attacker->amount;
+
+	//calculating total attack/defense skills modifier
 	if(attacker->getEffect(56)) //frenzy for attacker
 	{
 		attackerAttackBonus += (VLC->spellh->spells[attacker->getEffect(56)->id].powers[attacker->getEffect(56)->level]/100.0) *(attacker->creature->defence + (attackerHero ? attackerHero->getPrimSkillLevel(1) : 0));
 	}
-	int defenderDefenseBonus = defender->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0);
 	if(defender->getEffect(56)) //frenzy for defender
 	{
 		defenderDefenseBonus = 0;
 	}
-	int attackDefenseBonus = attackerAttackBonus - defenderDefenseBonus;
+	attackDefenseBonus = attackerAttackBonus - defenderDefenseBonus;
 	if(defender->getEffect(48)) //defender's prayer handling
 	{
 		attackDefenseBonus -= VLC->spellh->spells[defender->getEffect(48)->id].powers[defender->getEffect(48)->level];
@@ -1703,27 +1708,10 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	{
 		attackDefenseBonus += VLC->spellh->spells[attacker->getEffect(43)->id].powers[attacker->getEffect(43)->level];
 	}
-	int damageBase = 0;
-	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
-	{
-		damageBase = attacker->creature->damageMin;
-		damageBase -= VLC->spellh->spells[attacker->getEffect(42)->id].powers[attacker->getEffect(42)->level];
-	}
-	else if(attacker->getEffect(41)) //bless handling
-	{
-		damageBase = attacker->creature->damageMax;
-		damageBase += VLC->spellh->spells[attacker->getEffect(41)->id].powers[attacker->getEffect(41)->level];
-	}
-	else if(attacker->creature->damageMax == attacker->creature->damageMin) //constant damage
-	{
-		damageBase = attacker->creature->damageMin;
-	}
-	else
-	{
-		damageBase = rand()%(attacker->creature->damageMax - attacker->creature->damageMin) + attacker->creature->damageMin + 1;
-	}
 
 	float dmgBonusMultiplier = 1.0f;
+
+	//bonus from attack/defense skills
 	if(attackDefenseBonus < 0) //decreasing dmg
 	{
 		if(0.02f * (-attackDefenseBonus) > 0.3f)
@@ -1746,6 +1734,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 			dmgBonusMultiplier += 0.05f * attackDefenseBonus;
 		}
 	}
+
 	//handling secondary abilities
 	if(attackerHero)
 	{
@@ -1766,7 +1755,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 		}
 		else
 		{
-			switch(attackerHero->getSecSkillLevel(22)) //offence
+			switch(attackerHero->getSecSkillLevel(22)) //offense
 			{
 			case 1: //basic
 				dmgBonusMultiplier *= 1.1f;
@@ -1782,7 +1771,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	}
 	if(defendingHero)
 	{
-		switch(defendingHero->getSecSkillLevel(23)) //armourer
+		switch(defendingHero->getSecSkillLevel(23)) //armorer
 		{
 		case 1: //basic
 			dmgBonusMultiplier *= 0.95f;
@@ -1803,20 +1792,44 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 		else //adv or expert
 			dmgBonusMultiplier *= 0.7f;
 	}
-	if(shooting && defender->getEffect(28)) //air shield
+	else if(shooting && defender->getEffect(28)) //air shield
 	{
 		if(defender->getEffect(28)->level<=1) //none or basic
 			dmgBonusMultiplier *= 0.75f;
 		else //adv or expert
 			dmgBonusMultiplier *= 0.5f;
 	}
-	if(attacker->getEffect(42)) //curse, second part of handling
+	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
 	{
 		if(attacker->getEffect(42)->level>=2) //adv or expert
 			dmgBonusMultiplier *= 0.8f;
 	}
 
-	return int(  (float)damageBase * (float)attacker->amount * dmgBonusMultiplier  );
+
+
+	minDmg *= dmgBonusMultiplier;
+	maxDmg *= dmgBonusMultiplier;
+
+	if(attacker->getEffect(42)) //curse handling (rest)
+	{
+		minDmg -= VLC->spellh->spells[attacker->getEffect(42)->id].powers[attacker->getEffect(42)->level];
+		return minDmg;
+	}
+	else if(attacker->getEffect(41)) //bless handling
+	{
+		maxDmg += VLC->spellh->spells[attacker->getEffect(41)->id].powers[attacker->getEffect(41)->level];
+		return maxDmg;
+	}
+	else
+	{
+		if(minDmg != maxDmg)
+			return minDmg  +  rand() % (maxDmg - minDmg + 1);
+		else
+			return minDmg;
+	}
+
+	tlog1 << "We are too far in calculateDmg...\n";
+	return -1;
 }
 
 void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualties )

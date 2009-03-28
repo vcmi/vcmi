@@ -709,7 +709,7 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 		{
 			char buf[100];
 			sprintf(buf,VLC->generaltexth->arraytxt[117].c_str(),VLC->creh->creatures[13].namePl.c_str());
-			ret.push_back(std::pair<int,std::string>(-1,buf)); //%s in group +1
+			ret.push_back(std::pair<int,std::string>(1,buf)); //%s in group +1
 		}
 	}
 

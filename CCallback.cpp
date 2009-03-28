@@ -699,3 +699,8 @@ CPath * CCallback::getPath( int3 src, int3 dest, const CGHeroInstance * hero )
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->getPath(src,dest,hero);
 }
+
+void CCallback::save( const std::string &fname )
+{
+	cl->save(fname);
+}

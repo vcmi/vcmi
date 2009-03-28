@@ -538,7 +538,7 @@ public:
 	void heroMovePointsChanged(const CGHeroInstance * hero);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void receivedResource(int type, int val);
-	void showInfoDialog(std::string &text, const std::vector<Component*> &components);
+	void showInfoDialog(const std::string &text, const std::vector<Component*> &components);
 	void showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
 	void showYesNoDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
 	void tileHidden(const std::set<int3> &pos);
@@ -577,7 +577,7 @@ public:
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void removeObjToBlit(IShowable* obj);
-	void showInfoDialog(std::string &text, const std::vector<SComponent*> & components);
+	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, bool deactivateCur=true);
 	void showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 	bool moveHero(const CGHeroInstance *h, CPath * path);
 
@@ -838,14 +838,15 @@ class CSystemOptionsWindow : public IShowActivable, public CIntObject
 {
 private:
 	SDL_Surface * background; //background of window
-	AdventureMapButton * quitGame, * backToMap;
+	AdventureMapButton *load, *save, *restart, *mainMenu, * quitGame, * backToMap; //load, restart and main menu are not used yet
 	CHighlightableButtonsGroup * heroMoveSpeed;
 	CHighlightableButtonsGroup * mapScrollSpeed;
 public:
 	CSystemOptionsWindow(const SDL_Rect & pos, CPlayerInterface * owner); //c-tor
 	~CSystemOptionsWindow(); //d-tor
 
-	//functions for butons
+	//functions bound to buttons
+	void bsavef(); //save game
 	void bquitf(); //quit game
 	void breturnf(); //return to game
 

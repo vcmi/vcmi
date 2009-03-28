@@ -47,6 +47,7 @@ public:
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
 	virtual void setSelection(const CArmedInstance * obj)=0;
 	virtual void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)=0;
+	virtual void save(const std::string &fname) = 0;
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)const =0;
@@ -136,6 +137,7 @@ public:
 	void setFormation(const CGHeroInstance * hero, bool tight);
 	void setSelection(const CArmedInstance * obj);
 	void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero);
+	void save(const std::string &fname);
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea) const;

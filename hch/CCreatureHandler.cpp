@@ -458,7 +458,15 @@ void CCreatureHandler::loadCreatures()
 	creatures[140].abilities.insert(DOUBLE_WIDE);//boar should be treated as double-wide
 	creatures[142].abilities.insert(DOUBLE_WIDE);//nomads should be treated as double-wide
 
-	creatures[46].abilities -= FLYING;
+	creatures[46].abilities -= FLYING; //hell hound
+	creatures[47].abilities -= FLYING; //cerberus
+	creatures[52].abilities += FLYING; //Efreeti
+	creatures[53].abilities += FLYING; //Efreet Sultan
+
+	creatures[47].abilities += MULTI_HEAD_ATTACK; //cerberus
+
+
+	creatures[88].abilities += TWICE_ATTACK; //wolf raider
 }
 
 void CCreatureHandler::loadAnimationInfo()

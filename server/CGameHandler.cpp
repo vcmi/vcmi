@@ -481,6 +481,7 @@ void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
 
 void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 {
+	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
 	std::set<BattleStackAttacked>::iterator i = bat.bsa.insert(BattleStackAttacked()).first;
 	BattleStackAttacked *bsa = (BattleStackAttacked *) &*i;

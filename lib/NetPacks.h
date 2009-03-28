@@ -824,7 +824,7 @@ struct EndTurn : public CPackForServer
 struct DismissHero : public CPackForServer
 {
 	DismissHero(){};
-	DismissHero(si32 HID) : hid(hid) {};
+	DismissHero(si32 HID) : hid(HID) {};
 	si32 hid;
 
 	void applyGh(CGameHandler *gh);

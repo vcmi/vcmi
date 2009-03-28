@@ -33,6 +33,7 @@
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
 #include <boost/assign/list_of.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 #include <boost/thread.hpp>
 #include <cmath>
 #include <queue>
@@ -1081,6 +1082,7 @@ void TimeInterested::deactivate()
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
 	LOCPLINT = this;
+	curAction = NULL;
 	curint = NULL;
 	playerID=Player;
 	serialID=serial;
@@ -2374,7 +2376,7 @@ void CPlayerInterface::showComp(SComponent comp)
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
-void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<Component*> &components)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components)
 {
 	std::vector<SComponent*> intComps;
 	for(int i=0;i<components.size();i++)
@@ -2382,7 +2384,7 @@ void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<Compo
 	showInfoDialog(text,intComps);
 }
 
-void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<SComponent*> & components)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, bool deactivateCur)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
@@ -2392,9 +2394,12 @@ void CPlayerInterface::showInfoDialog(std::string &text, const std::vector<SComp
 
 	if(makingTurn && curint)
 	{
-		temp->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
 		showingDialog->set(true);
-		curint->deactivate(); //dezaktywacja starego interfejsu
+		if(deactivateCur)
+		{
+			temp->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
+			curint->deactivate(); //dezaktywacja starego interfejsu
+		}
 		temp->activate();
 		LOCPLINT->objsToBlit.push_back(temp);
 	}
@@ -4249,6 +4254,8 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	CSDL_Ext::printAt(CGI->generaltexth->allTexts[577], 283, 217, GEOR16, zwykly, background); //spell book animation
 
 	//setting up buttons
+	save = new AdventureMapButton (CGI->generaltexth->zelp[321].first, CGI->generaltexth->zelp[321].second, boost::bind(&CSystemOptionsWindow::bsavef, this), 516, 354, "SOSAVE.DEF", SDLK_s);
+	std::swap(save->imgs[0][0], save->imgs[0][1]);
 	quitGame = new AdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 405, 471, "soquit.def", SDLK_q);
 	std::swap(quitGame->imgs[0][0], quitGame->imgs[0][1]);
 	backToMap = new AdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 516, 471, "soretrn.def", SDLK_RETURN);
@@ -4274,6 +4281,7 @@ CSystemOptionsWindow::~CSystemOptionsWindow()
 {
 	SDL_FreeSurface(background);
 
+	delete save;
 	delete quitGame;
 	delete backToMap;
 	delete heroMoveSpeed;
@@ -4303,8 +4311,21 @@ void CSystemOptionsWindow::breturnf()
 	LOCPLINT->curint->activate();
 }
 
+
+void CSystemOptionsWindow::bsavef()
+{
+	using namespace boost::posix_time;
+	std::ostringstream fnameStream;
+	fnameStream << second_clock::local_time();
+	std::string fname = fnameStream.str();
+	boost::algorithm::replace_all(fname,":","");
+	boost::algorithm::replace_all(fname," ","-");
+	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<SComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false, false);
+}
+
 void CSystemOptionsWindow::activate()
 {
+	save->activate();
 	quitGame->activate();
 	backToMap->activate();
 	heroMoveSpeed->activate();
@@ -4313,6 +4334,7 @@ void CSystemOptionsWindow::activate()
 
 void CSystemOptionsWindow::deactivate()
 {
+	save->deactivate();
 	quitGame->deactivate();
 	backToMap->deactivate();
 	heroMoveSpeed->deactivate();
@@ -4327,6 +4349,7 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 
 	SDL_BlitSurface(background, NULL, to, &pos);
 
+	save->show(to);
 	quitGame->show(to);
 	backToMap->show(to);
 	heroMoveSpeed->show(to);

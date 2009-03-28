@@ -973,7 +973,8 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 		}
 		else
 		{
-			CSDL_Ext::printAtMiddle(curVector()[(i-at)+from]->filename,192,13,GEOR13,nasz,scenin, 2);
+			std::string &name = curVector()[(i-at)+from]->filename;
+			CSDL_Ext::printAtMiddle(name.substr(6,name.size()-12),192,13,GEOR13,nasz,scenin, 2);
 		}
 		if (curVector()[(i-at)+from]->victoryCondition.condition == winStandard)
 			temp=11;
@@ -1064,6 +1065,7 @@ void MapSel::show()
 	//print scenario list
 	printMaps(0,18);
 
+	slid->whereAreWe = 0;
 	slid->activate();
 
 	//SDL_Flip(screen);

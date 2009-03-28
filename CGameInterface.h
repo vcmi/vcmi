@@ -62,7 +62,7 @@ public:
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};
 	virtual void init(ICallback * CB){};
 	virtual void receivedResource(int type, int val){};
-	virtual void showInfoDialog(std::string &text, const std::vector<Component*> &components){};
+	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components){};
 	virtual void showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID){};
 	virtual void showYesNoDialog(std::string &text, const std::vector<Component*> &components, ui32 askID){};
 	virtual void tileHidden(const std::set<int3> &pos){};
