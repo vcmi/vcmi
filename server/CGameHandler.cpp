@@ -1112,7 +1112,7 @@ void CGameHandler::giveSpells( const CGTownInstance *t, const CGHeroInstance *h 
 	ChangeSpells cs;
 	cs.hid = h->id;
 	cs.learn = true;
-	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(7)+4);i++)
+	for(int i=0; i<std::min(t->mageGuildLevel(),h->getSecSkillLevel(7)+2);i++)
 	{
 		for(int j=0; j<t->spellsAtLevel(i+1,true) && j<t->spells[i].size(); j++)
 		{

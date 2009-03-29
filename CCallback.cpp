@@ -379,11 +379,13 @@ int CCallback::getMySerial() const
 	return gs->players[player].serial;
 }
 
-bool CCallback::swapArifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)
+bool CCallback::swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)
 {
 	if(player!=hero1->tempOwner || player!=hero2->tempOwner)
 		return false;
-	*cl->serv << ui16(509) << hero1->id << pos1 << hero2->id << pos2;
+
+	ExchangeArtifacts ea(hero1->id, pos1, hero2->id, pos2);
+	*cl->serv << &ea;
 	return true;
 }
 

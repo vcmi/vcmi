@@ -507,6 +507,15 @@ si8 CStack::Luck() const
 	if(ret < -3) ret = -3;
 	return ret;
 }
+
+bool CStack::willMove()
+{
+	return !vstd::contains(state,DEFENDING)
+		&& !vstd::contains(state,MOVED)
+		&& alive()
+		&& !vstd::contains(abilities,NOT_ACTIVE); //eg. Ammo Cart
+}
+
 CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, int notThatOne)
 {
 	if(player<0 || player>=PLAYER_LIMIT)
@@ -1852,22 +1861,13 @@ CStack * BattleInfo::getNextStack()
 	CStack *current = getStack(activeStack);
 	for (int i = 0; i <  stacks.size(); i++)  //find fastest not moved/waited stack (stacks vector is sorted by speed)
 	{
-		if(vstd::contains(stacks[i]->state,DEFENDING)
-			||vstd::contains(stacks[i]->state,WAITING)
-			||vstd::contains(stacks[i]->state,MOVED)
-			||!stacks[i]->alive()
-		  )
-			continue;
-		return stacks[i];
+		if(stacks[i]->willMove()  &&  !vstd::contains(stacks[i]->state,WAITING))
+			return stacks[i];
 	}
 	for (int i = stacks.size() - 1; i >= 0 ; i--) //find slowest waiting stack
 	{
-		if(vstd::contains(stacks[i]->state,DEFENDING)
-			||vstd::contains(stacks[i]->state,MOVED)
-			||!stacks[i]->alive()
-		  )
-			continue;
-		return stacks[i];
+		if(stacks[i]->willMove())
+			return stacks[i];
 	}
 	return NULL; //all stacks moved or defending!
 }
@@ -1893,7 +1893,8 @@ std::vector<CStack> BattleInfo::getStackQueue()
 					&& stacks[i]->alive()
 					&& (moved == 1 || !vstd::contains(stacks[i]->state,MOVED))
 					&& !vstd::contains(stacks[i]->state,WAITING)
-					&& taken[i]==0)
+					&& taken[i]==0
+					&& !vstd::contains(stacks[i]->abilities,NOT_ACTIVE)) //eg. Ammo Cart
 				{
 					if(speed == -1 || stacks[i]->speed() > speed)
 					{
@@ -1916,7 +1917,8 @@ std::vector<CStack> BattleInfo::getStackQueue()
 						&& stacks[i]->alive()
 						&& (moved == 1 || !vstd::contains(stacks[i]->state,MOVED))
 						&& vstd::contains(stacks[i]->state,WAITING)
-						&& taken[i]==0)
+						&& taken[i]==0
+						&& !vstd::contains(stacks[i]->abilities,NOT_ACTIVE)) //eg. Ammo Cart
 					{
 						if(stacks[i]->speed() < speed) //slowest one
 						{

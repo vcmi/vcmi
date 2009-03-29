@@ -160,6 +160,7 @@ public:
 	CStack(CCreature * C, int A, int O, int I, bool AO, int S);
 	CStack() : creature(NULL),amount(-1),owner(255), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1), counterAttacks(1), effects(), state(), abilities(){}
 	const StackEffect * getEffect(ui16 id) const; //effect id (SP)
+	bool willMove(); //if stack has remaining move this turn
 	ui32 speed() const;
 	si8 Morale() const;
 	si8 Luck() const;

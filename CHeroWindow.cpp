@@ -754,7 +754,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			//chceck if swap is possible
 			if(this->fitsHere(ourWindow->activeArtPlace->ourArt) && ourWindow->activeArtPlace->fitsHere(this->ourArt))
 			{
-				LOCPLINT->cb->swapArifacts(ourWindow->curHero,slotID,ourWindow->curHero,ourWindow->activeArtPlace->slotID);
+				LOCPLINT->cb->swapArtifacts(ourWindow->curHero,slotID,ourWindow->curHero,ourWindow->activeArtPlace->slotID);
 
 				const CArtifact * pmh = ourArt;
 				ourArt = ourWindow->activeArtPlace->ourArt;

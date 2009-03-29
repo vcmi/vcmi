@@ -451,8 +451,7 @@ void CCreatureHandler::loadCreatures()
 	}
 	inp2.close();
 
-
-
+	//TODO: create a tidy configuration file to control fixing unit abilities
 	creatures[115].abilities.insert(DOUBLE_WIDE);//water elemental should be treated as double-wide
 	creatures[123].abilities.insert(DOUBLE_WIDE);//ice elemental should be treated as double-wide
 	creatures[140].abilities.insert(DOUBLE_WIDE);//boar should be treated as double-wide
@@ -465,8 +464,9 @@ void CCreatureHandler::loadCreatures()
 
 	creatures[47].abilities += MULTI_HEAD_ATTACK; //cerberus
 
-
 	creatures[88].abilities += TWICE_ATTACK; //wolf raider
+
+	creatures[148].abilities += NOT_ACTIVE; //Ammo Cart
 }
 
 void CCreatureHandler::loadAnimationInfo()

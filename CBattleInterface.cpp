@@ -519,11 +519,13 @@ void CBattleInterface::show(SDL_Surface * to)
 
 			//printing amount
 			if(curStack.amount > 0 //don't print if stack is not alive
-				&& !LOCPLINT->curAction
+				&& (!LOCPLINT->curAction
 					|| (LOCPLINT->curAction->stackNumber != curStackID //don't print if stack is currently taking an action
 						&& (LOCPLINT->curAction->actionType != 6  ||  curStack.position != LOCPLINT->curAction->additionalInfo) //nor if it's an object of attack
 						&& (LOCPLINT->curAction->destinationTile != curStack.position) //nor if it's on destination tile for current action
+						)
 					)
+				&& !vstd::contains(curStack.abilities,SIEGE_WEAPON) //and not a war machine...
 			)
 			{
 				int xAdd = curStack.attackerOwned ? 220 : 202;
