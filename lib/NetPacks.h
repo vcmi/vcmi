@@ -647,13 +647,14 @@ struct BattleResult : public CPackForClient//3003
 
 struct BattleStackMoved : public CPackForClient//3004
 {
-	ui32 stack, tile, distance;
+	ui32 stack, tile;
+	ui8 ending, distance;
 	BattleStackMoved(){type = 3004;};
 	void applyFirstCl(CClient *cl);
 	void applyGs(CGameState *gs);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & stack & tile & distance;
+		h & stack & tile & ending & distance;
 	}
 };
 

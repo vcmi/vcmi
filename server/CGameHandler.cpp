@@ -114,17 +114,7 @@ void giveExp(BattleResult &r)
 		r.exp[r.winner] += VLC->creh->creatures[i->first].hitPoints * i->second;
 	}
 }
-//bool CGameState::checkFunc(int obid, std::string name)
-//{
-//	if (objscr.find(obid)!=objscr.end())
-//	{
-//		if(objscr[obid].find(name)!=objscr[obid].end())
-//		{
-//			return true;
-//		}
-//	}
-//	return false;
-//}
+
 PlayerStatus PlayerStatuses::operator[](ui8 player)
 {
 	boost::unique_lock<boost::mutex> l(mx);
@@ -205,15 +195,7 @@ void PlayerStatuses::removeQuery(ui8 player, ui32 id)
 	}
 	cv.notify_all();
 }
-//void CGameHandler::handleCPPObjS(std::map<int,CCPPObjectScript*> * mapa, CCPPObjectScript * script)
-//{
-//	std::vector<int> tempv = script->yourObjects();
-//	for (unsigned i=0;i<tempv.size();i++)
-//	{
-//		(*mapa)[tempv[i]]=script;
-//	}
-//	cppscripts.insert(script);
-//}
+
 template <typename T>
 void callWith(std::vector<T> args, boost::function<void(T)> fun, ui32 which)
 {
@@ -387,6 +369,7 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 
 askInterfaceForMove:
 			//ask interface and wait for answer
+			if(!battleResult.get())
 			{
 				BattleSetActiveStack sas;
 				sas.stack = next->ID;
@@ -396,6 +379,11 @@ askInterfaceForMove:
 					battleMadeAction.cond.wait(lock);
 				battleMadeAction.data = false;
 			}
+			else
+			{
+				break;
+			}
+
 			//we're after action, all results applied
 			checkForBattleEnd(stacks); //check if this action ended the battle
 
@@ -571,6 +559,7 @@ void CGameHandler::moveStack(int stack, int dest)
 			sm.stack = curStack->ID;
 			sm.tile = path.first[0];
 			sm.distance = path.second;
+			sm.ending = true;
 			sendAndApply(&sm);
 		}
 	}
@@ -584,6 +573,7 @@ void CGameHandler::moveStack(int stack, int dest)
 			sm.stack = curStack->ID;
 			sm.tile = path.first[v];
 			sm.distance = path.second;
+			sm.ending = v==tilesToMove;
 			sendAndApply(&sm);
 		}
 	}
@@ -609,32 +599,6 @@ void CGameHandler::init(StartInfo *si, int Seed)
 	tlog0 << "Gamestate created!" << std::endl;
 	gs->init(si,map,Seed);	
 	tlog0 << "Gamestate initialized!" << std::endl;
-
-	/****************************LUA OBJECT SCRIPTS************************************************/
-	//std::vector<std::string> * lf = CLuaHandler::searchForScripts("scripts/lua/objects"); //files
-	//for (int i=0; i<lf->size(); i++)
-	//{
-	//	try
-	//	{
-	//		std::vector<std::string> * temp =  CLuaHandler::functionList((*lf)[i]);
-	//		CLuaObjectScript * objs = new CLuaObjectScript((*lf)[i]);
-	//		CLuaCallback::registerFuncs(objs->is);
-	//		//objs
-	//		for (int j=0; j<temp->size(); j++)
-	//		{
-	//			int obid ; //obj ID
-	//			int dspos = (*temp)[j].find_first_of('_');
-	//			obid = atoi((*temp)[j].substr(dspos+1,(*temp)[j].size()-dspos-1).c_str());
-	//			std::string fname = (*temp)[j].substr(0,dspos);
-	//			if (skrypty->find(obid)==skrypty->end())
-	//				skrypty->insert(std::pair<int, std::map<std::string, CObjectScript*> >(obid,std::map<std::string,CObjectScript*>()));
-	//			(*skrypty)[obid].insert(std::pair<std::string, CObjectScript*>(fname,objs));
-	//		}
-	//		delete temp;
-	//	}HANDLE_EXCEPTION
-	//}
-
-	//delete lf;
 
 	for(std::map<ui8,PlayerState>::iterator i = gs->players.begin(); i != gs->players.end(); i++)
 		states.addPlayer(i->first);
@@ -767,42 +731,6 @@ void CGameHandler::run(bool resume)
 
 		boost::thread(boost::bind(&CGameHandler::handleConnection,this,pom,boost::ref(**i)));
 	}
-
-	/****************************SCRIPTS************************************************/
-	//std::map<int, std::map<std::string, CObjectScript*> > * skrypty = &objscr; //alias for easier access
-	/****************************C++ OBJECT SCRIPTS************************************************/
-	//std::map<int,CCPPObjectScript*> scripts;
-	//CScriptCallback * csc = new CScriptCallback();
-	//csc->gh = this;
-	//handleCPPObjS(&scripts,new CVisitableOPH(csc));
-	//handleCPPObjS(&scripts,new CVisitableOPW(csc));
-	//handleCPPObjS(&scripts,new CPickable(csc));
-	//handleCPPObjS(&scripts,new CMines(csc));
-	//handleCPPObjS(&scripts,new CTownScript(csc));
-	//handleCPPObjS(&scripts,new CHeroScript(csc));
-	//handleCPPObjS(&scripts,new CMonsterS(csc));
-	//handleCPPObjS(&scripts,new CCreatureGen(csc));
-	//handleCPPObjS(&scripts,new CTeleports(csc));
-
-	/****************************INITIALIZING OBJECT SCRIPTS************************************************/
-	//std::string temps("newObject");
-	//for (unsigned i=0; i<gs->map->objects.size(); i++)
-	//{
-		//c++ scripts
-		//if (scripts.find(gs->map->objects[i]->ID) != scripts.end())
-		//{
-		//	gs->map->objects[i]->state = scripts[gs->map->objects[i]->ID];
-		//	gs->map->objects[i]->state->newObject(gs->map->objects[i]->id);
-		//}
-		//else 
-		//{
-		//	gs->map->objects[i]->state = NULL;
-		//}
-
-		//// lua scripts
-		//if(checkFunc(map->objects[i]->ID,temps))
-		//	(*skrypty)[map->objects[i]->ID][temps]->newObject(map->objects[i]);
-	//}
 
 	while (!end2)
 	{
@@ -1450,6 +1378,7 @@ void CGameHandler::ask( Query * sel, ui8 player, const CFunctionList<void(ui32)>
 
 void CGameHandler::sendToAllClients( CPackForClient * info )
 {
+	tlog5 << "Sending to all clients a package of type " << typeid(*info).name() << std::endl;
 	for(std::set<CConnection*>::iterator i=conns.begin(); i!=conns.end();i++)
 	{
 		(*i)->wmx->lock();

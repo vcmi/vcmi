@@ -1041,15 +1041,6 @@ void Mapa::readHeader( unsigned char * bufor, int &i)
 			for (int zz=0; zz<lenbuf; zz++)
 				disposedHeroes[g].name+=bufor[i++];
 			disposedHeroes[g].players = bufor[i++];
-			//int players = bufor[i++];
-			//for(int zz=0;zz<8;zz++)
-			//{
-			//	int por = (1<<zz);
-			//	if(players & por)
-			//		disposedHeroes[g].players[zz] = true;
-			//	else 
-			//		disposedHeroes[g].players[zz] = false;
-			//}
 		}
 	}
 

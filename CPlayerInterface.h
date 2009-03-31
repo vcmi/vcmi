@@ -539,8 +539,8 @@ public:
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void receivedResource(int type, int val);
 	void showInfoDialog(const std::string &text, const std::vector<Component*> &components);
-	void showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
-	void showYesNoDialog(std::string &text, const std::vector<Component*> &components, ui32 askID);
+	void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
+	void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
 	void tileHidden(const std::set<int3> &pos);
 	void tileRevealed(const std::set<int3> &pos);
 	void yourTurn();
@@ -557,7 +557,7 @@ public:
 	void battleEnd(BattleResult *br); //end of battle
 	void battleResultQuited();
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	void battleStackMoved(int ID, int dest, int distance);
+	void battleStackMoved(int ID, int dest, int distance, bool end);
 	void battleSpellCasted(SpellCasted *sc);
 	void battleStacksEffectsSet(SetStackEffect & sse); //called when a specific effect is set to stacks
 	void battleStacksAttacked(std::set<BattleStackAttacked> & bsa);
@@ -581,7 +581,7 @@ public:
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void removeObjToBlit(IShowable* obj);
 	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, bool deactivateCur=true);
-	void showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
+	void showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 	bool moveHero(const CGHeroInstance *h, CPath * path);
 
 	CPlayerInterface(int Player, int serial);//c-tor

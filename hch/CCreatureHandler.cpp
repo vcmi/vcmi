@@ -464,8 +464,9 @@ void CCreatureHandler::loadCreatures()
 
 	creatures[47].abilities += MULTI_HEAD_ATTACK; //cerberus
 
-	creatures[88].abilities += TWICE_ATTACK; //wolf raider
+	creatures[87].abilities += TWICE_ATTACK; //wolf raider
 
+	creatures[147].abilities += NOT_ACTIVE; //First Aid Tent //TODO: remove when support is added
 	creatures[148].abilities += NOT_ACTIVE; //Ammo Cart
 }
 

@@ -2018,7 +2018,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 		castleInt->resdatabar->draw();
 }
 
-void CPlayerInterface::showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID)
+void CPlayerInterface::showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID)
 //void CPlayerInterface::showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -2301,10 +2301,10 @@ void CPlayerInterface::battleResultQuited()
 	LOCPLINT->showingDialog->setn(false);
 }
 
-void CPlayerInterface::battleStackMoved(int ID, int dest, int distance)
+void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	battleInt->stackMoved(ID, dest, dest==curAction->destinationTile, distance);
+	battleInt->stackMoved(ID, dest, end, distance);
 }
 void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
 {
@@ -2391,7 +2391,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text,playerID,32,components,pom);
+	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom);
 
 	if(makingTurn && curint)
 	{
@@ -2409,7 +2409,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 		dialogs.push_back(temp);
 	}
 }
-void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps)
+void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	LOCPLINT->showingDialog->setn(true);
@@ -2418,7 +2418,7 @@ void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SCom
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text,playerID,32,components,pom);
+	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom);
 	temp->delComps = DelComps;
 	for(int i=0;i<onYes.funcs.size();i++)
 		temp->buttons[0]->callback += onYes.funcs[i];
@@ -2433,7 +2433,7 @@ void CPlayerInterface::showYesNoDialog(std::string &text, const std::vector<SCom
 	LOCPLINT->objsToBlit.push_back(temp);
 }
 
-void CPlayerInterface::showYesNoDialog( std::string &text, const std::vector<Component*> &components, ui32 askID )
+void CPlayerInterface::showYesNoDialog(const  std::string &text, const std::vector<Component*> &components, ui32 askID )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	LOCPLINT->showingDialog->setn(false);
@@ -2446,7 +2446,7 @@ void CPlayerInterface::showYesNoDialog( std::string &text, const std::vector<Com
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 
-	CInfoWindow * temp = new CInfoWindow(text,playerID,32,intComps,pom);
+	CInfoWindow * temp = new CInfoWindow(text,playerID,36,intComps,pom);
 	temp->buttons[0]->callback += boost::bind(&IActivable::activate,curint);
 	temp->buttons[1]->callback += boost::bind(&IActivable::activate,curint);
 	temp->buttons[0]->callback += boost::bind(&CCallback::selectionMade,cb,0,askID);

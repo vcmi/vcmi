@@ -69,8 +69,8 @@ public:
 	virtual void init(ICallback * CB){};
 	virtual void receivedResource(int type, int val){};
 	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components){};
-	virtual void showSelDialog(std::string &text, const std::vector<Component*> &components, ui32 askID){};
-	virtual void showYesNoDialog(std::string &text, const std::vector<Component*> &components, ui32 askID){};
+	virtual void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
+	virtual void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
 	virtual void tileHidden(const std::set<int3> &pos){};
 	virtual void tileRevealed(const std::set<int3> &pos){};
 	virtual void yourTurn(){};
@@ -87,7 +87,7 @@ public:
 	virtual void battleStacksAttacked(std::set<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(BattleResult *br){};
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
-	virtual void battleStackMoved(int ID, int dest, int distance){};
+	virtual void battleStackMoved(int ID, int dest, int distance, bool end){};
 	virtual void battleSpellCasted(SpellCasted *sc){};
 	virtual void battleStacksEffectsSet(SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right

@@ -136,7 +136,7 @@ void CGeniusAI::battleNewRound(int round)
 /**
  *
  */
-void CGeniusAI::battleStackMoved(int ID, int dest)
+void CGeniusAI::battleStackMoved(int ID, int dest, int distance, bool end)
 {
 	std::string message("\t\t\tCGeniusAI::battleStackMoved ID(");
 	message += boost::lexical_cast<std::string>(ID);
