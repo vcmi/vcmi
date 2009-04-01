@@ -1,4 +1,4 @@
-0.7 -> 0.71 (as for r779)
+0.7 -> 0.71 (Apr 01 2009)
 GENERAL:
 * fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
 * morale/luck system and corresponding sec. skills supported 
