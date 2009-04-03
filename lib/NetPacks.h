@@ -404,6 +404,7 @@ struct SetHeroArtifacts : public CPackForClient //509
 	SetHeroArtifacts(){type = 509;};
 	void applyCl(CClient *cl);
 	DLL_EXPORT void applyGs(CGameState *gs);
+	DLL_EXPORT void setArtAtPos(ui16 pos, int art);
 
 	si32 hid;
 	std::vector<ui32> artifacts; //hero's artifacts from bag
@@ -413,6 +414,8 @@ struct SetHeroArtifacts : public CPackForClient //509
 	{
 		h & hid & artifacts & artifWorn;
 	}
+
+	std::vector<HeroBonus*> gained, lost; //used locally as hlp when applying
 };   
 
 struct HeroRecruited : public CPackForClient //515

@@ -646,7 +646,12 @@ void CGameHandler::newTurn()
 			NewTurn::Hero hth;
 			hth.id = h->id;
 			hth.move = h->maxMovePoints(true); //TODO: check if hero is really on the land
-			hth.mana = std::max(h->mana,std::min(h->mana+1+h->getSecSkillLevel(8), h->manaLimit())); //hero regains 1 mana point + mysticism lvel
+
+			if(h->visitedTown && vstd::contains(h->visitedTown->builtBuildings,0)) //if hero starts turn in town with mage guild
+				hth.mana = h->manaLimit(); //restore all mana
+			else
+				hth.mana = std::max(si32(0), std::min(h->mana + h->manaRegain(), h->manaLimit()) ); 
+
 			n.heroes.insert(hth);
 			
 			switch(h->getSecSkillLevel(13)) //handle estates - give gold
@@ -1018,7 +1023,7 @@ void CGameHandler::checkForBattleEnd( std::vector<CStack*> &stacks )
 	hasStack[0] = hasStack[1] = false;
 	for(int b = 0; b<stacks.size(); ++b)
 	{
-		if(stacks[b]->alive())
+		if(stacks[b]->alive() && !vstd::contains(stacks[b]->abilities,SIEGE_WEAPON))
 		{
 			hasStack[1-stacks[b]->attackerOwned] = true;
 		}
@@ -1242,28 +1247,31 @@ void CGameHandler::stopHeroVisitCastle(int obj, int heroID)
 void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 - first free slot in backpack
 {
 	const CGHeroInstance* h = getHero(hid);
+	const CArtifact &art = VLC->arth->artifacts[artid];
 
 	SetHeroArtifacts sha;
 	sha.hid = hid;
 	sha.artifacts = h->artifacts;
 	sha.artifWorn = h->artifWorn;
+
 	if(position<0)
 	{
 		if(position == -2)
 		{
 			int i;
-			for(i=0; i<VLC->arth->artifacts[artid].possibleSlots.size(); i++) //try to put artifact into first avaialble slot
+			for(i=0; i<art.possibleSlots.size(); i++) //try to put artifact into first available slot
 			{
-				if( !vstd::contains(sha.artifWorn,VLC->arth->artifacts[artid].possibleSlots[i]) )
+				if( !vstd::contains(sha.artifWorn,art.possibleSlots[i]) )
 				{
-					sha.artifWorn[VLC->arth->artifacts[artid].possibleSlots[i]] = artid;
+					//we've found a free suitable slot
+					sha.artifWorn[art.possibleSlots[i]] = artid;
 					break;
 				}
 			}
-			if(i==VLC->arth->artifacts[artid].possibleSlots.size()) //if haven't find proper slot, use backpack
+			if(i == art.possibleSlots.size()) //if haven't find proper slot, use backpack
 				sha.artifacts.push_back(artid);
 		}
-		else //should be -1 => putartifact into backpack
+		else //should be -1 => put artifact into backpack
 		{
 			sha.artifacts.push_back(artid);
 		}
@@ -1271,10 +1279,15 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 	else
 	{
 		if(!vstd::contains(sha.artifWorn,ui16(position)))
+		{
 			sha.artifWorn[position] = artid;
+		}
 		else
+		{
 			sha.artifacts.push_back(artid);
+		}
 	}
+
 	sendAndApply(&sha);
 }
 
@@ -1763,20 +1776,32 @@ void CGameHandler::swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 )
 	CGHeroInstance *h1 = gs->getHero(hid1), *h2 = gs->getHero(hid2);
 	if((distance(h1->pos,h2->pos) > 1.0)   ||   (h1->tempOwner != h2->tempOwner))
 		return;
-	int a1=h1->getArtAtPos(slot1), a2=h2->getArtAtPos(slot2);
+	const CArtifact *a1 = h1->getArt(slot1), 
+		*a2=h2->getArt(slot2);
 
-	h2->setArtAtPos(slot2,a1);
-	h1->setArtAtPos(slot1,a2);
+	if(a1 && slot2<19 && !vstd::contains(a1->possibleSlots,slot2)
+		|| a2 && slot1<19 && !vstd::contains(a2->possibleSlots,slot1)
+	)
+	{
+		//artifact doesn't fit dst slot
+		complain("Cannot swap artifacts!");
+		return;
+	}
+
+
 	SetHeroArtifacts sha;
 	sha.hid = hid1;
 	sha.artifacts = h1->artifacts;
 	sha.artifWorn = h1->artifWorn;
+	sha.setArtAtPos(slot1,h2->getArtAtPos(slot2));
+	if(h1 == h2) sha.setArtAtPos(slot2,h1->getArtAtPos(slot1));
 	sendAndApply(&sha);
 	if(hid1 != hid2)
 	{
 		sha.hid = hid2;
 		sha.artifacts = h2->artifacts;
 		sha.artifWorn = h2->artifWorn;
+		sha.setArtAtPos(slot2,h1->getArtAtPos(slot1));
 		sendAndApply(&sha);
 	}
 }
@@ -1787,21 +1812,14 @@ void CGameHandler::buyArtifact( ui32 hid, si32 aid )
 	CGTownInstance *town = hero->visitedTown;
 	if(aid==0) //spellbook
 	{
-		if(!vstd::contains(town->builtBuildings,si32(0)))
+		if(!vstd::contains(town->builtBuildings,si32(0)) && complain("Cannot buy a spellbook, no mage guild in the town!")
+			|| getResource(hero->getOwner(),6)<500 && complain("Cannot buy a spellbook, not enough gold!") 
+			|| hero->getArt(17) && complain("Cannot buy a spellbook, hero already has a one!")
+			)
 			return;
-		SetResource sr;
-		sr.player = hero->tempOwner;
-		sr.resid = 6;
-		sr.val = gs->getPlayer(hero->getOwner())->resources[6] - 500;
-		sendAndApply(&sr);
 
-		SetHeroArtifacts sha;
-		sha.hid = hid;
-		sha.artifacts = hero->artifacts;
-		sha.artifWorn = hero->artifWorn;
-		sha.artifWorn[17] = 0;
-		sendAndApply(&sha);
-
+		giveResource(hero->getOwner(),6,-500);
+		giveHeroArtifact(0,hid,17);
 		giveSpells(town,hero);
 	}
 	else if(aid < 7  &&  aid > 3) //war machine
@@ -1814,18 +1832,9 @@ void CGameHandler::buyArtifact( ui32 hid, si32 aid )
 		{
 			return;
 		}
-		SetResource sr;
-		sr.player = hero->tempOwner;
-		sr.resid = 6;
-		sr.val = gs->getPlayer(hero->getOwner())->resources[6] - price;
-		sendAndApply(&sr);
 
-		SetHeroArtifacts sha;
-		sha.hid = hid;
-		sha.artifacts = hero->artifacts;
-		sha.artifWorn = hero->artifWorn;
-		sha.artifWorn[9+aid] = aid;
-		sendAndApply(&sha);
+		giveResource(hero->getOwner(),6,-price);
+		giveHeroArtifact(aid,hid,9+aid);
 	}
 }
 

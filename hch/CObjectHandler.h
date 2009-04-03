@@ -229,6 +229,7 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	const HeroBonus *getBonus(int from, int id) const;
+	int valOfBonuses(HeroBonus::BonusType type) const;
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
 	unsigned int getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
@@ -237,6 +238,7 @@ public:
 	float getMultiplicativeMoveBonus() const;
 	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
+	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
 	bool canWalkOnSea() const;
 	int getCurrentLuck(int stack=-1, bool town=false) const;
 	std::vector<std::pair<int,std::string> > getCurrentLuckModifiers(int stack=-1, bool town=false) const; //args as above
@@ -246,7 +248,6 @@ public:
 	ui8 getSecSkillLevel(const int & ID) const; //0 - no skill
 	int maxMovePoints(bool onLand) const;
 	ui32 getArtAtPos(ui16 pos) const; //-1 - no artifact
-	void setArtAtPos(ui16 pos, int art);
 	const CArtifact * getArt(int pos) const;
 	int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest

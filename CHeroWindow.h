@@ -124,8 +124,7 @@ public:
 	void quit(); //stops displaying hero window
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
-	void leftArtRoller(); //scrolls artifacts in bag left
-	void rightArtRoller(); //scrolls artifacts in bag right
+	void scrollBackpack(int dir); //dir==-1 => to left; dir==-2 => to right
 	void switchHero(); //changes displayed hero
 
 	//friends

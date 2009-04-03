@@ -211,9 +211,21 @@ void SetHeroesInTown::applyCl( CClient *cl )
 
 void SetHeroArtifacts::applyCl( CClient *cl )
 {
-	CGHeroInstance *t = GS(cl)->getHero(hid);
-	if(vstd::contains(cl->playerint,t->tempOwner))
-		cl->playerint[t->tempOwner]->heroArtifactSetChanged(t);
+	CGHeroInstance *h = GS(cl)->getHero(hid);
+	CGameInterface *player = (vstd::contains(cl->playerint,h->tempOwner) ? cl->playerint[h->tempOwner] : NULL);
+	if(!player)
+		return;
+
+	player->heroArtifactSetChanged(h);
+
+	BOOST_FOREACH(HeroBonus *bonus, gained)
+	{
+		player->heroBonusChanged(h,*bonus,true);
+	}
+	BOOST_FOREACH(HeroBonus *bonus, lost)
+	{
+		player->heroBonusChanged(h,*bonus,false);
+	}
 }
 
 void HeroRecruited::applyCl( CClient *cl )

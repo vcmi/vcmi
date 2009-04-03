@@ -348,7 +348,11 @@ bool CGHeroInstance::canWalkOnSea() const
 }
 int CGHeroInstance::getPrimSkillLevel(int id) const
 {
-	return primSkills[id];
+	int ret = primSkills[id];
+	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+		if(i->type == HeroBonus::PRIMARY_SKILL && i->subtype==id)
+			ret += i->val;
+	return ret;
 }
 ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 {
@@ -359,24 +363,23 @@ ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 }
 int CGHeroInstance::maxMovePoints(bool onLand) const
 {
-	int ret = 1270+70*lowestSpeed(this);
-	if (ret>2000) 
-		ret=2000;
+	int ret = std::max(2000, 1270+70*lowestSpeed(this)),
+		bonus = valOfBonuses(HeroBonus::MOVEMENT) + (onLand ? valOfBonuses(HeroBonus::LAND_MOVEMENT) : valOfBonuses(HeroBonus::SEA_MOVEMENT));
 
-	double bonus = 0;
+	double modifier = 0;
 	if(onLand)
 	{
 		//logistics:
 		switch(getSecSkillLevel(2))
 		{
 		case 1:
-			bonus = 0.1;
+			modifier = 0.1;
 			break;
 		case 2:
-			bonus = 0.2;
+			modifier = 0.2;
 			break;
 		case 3:
-			bonus = 0.3;
+			modifier = 0.3;
 			break;
 		}
 	}
@@ -386,18 +389,19 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 		switch(getSecSkillLevel(2))
 		{
 		case 1:
-			bonus = 0.5;
+			modifier = 0.5;
 			break;
 		case 2:
-			bonus = 1.0;
+			modifier = 1.0;
 			break;
 		case 3:
-			bonus = 1.5;
+			modifier = 1.5;
 			break;
 		}
 	}
-	return int(ret + ret*bonus);
+	return int(ret + ret*modifier) + bonus;
 }
+
 ui32 CGHeroInstance::getArtAtPos(ui16 pos) const
 {
 	if(pos<19)
@@ -411,26 +415,7 @@ ui32 CGHeroInstance::getArtAtPos(ui16 pos) const
 		else 
 			return -1;
 }
-void CGHeroInstance::setArtAtPos(ui16 pos, int art)
-{
-	if(art<0)
-	{
-		if(pos<19)
-			artifWorn.erase(pos);
-		else
-			artifacts -= artifacts[pos-19];
-	}
-	else
-	{
-		if(pos<19)
-			artifWorn[pos] = art;
-		else
-			if(pos-19 < artifacts.size())
-				artifacts[pos-19] = art;
-			else
-				artifacts.push_back(art);
-	}
-}
+
 const CArtifact * CGHeroInstance::getArt(int pos) const
 {
 	int id = getArtAtPos(pos);
@@ -554,6 +539,15 @@ void CGHeroInstance::initHero()
 	hoverName = VLC->generaltexth->allTexts[15];
 	boost::algorithm::replace_first(hoverName,"%s",name);
 	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
+
+	//clear all bonuses from artifacts and give those from artifacts
+	std::remove_if(bonuses.begin(), bonuses.end(), boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,0xffffff));
+	for (std::map<ui16,ui32>::iterator ari = artifWorn.begin(); ari != artifWorn.end(); ari++)
+	{
+		CArtifact &art = VLC->arth->artifacts[ari->second];
+		for(std::list<HeroBonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
+			bonuses.push_back(*i);
+	}
 }
 
 void CGHeroInstance::initHeroDefInfo()
@@ -766,7 +760,21 @@ int3 CGHeroInstance::getSightCenter() const
 
 int CGHeroInstance::getSightRadious() const
 {
-	return 5 + getSecSkillLevel(3); //default + scouting
+	return 5 + getSecSkillLevel(3) + valOfBonuses(HeroBonus::SIGHT_RADIOUS); //default + scouting
+}
+
+si32 CGHeroInstance::manaRegain() const
+{
+	return 1 + getSecSkillLevel(8) + valOfBonuses(HeroBonus::MANA_REGENERATION); //1 + Mysticism level 
+}
+
+int CGHeroInstance::valOfBonuses( HeroBonus::BonusType type ) const
+{
+	int ret = 0;
+	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+		if(i->type == type)
+			ret += i->val;
+	return ret;
 }
 
 int CGTownInstance::getSightRadious() const //returns sight distance

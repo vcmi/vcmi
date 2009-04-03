@@ -57,8 +57,8 @@ CHeroWindow::CHeroWindow(int playerColor):
 	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, pos.x+604, pos.y+491, SDLK_b);
 	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), pos.x+604, pos.y+527, "hsbtns9.def", false, NULL, false);
 	boost::algorithm::replace_first(gar4button->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
-	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::leftArtRoller,this), pos.x+379, pos.y+364, "hsbtns3.def", SDLK_LEFT);
-	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::rightArtRoller,this), pos.x+632, pos.y+364, "hsbtns5.def", SDLK_RIGHT);
+	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::scrollBackpack,this,-1), pos.x+379, pos.y+364, "hsbtns3.def", SDLK_LEFT);
+	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::scrollBackpack,this,+1), pos.x+632, pos.y+364, "hsbtns5.def", SDLK_RIGHT);
 
 
 	for(int g=0; g<8; ++g)
@@ -268,6 +268,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	backpack.clear();
 
 	std::vector<SDL_Rect> slotPos;
+	backpackPos = 0;
 
 	slotPos += genRect(44,44,pos.x+509,pos.y+30), genRect(44,44,pos.x+567,pos.y+240), genRect(44,44,pos.x+509,pos.y+80), 
 		genRect(44,44,pos.x+383,pos.y+68), genRect(44,44,pos.x+564,pos.y+183), genRect(44,44,pos.x+509,pos.y+130), 
@@ -501,54 +502,24 @@ void CHeroWindow::dismissCurrent()
 void CHeroWindow::questlog()
 {
 }
-void CHeroWindow::leftArtRoller()
+
+void CHeroWindow::scrollBackpack(int dir)
 {
-	if(curHero->artifacts.size()>5) //if it is <=5, we have nothing to scroll
+	backpackPos += dir + curHero->artifacts.size();
+	backpackPos %= curHero->artifacts.size();
+
+
+	for(size_t s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
 	{
-		backpackPos+=curHero->artifacts.size()-1; //set new offset
+		CArtPlace *cur = backpack[s];
+		cur->slotID = 19+((s+backpackPos)%curHero->artifacts.size());
+		cur->ourArt = curHero->getArt(cur->slotID);
 
-		for(size_t s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
-		{
-			backpack[s]->ourArt = &CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]];
-			if(backpack[s]->ourArt)
-				backpack[s]->text = backpack[s]->ourArt->Description();
-			else
-				backpack[s]->text = std::string();
-		}
+		if(cur->ourArt)
+			cur->text = cur->ourArt->Description();
+		else
+			cur->text = std::string();
 	}
-}
-
-void CHeroWindow::rightArtRoller()
-{
-	if(curHero->artifacts.size()>5) //if it is <=5, we have nothing to scroll
-	{
-		backpackPos+=1; //set new offset
-
-		for(size_t s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
-		{
-			backpack[s]->ourArt = &CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ] ];
-			if(backpack[s]->ourArt)
-				backpack[s]->text = backpack[s]->ourArt->Description();
-			else
-				backpack[s]->text = std::string();
-		}
-	}
-}
-
-void CHeroWindow::switchHero()
-{
-	//int y;
-	//SDL_GetMouseState(NULL, &y);
-	//for(int g=0; g<heroListMi.size(); ++g)
-	//{
-	//	if(y>=94+54*g)
-	//	{
-	//		//quit();
-	//		setHero(LOCPLINT->cb->getHeroInfo(player, g, false));
-	//		//LOCPLINT->openHeroWindow(curHero);
-	//		redrawCurBack();
-	//	}
-	//}
 }
 
 void CHeroWindow::redrawCurBack()
@@ -754,7 +725,10 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			//chceck if swap is possible
 			if(this->fitsHere(ourWindow->activeArtPlace->ourArt) && ourWindow->activeArtPlace->fitsHere(this->ourArt))
 			{
-				LOCPLINT->cb->swapArtifacts(ourWindow->curHero,slotID,ourWindow->curHero,ourWindow->activeArtPlace->slotID);
+				int destSlot = slotID,
+					srcSlot = ourWindow->activeArtPlace->slotID;
+
+				LOCPLINT->cb->swapArtifacts(ourWindow->curHero,destSlot,ourWindow->curHero,srcSlot);
 
 				const CArtifact * pmh = ourArt;
 				ourArt = ourWindow->activeArtPlace->ourArt;
@@ -786,9 +760,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 				}
 				if(backID>=0) //put to backpack
 				{
-					/*ourWindow->activeArtPlace->ourArt = NULL;
-					ourWindow->activeArtPlace->clicked = false;
-					ourWindow->activeArtPlace = NULL;*/
+					LOCPLINT->cb->swapArtifacts(ourWindow->curHero,ourWindow->activeArtPlace->slotID,ourWindow->curHero,ourWindow->curHero->artifacts.size()+19);
 				}
 			}
 		}

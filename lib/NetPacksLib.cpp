@@ -2,6 +2,7 @@
 #include "../lib/NetPacks.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CDefObjInfoHandler.h"
+#include "../hch/CArtHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../lib/VCMI_Lib.h"
@@ -272,9 +273,67 @@ DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
 DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
+	std::vector<ui32> equiped, unequiped;
+	for(std::map<ui16,ui32>::const_iterator i = h->artifWorn.begin(); i != h->artifWorn.end(); i++)
+		if(!vstd::contains(artifWorn,i->first)  ||  artifWorn[i->first] != i->second)
+			unequiped.push_back(i->second);
+
+	for(std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
+			equiped.push_back(i->second);
+
 	h->artifacts = artifacts;
 	h->artifWorn = artifWorn;
+
+	BOOST_FOREACH(ui32 id, unequiped)
+	{
+		while(1)
+		{
+			std::list<HeroBonus>::iterator hlp = std::find_if(h->bonuses.begin(),h->bonuses.end(),boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,id));
+			if(hlp != h->bonuses.end())
+			{
+				lost.push_back(&*hlp);
+				h->bonuses.erase(hlp);
+			}
+			else
+			{
+				break;
+			}
+		}
+	}
+
+	BOOST_FOREACH(ui32 id, equiped)
+	{
+		CArtifact &art = VLC->arth->artifacts[id];
+		for(std::list<HeroBonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
+		{
+			gained.push_back(&*i);
+			h->bonuses.push_back(*i);
+		}
+	}
 }
+
+DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
+{
+	if(art<0)
+	{
+		if(pos<19)
+			artifWorn.erase(pos);
+		else
+			artifacts -= artifacts[pos-19];
+	}
+	else
+	{
+		if(pos<19)
+			artifWorn[pos] = art;
+		else
+			if(pos-19 < artifacts.size())
+				artifacts[pos-19] = art;
+			else
+				artifacts.push_back(art);
+	}
+}
+
 
 DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 {
@@ -320,8 +379,9 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 	gs->day = day;
 	BOOST_FOREACH(NewTurn::Hero h, heroes) //give mana/movement point
 	{
-		static_cast<CGHeroInstance*>(gs->map->objects[h.id])->movement = h.move;
-		static_cast<CGHeroInstance*>(gs->map->objects[h.id])->mana = h.mana;
+		CGHeroInstance *hero = gs->getHero(h.id);
+		hero->movement = h.move;
+		hero->mana = h.mana;
 	}
 
 	BOOST_FOREACH(SetResources h, res) //give resources
@@ -339,7 +399,7 @@ DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 
 	if(gs->getDate(1) == 7) //new week
 		BOOST_FOREACH(CGHeroInstance *h, gs->map->heroes)
-		h->bonuses.remove_if(HeroBonus::OneWeek);
+			h->bonuses.remove_if(HeroBonus::OneWeek);
 }
 
 DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )

@@ -1214,7 +1214,7 @@ void CPlayerInterface::yourTurn()
 		pim->unlock();
 		SDL_framerateDelay(mainFPSmng);
 	}
-	adventureInt->hide();
+	adventureInt->deactivate();
 	cb->endTurn();
 }
 
@@ -1785,7 +1785,7 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
-	adventureInt->hide();
+	adventureInt->deactivate();
 	//timeHandler t;
 	//t.getDif();
 	castleInt = new CCastleInterface(town,true);
@@ -2035,7 +2035,7 @@ void CPlayerInterface::showSelDialog(const std::string &text, const std::vector<
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	LOCPLINT->showingDialog->setn(true);
-	adventureInt->hide(); //dezaktywacja starego interfejsu
+	adventureInt->deactivate(); //dezaktywacja starego interfejsu
 	std::vector<CSelectableComponent*> intComps;
 	for(int i=0;i<components.size();i++)
 		intComps.push_back(new CSelectableComponent(*components[i])); //will be deleted by CSelWindow::close

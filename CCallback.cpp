@@ -384,7 +384,7 @@ bool CCallback::swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGH
 	if(player!=hero1->tempOwner || player!=hero2->tempOwner)
 		return false;
 
-	ExchangeArtifacts ea(hero1->id, pos1, hero2->id, pos2);
+	ExchangeArtifacts ea(hero1->id, hero2->id, pos1, pos2);
 	*cl->serv << &ea;
 	return true;
 }

@@ -100,6 +100,8 @@ public:
 	void heroVisitCastle(int obj, int heroID);
 	void stopHeroVisitCastle(int obj, int heroID);
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack; pos==-2 - default if available or backpack
+	void moveArtifact(int hid, int oldPosition, int destPos);
+	void removeArtifact(int hid, int pos);
 	void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
 	void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
 	void setAmount(int objid, ui32 val);

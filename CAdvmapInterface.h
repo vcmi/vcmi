@@ -101,6 +101,7 @@ public:
 /*****************************/
 class CAdvMapInt : public CMainInterface, public KeyInterested //adventure map interface
 {
+	void hide(); //deactivates advmap interface
 public:
 	CAdvMapInt(int Player);
 	~CAdvMapInt();
@@ -161,7 +162,6 @@ public:
 	void deactivate();
 
 	void show(SDL_Surface * to=NULL); //shows and activates adv. map interface
-	void hide(); //deactivates advmap interface
 	void update(); //redraws terrain
 
 	void select(const CArmedInstance *sel);

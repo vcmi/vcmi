@@ -1,6 +1,8 @@
 #ifndef __CARTHANDLER_H__
 #define __CARTHANDLER_H__
 #include "../global.h"
+#include "../lib/HeroBonus.h"
+#include <list>
 #include <string>
 #include <vector>
 
@@ -13,28 +15,29 @@ class DLL_EXPORT CArtifact //container for artifacts
 public:
 	const std::string &Name() const;
 	const std::string &Description() const;
-	bool isAllowed; //true if we can use this artifact (map information)
-	//std::string desc2;
-	unsigned int price;
+
+	ui32 price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed
-	//bool spellBook, warMachine1, warMachine2, warMachine3, warMachine4, misc1, misc2, misc3, misc4, misc5, feet, lRing, rRing, torso, lHand, rHand, neck, shoulders, head;
 	EartClass aClass;
 	int id;
+	std::list<HeroBonus> bonuses; //bonuses given by artifact
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & isAllowed & name & description & price & possibleSlots & aClass & id ;
+		h & name & description & price & possibleSlots & aClass & id & bonuses;
 	}
 };
 
 class DLL_EXPORT CArtHandler //handles artifacts
 {
+	void giveArtBonus(int aid, HeroBonus::BonusType type, int val, int subtype = -1);
 public:
 	std::vector<CArtifact*> treasures, minors, majors, relics;
 	std::vector<CArtifact> artifacts;
 
 	void loadArtifacts(bool onlyTxt);
 	void sortArts();
+	void addBonuses();
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
 
