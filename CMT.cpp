@@ -79,6 +79,7 @@ int main(int argc, char** argv)
 	CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO)==0)
 	{
+		SDL_EnableUNICODE(1);
 		screen = SDL_SetVideoMode(800,600,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
 		tlog0 <<"\tInitializing screen: "<<pomtime.getDif();
 			tlog0 << std::endl;

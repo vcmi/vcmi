@@ -72,6 +72,7 @@ private:
 	int lastShown; //last shown line of text
 public:
 	std::string alterTxt; //if it's not empty, this text is displayed
+	std::string ingcAlter; //alternative text set by in-game console - very important!
 	int whoSetAlter; //who set alter text; 0 - battle interface or none, 1 - button
 	CBattleConsole(); //c-tor
 	~CBattleConsole(); //d-tor
@@ -282,6 +283,7 @@ public:
 	friend class CBattleReslutWindow;
 	friend class CPlayerInterface;
 	friend class AdventureMapButton;
+	friend class CInGameConsole;
 };
 
 #endif // __CBATTLEINTERFACE_H__

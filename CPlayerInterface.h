@@ -40,6 +40,7 @@ class CGObjectInstance;
 class CSlider;
 struct UpgradeInfo;
 template <typename T> struct CondSh;
+class CInGameConsole;
 
 namespace boost
 {
@@ -290,7 +291,7 @@ public:
 class Hoverable  : public virtual CIntObject
 {
 public:
-	Hoverable(){hovered=false;} //c-tor
+	Hoverable() : hovered(false){} //c-tor
 	virtual ~Hoverable();//{}; //d-tor
 	bool hovered;  //for determining if object is hovered
 	virtual void hover (bool on)=0;
@@ -298,8 +299,10 @@ public:
 	virtual void deactivate()=0;
 };
 class KeyInterested : public virtual CIntObject
-{
+{	
 public:
+	bool captureAllKeys; //if true, only this object should get info about pressed keys
+	KeyInterested(): captureAllKeys(false){}
 	virtual ~KeyInterested();//{};
 	virtual void keyPressed(const SDL_KeyboardEvent & key)=0;
 	virtual void activate()=0;
@@ -335,6 +338,7 @@ public:
 	virtual void activate();
 	virtual void deactivate();
 };
+
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 { //window able to delete its components when closed
 public:
@@ -506,6 +510,7 @@ public:
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt;
 	CBattleInterface * battleInt;
+	CInGameConsole * cingconsole;
 	FPSmanager * mainFPSmng;
 	IStatusBar *statusbar; //advmap statusbar; should it be used by other windows with statusbar?
 	//to commucate with engine
@@ -895,6 +900,25 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+};
+
+class CInGameConsole : public IShowActivable, public KeyInterested
+{
+private:
+	std::list< std::pair< std::string, int > > texts; //<text to show, time of add>
+	int defaultTimeout; //timeout for new texts (in ms)
+	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
+public:
+	std::string enteredText;
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to = NULL);
+	void keyPressed (const SDL_KeyboardEvent & key); //call-in
+
+	void startEnteringText();
+	void endEnteringText(bool printEnteredText);
+
+	CInGameConsole(); //c-tor
 };
 
 extern CPlayerInterface * LOCPLINT;

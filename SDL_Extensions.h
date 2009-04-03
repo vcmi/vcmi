@@ -67,6 +67,7 @@ namespace CSDL_Ext
 	void printAtMiddleWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
 	void printAtWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen);
 	void printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
+	void printAtWR(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor=tytulowy, SDL_Surface * dst=screen, unsigned char quality = 2); // quality: 0 - lowest, 1 - medium, 2 - highest
 	void update(SDL_Surface * what = screen); //updates whole surface (default - main screen)
 	void drawBorder(SDL_Surface * sur, int x, int y, int w, int h, int3 color);
 	void setPlayerColor(SDL_Surface * sur, unsigned char player); //sets correct color of flags; -1 for neutral

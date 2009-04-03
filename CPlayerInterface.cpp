@@ -1099,6 +1099,7 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	SDL_initFramerate(mainFPSmng);
 	SDL_setFramerate(mainFPSmng, 48);
 	//framerate keeper initialized
+	cingconsole = new CInGameConsole;
 }
 CPlayerInterface::~CPlayerInterface()
 {
@@ -1106,6 +1107,7 @@ CPlayerInterface::~CPlayerInterface()
 	delete showingDialog;
 	delete mainFPSmng;
 	delete adventureInt;
+	delete cingconsole;
 
 	for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!= graphics->heroWins.end(); i++)
 		SDL_FreeSurface(i->second);
@@ -1911,9 +1913,19 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 			key.keysym.sym = (SDLKey)SDLK_RETURN;
 		}
 
+		bool keysCaptured = false;
+		for(std::list<KeyInterested*>::iterator i=keyinterested.begin(); i != keyinterested.end();i++)
+		{
+			if((*i)->captureAllKeys)
+			{
+				keysCaptured = true;
+				break;
+			}
+		}
+
 		std::list<KeyInterested*> miCopy = keyinterested;
 		for(std::list<KeyInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
-			if(vstd::contains(keyinterested,*i))
+			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureAllKeys))
 				(**i).keyPressed(key);
 	}
 	else if(sEvent->type==SDL_MOUSEMOTION)
@@ -2605,16 +2617,19 @@ CStatusBar::~CStatusBar()
 }
 void CStatusBar::clear()
 {
-	current="";
-	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
-	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),screen,&pom);
+	if(LOCPLINT->cingconsole->enteredText == "") //for appropriate support for in-game console
+	{
+		current="";
+		show();
+	}
 }
 void CStatusBar::print(const std::string & text)
 {
-	current=text;
-	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
-	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),screen,&pom);
-	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
+	if(LOCPLINT->cingconsole->enteredText == "" || text == LOCPLINT->cingconsole->enteredText) //for appropriate support for in-game console
+	{
+		current=text;
+		show();
+	}
 }
 void CStatusBar::show()
 {
@@ -4571,3 +4586,131 @@ void CTavernWindow::HeroPortrait::hover( bool on )
 	else
 		LOCPLINT->statusbar->clear();
 }
+
+void CInGameConsole::activate()
+{
+	KeyInterested::activate();
+}
+
+void CInGameConsole::deactivate()
+{
+	KeyInterested::deactivate();
+}
+
+void CInGameConsole::show(SDL_Surface * to)
+{
+	int number = 0;
+
+	std::vector<std::list< std::pair< std::string, int > >::iterator> toDel;
+
+	for(std::list< std::pair< std::string, int > >::iterator it = texts.begin(); it != texts.end(); ++it, ++number)
+	{
+		SDL_Color green = {0,0xff,0,0};
+		CSDL_Ext::printAtWR(it->first, 50, conf.cc.resy - texts.size() * 30 - 80 + number*30, GEOR16, green);
+		if(SDL_GetTicks() - it->second > defaultTimeout)
+		{
+			toDel.push_back(it);
+		}
+	}
+
+	for(int it=0; it<toDel.size(); ++it)
+	{
+		texts.erase(toDel[it]);
+	}
+}
+
+void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
+{
+	if(key.type == SDL_KEYDOWN)
+	{
+		switch(key.keysym.sym)
+		{
+		case SDLK_TAB:
+			{
+				if(captureAllKeys)
+				{
+					captureAllKeys = false;
+					endEnteringText(false);
+				}
+				else
+				{
+					captureAllKeys = true;
+					startEnteringText();
+				}
+				break;
+			}
+		case SDLK_RETURN: //enter key
+			{
+				if(enteredText.size() > 0)
+				{
+					if(captureAllKeys)
+					{
+						captureAllKeys = false;
+						endEnteringText(true);
+					}
+				}
+				break;
+			}
+		default:
+			{
+				if(enteredText.size() > 0)
+				{
+					if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
+					{
+						enteredText[enteredText.size()-1] = (char)key.keysym.unicode;
+						enteredText += "_";
+						if(LOCPLINT->curint == LOCPLINT->adventureInt)
+						{
+							LOCPLINT->statusbar->print(enteredText);
+						}
+						else if(LOCPLINT->curint == LOCPLINT->battleInt)
+						{
+							LOCPLINT->battleInt->console->ingcAlter = enteredText;
+						}
+					}
+				}
+				break;
+			}
+		}
+	}
+}
+
+void CInGameConsole::startEnteringText()
+{
+	enteredText = "_";
+	if(LOCPLINT->curint == LOCPLINT->adventureInt)
+	{
+		LOCPLINT->statusbar->print(enteredText);
+	}
+	else if(LOCPLINT->curint == LOCPLINT->battleInt)
+	{
+		LOCPLINT->battleInt->console->ingcAlter = enteredText;
+	}
+}
+
+void CInGameConsole::endEnteringText(bool printEnteredText)
+{
+	if(printEnteredText)
+	{
+		texts.push_back(std::make_pair(enteredText.substr(0, enteredText.size()-1), SDL_GetTicks()));
+		if(texts.size() > maxDisplayedTexts)
+		{
+			texts.pop_front();
+		}
+	}
+	enteredText = "";
+	if(LOCPLINT->curint == LOCPLINT->adventureInt)
+	{
+		LOCPLINT->statusbar->clear();
+	}
+	else if(LOCPLINT->curint == LOCPLINT->battleInt)
+	{
+		LOCPLINT->battleInt->console->ingcAlter = "";
+	}
+
+}
+
+CInGameConsole::CInGameConsole() : defaultTimeout(10000), maxDisplayedTexts(10)
+{
+}
+

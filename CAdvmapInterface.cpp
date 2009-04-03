@@ -1387,6 +1387,8 @@ void CAdvMapInt::activate()
 	terrain.activate();
 	KeyInterested::activate();
 	show();
+
+	LOCPLINT->cingconsole->activate();
 }
 void CAdvMapInt::deactivate()
 {
@@ -1397,6 +1399,8 @@ void CAdvMapInt::deactivate()
 	}
 	KeyInterested::deactivate();
 	hide();
+
+	LOCPLINT->cingconsole->deactivate();
 }
 void CAdvMapInt::show(SDL_Surface *to)
 {
@@ -1424,6 +1428,7 @@ void CAdvMapInt::show(SDL_Surface *to)
 	statusbar.show();
 
 	infoBar.draw();
+	LOCPLINT->cingconsole->show();
 }
 void CAdvMapInt::hide()
 {
@@ -1491,7 +1496,8 @@ void CAdvMapInt::update()
 		terrain.show();
 		for(int i=0;i<4;i++)
 			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i]);
-		updateScreen=false;
+		updateScreen=false;	
+		LOCPLINT->cingconsole->show();
 	}
 	if (updateMinimap)
 	{

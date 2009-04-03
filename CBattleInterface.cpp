@@ -350,6 +350,8 @@ void CBattleInterface::activate()
 		attackingHero->activate();
 	if(defendingHero)
 		defendingHero->activate();
+
+	LOCPLINT->cingconsole->activate();
 }
 
 void CBattleInterface::deactivate()
@@ -373,6 +375,8 @@ void CBattleInterface::deactivate()
 		attackingHero->deactivate();
 	if(defendingHero)
 		defendingHero->deactivate();
+
+	LOCPLINT->cingconsole->deactivate();
 }
 
 void CBattleInterface::show(SDL_Surface * to)
@@ -655,6 +659,8 @@ void CBattleInterface::show(SDL_Surface * to)
 		resWindow->show(to);
 	}
 
+	//showing in-gmae console
+	LOCPLINT->cingconsole->show();
 
 	//printing border around interface
 	if(screen->w != 800 || screen->h !=600)
@@ -2454,7 +2460,11 @@ CBattleConsole::~CBattleConsole()
 
 void CBattleConsole::show(SDL_Surface * to)
 {
-	if(alterTxt.size())
+	if(ingcAlter.size())
+	{
+		CSDL_Ext::printAtMiddleWB(ingcAlter, pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
+	}
+	else if(alterTxt.size())
 	{
 		CSDL_Ext::printAtMiddleWB(alterTxt, pos.x + pos.w/2, pos.y + 10, GEOR13, 80, zwykly, to);
 	}
