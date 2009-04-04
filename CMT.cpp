@@ -142,6 +142,7 @@ int main(int argc, char** argv)
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);
 			SDL_InitSubSystem(SDL_INIT_VIDEO);
 			screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
+			SDL_EnableUNICODE(1);
 			SDL_WM_SetCaption(NAME.c_str(),""); //set window title
 			SDL_ShowCursor(SDL_DISABLE);
 		}
@@ -245,6 +246,9 @@ void processCommand(const std::string &message, CClient *&client)
 //	int heronum;//TODO use me
 	int3 dest;
 
+	if(LOCPLINT && LOCPLINT->cingconsole)
+		LOCPLINT->cingconsole->print(message);
+
 	if(message==std::string("die, fool"))
 		exit(EXIT_SUCCESS);
 	else if(cn==std::string("activate"))
@@ -327,6 +331,7 @@ void processCommand(const std::string &message, CClient *&client)
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
-		*client->serv << &PlayerMessage(LOCPLINT->playerID,message);
+		PlayerMessage pm(LOCPLINT->playerID,message);
+		*client->serv << &pm;
 	}
 }

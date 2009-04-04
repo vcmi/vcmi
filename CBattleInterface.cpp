@@ -39,7 +39,7 @@ struct CMP_stack2
 {
 	inline bool operator ()(const CStack& a, const CStack& b)
 	{
-		return (a.speed())>(b.speed());
+		return (a.Speed())>(b.Speed());
 	}
 } cmpst2 ;
 
@@ -1759,6 +1759,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 	{
 		displayEffect(spellToEffect[sse.effect.id], LOCPLINT->cb->battleGetStackByID(*ci)->position);
 	}
+	redrawBackgroundWithHexes(activeStack);
 }
 
 void CBattleInterface::castThisSpell(int spellID)
@@ -2433,7 +2434,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->defenseBonus = h->getPrimSkillLevel(1);
 				pom->luck = myst.Luck();
 				pom->morale = myst.Morale();
-				pom->speedBonus = myst.speed() - myst.creature->speed;
+				pom->speedBonus = myst.Speed() - myst.creature->speed;
 			}
 
 			pom->shotsLeft = myst.shots;

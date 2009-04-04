@@ -1014,17 +1014,15 @@ void Mapa::readHeader( unsigned char * bufor, int &i)
 
 	ist=i; //starting i for loop
 
-	allowedHeroes.resize(HEROES_QUANTITY);
-	for(int xx=0;xx<HEROES_QUANTITY;xx++)
-		allowedHeroes[xx] = true;
+	allowedHeroes.resize(HEROES_QUANTITY,false);
 
 	for(i; i<ist+ (version == RoE ? 16 : 20) ; ++i)
 	{
 		unsigned char c = bufor[i];
 		for(int yy=0; yy<8; ++yy)
 			if((i-ist)*8+yy < HEROES_QUANTITY)
-				if(c != (c|((unsigned char)intPow(2, yy))))
-					allowedHeroes[(i-ist)*8+yy] = false;
+				if(c == (c|((unsigned char)intPow(2, yy))))
+					allowedHeroes[(i-ist)*8+yy] = true;
 	}
 	if(version>RoE) //probably reserved for further heroes
 		i+=4;

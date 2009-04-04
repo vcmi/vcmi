@@ -84,7 +84,7 @@ class CMP_stack
 public:
 	inline bool operator ()(const CStack* a, const CStack* b)
 	{
-		return (a->speed())>(b->speed());
+		return (a->Speed())>(b->Speed());
 	}
 } cmpst ;
 
@@ -290,8 +290,8 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 			}
 			else if(hlu.skills.size() == 1) //apply, give only possible skill  and send info
 			{
-				changeSecSkill(ID,hlu.skills.back(),1,false);
 				sendAndApply(&hlu);
+				changeSecSkill(ID,hlu.skills.back(),1,false);
 			}
 			else //apply and send info
 			{
@@ -552,7 +552,7 @@ void CGameHandler::moveStack(int stack, int dest)
 	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibility, curStack->creature->isFlying());
 	if(curStack->creature->isFlying())
 	{
-		if(path.second <= curStack->speed() && path.first.size() > 0)
+		if(path.second <= curStack->Speed() && path.first.size() > 0)
 		{
 			//inform clients about move
 			BattleStackMoved sm;
@@ -565,7 +565,7 @@ void CGameHandler::moveStack(int stack, int dest)
 	}
 	else //for non-flying creatures
 	{
-		int tilesToMove = std::max((int)(path.first.size() - curStack->speed()), 0);
+		int tilesToMove = std::max((int)(path.first.size() - curStack->Speed()), 0);
 		for(int v=path.first.size()-1; v>=tilesToMove; --v)
 		{
 			//inform clients about move
@@ -666,6 +666,10 @@ void CGameHandler::newTurn()
 				r.res[6] += 500;
 				break;
 			}
+
+			for(std::list<HeroBonus>::iterator i = h->bonuses.begin(); i != h->bonuses.end(); i++)
+				if(i->type == HeroBonus::GENERATE_RESOURCE)
+					r.res[i->subtype] += i->val;
 		}
 		for(std::vector<CGTownInstance *>::iterator j=i->second.towns.begin();j!=i->second.towns.end();j++)//handle towns
 		{
@@ -810,11 +814,11 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	for(std::map<si32,std::pair<ui32,si32> >::iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
 	{
 		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true,i->first));
-		
-		//base luck/morale calculations
-		//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
 		if(hero1)
 		{
+			stacks.back()->speed += hero1->valOfBonuses(HeroBonus::STACKS_SPEED);
+			//base luck/morale calculations
+			//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
 			stacks.back()->morale = hero1->getCurrentMorale(i->first,false);
 			stacks.back()->luck = hero1->getCurrentLuck(i->first,false);
 		}
@@ -863,6 +867,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 		//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
 		if(hero2)
 		{
+			stacks.back()->speed += hero2->valOfBonuses(HeroBonus::STACKS_SPEED);
 			stacks.back()->morale = hero2->getCurrentMorale(i->first,false);
 			stacks.back()->luck = hero2->getCurrentLuck(i->first,false);
 		}

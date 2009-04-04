@@ -706,3 +706,10 @@ void CCallback::save( const std::string &fname )
 {
 	cl->save(fname);
 }
+
+
+void CCallback::sendMessage(const std::string &mess)
+{
+	PlayerMessage pm(player, mess);
+	*cl->serv << &pm;
+}

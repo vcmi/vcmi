@@ -327,7 +327,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 			std::vector<int> rem;
 			for(int b=0; b<BFIELD_SIZE; ++b)
 			{
-				if( ac[b] && (!ac[b-1] || dist[b-1] > s->speed() ) && ( !ac[b+1] || dist[b+1] > s->speed() ) && b%BFIELD_WIDTH != 0 && b%BFIELD_WIDTH != (BFIELD_WIDTH-1))
+				if( ac[b] && (!ac[b-1] || dist[b-1] > s->Speed() ) && ( !ac[b+1] || dist[b+1] > s->Speed() ) && b%BFIELD_WIDTH != 0 && b%BFIELD_WIDTH != (BFIELD_WIDTH-1))
 				{
 					rem.push_back(b);
 				}
@@ -341,7 +341,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 	}
 	
 	for(int i=0;i<BFIELD_SIZE;i++)
-		if(dist[i] <= s->speed() && ac[i])
+		if(dist[i] <= s->Speed() && ac[i])
 		{
 			ret.push_back(i);
 		}
@@ -438,11 +438,12 @@ CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	:creature(C),amount(A), baseAmount(A), owner(O), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), 
 	shots(C->shots), slot(S), counterAttacks(1), effects(), state()
 {
+	speed = creature->speed;
 	abilities = C->abilities;
 	state.insert(ALIVE);
 }
 
-ui32 CStack::speed() const
+ui32 CStack::Speed() const
 {
 	int premy=0;
 	const StackEffect *effect = 0;
@@ -465,7 +466,7 @@ ui32 CStack::speed() const
 		premy = creature->speed; //don't use '- creature->speed' - speed is unsigned!
 		premy = -premy;
 	}
-	return creature->speed + premy;
+	return speed + premy;
 }
 
 const CStack::StackEffect * CStack::getEffect(ui16 id) const
@@ -1896,10 +1897,10 @@ std::vector<CStack> BattleInfo::getStackQueue()
 					&& taken[i]==0
 					&& !vstd::contains(stacks[i]->abilities,NOT_ACTIVE)) //eg. Ammo Cart
 				{
-					if(speed == -1 || stacks[i]->speed() > speed)
+					if(speed == -1 || stacks[i]->Speed() > speed)
 					{
 						id = i;
-						speed = stacks[i]->speed();
+						speed = stacks[i]->Speed();
 					}
 				}
 			}
@@ -1920,10 +1921,10 @@ std::vector<CStack> BattleInfo::getStackQueue()
 						&& taken[i]==0
 						&& !vstd::contains(stacks[i]->abilities,NOT_ACTIVE)) //eg. Ammo Cart
 					{
-						if(stacks[i]->speed() < speed) //slowest one
+						if(stacks[i]->Speed() < speed) //slowest one
 						{
 							id = i;
-							speed = stacks[i]->speed();
+							speed = stacks[i]->Speed();
 						}
 					}
 				}

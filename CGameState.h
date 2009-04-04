@@ -141,6 +141,7 @@ public:
 	ui16 position; //position on battlefield
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
+	ui8 speed;
 	si8 morale, luck; //base stack luck/morale
 
 	std::set<EAbilities> abilities;
@@ -161,7 +162,7 @@ public:
 	CStack() : creature(NULL),amount(-1),owner(255), position(-1), ID(-1), attackerOwned(true), firstHPleft(-1), slot(255), baseAmount(-1), counterAttacks(1), effects(), state(), abilities(){}
 	const StackEffect * getEffect(ui16 id) const; //effect id (SP)
 	bool willMove(); //if stack has remaining move this turn
-	ui32 speed() const;
+	ui32 Speed() const;
 	si8 Morale() const;
 	si8 Luck() const;
 	template <typename Handler> void save(Handler &h, const int version)
@@ -178,7 +179,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & amount & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots & morale & luck;
+			& shots & morale & luck & speed;
 		if(h.saving)
 			save(h,version);
 		else

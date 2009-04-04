@@ -913,10 +913,12 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to = NULL);
+	void print(const std::string &txt);
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 
 	void startEnteringText();
 	void endEnteringText(bool printEnteredText);
+	void refreshEnteredText();
 
 	CInGameConsole(); //c-tor
 };

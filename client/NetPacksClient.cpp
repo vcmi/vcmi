@@ -416,7 +416,12 @@ void EndAction::applyCl( CClient *cl )
 
 void SystemMessage::applyCl( CClient *cl )
 {
-	tlog4 << "System message from server: " << text << std::endl;
+	std::ostringstream str;
+	str << "System message from server: " << text;
+
+	tlog4 << str.str() << std::endl;
+	if(LOCPLINT)
+		LOCPLINT->cingconsole->print(str.str());
 }
 
 void YourTurn::applyCl( CClient *cl )
@@ -432,7 +437,12 @@ void SaveGame::applyCl(CClient *cl)
 
 void PlayerMessage::applyCl(CClient *cl)
 {
-	tlog4 << "Player "<<(int)player<<" sends a message: " << text << std::endl;
+	std::ostringstream str;
+	str << "Player "<<(int)player<<" sends a message: " << text;
+
+	tlog4 << str.str() << std::endl;
+	if(LOCPLINT)
+		LOCPLINT->cingconsole->print(str.str());
 }
 
 void ShowInInfobox::applyCl(CClient *cl)

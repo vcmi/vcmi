@@ -52,6 +52,7 @@ extern TTF_Font * GEOR16;
 CPlayerInterface * LOCPLINT;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
+void processCommand(const std::string &message, CClient *&client);
 
 
 struct OCM_HLP_CGIN
@@ -160,12 +161,14 @@ StackState* getStackState(const CGObjectInstance *obj, int pos, bool town)
 {
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(obj);
 	if(!h) return NULL;
+
 	StackState *pom = new StackState();
 	pom->currentHealth = 0;
 	pom->attackBonus = h->getPrimSkillLevel(0);
 	pom->defenseBonus = h->getPrimSkillLevel(1);
 	pom->luck = h->getCurrentLuck();
 	pom->morale = h->getCurrentMorale(pos,town);
+	pom->speedBonus = h->valOfBonuses(HeroBonus::STACKS_SPEED);
 	return pom;
 }
 
@@ -4292,6 +4295,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	quitGame = new AdventureMapButton (CGI->generaltexth->zelp[324].first, CGI->generaltexth->zelp[324].second, boost::bind(&CSystemOptionsWindow::bquitf, this), 405, 471, "soquit.def", SDLK_q);
 	std::swap(quitGame->imgs[0][0], quitGame->imgs[0][1]);
 	backToMap = new AdventureMapButton (CGI->generaltexth->zelp[325].first, CGI->generaltexth->zelp[325].second, boost::bind(&CSystemOptionsWindow::breturnf, this), 516, 471, "soretrn.def", SDLK_RETURN);
+	backToMap->assignedKeys.insert(SDLK_ESCAPE);
 	std::swap(backToMap->imgs[0][0], backToMap->imgs[0][1]);
 
 	heroMoveSpeed = new CHighlightableButtonsGroup(0);
@@ -4606,7 +4610,12 @@ void CInGameConsole::show(SDL_Surface * to)
 	for(std::list< std::pair< std::string, int > >::iterator it = texts.begin(); it != texts.end(); ++it, ++number)
 	{
 		SDL_Color green = {0,0xff,0,0};
-		CSDL_Ext::printAtWR(it->first, 50, conf.cc.resy - texts.size() * 30 - 80 + number*30, GEOR16, green);
+		Point leftBottomCorner(0, screen->h);
+		if(LOCPLINT->battleInt == LOCPLINT->curint)
+		{
+			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
+		}
+		CSDL_Ext::printAtWR(it->first, leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20, TNRB16, green);
 		if(SDL_GetTicks() - it->second > defaultTimeout)
 		{
 			toDel.push_back(it);
@@ -4619,58 +4628,67 @@ void CInGameConsole::show(SDL_Surface * to)
 	}
 }
 
+
+void CInGameConsole::print(const std::string &txt)
+{
+	texts.push_back(std::make_pair(txt, SDL_GetTicks()));
+	if(texts.size() > maxDisplayedTexts)
+	{
+		texts.pop_front();
+	}
+}
+
 void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 {
-	if(key.type == SDL_KEYDOWN)
+	if(key.type != SDL_KEYDOWN) return;
+
+	switch(key.keysym.sym)
 	{
-		switch(key.keysym.sym)
+	case SDLK_TAB:
 		{
-		case SDLK_TAB:
+			if(captureAllKeys)
 			{
-				if(captureAllKeys)
-				{
-					captureAllKeys = false;
-					endEnteringText(false);
-				}
-				else
-				{
-					captureAllKeys = true;
-					startEnteringText();
-				}
-				break;
+				captureAllKeys = false;
+				endEnteringText(false);
 			}
-		case SDLK_RETURN: //enter key
+			else
 			{
-				if(enteredText.size() > 0)
-				{
-					if(captureAllKeys)
-					{
-						captureAllKeys = false;
-						endEnteringText(true);
-					}
-				}
-				break;
+				captureAllKeys = true;
+				startEnteringText();
 			}
-		default:
+			break;
+		}
+	case SDLK_RETURN: //enter key
+		{
+			if(enteredText.size() > 0  &&  captureAllKeys)
 			{
-				if(enteredText.size() > 0)
-				{
-					if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
-					{
-						enteredText[enteredText.size()-1] = (char)key.keysym.unicode;
-						enteredText += "_";
-						if(LOCPLINT->curint == LOCPLINT->adventureInt)
-						{
-							LOCPLINT->statusbar->print(enteredText);
-						}
-						else if(LOCPLINT->curint == LOCPLINT->battleInt)
-						{
-							LOCPLINT->battleInt->console->ingcAlter = enteredText;
-						}
-					}
-				}
-				break;
+				captureAllKeys = false;
+				endEnteringText(true);
 			}
+			break;
+		}
+	case SDLK_BACKSPACE:
+		{
+			if(enteredText.size() > 1)
+			{
+				enteredText.resize(enteredText.size()-1);
+				enteredText[enteredText.size()-1] = '_';
+				refreshEnteredText();
+			}
+			break;
+		}
+	default:
+		{
+			if(enteredText.size() > 0)
+			{
+				if( key.keysym.unicode < 0x80 && key.keysym.unicode > 0 )
+				{
+					enteredText[enteredText.size()-1] = (char)key.keysym.unicode;
+					enteredText += "_";
+					refreshEnteredText();
+				}
+			}
+			break;
 		}
 	}
 }
@@ -4692,11 +4710,9 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 {
 	if(printEnteredText)
 	{
-		texts.push_back(std::make_pair(enteredText.substr(0, enteredText.size()-1), SDL_GetTicks()));
-		if(texts.size() > maxDisplayedTexts)
-		{
-			texts.pop_front();
-		}
+		std::string txt = enteredText.substr(0, enteredText.size()-1);
+		LOCPLINT->cb->sendMessage(txt);
+		print(txt);
 	}
 	enteredText = "";
 	if(LOCPLINT->curint == LOCPLINT->adventureInt)
@@ -4708,6 +4724,18 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		LOCPLINT->battleInt->console->ingcAlter = "";
 	}
 
+}
+
+void CInGameConsole::refreshEnteredText()
+{
+	if(LOCPLINT->curint == LOCPLINT->adventureInt)
+	{
+		LOCPLINT->statusbar->print(enteredText);
+	}
+	else if(LOCPLINT->curint == LOCPLINT->battleInt)
+	{
+		LOCPLINT->battleInt->console->ingcAlter = enteredText;
+	}
 }
 
 CInGameConsole::CInGameConsole() : defaultTimeout(10000), maxDisplayedTexts(10)
