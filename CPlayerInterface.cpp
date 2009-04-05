@@ -4642,6 +4642,8 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 {
 	if(key.type != SDL_KEYDOWN) return;
 
+	if(!captureAllKeys && key.keysym.sym != SDLK_TAB) return; //because user is not entering any text
+
 	switch(key.keysym.sym)
 	{
 	case SDLK_TAB:
@@ -4677,6 +4679,38 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 			}
 			break;
 		}
+	case SDLK_UP: //up arrow
+		{
+			if(prevEntDisp == -1)
+			{
+				prevEntDisp = previouslyEntered.size() - 1;
+				enteredText = previouslyEntered[prevEntDisp] + "_";
+				refreshEnteredText();
+			}
+			else if( prevEntDisp > 0)
+			{
+				--prevEntDisp;
+				enteredText = previouslyEntered[prevEntDisp] + "_";
+				refreshEnteredText();
+			}
+			break;
+		}
+	case SDLK_DOWN: //down arrow
+		{
+			if(prevEntDisp != -1 && prevEntDisp+1 < previouslyEntered.size())
+			{
+				++prevEntDisp;
+				enteredText = previouslyEntered[prevEntDisp] + "_";
+				refreshEnteredText();
+			}
+			else if(prevEntDisp+1 == previouslyEntered.size()) //useful feature
+			{
+				prevEntDisp = -1;
+				enteredText = "_";
+				refreshEnteredText();
+			}
+			break;
+		}
 	default:
 		{
 			if(enteredText.size() > 0)
@@ -4708,10 +4742,12 @@ void CInGameConsole::startEnteringText()
 
 void CInGameConsole::endEnteringText(bool printEnteredText)
 {
+	prevEntDisp = -1;
 	if(printEnteredText)
 	{
 		std::string txt = enteredText.substr(0, enteredText.size()-1);
 		LOCPLINT->cb->sendMessage(txt);
+		previouslyEntered.push_back(txt);
 		print(txt);
 	}
 	enteredText = "";
@@ -4738,7 +4774,7 @@ void CInGameConsole::refreshEnteredText()
 	}
 }
 
-CInGameConsole::CInGameConsole() : defaultTimeout(10000), maxDisplayedTexts(10)
+CInGameConsole::CInGameConsole() : defaultTimeout(10000), maxDisplayedTexts(10), prevEntDisp(-1)
 {
 }
 

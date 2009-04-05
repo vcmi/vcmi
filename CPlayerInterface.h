@@ -906,6 +906,8 @@ class CInGameConsole : public IShowActivable, public KeyInterested
 {
 private:
 	std::list< std::pair< std::string, int > > texts; //<text to show, time of add>
+	std::vector< std::string > previouslyEntered; //previously entered texts, for up/down arrows to work
+	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1
 	int defaultTimeout; //timeout for new texts (in ms)
 	int maxDisplayedTexts; //hiw many texts can be displayed simultaneously
 public:
