@@ -1552,13 +1552,41 @@ void CBattleInterface::hexLclicked(int whichOne)
 			{
 				switch(CGI->curh->number)
 				{
-				case 12:
-					giveCommand(6,whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 ),activeStack,whichOne);
-					break;
-				case 7:
-					giveCommand(6,whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH-1 : BFIELD_WIDTH ),activeStack,whichOne);
-					break;
-				case 8:
+				case 12: //from bottom right
+					{
+						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 );
+						if(vstd::contains(shadedHexes, destHex))
+							giveCommand(6,destHex,activeStack,whichOne);
+						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+						{
+							if(vstd::contains(shadedHexes, destHex+1))
+								giveCommand(6,destHex+1,activeStack,whichOne);
+						}
+						else //if we are defneder
+						{
+							if(vstd::contains(shadedHexes, destHex-1))
+								giveCommand(6,destHex-1,activeStack,whichOne);
+						}
+						break;
+					}
+				case 7: //from bottom left
+					{
+						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH-1 : BFIELD_WIDTH );
+						if(vstd::contains(shadedHexes, destHex))
+							giveCommand(6,destHex,activeStack,whichOne);
+						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+						{
+							if(vstd::contains(shadedHexes, destHex+1))
+								giveCommand(6,destHex+1,activeStack,whichOne);
+						}
+						else //if we are defneder
+						{
+							if(vstd::contains(shadedHexes, destHex-1))
+								giveCommand(6,destHex-1,activeStack,whichOne);
+						}
+						break;
+					}
+				case 8: //from left
 					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide() && !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
 					{
 						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
@@ -1572,13 +1600,41 @@ void CBattleInterface::hexLclicked(int whichOne)
 						giveCommand(6,whichOne - 1,activeStack,whichOne);
 					}
 					break;
-				case 9:
-					giveCommand(6,whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH ),activeStack,whichOne);
-					break;
-				case 10:
-					giveCommand(6,whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 ),activeStack,whichOne);
-					break;
-				case 11:
+				case 9: //from top left
+					{
+						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH );
+						if(vstd::contains(shadedHexes, destHex))
+							giveCommand(6,destHex,activeStack,whichOne);
+						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+						{
+							if(vstd::contains(shadedHexes, destHex+1))
+								giveCommand(6,destHex+1,activeStack,whichOne);
+						}
+						else //if we are defneder
+						{
+							if(vstd::contains(shadedHexes, destHex-1))
+								giveCommand(6,destHex-1,activeStack,whichOne);
+						}
+						break;
+					}
+				case 10: //from top right
+					{
+						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 );
+						if(vstd::contains(shadedHexes, destHex))
+							giveCommand(6,destHex,activeStack,whichOne);
+						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+						{
+							if(vstd::contains(shadedHexes, destHex+1))
+								giveCommand(6,destHex+1,activeStack,whichOne);
+						}
+						else //if we are defneder
+						{
+							if(vstd::contains(shadedHexes, destHex-1))
+								giveCommand(6,destHex-1,activeStack,whichOne);
+						}
+						break;
+					}
+				case 11: //from right
 					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide() && LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
 					{
 						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);

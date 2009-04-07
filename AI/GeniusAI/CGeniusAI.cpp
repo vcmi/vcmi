@@ -855,7 +855,16 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		//ba.actionType = 6; // go and attack
 		ba.stackNumber = attackerID;
 		ba.destinationTile = (ui16)dest_tile;
-		ba.additionalInfo = m_cb->battleGetPos(destinationID);
+		//simplified checking for possibility of attack (previous was too simplified)
+		int destStackPos = m_cb->battleGetPos(destinationID);
+		if(BattleInfo::mutualPosition(dest_tile, destStackPos) != -1)
+			ba.additionalInfo = destStackPos;
+		else if(BattleInfo::mutualPosition(dest_tile, destStackPos+1) != -1)
+			ba.additionalInfo = destStackPos+1;
+		else if(BattleInfo::mutualPosition(dest_tile, destStackPos-1) != -1)
+			ba.additionalInfo = destStackPos-1;
+		else
+			MakeDefend(attackerID);
 
 		int nearest_dist = m_battleHelper.InfiniteDistance;
 		int nearest_pos = -1;
