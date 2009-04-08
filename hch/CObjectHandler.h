@@ -234,8 +234,6 @@ public:
 	bool needsLastStack()const;
 	unsigned int getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
 	unsigned int getLowestCreatureSpeed() const;
-	unsigned int getAdditiveMoveBonus() const;
-	float getMultiplicativeMoveBonus() const;
 	int3 getPosition(bool h3m) const; //h3m=true - returns position of hero object; h3m=false - returns position of hero 'manifestation'
 	si32 manaLimit() const; //maximum mana value for this hero (basically 10*knowledge)
 	si32 manaRegain() const; //how many points of mana can hero regain "naturally" in one day
@@ -470,15 +468,15 @@ class DLL_EXPORT CGScholar : public CGObjectInstance
 {
 public:
 	ui8 bonusType; //255 - random, 0 - primary skill, 1 - secondary skill, 2 - spell
+	ui16 bonusID; //ID of skill/spell
 
-	ui8 r0type;
-	ui32 r1; //Ability ID
-	ui32 r2; //Spell ID
-
+	void giveAnyBonus(const CGHeroInstance * h) const;
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void initObj();
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & bonusType & r0type & r1 & r2;
+		h & bonusType & id;
 	}
 };
 

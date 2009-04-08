@@ -254,7 +254,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	sprintf(bufor, CGI->generaltexth->allTexts[2].c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
 	expArea->text = std::string(bufor);
 
-	sprintf(bufor, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->getPrimSkillLevel(3)*10);
+	sprintf(bufor, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
 	spellPointsArea->text = std::string(bufor);
 
 	for(size_t g=0; g<artWorn.size(); ++g)

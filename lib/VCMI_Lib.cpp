@@ -24,6 +24,7 @@ DLL_EXPORT std::ostream *logfile = NULL
 ;
 DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *Logfile)
 {
+	srand(time(NULL));
 	console = Console;
 	logfile = Logfile;
 	bitmaph=b;

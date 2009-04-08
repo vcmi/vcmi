@@ -1536,22 +1536,8 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 			{
 				CGScholar *sch = new CGScholar();
 				nobj = sch;
-				sch->bonusType = bufor[i]; ++i;
-				switch(sch->bonusType)
-				{
-				case 0xff:
-					++i;
-					break;
-				case 0:
-					sch->r0type = bufor[i]; ++i;
-					break;
-				case 1:
-					sch->r1 = bufor[i]; ++i;
-					break;
-				case 2:
-					sch->r2 = bufor[i]; ++i;
-					break;
-				}
+				sch->bonusType = bufor[i++];
+				sch->bonusID = bufor[i++];
 				i+=6;
 				break;
 			}

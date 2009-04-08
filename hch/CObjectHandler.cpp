@@ -363,7 +363,7 @@ ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
 }
 int CGHeroInstance::maxMovePoints(bool onLand) const
 {
-	int ret = std::max(2000, 1270+70*lowestSpeed(this)),
+	int ret = std::min(2000, 1270+70*lowestSpeed(this)),
 		bonus = valOfBonuses(HeroBonus::MOVEMENT) + (onLand ? valOfBonuses(HeroBonus::LAND_MOVEMENT) : valOfBonuses(HeroBonus::SEA_MOVEMENT));
 
 	double modifier = 0;
@@ -1206,6 +1206,7 @@ void CGCreature::endBattle( BattleResult *result ) const
 
 void CGCreature::initObj()
 {
+	blockVisit = true;
 	army.slots[0].first = subID;
 	si32 &amount = army.slots[0].second;
 	CCreature &c = VLC->creh->creatures[subID];
@@ -2028,4 +2029,79 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->getOwner();
 	iw.text << message;
 	cb->showInfoDialog(&iw);
+}
+
+void CGScholar::giveAnyBonus( const CGHeroInstance * h ) const
+{
+
+}
+
+void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
+{
+
+	int type = bonusType;
+	int bid = bonusID;
+	//check if the bonus if applicable, if not - give primary skill (always possible)
+	int ssl = h->getSecSkillLevel(bid); //current sec skill level, used if bonusType == 1
+	if((type == 1
+			&& ((ssl == 3)  ||  (!ssl  &&  h->secSkills.size() == SKILL_PER_HERO))) ////hero already has expert level in the skill or (don't know skill and doesn't have free slot)
+		|| (type == 2  &&  (!h->getArt(17) || vstd::contains(h->spells,bid)))) //hero doesn't have a spellbook or already knows the spell
+	{
+		type = 0;
+		bid = ran() % PRIMARY_SKILLS;
+	}
+
+
+	InfoWindow iw;
+	iw.player = h->getOwner();
+	iw.text.addTxt(MetaString::ADVOB_TXT,115);
+
+	switch (type)
+	{
+	case 0:
+		cb->changePrimSkill(h->id,bid,+1);
+		iw.components.push_back(Component(Component::PRIM_SKILL,bid,1,0));
+		break;
+	case 1:
+		{
+			cb->changeSecSkill(h->id,bid,ssl+1);
+			iw.components.push_back(Component(Component::SEC_SKILL,bid,ssl+1,0));
+		}
+		break;
+	case 2:
+		{
+			std::set<ui32> hlp;
+			hlp.insert(bid);
+			cb->changeSpells(h->id,true,hlp);
+			iw.components.push_back(Component(Component::SPELL,bid,0,0));
+		}
+		break;
+	default:
+		tlog1 << "Error: wrong bonustype (" << (int)type << ") for Scholar!\n";
+		return;
+	}
+
+	cb->showInfoDialog(&iw);
+	cb->removeObject(id);
+}
+
+void CGScholar::initObj()
+{
+	blockVisit = true;
+	if(bonusType == 255)
+	{
+		bonusType = ran()%3;
+		switch(bonusType)
+		{
+		case 0:
+			bonusID = ran() % PRIMARY_SKILLS;
+			break;
+		case 1:
+			bonusID = ran() % SKILL_QUANTITY;
+			break;
+		case 2:
+			bonusID = ran() % SPELLS_QUANTITY;
+			break;
+		}
+	}
 }
