@@ -145,10 +145,10 @@ const CGTownInstance * CCallback::getTownInfo(int val, bool mode) const //mode =
 	}
 	return NULL;
 }
-int CCallback::howManyHeroes() const
+int CCallback::howManyHeroes(bool includeGarrisoned) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->players[player].heroes.size();
+	return cl->getHeroCount(player,includeGarrisoned);
 }
 const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 0 -> val = serial; mode = 1 -> val = ID
 {

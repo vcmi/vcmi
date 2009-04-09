@@ -56,7 +56,7 @@ public:
 	virtual std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap()const =0; //returns visibility map (TODO: make it const)
 	virtual const CGHeroInstance * getHeroInfo(int val, int mode=2)const =0; //mode = 0 -> val = serial; mode = 1 -> val = ID
 	virtual int getResourceAmount(int type)const =0;
-	virtual int howManyHeroes()const =0;
+	virtual int howManyHeroes(bool includeGarrisoned = true)const =0;
 	virtual const CGTownInstance * getTownInfo(int val, bool mode)const =0; //mode = 0 -> val = serial; mode = 1 -> val = ID
 	virtual int howManyTowns()const =0;
 	virtual std::vector < std::string > getObjDescriptions(int3 pos)const =0; //returns descriptions of objects at pos in order from the lowest to the highest
@@ -148,7 +148,7 @@ public:
 	const CGHeroInstance * getHeroInfo(int val, int mode=2) const; //mode = 0 -> val = serial; mode = 1 -> val = ID
 	int getResourceAmount(int type) const;
 	std::vector<si32> getResourceAmount() const;
-	int howManyHeroes() const;
+	int howManyHeroes(bool includeGarrisoned = true) const;
 	const CGTownInstance * getTownInfo(int val, bool mode) const; //mode = 0 -> val = serial; mode = 1 -> val = ID
 	std::vector < const CGTownInstance *> getTownsInfo(bool onlyOur=true) const;
 	int howManyTowns()const;

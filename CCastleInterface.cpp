@@ -20,6 +20,7 @@
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
 #include <boost/assign/std/vector.hpp> 
+#include <boost/lexical_cast.hpp>
 #include <cmath>
 #include <sstream>
 using namespace boost::assign;
@@ -252,8 +253,25 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 		}
 		else if(other->hero && other->highlight)
 		{
+			bool allow = true;
+			if(upg) //moving hero out of town - check if it is allowed
+			{
+				if(!hero && LOCPLINT->cb->howManyHeroes(false) >= 8)
+				{
+					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
+					boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
+					LOCPLINT->showInfoDialog(tmp,std::vector<SComponent*>());
+					allow = false;
+				}
+				else if(!other->hero->army.slots.size()) //hero has no creatures - strange, but if we have appropriate error message...
+				{
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19],std::vector<SComponent*>()); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
+					allow = false;
+				}
+			}
 			other->highlight = highlight = false;
-			LOCPLINT->cb->swapGarrisonHero(owner->town);
+			if(allow)
+				LOCPLINT->cb->swapGarrisonHero(owner->town);
 		}
 		else if(hero)
 		{

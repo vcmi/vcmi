@@ -4426,7 +4426,7 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[0]; //Cannot afford a Hero
 		recruit->block(2);
 	}
-	else if(LOCPLINT->cb->howManyHeroes() >= 8)
+	else if(LOCPLINT->cb->howManyHeroes(false) >= 8)
 	{
 		recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[1]; //Cannot recruit. You already have %d Heroes.
 		boost::algorithm::replace_first(recruit->hoverTexts[0],"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes()));

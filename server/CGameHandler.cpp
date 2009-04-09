@@ -485,6 +485,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 }
 void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 {
+	srand(time(NULL));
 	CPack *pack = NULL;
 	try
 	{
@@ -1746,6 +1747,13 @@ void CGameHandler::garrisonSwap(si32 tid)
 	}					
 	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
 	{
+		//check if moving hero out of town will break 8 wandering heroes limit
+		if(getHeroCount(town->garrisonHero->tempOwner,true) >= 8)
+		{
+			complain("Cannot move hero out of the garrison, there are already 8 wandering heroes!");
+			return;
+		}
+
 		SetHeroesInTown intown;
 		intown.tid = tid;
 		intown.garrison = -1;
@@ -1870,7 +1878,7 @@ void CGameHandler::hireHero( ui32 tid, ui8 hid )
 	if(!vstd::contains(t->builtBuildings,5) //no tavern in the town
 		|| gs->getPlayer(t->tempOwner)->resources[6]<2500 //not enough gold
 		|| t->visitingHero //there is visiting hero - no place
-		|| gs->getPlayer(t->tempOwner)->heroes.size()>7 //8 hero limit
+		|| getHeroCount(t->tempOwner,false) >= 8 && complain("Cannot hire hero, only 8 wandering heroes are allowed!")
 		)
 		return;
 	CGHeroInstance *nh = gs->getPlayer(t->tempOwner)->availableHeroes[hid];
