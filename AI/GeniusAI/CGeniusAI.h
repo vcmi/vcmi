@@ -190,6 +190,7 @@ public:
 	virtual void heroMoved(const HeroMoveDetails &);
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val) {};
 	virtual void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID){};
+	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, bool selection, bool cancel); 
 	virtual void tileRevealed(int3 pos){};
 	virtual void tileHidden(int3 pos){};
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);

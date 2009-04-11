@@ -107,7 +107,7 @@ public:
 	~CAdvMapInt();
 
 	int3 position; //top left corner of visible map part
-	int player;
+	int player, active;
 
 	std::vector<CDefHandler *> gems;
 

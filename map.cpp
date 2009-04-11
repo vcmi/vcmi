@@ -1413,7 +1413,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				loadHero(nobj, bufor, i);
 				break;
 			}
-		case 4: //arena
+		case 4: //Arena
 		case 51: //Mercenary Camp
 		case 23: //Marletto Tower
 		case 61: // Star Axis
@@ -1421,6 +1421,8 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		case 100: //Learning Stone
 		case 102: //Tree of Knowledge
 		case 41: //Library of Enlightenment
+		case 47: //School of Magic
+		case 107: //School of War
 			{
 				nobj = new CGVisitableOPH();
 				break;
@@ -1784,6 +1786,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				break;
 			}
 		case 58: //Redwood Observatory
+		case 60: //Pillar of Fire
 			{
 				nobj = new CGObservatory();
 				break;

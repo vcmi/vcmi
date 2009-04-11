@@ -32,6 +32,7 @@ class ICallback
 {
 public:
 	virtual bool moveHero(const CGHeroInstance *h, int3 dst) const =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	virtual void selectionMade(int selection, int asker) =0;
 	virtual int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
 	virtual int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
 	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack

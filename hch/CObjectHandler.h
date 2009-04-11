@@ -352,6 +352,7 @@ public:
 	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
 	void initObj();
 	void treeSelected(int heroID, int resType, int resVal, int expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
+	void schoolSelected(int heroID, ui32 which) const;
 	void arenaSelected(int heroID, int primSkill) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
@@ -498,7 +499,7 @@ public:
 	std::string message;
 	ui32 spell; //if it's spell scroll
 	void onHeroVisit(const CGHeroInstance * h) const;
-	void fightForArt(ui32 refusedFight, const CGHeroInstance *h) const;
+	void fightForArt(ui32 agreed, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 	void pick( const CGHeroInstance * h ) const;
 	void initObj();	
@@ -519,7 +520,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void collectRes(int player) const;
 	void initObj();
-	void fightForRes(ui32 refusedFight, const CGHeroInstance *h) const;
+	void fightForRes(ui32 agreed, const CGHeroInstance *h) const;
 	void endBattle(BattleResult *result, const CGHeroInstance *h) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)

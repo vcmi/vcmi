@@ -511,6 +511,16 @@ void CGHeroInstance::initHero()
 	if (!army.slots.size()) //standard army//initial army
 	{
 		int pom, pom2=0;
+
+		int x = 0; //how many stacks will hero receives <1 - 3>
+		pom = ran()%100;
+		if(pom < 5)
+			x = 1;
+		else if(pom < 67)
+			x = 2;
+		else
+			x = 3;
+
 		for(int x=0;x<3;x++)
 		{
 			pom = (VLC->creh->nameToID[type->refTypeStack[x]]);
@@ -529,10 +539,8 @@ void CGHeroInstance::initHero()
 				continue;
 			}
 			army.slots[x-pom2].first = pom;
-			if((pom = (type->highStack[x]-type->lowStack[x])) > 0)
-				army.slots[x-pom2].second = (ran()%pom)+type->lowStack[x];
-			else 
-				army.slots[x-pom2].second = +type->lowStack[x];
+			pom = type->highStack[x] - type->lowStack[x];
+			army.slots[x-pom2].second = ran()%(pom+1) + type->lowStack[x];
 			army.formation = false;
 		}
 	}
@@ -540,7 +548,7 @@ void CGHeroInstance::initHero()
 	boost::algorithm::replace_first(hoverName,"%s",name);
 	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
 
-	//clear all bonuses from artifacts and give those from artifacts
+	//clear all bonuses from artifacts (if present) and give them again
 	std::remove_if(bonuses.begin(), bonuses.end(), boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,0xffffff));
 	for (std::map<ui16,ui32>::iterator ari = artifWorn.begin(); ari != artifWorn.end(); ari++)
 	{
@@ -928,8 +936,18 @@ void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
 	if(visitors.find(h->id)==visitors.end())
 	{
 		onNAHeroVisit(h->id, false);
-		if(ID != 102  &&  ID!=4  && ID!=41) //not tree nor arena nor library of enlightenment
+		switch(ID)
+		{
+		case 102: //tree
+		case 4: //arena
+		case 41://library
+		case 47: //School of Magic
+		case 107://School of War
+			break;
+		default:
 			cb->setObjProperty(id,4,h->id); //add to the visitors
+			break;
+		}
 	}
 	else
 	{
@@ -947,7 +965,7 @@ void CGVisitableOPH::initObj()
 
 void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, int expVal, ui32 result ) const
 {
-	if(result==0) //player agreed to give res for exp
+	if(result) //player agreed to give res for exp
 	{
 		cb->giveResource(cb->getOwner(heroID),resType,-resVal); //take resource
 		cb->changePrimSkill(heroID,4,expVal); //give exp
@@ -992,6 +1010,12 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 	case 41:
 		ot = 66;
 		break;
+	case 47: //School of Magic
+		ot = 71;
+		break;
+	case 107://School of War
+		ot = 158;
+		break;
 	}
 	if (!alreadyVisited)
 	{
@@ -999,12 +1023,12 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 		{
 		case 4: //arena
 			{
-				SelectionDialog sd;
+				BlockingDialog sd(false,true);
 				sd.text << std::pair<ui8,ui32>(11,ot);
 				sd.components.push_back(Component(0,0,2,0));
 				sd.components.push_back(Component(0,1,2,0));
 				sd.player = cb->getOwner(heroID);
-				cb->showSelectionDialog(&sd,boost::bind(&CGVisitableOPH::arenaSelected,this,heroID,_1));
+				cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::arenaSelected,this,heroID,_1));
 				return;
 			}
 		case 51:
@@ -1030,7 +1054,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				cb->changePrimSkill(heroID,4,val);
 				break;
 			}
-		case 102:
+		case 102://tree
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
 				val = VLC->heroh->reqExp(h->level+val) - VLC->heroh->reqExp(h->level);
@@ -1071,15 +1095,15 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 						return;
 					}
 
-					YesNoDialog sd;
+					BlockingDialog sd(true,false);
 					sd.player = cb->getOwner(heroID);
 					sd.text << std::pair<ui8,ui32>(11,ot);
 					sd.components.push_back(Component(id,subid,val,0));
-					cb->showYesNoDialog(&sd,boost::bind(&CGVisitableOPH::treeSelected,this,heroID,res,resval,val,_1));
+					cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::treeSelected,this,heroID,res,resval,val,_1));
 				}
 				break;
 			}
-		case 41:
+		case 41://library of enlightenment
 			{
 				const CGHeroInstance *h = cb->getHero(heroID);
 				if(h->level  <  10 - 2*h->getSecSkillLevel(4)) //not enough level
@@ -1103,6 +1127,28 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				}
 				break;
 			}
+		case 47: //School of Magic
+		case 107://School of War
+			{
+				int skill = (ID==47 ? 2 : 0);
+				if(cb->getResource(cb->getOwner(heroID),6) < 1000) //not enough resources
+				{
+					InfoWindow iw;
+					iw.player = cb->getOwner(heroID);
+					iw.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT,ot+2);
+					cb->showInfoDialog(&iw);
+				}
+				else
+				{
+					BlockingDialog sd(true,true);
+					sd.player = cb->getOwner(heroID);
+					sd.text << std::pair<ui8,ui32>(11,ot);
+					sd.components.push_back(Component(Component::PRIM_SKILL, skill, +1, 0));
+					sd.components.push_back(Component(Component::PRIM_SKILL, skill+1, +1, 0));
+					cb->showBlockingDialog(&sd,boost::bind(&CGVisitableOPH::schoolSelected,this,heroID,_1));
+				}
+			}
+			break;
 		}
 	}
 	else
@@ -1143,6 +1189,12 @@ const std::string & CGVisitableOPH::getHoverText() const
 		break;
 	case 41:
 		break;
+	case 47: //School of Magic
+		pom = 9;
+		break;
+	case 107://School of War
+		pom = 10;
+		break;
 	default:
 		throw std::string("Wrong CGVisitableOPH object ID!\n");
 	}
@@ -1163,13 +1215,24 @@ const std::string & CGVisitableOPH::getHoverText() const
 void CGVisitableOPH::arenaSelected( int heroID, int primSkill ) const
 {
 	cb->setObjProperty(id,4,heroID); //add to the visitors
-	cb->changePrimSkill(heroID,primSkill,2);
+	cb->changePrimSkill(heroID,primSkill-1,2);
 }
 
 void CGVisitableOPH::setPropertyDer( ui8 what, ui32 val )
 {
 	if(what == 4)
 		visitors.insert(val);
+}
+
+void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
+{
+	if(!which) //player refused to pay
+		return;
+
+	int base = (ID == 47  ?  2  :  0);
+	cb->setObjProperty(id,4,heroID); //add to the visitors
+	cb->giveResource(cb->getOwner(heroID),6,-1000); //take 1000 gold
+	cb->changePrimSkill(heroID, base + which-1, +1); //give appropriate skill
 }
 
 bool CArmedInstance::needsLastStack() const
@@ -1302,10 +1365,10 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		if(message.size())
 		{
-			YesNoDialog ynd;
+			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text << message;
-			cb->showYesNoDialog(&ynd,boost::bind(&CGResource::fightForRes,this,_1,h));
+			cb->showBlockingDialog(&ynd,boost::bind(&CGResource::fightForRes,this,_1,h));
 		}
 		else
 		{
@@ -1337,9 +1400,9 @@ void CGResource::collectRes( int player ) const
 	cb->removeObject(id);
 }
 
-void CGResource::fightForRes(ui32 refusedFight, const CGHeroInstance *h) const
+void CGResource::fightForRes(ui32 agreed, const CGHeroInstance *h) const
 {
-	if(!refusedFight)
+	if(agreed)
 		cb->startBattleI(h->id,army,pos,boost::bind(&CGResource::endBattle,this,_1,h));
 }
 
@@ -1519,10 +1582,10 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 	{
 		if(message.size())
 		{
-			YesNoDialog ynd;
+			BlockingDialog ynd(true,false);
 			ynd.player = h->getOwner();
 			ynd.text << message;
-			cb->showYesNoDialog(&ynd,boost::bind(&CGArtifact::fightForArt,this,_1,h));
+			cb->showBlockingDialog(&ynd,boost::bind(&CGArtifact::fightForArt,this,_1,h));
 		}
 		else
 		{
@@ -1544,9 +1607,9 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 	cb->removeObject(id);
 }
 
-void CGArtifact::fightForArt( ui32 refusedFight, const CGHeroInstance *h ) const
+void CGArtifact::fightForArt( ui32 agreed, const CGHeroInstance *h ) const
 {
-	if(!refusedFight)
+	if(agreed)
 		cb->startBattleI(h->id,army,pos,boost::bind(&CGArtifact::endBattle,this,_1,h));
 }
 
@@ -1632,13 +1695,13 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			}
 			else
 			{
-				SelectionDialog sd;
+				BlockingDialog sd(false,true);
 				sd.player = h->tempOwner;
 				sd.text << std::pair<ui8,ui32>(11,146);
 				sd.components.push_back(Component(2,6,val1,0));
 				sd.components.push_back(Component(5,0,val2,0));
 				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
-				cb->showSelectionDialog(&sd,fun);
+				cb->showBlockingDialog(&sd,fun);
 				return;
 			}
 		}
@@ -1650,10 +1713,10 @@ void CGPickable::chosen( int which, int heroID ) const
 {
 	switch(which)
 	{
-	case 0: //player pick gold
+	case 1: //player pick gold
 		cb->giveResource(cb->getOwner(heroID),6,val1);
 		break;
-	case 1: //player pick exp
+	case 2: //player pick exp
 		cb->changePrimSkill(heroID, 4, val2);
 		break;
 	default:
@@ -1930,7 +1993,7 @@ void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 
 	InfoWindow iw;
 	iw.player = h->tempOwner;
-	iw.text.addTxt(MetaString::ADVOB_TXT,98);
+	iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==60));
 	cb->showInfoDialog(&iw);
 }
 

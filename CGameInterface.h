@@ -69,8 +69,9 @@ public:
 	virtual void init(ICallback * CB){};
 	virtual void receivedResource(int type, int val){};
 	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components){};
-	virtual void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
-	virtual void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
+	//virtual void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
+	//virtual void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
+	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, bool selection, bool cancel) = 0; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void tileHidden(const std::set<int3> &pos){};
 	virtual void tileRevealed(const std::set<int3> &pos){};
 	virtual void yourTurn(){};

@@ -109,29 +109,32 @@ void CClient::waitForMoveAndSend(int color)
 }
 void CClient::run()
 {
-	CPack *pack;
-	while(1)
+	try
 	{
-		tlog5 << "Listening... ";
-		*serv >> pack;
-		tlog5 << "\treceived server message of type " << typeid(*pack).name() << std::endl;
-		CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)];
-		if(apply)
+		CPack *pack;
+		while(1)
 		{
-			apply->applyOnClBefore(this,pack);
-			tlog5 << "\tMade first apply on cl\n";
-			gs->apply(pack);
-			tlog5 << "\tApplied on gs\n";
-			apply->applyOnClAfter(this,pack);
-			tlog5 << "\tMade second apply on cl\n";
+			tlog5 << "Listening... ";
+			*serv >> pack;
+			tlog5 << "\treceived server message of type " << typeid(*pack).name() << std::endl;
+			CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)];
+			if(apply)
+			{
+				apply->applyOnClBefore(this,pack);
+				tlog5 << "\tMade first apply on cl\n";
+				gs->apply(pack);
+				tlog5 << "\tApplied on gs\n";
+				apply->applyOnClAfter(this,pack);
+				tlog5 << "\tMade second apply on cl\n";
+			}
+			else
+			{
+				tlog5 << "Message cannot be applied, cannot find applier!\n";
+			}
+			delete pack;
+			pack = NULL;
 		}
-		else
-		{
-			tlog5 << "Message cannot be applied, cannot find applier!\n";
-		}
-		delete pack;
-		pack = NULL;
-	}
+	} HANDLE_EXCEPTION(tlog1 << "Lost connection to server, ending listening thread!\n");
 }
 
 void CClient::close()

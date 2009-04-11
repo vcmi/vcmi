@@ -11,8 +11,7 @@ struct GiveBonus;
 class CGObjectInstance;
 class CGTownInstance;
 class CGHeroInstance;
-struct SelectionDialog;
-struct YesNoDialog;
+struct BlockingDialog;
 struct InfoWindow;
 struct MetaString;
 struct ShowInInfobox;
@@ -52,8 +51,8 @@ public:
 	virtual void changePrimSkill(int ID, int which, int val, bool abs=false)=0;
 	virtual void changeSecSkill(int ID, int which, int val, bool abs=false)=0; 
 	virtual void showInfoDialog(InfoWindow *iw)=0;
-	virtual void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
-	virtual void showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback)=0; //returns question id
+	virtual void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback)=0;
+	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above
 	virtual void giveResource(int player, int which, int val)=0;
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(int obj, int heroID)=0;

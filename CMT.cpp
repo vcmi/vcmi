@@ -45,11 +45,14 @@
 #if __MINGW32__
 #undef main
 #endif
-std::string NAME = NAME_VER + std::string(" (client)");
-SDL_Surface * screen, * screen2;
+std::string NAME = NAME_VER + std::string(" (client)"); //application name
+SDL_Surface * screen; //main screen surface
+
 std::queue<SDL_Event*> events;
 boost::mutex eventsM;
+
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
+
 void processCommand(const std::string &message, CClient *&client);
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
@@ -196,11 +199,11 @@ int main(int argc, char** argv)
 			SDL_WaitEvent(ev);
 			if((ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
 			{
+				LOCPLINT->pim->lock();
 				cl.close();
 #ifndef __unix__
 				::console->killConsole(console->native_handle());
 #endif
-				LOCPLINT->pim->lock();
 				SDL_Delay(750);
 				tlog0 << "Ending...\n";
 				exit(EXIT_SUCCESS);

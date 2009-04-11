@@ -358,7 +358,8 @@ class CSelWindow : public CInfoWindow //component selection window
 public:
 	void selectionChange(unsigned to);
 	void close();
-	CSelWindow(std::string text, int player, int charperline, std::vector<CSelectableComponent*> &comps, std::vector<std::pair<std::string,boost::function<void()> > > &Buttons); //c-tor
+	void madeChoice(); //looks for selected component and calls callback
+	CSelWindow(const std::string& text, int player, int charperline ,const std::vector<CSelectableComponent*> &comps, const std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, int askID); //c-tor
 	CSelWindow(){}; //c-tor
 	//notification - this class inherits important destructor from CInfoWindow
 };
@@ -544,8 +545,9 @@ public:
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void receivedResource(int type, int val);
 	void showInfoDialog(const std::string &text, const std::vector<Component*> &components);
-	void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
-	void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
+	//void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
+	//void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
+	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void tileHidden(const std::set<int3> &pos);
 	void tileRevealed(const std::set<int3> &pos);
 	void yourTurn();

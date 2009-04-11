@@ -555,35 +555,43 @@ struct HeroLevelUp : public Query//2000
 	}
 };
 
-struct SelectionDialog : public Query//2001
+//A dialog that requires making decision by player - it may contain components to choose between or has yes/no options
+//Client responds with QueryReply, where answer: 0 - cancel pressed, choice doesn't matter; 1/2/...  - first/second/... component selected and OK pressed
+//Until sending reply player won't be allowed to take any actions
+struct BlockingDialog : public Query//2003
 {
+	enum {ALLOW_CANCEL = 1, SELECTION = 2};
+
 	void applyCl(CClient *cl);
 
 	MetaString text;
 	std::vector<Component> components;
 	ui8 player;
+	ui8 flags;
 
-	SelectionDialog(){type = 2001;};
-	
-	template <typename Handler> void serialize(Handler &h, const int version)
+	bool cancel() const
 	{
-		h & id & text & components & player;
+		return flags & ALLOW_CANCEL;
 	}
-};
+	bool selection() const
+	{
+		return flags & SELECTION;
+	}
 
-struct YesNoDialog : public Query//2002
-{
-	void applyCl(CClient *cl);
-
-	MetaString text;
-	std::vector<Component> components;
-	ui8 player;
-
-	YesNoDialog(){type = 2002;};
+	BlockingDialog(bool yesno, bool Selection)
+	{
+		type = 2003; 
+		if(yesno) flags |= ALLOW_CANCEL;
+		if(Selection) flags |= SELECTION;
+	}
+	BlockingDialog()
+	{
+		type = 2003;
+	};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & text & components & player;
+		h & id & text & components & player & flags;
 	}
 };
 

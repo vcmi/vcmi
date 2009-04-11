@@ -282,28 +282,11 @@ void HeroLevelUp::applyCl( CClient *cl )
 	}
 }
 
-void SelectionDialog::applyCl( CClient *cl )
+void BlockingDialog::applyCl( CClient *cl )
 {
-	std::vector<Component*> comps;
-	for(size_t i=0; i < components.size(); ++i) {
-		comps.push_back(&components[i]);
-	}
 	std::string str = toString(text);
 	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showSelDialog(str,comps,id);
-	else
-		tlog2 << "We received SelectionDialog for not our player...\n";
-}
-
-void YesNoDialog::applyCl( CClient *cl )
-{
-	std::vector<Component*> comps;
-	for(size_t i=0; i < components.size(); ++i) {
-		comps.push_back(&components[i]);
-	}
-	std::string str = toString(text);
-	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showYesNoDialog(str,comps,id);
+		cl->playerint[player]->showBlockingDialog(str,components,id,selection(),cancel());
 	else
 		tlog2 << "We received YesNoDialog for not our player...\n";
 }
@@ -417,7 +400,7 @@ void EndAction::applyCl( CClient *cl )
 void SystemMessage::applyCl( CClient *cl )
 {
 	std::ostringstream str;
-	str << "System message from server: " << text;
+	str << "System message: " << text;
 
 	tlog4 << str.str() << std::endl;
 	if(LOCPLINT)

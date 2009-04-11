@@ -1208,14 +1208,27 @@ void CGameHandler::showInfoDialog(InfoWindow *iw)
 {
 	sendToAllClients(iw);
 }
-void CGameHandler::showYesNoDialog( YesNoDialog *iw, const CFunctionList<void(ui32)> &callback )
+void CGameHandler::showBlockingDialog( BlockingDialog *iw, const CFunctionList<void(ui32)> &callback )
 {
 	ask(iw,iw->player,callback);
 }
-void CGameHandler::showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback)
+
+ui32 CGameHandler::showBlockingDialog( BlockingDialog *iw )
 {
-	ask(iw,iw->player,callback);
+	//TODO
+
+	//gsm.lock();
+	//int query = QID++;
+	//states.addQuery(player,query);
+	//sendToAllClients(iw);
+	//gsm.unlock();
+	//ui32 ret = getQueryResult(iw->player, query);
+	//gsm.lock();
+	//states.removeQuery(player, query);
+	//gsm.unlock();
+	return 0;
 }
+
 int CGameHandler::getCurrentPlayer()
 {
 	return gs->currentPlayer;
@@ -1439,8 +1452,11 @@ void CGameHandler::save( const std::string &fname )
 
 void CGameHandler::close()
 {
-	tlog0 << "We have been requested to close.\n";
-	exit(0);
+	tlog0 << "We have been requested to close.\n";	
+	//BOOST_FOREACH(CConnection *cc, conns)
+	//	if(cc && cc->socket && cc->socket->is_open())
+	//		cc->socket->close();
+	//exit(0);
 }
 
 void CGameHandler::arrangeStacks(si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val)
@@ -2300,18 +2316,14 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 			case 52: //misfortune
 			case 53: //haste
 			case 54: //slow
+			case 61: //forgetfulness
 				{
-					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, h->getPrimSkillLevel(2))
+					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, h->getPrimSkillLevel(2) + h->valOfBonuses(HeroBonus::SPELL_DURATION) )
 						break;
 				}
 			case 56: //frenzy
 				{
 					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, 1)
-						break;
-				}
-			case 61: //forgetfulness
-				{
-					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, h->getPrimSkillLevel(2))
 						break;
 				}
 			}
@@ -2380,4 +2392,10 @@ bool CGameHandler::complain( const std::string &problem )
 	sendMessageToAll("Server encountered a problem: " + problem);
 	tlog1 << problem << std::endl;
 	return true;
+}
+
+ui32 CGameHandler::getQueryResult( ui8 player, int queryID )
+{
+	//TODO: write
+	return 0;
 }

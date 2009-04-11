@@ -1245,6 +1245,7 @@ endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 heroList(ADVOPT.hlistSize),
 townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
+	active = 0;
 	subInt = NULL;
 	selection = NULL;
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);
@@ -1363,6 +1364,10 @@ void CAdvMapInt::fendTurn()
 
 void CAdvMapInt::activate()
 {
+	if(active++)
+	{
+		tlog1 << "Error: advmapint already active...\n";
+	}
 	if(subInt == heroWindow)
 	{
 		heroWindow->activate();
@@ -1392,6 +1397,10 @@ void CAdvMapInt::activate()
 }
 void CAdvMapInt::deactivate()
 {
+	if(--active)
+	{
+		tlog1 << "Error: advmapint still active...\n";
+	}
 	if(subInt == heroWindow)
 	{
 		heroWindow->deactivate();

@@ -67,8 +67,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SetObjectProperty>();
 	s.template registerType<SetHoverName>();
 	s.template registerType<HeroLevelUp>();
-	s.template registerType<SelectionDialog>();
-	s.template registerType<YesNoDialog>();
+	s.template registerType<BlockingDialog>();
 	s.template registerType<BattleStart>();
 	s.template registerType<BattleNextRound>();
 	s.template registerType<BattleSetActiveStack>();

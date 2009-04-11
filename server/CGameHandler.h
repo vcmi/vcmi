@@ -93,8 +93,8 @@ public:
 	void changePrimSkill(int ID, int which, int val, bool abs=false);
 	void changeSecSkill(int ID, int which, int val, bool abs=false); 
 	void showInfoDialog(InfoWindow *iw);
-	void showYesNoDialog(YesNoDialog *iw, const CFunctionList<void(ui32)> &callback);
-	void showSelectionDialog(SelectionDialog *iw, const CFunctionList<void(ui32)> &callback); //returns question id
+	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback);
+	ui32 showBlockingDialog(BlockingDialog *iw); //synchronous version of above
 	void giveResource(int player, int which, int val);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);
@@ -142,6 +142,7 @@ public:
 		h & QID & states;
 	}
 
+	ui32 getQueryResult(ui8 player, int queryID);
 	void sendMessageToAll(const std::string &message);
 	void sendMessageTo(CConnection &c, const std::string &message);
 	void applyAndAsk(Query * sel, ui8 player, boost::function<void(ui32)> &callback);
