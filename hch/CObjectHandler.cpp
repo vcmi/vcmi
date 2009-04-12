@@ -761,6 +761,16 @@ void CGHeroInstance::setPropertyDer( ui8 what, ui32 val )
 		army.slots[0].second = val;
 }
 
+double CGHeroInstance::getHeroStrength() const
+{
+	return sqrt((1.0 + 0.05*getPrimSkillLevel(0)) * (1.0 + 0.05*getPrimSkillLevel(1)));
+}
+
+int CGHeroInstance::getTotalStrength() const
+{
+	return getHeroStrength() * getArmyStrength();
+}
+
 int3 CGHeroInstance::getSightCenter() const
 {
 	return getPosition(false);
@@ -1240,9 +1250,53 @@ bool CArmedInstance::needsLastStack() const
 	return false;
 }
 
+int CArmedInstance::getArmyStrength() const
+{
+	int ret = 0;
+	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i=army.slots.begin(); i!=army.slots.end(); i++)
+		ret += VLC->creh->creatures[i->second.first].AIValue;
+	return ret;
+}
+
 void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 {
-	cb->startBattleI(h->id,army,pos,boost::bind(&CGCreature::endBattle,this,_1));
+	int action = takenAction(h);
+	switch( action ) //decide what we do...
+	{
+	case -2: //fight
+		fight(h);
+		break;
+	case -1: //flee
+		{
+			flee(h);
+			break;
+		}
+	case 0: //join for free
+		{
+			BlockingDialog ynd(true,false);
+			ynd.player = h->tempOwner;
+			ynd.text << std::pair<ui8,ui32>(11,86); 
+			ynd.text.replacements.push_back(VLC->creh->creatures[subID].namePl);
+			cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::joinDecision,this,h,0,_1));
+			break;
+		}
+	default: //join for gold
+		{
+			assert(action > 0);
+
+			//ask if player agrees to pay gold
+			BlockingDialog ynd(true,false);
+			ynd.player = h->tempOwner;
+			std::string tmp = VLC->generaltexth->advobtxt[90];
+			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(army.slots.find(0)->second.second));
+			boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(action));
+			boost::algorithm::replace_first(tmp,"%s",VLC->creh->creatures[subID].namePl);
+			ynd.text << tmp;
+			cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::joinDecision,this,h,action,_1));
+			break;
+		}
+	}
+
 }
 
 void CGCreature::endBattle( BattleResult *result ) const
@@ -1270,6 +1324,25 @@ void CGCreature::endBattle( BattleResult *result ) const
 void CGCreature::initObj()
 {
 	blockVisit = true;
+	switch(character)
+	{
+	case 0:
+		character = 0;
+		break;
+	case 1:
+		character = 1 + ran()%7;
+		break;
+	case 2:
+		character = 1 + ran()%10;
+		break;
+	case 3:
+		character = 4 + ran()%7;
+		break;
+	case 4:
+		character = 10;
+		break;
+	}
+
 	army.slots[0].first = subID;
 	si32 &amount = army.slots[0].second;
 	CCreature &c = VLC->creh->creatures[subID];
@@ -1284,6 +1357,160 @@ void CGCreature::initObj()
 	pom = 174 + 3*pom + 1;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
 	hoverName = toString(ms);
+}
+
+int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
+{
+	double hlp = h->getTotalStrength() / getArmyStrength();
+
+	if(!character) //compliant creatures will always join
+		return 0;
+	else if(allowJoin)//test for joining
+	{
+		int factor;
+		if(hlp >= 7)
+			factor = 11;
+		else if(hlp >= 1)
+			factor = 2*(hlp-1);
+		else if(hlp >= 0.5)
+			factor = -1;
+		else if(hlp >= 0.333)
+			factor = -2;
+		else
+			factor = -3;
+
+		int sympathy = 0;
+
+		std::set<ui32> myKindCres; //what creatures are the same kind as we
+		myKindCres.insert(subID); //we
+		myKindCres.insert(VLC->creh->creatures[subID].upgrades.begin(),VLC->creh->creatures[subID].upgrades.end()); //our upgrades
+		for(std::vector<CCreature>::iterator i=VLC->creh->creatures.begin(); i!=VLC->creh->creatures.end(); i++)
+			if(vstd::contains(i->upgrades,id)) //it's our base creatures
+				myKindCres.insert(i->idNumber);
+
+		int count = 0, //how many creatures of our kind has hero
+			totalCount = 0;
+		for (std::map<si32,std::pair<ui32,si32> >::const_iterator i = h->army.slots.begin(); i != h->army.slots.end(); i++)
+		{
+			if(vstd::contains(myKindCres,i->second.first))
+				count += i->second.second;
+			totalCount += i->second.second;
+		}
+
+		if(count*2 > totalCount)
+			sympathy++;
+		if(count)
+			sympathy++;
+		
+
+		int charisma = factor + h->getSecSkillLevel(4) + sympathy;
+		if(charisma >= character) //creatures might join...
+		{
+			if(h->getSecSkillLevel(4) + sympathy + 1 >= character)
+				return 0; //join for free
+			else if(h->getSecSkillLevel(4) * 2  +  sympathy  +  1 >= character)
+				return VLC->creh->creatures[subID].cost[6] * army.slots.find(0)->second.second; //join for gold
+		}
+	}
+
+	//we are still here - creatures not joined heroes, test for fleeing
+
+	//TODO: it's provisional formula, should be replaced with original one (or something closer to it)
+	//TODO: should be deterministic (will be needed for Vision spell)
+	int hlp2 = (hlp - 2)*1000;
+	if(!neverFlees   
+		&& hlp2 >= 0 
+		&& rand()%2000 < hlp2
+	)
+		return -1;
+	else
+		return -2;
+
+}
+
+void CGCreature::fleeDecision(const CGHeroInstance *h, ui32 pursue) const
+{
+	if(pursue)
+	{
+		fight(h);
+	}
+	else
+	{
+		cb->removeObject(id);
+	}
+}
+
+void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const
+{
+	if(!accept)
+	{
+		if(takenAction(h,false) == -1) //they flee
+		{
+			flee(h);
+		}
+		else //they fight
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.text << std::pair<ui8,ui32>(11,87);  //Insulted by your refusal of their offer, the monsters attack!
+			cb->showInfoDialog(&iw);
+			fight(h);
+		}
+	}
+	else //accepted
+	{
+		if (cb->getResource(h->tempOwner,6) < cost) //player don't have enough gold!
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.text << std::pair<ui8,ui32>(1,29);  //You don't have enough gold
+			cb->showInfoDialog(&iw);
+
+			//act as if player refused
+			joinDecision(h,cost,true);
+			return;
+		}
+
+		//take gold
+		if(cost)
+			cb->giveResource(h->tempOwner,6,-cost);
+
+		int slot = h->army.getSlotFor(subID);
+		if(slot >= 0) //there is place
+		{
+			//add creatures
+			SetGarrisons sg;
+			sg.garrs[h->id] = h->army;
+			if(vstd::contains(h->army.slots,slot)) //add to already present stack
+			{
+				sg.garrs[h->id].slots[slot].second += army.slots.find(0)->second.second;
+			}
+			else //add as a new stack
+			{
+				sg.garrs[h->id].slots[slot] = army.slots.find(0)->second;
+			}
+			cb->sendAndApply(&sg);
+			cb->removeObject(id);
+		}
+		else
+		{
+			cb->showGarrisonDialog(id,h->id,boost::bind(&IGameCallback::removeObject,cb,id)); //show garrison window and remove ourselves from map when player ends
+		}
+	}
+}
+
+void CGCreature::fight( const CGHeroInstance *h ) const
+{
+	cb->startBattleI(h->id,army,pos,boost::bind(&CGCreature::endBattle,this,_1));
+}
+
+void CGCreature::flee( const CGHeroInstance * h ) const
+{
+	BlockingDialog ynd(true,false);
+	ynd.player = h->tempOwner;
+	ynd.text << std::pair<ui8,ui32>(11,91); 
+	ynd.text.replacements.push_back(VLC->creh->creatures[subID].namePl);
+	cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::fleeDecision,this,h,_1));
 }
 
 void CGMine::onHeroVisit( const CGHeroInstance * h ) const

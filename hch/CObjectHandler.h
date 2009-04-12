@@ -155,6 +155,7 @@ class  DLL_EXPORT CArmedInstance: public CGObjectInstance
 public:
 	CCreatureSet army; //army
 	virtual bool needsLastStack() const; //true if last stack cannot be taken
+	int getArmyStrength() const; //sum of AI values of creatures
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -249,7 +250,8 @@ public:
 	const CArtifact * getArt(int pos) const;
 	int getSpellSecLevel(int spell) const; //returns level of secondary ability (fire, water, earth, air magic) known to this hero and applicable to given spell; -1 if error
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
-
+	double getHeroStrength() const;
+	int getTotalStrength() const;
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -399,16 +401,22 @@ class DLL_EXPORT CGCreature : public CArmedInstance //creatures on map
 {
 public:
 	ui32 identifier; //unique code for this monster (used in missions)
-	ui8 character; //chracter of this set of creatures (0 - the most friendly, 4 - the most hostile)
+	si8 character; //chracter of this set of creatures (0 - the most friendly, 4 - the most hostile) => on init changed to 0 (compliant) - 10 value (savage)
 	std::string message; //message printed for attacking hero
 	std::vector<ui32> resources; //[res_id], resources given to hero that has won with monsters
 	si32 gainedArtifact; //ID of artifact gained to hero, -1 if none
 	ui8 neverFlees; //if true, the troops will never flee
 	ui8 notGrowingTeam; //if true, number of units won't grow
 
+	void fight(const CGHeroInstance *h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
+
+	void flee( const CGHeroInstance * h ) const;
 	void endBattle(BattleResult *result) const;
+	void fleeDecision(const CGHeroInstance *h, ui32 pursue) const;
+	void joinDecision(const CGHeroInstance *h, int cost, ui32 accept) const;
 	void initObj();
+	int takenAction(const CGHeroInstance *h, bool allowJoin=true) const; //action on confrontation: -2 - fight, -1 - flee, >=0 - will join for given value of gold (may be 0)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

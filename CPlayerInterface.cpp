@@ -4850,7 +4850,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	pos.w = screen->w;
 	pos.h = screen->h;
 
-	garr = new CGarrisonInt(pos.x+92, pos.y+129, 4, 30, bg, 92, 126, up, down);
+	garr = new CGarrisonInt(pos.x+92, pos.y+129, 4, 30, bg, 92, 129, up, down);
 	split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF");
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
 }

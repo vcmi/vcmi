@@ -723,9 +723,10 @@ void CGameHandler::run(bool resume)
 		for(int i=0;i<quantity;i++)
 		{
 			(*cc) >> pom; //read player color
-			gsm.lock();
-			connections[pom] = cc;
-			gsm.unlock();
+			{
+				boost::unique_lock<boost::recursive_mutex> lock(gsm);
+				connections[pom] = cc;
+			}
 		}	
 	}
 	
@@ -1385,24 +1386,22 @@ void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
 
 void CGameHandler::applyAndAsk( Query * sel, ui8 player, boost::function<void(ui32)> &callback )
 {
-	gsm.lock();
+	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	sel->id = QID;
 	callbacks[QID] = callback;
 	states.addQuery(player,QID);
 	QID++; 
 	sendAndApply(sel);
-	gsm.unlock();
 }
 
 void CGameHandler::ask( Query * sel, ui8 player, const CFunctionList<void(ui32)> &callback )
 {
-	gsm.lock();
+	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	sel->id = QID;
 	callbacks[QID] = callback;
 	states.addQuery(player,QID);
 	sendToAllClients(sel);
 	QID++; 
-	gsm.unlock();
 }
 
 void CGameHandler::sendToAllClients( CPackForClient * info )
@@ -1927,7 +1926,7 @@ void CGameHandler::hireHero( ui32 tid, ui8 hid )
 
 void CGameHandler::queryReply( ui32 qid, ui32 answer )
 {
-	gsm.lock();
+	boost::unique_lock<boost::recursive_mutex> lock(gsm);
 	if(vstd::contains(callbacks,qid))
 	{
 		CFunctionList<void(ui32)> callb = callbacks[qid];
@@ -1946,7 +1945,6 @@ void CGameHandler::queryReply( ui32 qid, ui32 answer )
 	{
 		tlog1 << "Unknown query reply...\n";
 	}
-	gsm.unlock();
 }
 
 void CGameHandler::makeBattleAction( BattleAction &ba )
@@ -2424,14 +2422,16 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, const boost::function
 	GarrisonDialog gd;
 	gd.hid = hid;
 	gd.objid = upobj;
-	gsm.lock();
-	gd.id = QID;
-	garrisonCallbacks[QID] = cb;
-	allowedExchanges[QID] = std::pair<si32,si32>(upobj,hid);
-	states.addQuery(player,QID);
-	QID++; 
-	sendAndApply(&gd);
-	gsm.unlock();
+
+	{
+		boost::unique_lock<boost::recursive_mutex> lock(gsm);
+		gd.id = QID;
+		garrisonCallbacks[QID] = cb;
+		allowedExchanges[QID] = std::pair<si32,si32>(upobj,hid);
+		states.addQuery(player,QID);
+		QID++; 
+		sendAndApply(&gd);
+	}
 }
 
 bool CGameHandler::isAllowedExchange( int id1, int id2 )
@@ -2440,7 +2440,7 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 		return true;
 
 	{
-		boost::unique_lock<boost::mutex> lock(gsm);
+		boost::unique_lock<boost::recursive_mutex> lock(gsm);
 		for(std::map<ui32, std::pair<si32,si32> >::const_iterator i = allowedExchanges.begin(); i!=allowedExchanges.end(); i++)
 			if(id1 == i->second.first && id2 == i->second.second   ||   id2 == i->second.first && id1 == i->second.second)
 				return true;

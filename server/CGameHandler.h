@@ -64,7 +64,7 @@ public:
 	std::set<CConnection*> conns;
 
 	//queries stuff
-	boost::mutex gsm;
+	boost::recursive_mutex gsm;
 	ui32 QID;
 	std::map<ui32, CFunctionList<void(ui32)> > callbacks; //query id => callback function - for selection and yes/no dialogs
 	std::map<ui32, boost::function<void()> > garrisonCallbacks; //query id => callback - for garrison dialogs
