@@ -291,6 +291,18 @@ void BlockingDialog::applyCl( CClient *cl )
 		tlog2 << "We received YesNoDialog for not our player...\n";
 }
 
+void GarrisonDialog::applyCl(CClient *cl)
+{
+	const CGHeroInstance *h = cl->getHero(hid);
+	const CArmedInstance *obj = static_cast<const CArmedInstance*>(cl->getObj(objid));
+
+	if(!vstd::contains(cl->playerint,h->getOwner()))
+		return;
+
+	boost::function<void()> callback = boost::bind(&CCallback::selectionMade,LOCPLINT->cb,0,id);
+	cl->playerint[h->getOwner()]->showGarrisonDialog(obj,h,callback);
+}
+
 void BattleStart::applyCl( CClient *cl )
 {
 	if(vstd::contains(cl->playerint,info->side1))

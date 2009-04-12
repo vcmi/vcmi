@@ -2117,11 +2117,6 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			hw->garInt->recreateSlots();
 			hw->garInt->show();
 		}
-		if(castleInt) //opened town window - redraw town garrison slots (change is within hero garr)
-		{
-			castleInt->garr->highlighted = NULL;
-			castleInt->garr->recreateSlots();
-		}
 
 	}
 	else if (obj->ID == TOWNI_TYPE) //town
@@ -2137,12 +2132,24 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			SDL_FreeSurface(graphics->heroWins[tt->visitingHero->subID]);
 			graphics->heroWins[tt->visitingHero->subID] = infoWin(tt->visitingHero);
 		}
-		if(LOCPLINT->castleInt)
+
+	}
+
+	if(castleInt) //opened town window - redraw town garrison slots (change is within hero garr)
+	{
+		castleInt->garr->highlighted = NULL;
+		castleInt->garr->recreateSlots();
+	}
+	else if(curint && curint->subInt)
+	{
+		CGarrisonWindow *gw = dynamic_cast<CGarrisonWindow*>(curint->subInt);
+		if(gw)
 		{
-			LOCPLINT->castleInt->garr->highlighted = NULL;
-			LOCPLINT->castleInt->garr->recreateSlots();
+			gw->garr->recreateSlots();
+			gw->garr->show();
 		}
 	}
+
 	if(curint == adventureInt)
 		adventureInt->infoBar.draw();
 }
@@ -2611,6 +2618,16 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath * path )
 bool CPlayerInterface::shiftPressed() const
 {
 	return SDL_GetKeyState(NULL)[SDLK_LSHIFT]  ||  SDL_GetKeyState(NULL)[SDLK_RSHIFT];
+}
+
+void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd )
+{
+	CGarrisonWindow *cgw = new CGarrisonWindow(up,down);
+	cgw->quit->callback += onEnd;
+	curint->deactivate();
+	cgw->activate();
+	objsToBlit += cgw;
+	LOCPLINT->curint->subInt = cgw;
 }
 
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
@@ -3791,7 +3808,7 @@ void CCreInfoWindow::activate()
 void CCreInfoWindow::close()
 {
 	deactivate();
-	if(dynamic_cast<CHeroWindow*>(LOCPLINT->curint->subInt))
+	if(LOCPLINT->curint->subInt)
 	{
 		if(type)
 			LOCPLINT->curint->subInt->activate();
@@ -4791,3 +4808,57 @@ CInGameConsole::CInGameConsole() : defaultTimeout(10000), maxDisplayedTexts(10),
 {
 }
 
+
+void CGarrisonWindow::close()
+{
+	LOCPLINT->curint->subInt = NULL;
+	deactivate();
+	LOCPLINT->curint->activate();
+	LOCPLINT->objsToBlit -= this;
+	delete this;
+}
+
+void CGarrisonWindow::activate()
+{
+	split->activate();
+	quit->activate();
+	garr->activate();
+}
+
+void CGarrisonWindow::deactivate()
+{
+	split->deactivate();
+	quit->deactivate();
+	garr->deactivate();
+}
+
+void CGarrisonWindow::show(SDL_Surface * to)
+{
+	blitAt(bg,pos);
+	split->show();
+	quit->show();
+	garr->show();
+}
+
+CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down )
+{
+	bg = BitmapHandler::loadBitmap("GARRISON.bmp");
+	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
+	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
+	pos.x = screen->w/2 - bg->w/2;
+	pos.y = screen->h/2 - bg->h/2;
+	pos.w = screen->w;
+	pos.h = screen->h;
+
+	garr = new CGarrisonInt(pos.x+92, pos.y+129, 4, 30, bg, 92, 126, up, down);
+	split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF");
+	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
+}
+
+CGarrisonWindow::~CGarrisonWindow()
+{
+	SDL_FreeSurface(bg);
+	delete split;
+	delete quit;
+	delete garr;
+}

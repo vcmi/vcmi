@@ -595,6 +595,18 @@ struct BlockingDialog : public Query//2003
 	}
 };
 
+struct GarrisonDialog : public Query//2004
+{
+	GarrisonDialog(){type = 2004;}
+	void applyCl(CClient *cl);
+	si32 objid, hid;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & id & objid & hid;
+	}
+};
+
 struct BattleInfo;
 struct BattleStart : public CPackForClient//3000
 {

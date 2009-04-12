@@ -548,6 +548,7 @@ public:
 	//void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
 	//void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
+	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
 	void tileHidden(const std::set<int3> &pos);
 	void tileRevealed(const std::set<int3> &pos);
 	void yourTurn();
@@ -925,6 +926,21 @@ public:
 	void refreshEnteredText();
 
 	CInGameConsole(); //c-tor
+};
+
+class CGarrisonWindow : public IShowActivable, public CIntObject
+{
+public:
+	CGarrisonInt *garr;
+	SDL_Surface *bg;
+	AdventureMapButton *split, *quit;
+
+	void close();
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to = NULL);
+	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down);
+	~CGarrisonWindow();
 };
 
 extern CPlayerInterface * LOCPLINT;

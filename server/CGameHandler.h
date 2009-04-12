@@ -58,12 +58,19 @@ public:
 class CGameHandler : public IGameCallback
 {
 public:
-	static ui32 QID;
 	CVCMIServer *s;
-	std::map<int,CConnection*> connections; //player color -> connection to clinet with interface of that player
+	std::map<int,CConnection*> connections; //player color -> connection to client with interface of that player
 	PlayerStatuses states; //player color -> player state
 	std::set<CConnection*> conns;
 
+	//queries stuff
+	boost::mutex gsm;
+	ui32 QID;
+	std::map<ui32, CFunctionList<void(ui32)> > callbacks; //query id => callback function - for selection and yes/no dialogs
+	std::map<ui32, boost::function<void()> > garrisonCallbacks; //query id => callback - for garrison dialogs
+	std::map<ui32, std::pair<si32,si32> > allowedExchanges;
+
+	bool isAllowedExchange(int id1, int id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	void moveStack(int stack, int dest);
 	void startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
@@ -95,6 +102,7 @@ public:
 	void showInfoDialog(InfoWindow *iw);
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback);
 	ui32 showBlockingDialog(BlockingDialog *iw); //synchronous version of above
+	void showGarrisonDialog(int upobj, int hid, const boost::function<void()> &cb);
 	void giveResource(int player, int which, int val);
 	void showCompInfo(ShowInInfobox * comp);
 	void heroVisitCastle(int obj, int heroID);

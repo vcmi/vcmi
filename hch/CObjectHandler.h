@@ -599,6 +599,7 @@ public:
 class DLL_EXPORT CGMine : public CArmedInstance
 {
 public: 
+	void offerLeavingGuards(const CGHeroInstance *h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void newTurn() const;
 	void initObj();	

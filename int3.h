@@ -11,9 +11,9 @@ class CCreatureSet //seven combined creatures
 public:
 	std::map<si32,std::pair<ui32,si32> > slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
 	bool formation; //false - wide, true - tight
-	si32 getSlotFor(ui32 creature, ui32 slotsAmount=7) //returns -1 if no slot available
+	si32 getSlotFor(ui32 creature, ui32 slotsAmount=7) const //returns -1 if no slot available
 	{	
-		for(std::map<si32,std::pair<ui32,si32> >::iterator i=slots.begin(); i!=slots.end(); ++i)
+		for(std::map<si32,std::pair<ui32,si32> >::const_iterator i=slots.begin(); i!=slots.end(); ++i)
 		{
 			if(i->second.first == creature)
 			{
@@ -36,6 +36,18 @@ public:
 	operator bool() const
 	{
 		return slots.size()>0;
+	}
+	void sweep()
+	{
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i=slots.begin(); i!=slots.end(); ++i)
+		{
+			if(!i->second.second)
+			{
+				slots.erase(i);
+				sweep();
+				break;
+			}
+		}
 	}
 };
 

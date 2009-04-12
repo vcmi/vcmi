@@ -1364,13 +1364,15 @@ void CAdvMapInt::fendTurn()
 
 void CAdvMapInt::activate()
 {
-	if(active++)
-	{
-		tlog1 << "Error: advmapint already active...\n";
-	}
 	if(subInt == heroWindow)
 	{
 		heroWindow->activate();
+		return;
+	}
+	if(active++)
+	{
+		tlog1 << "Error: advmapint already active...\n";
+		active--;
 		return;
 	}
 	LOCPLINT->curint = this;
@@ -1397,10 +1399,6 @@ void CAdvMapInt::activate()
 }
 void CAdvMapInt::deactivate()
 {
-	if(--active)
-	{
-		tlog1 << "Error: advmapint still active...\n";
-	}
 	if(subInt == heroWindow)
 	{
 		heroWindow->deactivate();
@@ -1410,6 +1408,12 @@ void CAdvMapInt::deactivate()
 	hide();
 
 	LOCPLINT->cingconsole->deactivate();
+
+	if(--active)
+	{
+		tlog1 << "Error: advmapint still active...\n";
+		deactivate();
+	}
 }
 void CAdvMapInt::show(SDL_Surface *to)
 {

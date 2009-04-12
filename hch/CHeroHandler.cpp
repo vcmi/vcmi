@@ -119,7 +119,7 @@ void CHeroHandler::loadObstacles()
 	inp.open("config" PATHSEPARATOR "obstacles.txt", std::ios_base::in|std::ios_base::binary);
 	if(!inp.is_open())
 	{
-		tlog1<<"missing file: config/heroes_sec_skills.txt"<<std::endl;
+		tlog1<<"missing file: config/obstacles.txt"<<std::endl;
 	}
 	else
 	{

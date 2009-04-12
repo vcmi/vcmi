@@ -324,16 +324,14 @@ int CCallback::getHeroSerial(const CGHeroInstance * hero) const
 const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	if(!obj)
+	const CArmedInstance *armi = dynamic_cast<const CArmedInstance*>(obj);
+	if(!armi)
 		return NULL;
-	if(obj->ID == HEROI_TYPE)
-		return &(dynamic_cast<const CGHeroInstance*>(obj))->army;
-	else if(obj->ID == TOWNI_TYPE)
-		return &(dynamic_cast<const CGTownInstance*>(obj)->army);
-	else return NULL;
+	else 
+		return &armi->army;
 }
 
-int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
+int CCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
 {
 	if(s1->tempOwner != player   ||   s2->tempOwner != player)
 		return -1;
@@ -343,8 +341,8 @@ int CCallback::swapCreatures(const CGObjectInstance *s1, const CGObjectInstance 
 	return 0;
 }
 
-int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)
-{	
+int CCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
+{
 	if ((s1->tempOwner!= player  ||  s2->tempOwner!=player))
 	{
 		return -1;
@@ -353,7 +351,7 @@ int CCallback::mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s
 	*cl->serv << &pack;
 	return 0;
 }
-int CCallback::splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)
+int CCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)
 {
 	if (s1->tempOwner!= player  ||  s2->tempOwner!=player || (!val))
 	{

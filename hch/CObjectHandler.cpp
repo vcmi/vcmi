@@ -1292,7 +1292,10 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 		return;
 
 	if(h->tempOwner == tempOwner) //we're visiting our mine
-		return; //TODO: leaving garrison
+	{
+		cb->showGarrisonDialog(id,h->id,0);
+		return; 
+	}
 
 	//TODO: check if mine is guarded
 	cb->setOwner(id,h->tempOwner); //not ours? flag it!

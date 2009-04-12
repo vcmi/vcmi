@@ -38,13 +38,9 @@ extern bool end2;
 		bnr.round = gs->curB->round + 1;\
 		sendAndApply(&bnr);
 
-boost::mutex gsm;
-ui32 CGameHandler::QID = 1;
-
 CondSh<bool> battleMadeAction;
 CondSh<BattleResult *> battleResult(NULL);
 
-std::map<ui32, CFunctionList<void(ui32)> > callbacks; //question id => callback function - for selection dialogs
 
 class CBaseForGHApply
 {
@@ -581,6 +577,7 @@ void CGameHandler::moveStack(int stack, int dest)
 }
 CGameHandler::CGameHandler(void)
 {
+	QID = 1;
 	gs = NULL;
 	IObjectInterface::cb = this;
 	applier = new CGHApplier;
@@ -1466,6 +1463,12 @@ void CGameHandler::arrangeStacks(si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, s
 	CCreatureSet temp1 = s1->army, temp2 = s2->army,
 		&S1 = temp1, &S2 = (s1!=s2)?(temp2):(temp1);
 
+	if(!isAllowedExchange(id1,id2))
+	{
+		complain("Cannot exchange stacks between these two objects!\n");
+		return;
+	}
+
 	if(what==1) //swap
 	{
 		std::swap(S1.slots[p1],S2.slots[p2]); //swap slots
@@ -1925,10 +1928,25 @@ void CGameHandler::hireHero( ui32 tid, ui8 hid )
 void CGameHandler::queryReply( ui32 qid, ui32 answer )
 {
 	gsm.lock();
-	CFunctionList<void(ui32)> callb = callbacks[qid];
-	callbacks.erase(qid);
+	if(vstd::contains(callbacks,qid))
+	{
+		CFunctionList<void(ui32)> callb = callbacks[qid];
+		callbacks.erase(qid);
+		if(callb)
+			callb(answer);
+	}
+	else if(vstd::contains(garrisonCallbacks,qid))
+	{
+		if(garrisonCallbacks[qid])
+			garrisonCallbacks[qid]();
+		garrisonCallbacks.erase(qid);
+		allowedExchanges.erase(qid);
+	}
+	else
+	{
+		tlog1 << "Unknown query reply...\n";
+	}
 	gsm.unlock();
-	callb(answer);
 }
 
 void CGameHandler::makeBattleAction( BattleAction &ba )
@@ -2398,4 +2416,50 @@ ui32 CGameHandler::getQueryResult( ui8 player, int queryID )
 {
 	//TODO: write
 	return 0;
+}
+
+void CGameHandler::showGarrisonDialog( int upobj, int hid, const boost::function<void()> &cb )
+{
+	ui8 player = getOwner(hid);
+	GarrisonDialog gd;
+	gd.hid = hid;
+	gd.objid = upobj;
+	gsm.lock();
+	gd.id = QID;
+	garrisonCallbacks[QID] = cb;
+	allowedExchanges[QID] = std::pair<si32,si32>(upobj,hid);
+	states.addQuery(player,QID);
+	QID++; 
+	sendAndApply(&gd);
+	gsm.unlock();
+}
+
+bool CGameHandler::isAllowedExchange( int id1, int id2 )
+{
+	if(id1 == id2)
+		return true;
+
+	{
+		boost::unique_lock<boost::mutex> lock(gsm);
+		for(std::map<ui32, std::pair<si32,si32> >::const_iterator i = allowedExchanges.begin(); i!=allowedExchanges.end(); i++)
+			if(id1 == i->second.first && id2 == i->second.second   ||   id2 == i->second.first && id1 == i->second.second)
+				return true;
+	}
+
+	const CGObjectInstance *o1 = getObj(id1), *o2 = getObj(id2);
+
+	if(o1->ID == TOWNI_TYPE)
+	{
+		const CGTownInstance *t = static_cast<const CGTownInstance*>(o1);
+		if(t->visitingHero == o2  ||  t->garrisonHero == o2)
+			return true;
+	}
+	if(o2->ID == TOWNI_TYPE)
+	{
+		const CGTownInstance *t = static_cast<const CGTownInstance*>(o2);
+		if(t->visitingHero == o1  ||  t->garrisonHero == o1)
+			return true;
+	}
+
+	return false;
 }

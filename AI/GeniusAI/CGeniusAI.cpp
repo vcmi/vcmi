@@ -64,6 +64,11 @@ void CGeniusAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector
 	callback(rand() % skills.size());
 }
 
+void GeniusAI::CGeniusAI::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd )
+{
+	onEnd();
+}
+
 void CGeniusAI::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, bool selection, bool cancel )
 {
 	m_cb->selectionMade(cancel ? 0 : 1, askID);

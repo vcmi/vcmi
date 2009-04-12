@@ -33,9 +33,9 @@ class ICallback
 public:
 	virtual bool moveHero(const CGHeroInstance *h, int3 dst) const =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	virtual void selectionMade(int selection, int asker) =0;
-	virtual int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
-	virtual int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
-	virtual int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
+	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
+	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
+	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses diven hero; true - successfuly, false - not successfuly
 	virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
 	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)=0;
@@ -123,9 +123,9 @@ public:
 //commands
 	bool moveHero(const CGHeroInstance *h, int3 dst) const; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	void selectionMade(int selection, int asker);
-	int swapCreatures(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2);
-	int mergeStacks(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2); //first goes to the second
-	int splitStack(const CGObjectInstance *s1, const CGObjectInstance *s2, int p1, int p2, int val);
+	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2);
+	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second
+	int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val);
 	bool dismissHero(const CGHeroInstance * hero);
 	bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2);
 	bool buildBuilding(const CGTownInstance *town, si32 buildingID);

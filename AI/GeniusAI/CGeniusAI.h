@@ -194,6 +194,7 @@ public:
 	virtual void tileRevealed(int3 pos){};
 	virtual void tileHidden(int3 pos){};
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
+	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
 	// battle
 	virtual void actionFinished(const BattleAction *action);//occurs AFTER every action taken by any stack or by the hero
 	virtual void actionStarted(const BattleAction *action);//occurs BEFORE every action taken by any stack or by the hero
