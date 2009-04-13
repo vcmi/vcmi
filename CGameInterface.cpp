@@ -27,6 +27,11 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	getAI = (CGlobalAI*(*)())GetProcAddress(dll,"GetNewAI");
 #else
 	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
+	if (!dll)
+	{
+		tlog1 << "Cannot open AI library ("<<dllname<<"). Throwing..."<<std::endl;
+		throw new std::string("Cannot open AI library");
+	}
 	getName = (void(*)(char*))dlsym(dll,"GetAiName");
 	getAI = (CGlobalAI*(*)())dlsym(dll,"GetNewAI");
 #endif

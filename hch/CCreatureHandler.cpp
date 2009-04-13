@@ -389,9 +389,10 @@ void CCreatureHandler::loadCreatures()
 	inp.seekg(0,std::ios::end); // na koniec
 	int andame2 = inp.tellg();  // read length
 	inp.seekg(0,std::ios::beg); // wracamy na poczatek
-	char * bufor = new char[andame2]; // allocate memory
+	char * bufor = new char[andame2+1]; // allocate memory
 	inp.read((char*)bufor, andame2); // read map file to buffer
 	inp.close();
+	bufor[andame2] = 0;
 	buf = std::string(bufor);
 	delete [] bufor;
 

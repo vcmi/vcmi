@@ -20,7 +20,7 @@ AC_DISABLE_STATIC
 AC_PROG_LIBTOOL
 
 CFLAGS="-g"
-CXXFLAGS="-g"
+CXXFLAGS="-O1 -ggdb -Wall"
 AC_CHECK_LIB([stdc++], [main])
 if test "x$GCC" = "xyes"; then
       stdcxx_name=`$CXX -print-file-name=libstdc++.so`
@@ -64,4 +64,4 @@ AC_FUNC_MALLOC
 AC_FUNC_SELECT_ARGTYPES
 AC_CHECK_FUNCS([atexit memset pow select sqrt])
 
-AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile)
+AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/GeniusAI/Makefile)

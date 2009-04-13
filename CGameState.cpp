@@ -1189,9 +1189,9 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	//	}
 
 		//init visiting and garrisoned heroes
-		for(int l=0; l<k->second.heroes.size();l++)
+		for(unsigned int l=0; l<k->second.heroes.size();l++)
 		{ 
-			for(int m=0; m<k->second.towns.size();m++)
+			for(unsigned int m=0; m<k->second.towns.size();m++)
 			{
 				int3 vistile = k->second.towns[m]->pos; vistile.x--; //tile next to the entrance
 				if(vistile == k->second.heroes[l]->pos || k->second.heroes[l]->pos==k->second.towns[m]->pos)

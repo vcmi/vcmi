@@ -1,13 +1,10 @@
-AUTOMAKE_OPTIONS=foreign
 bin_PROGRAMS = vcmiserver
-vcmiserver_LDADD = $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_THREAD_LIB)
-#vcmi_LDADD = $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_THREAD_LIB)
-#AM_CXXFLAGS = $(BOOST_CPPFLAGS)
+
+vcmiserver_LDADD = $(top_builddir)/lib/libvcmi.a $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_THREAD_LIB)
 vcmiserver_LDFLAGS = -L$(top_builddir)/lib
-vcmiserver_LDADD += -lvcmi
 vcmiserver_SOURCES = \
-./CGameHandler.cpp \
-./CVCMIServer.cpp \
-./NetPacksServer.cpp \
-./CGameHandler.h \
-./CVCMIServer.h
+	./CGameHandler.cpp \
+	./CGameHandler.h \
+	./CVCMIServer.cpp \
+	./CVCMIServer.h \
+	./NetPacksServer.cpp
