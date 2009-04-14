@@ -2015,7 +2015,7 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	//LOCPLINT->totalRedraw();
+	LOCPLINT->totalRedraw();
 }
 
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
@@ -2053,9 +2053,8 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		c->garr->odown = c->hslotdown.hero = town->visitingHero;
 		c->garr->set2 = town->visitingHero ? &town->visitingHero->army : NULL;
 		c->garr->recreateSlots();
-		LOCPLINT->totalRedraw();
-		//c->showAll();
 	}
+	LOCPLINT->totalRedraw();
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
@@ -2136,6 +2135,10 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) //called by engine when battle starts; side=0 - left, side=1 - right
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+
+	while(showingDialog->get())
+		SDL_Delay(20);
+
 	battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
 	pushInt(battleInt);
 }
@@ -2501,7 +2504,7 @@ void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
 	SDL_FreeSurface(graphics->heroWins[hero->subID]);
 	graphics->heroWins[hero->subID] = infoWin(hero); 
 	if (adventureInt->selection == hero)
-		adventureInt->infoBar.draw(screen2);
+		adventureInt->infoBar.draw(screen);
 }
 
 bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath * path )
@@ -4747,6 +4750,10 @@ void CGarrisonWindow::deactivate()
 
 void CGarrisonWindow::show(SDL_Surface * to)
 {
+	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+29,pos.y+125,to);
+	blitAt(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->odown)->portrait],pos.x+29,pos.y+222,to);
+	printAtMiddle(CGI->generaltexth->allTexts[709],pos.x+275,pos.y+30,GEOR16,tytulowy,to);
+
 	blitAt(bg,pos,to);
 	split->show(to);
 	quit->show(to);

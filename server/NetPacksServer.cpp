@@ -44,8 +44,8 @@ void MoveHero::applyGh( CGameHandler *gh )
 
 void ArrangeStacks::applyGh( CGameHandler *gh )
 {
-	ERROR_IF_NOT_OWNS(id1);
-	ERROR_IF_NOT_OWNS(id2);
+	//ERROR_IF_NOT_OWNS(id1);
+	//ERROR_IF_NOT_OWNS(id2);
 	gh->arrangeStacks(id1,id2,what,p1,p2,val);
 }
 

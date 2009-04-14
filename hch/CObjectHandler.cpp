@@ -1254,7 +1254,7 @@ int CArmedInstance::getArmyStrength() const
 {
 	int ret = 0;
 	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i=army.slots.begin(); i!=army.slots.end(); i++)
-		ret += VLC->creh->creatures[i->second.first].AIValue;
+		ret += VLC->creh->creatures[i->second.first].AIValue * i->second.second;
 	return ret;
 }
 
@@ -2184,7 +2184,7 @@ const std::string & CGMagicWell::getHoverText() const
 
 void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 {
-	/*if(!(availableFor & (1 << h->tempOwner))) 
+	if(!(availableFor & (1 << h->tempOwner))) 
 		return;
 	if(cb->getPlayerSettings(h->tempOwner)->human)
 	{
@@ -2192,7 +2192,7 @@ void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 			activated(h);
 	}
 	else if(computerActivate)
-		activated(h);*/
+		activated(h);
 }
 
 void CGEvent::endBattle( BattleResult *result ) const
@@ -2215,16 +2215,16 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 
 void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const
 {
+	InfoWindow iw;
+	iw.player = h->tempOwner;
+	iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==60));
+	cb->showInfoDialog(&iw);
+
 	FoWChange fw;
 	fw.player = h->tempOwner;
 	fw.mode = 1;
 	cb->getTilesInRange(fw.tiles,pos,20,h->tempOwner,1);
 	cb->sendAndApply(&fw);
-
-	InfoWindow iw;
-	iw.player = h->tempOwner;
-	iw.text.addTxt(MetaString::ADVOB_TXT,98 + (ID==60));
-	cb->showInfoDialog(&iw);
 }
 
 void CGShrine::onHeroVisit( const CGHeroInstance * h ) const

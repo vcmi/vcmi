@@ -2379,6 +2379,9 @@ void CGameHandler::handleTimeEvents()
 					{
 						iw.components.push_back(Component(Component::RESOURCE,i,ev->resources[i],0));
 						sr.res[i] += ev->resources[i];
+						// Don't let resources becoming negative
+						if (sr.res[i] < 0)
+							sr.res[i] = 0;
 					}
 				}
 				if (iw.components.size())

@@ -4,9 +4,9 @@
 #include <boost/asio.hpp>
 #include <boost/thread.hpp>
 #include <fstream>
-
+#ifndef _MSC_VER
 #include "../lib/RegisterTypes.cpp"
-
+#endif
 
 using namespace boost;
 using namespace boost::asio::ip;

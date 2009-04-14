@@ -1205,6 +1205,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 bool CMapHandler::hideObject(const CGObjectInstance *obj)
 {
 	CDefHandler * curd = obj->defInfo->handler;
+	if(!curd) return false;
 	for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
 	{
 		for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
