@@ -27,7 +27,7 @@ public:
 
 	CMinimap(bool draw=true);
 	~CMinimap();
-	void draw();
+	void draw(SDL_Surface * to);
 	void redraw(int level=-1);// (level==-1) => redraw all levels
 	void updateRadar();
 
@@ -58,7 +58,7 @@ public:
 	void clickRight(tribool down);
 	void hover(bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void show();
+	void show(SDL_Surface * to);
 	void showPath(const SDL_Rect * extRect);
 	int3 whichTileIsIt(const int & x, const int & y); //x,y are cursor position
 	int3 whichTileIsIt(); //uses current cursor pos
@@ -78,7 +78,7 @@ public:
 	CResDataBar(const std::string &defname, int x, int y, int offx, int offy, int resdist, int datedist);
 	~CResDataBar();
 
-	void draw();
+	void draw(SDL_Surface * to);
 };
 class CInfoBar
 	:public virtual CIntObject, public TimeInterested
@@ -94,7 +94,7 @@ public:
 	void newDay(int Day);
 	void showComp(SComponent * comp, int time=5000);
 	void tick();
-	void draw(const CGObjectInstance * specific=NULL); // if specific==0 function draws info about selected hero/town
+	void draw(SDL_Surface * to, const CGObjectInstance * specific=NULL); // if specific==0 function draws info about selected hero/town
 	void blitAnim(int mode);//0 - day, 1 - week
 	CDefHandler * getAnim(int mode);
 };
@@ -163,8 +163,8 @@ public:
 	void activate();
 	void deactivate();
 
-	void show(SDL_Surface * to=NULL); //shows and activates adv. map interface
-	void update(); //redraws terrain
+	void show(SDL_Surface * to); //redraws terrain
+	void showAll(SDL_Surface * to); //shows and activates adv. map interface
 
 	void select(const CArmedInstance *sel);
 	void selectionChanged();

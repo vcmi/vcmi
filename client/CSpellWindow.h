@@ -87,7 +87,7 @@ public:
 
 	void activate();
 	void deactivate();
-	void show(SDL_Surface * to = NULL);
+	void show(SDL_Surface * to);
 };
 
 #endif // __CSPELLWINDOW_H__

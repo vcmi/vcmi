@@ -63,7 +63,7 @@ public:
 	void deactivate();
 	void select(int id, bool mode); //mode==0: id is serial; mode==1: id is unique button id
 	void selectionChanged(int to);
-	void show(SDL_Surface * to = NULL);
+	void show(SDL_Surface * to);
 };
 
 
@@ -92,7 +92,7 @@ public:
 	void block(bool on);
 	void activate(); // makes button active
 	void deactivate(); // makes button inactive (but doesn't delete)
-	void show(SDL_Surface * to = NULL);
+	void show(SDL_Surface * to);
 	CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, 
 		int Value=0, bool Horizontal=true);
 	~CSlider();

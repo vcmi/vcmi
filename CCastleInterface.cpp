@@ -148,7 +148,7 @@ void CBuildingRect::clickRight (tribool down)
 			CGI->buildh->buildings[str->townID][str->ID]->Name());
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
-		vinya->activate();
+		LOCPLINT->pushInt(vinya);
 	}
 }
 void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
@@ -236,10 +236,12 @@ void CHeroGSlot::hover (bool on)
 	if(temp.size())
 		LOCPLINT->statusbar->print(temp);
 }
+
 void CHeroGSlot::clickRight (boost::logic::tribool down)
 {
 
 }
+
 void CHeroGSlot::clickLeft(boost::logic::tribool down)
 {
 	CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
@@ -249,7 +251,6 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 		{
 			highlight = false;
 			LOCPLINT->openHeroWindow(hero);
-			LOCPLINT->adventureInt->heroWindow->quitButton->callback += boost::bind(&CCastleInterface::showAll,owner,screen,true);
 		}
 		else if(other->hero && other->highlight)
 		{
@@ -277,22 +278,24 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 		{
 			highlight = true;
 			owner->garr->highlighted = NULL;
-			owner->showAll();
+			//LOCPLINT->totalRedraw();
 		}
 		hover(false);hover(true); //refresh statusbar
 	}
 	if(indeterminate(down) && !isItIn(&other->pos,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		other->highlight = highlight = false;
-		show();
+		//LOCPLINT->totalRedraw();
 	}
 }
+
 void CHeroGSlot::activate()
 {
 	ClickableL::activate();
 	ClickableR::activate();
 	Hoverable::activate();
 }
+
 void CHeroGSlot::deactivate()
 {
 	highlight = false;
@@ -300,15 +303,17 @@ void CHeroGSlot::deactivate()
 	ClickableR::deactivate();
 	Hoverable::deactivate();
 }
-void CHeroGSlot::show()
+
+void CHeroGSlot::show(SDL_Surface * to)
 {
 	if(hero) //there is hero
-		blitAt(graphics->portraitLarge[hero->portrait],pos);
+		blitAt(graphics->portraitLarge[hero->portrait],pos,to);
 	else if(!upg) //up garrison
-		blitAt(graphics->flags->ourImages[(static_cast<CCastleInterface*>(LOCPLINT->curint))->town->getOwner()].bitmap,pos);
+		blitAt(graphics->flags->ourImages[LOCPLINT->castleInt->town->getOwner()].bitmap,pos,to);
 	if(highlight)
-		blitAt(graphics->bigImgs[-1],pos);
+		blitAt(graphics->bigImgs[-1],pos,to);
 }
+
 CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, CCastleInterface * Owner)
 {
 	owner = Owner;
@@ -320,9 +325,11 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, CCastl
 	upg = updown;
 	highlight = false;
 }
+
 CHeroGSlot::~CHeroGSlot()
 {
 }
+
 std::string getBgName(int type) //TODO - co z tym zrobi�?
 {
 	switch (type)
@@ -364,11 +371,12 @@ public:
 	}
 } srthlp ;
 
-CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
+CCastleInterface::CCastleInterface(const CGTownInstance * Town)
 :hslotup(241,387,0,Town->garrisonHero,this),hslotdown(241,483,1,Town->visitingHero,this)
 {
+	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
+	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	LOCPLINT->castleInt = this;
-	subInt = NULL;
 	hall = NULL;
 	townInt = BitmapHandler::loadBitmap("TOWNSCRN.bmp");
 	cityBg = BitmapHandler::loadBitmap(getBgName(Town->subID));
@@ -410,13 +418,6 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	recreateBuildings();
 
 
-
-	if(Activate)
-	{
-		LOCPLINT->objsToBlit.push_back(this);
-		activate();
-	}
-
 	std::string defname;
 	switch (town->subID)
 	{
@@ -452,8 +453,11 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, bool Activate)
 	}
 	bicons = CDefHandler::giveDefEss(defname);
 }
+
 CCastleInterface::~CCastleInterface()
 {
+	delete bars;
+	delete status;
 	SDL_FreeSurface(townInt);
 	SDL_FreeSurface(cityBg);
 	delete exit;
@@ -471,19 +475,19 @@ CCastleInterface::~CCastleInterface()
 	delete bicons;
 
 }
+
 void CCastleInterface::close()
 {
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
-	deactivate();
-	LOCPLINT->castleInt = NULL;
 	if(town->visitingHero)
 		LOCPLINT->adventureInt->select(town->visitingHero);
-	LOCPLINT->adventureInt->activate();
-	delete this;
+	LOCPLINT->castleInt = NULL;
+	LOCPLINT->popIntTotally(this);
 }
+
 void CCastleInterface::splitF()
 {
 }
+
 void CCastleInterface::buildingClicked(int building)
 {
 	tlog5<<"You've clicked on "<<building<<std::endl;
@@ -497,7 +501,6 @@ void CCastleInterface::buildingClicked(int building)
 	}
 	if(building >= 30)
 	{
-		LOCPLINT->curint->deactivate();
 		showRecruitmentWindow(building);
 	}
 	else
@@ -517,14 +520,11 @@ void CCastleInterface::buildingClicked(int building)
 						CFunctionList<void()> fl = boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,town->visitingHero,0);
 						fl += boost::bind(&CCastleInterface::enterMageGuild,this);
 						std::vector<SComponent*> vvv(1,new SComponent(SComponent::artifact,0,0));
-						LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214],vvv,
-							fl,boost::bind(&CCastleInterface::activate,this),
-							true,true);
+						LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214],vvv,fl,0,true);
 					}
 				}
 				else
 				{ 
-					deactivate();
 					enterMageGuild();
 				}
 				break;
@@ -533,16 +533,13 @@ void CCastleInterface::buildingClicked(int building)
 			{
 				std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(town);
 				CTavernWindow *tv = new CTavernWindow(h[0],h[1],"GOSSIP TEST");
-				deactivate();
-				tv->activate();
+				LOCPLINT->pushInt(tv);
 				break;
 			}
 		case 7: case 8: case 9: //fort/citadel/castle
 			{
-				deactivate();
 				CFortScreen *fs = new CFortScreen(this);
-				fs->activate();
-				fs->show();
+				LOCPLINT->pushInt(fs);
 				break;
 			}
 		case 10: case 11: case 12: case 13: //hall
@@ -550,9 +547,8 @@ void CCastleInterface::buildingClicked(int building)
 			break;
 		case 14:  //marketplace
 			{
-				deactivate();
 				CMarketplaceWindow *cmw = new CMarketplaceWindow(0);
-				cmw->activate();
+				LOCPLINT->pushInt(cmw);
 				break;
 			}
 		case 15: //resource silo
@@ -584,28 +580,23 @@ void CCastleInterface::buildingClicked(int building)
 		}
 	}
 }
+
 void CCastleInterface::enterHall()
 {
-	deactivate();
 	CHallInterface *h = new CHallInterface(this);
-	subInt = h;
-	h->activate();
-	h->show();
+	LOCPLINT->pushInt(h);
 }
-void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/, bool forceTotalRedraw /*= false*/)
+
+void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 {
-	if (!to)
-		to=screen;
-
-
 	blitAt(cityBg,pos,to);
 	blitAt(townInt,pos.x,pos.y+374,to);
-	LOCPLINT->adventureInt->resdatabar.draw();
-	townlist->draw();
-	statusbar->show();
-	resdatabar->draw();
+	LOCPLINT->adventureInt->resdatabar.draw(to);
+	townlist->draw(to);
+	statusbar->show(to);
+	resdatabar->draw(to);
 
-	garr->show();
+	garr->show(to);
 	int pom;
 
 	//draw fort icon
@@ -665,33 +656,26 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/, bool forceTotalRedraw
 		pom++;
 	blitAt(graphics->bigTownPic->ourImages[pom].bitmap,pos.x+15,pos.y+387,to);
 
-	hslotup.show();
-	hslotdown.show();
+	hslotup.show(to);
+	hslotdown.show(to);
 
-	pom=false;
-	if(forceTotalRedraw && !showing)
-		pom = showing = true;
-	show();
-	if(pom)
-		showing = false;
+	show(to);
 
 	if(screen->w != 800 || screen->h !=600)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
+	exit->show(to);
+	split->show(to);
 }
+
 void CCastleInterface::townChange()
 {
 	const CGTownInstance * nt = townlist->items[townlist->selected];
-	deactivate();
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
-	delete this;
-	LOCPLINT->castleInt = new CCastleInterface(nt,true);
+	LOCPLINT->popIntTotally(this);
+	LOCPLINT->pushInt(new CCastleInterface(nt));
 }
+
 void CCastleInterface::show(SDL_Surface * to)
 {
-	if(!showing)
-		return;
-	if (!to)
-		to=screen;
 	count++;
 	if(count==8)
 	{
@@ -717,19 +701,13 @@ void CCastleInterface::show(SDL_Surface * to)
 		if(hBuild==buildings[i] && hBuild->border) //if this this higlighted structure and has border we'll blit it
 			blitAt(hBuild->border,hBuild->pos,to);
 	}
-
 }
+
 void CCastleInterface::activate()
 {
-	if(subInt)
-	{
-		subInt->activate();
-		return;
-	}
 	showing = true;
 	townlist->activate();
 	garr->activate();
-	LOCPLINT->curint = this;
 	LOCPLINT->statusbar = statusbar;
 	exit->activate();
 	split->activate();
@@ -739,15 +717,10 @@ void CCastleInterface::activate()
 	}
 	hslotdown.activate();
 	hslotup.activate();
-	showAll(0,true);
 }
+
 void CCastleInterface::deactivate()
 {
-	if(subInt)
-	{
-		subInt->deactivate();
-		return;
-	}
 	showing = false;
 	townlist->deactivate();
 	garr->deactivate();
@@ -906,13 +879,13 @@ CRecrutationWindow * CCastleInterface::showRecruitmentWindow( int building )
 	crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
 
 	CRecrutationWindow *rw = new CRecrutationWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
-	rw->activate();	
+	LOCPLINT->pushInt(rw);
 	return rw;
 }
 
 void CCastleInterface::enterMageGuild()
 {
-	(new CMageGuildScreen(this))->activate();
+	LOCPLINT->pushInt(new CMageGuildScreen(this));
 }
 void CHallInterface::CBuildingBox::hover(bool on)
 {
@@ -935,8 +908,7 @@ void CHallInterface::CBuildingBox::clickLeft (tribool down)
 {
 	if(pressedL && (!down))
 	{
-		LOCPLINT->castleInt->subInt->deactivate();
-		new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,0);
+		LOCPLINT->pushInt(new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,0));
 	}
 	ClickableL::clickLeft(down);
 }
@@ -944,15 +916,14 @@ void CHallInterface::CBuildingBox::clickRight (tribool down)
 {
 	if(down)
 	{
-		LOCPLINT->castleInt->subInt->deactivate();
-		new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,1);
+		LOCPLINT->pushInt(new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,1));
 	}
 	ClickableR::clickRight(down);
 }
 void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 {
-	CHallInterface *hi = static_cast<CHallInterface*>(LOCPLINT->castleInt->subInt);
-	blitAt(LOCPLINT->castleInt->bicons->ourImages[BID].bitmap,pos.x,pos.y);
+	CCastleInterface *ci = LOCPLINT->castleInt;
+	blitAt(ci->bicons->ourImages[BID].bitmap,pos.x,pos.y,to);
 	int pom, pom2=-1;
 	switch (state)
 	{
@@ -975,10 +946,10 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 		pom = 3;
 		break;
 	}
-	blitAt(hi->bars->ourImages[pom].bitmap,pos.x-1,pos.y+71);
+	blitAt(ci->bars->ourImages[pom].bitmap,pos.x-1,pos.y+71,to);
 	if(pom2>=0)
-		blitAt(hi->status->ourImages[pom2].bitmap,pos.x+135, pos.y+54);
-	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[LOCPLINT->castleInt->town->subID][BID]->Name(),pos.x-1+hi->bars->ourImages[0].bitmap->w/2,pos.y+71+hi->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly);
+		blitAt(ci->status->ourImages[pom2].bitmap,pos.x+135, pos.y+54,to);
+	CSDL_Ext::printAtMiddle(CGI->buildh->buildings[ci->town->subID][BID]->Name(),pos.x-1+ci->bars->ourImages[0].bitmap->w/2,pos.y+71+ci->bars->ourImages[0].bitmap->h/2, GEOR13,zwykly,to);
 }
 void CHallInterface::CBuildingBox::activate()
 {
@@ -1018,8 +989,6 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 	resdatabar.pos.y += pos.y;
 	bg = BitmapHandler::loadBitmap(CGI->buildh->hall[owner->town->subID].first);
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
-	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
-	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	exit = new AdventureMapButton
 		(CGI->generaltexth->tcommands[8],"",boost::bind(&CHallInterface::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
@@ -1079,8 +1048,6 @@ CHallInterface::CHallInterface(CCastleInterface * owner)
 }
 CHallInterface::~CHallInterface()
 {
-	delete bars;
-	delete status;
 	SDL_FreeSurface(bg);
 	for(size_t i=0;i<boxes.size();i++)
 		for(size_t j=0;j<boxes[i].size();j++)
@@ -1089,20 +1056,17 @@ CHallInterface::~CHallInterface()
 }
 void CHallInterface::close()
 {
-	LOCPLINT->castleInt->subInt = NULL;
-	deactivate();
-	delete this;
-	LOCPLINT->castleInt->activate();
+	LOCPLINT->popIntTotally(this);
 }
 void CHallInterface::show(SDL_Surface * to)
 {
-	blitAt(bg,pos);
-	resdatabar.show();
-	exit->show();
+	blitAt(bg,pos,to);
+	resdatabar.show(to);
+	exit->show(to);
 	for(int i=0; i<5; i++)
 	{
 		for(size_t j=0;j<boxes[i].size(); ++j)
-			boxes[i][j]->show();
+			boxes[i][j]->show(to);
 	}
 }
 void CHallInterface::activate()
@@ -1130,7 +1094,6 @@ void CHallInterface::deactivate()
 
 void CHallInterface::CBuildWindow::activate()
 {
-	LOCPLINT->objsToBlit.push_back(this);
 	ClickableR::activate();
 	if(mode)
 		return;
@@ -1138,9 +1101,9 @@ void CHallInterface::CBuildWindow::activate()
 		buy->activate();
 	cancel->activate();
 }
+
 void CHallInterface::CBuildWindow::deactivate()
 {
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	ClickableR::deactivate();
 	if(mode)
 		return;
@@ -1148,38 +1111,37 @@ void CHallInterface::CBuildWindow::deactivate()
 		buy->deactivate();
 	cancel->deactivate();
 }
+
 void CHallInterface::CBuildWindow::Buy()
 {
-	deactivate();
-	LOCPLINT->castleInt->subInt = NULL;
-	LOCPLINT->castleInt->activate();
-	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,bid);
-	delete this;
-	delete LOCPLINT->castleInt->subInt;
+	int building = bid;
+	LOCPLINT->popInts(2); //we - build window and hall screen
+	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,building);
 }
+
 void CHallInterface::CBuildWindow::close()
 {
-	deactivate();
-	delete this;
-	LOCPLINT->castleInt->subInt->activate();
-	LOCPLINT->castleInt->subInt->show();
+	LOCPLINT->popIntTotally(this);
 }
+
 void CHallInterface::CBuildWindow::clickRight (tribool down)
 {
 	if((!down || indeterminate(down)) && mode)
 		close();
 }
+
 void CHallInterface::CBuildWindow::show(SDL_Surface * to)
 {
 	SDL_Rect pom = genRect(bitmap->h-1,bitmap->w-1,pos.x,pos.y);
 	SDL_Rect poms = pom; poms.x=0;poms.y=0;
-	SDL_BlitSurface(bitmap,&poms,to?to:screen,&pom);
+	SDL_BlitSurface(bitmap,&poms,to,&pom);
 	if(!mode)
 	{
-		buy->show();
-		cancel->show();
+		buy->show(to);
+		cancel->show(to);
 	}
 }
+
 std::string CHallInterface::CBuildWindow::getTextForState(int state)
 {
 	std::string ret;
@@ -1244,6 +1206,7 @@ std::string CHallInterface::CBuildWindow::getTextForState(int state)
 	}
 	return ret;
 }
+
 CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mode)
 :tid(Tid), bid(Bid), state(State), mode(Mode)
 {
@@ -1300,8 +1263,8 @@ CHallInterface::CBuildWindow::CBuildWindow(int Tid, int Bid, int State, bool Mod
 		if(state!=7)
 			buy->state=2;
 	}
-	activate();
 }
+
 CHallInterface::CBuildWindow::~CBuildWindow()
 {
 	SDL_FreeSurface(bitmap);
@@ -1312,10 +1275,8 @@ CHallInterface::CBuildWindow::~CBuildWindow()
 	}
 }
 
-
 CFortScreen::~CFortScreen()
 {
-	LOCPLINT->curint->subInt = NULL;
 	for(size_t i=0;i<crePics.size();i++)
 		delete crePics[i];
 	for (size_t i=0;i<recAreas.size();i++)
@@ -1326,29 +1287,26 @@ CFortScreen::~CFortScreen()
 
 void CFortScreen::show( SDL_Surface * to)
 {
-	blitAt(bg,pos);
+	blitAt(bg,pos,to);
 	static unsigned char anim = 1;
 	for (int i=0; i<CREATURES_PER_TOWN; i++)
 	{
-		crePics[i]->blitPic(screen,pos.x+positions[i].x+159,pos.y+positions[i].y+4,!(anim%4));
+		crePics[i]->blitPic(to,pos.x+positions[i].x+159,pos.y+positions[i].y+4,!(anim%4));
 	}
 	anim++;
-	exit->show();
-	resdatabar.show();
-	LOCPLINT->statusbar->show();
+	exit->show(to);
+	resdatabar.show(to);
+	LOCPLINT->statusbar->show(to);
 }
 
 void CFortScreen::activate()
 {
-	LOCPLINT->curint->subInt = this;
 	LOCPLINT->statusbar = LOCPLINT->castleInt->statusbar;
 	exit->activate();
 	for (size_t i=0;i<recAreas.size(); ++i)
 	{
 		recAreas[i]->activate();
 	}
-	LOCPLINT->objsToBlit -= LOCPLINT->castleInt;
-	LOCPLINT->objsToBlit += this;
 }
 
 void CFortScreen::deactivate()
@@ -1358,20 +1316,16 @@ void CFortScreen::deactivate()
 	{
 		recAreas[i]->deactivate();
 	}
-	LOCPLINT->objsToBlit -= this;
-	LOCPLINT->objsToBlit += LOCPLINT->castleInt;
 }
 
 void CFortScreen::close()
 {
-	deactivate();
-	delete this;
-	LOCPLINT->castleInt->activate();
+	LOCPLINT->popIntTotally(this);
 }
+
 CFortScreen::CFortScreen( CCastleInterface * owner )
 {
 	pos = owner->pos;
-	LOCPLINT->curint->subInt = this;
 	bg = NULL;
 	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CFortScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	positions += genRect(126,386,10,22),genRect(126,386,404,22),
@@ -1464,8 +1418,7 @@ void CFortScreen::RecArea::clickLeft (tribool down)
 {
 	if(!down && pressedL)
 	{
-		LOCPLINT->curint->deactivate();
-		CRecrutationWindow *rw = LOCPLINT->castleInt->showRecruitmentWindow(bid); //do not touch me
+		LOCPLINT->castleInt->showRecruitmentWindow(bid);
 	}
 	ClickableL::clickLeft(down);
 }
@@ -1492,7 +1445,6 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	bg = BitmapHandler::loadBitmap("TPMAGE.bmp");
 	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CMageGuildScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
-	scrolls = CDefHandler::giveDefEss("SPELLSCR.DEF");
 	scrolls2 = CDefHandler::giveDefEss("TPMAGES.DEF");
 	SDL_Surface *view = BitmapHandler::loadBitmap(graphics->guildBgs[owner->town->subID]);
 	SDL_SetColorKey(view,SDL_SRCCOLORKEY,SDL_MapRGB(view->format,0,255,255));
@@ -1512,7 +1464,7 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 			{
 				spells.push_back(Scroll(&CGI->spellh->spells[owner->town->spells[i][j]]));
 				spells[spells.size()-1].pos = positions[i][j];
-				blitAt(scrolls->ourImages[owner->town->spells[i][j]].bitmap,positions[i][j],bg);
+				blitAt(graphics->spellscr->ourImages[owner->town->spells[i][j]].bitmap,positions[i][j],bg);
 			}
 			else
 			{
@@ -1528,56 +1480,55 @@ CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 	}
 	delete scrolls2;
 }
+
 CMageGuildScreen::~CMageGuildScreen()
 {
 	delete exit;
-	delete scrolls;
 	SDL_FreeSurface(bg);
 }
+
 void CMageGuildScreen::close()
 {
-	deactivate();
-	delete this;
-	LOCPLINT->castleInt->subInt = NULL;
-	LOCPLINT->castleInt->activate();
+	LOCPLINT->popIntTotally(this);
 }
+
 void CMageGuildScreen::show(SDL_Surface * to)
 {
-	blitAt(bg,pos);
-	resdatabar.show();
-	LOCPLINT->statusbar->show();
-	exit->show();
+	blitAt(bg,pos,to);
+	resdatabar.show(to);
+	LOCPLINT->statusbar->show(to);
+	exit->show(to);
 }
+
 void CMageGuildScreen::activate()
 {
-	LOCPLINT->objsToBlit += this;
-	LOCPLINT->castleInt->subInt = this;
 	exit->activate();
 	for(size_t i=0;i<spells.size();i++)
 	{
 		spells[i].activate();
 	}
 }
+
 void CMageGuildScreen::deactivate()
 {
-	LOCPLINT->objsToBlit -= this;
 	exit->deactivate();
 	for(size_t i=0;i<spells.size();i++)
 	{
 		spells[i].deactivate();
 	}
 }
+
 void CMageGuildScreen::Scroll::clickLeft (tribool down)
 {
 	if(down)
 	{
 		std::vector<SComponent*> comps(1,
-			new CCustomImgComponent(SComponent::spell,spell->id,0,
-			  static_cast<CMageGuildScreen*>(LOCPLINT->castleInt->subInt)->scrolls->ourImages[spell->id].bitmap,false)
+			new CCustomImgComponent(SComponent::spell,spell->id,0,graphics->spellscr->ourImages[spell->id].bitmap,false)
 		);
 		LOCPLINT->showInfoDialog(spell->descriptions[0],comps);
 	}
 }
+
 void CMageGuildScreen::Scroll::clickRight (tribool down)
 {
 	if(down)
@@ -1586,14 +1537,14 @@ void CMageGuildScreen::Scroll::clickRight (tribool down)
 		vinya->free = true;
 		vinya->bitmap = CMessage::drawBoxTextBitmapSub
 			(LOCPLINT->playerID,
-			spell->descriptions[0],
-			static_cast<CMageGuildScreen*>(LOCPLINT->castleInt->subInt)->scrolls->ourImages[spell->id].bitmap,
+			spell->descriptions[0],graphics->spellscr->ourImages[spell->id].bitmap,
 			spell->name,30,30);
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
-		vinya->activate();
+		LOCPLINT->pushInt(vinya);
 	}
 }
+
 void CMageGuildScreen::Scroll::hover(bool on)
 {
 	Hoverable::hover(on);
@@ -1603,12 +1554,14 @@ void CMageGuildScreen::Scroll::hover(bool on)
 		LOCPLINT->statusbar->clear();
 
 }
+
 void CMageGuildScreen::Scroll::activate()
 {
 	ClickableL::activate();
 	ClickableR::activate();
 	Hoverable::activate();
 }
+
 void CMageGuildScreen::Scroll::deactivate()
 {
 	ClickableL::deactivate();
@@ -1647,16 +1600,15 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	blitAt(graphics->resources32->ourImages[6].bitmap,148,244,bmp);
 }
 
-void CBlacksmithDialog::show( SDL_Surface * to/*=NULL*/ )
+void CBlacksmithDialog::show( SDL_Surface * to )
 {
-	blitAt(bmp,pos);
-	buy->show();
-	cancel->show();
+	blitAt(bmp,pos,to);
+	buy->show(to);
+	cancel->show(to);
 }
 
 void CBlacksmithDialog::activate()
 {
-	LOCPLINT->objsToBlit += this;
 	if(!buy->bitmapOffset)
 		buy->activate();
 	cancel->activate();
@@ -1664,7 +1616,6 @@ void CBlacksmithDialog::activate()
 
 void CBlacksmithDialog::deactivate()
 {
-	LOCPLINT->objsToBlit -= this;
 	if(!buy->bitmapOffset)
 		buy->deactivate();
 	cancel->deactivate();
@@ -1679,7 +1630,5 @@ CBlacksmithDialog::~CBlacksmithDialog()
 
 void CBlacksmithDialog::close()
 {
-	deactivate();
-	delete this;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popIntTotally(this);
 }

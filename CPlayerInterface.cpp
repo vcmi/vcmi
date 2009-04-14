@@ -174,12 +174,10 @@ StackState* getStackState(const CGObjectInstance *obj, int pos, bool town)
 
 void CGarrisonSlot::clickRight (tribool down)
 {
-	StackState *pom = getStackState(getObj(),ID,LOCPLINT->curint == LOCPLINT->castleInt);
+	StackState *pom = getStackState(getObj(),ID, LOCPLINT->topInt() == LOCPLINT->castleInt);
 	if(down && creature)
 	{
-		(new CCreInfoWindow(creature->idNumber,0,count,pom,boost::function<void()>(),boost::function<void()>(),NULL))
-				->activate();
-		//LOCPLINT->curint->deactivate();
+		LOCPLINT->pushInt(new CCreInfoWindow(creature->idNumber,0,count,pom,0,0,NULL));
 	}
 	delete pom;
 }
@@ -197,40 +195,40 @@ void CGarrisonSlot::clickLeft(tribool down)
 		{
 			if(owner->highlighted == this) //view info
 			{
-				StackState *pom2 = getStackState(getObj(),ID,LOCPLINT->curint == LOCPLINT->castleInt);
-				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(),ID);
-				if(pom.oldID>=0)
+				StackState *pom2 = getStackState(getObj(), ID, LOCPLINT->topInt() == LOCPLINT->castleInt);
+				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(), ID);
+
+				CCreInfoWindow *creWindow = NULL;
+				if(pom.oldID>=0) //upgrade is possible
 				{
-					(new CCreInfoWindow
-						(creature->idNumber,1,count,pom2,
-						boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,pom.newID[0]), //if upgrade is possible we'll bind proper function in callback
-						 boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),&pom))
-							->activate();
+
+					creWindow = new CCreInfoWindow(
+						creature->idNumber,1,count,pom2,
+						boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,pom.newID[0]), //bind upgrade function
+						boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),&pom);
 				}
 				else
 				{
-					(new CCreInfoWindow
-						(creature->idNumber,1,count,pom2,0, boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),NULL) )
-						->activate();
+					creWindow = new CCreInfoWindow(
+						creature->idNumber,1,count,pom2,0, 
+						boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID), NULL);
 				}
-				if(LOCPLINT->curint->subInt)
-					LOCPLINT->curint->subInt->deactivate();
-				else
-					LOCPLINT->curint->deactivate();
+
+				LOCPLINT->pushInt(creWindow);
+
 				owner->highlighted = NULL;
-				show();
+				//show();
 				refr = true;
 				delete pom2;
 			}
 			else if((owner->splitting || LOCPLINT->shiftPressed())
-				&& (!creature 
+				&& (!creature
 					|| (creature == owner->highlighted->creature))
-			)
+			) //we want to split
 			{
 				owner->p2 = ID; //store the second stack pos
 				owner->pb = upg;//store the second stack owner (up or down army)
 				owner->splitting = false;
-				LOCPLINT->curint->deactivate();
 
 				int totalAmount = owner->highlighted->count;
 				if(creature) 
@@ -253,7 +251,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 
 
 				CSplitWindow * spw = new CSplitWindow(owner->highlighted->creature->idNumber, totalAmount, owner, last, count);
-				spw->activate();
+				LOCPLINT->pushInt(spw);
 				refr = true;
 			}
 			else if(creature != owner->highlighted->creature) //swap
@@ -275,7 +273,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 		{
 			if(creature)
 				owner->highlighted = this;
-			show();
+			//show();
 			refr = true;
 		}
 		if(refr) {hover(false);	hover(true); } //to refresh statusbar
@@ -315,28 +313,28 @@ CGarrisonSlot::~CGarrisonSlot()
 	if(active)
 		deactivate();
 }
-void CGarrisonSlot::show()
+void CGarrisonSlot::show(SDL_Surface * to)
 {
 	if(creature)
 	{
 		char buf[15];
 		SDL_itoa(count,buf,10);
-		blitAt(graphics->bigImgs[creature->idNumber],pos);
-		printToWR(buf,pos.x+56,pos.y+62,GEOR16,zwykly);
+		blitAt(graphics->bigImgs[creature->idNumber],pos,to);
+		printToWR(buf,pos.x+56,pos.y+62,GEOR16,zwykly,to);
 
 		if((owner->highlighted==this)
 			|| (owner->splitting && owner->highlighted->creature == creature))
 		{
-			blitAt(graphics->bigImgs[-1],pos);
+			blitAt(graphics->bigImgs[-1],pos,to);
 		}
 	}
 	else //empty slot
 	{
 		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), 
 			jakis2 = pos;
-		SDL_BlitSurface(owner->sur,&jakis1,screen,&jakis2);
+		SDL_BlitSurface(owner->sur,&jakis1,to,&jakis2);
 		if(owner->splitting)
-			blitAt(graphics->bigImgs[-1],pos);
+			blitAt(graphics->bigImgs[-1],pos,to);
 	}
 }
 CGarrisonInt::~CGarrisonInt()
@@ -359,7 +357,7 @@ CGarrisonInt::~CGarrisonInt()
 	}
 }
 
-void CGarrisonInt::show()
+void CGarrisonInt::show(SDL_Surface * to)
 {
 	if(sup)
 	{
@@ -367,7 +365,7 @@ void CGarrisonInt::show()
 		{
 			if((*sup)[i])
 			{
-				(*sup)[i]->show();
+				(*sup)[i]->show(to);
 			}
 		}
 	}
@@ -377,7 +375,7 @@ void CGarrisonInt::show()
 		{
 			if((*sdown)[i])
 			{
-				(*sdown)[i]->show();
+				(*sdown)[i]->show(to);
 			}
 		}
 	}
@@ -502,7 +500,7 @@ void CGarrisonInt::recreateSlots()
 	{
 		//ignoreEvent = true;
 		activeteSlots();
-		show();
+		//show();
 	}
 }
 void CGarrisonInt::splitClick()
@@ -510,7 +508,7 @@ void CGarrisonInt::splitClick()
 	if(!highlighted)
 		return;
 	splitting = !splitting;
-	show();
+	//show();
 }
 void CGarrisonInt::splitStacks(int am2)
 {
@@ -567,8 +565,8 @@ CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const st
 	ID = -1;
 	for(int i=0;i<Buttons.size();i++)
 	{
-		buttons.push_back(new AdventureMapButton("","",Buttons[i].second,0,0,Buttons[i].first));
-		buttons[i]->callback += boost::bind(&CInfoWindow::close,this); //each button will close the window apart from call-defined actions
+		buttons.push_back(new AdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first));
+		buttons[i]->callback.add(Buttons[i].second); //each button will close the window apart from call-defined actions
 	}
 
 	buttons.front()->assignedKeys.insert(SDLK_RETURN); //first button - reacts on enter
@@ -586,15 +584,14 @@ CInfoWindow::CInfoWindow()
 }
 void CInfoWindow::close()
 {
-	deactivate();
-	delete this;
+	LOCPLINT->popIntTotally(this);
 	LOCPLINT->showingDialog->setn(false);
 }
 void CInfoWindow::show(SDL_Surface * to)
 {
-	CSimpleWindow::show();
+	CSimpleWindow::show(to);
 	for(int i=0;i<buttons.size();i++)
-		buttons[i]->show();
+		buttons[i]->show(to);
 }
 
 CInfoWindow::~CInfoWindow()
@@ -620,7 +617,6 @@ void CInfoWindow::deactivate()
 		components[i]->deactivate();
 	for(int i=0;i<buttons.size();i++)
 		buttons[i]->deactivate();
-	LOCPLINT->removeObjToBlit(this);
 }
 void CRClickPopup::clickRight (tribool down)
 {
@@ -632,13 +628,16 @@ void CRClickPopup::clickRight (tribool down)
 void CRClickPopup::activate()
 {
 	ClickableR::activate();
-	LOCPLINT->objsToBlit.push_back(this);
 }
 
 void CRClickPopup::deactivate()
 {
 	ClickableR::deactivate();
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
+}
+
+void CRClickPopup::close()
+{
+	LOCPLINT->popIntTotally(this);
 }
 
 CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
@@ -651,21 +650,13 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 }
 void CInfoPopup::close()
 {
-	deactivate();
 	if(free)
 		SDL_FreeSurface(bitmap);
-	delete this;
-	if(LOCPLINT->curint->subInt)
-		return;
-
-	if(LOCPLINT->curint == LOCPLINT->adventureInt)
-		LOCPLINT->adventureInt->show();
-	else if(LOCPLINT->curint == LOCPLINT->castleInt)
-		LOCPLINT->castleInt->showAll();
+	LOCPLINT->popIntTotally(this);
 }
 void CInfoPopup::show(SDL_Surface * to)
 {
-	blitAt(bitmap,pos.x,pos.y,(to)?(to):(screen));
+	blitAt(bitmap,pos.x,pos.y,to);
 }
 
 void SComponent::init(Etype Type, int Subtype, int Val)
@@ -883,8 +874,6 @@ void CSelectableComponent::show(SDL_Surface * to)
 }
 void CSimpleWindow::show(SDL_Surface * to)
 {
-	if(!to)
-		to=screen;
 	blitAt(bitmap,pos.x,pos.y,to);
 }
 CSimpleWindow::~CSimpleWindow()
@@ -933,12 +922,6 @@ CSelWindow::CSelWindow(const std::string &text, int player, int charperline, con
 	}
 	CMessage::drawIWindow(this,text,player,charperline);
 }
-void CSelWindow::close()
-{
-	deactivate();
-	LOCPLINT->showingDialog->setn(false);
-	delete this;
-}
 
 void CSelWindow::madeChoice()
 {
@@ -966,6 +949,7 @@ CButtonBase::CButtonBase()
 	ourObj=NULL;
 	state=0;
 }
+
 CButtonBase::~CButtonBase()
 {
 	if(notFreeButton)
@@ -974,36 +958,29 @@ CButtonBase::~CButtonBase()
 		for(int j=0;j<imgs[i].size();j++)
 			SDL_FreeSurface(imgs[i][j]);
 }
+
 void CButtonBase::show(SDL_Surface * to)
 {
-	if(!to)
-		to=screen;
+	int img = std::min(state+bitmapOffset,int(imgs[curimg].size()-1));
+
 	if (abs)
 	{
-		blitAt(imgs[curimg]
-			[( (state+bitmapOffset) < (imgs[curimg].size()) )	?
-				(state+bitmapOffset)	:
-				(imgs[curimg].size()-1)			]
-													,pos.x,pos.y,to);
-		//updateRect(&pos,to);
+		blitAt(imgs[curimg][img],pos.x,pos.y,to);
 	}
 	else
 	{
-		blitAt(imgs[curimg]
-			[( (state+bitmapOffset) < (imgs[curimg].size()) )	?
-				(state+bitmapOffset)	:
-				(imgs[curimg].size()-1)			],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
-		//updateRect(&genRect(pos.h,pos.w,pos.x+ourObj->pos.x,pos.y+ourObj->pos.y),to);
-
+		blitAt(imgs[curimg][img],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
 	}
 }
+
 ClickableL::ClickableL()
 {
 	pressedL=false;
 }
 
 ClickableL::~ClickableL()
-{}
+{
+}
 
 void ClickableL::clickLeft(tribool down)
 {
@@ -1101,12 +1078,12 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
 	LOCPLINT = this;
 	curAction = NULL;
-	curint = NULL;
 	playerID=Player;
 	serialID=serial;
 	human=true;
 	castleInt = NULL;
 	adventureInt = NULL;
+	battleInt = NULL;
 	pim = new boost::recursive_mutex;
 	showingDialog = new CondSh<bool>(false);
 	heroMoveSpeed = 2;
@@ -1171,8 +1148,9 @@ void CPlayerInterface::yourTurn()
 			adventureInt->select(adventureInt->heroList.items[0].first);
 		else
 			adventureInt->select(adventureInt->townList.items[0]);
-		adventureInt->activate();
 
+		adventureInt->showAll(screen);
+		pushInt(adventureInt);
 
 		timeHandler th;
 		th.getDif();
@@ -1186,11 +1164,8 @@ void CPlayerInterface::yourTurn()
 			//if there are any waiting dialogs, show them
 			if(dialogs.size() && !showingDialog->get())
 			{
-				dialogs.front()->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
 				showingDialog->set(true);
-				curint->deactivate(); //dezaktywacja starego interfejsu
-				dialogs.front()->activate();
-				LOCPLINT->objsToBlit.push_back(dialogs.front());
+				pushInt(dialogs.front());
 				dialogs.pop_front();
 			}
 
@@ -1204,7 +1179,6 @@ void CPlayerInterface::yourTurn()
 				if ((*i)->toNextTick<0)
 					(*i)->tick();
 			}
-			LOCPLINT->adventureInt->updateScreen = false;
 
 			while(true)
 			{
@@ -1225,19 +1199,19 @@ void CPlayerInterface::yourTurn()
 				delete ev;
 			}
 
-			if (curint == adventureInt) //stuff for advMapInt
-			{
-				adventureInt->update();
-			}
-			for(int i=0;i<objsToBlit.size();i++)
-				objsToBlit[i]->show();
+			if(objsToBlit.size() > 1)
+				blitAt(screen2,0,0,screen); //blit background
+			objsToBlit.back()->show(screen); //blit active interface/window
+
 			CGI->curh->draw1();
 			CSDL_Ext::update(screen);
 			CGI->curh->draw2();
 			pim->unlock();
 			SDL_framerateDelay(mainFPSmng);
 		}
-		adventureInt->deactivate();
+
+		popInt(adventureInt);
+
 		cb->endTurn();
 	} HANDLE_EXCEPTION
 }
@@ -1305,9 +1279,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	adventureInt->centerOn(details.ho->pos); //actualizing screen pos
-
-	if(adventureInt == curint)
-		adventureInt->minimap.draw();
+	adventureInt->minimap.draw(screen2);
 
 	if(details.style>0  ||  details.src == details.dst)
 		return;
@@ -1320,7 +1292,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		if(ho->movement > 50)
 			ho->moveDir = getDir(details.src,details.dst);
 		ho->isStanding = true;
-		adventureInt->heroList.draw();
+		//adventureInt->heroList.draw();
 		if (adventureInt->terrain.currentPath && ho->movement>145) //TODO: better condition on movement - check cost of endtile
 		{
 			delete adventureInt->terrain.currentPath;
@@ -1679,7 +1651,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 32), ho->id);
 		}
 		adventureInt->updateScreen = true;
-		LOCPLINT->adventureInt->update(); //updating screen
+		adventureInt->show(screen);
+		//LOCPLINT->adventureInt->show(); //updating screen
 		CSDL_Ext::update(screen);
 
 		SDL_Delay(5);
@@ -1770,7 +1743,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 
 	ho->isStanding = true;
 	//move finished
-	adventureInt->minimap.draw();
+	adventureInt->minimap.draw(screen2);
 	adventureInt->heroList.updateMove(ho);
 
 	//check if user cancelled movement
@@ -1809,11 +1782,8 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
-	adventureInt->deactivate();
-	//timeHandler t;
-	//t.getDif();
-	castleInt = new CCastleInterface(town,true);
-	//std::cout << "Loading town screen: " << t.getDif() <<std::endl;
+	castleInt = new CCastleInterface(town);
+	LOCPLINT->pushInt(castleInt);
 }
 
 SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
@@ -2040,18 +2010,12 @@ void CPlayerInterface::heroManaPointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(adventureInt == curint)
-		adventureInt->heroList.draw();
+	//adventureInt->heroList.draw();
 }
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(!curint)
-		return;
-	if(curint==adventureInt  ||  screen->h > 600  ||  screen->w > 800)
-		adventureInt->resdatabar.draw();
-	if(curint==castleInt && !curint->subInt)
-		castleInt->resdatabar->draw();
+	//LOCPLINT->totalRedraw();
 }
 
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
@@ -2063,8 +2027,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 	}
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
-	curint->deactivate();
-	lw->activate();
+	LOCPLINT->pushInt(lw);
 }
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
@@ -2082,7 +2045,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	}
 	adventureInt->heroList.updateHList();
 
-	CCastleInterface *c = dynamic_cast<CCastleInterface*>(curint);
+	CCastleInterface *c = castleInt;
 	if(c)
 	{
 		c->garr->highlighted = NULL;
@@ -2090,7 +2053,8 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		c->garr->odown = c->hslotdown.hero = town->visitingHero;
 		c->garr->set2 = town->visitingHero ? &town->visitingHero->army : NULL;
 		c->garr->recreateSlots();
-		c->showAll();
+		LOCPLINT->totalRedraw();
+		//c->showAll();
 	}
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
@@ -2111,13 +2075,6 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			SDL_FreeSurface(graphics->heroWins[hh->subID]);
 			graphics->heroWins[hh->subID] = infoWin(hh);
 		}
-		CHeroWindow * hw = adventureInt->heroWindow;
-		if(hw == curint->subInt)
-		{
-			hw->garInt->recreateSlots();
-			hw->garInt->show();
-		}
-
 	}
 	else if (obj->ID == TOWNI_TYPE) //town
 	{
@@ -2135,24 +2092,20 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 
 	}
 
-	if(castleInt) //opened town window - redraw town garrison slots (change is within hero garr)
+	bool wasGarrison = false;
+	for(std::list<IShowActivable*>::iterator i = listInt.begin(); i != listInt.end(); i++)
 	{
-		castleInt->garr->highlighted = NULL;
-		castleInt->garr->recreateSlots();
-	}
-	else if(curint && curint->subInt)
-	{
-		CGarrisonWindow *gw = dynamic_cast<CGarrisonWindow*>(curint->subInt);
-		if(gw)
+		if((*i)->type & IShowActivable::WITH_GARRISON)
 		{
-			gw->garr->recreateSlots();
-			gw->garr->show();
+			CWindowWithGarrison *wwg = static_cast<CWindowWithGarrison*>(*i);
+			wwg->garr->recreateSlots();
+			wasGarrison = true;
 		}
 	}
-
-	if(curint == adventureInt)
-		adventureInt->infoBar.draw();
+	if(wasGarrison)
+		LOCPLINT->totalRedraw();
 }
+
 void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -2165,7 +2118,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 			break;
 		}
 	}
-	if(curint!=castleInt)
+	if(!castleInt)
 		return;
 	if(castleInt->town!=town)
 		return;
@@ -2183,10 +2136,8 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) //called by engine when battle starts; side=0 - left, side=1 - right
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	curint->deactivate();
-	curint = battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
-	curint->activate();
-	LOCPLINT->objsToBlit.push_back(dynamic_cast<IShowable*>(curint));
+	battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
+	pushInt(battleInt);
 }
 
 void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles) //called when battlefield is prepared, prior the battle beginning
@@ -2311,19 +2262,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 void CPlayerInterface::battleEnd(BattleResult *br)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	((CBattleInterface*)curint)->battleFinished(*br);
-}
-
-void CPlayerInterface::battleResultQuited()
-{
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	((CBattleInterface*)curint)->resWindow->deactivate();
-	objsToBlit -= curint;
-	delete battleInt;
-	battleInt = 0;
-	curint = adventureInt;
-	adventureInt->activate();
-	LOCPLINT->showingDialog->setn(false);
+	battleInt->battleFinished(*br);
 }
 
 void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end)
@@ -2410,7 +2349,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	showInfoDialog(text,intComps);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, bool deactivateCur)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
@@ -2418,16 +2357,10 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom);
 
-	if(makingTurn && curint)
+	if(makingTurn && listInt.size())
 	{
 		showingDialog->set(true);
-		if(deactivateCur)
-		{
-			temp->buttons[0]->callback += boost::bind(&IActivable::activate,LOCPLINT->curint);
-			curint->deactivate(); //dezaktywacja starego interfejsu
-		}
-		temp->activate();
-		LOCPLINT->objsToBlit.push_back(temp);
+		pushInt(temp);
 	}
 	else
 	{
@@ -2435,15 +2368,13 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	}
 }
 
-void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool deactivateCur, bool DelComps)
+void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	LOCPLINT->showingDialog->setn(true);
-	if(deactivateCur)
-		curint->deactivate(); //dezaktywacja starego interfejsu
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",boost::bind(&IActivable::activate,curint)));
-	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",boost::bind(&IActivable::activate,curint)));
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
+	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom);
 	temp->delComps = DelComps;
 	for(int i=0;i<onYes.funcs.size();i++)
@@ -2451,8 +2382,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 	for(int i=0;i<onNo.funcs.size();i++)
 		temp->buttons[1]->callback += onNo.funcs[i];
 
-	temp->activate();
-	LOCPLINT->objsToBlit.push_back(temp);
+	LOCPLINT->pushInt(temp);
 }
 
 void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, bool selection, bool cancel )
@@ -2466,7 +2396,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		for(int i=0;i<components.size();i++)
 			intComps.push_back(new SComponent(components[i])); //will be deleted by close in window
 
-		showYesNoDialog(text,intComps,boost::bind(&CCallback::selectionMade,cb,1,askID),boost::bind(&CCallback::selectionMade,cb,0,askID),true,true);
+		showYesNoDialog(text,intComps,boost::bind(&CCallback::selectionMade,cb,1,askID),boost::bind(&CCallback::selectionMade,cb,0,askID),true);
 	}
 	else if(selection)
 	{
@@ -2474,64 +2404,46 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		for(int i=0;i<components.size();i++)
 			intComps.push_back(new CSelectableComponent(components[i])); //will be deleted by CSelWindow::close
 
-		adventureInt->deactivate(); //dezaktywacja starego interfejsu
-
 		std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
-		pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",boost::bind(&IActivable::activate,curint)));
+		pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 		if(cancel)
 		{
-			pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",boost::bind(&IActivable::activate,curint)));
+			pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
 		}
 
 		CSelWindow * temp = new CSelWindow(text,playerID,35,intComps,pom,askID);
-		LOCPLINT->objsToBlit.push_back(temp);
-		temp->activate();
+		pushInt(temp);
 		intComps[0]->clickLeft(true);
 	}
 
 }
 
-void CPlayerInterface::removeObjToBlit(IShowable* obj)
-{
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	objsToBlit.erase
-		(std::find(objsToBlit.begin(),objsToBlit.end(),obj));
-	//delete obj;
-}
 void CPlayerInterface::tileRevealed(const std::set<int3> &pos)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.showTile(*i);
-	if(curint == adventureInt)
-		adventureInt->minimap.draw();
 }
+
 void CPlayerInterface::tileHidden(const std::set<int3> &pos)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	for(std::set<int3>::const_iterator i=pos.begin(); i!=pos.end();i++)
 		adventureInt->minimap.hideTile(*i);
-	if(curint == adventureInt)
-		adventureInt->minimap.draw();
 }
+
 void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	adventureInt->heroWindow->setHero(hero);
-	this->objsToBlit.push_back(adventureInt->heroWindow);
-	curint->deactivate();
-	if(curint == castleInt)
-		castleInt->subInt = adventureInt->heroWindow;
-	adventureInt->heroWindow->quitButton->callback.funcs.clear();
-	adventureInt->heroWindow->quitButton->callback += boost::bind(&CHeroWindow::deactivate,adventureInt->heroWindow);
-	adventureInt->heroWindow->quitButton->callback += boost::bind(&CHeroWindow::quit,adventureInt->heroWindow);
-	adventureInt->heroWindow->activate();
+	adventureInt->heroWindow->quitButton->callback = boost::bind(&CHeroWindow::quit,adventureInt->heroWindow);
+	pushInt(adventureInt->heroWindow);
 }
 
 void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(curint->subInt == adventureInt->heroWindow)
+	if(adventureInt->heroWindow->curHero)
 	{
 		adventureInt->heroWindow->deactivate();
 		adventureInt->heroWindow->setHero(adventureInt->heroWindow->curHero);
@@ -2547,11 +2459,11 @@ void CPlayerInterface::updateWater()
 void CPlayerInterface::availableCreaturesChanged( const CGTownInstance *town )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(curint == castleInt)
+	if(castleInt)
 	{
-		CFortScreen *fs = dynamic_cast<CFortScreen*>(curint->subInt);
-		if(fs)
-			fs->draw(castleInt,false);
+		//CFortScreen *fs = dynamic_cast<CFortScreen*>();
+		//if(fs)
+		//	fs->draw(castleInt,false);
 	}
 }
 
@@ -2589,7 +2501,7 @@ void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
 	SDL_FreeSurface(graphics->heroWins[hero->subID]);
 	graphics->heroWins[hero->subID] = infoWin(hero); 
 	if (adventureInt->selection == hero)
-		adventureInt->infoBar.draw();
+		adventureInt->infoBar.draw(screen2);
 }
 
 bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath * path )
@@ -2624,10 +2536,70 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 {
 	CGarrisonWindow *cgw = new CGarrisonWindow(up,down);
 	cgw->quit->callback += onEnd;
-	curint->deactivate();
-	cgw->activate();
-	objsToBlit += cgw;
-	LOCPLINT->curint->subInt = cgw;
+	pushInt(cgw);
+}
+
+void CPlayerInterface::popInt( IShowActivable *top )
+{
+	assert(listInt.front() == top);
+	top->deactivate();
+	listInt.pop_front();
+	objsToBlit -= top;
+	if(listInt.size())
+		listInt.front()->activate();
+	totalRedraw();
+}
+
+void CPlayerInterface::popIntTotally( IShowActivable *top )
+{
+	assert(listInt.front() == top);
+	popInt(top);
+	delete top;
+}
+
+void CPlayerInterface::pushInt( IShowActivable *newInt )
+{
+	if(listInt.size())
+		listInt.front()->deactivate();
+	listInt.push_front(newInt);
+	newInt->activate();
+	objsToBlit += newInt;
+	LOCPLINT->totalRedraw();
+}
+
+void CPlayerInterface::popInts( int howMany )
+{
+	if(!howMany) return; //senseless but who knows...
+
+	assert(listInt.size() > howMany);
+	listInt.front()->deactivate();
+	for(int i=0; i < howMany; i++)
+	{
+		objsToBlit -= listInt.front();
+		delete listInt.front();
+		listInt.pop_front();
+	}
+	listInt.front()->activate();
+	totalRedraw();
+}
+
+IShowActivable * CPlayerInterface::topInt()
+{
+	if(!listInt.size())
+		return NULL;
+	else 
+		return listInt.front();
+}
+
+void CPlayerInterface::totalRedraw()
+{
+	for(int i=0;i<objsToBlit.size();i++)
+		objsToBlit[i]->showAll(screen2);
+
+	blitAt(screen2,0,0,screen);
+
+	if(objsToBlit.size())
+		objsToBlit.back()->showAll(screen);
 }
 
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
@@ -2644,36 +2616,42 @@ CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)
 	middlex=(pos.w/2)+x;
 	middley=(bg->h/2)+y;
 }
+
 CStatusBar::~CStatusBar()
 {
 	SDL_FreeSurface(bg);
 }
+
 void CStatusBar::clear()
 {
 	if(LOCPLINT->cingconsole->enteredText == "") //for appropriate support for in-game console
 	{
 		current="";
-		show();
+		show(screen);
 	}
 }
+
 void CStatusBar::print(const std::string & text)
 {
 	if(LOCPLINT->cingconsole->enteredText == "" || text == LOCPLINT->cingconsole->enteredText) //for appropriate support for in-game console
 	{
 		current=text;
-		show();
+		show(screen);
 	}
 }
-void CStatusBar::show()
+
+void CStatusBar::show(SDL_Surface * to)
 {
 	SDL_Rect pom = genRect(pos.h,pos.w,pos.x,pos.y);
-	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),screen,&pom);
-	printAtMiddle(current,middlex,middley,GEOR13,zwykly);
+	SDL_BlitSurface(bg,&genRect(pos.h,pos.w,0,0),to,&pom);
+	printAtMiddle(current,middlex,middley,GEOR13,zwykly,to);
 }
+
 std::string CStatusBar::getCurrent()
 {
 	return current;
 }
+
 void CList::activate()
 {
 	ClickableL::activate();
@@ -2682,6 +2660,7 @@ void CList::activate()
 	KeyInterested::activate();
 	MotionInterested::activate();
 };
+
 void CList::deactivate()
 {
 	ClickableL::deactivate();
@@ -2690,13 +2669,16 @@ void CList::deactivate()
 	KeyInterested::deactivate();
 	MotionInterested::deactivate();
 };
+
 void CList::clickLeft(tribool down)
 {
 };
+
 CList::CList(int Size)
 :SIZE(Size)
 {
 }
+
 CHeroList::CHeroList(int Size)
 :CList(Size)
 {
@@ -2730,6 +2712,7 @@ void CHeroList::init()
 	bg = CSDL_Ext::newSurface(w,h,screen);
 	SDL_BlitSurface(LOCPLINT->adventureInt->bg,&genRect(w,h,pos.x,pos.y),bg,&genRect(w,h,0,0));
 }
+
 void CHeroList::genList()
 {
 	int howMany = LOCPLINT->cb->howManyHeroes();
@@ -2740,6 +2723,7 @@ void CHeroList::genList()
 			items.push_back(std::pair<const CGHeroInstance *,CPath *>(h,NULL));
 	}
 }
+
 void CHeroList::select(int which)
 {
 	if (which<0)
@@ -2747,7 +2731,7 @@ void CHeroList::select(int which)
 		selected = which;
 		LOCPLINT->adventureInt->selection = NULL;
 		LOCPLINT->adventureInt->terrain.currentPath = NULL;
-		draw();
+		//draw();
 		LOCPLINT->adventureInt->infoBar.draw(NULL);
 	}
 	if (which>=items.size())
@@ -2767,11 +2751,12 @@ void CHeroList::select(int which)
 		LOCPLINT->adventureInt->terrain.currentPath = NULL;
 	}
 	//recalculated and assigned
-	draw();
-	LOCPLINT->adventureInt->townList.draw();
-	LOCPLINT->adventureInt->infoBar.draw(NULL);
+	//draw();
+	//LOCPLINT->adventureInt->townList.draw();
+	//LOCPLINT->adventureInt->infoBar.draw(NULL);
 	LOCPLINT->cb->setSelection(items[which].first);
 }
+
 void CHeroList::clickLeft(tribool down)
 {
 	if (down)
@@ -2813,7 +2798,7 @@ void CHeroList::clickLeft(tribool down)
 				from--;
 				if (from<0)
 					from=0;
-				draw();
+				//draw();
 			}
 		}
 		else if (!pressed) //down
@@ -2825,7 +2810,8 @@ void CHeroList::clickLeft(tribool down)
 				from++;
 				//if (from<items.size()-5)
 				//	from=items.size()-5;
-				draw();
+
+				//draw();
 			}
 		}
 		else
@@ -2833,6 +2819,7 @@ void CHeroList::clickLeft(tribool down)
 
 	}
 }
+
 void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
@@ -2867,6 +2854,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	LOCPLINT->adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
 	//select(ny+from);
 }
+
 void CHeroList::clickRight(tribool down)
 {
 	if (down)
@@ -2892,10 +2880,10 @@ void CHeroList::clickRight(tribool down)
 
 		//show popup
 		CInfoPopup * ip = new CInfoPopup(graphics->heroWins[items[from+ny].first->subID],
-										LOCPLINT->current->motion.x-graphics->heroWins[items[from+ny].first->subID]->w,
-										LOCPLINT->current->motion.y-graphics->heroWins[items[from+ny].first->subID]->h,false
-										);
-		ip->activate();
+			LOCPLINT->current->motion.x-graphics->heroWins[items[from+ny].first->subID]->w,
+			LOCPLINT->current->motion.y-graphics->heroWins[items[from+ny].first->subID]->h,
+			false);
+		LOCPLINT->pushInt(ip);
 	}
 	else
 	{
@@ -2903,12 +2891,15 @@ void CHeroList::clickRight(tribool down)
 		LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 	}
 }
+
 void CHeroList::hover (bool on)
 {
 }
+
 void CHeroList::keyPressed (const SDL_KeyboardEvent & key)
 {
 }
+
 void CHeroList::updateHList(const CGHeroInstance *toRemove)
 {
 	if(toRemove) //remove specific hero
@@ -2935,6 +2926,7 @@ void CHeroList::updateHList(const CGHeroInstance *toRemove)
 	else
 		select(selected);
 }
+
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {
 	int ser = -1;
@@ -2946,44 +2938,45 @@ void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 	int pom = std::min((which->movement)/100,(si32)mobile->ourImages.size()-1);
 	blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+ser*32); //move point
 }
-void CHeroList::draw()
+
+void CHeroList::draw(SDL_Surface * to)
 {
 	for (int iT=0+from;iT<SIZE+from;iT++)
 	{
 		int i = iT-from;
 		if (iT>=items.size())
 		{
-			blitAt(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32);
-			blitAt(mana->ourImages[0].bitmap,posmanx,posmany+i*32);
-			blitAt(empty,posporx,pospory+i*32);
+			blitAt(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32,to);
+			blitAt(mana->ourImages[0].bitmap,posmanx,posmany+i*32,to);
+			blitAt(empty,posporx,pospory+i*32,to);
 			continue;
 		}
 		const CGHeroInstance *cur = items[iT].first;
 		int pom = cur->movement / 100;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
-		blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32); //move point
+		blitAt(mobile->ourImages[pom].bitmap,posmobx,posmoby+i*32,to); //move point
 		pom = cur->mana / 5;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
-		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32); //mana
+		blitAt(mana->ourImages[pom].bitmap,posmanx,posmany+i*32,to); //mana
 		SDL_Surface * temp = graphics->portraitSmall[cur->portrait];
-		blitAt(temp,posporx,pospory+i*32);
+		blitAt(temp,posporx,pospory+i*32,to);
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE))
 		{
-			blitAt(selection,posporx,pospory+i*32);
+			blitAt(selection,posporx,pospory+i*32,to);
 		}
 		//TODO: support for custom portraits
 	}
 	if (from>0)
-		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y,to);
 	else
-		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
+		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y,to);
 
 	if (items.size()-from > SIZE)
-		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,to);
 	else
-		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
+		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
 }
 
 int CHeroList::getPosOfHero(const CArmedInstance* h)
@@ -3102,7 +3095,7 @@ void CTownList::clickLeft(tribool down)
 		int ny = hy/32;
 		if (ny>SIZE || ny<0)
 			return;
-		if(LOCPLINT->curint == LOCPLINT->adventureInt
+		if(LOCPLINT->topInt() == LOCPLINT->adventureInt
 		  && (ny+from)==selected 
 		  && LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE
 		  )
@@ -3123,7 +3116,8 @@ void CTownList::clickLeft(tribool down)
 				from--;
 				if (from<0)
 					from=0;
-				draw();
+
+				//draw();
 			}
 		}
 		else if (!pressed) //down
@@ -3135,7 +3129,8 @@ void CTownList::clickLeft(tribool down)
 				from++;
 				//if (from<items.size()-5)
 				//	from=items.size()-5;
-				draw();
+
+				//draw();
 			}
 		}
 		else
@@ -3168,8 +3163,12 @@ void CTownList::clickRight(tribool down)
 		}
 
 		//show popup
-		CInfoPopup * ip = new CInfoPopup(graphics->townWins[items[from+ny]->id],LOCPLINT->current->motion.x-graphics->townWins[items[from+ny]->id]->w,LOCPLINT->current->motion.y-graphics->townWins[items[from+ny]->id]->h,false);
-		ip->activate();
+		CInfoPopup * ip = new CInfoPopup(
+			graphics->townWins[items[from+ny]->id],
+			LOCPLINT->current->motion.x-graphics->townWins[items[from+ny]->id]->w,
+			LOCPLINT->current->motion.y-graphics->townWins[items[from+ny]->id]->h,
+			false);
+		LOCPLINT->pushInt(ip);
 	}
 	else
 	{
@@ -3186,33 +3185,33 @@ void CTownList::keyPressed (const SDL_KeyboardEvent & key)
 {
 }
 
-void CTownList::draw()
+void CTownList::draw(SDL_Surface * to)
 {
 	for (int iT=0+from;iT<SIZE+from;iT++)
 	{
 		int i = iT-from;
 		if (iT>=items.size())
 		{
-			blitAt(graphics->getPic(-1),posporx,pospory+i*32);
+			blitAt(graphics->getPic(-1),posporx,pospory+i*32,to);
 			continue;
 		}
 
-		blitAt(graphics->getPic(items[iT]->subID,items[iT]->hasFort(),items[iT]->builded),posporx,pospory+i*32);
+		blitAt(graphics->getPic(items[iT]->subID,items[iT]->hasFort(),items[iT]->builded),posporx,pospory+i*32,to);
 
 		if ((selected == iT) && (LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE))
 		{
-			blitAt(graphics->getPic(-2),posporx,pospory+i*32);
+			blitAt(graphics->getPic(-2),posporx,pospory+i*32,to);
 		}
 	}
 	if (from>0)
-		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+		blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y,to);
 	else
-		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y);
+		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y,to);
 
 	if (items.size()-from>SIZE)
-		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,to);
 	else
-		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y);
+		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
 }
 
 
@@ -3230,12 +3229,12 @@ int CCreaturePic::blitPic(SDL_Surface *to, int x, int y, bool nextFrame)
 	SDL_Rect dst;
 	if(big)
 	{
-		blitAt(graphics->backgrounds[c->faction],x,y);//curx-50,pos.y+130-65);
+		blitAt(graphics->backgrounds[c->faction],x,y,to);//curx-50,pos.y+130-65);
 		dst = genRect(130,100,x,y);
 	}
 	else
 	{
-		blitAt(graphics->backgroundsm[c->faction],x,y);//curx-50,pos.y+130-65);
+		blitAt(graphics->backgroundsm[c->faction],x,y,to);//curx-50,pos.y+130-65);
 		dst = genRect(120,100,x,y);
 	}
 	if(c->isDoubleWide())
@@ -3249,9 +3248,7 @@ SDL_Surface * CCreaturePic::getPic(bool nextFrame)
 }
 void CRecrutationWindow::close()
 {
-	deactivate();
-	delete this;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popIntTotally(this);
 }
 void CRecrutationWindow::Max()
 {
@@ -3308,7 +3305,7 @@ void CRecrutationWindow::clickRight( boost::logic::tribool down )
 			if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 			{
 				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID,0,0,NULL,NULL,NULL,NULL);
-				popup->activate();
+				LOCPLINT->pushInt(popup);
 				break;
 			}
 			curx += 120;
@@ -3318,7 +3315,6 @@ void CRecrutationWindow::clickRight( boost::logic::tribool down )
 
 void CRecrutationWindow::activate()
 {
-	LOCPLINT->objsToBlit.push_back(this);
 	ClickableL::activate();
 	ClickableR::activate();
 	buy->activate();
@@ -3329,7 +3325,6 @@ void CRecrutationWindow::activate()
 }
 void CRecrutationWindow::deactivate()
 {
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	ClickableL::deactivate();
 	ClickableR::deactivate();
 	buy->deactivate();
@@ -3340,37 +3335,37 @@ void CRecrutationWindow::deactivate()
 void CRecrutationWindow::show(SDL_Surface * to)
 {
 	static char c=0;
-	blitAt(bitmap,pos.x,pos.y,to?to:screen);
-	buy->show();
-	max->show();
-	cancel->show();
-	slider->show();
+	blitAt(bitmap,pos.x,pos.y,to);
+	buy->show(to);
+	max->show(to);
+	cancel->show(to);
+	slider->show(to);
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
-	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,screen);
+	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,to);
 	SDL_itoa(slider->value,pom,10); //recruit
-	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,screen);
-	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,GEOR16,tytulowy,screen); //eg "Recruit Dragon flies"
+	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,to);
+	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,GEOR16,tytulowy,to); //eg "Recruit Dragon flies"
 	int curx = pos.x+115-creatures[which].res.size()*16;
 	for(int i=0;i<creatures[which].res.size();i++)
 	{
-		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,screen);
-		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,screen);
+		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx,pos.y+243,to);
+		blitAt(graphics->resources32->ourImages[creatures[which].res[i].first].bitmap,curx+258,pos.y+243,to);
 		SDL_itoa(creatures[which].res[i].second,pom,10);
-		printAtMiddle(pom,curx+12,pos.y+286,GEOR13,zwykly,screen);
+		printAtMiddle(pom,curx+12,pos.y+286,GEOR13,zwykly,to);
 		SDL_itoa(creatures[which].res[i].second * slider->value,pom,10);
-		printAtMiddle(pom,curx+12+258,pos.y+286,GEOR13,zwykly,screen);
+		printAtMiddle(pom,curx+12+258,pos.y+286,GEOR13,zwykly,to);
 		curx+=32;
 	}
 
 	curx = pos.x + 192 + 102 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
-		creatures[i].pic->blitPic(screen,curx-50,pos.y+130-65,!(c%4));
+		creatures[i].pic->blitPic(to,curx-50,pos.y+130-65,!(c%4));
 		curx += 120;
 	}
 	c++;
-	bar->show();
+	bar->show(to);
 }
 CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &Creatures, const boost::function<void(int,int)> &Recruit) //creatures - pairs<creature_ID,amount>
 :recruit(Recruit)
@@ -3489,7 +3484,6 @@ CSplitWindow::~CSplitWindow()
 void CSplitWindow::activate()
 {
 	ClickableL::activate();
-	LOCPLINT->objsToBlit.push_back(this);
 	KeyInterested::activate();
 	ok->activate();
 	cancel->activate();
@@ -3498,7 +3492,6 @@ void CSplitWindow::activate()
 void CSplitWindow::deactivate()
 {
 	ClickableL::deactivate();
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	KeyInterested::deactivate();
 	ok->deactivate();
 	cancel->deactivate();
@@ -3511,9 +3504,7 @@ void CSplitWindow::split()
 }
 void CSplitWindow::close()
 {
-	deactivate();
-	delete this;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popIntTotally(this);
 }
 void CSplitWindow::sliderMoved(int to)
 {
@@ -3524,14 +3515,14 @@ void CSplitWindow::sliderMoved(int to)
 }
 void CSplitWindow::show(SDL_Surface * to)
 {
-	blitAt(bitmap,pos.x,pos.y,screen);
-	ok->show();
-	cancel->show();
-	slider->show();
-	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,GEOR16,zwykly,screen);
-	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,GEOR16,zwykly,screen);
-	anim->blitPic(screen,pos.x+20,pos.y+54,false);
-	anim->blitPic(screen,pos.x+177,pos.y+54,false);
+	blitAt(bitmap,pos.x,pos.y,to);
+	ok->show(to);
+	cancel->show(to);
+	slider->show(to);
+	printAtMiddle(boost::lexical_cast<std::string>(a1) + (!which ? "_" : ""),pos.x+70,pos.y+237,GEOR16,zwykly,to);
+	printAtMiddle(boost::lexical_cast<std::string>(a2) + (which ? "_" : ""),pos.x+233,pos.y+237,GEOR16,zwykly,to);
+	anim->blitPic(to,pos.x+20,pos.y+54,false);
+	anim->blitPic(to,pos.x+177,pos.y+54,false);
 }
 void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
@@ -3584,24 +3575,24 @@ void CSplitWindow::clickLeft( boost::logic::tribool down )
 void CCreInfoWindow::show(SDL_Surface * to)
 {
 	char pom[15];
-	blitAt(bitmap,pos.x,pos.y,screen);
-	anim->blitPic(screen,pos.x+21,pos.y+48,(type) && !(anf%4));
+	blitAt(bitmap,pos.x,pos.y,to);
+	anim->blitPic(to,pos.x+21,pos.y+48,(type) && !(anf%4));
 	if(++anf==4) 
 		anf=0;
 	if(count.size())
-		printTo(count.c_str(),pos.x+114,pos.y+174,GEOR16,zwykly);
+		printTo(count.c_str(),pos.x+114,pos.y+174,GEOR16,zwykly,to);
 	if(upgrade)
-		upgrade->show();
+		upgrade->show(to);
 	if(dismiss)
-		dismiss->show();
+		dismiss->show(to);
 	if(ok)
-		ok->show();
+		ok->show(to);
 }
 
 CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
-:ok(0),dismiss(0),upgrade(0),type(Type),dsm(Dsm),dependant(0)
+:ok(0),dismiss(0),upgrade(0),type(Type),dsm(Dsm)
 {
-	active = false;
+	//active = false;
 	anf = 0;
 	c = &CGI->creh->creatures[Cid];
 	bitmap = BitmapHandler::loadBitmap("CRSTKPU.bmp");
@@ -3733,10 +3724,8 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 				CFunctionList<void()> fs[2];
 				fs[0] += Upg;
 				fs[0] += boost::bind(&CCreInfoWindow::close,this);
-				fs[1] += boost::bind(&CCreInfoWindow::activate,this);
 				CFunctionList<void()> cfl;
-				cfl = boost::bind(&CCreInfoWindow::deactivate,this);
-				cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false,false);
+				cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[207],boost::ref(upgResCost),fs[0],fs[1],false);
 				upgrade = new AdventureMapButton("",CGI->generaltexth->zelp[446].second,cfl,pos.x+76,pos.y+237,"IVIEWCR.DEF",SDLK_u);
 			}
 			else
@@ -3753,10 +3742,8 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 			//on dismiss confirmed
 			fs[0] += Dsm; //dismiss
 			fs[0] += boost::bind(&CCreInfoWindow::close,this);//close this window
-			fs[1] += boost::bind(&CCreInfoWindow::activate,this);
 			CFunctionList<void()> cfl;
-		        cfl = boost::bind(&CCreInfoWindow::deactivate,this);
-			cfl += boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false,false);
+			cfl = boost::bind(&CPlayerInterface::showYesNoDialog,LOCPLINT,CGI->generaltexth->allTexts[12],std::vector<SComponent*>(),fs[0],fs[1],false);
 			dismiss = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,cfl,pos.x+21,pos.y+237,"IVIEWCR2.DEF",SDLK_d);
 		}
 		ok = new AdventureMapButton("",CGI->generaltexth->zelp[445].second,boost::bind(&CCreInfoWindow::close,this),pos.x+216,pos.y+237,"IOKAY.DEF",SDLK_RETURN);
@@ -3791,13 +3778,13 @@ CCreInfoWindow::~CCreInfoWindow()
 	for(int i=0; i<upgResCost.size();i++)
 		delete upgResCost[i];
 }
+
 void CCreInfoWindow::activate()
 {
-	if(active) return;
-	active = true;
+	//if(active) return;
+	//active = true;
 	if(!type)
 		ClickableR::activate();
-	LOCPLINT->objsToBlit.push_back(this);
 	if(ok)
 		ok->activate();
 	if(dismiss)
@@ -3805,24 +3792,12 @@ void CCreInfoWindow::activate()
 	if(upgrade)
 		upgrade->activate();
 }
+
 void CCreInfoWindow::close()
 {
-	deactivate();
-	if(LOCPLINT->curint->subInt)
-	{
-		if(type)
-			LOCPLINT->curint->subInt->activate();
-	}
-	else
-	{
-		CCastleInterface *c = dynamic_cast<CCastleInterface*>(LOCPLINT->curint);
-		if(c && !c->subInt)
-			c->showAll();
-		if(type)
-			LOCPLINT->curint->activate();
-	}
-	delete this;
+	LOCPLINT->popIntTotally(this);
 }
+
 void CCreInfoWindow::clickRight(boost::logic::tribool down)
 {
 	if(down)
@@ -3834,16 +3809,17 @@ void CCreInfoWindow::dismissF()
 	dsm();
 	close();
 }
+
 void CCreInfoWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
 }
+
 void CCreInfoWindow::deactivate()
 {
-	if(!active) return;
-	active = false;
+	//if(!active) return;
+	//active = false;
 	if(!type)
 		ClickableR::deactivate();
-	LOCPLINT->objsToBlit -= static_cast<IShowable*>(this);
 	if(ok)
 		ok->deactivate();
 	if(dismiss)
@@ -3852,22 +3828,8 @@ void CCreInfoWindow::deactivate()
 		upgrade->deactivate();
 }
 
-void CCreInfoWindow::onUpgradeYes()
-{
-	dependant->close();
-	dependant->deactivate();
-	delete dependant;
- 
-	LOCPLINT->curint->activate();
-}
-
-void CCreInfoWindow::onUpgradeNo()
-{
-
-}
 void CLevelWindow::close()
 {
-	deactivate();
 	for(int i=0;i<comps.size();i++)
 	{
 		if(comps[i]->selected)
@@ -3876,10 +3838,10 @@ void CLevelWindow::close()
 			break;
 		}
 	}
-	delete this;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popIntTotally(this);
 	LOCPLINT->showingDialog->setn(false);
 }
+
 CLevelWindow::CLevelWindow(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)
 {
 	LOCPLINT->showingDialog->setn(true);
@@ -3957,35 +3919,33 @@ CLevelWindow::~CLevelWindow()
 }
 void CLevelWindow::activate()
 {
-	LOCPLINT->objsToBlit.push_back(this);
 	ok->activate();
 	for(int i=0;i<comps.size();i++)
 		comps[i]->activate();
 }
 void CLevelWindow::deactivate()
 {
-	LOCPLINT->objsToBlit.erase(std::find(LOCPLINT->objsToBlit.begin(),LOCPLINT->objsToBlit.end(),this));
 	ok->deactivate();
 	for(int i=0;i<comps.size();i++)
 		comps[i]->deactivate();
 }
 void CLevelWindow::show(SDL_Surface * to)
 {
-	blitAt(bitmap,pos.x,pos.y,screen);
-	blitAt(graphics->portraitLarge[heroType],170+pos.x,66+pos.y);
-	ok->show();
+	blitAt(bitmap,pos.x,pos.y,to);
+	blitAt(graphics->portraitLarge[heroType],170+pos.x,66+pos.y,to);
+	ok->show(to);
 	for(int i=0;i<comps.size();i++)
-		comps[i]->show();
+		comps[i]->show(to);
 }
 
 void CMinorResDataBar::show(SDL_Surface * to)
 {
-	blitAt(bg,pos.x,pos.y);
-	char * buf = new char[15];
+	blitAt(bg,pos.x,pos.y,to);
+	char buf[30];
 	for (int i=0;i<7;i++)
 	{
 		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,GEOR13,zwykly);
+		CSDL_Ext::printAtMiddle(buf,pos.x + 50 + 76*i,pos.y+pos.h/2,GEOR13,zwykly,to);
 	}
 	std::vector<std::string> temp;
 	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp.push_back(std::string(buf));
@@ -3998,11 +3958,9 @@ void CMinorResDataBar::show(SDL_Surface * to)
 	+ ": %s, "
 		+	CGI->generaltexth->allTexts[64]
 	+ ": %s",temp)
-		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,GEOR13,zwykly);
-	temp.clear();
-	//updateRect(&pos,screen);
-	delete[] buf;
+		,pos.x+545+(pos.w-545)/2,pos.y+pos.h/2,GEOR13,zwykly,to);
 }
+
 CMinorResDataBar::CMinorResDataBar()
 {
 	bg = BitmapHandler::loadBitmap("Z2ESBAR.bmp");
@@ -4042,7 +4000,7 @@ CMarketplaceWindow::CTradeableItem::CTradeableItem( int Type, int ID, bool Left)
 	id = ID;
 }
 
-void CMarketplaceWindow::CTradeableItem::show( SDL_Surface * to/*=NULL*/ )
+void CMarketplaceWindow::CTradeableItem::show(SDL_Surface * to)
 {
 	SDL_Surface *hlp = getSurface();
 	blitAt(hlp,pos.x+19,pos.y+9,to);
@@ -4050,7 +4008,8 @@ void CMarketplaceWindow::CTradeableItem::show( SDL_Surface * to/*=NULL*/ )
 
 void CMarketplaceWindow::CTradeableItem::clickLeft( boost::logic::tribool down )
 {
-	CMarketplaceWindow *mw = static_cast<CMarketplaceWindow *>(LOCPLINT->curint->subInt);
+	CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(LOCPLINT->topInt());
+	assert(mw);
 	if(down)
 	{
 		if(left)
@@ -4156,10 +4115,7 @@ CMarketplaceWindow::CMarketplaceWindow(int Mode)
 	slider = new CSlider(pos.x+231,pos.y+490,137,boost::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
 	setMode(mode);
 	hLeft = hRight = NULL;
-	ok = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::deactivate,this),pos.x+516,pos.y+520,"IOK6432.DEF",SDLK_RETURN);
-	ok->callback += boost::bind(&CMarketplaceWindow::clear,this); //clear
-	ok->callback += boost::bind(vstd::delObj<CMarketplaceWindow>,this); //will delete
-	ok->callback += boost::bind(&CMainInterface::activate,LOCPLINT->curint);
+	ok = new AdventureMapButton("","",boost::bind(&CPlayerInterface::popIntTotally,LOCPLINT,this),pos.x+516,pos.y+520,"IOK6432.DEF",SDLK_RETURN);
 	deal = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::makeDeal,this),pos.x+307,pos.y+520,"TPMRKB.DEF");
 	max = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMax,this),pos.x+229,pos.y+520,"IRCBTNS.DEF");
 
@@ -4169,58 +4125,57 @@ CMarketplaceWindow::CMarketplaceWindow(int Mode)
 
 CMarketplaceWindow::~CMarketplaceWindow()
 {
+	clear();
 	delete slider;
 }
 
-void CMarketplaceWindow::show( SDL_Surface * to/*=NULL*/ )
+void CMarketplaceWindow::show(SDL_Surface * to)
 {
-	blitAt(bg,pos);
+	blitAt(bg,pos,to);
 	if(hRight)
-		CSDL_Ext::drawBorder(screen,hRight->pos.x-1,hRight->pos.y-1,hRight->pos.w+2,hRight->pos.h+2,int3(255,231,148));
+		CSDL_Ext::drawBorder(to,hRight->pos.x-1,hRight->pos.y-1,hRight->pos.w+2,hRight->pos.h+2,int3(255,231,148));
 	if(hLeft)
-		CSDL_Ext::drawBorder(screen,hLeft->pos.x-1,hLeft->pos.y-1,hLeft->pos.w+2,hLeft->pos.h+2,int3(255,231,148));
-	ok->show();
-	deal->show();
-	max->show();
-	slider->show();
+		CSDL_Ext::drawBorder(to,hLeft->pos.x-1,hLeft->pos.y-1,hLeft->pos.w+2,hLeft->pos.h+2,int3(255,231,148));
+	ok->show(to);
+	deal->show(to);
+	max->show(to);
+	slider->show(to);
 	for(int i=0;i<left.size();i++)
-		left[i]->show();
+		left[i]->show(to);
 	for(int i=0;i<right.size();i++)
-		right[i]->show();
+		right[i]->show(to);
 	if(mode==0)
 	{
 		char buf[15];
 		for(int i=0;i<left.size();i++)
 		{
 			SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-			printAtMiddle(buf,left[i]->pos.x+35,left[i]->pos.y+56,GEOR13,zwykly);
+			printAtMiddle(buf,left[i]->pos.x+35,left[i]->pos.y+56,GEOR13,zwykly,to);
 		}
 		if(hLeft) //print prices
 		{
 			for(int i=0; i<right.size();i++)
 			{
 				if(right[i]->id != hLeft->id)
-					printAtMiddle(rSubs[i],right[i]->pos.x+35,right[i]->pos.y+56,GEOR13,zwykly);
+					printAtMiddle(rSubs[i],right[i]->pos.x+35,right[i]->pos.y+56,GEOR13,zwykly,to);
 				else
-					printAtMiddle(CGI->generaltexth->allTexts[164],right[i]->pos.x+35,right[i]->pos.y+56,GEOR13,zwykly);
+					printAtMiddle(CGI->generaltexth->allTexts[164],right[i]->pos.x+35,right[i]->pos.y+56,GEOR13,zwykly,to);
 			}
 		}
 		if(hLeft && hRight && hLeft->id!= hRight->id)
 		{
-			blitAt(hLeft->getSurface(),pos.x+142,pos.y+457,screen);
-			blitAt(hRight->getSurface(),pos.x+430,pos.y+457,screen);
+			blitAt(hLeft->getSurface(),pos.x+142,pos.y+457,to);
+			blitAt(hRight->getSurface(),pos.x+430,pos.y+457,to);
 			SDL_itoa(slider->value * r1,buf,10);
-			printAtMiddle(buf,pos.x+158,pos.y+504,GEOR13,zwykly);
+			printAtMiddle(buf,pos.x+158,pos.y+504,GEOR13,zwykly,to);
 			SDL_itoa(slider->value * r2,buf,10);
-			printAtMiddle(buf,pos.x+446,pos.y+504,GEOR13,zwykly);
+			printAtMiddle(buf,pos.x+446,pos.y+504,GEOR13,zwykly,to);
 		}
 	}
 }
 
 void CMarketplaceWindow::activate()
 {
-	LOCPLINT->objsToBlit += this;
-	LOCPLINT->curint->subInt = this;
 	for(int i=0;i<left.size();i++)
 		left[i]->activate();
 	for(int i=0;i<right.size();i++)
@@ -4233,8 +4188,6 @@ void CMarketplaceWindow::activate()
 
 void CMarketplaceWindow::deactivate()
 {
-	LOCPLINT->objsToBlit -= this;
-	LOCPLINT->curint->subInt = NULL;
 	for(int i=0;i<left.size();i++)
 		left[i]->deactivate();
 	for(int i=0;i<right.size();i++)
@@ -4357,25 +4310,12 @@ CSystemOptionsWindow::~CSystemOptionsWindow()
 
 void CSystemOptionsWindow::bquitf()
 {
-	this->deactivate();
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), boost::bind(exit, 0), boost::bind(&CSystemOptionsWindow::activate, this), false, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[578], std::vector<SComponent*>(), boost::bind(exit, 0), boost::bind(&CSystemOptionsWindow::activate, this), false);
 }
 
 void CSystemOptionsWindow::breturnf()
 {
-	deactivate();
-
-	for(int g=0; g<LOCPLINT->objsToBlit.size(); ++g)
-	{
-		if(dynamic_cast<CSystemOptionsWindow*>(LOCPLINT->objsToBlit[g]))
-		{
-			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+g);
-			break;
-		}
-	}
-
-	delete this;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popIntTotally(this);
 }
 
 
@@ -4387,7 +4327,7 @@ void CSystemOptionsWindow::bsavef()
 	std::string fname = fnameStream.str();
 	boost::algorithm::replace_all(fname,":","");
 	boost::algorithm::replace_all(fname," ","-");
-	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<SComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false, false);
+	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<SComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false);
 }
 
 void CSystemOptionsWindow::activate()
@@ -4410,10 +4350,6 @@ void CSystemOptionsWindow::deactivate()
 
 void CSystemOptionsWindow::show(SDL_Surface *to)
 {
-	//evaluating to
-	if(!to)
-		to = screen;
-
 	SDL_BlitSurface(background, NULL, to, &pos);
 
 	save->show(to);
@@ -4498,8 +4434,6 @@ CTavernWindow::~CTavernWindow()
 
 void CTavernWindow::activate()
 {
-	LOCPLINT->objsToBlit += this;
-	LOCPLINT->curint->subInt = this;
 	thiefGuild->activate();
 	cancel->activate();
 	if(h1.h)
@@ -4512,7 +4446,6 @@ void CTavernWindow::activate()
 
 void CTavernWindow::deactivate()
 {
-	LOCPLINT->objsToBlit -= this;
 	thiefGuild->deactivate();
 	cancel->deactivate();
 	if(h1.h)
@@ -4524,23 +4457,20 @@ void CTavernWindow::deactivate()
 
 void CTavernWindow::close()
 {
-	LOCPLINT->curint->subInt = NULL;
-	deactivate();
-	delete this;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popIntTotally(this);
 }
 
 void CTavernWindow::show(SDL_Surface * to)
 {
-	blitAt(bg,pos.x,pos.y,screen);
+	blitAt(bg,pos.x,pos.y,to);
 	if(h1.h)
-		h1.show();
+		h1.show(to);
 	if(h2.h)
-		h2.show();
-	thiefGuild->show();
-	cancel->show();
-	recruit->show();
-	bar->show();
+		h2.show(to);
+	thiefGuild->show(to);
+	cancel->show(to);
+	recruit->show(to);
+	bar->show(to);
 
 	if(selected >= 0)
 	{
@@ -4552,8 +4482,8 @@ void CTavernWindow::show(SDL_Surface * to)
 				artifs--;
 		sprintf_s(descr,300,CGI->generaltexth->allTexts[215].c_str(),
 			sel->h->name.c_str(),sel->h->level,sel->h->type->heroClass->name.c_str(),artifs);
-		printAtMiddleWB(descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,screen);
-		CSDL_Ext::drawBorder(screen,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
+		printAtMiddleWB(descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,to);
+		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
 
@@ -4580,16 +4510,7 @@ void CTavernWindow::HeroPortrait::clickRight(boost::logic::tribool down)
 	if(down)
 	{
 		LOCPLINT->adventureInt->heroWindow->setHero(h);
-		LOCPLINT->objsToBlit += LOCPLINT->adventureInt->heroWindow;
-		LOCPLINT->curint->deactivate();
-		ClickableR::activate();
-	}
-	else if(vstd::contains(LOCPLINT->objsToBlit,LOCPLINT->adventureInt->heroWindow))
-	{
-		LOCPLINT->objsToBlit -= LOCPLINT->adventureInt->heroWindow;
-		ClickableR::deactivate();
-		LOCPLINT->castleInt->showAll(0,true);
-		LOCPLINT->curint->subInt->activate();
+		LOCPLINT->pushInt(new CRClickPopupInt(LOCPLINT->adventureInt->heroWindow,false));
 	}
 }
 CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
@@ -4609,7 +4530,7 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 	
 void CTavernWindow::HeroPortrait::show(SDL_Surface * to)
 {
-	blitAt(graphics->portraitLarge[h->subID],pos);
+	blitAt(graphics->portraitLarge[h->subID],pos,to);
 }
 
 void CTavernWindow::HeroPortrait::hover( bool on )
@@ -4641,11 +4562,11 @@ void CInGameConsole::show(SDL_Surface * to)
 	{
 		SDL_Color green = {0,0xff,0,0};
 		Point leftBottomCorner(0, screen->h);
-		if(LOCPLINT->battleInt == LOCPLINT->curint)
+		if(LOCPLINT->battleInt)
 		{
 			leftBottomCorner = LOCPLINT->battleInt->pos.bottomLeft();
 		}
-		CSDL_Ext::printAtWR(it->first, leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20, TNRB16, green);
+		CSDL_Ext::printAt(it->first, leftBottomCorner.x + 50, leftBottomCorner.y - texts.size() * 20 - 80 + number*20, TNRB16, green);
 		if(SDL_GetTicks() - it->second > defaultTimeout)
 		{
 			toDel.push_back(it);
@@ -4760,11 +4681,11 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 void CInGameConsole::startEnteringText()
 {
 	enteredText = "_";
-	if(LOCPLINT->curint == LOCPLINT->adventureInt)
+	if(LOCPLINT->topInt() == LOCPLINT->adventureInt)
 	{
 		LOCPLINT->statusbar->print(enteredText);
 	}
-	else if(LOCPLINT->curint == LOCPLINT->battleInt)
+	else if(LOCPLINT->battleInt)
 	{
 		LOCPLINT->battleInt->console->ingcAlter = enteredText;
 	}
@@ -4781,11 +4702,11 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		print(txt);
 	}
 	enteredText = "";
-	if(LOCPLINT->curint == LOCPLINT->adventureInt)
+	if(LOCPLINT->topInt() == LOCPLINT->adventureInt)
 	{
 		LOCPLINT->statusbar->clear();
 	}
-	else if(LOCPLINT->curint == LOCPLINT->battleInt)
+	else if(LOCPLINT->battleInt)
 	{
 		LOCPLINT->battleInt->console->ingcAlter = "";
 	}
@@ -4794,11 +4715,11 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 
 void CInGameConsole::refreshEnteredText()
 {
-	if(LOCPLINT->curint == LOCPLINT->adventureInt)
+	if(LOCPLINT->topInt() == LOCPLINT->adventureInt)
 	{
 		LOCPLINT->statusbar->print(enteredText);
 	}
-	else if(LOCPLINT->curint == LOCPLINT->battleInt)
+	else if(LOCPLINT->battleInt)
 	{
 		LOCPLINT->battleInt->console->ingcAlter = enteredText;
 	}
@@ -4811,11 +4732,7 @@ CInGameConsole::CInGameConsole() : defaultTimeout(10000), maxDisplayedTexts(10),
 
 void CGarrisonWindow::close()
 {
-	LOCPLINT->curint->subInt = NULL;
-	deactivate();
-	LOCPLINT->curint->activate();
-	LOCPLINT->objsToBlit -= this;
-	delete this;
+	LOCPLINT->popIntTotally(this);
 }
 
 void CGarrisonWindow::activate()
@@ -4834,10 +4751,10 @@ void CGarrisonWindow::deactivate()
 
 void CGarrisonWindow::show(SDL_Surface * to)
 {
-	blitAt(bg,pos);
-	split->show();
-	quit->show();
-	garr->show();
+	blitAt(bg,pos,to);
+	split->show(to);
+	quit->show(to);
+	garr->show(to);
 }
 
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down )
@@ -4861,4 +4778,32 @@ CGarrisonWindow::~CGarrisonWindow()
 	delete split;
 	delete quit;
 	delete garr;
+}
+
+IShowActivable::IShowActivable()
+{
+	type = 0;
+}
+
+CWindowWithGarrison::CWindowWithGarrison()
+{
+	type |= WITH_GARRISON;
+}
+
+
+void CRClickPopupInt::show(SDL_Surface * to)
+{
+	inner->show(to);
+}
+
+CRClickPopupInt::CRClickPopupInt( IShowActivable *our, bool deleteInt )
+{
+	inner = our;
+	delInner = deleteInt;
+}
+
+CRClickPopupInt::~CRClickPopupInt()
+{
+	if(delInner)
+		delete inner;
 }

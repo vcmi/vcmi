@@ -46,12 +46,12 @@ public:
 	void clickLeft(boost::logic::tribool down);
 	void activate();
 	void deactivate();
-	void show();
+	void show(SDL_Surface * to);
 	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h,CCastleInterface * Owner);
 	~CHeroGSlot();
 };
 
-class CCastleInterface : public CMainInterface
+class CCastleInterface : public CWindowWithGarrison
 {
 public:
 	SDL_Rect pos;
@@ -64,22 +64,23 @@ public:
 	CResDataBar *resdatabar;
 	unsigned char animval, count;
 
+	CDefEssential *bars, //0 - yellow, 1 - green, 2 - red, 3 - gray
+		*status; //0 - already, 1 - can't, 2 - lack of resources
 	CDefHandler *hall,*fort;
 	CDefEssential* bicons; //150x70 buildings imgs
 	CTownList * townlist;
 
 	CHeroGSlot hslotup, hslotdown;
-	CGarrisonInt * garr;
 	AdventureMapButton *exit;
 	AdventureMapButton *split;
 
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
-	CCastleInterface(const CGTownInstance * Town, bool Activate=true);
+	CCastleInterface(const CGTownInstance * Town);
 	~CCastleInterface();
 	void townChange();
-	void show(SDL_Surface * to=NULL);
-	void showAll(SDL_Surface * to=NULL, bool forceTotalRedraw = false);
+	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	void buildingClicked(int building);
 	void enterMageGuild();
 	CRecrutationWindow * showRecruitmentWindow(int building);
@@ -107,7 +108,7 @@ public:
 		void hover(bool on);
 		void clickLeft (tribool down);
 		void clickRight (tribool down);
-		void show(SDL_Surface * to=NULL);
+		void show(SDL_Surface * to);
 		void activate();
 		void deactivate();
 		CBuildingBox(int id);
@@ -115,7 +116,7 @@ public:
 		~CBuildingBox();
 	};
 
-	class CBuildWindow: public IShowable, public ClickableR
+	class CBuildWindow: public IShowActivable, public ClickableR
 	{
 	public:
 		int tid, bid, state; //town id, building id, state
@@ -127,15 +128,13 @@ public:
 		void deactivate();
 		std::string getTextForState(int state);
 		void clickRight (tribool down);
-		void show(SDL_Surface * to=NULL);
+		void show(SDL_Surface * to);
 		void Buy();
 		void close();
 		CBuildWindow(int Tid, int Bid, int State, bool Mode);
 		~CBuildWindow();
 	};
 
-	CDefEssential *bars, //0 - yellow, 1 - green, 2 - red, 3 - gray
-		*status; //0 - already, 1 - can't, 2 - lack of resources
 	std::vector< std::vector<CBuildingBox*> >boxes;
 
 	AdventureMapButton *exit;
@@ -146,12 +145,12 @@ public:
 	CHallInterface(CCastleInterface * owner);
 	~CHallInterface();
 	void close();
-	void show(SDL_Surface * to=NULL);
+	void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
 };
 
-class CFortScreen : public CMainInterface, public CIntObject
+class CFortScreen : public IShowActivable, public CIntObject
 {
 	class RecArea : public ClickableL, public ClickableR
 	{
@@ -176,7 +175,7 @@ public:
 	void draw( CCastleInterface * owner, bool first);
 	~CFortScreen();
 	void close();
-	void show(SDL_Surface * to=NULL);
+	void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
 };
@@ -208,12 +207,12 @@ public:
 	CMageGuildScreen(CCastleInterface * owner);
 	~CMageGuildScreen();
 	void close();
-	void show(SDL_Surface * to=NULL);
+	void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
 };
 
-class CBlacksmithDialog : public IShowable, public CIntObject
+class CBlacksmithDialog : public IShowActivable, public CIntObject
 {
 public:
 	AdventureMapButton *buy, *cancel;
@@ -222,7 +221,7 @@ public:
 	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid);
 	~CBlacksmithDialog();
 	void close();
-	void show(SDL_Surface * to=NULL);
+	void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
 };

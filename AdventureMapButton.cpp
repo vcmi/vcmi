@@ -55,7 +55,7 @@ void AdventureMapButton::clickLeft (tribool down)
 		state=1;
 	else
 		state=0;
-	show();
+	show(screen2);
 	if (actOnDown && down)
 	{
 		pressedL=state;
@@ -88,7 +88,7 @@ void AdventureMapButton::hover (bool on)
 							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
 	if(name && blocked!=1) //if there is no name, there is nohing to display also
 	{
-		if (LOCPLINT->curint == static_cast<CMainInterface*>(LOCPLINT->battleInt)) //for battle buttons
+		if (LOCPLINT->battleInt) //for battle buttons
 		{
 			if(on && LOCPLINT->battleInt->console->alterTxt == "")
 			{
@@ -185,7 +185,7 @@ void AdventureMapButton::block( ui8 on )
 	blocked = on;
 	state = 0;
 	bitmapOffset = on ? 2 : 0;
-	show();
+	show(screen2);
 }
 void CHighlightableButton::select(bool on)
 {
@@ -210,7 +210,7 @@ void CHighlightableButton::clickLeft( tribool down )
 		state=1;
 	else
 		state = selected ? 3 : 0;
-	show();
+	show(screen2);
 	if (pressedL && (down==false))
 	{
 		pressedL=state;
@@ -290,9 +290,10 @@ void CHighlightableButtonsGroup::selectionChanged(int to)
 }
 void CHighlightableButtonsGroup::show(SDL_Surface * to )
 {
-	for(size_t i=0;i<buttons.size(); ++i) {
-		buttons[i]->show();
-        }
+	for(size_t i=0;i<buttons.size(); ++i) 
+	{
+		buttons[i]->show(to);
+	}
 }
 
 void CSlider::sliderClicked()
@@ -321,7 +322,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 
 void CSlider::redrawSlider()
 {
-	slider.show();
+	slider.show(screen2);
 }
 
 void CSlider::moveLeft()
@@ -388,9 +389,9 @@ void CSlider::clickLeft (tribool down)
 
 void CSlider::show(SDL_Surface * to)
 {
-	left.show();
-	right.show();
-	slider.show();
+	left.show(to);
+	right.show(to);
+	slider.show(to);
 }
 
 CSlider::~CSlider()

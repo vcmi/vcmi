@@ -77,16 +77,14 @@ public:
 	void clickRight (tribool down);
 	void activate();
 	void deactivate();
-	void show(SDL_Surface * to = NULL);
+	void show(SDL_Surface * to);
 	bool fitsHere(const CArtifact * art); //returns true if given artifact can be placed here
 	~CArtPlace();
 };
 
-class CHeroWindow: public IShowActivable, public virtual CIntObject
+class CHeroWindow: public CWindowWithGarrison, public virtual CIntObject
 {
 	SDL_Surface * background, * curBack;
-	const CGHeroInstance * curHero;
-	CGarrisonInt * garInt;
 	CStatusBar * ourBar; //heroWindow's statusBar
 
 	//general graphics
@@ -109,6 +107,7 @@ class CHeroWindow: public IShowActivable, public virtual CIntObject
 	LRClickableAreaWTextComp * morale;
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 public:
+	const CGHeroInstance * curHero;
 	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general
 		* leftArtRoll, * rightArtRoll;
 	CHighlightableButton *gar2button; //garrison / formation handling;
@@ -119,7 +118,7 @@ public:
 	void setHero(const CGHeroInstance * Hero); //sets main displayed hero
 	void activate(); //activates hero window;
 	void deactivate(); //activates hero window;
-	virtual void show(SDL_Surface * to = NULL); //shows hero window
+	virtual void show(SDL_Surface * to); //shows hero window
 	void redrawCurBack(); //redraws curBAck from scratch
 	void quit(); //stops displaying hero window
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)

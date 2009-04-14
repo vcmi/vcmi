@@ -305,19 +305,7 @@ CSpellWindow::~CSpellWindow()
 
 void CSpellWindow::fexitb()
 {
-	deactivate();
-
-	for(size_t g=0; g<LOCPLINT->objsToBlit.size(); ++g) //TODO what about
-	{
-		if(dynamic_cast<CSpellWindow*>(LOCPLINT->objsToBlit[g]))
-		{
-			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+g);
-			break;
-		}
-	}
-
-	delete this;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popIntTotally(this);
 }
 
 void CSpellWindow::fadvSpellsb()
@@ -389,13 +377,10 @@ void CSpellWindow::fRcornerb()
 
 void CSpellWindow::show(SDL_Surface *to)
 {
-	if(to == NULL)  //evaluating to
-		to = screen;
-
 	SDL_BlitSurface(background, NULL, to, &pos);
 	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 94 + pos.y, to);
 	
-	statusBar->show();
+	statusBar->show(to);
 
 	//printing school images
 	if(selectedTab!=4 && spellSite == 0)
@@ -625,9 +610,9 @@ void CSpellWindow::SpellArea::clickLeft(boost::logic::tribool down)
 	if(!down && mySpell!=-1)
 	{
 		//we will cast a spell
-		if(dynamic_cast<CBattleInterface*>(LOCPLINT->curint)) //if battle window is open
+		if(LOCPLINT->battleInt) //if battle window is open
 		{
-			dynamic_cast<CBattleInterface*>(LOCPLINT->curint)->castThisSpell(mySpell);
+			LOCPLINT->battleInt->castThisSpell(mySpell);
 		}
 		owner->fexitb();
 	}
@@ -639,14 +624,13 @@ void CSpellWindow::SpellArea::clickRight(boost::logic::tribool down)
 	{
 		CInfoPopup *vinya = new CInfoPopup();
 		vinya->free = true;
-		vinya->bitmap = CMessage::drawBoxTextBitmapSub
-			(LOCPLINT->playerID,
-			CGI->spellh->spells[mySpell].descriptions[0], this->owner->spells->ourImages[mySpell].bitmap
-			,
+		vinya->bitmap = CMessage::drawBoxTextBitmapSub(
+			LOCPLINT->playerID,
+			CGI->spellh->spells[mySpell].descriptions[0], this->owner->spells->ourImages[mySpell].bitmap,
 			CGI->spellh->spells[mySpell].name,30,30);
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
-		vinya->activate();
+		LOCPLINT->pushInt(vinya);
 	}
 }
 

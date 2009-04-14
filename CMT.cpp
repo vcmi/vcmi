@@ -46,7 +46,7 @@
 #undef main
 #endif
 std::string NAME = NAME_VER + std::string(" (client)"); //application name
-SDL_Surface * screen; //main screen surface
+SDL_Surface *screen = NULL, *screen2 = NULL; //main screen surface and hlp surface (used to store not-active interfaces layer)
 
 std::queue<SDL_Event*> events;
 boost::mutex eventsM;
@@ -54,6 +54,8 @@ boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 
 void processCommand(const std::string &message, CClient *&client);
+void setScreenRes(int w, int h, int bpp, bool fullscreen);
+
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
 #else
@@ -82,11 +84,8 @@ int main(int argc, char** argv)
 	CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO)==0)
 	{
-		SDL_EnableUNICODE(1);
-		screen = SDL_SetVideoMode(800,600,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
-		tlog0 <<"\tInitializing screen: "<<pomtime.getDif();
-			tlog0 << std::endl;
-		SDL_WM_SetCaption(NAME.c_str(),""); //set window title
+		setScreenRes(800,600,conf.cc.bpp,conf.cc.fullscreen);
+		tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
 		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 			int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
 		#else
@@ -142,12 +141,7 @@ int main(int argc, char** argv)
 
 		if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
 		{
-			SDL_QuitSubSystem(SDL_INIT_VIDEO);
-			SDL_InitSubSystem(SDL_INIT_VIDEO);
-			screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
-			SDL_EnableUNICODE(1);
-			SDL_WM_SetCaption(NAME.c_str(),""); //set window title
-			SDL_ShowCursor(SDL_DISABLE);
+			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
 		}
 		CClient cl;
 		if(options->mode == 0) //new game
@@ -211,21 +205,10 @@ int main(int argc, char** argv)
 			}
 			else if(ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
 			{
-				LOCPLINT->pim->lock();
+				boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
 				bool full = !(screen->flags&SDL_FULLSCREEN);
-				SDL_QuitSubSystem(SDL_INIT_VIDEO);
-				SDL_InitSubSystem(SDL_INIT_VIDEO);
-				screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(full?SDL_FULLSCREEN:0));  //initializing important global surface
-				SDL_WM_SetCaption(NAME.c_str(),""); //set window title
-				SDL_ShowCursor(SDL_DISABLE);
-				LOCPLINT->curint->show();
-				if(LOCPLINT->curint != LOCPLINT->adventureInt)
-					LOCPLINT->adventureInt->show();
-				if(LOCPLINT->curint == LOCPLINT->castleInt)
-					LOCPLINT->castleInt->showAll(0,true);
-				if(LOCPLINT->curint->subInt)
-					LOCPLINT->curint->subInt->show();
-				LOCPLINT->pim->unlock();
+				setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,full);
+				LOCPLINT->totalRedraw();
 			}
 			eventsM.lock();
 			events.push(ev);
@@ -262,7 +245,7 @@ void processCommand(const std::string &message, CClient *&client)
 		switch (what)
 		{
 		case 0:
-			LOCPLINT->curint->activate();
+			LOCPLINT->topInt()->activate();
 			break;
 		case 1:
 			LOCPLINT->adventureInt->activate();
@@ -338,4 +321,19 @@ void processCommand(const std::string &message, CClient *&client)
 		PlayerMessage pm(LOCPLINT->playerID,message);
 		*client->serv << &pm;
 	}
+}
+
+void setScreenRes(int w, int h, int bpp, bool fullscreen)
+{
+	if(screen) //screen has been already inited
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+
+	SDL_InitSubSystem(SDL_INIT_VIDEO);
+	screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
+	if(screen2)
+		SDL_FreeSurface(screen2);
+	screen2 = CSDL_Ext::copySurface(screen);
+	SDL_EnableUNICODE(1);
+	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
+	SDL_ShowCursor(SDL_DISABLE);
 }

@@ -84,7 +84,7 @@ public:
 	void scrollDown(unsigned int by = 1); //scrolls console up by 'by' positions
 };
 
-class CBattleReslutWindow : public IShowable, public CIntObject, public IActivable
+class CBattleReslutWindow : public IShowActivable, public CIntObject
 {
 private:
 	SDL_Surface * background;
@@ -100,7 +100,7 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
-class CBattleOptionsWindow : public IShowable, public CIntObject, public IActivable
+class CBattleOptionsWindow : public IShowActivable, public CIntObject
 {
 private:
 	CBattleInterface * myInt;
@@ -198,7 +198,7 @@ private:
 		bool reverse; //if true, projectile will be flipped by vertical asix
 	};
 	std::list<SProjectileInfo> projectiles; //projectiles flying on battlefield
-	void projectileShowHelper(SDL_Surface * to=NULL); //prints projectiles present on the battlefield
+	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
 
@@ -246,7 +246,7 @@ public:
 	//napisz tu klase odpowiadajaca za wyswietlanie bitwy i obsluge uzytkownika, polecenia ma przekazywac callbackiem
 	void activate();
 	void deactivate();
-	void show(SDL_Surface * to = NULL);
+	void show(SDL_Surface * to);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
 	bool reverseCreature(int number, int hex, bool wideTrick = false); //reverses animation of given creature playing animation of reversing

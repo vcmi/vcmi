@@ -292,7 +292,6 @@ CBattleInterface::~CBattleInterface()
 	delete bConsoleUp;
 	delete bConsoleDown;
 	delete console;
-	delete resWindow;
 	delete givenCommand;
 
 	delete attackingHero;
@@ -309,6 +308,8 @@ CBattleInterface::~CBattleInterface()
 
 	for(std::map< int, CDefHandler * >::iterator g=idToObstacle.begin(); g!=idToObstacle.end(); ++g)
 		delete g->second;
+
+	LOCPLINT->battleInt = NULL;
 }
 
 void CBattleInterface::setPrintCellBorders(bool set)
@@ -660,7 +661,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	}
 
 	//showing in-gmae console
-	LOCPLINT->cingconsole->show();
+	LOCPLINT->cingconsole->show(to);
 
 	//printing border around interface
 	if(screen->w != 800 || screen->h !=600)
@@ -898,8 +899,8 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	//for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(8) + firstFrame - 1; ++g)
 	while(!creAnims[number]->onLastFrameInGroup())
 	{
-		show();
-		CSDL_Ext::update();
+		show(screen);
+		CSDL_Ext::update(screen);
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	creDir[number] = !creDir[number];
@@ -928,8 +929,8 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	//for(int g=0; creAnims[number]->getFrame() != creAnims[number]->framesInGroup(7) + firstFrame - 1; ++g)
 	while(!creAnims[number]->onLastFrameInGroup())
 	{
-		show();
-		CSDL_Ext::update();
+		show(screen);
+		CSDL_Ext::update(screen);
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	creAnims[number]->setType(2);
@@ -941,8 +942,8 @@ void CBattleInterface::handleStartMoving(int number)
 {
 	for(int i=0; i<creAnims[number]->framesInGroup(20)*getAnimSpeedMultiplier()-1; ++i)
 	{
-		show();
-		CSDL_Ext::update();
+		show(screen);
+		CSDL_Ext::update(screen);
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		if((animCount+1)%(4/settings.animSpeed)==0)
 			creAnims[number]->incrementFrame();
@@ -966,9 +967,8 @@ void CBattleInterface::bSurrenderf()
 
 void CBattleInterface::bFleef()
 {
-	CFunctionList<void()> ony = boost::bind(&CBattleInterface::activate,this);
-	ony += boost::bind(&CBattleInterface::reallyFlee,this);
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<SComponent*>(), ony, boost::bind(&CBattleInterface::activate,this), true, false);
+	CFunctionList<void()> ony = boost::bind(&CBattleInterface::reallyFlee,this);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<SComponent*>(), ony, 0, false);
 }
 
 void CBattleInterface::reallyFlee()
@@ -1151,8 +1151,8 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 		posY += stepY;
 		creAnims[number]->pos.y = posY;
 		
-		show();
-		CSDL_Ext::update();
+		show(screen);
+		CSDL_Ext::update(screen);
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	//unit moved
@@ -1166,8 +1166,8 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 			//for(int i=0; i<creAnims[number]->framesInGroup(21)*getAnimSpeedMultiplier()-1; ++i)
 			while(!creAnims[number]->onLastFrameInGroup())
 			{
-				show();
-				CSDL_Ext::update();
+				show(screen);
+				CSDL_Ext::update(screen);
 				SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			}
 		}
@@ -1195,7 +1195,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 	//restoring default state of battleWindow by calling show func
 	while(true)
 	{
-		show();
+		show(screen);
 		CSDL_Ext::update();
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 
@@ -1232,8 +1232,8 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 				break;
 			else
 			{
-				show();
-				CSDL_Ext::update();
+				show(screen);
+				CSDL_Ext::update(screen);
 				SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			}
 		}
@@ -1255,8 +1255,8 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 	bool continueLoop = true;
 	while(continueLoop)
 	{
-		show();
-		CSDL_Ext::update();
+		show(screen);
+		CSDL_Ext::update(screen);
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
@@ -1303,8 +1303,8 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	}
 	while(attackingInfo != NULL || creAnims[ID]->getType()!=2)
 	{
-		show();
-		CSDL_Ext::update();
+		show(screen);
+		CSDL_Ext::update(screen);
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	CStack aStack = *LOCPLINT->cb->battleGetStackByID(ID); //attacking stack
@@ -1734,16 +1734,18 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 
 void CBattleInterface::battleFinished(const BattleResult& br)
 {
-	deactivate();
 	CGI->curh->changeGraphic(0,0);
 	
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	resWindow = new CBattleReslutWindow(br, temp_rect, this);
-	resWindow->activate();
+	LOCPLINT->pushInt(resWindow);
 }
 
 void CBattleInterface::spellCasted(SpellCasted * sc)
 {
+	if(sc->side == !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
+		bSpell->block(true);
+
 	std::vector< std::string > anims; //for magic arrow and ice bolt
 
 	switch(sc->id)
@@ -1796,11 +1798,11 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			SDL_SetClipRect(screen, &pos); //setting rect we can blit to
 			for(int g=0; g<steps; ++g)
 			{
-				show();
+				show(screen);
 				SDL_Rect & srcr = animDef->ourImages[g%animDef->ourImages.size()].bitmap->clip_rect;
 				SDL_Rect dstr = genRect(srcr.h, srcr.w, srccoord.first + g*dx, srccoord.second + g*dy);
 				SDL_BlitSurface(animDef->ourImages[g%animDef->ourImages.size()].bitmap, &srcr, screen, &dstr);
-				CSDL_Ext::update();
+				CSDL_Ext::update(screen);
 				SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			}
 			SDL_SetClipRect(screen, &buf); //restoring previous clip rect
@@ -2328,11 +2330,9 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 				return;
 		}
 		CGI->curh->changeGraphic(0,0);
-		LOCPLINT->curint->deactivate();
 
 		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), myHero);
-		spellWindow->activate();
-		LOCPLINT->objsToBlit.push_back(spellWindow);
+		LOCPLINT->pushInt(spellWindow);
 	}
 }
 
@@ -2499,8 +2499,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->effects.insert(myst.effects[vb].id);
 			}
 			pom->currentHealth = myst.firstHPleft;
-			(new CCreInfoWindow(myst.creature->idNumber,0,myst.amount,pom,boost::function<void()>(),boost::function<void()>(),NULL))
-					->activate();
+			LOCPLINT->pushInt(new CCreInfoWindow(myst.creature->idNumber,0,myst.amount,pom,0,0,NULL));
 		}
 		delete pom;
 	}
@@ -2749,7 +2748,8 @@ void CBattleReslutWindow::show(SDL_Surface *to)
 
 void CBattleReslutWindow::bExitf()
 {
-	LOCPLINT->battleResultQuited();
+	LOCPLINT->popInts(2); //first - we; second - battle interface
+	LOCPLINT->showingDialog->setn(false);
 }
 
 CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner): myInt(owner)
@@ -2858,17 +2858,5 @@ void CBattleOptionsWindow::bDefaultf()
 
 void CBattleOptionsWindow::bExitf()
 {
-	deactivate();
-
-	for(size_t g=0; g<LOCPLINT->objsToBlit.size(); ++g)
-	{
-		if(dynamic_cast<CBattleOptionsWindow*>(LOCPLINT->objsToBlit[g]))
-		{
-			LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+g);
-			break;
-		}
-	}
-
-	delete this;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popIntTotally(this);
 }

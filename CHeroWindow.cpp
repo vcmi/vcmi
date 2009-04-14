@@ -42,7 +42,7 @@ CHeroWindow::CHeroWindow(int playerColor):
 	curHero = NULL;
 	activeArtPlace = NULL;
 
-	garInt = NULL;
+	garr = NULL;
 	ourBar = new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
 
 	quitButton = new AdventureMapButton(CGI->generaltexth->heroscrn[17], std::string(), boost::function<void()>(), pos.x+674, pos.y+524, "hsbtns.def", SDLK_RETURN);
@@ -150,7 +150,7 @@ CHeroWindow::~CHeroWindow()
 
 	delete flags;
 
-	delete garInt;
+	delete garr;
 	delete ourBar;
 
 	for(size_t g=0; g<artWorn.size(); ++g)
@@ -181,21 +181,19 @@ CHeroWindow::~CHeroWindow()
 
 void CHeroWindow::show(SDL_Surface *to)
 {
-	if(!to)
-		to=screen;
 	if(curBack)
 		blitAt(curBack,pos.x,pos.y,to);
-	quitButton->show();
-	dismissButton->show();
-	questlogButton->show();
-	formations->show();
-	gar2button->show();
-	gar4button->show();
-	leftArtRoll->show();
-	rightArtRoll->show();
+	quitButton->show(to);
+	dismissButton->show(to);
+	questlogButton->show(to);
+	formations->show(to);
+	gar2button->show(to);
+	gar4button->show(to);
+	leftArtRoll->show(to);
+	rightArtRoll->show(to);
 
-	garInt->show();
-	ourBar->show();
+	garr->show(to);
+	ourBar->show(to);
 
 	for(size_t d=0; d<artWorn.size(); ++d)
 	{
@@ -231,10 +229,10 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 
 	portraitArea->text = hero->getBiography();
 
-	delete garInt;
-	/*gar4button->owner = */garInt = new CGarrisonInt(pos.x+80, pos.y+493, 8, 0, curBack, 15, 485, curHero);
-	garInt->update = false;
-	gar4button->callback =  boost::bind(&CGarrisonInt::splitClick,garInt);//actualization of callback function
+	delete garr;
+	/*gar4button->owner = */garr = new CGarrisonInt(pos.x+80, pos.y+493, 8, 0, curBack, 15, 485, curHero);
+	garr->update = false;
+	gar4button->callback =  boost::bind(&CGarrisonInt::splitClick,garr);//actualization of callback function
 
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
@@ -254,7 +252,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	sprintf(bufor, CGI->generaltexth->allTexts[2].c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
 	expArea->text = std::string(bufor);
 
-	sprintf(bufor, CGI->generaltexth->allTexts[205].substr(1, CGI->generaltexth->allTexts[205].size()-2).c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
+	sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
 	spellPointsArea->text = std::string(bufor);
 
 	for(size_t g=0; g<artWorn.size(); ++g)
@@ -377,15 +375,11 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 
 void CHeroWindow::quit()
 {
-	LOCPLINT->curint->subInt = NULL;
-	LOCPLINT->objsToBlit -= this;
-
-	if(LOCPLINT->curint == LOCPLINT->castleInt)
-		LOCPLINT->castleInt->subInt = NULL;
-	LOCPLINT->curint->activate();
+	LOCPLINT->popInt(this);
 
 	SDL_FreeSurface(curBack);
 	curBack = NULL;
+	curHero = NULL;
 
 	for(size_t g=0; g<artWorn.size(); ++g)
 	{
@@ -403,7 +397,6 @@ void CHeroWindow::quit()
 
 void CHeroWindow::activate()
 {
-	LOCPLINT->curint->subInt = this;
 	quitButton->activate();
 	dismissButton->activate();
 	questlogButton->activate();
@@ -418,7 +411,7 @@ void CHeroWindow::activate()
 	morale->activate();
 	luck->activate();
 
-	garInt->activate();
+	garr->activate();
 	LOCPLINT->statusbar = ourBar;
 
 	for(size_t v=0; v<primSkillAreas.size(); ++v)
@@ -445,8 +438,6 @@ void CHeroWindow::activate()
 	{
 		heroListMi[e]->activate();
 	}
-
-	//LOCPLINT->lclickable.push_back(artFeet);
 }
 
 void CHeroWindow::deactivate()
@@ -465,7 +456,7 @@ void CHeroWindow::deactivate()
 	morale->deactivate();
 	luck->deactivate();
 
-	garInt->deactivate();
+	garr->deactivate();
 
 	for(size_t v=0; v<primSkillAreas.size(); ++v)
 	{
@@ -496,7 +487,7 @@ void CHeroWindow::dismissCurrent()
 {
 	CFunctionList<void()> ony = boost::bind(&CHeroWindow::quit,this);
 	ony += boost::bind(&CCallback::dismissHero,LOCPLINT->cb,curHero);
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22],std::vector<SComponent*>(), ony, boost::bind(&CHeroWindow::activate,this), true, false);
+	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[22],std::vector<SComponent*>(), ony, 0, false);
 }
 
 void CHeroWindow::questlog()
@@ -701,11 +692,8 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 	{
 		if(ourArt->id == 0)
 		{
-			ourWindow->deactivate();
-
 			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ourWindow->curHero);
-			spellWindow->activate();
-			LOCPLINT->objsToBlit.push_back(spellWindow);
+			LOCPLINT->pushInt(spellWindow);
 		}
 	}
 	if(!down && !clicked && pressedL) //not clicked before

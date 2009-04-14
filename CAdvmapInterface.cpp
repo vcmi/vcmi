@@ -106,7 +106,7 @@ CMinimap::~CMinimap()
 	SDL_FreeSurface(radar);
 	SDL_FreeSurface(temps);
 }
-void CMinimap::draw()
+void CMinimap::draw(SDL_Surface * to)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	//draw terrain
@@ -142,8 +142,7 @@ void CMinimap::draw()
 	int bx = (((float)LOCPLINT->adventureInt->position.x)/(((float)mapSizes.x)))*pos.w,
 		by = (((float)LOCPLINT->adventureInt->position.y)/(((float)mapSizes.y)))*pos.h;
 	blitAt(radar,bx,by,temps);
-	blitAt(temps,pos.x,pos.y);
-	//SDL_UpdateRect(screen,pos.x,pos.y,pos.w,pos.h);
+	blitAt(temps,pos.x,pos.y,to);
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
@@ -530,7 +529,7 @@ void CTerrainRect::clickRight(tribool down)
 				LOCPLINT->current->motion.x-graphics->heroWins[obj->subID]->w,
 				LOCPLINT->current->motion.y-graphics->heroWins[obj->subID]->h,false
 				);
-			ip->activate();
+			LOCPLINT->pushInt(ip);
 			break;
 		}
 	case TOWNI_TYPE:
@@ -544,7 +543,7 @@ void CTerrainRect::clickRight(tribool down)
 				LOCPLINT->current->motion.x-graphics->townWins[obj->id]->w,
 				LOCPLINT->current->motion.y-graphics->townWins[obj->id]->h,false
 				);
-			ip->activate();
+			LOCPLINT->pushInt(ip);
 			break;
 		}
 	default:
@@ -938,13 +937,13 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 		}
 	} //for (int i=0;i<currentPath->nodes.size()-1;i++)
 }
-void CTerrainRect::show()
+void CTerrainRect::show(SDL_Surface * to)
 {
 	CGI->mh->terrainRect
 			(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
 			tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
 			&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-			screen, &genRect(pos.h, pos.w, pos.x, pos.y), moveX, moveY, ADVOPT.smoothMove && (moveX != 0 || moveY != 0)
+			to, &genRect(pos.h, pos.w, pos.x, pos.y), moveX, moveY, ADVOPT.smoothMove && (moveX != 0 || moveY != 0)
 			);
 	
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
@@ -1018,20 +1017,20 @@ CResDataBar::~CResDataBar()
 {
 	SDL_FreeSurface(bg);
 }
-void CResDataBar::draw()
+void CResDataBar::draw(SDL_Surface * to)
 {
-	blitAt(bg,pos.x,pos.y);
+	blitAt(bg,pos.x,pos.y,to);
 	char * buf = new char[15];
 	for (int i=0;i<7;i++)
 	{
 		SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-		printAt(buf,txtpos[i].first,txtpos[i].second,GEOR13,zwykly);
+		printAt(buf,txtpos[i].first,txtpos[i].second,GEOR13,zwykly,to);
 	}
 	std::vector<std::string> temp;
 	SDL_itoa(LOCPLINT->cb->getDate(3),buf,10); temp+=std::string(buf);
 	SDL_itoa(LOCPLINT->cb->getDate(2),buf,10); temp+=std::string(buf);
 	SDL_itoa(LOCPLINT->cb->getDate(1),buf,10); temp+=std::string(buf);
-	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,GEOR13,zwykly);
+	printAt(processStr(datetext,temp),txtpos[7].first,txtpos[7].second,GEOR13,zwykly,to);
 	temp.clear();
 	//updateRect(&pos,screen);
 	delete[] buf;
@@ -1057,7 +1056,7 @@ CInfoBar::~CInfoBar()
 	delete week3;
 	delete week4;
 }
-void CInfoBar::draw(const CGObjectInstance * specific)
+void CInfoBar::draw(SDL_Surface * to, const CGObjectInstance * specific)
 {
 	if ((mode>=0) && mode<5)
 	{
@@ -1067,7 +1066,7 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 	else if (mode==5)
 	{
 		mode = -1;
-		draw(LOCPLINT->adventureInt->selection);
+		draw(to,LOCPLINT->adventureInt->selection);
 	}
 	if (!specific)
 		specific = LOCPLINT->adventureInt->selection;
@@ -1078,20 +1077,14 @@ void CInfoBar::draw(const CGObjectInstance * specific)
 	if(specific->ID == HEROI_TYPE) //hero
 	{
 		if(graphics->heroWins.find(specific->subID)!=graphics->heroWins.end())
-			blitAt(graphics->heroWins[specific->subID],pos.x,pos.y);
+			blitAt(graphics->heroWins[specific->subID],pos.x,pos.y,to);
 	}
 	else if (specific->ID == TOWNI_TYPE)
 	{
 		const CGTownInstance * t = static_cast<const CGTownInstance*>(specific);
 		if(graphics->townWins.find(t->id)!=graphics->townWins.end())
-			blitAt(graphics->townWins[t->id],pos.x,pos.y);
+			blitAt(graphics->townWins[t->id],pos.x,pos.y,to);
 	}
-
-	//SDL_Surface * todr = LOCPLINT->infoWin(specific);
-	//if (!todr)
-	//	return;
-	//blitAt(todr,pos.x,pos.y);
-	//SDL_FreeSurface(todr);
 }
 
 CDefHandler * CInfoBar::getAnim(int mode)
@@ -1193,7 +1186,7 @@ void CInfoBar::tick()
 			TimeInterested::deactivate();
 			toNextTick = -1;
 			mode = 5;
-			draw();
+			draw(screen2);
 			return;
 		}
 		toNextTick = 150;
@@ -1204,7 +1197,7 @@ void CInfoBar::tick()
 		TimeInterested::deactivate();
 		toNextTick = -1;
 		mode = 5;
-		draw();
+		draw(screen2);
 	}
 
 }
@@ -1292,16 +1285,16 @@ void CAdvMapInt::fswitchLevel()
 	{
 		position.z--;
 		underground.curimg=0;
-		underground.show();
+		underground.show(screen2);
 	}
 	else
 	{
 		underground.curimg=1;
 		position.z++;
-		underground.show();
+		underground.show(screen2);
 	}
 	updateScreen = true;
-	minimap.draw();
+	minimap.draw(screen2);
 }
 void CAdvMapInt::fshowQuestlog()
 {
@@ -1325,22 +1318,17 @@ void CAdvMapInt::fshowSpellbok()
 	if (selection->ID!=HEROI_TYPE) //checking necessary values
 		return;
 
-	LOCPLINT->curint->deactivate();
 
 	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ((const CGHeroInstance*)LOCPLINT->adventureInt->selection));
-	spellWindow->activate();
-	LOCPLINT->objsToBlit.push_back(spellWindow);
+	LOCPLINT->pushInt(spellWindow);
 }
 void CAdvMapInt::fadventureOPtions()
 {
 }
 void CAdvMapInt::fsystemOptions()
 {
-	LOCPLINT->curint->deactivate();
-
 	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(genRect(487, 481, 159, 57), LOCPLINT);
-	sysopWindow->activate();
-	LOCPLINT->objsToBlit.push_back(sysopWindow);
+	LOCPLINT->pushInt(sysopWindow);
 }
 void CAdvMapInt::fnextHero()
 {
@@ -1375,7 +1363,6 @@ void CAdvMapInt::activate()
 		active--;
 		return;
 	}
-	LOCPLINT->curint = this;
 	LOCPLINT->statusbar = &statusbar;
 	kingOverview.activate();
 	underground.activate();
@@ -1393,7 +1380,6 @@ void CAdvMapInt::activate()
 	townList.activate();
 	terrain.activate();
 	KeyInterested::activate();
-	show();
 
 	LOCPLINT->cingconsole->activate();
 }
@@ -1415,33 +1401,33 @@ void CAdvMapInt::deactivate()
 		deactivate();
 	}
 }
-void CAdvMapInt::show(SDL_Surface *to)
+void CAdvMapInt::showAll(SDL_Surface *to)
 {
-	blitAt(bg,0,0);
+	blitAt(bg,0,0,to);
 
-	kingOverview.show();
-	underground.show();
-	questlog.show();
-	sleepWake.show();
-	moveHero.show();
-	spellbook.show();
-	advOptions.show();
-	sysOptions.show();
-	nextHero.show();
-	endTurn.show();
+	kingOverview.show(to);
+	underground.show(to);
+	questlog.show(to);
+	sleepWake.show(to);
+	moveHero.show(to);
+	spellbook.show(to);
+	advOptions.show(to);
+	sysOptions.show(to);
+	nextHero.show(to);
+	endTurn.show(to);
 
-	minimap.draw();
-	heroList.draw();
-	townList.draw();
+	minimap.draw(to);
+	heroList.draw(to);
+	townList.draw(to);
 	updateScreen = true;
-	update();
+	show(to);
 
-	resdatabar.draw();
+	resdatabar.draw(to);
 
-	statusbar.show();
+	statusbar.show(to);
 
-	infoBar.draw();
-	LOCPLINT->cingconsole->show();
+	infoBar.draw(to);
+	LOCPLINT->cingconsole->show(to);
 }
 void CAdvMapInt::hide()
 {
@@ -1465,7 +1451,7 @@ void CAdvMapInt::hide()
 	infoBar.mode=-1;
 
 }
-void CAdvMapInt::update()
+void CAdvMapInt::show(SDL_Surface *to)
 {
 	++animValHitCount; //for animations
 	if(animValHitCount == 8)
@@ -1480,8 +1466,7 @@ void CAdvMapInt::update()
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4/LOCPLINT->mapScrollingSpeed)) == 0 
 		&& 
-			(!LOCPLINT->showingDialog->get()
-				&& !LOCPLINT->curint->subInt)
+			(LOCPLINT->topInt() == this)
 			|| SDL_GetKeyState(NULL)[SDLK_LCTRL] 
 			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
 	)
@@ -1506,15 +1491,15 @@ void CAdvMapInt::update()
 	}
 	if(updateScreen)
 	{
-		terrain.show();
+		terrain.show(to);
 		for(int i=0;i<4;i++)
-			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i]);
+			blitAt(gems[i]->ourImages[LOCPLINT->playerID].bitmap,ADVOPT.gemX[i],ADVOPT.gemY[i],to);
 		updateScreen=false;	
-		LOCPLINT->cingconsole->show();
+		LOCPLINT->cingconsole->show(to);
 	}
 	if (updateMinimap)
 	{
-		minimap.draw();
+		minimap.draw(to);
 		updateMinimap=false;
 	}
 }
@@ -1580,29 +1565,13 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 {
 	if (down)
 	{
-		boost::algorithm::erase_all(text,"\"");
+		//boost::algorithm::erase_all(text,"\"");
 		CSimpleWindow * temp = CMessage::genWindow(text,LOCPLINT->playerID);
 		temp->pos.x=screen->w/2-(temp->pos.w/2);
 		temp->pos.y=screen->h/2-(temp->pos.h/2);
 		temp->owner = client;
-		LOCPLINT->objsToBlit.push_back(temp);
-	}
-	else
-	{
-		for (size_t i=0; i < LOCPLINT->objsToBlit.size(); ++i)
-		{
-			//TODO: pewnie da sie to zrobic lepiej, ale nie chce mi sie. Wolajacy obiekt powinien informowac kogo spodziewa sie odwolac (null jesli down)
-			CSimpleWindow * pom = dynamic_cast<CSimpleWindow*>(LOCPLINT->objsToBlit[i]);
-			if (!pom)
-				continue;
-			if (pom->owner==client)
-			{
-				LOCPLINT->objsToBlit.erase(LOCPLINT->objsToBlit.begin()+(i));
-				delete pom;
-				if((LOCPLINT->curint == LOCPLINT->castleInt) && !LOCPLINT->castleInt->subInt)
-					LOCPLINT->castleInt->showAll(0,true);
-			}
-		}
+		CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
+		LOCPLINT->pushInt(rcpi);
 	}
 }
 int3 CAdvMapInt::verifyPos(int3 ver)
@@ -1639,7 +1608,7 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 		heroList.selected = pos;
 		terrain.currentPath = heroList.items[pos].second;
 	}
-	townList.draw();
-	heroList.draw();
-	infoBar.draw(NULL);
+	townList.draw(screen2);
+	heroList.draw(screen2);
+	infoBar.draw(screen2);
 }
