@@ -1,73 +1,73 @@
 //additional spell info, not included in original heroes III files
-//[spellID - -1 is the end of data in file] [-1 -> spell is negative for influenced creatures; 0 - spell is indifferent for them; 1 - spell is poitive for them]
-0 0
-1 0
-2 0
-3 0
-4 0
-5 0
-6 0
-7 0
-8 0
-9 0
-10 0
-11 0
-12 0
-13 0
-14 0
-15 -1
-16 -1
-17 -1
-18 -1
-19 -1
-20 -1
-21 -1
-22 -1
-23 -1
-24 -1
-25 -1
-26 -1
-27 1
-28 1
-29 1
-30 1
-31 1
-32 1
-33 1
-34 1
-35 1
-36 1
-37 1
-38 1
-39 1
-40 1
-41 1
-42 -1
-43 1
-44 1
-45 -1
-46 1
-47 -1
-48 1
-49 1
-50 -1
-51 1
-52 -1
-53 1
-54 -1
-55 1
-56 1
-57 -1
-58 1
-59 -1
-60 -1
-61 -1
-62 -1
-63 1
-64 0
-65 1
-66 0 
-67 0
-68 0
-69 0
+//[spellID - -1 is the end of data in file] [-1 -> spell is negative for influenced creatures; 0 - spell is indifferent for them; 1 - spell is poitive for them] [spell range description in SRSL, none magic] [basic] [advanced] [expert]
+0 0 X X X X
+1 0 X X X X
+2 0 X X X X
+3 0 X X X X
+4 0 X X X X
+5 0 X X X X
+6 0 X X X X
+7 0 X X X X
+8 0 X X X X
+9 0 X X X X
+10 0 X X X X
+11 0 X X X X
+12 0 0 0 0 0
+13 0 0 0 0 0
+14 0 X X X X
+15 -1 0 0 0 0
+16 -1 0 0 0 0
+17 -1 0 0 0 0
+18 -1 0 0 0 0
+19 -1 0 0 0 0
+20 -1 1 1 1 1
+21 -1 0,1 0,1 0,1 0,1
+22 -1 0-2 0-2 0-2 0-2
+23 -1 0,1 0,1 0,1 0,1
+24 -1 X X X X
+25 -1 X X X X
+26 -1 X X X X
+27 1 0 0 0 X
+28 1 0 0 0 X
+29 1 0 0 0 X
+30 1 0 0 0 X
+31 1 0 0 0 X
+32 1 0 0 0 X
+33 1 0 0 0 X
+34 1 0 0 0 X
+35 1 0 0 0 X
+36 1 0 0 0 0
+37 1 0 0 0 0
+38 1 0 0 0 0
+39 1 0 0 0 0
+40 1 0 0 0 0
+41 1 0 0 0 X
+42 -1 0 0 0 X
+43 1 0 0 0 X
+44 1 0 0 0 X
+45 -1 0 0 0 X
+46 1 0 0 0 X
+47 -1 0 0 0 X
+48 1 0 0 0 X
+49 1 0 0 0 X
+50 -1 0 0 0 X
+51 1 0 0 0 X
+52 -1 0 0 0 X
+53 1 0 0 0 X
+54 -1 0 0 0 X
+55 1 0 0 0 0
+56 1 0 0 0 0
+57 -1 0 0 0 0
+58 1 0 0 0 X
+59 -1 0 0 0-1 0-2
+60 -1 0 0 0 0
+61 -1 0 0 0 X
+62 -1 0 0 0 0
+63 1 0 0 0 0
+64 0 X X X X
+65 1 0 0 0 0
+66 0 X X X X
+67 0 X X X X
+68 0 X X X X
+69 0 X X X X
 -1
