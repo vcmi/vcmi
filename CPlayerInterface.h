@@ -415,8 +415,8 @@ public:
 class CCustomImgComponent :  public SComponent
 {
 public:
-	bool free; //should surface be freed on delete
 	SDL_Surface *bmp; //our image
+	bool free; //should surface be freed on delete
 	SDL_Surface * getImg();
 	CCustomImgComponent(Etype Type, int Subtype, int Val, SDL_Surface *sur, bool freeSur); //c-tor
 	~CCustomImgComponent(); //d-tor
@@ -686,8 +686,8 @@ public:
 class CCreaturePic //draws picture with creature on background, use nextFrame=true to get animation
 {
 public:
-	bool big; //big => 100x130; !big => 100x120
 	CCreature *c; //which creature's picture
+	bool big; //big => 100x130; !big => 100x120
 	CCreatureAnimation *anim; //displayed animation
 	CCreaturePic(CCreature *cre, bool Big=true); //c-tor
 	~CCreaturePic(); //d-tor

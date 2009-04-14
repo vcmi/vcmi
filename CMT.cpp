@@ -196,8 +196,9 @@ int main(int argc, char** argv)
 		while(1) //main SDL events loop
 		{
 			ev = new SDL_Event();
-			SDL_WaitEvent(ev);
-			if((ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
+
+			int ret = SDL_WaitEvent(ev);
+			if(ret == 0 || (ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
 			{
 				LOCPLINT->pim->lock();
 				cl.close();

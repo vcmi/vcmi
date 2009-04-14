@@ -121,6 +121,9 @@ public:
 
 
 	SDL_Surface * bg;
+
+	CStatusBar statusbar;
+
 	AdventureMapButton kingOverview,//- kingdom overview
 		underground,//- underground switch
 		questlog,//- questlog
@@ -135,7 +138,6 @@ public:
 
 	CTerrainRect terrain; //visible terrain
 
-	CStatusBar statusbar;
 	CResDataBar resdatabar;
 
 	CHeroList heroList;

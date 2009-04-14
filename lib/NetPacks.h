@@ -580,13 +580,15 @@ struct BlockingDialog : public Query//2003
 
 	BlockingDialog(bool yesno, bool Selection)
 	{
-		type = 2003; 
+		type = 2003;
+		flags = 0;
 		if(yesno) flags |= ALLOW_CANCEL;
 		if(Selection) flags |= SELECTION;
 	}
 	BlockingDialog()
 	{
 		type = 2003;
+		flags = 0;
 	};
 
 	template <typename Handler> void serialize(Handler &h, const int version)

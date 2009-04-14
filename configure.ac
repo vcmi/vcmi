@@ -8,7 +8,6 @@ AC_CONFIG_HEADER([config.h])
 
 # Checks for programs.
 AC_PROG_CXX
-AC_PROG_CXX
 AC_PROG_CC
 AX_BOOST_BASE([1.37])
 AX_BOOST_SYSTEM
@@ -64,4 +63,4 @@ AC_FUNC_MALLOC
 AC_FUNC_SELECT_ARGTYPES
 AC_CHECK_FUNCS([atexit memset pow select sqrt])
 
-AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/GeniusAI/Makefile)
+AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile)
