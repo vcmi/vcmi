@@ -90,7 +90,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amou
 
 bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 {
-	if(((player>=0)  &&  obj->tempOwner != player) || obj->army.slots.size()<2)
+	if(((player>=0)  &&  obj->tempOwner != player) || (obj->army.slots.size()<2  && obj->needsLastStack()))
 		return false;
 
 	DisbandCreature pack(stackPos,obj->id);

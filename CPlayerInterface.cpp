@@ -217,7 +217,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 				LOCPLINT->pushInt(creWindow);
 
 				owner->highlighted = NULL;
-				//show();
+				show(screen2);
 				refr = true;
 				delete pom2;
 			}
@@ -273,7 +273,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 		{
 			if(creature)
 				owner->highlighted = this;
-			//show();
+			show(screen2);
 			refr = true;
 		}
 		if(refr) {hover(false);	hover(true); } //to refresh statusbar
@@ -500,7 +500,7 @@ void CGarrisonInt::recreateSlots()
 	{
 		//ignoreEvent = true;
 		activeteSlots();
-		//show();
+		//show(screen2);
 	}
 }
 void CGarrisonInt::splitClick()
@@ -508,7 +508,7 @@ void CGarrisonInt::splitClick()
 	if(!highlighted)
 		return;
 	splitting = !splitting;
-	//show();
+	show(screen2);
 }
 void CGarrisonInt::splitStacks(int am2)
 {
@@ -2731,14 +2731,13 @@ void CHeroList::select(int which)
 		selected = which;
 		LOCPLINT->adventureInt->selection = NULL;
 		LOCPLINT->adventureInt->terrain.currentPath = NULL;
-		//draw();
-		LOCPLINT->adventureInt->infoBar.draw(NULL);
+		draw(screen);
+		LOCPLINT->adventureInt->infoBar.draw(screen);
 	}
 	if (which>=items.size())
 		return;
 	selected = which;
-	LOCPLINT->adventureInt->centerOn(items[which].first->pos);
-	LOCPLINT->adventureInt->selection = items[which].first;
+
 	//recalculationg path in case of something has changed on map
 	if(items[which].second)
 	{
@@ -2750,11 +2749,8 @@ void CHeroList::select(int which)
 	{
 		LOCPLINT->adventureInt->terrain.currentPath = NULL;
 	}
+	LOCPLINT->adventureInt->select(items[which].first);
 	//recalculated and assigned
-	//draw();
-	//LOCPLINT->adventureInt->townList.draw();
-	//LOCPLINT->adventureInt->infoBar.draw(NULL);
-	LOCPLINT->cb->setSelection(items[which].first);
 }
 
 void CHeroList::clickLeft(tribool down)
@@ -2798,7 +2794,7 @@ void CHeroList::clickLeft(tribool down)
 				from--;
 				if (from<0)
 					from=0;
-				//draw();
+				draw(screen2);
 			}
 		}
 		else if (!pressed) //down
@@ -2811,7 +2807,7 @@ void CHeroList::clickLeft(tribool down)
 				//if (from<items.size()-5)
 				//	from=items.size()-5;
 
-				//draw();
+				draw(screen2);
 			}
 		}
 		else
@@ -3117,7 +3113,7 @@ void CTownList::clickLeft(tribool down)
 				if (from<0)
 					from=0;
 
-				//draw();
+				draw(screen2);
 			}
 		}
 		else if (!pressed) //down
@@ -3130,7 +3126,7 @@ void CTownList::clickLeft(tribool down)
 				//if (from<items.size()-5)
 				//	from=items.size()-5;
 
-				//draw();
+				draw(screen2);
 			}
 		}
 		else

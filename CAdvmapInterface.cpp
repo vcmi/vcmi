@@ -1602,13 +1602,7 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 		townList.selected = pos;
 		terrain.currentPath = NULL;
 	}
-	else
-	{
-		int pos = heroList.getPosOfHero(sel);
-		heroList.selected = pos;
-		terrain.currentPath = heroList.items[pos].second;
-	}
-	townList.draw(screen2);
-	heroList.draw(screen2);
-	infoBar.draw(screen2);
+	townList.draw(screen);
+	heroList.draw(screen);
+	infoBar.draw(screen);
 }

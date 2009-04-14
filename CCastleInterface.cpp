@@ -278,14 +278,14 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 		{
 			highlight = true;
 			owner->garr->highlighted = NULL;
-			//LOCPLINT->totalRedraw();
+			show(screen2);
 		}
 		hover(false);hover(true); //refresh statusbar
 	}
 	if(indeterminate(down) && !isItIn(&other->pos,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
 		other->highlight = highlight = false;
-		//LOCPLINT->totalRedraw();
+		show(screen2);
 	}
 }
 
