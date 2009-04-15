@@ -895,7 +895,7 @@ struct DisbandCreature : public CPackForServer
 struct BuildStructure : public CPackForServer
 {
 	BuildStructure(){};
-	BuildStructure(si32 TID, si32 BID):tid(TID),bid(BID){};
+	BuildStructure(si32 TID, si32 BID):bid(BID),tid(TID){};
 	si32 bid, tid; //structure and town ids
 
 	void applyGh(CGameHandler *gh);

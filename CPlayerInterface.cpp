@@ -522,8 +522,8 @@ void CGarrisonInt::splitStacks(int am2)
 }
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *&pomsur, int OX, int OY, const CArmedInstance *s1, 
 						   const CArmedInstance *s2)
-	:interx(inx),intery(iny),sur(pomsur),highlighted(NULL),sup(NULL),sdown(NULL),oup(s1),odown(s2),
-	offx(OX),offy(OY)
+	:interx(inx),intery(iny),highlighted(NULL),sur(pomsur),offx(OX),offy(OY),sup(NULL),
+	 sdown(NULL),oup(s1),odown(s2)
 {
 	active = false;
 	splitting = false;
@@ -641,7 +641,7 @@ void CRClickPopup::close()
 }
 
 CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
-:bitmap(Bitmap),free(Free)
+ :free(Free),bitmap(Bitmap)
 {
 	pos.x = x;
 	pos.y = y;
@@ -3589,7 +3589,7 @@ void CCreInfoWindow::show(SDL_Surface * to)
 }
 
 CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
-:ok(0),dismiss(0),upgrade(0),type(Type),dsm(Dsm)
+:type(Type),dsm(Dsm),dismiss(0),upgrade(0),ok(0)
 {
 	//active = false;
 	anf = 0;
@@ -4724,7 +4724,7 @@ void CInGameConsole::refreshEnteredText()
 	}
 }
 
-CInGameConsole::CInGameConsole() : defaultTimeout(10000), maxDisplayedTexts(10), prevEntDisp(-1)
+CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDisplayedTexts(10)
 {
 }
 

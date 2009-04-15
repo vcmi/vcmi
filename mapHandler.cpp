@@ -1403,5 +1403,5 @@ CMapHandler::CMapHandler()
 }
 
 TerrainTile2::TerrainTile2()
-:terbitmap(0),tileInfo(0)
+ :tileInfo(0),terbitmap(0)
 {}

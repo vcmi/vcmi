@@ -435,8 +435,8 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 }
 
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
-	:creature(C),amount(A), baseAmount(A), owner(O), position(-1), ID(I), attackerOwned(AO), firstHPleft(C->hitPoints), 
-	shots(C->shots), slot(S), counterAttacks(1), effects(), state()
+	:ID(I), creature(C), amount(A), baseAmount(A), firstHPleft(C->hitPoints), owner(O), slot(S), attackerOwned(AO), position(-1),   
+	 counterAttacks(1), shots(C->shots), state(), effects()
 {
 	speed = creature->speed;
 	abilities = C->abilities;

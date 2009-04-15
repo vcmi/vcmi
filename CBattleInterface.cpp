@@ -44,9 +44,10 @@ struct CMP_stack2
 } cmpst2 ;
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect)
-  : attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), givenCommand(NULL),
-	attackingInfo(NULL), myTurn(false), resWindow(NULL), showStackQueue(false), 
-	spellDestSelectMode(false), spellToCast(NULL), previouslyHoveredHex(-1), moveStarted(false), mouseHoveredStack(-1)
+	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), 
+	  mouseHoveredStack(-1), previouslyHoveredHex(-1), spellDestSelectMode(false), spellToCast(NULL),
+	  attackingInfo(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), 
+	  showStackQueue(false), moveStarted(false)
 {
 	pos = myRect;
 	strongInterest = true;
@@ -2336,7 +2337,7 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 	}
 }
 
-CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner): phase(phaseG), image(imageG), flip(flipG), flagAnim(0), myHero(hero), myOwner(owner), nextPhase(-1)
+CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner): flip(flipG), myHero(hero), myOwner(owner), phase(phaseG), nextPhase(-1), image(imageG), flagAnim(0)
 {
 	dh = CDefHandler::giveDef( defName );
 	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images
@@ -2425,7 +2426,7 @@ void CBattleHex::hover(bool on)
 	}
 }
 
-CBattleHex::CBattleHex() : myNumber(-1), accesible(true), hovered(false), strictHovered(false), myInterface(NULL), setAlterText(false)
+CBattleHex::CBattleHex() : setAlterText(false), myNumber(-1), accesible(true), hovered(false), strictHovered(false), myInterface(NULL)
 {
 }
 

@@ -45,10 +45,10 @@ struct DLL_EXPORT HeroBonus
 	std::string description; 
 
 	HeroBonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, std::string Desc, si32 Subtype=-1)
-		:duration(Dur), type(Type), source(Src), val(Val), id(ID), description(Desc), subtype(Subtype)
+		:duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID), description(Desc) 
 	{}
 	HeroBonus(ui8 Dur, ui8 Type, ui8 Src, si32 Val, ui32 ID, si32 Subtype=-1)
-		:duration(Dur), type(Type), source(Src), val(Val), id(ID), subtype(Subtype)
+		:duration(Dur), type(Type), subtype(Subtype), source(Src), val(Val), id(ID) 
 	{}
 	HeroBonus()
 	{

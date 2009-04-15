@@ -444,13 +444,13 @@ PreGameTab::PreGameTab()
 }
 /********************************************************************************************/
 Options::PlayerOptions::PlayerOptions(int serial, int player)
-	:Cleft(genRect(24,11,164,133+serial*50),CPG->ourOptions->left,true,-1), //left castle arrow
+	:flag(genRect(50,42,14,130+serial*50),CPG->ourOptions->flags[player],player),
+	Cleft(genRect(24,11,164,133+serial*50),CPG->ourOptions->left,true,-1), //left castle arrow
 	Cright(genRect(24,11,225,133+serial*50),CPG->ourOptions->right,false,-1), //right castle arrow
 	Hleft(genRect(24,11,240,133+serial*50),CPG->ourOptions->left,true,0), //left hero arrow
 	Hright(genRect(24,11,301,133+serial*50),CPG->ourOptions->right,false,0), //right hero arrow
 	Bleft(genRect(24,11,316,133+serial*50),CPG->ourOptions->left,true,1), //left bonus arrow
-	Bright(genRect(24,11,377,133+serial*50),CPG->ourOptions->right,false,1), //right bonus arrow
-	flag(genRect(50,42,14,130+serial*50),CPG->ourOptions->flags[player],player)
+	Bright(genRect(24,11,377,133+serial*50),CPG->ourOptions->right,false,1) //right bonus arrow
 {
 	Bleft.playerID=Bright.playerID=Hleft.playerID=Hright.playerID=Cleft.playerID=Cright.playerID=player;
 	Bleft.serialID=Bright.serialID=Hleft.serialID=Hright.serialID=Cleft.serialID=Cright.serialID=serial;
@@ -2508,17 +2508,17 @@ CPreGame::menuItems::~menuItems()
 ScenSel::ScenSel()
 :
 	difficulty(new CPoinGroup()),
+	bScens(genRect(0,0,414,81),boost::bind(&CPreGame::showScenList,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
+	bOptions(genRect(0,0,414,509),boost::bind(&CPreGame::showOptions,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
+	bRandom(genRect(0,0,414,105),boost::bind(&CPreGame::showScenList,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
+	bBegin(genRect(0,0,414,535),boost::bind(&CPreGame::begin,CPG),CDefHandler::giveDef("SCNRBEG.DEF")),
+	bLoad(genRect(0,0,414,535),boost::bind(&CPreGame::begin,CPG),CDefHandler::giveDef("SCNRLOD.DEF")),
+	bBack(genRect(0,0,584,535),boost::bind(&CPreGame::showNewMenu,CPG),CDefHandler::giveDef("SCNRBACK.DEF")),
 	bEasy(genRect(0,0,506,456),NULL,CDefHandler::giveDef("GSPBUT3.DEF"),true,difficulty,0),
 	bNormal(genRect(0,0,538,456),NULL,CDefHandler::giveDef("GSPBUT4.DEF"),true,difficulty,1),
 	bHard(genRect(0,0,570,456),NULL,CDefHandler::giveDef("GSPBUT5.DEF"),true,difficulty,2),
 	bExpert(genRect(0,0,602,456),NULL,CDefHandler::giveDef("GSPBUT6.DEF"),true,difficulty,3),
-	bImpossible(genRect(0,0,634,456),NULL,CDefHandler::giveDef("GSPBUT7.DEF"),true,difficulty,4),
-	bBack(genRect(0,0,584,535),boost::bind(&CPreGame::showNewMenu,CPG),CDefHandler::giveDef("SCNRBACK.DEF")),
-	bBegin(genRect(0,0,414,535),boost::bind(&CPreGame::begin,CPG),CDefHandler::giveDef("SCNRBEG.DEF")),
-	bLoad(genRect(0,0,414,535),boost::bind(&CPreGame::begin,CPG),CDefHandler::giveDef("SCNRLOD.DEF")),
-	bScens(genRect(0,0,414,81),boost::bind(&CPreGame::showScenList,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
-	bRandom(genRect(0,0,414,105),boost::bind(&CPreGame::showScenList,CPG),CDefHandler::giveDef("GSPBUTT.DEF")),
-	bOptions(genRect(0,0,414,509),boost::bind(&CPreGame::showOptions,CPG),CDefHandler::giveDef("GSPBUTT.DEF"))
+	bImpossible(genRect(0,0,634,456),NULL,CDefHandler::giveDef("GSPBUT7.DEF"),true,difficulty,4)
 {
 	pressed=NULL;
 	listShowed=false;

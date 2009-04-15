@@ -231,14 +231,14 @@ ui8 side; //who made this action: false - left, true - right player
 
 CBattleHelper::CBattleHelper():
 	InfiniteDistance(0xffff),
-	BattlefieldHeight(11),
 	BattlefieldWidth(15),
+	BattlefieldHeight(11),
+	m_voteForMaxDamage(10),
+	m_voteForMinDamage(10),
+	m_voteForMaxSpeed(10),
 	m_voteForDistance(10),
 	m_voteForDistanceFromShooters(20),
-	m_voteForHitPoints(10),
-	m_voteForMaxDamage(10),
-	m_voteForMaxSpeed(10),
-	m_voteForMinDamage(10)
+	m_voteForHitPoints(10)
 {
 	// loads votes
 	std::fstream f;
@@ -373,9 +373,9 @@ int CBattleHelper::GetDistanceWithObstacles(int pointA, int pointB)
  *	Implementation of CBattleLogic class.
  */
 CBattleLogic::CBattleLogic(ICallback *cb,  CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) :
-	m_cb(cb),
 	m_iCurrentTurn(-2),
 	m_bIsAttacker(false),
+	m_cb(cb),
 	m_army1(army1),
 	m_army2(army2),
 	m_tile(tile),
