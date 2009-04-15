@@ -7,6 +7,16 @@
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 
+/*
+ * CHeroHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 CHeroClass::CHeroClass()
 {
 	skillLimit = 8;

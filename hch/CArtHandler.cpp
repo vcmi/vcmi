@@ -9,6 +9,16 @@
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
 
+/*
+ * CArtHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 const std::string & CArtifact::Name() const
 {
 	if(name.size())

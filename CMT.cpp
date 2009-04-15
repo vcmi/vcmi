@@ -45,6 +45,17 @@
 #if __MINGW32__
 #undef main
 #endif
+
+/*
+ * CMT.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 std::string NAME = NAME_VER + std::string(" (client)"); //application name
 SDL_Surface *screen = NULL, *screen2 = NULL; //main screen surface and hlp surface (used to store not-active interfaces layer)
 

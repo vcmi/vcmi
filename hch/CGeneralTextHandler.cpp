@@ -8,6 +8,16 @@
 #include <fstream>
 #include <sstream>
 
+/*
+ * CGeneralTextHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 std::string readTo(std::string &in, int &it, char end)
 {
 	int pom = it;

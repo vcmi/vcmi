@@ -14,6 +14,16 @@
 #include "../lib/VCMI_Lib.h"
 #endif
 
+/*
+ * CObjectHandler.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 using boost::logic::tribool;
 class IGameCallback;
 struct BattleResult;
@@ -252,6 +262,7 @@ public:
 	static int3 convertPosition(int3 src, bool toh3m); //toh3m=true: manifest->h3m; toh3m=false: h3m->manifest
 	double getHeroStrength() const;
 	int getTotalStrength() const;
+	ui8 getSpellSchoolLevel(const CSpell * spell) const; //returns level on which given spell would be casted by this hero
 
 	//////////////////////////////////////////////////////////////////////////
 

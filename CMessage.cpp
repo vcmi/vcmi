@@ -15,6 +15,17 @@
 #include "hch/CGeneralTextHandler.h"
 #include "client/Graphics.h"
 #include "CAdvmapInterface.h"
+
+/*
+ * CMessage.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 SDL_Color tytulowy, tlo, zwykly ;
 
 extern SDL_Surface * screen;

@@ -3,6 +3,16 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 
+/*
+ * SDL_Extensions.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 extern SDL_Surface * screen, *screen2;
 extern SDL_Color tytulowy, tlo, zwykly ;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;

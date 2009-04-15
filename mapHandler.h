@@ -3,8 +3,19 @@
 #include "global.h"
 #include <list>
 #include <set>
+
 const int Woff = 13; //width of map's frame
 const int Hoff = 10;
+
+/*
+ * mapHandler.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
 
 class CGObjectInstance;
 class CGHeroInstance;

@@ -29,6 +29,16 @@ const double M_PI = 3.14159265358979323846;
 #include <cmath>
 #endif
 
+/*
+ * CBattleInterface.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 extern SDL_Surface * screen;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 extern SDL_Color zwykly;
@@ -418,7 +428,34 @@ void CBattleInterface::show(SDL_Surface * to)
 				currentlyHoveredHex = b;
 			}
 			//print shade
-			if(settings.printMouseShadow)
+			if(spellToCast) //when casting spell
+			{
+				//calculating spell schoold level
+				const CSpell & spToCast =  CGI->spellh->spells[spellToCast->additionalInfo];
+				ui8 schoolLevel = 0;
+				if( LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned )
+				{
+					if(attackingHeroInstance)
+						schoolLevel = attackingHeroInstance->getSpellSchoolLevel(&spToCast);
+				}
+				else
+				{
+					if(defendingHeroInstance)
+						schoolLevel = defendingHeroInstance->getSpellSchoolLevel(&spToCast);
+				}
+				//obtaining range and printing it
+				std::set<ui16> shaded = spToCast.rangeInHexes(b, schoolLevel);
+				for(std::set<ui16>::iterator it = shaded.begin(); it != shaded.end(); ++it) //for spells with range greater then one hex
+				{
+					if(settings.printMouseShadow && (*it % BFIELD_WIDTH != 0) && (*it % BFIELD_WIDTH != 16))
+					{
+						int x = 14 + ((*it/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(*it%BFIELD_WIDTH) + pos.x;
+						int y = 86 + 42 * (*it/BFIELD_WIDTH) + pos.y;
+						CSDL_Ext::blit8bppAlphaTo24bpp(cellShade, NULL, to, &genRect(cellShade->h, cellShade->w, x, y));
+					}
+				}
+			}
+			else if(settings.printMouseShadow) //when not casting spell
 			{
 				int x = 14 + ((b/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(b%BFIELD_WIDTH) + pos.x;
 				int y = 86 + 42 * (b/BFIELD_WIDTH) + pos.y;
@@ -985,7 +1022,6 @@ void CBattleInterface::bAutofightf()
 void CBattleInterface::bSpellf()
 {
 	CGI->curh->changeGraphic(0,0);
-	deactivate();
 
 	const CGHeroInstance * chi = NULL;
 	if(attackingHeroInstance->tempOwner == LOCPLINT->playerID)
@@ -993,8 +1029,7 @@ void CBattleInterface::bSpellf()
 	else
 		chi = defendingHeroInstance;
 	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), chi);
-	spellWindow->activate();
-	LOCPLINT->objsToBlit.push_back(spellWindow);
+	LOCPLINT->pushInt(spellWindow);
 }
 
 void CBattleInterface::bWaitf()

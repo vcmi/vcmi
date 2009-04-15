@@ -3,7 +3,19 @@
 #include "CDefHandler.h"
 #include <sstream>
 #include "CLodHandler.h"
+
+/*
+ * CDefHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 CLodHandler* CDefHandler::Spriteh = NULL;
+
 long long pow(long long a, int b)
 {
 	if (!b) return 1;

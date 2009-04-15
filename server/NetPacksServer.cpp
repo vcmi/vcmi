@@ -8,6 +8,16 @@
 							return;}
 #define ERROR_IF_NOT_OWNS(id)	if(!PLAYER_OWNS(id)) ERROR_AND_RETURN
 
+/*
+ * NetPacksServer.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 CGameState* CPackForServer::GS(CGameHandler *gh)
 {
 	return gh->gs;

@@ -6,7 +6,19 @@
 #include <sstream>
 #include "../lib/VCMI_Lib.h"
 #include <set>
+
 extern CLodHandler * bitmaph;
+
+/*
+ * CDefObjInfoHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 bool CGDefInfo::isVisitable()
 {
 	for (int i=0; i<6; i++)

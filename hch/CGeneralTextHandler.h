@@ -3,6 +3,17 @@
 #include "../global.h"
 #include <string>
 #include <vector>
+
+/*
+ * CGeneralTextHandler.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 std::string readTo(std::string &in, int &it, char end);
 class DLL_EXPORT CGeneralTextHandler //Handles general texts

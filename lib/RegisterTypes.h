@@ -16,3 +16,13 @@ void registerTypes3(Serializer &s);
 //register all
 template<typename Serializer> DLL_EXPORT
 void registerTypes(Serializer &s);
+
+/*
+ * RegisterTypes.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */

@@ -1,6 +1,16 @@
 #include "../stdafx.h"
 #include "CMusicHandler.h"
 
+/*
+ * CMusicHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 void CMusicHandler::initMusics()
 {
 	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096)==-1)

@@ -1,6 +1,17 @@
 #include "CThreadHelper.h"
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
+
+/*
+ * CThreadHelper.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 CThreadHelper::CThreadHelper(std::vector<boost::function<void()> > *Tasks, int Threads)
 {
 	currentTask = 0; amount = Tasks->size();

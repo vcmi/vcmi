@@ -6,6 +6,17 @@
 #include "../hch/CLodHandler.h"
 #include <sstream>
 #include <boost/thread.hpp>
+
+/*
+ * CBitmapHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 boost::mutex bitmap_handler_mx;
 int readNormalNr (int pos, int bytCon, unsigned char * str);
 CLodHandler * BitmapHandler::bitmaph = NULL;

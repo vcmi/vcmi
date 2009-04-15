@@ -33,6 +33,16 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #define SERVER_NAME "./vcmiserver"
 #endif
 
+/*
+ * global.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK}; //player's colors
 enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
 enum Eriver {noRiver=0, clearRiver, icyRiver, muddyRiver, lavaRiver};

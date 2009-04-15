@@ -21,6 +21,16 @@
 #include <boost/thread/shared_mutex.hpp>
 #include <fstream>
 
+/*
+ * CGameHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 #undef DLL_EXPORT
 #define DLL_EXPORT 
 #include "../lib/RegisterTypes.cpp"
@@ -87,19 +97,6 @@ public:
 double distance(int3 a, int3 b)
 {
 	return std::sqrt( (double)(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
-}
-int getSchoolLevel(const CGHeroInstance *h, const CSpell *s)
-{
-	ui8 ret = 0;
-	if(s->fire)
-		ret = std::max(ret,h->getSecSkillLevel(14));
-	if(s->air)
-		ret = std::max(ret,h->getSecSkillLevel(15));
-	if(s->water)
-		ret = std::max(ret,h->getSecSkillLevel(16));
-	if(s->earth)
-		ret = std::max(ret,h->getSecSkillLevel(17));
-	return ret;
 }
 void giveExp(BattleResult &r)
 {
@@ -2204,18 +2201,7 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 			}
 
 			CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
-			ui8 skill = 0; //skill level
-
-			if(s->fire)
-				skill = std::max(skill,h->getSecSkillLevel(14));
-			if(s->air)
-				skill = std::max(skill,h->getSecSkillLevel(15));
-			if(s->water)
-				skill = std::max(skill,h->getSecSkillLevel(16));
-			if(s->earth)
-				skill = std::max(skill,h->getSecSkillLevel(17));
-
-			//TODO: skill level may be different on special terrain
+			ui8 skill = h->getSpellSchoolLevel(s); //skill level
 
 			if(   !(vstd::contains(h->spells,ba.additionalInfo)) //hero doesn't know this spell 
 				|| (h->mana < s->costs[skill]) //not enough mana
@@ -2232,11 +2218,11 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 			//TODO: check resistances
 
 #define SPELL_CAST_TEMPLATE_1(NUMBER, DURATION) SetStackEffect sse; \
-			if(getSchoolLevel(h,s) < 3)  /*not expert */ \
+			if(h->getSpellSchoolLevel(s) < 3)  /*not expert */ \
 			{ \
 				sse.stacks.insert(gs->curB->getStackT(ba.destinationTile)->ID); \
 				sse.effect.id = (NUMBER); \
-				sse.effect.level = getSchoolLevel(h,s); \
+				sse.effect.level = h->getSpellSchoolLevel(s); \
 				sse.effect.turnsRemain = (DURATION); /*! - any duration */ \
 				sendAndApply(&sse); \
 			} \
@@ -2253,7 +2239,7 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 					} \
 				} \
 				sse.effect.id = (NUMBER); \
-				sse.effect.level = getSchoolLevel(h,s); \
+				sse.effect.level = h->getSpellSchoolLevel(s); \
 				sse.effect.turnsRemain = (DURATION); \
 				sendAndApply(&sse); \
 			}
@@ -2273,7 +2259,7 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 					BattleStackAttacked bsa;
 					bsa.flags |= 2;
 					bsa.effect = 64;
-					bsa.damageAmount = h->getPrimSkillLevel(2) * 10  +  s->powers[getSchoolLevel(h,s)]; 
+					bsa.damageAmount = h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]; 
 					bsa.stackAttacked = attacked->ID;
 					prepareAttacked(bsa,attacked);
 					sendAndApply(&bsa);
@@ -2286,7 +2272,7 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 					BattleStackAttacked bsa;
 					bsa.flags |= 2;
 					bsa.effect = 46;
-					bsa.damageAmount = h->getPrimSkillLevel(2) * 20  +  s->powers[getSchoolLevel(h,s)]; 
+					bsa.damageAmount = h->getPrimSkillLevel(2) * 20  +  s->powers[h->getSpellSchoolLevel(s)]; 
 					bsa.stackAttacked = attacked->ID;
 					prepareAttacked(bsa,attacked);
 					sendAndApply(&bsa);
@@ -2299,7 +2285,7 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 					BattleStackAttacked bsa;
 					bsa.flags |= 2;
 					bsa.effect = 38;
-					bsa.damageAmount = h->getPrimSkillLevel(2) * 25  +  s->powers[getSchoolLevel(h,s)]; 
+					bsa.damageAmount = h->getPrimSkillLevel(2) * 25  +  s->powers[h->getSpellSchoolLevel(s)]; 
 					bsa.stackAttacked = attacked->ID;
 					prepareAttacked(bsa,attacked);
 					sendAndApply(&bsa);
@@ -2312,10 +2298,23 @@ void CGameHandler::makeCustomAction( BattleAction &ba )
 					BattleStackAttacked bsa;
 					bsa.flags |= 2;
 					bsa.effect = 10;
-					bsa.damageAmount = h->getPrimSkillLevel(2) * 75  +  s->powers[getSchoolLevel(h,s)]; 
+					bsa.damageAmount = h->getPrimSkillLevel(2) * 75  +  s->powers[h->getSpellSchoolLevel(s)]; 
 					bsa.stackAttacked = attacked->ID;
 					prepareAttacked(bsa,attacked);
 					sendAndApply(&bsa);
+					break;
+				}
+			case 21: //fireball
+				{
+					std::set<ui16> attackedHexes = s->rangeInHexes(ba.destinationTile, h->getSpellSchoolLevel(s));
+					std::set<CStack*> attackedCres; //set to exclude multiple occurences of two hex creatures
+					for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
+					{
+						attackedCres.insert(gs->curB->getStackT(*it));
+					}
+
+					if(attackedCres.size()) break;
+					//TODO: the rest of it
 					break;
 				}
 			case 27: //shield 

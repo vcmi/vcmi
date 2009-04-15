@@ -3,6 +3,17 @@
 #include "../global.h"
 #include <map>
 #include <vector>
+
+/*
+ * CBuildingHandler.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 //enum EbuildingType {NEUTRAL=-1, CASTLE, RAMPART, TOWER, INFERNO, NECROPOLIS, DUNGEON, STRONGHOLD, FORTRESS, CONFLUX};
 class DLL_EXPORT CBuilding //a typical building encountered in every castle ;]
 {

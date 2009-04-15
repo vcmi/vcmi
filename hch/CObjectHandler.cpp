@@ -20,6 +20,16 @@
 #include "../StartInfo.h"
 #include "../map.h"
 
+/*
+ * CObjectHandler.cpp, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
 IGameCallback * IObjectInterface::cb = NULL;
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
@@ -769,6 +779,23 @@ double CGHeroInstance::getHeroStrength() const
 int CGHeroInstance::getTotalStrength() const
 {
 	return getHeroStrength() * getArmyStrength();
+}
+
+ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell) const
+{
+	//TODO: skill level may be different on special terrain
+	ui8 skill = 0; //skill level
+
+	if(spell->fire)
+		skill = std::max(skill,getSecSkillLevel(14));
+	if(spell->air)
+		skill = std::max(skill,getSecSkillLevel(15));
+	if(spell->water)
+		skill = std::max(skill,getSecSkillLevel(16));
+	if(spell->earth)
+		skill = std::max(skill,getSecSkillLevel(17));
+
+	return skill;
 }
 
 int3 CGHeroInstance::getSightCenter() const

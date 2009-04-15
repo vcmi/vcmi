@@ -10,6 +10,17 @@
 #include "../lib/BattleAction.h"
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
+
+/*
+ * CGameHandler.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 class CVCMIServer;
 class CGameState;
 struct StartInfo;

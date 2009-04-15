@@ -7,6 +7,16 @@
 #include "client/FunctionList.h"
 #include <boost/bind.hpp>
 
+/*
+ * AdventureMapButton.h, part of VCMI engine
+ *
+ * Authors: listed in file AUTHORS in main folder
+ *
+ * License: GNU General Public License v2.0 or later
+ * Full text of license available in license.txt file, in main folder
+ *
+ */
+
 namespace config{struct ButtonInfo;}
 
 class AdventureMapButton 
