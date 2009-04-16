@@ -705,6 +705,25 @@ public:
 	}
 };
 
+class DLL_EXPORT CGOnceVisitable : public CPlayersVisited //wagon, corpse, lean to, warriors tomb
+{
+public:
+	ui8 artOrRes; //0 - nothing; 1 - artifact; 2 - resource
+	ui32 bonusType, //id of res or artifact
+		bonusVal; //resource amount (or not used)
+
+	void onHeroVisit(const CGHeroInstance * h) const;
+	const std::string & getHoverText() const;
+	void initObj();	
+	void searchTomb(const CGHeroInstance *h, ui32 accept) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this) & static_cast<CPlayersVisited&>(*this);;
+		h & bonusType & bonusVal;
+	}
+};
+
 
 
 class DLL_EXPORT CObjectHandler

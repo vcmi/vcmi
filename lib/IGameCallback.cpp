@@ -4,6 +4,8 @@
 #include "../map.h"
 #include "../hch/CObjectHandler.h"
 #include "../StartInfo.h"
+#include "../hch/CArtHandler.h"
+#include "../lib/VCMI_Lib.h"
 
 /*
  * IGameCallback.cpp, part of VCMI engine
@@ -112,8 +114,34 @@ bool IGameCallback::isAllowed( int type, int id )
 	{
 	case 0:
 		return gs->map->allowedSpell[id];
+	case 1:
+		return gs->map->allowedArtifact[id];
 	default:
 		tlog1 << "Wrong call to IGameCallback::isAllowed!\n";
 		return false;
 	}
+}
+
+void IGameCallback::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> CArtHandler::*arts)
+{
+	for(int i = 0; i < (VLC->arth->*arts).size(); i++)
+	{
+		CArtifact *art = (VLC->arth->*arts)[i];
+		if(isAllowed(1,art->id))
+		{
+			out.push_back(art);
+		}
+	}
+}
+
+void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
+{
+	if(flags & ART_TREASURE)
+		getAllowedArts(out,&CArtHandler::treasures);
+	if(flags & ART_MINOR)
+		getAllowedArts(out,&CArtHandler::minors);
+	if(flags & ART_MAJOR)
+		getAllowedArts(out,&CArtHandler::majors);
+	if(flags & ART_RELIC)
+		getAllowedArts(out,&CArtHandler::relics);
 }

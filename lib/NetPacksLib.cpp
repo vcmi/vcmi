@@ -448,6 +448,16 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= MOVED;
 		s->state -= HAD_MORALE;
 		s->counterAttacks = 1;
+
+		//remove effects and restore only those with remaining turns in duration
+		std::vector<CStack::StackEffect> tmpEffects = s->effects;
+		s->effects.clear();
+		for(int i=0; i < tmpEffects.size(); i++)
+		{
+			tmpEffects[i].turnsRemain--;
+			if(tmpEffects[i].turnsRemain > 0)
+				s->effects.push_back(tmpEffects[i]);
+		}
 	}
 }
 
@@ -543,6 +553,12 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		else
 			tlog1 << "Cannot find stack " << id << std::endl;
 	}
+}
+
+DLL_EXPORT void StacksInjured::applyGs( CGameState *gs )
+{
+	BOOST_FOREACH(BattleStackAttacked stackAttacked, stacks)
+		stackAttacked.applyGs(gs);
 }
 
 DLL_EXPORT void YourTurn::applyGs( CGameState *gs )

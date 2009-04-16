@@ -103,7 +103,7 @@ public:
 
 	//do sth
 	void changeSpells(int hid, bool give, const std::set<ui32> &spells);
-	void removeObject(int objid);
+	bool removeObject(int objid);
 	void setBlockVis(int objid, bool bv);
 	void setOwner(int objid, ui8 owner);
 	void setHoverName(int objid, MetaString * name);
@@ -124,7 +124,7 @@ public:
 	void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
 	void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
 	void setAmount(int objid, ui32 val);
-	void moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255);
+	bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255);
 	void giveHeroBonus(GiveBonus * bonus);
 	void setMovePoints(SetMovePoints * smp);
 	void setManaPoints(int hid, int val);
@@ -137,20 +137,20 @@ public:
 	int getPlayerAt(CConnection *c) const;
 
 	void playerMessage( ui8 player, const std::string &message);
-	void makeBattleAction(BattleAction &ba);
-	void makeCustomAction(BattleAction &ba);
-	void queryReply( ui32 qid, ui32 answer );
-	void hireHero( ui32 tid, ui8 hid );
-	void setFormation( si32 hid, ui8 formation );
-	void tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 );
-	void buyArtifact( ui32 hid, si32 aid );
-	void swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 );
-	void garrisonSwap(si32 tid);
-	void upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
-	void recruitCreatures(si32 objid, ui32 crid, ui32 cram);
-	void buildStructure(si32 tid, si32 bid);
-	void disbandCreature( si32 id, ui8 pos );
-	void arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val );
+	bool makeBattleAction(BattleAction &ba);
+	bool makeCustomAction(BattleAction &ba);
+	bool queryReply( ui32 qid, ui32 answer );
+	bool hireHero( ui32 tid, ui8 hid );
+	bool setFormation( si32 hid, ui8 formation );
+	bool tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 );
+	bool buyArtifact( ui32 hid, si32 aid );
+	bool swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 );
+	bool garrisonSwap(si32 tid);
+	bool upgradeCreature( ui32 objid, ui8 pos, ui32 upgID );
+	bool recruitCreatures(si32 objid, ui32 crid, ui32 cram);
+	bool buildStructure(si32 tid, si32 bid);
+	bool disbandCreature( si32 id, ui8 pos );
+	bool arrangeStacks( si32 id1, si32 id2, ui8 what, ui8 p1, ui8 p2, si32 val );
 	void save(const std::string &fname);
 	void close();
 	void handleTimeEvents();

@@ -57,7 +57,7 @@ struct CPackForServer : public CPack
 		c = NULL;
 	};
 
-	void applyGh(CGameHandler *gh)//called after applying to gs
+	bool applyGh(CGameHandler *gh)//called after applying to gs
 	{}; 
 };
 
@@ -107,6 +107,21 @@ struct MetaString : public CPack //2001 helper for object scrips
 }; 
 
 /***********************************************************************************************************/
+
+struct PackageApplied : public CPackForClient //94
+{
+	PackageApplied() {type = 94;}
+	PackageApplied(ui8 Result) : result(Result) {type = 94;}
+	void applyCl(CClient *cl);
+
+	ui8 result; //0 - something went wrong, request hasn't been realized; 1 - OK
+	ui32 packType; //type id of applied package
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & result;
+	}
+};
 
 struct SystemMessage : public CPackForClient //95
 {
@@ -490,7 +505,7 @@ struct NewTurn : public CPackForClient //101
 
 struct Component : public CPack //2002 helper for object scrips informations
 {
-	enum {PRIM_SKILL,SEC_SKILL,RESOURCE,CREATURE,ARTIFACT,EXPERIENCE,SPELL};
+	enum {PRIM_SKILL,SEC_SKILL,RESOURCE,CREATURE,ARTIFACT,EXPERIENCE,SPELL, MORALE=8, LUCK};
 	ui16 id, subtype; //id uses ^^^ enums, when id==EXPPERIENCE subtype==0 means exp points and subtype==1 levels)
 	si32 val; // + give; - take
 	si16 when; // 0 - now; +x - within x days; -x - per x days
@@ -814,6 +829,19 @@ struct SetStackEffect : public CPackForClient //3010
 	}
 };
 
+struct StacksInjured : public CPackForClient //3011
+{
+	StacksInjured(){type = 3011;}
+	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyCl(CClient *cl);
+
+	std::set<BattleStackAttacked> stacks;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stacks;
+	}
+};
+
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};
@@ -832,14 +860,14 @@ struct ShowInInfobox : public CPackForClient //107
 
 struct CloseServer : public CPackForServer
 {
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{}
 };
 
 struct EndTurn : public CPackForServer
 {
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{}
 };
@@ -850,7 +878,7 @@ struct DismissHero : public CPackForServer
 	DismissHero(si32 HID) : hid(HID) {};
 	si32 hid;
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hid;
@@ -864,7 +892,7 @@ struct MoveHero : public CPackForServer
 	int3 dest;
 	si32 hid;
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & dest & hid;
@@ -881,7 +909,7 @@ struct ArrangeStacks : public CPackForServer
 	ui8 p1, p2; //positions of first and second stack
 	si32 id1, id2; //ids of objects with garrison
 	si32 val;
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & what & p1 & p2 & id1 & id2 & val;
@@ -895,7 +923,7 @@ struct DisbandCreature : public CPackForServer
 	ui8 pos; //stack pos
 	si32 id; //object id
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & pos & id;
@@ -908,7 +936,7 @@ struct BuildStructure : public CPackForServer
 	BuildStructure(si32 TID, si32 BID):bid(BID),tid(TID){};
 	si32 bid, tid; //structure and town ids
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & tid & bid;
@@ -922,7 +950,7 @@ struct RecruitCreatures : public CPackForServer
 	si32 tid; //town id
 	ui32 crid, amount;//creature ID and amount
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & tid & crid & amount;
@@ -937,7 +965,7 @@ struct UpgradeCreature : public CPackForServer
 	si32 id; //object id
 	si32 cid; //id of type to which we want make upgrade
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & pos & id & cid;
@@ -950,7 +978,7 @@ struct GarrisonHeroSwap : public CPackForServer
 	GarrisonHeroSwap(si32 TID):tid(TID){};
 	si32 tid; 
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & tid;
@@ -965,7 +993,7 @@ struct ExchangeArtifacts : public CPackForServer
 	si32 hid1, hid2;
 	ui16 slot1, slot2;
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hid1 & hid2 & slot1 & slot2;
@@ -978,7 +1006,7 @@ struct BuyArtifact : public CPackForServer
 	BuyArtifact(si32 HID, si32 AID):hid(HID),aid(AID){};
 	si32 hid, aid; //hero and artifact id
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hid & aid;
@@ -996,7 +1024,7 @@ struct TradeOnMarketplace : public CPackForServer
 	ui32 r1, r2; //mode 0: r1 - sold resource, r2 - bought res
 	ui32 val; //units of sold resource
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player & mode & /*id & */r1 & r2 & val;
@@ -1010,7 +1038,7 @@ struct SetFormation : public CPackForServer
 	si32 hid;
 	ui8 formation;
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hid & formation;
@@ -1023,7 +1051,7 @@ struct HireHero : public CPackForServer
 	HireHero(si32 HID, si32 TID):hid(HID),tid(TID){};
 	si32 hid, tid; //available hero serial and town id
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & hid & tid;
@@ -1036,7 +1064,7 @@ struct QueryReply : public CPackForServer
 	QueryReply(ui32 QID, ui32 Answer):qid(QID),answer(Answer){};
 	ui32 qid, answer; //hero and artifact id
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & qid & answer;
@@ -1049,7 +1077,7 @@ struct MakeAction : public CPackForServer
 	MakeAction(const BattleAction &BA):ba(BA){};
 	BattleAction ba;
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ba;
@@ -1062,7 +1090,7 @@ struct MakeCustomAction : public CPackForServer
 	MakeCustomAction(const BattleAction &BA):ba(BA){};
 	BattleAction ba;
 
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ba;
@@ -1079,7 +1107,7 @@ struct SaveGame : public CPackForClient, public CPackForServer
 
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs){};
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & fname;
@@ -1094,7 +1122,7 @@ struct PlayerMessage : public CPackForClient, public CPackForServer //513
 	{CPackForClient::type = 513;};
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs){};
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 
 	ui8 player;
 	std::string text;
@@ -1110,7 +1138,7 @@ struct SetSelection : public CPackForClient, public CPackForServer //514
 {
 	SetSelection(){CPackForClient::type = 514;};
 	DLL_EXPORT void applyGs(CGameState *gs);
-	void applyGh(CGameHandler *gh);
+	bool applyGh(CGameHandler *gh);
 
 	ui8 player;
 	ui32 id;

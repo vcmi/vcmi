@@ -5,7 +5,7 @@
 #define PLAYER_OWNS(id) (gh->getPlayerAt(c)==gh->getOwner(id))
 #define ERROR_AND_RETURN	{if(c) *c << &SystemMessage("You are not allowed to perform this action!");	\
 							tlog1<<"Player is not allowed to perform this action!\n";	\
-							return;}
+							return false;}
 #define ERROR_IF_NOT_OWNS(id)	if(!PLAYER_OWNS(id)) ERROR_AND_RETURN
 
 /*
@@ -23,128 +23,136 @@ CGameState* CPackForServer::GS(CGameHandler *gh)
 	return gh->gs;
 }
 
-void SaveGame::applyGh( CGameHandler *gh )
+bool SaveGame::applyGh( CGameHandler *gh )
 {
 	gh->sendMessageTo(*c,"Saving...");
 	gh->save(fname);
 	gh->sendMessageTo(*c,"Game has been succesfully saved!");
+	return true;
 }
 
-void CloseServer::applyGh( CGameHandler *gh )
+bool CloseServer::applyGh( CGameHandler *gh )
 {
 	gh->close();
+	return true;
 }
 
-void EndTurn::applyGh( CGameHandler *gh )
+bool EndTurn::applyGh( CGameHandler *gh )
 {
 	gh->states.setFlag(GS(gh)->currentPlayer,&PlayerStatus::makingTurn,false);
+	return true;
 }
 
-void DismissHero::applyGh( CGameHandler *gh )
+bool DismissHero::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid);
-	gh->removeObject(hid);
+	return gh->removeObject(hid);
 }
 
-void MoveHero::applyGh( CGameHandler *gh )
+bool MoveHero::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid);
-	gh->moveHero(hid,dest,0,gh->getPlayerAt(c));
+	return gh->moveHero(hid,dest,0,gh->getPlayerAt(c));
 }
 
-void ArrangeStacks::applyGh( CGameHandler *gh )
+bool ArrangeStacks::applyGh( CGameHandler *gh )
 {
-	//ERROR_IF_NOT_OWNS(id1);
-	//ERROR_IF_NOT_OWNS(id2);
-	gh->arrangeStacks(id1,id2,what,p1,p2,val);
+	//checks for owning in the gh func
+	return gh->arrangeStacks(id1,id2,what,p1,p2,val);
 }
 
-void DisbandCreature::applyGh( CGameHandler *gh )
-{
-	ERROR_IF_NOT_OWNS(id);
-	gh->disbandCreature(id,pos);
-}
-
-void BuildStructure::applyGh( CGameHandler *gh )
-{
-	ERROR_IF_NOT_OWNS(tid);
-	gh->buildStructure(tid,bid);
-}
-
-void RecruitCreatures::applyGh( CGameHandler *gh )
-{
-	ERROR_IF_NOT_OWNS(tid);
-	gh->recruitCreatures(tid,crid,amount);
-}
-
-void UpgradeCreature::applyGh( CGameHandler *gh )
+bool DisbandCreature::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(id);
-	gh->upgradeCreature(id,pos,cid);
+	return gh->disbandCreature(id,pos);
 }
 
-void GarrisonHeroSwap::applyGh( CGameHandler *gh )
+bool BuildStructure::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(tid);
-	gh->garrisonSwap(tid);
+	return gh->buildStructure(tid,bid);
 }
 
-void ExchangeArtifacts::applyGh( CGameHandler *gh )
+bool RecruitCreatures::applyGh( CGameHandler *gh )
+{
+	ERROR_IF_NOT_OWNS(tid);
+	return gh->recruitCreatures(tid,crid,amount);
+}
+
+bool UpgradeCreature::applyGh( CGameHandler *gh )
+{
+	ERROR_IF_NOT_OWNS(id);
+	return gh->upgradeCreature(id,pos,cid);
+}
+
+bool GarrisonHeroSwap::applyGh( CGameHandler *gh )
+{
+	ERROR_IF_NOT_OWNS(tid);
+	return gh->garrisonSwap(tid);
+}
+
+bool ExchangeArtifacts::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid1);
 	ERROR_IF_NOT_OWNS(hid2);
-	gh->swapArtifacts(hid1,hid2,slot1,slot2);
+	return gh->swapArtifacts(hid1,hid2,slot1,slot2);
 }
 
-void BuyArtifact::applyGh( CGameHandler *gh )
+bool BuyArtifact::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(hid);
-	gh->buyArtifact(hid,aid);
+	return gh->buyArtifact(hid,aid);
 }
 
-void TradeOnMarketplace::applyGh( CGameHandler *gh )
+bool TradeOnMarketplace::applyGh( CGameHandler *gh )
 {
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
-	gh->tradeResources(val,player,r1,r2);
+	return gh->tradeResources(val,player,r1,r2);
 }
 
-void SetFormation::applyGh( CGameHandler *gh )
+bool SetFormation::applyGh( CGameHandler *gh )
 {	
 	ERROR_IF_NOT_OWNS(hid);
-	gh->setFormation(hid,formation);
+	return gh->setFormation(hid,formation);
 }
 
-void HireHero::applyGh( CGameHandler *gh )
+bool HireHero::applyGh( CGameHandler *gh )
 {
 	ERROR_IF_NOT_OWNS(tid);
-	gh->hireHero(tid,hid);
+	return gh->hireHero(tid,hid);
 }
 
-void QueryReply::applyGh( CGameHandler *gh )
+bool QueryReply::applyGh( CGameHandler *gh )
 {
-	gh->queryReply(qid,answer);
+	//TODO - check if player matches the query
+	return gh->queryReply(qid,answer);
 }
 
-void MakeAction::applyGh( CGameHandler *gh )
+bool MakeAction::applyGh( CGameHandler *gh )
 {
+	if(!GS(gh)->curB) ERROR_AND_RETURN;
 	if(gh->connections[GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner] != c) ERROR_AND_RETURN;
-	gh->makeBattleAction(ba);
+	return gh->makeBattleAction(ba);
 }
 
-void MakeCustomAction::applyGh( CGameHandler *gh )
+bool MakeCustomAction::applyGh( CGameHandler *gh )
 {
+	if(!GS(gh)->curB) ERROR_AND_RETURN;
 	if(gh->connections[GS(gh)->curB->getStack(GS(gh)->curB->activeStack)->owner] != c) ERROR_AND_RETURN;
-	gh->makeCustomAction(ba);
+	return gh->makeCustomAction(ba);
 }
 
-void PlayerMessage::applyGh( CGameHandler *gh )
+bool PlayerMessage::applyGh( CGameHandler *gh )
 {
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
 	gh->playerMessage(player,text);
+	return true;
 }
 
-void SetSelection::applyGh( CGameHandler *gh )
+bool SetSelection::applyGh( CGameHandler *gh )
 {
 	if(gh->getPlayerAt(c) != player) ERROR_AND_RETURN;
+	if(!gh->getObj(id)) ERROR_AND_RETURN;
 	gh->sendAndApply(this);
+	return true;
 }

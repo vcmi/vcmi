@@ -2112,8 +2112,8 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 			wasGarrison = true;
 		}
 	}
-	if(wasGarrison)
-		LOCPLINT->totalRedraw();
+
+	LOCPLINT->totalRedraw();
 }
 
 void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
@@ -4761,14 +4761,14 @@ void CGarrisonWindow::deactivate()
 
 void CGarrisonWindow::show(SDL_Surface * to)
 {
-	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+29,pos.y+125,to);
-	blitAt(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->odown)->portrait],pos.x+29,pos.y+222,to);
-	printAtMiddle(CGI->generaltexth->allTexts[709],pos.x+275,pos.y+30,GEOR16,tytulowy,to);
-
 	blitAt(bg,pos,to);
 	split->show(to);
 	quit->show(to);
 	garr->show(to);
+
+	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+29,pos.y+125,to);
+	blitAt(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->odown)->portrait],pos.x+29,pos.y+222,to);
+	printAtMiddle(CGI->generaltexth->allTexts[709],pos.x+275,pos.y+30,GEOR16,tytulowy,to);
 }
 
 CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down )

@@ -15,8 +15,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-enum EartClass {SartClass=0, TartClass, NartClass, JartClass, RartClass}; //artifact class (relict, treasure, strong, weak etc.)
 class CDefHandler;
 
 class DLL_EXPORT CArtifact //container for artifacts

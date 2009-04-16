@@ -79,7 +79,7 @@ public:
 
 	//not working yet, will be implement somewhen later with support for local-sim-based gameplay
 	void changeSpells(int hid, bool give, const std::set<ui32> &spells){};
-	void removeObject(int objid){};
+	bool removeObject(int objid){return false;};
 	void setBlockVis(int objid, bool bv){};
 	void setOwner(int objid, ui8 owner){};
 	void setHoverName(int objid, MetaString * name){};
@@ -98,7 +98,7 @@ public:
 	void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb){}; //use hero=NULL for no hero
 	void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb){}; //for hero<=>neutral army
 	void setAmount(int objid, ui32 val){};
-	void moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255){};
+	bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255){return false;};
 	void giveHeroBonus(GiveBonus * bonus){};
 	void setMovePoints(SetMovePoints * smp){};
 	void setManaPoints(int hid, int val){};

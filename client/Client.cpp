@@ -124,10 +124,16 @@ void CClient::run()
 		CPack *pack;
 		while(1)
 		{
-			tlog5 << "Listening... ";
-			*serv >> pack;
-			tlog5 << "\treceived server message of type " << typeid(*pack).name() << std::endl;
-			CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)];
+
+			//get the package from the server
+			{
+				boost::unique_lock<boost::mutex> lock(*serv->rmx);
+				tlog5 << "Listening... ";
+				*serv >> pack;
+				tlog5 << "\treceived server message of type " << typeid(*pack).name() << std::endl;
+			}
+
+			CBaseForCLApply *apply = applier->apps[typeList.getTypeID(pack)]; //find the applier
 			if(apply)
 			{
 				apply->applyOnClBefore(this,pack);
@@ -139,7 +145,7 @@ void CClient::run()
 			}
 			else
 			{
-				tlog5 << "Message cannot be applied, cannot find applier!\n";
+				tlog1 << "Message cannot be applied, cannot find applier!\n";
 			}
 			delete pack;
 			pack = NULL;

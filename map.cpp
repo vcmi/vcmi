@@ -1802,6 +1802,14 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				nobj = new CGObservatory();
 				break;
 			}
+		case 22: //Corpse
+		case 39: //Lean To
+		case 105://Wagon
+		case 108://Warrior's Tomb
+			{
+				nobj = new CGOnceVisitable();
+				break;
+			}
 		case 214: //hero placeholder
 			{
 				i+=3; //TODO: handle it more properly

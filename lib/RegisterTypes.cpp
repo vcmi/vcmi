@@ -42,12 +42,14 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGBonusingObject>();
 	s.template registerType<CGMagicWell>();
 	s.template registerType<CGObservatory>();
+	s.template registerType<CGOnceVisitable>();
 	s.template registerType<CGObjectInstance>();
 }
 
 template<typename Serializer> DLL_EXPORT 
 void registerTypes2(Serializer &s)
 {
+	s.template registerType<PackageApplied>();
 	s.template registerType<SystemMessage>();
 	s.template registerType<YourTurn>();
 	s.template registerType<SetResource>();
@@ -89,6 +91,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<EndAction>();
 	s.template registerType<SpellCasted>();
 	s.template registerType<SetStackEffect>();
+	s.template registerType<StacksInjured>();
 	s.template registerType<ShowInInfobox>();
 
 	s.template registerType<SaveGame>();

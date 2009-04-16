@@ -29,6 +29,8 @@ struct BattleResult;
 class CGameState;
 struct PlayerSettings;
 struct CPackForClient;
+class CArtHandler;
+class CArtifact;
 
 class DLL_EXPORT IGameCallback
 {
@@ -49,11 +51,13 @@ public:
 	virtual const PlayerSettings * getPlayerSettings(int color);
 	virtual int getHeroCount(int player, bool includeGarrisoned);
 	virtual void getTilesInRange(std::set<int3> &tiles, int3 pos, int radious, int player=-1, int mode=0); //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
-	virtual bool isAllowed(int type, int id); //type: 0 - spell
+	virtual bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact
+	virtual void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> CArtHandler::*arts);
+	virtual void getAllowed(std::vector<CArtifact*> &out, int flags); //flags: bitfield uses EartClass
 
 	//do sth
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;
-	virtual void removeObject(int objid)=0;
+	virtual bool removeObject(int objid)=0;
 	virtual void setBlockVis(int objid, bool bv)=0;
 	virtual void setOwner(int objid, ui8 owner)=0;
 	virtual void setHoverName(int objid, MetaString * name)=0;
@@ -72,7 +76,7 @@ public:
 	virtual void startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb)=0; //use hero=NULL for no hero
 	virtual void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb)=0; //for hero<=>neutral army
 	virtual void setAmount(int objid, ui32 val)=0;
-	virtual void moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255)=0;
+	virtual bool moveHero(si32 hid, int3 dst, ui8 instant, ui8 asker = 255)=0;
 	virtual void giveHeroBonus(GiveBonus * bonus)=0;
 	virtual void setMovePoints(SetMovePoints * smp)=0;
 	virtual void setManaPoints(int hid, int val)=0;

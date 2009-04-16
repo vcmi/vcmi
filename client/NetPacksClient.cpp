@@ -404,6 +404,12 @@ void SetStackEffect::applyCl( CClient *cl )
 		cl->playerint[GS(cl)->curB->side2]->battleStacksEffectsSet(*this);
 }
 
+void StacksInjured::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1,battleStacksAttacked,stacks);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStacksAttacked,stacks);
+}
+
 CGameState* CPackForClient::GS( CClient *cl )
 {
 	return cl->gs;
@@ -416,6 +422,11 @@ void EndAction::applyCl( CClient *cl )
 
 	delete cl->curbaction;
 	cl->curbaction = NULL;
+}
+
+void PackageApplied::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->currentPlayer,requestRealized,this);
 }
 
 void SystemMessage::applyCl( CClient *cl )

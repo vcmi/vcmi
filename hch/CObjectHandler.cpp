@@ -778,7 +778,8 @@ double CGHeroInstance::getHeroStrength() const
 
 int CGHeroInstance::getTotalStrength() const
 {
-	return getHeroStrength() * getArmyStrength();
+	double ret = getHeroStrength() * getArmyStrength();
+	return (int) ret;
 }
 
 ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell) const
@@ -1444,14 +1445,14 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 
 	//TODO: it's provisional formula, should be replaced with original one (or something closer to it)
 	//TODO: should be deterministic (will be needed for Vision spell)
-	int hlp2 = (hlp - 2)*1000;
+	int hlp2 = (int) (hlp - 2)*1000;
 	if(!neverFlees   
 		&& hlp2 >= 0 
 		&& rand()%2000 < hlp2
 	)
-		return -1;
+		return -1; //flee
 	else
-		return -2;
+		return -2; //fight
 
 }
 
@@ -2423,5 +2424,204 @@ void CGScholar::initObj()
 			bonusID = ran() % SPELLS_QUANTITY;
 			break;
 		}
+	}
+}
+
+void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
+{
+	int txtid = -1;
+	switch(ID)
+	{
+	case 22: //Corpse
+		txtid = 37; 
+		break;
+	case 39: //Lean To
+		txtid = 64;
+		break;
+	case 105://Wagon
+		txtid = 154;
+		break;
+	case 108:
+		break;
+	default:
+		tlog1 << "Error: Unknown object (" << ID <<") treated as CGOnceVisitable!\n";
+		return;
+	}
+
+	if(ID == 108)//Warrior's Tomb
+	{
+		//ask if player wants to search the Tomb
+		BlockingDialog bd(true, false);
+		bd.player = h->getOwner();
+		bd.text.addTxt(MetaString::ADVOB_TXT,161);
+		cb->showBlockingDialog(&bd,boost::bind(&CGOnceVisitable::searchTomb,this,h,_1));
+		return;
+	}
+
+	InfoWindow iw;
+	iw.player = h->getOwner();
+
+	if(players.size()) //we have been already visited...
+	{
+		txtid++;
+		if(ID == 105) //wagon has extra text (for finding art) we need to ommit
+			txtid++;
+
+		iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
+	}
+	else //first visit - give bonus!
+	{
+		if(ID == 105  &&  artOrRes == 1) 
+		{
+			txtid++;
+			iw.text.replacements.push_back(VLC->arth->artifacts[bonusType].Name());
+		}
+
+
+		switch(artOrRes)
+		{
+		case 0:
+			txtid++;
+			break;
+		case 1: //art
+			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
+			cb->giveHeroArtifact(bonusType,h->id,-2);
+			break;
+		case 2: //res
+			iw.components.push_back(Component(Component::RESOURCE,bonusType,bonusVal,0));
+			cb->giveResource(h->getOwner(),bonusType,bonusVal);
+			break;
+		}
+
+		iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
+	}
+
+	cb->showInfoDialog(&iw);
+	cb->setObjProperty(id,10,h->getOwner());
+}
+
+const std::string & CGOnceVisitable::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID] + " ";
+
+	hoverName += (hasVisited(cb->getCurrentPlayer())
+		? (VLC->generaltexth->allTexts[352])  //visited
+		: ( VLC->generaltexth->allTexts[353])); //not visited
+
+	return hoverName;
+}
+
+void CGOnceVisitable::initObj()
+{
+	switch(ID)
+	{
+	case 22: //Corpse
+		{
+			blockVisit = true;
+			int hlp = ran()%100;
+			if(hlp < 20)
+			{
+				artOrRes = 1;
+				std::vector<CArtifact*> arts; 
+				cb->getAllowed(arts, ART_TREASURE | ART_MINOR | ART_MAJOR);
+				bonusType = arts[ran() % arts.size()]->id;
+			}
+			else
+			{
+				artOrRes = 0;
+			}
+		}
+		break;
+
+	case 39: //Lean To
+		{
+			artOrRes = 2;
+			bonusType = ran()%6; //any basic resource without gold
+			bonusVal = ran()%4 + 1;
+			break;
+		}
+
+	case 108://Warrior's Tomb
+		{
+			artOrRes = 1;
+
+			std::vector<CArtifact*> arts; 
+
+			int hlp = ran()%100;
+			if(hlp < 30)
+				cb->getAllowed(arts,ART_TREASURE);
+			else if(hlp < 80)
+				cb->getAllowed(arts,ART_MINOR);
+			else if(hlp < 95)
+				cb->getAllowed(arts,ART_MAJOR);
+			else
+				cb->getAllowed(arts,ART_RELIC);
+
+			bonusType = arts[ran() % arts.size()]->id;
+		}
+		break;
+
+	case 105://Wagon
+		{
+			int hlp = ran()%100;
+
+			if(hlp < 10)
+			{
+				artOrRes = 0; // nothing... :(
+			}
+			else if(hlp < 50) //minor or treasure art
+			{
+				artOrRes = 1;
+				std::vector<CArtifact*> arts; 
+				cb->getAllowed(arts, ART_TREASURE | ART_MINOR);
+				bonusType = arts[ran() % arts.size()]->id;
+			}
+			else //2 - 5 of non-gold resource
+			{
+				artOrRes = 2;
+				bonusType = ran()%6;
+				bonusVal = ran()%4 + 2;
+			}
+
+			break;
+		}
+	}
+}
+
+void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
+{
+	if(accept)
+	{
+		InfoWindow iw;
+		iw.player = h->getOwner();
+		iw.components.push_back(Component(Component::MORALE,0,-3,0));
+
+		if(players.size()) //we've been already visited, player found nothing
+		{
+			iw.text.addTxt(MetaString::ADVOB_TXT,163);
+		}
+		else //first visit - give artifact
+		{
+			iw.text.addTxt(MetaString::ADVOB_TXT,162);
+			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
+			iw.text.replacements.push_back(VLC->arth->artifacts[bonusType].Name());
+
+			cb->giveHeroArtifact(bonusType,h->id,-2);
+		}
+
+		if(!h->getBonus(HeroBonus::OBJECT,ID)) //we don't have modifier from this object yet
+		{
+			//ruin morale 
+			GiveBonus gb;
+			gb.hid = h->id;
+			gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::MORALE,HeroBonus::OBJECT,-3,id,"");
+			gb.bdescr.addTxt(MetaString::ARRAY_TXT,104); //Warrior Tomb Visited -3
+			cb->giveHeroBonus(&gb);
+		}
+	
+		cb->showInfoDialog(&iw);
+
+		//add player to the visitors (for visited tooltop)
+		cb->setObjProperty(id,10,h->getOwner());
 	}
 }

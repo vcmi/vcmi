@@ -35,6 +35,7 @@ struct BattleStackAttacked;
 struct SpellCasted;
 struct SetStackEffect;
 struct HeroBonus;
+struct PackageApplied;
 class CLoadFile;
 class CSaveFile;
 template <typename Serializer> class CISer;
@@ -88,6 +89,7 @@ public:
 	virtual void yourTurn(){};
 	virtual void availableCreaturesChanged(const CGTownInstance *town){};
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
+	virtual void requestRealized(PackageApplied *pa){}
 	virtual void serialize(COSer<CSaveFile> &h, const int version){}; //saving
 	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
 
