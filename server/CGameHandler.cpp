@@ -519,6 +519,7 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 handleConEnd:
 	tlog1 << "Ended handling connection\n";
 #undef SPELL_CAST_TEMPLATE_1
+#undef SPELL_CAST_TEMPLATE_2
 }
 void CGameHandler::moveStack(int stack, int dest)
 {							
@@ -2306,6 +2307,28 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				sendAndApply(&sse); \
 			}
 
+#define SPELL_CAST_TEMPLATE_2(EFFECT_ID, DAMAGE) std::set<ui16> attackedHexes = s->rangeInHexes(ba.destinationTile, h->getSpellSchoolLevel(s)); \
+					std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/ \
+					for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it) \
+					{ \
+						CStack * st = gs->curB->getStackT(*it); \
+						if(st) \
+							attackedCres.insert(st); \
+					} \
+					if(attackedCres.size() == 0) break; \
+					StacksInjured si; \
+					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it) \
+					{ \
+						BattleStackAttacked bsa; \
+						bsa.flags |= 2; \
+						bsa.effect = EFFECT_ID; \
+						bsa.damageAmount = DAMAGE;  \
+						bsa.stackAttacked = (*it)->ID; \
+						prepareAttacked(bsa,*it); \
+						si.stacks.insert(bsa); \
+					} \
+					sendAndApply(&si); \
+
 			SpellCasted sc;
 			sc.side = ba.side;
 			sc.id = ba.additionalInfo;
@@ -2316,67 +2339,90 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			{
 			case 15: //magic arrow
 				{
-					CStack * attacked = gs->curB->getStackT(ba.destinationTile);
-					if(!attacked) break;
-					BattleStackAttacked bsa;
-					bsa.flags |= 2;
-					bsa.effect = 64;
-					bsa.damageAmount = h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]; 
-					bsa.stackAttacked = attacked->ID;
-					prepareAttacked(bsa,attacked);
-					sendAndApply(&bsa);
+					SPELL_CAST_TEMPLATE_2(64, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
 					break;
 				}
 			case 16: //ice bolt
 				{
-					CStack * attacked = gs->curB->getStackT(ba.destinationTile);
-					if(!attacked) break;
-					BattleStackAttacked bsa;
-					bsa.flags |= 2;
-					bsa.effect = 46;
-					bsa.damageAmount = h->getPrimSkillLevel(2) * 20  +  s->powers[h->getSpellSchoolLevel(s)]; 
-					bsa.stackAttacked = attacked->ID;
-					prepareAttacked(bsa,attacked);
-					sendAndApply(&bsa);
+					SPELL_CAST_TEMPLATE_2(46, h->getPrimSkillLevel(2) * 20  +  s->powers[h->getSpellSchoolLevel(s)]);
 					break;
 				}
 			case 17: //lightning bolt
 				{
-					CStack * attacked = gs->curB->getStackT(ba.destinationTile);
-					if(!attacked) break;
-					BattleStackAttacked bsa;
-					bsa.flags |= 2;
-					bsa.effect = 38;
-					bsa.damageAmount = h->getPrimSkillLevel(2) * 25  +  s->powers[h->getSpellSchoolLevel(s)]; 
-					bsa.stackAttacked = attacked->ID;
-					prepareAttacked(bsa,attacked);
-					sendAndApply(&bsa);
+					SPELL_CAST_TEMPLATE_2(38, h->getPrimSkillLevel(2) * 25  +  s->powers[h->getSpellSchoolLevel(s)]);
 					break;
 				}
 			case 18: //implosion
 				{
-					CStack * attacked = gs->curB->getStackT(ba.destinationTile);
-					if(!attacked) break;
-					BattleStackAttacked bsa;
-					bsa.flags |= 2;
-					bsa.effect = 10;
-					bsa.damageAmount = h->getPrimSkillLevel(2) * 75  +  s->powers[h->getSpellSchoolLevel(s)]; 
-					bsa.stackAttacked = attacked->ID;
-					prepareAttacked(bsa,attacked);
-					sendAndApply(&bsa);
+					SPELL_CAST_TEMPLATE_2(10, h->getPrimSkillLevel(2) * 75  +  s->powers[h->getSpellSchoolLevel(s)]);
+					break;
+				}
+			case 20: //frost ring
+				{
+					SPELL_CAST_TEMPLATE_2(45, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
 					break;
 				}
 			case 21: //fireball
 				{
-					std::set<ui16> attackedHexes = s->rangeInHexes(ba.destinationTile, h->getSpellSchoolLevel(s));
-					std::set<CStack*> attackedCres; //set to exclude multiple occurences of two hex creatures
-					for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
+					SPELL_CAST_TEMPLATE_2(53, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
+					break;
+				}
+			case 22: //inferno
+				{
+					SPELL_CAST_TEMPLATE_2(9, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
+					break;
+				}
+			case 23: //meteor shower
+				{
+					SPELL_CAST_TEMPLATE_2(16, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
+					break;
+				}
+			case 24: //death ripple
+				{
+					std::set<CStack*> attackedCres;
+					
+					for(int it=0; it<gs->curB->stacks.size(); ++it)
 					{
-						attackedCres.insert(gs->curB->getStackT(*it));
+						if(!gs->curB->stacks[it]->creature->isUndead())
+							attackedCres.insert(gs->curB->stacks[it]);
 					}
-
-					if(attackedCres.size()) break;
-					//TODO: the rest of it
+					if(attackedCres.size() == 0) break;
+					StacksInjured si;
+					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+					{
+						BattleStackAttacked bsa;
+						bsa.flags |= 2;
+						bsa.effect = 8;
+						bsa.damageAmount = h->getPrimSkillLevel(2) * 5  +  s->powers[h->getSpellSchoolLevel(s)]; 
+						bsa.stackAttacked = (*it)->ID;
+						prepareAttacked(bsa,*it);
+						si.stacks.insert(bsa);
+					}
+					sendAndApply(&si);
+					break;
+				}
+			case 25: //destroy undead
+				{
+					std::set<CStack*> attackedCres;
+					
+					for(int it=0; it<gs->curB->stacks.size(); ++it)
+					{
+						if(gs->curB->stacks[it]->creature->isUndead())
+							attackedCres.insert(gs->curB->stacks[it]);
+					}
+					if(attackedCres.size() == 0) break;
+					StacksInjured si;
+					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+					{
+						BattleStackAttacked bsa;
+						bsa.flags |= 2;
+						bsa.effect = 29;
+						bsa.damageAmount = h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]; 
+						bsa.stackAttacked = (*it)->ID;
+						prepareAttacked(bsa,*it);
+						si.stacks.insert(bsa);
+					}
+					sendAndApply(&si);
 					break;
 				}
 			case 27: //shield 

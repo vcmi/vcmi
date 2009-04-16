@@ -105,6 +105,7 @@ public:
 	virtual std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable)=0; //reutrns numbers of hexes reachable by creature with id ID
 	virtual bool battleIsStackMine(int ID)=0; //returns true if stack with id ID belongs to caller
 	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
+	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
 };
 
 struct HeroMoveDetails
@@ -197,7 +198,7 @@ public:
 	std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable); //reutrns numbers of hexes reachable by creature with id ID
 	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
 	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
-
+	bool battleCanCastSpell(); //returns true, if caller can cast a spell
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

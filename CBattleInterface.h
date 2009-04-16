@@ -151,7 +151,7 @@ struct BattleSettings
 	}
 };
 
-class CBattleInterface : public CMainInterface, public MotionInterested, public KeyInterested
+class CBattleInterface : public CMainInterface, public MotionInterested, public KeyInterested, public ClickableR
 {
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
@@ -178,6 +178,7 @@ private:
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	int spellSelMode; //0 - any location, 1 - any firendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle, -1 - no location
 	BattleAction * spellToCast; //spell for which player is choosing destination
+	void endCastingSpell(); //ends casting spell (eg. when spell has been casted or cancelled)
 
 	class CAttHelper
 	{
@@ -259,6 +260,8 @@ public:
 	void show(SDL_Surface * to);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
+	void clickRight(boost::logic::tribool down);
+
 	bool reverseCreature(int number, int hex, bool wideTrick = false); //reverses animation of given creature playing animation of reversing
 	void handleStartMoving(int number); //animation of starting move; some units don't have this animation (ie. halberdier)
 

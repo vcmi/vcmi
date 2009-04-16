@@ -344,6 +344,7 @@ void CBattleInterface::activate()
 {
 	KeyInterested::activate();
 	MotionInterested::activate();
+	ClickableR::activate();
 	subInt = NULL;
 	bOptions->activate();
 	bSurrender->activate();
@@ -370,6 +371,7 @@ void CBattleInterface::deactivate()
 {
 	KeyInterested::deactivate();
 	MotionInterested::deactivate();
+	ClickableR::deactivate();
 	bOptions->deactivate();
 	bSurrender->deactivate();
 	bFlee->deactivate();
@@ -482,7 +484,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	bConsoleUp->show(to);
 	bConsoleDown->show(to);
 
-	
+	//prevents blitting outside this window
 	SDL_GetClipRect(to, &buf);
 	SDL_SetClipRect(to, &pos);
 
@@ -490,9 +492,9 @@ void CBattleInterface::show(SDL_Surface * to)
 	std::vector<CObstacleInstance> obstacles = LOCPLINT->cb->battleGetAllObstacles();
 	for(int b=0; b<obstacles.size(); ++b)
 	{
-		int x = ((obstacles[b].pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(obstacles[b].pos%BFIELD_WIDTH);
-		int y = 86 + 42 * (obstacles[b].pos/BFIELD_WIDTH);
-		std::vector<Cimage> &images = idToObstacle[obstacles[b].ID]->ourImages;
+		int x = ((obstacles[b].pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(obstacles[b].pos%BFIELD_WIDTH) + pos.x;
+		int y = 86 + 42 * (obstacles[b].pos/BFIELD_WIDTH) + pos.y;
+		std::vector<Cimage> &images = idToObstacle[obstacles[b].ID]->ourImages; //reference to animation of obstacle
 		blitAt(images[((animCount+1)/(4/settings.animSpeed))%images.size()].bitmap, x, y, to);
 	}
 
@@ -711,6 +713,10 @@ void CBattleInterface::keyPressed(const SDL_KeyboardEvent & key)
 	{
 		showStackQueue = key.state==SDL_PRESSED;
 	}
+	else if(key.keysym.sym == SDLK_ESCAPE && spellDestSelectMode)
+	{
+		endCastingSpell();
+	}
 }
 void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 {
@@ -928,6 +934,14 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	}
 }
 
+void CBattleInterface::clickRight(boost::logic::tribool down)
+{
+	if(!down && spellDestSelectMode)
+	{
+		endCastingSpell();
+	}
+}
+
 bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 {
 	if(creAnims[number]==NULL)
@@ -1076,11 +1090,13 @@ void CBattleInterface::stackActivated(int number)
 	//block cast spell button if hero doesn't have a spellbook
 	if(attackingHeroInstance && attackingHeroInstance->tempOwner==LOCPLINT->cb->battleGetStackByID(number)->owner)
 	{
-		bSpell->block(!attackingHeroInstance->getArt(17));
+		if(!attackingHeroInstance->getArt(17)) //don't unlock if already locked
+			bSpell->block(!attackingHeroInstance->getArt(17));
 	}
 	else if(defendingHeroInstance && defendingHeroInstance->tempOwner==LOCPLINT->cb->battleGetStackByID(number)->owner)
 	{
-		bSpell->block(!defendingHeroInstance->getArt(17));
+		if(!defendingHeroInstance->getArt(17)) //don't unlock if already locked
+			bSpell->block(!defendingHeroInstance->getArt(17));
 	}
 }
 
@@ -1293,6 +1309,7 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 	{
 		show(screen);
 		CSDL_Ext::update(screen);
+		SDL_Delay(5);
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		for(size_t g=0; g<attackedInfos.size(); ++g)
 		{
@@ -1492,6 +1509,9 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 void CBattleInterface::newRound(int number)
 {
 	console->addText(CGI->generaltexth->allTexts[412]);
+
+	//unlock spellbook
+	bSpell->block(!LOCPLINT->cb->battleCanCastSpell());
 }
 
 void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional)
@@ -1549,10 +1569,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 			{
 				spellToCast->destinationTile = whichOne;
 				LOCPLINT->cb->battleMakeAction(spellToCast);
-				delete spellToCast;
-				spellToCast = NULL;
-				spellDestSelectMode = false;
-				CGI->curh->changeGraphic(1, 6);
+				endCastingSpell();
 			}
 		}
 		else
@@ -1977,6 +1994,16 @@ float CBattleInterface::getAnimSpeedMultiplier() const
 	default:
 		return 0.0f;
 	}
+}
+
+void CBattleInterface::endCastingSpell()
+{
+	assert(spellDestSelectMode);
+
+	delete spellToCast;
+	spellToCast = NULL;
+	spellDestSelectMode = false;
+	CGI->curh->changeGraphic(1, 6);
 }
 
 void CBattleInterface::attackingShowHelper()

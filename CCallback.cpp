@@ -547,7 +547,7 @@ bool CCallback::battleIsStackMine(int ID)
 			return gs->curB->stacks[h]->owner == player;
 	}
 	return false;
-}
+}	
 bool CCallback::battleCanShoot(int ID, int dest)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -568,6 +568,17 @@ bool CCallback::battleCanShoot(int ID, int dest)
 		)
 		return true;
 	return false;
+}
+
+bool CCallback::battleCanCastSpell()
+{
+	if(!gs->curB) //there is no battle
+		return false;
+
+	if(gs->curB->side1 == player)
+		return gs->curB->castedSpells[0] == 0 && gs->getHero(gs->curB->hero1)->getArt(17);
+	else
+		return gs->curB->castedSpells[1] == 0 && gs->getHero(gs->curB->hero2)->getArt(17);
 }
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )

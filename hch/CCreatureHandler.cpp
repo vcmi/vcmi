@@ -63,6 +63,10 @@ bool CCreature::isShooting() const
 {
 	return vstd::contains(abilities,SHOOTER);
 }
+bool CCreature::isUndead() const
+{
+	return vstd::contains(abilities,UNDEAD);
+}
 si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
@@ -331,6 +335,8 @@ void CCreatureHandler::loadCreatures()
 			ncre.abilities.insert(TWICE_ATTACK);
 		if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))
 			ncre.abilities.insert(NO_ENEMY_RETALIATION);
+		if(boost::algorithm::find_first(ncre.abilityRefs, "IS_UNDEAD"))
+			ncre.abilities.insert(UNDEAD);
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
 			ncre.idNumber = creatures.size();
