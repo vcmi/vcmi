@@ -112,25 +112,30 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 
 /* The map file contains long texts, with or without line breaks. This
  * method takes such a text and breaks it into into several lines. */
-std::vector<std::string> * CMessage::breakText(std::string text, size_t max_line_size, 
+std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineSize, 
 											   bool userBreak, bool ifor)
 {
 	std::vector<std::string> * ret = new std::vector<std::string>();
 
-	boost::algorithm::trim(text);
+	boost::algorithm::trim_if(text,boost::algorithm::is_any_of(" ")); 
 
-	while (text.length()) {
+	while (text.length())
+	{
 
 		unsigned int z = 0;
 		unsigned int braces = 0;
 		bool opened = false;
 
-		while((text[z] != 0) && (text[z] != 0x0a) && (z < max_line_size+braces)) {
+		while((text[z] != 0) && (text[z] != 0x0a) && (z < maxLineSize+braces))
+		{
 			/* We don't count braces in string length. */
-			if (text[z] == '{') {
+			if (text[z] == '{')
+			{
 				opened=true;
 				braces++;
-			} else if (text[z]=='}') {
+			} 
+			else if (text[z]=='}')
+			{
 				opened=false;
 				braces++;
 			}
@@ -138,7 +143,8 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t max_line
 			z++;
 		}
 
-		if ((text[z] != 0) && (text[z] != 0x0a)) {
+		if ((text[z] != 0) && (text[z] != 0x0a))
+		{
 			/* We have a long line. Try to do a nice line break, if
 			 * possible. We backtrack on the line until we find a
 			 * suitable character. */
@@ -157,18 +163,23 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t max_line
 				z = pos+1;
 		}
 		
-		/* Note: empty lines will be skipped. Is that different than H3? */
-		if (z) {
+		if(z) //non-blank line 
+		{
 			ret->push_back(text.substr(0, z));
 
 			if (opened)
 				/* Close the brace for the current line. */
-				(*(ret->end()-1))+='}';
+				ret->back() += '}';
 
 			text.erase(0, z);
 		}
+		else if(text[z] == 0x0a) //blank line 
+		{
+			ret->push_back(""); //add empty string, no extra actions needed
+		}
 
-		if (text[0] == 0x0a) {
+		if (text[0] == 0x0a)
+		{
 			/* Braces do not carry over lines. The map author forgot
 			 * to close it. */
 			opened = false;
@@ -177,9 +188,10 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t max_line
 			text.erase(0, 1);
 		}
 
-		boost::algorithm::trim(text);
+		boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(" ")); 
 
-		if (opened) {
+		if (opened)
+		{
 			/* Add an opening brace for the next line. */
 			if (text.length())
 				text.insert(0, "{");

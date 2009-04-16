@@ -68,7 +68,7 @@ public:
 	static SDL_Surface * drawBox1(int w, int h, int playerColor=1);
 	static void drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x=0, int y=0);
 	static SDL_Surface * drawBoxTextBitmapSub(int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline=30, int imgToBmp=55);
-	static std::vector<std::string> * breakText(std::string text, size_t max_line_size=30, bool userBreak=true, bool ifor=true);
+	static std::vector<std::string> * breakText(std::string text, size_t maxLineSize=30, bool userBreak=true, bool ifor=true);
 	static void init();
 	static void dispose();
 };
