@@ -110,66 +110,86 @@ SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for 
 	return ret;
 }
 
-std::vector<std::string> * CMessage::breakText(std::string text, size_t line, bool userBreak, bool ifor) //TODO userBreak -- use me
+/* The map file contains long texts, with or without line breaks. This
+ * method takes such a text and breaks it into into several lines. */
+std::vector<std::string> * CMessage::breakText(std::string text, size_t max_line_size, 
+											   bool userBreak, bool ifor)
 {
 	std::vector<std::string> * ret = new std::vector<std::string>();
-	while (text.length()>line)
-	{
-		int whereCut = -1, braces=0;
-		bool pom = true, opened=false;
-		for (size_t i=0; i<line+braces; i++)
-		{
-			if (text[i]==10) //end of line sign
-			{
-				whereCut=i+1;
-				pom=false;
-				break;
-			}
-			else if (ifor && ((text[i]=='{') || (text[i]=='}'))) // ignore braces
-			{
-				if (text[i]=='{')
-					opened=true;
-				else
-					opened=false;
+
+	boost::algorithm::trim(text);
+
+	while (text.length()) {
+
+		unsigned int z = 0;
+		unsigned int braces = 0;
+		bool opened = false;
+
+		while((text[z] != 0) && (text[z] != 0x0a) && (z < max_line_size+braces)) {
+			/* We don't count braces in string length. */
+			if (text[z] == '{') {
+				opened=true;
+				braces++;
+			} else if (text[z]=='}') {
+				opened=false;
 				braces++;
 			}
+
+			z++;
 		}
-		for (int i=line+braces; i>0&&pom; i--)
-		{
-			if (text[i]==' ')
-			{
-				whereCut = i;
-				break;
-			}
-			else if (opened && text[i]=='{')
-				opened = false;
-			else if (text[i]=='}')
-				opened = true;
+
+		if ((text[z] != 0) && (text[z] != 0x0a)) {
+			/* We have a long line. Try to do a nice line break, if
+			 * possible. We backtrack on the line until we find a
+			 * suitable character. */
+			int pos = z-1;
+
+			/* TODO: boost should have a nice method to do that. */
+			while(pos > 0 &&
+				  text[pos] != ' ' && 
+				  text[pos] != ',' &&
+				  text[pos] != '.' &&
+				  text[pos] != ';' &&
+				  text[pos] != '!' &&
+				  text[pos] != '?')
+				pos --;
+			if (pos > 0)
+				z = pos+1;
 		}
-		ret->push_back(text.substr(0,whereCut));
-		text.erase(0,whereCut);
-		boost::algorithm::trim_left_if(text,boost::algorithm::is_any_of(" "));
-		if (opened)
-		{
-			(*(ret->end()-1))+='}';
-			text.insert(0,"{");
+		
+		/* Note: empty lines will be skipped. Is that different than H3? */
+		if (z) {
+			ret->push_back(text.substr(0, z));
+
+			if (opened)
+				/* Close the brace for the current line. */
+				(*(ret->end()-1))+='}';
+
+			text.erase(0, z);
+		}
+
+		if (text[0] == 0x0a) {
+			/* Braces do not carry over lines. The map author forgot
+			 * to close it. */
+			opened = false;
+
+			/* Remove LF */
+			text.erase(0, 1);
+		}
+
+		boost::algorithm::trim(text);
+
+		if (opened) {
+			/* Add an opening brace for the next line. */
+			if (text.length())
+				text.insert(0, "{");
 		}
 	}
-	for (size_t i=0;i<text.length();i++)
-	{
-		if (text[i]==10) //end of line sign
-		{
-			ret->push_back(text.substr(0,i));
-			text.erase(0,i);
-			i=0;
-		}
-	}
-	if (text.length() > 0)
-		ret->push_back(text);
+
+	/* Trim whitespaces of every line. */
 	for (size_t i=0; i<ret->size(); i++)
-	{
 		boost::algorithm::trim((*ret)[i]);
-	}
+
 	return ret;
 }
 
@@ -178,7 +198,7 @@ std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> >
 	std::pair<int,int> ret;
 	ret.first = -1;
 	ret.second=0;
-	for (size_t i=0; i<txtg->size();i++) //szukamy najszerszej linii i lacznej wysokosci
+	for (size_t i=0; i<txtg->size();i++) //we are searching widest line and total height
 	{
 		int lw=0;
 		for (size_t j=0;j<(*txtg)[i].size();j++)
@@ -223,33 +243,40 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 	txtg->resize(brtext->size());
 	for (size_t i=0; i<brtext->size();i++) //foreach line
 	{
-		while((*brtext)[i].length()) //jesli zostalo cos
+		while((*brtext)[i].length()) //if something left
 		{
-			size_t z=0; bool br=true;
-			while( ((*brtext)[i][z]) != ('{') )
-			{
-				if (z >= (((*brtext)[i].length())-1))
-				{
-					br=false;
-					break;
-				}
+			size_t z;
+
+			/* Handle normal text. */
+			z = 0;
+			while((*brtext)[i][z]!= 0 && (*brtext)[i][z] != ('{'))
 				z++;
-			}
-			if (!br)
-				z++;
+
 			if (z)
-				(*txtg)[i].push_back(TTF_RenderText_Blended(font,(*brtext)[i].substr(0,z).c_str(),zwykly));
+				(*txtg)[i].push_back(TTF_RenderText_Blended(font, (*brtext)[i].substr(0,z).c_str(), zwykly));
 			(*brtext)[i].erase(0,z);
-			z=0;
-			if (  ((*brtext)[i].length()==0) || ((*brtext)[i][z]!='{')  )
-			{
+
+			if ((*brtext)[i][0] == '{')
+				/* Remove '{' */
+				(*brtext)[i].erase(0,1);
+
+			if ((*brtext)[i].length()==0)
+				/* End of line */
 				continue;
-			}
-			while( ((*brtext)[i][++z]) != ('}') )
-			{}
-			//tyemp = (*brtext)[i].substr(1,z-1); //od 1 bo pomijamy otwierajaca klamre
-			(*txtg)[i].push_back(TTF_RenderText_Blended(font,(*brtext)[i].substr(1,z-1).c_str(),tytulowy));
-			(*brtext)[i].erase(0,z+1); //z+1 bo dajemy zamykajaca klamre
+
+			/* This text will be highlighted. */
+			z = 0;
+			while((*brtext)[i][z]!= 0 && (*brtext)[i][z] != ('}'))
+				z++;
+
+			if (z)
+				(*txtg)[i].push_back(TTF_RenderText_Blended(font, (*brtext)[i].substr(0,z).c_str(), tytulowy));
+			(*brtext)[i].erase(0,z);
+
+			if ((*brtext)[i][0] == '}')
+				/* Remove '}' */
+				(*brtext)[i].erase(0,1);
+
 		} //ends while((*brtext)[i].length())
 	} //ends for(int i=0; i<brtext->size();i++)
 	return txtg;
@@ -367,13 +394,13 @@ SDL_Surface * CMessage::genMessage
 {
 //max x 320 okolo 30 znakow
 	std::vector<std::string> * tekst;
-	if (text.length() < 30) //nie trzeba polamac
+	if (text.length() < 30) //does not need breaking
 	{
 		tekst = new std::vector<std::string>();
 		tekst->push_back(text);
 	}
 	else tekst = breakText(text);
-	int ww, hh; //wymiary boksa
+	int ww, hh; //dimensions of box
 	if (319>30+13*text.length())
 		ww = 30+13*text.length();
 	else ww = 319;
@@ -428,7 +455,7 @@ SDL_Surface * CMessage::genMessage
 
 void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int x, int y)
 {	
-	//obwodka I-szego rzedu pozioma
+	//obwodka I-szego rzedu pozioma //border of 1st series, horizontal
 	for (int i=0; i<w-piecesOfBox[playerColor][6]->w; i+=piecesOfBox[playerColor][6]->w)
 	{
 		SDL_BlitSurface
@@ -436,7 +463,7 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 		SDL_BlitSurface
 			(piecesOfBox[playerColor][7],NULL,ret,&genRect(piecesOfBox[playerColor][7]->h,piecesOfBox[playerColor][7]->w,x+i,y+h-piecesOfBox[playerColor][7]->h));
 	}
-	//obwodka I-szego rzedu pionowa
+	//obwodka I-szego rzedu pionowa  //border of 1st series, vertical
 	for (int i=0; i<h-piecesOfBox[playerColor][4]->h; i+=piecesOfBox[playerColor][4]->h)
 	{
 		SDL_BlitSurface
@@ -505,6 +532,7 @@ ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, 
 		int toadd = (SComps[i]->getImg()->w + 12 + (_or ? _or->w : 0));
 		if (curw + toadd > maxw)
 		{
+			curr++;
 			amax(w,curw);
 			curw = SComps[i]->getImg()->w;
 			comps.resize(curr+1);
