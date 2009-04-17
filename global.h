@@ -114,12 +114,12 @@ template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];
 namespace vstd
 {
 	template <typename Container, typename Item>
-	bool contains(const Container & c, const Item &i)
+	bool contains(const Container & c, const Item &i) //returns true if container c contains item i
 	{
 		return std::find(c.begin(),c.end(),i) != c.end();
 	}
 	template <typename V, typename Item, typename Item2>
-	bool contains(const std::map<Item,V> & c, const Item2 &i)
+	bool contains(const std::map<Item,V> & c, const Item2 &i) //returns true if map c contains item i
 	{
 		return c.find(i)!=c.end();
 	}
@@ -140,7 +140,7 @@ namespace vstd
 		return std::find(c.begin(),c.end(),i);
 	}
 	template <typename T1, typename T2>
-	int findPos(const std::vector<T1> & c, const T2 &s)
+	int findPos(const std::vector<T1> & c, const T2 &s) //returns position of first element in vector c equal to s, if there is no such element, -1 is returned
 	{
 		for(size_t i=0; i < c.size(); ++i)
 			if(c[i] == s)
@@ -161,7 +161,7 @@ namespace vstd
 		return std::find(c.begin(),c.end(),i);
 	}
 	template <typename Container, typename Item>
-	bool operator-=(Container &c, const Item &i)
+	bool operator-=(Container &c, const Item &i) //removes element i from container c, returns false if c does not contain i
 	{
 		typename Container::iterator itr = find(c,i);
 		if(itr == c.end())
@@ -212,7 +212,7 @@ namespace vstd
 using vstd::operator-=;
 
 template <typename t1, typename t2>
-t1 & amax(t1 &a, const t2 &b)
+t1 & amax(t1 &a, const t2 &b) //assigns greater of (a, b) to a and returns maximum of (a, b)
 {
 	if(a >= b)
 		return a;
@@ -223,7 +223,7 @@ t1 & amax(t1 &a, const t2 &b)
 	}
 }
 template <typename t1, typename t2>
-t1 & amin(t1 &a, const t2 &b)
+t1 & amin(t1 &a, const t2 &b) //assigns smaller of (a, b) to a and returns minimum of (a, b)
 {
 	if(a <= b)
 		return a;
@@ -236,7 +236,7 @@ t1 & amin(t1 &a, const t2 &b)
 #include "CConsoleHandler.h"
 extern DLL_EXPORT std::ostream *logfile;
 extern DLL_EXPORT CConsoleHandler *console;
-template <int lvl> class CLogger
+template <int lvl> class CLogger //logger, prints log info to console and saves in file
 {
 public:
 	CLogger<lvl>& operator<<(std::ostream& (*fun)(std::ostream&))

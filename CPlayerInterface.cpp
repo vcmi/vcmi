@@ -2304,12 +2304,17 @@ void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 	std::vector<CBattleInterface::SStackAttackedInfo> arg;
 	for(std::set<BattleStackAttacked>::iterator i = bsa.begin(); i != bsa.end(); i++)
 	{
-		if(i->isEffect())
+		if(i->isEffect() && i->effect != 12) //and not armageddon
 		{
 			battleInt->displayEffect(i->effect, cb->battleGetStackByID(i->stackAttacked)->position);
 		}
 		CBattleInterface::SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7, i->killed()};
 		arg.push_back(to_put);
+	}
+
+	if(bsa.begin()->isEffect() && bsa.begin()->effect == 12) //for armageddon - I hope this condition is enough
+	{
+		battleInt->displayEffect(bsa.begin()->effect, -1);
 	}
 
 	battleInt->stacksAreAttacked(arg);

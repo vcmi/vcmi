@@ -416,7 +416,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town)
 
 	townlist->fun = boost::bind(&CCastleInterface::townChange,this);
 	townlist->genList();
-	townlist->selected = getIndexOf(townlist->items,Town);
+	townlist->selected = vstd::findPos(townlist->items,Town);
 	if((townlist->selected+1) > townlist->SIZE)
 		townlist->from = townlist->selected -  townlist->SIZE + 2;
 

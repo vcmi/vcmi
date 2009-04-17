@@ -22,13 +22,7 @@ void blitAtWR(SDL_Surface * src, SDL_Rect pos, SDL_Surface * dst=screen);
 void blitAt(SDL_Surface * src, SDL_Rect pos, SDL_Surface * dst=screen);
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = screen);
 bool isItIn(const SDL_Rect * rect, int x, int y);
-template <typename T> int getIndexOf(const std::vector<T> & v, const T & val)
-{
-	for(int i=0;i<v.size();i++)
-		if(v[i]==val)
-			return i;
-	return -1;
-}
+
 inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
 {
 	SDL_Rect ret;
@@ -59,9 +53,9 @@ namespace CSDL_Ext
 	SDL_Surface * hFlip(SDL_Surface * toRot); //horizontal flip
 	SDL_Surface * rotate02(SDL_Surface * toRot); //rotate 90 degrees left
 	SDL_Surface * rotate03(SDL_Surface * toRot); //rotate 180 degrees
-	SDL_Cursor * SurfaceToCursor(SDL_Surface *image, int hx, int hy);
+	SDL_Cursor * SurfaceToCursor(SDL_Surface *image, int hx, int hy); //creates cursor from bitmap
 	Uint32 SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y, bool colorByte = false);
-	SDL_Color SDL_GetPixelColor(SDL_Surface *surface, int x, int y);
+	SDL_Color SDL_GetPixelColor(SDL_Surface *surface, int x, int y); //returns color of pixel at given position
 	SDL_Surface * alphaTransform(SDL_Surface * src); //adds transparency and shadows (partial handling only; see examples of using for details)
 	void blitWithRotate1(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests
 	void blitWithRotate2(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect);//srcRect is not used, works with 8bpp sources and 24bpp dests

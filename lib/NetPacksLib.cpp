@@ -549,7 +549,16 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 	{
 		CStack *s = gs->curB->getStack(id);
 		if(s)
-			s->effects.push_back(effect);
+		{
+			if(effect.id == 35) //dispel - removing all effects
+			{
+				s->effects.clear();
+			}
+			else //adding effect
+			{
+				s->effects.push_back(effect);
+			}
+		}
 		else
 			tlog1 << "Cannot find stack " << id << std::endl;
 	}

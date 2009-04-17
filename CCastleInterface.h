@@ -50,7 +50,7 @@ public:
 	CCastleInterface *owner;
 	const CGHeroInstance *hero;
 	int upg; //0 - up garrison, 1 - down garrison
-	bool highlight;
+	bool highlight; //indicates id the slot is highlighted
 
 	void hover (bool on);
 	void clickRight (boost::logic::tribool down);
@@ -65,8 +65,8 @@ public:
 class CCastleInterface : public CWindowWithGarrison
 {
 public:
-	SDL_Rect pos;
-	bool showing;
+	SDL_Rect pos; //why not inherit this member from CIntObject ?
+	bool showing; //indicates if interface is active
 	CBuildingRect * hBuild; //highlighted building
 	SDL_Surface * townInt;
 	SDL_Surface * cityBg;
@@ -167,7 +167,7 @@ class CFortScreen : public IShowActivable, public CIntObject
 	{
 	public:
 		int bid;
-		RecArea(int BID):bid(BID){};
+		RecArea(int BID):bid(BID){}; //c-tor
 		void clickLeft (tribool down);
 		void clickRight (tribool down);
 		void activate();
@@ -181,10 +181,10 @@ public:
 	std::vector<RecArea*> recAreas;
 	std::vector<CCreaturePic*> crePics;
 
-	CFortScreen(CCastleInterface * owner);
+	CFortScreen(CCastleInterface * owner); //c-tor
 
 	void draw( CCastleInterface * owner, bool first);
-	~CFortScreen();
+	~CFortScreen(); //d-tor
 	void close();
 	void show(SDL_Surface * to);
 	void activate();

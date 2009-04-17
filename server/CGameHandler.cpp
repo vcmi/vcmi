@@ -2425,8 +2425,32 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					sendAndApply(&si);
 					break;
 				}
+			case 26: //armageddon
+				{
+					std::set<CStack*> attackedCres;
+					
+					for(int it=0; it<gs->curB->stacks.size(); ++it)
+					{
+						attackedCres.insert(gs->curB->stacks[it]);
+					}
+					if(attackedCres.size() == 0) break;
+					StacksInjured si;
+					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+					{
+						BattleStackAttacked bsa;
+						bsa.flags |= 2;
+						bsa.effect = 12;
+						bsa.damageAmount = h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]; 
+						bsa.stackAttacked = (*it)->ID;
+						prepareAttacked(bsa,*it);
+						si.stacks.insert(bsa);
+					}
+					sendAndApply(&si);
+					break;
+				}
 			case 27: //shield 
 			case 28: //air shield
+			case 35: //dispel
 			case 41: //bless
 			case 42: //curse
 			case 43: //bloodlust

@@ -267,6 +267,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	spellToEffect[18] = 10; //implosion
 	spellToEffect[27] = 27; //shield
 	spellToEffect[28] = 2; //air shield
+	spellToEffect[35] = 41; //dispel
 	spellToEffect[41] = 36; //bless
 	spellToEffect[42] = 40; //curse
 	spellToEffect[43] = 4; //bloodlust
@@ -1941,32 +1942,56 @@ void CBattleInterface::castThisSpell(int spellID)
 
 void CBattleInterface::displayEffect(ui32 effect, int destTile)
 {
-	if(graphics->battleACToDef[effect].size() != 0)
+	if(effect == 12) //armageddon
 	{
-		SBattleEffect be;
-		be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
-		be.frame = 0;
-		be.maxFrame = be.anim->ourImages.size();
-		be.x = 22 * ( ((destTile/BFIELD_WIDTH) + 1)%2 ) + 44 * (destTile % BFIELD_WIDTH) + 45;
-		be.y = 105 + 42 * (destTile/BFIELD_WIDTH);
+		if(graphics->battleACToDef[effect].size() != 0)
+		{
+			CDefHandler * anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+			for(int i=0; i * anim->width < pos.w ; ++i)
+			{
+				for(int j=0; j * anim->height < pos.h ; ++j)
+				{
+					SBattleEffect be;
+					be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+					be.frame = 0;
+					be.maxFrame = be.anim->ourImages.size();
+					be.x = i * anim->width;
+					be.y = j * anim->height;
 
-		if(effect != 1 && effect != 0)
-		{
-			be.x -= be.anim->ourImages[0].bitmap->w/2;
-			be.y -= be.anim->ourImages[0].bitmap->h/2;
+					battleEffects.push_back(be);
+				}
+			}
 		}
-		else if(effect == 1)
+	}
+	else
+	{
+		if(graphics->battleACToDef[effect].size() != 0)
 		{
-			be.x -= be.anim->ourImages[0].bitmap->w;
-			be.y -= be.anim->ourImages[0].bitmap->h;
-		}
-		else if (effect == 0)
-		{
-			be.x -= be.anim->ourImages[0].bitmap->w/2;
-			be.y -= be.anim->ourImages[0].bitmap->h;
-		}
+			SBattleEffect be;
+			be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
+			be.frame = 0;
+			be.maxFrame = be.anim->ourImages.size();
+			be.x = 22 * ( ((destTile/BFIELD_WIDTH) + 1)%2 ) + 44 * (destTile % BFIELD_WIDTH) + 45;
+			be.y = 105 + 42 * (destTile/BFIELD_WIDTH);
 
-		battleEffects.push_back(be);
+			if(effect != 1 && effect != 0)
+			{
+				be.x -= be.anim->ourImages[0].bitmap->w/2;
+				be.y -= be.anim->ourImages[0].bitmap->h/2;
+			}
+			else if(effect == 1)
+			{
+				be.x -= be.anim->ourImages[0].bitmap->w;
+				be.y -= be.anim->ourImages[0].bitmap->h;
+			}
+			else if (effect == 0)
+			{
+				be.x -= be.anim->ourImages[0].bitmap->w/2;
+				be.y -= be.anim->ourImages[0].bitmap->h;
+			}
+
+			battleEffects.push_back(be);
+		}
 	}
 	//battleEffects 
 }
@@ -2385,7 +2410,7 @@ void CBattleHero::setPhase(int newPhase)
 
 void CBattleHero::clickLeft(boost::logic::tribool down)
 {
-	if(!down && myHero) if(myHero->getArt(17)) //if both conditions are satisfied; for certain reason myHero->getArt(17) has been checked once even though myHero was NULL
+	if(!down && myHero && LOCPLINT->cb->battleCanCastSpell()) //check conditions
 	{
 		for(int it=0; it<BFIELD_SIZE; ++it) //do nothing when any hex is hovered - hero's animation overlaps battlefield
 		{
