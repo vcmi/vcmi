@@ -216,7 +216,7 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 	if(which==4) //only for exp - hero may level up
 	{
 		CGHeroInstance *hero = static_cast<CGHeroInstance *>(gs->map->objects[ID]);
-		if(hero->exp >= VLC->heroh->reqExp(hero->level+1)) //new level
+		while (hero->exp >= VLC->heroh->reqExp(hero->level+1)) //new level
 		{
 			//give prim skill
 			tlog5 << hero->name <<" got level "<<hero->level<<std::endl;
