@@ -1,6 +1,6 @@
 bin_PROGRAMS = vcmiclient
 
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.a $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_THREAD_LIB)
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la $(BOOST_SYSTEM_LIB) $(BOOST_FILESYSTEM_LIB) $(BOOST_THREAD_LIB)
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
 	../AI_Base.h \

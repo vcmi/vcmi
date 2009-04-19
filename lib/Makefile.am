@@ -1,5 +1,5 @@
-noinst_LIBRARIES = libvcmi.a
-libvcmi_a_SOURCES = \
+pkglib_LTLIBRARIES = libvcmi.la
+libvcmi_la_SOURCES = \
 	../CConsoleHandler.cpp \
 	../CConsoleHandler.h \
 	../CGameState.cpp \
