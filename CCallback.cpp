@@ -25,7 +25,6 @@
 #ifdef max
 #undef max
 #endif
-extern CSharedCond<std::set<CPack*> > mess;
 
 /*
  * CCallback.cpp, part of VCMI engine
@@ -67,21 +66,6 @@ bool CCallback::moveHero(const CGHeroInstance *h, int3 dst) const
 {
 	MoveHero pack(dst,h->id);
 	*cl->serv << &pack;
-
-	{//wait till there is server answer
-		boost::unique_lock<boost::mutex> lock(*mess.mx);
-		while(std::find_if(mess.res->begin(),mess.res->end(),&isType<501>) == mess.res->end())
-			mess.cv->wait(lock);
-		std::set<CPack*>::iterator itr = std::find_if(mess.res->begin(),mess.res->end(),&isType<501>);
-		TryMoveHero *tmh = dynamic_cast<TryMoveHero*>(*itr);
-		mess.res->erase(itr);
-		if(!tmh->result)
-		{
-			delete tmh;
-			return false;
-		}
-		delete tmh;
-	}
 	return true;
 }
 void CCallback::selectionMade(int selection, int asker)
@@ -343,9 +327,6 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj) const
 
 int CCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
 {
-	if(s1->tempOwner != player   ||   s2->tempOwner != player)
-		return -1;
-
 	ArrangeStacks pack(1,p1,p2,s1->id,s2->id,0);
 	*cl->serv << &pack;
 	return 0;
@@ -353,20 +334,12 @@ int CCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2,
 
 int CCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
 {
-	if ((s1->tempOwner!= player  ||  s2->tempOwner!=player))
-	{
-		return -1;
-	}
 	ArrangeStacks pack(2,p1,p2,s1->id,s2->id,0);
 	*cl->serv << &pack;
 	return 0;
 }
 int CCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)
 {
-	if (s1->tempOwner!= player  ||  s2->tempOwner!=player || (!val))
-	{
-		return -1;
-	}
 	ArrangeStacks pack(3,p1,p2,s1->id,s2->id,val);
 	*cl->serv << &pack;
 	return 0;

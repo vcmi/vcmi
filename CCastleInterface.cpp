@@ -581,8 +581,8 @@ void CCastleInterface::buildingClicked(int building)
 				bool possible = (LOCPLINT->cb->getResourceAmount(6) >= price);
 				if(vstd::contains(hero->artifWorn,ui16(aid+9))) //hero already has machine
 					possible = false;
-				deactivate();
-				(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(aid,false),aid,hero->id))->activate();
+
+				LOCPLINT->pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(aid,false),aid,hero->id));
 				break;
 			}
 		default:

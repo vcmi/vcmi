@@ -409,8 +409,6 @@ askInterfaceForMove:
 	//end battle, remove all info, free memory
 	giveExp(*battleResult.data);
 	sendAndApply(battleResult.data);
-	if(cb)
-		cb(battleResult.data);
 
 	//if one hero has lost we will erase him
 	if(battleResult.data->winner!=0 && hero1)
@@ -429,6 +427,9 @@ askInterfaceForMove:
 		changePrimSkill(hero1->id,4,battleResult.data->exp[0]);
 	if(battleResult.data->exp[1] && hero2)
 		changePrimSkill(hero2->id,4,battleResult.data->exp[1]);
+
+	if(cb)
+		cb(battleResult.data);
 
 	delete battleResult.data;
 

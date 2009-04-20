@@ -10,6 +10,8 @@
 #include "../hch/CSpellHandler.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
@@ -166,7 +168,22 @@ DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(hid);
 	h->bonuses.push_back(bonus);
-	h->bonuses.back().description = toString(bdescr);
+
+
+	std::string &descr = h->bonuses.back().description;
+
+	if(!bdescr.texts.size() 
+		&& bonus.source == HeroBonus::OBJECT 
+		&& (bonus.type == HeroBonus::LUCK || bonus.type == HeroBonus::MORALE || bonus.type == HeroBonus::MORALE_AND_LUCK)
+		&& gs->map->objects[bonus.id]->ID == 26) //it's morale/luck bonus from an event without description
+	{
+		descr = VLC->generaltexth->arraytxt[bonus.val > 0 ? 110 : 109]; //+/-%d Temporary until next battle"
+		boost::replace_first(descr,"%d",boost::lexical_cast<std::string>(std::abs(bonus.val)));
+	}
+	else
+	{
+		descr = toString(bdescr);
+	}
 }
 
 DLL_EXPORT void ChangeObjPos::applyGs( CGameState *gs )

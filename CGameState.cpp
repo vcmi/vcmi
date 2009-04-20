@@ -898,9 +898,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		if(map->objects[no]->ID==26)
 		{
 			map->objects[no]->defInfo->handler=NULL;
-			map->removeBlockVisTiles(map->objects[no]);
-			map->objects[no]->defInfo->blockMap[5] = 255;
-			map->addBlockVisTiles(map->objects[no]);
 		}
 		map->objects[no]->hoverName = VLC->generaltexth->names[map->objects[no]->ID];
 	}

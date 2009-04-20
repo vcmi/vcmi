@@ -41,6 +41,7 @@ class CArtifact;
 class CGDefInfo;
 class CSpecObjInfo;
 struct TerrainTile;
+struct InfoWindow;
 
 class DLL_EXPORT CCastleEvent
 {
@@ -375,10 +376,9 @@ public:
 	}
 };
 
-class DLL_EXPORT CGEvent : public CGObjectInstance //event objects
+class DLL_EXPORT CGEvent : public CArmedInstance //event objects
 {
 public:
-	CCreatureSet guarders;
 	std::string message;
 	ui32 gainedExp;
 	si32 manaDiff; //amount of gained / lost mana
@@ -394,18 +394,23 @@ public:
 	ui8 availableFor; //players whom this event is available for
 	ui8 computerActivate; //true if computre player can activate this event
 	ui8 humanActivate; //true if human player can activate this event
+	ui8 removeAfterVisit; //true if event is removed after occurring
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CGObjectInstance&>(*this);
-		h & guarders & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
+		h & static_cast<CArmedInstance&>(*this);
+		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
 			& abilities & abilityLevels & artifacts & spells & creatures & availableFor 
 			& computerActivate & humanActivate;
 	}
 
 	void activated(const CGHeroInstance * h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
-	void endBattle(BattleResult *result) const;
+	void endBattle(const CGHeroInstance *h, BattleResult *result) const;
+	void giveContents(const CGHeroInstance *h, bool afterBattle) const;
+
+	void getText( InfoWindow &iw, bool &afterBattle, int val, int positive, int negative, const CGHeroInstance * h ) const;
+	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
 };
 
 class DLL_EXPORT CGCreature : public CArmedInstance //creatures on map

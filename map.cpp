@@ -1325,6 +1325,10 @@ void Mapa::readDefInfo( unsigned char * bufor, int &i)
 		}
 		else
 			vinya->visitDir = 0xff;
+
+		if(vinya->id == 26)
+			std::memset(vinya->blockMap,255,6);
+
 		defy.push_back(vinya); // add this def to the vector
 	}
 }
@@ -1366,7 +1370,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 					}
 					if(bufor[i++])
 					{
-						evnt->guarders = readCreatureSet(bufor,i,7,(version>RoE)); 
+						evnt->army = readCreatureSet(bufor,i,7,(version>RoE)); 
 					}
 					i+=4;
 				}
@@ -1415,7 +1419,9 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				i+=8;
 				evnt->availableFor = readNormalNr(bufor,i, 1); ++i;
 				evnt->computerActivate = readNormalNr(bufor,i, 1); ++i;
-				evnt->humanActivate = readNormalNr(bufor,i, 1); ++i;
+				evnt->removeAfterVisit = readNormalNr(bufor,i, 1); ++i;
+				evnt->humanActivate = true;
+
 				i+=4;
 				break;
 			}

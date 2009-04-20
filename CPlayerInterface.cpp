@@ -59,12 +59,15 @@
 using namespace boost::assign;
 using namespace CSDL_Ext;
 
-extern TTF_Font * GEOR16;
-CPlayerInterface * LOCPLINT;
-extern std::queue<SDL_Event*> events;
-extern boost::mutex eventsM;
 void processCommand(const std::string &message, CClient *&client);
 
+extern TTF_Font * GEOR16;
+extern std::queue<SDL_Event*> events;
+extern boost::mutex eventsM;
+
+CPlayerInterface * LOCPLINT;
+enum  EMoveState {STOP_MOVE, WAITING_MOVE, CONTINUE_MOVE, DURING_MOVE};
+CondSh<EMoveState> stillMoveHero; //used during hero movement
 
 struct OCM_HLP_CGIN
 {
@@ -465,7 +468,7 @@ void CGarrisonInt::createSlots()
 				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y + 64 + intery,i->first,1, 
 									&CGI->creh->creatures[i->second.first],i->second.second);
 		}
-		for(int i=0; i<sup->size(); i++)
+		for(int i=0; i<sdown->size(); i++)
 			if((*sdown)[i] == NULL)
 				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(58+interx)), pos.y + 64 + intery,i,1, NULL, 0);
 	}
@@ -680,8 +683,21 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = CGI->arth->artifacts[Subtype].Name();
 		break;
 	case primskill:
-		description = CGI->generaltexth->arraytxt[2+Subtype];
-		oss << ((Val>0)?("+"):("-")) << Val << " " << CGI->generaltexth->primarySkillNames[Subtype];
+		oss << ((Val>0)?("+"):("-")) << Val << " ";
+		if(Subtype < 4)
+		{
+			description = CGI->generaltexth->arraytxt[2+Subtype];
+			oss << CGI->generaltexth->primarySkillNames[Subtype];
+		}
+		else if(Subtype == 5) //spell points
+		{
+			description = CGI->generaltexth->allTexts[149];
+			oss <<  CGI->generaltexth->allTexts[387];
+		}
+		else
+		{
+			tlog1 << "Wrong subtype=" << Subtype << std::endl;
+		}
 		subtitle = oss.str();
 		break;
 	case secskill44: case secskill:
@@ -696,6 +712,9 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 	case spell:
 		description = CGI->spellh->spells[Subtype].descriptions[Val];
 		subtitle = CGI->spellh->spells[Subtype].name;
+		break;
+	case creature:
+		subtitle = boost::lexical_cast<std::string>(Val) + " " + CGI->creh->creatures[Subtype].*(val != 1 ? &CCreature::namePl : &CCreature::nameSing);
 		break;
 	case experience:
 		description = CGI->generaltexth->allTexts[241];
@@ -774,12 +793,15 @@ SDL_Surface * SComponent::getImg()
 	case spell:
 		return graphics->spellscr->ourImages[subtype].bitmap;
 		break;
+	case creature:
+		return graphics->bigImgs[subtype];
 	}
 	return NULL;
 }
 void SComponent::clickRight (tribool down)
 {
-	LOCPLINT->adventureInt->handleRightClick(description,down,this);
+	if(description.size())
+		LOCPLINT->adventureInt->handleRightClick(description,down,this);
 }
 void SComponent::activate()
 {
@@ -1291,6 +1313,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 
 	adventureInt->centerOn(details.ho->pos); //actualizing screen pos
 	adventureInt->minimap.draw(screen2);
+	adventureInt->heroList.draw(screen2);
 
 	if(details.style>0  ||  details.src == details.dst)
 		return;
@@ -1303,19 +1326,27 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		if(ho->movement > 50)
 			ho->moveDir = getDir(details.src,details.dst);
 		ho->isStanding = true;
-		//adventureInt->heroList.draw();
-		if (adventureInt->terrain.currentPath && ho->movement>145) //TODO: better condition on movement - check cost of endtile
+
+		if(ho->movement)
 		{
 			delete adventureInt->terrain.currentPath;
 			adventureInt->terrain.currentPath = NULL;
 			adventureInt->heroList.items[adventureInt->heroList.getPosOfHero(ho)].second = NULL;
 		}
+		stillMoveHero.setn(STOP_MOVE);
 		return;
 	}
 
 	if (adventureInt->terrain.currentPath) //&& hero is moving
 	{
 		adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
+		if(!adventureInt->terrain.currentPath->nodes.size())
+		{
+
+			delete adventureInt->terrain.currentPath;
+			adventureInt->terrain.currentPath = NULL;
+			adventureInt->heroList.items[adventureInt->heroList.getPosOfHero(ho)].second = NULL;
+		}
 	}
 
 
@@ -1767,16 +1798,20 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			switch(ev->type)
 			{
 			case SDL_MOUSEBUTTONDOWN:
-				stillMoveHero = false;
+				stillMoveHero.setn(STOP_MOVE);
 				break;
 			case SDL_KEYDOWN:
 				if(ev->key.keysym.sym < SDLK_F1)
-					stillMoveHero = false;
+					stillMoveHero.setn(STOP_MOVE);
 				break;
 			}
 			delete ev;
 		}
 	}
+
+	if(stillMoveHero.get() == 1)
+		stillMoveHero.setn(DURING_MOVE);
+
 }
 void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
@@ -2145,11 +2180,10 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 
 void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side) //called by engine when battle starts; side=0 - left, side=1 - right
 {
-	boost::unique_lock<boost::recursive_mutex> un(*pim);
-
 	while(showingDialog->get())
 		SDL_Delay(20);
 
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
 	pushInt(battleInt);
 }
@@ -2370,7 +2404,16 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components)
 {
+	{
+		boost::unique_lock<boost::mutex> un(showingDialog->mx);
+		while(showingDialog->data)
+			showingDialog->cond.wait(un);
+	}
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	
+	if(stillMoveHero.get() == DURING_MOVE)//if we are in the middle of hero movement
+		stillMoveHero.setn(STOP_MOVE); //after showing dialog movement will be stopped
 
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
@@ -2480,9 +2523,9 @@ void CPlayerInterface::availableCreaturesChanged( const CGTownInstance *town )
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(castleInt)
 	{
-		//CFortScreen *fs = dynamic_cast<CFortScreen*>();
-		//if(fs)
-		//	fs->draw(castleInt,false);
+		CFortScreen *fs = dynamic_cast<CFortScreen*>(listInt.front());
+		if(fs)
+			fs->draw(castleInt,false);
 	}
 }
 
@@ -2523,26 +2566,26 @@ void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
 		adventureInt->infoBar.draw(screen);
 }
 
-bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath * path )
+bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 {
-	if (!h || !path)
+	if (!h)
 		return false; //can't find hero
 
 	bool result = false;
-	path->convert(0);
-	stillMoveHero = true;
+	path.convert(0);
+	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
+	stillMoveHero.data = CONTINUE_MOVE;
 
-	for(int i=path->nodes.size()-1; i>0; i--)
+	for(int i=path.nodes.size()-1; i>0 && stillMoveHero.data == CONTINUE_MOVE; i--)
 	{
-		{
-			boost::unique_lock<boost::recursive_mutex> un(*pim);
-			if(!stillMoveHero)
-				return result;
-		}
-		int3 endpos(path->nodes[i-1].coord.x, path->nodes[i-1].coord.y, h->pos.z);
-		result = cb->moveHero(h,endpos);
+		stillMoveHero.data = WAITING_MOVE;
+
+		int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
+		cb->moveHero(h,endpos);
+		while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
+			stillMoveHero.cond.wait(un);
 	}
-	stillMoveHero = false;
+	//stillMoveHero = false;
 	return result;
 }
 
@@ -2553,6 +2596,19 @@ bool CPlayerInterface::shiftPressed() const
 
 void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd )
 {
+	{
+		boost::unique_lock<boost::mutex> un(showingDialog->mx);
+		while(showingDialog->data)
+			showingDialog->cond.wait(un);
+	}
+
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	while(dialogs.size())
+	{
+		pim->unlock();
+		SDL_Delay(20);
+		pim->lock();
+	}
 	CGarrisonWindow *cgw = new CGarrisonWindow(up,down);
 	cgw->quit->callback += onEnd;
 	pushInt(cgw);
@@ -2619,6 +2675,12 @@ void CPlayerInterface::totalRedraw()
 
 	if(objsToBlit.size())
 		objsToBlit.back()->showAll(screen);
+}
+
+void CPlayerInterface::requestRealized( PackageApplied *pa )
+{
+	if(stillMoveHero.get() == DURING_MOVE)
+		stillMoveHero.setn(CONTINUE_MOVE);
 }
 
 CStatusBar::CStatusBar(int x, int y, std::string name, int maxw)

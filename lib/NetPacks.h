@@ -101,6 +101,7 @@ struct MetaString : public CPack //2001 helper for object scrips
 		strings.clear();
 		texts.clear();
 		message.clear();
+		replacements.clear();
 	}
 
 	MetaString(){type = 2001;};

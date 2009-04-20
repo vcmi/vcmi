@@ -559,7 +559,6 @@ public:
 	
 	CCallback * cb; //to communicate with engine
 	const BattleAction *curAction; //during the battle - action currently performed by active stack (or NULL)
-	bool stillMoveHero; //during hero movement - setting this flag to false will stop movement
 
 	std::list<CInfoWindow *> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
 	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
@@ -603,6 +602,7 @@ public:
 	void yourTurn();
 	void availableCreaturesChanged(const CGTownInstance *town);
 	void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain);//if gain hero received bonus, else he lost it
+	void requestRealized(PackageApplied *pa);
 	void serialize(COSer<CSaveFile> &h, const int version); //saving
 	void serialize(CISer<CLoadFile> &h, const int version); //loading
 
@@ -638,7 +638,7 @@ public:
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components);
 	void showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
-	bool moveHero(const CGHeroInstance *h, CPath * path);
+	bool moveHero(const CGHeroInstance *h, CPath path);
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor

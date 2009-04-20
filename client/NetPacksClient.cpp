@@ -32,8 +32,6 @@
  *
  */
 
-CSharedCond<std::set<CPack*> > mess(new std::set<CPack*>);
-
 void SetResources::applyCl( CClient *cl )
 {
 	cl->playerint[player]->receivedResource(-1,-1);
@@ -167,15 +165,6 @@ void TryMoveHero::applyCl( CClient *cl )
 		{
 			i->second->heroMoved(hmd);
 		}
-	}
-
-	//add info for callback
-	if(result<2)
-	{
-		mess.mx->lock();
-		mess.res->insert(new TryMoveHero(*this));
-		mess.mx->unlock();
-		mess.cv->notify_all();
 	}
 }
 

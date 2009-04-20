@@ -414,100 +414,95 @@ void CTerrainRect::clickLeft(tribool down)
 	int3 mp = whichTileIsIt();
 	if ((mp.x<0) || (mp.y<0))
 		return;
-	std::vector < const CGObjectInstance * > objs;
-	if (LOCPLINT->adventureInt->selection->ID != HEROI_TYPE)
+
+	std::vector < const CGObjectInstance * > bobjs = LOCPLINT->cb->getBlockingObjs(mp),  //blocking objects at tile
+		vobjs = LOCPLINT->cb->getVisitableObjs(mp); //visitable objects
+
+	if (LOCPLINT->adventureInt->selection->ID != HEROI_TYPE) //hero is not selected (presumably town)
 	{
-		if (currentPath)
+		if(currentPath)
 		{
 			tlog2<<"Warning: Lost path?" << std::endl;
 			delete currentPath;
 			currentPath = NULL;
 		}
-		objs = LOCPLINT->cb->getBlockingObjs(mp);
-		for(size_t i=0; i < objs.size(); ++i)
+
+		for(size_t i=0; i < bobjs.size(); ++i)
 		{
-			if(objs[i]->ID == TOWNI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID) //town
+			if(bobjs[i]->ID == TOWNI_TYPE && bobjs[i]->getOwner() == LOCPLINT->playerID) //our town clicked
 			{
-				if(LOCPLINT->adventureInt->selection == (objs[i]))
-				{
-					LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(objs[i]));
-				}
+				if(LOCPLINT->adventureInt->selection == (bobjs[i])) //selected town clicked
+					LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(bobjs[i]));
 				else
+					LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
+
+				return;
+			}
+			else if(bobjs[i]->ID == HEROI_TYPE && bobjs[i]->tempOwner == LOCPLINT->playerID) //hero clicked - select him
+			{
+				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
+				return;
+			}
+		}
+	}
+
+	else //hero is selected
+	{
+		bool townEntrance = false; //town entrance tile has been clicked?
+		const CGHeroInstance * currentHero = static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection);
+
+		for(size_t i=0; i < vobjs.size(); ++i)
+		{
+			if(vobjs[i]->ID == TOWNI_TYPE)
+				townEntrance = true;
+		}
+
+		if(!townEntrance) //not entrance - select town or open hero window
+		{
+			for(size_t i=0; i < bobjs.size(); ++i)
+			{
+				if(bobjs[i]->ID == TOWNI_TYPE && bobjs[i]->tempOwner == LOCPLINT->playerID) //town - switch selection to it
 				{
-					LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
+					LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(bobjs[i]));
+					return;
+				}
+				else if(bobjs[i]->ID == HEROI_TYPE //it's a hero
+					&& bobjs[i]->tempOwner == LOCPLINT->playerID  //our hero (is this condition needed?)
+					&& currentHero == (bobjs[i]) ) //and selected one 
+				{
+					LOCPLINT->openHeroWindow(currentHero);
 					return;
 				}
 			}
-			else if(objs[i]->ID == HEROI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID)
-			{
-				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
-				return;
-			}
 		}
-		return;
-	}
-	else
-	{
-		objs = LOCPLINT->cb->getVisitableObjs(mp);
-		for(size_t i=0; i < objs.size(); ++i)
+
+		//still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
+		if (currentPath)
 		{
-			if(objs[i]->ID == TOWNI_TYPE)
-				goto endchkpt;
-		}
-		objs = LOCPLINT->cb->getBlockingObjs(mp);
-		for(size_t i=0; i < objs.size(); ++i)
-		{
-			if(objs[i]->ID == TOWNI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID) //town
+			if (currentPath->endPos() == mp) //we'll be moving
 			{
-				LOCPLINT->adventureInt->select(static_cast<const CArmedInstance*>(objs[i]));
-				return;
+				LOCPLINT->pim->unlock();
+				LOCPLINT->moveHero(currentHero,*currentPath);
+				LOCPLINT->pim->lock();
 			}
-			else if(objs[i]->ID == HEROI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID && LOCPLINT->adventureInt->selection == (objs[i]))
-			{
-				LOCPLINT->openHeroWindow(static_cast<const CGHeroInstance*>(objs[i]));
-				return;
-			}
-		}
-	}
-endchkpt:
-	bool mres =true;
-	if (currentPath)
-	{
-		if ( (currentPath->endPos()) == mp)
-		{ //move
-			CPath sended(*currentPath); //temporary path - engine will operate on it
-			LOCPLINT->pim->unlock();
-			mres = LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection),&sended);
-			LOCPLINT->pim->lock();
-			if(mres)
+			else //remove an old path
 			{
 				delete currentPath;
-				currentPath = NULL;
+				currentPath=NULL;
 				LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.getPosOfHero(LOCPLINT->adventureInt->selection)].second = NULL;
 			}
 		}
-		else
+		else //remove old path and find a new one
 		{
-			delete currentPath;
-			currentPath=NULL;
-			LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.getPosOfHero(LOCPLINT->adventureInt->selection)].second = NULL;
-		}
-	}
-	const CGHeroInstance * currentHero = (LOCPLINT->adventureInt->heroList.items.size())?(LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].first):(NULL);
-	if(currentHero)
-	{
-		int3 bufpos = currentHero->getPosition(false);
-		if (mres)
-		{
+			int3 bufpos = currentHero->getPosition(false);
+
 			CPath *& pathForCurhero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second;
 			if(pathForCurhero)
 				delete pathForCurhero;
 
 			currentPath = pathForCurhero = LOCPLINT->cb->getPath(bufpos, mp, currentHero);;
 		}
-		return;
-	}
-	
+	} //end of hero is selected "case"
 }
 void CTerrainRect::clickRight(tribool down)
 {
@@ -1318,9 +1313,9 @@ void CAdvMapInt::fmoveHero()
 		return;
 	if (!terrain.currentPath)
 		return;
-	CPath sended(*(terrain.currentPath)); //temporary path - engine will operate on it
+
 	LOCPLINT->pim->unlock();
-	LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection),&sended);
+	LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection),*terrain.currentPath);
 	LOCPLINT->pim->lock();
 }
 void CAdvMapInt::fshowSpellbok()

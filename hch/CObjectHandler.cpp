@@ -670,8 +670,12 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 
 	//various morale bonuses (from buildings, artifacts, etc)
 	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+	{
 		if(i->type == HeroBonus::MORALE   ||   i->type == HeroBonus::MORALE_AND_LUCK)
+		{
 			ret.push_back(std::make_pair(i->val, i->description));
+		}
+	}
 
 	//leadership
 	if(getSecSkillLevel(6)) 
@@ -2223,22 +2227,257 @@ void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 		activated(h);
 }
 
-void CGEvent::endBattle( BattleResult *result ) const
+void CGEvent::endBattle( const CGHeroInstance *h, BattleResult *result ) const
 {
 	if(result->winner)
 		return;
-	//give
+
+	giveContents(h,true);
 }
 
 void CGEvent::activated( const CGHeroInstance * h ) const
 {
+	if(army)
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text << message;
+		cb->showInfoDialog(&iw);
+		cb->startBattleI(h->id,army,pos,boost::bind(&CGEvent::endBattle,this,h,_1));
+	}
+	else
+	{
+		giveContents(h,false);
+	}
+}
+
+void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
+{
 	InfoWindow iw;
-	iw.player = h->tempOwner;
-	iw.text << message;
-	cb->showInfoDialog(&iw);
-	if(guarders)
-		cb->startBattleI(h->id,guarders,pos,boost::bind(&CGEvent::endBattle,this,_1));
-	cb->removeObject(id);
+	iw.player = h->getOwner();
+
+	bool changesPrimSkill = false;
+	for (int i = 0; i < primskills.size(); i++)
+	{
+		if(primskills[i])
+		{
+			changesPrimSkill = true;
+			break;
+		}
+	}
+
+	if(gainedExp || changesPrimSkill || abilities.size())
+	{
+		getText(iw,afterBattle,175,h);
+
+		if(gainedExp)
+			iw.components.push_back(Component(Component::EXPERIENCE,0,gainedExp,0));
+		for(int i=0; i<primskills.size(); i++)
+			if(primskills[i])
+				iw.components.push_back(Component(Component::PRIM_SKILL,i,primskills[i],0));
+
+		for(int i=0; i<abilities.size(); i++)
+			iw.components.push_back(Component(Component::SEC_SKILL,abilities[i],abilityLevels[i],0));
+
+		cb->showInfoDialog(&iw);
+
+		//give exp
+		if(gainedExp)
+			cb->changePrimSkill(h->id,5,gainedExp,false);
+		//give prim skills
+		for(int i=0; i<primskills.size(); i++)
+			if(primskills[i])
+				cb->changePrimSkill(h->id,i,primskills[i],false);
+
+		//give sec skills
+		for(int i=0; i<abilities.size(); i++)
+		{
+			int curLev = h->getSecSkillLevel(abilities[i]);
+
+			if(curLev  &&  curLev < abilityLevels[i]
+				|| h->secSkills.size() < SKILL_PER_HERO )
+			{
+				cb->changeSecSkill(h->id,abilities[i],abilityLevels[i],true);
+			}
+		}
+
+	}
+
+	if(manaDiff)
+	{
+		getText(iw,afterBattle,luckDiff,176,177,h);
+		iw.components.push_back(Component(Component::PRIM_SKILL,5,manaDiff,0));
+		cb->showInfoDialog(&iw);
+		cb->setManaPoints(h->id, h->mana + manaDiff);
+	}
+
+	if(moraleDiff)
+	{
+		getText(iw,afterBattle,luckDiff,178,179,h);
+		iw.components.push_back(Component(Component::MORALE,0,moraleDiff,0));
+		cb->showInfoDialog(&iw);
+		GiveBonus gb;
+		gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::MORALE,HeroBonus::OBJECT,moraleDiff,id,"");
+		gb.hid = h->id;
+		cb->giveHeroBonus(&gb);
+	}
+
+	if(luckDiff)
+	{
+		getText(iw,afterBattle,luckDiff,180,181,h);
+		iw.components.push_back(Component(Component::LUCK,0,luckDiff,0));
+		cb->showInfoDialog(&iw);
+		GiveBonus gb;
+		gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::LUCK,HeroBonus::OBJECT,luckDiff,id,"");
+		gb.hid = h->id;
+		cb->giveHeroBonus(&gb);
+	}
+
+	iw.components.clear();
+	iw.text.clear();
+	for(int i=0; i<resources.size(); i++)
+	{
+		if(resources[i] < 0)
+			iw.components.push_back(Component(Component::RESOURCE,i,resources[i],0));
+	}
+	if(iw.components.size())
+	{
+		getText(iw,afterBattle,182,h);
+		cb->showInfoDialog(&iw);
+	}
+
+	iw.components.clear();
+	iw.text.clear();
+	for(int i=0; i<resources.size(); i++)
+	{
+		if(resources[i] > 0)
+			iw.components.push_back(Component(Component::RESOURCE,i,resources[i],0));
+	}
+	if(iw.components.size())
+	{
+		getText(iw,afterBattle,183,h);
+		cb->showInfoDialog(&iw);
+	}
+
+	iw.components.clear();
+	for(int i=0; i<artifacts.size(); i++)
+	{
+		iw.components.push_back(Component(Component::ARTIFACT,artifacts[i],0,0));
+	}
+	if(iw.components.size())
+	{
+		cb->showInfoDialog(&iw);
+	}
+
+	for(int i=0; i<resources.size(); i++)
+		if(resources[i])
+			cb->giveResource(h->getOwner(),i,resources[i]);
+
+	for(int i=0; i<artifacts.size(); i++)
+		cb->giveHeroArtifact(artifacts[i],h->id,-2);
+
+	//show dialog with given creatures
+	iw.components.clear();
+	iw.text.clear();
+	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = creatures.slots.begin(); i != creatures.slots.end(); i++)
+	{
+		iw.components.push_back(Component(Component::CREATURE,i->second.first,i->second.second,0));
+	}
+	if(iw.components.size())
+	{
+		if(afterBattle)
+		{
+			if(iw.components.front().val == 1)
+			{
+				iw.text.addTxt(MetaString::ADVOB_TXT,185);//A %s joins %s's army.
+				iw.text.replacements.push_back(VLC->creh->creatures[iw.components.front().subtype].nameSing);
+			}
+			else
+			{
+				iw.text.addTxt(MetaString::ADVOB_TXT,186);//%s join %s's army.
+				iw.text.replacements.push_back(VLC->creh->creatures[iw.components.front().subtype].namePl);
+			}
+			iw.text.replacements.push_back(h->name);
+		}
+		else
+		{
+			iw.text << message;
+			afterBattle = true;
+		}
+		cb->showInfoDialog(&iw);
+	}
+
+	//check if creatures can be moved to hero army
+	CCreatureSet heroArmy = h->army;
+	CCreatureSet ourArmy = creatures;
+	while(ourArmy)
+	{
+		int slot = heroArmy.getSlotFor(ourArmy.slots.begin()->second.first);
+		if(slot < 0)
+			break;
+
+		heroArmy.slots[slot].first = ourArmy.slots.begin()->second.first;
+		heroArmy.slots[slot].second += ourArmy.slots.begin()->second.second;
+		ourArmy.slots.erase(ourArmy.slots.begin());
+	}
+
+	if(!ourArmy) //all creatures can be moved to hero army - do that
+	{
+		SetGarrisons sg;
+		sg.garrs[h->id] = heroArmy;
+		cb->sendAndApply(&sg);
+	}
+	else //show garrison window and let player pick creatures
+	{
+		SetGarrisons sg;
+		sg.garrs[id] = creatures;
+		cb->sendAndApply(&sg);
+
+		if(removeAfterVisit)
+			cb->showGarrisonDialog(id,h->id,boost::bind(&IGameCallback::removeObject,cb,id));
+		else
+			cb->showGarrisonDialog(id,h->id,0);
+		return;
+	}
+
+	if(!afterBattle)
+	{
+		iw.text << message;
+		cb->showInfoDialog(&iw);
+	}
+
+	if(removeAfterVisit)
+		cb->removeObject(id);
+}
+
+void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const
+{
+	if(afterBattle)
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT,text);//%s has lost treasure.
+		iw.text.replacements.push_back(h->name);
+	}
+	else
+	{
+		iw.text << message;
+		afterBattle = true;
+	}
+}
+
+void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int val, int positive, int negative, const CGHeroInstance * h ) const
+{
+	iw.components.clear();
+	iw.text.clear();
+	if(afterBattle)
+	{
+		iw.text.addTxt(MetaString::ADVOB_TXT,val < 0 ? negative : positive); //%s's luck takes a turn for the worse / %s's luck increases
+		iw.text.replacements.push_back(h->name);
+	}
+	else
+	{
+		iw.text << message;
+		afterBattle = true;
+	}
 }
 
 void CGObservatory::onHeroVisit( const CGHeroInstance * h ) const

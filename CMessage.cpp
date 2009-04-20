@@ -508,8 +508,11 @@ ComponentResolved::ComponentResolved( SComponent *Comp )
 	std::vector<std::string> * brtext = CMessage::breakText(comp->subtitle,11,true,true); //text 
 	txt = CMessage::drawText(brtext,GEOR13);
 	delete brtext;
-	comp->pos.w = img->w;
-	comp->pos.h = img->h + COMPONENT_TO_SUBTITLE + CMessage::getMaxSizes(txt).second;
+
+	//calculate dimensions
+	std::pair<int,int> textSize = CMessage::getMaxSizes(txt);
+	comp->pos.w = std::max(textSize.first, img->w); //bigger of: subtitle width and image width
+	comp->pos.h = img->h + COMPONENT_TO_SUBTITLE + textSize.second;
 }
 
 ComponentResolved::~ComponentResolved()
@@ -537,16 +540,18 @@ ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, 
 
 	comps.resize(1);
 	int curw = 0;
-	int curr = 0;
+	int curr = 0; //current row
 
 	for(size_t i=0;i<SComps.size();i++)
 	{
-		int toadd = (SComps[i]->getImg()->w + 12 + (_or ? _or->w : 0));
+		ComponentResolved *cur = new ComponentResolved(SComps[i]);
+
+		int toadd = (cur->comp->pos.w + 12 + (_or ? _or->w : 0));
 		if (curw + toadd > maxw)
 		{
 			curr++;
 			amax(w,curw);
-			curw = SComps[i]->getImg()->w;
+			curw = cur->comp->pos.w;
 			comps.resize(curr+1);
 		}
 		else
@@ -554,13 +559,13 @@ ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, 
 			curw += toadd;
 		}
 
-		comps[curr].push_back(new ComponentResolved(SComps[i]));
+		comps[curr].push_back(cur);
 	}
 
 	for(size_t i=0;i<comps.size();i++)
 	{
 		int maxh = 0;
-		for(size_t j=0;j<comps.size();j++)
+		for(size_t j=0;j<comps[i].size();j++)
 			amax(maxh,comps[i][j]->comp->pos.h);
 		h += maxh + BETWEEN_COMPS_ROWS;
 	}
@@ -575,7 +580,7 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 		{
 			ComponentResolved *cur = (comps)[i][j];
 			totalw += cur->comp->pos.w;
-			amax(maxh,cur->comp->pos.h);
+			amax(maxh,cur->comp->pos.h+BETWEEN_COMPS_ROWS);
 		}
 		if(_or)
 		{
@@ -594,7 +599,7 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 
 			//blit img
 			int hlp = curh-(cur->comp->pos.h)/2;
-			blitAt(cur->img,curw,hlp,ret);
+			blitAt(cur->img, curw + (cur->comp->pos.w - cur->comp->getImg()->w)/2, hlp, ret);
 			cur->comp->pos.x = curw;
 			cur->comp->pos.y = hlp;
 
@@ -603,7 +608,7 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 			CMessage::blitTextOnSur(cur->txt, hlp, ret, cur->comp->pos.x + cur->comp->pos.w/2 );
 
 			//if there is subsequent component blit "or"
-			curw += cur->img->w;
+			curw += cur->comp->pos.w;
 			if(j<((comps)[i].size()-1))
 			{
 				if(_or)
