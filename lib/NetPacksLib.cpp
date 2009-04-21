@@ -558,6 +558,14 @@ DLL_EXPORT void SpellCasted::applyGs( CGameState *gs )
 	{
 		gs->curB->castedSpells[side]++;
 	}
+	if(gs->curB && id == 35) //dispel
+	{
+		CStack *s = gs->curB->getStackT(tile);
+		if(s)
+		{
+			s->effects.clear(); //removing all effects
+		}
+	}
 }
 
 DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
@@ -567,14 +575,7 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			if(effect.id == 35) //dispel - removing all effects
-			{
-				s->effects.clear();
-			}
-			else //adding effect
-			{
-				s->effects.push_back(effect);
-			}
+			s->effects.push_back(effect); //adding effect
 		}
 		else
 			tlog1 << "Cannot find stack " << id << std::endl;

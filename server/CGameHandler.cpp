@@ -2281,42 +2281,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			//TODO: check resistances
 
-#define SPELL_CAST_TEMPLATE_1(NUMBER, DURATION) SetStackEffect sse; \
-			if(h->getSpellSchoolLevel(s) < 3)  /*not expert */ \
-			{ \
-				sse.stacks.insert(gs->curB->getStackT(ba.destinationTile)->ID); \
-				sse.effect.id = (NUMBER); \
-				sse.effect.level = h->getSpellSchoolLevel(s); \
-				sse.effect.turnsRemain = (DURATION); /*! - any duration */ \
-				sendAndApply(&sse); \
-			} \
-			else \
-			{ \
-				for(int it=0; it<gs->curB->stacks.size(); ++it) \
-				{ \
-					/*if it's non negative spell and our unit or non positive spell and hostile unit */ \
-					if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner) \
-						||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner ) \
-						) \
-					{ \
-						sse.stacks.insert(gs->curB->stacks[it]->ID); \
-					} \
-				} \
-				sse.effect.id = (NUMBER); \
-				sse.effect.level = h->getSpellSchoolLevel(s); \
-				sse.effect.turnsRemain = (DURATION); \
-				sendAndApply(&sse); \
-			}
-
-#define SPELL_CAST_TEMPLATE_2(EFFECT_ID, DAMAGE) std::set<ui16> attackedHexes = s->rangeInHexes(ba.destinationTile, h->getSpellSchoolLevel(s)); \
-					std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/ \
-					for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it) \
-					{ \
-						CStack * st = gs->curB->getStackT(*it); \
-						if(st) \
-							attackedCres.insert(st); \
-					} \
-					if(attackedCres.size() == 0) break; \
+#define SPELL_CAST_TEMPLATE_2(EFFECT_ID, DAMAGE) \
 					StacksInjured si; \
 					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it) \
 					{ \
@@ -2336,6 +2301,49 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			sc.skill = skill;
 			sc.tile = ba.destinationTile;
 			sendAndApply(&sc);
+
+			//calculating affected creatures - not for all spells, but for many of them
+			//it should spoil anything for other spells
+			std::set<ui16> attackedHexes = s->rangeInHexes(ba.destinationTile, h->getSpellSchoolLevel(s));
+			std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/
+			if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
+			{
+				CStack * st = gs->curB->getStackT(ba.destinationTile);
+				if(st)
+					attackedCres.insert(st);
+			}
+			else if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+			{
+				if(h->getSpellSchoolLevel(s) < 3)  /*not expert */
+				{
+					CStack * st = gs->curB->getStackT(ba.destinationTile);
+					if(st)
+						attackedCres.insert(st);
+				}
+				else
+				{
+					for(int it=0; it<gs->curB->stacks.size(); ++it)
+					{
+						/*if it's non negative spell and our unit or non positive spell and hostile unit */
+						if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
+							||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
+							)
+						{
+							attackedCres.insert(gs->curB->stacks[it]);
+						}
+					}
+				} //if(h->getSpellSchoolLevel(s) < 3)
+			}
+			else //custom range from attackedHexes
+			{
+				for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
+				{
+					CStack * st = gs->curB->getStackT(*it);
+						attackedCres.insert(st);
+				}
+			}
+			//affected creatures calculated
+			//applying effects
 			switch(ba.additionalInfo) //spell id
 			{
 			case 15: //magic arrow
@@ -2388,18 +2396,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 							attackedCres.insert(gs->curB->stacks[it]);
 					}
 					if(attackedCres.size() == 0) break;
-					StacksInjured si;
-					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-					{
-						BattleStackAttacked bsa;
-						bsa.flags |= 2;
-						bsa.effect = 8;
-						bsa.damageAmount = h->getPrimSkillLevel(2) * 5  +  s->powers[h->getSpellSchoolLevel(s)]; 
-						bsa.stackAttacked = (*it)->ID;
-						prepareAttacked(bsa,*it);
-						si.stacks.insert(bsa);
-					}
-					sendAndApply(&si);
+					SPELL_CAST_TEMPLATE_2(8, h->getPrimSkillLevel(2) * 5  +  s->powers[h->getSpellSchoolLevel(s)]);
 					break;
 				}
 			case 25: //destroy undead
@@ -2412,18 +2409,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 							attackedCres.insert(gs->curB->stacks[it]);
 					}
 					if(attackedCres.size() == 0) break;
-					StacksInjured si;
-					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-					{
-						BattleStackAttacked bsa;
-						bsa.flags |= 2;
-						bsa.effect = 29;
-						bsa.damageAmount = h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]; 
-						bsa.stackAttacked = (*it)->ID;
-						prepareAttacked(bsa,*it);
-						si.stacks.insert(bsa);
-					}
-					sendAndApply(&si);
+					SPELL_CAST_TEMPLATE_2(29, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
 					break;
 				}
 			case 26: //armageddon
@@ -2435,28 +2421,17 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 						attackedCres.insert(gs->curB->stacks[it]);
 					}
 					if(attackedCres.size() == 0) break;
-					StacksInjured si;
-					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-					{
-						BattleStackAttacked bsa;
-						bsa.flags |= 2;
-						bsa.effect = 12;
-						bsa.damageAmount = h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]; 
-						bsa.stackAttacked = (*it)->ID;
-						prepareAttacked(bsa,*it);
-						si.stacks.insert(bsa);
-					}
-					sendAndApply(&si);
+					SPELL_CAST_TEMPLATE_2(12, h->getPrimSkillLevel(2) * 50  +  s->powers[h->getSpellSchoolLevel(s)]);
 					break;
 				}
 			case 27: //shield 
 			case 28: //air shield
-			case 35: //dispel
 			case 41: //bless
 			case 42: //curse
 			case 43: //bloodlust
 			case 45: //weakness
 			case 46: //stone skin
+			case 47: //disrupting ray
 			case 48: //prayer
 			case 49: //mirth
 			case 50: //sorrow
@@ -2466,13 +2441,29 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 54: //slow
 			case 61: //forgetfulness
 				{
-					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, h->getPrimSkillLevel(2) + h->valOfBonuses(HeroBonus::SPELL_DURATION) )
-						break;
+					SetStackEffect sse;
+					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+					{
+						sse.stacks.insert((*it)->ID);
+					}
+					sse.effect.id = ba.additionalInfo;
+					sse.effect.level = h->getSpellSchoolLevel(s);
+					sse.effect.turnsRemain = h->getPrimSkillLevel(2) + h->valOfBonuses(HeroBonus::SPELL_DURATION);
+					sendAndApply(&sse);
+					break;
 				}
 			case 56: //frenzy
 				{
-					SPELL_CAST_TEMPLATE_1(ba.additionalInfo, 1)
-						break;
+					SetStackEffect sse;
+					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+					{
+						sse.stacks.insert((*it)->ID);
+					}
+					sse.effect.id = ba.additionalInfo;
+					sse.effect.level = h->getSpellSchoolLevel(s);
+					sse.effect.turnsRemain = 1;
+					sendAndApply(&sse);
+					break;
 				}
 			}
 			sendAndApply(&EndAction());

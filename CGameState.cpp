@@ -486,6 +486,17 @@ const CStack::StackEffect * CStack::getEffect(ui16 id) const
 	return NULL;
 }
 
+ui8 CStack::howManyEffectsSet(ui16 id) const
+{
+	ui8 ret = 0;
+	for (int i=0; i< effects.size(); i++)
+		if(effects[i].id == id) //effect found
+		{
+			++ret;
+		}
+	return ret;
+}
+
 si8 CStack::Morale() const
 {
 	si8 ret = morale;
@@ -1697,7 +1708,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	//calculating total attack/defense skills modifier
 	if(attacker->getEffect(56)) //frenzy for attacker
 	{
-		attackerAttackBonus += (VLC->spellh->spells[attacker->getEffect(56)->id].powers[attacker->getEffect(56)->level]/100.0) *(attacker->creature->defence + (attackerHero ? attackerHero->getPrimSkillLevel(1) : 0));
+		attackerAttackBonus += (VLC->spellh->spells[56].powers[attacker->getEffect(56)->level]/100.0) *(attacker->creature->defence + (attackerHero ? attackerHero->getPrimSkillLevel(1) : 0));
 	}
 	if(defender->getEffect(56)) //frenzy for defender
 	{
@@ -1706,23 +1717,28 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	attackDefenseBonus = attackerAttackBonus - defenderDefenseBonus;
 	if(defender->getEffect(48)) //defender's prayer handling
 	{
-		attackDefenseBonus -= VLC->spellh->spells[defender->getEffect(48)->id].powers[defender->getEffect(48)->level];
+		attackDefenseBonus -= VLC->spellh->spells[48].powers[defender->getEffect(48)->level];
 	}
 	if(attacker->getEffect(48)) //attacker's prayer handling
 	{
-		attackDefenseBonus += VLC->spellh->spells[attacker->getEffect(48)->id].powers[attacker->getEffect(48)->level];
+		attackDefenseBonus += VLC->spellh->spells[48].powers[attacker->getEffect(48)->level];
+	}
+	if(defender->getEffect(47)) //defender's disrupting ray handling
+	{
+		int howMany = defender->howManyEffectsSet(47);
+		attackDefenseBonus +=  VLC->spellh->spells[47].powers[attacker->getEffect(47)->level] * howMany;
 	}
 	if(defender->getEffect(46)) //stone skin handling
 	{
-		attackDefenseBonus -= VLC->spellh->spells[defender->getEffect(46)->id].powers[defender->getEffect(46)->level];
+		attackDefenseBonus -= VLC->spellh->spells[46].powers[defender->getEffect(46)->level];
 	}
 	if(attacker->getEffect(45)) //weakness handling
 	{
-		attackDefenseBonus -= VLC->spellh->spells[attacker->getEffect(45)->id].powers[attacker->getEffect(45)->level];
+		attackDefenseBonus -= VLC->spellh->spells[45].powers[attacker->getEffect(45)->level];
 	}
 	if(!shooting && attacker->getEffect(43)) //bloodlust handling
 	{
-		attackDefenseBonus += VLC->spellh->spells[attacker->getEffect(43)->id].powers[attacker->getEffect(43)->level];
+		attackDefenseBonus += VLC->spellh->spells[43].powers[attacker->getEffect(43)->level];
 	}
 
 	float dmgBonusMultiplier = 1.0f;
@@ -1828,12 +1844,12 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 
 	if(attacker->getEffect(42)) //curse handling (rest)
 	{
-		minDmg -= VLC->spellh->spells[attacker->getEffect(42)->id].powers[attacker->getEffect(42)->level];
+		minDmg -= VLC->spellh->spells[42].powers[attacker->getEffect(42)->level];
 		return minDmg;
 	}
 	else if(attacker->getEffect(41)) //bless handling
 	{
-		maxDmg += VLC->spellh->spells[attacker->getEffect(41)->id].powers[attacker->getEffect(41)->level];
+		maxDmg += VLC->spellh->spells[41].powers[attacker->getEffect(41)->level];
 		return maxDmg;
 	}
 	else

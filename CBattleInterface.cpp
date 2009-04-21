@@ -273,6 +273,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	spellToEffect[43] = 4; //bloodlust
 	spellToEffect[45] = 56; //weakness
 	spellToEffect[46] = 54; //stone skin
+	spellToEffect[47] = 14; //disrupting ray
 	spellToEffect[48] = 0; //prayer
 	spellToEffect[49] = 20; //mirth
 	spellToEffect[50] = 30; //sorrow
@@ -1862,7 +1863,9 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			SDL_SetClipRect(screen, &buf); //restoring previous clip rect
 			break; //for 15 and 16 cases
 		}
-	}
+	case 35: //dispel
+		displayEffect(spellToEffect[sc->id], sc->tile);
+	} //switch(sc->id)
 }
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
