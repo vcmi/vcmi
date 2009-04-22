@@ -11,6 +11,7 @@
 #include "../lib/VCMI_Lib.h"
 #include "../map.h"
 #include "../hch/CSpellHandler.h"
+#include "../hch/CSoundBase.h"
 #include "../mapHandler.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
@@ -265,7 +266,7 @@ void InfoWindow::applyCl( CClient *cl )
 	std::string str = toString(text);
 
 	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showInfoDialog(str,comps);
+		cl->playerint[player]->showInfoDialog(str,comps,(soundBase::soundNames)soundID);
 	else
 		tlog2 << "We received InfoWindow for not our player...\n";
 }
@@ -284,7 +285,7 @@ void BlockingDialog::applyCl( CClient *cl )
 {
 	std::string str = toString(text);
 	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showBlockingDialog(str,components,id,selection(),cancel());
+		cl->playerint[player]->showBlockingDialog(str,components,id,(soundBase::soundNames)soundID,selection(),cancel());
 	else
 		tlog2 << "We received YesNoDialog for not our player...\n";
 }

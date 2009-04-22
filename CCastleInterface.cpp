@@ -271,12 +271,12 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 				{
 					std::string tmp = CGI->generaltexth->allTexts[18]; //You already have %d adventuring heroes under your command.
 					boost::algorithm::replace_first(tmp,"%d",boost::lexical_cast<std::string>(LOCPLINT->cb->howManyHeroes(false)));
-					LOCPLINT->showInfoDialog(tmp,std::vector<SComponent*>());
+					LOCPLINT->showInfoDialog(tmp,std::vector<SComponent*>(), soundBase::sound_todo);
 					allow = false;
 				}
 				else if(!other->hero->army.slots.size()) //hero has no creatures - strange, but if we have appropriate error message...
 				{
-					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19],std::vector<SComponent*>()); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
+					LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[19],std::vector<SComponent*>(), soundBase::sound_todo); //This hero has no creatures.  A hero must have creatures before he can brave the dangers of the countryside.
 					allow = false;
 				}
 			}
@@ -523,7 +523,7 @@ void CCastleInterface::buildingClicked(int building)
 				{
 					if(LOCPLINT->cb->getResourceAmount(6) < 500) //not enough gold to buy spellbook
 					{
-						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213],std::vector<SComponent*>());
+						LOCPLINT->showInfoDialog(CGI->generaltexth->allTexts[213],std::vector<SComponent*>(), soundBase::sound_todo);
 					}
 					else
 					{
@@ -563,7 +563,7 @@ void CCastleInterface::buildingClicked(int building)
 			}
 		case 15: //resource silo
 			{
-				LOCPLINT->showInfoDialog(CGI->buildh->buildings[town->subID][15]->description,std::vector<SComponent*>());
+				LOCPLINT->showInfoDialog(CGI->buildh->buildings[town->subID][15]->description,std::vector<SComponent*>(), soundBase::sound_todo);
 				break;
 			}
 		case 16: //blacksmith
@@ -573,7 +573,7 @@ void CCastleInterface::buildingClicked(int building)
 				{
 					std::string pom = CGI->generaltexth->allTexts[273];
 					boost::algorithm::replace_first(pom,"%s",CGI->buildh->buildings[town->subID][16]->Name());
-					LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>());
+					LOCPLINT->showInfoDialog(pom,std::vector<SComponent*>(), soundBase::sound_todo);
 					return;
 				}
 				int aid = town->town->warMachine;
@@ -1535,7 +1535,7 @@ void CMageGuildScreen::Scroll::clickLeft (tribool down)
 		std::vector<SComponent*> comps(1,
 			new CCustomImgComponent(SComponent::spell,spell->id,0,graphics->spellscr->ourImages[spell->id].bitmap,false)
 		);
-		LOCPLINT->showInfoDialog(spell->descriptions[0],comps);
+		LOCPLINT->showInfoDialog(spell->descriptions[0],comps, soundBase::sound_todo);
 	}
 }
 

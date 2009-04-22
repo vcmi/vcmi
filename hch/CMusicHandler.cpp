@@ -1,4 +1,11 @@
 #include "../stdafx.h"
+
+#include <boost/assign/std/vector.hpp> 
+#include <boost/assign/list_of.hpp>
+
+#include <SDL_mixer.h>
+
+#include "CSndHandler.h"
 #include "CMusicHandler.h"
 
 /*
@@ -11,16 +18,24 @@
  *
  */
 
+using namespace boost::assign;
+
 void CMusicHandler::initMusics()
 {
-	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 4096)==-1)
+	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
 	{
 		printf("Mix_OpenAudio error: %s!!!\n", Mix_GetError());
-		//exit(2);
-		sndh = NULL;
 		return;
 	}
 	atexit(Mix_CloseAudio);
+
+	// Map sound names
+#define VCMI_SOUND_NAME(x) ( soundBase::x,
+#define VCMI_SOUND_FILE(y) cachedSounds(#y, 0) )
+	sounds = boost::assign::map_list_of
+		VCMI_SOUND_LIST;
+#undef VCMI_SOUND_NAME
+#undef VCMI_SOUND_FILE
 
 	//AITheme0 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITheme0.mp3");
 	//AITheme1 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITHEME1.mp3");
@@ -65,46 +80,60 @@ void CMusicHandler::initMusics()
 	//winBattle = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Win Battle.mp3");
 	//winScenario = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Win Scenario.mp3");
 
-	click = Mix_LoadWAV(DATA_DIR "MP3" PATHSEPARATOR "snd1.wav");
-	if(!click) 
-		tlog1 << "Cannot open " DATA_DIR "MP3" PATHSEPARATOR "snd1.wav\n";
-	else
-		click->volume = 30;
-
-	this->sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
+	// Map sounds
+	sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
 }
 
-void CMusicHandler::playClick()
+// Return an SDL chunk. Allocate if it is not cached yet.
+Mix_Chunk *CMusicHandler::GetSoundChunk(std::string srcName)
 {
-	if(!sndh) return;
-	int channel;
-	channel = Mix_PlayChannel(-1, click, 0);
-	if(channel == -1)
-	{
-		fprintf(stderr, "Unable to play WAV file: %s\n", Mix_GetError());
-	}
-}
-
-void CMusicHandler::playLodSnd(std::string sndname)
-{
-	if(!sndh) return;
 	int size;
-	const unsigned char *data;
+	const char *data = sndh->extract(srcName, size);
 	SDL_RWops *ops;
 	Mix_Chunk *chunk;
-	int channel;
 
-	if ((data = reinterpret_cast<const unsigned char*>(sndh->extract(sndname, size))) == NULL)
-		return;
+	if (!data)
+		return NULL;
 
 	ops = SDL_RWFromConstMem(data, size);
-	chunk = Mix_LoadWAV_RW(ops, 1);
+	chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
-	channel = Mix_PlayChannel(-1, chunk, 0);
-	if(channel == -1)
-	{
-		fprintf(stderr, "Unable to play WAV file("DATA_DIR "Data" PATHSEPARATOR "Heroes3.wav::%s): %s\n",
-			sndname.c_str(),Mix_GetError());
+	if (!chunk)
+		fprintf(stderr, "Unable to mix: %s\n",
+				Mix_GetError());
+
+	return chunk;
+}
+  
+// Plays a sound, and return its channel so we can fade it out later
+int CMusicHandler::playSound(soundBase::soundNames soundID)
+{
+	int channel;
+
+	if (!sndh)
+		return -1;
+
+	std::map<soundBase::soundNames, cachedSounds>::iterator it;
+
+	it = sounds.find(soundID);
+	if (it == sounds.end())
+		return -1;
+
+	class cachedSounds sound = it->second;
+
+	if (!sound.chunk) {
+		sound.chunk = GetSoundChunk(sound.filename);
 	}
-	ops->close(ops);
+
+	if (sound.chunk)
+	{
+		channel = Mix_PlayChannel(-1, sound.chunk, 0);
+		if(channel == -1)
+		{
+			fprintf(stderr, "Unable to play WAV file("DATA_DIR "Data" PATHSEPARATOR "Heroes3.wav::%s): %s\n",
+					sound.filename.c_str(),Mix_GetError());
+		}
+	}
+
+	return channel;
 }

@@ -13,6 +13,7 @@
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
 #include "CArtHandler.h"
+#include "CSoundBase.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/IGameCallback.h"
 #include "../CGameState.h"
@@ -1092,6 +1093,7 @@ void CGVisitableOPH::onNAHeroVisit(int heroID, bool alreadyVisited) const
 				iw.components.push_back(Component(id,subid,val,0));
 				iw.player = cb->getOwner(heroID);
 				iw.text << std::pair<ui8,ui32>(11,ot);
+				iw.soundID = soundBase::gazebo;
 				cb->showInfoDialog(&iw);
 				cb->changePrimSkill(heroID,4,val);
 				break;
@@ -1962,6 +1964,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				sd.text << std::pair<ui8,ui32>(11,146);
 				sd.components.push_back(Component(2,6,val1,0));
 				sd.components.push_back(Component(5,0,val2,0));
+				sd.soundID = soundBase::chest;
 				boost::function<void(ui32)> fun = boost::bind(&CGPickable::chosen,this,_1,h->id);
 				cb->showBlockingDialog(&sd,fun);
 				return;
@@ -2061,6 +2064,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case 14: //swan pond
 		messageID = 29;
+		iw.soundID = soundBase::faerie;
 		gbonus.bonus.type = HeroBonus::LUCK;
 		gbonus.bonus.val = 2;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,67);
@@ -2104,6 +2108,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case 96: //temple
 		messageID = 140;
+		iw.soundID = soundBase::temple;
 		gbonus.bonus.type = HeroBonus::MORALE;
 		if(cb->getDate(1)==7) //sunday
 		{

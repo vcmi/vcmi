@@ -526,12 +526,16 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 	MetaString text;
 	std::vector<Component> components;
 	ui8 player;
+	ui16 soundID;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & text & components & player;
+		h & text & components & player & soundID;
 	}
-	InfoWindow(){type = 103;};
+	InfoWindow() { 
+		type = 103;
+		soundID = 0; 
+	};
 };
 
 struct SetObjectProperty : public CPackForClient//1001
@@ -594,6 +598,7 @@ struct BlockingDialog : public Query//2003
 	std::vector<Component> components;
 	ui8 player;
 	ui8 flags;
+	ui16 soundID;
 
 	bool cancel() const
 	{
@@ -608,6 +613,7 @@ struct BlockingDialog : public Query//2003
 	{
 		type = 2003;
 		flags = 0;
+		soundID = 0;
 		if(yesno) flags |= ALLOW_CANCEL;
 		if(Selection) flags |= SELECTION;
 	}
@@ -615,11 +621,12 @@ struct BlockingDialog : public Query//2003
 	{
 		type = 2003;
 		flags = 0;
+		soundID = 0;
 	};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & text & components & player & flags;
+		h & id & text & components & player & flags & soundID;
 	}
 };
 

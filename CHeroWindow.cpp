@@ -855,7 +855,7 @@ void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
 {
 	if(!down && pressedL)
 	{
-		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>());
+		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(), soundBase::sound_todo);
 	}
 	ClickableL::clickLeft(down);
 }
@@ -901,7 +901,7 @@ void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
 	if((!down) && pressedL)
 	{
 		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonus));
-		LOCPLINT->showInfoDialog(text, comp);
+		LOCPLINT->showInfoDialog(text, comp, soundBase::sound_todo);
 	}
 	ClickableL::clickLeft(down);
 }

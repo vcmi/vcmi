@@ -1173,7 +1173,15 @@ void CPlayerInterface::yourTurn()
 			graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hh[i]->subID,pom));
 		}
 
-		adventureInt->infoBar.newDay(cb->getDate(1));
+		/* TODO: This isn't quite right. First day in game should play
+		 * NEWDAY. And we don't play NEWMONTH. */
+		int day = cb->getDate(1);
+		if (day != 1)
+			CGI->mush->playSound(soundBase::newDay);
+		else
+			CGI->mush->playSound(soundBase::newWeek);
+
+		adventureInt->infoBar.newDay(day);
 
 		//select first hero if available.
 		//TODO: check if hero is slept
@@ -2071,6 +2079,9 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 		while(showingDialog->data)
 			showingDialog->cond.wait(un);
 	}
+
+	CGI->mush->playSound(soundBase::heroNewLevel);
+
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
 	LOCPLINT->pushInt(lw);
@@ -2170,6 +2181,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 	switch(what)
 	{
 	case 1:
+		CGI->mush->playSound(soundBase::newBuilding);
 		castleInt->addBuilding(buildingID);
 		break;
 	case 2:
@@ -2394,15 +2406,15 @@ void CPlayerInterface::showComp(SComponent comp)
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, soundBase::soundNames soundID)
 {
 	std::vector<SComponent*> intComps;
 	for(int i=0;i<components.size();i++)
 		intComps.push_back(new SComponent(*components[i]));
-	showInfoDialog(text,intComps);
+	showInfoDialog(text,intComps,soundID);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, soundBase::soundNames soundID)
 {
 	{
 		boost::unique_lock<boost::mutex> un(showingDialog->mx);
@@ -2421,6 +2433,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 	if(makingTurn && listInt.size())
 	{
+		CGI->mush->playSound(soundID);
 		showingDialog->set(true);
 		pushInt(temp);
 	}
@@ -2447,10 +2460,11 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 	LOCPLINT->pushInt(temp);
 }
 
-void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, bool selection, bool cancel )
+void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, soundBase::soundNames soundID, bool selection, bool cancel )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
+	CGI->mush->playSound(soundID);
 
 	if(!selection && cancel) //simple yes/no dialog
 	{

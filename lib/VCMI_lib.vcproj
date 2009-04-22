@@ -397,6 +397,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CSoundBase.h"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CSpellHandler.h"
 				>
 			</File>
