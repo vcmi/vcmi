@@ -42,6 +42,10 @@ public:
 
 	// Sounds
 	int playSound(soundBase::soundNames soundID); // plays sound wavs from Heroes3.snd
+	int playSoundFromSet(std::vector<soundBase::soundNames> &sound_vec);
+
+	// Sets
+	std::vector<soundBase::soundNames> pickup_sounds;
 };
 
 #endif // __CMUSICHANDLER_H__

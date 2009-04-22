@@ -37,6 +37,10 @@ void CMusicHandler::initMusics()
 #undef VCMI_SOUND_NAME
 #undef VCMI_SOUND_FILE
 
+	// Vectors for helper(s)
+	pickup_sounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
+		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07;
+
 	//AITheme0 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITheme0.mp3");
 	//AITheme1 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITHEME1.mp3");
 	//AITheme2 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITHEME2.mp3");
@@ -80,7 +84,7 @@ void CMusicHandler::initMusics()
 	//winBattle = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Win Battle.mp3");
 	//winScenario = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Win Scenario.mp3");
 
-	// Map sounds
+	// Load sounds
 	sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
 }
 
@@ -136,4 +140,10 @@ int CMusicHandler::playSound(soundBase::soundNames soundID)
 	}
 
 	return channel;
+}
+
+// Helper. Randomly select a sound from an array and play it
+int CMusicHandler::playSoundFromSet(std::vector<soundBase::soundNames> &sound_vec)
+{
+	return playSound(sound_vec[rand() % sound_vec.size()]);
 }

@@ -2403,6 +2403,9 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 void CPlayerInterface::showComp(SComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+
+	CGI->mush->playSoundFromSet(CGI->mush->pickup_sounds);
+
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
