@@ -255,6 +255,7 @@ void CSpellHandler::loadSpells()
 		nsp.id = spells.size();
 		nsp.combatSpell = combSpells;
 		nsp.creatureAbility = creatureAbility;
+		nsp.mainEffectAnim = -1;
 		spells.push_back(nsp);
 	}
 	//loading of additional spell traits
@@ -268,15 +269,18 @@ void CSpellHandler::loadSpells()
 	{
 		//reading header
 		std::string dump;
-		for(int i=0; i<52; ++i) ast>>dump;
+		for(int i=0; i<60; ++i) ast>>dump;
 		//reading exact info
 		int spellID;
 		ast>>spellID;
 		while(spellID != -1)
 		{
 			int buf;
-			ast>>buf;
+			ast >> buf;
 			spells[spellID].positiveness = buf;
+			ast >> buf;
+			spells[spellID].mainEffectAnim = buf;
+
 			spells[spellID].range.resize(4);
 			for(int g=0; g<4; ++g)
 				ast>>spells[spellID].range[g];

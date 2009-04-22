@@ -165,7 +165,6 @@ private:
 	std::map< int, CDefHandler * > idToProjectile; //projectiles of creaures (creatureID, defhandler)
 	std::map< int, CDefHandler * > idToObstacle; //obstacles located on the battlefield
 	std::map< int, bool > creDir; // <creatureID, if false reverse creature's animation>
-	std::map< int, int > spellToEffect; //which effect should be played when different spells are casted (spellID, effectID)
 	unsigned char animCount;
 	int activeStack; //number of active stack; -1 - no one
 	int mouseHoveredStack; //stack hovered by mouse; if -1 -> none

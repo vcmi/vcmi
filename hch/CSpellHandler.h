@@ -38,12 +38,12 @@ public:
 	si8 positiveness; //1 if spell is positive for influenced stacks, 0 if it is indifferent, -1 if it's negative
 	std::vector<std::string> range; //description of spell's range in SRSL by magic school level
 	std::set<ui16> rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const; //convert range to specific hexes
-
+	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & id & name & abbName & descriptions & level & earth & water & fire & air & power & costs 
-			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range;
+			& powers & probabilities & AIVals & attributes & combatSpell & creatureAbility & positiveness & range & mainEffectAnim;
 	}
 };
 

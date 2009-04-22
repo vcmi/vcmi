@@ -261,28 +261,6 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 			SDL_SetColorKey(idToObstacle[obst[t].ID]->ourImages[n].bitmap, SDL_SRCCOLORKEY, SDL_MapRGB(idToObstacle[obst[t].ID]->ourImages[n].bitmap->format,0,255,255));
 		}
 	}
-
-	//initializing spellToEffect
-	spellToEffect[17] = 1; //lightning bolt
-	spellToEffect[18] = 10; //implosion
-	spellToEffect[27] = 27; //shield
-	spellToEffect[28] = 2; //air shield
-	spellToEffect[35] = 41; //dispel
-	spellToEffect[41] = 36; //bless
-	spellToEffect[42] = 40; //curse
-	spellToEffect[43] = 4; //bloodlust
-	spellToEffect[45] = 56; //weakness
-	spellToEffect[46] = 54; //stone skin
-	spellToEffect[47] = 14; //disrupting ray
-	spellToEffect[48] = 0; //prayer
-	spellToEffect[49] = 20; //mirth
-	spellToEffect[50] = 30; //sorrow
-	spellToEffect[51] = 18; //fortune
-	spellToEffect[52] = 48; //misfortune
-	spellToEffect[53] = 31; //haste
-	spellToEffect[54] = 19; //slow
-	spellToEffect[56] = 17; //frenzy
-	spellToEffect[61] = 42; //forgetfulness
 }
 
 CBattleInterface::~CBattleInterface()
@@ -1863,8 +1841,11 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 			SDL_SetClipRect(screen, &buf); //restoring previous clip rect
 			break; //for 15 and 16 cases
 		}
+	case 17: //lightning bolt
+		displayEffect(1, sc->tile);
+		displayEffect(CGI->spellh->spells[sc->id].mainEffectAnim, sc->tile);
 	case 35: //dispel
-		displayEffect(spellToEffect[sc->id], sc->tile);
+		displayEffect(CGI->spellh->spells[sc->id].mainEffectAnim, sc->tile);
 	} //switch(sc->id)
 }
 
@@ -1872,7 +1853,7 @@ void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)
 {
 	for(std::set<ui32>::const_iterator ci = sse.stacks.begin(); ci!=sse.stacks.end(); ++ci)
 	{
-		displayEffect(spellToEffect[sse.effect.id], LOCPLINT->cb->battleGetStackByID(*ci)->position);
+		displayEffect(CGI->spellh->spells[sse.effect.id].mainEffectAnim, LOCPLINT->cb->battleGetStackByID(*ci)->position);
 	}
 	redrawBackgroundWithHexes(activeStack);
 }

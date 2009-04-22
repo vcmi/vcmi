@@ -2246,6 +2246,81 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
+ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature)
+{
+	ui32 ret = 0; //value to return
+	switch(sp->id)
+	{
+		case 15: //magic arrow
+			{
+				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 16: //ice bolt
+			{
+				ret = caster->getPrimSkillLevel(2) * 20  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 17: //lightning bolt
+			{
+				ret = caster->getPrimSkillLevel(2) * 25  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 18: //implosion
+			{
+				ret = caster->getPrimSkillLevel(2) * 75  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 20: //frost ring
+			{
+				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 21: //fireball
+			{
+				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 22: //inferno
+			{
+				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 23: //meteor shower
+			{
+				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 24: //death ripple
+			{
+				ret = caster->getPrimSkillLevel(2) * 5  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 25: //destroy undead
+			{
+				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+		case 26: //armageddon
+			{
+				ret = caster->getPrimSkillLevel(2) * 50  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+			}
+	}
+	//applying protections - when spell has more then one elements, only one protection should be applied (I think)
+	if(sp->air && affectedCreature->getEffect(30)) //air spell & protection from air
+	{
+		ret *= VLC->spellh->spells[30].powers[affectedCreature->getEffect(30)->level];
+		ret /= 100;
+	}
+	else if(sp->fire && affectedCreature->getEffect(31)) //fire spell & protection from fire
+	{
+		ret *= VLC->spellh->spells[31].powers[affectedCreature->getEffect(31)->level];
+		ret /= 100;
+	}
+	else if(sp->water && affectedCreature->getEffect(32)) //water spell & protection from water
+	{
+		ret *= VLC->spellh->spells[32].powers[affectedCreature->getEffect(32)->level];
+		ret /= 100;
+	}
+	else if (sp->earth && affectedCreature->getEffect(33)) //earth spell & protection from earth
+	{
+		ret *= VLC->spellh->spells[33].powers[affectedCreature->getEffect(33)->level];
+		ret /= 100;
+	}
+
+	return ret;
+}
+
 bool CGameHandler::makeCustomAction( BattleAction &ba )
 {
 	switch(ba.actionType)
@@ -2281,14 +2356,14 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			//TODO: check resistances
 
-#define SPELL_CAST_TEMPLATE_2(EFFECT_ID, DAMAGE) \
+#define SPELL_CAST_TEMPLATE_2 \
 					StacksInjured si; \
 					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it) \
 					{ \
 						BattleStackAttacked bsa; \
 						bsa.flags |= 2; \
-						bsa.effect = EFFECT_ID; \
-						bsa.damageAmount = DAMAGE;  \
+						bsa.effect = VLC->spellh->spells[ba.additionalInfo].mainEffectAnim; \
+						bsa.damageAmount = calculateSpellDmg(&VLC->spellh->spells[ba.additionalInfo], h, *it);  \
 						bsa.stackAttacked = (*it)->ID; \
 						prepareAttacked(bsa,*it); \
 						si.stacks.insert(bsa); \
@@ -2306,13 +2381,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			//it should spoil anything for other spells
 			std::set<ui16> attackedHexes = s->rangeInHexes(ba.destinationTile, h->getSpellSchoolLevel(s));
 			std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/
-			if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
-			{
-				CStack * st = gs->curB->getStackT(ba.destinationTile);
-				if(st)
-					attackedCres.insert(st);
-			}
-			else if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+			if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 			{
 				if(h->getSpellSchoolLevel(s) < 3)  /*not expert */
 				{
@@ -2334,11 +2403,18 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					}
 				} //if(h->getSpellSchoolLevel(s) < 3)
 			}
+			else if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
+			{
+				CStack * st = gs->curB->getStackT(ba.destinationTile);
+				if(st)
+					attackedCres.insert(st);
+			}
 			else //custom range from attackedHexes
 			{
 				for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
 				{
 					CStack * st = gs->curB->getStackT(*it);
+					if(st)
 						attackedCres.insert(st);
 				}
 			}
@@ -2347,43 +2423,15 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			switch(ba.additionalInfo) //spell id
 			{
 			case 15: //magic arrow
-				{
-					SPELL_CAST_TEMPLATE_2(64, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
-					break;
-				}
 			case 16: //ice bolt
-				{
-					SPELL_CAST_TEMPLATE_2(46, h->getPrimSkillLevel(2) * 20  +  s->powers[h->getSpellSchoolLevel(s)]);
-					break;
-				}
 			case 17: //lightning bolt
-				{
-					SPELL_CAST_TEMPLATE_2(38, h->getPrimSkillLevel(2) * 25  +  s->powers[h->getSpellSchoolLevel(s)]);
-					break;
-				}
 			case 18: //implosion
-				{
-					SPELL_CAST_TEMPLATE_2(10, h->getPrimSkillLevel(2) * 75  +  s->powers[h->getSpellSchoolLevel(s)]);
-					break;
-				}
 			case 20: //frost ring
-				{
-					SPELL_CAST_TEMPLATE_2(45, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
-					break;
-				}
 			case 21: //fireball
-				{
-					SPELL_CAST_TEMPLATE_2(53, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
-					break;
-				}
 			case 22: //inferno
-				{
-					SPELL_CAST_TEMPLATE_2(9, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
-					break;
-				}
 			case 23: //meteor shower
 				{
-					SPELL_CAST_TEMPLATE_2(16, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
+					SPELL_CAST_TEMPLATE_2;
 					break;
 				}
 			case 24: //death ripple
@@ -2396,7 +2444,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 							attackedCres.insert(gs->curB->stacks[it]);
 					}
 					if(attackedCres.size() == 0) break;
-					SPELL_CAST_TEMPLATE_2(8, h->getPrimSkillLevel(2) * 5  +  s->powers[h->getSpellSchoolLevel(s)]);
+					SPELL_CAST_TEMPLATE_2;
 					break;
 				}
 			case 25: //destroy undead
@@ -2409,7 +2457,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 							attackedCres.insert(gs->curB->stacks[it]);
 					}
 					if(attackedCres.size() == 0) break;
-					SPELL_CAST_TEMPLATE_2(29, h->getPrimSkillLevel(2) * 10  +  s->powers[h->getSpellSchoolLevel(s)]);
+					SPELL_CAST_TEMPLATE_2;
 					break;
 				}
 			case 26: //armageddon
@@ -2421,11 +2469,15 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 						attackedCres.insert(gs->curB->stacks[it]);
 					}
 					if(attackedCres.size() == 0) break;
-					SPELL_CAST_TEMPLATE_2(12, h->getPrimSkillLevel(2) * 50  +  s->powers[h->getSpellSchoolLevel(s)]);
+					SPELL_CAST_TEMPLATE_2;
 					break;
 				}
 			case 27: //shield 
 			case 28: //air shield
+			case 30: //protection from air
+			case 31: //protection from fire
+			case 32: //protection from water
+			case 33: //protection from earth
 			case 41: //bless
 			case 42: //curse
 			case 43: //bloodlust
