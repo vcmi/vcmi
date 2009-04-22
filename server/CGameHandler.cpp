@@ -2502,11 +2502,13 @@ void CGameHandler::handleTimeEvents()
 				{
 					if(ev->resources[i]) //if resource is changed, we add it to the dialog
 					{
+						// If removing too much ressources, adjust the
+						// amount so the total doesn't become negative.
+						if (sr.res[i] + ev->resources[i] < 0)
+							ev->resources[i] = -sr.res[i];
+
 						iw.components.push_back(Component(Component::RESOURCE,i,ev->resources[i],0));
 						sr.res[i] += ev->resources[i];
-						// Don't let resources becoming negative
-						if (sr.res[i] < 0)
-							sr.res[i] = 0;
 					}
 				}
 				if (iw.components.size())
