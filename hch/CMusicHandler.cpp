@@ -89,12 +89,12 @@ void CMusicHandler::playLodSnd(std::string sndname)
 {
 	if(!sndh) return;
 	int size;
-	unsigned char *data;
+	const unsigned char *data;
 	SDL_RWops *ops;
 	Mix_Chunk *chunk;
 	int channel;
 
-	if ((data = sndh->extract(sndname, size)) == NULL)
+	if ((data = reinterpret_cast<const unsigned char*>(sndh->extract(sndname, size))) == NULL)
 		return;
 
 	ops = SDL_RWFromConstMem(data, size);

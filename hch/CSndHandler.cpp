@@ -15,74 +15,75 @@ CSndHandler::~CSndHandler()
 {
 	entries.clear();
 	fimap.clear();
-	file.close();
+	mfile.close();
 }
-CSndHandler::CSndHandler(std::string fname):CHUNK(65535)
+
+// Analyze the sound file. Half of this could go away if we were using
+// a simple structure. However, some post treatment would be necessary: file
+// size and offsets are little endian, and filename have a NUL in
+// them. */
+CSndHandler::CSndHandler(std::string fname)
 {
-	file.open(fname.c_str(),std::ios::binary);
-	if (!file.is_open())
+	mfile.open(fname);
+	if (!mfile.is_open())
 	{
 		tlog1 << "Cannot open " << fname << std::endl;
 		throw std::string("Cannot open ")+fname;
 	}
-	int nr = readNormalNr(0,4);
-	char tempc;
-	for (int i=0;i<nr;i++)
+
+	const unsigned char *data = (const unsigned char *)mfile.data();
+
+	unsigned int numFiles = readNormalNr(&data[0]);
+
+	for (unsigned int i=0; i<numFiles; i++)
 	{
 		Entry entry;
-		while(true)
-		{
-			file.read(&tempc,1);
-			if (tempc)
-				entry.name+=tempc;
-			else break;
+		const unsigned char *p;
+
+		// Read file name and extension
+		p = &data[4+48*i];
+
+		while(*p) {
+			entry.name += *p;
+			p++;
 		}
+
 		entry.name+='.';
-		while(true)
+		p++;
+
+		while(*p)
 		{
-			file.read(&tempc,1);
-			if (tempc)
-				entry.name+=tempc;
-			else break;
+			entry.name += *p;
+			p++;
 		}
-		file.seekg(40-entry.name.length()-1,std::ios_base::cur);
-		entry.offset = readNormalNr(-1,4);
-		entry.size = readNormalNr(-1,4);
+
+		// Read offset and size
+		p = &data[4+48*i+40];
+		entry.offset = readNormalNr(p);
+
+		p += 4;
+		entry.size = readNormalNr(p);
+
 		entries.push_back(entry);
 		fimap[entry.name] = i;
 	}
 }
-int CSndHandler::readNormalNr (int pos, int bytCon)
+
+// Reads a 4 byte integer. Format on file is little endian.
+unsigned int CSndHandler::readNormalNr (const unsigned char *p)
 {
-	if (pos>=0)
-		file.seekg(pos,std::ios_base::beg);
-	int ret=0;
-	int amp=1;
-	unsigned char zcz=0;
-	for (int i=0; i<bytCon; i++)
-	{
-		file.read((char*)(&zcz),1);
-		ret+=zcz*amp;
-		amp*=256;
-	}
-	return ret;
+	return p[0] | (p[1] << 8) | (p[2] << 16) | (p[3] << 24);
 }
+
 void CSndHandler::extract(int index, std::string dstfile) //saves selected file
 {
 	std::ofstream out(dstfile.c_str(),std::ios_base::binary);
-	file.seekg(entries[index].offset,std::ios_base::beg);
-	int toRead=entries[index].size;
-	char * buffer = new char[std::min(CHUNK,entries[index].size)];
-	while (toRead>CHUNK)
-	{
-		file.read(buffer,CHUNK);
-		out.write(buffer,CHUNK);
-		toRead-=CHUNK;
-	}
-	file.read(buffer,toRead);
-	out.write(buffer,toRead);
+	const char *data = mfile.data();
+	
+	out.write(&data[entries[index].offset], entries[index].size);
 	out.close();
 }
+
 void CSndHandler::extract(std::string srcfile, std::string dstfile, bool caseSens) //saves selected file
 {
 	if (caseSens)
@@ -108,6 +109,9 @@ void CSndHandler::extract(std::string srcfile, std::string dstfile, bool caseSen
 		}
 	}
 }
+
+#if 0
+// unused and not sure what it's supposed to do
 MemberFile CSndHandler::getFile(std::string name)
 {
 	MemberFile ret;
@@ -129,16 +133,17 @@ MemberFile CSndHandler::getFile(std::string name)
 	}
 	return ret;
 }
-unsigned char * CSndHandler::extract (int index, int & size)
+#endif
+
+const char * CSndHandler::extract (int index, int & size)
 {
 	size = entries[index].size;
-	unsigned char * ret = new unsigned char[size];
-	file.seekg(entries[index].offset,std::ios_base::beg);
-	file.read((char*)ret,entries[index].size);
-	return ret;
+	const char *data = mfile.data();
+
+	return &data[entries[index].offset];
 }
 
-unsigned char * CSndHandler::extract (std::string srcName, int &size)
+const char * CSndHandler::extract (std::string srcName, int &size)
 {
 	int index;
 	std::map<std::string, int>::iterator fit;

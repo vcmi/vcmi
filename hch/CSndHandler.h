@@ -5,6 +5,8 @@
 #include <fstream>
 #include <map>
 
+#include <boost/iostreams/device/mapped_file.hpp>
+
 /*
  * CSndHandler.h, part of VCMI engine
  *
@@ -22,26 +24,27 @@ struct MemberFile
 };
 class CSndHandler
 {
-protected:
-	const int CHUNK;
+private:
 	struct Entry
 	{
 		std::string name;
-		int size, offset;
+		unsigned int size;
+		unsigned int offset;
 	};
-	std::ifstream file;
-	int readNormalNr (int pos, int bytCon);
-	bool opened;
+
+	inline unsigned int readNormalNr (const unsigned char *p);
+	boost::iostreams::mapped_file_source mfile;
+
 public:
 	std::vector<Entry> entries;
 	std::map<std::string, int> fimap; // map of wav file and index
 	~CSndHandler();
 	CSndHandler(std::string fname);
 	void extract(std::string srcfile, std::string dstfile, bool caseSens=true); //saves selected file
-	unsigned char * extract (std::string srcfile, int & size); //return selecte file data, NULL if file doesn't exist
+	const char * extract (std::string srcfile, int & size); //return selecte file data, NULL if file doesn't exist
 	void extract(int index, std::string dstfile); //saves selected file
 	MemberFile getFile(std::string name);//nie testowane - sprawdzic
-	unsigned char * extract (int index, int & size); //return selecte file - NIE TESTOWANE
+	const char * extract (int index, int & size); //return selecte file - NIE TESTOWANE
 };
 class CVidHandler
 {
