@@ -152,3 +152,8 @@ int CMusicHandler::playSoundFromSet(std::vector<soundBase::soundNames> &sound_ve
 {
 	return playSound(sound_vec[rand() % sound_vec.size()]);
 }
+
+void CMusicHandler::stopSound( int handler )
+{
+	Mix_HaltChannel(handler);
+}

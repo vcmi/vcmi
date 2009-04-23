@@ -2610,7 +2610,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 		} else
 #endif
 		{
-			newTerrain = CGI->mh->map->terrain[path.nodes[i].coord.x][path.nodes[i].coord.y][path.nodes[i].coord.z].tertype;
+			newTerrain = cb->getTileInfo(path.nodes[i].coord)->tertype;
 
 			if (newTerrain != currentTerrain) {
 				CGI->mush->stopSound(sh);

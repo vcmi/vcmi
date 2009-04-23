@@ -1,8 +1,6 @@
 #ifndef __CMUSICHANDLER_H__
 #define __CMUSICHANDLER_H__
 
-#include <SDL_mixer.h>
-
 #include "CSoundBase.h"
 
 /*
@@ -45,7 +43,7 @@ public:
 	// Sounds
 	int playSound(soundBase::soundNames soundID, int repeats=0);
 	int playSoundFromSet(std::vector<soundBase::soundNames> &sound_vec);
-	void stopSound(int handler) { Mix_HaltChannel(handler); };
+	void stopSound(int handler);
 
 	// Sets
 	std::vector<soundBase::soundNames> pickup_sounds;

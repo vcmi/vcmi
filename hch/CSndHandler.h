@@ -2,10 +2,9 @@
 #define __CSNDHANDLER_H__
 
 #include <vector>
-#include <fstream>
+#include <iosfwd>
 #include <map>
 
-#include <boost/iostreams/device/mapped_file.hpp>
 
 /*
  * CSndHandler.h, part of VCMI engine
@@ -16,6 +15,14 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
+
+namespace boost 
+{ 
+	namespace iostreams 
+	{
+		class mapped_file_source;
+	}
+}
 
 struct MemberFile
 {
@@ -33,7 +40,7 @@ private:
 	};
 
 	inline unsigned int readNormalNr (const unsigned char *p);
-	boost::iostreams::mapped_file_source mfile;
+	boost::iostreams::mapped_file_source *mfile;
 
 public:
 	std::vector<Entry> entries;

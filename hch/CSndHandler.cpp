@@ -1,5 +1,7 @@
 #include "../stdafx.h"
+#include <fstream>
 #include "CSndHandler.h"
+#include <boost/iostreams/device/mapped_file.hpp>
 
 /*
  * CSndHandler.cpp, part of VCMI engine
@@ -15,7 +17,8 @@ CSndHandler::~CSndHandler()
 {
 	entries.clear();
 	fimap.clear();
-	mfile.close();
+	mfile->close();
+	delete mfile;
 }
 
 // Analyze the sound file. Half of this could go away if we were using
@@ -24,14 +27,14 @@ CSndHandler::~CSndHandler()
 // them. */
 CSndHandler::CSndHandler(std::string fname)
 {
-	mfile.open(fname);
-	if (!mfile.is_open())
+	mfile = new boost::iostreams::mapped_file_source(fname);
+	if (!mfile->is_open())
 	{
 		tlog1 << "Cannot open " << fname << std::endl;
 		throw std::string("Cannot open ")+fname;
 	}
 
-	const unsigned char *data = (const unsigned char *)mfile.data();
+	const unsigned char *data = (const unsigned char *)mfile->data();
 
 	unsigned int numFiles = readNormalNr(&data[0]);
 
@@ -78,7 +81,7 @@ unsigned int CSndHandler::readNormalNr (const unsigned char *p)
 void CSndHandler::extract(int index, std::string dstfile) //saves selected file
 {
 	std::ofstream out(dstfile.c_str(),std::ios_base::binary);
-	const char *data = mfile.data();
+	const char *data = mfile->data();
 	
 	out.write(&data[entries[index].offset], entries[index].size);
 	out.close();
@@ -138,7 +141,7 @@ MemberFile CSndHandler::getFile(std::string name)
 const char * CSndHandler::extract (int index, int & size)
 {
 	size = entries[index].size;
-	const char *data = mfile.data();
+	const char *data = mfile->data();
 
 	return &data[entries[index].offset];
 }
