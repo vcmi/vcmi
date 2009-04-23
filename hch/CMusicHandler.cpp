@@ -40,6 +40,11 @@ void CMusicHandler::initMusics()
 	// Vectors for helper(s)
 	pickup_sounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07;
+	horseSounds +=  // must be the same order as terrains (see EtrrainType);
+		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,
+		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
+		soundBase::horseSubterranean, soundBase::horseLava,
+		soundBase::horseWater, soundBase::horseRock;
 
 	//AITheme0 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITheme0.mp3");
 	//AITheme1 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITHEME1.mp3");
@@ -110,7 +115,7 @@ Mix_Chunk *CMusicHandler::GetSoundChunk(std::string srcName)
 }
   
 // Plays a sound, and return its channel so we can fade it out later
-int CMusicHandler::playSound(soundBase::soundNames soundID)
+int CMusicHandler::playSound(soundBase::soundNames soundID, int repeats)
 {
 	int channel;
 
@@ -131,7 +136,7 @@ int CMusicHandler::playSound(soundBase::soundNames soundID)
 
 	if (sound.chunk)
 	{
-		channel = Mix_PlayChannel(-1, sound.chunk, 0);
+		channel = Mix_PlayChannel(-1, sound.chunk, repeats);
 		if(channel == -1)
 		{
 			fprintf(stderr, "Unable to play WAV file("DATA_DIR "Data" PATHSEPARATOR "Heroes3.wav::%s): %s\n",

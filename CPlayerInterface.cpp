@@ -2593,8 +2593,32 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
 	stillMoveHero.data = CONTINUE_MOVE;
 
+	enum EterrainType currentTerrain = border; // not init yet
+	enum EterrainType newTerrain;
+	int sh = -1;
+
 	for(int i=path.nodes.size()-1; i>0 && stillMoveHero.data == CONTINUE_MOVE; i--)
 	{
+		// Start a new sound for the hero movement or let the existing one carry on.
+#if 0
+		// TODO
+		if (hero is flying && sh == -1)
+			sh = CGI->mush->playSound(soundBase::horseFlying, -1);
+		} 
+		else if (hero is in a boat && sh = -1) {
+			sh = CGI->mush->playSound(soundBase::sound_todo, -1);
+		} else
+#endif
+		{
+			newTerrain = CGI->mh->map->terrain[path.nodes[i].coord.x][path.nodes[i].coord.y][path.nodes[i].coord.z].tertype;
+
+			if (newTerrain != currentTerrain) {
+				CGI->mush->stopSound(sh);
+				sh = CGI->mush->playSound(CGI->mush->horseSounds[newTerrain], -1);
+				currentTerrain = newTerrain;
+			}
+		}
+
 		stillMoveHero.data = WAITING_MOVE;
 
 		int3 endpos(path.nodes[i-1].coord.x, path.nodes[i-1].coord.y, h->pos.z);
@@ -2602,6 +2626,9 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 		while(stillMoveHero.data != STOP_MOVE  &&  stillMoveHero.data != CONTINUE_MOVE)
 			stillMoveHero.cond.wait(un);
 	}
+
+	CGI->mush->stopSound(sh);
+
 	//stillMoveHero = false;
 	return result;
 }

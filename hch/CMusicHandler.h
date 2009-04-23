@@ -1,6 +1,8 @@
 #ifndef __CMUSICHANDLER_H__
 #define __CMUSICHANDLER_H__
 
+#include <SDL_mixer.h>
+
 #include "CSoundBase.h"
 
 /*
@@ -41,11 +43,13 @@ public:
 	void initMusics();
 
 	// Sounds
-	int playSound(soundBase::soundNames soundID); // plays sound wavs from Heroes3.snd
+	int playSound(soundBase::soundNames soundID, int repeats=0);
 	int playSoundFromSet(std::vector<soundBase::soundNames> &sound_vec);
+	void stopSound(int handler) { Mix_HaltChannel(handler); };
 
 	// Sets
 	std::vector<soundBase::soundNames> pickup_sounds;
+	std::vector<soundBase::soundNames> horseSounds;
 };
 
 #endif // __CMUSICHANDLER_H__
