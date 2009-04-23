@@ -2308,9 +2308,25 @@ void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 
 	}
 
+	if(spells.size())
+	{
+		std::set<ui32> spellsToGive;
+		iw.components.clear();
+		for(int i=0; i<spells.size(); i++)
+		{
+			iw.components.push_back(Component(Component::SPELL,spells[i],0,0));
+			spellsToGive.insert(spells[i]);
+		}
+		if(spellsToGive.size())
+		{
+			cb->changeSpells(h->id,true,spellsToGive);
+			cb->showInfoDialog(&iw);
+		}
+	}
+
 	if(manaDiff)
 	{
-		getText(iw,afterBattle,luckDiff,176,177,h);
+		getText(iw,afterBattle,manaDiff,176,177,h);
 		iw.components.push_back(Component(Component::PRIM_SKILL,5,manaDiff,0));
 		cb->showInfoDialog(&iw);
 		cb->setManaPoints(h->id, h->mana + manaDiff);
@@ -2318,7 +2334,7 @@ void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 
 	if(moraleDiff)
 	{
-		getText(iw,afterBattle,luckDiff,178,179,h);
+		getText(iw,afterBattle,moraleDiff,178,179,h);
 		iw.components.push_back(Component(Component::MORALE,0,moraleDiff,0));
 		cb->showInfoDialog(&iw);
 		GiveBonus gb;
