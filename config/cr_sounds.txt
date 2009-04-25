@@ -1,0 +1,211 @@
+# Format is: <creature number> <attack> <defend> <killed> <move> <shoot> <wince> <ext1> <ext2>
+# All fields are mandatory, except ext1 and ext2.
+# If a sound doesn't exist or is not applicable, use invalid.
+
+AdvancedLizardman ALIZATTK.wav ALIZDFND.wav ALIZKILL.wav ALIZMOVE.wav ALIZSHOT.wav ALIZWNCE.wav
+AirElemental AELMATTK.wav AELMDFND.wav AELMKILL.wav AELMMOVE.wav invalid AELMWNCE.wav
+AmmoCart invalid invalid CARTKILL.wav invalid invalid CARTWNCE.wav
+AncientBehemoth BMTHATTK.wav BMTHDFND.wav BMTHKILL.wav BMTHMOVE.wav invalid BMTHWNCE.wav
+Angel ANGLATTK.wav ANGLDFND.wav ANGLKILL.wav ANGLMOVE.wav invalid ANGLWNCE.wav
+ApprenticeGremlin AGRMATTK.wav AGRMDFND.wav AGRMKILL.wav AGRMMOVE.wav AGRMSHOT.wav AGRMWNCE.wav
+ArchDevil ADVLATTK.wav ADVLDFND.wav ADVLKILL.wav ADVLMOVE.wav invalid ADVLWNCE.wav ADVLEXT1.wav ADVLEXT2.wav
+ArchMage AMAGATTK.wav AMAGDFND.wav AMAGKILL.wav AMAGMOVE.wav AMAGSHOT.wav AMAGWNCE.wav
+Archangel AAGLATTK.wav AAGLDFND.wav AAGLKILL.wav AAGLMOVE.wav invalid AAGLWNCE.wav
+AzureDragon AZURATTK.wav AZURDFND.wav AZURKILL.wav AZURMOVE.wav invalid AZURWNCE.wav
+Ballista invalid  invalid BALLKILL.wav invalid BALLSHOT.wav BALLWNCE.wav
+Basilisk BASLATTK.wav BASLDFND.wav BASLKILL.wav BASLMOVE.wav invalid BASLWNCE.wav
+BattleDwarf BDRFATTK.wav BDRFDFND.wav BDRFKILL.wav BDRFMOVE.wav invalid BDRFWNCE.wav
+Beholder BHDRATTK.wav BHDRDFND.wav BHDRKILL.wav BHDRMOVE.wav BHDRSHOT.wav BHDRWNCE.wav BHDRDETH.wav
+BlackDragon BKDRATTK.wav BKDRDFND.wav BKDRKILL.wav BKDRMOVE.wav invalid BKDRWNCE.wav
+BlackKnight BKNTATTK.wav BKNTDFND.wav BKNTKILL.wav BKNTMOVE.wav invalid BKNTWNCE.wav
+BlackLord BLRDATTK.wav BLRDDFND.wav BLRDKILL.wav BLRDMOVE.wav invalid BLRDWNCE.wav
+Boar BOARATTK.wav BOARDFND.wav BOARKILL.wav BOARMOVE.wav invalid BOARWNCE.wav
+BoneDragon BODRATTK.wav BODRDFND.wav BODRKILL.wav BODRMOVE.wav invalid BODRWNCE.wav
+BriarTreefolk BTREATTK.wav BTREDFND.wav BTREKILL.wav BTREMOVE.wav invalid BTREWNCE.wav
+BronzeGorgon BGORATTK.wav BGORDFND.wav BGORKILL.wav BGORMOVE.wav invalid BGORWNCE.wav
+Caliph CALFATTK.wav CALFDFND.wav CALFKILL.wav CALFMOVE.wav CALFSHOT.wav CALFWNCE.wav
+Catapult invalid invalid CATAKILL.wav invalid CATASHOT.wav CATAWNCE.wav
+Cavalier CAVAATTK.wav CAVADFND.wav CAVAKILL.wav CAVAMOVE.wav invalid CAVAWNCE.wav
+Centaur CNTRATTK.wav CNTRDFND.wav CNTRKILL.wav CNTRMOVE.wav CNTRSHOT.wav CNTRWNCE.wav
+Cerberus CERBATTK.wav CERBDFND.wav CERBKILL.wav CERBMOVE.wav invalid CERBWNCE.wav
+Champion CHMPATTK.wav CHMPDFND.wav CHMPKILL.wav CHMPMOVE.wav invalid CHMPWNCE.wav
+ChaosHydra CHYDATTK.wav CHYDDFND.wav CHYDKILL.wav CHYDMOVE.wav invalid CHYDWNCE.wav
+CopperGorgon CGORATTK.wav CGORDFND.wav CGORKILL.wav CGORMOVE.wav invalid CGORWNCE.wav
+Crusader CRUSATTK.wav CRUSDFND.wav CRUSKILL.wav CRUSMOVE.wav invalid CRUSWNCE.wav
+CrystalDragon CRYSATTK.wav CRYSDFND.wav CRYSKILL.wav CRYSMOVE.wav invalid CRYSWNCE.wav
+Cyclops CCYCATTK.wav CCYCDFND.wav CCYCKILL.wav CCYCMOVE.wav CCYCSHOT.wav CCYCWNCE.wav
+CyclopsLord CYCLATTK.wav CYCLDFND.wav CYCLKILL.wav CYCLMOVE.wav CYCLSHOT.wav CYCLWNCE.wav
+Devil DEVLATTK.wav DEVLDFND.wav DEVLKILL.wav DEVLMOVE.wav invalid DEVLWNCE.wav DEVLEXT1.wav DEVLEXT2.wav
+DiamondGolem DGLMATTK.wav DGLMDFND.wav DGLMKILL.wav DGLMMOVE.wav invalid DGLMWNCE.wav
+DragonFly DFLYATTK.wav DFLYDFND.wav DFLYKILL.wav DFLYMOVE.wav invalid DFLYWNCE.wav
+Dual-HornedDemon DHDMATTK.wav DHDMDFND.wav DHDMKILL.wav DHDMMOVE.wav invalid DHDMWNCE.wav
+Dwarf DWRFATTK.wav DWRFDFND.wav DWRFKILL.wav DWRFMOVE.wav invalid DWRFWNCE.wav
+EarthElemental EELMATTK.wav EELMDFND.wav EELMKILL.wav EELMMOVE.wav invalid EELMWNCE.wav
+Efreet EFRTATTK.wav EFRTDFND.wav EFRTKILL.wav EFRTMOVE.wav invalid EFRTWNCE.wav
+EfreetSultan ESULATTK.wav ESULDFND.wav ESULKILL.wav ESULMOVE.wav ESULSHOT.wav ESULWNCE.wav
+ElectricityElemental ENERATTK.wav ENERDFND.wav ENERKILL.wav ENERMOVE.wav invalid ENERWNCE.wav
+EliteCentaur ECNTATTK.wav ECNTDFND.wav ECNTKILL.wav ECNTMOVE.wav invalid ECNTWNCE.wav
+Enchanter ENCHATTK.wav ENCHDFND.wav ENCHKILL.wav ENCHMOVE.wav ENCHSHOT.wav ENCHWNCE.wav
+EvilEye EVLIATTK.wav EVLIDFND.wav EVLIKILL.wav EVLIMOVE.wav EVLISHOT.wav EVLIWNCE.wav EVLIDETH.wav
+FairieDragon FAERATTK.wav FAERDFND.wav FAERKILL.wav FAERMOVE.wav FAERSHOT.wav FAERWNCE.wav
+Familiar FMLRATTK.wav FMLRDFND.wav FMLRKILL.wav FMLRMOVE.wav invalid FMLRWNCE.wav
+FireDragonFly FDFLATTK.wav FDFLDFND.wav FDFLKILL.wav FDFLMOVE.wav FDFLSHOT.wav FDFLWNCE.wav
+FireElemental FELMATTK.wav FELMDFND.wav FELMKILL.wav FELMMOVE.wav invalid FELMWNCE.wav
+Firebird FIRBATTK.wav FIRBDFND.wav FIRBKILL.wav FIRBMOVE.wav invalid FIRBWNCE.wav
+FirstAidTent invalid invalid FAIDKILL.wav invalid invalid FAIDWNCE.wav
+Genie GENIATTK.wav GENIDFND.wav GENIKILL.wav GENIMOVE.wav invalid GENIWNCE.wav
+GhostDragon GHDRATTK.wav GHDRDFND.wav GHDRKILL.wav GHDRMOVE.wav invalid GHDRWNCE.wav
+Gnoll GNOLATTK.wav GNOLDFND.wav GNOLKILL.wav GNOLMOVE.wav invalid GNOLWNCE.wav
+GnollMarauder GNLMATTK.wav GNLMDFND.wav GNLMKILL.wav GNLMMOVE.wav invalid GNLMWNCE.wav
+Goblin GBLNATTK.wav GBLNDFND.wav GBLNKILL.wav GBLNMOVE.wav invalid GBLNWNCE.wav
+GoblinWolfRider GWRDATTK.wav GWRDDFND.wav GWRDKILL.wav GWRDMOVE.wav invalid GWRDWNCE.wav
+Gog GOGGATTK.wav GOGGDFND.wav GOGGKILL.wav GOGGMOVE.wav GOGGSHOT.wav GOGGWNCE.wav GOGFLAME.wav
+GoldDragon GODRATTK.wav GODRDFND.wav GODRKILL.wav GODRMOVE.wav invalid GODRWNCE.wav
+GoldGolem GGLMATTK.wav GGLMDFND.wav GGLMKILL.wav GGLMMOVE.wav invalid GGLMWNCE.wav
+GrandElf GELFATTK.wav GELFDFND.wav GELFKILL.wav GELFMOVE.wav GELFSHOT.wav GELFWNCE.wav
+GreaterBasilisk GBASATTK.wav GBASDFND.wav GBASKILL.wav GBASMOVE.wav invalid GBASWNCE.wav
+GreaterTitan GTITATTK.wav GTITDFND.wav GTITKILL.wav GTITMOVE.wav GTITSHOT.wav GTITWNCE.wav
+GreenDragon GRDRATTK.wav GRDRDFND.wav GRDRKILL.wav GRDRMOVE.wav invalid GRDRWNCE.wav
+Griffin GRIFATTK.wav GRIFDFND.wav GRIFKILL.wav GRIFMOVE.wav invalid GRIFWNCE.wav
+Halberdier HALBATTK.wav HALBDFND.wav HALBKILL.wav HALBMOVE.wav invalid HALBWNCE.wav
+Halfling HALFATTK.wav HALFDFND.wav HALFKILL.wav HALFMOVE.wav HALFSHOT.wav HALFWNCE.wav
+Harpy HARPATTK.wav HARPDFND.wav HARPKILL.wav HARPMOVE.wav silence HARPWNCE.wav
+HarpyHag HHAGATTK.wav HHAGDFND.wav HHAGKILL.wav HHAGMOVE.wav HHAGSHOT.wav HHAGWNCE.wav
+HeavyCrossbowman HCRSATTK.wav HCRSDFND.wav HCRSKILL.wav HCRSMOVE.wav HCRSSHOT.wav HCRSWNCE.wav
+HellHound HHNDATTK.wav HHNDDFND.wav HHNDKILL.wav HHNDMOVE.wav invalid HHNDWNCE.wav
+Hobgoblin HGOBATTK.wav HGOBDFND.wav HGOBKILL.wav HGOBMOVE.wav invalid HGOBWNCE.wav
+HobgoblinWolfRider HGWRATTK.wav HGWRDFND.wav HGWRKILL.wav HGWRMOVE.wav invalid HGWRWNCE.wav
+Hydra HYDRATTK.wav HYDRDFND.wav HYDRKILL.wav HYDRMOVE.wav invalid HYDRWNCE.wav
+IceElemental ICELATTK.wav ICELDFND.wav ICELKILL.wav ICELMOVE.wav ICELSHOT.wav ICELWNCE.wav
+Imp IMPPATTK.wav IMPPDFND.wav IMPPKILL.wav IMPPMOVE.wav invalid IMPPWNCE.wav
+InfernalTroglodyte ITRGATTK.wav ITRGDFND.wav ITRGKILL.wav ITRGMOVE.wav invalid ITRGWNCE.wav
+IronGolem IGLMATTK.wav IGLMDFND.wav IGLMKILL.wav IGLMMOVE.wav invalid IGLMWNCE.wav
+LesserTitan LTITATTK.wav LTITDFND.wav LTITKILL.wav LTITMOVE.wav invalid LTITWNCE.wav
+Lich LICHATTK.wav LICHDFND.wav LICHKILL.wav LICHMOVE.wav LICHSHOT.wav LICHWNCE.wav LICHATK2.wav
+LightCrossbowman LCRSATTK.wav LCRSDFND.wav LCRSKILL.wav LCRSMOVE.wav LCRSSHOT.wav LCRSWNCE.wav
+Mage MAGEATTK.wav MAGEDFND.wav MAGEKILL.wav MAGEMOVE.wav MAGESHOT.wav MAGEWNCE.wav
+MagicElemental MGELATTK.wav MGELDFND.wav MGELKILL.wav MGELMOVE.wav invalid MGELWNCE.wav
+Magog MGOGATTK.wav MGOGDFND.wav MGOGKILL.wav MGOGMOVE.wav MGOGSHOT.wav MGOGWNCE.wav GOGFLAME.wav
+Manticore MANTATTK.wav MANTDFND.wav MANTKILL.wav MANTMOVE.wav MANTSHOT.wav MANTWNCE.wav
+MasterGremlin MGRMATTK.wav MGRMDFND.wav MGRMKILL.wav MGRMMOVE.wav MGRMSHOT.wav MGRMWNCE.wav
+Medusa MEDUATTK.wav MEDUDFND.wav MEDUKILL.wav MEDUMOVE.wav MEDUSHOT.wav MEDUWNCE.wav
+MedusaQueen MEDQATTK.wav MEDQDFND.wav MEDQKILL.wav MEDQMOVE.wav MEDQSHOT.wav MEDQWNCE.wav
+Minotaur MINOATTK.wav MINODFND.wav MINOKILL.wav MINOMOVE.wav invalid MINOWNCE.wav
+MinotaurKing MINKATTK.wav MINKDFND.wav MINKKILL.wav MINKMOVE.wav MINKSHOT.wav MINKWNCE.wav
+Monk MONKATTK.wav MONKDFND.wav MONKKILL.wav MONKMOVE.wav MONKSHOT.wav MONKWNCE.wav
+Mummy MUMYATTK.wav MUMYDFND.wav MUMYKILL.wav MUMYMOVE.wav invalid MUMYWNCE.wav
+NagaGuardian NGRDATTK.wav NGRDDFND.wav NGRDKILL.wav NGRDMOVE.wav invalid NGRDWNCE.wav
+NagaSentinel NSENATTK.wav NSENDFND.wav NSENKILL.wav NSENMOVE.wav invalid NSENWNCE.wav
+Nosferatu NOSFATTK.wav NOSFDFND.wav NOSFEXT1.wav NOSFEXT2.wav NOSFKILL.wav NOSFMOVE.wav NOSFSHOT.wav NOSFWNCE.wav
+ObsidianGargoyle OGRGATTK.wav OGRGDFND.wav OGRGKILL.wav OGRGMOVE.wav invalid OGRGWNCE.wav
+Ogre OGREATTK.wav OGREDFND.wav OGREKILL.wav OGREMOVE.wav invalid OGREWNCE.wav
+OgreMage OGRMATTK.wav OGRMDFND.wav OGRMKILL.wav OGRMMOVE.wav OGRMSHOT.wav OGRMWNCE.wav
+Orc OORCATTK.wav OORCDFND.wav OORCKILL.wav OORCMOVE.wav OORCSHOT.wav OORCWNCE.wav
+OrcChieftain ORCCATTK.wav ORCCDFND.wav ORCCKILL.wav ORCCMOVE.wav ORCCSHOT.wav ORCCWNCE.wav
+Peasant PSNTATTK.wav PSNTDFND.wav PSNTKILL.wav PSNTMOVE.wav invalid PSNTWNCE.wav
+Pegasus PEGAATTK.wav PEGADFND.wav PEGAKILL.wav PEGAMOVE.wav invalid PEGAWNCE.wav
+Pheonix PHOEATTK.wav PHOEDFND.wav PHOEKILL.wav PHOEMOVE.wav invalid PHOEWNCE.wav
+Pikeman PIKEATTK.wav PIKEDFND.wav PIKEKILL.wav PIKEMOVE.wav invalid PIKEWNCE.wav
+PitFiend PFNDATTK.wav PFNDDFND.wav PFNDKILL.wav PFNDMOVE.wav invalid PFNDWNCE.wav
+PitFoe PFOEATTK.wav PFOEDFND.wav PFOEKILL.wav PFOEMOVE.wav invalid PFOEWNCE.wav
+Pixie PIXIATTK.wav PIXIDFND.wav PIXIKILL.wav PIXIMOVE.wav invalid PIXIWNCE.wav
+PowerLich PLCHATTK.wav PLCHDFND.wav PLCHKILL.wav PLCHMOVE.wav PLCHSHOT.wav PLCHWNCE.wav
+PrimitiveLizardman PLIZATTK.wav PLIZDFND.wav PLIZKILL.wav PLIZMOVE.wav PLIZSHOT.wav PLIZWNCE.wav
+PsiElemental PSYCATTK.wav PSYCDFND.wav PSYCKILL.wav PSYCMOVE.wav invalid PSYCWNCE.wav
+RedDragon RDDRATTK.wav RDDRDFND.wav RDDRKILL.wav RDDRMOVE.wav invalid RDDRWNCE.wav
+Roc ROCCATTK.wav ROCCDFND.wav ROCCKILL.wav ROCCMOVE.wav invalid ROCCWNCE.wav
+Rogue ROGUATTK.wav ROGUDFND.wav ROGUKILL.wav ROGUMOVE.wav invalid ROGUWNCE.wav
+RoyalGriffin RGRFATTK.wav RGRFDFND.wav RGRFKILL.wav RGRFMOVE.wav invalid RGRFWNCE.wav
+RustDragon RUSTATTK.wav RUSTDFND.wav RUSTKILL.wav RUSTMOVE.wav invalid RUSTWNCE.wav
+Scorpicore SCRPATTK.wav SCRPDFND.wav SCRPKILL.wav SCRPMOVE.wav SCRPSHOT.wav SCRPWNCE.wav
+SilverPegasus APEGATTK.wav APEGDFND.wav APEGKILL.wav APEGMOVE.wav invalid APEGWNCE.wav
+Single-HornedDemon SHDMATTK.wav SHDMDFND.wav SHDMKILL.wav SHDMMOVE.wav invalid SHDMWNCE.wav
+Skeleton SKELATTK.wav SKELDFND.wav SKELKILL.wav SKELMOVE.wav invalid SKELWNCE.wav
+SkeletonWarrior SKLWATTK.wav SKLWDFND.wav SKLWKILL.wav SKLWMOVE.wav invalid SKLWWNCE.wav
+Sprite SPRTATTK.wav SPRTDFND.wav SPRTKILL.wav SPRTMOVE.wav invalid SPRTWNCE.wav
+StoneGargoyle SGRGATTK.wav SGRGDFND.wav SGRGKILL.wav SGRGMOVE.wav invalid SGRGWNCE.wav
+StoneGolem SGLMATTK.wav SGLMDFND.wav SGLMKILL.wav SGLMMOVE.wav invalid SGLMWNCE.wav
+StormElemental STORATTK.wav STORDFND.wav STORKILL.wav STORMOVE.wav STORSHOT.wav STORWNCE.wav
+Swordsman SWRDATTK.wav SWRDDFND.wav SWRDKILL.wav SWRDMOVE.wav invalid SWRDWNCE.wav
+Thunderbird TBRDATTK.wav TBRDDFND.wav TBRDKILL.wav TBRDMOVE.wav invalid TBRDWNCE.wav
+Treefolk TREEATTK.wav TREEDFND.wav TREEKILL.wav TREEMOVE.wav invalid TREEWNCE.wav
+Troglodyte TROGATTK.wav TROGDFND.wav TROGKILL.wav TROGMOVE.wav invalid TROGWNCE.wav
+Unicorn UNICATTK.wav UNICDFND.wav UNICKILL.wav UNICMOVE.wav invalid UNICWNCE.wav
+Vampire VAMPATTK.wav VAMPDFND.wav VAMPKILL.wav VAMPMOVE.wav invalid VAMPWNCE.wav VAMPEXT1.wav VAMPEXT2.wav
+WarUnicorn WUNCATTK.wav WUNCDFND.wav WUNCKILL.wav WUNCMOVE.wav WUNCSHOT.wav WUNCWNCE.wav
+WaterElemental WELMATTK.wav WELMDFND.wav WELMKILL.wav WELMMOVE.wav invalid WELMWNCE.wav
+Wight WGHTATTK.wav WGHTDFND.wav WGHTKILL.wav WGHTMOVE.wav invalid WGHTWNCE.wav
+WoodElf WELFATTK.wav WELFDFND.wav WELFKILL.wav WELFMOVE.wav WELFSHOT.wav WELFWNCE.wav
+Wraith WRTHATTK.wav WRTHDFND.wav WRTHKILL.wav WRTHMOVE.wav invalid WRTHWNCE.wav
+Wyvern WYVNATTK.wav WYVNDFND.wav WYVNKILL.wav WYVNMOVE.wav invalid WYVNWNCE.wav
+WyvernMonarch WYVMATTK.wav WYVMDFND.wav WYVMKILL.wav WYVMMOVE.wav invalid WYVMWNCE.wav
+YoungBehemoth YBMHATTK.wav YBMHDFND.wav YBMHKILL.wav YBMHMOVE.wav invalid YBMHWNCE.wav
+Zealot ZELTATTK.wav ZELTDFND.wav ZELTKILL.wav ZELTMOVE.wav ZELTSHOT.wav ZELTWNCE.wav
+Zombie ZOMBATTK.wav ZOMBDFND.wav ZOMBKILL.wav ZOMBMOVE.wav invalid ZOMBWNCE.wav
+ZombieLord ZMBLATTK.wav ZMBLDFND.wav ZMBLKILL.wav ZMBLMOVE.wav invalid ZMBLWNCE.wav
+
+# todo - troll ?
+# TRLLATTK.wav TRLLDFND.wav TRLLKILL.wav TRLLMOVE.wav invalid TRLLWNCE.wav
+
+# todo - nomad ?
+# NMADATTK.wav NMADDFND.wav NMADKILL.wav NMADMOVE.wav invalid NMADWNCE.wav
+
+# todo - magma ?
+# MAGMATTK.wav MAGMDFND.wav MAGMKILL.wav MAGMMOVE.wav invalid MAGMWNCE.wav
+
+
+# Missing entries
+# 125 StoneElemental
+# 128 FireElemental
+# 129 FireElemental
+# 137 Sharpshooter
+# 142 warrior
+# 144 OgreShaman
+# 149 ArrowTower
+# 150 SupremeArchangel
+# 151 DiamondDragon
+# 152 LordofThunder
+# 153 HellBaron
+# 154 BloodDragon
+# 155 DarknessDragon
+# 156 GhostBehemoth
+# 157 HellHydra
+# 158 SacredPhoenix
+# 159 Ghost
+# 160 God1War
+# 161 God2Peace
+# 162 God3Mana
+# 163 God4Lore
+# 164 MinotaurKing
+# 165 MineralElemental
+# 166 ElectricityElemental
+# 167 AncientBasilisk
+# 168 Gorynych
+# 169 WarZealot
+# 170 Myriad
+# 171 MedusaMatriarch
+# 172 Nightmare
+# 173 SantaGremlin
+# 174 Paladin1
+# 175 Hierophant1
+# 176 TempleGuardian1
+# 177 Succubus1
+# 178 SoulEater1
+# 179 Brute1
+# 180 OgreLeader1
+# 181 Shaman1
+# 182 AstralSpirit1
+# 183 Paladin2
+# 184 Hierophant2
+# 185 TempleGuardian2
+# 186 Succubus2
+# 187 SoulEater2
+# 188 Brute2
+# 189 OgreLeader2
+# 190 Shaman2
+# 191 AstralSpirit2
+# 192 SylvanCentaur
+# 193 Sorceress
+# 194 Werewolf
+# 195 HellSteed
+# 196 Dracolich

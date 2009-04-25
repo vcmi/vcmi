@@ -99,6 +99,15 @@ void CCreatureHandler::loadCreatures()
 		CCreature ncre;
 		ncre.cost.resize(RESOURCE_QUANTITY);
 		ncre.level=0;
+		ncre.sounds.attack = soundBase::invalid;
+		ncre.sounds.defend = soundBase::invalid;
+		ncre.sounds.killed = soundBase::invalid;
+		ncre.sounds.move = soundBase::invalid;
+		ncre.sounds.shoot = soundBase::invalid;
+		ncre.sounds.wince = soundBase::invalid;
+		ncre.sounds.ext1 = soundBase::invalid;
+		ncre.sounds.ext2 = soundBase::invalid;
+
 		int befi=i;
 		for(i; i<andame; ++i)
 		{

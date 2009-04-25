@@ -6,6 +6,8 @@
 #include <map>
 #include <set>
 
+#include "CSoundBase.h"
+
 /*
  * CCreatureHandler.h, part of VCMI engine
  *
@@ -41,6 +43,18 @@ public:
 	float missleFrameAngles[12];
 	int troopCountLocationOffset, attackClimaxFrame;
 	///end of anim info
+
+	// Sound infos
+	struct {
+		soundBase::soundNames attack;
+		soundBase::soundNames defend;
+		soundBase::soundNames killed; // was killed died
+		soundBase::soundNames move;
+		soundBase::soundNames shoot; // range attack
+		soundBase::soundNames wince; // attacked but did not die
+		soundBase::soundNames ext1;	 // creature specific extension
+		soundBase::soundNames ext2;	 // creature specific extension
+	} sounds;
 
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
 	bool isFlying() const; //returns true if it is a flying unit

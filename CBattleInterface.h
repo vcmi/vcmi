@@ -191,6 +191,7 @@ private:
 		int posShiftDueToDist;
 		bool shooting;
 		int shootingGroup; //if shooting is true, print this animation group
+		int sh;			   // temporary sound handler
 	} * attackingInfo;
 	void attackingShowHelper();
 	void redrawBackgroundWithHexes(int activeStack);
@@ -240,6 +241,7 @@ public:
 	bool showStackQueue; //if true, queue of stacks will be shown
 
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
+	int moveSh;		  // sound handler used when moving a unit
 
 	//button handle funcs:
 	void bOptionsf();

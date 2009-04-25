@@ -1,5 +1,6 @@
 #include "../stdafx.h"
 
+#include <sstream>
 #include <boost/assign/std/vector.hpp> 
 #include <boost/assign/list_of.hpp>
 
@@ -7,6 +8,8 @@
 
 #include "CSndHandler.h"
 #include "CMusicHandler.h"
+#include "CCreatureHandler.h"
+#include "../CGameInfo.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine
@@ -45,6 +48,11 @@ void CMusicHandler::initMusics()
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,
 		soundBase::horseWater, soundBase::horseRock;
+
+	// Create reverse map. It's used during game init to map names to internal IDs
+	std::map<soundBase::soundNames, cachedSounds>::iterator it;
+	for ( it=sounds.begin() ; it != sounds.end(); it++ )
+		reverse_sounds[(*it).second.filename] = (*it).first;
 
 	//AITheme0 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITheme0.mp3");
 	//AITheme1 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITHEME1.mp3");
@@ -113,7 +121,71 @@ Mix_Chunk *CMusicHandler::GetSoundChunk(std::string srcName)
 
 	return chunk;
 }
-  
+
+soundBase::soundNames CMusicHandler::getSoundID(std::string &fileName)
+{
+	std::map<std::string, soundBase::soundNames>::iterator it;
+
+	it = reverse_sounds.find(fileName);
+	if (it == reverse_sounds.end())
+		return soundBase::invalid;
+	else
+		return it->second;
+}
+
+void CMusicHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
+{
+	tlog5 << "\t\tReading config/cr_sounds.txt" << std::endl;
+	std::ifstream ifs("config/cr_sounds.txt");
+	std::string line;
+
+	while(getline(ifs, line))
+	{
+		std::string cname="", attack="", defend="", killed="", move="", 
+			shoot="", wince="", ext1="", ext2="";
+		std::stringstream str(line);
+
+		str >> cname >> attack >> defend >> killed >> move >> shoot >> wince >> ext1 >> ext2;
+
+		if (cname[0] == '#')
+			// That's a comment. Discard.
+			continue;
+
+		if (str.good() || (str.eof() && wince != ""))
+		{
+			int id = CGI->creh->nameToID[cname];
+			CCreature &c = CGI->creh->creatures[id];
+
+			if (c.sounds.killed != soundBase::invalid)
+				tlog1 << "Creature << " << cname << " already has sounds" << std::endl;
+			
+			c.sounds.attack = getSoundID(attack);
+			c.sounds.defend = getSoundID(defend);
+			c.sounds.killed = getSoundID(killed);
+			c.sounds.move = getSoundID(move);
+			c.sounds.shoot = getSoundID(shoot);
+			c.sounds.wince = getSoundID(wince);
+			c.sounds.ext1 = getSoundID(ext1);
+			c.sounds.ext2 = getSoundID(ext2);
+		}
+	}
+	ifs.close();
+	ifs.clear();
+
+	// Find creatures without sounds
+	for(unsigned int i=0;i<CGI->creh->creatures.size();i++)
+	{
+		// Note: this will exclude war machines, but it's better
+		// than nothing.
+		if (vstd::contains(CGI->creh->notUsedMonsters, i))
+			continue;
+
+		CCreature &c = CGI->creh->creatures[i];
+		if (c.sounds.killed == soundBase::invalid)
+			tlog1 << "creature " << c.idNumber << " doesn't have sounds" << std::endl;
+	}
+}
+
 // Plays a sound, and return its channel so we can fade it out later
 int CMusicHandler::playSound(soundBase::soundNames soundID, int repeats)
 {

@@ -57,7 +57,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), 
 	  mouseHoveredStack(-1), previouslyHoveredHex(-1), spellDestSelectMode(false), spellToCast(NULL),
 	  attackingInfo(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), 
-	  showStackQueue(false), moveStarted(false)
+	  showStackQueue(false), moveStarted(false), moveSh(-1)
 {
 	pos = myRect;
 	strongInterest = true;
@@ -1099,6 +1099,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 	}
 	if(moveStarted)
 	{
+		moveSh = CGI->mush->playSound(movedStack->creature->sounds.move, -1);
 		CGI->curh->hide();
 		creAnims[number]->setType(0);
 		moveStarted = false;
@@ -1205,6 +1206,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 		}
 		creAnims[number]->setType(2); //resetting to default
 		CGI->curh->show();
+		CGI->mush->stopSound(moveSh);
 	}
 
 	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
@@ -1274,12 +1276,17 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 	int maxLen = 0;
 	for(size_t g=0; g<attackedInfos.size(); ++g)
 	{
+		CStack attacked = *LOCPLINT->cb->battleGetStackByID(attackedInfos[g].ID);
+			
 		if(attackedInfos[g].killed)
 		{
+			CGI->mush->playSound(attacked.creature->sounds.killed);
 			creAnims[attackedInfos[g].ID]->setType(5); //death
 		}
 		else
 		{
+			// TODO: this block doesn't seems correct if the unit is defending.
+			CGI->mush->playSound(attacked.creature->sounds.wince);
 			creAnims[attackedInfos[g].ID]->setType(3); //getting hit
 		}
 	}
@@ -1460,6 +1467,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	attackingInfo->reversing = false;
 	attackingInfo->posShiftDueToDist = reversedShift;
 	attackingInfo->shooting = false;
+	attackingInfo->sh = -1;
 
 	switch(BattleInfo::mutualPosition(aStack.position + reversedShift, dest)) //attack direction
 	{
@@ -1756,6 +1764,7 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	attackingInfo->reversing = false;
 	attackingInfo->posShiftDueToDist = 0;
 	attackingInfo->shooting = true;
+	attackingInfo->sh = -1;
 	if(projectileAngle > straightAngle) //upper shot
 		attackingInfo->shootingGroup = 14;
 	else if(projectileAngle < -straightAngle) //lower shot
@@ -2024,10 +2033,20 @@ void CBattleInterface::attackingShowHelper()
 			CStack aStack = *LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
 			if(attackingInfo->shooting)
 			{
+				// TODO: I see that we enter this function twice with
+				// attackingInfo->frame==0, so all the inits are done
+				// twice. The following is just a workaround until
+				// that is fixed. Once done, we can get rid of
+				// attackingInfo->sh
+				if (attackingInfo->sh == -1)
+					attackingInfo->sh = CGI->mush->playSound(aStack.creature->sounds.shoot);
 				creAnims[attackingInfo->ID]->setType(attackingInfo->shootingGroup);
 			}
 			else
 			{
+				// TODO: see comment above
+				if (attackingInfo->sh == -1)
+					attackingInfo->sh = CGI->mush->playSound(aStack.creature->sounds.attack);
 				if(aStack.creature->isDoubleWide())
 				{
 					switch(BattleInfo::mutualPosition(aStack.position+attackingInfo->posShiftDueToDist, attackingInfo->dest)) //attack direction

@@ -130,6 +130,7 @@ int main(int argc, char** argv)
 		tlog0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph,::console,logfile);
 		CGI->setFromLib();
+		cgi->mush->initCreaturesSounds(CGI->creh->creatures);
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler;

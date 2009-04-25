@@ -20,6 +20,7 @@ class CMusicHandler
 {
 private:
 	CSndHandler *sndh;
+	soundBase::soundNames getSoundID(std::string &fileName);
 
 	class cachedSounds {
 	public:
@@ -33,12 +34,15 @@ private:
 	};
 
 	std::map<soundBase::soundNames, cachedSounds> sounds;
+	std::map<std::string, soundBase::soundNames> reverse_sounds;
 
 	Mix_Chunk *GetSoundChunk(std::string srcName);
 
 public:
 	CMusicHandler(): sndh(NULL) {};
+
 	void initMusics();
+	void initCreaturesSounds(std::vector<CCreature> &creatures);
 
 	// Sounds
 	int playSound(soundBase::soundNames soundID, int repeats=0);
