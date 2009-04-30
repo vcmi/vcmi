@@ -2356,20 +2356,6 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			//TODO: check resistances
 
-#define SPELL_CAST_TEMPLATE_2 \
-					StacksInjured si; \
-					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it) \
-					{ \
-						BattleStackAttacked bsa; \
-						bsa.flags |= 2; \
-						bsa.effect = VLC->spellh->spells[ba.additionalInfo].mainEffectAnim; \
-						bsa.damageAmount = calculateSpellDmg(&VLC->spellh->spells[ba.additionalInfo], h, *it);  \
-						bsa.stackAttacked = (*it)->ID; \
-						prepareAttacked(bsa,*it); \
-						si.stacks.insert(bsa); \
-					} \
-					sendAndApply(&si); \
-
 			SpellCasted sc;
 			sc.side = ba.side;
 			sc.id = ba.additionalInfo;
@@ -2377,11 +2363,23 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			sc.tile = ba.destinationTile;
 			sendAndApply(&sc);
 
-			//calculating affected creatures - not for all spells, but for many of them
-			//it should spoil anything for other spells
+			//calculating affected creatures for all spells ///////////////////
 			std::set<ui16> attackedHexes = s->rangeInHexes(ba.destinationTile, h->getSpellSchoolLevel(s));
 			std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/
-			if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+			if(ba.additionalInfo == 24 || ba.additionalInfo == 25 || ba.additionalInfo == 26) //death ripple, destroy undead and armageddon
+			{
+				for(int it=0; it<gs->curB->stacks.size(); ++it)
+				{
+					if((ba.additionalInfo == 24 && !gs->curB->stacks[it]->creature->isUndead()) //death ripple
+						|| (ba.additionalInfo == 25 && gs->curB->stacks[it]->creature->isUndead()) //destroy undead
+						|| (ba.additionalInfo == 26) //armageddon
+						)
+					{
+						attackedCres.insert(gs->curB->stacks[it]);
+					}
+				}
+			}
+			else if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 			{
 				if(h->getSpellSchoolLevel(s) < 3)  /*not expert */
 				{
@@ -2430,46 +2428,22 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 21: //fireball
 			case 22: //inferno
 			case 23: //meteor shower
-				{
-					SPELL_CAST_TEMPLATE_2;
-					break;
-				}
 			case 24: //death ripple
-				{
-					std::set<CStack*> attackedCres;
-					
-					for(int it=0; it<gs->curB->stacks.size(); ++it)
-					{
-						if(!gs->curB->stacks[it]->creature->isUndead())
-							attackedCres.insert(gs->curB->stacks[it]);
-					}
-					if(attackedCres.size() == 0) break;
-					SPELL_CAST_TEMPLATE_2;
-					break;
-				}
 			case 25: //destroy undead
-				{
-					std::set<CStack*> attackedCres;
-					
-					for(int it=0; it<gs->curB->stacks.size(); ++it)
-					{
-						if(gs->curB->stacks[it]->creature->isUndead())
-							attackedCres.insert(gs->curB->stacks[it]);
-					}
-					if(attackedCres.size() == 0) break;
-					SPELL_CAST_TEMPLATE_2;
-					break;
-				}
 			case 26: //armageddon
 				{
-					std::set<CStack*> attackedCres;
-					
-					for(int it=0; it<gs->curB->stacks.size(); ++it)
+					StacksInjured si;
+					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 					{
-						attackedCres.insert(gs->curB->stacks[it]);
+						BattleStackAttacked bsa;
+						bsa.flags |= 2;
+						bsa.effect = VLC->spellh->spells[ba.additionalInfo].mainEffectAnim;
+						bsa.damageAmount = calculateSpellDmg(&VLC->spellh->spells[ba.additionalInfo], h, *it);
+						bsa.stackAttacked = (*it)->ID;
+						prepareAttacked(bsa,*it);
+						si.stacks.insert(bsa);
 					}
-					if(attackedCres.size() == 0) break;
-					SPELL_CAST_TEMPLATE_2;
+					sendAndApply(&si);
 					break;
 				}
 			case 27: //shield 

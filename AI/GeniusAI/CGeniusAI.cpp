@@ -69,7 +69,7 @@ void GeniusAI::CGeniusAI::showGarrisonDialog( const CArmedInstance *up, const CG
 	onEnd();
 }
 
-void CGeniusAI::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, soundBase::soundID soundID, bool selection, bool cancel )
+void CGeniusAI::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel )
 {
 	m_cb->selectionMade(cancel ? 0 : 1, askID);
 }
