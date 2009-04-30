@@ -465,6 +465,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CMusicBase.h"
+				>
+			</File>
+			<File
 				RelativePath="..\hch\CMusicHandler.h"
 				>
 			</File>

@@ -24,7 +24,12 @@
 
 using namespace boost::assign;
 
-boost::bimap<soundBase::soundID, std::string> sounds;
+static boost::bimap<soundBase::soundID, std::string> sounds;
+
+// Not pretty, but there's only one music handler object in the game.
+static void musicFinishedCallbackC(void) {
+	CGI->mush->musicFinishedCallback();
+}
 
 CMusicHandler::~CMusicHandler()
 {
@@ -41,6 +46,20 @@ CMusicHandler::~CMusicHandler()
 		if (it->second)
 			Mix_FreeChunk(it->second);
 	}
+
+	Mix_HookMusicFinished(NULL);
+
+	musicMutex.lock();
+
+	if (currentMusic) {
+		Mix_HaltMusic();
+		Mix_FreeMusic(currentMusic);
+	}
+
+	if (nextMusic)
+		Mix_FreeMusic(nextMusic);
+
+	musicMutex.unlock();
 
 	Mix_CloseAudio();
 }
@@ -75,51 +94,23 @@ void CMusicHandler::initMusics()
 		soundBase::horseSubterranean, soundBase::horseLava,
 		soundBase::horseWater, soundBase::horseRock;
 
-	//AITheme0 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITheme0.mp3");
-	//AITheme1 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITHEME1.mp3");
-	//AITheme2 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITHEME2.mp3");
-	//buildTown = Mix_LoadWAV("MP3" PATHSEPARATOR "BUILDTWN.wav");
-	//combat1 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "COMBAT01.mp3");
-	//combat2 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "COMBAT02.mp3");
-	//combat3 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "COMBAT03.mp3");
-	//combat4 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "COMBAT04.mp3");
-	//castleTown = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "CstleTown.mp3");
-	//defendCastle = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Defend Castle.mp3");
-	//dirt = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "DIRT.mp3");
-	//dungeon = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "DUNGEON.mp3");
-	//elemTown = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "ElemTown.mp3");
-	//evilTheme = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "EvilTheme.mp3");
-	//fortressTown = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "FortressTown.mp3");
-	//goodTheme = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "GoodTheme.mp3");
-	//grass = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "GRASS.mp3");
-	//infernoTown = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "InfernoTown.mp3");
-	//lava = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "LAVA.mp3");
-	//loopLepr = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "LoopLepr.mp3");
-	//loseCampain = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Lose Campain.mp3");
-	//loseCastle = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "LoseCastle.mp3");
-	//loseCombat = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "LoseCombat.mp3");
-	//mainMenu = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "MAINMENU.mp3");
-	//mainMenuWoG = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "MainMenuWoG.mp3");
-	//necroTown = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "necroTown.mp3");
-	//neutralTheme = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "NeutralTheme.mp3");
-	//rampart = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "RAMPART.mp3");
-	//retreatBattle = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Retreat Battle.mp3");
-	//rough = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "ROUGH.mp3");
-	//sand = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "SAND.mp3");
-	//secretTheme = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "SecretTheme.mp3");
-	//snow = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "SNOW.mp3");
-	//stronghold = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "StrongHold.mp3");
-	//surrenderBattle = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Surrender Battle.mp3");
-	//swamp = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "SWAMP.mp3");
-	//towerTown = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "TowerTown.mp3");
-	//ultimateLose = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "UltimateLose.mp3");
-	//underground = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Underground.mp3");
-	//water = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "WATER.mp3");
-	//winBattle = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Win Battle.mp3");
-	//winScenario = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "Win Scenario.mp3");
+	// Map music IDs
+#define VCMI_MUSIC_ID(x) ( musicBase::x ,
+#define VCMI_MUSIC_FILE(y) y )
+	musics = map_list_of
+		VCMI_MUSIC_LIST;
+#undef VCMI_MUSIC_NAME
+#undef VCMI_MUSIC_FILE
+
+	Mix_HookMusicFinished(musicFinishedCallbackC);
+
+	// Vector for helper
+	battleMusics += musicBase::combat1, musicBase::combat2, 
+		musicBase::combat3, musicBase::combat4;
 
 	// Load sounds
 	sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
+	nextMusic = NULL;
 }
 
 // Allocate an SDL chunk and cache it.
@@ -260,4 +251,75 @@ void CMusicHandler::stopSound( int handler )
 {
 	if (handler != -1)
 		Mix_HaltChannel(handler);
+}
+
+// Plays a music
+// loop: -1 always repeats, 0=do not play, 1+=number of loops
+void CMusicHandler::playMusic(musicBase::musicID musicID, int loop)
+{
+	if (!sndh)
+		return;
+
+	std::string filename = DATA_DIR "Mp3" PATHSEPARATOR;
+	filename += musics[musicID];
+
+	musicMutex.lock();
+
+	if (nextMusic) {
+		// There's already a music queued, so remove it
+		Mix_FreeMusic(nextMusic);
+		nextMusic = NULL;
+	}
+
+	if (currentMusic) {
+		// A music is already playing. Stop it and the callback will
+		// start the new one
+		nextMusic = Mix_LoadMUS(filename.c_str());
+		nextMusicLoop = loop;
+		Mix_FadeOutMusic(1000);
+	} else {
+		currentMusic = Mix_LoadMUS(filename.c_str());
+		if (Mix_PlayMusic(currentMusic, loop) == -1)
+			tlog1 << "Unable to play sound file " << musicID << "(" << Mix_GetError() << ")" << std::endl;
+	}
+
+	musicMutex.unlock();
+}
+
+// Helper. Randomly select a music from an array and play it
+void CMusicHandler::playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop)
+{
+	playMusic(music_vec[rand() % music_vec.size()], loop);
+}
+
+// Stop and free the current music
+void CMusicHandler::stopMusic(int fade_ms)
+{
+	musicMutex.lock();
+
+	if (currentMusic) {
+		Mix_FadeOutMusic(fade_ms);
+	}
+
+	musicMutex.unlock();
+}
+
+// Called by SDL when a music finished.
+void CMusicHandler::musicFinishedCallback(void)
+{
+	musicMutex.lock();
+
+	if (currentMusic) {
+		Mix_FreeMusic(currentMusic);
+		currentMusic = NULL;
+	}
+
+	if (nextMusic) {
+		currentMusic = nextMusic;
+		nextMusic = NULL;
+		if (Mix_PlayMusic(currentMusic, nextMusicLoop) == -1)
+			tlog1 << "Unable to play music (" << Mix_GetError() << ")" << std::endl;
+	}
+
+	musicMutex.unlock();
 }

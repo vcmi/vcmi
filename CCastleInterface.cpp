@@ -433,30 +433,39 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town)
 	{
 	case 0:
 		defname = "HALLCSTL.DEF";
+		musicID = musicBase::castleTown;
 		break;
 	case 1:
 		defname = "HALLRAMP.DEF";
+		musicID = musicBase::rampartTown;
 		break;
 	case 2:
 		defname = "HALLTOWR.DEF";
+		musicID = musicBase::towerTown;
 		break;
 	case 3:
 		defname = "HALLINFR.DEF";
+		musicID = musicBase::infernoTown;
 		break;
 	case 4:
 		defname = "HALLNECR.DEF";
+		musicID = musicBase::necroTown;
 		break;
 	case 5:
 		defname = "HALLDUNG.DEF";
+		musicID = musicBase::dungeonTown;
 		break;
 	case 6:
 		defname = "HALLSTRN.DEF";
+		musicID = musicBase::strongHoldTown;
 		break;
 	case 7:
 		defname = "HALLFORT.DEF";
+		musicID = musicBase::fortressTown;
 		break;
 	case 8:
 		defname = "HALLELEM.DEF";
+		musicID = musicBase::elemTown;
 		break;
 	default:
 		throw new std::string("Wrong town subID");
@@ -492,6 +501,7 @@ void CCastleInterface::close()
 		LOCPLINT->adventureInt->select(town->visitingHero);
 	LOCPLINT->castleInt = NULL;
 	LOCPLINT->popIntTotally(this);
+	CGI->mush->stopMusic(5000);
 }
 
 void CCastleInterface::splitF()

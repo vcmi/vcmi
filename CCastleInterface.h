@@ -85,6 +85,8 @@ public:
 	AdventureMapButton *exit;
 	AdventureMapButton *split;
 
+	musicBase::musicID musicID;
+
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
 	CCastleInterface(const CGTownInstance * Town);

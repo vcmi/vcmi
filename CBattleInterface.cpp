@@ -1785,6 +1785,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	CGI->curh->changeGraphic(0,0);
 	
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
+	CGI->mush->stopMusic();
 	resWindow = new CBattleReslutWindow(br, temp_rect, this);
 	LOCPLINT->pushInt(resWindow);
 }
@@ -2787,30 +2788,36 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, const SDL_Rect 
 	case 0: //normal victory
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
+			CGI->mush->playMusic(musicBase::winBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[304], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
+			CGI->mush->playMusic(musicBase::loseCombat);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, GEOR13, zwykly, background);
 		}
 		break;
 	case 1: //flee
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
+			CGI->mush->playMusic(musicBase::winBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[303], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
+			CGI->mush->playMusic(musicBase::retreatBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, GEOR13, zwykly, background);
 		}
 		break;
 	case 2: //surrender
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
+			CGI->mush->playMusic(musicBase::winBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[302], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
+			CGI->mush->playMusic(musicBase::surrenderBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 235, GEOR13, zwykly, background);
 		}
 		break;

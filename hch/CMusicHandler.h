@@ -1,7 +1,11 @@
 #ifndef __CMUSICHANDLER_H__
 #define __CMUSICHANDLER_H__
 
+#include <boost/thread/mutex.hpp>
+
 #include "CSoundBase.h"
+#include "CMusicBase.h"
+
 
 /*
  * CMusicHandler.h, part of VCMI engine
@@ -13,12 +17,16 @@
  *
  */
 
-struct Mix_Chunk;
 class CSndHandler;
+struct _Mix_Music;
+typedef struct _Mix_Music Mix_Music;
+struct Mix_Chunk;
 
 class CMusicHandler
 {
 private:
+	bool audioInit;
+
 	CSndHandler *sndh;
 	soundBase::soundID getSoundID(std::string &fileName);
 
@@ -26,10 +34,16 @@ private:
 
 	Mix_Chunk *GetSoundChunk(soundBase::soundID soundID);
 
-	bool audioInit;
+	// Because we use the SDL music callback, our music variables must
+	// be protected
+	boost::mutex musicMutex;
+	Mix_Music *currentMusic;
+	Mix_Music *nextMusic;
+	int nextMusicLoop;
 
 public:
-	CMusicHandler(): sndh(NULL), audioInit(false) {};
+CMusicHandler(): audioInit(false), sndh(NULL), currentMusic(NULL) {};
+
 	~CMusicHandler();
 
 	void initMusics();
@@ -43,6 +57,15 @@ public:
 	// Sets
 	std::vector<soundBase::soundID> pickup_sounds;
 	std::vector<soundBase::soundID> horseSounds;
+
+	// Musics
+	std::map<musicBase::musicID, std::string> musics;
+	std::vector<musicBase::musicID> battleMusics;
+
+	void playMusic(musicBase::musicID musicID, int loop=1);
+	void playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop=1);
+	void stopMusic(int fade_ms=1000);
+	void musicFinishedCallback(void);
 };
 
 #endif // __CMUSICHANDLER_H__

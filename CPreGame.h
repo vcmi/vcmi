@@ -6,7 +6,6 @@
 #include "StartInfo.h"
 #include "CMessage.h"
 #include "map.h"
-#include "hch/CMusicHandler.h"
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <cstdlib>
@@ -21,6 +20,7 @@
  *
  */
 
+struct CMusicHandler;
 class CPreGame;
 class CDefHandler;
 extern CPreGame * CPG;
@@ -256,7 +256,6 @@ public:
 	bool first; //hasn't we showed the scensel
 	int fromnewgame; //1 - new game; 0 - load game; 2 - save game
 	std::vector<Slider *> interested;
-	CMusicHandler * mush;
 	std::vector<HighButton *> btns;
 	SDL_Rect * currentMessage;
 	SDL_Surface * behindCurMes;

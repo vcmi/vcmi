@@ -147,8 +147,8 @@ int main(int argc, char** argv)
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
 		tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
-		cpg->mush = mush;
 
+		mush->playMusic(musicBase::mainMenu, -1);
 		StartInfo *options = new StartInfo(cpg->runLoop());
 
 		if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
@@ -187,6 +187,7 @@ int main(int argc, char** argv)
 			THC tlog0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
 			cl.newGame(c,options);
 			client = &cl;
+			mush->stopMusic();
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 		else //load game
@@ -195,6 +196,7 @@ int main(int argc, char** argv)
 			boost::algorithm::erase_last(fname,".vlgm1");
 			cl.load(fname);
 			client = &cl;
+			mush->stopMusic();
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 

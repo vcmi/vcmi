@@ -1837,6 +1837,7 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	castleInt = new CCastleInterface(town);
+	CGI->mush->playMusic(castleInt->musicID, -1);
 	LOCPLINT->pushInt(castleInt);
 }
 
@@ -2197,6 +2198,7 @@ void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
+	CGI->mush->playMusicFromSet(CGI->mush->battleMusics, -1);
 	pushInt(battleInt);
 }
 

@@ -4,7 +4,6 @@
 #include "global.h"
 #include <SDL_ttf.h>
 #include <SDL.h>
-#include "CPreGame.h"
 
 /*
  * CMessage.h, part of VCMI engine
