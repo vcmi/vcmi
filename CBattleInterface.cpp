@@ -1095,6 +1095,8 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
+		if (movedStack->creature->sounds.startMoving)
+			CGI->mush->playSound(movedStack->creature->sounds.startMoving);
 		handleStartMoving(number);
 	}
 	if(moveStarted)
@@ -1194,6 +1196,10 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 	{
 		if(creAnims[number]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
 		{
+			if (movedStack->creature->sounds.endMoving) {
+				CGI->mush->playSound(movedStack->creature->sounds.endMoving);
+			}
+
 			creAnims[number]->setType(21);
 
 			//for(int i=0; i<creAnims[number]->framesInGroup(21)*getAnimSpeedMultiplier()-1; ++i)

@@ -2409,7 +2409,7 @@ void CPlayerInterface::showComp(SComponent comp)
 	adventureInt->infoBar.showComp(&comp,4000);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, soundBase::soundNames soundID)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<Component*> &components, soundBase::soundID soundID)
 {
 	std::vector<SComponent*> intComps;
 	for(int i=0;i<components.size();i++)
@@ -2417,7 +2417,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	showInfoDialog(text,intComps,soundID);
 }
 
-void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, soundBase::soundNames soundID)
+void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, soundBase::soundID soundID)
 {
 	{
 		boost::unique_lock<boost::mutex> un(showingDialog->mx);
@@ -2463,7 +2463,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 	LOCPLINT->pushInt(temp);
 }
 
-void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, soundBase::soundNames soundID, bool selection, bool cancel )
+void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, soundBase::soundID soundID, bool selection, bool cancel )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 

@@ -20,38 +20,29 @@ class CMusicHandler
 {
 private:
 	CSndHandler *sndh;
-	soundBase::soundNames getSoundID(std::string &fileName);
+	soundBase::soundID getSoundID(std::string &fileName);
 
-	class cachedSounds {
-	public:
-		std::string filename;
-		Mix_Chunk *chunk;
+	std::map<soundBase::soundID, Mix_Chunk *> soundChunks;
 
-		// This is some horrible C++ abuse. Isn't there any way to do
-		// something simplier to init sounds?
-		cachedSounds(std::string filename_in, Mix_Chunk *chunk_in):
-		filename(filename_in), chunk(chunk_in) {};
-	};
+	Mix_Chunk *GetSoundChunk(soundBase::soundID soundID);
 
-	std::map<soundBase::soundNames, cachedSounds> sounds;
-	std::map<std::string, soundBase::soundNames> reverse_sounds;
-
-	Mix_Chunk *GetSoundChunk(std::string srcName);
+	bool audioInit;
 
 public:
-	CMusicHandler(): sndh(NULL) {};
+	CMusicHandler(): sndh(NULL), audioInit(false) {};
+	~CMusicHandler();
 
 	void initMusics();
 	void initCreaturesSounds(std::vector<CCreature> &creatures);
 
 	// Sounds
-	int playSound(soundBase::soundNames soundID, int repeats=0);
-	int playSoundFromSet(std::vector<soundBase::soundNames> &sound_vec);
+	int playSound(soundBase::soundID soundID, int repeats=0);
+	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
 
 	// Sets
-	std::vector<soundBase::soundNames> pickup_sounds;
-	std::vector<soundBase::soundNames> horseSounds;
+	std::vector<soundBase::soundID> pickup_sounds;
+	std::vector<soundBase::soundID> horseSounds;
 };
 
 #endif // __CMUSICHANDLER_H__

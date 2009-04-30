@@ -46,14 +46,16 @@ public:
 
 	// Sound infos
 	struct {
-		soundBase::soundNames attack;
-		soundBase::soundNames defend;
-		soundBase::soundNames killed; // was killed died
-		soundBase::soundNames move;
-		soundBase::soundNames shoot; // range attack
-		soundBase::soundNames wince; // attacked but did not die
-		soundBase::soundNames ext1;	 // creature specific extension
-		soundBase::soundNames ext2;	 // creature specific extension
+		soundBase::soundID attack;
+		soundBase::soundID defend;
+		soundBase::soundID killed; // was killed died
+		soundBase::soundID move;
+		soundBase::soundID shoot; // range attack
+		soundBase::soundID wince; // attacked but did not die
+		soundBase::soundID ext1;  // creature specific extension
+		soundBase::soundID ext2;  // creature specific extension
+		soundBase::soundID startMoving; // usually same as ext1
+		soundBase::soundID endMoving;	// usually same as ext2
 	} sounds;
 
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield

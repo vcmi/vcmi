@@ -592,10 +592,10 @@ public:
 	void heroMovePointsChanged(const CGHeroInstance * hero);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void receivedResource(int type, int val);
-	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, soundBase::soundNames soundID);
+	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, soundBase::soundID soundID);
 	//void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
 	//void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
-	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, soundBase::soundNames soundID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
+	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, soundBase::soundID soundID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
 	void tileHidden(const std::set<int3> &pos);
 	void tileRevealed(const std::set<int3> &pos);
@@ -636,7 +636,7 @@ public:
 	void handleMouseMotion(SDL_Event *sEvent);
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
-	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, soundBase::soundNames soundID);
+	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, soundBase::soundID soundID);
 	void showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
 	bool moveHero(const CGHeroInstance *h, CPath path);
 

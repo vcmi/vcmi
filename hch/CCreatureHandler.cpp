@@ -107,6 +107,8 @@ void CCreatureHandler::loadCreatures()
 		ncre.sounds.wince = soundBase::invalid;
 		ncre.sounds.ext1 = soundBase::invalid;
 		ncre.sounds.ext2 = soundBase::invalid;
+		ncre.sounds.startMoving = soundBase::invalid;
+		ncre.sounds.endMoving = soundBase::invalid;
 
 		int befi=i;
 		for(i; i<andame; ++i)

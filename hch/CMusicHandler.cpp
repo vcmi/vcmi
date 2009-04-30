@@ -3,6 +3,7 @@
 #include <sstream>
 #include <boost/assign/std/vector.hpp> 
 #include <boost/assign/list_of.hpp>
+#include <boost/bimap.hpp>
 
 #include <SDL_mixer.h>
 
@@ -23,19 +24,44 @@
 
 using namespace boost::assign;
 
+boost::bimap<soundBase::soundID, std::string> sounds;
+
+CMusicHandler::~CMusicHandler()
+{
+	if (!audioInit)
+		return;
+
+	if (sndh) {
+		Mix_HaltChannel(-1);
+		delete sndh;
+	}
+
+	std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
+	for (it=soundChunks.begin(); it != soundChunks.end(); it++) {
+		if (it->second)
+			Mix_FreeChunk(it->second);
+	}
+
+	Mix_CloseAudio();
+}
+
 void CMusicHandler::initMusics()
 {
+	if (audioInit)
+		return;
+
 	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
 	{
 		printf("Mix_OpenAudio error: %s!!!\n", Mix_GetError());
 		return;
 	}
-	atexit(Mix_CloseAudio);
+
+	audioInit = true;
 
 	// Map sound names
 #define VCMI_SOUND_NAME(x) ( soundBase::x,
-#define VCMI_SOUND_FILE(y) cachedSounds(#y, 0) )
-	sounds = boost::assign::map_list_of
+#define VCMI_SOUND_FILE(y) #y )
+	sounds = boost::assign::list_of<boost::bimap<soundBase::soundID, std::string>::relation>
 		VCMI_SOUND_LIST;
 #undef VCMI_SOUND_NAME
 #undef VCMI_SOUND_FILE
@@ -48,11 +74,6 @@ void CMusicHandler::initMusics()
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,
 		soundBase::horseWater, soundBase::horseRock;
-
-	// Create reverse map. It's used during game init to map names to internal IDs
-	std::map<soundBase::soundNames, cachedSounds>::iterator it;
-	for ( it=sounds.begin() ; it != sounds.end(); it++ )
-		reverse_sounds[(*it).second.filename] = (*it).first;
 
 	//AITheme0 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITheme0.mp3");
 	//AITheme1 = Mix_LoadMUS(DATA_DIR "MP3" PATHSEPARATOR "AITHEME1.mp3");
@@ -101,33 +122,42 @@ void CMusicHandler::initMusics()
 	sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
 }
 
-// Return an SDL chunk. Allocate if it is not cached yet.
-Mix_Chunk *CMusicHandler::GetSoundChunk(std::string srcName)
+// Allocate an SDL chunk and cache it.
+Mix_Chunk *CMusicHandler::GetSoundChunk(soundBase::soundID soundID)
 {
-	int size;
-	const char *data = sndh->extract(srcName, size);
-	SDL_RWops *ops;
-	Mix_Chunk *chunk;
+	// Find its name
+	boost::bimap<soundBase::soundID, std::string>::left_iterator it;
+	it = sounds.left.find(soundID);
+	if (it == sounds.left.end())
+		return NULL;
 
+	// Load and insert
+	int size;
+	const char *data = sndh->extract(it->second, size);
 	if (!data)
 		return NULL;
 
-	ops = SDL_RWFromConstMem(data, size);
+	SDL_RWops *ops = SDL_RWFromConstMem(data, size);
+	Mix_Chunk *chunk;
 	chunk = Mix_LoadWAV_RW(ops, 1);	// will free ops
 
-	if (!chunk)
-		fprintf(stderr, "Unable to mix: %s\n",
-				Mix_GetError());
+	if (!chunk) {
+		tlog1 << "Unable to mix sound" << it->second << "(" << Mix_GetError() << ")" << std::endl;
+		return NULL;
+	}
+
+	soundChunks.insert(std::pair<soundBase::soundID, Mix_Chunk *>(soundID, chunk));
 
 	return chunk;
 }
 
-soundBase::soundNames CMusicHandler::getSoundID(std::string &fileName)
+// Get a soundID given a filename
+soundBase::soundID CMusicHandler::getSoundID(std::string &fileName)
 {
-	std::map<std::string, soundBase::soundNames>::iterator it;
+	boost::bimap<soundBase::soundID, std::string>::right_iterator it;
 
-	it = reverse_sounds.find(fileName);
-	if (it == reverse_sounds.end())
+	it = sounds.right.find(fileName);
+	if (it == sounds.right.end())
 		return soundBase::invalid;
 	else
 		return it->second;
@@ -167,6 +197,15 @@ void CMusicHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 			c.sounds.wince = getSoundID(wince);
 			c.sounds.ext1 = getSoundID(ext1);
 			c.sounds.ext2 = getSoundID(ext2);
+
+			// Special creatures
+			if (c.idNumber == 55 || // Archdevil
+				c.idNumber == 62 || // Vampire
+				c.idNumber == 62)	// Vampire Lord
+			{
+				c.sounds.startMoving = c.sounds.ext1;
+				c.sounds.endMoving = c.sounds.ext2;
+			}
 		}
 	}
 	ifs.close();
@@ -187,40 +226,32 @@ void CMusicHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 }
 
 // Plays a sound, and return its channel so we can fade it out later
-int CMusicHandler::playSound(soundBase::soundNames soundID, int repeats)
+int CMusicHandler::playSound(soundBase::soundID soundID, int repeats)
 {
 	int channel;
+	Mix_Chunk *chunk;
+	std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
 
 	if (!sndh)
 		return -1;
 
-	std::map<soundBase::soundNames, cachedSounds>::iterator it;
+	chunk = GetSoundChunk(soundID);
 
-	it = sounds.find(soundID);
-	if (it == sounds.end())
-		return -1;
-
-	class cachedSounds sound = it->second;
-
-	if (!sound.chunk) {
-		sound.chunk = GetSoundChunk(sound.filename);
-	}
-
-	if (sound.chunk)
+	if (chunk)
 	{
-		channel = Mix_PlayChannel(-1, sound.chunk, repeats);
-		if(channel == -1)
-		{
-			fprintf(stderr, "Unable to play WAV file("DATA_DIR "Data" PATHSEPARATOR "Heroes3.wav::%s): %s\n",
-					sound.filename.c_str(),Mix_GetError());
-		}
+		channel = Mix_PlayChannel(-1, chunk, repeats);
+		if (channel == -1)
+			tlog1 << "Unable to play sound file " << soundID << std::endl;
+		
+	} else {
+		channel = -1;
 	}
 
 	return channel;
 }
 
 // Helper. Randomly select a sound from an array and play it
-int CMusicHandler::playSoundFromSet(std::vector<soundBase::soundNames> &sound_vec)
+int CMusicHandler::playSoundFromSet(std::vector<soundBase::soundID> &sound_vec)
 {
 	return playSound(sound_vec[rand() % sound_vec.size()]);
 }

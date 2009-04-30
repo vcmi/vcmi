@@ -266,7 +266,7 @@ void InfoWindow::applyCl( CClient *cl )
 	std::string str = toString(text);
 
 	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showInfoDialog(str,comps,(soundBase::soundNames)soundID);
+		cl->playerint[player]->showInfoDialog(str,comps,(soundBase::soundID)soundID);
 	else
 		tlog2 << "We received InfoWindow for not our player...\n";
 }
@@ -285,7 +285,7 @@ void BlockingDialog::applyCl( CClient *cl )
 {
 	std::string str = toString(text);
 	if(vstd::contains(cl->playerint,player))
-		cl->playerint[player]->showBlockingDialog(str,components,id,(soundBase::soundNames)soundID,selection(),cancel());
+		cl->playerint[player]->showBlockingDialog(str,components,id,(soundBase::soundID)soundID,selection(),cancel());
 	else
 		tlog2 << "We received YesNoDialog for not our player...\n";
 }

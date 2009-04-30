@@ -1026,7 +1026,7 @@ public:
 	// We must keep an entry 0 for an invalid or no sound.
 #define VCMI_SOUND_NAME(x) x,
 #define VCMI_SOUND_FILE(y)
-	enum soundNames {
+	enum soundID {
 		invalid=0,
 		sound_todo=1,			// temp entry until code is fixed
 		VCMI_SOUND_LIST
