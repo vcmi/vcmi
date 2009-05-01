@@ -445,10 +445,8 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	:ID(I), creature(C), amount(A), baseAmount(A), firstHPleft(C->hitPoints), owner(O), slot(S), attackerOwned(AO), position(-1),   
-	 counterAttacks(1), shots(C->shots), state(), effects()
+	counterAttacks(1), shots(C->shots), state(), effects(), speed(creature->speed), abilities(C->abilities), attack(C->attack), defense(C->defence)
 {
-	speed = creature->speed;
-	abilities = C->abilities;
 	state.insert(ALIVE);
 }
 
@@ -526,6 +524,54 @@ si8 CStack::Luck() const
 	}
 	if(ret > 3) ret = 3;
 	if(ret < -3) ret = -3;
+	return ret;
+}
+
+si32 CStack::Attack() const
+{
+	si32 ret = attack; //value to be returned
+
+	if(getEffect(56)) //frenzy for attacker
+	{
+		ret += (VLC->spellh->spells[56].powers[getEffect(56)->level]/100.0) * defense;
+	}
+
+	if(getEffect(48)) //attacker's prayer handling
+	{
+		ret += VLC->spellh->spells[48].powers[getEffect(48)->level];
+	}
+
+	if(getEffect(45)) //weakness handling
+	{
+		ret -= VLC->spellh->spells[45].powers[getEffect(45)->level];
+	}
+
+	return ret;
+}
+
+si32 CStack::Defense() const
+{
+	si32 ret = defense;
+
+	if(getEffect(56)) //frenzy for defender
+	{
+		return 0;
+	}
+
+	if(getEffect(48)) //defender's prayer handling
+	{
+		ret += VLC->spellh->spells[48].powers[getEffect(48)->level];
+	}
+	if(getEffect(47)) //defender's disrupting ray handling
+	{
+		int howMany = howManyEffectsSet(47);
+		ret -=  VLC->spellh->spells[47].powers[getEffect(47)->level] * howMany;
+	}
+	if(getEffect(46)) //stone skin handling
+	{
+		ret += VLC->spellh->spells[46].powers[getEffect(46)->level];
+	}
+
 	return ret;
 }
 
@@ -1699,46 +1745,72 @@ bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
 {
-	int attackerAttackBonus = attacker->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0),
-		defenderDefenseBonus = defender->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0),
-		attackDefenseBonus = 0,
+	int attackDefenseBonus = attacker->Attack() - defender->Defense(),
 		minDmg = attacker->creature->damageMin * attacker->amount, 
 		maxDmg = attacker->creature->damageMax * attacker->amount;
 
 	//calculating total attack/defense skills modifier
-	if(attacker->getEffect(56)) //frenzy for attacker
-	{
-		attackerAttackBonus += (VLC->spellh->spells[56].powers[attacker->getEffect(56)->level]/100.0) *(attacker->creature->defence + (attackerHero ? attackerHero->getPrimSkillLevel(1) : 0));
-	}
-	if(defender->getEffect(56)) //frenzy for defender
-	{
-		defenderDefenseBonus = 0;
-	}
-	attackDefenseBonus = attackerAttackBonus - defenderDefenseBonus;
-	if(defender->getEffect(48)) //defender's prayer handling
-	{
-		attackDefenseBonus -= VLC->spellh->spells[48].powers[defender->getEffect(48)->level];
-	}
-	if(attacker->getEffect(48)) //attacker's prayer handling
-	{
-		attackDefenseBonus += VLC->spellh->spells[48].powers[attacker->getEffect(48)->level];
-	}
-	if(defender->getEffect(47)) //defender's disrupting ray handling
-	{
-		int howMany = defender->howManyEffectsSet(47);
-		attackDefenseBonus +=  VLC->spellh->spells[47].powers[attacker->getEffect(47)->level] * howMany;
-	}
-	if(defender->getEffect(46)) //stone skin handling
-	{
-		attackDefenseBonus -= VLC->spellh->spells[46].powers[defender->getEffect(46)->level];
-	}
-	if(attacker->getEffect(45)) //weakness handling
-	{
-		attackDefenseBonus -= VLC->spellh->spells[45].powers[attacker->getEffect(45)->level];
-	}
+
 	if(!shooting && attacker->getEffect(43)) //bloodlust handling
 	{
 		attackDefenseBonus += VLC->spellh->spells[43].powers[attacker->getEffect(43)->level];
+	}
+
+	if(shooting && attacker->getEffect(44)) //precision handling
+	{
+		attackDefenseBonus += VLC->spellh->spells[44].powers[attacker->getEffect(44)->level];
+	}
+
+	if(attacker->getEffect(55)) //slayer handling
+	{
+		std::vector<int> affectedIds;
+		switch(attacker->getEffect(55)->level)
+		{
+		case 3: //expert
+			{
+				affectedIds.push_back(40); //giant
+				affectedIds.push_back(41); //titan
+				affectedIds.push_back(152); //lord of thunder
+			} //continue adding ...
+		case 2: //advanced
+			{
+				affectedIds.push_back(12); //angel
+				affectedIds.push_back(13); //archangel
+				affectedIds.push_back(54); //devil
+				affectedIds.push_back(55); //arch devil
+				affectedIds.push_back(150); //supreme archangel
+				affectedIds.push_back(153); //antichrist
+			} //continue adding ...
+		case 0: case 1: //none and basic
+			{
+				affectedIds.push_back(26); //green dragon
+				affectedIds.push_back(27); //gold dragon
+				affectedIds.push_back(82); //red dragon
+				affectedIds.push_back(83); //black dragon
+				affectedIds.push_back(96); //behemot
+				affectedIds.push_back(97); //ancient behemot
+				affectedIds.push_back(110); //hydra
+				affectedIds.push_back(111); //chaos hydra
+				affectedIds.push_back(132); //azure dragon
+				affectedIds.push_back(133); //crystal dragon
+				affectedIds.push_back(134); //faerie dragon
+				affectedIds.push_back(135); //rust dragon
+				affectedIds.push_back(151); //diamond dragon
+				affectedIds.push_back(154); //blood dragon
+				affectedIds.push_back(155); //darkness dragon
+				affectedIds.push_back(156); //ghost behemot
+				affectedIds.push_back(157); //hell hydra
+				break;
+			}
+		}
+		for(int g=0; g<affectedIds.size(); ++g)
+		{
+			if(defender->creature->idNumber == affectedIds[g])
+			{
+				attackDefenseBonus += VLC->spellh->spells[55].powers[attacker->getEffect(55)->level];
+				break;
+			}
+		}
 	}
 
 	float dmgBonusMultiplier = 1.0f;
@@ -1819,24 +1891,16 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	//handling spell effects
 	if(!shooting && defender->getEffect(27)) //shield
 	{
-		if(defender->getEffect(27)->level<=1) //none or basic
-			dmgBonusMultiplier *= 0.85f;
-		else //adv or expert
-			dmgBonusMultiplier *= 0.7f;
+		dmgBonusMultiplier *= float(VLC->spellh->spells[27].powers[attacker->getEffect(27)->level]) / 100.0f;
 	}
 	else if(shooting && defender->getEffect(28)) //air shield
 	{
-		if(defender->getEffect(28)->level<=1) //none or basic
-			dmgBonusMultiplier *= 0.75f;
-		else //adv or expert
-			dmgBonusMultiplier *= 0.5f;
+		dmgBonusMultiplier *= float(VLC->spellh->spells[28].powers[attacker->getEffect(28)->level]) / 100.0f;
 	}
 	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
 	{
-		if(attacker->getEffect(42)->level>=2) //adv or expert
-			dmgBonusMultiplier *= 0.8f;
+		dmgBonusMultiplier *= 0.8f * float(VLC->spellh->spells[42].powers[attacker->getEffect(42)->level]); //the second factor is 1 or 0
 	}
-
 
 
 	minDmg *= dmgBonusMultiplier;

@@ -476,7 +476,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 			CGHeroInstance *attackerHero = (m_side)? m_hero1 : m_hero2;
 			CGHeroInstance *defendingHero = (m_side)? m_hero2 : m_hero1;
 
-			int attackDefenseBonus = currentStack->creature->attack + (attackerHero ? attackerHero->getPrimSkillLevel(0) : 0) - (st->creature->defence + (defendingHero ? defendingHero->getPrimSkillLevel(1) : 0));
+			int attackDefenseBonus = currentStack->Attack() - st->Defense();
 			float damageFactor = 1.0f;
 			if(attackDefenseBonus < 0) //decreasing dmg
 			{

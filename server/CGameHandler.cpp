@@ -835,6 +835,8 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
 			stacks.back()->morale = hero1->getCurrentMorale(i->first,false);
 			stacks.back()->luck = hero1->getCurrentLuck(i->first,false);
+			stacks.back()->attack += hero1->getPrimSkillLevel(0);
+			stacks.back()->defense += hero1->getPrimSkillLevel(1);
 		}
 		else
 		{
@@ -884,6 +886,8 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			stacks.back()->speed += hero2->valOfBonuses(HeroBonus::STACKS_SPEED);
 			stacks.back()->morale = hero2->getCurrentMorale(i->first,false);
 			stacks.back()->luck = hero2->getCurrentLuck(i->first,false);
+			stacks.back()->attack += hero2->getPrimSkillLevel(0);
+			stacks.back()->defense += hero2->getPrimSkillLevel(1);
 		}
 		else
 		{
@@ -2455,6 +2459,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 41: //bless
 			case 42: //curse
 			case 43: //bloodlust
+			case 44: //precision
 			case 45: //weakness
 			case 46: //stone skin
 			case 47: //disrupting ray
@@ -2465,6 +2470,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 52: //misfortune
 			case 53: //haste
 			case 54: //slow
+			case 55: //slayer
 			case 61: //forgetfulness
 				{
 					SetStackEffect sse;

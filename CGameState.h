@@ -151,7 +151,9 @@ public:
 	ui16 position; //position on battlefield
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
-	ui8 speed;
+	ui8 speed; //speed of stack with hero bonus
+	si32 attack; //attack of stack with hero bonus
+	si32 defense; //defense of stack with hero bonus
 	si8 morale, luck; //base stack luck/morale
 
 	std::set<EAbilities> abilities;
@@ -168,14 +170,16 @@ public:
 	};
 	std::vector<StackEffect> effects;
 
-	CStack(CCreature * C, int A, int O, int I, bool AO, int S);
-	CStack() : ID(-1), creature(NULL), amount(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1), abilities(), state(), effects() {}
+	CStack(CCreature * C, int A, int O, int I, bool AO, int S); //c-tor
+	CStack() : ID(-1), creature(NULL), amount(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1), abilities(), state(), effects() {} //c-tor
 	const StackEffect * getEffect(ui16 id) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(); //if stack has remaining move this turn
-	ui32 Speed() const;
-	si8 Morale() const;
-	si8 Luck() const;
+	ui32 Speed() const; //get speed of creature with all modificators
+	si8 Morale() const; //get morale of stack with all modificators
+	si8 Luck() const; //get luck of stack with all modificators
+	si32 Attack() const; //get attack of stack with all modificators
+	si32 Defense() const; //get defense of stack with all modificators
 	template <typename Handler> void save(Handler &h, const int version)
 	{
 		h & creature->idNumber;
@@ -190,13 +194,13 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & amount & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots & morale & luck & speed;
+			& shots & morale & luck & speed & attack & defense;
 		if(h.saving)
 			save(h,version);
 		else
 			load(h,version);
 	}
-	bool alive() const
+	bool alive() const //determines if stack is alive
 	{
 		return vstd::contains(state,ALIVE);
 	}
