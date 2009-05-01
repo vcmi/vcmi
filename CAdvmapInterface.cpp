@@ -477,30 +477,20 @@ void CTerrainRect::clickLeft(tribool down)
 		}
 
 		//still here? we need to move hero if we clicked end of already selected path or calculate a new path otherwise
-		if (currentPath)
+		if (currentPath  &&  currentPath->endPos() == mp)//we'll be moving
 		{
-			if (currentPath->endPos() == mp) //we'll be moving
-			{
-				LOCPLINT->pim->unlock();
-				LOCPLINT->moveHero(currentHero,*currentPath);
-				LOCPLINT->pim->lock();
-			}
-			else //remove an old path
-			{
-				delete currentPath;
-				currentPath=NULL;
-				LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.getPosOfHero(LOCPLINT->adventureInt->selection)].second = NULL;
-			}
+			LOCPLINT->pim->unlock();
+			LOCPLINT->moveHero(currentHero,*currentPath);
+			LOCPLINT->pim->lock();
 		}
 		else //remove old path and find a new one
 		{
 			int3 bufpos = currentHero->getPosition(false);
-
 			CPath *& pathForCurhero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second;
 			if(pathForCurhero)
 				delete pathForCurhero;
 
-			currentPath = pathForCurhero = LOCPLINT->cb->getPath(bufpos, mp, currentHero);;
+			currentPath = pathForCurhero = LOCPLINT->cb->getPath(bufpos, mp, currentHero);
 		}
 	} //end of hero is selected "case"
 }
@@ -605,7 +595,11 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 void CTerrainRect::hover(bool on)
 {
 	if (!on)
+	{
 		LOCPLINT->adventureInt->statusbar.clear();
+		CGI->curh->changeGraphic(0,0);
+	}
+	Hoverable::hover(on);
 }
 void CTerrainRect::showPath(const SDL_Rect * extRect)
 {
@@ -1357,11 +1351,6 @@ void CAdvMapInt::fendTurn()
 
 void CAdvMapInt::activate()
 {
-	if(subInt == heroWindow)
-	{
-		heroWindow->activate();
-		return;
-	}
 	if(active++)
 	{
 		tlog1 << "Error: advmapint already active...\n";
@@ -1390,11 +1379,6 @@ void CAdvMapInt::activate()
 }
 void CAdvMapInt::deactivate()
 {
-	if(subInt == heroWindow)
-	{
-		heroWindow->deactivate();
-		return;
-	}
 	KeyInterested::deactivate();
 	hide();
 

@@ -1658,7 +1658,7 @@ void CGResource::onHeroVisit( const CGHeroInstance * h ) const
 		}
 		else
 		{
-			fightForRes(0,h);
+			fightForRes(1,h);
 		}
 	}
 	else

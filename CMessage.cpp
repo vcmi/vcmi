@@ -557,6 +557,7 @@ ComponentsToBlit::ComponentsToBlit(std::vector<SComponent*> & SComps, int maxw, 
 		else
 		{
 			curw += toadd;
+			amax(w,curw);
 		}
 
 		comps[curr].push_back(cur);

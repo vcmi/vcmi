@@ -2925,7 +2925,7 @@ void CHeroList::clickLeft(tribool down)
 				from--;
 				if (from<0)
 					from=0;
-				draw(screen2);
+				draw(screen);
 			}
 		}
 		else if (!pressed) //down
@@ -2938,7 +2938,7 @@ void CHeroList::clickLeft(tribool down)
 				//if (from<items.size()-5)
 				//	from=items.size()-5;
 
-				draw(screen2);
+				draw(screen);
 			}
 		}
 		else
@@ -2995,22 +2995,25 @@ void CHeroList::clickRight(tribool down)
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 		}
-		//if not buttons then heroes
-		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
-		hx-=pos.x;
-		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
-		int ny = hy/32;
-		if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
+		else
 		{
-			return;
-		}
+			//if not buttons then heroes
+			int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+			hx-=pos.x;
+			hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
+			int ny = hy/32;
+			if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
+			{
+				return;
+			}
 
-		//show popup
-		CInfoPopup * ip = new CInfoPopup(graphics->heroWins[items[from+ny].first->subID],
-			LOCPLINT->current->motion.x-graphics->heroWins[items[from+ny].first->subID]->w,
-			LOCPLINT->current->motion.y-graphics->heroWins[items[from+ny].first->subID]->h,
-			false);
-		LOCPLINT->pushInt(ip);
+			//show popup
+			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[items[from+ny].first->subID],
+				LOCPLINT->current->motion.x-graphics->heroWins[items[from+ny].first->subID]->w,
+				LOCPLINT->current->motion.y-graphics->heroWins[items[from+ny].first->subID]->h,
+				false);
+			LOCPLINT->pushInt(ip);
+		}
 	}
 	else
 	{
