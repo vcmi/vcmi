@@ -121,7 +121,7 @@ void CVCMIServer::start()
 		intpr::shared_memory_object smo(intpr::open_only,"vcmi_memory",intpr::read_write);
 		smo.truncate(sizeof(ServerReady));
 		mr = new intpr::mapped_region(smo,intpr::read_write);
-		sr = (ServerReady*)mr->get_address();
+		sr = reinterpret_cast<ServerReady*>(mr->get_address());
 	}
 	catch(...)
 	{

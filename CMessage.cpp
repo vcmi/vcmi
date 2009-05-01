@@ -455,11 +455,11 @@ SDL_Surface * CMessage::genMessage
 		//ok
 		SDL_Rect trescRect = genRect((*addPics)[0]->ourImages[0].bitmap->h,hwo,((ret->w/2)-hwo-10),by);
 		SDL_BlitSurface((*addPics)[0]->ourImages[0].bitmap,NULL,ret,&trescRect);
-		((std::vector<SDL_Rect>*)(cb))->push_back(trescRect);
+		reinterpret_cast<std::vector<SDL_Rect>*>(cb)->push_back(trescRect);
 		//cancel
 		trescRect = genRect((*addPics)[1]->ourImages[0].bitmap->h,hwc,((ret->w/2)+10),by);
 		SDL_BlitSurface((*addPics)[1]->ourImages[0].bitmap,NULL,ret,&trescRect);
-		((std::vector<SDL_Rect>*)(cb))->push_back(trescRect);
+		reinterpret_cast<std::vector<SDL_Rect>*>(cb)->push_back(trescRect);
 	}
 	delete tekst;
 	return ret;

@@ -277,7 +277,7 @@ void HeroLevelUp::applyCl( CClient *cl )
 	if(vstd::contains(cl->playerint,h->tempOwner))
 	{
 		boost::function<void(ui32)> callback = boost::function<void(ui32)>(boost::bind(&CCallback::selectionMade,LOCPLINT->cb,_1,id));
-		cl->playerint[h->tempOwner]->heroGotLevel((const CGHeroInstance *)h,(int)primskill,skills, callback);
+		cl->playerint[h->tempOwner]->heroGotLevel(const_cast<const CGHeroInstance*>(h),static_cast<int>(primskill),skills, callback);
 	}
 }
 

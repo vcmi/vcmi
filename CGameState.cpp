@@ -716,7 +716,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 		return std::pair<int,int>(79,ran()%7); //now it's OH3 style, use %8 for mithril 
 	case 77: //random town
 		{
-			int align = ((CGTownInstance*)obj)->alignment,
+			int align = (static_cast<CGTownInstance*>(obj))->alignment,
 				f;
 			if(align>PLAYER_LIMIT-1)//same as owner / random
 			{
@@ -741,7 +741,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 	case 216: //random dwelling
 		{
 			int faction = ran()%F_NUMBER;
-			CCreGen2ObjInfo* info =(CCreGen2ObjInfo*)obj->info;
+			CCreGen2ObjInfo* info = static_cast<CCreGen2ObjInfo*>(obj->info);
 			if (info->asCastle)
 			{
 				for(int i=0;i<map->objects.size();i++)
@@ -779,7 +779,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 	case 217:
 		{
 			int faction = ran()%F_NUMBER;
-			CCreGenObjInfo* info =(CCreGenObjInfo*)obj->info;
+			CCreGenObjInfo* info = static_cast<CCreGenObjInfo*>(obj->info);
 			if (info->asCastle)
 			{
 				for(int i=0;i<map->objects.size();i++)
@@ -815,7 +815,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 		}
 	case 218:
 		{
-			CCreGen3ObjInfo* info =(CCreGen3ObjInfo*)obj->info;
+			CCreGen3ObjInfo* info = static_cast<CCreGen3ObjInfo*>(obj->info);
 			int level = ((info->maxLevel-info->minLevel) ? (ran()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
 			int cid = VLC->townh->towns[obj->subID].basicCreatures[level];
 			for(int i=0;i<VLC->objh->cregens.size();i++)

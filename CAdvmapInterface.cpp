@@ -872,7 +872,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 			}
 
 		}
-		if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > ((const CGHeroInstance*)(LOCPLINT->adventureInt->selection))->movement)
+		if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > (static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection))->movement)
 			pn+=25;
 		if (pn>=0)
 		{
@@ -1324,7 +1324,7 @@ void CAdvMapInt::fshowSpellbok()
 		return;
 
 
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ((const CGHeroInstance*)LOCPLINT->adventureInt->selection));
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), (static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection)));
 	LOCPLINT->pushInt(spellWindow);
 }
 void CAdvMapInt::fadventureOPtions()

@@ -466,7 +466,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
 	std::set<BattleStackAttacked>::iterator i = bat.bsa.insert(BattleStackAttacked()).first;
-	BattleStackAttacked *bsa = (BattleStackAttacked *) &*i;
+	BattleStackAttacked *bsa = &*i;
 
 	bsa->stackAttacked = def->ID;
 	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot());//counting dealt damage
@@ -1339,7 +1339,7 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 
 void CGameHandler::startBattleI(const CCreatureSet * army1, const CCreatureSet * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb) //use hero=NULL for no hero
 {
-	boost::thread(boost::bind(&CGameHandler::startBattle,this,*(CCreatureSet *)army1,*(CCreatureSet *)army2,tile,(CGHeroInstance *)hero1,(CGHeroInstance *)hero2,cb));
+	boost::thread(boost::bind(&CGameHandler::startBattle,this,*const_cast<CCreatureSet *>(army1),*const_cast<CCreatureSet *>(army2),tile,const_cast<CGHeroInstance *>(hero1), const_cast<CGHeroInstance *>(hero2),cb));
 }
 void CGameHandler::startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) //for hero<=>neutral army
 {
