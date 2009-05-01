@@ -377,7 +377,7 @@ public:
 	virtual void show(SDL_Surface * to);
 	void activate();
 	void deactivate();
-	CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons); //c-tor
+	CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
 	CInfoWindow(); //c-tor
 	~CInfoWindow(); //d-tor
 };

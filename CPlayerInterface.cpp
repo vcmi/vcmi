@@ -574,9 +574,10 @@ void CGarrisonInt::deactivate()
 	deactiveteSlots();
 }
 
-CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons)
+CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
 {
 	ID = -1;
+	this->delComps = delComps;
 	for(int i=0;i<Buttons.size();i++)
 	{
 		buttons.push_back(new AdventureMapButton("","",boost::bind(&CInfoWindow::close,this),0,0,Buttons[i].first));
@@ -595,6 +596,7 @@ CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const st
 CInfoWindow::CInfoWindow() 
 {
 	ID = -1;
+	delComps = false;
 }
 void CInfoWindow::close()
 {
@@ -1118,6 +1120,7 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	adventureInt = NULL;
 	battleInt = NULL;
 	pim = new boost::recursive_mutex;
+	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
 	heroMoveSpeed = 2;
 	mapScrollingSpeed = 2;
@@ -2434,7 +2437,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom);
+	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom,false);
 
 	if(makingTurn && listInt.size())
 	{
@@ -2455,7 +2458,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom);
+	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom,DelComps);
 	temp->delComps = DelComps;
 	for(int i=0;i<onYes.funcs.size();i++)
 		temp->buttons[0]->callback += onYes.funcs[i];
@@ -2830,6 +2833,7 @@ CHeroList::CHeroList(int Size)
 	posmany = pos.y+arrup->height+1;
 
 	from = 0;
+	selected = -1;
 	pressed = indeterminate;
 }
 
@@ -3142,7 +3146,7 @@ CTownList::CTownList(int Size, int x, int y, std::string arrupg, std::string arr
 	pressed = indeterminate;
 
 	from = 0;
-
+	selected = -1;
 }
 
 void CTownList::genList()

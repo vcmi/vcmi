@@ -363,8 +363,8 @@ void Slider::handleIt(SDL_Event sEvent)
 			{
 				whereAreWe=ktory;
 				updateSlid();
+				fun(whereAreWe);
 			}
-			fun(whereAreWe);
 		}
 	}
 
@@ -911,12 +911,8 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 	{
 		if ((i-at+from) > curVector().size()-1)
 		{
-			SDL_Surface * scenin = CSDL_Ext::newSurface(351,25);
 			SDL_BlitSurface(bg,&genRect(25,351,22,(i-at)*25+115),scenin,NULL);
-			blitAt(scenin,24,121+(i-at)*25);
-			//SDL_Flip(screen);
-			CSDL_Ext::update(screen);
-			SDL_FreeSurface(scenin);
+			blitAt(scenin,25,121+(i-at)*25);
 			continue;
 		}
 		if (sizeFilter && ((curVector()[(i-at)+from]->width) != sizeFilter))
@@ -999,11 +995,10 @@ void MapSel::printMaps(int from, int to, int at, bool abs)
 			temp=curVector()[(i-at)+from]->lossCondition.typeOfLossCon;
 
 		blitAt(Dloss->ourImages[temp].bitmap,318,2,scenin);
-
-		blitAt(scenin,24,121+(i-at)*25);
-		SDL_UpdateRect(screen,24,121+(i-at)*25,scenin->w,scenin->h);
+		blitAt(scenin,25,121+(i-at)*25);
 	}
 	SDL_FreeSurface(scenin);
+	SDL_UpdateRect(screen, 25, 121, 351, 19*25);
 }
 int MapSel::whichWL(int nr)
 {
@@ -1154,9 +1149,16 @@ void MapSel::init()
 	}
 	ourMaps.resize(pliczkiTemp.size());
 	boost::thread_group group;
-	int threads = std::max((unsigned int)1,boost::thread::hardware_concurrency());
-	for(int ti=0;ti<threads;ti++)
-		group.create_thread(boost::bind(&MapSel::processMaps,this,boost::ref(pliczkiTemp),ti,threads));
+	if(pliczkiTemp.size())
+	{
+		int threads = std::max((unsigned int)1,boost::thread::hardware_concurrency());
+		for(int ti=0;ti<threads;ti++)
+			group.create_thread(boost::bind(&MapSel::processMaps,this,boost::ref(pliczkiTemp),ti,threads));
+	}
+	else
+	{
+		tlog1 << "No maps in the /Maps directory!\n";
+	}
 
 	bg = BitmapHandler::loadBitmap("SCSELBCK.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
@@ -1709,7 +1711,13 @@ void CPreGame::showScenSel()
 }
 void CPreGame::showOptions()
 {
-	ourOptions->show();
+	if (currentTab != ourOptions)
+		ourOptions->show();
+	else
+	{
+		currentTab->hide();
+		showScenSel();
+	}
 }
 void CPreGame::initNewMenu()
 {
@@ -2049,6 +2057,8 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 StartInfo CPreGame::runLoop()
 {
 	SDL_Event sEvent;
+	ret.turnTime = 0;
+
 	while(run)
 	{
 		try
