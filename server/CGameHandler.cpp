@@ -2300,6 +2300,20 @@ ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const C
 				ret = caster->getPrimSkillLevel(2) * 50  +  sp->powers[caster->getSpellSchoolLevel(sp)];
 			}
 	}
+	//applying sorcerery secondary skill
+	switch(caster->getSecSkillLevel(25))
+	{
+	case 1: //basic
+		ret *= 1.05f;
+		break;
+	case 2: //advanced
+		ret *= 1.1f;
+		break;
+	case 3: //expert
+		ret *= 1.15f;
+		break;
+	}
+
 	//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 	if(sp->air && affectedCreature->getEffect(30)) //air spell & protection from air
 	{
