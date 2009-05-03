@@ -343,7 +343,9 @@ void CGameHandler::startBattle(CCreatureSet army1, CCreatureSet army2, int3 tile
 			next->state -= WAITING; //if stack was waiting it'll now make move, so it won't be "waiting" anymore
 
 			//check for bad morale => freeze
-			if(next->Morale() < 0)
+			if(next->Morale() < 0 &&
+				!((hero1 && hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2 && hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE))) //checking if heroes have (or don't have) morale blocking bonuses)
+				)
 			{
 				if( rand()%24   <   (-next->Morale())*2 )
 				{
@@ -386,6 +388,7 @@ askInterfaceForMove:
 				&& !vstd::contains(next->state,WAITING)
 				&&  next->alive()
 				&&  next->Morale() > 0
+				&& !((hero1 && hero1->hasBonusOfType(HeroBonus::BLOCK_MORALE)) || (hero2 && hero2->hasBonusOfType(HeroBonus::BLOCK_MORALE)) ) //checking if heroes have (or don't have) morale blocking bonuses
 			)
 				if(rand()%24 < next->Morale()) //this stack hasn't got morale this turn
 					goto askInterfaceForMove; //move this stack once more
@@ -2313,6 +2316,23 @@ ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const C
 		ret *= 1.15f;
 		break;
 	}
+	//applying hero bonuses
+	if(sp->air && caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) != 0)
+	{
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::AIR_SPELL_DMG_PREMY) / 100.0f);
+	}
+	else if(sp->fire && caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) != 0)
+	{
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::FIRE_SPELL_DMG_PREMY) / 100.0f);
+	}
+	else if(sp->water && caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) != 0)
+	{
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::WATER_SPELL_DMG_PREMY) / 100.0f);
+	}
+	else if(sp->earth && caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) != 0)
+	{
+		ret *= (100.0f + caster->valOfBonuses(HeroBonus::EARTH_SPELL_DMG_PREMY) / 100.0f);
+	}
 
 	//applying protections - when spell has more then one elements, only one protection should be applied (I think)
 	if(sp->air && affectedCreature->getEffect(30)) //air spell & protection from air
@@ -2346,6 +2366,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 	case 1: //hero casts spell
 		{
 			CGHeroInstance *h = (ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
+			CGHeroInstance *secondHero = (!ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
 			if(!h)
 			{
 				tlog2 << "Wrong caster!\n";
@@ -2360,10 +2381,13 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			CSpell *s = &VLC->spellh->spells[ba.additionalInfo];
 			ui8 skill = h->getSpellSchoolLevel(s); //skill level
 
-			if(   !(vstd::contains(h->spells,ba.additionalInfo)) //hero doesn't know this spell 
+			if(   !(h->canCastThisSpell(s)) //hero cannot cast this spell at all
 				|| (h->mana < s->costs[skill]) //not enough mana
 				|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
-				|| (gs->curB->castedSpells[ba.side])     
+				|| (gs->curB->castedSpells[ba.side]) //spell has been casted
+				|| (secondHero && secondHero->hasBonusOfType(HeroBonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell
+				|| (h->valOfBonuses(HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL) <= s->level) //caster's 'bonus' prevents him from casting this spell
+				|| (secondHero && secondHero->valOfBonuses(HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL) <= s->level) //non - casting hero stops caster from casting this spell
 				)
 			{
 				tlog2 << "Spell cannot be casted!\n";

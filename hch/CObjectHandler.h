@@ -241,7 +241,8 @@ public:
 
 	//////////////////////////////////////////////////////////////////////////
 	const HeroBonus *getBonus(int from, int id) const;
-	int valOfBonuses(HeroBonus::BonusType type) const;
+	int valOfBonuses(HeroBonus::BonusType type, int subtype = -1) const; //subtype -> subtype of bonus, if -1 then any
+	bool hasBonusOfType(HeroBonus::BonusType type, int subtype = -1) const; //determines if hero has a bonus of given type (and optionally subtype)
 	const std::string &getBiography() const;
 	bool needsLastStack()const;
 	unsigned int getTileCost(const TerrainTile &dest, const TerrainTile &from) const; //move cost - applying pathfinding skill, road and terrain modifiers. NOT includes diagonal move penalty, last move levelling
@@ -264,6 +265,7 @@ public:
 	double getHeroStrength() const;
 	int getTotalStrength() const;
 	ui8 getSpellSchoolLevel(const CSpell * spell) const; //returns level on which given spell would be casted by this hero
+	bool canCastThisSpell(const CSpell * spell) const; //determines if this hero can cast given spell; takes into account existing spell in spellbook, existing spellbook and artifact bonuses
 
 	//////////////////////////////////////////////////////////////////////////
 

@@ -1839,7 +1839,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 		}
 	}
 
-	//handling secondary abilities
+	//handling secondary abilities and artifacts giving premies to them
 	if(attackerHero)
 	{
 		if(shooting)
@@ -1855,6 +1855,12 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 			case 3: //expert
 				dmgBonusMultiplier *= 1.5f;
 				break;
+			}
+
+			if(attackerHero->getSecSkillLevel(1) > 0) //non-none level
+			{
+				//apply artifact premy to archery
+				dmgBonusMultiplier *= (100.0f + attackerHero->valOfBonuses(HeroBonus::SECONDARY_SKILL_PREMY, 1)) / 100.0f;
 			}
 		}
 		else

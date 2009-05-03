@@ -804,6 +804,34 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell) const
 	return skill;
 }
 
+bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
+{
+	if(!getArt(17)) //if hero has no spellbook
+		return false;
+
+	if(vstd::contains(spells, spell->id) //hero does not have this spell in spellbook
+		|| (spell->air && hasBonusOfType(HeroBonus::AIR_SPELLS)) // this is air spell and hero can cast all air spells
+		|| (spell->fire && hasBonusOfType(HeroBonus::FIRE_SPELLS)) // this is fire spell and hero can cast all fire spells
+		|| (spell->water && hasBonusOfType(HeroBonus::WATER_SPELLS)) // this is water spell and hero can cast all water spells
+		|| (spell->earth && hasBonusOfType(HeroBonus::EARTH_SPELLS)) // this is earth spell and hero can cast all earth spells
+		)
+		return true;
+
+	for(std::list<HeroBonus>::const_iterator it = bonuses.begin(); it != bonuses.end(); ++it)
+	{
+		if(it->type == HeroBonus::SPELL && it->subtype == spell->id)
+		{
+			return true;
+		}
+		if(it->type == HeroBonus::SPELLS_OF_LEVEL && it->subtype == spell->level)
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 int3 CGHeroInstance::getSightCenter() const
 {
 	return getPosition(false);
@@ -819,13 +847,38 @@ si32 CGHeroInstance::manaRegain() const
 	return 1 + getSecSkillLevel(8) + valOfBonuses(HeroBonus::MANA_REGENERATION); //1 + Mysticism level 
 }
 
-int CGHeroInstance::valOfBonuses( HeroBonus::BonusType type ) const
+int CGHeroInstance::valOfBonuses( HeroBonus::BonusType type, int subtype /*= -1*/ ) const
 {
 	int ret = 0;
-	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
-		if(i->type == type)
-			ret += i->val;
+	if(subtype == -1)
+	{
+		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+			if(i->type == type)
+				ret += i->val;
+	}
+	else
+	{
+		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+			if(i->type == type && i->subtype == subtype)
+				ret += i->val;
+	}
 	return ret;
+}
+
+bool CGHeroInstance::hasBonusOfType(HeroBonus::BonusType type, int subtype /*= -1*/) const
+{
+	if(subtype == -1)
+	{
+		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+			if(i->type == type)
+				return true;
+	}
+	else
+	{
+		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
+			if(i->type == type && i->subtype == subtype)
+				return true;
+	}
 }
 
 int CGTownInstance::getSightRadious() const //returns sight distance
