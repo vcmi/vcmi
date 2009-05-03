@@ -55,6 +55,7 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 	for (int i=0; i<ARTIFACTS_QUANTITY; i++)
 	{
 		CArtifact nart;
+		nart.id=i;
 		loadToIt(VLC->generaltexth->artifNames[i],buf,it,4);
 		loadToIt(pom,buf,it,4);
 		nart.price=atoi(pom.c_str());
@@ -66,8 +67,13 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 		}
 		loadToIt(pom,buf,it,4);
 		nart.aClass = classes[pom[0]];
-		loadToIt(VLC->generaltexth->artifDescriptions[i],buf,it,3);
-		nart.id=i;
+
+		//load description and remove quotation marks
+		std::string &desc = VLC->generaltexth->artifDescriptions[i];
+		loadToIt(desc,buf,it,3);
+		if(desc[0] == '\"' && desc[desc.size()-1] == '\"')
+			desc = desc.substr(1,desc.size()-2);
+
 		if(!onlyTxt)
 			artifacts.push_back(nart);
 	}

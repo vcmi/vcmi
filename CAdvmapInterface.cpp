@@ -1373,14 +1373,30 @@ void CAdvMapInt::activate()
 	heroList.activate();
 	townList.activate();
 	terrain.activate();
-	KeyInterested::activate();
 
 	LOCPLINT->cingconsole->activate();
 }
 void CAdvMapInt::deactivate()
 {
-	KeyInterested::deactivate();
-	hide();
+	scrollingDir = 0;
+	CGI->curh->changeGraphic(0,0);
+	kingOverview.deactivate();
+	underground.deactivate();
+	questlog.deactivate();
+	sleepWake.deactivate();
+	moveHero.deactivate();
+	spellbook.deactivate();
+	advOptions.deactivate();
+	sysOptions.deactivate();
+	nextHero.deactivate();
+	endTurn.deactivate();
+	minimap.deactivate();
+	heroList.deactivate();
+	townList.deactivate();
+	terrain.deactivate();
+	if(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),&infoBar)!=LOCPLINT->timeinterested.end())
+		LOCPLINT->timeinterested.erase(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),&infoBar));
+	infoBar.mode=-1;
 
 	LOCPLINT->cingconsole->deactivate();
 
@@ -1417,28 +1433,6 @@ void CAdvMapInt::showAll(SDL_Surface *to)
 
 	infoBar.draw(to);
 	LOCPLINT->cingconsole->show(to);
-}
-void CAdvMapInt::hide()
-{
-	CGI->curh->changeGraphic(0,0);
-	kingOverview.deactivate();
-	underground.deactivate();
-	questlog.deactivate();
-	sleepWake.deactivate();
-	moveHero.deactivate();
-	spellbook.deactivate();
-	advOptions.deactivate();
-	sysOptions.deactivate();
-	nextHero.deactivate();
-	endTurn.deactivate();
-	minimap.deactivate();
-	heroList.deactivate();
-	townList.deactivate();
-	terrain.deactivate();
-	if(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),&infoBar)!=LOCPLINT->timeinterested.end())
-		LOCPLINT->timeinterested.erase(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),&infoBar));
-	infoBar.mode=-1;
-
 }
 void CAdvMapInt::show(SDL_Surface *to)
 {

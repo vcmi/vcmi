@@ -1195,6 +1195,7 @@ void CPlayerInterface::yourTurn()
 
 		adventureInt->showAll(screen);
 		pushInt(adventureInt);
+		adventureInt->KeyInterested::activate();
 
 		timeHandler th;
 		th.getDif();
@@ -1243,9 +1244,17 @@ void CPlayerInterface::yourTurn()
 				delete ev;
 			}
 
-			if(objsToBlit.size() > 1)
-				blitAt(screen2,0,0,screen); //blit background
-			objsToBlit.back()->show(screen); //blit active interface/window
+			if(!adventureInt->active && adventureInt->scrollingDir) //player force map scrolling though interface is disabled
+			{
+				totalRedraw();
+			}
+			else
+			{
+				//update only top interface and draw background
+				if(objsToBlit.size() > 1)
+					blitAt(screen2,0,0,screen); //blit background
+				objsToBlit.back()->show(screen); //blit active interface/window
+			}
 
 			CGI->curh->draw1();
 			CSDL_Ext::update(screen);
@@ -1254,6 +1263,7 @@ void CPlayerInterface::yourTurn()
 			SDL_framerateDelay(mainFPSmng);
 		}
 
+		adventureInt->KeyInterested::deactivate();
 		popInt(adventureInt);
 
 		cb->endTurn();

@@ -112,7 +112,6 @@ public:
 /*****************************/
 class CAdvMapInt : public CMainInterface, public KeyInterested //adventure map interface
 {
-	void hide(); //deactivates advmap interface
 public:
 	CAdvMapInt(int Player);
 	~CAdvMapInt();
