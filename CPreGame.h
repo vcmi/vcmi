@@ -212,7 +212,7 @@ public:
 	void hide();
 	void init();
 	std::string gdiff(std::string ss);
-	void printMaps(int from,int to=18, int at=0, bool abs=false);
+	void printMaps(int from=0);
 	void select(int which, bool updateMapsList=true, bool forceSettingsUpdate=false);
 	void moveByOne(bool up);
 	void printSelectedInfo();
@@ -254,15 +254,14 @@ public:
 	StartInfo ret;
 	bool run;
 	bool first; //hasn't we showed the scensel
-	int fromnewgame; //1 - new game; 0 - load game; 2 - save game
 	std::vector<Slider *> interested;
 	std::vector<HighButton *> btns;
 	SDL_Rect * currentMessage;
 	SDL_Surface * behindCurMes;
 	CDefHandler *ok, *cancel;
 	enum EState { //where are we?
-		mainMenu, newGame, loadGame, ScenarioList
-	} state;
+		mainMenu, newGame, loadGame, ScenarioList, saveGame
+	} state, fromMenu;
 	struct menuItems {
 		menuItems();
 		~menuItems();
