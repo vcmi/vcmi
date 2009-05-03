@@ -265,7 +265,7 @@ void CArtHandler::addBonuses()
 
 	giveArtBonus(90,HeroBonus::WATER_WALKING,0);//Boots of Levitation
 	giveArtBonus(91,HeroBonus::NO_SHOTING_PENALTY,0);//Golden Bow
-	giveArtBonus(92,HeroBonus::DISPEL_IMMUNITY,0);//Sphere of Permanence
+	giveArtBonus(92,HeroBonus::SPELL_IMMUNITY,35);//Sphere of Permanence
 	giveArtBonus(93,HeroBonus::NEGATE_ALL_NATURAL_IMMUNITIES,0);//Orb of Vulnerability
 
 	giveArtBonus(94,HeroBonus::STACK_HEALTH,+1);//Ring of Vitality
