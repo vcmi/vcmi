@@ -469,7 +469,11 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
 	std::set<BattleStackAttacked>::iterator i = bat.bsa.insert(BattleStackAttacked()).first;
-	BattleStackAttacked *bsa = &*i;
+	#ifdef __GNUC__
+		BattleStackAttacked *bsa = (BattleStackAttacked *)&*i;
+	#else
+		BattleStackAttacked *bsa = &*i;
+	#endif
 
 	bsa->stackAttacked = def->ID;
 	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot());//counting dealt damage
