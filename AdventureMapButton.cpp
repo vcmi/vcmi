@@ -198,6 +198,7 @@ void AdventureMapButton::block( ui8 on )
 	bitmapOffset = on ? 2 : 0;
 	show(screen2);
 }
+
 void CHighlightableButton::select(bool on)
 {
 	selected = on;
@@ -232,50 +233,61 @@ void CHighlightableButton::clickLeft( tribool down )
 	{
 		pressedL=state;
 	}
-} 
-
-CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key )
-{
-	onlyOn = false;
-	selected = false;
-	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,key);
-	callback2 = onDeselect;
 }
+
+CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
+: onlyOn(false), selected(false), callback2(onDeselect)
+{
+	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,key);
+}
+
 void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
 {
 	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	buttons.push_back(bt);
 }
+
 void CHighlightableButtonsGroup::addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect, int key)
 {
-	CHighlightableButton *bt = new CHighlightableButton(OnSelect,0,tooltip,HelpBox,false,defName,0,x,y,key);
+	CHighlightableButton *bt = new CHighlightableButton(OnSelect, 0, tooltip, HelpBox, false, defName, 0, x, y, key);
+	if(musicLike)
+	{
+		bt->bitmapOffset = buttons.size() - 3;
+	}
 	bt->ID = uid;
 	bt->callback += boost::bind(&CHighlightableButtonsGroup::selectionChanged,this,bt->ID);
 	bt->onlyOn = true;
 	buttons.push_back(bt);
 }	
-CHighlightableButtonsGroup::CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange)
-{
-	onChange = OnChange;
-}
+
+CHighlightableButtonsGroup::CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange, bool musicLikeButtons)
+: musicLike(musicLikeButtons), onChange(OnChange)
+{}
+
 CHighlightableButtonsGroup::~CHighlightableButtonsGroup()
 {
-	for(size_t i=0;i<buttons.size();i++) {
-		delete buttons[i]; //TODO smartpointers
-        }
+	for(size_t i=0;i<buttons.size();i++)
+	{
+		delete buttons[i];
+	}
 }
+
 void CHighlightableButtonsGroup::activate()
 {
-	for(size_t i=0;i<buttons.size();i++) {
+	for(size_t i=0;i<buttons.size();i++)
+	{
 		buttons[i]->activate();
-        }
+	}
 }
+
 void CHighlightableButtonsGroup::deactivate()
 {
-	for(size_t i=0;i<buttons.size();i++) {
+	for(size_t i=0;i<buttons.size();i++)
+	{
 		buttons[i]->deactivate();
-        }
+	}
 }
+
 void CHighlightableButtonsGroup::select(int id, bool mode)
 {
 	CHighlightableButton *bt = NULL;
@@ -300,11 +312,13 @@ void CHighlightableButtonsGroup::selectionChanged(int to)
 			buttons[i]->select(false);
 	onChange(to);
 }
+
 void CHighlightableButtonsGroup::show(SDL_Surface * to )
 {
 	for(size_t i=0;i<buttons.size(); ++i) 
 	{
-		buttons[i]->show(to);
+		if(musicLike && buttons[i]->selected) //if musicLike, print only selected button
+			buttons[i]->show(to);
 	}
 }
 

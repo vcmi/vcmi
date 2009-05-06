@@ -51,7 +51,7 @@ class CHighlightableButton
 	: public AdventureMapButton
 {
 public:
-	CHighlightableButton(const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key=0 );
+	CHighlightableButton(const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key=0);
 	bool selected, onlyOn;
 	CFunctionList<void()> callback2; //when disselecting
 	void select(bool on);
@@ -63,11 +63,12 @@ class CHighlightableButtonsGroup
 public:
 	CFunctionList2<void(int)> onChange; //called when changing selected button with new button's id
 	std::vector<CHighlightableButton*> buttons;
+	bool musicLike; //determines the behaviour of this group
 
 	//void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid);
 	void addButton(CHighlightableButton* bt);//add existing button, it'll be deleted by CHighlightableButtonsGroup destructor
 	void addButton(const std::map<int,std::string> &tooltip, const std::string &HelpBox, const std::string &defName, int x, int y, int uid, const CFunctionList<void()> &OnSelect=0, int key=0); //creates new button
-	CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange);
+	CHighlightableButtonsGroup(const CFunctionList2<void(int)> &OnChange, bool musicLikeButtons = false);
 	~CHighlightableButtonsGroup();
 	void activate();
 	void deactivate();

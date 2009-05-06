@@ -902,6 +902,7 @@ private:
 	AdventureMapButton *load, *save, *restart, *mainMenu, * quitGame, * backToMap; //load, restart and main menu are not used yet
 	CHighlightableButtonsGroup * heroMoveSpeed;
 	CHighlightableButtonsGroup * mapScrollSpeed;
+	CHighlightableButtonsGroup * musicVolume, * effectsVolume;
 public:
 	CSystemOptionsWindow(const SDL_Rect & pos, CPlayerInterface * owner); //c-tor
 	~CSystemOptionsWindow(); //d-tor

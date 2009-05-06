@@ -997,6 +997,7 @@ CButtonBase::~CButtonBase()
 void CButtonBase::show(SDL_Surface * to)
 {
 	int img = std::min(state+bitmapOffset,int(imgs[curimg].size()-1));
+	img = std::max(0, img);
 
 	if (abs)
 	{
@@ -4435,6 +4436,15 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[359].first),CGI->generaltexth->zelp[359].second, "sysob11.def", 315, 267, 4);
 	mapScrollSpeed->select(owner->mapScrollingSpeed, 1);
 	mapScrollSpeed->onChange = boost::bind(&CPlayerInterface::setMapScrollingSpeed, owner, _1);
+
+	musicVolume = new CHighlightableButtonsGroup(0, true);
+	for(int i=1; i<=10; ++i)
+	{
+		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[359+i].first),CGI->generaltexth->zelp[359+i].second, "syslb.def", 188 + 19*(i-1), 415, i*10);
+	}
+	musicVolume->select(CGI->audioh->getMusicVolume(), 1);
+	musicVolume->onChange = boost::bind(&CAudioHandler::setMusicVolume, CGI->audioh, _1);
+
 }
 
 CSystemOptionsWindow::~CSystemOptionsWindow()
@@ -4446,6 +4456,7 @@ CSystemOptionsWindow::~CSystemOptionsWindow()
 	delete backToMap;
 	delete heroMoveSpeed;
 	delete mapScrollSpeed;
+	delete musicVolume;
 }
 
 void CSystemOptionsWindow::bquitf()
@@ -4477,6 +4488,7 @@ void CSystemOptionsWindow::activate()
 	backToMap->activate();
 	heroMoveSpeed->activate();
 	mapScrollSpeed->activate();
+	musicVolume->activate();
 }
 
 void CSystemOptionsWindow::deactivate()
@@ -4486,6 +4498,7 @@ void CSystemOptionsWindow::deactivate()
 	backToMap->deactivate();
 	heroMoveSpeed->deactivate();
 	mapScrollSpeed->deactivate();
+	musicVolume->deactivate();
 }
 
 void CSystemOptionsWindow::show(SDL_Surface *to)
@@ -4497,6 +4510,7 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 	backToMap->show(to);
 	heroMoveSpeed->show(to);
 	mapScrollSpeed->show(to);
+	musicVolume->show(to);
 }
 
 CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2, const std::string &gossip)
