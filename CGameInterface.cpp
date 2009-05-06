@@ -20,12 +20,12 @@
 CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 {
 	char temp[50];
-	dllname = "AI/"+dllname;
 	CGlobalAI * ret=NULL;
 	CGlobalAI*(*getAI)(); 
 	void(*getName)(char*); 
 
 #ifdef _WIN32
+	dllname = "AI/"+dllname+".dll";
 	HINSTANCE dll = LoadLibraryA(dllname.c_str());
 	if (!dll)
 	{
@@ -36,6 +36,7 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
 	getAI = (CGlobalAI*(*)())GetProcAddress(dll,"GetNewAI");
 #else
+	dllname = "AI/"+dllname+".so";
 	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (!dll)
 	{
@@ -46,7 +47,7 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	getAI = (CGlobalAI*(*)())dlsym(dll,"GetNewAI");
 #endif
 	getName(temp);
-	tlog0 << "Loaded .dll with AI named " << temp << std::endl;
+	tlog0 << "Loaded AI named " << temp << std::endl;
 	ret = getAI();
 
 	if(!ret)
