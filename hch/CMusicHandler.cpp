@@ -206,6 +206,22 @@ void CSoundHandler::stopSound( int handler )
 		Mix_HaltChannel(handler);
 }
 
+// Sets the sound volume, from 0 (mute) to 100
+void CSoundHandler::setSoundVolume(unsigned int percent)
+{
+	if (percent > 100)
+		percent = 100;
+
+	volume = percent;
+	Mix_Volume(-1, (MIX_MAX_VOLUME * percent)/100);
+}
+
+// Returns the current sound volume, from 0 (mute) to 100
+unsigned int CSoundHandler::getSoundVolume()
+{
+	return volume;
+}
+
 void CMusicHandler::initMusics()
 {
 	// Map music IDs
@@ -288,6 +304,22 @@ void CMusicHandler::stopMusic(int fade_ms)
 	musicMutex.unlock();
 }
 
+// Sets the music volume, from 0 (mute) to 100
+void CMusicHandler::setMusicVolume(unsigned int percent)
+{
+	if (percent > 100)
+		percent = 100;
+
+	volume = percent;
+	Mix_VolumeMusic((MIX_MAX_VOLUME * percent)/100);
+}
+
+// Returns the current music volume, from 0 (mute) to 100
+unsigned int CMusicHandler::getMusicVolume()
+{
+	return volume;
+}
+
 // Called by SDL when a music finished.
 void CMusicHandler::musicFinishedCallback(void)
 {
@@ -308,7 +340,7 @@ void CMusicHandler::musicFinishedCallback(void)
 	musicMutex.unlock();
 }
 
-void CAudioHandler::initAudio()
+void CAudioHandler::initAudio(unsigned int volume)
 {
 	if (audioInitialized)
 		return;
@@ -322,7 +354,9 @@ void CAudioHandler::initAudio()
 	audioInitialized = true;
 
 	initSounds();
+	setSoundVolume(volume);
 	initMusics();
+	setMusicVolume(volume);
 }
 
 CAudioHandler::~CAudioHandler()

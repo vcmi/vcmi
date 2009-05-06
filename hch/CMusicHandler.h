@@ -31,9 +31,10 @@ private:
 	std::map<soundBase::soundID, Mix_Chunk *> soundChunks;
 
 	Mix_Chunk *GetSoundChunk(soundBase::soundID soundID);
+	int volume;					// from 0 (mute) to 100
 
 public:
-	CSoundHandler(): sndh(NULL) {};
+	CSoundHandler(): sndh(NULL), volume(0) {};
 
 	void initSounds();
 	void freeSounds();
@@ -43,6 +44,8 @@ public:
 	int playSound(soundBase::soundID soundID, int repeats=0);
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
+	void setSoundVolume(unsigned int percent);
+	unsigned int getSoundVolume();
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
@@ -58,9 +61,10 @@ private:
 	Mix_Music *currentMusic;
 	Mix_Music *nextMusic;
 	int nextMusicLoop;
+	int volume;					// from 0 (mute) to 100
 
 public:
-	CMusicHandler(): currentMusic(NULL), nextMusic(NULL) {};
+	CMusicHandler(): currentMusic(NULL), nextMusic(NULL), volume(0) {};
 
 	void initMusics();
 	void freeMusics();
@@ -72,6 +76,8 @@ public:
 	void playMusic(musicBase::musicID musicID, int loop=1);
 	void playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop=1);
 	void stopMusic(int fade_ms=1000);
+	void setMusicVolume(unsigned int percent);
+	unsigned int getMusicVolume();
 	void musicFinishedCallback(void);
 };
 
@@ -84,7 +90,7 @@ public:
 	CAudioHandler(): audioInitialized(false) {};
 	~CAudioHandler();
 
-	void initAudio();
+	void initAudio(unsigned int volume = 90);
 };
 
 #endif // __CMUSICHANDLER_H__
