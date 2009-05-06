@@ -42,7 +42,7 @@ void CSoundHandler::initSounds()
 #undef VCMI_SOUND_FILE
 
 	// Vectors for helper(s)
-	pickup_sounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
+	pickupSounds += soundBase::pickup01, soundBase::pickup02, soundBase::pickup03,
 		soundBase::pickup04, soundBase::pickup05, soundBase::pickup06, soundBase::pickup07;
 	horseSounds +=  // must be the same order as terrains (see EtrrainType);
 		soundBase::horseDirt, soundBase::horseSand, soundBase::horseGrass,

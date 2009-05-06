@@ -45,7 +45,7 @@ public:
 	void stopSound(int handler);
 
 	// Sets
-	std::vector<soundBase::soundID> pickup_sounds;
+	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> horseSounds;
 };
 

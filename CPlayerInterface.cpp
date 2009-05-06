@@ -2419,7 +2419,7 @@ void CPlayerInterface::showComp(SComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	CGI->audioh->playSoundFromSet(CGI->audioh->pickup_sounds);
+	CGI->audioh->playSoundFromSet(CGI->audioh->pickupSounds);
 
 	adventureInt->infoBar.showComp(&comp,4000);
 }
