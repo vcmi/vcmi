@@ -25,7 +25,7 @@ class CAmbarCendamo;
 class CPreGameTextHandler;
 class CBuildingHandler;
 class CObjectHandler;
-class CMusicHandler;
+class CAudioHandler;
 class CSemiLodHandler;
 class CDefObjInfoHandler;
 class CTownHandler;
@@ -55,7 +55,7 @@ public:
 	CMapHandler * mh;
 	CBuildingHandler * buildh;
 	CObjectHandler * objh;
-	CMusicHandler * mush;
+	CAudioHandler * audioh;
 	CSemiLodHandler * sspriteh;
 	CDefObjInfoHandler * dobjinfo;
 	CTownHandler * townh;

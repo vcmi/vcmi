@@ -28,55 +28,11 @@ static boost::bimap<soundBase::soundID, std::string> sounds;
 
 // Not pretty, but there's only one music handler object in the game.
 static void musicFinishedCallbackC(void) {
-	CGI->mush->musicFinishedCallback();
+	CGI->audioh->musicFinishedCallback();
 }
 
-CMusicHandler::~CMusicHandler()
+void CSoundHandler::initSounds()
 {
-	if (!audioInit)
-		return;
-
-	if (sndh) {
-		Mix_HaltChannel(-1);
-		delete sndh;
-	}
-
-	std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
-	for (it=soundChunks.begin(); it != soundChunks.end(); it++) {
-		if (it->second)
-			Mix_FreeChunk(it->second);
-	}
-
-	Mix_HookMusicFinished(NULL);
-
-	musicMutex.lock();
-
-	if (currentMusic) {
-		Mix_HaltMusic();
-		Mix_FreeMusic(currentMusic);
-	}
-
-	if (nextMusic)
-		Mix_FreeMusic(nextMusic);
-
-	musicMutex.unlock();
-
-	Mix_CloseAudio();
-}
-
-void CMusicHandler::initMusics()
-{
-	if (audioInit)
-		return;
-
-	if(Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
-	{
-		printf("Mix_OpenAudio error: %s!!!\n", Mix_GetError());
-		return;
-	}
-
-	audioInit = true;
-
 	// Map sound names
 #define VCMI_SOUND_NAME(x) ( soundBase::x,
 #define VCMI_SOUND_FILE(y) #y )
@@ -94,27 +50,24 @@ void CMusicHandler::initMusics()
 		soundBase::horseSubterranean, soundBase::horseLava,
 		soundBase::horseWater, soundBase::horseRock;
 
-	// Map music IDs
-#define VCMI_MUSIC_ID(x) ( musicBase::x ,
-#define VCMI_MUSIC_FILE(y) y )
-	musics = map_list_of
-		VCMI_MUSIC_LIST;
-#undef VCMI_MUSIC_NAME
-#undef VCMI_MUSIC_FILE
-
-	Mix_HookMusicFinished(musicFinishedCallbackC);
-
-	// Vector for helper
-	battleMusics += musicBase::combat1, musicBase::combat2, 
-		musicBase::combat3, musicBase::combat4;
-
 	// Load sounds
 	sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
-	nextMusic = NULL;
+}
+
+void CSoundHandler::freeSounds()
+{
+	Mix_HaltChannel(-1);
+	delete sndh;
+
+	std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
+	for (it=soundChunks.begin(); it != soundChunks.end(); it++) {
+		if (it->second)
+			Mix_FreeChunk(it->second);
+	}
 }
 
 // Allocate an SDL chunk and cache it.
-Mix_Chunk *CMusicHandler::GetSoundChunk(soundBase::soundID soundID)
+Mix_Chunk *CSoundHandler::GetSoundChunk(soundBase::soundID soundID)
 {
 	// Find its name
 	boost::bimap<soundBase::soundID, std::string>::left_iterator it;
@@ -143,7 +96,7 @@ Mix_Chunk *CMusicHandler::GetSoundChunk(soundBase::soundID soundID)
 }
 
 // Get a soundID given a filename
-soundBase::soundID CMusicHandler::getSoundID(std::string &fileName)
+soundBase::soundID CSoundHandler::getSoundID(std::string &fileName)
 {
 	boost::bimap<soundBase::soundID, std::string>::right_iterator it;
 
@@ -154,7 +107,7 @@ soundBase::soundID CMusicHandler::getSoundID(std::string &fileName)
 		return it->second;
 }
 
-void CMusicHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
+void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 {
 	tlog5 << "\t\tReading config/cr_sounds.txt" << std::endl;
 	std::ifstream ifs("config/cr_sounds.txt");
@@ -217,7 +170,7 @@ void CMusicHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 }
 
 // Plays a sound, and return its channel so we can fade it out later
-int CMusicHandler::playSound(soundBase::soundID soundID, int repeats)
+int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {
 	int channel;
 	Mix_Chunk *chunk;
@@ -242,24 +195,55 @@ int CMusicHandler::playSound(soundBase::soundID soundID, int repeats)
 }
 
 // Helper. Randomly select a sound from an array and play it
-int CMusicHandler::playSoundFromSet(std::vector<soundBase::soundID> &sound_vec)
+int CSoundHandler::playSoundFromSet(std::vector<soundBase::soundID> &sound_vec)
 {
 	return playSound(sound_vec[rand() % sound_vec.size()]);
 }
 
-void CMusicHandler::stopSound( int handler )
+void CSoundHandler::stopSound( int handler )
 {
 	if (handler != -1)
 		Mix_HaltChannel(handler);
+}
+
+void CMusicHandler::initMusics()
+{
+	// Map music IDs
+#define VCMI_MUSIC_ID(x) ( musicBase::x ,
+#define VCMI_MUSIC_FILE(y) y )
+	musics = map_list_of
+		VCMI_MUSIC_LIST;
+#undef VCMI_MUSIC_NAME
+#undef VCMI_MUSIC_FILE
+
+	Mix_HookMusicFinished(musicFinishedCallbackC);
+
+	// Vector for helper
+	battleMusics += musicBase::combat1, musicBase::combat2, 
+		musicBase::combat3, musicBase::combat4;
+}
+
+void CMusicHandler::freeMusics()
+{
+	Mix_HookMusicFinished(NULL);
+
+	musicMutex.lock();
+
+	if (currentMusic) {
+		Mix_HaltMusic();
+		Mix_FreeMusic(currentMusic);
+	}
+
+	if (nextMusic)
+		Mix_FreeMusic(nextMusic);
+
+	musicMutex.unlock();
 }
 
 // Plays a music
 // loop: -1 always repeats, 0=do not play, 1+=number of loops
 void CMusicHandler::playMusic(musicBase::musicID musicID, int loop)
 {
-	if (!sndh)
-		return;
-
 	std::string filename = DATA_DIR "Mp3" PATHSEPARATOR;
 	filename += musics[musicID];
 
@@ -322,4 +306,32 @@ void CMusicHandler::musicFinishedCallback(void)
 	}
 
 	musicMutex.unlock();
+}
+
+void CAudioHandler::initAudio()
+{
+	if (audioInitialized)
+		return;
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
+	{
+		tlog1 << "Mix_OpenAudio error: %s!!!" << Mix_GetError() << std::endl;
+		return;
+	}
+
+	audioInitialized = true;
+
+	initSounds();
+	initMusics();
+}
+
+CAudioHandler::~CAudioHandler()
+{
+	if (!audioInitialized)
+		return;
+
+	freeSounds();
+	freeMusics();
+
+	Mix_CloseAudio();
 }

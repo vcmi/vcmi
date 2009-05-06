@@ -1096,12 +1096,12 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
 		if (movedStack->creature->sounds.startMoving)
-			CGI->mush->playSound(movedStack->creature->sounds.startMoving);
+			CGI->audioh->playSound(movedStack->creature->sounds.startMoving);
 		handleStartMoving(number);
 	}
 	if(moveStarted)
 	{
-		moveSh = CGI->mush->playSound(movedStack->creature->sounds.move, -1);
+		moveSh = CGI->audioh->playSound(movedStack->creature->sounds.move, -1);
 		CGI->curh->hide();
 		creAnims[number]->setType(0);
 		moveStarted = false;
@@ -1197,7 +1197,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 		if(creAnims[number]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
 		{
 			if (movedStack->creature->sounds.endMoving) {
-				CGI->mush->playSound(movedStack->creature->sounds.endMoving);
+				CGI->audioh->playSound(movedStack->creature->sounds.endMoving);
 			}
 
 			creAnims[number]->setType(21);
@@ -1212,7 +1212,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 		}
 		creAnims[number]->setType(2); //resetting to default
 		CGI->curh->show();
-		CGI->mush->stopSound(moveSh);
+		CGI->audioh->stopSound(moveSh);
 	}
 
 	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
@@ -1286,13 +1286,13 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 			
 		if(attackedInfos[g].killed)
 		{
-			CGI->mush->playSound(attacked.creature->sounds.killed);
+			CGI->audioh->playSound(attacked.creature->sounds.killed);
 			creAnims[attackedInfos[g].ID]->setType(5); //death
 		}
 		else
 		{
 			// TODO: this block doesn't seems correct if the unit is defending.
-			CGI->mush->playSound(attacked.creature->sounds.wince);
+			CGI->audioh->playSound(attacked.creature->sounds.wince);
 			creAnims[attackedInfos[g].ID]->setType(3); //getting hit
 		}
 	}
@@ -1785,7 +1785,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	CGI->curh->changeGraphic(0,0);
 	
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
-	CGI->mush->stopMusic();
+	CGI->audioh->stopMusic();
 	resWindow = new CBattleReslutWindow(br, temp_rect, this);
 	LOCPLINT->pushInt(resWindow);
 }
@@ -2046,14 +2046,14 @@ void CBattleInterface::attackingShowHelper()
 				// that is fixed. Once done, we can get rid of
 				// attackingInfo->sh
 				if (attackingInfo->sh == -1)
-					attackingInfo->sh = CGI->mush->playSound(aStack.creature->sounds.shoot);
+					attackingInfo->sh = CGI->audioh->playSound(aStack.creature->sounds.shoot);
 				creAnims[attackingInfo->ID]->setType(attackingInfo->shootingGroup);
 			}
 			else
 			{
 				// TODO: see comment above
 				if (attackingInfo->sh == -1)
-					attackingInfo->sh = CGI->mush->playSound(aStack.creature->sounds.attack);
+					attackingInfo->sh = CGI->audioh->playSound(aStack.creature->sounds.attack);
 				if(aStack.creature->isDoubleWide())
 				{
 					switch(BattleInfo::mutualPosition(aStack.position+attackingInfo->posShiftDueToDist, attackingInfo->dest)) //attack direction
@@ -2788,36 +2788,36 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, const SDL_Rect 
 	case 0: //normal victory
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
-			CGI->mush->playMusic(musicBase::winBattle);
+			CGI->audioh->playMusic(musicBase::winBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[304], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
-			CGI->mush->playMusic(musicBase::loseCombat);
+			CGI->audioh->playMusic(musicBase::loseCombat);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, GEOR13, zwykly, background);
 		}
 		break;
 	case 1: //flee
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
-			CGI->mush->playMusic(musicBase::winBattle);
+			CGI->audioh->playMusic(musicBase::winBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[303], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
-			CGI->mush->playMusic(musicBase::retreatBattle);
+			CGI->audioh->playMusic(musicBase::retreatBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, GEOR13, zwykly, background);
 		}
 		break;
 	case 2: //surrender
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
-			CGI->mush->playMusic(musicBase::winBattle);
+			CGI->audioh->playMusic(musicBase::winBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[302], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
-			CGI->mush->playMusic(musicBase::surrenderBattle);
+			CGI->audioh->playMusic(musicBase::surrenderBattle);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 235, GEOR13, zwykly, background);
 		}
 		break;

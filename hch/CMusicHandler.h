@@ -22,11 +22,9 @@ struct _Mix_Music;
 typedef struct _Mix_Music Mix_Music;
 struct Mix_Chunk;
 
-class CMusicHandler
+class CSoundHandler
 {
 private:
-	bool audioInit;
-
 	CSndHandler *sndh;
 	soundBase::soundID getSoundID(std::string &fileName);
 
@@ -34,19 +32,11 @@ private:
 
 	Mix_Chunk *GetSoundChunk(soundBase::soundID soundID);
 
-	// Because we use the SDL music callback, our music variables must
-	// be protected
-	boost::mutex musicMutex;
-	Mix_Music *currentMusic;
-	Mix_Music *nextMusic;
-	int nextMusicLoop;
-
 public:
-CMusicHandler(): audioInit(false), sndh(NULL), currentMusic(NULL) {};
+	CSoundHandler(): sndh(NULL) {};
 
-	~CMusicHandler();
-
-	void initMusics();
+	void initSounds();
+	void freeSounds();
 	void initCreaturesSounds(std::vector<CCreature> &creatures);
 
 	// Sounds
@@ -57,6 +47,23 @@ CMusicHandler(): audioInit(false), sndh(NULL), currentMusic(NULL) {};
 	// Sets
 	std::vector<soundBase::soundID> pickup_sounds;
 	std::vector<soundBase::soundID> horseSounds;
+};
+
+class CMusicHandler
+{
+private:
+	// Because we use the SDL music callback, our music variables must
+	// be protected
+	boost::mutex musicMutex;
+	Mix_Music *currentMusic;
+	Mix_Music *nextMusic;
+	int nextMusicLoop;
+
+public:
+	CMusicHandler(): currentMusic(NULL), nextMusic(NULL) {};
+
+	void initMusics();
+	void freeMusics();
 
 	// Musics
 	std::map<musicBase::musicID, std::string> musics;
@@ -66,6 +73,18 @@ CMusicHandler(): audioInit(false), sndh(NULL), currentMusic(NULL) {};
 	void playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop=1);
 	void stopMusic(int fade_ms=1000);
 	void musicFinishedCallback(void);
+};
+
+class CAudioHandler: public CSoundHandler, public CMusicHandler
+{
+private:
+	bool audioInitialized;
+
+public:
+	CAudioHandler(): audioInitialized(false) {};
+	~CAudioHandler();
+
+	void initAudio();
 };
 
 #endif // __CMUSICHANDLER_H__

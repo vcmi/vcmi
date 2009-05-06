@@ -1180,9 +1180,9 @@ void CPlayerInterface::yourTurn()
 		 * NEWDAY. And we don't play NEWMONTH. */
 		int day = cb->getDate(1);
 		if (day != 1)
-			CGI->mush->playSound(soundBase::newDay);
+			CGI->audioh->playSound(soundBase::newDay);
 		else
-			CGI->mush->playSound(soundBase::newWeek);
+			CGI->audioh->playSound(soundBase::newWeek);
 
 		adventureInt->infoBar.newDay(day);
 
@@ -1850,7 +1850,7 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	castleInt = new CCastleInterface(town);
-	CGI->mush->playMusic(castleInt->musicID, -1);
+	CGI->audioh->playMusic(castleInt->musicID, -1);
 	LOCPLINT->pushInt(castleInt);
 }
 
@@ -2094,7 +2094,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 			showingDialog->cond.wait(un);
 	}
 
-	CGI->mush->playSound(soundBase::heroNewLevel);
+	CGI->audioh->playSound(soundBase::heroNewLevel);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
@@ -2195,7 +2195,7 @@ void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, 
 	switch(what)
 	{
 	case 1:
-		CGI->mush->playSound(soundBase::newBuilding);
+		CGI->audioh->playSound(soundBase::newBuilding);
 		castleInt->addBuilding(buildingID);
 		break;
 	case 2:
@@ -2211,7 +2211,7 @@ void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
-	CGI->mush->playMusicFromSet(CGI->mush->battleMusics, -1);
+	CGI->audioh->playMusicFromSet(CGI->audioh->battleMusics, -1);
 	pushInt(battleInt);
 }
 
@@ -2419,7 +2419,7 @@ void CPlayerInterface::showComp(SComponent comp)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	CGI->mush->playSoundFromSet(CGI->mush->pickup_sounds);
+	CGI->audioh->playSoundFromSet(CGI->audioh->pickup_sounds);
 
 	adventureInt->infoBar.showComp(&comp,4000);
 }
@@ -2451,7 +2451,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 	if(makingTurn && listInt.size())
 	{
-		CGI->mush->playSound(static_cast<soundBase::soundID>(soundID));
+		CGI->audioh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
 		pushInt(temp);
 	}
@@ -2482,7 +2482,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-	CGI->mush->playSound(static_cast<soundBase::soundID>(soundID));
+	CGI->audioh->playSound(static_cast<soundBase::soundID>(soundID));
 
 	if(!selection && cancel) //simple yes/no dialog
 	{
@@ -2618,18 +2618,18 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 #if 0
 		// TODO
 		if (hero is flying && sh == -1)
-			sh = CGI->mush->playSound(soundBase::horseFlying, -1);
+			sh = CGI->audioh->playSound(soundBase::horseFlying, -1);
 		} 
 		else if (hero is in a boat && sh = -1) {
-			sh = CGI->mush->playSound(soundBase::sound_todo, -1);
+			sh = CGI->audioh->playSound(soundBase::sound_todo, -1);
 		} else
 #endif
 		{
 			newTerrain = cb->getTileInfo(path.nodes[i].coord)->tertype;
 
 			if (newTerrain != currentTerrain) {
-				CGI->mush->stopSound(sh);
-				sh = CGI->mush->playSound(CGI->mush->horseSounds[newTerrain], -1);
+				CGI->audioh->stopSound(sh);
+				sh = CGI->audioh->playSound(CGI->audioh->horseSounds[newTerrain], -1);
 				currentTerrain = newTerrain;
 			}
 		}
@@ -2642,7 +2642,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 			stillMoveHero.cond.wait(un);
 	}
 
-	CGI->mush->stopSound(sh);
+	CGI->audioh->stopSound(sh);
 
 	//stillMoveHero = false;
 	return result;

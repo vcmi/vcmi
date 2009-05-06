@@ -117,10 +117,10 @@ int main(int argc, char** argv)
 		}
 		atexit(TTF_Quit);
 		THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
-		CMusicHandler * mush = new CMusicHandler;  //initializing audio
-		mush->initMusics();
+		CAudioHandler * audioh = new CAudioHandler;  //initializing audio
+		audioh->initAudio();
 		//audio initialized
-		cgi->mush = mush;
+		cgi->audioh = audioh;
 		tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 		tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
@@ -130,7 +130,7 @@ int main(int argc, char** argv)
 		tlog0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
 		initDLL(cgi->bitmaph,::console,logfile);
 		CGI->setFromLib();
-		cgi->mush->initCreaturesSounds(CGI->creh->creatures);
+		cgi->audioh->initCreaturesSounds(CGI->creh->creatures);
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler;
@@ -148,7 +148,7 @@ int main(int argc, char** argv)
 		tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
-		mush->playMusic(musicBase::mainMenu, -1);
+		audioh->playMusic(musicBase::mainMenu, -1);
 		StartInfo *options = new StartInfo(cpg->runLoop());
 
 		if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
@@ -187,7 +187,7 @@ int main(int argc, char** argv)
 			THC tlog0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
 			cl.newGame(c,options);
 			client = &cl;
-			mush->stopMusic();
+			audioh->stopMusic();
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 		else //load game
@@ -196,7 +196,7 @@ int main(int argc, char** argv)
 			boost::algorithm::erase_last(fname,".vlgm1");
 			cl.load(fname);
 			client = &cl;
-			mush->stopMusic();
+			audioh->stopMusic();
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 
