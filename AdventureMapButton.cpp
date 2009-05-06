@@ -317,7 +317,7 @@ void CHighlightableButtonsGroup::show(SDL_Surface * to )
 {
 	for(size_t i=0;i<buttons.size(); ++i) 
 	{
-		if(musicLike && buttons[i]->selected) //if musicLike, print only selected button
+		if(!musicLike || (musicLike && buttons[i]->selected)) //if musicLike, print only selected button
 			buttons[i]->show(to);
 	}
 }
