@@ -4,64 +4,60 @@
 AC_PREREQ(2.60)
 AC_INIT(vcmi, VERSION)
 AM_INIT_AUTOMAKE
-AC_CONFIG_HEADER([config.h])
+AC_CONFIG_MACRO_DIR([aclocal/m4])
 
-# Checks for programs.
+# Checks for build toolchain
+AC_LANG(C++)
 AC_PROG_CXX
-AC_PROG_CC
+AC_ENABLE_SHARED
+AC_DISABLE_STATIC
+AC_PROG_LIBTOOL
+
+AC_ARG_ENABLE(debug,
+		[  --disable-debug         turn off debugging (default=enable)],
+		[ if test x$enableval = xyes ; then
+		  	 enable_debug="yes"
+		  else
+		     enable_debug="no"
+		  fi],
+		  [ enable_debug="yes" ])
+if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
+   CXXFLAGS="-O0 -ggdb -Wall -Wcast-align -Wmissing-declarations -Wpointer-arith"
+fi
+
+# Check for Boost libraries
 AX_BOOST_BASE([1.37])
 AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD
 AX_BOOST_IOSTREAMS
-AC_PROG_CPP
-AC_ENABLE_SHARED
-AC_DISABLE_STATIC
-AC_PROG_LIBTOOL
 
-CFLAGS="-g"
-CXXFLAGS="-O1 -ggdb -Wall"
-AC_CHECK_LIB([stdc++], [main])
-if test "x$GCC" = "xyes"; then
-      stdcxx_name=`$CXX -print-file-name=libstdc++.so`
-      stdcxx_path=`dirname $stdcxx_name`
-LIBS="-L$stdcxx_path $LIBS"
-fi
+# Check for SDL libraries
+saved_LIBS=$LIBS
 AC_CHECK_PROG(HAVE_SDL_CONFIG, sdl-config, yes, no)
-
-
-# Checks for libraries.
 if test "$HAVE_SDL_CONFIG" = no; then
 AC_MSG_ERROR(sdl-config doesn't exist. Try to check the PATH enviroment.)
-	else
-AC_CHECK_LIB(SDL, SDL_Init,SDL_CFLAGS=`sdl-config --cflags`
-	     SDL_LIBS=`sdl-config --libs`)
 fi
 
-LIBS="$LIBS $SDL_LIBS"
-CPPFLAGS="$CPPFLAGS $SDL_CFLAGS"
-
+AC_CHECK_LIB(SDL, SDL_Init,,AC_MSG_ERROR([SDL library not found. Please install it.]))
 AC_CHECK_LIB(SDL_mixer,main,,AC_MSG_ERROR([SDL_mixer library not found. Please install it.]))
 AC_CHECK_LIB(SDL_image,IMG_Load,,AC_MSG_ERROR([SDL_image library not found. Please install it.]))
 AC_CHECK_LIB(SDL_ttf,main,,AC_MSG_ERROR([SDL_ttf library not found. Please install it.]))
 
+SDL_CXXFLAGS=`sdl-config --cflags`
+SDL_LIBS="`sdl-config --libs` $LIBS"
+LIBS=$saved_LIBS
+
 # Checks for header files.
 AC_HEADER_STDC
 AC_CHECK_HEADERS([fcntl.h stdlib.h string.h])
-AC_LANG_PUSH(C++)
 CPPFLAGS="$CPPFLAGS $BOOST_CPPFLAGS"
 AC_CHECK_HEADERS([boost/filesystem.hpp boost/algorithm/string.hpp boost/algorithm/string/replace.hpp boost/filesystem/operations.hpp boost/assign/std/vector.hpp boost/algorithm/string/find.hpp boost/function.hpp boost/bind.hpp],,AC_MSG_ERROR([Required boost headers not found. Please install it.]))
-AC_LANG_POP(C++)
-
-# Checks for typedefs, structures, and compiler characteristics.
-AC_HEADER_STDBOOL
-AC_C_CONST
-AC_C_INLINE
 
 # Checks for library functions.
-AC_FUNC_ALLOCA
-AC_FUNC_MALLOC
-AC_FUNC_SELECT_ARGTYPES
 AC_CHECK_FUNCS([atexit memset pow select sqrt])
+
+AC_SUBST(SDL_LIBS)
+AC_SUBST(SDL_CXXFLAGS)
 
 AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile)
