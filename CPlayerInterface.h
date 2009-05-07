@@ -214,7 +214,7 @@ public:
 	{
 		show(to);
 	}
-	virtual ~IShowable(){};
+	virtual ~IShowable(){}; //d-tor
 };
 
 class IStatusBar
@@ -232,7 +232,7 @@ class IActivable
 public:
 	virtual void activate()=0;
 	virtual void deactivate()=0;
-	virtual ~IActivable(){};
+	virtual ~IActivable(){}; //d-tor
 };
 class IShowActivable : public IShowable, public IActivable
 {
@@ -240,7 +240,7 @@ public:
 	enum {WITH_GARRISON = 1};
 	int type; //bin flags using etype
 	IShowActivable();
-	virtual ~IShowActivable(){};
+	virtual ~IShowActivable(){}; //d-tor
 };
 
 class CWindowWithGarrison : public IShowActivable
@@ -270,7 +270,7 @@ public:
 class CSimpleWindow : public IShowActivable, public virtual CIntObject
 {
 public:
-	SDL_Surface * bitmap;
+	SDL_Surface * bitmap; //background
 	CIntObject * owner; //who made this window
 	virtual void show(SDL_Surface * to);
 	CSimpleWindow():bitmap(NULL),owner(NULL){}; //c-tor
@@ -301,7 +301,7 @@ class ClickableL : public virtual CIntObject  //for left-clicks
 public:
 	bool pressedL; //for determining if object is L-pressed
 	ClickableL(); //c-tor
-	virtual ~ClickableL();//{};
+	virtual ~ClickableL();//{};//d-tor
 	virtual void clickLeft (boost::logic::tribool down)=0;
 	virtual void activate();
 	virtual void deactivate();
@@ -311,7 +311,7 @@ class ClickableR : public virtual CIntObject //for right-clicks
 public:
 	bool pressedR; //for determining if object is R-pressed
 	ClickableR(); //c-tor
-	virtual ~ClickableR();//{};
+	virtual ~ClickableR();//{};//d-tor
 	virtual void clickRight (boost::logic::tribool down)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -331,12 +331,14 @@ class KeyInterested : public virtual CIntObject
 public:
 	bool captureAllKeys; //if true, only this object should get info about pressed keys
 	KeyInterested(): captureAllKeys(false){}
-	virtual ~KeyInterested();//{};
+	virtual ~KeyInterested();//{};//d-tor
 	virtual void keyPressed(const SDL_KeyboardEvent & key)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
 };
 
+//class for binding keys to left mouse button clicks
+//classes wanting use it should have it as one of their base classes
 class KeyShortcut : public KeyInterested, public ClickableL
 {
 public:
@@ -352,7 +354,7 @@ class MotionInterested: public virtual CIntObject
 public:
 	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
 	MotionInterested(){strongInterest=false;};
-	virtual ~MotionInterested(){};
+	virtual ~MotionInterested(){};//d-tor
 	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0;
 	virtual void activate()=0;
 	virtual void deactivate()=0;
@@ -408,7 +410,7 @@ public:
 	bool delInner;
 
 	void show(SDL_Surface * to);
-	CRClickPopupInt(IShowActivable *our, bool deleteInt);
+	CRClickPopupInt(IShowActivable *our, bool deleteInt); //c-tor
 	virtual ~CRClickPopupInt(); //d-tor
 };
 
@@ -498,7 +500,7 @@ public:
 	void deactivate();
 	void show(SDL_Surface * to);
 	CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg=0, const CCreature * Creature=NULL, int Count=0);
-	~CGarrisonSlot();
+	~CGarrisonSlot(); //d-tor
 };
 
 class CGarrisonInt :public CIntObject
@@ -514,8 +516,8 @@ public:
 	const CCreatureSet *set1; //top set of creatures
 	const CCreatureSet *set2; //bottom set of creatures
 
-	std::vector<CGarrisonSlot*> *sup, *sdown; //TODO: comment me
-	const CArmedInstance *oup, *odown; //TODO: comment me
+	std::vector<CGarrisonSlot*> *sup, *sdown; //slots of upper and lower garrison
+	const CArmedInstance *oup, *odown; //upper and lower garrisons (heroes or towns)
 
 	void activate();
 	void deactivate();
@@ -581,7 +583,7 @@ public:
 	//overloaded funcs from CGameInterface
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
 	void garrisonChanged(const CGObjectInstance * obj);
-	void heroArtifactSetChanged(const CGHeroInstance*hero);
+	void heroArtifactSetChanged(const CGHeroInstance* hero);
 	void heroCreated(const CGHeroInstance* hero);
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	void heroInGarrisonChange(const CGTownInstance *town);
@@ -597,8 +599,8 @@ public:
 	//void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
-	void tileHidden(const std::set<int3> &pos);
-	void tileRevealed(const std::set<int3> &pos);
+	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war
+	void tileRevealed(const std::set<int3> &pos); //called when fog of war disappears from given tiles
 	void yourTurn();
 	void availableCreaturesChanged(const CGTownInstance *town);
 	void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain);//if gain hero received bonus, else he lost it
@@ -623,7 +625,7 @@ public:
 
 
 	//-------------//
-	bool shiftPressed() const;
+	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
 	void redrawHeroWin(const CGHeroInstance * hero);
 	void updateWater();
 	void showComp(SComponent comp); //TODO: comment me
@@ -785,7 +787,7 @@ public:
 	AdventureMapButton *ok, *cancel;
 	SDL_Surface *bitmap; //background
 	int a1, a2, c; //TODO: comment me
-	bool which; //TODO: comment me
+	bool which; //which creature is selected
 	int last; //0/1/2 - at least one creature must be in the src/dst/both stacks; -1 - no restrictions
 
 	CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last = -1, int val=0); //c-tor; val - initial amount of second stack
@@ -806,12 +808,12 @@ public:
 	//bool active; //TODO: comment me
 	int type;//0 - rclick popup; 1 - normal window
 	SDL_Surface *bitmap; //background
-	char anf; //TODO: comment me
+	char anf; //animation counter
 	std::string count; //creature count in text format
 
-	boost::function<void()> dsm; //TODO: comment me
-	CCreaturePic *anim;
-	CCreature *c;
+	boost::function<void()> dsm; //dismiss button callback
+	CCreaturePic *anim; //related creature's animation
+	CCreature *c; //related creature
 	std::vector<SComponent*> upgResCost; //cost of upgrade (if not possible then empty)
 
 	AdventureMapButton *dismiss, *upgrade, *ok;
@@ -878,9 +880,9 @@ public:
 	CTradeableItem *hLeft, *hRight; //highlighted items (NULL if no highlight)
 
 	int mode,//0 - res<->res; 1 - res<->plauer; 2 - buy artifact; 3 - sell artifact
-		r1, r2; //TODO: comment me
+		r1, r2; //suggested amounts of traded resources
 	AdventureMapButton *ok, *max, *deal;
-	CSlider *slider;
+	CSlider *slider; //for choosing amount to be exchanged
 
 	void activate();
 	void deactivate();
@@ -936,7 +938,7 @@ public:
 	} h1, h2; //recruitable heroes
 
 	SDL_Surface *bg; //background
-	CStatusBar *bar;
+	CStatusBar *bar; //tavern's internal status bar
 	int selected;//0 (left) or 1 (right)
 
 	AdventureMapButton *thiefGuild, *cancel, *recruit;
@@ -977,15 +979,15 @@ public:
 class CGarrisonWindow : public CWindowWithGarrison, public CIntObject
 {
 public:
-	SDL_Surface *bg;
+	SDL_Surface *bg; //background surface
 	AdventureMapButton *split, *quit;
 
 	void close();
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
-	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down);
-	~CGarrisonWindow();
+	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down); //c-tor
+	~CGarrisonWindow(); //d-tor
 };
 
 extern CPlayerInterface * LOCPLINT;

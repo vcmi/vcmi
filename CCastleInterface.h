@@ -34,8 +34,8 @@ public:
 	CDefHandler* def;
 	SDL_Surface* border;
 	SDL_Surface* area;
-	CBuildingRect(Structure *Str);
-	~CBuildingRect();
+	CBuildingRect(Structure *Str); //c-tor
+	~CBuildingRect(); //d-tor
 	void activate();
 	void deactivate();
 	bool operator<(const CBuildingRect & p2) const;
@@ -58,8 +58,8 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
-	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h,CCastleInterface * Owner);
-	~CHeroGSlot();
+	CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h,CCastleInterface * Owner); //c-tor
+	~CHeroGSlot(); //d-tor
 };
 
 class CCastleInterface : public CWindowWithGarrison
@@ -89,8 +89,8 @@ public:
 
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
-	CCastleInterface(const CGTownInstance * Town);
-	~CCastleInterface();
+	CCastleInterface(const CGTownInstance * Town); //c-tor
+	~CCastleInterface(); //d-tor
 	void townChange();
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
@@ -124,9 +124,9 @@ public:
 		void show(SDL_Surface * to);
 		void activate();
 		void deactivate();
-		CBuildingBox(int id);
-		CBuildingBox(int id, int x, int y);
-		~CBuildingBox();
+		CBuildingBox(int id); //c-tor
+		CBuildingBox(int id, int x, int y); //c-tor
+		~CBuildingBox(); //d-tor
 	};
 
 	class CBuildWindow: public IShowActivable, public ClickableR
@@ -144,19 +144,19 @@ public:
 		void show(SDL_Surface * to);
 		void Buy();
 		void close();
-		CBuildWindow(int Tid, int Bid, int State, bool Mode);
-		~CBuildWindow();
+		CBuildWindow(int Tid, int Bid, int State, bool Mode); //c-tor
+		~CBuildWindow(); //d-tor
 	};
 
 	std::vector< std::vector<CBuildingBox*> >boxes;
 
 	AdventureMapButton *exit;
 
-	SDL_Surface * bg;
+	SDL_Surface * bg; //background
 
 
-	CHallInterface(CCastleInterface * owner);
-	~CHallInterface();
+	CHallInterface(CCastleInterface * owner); //c-tor
+	~CHallInterface(); //d-tor
 	void close();
 	void show(SDL_Surface * to);
 	void activate();
@@ -217,8 +217,8 @@ public:
 	CMinorResDataBar resdatabar;
 
 
-	CMageGuildScreen(CCastleInterface * owner);
-	~CMageGuildScreen();
+	CMageGuildScreen(CCastleInterface * owner); //c-tor
+	~CMageGuildScreen(); //d-tor
 	void close();
 	void show(SDL_Surface * to);
 	void activate();
@@ -229,10 +229,10 @@ class CBlacksmithDialog : public IShowActivable, public CIntObject
 {
 public:
 	AdventureMapButton *buy, *cancel;
-	SDL_Surface *bmp;
+	SDL_Surface *bmp; //background
 
-	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid);
-	~CBlacksmithDialog();
+	CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid); //c-tor
+	~CBlacksmithDialog(); //d-tor
 	void close();
 	void show(SDL_Surface * to);
 	void activate();

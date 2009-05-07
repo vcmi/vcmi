@@ -81,7 +81,7 @@ public:
 	virtual const StartInfo * getStartInfo()const =0;
 	virtual std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos)const =0;
 	virtual std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos)const =0;
-	virtual void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0)const =0;
+	virtual void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0)const =0; //t1 - type of given resource, t2 - type of received resource; give is the amount of resource t1 that can be traded for amount rec of resource t2 (one of them is 1)
 	virtual std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const =0;
 	virtual int3 getMapSize() const =0; //returns size of map - z is 1 for one - level map and 2 for two level map
 	virtual std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const =0; //heroes that can be recruited
@@ -175,7 +175,7 @@ public:
 	const StartInfo * getStartInfo() const;
 	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos) const;
 	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos) const;
-	void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0) const;
+	void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0) const; //t1 - type of given resource, t2 - type of received resource; give is the amount of resource t1 that can be traded for amount rec of resource t2 (one of them is 1)
 	std::vector < const CGObjectInstance * > getFlaggableObjects(int3 pos) const;
 	int3 getMapSize() const; //returns size of map - z is 1 for one - level map and 2 for two level map
 	std::vector<const CGHeroInstance *> getAvailableHeroes(const CGTownInstance * town) const; //heroes that can be recruited

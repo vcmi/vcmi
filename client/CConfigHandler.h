@@ -70,8 +70,8 @@ namespace config
 		std::map<std::pair<int,int>, GUIOptions > guiOptions;
 		GUIOptions *go(); //return pointer to gui options appropriate for used screen resolution
 		void init();
-		CConfigHandler(void);
-		~CConfigHandler(void);
+		CConfigHandler(void); //c-tor
+		~CConfigHandler(void); //d-tor
 	};
 }
 extern config::CConfigHandler conf;

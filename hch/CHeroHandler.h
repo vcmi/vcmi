@@ -22,7 +22,11 @@ class CGHeroInstance;
 class DLL_EXPORT CHero
 {
 public:
-	std::string name;
+	enum EHeroClasses {KNIGHT, CLERIC, RANGER, DRUID, ALCHEMIST, WIZARD,
+		DEMONIAC, HERETIC, DEATHKNIGHT, NECROMANCER, WARLOCK, OVERLORD,
+		BARBARIAN, BATTLEMAGE, BEASTMASTER, WITCH, PLANESWALKER, ELEMENTALIST};
+
+	std::string name; //name of hero
 	int ID;
 	int lowStack[3], highStack[3]; //amount of units; described below
 	std::string refTypeStack[3]; //reference names of units appearing in hero's army if he is recruited in tavern
@@ -44,15 +48,15 @@ public:
 	ui32 skillLimit; //how many secondary skills can hero learn
 	std::string name;
 	float aggression;
-	int initialAttack, initialDefence, initialPower, initialKnowledge;
+	int initialAttack, initialDefence, initialPower, initialKnowledge; //initial values of primary skills
 	std::vector<std::pair<int,int> > primChance;//primChance[PRIMARY_SKILL_ID] - first is for levels 2 - 9, second for 10+;;; probability (%) of getting point of primary skill when getting new level
 	std::vector<int> proSec; //probabilities of gaining secondary skills (out of 112), in id order
 	int selectionProbability[9]; //probability of selection in towns
 	std::vector<int> terrCosts; //default costs of going through terrains: dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock; -1 means terrain is imapassable
 
 	int chooseSecSkill(const std::set<int> & possibles) const; //picks secondary skill out from given possibilities
-	CHeroClass();
-	~CHeroClass();
+	CHeroClass(); //c-tor
+	~CHeroClass(); //d-tor
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -83,7 +87,7 @@ struct DLL_EXPORT CObstacleInfo
 class DLL_EXPORT CHeroHandler
 {
 public:
-	std::vector<CHero*> heroes; //by³o nodrze
+	std::vector<CHero*> heroes; //by³o nodrze //changed from nodrze
 	std::vector<CHeroClass *> heroClasses;
 	std::vector<int> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
 	
@@ -102,17 +106,17 @@ public:
 
 	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
 
-	void loadObstacles();
+	void loadObstacles(); //loads info about obstacles
 
-	unsigned int level(unsigned int experience);
-	unsigned int reqExp(unsigned int level);
+	unsigned int level(unsigned int experience); //calculates level corresponding to given experience amount
+	unsigned int reqExp(unsigned int level); //calculates experience resuired for given level
 
 	void loadHeroes();
 	void loadHeroClasses();
 	void initHeroClasses();
 	void initTerrainCosts();
-	CHeroHandler();
-	~CHeroHandler();
+	CHeroHandler(); //c-tor
+	~CHeroHandler(); //d-tor
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

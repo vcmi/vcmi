@@ -963,7 +963,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	/*********give starting hero****************************************/
 	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
-		if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==RoE))
+		if((map->players[i].generateHeroAtMainTown && map->players[i].hasMainTown) ||  (map->players[i].hasMainTown && map->version==CMapHeader::RoE))
 		{
 			int3 hpos = map->players[i].posOfMainTown;
 			hpos.x+=1;// hpos.y+=1;
@@ -1343,25 +1343,25 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 
 	switch(map->terrain[tile.x][tile.y][tile.z].tertype)
 	{
-	case dirt:
+	case TerrainTile::dirt:
 		return rand()%3+3;
-	case sand:
+	case TerrainTile::sand:
 		return 2; //TODO: coast support
-	case grass:
+	case TerrainTile::grass:
 		return rand()%2+6;
-	case snow:
+	case TerrainTile::snow:
 		return rand()%2+10;
-	case swamp:
+	case TerrainTile::swamp:
 		return 13;
-	case rough:
+	case TerrainTile::rough:
 		return 23;
-	case subterranean:
+	case TerrainTile::subterranean:
 		return 12;
-	case lava:
+	case TerrainTile::lava:
 		return 8;
-	case water:
+	case TerrainTile::water:
 		return 25;
-	case rock:
+	case TerrainTile::rock:
 		return 15;
 	default:
 		return -1;
@@ -1564,7 +1564,7 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	}
 	else if(ID == 6) //shipyard
 	{
-		if(map->getTile(t->pos + int3(-1,3,0)).tertype != water  &&  map->getTile(t->pos + int3(-3,3,0)).tertype != water)
+		if(map->getTile(t->pos + int3(-1,3,0)).tertype != TerrainTile::water  &&  map->getTile(t->pos + int3(-3,3,0)).tertype != TerrainTile::water)
 			ret = 1; //lack of water
 	}
 
@@ -1598,7 +1598,7 @@ CPath * CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero)
 	tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
 
 	if (!hero->canWalkOnSea())
-		blockLandSea = (map->getTile(hpos).tertype != water); //block land if hero is on water and vice versa
+		blockLandSea = (map->getTile(hpos).tertype != TerrainTile::water); //block land if hero is on water and vice versa
 	else
 		blockLandSea = boost::logic::indeterminate;
 
@@ -1625,9 +1625,9 @@ CPath * CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero)
 			node.coord.y = j;
 			node.coord.z = dest.z;
 
-			if ((tinfo->tertype == rock) //it's rock
-				|| ((blockLandSea) && (tinfo->tertype == water)) //it's sea and we cannot walk on sea
-				|| ((!blockLandSea) && (tinfo->tertype != water)) //it's land and we cannot walk on land
+			if ((tinfo->tertype == TerrainTile::rock) //it's rock
+				|| ((blockLandSea) && (tinfo->tertype == TerrainTile::water)) //it's sea and we cannot walk on sea
+				|| ((!blockLandSea) && (tinfo->tertype != TerrainTile::water)) //it's land and we cannot walk on land
 				|| !getPlayer(hero->tempOwner)->fogOfWarMap[i][j][src.z] //tile is covered by the FoW
 			)
 			{

@@ -216,15 +216,15 @@ bool CCallback::verifyPath(CPath * path, bool blockSea) const
 				continue;
 
 			if (
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype==water)
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype==TerrainTile::water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype!=water))
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype!=TerrainTile::water))
 				  ||
-					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype!=water)
+					((CGI->mh->ttiles[path->nodes[i].coord.x][path->nodes[i].coord.y][path->nodes[i].coord.z].tileInfo->tertype!=TerrainTile::water)
 					&&
-					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==water))
+					(CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==TerrainTile::water))
 				  ||
-				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==rock)
+				  (CGI->mh->ttiles[path->nodes[i-1].coord.x][path->nodes[i-1].coord.y][path->nodes[i-1].coord.z].tileInfo->tertype==TerrainTile::rock)
 					
 				)
 				return false;
@@ -597,14 +597,14 @@ void CCallback::getMarketOffer( int t1, int t2, int &give, int &rec, int mode/*=
 	if(mode) return; //TODO - support
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	//if(gs->resVals[t1] >= gs->resVals[t2])
-	float r = gs->resVals[t1],
-		g = gs->resVals[t2] / gs->getMarketEfficiency(player,mode);
-	if(r>g)
+	float r = gs->resVals[t1], //price of given resource
+		g = gs->resVals[t2] / gs->getMarketEfficiency(player,mode); //price of wanted resource
+	if(r>g) //if given resource is more expensive than wanted
 	{
 		rec = ceil(r / g);
 		give = 1;
 	}
-	else
+	else //if wanted resource is more expensive
 	{
 		give = ceil(g / r);
 		rec = 1;

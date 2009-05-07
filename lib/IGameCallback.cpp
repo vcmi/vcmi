@@ -136,12 +136,12 @@ void IGameCallback::getAllowedArts(std::vector<CArtifact*> &out, std::vector<CAr
 
 void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 {
-	if(flags & ART_TREASURE)
+	if(flags & CArtifact::ART_TREASURE)
 		getAllowedArts(out,&CArtHandler::treasures);
-	if(flags & ART_MINOR)
+	if(flags & CArtifact::ART_MINOR)
 		getAllowedArts(out,&CArtHandler::minors);
-	if(flags & ART_MAJOR)
+	if(flags & CArtifact::ART_MAJOR)
 		getAllowedArts(out,&CArtHandler::majors);
-	if(flags & ART_RELIC)
+	if(flags & CArtifact::ART_RELIC)
 		getAllowedArts(out,&CArtHandler::relics);
 }

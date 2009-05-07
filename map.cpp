@@ -1238,11 +1238,11 @@ void Mapa::readTerrain( unsigned char * bufor, int &i)
 	{
 		for (int z=0; z<height; z++)
 		{
-			terrain[z][c][0].tertype = (EterrainType)(bufor[i++]);
+			terrain[z][c][0].tertype = static_cast<TerrainTile::EterrainType>(bufor[i++]);
 			terrain[z][c][0].terview = bufor[i++];
-			terrain[z][c][0].nuine = (Eriver)bufor[i++];
+			terrain[z][c][0].nuine = static_cast<TerrainTile::Eriver>(bufor[i++]);
 			terrain[z][c][0].rivDir = bufor[i++];
-			terrain[z][c][0].malle = (Eroad)bufor[i++];
+			terrain[z][c][0].malle = static_cast<TerrainTile::Eroad>(bufor[i++]);
 			terrain[z][c][0].roadDir = bufor[i++];
 			terrain[z][c][0].siodmyTajemniczyBajt = bufor[i++];
 			terrain[z][c][0].blocked = 0;
@@ -1255,11 +1255,11 @@ void Mapa::readTerrain( unsigned char * bufor, int &i)
 		{
 			for (int z=0; z<height; z++)
 			{
-				terrain[z][c][1].tertype = (EterrainType)(bufor[i++]);
+				terrain[z][c][1].tertype = static_cast<TerrainTile::EterrainType>(bufor[i++]);
 				terrain[z][c][1].terview = bufor[i++];
-				terrain[z][c][1].nuine = (Eriver)bufor[i++];
+				terrain[z][c][1].nuine = static_cast<TerrainTile::Eriver>(bufor[i++]);
 				terrain[z][c][1].rivDir = bufor[i++];
-				terrain[z][c][1].malle = (Eroad)bufor[i++];
+				terrain[z][c][1].malle = static_cast<TerrainTile::Eroad>(bufor[i++]);
 				terrain[z][c][1].roadDir = bufor[i++];
 				terrain[z][c][1].siodmyTajemniczyBajt = bufor[i++];
 				terrain[z][c][1].blocked = 0;

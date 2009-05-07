@@ -36,8 +36,8 @@ class CVCMIServer
 	std::map<int,CConnection*> connections;
 	std::set<CConnection*> conns;
 public:
-	CVCMIServer();
-	~CVCMIServer();
+	CVCMIServer(); //c-tor
+	~CVCMIServer(); //d-tor
 	void setUpConnection(CConnection *c, std::string mapname, si32 checksum);
 	void newGame(CConnection *c);
 	void loadGame(CConnection *c);

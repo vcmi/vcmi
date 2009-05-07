@@ -1599,6 +1599,7 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	bg2 = BitmapHandler::loadBitmap("TPSMITBK.bmp");
 	blitAt(bg2,64,50,bmp);
 	SDL_FreeSurface(bg2);
+
 	CCreatureAnimation cra(CGI->creh->creatures[creMachineID].animDefName);
 	cra.nextFrameMiddle(bmp,170,120,true,0,false);
 	char pom[75];
@@ -1607,16 +1608,20 @@ CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, i
 	printAtMiddle(CGI->generaltexth->jktexts[43],165,218,GEOR16,zwykly,bmp); //resource cost
 	SDL_itoa(CGI->arth->artifacts[aid].price,pom,10);
 	printAtMiddle(pom,165,290,GEOR13,zwykly,bmp);
+
 	pos.w = bmp->w;
 	pos.h = bmp->h;
 	pos.x = screen->w/2 - pos.w/2;
 	pos.y = screen->h/2 - pos.h/2;
+
 	buy = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 42,pos.y + 312,"IBUY30.DEF",SDLK_RETURN);
 	cancel = new AdventureMapButton("","",boost::bind(&CBlacksmithDialog::close,this),pos.x + 224,pos.y + 312,"ICANCEL.DEF",SDLK_ESCAPE);
+
 	if(possible)
 		buy->callback += boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,LOCPLINT->cb->getHeroInfo(hid,2),aid);
 	else
 		buy->bitmapOffset = 2;
+
 	blitAt(graphics->resources32->ourImages[6].bitmap,148,244,bmp);
 }
 

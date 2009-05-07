@@ -45,8 +45,8 @@ public:
 	bool alphaTransformed;
 	bool notFreeImgs;
 
-	CDefHandler();
-	~CDefHandler();
+	CDefHandler(); //c-tor
+	~CDefHandler(); //d-tor
 	static void print (std::ostream & stream, int nr, int bytcon);
 	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
 	static unsigned char *writeNormalNr (int nr, int bytCon);
@@ -64,7 +64,7 @@ class CDefEssential //DefHandler with images only
 {
 public:
 	std::vector<Cimage> ourImages;
-	~CDefEssential();
+	~CDefEssential(); //d-tor
 };
 
 

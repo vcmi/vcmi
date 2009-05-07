@@ -39,14 +39,14 @@ struct SharedMem
 	boost::interprocess::mapped_region *mr;
 	ServerReady *sr;
 	
-	SharedMem()
+	SharedMem() //c-tor
 		:smo(boost::interprocess::open_or_create,"vcmi_memory",boost::interprocess::read_write) 
 	{
 		smo.truncate(sizeof(ServerReady));
 		mr = new boost::interprocess::mapped_region(smo,boost::interprocess::read_write);
 		sr = new(mr->get_address())ServerReady();
 	};
-	~SharedMem()
+	~SharedMem() //d-tor
 	{
 		delete mr;
 		boost::interprocess::shared_memory_object::remove("vcmi_memory");

@@ -82,14 +82,14 @@ public:
 	bool clicked;
 	CHeroWindow * ourWindow;
 	const CArtifact * ourArt;
-	CArtPlace(const CArtifact * Art);
+	CArtPlace(const CArtifact * Art); //c-tor
 	void clickLeft (tribool down);
 	void clickRight (tribool down);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
 	bool fitsHere(const CArtifact * art); //returns true if given artifact can be placed here
-	~CArtPlace();
+	~CArtPlace(); //d-tor
 };
 
 class CHeroWindow: public CWindowWithGarrison, public virtual CIntObject

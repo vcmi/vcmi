@@ -66,6 +66,10 @@ public:
 };
 struct DLL_EXPORT TerrainTile
 {
+	enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
+	enum Eriver {noRiver=0, clearRiver, icyRiver, muddyRiver, lavaRiver};
+	enum Eroad {dirtRoad=1, grazvelRoad, cobblestoneRoad};
+
 	EterrainType tertype; // type of terrain
 	unsigned char terview; // look of terrain
 	Eriver nuine; // type of Eriver (0 if there is no Eriver)
@@ -199,6 +203,7 @@ public:
 class DLL_EXPORT CMapHeader
 {
 public:
+	enum Eformat { WoG=0x33, AB=0x15, RoE=0x0e,  SoD=0x1c};
 	Eformat version; // version of map Eformat
 	ui8 areAnyPLayers; // if there are any playable players on map
 	si32 height, width, twoLevel; //sizes

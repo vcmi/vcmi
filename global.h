@@ -44,23 +44,16 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
  */
 
 enum Ecolor {RED, BLUE, TAN, GREEN, ORANGE, PURPLE, TEAL, PINK}; //player's colors
-enum EterrainType {border=-1, dirt, sand, grass, snow, swamp, rough, subterranean, lava, water, rock};
-enum Eriver {noRiver=0, clearRiver, icyRiver, muddyRiver, lavaRiver};
-enum Eroad {dirtRoad=1, grazvelRoad, cobblestoneRoad};
-enum Eformat { WoG=0x33, AB=0x15, RoE=0x0e,  SoD=0x1c};
 enum EvictoryConditions {artifact, gatherTroop, gatherResource, buildCity, buildGrail, beatHero,
 	captureCity, beatMonster, takeDwellings, takeMines, transportItem, winStandard=255};
 enum ElossCon {lossCastle, lossHero, timeExpires, lossStandard=255};
-enum EHeroClasses {HERO_KNIGHT, HERO_CLERIC, HERO_RANGER, HERO_DRUID, HERO_ALCHEMIST, HERO_WIZARD,
-	HERO_DEMONIAC, HERO_HERETIC, HERO_DEATHKNIGHT, HERO_NECROMANCER, HERO_WARLOCK, HERO_OVERLORD,
-	HERO_BARBARIAN, HERO_BATTLEMAGE, HERO_BEASTMASTER, HERO_WITCH, HERO_PLANESWALKER, HERO_ELEMENTALIST};
-enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
 enum EAbilities {DOUBLE_WIDE, FLYING, SHOOTER, TWO_HEX_ATTACK, SIEGE_ABILITY, SIEGE_WEAPON, 
-KING1, KING2, KING3, MIND_IMMUNITY, NO_OBSTACLE_PENALTY, NO_CLOSE_COMBAT_PENALTY, 
-JOUSTING, FIRE_IMMUNITY, TWICE_ATTACK, NO_ENEMY_RETALIATION, NO_MORAL_PENALTY, 
-UNDEAD, MULTI_HEAD_ATTACK, EXTENDED_RADIOUS_SHOOTER, GHOST, RAISES_MORALE,
-LOWERS_MORALE, DRAGON, STRIKE_AND_RETURN, FEARLESS, REBIRTH, NOT_ACTIVE}; //some flags are used only for battles
+	KING1, KING2, KING3, MIND_IMMUNITY, NO_OBSTACLE_PENALTY, NO_CLOSE_COMBAT_PENALTY, 
+	JOUSTING, FIRE_IMMUNITY, TWICE_ATTACK, NO_ENEMY_RETALIATION, NO_MORAL_PENALTY, 
+	UNDEAD, MULTI_HEAD_ATTACK, EXTENDED_RADIOUS_SHOOTER, GHOST, RAISES_MORALE,
+	LOWERS_MORALE, DRAGON, STRIKE_AND_RETURN, FEARLESS, REBIRTH, NOT_ACTIVE}; //some flags are used only for battles
 enum ECombatInfo{ALIVE = NOT_ACTIVE+1, SUMMONED, CLONED, HAD_MORALE, WAITING, MOVED, DEFENDING};
+
 class CGameInfo;
 extern CGameInfo* CGI;
 

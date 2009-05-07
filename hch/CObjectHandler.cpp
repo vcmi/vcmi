@@ -277,13 +277,13 @@ unsigned int CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainT
 		int road = std::min(dest.malle,from.malle); //used road ID
 		switch(road)
 		{
-		case dirtRoad:
+		case TerrainTile::dirtRoad:
 			ret = 75;
 			break;
-		case grazvelRoad:
+		case TerrainTile::grazvelRoad:
 			ret = 65;
 			break;
-		case cobblestoneRoad:
+		case TerrainTile::cobblestoneRoad:
 			ret = 50;
 			break;
 		default:
@@ -867,18 +867,19 @@ int CGHeroInstance::valOfBonuses( HeroBonus::BonusType type, int subtype /*= -1*
 
 bool CGHeroInstance::hasBonusOfType(HeroBonus::BonusType type, int subtype /*= -1*/) const
 {
-	if(subtype == -1)
+	if(subtype == -1) //any subtype
 	{
 		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
 			if(i->type == type)
 				return true;
 	}
-	else
+	else //given subtype
 	{
 		for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
 			if(i->type == type && i->subtype == subtype)
 				return true;
 	}
+	throw "CGHeroInstance::hasBonusOfType - we shouln't be here!";
 }
 
 int CGTownInstance::getSightRadious() const //returns sight distance
@@ -2884,7 +2885,7 @@ void CGOnceVisitable::initObj()
 			{
 				artOrRes = 1;
 				std::vector<CArtifact*> arts; 
-				cb->getAllowed(arts, ART_TREASURE | ART_MINOR | ART_MAJOR);
+				cb->getAllowed(arts, CArtifact::ART_TREASURE | CArtifact::ART_MINOR | CArtifact::ART_MAJOR);
 				bonusType = arts[ran() % arts.size()]->id;
 			}
 			else
@@ -2910,13 +2911,13 @@ void CGOnceVisitable::initObj()
 
 			int hlp = ran()%100;
 			if(hlp < 30)
-				cb->getAllowed(arts,ART_TREASURE);
+				cb->getAllowed(arts,CArtifact::ART_TREASURE);
 			else if(hlp < 80)
-				cb->getAllowed(arts,ART_MINOR);
+				cb->getAllowed(arts,CArtifact::ART_MINOR);
 			else if(hlp < 95)
-				cb->getAllowed(arts,ART_MAJOR);
+				cb->getAllowed(arts,CArtifact::ART_MAJOR);
 			else
-				cb->getAllowed(arts,ART_RELIC);
+				cb->getAllowed(arts,CArtifact::ART_RELIC);
 
 			bonusType = arts[ran() % arts.size()]->id;
 		}
@@ -2934,7 +2935,7 @@ void CGOnceVisitable::initObj()
 			{
 				artOrRes = 1;
 				std::vector<CArtifact*> arts; 
-				cb->getAllowed(arts, ART_TREASURE | ART_MINOR);
+				cb->getAllowed(arts, CArtifact::ART_TREASURE | CArtifact::ART_MINOR);
 				bonusType = arts[ran() % arts.size()]->id;
 			}
 			else //2 - 5 of non-gold resource

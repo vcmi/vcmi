@@ -21,8 +21,9 @@ class DLL_EXPORT CArtifact //container for artifacts
 {
 	std::string name, description; //set if custom
 public:
-	const std::string &Name() const;
-	const std::string &Description() const;
+	enum EartClass {ART_SPECIAL=1, ART_TREASURE=2, ART_MINOR=4, ART_MAJOR=8, ART_RELIC=16}; //artifact classes
+	const std::string &Name() const; //getter
+	const std::string &Description() const; //getter
 
 	ui32 price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed

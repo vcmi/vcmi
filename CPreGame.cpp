@@ -948,16 +948,16 @@ void MapSel::printMaps(int elemIdx)
 		int temp=-1;
 		switch (curMap->version)
 		{
-		case RoE:
+		case CMapHeader::RoE:
 			temp=0;
 			break;
-		case AB:
+		case CMapHeader::AB:
 			temp=1;
 			break;
-		case SoD:
+		case CMapHeader::SoD:
 			temp=2;
 			break;
-		case WoG:
+		case CMapHeader::WoG:
 			temp=3;
 			break;
 		default:
@@ -1355,7 +1355,7 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 			}
 			pset.heroPortrait=-1;
 			if (!
-				(((curVector()[which]->players[i].generateHeroAtMainTown || curVector()[which]->version==RoE)
+				(((curVector()[which]->players[i].generateHeroAtMainTown || curVector()[which]->version==CMapHeader::RoE)
 					&& curVector()[which]->players[i].hasMainTown) 
 				|| curVector()[which]->players[i].p8)
 			  )

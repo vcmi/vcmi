@@ -80,12 +80,12 @@ public:
 class CMapHandler
 {
 public:
-	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles;
-	int3 sizes;
+	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
+	int3 sizes; //map size (x - width, y - height, z - number of levels)
 	Mapa * map;
 	std::set<int> usedHeroes;
-	CDefHandler * fullHide;
-	CDefHandler * partialHide;
+	CDefHandler * fullHide; //for Fog of War
+	CDefHandler * partialHide; //for For of War
 
 	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type] [rotation type]
 	std::vector<CDefHandler *> roadDefs;
@@ -96,8 +96,8 @@ public:
 
 	std::vector<std::vector<std::vector<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 
-	CMapHandler();
-	~CMapHandler();
+	CMapHandler(); //c-tor
+	~CMapHandler(); //d-tor
 
 	void loadDefs();
 	SDL_Surface * getVisBitmap(int x, int y, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl);

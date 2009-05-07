@@ -30,59 +30,59 @@ extern SDL_Surface * screen;
 
 std::string nameFromType (int typ)
 {
-	switch((EterrainType)typ)
+	switch(static_cast<TerrainTile::EterrainType>(typ))
 	{
-		case dirt:
+		case TerrainTile::dirt:
 		{
 			return std::string("DIRTTL.DEF");
 			break;
 		}
-		case sand:
+		case TerrainTile::sand:
 		{
 			return std::string("SANDTL.DEF");
 			break;
 		}
-		case grass:
+		case TerrainTile::grass:
 		{
 			return std::string("GRASTL.DEF");
 			break;
 		}
-		case snow:
+		case TerrainTile::snow:
 		{
 			return std::string("SNOWTL.DEF");
 			break;
 		}
-		case swamp:
+		case TerrainTile::swamp:
 		{
 			return std::string("SWMPTL.DEF");			
 			break;
 		}
-		case rough:
+		case TerrainTile::rough:
 		{
 			return std::string("ROUGTL.DEF");		
 			break;
 		}
-		case subterranean:
+		case TerrainTile::subterranean:
 		{
 			return std::string("SUBBTL.DEF");		
 			break;
 		}
-		case lava:
+		case TerrainTile::lava:
 		{
 			return std::string("LAVATL.DEF");		
 			break;
 		}
-		case water:
+		case TerrainTile::water:
 		{
 			return std::string("WATRTL.DEF");
 			break;
 		}
-		case rock:
+		case TerrainTile::rock:
 		{
 			return std::string("ROCKTL.DEF");		
 			break;
 		}
-                case border:
+                case TerrainTile::border:
                     //TODO use me
                     break;
                 default:

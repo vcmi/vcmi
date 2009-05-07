@@ -2609,8 +2609,8 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 	boost::unique_lock<boost::mutex> un(stillMoveHero.mx);
 	stillMoveHero.data = CONTINUE_MOVE;
 
-	enum EterrainType currentTerrain = border; // not init yet
-	enum EterrainType newTerrain;
+	enum TerrainTile::EterrainType currentTerrain = TerrainTile::border; // not init yet
+	enum TerrainTile::EterrainType newTerrain;
 	int sh = -1;
 
 	for(int i=path.nodes.size()-1; i>0 && stillMoveHero.data == CONTINUE_MOVE; i--)
@@ -3464,6 +3464,7 @@ void CRecrutationWindow::activate()
 	slider->activate();
 	LOCPLINT->statusbar = bar;
 }
+
 void CRecrutationWindow::deactivate()
 {
 	ClickableL::deactivate();
@@ -3473,20 +3474,23 @@ void CRecrutationWindow::deactivate()
 	cancel->deactivate();
 	slider->deactivate();
 }
+
 void CRecrutationWindow::show(SDL_Surface * to)
 {
-	static char c=0;
+	static char animCounter=0; //animation counter - for determining appropriate animation frame to be shown
 	blitAt(bitmap,pos.x,pos.y,to);
 	buy->show(to);
 	max->show(to);
 	cancel->show(to);
 	slider->show(to);
+
 	char pom[15];
 	SDL_itoa(creatures[which].amount-slider->value,pom,10); //available
 	printAtMiddle(pom,pos.x+205,pos.y+252,GEOR13,zwykly,to);
 	SDL_itoa(slider->value,pom,10); //recruit
 	printAtMiddle(pom,pos.x+279,pos.y+252,GEOR13,zwykly,to);
 	printAtMiddle(CGI->generaltexth->allTexts[16] + " " + CGI->creh->creatures[creatures[which].ID].namePl,pos.x+243,pos.y+32,GEOR16,tytulowy,to); //eg "Recruit Dragon flies"
+
 	int curx = pos.x+115-creatures[which].res.size()*16;
 	for(int i=0;i<creatures[which].res.size();i++)
 	{
@@ -3500,18 +3504,19 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	}
 
 	curx = pos.x + 192 + 102 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
-	for(int i=0;i<creatures.size();i++)
+	for(int i=0; i<creatures.size(); ++i)
 	{
-		creatures[i].pic->blitPic(to,curx-50,pos.y+130-65,!(c%4));
+		creatures[i].pic->blitPic(to, curx-50, pos.y+130-65, !(animCounter%4));
 		curx += 120;
 	}
-	c++;
+
+	++animCounter;
 	bar->show(to);
 }
+
 CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &Creatures, const boost::function<void(int,int)> &Recruit) //creatures - pairs<creature_ID,amount>
-:recruit(Recruit)
+:recruit(Recruit), which(0)
 {
-	which = 0;
 	creatures.resize(Creatures.size());
 	amounts.resize(Creatures.size());
 	for(int i=0;i<creatures.size();i++)
@@ -3526,7 +3531,7 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 	}
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPRCRT.bmp");
 	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	bitmap = SDL_ConvertSurface(hhlp,screen->format,0); //na 8bitowej mapie by sie psulo
+	bitmap = SDL_ConvertSurface(hhlp,screen->format,0); //na 8bitowej mapie by sie psulo //it wouldn't work on 8bpp map
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	SDL_FreeSurface(hhlp);
 	pos.x = screen->w/2 - bitmap->w/2;
@@ -3573,6 +3578,7 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 	}
 	//buy->block(true); //not needed, will be blocked by initing slider on 0
 }
+
 CRecrutationWindow::~CRecrutationWindow()
 {
 	for(int i=0;i<creatures.size();i++)
@@ -3614,7 +3620,8 @@ CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int 
 	boost::algorithm::replace_first(title,"%s",CGI->creh->creatures[cid].namePl);
 	printAtMiddle(title,150,34,GEOR16,tytulowy,bitmap);
 }
-CSplitWindow::~CSplitWindow()
+
+CSplitWindow::~CSplitWindow() //d-tor
 {
 	SDL_FreeSurface(bitmap);
 	delete ok;
@@ -3622,6 +3629,7 @@ CSplitWindow::~CSplitWindow()
 	delete slider;
 	delete anim;
 }
+
 void CSplitWindow::activate()
 {
 	ClickableL::activate();
@@ -3630,6 +3638,7 @@ void CSplitWindow::activate()
 	cancel->activate();
 	slider->activate();
 }
+
 void CSplitWindow::deactivate()
 {
 	ClickableL::deactivate();
@@ -3638,15 +3647,18 @@ void CSplitWindow::deactivate()
 	cancel->deactivate();
 	slider->deactivate();
 }
+
 void CSplitWindow::split()
 {
 	gar->splitStacks(a2);
 	close();
 }
+
 void CSplitWindow::close()
 {
 	LOCPLINT->popIntTotally(this);
 }
+
 void CSplitWindow::sliderMoved(int to)
 {
 	int all = a1+a2;
@@ -3654,6 +3666,7 @@ void CSplitWindow::sliderMoved(int to)
 	if(slider)
 		a1 = all - a2;
 }
+
 void CSplitWindow::show(SDL_Surface * to)
 {
 	blitAt(bitmap,pos.x,pos.y,to);
@@ -3665,6 +3678,7 @@ void CSplitWindow::show(SDL_Surface * to)
 	anim->blitPic(to,pos.x+20,pos.y+54,false);
 	anim->blitPic(to,pos.x+177,pos.y+54,false);
 }
+
 void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
 	if(key.state != SDL_PRESSED)
@@ -3705,9 +3719,9 @@ void CSplitWindow::clickLeft( boost::logic::tribool down )
 	{
 		Point click(LOCPLINT->current->motion.x,LOCPLINT->current->motion.y);
 		click -= pos.topLeft();
-		if(Rect(19,216,105,40).isIn(click))
+		if(Rect(19,216,105,40).isIn(click)) //left picture
 			which = 0;
-		else if(Rect(175,216,105,40).isIn(click))
+		else if(Rect(175,216,105,40).isIn(click)) //right picture
 			which = 1;
 	}
 }

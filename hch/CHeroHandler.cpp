@@ -167,19 +167,19 @@ void CHeroHandler::loadHeroes()
 	int numberOfCurrentClassHeroes = 0;
 	int currentClass = 0;
 	int additHero = 0;
-	EHeroClasses addTab[12];
-	addTab[0] = HERO_KNIGHT;
-	addTab[1] = HERO_WITCH;
-	addTab[2] = HERO_KNIGHT;
-	addTab[3] = HERO_WIZARD;
-	addTab[4] = HERO_RANGER;
-	addTab[5] = HERO_BARBARIAN;
-	addTab[6] = HERO_DEATHKNIGHT;
-	addTab[7] = HERO_WARLOCK;
-	addTab[8] = HERO_KNIGHT;
-	addTab[9] = HERO_WARLOCK;
-	addTab[10] = HERO_BARBARIAN;
-	addTab[11] = HERO_DEMONIAC;
+	CHero::EHeroClasses addTab[12];
+	addTab[0] = CHero::KNIGHT;
+	addTab[1] = CHero::WITCH;
+	addTab[2] = CHero::KNIGHT;
+	addTab[3] = CHero::WIZARD;
+	addTab[4] = CHero::RANGER;
+	addTab[5] = CHero::BARBARIAN;
+	addTab[6] = CHero::DEATHKNIGHT;
+	addTab[7] = CHero::WARLOCK;
+	addTab[8] = CHero::KNIGHT;
+	addTab[9] = CHero::WARLOCK;
+	addTab[10] = CHero::BARBARIAN;
+	addTab[11] = CHero::DEMONIAC;
 
 	
 	for (int i=0; i<HEROES_QUANTITY; i++)
@@ -187,7 +187,7 @@ void CHeroHandler::loadHeroes()
 		CHero * nher = new CHero;
 		if(currentClass<18)
 		{
-			nher->heroType = (EHeroClasses)currentClass;
+			nher->heroType = static_cast<CHero::EHeroClasses>(currentClass);
 			++numberOfCurrentClassHeroes;
 			if(numberOfCurrentClassHeroes==8)
 			{

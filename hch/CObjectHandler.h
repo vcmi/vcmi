@@ -150,7 +150,7 @@ public:
 class DLL_EXPORT CPlayersVisited: public CGObjectInstance
 {
 public:
-	std::set<ui8> players;
+	std::set<ui8> players; //players that visited this object
 
 	bool hasVisited(ui8 player) const;
 	void setPropertyDer(ui8 what, ui32 val);//synchr
@@ -342,7 +342,7 @@ public:
 	int creatureGrowth(const int & level) const;
 	bool hasFort() const;
 	bool hasCapitol() const;
-	int dailyIncome() const;
+	int dailyIncome() const; //calculates daily income of this town
 	int spellsAtLevel(int level, bool checkGuild) const; //levels are counted from 1 (1 - 5)
 
 	CGTownInstance();
@@ -464,8 +464,8 @@ class DLL_EXPORT CGSeerHut : public CGObjectInstance, public CQuest
 public:
 	ui8 rewardType; //type of reward: 0 - no reward; 1 - experience; 2 - mana points; 3 - morale bonus; 4 - luck bonus; 5 - resources; 6 - main ability bonus (attak, defence etd.); 7 - secondary ability gain; 8 - artifact; 9 - spell; 10 - creature
 
-	si32 rID;
-	si32 rVal;
+	si32 rID; //reward ID
+	si32 rVal; //reward value
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

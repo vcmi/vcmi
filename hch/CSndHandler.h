@@ -45,8 +45,8 @@ private:
 public:
 	std::vector<Entry> entries;
 	std::map<std::string, int> fimap; // map of wav file and index
-	~CSndHandler();
-	CSndHandler(std::string fname);
+	~CSndHandler(); //d-tor
+	CSndHandler(std::string fname); //c-tor
 	void extract(std::string srcfile, std::string dstfile, bool caseSens=true); //saves selected file
 	const char * extract (std::string srcfile, int & size); //return selecte file data, NULL if file doesn't exist
 	void extract(int index, std::string dstfile); //saves selected file
@@ -67,8 +67,8 @@ protected:
 	bool opened;
 public:
 	std::vector<Entry> entries;
-	~CVidHandler();
-	CVidHandler(std::string fname);
+	~CVidHandler(); //d-tor
+	CVidHandler(std::string fname); //c-tor
 	std::ifstream & extract(std::string srcfile);
 	void extract(std::string srcfile, std::string dstfile, bool caseSens=true); //saves selected file
 	unsigned char * extract (std::string srcfile, int & size); //return selecte file,

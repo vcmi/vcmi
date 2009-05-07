@@ -123,7 +123,7 @@ public:
 	const char *GetLibExtension();
 	void *FindAddress234(const char *symbol);
 
-	virtual ~DLLHandler();
+	virtual ~DLLHandler(); //d-tor
 };
 
 class CBIKHandler

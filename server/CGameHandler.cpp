@@ -1139,8 +1139,8 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
-	if(	t.tertype == rock   
-		|| (!h->canWalkOnSea() && t.tertype == water)
+	if(	t.tertype == TerrainTile::rock   
+		|| (!h->canWalkOnSea() && t.tertype == TerrainTile::water)
 		|| (t.blocked && !t.visitable) //tile is blocked andnot visitable
 	  )
 	{
@@ -1934,8 +1934,8 @@ bool CGameHandler::buyArtifact( ui32 hid, si32 aid )
 bool CGameHandler::tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 )
 {
 	val = std::min(si32(val),gs->getPlayer(player)->resources[id1]);
-	double uzysk = (double)gs->resVals[id1] * val * gs->getMarketEfficiency(player);
-	uzysk /= gs->resVals[id2];
+	double yield = (double)gs->resVals[id1] * val * gs->getMarketEfficiency(player);
+	yield /= gs->resVals[id2];
 	SetResource sr;
 	sr.player = player;
 	sr.resid = id1;
@@ -1943,7 +1943,7 @@ bool CGameHandler::tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 )
 	sendAndApply(&sr);
 
 	sr.resid = id2;
-	sr.val = gs->getPlayer(player)->resources[id2] + (int)uzysk;
+	sr.val = gs->getPlayer(player)->resources[id2] + (int)yield;
 	sendAndApply(&sr);
 
 	return true;

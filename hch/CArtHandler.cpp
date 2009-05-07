@@ -42,8 +42,8 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 {
 	std::vector<ui16> slots;
 	slots += 17, 16, 15,14,13, 18, 12, 11, 10, 9, 8, 7, 6, 5, 4, 3, 2, 1, 0;
-	std::map<char,EartClass> classes = 
-	  map_list_of('S',ART_SPECIAL)('T',ART_TREASURE)('N',ART_MINOR)('J',ART_MAJOR)('R',ART_RELIC);
+	std::map<char, CArtifact::EartClass> classes = 
+	  map_list_of('S',CArtifact::ART_SPECIAL)('T',CArtifact::ART_TREASURE)('N',CArtifact::ART_MINOR)('J',CArtifact::ART_MAJOR)('R',CArtifact::ART_RELIC);
 	std::string buf = bitmaph->getTextFile("ARTRAITS.TXT"), dump, pom;
 	int it=0;
 	for(int i=0; i<2; ++i)
@@ -118,16 +118,16 @@ void CArtHandler::sortArts()
 	{
 		switch (artifacts[i].aClass)
 		{
-		case ART_TREASURE:
+		case CArtifact::ART_TREASURE:
 			treasures.push_back(&(artifacts[i]));
 			break;
-		case ART_MINOR:
+		case CArtifact::ART_MINOR:
 			minors.push_back(&(artifacts[i]));
 			break;
-		case ART_MAJOR:
+		case CArtifact::ART_MAJOR:
 			majors.push_back(&(artifacts[i]));
 			break;
-		case ART_RELIC:
+		case CArtifact::ART_RELIC:
 			relics.push_back(&(artifacts[i]));
 			break;
 		}

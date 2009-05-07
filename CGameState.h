@@ -245,7 +245,7 @@ public:
 	Mapa * map;
 	std::map<ui8,PlayerState> players; //ID <-> player state
 	std::map<int, CGDefInfo*> villages, forts, capitols; //def-info for town graphics
-	std::vector<ui32> resVals;
+	std::vector<ui32> resVals; //default values of resources in gold
 
 	struct DLL_EXPORT HeroesPool
 	{
@@ -282,8 +282,8 @@ public:
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if dst tile is visitable from dst tile
 	CPath * getPath(int3 src, int3 dest, const CGHeroInstance * hero); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
 
-	CGameState();
-	~CGameState();
+	CGameState(); //c-tor
+	~CGameState(); //d-tor
 	void getNeighbours(int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand);
 	int getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month

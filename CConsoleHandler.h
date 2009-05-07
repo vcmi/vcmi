@@ -29,12 +29,12 @@ namespace boost
 class DLL_EXPORT CConsoleHandler
 {
 public:
-	boost::function<void(const std::string &)> *cb;
-	int curLvl;
+	boost::function<void(const std::string &)> *cb; //function to be called when message is received
+	int curLvl; //logging level
 	int run();
-	void setColor(int level);
-	CConsoleHandler();
-	~CConsoleHandler();
+	void setColor(int level); //sets color of text appropriate for given logging level
+	CConsoleHandler(); //c-tor
+	~CConsoleHandler(); //d-tor
 #ifndef _WIN32
 	static void killConsole(pthread_t hThread); //for windows only, use native handle to the thread
 #else
