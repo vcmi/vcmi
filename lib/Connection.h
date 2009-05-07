@@ -569,7 +569,7 @@ public:
 		ui32 length;
 		*this >> length;
 		T1 t;
-		for(int i=0;i<length;i++)
+		for(ui32 i=0;i<length;i++)
 		{
 			*this >> t;
 			*this >> data[t];

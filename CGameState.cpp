@@ -209,7 +209,7 @@ CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 }
 CStack * BattleInfo::getStack(int stackID)
 {
-	for(int g=0; g<stacks.size(); ++g)
+	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
 		if(stacks[g]->ID == stackID)
 			return stacks[g];
@@ -218,7 +218,7 @@ CStack * BattleInfo::getStack(int stackID)
 }
 CStack * BattleInfo::getStackT(int tileID)
 {
-	for(int g=0; g<stacks.size(); ++g)
+	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
 		if(stacks[g]->position == tileID 
 			|| (stacks[g]->creature->isDoubleWide() && stacks[g]->attackerOwned && stacks[g]->position-1 == tileID)
@@ -235,7 +235,7 @@ CStack * BattleInfo::getStackT(int tileID)
 void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 {
 	memset(accessibility,1,BFIELD_SIZE); //initialize array with trues
-	for(int g=0; g<stacks.size(); ++g)
+	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
 		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit) //we don't want to lock position of this stack
 			continue;
@@ -250,10 +250,10 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, int stackToOmmit)
 		}
 	}
 	//obstacles
-	for(int b=0; b<obstacles.size(); ++b)
+	for(unsigned int b=0; b<obstacles.size(); ++b)
 	{
 		std::vector<int> blocked = VLC->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
-		for(int c=0; c<blocked.size(); ++c)
+		for(unsigned int c=0; c<blocked.size(); ++c)
 		{
 			if(blocked[c] >=0 && blocked[c] < BFIELD_SIZE)
 				accessibility[blocked[c]] = false;
@@ -283,7 +283,7 @@ void BattleInfo::makeBFS(int start, bool*accessibility, int *predecessor, int *d
 		int curHex = hexq.front();
 		std::vector<int> neighbours = neighbouringTiles(curHex);
 		hexq.pop();
-		for(int nr=0; nr<neighbours.size(); nr++)
+		for(unsigned int nr=0; nr<neighbours.size(); nr++)
 		{
 			curNext = neighbours[nr];
 			if(!accessibility[curNext] || (dists[curHex]+1)>=dists[curNext])
@@ -321,7 +321,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 				}
 			}
 
-			for(int g=0; g<rem.size(); ++g)
+			for(unsigned int g=0; g<rem.size(); ++g)
 			{
 				ac[rem[g]] = false;
 			}
@@ -342,7 +342,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 				}
 			}
 
-			for(int g=0; g<rem.size(); ++g)
+			for(unsigned int g=0; g<rem.size(); ++g)
 			{
 				ac[rem[g]] = false;
 			}
@@ -360,7 +360,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 bool BattleInfo::isStackBlocked(int ID)
 {
 	CStack *our = getStack(ID);
-	for(int i=0; i<stacks.size();i++)
+	for(unsigned int i=0; i<stacks.size();i++)
 	{
 		if( !stacks[i]->alive()
 			|| stacks[i]->owner==our->owner
@@ -478,7 +478,7 @@ ui32 CStack::Speed() const
 
 const CStack::StackEffect * CStack::getEffect(ui16 id) const
 {
-	for (int i=0; i< effects.size(); i++)
+	for (unsigned int i=0; i< effects.size(); i++)
 		if(effects[i].id == id)
 			return &effects[i];
 	return NULL;
@@ -487,7 +487,7 @@ const CStack::StackEffect * CStack::getEffect(ui16 id) const
 ui8 CStack::howManyEffectsSet(ui16 id) const
 {
 	ui8 ret = 0;
-	for (int i=0; i< effects.size(); i++)
+	for (unsigned int i=0; i< effects.size(); i++)
 		if(effects[i].id == id) //effect found
 		{
 			++ret;
@@ -627,7 +627,7 @@ CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, con
 			return NULL;
 		}
 		r = rand()%sum;
-		for(int i=0; i<pool.size(); i++)
+		for(unsigned int i=0; i<pool.size(); i++)
 		{
 			r -= pool[i]->type->heroClass->selectionProbability[town->typeID];
 			if(r<0)
@@ -744,7 +744,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 			CCreGen2ObjInfo* info = static_cast<CCreGen2ObjInfo*>(obj->info);
 			if (info->asCastle)
 			{
-				for(int i=0;i<map->objects.size();i++)
+				for(unsigned int i=0;i<map->objects.size();i++)
 				{
 					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
 					{
@@ -770,7 +770,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 			}
 			int level = ((info->maxLevel-info->minLevel) ? (ran()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
 			int cid = VLC->townh->towns[faction].basicCreatures[level];
-			for(int i=0;i<VLC->objh->cregens.size();i++)
+			for(unsigned int i=0;i<VLC->objh->cregens.size();i++)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
 			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
@@ -782,7 +782,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 			CCreGenObjInfo* info = static_cast<CCreGenObjInfo*>(obj->info);
 			if (info->asCastle)
 			{
-				for(int i=0;i<map->objects.size();i++)
+				for(unsigned int i=0;i<map->objects.size();i++)
 				{
 					if(map->objects[i]->ID==77 && dynamic_cast<CGTownInstance*>(map->objects[i])->identifier == info->identifier)
 					{
@@ -807,7 +807,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 				}
 			}
 			int cid = VLC->townh->towns[faction].basicCreatures[obj->subID];
-			for(int i=0;i<VLC->objh->cregens.size();i++)
+			for(unsigned int i=0;i<VLC->objh->cregens.size();i++)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
 			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
@@ -818,7 +818,7 @@ std::pair<int,int> CGameState::pickObject(CGObjectInstance *obj)
 			CCreGen3ObjInfo* info = static_cast<CCreGen3ObjInfo*>(obj->info);
 			int level = ((info->maxLevel-info->minLevel) ? (ran()%(info->maxLevel-info->minLevel)+info->minLevel) : (info->minLevel));
 			int cid = VLC->townh->towns[obj->subID].basicCreatures[level];
-			for(int i=0;i<VLC->objh->cregens.size();i++)
+			for(unsigned int i=0;i<VLC->objh->cregens.size();i++)
 				if(VLC->objh->cregens[i]==cid)
 					return std::pair<int,int>(17,i); 
 			tlog3 << "Cannot find a dwelling for creature "<<cid <<std::endl;
@@ -936,7 +936,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	this->map = map;
 	loadTownDInfos();
 	//picking random factions for players
-	for(int i=0;i<scenarioOps->playerInfos.size();i++)
+	for(unsigned int i=0;i<scenarioOps->playerInfos.size();i++)
 	{
 		if(scenarioOps->playerInfos[i].castle==-1)
 		{
@@ -949,7 +949,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		}
 	}
 	//randomizing objects
-	for(int no=0; no<map->objects.size(); ++no)
+	for(unsigned int no=0; no<map->objects.size(); ++no)
 	{
 		randomizeObject(map->objects[no]);
 		if(map->objects[no]->ID==26)
@@ -968,7 +968,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			int3 hpos = map->players[i].posOfMainTown;
 			hpos.x+=1;// hpos.y+=1;
 			int j;
-			for(j=0; j<scenarioOps->playerInfos.size(); j++)
+			for(unsigned j=0; j<scenarioOps->playerInfos.size(); j++)
 				if(scenarioOps->playerInfos[j].color == i)
 					break;
 			if(j == scenarioOps->playerInfos.size())
@@ -977,7 +977,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(HEROI_TYPE,h,hpos,i));
 			nnn->id = map->objects.size();
 			hpos = map->players[i].posOfMainTown;hpos.x+=2;
-			for(int o=0;o<map->towns.size();o++) //find main town
+			for(unsigned int o=0;o<map->towns.size();o++) //find main town
 			{
 				if(map->towns[o]->pos == hpos)
 				{
@@ -995,7 +995,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	}
 
 	/*********creating players entries in gs****************************************/
-	for (int i=0; i<scenarioOps->playerInfos.size();i++)
+	for (unsigned int i=0; i<scenarioOps->playerInfos.size();i++)
 	{
 		std::pair<int,PlayerState> ins(scenarioOps->playerInfos[i].color,PlayerState());
 		ins.second.color=ins.first;
@@ -1040,10 +1040,10 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 
 	/*************************HEROES************************************************/
 	std::set<int> hids;
-	for(int i=0; i<map->allowedHeroes.size(); i++) //add to hids all allowed heroes
+	for(unsigned int i=0; i<map->allowedHeroes.size(); i++) //add to hids all allowed heroes
 		if(map->allowedHeroes[i])
 			hids.insert(i);
-	for (int i=0; i<map->heroes.size();i++) //heroes instances initialization
+	for (unsigned int i=0; i<map->heroes.size();i++) //heroes instances initialization
 	{
 		if (map->heroes[i]->getOwner()<0)
 		{
@@ -1055,7 +1055,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		players.find(vhi->getOwner())->second.heroes.push_back(vhi);
 		hids.erase(vhi->subID);
 	}
-	for(int i=0; i<map->predefinedHeroes.size(); i++)
+	for(unsigned int i=0; i<map->predefinedHeroes.size(); i++)
 	{
 		if(!vstd::contains(hids,map->predefinedHeroes[i]->subID))
 			continue;
@@ -1071,7 +1071,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		hpool.heroesPool[hid] = vhi;
 		hpool.pavailable[hid] = 0xff;
 	}
-	for(int i=0; i<map->disposedHeroes.size(); i++)
+	for(unsigned int i=0; i<map->disposedHeroes.size(); i++)
 	{
 		hpool.pavailable[map->disposedHeroes[i].ID] = map->disposedHeroes[i].players;
 	}
@@ -1167,7 +1167,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		}
 	}
 	/****************************TOWNS************************************************/
-	for (int i=0;i<map->towns.size();i++)
+	for (unsigned int i=0;i<map->towns.size();i++)
 	{
 		CGTownInstance * vti =(map->towns[i]);
 		if(!vti->town)
@@ -1189,7 +1189,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		//init spells
 		vti->spells.resize(SPELL_LEVELS);
 		CSpell *s;
-		for(int z=0; z<vti->obligatorySpells.size();z++)
+		for(unsigned int z=0; z<vti->obligatorySpells.size();z++)
 		{
 			s = &VLC->spellh->spells[vti->obligatorySpells[z]];
 			vti->spells[s->level-1].push_back(s->id);
@@ -1198,10 +1198,10 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		while(vti->possibleSpells.size())
 		{
 			ui32 total=0, sel=-1;
-			for(int ps=0;ps<vti->possibleSpells.size();ps++)
+			for(unsigned int ps=0;ps<vti->possibleSpells.size();ps++)
 				total += VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
 			int r = (total)? ran()%total : -1;
-			for(int ps=0; ps<vti->possibleSpells.size();ps++)
+			for(unsigned int ps=0; ps<vti->possibleSpells.size();ps++)
 			{
 				r -= VLC->spellh->spells[vti->possibleSpells[ps]].probabilities[vti->subID];
 				if(r<0)
@@ -1270,12 +1270,12 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		}
 	}
 
-	for(int i=0; i<map->defy.size(); i++)
+	for(unsigned int i=0; i<map->defy.size(); i++)
 	{
 		map->defy[i]->serial = i;
 	}
 
-	for(int i=0; i<map->objects.size(); i++)
+	for(unsigned int i=0; i<map->objects.size(); i++)
 	{
 		map->objects[i]->initObj();
 		if(map->objects[i]->ID == 62) //prison also needs to initialize hero
@@ -1292,7 +1292,7 @@ int CGameState::battleGetStack(int pos)
 {
 	if(!curB)
 		return -1;
-	for(int g=0; g<curB->stacks.size(); ++g)
+	for(unsigned int g=0; g<curB->stacks.size(); ++g)
 	{
 		if((curB->stacks[g]->position == pos 
 			  || (curB->stacks[g]->creature->isDoubleWide() 
@@ -1411,7 +1411,7 @@ float CGameState::getMarketEfficiency( int player, int mode/*=0*/ )
 	boost::shared_lock<boost::shared_mutex> lock(*mx);
 	if(mode) return -1; //todo - support other modes
 	int mcount = 0;
-	for(int i=0;i<getPlayer(player)->towns.size();i++)
+	for(unsigned int i=0;i<getPlayer(player)->towns.size();i++)
 		if(vstd::contains(getPlayer(player)->towns[i]->builtBuildings,14))
 			mcount++;
 	float ret = std::min(((float)mcount+1.0f)/20.0f,0.5f);
@@ -1553,7 +1553,7 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 
 	if(ID == 13) //capitol
 	{
-		for(int in = 0; in < map->towns.size(); in++)
+		for(unsigned int in = 0; in < map->towns.size(); in++)
 		{
 			if(map->towns[in]->tempOwner==t->tempOwner  &&  vstd::contains(map->towns[in]->builtBuildings,13))
 			{
@@ -1665,7 +1665,7 @@ CPath * CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero)
 
 		//add accessible neighbouring nodes to the queue
 		getNeighbours(cp.coord,neighbours,blockLandSea);
-		for(int i=0; i < neighbours.size(); i++)
+		for(unsigned int i=0; i < neighbours.size(); i++)
 		{
 			CPathNode & dp = graph[neighbours[i].x][neighbours[i].y];
 			if(dp.accesible)
@@ -1701,7 +1701,7 @@ CPath * CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero)
 bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 {
 	const TerrainTile * pom = &map->getTile(dst);
-	for(int b=0; b<pom->visitableObjects.size(); ++b) //checking destination tile
+	for(unsigned int b=0; b<pom->visitableObjects.size(); ++b) //checking destination tile
 	{
 		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b])) //this visitable object is not blocking, ignore
 			continue;
@@ -1803,7 +1803,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 				break;
 			}
 		}
-		for(int g=0; g<affectedIds.size(); ++g)
+		for(unsigned int g=0; g<affectedIds.size(); ++g)
 		{
 			if(defender->creature->idNumber == affectedIds[g])
 			{
@@ -1936,7 +1936,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 
 void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualties )
 {
-	for(int i=0; i<stacks.size();i++)//setting casualties
+	for(unsigned int i=0; i<stacks.size();i++)//setting casualties
 	{
 		if(!stacks[i]->alive())
 		{
@@ -1952,7 +1952,7 @@ void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualtie
 CStack * BattleInfo::getNextStack()
 {
 	CStack *current = getStack(activeStack);
-	for (int i = 0; i <  stacks.size(); i++)  //find fastest not moved/waited stack (stacks vector is sorted by speed)
+	for (unsigned int i = 0; i <  stacks.size(); i++)  //find fastest not moved/waited stack (stacks vector is sorted by speed)
 	{
 		if(stacks[i]->willMove()  &&  !vstd::contains(stacks[i]->state,WAITING))
 			return stacks[i];
@@ -1970,17 +1970,17 @@ std::vector<CStack> BattleInfo::getStackQueue()
 	std::vector<CStack> ret;
 	std::vector<int> taken; //if non-zero value, corresponding stack has been placed in ret
 	taken.resize(stacks.size());
-	for(int g=0; g<taken.size(); ++g)
+	for(unsigned int g=0; g<taken.size(); ++g)
 	{
 		taken[g] = 0;
 	}
 
 	for(int moved=0; moved<2; ++moved) //in first cycle we add stacks that can act in current turn, in second one the rest of them
 	{
-		for(int gc=0; gc<stacks.size(); ++gc)
+		for(unsigned int gc=0; gc<stacks.size(); ++gc)
 		{
 			int id = -1, speed = -1;
-			for(int i=0; i<stacks.size(); ++i) //find not waited stacks only
+			for(unsigned int i=0; i<stacks.size(); ++i) //find not waited stacks only
 			{
 				if((moved == 1 ||!vstd::contains(stacks[i]->state,DEFENDING))
 					&& stacks[i]->alive()
@@ -2004,7 +2004,7 @@ std::vector<CStack> BattleInfo::getStackQueue()
 			else //choose something from not moved stacks
 			{
 				int id = -1, speed = 10000; //infinite speed
-				for(int i=0; i<stacks.size(); ++i) //find waited stacks only
+				for(unsigned int i=0; i<stacks.size(); ++i) //find waited stacks only
 				{
 					if((moved == 1 ||!vstd::contains(stacks[i]->state,DEFENDING))
 						&& stacks[i]->alive()
@@ -2043,7 +2043,7 @@ void CPath::convert(ui8 mode) //mode=0 -> from 'manifest' to 'object'
 {
 	if (mode==0)
 	{
-		for (int i=0;i<nodes.size();i++)
+		for (unsigned int i=0;i<nodes.size();i++)
 		{
 			nodes[i].coord = CGHeroInstance::convertPosition(nodes[i].coord,true);
 		}
