@@ -2409,60 +2409,9 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			sc.tile = ba.destinationTile;
 			sendAndApply(&sc);
 
-			//calculating affected creatures for all spells ///////////////////
-			std::set<ui16> attackedHexes = s->rangeInHexes(ba.destinationTile, h->getSpellSchoolLevel(s));
-			std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/
-			if(ba.additionalInfo == 24 || ba.additionalInfo == 25 || ba.additionalInfo == 26) //death ripple, destroy undead and armageddon
-			{
-				for(int it=0; it<gs->curB->stacks.size(); ++it)
-				{
-					if((ba.additionalInfo == 24 && !gs->curB->stacks[it]->creature->isUndead()) //death ripple
-						|| (ba.additionalInfo == 25 && gs->curB->stacks[it]->creature->isUndead()) //destroy undead
-						|| (ba.additionalInfo == 26) //armageddon
-						)
-					{
-						attackedCres.insert(gs->curB->stacks[it]);
-					}
-				}
-			}
-			else if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
-			{
-				if(h->getSpellSchoolLevel(s) < 3)  /*not expert */
-				{
-					CStack * st = gs->curB->getStackT(ba.destinationTile);
-					if(st)
-						attackedCres.insert(st);
-				}
-				else
-				{
-					for(int it=0; it<gs->curB->stacks.size(); ++it)
-					{
-						/*if it's non negative spell and our unit or non positive spell and hostile unit */
-						if((VLC->spellh->spells[ba.additionalInfo].positiveness >= 0 && gs->curB->stacks[it]->owner == h->tempOwner)
-							||(VLC->spellh->spells[ba.additionalInfo].positiveness <= 0 && gs->curB->stacks[it]->owner != h->tempOwner )
-							)
-						{
-							attackedCres.insert(gs->curB->stacks[it]);
-						}
-					}
-				} //if(h->getSpellSchoolLevel(s) < 3)
-			}
-			else if(VLC->spellh->spells[ba.additionalInfo].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
-			{
-				CStack * st = gs->curB->getStackT(ba.destinationTile);
-				if(st)
-					attackedCres.insert(st);
-			}
-			else //custom range from attackedHexes
-			{
-				for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
-				{
-					CStack * st = gs->curB->getStackT(*it);
-					if(st)
-						attackedCres.insert(st);
-				}
-			}
-			//affected creatures calculated
+			//calculating affected creatures for all spells
+			std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(s, h, ba.destinationTile);
+
 			//applying effects
 			switch(ba.additionalInfo) //spell id
 			{

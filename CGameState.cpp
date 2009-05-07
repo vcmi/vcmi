@@ -968,7 +968,7 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 			int3 hpos = map->players[i].posOfMainTown;
 			hpos.x+=1;// hpos.y+=1;
 			int j;
-			for(unsigned j=0; j<scenarioOps->playerInfos.size(); j++)
+			for(j=0; j<scenarioOps->playerInfos.size(); j++) //don't add unsigned here - we are refering to the variable above
 				if(scenarioOps->playerInfos[j].color == i)
 					break;
 			if(j == scenarioOps->playerInfos.size())
@@ -1947,6 +1947,63 @@ void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualtie
 			casualties[!stacks[i]->attackerOwned].insert(std::pair<ui32,si32>(stacks[i]->creature->idNumber,stacks[i]->baseAmount - stacks[i]->amount));
 		}
 	}
+}
+
+std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile)
+{
+	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, caster->getSpellSchoolLevel(s));
+	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/
+	if(s->id == 24 || s->id == 25 || s->id == 26) //death ripple, destroy undead and armageddon
+	{
+		for(int it=0; it<stacks.size(); ++it)
+		{
+			if((s->id == 24 && !stacks[it]->creature->isUndead()) //death ripple
+				|| (s->id == 25 && stacks[it]->creature->isUndead()) //destroy undead
+				|| (s->id == 26) //armageddon
+				)
+			{
+				attackedCres.insert(stacks[it]);
+			}
+		}
+	}
+	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+	{
+		if(caster->getSpellSchoolLevel(s) < 3)  /*not expert */
+		{
+			CStack * st = getStackT(destinationTile);
+			if(st)
+				attackedCres.insert(st);
+		}
+		else
+		{
+			for(int it=0; it<stacks.size(); ++it)
+			{
+				/*if it's non negative spell and our unit or non positive spell and hostile unit */
+				if((VLC->spellh->spells[s->id].positiveness >= 0 && stacks[it]->owner == caster->tempOwner)
+					||(VLC->spellh->spells[s->id].positiveness <= 0 && stacks[it]->owner != caster->tempOwner )
+					)
+				{
+					attackedCres.insert(stacks[it]);
+				}
+			}
+		} //if(caster->getSpellSchoolLevel(s) < 3)
+	}
+	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
+	{
+		CStack * st = getStackT(destinationTile);
+		if(st)
+			attackedCres.insert(st);
+	}
+	else //custom range from attackedHexes
+	{
+		for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
+		{
+			CStack * st = getStackT(*it);
+			if(st)
+				attackedCres.insert(st);
+		}
+	}
+	return attackedCres;
 }
 
 CStack * BattleInfo::getNextStack()

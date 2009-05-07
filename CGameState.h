@@ -46,6 +46,7 @@ class CPathfinder;
 struct SetObjectProperty;
 struct MetaString;
 struct CPack;
+class CSpell;
 
 
 std::string DLL_EXPORT toString(MetaString &ms);
@@ -137,6 +138,7 @@ struct DLL_EXPORT BattleInfo
 	static std::vector<int> neighbouringTiles(int hex);
 	static int calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting); //TODO: add additional conditions and require necessary data
 	void calculateCasualties(std::set<std::pair<ui32,si32> > *casualties);
+	std::set<CStack*> getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile); //calculates stack affected by given spell
 };
 
 class DLL_EXPORT CStack

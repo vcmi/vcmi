@@ -4440,7 +4440,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	musicVolume = new CHighlightableButtonsGroup(0, true);
 	for(int i=1; i<=10; ++i)
 	{
-		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[359+i].first),CGI->generaltexth->zelp[359+i].second, "syslb.def", 188 + 19*(i-1), 415, i*10);
+		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[325+i].first),CGI->generaltexth->zelp[325+i].second, "syslb.def", 188 + 19*(i-1), 415, i*10);
 	}
 	musicVolume->select(CGI->audioh->getMusicVolume(), 1);
 	musicVolume->onChange = boost::bind(&CAudioHandler::setMusicVolume, CGI->audioh, _1);
