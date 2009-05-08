@@ -4452,13 +4452,20 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	mapScrollSpeed->onChange = boost::bind(&CPlayerInterface::setMapScrollingSpeed, owner, _1);
 
 	musicVolume = new CHighlightableButtonsGroup(0, true);
-	for(int i=1; i<=10; ++i)
+	for(int i=0; i<10; ++i)
 	{
-		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[325+i].first),CGI->generaltexth->zelp[325+i].second, "syslb.def", 188 + 19*(i-1), 415, i*10);
+		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[326+i].first),CGI->generaltexth->zelp[326+i].second, "syslb.def", 188 + 19*i, 415, i*11);
 	}
 	musicVolume->select(CGI->audioh->getMusicVolume(), 1);
 	musicVolume->onChange = boost::bind(&CAudioHandler::setMusicVolume, CGI->audioh, _1);
 
+	effectsVolume = new CHighlightableButtonsGroup(0, true);
+	for(int i=0; i<10; ++i)
+	{
+		effectsVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[336+i].first),CGI->generaltexth->zelp[336+i].second, "syslb.def", 188 + 19*i, 481, i*11);
+	}
+	effectsVolume->select(CGI->audioh->getSoundVolume(), 1);
+	effectsVolume->onChange = boost::bind(&CAudioHandler::setSoundVolume, CGI->audioh, _1);
 }
 
 CSystemOptionsWindow::~CSystemOptionsWindow()
@@ -4471,6 +4478,7 @@ CSystemOptionsWindow::~CSystemOptionsWindow()
 	delete heroMoveSpeed;
 	delete mapScrollSpeed;
 	delete musicVolume;
+	delete effectsVolume;
 }
 
 void CSystemOptionsWindow::bquitf()
@@ -4503,6 +4511,7 @@ void CSystemOptionsWindow::activate()
 	heroMoveSpeed->activate();
 	mapScrollSpeed->activate();
 	musicVolume->activate();
+	effectsVolume->activate();
 }
 
 void CSystemOptionsWindow::deactivate()
@@ -4513,6 +4522,7 @@ void CSystemOptionsWindow::deactivate()
 	heroMoveSpeed->deactivate();
 	mapScrollSpeed->deactivate();
 	musicVolume->deactivate();
+	effectsVolume->deactivate();
 }
 
 void CSystemOptionsWindow::show(SDL_Surface *to)
@@ -4525,6 +4535,7 @@ void CSystemOptionsWindow::show(SDL_Surface *to)
 	heroMoveSpeed->show(to);
 	mapScrollSpeed->show(to);
 	musicVolume->show(to);
+	effectsVolume->show(to);
 }
 
 CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2, const std::string &gossip)

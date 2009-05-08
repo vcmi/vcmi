@@ -117,11 +117,15 @@ int main(int argc, char** argv)
 		}
 		atexit(TTF_Quit);
 		THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
-		CAudioHandler * audioh = new CAudioHandler;  //initializing audio
-		audioh->initAudio();
-		//audio initialized
+
+		//initializing audio
+		CAudioHandler * audioh = new CAudioHandler;
+		// Note: because of interface button range, volume can only be a
+		// multiple of 11, from 0 to 99.
+		audioh->initAudio(88);
 		cgi->audioh = audioh;
 		tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
+
 		tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
 		cgi->spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
