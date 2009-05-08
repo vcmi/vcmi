@@ -1,0 +1,63 @@
+I. Getting the sources
+VCMI is still in development. You can get the sources with subversion:
+  svn co https://vcmi.svn.sourceforge.net/svnroot/vcmi/trunk vcmi
+
+II. Compiling
+
+Optionaly, if you want to regenerate the build system, you will need the following tools:
+ * libtool
+ * automake
+ * autoconf
+And then regenerate the build system with
+  autoreconf -i
+
+To compile, at least the following packages (and their development counterparts) are needed to build:
+    * libstdc++ devel
+	* boost c++ libraries v1.37+ (1.35 will not work) (www.boost.org)
+	* sdl,
+	* sdl mixer
+	* sdl image
+	* sdl ttf
+	* zlib
+
+Then do the usual 
+  ./configure
+followed by
+  make
+
+That will generate vcmiclient, vcmiserver as well as 3 .so libraries.
+
+
+II. Installing Heroes of Might and Magic 3
+
+VCMI needs an installed version of Heroes III as well as WoG on top of it.
+The version of Heroes needed is (I think!) Shadow of Death or Complete.
+ 
+Wog can be downloaded from: http://www.maps4heroes.com/heroes3/files/allinone_358f.zip
+
+Wine can be used to install both.
+
+Once both programs are installed, you can install VCMI.
+
+Download the windows VCMI release (at time of writing: http://vcmi.antypika.aplus.pl/forum/dload.php?action=download&id=11) and extract it in a private directory. Then move some files to your Heroes3 directory:
+  mv sprites /PATH_TO_H3_DIR/Sprites
+  mv Data/* /PATH_TO_H3_DIR/Data
+  mv Fonts Games /PATH_TO_H3_DIR/
+
+
+III. Installing VCMI
+
+Since VCMI is still in development, there's no install procedure, although something like 
+  DESTDIR=/path/to/heroes3 make install
+might work.
+
+For development puposes, it's better to use links. Go to your new Heroes3 directory, and type:
+  ln -s /PATH_TO_VCMI/client/vcmiclient
+  ln -s /PATH_TO_VCMI/server/vcmiserver
+  ln -s /PATH_TO_VCMI/config
+  ln -s /PATH_TO_VCMI/AI/GeniusAI/.libs AI
+
+And start ./vcmiclient
+  
+
+
