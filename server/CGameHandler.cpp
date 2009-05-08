@@ -1053,7 +1053,7 @@ void CGameHandler::checkForBattleEnd( std::vector<CStack*> &stacks )
 	hasStack[0] = hasStack[1] = false;
 	for(int b = 0; b<stacks.size(); ++b)
 	{
-		if(stacks[b]->alive() && !vstd::contains(stacks[b]->abilities,SIEGE_WEAPON))
+		if(stacks[b]->alive() && !stacks[b]->hasFeatureOfType(StackFeature::SIEGE_WEAPON))
 		{
 			hasStack[1-stacks[b]->attackerOwned] = true;
 		}
@@ -2093,10 +2093,10 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&bat);
 
 			//counterattack
-			if(!vstd::contains(curStack->abilities,NO_ENEMY_RETALIATION)
+			if(!curStack->hasFeatureOfType(StackFeature::BLOCKS_RETAILATION)
 				&& stackAtEnd->alive()
 				&& stackAtEnd->counterAttacks
-				&& !vstd::contains(stackAtEnd->abilities, SIEGE_WEAPON)) //TODO: support for multiple retaliatons per turn
+				&& !stackAtEnd->hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //TODO: support for multiple retaliatons per turn
 			{
 				prepareAttack(bat,stackAtEnd,curStack);
 				bat.flags |= 2;
@@ -2104,7 +2104,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			}
 
 			//second attack
-			if(vstd::contains(curStack->abilities,TWICE_ATTACK)
+			if(curStack->valOfFeatures(StackFeature::ADDITIONAL_ATTACK) > 0
 				&& curStack->alive()
 				&& stackAtEnd->alive()  )
 			{
@@ -2123,7 +2123,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				|| !destStack //there is a stack at destination tile
 				|| !curStack->shots //stack has shots
 				|| gs->curB->isStackBlocked(curStack->ID) //we are not blocked
-				|| !vstd::contains(curStack->abilities,SHOOTER) //our stack is shooting unit
+				|| !curStack->hasFeatureOfType(StackFeature::SHOOTER) //our stack is shooting unit
 				)
 				break;
 			for(int g=0; g<curStack->effects.size(); ++g)
@@ -2139,7 +2139,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			bat.flags |= 1;
 			sendAndApply(&bat);
 
-			if(vstd::contains(curStack->abilities,TWICE_ATTACK) //if unit shots twice let's make another shot
+			if(curStack->valOfFeatures(StackFeature::ADDITIONAL_ATTACK) > 0 //if unit shots twice let's make another shot
 				&& curStack->alive()
 				&& destStack->alive()
 				&& curStack->shots

@@ -34,7 +34,7 @@ public:
 	std::string abilityRefs; //references to abilities, in textformat
 	std::string animDefName;
 	ui32 idNumber;
-	std::set<EAbilities> abilities;
+	std::vector<StackFeature> abilities;
 	si8 faction; //-1 = neutral
 
 	///animation info

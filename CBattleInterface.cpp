@@ -550,7 +550,7 @@ void CBattleInterface::show(SDL_Surface * to)
 						&& (LOCPLINT->curAction->destinationTile != curStack.position) //nor if it's on destination tile for current action
 						)
 					)
-				&& !vstd::contains(curStack.abilities,SIEGE_WEAPON) //and not a war machine...
+					&& !curStack.hasFeatureOfType(StackFeature::SIEGE_WEAPON) //and not a war machine...
 			)
 			{
 				int xAdd = curStack.attackerOwned ? 220 : 202;

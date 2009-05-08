@@ -879,7 +879,7 @@ bool CGHeroInstance::hasBonusOfType(HeroBonus::BonusType type, int subtype /*= -
 			if(i->type == type && i->subtype == subtype)
 				return true;
 	}
-	throw "CGHeroInstance::hasBonusOfType - we shouln't be here!";
+	return false;
 }
 
 int CGTownInstance::getSightRadious() const //returns sight distance

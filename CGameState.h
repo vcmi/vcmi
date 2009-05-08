@@ -158,7 +158,7 @@ public:
 	si32 defense; //defense of stack with hero bonus
 	si8 morale, luck; //base stack luck/morale
 
-	std::set<EAbilities> abilities;
+	std::vector<StackFeature> features;
 	std::set<ECombatInfo> state;
 	struct StackEffect
 	{
@@ -172,8 +172,11 @@ public:
 	};
 	std::vector<StackEffect> effects;
 
+	int valOfFeatures(StackFeature::ECombatFeatures type, int subtype = -1) const;//subtype -> subtype of bonus, if -1 then any
+	bool hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype = -1) const; //determines if stack has a bonus of given type (and optionally subtype)
+
 	CStack(CCreature * C, int A, int O, int I, bool AO, int S); //c-tor
-	CStack() : ID(-1), creature(NULL), amount(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1), abilities(), state(), effects() {} //c-tor
+	CStack() : ID(-1), creature(NULL), amount(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor
 	const StackEffect * getEffect(ui16 id) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
 	bool willMove(); //if stack has remaining move this turn
@@ -191,7 +194,7 @@ public:
 		ui32 id;
 		h & id;
 		creature = &VLC->creh->creatures[id];
-		abilities = creature->abilities;
+		features = creature->abilities;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

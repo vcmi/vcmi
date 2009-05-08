@@ -533,7 +533,7 @@ bool CCallback::battleCanShoot(int ID, int dest)
 			return false;
 	}
 
-	if(vstd::contains(our->abilities,SHOOTER)//it's shooter
+	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
 		&& our->owner != dst->owner
 		&& dst->alive()
 		&& !gs->curB->isStackBlocked(ID)

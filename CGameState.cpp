@@ -443,9 +443,44 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 	return std::make_pair(path, dist[dest]);
 }
 
+int CStack::valOfFeatures(StackFeature::ECombatFeatures type, int subtype) const
+{
+	int ret = 0;
+	if(subtype == -1)
+	{
+		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
+			if(i->type == type)
+				ret += i->value;
+	}
+	else
+	{
+		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
+			if(i->type == type && i->subtype == subtype)
+				ret += i->value;
+	}
+	return ret;
+}
+
+bool CStack::hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype) const
+{
+	if(subtype == -1) //any subtype
+	{
+		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
+			if(i->type == type)
+				return true;
+	}
+	else //given subtype
+	{
+		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
+			if(i->type == type && i->subtype == subtype)
+				return true;
+	}
+	return false;
+}
+
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	:ID(I), creature(C), amount(A), baseAmount(A), firstHPleft(C->hitPoints), owner(O), slot(S), attackerOwned(AO), position(-1),   
-	counterAttacks(1), shots(C->shots), state(), effects(), speed(creature->speed), abilities(C->abilities), attack(C->attack), defense(C->defence)
+	counterAttacks(1), shots(C->shots), state(), effects(), speed(creature->speed), features(C->abilities), attack(C->attack), defense(C->defence)
 {
 	state.insert(ALIVE);
 }
@@ -577,10 +612,10 @@ si32 CStack::Defense() const
 
 bool CStack::willMove()
 {
-	return !vstd::contains(state,DEFENDING)
-		&& !vstd::contains(state,MOVED)
+	return !vstd::contains(state, DEFENDING)
+		&& !vstd::contains(state, MOVED)
 		&& alive()
-		&& !vstd::contains(abilities,NOT_ACTIVE); //eg. Ammo Cart
+		&& ! hasFeatureOfType(StackFeature::NOT_ACTIVE); //eg. Ammo Cart
 }
 
 CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, int notThatOne)
@@ -2039,12 +2074,12 @@ std::vector<CStack> BattleInfo::getStackQueue()
 			int id = -1, speed = -1;
 			for(unsigned int i=0; i<stacks.size(); ++i) //find not waited stacks only
 			{
-				if((moved == 1 ||!vstd::contains(stacks[i]->state,DEFENDING))
+				if((moved == 1 ||!vstd::contains(stacks[i]->state, DEFENDING))
 					&& stacks[i]->alive()
-					&& (moved == 1 || !vstd::contains(stacks[i]->state,MOVED))
+					&& (moved == 1 || !vstd::contains(stacks[i]->state, MOVED))
 					&& !vstd::contains(stacks[i]->state,WAITING)
 					&& taken[i]==0
-					&& !vstd::contains(stacks[i]->abilities,NOT_ACTIVE)) //eg. Ammo Cart
+					&& !stacks[i]->hasFeatureOfType(StackFeature::NOT_ACTIVE)) //eg. Ammo Cart
 				{
 					if(speed == -1 || stacks[i]->Speed() > speed)
 					{
@@ -2063,12 +2098,12 @@ std::vector<CStack> BattleInfo::getStackQueue()
 				int id = -1, speed = 10000; //infinite speed
 				for(unsigned int i=0; i<stacks.size(); ++i) //find waited stacks only
 				{
-					if((moved == 1 ||!vstd::contains(stacks[i]->state,DEFENDING))
+					if((moved == 1 ||!vstd::contains(stacks[i]->state, DEFENDING))
 						&& stacks[i]->alive()
-						&& (moved == 1 || !vstd::contains(stacks[i]->state,MOVED))
+						&& (moved == 1 || !vstd::contains(stacks[i]->state, MOVED))
 						&& vstd::contains(stacks[i]->state,WAITING)
 						&& taken[i]==0
-						&& !vstd::contains(stacks[i]->abilities,NOT_ACTIVE)) //eg. Ammo Cart
+						&& !stacks[i]->hasFeatureOfType(StackFeature::NOT_ACTIVE)) //eg. Ammo Cart
 					{
 						if(stacks[i]->Speed() < speed) //slowest one
 						{
