@@ -19,7 +19,9 @@
 
 boost::mutex bitmap_handler_mx;
 int readNormalNr (int pos, int bytCon, unsigned char * str);
-CLodHandler * BitmapHandler::bitmaph = NULL;
+
+extern DLL_EXPORT CLodHandler *bitmaph;
+
 void BMPHeader::print(std::ostream & out)
 {
 	CDefHandler::print(out,fullSize,4);

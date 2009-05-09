@@ -3,6 +3,7 @@
 #include "CDefHandler.h"
 #include <sstream>
 #include "CLodHandler.h"
+#include "../lib/VCMI_Lib.h"
 
 /*
  * CDefHandler.cpp, part of VCMI engine
@@ -13,8 +14,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-CLodHandler* CDefHandler::Spriteh = NULL;
 
 long long pow(long long a, int b)
 {
@@ -564,9 +563,8 @@ CDefEssential * CDefHandler::essentialize()
 	return ret;
 }
 
-CDefHandler * CDefHandler::giveDef(std::string defName, CLodHandler * spriteh)
+CDefHandler * CDefHandler::giveDef(std::string defName)
 {
-	if(!spriteh) spriteh=Spriteh;
 	unsigned char * data = spriteh->giveFile(defName);
 	if(!data)
 		throw "bad def name!";
@@ -576,10 +574,10 @@ CDefHandler * CDefHandler::giveDef(std::string defName, CLodHandler * spriteh)
 	delete [] data;
 	return nh;
 }
-CDefEssential * CDefHandler::giveDefEss(std::string defName, CLodHandler * spriteh)
+CDefEssential * CDefHandler::giveDefEss(std::string defName)
 {
 	CDefEssential * ret;
-	CDefHandler * temp = giveDef(defName,spriteh);
+	CDefHandler * temp = giveDef(defName);
 	ret = temp->essentialize();
 	delete temp;
 	return ret;

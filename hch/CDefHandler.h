@@ -39,7 +39,6 @@ private:
 
 public:
 	int width, height; //width and height
-	static CLodHandler * Spriteh;
 	std::string defName, curDir;
 	std::vector<Cimage> ourImages;
 	bool alphaTransformed;
@@ -56,8 +55,8 @@ public:
 	void openFromMemory(unsigned char * table, std::string name);
 	CDefEssential * essentialize();
 
-	static CDefHandler * giveDef(std::string defName, CLodHandler * spriteh=NULL);
-	static CDefEssential * giveDefEss(std::string defName, CLodHandler * spriteh=NULL);
+	static CDefHandler * giveDef(std::string defName);
+	static CDefEssential * giveDefEss(std::string defName);
 };
 
 class CDefEssential //DefHandler with images only

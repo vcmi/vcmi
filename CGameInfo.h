@@ -59,8 +59,8 @@ public:
 	CSemiLodHandler * sspriteh;
 	CDefObjInfoHandler * dobjinfo;
 	CTownHandler * townh;
-	CLodHandler * spriteh;
-	CLodHandler * bitmaph;
+	//CLodHandler * spriteh;
+	//CLodHandler * bitmaph;
 	CGeneralTextHandler * generaltexth;
 	CConsoleHandler * consoleh;
 	CCursorHandler * curh;

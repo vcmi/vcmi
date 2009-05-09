@@ -5,6 +5,7 @@
 #include "../hch/CCreatureHandler.h"
 #include "../hch/CDefObjInfoHandler.h"
 #include "../hch/CHeroHandler.h"
+#include "../hch/CLodHandler.h"
 #include "../hch/CObjectHandler.h"
 #include "../hch/CTownHandler.h"
 #include "../hch/CBuildingHandler.h"
@@ -23,21 +24,23 @@
 
 class CLodHandler;
 LibClasses * VLC = NULL;
-CLodHandler * bitmaph=NULL;
+DLL_EXPORT CLodHandler *bitmaph = NULL, 
+	*spriteh = NULL;
+
 DLL_EXPORT CLogger<0> tlog0;
 DLL_EXPORT CLogger<1> tlog1;
 DLL_EXPORT CLogger<2> tlog2;
 DLL_EXPORT CLogger<3> tlog3;
 DLL_EXPORT CLogger<4> tlog4;
 DLL_EXPORT CLogger<5> tlog5;
+
 DLL_EXPORT CConsoleHandler *console = NULL;
 DLL_EXPORT std::ostream *logfile = NULL
 ;
-DLL_EXPORT void initDLL(CLodHandler *b, CConsoleHandler *Console, std::ostream *Logfile)
+DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 {
 	console = Console;
 	logfile = Logfile;
-	bitmaph=b;
 	VLC = new LibClasses;
 	VLC->init();
 }
@@ -160,6 +163,12 @@ DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode)
 void LibClasses::init()
 {
 	timeHandler pomtime;
+	spriteh = new CLodHandler();
+	spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
+	bitmaph = new CLodHandler;
+	bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
+	tlog0<<"Loading .lod files: "<<pomtime.getDif()<<std::endl;
+
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
 	tlog0<<"\tGeneral text handler: "<<pomtime.getDif()<<std::endl;

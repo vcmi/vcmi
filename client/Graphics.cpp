@@ -13,6 +13,7 @@
 #include "../CThreadHelper.h"
 #include "../CGameInfo.h"
 #include "../hch/CLodHandler.h"
+#include "../lib/VCMI_Lib.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
 #ifdef min
@@ -102,7 +103,7 @@ SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 
 void Graphics::loadPaletteAndColors()
 {
-	std::string pals = CGI->bitmaph->getTextFile("PLAYERS.PAL");
+	std::string pals = bitmaph->getTextFile("PLAYERS.PAL");
 	playerColorPalette = new SDL_Color[256];
 	neutralColor = new SDL_Color;
 	playerColors = new SDL_Color[PLAYER_LIMIT];

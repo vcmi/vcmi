@@ -127,12 +127,7 @@ int main(int argc, char** argv)
 		tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 
 		tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
-		CDefHandler::Spriteh = cgi->spriteh = new CLodHandler();
-		cgi->spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
-		BitmapHandler::bitmaph = cgi->bitmaph = new CLodHandler;
-		cgi->bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
-		tlog0<<"Loading .lod files: "<<tmh.getDif()<<std::endl;
-		initDLL(cgi->bitmaph,::console,logfile);
+		initDLL(::console,logfile);
 		CGI->setFromLib();
 		cgi->audioh->initCreaturesSounds(CGI->creh->creatures);
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;

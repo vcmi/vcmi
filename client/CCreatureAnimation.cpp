@@ -1,5 +1,6 @@
 #include "CCreatureAnimation.h"
 #include "../hch/CLodHandler.h"
+#include "../lib/VCMI_Lib.h"
 
 /*
  * CCreatureAnimation.cpp, part of VCMI engine
@@ -35,7 +36,7 @@ void CCreatureAnimation::setType(int type)
 
 CCreatureAnimation::CCreatureAnimation(std::string name) : RLEntries(NULL), internalFrame(0), once(false)
 {
-	FDef = CDefHandler::Spriteh->giveFile(name); //load main file
+	FDef = spriteh->giveFile(name); //load main file
 
 	//init anim data
 	int i,j, totalInBlock;
