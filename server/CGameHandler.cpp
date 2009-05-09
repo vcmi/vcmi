@@ -712,7 +712,11 @@ void CGameHandler::newTurn()
 				for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
 				{
 					if((**j).creatureDwelling(k))//there is dwelling (k-level)
+					{
 						sac.creatures[k] += (**j).creatureGrowth(k);
+						if(!gs->getDate(0)) //first day of game: use only basic growths
+							amin(sac.creatures[k], VLC->creh->creatures[(*j)->town->basicCreatures[k]].growth);
+					}
 				}
 				n.cres.push_back(sac);
 			}

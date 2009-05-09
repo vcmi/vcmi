@@ -2900,16 +2900,22 @@ void CHeroList::clickLeft(tribool down)
 	if (down)
 	{
 		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 		{
-			blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
-			pressed = true;
+			if(from>0)
+			{
+				blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
+				pressed = true;
+			}
 			return;
 		}
-		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>SIZE))
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 		{
-			blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
-			pressed = false;
+			if(items.size()-from>SIZE)
+			{
+				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
+				pressed = false;
+			}
 			return;
 		}
 		/***************************HEROES*****************************************/
@@ -3217,16 +3223,22 @@ void CTownList::clickLeft(tribool down)
 	if (down)
 	{
 		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 		{
-			blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
-			pressed = true;
+			if(from>0)
+			{
+				blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
+				pressed = true;
+			}
 			return;
 		}
-		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>SIZE))
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 		{
-			blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
-			pressed = false;
+			if(items.size()-from > SIZE)
+			{
+				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
+				pressed = false;
+			}
 			return;
 		}
 		/***************************TOWNS*****************************************/

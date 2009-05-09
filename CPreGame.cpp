@@ -1294,7 +1294,7 @@ void MapSel::moveByOne(bool up)
 }
 void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 {
-	if(which < 0)
+	if(which < 0  ||  which >= curVector().size())
 		// Empty list
 		return;
 
@@ -1303,7 +1303,8 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 		selected = 0;
 
 	bool dontSaveSettings = ((selected!=which) || (CPG->ret.playerInfos.size()==0) || forceSettingsUpdate);
-	if (selected >= 0) {
+	if (selected >= 0) 
+	{
 		selected = which;
 		CPG->ret.mapname = curVector()[selected]->filename;
 	}
@@ -2530,6 +2531,14 @@ CPreGame::~CPreGame()
 
 	delete ok;
 	delete cancel;
+}
+
+void CPreGame::begin()
+{
+	if(!ret.mapname.size()) //empty mapname (savename) - do nothing (no map/game selected)
+		return;
+	run = false;
+	ret.difficulty=ourScenSel->selectedDiff;
 }
 
 CPreGame::menuItems::menuItems()
