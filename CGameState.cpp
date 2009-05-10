@@ -1465,52 +1465,57 @@ void CGameState::loadTownDInfos()
 
 void CGameState::getNeighbours(int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand)
 {
+	/* notation:
+	 * 1 2 3
+	 * 4 5 6
+	 * 7 8 9
+	 */
 	vec.clear();
 	int3 hlp;
 	bool weAreOnLand = (map->getTile(tile).tertype != 8);
-	if(tile.x > 0)
-	{
-		hlp = int3(tile.x-1,tile.y,tile.z);
-		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
-			vec.push_back(hlp);
-	}
-	if(tile.y > 0)
-	{
-		hlp = int3(tile.x,tile.y-1,tile.z);
-		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
-			vec.push_back(hlp);
-	}
-	if(tile.x > 0   &&   tile.y > 0)
-	{
-		hlp = int3(tile.x-1,tile.y-1,tile.z);
-		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
-			vec.push_back(hlp);
-	}
-	if(tile.x > 0   &&   tile.y < map->height-1)
-	{
-		hlp = int3(tile.x-1,tile.y+1,tile.z);
-		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
-			vec.push_back(hlp);
-	}
-	if(tile.y < map->height-1)
+	if(tile.y < map->height-1) //8
 	{
 		hlp = int3(tile.x,tile.y+1,tile.z);
 		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
-	if(tile.x < map->width-1)
+	if(tile.y > 0) //2
+	{
+		hlp = int3(tile.x,tile.y-1,tile.z);
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x > 0) //4
+	{
+		hlp = int3(tile.x-1,tile.y,tile.z);
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x < map->width-1) //6
 	{
 		hlp = int3(tile.x+1,tile.y,tile.z);
 		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
-	if(tile.x < map->width-1   &&   tile.y > 0)
+	if(tile.x > 0   &&   tile.y > 0) //1
+	{
+		hlp = int3(tile.x-1,tile.y-1,tile.z);
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x > 0   &&   tile.y < map->height-1) //7
+	{
+		hlp = int3(tile.x-1,tile.y+1,tile.z);
+		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
+			vec.push_back(hlp);
+	}
+	if(tile.x < map->width-1   &&   tile.y > 0) //3
 	{
 		hlp = int3(tile.x+1,tile.y-1,tile.z);
 		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
 			vec.push_back(hlp);
 	}
-	if(tile.x < map->width-1   &&   tile.y < map->height-1)
+	if(tile.x < map->width-1   &&   tile.y < map->height-1) //9
 	{
 		hlp = int3(tile.x+1,tile.y+1,tile.z);
 		if((weAreOnLand == (map->getTile(hlp).tertype!=8)) && map->getTile(hlp).tertype!=9) 
