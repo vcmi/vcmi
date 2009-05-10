@@ -1984,6 +1984,35 @@ void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualtie
 	}
 }
 
+si8 CGameState::battleMaxSpellLevel()
+{
+	if(!curB) //there is not battle
+	{
+		tlog1 << "si8 CGameState::maxSpellLevel() call when there is no battle!" << std::endl;
+		throw "si8 CGameState::maxSpellLevel() call when there is no battle!";
+	}
+
+	si8 levelLimit = SPELL_LEVELS;
+
+	const CGHeroInstance *h1 =  getHero(curB->hero1); 
+	if(h1)
+	{
+		for(std::list<HeroBonus>::const_iterator i = h1->bonuses.begin(); i != h1->bonuses.end(); i++)
+			if(i->type == HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL)
+				amin(levelLimit, i->val);
+	}
+
+	const CGHeroInstance *h2 = getHero(curB->hero2); 
+	if(h2)
+	{
+		for(std::list<HeroBonus>::const_iterator i = h2->bonuses.begin(); i != h2->bonuses.end(); i++)
+			if(i->type == HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL)
+				amin(levelLimit, i->val);
+	}
+
+	return levelLimit;
+}
+
 std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile)
 {
 	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, caster->getSpellSchoolLevel(s));

@@ -2395,7 +2395,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				|| (gs->curB->castedSpells[ba.side]) //spell has been casted
 				|| (secondHero && secondHero->hasBonusOfType(HeroBonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell
 				|| (h->valOfBonuses(HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL) <= s->level) //caster's 'bonus' prevents him from casting this spell
-				|| (secondHero && secondHero->valOfBonuses(HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL) <= s->level) //non - casting hero stops caster from casting this spell
+				|| (gs->battleMaxSpellLevel() < s->level) //non - casting hero stops caster from casting this spell
 				)
 			{
 				tlog2 << "Spell cannot be casted!\n";

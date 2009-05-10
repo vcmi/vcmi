@@ -5,6 +5,12 @@
 #include <boost/lambda/bind.hpp>
 #include <boost/lambda/if.hpp>
 
+#ifdef _WIN32
+#include <windows.h>
+HANDLE handleIn;
+HANDLE handleOut;
+#endif
+
 using namespace GeniusAI::BattleAI;
 using namespace boost::lambda;
 using namespace std;
