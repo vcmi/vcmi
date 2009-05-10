@@ -7,6 +7,7 @@
 #include <set>
 
 #include "CSoundBase.h"
+#include "lib/StackFeature.h"
 
 /*
  * CCreatureHandler.h, part of VCMI engine

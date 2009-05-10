@@ -338,19 +338,19 @@ void CCreatureHandler::loadCreatures()
 		ncre.abilityRefs = buf.substr(befi, i-befi);
 		i+=2;
 		if(boost::algorithm::find_first(ncre.abilityRefs, "DOUBLE_WIDE"))
-			ncre.abilities.push_back(StackFeature::DOUBLE_WIDE);
+			ncre.abilities.push_back(makeFeature(StackFeature::DOUBLE_WIDE, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));
 		if(boost::algorithm::find_first(ncre.abilityRefs, "FLYING_ARMY"))
-			ncre.abilities.push_back(StackFeature::FLYING);
+			ncre.abilities.push_back(makeFeature(StackFeature::FLYING, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));
 		if(boost::algorithm::find_first(ncre.abilityRefs, "SHOOTING_ARMY"))
-			ncre.abilities.push_back(StackFeature::SHOOTER);
+			ncre.abilities.push_back(makeFeature(StackFeature::SHOOTER, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));
 		if(boost::algorithm::find_first(ncre.abilityRefs, "SIEGE_WEAPON"))
-			ncre.abilities.push_back(StackFeature::SIEGE_WEAPON);
+			ncre.abilities.push_back(makeFeature(StackFeature::SIEGE_WEAPON, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));
 		if(boost::algorithm::find_first(ncre.abilityRefs, "const_two_attacks"))
-			ncre.abilities.push_back(makeFeature(StackFeature::ADDITIONAL_ATTACK, StackFeature::WHOLE_BATTLE, 0, 1));
+			ncre.abilities.push_back(makeFeature(StackFeature::ADDITIONAL_ATTACK, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::CREATURE_ABILITY));
 		if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))
-			ncre.abilities.push_back(StackFeature::BLOCKS_RETAILATION);
+			ncre.abilities.push_back(makeFeature(StackFeature::BLOCKS_RETAILATION, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));
 		if(boost::algorithm::find_first(ncre.abilityRefs, "IS_UNDEAD"))
-			ncre.abilities.push_back(StackFeature::UNDEAD);
+			ncre.abilities.push_back(makeFeature(StackFeature::UNDEAD, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
 			ncre.idNumber = creatures.size();
@@ -485,22 +485,22 @@ void CCreatureHandler::loadCreatures()
 	inp2.close();
 
 	//TODO: create a tidy configuration file to control fixing unit abilities
-	creatures[115].abilities.push_back(StackFeature::DOUBLE_WIDE);//water elemental should be treated as double-wide
-	creatures[123].abilities.push_back(StackFeature::DOUBLE_WIDE);//ice elemental should be treated as double-wide
-	creatures[140].abilities.push_back(StackFeature::DOUBLE_WIDE);//boar should be treated as double-wide
-	creatures[142].abilities.push_back(StackFeature::DOUBLE_WIDE);//nomads should be treated as double-wide
+	creatures[115].abilities.push_back(makeFeature(StackFeature::DOUBLE_WIDE, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));//water elemental should be treated as double-wide
+	creatures[123].abilities.push_back(makeFeature(StackFeature::DOUBLE_WIDE, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));//ice elemental should be treated as double-wide
+	creatures[140].abilities.push_back(makeFeature(StackFeature::DOUBLE_WIDE, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));//boar should be treated as double-wide
+	creatures[142].abilities.push_back(makeFeature(StackFeature::DOUBLE_WIDE, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY));//nomads should be treated as double-wide
 
 	creatures[46].abilities -= StackFeature::FLYING; //hell hound
 	creatures[47].abilities -= StackFeature::FLYING; //cerberus
-	creatures[52].abilities += StackFeature::FLYING; //Efreeti
-	creatures[53].abilities += StackFeature::FLYING; //Efreet Sultan
+	creatures[52].abilities += makeFeature(StackFeature::FLYING, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY); //Efreeti
+	creatures[53].abilities += makeFeature(StackFeature::FLYING, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY); //Efreet Sultan
 
-	creatures[47].abilities += StackFeature::THREE_HEADED_ATTACK; //cerberus
+	creatures[47].abilities += makeFeature(StackFeature::THREE_HEADED_ATTACK, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY); //cerberus
 
-	creatures[87].abilities += makeFeature(StackFeature::ADDITIONAL_ATTACK, StackFeature::WHOLE_BATTLE, 0, 1); //wolf raider
+	creatures[87].abilities += makeFeature(StackFeature::ADDITIONAL_ATTACK, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::CREATURE_ABILITY); //wolf raider
 
-	creatures[147].abilities += StackFeature::NOT_ACTIVE; //First Aid Tent //TODO: remove when support is added
-	creatures[148].abilities += StackFeature::NOT_ACTIVE; //Ammo Cart
+	creatures[147].abilities += makeFeature(StackFeature::NOT_ACTIVE, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY); //First Aid Tent //TODO: remove when support is added
+	creatures[148].abilities += makeFeature(StackFeature::NOT_ACTIVE, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::CREATURE_ABILITY); //Ammo Cart
 }
 
 void CCreatureHandler::loadAnimationInfo()
