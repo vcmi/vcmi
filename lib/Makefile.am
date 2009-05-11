@@ -39,5 +39,7 @@ libvcmi_la_SOURCES = \
 	./NetPacksLib.cpp \
 	./RegisterTypes.cpp \
 	./RegisterTypes.h \
+	./lib/StackFeature.h \
 	./VCMI_Lib.cpp \
 	./VCMI_Lib.h
+

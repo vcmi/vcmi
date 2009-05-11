@@ -107,6 +107,9 @@ NL2SP="tr \\015\\012 \\040\\040"
 reload_flag=" -r"
 reload_cmds="\$LD\$reload_flag -o \$output\$reload_objs"
 
+# An object symbol dumper.
+OBJDUMP="objdump"
+
 # Method to check whether dependent libraries are shared objects.
 deplibs_check_method="pass_all"
 
