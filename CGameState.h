@@ -117,12 +117,12 @@ struct DLL_EXPORT BattleInfo
 	CCreatureSet army1, army2;
 	std::vector<CStack*> stacks;
 	std::vector<CObstacleInstance> obstacles;
-	ui8 castedSpells[2]; //[0] - attacker, [1] - defender
+	ui8 castSpells[2]; //[0] - attacker, [1] - defender
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2 & obstacles
-			& castedSpells;
+			& castSpells;
 	}
 	CStack * getNextStack(); //which stack will have turn after current one
 	std::vector<CStack> getStackQueue(); //returns stack in order of their movement action

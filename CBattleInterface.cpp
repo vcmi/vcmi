@@ -1790,7 +1790,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	LOCPLINT->pushInt(resWindow);
 }
 
-void CBattleInterface::spellCasted(SpellCasted * sc)
+void CBattleInterface::spellCast(SpellCast * sc)
 {
 	if(sc->side == !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
 		bSpell->block(true);
@@ -1806,7 +1806,7 @@ void CBattleInterface::spellCasted(SpellCasted * sc)
 		}
 	case 16: //ice bolt
 		{
-			if(anims.size() == 0) //initialiaztion of anims
+			if(anims.size() == 0) //initialization of anims
 			{
 				anims.push_back("C08SPW0.DEF"); anims.push_back("C08SPW1.DEF"); anims.push_back("C08SPW2.DEF"); anims.push_back("C08SPW3.DEF"); anims.push_back("C08SPW4.DEF");
 			}

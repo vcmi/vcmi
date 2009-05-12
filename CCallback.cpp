@@ -549,9 +549,9 @@ bool CCallback::battleCanCastSpell()
 		return false;
 
 	if(gs->curB->side1 == player)
-		return gs->curB->castedSpells[0] == 0 && gs->getHero(gs->curB->hero1)->getArt(17);
+		return gs->curB->castSpells[0] == 0 && gs->getHero(gs->curB->hero1)->getArt(17);
 	else
-		return gs->curB->castedSpells[1] == 0 && gs->getHero(gs->curB->hero2)->getArt(17);
+		return gs->curB->castSpells[1] == 0 && gs->getHero(gs->curB->hero2)->getArt(17);
 }
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )

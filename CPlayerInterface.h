@@ -617,7 +617,7 @@ public:
 	//void battleResultQuited();
 	void battleNewRound(int round); //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	void battleStackMoved(int ID, int dest, int distance, bool end);
-	void battleSpellCasted(SpellCasted *sc);
+	void battleSpellCast(SpellCast *sc);
 	void battleStacksEffectsSet(SetStackEffect & sse); //called when a specific effect is set to stacks
 	void battleStacksAttacked(std::set<BattleStackAttacked> & bsa);
 	void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right

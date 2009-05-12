@@ -455,7 +455,7 @@ DLL_EXPORT void BattleStart::applyGs( CGameState *gs )
 
 DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 {
-	gs->curB->castedSpells[0] = gs->curB->castedSpells[1] = 0;
+	gs->curB->castSpells[0] = gs->curB->castSpells[1] = 0;
 	gs->curB->round = round;
 
 	BOOST_FOREACH(CStack *s, gs->curB->stacks)
@@ -546,7 +546,7 @@ DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 	}
 }
 
-DLL_EXPORT void SpellCasted::applyGs( CGameState *gs )
+DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = (side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
 	if(h)
@@ -556,7 +556,7 @@ DLL_EXPORT void SpellCasted::applyGs( CGameState *gs )
 	}
 	if(side >= 0 && side < 2)
 	{
-		gs->curB->castedSpells[side]++;
+		gs->curB->castSpells[side]++;
 	}
 	if(gs->curB && id == 35) //dispel
 	{

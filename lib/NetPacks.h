@@ -807,13 +807,13 @@ struct EndAction : public CPackForClient//3008
 	}
 };
 
-struct SpellCasted : public CPackForClient//3009
+struct SpellCast : public CPackForClient//3009
 {
-	SpellCasted(){type = 3009;};
+	SpellCast(){type = 3009;};
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	ui8 side; //which hero casted spell: 0 - attacker, 1 - defender
+	ui8 side; //which hero did cast spell: 0 - attacker, 1 - defender
 	ui32 id;
 	ui8 skill;
 	ui16 tile; //destination tile (may not be set in some global/mass spells

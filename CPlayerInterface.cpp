@@ -2346,10 +2346,10 @@ void CPlayerInterface::battleStackMoved(int ID, int dest, int distance, bool end
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt->stackMoved(ID, dest, end, distance);
 }
-void CPlayerInterface::battleSpellCasted(SpellCasted *sc)
+void CPlayerInterface::battleSpellCast(SpellCast *sc)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	battleInt->spellCasted(sc);
+	battleInt->spellCast(sc);
 }
 void CPlayerInterface::battleStacksEffectsSet(SetStackEffect & sse)
 {

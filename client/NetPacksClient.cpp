@@ -372,17 +372,17 @@ void StartAction::applyFirstCl( CClient *cl )
 		cl->playerint[GS(cl)->curB->side2]->actionStarted(&ba);
 }
 
-void SpellCasted::applyCl( CClient *cl )
+void SpellCast::applyCl( CClient *cl )
 {
 	if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side1]->battleSpellCasted(this);
+		cl->playerint[GS(cl)->curB->side1]->battleSpellCast(this);
 	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
-		cl->playerint[GS(cl)->curB->side2]->battleSpellCasted(this);
+		cl->playerint[GS(cl)->curB->side2]->battleSpellCast(this);
 }
 
 void SetStackEffect::applyCl( CClient *cl )
 {
-	SpellCasted sc;
+	SpellCast sc;
 	sc.id = effect.id;
 	sc.side = 3; //doesn't matter
 	sc.skill = effect.level;

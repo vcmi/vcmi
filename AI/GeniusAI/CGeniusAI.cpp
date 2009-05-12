@@ -159,9 +159,9 @@ void CGeniusAI::battleStackMoved(int ID, int dest, int distance, bool end)
 /**
  *
  */
-void CGeniusAI::battleSpellCasted(SpellCasted *sc)
+void CGeniusAI::battleSpellCast(SpellCast *sc)
 {
-	MsgBox("\t\t\tCGeniusAI::battleSpellCasted");
+	MsgBox("\t\t\tCGeniusAI::battleSpellCast");
 }
 /**
  * called when battlefield is prepared, prior the battle beginning

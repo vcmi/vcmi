@@ -24,7 +24,7 @@ class AdventureMapButton;
 class CHighlightableButton;
 class CHighlightableButtonsGroup;
 struct BattleResult;
-struct SpellCasted;
+struct SpellCast;
 template <typename T> struct CondSh;
 
 class CBattleInterface;
@@ -177,7 +177,7 @@ private:
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
 	int spellSelMode; //0 - any location, 1 - any firendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle, -1 - no location
 	BattleAction * spellToCast; //spell for which player is choosing destination
-	void endCastingSpell(); //ends casting spell (eg. when spell has been casted or cancelled)
+	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or cancelled)
 
 	class CAttHelper
 	{
@@ -288,7 +288,7 @@ public:
 	void hexLclicked(int whichOne); //hex only call-in
 	void stackIsShooting(int ID, int dest); //called when stack with id ID is shooting to hex dest
 	void battleFinished(const BattleResult& br); //called when battle is finished - battleresult window should be printed
-	void spellCasted(SpellCasted * sc); //called when a hero casts a spell
+	void spellCast(SpellCast * sc); //called when a hero casts a spell
 	void battleStacksEffectsSet(const SetStackEffect & sse); //called when a specific effect is set to stacks
 	void castThisSpell(int spellID); //called when player has chosen a spell from spellbook
 	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender

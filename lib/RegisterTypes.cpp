@@ -89,7 +89,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<BattleAttack>();
 	s.template registerType<StartAction>();
 	s.template registerType<EndAction>();
-	s.template registerType<SpellCasted>();
+	s.template registerType<SpellCast>();
 	s.template registerType<SetStackEffect>();
 	s.template registerType<StacksInjured>();
 	s.template registerType<ShowInInfobox>();

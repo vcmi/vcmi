@@ -2392,11 +2392,11 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			if(   !(h->canCastThisSpell(s)) //hero cannot cast this spell at all
 				|| (h->mana < s->costs[skill]) //not enough mana
 				|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
-				|| (gs->curB->castedSpells[ba.side]) //spell has been casted
+				|| (gs->curB->castSpells[ba.side]) //spell has been cast
 				|| (gs->battleMaxSpellLevel() < s->level) //non - casting hero stops caster from casting this spell
 				)
 			{
-				tlog2 << "Spell cannot be casted!\n";
+				tlog2 << "Spell cannot be cast!\n";
 				return false;
 			}
 
@@ -2404,7 +2404,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			//TODO: check resistances
 
-			SpellCasted sc;
+			SpellCast sc;
 			sc.side = ba.side;
 			sc.id = ba.additionalInfo;
 			sc.skill = skill;
