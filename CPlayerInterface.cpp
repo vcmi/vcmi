@@ -3399,28 +3399,28 @@ SDL_Surface * CCreaturePic::getPic(bool nextFrame)
 	//TODO: write
 	return NULL;
 }
-void CRecrutationWindow::close()
+void CRecruitmentWindow::close()
 {
 	LOCPLINT->popIntTotally(this);
 }
-void CRecrutationWindow::Max()
+void CRecruitmentWindow::Max()
 {
 	slider->moveTo(slider->amount);
 }
-void CRecrutationWindow::Buy()
+void CRecruitmentWindow::Buy()
 {
 	recruit(creatures[which].ID,slider->value);
 	close();
 }
-void CRecrutationWindow::Cancel()
+void CRecruitmentWindow::Cancel()
 {
 	close();
 }
-void CRecrutationWindow::sliderMoved(int to)
+void CRecruitmentWindow::sliderMoved(int to)
 {
 	buy->block(!to);
 }
-void CRecrutationWindow::clickLeft(tribool down)
+void CRecruitmentWindow::clickLeft(tribool down)
 {
 	int curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
@@ -3448,7 +3448,7 @@ void CRecrutationWindow::clickLeft(tribool down)
 		curx += 120;
 	}
 }
-void CRecrutationWindow::clickRight( boost::logic::tribool down )
+void CRecruitmentWindow::clickRight( boost::logic::tribool down )
 {
 	if(down)
 	{
@@ -3466,7 +3466,7 @@ void CRecrutationWindow::clickRight( boost::logic::tribool down )
 	}
 }
 
-void CRecrutationWindow::activate()
+void CRecruitmentWindow::activate()
 {
 	ClickableL::activate();
 	ClickableR::activate();
@@ -3477,7 +3477,7 @@ void CRecrutationWindow::activate()
 	LOCPLINT->statusbar = bar;
 }
 
-void CRecrutationWindow::deactivate()
+void CRecruitmentWindow::deactivate()
 {
 	ClickableL::deactivate();
 	ClickableR::deactivate();
@@ -3487,7 +3487,7 @@ void CRecrutationWindow::deactivate()
 	slider->deactivate();
 }
 
-void CRecrutationWindow::show(SDL_Surface * to)
+void CRecruitmentWindow::show(SDL_Surface * to)
 {
 	static char animCounter=0; //animation counter - for determining appropriate animation frame to be shown
 	blitAt(bitmap,pos.x,pos.y,to);
@@ -3526,7 +3526,7 @@ void CRecrutationWindow::show(SDL_Surface * to)
 	bar->show(to);
 }
 
-CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &Creatures, const boost::function<void(int,int)> &Recruit) //creatures - pairs<creature_ID,amount>
+CRecruitmentWindow::CRecruitmentWindow(const std::vector<std::pair<int,int> > &Creatures, const boost::function<void(int,int)> &Recruit) //creatures - pairs<creature_ID,amount>
 :recruit(Recruit), which(0)
 {
 	creatures.resize(Creatures.size());
@@ -3551,10 +3551,10 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 	pos.w = bitmap->w;
 	pos.h = bitmap->h;
 	bar = new CStatusBar(pos.x+8, pos.y+370, "APHLFTRT.bmp", 471);
-	max = new AdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecrutationWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF",SDLK_m);
-	buy = new AdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecrutationWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF",SDLK_RETURN);
-	cancel = new AdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecrutationWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF",SDLK_ESCAPE);
-	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecrutationWindow::sliderMoved,this, _1),1,std::min(amounts[0],creatures[0].amount),0,true);
+	max = new AdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF",SDLK_m);
+	buy = new AdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF",SDLK_RETURN);
+	cancel = new AdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF",SDLK_ESCAPE);
+	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecruitmentWindow::sliderMoved,this, _1),1,std::min(amounts[0],creatures[0].amount),0,true);
 	std::string pom;
 	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
 	printAtMiddle(CGI->generaltexth->allTexts[465],205,231,GEOR13,zwykly,bitmap); //available t
@@ -3591,7 +3591,7 @@ CRecrutationWindow::CRecrutationWindow(const std::vector<std::pair<int,int> > &C
 	//buy->block(true); //not needed, will be blocked by initing slider on 0
 }
 
-CRecrutationWindow::~CRecrutationWindow()
+CRecruitmentWindow::~CRecruitmentWindow()
 {
 	for(int i=0;i<creatures.size();i++)
 	{

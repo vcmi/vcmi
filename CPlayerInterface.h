@@ -745,7 +745,7 @@ public:
 	SDL_Surface * getPic(bool nextFrame); //returns frame of animation
 };
 
-class CRecrutationWindow : public IShowActivable, public ClickableL, public ClickableR
+class CRecruitmentWindow : public IShowActivable, public ClickableL, public ClickableR
 {
 public:
 	struct creinfo
@@ -774,8 +774,8 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
-	CRecrutationWindow(const std::vector<std::pair<int,int> > & Creatures, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount> //c-tor
-	~CRecrutationWindow(); //d-tor
+	CRecruitmentWindow(const std::vector<std::pair<int,int> > & Creatures, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount> //c-tor
+	~CRecruitmentWindow(); //d-tor
 };
 
 class CSplitWindow : public IShowActivable, public KeyInterested, public ClickableL

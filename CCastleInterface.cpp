@@ -886,7 +886,7 @@ void CCastleInterface::recreateBuildings()
 	}
 }
 
-CRecrutationWindow * CCastleInterface::showRecruitmentWindow( int building )
+CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
 {
 	if(building>36)
 		building-=7;
@@ -898,7 +898,7 @@ CRecrutationWindow * CCastleInterface::showRecruitmentWindow( int building )
 
 	crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
 
-	CRecrutationWindow *rw = new CRecrutationWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
+	CRecruitmentWindow *rw = new CRecruitmentWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 	LOCPLINT->pushInt(rw);
 	return rw;
 }

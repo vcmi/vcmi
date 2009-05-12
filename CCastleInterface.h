@@ -96,7 +96,7 @@ public:
 	void showAll(SDL_Surface * to);
 	void buildingClicked(int building);
 	void enterMageGuild();
-	CRecrutationWindow * showRecruitmentWindow(int building);
+	CRecruitmentWindow * showRecruitmentWindow(int building);
 	void enterHall();
 	void close();
 	void splitF();
