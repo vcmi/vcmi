@@ -1028,12 +1028,14 @@ void CBattleInterface::bSpellf()
 
 void CBattleInterface::bWaitf()
 {
-	giveCommand(8,0,activeStack);
+	if(activeStack != -1)
+		giveCommand(8,0,activeStack);
 }
 
 void CBattleInterface::bDefencef()
 {
-	giveCommand(3,0,activeStack);
+	if(activeStack != -1)
+ 		giveCommand(3,0,activeStack);
 }
 
 void CBattleInterface::bConsoleUpf()

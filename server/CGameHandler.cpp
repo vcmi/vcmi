@@ -2393,6 +2393,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 				|| (h->mana < s->costs[skill]) //not enough mana
 				|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
 				|| (gs->curB->castSpells[ba.side]) //spell has been cast
+				|| (secondHero && secondHero->hasBonusOfType(HeroBonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell 
 				|| (gs->battleMaxSpellLevel() < s->level) //non - casting hero stops caster from casting this spell
 				)
 			{
