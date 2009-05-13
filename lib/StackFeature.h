@@ -9,7 +9,8 @@ struct StackFeature
 		NO_TYPE,
 		DOUBLE_WIDE, FLYING, SHOOTER, CHARGE_IMMUNITY, ADDITIONAL_ATTACK, UNLIMITED_RETAILATIONS,
 		NO_MELEE_PENALTY, JOUSTING /*for champions*/, 
-		RAISING_MORALE, HATE /*eg. angels hate devils*/, 
+		RAISING_MORALE /*value - how much raises*/,
+		HATE /*eg. angels hate devils*/, 
 		KING1,
 		KING2, KING3, MAGIC_RESISTANCE /*in %*/, 
 		CHANGES_SPELL_COST /*in mana points, eg. pegasus or mage*/,
@@ -36,7 +37,8 @@ struct StackFeature
 		CASTS_SPELL_WHEN_KILLED /*similar to spell after attack*/, 
 		FEAR, FEARLESS, NO_DISTANCE_PENALTY, NO_OBSTACLES_PENALTY, 
 		SELF_LUCK /*halfling*/, 
-		ATTACK_BONUS, DEFENCE_BONUS, SPEED_BONUS, HP_BONUS, ENCHANTER, HEALER, SIEGE_WEAPON, LUCK_BONUS, MORALE_BONUS, HYPNOTIZED, ADDITIONAL_RETAILATION, 
+		ATTACK_BONUS, DEFENCE_BONUS, SPEED_BONUS, HP_BONUS, ENCHANTER, HEALER, SIEGE_WEAPON, LUCK_BONUS, MORALE_BONUS, HYPNOTIZED,
+		ADDITIONAL_RETAILATION /*value - number of additional retailations*/, 
 		MAGIC_MIRROR /* value - chance of redirecting in %*/, 
 		SUMMONED, ALWAYS_MINUMUM_DAMAGE /*unit does its minimum damage from range; -1 - any attack, 0 - melee, 1 - ranged*/, 
 		ALWAYS_MAXIMUM_DAMAGE /*eg. bless effect, -1 - any attack, 0 - melee, 1 - ranged*/, 
@@ -95,6 +97,11 @@ inline StackFeature makeFeature(StackFeature::ECombatFeatures type, StackFeature
 	sf.additionalInfo = additionalInfo;
 
 	return sf;
+}
+
+inline StackFeature makeCreatureAbility(StackFeature::ECombatFeatures type, si32 value, si16 subtype = 0)
+{
+	return makeFeature(type, StackFeature::WHOLE_BATTLE, subtype, value, StackFeature::CREATURE_ABILITY);
 }
 
 #endif //__STACK_FEATURE_H__
