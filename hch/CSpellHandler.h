@@ -5,6 +5,8 @@
 #include <vector>
 #include <set>
 
+#include "CSoundBase.h"
+
 /*
  * CSpellHandler.h, part of VCMI engine
  *
@@ -39,6 +41,7 @@ public:
 	std::vector<std::string> range; //description of spell's range in SRSL by magic school level
 	std::set<ui16> rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const; //convert range to specific hexes
 	si16 mainEffectAnim; //main spell effect animation, in AC format (or -1 when none)
+	soundBase::soundID soundID;	// spell sound id
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

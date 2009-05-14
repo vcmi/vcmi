@@ -130,6 +130,7 @@ int main(int argc, char** argv)
 		initDLL(::console,logfile);
 		CGI->setFromLib();
 		cgi->audioh->initCreaturesSounds(CGI->creh->creatures);
+		cgi->audioh->initSpellsSounds(CGI->spellh->spells);
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler;

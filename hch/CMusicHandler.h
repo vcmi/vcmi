@@ -18,6 +18,7 @@
  */
 
 class CSndHandler;
+class CSpell;
 struct _Mix_Music;
 typedef struct _Mix_Music Mix_Music;
 struct Mix_Chunk;
@@ -39,6 +40,7 @@ public:
 	void initSounds();
 	void freeSounds();
 	void initCreaturesSounds(std::vector<CCreature> &creatures);
+	void initSpellsSounds(std::vector<CSpell> &spells);
 
 	// Sounds
 	int playSound(soundBase::soundID soundID, int repeats=0);

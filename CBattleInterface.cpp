@@ -1794,10 +1794,15 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 
 void CBattleInterface::spellCast(SpellCast * sc)
 {
+	CSpell &spell = CGI->spellh->spells[sc->id];
+
 	if(sc->side == !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
 		bSpell->block(true);
 
 	std::vector< std::string > anims; //for magic arrow and ice bolt
+
+	if (spell.soundID != soundBase::invalid)
+		CGI->audioh->playSound(spell.soundID);
 
 	switch(sc->id)
 	{
@@ -1861,9 +1866,9 @@ void CBattleInterface::spellCast(SpellCast * sc)
 		}
 	case 17: //lightning bolt
 		displayEffect(1, sc->tile);
-		displayEffect(CGI->spellh->spells[sc->id].mainEffectAnim, sc->tile);
+		displayEffect(spell.mainEffectAnim, sc->tile);
 	case 35: //dispel
-		displayEffect(CGI->spellh->spells[sc->id].mainEffectAnim, sc->tile);
+		displayEffect(spell.mainEffectAnim, sc->tile);
 	} //switch(sc->id)
 }
 

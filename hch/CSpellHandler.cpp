@@ -2,6 +2,7 @@
 #include "../stdafx.h"
 #include "CSpellHandler.h"
 #include "CLodHandler.h"
+#include "CSoundBase.h"
 #include "../lib/VCMI_Lib.h"
 #include <boost/algorithm/string/replace.hpp>
 #include <cctype>
@@ -256,6 +257,7 @@ void CSpellHandler::loadSpells()
 		nsp.combatSpell = combSpells;
 		nsp.creatureAbility = creatureAbility;
 		nsp.mainEffectAnim = -1;
+		nsp.soundID = soundBase::invalid;
 		spells.push_back(nsp);
 	}
 	//loading of additional spell traits

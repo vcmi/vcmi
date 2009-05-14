@@ -10,6 +10,7 @@
 #include "CSndHandler.h"
 #include "CMusicHandler.h"
 #include "CCreatureHandler.h"
+#include "CSpellHandler.h"
 #include "../CGameInfo.h"
 
 /*
@@ -167,6 +168,34 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 		if (c.sounds.killed == soundBase::invalid)
 			tlog1 << "creature " << c.idNumber << " doesn't have sounds" << std::endl;
 	}
+}
+
+void CSoundHandler::initSpellsSounds(std::vector<CSpell> &spells)
+{
+	tlog5 << "\t\tReading config/sp_sounds.txt" << std::endl;
+	std::ifstream ifs("config/sp_sounds.txt");
+	std::string line;
+
+	while(getline(ifs, line))
+	{
+		int spellid;
+		std::string soundfile="";
+		std::stringstream str(line);
+
+		str >> spellid >> soundfile;
+
+		if (str.good() || (str.eof() && soundfile != ""))
+		{
+			CSpell &s = CGI->spellh->spells[spellid];
+
+			if (s.soundID != soundBase::invalid)
+				tlog1 << "Spell << " << spellid << " already has a sound" << std::endl;
+			
+			s.soundID = getSoundID(soundfile);
+		}
+	}
+	ifs.close();
+	ifs.clear();
 }
 
 // Plays a sound, and return its channel so we can fade it out later
