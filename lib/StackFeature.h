@@ -10,26 +10,29 @@ struct StackFeature
 		DOUBLE_WIDE, FLYING, SHOOTER, CHARGE_IMMUNITY, ADDITIONAL_ATTACK, UNLIMITED_RETAILATIONS,
 		NO_MELEE_PENALTY, JOUSTING /*for champions*/, 
 		RAISING_MORALE /*value - how much raises*/,
-		HATE /*eg. angels hate devils*/, 
+		HATE /*eg. angels hate devils, subtype - ID of hated creature*/, 
 		KING1,
-		KING2, KING3, MAGIC_RESISTANCE /*in %*/, 
-		CHANGES_SPELL_COST /*in mana points, eg. pegasus or mage*/,
+		KING2, KING3, MAGIC_RESISTANCE /*in % (value)*/, 
+		CHANGES_SPELL_COST_FOR_ALLY /*in mana points (value) , eg. mage*/,
+		CHANGES_SPELL_COST_FOR_ENEMY /*in mana points (value) , eg. pegasus */,
 		SPELL_AFTER_ATTACK /* subtype - spell id, value - spell level, aditional info - chance in %; eg. dendroids*/,
 		SPELL_RESISTANCE_AURA /*eg. unicorns, value - resistance bonus in % for adjacent creatures*/, 
-		LEVEL_SPELL_IMMUNITY /*creature is immune to all spell with level below value of this bonus*/, 
+		LEVEL_SPELL_IMMUNITY /*creature is immune to all spell with level below or equal to value of this bonus*/, 
 		TWO_HEX_ATTACK_BREATH /*eg. dragons*/, 
 		SPELL_DAMAGE_REDUCTION /*eg. golems; value - reduction in %, subtype - spell school; -1 - all, 0 - air, 1 - fire, 2 - water, 3 - earth*/, 
 		NO_WALL_PENALTY, NON_LIVING /*eg. gargoyle*/, 
-		RANDOM_SPELLCASTER, BLOCKS_RETAILATION /*eg. naga*/, 
-		SPELL_IMMUNITY /*value - spell id*/, 
-		MANA_CHANNELING /*in %, eg. familiar*/, 
+		RANDOM_GENIE_SPELLCASTER /*eg. master genie*/,
+		BLOCKS_RETAILATION /*eg. naga*/, 
+		SPELL_IMMUNITY /*subid - spell id*/, 
+		MANA_CHANNELING /*value in %, eg. familiar*/, 
 		SPELL_LIKE_ATTACK /*value - spell id; range is taken from spell, but damage from creature; eg. magog*/, 
 		THREE_HEADED_ATTACK /*eg. cerberus*/, 
 		DEAMON_SUMMONING /*pit lord*/, 
-		FIRE_IMMUNITY, FIRE_SHIELD, ENEMY_MORALE_DECREASING, ENEMY_LUCK_DECREASING, UNDEAD, REGENERATION, MANA_DRAIN, LIFE_DRAIN, 
-		DOUBLE_DAMAGE_CHANCE /*in %, eg. dread knight*/, 
+		FIRE_IMMUNITY, FIRE_SHIELD, ENEMY_MORALE_DECREASING /*value - how much it decreases*/,
+		ENEMY_LUCK_DECREASING, UNDEAD, REGENERATION, MANA_DRAIN /*value - spell points per turn*/, LIFE_DRAIN, 
+		DOUBLE_DAMAGE_CHANCE /*value in %, eg. dread knight*/, 
 		RETURN_AFTER_STRIKE, SELF_MORALE /*eg. minotaur*/, 
-		SPELLCASTER /*value - spell id*/, CATAPULT, 
+		SPELLCASTER /*subtype - spell id, value - level of school*/, CATAPULT, 
 		ENEMY_DEFENCE_REDUCTION /*in %, eg. behemots*/, 
 		GENERAL_DAMAGE_REDUCTION /*eg. while stoned or blinded - in %, subtype: -1 - any damage, 0 - melee damage, 1 - ranged damage*/, 
 		ATTACKS_ALL_ADAJCENT /*eg. hydra*/, 
@@ -99,9 +102,9 @@ inline StackFeature makeFeature(StackFeature::ECombatFeatures type, StackFeature
 	return sf;
 }
 
-inline StackFeature makeCreatureAbility(StackFeature::ECombatFeatures type, si32 value, si16 subtype = 0)
+inline StackFeature makeCreatureAbility(StackFeature::ECombatFeatures type, si32 value, si16 subtype = 0, si32 additionalInfo = 0)
 {
-	return makeFeature(type, StackFeature::WHOLE_BATTLE, subtype, value, StackFeature::CREATURE_ABILITY);
+	return makeFeature(type, StackFeature::WHOLE_BATTLE, subtype, value, StackFeature::CREATURE_ABILITY, 0, additionalInfo);
 }
 
 #endif //__STACK_FEATURE_H__
