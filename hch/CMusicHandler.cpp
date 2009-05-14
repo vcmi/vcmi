@@ -128,7 +128,7 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 		if (str.good() || (str.eof() && wince != ""))
 		{
 			int id = CGI->creh->nameToID[cname];
-			CCreature &c = CGI->creh->creatures[id];
+			CCreature &c = creatures[id];
 
 			if (c.sounds.killed != soundBase::invalid)
 				tlog1 << "Creature << " << cname << " already has sounds" << std::endl;
@@ -156,14 +156,14 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 	ifs.clear();
 
 	// Find creatures without sounds
-	for(unsigned int i=0;i<CGI->creh->creatures.size();i++)
+	for(unsigned int i=0;i<creatures.size();i++)
 	{
 		// Note: this will exclude war machines, but it's better
 		// than nothing.
 		if (vstd::contains(CGI->creh->notUsedMonsters, i))
 			continue;
 
-		CCreature &c = CGI->creh->creatures[i];
+		CCreature &c = creatures[i];
 		if (c.sounds.killed == soundBase::invalid)
 			tlog1 << "creature " << c.idNumber << " doesn't have sounds" << std::endl;
 	}
