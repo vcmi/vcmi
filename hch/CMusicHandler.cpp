@@ -174,7 +174,6 @@ int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {
 	int channel;
 	Mix_Chunk *chunk;
-	std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
 
 	if (!sndh)
 		return -1;
