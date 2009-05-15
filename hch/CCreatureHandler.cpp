@@ -377,6 +377,22 @@ void CCreatureHandler::loadCreatures()
 			ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING3, 0));
 		if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_wall_penalty"))
 			ncre.abilities.push_back(makeCreatureAbility(StackFeature::NO_WALL_PENALTY, 0));
+		if(boost::algorithm::find_first(ncre.abilityRefs, "CATAPULT"))
+			ncre.abilities.push_back(makeCreatureAbility(StackFeature::CATAPULT, 0));
+		if(boost::algorithm::find_first(ncre.abilityRefs, "MULTI_HEADED"))
+			ncre.abilities.push_back(makeCreatureAbility(StackFeature::ATTACKS_ALL_ADAJCENT, 0));
+		if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_MIND_SPELLS"))
+		{
+			std::vector<int> mindSpells = getMindSpells();
+			for(int g=0; g<mindSpells.size(); ++g)
+			{
+				creatures[40].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //giants are immune to mind spells
+			}
+		}
+		if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_FIRE_SPELLS"))
+			ncre.abilities.push_back(makeCreatureAbility(StackFeature::FIRE_IMMUNITY, 0));
+		if(boost::algorithm::find_first(ncre.abilityRefs, "HAS_EXTENDED_ATTACK"))
+			ncre.abilities.push_back(makeCreatureAbility(StackFeature::TWO_HEX_ATTACK_BREATH, 0));
 
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
@@ -611,6 +627,75 @@ void CCreatureHandler::loadCreatures()
 	creatures[68].abilities += makeCreatureAbility(StackFeature::ENEMY_MORALE_DECREASING, -1); //bone dragon
 	creatures[69].abilities += makeCreatureAbility(StackFeature::ENEMY_MORALE_DECREASING, -1); //ghost dragon
 	creatures[69].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 75, 20); //ghost dragon
+	creatures[70].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 62); //troglodytes are immune to blind
+	creatures[71].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 62); //infernal troglodytes are immune to blind
+	creatures[72].abilities += makeCreatureAbility(StackFeature::RETURN_AFTER_STRIKE, 0); //Harpies return after attack
+	creatures[73].abilities += makeCreatureAbility(StackFeature::RETURN_AFTER_STRIKE, 0); //Harpy Hags return after attack
+	creatures[73].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETAILATION, 0); //Harpy Hags
+	creatures[76].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 70, 20 + 200); //medusas
+	creatures[77].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 70, 20 + 200); //medusa queens
+	creatures[78].abilities += makeCreatureAbility(StackFeature::SELF_MORALE, 0); //minotaurs
+	creatures[79].abilities += makeCreatureAbility(StackFeature::SELF_MORALE, 0); //minotaur kings
+	creatures[81].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 74, 20); //scorpicore
+	creatures[82].abilities += makeCreatureAbility(StackFeature::LEVEL_SPELL_IMMUNITY, 3); //red dragon's spell immunity
+	creatures[83].abilities += makeCreatureAbility(StackFeature::LEVEL_SPELL_IMMUNITY, 5); //black dragon's spell immunity
+	creatures[91].abilities += makeCreatureAbility(StackFeature::SPELLCASTER, 2, 43, 6); //ogre magi cast bloodlust
+	creatures[93].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 77, 20); //thunderbirds
+	creatures[96].abilities += makeCreatureAbility(StackFeature::ENEMY_DEFENCE_REDUCTION, 40); //behemots
+	creatures[97].abilities += makeCreatureAbility(StackFeature::ENEMY_DEFENCE_REDUCTION, 80); //ancient behemots
+	creatures[103].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 79, 10); //mighty gorgons
+	creatures[104].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 78, 100); //serpent fly
+	creatures[105].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 78, 100); //dragon fly
+	creatures[105].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 45, 100); //mighty gorgons
+	creatures[106].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 70, 20); //basilisks
+	creatures[107].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 70, 20); //greater basilisks
+	creatures[109].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 71, 20); //Wyvern Monarch
+	creatures[110].abilities += makeCreatureAbility(StackFeature::ATTACKS_ALL_ADAJCENT, 0); //hydras
+	creatures[110].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETAILATION, 0); //hydras
+	creatures[111].abilities += makeCreatureAbility(StackFeature::ATTACKS_ALL_ADAJCENT, 0); //chaos hydras
+	creatures[111].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETAILATION, 0); //chaos hydras
+	for(int g=0; g<mindSpells.size(); ++g)
+	{
+		creatures[112].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //air elementals are immune to mind spells
+	}
+	creatures[112].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 23); //air elementals are immune to meteor shower
+	creatures[112].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 17); //air elementals are vulnerable to lightning bolt
+	creatures[112].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 19); //air elementals are vulnerable to chain lightning
+	creatures[112].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //air elementals are non-living
+	for(int g=0; g<mindSpells.size(); ++g)
+	{
+		creatures[113].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //earth elementals are immune to mind spells
+	}
+	creatures[113].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 17); //earth elementals are immune to lightning bolt
+	creatures[113].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 19); //earth elementals are immune to chain lightning
+	creatures[113].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 23); //earth elementals are vulnerable to meteor shower
+	creatures[113].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //earth elementals are non-living
+	for(int g=0; g<mindSpells.size(); ++g)
+	{
+		creatures[114].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //fire elementals are immune to mind spells
+	}
+	creatures[114].abilities += makeCreatureAbility(StackFeature::FIRE_IMMUNITY, 0); //fire elementals are immune to fire spells
+	creatures[114].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 16); //fire elementals are vulnerable to ice bolt
+	creatures[114].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 20); //fire elementals are vulnerable to frost ring
+	creatures[114].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //fire elementals are non-living
+	for(int g=0; g<mindSpells.size(); ++g)
+	{
+		creatures[115].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //water elementals are immune to mind spells
+	}
+	creatures[115].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 16); //water elementals are immune to ice bolt
+	creatures[115].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 20); //water elementals are immune to frost ring
+	creatures[115].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 13); //water elementals are vulnerable to fire wall
+	creatures[115].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 22); //water elementals are vulnerable to inferno
+	creatures[115].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 21); //water elementals are vulnerable to fireball
+	creatures[115].abilities += makeCreatureAbility(StackFeature::MORE_DAMEGE_FROM_SPELL, 100, 29); //water elementals are vulnerable to fire shield
+	creatures[115].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //water elementals are non-living
+	creatures[116].abilities += makeCreatureAbility(StackFeature::SPELL_DAMAGE_REDUCTION, 85, -1); //gold golems reduce dmg from spells
+	creatures[116].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //gold golems are non-living
+	creatures[117].abilities += makeCreatureAbility(StackFeature::SPELL_DAMAGE_REDUCTION, 95, -1); //diamond golems reduce dmg from spells
+	creatures[117].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //diamond golems are non-living
+	creatures[121].abilities += makeCreatureAbility(StackFeature::LEVEL_SPELL_IMMUNITY, 5); //magic elementals are immune to all spells
+
+	//TODO: the rest of creatures
 }
 
 void CCreatureHandler::loadAnimationInfo()
