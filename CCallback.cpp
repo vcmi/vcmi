@@ -527,11 +527,13 @@ bool CCallback::battleCanShoot(int ID, int dest)
 	CStack *our = battleGetStackByID(ID), *dst = battleGetStackByPos(dest);
 	if(!our || !dst || !gs->curB) return false; 
 
-	for(size_t g=0; g<our->effects.size(); ++g)
-	{
-		if(61 == our->effects[g].id) //forgetfulness
-			return false;
-	}
+	//for(size_t g=0; g<our->effects.size(); ++g)
+	//{
+	//	if(61 == our->effects[g].id) //forgetfulness
+	//		return false;
+	//}
+	if(our->hasFeatureOfType(StackFeature::FORGETFULL)) //forgetfulness
+		return false;
 
 	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
 		&& our->owner != dst->owner

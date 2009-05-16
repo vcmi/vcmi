@@ -2130,11 +2130,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				|| !curStack->hasFeatureOfType(StackFeature::SHOOTER) //our stack is shooting unit
 				)
 				break;
-			for(int g=0; g<curStack->effects.size(); ++g)
-			{
-				if(61 == curStack->effects[g].id) //forgetfulness
-					break;
-			}
+			//for(int g=0; g<curStack->effects.size(); ++g)
+			//{
+			//	if(61 == curStack->effects[g].id) //forgetfulness
+			//		break;
+			//}
+			if(curStack->hasFeatureOfType(StackFeature::FORGETFULL)) //forgetfulness
+				break;
 
 			sendAndApply(&StartAction(ba)); //start shooting
 

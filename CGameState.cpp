@@ -480,7 +480,7 @@ bool CStack::hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype) c
 
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	:ID(I), creature(C), amount(A), baseAmount(A), firstHPleft(C->hitPoints), owner(O), slot(S), attackerOwned(AO), position(-1),   
-	counterAttacks(1), shots(C->shots), state(), effects(), speed(creature->speed), features(C->abilities), attack(C->attack), defense(C->defence)
+	counterAttacks(1), shots(C->shots), speed(creature->speed), features(C->abilities), attack(C->attack), defense(C->defence)
 {
 	state.insert(ALIVE);
 }

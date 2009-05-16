@@ -475,6 +475,23 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 			if(tmpEffects[i].turnsRemain > 0)
 				s->effects.push_back(tmpEffects[i]);
 		}
+
+		//the same as above for features
+		std::vector<StackFeature> tmpFeatures = s->features;
+		s->features.clear();
+		for(int i=0; i < tmpEffects.size(); i++)
+		{
+			if(tmpFeatures[i].duration == StackFeature::N_TURNS)
+			{
+				tmpFeatures[i].turnsRemain--;
+				if(tmpEffects[i].turnsRemain > 0)
+					s->features.push_back(tmpFeatures[i]);
+			}
+			else
+			{
+				s->features.push_back(tmpFeatures[i]);
+			}
+		}
 	}
 }
 
@@ -564,8 +581,104 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 		if(s)
 		{
 			s->effects.clear(); //removing all effects
+			//removing all features from spells
+			std::vector<StackFeature> tmpFeatures = s->features;
+			s->features.clear();
+			for(int i=0; i < tmpFeatures.size(); i++)
+			{
+				if(tmpFeatures[i].source != StackFeature::SPELL_EFFECT)
+				{
+					s->features.push_back(tmpFeatures[i]);
+				}
+			}
 		}
 	}
+}
+
+StackFeature featureGenerator(StackFeature::ECombatFeatures type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0)
+{
+	return makeFeature(type, StackFeature::N_TURNS, subtype, value, StackFeature::SPELL_EFFECT, turnsRemain, additionalInfo);
+}
+
+std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect & sse)
+{
+	std::vector<StackFeature> sf;
+	switch(sse.id)
+	{
+	case 27: //shield 
+		sf.push_back(featureGenerator(StackFeature::GENERAL_DAMAGE_REDUCTION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 28: //air shield
+		sf.push_back(featureGenerator(StackFeature::GENERAL_DAMAGE_REDUCTION, 1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 30: //protection from air
+		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 31: //protection from fire
+		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 32: //protection from water
+		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 2, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 33: //protection from earth
+		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 3, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 41: //bless
+		sf.push_back(featureGenerator(StackFeature::ALWAYS_MAXIMUM_DAMAGE, -1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 42: //curse
+		sf.push_back(featureGenerator(StackFeature::ALWAYS_MINUMUM_DAMAGE, -1, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain, sse.level >= 2 ? 20 : 0));
+		break;
+	case 43: //bloodlust
+		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 44: //precision
+		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, 1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 45: //weakness
+		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, -1, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 46: //stone skin
+		sf.push_back(featureGenerator(StackFeature::DEFENCE_BONUS, -1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 47: //disrupting ray
+		sf.push_back(featureGenerator(StackFeature::DEFENCE_BONUS, -1, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 48: //prayer
+		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(StackFeature::DEFENCE_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 49: //mirth
+		sf.push_back(featureGenerator(StackFeature::MORALE_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 50: //sorrow
+		sf.push_back(featureGenerator(StackFeature::MORALE_BONUS, 0, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 51: //fortune
+		sf.push_back(featureGenerator(StackFeature::LUCK_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 52: //misfortune
+		sf.push_back(featureGenerator(StackFeature::LUCK_BONUS, 0, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 53: //haste
+		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 54: //slow
+		sf.push_back(featureGenerator(StackFeature::SPEED_BONUS, 0, 0, sse.turnsRemain, -1 * VLC->spellh->spells[sse.id].powers[sse.level]));
+		break;
+	case 55: //slayer
+		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
+		break;
+	case 61: //forgetfulness
+		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
+		break;
+	case 56: //frenzy
+		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
+		break;
+	}
+
+	return sf;
 }
 
 DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
@@ -576,6 +689,32 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		if(s)
 		{
 			s->effects.push_back(effect); //adding effect
+			std::vector<StackFeature> sf = stackEffectToFeature(effect);
+			for(int n=0; n<sf.size(); ++n)
+			{
+				if(effect.id == 42) //disrupting ray
+				{
+					s->features.push_back(sf[n]);
+				}
+				else
+				{
+					//don't add multiple instances of the same feature from spell source
+					bool added = false;
+					for(int f=0; f<s->features.size(); ++f)
+					{
+						if(s->features[f].source == StackFeature::SPELL_EFFECT && s->features[f].type == sf[n].type)
+						{
+							s->features[f].turnsRemain = std::max(s->features[f].turnsRemain, effect.turnsRemain);
+							added = true;
+							break;
+						}
+					}
+					if(!added)
+					{
+						s->features.push_back(sf[n]);
+					}
+				}
+			}
 		}
 		else
 			tlog1 << "Cannot find stack " << id << std::endl;
