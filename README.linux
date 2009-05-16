@@ -13,7 +13,7 @@ And then regenerate the build system with
 
 To compile, at least the following packages (and their development counterparts) are needed to build:
     * libstdc++ devel
-	* boost c++ libraries v1.37+ (1.35 will not work) (www.boost.org)
+	* boost c++ libraries v1.36+ (1.35 will not work) (www.boost.org)
 	* sdl,
 	* sdl mixer
 	* sdl image
@@ -22,7 +22,11 @@ To compile, at least the following packages (and their development counterparts)
 
 Then do the usual 
   ./configure
-followed by
+
+Note that on 64 bits linux, if the boost libraries are installed in /usr/lib64, configure will not find them and will fail. Until this is fixed, use:
+  ./configure --with-boost-libdir=/usr/lib64
+
+Then build vcmi:
   make
 
 That will generate vcmiclient, vcmiserver as well as 3 .so libraries.

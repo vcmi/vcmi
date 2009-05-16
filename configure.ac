@@ -26,7 +26,7 @@ if test "x$GXX" = "xyes" -a "x$enable_debug" = "xyes" ; then
 fi
 
 # Check for Boost libraries
-AX_BOOST_BASE([1.37])
+AX_BOOST_BASE([1.36])
 AX_BOOST_SYSTEM
 AX_BOOST_FILESYSTEM
 AX_BOOST_THREAD
