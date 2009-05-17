@@ -25,6 +25,13 @@
  *
  */
 
+#ifdef min
+#undef min
+#endif
+#ifdef max
+#undef max
+#endif
+
 DLL_EXPORT void SetResource::applyGs( CGameState *gs )
 {
 	gs->getPlayer(player)->resources[resid] = val;
@@ -484,7 +491,7 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 			if(tmpFeatures[i].duration == StackFeature::N_TURNS)
 			{
 				tmpFeatures[i].turnsRemain--;
-				if(tmpEffects[i].turnsRemain > 0)
+				if(tmpFeatures[i].turnsRemain > 0)
 					s->features.push_back(tmpFeatures[i]);
 			}
 			else

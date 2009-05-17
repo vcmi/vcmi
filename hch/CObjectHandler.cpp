@@ -525,9 +525,9 @@ void CGHeroInstance::initHero()
 
 		int x = 0; //how many stacks will hero receives <1 - 3>
 		pom = ran()%100;
-		if(pom < 5)
+		if(pom < 9)
 			x = 1;
-		else if(pom < 67)
+		else if(pom < 79)
 			x = 2;
 		else
 			x = 3;
