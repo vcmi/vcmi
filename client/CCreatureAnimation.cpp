@@ -294,7 +294,7 @@ inline void CCreatureAnimation::putPixel(
 {	
     if(palc!=0)
 	{
-		Uint8 * p = (Uint8*)dest->pixels + ftcp*3;
+		Uint8 * p = (Uint8*)dest->pixels + ftcp*dest->format->BytesPerPixel;
 		if(palc > 7) //normal color
 		{
 			p[0] = color.B;
