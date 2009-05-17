@@ -65,7 +65,7 @@ boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 
 void processCommand(const std::string &message, CClient *&client);
-void setScreenRes(int w, int h, int bpp, bool fullscreen);
+static void setScreenRes(int w, int h, int bpp, bool fullscreen);
 
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
@@ -337,13 +337,24 @@ void processCommand(const std::string &message, CClient *&client)
 	}
 }
 
-void setScreenRes(int w, int h, int bpp, bool fullscreen)
+static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 {
-	if(screen) //screen has been already inited
+	if(screen) //screen has been already initialized
 		SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	SDL_InitSubSystem(SDL_INIT_VIDEO);
-	screen = SDL_SetVideoMode(conf.cc.resx,conf.cc.resy,conf.cc.bpp,SDL_SWSURFACE|SDL_DOUBLEBUF|(conf.cc.fullscreen?SDL_FULLSCREEN:0));  //initializing important global surface
+
+	// VCMI will only work with 3 or 4 bytes per pixel
+	if (bpp < 24) bpp = 24;
+	if (bpp > 32) bpp = 32;
+
+	// Try to use the best screen depth for the display
+	if (((bpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == 0) ||
+		((screen = SDL_SetVideoMode(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)) {
+		tlog1 << "Requested screen resolution is not available (" << w << "x" << h << ")\n";
+		throw "Requested screen resolution is not available\n";
+	}
+
 	if(screen2)
 		SDL_FreeSurface(screen2);
 	screen2 = CSDL_Ext::copySurface(screen);
