@@ -47,7 +47,7 @@ struct StackFeature
 		SELF_LUCK /*halfling*/, 
 		ATTACK_BONUS /*subtype: -1 - any attack, 0 - melee, 1 - ranged*/,
 		DEFENCE_BONUS /*subtype: -1 - any attack, 0 - melee, 1 - ranged*/,
-		SPEED_BONUS /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - substracted*/,
+		SPEED_BONUS /*additional info - percent of speed bonus applied after direct bonuses; >0 - added, <0 - substracted to this part*/,
 		HP_BONUS, ENCHANTER, HEALER, SIEGE_WEAPON, LUCK_BONUS, MORALE_BONUS, HYPNOTIZED,
 		ADDITIONAL_RETAILATION /*value - number of additional retailations*/, 
 		MAGIC_MIRROR /* value - chance of redirecting in %*/, 

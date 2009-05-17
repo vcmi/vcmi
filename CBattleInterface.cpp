@@ -2582,21 +2582,19 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 	int stID = LOCPLINT->cb->battleGetStack(myNumber); //id of stack being on this tile
 	if(hovered && strictHovered && stID!=-1)
 	{
-		CStack myst = *LOCPLINT->cb->battleGetStackByID(stID); //stack info
+		const CStack & myst = *LOCPLINT->cb->battleGetStackByID(stID); //stack info
 		if(!myst.alive()) return;
 		StackState *pom = NULL;
 		if(down)
 		{
 			pom = new StackState();
 			const CGHeroInstance *h = myst.owner == myInterface->attackingHeroInstance->tempOwner ? myInterface->attackingHeroInstance : myInterface->defendingHeroInstance;
-			if(h)
-			{
-				pom->attackBonus = h->getPrimSkillLevel(0);
-				pom->defenseBonus = h->getPrimSkillLevel(1);
-				pom->luck = myst.Luck();
-				pom->morale = myst.Morale();
-				pom->speedBonus = myst.Speed() - myst.creature->speed;
-			}
+
+			pom->attackBonus = myst.Attack() - myst.creature->attack;
+			pom->defenseBonus = myst.Defense() - myst.creature->defence;
+			pom->luck = myst.Luck();
+			pom->morale = myst.Morale();
+			pom->speedBonus = myst.Speed() - myst.creature->speed;
 
 			pom->shotsLeft = myst.shots;
 			for(int vb=0; vb<myst.effects.size(); ++vb)

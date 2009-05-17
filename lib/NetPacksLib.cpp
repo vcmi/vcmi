@@ -479,7 +479,7 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		//the same as above for features
 		std::vector<StackFeature> tmpFeatures = s->features;
 		s->features.clear();
-		for(int i=0; i < tmpEffects.size(); i++)
+		for(int i=0; i < tmpFeatures.size(); i++)
 		{
 			if(tmpFeatures[i].duration == StackFeature::N_TURNS)
 			{
@@ -681,6 +681,41 @@ std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect & sse)
 	return sf;
 }
 
+void actualizeEffect(CStack * s, CStack::StackEffect & ef)
+{
+	//actualizing effects vector
+	for(int g=0; g<s->effects.size(); ++g)
+	{
+		if(s->effects[g].id == ef.id)
+		{
+			s->effects[g].turnsRemain = std::max(s->effects[g].turnsRemain, ef.turnsRemain);
+		}
+	}
+	//actualizing features vector
+	std::vector<StackFeature> sf = stackEffectToFeature(ef);
+	for(int b=0; b<sf.size(); ++b)
+	{
+		for(int g=0; g<s->features.size(); ++g)
+		{
+			if(s->features[g].source == StackFeature::SPELL_EFFECT && s->features[g].type == sf[b].type && s->features[g].subtype == sf[b].subtype)
+			{
+				s->features[g].turnsRemain = std::max(s->features[g].turnsRemain, ef.turnsRemain);
+			}
+		}
+	}
+
+}
+
+bool containsEff(const std::vector<CStack::StackEffect> & vec, int effectId)
+{
+	for(int g=0; g<vec.size(); ++g)
+	{
+		if(vec[g].id == effectId)
+			return true;
+	}
+	return false;
+}
+
 DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 {
 	BOOST_FOREACH(ui32 id, stacks)
@@ -688,32 +723,18 @@ DLL_EXPORT void SetStackEffect::applyGs( CGameState *gs )
 		CStack *s = gs->curB->getStack(id);
 		if(s)
 		{
-			s->effects.push_back(effect); //adding effect
-			std::vector<StackFeature> sf = stackEffectToFeature(effect);
-			for(int n=0; n<sf.size(); ++n)
+			if(effect.id == 42 || !containsEff(s->effects, effect.id))//disrupting ray or not on the list - just add
 			{
-				if(effect.id == 42) //disrupting ray
+				s->effects.push_back(effect);
+				std::vector<StackFeature> sf = stackEffectToFeature(effect);
+				for(int n=0; n<sf.size(); ++n)
 				{
 					s->features.push_back(sf[n]);
 				}
-				else
-				{
-					//don't add multiple instances of the same feature from spell source
-					bool added = false;
-					for(int f=0; f<s->features.size(); ++f)
-					{
-						if(s->features[f].source == StackFeature::SPELL_EFFECT && s->features[f].type == sf[n].type)
-						{
-							s->features[f].turnsRemain = std::max(s->features[f].turnsRemain, effect.turnsRemain);
-							added = true;
-							break;
-						}
-					}
-					if(!added)
-					{
-						s->features.push_back(sf[n]);
-					}
-				}
+			}
+			else //just actualize
+			{
+				actualizeEffect(s, effect);
 			}
 		}
 		else

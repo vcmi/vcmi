@@ -480,35 +480,42 @@ bool CStack::hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype) c
 
 CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	:ID(I), creature(C), amount(A), baseAmount(A), firstHPleft(C->hitPoints), owner(O), slot(S), attackerOwned(AO), position(-1),   
-	counterAttacks(1), shots(C->shots), speed(creature->speed), features(C->abilities), attack(C->attack), defense(C->defence)
+	counterAttacks(1), shots(C->shots), features(C->abilities)
 {
 	state.insert(ALIVE);
 }
 
 ui32 CStack::Speed() const
 {
-	int premy=0;
-	const StackEffect *effect = 0;
-	//haste effect check
-	effect = getEffect(53);
-	if(effect)
-		premy += VLC->spellh->spells[effect->id].powers[effect->level];
-	//slow effect check
-	effect = getEffect(54);
-	if(effect)
-		premy -= (creature->speed * VLC->spellh->spells[effect->id].powers[effect->level])/100;
-	//prayer effect check
-	effect = getEffect(48);
-	if(effect)
-		premy += VLC->spellh->spells[effect->id].powers[effect->level];
-	//bind effect check
-	effect = getEffect(72);
-	if(effect) 
+	int speed = creature->speed;
+
+	speed += valOfFeatures(StackFeature::SPEED_BONUS);
+
+	int percentBonus = 0;
+	for(int g=0; g<features.size(); ++g)
 	{
-		premy = creature->speed; //don't use '- creature->speed' - speed is unsigned!
-		premy = -premy;
+		if(features[g].type == StackFeature::SPEED_BONUS)
+		{
+			percentBonus += features[g].additionalInfo;
+		}
 	}
-	return speed + premy;
+
+	if(percentBonus < 0)
+	{
+		speed = (abs(percentBonus) * speed)/100;
+	}
+	else
+	{
+		speed = ((100 + percentBonus) * speed)/100;
+	}
+
+	//bind effect check
+	if(getEffect(72)) 
+	{
+		return 0;
+	}
+
+	return speed;
 }
 
 const CStack::StackEffect * CStack::getEffect(ui16 id) const
@@ -564,48 +571,28 @@ si8 CStack::Luck() const
 
 si32 CStack::Attack() const
 {
-	si32 ret = attack; //value to be returned
+	si32 ret = creature->attack; //value to be returned
 
-	if(getEffect(56)) //frenzy for attacker
+	if(hasFeatureOfType(StackFeature::IN_FRENZY)) //frenzy for attacker
 	{
-		ret += (VLC->spellh->spells[56].powers[getEffect(56)->level]/100.0) * defense;
+		ret += (VLC->spellh->spells[56].powers[getEffect(56)->level]/100.0) * Defense(false);
 	}
 
-	if(getEffect(48)) //attacker's prayer handling
-	{
-		ret += VLC->spellh->spells[48].powers[getEffect(48)->level];
-	}
-
-	if(getEffect(45)) //weakness handling
-	{
-		ret -= VLC->spellh->spells[45].powers[getEffect(45)->level];
-	}
+	ret += valOfFeatures(StackFeature::ATTACK_BONUS);
 
 	return ret;
 }
 
-si32 CStack::Defense() const
+si32 CStack::Defense(bool withFrenzy /*= true*/) const
 {
-	si32 ret = defense;
+	si32 ret = creature->defence;
 
-	if(getEffect(56)) //frenzy for defender
+	if(withFrenzy && getEffect(56)) //frenzy for defender
 	{
 		return 0;
 	}
 
-	if(getEffect(48)) //defender's prayer handling
-	{
-		ret += VLC->spellh->spells[48].powers[getEffect(48)->level];
-	}
-	if(getEffect(47)) //defender's disrupting ray handling
-	{
-		int howMany = howManyEffectsSet(47);
-		ret -=  VLC->spellh->spells[47].powers[getEffect(47)->level] * howMany;
-	}
-	if(getEffect(46)) //stone skin handling
-	{
-		ret += VLC->spellh->spells[46].powers[getEffect(46)->level];
-	}
+	ret += valOfFeatures(StackFeature::DEFENCE_BONUS);
 
 	return ret;
 }

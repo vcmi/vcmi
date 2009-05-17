@@ -841,13 +841,13 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true,i->first));
 		if(hero1)
 		{
-			stacks.back()->speed += hero1->valOfBonuses(HeroBonus::STACKS_SPEED);
+			stacks.back()->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->valOfBonuses(HeroBonus::STACKS_SPEED), StackFeature::BONUS_FROM_HERO));
 			//base luck/morale calculations
 			//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
 			stacks.back()->morale = hero1->getCurrentMorale(i->first,false);
 			stacks.back()->luck = hero1->getCurrentLuck(i->first,false);
-			stacks.back()->attack += hero1->getPrimSkillLevel(0);
-			stacks.back()->defense += hero1->getPrimSkillLevel(1);
+			stacks.back()->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
+			stacks.back()->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
 		}
 		else
 		{
@@ -894,11 +894,11 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 		//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
 		if(hero2)
 		{
-			stacks.back()->speed += hero2->valOfBonuses(HeroBonus::STACKS_SPEED);
+			stacks.back()->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->valOfBonuses(HeroBonus::STACKS_SPEED), StackFeature::BONUS_FROM_HERO));
 			stacks.back()->morale = hero2->getCurrentMorale(i->first,false);
 			stacks.back()->luck = hero2->getCurrentLuck(i->first,false);
-			stacks.back()->attack += hero2->getPrimSkillLevel(0);
-			stacks.back()->defense += hero2->getPrimSkillLevel(1);
+			stacks.back()->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
+			stacks.back()->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
 		}
 		else
 		{

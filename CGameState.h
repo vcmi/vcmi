@@ -154,9 +154,9 @@ public:
 	ui16 position; //position on battlefield
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
-	ui8 speed; //speed of stack with hero bonus
-	si32 attack; //attack of stack with hero bonus
-	si32 defense; //defense of stack with hero bonus
+	//ui8 speed; //speed of stack with hero bonus
+	//si32 attack; //attack of stack with hero bonus
+	//si32 defense; //defense of stack with hero bonus
 	si8 morale, luck; //base stack luck/morale
 
 	std::vector<StackFeature> features;
@@ -185,7 +185,7 @@ public:
 	si8 Morale() const; //get morale of stack with all modificators
 	si8 Luck() const; //get luck of stack with all modificators
 	si32 Attack() const; //get attack of stack with all modificators
-	si32 Defense() const; //get defense of stack with all modificators
+	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
 	template <typename Handler> void save(Handler &h, const int version)
 	{
 		h & creature->idNumber;
@@ -200,7 +200,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & amount & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots & morale & luck & speed & attack & defense;
+			& shots & morale & luck;
 		if(h.saving)
 			save(h,version);
 		else
