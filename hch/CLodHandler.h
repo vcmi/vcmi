@@ -19,8 +19,7 @@
 struct SDL_Surface;
 class CDefHandler;
 class CDefEssential;
-namespace boost
-{class mutex;};
+namespace boost{ namespace iostreams { class mapped_file_source; }};
 namespace NLoadHandlerHelp
 {
 	const int dmHelp=0, dmNoExtractingMask=1;
@@ -30,13 +29,13 @@ namespace NLoadHandlerHelp
 
 struct Entry
 {
-	unsigned char name[12], //filename
-		hlam_1[4], //???
-		hlam_2[4]; //probably type of file
-	std::string nameStr;
+	// Info extracted from LOD file
 	int offset, //from beginning
 		realSize, //size without compression
 		size;	//and with
+
+	std::string nameStr;
+
 	bool operator<(const std::string & comp) const
 	{
 		return nameStr<comp;
@@ -51,21 +50,25 @@ struct Entry
 };
  class DLL_EXPORT CLodHandler
 {
+private:
+	boost::iostreams::mapped_file_source* mmlod;
+
 public:
-	FILE* FLOD;
 	nodrze<Entry> entries;
 	unsigned int totalFiles;
-	boost::mutex *mutex;
 	std::string myDir; //load files from this dir instead of .lod file
 
-	int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
-	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
-	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
+    CLodHandler(): mmlod(NULL), totalFiles(0) {};
+	int readNormalNr (const unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
+	int infs(const unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
+	int infs2(const unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
 	unsigned char * giveFile(std::string defName, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
 	std::string getTextFile(std::string name); //extracts one file
 	void extract(std::string FName);
 	void extractFile(std::string FName, std::string name); //extracts a specific file
-	void init(std::string lodFile, std::string dirName);
+	void init(const std::string lodFile, const std::string dirName);
+
+	const unsigned char *dataptr();	// Returns ptr to FLOD data array
 };
 
 

@@ -17,7 +17,6 @@
  *
  */
 
-boost::mutex bitmap_handler_mx;
 int readNormalNr (int pos, int bytCon, unsigned char * str);
 
 extern DLL_EXPORT CLodHandler *bitmaph;
@@ -341,25 +340,21 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 			}
 		}
 	}
-	bitmap_handler_mx.lock();
-	fseek(bitmaph->FLOD, e->offset, 0);
+
+	const unsigned char *data = bitmaph->dataptr();
+	data += e->offset;
 	if (e->size==0) //file is not compressed
 	{
 		pcx = new unsigned char[e->realSize];
-		fread((char*)pcx, 1, e->realSize, bitmaph->FLOD);
-		bitmap_handler_mx.unlock();
+		memcpy(pcx, data, e->realSize);
 	}
 	else 
 	{
-		unsigned char * pcd = new unsigned char[e->size];
-		fread((char*)pcd, 1, e->size, bitmaph->FLOD);
-		bitmap_handler_mx.unlock();
-		int res=bitmaph->infs2(pcd,e->size,e->realSize,pcx);
-		if(res!=0)
+		int res = bitmaph->infs2(data, e->size, e->realSize, pcx);
+		if (res != 0)
 		{
 			tlog2<<"an error "<<res<<" occurred while extracting file "<<fname<<std::endl;
 		}
-		delete [] pcd;
 	}
 	CPCXConv cp;
 	cp.openPCX((char*)pcx,e->realSize);
