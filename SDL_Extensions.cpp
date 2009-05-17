@@ -257,80 +257,36 @@ inline void CSDL_Ext::SDL_PutPixel(SDL_Surface *ekran, const int & x, const int 
 	SDL_UpdateRect(ekran, x, y, 1, 1);
 }
 
-
-
-///**************/
-///Reverses the toRot surface by the vertical axis
-///**************/
+// Vertical flip
 SDL_Surface * CSDL_Ext::rotate01(SDL_Surface * toRot)
 {
 	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
-	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
-	if(toRot->format->BytesPerPixel!=1)
-	{
-		for(int i=0; i<ret->w; ++i)
-		{
-			for(int j=0; j<ret->h; ++j)
-			{
-				{
-					Uint8 *p = (Uint8 *)toRot->pixels + j * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
-					CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
-				}
+	const int bpl = ret->pitch;
+	const int bpp = ret->format->BytesPerPixel;
+
+	for(int i=0; i<ret->h; i++) {
+		char *src = (char *)toRot->pixels + i*bpl;
+		char *dst = (char *)ret->pixels + i*bpl;
+		for(int j=0; j<ret->w; j++) {
+			for (int k=0; k<bpp; k++) {
+				dst[j*bpp + k] = src[(ret->w-j-1)*bpp + k];
 			}
 		}
 	}
-	else
-	{
-		for(int i=0; i<ret->w; ++i)
-		{
-			for(int j=0; j<ret->h; ++j)
-			{
-				{
-					Uint8 *p = (Uint8 *)toRot->pixels + j * toRot->pitch + (ret->w - i - 1) * toRot->format->BytesPerPixel;
-					(*((Uint8*)ret->pixels + j*ret->pitch + i*ret->format->BytesPerPixel)) = *p;
-				}
-			}
-		}
-	}
+
 	return ret;
 }
+
+// Horizontal flip
 SDL_Surface * CSDL_Ext::hFlip(SDL_Surface * toRot)
 {
 	SDL_Surface * ret = SDL_ConvertSurface(toRot, toRot->format, toRot->flags);
-	//SDL_SetColorKey(ret, SDL_SRCCOLORKEY, toRot->format->colorkey);
-	if(ret->format->BytesPerPixel!=1)
-	{
-		for(int i=0; i<ret->w; ++i)
-		{
-			for(int j=0; j<ret->h; ++j)
-			{
-				{
-					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel;
-					//int k=2;
-/*
-#if(SDL_BYTEORDER == SDL_BIG_ENDIAN)
-						CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[0], p[1], p[2]);
-#else
-*/
-						CSDL_Ext::SDL_PutPixelWithoutRefresh(ret, i, j, p[2], p[1], p[0]);
-//#endif
-				}
-			}
-		}
+	int bpl = ret->pitch;
+
+	for(int i=0; i<ret->h; i++) {
+		memcpy((char *)ret->pixels + i*bpl, (char *)toRot->pixels + (ret->h-i-1)*bpl, bpl);
 	}
-	else
-	{
-		for(int i=0; i<ret->w; ++i)
-		{
-			for(int j=0; j<ret->h; ++j)
-			{
-				{
-					Uint8 *p = (Uint8 *)toRot->pixels + (ret->h - j -1) * toRot->pitch + i * toRot->format->BytesPerPixel;
-					(*((Uint8*)ret->pixels + j*ret->pitch + i*ret->format->BytesPerPixel)) = *p;
-				}
-			}
-		}
-	}
+
 	return ret;
 };
 
