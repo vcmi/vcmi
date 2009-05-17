@@ -1,3 +1,80 @@
+0.71 -> 0.72 (soon)
+GENERAL:
+* many sound effects and music
+* autosave (to 5 subsequent files)
+* artifacts support (most of them)
+* added internal game console (activated on TAB)
+* fixed 8 hero limit to check only for wandering heroes (not garrisoned)
+* improved randomization
+* fixed crash on closing application
+* VCMI won't always give all three stacks in the starting armies
+* fix for drawing starting army creatures count
+* Diplomacy secondary skill support
+* timed events won't cause resources amount to be negative
+* support for sorcery secondary skill
+* reduntant quotation marks from artifact descriptions are removed
+
+ADVENTURE INTERFACE:
+* fixed crasbug occurring on revisiting objects (by pressing space)
+* always restoring default cursor when movng mouse out of the terrain
+* fixed map scrolling with ctrl+arrows when some windows are opened
+* clicking scrolling arrows in town/hero list won't open town/hero window
+* pathfinder will now look for a path going via printed positions of roads when it's possible
+
+BATTLES:
+* battle will end when one side has only war machines
+* fixed problems with handling obstacles info
+* fixed bug with defending / waiting while no stack is active
+* spellbook button is inactive when hero cannot cast any spell
+* obstacles will be placed more properly when resolution is different than 800x600
+* canceling of casting a spell by pressing Escape or R-click (R-click on a creatures does not cancel a spell)
+* spellbook cannot be opened by L-click on hero in battle when it shouldn't be possible
+* new spells:
+- frost ring
+- fireball
+- inferno
+- meteor shower
+- death ripple
+- destroy undead
+- dispel
+- armageddon
+- disrupting ray
+- protection from air
+- protection from fire
+- protection from water
+- protection from earth
+- precision
+- slayer
+
+TOWNS:
+* resting in town with mage guild will replenih all the mana points
+* fixed Blacksmith
+* the number of creatures at the beginning of game is their base growth
+
+HERO WINDOW:
+* fixed mana limit info in the hero window
+
+PREGAME:
+* clicking on "advanced options" a second time now closes the tab instead of refreshing it.
+* Fix position of maps names. 
+* Made the slider cursor much more responsive. Speedup the map select screen.
+* Try to behave when no maps/saves are present.
+
+OBJECTS:
+* Neutral creatures can join or escape depending on hero strength (escape formula needs to be improved)
+* leaving guardians in flagged mines.
+* support for Scholar object
+* support for School of Magic
+* support for School of War
+* support for Pillar of Fire
+* support for Corpse
+* support for Lean To
+* support for Wagon
+* support for Warrior's Tomb
+* support for Event
+* Corpse (Skeleton) will be accessible from all directions
+
+
 0.7 -> 0.71 (Apr 01 2009)
 GENERAL:
 * fixed scrolling behind window problem (now it's possible to scroll with CTRL + arrows) 
