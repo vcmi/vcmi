@@ -509,6 +509,8 @@ void CSDL_Ext::blitWithRotate1(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface 
 		for(int j=0; j<dstRect->w; j++, sp++)
 		{
 			const SDL_Color * const color = src->format->palette->colors+(*sp);
+			if (dst->format->BytesPerPixel == 4)
+				*(--dp) = 0;
 			*(--dp) = color->r;
 			*(--dp) = color->g;
 			*(--dp) = color->b;
@@ -535,6 +537,8 @@ void CSDL_Ext::blitWithRotate2(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface 
 			*(dp++) = color->b;
 			*(dp++) = color->g;
 			*(dp++) = color->r;
+			if (dst->format->BytesPerPixel == 4)
+				*(dp++) = 0;
 		}
 		sp += src->w - dstRect->w;
 	}
@@ -557,6 +561,8 @@ void CSDL_Ext::blitWithRotate3(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface 
 		for(int j=0; j<dstRect->w; j++, sp++)
 		{
 			const SDL_Color * const color = src->format->palette->colors+(*sp);
+			if (dst->format->BytesPerPixel == 4)
+				*(--dp) = 0;
 			*(--dp) = color->r;
 			*(--dp) = color->g;
 			*(--dp) = color->b;
