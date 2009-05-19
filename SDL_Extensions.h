@@ -2,6 +2,9 @@
 #define __SDL_EXTENSIONS_H__
 #include "SDL.h"
 #include "SDL_ttf.h"
+#include <string>
+#include "int3.h"
+#include <vector>
 
 /*
  * SDL_Extensions.h, part of VCMI engine

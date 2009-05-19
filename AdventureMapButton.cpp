@@ -1,3 +1,4 @@
+#include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
 #include "SDL_Extensions.h"
 #include "hch/CDefHandler.h"

@@ -985,12 +985,10 @@ void CBattleInterface::handleStartMoving(int number)
 void CBattleInterface::bOptionsf()
 {
 	CGI->curh->changeGraphic(0,0);
-	deactivate();
 
 	SDL_Rect temp_rect = genRect(431, 481, 160, 84);
 	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(temp_rect, this);
-	optionsWin->activate();
-	LOCPLINT->objsToBlit.push_back(optionsWin);
+	LOCPLINT->pushInt(optionsWin);
 }
 
 void CBattleInterface::bSurrenderf()

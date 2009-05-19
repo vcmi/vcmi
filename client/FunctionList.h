@@ -2,6 +2,7 @@
 #define FUNCTIONLIST_H
 
 #include <boost/function.hpp>
+#include <vector>
 
 /*
  * FunctionList.h, part of VCMI engine

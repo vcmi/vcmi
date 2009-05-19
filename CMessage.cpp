@@ -7,14 +7,14 @@
 #include "hch/CLodHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "CPlayerInterface.h"
 #include "hch/CDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include <sstream>
 #include "hch/CGeneralTextHandler.h"
 #include "client/Graphics.h"
-#include "CAdvmapInterface.h"
+#include "client/GUIClasses.h"
+#include "AdventureMapButton.h"
 
 /*
  * CMessage.cpp, part of VCMI engine

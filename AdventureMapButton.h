@@ -1,11 +1,9 @@
 #ifndef __ADVENTUREMAPBUTTON_H__
 #define __ADVENTUREMAPBUTTON_H__
 
-
-
-#include "CPlayerInterface.h"
 #include "client/FunctionList.h"
 #include <boost/bind.hpp>
+#include "client/GUIClasses.h"
 
 /*
  * AdventureMapButton.h, part of VCMI engine
@@ -30,8 +28,8 @@ public:
 		actOnDown; //runs when mouse is pressed down over it, not when up
 	ui8 blocked;
 
-	void clickRight (tribool down);
-	virtual void clickLeft (tribool down);
+	void clickRight (boost::logic::tribool down);
+	virtual void clickLeft (boost::logic::tribool down);
 	void hover (bool on);
 	void block(ui8 on); //if button is blocked then it'll change it's graphic to inactive (offset==2) and won't react on l-clicks
 	void activate(); // makes button active
@@ -55,7 +53,7 @@ public:
 	bool selected, onlyOn;
 	CFunctionList<void()> callback2; //when disselecting
 	void select(bool on);
-	void clickLeft (tribool down);
+	void clickLeft (boost::logic::tribool down);
 };
 
 class CHighlightableButtonsGroup
@@ -96,7 +94,7 @@ public:
 
 	void sliderClicked();
 	void moveLeft();
-	void clickLeft (tribool down);
+	void clickLeft (boost::logic::tribool down);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void moveRight();
 	void moveTo(int to);

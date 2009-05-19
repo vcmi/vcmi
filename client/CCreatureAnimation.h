@@ -3,8 +3,8 @@
 
 
 #include "../global.h"
-#include "../CPlayerInterface.h"
 #include "../hch/CDefHandler.h"
+#include "GUIClasses.h"
 
 /*
  * CCreatureAnimation.h, part of VCMI engine

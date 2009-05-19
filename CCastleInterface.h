@@ -5,7 +5,8 @@
 
 #include "global.h"
 #include <SDL.h>
-#include "CPlayerInterface.h"
+#include "client/GUIClasses.h"
+#include "hch/CMusicBase.h"
 //#include "boost/tuple/tuple.hpp"
 class CGTownInstance;
 class CTownHandler;
@@ -40,8 +41,8 @@ public:
 	void deactivate();
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on);
-	void clickLeft (tribool down);
-	void clickRight (tribool down);
+	void clickLeft (boost::logic::tribool down);
+	void clickRight (boost::logic::tribool down);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 };
 class CHeroGSlot : public ClickableL, public ClickableR, public Hoverable
@@ -119,8 +120,8 @@ public:
 		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 		//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
 		void hover(bool on);
-		void clickLeft (tribool down);
-		void clickRight (tribool down);
+		void clickLeft (boost::logic::tribool down);
+		void clickRight (boost::logic::tribool down);
 		void show(SDL_Surface * to);
 		void activate();
 		void deactivate();
@@ -140,7 +141,7 @@ public:
 		void activate();
 		void deactivate();
 		std::string getTextForState(int state);
-		void clickRight (tribool down);
+		void clickRight (boost::logic::tribool down);
 		void show(SDL_Surface * to);
 		void Buy();
 		void close();
@@ -170,8 +171,8 @@ class CFortScreen : public IShowActivable, public CIntObject
 	public:
 		int bid;
 		RecArea(int BID):bid(BID){}; //c-tor
-		void clickLeft (tribool down);
-		void clickRight (tribool down);
+		void clickLeft (boost::logic::tribool down);
+		void clickRight (boost::logic::tribool down);
 		void activate();
 		void deactivate();
 	};
@@ -202,8 +203,8 @@ public:
 		CSpell *spell;
 
 		Scroll(CSpell *Spell):spell(Spell){};
-		void clickLeft (tribool down);
-		void clickRight (tribool down);
+		void clickLeft (boost::logic::tribool down);
+		void clickRight (boost::logic::tribool down);
 		void hover(bool on);
 		void activate();
 		void deactivate();

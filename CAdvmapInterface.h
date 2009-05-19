@@ -3,7 +3,6 @@
 #include <typeinfo>
 #include "global.h"
 #include "SDL.h"
-#include "CPlayerInterface.h"
 #include <map>
 #include "AdventureMapButton.h"
 class CDefHandler;
@@ -42,8 +41,8 @@ public:
 	void redraw(int level=-1);// (level==-1) => redraw all levels
 	void updateRadar();
 
-	void clickRight (tribool down);
-	void clickLeft (tribool down);
+	void clickRight (boost::logic::tribool down);
+	void clickLeft (boost::logic::tribool down);
 	void hover (bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void activate(); // makes button active
@@ -65,8 +64,8 @@ public:
 	CPath * currentPath;
 	void activate();
 	void deactivate();
-	void clickLeft(tribool down);
-	void clickRight(tribool down);
+	void clickLeft(boost::logic::tribool down);
+	void clickRight(boost::logic::tribool down);
 	void hover(bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void show(SDL_Surface * to);
@@ -82,7 +81,7 @@ public:
 	std::vector<std::pair<int,int> > txtpos;
 	std::string datetext;
 
-	void clickRight (tribool down);
+	void clickRight (boost::logic::tribool down);
 	void activate();
 	void deactivate();
 	CResDataBar();
@@ -180,7 +179,7 @@ public:
 	void selectionChanged();
 	void centerOn(int3 on);
 	int3 verifyPos(int3 ver);
-	void handleRightClick(std::string text, tribool down, CIntObject * client);
+	void handleRightClick(std::string text, boost::logic::tribool down, CIntObject * client);
 	void keyPressed(const SDL_KeyboardEvent & key);
 
 

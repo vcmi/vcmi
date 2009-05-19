@@ -3,7 +3,7 @@
 
 
 #include "../global.h"
-#include "../CPlayerInterface.h"
+#include "GUIClasses.h"
 
 /*
  * CSpellWindow.h, part of VCMI engine

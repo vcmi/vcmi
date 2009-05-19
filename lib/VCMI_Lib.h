@@ -1,10 +1,9 @@
 #ifndef __VCMI_LIB_H__
 #define __VCMI_LIB_H__
 #include "../global.h"
-#ifndef _MSC_VER
+
 #include "../hch/CArtHandler.h"
 #include "../hch/CGeneralTextHandler.h"
-#endif
 
 /*
  * VCMI_Lib.h, part of VCMI engine

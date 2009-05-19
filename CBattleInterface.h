@@ -4,6 +4,7 @@
 #include "global.h"
 #include "CPlayerInterface.h"
 #include <list>
+#include "client/GUIClasses.h"
 
 /*
  * CBattleInterface.h, part of VCMI engine
