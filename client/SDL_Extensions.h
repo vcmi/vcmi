@@ -3,7 +3,7 @@
 #include "SDL.h"
 #include "SDL_ttf.h"
 #include <string>
-#include "int3.h"
+#include "../int3.h"
 #include <vector>
 
 /*

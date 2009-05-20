@@ -1,7 +1,7 @@
 #ifndef __CMESSAGE_H__
 #define __CMESSAGE_H__
 
-#include "global.h"
+#include "../global.h"
 #include <SDL_ttf.h>
 #include <SDL.h>
 

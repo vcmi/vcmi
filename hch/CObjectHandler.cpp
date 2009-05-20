@@ -16,10 +16,10 @@
 #include "CSoundBase.h"
 #include "../lib/VCMI_Lib.h"
 #include "../lib/IGameCallback.h"
-#include "../CGameState.h"
+#include "../lib/CGameState.h"
 #include "../lib/NetPacks.h"
 #include "../StartInfo.h"
-#include "../map.h"
+#include "../lib/map.h"
 
 /*
  * CObjectHandler.cpp, part of VCMI engine

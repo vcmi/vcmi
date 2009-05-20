@@ -1,11 +1,11 @@
 #ifndef __CADVMAPINTERFACE_H__
 #define __CADVMAPINTERFACE_H__
 #include <typeinfo>
-#include "global.h"
+#include "../global.h"
 #include "SDL.h"
 #include <map>
 #include "AdventureMapButton.h"
-#include "client/GUIClasses.h"
+#include "GUIClasses.h"
 class CDefHandler;
 class CCallback;
 struct CPath;

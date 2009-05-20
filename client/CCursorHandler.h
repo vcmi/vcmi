@@ -1,6 +1,6 @@
 #ifndef __CCURSORHANDLER_H__
 #define __CCURSORHANDLER_H__
-#include "global.h"
+#include "../global.h"
 #include <vector>
 struct SDL_Thread;
 class CDefHandler;

@@ -1,9 +1,9 @@
 #ifndef __ADVENTUREMAPBUTTON_H__
 #define __ADVENTUREMAPBUTTON_H__
 
-#include "client/FunctionList.h"
+#include "FunctionList.h"
 #include <boost/bind.hpp>
-#include "client/GUIBase.h"
+#include "GUIBase.h"
 
 /*
  * AdventureMapButton.h, part of VCMI engine

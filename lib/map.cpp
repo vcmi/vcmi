@@ -1,9 +1,9 @@
 #define VCMI_DLL
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "map.h"
-#include "hch/CObjectHandler.h"
-#include "hch/CDefObjInfoHandler.h"
-#include "lib/VCMI_Lib.h"
+#include "../hch/CObjectHandler.h"
+#include "../hch/CDefObjInfoHandler.h"
+#include "VCMI_Lib.h"
 #include <zlib.h>
 #include <boost/crc.hpp>
 

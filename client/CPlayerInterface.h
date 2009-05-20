@@ -1,7 +1,7 @@
 #ifndef __CPLAYERINTERFACE_H__
 #define __CPLAYERINTERFACE_H__
-#include "global.h"
-#include "CGameInterface.h"
+#include "../global.h"
+#include "../CGameInterface.h"
 #include "SDL_framerate.h"
 #include <map>
 #include <list>

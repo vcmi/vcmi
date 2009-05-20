@@ -1,28 +1,28 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CPreGame.h"
-#include "hch/CDefHandler.h"
+#include "../hch/CDefHandler.h"
 #include <ctime>
 #include <SDL.h>
 #include <boost/filesystem.hpp>   // includes all needed Boost.Filesystem declarations
 #include <boost/algorithm/string.hpp>
 //#include "boost/foreach.hpp"
 #include <zlib.h>
-#include "timeHandler.h"
+#include "../timeHandler.h"
 #include <sstream>
 #include "SDL_Extensions.h"
 #include "CGameInfo.h"
-#include "hch/CGeneralTextHandler.h"
+#include "../hch/CGeneralTextHandler.h"
 #include "CCursorHandler.h"
-#include "hch/CLodHandler.h"
-#include "hch/CTownHandler.h"
-#include "hch/CHeroHandler.h"
+#include "../hch/CLodHandler.h"
+#include "../hch/CTownHandler.h"
+#include "../hch/CHeroHandler.h"
 #include <cmath>
-#include "client/Graphics.h"
+#include "Graphics.h"
 #include <boost/thread.hpp>
 #include <boost/bind.hpp>
 #include <cstdlib>
-#include "lib/Connection.h"
-#include "hch/CMusicHandler.h"
+#include "../lib/Connection.h"
+#include "../hch/CMusicHandler.h"
 /*
  * CPreGame.cpp, part of VCMI engine
  *

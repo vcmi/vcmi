@@ -4,7 +4,7 @@
 #include "../global.h"
 #include <set>
 #include "../client/FunctionList.h"
-#include "../CGameState.h"
+#include "../lib/CGameState.h"
 #include "../lib/Connection.h"
 #include "../lib/IGameCallback.h"
 #include "../lib/BattleAction.h"

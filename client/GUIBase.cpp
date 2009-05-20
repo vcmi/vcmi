@@ -1,6 +1,6 @@
 #include "GUIBase.h"
-#include "../SDL_extensions.h"
-#include "../CPlayerInterface.h"
+#include "SDL_extensions.h"
+#include "CPlayerInterface.h"
 
 /*
  * GUIBase.cpp, part of VCMI engine

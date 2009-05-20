@@ -1,19 +1,19 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CMessage.h"
 #include "SDL_ttf.h"
-#include "hch/CDefHandler.h"
+#include "../hch/CDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
-#include "hch/CLodHandler.h"
+#include "../hch/CLodHandler.h"
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/replace.hpp>
-#include "hch/CDefHandler.h"
+#include "../hch/CDefHandler.h"
 #include "CGameInfo.h"
 #include "SDL_Extensions.h"
 #include <sstream>
-#include "hch/CGeneralTextHandler.h"
-#include "client/Graphics.h"
-#include "client/GUIClasses.h"
+#include "../hch/CGeneralTextHandler.h"
+#include "Graphics.h"
+#include "GUIClasses.h"
 #include "AdventureMapButton.h"
 
 /*

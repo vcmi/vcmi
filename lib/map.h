@@ -8,10 +8,10 @@
 #include <map>
 #include <set>
 #include <list>
-#include "global.h"
+#include "../global.h"
 #ifndef _MSC_VER
-#include "hch/CObjectHandler.h"
-#include "hch/CDefObjInfoHandler.h"
+#include "../hch/CObjectHandler.h"
+#include "../hch/CDefObjInfoHandler.h"
 #endif
 
 /*

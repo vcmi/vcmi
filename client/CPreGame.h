@@ -1,11 +1,11 @@
 #ifndef __CPREGAME_H__
 #define __CPREGAME_H__
-#include "global.h"
+#include "../global.h"
 #include <set>
 #include <SDL.h>
-#include "StartInfo.h"
+#include "../StartInfo.h"
 #include "CMessage.h"
-#include "map.h"
+#include "../lib/map.h"
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 #include <cstdlib>

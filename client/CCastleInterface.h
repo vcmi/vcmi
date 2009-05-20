@@ -3,10 +3,10 @@
 
 
 
-#include "global.h"
+#include "../global.h"
 #include <SDL.h>
-#include "client/GUIBase.h"
-#include "hch/CMusicBase.h"
+#include "GUIBase.h"
+#include "../hch/CMusicBase.h"
 //#include "boost/tuple/tuple.hpp"
 class CGTownInstance;
 class CTownHandler;

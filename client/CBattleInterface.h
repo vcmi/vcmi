@@ -1,9 +1,9 @@
 #ifndef __CBATTLEINTERFACE_H__
 #define __CBATTLEINTERFACE_H__
 
-#include "global.h"
+#include "../global.h"
 #include <list>
-#include "client/GUIBase.h"
+#include "GUIBase.h"
 
 /*
  * CBattleInterface.h, part of VCMI engine

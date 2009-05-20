@@ -1,12 +1,12 @@
 #define VCMI_DLL
-#include "../lib/NetPacks.h"
+#include "NetPacks.h"
 #include "../hch/CGeneralTextHandler.h"
 #include "../hch/CDefObjInfoHandler.h"
 #include "../hch/CArtHandler.h"
 #include "../hch/CHeroHandler.h"
 #include "../hch/CObjectHandler.h"
-#include "../lib/VCMI_Lib.h"
-#include "../map.h"
+#include "VCMI_Lib.h"
+#include "map.h"
 #include "../hch/CSpellHandler.h"
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>

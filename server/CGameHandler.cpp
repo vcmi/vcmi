@@ -6,11 +6,11 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CTownHandler.h"
-#include "../CGameState.h"
+#include "../lib/CGameState.h"
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "../lib/VCMI_Lib.h"
-#include "../map.h"
+#include "../lib/map.h"
 #include "CGameHandler.h"
 #include <boost/bind.hpp>
 #include <boost/date_time/posix_time/posix_time_types.hpp> //no i/o just types

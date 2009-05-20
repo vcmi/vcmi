@@ -1,7 +1,7 @@
 #ifndef __NETPACKS_H__
 #define __NETPACKS_H__
 #include "../global.h"
-#include "../CGameState.h"
+#include "CGameState.h"
 #include "BattleAction.h"
 #include "HeroBonus.h"
 #include <set>

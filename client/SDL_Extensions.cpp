@@ -1,4 +1,4 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "SDL_Extensions.h"
 #include "SDL_ttf.h"
 #include "CGameInfo.h"
@@ -7,9 +7,9 @@
 #include <algorithm>
 #include "CMessage.h"
 #include <boost/algorithm/string.hpp>
-#include "hch/CDefHandler.h"
+#include "../hch/CDefHandler.h"
 #include <map>
-#include "client/Graphics.h"
+#include "Graphics.h"
 
 /*
  * SDL_Extensions.cpp, part of VCMI engine

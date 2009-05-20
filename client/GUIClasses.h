@@ -2,7 +2,7 @@
 #define __GUICLASSES_H__
 
 #include "../global.h"
-#include "../SDL_framerate.h"
+#include "SDL_framerate.h"
 #include "GUIBase.h"
 #include "FunctionList.h"
 #include <set>

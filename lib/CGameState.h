@@ -1,14 +1,14 @@
 #ifndef __CGAMESTATE_H__
 #define __CGAMESTATE_H__
-#include "global.h"
+#include "../global.h"
 #ifndef _MSC_VER
-#include "hch/CCreatureHandler.h"
-#include "lib/VCMI_Lib.h"
+#include "../hch/CCreatureHandler.h"
+#include "VCMI_Lib.h"
 #include "map.h"
 #endif
 #include <set>
 #include <vector>
-#include "lib/StackFeature.h"
+#include "StackFeature.h"
 #ifdef _WIN32
 #include <tchar.h>
 #else

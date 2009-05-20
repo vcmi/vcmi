@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include "../global.h"
-#include "../map.h"
+#include "../lib/map.h"
 #include "CCreatureHandler.h"
 
 class DLL_EXPORT CAmbarCendamo 

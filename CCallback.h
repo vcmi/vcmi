@@ -9,7 +9,7 @@
 //support of unicode we should use ICU or some boost wraper areound it
 //(boost using this lib during compilation i dont know what for exactly)
 #endif
-#include "CGameState.h"
+#include "lib/CGameState.h"
 
 /*
  * CCallback.h, part of VCMI engine

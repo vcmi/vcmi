@@ -20,7 +20,7 @@
 #include <boost/interprocess/mapped_region.hpp>
 #include <boost/interprocess/shared_memory_object.hpp>
 #include "../StartInfo.h"
-#include "../map.h"
+#include "../lib/map.h"
 #include "../hch/CLodHandler.h" 
 #include "../lib/Interprocess.h"
 #include "../lib/VCMI_Lib.h"

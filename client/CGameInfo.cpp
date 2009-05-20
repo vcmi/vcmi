@@ -1,6 +1,6 @@
-#include "stdafx.h"
+#include "../stdafx.h"
 #include "CGameInfo.h"
-#include "lib/VCMI_Lib.h"
+#include "../lib/VCMI_Lib.h"
 
 /*
  * CGameInfo.cpp, part of VCMI engine

@@ -4,12 +4,12 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CGeneralTextHandler.h"
-#include "../CAdvmapInterface.h"
-#include "../CBattleInterface.h"
-#include "../CGameInfo.h"
-#include "../SDL_Extensions.h"
-#include "../CMessage.h"
-#include "../CPlayerInterface.h"
+#include "CAdvmapInterface.h"
+#include "CBattleInterface.h"
+#include "CGameInfo.h"
+#include "SDL_Extensions.h"
+#include "CMessage.h"
+#include "CPlayerInterface.h"
 #include <boost/bind.hpp>
 #include <sstream>
 

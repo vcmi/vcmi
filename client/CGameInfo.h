@@ -1,6 +1,6 @@
 #ifndef __CGAMEINFO_H__
 #define __CGAMEINFO_H__
-#include "global.h"
+#include "../global.h"
 
 #include <vector>
 
