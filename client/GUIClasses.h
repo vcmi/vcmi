@@ -1,7 +1,7 @@
 #ifndef __GUICLASSES_H__
 #define __GUICLASSES_H__
 
-#include "global.h"
+#include "../global.h"
 #include "SDL_framerate.h"
 #include "FunctionList.h"
 #include <set>

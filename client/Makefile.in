@@ -77,7 +77,7 @@ am_vcmiclient_OBJECTS = vcmiclient-AdventureMapButton.$(OBJEXT) \
 	vcmiclient-CConfigHandler.$(OBJEXT) \
 	vcmiclient-CCreatureAnimation.$(OBJEXT) \
 	vcmiclient-CSpellWindow.$(OBJEXT) vcmiclient-Client.$(OBJEXT) \
-	vcmiclient-Graphics.$(OBJEXT) \
+	vcmiclient-Graphics.$(OBJEXT) vcmiclient-GUIClasses.$(OBJEXT) \
 	vcmiclient-NetPacksClient.$(OBJEXT)
 vcmiclient_OBJECTS = $(am_vcmiclient_OBJECTS)
 vcmiclient_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
@@ -304,6 +304,8 @@ vcmiclient_SOURCES = \
 	./FunctionList.h \
 	./Graphics.cpp \
 	./Graphics.h \
+	./GUIClasses.cpp \
+	./GUIClasses.h \
 	./NetPacksClient.cpp
 
 all: all-am
@@ -399,6 +401,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSpellWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CThreadHelper.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-Client.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-GUIClasses.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-Graphics.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-NetPacksClient.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-SDL_Extensions.Po@am__quote@
@@ -789,6 +792,20 @@ vcmiclient-Graphics.obj: ./Graphics.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./Graphics.cpp' object='vcmiclient-Graphics.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-Graphics.obj `if test -f './Graphics.cpp'; then $(CYGPATH_W) './Graphics.cpp'; else $(CYGPATH_W) '$(srcdir)/./Graphics.cpp'; fi`
+
+vcmiclient-GUIClasses.o: ./GUIClasses.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-GUIClasses.o -MD -MP -MF $(DEPDIR)/vcmiclient-GUIClasses.Tpo -c -o vcmiclient-GUIClasses.o `test -f './GUIClasses.cpp' || echo '$(srcdir)/'`./GUIClasses.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiclient-GUIClasses.Tpo $(DEPDIR)/vcmiclient-GUIClasses.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./GUIClasses.cpp' object='vcmiclient-GUIClasses.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-GUIClasses.o `test -f './GUIClasses.cpp' || echo '$(srcdir)/'`./GUIClasses.cpp
+
+vcmiclient-GUIClasses.obj: ./GUIClasses.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-GUIClasses.obj -MD -MP -MF $(DEPDIR)/vcmiclient-GUIClasses.Tpo -c -o vcmiclient-GUIClasses.obj `if test -f './GUIClasses.cpp'; then $(CYGPATH_W) './GUIClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/./GUIClasses.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiclient-GUIClasses.Tpo $(DEPDIR)/vcmiclient-GUIClasses.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./GUIClasses.cpp' object='vcmiclient-GUIClasses.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-GUIClasses.obj `if test -f './GUIClasses.cpp'; then $(CYGPATH_W) './GUIClasses.cpp'; else $(CYGPATH_W) '$(srcdir)/./GUIClasses.cpp'; fi`
 
 vcmiclient-NetPacksClient.o: ./NetPacksClient.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-NetPacksClient.o -MD -MP -MF $(DEPDIR)/vcmiclient-NetPacksClient.Tpo -c -o vcmiclient-NetPacksClient.o `test -f './NetPacksClient.cpp' || echo '$(srcdir)/'`./NetPacksClient.cpp

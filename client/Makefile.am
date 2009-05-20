@@ -70,4 +70,6 @@ vcmiclient_SOURCES =  \
 	./FunctionList.h \
 	./Graphics.cpp \
 	./Graphics.h \
+	./GUIClasses.cpp \
+	./GUIClasses.h \
 	./NetPacksClient.cpp
