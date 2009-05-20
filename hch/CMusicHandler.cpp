@@ -273,7 +273,8 @@ void CMusicHandler::freeMusics()
 
 	musicMutex.lock();
 
-	if (currentMusic) {
+	if (currentMusic)
+	{
 		Mix_HaltMusic();
 		Mix_FreeMusic(currentMusic);
 	}
@@ -293,19 +294,23 @@ void CMusicHandler::playMusic(musicBase::musicID musicID, int loop)
 
 	musicMutex.lock();
 
-	if (nextMusic) {
+	if (nextMusic)
+	{
 		// There's already a music queued, so remove it
 		Mix_FreeMusic(nextMusic);
 		nextMusic = NULL;
 	}
 
-	if (currentMusic) {
+	if (currentMusic)
+	{
 		// A music is already playing. Stop it and the callback will
 		// start the new one
 		nextMusic = Mix_LoadMUS(filename.c_str());
 		nextMusicLoop = loop;
 		Mix_FadeOutMusic(1000);
-	} else {
+	}
+	else
+	{
 		currentMusic = Mix_LoadMUS(filename.c_str());
 		if (Mix_PlayMusic(currentMusic, loop) == -1)
 			tlog1 << "Unable to play sound file " << musicID << "(" << Mix_GetError() << ")" << std::endl;
@@ -325,7 +330,8 @@ void CMusicHandler::stopMusic(int fade_ms)
 {
 	musicMutex.lock();
 
-	if (currentMusic) {
+	if (currentMusic)
+	{
 		Mix_FadeOutMusic(fade_ms);
 	}
 
@@ -353,12 +359,14 @@ void CMusicHandler::musicFinishedCallback(void)
 {
 	musicMutex.lock();
 
-	if (currentMusic) {
+	if (currentMusic)
+	{
 		Mix_FreeMusic(currentMusic);
 		currentMusic = NULL;
 	}
 
-	if (nextMusic) {
+	if (nextMusic)
+	{
 		currentMusic = nextMusic;
 		nextMusic = NULL;
 		if (Mix_PlayMusic(currentMusic, nextMusicLoop) == -1)

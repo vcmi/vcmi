@@ -3,7 +3,7 @@
 
 #include "client/FunctionList.h"
 #include <boost/bind.hpp>
-#include "client/GUIClasses.h"
+#include "client/GUIBase.h"
 
 /*
  * AdventureMapButton.h, part of VCMI engine

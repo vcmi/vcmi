@@ -2,9 +2,8 @@
 #define __CBATTLEINTERFACE_H__
 
 #include "global.h"
-#include "CPlayerInterface.h"
 #include <list>
-#include "client/GUIClasses.h"
+#include "client/GUIBase.h"
 
 /*
  * CBattleInterface.h, part of VCMI engine
@@ -27,6 +26,8 @@ class CHighlightableButtonsGroup;
 struct BattleResult;
 struct SpellCast;
 template <typename T> struct CondSh;
+struct SetStackEffect;;
+struct BattleAction;
 
 class CBattleInterface;
 

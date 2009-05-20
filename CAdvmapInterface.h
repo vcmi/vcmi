@@ -5,6 +5,7 @@
 #include "SDL.h"
 #include <map>
 #include "AdventureMapButton.h"
+#include "client/GUIClasses.h"
 class CDefHandler;
 class CCallback;
 struct CPath;

@@ -10,6 +10,7 @@
 #include "client/CConfigHandler.h"
 #include "client/Graphics.h"
 #include "CBattleInterface.h"
+#include "CPlayerInterface.h"
 
 /*
  * AdevntureMapButton.cpp, part of VCMI engine
@@ -59,7 +60,7 @@ AdventureMapButton::AdventureMapButton( const std::pair<std::string, std::string
 	pom[0] = help.first;
 	init(Callback, pom, help.second, playerColoredButton, defName, add, x, y, key);
 }
-void AdventureMapButton::clickLeft (tribool down)
+void AdventureMapButton::clickLeft (boost::logic::tribool down)
 {
 	if(blocked)
 		return;
@@ -86,7 +87,7 @@ void AdventureMapButton::clickLeft (tribool down)
 	}
 }
 
-void AdventureMapButton::clickRight (tribool down)
+void AdventureMapButton::clickRight (boost::logic::tribool down)
 {
 	if(helpBox.size()) //there is no point to show window with nothing inside...
 		LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);

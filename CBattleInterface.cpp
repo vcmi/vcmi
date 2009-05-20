@@ -21,6 +21,7 @@
 #include <sstream>
 #include "lib/CondSh.h"
 #include "lib/NetPacks.h"
+#include "CPlayerInterface.h"
 #include <boost/assign/list_of.hpp>
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;

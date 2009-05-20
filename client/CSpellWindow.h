@@ -3,7 +3,8 @@
 
 
 #include "../global.h"
-#include "GUIClasses.h"
+#include "GUIBase.h"
+#include "boost/function.hpp"
 
 /*
  * CSpellWindow.h, part of VCMI engine
@@ -19,6 +20,7 @@ struct SDL_Surface;
 class CDefHandler;
 struct SDL_Rect;
 class CGHeroInstance;
+class CStatusBar;
 
 class SpellbookInteractiveArea : public ClickableL, public ClickableR, public Hoverable
 {

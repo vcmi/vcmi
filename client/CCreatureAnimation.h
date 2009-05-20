@@ -4,7 +4,7 @@
 
 #include "../global.h"
 #include "../hch/CDefHandler.h"
-#include "GUIClasses.h"
+#include "GUIBase.h"
 
 /*
  * CCreatureAnimation.h, part of VCMI engine

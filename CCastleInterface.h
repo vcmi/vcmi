@@ -5,7 +5,7 @@
 
 #include "global.h"
 #include <SDL.h>
-#include "client/GUIClasses.h"
+#include "client/GUIBase.h"
 #include "hch/CMusicBase.h"
 //#include "boost/tuple/tuple.hpp"
 class CGTownInstance;
@@ -15,6 +15,11 @@ struct Structure;
 class CSpell;
 class AdventureMapButton;
 class CResDataBar;
+class CStatusBar;
+class CTownList;
+class CRecruitmentWindow;
+class CCreaturePic;
+class CMinorResDataBar;
 
 /*
  * CCastleInterface.h, part of VCMI engine
@@ -110,7 +115,7 @@ public:
 class CHallInterface : public IShowActivable
 {
 public:
-	CMinorResDataBar resdatabar;
+	CMinorResDataBar * resdatabar;
 	SDL_Rect pos;
 
 	class CBuildingBox : public Hoverable, public ClickableL, public ClickableR
@@ -177,7 +182,7 @@ class CFortScreen : public IShowActivable, public CIntObject
 		void deactivate();
 	};
 public:
-	CMinorResDataBar resdatabar;
+	CMinorResDataBar * resdatabar;
 	AdventureMapButton *exit;
 	SDL_Surface * bg;
 	std::vector<Rect> positions;
@@ -215,7 +220,7 @@ public:
 	CDefEssential *scrolls, *scrolls2;
 	AdventureMapButton *exit;
 	std::vector<Scroll> spells;
-	CMinorResDataBar resdatabar;
+	CMinorResDataBar * resdatabar;
 
 
 	CMageGuildScreen(CCastleInterface * owner); //c-tor

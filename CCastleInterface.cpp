@@ -1,8 +1,8 @@
 #include "stdafx.h"
+#include "CCastleInterface.h"
 #include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
 #include "CCallback.h"
-#include "CCastleInterface.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
@@ -1004,9 +1004,10 @@ CHallInterface::CBuildingBox::CBuildingBox(int id, int x, int y)
 
 CHallInterface::CHallInterface(CCastleInterface * owner)
 {
+	resdatabar = new CMinorResDataBar;
 	pos = owner->pos;
-	resdatabar.pos.x += pos.x;
-	resdatabar.pos.y += pos.y;
+	resdatabar->pos.x += pos.x;
+	resdatabar->pos.y += pos.y;
 	bg = BitmapHandler::loadBitmap(CGI->buildh->hall[owner->town->subID].first);
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
 	exit = new AdventureMapButton
@@ -1073,6 +1074,7 @@ CHallInterface::~CHallInterface()
 		for(size_t j=0;j<boxes[i].size();j++)
 			delete boxes[i][j]; //TODO whats wrong with smartpointers?
 	delete exit;
+	delete resdatabar;
 }
 void CHallInterface::close()
 {
@@ -1081,7 +1083,7 @@ void CHallInterface::close()
 void CHallInterface::show(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
-	resdatabar.show(to);
+	resdatabar->show(to);
 	exit->show(to);
 	for(int i=0; i<5; i++)
 	{
@@ -1303,6 +1305,7 @@ CFortScreen::~CFortScreen()
 		delete recAreas[i];
 	SDL_FreeSurface(bg);
 	delete exit;
+	delete resdatabar;
 }
 
 void CFortScreen::show( SDL_Surface * to)
@@ -1315,7 +1318,7 @@ void CFortScreen::show( SDL_Surface * to)
 	}
 	anim++;
 	exit->show(to);
-	resdatabar.show(to);
+	resdatabar->show(to);
 	LOCPLINT->statusbar->show(to);
 }
 
@@ -1345,6 +1348,7 @@ void CFortScreen::close()
 
 CFortScreen::CFortScreen( CCastleInterface * owner )
 {
+	resdatabar = new CMinorResDataBar;
 	pos = owner->pos;
 	bg = NULL;
 	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CFortScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
@@ -1353,7 +1357,7 @@ CFortScreen::CFortScreen( CCastleInterface * owner )
 		genRect(126,386,10,288),genRect(126,386,404,288),
 		genRect(126,386,206,421);
 	draw(owner,true);
-	resdatabar.pos += pos;
+	resdatabar->pos += pos;
 }
 
 void CFortScreen::draw( CCastleInterface * owner, bool first)
@@ -1459,9 +1463,10 @@ void CFortScreen::RecArea::clickRight( tribool down )
 }
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 {
+	resdatabar = new CMinorResDataBar;
 	pos = owner->pos;
-	resdatabar.pos.x += pos.x;
-	resdatabar.pos.y += pos.y;
+	resdatabar->pos.x += pos.x;
+	resdatabar->pos.y += pos.y;
 	bg = BitmapHandler::loadBitmap("TPMAGE.bmp");
 	exit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CMageGuildScreen::close,this),pos.x+748,pos.y+556,"TPMAGE1.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
@@ -1505,6 +1510,7 @@ CMageGuildScreen::~CMageGuildScreen()
 {
 	delete exit;
 	SDL_FreeSurface(bg);
+	delete resdatabar;
 }
 
 void CMageGuildScreen::close()
@@ -1515,7 +1521,7 @@ void CMageGuildScreen::close()
 void CMageGuildScreen::show(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
-	resdatabar.show(to);
+	resdatabar->show(to);
 	LOCPLINT->statusbar->show(to);
 	exit->show(to);
 }
