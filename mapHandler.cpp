@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "mapHandler.h"
-#include "SDL_Extensions.h"
-#include "CGameInfo.h"
+#include "client/SDL_Extensions.h"
+#include "client/CGameInfo.h"
 #include <cstdlib>
 #include "hch/CLodHandler.h"
 #include "hch/CDefObjInfoHandler.h"

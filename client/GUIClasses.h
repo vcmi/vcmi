@@ -107,10 +107,10 @@ class CInfoPopup : public CRClickPopup
 public:
 	bool free; //TODO: comment me
 	SDL_Surface * bitmap; //popup background
-	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
 	void close();
 	void show(SDL_Surface * to);
-	CInfoPopup(){free=false;bitmap=NULL;} //default c-tor
+	CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free=false); //c-tor
+	CInfoPopup(SDL_Surface *Bitmap = NULL, bool Free = false); //default c-tor
 	~CInfoPopup(){}; //d-tor
 };
 

@@ -316,11 +316,31 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 		if(!vstd::contains(h->artifWorn,i->first)  ||  h->artifWorn[i->first] != i->second)
 			equiped.push_back(i->second);
 
+	BOOST_FOREACH(ui32 id, equiped)
+	{
+		//if hero already had equipped at least one artifact of that type, don't give any new bonuses
+		if(h->getArtPos(id) >= 0)
+			continue;
+
+		CArtifact &art = VLC->arth->artifacts[id];
+		for(std::list<HeroBonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
+		{
+			gained.push_back(&*i);
+			h->bonuses.push_back(*i);
+		}
+	}
+
+	//update hero data
 	h->artifacts = artifacts;
 	h->artifWorn = artifWorn;
 
+	//remove bonus from unequipped artifact
 	BOOST_FOREACH(ui32 id, unequiped)
 	{
+		//if hero still has equipped at least one artifact of that type, don't remove bonuses
+		if(h->getArtPos(id) >= 0)
+			continue;
+
 		while(1)
 		{
 			std::list<HeroBonus>::iterator hlp = std::find_if(h->bonuses.begin(),h->bonuses.end(),boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,id));
@@ -333,16 +353,6 @@ DLL_EXPORT void SetHeroArtifacts::applyGs( CGameState *gs )
 			{
 				break;
 			}
-		}
-	}
-
-	BOOST_FOREACH(ui32 id, equiped)
-	{
-		CArtifact &art = VLC->arth->artifacts[id];
-		for(std::list<HeroBonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
-		{
-			gained.push_back(&*i);
-			h->bonuses.push_back(*i);
 		}
 	}
 }

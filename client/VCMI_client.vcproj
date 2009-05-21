@@ -271,15 +271,15 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
-				RelativePath="..\AdventureMapButton.cpp"
+				RelativePath=".\AdventureMapButton.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\CAdvmapInterface.cpp"
+				RelativePath=".\CAdvmapInterface.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\CBattleInterface.cpp"
+				RelativePath=".\CBattleInterface.cpp"
 				>
 			</File>
 			<File
@@ -291,7 +291,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CCastleInterface.cpp"
+				RelativePath=".\CCastleInterface.cpp"
 				>
 			</File>
 			<File
@@ -303,7 +303,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CCursorHandler.cpp"
+				RelativePath=".\CCursorHandler.cpp"
 				>
 			</File>
 			<File
@@ -311,7 +311,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CGameInfo.cpp"
+				RelativePath=".\CGameInfo.cpp"
 				>
 			</File>
 			<File
@@ -319,7 +319,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CHeroWindow.cpp"
+				RelativePath=".\CHeroWindow.cpp"
 				>
 			</File>
 			<File
@@ -327,11 +327,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CMessage.cpp"
+				RelativePath=".\CMessage.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\CMT.cpp"
+				RelativePath=".\CMT.cpp"
 				>
 			</File>
 			<File
@@ -339,11 +339,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CPlayerInterface.cpp"
+				RelativePath=".\CPlayerInterface.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\CPreGame.cpp"
+				RelativePath=".\CPreGame.cpp"
 				>
 			</File>
 			<File
@@ -363,6 +363,14 @@
 				>
 			</File>
 			<File
+				RelativePath=".\GUIBase.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\GUIClasses.cpp"
+				>
+			</File>
+			<File
 				RelativePath="..\mapHandler.cpp"
 				>
 			</File>
@@ -371,11 +379,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\SDL_Extensions.cpp"
+				RelativePath=".\SDL_Extensions.cpp"
 				>
 			</File>
 			<File
-				RelativePath="..\SDL_framerate.cpp"
+				RelativePath=".\SDL_framerate.cpp"
 				>
 			</File>
 		</Filter>
@@ -385,7 +393,7 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}"
 			>
 			<File
-				RelativePath="..\AdventureMapButton.h"
+				RelativePath=".\AdventureMapButton.h"
 				>
 			</File>
 			<File
@@ -393,7 +401,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CAdvmapInterface.h"
+				RelativePath=".\CAdvmapInterface.h"
 				>
 			</File>
 			<File
@@ -405,7 +413,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CBattleInterface.h"
+				RelativePath=".\CBattleInterface.h"
 				>
 			</File>
 			<File
@@ -421,7 +429,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CCastleInterface.h"
+				RelativePath=".\CCastleInterface.h"
 				>
 			</File>
 			<File
@@ -433,7 +441,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CCursorHandler.h"
+				RelativePath=".\CCursorHandler.h"
 				>
 			</File>
 			<File
@@ -441,7 +449,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CGameInfo.h"
+				RelativePath=".\CGameInfo.h"
 				>
 			</File>
 			<File
@@ -453,7 +461,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CHeroWindow.h"
+				RelativePath=".\CHeroWindow.h"
 				>
 			</File>
 			<File
@@ -461,7 +469,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CMessage.h"
+				RelativePath=".\CMessage.h"
 				>
 			</File>
 			<File
@@ -477,11 +485,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CPlayerInterface.h"
+				RelativePath=".\CPlayerInterface.h"
 				>
 			</File>
 			<File
-				RelativePath="..\CPreGame.h"
+				RelativePath=".\CPreGame.h"
 				>
 			</File>
 			<File
@@ -509,11 +517,15 @@
 				>
 			</File>
 			<File
-				RelativePath="..\int3.h"
+				RelativePath=".\GUIBase.h"
 				>
 			</File>
 			<File
-				RelativePath="..\map.h"
+				RelativePath=".\GUIClasses.h"
+				>
+			</File>
+			<File
+				RelativePath="..\int3.h"
 				>
 			</File>
 			<File
@@ -525,7 +537,11 @@
 				>
 			</File>
 			<File
-				RelativePath="..\SDL_framerate.h"
+				RelativePath=".\SDL_Extensions.h"
+				>
+			</File>
+			<File
+				RelativePath=".\SDL_framerate.h"
 				>
 			</File>
 			<File

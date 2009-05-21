@@ -160,6 +160,18 @@ void CGeneralTextHandler::load()
 		}
 	}
 
+	//remove prceeding / trailing whitespaces nad quoation marks from buildings descriptions
+	for(std::map<int, std::map<int, std::pair<std::string, std::string> > >::iterator i = buildings.begin(); i != buildings.end(); i++)
+	{
+		for(std::map<int, std::pair<std::string, std::string> >::iterator j = i->second.begin(); j != i->second.end(); j++)
+		{
+			std::string &str = j->second.second;
+			boost::algorithm::trim(str);
+			if(str[0] == '"' && str[str.size()-1] == '"')
+				str = str.substr(1,str.size()-2);
+		}
+	}
+
 	buf = bitmaph->getTextFile("TCOMMAND.TXT");
 	itr=0;
 	while(itr<buf.length()-1)

@@ -18,8 +18,8 @@
 class DLL_EXPORT CBuilding //a typical building encountered in every castle ;]
 {
 public:
-	int tid, bid; //town ID and structure ID
-	std::vector<int> resources;
+	si32 tid, bid; //town ID and structure ID
+	std::vector<si32> resources;
 	std::string name;
 	std::string description;
 
@@ -30,6 +30,7 @@ public:
 	{
 		h & tid & bid & resources & name & description;
 	}
+	CBuilding(int TID = -1, int BID = -1);
 };
 
 class DLL_EXPORT CBuildingHandler

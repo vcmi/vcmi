@@ -42,7 +42,10 @@ DLL_EXPORT void initDLL(CConsoleHandler *Console, std::ostream *Logfile)
 	console = Console;
 	logfile = Logfile;
 	VLC = new LibClasses;
-	VLC->init();
+	try
+	{
+		VLC->init();
+	} HANDLE_EXCEPTION
 }
 
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode)

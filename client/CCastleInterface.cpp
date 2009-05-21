@@ -149,13 +149,16 @@ void CBuildingRect::clickRight (tribool down)
 		return;
 	if((CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
 	{
+		CBuilding *bld = CGI->buildh->buildings[str->townID][str->ID];
+		assert(bld);
+
 		CInfoPopup *vinya = new CInfoPopup();
 		vinya->free = true;
 		vinya->bitmap = CMessage::drawBoxTextBitmapSub
 			(LOCPLINT->playerID,
-			CGI->buildh->buildings[str->townID][str->ID]->Description(),
+			bld->Description(),
 			LOCPLINT->castleInt->bicons->ourImages[str->ID].bitmap,
-			CGI->buildh->buildings[str->townID][str->ID]->Name());
+			bld->Name());
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
 		LOCPLINT->pushInt(vinya);
@@ -551,11 +554,11 @@ void CCastleInterface::buildingClicked(int building)
 			}
 		case 5: //tavern
 			{
-				std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(town);
-				CTavernWindow *tv = new CTavernWindow(h[0],h[1],"GOSSIP TEST");
-				LOCPLINT->pushInt(tv);
+				enterTavern();
+
 				break;
 			}
+		//TODO: case 6: //shipyard
 		case 7: case 8: case 9: //fort/citadel/castle
 			{
 				CFortScreen *fs = new CFortScreen(this);
@@ -573,7 +576,7 @@ void CCastleInterface::buildingClicked(int building)
 			}
 		case 15: //resource silo
 			{
-				LOCPLINT->showInfoDialog(CGI->buildh->buildings[town->subID][15]->description,std::vector<SComponent*>(), soundBase::sound_todo);
+				LOCPLINT->showInfoDialog(CGI->buildh->buildings[town->subID][15]->Description(),std::vector<SComponent*>(), soundBase::sound_todo);
 				break;
 			}
 		case 16: //blacksmith
@@ -595,6 +598,29 @@ void CCastleInterface::buildingClicked(int building)
 				LOCPLINT->pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(aid,false),aid,hero->id));
 				break;
 			}
+		//TODO: case 17: //special 1
+		//TODO: case 18: //basic horde 1
+		//TODO: case 19: //upg horde 1
+		//TODO: case 20: //ship at shipyard
+		//TODO: case 21: //special 2
+		case 22: //special 3
+			{
+				switch(town->subID)
+				{
+				case 0: //brotherhood of sword
+					enterTavern();
+					break;
+
+				default:
+					tlog4<<"This building isn't handled...\n";
+					break;
+				}
+				break;
+			}
+		//TODO: case 23: //special 4
+		//TODO: case 24: //basic horde 2
+		//TODO: case 25: //upg horde 2
+		//TODO: case 26: //grail
 		default:
 			tlog4<<"This building isn't handled...\n";
 		}
@@ -907,6 +933,14 @@ void CCastleInterface::enterMageGuild()
 {
 	LOCPLINT->pushInt(new CMageGuildScreen(this));
 }
+
+void CCastleInterface::enterTavern()
+{
+	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(town);
+	CTavernWindow *tv = new CTavernWindow(h[0],h[1],"GOSSIP TEST");
+	LOCPLINT->pushInt(tv);
+}
+
 void CHallInterface::CBuildingBox::hover(bool on)
 {
 	Hoverable::hover(on);
@@ -1083,6 +1117,7 @@ void CHallInterface::close()
 void CHallInterface::show(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
+	LOCPLINT->castleInt->statusbar->show(to);
 	resdatabar->show(to);
 	exit->show(to);
 	for(int i=0; i<5; i++)

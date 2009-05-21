@@ -283,10 +283,6 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CGameState.cpp"
-				>
-			</File>
-			<File
 				RelativePath="..\hch\CGeneralTextHandler.cpp"
 				>
 			</File>
@@ -316,10 +312,6 @@
 			</File>
 			<File
 				RelativePath=".\IGameCallback.cpp"
-				>
-			</File>
-			<File
-				RelativePath="..\map.cpp"
 				>
 			</File>
 			<File
@@ -369,7 +361,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\CGameState.h"
+				RelativePath=".\CGameState.h"
 				>
 			</File>
 			<File
@@ -421,7 +413,7 @@
 				>
 			</File>
 			<File
-				RelativePath="..\map.h"
+				RelativePath=".\map.h"
 				>
 			</File>
 			<File
@@ -437,6 +429,14 @@
 				>
 			</File>
 		</Filter>
+		<File
+			RelativePath=".\CGameState.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\map.cpp"
+			>
+		</File>
 	</Files>
 	<Globals>
 	</Globals>

@@ -882,6 +882,14 @@ bool CGHeroInstance::hasBonusOfType(HeroBonus::BonusType type, int subtype /*= -
 	return false;
 }
 
+si32 CGHeroInstance::getArtPos(int aid) const
+{
+	for(std::map<ui16,ui32>::const_iterator i = artifWorn.begin(); i != artifWorn.end(); i++)
+		if(i->second == aid)
+			return i->first;
+	return -1;
+}
+
 int CGTownInstance::getSightRadious() const //returns sight distance
 {
 	return 5;

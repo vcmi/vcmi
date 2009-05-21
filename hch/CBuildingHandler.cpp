@@ -78,6 +78,10 @@ void CBuildingHandler::loadBuildings()
 		delete nb;
 	}
 
+	//create Grail entries
+	for(int i=0; i<F_NUMBER; i++)
+		buildings[i][26] = new CBuilding(i,26);
+
 	//reading 14 per faction dwellings
 	temp = readTo(buf,it,'\n');temp = readTo(buf,it,'\n');//dwellings - skip 2 lines
 	for(int i=0;i<F_NUMBER;i++)
@@ -163,4 +167,10 @@ const std::string & CBuilding::Description()
 		return VLC->generaltexth->buildings[tid][bid].second;
 	tlog2 << "Warning: Cannot find description text for building " << bid << "for " << tid << "town.\n";
 	return "";
+}
+
+CBuilding::CBuilding( int TID, int BID )
+{
+	tid = TID;
+	bid = BID;
 }

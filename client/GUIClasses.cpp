@@ -630,6 +630,13 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 	pos.h = bitmap->h;
 	pos.w = bitmap->w;
 }
+
+CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
+{
+	free=Free;
+	bitmap=Bitmap;
+}
+
 void CInfoPopup::close()
 {
 	if(free)
@@ -975,7 +982,7 @@ void CStatusBar::print(const std::string & text)
 	if(LOCPLINT->cingconsole->enteredText == "" || text == LOCPLINT->cingconsole->enteredText) //for appropriate support for in-game console
 	{
 		current=text;
-		show(screen);
+		show(LOCPLINT->topInt()==LOCPLINT->adventureInt ? screen : screen2); //if there are now windows opened, update statusbar on screen, else to cache surface
 	}
 }
 
@@ -1418,6 +1425,7 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 
 void CTownList::clickLeft(tribool down)
 {
+	SDL_Surface *dst = (LOCPLINT->topInt()==LOCPLINT->adventureInt ? screen : screen2);
 	if (down)
 	{
 		/***************************ARROWS*****************************************/
@@ -1425,7 +1433,7 @@ void CTownList::clickLeft(tribool down)
 		{
 			if(from>0)
 			{
-				blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y);
+				blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y,dst);
 				pressed = true;
 			}
 			return;
@@ -1434,7 +1442,7 @@ void CTownList::clickLeft(tribool down)
 		{
 			if(items.size()-from > SIZE)
 			{
-				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
+				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y,dst);
 				pressed = false;
 			}
 			return;
@@ -1460,7 +1468,7 @@ void CTownList::clickLeft(tribool down)
 			return;
 		if (pressed) //up
 		{
-			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y);
+			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y,dst);
 			pressed = indeterminate;
 			if (!down)
 			{
@@ -1468,12 +1476,12 @@ void CTownList::clickLeft(tribool down)
 				if (from<0)
 					from=0;
 
-				draw(screen2);
+				draw(dst);
 			}
 		}
 		else if (!pressed) //down
 		{
-			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y);
+			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,dst);
 			pressed = indeterminate;
 			if (!down)
 			{
@@ -1481,7 +1489,7 @@ void CTownList::clickLeft(tribool down)
 				//if (from<items.size()-5)
 				//	from=items.size()-5;
 
-				draw(screen2);
+				draw(dst);
 			}
 		}
 		else

@@ -101,6 +101,7 @@ public:
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
 	void buildingClicked(int building);
+	void enterTavern();
 	void enterMageGuild();
 	CRecruitmentWindow * showRecruitmentWindow(int building);
 	void enterHall();
