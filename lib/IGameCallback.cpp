@@ -1,7 +1,7 @@
 #define VCMI_DLL
 #include "IGameCallback.h"
-#include "../CGameState.h"
-#include "../map.h"
+#include "../lib/CGameState.h"
+#include "../lib/map.h"
 #include "../hch/CObjectHandler.h"
 #include "../StartInfo.h"
 #include "../hch/CArtHandler.h"

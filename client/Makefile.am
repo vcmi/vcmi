@@ -5,37 +5,12 @@ vcmiclient_CXXFLAGS = @CXXFLAGS@ @SDL_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
 	../AI_Base.h \
-	../AdventureMapButton.cpp \
-	../AdventureMapButton.h \
-	../CAdvmapInterface.cpp \
-	../CAdvmapInterface.h \
-	../CBattleInterface.cpp \
-	../CBattleInterface.h \
 	../CCallback.cpp \
 	../CCallback.h \
-	../CCastleInterface.cpp \
-	../CCastleInterface.h \
-	../CCursorHandler.cpp \
-	../CCursorHandler.h \
-	../CGameInfo.cpp \
-	../CGameInfo.h \
 	../CGameInterface.cpp \
 	../CGameInterface.h \
-	../CHeroWindow.cpp \
-	../CHeroWindow.h \
-	../CMT.cpp \
-	../CMessage.cpp \
-	../CMessage.h \
-	../CPlayerInterface.cpp \
-	../CPlayerInterface.h \
-	../CPreGame.cpp \
-	../CPreGame.h \
 	../CThreadHelper.cpp \
 	../CThreadHelper.h \
-	../SDL_Extensions.cpp \
-	../SDL_Extensions.h \
-	../SDL_framerate.cpp \
-	../SDL_framerate.h \
 	../StartInfo.h \
 	../global.h \
 	../hch/CAmbarCendamo.h \
@@ -50,26 +25,52 @@ vcmiclient_SOURCES =  \
 	../hch/CSndHandler.h \
 	../hch/CVideoHandler.h \
 	../int3.h \
-	../map.h \
 	../mapHandler.cpp \
 	../mapHandler.h \
 	../nodrze.h \
 	../stdafx.h \
 	../tchar_amigaos4.h \
 	../timeHandler.h \
-	./CBitmapHandler.cpp \
-	./CBitmapHandler.h \
-	./CConfigHandler.cpp \
-	./CConfigHandler.h \
-	./CCreatureAnimation.cpp \
-	./CCreatureAnimation.h \
-	./CSpellWindow.cpp \
-	./CSpellWindow.h \
-	./Client.cpp \
-	./Client.h \
-	./FunctionList.h \
-	./Graphics.cpp \
-	./Graphics.h \
-	./GUIClasses.cpp \
-	./GUIClasses.h \
-	./NetPacksClient.cpp
+	AdventureMapButton.cpp \
+	AdventureMapButton.h \
+	CAdvmapInterface.cpp \
+	CAdvmapInterface.h \
+	CBattleInterface.cpp \
+	CBattleInterface.h \
+	CBitmapHandler.cpp \
+	CBitmapHandler.h \
+	CCastleInterface.cpp \
+	CCastleInterface.h \
+	CConfigHandler.cpp \
+	CConfigHandler.h \
+	CCreatureAnimation.cpp \
+	CCreatureAnimation.h \
+	CCursorHandler.cpp \
+	CCursorHandler.h \
+	CGameInfo.cpp \
+	CGameInfo.h \
+	CHeroWindow.cpp \
+	CHeroWindow.h \
+	CMT.cpp \
+	CMessage.cpp \
+	CMessage.h \
+	CPlayerInterface.cpp \
+	CPlayerInterface.h \
+	CPreGame.cpp \
+	CPreGame.h \
+	CSpellWindow.cpp \
+	CSpellWindow.h \
+	Client.cpp \
+	Client.h \
+	FunctionList.h \
+	GUIBase.cpp \
+	GUIBase.h \
+	GUIClasses.cpp \
+	GUIClasses.h \
+	Graphics.cpp \
+	Graphics.h \
+	NetPacksClient.cpp \
+	SDL_Extensions.cpp \
+	SDL_Extensions.h \
+	SDL_framerate.cpp \
+	SDL_framerate.h

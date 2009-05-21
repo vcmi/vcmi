@@ -6,14 +6,14 @@
 #include "hch/CLodHandler.h"
 #include "hch/CDefObjInfoHandler.h"
 #include <algorithm>
-#include "CGameState.h"
+#include "lib/CGameState.h"
 #include "hch/CHeroHandler.h"
 #include "hch/CTownHandler.h"
 #include "client/Graphics.h"
 #include <iomanip>
 #include <sstream>
 #include "hch/CObjectHandler.h"
-#include "map.h"
+#include "lib/map.h"
 #include "hch/CDefHandler.h"
 
 /*

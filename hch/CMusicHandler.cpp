@@ -11,7 +11,7 @@
 #include "CMusicHandler.h"
 #include "CCreatureHandler.h"
 #include "CSpellHandler.h"
-#include "../CGameInfo.h"
+#include "../client/CGameInfo.h"
 
 /*
  * CMusicHandler.cpp, part of VCMI engine

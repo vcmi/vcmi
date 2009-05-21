@@ -60,12 +60,12 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 libvcmi_la_LIBADD =
-am_libvcmi_la_OBJECTS = CConsoleHandler.lo CGameState.lo \
-	CArtHandler.lo CBuildingHandler.lo CCreatureHandler.lo \
-	CDefObjInfoHandler.lo CGeneralTextHandler.lo CHeroHandler.lo \
-	CLodHandler.lo CObjectHandler.lo CSpellHandler.lo \
-	CTownHandler.lo map.lo stdafx.lo Connection.lo \
-	IGameCallback.lo NetPacksLib.lo RegisterTypes.lo VCMI_Lib.lo
+am_libvcmi_la_OBJECTS = CConsoleHandler.lo CArtHandler.lo \
+	CBuildingHandler.lo CCreatureHandler.lo CDefObjInfoHandler.lo \
+	CGeneralTextHandler.lo CHeroHandler.lo CLodHandler.lo \
+	CObjectHandler.lo CSpellHandler.lo CTownHandler.lo stdafx.lo \
+	CGameState.lo Connection.lo IGameCallback.lo NetPacksLib.lo \
+	RegisterTypes.lo VCMI_Lib.lo map.lo
 libvcmi_la_OBJECTS = $(am_libvcmi_la_OBJECTS)
 DEFAULT_INCLUDES = -I.@am__isrc@
 depcomp = $(SHELL) $(top_srcdir)/depcomp
@@ -221,8 +221,6 @@ pkglib_LTLIBRARIES = libvcmi.la
 libvcmi_la_SOURCES = \
 	../CConsoleHandler.cpp \
 	../CConsoleHandler.h \
-	../CGameState.cpp \
-	../CGameState.h \
 	../hch/CArtHandler.cpp \
 	../hch/CArtHandler.h \
 	../hch/CBuildingHandler.cpp \
@@ -243,24 +241,26 @@ libvcmi_la_SOURCES = \
 	../hch/CSpellHandler.h \
 	../hch/CTownHandler.cpp \
 	../hch/CTownHandler.h \
-	../map.cpp \
-	../map.h \
 	../stdafx.cpp \
-	./BattleAction.h \
-	./CondSh.h \
-	./Connection.cpp \
-	./Connection.h \
-	./HeroBonus.h \
-	./IGameCallback.cpp \
-	./IGameCallback.h \
-	./Interprocess.h \
-	./NetPacks.h \
-	./NetPacksLib.cpp \
-	./RegisterTypes.cpp \
-	./RegisterTypes.h \
-	./lib/StackFeature.h \
-	./VCMI_Lib.cpp \
-	./VCMI_Lib.h
+	BattleAction.h \
+	CGameState.cpp \
+	CGameState.h \
+	CondSh.h \
+	Connection.cpp \
+	Connection.h \
+	HeroBonus.h \
+	IGameCallback.cpp \
+	IGameCallback.h \
+	Interprocess.h \
+	NetPacks.h \
+	NetPacksLib.cpp \
+	RegisterTypes.cpp \
+	RegisterTypes.h \
+	StackFeature.h \
+	VCMI_Lib.cpp \
+	VCMI_Lib.h \
+	map.cpp \
+	map.h
 
 all: all-am
 
@@ -379,13 +379,6 @@ CConsoleHandler.lo: ../CConsoleHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CConsoleHandler.lo `test -f '../CConsoleHandler.cpp' || echo '$(srcdir)/'`../CConsoleHandler.cpp
 
-CGameState.lo: ../CGameState.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CGameState.lo -MD -MP -MF $(DEPDIR)/CGameState.Tpo -c -o CGameState.lo `test -f '../CGameState.cpp' || echo '$(srcdir)/'`../CGameState.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/CGameState.Tpo $(DEPDIR)/CGameState.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../CGameState.cpp' object='CGameState.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CGameState.lo `test -f '../CGameState.cpp' || echo '$(srcdir)/'`../CGameState.cpp
-
 CArtHandler.lo: ../hch/CArtHandler.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT CArtHandler.lo -MD -MP -MF $(DEPDIR)/CArtHandler.Tpo -c -o CArtHandler.lo `test -f '../hch/CArtHandler.cpp' || echo '$(srcdir)/'`../hch/CArtHandler.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/CArtHandler.Tpo $(DEPDIR)/CArtHandler.Plo
@@ -456,54 +449,12 @@ CTownHandler.lo: ../hch/CTownHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o CTownHandler.lo `test -f '../hch/CTownHandler.cpp' || echo '$(srcdir)/'`../hch/CTownHandler.cpp
 
-map.lo: ../map.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT map.lo -MD -MP -MF $(DEPDIR)/map.Tpo -c -o map.lo `test -f '../map.cpp' || echo '$(srcdir)/'`../map.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/map.Tpo $(DEPDIR)/map.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../map.cpp' object='map.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o map.lo `test -f '../map.cpp' || echo '$(srcdir)/'`../map.cpp
-
 stdafx.lo: ../stdafx.cpp
 @am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT stdafx.lo -MD -MP -MF $(DEPDIR)/stdafx.Tpo -c -o stdafx.lo `test -f '../stdafx.cpp' || echo '$(srcdir)/'`../stdafx.cpp
 @am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/stdafx.Tpo $(DEPDIR)/stdafx.Plo
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../stdafx.cpp' object='stdafx.lo' libtool=yes @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o stdafx.lo `test -f '../stdafx.cpp' || echo '$(srcdir)/'`../stdafx.cpp
-
-Connection.lo: ./Connection.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT Connection.lo -MD -MP -MF $(DEPDIR)/Connection.Tpo -c -o Connection.lo `test -f './Connection.cpp' || echo '$(srcdir)/'`./Connection.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/Connection.Tpo $(DEPDIR)/Connection.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./Connection.cpp' object='Connection.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o Connection.lo `test -f './Connection.cpp' || echo '$(srcdir)/'`./Connection.cpp
-
-IGameCallback.lo: ./IGameCallback.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT IGameCallback.lo -MD -MP -MF $(DEPDIR)/IGameCallback.Tpo -c -o IGameCallback.lo `test -f './IGameCallback.cpp' || echo '$(srcdir)/'`./IGameCallback.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/IGameCallback.Tpo $(DEPDIR)/IGameCallback.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./IGameCallback.cpp' object='IGameCallback.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o IGameCallback.lo `test -f './IGameCallback.cpp' || echo '$(srcdir)/'`./IGameCallback.cpp
-
-NetPacksLib.lo: ./NetPacksLib.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT NetPacksLib.lo -MD -MP -MF $(DEPDIR)/NetPacksLib.Tpo -c -o NetPacksLib.lo `test -f './NetPacksLib.cpp' || echo '$(srcdir)/'`./NetPacksLib.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/NetPacksLib.Tpo $(DEPDIR)/NetPacksLib.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./NetPacksLib.cpp' object='NetPacksLib.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o NetPacksLib.lo `test -f './NetPacksLib.cpp' || echo '$(srcdir)/'`./NetPacksLib.cpp
-
-RegisterTypes.lo: ./RegisterTypes.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT RegisterTypes.lo -MD -MP -MF $(DEPDIR)/RegisterTypes.Tpo -c -o RegisterTypes.lo `test -f './RegisterTypes.cpp' || echo '$(srcdir)/'`./RegisterTypes.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/RegisterTypes.Tpo $(DEPDIR)/RegisterTypes.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./RegisterTypes.cpp' object='RegisterTypes.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o RegisterTypes.lo `test -f './RegisterTypes.cpp' || echo '$(srcdir)/'`./RegisterTypes.cpp
-
-VCMI_Lib.lo: ./VCMI_Lib.cpp
-@am__fastdepCXX_TRUE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -MT VCMI_Lib.lo -MD -MP -MF $(DEPDIR)/VCMI_Lib.Tpo -c -o VCMI_Lib.lo `test -f './VCMI_Lib.cpp' || echo '$(srcdir)/'`./VCMI_Lib.cpp
-@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/VCMI_Lib.Tpo $(DEPDIR)/VCMI_Lib.Plo
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='./VCMI_Lib.cpp' object='VCMI_Lib.lo' libtool=yes @AMDEPBACKSLASH@
-@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
-@am__fastdepCXX_FALSE@	$(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) $(LIBTOOLFLAGS) --mode=compile $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(AM_CXXFLAGS) $(CXXFLAGS) -c -o VCMI_Lib.lo `test -f './VCMI_Lib.cpp' || echo '$(srcdir)/'`./VCMI_Lib.cpp
 
 mostlyclean-libtool:
 	-rm -f *.lo

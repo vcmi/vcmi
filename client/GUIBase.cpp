@@ -1,5 +1,5 @@
 #include "GUIBase.h"
-#include "SDL_extensions.h"
+#include "SDL_Extensions.h"
 #include "CPlayerInterface.h"
 
 /*

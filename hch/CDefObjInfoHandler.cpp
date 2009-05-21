@@ -1,7 +1,7 @@
 #define VCMI_DLL
 #include "../stdafx.h"
 #include "CDefObjInfoHandler.h"
-#include "../CGameInfo.h"
+#include "../client/CGameInfo.h"
 #include "CLodHandler.h"
 #include <sstream>
 #include "../lib/VCMI_Lib.h"

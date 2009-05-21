@@ -2,7 +2,7 @@
 #include "Graphics.h"
 #include "../hch/CDefHandler.h"
 #include "../hch/CObjectHandler.h"
-#include "../SDL_Extensions.h"
+#include "SDL_Extensions.h"
 #include <boost/assign/std/vector.hpp> 
 #include <sstream>
 #include <iomanip>
@@ -11,7 +11,7 @@
 #include <boost/bind.hpp>
 #include <boost/assign/std/vector.hpp>
 #include "../CThreadHelper.h"
-#include "../CGameInfo.h"
+#include "CGameInfo.h"
 #include "../hch/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 using namespace boost::assign;

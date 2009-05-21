@@ -12,7 +12,7 @@
 #ifdef _WIN32
 #include <tchar.h>
 #else
-#include "tchar_amigaos4.h"
+#include "../tchar_amigaos4.h"
 #endif
 
 /*

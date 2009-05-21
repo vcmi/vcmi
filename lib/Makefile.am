@@ -2,8 +2,6 @@ pkglib_LTLIBRARIES = libvcmi.la
 libvcmi_la_SOURCES = \
 	../CConsoleHandler.cpp \
 	../CConsoleHandler.h \
-	../CGameState.cpp \
-	../CGameState.h \
 	../hch/CArtHandler.cpp \
 	../hch/CArtHandler.h \
 	../hch/CBuildingHandler.cpp \
@@ -24,22 +22,23 @@ libvcmi_la_SOURCES = \
 	../hch/CSpellHandler.h \
 	../hch/CTownHandler.cpp \
 	../hch/CTownHandler.h \
-	../map.cpp \
-	../map.h \
 	../stdafx.cpp \
-	./BattleAction.h \
-	./CondSh.h \
-	./Connection.cpp \
-	./Connection.h \
-	./HeroBonus.h \
-	./IGameCallback.cpp \
-	./IGameCallback.h \
-	./Interprocess.h \
-	./NetPacks.h \
-	./NetPacksLib.cpp \
-	./RegisterTypes.cpp \
-	./RegisterTypes.h \
-	./lib/StackFeature.h \
-	./VCMI_Lib.cpp \
-	./VCMI_Lib.h
-
+	BattleAction.h \
+	CGameState.cpp \
+	CGameState.h \
+	CondSh.h \
+	Connection.cpp \
+	Connection.h \
+	HeroBonus.h \
+	IGameCallback.cpp \
+	IGameCallback.h \
+	Interprocess.h \
+	NetPacks.h \
+	NetPacksLib.cpp \
+	RegisterTypes.cpp \
+	RegisterTypes.h \
+	StackFeature.h \
+	VCMI_Lib.cpp \
+	VCMI_Lib.h \
+	map.cpp \
+	map.h
