@@ -1869,15 +1869,15 @@ bool CGameHandler::swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 )
 	const CArtifact *a1 = h1->getArt(slot1), 
 		*a2=h2->getArt(slot2);
 
-	if(a1 && slot2<19 && !vstd::contains(a1->possibleSlots,slot2)
-		|| a2 && slot1<19 && !vstd::contains(a2->possibleSlots,slot1)
+	//check if 
+	//	1) slots are appropriate for that artifacts 
+	//	2) they are not war machine
+	if((a1 && slot2<19 && !vstd::contains(a1->possibleSlots,slot2) || (a2 && slot1<19 && !vstd::contains(a2->possibleSlots,slot1))) && complain("Cannot swap artifacts!")
+		|| (slot1>=13 && slot1<=16 || slot2>=13 && slot2<=16) && complain("Cannot move war machine!")
 	)
 	{
-		//artifact doesn't fit dst slot
-		complain("Cannot swap artifacts!");
 		return false;
 	}
-
 
 	SetHeroArtifacts sha;
 	sha.hid = hid1;

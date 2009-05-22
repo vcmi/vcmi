@@ -1522,6 +1522,8 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		break;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero
 		{
+			if(!active) 
+				return;
 			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance*>(selection);
 			if(h && key.state == SDL_PRESSED)
 			{

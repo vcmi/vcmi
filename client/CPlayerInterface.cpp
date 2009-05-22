@@ -1595,7 +1595,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 		} else
 #endif
 		{
-			newTerrain = cb->getTileInfo(path.nodes[i].coord)->tertype;
+			newTerrain = cb->getTileInfo(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
 
 			if (newTerrain != currentTerrain) {
 				CGI->soundh->stopSound(sh);

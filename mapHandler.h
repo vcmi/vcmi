@@ -4,7 +4,7 @@
 #include <list>
 #include <set>
 
-const int Woff = 13; //width of map's frame
+const int Woff = 14; //width of map's frame
 const int Hoff = 10;
 
 /*

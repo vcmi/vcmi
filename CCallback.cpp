@@ -676,6 +676,11 @@ std::vector<const CGHeroInstance *> CCallback::getAvailableHeroes(const CGTownIn
 
 const TerrainTile * CCallback::getTileInfo( int3 tile ) const
 {
+	if(!gs->map->isInTheMap(tile)) 
+	{
+		tlog1 << tile << "is outside the map! (call to getTileInfo)\n";
+		return NULL;
+	}
 	if(!isVisible(tile, player)) return NULL;
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return &gs->map->getTile(tile);

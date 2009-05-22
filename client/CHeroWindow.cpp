@@ -676,7 +676,7 @@ void CHeroWindow::redrawCurBack()
 	CSDL_Ext::printAt(expstr.str(), 69, 247, GEOR16, zwykly, curBack);
 	CSDL_Ext::printAt(CGI->generaltexth->jktexts[7].substr(1, CGI->generaltexth->jktexts[7].size()-2), 212, 231, GEOR13, tytulowy, curBack);
 	std::stringstream manastr;
-	manastr<<curHero->mana<<'/'<<curHero->getPrimSkillLevel(3)*10;
+	manastr << curHero->mana << '/' << curHero->manaLimit();
 	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
 }
 
@@ -728,19 +728,19 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 
 				LOCPLINT->cb->swapArtifacts(ourWindow->curHero,destSlot,ourWindow->curHero,srcSlot);
 
-				const CArtifact * pmh = ourArt;
-				ourArt = ourWindow->activeArtPlace->ourArt;
-				ourWindow->activeArtPlace->ourArt = pmh;
+				//const CArtifact * pmh = ourArt;
+				//ourArt = ourWindow->activeArtPlace->ourArt;
+				//ourWindow->activeArtPlace->ourArt = pmh;
 
-				//set texts
-				if(pmh)
-					ourWindow->activeArtPlace->text = pmh->Description();
-				else
-					ourWindow->activeArtPlace->text = std::string();
-				if(ourArt)
-					text = ourArt->Description();
-				else
-					text = std::string();
+				////set texts
+				//if(pmh)
+				//	ourWindow->activeArtPlace->text = pmh->Description();
+				//else
+				//	ourWindow->activeArtPlace->text = std::string();
+				//if(ourArt)
+				//	text = ourArt->Description();
+				//else
+				//	text = std::string();
 
 				ourWindow->activeArtPlace->clicked = false;
 				ourWindow->activeArtPlace = NULL;
