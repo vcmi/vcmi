@@ -2000,7 +2000,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 		{
 			if (isItIn(&btns[i]->pos,sEvent.motion.x,sEvent.motion.y))
 			{
-				CGI->audioh->playSound(soundBase::button);
+				CGI->soundh->playSound(soundBase::button);
 				btns[i]->press(true);
 				ourScenSel->pressed=(Button*)btns[i];
 			}
@@ -2009,7 +2009,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 									&& (sEvent.button.x>55) && (sEvent.button.x<372))
 		{
 			int py = ((sEvent.button.y-121)/25)+ourScenSel->mapsel.slid->whereAreWe;
-			CGI->audioh->playSound(soundBase::button);
+			CGI->soundh->playSound(soundBase::button);
 			ourScenSel->mapsel.select(ourScenSel->mapsel.whichWL(py));
 		}
 
@@ -2266,7 +2266,7 @@ StartInfo CPreGame::runLoop()
 						current->highlighted=5;
 					}
 					if (current->highlighted)
-						CGI->audioh->playSound(soundBase::button);
+						CGI->soundh->playSound(soundBase::button);
 				}
 				else if ((sEvent.type==SDL_MOUSEBUTTONUP) && (sEvent.button.button == SDL_BUTTON_LEFT))
 				{

@@ -504,7 +504,7 @@ void CCastleInterface::close()
 		LOCPLINT->adventureInt->select(town->visitingHero);
 	LOCPLINT->castleInt = NULL;
 	LOCPLINT->popIntTotally(this);
-	CGI->audioh->stopMusic(5000);
+	CGI->musich->stopMusic(5000);
 }
 
 void CCastleInterface::splitF()

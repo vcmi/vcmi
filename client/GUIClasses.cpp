@@ -2674,16 +2674,16 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	{
 		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[326+i].first),CGI->generaltexth->zelp[326+i].second, "syslb.def", 188 + 19*i, 416, i*11);
 	}
-	musicVolume->select(CGI->audioh->getMusicVolume(), 1);
-	musicVolume->onChange = boost::bind(&CAudioHandler::setMusicVolume, CGI->audioh, _1);
+	musicVolume->select(CGI->musich->getVolume(), 1);
+	musicVolume->onChange = boost::bind(&CMusicHandler::setVolume, CGI->musich, _1);
 
 	effectsVolume = new CHighlightableButtonsGroup(0, true);
 	for(int i=0; i<10; ++i)
 	{
 		effectsVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[336+i].first),CGI->generaltexth->zelp[336+i].second, "syslb.def", 188 + 19*i, 482, i*11);
 	}
-	effectsVolume->select(CGI->audioh->getSoundVolume(), 1);
-	effectsVolume->onChange = boost::bind(&CAudioHandler::setSoundVolume, CGI->audioh, _1);
+	effectsVolume->select(CGI->soundh->getVolume(), 1);
+	effectsVolume->onChange = boost::bind(&CSoundHandler::setVolume, CGI->soundh, _1);
 }
 
 CSystemOptionsWindow::~CSystemOptionsWindow()

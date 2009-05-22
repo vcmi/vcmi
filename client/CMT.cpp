@@ -119,18 +119,21 @@ int main(int argc, char** argv)
 		THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
 
 		//initializing audio
-		CAudioHandler * audioh = new CAudioHandler;
 		// Note: because of interface button range, volume can only be a
 		// multiple of 11, from 0 to 99.
-		audioh->initAudio(88);
-		cgi->audioh = audioh;
+		cgi->soundh = new CSoundHandler;
+		cgi->soundh->init();
+		cgi->soundh->setVolume(88);
+		cgi->musich = new CMusicHandler;
+		cgi->musich->init();
+		cgi->musich->setVolume(88);
 		tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 
 		tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		initDLL(::console,logfile);
 		CGI->setFromLib();
-		cgi->audioh->initCreaturesSounds(CGI->creh->creatures);
-		cgi->audioh->initSpellsSounds(CGI->spellh->spells);
+		cgi->soundh->initCreaturesSounds(CGI->creh->creatures);
+		cgi->soundh->initSpellsSounds(CGI->spellh->spells);
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler;
@@ -148,7 +151,7 @@ int main(int argc, char** argv)
 		tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
-		audioh->playMusic(musicBase::mainMenu, -1);
+		cgi->musich->playMusic(musicBase::mainMenu, -1);
 		StartInfo *options = new StartInfo(cpg->runLoop());
 
 		if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
@@ -187,7 +190,7 @@ int main(int argc, char** argv)
 			THC tlog0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
 			cl.newGame(c,options);
 			client = &cl;
-			audioh->stopMusic();
+			cgi->musich->stopMusic();
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 		else //load game
@@ -196,7 +199,7 @@ int main(int argc, char** argv)
 			boost::algorithm::erase_last(fname,".vlgm1");
 			cl.load(fname);
 			client = &cl;
-			audioh->stopMusic();
+			cgi->musich->stopMusic();
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 

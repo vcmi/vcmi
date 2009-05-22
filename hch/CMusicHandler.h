@@ -23,7 +23,21 @@ struct _Mix_Music;
 typedef struct _Mix_Music Mix_Music;
 struct Mix_Chunk;
 
-class CSoundHandler
+class CAudioBase {
+protected:
+	bool initialized;
+	int volume;					// from 0 (mute) to 100
+
+public:
+	CAudioBase(): initialized(false), volume(0) {};
+	virtual void init() = 0;
+	virtual void release() = 0;
+
+	virtual void setVolume(unsigned int percent);
+	unsigned int getVolume() { return volume; };
+};
+
+class CSoundHandler: public CAudioBase
 {
 private:
 	CSndHandler *sndh;
@@ -32,29 +46,28 @@ private:
 	std::map<soundBase::soundID, Mix_Chunk *> soundChunks;
 
 	Mix_Chunk *GetSoundChunk(soundBase::soundID soundID);
-	int volume;					// from 0 (mute) to 100
 
 public:
-	CSoundHandler(): sndh(NULL), volume(0) {};
+	CSoundHandler();
 
-	void initSounds();
-	void freeSounds();
+	void init();
+	void release();
+
 	void initCreaturesSounds(std::vector<CCreature> &creatures);
 	void initSpellsSounds(std::vector<CSpell> &spells);
+	void setVolume(unsigned int percent);
 
 	// Sounds
 	int playSound(soundBase::soundID soundID, int repeats=0);
 	int playSoundFromSet(std::vector<soundBase::soundID> &sound_vec);
 	void stopSound(int handler);
-	void setSoundVolume(unsigned int percent);
-	unsigned int getSoundVolume();
 
 	// Sets
 	std::vector<soundBase::soundID> pickupSounds;
 	std::vector<soundBase::soundID> horseSounds;
 };
 
-class CMusicHandler
+class CMusicHandler: public CAudioBase
 {
 private:
 	// Because we use the SDL music callback, our music variables must
@@ -63,13 +76,13 @@ private:
 	Mix_Music *currentMusic;
 	Mix_Music *nextMusic;
 	int nextMusicLoop;
-	int volume;					// from 0 (mute) to 100
 
 public:
-	CMusicHandler(): currentMusic(NULL), nextMusic(NULL), volume(0) {};
+	CMusicHandler();
 
-	void initMusics();
-	void freeMusics();
+	void init();
+	void release();
+	void setVolume(unsigned int percent);
 
 	// Musics
 	std::map<musicBase::musicID, std::string> musics;
@@ -78,21 +91,7 @@ public:
 	void playMusic(musicBase::musicID musicID, int loop=1);
 	void playMusicFromSet(std::vector<musicBase::musicID> &music_vec, int loop=1);
 	void stopMusic(int fade_ms=1000);
-	void setMusicVolume(unsigned int percent);
-	unsigned int getMusicVolume();
 	void musicFinishedCallback(void);
-};
-
-class CAudioHandler: public CSoundHandler, public CMusicHandler
-{
-private:
-	bool audioInitialized;
-
-public:
-	CAudioHandler(): audioInitialized(false) {};
-	~CAudioHandler();
-
-	void initAudio(unsigned int volume = 90);
 };
 
 #endif // __CMUSICHANDLER_H__

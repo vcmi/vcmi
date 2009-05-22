@@ -29,10 +29,40 @@ static boost::bimap<soundBase::soundID, std::string> sounds;
 
 // Not pretty, but there's only one music handler object in the game.
 static void musicFinishedCallbackC(void) {
-	CGI->audioh->musicFinishedCallback();
+	CGI->musich->musicFinishedCallback();
 }
 
-void CSoundHandler::initSounds()
+void CAudioBase::init()
+{
+	if (initialized)
+		return;
+
+	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
+	{
+		tlog1 << "Mix_OpenAudio error: %s!!!" << Mix_GetError() << std::endl;
+		return;
+	}
+
+	initialized = true;
+}
+
+void CAudioBase::release()
+{
+	if (initialized) {
+		Mix_CloseAudio();
+		initialized = false;
+	}
+}
+
+void CAudioBase::setVolume(unsigned int percent)
+{
+	if (percent > 100)
+		percent = 100;
+	
+	volume = percent;
+}
+
+CSoundHandler::CSoundHandler(): sndh(NULL)
 {
 	// Map sound names
 #define VCMI_SOUND_NAME(x) ( soundBase::x,
@@ -50,21 +80,31 @@ void CSoundHandler::initSounds()
 		soundBase::horseSnow, soundBase::horseSwamp, soundBase::horseRough,
 		soundBase::horseSubterranean, soundBase::horseLava,
 		soundBase::horseWater, soundBase::horseRock;
+};
 
-	// Load sounds
-	sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
+void CSoundHandler::init()
+{
+	CAudioBase::init();
+
+	if (initialized)
+		// Load sounds
+		sndh = new CSndHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "Heroes3.snd"));
 }
 
-void CSoundHandler::freeSounds()
+void CSoundHandler::release()
 {
-	Mix_HaltChannel(-1);
-	delete sndh;
+	if (initialized) {
+		Mix_HaltChannel(-1);
+		delete sndh;
 
-	std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
-	for (it=soundChunks.begin(); it != soundChunks.end(); it++) {
-		if (it->second)
-			Mix_FreeChunk(it->second);
+		std::map<soundBase::soundID, Mix_Chunk *>::iterator it;
+		for (it=soundChunks.begin(); it != soundChunks.end(); it++) {
+			if (it->second)
+				Mix_FreeChunk(it->second);
+		}
 	}
+
+	CAudioBase::release();
 }
 
 // Allocate an SDL chunk and cache it.
@@ -201,13 +241,11 @@ void CSoundHandler::initSpellsSounds(std::vector<CSpell> &spells)
 // Plays a sound, and return its channel so we can fade it out later
 int CSoundHandler::playSound(soundBase::soundID soundID, int repeats)
 {
-	int channel;
-	Mix_Chunk *chunk;
-
-	if (!sndh)
+	if (!initialized)
 		return -1;
 
-	chunk = GetSoundChunk(soundID);
+	int channel;
+	Mix_Chunk *chunk = GetSoundChunk(soundID);
 
 	if (chunk)
 	{
@@ -230,27 +268,20 @@ int CSoundHandler::playSoundFromSet(std::vector<soundBase::soundID> &sound_vec)
 
 void CSoundHandler::stopSound( int handler )
 {
-	if (handler != -1)
+	if (initialized && handler != -1)
 		Mix_HaltChannel(handler);
 }
 
 // Sets the sound volume, from 0 (mute) to 100
-void CSoundHandler::setSoundVolume(unsigned int percent)
+void CSoundHandler::setVolume(unsigned int percent)
 {
-	if (percent > 100)
-		percent = 100;
+	CAudioBase::setVolume(percent);
 
-	volume = percent;
-	Mix_Volume(-1, (MIX_MAX_VOLUME * percent)/100);
+	if (initialized)
+		Mix_Volume(-1, (MIX_MAX_VOLUME * volume)/100);
 }
 
-// Returns the current sound volume, from 0 (mute) to 100
-unsigned int CSoundHandler::getSoundVolume()
-{
-	return volume;
-}
-
-void CMusicHandler::initMusics()
+CMusicHandler::CMusicHandler(): currentMusic(NULL), nextMusic(NULL)
 {
 	// Map music IDs
 #define VCMI_MUSIC_ID(x) ( musicBase::x ,
@@ -260,35 +291,48 @@ void CMusicHandler::initMusics()
 #undef VCMI_MUSIC_NAME
 #undef VCMI_MUSIC_FILE
 
-	Mix_HookMusicFinished(musicFinishedCallbackC);
-
 	// Vector for helper
 	battleMusics += musicBase::combat1, musicBase::combat2, 
 		musicBase::combat3, musicBase::combat4;
 }
 
-void CMusicHandler::freeMusics()
+void CMusicHandler::init()
 {
-	Mix_HookMusicFinished(NULL);
+	CAudioBase::init();
 
-	musicMutex.lock();
+	if (initialized)
+		Mix_HookMusicFinished(musicFinishedCallbackC);
+}
 
-	if (currentMusic)
-	{
-		Mix_HaltMusic();
-		Mix_FreeMusic(currentMusic);
+void CMusicHandler::release()
+{
+	if (initialized) {
+		Mix_HookMusicFinished(NULL);
+
+		musicMutex.lock();
+
+		if (currentMusic)
+		{
+			Mix_HaltMusic();
+			Mix_FreeMusic(currentMusic);
+		}
+
+		if (nextMusic)
+			Mix_FreeMusic(nextMusic);
+
+		musicMutex.unlock();
 	}
 
-	if (nextMusic)
-		Mix_FreeMusic(nextMusic);
-
-	musicMutex.unlock();
+	CAudioBase::release();
 }
 
 // Plays a music
 // loop: -1 always repeats, 0=do not play, 1+=number of loops
 void CMusicHandler::playMusic(musicBase::musicID musicID, int loop)
 {
+	if (!initialized)
+		return;
+
 	std::string filename = DATA_DIR "Mp3" PATHSEPARATOR;
 	filename += musics[musicID];
 
@@ -328,6 +372,9 @@ void CMusicHandler::playMusicFromSet(std::vector<musicBase::musicID> &music_vec,
 // Stop and free the current music
 void CMusicHandler::stopMusic(int fade_ms)
 {
+	if (!initialized)
+		return;
+
 	musicMutex.lock();
 
 	if (currentMusic)
@@ -339,19 +386,12 @@ void CMusicHandler::stopMusic(int fade_ms)
 }
 
 // Sets the music volume, from 0 (mute) to 100
-void CMusicHandler::setMusicVolume(unsigned int percent)
+void CMusicHandler::setVolume(unsigned int percent)
 {
-	if (percent > 100)
-		percent = 100;
+	CAudioBase::setVolume(percent);
 
-	volume = percent;
-	Mix_VolumeMusic((MIX_MAX_VOLUME * percent)/100);
-}
-
-// Returns the current music volume, from 0 (mute) to 100
-unsigned int CMusicHandler::getMusicVolume()
-{
-	return volume;
+	if (initialized)
+		Mix_VolumeMusic((MIX_MAX_VOLUME * volume)/100);
 }
 
 // Called by SDL when a music finished.
@@ -374,34 +414,4 @@ void CMusicHandler::musicFinishedCallback(void)
 	}
 
 	musicMutex.unlock();
-}
-
-void CAudioHandler::initAudio(unsigned int volume)
-{
-	if (audioInitialized)
-		return;
-
-	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 1024)==-1)
-	{
-		tlog1 << "Mix_OpenAudio error: %s!!!" << Mix_GetError() << std::endl;
-		return;
-	}
-
-	audioInitialized = true;
-
-	initSounds();
-	setSoundVolume(volume);
-	initMusics();
-	setMusicVolume(volume);
-}
-
-CAudioHandler::~CAudioHandler()
-{
-	if (!audioInitialized)
-		return;
-
-	freeSounds();
-	freeMusics();
-
-	Mix_CloseAudio();
 }
