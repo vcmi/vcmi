@@ -57,8 +57,7 @@ struct CPackForServer : public CPack
 		c = NULL;
 	};
 
-	bool applyGh(CGameHandler *gh)//called after applying to gs
-	{}; 
+	bool applyGh(CGameHandler *gh);//called after applying to gs
 };
 
 
