@@ -350,10 +350,10 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	}
 	else 
 	{
-		int res = bitmaph->infs2(data, e->size, e->realSize, pcx);
-		if (res != 0)
+		if (!bitmaph->infs2(data, e->size, e->realSize, pcx))
 		{
-			tlog2<<"an error "<<res<<" occurred while extracting file "<<fname<<std::endl;
+			tlog2<<"an error occurred while extracting file "<<fname<<std::endl;
+			return NULL;
 		}
 	}
 	CPCXConv cp;

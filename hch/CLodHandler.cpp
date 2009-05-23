@@ -94,7 +94,10 @@ unsigned char * CLodHandler::giveFile(std::string defName, int * length)
 	{
 		//we will decompress file
 		unsigned char * decomp = NULL;
-		int decRes = infs2(data, ourEntry->size, ourEntry->realSize, decomp);
+		if (!infs2(data, ourEntry->size, ourEntry->realSize, decomp))
+		{
+			tlog2<<"an error occurred while extracting file "<<defName<<std::endl;
+		}
 		return decomp;
 	}
 	return NULL;
@@ -175,15 +178,12 @@ int CLodHandler::infs(const unsigned char * in, int size, int realSize, std::ofs
 	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
 }
 
-DLL_EXPORT int CLodHandler::infs2(const unsigned char * in, int size, int realSize, unsigned char *& out, int wBits)
+DLL_EXPORT bool CLodHandler::infs2(const unsigned char * in, int size, int realSize, unsigned char *& out)
 {
 	int ret;
-	unsigned have;
 	z_stream strm;
-	unsigned char inx[NLoadHandlerHelp::fCHUNK];
-	unsigned char outx[NLoadHandlerHelp::fCHUNK];
-	out = new unsigned char [realSize];
-	int latPosOut = 0;
+
+	out = NULL;
 
 	/* allocate inflate state */
 	strm.zalloc = Z_NULL;
@@ -191,54 +191,33 @@ DLL_EXPORT int CLodHandler::infs2(const unsigned char * in, int size, int realSi
 	strm.opaque = Z_NULL;
 	strm.avail_in = 0;
 	strm.next_in = Z_NULL;
-	ret = inflateInit2(&strm, wBits);
+	ret = inflateInit(&strm);
 	if (ret != Z_OK)
 		return ret;
-	int chunkNumber = 0;
-	do
+
+	out = new unsigned char [realSize];
+
+	strm.avail_in = size;
+	strm.next_in = (Bytef *)in;
+	strm.avail_out = realSize;
+	strm.next_out = out;
+	ret = inflate(&strm, Z_FINISH);
+
+	if (ret != Z_STREAM_END)
 	{
-		int readBytes = 0;
-		for(int i=0; i<NLoadHandlerHelp::fCHUNK && (chunkNumber * NLoadHandlerHelp::fCHUNK + i)<size; ++i)
-		{
-			inx[i] = in[chunkNumber * NLoadHandlerHelp::fCHUNK + i];
-			++readBytes;
-		}
-		++chunkNumber;
-		strm.avail_in = readBytes;
-		if (strm.avail_in == 0)
-			break;
-		strm.next_in = inx;
+		tlog2 << "Decompression of an object failed (" << (strm.msg ? strm.msg : "not ok")  << ")" << std::endl;
+		delete [] out;
+		out = NULL;
+	}
 
-		/* run inflate() on input until output buffer not full */
-		do
-		{
-			strm.avail_out = NLoadHandlerHelp::fCHUNK;
-			strm.next_out = outx;
-			ret = inflate(&strm, Z_NO_FLUSH);
-			//assert(ret != Z_STREAM_ERROR);  /* state not clobbered */
-			switch (ret)
-			{
-				case Z_NEED_DICT:
-					ret = Z_DATA_ERROR;	 /* and fall through */
-				case Z_DATA_ERROR:
-				case Z_MEM_ERROR:
-					(void)inflateEnd(&strm);
-					return ret;
-			}
-			have = NLoadHandlerHelp::fCHUNK - strm.avail_out;
-			for(int oo=0; oo<have; ++oo)
-			{
-				out[latPosOut] = outx[oo];
-				++latPosOut;
-			}
-		} while (strm.avail_out == 0);
+	if (ret == Z_OK || strm.avail_out != 0) {
+		// An input parameter was bogus
+		tlog2 << "Warning: unexpected decompressed size" << std::endl;
+	}
 
-		/* done when inflate() says it's done */
-	} while (ret != Z_STREAM_END);
+	inflateEnd(&strm);
 
-	/* clean up and return */
-	(void)inflateEnd(&strm);
-	return ret == Z_STREAM_END ? Z_OK : Z_DATA_ERROR;
+	return ret == Z_STREAM_END;
 }
 
 void CLodHandler::extract(std::string FName)

@@ -61,7 +61,7 @@ public:
     CLodHandler(): mmlod(NULL), totalFiles(0) {};
 	int readNormalNr (const unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
 	int infs(const unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
-	int infs2(const unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler
+	bool infs2(const unsigned char * in, int size, int realSize, unsigned char*& out); //zlib fast handler
 	unsigned char * giveFile(std::string defName, int * length=NULL); //returns pointer to the decompressed data - it must be deleted when no longer needed!
 	std::string getTextFile(std::string name); //extracts one file
 	void extract(std::string FName);
