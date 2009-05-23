@@ -264,7 +264,7 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 		TotalRowLength, // dlugosc przeczytanego segmentu
 		RowAdd;//, NextSpriteOffset; //TODO use me
 
-	unsigned char SegmentType, SegmentLength;//, BL, BR; //TODO use me
+	unsigned char SegmentType;//, BL, BR; //TODO use me
 
 	i=BaseOffset=SEntries[SIndex].offset;
 	int prSize=readNormalNr(i,4,FDef);i+=4; //TODO use me
@@ -285,12 +285,11 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 	if(RightMargin<0)
 		SpriteWidth+=RightMargin;
 	
+	// Note: this looks bogus because we allocate only FullWidth, not FullWidth+add
 	add = 4 - FullWidth%4;
 	if (add==4)
 		add=0;
 
-	int ftcp=0;
-		
 	ret = SDL_CreateRGBSurface(SDL_SWSURFACE, FullWidth, FullHeight, 8, 0, 0, 0, 0);
 	//int tempee2 = readNormalNr(0,4,((unsigned char *)tempee.c_str()));
 
@@ -306,118 +305,85 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 		(*(ret->format->palette->colors+i))=pr;
 	}
 
-	if (defType2==0)
+	int ftcp=0;
+
+	// If there's a margin anywhere, just blank out the whole surface.
+	if (TopMargin > 0 || BottomMargin > 0 || LeftMargin > 0 || RightMargin > 0) {
+		memset(((char *)ret->pixels), 0, FullHeight*FullWidth);
+	}
+
+	// Skip top margin
+	if (TopMargin > 0)
+		ftcp += TopMargin*(FullWidth+add);
+
+	switch(defType2) {
+	case 0:
 	{
-		if (TopMargin>0)
-		{
-			for (int i=0;i<TopMargin;i++)
-			{
-				for (int j=0;j<FullWidth+add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-		}
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			if (LeftMargin>0)
-			{
-				for (int j=0;j<LeftMargin;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-			for (int j=0; j<SpriteWidth;j++)
-				((char*)(ret->pixels))[ftcp++]=FDef[BaseOffset++];
-			if (RightMargin>0)
-			{
-				for (int j=0;j<add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-		}
-		if (BottomMargin>0)
-		{
-			for (int i=0;i<BottomMargin;i++)
-			{
-				for (int j=0;j<FullWidth+add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-		}
+				ftcp += LeftMargin;
 
-	}
-	if (defType2==1)
-	{
-		if (TopMargin>0)
-		{
-			for (int i=0;i<TopMargin;i++)
-			{
-				for (int j=0;j<FullWidth+add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+			memcpy((char*)(ret->pixels)+ftcp, &FDef[BaseOffset], SpriteWidth);
+			ftcp += SpriteWidth;
+			BaseOffset += SpriteWidth;
+			
+			if (RightMargin>0)
+				ftcp += RightMargin;
 		}
+	}
+	break;
+
+	case 1:
+	{
 		memcpy(RWEntries, FDef+BaseOffset, SpriteHeight*sizeof(int));
 		BaseOffset += sizeof(int) * SpriteHeight;
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor+RWEntries[i];
 			if (LeftMargin>0)
-			{
-				for (int j=0;j<LeftMargin;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += LeftMargin;
+
 			TotalRowLength=0;
 			do
 			{
+				unsigned int SegmentLength;
+
 				SegmentType=FDef[BaseOffset++];
-				SegmentLength=FDef[BaseOffset++];
+				SegmentLength=FDef[BaseOffset++] + 1;
+
 				if (SegmentType==0xFF)
 				{
-					for (int k=0;k<=SegmentLength;k++)
+					for (int k=0;k<SegmentLength;k++)
 					{
 						((char*)(ret->pixels))[ftcp++]=FDef[BaseOffset+k];
-						if ((TotalRowLength+k+1)>=SpriteWidth)
+						if ((TotalRowLength+k)>=SpriteWidth)
 							break;
 					}
-					BaseOffset+=SegmentLength+1;////
-					TotalRowLength+=SegmentLength+1;
+					BaseOffset+=SegmentLength;
+					TotalRowLength+=SegmentLength;
 				}
 				else
 				{
-					for (int k=0;k<SegmentLength+1;k++)
-					{
-						((char*)(ret->pixels))[ftcp++]=SegmentType;//
-						//((char*)(ret->pixels))+='\0';
-					}
-					TotalRowLength+=SegmentLength+1;
+					memset((char*)(ret->pixels)+ftcp, SegmentType, SegmentLength);
+					ftcp += SegmentLength;
+					TotalRowLength += SegmentLength;
 				}
 			}while(TotalRowLength<SpriteWidth);
+
 			RowAdd=SpriteWidth-TotalRowLength;
+
 			if (RightMargin>0)
-			{
-				for (int j=0;j<RightMargin;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += RightMargin;
+
 			if (add>0)
-			{
-				for (int j=0;j<add+RowAdd;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-		}
-		if (BottomMargin>0)
-		{
-			for (int i=0;i<BottomMargin;i++)
-			{
-				for (int j=0;j<FullWidth+add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += add+RowAdd;
 		}
 	}
-	if (defType2==2)
+	break;
+
+	case 2:
 	{
-		if (TopMargin>0)
-		{
-			for (int i=0;i<TopMargin;i++)
-			{
-				for (int j=0;j<FullWidth+add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-		}
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor+i*2*(SpriteWidth/32);
@@ -428,11 +394,10 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 		{
 			//BaseOffset = BaseOffsetor+RWEntries[i];
 			if (LeftMargin>0)
-			{
-				for (int j=0;j<LeftMargin;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += LeftMargin;
+
 			TotalRowLength=0;
+
 			do
 			{
 				SegmentType=FDef[BaseOffset++];
@@ -440,52 +405,29 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 				unsigned char value = (SegmentType & 31) + 1;
 				if(code==7)
 				{
-					for(int h=0; h<value; ++h)
-					{
-						((char*)(ret->pixels))[ftcp++]=FDef[BaseOffset++];
-					}
+					memcpy((char*)(ret->pixels)+ftcp, &FDef[BaseOffset], value);
+					ftcp += value;
+					BaseOffset += value;
 				}
 				else
 				{
-					for(int h=0; h<value; ++h)
-					{
-						((char*)(ret->pixels))[ftcp++]=code;
-					}
+					memset((char*)(ret->pixels)+ftcp, code, value);
+					ftcp += value;
 				}
 				TotalRowLength+=value;
 			} while(TotalRowLength<SpriteWidth);
+
 			if (RightMargin>0)
-			{
-				for (int j=0;j<RightMargin;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += RightMargin;
+
 			if (add>0)
-			{
-				for (int j=0;j<add+RowAdd;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-		}
-		if (BottomMargin>0)
-		{
-			for (int i=0;i<BottomMargin;i++)
-			{
-				for (int j=0;j<FullWidth+add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += add+RowAdd;
 		}
 	}
-	if (defType2==3)
+	break;
+
+	case 3:
 	{
-		if (add==4)
-			add=0;
-		if (TopMargin>0)
-		{
-			for (int i=0;i<TopMargin;i++)
-			{
-				for (int j=0;j<FullWidth+add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-		}
 		for (int i=0;i<SpriteHeight;i++)
 		{
 			BaseOffset=BaseOffsetor+i*2*(SpriteWidth/32);
@@ -495,11 +437,10 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 		{
 			BaseOffset = BaseOffsetor+RWEntries[i];
 			if (LeftMargin>0)
-			{
-				for (int j=0;j<LeftMargin;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += LeftMargin;
+
 			TotalRowLength=0;
+
 			do
 			{
 				SegmentType=FDef[BaseOffset++];
@@ -529,26 +470,21 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 				}
 				TotalRowLength+=( LeftMargin>=0 ? value : value+LeftMargin );
 			}while(TotalRowLength<SpriteWidth);
+
 			if (RightMargin>0)
-			{
-				for (int j=0;j<RightMargin;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += RightMargin;
+
 			if (add>0)
-			{
-				for (int j=0;j<add+RowAdd;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
-		}
-		if (BottomMargin>0)
-		{
-			for (int i=0;i<BottomMargin;i++)
-			{
-				for (int j=0;j<FullWidth+add;j++)
-					((char*)(ret->pixels))[ftcp++]='\0';
-			}
+				ftcp += add+RowAdd;
 		}
 	}
+	break;
+
+	default:
+		throw std::string("Unknown sprite format.");
+		break;
+	}
+
 	SDL_Color ttcol = ret->format->palette->colors[0];
 	Uint32 keycol = SDL_MapRGBA(ret->format, ttcol.r, ttcol.b, ttcol.g, ttcol.unused);
 	SDL_SetColorKey(ret, SDL_SRCCOLORKEY, keycol);
