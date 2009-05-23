@@ -626,23 +626,27 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 
 		if(w > 0 && h > 0)
 		{
-			SDL_Rect sr;
-			sr.x = srcx;
-			sr.y = srcy;
-			sr.w = dstRect->w = w;
-			sr.h = dstRect->h = h;
+			dstRect->w = w;
+			dstRect->h = h;
 
 			if(SDL_LockSurface(dst))
 				return -1; //if we cannot lock the surface
 
+			const int bpp = dst->format->BytesPerPixel;
+			const SDL_Color *colors = src->format->palette->colors;
+			Uint8 *colory = (Uint8*)src->pixels + srcy*src->pitch + srcx;
+			Uint8 *py = (Uint8*)dst->pixels + dstRect->y*dst->pitch + dstRect->x*bpp;
+
 			if(dst->format->Rshift==0) //like in most surfaces
 			{
-				for(Uint16 y=0; y<sr.h; ++y)
+				for(int y=0; y<h; y++, colory+=src->pitch, py+=dst->pitch)
 				{
-					for(Uint16 x=0; x<sr.w; ++x)
+					Uint8 *color = colory;
+					Uint8 *p = py;
+
+					for(int x=0; x<w; ++x, color++, p += bpp)
 					{
-						SDL_Color & tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
-						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
+						const SDL_Color tbc = colors[*color]; //color to blit
 
 						// According analyze, the values of tbc.unused are fixed,
 						// and the approximate ratios are as following:
@@ -658,7 +662,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 						//
 						// By making use of such characteristic, we may implement a
 						// very fast algorithm for heroes3 without loose much quality.
-						switch ((Uint32)tbc.unused)
+						switch (tbc.unused)
 						{
 							case 255:
 								break;
@@ -673,9 +677,9 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 								p[2] = ((Uint16)tbc.b + (Uint16)p[2]) >> 1;
 								break;
 							default:
-								p[0] = ((((Uint32)p[0]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r) & 0xFF;
-								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g) & 0xFF;
-								p[2] = ((((Uint32)p[2]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b) & 0xFF;
+								p[0] = ((((Uint32)p[0]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r);
+								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g);
+								p[2] = ((((Uint32)p[2]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b);
 								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
 								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
 								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
@@ -686,31 +690,33 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			}
 			else if(dst->format->Rshift==16) //such as screen
 			{
-				for(Uint16 y=0; y<sr.h; ++y)
+				for(int y=0; y<h; y++, colory+=src->pitch, py+=dst->pitch)
 				{
-					for(Uint16 x=0; x<sr.w; ++x)
-					{
-						SDL_Color & tbc = src->format->palette->colors[*((Uint8*)src->pixels + (y+sr.y)*src->pitch + x + sr.x)]; //color to blit
-						Uint8 * p = (Uint8*)dst->pixels + (y+dstRect->y)*dst->pitch + (x+dstRect->x)*dst->format->BytesPerPixel; //place to blit at
+					Uint8 *color = colory;
+					Uint8 *p = py;
 
-						switch ((Uint32)tbc.unused)
+					for(int x=0; x<w; x++, color++, p += bpp)
+					{
+						const SDL_Color tbc = colors[*color]; //color to blit
+
+						switch (tbc.unused)
 						{
 							case 255:
 								break;
 							case 0:
-								p[2] = tbc.r;
-								p[1] = tbc.g;
 								p[0] = tbc.b;
+								p[1] = tbc.g;
+								p[2] = tbc.r;
 								break;
 							case 128:  // optimized
-								p[2] = ((Uint16)tbc.r + (Uint16)p[2]) >> 1;
-								p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
 								p[0] = ((Uint16)tbc.b + (Uint16)p[0]) >> 1;
+								p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
+								p[2] = ((Uint16)tbc.r + (Uint16)p[2]) >> 1;
 								break;
 							default:
-								p[2] = ((((Uint32)p[2]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r) & 0xFF;
-								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g) & 0xFF;
-								p[0] = ((((Uint32)p[0]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b) & 0xFF;
+								p[0] = ((((Uint32)p[0]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b);
+								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g);
+								p[2] = ((((Uint32)p[2]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r);
 								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
 								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
 								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
