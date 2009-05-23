@@ -153,13 +153,13 @@ struct AddDefForButton
 		currentButton->additionalDefs.push_back(str);
 	}
 };
-void addGRes()
+static void addGRes()
 {
 	if(current)
 		conf.guiOptions[curRes] = *current; //we'll use by default settings from previous resolution
 	current = &conf.guiOptions[curRes];
 }
-void setGem(int x, int val)
+static void setGem(int x, int val)
 {
 	if(x)	
 		current->ac.gemX[gnb] = val;

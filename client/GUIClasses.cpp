@@ -54,7 +54,7 @@ extern TTF_Font * GEOR16;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
-StackState* getStackState(const CGObjectInstance *obj, int pos, bool town)
+static StackState* getStackState(const CGObjectInstance *obj, int pos, bool town)
 {
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(obj);
 	if(!h) return NULL;
@@ -2425,7 +2425,7 @@ SDL_Surface * CMarketplaceWindow::CTradeableItem::getSurface()
 		return NULL;
 	}
 }
-void initItems( std::vector<CMarketplaceWindow::CTradeableItem*> &i, std::vector<SDL_Rect> &p, int type, int amount, bool left, std::vector<int> *ids/*=NULL*/ )
+static void initItems( std::vector<CMarketplaceWindow::CTradeableItem*> &i, std::vector<SDL_Rect> &p, int type, int amount, bool left, std::vector<int> *ids/*=NULL*/ )
 {
 	i.resize(amount);
 	for(int j=0;j<amount;j++)

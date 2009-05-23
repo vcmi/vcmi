@@ -28,7 +28,7 @@
 
 extern SDL_Surface * screen;
 
-std::string nameFromType (int typ)
+static std::string nameFromType (int typ)
 {
 	switch(static_cast<TerrainTile::EterrainType>(typ))
 	{
@@ -98,7 +98,7 @@ struct OCM_HLP
 		return (*a.first)<(*b.first);
 	}
 } ocmptwo ;
-void alphaTransformDef(CGDefInfo * defInfo)
+static void alphaTransformDef(CGDefInfo * defInfo)
 {	
 	SDL_Surface * alphaTransSurf = SDL_CreateRGBSurface(SDL_SWSURFACE, 12, 12, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 	for(int yy=0;yy<defInfo->handler->ourImages.size();yy++)
@@ -417,7 +417,7 @@ void CMapHandler::initObjectRects()
 		}
 	}
 }
-void processDef (CGDefInfo* def)
+static void processDef (CGDefInfo* def)
 {
 	if(def->id == 26)
 		return;

@@ -17,7 +17,7 @@
  *
  */
 
-std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
+static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 {
 	std::map<int,int> mapa;
 	std::set<si32> ret;
@@ -72,14 +72,14 @@ std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 
 	return ret;
 }
-unsigned int intPow(unsigned int a, unsigned int b)
+static unsigned int intPow(unsigned int a, unsigned int b)
 {
 	unsigned int ret=1;
 	for(int i=0; i<b; ++i)
 		ret*=a;
 	return ret;
 }
-unsigned char reverse(unsigned char arg)
+static unsigned char reverse(unsigned char arg)
 {
 	unsigned char ret = 0;
 	for (int i=0; i<8;i++)
@@ -91,7 +91,7 @@ unsigned char reverse(unsigned char arg)
 	}
 	return ret;
 }
-EDefType getDefType(CGDefInfo * a)
+static EDefType getDefType(CGDefInfo * a)
 {
 	switch(a->id)
 	{
@@ -147,7 +147,7 @@ EDefType getDefType(CGDefInfo * a)
 		return TERRAINOBJ_DEF; // nothing to be handled
 	}
 }
-int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = false)
+static int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = false)
 {
 	int ret=0;
 	int amp=1;
@@ -162,11 +162,11 @@ int readNormalNr (unsigned char * bufor, int pos, int bytCon = 4, bool cyclic = 
 	}
 	return ret;
 }
-char readChar(unsigned char * bufor, int &i)
+static char readChar(unsigned char * bufor, int &i)
 {
 	return bufor[i++];
 }
-std::string readString(unsigned char * bufor, int &i)
+static std::string readString(unsigned char * bufor, int &i)
 {					
 	int len = readNormalNr(bufor,i); i+=4;
 	std::string ret; ret.reserve(len);
@@ -176,7 +176,7 @@ std::string readString(unsigned char * bufor, int &i)
 	}
 	return ret;
 }
-CCreatureSet readCreatureSet(unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
+static CCreatureSet readCreatureSet(unsigned char * bufor, int &i, int number, bool version) //version==true for >RoE maps
 {
 	if(version)
 	{

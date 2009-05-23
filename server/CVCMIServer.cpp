@@ -43,7 +43,7 @@ int port = 3030;
  *
  */
 
-void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code *error)
+static void vaccept(tcp::acceptor *ac, tcp::socket *s, boost::system::error_code *error)
 {
 	ac->accept(*s,*error);
 }

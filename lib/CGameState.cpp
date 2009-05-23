@@ -168,7 +168,7 @@ std::string DLL_EXPORT toString(MetaString &ms)
 	return ret;
 }
 
-CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
+static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 {
 	CGObjectInstance * nobj;
 	switch(id)

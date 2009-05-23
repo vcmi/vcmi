@@ -18,7 +18,7 @@ extern CLodHandler * bitmaph;
  *
  */
 
-unsigned int readNr(std::string &in, int &it)
+static unsigned int readNr(std::string &in, int &it)
 {
 	int last=it;
 	for(;last<in.size();last++)
@@ -32,7 +32,7 @@ unsigned int readNr(std::string &in, int &it)
 	ss >> last;
 	return last;
 }
-CBuilding * readBg(std::string &buf, int& it)
+static CBuilding * readBg(std::string &buf, int& it)
 {
 	CBuilding * nb = new CBuilding();
 	nb->resources.resize(RESOURCE_QUANTITY);

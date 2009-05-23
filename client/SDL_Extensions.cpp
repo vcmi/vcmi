@@ -447,7 +447,7 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 }
 //	<=>
 
-void prepareOutRect(SDL_Rect &dst, const SDL_Rect *dstRect, const SDL_Rect *clip_rect)
+static void prepareOutRect(SDL_Rect &dst, const SDL_Rect *dstRect, const SDL_Rect *clip_rect)
 {
 	dst.x = std::max(dstRect->x,clip_rect->x);
 	dst.y = std::max(dstRect->y,clip_rect->y);

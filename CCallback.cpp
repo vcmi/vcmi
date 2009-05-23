@@ -32,7 +32,7 @@
  *
  */
 
-int gcd(int x, int y)
+static int gcd(int x, int y)
 {
 	int temp;
 	if (y > x)

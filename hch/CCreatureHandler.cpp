@@ -23,7 +23,7 @@ extern CLodHandler * bitmaph;
  *
  */
 
-std::vector<int> getMindSpells()
+static std::vector<int> getMindSpells()
 {
 	std::vector<int> ret;
 	ret.push_back(50); //sorrow

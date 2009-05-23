@@ -343,7 +343,7 @@ CHeroGSlot::~CHeroGSlot()
 {
 }
 
-std::string getBgName(int type) //TODO - co z tym zrobi�?
+static std::string getBgName(int type) //TODO - co z tym zrobi�?
 {
 	switch (type)
 	{

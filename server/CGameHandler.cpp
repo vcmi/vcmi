@@ -92,11 +92,11 @@ public:
 	}
 } cmpst ;
 
-double distance(int3 a, int3 b)
+static inline double distance(int3 a, int3 b)
 {
 	return std::sqrt( (double)(a.x-b.x)*(a.x-b.x) + (a.y-b.y)*(a.y-b.y) );
 }
-void giveExp(BattleResult &r)
+static void giveExp(BattleResult &r)
 {
 	r.exp[0] = 0;
 	r.exp[1] = 0;
@@ -292,7 +292,7 @@ void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
 	}
 }
 
-CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInfo *bat)
+static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInfo *bat)
 {
 	CCreatureSet ret(set);
 	for(int i=0; i<bat->stacks.size();i++)
@@ -621,7 +621,7 @@ void CGameHandler::init(StartInfo *si, int Seed)
 		states.addPlayer(i->first);
 }
 
-bool evntCmp(const CMapEvent *a, const CMapEvent *b)
+static bool evntCmp(const CMapEvent *a, const CMapEvent *b)
 {
 	return *a < *b;
 }
@@ -804,7 +804,7 @@ void CGameHandler::run(bool resume)
 namespace CGH
 {
 	using namespace std;
-	void readItTo(ifstream & input, vector< vector<int> > & dest)
+	static void readItTo(ifstream & input, vector< vector<int> > & dest)
 	{
 		for(int j=0; j<7; ++j)
 		{
@@ -1461,7 +1461,6 @@ void CGameHandler::sendAndApply( CPackForClient * info )
 
 void CGameHandler::save( const std::string &fname )
 {
-
 	{
 		tlog0 << "Ordering clients to serialize...\n";
 		SaveGame sg(fname);
@@ -2261,7 +2260,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	}
 }
 
-ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature)
+static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature)
 {
 	ui32 ret = 0; //value to return
 	switch(sp->id)

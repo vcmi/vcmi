@@ -261,7 +261,7 @@ inline void delObjRect(const int & x, const int & y, const int & z, const int & 
 			return;
 		}
 }
-int getDir(int3 src, int3 dst)
+static int getDir(int3 src, int3 dst)
 {
 	int ret = -1;
 	if(dst.x+1 == src.x && dst.y+1 == src.y) //tl

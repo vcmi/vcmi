@@ -22,35 +22,35 @@ extern CLodHandler *bitmaph;
 
 namespace SRSLPraserHelpers
 {
-	int XYToHex(int x, int y)
+	static int XYToHex(int x, int y)
 	{
 		return x + 17 * y;
 	}
 
-	int XYToHex(std::pair<int, int> xy)
+	static int XYToHex(std::pair<int, int> xy)
 	{
 		return XYToHex(xy.first, xy.second);
 	}
 
-	int hexToY(int battleFieldPosition)
+	static int hexToY(int battleFieldPosition)
 	{
 		return battleFieldPosition/17;
 	}
 
-	int hexToX(int battleFieldPosition)
+	static int hexToX(int battleFieldPosition)
 	{
 		int pos = battleFieldPosition - hexToY(battleFieldPosition) * 17;
 		return pos;
 	}
 
-	std::pair<int, int> hexToPair(int battleFieldPosition)
+	static std::pair<int, int> hexToPair(int battleFieldPosition)
 	{
 		return std::make_pair(hexToX(battleFieldPosition), hexToY(battleFieldPosition));
 	}
 
 	//moves hex by one hex in given direction
 	//0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left
-	std::pair<int, int> gotoDir(int x, int y, int direction)
+	static std::pair<int, int> gotoDir(int x, int y, int direction)
 	{
 		switch(direction)
 		{
@@ -69,18 +69,18 @@ namespace SRSLPraserHelpers
 		}
 	}
 
-	std::pair<int, int> gotoDir(std::pair<int, int> xy, int direction)
+	static std::pair<int, int> gotoDir(std::pair<int, int> xy, int direction)
 	{
 		return gotoDir(xy.first, xy.second, direction);
 	}
 
-	bool isGoodHex(std::pair<int, int> xy)
+	static bool isGoodHex(std::pair<int, int> xy)
 	{
 		return xy.first >=0 && xy.first < 17 && xy.second >= 0 && xy.second < 11;
 	}
 
 	//helper fonction for std::set<ui16> CSpell::rangeInHexes(unsigned int centralHex, ui8 schoolLvl ) const
-	std::set<ui16> getInRange(unsigned int center, int low, int high)
+	static std::set<ui16> getInRange(unsigned int center, int low, int high)
 	{
 		std::set<ui16> ret;
 		if(low == 0)

@@ -612,12 +612,12 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 	}
 }
 
-StackFeature featureGenerator(StackFeature::ECombatFeatures type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0)
+static inline StackFeature featureGenerator(StackFeature::ECombatFeatures type, si16 subtype, si32 value, ui16 turnsRemain, si32 additionalInfo = 0)
 {
 	return makeFeature(type, StackFeature::N_TURNS, subtype, value, StackFeature::SPELL_EFFECT, turnsRemain, additionalInfo);
 }
 
-std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect & sse)
+static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect & sse)
 {
 	std::vector<StackFeature> sf;
 	switch(sse.id)

@@ -48,7 +48,7 @@ CPreGame * CPG;
 namespace fs = boost::filesystem;
 namespace s = CSDL_Ext;
 
-int getNextCastle(int current, PlayerInfo * ourInf, bool next=true) //next=flase => previous castle
+static int getNextCastle(int current, PlayerInfo * ourInf, bool next=true) //next=flase => previous castle
 {
 	int dir = next ? 1 : -1;
 	if (current==-2) //no castle - no change
@@ -1122,7 +1122,7 @@ void MapSel::processGames(const std::vector<std::string> &pliczkiTemp)
 	}
 }
 
-bool isNull(CMapInfo*mi)
+static bool isNull(CMapInfo*mi)
 {
 	return mi==NULL;
 }

@@ -248,7 +248,7 @@ int CGObjectInstance::getSightRadious() const
 	return 3;
 }
 
-int lowestSpeed(const CGHeroInstance * chi)
+static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->army.slots.size())
 	{
