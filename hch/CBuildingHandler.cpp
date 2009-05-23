@@ -149,6 +149,9 @@ CBuildingHandler::~CBuildingHandler()
 		for(std::map<int, CBuilding*>::iterator j=i->second.begin(); j!=i->second.end(); j++)
 			delete j->second;
 }
+
+static std::string emptyStr = "";
+
 const std::string & CBuilding::Name()
 {
 	if(name.length())
@@ -156,7 +159,7 @@ const std::string & CBuilding::Name()
 	else if(vstd::contains(VLC->generaltexth->buildings,tid) && vstd::contains(VLC->generaltexth->buildings[tid],bid))
 		return VLC->generaltexth->buildings[tid][bid].first;
 	tlog2 << "Warning: Cannot find name text for building " << bid << "for " << tid << "town.\n";
-	return "";
+	return emptyStr;
 }
 
 const std::string & CBuilding::Description()
@@ -166,7 +169,7 @@ const std::string & CBuilding::Description()
 	else if(vstd::contains(VLC->generaltexth->buildings,tid) && vstd::contains(VLC->generaltexth->buildings[tid],bid))
 		return VLC->generaltexth->buildings[tid][bid].second;
 	tlog2 << "Warning: Cannot find description text for building " << bid << "for " << tid << "town.\n";
-	return "";
+	return emptyStr;
 }
 
 CBuilding::CBuilding( int TID, int BID )
