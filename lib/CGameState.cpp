@@ -446,13 +446,13 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 int CStack::valOfFeatures(StackFeature::ECombatFeatures type, int subtype) const
 {
 	int ret = 0;
-	if(subtype == -1)
+	if(subtype == -1024) //any subtype
 	{
 		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
 			if(i->type == type)
 				ret += i->value;
 	}
-	else
+	else //given subtype
 	{
 		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
 			if(i->type == type && i->subtype == subtype)
@@ -463,7 +463,7 @@ int CStack::valOfFeatures(StackFeature::ECombatFeatures type, int subtype) const
 
 bool CStack::hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype) const
 {
-	if(subtype == -1) //any subtype
+	if(subtype == -1024) //any subtype
 	{
 		for(std::vector<StackFeature>::const_iterator i=features.begin(); i != features.end(); i++)
 			if(i->type == type)
@@ -540,14 +540,14 @@ ui8 CStack::howManyEffectsSet(ui16 id) const
 si8 CStack::Morale() const
 {
 	si8 ret = morale;
-	if(getEffect(49)) //mirth
+	
+	ret += valOfFeatures(StackFeature::MORALE_BONUS); //mirth & sorrow & other
+
+	if(hasFeatureOfType(StackFeature::SELF_MORALE)) //eg. minotaur
 	{
-		ret += VLC->spellh->spells[49].powers[getEffect(49)->level];
+		ret = std::max<si8>(ret, +1);
 	}
-	if(getEffect(50)) //sorrow
-	{
-		ret -= VLC->spellh->spells[50].powers[getEffect(50)->level];
-	}
+
 	if(ret > 3) ret = 3;
 	if(ret < -3) ret = -3;
 	return ret;
@@ -556,14 +556,14 @@ si8 CStack::Morale() const
 si8 CStack::Luck() const
 {
 	si8 ret = luck;
-	if(getEffect(51)) //fortune
+	
+	ret += valOfFeatures(StackFeature::LUCK_BONUS); //fortune & misfortune & other
+
+	if(hasFeatureOfType(StackFeature::SELF_LUCK)) //eg. halfling
 	{
-		ret += VLC->spellh->spells[51].powers[getEffect(51)->level];
+		ret = std::max<si8>(ret, +1);
 	}
-	if(getEffect(52)) //misfortune
-	{
-		ret -= VLC->spellh->spells[52].powers[getEffect(52)->level];
-	}
+
 	if(ret > 3) ret = 3;
 	if(ret < -3) ret = -3;
 	return ret;
@@ -578,7 +578,7 @@ si32 CStack::Attack() const
 		ret += (VLC->spellh->spells[56].powers[getEffect(56)->level]/100.0) * Defense(false);
 	}
 
-	ret += valOfFeatures(StackFeature::ATTACK_BONUS);
+	ret += valOfFeatures(StackFeature::ATTACK_BONUS, -1);
 
 	return ret;
 }
@@ -592,7 +592,7 @@ si32 CStack::Defense(bool withFrenzy /*= true*/) const
 		return 0;
 	}
 
-	ret += valOfFeatures(StackFeature::DEFENCE_BONUS);
+	ret += valOfFeatures(StackFeature::DEFENCE_BONUS, -1);
 
 	return ret;
 }
@@ -1778,14 +1778,14 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 
 	//calculating total attack/defense skills modifier
 
-	if(!shooting && attacker->getEffect(43)) //bloodlust handling
+	if(!shooting && attacker->hasFeatureOfType(StackFeature::ATTACK_BONUS, 0)) //bloodlust handling (etc.)
 	{
-		attackDefenseBonus += VLC->spellh->spells[43].powers[attacker->getEffect(43)->level];
+		attackDefenseBonus += attacker->valOfFeatures(StackFeature::ATTACK_BONUS, 0);
 	}
 
-	if(shooting && attacker->getEffect(44)) //precision handling
+	if(shooting && attacker->hasFeatureOfType(StackFeature::ATTACK_BONUS, 1)) //precision handling (etc.)
 	{
-		attackDefenseBonus += VLC->spellh->spells[44].powers[attacker->getEffect(44)->level];
+		attackDefenseBonus += attacker->valOfFeatures(StackFeature::ATTACK_BONUS, 1);
 	}
 
 	if(attacker->getEffect(55)) //slayer handling
@@ -1922,13 +1922,13 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 		}
 	}
 	//handling spell effects
-	if(!shooting && defender->getEffect(27)) //shield
+	if(!shooting && defender->hasFeatureOfType(StackFeature::GENERAL_DAMAGE_REDUCTION, 0)) //eg. shield
 	{
-		dmgBonusMultiplier *= float(VLC->spellh->spells[27].powers[attacker->getEffect(27)->level]) / 100.0f;
+		dmgBonusMultiplier *= float(defender->valOfFeatures(StackFeature::GENERAL_DAMAGE_REDUCTION, 0)) / 100.0f;
 	}
-	else if(shooting && defender->getEffect(28)) //air shield
+	else if(shooting && defender->hasFeatureOfType(StackFeature::GENERAL_DAMAGE_REDUCTION, 1)) //eg. air shield
 	{
-		dmgBonusMultiplier *= float(VLC->spellh->spells[28].powers[attacker->getEffect(28)->level]) / 100.0f;
+		dmgBonusMultiplier *= float(defender->valOfFeatures(StackFeature::GENERAL_DAMAGE_REDUCTION, 1)) / 100.0f;
 	}
 	if(attacker->getEffect(42)) //curse handling (partial, the rest is below)
 	{

@@ -173,8 +173,8 @@ public:
 	};
 	std::vector<StackEffect> effects;
 
-	int valOfFeatures(StackFeature::ECombatFeatures type, int subtype = -1) const;//subtype -> subtype of bonus, if -1 then any
-	bool hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype = -1) const; //determines if stack has a bonus of given type (and optionally subtype)
+	int valOfFeatures(StackFeature::ECombatFeatures type, int subtype = -1024) const;//subtype -> subtype of bonus, if -1024 then any
+	bool hasFeatureOfType(StackFeature::ECombatFeatures type, int subtype = -1024) const; //determines if stack has a bonus of given type (and optionally subtype)
 
 	CStack(CCreature * C, int A, int O, int I, bool AO, int S); //c-tor
 	CStack() : ID(-1), creature(NULL), amount(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor

@@ -2342,24 +2342,31 @@ static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, 
 	}
 
 	//applying protections - when spell has more then one elements, only one protection should be applied (I think)
-	if(sp->air && affectedCreature->getEffect(30)) //air spell & protection from air
+	if(sp->air && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 0)) //air spell & protection from air
 	{
-		ret *= VLC->spellh->spells[30].powers[affectedCreature->getEffect(30)->level];
+		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 0);
 		ret /= 100;
 	}
-	else if(sp->fire && affectedCreature->getEffect(31)) //fire spell & protection from fire
+	else if(sp->fire && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 1)) //fire spell & protection from fire
 	{
-		ret *= VLC->spellh->spells[31].powers[affectedCreature->getEffect(31)->level];
+		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 1);
 		ret /= 100;
 	}
-	else if(sp->water && affectedCreature->getEffect(32)) //water spell & protection from water
+	else if(sp->water && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 2)) //water spell & protection from water
 	{
-		ret *= VLC->spellh->spells[32].powers[affectedCreature->getEffect(32)->level];
+		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 2);
 		ret /= 100;
 	}
-	else if (sp->earth && affectedCreature->getEffect(33)) //earth spell & protection from earth
+	else if (sp->earth && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, 3)) //earth spell & protection from earth
 	{
-		ret *= VLC->spellh->spells[33].powers[affectedCreature->getEffect(33)->level];
+		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, 3);
+		ret /= 100;
+	}
+
+	//general spell dmg reduction
+	if(sp->air && affectedCreature->hasFeatureOfType(StackFeature::SPELL_DAMAGE_REDUCTION, -1)) //air spell & protection from air
+	{
+		ret *= affectedCreature->valOfFeatures(StackFeature::SPELL_DAMAGE_REDUCTION, -1);
 		ret /= 100;
 	}
 
