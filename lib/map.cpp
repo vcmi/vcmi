@@ -539,25 +539,55 @@ void Mapa::addBlockVisTiles(CGObjectInstance * obj)
 }
 Mapa::Mapa(std::string filename)
 {
+	const int bufsize = 65536;
+	int mapsize = 0;
+
 	tlog0<<"Opening map file: "<<filename<<"\t "<<std::flush;
 	gzFile map = gzopen(filename.c_str(),"rb");
-	std::vector<unsigned char> mapstr; int pom;
-	while((pom=gzgetc(map))>=0)
-	{
-		mapstr.push_back(pom);
-	}
+	std::vector<unsigned char *> mapstr;
+
+	// Read a map by chunks
+	// We could try to read the map size directly (cf RFC 1952) and then read
+	// directly the whole map, but that would create more problems.
+	do {
+		unsigned char *buf = new unsigned char[bufsize];
+
+		int ret = gzread(map, buf, bufsize);
+		if (ret == 0 || ret == -1) {
+			delete [] buf;
+			break;
+		}
+
+		mapstr.push_back(buf);
+		mapsize += ret;
+	} while(1);
+
 	gzclose(map);
-	unsigned char *initTable = new unsigned char[mapstr.size()];
-	for(int ss=0; ss<mapstr.size(); ++ss)
-	{
-		initTable[ss] = mapstr[ss];
-	}
+	
+	// Now that we know the uncompressed size, reassemble the chunks
+	unsigned char *initTable = new unsigned char[mapsize];
+	
+	std::vector<unsigned char *>::iterator it;
+	int offset;
+	int tocopy = mapsize;
+    for (it = mapstr.begin(), offset = 0; 
+		 it != mapstr.end(); 
+		 it++, offset+=bufsize ) {
+		memcpy(&initTable[offset], *it, tocopy > bufsize ? bufsize : tocopy);
+		tocopy -= bufsize;
+		delete [] *it;
+    }
+
 	tlog0<<"done."<<std::endl;
+
+	// Compute checksum
 	boost::crc_32_type  result;
-	result.process_bytes(initTable,mapstr.size());
+	result.process_bytes(initTable,mapsize);
 	checksum = result.checksum();
 	tlog0 << "\tOur map checksum: "<<result.checksum() << std::endl;
+
 	initFromBytes(initTable);
+
 	delete [] initTable;
 }
 
