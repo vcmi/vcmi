@@ -1663,6 +1663,9 @@ void CPlayerInterface::popIntTotally( IShowActivable *top )
 
 void CPlayerInterface::pushInt( IShowActivable *newInt )
 {
+	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
+	screenBuf = screen2; 
+
 	if(listInt.size())
 		listInt.front()->deactivate();
 	listInt.push_front(newInt);

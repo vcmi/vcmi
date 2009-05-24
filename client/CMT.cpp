@@ -57,7 +57,9 @@
  */
 
 std::string NAME = NAME_VER + std::string(" (client)"); //application name
-SDL_Surface *screen = NULL, *screen2 = NULL; //main screen surface and hlp surface (used to store not-active interfaces layer)
+SDL_Surface *screen = NULL, //main screen surface 
+	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
+	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
 std::queue<SDL_Event*> events;
 boost::mutex eventsM;

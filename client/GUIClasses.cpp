@@ -31,7 +31,7 @@
 #include <boost/assign/std/vector.hpp> 
 #include <boost/assign/list_of.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/thread.hpp>
+//#include <boost/thread.hpp>
 #include <cmath>
 #include <queue>
 #include <sstream>
@@ -1425,7 +1425,6 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 
 void CTownList::clickLeft(tribool down)
 {
-	SDL_Surface *dst = (LOCPLINT->topInt()==LOCPLINT->adventureInt ? screen : screen2);
 	if (down)
 	{
 		/***************************ARROWS*****************************************/
@@ -1433,7 +1432,7 @@ void CTownList::clickLeft(tribool down)
 		{
 			if(from>0)
 			{
-				blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y,dst);
+				blitAt(arrup->ourImages[1].bitmap,arrupp.x,arrupp.y,screenBuf);
 				pressed = true;
 			}
 			return;
@@ -1442,7 +1441,7 @@ void CTownList::clickLeft(tribool down)
 		{
 			if(items.size()-from > SIZE)
 			{
-				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y,dst);
+				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y,screenBuf);
 				pressed = false;
 			}
 			return;
@@ -1468,7 +1467,7 @@ void CTownList::clickLeft(tribool down)
 			return;
 		if (pressed) //up
 		{
-			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y,dst);
+			blitAt(arrup->ourImages[0].bitmap,arrupp.x,arrupp.y,screenBuf);
 			pressed = indeterminate;
 			if (!down)
 			{
@@ -1476,12 +1475,12 @@ void CTownList::clickLeft(tribool down)
 				if (from<0)
 					from=0;
 
-				draw(dst);
+				draw(screenBuf);
 			}
 		}
 		else if (!pressed) //down
 		{
-			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,dst);
+			blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,screenBuf);
 			pressed = indeterminate;
 			if (!down)
 			{
@@ -1489,7 +1488,7 @@ void CTownList::clickLeft(tribool down)
 				//if (from<items.size()-5)
 				//	from=items.size()-5;
 
-				draw(dst);
+				draw(screenBuf);
 			}
 		}
 		else

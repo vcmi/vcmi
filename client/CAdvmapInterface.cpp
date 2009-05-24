@@ -481,7 +481,7 @@ void CTerrainRect::clickLeft(tribool down)
 			LOCPLINT->moveHero(currentHero,*currentPath);
 			LOCPLINT->pim->lock();
 		}
-		else //remove old path and find a new one
+		else if(mp.z == currentHero->pos.z) //remove old path and find a new one if we clicked on the map level on which hero is present
 		{
 			int3 bufpos = currentHero->getPosition(false);
 			CPath *& pathForCurhero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second;
@@ -1282,16 +1282,16 @@ void CAdvMapInt::fswitchLevel()
 	{
 		position.z--;
 		underground.curimg=0;
-		underground.show(screen2);
+		underground.show(screenBuf);
 	}
 	else
 	{
 		underground.curimg=1;
 		position.z++;
-		underground.show(screen2);
+		underground.show(screenBuf);
 	}
 	updateScreen = true;
-	minimap.draw(screen2);
+	minimap.draw(screenBuf);
 }
 void CAdvMapInt::fshowQuestlog()
 {
@@ -1355,6 +1355,7 @@ void CAdvMapInt::activate()
 		active--;
 		return;
 	}
+	screenBuf = screen;
 	LOCPLINT->statusbar = &statusbar;
 	kingOverview.activate();
 	underground.activate();

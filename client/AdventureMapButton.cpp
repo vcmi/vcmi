@@ -68,7 +68,7 @@ void AdventureMapButton::clickLeft (boost::logic::tribool down)
 		state=1;
 	else
 		state=0;
-	show(screen2);
+	show(screenBuf);
 	if (actOnDown && down)
 	{
 		pressedL=state;
@@ -198,7 +198,7 @@ void AdventureMapButton::block( ui8 on )
 	blocked = on;
 	state = 0;
 	bitmapOffset = on ? 2 : 0;
-	show(screen2);
+	show(screenBuf);
 }
 
 void CHighlightableButton::select(bool on)
@@ -224,7 +224,7 @@ void CHighlightableButton::clickLeft( tribool down )
 		state=1;
 	else
 		state = selected ? 3 : 0;
-	show(screen2);
+	show(screenBuf);
 	if (pressedL && (down==false))
 	{
 		pressedL=state;
@@ -350,7 +350,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 
 void CSlider::redrawSlider()
 {
-	slider.show(screen2);
+	slider.show(screenBuf);
 }
 
 void CSlider::moveLeft()

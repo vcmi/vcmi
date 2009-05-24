@@ -1664,6 +1664,9 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGMine::newTurn() const
 {
+	if(cb->getDate() == 1)
+		return;
+
 	if (tempOwner == NEUTRAL_PLAYER)
 		return;
 	int vv = 1;

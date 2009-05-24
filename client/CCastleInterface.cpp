@@ -260,6 +260,8 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 	CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
 	if(!down)
 	{
+		owner->garr->splitting = false;
+		owner->garr->highlighted = NULL;
 		if(hero && highlight)
 		{
 			highlight = false;

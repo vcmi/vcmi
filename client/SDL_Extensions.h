@@ -16,7 +16,7 @@
  *
  */
 
-extern SDL_Surface * screen, *screen2;
+extern SDL_Surface * screen, *screen2, *screenBuf;
 extern SDL_Color tytulowy, tlo, zwykly ;
 extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM;
 void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst=screen);
