@@ -545,6 +545,9 @@ void CCreatureHandler::loadCreatures()
 	creatures[147].abilities += makeCreatureAbility(StackFeature::NOT_ACTIVE, 0); //First Aid Tent //TODO: remove when support is added
 	creatures[148].abilities += makeCreatureAbility(StackFeature::NOT_ACTIVE, 0); //Ammo Cart
 
+	creatures[120].abilities -= StackFeature::DOUBLE_WIDE; //psychic elemental
+	creatures[121].abilities -= StackFeature::DOUBLE_WIDE; //magic elemental
+
 	creatures[0].abilities += makeCreatureAbility(StackFeature::CHARGE_IMMUNITY, 0); //pikeman immunity to Champion charge bonus
 	creatures[1].abilities += makeCreatureAbility(StackFeature::CHARGE_IMMUNITY, 0); //halberdier immunity to Champion charge bonus
 	creatures[4].abilities += makeCreatureAbility(StackFeature::ADDITIONAL_RETAILATION, 1); //griffins retailate twice

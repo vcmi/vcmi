@@ -207,6 +207,7 @@ void CArtHandler::addBonuses()
 
 	//Luck and morale 
 	ART_MORALE(45,+1); //Still Eye of the Dragon
+	ART_LUCK(45,+1); //Still Eye of the Dragon
 	ART_LUCK(46,+1); //Clover of Fortune
 	ART_LUCK(47,+1); //Cards of Prophecy
 	ART_LUCK(48,+1); //Ladybird of Luck
@@ -280,7 +281,7 @@ void CArtHandler::addBonuses()
 
 	giveArtBonus(97,HeroBonus::STACKS_SPEED,+1);//Necklace of Swiftness
 	giveArtBonus(98,HeroBonus::LAND_MOVEMENT,+600);//Boots of Speed
-	giveArtBonus(99,HeroBonus::STACKS_SPEED,+1);//Cape of Velocity
+	giveArtBonus(99,HeroBonus::STACKS_SPEED,+2);//Cape of Velocity
 
 	giveArtBonus(100,HeroBonus::SPELL_IMMUNITY,59);//Pendant of Dispassion
 	giveArtBonus(101,HeroBonus::SPELL_IMMUNITY,62);//Pendant of Second Sight

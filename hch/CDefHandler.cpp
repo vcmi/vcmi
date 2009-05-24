@@ -316,7 +316,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 	if (TopMargin > 0)
 		ftcp += TopMargin*(FullWidth+add);
 
-	switch(defType2) {
+	switch(defType2)
+	{
 	case 0:
 	{
 		for (int i=0;i<SpriteHeight;i++)
@@ -420,6 +421,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 			if (RightMargin>0)
 				ftcp += RightMargin;
 
+			RowAdd=SpriteWidth-TotalRowLength;
+
 			if (add>0)
 				ftcp += add+RowAdd;
 		}
@@ -473,6 +476,8 @@ SDL_Surface * CDefHandler::getSprite (int SIndex, unsigned char * FDef, BMPPalet
 
 			if (RightMargin>0)
 				ftcp += RightMargin;
+
+			RowAdd=SpriteWidth-TotalRowLength;
 
 			if (add>0)
 				ftcp += add+RowAdd;
