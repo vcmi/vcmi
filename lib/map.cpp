@@ -75,7 +75,7 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 static unsigned int intPow(unsigned int a, unsigned int b)
 {
 	unsigned int ret=1;
-	for(int i=0; i<b; ++i)
+	for(unsigned int i=0; i<b; ++i)
 		ret*=a;
 	return ret;
 }
@@ -477,7 +477,7 @@ void Mapa::initFromBytes(unsigned char * bufor)
 	tlog0<<"\tReading events: "<<th.getDif()<<std::endl;
 
 	//map readed, bufor no longer needed	
-	for(int f=0; f<objects.size(); ++f) //calculationg blocked / visitable positions
+	for(unsigned int f=0; f<objects.size(); ++f) //calculationg blocked / visitable positions
 	{
 		if(!objects[f]->defInfo)
 			continue;
@@ -621,7 +621,7 @@ CGHeroInstance * Mapa::getHero(int ID, int mode)
 		throw new std::exception();
 #endif
 
-	for(int i=0; i<heroes.size();i++)
+	for(unsigned int i=0; i<heroes.size();i++)
 		if(heroes[i]->subID == ID)
 			return heroes[i];
 	return NULL;
@@ -876,7 +876,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 	ui8 owner = bufor[i++];
 	nobj->subID = readNormalNr(bufor,i, 1); ++i;	
 	
-	for(int j=0; j<predefinedHeroes.size(); j++)
+	for(unsigned int j=0; j<predefinedHeroes.size(); j++)
 	{
 		if(predefinedHeroes[j]->subID == nobj->subID)
 		{
@@ -890,7 +890,7 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 	//delete nobj;
 	nhi->portrait = nhi->subID;
 
-	for(int j=0; j<disposedHeroes.size(); j++)
+	for(unsigned int j=0; j<disposedHeroes.size(); j++)
 	{
 		if(disposedHeroes[j].ID == nhi->subID)
 		{
@@ -1086,7 +1086,7 @@ void Mapa::readHeader( unsigned char * bufor, int &i)
 	i+=31; //omitting NULLS
 
 	allowedArtifact.resize(ARTIFACTS_QUANTITY);
-	for(int x=0;x<allowedArtifact.size();x++)
+	for(unsigned int x=0;x<allowedArtifact.size();x++)
 		allowedArtifact[x] = true;
 
 	//reading allowed artifacts:  17 or 18 bytes
@@ -1109,11 +1109,11 @@ void Mapa::readHeader( unsigned char * bufor, int &i)
 
 
 	allowedSpell.resize(SPELLS_QUANTITY);
-	for(int x=0;x<allowedSpell.size();x++)
+	for(unsigned int x=0;x<allowedSpell.size();x++)
 		allowedSpell[x] = true;
 
 	allowedAbilities.resize(SKILL_QUANTITY);
-	for(int x=0;x<allowedAbilities.size();x++)
+	for(unsigned int x=0;x<allowedAbilities.size();x++)
 		allowedAbilities[x] = true;
 
 	if(version>=SoD)
