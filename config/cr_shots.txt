@@ -1,8 +1,8 @@
 //here are defs with things shot by different units - don't delete this line; format: unit_ID def_name spin_projectile
 2 PLCBOWX.DEF 0
 3 PLCBOWX.DEF 0
-8 SMBALX.DEF 1
-9 SMBALX.DEF 1
+8 CPRZEAX.DEF 1
+9 CPRZEAX.DEF 1
 18 PELFX.DEF 0
 19 PELFX.DEF 0
 29 CPRGRE.DEF 1
