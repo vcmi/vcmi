@@ -455,7 +455,7 @@ static void prepareOutRect(SDL_Rect &dst, const SDL_Rect *dstRect, const SDL_Rec
 	dst.h = std::max(0,std::min(dstRect->h - (dst.y - dstRect->y), clip_rect->y + clip_rect->h - dst.y));
 }
 
-void CSDL_Ext::blitWithRotate1(const SDL_Surface *src, const SDL_Rect * srcRect, const SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24/32 bpp dests
+void CSDL_Ext::blitWithRotate1(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24/32 bpp dests
 {
 	Uint8 *sp = (Uint8 *)src->pixels;
 	const int bpp = dst->format->BytesPerPixel;
