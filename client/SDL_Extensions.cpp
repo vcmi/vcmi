@@ -523,21 +523,29 @@ void CSDL_Ext::blitWithRotate2clip(const SDL_Surface *src, const SDL_Rect * srcR
 	blitWithRotate2(src,srcRect,dst,&realDest);
 }
 
-void CSDL_Ext::blitWithRotate3(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24bpp dests
+void CSDL_Ext::blitWithRotate3(const SDL_Surface *src, const SDL_Rect * srcRect, SDL_Surface * dst, const SDL_Rect * dstRect)//srcRect is not used, works with 8bpp sources and 24/32 bpp dests
 {
-	Uint8 *dp, *sp = (Uint8 *)src->pixels;
-	for(int i=0; i<dstRect->h; i++)
+	Uint8 *sp = (Uint8 *)src->pixels;
+	const int bpp = dst->format->BytesPerPixel;
+	Uint8 *dporg = (Uint8 *)dst->pixels +(dstRect->y + dstRect->h - 1)*dst->pitch + (dstRect->x+dstRect->w)*bpp;
+	const SDL_Color * const colors = src->format->palette->colors;
+
+	for(int i=dstRect->h; i>0; i--, dporg -= dst->pitch)
 	{
+		Uint8 *dp = dporg;
+
 		sp += src->w - dstRect->w;
-		dp = (Uint8 *)dst->pixels + (dstRect->y + dstRect->h - 1 - i)*dst->pitch + (dstRect->x+dstRect->w)*dst->format->BytesPerPixel;
-		for(int j=0; j<dstRect->w; j++, sp++)
+
+		for(int j=dstRect->w; j>0; j--, sp++)
 		{
-			const SDL_Color * const color = src->format->palette->colors+(*sp);
-			if (dst->format->BytesPerPixel == 4)
+			const SDL_Color color = colors[*sp];
+
+			if (bpp == 4)
 				*(--dp) = 0;
-			*(--dp) = color->r;
-			*(--dp) = color->g;
-			*(--dp) = color->b;
+
+			*(--dp) = color.r;
+			*(--dp) = color.g;
+			*(--dp) = color.b;
 		}
 	}
 }
