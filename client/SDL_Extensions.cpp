@@ -557,9 +557,11 @@ void CSDL_Ext::blitWithRotate3clip(SDL_Surface *src,SDL_Rect * srcRect, SDL_Surf
 	blitWithRotate3(src,srcRect,dst,&realDest);
 }
 
-int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
+int CSDL_Ext::blit8bppAlphaTo24bpp(const SDL_Surface * src, const SDL_Rect * srcRect, SDL_Surface * dst, SDL_Rect * dstRect)
 {
-	if(src && src->format->BytesPerPixel==1 && dst && (dst->format->BytesPerPixel==3 || dst->format->BytesPerPixel==4)) //everything's ok
+	const int bpp = dst->format->BytesPerPixel;
+
+	if (src && src->format->BytesPerPixel==1 && dst && (bpp==3 || bpp==4)) //everything's ok
 	{
 		SDL_Rect fulldst;
 		int srcx, srcy, w, h;
@@ -568,12 +570,12 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 		if ( ! src || ! dst )
 		{
 			SDL_SetError("SDL_UpperBlit: passed a NULL surface");
-			return(-1);
+			return -1;
 		}
 		if ( src->locked || dst->locked )
 		{
 			SDL_SetError("Surfaces must not be locked during blit");
-			return(-1);
+			return -1;
 		}
 
 		/* If the destination rectangle is NULL, use the entire dest surface */
@@ -592,7 +594,7 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			w = srcRect->w;
 			if(srcx < 0)
 			{
-					w += srcx;
+				w += srcx;
 				dstRect->x -= srcx;
 				srcx = 0;
 			}
@@ -656,21 +658,61 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 			if(SDL_LockSurface(dst))
 				return -1; //if we cannot lock the surface
 
-			const int bpp = dst->format->BytesPerPixel;
 			const SDL_Color *colors = src->format->palette->colors;
 			Uint8 *colory = (Uint8*)src->pixels + srcy*src->pitch + srcx;
 			Uint8 *py = (Uint8*)dst->pixels + dstRect->y*dst->pitch + dstRect->x*bpp;
 
-			if(dst->format->Rshift==0) //like in most surfaces
+			if(dst->format->Rshift==16)	//such as screen
 			{
-				for(int y=0; y<h; y++, colory+=src->pitch, py+=dst->pitch)
+				for(int y=h; y; y--, colory+=src->pitch, py+=dst->pitch)
 				{
 					Uint8 *color = colory;
 					Uint8 *p = py;
 
-					for(int x=0; x<w; ++x, color++, p += bpp)
+					for(int x=w; x; x--, p += bpp)
 					{
-						const SDL_Color tbc = colors[*color]; //color to blit
+						const SDL_Color tbc = colors[*color++]; //color to blit
+
+						switch (tbc.unused)
+						{
+							case 255:
+								// ~59% of calls
+								break;
+							case 0:
+								// ~37% of calls
+								p[0] = tbc.b;
+								p[1] = tbc.g;
+								p[2] = tbc.r;
+								break;
+							case 128:  // optimized
+								// ~3.5% of calls
+								p[0] = ((Uint16)tbc.b + (Uint16)p[0]) >> 1;
+								p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
+								p[2] = ((Uint16)tbc.r + (Uint16)p[2]) >> 1;
+								break;
+							default:
+								// ~0.5% of calls
+								p[0] = ((((Uint32)p[0]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b);
+								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g);
+								p[2] = ((((Uint32)p[2]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r);
+								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
+								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
+								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
+								break;
+						}
+					}
+				}
+			}
+			else if(dst->format->Rshift==0)	//like in most surfaces
+			{
+				for(int y=h; y; y--, colory+=src->pitch, py+=dst->pitch)
+				{
+					Uint8 *color = colory;
+					Uint8 *p = py;
+
+					for(int x=w; x; x--, p += bpp)
+					{
+						const SDL_Color tbc = colors[*color++]; //color to blit
 
 						// According analyze, the values of tbc.unused are fixed,
 						// and the approximate ratios are as following:
@@ -707,43 +749,6 @@ int CSDL_Ext::blit8bppAlphaTo24bpp(SDL_Surface * src, SDL_Rect * srcRect, SDL_Su
 								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
 								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
 								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
-								break;
-						}
-					}
-				}
-			}
-			else if(dst->format->Rshift==16) //such as screen
-			{
-				for(int y=0; y<h; y++, colory+=src->pitch, py+=dst->pitch)
-				{
-					Uint8 *color = colory;
-					Uint8 *p = py;
-
-					for(int x=0; x<w; x++, color++, p += bpp)
-					{
-						const SDL_Color tbc = colors[*color]; //color to blit
-
-						switch (tbc.unused)
-						{
-							case 255:
-								break;
-							case 0:
-								p[0] = tbc.b;
-								p[1] = tbc.g;
-								p[2] = tbc.r;
-								break;
-							case 128:  // optimized
-								p[0] = ((Uint16)tbc.b + (Uint16)p[0]) >> 1;
-								p[1] = ((Uint16)tbc.g + (Uint16)p[1]) >> 1;
-								p[2] = ((Uint16)tbc.r + (Uint16)p[2]) >> 1;
-								break;
-							default:
-								p[0] = ((((Uint32)p[0]-(Uint32)tbc.b)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.b);
-								p[1] = ((((Uint32)p[1]-(Uint32)tbc.g)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.g);
-								p[2] = ((((Uint32)p[2]-(Uint32)tbc.r)*(Uint32)tbc.unused) >> 8 + (Uint32)tbc.r);
-								//p[2] = ((Uint32)tbc.unused*(Uint32)p[2] + (Uint32)tbc.r*(Uint32)(255-tbc.unused))>>8; //red
-								//p[1] = ((Uint32)tbc.unused*(Uint32)p[1] + (Uint32)tbc.g*(Uint32)(255-tbc.unused))>>8; //green
-								//p[0] = ((Uint32)tbc.unused*(Uint32)p[0] + (Uint32)tbc.b*(Uint32)(255-tbc.unused))>>8; //blue
 								break;
 						}
 					}
