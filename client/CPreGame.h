@@ -194,33 +194,32 @@ class MapSel : public PreGameTab
 public:
 	ESortBy sortBy;
 	SDL_Surface * bg;
-	int selected; //selected map
 	CDefHandler * Dtypes, * Dvic;
 	CDefHandler *Dsizes, * Dloss,
 		* sFlags;
 	std::vector<SDL_Surface*> scenImgs;
-	//int current;
-	std::vector<CMapInfo*> ourMaps;
-	std::vector<CMapInfo*> ourGames;
+
+	std::vector<CMapInfo*> ourMaps; // Maps
+	std::vector<CMapInfo*> ourGames; // Saved games
+	std::vector<CMapInfo*> selMaps;	// (sub)set of either ourMaps or ourGames
+	int selected;				// selected map, relative to selMaps
+
 	IntBut small, medium, large, xlarge, all;
 	SetrButton nrplayer, mapsize, type, name, viccon, loscon;
 	Slider *slid, *descslid;
 	int sizeFilter;
-	int whichWL(int nr);
-	int countWL();
 	void show();
 	void hide();
 	void init();
 	std::string gdiff(std::string ss);
 	void printMaps(int from=0);
 	void select(int which, bool updateMapsList=true, bool forceSettingsUpdate=false);
-	void moveByOne(bool up);
+	void moveByX(int nlines);
 	void printSelectedInfo();
 	void printFlags();
 	void processMaps(const std::vector<std::string> &pliczkiTemp, int start, int threads);
 	void processGames(const std::vector<std::string> &pliczkiTemp);
-	CMapInfo &selectedMap();
-	std::vector<CMapInfo*> &curVector();
+	void updateSelection();
 	MapSel();
 	~MapSel();
 };
