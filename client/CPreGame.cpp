@@ -334,6 +334,12 @@ void Slider::handleIt(SDL_Event sEvent)
 		case SDLK_PAGEDOWN:
 			CPG->ourScenSel->mapsel.moveByX(+CPG->ourScenSel->mapsel.slid->capacity);
 			break;
+		case SDLK_HOME:
+			CPG->ourScenSel->mapsel.moveByX(-CPG->ourScenSel->mapsel.slid->positionsAmnt);
+			break;
+		case SDLK_END:
+			CPG->ourScenSel->mapsel.moveByX(+CPG->ourScenSel->mapsel.slid->positionsAmnt);
+			break;
 		default:
 			//TODO do something nasty here like logs entry..
 			break;
