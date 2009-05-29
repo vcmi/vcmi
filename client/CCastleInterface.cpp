@@ -406,6 +406,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town)
 	hBuild = NULL;
 	count=0;
 	town = Town;
+	animval = 0;
 
 	//garrison
 	garr = new CGarrisonInt(pos.x+305,pos.y+387,4,32,townInt,243,13,town,town->visitingHero);
