@@ -153,6 +153,8 @@ int main(int argc, char** argv)
 		tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 		tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+
 		cgi->musich->playMusic(musicBase::mainMenu, -1);
 		StartInfo *options = new StartInfo(cpg->runLoop());
 
