@@ -122,6 +122,11 @@ struct DLL_EXPORT PlayerInfo
 	ui8 team;
 	ui8 generateHero;
 
+	PlayerInfo(): p7(0), p8(0), p9(0), canHumanPlay(0), canComputerPlay(0),
+		AITactic(0), allowedFactions(0), isFactionRandom(0),
+		mainHeroPortrait(0), hasMainTown(0), generateHeroAtMainTown(0),
+		team(0), generateHero(0) {};
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & p7 & p8 & p9 & canHumanPlay & canComputerPlay & AITactic & allowedFactions & isFactionRandom &

@@ -262,7 +262,6 @@ void CMapHeader::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
 		players[pom].canComputerPlay = bufor[i++];
 		if ((!(players[pom].canHumanPlay || players[pom].canComputerPlay)))
 		{
-			memset(&players[pom],0,sizeof(PlayerInfo));
 			switch(version)
 			{
 			case SoD: case WoG: 
