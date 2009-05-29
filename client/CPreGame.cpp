@@ -2373,16 +2373,21 @@ void CPreGame::quitAskBox()
 {
 	showAskBox("\"{}  Are you sure you want to quit?\"",NULL,NULL);
 }
+
+// Sort the maps on the new key (map size, map name, ...)
 void CPreGame::sortMaps()
 {
-	std::sort(ourScenSel->mapsel.selMaps.begin(),ourScenSel->mapsel.selMaps.end(),mapSorter(_name));
-	if(ourScenSel->mapsel.sortBy != _name)
-		std::stable_sort(ourScenSel->mapsel.selMaps.begin(),ourScenSel->mapsel.selMaps.end(),mapSorter(ourScenSel->mapsel.sortBy));
+	std::vector<CMapInfo*> &sm = ourScenSel->mapsel.selMaps;
+
+	std::sort(sm.begin(), sm.end(), mapSorter(_name));
+	if (ourScenSel->mapsel.sortBy != _name)
+		std::stable_sort(sm.begin(), sm.end(),mapSorter(ourScenSel->mapsel.sortBy));
 	ourScenSel->mapsel.select(0,false,true);
 	ourScenSel->mapsel.slid->whereAreWe=0;
 	ourScenSel->mapsel.slid->updateSlid();
 	printMapsFrom(0);
 }
+
 void CPreGame::setTurnLength(int on)
 {
 	int min;
