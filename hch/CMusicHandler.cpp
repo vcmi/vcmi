@@ -168,7 +168,17 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 
 		if (str.good() || (str.eof() && wince != ""))
 		{
-			int id = CGI->creh->nameToID[cname];
+			int id = -1;
+
+			std::map<std::string,int>::iterator i = CGI->creh->nameToID.find(cname);
+			if(i != CGI->creh->nameToID.end())
+				id = i->second;
+			else
+			{
+				tlog1 << "Sound info for an unknown creature: " << cname << std::endl;
+				continue;
+			}
+
 			CCreature &c = creatures[id];
 
 			if (c.sounds.killed != soundBase::invalid)

@@ -47,6 +47,7 @@ public:
 	void loadArtifacts(bool onlyTxt);
 	void sortArts();
 	void addBonuses();
+	void clear();
 	static int convertMachineID(int id, bool creToArt);
 	CArtHandler();
 

@@ -189,7 +189,11 @@ void Button::select(bool on)
 
 void Slider::updateSlid()
 {
-	float perc = ((float)whereAreWe)/((float)positionsAmnt-capacity);
+	float perc = -1.0f;
+	if(positionsAmnt > capacity)
+		perc = ((float)whereAreWe)/((float)positionsAmnt-capacity);
+	else
+		perc = 0;
 	float myh;
 	if (vertical)
 	{
@@ -1570,7 +1574,7 @@ void CPreGame::printMapsFrom(int from)
 }
 void CPreGame::showScenList()
 {
-	if (currentTab!=&ourScenSel->mapsel)
+	if (currentTab != &ourScenSel->mapsel)
 	{
 		ourScenSel->listShowed=true;
 		ourScenSel->mapsel.show();

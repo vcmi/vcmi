@@ -690,7 +690,7 @@ void CGameHandler::newTurn()
 		}
 		for(std::vector<CGTownInstance *>::iterator j=i->second.towns.begin();j!=i->second.towns.end();j++)//handle towns
 		{
-			if(vstd::contains((**j).builtBuildings,15)) //there is resource silo
+			if(gs->day && vstd::contains((**j).builtBuildings,15)) //not first day and there is resource silo
 			{
 				if((**j).town->primaryRes == 127) //we'll give wood and ore
 				{
@@ -718,7 +718,7 @@ void CGameHandler::newTurn()
 				}
 				n.cres.push_back(sac);
 			}
-			if((gs->day) && i->first<PLAYER_LIMIT)//not the first day and town not neutral
+			if(gs->day  &&  i->first<PLAYER_LIMIT)//not the first day and town not neutral
 				r.res[6] += (**j).dailyIncome();
 		}
 		n.res.push_back(r);

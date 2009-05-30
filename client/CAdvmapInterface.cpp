@@ -1534,6 +1534,16 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			}
 		}
 		return;
+	case SDLK_RETURN:
+		{
+			if(!active || !selection || key.state != SDL_PRESSED) 
+				return;
+			if(selection->ID == 34)
+				LOCPLINT->openHeroWindow(static_cast<const CGHeroInstance*>(selection));
+			else if(selection->ID == 98)
+				LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(selection));
+			return;
+		}
 	default: 
 		return;
 	}

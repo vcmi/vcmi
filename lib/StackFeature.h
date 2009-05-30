@@ -76,9 +76,9 @@ struct StackFeature
 		SPELL_EFFECT
 	};
 
-	ECombatFeatures type;
-	EDuration duration;
-	ESource source;
+	ui8 type;//ECombatFeatures
+	ui8 duration;//EDuration
+	ui8 source;//ESource
 	ui16 turnsRemain; //if duration is N_TURNS it describes how long the effect will last
 	si16 subtype; //subtype of bonus/feature
 	si32 value;

@@ -66,7 +66,7 @@ struct DLL_EXPORT HeroBonus
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & duration & type & source & val & id & description;
+		h & duration & type & subtype & source & val & id & description;
 	}
 
 	static bool OneDay(const HeroBonus &hb)

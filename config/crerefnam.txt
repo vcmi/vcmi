@@ -131,10 +131,8 @@
 123	IceElemental
 124	NOTUSED
 125	StoneElemental
-126	ElectricityElemental
 127	StormElemental
-128	FireElemental
-129	FireElemental
+129	ElectricityElemental
 130	Firebird
 131	Pheonix
 132	AzureDragon

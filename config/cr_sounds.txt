@@ -100,6 +100,7 @@ Nosferatu NOSFATTK.wav NOSFDFND.wav NOSFKILL.wav NOSFMOVE.wav NOSFSHOT.wav NOSFW
 ObsidianGargoyle OGRGATTK.wav OGRGDFND.wav OGRGKILL.wav OGRGMOVE.wav invalid OGRGWNCE.wav
 Ogre OGREATTK.wav OGREDFND.wav OGREKILL.wav OGREMOVE.wav invalid OGREWNCE.wav
 OgreMage OGRMATTK.wav OGRMDFND.wav OGRMKILL.wav OGRMMOVE.wav OGRMSHOT.wav OGRMWNCE.wav
+OgreShaman TRLLATTK.wav TRLLDFND.wav TRLLKILL.wav TRLLMOVE.wav invalid TRLLWNCE.wav
 Orc OORCATTK.wav OORCDFND.wav OORCKILL.wav OORCMOVE.wav OORCSHOT.wav OORCWNCE.wav
 OrcChieftain ORCCATTK.wav ORCCDFND.wav ORCCKILL.wav ORCCMOVE.wav ORCCSHOT.wav ORCCWNCE.wav
 Peasant PSNTATTK.wav PSNTDFND.wav PSNTKILL.wav PSNTMOVE.wav invalid PSNTWNCE.wav
@@ -123,6 +124,7 @@ Single-HornedDemon SHDMATTK.wav SHDMDFND.wav SHDMKILL.wav SHDMMOVE.wav invalid S
 Skeleton SKELATTK.wav SKELDFND.wav SKELKILL.wav SKELMOVE.wav invalid SKELWNCE.wav
 SkeletonWarrior SKLWATTK.wav SKLWDFND.wav SKLWKILL.wav SKLWMOVE.wav invalid SKLWWNCE.wav
 Sprite SPRTATTK.wav SPRTDFND.wav SPRTKILL.wav SPRTMOVE.wav invalid SPRTWNCE.wav
+StoneElemental MAGMATTK.wav MAGMDFND.wav MAGMKILL.wav MAGMMOVE.wav invalid MAGMWNCE.wav
 StoneGargoyle SGRGATTK.wav SGRGDFND.wav SGRGKILL.wav SGRGMOVE.wav invalid SGRGWNCE.wav
 StoneGolem SGLMATTK.wav SGLMDFND.wav SGLMKILL.wav SGLMMOVE.wav invalid SGLMWNCE.wav
 StormElemental STORATTK.wav STORDFND.wav STORKILL.wav STORMOVE.wav STORSHOT.wav STORWNCE.wav
@@ -132,6 +134,7 @@ Treefolk TREEATTK.wav TREEDFND.wav TREEKILL.wav TREEMOVE.wav invalid TREEWNCE.wa
 Troglodyte TROGATTK.wav TROGDFND.wav TROGKILL.wav TROGMOVE.wav invalid TROGWNCE.wav
 Unicorn UNICATTK.wav UNICDFND.wav UNICKILL.wav UNICMOVE.wav invalid UNICWNCE.wav
 Vampire VAMPATTK.wav VAMPDFND.wav VAMPKILL.wav VAMPMOVE.wav invalid VAMPWNCE.wav VAMPEXT1.wav VAMPEXT2.wav
+warrior NMADATTK.wav NMADDFND.wav NMADKILL.wav NMADMOVE.wav invalid NMADWNCE.wav
 WarUnicorn WUNCATTK.wav WUNCDFND.wav WUNCKILL.wav WUNCMOVE.wav WUNCSHOT.wav WUNCWNCE.wav
 WaterElemental WELMATTK.wav WELMDFND.wav WELMKILL.wav WELMMOVE.wav invalid WELMWNCE.wav
 Wight WGHTATTK.wav WGHTDFND.wav WGHTKILL.wav WGHTMOVE.wav invalid WGHTWNCE.wav
@@ -144,23 +147,9 @@ Zealot ZELTATTK.wav ZELTDFND.wav ZELTKILL.wav ZELTMOVE.wav ZELTSHOT.wav ZELTWNCE
 Zombie ZOMBATTK.wav ZOMBDFND.wav ZOMBKILL.wav ZOMBMOVE.wav invalid ZOMBWNCE.wav
 ZombieLord ZMBLATTK.wav ZMBLDFND.wav ZMBLKILL.wav ZMBLMOVE.wav invalid ZMBLWNCE.wav
 
-# todo - troll ?
-# TRLLATTK.wav TRLLDFND.wav TRLLKILL.wav TRLLMOVE.wav invalid TRLLWNCE.wav
-
-# todo - nomad ?
-# NMADATTK.wav NMADDFND.wav NMADKILL.wav NMADMOVE.wav invalid NMADWNCE.wav
-
-# todo - magma ?
-# MAGMATTK.wav MAGMDFND.wav MAGMKILL.wav MAGMMOVE.wav invalid MAGMWNCE.wav
 
 
-# Missing entries
-# 125 StoneElemental
-# 128 FireElemental
-# 129 FireElemental
 # 137 Sharpshooter
-# 142 warrior
-# 144 OgreShaman
 # 149 ArrowTower
 # 150 SupremeArchangel
 # 151 DiamondDragon

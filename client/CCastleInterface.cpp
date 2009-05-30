@@ -127,6 +127,10 @@ void CBuildingRect::hover(bool on)
 		{
 			LOCPLINT->castleInt->hBuild = NULL;
 			LOCPLINT->statusbar->clear();
+
+			//call mouseMoved in other buildings, cursor might have been moved while they were inactive (eg. because of r-click popup)
+			for(size_t i = 0; i < LOCPLINT->castleInt->buildings.size(); i++)
+				LOCPLINT->castleInt->buildings[i]->mouseMoved(LOCPLINT->current->motion);
 		}
 	}
 }
@@ -166,7 +170,7 @@ void CBuildingRect::clickRight (tribool down)
 }
 void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
-	if(area)
+	if(area && isItIn(&pos,sEvent.x, sEvent.y))
 	{
 		if(CSDL_Ext::SDL_GetPixel(area,sEvent.x-pos.x,sEvent.y-pos.y) == 0) //hovered pixel is inside this building
 		{

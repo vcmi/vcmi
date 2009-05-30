@@ -154,9 +154,6 @@ public:
 	ui16 position; //position on battlefield
 	ui8 counterAttacks; //how many counter attacks can be performed more in this turn (by default set at the beginning of the round to 1)
 	si16 shots; //how many shots left
-	//ui8 speed; //speed of stack with hero bonus
-	//si32 attack; //attack of stack with hero bonus
-	//si32 defense; //defense of stack with hero bonus
 	si8 morale, luck; //base stack luck/morale
 
 	std::vector<StackFeature> features;
@@ -195,12 +192,12 @@ public:
 		ui32 id;
 		h & id;
 		creature = &VLC->creh->creatures[id];
-		features = creature->abilities;
+		//features = creature->abilities;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & ID & amount & baseAmount & firstHPleft & owner & slot & attackerOwned & position & state & counterAttacks
-			& shots & morale & luck;
+			& shots & morale & luck & features;
 		if(h.saving)
 			save(h,version);
 		else

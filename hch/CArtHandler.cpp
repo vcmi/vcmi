@@ -78,7 +78,8 @@ void CArtHandler::loadArtifacts(bool onlyTxt)
 			artifacts.push_back(nart);
 	}
 	sortArts();
-	addBonuses();
+	if(!onlyTxt)
+		addBonuses();
 }
 
 int CArtHandler::convertMachineID(int id, bool creToArt )
@@ -318,4 +319,13 @@ void CArtHandler::addBonuses()
 	giveArtBonus(124,HeroBonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
 	giveArtBonus(125,HeroBonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
 	giveArtBonus(126,HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL,0);//Orb of Inhibition
+}
+
+void CArtHandler::clear()
+{
+	artifacts.clear();
+	treasures.clear();
+	minors.clear();
+	majors.clear();
+	relics.clear();
 }

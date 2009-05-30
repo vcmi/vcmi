@@ -710,7 +710,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 	{
 		if(ourArt && ourArt->id == 0)
 			return; //this is handled separately
-		if(!ourWindow->activeArtPlace) //nothing has benn clicked
+		if(!ourWindow->activeArtPlace) //nothing has bewn clicked
 		{
 			if(ourArt) //to prevent selecting empty slots (bugfix to what GrayFace reported)
 			{
@@ -720,46 +720,21 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 		}
 		else //perform artifact substitution
 		{
-			//chceck if swap is possible
-			if(this->fitsHere(ourWindow->activeArtPlace->ourArt) && ourWindow->activeArtPlace->fitsHere(this->ourArt))
+			if(slotID >= 19)	//we are an backpack slot - remove active artifact and put it to the last free pos in backpack
+			{					//TODO: putting artifacts in the middle of backpack (pushing following arts)
+				
+				LOCPLINT->cb->swapArtifacts(ourWindow->curHero,ourWindow->activeArtPlace->slotID,ourWindow->curHero,ourWindow->curHero->artifacts.size()+19);
+			}
+			//check if swap is possible
+			else if(this->fitsHere(ourWindow->activeArtPlace->ourArt) && ourWindow->activeArtPlace->fitsHere(this->ourArt))
 			{
 				int destSlot = slotID,
 					srcSlot = ourWindow->activeArtPlace->slotID;
 
 				LOCPLINT->cb->swapArtifacts(ourWindow->curHero,destSlot,ourWindow->curHero,srcSlot);
 
-				//const CArtifact * pmh = ourArt;
-				//ourArt = ourWindow->activeArtPlace->ourArt;
-				//ourWindow->activeArtPlace->ourArt = pmh;
-
-				////set texts
-				//if(pmh)
-				//	ourWindow->activeArtPlace->text = pmh->Description();
-				//else
-				//	ourWindow->activeArtPlace->text = std::string();
-				//if(ourArt)
-				//	text = ourArt->Description();
-				//else
-				//	text = std::string();
-
 				ourWindow->activeArtPlace->clicked = false;
 				ourWindow->activeArtPlace = NULL;
-			}
-			else
-			{
-				int backID = -1;
-				for(size_t g=0; g<ourWindow->backpack.size(); ++g)
-				{
-					if(ourWindow->backpack[g]==this) //if user wants to put something to backpack
-					{
-						backID = g;
-						break;
-					}
-				}
-				if(backID>=0) //put to backpack
-				{
-					LOCPLINT->cb->swapArtifacts(ourWindow->curHero,ourWindow->activeArtPlace->slotID,ourWindow->curHero,ourWindow->curHero->artifacts.size()+19);
-				}
 			}
 		}
 	}
