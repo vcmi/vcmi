@@ -2868,7 +2868,7 @@ void CTavernWindow::show(SDL_Surface * to)
 		HeroPortrait *sel = selected ? &h2 : &h1;
 
 		if (selected != oldSelected) {
-			// Selected hero just changed. Update OK button hover text 
+			// Selected hero just changed. Update RECRUIT button hover text.
 			oldSelected = selected;
 
 			recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[3]; //Recruit %s the %s
