@@ -508,6 +508,7 @@ public:
 		void hover (bool on);
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
 		void show(SDL_Surface * to);
+		char descr[100];		// "XXX is a level Y ZZZ with N artifacts"
 	} h1, h2; //recruitable heroes
 
 	SDL_Surface *bg; //background

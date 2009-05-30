@@ -2871,14 +2871,9 @@ void CTavernWindow::show(SDL_Surface * to)
 	if(selected >= 0)
 	{
 		HeroPortrait *sel = selected ? &h2 : &h1;
-		char descr[300];
-		int artifs = sel->h->artifWorn.size()+sel->h->artifacts.size();
-		for(int i=13; i<=17; i++) //war machines and spellbook doesn't count
-			if(vstd::contains(sel->h->artifWorn,i)) 
-				artifs--;
-		sprintf_s(descr,300,CGI->generaltexth->allTexts[215].c_str(),
-			sel->h->name.c_str(),sel->h->level,sel->h->type->heroClass->name.c_str(),artifs);
-		printAtMiddleWB(descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,to);
+		HeroPortrait *other = selected ? &h1 : &h2;
+
+		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
 	}
 }
@@ -2922,6 +2917,14 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 		hoverName = CGI->generaltexth->tavernInfo[4];
 		boost::algorithm::replace_first(hoverName,"%s",H->name);
 	}
+
+	int artifs = h->artifWorn.size() + h->artifacts.size();
+	for(int i=13; i<=17; i++) //war machines and spellbook don't count
+		if(vstd::contains(h->artifWorn,i)) 
+			artifs--;
+	sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
+			  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
+	descr[sizeof(descr)-1] = '\0';
 }
 	
 void CTavernWindow::HeroPortrait::show(SDL_Surface * to)
