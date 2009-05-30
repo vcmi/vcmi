@@ -514,6 +514,7 @@ public:
 	SDL_Surface *bg; //background
 	CStatusBar *bar; //tavern's internal status bar
 	int selected;//0 (left) or 1 (right)
+	int oldSelected;//0 (left) or 1 (right)
 
 	AdventureMapButton *thiefGuild, *cancel, *recruit;
 

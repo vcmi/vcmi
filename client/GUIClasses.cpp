@@ -2762,6 +2762,7 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 		selected = 0;
 	else
 		selected = -1;
+	oldSelected = -1;
 	bg = BitmapHandler::loadBitmap("TPTAVERN.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
 	graphics->blueToPlayersAdv(bg,LOCPLINT->playerID);
@@ -2801,13 +2802,7 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 	}
 	else
 	{
-		if(H1)
-		{
-			recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[3]; //Recruit %s the %s
-			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",H1->name);
-			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",H1->type->heroClass->name);
-		}
-		else
+		if(!H1)
 			recruit->block(1);
 	}
 }
@@ -2871,7 +2866,15 @@ void CTavernWindow::show(SDL_Surface * to)
 	if(selected >= 0)
 	{
 		HeroPortrait *sel = selected ? &h2 : &h1;
-		HeroPortrait *other = selected ? &h1 : &h2;
+
+		if (selected != oldSelected) {
+			// Selected hero just changed. Update OK button hover text 
+			oldSelected = selected;
+
+			recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[3]; //Recruit %s the %s
+			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->name);
+			boost::algorithm::replace_first(recruit->hoverTexts[0],"%s",sel->h->type->heroClass->name);
+		}
 
 		printAtMiddleWB(sel->descr,pos.x+146,pos.y+389,GEOR13,40,zwykly,to);
 		CSDL_Ext::drawBorder(to,sel->pos.x-2,sel->pos.y-2,sel->pos.w+4,sel->pos.h+4,int3(247,223,123));
