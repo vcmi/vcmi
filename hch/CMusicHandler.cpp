@@ -206,6 +206,8 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 	ifs.close();
 	ifs.clear();
 
+	//commented to avoid spurious warnings
+	/*
 	// Find creatures without sounds
 	for(unsigned int i=0;i<creatures.size();i++)
 	{
@@ -217,7 +219,7 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 		CCreature &c = creatures[i];
 		if (c.sounds.killed == soundBase::invalid)
 			tlog1 << "creature " << c.idNumber << " doesn't have sounds" << std::endl;
-	}
+	}*/
 }
 
 void CSoundHandler::initSpellsSounds(std::vector<CSpell> &spells)

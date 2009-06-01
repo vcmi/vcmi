@@ -1089,12 +1089,14 @@ void MapSel::processGames(const std::vector<std::string> &pliczkiTemp)
 	for(int i=0; i<pliczkiTemp.size(); i++)
 	{
 		CLoadFile lf(pliczkiTemp[i]);
+		if(!lf.sfile)
+			continue;
+
 		ui8 sign[8]; 
-		lf >> sign >> hlp;
-		if(hlp != version)
+		lf >> sign;
+		if(std::memcmp(sign,"VCMISVG",7))
 		{
-			tlog3 << "\t\t" << pliczkiTemp[i] << " seems to be too " << ((hlp>version) ? "new" : "old") << " and will be ommited.\n";
-			ourGames[i] = NULL;
+			tlog1 << pliczkiTemp[i] << " is not a correct savefile!" << std::endl;
 			continue;
 		}
 		ourGames[i] = new CMapInfo();

@@ -311,7 +311,7 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int 
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 	int curh = ret->bitmap->h/2 - (fontHeight*txtg->size())/2;
-	blitTextOnSur(txtg,fontHeight,curh,ret->bitmap, fontHeight);
+	blitTextOnSur(txtg,fontHeight,curh,ret->bitmap);
 	delete brtext;
 	delete txtg;
 	return ret;

@@ -182,6 +182,11 @@ CSaveFile::CSaveFile( const std::string &fname )
 		tlog1 << "Error: cannot open to write " << fname << std::endl;
 		sfile = NULL;
 	}
+	else
+	{
+		sfile->write("VCMI",4); //write magic identifier
+		*this << version; //write format version
+	}
 }
 
 CSaveFile::~CSaveFile()
@@ -203,6 +208,27 @@ CLoadFile::CLoadFile( const std::string &fname )
 	{
 		tlog1 << "Error: cannot open to read " << fname << std::endl;
 		sfile = NULL;
+	}
+	else
+	{
+		char buffer[4];
+		sfile->read(buffer, 4);
+
+		if(std::memcmp(buffer,"VCMI",4))
+		{
+			tlog1 << "Error: wrong save format!\n";
+			delete sfile;
+			sfile = NULL;
+			return;
+		}
+
+		*this >> myVersion;	
+		if(myVersion != version)
+		{
+			tlog1 << "Wrong save format!\n";
+			delete sfile;
+			sfile = NULL;
+		}
 	}
 }
 

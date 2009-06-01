@@ -208,7 +208,7 @@ void CClient::load( const std::string & fname )
 		CGI->mh = new CMapHandler();
 
 		CLoadFile lf(fname + ".vlgm1");
-		lf >> sig >> ver >> dum >> *sig;
+		lf >> sig >> dum >> *sig;
 		tlog0 <<"Reading save signature: "<<tmh.getDif()<<std::endl;
 			
 		lf >> *VLC;

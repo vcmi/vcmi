@@ -297,11 +297,14 @@ void processCommand(const std::string &message, CClient *&client)
 			tlog4 << i++ <<". " << j->first.first << " x " << j->first.second << std::endl;
 		tlog4 << "Type number from 1 to " << i-1 << " to set appropriate resolution or 0 to cancel.\n";
 		std::cin >> i;
-		if(!i)
-			return;
-		else if(i < 0  ||  i > conf.guiOptions.size())
+		if(i < 0  ||  i > conf.guiOptions.size() || std::cin.bad() || std::cin.fail())
 		{
+			std::cin.clear();
 			tlog1 << "Invalid resolution ID! Not a number between 0 and  " << conf.guiOptions.size() << ". No settings changed.\n";
+		}
+		else if(!i)
+		{
+			return;
 		}
 		else
 		{

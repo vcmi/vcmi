@@ -1,4 +1,4 @@
-0.71 -> 0.72 (soon)
+0.71 -> 0.72 (Jun 1 2009)
 GENERAL:
 * many sound effects and music
 * autosave (to 5 subsequent files)
@@ -13,6 +13,7 @@ GENERAL:
 * timed events won't cause resources amount to be negative
 * support for sorcery secondary skill
 * reduntant quotation marks from artifact descriptions are removed
+* no income at the first day
 
 ADVENTURE INTERFACE:
 * fixed crasbug occurring on revisiting objects (by pressing space)
@@ -20,10 +21,12 @@ ADVENTURE INTERFACE:
 * fixed map scrolling with ctrl+arrows when some windows are opened
 * clicking scrolling arrows in town/hero list won't open town/hero window
 * pathfinder will now look for a path going via printed positions of roads when it's possible
+* enter can be used to open window with selected hero/town
 
 BATTLES:
+* many creatures special skills implemented
 * battle will end when one side has only war machines
-* fixed problems with handling obstacles info
+* fixed some problems with handling obstacles info
 * fixed bug with defending / waiting while no stack is active
 * spellbook button is inactive when hero cannot cast any spell
 * obstacles will be placed more properly when resolution is different than 800x600
@@ -50,15 +53,19 @@ TOWNS:
 * resting in town with mage guild will replenih all the mana points
 * fixed Blacksmith
 * the number of creatures at the beginning of game is their base growth
+* it's possible to enter Tavern via Brotherhood of Sword
 
 HERO WINDOW:
 * fixed mana limit info in the hero window
+* war machines can't be removed
+* fixed problems with removing artifacts when all visible slots in backpack are full
 
 PREGAME:
 * clicking on "advanced options" a second time now closes the tab instead of refreshing it.
 * Fix position of maps names. 
 * Made the slider cursor much more responsive. Speedup the map select screen.
 * Try to behave when no maps/saves are present.
+* Page Up / Page Down / Home / End hotkeys for scrolling through scenarios / games list
 
 OBJECTS:
 * Neutral creatures can join or escape depending on hero strength (escape formula needs to be improved)

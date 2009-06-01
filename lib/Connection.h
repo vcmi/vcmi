@@ -19,7 +19,7 @@
 #include <boost/mpl/identity.hpp>
 
 #include <boost/type_traits/is_array.hpp>
-const ui32 version = 704;
+const ui32 version = 705;
 class CConnection;
 namespace mpl = boost::mpl;
 
@@ -426,10 +426,12 @@ template <typename Serializer> class DLL_EXPORT CISer : public CLoaderBase
 public:
 	bool saving;
 	std::map<ui16,CBasicPointerLoader*> loaders; // typeID => CPointerSaver<serializer,type>
+	ui32 myVersion;
 
 	CISer()
 	{
 		saving = false;
+		myVersion = version;
 	}
 
 	template<typename T> void registerType(const T * t=NULL)
@@ -489,7 +491,7 @@ public:
 	template <typename T>
 	void loadSerializable(T &data)
 	{
-		data.serialize(*this,version);
+		data.serialize(*this,myVersion);
 	}	
 	template <typename T>
 	void loadArray(T &data)

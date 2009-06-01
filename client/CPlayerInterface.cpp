@@ -1355,6 +1355,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	tlog5 << "CPlayerInterface::battleAttack - locking...";
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	tlog5 << "done!\n";
+	assert(curAction);
 	if(ba->lucky()) //lucky hit
 	{
 		CStack *stack = cb->battleGetStackByID(ba->stackAttacking);

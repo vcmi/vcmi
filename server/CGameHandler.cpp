@@ -1472,7 +1472,7 @@ void CGameHandler::save( const std::string &fname )
 		tlog0 << "Serializing game info...\n";
 		CSaveFile save(std::string("Games") + PATHSEPARATOR + fname + ".vlgm1");
 		char hlp[8] = "VCMISVG";
-		save << hlp << version << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps->difficulty << *VLC << gs;
+		save << hlp << static_cast<CMapHeader&>(*gs->map) << gs->scenarioOps->difficulty << *VLC << gs;
 	}
 
 	{
