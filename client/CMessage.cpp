@@ -205,7 +205,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 	return ret;
 }
 
-std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> > * txtg)
+std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight)
 {
 	std::pair<int,int> ret;
 	ret.first = -1;
@@ -219,15 +219,19 @@ std::pair<int,int> CMessage::getMaxSizes(std::vector<std::vector<SDL_Surface*> >
 			ret.second+=(*txtg)[i][j]->h;
 		}
 		if(!(*txtg)[i].size())
-			ret.second+=19;
+			ret.second+=fontHeight;
 		if (ret.first<lw)
 			ret.first=lw;
 	}
 	return ret;
 }
-SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int & curh, SDL_Surface * ret, int xCenterPos)
+
+// Blit the text in txtg onto one surface. txtg contains lines of
+// text. Each line can be split into pieces. Currently only lines with
+// the same height are supported (ie. fontHeight).
+SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * txtg, int fontHeight, int & curh, SDL_Surface * ret, int xCenterPos)
 {
-	for (size_t i=0; i<txtg->size();i++)
+	for (size_t i=0; i<txtg->size(); i++, curh += fontHeight)
 	{
 		int lw=0; //line width
 		for (size_t j=0;j<(*txtg)[i].size();j++)
@@ -239,20 +243,23 @@ SDL_Surface * CMessage::blitTextOnSur(std::vector<std::vector<SDL_Surface*> > * 
 		int tw = pw;
 		for (size_t j=0;j<(*txtg)[i].size();j++) //blit text
 		{
-			blitAt((*txtg)[i][j],tw,curh+i*19,ret);
-			tw+=(*txtg)[i][j]->w;
-			SDL_FreeSurface((*txtg)[i][j]);
+			SDL_Surface *surf = (*txtg)[i][j];
+			blitAt(surf, tw, curh, ret);
+			tw+=surf->w;
+			SDL_FreeSurface(surf);
 			(*txtg)[i][j] = NULL;
 		}
 	}
-	curh+=txtg->size()*19;
+
 	return ret;
 }
-std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::string> * brtext, TTF_Font *font)
+std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::string> * brtext, int &fontHeigh, TTF_Font *font)
 {
 	if(!font) font = TNRB16;
 	std::vector<std::vector<SDL_Surface*> > * txtg = new std::vector<std::vector<SDL_Surface*> >();
 	txtg->resize(brtext->size());
+	fontHeigh = TTF_FontHeight(font);
+
 	for (size_t i=0; i<brtext->size();i++) //foreach line
 	{
 		while((*brtext)[i].length()) //if something left
@@ -296,14 +303,15 @@ std::vector<std::vector<SDL_Surface*> > * CMessage::drawText(std::vector<std::st
 CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int Rmar, int Tmar, int Bmar)
 {
 	CSimpleWindow * ret = new CSimpleWindow();
+	int fontHeight;
 	std::vector<std::string> * brtext = breakText(text,32,true,true);
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext);
-	std::pair<int,int> txts = getMaxSizes(txtg);
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext, fontHeight);
+	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight);
 	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,0);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
-	int curh = ret->bitmap->h/2 - (19*txtg->size())/2;
-	blitTextOnSur(txtg,curh,ret->bitmap);
+	int curh = ret->bitmap->h/2 - (fontHeight*txtg->size())/2;
+	blitTextOnSur(txtg,fontHeight,curh,ret->bitmap, fontHeight);
 	delete brtext;
 	delete txtg;
 	return ret;
@@ -311,9 +319,10 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int 
 SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_Surface* bitmap, std::string sub, int charperline/*=30*/, int imgToBmp/*=55*/ )
 {
 	int curh;
+	int fontHeight;
 	std::vector<std::string> * tekst = breakText(text,charperline);
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(tekst);
-	std::pair<int,int> txts = getMaxSizes(txtg), boxs;
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(tekst, fontHeight);
+	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight), boxs;
 	boxs.first = std::max(txts.first,bitmap->w) // text/bitmap max width
 		+ 50; //side margins
 	boxs.second =
@@ -325,7 +334,7 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 		+ (*txtg)[0][0]->h
 		+ 30;
 	SDL_Surface *ret = drawBox1(boxs.first,boxs.second,player);
-	blitTextOnSur(txtg,curh,ret);
+	blitTextOnSur(txtg,fontHeight,curh,ret);
 	curh += imgToBmp;
 	blitAt(bitmap,(ret->w/2)-(bitmap->w/2),curh,ret);
 	curh += bitmap->h + 5;
@@ -342,12 +351,13 @@ SDL_Surface * CMessage::drawBoxTextBitmapSub( int player, std::string text, SDL_
 void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int charperline)
 {
 	SDL_Surface * _or = NULL;
+	int fontHeight;
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		_or = TTF_RenderText_Blended(GEOR13,CGI->generaltexth->allTexts[4].c_str(),zwykly);
 
 	std::vector<std::string> * brtext = breakText(text,charperline,true,true); //text 
-	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext);
-	std::pair<int,int> txts = getMaxSizes(txtg);
+	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext, fontHeight);
+	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight);
 
 	ComponentsToBlit comps(ret->components,500,_or);
 
@@ -369,7 +379,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	ret->pos.x=screen->w/2-(ret->pos.w/2);
 	ret->pos.y=screen->h/2-(ret->pos.h/2);
 	int curh = 30; //gorny margines
-	blitTextOnSur(txtg,curh,ret->bitmap);
+	blitTextOnSur(txtg, fontHeight, curh,ret->bitmap);
 
 	if (ret->components.size())
 	{
@@ -499,6 +509,7 @@ ComponentResolved::ComponentResolved()
 	comp = NULL;
 	img = NULL;
 	txt = NULL;
+	txtFontHeight = 0;
 }
 
 ComponentResolved::ComponentResolved( SComponent *Comp )
@@ -506,11 +517,11 @@ ComponentResolved::ComponentResolved( SComponent *Comp )
 	comp = Comp;
 	img = comp->getImg();
 	std::vector<std::string> * brtext = CMessage::breakText(comp->subtitle,11,true,true); //text 
-	txt = CMessage::drawText(brtext,GEOR13);
+	txt = CMessage::drawText(brtext,txtFontHeight,GEOR13);
 	delete brtext;
 
 	//calculate dimensions
-	std::pair<int,int> textSize = CMessage::getMaxSizes(txt);
+	std::pair<int,int> textSize = CMessage::getMaxSizes(txt, txtFontHeight);
 	comp->pos.w = std::max(textSize.first, img->w); //bigger of: subtitle width and image width
 	comp->pos.h = img->h + COMPONENT_TO_SUBTITLE + textSize.second;
 }
@@ -606,7 +617,7 @@ void ComponentsToBlit::blitCompsOnSur( SDL_Surface * _or, int inter, int &curh, 
 
 			//blit subtitle
 			hlp += cur->img->h + COMPONENT_TO_SUBTITLE;
-			CMessage::blitTextOnSur(cur->txt, hlp, ret, cur->comp->pos.x + cur->comp->pos.w/2 );
+			CMessage::blitTextOnSur(cur->txt, cur->txtFontHeight, hlp, ret, cur->comp->pos.x + cur->comp->pos.w/2 );
 
 			//if there is subsequent component blit "or"
 			curw += cur->comp->pos.w;
