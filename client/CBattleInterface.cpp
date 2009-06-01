@@ -1787,7 +1787,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	CGI->musich->stopMusic();
-	resWindow = new CBattleReslutWindow(br, temp_rect, this);
+	resWindow = new CBattleResultWindow(br, temp_rect, this);
 	LOCPLINT->pushInt(resWindow);
 }
 
@@ -2688,7 +2688,7 @@ void CBattleConsole::scrollDown(unsigned int by)
 		lastShown += by;
 }
 
-CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, const SDL_Rect & pos, const CBattleInterface * owner)
+CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect & pos, const CBattleInterface * owner)
 {
 	this->pos = pos;
 	background = BitmapHandler::loadBitmap("CPRESULT.BMP", true);
@@ -2696,7 +2696,7 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, const SDL_Rect 
 	SDL_Surface * pom = SDL_ConvertSurface(background, screen->format, screen->flags);
 	SDL_FreeSurface(background);
 	background = pom;
-	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleReslutWindow::bExitf,this), 384 + pos.x, 505 + pos.y, "iok6432.def", SDLK_RETURN);
+	exit = new AdventureMapButton (std::string(), std::string(), boost::bind(&CBattleResultWindow::bExitf,this), 384 + pos.x, 505 + pos.y, "iok6432.def", SDLK_RETURN);
 
 	if(br.winner==0) //attacker won
 	{
@@ -2828,23 +2828,23 @@ CBattleReslutWindow::CBattleReslutWindow(const BattleResult &br, const SDL_Rect 
 	}
 }
 
-CBattleReslutWindow::~CBattleReslutWindow()
+CBattleResultWindow::~CBattleResultWindow()
 {
 	SDL_FreeSurface(background);
 }
 
-void CBattleReslutWindow::activate()
+void CBattleResultWindow::activate()
 {
 	LOCPLINT->showingDialog->set(true);
 	exit->activate();
 }
 
-void CBattleReslutWindow::deactivate()
+void CBattleResultWindow::deactivate()
 {
 	exit->deactivate();
 }
 
-void CBattleReslutWindow::show(SDL_Surface *to)
+void CBattleResultWindow::show(SDL_Surface *to)
 {
 	//evaluating to
 	if(!to)
@@ -2854,7 +2854,7 @@ void CBattleReslutWindow::show(SDL_Surface *to)
 	exit->show(to);
 }
 
-void CBattleReslutWindow::bExitf()
+void CBattleResultWindow::bExitf()
 {
 	LOCPLINT->popInts(2); //first - we; second - battle interface
 	LOCPLINT->showingDialog->setn(false);

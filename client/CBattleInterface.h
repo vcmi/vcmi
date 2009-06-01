@@ -96,14 +96,14 @@ public:
 	void scrollDown(unsigned int by = 1); //scrolls console up by 'by' positions
 };
 
-class CBattleReslutWindow : public IShowActivable, public CIntObject
+class CBattleResultWindow : public IShowActivable, public CIntObject
 {
 private:
 	SDL_Surface * background;
 	AdventureMapButton * exit;
 public:
-	CBattleReslutWindow(const BattleResult & br, const SDL_Rect & pos, const CBattleInterface * owner); //c-tor
-	~CBattleReslutWindow(); //d-tor
+	CBattleResultWindow(const BattleResult & br, const SDL_Rect & pos, const CBattleInterface * owner); //c-tor
+	~CBattleResultWindow(); //d-tor
 
 	void bExitf(); //exit button callback
 
@@ -239,7 +239,7 @@ public:
 	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
 	bool myTurn; //if true, interface is active (commands can be ordered
-	CBattleReslutWindow * resWindow; //window of end of battle
+	CBattleResultWindow * resWindow; //window of end of battle
 	bool showStackQueue; //if true, queue of stacks will be shown
 
 	bool moveStarted; //if true, the creature that is already moving is going to make its first step
@@ -296,7 +296,7 @@ public:
 	void displayEffect(ui32 effect, int destTile); //displays effect of a spell on the battlefield; affected: true - attacker. false - defender
 
 	friend class CBattleHex;
-	friend class CBattleReslutWindow;
+	friend class CBattleResultWindow;
 	friend class CPlayerInterface;
 	friend class AdventureMapButton;
 	friend class CInGameConsole;
