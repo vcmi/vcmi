@@ -544,7 +544,7 @@ void CHeroWindow::redrawCurBack()
 	secondLine<<"Level "<<curHero->level<<" "<<curHero->type->heroClass->name;
 	CSDL_Ext::printAtMiddle(secondLine.str(), 190, 66, TNRB16, zwykly, curBack);
 
-	//primary skliis names
+	//primary skills names
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[1], 53, 98, GEOR13, tytulowy, curBack);
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[2], 123, 98, GEOR13, tytulowy, curBack);
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->jktexts[3], 193, 98, GEOR13, tytulowy, curBack);
