@@ -253,7 +253,7 @@ class CIntObject //interface object
 {
 public:
 	Rect pos; //position of object on the screen
-	int ID; //object uniqe ID, rarely (if at all) used
+	int ID; //object unique ID, rarely (if at all) used
 
 	//virtual bool isIn(int x, int y)
 	//{
