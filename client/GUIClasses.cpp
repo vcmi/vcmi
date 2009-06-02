@@ -10,6 +10,7 @@
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"
+#include "CConfigHandler.h"
 #include "SDL_framerate.h"
 #include "CConfigHandler.h"
 #include "CCreatureAnimation.h"
@@ -629,6 +630,12 @@ CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
 	pos.y = y;
 	pos.h = bitmap->h;
 	pos.w = bitmap->w;
+
+	// Put the window back on screen if necessary
+	amax(pos.x, 0);
+	amax(pos.y, 0);
+	amin(pos.x, conf.cc.resx - bitmap->w);
+	amin(pos.y, conf.cc.resy - bitmap->h);
 }
 
 CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
