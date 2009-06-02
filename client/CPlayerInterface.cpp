@@ -1418,7 +1418,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom,false);
+	CInfoWindow * temp = new CInfoWindow(text,playerID,0,components,pom,false);
 
 	if(makingTurn && listInt.size())
 	{
@@ -1439,7 +1439,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 	std::vector<std::pair<std::string,CFunctionList<void()> > > pom;
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("ICANCEL.DEF",0));
-	CInfoWindow * temp = new CInfoWindow(text,playerID,36,components,pom,DelComps);
+	CInfoWindow * temp = new CInfoWindow(text,playerID,0,components,pom,DelComps);
 	temp->delComps = DelComps;
 	for(int i=0;i<onYes.funcs.size();i++)
 		temp->buttons[0]->callback += onYes.funcs[i];

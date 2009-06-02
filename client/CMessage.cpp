@@ -15,6 +15,7 @@
 #include "Graphics.h"
 #include "GUIClasses.h"
 #include "AdventureMapButton.h"
+#include "CConfigHandler.h"
 
 /*
  * CMessage.cpp, part of VCMI engine
@@ -36,6 +37,7 @@ using namespace NMessage;
 const int COMPONENT_TO_SUBTITLE = 5;
 const int BETWEEN_COMPS_ROWS = 10;
 const int BEFORE_COMPONENTS = 30;
+const int SIDE_MARGIN = 30;
 
 template <typename T, typename U> std::pair<T,U> max(const std::pair<T,U> &x, const std::pair<T,U> &y)
 {
@@ -352,6 +354,17 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 {
 	SDL_Surface * _or = NULL;
 	int fontHeight;
+
+	// Try to compute a resonable number of characters per line
+	if (!charperline) {
+		if (text.size() < 30)
+			charperline = 30;
+		else if (text.size() < 200)
+			charperline = 40;
+		else
+			charperline = 50;
+	}
+
 	if(dynamic_cast<CSelWindow*>(ret)) //it's selection window, so we'll blit "or" between components
 		_or = TTF_RenderText_Blended(GEOR13,CGI->generaltexth->allTexts[4].c_str(),zwykly);
 
@@ -361,24 +374,28 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 
 	ComponentsToBlit comps(ret->components,500,_or);
 
-	if(ret->buttons.size())
+	if (ret->components.size())
+		txts.second += 30 + comps.h; //space to first component
+
+	if (ret->buttons.size())
 		txts.second += 20 + //before button
 		ok->ourImages[0].bitmap->h; //button
 
-	if (ret->components.size())
-	{
-		txts.second += 30 + comps.h; //space to first component
-
-	}
-
+	// Clip window size
+	amax(txts.first, 80);
+	amax(txts.second, 50);
 	amax(txts.first,comps.w);
 
-	ret->bitmap = drawBox1(txts.first+70,txts.second+70,0);
+	amin(txts.first, conf.cc.resx - 150);
+	amin(txts.second, conf.cc.resy - 150);
+
+	ret->bitmap = drawBox1(txts.first+2*SIDE_MARGIN,txts.second+2*SIDE_MARGIN,0);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 	ret->pos.x=screen->w/2-(ret->pos.w/2);
 	ret->pos.y=screen->h/2-(ret->pos.h/2);
-	int curh = 30; //gorny margines
+
+	int curh = SIDE_MARGIN;
 	blitTextOnSur(txtg, fontHeight, curh,ret->bitmap);
 
 	if (ret->components.size())
@@ -388,11 +405,15 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	}
 	if(ret->buttons.size())
 	{
-		curh += 20; //to buttton
-		int bw = 20*(ret->buttons.size()-1); //total width of buttons - start with distance between them
+		// Position the buttons at the bottom of the window
+		curh = ret->bitmap->h - SIDE_MARGIN - ret->buttons[0]->imgs[0][0]->h;
+
+		// Compute total width of buttons
+		int bw = 20*(ret->buttons.size()-1); // space between all buttons
 		for(size_t i=0; i<ret->buttons.size(); i++) //and add buttons width
 			bw+=ret->buttons[i]->imgs[0][0]->w; 
 		bw = (ret->bitmap->w/2) - (bw/2);
+
 		for(size_t i=0; i<ret->buttons.size(); i++)
 		{
 			ret->buttons[i]->pos.x = bw + ret->pos.x;
