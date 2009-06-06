@@ -522,6 +522,8 @@ void CMapHandler::init()
 
 SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect, int moveX, int moveY, bool smooth)
 {
+	int srx, sry;
+
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
 	//setting surface to blit at
@@ -545,25 +547,28 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	dy += smooth?1:0;
 
 	////printing terrain
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
+	srx = (moveX <= 0 ? 0 : -1) * 32;
+	if (smooth)
+		srx += moveX + extRect->x;
+
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++, srx+=32)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
+		sry = (moveY <= 0 ? 0 : -1) * 32;
+		if (smooth)
+			sry += moveY + extRect->y;
+
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++, sry+=32)
 		{
 			const TerrainTile2 & tile = ttiles[x+bx][y+by][level];
 			SDL_Rect sr;
-			if(smooth)
-			{
-				sr.y=by*32 + moveY + extRect->y;
-				sr.x=bx*32 + moveX + extRect->x;
-				sr.h=sr.w=32;
-			}
-			else
-			{
-				sr.y=by*32;
-				sr.x=bx*32;
-				sr.h=sr.w=32;
+
+			sr.x=srx;
+			sr.y=sry;
+			sr.h=sr.w=32;
+
+			if (!smooth)
 				validateRectTerr(&sr, extRect);
-			}
+
 			if(tile.terbitmap)
 			{
 				SDL_BlitSurface(tile.terbitmap, &genRect(sr.h, sr.w, 0, 0), su, &sr);
@@ -618,25 +623,28 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		}
 	}
 	////terrain printed
+
 	////printing rivers
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
+	srx = (moveX <= 0 ? 0 : -1) * 32;
+	if (smooth)
+		srx += moveX + extRect->x;
+
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++, srx+=32)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
+		sry = (moveY <= 0 ? 0 : -1) * 32;
+		if (smooth)
+			sry += moveY + extRect->y;
+
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++, sry+=32)
 		{
 			SDL_Rect sr;
-			if(smooth)
-			{
-				sr.y=by*32 + moveY + extRect->y;
-				sr.x=bx*32 + moveX + extRect->x;
-				sr.h=sr.w=32;
-			}
-			else
-			{
-				sr.y=by*32;
-				sr.x=bx*32;
-				sr.h=sr.w=32;
+
+			sr.x=srx;
+			sr.y=sry;
+			sr.h=sr.w=32;
+
+			if (!smooth)
 				validateRectTerr(&sr, extRect);
-			}
 
 			const std::vector<SDL_Surface *> &rivbitmap = ttiles[x+bx][y+by][level].rivbitmap;
 			if(rivbitmap.size())
@@ -646,27 +654,31 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		}
 	}
 	////rivers printed
+
 	////printing roads
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
+	srx = (moveX <= 0 ? 0 : -1) * 32;
+	if (smooth)
+		srx += moveX + extRect->x;
+
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++, srx+=32)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1) - 1; by<dy; by++)
+		sry = (moveY <= 0 ? 0 : -1)* 32 - 16;
+		if (smooth)
+			sry += moveY + extRect->y;
+
+		for (int by=(moveY <= 0 ? 0 : -1) - 1; by<dy; by++, sry+=32)
 		{
 			if(y+by<=-4)
 				continue;
+
 			SDL_Rect sr;
-			if(smooth)
-			{
-				sr.y=by*32+16 + moveY + extRect->y;
-				sr.x=bx*32 + moveX + extRect->x;
-				sr.h=sr.w=32;
-			}
-			else
-			{
-				sr.y=by*32+16;
-				sr.x=bx*32;
-				sr.h=sr.w=32;
+
+			sr.x = srx;
+			sr.y = sry;
+			sr.h=sr.w=32;
+
+			if (!smooth)
 				validateRectTerr(&sr, extRect);
-			}
 
 			const std::vector<SDL_Surface *> &roadbitmap = ttiles[x+bx][y+by][level].roadbitmap;
 			if(roadbitmap.size())
@@ -676,30 +688,30 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		}
 	}
 	////roads printed
-	////printing objects
 
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
+	////printing objects
+	srx = (moveX <= 0 ? 0 : -1) * 32;
+	if (smooth)
+		srx += moveX + extRect->x;
+
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++, srx+=32)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
+		sry = (moveY <= 0 ? 0 : -1)* 32;
+		if (smooth)
+			sry += moveY + extRect->y;
+
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++, sry+=32)
 		{
 			for(int h=0; h < ttiles[x+bx][y+by][level].objects.size(); ++h)
 			{
 				SDL_Rect sr;
-				if(smooth)
-				{
-					sr.w = 32;
-					sr.h = 32;
-					sr.x = (bx)*32 + moveX + extRect->x;
-					sr.y = (by)*32 + moveY + extRect->y;
-				}
-				else
-				{
-					sr.w = 32;
-					sr.h = 32;
-					sr.x = (bx)*32;
-					sr.y = (by)*32;
+
+				sr.x = srx;
+				sr.y = sry;
+				sr.w = sr.h = 32;
+
+				if (!smooth)
 					validateRectTerr(&sr, extRect);
-				}
 				
 				SDL_Rect pp = ttiles[x+bx][y+by][level].objects[h].second;
 				pp.h = sr.h;
@@ -774,26 +786,29 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 		}
 	}
+	////objects printed
 
-	////objects printed, printing shadow
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
+	////printing shadow
+	srx = (moveX <= 0 ? 0 : -1) * 32;
+	if (smooth)
+		srx += moveX + extRect->x;
+
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++, srx+=32)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
+		sry = (moveY <= 0 ? 0 : -1)* 32;
+		if (smooth)
+			sry += moveY + extRect->y;
+
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++, sry+=32)
 		{
 			SDL_Rect sr;
+
+			sr.x = srx;
+			sr.y = sry;
+			sr.h = sr.w = 32;
+
 			if(smooth)
-			{
-				sr.y=by*32 + moveY + extRect->y;
-				sr.x=bx*32 + moveX + extRect->x;
-				sr.h=sr.w=32;
-			}
-			else
-			{
-				sr.y=by*32;
-				sr.x=bx*32;
-				sr.h=sr.w=32;
 				validateRectTerr(&sr, extRect);
-			}
 			
 			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->map->width && by+y<CGI->mh->map->height && !(*visibilityMap)[bx+x][by+y][level])
 			{
@@ -803,6 +818,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 		}
 	}
 	////shadow printed
+
 	//printing borders
 	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
 	{
@@ -891,6 +907,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	}
 	SDL_SetClipRect(su, &prevClip); //restoring clip_rect
 	//borders printed
+
 	return su;
 }
 
