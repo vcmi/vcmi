@@ -87,6 +87,7 @@ void CClient::init()
 	serv = NULL;
 	gs = NULL;
 	cb = NULL;
+	must_close = false;
 	try
 	{
 		shared = new SharedMem();
@@ -124,6 +125,11 @@ void CClient::run()
 		CPack *pack;
 		while(1)
 		{
+			if (must_close) {
+				serv->close();
+				tlog3 << "Our socket has been closed.\n";
+				return;
+			}
 
 			//get the package from the server
 			{
@@ -162,8 +168,7 @@ void CClient::close()
 	boost::unique_lock<boost::mutex>(*serv->wmx);
 	*serv << &CloseServer();
 	tlog3 << "Sent closing signal to the server\n";
-	serv->close();
-	tlog3 << "Our socket has been closed.\n";
+	must_close = true;
 }
 
 void CClient::save(const std::string & fname)
