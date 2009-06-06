@@ -633,9 +633,11 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.h=sr.w=32;
 				validateRectTerr(&sr, extRect);
 			}
-			if(ttiles[x+bx][y+by][level].rivbitmap.size())
+
+			const std::vector<SDL_Surface *> &rivbitmap = ttiles[x+bx][y+by][level].rivbitmap;
+			if(rivbitmap.size())
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].rivbitmap[anim%ttiles[x+bx][y+by][level].rivbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
+				CSDL_Ext::blit8bppAlphaTo24bpp(rivbitmap[anim%rivbitmap.size()],&genRect(sr.h, sr.w, 0, 0),su,&sr);
 			}
 		}
 	}
@@ -661,9 +663,11 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				sr.h=sr.w=32;
 				validateRectTerr(&sr, extRect);
 			}
-			if(ttiles[x+bx][y+by][level].roadbitmap.size())
+
+			const std::vector<SDL_Surface *> &roadbitmap = ttiles[x+bx][y+by][level].roadbitmap;
+			if(roadbitmap.size())
 			{
-				CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].roadbitmap[anim%ttiles[x+bx][y+by][level].roadbitmap.size()], &genRect(sr.h, sr.w, 0, (by==-1 && moveY == 0 ? 16 : 0)),su,&sr);
+				CSDL_Ext::blit8bppAlphaTo24bpp(roadbitmap[anim%roadbitmap.size()], &genRect(sr.h, sr.w, 0, (by==-1 && moveY == 0 ? 16 : 0)),su,&sr);
 			}
 		}
 	}
@@ -753,14 +757,15 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 				}
 				else
 				{
-					int imgVal = ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages.size();
-					int phaseShift = ttiles[x+bx][y+by][level].objects[h].first->animPhaseShift;
+					const CGObjectInstance *obj = ttiles[x+bx][y+by][level].objects[h].first;
+					const std::vector<Cimage> &ourImages = obj->defInfo->handler->ourImages;
+					SDL_Surface *bitmap = ourImages[(anim+obj->animPhaseShift)%ourImages.size()].bitmap;
 
 					//setting appropriate flag color
-					if((ttiles[x+bx][y+by][level].objects[h].first->tempOwner>=0 && ttiles[x+bx][y+by][level].objects[h].first->tempOwner<8) || ttiles[x+bx][y+by][level].objects[h].first->tempOwner==255)
-						CSDL_Ext::setPlayerColor(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[(anim+phaseShift)%imgVal].bitmap, ttiles[x+bx][y+by][level].objects[h].first->tempOwner);
+					if(obj->tempOwner<8 || obj->tempOwner==255)
+						CSDL_Ext::setPlayerColor(bitmap, obj->tempOwner);
 					
-					CSDL_Ext::blit8bppAlphaTo24bpp(ttiles[x+bx][y+by][level].objects[h].first->defInfo->handler->ourImages[(anim+phaseShift)%imgVal].bitmap,&pp,su,&sr);
+					CSDL_Ext::blit8bppAlphaTo24bpp(bitmap,&pp,su,&sr);
 				}
 			}
 		}
