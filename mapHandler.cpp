@@ -807,7 +807,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			sr.y = sry;
 			sr.h = sr.w = 32;
 
-			if(smooth)
+			if(!smooth)
 				validateRectTerr(&sr, extRect);
 			
 			if(bx+x>=0 && by+y>=0 && bx+x<CGI->mh->map->width && by+y<CGI->mh->map->height && !(*visibilityMap)[bx+x][by+y][level])
