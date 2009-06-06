@@ -566,7 +566,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 			}
 			if(tile.terbitmap)
 			{
-				SDL_BlitSurface(ttiles[x+bx][y+by][level].terbitmap, &genRect(sr.h, sr.w, 0, 0), su, &sr);
+				SDL_BlitSurface(tile.terbitmap, &genRect(sr.h, sr.w, 0, 0), su, &sr);
 			}
 			else
 			{
