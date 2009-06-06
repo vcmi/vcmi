@@ -540,10 +540,14 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 
 	if (((dx+x)>((map->width+Woff)) || (dy+y)>((map->height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
 		throw std::string("terrainRect: out of range");
+
+	dx += smooth?1:0;
+	dy += smooth?1:0;
+
 	////printing terrain
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx+(smooth?1:0); bx++)
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy+(smooth?1:0); by++)
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
 		{
 			const TerrainTile2 & tile = ttiles[x+bx][y+by][level];
 			SDL_Rect sr;
@@ -615,9 +619,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	}
 	////terrain printed
 	////printing rivers
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx+(smooth?1:0); bx++)
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy+(smooth?1:0); by++)
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
 		{
 			SDL_Rect sr;
 			if(smooth)
@@ -643,9 +647,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	}
 	////rivers printed
 	////printing roads
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx+(smooth?1:0); bx++)
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1) - 1; by<dy+(smooth?1:0); by++)
+		for (int by=(moveY <= 0 ? 0 : -1) - 1; by<dy; by++)
 		{
 			if(y+by<=-4)
 				continue;
@@ -674,9 +678,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	////roads printed
 	////printing objects
 
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx+(smooth?1:0); bx++)
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy+(smooth?1:0); by++)
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
 		{
 			for(int h=0; h < ttiles[x+bx][y+by][level].objects.size(); ++h)
 			{
@@ -772,9 +776,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	}
 
 	////objects printed, printing shadow
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx+(smooth?1:0); bx++)
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy+(smooth?1:0); by++)
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
 		{
 			SDL_Rect sr;
 			if(smooth)
@@ -800,9 +804,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	}
 	////shadow printed
 	//printing borders
-	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx+(smooth?1:0); bx++)
+	for (int bx= (moveX <= 0 ? 0 : -1); bx<dx; bx++)
 	{
-		for (int by=(moveY <= 0 ? 0 : -1); by<dy+(smooth?1:0); by++)
+		for (int by=(moveY <= 0 ? 0 : -1); by<dy; by++)
 		{
 			if(bx+x<0 || by+y<0 || bx+x>map->width+(-1) || by+y>map->height+(-1))
 			{
