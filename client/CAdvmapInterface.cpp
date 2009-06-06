@@ -384,7 +384,7 @@ CTerrainRect::CTerrainRect()
 	arrows = CDefHandler::giveDef("ADAG.DEF");
 	for(size_t y=0; y < arrows->ourImages.size(); ++y)
 	{
-		arrows->ourImages[y].bitmap = CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
+		CSDL_Ext::alphaTransform(arrows->ourImages[y].bitmap);
 	}
 }
 CTerrainRect::~CTerrainRect()

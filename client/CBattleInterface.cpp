@@ -2451,7 +2451,7 @@ CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bo
 			SDL_FreeSurface(dh->ourImages[i].bitmap);
 			dh->ourImages[i].bitmap = hlp;
 		}
-		dh->ourImages[i].bitmap = CSDL_Ext::alphaTransform(dh->ourImages[i].bitmap);
+		CSDL_Ext::alphaTransform(dh->ourImages[i].bitmap);
 	}
 	dh->alphaTransformed = true;
 
@@ -2463,7 +2463,7 @@ CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bo
 	//coloring flag and adding transparency
 	for(int i=0; i<flag->ourImages.size(); ++i)
 	{
-		flag->ourImages[i].bitmap = CSDL_Ext::alphaTransform(flag->ourImages[i].bitmap);
+		CSDL_Ext::alphaTransform(flag->ourImages[i].bitmap);
 		graphics->blueToPlayersAdv(flag->ourImages[i].bitmap, player);
 	}
 }

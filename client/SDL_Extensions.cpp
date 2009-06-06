@@ -391,7 +391,7 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
     }
 }
 
-SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
+void CSDL_Ext::alphaTransform(SDL_Surface *src)
 {
 	Uint32 trans = SDL_MapRGBA(src->format, 0, 255, 255, 255);
 	SDL_SetColorKey(src, 0, trans);
@@ -443,7 +443,6 @@ SDL_Surface * CSDL_Ext::alphaTransform(SDL_Surface *src)
 			}
 		}
 	}
-	return src;
 }
 //	<=>
 
