@@ -215,8 +215,6 @@ void CMapHandler::roadsRiverTerrainInit()
 			ttiles[i][j].resize(CGI->mh->map->twoLevel+1,0);
 	}
 
-
-
 	for (int i=0; i<map->width; i++) //jest po szeroko�ci
 	{
 		for (int j=0; j<map->height;j++) //po wysoko�ci
@@ -228,30 +226,33 @@ void CMapHandler::roadsRiverTerrainInit()
 				pom.tileInfo = &(map->terrain[i][j][k]);
 				if(pom.tileInfo->malle)
 				{
-					int cDir;
 					bool rotV, rotH;
 
 					int roadpom = pom.tileInfo->malle-1,
 						impom = pom.tileInfo->roadDir;
-					SDL_Surface *pom1 = roadDefs[roadpom]->ourImages[impom].bitmap;
-					ttiles[i][j][k].roadbitmap.push_back(pom1);
-					cDir = pom.tileInfo->roadDir;
+					SDL_Surface *bitmap = roadDefs[roadpom]->ourImages[impom].bitmap;
 
 					rotH = (pom.tileInfo->siodmyTajemniczyBajt >> 5) & 1;
 					rotV = (pom.tileInfo->siodmyTajemniczyBajt >> 4) & 1;
 
-					if(rotH)
+					if(rotH || rotV) 
 					{
-						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::hFlip(ttiles[i][j][k].roadbitmap[0]);
+						if(rotH)
+							bitmap = CSDL_Ext::hFlip(bitmap);
+
+						if(rotV)
+						{
+							SDL_Surface *bitmap2 = CSDL_Ext::rotate01(bitmap);
+							if (rotH)
+								// bitmap is already a duplicated surface
+								SDL_FreeSurface(bitmap);
+							bitmap = bitmap2;
+						}
+
+						CSDL_Ext::alphaTransform(bitmap);
 					}
-					if(rotV)
-					{
-						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::rotate01(ttiles[i][j][k].roadbitmap[0]);
-					}
-					if(rotH || rotV)
-					{
-						ttiles[i][j][k].roadbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].roadbitmap[0]);
-					}
+
+					ttiles[i][j][k].roadbitmap.push_back(bitmap);
 				}
 			}
 		}
@@ -265,26 +266,31 @@ void CMapHandler::roadsRiverTerrainInit()
 			{
 				if(map->terrain[i][j][k].nuine)
 				{
-					int cDir;
 					bool rotH, rotV;
+					
+					SDL_Surface *bitmap = staticRiverDefs[map->terrain[i][j][k].nuine-1]->ourImages[map->terrain[i][j][k].rivDir].bitmap;
 
-					ttiles[i][j][k].rivbitmap.push_back(staticRiverDefs[map->terrain[i][j][k].nuine-1]->ourImages[map->terrain[i][j][k].rivDir].bitmap);
-					cDir = map->terrain[i][j][k].rivDir;
 					rotH = (map->terrain[i][j][k].siodmyTajemniczyBajt >> 3) & 1;
 					rotV = (map->terrain[i][j][k].siodmyTajemniczyBajt >> 2) & 1;
 
-					if(rotH)
-					{
-						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::hFlip(ttiles[i][j][k].rivbitmap[0]);
-					}
-					if(rotV)
-					{
-						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::rotate01(ttiles[i][j][k].rivbitmap[0]);
-					}
 					if(rotH || rotV)
 					{
-						ttiles[i][j][k].rivbitmap[0] = CSDL_Ext::alphaTransform(ttiles[i][j][k].rivbitmap[0]);
+						if(rotH)
+							bitmap = CSDL_Ext::hFlip(bitmap);
+
+						if(rotV)
+						{
+							SDL_Surface *bitmap2 = CSDL_Ext::rotate01(bitmap);
+							if (rotH)
+								// bitmap is already a duplicated surface
+								SDL_FreeSurface(bitmap);
+							bitmap = bitmap2;
+						}
+
+						CSDL_Ext::alphaTransform(bitmap);
 					}
+
+					ttiles[i][j][k].rivbitmap.push_back(bitmap);
 				}
 			}
 		}
