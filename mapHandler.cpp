@@ -103,7 +103,7 @@ static void alphaTransformDef(CGDefInfo * defInfo)
 	SDL_Surface * alphaTransSurf = SDL_CreateRGBSurface(SDL_SWSURFACE, 12, 12, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
 	for(int yy=0;yy<defInfo->handler->ourImages.size();yy++)
 	{
-		defInfo->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
+		CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
 		defInfo->handler->alphaTransformed = true;
 	}
 	SDL_FreeSurface(alphaTransSurf);
@@ -455,7 +455,7 @@ static void processDef (CGDefInfo* def)
 	{
 		for(size_t yy=0; yy < def->handler->ourImages.size(); ++yy)
 		{
-			def->handler->ourImages[yy].bitmap = CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
+			CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
 			def->handler->alphaTransformed = true;
 		}
 	}
