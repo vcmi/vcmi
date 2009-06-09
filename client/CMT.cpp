@@ -328,7 +328,7 @@ void processCommand(const std::string &message, CClient *&client)
 			pom = txth->entries[i].nameStr;
 			if(boost::algorithm::find_last(pom,pattern))
 			{
-				txth->extractFile(std::string("Extracted_txts\\")+pom,pom);
+				txth->extractFile(std::string("Extracted_txts" PATHSEPARATOR)+pom,pom);
 			}
 			if(i%8) continue;
 			int p2 = ((float)i/(float)txth->entries.size())*(float)100;
