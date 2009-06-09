@@ -2967,6 +2967,8 @@ void CInGameConsole::show(SDL_Surface * to)
 
 	std::vector<std::list< std::pair< std::string, int > >::iterator> toDel;
 
+	texts_mx.lock();
+
 	for(std::list< std::pair< std::string, int > >::iterator it = texts.begin(); it != texts.end(); ++it, ++number)
 	{
 		SDL_Color green = {0,0xff,0,0};
@@ -2986,16 +2988,22 @@ void CInGameConsole::show(SDL_Surface * to)
 	{
 		texts.erase(toDel[it]);
 	}
+
+	texts_mx.unlock();
 }
 
 
 void CInGameConsole::print(const std::string &txt)
 {
+	texts_mx.lock();
+
 	texts.push_back(std::make_pair(txt, SDL_GetTicks()));
 	if(texts.size() > maxDisplayedTexts)
 	{
 		texts.pop_front();
 	}
+
+	texts_mx.unlock();
 }
 
 void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)

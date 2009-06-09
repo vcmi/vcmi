@@ -7,6 +7,7 @@
 #include "FunctionList.h"
 #include <set>
 #include <list>
+#include <boost/thread/shared_mutex.hpp>
 
 #ifdef max
 #undef max
@@ -532,6 +533,7 @@ class CInGameConsole : public IShowActivable, public KeyInterested
 {
 private:
 	std::list< std::pair< std::string, int > > texts; //<text to show, time of add>
+	boost::mutex texts_mx;		// protects texts
 	std::vector< std::string > previouslyEntered; //previously entered texts, for up/down arrows to work
 	int prevEntDisp; //displayed entry from previouslyEntered - if none it's -1
 	int defaultTimeout; //timeout for new texts (in ms)
