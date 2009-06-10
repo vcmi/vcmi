@@ -386,23 +386,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 void CHeroWindow::quit()
 {
 	LOCPLINT->popInt(this);
-
-	SDL_FreeSurface(curBack);
-	curBack = NULL;
-	curHero = NULL;
-
-	for(size_t g=0; g<artWorn.size(); ++g)
-	{
-		delete artWorn[g];
-		artWorn[g] = NULL;
-	}
-	for(size_t g=0; g<backpack.size(); ++g)
-	{
-		delete backpack[g];
-		backpack[g] = NULL;
-	}
-	backpack.clear();
-	activeArtPlace = NULL;
+	dispose();
 }
 
 void CHeroWindow::activate()
@@ -685,6 +669,26 @@ void CHeroWindow::redrawCurBack()
 	std::stringstream manastr;
 	manastr << curHero->mana << '/' << curHero->manaLimit();
 	CSDL_Ext::printAt(manastr.str(), 212, 247, GEOR16, zwykly, curBack);
+}
+
+void CHeroWindow::dispose()
+{
+	SDL_FreeSurface(curBack);
+	curBack = NULL;
+	curHero = NULL;
+
+	for(size_t g=0; g<artWorn.size(); ++g)
+	{
+		delete artWorn[g];
+		artWorn[g] = NULL;
+	}
+	for(size_t g=0; g<backpack.size(); ++g)
+	{
+		delete backpack[g];
+		backpack[g] = NULL;
+	}
+	backpack.clear();
+	activeArtPlace = NULL;
 }
 
 CArtPlace::CArtPlace(const CArtifact* Art): active(false), clicked(false), ourArt(Art)/*,

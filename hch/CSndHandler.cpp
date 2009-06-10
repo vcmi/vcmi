@@ -27,8 +27,11 @@ CSndHandler::~CSndHandler()
 // them. */
 CSndHandler::CSndHandler(std::string fname)
 {
-	mfile = new boost::iostreams::mapped_file_source(fname);
-	if (!mfile->is_open())
+	try //c-tor of mapped_file_source throws exception on failure
+	{
+		mfile = new boost::iostreams::mapped_file_source(fname);
+	} HANDLE_EXCEPTION
+	if (!mfile->is_open()) //just in case
 	{
 		tlog1 << "Cannot open " << fname << std::endl;
 		throw std::string("Cannot open ")+fname;

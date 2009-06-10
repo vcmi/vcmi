@@ -130,7 +130,8 @@ public:
 	void deactivate(); //activates hero window;
 	virtual void show(SDL_Surface * to); //shows hero window
 	void redrawCurBack(); //redraws curBAck from scratch
-	void quit(); //stops displaying hero window
+	void dispose(); //free resources not needed after closing windows and reset state
+	void quit(); //stops displaying hero window and disposes
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
 	void scrollBackpack(int dir); //dir==-1 => to left; dir==-2 => to right

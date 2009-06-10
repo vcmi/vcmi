@@ -2874,8 +2874,9 @@ void CTavernWindow::show(SDL_Surface * to)
 	{
 		HeroPortrait *sel = selected ? &h2 : &h1;
 
-		if (selected != oldSelected) {
-			// Selected hero just changed. Update RECRUIT button hover text.
+		if (selected != oldSelected  &&  !recruit->blocked) 
+		{
+			// Selected hero just changed. Update RECRUIT button hover text if recruitment is allowed.
 			oldSelected = selected;
 
 			recruit->hoverTexts[0] = CGI->generaltexth->tavernInfo[3]; //Recruit %s the %s
@@ -3225,6 +3226,11 @@ CRClickPopupInt::CRClickPopupInt( IShowActivable *our, bool deleteInt )
 
 CRClickPopupInt::~CRClickPopupInt()
 {
+	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
+	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
+	if(inner == LOCPLINT->adventureInt->heroWindow)
+		LOCPLINT->adventureInt->heroWindow->dispose();
+
 	if(delInner)
 		delete inner;
 }

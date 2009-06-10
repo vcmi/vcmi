@@ -775,7 +775,9 @@ void Options::init()
 }
 void Options::show()
 {
-	if (showed)return;
+	if (showed)
+		return;
+
 	PreGameTab::show();
 	MapSel & ms = CPG->ourScenSel->mapsel;
 	blitAt(bg,3,6);
@@ -791,71 +793,80 @@ void Options::show()
 	CPG->interested.clear();
 	CSDL_Ext::printAtMiddle("Advanced Options",225,35,GEORXX);
 	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[521],224,544,GEOR13); // Player Turn Duration
-	int playersSoFar=0;
+
+	int playersSoFar = 0;
+
 	for (size_t i=0; i < PLAYER_LIMIT; ++i)
 	{
-		if (!(ms.selMaps[ms.selected]->players[i].canComputerPlay || ms.selMaps[ms.selected]->players[i].canComputerPlay))
+		PlayerInfo &curInfo = ms.selMaps[ms.selected]->players[i]; //map information for current player
+
+		if(!(curInfo.canComputerPlay || curInfo.canComputerPlay)) //no one can play - player not present on the map (empty entry)
 			continue;
-		for (size_t hi=0; hi<ms.selMaps[ms.selected]->players[i].heroesNames.size(); hi++) {
-			usedHeroes.insert(ms.selMaps[ms.selected]->players[i].heroesNames[hi].heroID);
-                }
+
+		for(size_t hi=0; hi<curInfo.heroesNames.size(); hi++)
+			usedHeroes.insert(curInfo.heroesNames[hi].heroID);
+
 		blitAt(bgs[i],57,128+playersSoFar*50);
-		poptions.push_back(new PlayerOptions(playersSoFar,i));
-		poptions[poptions.size()-1]->nr=playersSoFar;
-		poptions[poptions.size()-1]->color=(Ecolor)i;
 
-		if(CPG->ret.playerInfos[playersSoFar].hero == -1)
+		PlayerOptions *options = new PlayerOptions(playersSoFar,i); //new options entry for current player
+		options->nr = playersSoFar;
+		options->color = (Ecolor)i;
+		poptions.push_back(options);
+
+		assert(CPG->ret.playerInfos.size() > playersSoFar);
+		PlayerSettings &curSettings = CPG->ret.playerInfos[playersSoFar]; //settings entry for current players
+
+		if(curSettings.hero == -1)
 		{
-			poptions[poptions.size()-1]->Hleft.show();
-			poptions[poptions.size()-1]->Hright.show();
-			CPG->btns.push_back(&poptions[poptions.size()-1]->Hleft);
-			CPG->btns.push_back(&poptions[poptions.size()-1]->Hright);
+			options->Hleft.show();
+			options->Hright.show();
+			CPG->btns.push_back(&options->Hleft);
+			CPG->btns.push_back(&options->Hright);
 		}
 
-		if(getNextCastle(CPG->ret.playerInfos[playersSoFar].castle,&ms.selMaps[ms.selected]->players[i]) != CPG->ret.playerInfos[playersSoFar].castle)
+		if(getNextCastle(curSettings.castle,&curInfo) != curSettings.castle)
 		{
-			poptions[poptions.size()-1]->Cleft.show();
-			poptions[poptions.size()-1]->Cright.show();
-			CPG->btns.push_back(&poptions[poptions.size()-1]->Cleft);
-			CPG->btns.push_back(&poptions[poptions.size()-1]->Cright);
+			options->Cleft.show();
+			options->Cright.show();
+			CPG->btns.push_back(&options->Cleft);
+			CPG->btns.push_back(&options->Cright);
 		}
 
-		poptions[poptions.size()-1]->Bleft.show();
-		poptions[poptions.size()-1]->Bright.show();
-		CPG->btns.push_back(&poptions[poptions.size()-1]->Bleft);
-		CPG->btns.push_back(&poptions[poptions.size()-1]->Bright);
+		options->Bleft.show();
+		options->Bright.show();
+		CPG->btns.push_back(&options->Bleft);
+		CPG->btns.push_back(&options->Bright);
 
-
-		CSDL_Ext::printAtMiddle(CPG->ret.playerInfos[playersSoFar].name,111,137+playersSoFar*50,GEOR13,zwykly);
-		if (ms.selMaps[ms.selected]->players[i].canHumanPlay)
+		CSDL_Ext::printAtMiddle(curSettings.name,111,137+playersSoFar*50,GEOR13,zwykly);
+		if (curInfo.canHumanPlay)
 		{
-			poptions[poptions.size()-1]->flag.show();
-			CPG->btns.push_back(&poptions[poptions.size()-1]->flag);
-			if (ms.selMaps[ms.selected]->players[i].canComputerPlay) {
+			options->flag.show();
+			CPG->btns.push_back(&options->flag);
+			if(curInfo.canComputerPlay) 
 				CSDL_Ext::printAtMiddleWB("Human or CPU",86,163+playersSoFar*50,GEORM,7,zwykly);
-                        }
-			else {
+			else 
 				CSDL_Ext::printAtMiddleWB("Human",86,163+playersSoFar*50,GEORM,6,zwykly);
-                        }
-
 		}
-		else {
+		else 
+		{
 			CSDL_Ext::printAtMiddleWB("CPU",86,163+playersSoFar*50,GEORM,6,zwykly);
-                }
+		}
 		playersSoFar++;
 	}
+
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->allTexts[516],221,63,GEOR13,55,zwykly);
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[256].second),109,109,GEOR13,14);
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[259].second),201,109,GEOR13,10);
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[260].second),275,109,GEOR13,10);
 	CSDL_Ext::printAtMiddleWB(CGI->generaltexth->getTitle(CGI->generaltexth->zelp[261].second),354,109,GEOR13,10);
 	turnLength->activate();
-	for (size_t i=0; i < poptions.size(); ++i) {
+
+	for (size_t i=0; i < poptions.size(); ++i) 
 		showIcon(-2,i,false);
-        }
+
 	for(int i=0;i<12;i++)
 		turnLength->moveDown();
-	//SDL_Flip(screen);
+
 	CSDL_Ext::update(screen);
 }
 void Options::hide()
