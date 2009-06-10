@@ -45,13 +45,13 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 				else
 					ret.insert(19);
 			}
-			else
-			{
+			//else
+			//{
 				if(((castleID==1) || (castleID==3)) && ((level==3) || (level==5)))
 					ret.insert(24);
 				else
 					ret.insert(18);
-			}
+			//}
 		}
 		else
 		{
@@ -746,7 +746,7 @@ void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 	if(readChar(bufor,i))//true if garrison isn't empty
 		nt->army = readCreatureSet(bufor,i,7,(version>RoE));
 	nt->army.formation = bufor[i]; ++i;
-	if(readChar(bufor,i)) //unusualBuildings
+	if(readChar(bufor,i)) //custom buildings info
 	{
 		//built buildings
 		for(int byte=0;byte<6;byte++)

@@ -47,8 +47,9 @@ void CGeneralTextHandler::load()
 				buf1.substr(pom+1,eol-pom-1)));
 			boost::algorithm::replace_all(zelp[zelp.size()-1].first,"\t","");
 			boost::algorithm::replace_all(zelp[zelp.size()-1].second,"\t","");
-			if(zelp.back().second[0] == '\"' && zelp.back().second[zelp.back().second.size()-1] == '\"')
-				zelp.back().second = zelp.back().second.substr(1,zelp.back().second.size()-2);
+			std::string &op = zelp.back().second;
+			if(op[0] == '\"' && op[op.size()-1] == '\"')
+				op =op.substr(1,op.size()-2);
 		}
 		itr=eol+2;
 	}

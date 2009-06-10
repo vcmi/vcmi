@@ -77,6 +77,8 @@ private:
 	Mix_Music *nextMusic;
 	int nextMusicLoop;
 
+	Mix_Music * LoadMUS(const char *file); //calls Mix_LoadMUS and checks for errors
+	int PlayMusic(Mix_Music *music, int loops); //calls Mix_PlayMusic and checks for errors
 public:
 	CMusicHandler();
 

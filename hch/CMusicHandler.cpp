@@ -361,15 +361,14 @@ void CMusicHandler::playMusic(musicBase::musicID musicID, int loop)
 	{
 		// A music is already playing. Stop it and the callback will
 		// start the new one
-		nextMusic = Mix_LoadMUS(filename.c_str());
+		nextMusic = LoadMUS(filename.c_str());
 		nextMusicLoop = loop;
 		Mix_FadeOutMusic(1000);
 	}
 	else
 	{
-		currentMusic = Mix_LoadMUS(filename.c_str());
-		if (Mix_PlayMusic(currentMusic, loop) == -1)
-			tlog1 << "Unable to play sound file " << musicID << "(" << Mix_GetError() << ")" << std::endl;
+		currentMusic = LoadMUS(filename.c_str());
+		PlayMusic(currentMusic,loop);
 	}
 
 	musicMutex.unlock();
@@ -421,9 +420,26 @@ void CMusicHandler::musicFinishedCallback(void)
 	{
 		currentMusic = nextMusic;
 		nextMusic = NULL;
-		if (Mix_PlayMusic(currentMusic, nextMusicLoop) == -1)
-			tlog1 << "Unable to play music (" << Mix_GetError() << ")" << std::endl;
+		PlayMusic(currentMusic,nextMusicLoop);
 	}
 
 	musicMutex.unlock();
+}
+
+Mix_Music * CMusicHandler::LoadMUS(const char *file)
+{
+	Mix_Music *ret = Mix_LoadMUS(file);
+	if(!ret) //load music and check for error
+		tlog1 << "Unable to load music file (" << file <<"). Error: " << Mix_GetError() << std::endl;
+	
+	return ret;
+}
+
+int CMusicHandler::PlayMusic(Mix_Music *music, int loops)
+{
+	int ret = Mix_PlayMusic(music, loops);
+	if(ret == -1)
+		tlog1 << "Unable to play music (" << Mix_GetError() << ")" << std::endl;
+
+	return ret;
 }

@@ -1420,25 +1420,10 @@ void MapSel::printSelectedInfo()
 		if (selMap.name.length())
 			CSDL_Ext::printAt(selMap.name,420,41,GEORXX);
 		else CSDL_Ext::printAt("Unnamed",420,41,GEORXX);
-		std::string diff;
-		switch (selMap.difficulty)
-		{
-		case 0:
-			diff=gdiff(CGI->generaltexth->zelp[24].second);
-			break;
-		case 1:
-			diff=gdiff(CGI->generaltexth->zelp[25].second);
-			break;
-		case 2:
-			diff=gdiff(CGI->generaltexth->zelp[26].second);
-			break;
-		case 3:
-			diff=gdiff(CGI->generaltexth->zelp[27].second);
-			break;
-		case 4:
-			diff=gdiff(CGI->generaltexth->zelp[28].second);
-			break;
-		}
+
+		assert(selMap.difficulty <= 4);
+		std::string &diff = CGI->generaltexth->arraytxt[142 + selMap.difficulty];
+
 		temp=-1;
 		switch (selMap.width)
 		{
@@ -1512,19 +1497,6 @@ void MapSel::printFlags()
 		}
 	}
 }
-
-std::string MapSel::gdiff(std::string ss)
-{
-	std::string ret;
-	for (int i=1;i<ss.length();i++)
-	{
-		if (ss[i]==' ')
-			break;
-		ret+=ss[i];
-	}
-	return ret;
-}
-
 // A new size filter (Small, Medium, ...) has been selected. Populate
 // selMaps with the relevant data.
 void MapSel::updateSelection()
