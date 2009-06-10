@@ -7,7 +7,7 @@
 #include "FunctionList.h"
 #include <set>
 #include <list>
-#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/mutex.hpp>
 
 #ifdef max
 #undef max
