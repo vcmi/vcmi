@@ -1512,10 +1512,11 @@ void MapSel::printFlags()
 		}
 	}
 }
+
 std::string MapSel::gdiff(std::string ss)
 {
 	std::string ret;
-	for (int i=2;i<ss.length();i++)
+	for (int i=1;i<ss.length();i++)
 	{
 		if (ss[i]==' ')
 			break;
