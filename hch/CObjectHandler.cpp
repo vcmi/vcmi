@@ -2748,13 +2748,11 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case 0:
 		cb->changePrimSkill(h->id,bid,+1);
-		iw.components.push_back(Component(Component::PRIM_SKILL,bid,1,0));
+		iw.components.push_back(Component(Component::PRIM_SKILL,bid,ssl+1,0));
 		break;
 	case 1:
-		{
-			cb->changeSecSkill(h->id,bid,ssl+1);
-			iw.components.push_back(Component(Component::SEC_SKILL,bid,ssl+1,0));
-		}
+		cb->changeSecSkill(h->id,bid,+1);
+		iw.components.push_back(Component(Component::SEC_SKILL,bid,ssl+1,0));
 		break;
 	case 2:
 		{
