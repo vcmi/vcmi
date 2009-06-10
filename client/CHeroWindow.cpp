@@ -598,10 +598,15 @@ void CHeroWindow::redrawCurBack()
 	blitAt(flags->ourImages[player].bitmap, 606, 8, curBack);
 
 	//hero list blitting
-	for(int g=0; g<LOCPLINT->cb->howManyHeroes(); ++g)
+
+	for(int pos=0, g=0; g<LOCPLINT->cb->howManyHeroes(); ++g)
 	{
 		const CGHeroInstance * cur = LOCPLINT->cb->getHeroInfo(g, false);
-		blitAt(graphics->portraitSmall[cur->portrait], 611, 87+g*54, curBack);
+		if (cur->inTownGarrison)
+			// Only display heroes that are not in garrison
+			continue;
+
+		blitAt(graphics->portraitSmall[cur->portrait], 611, 87+pos*54, curBack);
 		//printing yellow border
 		if(cur->name == curHero->name)
 		{
@@ -610,10 +615,12 @@ void CHeroWindow::redrawCurBack()
 				for(int h=0; h<graphics->portraitSmall[cur->portrait]->h; ++h)
 					if(f==0 || h==0 || f==graphics->portraitSmall[cur->portrait]->w-1 || h==graphics->portraitSmall[cur->portrait]->h-1)
 					{
-						CSDL_Ext::SDL_PutPixelWithoutRefresh(curBack, 611+f, 87+g*54+h, 240, 220, 120);
+						CSDL_Ext::SDL_PutPixelWithoutRefresh(curBack, 611+f, 87+pos*54+h, 240, 220, 120);
 					}
 			}
 		}
+
+		pos ++;
 	}
 
 	//secondary skills
