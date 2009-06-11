@@ -1616,10 +1616,10 @@ PlayerState * CGameState::getPlayer( ui8 color )
 	}
 }
 
-CPath * CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero)
+bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)
 {
 	if(!map->isInTheMap(src) || !map->isInTheMap(dest)) //check input
-		return NULL;
+		return false;
 
 	int3 hpos = hero->getPosition(false);
 	tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
@@ -1710,19 +1710,19 @@ CPath * CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero)
 
 	CPathNode *curNode = &graph[dest.x][dest.y];
 	if(!curNode->theNodeBefore) //destination is not accessible
-		return NULL;
+		return false;
 
-	CPath * ret = new CPath;
 
+	//fill ret with found path
+	ret.nodes.clear();
 	while(curNode->coord != graph[src.x][src.y].coord)
 	{
-		ret->nodes.push_back(*curNode);
+		ret.nodes.push_back(*curNode);
 		curNode = curNode->theNodeBefore;
 	}
+	ret.nodes.push_back(graph[src.x][src.y]);
 
-	ret->nodes.push_back(graph[src.x][src.y]);
-
-	return ret;
+	return true;
 }
 
 bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const

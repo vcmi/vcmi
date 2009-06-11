@@ -268,11 +268,11 @@ class CHeroList
 {
 public:
 	CDefHandler *mobile, *mana; //mana and movement indicators
-	std::vector<std::pair<const CGHeroInstance*, CPath *> > items;
 	int posmobx, posporx, posmanx, posmoby, pospory, posmany;
 
+	std::vector<const CGHeroInstance *> &heroes; //points to LOCPLINT->wandering heroes 
 	CHeroList(int Size); //c-tor
-	int getPosOfHero(const CArmedInstance* h); //hero's position on list
+	int getPosOfHero(const CGHeroInstance* h); //hero's position on list
 	void genList();
 	void select(int which); //call-in
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent); //call-in
@@ -282,7 +282,6 @@ public:
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 	void updateHList(const CGHeroInstance *toRemove=NULL); //removes specific hero from the list or recreates it
 	void updateMove(const CGHeroInstance* which); //draws move points bar
-	void redrawAllOne(int which); //not imeplemented
 	void draw(SDL_Surface * to);
 	void init();
 };

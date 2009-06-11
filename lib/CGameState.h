@@ -282,7 +282,7 @@ public:
 	float getMarketEfficiency(int player, int mode=0);
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if dst tile is visitable from dst tile
-	CPath * getPath(int3 src, int3 dest, const CGHeroInstance * hero); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
+	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
 
 	CGameState(); //c-tor
 	~CGameState(); //d-tor

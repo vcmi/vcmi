@@ -119,19 +119,17 @@ public:
 	int3 position; //top left corner of visible map part
 	int player, active;
 
-	std::vector<CDefHandler *> gems;
 
 	enum{LEFT=1, RIGHT=2, UP=4, DOWN=8};
 	ui8 scrollingDir; //uses enum: LEFT RIGHT, UP, DOWN
+
 	bool updateScreen, updateMinimap ;
 	unsigned char anim, animValHitCount; //animation frame
 	unsigned char heroAnim, heroAnimValHitCount; //animation frame
 
-	CMinimap minimap;
-
-
 	SDL_Surface * bg;
-
+	std::vector<CDefHandler *> gems;
+	CMinimap minimap;
 	CStatusBar statusbar;
 
 	AdventureMapButton kingOverview,//- kingdom overview
@@ -144,7 +142,6 @@ public:
 		sysOptions,//- system options
 		nextHero, //- next hero
 		endTurn;//- end turn
-	//CHeroList herolist;
 
 	CTerrainRect terrain; //visible terrain
 
@@ -156,9 +153,10 @@ public:
 
 	CHeroWindow * heroWindow;
 
-	const CArmedInstance *selection;
+	const CArmedInstance *selection; //currently selected town/hero
+	std::map<const CGHeroInstance *, CPath> paths; //maps hero => selected path in adventure map
 
-	//fuctions binded to buttons
+	//functions binded to buttons
 	void fshowOverview();
 	void fswitchLevel();
 	void fshowQuestlog();
@@ -182,7 +180,5 @@ public:
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, boost::logic::tribool down, CIntObject * client);
 	void keyPressed(const SDL_KeyboardEvent & key);
-
-
 };
 #endif // __CADVMAPINTERFACE_H__

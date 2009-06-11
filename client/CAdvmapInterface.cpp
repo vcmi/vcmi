@@ -421,7 +421,7 @@ void CTerrainRect::clickLeft(tribool down)
 		if(currentPath)
 		{
 			tlog2<<"Warning: Lost path?" << std::endl;
-			delete currentPath;
+			//delete currentPath;
 			currentPath = NULL;
 		}
 
@@ -484,11 +484,13 @@ void CTerrainRect::clickLeft(tribool down)
 		else if(mp.z == currentHero->pos.z) //remove old path and find a new one if we clicked on the map level on which hero is present
 		{
 			int3 bufpos = currentHero->getPosition(false);
-			CPath *& pathForCurhero = LOCPLINT->adventureInt->heroList.items[LOCPLINT->adventureInt->heroList.selected].second;
-			if(pathForCurhero)
-				delete pathForCurhero;
-
-			currentPath = pathForCurhero = LOCPLINT->cb->getPath(bufpos, mp, currentHero);
+			CPath &path = LOCPLINT->adventureInt->paths[currentHero];
+			currentPath = &path;
+			if(!LOCPLINT->cb->getPath(bufpos, mp, currentHero, path))
+			{
+				LOCPLINT->adventureInt->paths.erase(currentHero);
+				currentPath = NULL;
+			}
 		}
 	} //end of hero is selected "case"
 }
@@ -1310,6 +1312,7 @@ void CAdvMapInt::fmoveHero()
 	LOCPLINT->moveHero(static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection),*terrain.currentPath);
 	LOCPLINT->pim->lock();
 }
+
 void CAdvMapInt::fshowSpellbok()
 {
 	if (selection->ID!=HEROI_TYPE) //checking necessary values
@@ -1319,29 +1322,34 @@ void CAdvMapInt::fshowSpellbok()
 	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), (static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection)));
 	LOCPLINT->pushInt(spellWindow);
 }
+
 void CAdvMapInt::fadventureOPtions()
 {
 }
+
 void CAdvMapInt::fsystemOptions()
 {
 	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(genRect(487, 481, 159, 57), LOCPLINT);
 	LOCPLINT->pushInt(sysopWindow);
 }
+
 void CAdvMapInt::fnextHero()
 {
-	if(!heroList.items.size()) //no wandering heroes
+	if(!LOCPLINT->wanderingHeroes.size()) //no wandering heroes
 		return; 
 
 	int start = heroList.selected;
 	int i = start;
+
 	do 
 	{
 		i++;
-		if(i >= heroList.items.size())
+		if(i >= LOCPLINT->wanderingHeroes.size())
 			i = 0;
-	} while (!heroList.items[i].first->movement && i!=start);
+	} while (LOCPLINT->wanderingHeroes[i]->movement && i!=start);
 	heroList.select(i);
 }
+
 void CAdvMapInt::fendTurn()
 {
 	LOCPLINT->makingTurn = false;
@@ -1590,17 +1598,33 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 	LOCPLINT->cb->setSelection(sel);
 	centerOn(sel->pos);
 	selection = sel;
+
+	terrain.currentPath = NULL;
 	if(sel->ID==TOWNI_TYPE)
 	{
 		int pos = vstd::findPos(townList.items,sel);
 		townList.selected = pos;
-		terrain.currentPath = NULL;
 	}
-	else
+	else //hero selected
 	{
-		int pos = heroList.getPosOfHero(sel);
-		heroList.selected = pos;
-		terrain.currentPath = heroList.items[pos].second;
+		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(sel);
+
+		if(LOCPLINT->getWHero(heroList.selected) != h)
+			heroList.selected = heroList.getPosOfHero(h);
+
+		if(vstd::contains(paths,h)) //hero has assigned path
+		{
+			CPath &path = paths[h];
+			//update the hero path in case of something has changed on map
+			if(LOCPLINT->cb->getPath(path.startPos(), path.endPos(), h, path))
+				terrain.currentPath = &path;
+			else
+				paths.erase(h);
+		}
+		else
+		{
+			terrain.currentPath;
+		}	
 	}
 	townList.draw(screen);
 	heroList.draw(screen);

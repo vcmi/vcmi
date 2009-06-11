@@ -583,9 +583,9 @@ void CHeroWindow::redrawCurBack()
 
 	//hero list blitting
 
-	for(int pos=0, g=0; g<LOCPLINT->cb->howManyHeroes(); ++g)
+	for(int pos=0, g=0; g<LOCPLINT->wanderingHeroes.size(); ++g)
 	{
-		const CGHeroInstance * cur = LOCPLINT->cb->getHeroInfo(g, false);
+		const CGHeroInstance * cur = LOCPLINT->wanderingHeroes[g];
 		if (cur->inTownGarrison)
 			// Only display heroes that are not in garrison
 			continue;
@@ -875,7 +875,7 @@ void LClickableAreaHero::clickLeft(boost::logic::tribool down)
 	if(!down)
 	{
 		owner->deactivate();
-		const CGHeroInstance * buf = LOCPLINT->cb->getHeroInfo(id, false);
+		const CGHeroInstance * buf = LOCPLINT->getWHero(id);
 		owner->setHero(buf);
 		owner->redrawCurBack();
 		owner->activate();

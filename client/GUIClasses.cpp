@@ -1033,7 +1033,7 @@ CList::CList(int Size)
 }
 
 CHeroList::CHeroList(int Size)
-:CList(Size)
+:CList(Size), heroes(LOCPLINT->wanderingHeroes)
 {
 	arrup = CDefHandler::giveDef(conf.go()->ac.hlistAU);
 	arrdo = CDefHandler::giveDef(conf.go()->ac.hlistAD);
@@ -1069,13 +1069,13 @@ void CHeroList::init()
 
 void CHeroList::genList()
 {
-	int howMany = LOCPLINT->cb->howManyHeroes();
-	for (int i=0;i<howMany;i++)
-	{
-		const CGHeroInstance * h = LOCPLINT->cb->getHeroInfo(i,0);
-		if(!h->inTownGarrison)
-			items.push_back(std::pair<const CGHeroInstance *,CPath *>(h,NULL));
-	}
+	//int howMany = LOCPLINT->cb->howManyHeroes();
+	//for (int i=0;i<howMany;i++)
+	//{
+	//	const CGHeroInstance * h = LOCPLINT->cb->getHeroInfo(i,0);
+	//	if(!h->inTownGarrison)
+	//		items.push_back(std::pair<const CGHeroInstance *,CPath *>(h,NULL));
+	//}
 }
 
 void CHeroList::select(int which)
@@ -1088,23 +1088,11 @@ void CHeroList::select(int which)
 		draw(screen);
 		LOCPLINT->adventureInt->infoBar.draw(screen);
 	}
-	if (which>=items.size())
+	if (which>=heroes.size())
 		return;
-	selected = which;
 
-	//recalculationg path in case of something has changed on map
-	if(items[which].second)
-	{
-		CPath * newPath = LOCPLINT->cb->getPath(items[which].second->startPos(), items[which].second->endPos(), items[which].first);
-		delete items[which].second;
-		LOCPLINT->adventureInt->terrain.currentPath = items[which].second = newPath;
-	}
-	else
-	{
-		LOCPLINT->adventureInt->terrain.currentPath = NULL;
-	}
-	LOCPLINT->adventureInt->select(items[which].first);
-	//recalculated and assigned
+	selected = which;
+	LOCPLINT->adventureInt->select(heroes[which]);
 }
 
 void CHeroList::clickLeft(tribool down)
@@ -1123,7 +1111,7 @@ void CHeroList::clickLeft(tribool down)
 		}
 		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 		{
-			if(items.size()-from>SIZE)
+			if(heroes.size()-from>SIZE)
 			{
 				blitAt(arrdo->ourImages[1].bitmap,arrdop.x,arrdop.y);
 				pressed = false;
@@ -1138,7 +1126,7 @@ void CHeroList::clickLeft(tribool down)
 		if (ny>=SIZE || ny<0)
 			return;
 		if ( (ny+from)==selected && (LOCPLINT->adventureInt->selection->ID == HEROI_TYPE))
-			LOCPLINT->openHeroWindow(items[selected].first);//print hero screen
+			LOCPLINT->openHeroWindow(heroes[selected]);//print hero screen
 		select(ny+from);
 	}
 	else
@@ -1188,7 +1176,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	}
 	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 	{
-		if ((items.size()-from)  >  SIZE)
+		if ((heroes.size()-from)  >  SIZE)
 			LOCPLINT->adventureInt->statusbar.print(CGI->generaltexth->zelp[304].first);
 		else
 			LOCPLINT->adventureInt->statusbar.clear();
@@ -1199,14 +1187,14 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	int ny = hy/32;
-	if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
+	if ((ny>SIZE || ny<0) || (from+ny>=heroes.size()))
 	{
 		LOCPLINT->adventureInt->statusbar.clear();
 		return;
 	}
 	std::vector<std::string> temp;
-	temp.push_back(items[from+ny].first->name);
-	temp.push_back(items[from+ny].first->type->heroClass->name);
+	temp.push_back(heroes[from+ny]->name);
+	temp.push_back(heroes[from+ny]->type->heroClass->name);
 	LOCPLINT->adventureInt->statusbar.print( processStr(CGI->generaltexth->allTexts[15],temp) );
 	//select(ny+from);
 }
@@ -1220,7 +1208,7 @@ void CHeroList::clickRight(tribool down)
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
 		}
-		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (heroes.size()-from>5))
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 		}
@@ -1231,15 +1219,15 @@ void CHeroList::clickRight(tribool down)
 			hx-=pos.x;
 			hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 			int ny = hy/32;
-			if ((ny>SIZE || ny<0) || (from+ny>=items.size()))
+			if ((ny>SIZE || ny<0) || (from+ny>=heroes.size()))
 			{
 				return;
 			}
 
 			//show popup
-			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[items[from+ny].first->subID],
-				LOCPLINT->current->motion.x-graphics->heroWins[items[from+ny].first->subID]->w,
-				LOCPLINT->current->motion.y-graphics->heroWins[items[from+ny].first->subID]->h,
+			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[heroes[from+ny]->subID],
+				LOCPLINT->current->motion.x-graphics->heroWins[heroes[from+ny]->subID]->w,
+				LOCPLINT->current->motion.y-graphics->heroWins[heroes[from+ny]->subID]->h,
 				false);
 			LOCPLINT->pushInt(ip);
 		}
@@ -1262,25 +1250,16 @@ void CHeroList::keyPressed (const SDL_KeyboardEvent & key)
 void CHeroList::updateHList(const CGHeroInstance *toRemove)
 {
 	if(toRemove) //remove specific hero
-	{
-		for (std::vector<std::pair<const CGHeroInstance*, CPath *> >::iterator i=items.begin(); i != items.end(); i++)
-		{
-			if(i->first == toRemove)
-			{
-				delete i->second;
-				items.erase(i);
-				break;
-			}
-		}
-	}
+		heroes -= toRemove;
 	else
-	{
-		items.clear();
-		genList();
-	}
-	if(selected>=items.size())
-		select(items.size()-1);
-	if(items.size()==0)
+		LOCPLINT->recreateWanderingHeroes();
+
+
+	if(selected >= heroes.size())
+		select(heroes.size()-1);
+
+
+	if(heroes.size() == 0)
 		LOCPLINT->adventureInt->townList.select(0);
 	else
 		select(selected);
@@ -1289,8 +1268,8 @@ void CHeroList::updateHList(const CGHeroInstance *toRemove)
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
 {
 	int ser = -1;
-	for(int i=0; i<items.size() && ser<0; i++)
-		if(items[i].first->subID == which->subID)
+	for(int i=0; i<heroes.size() && ser<0; i++)
+		if(heroes[i]->subID == which->subID)
 			ser = i;
 	ser -= from;
 	if(ser<0 || ser > SIZE) return;
@@ -1303,14 +1282,14 @@ void CHeroList::draw(SDL_Surface * to)
 	for (int iT=0+from;iT<SIZE+from;iT++)
 	{
 		int i = iT-from;
-		if (iT>=items.size())
+		if (iT>=heroes.size())
 		{
 			blitAt(mobile->ourImages[0].bitmap,posmobx,posmoby+i*32,to);
 			blitAt(mana->ourImages[0].bitmap,posmanx,posmany+i*32,to);
 			blitAt(empty,posporx,pospory+i*32,to);
 			continue;
 		}
-		const CGHeroInstance *cur = items[iT].first;
+		const CGHeroInstance *cur = heroes[iT];
 		int pom = cur->movement / 100;
 		if (pom>25) pom=25;
 		if (pom<0) pom=0;
@@ -1332,21 +1311,16 @@ void CHeroList::draw(SDL_Surface * to)
 	else
 		blitAt(arrup->ourImages[2].bitmap,arrupp.x,arrupp.y,to);
 
-	if (items.size()-from > SIZE)
+	if (heroes.size()-from > SIZE)
 		blitAt(arrdo->ourImages[0].bitmap,arrdop.x,arrdop.y,to);
 	else
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
 }
 
-int CHeroList::getPosOfHero(const CArmedInstance* h)
+int CHeroList::getPosOfHero(const CGHeroInstance* h)
 {
-	return vstd::findPos(
-		items,h,
-		boost::bind(vstd::equal<std::pair<const CGHeroInstance*, CPath *>,
-		const CArmedInstance *,const CGHeroInstance*>,_1,
-		&std::pair<const CGHeroInstance*, CPath *>::first,_2));
+	return vstd::findPos(heroes, h, std::equal_to<const CGHeroInstance*>());
 }
-
 
 CTownList::~CTownList()
 {

@@ -87,7 +87,6 @@ public:
 	void setMapScrollingSpeed(int newSpeed) {mapScrollingSpeed = newSpeed;} //set the member above
 
 	SDL_Event * current; //current event
-	//CMainInterface *curint;
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt; //NULL if castle window isn't opened
 	CBattleInterface * battleInt; //NULL if no battle
@@ -106,6 +105,10 @@ public:
 	void pushInt(IShowActivable *newInt); //deactivate old top interface, activates this one and pushes to the top
 	void popInts(int howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
 	IShowActivable *topInt(); //returns top interface
+
+	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
+	void recreateWanderingHeroes();
+	const CGHeroInstance *getWHero(int pos); //returns NULL if position is not valid
 
 	//GUI elements
 	std::list<ClickableL*> lclickable;

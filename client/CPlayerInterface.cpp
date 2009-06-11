@@ -124,6 +124,7 @@ void CPlayerInterface::init(ICallback * CB)
 		SDL_Surface * pom = infoWin(tt[i]);
 		graphics->townWins.insert(std::pair<int,SDL_Surface*>(tt[i]->id,pom));
 	}
+	recreateWanderingHeroes();
 }
 void CPlayerInterface::yourTurn()
 {
@@ -158,8 +159,8 @@ void CPlayerInterface::yourTurn()
 
 		//select first hero if available.
 		//TODO: check if hero is slept
-		if(adventureInt->heroList.items.size())
-			adventureInt->select(adventureInt->heroList.items[0].first);
+		if(wanderingHeroes.size())
+			adventureInt->select(wanderingHeroes[0]);
 		else
 			adventureInt->select(adventureInt->townList.items[0]);
 
@@ -320,9 +321,8 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 
 		if(ho->movement)
 		{
-			delete adventureInt->terrain.currentPath;
+			adventureInt->paths.erase(ho);
 			adventureInt->terrain.currentPath = NULL;
-			adventureInt->heroList.items[adventureInt->heroList.getPosOfHero(ho)].second = NULL;
 		}
 		stillMoveHero.setn(STOP_MOVE);
 		return;
@@ -330,13 +330,12 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 
 	if (adventureInt->terrain.currentPath) //&& hero is moving
 	{
+		//remove one node from the path (the one we went)
 		adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
-		if(!adventureInt->terrain.currentPath->nodes.size())
+		if(!adventureInt->terrain.currentPath->nodes.size())  //if it was the last one, remove entire path
 		{
-
-			delete adventureInt->terrain.currentPath;
+			adventureInt->paths.erase(ho);
 			adventureInt->terrain.currentPath = NULL;
-			adventureInt->heroList.items[adventureInt->heroList.getPosOfHero(ho)].second = NULL;
 		}
 	}
 
@@ -808,6 +807,7 @@ void CPlayerInterface::heroKilled(const CGHeroInstance* hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	graphics->heroWins.erase(hero->ID);
+	wanderingHeroes -= hero;
 	adventureInt->heroList.updateHList(hero);
 }
 void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
@@ -815,6 +815,7 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(graphics->heroWins.find(hero->subID)==graphics->heroWins.end())
 		graphics->heroWins.insert(std::pair<int,SDL_Surface*>(hero->subID,infoWin(hero)));
+	wanderingHeroes.push_back(hero);
 	adventureInt->heroList.updateHList();
 }
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
@@ -1076,15 +1077,21 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 	//redraw infowindow
 	SDL_FreeSurface(graphics->townWins[town->id]);
 	graphics->townWins[town->id] = infoWin(town);
-	if(town->garrisonHero)
+
+
+	if(town->garrisonHero && vstd::contains(wanderingHeroes,town->garrisonHero)) //wandering hero moved to the garrison
 	{
 		CGI->mh->hideObject(town->garrisonHero);
+		wanderingHeroes -= town->garrisonHero;
 	}
-	if(town->visitingHero)
+
+	if(town->visitingHero && !vstd::contains(wanderingHeroes,town->visitingHero)) //hero leaves garrison
 	{
 		CGI->mh->printObject(town->visitingHero);
+		wanderingHeroes.push_back(town->visitingHero);
 	}
-	adventureInt->heroList.updateHList();
+
+	//adventureInt->heroList.updateHList();
 
 	CCastleInterface *c = castleInt;
 	if(c)
@@ -1716,3 +1723,17 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 		stillMoveHero.setn(CONTINUE_MOVE);
 }
 
+void CPlayerInterface::recreateWanderingHeroes()
+{
+	std::vector<const CGHeroInstance*> heroes = cb->getHeroesInfo();
+	for(size_t i = 0; i < heroes.size(); i++)
+		if(!heroes[i]->inTownGarrison)
+			wanderingHeroes.push_back(heroes[i]);
+}
+
+const CGHeroInstance * CPlayerInterface::getWHero( int pos )
+{
+	if(pos < 0 || pos >= wanderingHeroes.size())
+		return NULL;
+	return wanderingHeroes[pos];
+}
