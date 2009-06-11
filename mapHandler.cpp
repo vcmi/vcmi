@@ -384,9 +384,11 @@ void CMapHandler::initObjectRects()
 		CDefHandler * curd = map->objects[f]->defInfo->handler;
 		if(curd)
 		{
-			for(int fx=0; fx<curd->ourImages[0].bitmap->w>>5; ++fx) //curd->ourImages[0].bitmap->w/32
+			const SDL_Surface *bitmap = curd->ourImages[0].bitmap;
+
+			for(int fx=0; fx<bitmap->w>>5; ++fx) //bitmap->w/32
 			{
-				for(int fy=0; fy<curd->ourImages[0].bitmap->h>>5; ++fy) //curd->ourImages[0].bitmap->h/32
+				for(int fy=0; fy<bitmap->h>>5; ++fy) //bitmap->h/32
 				{
 					SDL_Rect cr;
 					cr.w = 32;
@@ -395,21 +397,21 @@ void CMapHandler::initObjectRects()
 					cr.y = fy<<5; //fy*32
 					std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(map->objects[f],cr);
 					
-					if(    (map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)  >=  0 
-						&& (map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)  <  ttiles.size() - Woff 
-						&& (map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)  >=  0 
-						&& (map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)  <  ttiles[0].size() - Hoff
+					if(    (map->objects[f]->pos.x + fx - bitmap->w/32+1)  >=  0 
+						&& (map->objects[f]->pos.x + fx - bitmap->w/32+1)  <  ttiles.size() - Woff 
+						&& (map->objects[f]->pos.y + fy - bitmap->h/32+1)  >=  0 
+						&& (map->objects[f]->pos.y + fy - bitmap->h/32+1)  <  ttiles[0].size() - Hoff
 					  )
 					{
 						//TerrainTile2 & curt =
 						//	ttiles
-						//	[map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32]
-						//[map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32]
+						//	[map->objects[f]->pos.x + fx - bitmap->w/32]
+						//[map->objects[f]->pos.y + fy - bitmap->h/32]
 						//[map->objects[f]->pos.z];
-						ttiles[map->objects[f]->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][map->objects[f]->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][map->objects[f]->pos.z].objects.push_back(toAdd);
+						ttiles[map->objects[f]->pos.x + fx - bitmap->w/32+1][map->objects[f]->pos.y + fy - bitmap->h/32+1][map->objects[f]->pos.z].objects.push_back(toAdd);
 					}
-				} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
-			} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+				} // for(int fy=0; fy<bitmap->h/32; ++fy)
+			} //for(int fx=0; fx<bitmap->w/32; ++fx)
 		}//if curd
 	} // for(int f=0; f<map->objects.size(); ++f)
 	for(int ix=0; ix<ttiles.size()-Woff; ++ix)
@@ -1218,10 +1220,10 @@ std::string CMapHandler::getDefName(int id, int subid)
 
 bool CMapHandler::printObject(const CGObjectInstance *obj)
 {
-	CDefHandler * curd = obj->defInfo->handler;
-	for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+	const SDL_Surface *bitmap = obj->defInfo->handler->ourImages[0].bitmap;
+	for(int fx=0; fx<bitmap->w/32; ++fx)
 	{
-		for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+		for(int fy=0; fy<bitmap->h/32; ++fy)
 		{
 			SDL_Rect cr;
 			cr.w = 32;
@@ -1229,20 +1231,20 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 			cr.x = fx*32;
 			cr.y = fy*32;
 			std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
-			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
 				TerrainTile2 & curt = //TODO use me 
 					ttiles
-					  [obj->pos.x + fx - curd->ourImages[0].bitmap->w/32]
-				      [obj->pos.y + fy - curd->ourImages[0].bitmap->h/32]
+					  [obj->pos.x + fx - bitmap->w/32]
+				      [obj->pos.y + fy - bitmap->h/32]
 					  [obj->pos.z];
 
 
-				ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects.push_back(toAdd);
+				ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z].objects.push_back(toAdd);
 			}
 
-		} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
-	} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+		} // for(int fy=0; fy<bitmap->h/32; ++fy)
+	} //for(int fx=0; fx<bitmap->w/32; ++fx)
 	return true;
 }
 
@@ -1250,13 +1252,14 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj)
 {
 	CDefHandler * curd = obj->defInfo->handler;
 	if(!curd) return false;
-	for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+	const SDL_Surface *bitmap = curd->ourImages[0].bitmap;
+	for(int fx=0; fx<bitmap->w/32; ++fx)
 	{
-		for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
+		for(int fy=0; fy<bitmap->h/32; ++fy)
 		{
-			if((obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)>=0 && (obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)>=0 && (obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1)<ttiles[0].size()-Hoff)
+			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-Hoff)
 			{
-				std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - curd->ourImages[0].bitmap->w/32+1][obj->pos.y + fy - curd->ourImages[0].bitmap->h/32+1][obj->pos.z].objects;
+				std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z].objects;
 				for(size_t dd=0; dd < ctile.size(); ++dd)
 				{
 					if(ctile[dd].first->id==obj->id)
@@ -1264,8 +1267,8 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj)
 				}
 			}
 
-		} // for(int fy=0; fy<curd->ourImages[0].bitmap->h/32; ++fy)
-	} //for(int fx=0; fx<curd->ourImages[0].bitmap->w/32; ++fx)
+		} // for(int fy=0; fy<bitmap->h/32; ++fy)
+	} //for(int fx=0; fx<bitmap->w/32; ++fx)
 	return true;
 }
 bool CMapHandler::removeObject(CGObjectInstance *obj)
