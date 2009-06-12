@@ -532,6 +532,9 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 {
 	int srx, sry;
 
+        // Temporarily disable smoothing as it is source of crashes
+	smooth = false;
+
 	if(!otherHeroAnim)
 		heroAnim = anim; //the same, as it should be
 	//setting surface to blit at
