@@ -1725,6 +1725,7 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 
 void CPlayerInterface::recreateWanderingHeroes()
 {
+	wanderingHeroes.clear();
 	std::vector<const CGHeroInstance*> heroes = cb->getHeroesInfo();
 	for(size_t i = 0; i < heroes.size(); i++)
 		if(!heroes[i]->inTownGarrison)

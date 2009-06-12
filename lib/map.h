@@ -325,7 +325,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	void readHeader( unsigned char * bufor, int &i);
 	void readRumors( unsigned char * bufor, int &i);
 	void loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
-	void loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i);
+	void loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i, int subid);
 	int loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj);
 
 

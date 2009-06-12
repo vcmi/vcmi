@@ -40,14 +40,14 @@ static std::set<si32> convertBuildings(const std::set<si32> h3m, int castleID)
 			int level = (-mapa[*i]);
 			if(h3m.find(20+(level*3)) != h3m.end()) //upgraded creature horde building
 			{
-				if(((castleID==1) || (castleID==3)) && ((level==3) || (level==5)))
+				if(((castleID==1 && level==5)  ||  (castleID==3 && level==3)))
 					ret.insert(25);
 				else
 					ret.insert(19);
 			}
 			//else
 			//{
-				if(((castleID==1) || (castleID==3)) && ((level==3) || (level==5)))
+			if(((castleID==1 && level==5)  ||  (castleID==3 && level==3)))
 					ret.insert(24);
 				else
 					ret.insert(18);
@@ -729,7 +729,7 @@ int Mapa::loadSeerHut( unsigned char * bufor, int i, CGObjectInstance *& nobj )
 	return i;
 }
 
-void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
+void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i, int subid)
 {
 	CGTownInstance * nt = new CGTownInstance();
 	//(*(static_cast<CGObjectInstance*>(nt))) = *nobj;
@@ -764,8 +764,8 @@ void Mapa::loadTown( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 					nt->forbiddenBuildings.insert((byte-6)*8+bit);
 			i++;
 		}
-		nt->builtBuildings = convertBuildings(nt->builtBuildings,nt->subID);
-		nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,nt->subID);
+		nt->builtBuildings = convertBuildings(nt->builtBuildings,subid);
+		nt->forbiddenBuildings = convertBuildings(nt->forbiddenBuildings,subid);
 	}
 	else //standard buildings
 	{
@@ -1652,7 +1652,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 			}
 		case 77: case 98: //random town; town
 			{
-				loadTown(nobj, bufor, i);
+				loadTown(nobj, bufor, i, defInfo->subid);
 				break;
 			}
 		case 53: 

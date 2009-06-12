@@ -301,11 +301,11 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 		}
 		hover(false);hover(true); //refresh statusbar
 	}
-	if(indeterminate(down) && !isItIn(&other->pos,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
-	{
-		other->highlight = highlight = false;
-		show(screen2);
-	}
+	//if(indeterminate(down) && !isItIn(&other->pos,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	//{
+	//	other->highlight = highlight = false;
+	//	show(screen2);
+	//}
 }
 
 void CHeroGSlot::activate()
@@ -539,7 +539,18 @@ void CCastleInterface::buildingClicked(int building)
 		{
 		case 0: case 1: case 2: case 3: case 4: //mage guild
 			{
-				if(town->visitingHero && !vstd::contains(town->visitingHero->artifWorn,ui16(17))) //visiting hero doesn't have spellboks
+				const CGHeroInstance *h = NULL; //hero that "enters" mage guild
+
+				if(!town->garrisonHero && !town->visitingHero) //no heroes in town
+					h = NULL;
+				else if(!town->garrisonHero) //only visiting hero
+					h = town->visitingHero;
+				else if(!town->visitingHero || hslotup.highlight) //only garrisoned hero OR both heroes present, garrisoned hero selected
+					h = town->garrisonHero;
+				else //both heroes present, use the visiting one
+					h = town->visitingHero;
+
+				if(h && !vstd::contains(h->artifWorn,ui16(17))) //hero doesn't have spellbok
 				{
 					if(LOCPLINT->cb->getResourceAmount(6) < 500) //not enough gold to buy spellbook
 					{
@@ -547,7 +558,7 @@ void CCastleInterface::buildingClicked(int building)
 					}
 					else
 					{
-						CFunctionList<void()> fl = boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,town->visitingHero,0);
+						CFunctionList<void()> fl = boost::bind(&CCallback::buyArtifact,LOCPLINT->cb,h,0);
 						fl += boost::bind(&CCastleInterface::enterMageGuild,this);
 						std::vector<SComponent*> vvv(1,new SComponent(SComponent::artifact,0,0));
 						LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[214],vvv,fl,0,true);
