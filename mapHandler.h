@@ -4,9 +4,6 @@
 #include <list>
 #include <set>
 
-const int Woff = 14; //width of map's frame
-const int Hoff = 10;
-
 /*
  * mapHandler.h, part of VCMI engine
  *
@@ -48,15 +45,15 @@ public:
 	int offset;
 	std::vector<T> inver;
 	PseudoV(){};
-	PseudoV(std::vector<T> &src, int rest, int Offset, const T& fill)
+	PseudoV(std::vector<T> &src, int rest, int before, int after, const T& fill)
 	{
-		inver.resize(Offset*2+rest);
-		offset=Offset;
-		for(int i=0; i<offset;i++)
+		inver.resize(before + rest + after);
+		offset=before;
+		for(int i=0; i<before;i++)
 			inver[i] = fill;
 		for(int i=0;i<src.size();i++)
 			inver[offset+i] = src[i];
-		for(int i=src.size(); i<src.size()+offset;i++)
+		for(int i=src.size(); i<src.size()+after;i++)
 			inver[offset+i] = fill;
 	}
 	inline T & operator[](const int & n)
@@ -67,10 +64,10 @@ public:
 	{
 		return inver[n+offset];
 	}
-	void resize(int rest,int Offset)
+	void resize(int rest, int before, int after)
 	{
-		inver.resize(Offset*2+rest);
-		offset=Offset;
+		inver.resize(before + rest + after);
+		offset=before;
 	}
 	int size() const
 	{
@@ -81,8 +78,17 @@ class CMapHandler
 {
 public:
 	PseudoV< PseudoV< PseudoV<TerrainTile2> > > ttiles; //informations about map tiles
-	int3 sizes; //map size (x - width, y - height, z - number of levels)
+	int3 sizes; //map size (x = width, y = height, z = number of levels)
 	Mapa * map;
+
+	// size of each side of the frame around the whole map
+	struct {
+		int left;
+		int right;
+		int top;
+		int bottom;
+	} frame;
+
 	std::set<int> usedHeroes;
 	CDefHandler * fullHide; //for Fog of War
 	CDefHandler * partialHide; //for For of War

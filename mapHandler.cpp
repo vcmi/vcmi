@@ -15,6 +15,7 @@
 #include "hch/CObjectHandler.h"
 #include "lib/map.h"
 #include "hch/CDefHandler.h"
+#include "client/CConfigHandler.h"
 
 /*
  * mapHandler.cpp, part of VCMI engine
@@ -204,17 +205,20 @@ void CMapHandler::roadsRiverTerrainInit()
 	sizes.x = CGI->mh->map->width;
 	sizes.y = CGI->mh->map->height;
 	sizes.z = CGI->mh->map->twoLevel+1;
-	ttiles.resize(CGI->mh->map->width,Woff);
-	for (int i=0-Woff;i<ttiles.size()-Woff;i++)
+
+	// Create enough room for the whole map and its frame
+	ttiles.resize(CGI->mh->map->width, frame.left, frame.right);
+	for (int i=0-frame.left;i<ttiles.size()-frame.left;i++)
 	{
-		ttiles[i].resize(CGI->mh->map->height,Hoff);
+		ttiles[i].resize(CGI->mh->map->height, frame.top, frame.bottom);
 	}
-	for (int i=0-Woff;i<ttiles.size()-Woff;i++)
+	for (int i=0-frame.left;i<ttiles.size()-frame.left;i++)
 	{
-		for (int j=0-Hoff;j<(int)CGI->mh->map->height+Hoff;j++)
-			ttiles[i][j].resize(CGI->mh->map->twoLevel+1,0);
+		for (int j=0-frame.top;j<(int)CGI->mh->map->height+frame.bottom;j++)
+			ttiles[i][j].resize(CGI->mh->map->twoLevel+1, 0, 0);
 	}
 
+	// Draw the map
 	for (int i=0; i<map->width; i++) //jest po szeroko�ci
 	{
 		for (int j=0; j<map->height;j++) //po wysoko�ci
@@ -311,9 +315,9 @@ void CMapHandler::borderAndTerrainBitmapInit()
 		delete hlp;
 	}
 
-	for (int i=0-Woff; i<map->width+Woff; i++) //jest po szeroko�ci
+	for (int i=0-frame.left; i<map->width+frame.right; i++) //jest po szeroko�ci
 	{
-		for (int j=0-Hoff; j<map->height+Hoff;j++) //po wysoko�ci
+		for (int j=0-frame.top; j<map->height+frame.bottom;j++) //po wysoko�ci
 		{
 			for(int k=0; k<=map->twoLevel; ++k)
 			{
@@ -398,9 +402,9 @@ void CMapHandler::initObjectRects()
 					std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(map->objects[f],cr);
 					
 					if(    (map->objects[f]->pos.x + fx - bitmap->w/32+1)  >=  0 
-						&& (map->objects[f]->pos.x + fx - bitmap->w/32+1)  <  ttiles.size() - Woff 
+						&& (map->objects[f]->pos.x + fx - bitmap->w/32+1)  <  ttiles.size() - frame.right 
 						&& (map->objects[f]->pos.y + fy - bitmap->h/32+1)  >=  0 
-						&& (map->objects[f]->pos.y + fy - bitmap->h/32+1)  <  ttiles[0].size() - Hoff
+						&& (map->objects[f]->pos.y + fy - bitmap->h/32+1)  <  ttiles[0].size() - frame.bottom
 					  )
 					{
 						//TerrainTile2 & curt =
@@ -414,9 +418,9 @@ void CMapHandler::initObjectRects()
 			} //for(int fx=0; fx<bitmap->w/32; ++fx)
 		}//if curd
 	} // for(int f=0; f<map->objects.size(); ++f)
-	for(int ix=0; ix<ttiles.size()-Woff; ++ix)
+	for(int ix=0; ix<ttiles.size()-frame.left; ++ix)
 	{
-		for(int iy=0; iy<ttiles[0].size()-Hoff; ++iy)
+		for(int iy=0; iy<ttiles[0].size()-frame.top; ++iy)
 		{
 			for(int iz=0; iz<ttiles[0][0].size(); ++iz)
 			{
@@ -472,6 +476,17 @@ void CMapHandler::init()
 {
 	timeHandler th;
 	th.getDif();
+
+	// Size of the frame around the map. In extremes positions, the
+	// frame must not be on the center of the map, but right on the
+	// edge of the center tile. Consequently, frame.left + 1 +
+	// frame.right = size of the window map on the screen. Same for
+	// top/bottom. And the sizes will be different on opposite sides
+	// if the length of the window map is even.
+	frame.left = (conf.go()->ac.tilesW-1) / 2;
+	frame.right = (conf.go()->ac.tilesW) / 2;
+	frame.top = (conf.go()->ac.tilesH-1) / 2;
+	frame.bottom = (conf.go()->ac.tilesH) / 2;
 
 	std::ifstream ifs("config/townsDefs.txt");
 	int ccc;
@@ -532,7 +547,7 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 {
 	int srx, sry;
 
-        // Temporarily disable smoothing as it is source of crashes
+	// Temporarily disable smoothing as it is source of crashes
 	smooth = false;
 
 	if(!otherHeroAnim)
@@ -551,11 +566,15 @@ SDL_Surface * CMapHandler::terrainRect(int x, int y, int dx, int dy, int level, 
 	SDL_GetClipRect(su, &prevClip);
 	if(extRect) SDL_SetClipRect(su, extRect); //preventing blitting outside of that rect
 
-	if (((dx+x)>((map->width+Woff)) || (dy+y)>((map->height+Hoff))) || ((x<-Woff)||(y<-Hoff) ) )
-		throw std::string("terrainRect: out of range");
-
 	dx += smooth?1:0;
 	dy += smooth?1:0;
+
+	// Sanity check - TODO: fails if smooth mode
+	if (dx+x > map->width+frame.right ||
+		dy+y > map->height+frame.bottom ||
+		x<-frame.left ||
+		y<-frame.right)
+		throw std::string("terrainRect: out of range");
 
 	////printing terrain
 	srx = (moveX <= 0 ? 0 : -1) * 32;
@@ -1234,7 +1253,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 			cr.x = fx*32;
 			cr.y = fy*32;
 			std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj, cr);
-			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-Hoff)
+			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-frame.right && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-frame.bottom)
 			{
 				TerrainTile2 & curt = //TODO use me 
 					ttiles
@@ -1260,7 +1279,7 @@ bool CMapHandler::hideObject(const CGObjectInstance *obj)
 	{
 		for(int fy=0; fy<bitmap->h/32; ++fy)
 		{
-			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-Woff && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-Hoff)
+			if((obj->pos.x + fx - bitmap->w/32+1)>=0 && (obj->pos.x + fx - bitmap->w/32+1)<ttiles.size()-frame.right && (obj->pos.y + fy - bitmap->h/32+1)>=0 && (obj->pos.y + fy - bitmap->h/32+1)<ttiles[0].size()-frame.bottom)
 			{
 				std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & ctile = ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z].objects;
 				for(size_t dd=0; dd < ctile.size(); ++dd)
@@ -1448,6 +1467,7 @@ CMapHandler::~CMapHandler()
 
 CMapHandler::CMapHandler()
 {
+	frame.left = frame.right = frame.top = frame.bottom = 0;
 	fullHide = NULL;
 	partialHide = NULL;
 }

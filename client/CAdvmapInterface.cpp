@@ -1461,16 +1461,16 @@ void CAdvMapInt::show(SDL_Surface *to)
 			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
 	)
 	{
-		if( (scrollingDir & LEFT)   &&  (position.x>-Woff) )
+		if( (scrollingDir & LEFT)   &&  (position.x>-CGI->mh->frame.left) )
 			position.x--;
 
-		if( (scrollingDir & RIGHT)  &&  (position.x   <   CGI->mh->map->width - terrain.tilesw + Woff) )
+		if( (scrollingDir & RIGHT)  &&  (position.x   <   CGI->mh->map->width - terrain.tilesw + CGI->mh->frame.right) )
 			position.x++;
 
-		if( (scrollingDir & UP)  &&  (position.y>-Hoff) )
+		if( (scrollingDir & UP)  &&  (position.y>-CGI->mh->frame.top) )
 			position.y--;
 
-		if( (scrollingDir & DOWN)  &&  (position.y  <  CGI->mh->map->height - terrain.tilesh + Hoff) )
+		if( (scrollingDir & DOWN)  &&  (position.y  <  CGI->mh->map->height - terrain.tilesh + CGI->mh->frame.bottom) )
 			position.y++;
 
 		if(scrollingDir)
