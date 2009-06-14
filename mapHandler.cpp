@@ -905,61 +905,29 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 			} else {
 				// TODO: these should be activable by the console
 #ifdef MARK_BLOCKED_POSITIONS
-				if(ttiles[x+bx][y+by][level].tileInfo->blocked) //temporary hiding blocked positions
+				if(ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z].tileInfo->blocked) //temporary hiding blocked positions
 				{
 					SDL_Rect sr;
-					if(smooth)
-					{
-						sr.y=by*32 + moveY;
-						sr.x=bx*32 + moveX;
-						sr.h=sr.w=32;
-					}
-					else
-					{
-						sr.y=by*32;
-						sr.x=bx*32;
-						sr.h=sr.w=32;
-						validateRectTerr(&sr, extRect);
-					}
 
-					SDL_Surface * ns =  CSDL_Ext::newSurface(32, 32, CSDL_Ext::std32bppSurface);
-					for(int f=0; f<ns->w*ns->h*4; ++f)
-					{
-						*((unsigned char*)(ns->pixels) + f) = 128;
-					}
+					sr.x=srx;
+					sr.y=sry;
+					sr.h=sr.w=32;
 
-					SDL_BlitSurface(ns,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
-
-					SDL_FreeSurface(ns);
+					memset(rSurf->pixels, 128, rSurf->pitch * rSurf->h);
+					SDL_BlitSurface(rSurf,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
 				}
 #endif
 #ifdef MARK_VISITABLE_POSITIONS
-				if(ttiles[x+bx][y+by][level].tileInfo->visitable) //temporary hiding visitable positions
+				if(ttiles[top_tile.x+bx][top_tile.y+by][top_tile.z].tileInfo->visitable) //temporary hiding visitable positions
 				{
 					SDL_Rect sr;
-					if(smooth)
-					{
-						sr.y=by*32 + moveY;
-						sr.x=bx*32 + moveX;
-						sr.h=sr.w=32;
-					}
-					else
-					{
-						sr.y=by*32;
-						sr.x=bx*32;
-						sr.h=sr.w=32;
-						validateRectTerr(&sr, extRect);
-					}
 
-					SDL_Surface * ns = CSDL_Ext::newSurface(32, 32, CSDL_Ext::std32bppSurface);
-					for(int f=0; f<ns->w*ns->h*4; ++f)
-					{
-						*((unsigned char*)(ns->pixels) + f) = 128;
-					}
+					sr.x=srx;
+					sr.y=sry;
+					sr.h=sr.w=32;
 
-					SDL_BlitSurface(ns,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
-
-					SDL_FreeSurface(ns);
+					memset(rSurf->pixels, 128, rSurf->pitch * rSurf->h);
+					SDL_BlitSurface(rSurf,&genRect(sr.h, sr.w, 0, 0),extSurf,&sr);
 				}
 #endif
 			}
@@ -967,7 +935,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 	}
 	// borders printed
 
-#if 1
+#ifdef MARK_GRID_POSITIONS
 	// print grid
 	// TODO: This option should be activated by the console.
 	srx = srx_init;
