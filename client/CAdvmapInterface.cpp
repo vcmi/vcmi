@@ -55,8 +55,11 @@ CMinimap::CMinimap(bool draw)
 	pos.h=ADVOPT.minimapW;//144
 	pos.w=ADVOPT.minimapH;//144
 
-	int rx = (((float)ADVOPT.tilesW)/(mapSizes.x))*((float)pos.w),
-		ry = (((float)ADVOPT.tilesH)/(mapSizes.y))*((float)pos.h);
+	const int tilesw=(ADVOPT.advmapW+31)/32;
+	const int tilesh=(ADVOPT.advmapH+31)/32;
+
+	int rx = (((float)tilesw)/(mapSizes.x))*((float)pos.w),
+		ry = (((float)tilesh)/(mapSizes.y))*((float)pos.h);
 
 	radar = newSurface(rx,ry);
 	temps = newSurface(pos.w,pos.h);
@@ -374,12 +377,12 @@ void CMinimap::hideTile(const int3 &pos)
 CTerrainRect::CTerrainRect()
 	:currentPath(NULL)
 {
-	tilesw=ADVOPT.tilesW;
-	tilesh=ADVOPT.tilesH;
+	tilesw=(ADVOPT.advmapW+31)/32;
+	tilesh=(ADVOPT.advmapH+31)/32;
 	pos.x=ADVOPT.advmapX;
 	pos.y=ADVOPT.advmapY;
-	pos.w=tilesw*32 - ADVOPT.advmapTrimX;
-	pos.h=tilesh*32 - ADVOPT.advmapTrimY;
+	pos.w=ADVOPT.advmapW;
+	pos.h=ADVOPT.advmapH;
 	moveX = moveY = 0;
 	arrows = CDefHandler::giveDef("ADAG.DEF");
 	for(size_t y=0; y < arrows->ourImages.size(); ++y)

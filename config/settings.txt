@@ -16,7 +16,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 tilesWidth=19 tilesHeight=18 trimX=15 trimY=29 smoothMove=1;
+			AdvMap: x=7 y=6 width=593 height=547 smoothMove=1;
 			InfoBox: x=605 y=389;
 			gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=556 y=508 graphic=agemLR.def;
@@ -44,7 +44,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 tilesWidth=26 tilesHeight=18 trimX=15 trimY=29 smoothMove=1;
+			AdvMap: x=7 y=6 width=817 height=547 smoothMove=1;
 			InfoBox: x=829 y=389;
 		 	gem0: x=6 y=508 graphic=agemLL.def;
 			gem1: x=780 y=508 graphic=agemLR.def;
@@ -73,7 +73,7 @@ GUISettings
 	{
 		AdventureMap
 		{
-			AdvMap: x=7 y=6 tilesWidth=26 tilesHeight=23 trimX=15 trimY=20 smoothMove=1;
+			AdvMap: x=7 y=6 width=817 height=715 smoothMove=1;
 			InfoBox: x=829 y=557;
 			gem0: x=6 y=676 graphic=agemLL.def;
 			gem1: x=780 y=676 graphic=agemLR.def;

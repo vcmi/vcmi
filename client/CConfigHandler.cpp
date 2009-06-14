@@ -235,10 +235,8 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 						*(	
 							(   "x=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapX)]
 							  | "y=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapY)]
-							  | "trimX=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapTrimX)]
-							  | "trimY=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapTrimY)]
-							  | "tilesWidth=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tilesW)]
-							  | "tilesHeight=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::tilesH)]
+							  | "width=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapW)]
+							  | "height=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapH)]
 							  | "smoothMove=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::smoothMove)]
 							) 
 						 )
