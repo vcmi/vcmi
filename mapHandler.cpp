@@ -477,11 +477,9 @@ void CMapHandler::init()
 	timeHandler th;
 	th.getDif();
 
-	// Size of visible terrain. TODO: change settings.txt to add that
-	// infor and remove the old stuff in conf file (tilesW, tileH,
-	// TrimX, TrimY)
-	mapW = conf.go()->ac.tilesW * 32 - conf.go()->ac.advmapTrimX;
-	mapH = conf.go()->ac.tilesH * 32 - conf.go()->ac.advmapTrimY;
+	// Size of visible terrain.
+	mapW = conf.go()->ac.advmapW;
+	mapH = conf.go()->ac.advmapH;
 
 	// Total number of visible tiles. Substract the center tile, then
 	// compute the number of tiles on each side, and reassemble.
