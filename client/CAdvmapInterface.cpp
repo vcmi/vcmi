@@ -612,8 +612,8 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 		if (i==0) //last tile
 		{
 			// TODO: use right variable instead of (7,6). Twice in this function.
-			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+CGI->mh->offsetX + 7,
-				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+CGI->mh->offsetY + 6;
+			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+CGI->mh->offsetX + pos.x,
+				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+CGI->mh->offsetY + pos.y;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
 				continue;
 			pn=0;
@@ -874,8 +874,8 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 			pn+=25;
 		if (pn>=0)
 		{
-			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+CGI->mh->offsetX + 7,
-				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+CGI->mh->offsetY + 6;
+			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+CGI->mh->offsetX + pos.x,
+				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+CGI->mh->offsetY + pos.y;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
 				continue;
 			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
