@@ -608,8 +608,9 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 		int pn=-1;//number of picture
 		if (i==0) //last tile
 		{
-			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
-				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
+			// TODO: use right variable instead of (7,6). Twice in this function.
+			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+CGI->mh->offsetX + 7,
+				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+CGI->mh->offsetY + 6;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
 				continue;
 			pn=0;
@@ -870,8 +871,8 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 			pn+=25;
 		if (pn>=0)
 		{
-			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+7,
-				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+6;
+			int x = 32*(currentPath->nodes[i].coord.x-LOCPLINT->adventureInt->position.x)+CGI->mh->offsetX + 7,
+				y = 32*(currentPath->nodes[i].coord.y-LOCPLINT->adventureInt->position.y)+CGI->mh->offsetY + 6;
 			if (x<0 || y<0 || x>pos.w || y>pos.h)
 				continue;
 			int hvx = (x+arrows->ourImages[pn].bitmap->w)-(pos.x+pos.w),
@@ -939,11 +940,9 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 void CTerrainRect::show(SDL_Surface * to)
 {
 	CGI->mh->terrainRect
-			(LOCPLINT->adventureInt->position.x,LOCPLINT->adventureInt->position.y,
-			tilesw,tilesh,LOCPLINT->adventureInt->position.z,LOCPLINT->adventureInt->anim,
-			&LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-			to, &genRect(pos.h, pos.w, pos.x, pos.y), moveX, moveY, ADVOPT.smoothMove && (moveX != 0 || moveY != 0)
-			);
+		(LOCPLINT->adventureInt->position, LOCPLINT->adventureInt->anim,
+		 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+		 to, &genRect(pos.h, pos.w, pos.x, pos.y), moveX, moveY);
 	
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
@@ -956,8 +955,8 @@ void CTerrainRect::show(SDL_Surface * to)
 int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
 {
 	int3 ret;
-	ret.x = LOCPLINT->adventureInt->position.x + ((LOCPLINT->current->motion.x-pos.x)/32);
-	ret.y = LOCPLINT->adventureInt->position.y + ((LOCPLINT->current->motion.y-pos.y)/32);
+	ret.x = LOCPLINT->adventureInt->position.x + ((LOCPLINT->current->motion.x-CGI->mh->offsetX-pos.x)/32);
+	ret.y = LOCPLINT->adventureInt->position.y + ((LOCPLINT->current->motion.y-CGI->mh->offsetY-pos.y)/32);
 	ret.z = LOCPLINT->adventureInt->position.z;
 	return ret;
 }
@@ -1461,16 +1460,16 @@ void CAdvMapInt::show(SDL_Surface *to)
 			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
 	)
 	{
-		if( (scrollingDir & LEFT)   &&  (position.x>-CGI->mh->frame.left) )
+		if( (scrollingDir & LEFT)   &&  (position.x>-CGI->mh->frameW) )
 			position.x--;
 
-		if( (scrollingDir & RIGHT)  &&  (position.x   <   CGI->mh->map->width - terrain.tilesw + CGI->mh->frame.right) )
+		if( (scrollingDir & RIGHT)  &&  (position.x   <   CGI->mh->map->width - CGI->mh->tilesW + CGI->mh->frameW) )
 			position.x++;
 
-		if( (scrollingDir & UP)  &&  (position.y>-CGI->mh->frame.top) )
+		if( (scrollingDir & UP)  &&  (position.y>-CGI->mh->frameH) )
 			position.y--;
 
-		if( (scrollingDir & DOWN)  &&  (position.y  <  CGI->mh->map->height - terrain.tilesh + CGI->mh->frame.bottom) )
+		if( (scrollingDir & DOWN)  &&  (position.y  <  CGI->mh->map->height - CGI->mh->tilesH + CGI->mh->frameH) )
 			position.y++;
 
 		if(scrollingDir)
@@ -1501,14 +1500,16 @@ void CAdvMapInt::selectionChanged()
 }
 void CAdvMapInt::centerOn(int3 on)
 {
-	on.x -= (LOCPLINT->adventureInt->terrain.tilesw/2);
-	on.y -= (LOCPLINT->adventureInt->terrain.tilesh/2);
+	// TODO:convertPosition should not belong to CGHeroInstance, and it
+	// should be split in 2 methods.
+	on = CGHeroInstance::convertPosition(on, false);
 
+	on.x -= CGI->mh->frameW;
+	on.y -= CGI->mh->frameH;
+	
 	on = LOCPLINT->repairScreenPos(on);
 
-	LOCPLINT->adventureInt->position.x=on.x;
-	LOCPLINT->adventureInt->position.y=on.y;
-	LOCPLINT->adventureInt->position.z=on.z;
+	LOCPLINT->adventureInt->position = on;
 	LOCPLINT->adventureInt->updateScreen=true;
 	updateMinimap=true;
 }

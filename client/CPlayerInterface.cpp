@@ -1024,14 +1024,14 @@ void CPlayerInterface::handleEvent(SDL_Event *sEvent)
 
 int3 CPlayerInterface::repairScreenPos(int3 pos)
 {
-	if(pos.x<=-CGI->mh->frame.left)
-		pos.x = -CGI->mh->frame.left+1;
-	if(pos.y<=-CGI->mh->frame.top)
-		pos.y = -CGI->mh->frame.top+1;
-	if(pos.x>CGI->mh->map->width - this->adventureInt->terrain.tilesw + CGI->mh->frame.right)
-		pos.x = CGI->mh->map->width - this->adventureInt->terrain.tilesw + CGI->mh->frame.right;
-	if(pos.y>CGI->mh->map->height - this->adventureInt->terrain.tilesh + CGI->mh->frame.bottom)
-		pos.y = CGI->mh->map->height - this->adventureInt->terrain.tilesh + CGI->mh->frame.bottom;
+	if(pos.x<-CGI->mh->frameW)
+		pos.x = -CGI->mh->frameW;
+	if(pos.y<-CGI->mh->frameH)
+		pos.y = -CGI->mh->frameH;
+	if(pos.x>CGI->mh->map->width - this->adventureInt->terrain.tilesw + CGI->mh->frameW)
+		pos.x = CGI->mh->map->width - this->adventureInt->terrain.tilesw + CGI->mh->frameW;
+	if(pos.y>CGI->mh->map->height - this->adventureInt->terrain.tilesh + CGI->mh->frameH)
+		pos.y = CGI->mh->map->height - this->adventureInt->terrain.tilesh + CGI->mh->frameH;
 	return pos;
 }
 void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)

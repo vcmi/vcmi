@@ -81,13 +81,24 @@ public:
 	int3 sizes; //map size (x = width, y = height, z = number of levels)
 	Mapa * map;
 
-	// size of each side of the frame around the whole map
-	struct {
-		int left;
-		int right;
-		int top;
-		int bottom;
-	} frame;
+	// Size of the map window in pixels. This doesn't have to be a multiple of tiles.
+	int mapW;
+	int mapH;
+
+	// Max number of tiles that will fit in the map screen. Tiles
+	// can be partial on each edges.
+	int tilesW;
+	int tilesH;
+
+	// size of each side of the frame around the whole map, in tiles
+	int frameH;
+	int frameW;
+
+	// Coord in pixels of the top left corner of the top left tile to
+	// draw. Values range is [-31..0]. A negative value
+	// implies that part of the tile won't be displayed.
+	int offsetX;
+	int offsetY;
 
 	std::set<int> usedHeroes;
 	CDefHandler * fullHide; //for Fog of War
@@ -124,7 +135,7 @@ public:
 	void roadsRiverTerrainInit();
 	void prepareFOWDefs();
 
-	SDL_Surface * terrainRect(int x, int y, int dx, int dy, int level, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect, int moveX, int moveY, bool smooth);
+	void terrainRect(int3 top_tile, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, SDL_Rect * extRect, int moveX, int moveY);
 	void updateWater();
 	unsigned char getHeroFrameNum(const unsigned char & dir, const bool & isMoving) const; //terrainRect helper function
 	void validateRectTerr(SDL_Rect * val, const SDL_Rect * ext); //terrainRect helper
