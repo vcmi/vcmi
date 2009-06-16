@@ -106,6 +106,7 @@ public:
 	void giveHero(int id, int player){};
 	void changeObjPos(int objid, int3 newPos, ui8 flags){};
 	void sendAndApply(CPackForClient * info){};
+	void heroExchange(si32 hero1, si32 hero2){};
 
 	//////////////////////////////////////////////////////////////////////////
 	friend class CCallback; //handling players actions

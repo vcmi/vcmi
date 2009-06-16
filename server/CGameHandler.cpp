@@ -1422,6 +1422,21 @@ void CGameHandler::changeObjPos( int objid, int3 newPos, ui8 flags )
 	sendAndApply(&cop);
 }
 
+void CGameHandler::heroExchange(si32 hero1, si32 hero2)
+{
+	ui8 player1 = getHero(hero1)->tempOwner;
+	ui8 player2 = getHero(hero2)->tempOwner;
+
+	if(player1 == player2)
+	{
+		HeroExchange hex;
+		hex.hero1 = hero1;
+		hex.hero2 = hero2;
+		hex.player = player1;
+		sendAndApply(&hex);
+	}
+}
+
 void CGameHandler::applyAndAsk( Query * sel, ui8 player, boost::function<void(ui32)> &callback )
 {
 	boost::unique_lock<boost::recursive_mutex> lock(gsm);

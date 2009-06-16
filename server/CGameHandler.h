@@ -130,6 +130,7 @@ public:
 	void setManaPoints(int hid, int val);
 	void giveHero(int id, int player);
 	void changeObjPos(int objid, int3 newPos, ui8 flags);
+	void heroExchange(si32 hero1, si32 hero2);
 	//////////////////////////////////////////////////////////////////////////
 
 	void init(StartInfo *si, int Seed);

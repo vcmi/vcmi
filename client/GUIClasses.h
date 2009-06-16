@@ -566,6 +566,22 @@ public:
 	~CGarrisonWindow(); //d-tor
 };
 
+class CExchangeWindow : public CIntObject, public IShowActivable
+{
+public:
+	SDL_Surface *bg; //background
+	AdventureMapButton *quit;
+
+	const CGHeroInstance *hero1inst, *hero2inst;
+
+	void close();
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to);
+
+	CExchangeWindow(si32 hero1, si32 hero2); //c-tor
+	~CExchangeWindow(); //d-tor
+};
 
 
 #endif //__GUICLASSES_H__

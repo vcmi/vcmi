@@ -1723,6 +1723,11 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 		stillMoveHero.setn(CONTINUE_MOVE);
 }
 
+void CPlayerInterface::heroExchangeStarted(si32 hero1, si32 hero2)
+{
+	pushInt(new CExchangeWindow(hero1, hero2));
+}
+
 void CPlayerInterface::recreateWanderingHeroes()
 {
 	wanderingHeroes.clear();

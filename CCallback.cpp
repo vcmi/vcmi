@@ -168,7 +168,7 @@ const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 
 	}
 	else //object id
 	{
-		return static_cast<CGHeroInstance*>(gs->map->objects[val]);
+		return static_cast<const CGHeroInstance*>(gs->map->objects[val]);
 	}
 	return NULL;
 }

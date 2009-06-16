@@ -604,9 +604,11 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		if(tempOwner == h->tempOwner) //our hero
 		{
 			//exchange
+			cb->heroExchange(id, h->id);
 		}
 		else
 		{
+			//battle
 			cb->startBattleI(
 				&h->army,
 				&army,

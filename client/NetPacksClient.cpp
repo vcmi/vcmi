@@ -460,3 +460,12 @@ void ShowInInfobox::applyCl(CClient *cl)
 		static_cast<CPlayerInterface*>(cl->playerint[player])->showComp(sc);
 	}
 }
+
+void HeroExchange::applyFirstCl(CClient *cl)
+{
+}
+
+void HeroExchange::applyCl(CClient *cl)
+{
+	cl->playerint[player]->heroExchangeStarted(hero1, hero2);
+}

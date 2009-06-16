@@ -3208,3 +3208,45 @@ CRClickPopupInt::~CRClickPopupInt()
 	if(delInner)
 		delete inner;
 }
+
+void CExchangeWindow::close()
+{
+	LOCPLINT->popIntTotally(this);
+}
+
+void CExchangeWindow::activate()
+{
+	quit->activate();
+}
+
+void CExchangeWindow::deactivate()
+{
+	quit->deactivate();
+}
+
+void CExchangeWindow::show(SDL_Surface * to)
+{
+	blitAt(bg, pos, to);
+
+	quit->show(to);
+
+	//printing border around window
+	if(screen->w != 800 || screen->h !=600)
+		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
+}
+
+CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
+{
+	hero1inst = LOCPLINT->cb->getHeroInfo(hero1, 2);
+	hero2inst = LOCPLINT->cb->getHeroInfo(hero2, 2);
+
+	bg = BitmapHandler::loadBitmap("TRADE2.BMP");
+	graphics->blueToPlayersAdv(bg, hero1inst->tempOwner);
+	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CExchangeWindow::close, this), pos.x+732, pos.y+567, "IOKAY.DEF", SDLK_RETURN);
+}
+
+CExchangeWindow::~CExchangeWindow() //d-tor
+{
+	SDL_FreeSurface(bg);
+	delete quit;
+}

@@ -418,6 +418,10 @@ DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
 	h->inTownGarrison = false;
 }
 
+DLL_EXPORT void HeroExchange::applyGs(CGameState *gs)
+{
+}
+
 DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 {
 	gs->day = day;

@@ -83,6 +83,7 @@ public:
 	virtual void giveHero(int id, int player)=0;
 	virtual void changeObjPos(int objid, int3 newPos, ui8 flags)=0;
 	virtual void sendAndApply(CPackForClient * info)=0;
+	virtual void heroExchange(si32 hero1, si32 hero2)=0; //when two heroes meet on adventure map
 
 
 	friend struct CPackForClient;

@@ -975,7 +975,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 
-	delete rSurf;
+	SDL_FreeSurface(rSurf);
 }
 
 SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::vector< std::vector<unsigned char> > > & visibilityMap, int lvl)

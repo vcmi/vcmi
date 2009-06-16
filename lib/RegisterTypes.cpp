@@ -93,6 +93,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SetStackEffect>();
 	s.template registerType<StacksInjured>();
 	s.template registerType<ShowInInfobox>();
+	s.template registerType<HeroExchange>();
 
 	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();

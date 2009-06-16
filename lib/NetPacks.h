@@ -475,6 +475,22 @@ struct GiveHero : public CPackForClient //516
 	}
 };  
 
+struct HeroExchange : public CPackForClient //517
+{
+	HeroExchange(){type = 517;};
+	void applyFirstCl(CClient *cl);
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	si32 hero1, hero2; //heroes for exchange
+	ui8 player;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & hero1 & hero2 & player;
+	}
+};
+
 struct NewTurn : public CPackForClient //101
 {
 	DLL_EXPORT void applyGs(CGameState *gs);
