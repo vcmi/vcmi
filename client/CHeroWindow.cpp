@@ -225,6 +225,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	}
 	curHero = hero;
 
+	//pos temporarily switched, restored later
 	pos.x -= 65;
 	pos.y -= 8;
 
@@ -513,6 +514,7 @@ void CHeroWindow::redrawCurBack()
 		SDL_FreeSurface(curBack);
 	curBack = SDL_DisplayFormat(background);
 
+	//primary skills & morale and luck graphics
 	blitAt(graphics->pskillsm->ourImages[0].bitmap, 32, 111, curBack);
 	blitAt(graphics->pskillsm->ourImages[1].bitmap, 102, 111, curBack);
 	blitAt(graphics->pskillsm->ourImages[2].bitmap, 172, 111, curBack);
@@ -520,10 +522,13 @@ void CHeroWindow::redrawCurBack()
 	blitAt(graphics->pskillsm->ourImages[4].bitmap, 20, 230, curBack);
 	blitAt(graphics->pskillsm->ourImages[3].bitmap, 162, 230, curBack);
 
+	//blitting portrait
 	blitAt(graphics->portraitLarge[curHero->portrait], 19, 19, curBack);
 
+	//printing hero's name
 	CSDL_Ext::printAtMiddle(curHero->name, 190, 40, GEORXX, tytulowy, curBack);
 
+	//printing hero's level
 	std::stringstream secondLine;
 	secondLine<<"Level "<<curHero->level<<" "<<curHero->type->heroClass->name;
 	CSDL_Ext::printAtMiddle(secondLine.str(), 190, 66, TNRB16, zwykly, curBack);

@@ -3240,8 +3240,31 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 	hero1inst = LOCPLINT->cb->getHeroInfo(hero1, 2);
 	hero2inst = LOCPLINT->cb->getHeroInfo(hero2, 2);
 
-	bg = BitmapHandler::loadBitmap("TRADE2.BMP");
-	graphics->blueToPlayersAdv(bg, hero1inst->tempOwner);
+	SDL_Surface * bgtemp; //loaded as 8bpp surface
+	bgtemp = BitmapHandler::loadBitmap("TRADE2.BMP");
+	graphics->blueToPlayersAdv(bgtemp, hero1inst->tempOwner);
+	bg = SDL_ConvertSurface(bgtemp, screen->format, screen->flags); //to 24 bpp
+	SDL_FreeSurface(bgtemp);
+
+	//printing heroes' names and levels
+	std::ostringstream os, os2;
+	os<<hero1inst->name<<", Level "<<hero1inst->level<<" "<<hero1inst->type->heroClass->name;
+	CSDL_Ext::printAtMiddle(os.str(), 147, 23, GEOR13, zwykly, bg);
+	os2<<hero2inst->name<<", Level "<<hero2inst->level<<" "<<hero2inst->type->heroClass->name;
+	CSDL_Ext::printAtMiddle(os2.str(), 653, 23, GEOR13, zwykly, bg);
+
+	//printing primary skills' graphics
+	CDefHandler * skilldef = CDefHandler::giveDef("PSKIL32.DEF");
+	for(int g=0; g<4; ++g)
+	{
+		blitAt(skilldef->ourImages[g].bitmap, genRect(32, 32, 385, 19 + 36 * g), bg);
+	}
+
+	//printing portraits
+	blitAt(graphics->portraitLarge[hero1inst->portrait], 257, 13, bg);
+	blitAt(graphics->portraitLarge[hero2inst->portrait], 485, 13, bg);
+
+	//buttons
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CExchangeWindow::close, this), pos.x+732, pos.y+567, "IOKAY.DEF", SDLK_RETURN);
 }
 
