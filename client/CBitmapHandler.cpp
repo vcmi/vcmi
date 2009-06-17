@@ -73,7 +73,7 @@ void CPCXConv::convert()
 	unsigned char add;
 	int it=0;
 
-	std::stringstream out;
+	std::ostringstream out;
 
 	fSize = readNormalNr(it,4,pcx);it+=4;
 	bh.x = readNormalNr(it,4,pcx);it+=4;

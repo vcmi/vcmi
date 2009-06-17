@@ -158,7 +158,7 @@ void CSoundHandler::initCreaturesSounds(std::vector<CCreature> &creatures)
 	{
 		std::string cname="", attack="", defend="", killed="", move="", 
 			shoot="", wince="", ext1="", ext2="";
-		std::stringstream str(line);
+		std::istringstream str(line);
 
 		str >> cname >> attack >> defend >> killed >> move >> shoot >> wince >> ext1 >> ext2;
 
@@ -232,7 +232,7 @@ void CSoundHandler::initSpellsSounds(std::vector<CSpell> &spells)
 	{
 		int spellid;
 		std::string soundfile="";
-		std::stringstream str(line);
+		std::istringstream str(line);
 
 		str >> spellid >> soundfile;
 

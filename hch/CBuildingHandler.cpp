@@ -27,7 +27,7 @@ static unsigned int readNr(std::string &in, int &it)
 	if(last==in.size())
 		throw std::string("Cannot read number...");
 
-	std::stringstream ss(in.substr(it,last-it));
+	std::istringstream ss(in.substr(it,last-it));
 	it+=(1+last-it);
 	ss >> last;
 	return last;
@@ -127,7 +127,7 @@ void CBuildingHandler::loadBuildings()
 				while(it<seppos)
 				{
 					int last = linia.find_first_of(' ',it);
-					std::stringstream ss(linia.substr(it,last-it));
+					std::istringstream ss(linia.substr(it,last-it));
 					it = last + 1;
 					ss >> last;
 					(hall[tid].second)[j][box].push_back(last);

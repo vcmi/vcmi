@@ -36,16 +36,16 @@ public:
 		*halls, *forts, *bigTownPic;
 	std::map<int,SDL_Surface*> heroWins; //hero_ID => infobox
 	std::map<int,SDL_Surface*> townWins; //town_ID => infobox
-	CDefHandler * artDefs; //artifacts
+	CDefEssential * artDefs; //artifacts
 	std::vector<SDL_Surface *> portraitSmall; //48x32 px portraits of heroes
 	std::vector<SDL_Surface *> portraitLarge; //58x64 px portraits of heroes
-	std::vector<CDefHandler *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
-	CDefHandler * pskillsb, *resources; //82x93
-	CDefHandler * pskillsm; //42x42
-	CDefHandler * un44; //many things
-	CDefHandler * smallIcons, *resources32; //resources 32x32
-	CDefHandler * flags;
-	std::vector<CDefHandler *> heroAnims; // [class id: 0 - 17]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
+	std::vector<CDefEssential *> flags1, flags2, flags3, flags4; //flags blitted on heroes when ,
+	CDefEssential * pskillsb, *resources; //82x93
+	CDefEssential * pskillsm; //42x42
+	CDefEssential * un44; //many things
+	CDefEssential * smallIcons, *resources32; //resources 32x32
+	CDefEssential * flags;
+	std::vector<CDefEssential *> heroAnims; // [class id: 0 - 17]  //added group 10: up - left, 11 - left and 12 - left down // 13 - up-left standing; 14 - left standing; 15 - left down standing
 	//creatures
 	std::map<int,SDL_Surface*> smallImgs; //creature ID -> small 32x32 img of creature; //ID=-2 is for blank (black) img; -1 for the border
 	std::map<int,SDL_Surface*> bigImgs; //creature ID -> big 58x64 img of creature; //ID=-2 is for blank (black) img; -1 for the border
@@ -55,18 +55,18 @@ public:
 	std::vector< std::vector< std::string > > battleBacks; //battleBacks[terType] - vector of possible names for certain terrain type
 	std::vector< std::string > battleHeroes; //battleHeroes[hero type] - name of def that has hero animation for battle
 	std::map< int, std::vector < std::string > > battleACToDef; //maps AC format to vector of appropriate def names
-	CDefHandler * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
+	CDefEssential * spellEffectsPics; //bitmaps representing spells affecting a stack in battle
 	std::vector<std::string> guildBgs;// name of bitmaps with imgs for mage guild screen
 	//abilities
-	CDefHandler * abils32, * abils44, * abils82;
+	CDefEssential * abils32, * abils44, * abils82;
 	//spells
-	CDefHandler *spellscr; //spell on the scroll 83x61
+	CDefEssential *spellscr; //spell on the scroll 83x61
 	//functions
 	Graphics();	
 	void initializeBattleGraphics();
 	void loadPaletteAndColors();
 	void loadHeroFlags();
-	void loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, std::vector<const char *> > &pr, bool mode);
+	void loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode);
 	void loadHeroAnim();
 	void loadHeroPortraits();
 	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);

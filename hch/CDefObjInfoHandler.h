@@ -14,7 +14,7 @@
  *
  */
 
-class CDefHandler;
+class CDefEssential;
 class CLodHandler;
 class DLL_EXPORT CGDefInfo
 {
@@ -30,7 +30,7 @@ public:
 		 terrainMenu; //in which menus in map editor object will be showed
 	si32 width, height; //tiles
 	si32 type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)   
-	CDefHandler * handler;
+	CDefEssential * handler;
 	si32 printPriority;
 	bool isVisitable();
 	bool operator<(const CGDefInfo& por)

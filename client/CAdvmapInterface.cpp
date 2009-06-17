@@ -1120,7 +1120,7 @@ CDefHandler * CInfoBar::getAnim(int mode)
 void CInfoBar::blitAnim(int mode)//0 - day, 1 - week
 {
 	CDefHandler * anim = NULL;
-	std::stringstream txt;
+	std::ostringstream txt;
 	anim = getAnim(mode);
 	if(mode) //new week animation
 	{

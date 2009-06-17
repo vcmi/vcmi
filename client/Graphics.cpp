@@ -190,7 +190,7 @@ void Graphics::initializeBattleGraphics()
 			battleACToDef[ACid] = toAdd;
 		}
 	}
-	spellEffectsPics = CDefHandler::giveDef("SpellInt.def");
+	spellEffectsPics = CDefHandler::giveDefEss("SpellInt.def");
 }
 Graphics::Graphics()
 {
@@ -212,7 +212,7 @@ Graphics::Graphics()
 	tasks += GET_SURFACE(hInfo,"HEROQVBK.bmp");
 	tasks += GET_SURFACE(tInfo,"TOWNQVBK.bmp");
 	tasks += GET_SURFACE(heroInGarrison,"TOWNQKGH.bmp");
-	tasks += GET_DEF(artDefs,"ARTIFACT.DEF");
+	tasks += GET_DEF_ESS(artDefs,"ARTIFACT.DEF");
 	tasks += GET_DEF_ESS(forts,"ITMCLS.DEF");
 	tasks += GET_DEF_ESS(luck22,"ILCK22.DEF");
 	tasks += GET_DEF_ESS(luck30,"ILCK30.DEF");
@@ -224,19 +224,19 @@ Graphics::Graphics()
 	tasks += GET_DEF_ESS(morale82,"IMRL82.DEF");
 	tasks += GET_DEF_ESS(halls,"ITMTLS.DEF");
 	tasks += GET_DEF_ESS(bigTownPic,"ITPT.DEF");
-	tasks += GET_DEF(pskillsb,"PSKILL.DEF");
-	tasks += GET_DEF(pskillsm,"PSKIL42.DEF");
-	tasks += GET_DEF(resources,"RESOUR82.DEF");
-	tasks += GET_DEF(un44,"UN44.DEF");
-	tasks += GET_DEF(smallIcons,"ITPA.DEF");
-	tasks += GET_DEF(resources32,"RESOURCE.DEF");
+	tasks += GET_DEF_ESS(pskillsb,"PSKILL.DEF");
+	tasks += GET_DEF_ESS(pskillsm,"PSKIL42.DEF");
+	tasks += GET_DEF_ESS(resources,"RESOUR82.DEF");
+	tasks += GET_DEF_ESS(un44,"UN44.DEF");
+	tasks += GET_DEF_ESS(smallIcons,"ITPA.DEF");
+	tasks += GET_DEF_ESS(resources32,"RESOURCE.DEF");
 	tasks += GET_DEF(smi,"CPRSMALL.DEF");
 	tasks += GET_DEF(smi2,"TWCRPORT.DEF");
-	tasks += GET_DEF(flags,"CREST58.DEF");
-	tasks += GET_DEF(abils32,"SECSK32.DEF");
-	tasks += GET_DEF(abils44,"SECSKILL.DEF");
-	tasks += GET_DEF(abils82,"SECSK82.DEF");
-	tasks += GET_DEF(spellscr,"SPELLSCR.DEF");
+	tasks += GET_DEF_ESS(flags,"CREST58.DEF");
+	tasks += GET_DEF_ESS(abils32,"SECSK32.DEF");
+	tasks += GET_DEF_ESS(abils44,"SECSKILL.DEF");
+	tasks += GET_DEF_ESS(abils82,"SECSK82.DEF");
+	tasks += GET_DEF_ESS(spellscr,"SPELLSCR.DEF");
 
 	std::ifstream ifs("config/cr_bgs.txt"); 
 	int id;
@@ -300,10 +300,10 @@ void Graphics::loadHeroAnim()
 		std::make_pair(2,14), std::make_pair(3,15);
 	for(size_t i=0; i<heroAnims.size(); ++i)
 	{
-		std::stringstream nm;
+		std::ostringstream nm;
 		nm << "AH" << std::setw(2) << std::setfill('0') << i << "_.DEF";
 		std::string name = nm.str();
-		heroAnims[i] = CDefHandler::giveDef(name);
+		heroAnims[i] = CDefHandler::giveDefEss(name);
 		int pom = 0; //how many groups has been rotated
 		for(int o=7; pom<6; ++o)
 		{
@@ -335,14 +335,13 @@ void Graphics::loadHeroAnim()
 		{
 			CSDL_Ext::alphaTransform(heroAnims[i]->ourImages[ff].bitmap);
 		}
-		heroAnims[i]->alphaTransformed = true;
 	}
 }
 
-void Graphics::loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, std::vector<const char *> > &pr, bool mode)
+void Graphics::loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > &pr, bool mode)
 {
 	for(int i=0;i<8;i++)
-		(this->*pr.first).push_back(CDefHandler::giveDef(pr.second[i]));
+		(this->*pr.first).push_back(CDefHandler::giveDefEss(pr.second[i]));
 	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1
 	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12);
 	for(int q=0; q<8; ++q)
@@ -413,7 +412,6 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefHandler *> Graphics::*, s
 				SDL_MapRGB((this->*pr.first)[q]->ourImages[ff].bitmap->format, 0, 255, 255)
 				);
 		}
-		(this->*pr.first)[q]->alphaTransformed = true;
 	}
 }
 
@@ -421,7 +419,7 @@ void Graphics::loadHeroFlags()
 {
 	using namespace boost::assign;
 	timeHandler th;
-	std::pair<std::vector<CDefHandler *> Graphics::*, std::vector<const char *> > pr[4];
+	std::pair<std::vector<CDefEssential *> Graphics::*, std::vector<const char *> > pr[4];
 	pr[0].first = &Graphics::flags1;
 	pr[0].second+=("ABF01L.DEF"),("ABF01G.DEF"),("ABF01R.DEF"),("ABF01D.DEF"),("ABF01B.DEF"),
 		("ABF01P.DEF"),("ABF01W.DEF"),("ABF01K.DEF");

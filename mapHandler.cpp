@@ -105,7 +105,6 @@ static void alphaTransformDef(CGDefInfo * defInfo)
 	for(int yy=0;yy<defInfo->handler->ourImages.size();yy++)
 	{
 		CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
-		defInfo->handler->alphaTransformed = true;
 	}
 	SDL_FreeSurface(alphaTransSurf);
 }
@@ -180,13 +179,13 @@ void CMapHandler::roadsRiverTerrainInit()
 {
 	//initializing road's and river's DefHandlers
 
-	roadDefs.push_back(CDefHandler::giveDef("dirtrd.def"));
-	roadDefs.push_back(CDefHandler::giveDef("gravrd.def"));
-	roadDefs.push_back(CDefHandler::giveDef("cobbrd.def"));
-	staticRiverDefs.push_back(CDefHandler::giveDef("clrrvr.def"));
-	staticRiverDefs.push_back(CDefHandler::giveDef("icyrvr.def"));
-	staticRiverDefs.push_back(CDefHandler::giveDef("mudrvr.def"));
-	staticRiverDefs.push_back(CDefHandler::giveDef("lavrvr.def"));
+	roadDefs.push_back(CDefHandler::giveDefEss("dirtrd.def"));
+	roadDefs.push_back(CDefHandler::giveDefEss("gravrd.def"));
+	roadDefs.push_back(CDefHandler::giveDefEss("cobbrd.def"));
+	staticRiverDefs.push_back(CDefHandler::giveDefEss("clrrvr.def"));
+	staticRiverDefs.push_back(CDefHandler::giveDefEss("icyrvr.def"));
+	staticRiverDefs.push_back(CDefHandler::giveDefEss("mudrvr.def"));
+	staticRiverDefs.push_back(CDefHandler::giveDefEss("lavrvr.def"));
 	for(size_t g=0; g<staticRiverDefs.size(); ++g)
 	{
 		for(size_t h=0; h < staticRiverDefs[g]->ourImages.size(); ++h)
@@ -385,7 +384,7 @@ void CMapHandler::initObjectRects()
 		{
 			continue;
 		}
-		CDefHandler * curd = map->objects[f]->defInfo->handler;
+		CDefEssential * curd = map->objects[f]->defInfo->handler;
 		if(curd)
 		{
 			const SDL_Surface *bitmap = curd->ourImages[0].bitmap;
@@ -437,7 +436,7 @@ static void processDef (CGDefInfo* def)
 	{
 		if(def->name.size())
 		{
-			def->handler = CDefHandler::giveDef(def->name);
+			def->handler = CDefHandler::giveDefEss(def->name);
 		}
 		else
 		{
@@ -457,13 +456,10 @@ static void processDef (CGDefInfo* def)
 	}
 	else if(def->id != HEROI_TYPE && def->id != TOWNI_TYPE)
 		tlog3 << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
-	if(!def->handler->alphaTransformed)
+
+	for(size_t yy=0; yy < def->handler->ourImages.size(); ++yy)
 	{
-		for(size_t yy=0; yy < def->handler->ourImages.size(); ++yy)
-		{
-			CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
-			def->handler->alphaTransformed = true;
-		}
+		CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
 	}
 }
 void CMapHandler::initHeroDef(CGHeroInstance * h)
@@ -1309,7 +1305,7 @@ bool CMapHandler::printObject(const CGObjectInstance *obj)
 
 bool CMapHandler::hideObject(const CGObjectInstance *obj)
 {
-	CDefHandler * curd = obj->defInfo->handler;
+	CDefEssential * curd = obj->defInfo->handler;
 	if(!curd) return false;
 	const SDL_Surface *bitmap = curd->ourImages[0].bitmap;
 	for(int fx=0; fx<bitmap->w/32; ++fx)

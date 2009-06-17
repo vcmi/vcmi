@@ -98,7 +98,7 @@ class CHeroWindow: public CWindowWithGarrison, public virtual CIntObject
 	CStatusBar * ourBar; //heroWindow's statusBar
 
 	//general graphics
-	CDefHandler *flags;
+	CDefEssential *flags;
 
 	//buttons
 	AdventureMapButton * gar4button; //splitting

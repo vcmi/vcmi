@@ -3259,6 +3259,31 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 	{
 		blitAt(skilldef->ourImages[g].bitmap, genRect(32, 32, 385, 19 + 36 * g), bg);
 	}
+	delete skilldef;
+
+	const CGHeroInstance * curHero = NULL;
+	for(int b=0; b<2; ++b)
+	{
+		//choosing hero
+		if(b == 0)
+			curHero = hero1inst;
+		else if(b == 1)
+			curHero = hero2inst;
+
+		//printing primary skills' amounts
+		for(int m=0; m<4; ++m)
+		{
+			std::ostringstream primarySkill;
+			primarySkill<<curHero->getPrimSkillLevel(m);
+			CSDL_Ext::printAtMiddle(primarySkill.str(), 353 + 93 * b, 35 + 36 * m, TNRB16, zwykly, bg);
+		}
+
+		//printing secondary skills
+		for(int m=0; m<curHero->secSkills.size(); ++m)
+		{
+			blitAt(graphics->abils32->ourImages[curHero->secSkills[m].first * 3 + curHero->secSkills[m].second + 2].bitmap, genRect(32, 32, 32 + 36 * m + 454 * b, 88), bg);
+		}
+	}
 
 	//printing portraits
 	blitAt(graphics->portraitLarge[hero1inst->portrait], 257, 13, bg);

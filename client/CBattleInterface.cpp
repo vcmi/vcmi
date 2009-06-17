@@ -584,7 +584,7 @@ void CBattleInterface::show(SDL_Surface * to)
 				}
 				SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[curStackID]->pos.x + xAdd + pos.x, creAnims[curStackID]->pos.y + 260 + pos.y));
 				//blitting amount
-				std::stringstream ss;
+				std::ostringstream ss;
 				ss<<curStack.amount;
 				CSDL_Ext::printAtMiddleWB(
 					ss.str(),
@@ -2778,7 +2778,7 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 			for(std::set<std::pair<ui32,si32> >::const_iterator it=br.casualties[step].begin(); it!=br.casualties[step].end(); ++it)
 			{
 				blitAt(graphics->smallImgs[it->first], xPos, yPos, background);
-				std::stringstream amount;
+				std::ostringstream amount;
 				amount<<it->second;
 				CSDL_Ext::printAtMiddle(amount.str(), xPos+16, yPos + 42, GEOR13, zwykly, background);
 				xPos += 42;

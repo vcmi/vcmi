@@ -23,6 +23,7 @@ class CDefHandler;
 struct TerrainTile;
 struct SDL_Surface;
 struct SDL_Rect;
+class CDefEssential;
 
 struct TerrainTile2
 {
@@ -105,11 +106,11 @@ public:
 	CDefHandler * partialHide; //for For of War
 
 	std::vector<std::vector<SDL_Surface *> > terrainGraphics; // [terrain id] [view type] [rotation type]
-	std::vector<CDefHandler *> roadDefs;
-	std::vector<CDefHandler *> staticRiverDefs;
-	std::vector<CDefHandler*> defs;
+	std::vector<CDefEssential *> roadDefs;
+	std::vector<CDefEssential *> staticRiverDefs;
+	std::vector<CDefEssential*> defs;
 
-	std::map<std::string, CDefHandler*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
+	std::map<std::string, CDefEssential*> loadedDefs; //pointers to loaded defs (key is filename, uppercase)
 
 	std::vector<std::vector<std::vector<unsigned char> > > hideBitmap; //specifies number of graphic that should be used to fully hide a tile
 

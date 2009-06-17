@@ -213,7 +213,7 @@ CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHer
 	background = BitmapHandler::loadBitmap("SpelBack.bmp");
 	graphics->blueToPlayersAdv(background, myHero->tempOwner);
 
-	std::stringstream mana;
+	std::ostringstream mana;
 	mana<<myHero->mana;
 	CSDL_Ext::printAtMiddle(mana.str(), 434, 425, GEOR16, tytulowy, background);
 
@@ -452,7 +452,7 @@ void CSpellWindow::show(SDL_Surface *to)
 		//printing lvl
 		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + CGI->spellh->spells[spellAreas[b]->mySpell].level], spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 82, GEORM, zwykly, to);
 		//printing  cost
-		std::stringstream ss;
+		std::ostringstream ss;
 		ss<<CGI->generaltexth->allTexts[387]<<": "<<CGI->spellh->spells[spellAreas[b]->mySpell].costs[bestslvl];
 
 		CSDL_Ext::printAtMiddle(ss.str(), spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 94, GEORM, zwykly, to);
@@ -652,7 +652,7 @@ void CSpellWindow::SpellArea::hover(bool on)
 	{
 		if(on)
 		{
-			std::stringstream ss;
+			std::ostringstream ss;
 			ss<<CGI->spellh->spells[mySpell].name<<" ("<<CGI->generaltexth->allTexts[171+CGI->spellh->spells[mySpell].level]<<")";
 			owner->statusBar->print(ss.str());
 		}
