@@ -945,18 +945,18 @@ void CTerrainRect::show(SDL_Surface * to)
 		CGI->mh->terrainRect
 			(LOCPLINT->adventureInt->position, LOCPLINT->adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-			 to, &genRect(pos.h, pos.w, pos.x, pos.y), moveX, moveY);
+			 to, &pos, moveX, moveY);
 	else
 		CGI->mh->terrainRect
 			(LOCPLINT->adventureInt->position, LOCPLINT->adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-			 to, &genRect(pos.h, pos.w, pos.x, pos.y), 0, 0);
+			 to, &pos, 0, 0);
 	
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
 	if (currentPath && LOCPLINT->adventureInt->position.z==currentPath->startPos().z) //drawing path
 	{
-		showPath(&genRect(pos.h, pos.w, pos.x, pos.y));
+		showPath(&pos);
 	}
 }
 
