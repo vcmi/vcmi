@@ -39,9 +39,8 @@ extern SDL_Surface * screen;
 extern TTF_Font * GEOR16;
 using namespace boost::assign;
 CHeroWindow::CHeroWindow(int playerColor):
-	backpackPos(0), player(playerColor)
+	player(playerColor)
 {
-	artWorn.resize(19);
 	background = BitmapHandler::loadBitmap("HEROSCR4.bmp");
 	graphics->blueToPlayersAdv(background, playerColor);
 	pos.x = screen->w/2 - background->w/2 - 65;
@@ -50,7 +49,8 @@ CHeroWindow::CHeroWindow(int playerColor):
 	pos.w = background->w;
 	curBack = NULL;
 	curHero = NULL;
-	activeArtPlace = NULL;
+
+	artifs = new CArtifactsOfHero(pos);
 
 	garr = NULL;
 	ourBar = new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
@@ -163,16 +163,7 @@ CHeroWindow::~CHeroWindow()
 	delete garr;
 	delete ourBar;
 
-	for(size_t g=0; g<artWorn.size(); ++g)
-	{
-		delete artWorn[g];
-	}
-	artWorn.clear();
-	for(size_t g=0; g<backpack.size(); ++g)
-	{
-		delete backpack[g];
-	}
-	backpack.clear();
+	delete artifs;
 
 	delete portraitArea;
 	delete expArea;
@@ -205,14 +196,7 @@ void CHeroWindow::show(SDL_Surface *to)
 	garr->show(to);
 	ourBar->show(to);
 
-	for(size_t d=0; d<artWorn.size(); ++d)
-	{
-		artWorn[d]->show(to);
-	}
-	for(size_t d=0; d<backpack.size(); ++d)
-	{
-		backpack[d]->show(to);
-	}
+	artifs->show(to);
 }
 
 void CHeroWindow::setHero(const CGHeroInstance *Hero)
@@ -266,80 +250,8 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
 	spellPointsArea->text = std::string(bufor);
 
-	for(size_t g=0; g<artWorn.size(); ++g)
-	{
-		delete artWorn[g];
-	}
-	for(size_t g=0; g<backpack.size(); ++g)
-	{
-		delete backpack[g];
-	}
-	backpack.clear();
+	artifs->setHero(Hero);
 
-	std::vector<SDL_Rect> slotPos;
-	backpackPos = 0;
-
-	slotPos += genRect(44,44,pos.x+509,pos.y+30), genRect(44,44,pos.x+567,pos.y+240), genRect(44,44,pos.x+509,pos.y+80), 
-		genRect(44,44,pos.x+383,pos.y+68), genRect(44,44,pos.x+564,pos.y+183), genRect(44,44,pos.x+509,pos.y+130), 
-		genRect(44,44,pos.x+431,pos.y+68), genRect(44,44,pos.x+610,pos.y+183), genRect(44,44,pos.x+515,pos.y+295), 
-		genRect(44,44,pos.x+383,pos.y+143), genRect(44,44,pos.x+399,pos.y+194), genRect(44,44,pos.x+415,pos.y+245),
-		genRect(44,44,pos.x+431,pos.y+296), genRect(44,44,pos.x+564,pos.y+30), genRect(44,44,pos.x+610,pos.y+30), 
-		genRect(44,44,pos.x+610,pos.y+76), genRect(44,44,pos.x+610,pos.y+122), genRect(44,44,pos.x+610,pos.y+310),	
-		genRect(44,44,pos.x+381,pos.y+296);
-
-	for (int g = 0; g < 19 ; g++)
-	{	
-		artWorn[g] = new CArtPlace(hero->getArt(g));
-		artWorn[g]->pos = slotPos[g];
-		if(hero->getArt(g))
-			artWorn[g]->text = hero->getArt(g)->Description();
-		artWorn[g]->ourWindow = this;
-	}
-
-	for(size_t g=0; g<artWorn.size(); ++g)
-	{
-		artWorn[g]->slotID = g;
-		if(artWorn[g]->ourArt)
-		{
-			sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), artWorn[g]->ourArt->Name().c_str());
-			artWorn[g]->hoverText = std::string(bufor);
-		}
-		else
-		{
-			artWorn[g]->hoverText = CGI->generaltexth->allTexts[507];
-		}
-	}
-
-	for(size_t s=0; s<5; ++s)
-	{
-		CArtPlace * add;
-		if( s < curHero->artifacts.size() )
-		{
-			add = new CArtPlace(&CGI->arth->artifacts[curHero->artifacts[(s+backpackPos) % curHero->artifacts.size() ]]);
-			sprintf(bufor, CGI->generaltexth->heroscrn[1].c_str(), add->ourArt->Name().c_str());
-			add->hoverText = bufor;
-		}
-		else
-		{
-			add = new CArtPlace(NULL);
-			add->hoverText = CGI->generaltexth->allTexts[507];
-		}
-		add->pos.x = pos.x + 403 + 46*s;
-		add->pos.y = pos.y + 365;
-		add->pos.h = add->pos.w = 44;
-		if(s<hero->artifacts.size() && hero->artifacts[s])
-		{
-			add->text = hero->getArt(19+s)->Description();
-		}
-		else
-		{
-			add->text = std::string();
-		}
-		add->ourWindow = this;
-		add->slotID = 19+s;
-		backpack.push_back(add);
-	}
-	activeArtPlace = NULL;
 	dismissButton->block(!!hero->visitedTown);
 	leftArtRoll->block(hero->artifacts.size()<6);
 	rightArtRoll->block(hero->artifacts.size()<6);
@@ -419,16 +331,8 @@ void CHeroWindow::activate()
 	}
 	redrawCurBack();
 
-	for(size_t f=0; f<artWorn.size(); ++f)
-	{
-		if(artWorn[f])
-			artWorn[f]->activate();
-	}
-	for(size_t f=0; f<backpack.size(); ++f)
-	{
-		if(backpack[f])
-			backpack[f]->activate();
-	}
+	artifs->activate();
+	
 	for(size_t e=0; e<heroListMi.size(); ++e)
 	{
 		heroListMi[e]->activate();
@@ -462,16 +366,8 @@ void CHeroWindow::deactivate()
 		secSkillAreas[v]->deactivate();
 	}
 
-	for(size_t f=0; f<artWorn.size(); ++f)
-	{
-		if(artWorn[f])
-			artWorn[f]->deactivate();
-	}
-	for(size_t f=0; f<backpack.size(); ++f)
-	{
-		if(backpack[f])
-			backpack[f]->deactivate();
-	}
+	artifs->deactivate();
+	
 	for(size_t e=0; e<heroListMi.size(); ++e)
 	{
 		heroListMi[e]->deactivate();
@@ -491,21 +387,7 @@ void CHeroWindow::questlog()
 
 void CHeroWindow::scrollBackpack(int dir)
 {
-	backpackPos += dir + curHero->artifacts.size();
-	backpackPos %= curHero->artifacts.size();
-
-
-	for(size_t s=0; s<5 && s<curHero->artifacts.size(); ++s) //set new data
-	{
-		CArtPlace *cur = backpack[s];
-		cur->slotID = 19+((s+backpackPos)%curHero->artifacts.size());
-		cur->ourArt = curHero->getArt(cur->slotID);
-
-		if(cur->ourArt)
-			cur->text = cur->ourArt->Description();
-		else
-			cur->text = std::string();
-	}
+	artifs->scrollBackpack(dir);
 }
 
 void CHeroWindow::redrawCurBack()
@@ -635,241 +517,6 @@ void CHeroWindow::dispose()
 	curBack = NULL;
 	curHero = NULL;
 
-	for(size_t g=0; g<artWorn.size(); ++g)
-	{
-		delete artWorn[g];
-		artWorn[g] = NULL;
-	}
-	for(size_t g=0; g<backpack.size(); ++g)
-	{
-		delete backpack[g];
-		backpack[g] = NULL;
-	}
-	backpack.clear();
-	activeArtPlace = NULL;
+	artifs->dispose();
 }
 
-CArtPlace::CArtPlace(const CArtifact* Art): active(false), clicked(false), ourArt(Art)/*,
-	spellBook(false), warMachine1(false), warMachine2(false), warMachine3(false),
-	warMachine4(false),misc1(false), misc2(false), misc3(false), misc4(false),
-	misc5(false), feet(false), lRing(false), rRing(false), torso(false),
-	lHand(false), rHand(false), neck(false), shoulders(false), head(false) */{}
-void CArtPlace::activate()
-{
-	if(!active)
-	{
-		//ClickableL::activate();
-		LRClickableAreaWTextComp::activate();
-		active = true;
-	}
-}
-void CArtPlace::clickLeft(boost::logic::tribool down)
-{
-	//LRClickableAreaWTextComp::clickLeft(down);
-	
-	if(ourArt && !down) //we are spellbook
-	{
-		if(ourArt->id == 0)
-		{
-			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ourWindow->curHero);
-			LOCPLINT->pushInt(spellWindow);
-		}
-	}
-	if(!down && !clicked && pressedL) //not clicked before
-	{
-		if(ourArt && ourArt->id == 0)
-			return; //this is handled separately
-		if(!ourWindow->activeArtPlace) //nothing has bewn clicked
-		{
-			if(ourArt) //to prevent selecting empty slots (bugfix to what GrayFace reported)
-			{
-				clicked = true;
-				ourWindow->activeArtPlace = this;
-			}
-		}
-		else //perform artifact substitution
-		{
-			if(slotID >= 19)	//we are an backpack slot - remove active artifact and put it to the last free pos in backpack
-			{					//TODO: putting artifacts in the middle of backpack (pushing following arts)
-				
-				LOCPLINT->cb->swapArtifacts(ourWindow->curHero,ourWindow->activeArtPlace->slotID,ourWindow->curHero,ourWindow->curHero->artifacts.size()+19);
-			}
-			//check if swap is possible
-			else if(this->fitsHere(ourWindow->activeArtPlace->ourArt) && ourWindow->activeArtPlace->fitsHere(this->ourArt))
-			{
-				int destSlot = slotID,
-					srcSlot = ourWindow->activeArtPlace->slotID;
-
-				LOCPLINT->cb->swapArtifacts(ourWindow->curHero,destSlot,ourWindow->curHero,srcSlot);
-
-				ourWindow->activeArtPlace->clicked = false;
-				ourWindow->activeArtPlace = NULL;
-			}
-		}
-	}
-	else if(!down && clicked)
-	{
-		if(ourArt && ourArt->id == 0)
-			return; //this is handled separately
-		clicked = false;
-		ourWindow->activeArtPlace = NULL;
-	}
-	ClickableL::clickLeft(down);
-}
-void CArtPlace::clickRight(boost::logic::tribool down)
-{
-	if(text.size()) //if there is no description, do nothing ;]
-		LRClickableAreaWTextComp::clickRight(down);
-}
-void CArtPlace::deactivate()
-{
-	if(active)
-	{
-		active = false;
-		//ClickableL::deactivate();
-		LRClickableAreaWTextComp::deactivate();
-	}
-}
-void CArtPlace::show(SDL_Surface *to)
-{
-	if(ourArt)
-	{
-		blitAt(graphics->artDefs->ourImages[ourArt->id].bitmap, pos.x, pos.y, to);
-	}
-	if(clicked && active)
-	{
-		for(int i=0; i<pos.h; ++i)
-		{
-			for(int j=0; j<pos.w; ++j)
-			{
-				if(i==0 || j==0 || i==pos.h-1 || j==pos.w-1)
-				{
-					CSDL_Ext::SDL_PutPixelWithoutRefresh(to, pos.x+j, pos.y+i, 240, 220, 120);
-				}
-			}
-		}
-	}
-}
-bool CArtPlace::fitsHere(const CArtifact * art)
-{
-	if(!art)
-		return true; //you can have no artifact somewhere
-	if(slotID > 18   ||   vstd::contains(art->possibleSlots,slotID)) //backpack or right slot
-		return true;
-	return false;
-}
-CArtPlace::~CArtPlace()
-{
-	deactivate();
-}
-
-void LClickableArea::activate()
-{
-	ClickableL::activate();
-}
-void LClickableArea::deactivate()
-{
-	ClickableL::deactivate();
-}
-void LClickableArea::clickLeft(boost::logic::tribool down)
-{
-	//if(!down)
-	//{
-	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
-	//}
-}
-
-void RClickableArea::activate()
-{
-	ClickableR::activate();
-}
-void RClickableArea::deactivate()
-{
-	ClickableR::deactivate();
-}
-void RClickableArea::clickRight(boost::logic::tribool down)
-{
-	//if(!down)
-	//{
-	//	LOCPLINT->showInfoDialog("TEST TEST AAA", std::vector<SComponent*>());
-	//}
-}
-
-void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
-{
-	if(!down && pressedL)
-	{
-		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(), soundBase::sound_todo);
-	}
-	ClickableL::clickLeft(down);
-}
-void LRClickableAreaWText::clickRight(boost::logic::tribool down)
-{
-	LOCPLINT->adventureInt->handleRightClick(text, down, this);
-}
-void LRClickableAreaWText::activate()
-{
-	LClickableArea::activate();
-	RClickableArea::activate();
-	Hoverable::activate();
-}
-void LRClickableAreaWText::deactivate()
-{
-	LClickableArea::deactivate();
-	RClickableArea::deactivate();
-	Hoverable::deactivate();
-}
-void LRClickableAreaWText::hover(bool on)
-{
-	Hoverable::hover(on);
-	if (on)
-		LOCPLINT->statusbar->print(hoverText);
-	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
-		LOCPLINT->statusbar->clear();
-}
-
-void LClickableAreaHero::clickLeft(boost::logic::tribool down)
-{
-	if(!down)
-	{
-		owner->deactivate();
-		const CGHeroInstance * buf = LOCPLINT->getWHero(id);
-		owner->setHero(buf);
-		owner->redrawCurBack();
-		owner->activate();
-	}
-}
-
-void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
-{
-	if((!down) && pressedL)
-	{
-		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonus));
-		LOCPLINT->showInfoDialog(text, comp, soundBase::sound_todo);
-	}
-	ClickableL::clickLeft(down);
-}
-void LRClickableAreaWTextComp::clickRight(boost::logic::tribool down)
-{
-	LOCPLINT->adventureInt->handleRightClick(text, down, this);
-}
-void LRClickableAreaWTextComp::activate()
-{
-	LClickableArea::activate();
-	RClickableArea::activate();
-	Hoverable::activate();
-}
-void LRClickableAreaWTextComp::deactivate()
-{
-	LClickableArea::deactivate();
-	RClickableArea::deactivate();
-	Hoverable::deactivate();
-}
-void LRClickableAreaWTextComp::hover(bool on)
-{
-	Hoverable::hover(on);
-	if (on)
-		LOCPLINT->statusbar->print(hoverText);
-	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
-		LOCPLINT->statusbar->clear();
-}
