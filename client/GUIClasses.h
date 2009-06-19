@@ -637,6 +637,9 @@ class CArtifactsOfHero : public IShowActivable, public CIntObject
 	CArtPlace * activeArtPlace;
 
 public:
+
+	AdventureMapButton * leftArtRoll, * rightArtRoll;
+
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
@@ -667,17 +670,24 @@ public:
 
 class CExchangeWindow : public CIntObject, public IShowActivable
 {
-public:
-	SDL_Surface *bg; //background
-	AdventureMapButton *quit;
+	CStatusBar * ourBar; //internal statusbar
 
-	const CGHeroInstance *hero1inst, *hero2inst;
-	CArtifactsOfHero * art1, * art2;
+	SDL_Surface *bg; //background
+	AdventureMapButton * quit, * questlogButton[2];
+
+	const CGHeroInstance * heroInst[2];
+	CArtifactsOfHero * artifs[2];
+
+	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
+
+public:
 
 	void close();
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
+
+	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
 
 	CExchangeWindow(si32 hero1, si32 hero2); //c-tor
 	~CExchangeWindow(); //d-tor

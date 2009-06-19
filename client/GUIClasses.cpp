@@ -3449,6 +3449,9 @@ void CArtifactsOfHero::activate()
 		if(backpack[f])
 			backpack[f]->activate();
 	}
+	
+	leftArtRoll->activate();
+	rightArtRoll->activate();
 }
 
 void CArtifactsOfHero::deactivate()
@@ -3463,6 +3466,9 @@ void CArtifactsOfHero::deactivate()
 		if(backpack[f])
 			backpack[f]->deactivate();
 	}
+	
+	leftArtRoll->deactivate();
+	rightArtRoll->deactivate();
 }
 
 void CArtifactsOfHero::show(SDL_Surface * to)
@@ -3475,6 +3481,9 @@ void CArtifactsOfHero::show(SDL_Surface * to)
 	{
 		backpack[d]->show(to);
 	}
+
+	leftArtRoll->show(to);
+	rightArtRoll->show(to);
 }
 
 void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
@@ -3556,6 +3565,10 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		backpack.push_back(add);
 	}
 	activeArtPlace = NULL;
+
+	//blocking scrolling if there is not enough artifacts to scroll
+	leftArtRoll->block(hero->artifacts.size()<6);
+	rightArtRoll->block(hero->artifacts.size()<6);
 }
 
 void CArtifactsOfHero::dispose()
@@ -3598,20 +3611,18 @@ CArtifactsOfHero::CArtifactsOfHero(const SDL_Rect & position) :
 {
 	pos = position;
 	artWorn.resize(19);
+	
+	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,-1), pos.x+379, pos.y+364, "hsbtns3.def", SDLK_LEFT);
+	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CArtifactsOfHero::scrollBackpack,this,+1), pos.x+632, pos.y+364, "hsbtns5.def", SDLK_RIGHT);
 }
 
 CArtifactsOfHero::~CArtifactsOfHero()
 {
-	for(size_t g=0; g<artWorn.size(); ++g)
-	{
-		delete artWorn[g];
-	}
+	dispose();
 	artWorn.clear();
-	for(size_t g=0; g<backpack.size(); ++g)
-	{
-		delete backpack[g];
-	}
-	backpack.clear();
+
+	delete leftArtRoll;
+	delete rightArtRoll;
 }
 
 void CExchangeWindow::close()
@@ -3623,16 +3634,54 @@ void CExchangeWindow::activate()
 {
 	quit->activate();
 
-	art1->activate();
-	art2->activate();
+	artifs[0]->activate();
+	artifs[1]->activate();
+
+	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
+	{
+		for(int b=0; b<secSkillAreas[g].size(); ++b)
+		{
+			secSkillAreas[g][b]->activate();
+		}
+	}
+
+	for(int b=0; b<primSkillAreas.size(); ++b)
+	{
+		primSkillAreas[b]->activate();
+	}
+
+	LOCPLINT->statusbar = ourBar;
+
+	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
+	{
+		questlogButton[g]->activate();
+	}
 }
 
 void CExchangeWindow::deactivate()
 {
 	quit->deactivate();
 
-	art1->deactivate();
-	art2->deactivate();
+	artifs[0]->deactivate();
+	artifs[1]->deactivate();
+
+	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
+	{
+		for(int b=0; b<secSkillAreas[g].size(); ++b)
+		{
+			secSkillAreas[g][b]->deactivate();
+		}
+	}
+
+	for(int b=0; b<primSkillAreas.size(); ++b)
+	{
+		primSkillAreas[b]->deactivate();
+	}
+
+	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
+	{
+		questlogButton[g]->deactivate();
+	}
 }
 
 void CExchangeWindow::show(SDL_Surface * to)
@@ -3645,79 +3694,149 @@ void CExchangeWindow::show(SDL_Surface * to)
 	if(screen->w != 800 || screen->h !=600)
 		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 
-	art1->show(to);
-	art2->show(to);
+	artifs[0]->show(to);
+	artifs[1]->show(to);
+
+	ourBar->show(to);
+
+	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
+	{
+		questlogButton[g]->show(to);
+	}
+}
+
+void CExchangeWindow::questlog(int whichHero)
+{
 }
 
 CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 {
-	hero1inst = LOCPLINT->cb->getHeroInfo(hero1, 2);
-	hero2inst = LOCPLINT->cb->getHeroInfo(hero2, 2);
+	char bufor[400];
 
-	art1 = new CArtifactsOfHero(genRect(600, 800, -334, 150));
-	art1->setHero(hero1inst);
-	art2 = new CArtifactsOfHero(genRect(600, 800, 96, 150));
-	art2->setHero(hero2inst);
+	heroInst[0] = LOCPLINT->cb->getHeroInfo(hero1, 2);
+	heroInst[1] = LOCPLINT->cb->getHeroInfo(hero2, 2);
+
+	artifs[0] = new CArtifactsOfHero(genRect(600, 800, -334, 150));
+	artifs[0]->setHero(heroInst[0]);
+	artifs[1] = new CArtifactsOfHero(genRect(600, 800, 96, 150));
+	artifs[1]->setHero(heroInst[1]);
 
 	SDL_Surface * bgtemp; //loaded as 8bpp surface
 	bgtemp = BitmapHandler::loadBitmap("TRADE2.BMP");
-	graphics->blueToPlayersAdv(bgtemp, hero1inst->tempOwner);
+	graphics->blueToPlayersAdv(bgtemp, heroInst[0]->tempOwner);
 	bg = SDL_ConvertSurface(bgtemp, screen->format, screen->flags); //to 24 bpp
 	SDL_FreeSurface(bgtemp);
 
 	//printing heroes' names and levels
 	std::ostringstream os, os2;
-	os<<hero1inst->name<<", Level "<<hero1inst->level<<" "<<hero1inst->type->heroClass->name;
+	os<<heroInst[0]->name<<", Level "<<heroInst[0]->level<<" "<<heroInst[0]->type->heroClass->name;
 	CSDL_Ext::printAtMiddle(os.str(), 147, 23, GEOR13, zwykly, bg);
-	os2<<hero2inst->name<<", Level "<<hero2inst->level<<" "<<hero2inst->type->heroClass->name;
+	os2<<heroInst[1]->name<<", Level "<<heroInst[1]->level<<" "<<heroInst[1]->type->heroClass->name;
 	CSDL_Ext::printAtMiddle(os2.str(), 653, 23, GEOR13, zwykly, bg);
 
-	//printing primary skills' graphics
+	//printing primary skills
 	CDefHandler * skilldef = CDefHandler::giveDef("PSKIL32.DEF");
 	for(int g=0; g<4; ++g)
 	{
+		//graphics
 		blitAt(skilldef->ourImages[g].bitmap, genRect(32, 32, 385, 19 + 36 * g), bg);
+
+		//primary skill's clickable areas
+		primSkillAreas.push_back(new LRClickableAreaWTextComp());
+		primSkillAreas[g]->pos = genRect(32, 32, pos.x+385, pos.y + 19 + 36 * g);
+		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
+		primSkillAreas[g]->type = g;
+		primSkillAreas[g]->bonus = -1;
+		primSkillAreas[g]->baseType = 0;
 	}
-	delete skilldef;
 
-	const CGHeroInstance * curHero = NULL;
-	for(int b=0; b<2; ++b)
+	CDefHandler * un32 = CDefHandler::giveDef("UN32.DEF");
+	//heroes related thing
+	for(int b=0; b<ARRAY_COUNT(heroInst); b++)
 	{
-		//choosing hero
-		if(b == 0)
-			curHero = hero1inst;
-		else if(b == 1)
-			curHero = hero2inst;
-
 		//printing primary skills' amounts
 		for(int m=0; m<4; ++m)
 		{
 			std::ostringstream primarySkill;
-			primarySkill<<curHero->getPrimSkillLevel(m);
+			primarySkill<<heroInst[b]->getPrimSkillLevel(m);
 			CSDL_Ext::printAtMiddle(primarySkill.str(), 353 + 93 * b, 35 + 36 * m, TNRB16, zwykly, bg);
 		}
 
 		//printing secondary skills
-		for(int m=0; m<curHero->secSkills.size(); ++m)
+		for(int m=0; m<heroInst[b]->secSkills.size(); ++m)
 		{
-			blitAt(graphics->abils32->ourImages[curHero->secSkills[m].first * 3 + curHero->secSkills[m].second + 2].bitmap, genRect(32, 32, 32 + 36 * m + 454 * b, 88), bg);
+			blitAt(graphics->abils32->ourImages[heroInst[b]->secSkills[m].first * 3 + heroInst[b]->secSkills[m].second + 2].bitmap, genRect(32, 32, pos.x + 32 + 36 * m + 454 * b, pos.y + 88), bg);
 		}
+
+		//secondary skill's clickable areas
+		for(int g=0; g<heroInst[b]->secSkills.size(); ++g)
+		{
+			secSkillAreas[b].push_back(new LRClickableAreaWTextComp());
+			secSkillAreas[b][g]->pos = genRect(32, 32, pos.x + 32 + g*36 + b*454 , pos.y + 88);
+			secSkillAreas[b][g]->baseType = 1;
+
+			secSkillAreas[b][g]->type = heroInst[b]->secSkills[g].first;
+			secSkillAreas[b][g]->bonus = heroInst[b]->secSkills[g].second;
+			std::string hlp = CGI->generaltexth->skillInfoTexts[ heroInst[b]->secSkills[g].first ][heroInst[b]->secSkills[g].second-1];
+			secSkillAreas[b][g]->text = hlp.substr(1, hlp.size()-2);
+
+			sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[heroInst[b]->secSkills[g].second-1].c_str(), CGI->generaltexth->skillName[heroInst[b]->secSkills[g].first].c_str());
+			secSkillAreas[b][g]->hoverText = std::string(bufor);
+		}
+
+		//hero's specialty
+		blitAt(un32->ourImages[heroInst[b]->subID].bitmap, 67 + 490*b, 45, bg);
+
+		//experience
+		blitAt(skilldef->ourImages[4].bitmap, 103 + 490*b, 45, bg);
+
+		//mana points
+		blitAt(skilldef->ourImages[5].bitmap, 139 + 490*b, 45, bg);
 	}
 
 	//printing portraits
-	blitAt(graphics->portraitLarge[hero1inst->portrait], 257, 13, bg);
-	blitAt(graphics->portraitLarge[hero2inst->portrait], 485, 13, bg);
+	blitAt(graphics->portraitLarge[heroInst[0]->portrait], 257, 13, bg);
+	blitAt(graphics->portraitLarge[heroInst[1]->portrait], 485, 13, bg);
 
 	//buttons
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CExchangeWindow::close, this), pos.x+732, pos.y+567, "IOKAY.DEF", SDLK_RETURN);
+	questlogButton[0] = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 0), pos.x+10, pos.y+44, "hsbtns4.def");
+	questlogButton[1] = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 1), pos.x+740, pos.y+44, "hsbtns4.def");
+
+	//statusbar
+	ourBar = new CStatusBar(pos.x + 3, pos.y + 577, "TSTATBAR.bmp", 726);
+
+	delete un32;
+	delete skilldef;
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor
 {
 	SDL_FreeSurface(bg);
 	delete quit;
-	delete art1;
-	delete art2;
+	delete artifs[0];
+	delete artifs[1];
+
+	delete ourBar;
+
+	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)
+	{
+		for(int b=0; b<secSkillAreas[g].size(); ++b)
+		{
+			delete secSkillAreas[g][b];
+		}
+	}
+
+	for(int b=0; b<primSkillAreas.size(); ++b)
+	{
+		delete primSkillAreas[b];
+	}
+
+	
+	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
+	{
+		delete questlogButton[g];
+	}
 }
 
 

@@ -51,14 +51,14 @@ class CHeroWindow: public CWindowWithGarrison, public virtual CIntObject
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas;
 public:
 	const CGHeroInstance * curHero;
-	AdventureMapButton * quitButton, * dismissButton, * questlogButton, //general
-		* leftArtRoll, * rightArtRoll;
+	AdventureMapButton * quitButton, * dismissButton, * questlogButton; //general
+		
 	CHighlightableButton *gar2button; //garrison / formation handling;
 	CHighlightableButtonsGroup *formations;
 	int player;
 	CHeroWindow(int playerColor); //c-tor
 	~CHeroWindow(); //d-tor
-	void setHero(const CGHeroInstance * Hero); //sets main displayed hero
+	void setHero(const CGHeroInstance * hero); //sets main displayed hero
 	void activate(); //activates hero window;
 	void deactivate(); //activates hero window;
 	virtual void show(SDL_Surface * to); //shows hero window
@@ -67,7 +67,6 @@ public:
 	void quit(); //stops displaying hero window and disposes
 	void dismissCurrent(); //dissmissed currently displayed hero (curHero)
 	void questlog(); //show quest log in hero window
-	void scrollBackpack(int dir); //dir==-1 => to left; dir==-2 => to right
 	void switchHero(); //changes displayed hero
 
 	//friends

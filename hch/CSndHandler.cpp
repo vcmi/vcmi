@@ -125,7 +125,7 @@ const char * CMediaHandler::extract (std::string srcName, int &size)
 	return NULL;
 }
 
-CSndHandler::CSndHandler(std::string fname) : CMediaHandler::CMediaHandler(fname)
+CSndHandler::CSndHandler(std::string fname) : CMediaHandler(fname)
 {
 	const unsigned char *data = (const unsigned char *)mfile->data();
 
@@ -165,7 +165,7 @@ CSndHandler::CSndHandler(std::string fname) : CMediaHandler::CMediaHandler(fname
 	}
 }
 
-CVidHandler::CVidHandler(std::string fname) : CMediaHandler::CMediaHandler(fname) 
+CVidHandler::CVidHandler(std::string fname) : CMediaHandler(fname) 
 {
 	const unsigned char *data = (const unsigned char *)mfile->data();
 

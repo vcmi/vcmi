@@ -67,18 +67,14 @@ CHeroWindow::CHeroWindow(int playerColor):
 	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, pos.x+604, pos.y+491, SDLK_b);
 	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), pos.x+604, pos.y+527, "hsbtns9.def", false, NULL, false);
 	boost::algorithm::replace_first(gar4button->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
-	leftArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::scrollBackpack,this,-1), pos.x+379, pos.y+364, "hsbtns3.def", SDLK_LEFT);
-	rightArtRoll = new AdventureMapButton(std::string(), std::string(), boost::bind(&CHeroWindow::scrollBackpack,this,+1), pos.x+632, pos.y+364, "hsbtns5.def", SDLK_RIGHT);
 
 
+	//right list of heroes
 	for(int g=0; g<8; ++g)
 	{
 		//heroList.push_back(new AdventureMapButton<CHeroWindow>(std::string(), std::string(), &CHeroWindow::switchHero, 677, 95+g*54, "hsbtns5.def", this));
 		heroListMi.push_back(new LClickableAreaHero());
-		heroListMi[g]->pos.x = pos.x+677;
-		heroListMi[g]->pos.y = pos.y  +  95+g*54;
-		heroListMi[g]->pos.h = 32;
-		heroListMi[g]->pos.w = 48;
+		heroListMi[g]->pos = genRect(32, 48, pos.x+677, pos.y  +  95+g*54);
 		heroListMi[g]->owner = this;
 		heroListMi[g]->id = g;
 	}
@@ -87,27 +83,19 @@ CHeroWindow::CHeroWindow(int playerColor):
 	flags = CDefHandler::giveDefEss("CREST58.DEF");
 	//areas
 	portraitArea = new LRClickableAreaWText();
-	portraitArea->pos.x = pos.x+83;
-	portraitArea->pos.y = pos.y  +  26;
-	portraitArea->pos.w = 58;
-	portraitArea->pos.h = 64;
+	portraitArea->pos = genRect(64, 58, pos.x+83, pos.y  +  26);
+
 	for(int v=0; v<4; ++v)
 	{
 		primSkillAreas.push_back(new LRClickableAreaWTextComp());
-		primSkillAreas[v]->pos.x = pos.x+95 + 70*v;
-		primSkillAreas[v]->pos.y = pos.y  +  111;
-		primSkillAreas[v]->pos.w = 42;
-		primSkillAreas[v]->pos.h = 42;
+		primSkillAreas[v]->pos = genRect(42, 42, pos.x+95 + 70*v, pos.y  +  111);
 		primSkillAreas[v]->text = CGI->generaltexth->arraytxt[2+v];
 		primSkillAreas[v]->type = v;
 		primSkillAreas[v]->bonus = -1; // to be initilized when hero is being set
 		primSkillAreas[v]->baseType = 0;
 	}
 	expArea = new LRClickableAreaWText();
-	expArea->pos.x = pos.x+83;
-	expArea->pos.y = pos.y  +  236;
-	expArea->pos.w = 136;
-	expArea->pos.h = 42;
+	expArea->pos = genRect(42, 136, pos.x+83, pos.y  +  236);
 	expArea->hoverText = CGI->generaltexth->heroscrn[9];
 
 	morale = new LRClickableAreaWTextComp();
@@ -117,19 +105,13 @@ CHeroWindow::CHeroWindow(int playerColor):
 	luck->pos = genRect(45,53,pos.x+298,pos.y+187);
 
 	spellPointsArea = new LRClickableAreaWText();
-	spellPointsArea->pos.x = pos.x+227;
-	spellPointsArea->pos.y = pos.y  +  236;
-	spellPointsArea->pos.w = 136;
-	spellPointsArea->pos.h = 42;
+	spellPointsArea->pos = genRect(42, 136, pos.x+227, pos.y  +  236);
 	spellPointsArea->hoverText = CGI->generaltexth->heroscrn[22];
 
 	for(int i=0; i<8; ++i)
 	{
 		secSkillAreas.push_back(new LRClickableAreaWTextComp());
-		secSkillAreas[i]->pos.x = pos.x  +  ((i%2==0) ? (83) : (227));
-		secSkillAreas[i]->pos.y = pos.y  +  (284 + 48 * (i/2));
-		secSkillAreas[i]->pos.w = 136;
-		secSkillAreas[i]->pos.h = 42;
+		secSkillAreas[i]->pos = genRect(42, 136, pos.x  +  ((i%2==0) ? (83) : (227)), pos.y  +  (284 + 48 * (i/2)));
 		secSkillAreas[i]->baseType = 1;
 	}
 	pos.x += 65;
@@ -145,8 +127,6 @@ CHeroWindow::~CHeroWindow()
 	delete formations;
 	delete gar2button;
 	delete gar4button;
-	delete leftArtRoll;
-	delete rightArtRoll;
 
 	for(size_t g=0; g<heroListMi.size(); ++g)
 	{
@@ -190,8 +170,6 @@ void CHeroWindow::show(SDL_Surface *to)
 	formations->show(to);
 	gar2button->show(to);
 	gar4button->show(to);
-	leftArtRoll->show(to);
-	rightArtRoll->show(to);
 
 	garr->show(to);
 	ourBar->show(to);
@@ -199,10 +177,10 @@ void CHeroWindow::show(SDL_Surface *to)
 	artifs->show(to);
 }
 
-void CHeroWindow::setHero(const CGHeroInstance *Hero)
+void CHeroWindow::setHero(const CGHeroInstance *hero)
 {
 	char bufor[400];
-	CGHeroInstance *hero = const_cast<CGHeroInstance*>(Hero); //but don't modify hero! - it's only for easy map reading
+	//CGHeroInstance *hero = const_cast<CGHeroInstance*>(Hero); //but don't modify hero! - it's only for easy map reading
 	if(!hero) //something strange... no hero? it shouldn't happen
 	{
 		return;
@@ -229,10 +207,12 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	garr->update = false;
 	gar4button->callback =  boost::bind(&CGarrisonInt::splitClick,garr);//actualization of callback function
 
+	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
 	{
 		primSkillAreas[g]->bonus = hero->getPrimSkillLevel(g);
 	}
+	//secondary skills support
 	for(size_t g=0; g<hero->secSkills.size(); ++g)
 	{
 		secSkillAreas[g]->type = hero->secSkills[g].first;
@@ -244,17 +224,17 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		secSkillAreas[g]->hoverText = std::string(bufor);
 	}
 
+	//printing experience
 	sprintf(bufor, CGI->generaltexth->allTexts[2].c_str(), hero->level, CGI->heroh->reqExp(hero->level+1), hero->exp);
 	expArea->text = std::string(bufor);
 
+	//printing spell points
 	sprintf(bufor, CGI->generaltexth->allTexts[205].c_str(), hero->name.c_str(), hero->mana, hero->manaLimit());
 	spellPointsArea->text = std::string(bufor);
 
-	artifs->setHero(Hero);
+	artifs->setHero(hero);
 
 	dismissButton->block(!!hero->visitedTown);
-	leftArtRoll->block(hero->artifacts.size()<6);
-	rightArtRoll->block(hero->artifacts.size()<6);
 	if(hero->getSecSkillLevel(19)==0)
 		gar2button->block(true);
 	else
@@ -264,10 +244,12 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 		gar2button->callback2 = vstd::assigno(hero->tacticFormationEnabled,false);
 	}
 
+	//setting formations
 	formations->onChange = 0;
 	formations->select(hero->army.formation,true);
-	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, Hero, _1);
+	formations->onChange = boost::bind(&CCallback::setFormation, LOCPLINT->cb, hero, _1);
 
+	//setting morale
 	std::vector<std::pair<int,std::string> > mrl = hero->getCurrentMoraleModifiers();
 	int mrlv = hero->getCurrentMorale();
 	int mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale, 0 - neutral, 1 - good
@@ -279,6 +261,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	for(int it=0; it < mrl.size(); it++)
 		morale->text += mrl[it].second;
 
+	//setting luck
 	mrl = hero->getCurrentLuckModifiers();
 	mrlv = hero->getCurrentLuck();
 	mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck, 0 - neutral, 1 - good
@@ -290,6 +273,7 @@ void CHeroWindow::setHero(const CGHeroInstance *Hero)
 	for(int it=0; it < mrl.size(); it++)
 		luck->text += mrl[it].second;
 
+	//restoring pos
 	pos.x += 65;
 	pos.y += 8;
 
@@ -310,8 +294,6 @@ void CHeroWindow::activate()
 	gar2button->activate();
 	formations->activate();
 	gar4button->activate();
-	leftArtRoll->activate();
-	rightArtRoll->activate();
 	portraitArea->activate();
 	expArea->activate();
 	spellPointsArea->activate();
@@ -347,8 +329,6 @@ void CHeroWindow::deactivate()
 	gar2button->deactivate();
 	formations->deactivate();
 	gar4button->deactivate();
-	leftArtRoll->deactivate();
-	rightArtRoll->deactivate();
 	portraitArea->deactivate();
 	expArea->deactivate();
 	spellPointsArea->deactivate();
@@ -383,11 +363,6 @@ void CHeroWindow::dismissCurrent()
 
 void CHeroWindow::questlog()
 {
-}
-
-void CHeroWindow::scrollBackpack(int dir)
-{
-	artifs->scrollBackpack(dir);
 }
 
 void CHeroWindow::redrawCurBack()
