@@ -29,9 +29,10 @@ struct MemberFile
 	std::ifstream * ifs;
 	int length;
 };
-class CSndHandler
+
+class CMediaHandler
 {
-private:
+protected:
 	struct Entry
 	{
 		std::string name;
@@ -44,36 +45,26 @@ private:
 
 public:
 	std::vector<Entry> entries;
-	std::map<std::string, int> fimap; // map of wav file and index
-	~CSndHandler(); //d-tor
-	CSndHandler(std::string fname); //c-tor
+	std::map<std::string, int> fimap; // map of file and index
+	~CMediaHandler(); //d-tor
+	CMediaHandler(std::string fname); //c-tor
 	void extract(std::string srcfile, std::string dstfile, bool caseSens=true); //saves selected file
 	const char * extract (std::string srcfile, int & size); //return selecte file data, NULL if file doesn't exist
 	void extract(int index, std::string dstfile); //saves selected file
 	MemberFile getFile(std::string name);//nie testowane - sprawdzic
 	const char * extract (int index, int & size); //return selecte file - NIE TESTOWANE
 };
-class CVidHandler
+
+class CSndHandler: public CMediaHandler
 {
-protected:
-	const int CHUNK;
-	struct Entry
-	{
-		std::string name;
-		int size, offset, something;
-	};
-	std::ifstream file;
-	int readNormalNr (int pos, int bytCon);
-	bool opened;
 public:
-	std::vector<Entry> entries;
-	~CVidHandler(); //d-tor
-	CVidHandler(std::string fname); //c-tor
-	std::ifstream & extract(std::string srcfile);
-	void extract(std::string srcfile, std::string dstfile, bool caseSens=true); //saves selected file
-	unsigned char * extract (std::string srcfile, int & size); //return selecte file,
-	void extract(int index, std::string dstfile); //saves selected file
-	MemberFile getFile(std::string name); //nie testowane - sprawdzic
+	CSndHandler(std::string fname);
+};
+
+class CVidHandler: public CMediaHandler
+{
+public:
+	CVidHandler(std::string fname);
 };
 
 
