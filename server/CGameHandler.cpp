@@ -671,22 +671,25 @@ void CGameHandler::newTurn()
 
 			n.heroes.insert(hth);
 			
-			switch(h->getSecSkillLevel(13)) //handle estates - give gold
+			if(gs->day) //not first day
 			{
-			case 1: //basic
-				r.res[6] += 125;
-				break;
-			case 2: //advanced
-				r.res[6] += 250;
-				break;
-			case 3: //expert
-				r.res[6] += 500;
-				break;
-			}
+				switch(h->getSecSkillLevel(13)) //handle estates - give gold
+				{
+				case 1: //basic
+					r.res[6] += 125;
+					break;
+				case 2: //advanced
+					r.res[6] += 250;
+					break;
+				case 3: //expert
+					r.res[6] += 500;
+					break;
+				}
 
-			for(std::list<HeroBonus>::iterator i = h->bonuses.begin(); i != h->bonuses.end(); i++)
-				if(i->type == HeroBonus::GENERATE_RESOURCE)
-					r.res[i->subtype] += i->val;
+				for(std::list<HeroBonus>::iterator i = h->bonuses.begin(); i != h->bonuses.end(); i++)
+					if(i->type == HeroBonus::GENERATE_RESOURCE)
+						r.res[i->subtype] += i->val;
+			}
 		}
 		for(std::vector<CGTownInstance *>::iterator j=i->second.towns.begin();j!=i->second.towns.end();j++)//handle towns
 		{
