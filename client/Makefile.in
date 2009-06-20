@@ -60,6 +60,7 @@ am_vcmiclient_OBJECTS = vcmiclient-CCallback.$(OBJEXT) \
 	vcmiclient-CDefHandler.$(OBJEXT) \
 	vcmiclient-CMusicHandler.$(OBJEXT) \
 	vcmiclient-CSndHandler.$(OBJEXT) \
+	vcmiclient-CVideoHandler.$(OBJEXT) \
 	vcmiclient-mapHandler.$(OBJEXT) \
 	vcmiclient-AdventureMapButton.$(OBJEXT) \
 	vcmiclient-CAdvmapInterface.$(OBJEXT) \
@@ -143,6 +144,7 @@ ECHO_N = @ECHO_N@
 ECHO_T = @ECHO_T@
 EGREP = @EGREP@
 EXEEXT = @EXEEXT@
+FFMPEG_LIBS = @FFMPEG_LIBS@
 FGREP = @FGREP@
 GREP = @GREP@
 HAVE_SDL_CONFIG = @HAVE_SDL_CONFIG@
@@ -235,7 +237,7 @@ target_alias = @target_alias@
 top_build_prefix = @top_build_prefix@
 top_builddir = @top_builddir@
 top_srcdir = @top_srcdir@
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ @FFMPEG_LIBS@
 vcmiclient_CXXFLAGS = @CXXFLAGS@ @SDL_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES = \
@@ -258,6 +260,7 @@ vcmiclient_SOURCES = \
 	../hch/CObjectHandler.h \
 	../hch/CSndHandler.cpp \
 	../hch/CSndHandler.h \
+	../hch/CVideoHandler.cpp \
 	../hch/CVideoHandler.h \
 	../int3.h \
 	../mapHandler.cpp \
@@ -402,6 +405,7 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSndHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CSpellWindow.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CThreadHelper.Po@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-CVideoHandler.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-Client.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-GUIBase.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/vcmiclient-GUIClasses.Po@am__quote@
@@ -515,6 +519,20 @@ vcmiclient-CSndHandler.obj: ../hch/CSndHandler.cpp
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CSndHandler.cpp' object='vcmiclient-CSndHandler.obj' libtool=no @AMDEPBACKSLASH@
 @AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
 @am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CSndHandler.obj `if test -f '../hch/CSndHandler.cpp'; then $(CYGPATH_W) '../hch/CSndHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CSndHandler.cpp'; fi`
+
+vcmiclient-CVideoHandler.o: ../hch/CVideoHandler.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CVideoHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-CVideoHandler.Tpo -c -o vcmiclient-CVideoHandler.o `test -f '../hch/CVideoHandler.cpp' || echo '$(srcdir)/'`../hch/CVideoHandler.cpp
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiclient-CVideoHandler.Tpo $(DEPDIR)/vcmiclient-CVideoHandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CVideoHandler.cpp' object='vcmiclient-CVideoHandler.o' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.o `test -f '../hch/CVideoHandler.cpp' || echo '$(srcdir)/'`../hch/CVideoHandler.cpp
+
+vcmiclient-CVideoHandler.obj: ../hch/CVideoHandler.cpp
+@am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-CVideoHandler.obj -MD -MP -MF $(DEPDIR)/vcmiclient-CVideoHandler.Tpo -c -o vcmiclient-CVideoHandler.obj `if test -f '../hch/CVideoHandler.cpp'; then $(CYGPATH_W) '../hch/CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CVideoHandler.cpp'; fi`
+@am__fastdepCXX_TRUE@	mv -f $(DEPDIR)/vcmiclient-CVideoHandler.Tpo $(DEPDIR)/vcmiclient-CVideoHandler.Po
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	source='../hch/CVideoHandler.cpp' object='vcmiclient-CVideoHandler.obj' libtool=no @AMDEPBACKSLASH@
+@AMDEP_TRUE@@am__fastdepCXX_FALSE@	DEPDIR=$(DEPDIR) $(CXXDEPMODE) $(depcomp) @AMDEPBACKSLASH@
+@am__fastdepCXX_FALSE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -c -o vcmiclient-CVideoHandler.obj `if test -f '../hch/CVideoHandler.cpp'; then $(CYGPATH_W) '../hch/CVideoHandler.cpp'; else $(CYGPATH_W) '$(srcdir)/../hch/CVideoHandler.cpp'; fi`
 
 vcmiclient-mapHandler.o: ../mapHandler.cpp
 @am__fastdepCXX_TRUE@	$(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) $(AM_CPPFLAGS) $(CPPFLAGS) $(vcmiclient_CXXFLAGS) $(CXXFLAGS) -MT vcmiclient-mapHandler.o -MD -MP -MF $(DEPDIR)/vcmiclient-mapHandler.Tpo -c -o vcmiclient-mapHandler.o `test -f '../mapHandler.cpp' || echo '$(srcdir)/'`../mapHandler.cpp

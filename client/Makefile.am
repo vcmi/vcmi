@@ -1,6 +1,6 @@
 bin_PROGRAMS = vcmiclient
 
-vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@
+vcmiclient_LDADD = $(top_builddir)/lib/libvcmi.la @SDL_LIBS@ @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@ @BOOST_IOSTREAMS_LIB@ @FFMPEG_LIBS@
 vcmiclient_CXXFLAGS = @CXXFLAGS@ @SDL_CXXFLAGS@
 vcmiclient_LDFLAGS = -L$(top_builddir)/lib
 vcmiclient_SOURCES =  \
@@ -23,6 +23,7 @@ vcmiclient_SOURCES =  \
 	../hch/CObjectHandler.h \
 	../hch/CSndHandler.cpp \
 	../hch/CSndHandler.h \
+	../hch/CVideoHandler.cpp \
 	../hch/CVideoHandler.h \
 	../int3.h \
 	../mapHandler.cpp \

@@ -30,6 +30,7 @@
 #include "../hch/CCreatureHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CMusicHandler.h"
+#include "../hch/CVideoHandler.h"
 #include "../hch/CLodHandler.h"
 #include "../hch/CDefHandler.h"
 #include "../hch/CAmbarCendamo.h"
@@ -130,6 +131,10 @@ int main(int argc, char** argv)
 		cgi->musich->init();
 		cgi->musich->setVolume(88);
 		tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
+
+		// Initialize video
+		cgi->videoh = new CVideoPlayer;
+		tlog0<<"\tInitializing video: "<<pomtime.getDif()<<std::endl;
 
 		tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 		initDLL(::console,logfile);

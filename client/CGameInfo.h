@@ -40,6 +40,8 @@ class CMapHandler;
 class CGameInterface;
 class CPreGame;
 class CDefHandler;
+class CVideoPlayer;
+
 /*
 	CGameInfo class
 	for allowing different functions for modifying game informations
@@ -63,6 +65,7 @@ public:
 	CConsoleHandler * consoleh;
 	CCursorHandler * curh;
 	CScreenHandler * screenh;
+	CVideoPlayer * videoh;
 
 	CGameInfo();
 	void setFromLib();
