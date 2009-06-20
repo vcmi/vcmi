@@ -575,8 +575,9 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 	if (moveX != 0) {
 		dx++;
 		srx_init += moveX;
-		if (moveX < 0) {
-			// Moving left, so adjust our referential
+		if (moveX > 0) {
+			// Moving right. We still need to draw the old tile on the
+			// left, so adjust our referential
 			top_tile.x --;
 			srx_init -= 32;
 		}
@@ -585,8 +586,9 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 	if (moveY != 0) {
 		dy++;
 		sry_init += moveY;
-		if (moveY < 0) {
-			// Moving up, so adjust our referential
+		if (moveY > 0) {
+			// Moving down. We still need to draw the tile on the top,
+			// so adjust our referential.
 			top_tile.y --;
 			sry_init -= 32;
 		}
