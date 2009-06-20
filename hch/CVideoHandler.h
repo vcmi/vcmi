@@ -1,6 +1,8 @@
 #ifndef __CVIDEOHANDLER_H__
 #define __CVIDEOHANDLER_H__
 
+#ifdef WIN32
+
 #include <stdio.h>
 #ifdef WIN32
 #include <windows.h>
@@ -147,4 +149,48 @@ public:
 	void open(std::string name);
 	void close();
 };
+
+#else
+
+#include <SDL/SDL_video.h>
+
+typedef struct AVFormatContext AVFormatContext;
+typedef struct AVCodecContext AVCodecContext;
+typedef struct AVCodec AVCodec;
+typedef struct AVFrame AVFrame;
+struct SwsContext;
+class CVidHandler;
+
+class CVideoPlayer
+{
+private:
+	int stream;					// stream index in video
+	AVFormatContext *format;
+	AVCodecContext *codecContext; // codec context for stream
+	AVCodec *codec;
+	AVFrame *frame; 
+	struct SwsContext *sws;
+
+	SDL_Overlay *overlay;
+	SDL_Rect pos;				// overlay position
+
+	CVidHandler *vidh;
+
+public:
+	CVideoPlayer();
+	~CVideoPlayer();
+
+	bool init();
+	bool open(std::string fname, int x, int y);
+	void close();
+	bool nextFrame();			// display next frame
+
+	const char *data;			// video buffer
+	int length;					// video size
+	unsigned int offset;		// current data offset
+
+};
+
+#endif
+
 #endif // __CVIDEOHANDLER_H__
