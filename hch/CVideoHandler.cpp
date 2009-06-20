@@ -293,7 +293,7 @@ bool CVideoPlayer::open(std::string fname, int x, int y)
 
 	// Create our URL name with the 'lod' protocol as a prefix and a
 	// back pointer to our object. Should be 32 and 64 bits compatible.
-	sprintf(url, "%s:0x%016llx", protocol_name, (unsigned long long)this);
+	sprintf(url, "%s:0x%016llx", protocol_name, (unsigned long long)(uintptr_t)this);
 
 	if (av_open_input_file(&format, url, NULL, 0, NULL)!=0)
 		return false;
@@ -302,8 +302,10 @@ bool CVideoPlayer::open(std::string fname, int x, int y)
 	if (av_find_stream_info(format) < 0)
 		return false;
   
+#if 0
 	// Dump information about file onto standard error
 	dump_format(format, 0, url, 0);
+#endif
 
 	// Find the first video stream
 	stream = -1;
