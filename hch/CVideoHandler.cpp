@@ -4,11 +4,11 @@
 #include "CVideoHandler.h"
 #include <SDL.h>
 
-#ifdef WIN32
+#ifdef _WIN32
 
 void DLLHandler::Instantiate(const char *filename)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	dll = LoadLibraryA(filename);
 #else
 	dll = dlopen(filename,RTLD_LOCAL | RTLD_LAZY);
@@ -16,7 +16,7 @@ void DLLHandler::Instantiate(const char *filename)
 }
 const char *DLLHandler::GetLibExtension()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	return "dll";
 #elif defined(__APPLE__)
 	return "dylib";
@@ -29,7 +29,7 @@ const char *DLLHandler::GetLibExtension()
 
 void *DLLHandler::FindAddress234(const char *symbol)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	if ((int)symbol == 0x00001758)
 		return NULL;
 	std::cout<<"co ja tu robie"<<std::endl;
@@ -40,7 +40,7 @@ void *DLLHandler::FindAddress234(const char *symbol)
 }
 DLLHandler::~DLLHandler()
 {
-#ifdef WIN32
+#ifdef _WIN32
 	FreeLibrary(dll);
 #else
 	dlclose(dll);
@@ -69,7 +69,7 @@ int readNormalNr2 (unsigned char* bufor, int &iter, int bytCon)
 }
 void RaiseLastOSErrorAt(char * offset)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	int * lastError = new int;
 	std::exception * error;
 	*lastError = GetLastError();
@@ -111,7 +111,7 @@ void RaiseLastOSErrorAt(char * offset)
 //}
 void CBIKHandler::open(std::string name)
 {
-#ifdef WIN32
+#ifdef _WIN32
 	hBinkFile = CreateFile
 	(
 		L"CSECRET.BIK",				// file name

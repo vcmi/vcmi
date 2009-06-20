@@ -1,10 +1,10 @@
 #ifndef __CVIDEOHANDLER_H__
 #define __CVIDEOHANDLER_H__
 
-#ifdef WIN32
+#ifdef _WIN32
 
 #include <stdio.h>
-#ifdef WIN32
+#ifdef _WIN32
 #include <windows.h>
 #else
 #include <dlfcn.h>
