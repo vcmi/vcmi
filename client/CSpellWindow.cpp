@@ -322,19 +322,21 @@ void CSpellWindow::fexitb()
 
 void CSpellWindow::fadvSpellsb()
 {
-	if (battleSpellsOnly == true)
+	if (battleSpellsOnly == true) {
 		turnPageRight();
-	battleSpellsOnly = false;
-	spellSite = 0;
+		battleSpellsOnly = false;
+		spellSite = 0;
+	}
 	computeSpellsPerArea();
 }
 
 void CSpellWindow::fbattleSpellsb()
 {
-	if (battleSpellsOnly == false)
+	if (battleSpellsOnly == false) {
 		turnPageLeft();
-	battleSpellsOnly = true;
-	spellSite = 0;
+		battleSpellsOnly = true;
+		spellSite = 0;
+	}
 	computeSpellsPerArea();
 }
 
@@ -344,46 +346,51 @@ void CSpellWindow::fmanaPtsb()
 
 void CSpellWindow::fspellsAb()
 {
-	if (selectedTab != 0)
+	if (selectedTab != 0) {
 		turnPageRight();
-	selectedTab = 0;
-	spellSite = 0;
+		selectedTab = 0;
+		spellSite = 0;
+	}
 	computeSpellsPerArea();
 }
 
 void CSpellWindow::fspellsEb()
 {
-	if (selectedTab != 3)
+	if (selectedTab != 3) {
 		turnPageRight();
-	selectedTab = 3;
-	spellSite = 0;
+		selectedTab = 3;
+		spellSite = 0;
+	}
 	computeSpellsPerArea();
 }
 
 void CSpellWindow::fspellsFb()
 {
-	if (selectedTab != 1)
+	if (selectedTab != 1) {
 		turnPageRight();
-	selectedTab = 1;
-	spellSite = 0;
+		selectedTab = 1;
+		spellSite = 0;
+	}
 	computeSpellsPerArea();
 }
 
 void CSpellWindow::fspellsWb()
 {
-	if (selectedTab != 2)
+	if (selectedTab != 2) {
 		turnPageRight();
-	selectedTab = 2;
-	spellSite = 0;
+		selectedTab = 2;
+		spellSite = 0;
+	}
 	computeSpellsPerArea();
 }
 
 void CSpellWindow::fspellsAllb()
 {
-	if (selectedTab != 4)
+	if (selectedTab != 4) {
 		turnPageRight();
-	selectedTab = 4;
-	spellSite = 0;
+		selectedTab = 4;
+		spellSite = 0;
+	}
 	computeSpellsPerArea();
 }
 
@@ -408,7 +415,7 @@ void CSpellWindow::fRcornerb()
 void CSpellWindow::show(SDL_Surface *to)
 {
 	SDL_BlitSurface(background, NULL, to, &pos);
-	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 94 + pos.y, to);
+	blitAt(spellTab->ourImages[selectedTab].bitmap, 524 + pos.x, 88 + pos.y, to);
 	
 	statusBar->show(to);
 
@@ -423,7 +430,7 @@ void CSpellWindow::show(SDL_Surface *to)
 	{
 		blitAt(leftCorner, lCorner->pos.x, lCorner->pos.y, to);
 	}
-	if((spellSite+1) != (battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab]) )
+	if((spellSite+1) < (battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab]) )
 	{
 		blitAt(rightCorner, rCorner->pos.x, rCorner->pos.y, to);
 	}
