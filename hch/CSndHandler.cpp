@@ -184,15 +184,6 @@ CVidHandler::CVidHandler(std::string fname) : CMediaHandler(fname)
 			p++;
 		}
 
-		entry.name+='.';
-		p++;
-
-		while(*p)
-		{
-			entry.name += *p;
-			p++;
-		}
-
 		// Read offset and size
 		p = &data[4+44*i+40];
 		entry.offset = readNormalNr(p);
