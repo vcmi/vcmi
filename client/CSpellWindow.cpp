@@ -4,6 +4,7 @@
 #include "../hch/CObjectHandler.h"
 #include "../hch/CSpellHandler.h"
 #include "../hch/CGeneralTextHandler.h"
+#include "../hch/CVideoHandler.h"
 #include "CAdvmapInterface.h"
 #include "CBattleInterface.h"
 #include "CGameInfo.h"
@@ -321,6 +322,8 @@ void CSpellWindow::fexitb()
 
 void CSpellWindow::fadvSpellsb()
 {
+	if (battleSpellsOnly == true)
+		turnPageRight();
 	battleSpellsOnly = false;
 	spellSite = 0;
 	computeSpellsPerArea();
@@ -328,6 +331,8 @@ void CSpellWindow::fadvSpellsb()
 
 void CSpellWindow::fbattleSpellsb()
 {
+	if (battleSpellsOnly == false)
+		turnPageLeft();
 	battleSpellsOnly = true;
 	spellSite = 0;
 	computeSpellsPerArea();
@@ -339,6 +344,8 @@ void CSpellWindow::fmanaPtsb()
 
 void CSpellWindow::fspellsAb()
 {
+	if (selectedTab != 0)
+		turnPageRight();
 	selectedTab = 0;
 	spellSite = 0;
 	computeSpellsPerArea();
@@ -346,6 +353,8 @@ void CSpellWindow::fspellsAb()
 
 void CSpellWindow::fspellsEb()
 {
+	if (selectedTab != 3)
+		turnPageRight();
 	selectedTab = 3;
 	spellSite = 0;
 	computeSpellsPerArea();
@@ -353,6 +362,8 @@ void CSpellWindow::fspellsEb()
 
 void CSpellWindow::fspellsFb()
 {
+	if (selectedTab != 1)
+		turnPageRight();
 	selectedTab = 1;
 	spellSite = 0;
 	computeSpellsPerArea();
@@ -360,6 +371,8 @@ void CSpellWindow::fspellsFb()
 
 void CSpellWindow::fspellsWb()
 {
+	if (selectedTab != 2)
+		turnPageRight();
 	selectedTab = 2;
 	spellSite = 0;
 	computeSpellsPerArea();
@@ -367,6 +380,8 @@ void CSpellWindow::fspellsWb()
 
 void CSpellWindow::fspellsAllb()
 {
+	if (selectedTab != 4)
+		turnPageRight();
 	selectedTab = 4;
 	spellSite = 0;
 	computeSpellsPerArea();
@@ -374,15 +389,19 @@ void CSpellWindow::fspellsAllb()
 
 void CSpellWindow::fLcornerb()
 {
-	if(spellSite>0)
+	if(spellSite>0) {
+		turnPageLeft();
 		--spellSite;
+	}
 	computeSpellsPerArea();
 }
 
 void CSpellWindow::fRcornerb()
 {
-	if((spellSite + 1) < (battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab]))
+	if((spellSite + 1) < (battleSpellsOnly ? sitesPerTabBattle[selectedTab] : sitesPerTabAdv[selectedTab])) {
+		turnPageRight();
 		++spellSite;
+	}
 	computeSpellsPerArea();
 }
 
@@ -608,6 +627,34 @@ void CSpellWindow::deactivate()
 	{
 		spellAreas[g]->deactivate();
 	}
+}
+
+void CSpellWindow::turnPageLeft()
+{
+#ifndef _WIN32
+	if (CGI->videoh->open("PGTRNLFT.SMK", pos.x+13, pos.y+14)) {
+		while(CGI->videoh->nextFrame()) {
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		}
+		CGI->videoh->close();
+	}
+#endif
+}
+
+void CSpellWindow::turnPageRight()
+{
+#ifndef _WIN32
+	if (CGI->videoh->open("PGTRNRGH.SMK", pos.x+13, pos.y+14)) {
+		while(CGI->videoh->nextFrame()) {
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		}
+		CGI->videoh->close();
+	}
+#endif
 }
 
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)

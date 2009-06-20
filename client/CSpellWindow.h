@@ -79,6 +79,9 @@ private:
 
 	void computeSpellsPerArea(); //recalculates spellAreas::mySpell
 
+	void turnPageLeft();
+	void turnPageRight();
+
 public:
 	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero); //c-tor
 	~CSpellWindow(); //d-tor
