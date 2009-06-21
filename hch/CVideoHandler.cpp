@@ -202,7 +202,7 @@ void CBIKHandler::open(std::string name)
 
 #else
 
-#include "SDL_Extensions.h"
+#include "../client/SDL_Extensions.h"
 
 extern "C" {
 #include <libavformat/avformat.h>

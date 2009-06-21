@@ -150,9 +150,17 @@ public:
 	void close();
 };
 
+class CVideoPlayer
+{
+};
+
 #else
 
+#ifdef _WIN32
+#include <SDL_video.h>
+#else
 #include <SDL/SDL_video.h>
+#endif
 
 typedef struct AVFormatContext AVFormatContext;
 typedef struct AVCodecContext AVCodecContext;
