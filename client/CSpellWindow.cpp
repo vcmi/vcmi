@@ -638,30 +638,30 @@ void CSpellWindow::deactivate()
 
 void CSpellWindow::turnPageLeft()
 {
-#ifndef _WIN32
-	if (CGI->videoh->open("PGTRNLFT.SMK", pos.x+13, pos.y+14)) {
+	if (CGI->videoh->open("PGTRNLFT.SMK", pos.x+13, pos.y+15)) {
 		while(CGI->videoh->nextFrame()) {
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+#ifndef _WIN32
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+#endif
 		}
 		CGI->videoh->close();
 	}
-#endif
 }
 
 void CSpellWindow::turnPageRight()
 {
-#ifndef _WIN32
-	if (CGI->videoh->open("PGTRNRGH.SMK", pos.x+13, pos.y+14)) {
+	if (CGI->videoh->open("PGTRNRGH.SMK", pos.x+13, pos.y+15)) {
 		while(CGI->videoh->nextFrame()) {
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+#ifndef _WIN32
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+#endif
 		}
 		CGI->videoh->close();
 	}
-#endif
 }
 
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)

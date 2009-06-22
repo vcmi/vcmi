@@ -1,14 +1,12 @@
 #ifndef __CVIDEOHANDLER_H__
 #define __CVIDEOHANDLER_H__
+#include "../global.h"
 
 #ifdef _WIN32
 
 #include <stdio.h>
-#ifdef _WIN32
 #include <windows.h>
-#else
-#include <dlfcn.h>
-#endif
+#include <SDL.h>
 
 //
 #define BINKNOTHREADEDIO 0x00800000
@@ -150,8 +148,98 @@ public:
 	void close();
 };
 
+//////////SMK Player ///////////////////////////////////////////////////////
+
+
+struct SmackStruct
+{
+    Sint32 version;		//
+    Sint32 width;
+    Sint32 height;
+    Sint32 frameCount;
+    Sint32 mspf;
+    unsigned char unk1[88];
+    unsigned char palette[776];
+    Sint32 currentFrame;	// Starting with 0
+
+     // 72 - иш?
+     // 1060 - interesting
+     // 1100 - Mute:Bool
+
+    unsigned char unk[56];
+    Uint32 fileHandle;  // exact type is HANDLE in windows.h
+};
+
+// defines function pointer type
+typedef SmackStruct* (__stdcall*  SmackOpen)(void* , Uint32, Sint32 );
+// todo default value
+typedef int (__stdcall* SmackDoFrame)( SmackStruct * );
+typedef void (__stdcall * SmackGoto )(SmackStruct *, int frameNumber);
+typedef void (__stdcall* SmackNextFrame)(SmackStruct*);
+typedef void (__stdcall* SmackClose)(SmackStruct*);
+typedef void (__stdcall* SmackToBuffer) (SmackStruct*, int, int, int, int, char *, Uint32);
+typedef bool (__stdcall* SmackWait)(SmackStruct*);
+typedef void (__stdcall* SmackSoundOnOff) (SmackStruct*, bool);
+
+
+typedef enum { bmDIB, bmDDB} BitmapHandleType;
+typedef enum { pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom} PixelFormat;
+typedef enum {tmAuto, tmFixed} TransparentMode;
+
+class TBitmap
+{
+public:
+    Uint32	width;
+    Uint32 height;
+	PixelFormat pixelFormat;
+	BitmapHandleType handleType;
+	char* buffer;
+	
+};
+
+class CRADPlayer
+{
+public:
+	HINSTANCE hinstLib;
+	void loadProc(char* ptrFunc,char* procName);
+	PixelFormat getPixelFormat(TBitmap);
+};
+
+class CSmackPlayer: public CRADPlayer{
+public:
+	SmackOpen ptrSmackOpen;
+	SmackDoFrame ptrSmackDoFrame;
+	SmackToBuffer ptrSmackToBuffer;
+	SmackNextFrame ptrSmackNextFrame;
+	SmackWait ptrSmackWait;
+	SmackSoundOnOff ptrSmackSoundOnOff;
+	SmackStruct* data;
+
+	void preparePic(TBitmap b);
+	TBitmap extractFrame(TBitmap b);
+	void nextFrame();
+	bool wait();
+};
+
+class CVidHandler;
+
 class CVideoPlayer
 {
+private:
+	CVidHandler * vidh; //.vid file handling
+	CSmackPlayer * smkPlayer;
+	int frame;
+	int xPos, yPos;
+	char * buffer;
+	char * buf;
+public:
+	CVideoPlayer(); //c-tor
+	~CVideoPlayer(); //d-tor
+
+	bool init();
+	bool open(std::string fname, int x, int y); //x, y -> position where animation should be displayed on the screen
+	void close();
+	bool nextFrame(); // display next frame
 };
 
 #else

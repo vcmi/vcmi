@@ -6,6 +6,8 @@
 
 #ifdef _WIN32
 
+#include "../client/SDL_Extensions.h"
+
 void DLLHandler::Instantiate(const char *filename)
 {
 #ifdef _WIN32
@@ -199,6 +201,252 @@ void CBIKHandler::open(std::string name)
 //  end
 //
 //end;
+
+//////////SMK Player - Windows ///////////////////////////////////////////////////////
+
+void CRADPlayer::loadProc(char* ptrFunc,char* procName)
+{
+	(FARPROC&)(*ptrFunc) =  GetProcAddress(hinstLib, procName);
+}
+
+// Reference RSGrapics.RSGetPixelFormat
+PixelFormat CRADPlayer::getPixelFormat(TBitmap b)
+{
+	DIBSECTION DS;
+	DS.dsBmih.biBitCount = 2;
+	DS.dsBmih.biCompression = 0; //not sure about that
+	PixelFormat result = b.pixelFormat;
+
+	  if ( (result!= pfCustom)
+		  || (b.handleType = bmDDB)
+		 // || (GetObject(b.Handle, SizeOf(DS), @DS) = 0) 
+		  )
+		  exit(0);
+
+	  switch (DS.dsBmih.biBitCount)
+	  {
+		case 16:
+			switch (DS.dsBmih.biCompression)
+			{
+				case BI_RGB:
+					result = pf15bit;
+					break;
+				case BI_BITFIELDS:
+					if ( DS.dsBitfields[1]==0x7E0 )
+						result = pf16bit;
+					if ( DS.dsBitfields[1]==0x7E0 )
+						result = pf15bit;
+					break;
+			}
+			break;
+		case 32:
+			switch (DS.dsBmih.biCompression)
+			{
+				case BI_RGB:
+					result = pf32bit;
+					break;
+				case BI_BITFIELDS:
+					if ( DS.dsBitfields[1]==0xFF0000 )
+						result = pf32bit;
+					break;
+			}
+			break;
+	  }
+	return result;
+}
+
+void CSmackPlayer::preparePic(TBitmap b)
+{
+	switch (getPixelFormat(b))
+	{
+	case pf15bit:
+	case pf16bit:
+		break;
+	default:
+		b.pixelFormat = pf16bit;
+	};
+}
+
+
+void CSmackPlayer::nextFrame()
+{
+	loadProc((char*)&ptrSmackNextFrame, "_SmackNextFrame@4");
+	ptrSmackNextFrame(data);
+}
+
+
+bool CSmackPlayer::wait()
+{
+  loadProc((char*)&ptrSmackWait, "_SmackWait@4");
+  return ptrSmackWait(data);
+}
+
+
+TBitmap CSmackPlayer::extractFrame(TBitmap b)
+{
+	int i,j;
+	PixelFormat pf;
+	TBitmap result;
+	loadProc((char*)&ptrSmackDoFrame, "_SmackDoFrame@4");
+	loadProc((char*)&ptrSmackToBuffer, "_SmackToBuffer@28");
+	i=j=0;
+	/*
+	try {
+		pf = getPixelFormat(b);
+		i=j=0;
+		switch(pf){
+			case pf8bit: i = 1; break;
+			case pf15bit:
+			case pf16bit: i=2; break;
+			default:
+				// assert(false)
+				break;
+		}
+		switch(pf) {
+			case pf8bit: 
+				j = 0x10000000;
+				break;
+			case pf15bit:
+				// todo
+				break;
+			case pf16bit:
+				// todo
+				break;
+			default:
+				break;
+		} */
+		int v = -b.width*i;
+		ptrSmackToBuffer(data, 0, 0, v, b.height, (char*)b.buffer, j);
+		ptrSmackDoFrame(data);
+		/*
+	}
+
+	catch ( char * msg) {
+
+	}*/
+  result = b;
+  return result;
+  
+}
+
+CVideoPlayer::CVideoPlayer()
+{
+	// Load DLL file
+	vidh = new CVidHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "VIDEO.VID"));
+
+	smkPlayer = new CSmackPlayer;
+
+    smkPlayer->hinstLib = LoadLibrary(L"smackw32.dll");
+    if (smkPlayer->hinstLib == NULL) {
+		tlog1<<"ERROR: unable to load DLL"<<std::endl;
+			getchar();
+            return;
+    }
+	tlog0<< "smackw32.dll Loaded"<<std::endl;
+	
+	smkPlayer->loadProc( (char*)&smkPlayer->ptrSmackOpen, "_SmackOpen@12");
+	smkPlayer->loadProc((char*)&smkPlayer->ptrSmackDoFrame, "_SmackDoFrame@4");
+	smkPlayer->loadProc((char*)&smkPlayer->ptrSmackToBuffer, "_SmackToBuffer@28");
+	smkPlayer->loadProc((char*)&smkPlayer->ptrSmackToBuffer, "_SmackToBuffer@28");
+	smkPlayer->loadProc((char*)&smkPlayer->ptrSmackSoundOnOff, "_SmackSoundOnOff@8");
+	smkPlayer->loadProc((char*)&smkPlayer->ptrSmackWait, "_SmackWait@4");
+	smkPlayer->loadProc((char*)&smkPlayer->ptrSmackNextFrame, "_SmackNextFrame@4");
+}
+
+CVideoPlayer::~CVideoPlayer()
+{
+	delete smkPlayer;
+	delete vidh;
+}
+
+bool CVideoPlayer::init()
+{
+	return true;
+}
+
+bool CVideoPlayer::open(std::string fname, int x, int y)
+{
+	vidh->extract(fname, fname);
+
+	Uint32 flags[2] = {0xff400, 0xfe400};
+
+	smkPlayer->data = smkPlayer->ptrSmackOpen( (void*)fname.c_str(), flags[1], -1);
+	if (smkPlayer->data ==NULL) 
+	{
+		tlog1<<"No "<<fname<<" file!"<<std::endl;
+		return false;
+	}
+
+	buffer = new char[smkPlayer->data->width*smkPlayer->data->height*2];
+	buf = buffer+smkPlayer->data->width*(smkPlayer->data->height-1)*2;	// adjust pointer postition for later use by 'SmackToBuffer'
+
+	xPos = x;
+	yPos = y;
+	frame = 0;
+
+	return true;
+}
+
+void CVideoPlayer::close()
+{
+	delete buffer;
+}
+
+bool CVideoPlayer::nextFrame()
+{
+	if(frame < smkPlayer->data->frameCount)
+	{
+		++frame;
+
+		int stripe = (-smkPlayer->data->width*2) & (~3);
+		Uint32 unknown = 0x80000000;
+		smkPlayer->ptrSmackToBuffer(smkPlayer->data , 0, 0, stripe, smkPlayer->data->width, buf, unknown);
+		smkPlayer->ptrSmackDoFrame(smkPlayer->data );
+		// now bitmap is in buffer
+		// but I don't know exactly how to parse these 15bit color and draw it onto 16bit screen
+
+		// draw the frame!!
+		Uint16* addr = (Uint16*) (buffer+smkPlayer->data->width*(smkPlayer->data->height-1)*2-2);
+		for( int j=0; j<smkPlayer->data->height-1; j++)	// why -1 ?
+			for ( int i=smkPlayer->data->width-1; i>=0; i--)
+			{
+				Uint16 pixel = *addr;
+
+				Uint8 *p = (Uint8 *)screen->pixels + (j+yPos) * screen->pitch + (i + xPos) * screen->format->BytesPerPixel;
+
+				p[2] = ((pixel & 0x7c00) >> 10) * 8;
+				p[1] = ((pixel & 0x3e0) >> 5) * 8;
+				p[0] = ((pixel & 0x1F)) * 8;
+
+				/*Uint8 b = ((pixel & 0x7c00) >> 10) * 8;
+				Uint8 g = ((pixel & 0x3e0) >> 5) * 8;
+				Uint8 r = ((pixel & 0x1F)) * 8;*/
+
+				addr--;
+				/* Lock the screen for direct access to the pixels */
+				if ( SDL_MUSTLOCK(screen) ) {
+					if ( SDL_LockSurface(screen) < 0 ) {
+						fprintf(stderr, "Can't lock screen: %s\n", SDL_GetError());
+						return 0;
+					}
+				}
+				//putpixel(screen, i,j, (Uint32)pixel);
+				if ( SDL_MUSTLOCK(screen) ) {
+					SDL_UnlockSurface(screen);
+				}
+			}
+		/* Update just the part of the display that we've changed */
+		SDL_UpdateRect(screen, xPos, yPos, smkPlayer->data->width, smkPlayer->data->height);
+		SDL_Delay(50);
+		smkPlayer->ptrSmackWait(smkPlayer->data);
+		smkPlayer->ptrSmackNextFrame(smkPlayer->data);
+	}
+	else //end of video
+	{
+		return false;
+	}
+	return true;
+}
 
 #else
 
