@@ -16,9 +16,10 @@
 	#define CONSOLE_WHITE "\x1b[1;40;39m"
 	#define CONSOLE_GRAY "\x1b[0;40;39m"
 #else
+	#include <windows.h>
+
 	typedef WORD TColor;
 	#define _kill_thread(a) TerminateThread(a,0)
-	#include <windows.h>
 	HANDLE handleIn;
 	HANDLE handleOut;
 	typedef void* ThreadHandle;
