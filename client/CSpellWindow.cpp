@@ -638,7 +638,14 @@ void CSpellWindow::deactivate()
 
 void CSpellWindow::turnPageLeft()
 {
-	if (CGI->videoh->open("PGTRNLFT.SMK", pos.x+13, pos.y+15)) {
+	// Note: video decoders are different, and one is buggy.
+#ifdef _WIN32
+	const int y = pos.y+15;
+#else
+	const int y = pos.y+14;
+#endif	
+
+	if (CGI->videoh->open("PGTRNLFT.SMK", pos.x+13, y)) {
 		while(CGI->videoh->nextFrame()) {
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 #ifndef _WIN32
@@ -652,7 +659,14 @@ void CSpellWindow::turnPageLeft()
 
 void CSpellWindow::turnPageRight()
 {
-	if (CGI->videoh->open("PGTRNRGH.SMK", pos.x+13, pos.y+15)) {
+	// Note: video decoders are different, and one is buggy.
+#ifdef _WIN32
+	const int y = pos.y+15;
+#else
+	const int y = pos.y+14;
+#endif	
+
+	if (CGI->videoh->open("PGTRNRGH.SMK", pos.x+13, y)) {
 		while(CGI->videoh->nextFrame()) {
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 #ifndef _WIN32
