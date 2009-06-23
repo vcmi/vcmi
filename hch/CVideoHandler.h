@@ -244,11 +244,7 @@ public:
 
 #else
 
-#ifdef _WIN32
 #include <SDL_video.h>
-#else
-#include <SDL/SDL_video.h>
-#endif
 
 typedef struct AVFormatContext AVFormatContext;
 typedef struct AVCodecContext AVCodecContext;
@@ -284,7 +280,6 @@ public:
 	const char *data;			// video buffer
 	int length;					// video size
 	unsigned int offset;		// current data offset
-
 };
 
 #endif
