@@ -343,7 +343,6 @@ int CLodHandler::readNormalNr (unsigned char* bufor, int bytCon, bool cyclic)
 void CLodHandler::init(std::string lodFile, std::string dirName)
 {
 	myDir = dirName;
-	mutex = new boost::mutex;
 	std::string Ts;
 	FLOD = fopen(lodFile.c_str(), "rb");
 	if(!FLOD)
@@ -359,15 +358,15 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 	for (int i=0; i<totalFiles; i++)
 	{
 		Entry entry;
-		char * bufc = new char;
+		char bufc = -1;
 		bool appending = true;
 		for(int kk=0; kk<12; ++kk)
 		{
 			//FLOD.read(bufc, 1);
-			fread(bufc, 1, 1, FLOD);
+			fread(&bufc, 1, 1, FLOD);
 			if(appending)
 			{
-				entry.name[kk] = toupper(*bufc);
+				entry.name[kk] = toupper(bufc);
 			}
 			else
 			{
@@ -375,7 +374,6 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 				appending = false;
 			}
 		}
-		delete bufc;
 		fread((char*)entry.hlam_1, 1, 4, FLOD);
 		fread((char*)temp, 1, 4, FLOD);
 		entry.offset=readNormalNr(temp,4);
@@ -434,4 +432,16 @@ std::string CLodHandler::getTextFile(std::string name)
 		ret+=data[i];
 	delete [] data;
 	return ret;
+}
+
+CLodHandler::CLodHandler()
+{
+	mutex = new boost::mutex;
+	FLOD = NULL;
+	totalFiles = 0;
+}
+
+CLodHandler::~CLodHandler()
+{
+	delete mutex;
 }

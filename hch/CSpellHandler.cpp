@@ -66,6 +66,8 @@ namespace SRSLPraserHelpers
 			return std::make_pair(y%2 ? x-1 : x, y+1);
 		case 5: //left
 			return std::make_pair(x-1, y);
+		default:
+			throw std::string("Disaster: wrong direction in SRSLPraserHelpers::gotoDir!\n");
 		}
 	}
 

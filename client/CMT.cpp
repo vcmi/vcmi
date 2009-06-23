@@ -69,6 +69,7 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 
 void processCommand(const std::string &message, CClient *&client);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen);
+void dispose();
 
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
@@ -76,16 +77,15 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
+
 	tlog0 << "Starting... " << std::endl;
 	THC timeHandler tmh, total, pomtime;
 	CClient *client = NULL;
-	boost::thread *console = NULL;
-
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream("VCMI_Client_log.txt");
-	::console = new CConsoleHandler;
-	*::console->cb = boost::bind(processCommand,_1,boost::ref(client));
-	console = new boost::thread(boost::bind(&CConsoleHandler::run,::console));
+	console = new CConsoleHandler;
+	console->start();
+	atexit(dispose);
 	tlog0 <<"Creating console and logfile: "<<pomtime.getDif() << std::endl;
 
 	conf.init();
@@ -100,6 +100,7 @@ int main(int argc, char** argv)
 	{
 		setScreenRes(800,600,conf.cc.bpp,conf.cc.fullscreen);
 		tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
+
 		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
 			int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
 		#else
@@ -107,6 +108,7 @@ int main(int argc, char** argv)
 		#endif
 		CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
 		tlog0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
+
 		TTF_Init();
 		TNRB16 = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",16);
 		GEOR13 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",13);
@@ -142,6 +144,7 @@ int main(int argc, char** argv)
 		cgi->soundh->initCreaturesSounds(CGI->creh->creatures);
 		cgi->soundh->initSpellsSounds(CGI->spellh->spells);
 		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
+
 		pomtime.getDif();
 		cgi->curh = new CCursorHandler;
 		cgi->curh->initCursor();
@@ -152,6 +155,7 @@ int main(int argc, char** argv)
 		graphics->loadHeroAnim();
 		tlog0<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
 		tlog0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
+
 		CMessage::init();
 		tlog0<<"Message handler: "<<tmh.getDif()<<std::endl;
 		CPreGame * cpg = new CPreGame(); //main menu and submenus
@@ -222,9 +226,7 @@ int main(int argc, char** argv)
 			{
 				LOCPLINT->pim->lock();
 				cl.close();
-#ifndef __unix__
-				::console->killConsole(console->native_handle());
-#endif
+				console->end();
 				SDL_Delay(750);
 				tlog0 << "Ending...\n";
 				exit(EXIT_SUCCESS);
@@ -350,6 +352,12 @@ void processCommand(const std::string &message, CClient *&client)
 		PlayerMessage pm(LOCPLINT->playerID,message);
 		*client->serv << &pm;
 	}
+}
+
+void dispose()
+{
+	delete logfile;
+	delete console;
 }
 
 static void setScreenRes(int w, int h, int bpp, bool fullscreen)

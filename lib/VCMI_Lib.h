@@ -44,10 +44,11 @@ public:
 	CDefObjInfoHandler * dobjinfo;
 	CTownHandler * townh;
 	CGeneralTextHandler * generaltexth;
-	//CPathfinder * pathf;
 
+	LibClasses(); //c-tor, loads .lods and NULLs handlers
 	void init(); //uses standard config file
 	void clear(); //deletes all handlers and its data
+	void makeNull(); //sets all handler (except of lodhs) pointers to null
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

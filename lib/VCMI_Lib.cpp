@@ -166,11 +166,6 @@ DLL_EXPORT void loadToIt(si32 &dest, std::string &src, int &iter, int mode)
 void LibClasses::init()
 {
 	timeHandler pomtime;
-	spriteh = new CLodHandler();
-	spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
-	bitmaph = new CLodHandler;
-	bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
-	tlog0<<"Loading .lod files: "<<pomtime.getDif()<<std::endl;
 
 	generaltexth = new CGeneralTextHandler;
 	generaltexth->load();
@@ -221,6 +216,11 @@ void LibClasses::clear()
 	delete dobjinfo;
 	delete buildh;
 	delete spellh;
+	makeNull();
+}
+
+void LibClasses::makeNull()
+{
 	generaltexth = NULL;
 	heroh = NULL;
 	arth = NULL;
@@ -230,4 +230,18 @@ void LibClasses::clear()
 	dobjinfo = NULL;
 	buildh = NULL;
 	spellh = NULL;
+}
+
+LibClasses::LibClasses()
+{
+	//load .lod archives
+	timeHandler pomtime;
+	spriteh = new CLodHandler();
+	spriteh->init("Data" PATHSEPARATOR "H3sprite.lod","Sprites");
+	bitmaph = new CLodHandler;
+	bitmaph->init("Data" PATHSEPARATOR "H3bitmap.lod","Data");
+	tlog0<<"Loading .lod files: "<<pomtime.getDif()<<std::endl;
+
+	//init pointers to handlers
+	makeNull();
 }

@@ -4,183 +4,87 @@
 
 #ifdef _WIN32
 
-#include <stdio.h>
 #include <windows.h>
-#include <SDL.h>
 
-//
-#define BINKNOTHREADEDIO 0x00800000
-//
-//  protected
-//    FLib: HINST;
-//    FLibName: string;
-//    FFileHandle: HFile;
-//    function GetCurrentFrame: int; virtual; abstract;
-//    function GetFramesCount: int; virtual; abstract;
-//    procedure SetCurrentFrame(v: int); virtual; abstract;
-//    procedure DoOpen(FileHandle: hFile); virtual; abstract;
-//    function NormalizeFrame(i:int):int;
-//    procedure SetPause(v:Boolean); virtual; abstract;
-//
-//    procedure LoadProc(var Proc:Pointer; const ProcName:string);
-//  public
-//    Width:pint;
-//    Height:pint;
-//    constructor Create(const LibName:string);
-//    destructor Destroy; override;
-//    procedure Open(FileHandle:hFile); overload;
-//    procedure Open(FileName:string); overload;
-////    procedure Open(FileData:TRSByteArray); overload;
-//    procedure SetVolume(i: int); virtual;
-//    procedure Close; virtual;
-//    procedure NextFrame; virtual; abstract;
-//    procedure PreparePic(b:TBitmap); virtual;
-//    procedure GotoFrame(Index:int; b:TBitmap); virtual;
-//    function ExtractFrame(b:TBitmap = nil):TBitmap; virtual; abstract;
-//    function Wait:Boolean; virtual; abstract;
-//      // Workaround for Bink and Smack thread synchronization bug
-//    property Frame: int read GetCurrentFrame write SetCurrentFrame;
-//    property FramesCount: int read GetFramesCount;
-//    property LibInstance: HINST read FLib;
-//    property Pause: Boolean write SetPause;
+struct SDL_Surface;
 
-  //TRSSmkStruct = packed record
-  //  Version: int;
-  //  Width: int;
-  //  Height: int;
-  //  FrameCount: int;
-  //  mspf: int;
-  //  Unk1: array[0..87] of byte;
-  //  Palette: array[0..775] of byte;
-  //  CurrentFrame: int; // Starting with 0
-  //   // 72 - ุ่๏
-  //   // 1060 - interesting
-  //   // 1100 - Mute:Bool
-  //end;
-
-  //TRSBinkStruct = packed record
-  //  Width: int;
-  //  Height: int;
-  //  FrameCount: int;
-  //  CurrentFrame: int; // Starting with 1
-  //  LastFrame: int;
-  //  FPSMul: int; // frames/second multiplier
-  //  FPSDiv: int; // frames/second divisor
-  //  Unk1: int;
-  //  Flags: int;
-  //  Unk2: array[0..259] of byte;
-  //  CurrentPlane: int;
-  //  Plane1: ptr;
-  //  Plane2: ptr;
-  //  Unk3: array[0..1] of int;
-  //  YPlaneWidth: int;
-  //  YPlaneHeight: int;
-  //  UVPlaneWidth: int;
-  //  UVPlaneHeight: int;
-  //end;
-typedef struct
+#pragma pack(push,1)
+struct BINK_STRUCT
 {
-	int width;
-	int height;
-	int frameCount;
-	int currentFrame;
-	int lastFrame;
-	int FPSMul;
-	int FPSDiv;
-	int unknown0;
-	unsigned char flags;
-	unsigned char unknown1[260];
-	int CurPlane;		// current plane
-	void *plane0;		// pointer to plane 0
-	void *plane1;		// pointer to plane 1
-	int unknown2;
-	int unknown3;
-	int yWidth;			// Y plane width
-	int yHeight;		// Y plane height
-	int uvWidth;		// U&V plane width
-	int uvHeight;		// U&V plane height
-	int d,e,f,g,h,i;
-} BINK_STRUCT, *HBINK;
-
-struct SMKStruct
-{
-	int version, width, height, frameCount, mspf, currentFrame;
-	unsigned char unk1[88], palette[776];
+	si32 width;
+	si32 height;
+	si32 frameCount;
+	si32 currentFrame;
+	si32 lastFrame;
+	si32 FPSMul;
+	si32 FPSDiv;
+	si32 unknown0;
+	ui8 flags;
+	ui8 unknown1[260];
+	si32 CurPlane;		// current plane
+	void *plane0;		// posi32er to plane 0
+	void *plane1;		// posi32er to plane 1
+	si32 unknown2;
+	si32 unknown3;
+	si32 yWidth;			// Y plane width
+	si32 yHeight;		// Y plane height
+	si32 uvWidth;		// U&V plane width
+	si32 uvHeight;		// U&V plane height
 };
+#pragma pack(pop)
 
-
-
+typedef BINK_STRUCT* HBINK;
 
 class DLLHandler
 {
 public:
-#if !defined(__amigaos4__) && !defined(__unix__) && !defined(__APPLE__)
+	std::string name;
 	HINSTANCE dll;
-#else
-	void *dll;
-#endif
 	void Instantiate(const char *filename);
 	const char *GetLibExtension();
-	void *FindAddress234(const char *symbol);
+	void *FindAddress(const char *symbol);
 
+	DLLHandler();
 	virtual ~DLLHandler(); //d-tor
 };
 
-class CBIKHandler
+typedef void*(__stdcall*  BinkSetSoundSystem)(void * soundfun, void*);
+typedef HBINK(__stdcall*  BinkOpen)(HANDLE bikfile, int flags);
+typedef si32(__stdcall*  BinkGetPalette)(HBINK);
+typedef void(__stdcall*  BinkNextFrame)(HBINK);
+typedef void(__stdcall*  BinkDoFrame)(HBINK);
+typedef ui8(__stdcall*  BinkWait)(HBINK);
+typedef si32(__stdcall*  BinkCopyToBuffer)(HBINK, void* buffer, int stride, int height, int x, int y, int mode);
+
+
+class CBIKHandler : public DLLHandler
 {
 public:
-	DLLHandler ourLib;
 	int newmode;
-#if !defined(__amigaos4__) && !defined(__unix__) && !defined(__APPLE__)
 	HANDLE hBinkFile;
-#else
-	void *hBinkFile;
-#endif
 	HBINK hBink;
-	BINK_STRUCT data;
-	unsigned char * buffer;
-	void * waveOutOpen, * BinkGetError, *BinkOpen, *BinkSetSoundSystem ;
+	char * buffer;
+	BinkSetSoundSystem binkSetSoundSystem;
+	BinkOpen binkOpen;
+	BinkGetPalette getPalette;
+	BinkNextFrame binkNextFrame;
+	BinkDoFrame binkDoFrame;
+	BinkCopyToBuffer binkCopyToBuffer;
+	BinkWait binkWait;
+
+	void * waveOutOpen, * binkGetError;
 
 	int width, height;
 
 	CBIKHandler();
 	void open(std::string name);
 	void close();
+	void nextFrame();
+	void show(int x, int y, SDL_Surface *dst);
+	bool wait();
 };
 
 //////////SMK Player ///////////////////////////////////////////////////////
-
-
-struct SmackStruct
-{
-    Sint32 version;		//
-    Sint32 width;
-    Sint32 height;
-    Sint32 frameCount;
-    Sint32 mspf;
-    unsigned char unk1[88];
-    unsigned char palette[776];
-    Sint32 currentFrame;	// Starting with 0
-
-     // 72 - ุ่?
-     // 1060 - interesting
-     // 1100 - Mute:Bool
-
-    unsigned char unk[56];
-    Uint32 fileHandle;  // exact type is HANDLE in windows.h
-};
-
-// defines function pointer type
-typedef SmackStruct* (__stdcall*  SmackOpen)(void* , Uint32, Sint32 );
-// todo default value
-typedef int (__stdcall* SmackDoFrame)( SmackStruct * );
-typedef void (__stdcall * SmackGoto )(SmackStruct *, int frameNumber);
-typedef void (__stdcall* SmackNextFrame)(SmackStruct*);
-typedef void (__stdcall* SmackClose)(SmackStruct*);
-typedef void (__stdcall* SmackToBuffer) (SmackStruct*, int, int, int, int, char *, Uint32);
-typedef bool (__stdcall* SmackWait)(SmackStruct*);
-typedef void (__stdcall* SmackSoundOnOff) (SmackStruct*, bool);
-
 
 typedef enum { bmDIB, bmDDB} BitmapHandleType;
 typedef enum { pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom} PixelFormat;
@@ -189,23 +93,42 @@ typedef enum {tmAuto, tmFixed} TransparentMode;
 class TBitmap
 {
 public:
-    Uint32	width;
-    Uint32 height;
+	ui32	width;
+	ui32 height;
 	PixelFormat pixelFormat;
 	BitmapHandleType handleType;
 	char* buffer;
-	
+
 };
 
-class CRADPlayer
+struct SmackStruct
 {
-public:
-	HINSTANCE hinstLib;
-	void loadProc(char* ptrFunc,char* procName);
-	PixelFormat getPixelFormat(TBitmap);
+    si32 version;
+    si32 width;
+    si32 height;
+    si32 frameCount;
+    si32 mspf;
+    ui8 unk1[88];
+    ui8 palette[776];
+    si32 currentFrame;	// Starting with 0
+    ui8 unk[56];
+    ui32 fileHandle;  // exact type is HANDLE in windows.h
 };
 
-class CSmackPlayer: public CRADPlayer{
+// defines function pointer types
+typedef SmackStruct* (__stdcall*  SmackOpen)(void* , ui32, si32 );
+typedef int (__stdcall* SmackDoFrame)( SmackStruct * );
+typedef void (__stdcall * SmackGoto )(SmackStruct *, int frameNumber);
+typedef void (__stdcall* SmackNextFrame)(SmackStruct*);
+typedef void (__stdcall* SmackClose)(SmackStruct*);
+typedef void (__stdcall* SmackToBuffer) (SmackStruct*, int, int, int, int, char *, ui32);
+typedef bool (__stdcall* SmackWait)(SmackStruct*);
+typedef void (__stdcall* SmackSoundOnOff) (SmackStruct*, bool);
+
+
+
+class CSmackPlayer: public DLLHandler
+{
 public:
 	SmackOpen ptrSmackOpen;
 	SmackDoFrame ptrSmackDoFrame;
@@ -215,8 +138,9 @@ public:
 	SmackSoundOnOff ptrSmackSoundOnOff;
 	SmackStruct* data;
 
-	void preparePic(TBitmap b);
-	TBitmap extractFrame(TBitmap b);
+	void init();
+	void preparePic(TBitmap &b);
+	TBitmap extractFrame(TBitmap &b);
 	void nextFrame();
 	bool wait();
 };
@@ -228,10 +152,15 @@ class CVideoPlayer
 private:
 	CVidHandler * vidh; //.vid file handling
 	CSmackPlayer * smkPlayer;
+
 	int frame;
 	int xPos, yPos;
 	char * buffer;
 	char * buf;
+
+
+	std::string fname; //name of current video file (empty if idle)
+
 public:
 	CVideoPlayer(); //c-tor
 	~CVideoPlayer(); //d-tor

@@ -359,6 +359,10 @@
 				>
 			</File>
 			<File
+				RelativePath="..\hch\CVideoHandler.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\Graphics.cpp"
 				>
 			</File>
@@ -502,6 +506,10 @@
 			</File>
 			<File
 				RelativePath="..\CThreadHelper.h"
+				>
+			</File>
+			<File
+				RelativePath="..\hch\CVideoHandler.h"
 				>
 			</File>
 			<File

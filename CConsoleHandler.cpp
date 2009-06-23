@@ -1,14 +1,37 @@
 #define VCMI_DLL
 #include "stdafx.h"
 #include "CConsoleHandler.h"
-#include "boost/function.hpp"
+#include <boost/function.hpp>
+#include <boost/thread.hpp>
 
-#ifdef _WIN32
-#include <windows.h>
-HANDLE handleIn;
-HANDLE handleOut;
+
+#ifndef _WIN32
+	typedef std::string TColor;
+	#define	_kill_thread(a) pthread_cancel(a)
+	typedef pthread_t ThreadHandle;
+	#define CONSOLE_GREEN "\x1b[1;40;32m"
+	#define CONSOLE_RED "\x1b[1;40;32m"
+	#define CONSOLE_MAGENTA "\x1b[1;40;35m"
+	#define CONSOLE_YELLOW "\x1b[1;40;32m"
+	#define CONSOLE_WHITE "\x1b[1;40;39m"
+	#define CONSOLE_GRAY "\x1b[0;40;39m"
+#else
+	typedef WORD TColor;
+	#define _kill_thread(a) TerminateThread(a,0)
+	#include <windows.h>
+	HANDLE handleIn;
+	HANDLE handleOut;
+	typedef void* ThreadHandle;
+	#define CONSOLE_GREEN FOREGROUND_GREEN | FOREGROUND_INTENSITY
+	#define CONSOLE_RED FOREGROUND_RED | FOREGROUND_INTENSITY
+	#define CONSOLE_MAGENTA FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY
+	#define CONSOLE_YELLOW FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY
+	#define CONSOLE_WHITE FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY
+	#define CONSOLE_GRAY FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE
 #endif
-WORD defColor;
+
+TColor defColor;
+
 
 /*
  * CConsoleHandler.cpp, part of VCMI engine
@@ -22,53 +45,29 @@ WORD defColor;
 
 void CConsoleHandler::setColor(int level)
 {
-	WORD color;
+	TColor color;
 	switch(level)
 	{
 	case -1:
 		color = defColor;
 		break;
 	case 0:
-#ifdef _WIN32
-		color = FOREGROUND_GREEN | FOREGROUND_INTENSITY;
-#else
-		color = "\x1b[1;40;32m";
-#endif
+		color = CONSOLE_GREEN;
 		break;
 	case 1:
-#ifdef _WIN32
-		color = FOREGROUND_RED | FOREGROUND_INTENSITY;
-#else
-		color = "\x1b[1;40;31m";
-#endif
+		color = CONSOLE_RED;
 		break;
 	case 2:
-#ifdef _WIN32
-		color = FOREGROUND_RED | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
-#else
-		color = "\x1b[1;40;35m";
-#endif
+		color = CONSOLE_MAGENTA;
 		break;
 	case 3:
-#ifdef _WIN32
-		color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_INTENSITY;
-#else
-		color = "\x1b[1;40;32m";
-#endif
+		color = CONSOLE_YELLOW;
 		break;
 	case 4:
-#ifdef _WIN32
-		color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
-#else
-		color = "\x1b[1;40;39m";
-#endif
+		color = CONSOLE_WHITE;
 		break;
 	case 5:
-#ifdef _WIN32
-		color = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
-#else
-		color = "\x1b[0;40;39m";
-#endif
+		color = CONSOLE_GRAY;
 		break;
 	default:
 		color = defColor;
@@ -104,18 +103,24 @@ CConsoleHandler::CConsoleHandler()
 	defColor = "\x1b[0m";
 #endif
 	cb = new boost::function<void(const std::string &)>;
+	thread = NULL;
 }
 CConsoleHandler::~CConsoleHandler()
 {
 	delete cb;
+	delete thread;
 }
-#ifndef _WIN32
-void CConsoleHandler::killConsole(pthread_t hThread)
-#else
-void CConsoleHandler::killConsole(void *hThread)
-#endif
+void CConsoleHandler::end()
 {
 	tlog3 << "Killing console... ";
-	_kill_thread(hThread,0);
+	ThreadHandle th = (ThreadHandle)thread->native_handle();
+	_kill_thread(th);
+	delete thread;
+	thread = NULL;
 	tlog3 << "done!\n";
+}
+
+void CConsoleHandler::start()
+{
+	thread = new boost::thread(boost::bind(&CConsoleHandler::run,console));
 }

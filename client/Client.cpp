@@ -193,11 +193,16 @@ void CClient::load( const std::string & fname )
 	VLC->clear(); //delete old handlers
 	delete CGI->mh;
 	delete CGI->state;
-	//TODO: del callbacks
+
 
 	for(std::map<ui8,CGameInterface *>::iterator i = playerint.begin(); i!=playerint.end(); i++)
 	{
 		delete i->second; //delete player interfaces
+	}
+
+	BOOST_FOREACH(CCallback *cb, callbacks)
+	{
+		delete cb;
 	}
 	tlog0 <<"Deleting old data: "<<tmh.getDif()<<std::endl;
 

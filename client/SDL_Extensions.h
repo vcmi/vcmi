@@ -38,7 +38,7 @@ inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const in
 namespace CSDL_Ext
 {
 	extern SDL_Surface * std32bppSurface;
-	inline void SDL_PutPixel(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255); //myC influences the start of reading pixels
+	void SDL_PutPixel(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255); //myC influences the start of reading pixels
 	//inline void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255); //myC influences the start of reading pixels ; without refreshing
 
 	inline void SDL_PutPixelWithoutRefresh(SDL_Surface *ekran, const int & x, const int & y, const Uint8 & R, const Uint8 & G, const Uint8 & B, Uint8 A = 255)

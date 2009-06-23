@@ -58,6 +58,8 @@ public:
 	boost::mutex *mutex;
 	std::string myDir; //load files from this dir instead of .lod file
 
+	CLodHandler();
+	~CLodHandler();
 	int readNormalNr (unsigned char* bufor, int bytCon, bool cyclic=false); //lod header reading helper
 	int infs(unsigned char * in, int size, int realSize, std::ofstream & out, int wBits=15); //zlib fast handler
 	int infs2(unsigned char * in, int size, int realSize, unsigned char*& out, int wBits=15); //zlib fast handler

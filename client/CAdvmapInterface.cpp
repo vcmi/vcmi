@@ -1630,10 +1630,6 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 			else
 				paths.erase(h);
 		}
-		else
-		{
-			terrain.currentPath;
-		}	
 	}
 	townList.draw(screen);
 	heroList.draw(screen);
