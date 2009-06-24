@@ -58,6 +58,9 @@ extern TTF_Font * GEOR16;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 
+#undef min
+#undef max
+
 static StackState* getStackState(const CGObjectInstance *obj, int pos, bool town)
 {
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(obj);
