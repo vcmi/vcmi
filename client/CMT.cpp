@@ -70,6 +70,67 @@ TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 void processCommand(const std::string &message, CClient *&client);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen);
 void dispose();
+void playIntro();
+
+void init()
+{
+	timeHandler tmh, pomtime;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+	int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
+#else
+	int rmask = 0x000000ff;	int gmask = 0x0000ff00;	int bmask = 0x00ff0000;	int amask = 0xff000000;
+#endif
+	CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
+	tlog0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
+
+	TTF_Init();
+	atexit(TTF_Quit);
+	TNRB16 = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",16);
+	GEOR13 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",13);
+	GEOR16 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",16);
+	GEORXX = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",22);
+	GEORM = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",10);
+	if(! (TNRB16 && GEOR16 && GEORXX && GEORM))
+	{
+		tlog1 << "One of the fonts couldn't be loaded!\n";
+		exit(-1);
+	}
+	THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
+
+	//initializing audio
+	// Note: because of interface button range, volume can only be a
+	// multiple of 11, from 0 to 99.
+	CGI->soundh = new CSoundHandler;
+	CGI->soundh->init();
+	CGI->soundh->setVolume(88);
+	CGI->musich = new CMusicHandler;
+	CGI->musich->init();
+	CGI->musich->setVolume(88);
+	tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
+	tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
+
+	initDLL(::console,logfile);
+	CGI->setFromLib();
+	CGI->soundh->initCreaturesSounds(CGI->creh->creatures);
+	CGI->soundh->initSpellsSounds(CGI->spellh->spells);
+	tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
+
+	pomtime.getDif();
+	CGI->curh = new CCursorHandler;
+	CGI->curh->initCursor();
+	CGI->curh->show();
+	tlog0<<"Screen handler: "<<pomtime.getDif()<<std::endl;
+	pomtime.getDif();
+	graphics = new Graphics();
+	graphics->loadHeroAnim();
+	tlog0<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
+	tlog0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
+
+	CMessage::init();
+	tlog0<<"Message handler: "<<tmh.getDif()<<std::endl;
+	CPG = new CPreGame(); //main menu and submenus
+	tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
+}
 
 #ifndef __GNUC__
 int _tmain(int argc, _TCHAR* argv[])
@@ -77,9 +138,8 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
-
 	tlog0 << "Starting... " << std::endl;
-	THC timeHandler tmh, total, pomtime;
+	timeHandler total, pomtime;
 	CClient *client = NULL;
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream("VCMI_Client_log.txt");
@@ -95,77 +155,29 @@ int main(int argc, char** argv)
 	srand ( time(NULL) );
 	CPG=NULL;
 	atexit(SDL_Quit);
-	CGameInfo * cgi = CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
+	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
 	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO)==0)
 	{
 		setScreenRes(800,600,conf.cc.bpp,conf.cc.fullscreen);
 		tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
 
-		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-			int rmask = 0xff000000;int gmask = 0x00ff0000;int bmask = 0x0000ff00;int amask = 0x000000ff;
-		#else
-			int rmask = 0x000000ff;	int gmask = 0x0000ff00;	int bmask = 0x00ff0000;	int amask = 0xff000000;
-		#endif
-		CSDL_Ext::std32bppSurface = SDL_CreateRGBSurface(SDL_SWSURFACE, 1, 1, 32, rmask, gmask, bmask, amask);
-		tlog0 << "\tInitializing minors: " << pomtime.getDif() << std::endl;
-
-		TTF_Init();
-		TNRB16 = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",16);
-		GEOR13 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",13);
-		GEOR16 = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",16);
-		GEORXX = TTF_OpenFont("Fonts" PATHSEPARATOR "tnrb.ttf",22);
-		GEORM = TTF_OpenFont("Fonts" PATHSEPARATOR "georgia.ttf",10);
-		if(! (TNRB16 && GEOR16 && GEORXX && GEORM))
-		{
-			tlog1 << "One of the fonts couldn't be loaded!\n";
-			throw "One of the fonts couldn't be loaded!\n";
-		}
-		atexit(TTF_Quit);
-		THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
-
-		//initializing audio
-		// Note: because of interface button range, volume can only be a
-		// multiple of 11, from 0 to 99.
-		cgi->soundh = new CSoundHandler;
-		cgi->soundh->init();
-		cgi->soundh->setVolume(88);
-		cgi->musich = new CMusicHandler;
-		cgi->musich->init();
-		cgi->musich->setVolume(88);
-		tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
-
 		// Initialize video
-		cgi->videoh = new CVideoPlayer;
+		CGI->videoh = new CVideoPlayer;
 		tlog0<<"\tInitializing video: "<<pomtime.getDif()<<std::endl;
 
-		tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
-		initDLL(::console,logfile);
-		CGI->setFromLib();
-		cgi->soundh->initCreaturesSounds(CGI->creh->creatures);
-		cgi->soundh->initSpellsSounds(CGI->spellh->spells);
-		tlog0<<"Initializing VCMI_Lib: "<<tmh.getDif()<<std::endl;
-
-		pomtime.getDif();
-		cgi->curh = new CCursorHandler;
-		cgi->curh->initCursor();
-		cgi->curh->show();
-		tlog0<<"Screen handler: "<<pomtime.getDif()<<std::endl;
-		pomtime.getDif();
-		graphics = new Graphics();
-		graphics->loadHeroAnim();
-		tlog0<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
-		tlog0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
-
-		CMessage::init();
-		tlog0<<"Message handler: "<<tmh.getDif()<<std::endl;
-		CPreGame * cpg = new CPreGame(); //main menu and submenus
-		tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
+		//we can properly play intro only in the main thread, so we have to move loading to the separate thread
+		boost::thread loading(init);
+		playIntro();
+		SDL_FillRect(screen,NULL,0);
+		SDL_Flip(screen);
+		loading.join();
 		tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
 
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
-		cgi->musich->playMusic(musicBase::mainMenu, -1);
-		StartInfo *options = new StartInfo(cpg->runLoop());
+		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+		CGI->musich->playMusic(musicBase::mainMenu, -1);
+		CPG->showMainMenu();
+		StartInfo *options = new StartInfo(CPG->runLoop());
 
 		if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
 		{
@@ -174,19 +186,19 @@ int main(int argc, char** argv)
 		CClient cl;
 		if(options->mode == 0) //new game
 		{
-			tmh.getDif();
+			pomtime.getDif();
 			char portc[10];
 			SDL_itoa(conf.cc.port,portc,10);
 			CClient::runServer(portc);
-			tlog0<<"Preparing shared memory and starting server: "<<tmh.getDif()<<std::endl;
+			tlog0<<"Preparing shared memory and starting server: "<<pomtime.getDif()<<std::endl;
 
-			tmh.getDif();pomtime.getDif();//reset timers
+			pomtime.getDif();//reset timers
 
 			CConnection *c=NULL;
 			//wait until server is ready
 			tlog0<<"Waiting for server... ";
 			cl.waitForServer();
-			tlog0 << tmh.getDif()<<std::endl;
+			tlog0 << pomtime.getDif()<<std::endl;
 			while(!c)
 			{
 				try
@@ -200,10 +212,10 @@ int main(int argc, char** argv)
 					SDL_Delay(2000);
 				}
 			}
-			THC tlog0<<"\tConnecting to the server: "<<tmh.getDif()<<std::endl;
+			THC tlog0<<"\tConnecting to the server: "<<pomtime.getDif()<<std::endl;
 			cl.newGame(c,options);
 			client = &cl;
-			cgi->musich->stopMusic();
+			CGI->musich->stopMusic();
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 		else //load game
@@ -212,7 +224,7 @@ int main(int argc, char** argv)
 			boost::algorithm::erase_last(fname,".vlgm1");
 			cl.load(fname);
 			client = &cl;
-			cgi->musich->stopMusic();
+			CGI->musich->stopMusic();
 			boost::thread t(boost::bind(&CClient::run,&cl));
 		}
 
@@ -352,6 +364,18 @@ void processCommand(const std::string &message, CClient *&client)
 		PlayerMessage pm(LOCPLINT->playerID,message);
 		*client->serv << &pm;
 	}
+}
+
+
+//plays intro, ends when intro is over or button has been pressed (handles events)
+void playIntro()
+{
+#ifdef _WIN32
+	if(CGI->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, screen, true))
+	{
+		CGI->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, screen, true);
+	}
+#endif
 }
 
 void dispose()

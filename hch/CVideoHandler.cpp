@@ -7,14 +7,53 @@
 #ifdef _WIN32
 
 #include "../client/SDL_Extensions.h"
+#include <boost/algorithm/string/predicate.hpp>
 
 
+void checkForError(bool throwing = true)
+{
+#ifdef _WIN32
+	int error = GetLastError();
+	if(!error)
+		return;
+
+
+	tlog1 << "Error " << error << " encountered!\n";
+	std::string msg;
+	char* pTemp = NULL;
+	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, NULL );
+	tlog1 << "Error: " << pTemp << std::endl;
+	msg = pTemp;
+	LocalFree( pTemp );
+	pTemp = NULL;
+	if(throwing)
+		throw msg;
+#endif
+}
+
+void blitBuffer(char *buffer, int x, int y, int w, int h, SDL_Surface *dst)
+{
+	const int bpp = dst->format->BytesPerPixel;	
+	char *dest;
+	for(int i = h; i > 0; i--)
+	{
+		dest = (char*)dst->pixels + dst->pitch*(y+h-i) + x*dst->format->BytesPerPixel;
+		memcpy(dest, buffer, bpp*w);
+		buffer += bpp*w;
+	}
+}
 
 void DLLHandler::Instantiate(const char *filename)
 {
 	name = filename;
 #ifdef _WIN32
 	dll = LoadLibraryA(filename);
+	if(!dll)
+	{
+		tlog1 << "Failed loading " << filename << std::endl;
+		checkForError();
+	}
 #else
 	dll = dlopen(filename,RTLD_LOCAL | RTLD_LAZY);
 #endif
@@ -22,11 +61,18 @@ void DLLHandler::Instantiate(const char *filename)
 
 void *DLLHandler::FindAddress(const char *symbol)
 {
+	void *ret;
 #ifdef _WIN32
-	return (void*) GetProcAddress(dll,symbol);
+	ret = (void*) GetProcAddress(dll,symbol);
+	if(!ret)
+	{
+		tlog1 << "Failed to find " << symbol << " in " << name << std::endl;
+		checkForError();
+	}
 #else
-	return (void *)dlsym(dll, symbol);
+	ret = (void *)dlsym(dll, symbol);
 #endif
+	return ret;
 }
 
 DLLHandler::~DLLHandler()
@@ -34,7 +80,11 @@ DLLHandler::~DLLHandler()
 	if(dll)
 	{
 	#ifdef _WIN32
-		FreeLibrary(dll);
+		if(!FreeLibrary(dll))
+		{
+			tlog1 << "Failed to free " << name << std::endl;
+			checkForError();
+		}
 	#else
 		dlclose(dll);
 	#endif
@@ -46,29 +96,22 @@ DLLHandler::DLLHandler()
 	dll = NULL;
 }
 
-
-void checkForError()
-{
-#ifdef _WIN32
-	int error = GetLastError();
-	if(error)
-		tlog1 << "Error " << error << " encountered!\n";
-#endif
-}
-
-
 CBIKHandler::CBIKHandler()
 {
 	Instantiate("BINKW32.DLL");
 
-	binkGetError = FindAddress("_BinkGetError@0");
+	//binkGetError = FindAddress("_BinkGetError@0");
 	binkOpen = (BinkOpen)FindAddress("_BinkOpen@8");
 	binkSetSoundSystem = (BinkSetSoundSystem)FindAddress("_BinkSetSoundSystem@8");
-	getPalette = (BinkGetPalette)FindAddress("_BinkGetPalette@4");
+	//getPalette = (BinkGetPalette)FindAddress("_BinkGetPalette@4");
 	binkNextFrame = (BinkNextFrame)FindAddress("_BinkNextFrame@4");
 	binkDoFrame = (BinkDoFrame)FindAddress("_BinkDoFrame@4");
 	binkCopyToBuffer = (BinkCopyToBuffer)FindAddress("_BinkCopyToBuffer@28");
 	binkWait = (BinkWait)FindAddress("_BinkWait@4");
+	binkClose =  (BinkClose)FindAddress("_BinkClose@4");
+
+	hBinkFile = NULL;
+	hBink = NULL;
 }
 
 void CBIKHandler::open(std::string name)
@@ -86,36 +129,27 @@ void CBIKHandler::open(std::string name)
 
 	if(hBinkFile == INVALID_HANDLE_VALUE)
 	{
+		tlog1 << "BIK handler: failed to open " << name << std::endl;
 		checkForError();
-		return ;
+		return;
 	}
 
-	void *waveout = FindAddress("_BinkOpenWaveOut@4");
+	void *waveout = GetProcAddress(dll,"_BinkOpenWaveOut@4");
 	if(waveout)
 		binkSetSoundSystem(waveout,NULL);
 
 	hBink = binkOpen(hBinkFile, 0x8a800000);
-	width = hBink->width;
-	height = hBink->height;
-	buffer = new char[width * height * 3];
+	buffer = new char[hBink->width * hBink->width * 3];
 }
 
-void CBIKHandler::show( int x, int y, SDL_Surface *dst )
+void CBIKHandler::show( int x, int y, SDL_Surface *dst, bool update )
 {
 	int w = hBink->width, h = hBink->height;
-	//memset(buffer,0,w * h * 3);
 	binkDoFrame(hBink);
 	binkCopyToBuffer(hBink, buffer, w*3, h, 0, 0, 0);
-	char *src = buffer;
-	char *dest;
-	for(int i = h; i > 0; i--)
-	{
-		dest = (char*)dst->pixels + dst->pitch*(h-i) + x*dst->format->BytesPerPixel;
-		memcpy(dest,src,3*w);
-		src += 3*w;
-	}
-
-	SDL_UpdateRect(dst,x,y,hBink->width, hBink->height);
+	blitBuffer(buffer, x, y, w, h, dst);
+	if(update)
+		SDL_UpdateRect(dst, x, y, w, h);
 }
 
 void CBIKHandler::nextFrame()
@@ -125,6 +159,10 @@ void CBIKHandler::nextFrame()
 
 void CBIKHandler::close()
 {
+	binkClose(hBink);
+	hBink = NULL;
+	CloseHandle(hBinkFile);
+	hBinkFile = NULL;
 	delete [] buffer;
 }
 
@@ -133,80 +171,29 @@ bool CBIKHandler::wait()
 	return binkWait(hBink);
 }
 
-// Reference RSGrapics.RSGetPixelFormat
-PixelFormat getPixelFormat(TBitmap &b)
+int CBIKHandler::curFrame() const
 {
-	DIBSECTION DS;
-	DS.dsBmih.biBitCount = 2;
-	DS.dsBmih.biCompression = 0; //not sure about that
-	PixelFormat result = b.pixelFormat;
-
-	  if ( (result!= pfCustom)
-		  || (b.handleType = bmDDB)
-		 // || (GetObject(b.Handle, SizeOf(DS), @DS) = 0) 
-		  )
-		  exit(0);
-
-	  switch (DS.dsBmih.biBitCount)
-	  {
-		case 16:
-			switch (DS.dsBmih.biCompression)
-			{
-				case BI_RGB:
-					result = pf15bit;
-					break;
-				case BI_BITFIELDS:
-					if ( DS.dsBitfields[1]==0x7E0 )
-						result = pf16bit;
-					if ( DS.dsBitfields[1]==0x7E0 )
-						result = pf15bit;
-					break;
-			}
-			break;
-		case 32:
-			switch (DS.dsBmih.biCompression)
-			{
-				case BI_RGB:
-					result = pf32bit;
-					break;
-				case BI_BITFIELDS:
-					if ( DS.dsBitfields[1]==0xFF0000 )
-						result = pf32bit;
-					break;
-			}
-			break;
-	  }
-	return result;
+	return hBink->currentFrame;
 }
 
-void CSmackPlayer::preparePic(TBitmap &b)
+int CBIKHandler::frameCount() const
 {
-	switch (getPixelFormat(b))
-	{
-	case pf15bit:
-	case pf16bit:
-		break;
-	default:
-		b.pixelFormat = pf16bit;
-	};
+	return hBink->frameCount;
 }
-
 
 void CSmackPlayer::nextFrame()
 {
 	ptrSmackNextFrame(data);
 }
 
-
 bool CSmackPlayer::wait()
 {
 	return ptrSmackWait(data);
 }
 
-void CSmackPlayer::init()
+CSmackPlayer::CSmackPlayer()
 {
 	Instantiate("smackw32.dll");
-	tlog0 << "smackw32.dll loaded" << std::endl;
 
 	ptrSmackNextFrame = (SmackNextFrame)FindAddress("_SmackNextFrame@4");
 	ptrSmackWait = (SmackWait)FindAddress("_SmackWait@4");
@@ -214,110 +201,210 @@ void CSmackPlayer::init()
 	ptrSmackToBuffer = (SmackToBuffer)FindAddress("_SmackToBuffer@28");
 	ptrSmackOpen = (SmackOpen)FindAddress("_SmackOpen@12");
 	ptrSmackSoundOnOff = (SmackSoundOnOff)FindAddress("_SmackSoundOnOff@8");
-	tlog0 << "Functions located" << std::endl;
+	ptrSmackClose = (SmackClose)FindAddress("_SmackClose@4");
+}
+
+CSmackPlayer::~CSmackPlayer()
+{
+	if(data)
+		close();
+}
+
+void CSmackPlayer::close()
+{
+	ptrSmackClose(data);
+	data = NULL;
+	delete [] buffer;
+	buffer = NULL;
+}
+
+void CSmackPlayer::open( std::string name )
+{
+	Uint32 flags[2] = {0xff400, 0xfe400};
+
+	data = ptrSmackOpen( (void*)name.c_str(), flags[1], -1);
+	if (!data) 
+	{
+		tlog1 << "Smack cannot open " << name << std::endl;
+		return;
+	}
+
+	buffer = new char[data->width*data->height*2];
+	buf = buffer+data->width*(data->height-1)*2;	// adjust pointer position for later use by 'SmackToBuffer'
+}
+
+void CSmackPlayer::show( int x, int y, SDL_Surface *dst, bool update)
+{
+	int w = data->width, h = data->height;
+	int stripe = (-w*2) & (~3);
+
+	//put frame to the buffer
+	ptrSmackToBuffer(data, 0, 0, stripe, w, buf, 0x80000000);
+	ptrSmackDoFrame(data);
+
+
+	/* Lock the screen for direct access to the pixels */
+	if ( SDL_MUSTLOCK(dst) ) 
+	{
+		if ( SDL_LockSurface(dst) < 0 ) 
+		{
+			fprintf(stderr, "Can't lock screen: %s\n", SDL_GetError());
+			return;
+		}
+	}
+
+	// draw the frame
+	Uint16* addr = (Uint16*) (buffer+w*(h-1)*2-2);
+	for( int j=0; j<h-1; j++)	// why -1 ?
+	{
+		for ( int i=w-1; i>=0; i--)
+		{
+			Uint16 pixel = *addr;
+
+			Uint8 *p = (Uint8 *)dst->pixels + (j+y) * dst->pitch + (i + x) * dst->format->BytesPerPixel;
+			p[2] = ((pixel & 0x7c00) >> 10) * 8;
+			p[1] = ((pixel & 0x3e0) >> 5) * 8;
+			p[0] = ((pixel & 0x1F)) * 8;
+
+			addr--;
+		}
+	}
+
+	if ( SDL_MUSTLOCK(dst) ) 
+	{
+		SDL_UnlockSurface(dst);
+	}
+
+	if(update)
+		SDL_UpdateRect(dst, x, y, w, h);
+}
+
+int CSmackPlayer::curFrame() const
+{
+	return data->currentFrame;
+}
+
+int CSmackPlayer::frameCount() const
+{
+	return data->frameCount;
 }
 
 CVideoPlayer::CVideoPlayer()
 {
 	vidh = new CVidHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "VIDEO.VID"));
-	smkPlayer = new CSmackPlayer;
-	smkPlayer->init();
+	current = NULL;
 }
 
 CVideoPlayer::~CVideoPlayer()
 {
-	delete smkPlayer;
 	delete vidh;
 }
 
-bool CVideoPlayer::init()
+void CVideoPlayer::open(std::string name)
 {
-	return true;
-}
+	if(boost::algorithm::ends_with(name, ".BIK"))
+		current = &bikPlayer;
+	else
+		current = &smkPlayer;
 
-bool CVideoPlayer::open(std::string fname, int x, int y)
-{
-	vidh->extract(fname, fname);
+	fname = name;
 
-	Uint32 flags[2] = {0xff400, 0xfe400};
-
-	smkPlayer->data = smkPlayer->ptrSmackOpen( (void*)fname.c_str(), flags[1], -1);
-	if (smkPlayer->data ==NULL) 
-	{
-		tlog1<<"No "<<fname<<" file!"<<std::endl;
-		return false;
-	}
-
-	buffer = new char[smkPlayer->data->width*smkPlayer->data->height*2];
-	buf = buffer+smkPlayer->data->width*(smkPlayer->data->height-1)*2;	// adjust pointer position for later use by 'SmackToBuffer'
-
-	xPos = x;
-	yPos = y;
-	frame = 0;
-
-	return true;
+	//extract video from video.vid so we can play it
+	vidh->extract(name, name);
+	current->open(name);
 }
 
 void CVideoPlayer::close()
 {
-	delete [] buffer;
+	if(!current)
+	{
+		tlog2 << "Closing no opened player...?" << std::endl;
+		return;
+	}
+
+	current->close();
+	current = NULL;
+	if(!DeleteFileA(fname.c_str()))
+	{
+		tlog1 << "Cannot remove temporarily extracted video file: " << fname;
+		checkForError(false);
+	}
+	fname.clear();
 }
 
-bool CVideoPlayer::nextFrame()
+void CVideoPlayer::nextFrame()
 {
-	if(frame < smkPlayer->data->frameCount)
+	current->nextFrame();
+}
+
+void CVideoPlayer::show(int x, int y, SDL_Surface *dst, bool update)
+{
+	current->show(x, y, dst, update);
+}
+
+bool CVideoPlayer::wait()
+{
+	return current->wait();
+}
+
+int CVideoPlayer::curFrame() const
+{
+	return current->curFrame();
+}
+
+int CVideoPlayer::frameCount() const
+{
+	return current->frameCount();
+}
+
+bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey)
+{
+	open(name);
+	bool ret = playVideo(x, y, dst, stopOnKey);
+	close();
+	return ret;
+}
+
+void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool redraw, bool update )
+{
+	bool w = wait(); //check if should keep current frame
+
+	if(!w)
+		nextFrame();
+
+	if(!w || redraw) //redraw if changed frame or we was told to
+		show(x,y,dst,update);
+}
+
+//reads events and throws on key down
+bool keyDown()
+{
+	SDL_Event ev;
+	while(SDL_PollEvent(&ev))
 	{
-		++frame;
-
-		int stripe = (-smkPlayer->data->width*2) & (~3);
-		Uint32 unknown = 0x80000000;
-		smkPlayer->ptrSmackToBuffer(smkPlayer->data , 0, 0, stripe, smkPlayer->data->width, buf, unknown);
-		smkPlayer->ptrSmackDoFrame(smkPlayer->data );
-		// now bitmap is in buffer
-		// but I don't know exactly how to parse these 15bit color and draw it onto 16bit screen
-
-
-		/* Lock the screen for direct access to the pixels */
-		if ( SDL_MUSTLOCK(screen) ) 
-		{
-			if ( SDL_LockSurface(screen) < 0 ) 
-			{
-				fprintf(stderr, "Can't lock screen: %s\n", SDL_GetError());
-				return 0;
-			}
-		}
-
-		// draw the frame!!
-		Uint16* addr = (Uint16*) (buffer+smkPlayer->data->width*(smkPlayer->data->height-1)*2-2);
-		for( int j=0; j<smkPlayer->data->height-1; j++)	// why -1 ?
-		{
-			for ( int i=smkPlayer->data->width-1; i>=0; i--)
-			{
-				Uint16 pixel = *addr;
-
-				Uint8 *p = (Uint8 *)screen->pixels + (j+yPos) * screen->pitch + (i + xPos) * screen->format->BytesPerPixel;
-				p[2] = ((pixel & 0x7c00) >> 10) * 8;
-				p[1] = ((pixel & 0x3e0) >> 5) * 8;
-				p[0] = ((pixel & 0x1F)) * 8;
-
-				addr--;
-			}
-		}
-
-		if ( SDL_MUSTLOCK(screen) ) 
-		{
-			SDL_UnlockSurface(screen);
-		}
-		/* Update just the part of the display that we've changed */
-		SDL_UpdateRect(screen, xPos, yPos, smkPlayer->data->width, smkPlayer->data->height);
-		SDL_Delay(50);
-		smkPlayer->ptrSmackWait(smkPlayer->data);
-		smkPlayer->ptrSmackNextFrame(smkPlayer->data);
+		if(ev.type == SDL_KEYDOWN || ev.type == SDL_MOUSEBUTTONDOWN)
+			return true;
 	}
-	else //end of video
+	return false;
+}
+
+bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
+{
+	int frame = 0;
+	while(frame < frameCount()) //play all frames
 	{
-		return false;
+		if(stopOnKey && keyDown())
+			return false;
+
+		if(!wait())
+		{
+			show(x, y, dst);
+			nextFrame();
+			frame++;
+		}
+		SDL_Delay(20);
 	}
+
 	return true;
 }
 

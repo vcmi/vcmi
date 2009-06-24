@@ -23,6 +23,7 @@
 #include <cstdlib>
 #include "../lib/Connection.h"
 #include "../hch/CMusicHandler.h"
+#include "../hch/CVideoHandler.h"
 /*
  * CPreGame.cpp, part of VCMI engine
  *
@@ -1593,8 +1594,6 @@ CPreGame::CPreGame()
 	tlog0<<"\tCPreGame: scenario choice initialization: "<<tmh.getDif()<<std::endl;
 	initOptions();
 	tlog0<<"\tCPreGame: scenario options initialization: "<<tmh.getDif()<<std::endl;
-	showMainMenu();
-	tlog0<<"\tCPreGame: displaying main menu: "<<tmh.getDif()<<std::endl;
 	playerName="Player";
 }
 void CPreGame::initOptions()
@@ -1777,7 +1776,7 @@ void CPreGame::showNewMenu()
 	SDL_BlitSurface(ourNewMenu->credits->ourImages[0].bitmap,NULL,screen,&ourNewMenu->lCredits);
 	SDL_BlitSurface(ourNewMenu->quit->ourImages[0].bitmap,NULL,screen,&ourNewMenu->lQuit);
 	//SDL_Flip(screen);
-	CSDL_Ext::update(screen);
+	//CSDL_Ext::update(screen);
 	first = true;
 }
 void CPreGame::initMainMenu()
@@ -1835,7 +1834,7 @@ void CPreGame::showMainMenu()
 	SDL_BlitSurface(ourMainMenu->credits->ourImages[0].bitmap,NULL,screen,&ourMainMenu->lCredits);
 	SDL_BlitSurface(ourMainMenu->quit->ourImages[0].bitmap,NULL,screen,&ourMainMenu->lQuit);
 	//SDL_Flip(screen);
-	CSDL_Ext::update(screen);
+	//CSDL_Ext::update(screen);
 }
 void CPreGame::highlightButton(int which, int on)
 {
@@ -1870,7 +1869,7 @@ void CPreGame::highlightButton(int which, int on)
 		}
 	}
 	//SDL_Flip(screen);
-	CSDL_Ext::update(screen);
+	//CSDL_Ext::update(screen);
 }
 void CPreGame::showCenBox (std::string data)
 {
@@ -2053,6 +2052,11 @@ StartInfo CPreGame::runLoop()
 {
 	SDL_Event sEvent;
 	ret.turnTime = 0;
+
+#ifdef _WIN32
+	CGI->videoh->open("ACREDIT.SMK");
+	CGI->videoh->show(8, 105, screen, false);
+#endif
 
 	while(run)
 	{
@@ -2321,12 +2325,19 @@ StartInfo CPreGame::runLoop()
 			}
 		} HANDLE_EXCEPTION
 
+#ifdef _WIN32
+		if(currentItems())
+			CGI->videoh->update(8, 105, screen, true, false);
+#endif
+
 		CGI->curh->draw1();
 		SDL_Flip(screen);
 		CGI->curh->draw2();
 		SDL_Delay(20); //give time for other apps
 	}
 	ret.mode = (fromMenu==newGame) ? 0 : 1;
+	CGI->videoh->close();
+
 	return ret;
 }
 std::string CPreGame::buttonText(int which)
@@ -2454,7 +2465,7 @@ void CPreGame::showLoadMenu()
 	SDL_BlitSurface(ourLoadMenu->credits->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lCredits);
 	SDL_BlitSurface(ourLoadMenu->quit->ourImages[0].bitmap,NULL,screen,&ourLoadMenu->lQuit);
 	//SDL_Flip(screen);
-	CSDL_Ext::update(screen);
+	//CSDL_Ext::update(screen);
 	first = true;
 }
 

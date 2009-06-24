@@ -50,56 +50,52 @@ public:
 
 typedef void*(__stdcall*  BinkSetSoundSystem)(void * soundfun, void*);
 typedef HBINK(__stdcall*  BinkOpen)(HANDLE bikfile, int flags);
-typedef si32(__stdcall*  BinkGetPalette)(HBINK);
+typedef void(__stdcall*  BinkClose)(HBINK);
+//typedef si32(__stdcall*  BinkGetPalette)(HBINK);
 typedef void(__stdcall*  BinkNextFrame)(HBINK);
 typedef void(__stdcall*  BinkDoFrame)(HBINK);
 typedef ui8(__stdcall*  BinkWait)(HBINK);
 typedef si32(__stdcall*  BinkCopyToBuffer)(HBINK, void* buffer, int stride, int height, int x, int y, int mode);
 
 
-class CBIKHandler : public DLLHandler
+class IVideoPlayer
 {
 public:
-	int newmode;
+	virtual void open(std::string name)=0;
+	virtual void close()=0;
+	virtual void nextFrame()=0;
+	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
+	virtual bool wait()=0;
+	virtual int curFrame() const =0;
+	virtual int frameCount() const =0;
+};
+
+class CBIKHandler : public DLLHandler, public IVideoPlayer
+{
+public:
 	HANDLE hBinkFile;
 	HBINK hBink;
 	char * buffer;
 	BinkSetSoundSystem binkSetSoundSystem;
 	BinkOpen binkOpen;
-	BinkGetPalette getPalette;
+	//BinkGetPalette getPalette;
 	BinkNextFrame binkNextFrame;
 	BinkDoFrame binkDoFrame;
 	BinkCopyToBuffer binkCopyToBuffer;
 	BinkWait binkWait;
-
-	void * waveOutOpen, * binkGetError;
-
-	int width, height;
+	BinkClose binkClose;
 
 	CBIKHandler();
 	void open(std::string name);
 	void close();
 	void nextFrame();
-	void show(int x, int y, SDL_Surface *dst);
+	void show(int x, int y, SDL_Surface *dst, bool update = true);
 	bool wait();
+	int curFrame() const;
+	int frameCount() const;
 };
 
 //////////SMK Player ///////////////////////////////////////////////////////
-
-typedef enum { bmDIB, bmDDB} BitmapHandleType;
-typedef enum { pfDevice, pf1bit, pf4bit, pf8bit, pf15bit, pf16bit, pf24bit, pf32bit, pfCustom} PixelFormat;
-typedef enum {tmAuto, tmFixed} TransparentMode;
-
-class TBitmap
-{
-public:
-	ui32	width;
-	ui32 height;
-	PixelFormat pixelFormat;
-	BitmapHandleType handleType;
-	char* buffer;
-
-};
 
 struct SmackStruct
 {
@@ -127,7 +123,7 @@ typedef void (__stdcall* SmackSoundOnOff) (SmackStruct*, bool);
 
 
 
-class CSmackPlayer: public DLLHandler
+class CSmackPlayer: public DLLHandler, public IVideoPlayer
 {
 public:
 	SmackOpen ptrSmackOpen;
@@ -136,39 +132,50 @@ public:
 	SmackNextFrame ptrSmackNextFrame;
 	SmackWait ptrSmackWait;
 	SmackSoundOnOff ptrSmackSoundOnOff;
+	SmackClose ptrSmackClose;
+
+	char *buffer, *buf;
 	SmackStruct* data;
 
-	void init();
-	void preparePic(TBitmap &b);
-	TBitmap extractFrame(TBitmap &b);
+	CSmackPlayer();
+	~CSmackPlayer();
+	void open(std::string name);
+	void close();
 	void nextFrame();
+	void show(int x, int y, SDL_Surface *dst, bool update = true);
 	bool wait();
+	int curFrame() const;
+	int frameCount() const;
 };
 
 class CVidHandler;
 
-class CVideoPlayer
+class CVideoPlayer : public IVideoPlayer
 {
 private:
 	CVidHandler * vidh; //.vid file handling
-	CSmackPlayer * smkPlayer;
 
-	int frame;
-	int xPos, yPos;
-	char * buffer;
-	char * buf;
-
+	CSmackPlayer smkPlayer; //for .SMK
+	CBIKHandler bikPlayer; //for .BIK
+	IVideoPlayer *current; //points to bik or smk player, appropriate to type of currently played video
 
 	std::string fname; //name of current video file (empty if idle)
-
 public:
 	CVideoPlayer(); //c-tor
 	~CVideoPlayer(); //d-tor
 
-	bool init();
-	bool open(std::string fname, int x, int y); //x, y -> position where animation should be displayed on the screen
+
+	void open(std::string name);
 	void close();
-	bool nextFrame(); // display next frame
+	void nextFrame(); //move animation to the next frame
+	void show(int x, int y, SDL_Surface *dst, bool update = true); //blit current frame
+	void update(int x, int y, SDL_Surface *dst, bool redraw, bool update = true); //moves to next frame if appropriate, and blits it or blits only if redraw paremeter is set true
+	bool wait(); //true if we should wait before displaying next frame (for keeping FPS)
+	int curFrame() const; //current frame number <1, framecount>
+	int frameCount() const;
+
+	bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false); //opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
+	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey = false); //plays whole opened video; returns: true when whole video has been shown, false when it has been interrupted
 };
 
 #else

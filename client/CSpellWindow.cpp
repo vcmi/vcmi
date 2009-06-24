@@ -639,43 +639,76 @@ void CSpellWindow::deactivate()
 void CSpellWindow::turnPageLeft()
 {
 	// Note: video decoders are different, and one is buggy.
-#ifdef _WIN32
-	const int y = pos.y+15;
-#else
-	const int y = pos.y+14;
-#endif	
 
-	if (CGI->videoh->open("PGTRNLFT.SMK", pos.x+13, y)) {
-		while(CGI->videoh->nextFrame()) {
-			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 #ifndef _WIN32
+	if (CGI->videoh->open("PGTRNLFT.SMK", pos.x+13, pos.y+14)) 
+	{
+		while(CGI->videoh->nextFrame()) 
+		{
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-#endif
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		}
 		CGI->videoh->close();
 	}
+#else
+	CGI->videoh->openAndPlayVideo("PGTRNLFT.SMK", pos.x+13, pos.y+15, screen);
+#endif
+
+
+//#ifdef _WIN32
+//	const int y = pos.y+15;
+//
+//#endif	
+//
+//	if (CGI->videoh->open("PGTRNLFT.SMK", pos.x+13, y)) {
+//		while(CGI->videoh->nextFrame()) {
+//			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+//#ifndef _WIN32
+//			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+//			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+//#endif
+//		}
+//		CGI->videoh->close();
+//	}
 }
 
 void CSpellWindow::turnPageRight()
 {
 	// Note: video decoders are different, and one is buggy.
-#ifdef _WIN32
-	const int y = pos.y+15;
-#else
-	const int y = pos.y+14;
-#endif	
 
-	if (CGI->videoh->open("PGTRNRGH.SMK", pos.x+13, y)) {
-		while(CGI->videoh->nextFrame()) {
-			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+
 #ifndef _WIN32
+	if (CGI->videoh->open("PGTRNRGH.SMK", pos.x+13, pos.y+14)) 
+	{
+		while(CGI->videoh->nextFrame()) 
+		{
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 			SDL_framerateDelay(LOCPLINT->mainFPSmng);
-#endif
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
 		}
 		CGI->videoh->close();
 	}
+#else
+	CGI->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15, screen);
+#endif
+
+//#ifdef _WIN32
+//	const int y = pos.y+15;
+//#else
+//	const int y = pos.y+14;
+//#endif	
+//
+//	if (CGI->videoh->open("PGTRNRGH.SMK", pos.x+13, y)) {
+//		while(CGI->videoh->nextFrame()) {
+//			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+//#ifndef _WIN32
+//			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+//			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+//#endif
+//		}
+//		CGI->videoh->close();
+//	}
 }
 
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
