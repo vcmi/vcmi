@@ -2055,7 +2055,6 @@ StartInfo CPreGame::runLoop()
 
 #ifdef _WIN32
 	CGI->videoh->open("ACREDIT.SMK");
-	CGI->videoh->show(8, 105, screen, false);
 #endif
 
 	while(run)
@@ -2336,7 +2335,9 @@ StartInfo CPreGame::runLoop()
 		SDL_Delay(20); //give time for other apps
 	}
 	ret.mode = (fromMenu==newGame) ? 0 : 1;
+#ifdef _WIN32
 	CGI->videoh->close();
+#endif
 
 	return ret;
 }

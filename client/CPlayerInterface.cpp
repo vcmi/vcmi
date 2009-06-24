@@ -892,7 +892,7 @@ void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
 	}
 
 	//adventure map scrolling with mouse
-	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL])
+	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL]  &&  adventureInt->active)
 	{
 		if(sEvent->motion.x<15)
 		{

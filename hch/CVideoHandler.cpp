@@ -181,6 +181,14 @@ int CBIKHandler::frameCount() const
 	return hBink->frameCount;
 }
 
+void CBIKHandler::redraw( int x, int y, SDL_Surface *dst, bool update )
+{
+	int w = hBink->width, h = hBink->height;
+	blitBuffer(buffer, x, y, w, h, dst);
+	if(update)
+		SDL_UpdateRect(dst, x, y, w, h);
+}
+
 void CSmackPlayer::nextFrame()
 {
 	ptrSmackNextFrame(data);
@@ -241,8 +249,22 @@ void CSmackPlayer::show( int x, int y, SDL_Surface *dst, bool update)
 	//put frame to the buffer
 	ptrSmackToBuffer(data, 0, 0, stripe, w, buf, 0x80000000);
 	ptrSmackDoFrame(data);
+	redraw(x, y, dst, update);
+}
 
+int CSmackPlayer::curFrame() const
+{
+	return data->currentFrame;
+}
 
+int CSmackPlayer::frameCount() const
+{
+	return data->frameCount;
+}
+
+void CSmackPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
+{
+	int w = data->width, h = data->height;
 	/* Lock the screen for direct access to the pixels */
 	if ( SDL_MUSTLOCK(dst) ) 
 	{
@@ -279,16 +301,6 @@ void CSmackPlayer::show( int x, int y, SDL_Surface *dst, bool update)
 		SDL_UpdateRect(dst, x, y, w, h);
 }
 
-int CSmackPlayer::curFrame() const
-{
-	return data->currentFrame;
-}
-
-int CSmackPlayer::frameCount() const
-{
-	return data->frameCount;
-}
-
 CVideoPlayer::CVideoPlayer()
 {
 	vidh = new CVidHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "VIDEO.VID"));
@@ -308,6 +320,7 @@ void CVideoPlayer::open(std::string name)
 		current = &smkPlayer;
 
 	fname = name;
+	first = true;
 
 	//extract video from video.vid so we can play it
 	vidh->extract(name, name);
@@ -365,15 +378,35 @@ bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface 
 	return ret;
 }
 
-void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool redraw, bool update )
+void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
 {
-	bool w = wait(); //check if should keep current frame
+	bool w = false;
+	if(!first)
+	{
+		w = wait(); //check if should keep current frame
+		if(!w)
+			nextFrame();
+	}
+	else
+	{
+		first = false;
+	}
 
-	if(!w)
-		nextFrame();
 
-	if(!w || redraw) //redraw if changed frame or we was told to
+
+	if(!w) 
+	{
 		show(x,y,dst,update);
+	}
+	else if (forceRedraw)
+	{
+		redraw(x, y, dst, update);
+	}
+}
+
+void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
+{
+	current->redraw(x, y, dst, update);
 }
 
 //reads events and throws on key down

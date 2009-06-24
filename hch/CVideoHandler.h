@@ -65,6 +65,7 @@ public:
 	virtual void close()=0;
 	virtual void nextFrame()=0;
 	virtual void show(int x, int y, SDL_Surface *dst, bool update = true)=0;
+	virtual void redraw(int x, int y, SDL_Surface *dst, bool update = true)=0; //reblits buffer
 	virtual bool wait()=0;
 	virtual int curFrame() const =0;
 	virtual int frameCount() const =0;
@@ -90,6 +91,7 @@ public:
 	void close();
 	void nextFrame();
 	void show(int x, int y, SDL_Surface *dst, bool update = true);
+	void redraw(int x, int y, SDL_Surface *dst, bool update = true); //reblits buffer
 	bool wait();
 	int curFrame() const;
 	int frameCount() const;
@@ -143,6 +145,7 @@ public:
 	void close();
 	void nextFrame();
 	void show(int x, int y, SDL_Surface *dst, bool update = true);
+	void redraw(int x, int y, SDL_Surface *dst, bool update = true); //reblits buffer
 	bool wait();
 	int curFrame() const;
 	int frameCount() const;
@@ -160,6 +163,7 @@ private:
 	IVideoPlayer *current; //points to bik or smk player, appropriate to type of currently played video
 
 	std::string fname; //name of current video file (empty if idle)
+	bool first; //are we about to display the first frame (blocks update)
 public:
 	CVideoPlayer(); //c-tor
 	~CVideoPlayer(); //d-tor
@@ -169,7 +173,8 @@ public:
 	void close();
 	void nextFrame(); //move animation to the next frame
 	void show(int x, int y, SDL_Surface *dst, bool update = true); //blit current frame
-	void update(int x, int y, SDL_Surface *dst, bool redraw, bool update = true); //moves to next frame if appropriate, and blits it or blits only if redraw paremeter is set true
+	void redraw(int x, int y, SDL_Surface *dst, bool update = true); //reblits buffer
+	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true); //moves to next frame if appropriate, and blits it or blits only if redraw paremeter is set true
 	bool wait(); //true if we should wait before displaying next frame (for keeping FPS)
 	int curFrame() const; //current frame number <1, framecount>
 	int frameCount() const;
