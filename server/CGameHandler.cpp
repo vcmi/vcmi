@@ -1838,7 +1838,7 @@ bool CGameHandler::garrisonSwap( si32 tid )
 	else if (town->garrisonHero && !town->visitingHero) //move hero out of the garrison
 	{
 		//check if moving hero out of town will break 8 wandering heroes limit
-		if(getHeroCount(town->garrisonHero->tempOwner,true) >= 8)
+		if(getHeroCount(town->garrisonHero->tempOwner,false) >= 8)
 		{
 			complain("Cannot move hero out of the garrison, there are already 8 wandering heroes!");
 			return false;
