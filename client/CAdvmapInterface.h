@@ -156,7 +156,7 @@ public:
 	const CArmedInstance *selection; //currently selected town/hero
 	std::map<const CGHeroInstance *, CPath> paths; //maps hero => selected path in adventure map
 
-	//functions binded to buttons
+	//functions bound to buttons
 	void fshowOverview();
 	void fswitchLevel();
 	void fshowQuestlog();
