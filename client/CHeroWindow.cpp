@@ -371,7 +371,7 @@ void CHeroWindow::redrawCurBack()
 		SDL_FreeSurface(curBack);
 	curBack = SDL_DisplayFormat(background);
 
-	//primary skills & morale and luck graphics
+	//primary skills & exp and mana
 	blitAt(graphics->pskillsm->ourImages[0].bitmap, 32, 111, curBack);
 	blitAt(graphics->pskillsm->ourImages[1].bitmap, 102, 111, curBack);
 	blitAt(graphics->pskillsm->ourImages[2].bitmap, 172, 111, curBack);
@@ -429,6 +429,7 @@ void CHeroWindow::redrawCurBack()
 		CSDL_Ext::printAtMiddle(primarySkill.str(), 53 + 70 * m, 165, TNRB16, zwykly, curBack);
 	}
 
+	//morale and luck printing
 	blitAt(graphics->luck42->ourImages[curHero->getCurrentLuck()+3].bitmap, 239, 182, curBack);
 	blitAt(graphics->morale42->ourImages[curHero->getCurrentMorale()+3].bitmap, 181, 182, curBack);
 

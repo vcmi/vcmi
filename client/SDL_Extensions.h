@@ -5,6 +5,8 @@
 #include <string>
 #include "../int3.h"
 #include <vector>
+#include <sstream>
+#include <boost/type_traits/is_integral.hpp>
 
 /*
  * SDL_Extensions.h, part of VCMI engine
@@ -25,6 +27,47 @@ void blitAtWR(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst=screen)
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst=screen);
 void updateRect (SDL_Rect * rect, SDL_Surface * scr = screen);
 bool isItIn(const SDL_Rect * rect, int x, int y);
+
+template<typename IntType>
+std::string makeNumberShort(IntType number) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
+{
+	BOOST_MPL_ASSERT_MSG( boost::is_integral<IntType>::value, NON_INTEGRAL_TYPES_ARE_NOT_ALLOWED, (IntType) ); //it should make noise if IntType is not integral type
+
+	int initialLength;
+	bool negative = (number < 0);
+	std::ostringstream ost, rets;
+	ost<<number;
+	initialLength = ost.str().size();
+
+	if(negative)
+	{
+		if(initialLength <= 4)
+			return ost.str();
+	}
+	else
+	{
+		if(initialLength <= 5)
+			return ost.str();
+	}
+
+	//make the number short
+	char symbol[] = {'G', 'M', 'k'};
+
+	if(negative) number = (-number); //absolute value
+
+	for(int divisor = 1000000000, it = 0; divisor > 1; divisor /= 1000, ++it)
+	{
+		if(number >= divisor)
+		{
+			if(negative) rets <<'-';
+			rets << (number / divisor) << symbol[it];
+			return rets.str();
+		}
+	}
+
+	throw std::string("We shouldn't be here - makeNumberShort");
+}
+
 
 inline SDL_Rect genRect(const int & hh, const int & ww, const int & xx, const int & yy)
 {

@@ -31,6 +31,7 @@ SDL_Surface * CSDL_Ext::copySurface(SDL_Surface * mod) //returns copy of given s
 	//return SDL_DisplayFormat(mod);
 	return SDL_ConvertSurface(mod, mod->format, mod->flags);
 }
+
 bool isItIn(const SDL_Rect * rect, int x, int y)
 {
 	if ((x>rect->x && x<rect->x+rect->w) && (y>rect->y && y<rect->y+rect->h))
@@ -44,20 +45,24 @@ void blitAtWR(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 	SDL_BlitSurface(src,NULL,dst,&pom);
 	SDL_UpdateRect(dst,x,y,src->w,src->h);
 }
+
 void blitAt(SDL_Surface * src, int x, int y, SDL_Surface * dst)
 {
 	if(!dst) dst = screen;
 	SDL_Rect pom = genRect(src->h,src->w,x,y);
 	SDL_BlitSurface(src,NULL,dst,&pom);
 }
+
 void blitAtWR(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
 {
 	blitAtWR(src,pos.x,pos.y,dst);
 }
+
 void blitAt(SDL_Surface * src, const SDL_Rect & pos, SDL_Surface * dst)
 {
 	blitAt(src,pos.x,pos.y,dst);
 }
+
 SDL_Color genRGB(int r, int g, int b, int a=0)
 {
 	SDL_Color ret;
@@ -67,10 +72,12 @@ SDL_Color genRGB(int r, int g, int b, int a=0)
 	ret.unused=a;
 	return ret;
 }
+
 void updateRect (SDL_Rect * rect, SDL_Surface * scr)
 {
 	SDL_UpdateRect(scr,rect->x,rect->y,rect->w,rect->h);
 }
+
 void CSDL_Ext::printAtMiddleWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
@@ -101,6 +108,7 @@ void CSDL_Ext::printAtMiddleWB(const std::string & text, int x, int y, TTF_Font 
 		SDL_FreeSurface(wesu[i]);
 	delete ws;
 }
+
 void CSDL_Ext::printAtWB(const std::string & text, int x, int y, TTF_Font * font, int charpr, SDL_Color kolor, SDL_Surface * dst)
 {
 	std::vector<std::string> * ws = CMessage::breakText(text,charpr);
@@ -120,6 +128,7 @@ void CSDL_Ext::printAtWB(const std::string & text, int x, int y, TTF_Font * font
 		SDL_FreeSurface(wesu[i]);
 	delete ws;
 }
+
 void CSDL_Ext::printAtMiddle(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality, bool refresh)
 {
 	if(text.length()==0) return;
@@ -149,6 +158,7 @@ void CSDL_Ext::printAtMiddle(const std::string & text, int x, int y, TTF_Font * 
 		SDL_UpdateRect(dst,x-(temp->w/2),y-(temp->h/2),temp->w,temp->h);
 	SDL_FreeSurface(temp);
 }
+
 void CSDL_Ext::printAt(const std::string & text, int x, int y, TTF_Font * font, SDL_Color kolor, SDL_Surface * dst, unsigned char quality, bool refresh)
 {
 	if (text.length()==0)

@@ -680,6 +680,8 @@ class CExchangeWindow : public CIntObject, public IShowActivable
 
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 
+	LRClickableAreaWTextComp *morale[2], *luck[2];
+
 public:
 
 	void close();

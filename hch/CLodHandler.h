@@ -49,7 +49,8 @@ struct Entry
 	//Entry(unsigned char ): nameStr(con){};
 	Entry(){};
 };
- class DLL_EXPORT CLodHandler
+
+class DLL_EXPORT CLodHandler
 {
 public:
 	FILE* FLOD;

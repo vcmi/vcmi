@@ -3670,6 +3670,16 @@ void CExchangeWindow::activate()
 	{
 		questlogButton[g]->activate();
 	}
+
+	for(int g=0; g<ARRAY_COUNT(morale); g++)
+	{
+		morale[g]->activate();
+	}
+
+	for(int g=0; g<ARRAY_COUNT(luck); g++)
+	{
+		luck[g]->activate();
+	}
 }
 
 void CExchangeWindow::deactivate()
@@ -3695,6 +3705,16 @@ void CExchangeWindow::deactivate()
 	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
 	{
 		questlogButton[g]->deactivate();
+	}
+
+	for(int g=0; g<ARRAY_COUNT(morale); g++)
+	{
+		morale[g]->deactivate();
+	}
+
+	for(int g=0; g<ARRAY_COUNT(luck); g++)
+	{
+		luck[g]->deactivate();
 	}
 }
 
@@ -3803,9 +3823,43 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 
 		//experience
 		blitAt(skilldef->ourImages[4].bitmap, 103 + 490*b, 45, bg);
+		printAtMiddle( makeNumberShort(heroInst[b]->exp), 119 + 490*b, 71, GEOR13, zwykly, bg );
 
 		//mana points
 		blitAt(skilldef->ourImages[5].bitmap, 139 + 490*b, 45, bg);
+		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, GEOR13, zwykly, bg );
+
+		//setting morale
+		morale[b] = new LRClickableAreaWTextComp();
+		morale[b]->pos = genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45);
+		blitAt(graphics->morale30->ourImages[heroInst[b]->getCurrentMorale()+3].bitmap, 177 + 490*b, 45, bg);
+
+		std::vector<std::pair<int,std::string> > mrl = heroInst[b]->getCurrentMoraleModifiers();
+		int mrlv = heroInst[b]->getCurrentMorale();
+		int mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad morale[b], 0 - neutral, 1 - good
+		morale[b]->hoverText = CGI->generaltexth->heroscrn[4 - mrlt];
+		morale[b]->baseType = SComponent::morale;
+		morale[b]->bonus = mrlv;
+		morale[b]->text = CGI->generaltexth->arraytxt[88];
+		boost::algorithm::replace_first(morale[b]->text,"%s",CGI->generaltexth->arraytxt[86-mrlt]);
+		for(int it=0; it < mrl.size(); it++)
+			morale[b]->text += mrl[it].second;
+
+		//setting luck
+		luck[b] = new LRClickableAreaWTextComp();
+		luck[b]->pos = genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45);
+		blitAt(graphics->luck30->ourImages[heroInst[b]->getCurrentLuck()+3].bitmap, 213 + 490*b, 45, bg);
+
+		mrl = heroInst[b]->getCurrentLuckModifiers();
+		mrlv = heroInst[b]->getCurrentLuck();
+		mrlt = (mrlv>0)-(mrlv<0); //signum: -1 - bad luck[b], 0 - neutral, 1 - good
+		luck[b]->hoverText = CGI->generaltexth->heroscrn[7 - mrlt];
+		luck[b]->baseType = SComponent::luck;
+		luck[b]->bonus = mrlv;
+		luck[b]->text = CGI->generaltexth->arraytxt[62];
+		boost::algorithm::replace_first(luck[b]->text,"%s",CGI->generaltexth->arraytxt[60-mrlt]);
+		for(int it=0; it < mrl.size(); it++)
+			luck[b]->text += mrl[it].second;
 	}
 
 	//printing portraits
@@ -3850,6 +3904,16 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	for(int g=0; g<ARRAY_COUNT(questlogButton); g++)
 	{
 		delete questlogButton[g];
+	}
+
+	for(int g=0; g<ARRAY_COUNT(morale); g++)
+	{
+		delete morale[g];
+	}
+
+	for(int g=0; g<ARRAY_COUNT(luck); g++)
+	{
+		delete luck[g];
 	}
 }
 
