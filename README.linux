@@ -14,24 +14,18 @@ And then regenerate the build system with
 To compile, at least the following packages (and their development counterparts) are needed to build:
     * libstdc++ devel
 	* boost c++ libraries v1.36+ (1.35 will not work) (www.boost.org)
-	* sdl,
-	* sdl mixer
-	* sdl image
-	* sdl ttf
-	* zlib
-	* ffmpeg (libavformat libswscale) 
+	* SDL and SDL-devel
+	* SDL_mixer and SDL_mixer-devel
+	* SDL_image and SDL_image-devel
+	* SDL_ttf and SDL_ttf-devel
+	* zlib and zlib-devel
+	* the ffmpeg libraries (libavformat and libswscale). Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
 
 Then do the usual 
   ./configure
 
 Note that on 64 bits linux, if the boost libraries are installed in /usr/lib64, configure will not find them and will fail. Until this is fixed, use:
   ./configure --with-boost-libdir=/usr/lib64
-
-Another note on ubuntu(posible others to) - create symlincs to correct libnames in /usr/lib
-eg:
-sudo ln -s libswscale.so.0.7.1 libswscale.so
-sudo ln -s libavformat.so.52 libavformat.so
-
 
 Then build vcmi:
   make
