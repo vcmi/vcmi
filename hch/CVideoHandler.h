@@ -2,11 +2,11 @@
 #define __CVIDEOHANDLER_H__
 #include "../global.h"
 
+struct SDL_Surface;
+
 #ifdef _WIN32
 
 #include <windows.h>
-
-struct SDL_Surface;
 
 #pragma pack(push,1)
 struct BINK_STRUCT
@@ -56,7 +56,6 @@ typedef void(__stdcall*  BinkNextFrame)(HBINK);
 typedef void(__stdcall*  BinkDoFrame)(HBINK);
 typedef ui8(__stdcall*  BinkWait)(HBINK);
 typedef si32(__stdcall*  BinkCopyToBuffer)(HBINK, void* buffer, int stride, int height, int x, int y, int mode);
-
 
 class IVideoPlayer
 {
@@ -194,7 +193,7 @@ typedef struct AVFrame AVFrame;
 struct SwsContext;
 class CVidHandler;
 
-class CVideoPlayer
+class CVideoPlayer //: public IVideoPlayer
 {
 private:
 	int stream;					// stream index in video
@@ -204,19 +203,34 @@ private:
 	AVFrame *frame; 
 	struct SwsContext *sws;
 
+	// Destination. Either overlay or dest.
 	SDL_Overlay *overlay;
-	SDL_Rect pos;				// overlay position
+	SDL_Surface *dest;
+	SDL_Rect destRect;			// valid when dest is used
+	SDL_Rect pos;				// destination on screen
 
 	CVidHandler *vidh;
+
+	int refreshWait; // Wait several refresh before updating the image
+	int refreshCount;
+	bool doLoop;				// loop through video
 
 public:
 	CVideoPlayer();
 	~CVideoPlayer();
 
 	bool init();
-	bool open(std::string fname, int x, int y);
+	bool open(std::string fname, bool loop=false, bool useOverlay=false);
 	void close();
 	bool nextFrame();			// display next frame
+
+	void show(int x, int y, SDL_Surface *dst, bool update = true); //blit current frame
+	void redraw(int x, int y, SDL_Surface *dst, bool update = true); //reblits buffer
+	void update(int x, int y, SDL_Surface *dst, bool forceRedraw, bool update = true); //moves to next frame if appropriate, and blits it or blits only if redraw parameter is set true
+	
+	// Opens video, calls playVideo, closes video; returns playVideo result (if whole video has been played)
+	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey);
+	bool openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey = false);
 
 	const char *data;			// video buffer
 	int length;					// video size

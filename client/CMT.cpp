@@ -370,12 +370,10 @@ void processCommand(const std::string &message, CClient *&client)
 //plays intro, ends when intro is over or button has been pressed (handles events)
 void playIntro()
 {
-#ifdef _WIN32
 	if(CGI->videoh->openAndPlayVideo("3DOLOGO.SMK", 60, 40, screen, true))
 	{
 		CGI->videoh->openAndPlayVideo("AZVS.SMK", 60, 80, screen, true);
 	}
-#endif
 }
 
 void dispose()

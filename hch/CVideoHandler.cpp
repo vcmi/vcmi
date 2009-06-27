@@ -3,10 +3,22 @@
 #include "CSndHandler.h"
 #include "CVideoHandler.h"
 #include <SDL.h>
+#include "../client/SDL_Extensions.h"
+
+//reads events and throws on key down
+static bool keyDown()
+{
+	SDL_Event ev;
+	while(SDL_PollEvent(&ev))
+	{
+		if(ev.type == SDL_KEYDOWN || ev.type == SDL_MOUSEBUTTONDOWN)
+			return true;
+	}
+	return false;
+}
 
 #ifdef _WIN32
 
-#include "../client/SDL_Extensions.h"
 #include <boost/algorithm/string/predicate.hpp>
 
 
@@ -409,18 +421,6 @@ void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
 	current->redraw(x, y, dst, update);
 }
 
-//reads events and throws on key down
-bool keyDown()
-{
-	SDL_Event ev;
-	while(SDL_PollEvent(&ev))
-	{
-		if(ev.type == SDL_KEYDOWN || ev.type == SDL_MOUSEBUTTONDOWN)
-			return true;
-	}
-	return false;
-}
-
 bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 {
 	int frame = 0;
@@ -442,8 +442,6 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 }
 
 #else
-
-#include "../client/SDL_Extensions.h"
 
 extern "C" {
 #include <libavformat/avformat.h>
@@ -491,12 +489,24 @@ static int lod_read(URLContext *context, unsigned char *buf, int size)
 	return size;
 }
 
+static int64_t lod_seek(URLContext *context, int64_t pos, int whence)
+{
+	CVideoPlayer *video = (CVideoPlayer *)context->priv_data;
+
+	// Not sure what the parameter whence is. Assuming it always
+	// indicates an absolute value;
+	video->offset = pos;
+	amin(video->offset, video->length);
+
+	return -1;//video->offset;
+}
+
 static URLProtocol lod_protocol = {
 	protocol_name,
 	lod_open,
 	lod_read,
 	NULL,						// no write
-	NULL,						// no seek
+    lod_seek,
 	lod_close
 };
 
@@ -507,6 +517,7 @@ CVideoPlayer::CVideoPlayer()
 	codec = NULL;
 	sws = NULL;
 	overlay = NULL;
+	dest = NULL;
 
 	// Register codecs. TODO: May be overkill. Should call a
 	// combination of av_register_input_format() /
@@ -519,34 +530,39 @@ CVideoPlayer::CVideoPlayer()
 	vidh = new CVidHandler(std::string(DATA_DIR "Data" PATHSEPARATOR "VIDEO.VID"));
 }
 
-bool CVideoPlayer::open(std::string fname, int x, int y)
+// loop = to loop through the video
+// useOverlay = directly write to the screen.
+bool CVideoPlayer::open(std::string fname, bool loop, bool useOverlay)
 {
-	char url[100];
-
 	close();
+
+	offset = 0;
+	refreshWait = 3;
+	refreshCount = -1;
+	doLoop = loop;
 
 	data = vidh->extract(fname, length);
 
-	if (data == NULL)
-		return false;
+	if (data) {
+		// Create our URL name with the 'lod' protocol as a prefix and a
+		// back pointer to our object. Should be 32 and 64 bits compatible.
+		char url[100];
+		sprintf(url, "%s:0x%016llx", protocol_name, (unsigned long long)(uintptr_t)this);
 
-	offset = 0;
-
-	// Create our URL name with the 'lod' protocol as a prefix and a
-	// back pointer to our object. Should be 32 and 64 bits compatible.
-	sprintf(url, "%s:0x%016llx", protocol_name, (unsigned long long)(uintptr_t)this);
-
-	if (av_open_input_file(&format, url, NULL, 0, NULL)!=0)
-		return false;
+		if (av_open_input_file(&format, url, NULL, 0, NULL)!=0) {
+			return false;
+		}
+	} else {
+		// File is not in a container
+		if (av_open_input_file(&format, (DATA_DIR "Data/video/" + fname).c_str(), NULL, 0, NULL)!=0) {
+			// tlog1 << "Video file not found: " DATA_DIR "Data/video/" + fname << std::endl;
+			return false;
+		}
+	}
 
 	// Retrieve stream information
 	if (av_find_stream_info(format) < 0)
 		return false;
-  
-#if 0
-	// Dump information about file onto standard error
-	dump_format(format, 0, url, 0);
-#endif
 
 	// Find the first video stream
 	stream = -1;
@@ -583,64 +599,138 @@ bool CVideoPlayer::open(std::string fname, int x, int y)
 	frame = avcodec_alloc_frame();
 
 	// Allocate a place to put our YUV image on that screen
-	overlay = SDL_CreateYUVOverlay(codecContext->width, codecContext->height,
-								   SDL_YV12_OVERLAY, screen);
+	if (useOverlay) {
+		overlay = SDL_CreateYUVOverlay(codecContext->width, codecContext->height,
+									   SDL_YV12_OVERLAY, screen);
+	} else {
+		dest = CSDL_Ext::newSurface(codecContext->width, codecContext->height);
+		destRect.x = destRect.y = 0;
+		destRect.w = codecContext->width;
+		destRect.h = codecContext->height;
+	}
+
+	if (overlay == NULL && dest == NULL)
+		return false;
 
 	// Convert the image into YUV format that SDL uses
-	sws = sws_getContext(codecContext->width, codecContext->height, 
-						 codecContext->pix_fmt, codecContext->width, codecContext->height, 
-						 PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+	if (overlay) {
+		sws = sws_getContext(codecContext->width, codecContext->height, 
+							 codecContext->pix_fmt, codecContext->width, codecContext->height, 
+							 PIX_FMT_YUV420P, SWS_BICUBIC, NULL, NULL, NULL);
+	} else {
+		sws = sws_getContext(codecContext->width, codecContext->height, 
+							 codecContext->pix_fmt, codecContext->width, codecContext->height, 
+							 PIX_FMT_RGB32, SWS_BICUBIC, NULL, NULL, NULL);
+	}
+
 	if (sws == NULL)
 		return false;
 
-	pos.x = x;
-	pos.y = y;
 	pos.w = codecContext->width;
 	pos.h = codecContext->height;
 
 	return true;
 }
 
-// Display the next frame. Return false on error/end of file.
+// Read the next frame. Return false on error/end of file.
 bool CVideoPlayer::nextFrame()
 {
 	AVPacket packet;
 	int frameFinished = 0;
+	bool gotError = false;
 
-	while(!frameFinished && av_read_frame(format, &packet)>=0) {
+	if (sws == NULL)
+		return false;
 
-		// Is this a packet from the video stream?
-		if (packet.stream_index == stream) {
-			// Decode video frame
-			avcodec_decode_video(codecContext, frame, &frameFinished, 
-								 packet.data, packet.size);
-      
-			// Did we get a video frame?
-			if (frameFinished) {
-				SDL_LockYUVOverlay(overlay);
+	while(!frameFinished) {
 
-				AVPicture pict;
-				pict.data[0] = overlay->pixels[0];
-				pict.data[1] = overlay->pixels[2];
-				pict.data[2] = overlay->pixels[1];
-
-				pict.linesize[0] = overlay->pitches[0];
-				pict.linesize[1] = overlay->pitches[2];
-				pict.linesize[2] = overlay->pitches[1];
-
-				sws_scale(sws, frame->data, frame->linesize,
-						  0, codecContext->height, pict.data, pict.linesize);
-
-				SDL_UnlockYUVOverlay(overlay);
-	
-				SDL_DisplayYUVOverlay(overlay, &pos);
+		int ret = av_read_frame(format, &packet);
+		if (ret < 0) {
+			// Error. It's probably an end of file.
+			if (doLoop && !gotError) {
+				// Rewind
+				if (av_seek_frame(format, stream, 0, 0) < 0)
+					break;
+				gotError = true;
+			} else {
+				break;
 			}
-		}
+		} else {
+			// Is this a packet from the video stream?
+			if (packet.stream_index == stream) {
+				// Decode video frame
+				avcodec_decode_video(codecContext, frame, &frameFinished, 
+									 packet.data, packet.size);
 
-		av_free_packet(&packet);
+				// Did we get a video frame?
+				if (frameFinished) {
+					AVPicture pict;
+
+					if (overlay) {
+						SDL_LockYUVOverlay(overlay);
+				
+						pict.data[0] = overlay->pixels[0];
+						pict.data[1] = overlay->pixels[2];
+						pict.data[2] = overlay->pixels[1];
+
+						pict.linesize[0] = overlay->pitches[0];
+						pict.linesize[1] = overlay->pitches[2];
+						pict.linesize[2] = overlay->pitches[1];
+
+						sws_scale(sws, frame->data, frame->linesize,
+								  0, codecContext->height, pict.data, pict.linesize);
+
+						SDL_UnlockYUVOverlay(overlay);
+					} else {
+						pict.data[0] = (uint8_t *)dest->pixels;
+						pict.linesize[0] = dest->pitch;
+
+						sws_scale(sws, frame->data, frame->linesize,
+								  0, codecContext->height, pict.data, pict.linesize);
+					}
+				}
+			}
+
+			av_free_packet(&packet);
+		}
 	}
 
 	return frameFinished != 0;
+}
+
+void CVideoPlayer::show( int x, int y, SDL_Surface *dst, bool update )
+{
+	if (sws == NULL)
+		return;
+
+	pos.x = x;
+	pos.y = y;
+	SDL_BlitSurface(dest, &destRect, dst, &pos);
+	
+	if (update)
+		SDL_UpdateRect(dst, pos.x, pos.y, pos.w, pos.h);
+}
+
+void CVideoPlayer::redraw( int x, int y, SDL_Surface *dst, bool update )
+{
+	show(x, y, dst, update);
+}
+
+void CVideoPlayer::update( int x, int y, SDL_Surface *dst, bool forceRedraw, bool update )
+{
+	if (sws == NULL)
+		return;
+
+	if (refreshCount <= 0)
+	{
+		refreshCount = refreshWait;
+		if (nextFrame())
+			show(x,y,dst,update);
+	} else {
+		redraw(x, y, dst, update);
+	}
+
+	refreshCount --;
 }
 
 void CVideoPlayer::close()
@@ -653,6 +743,11 @@ void CVideoPlayer::close()
 	if (overlay) {
 		SDL_FreeYUVOverlay(overlay);
 		overlay = NULL;
+	}
+
+	if (dest) {
+		SDL_FreeSurface(dest);
+		dest = NULL;
 	}
 
 	if (frame) {
@@ -670,6 +765,44 @@ void CVideoPlayer::close()
 		av_close_input_file(format);
 		format = NULL;
 	}
+}
+
+// Plays a video. Only works for overlays.
+bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
+{
+	// Note: either the windows player or the linux player is
+	// broken. Compensate here until the bug is found.
+	y--;
+
+	pos.x = x;
+	pos.y = y;
+
+	FPSmanager mainFPSmng;
+    SDL_initFramerate(&mainFPSmng);
+    SDL_setFramerate(&mainFPSmng, 48);
+
+	while(nextFrame()) {
+		
+		if(stopOnKey && keyDown())
+			return false;
+
+		SDL_DisplayYUVOverlay(overlay, &pos);
+
+		// Wait 3 frames
+		SDL_framerateDelay(&mainFPSmng);
+		SDL_framerateDelay(&mainFPSmng);
+		SDL_framerateDelay(&mainFPSmng);
+	}
+
+	return true;
+}
+
+bool CVideoPlayer::openAndPlayVideo(std::string name, int x, int y, SDL_Surface *dst, bool stopOnKey)
+{
+	open(name, false, true);
+	bool ret = playVideo(x, y, dst, stopOnKey);
+	close();
+	return ret;
 }
 	
 CVideoPlayer::~CVideoPlayer()

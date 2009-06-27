@@ -2055,6 +2055,8 @@ StartInfo CPreGame::runLoop()
 
 #ifdef _WIN32
 	CGI->videoh->open("ACREDIT.SMK");
+#else
+	CGI->videoh->open("ACREDIT.SMK", true, false);
 #endif
 
 	while(run)
@@ -2324,10 +2326,8 @@ StartInfo CPreGame::runLoop()
 			}
 		} HANDLE_EXCEPTION
 
-#ifdef _WIN32
 		if(currentItems())
 			CGI->videoh->update(8, 105, screen, true, false);
-#endif
 
 		CGI->curh->draw1();
 		SDL_Flip(screen);
@@ -2335,9 +2335,8 @@ StartInfo CPreGame::runLoop()
 		SDL_Delay(20); //give time for other apps
 	}
 	ret.mode = (fromMenu==newGame) ? 0 : 1;
-#ifdef _WIN32
+
 	CGI->videoh->close();
-#endif
 
 	return ret;
 }

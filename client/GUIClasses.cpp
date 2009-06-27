@@ -2795,6 +2795,8 @@ CTavernWindow::CTavernWindow(const CGHeroInstance *H1, const CGHeroInstance *H2,
 
 #ifdef _WIN32
 	CGI->videoh->open("TAVERN.BIK");
+#else
+	CGI->videoh->open("tavern.mjpg", true, false);
 #endif
 }
 
@@ -2807,9 +2809,7 @@ void CTavernWindow::recruitb()
 
 CTavernWindow::~CTavernWindow()
 {
-#ifdef _WIN32
 	CGI->videoh->close();
-#endif
 	SDL_FreeSurface(bg);
 	delete cancel;
 	delete thiefGuild;
@@ -2848,9 +2848,7 @@ void CTavernWindow::close()
 void CTavernWindow::show(SDL_Surface * to)
 {
 	blitAt(bg,pos.x,pos.y,to);
-#ifdef _WIN32
 	CGI->videoh->update(pos.x+70, pos.y+56, to, true, false);
-#endif
 	if(h1.h)
 		h1.show(to);
 	if(h2.h)
