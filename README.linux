@@ -27,6 +27,11 @@ Then do the usual
 Note that on 64 bits linux, if the boost libraries are installed in /usr/lib64, configure will not find them and will fail. Until this is fixed, use:
   ./configure --with-boost-libdir=/usr/lib64
 
+Another note on ubuntu(posible others to) - create symlincs to correct libnames in /usr/lib
+eg:
+sudo ln -s libswscale.so.0.7.1 libswscale.so
+sudo ln -s libavformat.so.52 libavformat.so
+
 Then build vcmi:
   make
 
