@@ -443,6 +443,8 @@ bool CVideoPlayer::playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey)
 
 #else
 
+#include <../client/SDL_framerate.h>
+
 extern "C" {
 #include <libavformat/avformat.h>
 #include <libswscale/swscale.h>
