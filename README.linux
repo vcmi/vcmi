@@ -54,6 +54,9 @@ Download the windows VCMI release (at time of writing: http://vcmi.antypika.aplu
   mv Data/* /PATH_TO_H3_DIR/Data
   mv Fonts Games /PATH_TO_H3_DIR/
 
+If you also have the original linux version of Heroes, you can slso install the videos:
+  cp -a /PATH_TO_CDROM/data/video /PATH_TO_H3_DIR/Data
+
 
 III. Installing VCMI
 
