@@ -182,6 +182,13 @@ public:
 	bool playVideo(int x, int y, SDL_Surface *dst, bool stopOnKey = false); //plays whole opened video; returns: true when whole video has been shown, false when it has been interrupted
 };
 
+#define VIDEO_WIN "WIN3.BIK"
+#define VIDEO_LOSE_BATTLE_START "LBSTART.BIK"
+#define VIDEO_LOSE_BATTLE_LOOP "LBLOOP.BIK"
+#define VIDEO_RETREAT_START "RTSTART.BIK"
+#define VIDEO_RETREAT_LOOP "RTLOOP.BIK"
+#define VIDEO_SURRENDER "SURRENDER.BIK"
+
 #else
 
 #include <SDL_video.h>
@@ -236,6 +243,13 @@ public:
 	int length;					// video size
 	unsigned int offset;		// current data offset
 };
+
+#define VIDEO_WIN "win3.mjpg"
+#define VIDEO_LOSE_BATTLE_START "lbstart.mjpg"
+#define VIDEO_LOSE_BATTLE_LOOP "lbloop.mjpg"
+#define VIDEO_RETREAT_START "rtstart.mjpg"
+#define VIDEO_RETREAT_LOOP "rtloop.mjpg"
+#define VIDEO_SURRENDER "surrender.mjpg"
 
 #endif
 

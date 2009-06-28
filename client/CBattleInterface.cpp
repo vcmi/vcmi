@@ -22,6 +22,7 @@
 #include "../lib/CondSh.h"
 #include "../lib/NetPacks.h"
 #include "CPlayerInterface.h"
+#include "../hch/CVideoHandler.h"
 #include <boost/assign/list_of.hpp>
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
@@ -2794,11 +2795,17 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
 			CGI->musich->playMusic(musicBase::winBattle);
+#ifdef _WIN32
+			CGI->videoh->open(VIDEO_WIN);
+#else
+			CGI->videoh->open(VIDEO_WIN, true);
+#endif
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[304], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
 			CGI->musich->playMusic(musicBase::loseCombat);
+			CGI->videoh->open(VIDEO_LOSE_BATTLE_START);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[311], 235, 235, GEOR13, zwykly, background);
 		}
 		break;
@@ -2806,11 +2813,17 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
 			CGI->musich->playMusic(musicBase::winBattle);
+#ifdef _WIN32
+			CGI->videoh->open(VIDEO_WIN);
+#else
+			CGI->videoh->open(VIDEO_WIN, true);
+#endif
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[303], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
 			CGI->musich->playMusic(musicBase::retreatBattle);
+			CGI->videoh->open(VIDEO_RETREAT_START);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[310], 235, 235, GEOR13, zwykly, background);
 		}
 		break;
@@ -2818,11 +2831,17 @@ CBattleResultWindow::CBattleResultWindow(const BattleResult &br, const SDL_Rect 
 		if((br.winner == 0 && weAreAttacker) || (br.winner == 1 && !weAreAttacker)) //we've won
 		{
 			CGI->musich->playMusic(musicBase::winBattle);
+#ifdef _WIN32
+			CGI->videoh->open(VIDEO_WIN);
+#else
+			CGI->videoh->open(VIDEO_WIN, true);
+#endif
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[302], 235, 235, GEOR13, zwykly, background);
 		}
 		else
 		{
 			CGI->musich->playMusic(musicBase::surrenderBattle);
+			CGI->videoh->open(VIDEO_SURRENDER);
 			CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[309], 235, 235, GEOR13, zwykly, background);
 		}
 		break;
@@ -2851,6 +2870,8 @@ void CBattleResultWindow::show(SDL_Surface *to)
 	if(!to)
 		to = screen;
 
+	CGI->videoh->update(107, 70, background, false, true);
+
 	SDL_BlitSurface(background, NULL, to, &pos);
 	exit->show(to);
 }
@@ -2859,6 +2880,7 @@ void CBattleResultWindow::bExitf()
 {
 	LOCPLINT->popInts(2); //first - we; second - battle interface
 	LOCPLINT->showingDialog->setn(false);
+	CGI->videoh->close();
 }
 
 CBattleOptionsWindow::CBattleOptionsWindow(const SDL_Rect & position, CBattleInterface *owner): myInt(owner)
