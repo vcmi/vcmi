@@ -183,6 +183,7 @@ public:
 	si8 Luck() const; //get luck of stack with all modificators
 	si32 Attack() const; //get attack of stack with all modificators
 	si32 Defense(bool withFrenzy = true) const; //get defense of stack with all modificators
+	ui16 MaxHealth() const; //get max HP of stack with all modifiers
 	template <typename Handler> void save(Handler &h, const int version)
 	{
 		h & creature->idNumber;

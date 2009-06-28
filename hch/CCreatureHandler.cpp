@@ -90,10 +90,40 @@ si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatur
 	return ret;
 }
 
+int readNumber(int & befi, int & i, int andame, std::string & buf) //helper function for void CCreatureHandler::loadCreatures()
+{
+	befi=i;
+	for(i; i<andame; ++i)
+	{
+		if(buf[i]=='\t')
+			break;
+	}
+	std::string tmp = buf.substr(befi, i-befi);
+	int ret = atoi(buf.substr(befi, i-befi).c_str());
+	++i;
+	return ret;
+}
+
 void CCreatureHandler::loadCreatures()
 {
 	notUsedMonsters += 122,124,126,128,145,146,147,148,149,160,161,162,163,174,175,176,177,178,179,180,181,182,183,184,185,186,187,188,189,190,191;
-	tlog5 << "\t\tReading ZCRTRAIT.TXT" << std::endl;
+	tlog5 << "\t\tReading config/cr_abils.txt and ZCRTRAIT.TXT" << std::endl;
+
+	bool useCreAbilsFromZCRTRAIT = true;
+
+	////////////reading cr_abils.txt ///////////////////
+	std::ifstream abils("config" PATHSEPARATOR "cr_abils.txt", std::ios::in | std::ios::binary); //this file is not in lod
+	const int MAX_LINE_SIZE = 1000;
+	char abilLine[MAX_LINE_SIZE+1];
+	for(int i=0; i<5; ++i) //removing 5 comment lines
+	{
+		abils.getline(abilLine, MAX_LINE_SIZE);
+	}
+	//reading first line (determining if we should use creature abilities from ZCRTRAIT.TXT)
+	abils.getline(abilLine, MAX_LINE_SIZE);
+	useCreAbilsFromZCRTRAIT = atoi(abilLine);
+
+	////////////reading ZCRTRAIT.TXT ///////////////////
 	std::string buf = bitmaph->getTextFile("ZCRTRAIT.TXT");
 	int andame = buf.size();
 	int i=0; //buf iterator
@@ -141,194 +171,24 @@ void CCreatureHandler::loadCreatures()
 		ncre.namePl = buf.substr(befi, i-befi);
 		++i;
 
-		befi=i;
-		for(i; i<andame; ++i)
+		for(int v=0; v<7; ++v)
 		{
-			if(buf[i]=='\t')
-				break;
+			ncre.cost[v] = readNumber(befi, i, andame, buf);
 		}
-		ncre.cost[0] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.cost[1] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.cost[2] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.cost[3] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.cost[4] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.cost[5] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.cost[6] = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.fightValue = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.AIValue = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.growth = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.hordeGrowth = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.hitPoints = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.speed = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.attack = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.defence = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.damageMin = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.damageMax = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.shots = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.spells = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.ammMin = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		ncre.ammMax = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
+		ncre.fightValue = readNumber(befi, i, andame, buf);
+		ncre.AIValue = readNumber(befi, i, andame, buf);
+		ncre.growth = readNumber(befi, i, andame, buf);
+		ncre.hordeGrowth = readNumber(befi, i, andame, buf);
+		ncre.hitPoints = readNumber(befi, i, andame, buf);
+		ncre.speed = readNumber(befi, i, andame, buf);
+		ncre.attack = readNumber(befi, i, andame, buf);
+		ncre.defence = readNumber(befi, i, andame, buf);
+		ncre.damageMin = readNumber(befi, i, andame, buf);
+		ncre.damageMax = readNumber(befi, i, andame, buf);
+		ncre.shots = readNumber(befi, i, andame, buf);
+		ncre.spells = readNumber(befi, i, andame, buf);
+		ncre.ammMin = readNumber(befi, i, andame, buf);
+		ncre.ammMax = readNumber(befi, i, andame, buf);
 
 		befi=i;
 		for(i; i<andame; ++i)
@@ -347,52 +207,55 @@ void CCreatureHandler::loadCreatures()
 		}
 		ncre.abilityRefs = buf.substr(befi, i-befi);
 		i+=2;
-		if(boost::algorithm::find_first(ncre.abilityRefs, "DOUBLE_WIDE"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "FLYING_ARMY"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::FLYING, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "SHOOTING_ARMY"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::SHOOTER, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "SIEGE_WEAPON"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::SIEGE_WEAPON, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "const_two_attacks"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::ADDITIONAL_ATTACK, 1));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::BLOCKS_RETAILATION, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "IS_UNDEAD"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::UNDEAD, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_melee_penalty"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::NO_MELEE_PENALTY, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "const_jousting"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::JOUSTING, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::RAISING_MORALE, 1));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::ENEMY_MORALE_DECREASING, 1));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "KING_1"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING1, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "KING_2"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING2, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "KING_3"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING3, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_wall_penalty"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::NO_WALL_PENALTY, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "CATAPULT"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::CATAPULT, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "MULTI_HEADED"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::ATTACKS_ALL_ADAJCENT, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_MIND_SPELLS"))
-		{
-			std::vector<int> mindSpells = getMindSpells();
-			for(int g=0; g<mindSpells.size(); ++g)
+		if(useCreAbilsFromZCRTRAIT)
+		{ //adding abilities from ZCRTRAIT.TXT
+			if(boost::algorithm::find_first(ncre.abilityRefs, "DOUBLE_WIDE"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "FLYING_ARMY"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::FLYING, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "SHOOTING_ARMY"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::SHOOTER, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "SIEGE_WEAPON"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::SIEGE_WEAPON, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "const_two_attacks"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::ADDITIONAL_ATTACK, 1));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "const_free_attack"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::BLOCKS_RETAILATION, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "IS_UNDEAD"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::UNDEAD, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_melee_penalty"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::NO_MELEE_PENALTY, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "const_jousting"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::JOUSTING, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "const_raises_morale"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::RAISING_MORALE, 1));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "const_lowers_morale"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::ENEMY_MORALE_DECREASING, 1));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_1"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING1, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_2"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING2, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "KING_3"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::KING3, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "const_no_wall_penalty"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::NO_WALL_PENALTY, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "CATAPULT"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::CATAPULT, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "MULTI_HEADED"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::ATTACKS_ALL_ADAJCENT, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_MIND_SPELLS"))
 			{
-				creatures[40].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //giants are immune to mind spells
+				std::vector<int> mindSpells = getMindSpells();
+				for(int g=0; g<mindSpells.size(); ++g)
+				{
+					creatures[40].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //giants are immune to mind spells
+				}
 			}
+			if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_FIRE_SPELLS"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::FIRE_IMMUNITY, 0));
+			if(boost::algorithm::find_first(ncre.abilityRefs, "HAS_EXTENDED_ATTACK"))
+				ncre.abilities.push_back(makeCreatureAbility(StackFeature::TWO_HEX_ATTACK_BREATH, 0));
 		}
-		if(boost::algorithm::find_first(ncre.abilityRefs, "IMMUNE_TO_FIRE_SPELLS"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::FIRE_IMMUNITY, 0));
-		if(boost::algorithm::find_first(ncre.abilityRefs, "HAS_EXTENDED_ATTACK"))
-			ncre.abilities.push_back(makeCreatureAbility(StackFeature::TWO_HEX_ATTACK_BREATH, 0));
 
 		if(ncre.nameSing!=std::string("") && ncre.namePl!=std::string(""))
 		{
@@ -400,6 +263,59 @@ void CCreatureHandler::loadCreatures()
 			creatures.push_back(ncre);
 		}
 	}
+
+	////second part of reading cr_abils.txt////
+	bool contReading = true;
+	while(contReading) //main reading loop
+	{
+		abils.getline(abilLine, MAX_LINE_SIZE);
+		std::istringstream reader(abilLine);
+		char command;
+		reader >> command;
+		switch(command)
+		{
+		case '+': //add new ability
+			{
+				int creatureID;
+				StackFeature nsf;
+				si32 buf;
+				reader >> creatureID;
+				reader >> buf; nsf.type = buf; //it reads ui8 as byte, in file it has different format
+				reader >> buf; nsf.value = buf;
+				reader >> buf; nsf.subtype = buf;
+				reader >> buf; nsf.additionalInfo = buf;
+				nsf.source = StackFeature::CREATURE_ABILITY;
+				nsf.duration = StackFeature::WHOLE_BATTLE;
+				nsf.turnsRemain = 0;
+
+				creatures[creatureID].abilities += nsf;
+				break;
+			}
+		case '-': //remove ability
+			{
+				int creatureID;
+				ui32 type;
+				reader >> creatureID;
+				reader >> type;
+				StackFeature::ECombatFeatures ecf = static_cast<StackFeature::ECombatFeatures>(type);
+
+				creatures[creatureID].abilities -= ecf;
+				break;
+			}
+		case '0': //end reading
+			{
+				contReading = false;
+				break;
+			}
+		default: //invalid command
+			{
+				tlog1 << "Parse error in file config/cr_abils.txt" << std::endl;
+				break;
+			}
+		}
+	}
+
+	abils.close();
 
 	tlog5 << "\t\tReading config/crerefnam.txt" << std::endl;
 	//loading reference names
@@ -528,13 +444,14 @@ void CCreatureHandler::loadCreatures()
 	inp2.close();
 
 	//TODO: create a tidy configuration file to control fixing unit abilities
-	creatures[115].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//water elemental should be treated as double-wide
+/*	creatures[115].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//water elemental should be treated as double-wide
 	creatures[123].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//ice elemental should be treated as double-wide
 	creatures[140].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//boar should be treated as double-wide
 	creatures[142].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//nomads should be treated as double-wide
 
 	creatures[46].abilities -= StackFeature::FLYING; //hell hound
 	creatures[47].abilities -= StackFeature::FLYING; //cerberus
+*/
 	creatures[52].abilities += makeCreatureAbility(StackFeature::FLYING, 0); //Efreeti
 	creatures[53].abilities += makeCreatureAbility(StackFeature::FLYING, 0); //Efreet Sultan
 

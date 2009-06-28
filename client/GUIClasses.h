@@ -678,14 +678,14 @@ class CExchangeWindow : public CIntObject, public CWindowWithGarrison
 	SDL_Surface *bg; //background
 	AdventureMapButton * quit, * questlogButton[2];
 
-	const CGHeroInstance * heroInst[2];
-	CArtifactsOfHero * artifs[2];
-
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 
 	LRClickableAreaWTextComp *morale[2], *luck[2];
 
 public:
+
+	const CGHeroInstance * heroInst[2];
+	CArtifactsOfHero * artifs[2];
 
 	void close();
 	void activate();
@@ -693,6 +693,8 @@ public:
 	void show(SDL_Surface * to);
 
 	void questlog(int whichHero); //questlog button callback; whichHero: 0 - left, 1 - right
+
+	void prepareBackground(); //prepares or redraws bg
 
 	CExchangeWindow(si32 hero1, si32 hero2); //c-tor
 	~CExchangeWindow(); //d-tor

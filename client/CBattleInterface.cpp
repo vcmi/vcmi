@@ -2594,6 +2594,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 			pom->luck = myst.Luck();
 			pom->morale = myst.Morale();
 			pom->speedBonus = myst.Speed() - myst.creature->speed;
+			pom->healthBonus = myst.MaxHealth() - myst.creature->hitPoints;
 
 			pom->shotsLeft = myst.shots;
 			for(int vb=0; vb<myst.effects.size(); ++vb)

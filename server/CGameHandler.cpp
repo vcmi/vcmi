@@ -437,13 +437,13 @@ askInterfaceForMove:
 }
 void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
 {	
-	bsa.killedAmount = bsa.damageAmount / def->creature->hitPoints;
-	unsigned damageFirst = bsa.damageAmount % def->creature->hitPoints;
+	bsa.killedAmount = bsa.damageAmount / def->MaxHealth();
+	unsigned damageFirst = bsa.damageAmount % def->MaxHealth();
 
 	if( def->firstHPleft <= damageFirst )
 	{
 		bsa.killedAmount++;
-		bsa.newHP = def->firstHPleft + def->creature->hitPoints - damageFirst;
+		bsa.newHP = def->firstHPleft + def->MaxHealth() - damageFirst;
 	}
 	else
 	{
@@ -849,6 +849,8 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			stacks.back()->luck = hero1->getCurrentLuck(i->first,false);
 			stacks.back()->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
 			stacks.back()->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
+			stacks.back()->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->valOfBonuses(HeroBonus::STACK_HEALTH), StackFeature::BONUS_FROM_HERO));
+			stacks.back()->firstHPleft = stacks.back()->MaxHealth();
 		}
 		else
 		{
@@ -900,6 +902,8 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			stacks.back()->luck = hero2->getCurrentLuck(i->first,false);
 			stacks.back()->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
 			stacks.back()->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
+			stacks.back()->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->valOfBonuses(HeroBonus::STACK_HEALTH), StackFeature::BONUS_FROM_HERO));
+			stacks.back()->firstHPleft = stacks.back()->MaxHealth();
 		}
 		else
 		{

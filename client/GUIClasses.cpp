@@ -2053,7 +2053,7 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 
 	//health
 	printAt(CGI->generaltexth->allTexts[388],155,124,GEOR13,zwykly,bitmap);
-	SDL_itoa(c->hitPoints,pom,10);
+	SDL_itoa(c->hitPoints + State->healthBonus,pom,10);
 	printToWR(pom,276,137,GEOR13,zwykly,bitmap);
 
 	//remaining health
@@ -3766,17 +3766,10 @@ void CExchangeWindow::questlog(int whichHero)
 {
 }
 
-CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
+void CExchangeWindow::prepareBackground()
 {
-	char bufor[400];
-
-	heroInst[0] = LOCPLINT->cb->getHeroInfo(hero1, 2);
-	heroInst[1] = LOCPLINT->cb->getHeroInfo(hero2, 2);
-
-	artifs[0] = new CArtifactsOfHero(genRect(600, 800, -334, 150));
-	artifs[0]->setHero(heroInst[0]);
-	artifs[1] = new CArtifactsOfHero(genRect(600, 800, 96, 150));
-	artifs[1]->setHero(heroInst[1]);
+	if(bg)
+		SDL_FreeSurface(bg);
 
 	SDL_Surface * bgtemp; //loaded as 8bpp surface
 	bgtemp = BitmapHandler::loadBitmap("TRADE2.BMP");
@@ -3797,14 +3790,6 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 	{
 		//graphics
 		blitAt(skilldef->ourImages[g].bitmap, genRect(32, 32, 385, 19 + 36 * g), bg);
-
-		//primary skill's clickable areas
-		primSkillAreas.push_back(new LRClickableAreaWTextComp());
-		primSkillAreas[g]->pos = genRect(32, 32, pos.x+385, pos.y + 19 + 36 * g);
-		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
-		primSkillAreas[g]->type = g;
-		primSkillAreas[g]->bonus = -1;
-		primSkillAreas[g]->baseType = 0;
 	}
 
 	CDefHandler * un32 = CDefHandler::giveDef("UN32.DEF");
@@ -3825,6 +3810,62 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 			blitAt(graphics->abils32->ourImages[heroInst[b]->secSkills[m].first * 3 + heroInst[b]->secSkills[m].second + 2].bitmap, genRect(32, 32, pos.x + 32 + 36 * m + 454 * b, pos.y + 88), bg);
 		}
 
+		//hero's specialty
+		blitAt(un32->ourImages[heroInst[b]->subID].bitmap, 67 + 490*b, 45, bg);
+
+		//experience
+		blitAt(skilldef->ourImages[4].bitmap, 103 + 490*b, 45, bg);
+		printAtMiddle( makeNumberShort(heroInst[b]->exp), 119 + 490*b, 71, GEOR13, zwykly, bg );
+
+		//mana points
+		blitAt(skilldef->ourImages[5].bitmap, 139 + 490*b, 45, bg);
+		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, GEOR13, zwykly, bg );
+
+		//setting morale
+		blitAt(graphics->morale30->ourImages[heroInst[b]->getCurrentMorale()+3].bitmap, 177 + 490*b, 45, bg);
+
+		//setting luck
+		blitAt(graphics->luck30->ourImages[heroInst[b]->getCurrentLuck()+3].bitmap, 213 + 490*b, 45, bg);
+	}
+
+	//printing portraits
+	blitAt(graphics->portraitLarge[heroInst[0]->portrait], 257, 13, bg);
+	blitAt(graphics->portraitLarge[heroInst[1]->portrait], 485, 13, bg);
+
+	delete un32;
+	delete skilldef;
+}
+
+CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
+{
+	char bufor[400];
+
+	heroInst[0] = LOCPLINT->cb->getHeroInfo(hero1, 2);
+	heroInst[1] = LOCPLINT->cb->getHeroInfo(hero2, 2);
+
+	artifs[0] = new CArtifactsOfHero(genRect(600, 800, -334, 150));
+	artifs[0]->setHero(heroInst[0]);
+	artifs[1] = new CArtifactsOfHero(genRect(600, 800, 96, 150));
+	artifs[1]->setHero(heroInst[1]);
+
+	prepareBackground();
+
+
+	//primary skills
+	for(int g=0; g<4; ++g)
+	{
+		//primary skill's clickable areas
+		primSkillAreas.push_back(new LRClickableAreaWTextComp());
+		primSkillAreas[g]->pos = genRect(32, 32, pos.x+385, pos.y + 19 + 36 * g);
+		primSkillAreas[g]->text = CGI->generaltexth->arraytxt[2+g];
+		primSkillAreas[g]->type = g;
+		primSkillAreas[g]->bonus = -1;
+		primSkillAreas[g]->baseType = 0;
+	}
+
+	//heroes related thing
+	for(int b=0; b<ARRAY_COUNT(heroInst); b++)
+	{
 		//secondary skill's clickable areas
 		for(int g=0; g<heroInst[b]->secSkills.size(); ++g)
 		{
@@ -3841,21 +3882,9 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 			secSkillAreas[b][g]->hoverText = std::string(bufor);
 		}
 
-		//hero's specialty
-		blitAt(un32->ourImages[heroInst[b]->subID].bitmap, 67 + 490*b, 45, bg);
-
-		//experience
-		blitAt(skilldef->ourImages[4].bitmap, 103 + 490*b, 45, bg);
-		printAtMiddle( makeNumberShort(heroInst[b]->exp), 119 + 490*b, 71, GEOR13, zwykly, bg );
-
-		//mana points
-		blitAt(skilldef->ourImages[5].bitmap, 139 + 490*b, 45, bg);
-		printAtMiddle( makeNumberShort(heroInst[b]->mana), 155 + 490*b, 71, GEOR13, zwykly, bg );
-
 		//setting morale
 		morale[b] = new LRClickableAreaWTextComp();
 		morale[b]->pos = genRect(32, 32, pos.x + 177 + 490*b, pos.y + 45);
-		blitAt(graphics->morale30->ourImages[heroInst[b]->getCurrentMorale()+3].bitmap, 177 + 490*b, 45, bg);
 
 		std::vector<std::pair<int,std::string> > mrl = heroInst[b]->getCurrentMoraleModifiers();
 		int mrlv = heroInst[b]->getCurrentMorale();
@@ -3871,7 +3900,6 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 		//setting luck
 		luck[b] = new LRClickableAreaWTextComp();
 		luck[b]->pos = genRect(32, 32, pos.x + 213 + 490*b, pos.y + 45);
-		blitAt(graphics->luck30->ourImages[heroInst[b]->getCurrentLuck()+3].bitmap, 213 + 490*b, 45, bg);
 
 		mrl = heroInst[b]->getCurrentLuckModifiers();
 		mrlv = heroInst[b]->getCurrentLuck();
@@ -3885,10 +3913,6 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 			luck[b]->text += mrl[it].second;
 	}
 
-	//printing portraits
-	blitAt(graphics->portraitLarge[heroInst[0]->portrait], 257, 13, bg);
-	blitAt(graphics->portraitLarge[heroInst[1]->portrait], 485, 13, bg);
-
 	//buttons
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8], "", boost::bind(&CExchangeWindow::close, this), pos.x+732, pos.y+567, "IOKAY.DEF", SDLK_RETURN);
 	questlogButton[0] = new AdventureMapButton(CGI->generaltexth->heroscrn[0], std::string(), boost::bind(&CExchangeWindow::questlog,this, 0), pos.x+10, pos.y+44, "hsbtns4.def");
@@ -3899,9 +3923,6 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 
 	//garrison interface
 	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(0,0), heroInst[0],heroInst[1], true);
-
-	delete un32;
-	delete skilldef;
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor

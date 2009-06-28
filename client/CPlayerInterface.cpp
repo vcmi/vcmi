@@ -1520,6 +1520,20 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 		adventureInt->heroWindow->setHero(adventureInt->heroWindow->curHero);
 		adventureInt->heroWindow->activate();
 	}
+	CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(listInt.front());
+	if(cew) //exchange window is open
+	{
+		cew->deactivate();
+		for(int g=0; g<ARRAY_COUNT(cew->heroInst); ++g)
+		{
+			if(cew->heroInst[g] == hero)
+			{
+				cew->artifs[g]->setHero(hero);
+			}
+		}
+		cew->prepareBackground();
+		cew->activate();
+	}
 }
 
 void CPlayerInterface::updateWater()

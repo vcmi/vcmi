@@ -597,6 +597,11 @@ si32 CStack::Defense(bool withFrenzy /*= true*/) const
 	return ret;
 }
 
+ui16 CStack::MaxHealth() const
+{
+	return creature->hitPoints + valOfFeatures(StackFeature::HP_BONUS);
+}
+
 bool CStack::willMove()
 {
 	return !vstd::contains(state, DEFENDING)
