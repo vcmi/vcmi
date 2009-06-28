@@ -598,6 +598,8 @@ bool CGHeroInstance::needsLastStack() const
 }
 void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 {
+	if(h == this) return; //exclude potential self-visiting
+
 	if (ID == HEROI_TYPE) //hero
 	{
 		//TODO: check for allies

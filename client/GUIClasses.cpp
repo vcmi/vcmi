@@ -291,8 +291,16 @@ CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg
 	creature = Creature;
 	pos.x = x;
 	pos.y = y;
-	pos.w = 58;
-	pos.h = 64;
+	if(Owner->smallIcons)
+	{
+		pos.w = 32;
+		pos.h = 32;
+	}
+	else
+	{
+		pos.w = 58;
+		pos.h = 64;
+	}
 	owner = Owner;
 }
 CGarrisonSlot::~CGarrisonSlot()
@@ -302,26 +310,28 @@ CGarrisonSlot::~CGarrisonSlot()
 }
 void CGarrisonSlot::show(SDL_Surface * to)
 {
+	std::map<int,SDL_Surface*> &imgs = (owner->smallIcons ? graphics->smallImgs : graphics->bigImgs);
 	if(creature)
 	{
 		char buf[15];
 		SDL_itoa(count,buf,10);
-		blitAt(graphics->bigImgs[creature->idNumber],pos,to);
-		printToWR(buf,pos.x+56,pos.y+62,GEOR16,zwykly,to);
+		blitAt(imgs[creature->idNumber],pos,to);
+		printToWR(buf, pos.x+pos.w-2, pos.y+pos.h-2, owner->smallIcons ? GEORM : GEOR16, zwykly, to);
 
 		if((owner->highlighted==this)
 			|| (owner->splitting && owner->highlighted->creature == creature))
 		{
-			blitAt(graphics->bigImgs[-1],pos,to);
+			blitAt(imgs[-1],pos,to);
 		}
 	}
 	else //empty slot
 	{
-		SDL_Rect jakis1 = genRect(pos.h,pos.w,owner->offx+ID*(pos.w+owner->interx),owner->offy+upg*(pos.h+owner->intery)), 
-			jakis2 = pos;
-		SDL_BlitSurface(owner->sur,&jakis1,to,&jakis2);
+		Rect pos1 = pos, pos2 = pos; //positions on the garr bg sur and scren
+		pos1 -= owner->surOffset;
+
+		SDL_BlitSurface(owner->sur,&pos1,to,&pos2);
 		if(owner->splitting)
-			blitAt(graphics->bigImgs[-1],pos,to);
+			blitAt(imgs[-1],pos,to);
 	}
 }
 CGarrisonInt::~CGarrisonInt()
@@ -415,6 +425,17 @@ void CGarrisonInt::activeteSlots()
 }
 void CGarrisonInt::createSlots()
 {
+	int h, w; //height and width of slot
+	if(smallIcons)
+	{
+		h = w = 32;
+	}
+	else
+	{
+		h = 64;
+		w = 58;
+	}
+
 	if(set1)
 	{
 		sup = new std::vector<CGarrisonSlot*>(7,(CGarrisonSlot *)(NULL));
@@ -423,12 +444,12 @@ void CGarrisonInt::createSlots()
 			i!=set1->slots.end(); i++)
 		{
 			(*sup)[i->first] =
-				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y,i->first, 0, 
+				new CGarrisonSlot(this, pos.x + (i->first*(w+interx)), pos.y,i->first, 0, 
 									&CGI->creh->creatures[i->second.first],i->second.second);
 		}
 		for(int i=0; i<sup->size(); i++)
 			if((*sup)[i] == NULL)
-				(*sup)[i] = new CGarrisonSlot(this, pos.x + (i*(58+interx)), pos.y,i,0,NULL, 0);
+				(*sup)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)), pos.y,i,0,NULL, 0);
 	}
 	if(set2)
 	{
@@ -438,12 +459,12 @@ void CGarrisonInt::createSlots()
 			i!=set2->slots.end(); i++)
 		{
 			(*sdown)[i->first] =
-				new CGarrisonSlot(this, pos.x + (i->first*(58+interx)), pos.y + 64 + intery,i->first,1, 
+				new CGarrisonSlot(this, pos.x + (i->first*(w+interx)) + garOffset.x, pos.y + garOffset.y,i->first,1, 
 									&CGI->creh->creatures[i->second.first],i->second.second);
 		}
 		for(int i=0; i<sdown->size(); i++)
 			if((*sdown)[i] == NULL)
-				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(58+interx)), pos.y + 64 + intery,i,1, NULL, 0);
+				(*sdown)[i] = new CGarrisonSlot(this, pos.x + (i*(w+interx)) + garOffset.x,	pos.y + garOffset.y,i,1, NULL, 0);
 	}
 }
 void CGarrisonInt::deleteSlots()
@@ -507,10 +528,10 @@ void CGarrisonInt::splitStacks(int am2)
 		am2);
 
 }
-CGarrisonInt::CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *&pomsur, int OX, int OY, const CArmedInstance *s1, 
-						   const CArmedInstance *s2)
-	:interx(inx),intery(iny),highlighted(NULL),sur(pomsur),offx(OX),offy(OY),sup(NULL),
-	 sdown(NULL),oup(s1),odown(s2)
+CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point& SurOffset, 
+						   const CArmedInstance *s1, const CArmedInstance *s2, bool smallImgs)
+	 :interx(inx),garOffset(garsOffset),highlighted(NULL),sur(pomsur),surOffset(surOffset),sup(NULL),
+	 sdown(NULL),oup(s1),odown(s2), smallIcons(smallImgs)
 {
 	active = false;
 	splitting = false;
@@ -3177,7 +3198,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	pos.w = screen->w;
 	pos.h = screen->h;
 
-	garr = new CGarrisonInt(pos.x+92, pos.y+129, 4, 30, bg, 92, 129, up, down);
+	garr = new CGarrisonInt(pos.x+92, pos.y+129, 4, Point(0,94), bg, Point(0,0), up, down);
 	split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF");
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
 }
@@ -3645,6 +3666,7 @@ void CExchangeWindow::close()
 void CExchangeWindow::activate()
 {
 	quit->activate();
+	garr->activate();
 
 	artifs[0]->activate();
 	artifs[1]->activate();
@@ -3683,6 +3705,7 @@ void CExchangeWindow::activate()
 void CExchangeWindow::deactivate()
 {
 	quit->deactivate();
+	garr->deactivate();
 
 	artifs[0]->deactivate();
 	artifs[1]->deactivate();
@@ -3735,6 +3758,8 @@ void CExchangeWindow::show(SDL_Surface * to)
 	{
 		questlogButton[g]->show(to);
 	}
+
+	garr->show(to);
 }
 
 void CExchangeWindow::questlog(int whichHero)
@@ -3872,6 +3897,9 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) //c-tor
 	//statusbar
 	ourBar = new CStatusBar(pos.x + 3, pos.y + 577, "TSTATBAR.bmp", 726);
 
+	//garrison interface
+	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(0,0), heroInst[0],heroInst[1], true);
+
 	delete un32;
 	delete skilldef;
 }
@@ -3883,6 +3911,7 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	delete artifs[0];
 	delete artifs[1];
 
+	delete garr;
 	delete ourBar;
 
 	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)

@@ -197,12 +197,15 @@ public:
 class CGarrisonInt :public CIntObject
 {
 public:
-	int interx, intery; //intervals between slots
-	CGarrisonSlot *highlighted; //choosen slot
+	int interx; //space between slots
+	Point garOffset, //offset between garrisons (not used if only one hero)
+		surOffset; //offset between garrison position on the bg surface and position on the screen
+	CGarrisonSlot *highlighted; //chosen slot
 
-	SDL_Surface *&sur; //TODO: comment me
-	int offx, offy, p2; //TODO: comment me
-	bool ignoreEvent, update, active, splitting, pb;
+	SDL_Surface *&sur; //bg surface
+	int p2; //TODO: comment me
+	bool ignoreEvent, update, active, splitting, pb, 
+		smallIcons; //true - 32x32 imgs, false - 58x64
 
 	const CCreatureSet *set1; //top set of creatures
 	const CCreatureSet *set2; //bottom set of creatures
@@ -222,7 +225,7 @@ public:
 	void splitClick(); //handles click on split button
 	void splitStacks(int am2); //TODO: comment me
 
-	CGarrisonInt(int x, int y, int inx, int iny, SDL_Surface *&pomsur, int OX, int OY, const CArmedInstance *s1, const CArmedInstance *s2=NULL); //c-tor
+	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool smallImgs = false); //c-tor
 	~CGarrisonInt(); //d-tor
 };
 
@@ -668,7 +671,7 @@ public:
 	~CGarrisonWindow(); //d-tor
 };
 
-class CExchangeWindow : public CIntObject, public IShowActivable
+class CExchangeWindow : public CIntObject, public CWindowWithGarrison
 {
 	CStatusBar * ourBar; //internal statusbar
 

@@ -160,6 +160,24 @@ struct Rect : public SDL_Rect
 		y += p.y;
 		return *this;
 	}
+	Rect& operator+=(const Point &p) //works as operator+
+	{
+		x += p.x;
+		y += p.y;
+		return *this;
+	}
+	Rect& operator-=(const Rect &p) //works as operator+
+	{
+		x -= p.x;
+		y -= p.y;
+		return *this;
+	}
+	Rect& operator-=(const Point &p) //works as operator+
+	{
+		x -= p.x;
+		y -= p.y;
+		return *this;
+	}
 	Rect operator&(const Rect &p) const //rect intersection
 	{
 		bool intersect = true;

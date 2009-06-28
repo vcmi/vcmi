@@ -61,7 +61,6 @@ using namespace CSDL_Ext;
 
 void processCommand(const std::string &message, CClient *&client);
 
-extern TTF_Font * GEOR16;
 extern std::queue<SDL_Event*> events;
 extern boost::mutex eventsM;
 

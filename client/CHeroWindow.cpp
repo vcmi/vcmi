@@ -203,7 +203,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	portraitArea->text = hero->getBiography();
 
 	delete garr;
-	/*gar4button->owner = */garr = new CGarrisonInt(pos.x+80, pos.y+493, 8, 0, curBack, 15, 485, curHero);
+	/*gar4button->owner = */garr = new CGarrisonInt(pos.x+80, pos.y+493, 8, Point(), curBack, Point(65,8), curHero);
 	garr->update = false;
 	gar4button->callback =  boost::bind(&CGarrisonInt::splitClick,garr);//actualization of callback function
 
