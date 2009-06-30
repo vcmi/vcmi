@@ -1514,11 +1514,12 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(adventureInt->heroWindow->curHero)
+	if(adventureInt->heroWindow->curHero) //hero window is opened
 	{
 		adventureInt->heroWindow->deactivate();
 		adventureInt->heroWindow->setHero(adventureInt->heroWindow->curHero);
 		adventureInt->heroWindow->activate();
+		return;
 	}
 	CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(listInt.front());
 	if(cew) //exchange window is open

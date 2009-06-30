@@ -28,6 +28,8 @@ public:
 	SDL_Color * playerColors; //array [8]
 	SDL_Color * neutralColor;
 	SDL_Color * playerColorPalette; //palette to make interface colors good - array of size [256]
+	SDL_Color * neutralColorPalette; 
+
 	SDL_Surface * hInfo, *tInfo; //hero and town infobox bgs
 	SDL_Surface *heroInGarrison; //icon for town infobox
 	std::vector<std::pair<int, int> > slotsPos; //creature slot positions in infoboxes

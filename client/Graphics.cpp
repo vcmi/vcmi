@@ -117,6 +117,19 @@ void Graphics::loadPaletteAndColors()
 		col.unused = pals[startPoint++];
 		playerColorPalette[i] = col;
 	}
+
+	neutralColorPalette = new SDL_Color[32];
+	std::ifstream ncp;
+	ncp.open("config/NEUTRAL.PAL", std::ios::binary);
+	for(int i=0; i<32; ++i)
+	{
+		ncp.read((char*)&neutralColorPalette[i].r,1);
+		ncp.read((char*)&neutralColorPalette[i].g,1);
+		ncp.read((char*)&neutralColorPalette[i].b,1);
+		ncp.read((char*)&neutralColorPalette[i].unused,1);
+	}
+
+
 	//colors initialization
 	int3 kolory[] = {int3(0xff,0,0),int3(0x31,0x52,0xff),int3(0x9c,0x73,0x52),int3(0x42,0x94,0x29),
 		int3(0xff,0x84,0x0),int3(0x8c,0x29,0xa5),int3(0x09,0x9c,0xa5),int3(0xc6,0x7b,0x8c)};
@@ -472,9 +485,24 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 		return;
 	if(sur->format->BitsPerPixel == 8)
 	{
+		SDL_Color *palette = NULL;
+		if(player < PLAYER_LIMIT)
+		{
+			palette = playerColorPalette + 32*player;
+		}
+		else if(player == 255)
+		{
+			palette = neutralColorPalette;
+		}
+		else
+		{
+			tlog1 << "Wrong player id in blueToPlayersAdv (" << player << ")!\n";
+			return;
+		}
+
 		for(int i=0; i<32; ++i)
 		{
-			sur->format->palette->colors[224+i] = playerColorPalette[32*player+i];
+			sur->format->palette->colors[224+i] = palette[i];
 		}
 	}
 	else if(sur->format->BitsPerPixel == 24) //should never happen in general
