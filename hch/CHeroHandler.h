@@ -105,6 +105,7 @@ public:
 	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
 	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield
+	std::vector<int> nativeTerrains; //info about native terrains of different factions
 
 	void loadObstacles(); //loads info about obstacles
 
@@ -115,6 +116,7 @@ public:
 	void loadHeroClasses();
 	void initHeroClasses();
 	void initTerrainCosts();
+	void loadNativeTerrains();
 	CHeroHandler(); //c-tor
 	~CHeroHandler(); //d-tor
 

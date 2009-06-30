@@ -6,8 +6,6 @@
 #include "../int3.h"
 #include <vector>
 #include <sstream>
-#include <boost/version.hpp>
-#include <boost/type_traits/is_integral.hpp>
 
 /*
  * SDL_Extensions.h, part of VCMI engine
@@ -32,10 +30,6 @@ bool isItIn(const SDL_Rect * rect, int x, int y);
 template<typename IntType>
 std::string makeNumberShort(IntType number) //the output is a string containing at most 5 characters [4 if positive] (eg. intead 10000 it gives 10k)
 {
-#if BOOST_VERSION >= 103800
-	BOOST_MPL_ASSERT_MSG( boost::is_integral<IntType>::value, NON_INTEGRAL_TYPES_ARE_NOT_ALLOWED, (IntType) ); //it should make noise if IntType is not integral type
-#endif
-
 	int initialLength;
 	bool negative = (number < 0);
 	std::ostringstream ost, rets;

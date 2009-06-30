@@ -437,6 +437,7 @@ void CHeroHandler::initHeroClasses()
 		heroes[gg]->heroClass = heroClasses[heroes[gg]->heroType];
 	}
 	initTerrainCosts();
+	loadNativeTerrains();
 }
 
 unsigned int CHeroHandler::level(unsigned int experience)
@@ -478,6 +479,12 @@ void CHeroHandler::initTerrainCosts()
 {
 	std::ifstream inp;
 	inp.open("config" PATHSEPARATOR "TERCOSTS.TXT", std::ios_base::in|std::ios_base::binary);
+
+	if(!inp.is_open())
+	{
+		tlog1 << "Error while opening config/TERCOSTS.TXT file!" << std::endl;
+	}
+
 	int tynum;
 	inp>>tynum;
 	for(int i=0; i<2*tynum; i+=2)
@@ -495,3 +502,27 @@ void CHeroHandler::initTerrainCosts()
 	inp.close();
 }
 
+void CHeroHandler::loadNativeTerrains()
+{
+	std::ifstream inp;
+	inp.open("config" PATHSEPARATOR "native_terrains.txt", std::ios_base::in|std::ios_base::binary);
+
+	if(!inp.is_open())
+	{
+		tlog1 << "Error while opening config/native_terrains.txt file!" << std::endl;
+	}
+	const int MAX_ELEM = 1000;
+	char buf[MAX_ELEM+1];
+	inp.getline(buf, MAX_ELEM);
+	inp.getline(buf, MAX_ELEM);
+
+	nativeTerrains.resize(F_NUMBER);
+	for(int i=0; i<F_NUMBER; ++i)
+	{
+		int faction, terrain;
+		inp >> faction;
+		inp >> terrain;
+		nativeTerrains[faction] = terrain;
+	}
+	inp.close();
+}

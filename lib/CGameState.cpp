@@ -540,6 +540,9 @@ ui8 CStack::howManyEffectsSet(ui16 id) const
 si8 CStack::Morale() const
 {
 	si8 ret = morale;
+
+	if(hasFeatureOfType(StackFeature::NON_LIVING) || hasFeatureOfType(StackFeature::UNDEAD))
+		return 0;
 	
 	ret += valOfFeatures(StackFeature::MORALE_BONUS); //mirth & sorrow & other
 
@@ -578,7 +581,7 @@ si32 CStack::Attack() const
 		ret += (VLC->spellh->spells[56].powers[getEffect(56)->level]/100.0) * Defense(false);
 	}
 
-	ret += valOfFeatures(StackFeature::ATTACK_BONUS, -1);
+	ret += valOfFeatures(StackFeature::ATTACK_BONUS);
 
 	return ret;
 }
@@ -592,7 +595,7 @@ si32 CStack::Defense(bool withFrenzy /*= true*/) const
 		return 0;
 	}
 
-	ret += valOfFeatures(StackFeature::DEFENCE_BONUS, -1);
+	ret += valOfFeatures(StackFeature::DEFENCE_BONUS);
 
 	return ret;
 }

@@ -934,6 +934,18 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			stacks[g]->position -= 1;
 		}
 	}
+
+	//adding native terrain bonuses
+	for(int g=0; g<stacks.size(); ++g)
+	{
+		if( VLC->heroh->nativeTerrains[stacks[g]->creature->faction] == gs->map->terrain[tile.x][tile.y][tile.z].tertype )
+		{
+			stacks[g]->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
+			stacks[g]->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
+			stacks[g]->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
+		}
+	}
+
 	//adding war machines
 	if(hero1)
 	{

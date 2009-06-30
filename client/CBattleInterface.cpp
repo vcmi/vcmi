@@ -585,10 +585,8 @@ void CBattleInterface::show(SDL_Surface * to)
 				}
 				SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[curStackID]->pos.x + xAdd + pos.x, creAnims[curStackID]->pos.y + 260 + pos.y));
 				//blitting amount
-				std::ostringstream ss;
-				ss<<curStack.amount;
 				CSDL_Ext::printAtMiddleWB(
-					ss.str(),
+					makeNumberShort(curStack.amount),
 					creAnims[curStackID]->pos.x + xAdd + 14 + pos.x,
 					creAnims[curStackID]->pos.y + 260 + 4 + pos.y,
 					GEOR13,

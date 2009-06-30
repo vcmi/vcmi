@@ -73,7 +73,8 @@ struct StackFeature
 	{
 		CREATURE_ABILITY,
 		BONUS_FROM_HERO,
-		SPELL_EFFECT
+		SPELL_EFFECT,
+		OTHER_SOURCE /*eg. bonus from terrain if native*/
 	};
 
 	ui8 type;//ECombatFeatures
