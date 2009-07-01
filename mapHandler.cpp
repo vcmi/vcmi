@@ -762,6 +762,8 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 
 			for(int h=0; h < objects.size(); ++h)
 			{
+				if(!objects[h].first->coveringAt(objects[h].first->pos.x - (top_tile.x + bx), top_tile.y + by - objects[h].first->pos.y + 5))
+					continue;
 				SDL_Rect sr;
 
 				sr.x = srx;

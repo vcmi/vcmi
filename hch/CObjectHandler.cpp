@@ -186,6 +186,14 @@ bool CGObjectInstance::blockingAt(int x, int y) const
 		return true;
 	return false;
 }
+
+bool CGObjectInstance::coveringAt(int x, int y) const
+{
+	if((defInfo->coverageMap[y] >> (7-(x) )) & 1)
+		return true;
+	return false;
+}
+
 bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen printing priority comparing
 {
 	if(defInfo->printPriority==1 && cmp.defInfo->printPriority==0)

@@ -126,6 +126,7 @@ public:
 	int getHeight() const; //returns height of object graphic in tiles
 	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) form left top tile of image (x, y in tiles)
+	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
 	CGObjectInstance();
 	virtual ~CGObjectInstance();

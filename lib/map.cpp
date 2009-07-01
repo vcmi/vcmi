@@ -6,6 +6,7 @@
 #include "VCMI_Lib.h"
 #include <zlib.h>
 #include <boost/crc.hpp>
+#include "../hch/CLodHandler.h"
 
 /*
  * map.cpp, part of VCMI engine
@@ -1357,6 +1358,14 @@ void Mapa::readDefInfo( unsigned char * bufor, int &i)
 
 		if(vinya->id == 26)
 			std::memset(vinya->blockMap,255,6);
+
+		//calculating coverageMap
+		std::string nameCopy = vinya->name;
+		std::string msk = spriteh->getTextFile(nameCopy.replace( nameCopy.size()-4, 4, ".MSK" ));
+		for(int i=0; i<6; ++i)
+		{
+			vinya->coverageMap[i] = msk[i+2];
+		}
 
 		defy.push_back(vinya); // add this def to the vector
 	}

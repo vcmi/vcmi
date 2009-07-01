@@ -55,6 +55,7 @@ void CDefObjInfoHandler::load()
 		{
 			nobj->blockMap[o] = 0xff;
 			nobj->visitMap[o] = 0x00;
+			nobj->coverageMap[0] = 0x00;
 		}
 		inp>>mapStr;
 		std::reverse(mapStr.begin(), mapStr.end());
@@ -100,6 +101,16 @@ void CDefObjInfoHandler::load()
 			}
 		}
 		inp >> nobj->printPriority;
+
+		//coverageMap calculating
+		std::string nameCopy = nobj->name;
+		std::string msk = spriteh->getTextFile(nameCopy.replace( nameCopy.size()-4, 4, ".MSK" ));
+		for(int i=0; i<6; ++i)
+		{
+			nobj->coverageMap[i] = msk[i+2];
+		}
+
+
 		gobjs[nobj->id][nobj->subid] = nobj;
 		if(nobj->id==TOWNI_TYPE)
 			castles[nobj->subid]=nobj;

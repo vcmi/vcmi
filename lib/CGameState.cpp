@@ -1343,33 +1343,37 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 	else if(tile==int3() && !curB)
 		return -1;
 
-	//std::vector < std::pair<const CGObjectInstance*,SDL_Rect> > & objs = CGI->mh->ttiles[tile.x][tile.y][tile.z].objects;
-	//for(int g=0; g<objs.size(); ++g)
-	//{
-	//	switch(objs[g].first->ID)
-	//	{
-	//	case 222: //clover field
-	//		return 19;
-	//	case 223: //cursed ground
-	//		return 22;
-	//	case 224: //evil fog
-	//		return 20;
-	//	case 225: //favourable winds
-	//		return 21;
-	//	case 226: //fiery fields
-	//		return 14;
-	//	case 227: //holy ground
-	//		return 18;
-	//	case 228: //lucid pools
-	//		return 17;
-	//	case 229: //magic clouds
-	//		return 16;
-	//	case 230: //magic plains
-	//		return 9;
-	//	case 231: //rocklands
-	//		return 15;
-	//	}
-	//}
+	std::vector <CGObjectInstance*> & objs = map->objects;
+	for(int g=0; g<objs.size(); ++g)
+	{
+		if( objs[g]->pos.x - tile.x < 0 || objs[g]->pos.x - tile.x >= 8 || tile.y - objs[g]->pos.y + 5 < 0 || tile.y - objs[g]->pos.y + 5 >=6 ||
+			!objs[g]->coveringAt(objs[g]->pos.x - tile.x, tile.y - objs[g]->pos.y + 5)
+			) //look only for objects covering given tile
+			continue;
+		switch(objs[g]->ID)
+		{
+		case 222: //clover field
+			return 19;
+		case 223: //cursed ground
+			return 22;
+		case 224: //evil fog
+			return 20;
+		case 225: //favourable winds
+			return 21;
+		case 226: //fiery fields
+			return 14;
+		case 227: //holy ground
+			return 18;
+		case 228: //lucid pools
+			return 17;
+		case 229: //magic clouds
+			return 16;
+		case 230: //magic plains
+			return 9;
+		case 231: //rocklands
+			return 15;
+		}
+	}
 
 	switch(map->terrain[tile.x][tile.y][tile.z].tertype)
 	{
