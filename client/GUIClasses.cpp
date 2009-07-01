@@ -67,6 +67,8 @@ static StackState* getStackState(const CGObjectInstance *obj, int pos, bool town
 	if(!h) return NULL;
 
 	StackState *pom = new StackState();
+	pom->shotsLeft = -1;
+	pom->healthBonus = h->valOfBonuses(HeroBonus::STACK_HEALTH);
 	pom->currentHealth = 0;
 	pom->attackBonus = h->getPrimSkillLevel(0);
 	pom->defenseBonus = h->getPrimSkillLevel(1);
@@ -2033,8 +2035,8 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	if(c->shots)
 	{
 		printAt(CGI->generaltexth->allTexts[198],155,86,GEOR13,zwykly,bitmap);
-		if(State)
-			sprintf(pom,"%d(%d)",c->shots,State->shotsLeft);
+		if(State  &&  State->shotsLeft >= 0)
+			sprintf(pom,"%d (%d)",c->shots,State->shotsLeft);
 		else
 			SDL_itoa(c->shots,pom,10);
 		printToWR(pom,276,99,GEOR13,zwykly,bitmap);
@@ -2053,7 +2055,10 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 
 	//health
 	printAt(CGI->generaltexth->allTexts[388],155,124,GEOR13,zwykly,bitmap);
-	SDL_itoa(c->hitPoints + State->healthBonus,pom,10);
+	if(State  &&  State->healthBonus)
+		sprintf(pom,"%d (%d)",c->hitPoints, c->hitPoints + State->healthBonus);
+	else
+		SDL_itoa(c->hitPoints,pom,10);
 	printToWR(pom,276,137,GEOR13,zwykly,bitmap);
 
 	//remaining health

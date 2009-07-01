@@ -1561,6 +1561,24 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 				LOCPLINT->openTownWindow(static_cast<const CGTownInstance*>(selection));
 			return;
 		}
+	case SDLK_t:
+		{
+			//act on key down if marketplace windows is not already opened
+			if(key.state != SDL_PRESSED  ||  dynamic_cast<CMarketplaceWindow*>(LOCPLINT->topInt())) return;
+
+			//check if we have aby marketplace
+			std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo();
+			size_t i = 0;
+			for(; i<towns.size(); i++)
+				if(vstd::contains(towns[i]->builtBuildings, 14))
+					break;
+
+			if(i != towns.size()) //if any town has marketplace, open window
+				LOCPLINT->pushInt(new CMarketplaceWindow); 
+			else //if not - complain
+				LOCPLINT->showInfoDialog("No available marketplace!", std::vector<SComponent*>(), soundBase::sound_todo);
+			return;
+		}
 	default: 
 		return;
 	}

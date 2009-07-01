@@ -2656,6 +2656,13 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 		if(t->visitingHero == o1  ||  t->garrisonHero == o1)
 			return true;
 	}
+	if(o1->ID == HEROI_TYPE && o2->ID == HEROI_TYPE
+		&& distance(o1->pos, o2->pos) < 2) //hero stands on the same tile or on the neighbouring tiles
+	{
+		//TODO: it's workaround, we should check if first hero visited second and player hasn't closed exchange window
+		//(to block moving stacks for free [without visiting] beteen heroes)
+		return true;
+	}
 
 	return false;
 }
