@@ -298,31 +298,30 @@ static int getDir(int3 src, int3 dst)
 	}
 	return ret;
 }
-void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
+void CPlayerInterface::heroMoved(const TryMoveHero & details)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	const CGHeroInstance * ho = cb->getHeroInfo(details.id); //object representing this hero
 
-	adventureInt->centerOn(details.ho->pos); //actualizing screen pos
+	adventureInt->centerOn(ho->pos); //actualizing screen pos
 	adventureInt->minimap.draw(screen2);
 	adventureInt->heroList.draw(screen2);
 
-	if(details.style>0  ||  details.src == details.dst)
+	if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
 		return;
 
 	//initializing objects and performing first step of move
-	const CGHeroInstance * ho = details.ho; //object representing this hero
-	int3 hp = details.src;
-	if (!details.successful) //hero failed to move
+	int3 hp = details.start;
+	if (details.result != TryMoveHero::SUCCESS) //hero failed to move
 	{
-		if(ho->movement > 50)
-			ho->moveDir = getDir(details.src,details.dst);
-		ho->isStanding = true;
-
-		if(ho->movement)
+		if(details.result == TryMoveHero::BLOCKING_VISIT)
 		{
+			ho->moveDir = getDir(details.start,details.end);
 			adventureInt->paths.erase(ho);
 			adventureInt->terrain.currentPath = NULL;
 		}
+
+		ho->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);
 		return;
 	}
@@ -339,7 +338,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	}
 
 
-	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
+	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
 	{
 		ho->moveDir = 1;
 		ho->isStanding = false;
@@ -367,7 +366,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 
 		std::stable_sort(CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-3][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
-	else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
+	else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
 	{
 		ho->moveDir = 2;
 		ho->isStanding = false;
@@ -387,7 +386,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y-2][hp.z].objects.end(), ocmptwo_cgin);
 	}
-	else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
+	else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
 	{
 		ho->moveDir = 3;
 		ho->isStanding = false;
@@ -415,7 +414,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
-	else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
+	else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
 	{
 		ho->moveDir = 4;
 		ho->isStanding = false;
@@ -433,7 +432,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y][hp.z].objects.end(), ocmptwo_cgin);
 	}
-	else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
+	else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
 	{
 		ho->moveDir = 5;
 		ho->isStanding = false;
@@ -461,7 +460,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x+1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 	}
-	else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
+	else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
 	{
 		ho->moveDir = 6;
 		ho->isStanding = false;
@@ -481,7 +480,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 	}
-	else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
+	else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
 	{
 		ho->moveDir = 7;
 		ho->isStanding = false;
@@ -509,7 +508,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		std::stable_sort(CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x-1][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 		std::stable_sort(CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.begin(), CGI->mh->ttiles[hp.x][hp.y+1][hp.z].objects.end(), ocmptwo_cgin);
 	}
-	else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
+	else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
 	{
 		ho->moveDir = 8;
 		ho->isStanding = false;
@@ -532,7 +531,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//main moving
 	for(int i=1; i<32; i+=2*heroMoveSpeed)
 	{
-		if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
+		if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
 		{
 			//setting advmap shift
 			adventureInt->terrain.moveX = i-32;
@@ -553,7 +552,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 33+i, 33+i), ho->id);
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 65+i, 33+i), ho->id);
 		}
-		else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
+		else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
 		{
 			//setting advmap shift
 			adventureInt->terrain.moveY = i-32;
@@ -570,7 +569,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-1, hp.y, hp.z, genRect(32, 32, 32, 33+i), ho->id);
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 64, 33+i), ho->id);
 		}
-		else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
+		else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
 		{
 			//setting advmap shift
 			adventureInt->terrain.moveX = -i+32;
@@ -591,7 +590,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 33+i), ho->id);
 			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 33+i), ho->id);
 		}
-		else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
+		else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
 		{
 			//setting advmap shift
 			adventureInt->terrain.moveX = -i+32;
@@ -606,7 +605,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x, hp.y, hp.z, genRect(32, 32, 63-i, 32), ho->id);
 			subRect(hp.x+1, hp.y, hp.z, genRect(32, 32, 95-i, 32), ho->id);
 		}
-		else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
+		else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
 		{
 			
 			//setting advmap shift
@@ -628,7 +627,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 63-i, 63-i), ho->id);
 			subRect(hp.x+1, hp.y+1, hp.z, genRect(32, 32, 95-i, 63-i), ho->id);
 		}
-		else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
+		else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
 		{
 			//setting advmap shift
 			adventureInt->terrain.moveY = -i+32;
@@ -645,7 +644,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 32, 63-i), ho->id);
 			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 64, 63-i), ho->id);
 		}
-		else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
+		else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
 		{
 			//setting advmap shift
 			adventureInt->terrain.moveX = i-32;
@@ -666,7 +665,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 			subRect(hp.x-1, hp.y+1, hp.z, genRect(32, 32, 33+i, 63-i), ho->id);
 			subRect(hp.x, hp.y+1, hp.z, genRect(32, 32, 65+i, 63-i), ho->id);
 		}
-		else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
+		else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
 		{
 			//setting advmap shift
 			adventureInt->terrain.moveX = i-32;
@@ -695,7 +694,7 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 	//restoring adventureInt->terrain.move*
 	adventureInt->terrain.moveX = adventureInt->terrain.moveY = 0;
 
-	if(details.dst.x+1 == details.src.x && details.dst.y+1 == details.src.y) //tl
+	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
 	{
 		delObjRect(hp.x, hp.y-2, hp.z, ho->id);
 		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
@@ -704,13 +703,13 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
 		delObjRect(hp.x-3, hp.y, hp.z, ho->id);
 	}
-	else if(details.dst.x == details.src.x && details.dst.y+1 == details.src.y) //t
+	else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
 	{
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
 		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
 	}
-	else if(details.dst.x-1 == details.src.x && details.dst.y+1 == details.src.y) //tr
+	else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
 	{
 		delObjRect(hp.x-2, hp.y-2, hp.z, ho->id);
 		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
@@ -719,12 +718,12 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x-1, hp.y, hp.z, ho->id);
 		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
 	}
-	else if(details.dst.x-1 == details.src.x && details.dst.y == details.src.y) //r
+	else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
 	{
 		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
 	}
-	else if(details.dst.x-1 == details.src.x && details.dst.y-1 == details.src.y) //br
+	else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
 	{
 		delObjRect(hp.x-2, hp.y+1, hp.z, ho->id);
 		delObjRect(hp.x-2, hp.y, hp.z, ho->id);
@@ -733,13 +732,13 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
 	}
-	else if(details.dst.x == details.src.x && details.dst.y-1 == details.src.y) //b
+	else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
 	{
 		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x-2, hp.y-1, hp.z, ho->id);
 	}
-	else if(details.dst.x+1 == details.src.x && details.dst.y-1 == details.src.y) //bl
+	else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
 	{
 		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x-1, hp.y-1, hp.z, ho->id);
@@ -748,29 +747,29 @@ void CPlayerInterface::heroMoved(const HeroMoveDetails & details)
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 		delObjRect(hp.x, hp.y+1, hp.z, ho->id);
 	}
-	else if(details.dst.x+1 == details.src.x && details.dst.y == details.src.y) //l
+	else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
 	{
 		delObjRect(hp.x, hp.y-1, hp.z, ho->id);
 		delObjRect(hp.x, hp.y, hp.z, ho->id);
 	}
 
 	//restoring good rects
-	subRect(details.dst.x-2, details.dst.y-1, details.dst.z, genRect(32, 32, 0, 0), ho->id);
-	subRect(details.dst.x-1, details.dst.y-1, details.dst.z, genRect(32, 32, 32, 0), ho->id);
-	subRect(details.dst.x, details.dst.y-1, details.dst.z, genRect(32, 32, 64, 0), ho->id);
+	subRect(details.end.x-2, details.end.y-1, details.end.z, genRect(32, 32, 0, 0), ho->id);
+	subRect(details.end.x-1, details.end.y-1, details.end.z, genRect(32, 32, 32, 0), ho->id);
+	subRect(details.end.x, details.end.y-1, details.end.z, genRect(32, 32, 64, 0), ho->id);
 
-	subRect(details.dst.x-2, details.dst.y, details.dst.z, genRect(32, 32, 0, 32), ho->id);
-	subRect(details.dst.x-1, details.dst.y, details.dst.z, genRect(32, 32, 32, 32), ho->id);
-	subRect(details.dst.x, details.dst.y, details.dst.z, genRect(32, 32, 64, 32), ho->id);
+	subRect(details.end.x-2, details.end.y, details.end.z, genRect(32, 32, 0, 32), ho->id);
+	subRect(details.end.x-1, details.end.y, details.end.z, genRect(32, 32, 32, 32), ho->id);
+	subRect(details.end.x, details.end.y, details.end.z, genRect(32, 32, 64, 32), ho->id);
 
 	//restoring good order of objects
-	std::stable_sort(CGI->mh->ttiles[details.dst.x-2][details.dst.y-1][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-2][details.dst.y-1][details.dst.z].objects.end(), ocmptwo_cgin);
-	std::stable_sort(CGI->mh->ttiles[details.dst.x-1][details.dst.y-1][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-1][details.dst.y-1][details.dst.z].objects.end(), ocmptwo_cgin);
-	std::stable_sort(CGI->mh->ttiles[details.dst.x][details.dst.y-1][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x][details.dst.y-1][details.dst.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y-1][details.end.z].objects.end(), ocmptwo_cgin);
 
-	std::stable_sort(CGI->mh->ttiles[details.dst.x-2][details.dst.y][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-2][details.dst.y][details.dst.z].objects.end(), ocmptwo_cgin);
-	std::stable_sort(CGI->mh->ttiles[details.dst.x-1][details.dst.y][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x-1][details.dst.y][details.dst.z].objects.end(), ocmptwo_cgin);
-	std::stable_sort(CGI->mh->ttiles[details.dst.x][details.dst.y][details.dst.z].objects.begin(), CGI->mh->ttiles[details.dst.x][details.dst.y][details.dst.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-2][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x-1][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
+	std::stable_sort(CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.begin(), CGI->mh->ttiles[details.end.x][details.end.y][details.end.z].objects.end(), ocmptwo_cgin);
 
 	ho->isStanding = true;
 	//move finished

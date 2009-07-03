@@ -39,7 +39,7 @@ public:
 	SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff);//c-tor
 };
 
-class CSpellWindow : public IShowActivable, public CIntObject
+class CSpellWindow : public IShowActivable, public KeyInterested
 {
 private:
 	class SpellArea : public ClickableL, public ClickableR, public Hoverable
@@ -83,7 +83,7 @@ private:
 	void turnPageRight();
 
 public:
-	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero); //c-tor
+	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero, bool openOnBattleSpells = true); //c-tor
 	~CSpellWindow(); //d-tor
 
 	void fexitb();
@@ -100,6 +100,7 @@ public:
 	void fLcornerb();
 	void fRcornerb();
 
+	void keyPressed(const SDL_KeyboardEvent & key);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);

@@ -1326,7 +1326,7 @@ void CAdvMapInt::fshowSpellbok()
 		return;
 
 
-	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), (static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection)));
+	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), (static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection)), false);
 	LOCPLINT->pushInt(spellWindow);
 }
 

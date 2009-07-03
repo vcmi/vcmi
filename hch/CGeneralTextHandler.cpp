@@ -25,6 +25,13 @@ std::string readTo(std::string &in, int &it, char end)
 	it+=(1+last-it);
 	return in.substr(pom,last-pom);
 }
+
+void trimQuotation(std::string &op)
+{
+	if(op[0] == '\"' && op[op.size()-1] == '\"')
+		op = op.substr(1,op.size()-2);
+}
+
 void CGeneralTextHandler::load()
 {
 	std::string buf1 = bitmaph->getTextFile("ZELP.TXT");
@@ -47,9 +54,7 @@ void CGeneralTextHandler::load()
 				buf1.substr(pom+1,eol-pom-1)));
 			boost::algorithm::replace_all(zelp[zelp.size()-1].first,"\t","");
 			boost::algorithm::replace_all(zelp[zelp.size()-1].second,"\t","");
-			std::string &op = zelp.back().second;
-			if(op[0] == '\"' && op[op.size()-1] == '\"')
-				op =op.substr(1,op.size()-2);
+			trimQuotation(zelp.back().second);
 		}
 		itr=eol+2;
 	}
@@ -385,6 +390,8 @@ void CGeneralTextHandler::load()
 		loadToIt(skillInfoTexts[i][0],buf,it,4);
 		loadToIt(skillInfoTexts[i][1],buf,it,4);
 		loadToIt(skillInfoTexts[i][2],buf,it,3);
+		for(int j = 0; j < 3; j++)
+			trimQuotation(skillInfoTexts[i][j]);
 	}
 	buf = bitmaph->getTextFile("SKILLLEV.TXT");
 	it=0;

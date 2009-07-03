@@ -56,7 +56,7 @@ void CGeniusAI::heroCreated(const CGHeroInstance *)
 {
 }
 
-void CGeniusAI::heroMoved(const HeroMoveDetails &)
+void CGeniusAI::heroMoved(const TryMoveHero &)
 {
 }
 

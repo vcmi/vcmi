@@ -140,19 +140,17 @@ void RemoveObject::applyCl( CClient *cl )
 
 void TryMoveHero::applyFirstCl( CClient *cl )
 {
-	if(result>1)
+	if(result == TELEPORTATION)
 		CGI->mh->removeObject(GS(cl)->getHero(id));
 }
 
 void TryMoveHero::applyCl( CClient *cl )
 {
-	HeroMoveDetails hmd(start,end,GS(cl)->getHero(id));
-	hmd.style = result-1;
-	hmd.successful = result;
+	const CGHeroInstance *h = cl->getHero(id);
 
-	if(result>1)
-		CGI->mh->printObject(hmd.ho);
-	int player = hmd.ho->tempOwner;
+	if(result == TELEPORTATION)
+		CGI->mh->printObject(h);
+	int player = h->tempOwner;
 
 	if(vstd::contains(cl->playerint,player))
 	{
@@ -165,7 +163,7 @@ void TryMoveHero::applyCl( CClient *cl )
 		if(i->first >= PLAYER_LIMIT) continue;
 		if(GS(cl)->players[i->first].fogOfWarMap[start.x-1][start.y][start.z] || GS(cl)->players[i->first].fogOfWarMap[end.x-1][end.y][end.z])
 		{
-			i->second->heroMoved(hmd);
+			i->second->heroMoved(*this);
 		}
 	}
 }

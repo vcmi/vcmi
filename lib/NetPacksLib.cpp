@@ -241,7 +241,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(id);
 	h->movement = movePoints;
-	if(start!=end && result)
+	if(start!=end && (result == SUCCESS || result == TELEPORTATION))
 	{
 		gs->map->removeBlockVisTiles(h);
 		h->pos = end;

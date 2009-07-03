@@ -212,15 +212,18 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	{
 		primSkillAreas[g]->bonus = hero->getPrimSkillLevel(g);
 	}
+
 	//secondary skills support
 	for(size_t g=0; g<hero->secSkills.size(); ++g)
 	{
-		secSkillAreas[g]->type = hero->secSkills[g].first;
-		secSkillAreas[g]->bonus = hero->secSkills[g].second;
-		std::string hlp = CGI->generaltexth->skillInfoTexts[ hero->secSkills[g].first ][hero->secSkills[g].second-1];
-		secSkillAreas[g]->text = hlp.substr(1, hlp.size()-2);
+		int skill = hero->secSkills[g].first, 
+			level = hero->secSkills[g].second;
 
-		sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[hero->secSkills[g].second-1].c_str(), CGI->generaltexth->skillName[hero->secSkills[g].first].c_str());
+		secSkillAreas[g]->type = skill;
+		secSkillAreas[g]->bonus = level;
+		secSkillAreas[g]->text = CGI->generaltexth->skillInfoTexts[skill][level-1];
+
+		sprintf(bufor, CGI->generaltexth->heroscrn[21].c_str(), CGI->generaltexth->levels[level-1].c_str(), CGI->generaltexth->skillName[skill].c_str());
 		secSkillAreas[g]->hoverText = std::string(bufor);
 	}
 

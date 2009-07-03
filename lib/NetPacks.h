@@ -359,8 +359,13 @@ struct TryMoveHero : public CPackForClient //501
 	void applyCl(CClient *cl);
 	void applyGs(CGameState *gs);
 
+	enum EResult
+	{
+		FAILED, SUCCESS, TELEPORTATION, RESERVED___, BLOCKING_VISIT
+	};
+
 	ui32 id, movePoints;
-	ui8 result; //0 - failed; 1- succes -normal move; 2 - teleportation, 3 - instant jump
+	ui8 result; //uses EResult
 	int3 start, end;
 	std::set<int3> fowRevealed; //revealed tiles
 

@@ -32,7 +32,7 @@ class CDefEssential;
 class AdventureMapButton;
 class CHighlightableButtonsGroup;
 class CDefHandler;
-struct HeroMoveDetails;
+struct TryMoveHero;
 class CDefEssential;
 class CGHeroInstance;
 class CAdvMapInt;
@@ -127,7 +127,7 @@ public:
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	void heroInGarrisonChange(const CGTownInstance *town);
 	void heroKilled(const CGHeroInstance* hero);
-	void heroMoved(const HeroMoveDetails & details);
+	void heroMoved(const TryMoveHero & details);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void heroManaPointsChanged(const CGHeroInstance * hero);
 	void heroMovePointsChanged(const CGHeroInstance * hero);

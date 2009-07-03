@@ -1156,7 +1156,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	tmh.id = hid;
 	tmh.start = h->pos;
 	tmh.end = dst;
-	tmh.result = 0;
+	tmh.result = TryMoveHero::FAILED;
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
@@ -1196,6 +1196,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		//we start moving
 		if(blockvis)//interaction with blocking object (like resources)
 		{
+			tmh.result = TryMoveHero::BLOCKING_VISIT;
 			sendAndApply(&tmh); 
 			//failed to move to that tile but we visit object
 			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
@@ -1210,7 +1211,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		}
 		else //normal move
 		{
-			tmh.result = 1;
+			tmh.result = TryMoveHero::SUCCESS;
 
 			BOOST_FOREACH(CGObjectInstance *obj, gs->map->terrain[h->pos.x-1][h->pos.y][h->pos.z].visitableObjects)
 			{
@@ -1243,7 +1244,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 				return true;
 			}
 		}
-		tmh.result = instant+1;
+		tmh.result = TryMoveHero::TELEPORTATION;
 		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
 		sendAndApply(&tmh);
 		return true;

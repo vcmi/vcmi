@@ -77,8 +77,8 @@ void SpellbookInteractiveArea::deactivate()
 	Hoverable::deactivate();
 }
 
-CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero):
-	battleSpellsOnly(true),
+CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero, bool openOnBattleSpells):
+	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
 	spellSite(0)
 {
@@ -594,6 +594,7 @@ void CSpellWindow::computeSpellsPerArea()
 
 void CSpellWindow::activate()
 {
+	KeyInterested::activate();
 	exitBtn->activate();
 	battleSpells->activate();
 	adventureSpells->activate();
@@ -616,6 +617,7 @@ void CSpellWindow::activate()
 
 void CSpellWindow::deactivate()
 {
+	KeyInterested::deactivate();
 	exitBtn->deactivate();
 	battleSpells->deactivate();
 	adventureSpells->deactivate();
@@ -644,6 +646,12 @@ void CSpellWindow::turnPageLeft()
 void CSpellWindow::turnPageRight()
 {
 	CGI->videoh->openAndPlayVideo("PGTRNRGH.SMK", pos.x+13, pos.y+15, screen);
+}
+
+void CSpellWindow::keyPressed(const SDL_KeyboardEvent & key)
+{
+	if(key.keysym.sym == SDLK_ESCAPE ||  key.keysym.sym == SDLK_RETURN)
+		fexitb();
 }
 
 CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
