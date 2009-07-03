@@ -219,34 +219,53 @@ void CHeroHandler::loadHeroes()
 		heroes.push_back(nher);
 	}
 	//loading initial secondary skills
-	std::ifstream inp;
-	inp.open("config" PATHSEPARATOR "heroes_sec_skills.txt", std::ios_base::in|std::ios_base::binary);
-	if(!inp.is_open())
 	{
-		tlog1<<"missing file: config/heroes_sec_skills.txt"<<std::endl;
-	}
-	else
-	{
-		inp>>dump;
-		int hid; //ID of currently read hero
-		int secQ; //number of secondary abilities
-		while(true)
+		std::ifstream inp;
+		inp.open("config" PATHSEPARATOR "heroes_sec_skills.txt", std::ios_base::in|std::ios_base::binary);
+		if(!inp.is_open())
 		{
-			inp>>hid;
-			if(hid == -1)
-				break;
-			inp>>secQ;
-			for(int g=0; g<secQ; ++g)
-			{
-				int a, b;
-				inp>>a; inp>>b;
-				heroes[hid]->secSkillsInit.push_back(std::make_pair(a, b));
-			}
+			tlog1<<"missing file: config/heroes_sec_skills.txt"<<std::endl;
 		}
-		inp.close();
+		else
+		{
+			inp>>dump;
+			int hid; //ID of currently read hero
+			int secQ; //number of secondary abilities
+			while(true)
+			{
+				inp>>hid;
+				if(hid == -1)
+					break;
+				inp>>secQ;
+				for(int g=0; g<secQ; ++g)
+				{
+					int a, b;
+					inp>>a; inp>>b;
+					heroes[hid]->secSkillsInit.push_back(std::make_pair(a, b));
+				}
+			}
+			inp.close();
+		}
 	}
 	//initial skills loaded
 
+	{
+		std::ifstream inp;
+		std::istringstream iss;
+		dump.clear();
+		inp.open("config" PATHSEPARATOR "hero_spells.txt");
+		while(inp)
+		{
+			getline(inp, dump);
+			if(!dump.size()  ||  dump[0] == '-')
+				continue;
+			iss.clear();
+			iss.str(dump);
+			int hid, sid;
+			iss >> hid >> sid;
+			heroes[hid]->startingSpell = sid;
+		}
+	}
 	loadHeroClasses();
 	initHeroClasses();
 	expPerLevel.push_back(0);
@@ -525,4 +544,14 @@ void CHeroHandler::loadNativeTerrains()
 		nativeTerrains[faction] = terrain;
 	}
 	inp.close();
+}
+
+CHero::CHero()
+{
+	startingSpell = -1;
+}
+
+CHero::~CHero()
+{
+
 }

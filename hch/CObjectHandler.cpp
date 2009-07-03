@@ -496,9 +496,10 @@ void CGHeroInstance::initHero()
 	if(!type)
 		type = VLC->heroh->heroes[subID];
 	artifWorn[16] = 3;
-	if(type->heroType % 2 == 1) //it's a magical hero
+	if(type->startingSpell >= 0) //hero starts with a spell
 	{
 		artifWorn[17] = 0; //give him spellbook
+		spells.insert(type->startingSpell);
 	}
 
 	if(portrait < 0 || portrait == 255)
