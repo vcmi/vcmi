@@ -459,11 +459,27 @@ void ShowInInfobox::applyCl(CClient *cl)
 	}
 }
 
-void HeroExchange::applyFirstCl(CClient *cl)
+void OpenWindow::applyFirstCl(CClient *cl)
 {
 }
 
-void HeroExchange::applyCl(CClient *cl)
+void OpenWindow::applyCl(CClient *cl)
 {
-	cl->playerint[player]->heroExchangeStarted(hero1, hero2);
+	switch(window)
+	{
+	case EXCHANGE_WINDOW:
+		{
+			const CGHeroInstance *h = cl->getHero(id1);
+			const CGObjectInstance *h2 = cl->getHero(id2);
+			assert(h && h2);
+			INTERFACE_CALL_IF_PRESENT(h->tempOwner,heroExchangeStarted, id1, id2);
+		}
+		break;
+	case RECRUITMENT_FIRST:
+		{
+			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl->getObj(id1));
+			INTERFACE_CALL_IF_PRESENT(dw->tempOwner,showRecruitmentDialog, dw, 0);
+		}
+	}
+
 }

@@ -134,8 +134,7 @@ public:
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);
 	void receivedResource(int type, int val);
 	void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID);
-	//void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
-	//void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID);
+	void showRecruitmentDialog(const CGDwelling *dwelling, int level);
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
 	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war

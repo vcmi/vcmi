@@ -305,49 +305,58 @@ void Graphics::loadHeroPortraits()
 	}
 	of.close();
 }
-void Graphics::loadHeroAnim()
+void Graphics::loadHeroAnims()
 {
-	heroAnims.resize(F_NUMBER * 2);
 	std::vector<std::pair<int,int> > rotations; //first - group number to be rotated1, second - group number after rotation1
 	rotations += std::make_pair(6,10), std::make_pair(7,11), std::make_pair(8,12), std::make_pair(1,13),
 		std::make_pair(2,14), std::make_pair(3,15);
-	for(size_t i=0; i<heroAnims.size(); ++i)
+	for(size_t i=0; i<F_NUMBER * 2; ++i)
 	{
 		std::ostringstream nm;
 		nm << "AH" << std::setw(2) << std::setfill('0') << i << "_.DEF";
+		loadHeroAnim(nm.str(), rotations, &Graphics::heroAnims);
 		std::string name = nm.str();
-		heroAnims[i] = CDefHandler::giveDefEss(name);
-		int pom = 0; //how many groups has been rotated
-		for(int o=7; pom<6; ++o)
+	}	
+
+	loadHeroAnim("AB01_.DEF", rotations, &Graphics::boatAnims);
+	loadHeroAnim("AB02_.DEF", rotations, &Graphics::boatAnims);
+	loadHeroAnim("AB03_.DEF", rotations, &Graphics::boatAnims);
+}
+
+void Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst )
+{
+	CDefEssential *anim = CDefHandler::giveDefEss(name);
+	heroAnims.push_back(anim);
+	int pom = 0; //how many groups has been rotated
+	for(int o=7; pom<6; ++o)
+	{
+		for(int p=0;p<6;p++)
 		{
-			for(int p=0;p<6;p++)
+			if(anim->ourImages[o].groupNumber == rotations[p].first)
 			{
-				if(heroAnims[i]->ourImages[o].groupNumber==rotations[p].first)
+				for(int e=0; e<8; ++e)
 				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(heroAnims[i]->ourImages[o+e].bitmap);
-						nci.groupNumber = rotations[p].second;
-						nci.imName = std::string();
-						heroAnims[i]->ourImages.push_back(nci);
-						if(pom>2) //we need only one frame for groups 13/14/15
-							break;
-					}
-					if(pom<3) //there are eight frames of animtion of groups 6/7/8 so for speed we'll skip them
-						o+=8;
-					else //there is only one frame of 1/2/3
-						o+=1;
-					++pom;
-					if(p==2 && pom<4) //group1 starts at index 1
-						o = 1;
+					Cimage nci;
+					nci.bitmap = CSDL_Ext::rotate01(anim->ourImages[o+e].bitmap);
+					nci.groupNumber = rotations[p].second;
+					nci.imName = std::string();
+					anim->ourImages.push_back(nci);
+					if(pom>2) //we need only one frame for groups 13/14/15
+						break;
 				}
+				if(pom<3) //there are eight frames of animtion of groups 6/7/8 so for speed we'll skip them
+					o+=8;
+				else //there is only one frame of 1/2/3
+					o+=1;
+				++pom;
+				if(p==2 && pom<4) //group1 starts at index 1
+					o = 1;
 			}
 		}
-		for(size_t ff=0; ff<heroAnims[i]->ourImages.size(); ++ff)
-		{
-			CSDL_Ext::alphaTransform(heroAnims[i]->ourImages[ff].bitmap);
-		}
+	}
+	for(size_t ff=0; ff<anim->ourImages.size(); ++ff)
+	{
+		CSDL_Ext::alphaTransform(anim->ourImages[ff].bitmap);
 	}
 }
 

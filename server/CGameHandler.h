@@ -156,6 +156,7 @@ public:
 	void close();
 	void handleTimeEvents();
 	bool complain(const std::string &problem); //sends message to all clients, prints on the logs and return true
+	void objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h );
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

@@ -284,7 +284,22 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 };
 
-class DLL_EXPORT CGTownInstance : public CArmedInstance
+class DLL_EXPORT CGDwelling : public CArmedInstance
+{
+public:
+	std::vector<std::pair<ui32, std::vector<ui32> > > creatures; //creatures[level] -> <vector of alternative ids (base creature and upgrades, creatures amount>
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this) & creatures;
+	}
+
+	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void newTurn() const;
+};
+
+class DLL_EXPORT CGTownInstance : public CGDwelling
 {
 public:
 	CTown * town;
@@ -298,15 +313,15 @@ public:
 	std::vector<ui32> possibleSpells, obligatorySpells;
 	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
 
-	struct StrInfo
-	{
-		std::map<si32,ui32> creatures; //level - available amount
+	//struct StrInfo
+	//{
+	//	std::map<si32,ui32> creatures; //level - available amount
 
-		template <typename Handler> void serialize(Handler &h, const int version)
-		{
-			h & creatures;
-		}
-	} strInfo;
+	//	template <typename Handler> void serialize(Handler &h, const int version)
+	//	{
+	//		h & creatures;
+	//	}
+	//} strInfo;
 	std::set<CCastleEvent> events;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -316,7 +331,7 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & name & builded & destroyed & identifier & alignment & forbiddenBuildings & builtBuildings
-			& possibleSpells & obligatorySpells & spells & strInfo & events;
+			& possibleSpells & obligatorySpells & spells & /*strInfo & */events;
 
 		ui8 standardType = (&VLC->townh->towns[subID] == town);
 		h & standardType;
@@ -654,19 +669,6 @@ public:
 };
 
 class DLL_EXPORT CGTeleport : public CGObjectInstance //teleports and subterranean gates
-{
-public:
-	static std::map<int,std::map<int, std::vector<int> > > objs; //map[ID][subID] => vector of ids
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void initObj();	
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-	}
-};
-
-class DLL_EXPORT CGDwelling : public CGObjectInstance //teleports and subterranean gates
 {
 public:
 	static std::map<int,std::map<int, std::vector<int> > > objs; //map[ID][subID] => vector of ids

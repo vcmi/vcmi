@@ -932,15 +932,19 @@ void CCastleInterface::recreateBuildings()
 
 CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
 {
-	if(building>36)
+	if(building>36) //upg dwelling
 		building-=7;
+
+	int level = building-30;
+	assert(level >= 0 && level <= 6);
+
 	std::vector<std::pair<int,int > > crs;
-	int amount = (const_cast<CGTownInstance*>(town))->strInfo.creatures[building-30]; //trzeba odconstowac, bo inaczej operator [] by sypal :(
+	int amount = town->creatures[level].first;
 
-	if(town->builtBuildings.find(building+7) != town->builtBuildings.end()) //check if there is an upgraded building
-		crs.push_back(std::make_pair(town->town->upgradedCreatures[building-30],amount));
+	const std::vector<ui32> &cres = town->creatures[level].second;
 
-	crs.push_back(std::make_pair(town->town->basicCreatures[building-30],amount));
+	for(size_t i = 0; i < cres.size(); i++)
+		crs.push_back(std::make_pair((int)cres[i],amount));
 
 	CRecruitmentWindow *rw = new CRecruitmentWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 	LOCPLINT->pushInt(rw);
@@ -1436,7 +1440,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 		printAtMiddle(CGI->buildh->buildings[owner->town->subID][30+i+upgraded*7]->Name(),positions[i].x+79,positions[i].y+100,GEOR13,zwykly,bg); //dwelling name
 		if(present) //if creature is present print avail able quantity
 		{
-			SDL_itoa(owner->town->strInfo.creatures.find(i)->second,buf,10);
+			SDL_itoa(owner->town->creatures[i].first,buf,10);
 			printAtMiddle(CGI->generaltexth->allTexts[217] + buf,positions[i].x+79,positions[i].y+118,GEOR13,zwykly,bg);
 		}
 		blitAt(icons,positions[i].x+261,positions[i].y+3,bg);

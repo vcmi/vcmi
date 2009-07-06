@@ -773,63 +773,61 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 				SDL_Rect pp = objects[h].second;
 				pp.h = sr.h;
 				pp.w = sr.w;
-				const CGHeroInstance * themp = (dynamic_cast<const CGHeroInstance*>(objects[h].first));
 
-				if(themp && themp->moveDir && !themp->isStanding && themp->ID!=62) //last condition - this is not prison
+				const CGHeroInstance * themp = (objects[h].first->ID != HEROI_TYPE  
+					? NULL  
+					: static_cast<const CGHeroInstance*>(objects[h].first));
+
+				if(themp && themp->moveDir) //it's hero
 				{
 					int imgVal = 8;
 					SDL_Surface * tb;
-
 					if(themp->type==NULL)
 						continue;
 					std::vector<Cimage> & iv = graphics->heroAnims[themp->type->heroType]->ourImages;
 
-                    size_t gg;
-					for(gg=0; gg<iv.size(); ++gg)
+					if(!themp->isStanding) //hero is moving
 					{
-						if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
+						size_t gg;
+						for(gg=0; gg<iv.size(); ++gg)
 						{
-							tb = iv[gg+heroAnim%imgVal].bitmap;
-							break;
+							if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
+							{
+								tb = iv[gg+heroAnim%imgVal].bitmap;
+								break;
+							}
+						}
+						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
+						pp.y+=imgVal*2-32;
+						sr.y-=16;
+						SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, extSurf, &sr);
+					}
+					else //hero stands still
+					{
+						size_t gg;
+						for(gg=0; gg < iv.size(); ++gg)
+						{
+							if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
+							{
+								tb = iv[gg].bitmap;
+								break;
+							}
+						}
+						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
+
+						if(themp->pos.x==top_tile.x+bx && themp->pos.y==top_tile.y+by)
+						{
+							SDL_Rect bufr = sr;
+							bufr.x-=2*32;
+							bufr.y-=1*32;
+							bufr.h = 64;
+							bufr.w = 96;
+							if(bufr.x-extRect->x>-64)
+								SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, extSurf, &bufr);
 						}
 					}
-					CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
-					pp.y+=imgVal*2-32;
-					sr.y-=16;
-					SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, extSurf, &sr);
 				}
-				else if(themp && themp->moveDir && themp->isStanding && themp->ID!=62) //last condition - this is not prison)
-				{
-					int imgVal = 8;
-					SDL_Surface * tb;
-
-					if(themp->type==NULL)
-						continue;
-					std::vector<Cimage> & iv = graphics->heroAnims[themp->type->heroType]->ourImages;
-
-                    size_t gg;
-					for(gg=0; gg < iv.size(); ++gg)
-					{
-						if(iv[gg].groupNumber==getHeroFrameNum(themp->moveDir, !themp->isStanding))
-						{
-							tb = iv[gg].bitmap;
-							break;
-						}
-					}
-					CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
-
-					if(themp->pos.x==top_tile.x+bx && themp->pos.y==top_tile.y+by)
-					{
-						SDL_Rect bufr = sr;
-						bufr.x-=2*32;
-						bufr.y-=1*32;
-						bufr.h = 64;
-						bufr.w = 96;
-						if(bufr.x-extRect->x>-64)
-							SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, extSurf, &bufr);
-					}
-				}
-				else
+				else //blit object
 				{
 					const CGObjectInstance *obj = objects[h].first;
 					const std::vector<Cimage> &ourImages = obj->defInfo->handler->ourImages;

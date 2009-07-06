@@ -903,6 +903,77 @@ si32 CGHeroInstance::getArtPos(int aid) const
 	return -1;
 }
 
+void CGDwelling::initObj()
+{
+	switch(ID)
+	{
+	case 17:
+		creatures.resize(1);
+		creatures[0].second.push_back(VLC->objh->cregens[subID]);
+		break;
+	case 20:
+		creatures.resize(4);
+		if(subID == 1) // Elemental Conflux 
+		{
+			creatures[0].second.push_back(32);  //Stone Golem
+			creatures[1].second.push_back(33);  //Iron Golem  
+			creatures[2].second.push_back(116); //Gold Golem
+			creatures[3].second.push_back(117); //Diamond Golem
+		}
+		else if(subID == 1) //Golem Factory
+		{
+			creatures[0].second.push_back(112); //Air Elemental
+			creatures[1].second.push_back(113); //Earth Elemental
+			creatures[2].second.push_back(114); //Fire Elemental
+			creatures[3].second.push_back(115); //Water Elemental
+		}
+		else
+		{
+			assert(0);
+		}
+		break;
+	default:
+		assert(0);
+		break;
+	}
+}
+
+void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
+{
+	if(h->tempOwner != tempOwner)
+		cb->setOwner(id, h->tempOwner);
+
+	OpenWindow ow;
+	ow.id1 = id;
+	ow.id2 = id;
+	ow.window = OpenWindow::RECRUITMENT_FIRST;
+	cb->sendAndApply(&ow);
+}
+
+void CGDwelling::newTurn() const
+{
+	if(cb->getDate(1) != 1) //not first day of week
+		return;
+
+
+	bool change = false;
+
+	SetAvailableCreatures sac;
+	sac.creatures = creatures;
+	sac.tid = id;
+	for (size_t i = 0; i < creatures.size(); i++)
+	{
+		if(creatures[i].second.size())
+		{
+			sac.creatures[i].first += VLC->creh->creatures[creatures[i].second[0]].growth;
+			change = true;
+		}
+	}
+
+	if(change)
+		cb->sendAndApply(&sac);
+}
+
 int CGTownInstance::getSightRadious() const //returns sight distance
 {
 	return 5;
@@ -1042,6 +1113,15 @@ void CGTownInstance::initObj()
 	MetaString ms;
 	ms << name << ", " << town->Name();
 	hoverName = toString(ms);
+
+	creatures.resize(CREATURES_PER_TOWN);
+	for (int i = 0; i < CREATURES_PER_TOWN; i++)
+	{
+		if(creatureDwelling(i,false))
+			creatures[i].second.push_back(town->basicCreatures[i]);
+		if(creatureDwelling(i,true))
+			creatures[i].second.push_back(town->upgradedCreatures[i]);
+	}
 }
 
 int3 CGTownInstance::getSightCenter() const
@@ -2142,17 +2222,6 @@ const std::string & CGWitchHut::getHoverText() const
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	}
 	return hoverName;
-}
-
-
-void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
-{
-
-}
-
-void CGDwelling::initObj()
-{
-
 }
 
 void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const

@@ -122,7 +122,7 @@ void init()
 	tlog0<<"Screen handler: "<<pomtime.getDif()<<std::endl;
 	pomtime.getDif();
 	graphics = new Graphics();
-	graphics->loadHeroAnim();
+	graphics->loadHeroAnims();
 	tlog0<<"\tMain graphics: "<<tmh.getDif()<<std::endl;
 	tlog0<<"Initializing game graphics: "<<tmh.getDif()<<std::endl;
 

@@ -1756,3 +1756,16 @@ const CGHeroInstance * CPlayerInterface::getWHero( int pos )
 		return NULL;
 	return wanderingHeroes[pos];
 }
+
+void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, int level)
+{
+	std::vector<std::pair<int,int> > cres;
+	for(int i = 0; i < dwelling->creatures.size(); i++)
+	{
+		if(i == level || level < 0)
+			for(size_t j = 0; j < dwelling->creatures[i].second.size(); j++)
+				cres.push_back( std::make_pair(dwelling->creatures[i].second[j],dwelling->creatures[i].first));
+	}
+	CRecruitmentWindow *cr = new CRecruitmentWindow(cres, boost::bind(&CCallback::recruitCreatures, cb, dwelling, _1, _2));
+	pushInt(cr);
+}

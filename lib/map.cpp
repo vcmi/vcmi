@@ -1672,6 +1672,12 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				break;
 			}
 		case 17: case 18: case 19: case 20: //dwellings
+			{
+				nobj = new CGDwelling();
+				nobj->setOwner(bufor[i++]);
+				i+=3;
+				break;
+			}
 		case 42: //lighthouse
 		case 87: //shipyard
 		case 220://mine (?)
@@ -1759,7 +1765,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 			}
 		case 217:
 			{
-				nobj = new CGObjectInstance();
+				nobj = new CGDwelling();
 				CCreGenObjInfo * spec = new CCreGenObjInfo;
 				spec->player = readNormalNr(bufor,i); i+=4;
 				spec->identifier =  readNormalNr(bufor,i); i+=4;
@@ -1779,7 +1785,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 			}
 		case 216:
 			{
-				nobj = new CGObjectInstance();
+				nobj = new CGDwelling();
 				CCreGen2ObjInfo * spec = new CCreGen2ObjInfo;
 				spec->player = readNormalNr(bufor,i); i+=4;
 				spec->identifier =  readNormalNr(bufor,i); i+=4;
@@ -1801,7 +1807,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 			}
 		case 218:
 			{
-				nobj = new CGObjectInstance();
+				nobj = new CGDwelling();
 				CCreGen3ObjInfo * spec = new CCreGen3ObjInfo;
 				spec->player = bufor[i]; ++i;
 				i+=3;

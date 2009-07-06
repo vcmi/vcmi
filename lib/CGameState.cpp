@@ -1343,11 +1343,12 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 	else if(tile==int3() && !curB)
 		return -1;
 
-	std::vector <CGObjectInstance*> & objs = map->objects;
+	const std::vector <CGObjectInstance*> & objs = map->objects;
 	for(int g=0; g<objs.size(); ++g)
 	{
-		if( objs[g]->pos.x - tile.x < 0 || objs[g]->pos.x - tile.x >= 8 || tile.y - objs[g]->pos.y + 5 < 0 || tile.y - objs[g]->pos.y + 5 >=6 ||
-			!objs[g]->coveringAt(objs[g]->pos.x - tile.x, tile.y - objs[g]->pos.y + 5)
+		if( !objs[g] || objs[g]->pos.x - tile.x < 0  ||  objs[g]->pos.x - tile.x >= 8  
+			||  tile.y - objs[g]->pos.y + 5 < 0  ||  tile.y - objs[g]->pos.y + 5 >=6 
+			|| !objs[g]->coveringAt(objs[g]->pos.x - tile.x, tile.y - objs[g]->pos.y + 5)
 			) //look only for objects covering given tile
 			continue;
 		switch(objs[g]->ID)

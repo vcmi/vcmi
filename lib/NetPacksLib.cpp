@@ -278,7 +278,7 @@ DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 
 DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
 {
-	gs->getTown(tid)->strInfo.creatures = creatures;
+	gs->getTown(tid)->creatures = creatures;
 }
 
 DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )
@@ -418,7 +418,7 @@ DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
 	h->inTownGarrison = false;
 }
 
-DLL_EXPORT void HeroExchange::applyGs(CGameState *gs)
+DLL_EXPORT void OpenWindow::applyGs(CGameState *gs)
 {
 }
 

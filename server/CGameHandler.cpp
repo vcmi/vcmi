@@ -709,14 +709,14 @@ void CGameHandler::newTurn()
 			{
 				SetAvailableCreatures sac;
 				sac.tid = (**j).id;
-				sac.creatures = (**j).strInfo.creatures;
+				sac.creatures = (**j).creatures;
 				for(int k=0;k<CREATURES_PER_TOWN;k++) //creature growths
 				{
 					if((**j).creatureDwelling(k))//there is dwelling (k-level)
 					{
-						sac.creatures[k] += (**j).creatureGrowth(k);
+						sac.creatures[k].first += (**j).creatureGrowth(k);
 						if(!gs->getDate(0)) //first day of game: use only basic growths
-							amin(sac.creatures[k], VLC->creh->creatures[(*j)->town->basicCreatures[k]].growth);
+							amin(sac.creatures[k].first, VLC->creh->creatures[(*j)->town->basicCreatures[k]].growth);
 					}
 				}
 				n.cres.push_back(sac);
@@ -1203,7 +1203,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			{
 				if (obj->blockVisit)
 				{
-					obj->onHeroVisit(h);
+					objectVisited(obj, h);
 				}
 			}
 			tlog5 << "Blocking visit at " << hmpos << std::endl;
@@ -1224,7 +1224,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 			//call objects if they are visited
 			BOOST_FOREACH(CGObjectInstance *obj, t.visitableObjects)
 			{
-				obj->onHeroVisit(h);
+				objectVisited(obj, h);
 			}
 		}
 		tlog5 << "Movement end!\n";
@@ -1449,10 +1449,10 @@ void CGameHandler::heroExchange(si32 hero1, si32 hero2)
 
 	if(player1 == player2)
 	{
-		HeroExchange hex;
-		hex.hero1 = hero1;
-		hex.hero2 = hero2;
-		hex.player = player1;
+		OpenWindow hex;
+		hex.window = OpenWindow::EXCHANGE_WINDOW;
+		hex.id1 = hero1;
+		hex.id2 = hero2;
 		sendAndApply(&hex);
 	}
 }
@@ -1679,8 +1679,8 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 	{
 		SetAvailableCreatures ssi;
 		ssi.tid = tid;
-		ssi.creatures = t->strInfo.creatures;
-		ssi.creatures[bid-30] = VLC->creh->creatures[t->town->basicCreatures[bid-30]].growth;
+		ssi.creatures = t->creatures;
+		ssi.creatures[bid-30].first = VLC->creh->creatures[t->town->basicCreatures[bid-30]].growth;
 		sendAndApply(&ssi);
 	}
 
@@ -1715,26 +1715,41 @@ void CGameHandler::sendMessageToAll( const std::string &message )
 
 bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram )
 {
-	si32 ser = -1;
-	CGTownInstance * t = static_cast<CGTownInstance*>(gs->map->objects[objid]);
+	const CGDwelling *dw = static_cast<CGDwelling*>(gs->map->objects[objid]);
+	const CArmedInstance *dst = NULL;
+
+	if(dw->ID == TOWNI_TYPE)
+		dst = dw;
+	else if(dw->ID == 17  ||  dw->ID == 20) //advmap dwelling
+		dst = getHero(gs->getPlayer(dw->tempOwner)->currentSelection); //TODO: check if current hero is really visiting dwelling
+
+	assert(dw && dst);
 
 	//verify
 	bool found = false;
+	int level = -1;
+
+
 	typedef std::pair<const int,int> Parka;
-	for(std::map<si32,ui32>::iterator av = t->strInfo.creatures.begin();  av!=t->strInfo.creatures.end();  av++)
+	for(level = 0; level < dw->creatures.size(); level++) //iterate through all levels
 	{
-		if(	(   found  = (crid == t->town->basicCreatures[av->first])   ) //creature is available among basic cretures
-			|| (found  = (crid == t->town->upgradedCreatures[av->first]))			)//creature is available among upgraded cretures
+		const std::pair<ui32, std::vector<ui32> > &cur = dw->creatures[level]; //current level info <amount, list of cr. ids>
+		int i = 0;
+		for(; i < cur.second.size(); i++) //look for crid among available creatures list on current level
+			if(cur.second[i] == crid)
+				break;
+
+		if(i < cur.second.size())
 		{
-			cram = std::min(cram,av->second); //reduce recruited amount up to available amount
-			ser = av->first;
+			found = true;
+			cram = std::min(cram, cur.first); //reduce recruited amount up to available amount
 			break;
 		}
 	}
-	int slot = t->army.getSlotFor(crid);
+	int slot = dst->army.getSlotFor(crid);
 
 	if(!found && complain("Cannot recruit: no such creatures!")
-		|| cram > VLC->creh->creatures[crid].maxAmount(gs->getPlayer(t->tempOwner)->resources) && complain("Cannot recruit: lack of resources!")
+		|| cram > VLC->creh->creatures[crid].maxAmount(gs->getPlayer(dst->tempOwner)->resources) && complain("Cannot recruit: lack of resources!")
 		|| cram<=0	&& complain("Cannot recruit: cram <= 0!")
 		|| slot<0  && complain("Cannot recruit: no available slot!")) 
 	{
@@ -1743,24 +1758,24 @@ bool CGameHandler::recruitCreatures( si32 objid, ui32 crid, ui32 cram )
 
 	//recruit
 	SetResources sr;
-	sr.player = t->tempOwner;
+	sr.player = dst->tempOwner;
 	for(int i=0;i<RESOURCE_QUANTITY;i++)
-		sr.res[i]  =  gs->getPlayer(t->tempOwner)->resources[i] - (VLC->creh->creatures[crid].cost[i] * cram);
+		sr.res[i]  =  gs->getPlayer(dst->tempOwner)->resources[i] - (VLC->creh->creatures[crid].cost[i] * cram);
 
 	SetAvailableCreatures sac;
 	sac.tid = objid;
-	sac.creatures = t->strInfo.creatures;
-	sac.creatures[ser] -= cram;
+	sac.creatures = dw->creatures;
+	sac.creatures[level].first -= cram;
 
 	SetGarrisons sg;
-	sg.garrs[objid] = t->army;
-	if(sg.garrs[objid].slots.find(slot) == sg.garrs[objid].slots.end()) //take a free slot
+	sg.garrs[dst->id] = dst->army;
+	if(sg.garrs[dst->id].slots.find(slot) == sg.garrs[dst->id].slots.end()) //take a free slot
 	{
-		sg.garrs[objid].slots[slot] = std::make_pair(crid,cram);
+		sg.garrs[dst->id].slots[slot] = std::make_pair(crid,cram);
 	}
 	else //add creatures to a already existing stack
 	{
-		sg.garrs[objid].slots[slot].second += cram;
+		sg.garrs[dst->id].slots[slot].second += cram;
 	}
 	sendAndApply(&sr); 
 	sendAndApply(&sac);
@@ -2666,4 +2681,9 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 	}
 
 	return false;
+}
+
+void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h )
+{
+	obj->onHeroVisit(h);
 }
