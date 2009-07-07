@@ -5,6 +5,7 @@
 #include <sstream>
 #include <boost/assign/std/set.hpp>
 #include <boost/assign/std/vector.hpp>
+#include <boost/assign/list_of.hpp>
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/find.hpp>
 #include <boost/algorithm/string/replace.hpp>
@@ -278,6 +279,11 @@ void CCreatureHandler::loadCreatures()
 		}
 	}
 
+	// Map types names
+#define VCMI_CREATURE_ABILITY_NAME(x) ( #x, StackFeature::x )
+	std::map<std::string, int> type_list = map_list_of VCMI_CREATURE_ABILITY_LIST;
+#undef VCMI_CREATURE_ABILITY_NAME
+
 	////second part of reading cr_abils.txt////
 	bool contReading = true;
 	while(contReading) //main reading loop
@@ -293,8 +299,18 @@ void CCreatureHandler::loadCreatures()
 				int creatureID;
 				StackFeature nsf;
 				si32 buf;
+				std::string type;
+
 				reader >> creatureID;
-				reader >> buf; nsf.type = buf; //it reads ui8 as byte, in file it has different format
+
+				reader >> type;
+				std::map<std::string, int>::iterator it = type_list.find(type);
+				if (it == type_list.end()) {
+					tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
+					break;
+				}
+				nsf.type = it->second;
+
 				reader >> buf; nsf.value = buf;
 				reader >> buf; nsf.subtype = buf;
 				reader >> buf; nsf.additionalInfo = buf;

@@ -1,13 +1,13 @@
 //creatures' abilities description
 //first line: use abilities from ZCRTRAIT.TXT [0 - no, 1 - yes]
-//next lines: + [CREATURE_ID] [ABILITY_ID] [value] [subtype] [additional info] [comment to the end of line] /*adding ability*/
-//		or:   - [CREATURE_ID] [ABILITY_ID] /*removing ability*/
+//next lines: + [CREATURE_ID] [ABILITY] [value] [subtype] [additional info] [comment to the end of line] /*adding ability*/
+//		or:   - [CREATURE_ID] [ABILITY] /*removing ability*/
 //		or:   0 /*end of ability descriptions*/
 1
-+ 115 1 0 0 0 //water elemental should be treated as double-wide
-+ 123 1 0 0 0 //ice elemental should be treated as double-wide
-+ 140 1 0 0 0 //boar should be treated as double-wide
-+ 142 1 0 0 0 //nomads should be treated as double-wide
-- 46 2 //hell hound doesn't fly
-- 47 2 //cerberus doesn't fly
++ 115 DOUBLE_WIDE 0 0 0 //water elemental should be treated as double-wide
++ 123 DOUBLE_WIDE 0 0 0 //ice elemental should be treated as double-wide
++ 140 DOUBLE_WIDE 0 0 0 //boar should be treated as double-wide
++ 142 DOUBLE_WIDE 0 0 0 //nomads should be treated as double-wide
+- 46  FLYING //hell hound doesn't fly
+- 47  FLYING //cerberus doesn't fly
 0
