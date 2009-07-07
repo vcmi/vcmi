@@ -2144,7 +2144,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&bat);
 
 			//counterattack
-			if(!curStack->hasFeatureOfType(StackFeature::BLOCKS_RETAILATION)
+			if(!curStack->hasFeatureOfType(StackFeature::BLOCKS_RETALIATION)
 				&& stackAtEnd->alive()
 				&& stackAtEnd->counterAttacks
 				&& !stackAtEnd->hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //TODO: support for multiple retaliatons per turn

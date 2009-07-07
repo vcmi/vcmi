@@ -648,7 +648,7 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 		sf.push_back(featureGenerator(StackFeature::ALWAYS_MAXIMUM_DAMAGE, -1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
 		break;
 	case 42: //curse
-		sf.push_back(featureGenerator(StackFeature::ALWAYS_MINUMUM_DAMAGE, -1, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain, sse.level >= 2 ? 20 : 0));
+		sf.push_back(featureGenerator(StackFeature::ALWAYS_MINIMUM_DAMAGE, -1, -1 * VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain, sse.level >= 2 ? 20 : 0));
 		break;
 	case 43: //bloodlust
 		sf.push_back(featureGenerator(StackFeature::ATTACK_BONUS, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));

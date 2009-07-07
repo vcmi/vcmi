@@ -10,7 +10,7 @@ struct StackFeature
 	VCMI_CREATURE_ABILITY_NAME(SHOOTER)									\
 	VCMI_CREATURE_ABILITY_NAME(CHARGE_IMMUNITY)							\
 	VCMI_CREATURE_ABILITY_NAME(ADDITIONAL_ATTACK)						\
-	VCMI_CREATURE_ABILITY_NAME(UNLIMITED_RETAILATIONS)					\
+	VCMI_CREATURE_ABILITY_NAME(UNLIMITED_RETALIATIONS)					\
 	VCMI_CREATURE_ABILITY_NAME(NO_MELEE_PENALTY)						\
 	VCMI_CREATURE_ABILITY_NAME(JOUSTING) /*for champions*/				\
 	VCMI_CREATURE_ABILITY_NAME(RAISING_MORALE) /*value - how much raises*/ \
@@ -29,12 +29,12 @@ struct StackFeature
 	VCMI_CREATURE_ABILITY_NAME(NO_WALL_PENALTY)							\
 	VCMI_CREATURE_ABILITY_NAME(NON_LIVING) /*eg. gargoyle*/				\
 	VCMI_CREATURE_ABILITY_NAME(RANDOM_GENIE_SPELLCASTER) /*eg. master genie*/ \
-	VCMI_CREATURE_ABILITY_NAME(BLOCKS_RETAILATION) /*eg. naga*/			\
+	VCMI_CREATURE_ABILITY_NAME(BLOCKS_RETALIATION) /*eg. naga*/			\
 	VCMI_CREATURE_ABILITY_NAME(SPELL_IMMUNITY) /*subid - spell id*/		\
 	VCMI_CREATURE_ABILITY_NAME(MANA_CHANNELING) /*value in %, eg. familiar*/ \
-	VCMI_CREATURE_ABILITY_NAME(SPELL_LIKE_ATTACK /*value - spell id; range is taken from spell, but damage from creature; eg. magog*/) \
+	VCMI_CREATURE_ABILITY_NAME(SPELL_LIKE_ATTACK) /*value - spell id; range is taken from spell, but damage from creature; eg. magog*/ \
 	VCMI_CREATURE_ABILITY_NAME(THREE_HEADED_ATTACK) /*eg. cerberus*/	\
-	VCMI_CREATURE_ABILITY_NAME(DEAMON_SUMMONING) /*pit lord*/			\
+	VCMI_CREATURE_ABILITY_NAME(DAEMON_SUMMONING) /*pit lord*/			\
 	VCMI_CREATURE_ABILITY_NAME(FIRE_IMMUNITY)							\
 	VCMI_CREATURE_ABILITY_NAME(FIRE_SHIELD)								\
 	VCMI_CREATURE_ABILITY_NAME(ENEMY_MORALE_DECREASING) /*value - how much it decreases*/ \
@@ -50,8 +50,8 @@ struct StackFeature
 	VCMI_CREATURE_ABILITY_NAME(CATAPULT)								\
 	VCMI_CREATURE_ABILITY_NAME(ENEMY_DEFENCE_REDUCTION) /*in % (value) eg. behemots*/ \
 	VCMI_CREATURE_ABILITY_NAME(GENERAL_DAMAGE_REDUCTION) /*eg. while stoned or blinded - in %, subtype: -1 - any damage, 0 - melee damage, 1 - ranged damage*/ \
-	VCMI_CREATURE_ABILITY_NAME(ATTACKS_ALL_ADAJCENT) /*eg. hydra*/		\
-	VCMI_CREATURE_ABILITY_NAME(MORE_DAMEGE_FROM_SPELL) /*value - damage increase in %, subtype - spell id*/ \
+	VCMI_CREATURE_ABILITY_NAME(ATTACKS_ALL_ADJACENT) /*eg. hydra*/		\
+	VCMI_CREATURE_ABILITY_NAME(MORE_DAMAGE_FROM_SPELL) /*value - damage increase in %, subtype - spell id*/ \
 	VCMI_CREATURE_ABILITY_NAME(CASTS_SPELL_WHEN_KILLED) /*similar to spell after attack*/ \
 	VCMI_CREATURE_ABILITY_NAME(FEAR)									\
 	VCMI_CREATURE_ABILITY_NAME(FEARLESS)								\
@@ -68,10 +68,10 @@ struct StackFeature
 	VCMI_CREATURE_ABILITY_NAME(LUCK_BONUS)								\
 	VCMI_CREATURE_ABILITY_NAME(MORALE_BONUS)							\
 	VCMI_CREATURE_ABILITY_NAME(HYPNOTIZED)								\
-	VCMI_CREATURE_ABILITY_NAME(ADDITIONAL_RETAILATION) /*value - number of additional retailations*/ \
+	VCMI_CREATURE_ABILITY_NAME(ADDITIONAL_RETALIATION) /*value - number of additional retaliations*/ \
 	VCMI_CREATURE_ABILITY_NAME(MAGIC_MIRROR) /* value - chance of redirecting in %*/ \
 	VCMI_CREATURE_ABILITY_NAME(SUMMONED)								\
-	VCMI_CREATURE_ABILITY_NAME(ALWAYS_MINUMUM_DAMAGE) /*unit does its minimum damage from range; subtype: -1 - any attack, 0 - melee, 1 - ranged, value: additional damage, additional info - multiplicative anti-bonus for dmg in % [eg 20 means that creature will inflict 80% of normal dmg]*/ \
+	VCMI_CREATURE_ABILITY_NAME(ALWAYS_MINIMUM_DAMAGE) /*unit does its minimum damage from range; subtype: -1 - any attack, 0 - melee, 1 - ranged, value: additional damage, additional info - multiplicative anti-bonus for dmg in % [eg 20 means that creature will inflict 80% of normal dmg]*/ \
 	VCMI_CREATURE_ABILITY_NAME(ALWAYS_MAXIMUM_DAMAGE) /*eg. bless effect, subtype: -1 - any attack, 0 - melee, 1 - ranged, value: additional damage, additional info - multiplicative bonus for dmg in %*/ \
 	VCMI_CREATURE_ABILITY_NAME(ATTACKS_NEAREST_CREATURE) /*while in berserk*/ \
 	VCMI_CREATURE_ABILITY_NAME(IN_FRENZY) /*value - level*/				\
