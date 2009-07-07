@@ -482,57 +482,7 @@ void CCreatureHandler::loadCreatures()
 	creatures[46].abilities -= StackFeature::FLYING; //hell hound
 	creatures[47].abilities -= StackFeature::FLYING; //cerberus
 */
-	creatures[52].abilities += makeCreatureAbility(StackFeature::FLYING, 0); //Efreeti
-	creatures[53].abilities += makeCreatureAbility(StackFeature::FLYING, 0); //Efreet Sultan
 
-	creatures[47].abilities += makeCreatureAbility(StackFeature::THREE_HEADED_ATTACK, 0); //cerberus
-
-	creatures[87].abilities += makeCreatureAbility(StackFeature::ADDITIONAL_ATTACK, 1); //wolf raider
-
-	creatures[147].abilities += makeCreatureAbility(StackFeature::NOT_ACTIVE, 0); //First Aid Tent //TODO: remove when support is added
-	creatures[148].abilities += makeCreatureAbility(StackFeature::NOT_ACTIVE, 0); //Ammo Cart
-
-	creatures[120].abilities -= StackFeature::DOUBLE_WIDE; //psychic elemental
-	creatures[121].abilities -= StackFeature::DOUBLE_WIDE; //magic elemental
-
-	creatures[0].abilities += makeCreatureAbility(StackFeature::CHARGE_IMMUNITY, 0); //pikeman immunity to Champion charge bonus
-	creatures[1].abilities += makeCreatureAbility(StackFeature::CHARGE_IMMUNITY, 0); //halberdier immunity to Champion charge bonus
-	creatures[4].abilities += makeCreatureAbility(StackFeature::ADDITIONAL_RETALIATION, 1); //griffins retaliate twice
-	creatures[5].abilities += makeCreatureAbility(StackFeature::UNLIMITED_RETALIATIONS, 0); //royal griffins retaliate always
-	creatures[12].abilities += makeCreatureAbility(StackFeature::HATE, 0, 54); //angels hate devils
-	creatures[12].abilities += makeCreatureAbility(StackFeature::HATE, 0, 55); //angels hate archdevils
-	creatures[13].abilities += makeCreatureAbility(StackFeature::HATE, 0, 54); //archangels hate devils
-	creatures[13].abilities += makeCreatureAbility(StackFeature::HATE, 0, 55); //archangels hate arch
-	creatures[13].abilities += makeCreatureAbility(StackFeature::SPELLCASTER, 0, 38); //archangels cast resurrection
-	creatures[16].abilities += makeCreatureAbility(StackFeature::MAGIC_RESISTANCE, 20); //dwarf's magic resistance 20%
-	creatures[17].abilities += makeCreatureAbility(StackFeature::MAGIC_RESISTANCE, 40); //battle dwarf's magic resistance 40%
-	creatures[20].abilities += makeCreatureAbility(StackFeature::CHANGES_SPELL_COST_FOR_ENEMY, 2); //pegasus makes spell cost higher for enemy mage
-	creatures[21].abilities += makeCreatureAbility(StackFeature::CHANGES_SPELL_COST_FOR_ENEMY, 2); //silver pegasus makes spell cost higher for enemy mage
-	creatures[22].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 72, 100); //dendroids cast bind
-	creatures[23].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 72, 100); //dendroid guards cast bind
-	creatures[24].abilities += makeCreatureAbility(StackFeature::SPELL_RESISTANCE_AURA, 0, 55); //unicorn
-	creatures[25].abilities += makeCreatureAbility(StackFeature::SPELL_RESISTANCE_AURA, 0, 55); //war unicorn
-	creatures[24].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 62, 100); //unicorns cast blind with 20% probability
-	creatures[25].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 62, 100); //war unicorns cast blind with 20% probability
-	creatures[26].abilities += makeCreatureAbility(StackFeature::LEVEL_SPELL_IMMUNITY, 3); //green dragon's spell immunity
-	creatures[27].abilities += makeCreatureAbility(StackFeature::LEVEL_SPELL_IMMUNITY, 4); //gold dragon's spell immunity
-	creatures[26].abilities += makeCreatureAbility(StackFeature::TWO_HEX_ATTACK_BREATH, 0); //green dragon's breath
-	creatures[27].abilities += makeCreatureAbility(StackFeature::TWO_HEX_ATTACK_BREATH, 0); //gold dragon's breath
-	creatures[30].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //stone gargoyles are non-living
-	creatures[31].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //obsidian gargoyles are non-living
-	creatures[32].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //stone golems are non-living
-	creatures[33].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //iron golems are non-living
-	creatures[32].abilities += makeCreatureAbility(StackFeature::SPELL_DAMAGE_REDUCTION, 50, -1); //stone golems reduce dmg from spells
-	creatures[33].abilities += makeCreatureAbility(StackFeature::SPELL_DAMAGE_REDUCTION, 75, -1); //iron golems reduce dmg from spells
-	creatures[34].abilities += makeCreatureAbility(StackFeature::CHANGES_SPELL_COST_FOR_ALLY, -2); //mages reduce spell cost
-	creatures[35].abilities += makeCreatureAbility(StackFeature::CHANGES_SPELL_COST_FOR_ALLY, -2); //archmages reduce spell cost
-	creatures[36].abilities += makeCreatureAbility(StackFeature::HATE, 0, 52); //genies hate efreets
-	creatures[36].abilities += makeCreatureAbility(StackFeature::HATE, 0, 53); //genies hate efreet sultans
-	creatures[37].abilities += makeCreatureAbility(StackFeature::HATE, 0, 52); //master genies hate efreets
-	creatures[37].abilities += makeCreatureAbility(StackFeature::HATE, 0, 53); //master genies hate efreet sultans
-	creatures[37].abilities += makeCreatureAbility(StackFeature::RANDOM_GENIE_SPELLCASTER, 0); //master genies cast spells
-	creatures[38].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //nagas block retaliation
-	creatures[39].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //naga queens block retaliation
 	std::vector<int> mindSpells = getMindSpells();
 	for(int g=0; g<mindSpells.size(); ++g)
 	{
@@ -542,68 +492,6 @@ void CCreatureHandler::loadCreatures()
 	{
 		creatures[41].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //titans are immune to mind spells
 	}
-	creatures[41].abilities += makeCreatureAbility(StackFeature::HATE, 0, 83); //titans hate black dragons
-	creatures[43].abilities += makeCreatureAbility(StackFeature::MANA_CHANNELING, 20); //familiars
-	creatures[45].abilities += makeCreatureAbility(StackFeature::SPELL_LIKE_ATTACK, 21); //magogs fire with fireballs
-	creatures[47].abilities += makeCreatureAbility(StackFeature::THREE_HEADED_ATTACK, 0); //creberus
-	creatures[47].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //cerberus
-	creatures[51].abilities += makeCreatureAbility(StackFeature::DAEMON_SUMMONING, 0, 52); //pit lord
-	creatures[52].abilities += makeCreatureAbility(StackFeature::FIRE_IMMUNITY, 0); //efreeti
-	creatures[52].abilities += makeCreatureAbility(StackFeature::HATE, 0, 36); //efreeti hate genies
-	creatures[52].abilities += makeCreatureAbility(StackFeature::HATE, 0, 37); //efreeti hate master genies
-	creatures[53].abilities += makeCreatureAbility(StackFeature::FIRE_IMMUNITY, 0); //efreet sultan
-	creatures[53].abilities += makeCreatureAbility(StackFeature::HATE, 0, 36); //efreet sultans hate genies
-	creatures[53].abilities += makeCreatureAbility(StackFeature::HATE, 0, 37); //efreet sultans hate master genies
-	creatures[53].abilities += makeCreatureAbility(StackFeature::FIRE_SHIELD, 0, 36); //efreet sultans
-	creatures[54].abilities += makeCreatureAbility(StackFeature::ENEMY_LUCK_DECREASING, -1); //devils
-	creatures[54].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //devils
-	creatures[54].abilities += makeCreatureAbility(StackFeature::HATE, 0, 12); //devils hate angels
-	creatures[54].abilities += makeCreatureAbility(StackFeature::HATE, 0, 13); //devils hate archangles
-	creatures[55].abilities += makeCreatureAbility(StackFeature::ENEMY_LUCK_DECREASING, -1); //archdevils
-	creatures[55].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //archdevils
-	creatures[55].abilities += makeCreatureAbility(StackFeature::HATE, 0, 12); //archdevils hate angels
-	creatures[55].abilities += makeCreatureAbility(StackFeature::HATE, 0, 13); //archdevils hate archangles
-	creatures[60].abilities += makeCreatureAbility(StackFeature::REGENERATION, 0); //wight
-	creatures[61].abilities += makeCreatureAbility(StackFeature::REGENERATION, 0); //wraith
-	creatures[61].abilities += makeCreatureAbility(StackFeature::MANA_DRAIN, 2); //wraith
-	creatures[62].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //vampires
-	creatures[63].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //vampire lords
-	creatures[63].abilities += makeCreatureAbility(StackFeature::LIFE_DRAIN, 0); //vampire lords
-	creatures[64].abilities += makeCreatureAbility(StackFeature::SPELL_LIKE_ATTACK, 76); //liches
-	creatures[65].abilities += makeCreatureAbility(StackFeature::SPELL_LIKE_ATTACK, 76); //power liches
-	creatures[66].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 42, 20); //black knights
-	creatures[67].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 42, 20); //dread knights
-	creatures[67].abilities += makeCreatureAbility(StackFeature::DOUBLE_DAMAGE_CHANCE, 20); //vampire lords
-	creatures[68].abilities += makeCreatureAbility(StackFeature::ENEMY_MORALE_DECREASING, -1); //bone dragon
-	creatures[69].abilities += makeCreatureAbility(StackFeature::ENEMY_MORALE_DECREASING, -1); //ghost dragon
-	creatures[69].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 75, 20); //ghost dragon
-	creatures[70].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 62); //troglodytes are immune to blind
-	creatures[71].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 62); //infernal troglodytes are immune to blind
-	creatures[72].abilities += makeCreatureAbility(StackFeature::RETURN_AFTER_STRIKE, 0); //Harpies return after attack
-	creatures[73].abilities += makeCreatureAbility(StackFeature::RETURN_AFTER_STRIKE, 0); //Harpy Hags return after attack
-	creatures[73].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //Harpy Hags
-	creatures[76].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 70, 20 + 200); //medusas
-	creatures[77].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 70, 20 + 200); //medusa queens
-	creatures[78].abilities += makeCreatureAbility(StackFeature::SELF_MORALE, 0); //minotaurs
-	creatures[79].abilities += makeCreatureAbility(StackFeature::SELF_MORALE, 0); //minotaur kings
-	creatures[81].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 74, 20); //scorpicore
-	creatures[82].abilities += makeCreatureAbility(StackFeature::LEVEL_SPELL_IMMUNITY, 3); //red dragon's spell immunity
-	creatures[83].abilities += makeCreatureAbility(StackFeature::LEVEL_SPELL_IMMUNITY, 5); //black dragon's spell immunity
-	creatures[91].abilities += makeCreatureAbility(StackFeature::SPELLCASTER, 2, 43, 6); //ogre magi cast bloodlust
-	creatures[93].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 77, 20); //thunderbirds
-	creatures[96].abilities += makeCreatureAbility(StackFeature::ENEMY_DEFENCE_REDUCTION, 40); //behemots
-	creatures[97].abilities += makeCreatureAbility(StackFeature::ENEMY_DEFENCE_REDUCTION, 80); //ancient behemots
-	creatures[103].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 79, 10); //mighty gorgons
-	creatures[104].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 78, 100); //serpent fly
-	creatures[105].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 78, 100); //dragon fly
-	creatures[105].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 45, 100); //mighty gorgons
-	creatures[106].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 70, 20); //basilisks
-	creatures[107].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 70, 20); //greater basilisks
-	creatures[109].abilities += makeCreatureAbility(StackFeature::SPELL_AFTER_ATTACK, 0, 71, 20); //Wyvern Monarch
-	creatures[110].abilities += makeCreatureAbility(StackFeature::ATTACKS_ALL_ADJACENT, 0); //hydras
-	creatures[110].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //hydras
-	creatures[111].abilities += makeCreatureAbility(StackFeature::ATTACKS_ALL_ADJACENT, 0); //chaos hydras
-	creatures[111].abilities += makeCreatureAbility(StackFeature::BLOCKS_RETALIATION, 0); //chaos hydras
 	for(int g=0; g<mindSpells.size(); ++g)
 	{
 		creatures[112].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //air elementals are immune to mind spells
