@@ -53,6 +53,7 @@ public:
 	//objects
 	std::vector<std::string> names; //vector of objects; i-th object in vector has subnumber i
 	std::vector<std::string> creGens; //names of creatures' generators
+	std::vector<std::string> creGens4; //names of multiple creatures' generators
 	std::vector<std::string> advobtxt;
 	std::vector<std::string> xtrainfo;
 	std::vector<std::string> restypes;

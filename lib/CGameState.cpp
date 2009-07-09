@@ -19,10 +19,11 @@
 #include "../StartInfo.h"
 #include "NetPacks.h"
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
-
 #include "RegisterTypes.cpp"
+
 boost::rand48 ran;
 
 #ifdef min
@@ -89,83 +90,111 @@ public:
 
 } *applierGs = NULL;
 
-std::string DLL_EXPORT toString(MetaString &ms)
+void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const
 {
-	std::string ret;
-	for(size_t i=0;i<ms.message.size();++i)
+	int type = txt.first, ser = txt.second;
+
+	if(type == ART_NAMES)
 	{
-		if(ms.message[i]>0)
+		dst = VLC->arth->artifacts[ser].Name();
+	}
+	else if(type == CRE_PL_NAMES)
+	{
+		dst = VLC->creh->creatures[ser].namePl;
+	}
+	else if(type == MINE_NAMES)
+	{
+		dst = VLC->generaltexth->mines[ser].first;
+	}
+	else if(type == MINE_EVNTS)
+	{
+		dst = VLC->generaltexth->mines[ser].second;
+	}
+	else if(type == SPELL_NAME)
+	{
+		dst = VLC->spellh->spells[ser].name;
+	}
+	else if(type == CRE_SING_NAMES)
+	{
+		dst = VLC->creh->creatures[ser].nameSing;
+	}
+	else
+	{
+		std::vector<std::string> *vec;
+		switch(type)
 		{
-			ret += ms.strings[ms.message[i]-1];
+		case GENERAL_TXT:
+			vec = &VLC->generaltexth->allTexts;
+			break;
+		case XTRAINFO_TXT:
+			vec = &VLC->generaltexth->xtrainfo;
+			break;
+		case OBJ_NAMES:
+			vec = &VLC->generaltexth->names;
+			break;
+		case RES_NAMES:
+			vec = &VLC->generaltexth->restypes;
+			break;
+		case ARRAY_TXT:
+			vec = &VLC->generaltexth->arraytxt;
+			break;
+		case CREGENS:
+			vec = &VLC->generaltexth->creGens;
+			break;
+		case ADVOB_TXT:
+			vec = &VLC->generaltexth->advobtxt;
+			break;
+		case ART_EVNTS:
+			vec = &VLC->generaltexth->artifEvents;
+			break;
+		case SEC_SKILL_NAME:
+			vec = &VLC->generaltexth->skillName;
+			break;
 		}
-		else
+		dst = (*vec)[ser];
+	}
+}
+
+DLL_EXPORT void MetaString::toString(std::string &dst) const
+{
+	size_t exSt = 0, loSt = 0, nums = 0;
+	dst.clear();
+
+	for(size_t i=0;i<message.size();++i)
+	{//TEXACT_STRING, TLOCAL_STRING, TNUMBER, TREPLACE_ESTRING, TREPLACE_LSTRING, TREPLACE_NUMBER
+		switch(message[i])
 		{
-			std::vector<std::string> *vec;
-			int type = ms.texts[-ms.message[i]-1].first,
-				ser = ms.texts[-ms.message[i]-1].second;
-			if(type == 5)
+		case TEXACT_STRING:
+			dst += exactStrings[exSt++];
+			break;
+		case TLOCAL_STRING:
 			{
-				ret += VLC->arth->artifacts[ser].Name();
-				continue;
+				std::string hlp;
+				getLocalString(localStrings[loSt++], hlp);
+				dst += hlp;
 			}
-			else if(type == 7)
+			break;
+		case TNUMBER:
+			dst += boost::lexical_cast<std::string>(numbers[nums++]);
+			break;
+		case TREPLACE_ESTRING:
+			dst.replace(dst.find("%s"), 2, exactStrings[exSt++]);
+			break;
+		case TREPLACE_LSTRING:
 			{
-				ret += VLC->creh->creatures[ser].namePl;
-				continue;
+				std::string hlp;
+				getLocalString(localStrings[loSt++], hlp);
+				dst.replace(dst.find("%s"), 2, hlp);
 			}
-			else if(type == 9)
-			{
-				ret += VLC->generaltexth->mines[ser].first;
-				continue;
-			}
-			else if(type == 10)
-			{
-				ret += VLC->generaltexth->mines[ser].second;
-				continue;
-			}
-			else if(type == MetaString::SPELL_NAME)
-			{
-				ret += VLC->spellh->spells[ser].name;
-				continue;
-			}
-			else
-			{
-				switch(type)
-				{
-				case 1:
-					vec = &VLC->generaltexth->allTexts;
-					break;
-				case 2:
-					vec = &VLC->generaltexth->xtrainfo;
-					break;
-				case 3:
-					vec = &VLC->generaltexth->names;
-					break;
-				case 4:
-					vec = &VLC->generaltexth->restypes;
-					break;
-				case 6:
-					vec = &VLC->generaltexth->arraytxt;
-					break;
-				case 8:
-					vec = &VLC->generaltexth->creGens;
-					break;
-				case 11:
-					vec = &VLC->generaltexth->advobtxt;
-					break;
-				case 12:
-					vec = &VLC->generaltexth->artifEvents;
-					break;
-				}
-				ret += (*vec)[ser];
-			}
+			break;
+		case TREPLACE_NUMBER:
+			dst.replace(dst.find("%d"), 2, boost::lexical_cast<std::string>(numbers[nums++]));
+			break;
+		default:
+			tlog1 << "MetaString processing error!\n";
+			break;
 		}
 	}
-	for(size_t i=0; i < ms.replacements.size(); ++i)
-	{
-		ret.replace(ret.find("%s"),2,ms.replacements[i]);
-	}
-	return ret;
 }
 
 static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)

@@ -297,6 +297,9 @@ public:
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void newTurn() const;
+	void heroAcceptsCreatures(const CGHeroInstance *h, ui32 answer) const;
+	void fightOver(const CGHeroInstance *h, BattleResult *result) const;
+	void wantsFight(const CGHeroInstance *h, ui32 answer) const;
 };
 
 class DLL_EXPORT CGTownInstance : public CGDwelling

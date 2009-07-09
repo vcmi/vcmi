@@ -66,6 +66,15 @@ public:
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
 	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 
+	template<typename RanGen>
+	int getRandomAmount(RanGen &ranGen)
+	{
+		if(ammMax == ammMin)
+			return ammMax;
+		else
+			return ammMin + (ranGen() % (ammMax - ammMin));
+	}
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & namePl & nameSing & nameRef

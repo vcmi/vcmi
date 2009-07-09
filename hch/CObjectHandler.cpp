@@ -908,12 +908,24 @@ void CGDwelling::initObj()
 	switch(ID)
 	{
 	case 17:
-		creatures.resize(1);
-		creatures[0].second.push_back(VLC->objh->cregens[subID]);
+		{
+			int crid = VLC->objh->cregens[subID];
+			CCreature *crs = &VLC->creh->creatures[crid];
+
+			creatures.resize(1);
+			creatures[0].second.push_back(crid);
+			hoverName = VLC->generaltexth->creGens[subID];
+			if(crs->level > 4)
+			{
+				army.slots[0].first = crs->idNumber;
+				army.slots[0].second = crs->getRandomAmount(ran);
+			}
+		}
 		break;
+
 	case 20:
 		creatures.resize(4);
-		if(subID == 1) // Elemental Conflux 
+		if(subID == 0) // Elemental Conflux 
 		{
 			creatures[0].second.push_back(32);  //Stone Golem
 			creatures[1].second.push_back(33);  //Iron Golem  
@@ -931,7 +943,9 @@ void CGDwelling::initObj()
 		{
 			assert(0);
 		}
+		hoverName = VLC->generaltexth->creGens4[subID];
 		break;
+
 	default:
 		assert(0);
 		break;
@@ -940,14 +954,29 @@ void CGDwelling::initObj()
 
 void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 {
+	if(h->tempOwner != tempOwner  &&  army) //object is guarded
+	{
+		BlockingDialog bd;
+		bd.player = h->tempOwner;
+		bd.flags = BlockingDialog::ALLOW_CANCEL;
+		bd.text.addTxt(MetaString::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
+		bd.text.addReplacement(MetaString::CREGENS, subID);
+		bd.text.addReplacement(MetaString::ARRAY_TXT, 176 + CCreature::getQuantityID(army.slots.begin()->second.second)*3);
+		bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[0].second[0]);
+		cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::wantsFight, this, h, _1));
+		return;
+	}
+
 	if(h->tempOwner != tempOwner)
 		cb->setOwner(id, h->tempOwner);
 
-	OpenWindow ow;
-	ow.id1 = id;
-	ow.id2 = id;
-	ow.window = OpenWindow::RECRUITMENT_FIRST;
-	cb->sendAndApply(&ow);
+	BlockingDialog bd;
+	bd.player = h->tempOwner;
+	bd.flags = BlockingDialog::ALLOW_CANCEL;
+	bd.text.addTxt(MetaString::ADVOB_TXT, 35); //{%s}	Would you like to recruit %s?
+	bd.text.addReplacement(MetaString::CREGENS, subID);
+	bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[0].second[0]);
+	cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::heroAcceptsCreatures, this, h, _1));
 }
 
 void CGDwelling::newTurn() const
@@ -974,10 +1003,88 @@ void CGDwelling::newTurn() const
 		cb->sendAndApply(&sac);
 }
 
+void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) const
+{
+	if(!answer)
+		return;
+
+	int crid = creatures[0].second[0];
+	CCreature *crs = &VLC->creh->creatures[crid];
+
+	if(crs->level == 1) //first level - creatures are for free
+	{
+		if(creatures[0].first) //there are available creatures
+		{
+			int slot = h->army.getSlotFor(crid);
+			if(slot < 0) //no available slot
+			{
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 425);//The %s would join your hero, but there aren't enough provisions to support them.
+				iw.text.addReplacement(MetaString::CRE_PL_NAMES, crid);
+				cb->showInfoDialog(&iw);
+			}
+			else //give creatures
+			{
+				SetAvailableCreatures sac;
+				sac.tid = id;
+				sac.creatures = creatures;
+				sac.creatures[0].first = 0;
+
+				SetGarrisons sg;
+				sg.garrs[h->id] = h->army;
+				sg.garrs[h->id].slots[slot].first = crid;
+				sg.garrs[h->id].slots[slot].second += creatures[0].first;
+
+				InfoWindow iw;
+				iw.player = h->tempOwner;
+				iw.text.addTxt(MetaString::GENERAL_TXT, 423); //%d %s join your army.
+				iw.text.addReplacement(creatures[0].first);
+				iw.text.addReplacement(MetaString::CRE_PL_NAMES, crid);
+
+				cb->showInfoDialog(&iw);
+				cb->sendAndApply(&sac);
+				cb->sendAndApply(&sg);
+			}
+		}
+		else //there no creatures
+		{
+			InfoWindow iw;
+			iw.text.addTxt(MetaString::GENERAL_TXT, 422); //There are no %s here to recruit.
+			iw.text.addReplacement(MetaString::CRE_PL_NAMES, crid);
+			iw.player = h->tempOwner;
+			cb->sendAndApply(&iw);
+		}
+	}
+	else if(ID == 17)
+	{
+		OpenWindow ow;
+		ow.id1 = id;
+		ow.id2 = id;
+		ow.window = OpenWindow::RECRUITMENT_FIRST;
+		cb->sendAndApply(&ow);
+	}
+}
+
+void CGDwelling::wantsFight( const CGHeroInstance *h, ui32 answer ) const
+{
+	if(answer)
+		cb->startBattleI(h->id,army,pos,boost::bind(&CGDwelling::fightOver, this, h, _1));
+}
+
+void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
+{
+	if (result->winner == 0)
+	{
+		onHeroVisit(h);
+	}
+}
+
 int CGTownInstance::getSightRadious() const //returns sight distance
 {
 	return 5;
 }
+
 int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - castle
 {
 	if((builtBuildings.find(9))!=builtBuildings.end())
@@ -988,6 +1095,7 @@ int CGTownInstance::fortLevel() const //0 - none, 1 - fort, 2 - citadel, 3 - cas
 		return 1;
 	return 0;
 }
+
 int CGTownInstance::hallLevel() const // -1 - none, 0 - village, 1 - town, 2 - city, 3 - capitol
 {
 	if ((builtBuildings.find(13))!=builtBuildings.end())
@@ -1109,10 +1217,8 @@ void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
 }
 
 void CGTownInstance::initObj()
-{
-	MetaString ms;
-	ms << name << ", " << town->Name();
-	hoverName = toString(ms);
+{ 
+	hoverName = name + ", " + town->Name();
 
 	creatures.resize(CREATURES_PER_TOWN);
 	for (int i = 0; i < CREATURES_PER_TOWN; i++)
@@ -1485,8 +1591,8 @@ void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 		{
 			BlockingDialog ynd(true,false);
 			ynd.player = h->tempOwner;
-			ynd.text << std::pair<ui8,ui32>(11,86); 
-			ynd.text.replacements.push_back(VLC->creh->creatures[subID].namePl);
+			ynd.text << std::pair<ui8,ui32>(MetaString::ADVOB_TXT, 86); 
+			ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
 			cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::joinDecision,this,h,0,_1));
 			break;
 		}
@@ -1566,7 +1672,7 @@ void CGCreature::initObj()
 	int pom = CCreature::getQuantityID(army.slots.find(0)->second.second);
 	pom = 174 + 3*pom + 1;
 	ms << std::pair<ui8,ui32>(6,pom) << " " << std::pair<ui8,ui32>(7,subID);
-	hoverName = toString(ms);
+	ms.toString(hoverName);
 }
 
 int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
@@ -1719,7 +1825,7 @@ void CGCreature::flee( const CGHeroInstance * h ) const
 	BlockingDialog ynd(true,false);
 	ynd.player = h->tempOwner;
 	ynd.text << std::pair<ui8,ui32>(11,91); 
-	ynd.text.replacements.push_back(VLC->creh->creatures[subID].namePl);
+	ynd.text.addReplacement(MetaString::CRE_PL_NAMES, subID);
 	cb->showBlockingDialog(&ynd,boost::bind(&CGCreature::fleeDecision,this,h,_1));
 }
 
@@ -1778,7 +1884,7 @@ void CGMine::initObj()
 		tempOwner = NEUTRAL_PLAYER;	
 	else
 		ms << " (" << std::pair<ui8,ui32>(6,23+tempOwner) << ")";
-	hoverName = toString(ms);
+	ms.toString(hoverName);
 }
 
 void CGResource::initObj()
@@ -1839,7 +1945,7 @@ void CGResource::collectRes( int player ) const
 	sii.player = player;
 	sii.c = Component(2,subID,amount,0);
 	sii.text << std::pair<ui8,ui32>(11,113);
-	sii.text.replacements.push_back(VLC->generaltexth->restypes[subID]);
+	sii.text.addReplacement(MetaString::RES_NAMES, subID);
 	cb->showCompInfo(&sii);
 	cb->removeObject(id);
 }
@@ -2140,7 +2246,7 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 				iw.player = h->tempOwner;
 				iw.components.push_back(Component(4,val1,1,0));
 				iw.text << std::pair<ui8,ui32>(11,145);
-				iw.text.replacements.push_back(VLC->arth->artifacts[val1].Name());
+				iw.text.addReplacement(MetaString::ART_NAMES, val1);
 				cb->showInfoDialog(&iw);
 				break;
 			}
@@ -2193,18 +2299,18 @@ void CGWitchHut::onHeroVisit( const CGHeroInstance * h ) const
 	if(h->getSecSkillLevel(ability)) //you alredy know this skill
 	{
 		iw.text << std::pair<ui8,ui32>(11,172);
-		iw.text.replacements.push_back(VLC->generaltexth->skillName[ability]);
+		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 	}
 	else if(h->secSkills.size() >= SKILL_PER_HERO) //already all skills slots used
 	{
 		iw.text << std::pair<ui8,ui32>(11,173);
-		iw.text.replacements.push_back(VLC->generaltexth->skillName[ability]);
+		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 	}
 	else //give sec skill
 	{
 		iw.components.push_back(Component(1, ability, 1, 0));
 		iw.text << std::pair<ui8,ui32>(11,171);
-		iw.text.replacements.push_back(VLC->generaltexth->skillName[ability]);
+		iw.text.addReplacement(MetaString::SEC_SKILL_NAME, ability);
 		cb->changeSecSkill(h->id,ability,1,true);
 	}
 
@@ -2260,7 +2366,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bonus.type = HeroBonus::LUCK;
 		gbonus.bonus.val = rand()%5 - 1;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,69);
-		gbonus.bdescr.replacements.push_back((gbonus.bonus.val<0 ? "-" : "+") + boost::lexical_cast<std::string>(gbonus.bonus.val));
+		gbonus.bdescr.addReplacement((gbonus.bonus.val<0 ? "-" : "+") + boost::lexical_cast<std::string>(gbonus.bonus.val));
 		break;
 	case 38: //idol of fortune
 		messageID = 62;
@@ -2596,14 +2702,14 @@ void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 			if(iw.components.front().val == 1)
 			{
 				iw.text.addTxt(MetaString::ADVOB_TXT,185);//A %s joins %s's army.
-				iw.text.replacements.push_back(VLC->creh->creatures[iw.components.front().subtype].nameSing);
+				iw.text.addReplacement(MetaString::CRE_SING_NAMES, iw.components.front().subtype);
 			}
 			else
 			{
 				iw.text.addTxt(MetaString::ADVOB_TXT,186);//%s join %s's army.
-				iw.text.replacements.push_back(VLC->creh->creatures[iw.components.front().subtype].namePl);
+				iw.text.addReplacement(MetaString::CRE_PL_NAMES, iw.components.front().subtype);
 			}
-			iw.text.replacements.push_back(h->name);
+			iw.text.addReplacement(h->name);
 		}
 		else
 		{
@@ -2661,7 +2767,7 @@ void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHero
 	if(afterBattle)
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,text);//%s has lost treasure.
-		iw.text.replacements.push_back(h->name);
+		iw.text.addReplacement(h->name);
 	}
 	else
 	{
@@ -2677,7 +2783,7 @@ void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int val, int positive,
 	if(afterBattle)
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,val < 0 ? negative : positive); //%s's luck takes a turn for the worse / %s's luck increases
-		iw.text.replacements.push_back(h->name);
+		iw.text.addReplacement(h->name);
 	}
 	else
 	{
@@ -2927,7 +3033,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 		if(ID == 105  &&  artOrRes == 1) 
 		{
 			txtid++;
-			iw.text.replacements.push_back(VLC->arth->artifacts[bonusType].Name());
+			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
 		}
 
 
@@ -3057,7 +3163,7 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 		{
 			iw.text.addTxt(MetaString::ADVOB_TXT,162);
 			iw.components.push_back(Component(Component::ARTIFACT,bonusType,0,0));
-			iw.text.replacements.push_back(VLC->arth->artifacts[bonusType].Name());
+			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
 
 			cb->giveHeroArtifact(bonusType,h->id,-2);
 		}

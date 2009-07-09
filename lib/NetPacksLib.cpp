@@ -179,7 +179,7 @@ DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 
 	std::string &descr = h->bonuses.back().description;
 
-	if(!bdescr.texts.size() 
+	if(!bdescr.message.size() 
 		&& bonus.source == HeroBonus::OBJECT 
 		&& (bonus.type == HeroBonus::LUCK || bonus.type == HeroBonus::MORALE || bonus.type == HeroBonus::MORALE_AND_LUCK)
 		&& gs->map->objects[bonus.id]->ID == 26) //it's morale/luck bonus from an event without description
@@ -189,7 +189,7 @@ DLL_EXPORT void GiveBonus::applyGs( CGameState *gs )
 	}
 	else
 	{
-		descr = toString(bdescr);
+		bdescr.toString(descr);
 	}
 }
 
@@ -461,7 +461,7 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 
 DLL_EXPORT void SetHoverName::applyGs( CGameState *gs )
 {
-	gs->map->objects[id]->hoverName = toString(name);
+	name.toString(gs->map->objects[id]->hoverName);
 }
 
 DLL_EXPORT void HeroLevelUp::applyGs( CGameState *gs )

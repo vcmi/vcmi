@@ -55,7 +55,7 @@ void CDefObjInfoHandler::load()
 		{
 			nobj->blockMap[o] = 0xff;
 			nobj->visitMap[o] = 0x00;
-			nobj->coverageMap[0] = 0x00;
+			nobj->coverageMap[o] = 0x00;
 		}
 		inp>>mapStr;
 		std::reverse(mapStr.begin(), mapStr.end());

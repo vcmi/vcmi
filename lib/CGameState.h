@@ -50,9 +50,6 @@ struct CPack;
 class CSpell;
 
 
-std::string DLL_EXPORT toString(MetaString &ms);
-
-
 namespace boost
 {
 	class shared_mutex;

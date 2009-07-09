@@ -305,6 +305,15 @@ void CGeneralTextHandler::load()
 		creGens.push_back(temp);
 	}
 
+	tlog5 << "\t\tReading CRGN4 \n";
+	buf = bitmaph->getTextFile("CRGEN4.TXT");
+	it=0;
+	while (it<buf.length()-1)
+	{
+		loadToIt(temp,buf,it,3);
+		creGens4.push_back(temp);
+	}
+
 	buf = bitmaph->getTextFile("GENRLTXT.TXT");
 	std::string tmp;
 	andame = buf.size();

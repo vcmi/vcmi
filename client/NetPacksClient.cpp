@@ -262,7 +262,8 @@ void InfoWindow::applyCl( CClient *cl )
 	{
 		comps.push_back(&components[i]);
 	}
-	std::string str = toString(text);
+	std::string str;
+	text.toString(str);
 
 	if(vstd::contains(cl->playerint,player))
 		cl->playerint[player]->showInfoDialog(str,comps,(soundBase::soundID)soundID);
@@ -282,7 +283,9 @@ void HeroLevelUp::applyCl( CClient *cl )
 
 void BlockingDialog::applyCl( CClient *cl )
 {
-	std::string str = toString(text);
+	std::string str;
+	text.toString(str);
+
 	if(vstd::contains(cl->playerint,player))
 		cl->playerint[player]->showBlockingDialog(str,components,id,(soundBase::soundID)soundID,selection(),cancel());
 	else
@@ -452,7 +455,7 @@ void PlayerMessage::applyCl(CClient *cl)
 void ShowInInfobox::applyCl(CClient *cl)
 {
 	SComponent sc(c);
-	sc.description = toString(text);
+	text.toString(sc.description);
 	if(cl->playerint[player]->human)
 	{
 		static_cast<CPlayerInterface*>(cl->playerint[player])->showComp(sc);
