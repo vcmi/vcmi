@@ -144,6 +144,7 @@ int main(int argc, char** argv)
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream("VCMI_Client_log.txt");
 	console = new CConsoleHandler;
+	*console->cb = boost::bind(&processCommand, _1, boost::ref(client));
 	console->start();
 	atexit(dispose);
 	tlog0 <<"Creating console and logfile: "<<pomtime.getDif() << std::endl;

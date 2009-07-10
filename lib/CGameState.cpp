@@ -1219,7 +1219,10 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 				CGHeroInstance *hero = k->second.heroes[0];
 				std::vector<ui16>::iterator slot = vstd::findFirstNot(hero->artifWorn,toGive->possibleSlots);
 				if(slot!=toGive->possibleSlots.end())
+				{
 					hero->artifWorn[*slot] = toGive->id;
+					hero->recreateArtBonuses();
+				}
 				else
 					hero->artifacts.push_back(toGive->id);
 			}
@@ -1296,19 +1299,6 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 	{
 		if(k->first==-1 || k->first==255)
 			continue;
-	//	for(int xd=0; xd<map->width; ++xd) //revealing part of map around towns
-	//	{
-	//		for(int yd=0; yd<map->height; ++yd)
-	//		{
-	//			for(int ch=0; ch<k->second.towns.size(); ++ch)
-	//			{
-	//				int deltaX = (k->second.towns[ch]->pos.x-xd)*(k->second.towns[ch]->pos.x-xd);
-	//				int deltaY = (k->second.towns[ch]->pos.y-yd)*(k->second.towns[ch]->pos.y-yd);
-	//				if(deltaX+deltaY<k->second.towns[ch]->getSightDistance()*k->second.towns[ch]->getSightDistance())
-	//					k->second.fogOfWarMap[xd][yd][k->second.towns[ch]->pos.z] = 1;
-	//			}
-	//		}
-	//	}
 
 		//init visiting and garrisoned heroes
 		for(unsigned int l=0; l<k->second.heroes.size();l++)

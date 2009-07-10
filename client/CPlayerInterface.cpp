@@ -132,8 +132,14 @@ void CPlayerInterface::yourTurn()
 		LOCPLINT = this;
 		makingTurn = true;
 
+		static bool firstCall = true;
 		static int autosaveCount = 0;
-		LOCPLINT->cb->save("Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
+
+		if(firstCall)
+			firstCall = false;
+		else
+			LOCPLINT->cb->save("Autosave_" + boost::lexical_cast<std::string>(autosaveCount++ + 1));
+
 		autosaveCount %= 5;
 
 		for(std::map<int,SDL_Surface*>::iterator i=graphics->heroWins.begin(); i!=graphics->heroWins.end();i++) //redraw hero infoboxes

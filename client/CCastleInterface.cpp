@@ -1014,11 +1014,11 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 		pom2 = 2;
 		pom = 2;
 		break;
-	case 0: case 5: case 8:
+	case 5: case 8:
 		pom2 = 1;
 		pom = 2;
 		break;
-	case 2: case 1: default:
+	case 0: case 2: case 1: default:
 		pom = 3;
 		break;
 	}

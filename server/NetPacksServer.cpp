@@ -25,9 +25,9 @@ CGameState* CPackForServer::GS(CGameHandler *gh)
 
 bool SaveGame::applyGh( CGameHandler *gh )
 {
-	gh->sendMessageTo(*c,"Saving...");
+	//gh->sendMessageTo(*c,"Saving...");
 	gh->save(fname);
-	gh->sendMessageTo(*c,"Game has been succesfully saved!");
+	gh->sendMessageTo(*c,"Game has been saved as " + fname);
 	return true;
 }
 

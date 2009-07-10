@@ -938,7 +938,8 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 	//adding native terrain bonuses
 	for(int g=0; g<stacks.size(); ++g)
 	{
-		if( VLC->heroh->nativeTerrains[stacks[g]->creature->faction] == gs->map->terrain[tile.x][tile.y][tile.z].tertype )
+		int faction = stacks[g]->creature->faction;
+		if(faction >= 0 && VLC->heroh->nativeTerrains[faction] == gs->map->terrain[tile.x][tile.y][tile.z].tertype )
 		{
 			stacks[g]->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
 			stacks[g]->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
@@ -995,7 +996,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, CCreatureSet &army
 			stacks.back()->luck = hero2->getCurrentLuck(stacks.back()->ID,false);
 		}
 	}
-	//war machiens added
+	//war machines added
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
 	//randomize obstacles
@@ -1674,13 +1675,21 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 			ns.bid.insert(19);
 		else if(t->getHordeLevel(1) == (bid-37))
 			ns.bid.insert(25);
-	}
-	else if(bid >= 30) //bas. dwelling
-	{
+
 		SetAvailableCreatures ssi;
 		ssi.tid = tid;
 		ssi.creatures = t->creatures;
-		ssi.creatures[bid-30].first = VLC->creh->creatures[t->town->basicCreatures[bid-30]].growth;
+		ssi.creatures[bid-37].second.push_back(t->town->upgradedCreatures[bid-37]);
+		sendAndApply(&ssi);
+	}
+	else if(bid >= 30) //bas. dwelling
+	{
+		int crid = t->town->basicCreatures[bid-30];
+		SetAvailableCreatures ssi;
+		ssi.tid = tid;
+		ssi.creatures = t->creatures;
+		ssi.creatures[bid-30].first = VLC->creh->creatures[crid].growth;
+		ssi.creatures[bid-30].second.push_back(crid);
 		sendAndApply(&ssi);
 	}
 

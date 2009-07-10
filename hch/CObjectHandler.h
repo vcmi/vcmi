@@ -273,6 +273,7 @@ public:
 
 	void initHero(); 
 	void initHero(int SUBID); 
+	void recreateArtBonuses();
 	void initHeroDefInfo();
 	CGHeroInstance();
 	virtual ~CGHeroInstance();

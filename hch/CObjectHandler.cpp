@@ -568,14 +568,7 @@ void CGHeroInstance::initHero()
 	boost::algorithm::replace_first(hoverName,"%s",name);
 	boost::algorithm::replace_first(hoverName,"%s", type->heroClass->name);
 
-	//clear all bonuses from artifacts (if present) and give them again
-	std::remove_if(bonuses.begin(), bonuses.end(), boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,0xffffff));
-	for (std::map<ui16,ui32>::iterator ari = artifWorn.begin(); ari != artifWorn.end(); ari++)
-	{
-		CArtifact &art = VLC->arth->artifacts[ari->second];
-		for(std::list<HeroBonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
-			bonuses.push_back(*i);
-	}
+	recreateArtBonuses();
 }
 
 void CGHeroInstance::initHeroDefInfo()
@@ -901,6 +894,18 @@ si32 CGHeroInstance::getArtPos(int aid) const
 		if(i->second == aid)
 			return i->first;
 	return -1;
+}
+
+void CGHeroInstance::recreateArtBonuses()
+{
+	//clear all bonuses from artifacts (if present) and give them again
+	std::remove_if(bonuses.begin(), bonuses.end(), boost::bind(HeroBonus::IsFrom,_1,HeroBonus::ARTIFACT,0xffffff));
+	for (std::map<ui16,ui32>::iterator ari = artifWorn.begin(); ari != artifWorn.end(); ari++)
+	{
+		CArtifact &art = VLC->arth->artifacts[ari->second];
+		for(std::list<HeroBonus>::iterator i = art.bonuses.begin(); i != art.bonuses.end(); i++)
+			bonuses.push_back(*i);
+	}
 }
 
 void CGDwelling::initObj()
