@@ -472,68 +472,6 @@ void CCreatureHandler::loadCreatures()
 		idToProjectileSpin[id] = spin;
 	}
 	inp2.close();
-
-	//TODO: create a tidy configuration file to control fixing unit abilities
-/*	creatures[115].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//water elemental should be treated as double-wide
-	creatures[123].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//ice elemental should be treated as double-wide
-	creatures[140].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//boar should be treated as double-wide
-	creatures[142].abilities.push_back(makeCreatureAbility(StackFeature::DOUBLE_WIDE, 0));//nomads should be treated as double-wide
-
-	creatures[46].abilities -= StackFeature::FLYING; //hell hound
-	creatures[47].abilities -= StackFeature::FLYING; //cerberus
-*/
-
-	std::vector<int> mindSpells = getMindSpells();
-	for(int g=0; g<mindSpells.size(); ++g)
-	{
-		creatures[40].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //giants are immune to mind spells
-	}
-	for(int g=0; g<mindSpells.size(); ++g)
-	{
-		creatures[41].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //titans are immune to mind spells
-	}
-	for(int g=0; g<mindSpells.size(); ++g)
-	{
-		creatures[112].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //air elementals are immune to mind spells
-	}
-	creatures[112].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 23); //air elementals are immune to meteor shower
-	creatures[112].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 17); //air elementals are vulnerable to lightning bolt
-	creatures[112].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 19); //air elementals are vulnerable to chain lightning
-	creatures[112].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //air elementals are non-living
-	for(int g=0; g<mindSpells.size(); ++g)
-	{
-		creatures[113].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //earth elementals are immune to mind spells
-	}
-	creatures[113].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 17); //earth elementals are immune to lightning bolt
-	creatures[113].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 19); //earth elementals are immune to chain lightning
-	creatures[113].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 23); //earth elementals are vulnerable to meteor shower
-	creatures[113].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //earth elementals are non-living
-	for(int g=0; g<mindSpells.size(); ++g)
-	{
-		creatures[114].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //fire elementals are immune to mind spells
-	}
-	creatures[114].abilities += makeCreatureAbility(StackFeature::FIRE_IMMUNITY, 0); //fire elementals are immune to fire spells
-	creatures[114].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 16); //fire elementals are vulnerable to ice bolt
-	creatures[114].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 20); //fire elementals are vulnerable to frost ring
-	creatures[114].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //fire elementals are non-living
-	for(int g=0; g<mindSpells.size(); ++g)
-	{
-		creatures[115].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, mindSpells[g]); //water elementals are immune to mind spells
-	}
-	creatures[115].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 16); //water elementals are immune to ice bolt
-	creatures[115].abilities += makeCreatureAbility(StackFeature::SPELL_IMMUNITY, 0, 20); //water elementals are immune to frost ring
-	creatures[115].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 13); //water elementals are vulnerable to fire wall
-	creatures[115].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 22); //water elementals are vulnerable to inferno
-	creatures[115].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 21); //water elementals are vulnerable to fireball
-	creatures[115].abilities += makeCreatureAbility(StackFeature::MORE_DAMAGE_FROM_SPELL, 100, 29); //water elementals are vulnerable to fire shield
-	creatures[115].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //water elementals are non-living
-	creatures[116].abilities += makeCreatureAbility(StackFeature::SPELL_DAMAGE_REDUCTION, 85, -1); //gold golems reduce dmg from spells
-	creatures[116].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //gold golems are non-living
-	creatures[117].abilities += makeCreatureAbility(StackFeature::SPELL_DAMAGE_REDUCTION, 95, -1); //diamond golems reduce dmg from spells
-	creatures[117].abilities += makeCreatureAbility(StackFeature::NON_LIVING, 0); //diamond golems are non-living
-	creatures[121].abilities += makeCreatureAbility(StackFeature::LEVEL_SPELL_IMMUNITY, 5); //magic elementals are immune to all spells
-
-	//TODO: the rest of creatures
 }
 
 void CCreatureHandler::loadAnimationInfo()
