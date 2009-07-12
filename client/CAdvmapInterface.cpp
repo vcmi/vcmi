@@ -329,7 +329,8 @@ void CMinimap::showTile(const int3 &pos)
 		if(!dynamic_cast< const CGHeroInstance * >(oo[v])) //heroes have been printed
 		{
 			int3 maplgp ( (pos.x*mw)/mapSizes.x, (pos.y*mh)/mapSizes.y, pos.z );
-			if(((int)wo) * mapSizes.x != mw) //miniap size in X is not multiple of map size in X
+			if(((int)wo) * mapSizes.x != mw   &&   pos.x+1 < mapSizes.x)//minimap size in X is not multiple of map size in X
+				 
 			{
 				std::vector < const CGObjectInstance * > op1x = LOCPLINT->cb->getFlaggableObjects(int3(pos.x+1, pos.y, pos.z));
 				if(op1x.size()!=0)
@@ -341,7 +342,7 @@ void CMinimap::showTile(const int3 &pos)
 					woShifted = wo;
 				}
 			}
-			if(((int)ho) * mapSizes.y != mh) //miniap size in Y is not multiple of map size in Y
+			if(((int)ho) * mapSizes.y != mh   &&   pos.y+1 < mapSizes.y) //minimap size in Y is not multiple of map size in Y
 			{
 				std::vector < const CGObjectInstance * > op1y = LOCPLINT->cb->getFlaggableObjects(int3(pos.x, pos.y+1, pos.z));
 				if(op1y.size()!=0)

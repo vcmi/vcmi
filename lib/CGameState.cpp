@@ -1623,7 +1623,10 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	}
 	else if(ID == 6) //shipyard
 	{
-		if(map->getTile(t->pos + int3(-1,3,0)).tertype != TerrainTile::water  &&  map->getTile(t->pos + int3(-3,3,0)).tertype != TerrainTile::water)
+		int3 t1(t->pos + int3(-1,3,0)),
+			t2(t->pos + int3(-3,3,0));
+		if(map->isInTheMap(t1) && map->getTile(t1).tertype != TerrainTile::water  
+			&&  (map->isInTheMap(t2) && map->getTile(t2).tertype != TerrainTile::water))
 			ret = 1; //lack of water
 	}
 

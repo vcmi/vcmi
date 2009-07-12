@@ -272,17 +272,17 @@ void CHeroHandler::loadHeroes()
 	expPerLevel.push_back(1000);
 	expPerLevel.push_back(2000);
 	expPerLevel.push_back(3200);
-	expPerLevel.push_back(4500);
-	expPerLevel.push_back(6000);
-	expPerLevel.push_back(7700);
-	expPerLevel.push_back(9000);
-	expPerLevel.push_back(11000);
-	expPerLevel.push_back(13200);
-	expPerLevel.push_back(15500);
-	expPerLevel.push_back(18500);
-	expPerLevel.push_back(22100);
-	expPerLevel.push_back(26420);
-	expPerLevel.push_back(31604);
+	expPerLevel.push_back(4600);
+	expPerLevel.push_back(6200);
+	expPerLevel.push_back(8000);
+	expPerLevel.push_back(10000);
+	expPerLevel.push_back(12200);
+	expPerLevel.push_back(14700);
+	expPerLevel.push_back(17500);
+	expPerLevel.push_back(20600);
+	expPerLevel.push_back(24320);
+	expPerLevel.push_back(28784);
+	expPerLevel.push_back(34140);
 
 	//ballistics info
 	buf = bitmaph->getTextFile("BALLIST.TXT");

@@ -41,7 +41,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & name & ID & lowStack & highStack & refTypeStack	& heroType & ID & startingSpell;
+		h & name & ID & lowStack & highStack & refTypeStack	& heroType & startingSpell;
 		//hero class pointer is restored by herohandler
 	}
 };
@@ -126,7 +126,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics & obstacles;
+		h & heroClasses & heroes & expPerLevel & ballistics & obstacles & nativeTerrains;
 		if(!h.saving)
 		{
 			//restore class pointers

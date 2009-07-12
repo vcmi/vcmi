@@ -478,7 +478,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 	if(att->Luck() > 0  &&  rand()%24 < att->Luck())
 	{
 		bsa->damageAmount *= 2;
-		bsa->flags |= 4;
+		bat.flags |= 4;
 	}
 	prepareAttacked(*bsa,def);
 }
@@ -2593,13 +2593,16 @@ void CGameHandler::handleTimeEvents()
 				{
 					if(ev->resources[i]) //if resource is changed, we add it to the dialog
 					{
-						// If removing too much ressources, adjust the
+						// If removing too much resources, adjust the
 						// amount so the total doesn't become negative.
 						if (sr.res[i] + ev->resources[i] < 0)
 							ev->resources[i] = -sr.res[i];
 
-						iw.components.push_back(Component(Component::RESOURCE,i,ev->resources[i],0));
-						sr.res[i] += ev->resources[i];
+						if(ev->resources[i]) //if non-zero res change
+						{
+							iw.components.push_back(Component(Component::RESOURCE,i,ev->resources[i],0));
+							sr.res[i] += ev->resources[i];
+						}
 					}
 				}
 				if (iw.components.size())

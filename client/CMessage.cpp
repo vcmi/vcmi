@@ -355,8 +355,9 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	SDL_Surface * _or = NULL;
 	int fontHeight;
 
-	// Try to compute a resonable number of characters per line
-	if (!charperline) {
+	// Try to compute a reasonable number of characters per line
+	if (!charperline) 
+	{
 		if (text.size() < 30)
 			charperline = 30;
 		else if (text.size() < 200)
@@ -537,7 +538,7 @@ ComponentResolved::ComponentResolved( SComponent *Comp )
 {
 	comp = Comp;
 	img = comp->getImg();
-	std::vector<std::string> * brtext = CMessage::breakText(comp->subtitle,11,true,true); //text 
+	std::vector<std::string> * brtext = CMessage::breakText(comp->subtitle,13,true,true); //text 
 	txt = CMessage::drawText(brtext,txtFontHeight,GEOR13);
 	delete brtext;
 

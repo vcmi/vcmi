@@ -19,7 +19,7 @@
 #include <boost/mpl/identity.hpp>
 
 #include <boost/type_traits/is_array.hpp>
-const ui32 version = 705;
+const ui32 version = 706;
 class CConnection;
 namespace mpl = boost::mpl;
 

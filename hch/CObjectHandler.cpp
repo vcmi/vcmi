@@ -371,6 +371,7 @@ int CGHeroInstance::getPrimSkillLevel(int id) const
 	for(std::list<HeroBonus>::const_iterator i=bonuses.begin(); i != bonuses.end(); i++)
 		if(i->type == HeroBonus::PRIMARY_SKILL && i->subtype==id)
 			ret += i->val;
+	amax(ret, id/2);//minimum value for attack and defense is 0 and for spell power and knowledge - 1
 	return ret;
 }
 ui8 CGHeroInstance::getSecSkillLevel(const int & ID) const
@@ -3035,13 +3036,6 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else //first visit - give bonus!
 	{
-		if(ID == 105  &&  artOrRes == 1) 
-		{
-			txtid++;
-			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
-		}
-
-
 		switch(artOrRes)
 		{
 		case 0:
@@ -3058,6 +3052,11 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 		}
 
 		iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
+		if(ID == 105  &&  artOrRes == 1) 
+		{
+			iw.text.localStrings.back().second++;
+			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
+		}
 	}
 
 	cb->showInfoDialog(&iw);

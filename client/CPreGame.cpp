@@ -911,7 +911,8 @@ void MapSel::printMaps(int elemIdx)
 
 	for (int line=0; line<slid->capacity; elemIdx++)
 	{
-		if (elemIdx >= selMaps.size()) {
+		if (elemIdx >= selMaps.size()) 
+		{
 			// No elements left to display, so it's an empty line.
 			SDL_BlitSurface(bg, &genRect(25, 351, 22, 115+line*25), scenin, NULL);
 			blitAt(scenin, 25, 121+line*25);
@@ -1248,7 +1249,8 @@ void MapSel::init()
 				}
 				pliczkiTemp.push_back("Games/"+(dir->path().leaf()));
 				std::time_t time = fs::last_write_time(dir->path());
-				datestemp.push_back(std::asctime(std::gmtime(&time)));
+				datestemp.push_back(std::asctime(std::localtime(&time)));
+				boost::algorithm::trim_right(datestemp.back()); //removes following \n
 			}
 		}
 	}
@@ -1261,6 +1263,7 @@ void MapSel::init()
 	maps = std::remove_if(ourGames.begin(),ourGames.end(),isNull);
 	ourGames.erase(maps,ourGames.end());
 	std::sort(ourGames.begin(),ourGames.end(),mapSorter(_name));
+	std::sort(ourGames.begin(),ourGames.end(),mapSorter(_format));
 }
 
 // Move the list up or down by a specified amount (positive or negative).
@@ -1316,7 +1319,7 @@ void MapSel::select(int which, bool updateMapsList, bool forceSettingsUpdate)
 			if (!(selMaps[selected]->players[i].canComputerPlay 
 				|| selMaps[selected]->players[i].canComputerPlay)	
 			  )
-				continue; // this caused some serious problems becouse of lack of simple bijection between two sets of player's numbers (one is returned by CPreGame, second is used in h3m)
+				continue; // this caused some serious problems because of lack of simple bijection between two sets of player's numbers (one is returned by CPreGame, second is used in h3m)
 			PlayerSettings pset;
 			pset.color=(Ecolor)i;
 			pset.serial = serialC;
@@ -1638,6 +1641,8 @@ void CPreGame::showScenSel()
 	//add buttons info
 	if(first)
 	{
+		ourScenSel->mapsel.select(0,false);
+
 		if(fromMenu==newGame)
 		{
 			btns.push_back(&ourScenSel->bEasy);
@@ -1657,8 +1662,6 @@ void CPreGame::showScenSel()
 		ourScenSel->selectedDiff=1;
 		ourScenSel->bNormal.select(true);
 		handleOther = &CPreGame::scenHandleEv;
-		ourScenSel->mapsel.select(0,false);
-
 
 		for (size_t i=0; i < btns.size(); ++i)
 		{

@@ -79,6 +79,12 @@ DLL_EXPORT void SetSecSkill::applyGs( CGameState *gs )
 					hero->secSkills[i].second = val;
 				else
 					hero->secSkills[i].second += val;
+
+				if(hero->secSkills[i].second > 3) //workaround to avoid crashes when same sec skill is given more than once
+				{
+					tlog1 << "Warning: Skill " << which << " increased over limit! Decreasing to Expert.\n";
+					hero->secSkills[i].second = 3;
+				}
 			}
 		}
 	}

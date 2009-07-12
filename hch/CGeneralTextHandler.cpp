@@ -329,8 +329,8 @@ void CGeneralTextHandler::load()
 	for(int jj=0; jj<764; ++jj)
 	{
 		loadToIt(buflet, buf, i, 2);
-		if(buflet[0] == '"'  &&  buflet[buflet.size()-1] == '"')
-			buflet = buflet.substr(1,buflet.size()-2);
+		trimQuotation(buflet);
+		boost::algorithm::replace_all(temp,"\"\"","\"");
 		allTexts.push_back(buflet);
 	}
 
@@ -340,8 +340,7 @@ void CGeneralTextHandler::load()
 	while(itr<strs.length()-1)
 	{
 		loadToIt(tmp, strs, itr, 3);
-		if(tmp[0] == '"' && tmp[tmp.size()-1] == '"')
-			tmp = tmp.substr(1,tmp.size()-2);
+		trimQuotation(tmp);
 		arraytxt.push_back(tmp);
 	}
 
@@ -377,10 +376,13 @@ void CGeneralTextHandler::load()
 		heroscrn.push_back(tmp);
 	}
 
+	itr = 0;
 	strin = bitmaph->getTextFile("ARTEVENT.TXT");
-	for(itr = 0; itr<strin.size();itr++)
+	for(; itr<strin.size();)
 	{
-		loadToIt(tmp, strin, itr, 3);
+		loadToIt(tmp, strin, itr, 2);
+	//	boost::algorithm::trim(tmp);
+		trimQuotation(tmp);
 		artifEvents.push_back(tmp);
 	}
 
