@@ -584,12 +584,14 @@ void CGHeroInstance::initHeroDefInfo()
 	}
 	for(int i=0;i<6;i++)
 	{
-		defInfo->blockMap[i]=255;
-		defInfo->visitMap[i]=0;
+		defInfo->blockMap[i] = 255;
+		defInfo->visitMap[i] = 0;
+		defInfo->coverageMap[i] = 0;
 	}
 	defInfo->handler=NULL;
 	defInfo->blockMap[5] = 253;
 	defInfo->visitMap[5] = 2;
+	defInfo->coverageMap[4] = defInfo->coverageMap[5] = 224;
 }
 CGHeroInstance::~CGHeroInstance()
 {
