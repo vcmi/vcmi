@@ -256,6 +256,17 @@ int CGObjectInstance::getSightRadious() const
 	return 3;
 }
 
+int3 CGObjectInstance::getVisitableOffset() const
+{
+	for(int y = 0; y < 6; y++)
+		for (int x = 0; x < 8; x++)
+			if((defInfo->visitMap[5-y] >> x) & 1)
+				return int3(x,y,0);
+
+	tlog2 << "Warning: getVisitableOffset called on non-visitable obj!\n";
+	return int3(-1,-1,-1);
+}
+
 static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->army.slots.size())
@@ -2068,7 +2079,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 	int destinationid=-1;
 	switch(ID)
 	{
-	case 43: //one way - find correspong exit monolith
+	case 43: //one way - find corresponding exit monolith
 		if(vstd::contains(objs,44) && vstd::contains(objs[44],subID) && objs[44][subID].size())
 			destinationid = objs[44][subID][rand()%objs[44][subID].size()];
 		else
@@ -2105,10 +2116,7 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		tlog2 << "Cannot find exit... :( \n";
 		return;
 	}
-	cb->moveHero(h->id,
-				(ID!=103)
-					? (CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true))
-					: (cb->getObj(destinationid)->pos),
+	cb->moveHero(h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) - getVisitableOffset(),
 				true);
 }
 
@@ -2784,7 +2792,7 @@ void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHero
 	}
 }
 
-void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int val, int positive, int negative, const CGHeroInstance * h ) const
+void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const
 {
 	iw.components.clear();
 	iw.text.clear();

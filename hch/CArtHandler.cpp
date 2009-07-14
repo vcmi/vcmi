@@ -5,6 +5,7 @@
 #include "CGeneralTextHandler.h"
 #include <boost/assign/std/vector.hpp>
 #include <boost/assign/list_of.hpp>
+#include <boost/lexical_cast.hpp>
 #include "../lib/VCMI_Lib.h"
 extern CLodHandler *bitmaph;
 using namespace boost::assign;
@@ -138,6 +139,10 @@ void CArtHandler::sortArts()
 void CArtHandler::giveArtBonus( int aid, HeroBonus::BonusType type, int val, int subtype )
 {
 	artifacts[aid].bonuses.push_back(HeroBonus(HeroBonus::PERMANENT,type,HeroBonus::ARTIFACT,val,aid,subtype));
+
+	if(type == HeroBonus::MORALE || HeroBonus::LUCK || HeroBonus::MORALE_AND_LUCK)
+		artifacts[aid].bonuses.back().description = "\n" + artifacts[aid].Name()  + (val > 0 ? " +" : " ") 	
+													+ boost::lexical_cast<std::string>(val);
 }
 
 void CArtHandler::addBonuses()

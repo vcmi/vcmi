@@ -125,6 +125,7 @@ public:
 	int getWidth() const; //returns width of object graphic in tiles
 	int getHeight() const; //returns height of object graphic in tiles
 	bool visitableAt(int x, int y) const; //returns true if object is visitable at location (x, y) form left top tile of image (x, y in tiles)
+	int3 getVisitableOffset() const; //returns (x,y,0) offset to first visitable tile from bottom right obj tile (0,0,0) (h3m pos)
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) form left top tile of image (x, y in tiles)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
@@ -432,7 +433,7 @@ public:
 	void endBattle(const CGHeroInstance *h, BattleResult *result) const;
 	void giveContents(const CGHeroInstance *h, bool afterBattle) const;
 
-	void getText( InfoWindow &iw, bool &afterBattle, int val, int positive, int negative, const CGHeroInstance * h ) const;
+	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
 	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
 };
 
