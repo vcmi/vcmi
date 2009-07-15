@@ -91,17 +91,17 @@ void CGarrisonSlot::hover (bool on)
 			{
 				if(owner->highlighted == this)
 				{
-					temp = CGI->generaltexth->tcommands[4];
+					temp = CGI->generaltexth->tcommands[4]; //View %s
 					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
 				}
 				else if (owner->highlighted->creature == creature)
 				{
-					temp = CGI->generaltexth->tcommands[2];
+					temp = CGI->generaltexth->tcommands[2]; //Combine %s armies
 					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
 				}
 				else if (owner->highlighted->creature)
 				{
-					temp = CGI->generaltexth->tcommands[7];
+					temp = CGI->generaltexth->tcommands[7]; //Exchange %s with %s
 					boost::algorithm::replace_first(temp,"%s",owner->highlighted->creature->nameSing);
 					boost::algorithm::replace_first(temp,"%s",creature->nameSing);
 				}
@@ -116,11 +116,15 @@ void CGarrisonSlot::hover (bool on)
 			{
 				if(upg)
 				{
-					temp = CGI->generaltexth->tcommands[32];
+					temp = CGI->generaltexth->tcommands[32]; //Select %s (visiting)
+				}
+				else if(owner->oup && owner->oup->ID == TOWNI_TYPE)
+				{
+					temp = CGI->generaltexth->tcommands[12]; //Select %s (in garrison)
 				}
 				else
 				{
-					temp = CGI->generaltexth->tcommands[12];
+					temp = CGI->generaltexth->allTexts[481]; //Select %s
 				}
 				boost::algorithm::replace_first(temp,"%s",creature->nameSing);
 			};
@@ -135,17 +139,17 @@ void CGarrisonSlot::hover (bool on)
 				  && owner->highlighted->upg != upg	//we're moving it to the other garrison
 				  )
 				{
-					temp = CGI->generaltexth->tcommands[5]; //cannot move last stack!
+					temp = CGI->generaltexth->tcommands[5]; //Cannot move last army to garrison
 				}
 				else
 				{
-					temp = CGI->generaltexth->tcommands[6];
+					temp = CGI->generaltexth->tcommands[6]; //Move %s
 					boost::algorithm::replace_first(temp,"%s",owner->highlighted->creature->nameSing);
 				}
 			}
 			else
 			{
-				temp = CGI->generaltexth->tcommands[11];
+				temp = CGI->generaltexth->tcommands[11]; //Empty
 			}
 		}
 		LOCPLINT->statusbar->print(temp);
@@ -532,7 +536,7 @@ void CGarrisonInt::splitStacks(int am2)
 }
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point& SurOffset, 
 						   const CArmedInstance *s1, const CArmedInstance *s2, bool smallImgs)
-	 :interx(inx),garOffset(garsOffset),highlighted(NULL),sur(pomsur),surOffset(surOffset),sup(NULL),
+	 :interx(inx),garOffset(garsOffset),highlighted(NULL),sur(pomsur),surOffset(SurOffset),sup(NULL),
 	 sdown(NULL),oup(s1),odown(s2), smallIcons(smallImgs)
 {
 	active = false;
@@ -694,7 +698,7 @@ void SComponent::init(Etype Type, int Subtype, int Val)
 		subtitle = CGI->arth->artifacts[Subtype].Name();
 		break;
 	case primskill:
-		oss << ((Val>0)?("+"):("-")) << Val << " ";
+		oss << std::showpos << Val << " ";
 		if(Subtype < 4)
 		{
 			description = CGI->generaltexth->arraytxt[2+Subtype];

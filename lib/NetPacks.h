@@ -516,9 +516,7 @@ struct GiveHero : public CPackForClient //516
 struct OpenWindow : public CPackForClient //517
 {
 	OpenWindow(){type = 517;};
-	void applyFirstCl(CClient *cl);
 	void applyCl(CClient *cl);
-	DLL_EXPORT void applyGs(CGameState *gs);
 
 	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL};
 	ui8 window;

@@ -462,10 +462,6 @@ void ShowInInfobox::applyCl(CClient *cl)
 	}
 }
 
-void OpenWindow::applyFirstCl(CClient *cl)
-{
-}
-
 void OpenWindow::applyCl(CClient *cl)
 {
 	switch(window)

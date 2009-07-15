@@ -334,7 +334,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & static_cast<CArmedInstance&>(*this);
+		h & static_cast<CGDwelling&>(*this);
 		h & name & builded & destroyed & identifier & alignment & forbiddenBuildings & builtBuildings
 			& possibleSpells & obligatorySpells & spells & /*strInfo & */events;
 

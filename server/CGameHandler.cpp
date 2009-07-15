@@ -1296,7 +1296,7 @@ void CGameHandler::giveResource(int player, int which, int val)
 	SetResource sr;
 	sr.player = player;
 	sr.resid = which;
-	sr.val = (gs->players.find(player)->second.resources[which]+val);
+	sr.val = gs->players.find(player)->second.resources[which]+val;
 	sendAndApply(&sr);
 }
 void CGameHandler::showCompInfo(ShowInInfobox * comp)

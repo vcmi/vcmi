@@ -309,12 +309,14 @@ void CBattleInterface::setPrintCellBorders(bool set)
 {
 	settings.printCellBorders = set;
 	redrawBackgroundWithHexes(activeStack);
+	LOCPLINT->totalRedraw();
 }
 
 void CBattleInterface::setPrintStackRange(bool set)
 {
 	settings.printStackRange = set;
 	redrawBackgroundWithHexes(activeStack);
+	LOCPLINT->totalRedraw();
 }
 
 void CBattleInterface::setPrintMouseShadow(bool set)

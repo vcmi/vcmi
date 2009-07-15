@@ -2553,7 +2553,10 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 	{
 		InfoWindow iw;
 		iw.player = h->tempOwner;
-		iw.text << message;
+		if(message.size())
+			iw.text << message;
+		else
+			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);
 		cb->startBattleI(h->id,army,pos,boost::bind(&CGEvent::endBattle,this,h,_1));
 	}
@@ -2688,9 +2691,15 @@ void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 	}
 
 	iw.components.clear();
+	getText(iw,afterBattle,183,h);
 	for(int i=0; i<artifacts.size(); i++)
 	{
 		iw.components.push_back(Component(Component::ARTIFACT,artifacts[i],0,0));
+		if(iw.components.size() >= 14)
+		{
+			cb->showInfoDialog(&iw);
+			iw.components.clear();
+		}
 	}
 	if(iw.components.size())
 	{
@@ -2768,7 +2777,7 @@ void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 		return;
 	}
 
-	if(!afterBattle)
+	if(!afterBattle && message.size())
 	{
 		iw.text << message;
 		cb->showInfoDialog(&iw);
@@ -2780,7 +2789,7 @@ void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 
 void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const
 {
-	if(afterBattle)
+	if(afterBattle || !message.size())
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,text);//%s has lost treasure.
 		iw.text.addReplacement(h->name);
@@ -2796,7 +2805,7 @@ void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int val, int negative,
 {
 	iw.components.clear();
 	iw.text.clear();
-	if(afterBattle)
+	if(afterBattle || !message.size())
 	{
 		iw.text.addTxt(MetaString::ADVOB_TXT,val < 0 ? negative : positive); //%s's luck takes a turn for the worse / %s's luck increases
 		iw.text.addReplacement(h->name);
@@ -2952,7 +2961,7 @@ void CGScholar::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case 0:
 		cb->changePrimSkill(h->id,bid,+1);
-		iw.components.push_back(Component(Component::PRIM_SKILL,bid,ssl+1,0));
+		iw.components.push_back(Component(Component::PRIM_SKILL,bid,+1,0));
 		break;
 	case 1:
 		cb->changeSecSkill(h->id,bid,+1);

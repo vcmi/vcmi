@@ -34,6 +34,7 @@
 
 DLL_EXPORT void SetResource::applyGs( CGameState *gs )
 {
+	amax(val, 0); //new value must be >= 0
 	gs->getPlayer(player)->resources[resid] = val;
 }
 
@@ -141,6 +142,7 @@ DLL_EXPORT void ChangeSpells::applyGs( CGameState *gs )
 DLL_EXPORT void SetMana::applyGs( CGameState *gs )
 {
 	CGHeroInstance *hero = gs->getHero(hid);
+	amax(val, 0); //not less than 0
 	hero->mana = val;
 }
 
@@ -422,10 +424,6 @@ DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
 	gs->getPlayer(h->getOwner())->heroes.push_back(h);
 	gs->map->addBlockVisTiles(h);
 	h->inTownGarrison = false;
-}
-
-DLL_EXPORT void OpenWindow::applyGs(CGameState *gs)
-{
 }
 
 DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
