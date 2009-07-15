@@ -79,7 +79,8 @@ Hydra HYDRATTK.wav HYDRDFND.wav HYDRKILL.wav HYDRMOVE.wav invalid HYDRWNCE.wav
 IceElemental ICELATTK.wav ICELDFND.wav ICELKILL.wav ICELMOVE.wav ICELSHOT.wav ICELWNCE.wav
 Imp IMPPATTK.wav IMPPDFND.wav IMPPKILL.wav IMPPMOVE.wav invalid IMPPWNCE.wav
 InfernalTroglodyte ITRGATTK.wav ITRGDFND.wav ITRGKILL.wav ITRGMOVE.wav invalid ITRGWNCE.wav
-IronGolem IGLMATTK.wav IGLMDFND.wav IGLMKILL.wav IGLMMOVE.wav invalid IGLMWNCE.wav
+# StoneGolem is actually an Iron Golem
+StoneGolem IGLMATTK.wav IGLMDFND.wav IGLMKILL.wav IGLMMOVE.wav invalid IGLMWNCE.wav
 LesserTitan LTITATTK.wav LTITDFND.wav LTITKILL.wav LTITMOVE.wav invalid LTITWNCE.wav
 Lich LICHATTK.wav LICHDFND.wav LICHKILL.wav LICHMOVE.wav LICHSHOT.wav LICHWNCE.wav LICHATK2.wav
 LightCrossbowman LCRSATTK.wav LCRSDFND.wav LCRSKILL.wav LCRSMOVE.wav LCRSSHOT.wav LCRSWNCE.wav
@@ -126,7 +127,8 @@ SkeletonWarrior SKLWATTK.wav SKLWDFND.wav SKLWKILL.wav SKLWMOVE.wav invalid SKLW
 Sprite SPRTATTK.wav SPRTDFND.wav SPRTKILL.wav SPRTMOVE.wav invalid SPRTWNCE.wav
 StoneElemental MAGMATTK.wav MAGMDFND.wav MAGMKILL.wav MAGMMOVE.wav invalid MAGMWNCE.wav
 StoneGargoyle SGRGATTK.wav SGRGDFND.wav SGRGKILL.wav SGRGMOVE.wav invalid SGRGWNCE.wav
-StoneGolem SGLMATTK.wav SGLMDFND.wav SGLMKILL.wav SGLMMOVE.wav invalid SGLMWNCE.wav
+# IronGolem is actually a Stone Golem
+IronGolem SGLMATTK.wav SGLMDFND.wav SGLMKILL.wav SGLMMOVE.wav invalid SGLMWNCE.wav
 StormElemental STORATTK.wav STORDFND.wav STORKILL.wav STORMOVE.wav STORSHOT.wav STORWNCE.wav
 Swordsman SWRDATTK.wav SWRDDFND.wav SWRDKILL.wav SWRDMOVE.wav invalid SWRDWNCE.wav
 Thunderbird TBRDATTK.wav TBRDDFND.wav TBRDKILL.wav TBRDMOVE.wav invalid TBRDWNCE.wav

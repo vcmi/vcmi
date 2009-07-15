@@ -1445,7 +1445,7 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 		}
 		blitAt(icons,positions[i].x+261,positions[i].y+3,bg);
 
-		//atttack
+		//attack
 		printAt(CGI->generaltexth->allTexts[190],positions[i].x+288,positions[i].y+5,GEOR13,zwykly,bg);
 		SDL_itoa(c->attack,buf,10);
 		printToWR(buf,positions[i].x+381,positions[i].y+18,GEOR13,zwykly,bg);

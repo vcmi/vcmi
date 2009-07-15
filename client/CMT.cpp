@@ -395,9 +395,21 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	if (bpp > 32) bpp = 32;
 
 	// Try to use the best screen depth for the display
-	if (((bpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == 0) ||
-		((screen = SDL_SetVideoMode(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)) {
-		tlog1 << "Requested screen resolution is not available (" << w << "x" << h << ")\n";
+	int suggestedBpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
+	if(suggestedBpp == 0)
+	{
+		tlog2 << "Warning: SDL says that " << w << "x" << h << " resolution is not available!\n";
+		suggestedBpp = bpp;
+	}
+	else if(suggestedBpp != bpp)
+	{
+		tlog2 << "Warning: SDL says that "  << bpp << "bpp is wrong and suggests " << suggestedBpp << std::endl;
+	}
+
+	
+	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)
+	{
+		tlog1 << "Requested screen resolution is not available (" << w << "x" << h << "x" << suggestedBpp << "bpp)\n";
 		throw "Requested screen resolution is not available\n";
 	}
 

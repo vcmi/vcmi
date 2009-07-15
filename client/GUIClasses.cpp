@@ -2945,15 +2945,16 @@ CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const 
 	{
 		hoverName = CGI->generaltexth->tavernInfo[4];
 		boost::algorithm::replace_first(hoverName,"%s",H->name);
+
+		int artifs = h->artifWorn.size() + h->artifacts.size();
+		for(int i=13; i<=17; i++) //war machines and spellbook don't count
+			if(vstd::contains(h->artifWorn,i)) 
+				artifs--;
+		sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
+				  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
+		descr[sizeof(descr)-1] = '\0';
 	}
 
-	int artifs = h->artifWorn.size() + h->artifacts.size();
-	for(int i=13; i<=17; i++) //war machines and spellbook don't count
-		if(vstd::contains(h->artifWorn,i)) 
-			artifs--;
-	sprintf_s(descr, sizeof(descr),CGI->generaltexth->allTexts[215].c_str(),
-			  h->name.c_str(), h->level, h->type->heroClass->name.c_str(), artifs);
-	descr[sizeof(descr)-1] = '\0';
 }
 	
 void CTavernWindow::HeroPortrait::show(SDL_Surface * to)
