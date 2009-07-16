@@ -322,130 +322,49 @@ void CHeroHandler::loadHeroes()
 }
 void CHeroHandler::loadHeroClasses()
 {
-	std::string buf = bitmaph->getTextFile("HCTRAITS.TXT");
-	int andame = buf.size();
-	for(int y=0; y<andame; ++y)
-		if(buf[y]==',')
-			buf[y]='.';
-	int i = 0; //buf iterator
-	int hmcr = 0;
-	for(i; i<andame; ++i) //omitting rubbish
-	{
-		if(buf[i]=='\r')
-			++hmcr;
-		if(hmcr==2)
-			break;
-	}
-	i+=2;
+	std::istringstream str(bitmaph->getTextFile("HCTRAITS.TXT")); //we'll be reading from it
+	const int BUFFER_SIZE = 5000;
+	char buffer[BUFFER_SIZE+1];
+
+	for(int i=0; i<3; ++i) str.getline(buffer, BUFFER_SIZE); //omiting rubbish
+
+
 	for(int ss=0; ss<18; ++ss) //18 classes of hero (including conflux)
 	{
 		CHeroClass * hc = new CHeroClass;
-		int befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->name = buf.substr(befi, i-befi);
-		++i;
 
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->aggression = atof(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->initialAttack = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->initialDefence = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->initialPower = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
-
-		befi=i;
-		for(i; i<andame; ++i)
-		{
-			if(buf[i]=='\t')
-				break;
-		}
-		hc->initialKnowledge = atoi(buf.substr(befi, i-befi).c_str());
-		++i;
+		char name[BUFFER_SIZE+1];
+		str.get(name, BUFFER_SIZE, '\t');
+		hc->name = name;
+		str >> hc->aggression;
+		str >> hc->initialAttack;
+		str >> hc->initialDefence;
+		str >> hc->initialPower;
+		str >> hc->initialKnowledge;
 
 		hc->primChance.resize(PRIMARY_SKILLS);
-		for(int x=0;x<PRIMARY_SKILLS;x++)
+		for(int x=0; x<PRIMARY_SKILLS; ++x)
 		{
-			befi=i;
-			for(i; i<andame; ++i)
-			{
-				if(buf[i]=='\t')
-					break;
-			}
-			hc->primChance[x].first = atoi(buf.substr(befi, i-befi).c_str());
-			++i;
+			str >> hc->primChance[x].first;
 		}
-		for(int x=0;x<PRIMARY_SKILLS;x++)
+		for(int x=0; x<PRIMARY_SKILLS; ++x)
 		{
-			befi=i;
-			for(i; i<andame; ++i)
-			{
-				if(buf[i]=='\t')
-					break;
-			}
-			hc->primChance[x].second = atoi(buf.substr(befi, i-befi).c_str());
-			++i;
+			str >> hc->primChance[x].second;
 		}
 
-		//CHero kkk = heroes[0];
-
+		hc->proSec.resize(SKILL_QUANTITY);
 		for(int dd=0; dd<SKILL_QUANTITY; ++dd)
 		{
-			befi=i;
-			for(i; i<andame; ++i)
-			{
-				if(buf[i]=='\t')
-					break;
-			}
-			int buff = atoi(buf.substr(befi, i-befi).c_str());
-			++i;
-			hc->proSec.push_back(buff);
+			str >> hc->proSec[dd];
 		}
 
-		for(int dd=0; dd<9; ++dd)
+		for(int dd=0; dd<ARRAY_COUNT(hc->selectionProbability); ++dd)
 		{
-			befi=i;
-			for(i; i<andame; ++i)
-			{
-				if(buf[i]=='\t' || buf[i]=='\r')
-					break;
-			}
-			hc->selectionProbability[dd] = atoi(buf.substr(befi, i-befi).c_str());
-			++i;
+			str >> hc->selectionProbability[dd];
 		}
-		++i;
+
 		heroClasses.push_back(hc);
+		str.getline(buffer, BUFFER_SIZE); //removing end of line characters
 	}
 }
 
