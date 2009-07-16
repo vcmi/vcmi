@@ -383,6 +383,7 @@ void CGeneralTextHandler::load()
 		loadToIt(tmp, strin, itr, 2);
 	//	boost::algorithm::trim(tmp);
 		trimQuotation(tmp);
+		boost::algorithm::replace_all(temp,"\"\"","\"");
 		artifEvents.push_back(tmp);
 	}
 
