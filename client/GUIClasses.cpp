@@ -333,7 +333,8 @@ void CGarrisonSlot::show(SDL_Surface * to)
 	else //empty slot
 	{
 		Rect pos1 = pos, pos2 = pos; //positions on the garr bg sur and scren
-		pos1 -= owner->surOffset;
+		pos1.x = owner->surOffset.x;
+		pos1.y = owner->surOffset.y;
 
 		SDL_BlitSurface(owner->sur,&pos1,to,&pos2);
 		if(owner->splitting)
@@ -1746,7 +1747,7 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 }
 
 CRecruitmentWindow::CRecruitmentWindow(const std::vector<std::pair<int,int> > &Creatures, const boost::function<void(int,int)> &Recruit) //creatures - pairs<creature_ID,amount>
-:recruit(Recruit), which(0)
+:recruit(Recruit), which(Creatures.size()-1)
 {
 	creatures.resize(Creatures.size());
 	amounts.resize(Creatures.size());
@@ -3193,7 +3194,7 @@ void CGarrisonWindow::show(SDL_Surface * to)
 	quit->show(to);
 	garr->show(to);
 
-	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+29,pos.y+125,to);
+	blitAt(graphics->flags->ourImages[garr->odown->getOwner()].bitmap,pos.x+28,pos.y+124,to);
 	blitAt(graphics->portraitLarge[static_cast<const CGHeroInstance*>(garr->odown)->portrait],pos.x+29,pos.y+222,to);
 	printAtMiddle(CGI->generaltexth->allTexts[709],pos.x+275,pos.y+30,GEOR16,tytulowy,to);
 }
@@ -3208,7 +3209,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	pos.w = screen->w;
 	pos.h = screen->h;
 
-	garr = new CGarrisonInt(pos.x+92, pos.y+129, 4, Point(0,94), bg, Point(124,102), up, down);
+	garr = new CGarrisonInt(pos.x+92, pos.y+127, 4, Point(0,96), bg, Point(93,127), up, down);
 	split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF");
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
 }

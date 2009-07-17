@@ -288,7 +288,7 @@ struct SetMana : public CPackForClient //110
 	DLL_EXPORT void applyGs(CGameState *gs);
 
 
-	ui32 hid, val;
+	si32 hid, val;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

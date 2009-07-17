@@ -2566,6 +2566,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 void CGameHandler::handleTimeEvents()
 {
+	gs->map->events.sort(evntCmp);
 	while(gs->map->events.size() && gs->map->events.front()->firstOccurence+1 == gs->day)
 	{
 		CMapEvent *ev = gs->map->events.front();

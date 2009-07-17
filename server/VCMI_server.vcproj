@@ -122,7 +122,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
 				WarningLevel="3"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 				DisableSpecificWarnings="4251"
 			/>
 			<Tool
@@ -138,7 +138,7 @@
 				Name="VCLinkerTool"
 				AdditionalDependencies="VCMI_lib.lib  zdll.lib"
 				AdditionalLibraryDirectories="../../libs;../"
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				TargetMachine="1"

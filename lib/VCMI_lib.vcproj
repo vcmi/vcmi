@@ -125,7 +125,7 @@
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="false"
 				WarningLevel="3"
-				DebugInformationFormat="0"
+				DebugInformationFormat="3"
 			/>
 			<Tool
 				Name="VCManagedResourceCompilerTool"
@@ -141,7 +141,7 @@
 				AdditionalDependencies="zdll.lib"
 				Version=""
 				AdditionalLibraryDirectories="../../libs;"
-				GenerateDebugInformation="false"
+				GenerateDebugInformation="true"
 				OptimizeReferences="2"
 				EnableCOMDATFolding="2"
 				LinkTimeCodeGeneration="0"

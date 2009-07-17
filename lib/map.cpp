@@ -1913,9 +1913,13 @@ void Mapa::readEvents( unsigned char * bufor, int &i )
 		else
 			ne->humanAffected = true;
 		ne->computerAffected = bufor[i]; ++i;
-		ne->firstOccurence = bufor[i]; ++i;
+		ne->firstOccurence = readNormalNr(bufor,i, 2); i+=2;
 		ne->nextOccurence = bufor[i]; ++i;
-		i+=18;
+
+		char unknown[17];
+		memcpy(unknown, bufor+i, 17);
+		i+=17;
+
 		events.push_back(ne);
 	}
 }
