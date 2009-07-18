@@ -1462,7 +1462,7 @@ void CAdvMapInt::show(SDL_Surface *to)
 	++heroAnim;
 
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
-	if((animValHitCount % (4/LOCPLINT->mapScrollingSpeed)) == 0 
+	if((animValHitCount % (4/LOCPLINT->sysOpts.mapScrollingSpeed)) == 0 
 		&& 
 			(LOCPLINT->topInt() == this)
 			|| SDL_GetKeyState(NULL)[SDLK_LCTRL] 

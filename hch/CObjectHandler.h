@@ -182,7 +182,7 @@ class DLL_EXPORT CGHeroInstance : public CArmedInstance
 public:
 	//////////////////////////////////////////////////////////////////////////
 
-	mutable int moveDir; //format:	123
+	ui8 moveDir; //format:	123
 					//		8 4
 					//		765
 	mutable ui8 isStanding, tacticFormationEnabled;
@@ -226,7 +226,8 @@ public:
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & exp & level & name & biography & portrait & mana & primSkills & secSkills & movement
-			& identifier & sex & inTownGarrison & artifacts & artifWorn & spells & patrol & bonuses;
+			& identifier & sex & inTownGarrison & artifacts & artifWorn & spells & patrol & bonuses
+			& moveDir;
 
 		ui8 standardType = (VLC->heroh->heroes[subID] == type);
 		h & standardType;

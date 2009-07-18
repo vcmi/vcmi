@@ -245,6 +245,44 @@ DLL_EXPORT void RemoveObject::applyGs( CGameState *gs )
 	}
 }
 
+static int getDir(int3 src, int3 dst)
+{
+	int ret = -1;
+	if(dst.x+1 == src.x && dst.y+1 == src.y) //tl
+	{
+		ret = 1;
+	}
+	else if(dst.x == src.x && dst.y+1 == src.y) //t
+	{
+		ret = 2;
+	}
+	else if(dst.x-1 == src.x && dst.y+1 == src.y) //tr
+	{
+		ret = 3;
+	}
+	else if(dst.x-1 == src.x && dst.y == src.y) //r
+	{
+		ret = 4;
+	}
+	else if(dst.x-1 == src.x && dst.y-1 == src.y) //br
+	{
+		ret = 5;
+	}
+	else if(dst.x == src.x && dst.y-1 == src.y) //b
+	{
+		ret = 6;
+	}
+	else if(dst.x+1 == src.x && dst.y-1 == src.y) //bl
+	{
+		ret = 7;
+	}
+	else if(dst.x+1 == src.x && dst.y == src.y) //l
+	{
+		ret = 8;
+	}
+	return ret;
+}
+
 void TryMoveHero::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(id);
@@ -255,8 +293,12 @@ void TryMoveHero::applyGs( CGameState *gs )
 		h->pos = end;
 		gs->map->addBlockVisTiles(h);
 	}
+
 	BOOST_FOREACH(int3 t, fowRevealed)
 		gs->getPlayer(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
+
+	if(result == SUCCESS  ||  result == BLOCKING_VISIT)
+		h->moveDir = getDir(start,end);
 }
 
 DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )

@@ -390,7 +390,7 @@ void CMessage::drawIWindow(CInfoWindow * ret, std::string text, int player, int 
 	amin(txts.first, conf.cc.resx - 150);
 	amin(txts.second, conf.cc.resy - 150);
 
-	ret->bitmap = drawBox1(txts.first+2*SIDE_MARGIN,txts.second+2*SIDE_MARGIN,0);
+	ret->bitmap = drawBox1(txts.first+2*SIDE_MARGIN,txts.second+2*SIDE_MARGIN,player);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 	ret->pos.x=screen->w/2-(ret->pos.w/2);

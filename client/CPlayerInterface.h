@@ -71,6 +71,38 @@ namespace boost
 	class recursive_mutex;
 };
 
+struct SystemOptions
+{
+	ui8 heroMoveSpeed; //speed of player's hero movement
+	//TODO: enemy hero speed
+	ui8 mapScrollingSpeed; //map scrolling speed
+	ui8 musicVolume, soundVolume;
+
+	//TODO: rest of system options
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & heroMoveSpeed & mapScrollingSpeed & musicVolume & soundVolume;
+	}
+
+	SystemOptions()
+	{
+		heroMoveSpeed = 2;
+		mapScrollingSpeed = 2;
+		musicVolume = 88;
+		soundVolume = 88;
+	}
+
+	void setHeroMoveSpeed(int newSpeed); //set for the member above
+	void setMapScrollingSpeed(int newSpeed); //set the member above
+	void setMusicVolume(int newVolume);
+	void setSoundVolume(int newVolume);
+	void settingsChanged(); //updates file with "default" settings for next running of application
+	void apply();
+};
+
+extern SystemOptions GDefaultOptions; //defined and inited in CMT.cpp, stores default settings loaded with application
+
 class CPlayerInterface : public CGameInterface
 {
 public:
@@ -80,11 +112,7 @@ public:
 	boost::recursive_mutex *pim;
 	bool makingTurn; //if player is already making his turn
 
-	//TODO: exclude to some kind Settings struct
-	int heroMoveSpeed; //speed of player's hero movement
-	void setHeroMoveSpeed(int newSpeed) {heroMoveSpeed = newSpeed;} //set for the member above
-	int mapScrollingSpeed; //map scrolling speed
-	void setMapScrollingSpeed(int newSpeed) {mapScrollingSpeed = newSpeed;} //set the member above
+	SystemOptions sysOpts;
 
 	SDL_Event * current; //current event
 	CAdvMapInt * adventureInt;

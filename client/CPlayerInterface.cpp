@@ -91,8 +91,7 @@ CPlayerInterface::CPlayerInterface(int Player, int serial)
 	pim = new boost::recursive_mutex;
 	makingTurn = false;
 	showingDialog = new CondSh<bool>(false);
-	heroMoveSpeed = 2;
-	mapScrollingSpeed = 2;
+	sysOpts = GDefaultOptions;
 	//initializing framerate keeper
 	mainFPSmng = new FPSmanager;
 	SDL_initFramerate(mainFPSmng);
@@ -267,43 +266,6 @@ inline void delObjRect(const int & x, const int & y, const int & z, const int & 
 			return;
 		}
 }
-static int getDir(int3 src, int3 dst)
-{
-	int ret = -1;
-	if(dst.x+1 == src.x && dst.y+1 == src.y) //tl
-	{
-		ret = 1;
-	}
-	else if(dst.x == src.x && dst.y+1 == src.y) //t
-	{
-		ret = 2;
-	}
-	else if(dst.x-1 == src.x && dst.y+1 == src.y) //tr
-	{
-		ret = 3;
-	}
-	else if(dst.x-1 == src.x && dst.y == src.y) //r
-	{
-		ret = 4;
-	}
-	else if(dst.x-1 == src.x && dst.y-1 == src.y) //br
-	{
-		ret = 5;
-	}
-	else if(dst.x == src.x && dst.y-1 == src.y) //b
-	{
-		ret = 6;
-	}
-	else if(dst.x+1 == src.x && dst.y-1 == src.y) //bl
-	{
-		ret = 7;
-	}
-	else if(dst.x+1 == src.x && dst.y == src.y) //l
-	{
-		ret = 8;
-	}
-	return ret;
-}
 void CPlayerInterface::heroMoved(const TryMoveHero & details)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -322,7 +284,6 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	{
 		if(details.result == TryMoveHero::BLOCKING_VISIT)
 		{
-			ho->moveDir = getDir(details.start,details.end);
 			adventureInt->paths.erase(ho);
 			adventureInt->terrain.currentPath = NULL;
 		}
@@ -346,7 +307,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
 	{
-		ho->moveDir = 1;
+		//ho->moveDir = 1;
 		ho->isStanding = false;
 		CGI->mh->ttiles[hp.x-3][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -31)));
 		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 1, -31)));
@@ -374,7 +335,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 	else if(details.end.x == details.start.x && details.end.y+1 == details.start.y) //t
 	{
-		ho->moveDir = 2;
+		//ho->moveDir = 2;
 		ho->isStanding = false;
 		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 0, -31)));
 		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 32, -31)));
@@ -394,7 +355,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 	else if(details.end.x-1 == details.start.x && details.end.y+1 == details.start.y) //tr
 	{
-		ho->moveDir = 3;
+		//ho->moveDir = 3;
 		ho->isStanding = false;
 		CGI->mh->ttiles[hp.x-2][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -1, -31)));
 		CGI->mh->ttiles[hp.x-1][hp.y-2][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, 31, -31)));
@@ -422,7 +383,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 	else if(details.end.x-1 == details.start.x && details.end.y == details.start.y) //r
 	{
-		ho->moveDir = 4;
+		//ho->moveDir = 4;
 		ho->isStanding = false;
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, 0), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, 0), ho->id);
@@ -440,7 +401,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 	else if(details.end.x-1 == details.start.x && details.end.y-1 == details.start.y) //br
 	{
-		ho->moveDir = 5;
+		//ho->moveDir = 5;
 		ho->isStanding = false;
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, -1, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 31, -1), ho->id);
@@ -468,7 +429,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 	else if(details.end.x == details.start.x && details.end.y-1 == details.start.y) //b
 	{
-		ho->moveDir = 6;
+		//ho->moveDir = 6;
 		ho->isStanding = false;
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 0, -1), ho->id);
 		subRect(hp.x-1, hp.y-1, hp.z, genRect(32, 32, 32, -1), ho->id);
@@ -488,7 +449,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 	else if(details.end.x+1 == details.start.x && details.end.y-1 == details.start.y) //bl
 	{
-		ho->moveDir = 7;
+		//ho->moveDir = 7;
 		ho->isStanding = false;
 		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, -1)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, -1), ho->id);
@@ -516,7 +477,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	}
 	else if(details.end.x+1 == details.start.x && details.end.y == details.start.y) //l
 	{
-		ho->moveDir = 8;
+		//ho->moveDir = 8;
 		ho->isStanding = false;
 		CGI->mh->ttiles[hp.x-3][hp.y-1][hp.z].objects.push_back(std::make_pair(ho, genRect(32, 32, -31, 0)));
 		subRect(hp.x-2, hp.y-1, hp.z, genRect(32, 32, 1, 0), ho->id);
@@ -535,7 +496,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	//first initializing done
 	SDL_framerateDelay(mainFPSmng); // after first move
 	//main moving
-	for(int i=1; i<32; i+=2*heroMoveSpeed)
+	for(int i=1; i<32; i+=2*sysOpts.heroMoveSpeed)
 	{
 		if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
 		{
@@ -1568,7 +1529,7 @@ void CPlayerInterface::heroBonusChanged( const CGHeroInstance *hero, const HeroB
 template <typename Handler> void CPlayerInterface::serializeTempl( Handler &h, const int version )
 {
 	h & playerID & serialID;
-	h & heroMoveSpeed & mapScrollingSpeed;
+	h & sysOpts;
 	h & CBattleInterface::settings;
 }
 
@@ -1580,6 +1541,7 @@ void CPlayerInterface::serialize( COSer<CSaveFile> &h, const int version )
 void CPlayerInterface::serialize( CISer<CLoadFile> &h, const int version )
 {
 	serializeTempl(h,version);
+	sysOpts.apply();
 }
 
 void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
@@ -1774,4 +1736,47 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, int lev
 	}
 	CRecruitmentWindow *cr = new CRecruitmentWindow(cres, boost::bind(&CCallback::recruitCreatures, cb, dwelling, _1, _2));
 	pushInt(cr);
+}
+
+void SystemOptions::setMusicVolume( int newVolume )
+{
+	musicVolume = newVolume;
+	CGI->musich->setVolume(newVolume);
+	settingsChanged();
+}
+
+void SystemOptions::setSoundVolume( int newVolume )
+{
+	soundVolume = newVolume;
+	CGI->soundh->setVolume(newVolume);
+	settingsChanged();
+}
+
+void SystemOptions::setHeroMoveSpeed( int newSpeed )
+{
+	heroMoveSpeed = newSpeed;
+	settingsChanged();
+}
+
+void SystemOptions::setMapScrollingSpeed( int newSpeed )
+{
+	mapScrollingSpeed = newSpeed;
+	settingsChanged();
+}
+
+void SystemOptions::settingsChanged()
+{
+	CSaveFile settings("config" PATHSEPARATOR "sysopts.bin");
+
+	if(settings.sfile)
+		settings << *this;
+	else
+		tlog1 << "Cannot save settings to config" PATHSEPARATOR "sysopts.bin!\n";
+}
+
+void SystemOptions::apply()
+{
+	CGI->musich->setVolume(musicVolume);
+	CGI->soundh->setVolume(soundVolume);
+	settingsChanged();
 }

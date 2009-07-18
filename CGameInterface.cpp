@@ -24,23 +24,25 @@ CGlobalAI * CAIHandler::getNewAI(CCallback * cb, std::string dllname)
 	CGlobalAI*(*getAI)(); 
 	void(*getName)(char*); 
 
+	std::string dllPath;
+
 #ifdef _WIN32
-	dllname = "AI/"+dllname+".dll";
-	HINSTANCE dll = LoadLibraryA(dllname.c_str());
+	dllPath = "AI/"+dllname+".dll";
+	HINSTANCE dll = LoadLibraryA(dllPath.c_str());
 	if (!dll)
 	{
-		tlog1 << "Cannot open AI library ("<<dllname<<"). Throwing..."<<std::endl;
+		tlog1 << "Cannot open AI library ("<<dllPath<<"). Throwing..."<<std::endl;
 		throw new std::string("Cannot open AI library");
 	}
 	//int len = dllname.size()+1;
 	getName = (void(*)(char*))GetProcAddress(dll,"GetAiName");
 	getAI = (CGlobalAI*(*)())GetProcAddress(dll,"GetNewAI");
 #else
-	dllname = "AI/"+dllname+".so";
-	void *dll = dlopen(dllname.c_str(), RTLD_LOCAL | RTLD_LAZY);
+	dllPath = "AI/"+dllPath+".so";
+	void *dll = dlopen(dllPath.c_str(), RTLD_LOCAL | RTLD_LAZY);
 	if (!dll)
 	{
-		tlog1 << "Cannot open AI library ("<<dllname<<"). Throwing..."<<std::endl;
+		tlog1 << "Cannot open AI library ("<<dllPath<<"). Throwing..."<<std::endl;
 		throw new std::string("Cannot open AI library");
 	}
 	getName = (void(*)(char*))dlsym(dll,"GetAiName");

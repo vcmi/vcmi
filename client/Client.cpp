@@ -257,23 +257,27 @@ void CClient::load( const std::string & fname )
 	*serv << ui8(255); // neutrals
 	tlog0 <<"Sent info to server: "<<tmh.getDif()<<std::endl;
 	
-	for (size_t i=0; i<gs->scenarioOps->playerInfos.size();++i) //initializing interfaces for players
-	{ 
-		ui8 color = gs->scenarioOps->playerInfos[i].color;
-		CCallback *cb = new CCallback(gs,color,this);
-		if(!gs->scenarioOps->playerInfos[i].human) {
-			playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
-		}
-		else {
-			playerint[color] = new CPlayerInterface(color,i);
-		}
-		gs->currentPlayer = color;
-		playerint[color]->init(cb);
-		tlog0 <<"Setting up interface for player "<< (int)color <<": "<<tmh.getDif()<<std::endl;
+	{
+		CLoadFile lf(fname + ".vcgm1");
+		lf >> *this;
 	}
-	playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
-	playerint[255]->init(new CCallback(gs,255,this));
-	tlog0 <<"Setting up interface for neutral \"player\"" << tmh.getDif() << std::endl;
+	//for (size_t i=0; i<gs->scenarioOps->playerInfos.size();++i) //initializing interfaces for players
+	//{ 
+	//	ui8 color = gs->scenarioOps->playerInfos[i].color;
+	//	CCallback *cb = new CCallback(gs,color,this);
+	//	if(!gs->scenarioOps->playerInfos[i].human) {
+	//		playerint[color] = static_cast<CGameInterface*>(CAIHandler::getNewAI(cb,conf.cc.defaultAI));
+	//	}
+	//	else {
+	//		playerint[color] = new CPlayerInterface(color,i);
+	//	}
+	//	gs->currentPlayer = color;
+	//	playerint[color]->init(cb);
+	//	tlog0 <<"Setting up interface for player "<< (int)color <<": "<<tmh.getDif()<<std::endl;
+	//}
+	//playerint[255] =  CAIHandler::getNewAI(cb,conf.cc.defaultAI);
+	//playerint[255]->init(new CCallback(gs,255,this));
+	//tlog0 <<"Setting up interface for neutral \"player\"" << tmh.getDif() << std::endl;
 
 
 }
@@ -397,13 +401,19 @@ void CClient::serialize( Handler &h, const int version )
 			ui8 pid;
 			h & pid & dllname;
 
+			CCallback *callback = new CCallback(gs,pid,this);
+			callbacks.insert(callback);
+			CGameInterface *nInt = NULL;
+
+
 			if(dllname.length())
-			{
-				CCallback *callback = new CCallback(gs,pid,this);
-				callbacks.insert(callback);
-				playerint[pid] =  CAIHandler::getNewAI(callback,dllname);
-				playerint[pid]->init(callback);
-			}
+				nInt = CAIHandler::getNewAI(callback,dllname);
+			else
+				nInt = new CPlayerInterface(pid,i);
+
+			playerint[pid] = nInt;
+			nInt->init(callback);
+			nInt->serialize(h, version);
 		}
 	}
 }

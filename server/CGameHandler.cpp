@@ -1500,8 +1500,8 @@ void CGameHandler::save( const std::string &fname )
 	{
 		tlog0 << "Ordering clients to serialize...\n";
 		SaveGame sg(fname);
-		//TODO: uncomment when client saving is ready
-		//sendToAllClients(&sg);
+
+		sendToAllClients(&sg);
 	}
 
 	{

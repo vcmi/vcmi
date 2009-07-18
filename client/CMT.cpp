@@ -62,6 +62,7 @@ SDL_Surface *screen = NULL, //main screen surface
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
 
+SystemOptions GDefaultOptions; 
 std::queue<SDL_Event*> events;
 boost::mutex eventsM;
 
@@ -97,15 +98,33 @@ void init()
 	}
 	THC tlog0<<"\tInitializing fonts: "<<pomtime.getDif()<<std::endl;
 
+	{
+		//read system options
+		CLoadFile settings("config" PATHSEPARATOR "sysopts.bin");
+		if(settings.sfile)
+		{
+			settings >> GDefaultOptions;
+		}
+		else //file not found (probably, may be also some kind of access problem
+		{
+			tlog2 << "Warning: Cannot read system options, default settings will be used.\n";
+			
+			//Try to create file
+			tlog2 << "VCMI will try to save default system options...\n";
+			GDefaultOptions.settingsChanged();
+		}
+	}
+	THC tlog0<<"\tLoading default system settings: "<<pomtime.getDif()<<std::endl;
+
 	//initializing audio
 	// Note: because of interface button range, volume can only be a
 	// multiple of 11, from 0 to 99.
 	CGI->soundh = new CSoundHandler;
 	CGI->soundh->init();
-	CGI->soundh->setVolume(88);
+	CGI->soundh->setVolume(GDefaultOptions.soundVolume);
 	CGI->musich = new CMusicHandler;
 	CGI->musich->init();
-	CGI->musich->setVolume(88);
+	CGI->musich->setVolume(GDefaultOptions.musicVolume);
 	tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 	tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 
