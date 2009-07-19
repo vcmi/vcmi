@@ -90,7 +90,7 @@ void CDefObjInfoHandler::load()
 		}
 		else 
 		{
-			static int visitableFromTop[] = {111,33,81,12,9,212,215,22}; //whirlpool, garrison, scholar, campfire, borderguard, bordergate, questguard, corpse
+			static int visitableFromTop[] = {29, 82, 86, 11, 59, 8, 111,33,81,12,9,212,215,22}; //sea chest, flotsam, shipwreck survivor, buoy, ocean bottle, boat, whirlpool, garrison, scholar, campfire, borderguard, bordergate, questguard, corpse
 			for(int i=0; i < ARRAY_COUNT(visitableFromTop); i++)
 			{
 				if(visitableFromTop[i] == nobj->id)

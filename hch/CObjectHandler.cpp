@@ -2627,12 +2627,7 @@ const std::string & CGBonusingObject::getHoverText() const
 
 void CGBonusingObject::initObj()
 {
-	if(ID == 11) //Buoy
-	{
-		defInfo->visitDir = 0xff;
-		blockVisit = true;
-	}
-	else if(ID == 52) //Mermaid
+	if(ID == 11 || ID == 52) //Buoy / Mermaid
 	{
 		blockVisit = true;
 	}
@@ -3065,7 +3060,6 @@ void CGSignBottle::initObj()
 
 	if(ID == 59)
 	{
-		defInfo->visitDir = 0xff;
 		blockVisit = true;
 	}
 }
@@ -3077,6 +3071,9 @@ void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
 	iw.player = h->getOwner();
 	iw.text << message;
 	cb->showInfoDialog(&iw);
+
+	if(ID == 59)
+		cb->removeObject(id);
 }
 
 void CGScholar::giveAnyBonus( const CGHeroInstance * h ) const
@@ -3358,7 +3355,6 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 
 void CGBoat::initObj()
 {
-	defInfo->visitDir = 0xff;
 	hero = NULL;
 }
 

@@ -1354,7 +1354,9 @@ void Mapa::readDefInfo( unsigned char * bufor, int &i)
 			}
 		}
 		else
+		{
 			vinya->visitDir = 0xff;
+		}
 
 		if(vinya->id == 26)
 			std::memset(vinya->blockMap,255,6);

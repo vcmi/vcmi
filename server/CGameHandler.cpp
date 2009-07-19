@@ -1951,7 +1951,7 @@ bool CGameHandler::garrisonSwap( si32 tid )
 bool CGameHandler::swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 )
 {
 	CGHeroInstance *h1 = gs->getHero(hid1), *h2 = gs->getHero(hid2);
-	if((distance(h1->pos,h2->pos) > 1.0)   ||   (h1->tempOwner != h2->tempOwner))
+	if((distance(h1->pos,h2->pos) > 1.5)   ||   (h1->tempOwner != h2->tempOwner))
 		return false;
 
 	const CArtifact *a1 = h1->getArt(slot1), 
