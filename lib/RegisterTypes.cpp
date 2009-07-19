@@ -43,6 +43,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGMagicWell>();
 	s.template registerType<CGObservatory>();
 	s.template registerType<CGBoat>();
+	s.template registerType<CGSirens>();
 	s.template registerType<CGOnceVisitable>();
 	s.template registerType<CGObjectInstance>();
 }

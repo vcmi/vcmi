@@ -107,6 +107,8 @@ public:
 class DLL_EXPORT CGObjectInstance : protected IObjectInterface
 {
 protected:
+	void getNameVis(std::string &hname) const;
+	void giveDummyBonus(int heroID, ui8 duration = HeroBonus::ONE_DAY) const;
 public:
 	mutable std::string hoverName;
 	int3 pos; //h3m pos
@@ -694,6 +696,7 @@ class DLL_EXPORT CGBonusingObject : public CGObjectInstance //objects giving bon
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	const std::string & getHoverText() const;
+	void initObj();	
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -706,6 +709,19 @@ class DLL_EXPORT CGMagicWell : public CGObjectInstance //objects giving bonuses 
 public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	const std::string & getHoverText() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+class DLL_EXPORT CGSirens : public CGObjectInstance
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+	const std::string & getHoverText() const;
+	void initObj();	
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

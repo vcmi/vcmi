@@ -1840,6 +1840,8 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		case 96: //temple
 		case 110://Watering Hole
 		case 31: //Fountain of Youth
+		case 11: //Buoy
+		case 52: //Mermaid
 			{
 				nobj = new CGBonusingObject();
 				break;
@@ -1866,6 +1868,11 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		case 8: //Boat
 			{
 				nobj = new CGBoat();
+				break;
+			}
+		case 92: //Sirens
+			{
+				nobj = new CGSirens();
 				break;
 			}
 		case 214: //hero placeholder

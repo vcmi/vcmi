@@ -267,6 +267,30 @@ int3 CGObjectInstance::getVisitableOffset() const
 	return int3(-1,-1,-1);
 }
 
+void CGObjectInstance::getNameVis( std::string &hname ) const
+{
+	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
+	hname = VLC->generaltexth->names[ID];
+	if(h) 
+	{
+		if(!h->getBonus(HeroBonus::OBJECT,ID))
+			hname += " " + VLC->generaltexth->allTexts[353]; //not visited
+		else
+			hname += " " + VLC->generaltexth->allTexts[352]; //visited
+	}
+}
+
+void CGObjectInstance::giveDummyBonus(int heroID, ui8 duration) const
+{
+	GiveBonus gbonus;
+	gbonus.bonus.type = HeroBonus::NONE;
+	gbonus.hid = heroID;
+	gbonus.bonus.duration = duration;
+	gbonus.bonus.source = HeroBonus::OBJECT;
+	gbonus.bonus.id = ID;
+	cb->giveHeroBonus(&gbonus);
+}
+
 static int lowestSpeed(const CGHeroInstance * chi)
 {
 	if(!chi->army.slots.size())
@@ -2467,6 +2491,12 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 
 	switch(ID)
 	{
+	case 11: //buoy
+		messageID = 21;
+		gbonus.bonus.type = HeroBonus::MORALE;
+		gbonus.bonus.val = +1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,94);
+		break;
 	case 14: //swan pond
 		messageID = 29;
 		sound = soundBase::LUCK;
@@ -2499,6 +2529,13 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 			gbonus.bonus.type = (cb->getDate(1)%2) ? HeroBonus::LUCK : HeroBonus::MORALE;
 		gbonus.bonus.val = 1;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,68);
+		break;
+	case 52: //Mermaid
+		messageID = 83;
+		sound = soundBase::LUCK;
+		gbonus.bonus.type = HeroBonus::LUCK;
+		gbonus.bonus.val = 1;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6,72);
 		break;
 	case 64: //Rally Flag
 		sound = soundBase::MORALE;
@@ -2549,7 +2586,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	if(visited)
 	{
-		if(ID==64 || ID==96  ||  ID==56)
+		if(ID==64 || ID==96  ||  ID==56 || ID == 52)
 			messageID--;
 		else
 			messageID++;
@@ -2588,6 +2625,19 @@ const std::string & CGBonusingObject::getHoverText() const
 	return hoverName;
 }
 
+void CGBonusingObject::initObj()
+{
+	if(ID == 11) //Buoy
+	{
+		defInfo->visitDir = 0xff;
+		blockVisit = true;
+	}
+	else if(ID == 52) //Mermaid
+	{
+		blockVisit = true;
+	}
+}
+
 void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int message;
@@ -2600,13 +2650,7 @@ void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 	}
 	else if(h->mana < h->manaLimit())
 	{
-		GiveBonus gbonus;
-		gbonus.bonus.type = HeroBonus::NONE;
-		gbonus.hid = h->id;
-		gbonus.bonus.duration = HeroBonus::ONE_DAY;
-		gbonus.bonus.source = HeroBonus::OBJECT;
-		gbonus.bonus.id = ID;
-		cb->giveHeroBonus(&gbonus);
+		giveDummyBonus(h->id);
 		cb->setManaPoints(h->id,h->manaLimit());
 		message = 77;
 	}
@@ -2620,15 +2664,7 @@ void CGMagicWell::onHeroVisit( const CGHeroInstance * h ) const
 
 const std::string & CGMagicWell::getHoverText() const
 {
-	const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
-	hoverName = VLC->generaltexth->names[ID];
-	if(h) 
-	{
-		if(!h->getBonus(HeroBonus::OBJECT,ID))
-			hoverName += " " + VLC->generaltexth->allTexts[353]; //not visited
-		else
-			hoverName += " " + VLC->generaltexth->allTexts[352]; //visited
-	}
+	getNameVis(hoverName);
 	return hoverName;
 }
 
@@ -3026,6 +3062,12 @@ void CGSignBottle::initObj()
 	//if no text is set than we pick random from the predefined ones
 	if(!message.size())
 		message = VLC->generaltexth->randsign[ran()%VLC->generaltexth->randsign.size()];
+
+	if(ID == 59)
+	{
+		defInfo->visitDir = 0xff;
+		blockVisit = true;
+	}
 }
 
 void CGSignBottle::onHeroVisit( const CGHeroInstance * h ) const
@@ -3318,4 +3360,55 @@ void CGBoat::initObj()
 {
 	defInfo->visitDir = 0xff;
 	hero = NULL;
+}
+
+void CGSirens::initObj()
+{
+	blockVisit = true;
+}
+
+const std::string & CGSirens::getHoverText() const
+{
+	getNameVis(hoverName);
+	return hoverName;
+}
+
+void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
+{
+	int message;
+	InfoWindow iw;
+	iw.soundID = soundBase::DANGER;
+	iw.player = h->tempOwner;
+	if(h->getBonus(HeroBonus::OBJECT,ID)) //has already visited Sirens
+	{
+		iw.text.addTxt(11,133);
+	}
+	else
+	{
+		giveDummyBonus(h->id, HeroBonus::ONE_BATTLE);
+		int xp = 0;
+		SetGarrisons sg;
+		sg.garrs[h->id] = h->army;
+		for (std::map<si32,std::pair<ui32,si32> >::const_iterator i = h->army.slots.begin(); i != h->army.slots.end(); i++)
+		{
+			int drown = i->second.second * 0.3;
+			if(drown)
+			{
+				sg.garrs[h->id].slots[i->first].second -= drown;
+				xp += drown * VLC->creh->creatures[i->second.first].hitPoints;
+			}
+		}
+
+		if(xp)
+		{
+			iw.text.addTxt(11,132);
+			iw.text.addReplacement(xp);
+			cb->sendAndApply(&sg);
+		}
+		else
+		{
+			iw.text.addTxt(11,134);
+		}
+	}
+	cb->showInfoDialog(&iw);
 }
