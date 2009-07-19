@@ -287,7 +287,19 @@ void TryMoveHero::applyGs( CGameState *gs )
 {
 	CGHeroInstance *h = gs->getHero(id);
 	h->movement = movePoints;
-	if(start!=end && (result == SUCCESS || result == TELEPORTATION))
+
+	if(result == EMBARK) //hero enters boat at dest tile
+	{
+		const TerrainTile &tt = gs->map->getTile(CGHeroInstance::convertPosition(end, false));
+		assert(tt.visitableObjects.size() == 1  &&  tt.visitableObjects.front()->ID == 8); //the only vis obj at dest is Boat
+		CGBoat *boat = static_cast<CGBoat*>(tt.visitableObjects.front());
+
+		gs->map->removeBlockVisTiles(boat); //hero blockvis mask will be used, we don't need to duplicate it with boat
+		h->boat = boat;
+		boat->hero = h;
+	}
+
+	if(start!=end && (result == SUCCESS || result == TELEPORTATION || result == EMBARK))
 	{
 		gs->map->removeBlockVisTiles(h);
 		h->pos = end;
@@ -297,7 +309,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 	BOOST_FOREACH(int3 t, fowRevealed)
 		gs->getPlayer(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
 
-	if(result == SUCCESS  ||  result == BLOCKING_VISIT)
+	if(result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK)
 		h->moveDir = getDir(start,end);
 }
 

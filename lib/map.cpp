@@ -1860,6 +1860,11 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				nobj = new CGOnceVisitable();
 				break;
 			}
+		case 8: //Boat
+			{
+				nobj = new CGBoat();
+				break;
+			}
 		case 214: //hero placeholder
 			{
 				i+=3; //TODO: handle it more properly

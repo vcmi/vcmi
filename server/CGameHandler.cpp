@@ -1161,14 +1161,29 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	tmh.movePoints = h->movement;
 
 	//check if destination tile is available
-	if(	t.tertype == TerrainTile::rock   
-		|| (!h->canWalkOnSea() && t.tertype == TerrainTile::water)
-		|| (t.blocked && !t.visitable) //tile is blocked andnot visitable
-	  )
+
+	//it's a rock or blocked and not visitable tile 
+	//OR hero is on land and dest is water and (there is not present only one object - boat)
+	if((t.tertype == TerrainTile::rock  ||  (t.blocked && !t.visitable)) 
+			&& complain("Cannot move hero, destination tile is blocked!") 
+		|| (!h->boat && !h->canWalkOnSea() && t.tertype == TerrainTile::water && (t.visitableObjects.size() != 1 ||  t.visitableObjects.front()->ID != 8)) 
+			&& complain("Cannot move hero, destination tile is on water!"))
 	{
-		tlog2 << "Cannot move hero, destination tile is blocked!\n";
+		//send info about movement failure
 		sendAndApply(&tmh);
 		return false;
+	}
+
+	//hero enters the boat
+	if(!h->boat && t.visitableObjects.size() && t.visitableObjects.front()->ID == 8)
+	{
+		tmh.result = TryMoveHero::EMBARK;
+		tmh.movePoints = 0; //embarking takes all move points
+		//TODO: check for bonus that removes that penalty
+
+		getTilesInRange(tmh.fowRevealed,h->getSightCenter()+(tmh.end-tmh.start),h->getSightRadious(),h->tempOwner,1);
+		sendAndApply(&tmh);
+		return true;
 	}
 
 	//checks for standard movement

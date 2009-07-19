@@ -394,7 +394,7 @@ struct TryMoveHero : public CPackForClient //501
 
 	enum EResult
 	{
-		FAILED, SUCCESS, TELEPORTATION, RESERVED___, BLOCKING_VISIT
+		FAILED, SUCCESS, TELEPORTATION, RESERVED___, BLOCKING_VISIT, EMBARK, DISEMBARK
 	};
 
 	ui32 id, movePoints;

@@ -756,7 +756,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 				stillMoveHero.setn(STOP_MOVE);
 				break;
 			case SDL_KEYDOWN:
-				if(ev->key.keysym.sym < SDLK_F1)
+				if(ev->key.keysym.sym < SDLK_F1  ||  ev->key.keysym.sym > SDLK_F15)
 					stillMoveHero.setn(STOP_MOVE);
 				break;
 			}

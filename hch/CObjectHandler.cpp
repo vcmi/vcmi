@@ -373,7 +373,7 @@ si32 CGHeroInstance::manaLimit() const
 
 bool CGHeroInstance::canWalkOnSea() const
 {
-	//TODO: write it - it should check if hero is flying, or something similiar
+	//TODO: write it - it should check if hero is flying, or something similar
 	return false;
 }
 int CGHeroInstance::getPrimSkillLevel(int id) const
@@ -492,6 +492,7 @@ CGHeroInstance::CGHeroInstance()
 	exp = 0xffffffff;
 	visitedTown = NULL;
 	type = NULL;
+	boat = NULL;
 	secSkills.push_back(std::make_pair(-1, -1));
 }
 
@@ -3206,4 +3207,10 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 		//add player to the visitors (for visited tooltop)
 		cb->setObjProperty(id,10,h->getOwner());
 	}
+}
+
+void CGBoat::initObj()
+{
+	defInfo->visitDir = 0xff;
+	hero = NULL;
 }

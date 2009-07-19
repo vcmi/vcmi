@@ -42,6 +42,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGBonusingObject>();
 	s.template registerType<CGMagicWell>();
 	s.template registerType<CGObservatory>();
+	s.template registerType<CGBoat>();
 	s.template registerType<CGOnceVisitable>();
 	s.template registerType<CGObjectInstance>();
 }

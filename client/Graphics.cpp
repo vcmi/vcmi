@@ -326,7 +326,7 @@ void Graphics::loadHeroAnims()
 void Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst )
 {
 	CDefEssential *anim = CDefHandler::giveDefEss(name);
-	heroAnims.push_back(anim);
+	(this->*dst).push_back(anim);
 	int pom = 0; //how many groups has been rotated
 	for(int o=7; pom<6; ++o)
 	{

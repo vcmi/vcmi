@@ -784,7 +784,9 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 					SDL_Surface * tb;
 					if(themp->type==NULL)
 						continue;
-					std::vector<Cimage> & iv = graphics->heroAnims[themp->type->heroType]->ourImages;
+					std::vector<Cimage> & iv = (themp->boat) 
+												? graphics->boatAnims[themp->boat->subID]->ourImages
+												: graphics->heroAnims[themp->type->heroType]->ourImages;
 
 					if(!themp->isStanding) //hero is moving
 					{

@@ -140,7 +140,7 @@ void RemoveObject::applyCl( CClient *cl )
 
 void TryMoveHero::applyFirstCl( CClient *cl )
 {
-	if(result == TELEPORTATION)
+	if(result == TELEPORTATION  ||  result == EMBARK)
 		CGI->mh->removeObject(GS(cl)->getHero(id));
 }
 
@@ -148,7 +148,7 @@ void TryMoveHero::applyCl( CClient *cl )
 {
 	const CGHeroInstance *h = cl->getHero(id);
 
-	if(result == TELEPORTATION)
+	if(result == TELEPORTATION  ||  result == EMBARK)
 		CGI->mh->printObject(h);
 	int player = h->tempOwner;
 
