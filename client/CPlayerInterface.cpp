@@ -282,7 +282,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	int3 hp = details.start;
 	if (details.result != TryMoveHero::SUCCESS) //hero failed to move
 	{
-		if(details.result == TryMoveHero::BLOCKING_VISIT)
+		if(details.result != TryMoveHero::FAILED)
 		{
 			adventureInt->paths.erase(ho);
 			adventureInt->terrain.currentPath = NULL;
@@ -290,6 +290,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 
 		ho->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);
+		LOCPLINT->totalRedraw();
 		return;
 	}
 
@@ -1573,6 +1574,12 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 
 	for(int i=path.nodes.size()-1; i>0 && stillMoveHero.data == CONTINUE_MOVE; i--)
 	{
+		//stop sending move requests if hero exhausted all his move points
+		if(!h->movement)
+		{
+			stillMoveHero.data = STOP_MOVE;
+			break;
+		}
 		// Start a new sound for the hero movement or let the existing one carry on.
 #if 0
 		// TODO

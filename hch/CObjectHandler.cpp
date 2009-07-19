@@ -2200,6 +2200,60 @@ void CGPickable::initObj()
 		val1 = val2 * 100;
 		type = ran()%6; //given resource
 		break;
+	case 29: //floatsam
+		switch(type = ran()%4)
+		{
+		case 0:
+			val1 = val2 = 0;
+			break;
+		case 1:
+			val1 = 5;
+			val2 = 0;
+			break;
+		case 2:
+			val1 = 5;
+			val2 = 200;
+			break;
+		case 3:
+			val1 = 10;
+			val2 = 500;
+			break;
+		}
+		break;
+	case 82: //sea chest
+		{
+			int hlp = ran()%100;
+			if(hlp < 20)
+			{
+				val1 = 0;
+				type = 0;
+			}
+			else if(hlp < 90)
+			{
+				val1 = 1500;
+				type = 2;
+			}
+			else
+			{
+				val1 = 1000;
+				val2 = VLC->arth->treasures[ran()%VLC->arth->treasures.size()]->id;
+				type = 1;
+			}
+		}
+		break;
+	case 86: //Shipwreck Survivor
+		{
+			int hlp = ran()%100;
+			if(hlp < 55)
+				val1 = VLC->arth->treasures[ran()%VLC->arth->treasures.size()]->id;
+			else if(hlp < 75)
+				val1 = VLC->arth->minors[ran()%VLC->arth->minors.size()]->id;
+			else if(hlp < 95)
+				val1 = VLC->arth->majors[ran()%VLC->arth->majors.size()]->id;
+			else
+				val1 = VLC->arth->relics[ran()%VLC->arth->relics.size()]->id;
+		}
+		break;
 	case 101: //treasure chest
 		{
 			int hlp = ran()%100;
@@ -2244,6 +2298,57 @@ void CGPickable::onHeroVisit( const CGHeroInstance * h ) const
 			iw.components.push_back(Component(2,6,val1,0));
 			iw.components.push_back(Component(2,type,val2,0));
 			iw.text << std::pair<ui8,ui32>(11,23);
+			cb->showInfoDialog(&iw);
+			break;
+		}
+	case 29: //flotsam
+		{
+			cb->giveResource(h->tempOwner,0,val1); //wood
+			cb->giveResource(h->tempOwner,6,val2);//gold
+			InfoWindow iw;
+			iw.soundID = soundBase::GENIE;
+			iw.player = h->tempOwner;
+			if(val1)
+				iw.components.push_back(Component(2,0,val1,0));
+			if(val2)
+				iw.components.push_back(Component(2,6,val2,0));
+
+			iw.text.addTxt(MetaString::ADVOB_TXT, 51+type);
+			cb->showInfoDialog(&iw);
+			break;
+		}
+	case 82: //Sea Chest
+		{
+			InfoWindow iw;
+			iw.soundID = soundBase::chest;
+			iw.player = h->tempOwner;
+			iw.text.addTxt(MetaString::ADVOB_TXT, 116 + type);
+
+			if(val1) //there is gold
+			{
+				iw.components.push_back(Component(2,6,val1,0));
+				cb->giveResource(h->tempOwner,6,val1);
+			}
+			if(type == 1) //art
+			{
+				//TODO: what if no space in backpack?
+				iw.components.push_back(Component(4, val2, 1, 0));
+				iw.text.addReplacement(MetaString::ART_NAMES, val2);
+				cb->giveHeroArtifact(val2,h->id,-2);
+			}
+			cb->showInfoDialog(&iw);
+			break;
+		}
+	case 86: //Shipwreck Survivor
+		{
+			//TODO: what if no space in backpack?
+			InfoWindow iw;
+			iw.soundID = soundBase::experience;
+			iw.player = h->tempOwner;
+			iw.components.push_back(Component(4,val1,1,0));
+			iw.text.addTxt(MetaString::ADVOB_TXT, 125);
+			iw.text.addReplacement(MetaString::ART_NAMES, val1);
+			cb->giveHeroArtifact(val1,h->id,-2);
 			cb->showInfoDialog(&iw);
 			break;
 		}

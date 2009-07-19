@@ -1498,7 +1498,10 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				break;
 			}
 		case 12: //campfire
-		case 101: //treasure chest
+		case 29: //Flotsam
+		case 82: //Sea Chest
+		case 86: //Shipwreck Survivor
+		case 101://treasure chest
 			{
 				nobj = new CGPickable();
 				break;

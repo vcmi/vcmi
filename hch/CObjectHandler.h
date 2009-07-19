@@ -581,7 +581,7 @@ public:
 	}
 };
 
-class DLL_EXPORT CGPickable : public CGObjectInstance //campfire, treasure chest
+class DLL_EXPORT CGPickable : public CGObjectInstance //campfire, treasure chest, Flotsam, Shipwreck Survivor, Sea Chest
 {
 public:
 	ui32 type, val1, val2;

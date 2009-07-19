@@ -288,6 +288,9 @@ void TryMoveHero::applyGs( CGameState *gs )
 	CGHeroInstance *h = gs->getHero(id);
 	h->movement = movePoints;
 
+	if(result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK)
+		h->moveDir = getDir(start,end);
+
 	if(result == EMBARK) //hero enters boat at dest tile
 	{
 		const TerrainTile &tt = gs->map->getTile(CGHeroInstance::convertPosition(end, false));
@@ -298,19 +301,26 @@ void TryMoveHero::applyGs( CGameState *gs )
 		h->boat = boat;
 		boat->hero = h;
 	}
+	else if(result == DISEMBARK) //hero leaves boat to dest tile
+	{
+		h->boat->direction = h->moveDir;
+		h->boat->pos = start;
+		h->boat->hero = NULL;
+		gs->map->addBlockVisTiles(h->boat);
+		h->boat = NULL;
+	}
 
-	if(start!=end && (result == SUCCESS || result == TELEPORTATION || result == EMBARK))
+	if(start!=end && (result == SUCCESS || result == TELEPORTATION || result == EMBARK || result == DISEMBARK))
 	{
 		gs->map->removeBlockVisTiles(h);
 		h->pos = end;
+		if(h->boat)
+			h->boat->pos = end;
 		gs->map->addBlockVisTiles(h);
 	}
 
 	BOOST_FOREACH(int3 t, fowRevealed)
 		gs->getPlayer(h->getOwner())->fogOfWarMap[t.x][t.y][t.z] = 1;
-
-	if(result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK)
-		h->moveDir = getDir(start,end);
 }
 
 DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )

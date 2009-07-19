@@ -784,9 +784,28 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 					SDL_Surface * tb;
 					if(themp->type==NULL)
 						continue;
+
+					//pick graphics of hero (or boat if hero is sailing)
 					std::vector<Cimage> & iv = (themp->boat) 
 												? graphics->boatAnims[themp->boat->subID]->ourImages
 												: graphics->heroAnims[themp->type->heroType]->ourImages;
+
+					//pick appropriate flag set
+					std::vector<CDefEssential *> Graphics::*flg = NULL;
+					if(themp->boat)
+					{
+						switch (themp->boat->subID)
+						{
+						case 0: flg = &Graphics::flags1; break;
+						case 1: flg = &Graphics::flags2; break;
+						case 2: flg = &Graphics::flags3; break;
+						default: tlog1 << "Not supported boat subtype: " << themp->boat->subID << std::endl;
+						}
+					}
+					else
+					{
+						flg = &Graphics::flags4;
+					}
 
 					if(!themp->isStanding) //hero is moving
 					{
@@ -802,7 +821,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
 						pp.y+=imgVal*2-32;
 						sr.y-=16;
-						SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, extSurf, &sr);
+						SDL_BlitSurface((graphics->*flg)[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, extSurf, &sr);
 					}
 					else //hero stands still
 					{
@@ -825,7 +844,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 							bufr.h = 64;
 							bufr.w = 96;
 							if(bufr.x-extRect->x>-64)
-								SDL_BlitSurface(graphics->flags4[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, extSurf, &bufr);
+								SDL_BlitSurface((graphics->*flg)[themp->getOwner()]->ourImages[ getHeroFrameNum(themp->moveDir, !themp->isStanding) *8+(heroAnim/4)%imgVal].bitmap, NULL, extSurf, &bufr);
 						}
 					}
 				}
