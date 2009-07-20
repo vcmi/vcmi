@@ -57,6 +57,29 @@ struct InfoAboutHero
 	void initFromHero(const CGHeroInstance *h, bool detailed);
 };
 
+struct InfoAboutTown
+{
+	struct Details
+	{
+		int hallLevel, goldIncome;
+		bool customRes;
+		bool garrisonedHero;
+
+	} *details;
+
+	char fortLevel; //0 - none
+	char owner;
+	std::string name;
+	CTown *tType;
+	bool built;
+
+	CCreatureSet army; //numbers of creatures are valid only if details
+
+	InfoAboutTown();
+	~InfoAboutTown();
+	void initFromTown(const CGTownInstance *t, bool detailed);
+};
+
 class ICallback
 {
 public:
@@ -108,6 +131,7 @@ public:
 	virtual int canBuildStructure(const CGTownInstance *t, int ID) =0;//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	virtual bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)=0;
 	virtual bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const = 0;
+	virtual bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const = 0;
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -145,7 +169,7 @@ private:
 	CGameState * gs;
 	CClient *cl;
 	bool isVisible(int3 pos, int Player) const;
-	bool isVisible(CGObjectInstance *obj, int Player) const;
+	bool isVisible(const CGObjectInstance *obj, int Player) const;
 
 protected:
 	int player;
@@ -203,6 +227,7 @@ public:
 	int canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret);
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
+	bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship

@@ -135,6 +135,18 @@ const CGTownInstance * CCallback::getTownInfo(int val, bool mode) const //mode =
 	}
 	return NULL;
 }
+
+bool CCallback::getTownInfo( const CGObjectInstance *town, InfoAboutTown &dest ) const
+{
+	const CGTownInstance *t = dynamic_cast<const CGTownInstance *>(town);
+	if(!t || !isVisible(t, player)) //it's not a town or it's not visible for layer
+		return false;
+
+	//TODO vision support, info about allies
+	dest.initFromTown(t, false);
+	return true;
+}
+
 int CCallback::howManyHeroes(bool includeGarrisoned) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -292,7 +304,7 @@ bool CCallback::isVisible(int3 pos) const
 	return isVisible(pos,player);
 }
 
-bool CCallback::isVisible( CGObjectInstance *obj, int Player ) const
+bool CCallback::isVisible( const CGObjectInstance *obj, int Player ) const
 {
 	//object is visible when at least one blocked tile is visible
 	for(int fx=0; fx<8; ++fx)
@@ -760,6 +772,47 @@ void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
 		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
 		{
 			i->second.second = CCreature::getQuantityID(i->second.second);
+		}
+	}
+}
+
+InfoAboutTown::InfoAboutTown()
+{
+	tType = NULL;
+	details = NULL;
+	fortLevel = 0;
+	owner = -1;
+}
+
+InfoAboutTown::~InfoAboutTown()
+{
+	delete details;
+}
+
+void InfoAboutTown::initFromTown( const CGTownInstance *t, bool detailed )
+{
+	army = t->army;
+	built = t->builded;
+	fortLevel = t->fortLevel();
+	name = t->name;
+	tType = t->town;
+	owner = t->tempOwner;
+
+	if(detailed) 
+	{
+		//include details about hero
+		details = new Details;
+		details->goldIncome = t->dailyIncome();
+		details->customRes = vstd::contains(t->builtBuildings, 15);
+		details->hallLevel = t->hallLevel();
+		details->garrisonedHero = t->garrisonHero;
+	}
+	else
+	{
+		//hide info about hero stacks counts
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
+		{
+			i->second.second = 0;
 		}
 	}
 }

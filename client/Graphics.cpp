@@ -15,6 +15,7 @@
 #include "../hch/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
+#include "../hch/CTownHandler.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
 #ifdef min
@@ -88,36 +89,54 @@ SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
 
 SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 {
+	InfoAboutTown iah;
+	iah.initFromTown(curh, true);
+	return drawTownInfoWin(iah);
+}
+
+SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
+{
 	char buf[10];
-	blueToPlayersAdv(tInfo,curh->tempOwner);
+	blueToPlayersAdv(tInfo,curh.owner);
 	SDL_Surface * ret = SDL_DisplayFormat(tInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-	printAt(curh->name,75,15,GEOR13,zwykly,ret);
 
-	int pom = curh->fortLevel() - 1; if(pom<0) pom = 3;
-	blitAt(forts->ourImages[pom].bitmap,115,42,ret);
-	if((pom=curh->hallLevel())>=0)
-		blitAt(halls->ourImages[pom].bitmap,77,42,ret);
-	SDL_itoa(curh->dailyIncome(),buf,10);
-	printAtMiddle(buf,167,70,GEORM,zwykly,ret);
-	for (std::map<si32,std::pair<ui32,si32> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
+	printAt(curh.name,75,15,GEOR13,zwykly,ret); //name
+	int pom = curh.fortLevel - 1; if(pom<0) pom = 3; //fort pic id
+	blitAt(forts->ourImages[pom].bitmap,115,42,ret); //fort
+
+	for (std::map<si32,std::pair<ui32,si32> >::const_iterator i=curh.army.slots.begin(); i!=curh.army.slots.end();i++)
 	{
-		if(!i->second.second)
-			continue;
+		//if(!i->second.second)
+		//	continue;
 		blitAt(graphics->smallImgs[(*i).second.first],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-		SDL_itoa((*i).second.second,buf,10);
-		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+		if(curh.details)
+		{
+			SDL_itoa((*i).second.second,buf,10);
+			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+		}
 	}
 
 	//blit town icon
-	pom = curh->subID*2;
-	if (!curh->hasFort())
+	pom = curh.tType->typeID*2;
+	if (!curh.fortLevel)
 		pom += F_NUMBER*2;
-	if(curh->builded >= MAX_BUILDING_PER_TURN)
+	if(curh.built)
 		pom++;
-	if(curh->garrisonHero)
-		blitAt(graphics->heroInGarrison,158,87,ret);
 	blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
+
+	if(curh.details)
+	{
+		//hall level icon
+		if((pom=curh.details->hallLevel) >= 0)
+			blitAt(halls->ourImages[pom].bitmap, 77, 42, ret);
+
+		SDL_itoa(curh.details->goldIncome, buf, 10); //gold income
+		printAtMiddle(buf, 167, 70, GEORM, zwykly, ret);
+		if(curh.details->garrisonedHero) //garrisoned hero icon
+			blitAt(graphics->heroInGarrison,158,87,ret);
+	}
+
 	return ret;
 }
 
@@ -516,11 +535,11 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 	if(sur->format->BitsPerPixel == 8)
 	{
 		SDL_Color *palette = NULL;
-		if(player < PLAYER_LIMIT)
+		if(player < PLAYER_LIMIT && player >= 0)
 		{
 			palette = playerColorPalette + 32*player;
 		}
-		else if(player == 255)
+		else if(player == 255 || player == -1)
 		{
 			palette = neutralColorPalette;
 		}

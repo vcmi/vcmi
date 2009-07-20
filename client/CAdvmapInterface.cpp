@@ -546,16 +546,29 @@ void CTerrainRect::clickRight(tribool down)
 		}
 	case TOWNI_TYPE:
 		{
-			if(!vstd::contains(graphics->townWins,obj->id))
+			if(!vstd::contains(graphics->townWins,obj->id) || obj->tempOwner != LOCPLINT->playerID)
 			{
-				tlog3 << "Warning - no infowin for town " << obj->id << std::endl;
-				break;
+				InfoAboutTown iah;
+				if(LOCPLINT->cb->getTownInfo(obj, iah))
+				{
+					SDL_Surface *iwin = graphics->drawTownInfoWin(iah);
+					CInfoPopup * ip = new CInfoPopup(iwin, LOCPLINT->current->motion.x-iwin->w,
+						LOCPLINT->current->motion.y-iwin->h, true);
+					LOCPLINT->pushInt(ip);
+				}
+				else
+				{
+					tlog3 << "Warning - no infowin for town " << obj->id << std::endl;
+				}
 			}
-			CInfoPopup * ip = new CInfoPopup(graphics->townWins[obj->id],
-				LOCPLINT->current->motion.x-graphics->townWins[obj->id]->w,
-				LOCPLINT->current->motion.y-graphics->townWins[obj->id]->h,false
-				);
-			LOCPLINT->pushInt(ip);
+			else
+			{
+				CInfoPopup * ip = new CInfoPopup(graphics->townWins[obj->id],
+					LOCPLINT->current->motion.x-graphics->townWins[obj->id]->w,
+					LOCPLINT->current->motion.y-graphics->townWins[obj->id]->h,false
+					);
+				LOCPLINT->pushInt(ip);
+			}
 			break;
 		}
 	default:

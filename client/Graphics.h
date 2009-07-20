@@ -22,6 +22,7 @@ class CDefHandler;
 class CHeroClass;
 struct SDL_Color;
 struct InfoAboutHero;
+struct InfoAboutTown;
 
 class Graphics
 {
@@ -77,6 +78,7 @@ public:
 	void loadHeroPortraits();
 	SDL_Surface * drawHeroInfoWin(const InfoAboutHero &curh);
 	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
+	SDL_Surface * drawTownInfoWin(const InfoAboutTown & curh);
 	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //returns small picture of town: ID=-1 - blank; -2 - border; -3 - random
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
