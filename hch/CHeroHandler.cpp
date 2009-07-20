@@ -380,37 +380,32 @@ void CHeroHandler::initHeroClasses()
 
 unsigned int CHeroHandler::level(unsigned int experience)
 {
-	int add=0;
-	while(experience>=expPerLevel[expPerLevel.size()-1])
+	int i;
+	if(experience <= expPerLevel.back())
 	{
-		experience/=1.2;
-		add+=1;
+		for(i = expPerLevel.size()-1; experience < expPerLevel[i]; i--);
+		return i + 1;
 	}
-	for(int i=expPerLevel.size()-1; i>=0; --i)
+	else
 	{
-		if(experience>=expPerLevel[i])
-			return 1+i+add;
+		for(i = expPerLevel.size(); experience > reqExp(i); i++);
+		return i - 1;
 	}
-	return -1;
 }
 
 unsigned int CHeroHandler::reqExp(unsigned int level)
 {
-	level-=1;
-	if(level<expPerLevel.size())
-		return expPerLevel[level];
+	if(!level)
+		return 0;
+
+	if(level<=expPerLevel.size())
+	{
+		return expPerLevel[level - 1];
+	}
 	else
 	{
-		unsigned int exp = expPerLevel[expPerLevel.size()-1];
-		level-=(expPerLevel.size()-1);
-		while(level>0)
-		{
-			--level;
-			exp*=1.2;
-		}
-		return exp;
+		return reqExp(level - 1) + (reqExp(level - 1) - reqExp(level - 2)) * 1.2; //inefficient but follows exactly H3 values
 	}
-	return -1;
 }
 
 void CHeroHandler::initTerrainCosts()
