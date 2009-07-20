@@ -598,6 +598,10 @@ Mapa::Mapa()
 }
 Mapa::~Mapa()
 {
+	//for(int i=0; i < defy.size(); i++)
+	//	if(defy[i]->serial < 0) //def not present in the main vector in defobjinfo
+	//		delete defy[i];
+
 	if(terrain)
 	{
 		for (int ii=0;ii<width;ii++)

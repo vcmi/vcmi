@@ -1509,9 +1509,6 @@ CMapHandler::~CMapHandler()
 	delete fullHide;
 	delete partialHide;
 
-	for(int i=0; i < map->defy.size(); i++)
-		delete map->defy[i];
-
 	for(int i=0; i < roadDefs.size(); i++)
 		delete roadDefs[i];
 

@@ -390,7 +390,7 @@ public:
 	}
 } srthlp ;
 
-CCastleInterface::CCastleInterface(const CGTownInstance * Town)
+CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 :hslotup(241,387,0,Town->garrisonHero,this),hslotdown(241,483,1,Town->visitingHero,this)
 {
 	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
@@ -418,6 +418,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town)
 	townlist = new CTownList(3,pos.x+744,pos.y+414,"IAM014.DEF","IAM015.DEF");//744,526);
 	exit = new AdventureMapButton
 		(CGI->generaltexth->tcommands[8],"",boost::bind(&CCastleInterface::close,this),pos.x+744,pos.y+544,"TSBTNS.DEF",SDLK_RETURN);
+	exit->assignedKeys.insert(SDLK_ESCAPE);
 	split = new AdventureMapButton
 		(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+744,pos.y+382,"TSBTNS.DEF");
 	statusbar = new CStatusBar(pos.x+7,pos.y+555,"TSTATBAR.bmp",732);
@@ -427,8 +428,10 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town)
 	townlist->fun = boost::bind(&CCastleInterface::townChange,this);
 	townlist->genList();
 	townlist->selected = vstd::findPos(townlist->items,Town);
-	if((townlist->selected+1) > townlist->SIZE)
-		townlist->from = townlist->selected -  townlist->SIZE + 2;
+
+	townlist->from = townlist->selected - listPos;
+	amax(townlist->from, 0);
+	amin(townlist->from, townlist->items.size() - townlist->SIZE);
 
 	graphics->blueToPlayersAdv(townInt,LOCPLINT->playerID);
 	exit->bitmapOffset = 4;
@@ -734,8 +737,9 @@ void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
 void CCastleInterface::townChange()
 {
 	const CGTownInstance * nt = townlist->items[townlist->selected];
+	int tpos = townlist->selected - townlist->from;
 	LOCPLINT->popIntTotally(this);
-	LOCPLINT->pushInt(new CCastleInterface(nt));
+	LOCPLINT->pushInt(new CCastleInterface(nt, tpos));
 }
 
 void CCastleInterface::show(SDL_Surface * to)
@@ -781,6 +785,7 @@ void CCastleInterface::activate()
 	}
 	hslotdown.activate();
 	hslotup.activate();
+	KeyInterested::activate();
 }
 
 void CCastleInterface::deactivate()
@@ -796,6 +801,7 @@ void CCastleInterface::deactivate()
 	}
 	hslotdown.deactivate();
 	hslotup.deactivate();
+	KeyInterested::deactivate();
 }
 
 void CCastleInterface::addBuilding(int bid)
@@ -961,6 +967,37 @@ void CCastleInterface::enterTavern()
 	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(town);
 	CTavernWindow *tv = new CTavernWindow(h[0],h[1],"GOSSIP TEST");
 	LOCPLINT->pushInt(tv);
+}
+
+void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
+{
+	if(key.state != SDL_RELEASED) return;
+
+	switch(key.keysym.sym)
+	{
+	case SDLK_UP:
+		if(townlist->selected)
+		{
+			townlist->selected--;
+			townlist->from--;
+			townChange();
+		}
+		break;
+	case SDLK_DOWN:
+		if(townlist->selected < townlist->items.size() - 1)
+		{
+			townlist->selected++;
+			townlist->from++;
+			townChange();
+		}
+		break;
+	case SDLK_SPACE:
+		if(town->visitingHero && town->garrisonHero)
+		{
+			LOCPLINT->cb->swapGarrisonHero(town);
+		}
+		break;
+	}
 }
 
 void CHallInterface::CBuildingBox::hover(bool on)

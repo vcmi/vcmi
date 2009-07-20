@@ -68,7 +68,7 @@ public:
 	~CHeroGSlot(); //d-tor
 };
 
-class CCastleInterface : public CWindowWithGarrison
+class CCastleInterface : public CWindowWithGarrison, public KeyInterested
 {
 public:
 	SDL_Rect pos; //why not inherit this member from CIntObject ?
@@ -95,9 +95,11 @@ public:
 
 	std::vector<CBuildingRect*> buildings; //building id, building def, structure struct, border, filling
 
-	CCastleInterface(const CGTownInstance * Town); //c-tor
+	CCastleInterface(const CGTownInstance * Town, int listPos = 1); //c-tor
 	~CCastleInterface(); //d-tor
+
 	void townChange();
+	void keyPressed(const SDL_KeyboardEvent & key);
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
 	void buildingClicked(int building);

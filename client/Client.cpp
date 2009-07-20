@@ -190,9 +190,9 @@ void CClient::load( const std::string & fname )
 	close(); //kill server
 	tlog0 <<"Sent kill signal to the server: "<<tmh.getDif()<<std::endl;
 
-	VLC->clear(); //delete old handlers
 	delete CGI->mh;
 	delete CGI->state;
+	VLC->clear(); //delete old handlers
 
 
 	for(std::map<ui8,CGameInterface *>::iterator i = playerint.begin(); i!=playerint.end(); i++)

@@ -321,11 +321,24 @@ void processCommand(const std::string &message, CClient *&client)
 		readed >> fname;
 		client->save(fname);
 	}
+	else if(cn=="list")
+	{
+		if(CPG)
+			for(int i = 0; i < CPG->ourScenSel->mapsel.ourGames.size(); i++)
+				tlog0 << i << ".\t" << CPG->ourScenSel->mapsel.ourGames[i]->filename << std::endl;
+	}
 	else if(cn=="load")
 	{
 		std::string fname;
 		readed >> fname;
 		client->load(fname);
+	}
+	else if(cn=="ln")
+	{
+		int num;
+		readed >> num;
+		std::string &name = CPG->ourScenSel->mapsel.ourGames[num]->filename;
+		client->load(name.substr(0, name.size()-6));
 	}
 	else if(cn=="resolution")
 	{
