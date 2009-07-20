@@ -21,6 +21,8 @@ class CGTownInstance;
 class CDefHandler;
 class CHeroClass;
 struct SDL_Color;
+struct InfoAboutHero;
+
 class Graphics
 {
 public:
@@ -73,8 +75,8 @@ public:
 	void loadHeroAnims();
 	void loadHeroAnim(const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst);
 	void loadHeroPortraits();
+	SDL_Surface * drawHeroInfoWin(const InfoAboutHero &curh);
 	SDL_Surface * drawHeroInfoWin(const CGHeroInstance * curh);
-	SDL_Surface * drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from=0, int to=PRIMARY_SKILLS);
 	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //returns small picture of town: ID=-1 - blank; -2 - border; -3 - random
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player

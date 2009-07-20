@@ -514,21 +514,34 @@ void CTerrainRect::clickRight(tribool down)
 	if(!objs.size())
 		return;
 
-	const CGObjectInstance * obj = objs[objs.size()-1];
+	const CGObjectInstance * obj = objs.front();
 	switch(obj->ID)
 	{
 	case HEROI_TYPE:
 		{
-			if(!vstd::contains(graphics->heroWins,obj->subID))
+			if(!vstd::contains(graphics->heroWins,obj->subID) || obj->tempOwner != LOCPLINT->playerID)
 			{
-				tlog3 << "Warning - no infowin for hero " << obj->subID << std::endl;
-				break;
+				InfoAboutHero iah;
+				if(LOCPLINT->cb->getHeroInfo(obj, iah))
+				{
+					SDL_Surface *iwin = graphics->drawHeroInfoWin(iah);
+					CInfoPopup * ip = new CInfoPopup(iwin, LOCPLINT->current->motion.x-iwin->w,
+													  LOCPLINT->current->motion.y-iwin->h, true);
+					LOCPLINT->pushInt(ip);
+				}
+				else
+				{
+					tlog3 << "Warning - no infowin for hero " << obj->id << std::endl;
+				}
 			}
-			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[obj->subID],
-				LOCPLINT->current->motion.x-graphics->heroWins[obj->subID]->w,
-				LOCPLINT->current->motion.y-graphics->heroWins[obj->subID]->h,false
-				);
-			LOCPLINT->pushInt(ip);
+			else
+			{
+				CInfoPopup * ip = new CInfoPopup(graphics->heroWins[obj->subID],
+					LOCPLINT->current->motion.x-graphics->heroWins[obj->subID]->w,
+					LOCPLINT->current->motion.y-graphics->heroWins[obj->subID]->h,false
+					);
+				LOCPLINT->pushInt(ip);
+			}
 			break;
 		}
 	case TOWNI_TYPE:

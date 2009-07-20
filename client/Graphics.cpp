@@ -14,6 +14,7 @@
 #include "CGameInfo.h"
 #include "../hch/CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include "../CCallback.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
 #ifdef min
@@ -35,37 +36,56 @@ using namespace CSDL_Ext;
 
 Graphics * graphics = NULL;
 
-SDL_Surface * Graphics::drawPrimarySkill(const CGHeroInstance *curh, SDL_Surface *ret, int from, int to)
+SDL_Surface * Graphics::drawHeroInfoWin(const InfoAboutHero &curh)
 {
 	char buf[10];
-	for (int i=from;i<to;i++)
-	{
-		SDL_itoa(curh->getPrimSkillLevel(i),buf,10);
-		printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
-	}
-	return ret;
-}
-SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
-{
-	char buf[10];
-	blueToPlayersAdv(hInfo,curh->tempOwner);
+	blueToPlayersAdv(hInfo,curh.owner);
 	SDL_Surface * ret = SDL_DisplayFormat(hInfo);
 	SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
-	printAt(curh->name,75,15,GEOR13,zwykly,ret);
-	drawPrimarySkill(curh, ret);
-	for (std::map<si32,std::pair<ui32,si32> >::const_iterator i=curh->army.slots.begin(); i!=curh->army.slots.end();i++)
+
+	printAt(curh.name,75,15,GEOR13,zwykly,ret); //name
+	blitAt(graphics->portraitLarge[curh.portrait],11,12,ret); //portrait
+
+	//army
+	for (std::map<si32,std::pair<ui32,si32> >::const_iterator i=curh.army.slots.begin(); i!=curh.army.slots.end();i++)
 	{
 		blitAt(graphics->smallImgs[(*i).second.first],slotsPos[(*i).first].first+1,slotsPos[(*i).first].second+1,ret);
-		SDL_itoa((*i).second.second,buf,10);
-		printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+		if(curh.details)
+		{
+			SDL_itoa((*i).second.second,buf,10);
+			printAtMiddle(buf,slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+		}
+		else
+		{
+			printAtMiddle(VLC->generaltexth->arraytxt[174 + 3*i->second.second],slotsPos[(*i).first].first+17,slotsPos[(*i).first].second+39,GEORM,zwykly,ret);
+		}
 	}
-	blitAt(graphics->portraitLarge[curh->portrait],11,12,ret);
-	SDL_itoa(curh->mana,buf,10);
-	printAtMiddle(buf,166,109,GEORM,zwykly,ret); //mana points
-	blitAt(morale22->ourImages[curh->getCurrentMorale()+3].bitmap,14,84,ret);
-	blitAt(luck22->ourImages[curh->getCurrentLuck()+3].bitmap,14,101,ret);
+
+	if(curh.details)
+	{
+		for (int i = 0; i < PRIMARY_SKILLS; i++)
+		{
+			SDL_itoa(curh.details->primskills[i], buf, 10);
+			printAtMiddle(buf,84+28*i,68,GEOR13,zwykly,ret);
+		}
+
+		//mana points
+		SDL_itoa(curh.details->mana,buf,10);
+		printAtMiddle(buf,166,109,GEORM,zwykly,ret); 
+
+		blitAt(morale22->ourImages[curh.details->morale+3].bitmap,14,84,ret);	//luck
+		blitAt(luck22->ourImages[curh.details->morale+3].bitmap,14,101,ret);	//morale
+	}
 	return ret;
 }
+
+SDL_Surface * Graphics::drawHeroInfoWin(const CGHeroInstance * curh)
+{
+	InfoAboutHero iah;
+	iah.initFromHero(curh, true);
+	return drawHeroInfoWin(iah);
+}
+
 SDL_Surface * Graphics::drawTownInfoWin(const CGTownInstance * curh)
 {
 	char buf[10];

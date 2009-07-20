@@ -36,7 +36,26 @@ class CStack;
 struct lua_State;
 class CClient;
 struct TerrainTile;
-//structure gathering info about upgrade possibilites
+class CHeroClass;
+
+struct InfoAboutHero
+{
+	struct Details
+	{
+		std::vector<int> primskills;
+		int mana, luck, morale;
+	} *details;
+
+	char owner;
+	const CHeroClass *hclass;
+	std::string name;
+	int portrait;
+	CCreatureSet army; //numbers of creatures are exact numbers if detailed else they are quantity ids (0 - a few, 1 - several and so on)
+
+	InfoAboutHero();
+	~InfoAboutHero();
+	void initFromHero(const CGHeroInstance *h, bool detailed);
+};
 
 class ICallback
 {
@@ -88,6 +107,7 @@ public:
 	virtual const TerrainTile * getTileInfo(int3 tile) const = 0;
 	virtual int canBuildStructure(const CGTownInstance *t, int ID) =0;//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	virtual bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)=0;
+	virtual bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const = 0;
 
 //battle
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
@@ -182,6 +202,7 @@ public:
 	const TerrainTile * getTileInfo(int3 tile) const;
 	int canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret);
+	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship

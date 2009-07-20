@@ -173,6 +173,17 @@ const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 
 	return NULL;
 }
 
+bool CCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero &dest ) const
+{
+	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
+	if(!h || !isVisible(h->getPosition(false))) //it's not a hero or it's not visible for layer
+		return false;
+	
+	//TODO vision support, info about allies
+	dest.initFromHero(h, false);
+	return true;
+}
+
 int CCallback::getResourceAmount(int type) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -707,4 +718,48 @@ void CCallback::sendMessage(const std::string &mess)
 {
 	PlayerMessage pm(player, mess);
 	*cl->serv << &pm;
+}
+
+InfoAboutHero::InfoAboutHero()
+{
+	details = NULL;
+	hclass = NULL;
+	portrait = -1;
+}
+
+InfoAboutHero::~InfoAboutHero()
+{
+	delete details;
+}
+
+void InfoAboutHero::initFromHero( const CGHeroInstance *h, bool detailed )
+{
+	owner = h->tempOwner;
+	hclass = h->type->heroClass;
+	name = h->name;
+	portrait = h->portrait;
+	army = h->army; 
+
+	if(detailed) 
+	{
+		//include details about hero
+		details = new Details;
+		details->luck = h->getCurrentLuck();
+		details->morale = h->getCurrentMorale();
+		details->mana = h->mana;
+		details->primskills.resize(PRIMARY_SKILLS);
+
+		for (int i = 0; i < PRIMARY_SKILLS ; i++)
+		{
+			details->primskills[i] = h->getPrimSkillLevel(i);
+		}
+	}
+	else
+	{
+		//hide info about hero stacks counts using descriptives names ids
+		for(std::map<si32,std::pair<ui32,si32> >::iterator i = army.slots.begin(); i != army.slots.end(); ++i)
+		{
+			i->second.second = CCreature::getQuantityID(i->second.second);
+		}
+	}
 }
