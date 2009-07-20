@@ -288,7 +288,7 @@ void TryMoveHero::applyGs( CGameState *gs )
 	CGHeroInstance *h = gs->getHero(id);
 	h->movement = movePoints;
 
-	if(result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK)
+	if((result == SUCCESS || result == BLOCKING_VISIT || result == EMBARK || result == DISEMBARK) && start != end)
 		h->moveDir = getDir(start,end);
 
 	if(result == EMBARK) //hero enters boat at dest tile

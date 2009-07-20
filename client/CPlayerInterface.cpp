@@ -1025,12 +1025,7 @@ void CPlayerInterface::receivedResource(int type, int val)
 
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
 {
-	{
-		boost::unique_lock<boost::mutex> un(showingDialog->mx);
-		while(showingDialog->data)
-			showingDialog->cond.wait(un);
-	}
-
+	waitWhileDialog();
 	CGI->soundh->playSound(soundBase::heroNewLevel);
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
@@ -1378,12 +1373,7 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 
 void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector<SComponent*> & components, int soundID)
 {
-	{
-		boost::unique_lock<boost::mutex> un(showingDialog->mx);
-		while(showingDialog->data)
-			showingDialog->cond.wait(un);
-	}
-
+	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	
 	if(stillMoveHero.get() == DURING_MOVE)//if we are in the middle of hero movement
@@ -1424,6 +1414,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 
 void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel )
 {
+	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 
 	CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
@@ -1734,6 +1725,7 @@ const CGHeroInstance * CPlayerInterface::getWHero( int pos )
 
 void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, int level)
 {
+	waitWhileDialog();
 	std::vector<std::pair<int,int> > cres;
 	for(int i = 0; i < dwelling->creatures.size(); i++)
 	{
@@ -1743,6 +1735,13 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, int lev
 	}
 	CRecruitmentWindow *cr = new CRecruitmentWindow(cres, boost::bind(&CCallback::recruitCreatures, cb, dwelling, _1, _2));
 	pushInt(cr);
+}
+
+void CPlayerInterface::waitWhileDialog()
+{
+	boost::unique_lock<boost::mutex> un(showingDialog->mx);
+	while(showingDialog->data)
+		showingDialog->cond.wait(un);
 }
 
 void SystemOptions::setMusicVolume( int newVolume )

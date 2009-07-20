@@ -652,13 +652,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		else
 		{
 			//battle
-			cb->startBattleI(
-				&h->army,
-				&army,
-				h->pos,
-				h,
-				this,
-				0);
+			cb->startBattleI(h,	this);
 		}
 	}
 	else if(ID == 62) //prison
@@ -1113,7 +1107,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 void CGDwelling::wantsFight( const CGHeroInstance *h, ui32 answer ) const
 {
 	if(answer)
-		cb->startBattleI(h->id,army,pos,boost::bind(&CGDwelling::fightOver, this, h, _1));
+		cb->startBattleI(h, this, boost::bind(&CGDwelling::fightOver, this, h, _1));
 }
 
 void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
@@ -1667,12 +1661,12 @@ void CGCreature::endBattle( BattleResult *result ) const
 	}
 	else
 	{
-		int killedAmount=0;
-		for(std::set<std::pair<ui32,si32> >::iterator i=result->casualties[1].begin(); i!=result->casualties[1].end(); i++)
-			if(i->first == subID)
-				killedAmount += i->second;
-		cb->setAmount(id, army.slots.find(0)->second.second - killedAmount);	
-		
+		//int killedAmount=0;
+		//for(std::set<std::pair<ui32,si32> >::iterator i=result->casualties[1].begin(); i!=result->casualties[1].end(); i++)
+		//	if(i->first == subID)
+		//		killedAmount += i->second;
+		//cb->setAmount(id, army.slots.find(0)->second.second - killedAmount);	
+
 		MetaString ms;
 		int pom = CCreature::getQuantityID(army.slots.find(0)->second.second);
 		pom = 174 + 3*pom + 1;
@@ -1861,7 +1855,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 
 void CGCreature::fight( const CGHeroInstance *h ) const
 {
-	cb->startBattleI(h->id,army,pos,boost::bind(&CGCreature::endBattle,this,_1));
+	cb->startBattleI(h, this, boost::bind(&CGCreature::endBattle,this,_1));
 }
 
 void CGCreature::flee( const CGHeroInstance * h ) const
@@ -1997,7 +1991,7 @@ void CGResource::collectRes( int player ) const
 void CGResource::fightForRes(ui32 agreed, const CGHeroInstance *h) const
 {
 	if(agreed)
-		cb->startBattleI(h->id,army,pos,boost::bind(&CGResource::endBattle,this,_1,h));
+		cb->startBattleI(h, this, boost::bind(&CGResource::endBattle,this,_1,h));
 }
 
 void CGResource::endBattle( BattleResult *result, const CGHeroInstance *h ) const
@@ -2164,6 +2158,7 @@ void CGArtifact::onHeroVisit( const CGHeroInstance * h ) const
 		if(ID == 5)
 		{
 			InfoWindow iw;
+			iw.soundID = soundBase::treasure;
 			iw.player = h->tempOwner;
 			iw.components.push_back(Component(4,subID,0,0));
 			if(message.length())
@@ -2206,7 +2201,7 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 void CGArtifact::fightForArt( ui32 agreed, const CGHeroInstance *h ) const
 {
 	if(agreed)
-		cb->startBattleI(h->id,army,pos,boost::bind(&CGArtifact::endBattle,this,_1,h));
+		cb->startBattleI(h, this, boost::bind(&CGArtifact::endBattle,this,_1,h));
 }
 
 void CGArtifact::endBattle( BattleResult *result, const CGHeroInstance *h ) const
@@ -2695,7 +2690,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		else
 			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);
-		cb->startBattleI(h->id,army,pos,boost::bind(&CGEvent::endBattle,this,h,_1));
+		cb->startBattleI(h, this, boost::bind(&CGEvent::endBattle,this,h,_1));
 	}
 	else
 	{

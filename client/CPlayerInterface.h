@@ -192,6 +192,7 @@ public:
 
 
 	//-------------//
+	void waitWhileDialog();
 	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
 	void redrawHeroWin(const CGHeroInstance * hero);
 	void updateWater();
