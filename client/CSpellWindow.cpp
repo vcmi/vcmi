@@ -77,10 +77,11 @@ void SpellbookInteractiveArea::deactivate()
 	Hoverable::deactivate();
 }
 
-CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero, bool openOnBattleSpells):
+CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, bool openOnBattleSpells):
 	battleSpellsOnly(openOnBattleSpells),
 	selectedTab(4),
-	spellSite(0)
+	spellSite(0),
+	myHero(_myHero)
 {
 	//initializing castable spells
 	for(ui32 v=0; v<CGI->spellh->spells.size(); ++v)
@@ -444,31 +445,17 @@ void CSpellWindow::show(SDL_Surface *to)
 
 		blitAt(spells->ourImages[spellAreas[b]->mySpell].bitmap, spellAreas[b]->pos.x, spellAreas[b]->pos.y, to);
 
-		Uint8 bestSchool = -1, bestslvl = 0;
+		Uint8 bestSchool = -1,
+			bestslvl =  myHero->getSpellSchoolLevel( &CGI->spellh->spells[spellAreas[b]->mySpell] );
+
 		if(CGI->spellh->spells[spellAreas[b]->mySpell].air)
-			if(schoolLvls[0] >= bestslvl)
-			{
-				bestSchool = 0;
-				bestslvl = schoolLvls[0];
-			}
+			bestSchool = 0;
 		if(CGI->spellh->spells[spellAreas[b]->mySpell].fire)
-			if(schoolLvls[1] >= bestslvl)
-			{
-				bestSchool = 1;
-				bestslvl = schoolLvls[1];
-			}
+			bestSchool = 1;
 		if(CGI->spellh->spells[spellAreas[b]->mySpell].water)
-			if(schoolLvls[2] >= bestslvl)
-			{
-				bestSchool = 2;
-				bestslvl = schoolLvls[2];
-			}
+			bestSchool = 2;
 		if(CGI->spellh->spells[spellAreas[b]->mySpell].earth)
-			if(schoolLvls[3] >= bestslvl)
-			{
-				bestSchool = 3;
-				bestslvl = schoolLvls[3];
-			}
+			bestSchool = 3;
 
 		//printing border (indicates level of magic school)
 		blitAt(schoolBorders[bestSchool]->ourImages[bestslvl].bitmap, spellAreas[b]->pos.x, spellAreas[b]->pos.y, to);

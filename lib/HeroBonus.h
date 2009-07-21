@@ -41,7 +41,8 @@ struct DLL_EXPORT HeroBonus
 		WHIRLPOOL_PROTECTION, //hero won't lose army when teleporting through whirlpool
 		SPELL, //hero knows spell, val - skill level (0 - 3), subtype - spell id
 		SPELLS_OF_LEVEL, //hero knows all spells of given level, val - skill level; subtype - level
-		ENEMY_CANT_ESCAPE //for shackles of war
+		ENEMY_CANT_ESCAPE, //for shackles of war
+		MAGIC_SCHOOL_SKILL, //eg. for magic plains terrain, subtype: school of magic (0 - all, 1 - fire, 2 - air, 4 - water, 8 - earth), value - level
 	};
 	enum BonusDuration{PERMANENT, ONE_BATTLE, ONE_DAY, ONE_WEEK};
 	enum BonusSource{ARTIFACT, OBJECT};

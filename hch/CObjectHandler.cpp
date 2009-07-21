@@ -828,7 +828,6 @@ int CGHeroInstance::getTotalStrength() const
 
 ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell) const
 {
-	//TODO: skill level may be different on special terrain
 	ui8 skill = 0; //skill level
 
 	if(spell->fire)
@@ -839,6 +838,17 @@ ui8 CGHeroInstance::getSpellSchoolLevel(const CSpell * spell) const
 		skill = std::max(skill,getSecSkillLevel(16));
 	if(spell->earth)
 		skill = std::max(skill,getSecSkillLevel(17));
+
+	//bonuses (eg. from special terrains)
+	skill = std::max<ui8>(skill, valOfBonuses(HeroBonus::MAGIC_SCHOOL_SKILL, 0)); //any school bonus
+	if(spell->fire)
+		skill = std::max<ui8>(skill, valOfBonuses(HeroBonus::MAGIC_SCHOOL_SKILL, 1));
+	if(spell->air)
+		skill = std::max<ui8>(skill, valOfBonuses(HeroBonus::MAGIC_SCHOOL_SKILL, 2));
+	if(spell->water)
+		skill = std::max<ui8>(skill, valOfBonuses(HeroBonus::MAGIC_SCHOOL_SKILL, 4));
+	if(spell->earth)
+		skill = std::max<ui8>(skill, valOfBonuses(HeroBonus::MAGIC_SCHOOL_SKILL, 8));
 
 	return skill;
 }

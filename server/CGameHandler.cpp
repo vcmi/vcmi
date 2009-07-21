@@ -1056,6 +1056,104 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		}
 	}
 
+	//giving terrain premies for heroes & stacks
+
+	int bonusSubtype = -1;
+	switch(terType)
+	{
+	case 9: //magic plains
+		{
+			bonusSubtype = 0;
+		}
+	case 14: //fiery fields
+		{
+			if(bonusSubtype == -1) bonusSubtype = 1;
+		}
+	case 15: //rock lands
+		{
+			if(bonusSubtype == -1) bonusSubtype = 8;
+		}
+	case 16: //magic clouds
+		{
+			if(bonusSubtype == -1) bonusSubtype = 2;
+		}
+	case 17: //lucid pools
+		{
+			if(bonusSubtype == -1) bonusSubtype = 4;
+		}
+
+		{ //common part for cases 9, 14, 15, 16, 17
+			const CGHeroInstance * cHero = NULL;
+			for(int i=0; i<2; ++i)
+			{
+				if(i == 0) cHero = hero1;
+				else cHero = hero2;
+
+				if(cHero == NULL) continue;
+
+				GiveBonus gs;
+				gs.bonus = HeroBonus(HeroBonus::ONE_BATTLE, HeroBonus::MAGIC_SCHOOL_SKILL, HeroBonus::OBJECT, 3, -1, "", bonusSubtype);
+				gs.hid = cHero->id;
+
+				sendAndApply(&gs);
+			}
+
+			break;
+		}
+
+	case 18: //holy ground
+		{
+			for(int g=0; g<stacks.size(); ++g) //+1 morale bonus for good creatures, -1 morale bonus for evil creatures
+			{
+				if(stacks[g]->creature->faction == 0
+					|| stacks[g]->creature->faction == 1
+					|| stacks[g]->creature->faction == 2) 
+				{
+					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
+				}
+				else if(stacks[g]->creature->faction == 3
+					|| stacks[g]->creature->faction == 4
+					|| stacks[g]->creature->faction == 5)
+				{
+					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, -1, StackFeature::OTHER_SOURCE));
+				}
+			}
+			break;
+		}
+	case 19: //clover field
+		{
+			for(int g=0; g<stacks.size(); ++g)
+			{
+				if(stacks[g]->creature->faction == -1) //+2 luck bonus for neutral creatures
+				{
+					stacks[g]->features.push_back(makeFeature(StackFeature::LUCK_BONUS, StackFeature::WHOLE_BATTLE, 0, 2, StackFeature::OTHER_SOURCE));
+				}
+			}
+			break;
+		}
+	case 20: //evil fog
+		{
+			for(int g=0; g<stacks.size(); ++g) //-1 morale bonus for good creatures, +1 morale bonus for evil creatures
+			{
+				if(stacks[g]->creature->faction == 0
+					|| stacks[g]->creature->faction == 1
+					|| stacks[g]->creature->faction == 2) 
+				{
+					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, -1, StackFeature::OTHER_SOURCE));
+				}
+				else if(stacks[g]->creature->faction == 3
+					|| stacks[g]->creature->faction == 4
+					|| stacks[g]->creature->faction == 5)
+				{
+					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
+				}
+			}
+			break;
+		}
+	}
+
+	//premies given
+
 	//block engaged players
 	if(hero1->tempOwner<PLAYER_LIMIT)
 		states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,true);

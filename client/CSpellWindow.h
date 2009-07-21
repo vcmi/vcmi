@@ -77,13 +77,15 @@ private:
 	std::set<ui32> mySpells; //all spels in this spellbook
 	Uint8 schoolLvls[4]; //levels of magic for different schools: [0]: air, [1]: fire, [2]: water, [3]: earth; 0 - none, 1 - beginner, 2 - medium, 3 - expert
 
+	const CGHeroInstance * myHero; //hero whose spells are presented
+
 	void computeSpellsPerArea(); //recalculates spellAreas::mySpell
 
 	void turnPageLeft();
 	void turnPageRight();
 
 public:
-	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * myHero, bool openOnBattleSpells = true); //c-tor
+	CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, bool openOnBattleSpells = true); //c-tor
 	~CSpellWindow(); //d-tor
 
 	void fexitb();
