@@ -570,7 +570,7 @@ si8 CStack::Morale() const
 {
 	si8 ret = morale;
 
-	if(hasFeatureOfType(StackFeature::NON_LIVING) || hasFeatureOfType(StackFeature::UNDEAD))
+	if(hasFeatureOfType(StackFeature::NON_LIVING) || hasFeatureOfType(StackFeature::UNDEAD) || hasFeatureOfType(StackFeature::NO_MORALE))
 		return 0;
 	
 	ret += valOfFeatures(StackFeature::MORALE_BONUS); //mirth & sorrow & other
@@ -588,6 +588,9 @@ si8 CStack::Morale() const
 si8 CStack::Luck() const
 {
 	si8 ret = luck;
+
+	if(hasFeatureOfType(StackFeature::NO_LUCK))
+		return 0;
 	
 	ret += valOfFeatures(StackFeature::LUCK_BONUS); //fortune & misfortune & other
 
@@ -1374,7 +1377,7 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 		{
 		case 222: //clover field
 			return 19;
-		case 223: //cursed ground
+		case 21: case 223: //cursed ground
 			return 22;
 		case 224: //evil fog
 			return 20;
@@ -1388,7 +1391,7 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 			return 17;
 		case 229: //magic clouds
 			return 16;
-		case 230: //magic plains
+		case 46: case 230: //magic plains
 			return 9;
 		case 231: //rocklands
 			return 15;

@@ -1150,6 +1150,31 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 			}
 			break;
 		}
+	case 22: //cursed ground
+		{
+			for(int g=0; g<stacks.size(); ++g) //no luck nor morale
+			{
+				stacks[g]->features.push_back(makeFeature(StackFeature::NO_MORALE, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::OTHER_SOURCE));
+				stacks[g]->features.push_back(makeFeature(StackFeature::NO_LUCK, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::OTHER_SOURCE));
+			}
+
+			const CGHeroInstance * cHero = NULL;
+			for(int i=0; i<2; ++i) //blocking spells above level 1
+			{
+				if(i == 0) cHero = hero1;
+				else cHero = hero2;
+
+				if(cHero == NULL) continue;
+
+				GiveBonus gs;
+				gs.bonus = HeroBonus(HeroBonus::ONE_BATTLE, HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL, HeroBonus::OBJECT, 1, -1, "", bonusSubtype);
+				gs.hid = cHero->id;
+
+				sendAndApply(&gs);
+			}
+
+			break;
+		}
 	}
 
 	//premies given

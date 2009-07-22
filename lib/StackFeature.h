@@ -78,7 +78,9 @@ struct StackFeature
 	VCMI_CREATURE_ABILITY_NAME(SLAYER) /*value - level*/				\
 	VCMI_CREATURE_ABILITY_NAME(FORGETFULL) /*forgetfullnes spell effect, value - level*/ \
 	VCMI_CREATURE_ABILITY_NAME(CLONED)									\
-	VCMI_CREATURE_ABILITY_NAME(NOT_ACTIVE)
+	VCMI_CREATURE_ABILITY_NAME(NOT_ACTIVE)								\
+	VCMI_CREATURE_ABILITY_NAME(NO_LUCK) /*eg. when fighting on cursed ground*/	\
+	VCMI_CREATURE_ABILITY_NAME(NO_MORALE) /*eg. when fighting on cursed ground*/
 	
 	//general list of stack abilities and effects
 	enum ECombatFeatures
