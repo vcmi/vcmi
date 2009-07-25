@@ -33,8 +33,8 @@ public:
 	si32 type; //(0- ground, 1- towns, 2-creatures, 3- heroes, 4-artifacts, 5- resources)   
 	CDefEssential * handler;
 	si32 printPriority;
-	bool isVisitable();
-	bool operator<(const CGDefInfo& por)
+	bool isVisitable() const;
+	bool operator<(const CGDefInfo& por) const
 	{
 		if(id!=por.id)
 			return id<por.id;

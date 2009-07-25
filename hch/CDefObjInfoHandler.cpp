@@ -19,7 +19,7 @@ extern CLodHandler * bitmaph;
  *
  */
 
-bool CGDefInfo::isVisitable()
+bool CGDefInfo::isVisitable() const
 {
 	for (int i=0; i<6; i++)
 	{
@@ -37,7 +37,6 @@ CGDefInfo::CGDefInfo()
 void CDefObjInfoHandler::load()
 {
 	VLC->dobjinfo = this;
-	nodrze<int> ideki;
 	std::istringstream inp(bitmaph->getTextFile("ZOBJCTS.TXT"));
 	int objNumber;
 	inp>>objNumber;

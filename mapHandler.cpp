@@ -29,69 +29,50 @@
 
 extern SDL_Surface * screen;
 
-static std::string nameFromType (int typ)
+std::string nameFromType (int typ)
 {
 	switch(static_cast<TerrainTile::EterrainType>(typ))
 	{
 		case TerrainTile::dirt:
-		{
 			return std::string("DIRTTL.DEF");
-			break;
-		}
+
 		case TerrainTile::sand:
-		{
 			return std::string("SANDTL.DEF");
-			break;
-		}
+
 		case TerrainTile::grass:
-		{
 			return std::string("GRASTL.DEF");
-			break;
-		}
+
 		case TerrainTile::snow:
-		{
 			return std::string("SNOWTL.DEF");
-			break;
-		}
+
 		case TerrainTile::swamp:
-		{
-			return std::string("SWMPTL.DEF");			
-			break;
-		}
+			return std::string("SWMPTL.DEF");
+
 		case TerrainTile::rough:
-		{
-			return std::string("ROUGTL.DEF");		
-			break;
-		}
+			return std::string("ROUGTL.DEF");
+
 		case TerrainTile::subterranean:
-		{
-			return std::string("SUBBTL.DEF");		
-			break;
-		}
+			return std::string("SUBBTL.DEF");
+
 		case TerrainTile::lava:
-		{
-			return std::string("LAVATL.DEF");		
-			break;
-		}
+			return std::string("LAVATL.DEF");
+
 		case TerrainTile::water:
-		{
 			return std::string("WATRTL.DEF");
-			break;
-		}
+
 		case TerrainTile::rock:
-		{
-			return std::string("ROCKTL.DEF");		
-			break;
-		}
-                case TerrainTile::border:
-                    //TODO use me
-                    break;
-                default:
-                        //TODO do something here
-                break;
+			return std::string("ROCKTL.DEF");
+
+		case TerrainTile::border:
+		//TODO use me
+		break;
+		default:
+		//TODO do something here
+		break;
 	}
 	return std::string();
 }
+
 struct OCM_HLP
 {
 	bool operator ()(const std::pair<const CGObjectInstance*, SDL_Rect> & a, const std::pair<const CGObjectInstance*, SDL_Rect> & b)
@@ -99,64 +80,39 @@ struct OCM_HLP
 		return (*a.first)<(*b.first);
 	}
 } ocmptwo ;
-static void alphaTransformDef(CGDefInfo * defInfo)
+
+void alphaTransformDef(CGDefInfo * defInfo)
 {	
-	SDL_Surface * alphaTransSurf = SDL_CreateRGBSurface(SDL_SWSURFACE, 12, 12, 32, 0x000000ff, 0x0000ff00, 0x00ff0000, 0xff000000);
-	for(int yy=0;yy<defInfo->handler->ourImages.size();yy++)
+	for(int yy=0; yy<defInfo->handler->ourImages.size(); ++yy)
 	{
 		CSDL_Ext::alphaTransform(defInfo->handler->ourImages[yy].bitmap);
 	}
-	SDL_FreeSurface(alphaTransSurf);
 }
+
 void CMapHandler::prepareFOWDefs()
 {
 	fullHide = CDefHandler::giveDef("TSHRC.DEF");
 	partialHide = CDefHandler::giveDef("TSHRE.DEF");
 
 	//adding necessary rotations
-	Cimage nw = partialHide->ourImages[22]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[15]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[2]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[13]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[12]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[16]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[18]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[17]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[20]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[19]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[7]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[24]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[26]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[25]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[30]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[32]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[27]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
-	nw = partialHide->ourImages[28]; nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
-	partialHide->ourImages.push_back(nw);
+	int missRot [] = {22, 15, 2, 13, 12, 16, 18, 17, 20, 19, 7, 24, 26, 25, 30, 32, 27, 28};
+
+	Cimage nw;
+	for(int g=0; g<ARRAY_COUNT(missRot); ++g)
+	{
+		nw = partialHide->ourImages[missRot[g]];
+		nw.bitmap = CSDL_Ext::rotate01(nw.bitmap);
+		partialHide->ourImages.push_back(nw);
+	}
 	//necessaary rotations added
 
+	//alpha - transformation
 	for(size_t i=0; i<partialHide->ourImages.size(); ++i)
 	{
 		CSDL_Ext::alphaTransform(partialHide->ourImages[i].bitmap);
 	}
 
+	//initialization of type of full-hide image
 	hideBitmap.resize(CGI->mh->map->width);
 	for (size_t i=0;i<hideBitmap.size();i++)
 	{
@@ -218,11 +174,11 @@ void CMapHandler::roadsRiverTerrainInit()
 	}
 
 	// Draw the map
-	for (int i=0; i<map->width; i++) //jest po szeroko�ci
+	for (int i=0; i<map->width; i++) //by width
 	{
-		for (int j=0; j<map->height;j++) //po wysoko�ci
+		for (int j=0; j<map->height;j++) //by height
 		{
-			for (int k=0; k<=map->twoLevel; ++k)
+			for (int k=0; k<=map->twoLevel; ++k) //by levels
 			{
 				TerrainTile2 &pom(ttiles[i][j][k]);
 				pom.pos = int3(i, j, k);
@@ -261,11 +217,11 @@ void CMapHandler::roadsRiverTerrainInit()
 		}
 	}
 
-	for (int i=0; i<map->width; i++) //jest po szeroko�ci
+	for (int i=0; i<map->width; i++) //by width
 	{
-		for (int j=0; j<map->height;j++) //po wysoko�ci
+		for (int j=0; j<map->height;j++) //by height
 		{
-			for(int k=0; k<=map->twoLevel; ++k)
+			for(int k=0; k<=map->twoLevel; ++k) //by levels
 			{
 				if(map->terrain[i][j][k].nuine)
 				{
@@ -314,11 +270,11 @@ void CMapHandler::borderAndTerrainBitmapInit()
 		delete hlp;
 	}
 
-	for (int i=0-frameW; i<map->width+frameW; i++) //jest po szeroko�ci
+	for (int i=0-frameW; i<map->width+frameW; i++) //by width
 	{
-		for (int j=0-frameH; j<map->height+frameH;j++) //po wysoko�ci
+		for (int j=0-frameH; j<map->height+frameH;j++) //by height
 		{
-			for(int k=0; k<=map->twoLevel; ++k)
+			for(int k=0; k<=map->twoLevel; ++k) //by levles
 			{
 				if(i < 0 || i > (map->width-1) || j < 0  || j > (map->height-1))
 				{
@@ -430,8 +386,9 @@ void CMapHandler::initObjectRects()
 }
 static void processDef (CGDefInfo* def)
 {
-	if(def->id == 26)
+	if(def->id == 26) //if it's event, return from function
 		return;
+
 	if(!def->handler) //if object has already set handler (eg. heroes) it should not be overwritten
 	{
 		if(def->name.size())
@@ -457,6 +414,7 @@ static void processDef (CGDefInfo* def)
 	else if(def->id != HEROI_TYPE && def->id != TOWNI_TYPE)
 		tlog3 << "\t\tMinor warning: lacking def info for " << def->id << " " << def->subid <<" " << def->name << std::endl;
 
+	//alpha transformation
 	for(size_t yy=0; yy < def->handler->ourImages.size(); ++yy)
 	{
 		CSDL_Ext::alphaTransform(def->handler->ourImages[yy].bitmap);
@@ -810,6 +768,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 						flg = &Graphics::flags4;
 					}
 
+					//print hero / boat and flag
 					if(!themp->isStanding) //hero is moving
 					{
 						size_t gg;
@@ -822,6 +781,8 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 							}
 						}
 						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
+
+						//printing flag
 						pp.y+=imgVal*2-32;
 						sr.y-=16;
 						SDL_BlitSurface((graphics->*flg)[themp->getOwner()]->ourImages[gg+heroAnim%imgVal+35].bitmap, &pp, extSurf, &sr);
@@ -839,6 +800,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 						}
 						CSDL_Ext::blit8bppAlphaTo24bpp(tb,&pp,extSurf,&sr);
 
+						//printing flag
 						if(themp->pos.x==top_tile.x+bx && themp->pos.y==top_tile.y+by)
 						{
 							SDL_Rect bufr = sr;
@@ -1358,7 +1320,7 @@ bool CMapHandler::removeObject(CGObjectInstance *obj)
 	return true;
 }
 
-unsigned char CMapHandler::getHeroFrameNum(const unsigned char &dir, const bool &isMoving) const
+unsigned char CMapHandler::getHeroFrameNum(unsigned char dir, bool isMoving) const
 {
 	if(isMoving)
 	{
