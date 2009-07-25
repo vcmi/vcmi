@@ -410,7 +410,7 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*,
 		std::vector<Cimage> &curImgs = (this->*pr.first)[q]->ourImages;
 		for(size_t o=0; o<curImgs.size(); ++o)
 		{
-			for(size_t p=0;p<rotations.size();p++)
+			for(size_t p=0; p<rotations.size(); p++)
 			{
 				if(curImgs[o].groupNumber==rotations[p].first)
 				{
@@ -430,37 +430,13 @@ void Graphics::loadHeroFlags(std::pair<std::vector<CDefEssential *> Graphics::*,
 		{
 			for(size_t o=0; o<curImgs.size(); ++o)
 			{
-				if(curImgs[o].groupNumber==1)
+				if(curImgs[o].groupNumber==1 || curImgs[o].groupNumber==2 || curImgs[o].groupNumber==3)
 				{
 					for(int e=0; e<8; ++e)
 					{
 						Cimage nci;
 						nci.bitmap = CSDL_Ext::rotate01(curImgs[o+e].bitmap);
-						nci.groupNumber = 13;
-						nci.imName = std::string();
-						curImgs.push_back(nci);
-					}
-					o+=8;
-				}
-				if(curImgs[o].groupNumber==2)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(curImgs[o+e].bitmap);
-						nci.groupNumber = 14;
-						nci.imName = std::string();
-						curImgs.push_back(nci);
-					}
-					o+=8;
-				}
-				if(curImgs[o].groupNumber==3)
-				{
-					for(int e=0; e<8; ++e)
-					{
-						Cimage nci;
-						nci.bitmap = CSDL_Ext::rotate01(curImgs[o+e].bitmap);
-						nci.groupNumber = 15;
+						nci.groupNumber = 12 + curImgs[o].groupNumber;
 						nci.imName = std::string();
 						curImgs.push_back(nci);
 					}
@@ -495,10 +471,10 @@ void Graphics::loadHeroFlags()
 	pr[3].second+=("AF00.DEF"),("AF01.DEF"),("AF02.DEF"),("AF03.DEF"),("AF04.DEF"),
 		("AF05.DEF"),("AF06.DEF"),("AF07.DEF");
 	boost::thread_group grupa;
-	grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[3]),true));
-	grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[2]),true));
-	grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[1]),true));
-	grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[0]),true));
+	for(int g=3; g>=0; --g)
+	{
+		grupa.create_thread(boost::bind(&Graphics::loadHeroFlags,this,boost::ref(pr[g]),true));
+	}
 	grupa.join_all();
 	tlog0 << "Loading and transforming heroes' flags: "<<th.getDif()<<std::endl;
 }
