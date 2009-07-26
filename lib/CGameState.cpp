@@ -519,6 +519,9 @@ CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 
 ui32 CStack::Speed() const
 {
+	if(hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //war machnes cannot move
+		return 0;
+
 	int speed = creature->speed;
 
 	speed += valOfFeatures(StackFeature::SPEED_BONUS);

@@ -886,9 +886,10 @@ struct SpellCast : public CPackForClient//3009
 	ui32 id;
 	ui8 skill;
 	ui16 tile; //destination tile (may not be set in some global/mass spells
+	std::vector<ui32> resisted; //ids of creatures that resisted this spell
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side & id & skill & tile;
+		h & side & id & skill & tile & resisted;
 	}
 };
 

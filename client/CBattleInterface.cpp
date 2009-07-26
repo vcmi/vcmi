@@ -1870,6 +1870,13 @@ void CBattleInterface::spellCast(SpellCast * sc)
 	case 35: //dispel
 		displayEffect(spell.mainEffectAnim, sc->tile);
 	} //switch(sc->id)
+
+	//support for resistance
+	for(int j=0; j<sc->resisted.size(); ++j)
+	{
+		int tile = LOCPLINT->cb->battleGetStackByID(sc->resisted[j])->position;
+		displayEffect(78, tile);
+	}
 }
 
 void CBattleInterface::battleStacksEffectsSet(const SetStackEffect & sse)

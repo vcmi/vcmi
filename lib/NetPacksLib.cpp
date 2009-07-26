@@ -692,10 +692,11 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 	{
 		gs->curB->castSpells[side]++;
 	}
+
 	if(gs->curB && id == 35) //dispel
 	{
 		CStack *s = gs->curB->getStackT(tile);
-		if(s)
+		if(s && !vstd::contains(resisted, s->ID)) //if stack exists and it didn't resist
 		{
 			s->effects.clear(); //removing all effects
 			//removing all features from spells

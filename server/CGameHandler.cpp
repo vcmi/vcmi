@@ -2604,6 +2604,41 @@ static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, 
 	return ret;
 }
 
+static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const std::set<CStack*> affectedCreatures)
+{
+	std::vector<ui32> ret;
+	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
+	{
+		//non-negative spells on friendly stacks should always succeed
+		if(sp->positiveness >= 0 && (*it)->owner == caster->tempOwner)
+			continue;
+
+		int prob = (*it)->valOfFeatures(StackFeature::MAGIC_RESISTANCE); //probability of resistance in %
+		//caster's resistance support (secondary skils and artifacts)
+		prob += caster->valOfBonuses(HeroBonus::MAGIC_RESISTANCE);
+
+		switch(caster->getSecSkillLevel(26)) //resistance
+		{
+		case 1: //basic
+			prob += 5;
+			break;
+		case 2: //advanced
+			prob += 10;
+			break;
+		case 3: //expert
+			prob += 20;
+			break;
+		}
+
+		if(prob > 100) prob = 100;
+
+		if(rand()%100 < prob)
+			ret.push_back((*it)->ID);
+
+	}
+	return ret;
+}
+
 bool CGameHandler::makeCustomAction( BattleAction &ba )
 {
 	switch(ba.actionType)
@@ -2640,17 +2675,19 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			sendAndApply(&StartAction(ba)); //start spell casting
 
-			//TODO: check resistances
-
 			SpellCast sc;
 			sc.side = ba.side;
 			sc.id = ba.additionalInfo;
 			sc.skill = skill;
 			sc.tile = ba.destinationTile;
-			sendAndApply(&sc);
 
 			//calculating affected creatures for all spells
 			std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(s, h, ba.destinationTile);
+
+			//checking if creatures resist
+			sc.resisted = calculateResistedStacks(s, h, attackedCres);
+			
+			sendAndApply(&sc);
 
 			//applying effects
 			switch(ba.additionalInfo) //spell id
@@ -2670,6 +2707,9 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					StacksInjured si;
 					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 					{
+						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+							continue;
+
 						BattleStackAttacked bsa;
 						bsa.flags |= 2;
 						bsa.effect = VLC->spellh->spells[ba.additionalInfo].mainEffectAnim;
@@ -2678,7 +2718,8 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 						prepareAttacked(bsa,*it);
 						si.stacks.insert(bsa);
 					}
-					sendAndApply(&si);
+					if(!si.stacks.empty())
+						sendAndApply(&si);
 					break;
 				}
 			case 27: //shield 
@@ -2707,12 +2748,15 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					SetStackEffect sse;
 					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 					{
+						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+							continue;
 						sse.stacks.insert((*it)->ID);
 					}
 					sse.effect.id = ba.additionalInfo;
 					sse.effect.level = h->getSpellSchoolLevel(s);
 					sse.effect.turnsRemain = h->getPrimSkillLevel(2) + h->valOfBonuses(HeroBonus::SPELL_DURATION);
-					sendAndApply(&sse);
+					if(!sse.stacks.empty())
+						sendAndApply(&sse);
 					break;
 				}
 			case 56: //frenzy
@@ -2720,12 +2764,15 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					SetStackEffect sse;
 					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 					{
+						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+							continue;
 						sse.stacks.insert((*it)->ID);
 					}
 					sse.effect.id = ba.additionalInfo;
 					sse.effect.level = h->getSpellSchoolLevel(s);
 					sse.effect.turnsRemain = 1;
-					sendAndApply(&sse);
+					if(!sse.stacks.empty())
+						sendAndApply(&sse);
 					break;
 				}
 			}
