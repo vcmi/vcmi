@@ -83,7 +83,7 @@ public:
 	virtual void init(ICallback * CB){};
 	virtual void receivedResource(int type, int val){};
 	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID){};
-	virtual void showRecruitmentDialog(const CGDwelling *dwelling, int level){}
+	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level){}
 	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can buid, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
 	//virtual void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
 	//virtual void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
@@ -93,7 +93,7 @@ public:
 	virtual void tileRevealed(const std::set<int3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
 	virtual void yourTurn(){};
-	virtual void availableCreaturesChanged(const CGTownInstance *town){};
+	virtual void availableCreaturesChanged(const CGDwelling *town){};
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestRealized(PackageApplied *pa){};
 	virtual void heroExchangeStarted(si32 hero1, si32 hero2){};

@@ -350,7 +350,9 @@ DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 
 DLL_EXPORT void SetAvailableCreatures::applyGs( CGameState *gs )
 {
-	gs->getTown(tid)->creatures = creatures;
+	CGDwelling *dw = dynamic_cast<CGDwelling*>(gs->map->objects[tid]);
+	assert(dw);
+	dw->creatures = creatures;
 }
 
 DLL_EXPORT void SetHeroesInTown::applyGs( CGameState *gs )

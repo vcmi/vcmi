@@ -1500,14 +1500,20 @@ void CPlayerInterface::updateWater()
 
 }
 
-void CPlayerInterface::availableCreaturesChanged( const CGTownInstance *town )
+void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	if(castleInt)
+	if(castleInt && town->ID == TOWNI_TYPE)
 	{
 		CFortScreen *fs = dynamic_cast<CFortScreen*>(listInt.front());
 		if(fs)
 			fs->draw(castleInt,false);
+	}
+	else if(listInt.size() && (town->ID == 17  ||  town->ID == 20)) //external dwelling
+	{
+		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(listInt.front());
+		if(crw)
+			crw->initCres();
 	}
 }
 
@@ -1723,18 +1729,11 @@ const CGHeroInstance * CPlayerInterface::getWHero( int pos )
 	return wanderingHeroes[pos];
 }
 
-void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, int level)
+void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level)
 {
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	std::vector<std::pair<int,int> > cres;
-	for(int i = 0; i < dwelling->creatures.size(); i++)
-	{
-		if(i == level || level < 0)
-			for(size_t j = 0; j < dwelling->creatures[i].second.size(); j++)
-				cres.push_back( std::make_pair(dwelling->creatures[i].second[j],dwelling->creatures[i].first));
-	}
-	CRecruitmentWindow *cr = new CRecruitmentWindow(cres, boost::bind(&CCallback::recruitCreatures, cb, dwelling, _1, _2));
+	CRecruitmentWindow *cr = new CRecruitmentWindow(dwelling, level, dst, boost::bind(&CCallback::recruitCreatures, cb, dwelling, _1, _2));
 	pushInt(cr);
 }
 

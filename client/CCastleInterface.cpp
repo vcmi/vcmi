@@ -968,15 +968,16 @@ CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
 	int level = building-30;
 	assert(level >= 0 && level <= 6);
 
-	std::vector<std::pair<int,int > > crs;
-	int amount = town->creatures[level].first;
+	//std::vector<std::pair<int,int > > crs;
+	//int amount = town->creatures[level].first;
 
-	const std::vector<ui32> &cres = town->creatures[level].second;
+	//const std::vector<ui32> &cres = town->creatures[level].second;
 
-	for(size_t i = 0; i < cres.size(); i++)
-		crs.push_back(std::make_pair((int)cres[i],amount));
+	//for(size_t i = 0; i < cres.size(); i++)
+	//	crs.push_back(std::make_pair((int)cres[i],amount));
+	//CRecruitmentWindow *rw = new CRecruitmentWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 
-	CRecruitmentWindow *rw = new CRecruitmentWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
+	CRecruitmentWindow *rw = new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 	LOCPLINT->pushInt(rw);
 	return rw;
 }

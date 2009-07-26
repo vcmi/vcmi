@@ -141,6 +141,9 @@ void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst
 		case CREGENS:
 			vec = &VLC->generaltexth->creGens;
 			break;
+		case CREGENS4:
+			vec = &VLC->generaltexth->creGens4;
+			break;
 		case ADVOB_TXT:
 			vec = &VLC->generaltexth->advobtxt;
 			break;

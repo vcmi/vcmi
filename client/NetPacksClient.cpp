@@ -204,9 +204,9 @@ void NewStructures::applyCl( CClient *cl )
 
 void SetAvailableCreatures::applyCl( CClient *cl )
 {
-	CGTownInstance *t = GS(cl)->getTown(tid);
-	if(vstd::contains(cl->playerint,t->tempOwner))
-		cl->playerint[t->tempOwner]->availableCreaturesChanged(t);
+	const CGDwelling *dw = static_cast<const CGDwelling*>(cl->getObj(tid));
+	if(vstd::contains(cl->playerint,dw->tempOwner))
+		cl->playerint[dw->tempOwner]->availableCreaturesChanged(dw);
 }
 
 void SetHeroesInTown::applyCl( CClient *cl )
@@ -484,9 +484,11 @@ void OpenWindow::applyCl(CClient *cl)
 		}
 		break;
 	case RECRUITMENT_FIRST:
+	case RECRUITMENT_ALL:
 		{
 			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl->getObj(id1));
-			INTERFACE_CALL_IF_PRESENT(dw->tempOwner,showRecruitmentDialog, dw, 0);
+			const CArmedInstance *dst = dynamic_cast<const CArmedInstance*>(cl->getObj(id2));
+			INTERFACE_CALL_IF_PRESENT(dw->tempOwner,showRecruitmentDialog, dw, dst, window == RECRUITMENT_FIRST ? 0 : -1);
 		}
 		break;
 	case SHIPYARD_WINDOW:

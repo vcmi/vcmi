@@ -1,4 +1,4 @@
-0.72 -> 0.73
+0.72 -> 0.73 (scheguled on 1 Sep) as for r1044
 GENERAL:
 * infowindow popup will be completely on screen
 * fixed possible crash with in game console
@@ -16,6 +16,11 @@ GENERAL:
 * corrected some exp/level values
 * primary skills cannot be negative
 * support for 3 new artifacts: Ring of Vitality, Ring of Life, Vial of Lifeblood
+* fixed timed events reappearing
+* saving system options
+* saving hero direction
+* r-click popups on enemy heroes and towns
+* hero leveling formula matches the H3
 
 ADVENTURE INTERFACE:
 * Garrisoning, then removing hero from garrison move him at the end of the heroes list
@@ -29,7 +34,17 @@ BATTLES:
 * number of units in stack in battle should now fit the box
 * non-living and undead creatures have now always 0 morale
 * partial handling of advmap objects changing battle background (like clover field) (their existence should change the background but nothing else)
-* fixed displaying luck effect animation
+* displaying luck effect animation
+* support for battleground overlays:
+- cursed ground
+- magic plains
+- fiery fields
+- rock lands
+- magic clouds
+- lucid pools
+- holy ground
+- clover field
+- evil fog
 
 TOWNS:
 * fixes for horde buildings
@@ -39,6 +54,7 @@ TOWNS:
 
 HERO WINDOW:
 * garrisoned heroes won't be shown on the list
+* artifacts will be present on morale/luck bonuses list
 
 PREGAME:
 * saves are sorted primary by map format, secondary by name
@@ -46,9 +62,18 @@ PREGAME:
 
 OBJECTS:
 * Fixed primary/secondary skill levels given by a scholar.
-* fixed crash when there was flaggable building next to map edge
-* partial support for adventure map creature dwellings
-
+* fixed problems with 3-tiles monoliths
+* fixed crash with flaggable building next to map edge
+* fixed some descriptions for events
+* New objects supported:
+- Buoy
+- Creature Generators
+- Flotsam
+- Mermaid
+- Ocean bottle
+- Sea Chest 
+- Shipwreck Survivor
+- Sirens 
 
 0.71 -> 0.72 (Jun 1 2009)
 GENERAL:

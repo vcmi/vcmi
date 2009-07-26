@@ -45,6 +45,7 @@ class CCreatureAnimation;
 class CSelectableComponent;
 class CCreatureSet;
 class CGObjectInstance;
+class CGDwelling;
 class CSlider;
 struct UpgradeInfo;
 template <typename T> struct CondSh;
@@ -314,10 +315,10 @@ public:
 class CCreaturePic //draws picture with creature on background, use nextFrame=true to get animation
 {
 public:
-	CCreature *c; //which creature's picture
+	const CCreature *c; //which creature's picture
 	bool big; //big => 100x130; !big => 100x120
 	CCreatureAnimation *anim; //displayed animation
-	CCreaturePic(CCreature *cre, bool Big=true); //c-tor
+	CCreaturePic(const CCreature *cre, bool Big=true); //c-tor
 	~CCreaturePic(); //d-tor
 	int blitPic(SDL_Surface *to, int x, int y, bool nextFrame); //prints creature on screen
 	SDL_Surface * getPic(bool nextFrame); //returns frame of animation
@@ -342,6 +343,10 @@ public:
 	CStatusBar *bar;
 	int which; //which creature is active
 
+	const CGDwelling *dwelling;
+	int level;
+	const CArmedInstance *dst;
+
 	void close();
 	void Max();
 	void Buy();
@@ -352,7 +357,9 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
-	CRecruitmentWindow(const std::vector<std::pair<int,int> > & Creatures, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount> //c-tor
+	void cleanCres();
+	void initCres();
+	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount> //c-tor
 	~CRecruitmentWindow(); //d-tor
 };
 

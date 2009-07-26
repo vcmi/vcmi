@@ -1588,7 +1588,7 @@ void CTownList::draw(SDL_Surface * to)
 }
 
 
-CCreaturePic::CCreaturePic(CCreature *cre, bool Big)
+CCreaturePic::CCreaturePic(const CCreature *cre, bool Big)
 :c(cre),big(Big)
 {
 	anim = new CCreatureAnimation(cre->animDefName);
@@ -1629,8 +1629,12 @@ void CRecruitmentWindow::Max()
 }
 void CRecruitmentWindow::Buy()
 {
-	recruit(creatures[which].ID,slider->value);
-	close();
+	recruit(creatures[which].ID, slider->value);
+	if(level >= 0)
+		close();
+	else
+		slider->moveTo(0);
+
 }
 void CRecruitmentWindow::Cancel()
 {
@@ -1654,25 +1658,25 @@ void CRecruitmentWindow::clickLeft(tribool down)
 				slider->moveTo(newAmount);
 			else
 				slider->moveTo(slider->value);
-			curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+			curx = 192 + 51 - (102*creatures.size()/2) - (13*(creatures.size()-1)/2);
 			for(int j=0;j<creatures.size();j++)
 			{
 				if(which==j)
 					drawBorder(bitmap,curx,64,102,132,int3(255,0,0));
 				else
 					drawBorder(bitmap,curx,64,102,132,int3(239,215,123));
-				curx += 120;
+				curx += 115;
 			}
 			break;
 		}
-		curx += 120;
+		curx += 115;
 	}
 }
 void CRecruitmentWindow::clickRight( boost::logic::tribool down )
 {
 	if(down)
 	{
-		int curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+		int curx = 192 + 51 - (102*creatures.size()/2) - (13*(creatures.size()-1)/2);
 		for(int i=0;i<creatures.size();i++)
 		{
 			if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
@@ -1681,7 +1685,7 @@ void CRecruitmentWindow::clickRight( boost::logic::tribool down )
 				LOCPLINT->pushInt(popup);
 				break;
 			}
-			curx += 120;
+			curx += 115;
 		}
 	}
 }
@@ -1735,35 +1739,24 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 		curx+=32;
 	}
 
-	curx = pos.x + 192 + 102 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+	curx = pos.x + 192 + 102 - (102*creatures.size()/2) - (13*(creatures.size()-1)/2);
 	for(int i=0; i<creatures.size(); ++i)
 	{
 		creatures[i].pic->blitPic(to, curx-50, pos.y+130-65, !(animCounter%4));
-		curx += 120;
+		curx += 115;
 	}
 
 	++animCounter;
 	bar->show(to);
 }
 
-CRecruitmentWindow::CRecruitmentWindow(const std::vector<std::pair<int,int> > &Creatures, const boost::function<void(int,int)> &Recruit) //creatures - pairs<creature_ID,amount>
-:recruit(Recruit), which(Creatures.size()-1)
+CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> &Recruit)
+:recruit(Recruit), dwelling(Dwelling), dst(Dst), level(Level)
 {
-	creatures.resize(Creatures.size());
-	amounts.resize(Creatures.size());
-	for(int i=0;i<creatures.size();i++)
-	{
-		creatures[i].amount = Creatures[i].second;
-		creatures[i].ID = Creatures[i].first;
-		for(int j=0;j<CGI->creh->creatures[Creatures[i].first].cost.size();j++)
-			if(CGI->creh->creatures[Creatures[i].first].cost[j])
-				creatures[i].res.push_back(std::make_pair(j,CGI->creh->creatures[Creatures[i].first].cost[j]));
-		creatures[i].pic = new CCreaturePic(&CGI->creh->creatures[Creatures[i].first]);
-		amounts[i] = CGI->creh->creatures[Creatures[i].first].maxAmount(LOCPLINT->cb->getResourceAmount());
-	}
+	which = 0;
 	SDL_Surface *hhlp = BitmapHandler::loadBitmap("TPRCRT.bmp");
 	graphics->blueToPlayersAdv(hhlp,LOCPLINT->playerID);
-	bitmap = SDL_ConvertSurface(hhlp,screen->format,0); //na 8bitowej mapie by sie psulo //it wouldn't work on 8bpp map
+	bitmap = SDL_ConvertSurface(hhlp,screen->format,0);
 	SDL_SetColorKey(bitmap,SDL_SRCCOLORKEY,SDL_MapRGB(bitmap->format,0,255,255));
 	SDL_FreeSurface(hhlp);
 	pos.x = screen->w/2 - bitmap->w/2;
@@ -1774,8 +1767,10 @@ CRecruitmentWindow::CRecruitmentWindow(const std::vector<std::pair<int,int> > &C
 	max = new AdventureMapButton(CGI->generaltexth->zelp[553],boost::bind(&CRecruitmentWindow::Max,this),pos.x+134,pos.y+313,"IRCBTNS.DEF",SDLK_m);
 	buy = new AdventureMapButton(CGI->generaltexth->zelp[554],boost::bind(&CRecruitmentWindow::Buy,this),pos.x+212,pos.y+313,"IBY6432.DEF",SDLK_RETURN);
 	cancel = new AdventureMapButton(CGI->generaltexth->zelp[555],boost::bind(&CRecruitmentWindow::Cancel,this),pos.x+290,pos.y+313,"ICN6432.DEF",SDLK_ESCAPE);
-	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecruitmentWindow::sliderMoved,this, _1),1,std::min(amounts[0],creatures[0].amount),0,true);
-	std::string pom;
+	slider = new CSlider(pos.x+176,pos.y+279,135,boost::bind(&CRecruitmentWindow::sliderMoved,this, _1),1,0,0,true);
+
+	initCres();
+
 	printAtMiddle(CGI->generaltexth->allTexts[346],113,231,GEOR13,zwykly,bitmap); //cost per troop t
 	printAtMiddle(CGI->generaltexth->allTexts[465],205,231,GEOR13,zwykly,bitmap); //available t
 	printAtMiddle(CGI->generaltexth->allTexts[16],279,231,GEOR13,zwykly,bitmap); //recruit t
@@ -1789,7 +1784,7 @@ CRecruitmentWindow::CRecruitmentWindow(const std::vector<std::pair<int,int> > &C
 	drawBorder(bitmap,289,312,66,34,int3(173,142,66));
 
 	//border for creatures
-	int curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+	int curx = 192 + 51 - (102*creatures.size()/2) - (13*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
 		creatures[i].pos.x = curx+1;
@@ -1800,7 +1795,7 @@ CRecruitmentWindow::CRecruitmentWindow(const std::vector<std::pair<int,int> > &C
 			drawBorder(bitmap,curx,64,102,132,int3(255,0,0));
 		else
 			drawBorder(bitmap,curx,64,102,132,int3(239,215,123));
-		curx += 120;
+		curx += 115;
 	}
 
 	if(!creatures[0].amount ||  !amounts[0])
@@ -1813,16 +1808,51 @@ CRecruitmentWindow::CRecruitmentWindow(const std::vector<std::pair<int,int> > &C
 
 CRecruitmentWindow::~CRecruitmentWindow()
 {
-	for(int i=0;i<creatures.size();i++)
-	{
-		delete creatures[i].pic;
-	}
+	cleanCres();
 	delete max;
 	delete buy;
 	delete cancel;
 	SDL_FreeSurface(bitmap);
 	delete slider;
 	delete bar;
+}
+
+void CRecruitmentWindow::initCres()
+{
+	cleanCres();
+	for(int i=0; i<dwelling->creatures.size(); i++)
+	{
+		if(level >= 0 && i != level) 
+			continue;
+
+		for(int j = dwelling->creatures[i].second.size() - 1; j >= 0 ; j--)
+		{
+			creatures.resize(creatures.size()+1);
+			creinfo &cur = creatures.back();
+
+			cur.amount = dwelling->creatures[i].first;
+			cur.ID = dwelling->creatures[i].second[j];
+			const CCreature *cre = &CGI->creh->creatures[cur.ID];
+			cur.pic = new CCreaturePic(cre);
+
+			for(int k=0; k<cre->cost.size(); k++)
+				if(cre->cost[k])
+					cur.res.push_back(std::make_pair(k,cre->cost[k]));
+			amounts.push_back(cre->maxAmount(LOCPLINT->cb->getResourceAmount()));
+		}
+	}
+
+	slider->amount = std::min(amounts[which],creatures[which].amount);
+}
+
+void CRecruitmentWindow::cleanCres()
+{
+	for(int i=0;i<creatures.size();i++)
+	{
+		delete creatures[i].pic;
+	}
+	creatures.clear();
+	amounts.clear();
 }
 
 CSplitWindow::CSplitWindow(int cid, int max, CGarrisonInt *Owner, int Last, int val)

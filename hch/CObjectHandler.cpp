@@ -979,19 +979,25 @@ void CGDwelling::initObj()
 
 	case 20:
 		creatures.resize(4);
-		if(subID == 0) // Elemental Conflux 
+		if(subID == 1) //Golem Factory
 		{
 			creatures[0].second.push_back(32);  //Stone Golem
 			creatures[1].second.push_back(33);  //Iron Golem  
 			creatures[2].second.push_back(116); //Gold Golem
 			creatures[3].second.push_back(117); //Diamond Golem
+			//guards
+			army.slots[0].first = 116;
+			army.slots[0].second = VLC->creh->creatures[116].getRandomAmount(ran);
 		}
-		else if(subID == 1) //Golem Factory
+		else if(subID == 0) // Elemental Conflux 
 		{
 			creatures[0].second.push_back(112); //Air Elemental
 			creatures[1].second.push_back(113); //Earth Elemental
 			creatures[2].second.push_back(114); //Fire Elemental
 			creatures[3].second.push_back(115); //Water Elemental
+			//guards
+			army.slots[0].first = 113;
+			army.slots[0].second = VLC->creh->creatures[113].getRandomAmount(ran);
 		}
 		else
 		{
@@ -1014,9 +1020,9 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 		bd.player = h->tempOwner;
 		bd.flags = BlockingDialog::ALLOW_CANCEL;
 		bd.text.addTxt(MetaString::GENERAL_TXT, 421); //Much to your dismay, the %s is guarded by %s %s. Do you wish to fight the guards?
-		bd.text.addReplacement(MetaString::CREGENS, subID);
+		bd.text.addReplacement(ID == 17 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
 		bd.text.addReplacement(MetaString::ARRAY_TXT, 176 + CCreature::getQuantityID(army.slots.begin()->second.second)*3);
-		bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[0].second[0]);
+		bd.text.addReplacement(MetaString::CRE_PL_NAMES, army.slots.begin()->second.first);
 		cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::wantsFight, this, h, _1));
 		return;
 	}
@@ -1110,12 +1116,14 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 			cb->sendAndApply(&iw);
 		}
 	}
-	else if(ID == 17)
+	else
 	{
 		OpenWindow ow;
 		ow.id1 = id;
-		ow.id2 = id;
-		ow.window = OpenWindow::RECRUITMENT_FIRST;
+		ow.id2 = h->id;
+		ow.window = ID == 17 
+			? OpenWindow::RECRUITMENT_FIRST 
+			: OpenWindow::RECRUITMENT_ALL;
 		cb->sendAndApply(&ow);
 	}
 }
