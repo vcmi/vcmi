@@ -519,13 +519,17 @@ void CBattleInterface::show(SDL_Surface * to)
 			int curStackID = stackAliveByHex[b][v];
 			const CStack &curStack = stacks[curStackID];
 			int animType = creAnims[curStackID]->getType();
-			bool incrementFrame = (animCount%(4/settings.animSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
+
+			int affectingSpeed = settings.animSpeed;
+			if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
+				affectingSpeed = 2;
+			bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
 
 			if(animType == 2)
 			{
 				if(standingFrame.find(curStackID)!=standingFrame.end())
 				{
-					incrementFrame = (animCount%(8/settings.animSpeed)==0);
+					incrementFrame = (animCount%(8/affectingSpeed)==0);
 					if(incrementFrame)
 					{
 						++standingFrame[curStackID];
