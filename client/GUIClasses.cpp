@@ -3316,12 +3316,12 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 	{
 		if(ourArt && ourArt->id == 0)
 			return; //this is handled separately
-		if(!ourOwner->activeArtPlace) //nothing has bewn clicked
+		if(!ourOwner->commonInfo->activeArtPlace) //nothing has been clicked
 		{
 			if(ourArt) //to prevent selecting empty slots (bugfix to what GrayFace reported)
 			{
 				clicked = true;
-				ourOwner->activeArtPlace = this;
+				ourOwner->commonInfo->activeArtPlace = this;
 			}
 		}
 		else //perform artifact substitution
@@ -3329,18 +3329,18 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			if(slotID >= 19)	//we are an backpack slot - remove active artifact and put it to the last free pos in backpack
 			{					//TODO: putting artifacts in the middle of backpack (pushing following arts)
 				
-				LOCPLINT->cb->swapArtifacts(ourOwner->curHero,ourOwner->activeArtPlace->slotID,ourOwner->curHero,ourOwner->curHero->artifacts.size()+19);
+				LOCPLINT->cb->swapArtifacts(ourOwner->commonInfo->activeArtPlace->ourOwner->curHero, ourOwner->commonInfo->activeArtPlace->slotID, ourOwner->curHero, ourOwner->curHero->artifacts.size()+19);
 			}
 			//check if swap is possible
-			else if(this->fitsHere(ourOwner->activeArtPlace->ourArt) && ourOwner->activeArtPlace->fitsHere(this->ourArt))
+			else if(this->fitsHere(ourOwner->commonInfo->activeArtPlace->ourArt) && ourOwner->commonInfo->activeArtPlace->fitsHere(this->ourArt))
 			{
 				int destSlot = slotID,
-					srcSlot = ourOwner->activeArtPlace->slotID;
+					srcSlot = ourOwner->commonInfo->activeArtPlace->slotID;
 
-				LOCPLINT->cb->swapArtifacts(ourOwner->curHero,destSlot,ourOwner->curHero,srcSlot);
+				LOCPLINT->cb->swapArtifacts(ourOwner->curHero,destSlot,ourOwner->commonInfo->activeArtPlace->ourOwner->curHero,srcSlot);
 
-				ourOwner->activeArtPlace->clicked = false;
-				ourOwner->activeArtPlace = NULL;
+				ourOwner->commonInfo->activeArtPlace->clicked = false;
+				ourOwner->commonInfo->activeArtPlace = NULL;
 			}
 		}
 	}
@@ -3349,7 +3349,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 		if(ourArt && ourArt->id == 0)
 			return; //this is handled separately
 		clicked = false;
-		ourOwner->activeArtPlace = NULL;
+		ourOwner->commonInfo->activeArtPlace = NULL;
 	}
 	ClickableL::clickLeft(down);
 }
@@ -3638,7 +3638,7 @@ void CArtifactsOfHero::setHero(const CGHeroInstance * hero)
 		add->slotID = 19+s;
 		backpack.push_back(add);
 	}
-	activeArtPlace = NULL;
+	commonInfo->activeArtPlace = NULL;
 
 	//blocking scrolling if there is not enough artifacts to scroll
 	leftArtRoll->block(hero->artifacts.size()<6);
@@ -3659,7 +3659,8 @@ void CArtifactsOfHero::dispose()
 		backpack[g] = NULL;
 	}
 	backpack.clear();
-	activeArtPlace = NULL;
+	if(commonInfo)
+		commonInfo->activeArtPlace = NULL;
 }
 
 void CArtifactsOfHero::scrollBackpack(int dir)
@@ -3681,7 +3682,7 @@ void CArtifactsOfHero::scrollBackpack(int dir)
 }
 
 CArtifactsOfHero::CArtifactsOfHero(const SDL_Rect & position) :
-	activeArtPlace(NULL), backpackPos(0)
+	backpackPos(0)
 {
 	pos = position;
 	artWorn.resize(19);
@@ -3885,8 +3886,11 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	heroInst[1] = LOCPLINT->cb->getHeroInfo(hero2, 2);
 
 	artifs[0] = new CArtifactsOfHero(genRect(600, 800, -334, 150));
+	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
 	artifs[0]->setHero(heroInst[0]);
+	artifs[0]->commonInfo->activeArtPlace = NULL;
 	artifs[1] = new CArtifactsOfHero(genRect(600, 800, 96, 150));
+	artifs[1]->commonInfo = artifs[0]->commonInfo;
 	artifs[1]->setHero(heroInst[1]);
 
 	prepareBackground();
@@ -3970,7 +3974,12 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 {
 	SDL_FreeSurface(bg);
 	delete quit;
+
+	//warning: don't experiment with these =NULL lines, they prevent heap corruption!
+	delete artifs[0]->commonInfo;
+	artifs[0]->commonInfo = NULL;
 	delete artifs[0];
+	artifs[1]->commonInfo = NULL;
 	delete artifs[1];
 
 	delete garr;

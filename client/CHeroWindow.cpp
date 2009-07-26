@@ -51,6 +51,8 @@ CHeroWindow::CHeroWindow(int playerColor):
 	curHero = NULL;
 
 	artifs = new CArtifactsOfHero(pos);
+	artifs->commonInfo = new CArtifactsOfHero::SCommonPart;
+	artifs->commonInfo->activeArtPlace = NULL;
 
 	garr = NULL;
 	ourBar = new CStatusBar(pos.x+72, pos.y+567, "ADROLLVR.bmp", 660);
@@ -143,6 +145,8 @@ CHeroWindow::~CHeroWindow()
 	delete garr;
 	delete ourBar;
 
+	delete artifs->commonInfo;
+	artifs->commonInfo = NULL; //to prevent heap corruption
 	delete artifs;
 
 	delete portraitArea;
