@@ -145,3 +145,10 @@ void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 	if(flags & CArtifact::ART_RELIC)
 		getAllowedArts(out,&CArtHandler::relics);
 }
+
+TerrainTile * IGameCallback::getTile( int3 pos )
+{
+	if(!gs->map->isInTheMap(pos))
+		return NULL;
+	return &gs->map->getTile(pos);
+}

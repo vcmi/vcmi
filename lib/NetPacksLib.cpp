@@ -490,6 +490,32 @@ DLL_EXPORT void GiveHero::applyGs( CGameState *gs )
 	h->inTownGarrison = false;
 }
 
+DLL_EXPORT void NewObject::applyGs( CGameState *gs )
+{
+	
+	CGObjectInstance *o = NULL;
+	switch(ID)
+	{
+	case 8:
+		o = new CGBoat();
+		break;
+	default:
+		o = new CGObjectInstance();
+		break;
+	}
+	o->ID = ID;
+	o->subID = subID;
+	o->pos = pos;
+	o->defInfo = VLC->dobjinfo->gobjs[ID][subID];
+	id = o->id = gs->map->objects.size();
+	o->hoverName = VLC->generaltexth->names[ID];
+
+	gs->map->objects.push_back(o);
+	gs->map->addBlockVisTiles(o);
+	o->initObj();
+	assert(o->defInfo);
+}
+
 DLL_EXPORT void NewTurn::applyGs( CGameState *gs )
 {
 	gs->day = day;

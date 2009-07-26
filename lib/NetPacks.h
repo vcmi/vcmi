@@ -518,13 +518,30 @@ struct OpenWindow : public CPackForClient //517
 	OpenWindow(){type = 517;};
 	void applyCl(CClient *cl);
 
-	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL};
+	enum EWindow {EXCHANGE_WINDOW, RECRUITMENT_FIRST, RECRUITMENT_ALL, SHIPYARD_WINDOW};
 	ui8 window;
 	ui32 id1, id2;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & window & id1 & id2;
+	}
+};
+
+struct NewObject  : public CPackForClient //518
+{
+	NewObject(){type = 518;};
+	void applyCl(CClient *cl);
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	ui32 ID, subID;
+	int3 pos;
+
+	int id; //used internally
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & ID & subID & pos;
 	}
 };
 
@@ -1116,6 +1133,19 @@ struct HireHero : public CPackForServer
 	{
 		h & hid & tid;
 	}
+};
+
+struct BuildBoat : public CPackForServer 
+{
+	BuildBoat(){};
+	si32 objid; //where player wants to buy a boat
+
+	bool applyGh(CGameHandler *gh);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & objid;
+	}
+
 };
 
 struct QueryReply : public CPackForServer

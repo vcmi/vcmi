@@ -488,6 +488,28 @@ void OpenWindow::applyCl(CClient *cl)
 			const CGDwelling *dw = dynamic_cast<const CGDwelling*>(cl->getObj(id1));
 			INTERFACE_CALL_IF_PRESENT(dw->tempOwner,showRecruitmentDialog, dw, 0);
 		}
+		break;
+	case SHIPYARD_WINDOW:
+		{
+			const IShipyard *sy = IShipyard::castFrom(cl->getObj(id1));
+			INTERFACE_CALL_IF_PRESENT(sy->o->tempOwner, showShipyardDialog, sy);
+		}
+		break;
 	}
 
+}
+
+void NewObject::applyCl(CClient *cl)
+{
+	const CGObjectInstance *obj = cl->getObj(id);
+	//notify interfaces about move
+	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
+	{
+		//TODO: check if any covered tile is visible
+		if(i->first >= PLAYER_LIMIT) continue;
+		if(GS(cl)->players[i->first].fogOfWarMap[obj->pos.x][obj->pos.y][obj->pos.z])
+		{
+			i->second->newObject(obj);
+		}
+	}
 }

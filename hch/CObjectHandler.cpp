@@ -9,6 +9,7 @@
 #include "CSpellHandler.h"
 #include <boost/bind.hpp>
 #include <boost/algorithm/string/replace.hpp>
+#include <boost/assign/std/vector.hpp> 
 #include <boost/lexical_cast.hpp>
 #include <boost/random/linear_congruential.hpp>
 #include "CTownHandler.h"
@@ -20,6 +21,7 @@
 #include "../lib/NetPacks.h"
 #include "../StartInfo.h"
 #include "../lib/map.h"
+using namespace boost::assign;
 
 /*
  * CObjectHandler.cpp, part of VCMI engine
@@ -289,6 +291,10 @@ void CGObjectInstance::giveDummyBonus(int heroID, ui8 duration) const
 	gbonus.bonus.source = HeroBonus::OBJECT;
 	gbonus.bonus.id = ID;
 	cb->giveHeroBonus(&gbonus);
+}
+
+void CGObjectInstance::onHeroVisit( const CGHeroInstance * h ) const
+{
 }
 
 static int lowestSpeed(const CGHeroInstance * chi)
@@ -1222,6 +1228,7 @@ bool CGTownInstance::hasCapitol() const
 	return (builtBuildings.find(13))!=builtBuildings.end();
 }
 CGTownInstance::CGTownInstance()
+	:IShipyard(this)
 {
 	builded=-1;
 	destroyed=-1;
@@ -1281,6 +1288,11 @@ void CGTownInstance::initObj()
 int3 CGTownInstance::getSightCenter() const
 {
 	return pos - int3(2,0,0);
+}
+
+void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
+{
+	offsets += int3(-1,3,0), int3(-3,3,0);
 }
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const
@@ -2498,6 +2510,7 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 	{
 	case 11: //buoy
 		messageID = 21;
+		sound = soundBase::MORALE;
 		gbonus.bonus.type = HeroBonus::MORALE;
 		gbonus.bonus.val = +1;
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,94);
@@ -3412,4 +3425,122 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		}
 	}
 	cb->showInfoDialog(&iw);
+}
+
+void IShipyard::getBoatCost( std::vector<si32> &cost ) const
+{
+	cost.resize(RESOURCE_QUANTITY);
+	cost[0] = 10;
+	cost[6] = 1000;
+}
+
+//bool IShipyard::validLocation() const
+//{
+//	std::vector<int3> offsets;
+//	getOutOffsets(offsets);
+//
+//	TerrainTile *tile;
+//	for(int i = 0; i < offsets.size(); i++)
+//		if((tile = IObjectInterface::cb->getTile(o->pos + offsets[i]))  &&  tile->tertype == TerrainTile::water) //tile is in the map and is water
+//			return true;
+//	return false;
+//}
+
+int3 IShipyard::bestLocation() const
+{
+	std::vector<int3> offsets;
+	getOutOffsets(offsets);
+
+	TerrainTile *tile;
+	for(int i = 0; i < offsets.size(); i++)
+		if((tile = IObjectInterface::cb->getTile(o->pos + offsets[i]))  &&  tile->tertype == TerrainTile::water) //tile is in the map and is water
+			return o->pos + offsets[i];
+	return int3(-1,-1,-1);
+}
+
+IShipyard::IShipyard(const CGObjectInstance *O) 
+	: o(O)
+{
+}
+
+int IShipyard::state() const
+{
+	int3 tile = bestLocation();
+	TerrainTile *t = IObjectInterface::cb->getTile(tile);
+	if(!t)
+		return 3; //no water
+	else if(!t->blockingObjects.size())
+		return 0; //OK
+	else if(t->blockingObjects.front()->ID == 8)
+		return 1; //blocked with boat
+	else
+		return 2; //blocked
+}
+
+IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
+{
+	if(obj->ID == TOWNI_TYPE)
+	{
+		return static_cast<CGTownInstance*>(obj);
+	}
+	else if(obj->ID == 87)
+	{
+		return static_cast<CGShipyard*>(obj);
+	}
+	else
+	{
+		tlog1 << "Cannot cast to IShipyar object with ID " << obj->ID << std::endl;
+		return NULL;
+	}
+}
+
+const IShipyard * IShipyard::castFrom( const CGObjectInstance *obj )
+{
+	return castFrom(const_cast<CGObjectInstance*>(obj));
+}
+
+CGShipyard::CGShipyard()
+	:IShipyard(this)
+{
+}
+
+void CGShipyard::getOutOffsets( std::vector<int3> &offsets ) const
+{
+	offsets += int3(1,0,0), int3(-3,0,0), int3(1,1,0), int3(-3,1,0), int3(1,-1,0), int3(-3,-1,0), 
+		int3(-2,-1,0), int3(0,-1,0), int3(-1,-1,0), int3(-2,1,0), int3(0,1,0), int3(-1,1,0);
+}
+
+void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
+{
+	if(tempOwner != h->tempOwner)
+		cb->setOwner(id, h->tempOwner);
+
+	int s = state();
+	if(s)
+	{
+		InfoWindow iw;
+		iw.player = tempOwner;
+		switch(s)
+		{
+		case 1: 
+			iw.text.addTxt(MetaString::GENERAL_TXT, 51);
+			break;
+		case 2:
+			iw.text.addTxt(MetaString::ADVOB_TXT, 189);
+			break;
+		case 3:
+			tlog1 << "Shipyard without water!!! " << pos << "\t" << id << std::endl;
+			return;
+		}
+
+		cb->showInfoDialog(&iw);
+	}
+	else
+	{
+		OpenWindow ow;
+		ow.id1 = id;
+		ow.id2 = h->id;
+		ow.window = OpenWindow::SHIPYARD_WINDOW;
+		cb->sendAndApply(&ow);
+	}
 }

@@ -45,6 +45,7 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGBoat>();
 	s.template registerType<CGSirens>();
 	s.template registerType<CGOnceVisitable>();
+	s.template registerType<CGShipyard>();
 	s.template registerType<CGObjectInstance>();
 }
 
@@ -96,6 +97,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<StacksInjured>();
 	s.template registerType<ShowInInfobox>();
 	s.template registerType<OpenWindow>();
+	s.template registerType<NewObject>();
 
 	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();
@@ -120,6 +122,7 @@ void registerTypes3(Serializer &s)
 	s.template registerType<TradeOnMarketplace>();
 	s.template registerType<SetFormation>();
 	s.template registerType<HireHero>();
+	s.template registerType<BuildBoat>();
 	s.template registerType<QueryReply>();
 	s.template registerType<MakeAction>();
 	s.template registerType<MakeCustomAction>();

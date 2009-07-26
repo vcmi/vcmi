@@ -3976,4 +3976,67 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	}
 }
 
+void CShipyardWindow::activate()
+{
+	build->activate();
+	quit->activate();
+}
 
+void CShipyardWindow::deactivate()
+{
+	build->deactivate();
+	quit->deactivate();
+}
+
+void CShipyardWindow::show( SDL_Surface * to )
+{
+	blitAt(bg,pos,to);
+	CSDL_Ext::blit8bppAlphaTo24bpp(graphics->boatAnims[1]->ourImages[21 + frame++/8%8].bitmap, NULL, to, &genRect(64, 96, pos.x+110, pos.y+85));
+	build->show(to);
+	quit->show(to);
+}
+
+CShipyardWindow::~CShipyardWindow()
+{
+	delete build;
+	delete quit;
+}
+
+CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, const boost::function<void()> &onBuy)
+{
+	frame = 0;
+	SDL_Surface * bgtemp; //loaded as 8bpp surface
+	bgtemp = BitmapHandler::loadBitmap("TPSHIP.bmp");
+	pos.x = screen->w/2 - bgtemp->w/2;
+	pos.y = screen->h/2 - bgtemp->h/2;
+	pos.w = bgtemp->w;
+	pos.h = bgtemp->h;
+	SDL_SetColorKey(bgtemp,SDL_SRCCOLORKEY,SDL_MapRGB(bgtemp->format,0,255,255));
+	graphics->blueToPlayersAdv(bgtemp, LOCPLINT->playerID);
+	bg = SDL_ConvertSurface(bgtemp, screen->format, screen->flags); //to 24 bpp
+	SDL_FreeSurface(bgtemp);
+
+	bgtemp = BitmapHandler::loadBitmap("TPSHIPBK.bmp");
+	blitAt(bgtemp, 100, 69, bg);
+	SDL_FreeSurface(bgtemp);
+
+	bool affordable = true;
+	for(int i = 0; i < cost.size(); i++)
+	{
+		if(cost[i] > LOCPLINT->cb->getResourceAmount(i))
+		{
+			affordable = false;
+			break;
+		}
+	}
+
+	quit = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CPlayerInterface::popIntTotally, LOCPLINT, this), pos.x+224, pos.y+312, "ICANCEL.DEF", SDLK_RETURN);
+	build = new AdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CPlayerInterface::popIntTotally, LOCPLINT, this), pos.x+42, pos.y+312, "IBY6432.DEF", SDLK_RETURN);
+	build->callback += onBuy;
+
+	if(!affordable)
+		build->block(true);
+
+	printAtMiddle(CGI->generaltexth->jktexts[15], 165, 26, GEOR13, zwykly, bg); //Resource cost:
+	printAtMiddle(CGI->generaltexth->jktexts[14], 165, 218, GEOR16, tytulowy, bg); //Build A New Ship
+}

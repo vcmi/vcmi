@@ -1688,7 +1688,6 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				break;
 			}
 		case 42: //lighthouse
-		case 87: //shipyard
 		case 220://mine (?)
 			{
 				nobj = new CGObjectInstance();
@@ -1881,6 +1880,12 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				nobj = new CGSirens();
 				break;
 			}
+		case 87: //Shipyard
+			{
+				nobj = new CGShipyard();
+				nobj->setOwner(readNormalNr(bufor,i)); i+=4;
+				break;
+			}
 		case 214: //hero placeholder
 			{
 				i+=3; //TODO: handle it more properly
@@ -1945,7 +1950,7 @@ void Mapa::readEvents( unsigned char * bufor, int &i )
 	}
 }
 
-bool Mapa::isInTheMap( int3 pos )
+bool Mapa::isInTheMap( int3 pos ) const
 {
 	if(pos.x<0 || pos.y<0 || pos.z<0 || pos.x >= width || pos.y >= height || pos.z > twoLevel)
 		return false;
@@ -2034,6 +2039,17 @@ TerrainTile & Mapa::getTile( int3 tile )
 {
 	return terrain[tile.x][tile.y][tile.z];
 }
+
+const TerrainTile & Mapa::getTile( int3 tile ) const
+{
+	return terrain[tile.x][tile.y][tile.z];
+}
+
+bool Mapa::isWaterTile( int3 pos ) const
+{
+	return isInTheMap(pos) && getTile(pos).tertype == TerrainTile::water;
+}
+
 void CMapInfo::countPlayers()
 {
 	playerAmnt=humenPlayers=0;

@@ -122,6 +122,12 @@ bool HireHero::applyGh( CGameHandler *gh )
 	return gh->hireHero(tid,hid);
 }
 
+bool BuildBoat::applyGh( CGameHandler *gh )
+{
+	ERROR_IF_NOT_OWNS(objid);
+	return gh->buildBoat(objid);
+}
+
 bool QueryReply::applyGh( CGameHandler *gh )
 {
 	//TODO - check if player matches the query

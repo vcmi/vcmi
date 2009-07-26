@@ -1726,6 +1726,7 @@ const CGHeroInstance * CPlayerInterface::getWHero( int pos )
 void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, int level)
 {
 	waitWhileDialog();
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	std::vector<std::pair<int,int> > cres;
 	for(int i = 0; i < dwelling->creatures.size(); i++)
 	{
@@ -1742,6 +1743,30 @@ void CPlayerInterface::waitWhileDialog()
 	boost::unique_lock<boost::mutex> un(showingDialog->mx);
 	while(showingDialog->data)
 		showingDialog->cond.wait(un);
+}
+
+void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	int state = obj->state();
+	std::vector<si32> cost;
+	obj->getBoatCost(cost);
+	CShipyardWindow *csw = new CShipyardWindow(cost, state, boost::bind(&CCallback::buildBoat, cb, obj));
+	pushInt(csw);
+}
+
+void CPlayerInterface::newObject( const CGObjectInstance * obj )
+{
+	boost::unique_lock<boost::recursive_mutex> un(*pim);
+	CGI->mh->printObject(obj);
+	//we might have built a boat in shipyard in opened town screen
+	if(obj->ID == 8 
+		&& LOCPLINT->castleInt  
+		&&  obj->pos-obj->getVisitableOffset() == LOCPLINT->castleInt->town->bestLocation())
+	{
+		CGI->soundh->playSound(soundBase::newBuilding);
+		LOCPLINT->castleInt->recreateBuildings();
+	}
 }
 
 void SystemOptions::setMusicVolume( int newVolume )

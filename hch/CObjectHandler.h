@@ -104,6 +104,22 @@ public:
 	virtual void setProperty(ui8 what, ui32 val);//synchr
 };
 
+class DLL_EXPORT IShipyard
+{
+public:
+	const CGObjectInstance *o;
+
+	IShipyard(const CGObjectInstance *O);
+	void getBoatCost(std::vector<si32> &cost) const;
+	virtual void getOutOffsets(std::vector<int3> &offsets) const =0; //offsets to obj pos when we boat can be placed
+	//virtual bool validLocation() const; //returns true if there is a water tile near where boat can be placed
+	int3 bestLocation() const; //returns location when the boat should be placed
+	int state() const; //0 - can buid, 1 - there is already a boat at dest tile, 2 - dest tile is blocked, 3 - no water
+
+	static const IShipyard *castFrom(const CGObjectInstance *obj);
+	static IShipyard *castFrom(CGObjectInstance *obj);
+};
+
 class DLL_EXPORT CGObjectInstance : protected IObjectInterface
 {
 protected:
@@ -139,6 +155,7 @@ public:
 	virtual const std::string & getHoverText() const;
 	//////////////////////////////////////////////////////////////////////////
 	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const;
 	void setProperty(ui8 what, ui32 val);//synchr
 	virtual void setPropertyDer(ui8 what, ui32 val);//synchr
 
@@ -309,7 +326,7 @@ public:
 	void wantsFight(const CGHeroInstance *h, ui32 answer) const;
 };
 
-class DLL_EXPORT CGTownInstance : public CGDwelling
+class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard
 {
 public:
 	CTown * town;
@@ -357,6 +374,7 @@ public:
 
 	int3 getSightCenter() const; //"center" tile from which the sight distance is calculated
 	int getSightRadious() const; //returns sight distance
+	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
 
 	//////////////////////////////////////////////////////////////////////////
 
@@ -777,7 +795,13 @@ public:
 	}
 };
 
-
+class CGShipyard : public CGObjectInstance, public IShipyard
+{
+public:
+	void getOutOffsets(std::vector<int3> &offsets) const; //offsets to obj pos when we boat can be placed
+	CGShipyard();
+	void onHeroVisit(const CGHeroInstance * h) const;
+};
 
 class DLL_EXPORT CObjectHandler
 {

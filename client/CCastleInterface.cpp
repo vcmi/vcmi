@@ -393,6 +393,7 @@ public:
 CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 :hslotup(241,387,0,Town->garrisonHero,this),hslotdown(241,483,1,Town->visitingHero,this)
 {
+	showing = false;
 	bars = CDefHandler::giveDefEss("TPTHBAR.DEF");
 	status = CDefHandler::giveDefEss("TPTHCHK.DEF");
 	LOCPLINT->castleInt = this;
@@ -579,7 +580,11 @@ void CCastleInterface::buildingClicked(int building)
 
 				break;
 			}
-		//TODO: case 6: //shipyard
+		case 6: //shipyard
+			{
+				LOCPLINT->showShipyardDialog(town);
+				break;
+			}
 		case 7: case 8: case 9: //fort/citadel/castle
 			{
 				CFortScreen *fs = new CFortScreen(this);
@@ -622,7 +627,9 @@ void CCastleInterface::buildingClicked(int building)
 		//TODO: case 17: //special 1
 		//TODO: case 18: //basic horde 1
 		//TODO: case 19: //upg horde 1
-		//TODO: case 20: //ship at shipyard
+		case 20: //ship at shipyard
+			//Do nothing.
+			break;
 		//TODO: case 21: //special 2
 		case 22: //special 3
 			{
@@ -886,6 +893,19 @@ void CCastleInterface::recreateBuildings()
 		else
 			break;
 	}
+
+	//ship in shipyard
+	if(vstd::contains(town->builtBuildings,6))
+	{
+		std::vector <const CGObjectInstance *> vobjs = LOCPLINT->cb->getVisitableObjs(town->bestLocation());
+		if(vobjs.size() && vobjs.front()->ID == 8) //there is visitable obj at shipyard output tile and it's a boat
+		{
+			Structure * st = CGI->townh->structures[town->subID][20];
+			buildings.push_back(new CBuildingRect(st));
+			s.insert(std::pair<int,int>(st->group,st->ID));
+		}
+	}
+
 	std::sort(buildings.begin(),buildings.end(),srthlp);
 
 	//code for Mana Vortex (there are two sets of animation frames - one without mage guild and one with
@@ -934,6 +954,10 @@ void CCastleInterface::recreateBuildings()
 			shipyard->max = 1;
 		}
 	}
+
+	if(showing)
+		for(size_t i=0;i<buildings.size();i++)
+			buildings[i]->activate();
 }
 
 CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )

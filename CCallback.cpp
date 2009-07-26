@@ -732,6 +732,13 @@ void CCallback::sendMessage(const std::string &mess)
 	*cl->serv << &pm;
 }
 
+void CCallback::buildBoat( const IShipyard *obj )
+{
+	BuildBoat bb;
+	bb.objid = obj->o->id;
+	*cl->serv << &bb;
+}
+
 InfoAboutHero::InfoAboutHero()
 {
 	details = NULL;

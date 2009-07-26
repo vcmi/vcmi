@@ -335,8 +335,10 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	Mapa();
 	~Mapa();
 	TerrainTile &getTile(int3 tile);
+	const TerrainTile &getTile(int3 tile) const;
 	CGHeroInstance * getHero(int ID, int mode=0);
-	bool isInTheMap(int3 pos);
+	bool isInTheMap(int3 pos) const;
+	bool isWaterTile(int3 pos) const; //out-of-pos safe
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & static_cast<CMapHeader&>(*this);

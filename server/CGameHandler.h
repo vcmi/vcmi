@@ -144,6 +144,7 @@ public:
 	bool makeCustomAction(BattleAction &ba);
 	bool queryReply( ui32 qid, ui32 answer );
 	bool hireHero( ui32 tid, ui8 hid );
+	bool buildBoat( ui32 objid );
 	bool setFormation( si32 hid, ui8 formation );
 	bool tradeResources( ui32 val, ui8 player, ui32 id1, ui32 id2 );
 	bool buyArtifact( ui32 hid, si32 aid );

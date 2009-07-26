@@ -700,5 +700,20 @@ public:
 	~CExchangeWindow(); //d-tor
 };
 
+class CShipyardWindow : public CIntObject, public IShowActivable
+{
+public:
+	CStatusBar *bar;
+	SDL_Surface *bg; //background
+	AdventureMapButton *build, *quit;
+
+	unsigned char frame; //frame of the boat animation
+
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to);
+	CShipyardWindow(const std::vector<si32> &cost, int state, const boost::function<void()> &onBuy);
+	~CShipyardWindow();
+};
 
 #endif //__GUICLASSES_H__

@@ -32,6 +32,7 @@ struct CPackForClient;
 class CArtHandler;
 class CArtifact;
 class CArmedInstance;
+struct TerrainTile;
 
 class DLL_EXPORT IGameCallback
 {
@@ -55,6 +56,7 @@ public:
 	virtual bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact
 	virtual void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> CArtHandler::*arts);
 	virtual void getAllowed(std::vector<CArtifact*> &out, int flags); //flags: bitfield uses EartClass
+	virtual TerrainTile * getTile(int3 pos);
 
 	//do sth
 	virtual void changeSpells(int hid, bool give, const std::set<ui32> &spells)=0;

@@ -37,6 +37,7 @@ struct lua_State;
 class CClient;
 struct TerrainTile;
 class CHeroClass;
+class IShipyard;
 
 struct InfoAboutHero
 {
@@ -102,6 +103,7 @@ public:
 	virtual void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)=0;
 	virtual void save(const std::string &fname) = 0;
 	virtual void sendMessage(const std::string &mess) = 0;
+	virtual void buildBoat(const IShipyard *obj) = 0;
 
 //get info
 	virtual bool verifyPath(CPath * path, bool blockSea)const =0;
@@ -196,6 +198,7 @@ public:
 	void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero);
 	void save(const std::string &fname);
 	void sendMessage(const std::string &mess);
+	void buildBoat(const IShipyard *obj);
 
 //get info
 	bool verifyPath(CPath * path, bool blockSea) const;

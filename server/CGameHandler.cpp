@@ -662,7 +662,7 @@ void CGameHandler::newTurn()
 		{
 			NewTurn::Hero hth;
 			hth.id = h->id;
-			hth.move = h->maxMovePoints(true); //TODO: check if hero is really on the land
+			hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).tertype != TerrainTile::water);
 
 			if(h->visitedTown && vstd::contains(h->visitedTown->builtBuildings,0)) //if hero starts turn in town with mage guild
 				hth.mana = h->manaLimit(); //restore all mana
@@ -2871,4 +2871,50 @@ bool CGameHandler::isAllowedExchange( int id1, int id2 )
 void CGameHandler::objectVisited( const CGObjectInstance * obj, const CGHeroInstance * h )
 {
 	obj->onHeroVisit(h);
+}
+
+bool CGameHandler::buildBoat( ui32 objid )
+{
+	const IShipyard *obj = IShipyard::castFrom(getObj(objid));
+
+	if(obj->state())
+	{
+		complain("Cannot build boat in this shipyard!");
+		return false;
+	}
+	else if(obj->o->ID == TOWNI_TYPE
+		&& !vstd::contains((static_cast<const CGTownInstance*>(obj))->builtBuildings,6))
+	{
+		complain("Cannot build boat in the town - no shipyard!");
+		return false;
+	}
+
+	//TODO use "real" cost via obj->getBoatCost
+	if(getResource(obj->o->tempOwner, 6) < 1000  ||  getResource(obj->o->tempOwner, 0) < 10)
+	{
+		complain("Not enough resources to build a boat!");
+		return false;
+	}
+
+	int3 tile = obj->bestLocation();
+	if(!gs->map->isInTheMap(tile))
+	{
+		complain("Cannot find appropriate tile for a boat!");
+		return false;
+	}
+
+	//take boat cost
+	SetResources sr;
+	sr.player = obj->o->tempOwner;
+	sr.res = gs->getPlayer(obj->o->tempOwner)->resources;
+	sr.res[0] -= 10;
+	sr.res[6] -= 1000;
+	sendAndApply(&sr);
+
+	//create boat
+	NewObject no;
+	no.ID = 8;
+	no.subID = 1;
+	no.pos = tile + int3(1,0,0);
+	sendAndApply(&no);
 }
