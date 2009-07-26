@@ -485,6 +485,7 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 		throw new std::string("Wrong town subID");
 	}
 	bicons = CDefHandler::giveDefEss(defname);
+	CGI->musich->playMusic(musicID, -1);
 }
 
 CCastleInterface::~CCastleInterface()

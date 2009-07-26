@@ -2707,14 +2707,14 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[351].first),CGI->generaltexth->zelp[351].second, "sysopb3.def", 283, 134, 4);
 	heroMoveSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[352].first),CGI->generaltexth->zelp[352].second, "sysopb4.def", 331, 134, 8);
 	heroMoveSpeed->select(owner->sysOpts.heroMoveSpeed, 1);
-	heroMoveSpeed->onChange = boost::bind(&SystemOptions::setHeroMoveSpeed, owner->sysOpts, _1);
+	heroMoveSpeed->onChange = boost::bind(&SystemOptions::setHeroMoveSpeed, &owner->sysOpts, _1);
 
 	mapScrollSpeed = new CHighlightableButtonsGroup(0);
 	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[357].first),CGI->generaltexth->zelp[357].second, "sysopb9.def", 187, 267, 1);
 	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[358].first),CGI->generaltexth->zelp[358].second, "sysob10.def", 251, 267, 2);
 	mapScrollSpeed->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[359].first),CGI->generaltexth->zelp[359].second, "sysob11.def", 315, 267, 4);
 	mapScrollSpeed->select(owner->sysOpts.mapScrollingSpeed, 1);
-	mapScrollSpeed->onChange = boost::bind(&SystemOptions::setMapScrollingSpeed, owner->sysOpts, _1);
+	mapScrollSpeed->onChange = boost::bind(&SystemOptions::setMapScrollingSpeed, &owner->sysOpts, _1);
 
 	musicVolume = new CHighlightableButtonsGroup(0, true);
 	for(int i=0; i<10; ++i)
@@ -2722,7 +2722,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 		musicVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[326+i].first),CGI->generaltexth->zelp[326+i].second, "syslb.def", 188 + 19*i, 416, i*11);
 	}
 	musicVolume->select(CGI->musich->getVolume(), 1);
-	musicVolume->onChange = boost::bind(&SystemOptions::setMusicVolume, owner->sysOpts, _1);
+	musicVolume->onChange = boost::bind(&SystemOptions::setMusicVolume, &owner->sysOpts, _1);
 
 	effectsVolume = new CHighlightableButtonsGroup(0, true);
 	for(int i=0; i<10; ++i)
@@ -2730,7 +2730,7 @@ CSystemOptionsWindow::CSystemOptionsWindow(const SDL_Rect &pos, CPlayerInterface
 		effectsVolume->addButton(boost::assign::map_list_of(0,CGI->generaltexth->zelp[336+i].first),CGI->generaltexth->zelp[336+i].second, "syslb.def", 188 + 19*i, 482, i*11);
 	}
 	effectsVolume->select(CGI->soundh->getVolume(), 1);
-	effectsVolume->onChange = boost::bind(&SystemOptions::setSoundVolume, owner->sysOpts, _1);
+	effectsVolume->onChange = boost::bind(&SystemOptions::setSoundVolume, &owner->sysOpts, _1);
 }
 
 CSystemOptionsWindow::~CSystemOptionsWindow()

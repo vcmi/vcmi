@@ -787,7 +787,6 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	castleInt = new CCastleInterface(town);
-	CGI->musich->playMusic(castleInt->musicID, -1);
 	LOCPLINT->pushInt(castleInt);
 }
 
