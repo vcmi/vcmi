@@ -2536,6 +2536,7 @@ CMarketplaceWindow::CMarketplaceWindow(int Mode)
 	setMode(mode);
 	hLeft = hRight = NULL;
 	ok = new AdventureMapButton("","",boost::bind(&CPlayerInterface::popIntTotally,LOCPLINT,this),pos.x+516,pos.y+520,"IOK6432.DEF",SDLK_RETURN);
+	ok->assignedKeys.insert(SDLK_ESCAPE);
 	deal = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::makeDeal,this),pos.x+307,pos.y+520,"TPMRKB.DEF");
 	max = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMax,this),pos.x+229,pos.y+520,"IRCBTNS.DEF");
 
@@ -3304,7 +3305,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
 	
-	if(ourArt && !down) //we are spellbook
+	if(ourArt && !down && pressedL) //we are spellbook
 	{
 		if(ourArt->id == 0)
 		{
@@ -3849,7 +3850,7 @@ void CExchangeWindow::prepareBackground()
 		//printing secondary skills
 		for(int m=0; m<heroInst[b]->secSkills.size(); ++m)
 		{
-			blitAt(graphics->abils32->ourImages[heroInst[b]->secSkills[m].first * 3 + heroInst[b]->secSkills[m].second + 2].bitmap, genRect(32, 32, pos.x + 32 + 36 * m + 454 * b, pos.y + 88), bg);
+			blitAt(graphics->abils32->ourImages[heroInst[b]->secSkills[m].first * 3 + heroInst[b]->secSkills[m].second + 2].bitmap, genRect(32, 32, 32 + 36 * m + 454 * b, 88), bg);
 		}
 
 		//hero's specialty
@@ -3881,19 +3882,23 @@ void CExchangeWindow::prepareBackground()
 CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 {
 	char bufor[400];
-
 	heroInst[0] = LOCPLINT->cb->getHeroInfo(hero1, 2);
 	heroInst[1] = LOCPLINT->cb->getHeroInfo(hero2, 2);
 
-	artifs[0] = new CArtifactsOfHero(genRect(600, 800, -334, 150));
+	prepareBackground();
+	pos.x = screen->w/2 - bg->w/2;
+	pos.y = screen->h/2 - bg->h/2;
+	pos.w = screen->w;
+	pos.h = screen->h;
+
+
+	artifs[0] = new CArtifactsOfHero(genRect(600, 800, pos.x + -334, pos.y + 150));
 	artifs[0]->commonInfo = new CArtifactsOfHero::SCommonPart;
 	artifs[0]->setHero(heroInst[0]);
 	artifs[0]->commonInfo->activeArtPlace = NULL;
-	artifs[1] = new CArtifactsOfHero(genRect(600, 800, 96, 150));
+	artifs[1] = new CArtifactsOfHero(genRect(600, 800, pos.x + 96, pos.y + 150));
 	artifs[1]->commonInfo = artifs[0]->commonInfo;
 	artifs[1]->setHero(heroInst[1]);
-
-	prepareBackground();
 
 
 	//primary skills
@@ -3967,7 +3972,7 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	ourBar = new CStatusBar(pos.x + 3, pos.y + 577, "TSTATBAR.bmp", 726);
 
 	//garrison interface
-	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(0,0), heroInst[0],heroInst[1], true);
+	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true);
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor

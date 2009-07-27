@@ -447,7 +447,7 @@ int CGHeroInstance::maxMovePoints(bool onLand) const
 	else
 	{
 		//navigation:
-		switch(getSecSkillLevel(2))
+		switch(getSecSkillLevel(5))
 		{
 		case 1:
 			modifier = 0.5;
@@ -2495,7 +2495,8 @@ const std::string & CGWitchHut::getHoverText() const
 	{
 		hoverName += "\n" + VLC->generaltexth->allTexts[356]; // + (learn %s)
 		boost::algorithm::replace_first(hoverName,"%s",VLC->generaltexth->skillName[ability]);
-		if(cb->getSelectedHero(cb->getCurrentPlayer())->getSecSkillLevel(ability)) //hero knows that ability
+		const CGHeroInstance *h = cb->getSelectedHero(cb->getCurrentPlayer());
+		if(h && h->getSecSkillLevel(ability)) //hero knows that ability
 			hoverName += "\n\n" + VLC->generaltexth->allTexts[357]; // (Already learned)
 	}
 	return hoverName;

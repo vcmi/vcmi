@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include "../client/SDL_Extensions.h"
 
-//reads events and throws on key down
+//reads events and returns true on key down
 static bool keyDown()
 {
 	SDL_Event ev;

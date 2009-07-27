@@ -1709,7 +1709,7 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 
 void CPlayerInterface::heroExchangeStarted(si32 hero1, si32 hero2)
 {
-	pushInt(new CExchangeWindow(hero1, hero2));
+	pushInt(new CExchangeWindow(hero2, hero1));
 }
 
 void CPlayerInterface::recreateWanderingHeroes()

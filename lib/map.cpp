@@ -7,6 +7,7 @@
 #include <zlib.h>
 #include <boost/crc.hpp>
 #include "../hch/CLodHandler.h"
+#include <boost/bind.hpp>
 
 /*
  * map.cpp, part of VCMI engine
@@ -1906,6 +1907,8 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		if(nobj->ID==HEROI_TYPE)
 			heroes.push_back(static_cast<CGHeroInstance*>(nobj));
 	}
+
+	std::sort(heroes.begin(), heroes.end(), boost::bind(&CGHeroInstance::subID, _1) < boost::bind(&CGHeroInstance::subID, _2));
 }
 
 void Mapa::readEvents( unsigned char * bufor, int &i )
