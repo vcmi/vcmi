@@ -29,6 +29,7 @@ ADVENTURE INTERFACE:
 * erasing path after picking objects with last movement point
 
 BATTLES:
+* spell resistance supported (secondary skill, artifacts, creature skill)
 * added some missing projectile infos
 * added native terrain bonuses in battles
 * number of units in stack in battle should now fit the box
