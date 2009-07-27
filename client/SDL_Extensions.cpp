@@ -403,56 +403,12 @@ Uint32 CSDL_Ext::SDL_GetPixel(SDL_Surface *surface, const int & x, const int & y
 
 void CSDL_Ext::alphaTransform(SDL_Surface *src)
 {
-	Uint32 trans = SDL_MapRGBA(src->format, 0, 255, 255, 255);
-	SDL_SetColorKey(src, 0, trans);
-	src->flags|=SDL_SRCALPHA;
+	assert(src->format->BitsPerPixel == 8);
+	SDL_Color colors[] = {{0,0,0,255}, {0,0,0,214}, {0,0,0,164}, {0,0,0,82}, {0,0,0,128},
+						{255,0,0,0}, {255,0,0,0}, {255,0,0,0}, {0,0,0,192}, {0,0,0,192}};
 
-	SDL_Color transp;
-	transp.b = transp.g = transp.r = 0;
-	transp.unused = 255;
-
-	if(src->format->BitsPerPixel == 8)
-	{
-		for(int yy=0; yy<src->format->palette->ncolors; ++yy)
-		{
-			SDL_Color cur = *(src->format->palette->colors+yy);
-			//if(cur.r == 255 && cur.b == 255)
-			if(yy==1 || yy==2 || yy==3 || yy==4 || yy==8 || yy==9)
-			{
-				SDL_Color shadow;
-				shadow.b = shadow.g = shadow.r = 0;
-				switch(cur.g) //change this values; make diffrerent for objects and shadows (?)
-				{
-				case 0:
-					shadow.unused = 128;
-					break;
-				case 50:
-					shadow.unused = 50+32;
-					break;
-				case 100:
-					shadow.unused = 100+64;
-					break;
-				case 125:
-					shadow.unused = 125+64;
-					break;
-				case 128:
-					shadow.unused = 128+64;
-					break;
-				case 150:
-					shadow.unused = 150+64;
-					break;
-				default:
-					shadow.unused = 255;
-					break;
-				}
-				SDL_SetColors(src, &shadow, yy, 1);
-			}
-			if(yy==0 || (cur.r == 255 && cur.g == 0 && cur.b == 0))
-			{
-				SDL_SetColors(src, &transp, yy, 1);
-			}
-		}
-	}
+	SDL_SetColors(src, colors, 0, ARRAY_COUNT(colors));
+	SDL_SetColorKey(src, SDL_SRCCOLORKEY, SDL_MapRGBA(src->format, 0, 0, 0, 255));
 }
 //	<=>
 

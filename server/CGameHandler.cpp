@@ -2121,7 +2121,7 @@ bool CGameHandler::swapArtifacts( si32 hid1, si32 hid2, ui16 slot1, ui16 slot2 )
 		sha.hid = hid2;
 		sha.artifacts = h2->artifacts;
 		sha.artifWorn = h2->artifWorn;
-		sha.setArtAtPos(slot2,h1->getArtAtPos(slot1));
+		sha.setArtAtPos(slot2, a1 ? a1->id : -1);
 		sendAndApply(&sha);
 	}
 

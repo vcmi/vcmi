@@ -422,9 +422,9 @@ static void processDef (CGDefInfo* def)
 }
 void CMapHandler::initHeroDef(CGHeroInstance * h)
 {
-	//h->defInfo->handler = graphics->flags1[0];
-	//h->defInfo->width = h->defInfo->handler->ourImages[0].bitmap->w/32;
-	//h->defInfo->height = h->defInfo->handler->ourImages[0].bitmap->h/32;
+	h->defInfo->handler = graphics->flags1[0];
+	h->defInfo->width = h->defInfo->handler->ourImages[0].bitmap->w/32;
+	h->defInfo->height = h->defInfo->handler->ourImages[0].bitmap->h/32;
 }
 void CMapHandler::init()
 {
@@ -723,7 +723,7 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 				const CGObjectInstance *obj = objects[h].first;
 				ui8 color = obj->tempOwner;
 				//checking if object has non-empty graphic on this tile
-				if(!obj->coveringAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5))
+				if(obj->ID != HEROI_TYPE && !obj->coveringAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5))
 					continue;
 
 				SDL_Rect sr;
