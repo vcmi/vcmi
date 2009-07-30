@@ -282,6 +282,9 @@ public:
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if dst tile is visitable from dst tile
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
 
+	bool isVisible(int3 pos, int player);
+	bool isVisible(const CGObjectInstance *obj, int player);
+
 	CGameState(); //c-tor
 	~CGameState(); //d-tor
 	void getNeighbours(int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand);

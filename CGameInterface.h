@@ -39,6 +39,7 @@ struct SpellCast;
 struct SetStackEffect;
 struct HeroBonus;
 struct PackageApplied;
+struct SetObjectProperty;
 class CLoadFile;
 class CSaveFile;
 template <typename Serializer> class CISer;
@@ -59,6 +60,7 @@ struct StackState
 	int shotsLeft;
 	std::set<int> effects; //IDs of spells affecting stack
 	int morale, luck;
+	int dmgMultiplier; //for ballista dmg bonus handling
 };
 
 class CGameInterface
@@ -97,6 +99,7 @@ public:
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestRealized(PackageApplied *pa){};
 	virtual void heroExchangeStarted(si32 hero1, si32 hero2){};
+	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
 	virtual void serialize(COSer<CSaveFile> &h, const int version){}; //saving
 	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
 

@@ -280,6 +280,16 @@ void InfoWindow::applyCl( CClient *cl )
 		tlog2 << "We received InfoWindow for not our player...\n";
 }
 
+void SetObjectProperty::applyCl( CClient *cl )
+{
+	//inform all players that see this object
+	for(std::map<ui8,CGameInterface *>::const_iterator it = cl->playerint.begin(); it != cl->playerint.end(); ++it)
+	{
+		//if(cl->gs->isVisible(cl->gs->map->objects[id]), it->first)
+			INTERFACE_CALL_IF_PRESENT(it->first, objectPropertyChanged, this);
+	}
+}
+
 void HeroLevelUp::applyCl( CClient *cl )
 {
 	CGHeroInstance *h = GS(cl)->getHero(heroid);

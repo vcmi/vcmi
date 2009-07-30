@@ -40,6 +40,10 @@ public:
 	~CMinimap();
 	void draw(SDL_Surface * to);
 	void redraw(int level=-1);// (level==-1) => redraw all levels
+	void initMap(int level=-1);// (level==-1) => redraw all levels
+	void initFoW(int level=-1);// (level==-1) => redraw all levels
+	void initFlaggableObjs(int level=-1);// (level==-1) => redraw all levels
+
 	void updateRadar();
 
 	void clickRight (boost::logic::tribool down);
@@ -50,6 +54,7 @@ public:
 	void deactivate(); // makes button inactive (but don't deletes)
 	void hideTile(const int3 &pos); //puts FoW
 	void showTile(const int3 &pos); //removes FoW
+	void showVisibleTiles(int level=-1);// (level==-1) => redraw all levels
 };
 class CTerrainRect
 	:  public ClickableL, public ClickableR, public Hoverable, public MotionInterested

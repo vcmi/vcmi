@@ -2499,46 +2499,57 @@ static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, 
 		case 15: //magic arrow
 			{
 				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 16: //ice bolt
 			{
 				ret = caster->getPrimSkillLevel(2) * 20  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 17: //lightning bolt
 			{
 				ret = caster->getPrimSkillLevel(2) * 25  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 18: //implosion
 			{
 				ret = caster->getPrimSkillLevel(2) * 75  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 20: //frost ring
 			{
 				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 21: //fireball
 			{
 				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 22: //inferno
 			{
 				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 23: //meteor shower
 			{
 				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 24: //death ripple
 			{
 				ret = caster->getPrimSkillLevel(2) * 5  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 25: //destroy undead
 			{
 				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 		case 26: //armageddon
 			{
 				ret = caster->getPrimSkillLevel(2) * 50  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+				break;
 			}
 	}
 	//applying sorcerery secondary skill
@@ -2604,7 +2615,7 @@ static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, 
 	return ret;
 }
 
-static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const std::set<CStack*> affectedCreatures)
+static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures)
 {
 	std::vector<ui32> ret;
 	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
@@ -2613,21 +2624,30 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 		if(sp->positiveness >= 0 && (*it)->owner == caster->tempOwner)
 			continue;
 
-		int prob = (*it)->valOfFeatures(StackFeature::MAGIC_RESISTANCE); //probability of resistance in %
-		//caster's resistance support (secondary skils and artifacts)
-		prob += caster->valOfBonuses(HeroBonus::MAGIC_RESISTANCE);
+		const CGHeroInstance * bonusHero; //hero we should take bonuses from
+		if((*it)->owner == caster->tempOwner)
+			bonusHero = caster;
+		else
+			bonusHero = hero2;
 
-		switch(caster->getSecSkillLevel(26)) //resistance
+		int prob = (*it)->valOfFeatures(StackFeature::MAGIC_RESISTANCE); //probability of resistance in %
+		if(bonusHero)
 		{
-		case 1: //basic
-			prob += 5;
-			break;
-		case 2: //advanced
-			prob += 10;
-			break;
-		case 3: //expert
-			prob += 20;
-			break;
+			//bonusHero's resistance support (secondary skils and artifacts)
+			prob += bonusHero->valOfBonuses(HeroBonus::MAGIC_RESISTANCE);
+
+			switch(bonusHero->getSecSkillLevel(26)) //resistance
+			{
+			case 1: //basic
+				prob += 5;
+				break;
+			case 2: //advanced
+				prob += 10;
+				break;
+			case 3: //expert
+				prob += 20;
+				break;
+			}
 		}
 
 		if(prob > 100) prob = 100;
@@ -2685,7 +2705,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(s, h, ba.destinationTile);
 
 			//checking if creatures resist
-			sc.resisted = calculateResistedStacks(s, h, attackedCres);
+			sc.resisted = calculateResistedStacks(s, h, secondHero, attackedCres);
 			
 			sendAndApply(&sc);
 

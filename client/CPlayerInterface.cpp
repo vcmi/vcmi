@@ -1712,6 +1712,22 @@ void CPlayerInterface::heroExchangeStarted(si32 hero1, si32 hero2)
 	pushInt(new CExchangeWindow(hero2, hero1));
 }
 
+void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
+{
+	//redraw minimap if owner changed
+	if(sop->what == 1)
+	{
+		LOCPLINT->adventureInt->minimap.initFlaggableObjs();
+		const CGObjectInstance * obj = LOCPLINT->cb->getObjectInfo(sop->id);
+		std::set<int3> pos = obj->getBlockedPos();
+		for(std::set<int3>::const_iterator it = pos.begin(); it != pos.end(); ++it)
+		{
+			LOCPLINT->adventureInt->minimap.showTile(*it);
+		}
+	}
+
+}
+
 void CPlayerInterface::recreateWanderingHeroes()
 {
 	wanderingHeroes.clear();

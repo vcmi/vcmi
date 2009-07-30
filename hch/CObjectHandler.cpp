@@ -185,8 +185,8 @@ bool CGObjectInstance::blockingAt(int x, int y) const
 	if(x<0 || y<0 || x>=getWidth() || y>=getHeight() || defInfo==NULL)
 		return false;
 	if((defInfo->blockMap[y+6-getHeight()] >> (7-(8-getWidth()+x) )) & 1)
-		return true;
-	return false;
+		return false;
+	return true;
 }
 
 bool CGObjectInstance::coveringAt(int x, int y) const
@@ -194,6 +194,20 @@ bool CGObjectInstance::coveringAt(int x, int y) const
 	if((defInfo->coverageMap[y] >> (7-(x) )) & 1)
 		return true;
 	return false;
+}
+
+std::set<int3> CGObjectInstance::getBlockedPos() const
+{
+	std::set<int3> ret;
+	for(int w=0; w<getWidth(); ++w)
+	{
+		for(int h=0; h<getHeight(); ++h)
+		{
+			if(blockingAt(w, h))
+				ret.insert(int3(pos.x - getWidth() + w + 1, pos.y - getHeight() + h + 1, pos.z));
+		}
+	}
+	return ret;
 }
 
 bool CGObjectInstance::operator<(const CGObjectInstance & cmp) const  //screen printing priority comparing

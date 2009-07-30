@@ -147,6 +147,7 @@ public:
 	int3 getVisitableOffset() const; //returns (x,y,0) offset to first visitable tile from bottom right obj tile (0,0,0) (h3m pos)
 	bool blockingAt(int x, int y) const; //returns true if object is blocking location (x, y) form left top tile of image (x, y in tiles)
 	bool coveringAt(int x, int y) const; //returns true if object covers with picture location (x, y) form left top tile of maximal possible image (8 x 6 tiles) (x, y in tiles)
+	std::set<int3> getBlockedPos() const; //returns set of positions blocked by this object
 	bool operator<(const CGObjectInstance & cmp) const;  //screen printing priority comparing
 	CGObjectInstance();
 	virtual ~CGObjectInstance();

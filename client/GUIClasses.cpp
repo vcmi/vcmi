@@ -75,6 +75,7 @@ static StackState* getStackState(const CGObjectInstance *obj, int pos, bool town
 	pom->luck = h->getCurrentLuck();
 	pom->morale = h->getCurrentMorale(pos,town);
 	pom->speedBonus = h->valOfBonuses(HeroBonus::STACKS_SPEED);
+	pom->dmgMultiplier = 1;
 	return pom;
 }
 
@@ -170,7 +171,7 @@ void CGarrisonSlot::clickRight (tribool down)
 	StackState *pom = getStackState(getObj(),ID, LOCPLINT->topInt() == LOCPLINT->castleInt);
 	if(down && creature)
 	{
-		LOCPLINT->pushInt(new CCreInfoWindow(creature->idNumber,0,count,pom,0,0,NULL));
+		LOCPLINT->pushInt(new CCreInfoWindow(creature->idNumber, 0, count, pom, 0, 0, NULL));
 	}
 	delete pom;
 }
@@ -196,15 +197,15 @@ void CGarrisonSlot::clickLeft(tribool down)
 				{
 
 					creWindow = new CCreInfoWindow(
-						creature->idNumber,1,count,pom2,
-						boost::bind(&CCallback::upgradeCreature,LOCPLINT->cb,getObj(),ID,pom.newID[0]), //bind upgrade function
-						boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID),&pom);
+						creature->idNumber, 1, count, pom2,
+						boost::bind(&CCallback::upgradeCreature, LOCPLINT->cb, getObj(), ID, pom.newID[0]), //bind upgrade function
+						boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID), &pom);
 				}
 				else
 				{
 					creWindow = new CCreInfoWindow(
-						creature->idNumber,1,count,pom2,0, 
-						boost::bind(&CCallback::dismissCreature,LOCPLINT->cb,getObj(),ID), NULL);
+						creature->idNumber, 1, count, pom2, 0, 
+						boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID), NULL);
 				}
 
 				LOCPLINT->pushInt(creWindow);
@@ -1681,7 +1682,7 @@ void CRecruitmentWindow::clickRight( boost::logic::tribool down )
 		{
 			if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
 			{
-				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID,0,0,NULL,NULL,NULL,NULL);
+				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID, 0, 0, NULL, NULL, NULL, NULL);
 				LOCPLINT->pushInt(popup);
 				break;
 			}
@@ -2007,7 +2008,7 @@ void CCreInfoWindow::show(SDL_Surface * to)
 }
 
 CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState *State, boost::function<void()> Upg, boost::function<void()> Dsm, UpgradeInfo *ui)
-:type(Type),dsm(Dsm),dismiss(0),upgrade(0),ok(0)
+	: type(Type), dsm(Dsm), dismiss(0), upgrade(0), ok(0)
 {
 	//active = false;
 	anf = 0;
@@ -2069,24 +2070,27 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	//shots
 	if(c->shots)
 	{
-		printAt(CGI->generaltexth->allTexts[198],155,86,GEOR13,zwykly,bitmap);
+		printAt(CGI->generaltexth->allTexts[198], 155, 86, GEOR13, zwykly, bitmap);
 		if(State  &&  State->shotsLeft >= 0)
-			sprintf(pom,"%d (%d)",c->shots,State->shotsLeft);
+			sprintf(pom,"%d (%d)", c->shots, State->shotsLeft);
 		else
-			SDL_itoa(c->shots,pom,10);
-		printToWR(pom,276,99,GEOR13,zwykly,bitmap);
+			SDL_itoa(c->shots, pom, 10);
+		printToWR(pom, 276, 99, GEOR13, zwykly, bitmap);
 	}
 
 	//damage
-	printAt(CGI->generaltexth->allTexts[199],155,105,GEOR13,zwykly,bitmap);
-	SDL_itoa(c->damageMin,pom,10);
-	if(c->damageMin > 0)
-		hlp = log10f(c->damageMin)+2;
+	int dmgMin = c->damageMin * State->dmgMultiplier;
+	int dmgMax = c->damageMax * State->dmgMultiplier;
+
+	printAt(CGI->generaltexth->allTexts[199], 155, 105, GEOR13, zwykly, bitmap);
+	SDL_itoa(dmgMin, pom, 10);
+	if(dmgMin > 0)
+		hlp = log10f(dmgMin) + 2;
 	else
 		hlp = 2;
 	pom[hlp-1]=' '; pom[hlp]='-'; pom[hlp+1]=' ';
-	SDL_itoa(c->damageMax,pom+hlp+2,10);
-	printToWR(pom,276,118,GEOR13,zwykly,bitmap);
+	SDL_itoa(dmgMax, pom+hlp+2, 10);
+	printToWR(pom, 276, 118, GEOR13, zwykly, bitmap);
 
 	//health
 	printAt(CGI->generaltexth->allTexts[388],155,124,GEOR13,zwykly,bitmap);

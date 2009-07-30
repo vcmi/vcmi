@@ -610,6 +610,7 @@ struct InfoWindow : public CPackForClient //103  - displays simple info window
 struct SetObjectProperty : public CPackForClient//1001
 {
 	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyCl(CClient *cl);
 
 	ui32 id;
 	ui8 what; //1 - owner; 2 - blockvis; 3 - first stack count; 4 - visitors; 5 - visited; 6 - ID (if 34 then also def is replaced)

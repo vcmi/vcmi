@@ -2607,6 +2607,10 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 			pom->morale = myst.Morale();
 			pom->speedBonus = myst.Speed() - myst.creature->speed;
 			pom->healthBonus = myst.MaxHealth() - myst.creature->hitPoints;
+			if(myst.hasFeatureOfType(StackFeature::SIEGE_WEAPON))
+				pom->dmgMultiplier = h->getPrimSkillLevel(0) + 1;
+			else
+				pom->dmgMultiplier = 1;
 
 			pom->shotsLeft = myst.shots;
 			for(int vb=0; vb<myst.effects.size(); ++vb)
@@ -2614,7 +2618,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->effects.insert(myst.effects[vb].id);
 			}
 			pom->currentHealth = myst.firstHPleft;
-			LOCPLINT->pushInt(new CCreInfoWindow(myst.creature->idNumber,0,myst.amount,pom,0,0,NULL));
+			LOCPLINT->pushInt(new CCreInfoWindow(myst.creature->idNumber, 0, myst.amount, pom, 0, 0, NULL));
 		}
 		delete pom;
 	}

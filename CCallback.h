@@ -205,6 +205,7 @@ public:
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	std::vector< std::vector< std::vector<unsigned char> > > & getVisibilityMap() const; //returns visibility map (TODO: make it const)
 	const CGHeroInstance * getHeroInfo(int val, int mode=2) const; //mode = 0 -> val = serial; mode = 1 -> val = hero type id (subID); mode = 2 -> val = global object serial id (id)
+	const CGObjectInstance * getObjectInfo(int ID) const; //global object serial id (ID)
 	int getResourceAmount(int type) const;
 	std::vector<si32> getResourceAmount() const;
 	int howManyHeroes(bool includeGarrisoned = true) const;

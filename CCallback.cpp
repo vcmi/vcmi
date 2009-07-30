@@ -185,6 +185,11 @@ const CGHeroInstance * CCallback::getHeroInfo(int val, int mode) const //mode = 
 	return NULL;
 }
 
+const CGObjectInstance * CCallback::getObjectInfo(int ID) const
+{
+	return gs->map->objects[ID];
+}
+
 bool CCallback::getHeroInfo( const CGObjectInstance *hero, InfoAboutHero &dest ) const
 {
 	const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(hero);
@@ -264,7 +269,7 @@ std::vector< std::vector< std::vector<unsigned char> > > & CCallback::getVisibil
 bool CCallback::isVisible(int3 pos, int Player) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->players[Player].fogOfWarMap[pos.x][pos.y][pos.z];
+	return gs->isVisible(pos, Player);
 }
 
 std::vector < const CGTownInstance *> CCallback::getTownsInfo(bool onlyOur) const
@@ -306,24 +311,14 @@ bool CCallback::isVisible(int3 pos) const
 
 bool CCallback::isVisible( const CGObjectInstance *obj, int Player ) const
 {
-	//object is visible when at least one blocked tile is visible
-	for(int fx=0; fx<8; ++fx)
-	{
-		for(int fy=0; fy<6; ++fy)
-		{
-			int3 pos = obj->pos + int3(fx-7,fy-5,0);
-			if(gs->map->isInTheMap(pos) 
-				&& !((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1) 
-				&& isVisible(pos,Player)  )
-				return true;
-		}
-	}
-	return false;
+	return gs->isVisible(obj, Player);
 }
+
 int CCallback::getMyColor() const
 {
 	return player;
 }
+
 int CCallback::getHeroSerial(const CGHeroInstance * hero) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
@@ -334,6 +329,7 @@ int CCallback::getHeroSerial(const CGHeroInstance * hero) const
 	}
 	return -1;
 }
+
 const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj) const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

@@ -45,6 +45,7 @@ extern TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX; //fonts
 using namespace boost::logic;
 using namespace boost::assign;
 using namespace CSDL_Ext;
+
 CMinimap::CMinimap(bool draw)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -157,6 +158,26 @@ void CMinimap::draw(SDL_Surface * to)
 }
 void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 {
+	initMap(level);
+
+	//FoW
+	initFoW(level);
+
+	//flaggable objects
+	initFlaggableObjs(level);
+
+	//showing tiles
+	showVisibleTiles();
+}
+
+void CMinimap::initMap(int level)
+{
+	/*for(int g=0; g<map.size(); ++g)
+	{
+		SDL_FreeSurface(map[g]);
+	}
+	map.clear();*/
+
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	for (size_t i=0; i<CGI->mh->sizes.z; i++)
 	{
@@ -184,8 +205,17 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 		map.push_back(pom);
 
 	}
+}
 
-	//FoW
+void CMinimap::initFoW(int level)
+{
+	/*for(int g=0; g<FoW.size(); ++g)
+	{
+		SDL_FreeSurface(FoW[g]);
+	}
+	FoW.clear();*/
+
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
 	int mw = map[0]->w, mh = map[0]->h;//,
 		//wo = mw/mapSizes.x, ho = mh/mapSizes.y; //TODO use me
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
@@ -206,8 +236,18 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 		}
 		FoW.push_back(pt);
 	}
-	//FoW end
-	//flaggable objects
+}
+
+void CMinimap::initFlaggableObjs(int level)
+{
+	/*for(int g=0; g<flObjs.size(); ++g)
+	{
+		SDL_FreeSurface(flObjs[g]);
+	}
+	flObjs.clear();*/
+
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	int mw = map[0]->w, mh = map[0]->h;
 	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
 	{
 		if(level>=0 && d!=level)
@@ -222,30 +262,16 @@ void CMinimap::redraw(int level)// (level==-1) => redraw all levels
 		}
 		flObjs.push_back(pt);
 	}
-	//showing tiles
-	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
-	{
-		if(level>=0 && d!=level)
-			continue;
-		for(int x=0; x<mapSizes.x; ++x)
-		{
-			for(int y=0; y<mapSizes.y; ++y)
-			{
-				if(LOCPLINT->cb->isVisible(int3(x, y, d)))
-				{
-					showTile(int3(x, y, d));
-				}
-			}
-		}
-	}
 }
 
 void CMinimap::updateRadar()
 {}
+
 void CMinimap::clickRight (tribool down)
 {
 	LOCPLINT->adventureInt->handleRightClick(rcText,down,this);
 }
+
 void CMinimap::clickLeft (tribool down)
 {
 	if (down && (!pressedL))
@@ -268,6 +294,7 @@ void CMinimap::clickLeft (tribool down)
 	newCPos.z = LOCPLINT->adventureInt->position.z;
 	LOCPLINT->adventureInt->centerOn(newCPos);
 }
+
 void CMinimap::hover (bool on)
 {
 	Hoverable::hover(on);
@@ -276,6 +303,7 @@ void CMinimap::hover (bool on)
 	else if (LOCPLINT->adventureInt->statusbar.current==statusbarTxt)
 		LOCPLINT->adventureInt->statusbar.clear();
 }
+
 void CMinimap::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
 	if (pressedL)
@@ -291,6 +319,7 @@ void CMinimap::activate()
 	if (pressedL)
 		MotionInterested::activate();
 }
+
 void CMinimap::deactivate()
 {
 	if (pressedL)
@@ -299,6 +328,7 @@ void CMinimap::deactivate()
 	ClickableR::deactivate();
 	Hoverable::deactivate();
 }
+
 void CMinimap::showTile(const int3 &pos)
 {
 	int3 mapSizes = LOCPLINT->cb->getMapSize();
@@ -371,6 +401,27 @@ void CMinimap::showTile(const int3 &pos)
 	}
 	//flaggable objects drawn
 }
+
+void CMinimap::showVisibleTiles(int level)
+{
+	int3 mapSizes = LOCPLINT->cb->getMapSize();
+	for(int d=0; d<CGI->mh->map->twoLevel+1; ++d)
+	{
+		if(level>=0 && d!=level)
+			continue;
+		for(int x=0; x<mapSizes.x; ++x)
+		{
+			for(int y=0; y<mapSizes.y; ++y)
+			{
+				if(LOCPLINT->cb->isVisible(int3(x, y, d)))
+				{
+					showTile(int3(x, y, d));
+				}
+			}
+		}
+	}
+}
+
 void CMinimap::hideTile(const int3 &pos)
 {
 }

@@ -1754,6 +1754,28 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 	return true;
 }
 
+bool CGameState::isVisible(int3 pos, int player)
+{
+	return players[player].fogOfWarMap[pos.x][pos.y][pos.z];
+}
+
+bool CGameState::isVisible( const CGObjectInstance *obj, int player )
+{
+	//object is visible when at least one blocked tile is visible
+	for(int fx=0; fx<8; ++fx)
+	{
+		for(int fy=0; fy<6; ++fy)
+		{
+			int3 pos = obj->pos + int3(fx-7,fy-5,0);
+			if(map->isInTheMap(pos) 
+				&& !((obj->defInfo->blockMap[fy] >> (7 - fx)) & 1) 
+				&& isVisible(pos, player)  )
+				return true;
+		}
+	}
+	return false;
+}
+
 bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 {
 	const TerrainTile * pom = &map->getTile(dst);
@@ -1804,6 +1826,12 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	int attackDefenseBonus = attacker->Attack() - defender->Defense(),
 		minDmg = attacker->creature->damageMin * attacker->amount, 
 		maxDmg = attacker->creature->damageMax * attacker->amount;
+
+	if(attacker->hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //any siege weapon, but only ballista can attack
+	{ //minDmg and maxDmg are multiplied by hero attack + 1
+		minDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
+		maxDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
+	}
 
 	//calculating total attack/defense skills modifier
 
