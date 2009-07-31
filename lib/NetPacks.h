@@ -152,7 +152,7 @@ struct PackageApplied : public CPackForClient //94
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & result;
+		h & result & packType;
 	}
 };
 
