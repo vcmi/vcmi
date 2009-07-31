@@ -1756,11 +1756,15 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 
 bool CGameState::isVisible(int3 pos, int player)
 {
+	if(player == 255) //neutral player
+		return false;
 	return players[player].fogOfWarMap[pos.x][pos.y][pos.z];
 }
 
 bool CGameState::isVisible( const CGObjectInstance *obj, int player )
 {
+	if(player == 255) //neutral player
+		return false;
 	//object is visible when at least one blocked tile is visible
 	for(int fx=0; fx<8; ++fx)
 	{

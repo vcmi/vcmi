@@ -17,6 +17,7 @@
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include <boost/assign/list_of.hpp>
 #include <fstream>
 
 /*
@@ -2494,64 +2495,13 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, const CStack * affectedCreature)
 {
 	ui32 ret = 0; //value to return
-	switch(sp->id)
-	{
-		case 15: //magic arrow
-			{
-				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 16: //ice bolt
-			{
-				ret = caster->getPrimSkillLevel(2) * 20  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 17: //lightning bolt
-			{
-				ret = caster->getPrimSkillLevel(2) * 25  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 18: //implosion
-			{
-				ret = caster->getPrimSkillLevel(2) * 75  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 20: //frost ring
-			{
-				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 21: //fireball
-			{
-				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 22: //inferno
-			{
-				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 23: //meteor shower
-			{
-				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 24: //death ripple
-			{
-				ret = caster->getPrimSkillLevel(2) * 5  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 25: //destroy undead
-			{
-				ret = caster->getPrimSkillLevel(2) * 10  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-		case 26: //armageddon
-			{
-				ret = caster->getPrimSkillLevel(2) * 50  +  sp->powers[caster->getSpellSchoolLevel(sp)];
-				break;
-			}
-	}
+
+	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
+	//24 - death ripple, 25 - destroy undead, 26 - armageddon
+	std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50);
+
+	ret = caster->getPrimSkillLevel(2) * dmgMultipliers[sp->id]  +  sp->powers[caster->getSpellSchoolLevel(sp)];
+	
 	//applying sorcerery secondary skill
 	switch(caster->getSecSkillLevel(25))
 	{

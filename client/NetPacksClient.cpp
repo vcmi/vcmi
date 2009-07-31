@@ -285,7 +285,7 @@ void SetObjectProperty::applyCl( CClient *cl )
 	//inform all players that see this object
 	for(std::map<ui8,CGameInterface *>::const_iterator it = cl->playerint.begin(); it != cl->playerint.end(); ++it)
 	{
-		//if(cl->gs->isVisible(cl->gs->map->objects[id]), it->first)
+		if(GS(cl)->isVisible(GS(cl)->map->objects[id], it->first))
 			INTERFACE_CALL_IF_PRESENT(it->first, objectPropertyChanged, this);
 	}
 }

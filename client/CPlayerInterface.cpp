@@ -1717,12 +1717,13 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 	//redraw minimap if owner changed
 	if(sop->what == 1)
 	{
-		LOCPLINT->adventureInt->minimap.initFlaggableObjs();
-		const CGObjectInstance * obj = LOCPLINT->cb->getObjectInfo(sop->id);
+		adventureInt->minimap.initFlaggableObjs();
+		const CGObjectInstance * obj = cb->getObjectInfo(sop->id);
 		std::set<int3> pos = obj->getBlockedPos();
 		for(std::set<int3>::const_iterator it = pos.begin(); it != pos.end(); ++it)
 		{
-			LOCPLINT->adventureInt->minimap.showTile(*it);
+			if(cb->isVisible(*it))
+				adventureInt->minimap.showTile(*it);
 		}
 	}
 
