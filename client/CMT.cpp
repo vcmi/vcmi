@@ -57,7 +57,8 @@
  *
  */
 
-std::string NAME = NAME_VER + std::string(" (client)"); //application name
+std::string NAME_AFFIX = "client";
+std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
@@ -391,6 +392,12 @@ void processCommand(const std::string &message, CClient *&client)
 			}
 		}
 		tlog0<<"\rExtracting done :)\n";
+	}
+	else if(cn=="crash")
+	{
+		int *ptr = NULL;
+		*ptr = 666;
+		//disaster!
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{

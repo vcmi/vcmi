@@ -3,7 +3,17 @@
 #include "CConsoleHandler.h"
 #include <boost/function.hpp>
 #include <boost/thread.hpp>
+#include <iomanip>
 
+/*
+* CConsoleHandler.cpp, part of VCMI engine
+*
+* Authors: listed in file AUTHORS in main folder
+*
+* License: GNU General Public License v2.0 or later
+* Full text of license available in license.txt file, in main folder
+*
+*/
 
 #ifndef _WIN32
 	typedef std::string TColor;
@@ -17,6 +27,8 @@
 	#define CONSOLE_GRAY "\x1b[0;40;39m"
 #else
 	#include <windows.h>
+	#include <dbghelp.h>
+	#pragma comment(lib, "dbghelp.lib")
 
 	typedef WORD TColor;
 	#define _kill_thread(a) TerminateThread(a,0)
@@ -33,16 +45,101 @@
 
 TColor defColor;
 
+#ifdef _WIN32
 
-/*
- * CConsoleHandler.cpp, part of VCMI engine
- *
- * Authors: listed in file AUTHORS in main folder
- *
- * License: GNU General Public License v2.0 or later
- * Full text of license available in license.txt file, in main folder
- *
- */
+void printWinError()
+{
+	//Get error code
+	int error = GetLastError();
+	if(!error)
+	{
+		tlog0 << "No Win error information set.\n";
+		return;
+	}
+	tlog1 << "Error " << error << " encountered:\n";
+
+	//Get error description
+	char* pTemp = NULL;
+	FormatMessageA(FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_IGNORE_INSERTS | FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL, error,  MAKELANGID( LANG_NEUTRAL, SUBLANG_DEFAULT ), (LPSTR)&pTemp, 1, NULL);
+	tlog1 << pTemp << std::endl;
+	LocalFree( pTemp );
+}
+
+const char* exceptionName(DWORD exc)
+{
+#define EXC_CASE(EXC)	case EXCEPTION_##EXC : return "EXCEPTION_" #EXC
+	switch (exc)
+	{
+		EXC_CASE(ACCESS_VIOLATION);
+		EXC_CASE(DATATYPE_MISALIGNMENT);
+		EXC_CASE(BREAKPOINT);
+		EXC_CASE(SINGLE_STEP);
+		EXC_CASE(ARRAY_BOUNDS_EXCEEDED);
+		EXC_CASE(FLT_DENORMAL_OPERAND);
+		EXC_CASE(FLT_DIVIDE_BY_ZERO);
+		EXC_CASE(FLT_INEXACT_RESULT);
+		EXC_CASE(FLT_INVALID_OPERATION);
+		EXC_CASE(FLT_OVERFLOW);
+		EXC_CASE(FLT_STACK_CHECK);
+		EXC_CASE(FLT_UNDERFLOW);
+		EXC_CASE(INT_DIVIDE_BY_ZERO);
+		EXC_CASE(INT_OVERFLOW);
+		EXC_CASE(PRIV_INSTRUCTION);
+		EXC_CASE(IN_PAGE_ERROR);
+		EXC_CASE(ILLEGAL_INSTRUCTION);
+		EXC_CASE(NONCONTINUABLE_EXCEPTION);
+		EXC_CASE(STACK_OVERFLOW);
+		EXC_CASE(INVALID_DISPOSITION);
+		EXC_CASE(GUARD_PAGE);
+		EXC_CASE(INVALID_HANDLE);
+	default:
+		return "UNKNOWN EXCEPTION";
+	}
+#undef EXC_CASE
+}
+
+
+
+LONG WINAPI onUnhandledException(EXCEPTION_POINTERS* exception)
+{
+	tlog1 << "Disaster happened.\n";
+
+	PEXCEPTION_RECORD einfo = exception->ExceptionRecord;
+	tlog1 << "Reason: 0x" << std::hex << einfo->ExceptionCode << " - " << exceptionName(einfo->ExceptionCode);
+	tlog1 << " at " << std::setfill('0') << std::setw(4) << exception->ContextRecord->SegCs << ":" << (void*)einfo->ExceptionAddress << std::endl;;
+
+	if (einfo->ExceptionCode == EXCEPTION_ACCESS_VIOLATION)
+	{
+		tlog1 << "Attempt to " << (einfo->ExceptionInformation[0] == 1 ? "write to " : "read from ") 
+			<< "0x" <<  std::setw(8) << (void*)einfo->ExceptionInformation[1] << std::endl;;
+	}
+	const DWORD threadId = ::GetCurrentThreadId();
+	tlog1 << "Thread ID: " << threadId << " [" << std::dec << std::setw(0) << threadId << "]\n";
+
+	//exception info to be placed in the dump
+	MINIDUMP_EXCEPTION_INFORMATION meinfo = {threadId, exception, TRUE};
+
+	//create file where dump will be placed
+	char *mname = NULL;
+	char buffer[MAX_PATH + 1];
+	HMODULE hModule = NULL;	
+	GetModuleFileNameA(hModule, buffer, MAX_PATH);
+	mname = strrchr(buffer, '\\');
+	if (mname != 0)
+		mname++;
+	else
+		mname = buffer;
+
+	strcat(mname, "_crashinfo.dmp");
+	HANDLE dfile = CreateFileA(mname, GENERIC_READ|GENERIC_WRITE, FILE_SHARE_WRITE|FILE_SHARE_READ, 0, CREATE_ALWAYS, 0, 0);
+	tlog1 << "Crash info will be put in " << dfile << std::endl;
+	MiniDumpWriteDump(GetCurrentProcess(), GetCurrentProcessId(), dfile, MiniDumpWithDataSegs, &meinfo, 0, 0);
+	MessageBoxA(0, "VCMI has crashed. We are sorry. File with information about encountered problem has been created.", "VCMI Crashhandler", MB_OK | MB_ICONERROR);
+	return EXCEPTION_EXECUTE_HANDLER;
+}
+#endif
+
 
 void CConsoleHandler::setColor(int level)
 {
@@ -100,6 +197,7 @@ CConsoleHandler::CConsoleHandler()
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(handleOut,&csbi);
 	defColor = csbi.wAttributes;
+	SetUnhandledExceptionFilter(onUnhandledException);
 #else
 	defColor = "\x1b[0m";
 #endif

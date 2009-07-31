@@ -25,7 +25,8 @@
 #include "../lib/Interprocess.h"
 #include "../lib/VCMI_Lib.h"
 #include "CGameHandler.h"
-std::string NAME = NAME_VER + std::string(" (server)");
+std::string NAME_AFFIX = "server";
+std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
 using namespace boost;
 using namespace boost::asio;
 using namespace boost::asio::ip;

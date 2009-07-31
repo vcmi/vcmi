@@ -20,6 +20,8 @@ typedef boost::int8_t si8; //signed int 8 bits (1 byte)
 #endif
 
 #define NAME_VER ("VCMI 0.72d")
+extern std::string NAME; //full name
+extern std::string NAME_AFFIX; //client / server
 #define CONSOLE_LOGGING_LEVEL 5
 #define FILE_LOGGING_LEVEL 6
 

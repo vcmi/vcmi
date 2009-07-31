@@ -309,7 +309,7 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int 
 	std::vector<std::string> * brtext = breakText(text,32,true,true);
 	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext, fontHeight);
 	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight);
-	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,0);
+	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,player);
 	ret->pos.h=ret->bitmap->h;
 	ret->pos.w=ret->bitmap->w;
 	int curh = ret->bitmap->h/2 - (fontHeight*txtg->size())/2;

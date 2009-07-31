@@ -278,34 +278,36 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	if(details.result == TryMoveHero::TELEPORTATION	||  details.start == details.end)
 		return;
 
-	//initializing objects and performing first step of move
 	int3 hp = details.start;
-	if (details.result != TryMoveHero::SUCCESS) //hero failed to move
+
+	if(makingTurn  &&  ho->tempOwner == playerID) //we are moving our hero
 	{
-		if(details.result != TryMoveHero::FAILED)
+		if (details.result != TryMoveHero::SUCCESS && details.result != TryMoveHero::FAILED) //hero didn't change tile but visit succeeded
 		{
 			adventureInt->paths.erase(ho);
 			adventureInt->terrain.currentPath = NULL;
 		}
+		else if(adventureInt->terrain.currentPath) //&& hero is moving
+		{
+			//remove one node from the path (the one we went)
+			adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
+			if(!adventureInt->terrain.currentPath->nodes.size())  //if it was the last one, remove entire path
+			{
+				adventureInt->paths.erase(ho);
+				adventureInt->terrain.currentPath = NULL;
+			}
+		}
+	}
 
+	if (details.result != TryMoveHero::SUCCESS) //hero failed to move
+	{
 		ho->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);
 		LOCPLINT->totalRedraw();
 		return;
 	}
 
-	if (adventureInt->terrain.currentPath) //&& hero is moving
-	{
-		//remove one node from the path (the one we went)
-		adventureInt->terrain.currentPath->nodes.erase(adventureInt->terrain.currentPath->nodes.end()-1);
-		if(!adventureInt->terrain.currentPath->nodes.size())  //if it was the last one, remove entire path
-		{
-			adventureInt->paths.erase(ho);
-			adventureInt->terrain.currentPath = NULL;
-		}
-	}
-
-
+	//initializing objects and performing first step of move
 	if(details.end.x+1 == details.start.x && details.end.y+1 == details.start.y) //tl
 	{
 		//ho->moveDir = 1;

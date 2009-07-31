@@ -1058,6 +1058,9 @@ void CGDwelling::newTurn() const
 	if(cb->getDate(1) != 1) //not first day of week
 		return;
 
+	//town growths are handled separately
+	if(ID == TOWNI_TYPE)
+		return;
 
 	bool change = false;
 

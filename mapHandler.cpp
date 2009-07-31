@@ -431,6 +431,10 @@ void CMapHandler::init()
 	timeHandler th;
 	th.getDif();
 
+	CGI->dobjinfo->gobjs[8][0]->handler = graphics->boatAnims[0];
+	CGI->dobjinfo->gobjs[8][1]->handler = graphics->boatAnims[1];
+	CGI->dobjinfo->gobjs[8][2]->handler = graphics->boatAnims[2];
+
 	// Size of visible terrain.
 	mapW = conf.go()->ac.advmapW;
 	mapH = conf.go()->ac.advmapH;

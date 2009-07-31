@@ -202,6 +202,13 @@ void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*
 	sss.val = val;
 	sss.abs = abs;
 	sendAndApply(&sss);
+
+	if(which == 7) //Wisdom
+	{
+		const CGHeroInstance *h = getHero(ID);
+		if(h && h->visitedTown)
+			giveSpells(h->visitedTown, h);
+	}
 }
 
 void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
@@ -661,6 +668,9 @@ void CGameHandler::newTurn()
 		
 		BOOST_FOREACH(CGHeroInstance *h, (*i).second.heroes)
 		{
+			if(h->visitedTown)
+				giveSpells(h->visitedTown, h);
+
 			NewTurn::Hero hth;
 			hth.id = h->id;
 			hth.move = h->maxMovePoints(gs->map->getTile(h->getPosition(false)).tertype != TerrainTile::water);
@@ -1273,6 +1283,13 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 	tlog5 << "Player " <<int(asker) << " wants to move hero "<< hid << " from "<< h->pos << " to " << dst << std::endl;
 	int3 hmpos = dst + int3(-1,0,0);
+
+	if(!gs->map->isInTheMap(hmpos))
+	{
+		tlog1 << "Destination tile os out of the map!\n";
+		return false;
+	}
+
 	TerrainTile t = gs->map->terrain[hmpos.x][hmpos.y][hmpos.z];
 	int cost = gs->getMovementCost(h,h->getPosition(false),CGHeroInstance::convertPosition(dst,false),h->movement);
 
@@ -2934,4 +2951,6 @@ bool CGameHandler::buildBoat( ui32 objid )
 	no.subID = 1;
 	no.pos = tile + int3(1,0,0);
 	sendAndApply(&no);
+
+	return true;
 }

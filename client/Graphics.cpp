@@ -361,9 +361,6 @@ void Graphics::loadHeroAnims()
 	loadHeroAnim("AB01_.DEF", rotations, &Graphics::boatAnims);
 	loadHeroAnim("AB02_.DEF", rotations, &Graphics::boatAnims);
 	loadHeroAnim("AB03_.DEF", rotations, &Graphics::boatAnims);
-	VLC->dobjinfo->gobjs[8][0]->handler = boatAnims[0];
-	VLC->dobjinfo->gobjs[8][1]->handler = boatAnims[1];
-	VLC->dobjinfo->gobjs[8][2]->handler = boatAnims[2];
 }
 
 void Graphics::loadHeroAnim( const std::string &name, const std::vector<std::pair<int,int> > &rotations, std::vector<CDefEssential *> Graphics::*dst )

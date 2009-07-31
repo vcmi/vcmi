@@ -909,13 +909,17 @@ void Mapa::loadHero( CGObjectInstance * &nobj, unsigned char * bufor, int &i )
 		nhi->name = readString(bufor,i);
 	if(version>AB)
 	{
-		if(readChar(bufor,i))//true if hore's experience is greater than 0
+		if(readChar(bufor,i))//true if hero's experience is greater than 0
 		{	nhi->exp = readNormalNr(bufor,i); i+=4;	}
 		else
 			nhi->exp = 0xffffffff;
 	}
 	else
-	{	nhi->exp = readNormalNr(bufor,i); i+=4;	}
+	{	
+		nhi->exp = readNormalNr(bufor,i); i+=4;	
+		if(!nhi->exp) //0 means "not set" in <=AB maps
+			nhi->exp = 0xffffffff;
+	}
 
 	bool portrait=bufor[i]; ++i;
 	if (portrait)
