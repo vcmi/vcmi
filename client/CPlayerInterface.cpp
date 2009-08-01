@@ -1719,7 +1719,6 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 	//redraw minimap if owner changed
 	if(sop->what == 1)
 	{
-		adventureInt->minimap.initFlaggableObjs();
 		const CGObjectInstance * obj = cb->getObjectInfo(sop->id);
 		std::set<int3> pos = obj->getBlockedPos();
 		for(std::set<int3>::const_iterator it = pos.begin(); it != pos.end(); ++it)

@@ -283,13 +283,13 @@ CCreatureAnimation::~CCreatureAnimation()
 }
 
 inline void CCreatureAnimation::putPixel(
-        SDL_Surface * dest,
-        const int & ftcp,
-        const BMPPalette & color,
-        const unsigned char & palc,
-        const bool & yellowBorder,
-		const bool & blueBorder,
-		const unsigned char & animCount
+	SDL_Surface * dest,
+	const int & ftcp,
+	const BMPPalette & color,
+	const unsigned char & palc,
+	const bool & yellowBorder,
+	const bool & blueBorder,
+	const unsigned char & animCount
 ) const
 {	
     if(palc!=0)

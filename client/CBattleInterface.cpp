@@ -2009,54 +2009,18 @@ void CBattleInterface::attackingShowHelper()
 				// TODO: see comment above
 				if (attackingInfo->sh == -1)
 					attackingInfo->sh = CGI->soundh->playSound(aStack.creature->sounds.attack);
+
+				std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
+				int type; //dependent on attack direction
 				if(aStack.creature->isDoubleWide())
 				{
-					switch(BattleInfo::mutualPosition(aStack.position+attackingInfo->posShiftDueToDist, attackingInfo->dest)) //attack direction
-					{
-						case 0:
-							creAnims[attackingInfo->ID]->setType(11);
-							break;
-						case 1:
-							creAnims[attackingInfo->ID]->setType(11);
-							break;
-						case 2:
-							creAnims[attackingInfo->ID]->setType(12);
-							break;
-						case 3:
-							creAnims[attackingInfo->ID]->setType(13);
-							break;
-						case 4:
-							creAnims[attackingInfo->ID]->setType(13);
-							break;
-						case 5:
-							creAnims[attackingInfo->ID]->setType(12);
-							break;
-					}
+					type = dirToType[ BattleInfo::mutualPosition(aStack.position + attackingInfo->posShiftDueToDist, attackingInfo->dest) ]; //attack direction
 				}
 				else //else for if(aStack.creature->isDoubleWide())
 				{
-					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
-					{
-						case 0:
-							creAnims[attackingInfo->ID]->setType(11);
-							break;
-						case 1:
-							creAnims[attackingInfo->ID]->setType(11);
-							break;
-						case 2:
-							creAnims[attackingInfo->ID]->setType(12);
-							break;
-						case 3:
-							creAnims[attackingInfo->ID]->setType(13);
-							break;
-						case 4:
-							creAnims[attackingInfo->ID]->setType(13);
-							break;
-						case 5:
-							creAnims[attackingInfo->ID]->setType(12);
-							break;
-					}
+					type = BattleInfo::mutualPosition(aStack.position, attackingInfo->dest);
 				}
+				creAnims[attackingInfo->ID]->setType(type);
 			}
 		}
 		else if(attackingInfo->frame == (attackingInfo->maxframe - 1))
