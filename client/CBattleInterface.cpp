@@ -55,6 +55,22 @@ struct CMP_stack2
 	}
 } cmpst2 ;
 
+static void transformPalette(SDL_Surface * surf, float rCor, float gCor, float bCor)
+{
+	SDL_Color * colorsToChange = surf->format->palette->colors;
+	for(int g=0; g<surf->format->palette->ncolors; ++g)
+	{
+		if((colorsToChange+g)->b != 132 &&
+			(colorsToChange+g)->g != 231 &&
+			(colorsToChange+g)->r != 255) //it's not yellow border
+		{
+			(colorsToChange+g)->r = (float)((colorsToChange+g)->r) * rCor;
+			(colorsToChange+g)->g = (float)((colorsToChange+g)->g) * gCor;
+			(colorsToChange+g)->b = (float)((colorsToChange+g)->b) * bCor;
+		}
+	}
+}
+
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect)
 	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), 
 	  mouseHoveredStack(-1), previouslyHoveredHex(-1), spellDestSelectMode(false), spellToCast(NULL),
@@ -85,56 +101,19 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	//preparing graphics for displaying amounts of creatures
 	amountNormal = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
 	CSDL_Ext::alphaTransform(amountNormal);
-	for(int g=0; g<amountNormal->format->palette->ncolors; ++g)
-	{
-		if((amountNormal->format->palette->colors+g)->b != 132 &&
-			(amountNormal->format->palette->colors+g)->g != 231 &&
-			(amountNormal->format->palette->colors+g)->r != 255) //it's not yellow border
-		{
-			(amountNormal->format->palette->colors+g)->r = (float)((amountNormal->format->palette->colors+g)->r) * 0.54f;
-			(amountNormal->format->palette->colors+g)->g = (float)((amountNormal->format->palette->colors+g)->g) * 0.19f;
-			(amountNormal->format->palette->colors+g)->b = (float)((amountNormal->format->palette->colors+g)->b) * 0.93f;
-		}
-	}
+	transformPalette(amountNormal, 0.59f, 0.19f, 0.93f);
+	
 	amountPositive = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
 	CSDL_Ext::alphaTransform(amountPositive);
-	for(int g=0; g<amountPositive->format->palette->ncolors; ++g)
-	{
-		if((amountPositive->format->palette->colors+g)->b != 132 &&
-			(amountPositive->format->palette->colors+g)->g != 231 &&
-			(amountPositive->format->palette->colors+g)->r != 255) //it's not yellow border
-		{
-			(amountPositive->format->palette->colors+g)->r = (float)((amountPositive->format->palette->colors+g)->r) * 0.18f;
-			(amountPositive->format->palette->colors+g)->g = (float)((amountPositive->format->palette->colors+g)->g) * 1.00f;
-			(amountPositive->format->palette->colors+g)->b = (float)((amountPositive->format->palette->colors+g)->b) * 0.18f;
-		}
-	}
+	transformPalette(amountPositive, 0.18f, 1.00f, 0.18f);
+
 	amountNegative = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
 	CSDL_Ext::alphaTransform(amountNegative);
-	for(int g=0; g<amountNegative->format->palette->ncolors; ++g)
-	{
-		if((amountNegative->format->palette->colors+g)->b != 132 &&
-			(amountNegative->format->palette->colors+g)->g != 231 &&
-			(amountNegative->format->palette->colors+g)->r != 255) //it's not yellow border
-		{
-			(amountNegative->format->palette->colors+g)->r = (float)((amountNegative->format->palette->colors+g)->r) * 1.00f;
-			(amountNegative->format->palette->colors+g)->g = (float)((amountNegative->format->palette->colors+g)->g) * 0.18f;
-			(amountNegative->format->palette->colors+g)->b = (float)((amountNegative->format->palette->colors+g)->b) * 0.18f;
-		}
-	}
+	transformPalette(amountNegative, 1.00f, 0.18f, 0.18f);
+
 	amountEffNeutral = BitmapHandler::loadBitmap("CMNUMWIN.BMP");
-	CSDL_Ext::alphaTransform(amountNegative);
-	for(int g=0; g<amountNegative->format->palette->ncolors; ++g)
-	{
-		if((amountNegative->format->palette->colors+g)->b != 132 &&
-			(amountNegative->format->palette->colors+g)->g != 231 &&
-			(amountNegative->format->palette->colors+g)->r != 255) //it's not yellow border
-		{
-			(amountNegative->format->palette->colors+g)->r = (float)((amountNegative->format->palette->colors+g)->r) * 1.00f;
-			(amountNegative->format->palette->colors+g)->g = (float)((amountNegative->format->palette->colors+g)->g) * 1.00f;
-			(amountNegative->format->palette->colors+g)->b = (float)((amountNegative->format->palette->colors+g)->b) * 0.18f;
-		}
-	}
+	CSDL_Ext::alphaTransform(amountEffNeutral);
+	transformPalette(amountEffNeutral, 1.00f, 1.00f, 0.18f);
 
 	////blitting menu background and terrain
 	blitAt(background, pos.x, pos.y);
@@ -762,27 +741,9 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						int fromHex = previouslyHoveredHex;
 						if(fromHex!=-1 && fromHex%BFIELD_WIDTH!=0 && fromHex%BFIELD_WIDTH!=(BFIELD_WIDTH-1) && vstd::contains(shadedHexes, fromHex))
 						{
-							switch(BattleInfo::mutualPosition(fromHex, myNumber))
-							{
-							case 0:
-								CGI->curh->changeGraphic(1,12);
-								break;
-							case 1:
-								CGI->curh->changeGraphic(1,7);
-								break;
-							case 2:
-								CGI->curh->changeGraphic(1,8);
-								break;
-							case 3:
-								CGI->curh->changeGraphic(1,9);
-								break;
-							case 4:
-								CGI->curh->changeGraphic(1,10);
-								break;
-							case 5:
-								CGI->curh->changeGraphic(1,11);
-								break;
-							}
+							std::map<int, int> mutualToCursor = boost::assign::map_list_of(0, 12)(1, 7)(2, 8)(3, 9)(4, 10)(5, 11);
+
+							CGI->curh->changeGraphic( 1, mutualToCursor[BattleInfo::mutualPosition(fromHex, myNumber)] );
 						}
 					}
 					else //unavailable enemy
@@ -845,6 +806,20 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		else
 		{
 			CStack * stackUnder = LOCPLINT->cb->battleGetStackByPos(myNumber);
+			bool whichCase; //for cases 1, 2 and 3
+			switch(spellSelMode)
+			{
+			case 1:
+				whichCase = stackUnder && LOCPLINT->playerID == stackUnder->owner;
+				break;
+			case 2:
+				whichCase = stackUnder && LOCPLINT->playerID != stackUnder->owner;
+				break;
+			case 3:
+				whichCase = stackUnder;
+				break;
+			}
+
 			switch(spellSelMode)
 			{
 			case 0:
@@ -855,8 +830,8 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 				console->alterTxt = buf;
 				console->whoSetAlter = 0;
 				break;
-			case 1:
-				if(stackUnder && LOCPLINT->playerID == stackUnder->owner )
+			case 1: case 2: case 3:
+				if( whichCase )
 				{
 					CGI->curh->changeGraphic(3, 0);
 					//setting console text
@@ -866,44 +841,6 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					console->alterTxt = buf;
 					console->whoSetAlter = 0;
 					break;
-				}
-				else
-				{
-					CGI->curh->changeGraphic(1, 0);
-					//setting console text
-					console->alterTxt = CGI->generaltexth->allTexts[23];
-					console->whoSetAlter = 0;
-				}
-				break;
-			case 2:
-				if(stackUnder && LOCPLINT->playerID != stackUnder->owner )
-				{
-					CGI->curh->changeGraphic(3, 0);
-					//setting console text
-					char buf[500];
-					std::string creName = stackUnder->amount > 1 ? stackUnder->creature->namePl : stackUnder->creature->nameSing;
-						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str(), creName.c_str());
-					console->alterTxt = buf;
-					console->whoSetAlter = 0;
-				}
-				else
-				{
-					CGI->curh->changeGraphic(1, 0);
-					//setting console text
-					console->alterTxt = CGI->generaltexth->allTexts[23];
-					console->whoSetAlter = 0;
-				}
-				break;
-			case 3:
-				if(stackUnder)
-				{
-					CGI->curh->changeGraphic(3, 0);
-					//setting console text
-					char buf[500];
-					std::string creName = stackUnder->amount > 1 ? stackUnder->creature->namePl : stackUnder->creature->nameSing;
-						sprintf(buf, CGI->generaltexth->allTexts[27].c_str(), CGI->spellh->spells[spellToCast->additionalInfo].name.c_str(), creName.c_str());
-					console->alterTxt = buf;
-					console->whoSetAlter = 0;
 				}
 				else
 				{
