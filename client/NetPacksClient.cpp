@@ -244,6 +244,7 @@ void HeroRecruited::applyCl( CClient *cl )
 	}
 
 	CGI->mh->initHeroDef(h);
+	CGI->mh->printObject(h);
 	if(vstd::contains(cl->playerint,h->tempOwner))
 	{
 		cl->playerint[h->tempOwner]->heroCreated(h);

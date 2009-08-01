@@ -450,9 +450,24 @@ struct DLL_EXPORT Mapa : public CMapHeader
 						heroes[i]->visitedTown = towns[j];
 					}
 				}
-			}
 
-		}
+				vistile.x -= 2; //manifest pos
+				const TerrainTile &t = getTile(vistile);
+				if(t.tertype != TerrainTile::water) continue;
+				//hero stands on the water - he must be in the boat
+				for(int j = 0; j < t.visitableObjects.size(); j++)
+				{
+					if(t.visitableObjects[j]->ID == 8)
+					{
+						CGBoat *b = static_cast<CGBoat *>(t.visitableObjects[j]);
+						heroes[i]->boat = b;
+						b->hero = heroes[i];
+						removeBlockVisTiles(b);
+						break;
+					}
+				}
+			} //heroes loop
+		} //!saving
 	}
 };
 #endif // __MAP_H__

@@ -2079,8 +2079,8 @@ CCreInfoWindow::CCreInfoWindow(int Cid, int Type, int creatureCount, StackState 
 	}
 
 	//damage
-	int dmgMin = c->damageMin * State->dmgMultiplier;
-	int dmgMax = c->damageMax * State->dmgMultiplier;
+	int dmgMin = c->damageMin * (State ? State->dmgMultiplier : 1);
+	int dmgMax = c->damageMax * (State ? State->dmgMultiplier : 1);
 
 	printAt(CGI->generaltexth->allTexts[199], 155, 105, GEOR13, zwykly, bitmap);
 	SDL_itoa(dmgMin, pom, 10);

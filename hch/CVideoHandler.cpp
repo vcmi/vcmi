@@ -124,6 +124,9 @@ CBIKHandler::CBIKHandler()
 
 	hBinkFile = NULL;
 	hBink = NULL;
+
+	buffer = NULL;
+	bufferSize = 0;
 }
 
 void CBIKHandler::open(std::string name)
@@ -151,14 +154,39 @@ void CBIKHandler::open(std::string name)
 		binkSetSoundSystem(waveout,NULL);
 
 	hBink = binkOpen(hBinkFile, 0x8a800000);
-	buffer = new char[hBink->width * hBink->width * 3];
+
+	allocBuffer();
 }
 
 void CBIKHandler::show( int x, int y, SDL_Surface *dst, bool update )
 {
-	int w = hBink->width, h = hBink->height;
+	const int w = hBink->width, 
+		h = hBink->height, 
+		Bpp = dst->format->BytesPerPixel;
+
+	int mode = -1;
+
+	//screen color depth might have changed... (eg. because F4)
+	if(bufferSize != w * h * Bpp)
+	{
+		freeBuffer();
+		allocBuffer(Bpp);
+	}
+
+	switch(Bpp)
+	{
+	case 3:
+		mode = 0;
+		break;
+	case 4:
+		mode = 1;
+		break;
+	default:
+		return; //not supported screen depth
+	}
+
 	binkDoFrame(hBink);
-	binkCopyToBuffer(hBink, buffer, w*3, h, 0, 0, 0);
+	binkCopyToBuffer(hBink, buffer, w*Bpp, h, 0, 0, mode);
 	blitBuffer(buffer, x, y, w, h, dst);
 	if(update)
 		SDL_UpdateRect(dst, x, y, w, h);
@@ -176,6 +204,9 @@ void CBIKHandler::close()
 	CloseHandle(hBinkFile);
 	hBinkFile = NULL;
 	delete [] buffer;
+
+	buffer = NULL;
+	bufferSize = 0;
 }
 
 bool CBIKHandler::wait()
@@ -199,6 +230,21 @@ void CBIKHandler::redraw( int x, int y, SDL_Surface *dst, bool update )
 	blitBuffer(buffer, x, y, w, h, dst);
 	if(update)
 		SDL_UpdateRect(dst, x, y, w, h);
+}
+
+void CBIKHandler::allocBuffer(int Bpp)
+{
+	if(!Bpp) Bpp = screen->format->BytesPerPixel;
+
+	bufferSize = hBink->width * hBink->height * Bpp;
+	buffer = new char[bufferSize];
+}
+
+void CBIKHandler::freeBuffer()
+{
+	delete [] buffer;
+	buffer = NULL;
+	bufferSize = 0;
 }
 
 void CSmackPlayer::nextFrame()
@@ -234,8 +280,6 @@ void CSmackPlayer::close()
 {
 	ptrSmackClose(data);
 	data = NULL;
-	delete [] buffer;
-	buffer = NULL;
 }
 
 void CSmackPlayer::open( std::string name )

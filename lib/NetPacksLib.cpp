@@ -473,6 +473,7 @@ DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 	h->initHeroDefInfo();
 	gs->map->heroes.push_back(h);
 	gs->getPlayer(h->getOwner())->heroes.push_back(h);
+	h->initObj();
 	gs->map->addBlockVisTiles(h);
 	t->visitingHero = h;
 	h->visitedTown = t;

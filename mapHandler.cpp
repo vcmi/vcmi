@@ -334,45 +334,45 @@ void CMapHandler::initObjectRects()
 	//initializing objects / rects
 	for(size_t f=0; f < map->objects.size(); ++f)
 	{
-		if(!map->objects[f]) continue;
-		if((map->objects[f]->ID==HEROI_TYPE && static_cast<CGHeroInstance*>(map->objects[f])->inTownGarrison)
-			|| !map->objects[f]->defInfo)
+		const CGObjectInstance *obj = map->objects[f];
+		if(	!obj
+			|| obj->ID==HEROI_TYPE && static_cast<const CGHeroInstance*>(obj)->inTownGarrison //garrisoned hero
+			|| obj->ID==8 && static_cast<const CGBoat*>(obj)->hero //boat wih hero (hero graphics is used)
+			|| !obj->defInfo
+			|| !obj->defInfo->handler) //no graphic...
 		{
 			continue;
 		}
-		CDefEssential * curd = map->objects[f]->defInfo->handler;
-		if(curd)
-		{
-			const SDL_Surface *bitmap = curd->ourImages[0].bitmap;
 
-			for(int fx=0; fx<bitmap->w>>5; ++fx) //bitmap->w/32
+		const SDL_Surface *bitmap = obj->defInfo->handler->ourImages[0].bitmap;
+		for(int fx=0; fx<bitmap->w>>5; ++fx) //bitmap->w/32
+		{
+			for(int fy=0; fy<bitmap->h>>5; ++fy) //bitmap->h/32
 			{
-				for(int fy=0; fy<bitmap->h>>5; ++fy) //bitmap->h/32
+				SDL_Rect cr;
+				cr.w = 32;
+				cr.h = 32;
+				cr.x = fx<<5; //fx*32
+				cr.y = fy<<5; //fy*32
+				std::pair<const CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(obj,cr);
+				
+				if(    (obj->pos.x + fx - bitmap->w/32+1)  >=  0 
+					&& (obj->pos.x + fx - bitmap->w/32+1)  <  ttiles.size() - frameW 
+					&& (obj->pos.y + fy - bitmap->h/32+1)  >=  0 
+					&& (obj->pos.y + fy - bitmap->h/32+1)  <  ttiles[0].size() - frameH
+				  )
 				{
-					SDL_Rect cr;
-					cr.w = 32;
-					cr.h = 32;
-					cr.x = fx<<5; //fx*32
-					cr.y = fy<<5; //fy*32
-					std::pair<CGObjectInstance*,SDL_Rect> toAdd = std::make_pair(map->objects[f],cr);
-					
-					if(    (map->objects[f]->pos.x + fx - bitmap->w/32+1)  >=  0 
-						&& (map->objects[f]->pos.x + fx - bitmap->w/32+1)  <  ttiles.size() - frameW 
-						&& (map->objects[f]->pos.y + fy - bitmap->h/32+1)  >=  0 
-						&& (map->objects[f]->pos.y + fy - bitmap->h/32+1)  <  ttiles[0].size() - frameH
-					  )
-					{
-						//TerrainTile2 & curt =
-						//	ttiles
-						//	[map->objects[f]->pos.x + fx - bitmap->w/32]
-						//[map->objects[f]->pos.y + fy - bitmap->h/32]
-						//[map->objects[f]->pos.z];
-						ttiles[map->objects[f]->pos.x + fx - bitmap->w/32+1][map->objects[f]->pos.y + fy - bitmap->h/32+1][map->objects[f]->pos.z].objects.push_back(toAdd);
-					}
-				} // for(int fy=0; fy<bitmap->h/32; ++fy)
-			} //for(int fx=0; fx<bitmap->w/32; ++fx)
-		}//if curd
+					//TerrainTile2 & curt =
+					//	ttiles
+					//	[obj->pos.x + fx - bitmap->w/32]
+					//[obj->pos.y + fy - bitmap->h/32]
+					//[obj->pos.z];
+					ttiles[obj->pos.x + fx - bitmap->w/32+1][obj->pos.y + fy - bitmap->h/32+1][obj->pos.z].objects.push_back(toAdd);
+				}
+			} // for(int fy=0; fy<bitmap->h/32; ++fy)
+		} //for(int fx=0; fx<bitmap->w/32; ++fx)
 	} // for(int f=0; f<map->objects.size(); ++f)
+
 	for(int ix=0; ix<ttiles.size()-frameW; ++ix)
 	{
 		for(int iy=0; iy<ttiles[0].size()-frameH; ++iy)

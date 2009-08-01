@@ -769,6 +769,7 @@ public:
 
 	CGBoat()
 	{
+		hero = NULL;
 		direction = 4;
 	}
 	template <typename Handler> void serialize(Handler &h, const int version)

@@ -72,10 +72,13 @@ public:
 
 class CBIKHandler : public DLLHandler, public IVideoPlayer
 {
+	void allocBuffer(int Bpp = 0);
+	void freeBuffer();
 public:
 	HANDLE hBinkFile;
 	HBINK hBink;
 	char * buffer;
+	int bufferSize;
 	BinkSetSoundSystem binkSetSoundSystem;
 	BinkOpen binkOpen;
 	//BinkGetPalette getPalette;
