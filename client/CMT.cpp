@@ -343,6 +343,11 @@ void processCommand(const std::string &message, CClient *&client)
 	}
 	else if(cn=="resolution")
 	{
+		if(LOCPLINT)
+		{
+			tlog1 << "Resolution can be set only before starting the game.\n";
+			return;
+		}
 		std::map<std::pair<int,int>, config::GUIOptions >::iterator j;
 		int i=1, hlp=1;
 		tlog4 << "Available screen resolutions:\n";

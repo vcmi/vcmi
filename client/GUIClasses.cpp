@@ -3714,6 +3714,8 @@ void CExchangeWindow::activate()
 {
 	quit->activate();
 	garr->activate();
+	splitButton[0]->activate();
+	splitButton[1]->activate();
 
 	artifs[0]->activate();
 	artifs[1]->activate();
@@ -3753,6 +3755,8 @@ void CExchangeWindow::deactivate()
 {
 	quit->deactivate();
 	garr->deactivate();
+	splitButton[0]->deactivate();
+	splitButton[1]->deactivate();
 
 	artifs[0]->deactivate();
 	artifs[1]->deactivate();
@@ -3807,6 +3811,8 @@ void CExchangeWindow::show(SDL_Surface * to)
 	}
 
 	garr->show(to);
+	splitButton[0]->show(to);
+	splitButton[1]->show(to);
 }
 
 void CExchangeWindow::questlog(int whichHero)
@@ -3977,6 +3983,9 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 
 	//garrison interface
 	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true);
+
+	splitButton[0] = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF");
+	splitButton[1] = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF");
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor
@@ -3992,6 +4001,8 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	delete artifs[1];
 
 	delete garr;
+	delete splitButton[0];
+	delete splitButton[1];
 	delete ourBar;
 
 	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)

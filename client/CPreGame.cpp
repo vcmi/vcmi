@@ -1072,14 +1072,14 @@ void MapSel::show()
 void MapSel::processMaps(const std::vector<std::string> &pliczkiTemp, int start, int threads)
 {
 	int read=0;
-	unsigned char sss[1000];
+	unsigned char sss[1500];
 	while(true)
 	{
 		if(start >= ourMaps.size())
 			break;
 		ourMaps[start] = NULL;
 		gzFile tempf = gzopen(pliczkiTemp[start].c_str(),"rb");
-		read = gzread(tempf, sss, 1000);
+		read = gzread(tempf, sss, 1500);
 		gzclose(tempf);
 		if(read < 50)
 		{
@@ -2054,6 +2054,7 @@ void CPreGame::scenHandleEv(SDL_Event& sEvent)
 StartInfo CPreGame::runLoop()
 {
 	SDL_Event sEvent;
+	while(SDL_PollEvent(&sEvent)); //remove old events
 	ret.turnTime = 0;
 
 #ifdef _WIN32

@@ -443,11 +443,17 @@ struct DLL_EXPORT Mapa : public CMapHeader
 					if(vistile == towns[j]->pos) //hero stands on the town entrance
 					{
 						if(heroes[i]->inTownGarrison)
+						{
 							towns[j]->garrisonHero = heroes[i];
+							removeBlockVisTiles(heroes[i]);
+						}
 						else
+						{
 							towns[j]->visitingHero = heroes[i];
+						}
 
 						heroes[i]->visitedTown = towns[j];
+						break;
 					}
 				}
 

@@ -1,11 +1,11 @@
-0.72 -> 0.73 (scheguled on 1 Sep) as for r1044
+0.72 -> 0.73 (1 Aug 2009) as for r1044
 GENERAL:
 * infowindow popup will be completely on screen
 * fixed possible crash with in game console
 * fixed crash when gaining artifact after r-click on hero in tavern
 * Estates / hero bonuses won't give resources on first day. 
 * video handling (intro, main menu animation, tavern animation, spellbook animation, battle result window)
-* hero meeting window allowing exchanging armies between heroes on adventure map
+* hero meeting window allowing exchanging armies and artifacts between heroes on adventure map
 * 'T' hotkey opens marketplace window
 * giving starting spells for heroes
 * pressing enter or escape close spellbook
@@ -15,7 +15,7 @@ GENERAL:
 * increased char per line limit for subtitles under components
 * corrected some exp/level values
 * primary skills cannot be negative
-* support for 3 new artifacts: Ring of Vitality, Ring of Life, Vial of Lifeblood
+* support for new artifacts: Ring of Vitality, Ring of Life, Vial of Lifeblood, Garniture of Interference, Surcoat of Counterpoise, Boots of Polarity
 * fixed timed events reappearing
 * saving system options
 * saving hero direction
@@ -30,11 +30,11 @@ ADVENTURE INTERFACE:
 
 BATTLES:
 * spell resistance supported (secondary skill, artifacts, creature skill)
+* corrected damage inflicted by spells and ballista
 * added some missing projectile infos
 * added native terrain bonuses in battles
-* number of units in stack in battle should now fit the box
+* number of units in stack in battle should better fit the box
 * non-living and undead creatures have now always 0 morale
-* partial handling of advmap objects changing battle background (like clover field) (their existence should change the background but nothing else)
 * displaying luck effect animation
 * support for battleground overlays:
 - cursed ground
@@ -74,6 +74,7 @@ OBJECTS:
 - Ocean bottle
 - Sea Chest 
 - Shipwreck Survivor
+- Shipyard
 - Sirens 
 
 0.71 -> 0.72 (Jun 1 2009)

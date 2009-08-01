@@ -687,7 +687,7 @@ class CExchangeWindow : public CIntObject, public CWindowWithGarrison
 	CStatusBar * ourBar; //internal statusbar
 
 	SDL_Surface *bg; //background
-	AdventureMapButton * quit, * questlogButton[2];
+	AdventureMapButton * quit, * questlogButton[2], * splitButton[2];
 
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 
