@@ -4,6 +4,7 @@
 #include "Common.h"
 #include "BattleLogic.h"
 #include "GeneralAI.h"
+
 namespace GeniusAI {
 
 class CGeniusAI : public CGlobalAI
@@ -12,11 +13,6 @@ private:
 	ICallback*							m_cb;
 	GeniusAI::BattleAI::CBattleLogic*	m_battleLogic;
 	GeniusAI::GeneralAI::CGeneralAI		m_generalAI;
-
-	void doHero(const CGHeroInstance * h);
-	void doTown(const CGTownInstance * t);
-	int turn;
-
 public:
 	CGeniusAI();
 	virtual ~CGeniusAI();
@@ -50,6 +46,7 @@ public:
 	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting);
 	virtual BattleAction activeStack(int stackID);
 };
+
 }
 
 #endif // __CGENIUSAI_H__
