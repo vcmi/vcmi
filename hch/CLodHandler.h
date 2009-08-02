@@ -30,13 +30,12 @@ namespace NLoadHandlerHelp
 
 struct Entry
 {
-	unsigned char name[12], //filename
-		hlam_1[4], //???
-		hlam_2[4]; //probably type of file
+	// Info extracted from LOD file
 	std::string nameStr;
 	int offset, //from beginning
 		realSize, //size without compression
 		size;	//and with
+
 	bool operator<(const std::string & comp) const
 	{
 		return nameStr<comp;

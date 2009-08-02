@@ -233,7 +233,7 @@ void CLodHandler::extract(std::string FName)
 	for (int i=0;i<totalFiles;i++)
 	{
 		fseek(FLOD, entries[i].offset, 0);
-		std::string bufff = (DATA_DIR + FName.substr(0, FName.size()-4) + PATHSEPARATOR + (char*)entries[i].name);
+		std::string bufff = (DATA_DIR + FName.substr(0, FName.size()-4) + PATHSEPARATOR + entries[i].nameStr);
 		unsigned char * outp;
 		if (entries[i].size==0) //file is not compressed
 		{
@@ -279,7 +279,7 @@ void CLodHandler::extractFile(std::string FName, std::string name)
 	std::transform(name.begin(), name.end(), name.begin(), (int(*)(int))toupper);
 	for (int i=0;i<totalFiles;i++)
 	{
-		std::string buf1 = std::string((char*)entries[i].name);
+		std::string buf1 = entries[i].nameStr;
 		std::transform(buf1.begin(), buf1.end(), buf1.begin(), (int(*)(int))toupper);
 		if(buf1!=name)
 			continue;
@@ -359,35 +359,30 @@ void CLodHandler::init(std::string lodFile, std::string dirName)
 	{
 		Entry entry;
 		char bufc = -1;
-		bool appending = true;
-		for(int kk=0; kk<12; ++kk)
+		bool valid = true;
+
+		entry.nameStr = "";
+
+		// Read name
+		for(int kk=0; kk<16; ++kk)
 		{
-			//FLOD.read(bufc, 1);
 			fread(&bufc, 1, 1, FLOD);
-			if(appending)
-			{
-				entry.name[kk] = toupper(bufc);
-			}
-			else
-			{
-				entry.name[kk] = 0;
-				appending = false;
+			if (valid) {
+				if (bufc)
+					entry.nameStr+=toupper(bufc);
+				else
+					valid = false;
 			}
 		}
-		fread((char*)entry.hlam_1, 1, 4, FLOD);
+
 		fread((char*)temp, 1, 4, FLOD);
 		entry.offset=readNormalNr(temp,4);
 		fread((char*)temp, 1, 4, FLOD);
 		entry.realSize=readNormalNr(temp,4);
-		fread((char*)entry.hlam_2, 1, 4, FLOD);
+		fread((char*)temp, 1, 4, FLOD);
 		fread((char*)temp, 1, 4, FLOD);
 		entry.size=readNormalNr(temp,4);
-		for (int z=0;z<12;z++)
-		{
-			if (entry.name[z])
-				entry.nameStr+=entry.name[z];
-			else break;
-		}
+
 		entries.push_back(entry);
 	}
 	boost::filesystem::directory_iterator enddir;
