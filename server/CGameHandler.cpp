@@ -573,7 +573,7 @@ void CGameHandler::moveStack(int stack, int dest)
 	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
 	//	return false;
 
-	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibility, curStack->creature->isFlying());
+	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibility, curStack->creature->isFlying(), curStack->creature->isDoubleWide(), curStack->attackerOwned);
 	if(curStack->creature->isFlying())
 	{
 		if(path.second <= curStack->Speed() && path.first.size() > 0)
@@ -2308,6 +2308,11 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			{
 				tlog3<<"We cannot move this stack to its destination "<<curStack->creature->namePl<<std::endl;
 				ok = false;
+			}
+
+			if(curStack->ID == stackAtEnd->ID) //we should just move, it will be handled by following check
+			{
+				stackAtEnd = NULL;
 			}
 
 			if(!stackAtEnd)

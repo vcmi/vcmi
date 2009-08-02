@@ -197,7 +197,9 @@ CConsoleHandler::CConsoleHandler()
 	CONSOLE_SCREEN_BUFFER_INFO csbi;
 	GetConsoleScreenBufferInfo(handleOut,&csbi);
 	defColor = csbi.wAttributes;
+#ifndef _DEBUG
 	SetUnhandledExceptionFilter(onUnhandledException);
+#endif
 #else
 	defColor = "\x1b[0m";
 #endif

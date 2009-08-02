@@ -529,7 +529,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		ba.side = 1;
 		//ba.actionType = 6; // go and attack
 		ba.stackNumber = attackerID;
-		ba.destinationTile = (ui16)dest_tile;
+		ba.destinationTile = static_cast<ui16>(dest_tile);
 		//simplified checking for possibility of attack (previous was too simplified)
 		int destStackPos = m_cb->battleGetPos(destinationID);
 		if(BattleInfo::mutualPosition(dest_tile, destStackPos) != -1)
