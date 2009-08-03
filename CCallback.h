@@ -84,23 +84,31 @@ struct InfoAboutTown
 class ICallback
 {
 public:
+	//hero
 	virtual bool moveHero(const CGHeroInstance *h, int3 dst) const =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
+	
+	//town
+	virtual void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)=0;
+	virtual bool buildBuilding(const CGTownInstance *town, si32 buildingID)=0;
+	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)=0;
+	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
+	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
+	
+	virtual void trade(int mode, int id1, int id2, int val1)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
+	
 	virtual void selectionMade(int selection, int asker) =0;
 	virtual int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//swaps creatures between two posiibly different garrisons // TODO: AI-unsafe code - fix it!
 	virtual int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)=0;//joins first stack tothe second (creatures must be same type)
 	virtual int splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)=0;//split creatures from the first stack
-	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
 	virtual bool swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGHeroInstance * hero2, ui16 pos2)=0; //swaps artifacts between two given heroes
-	virtual void recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amount)=0;
 	virtual bool dismissCreature(const CArmedInstance *obj, int stackPos)=0;
-	virtual bool upgradeCreature(const CArmedInstance *obj, int stackPos, int newID=-1)=0; //if newID==-1 then best possible upgrade will be made
 	virtual void endTurn()=0;
-	virtual void swapGarrisonHero(const CGTownInstance *town)=0;
 	virtual void buyArtifact(const CGHeroInstance *hero, int aid)=0; //used to buy artifacts in towns (including spell book in the guild and war machines in blacksmith)
-	virtual void trade(int mode, int id1, int id2, int val1)=0; //mode==0: sell val1 units of id1 resource for id2 resiurce
 	virtual void setFormation(const CGHeroInstance * hero, bool tight)=0;
 	virtual void setSelection(const CArmedInstance * obj)=0;
-	virtual void recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)=0;
+
+	
 	virtual void save(const std::string &fname) = 0;
 	virtual void sendMessage(const std::string &mess) = 0;
 	virtual void buildBoat(const IShipyard *obj) = 0;
