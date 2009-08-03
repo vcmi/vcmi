@@ -125,12 +125,18 @@ void ChangeObjPos::applyCl( CClient *cl )
 
 void RemoveObject::applyFirstCl( CClient *cl )
 {
-	CGI->mh->hideObject(cl->getObj(id));
-	CGHeroInstance *h = GS(cl)->getHero(id);
-	if(h)
+	const CGObjectInstance *o = cl->getObj(id);
+	CGI->mh->hideObject(o);
+
+	int3 pos = o->pos - o->getVisitableOffset();
+	//notify interfaces about removal
+	for(std::map<ui8, CGameInterface*>::iterator i=cl->playerint.begin();i!=cl->playerint.end();i++)
 	{
-		if(vstd::contains(cl->playerint,h->tempOwner))
-			cl->playerint[h->tempOwner]->heroKilled(h);
+		if(i->first >= PLAYER_LIMIT) continue;
+		if(GS(cl)->players[i->first].fogOfWarMap[pos.x][pos.y][pos.z])
+		{
+			i->second->objectRemoved(o);
+		}
 	}
 }
 
@@ -422,6 +428,12 @@ void StacksInjured::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2,battleStacksAttacked,stacks);
 }
 
+void BattleResultsApplied::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(player1,battleResultsApplied);
+	INTERFACE_CALL_IF_PRESENT(player2,battleResultsApplied);
+}
+
 CGameState* CPackForClient::GS( CClient *cl )
 {
 	return cl->gs;
@@ -439,6 +451,8 @@ void EndAction::applyCl( CClient *cl )
 void PackageApplied::applyCl( CClient *cl )
 {
 	INTERFACE_CALL_IF_PRESENT(GS(cl)->currentPlayer,requestRealized,this);
+	if(cl->waitingRequest.get())
+		cl->waitingRequest.setn(false);
 }
 
 void SystemMessage::applyCl( CClient *cl )
@@ -449,6 +463,11 @@ void SystemMessage::applyCl( CClient *cl )
 	tlog4 << str.str() << std::endl;
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
+}
+
+void PlayerBlocked::applyCl( CClient *cl )
+{
+	INTERFACE_CALL_IF_PRESENT(player,playerBlocked,reason);
 }
 
 void YourTurn::applyCl( CClient *cl )

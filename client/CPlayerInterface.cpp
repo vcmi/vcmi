@@ -1789,6 +1789,15 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 	}
 }
 
+void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
+{
+	if(obj->ID == HEROI_TYPE  &&  obj->tempOwner == playerID)
+	{
+		const CGHeroInstance *h = static_cast<const CGHeroInstance*>(obj);
+		heroKilled(h);
+	}
+}
+
 void SystemOptions::setMusicVolume( int newVolume )
 {
 	musicVolume = newVolume;

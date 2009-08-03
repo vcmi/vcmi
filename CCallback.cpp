@@ -58,10 +58,10 @@ template <ui16 N> bool isType(CPack *pack)
 	return pack->getType() == N;
 }
 
-bool CCallback::moveHero(const CGHeroInstance *h, int3 dst) const
+bool CCallback::moveHero(const CGHeroInstance *h, int3 dst)
 {
 	MoveHero pack(dst,h->id);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 	return true;
 }
 void CCallback::selectionMade(int selection, int asker)
@@ -74,7 +74,7 @@ void CCallback::recruitCreatures(const CGObjectInstance *obj, ui32 ID, ui32 amou
 	if(player!=obj->tempOwner) return;
 
 	RecruitCreatures pack(obj->id,ID,amount);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 }
 
 
@@ -84,20 +84,20 @@ bool CCallback::dismissCreature(const CArmedInstance *obj, int stackPos)
 		return false;
 
 	DisbandCreature pack(stackPos,obj->id);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 	return true;
 }
 bool CCallback::upgradeCreature(const CArmedInstance *obj, int stackPos, int newID)
 {
 	UpgradeCreature pack(stackPos,obj->id,newID);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 	return false;
 }
 void CCallback::endTurn()
 {
 	tlog5 << "Player " << (unsigned)player << " end his turn." << std::endl;
 	EndTurn pack;
-	*cl->serv << &pack; //report that we ended turn
+	sendRequest(&pack); //report that we ended turn
 }
 UpgradeInfo CCallback::getUpgradeInfo(const CArmedInstance *obj, int stackPos) const
 {
@@ -349,20 +349,20 @@ const CCreatureSet* CCallback::getGarrison(const CGObjectInstance *obj) const
 int CCallback::swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
 {
 	ArrangeStacks pack(1,p1,p2,s1->id,s2->id,0);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 	return 0;
 }
 
 int CCallback::mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2)
 {
 	ArrangeStacks pack(2,p1,p2,s1->id,s2->id,0);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 	return 0;
 }
 int CCallback::splitStack(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2, int val)
 {
 	ArrangeStacks pack(3,p1,p2,s1->id,s2->id,val);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 	return 0;
 }
 
@@ -371,7 +371,7 @@ bool CCallback::dismissHero(const CGHeroInstance *hero)
 	if(player!=hero->tempOwner) return false;
 
 	DismissHero pack(hero->id);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 	return true;
 }
 
@@ -387,7 +387,7 @@ bool CCallback::swapArtifacts(const CGHeroInstance * hero1, ui16 pos1, const CGH
 		return false;
 
 	ExchangeArtifacts ea(hero1->id, hero2->id, pos1, pos2);
-	*cl->serv << &ea;
+	sendRequest(&ea);
 	return true;
 }
 
@@ -403,7 +403,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 			return false; //lack of resources
 
 	BuildStructure pack(town->id,buildingID);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 	return true;
 }
 
@@ -444,7 +444,7 @@ CStack* CCallback::battleGetStackByID(int ID)
 int CCallback::battleMakeAction(BattleAction* action)
 {
 	MakeCustomAction mca(*action);
-	*cl->serv << &mca;
+	sendRequest(&mca);
 	return 0;
 }
 
@@ -582,7 +582,7 @@ void CCallback::swapGarrisonHero( const CGTownInstance *town )
 	if(town->tempOwner != player) return;
 
 	GarrisonHeroSwap pack(town->id);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 }
 
 void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
@@ -590,7 +590,7 @@ void CCallback::buyArtifact(const CGHeroInstance *hero, int aid)
 	if(hero->tempOwner != player) return;
 
 	BuyArtifact pack(hero->id,aid);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 }
 
 std::vector < const CGObjectInstance * > CCallback::getBlockingObjs( int3 pos ) const
@@ -660,14 +660,14 @@ void CCallback::trade( int mode, int id1, int id2, int val1 )
 	int p1, p2;
 	getMarketOffer(id1,id2,p1,p2,mode);
 	TradeOnMarketplace pack(player,mode,id1,id2,val1);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 }
 
 void CCallback::setFormation(const CGHeroInstance * hero, bool tight)
 {
 	const_cast<CGHeroInstance*>(hero)->army.formation = tight;
 	SetFormation pack(hero->id,tight);
-	*cl->serv << &pack;
+	sendRequest(&pack);
 }
 
 void CCallback::setSelection(const CArmedInstance * obj)
@@ -675,7 +675,7 @@ void CCallback::setSelection(const CArmedInstance * obj)
 	SetSelection ss;
 	ss.player = player;
 	ss.id = obj->id;
-	*cl->serv << &ss;
+	sendRequest(&ss);
 }
 
 void CCallback::recruitHero(const CGTownInstance *town, const CGHeroInstance *hero)
@@ -686,7 +686,7 @@ void CCallback::recruitHero(const CGTownInstance *town, const CGHeroInstance *he
 		if(gs->players[player].availableHeroes[i] == hero)
 		{
 			HireHero pack(i,town->id);
-			*cl->serv << &pack;
+			sendRequest(&pack);
 			return;
 		}
 	}
@@ -731,14 +731,33 @@ void CCallback::save( const std::string &fname )
 void CCallback::sendMessage(const std::string &mess)
 {
 	PlayerMessage pm(player, mess);
-	*cl->serv << &pm;
+	sendRequest(&pm);
 }
 
 void CCallback::buildBoat( const IShipyard *obj )
 {
 	BuildBoat bb;
 	bb.objid = obj->o->id;
-	*cl->serv << &bb;
+	sendRequest(&bb);
+}
+
+template <typename T>
+void CCallback::sendRequest(const T* request)
+{
+	//TODO? should be part of CClient but it would have to be very tricky cause template/serialization issues
+	if(waitTillRealize)
+		cl->waitingRequest.set(true);
+
+	*cl->serv << request;
+
+	if(waitTillRealize)
+		cl->waitingRequest.waitWhileTrue();
+}
+
+CCallback::CCallback( CGameState * GS, int Player, CClient *C ) 
+	:gs(GS), cl(C), player(Player)
+{
+	waitTillRealize = false;
 }
 
 InfoAboutHero::InfoAboutHero()

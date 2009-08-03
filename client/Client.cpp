@@ -95,10 +95,12 @@ void CClient::init()
 }
 
 CClient::CClient(void)
+:waitingRequest(false)
 {
 	init();
 }
 CClient::CClient(CConnection *con, StartInfo *si)
+:waitingRequest(false)
 {
 	init();
 	newGame(con,si);
@@ -417,6 +419,17 @@ void CClient::serialize( Handler &h, const int version )
 		}
 	}
 }
+
+//void CClient::sendRequest( const CPackForServer *request, bool waitForRealization )
+//{
+//	if(waitForRealization)
+//		waitingRequest.set(true);
+//
+//	*serv << request;
+//
+//	if(waitForRealization)
+//		waitingRequest.waitWhileTrue();
+//}
 
 template void CClient::serialize( CISer<CLoadFile> &h, const int version );
 template void CClient::serialize( COSer<CSaveFile> &h, const int version );

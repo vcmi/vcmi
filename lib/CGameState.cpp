@@ -1625,7 +1625,9 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 
 void CGameState::apply(CPack *pack)
 {
-	applierGs->apps[typeList.getTypeID(pack)]->applyOnGS(this,pack);
+	ui16 typ = typeList.getTypeID(pack);
+	assert(typ >= 0);
+	applierGs->apps[typ]->applyOnGS(this,pack);
 }
 
 PlayerState * CGameState::getPlayer( ui8 color )

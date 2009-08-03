@@ -170,6 +170,22 @@ struct SystemMessage : public CPackForClient //95
 	}
 };
 
+struct PlayerBlocked : public CPackForClient //96
+{
+	PlayerBlocked(){type = 96;};
+	void applyCl(CClient *cl);
+
+	enum EReason { UPCOMING_BATTLE };
+
+	ui8 reason;
+	ui8 player;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & reason & player;
+	}
+};
+
 struct YourTurn : public CPackForClient //100
 {
 	YourTurn(){type = 100;};
@@ -921,6 +937,19 @@ struct StacksInjured : public CPackForClient //3011
 	}
 };
 
+struct BattleResultsApplied : public CPackForClient //3012
+{
+	BattleResultsApplied(){type = 3012;}
+
+	ui8 player1, player2;
+
+	void applyCl(CClient *cl);
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & player1 & player2;
+	}
+};
+
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};
@@ -1152,8 +1181,8 @@ struct BuildBoat : public CPackForServer
 
 struct QueryReply : public CPackForServer
 {
-	QueryReply(){};
-	QueryReply(ui32 QID, ui32 Answer):qid(QID),answer(Answer){};
+	QueryReply(){type = 6000;};
+	QueryReply(ui32 QID, ui32 Answer):qid(QID),answer(Answer){type = 6000;};
 	ui32 qid, answer; //hero and artifact id
 
 	bool applyGh(CGameHandler *gh);

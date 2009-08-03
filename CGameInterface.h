@@ -76,7 +76,7 @@ public:
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)=0; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void heroInGarrisonChange(const CGTownInstance *town){};
-	virtual void heroKilled(const CGHeroInstance*){};
+	//virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroMoved(const TryMoveHero & details){};
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val){};
 	virtual void heroManaPointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after spell casts
@@ -87,8 +87,6 @@ public:
 	virtual void showInfoDialog(const std::string &text, const std::vector<Component*> &components, int soundID){};
 	virtual void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level){}
 	virtual void showShipyardDialog(const IShipyard *obj){} //obj may be town or shipyard; state: 0 - can buid, 1 - lack of resources, 2 - dest tile is blocked, 3 - no water
-	//virtual void showSelDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
-	//virtual void showYesNoDialog(const std::string &text, const std::vector<Component*> &components, ui32 askID){};
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel) = 0; //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd) = 0; //all stacks operations between these objects become allowed, interface has to call onEnd when done
 	virtual void tileHidden(const std::set<int3> &pos){};
@@ -100,6 +98,8 @@ public:
 	virtual void requestRealized(PackageApplied *pa){};
 	virtual void heroExchangeStarted(si32 hero1, si32 hero2){};
 	virtual void objectPropertyChanged(const SetObjectProperty * sop){}; //eg. mine has been flagged
+	virtual void objectRemoved(const CGObjectInstance *obj){}; //eg. collected resource, picked artifact, beaten hero
+	virtual void playerBlocked(int reason){}; //reason: 0 - upcoming battle
 	virtual void serialize(COSer<CSaveFile> &h, const int version){}; //saving
 	virtual void serialize(CISer<CLoadFile> &h, const int version){}; //loading
 
@@ -110,6 +110,7 @@ public:
 	virtual void battleAttack(BattleAttack *ba){}; //called when stack is performing attack
 	virtual void battleStacksAttacked(std::set<BattleStackAttacked> & bsa){}; //called when stack receives damage (after battleAttack())
 	virtual void battleEnd(BattleResult *br){};
+	virtual void battleResultsApplied(){}; //called when all effects of last battle are applied
 	virtual void battleNewRound(int round){}; //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 	virtual void battleStackMoved(int ID, int dest, int distance, bool end){};
 	virtual void battleSpellCast(SpellCast *sc){};

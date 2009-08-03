@@ -460,7 +460,7 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender, CS
 BattleAction CBattleLogic::MakeDefend(int stackID)
 {
 	BattleAction ba;
-	ba.side = 1;
+	ba.side = m_side;
 	ba.actionType = action_defend;
 	ba.stackNumber = stackID;
 	ba.additionalInfo = -1;
@@ -470,7 +470,7 @@ BattleAction CBattleLogic::MakeDefend(int stackID)
 BattleAction CBattleLogic::MakeWait(int stackID)
 {
 	BattleAction ba;
-	ba.side = 1;
+	ba.side = m_side;
 	ba.actionType = action_wait;
 	ba.stackNumber = stackID;
 	ba.additionalInfo = -1;
@@ -479,11 +479,21 @@ BattleAction CBattleLogic::MakeWait(int stackID)
 
 BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 {
+	CStack *attackerStack = m_cb->battleGetStackByID(attackerID),
+		*destinationStack = m_cb->battleGetStackByID(destinationID);
+	assert(attackerStack && destinationStack);
+
+	//don't attack ourselves
+	if(destinationStack->attackerOwned == !m_side)
+	{
+		return MakeDefend(attackerID);
+	}
+
 	if (m_cb->battleCanShoot(attackerID, m_cb->battleGetPos(destinationID)))
 	{
 		// shoot
 		BattleAction ba;
-		ba.side = 1;
+		ba.side = m_side;
 		ba.additionalInfo = -1;
 		ba.actionType = action_shoot; // shoot
 		ba.stackNumber = attackerID;
@@ -528,7 +538,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		}
 
 		BattleAction ba;
-		ba.side = 1;
+		ba.side = m_side;
 		//ba.actionType = 6; // go and attack
 		ba.stackNumber = attackerID;
 		ba.destinationTile = static_cast<ui16>(dest_tile);
@@ -547,9 +557,6 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		int nearest_pos = -1;
 
 		// if double wide calculate tail
-		CStack *attackerStack = m_cb->battleGetStackByID(attackerID);
-		assert(attackerStack != NULL);
-
 		int tail_pos = -1;
 		if (attackerStack->creature->isDoubleWide())
 		{
@@ -572,6 +579,8 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 #if defined PRINT_DEBUG
 				PrintBattleAction(ba);
 #endif
+				assert(m_cb->battleGetStackByPos(ba.additionalInfo)); //if action is action_walk_and_attack additional info must point on enemy stack
+				assert(m_cb->battleGetStackByPos(ba.additionalInfo) != attackerStack); //don't attack ourselve
 				return ba;
 			}
 		}
@@ -585,6 +594,8 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 #if defined PRINT_DEBUG
 				PrintBattleAction(ba);
 #endif
+				assert(m_cb->battleGetStackByPos(ba.additionalInfo)); //if action is action_walk_and_attack additional info must point on enemy stack
+				assert(m_cb->battleGetStackByPos(ba.additionalInfo) != attackerStack); //don't attack ourselve
 				return ba;
 			}
 			int d = m_battleHelper.GetDistanceWithObstacles(dest_tile, *it);
@@ -606,6 +617,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 #if defined PRINT_DEBUG
 		PrintBattleAction(ba);
 #endif
+
 		return ba;
 	}
 }

@@ -54,6 +54,7 @@ void registerTypes2(Serializer &s)
 {
 	s.template registerType<PackageApplied>();
 	s.template registerType<SystemMessage>();
+	s.template registerType<PlayerBlocked>();
 	s.template registerType<YourTurn>();
 	s.template registerType<SetResource>();
 	s.template registerType<SetResources>();
@@ -95,6 +96,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SpellCast>();
 	s.template registerType<SetStackEffect>();
 	s.template registerType<StacksInjured>();
+	s.template registerType<BattleResultsApplied>();
 	s.template registerType<ShowInInfobox>();
 	s.template registerType<OpenWindow>();
 	s.template registerType<NewObject>();

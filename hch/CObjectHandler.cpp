@@ -1868,7 +1868,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 			cb->showInfoDialog(&iw);
 
 			//act as if player refused
-			joinDecision(h,cost,true);
+			joinDecision(h,cost,false);
 			return;
 		}
 

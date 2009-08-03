@@ -38,6 +38,7 @@ class CClient;
 struct TerrainTile;
 class CHeroClass;
 class IShipyard;
+struct CPackForServer;
 
 struct InfoAboutHero
 {
@@ -84,8 +85,9 @@ struct InfoAboutTown
 class ICallback
 {
 public:
+	bool waitTillRealize; //if true, request functions will return after they are realized by server
 	//hero
-	virtual bool moveHero(const CGHeroInstance *h, int3 dst) const =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	virtual bool moveHero(const CGHeroInstance *h, int3 dst) =0; //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	virtual bool dismissHero(const CGHeroInstance * hero)=0; //dismisses given hero; true - successfuly, false - not successfuly
 	
 	//town
@@ -185,18 +187,19 @@ struct HeroMoveDetails
 class CCallback : public ICallback
 {
 private:
-	CCallback(CGameState * GS, int Player, CClient *C):gs(GS), cl(C), player(Player){};
+	CCallback(CGameState * GS, int Player, CClient *C);;
 	CGameState * gs;
 	CClient *cl;
 	bool isVisible(int3 pos, int Player) const;
 	bool isVisible(const CGObjectInstance *obj, int Player) const;
+	template <typename T> void sendRequest(const T*request);
 
 protected:
 	int player;
 
 public:
 //commands
-	bool moveHero(const CGHeroInstance *h, int3 dst) const; //dst must be free, neighbouring tile (this function can move hero only by one tile)
+	bool moveHero(const CGHeroInstance *h, int3 dst); //dst must be free, neighbouring tile (this function can move hero only by one tile)
 	void selectionMade(int selection, int asker);
 	int swapCreatures(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2);
 	int mergeStacks(const CArmedInstance *s1, const CArmedInstance *s2, int p1, int p2); //first goes to the second

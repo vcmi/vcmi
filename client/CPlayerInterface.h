@@ -154,7 +154,6 @@ public:
 	void heroCreated(const CGHeroInstance* hero);
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	void heroInGarrisonChange(const CGTownInstance *town);
-	void heroKilled(const CGHeroInstance* hero);
 	void heroMoved(const TryMoveHero & details);
 	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
 	void heroManaPointsChanged(const CGHeroInstance * hero);
@@ -175,6 +174,7 @@ public:
 	void requestRealized(PackageApplied *pa);
 	void heroExchangeStarted(si32 hero1, si32 hero2);
 	void objectPropertyChanged(const SetObjectProperty * sop);
+	void objectRemoved(const CGObjectInstance *obj);
 	void serialize(COSer<CSaveFile> &h, const int version); //saving
 	void serialize(CISer<CLoadFile> &h, const int version); //loading
 
@@ -195,6 +195,7 @@ public:
 
 
 	//-------------//
+	void heroKilled(const CGHeroInstance* hero);
 	void waitWhileDialog();
 	bool shiftPressed() const; //determines if shift key is pressed (left or right or both)
 	void redrawHeroWin(const CGHeroInstance * hero);

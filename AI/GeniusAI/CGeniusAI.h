@@ -4,11 +4,20 @@
 #include "Common.h"
 #include "BattleLogic.h"
 #include "GeneralAI.h"
+#include "..\..\lib\CondSh.h"
 #include "../../lib/VCMI_Lib.h"
 #include <set>
 #include <list>
 #include <queue>
 namespace GeniusAI {
+
+enum BattleState
+{
+	NO_BATTLE,
+	UPCOMING_BATTLE,
+	ONGOING_BATTLE,
+	ENDING_BATTLE
+};
 
 class CGeniusAI : public CGlobalAI
 {
@@ -75,6 +84,7 @@ private:
 	void getObjectives(HypotheticalGameState & hgs);
 	void reportResources();
 	int turn;
+	CondSh<BattleState> m_state; //are we engaged into battle?
 	bool firstTurn;
 
 
@@ -195,6 +205,7 @@ public:
 	virtual void tileHidden(int3 pos);
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
+	virtual void playerBlocked(int reason);
 	// battle
 	virtual void actionFinished(const BattleAction *action);//occurs AFTER every action taken by any stack or by the hero
 	virtual void actionStarted(const BattleAction *action);//occurs BEFORE every action taken by any stack or by the hero
@@ -211,6 +222,7 @@ public:
 	virtual void battleStackAttacking(int ID, int dest);
 	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting);
 	virtual BattleAction activeStack(int stackID);
+	void battleResultsApplied();
 };
 }
 

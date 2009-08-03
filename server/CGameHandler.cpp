@@ -403,11 +403,15 @@ askInterfaceForMove:
 		}
 	}
 
+	BattleResultsApplied resultsApplied;
+	resultsApplied.player1 = army1->tempOwner;
+	resultsApplied.player2 = army2->tempOwner;
+
 	//unblock engaged players
-	if(hero1->tempOwner<PLAYER_LIMIT)
-		states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,false);
-	if(hero2 && hero2->tempOwner<PLAYER_LIMIT)
-		states.setFlag(hero2->tempOwner,&PlayerStatus::engagedIntoBattle,false);	
+	if(army1->tempOwner<PLAYER_LIMIT)
+		states.setFlag(army1->tempOwner,&PlayerStatus::engagedIntoBattle,false);
+	if(army2 && army2->tempOwner<PLAYER_LIMIT)
+		states.setFlag(army2->tempOwner,&PlayerStatus::engagedIntoBattle,false);	
 
 	//casualties among heroes armies
 	SetGarrisons sg;
@@ -441,7 +445,8 @@ askInterfaceForMove:
 		cb(battleResult.data);
 
 	delete battleResult.data;
-
+	
+	sendAndApply(&resultsApplied);
 }
 void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
 {	
@@ -513,12 +518,15 @@ void CGameHandler::handleConnection(std::set<int> players, CConnection &c)
 				tlog5 << "Message successfully applied (result=" << result << ")!\n";
 
 				//send confirmation that we've applied the package
-				PackageApplied applied;
-				applied.result = result;
-				applied.packType = packType;
+				if(pack->type != 6000) //WORKAROUND - not confirm query replies TODO: reconsider
 				{
-					boost::unique_lock<boost::mutex> lock(*c.wmx);
-					c << &applied;
+					PackageApplied applied;
+					applied.result = result;
+					applied.packType = packType;
+					{
+						boost::unique_lock<boost::mutex> lock(*c.wmx);
+						c << &applied;
+					}
 				}
 			}
 			else
@@ -1201,11 +1209,6 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 
 	//premies given
 
-	//block engaged players
-	if(hero1->tempOwner<PLAYER_LIMIT)
-		states.setFlag(hero1->tempOwner,&PlayerStatus::engagedIntoBattle,true);
-	if(hero2 && hero2->tempOwner<PLAYER_LIMIT)
-		states.setFlag(hero2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
 
 	//send info about battles
 	BattleStart bs;
@@ -1292,6 +1295,9 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		return false;
 	}
 
+	if(states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle) && complain("Cannot move hero during the battle"))
+		return false;
+
 	tlog5 << "Player " <<int(asker) << " wants to move hero "<< hid << " from "<< h->pos << " to " << dst << std::endl;
 	int3 hmpos = dst + int3(-1,0,0);
 
@@ -1356,11 +1362,9 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 	//checks for standard movement
 	if(!instant)
 	{
-		if( (distance(h->pos,dst)>=1.5) //tiles are not neighbouring
-			|| (h->movement < cost  &&  h->movement < 100) //lack of movement points
-		  ) 
+		if( distance(h->pos,dst) >= 1.5  &&  complain("Tiles are not neighbouring!")
+			|| h->movement < cost  &&  h->movement < 100  &&  complain("Not enough move points!")) 
 		{
-			tlog2 << "Cannot move hero, not enough move points or tiles are not neighbouring!\n";
 			sendAndApply(&tmh);
 			return false;
 		}
@@ -1556,6 +1560,12 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 
 void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb) //use hero=NULL for no hero
 {
+	engageIntoBattle(army1->tempOwner);
+	engageIntoBattle(army2->tempOwner);
+	//block engaged players
+	if(army2->tempOwner < PLAYER_LIMIT)
+		states.setFlag(army2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
+
 	boost::thread(boost::bind(&CGameHandler::startBattle,this,army1,army2,tile,hero1,hero2,cb));
 }
 
@@ -2442,19 +2452,35 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	{
 		SetMana sm;
 		ChangeSpells cs;
+		SetHeroArtifacts sha;
+
+		CGHeroInstance *h = gs->getHero(gs->getPlayer(player)->currentSelection);
+		if(!h && complain("Cannot realize cheat, no hero selected!")) return;
+
+		sm.hid = cs.hid = h->id;
+
+		//give all spells
 		cs.learn = 1;
 		for(int i=0;i<VLC->spellh->spells.size();i++)
 		{
 			if(!VLC->spellh->spells[i].creatureAbility)
 				cs.spells.insert(i);
 		}
-		sm.hid = cs.hid = gs->players[player].currentSelection;
+
+		//give mana
 		sm.val = 999;
-		if(gs->getHero(cs.hid))
+
+		if(!h->getArt(17)) //hero doesn't have spellbook
 		{
-			sendAndApply(&cs);
-			sendAndApply(&sm);
+			//give spellbook
+			sha.artifacts = h->artifacts;
+			sha.artifWorn = h->artifWorn;
+			sha.artifWorn[17] = 0;
+			sendAndApply(&sha);
 		}
+
+		sendAndApply(&cs);
+		sendAndApply(&sm);
 	}
 	else if(message == "vcmiainur") //gives 5 archangels into each slot
 	{
@@ -2467,7 +2493,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 				sg.garrs[hero->id].slots[i] = std::pair<ui32,si32>(13,5);
 		sendAndApply(&sg);
 	}
-	else if(message == "vcmiangband") //gives 10 black knightinto each slot
+	else if(message == "vcmiangband") //gives 10 black knight into each slot
 	{
 		SetGarrisons sg;
 		CGHeroInstance *hero = gs->getHero(gs->getPlayer(player)->currentSelection);
@@ -2513,6 +2539,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 	else if(message == "vcmieagles") //reveal FoW
 	{
 		FoWChange fc;
+		fc.mode = 1;
 		fc.player = player;
 		for(int i=0;i<gs->map->width;i++)
 			for(int j=0;j<gs->map->height;j++)
@@ -2978,4 +3005,16 @@ bool CGameHandler::buildBoat( ui32 objid )
 	sendAndApply(&no);
 
 	return true;
+}
+
+void CGameHandler::engageIntoBattle( ui8 player )
+{
+	if(vstd::contains(states.players, player))
+		states.setFlag(player,&PlayerStatus::engagedIntoBattle,true);
+
+	//notify interfaces
+	PlayerBlocked pb;
+	pb.player = player;
+	pb.reason = PlayerBlocked::UPCOMING_BATTLE;
+	sendAndApply(&pb);
 }

@@ -25,7 +25,7 @@ void DbgBox(const char *msg, bool messageBox)
 }
 
 CGeniusAI::CGeniusAI()
-	: m_generalAI(),turn(0),firstTurn(true)
+	: m_generalAI(), turn(0), m_state(NO_BATTLE), firstTurn(true)
 {
 }
 
@@ -272,6 +272,20 @@ void GeniusAI::CGeniusAI::showGarrisonDialog( const CArmedInstance *up, const CG
 	onEnd();
 }
 
+void GeniusAI::CGeniusAI::playerBlocked( int reason )
+{
+	if(reason == 0) //battle is coming...
+	{
+		m_state.setn(UPCOMING_BATTLE);
+	}
+}
+
+void GeniusAI::CGeniusAI::battleResultsApplied()
+{
+	assert(m_state.get() == ENDING_BATTLE);
+	m_state.setn(NO_BATTLE);
+}
+
 void CGeniusAI::showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel)
 {
 	m_cb->selectionMade(cancel ? 0 : 1, askID);
@@ -321,7 +335,10 @@ void CGeniusAI::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 
 void CGeniusAI::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side)
 {
-	assert(!m_battleLogic); //************** assert fails when AI starts two battles at same time? ***************
+	assert(!m_battleLogic);
+	assert(playerID > PLAYER_LIMIT  ||  m_state.get() == UPCOMING_BATTLE); //we have been informed that battle will start (or we are neutral AI)
+
+	m_state.setn(ONGOING_BATTLE);
 	m_battleLogic = new BattleAI::CBattleLogic(m_cb, army1, army2, tile, hero1, hero2, side);
 
 	DbgBox("** CGeniusAI::battleStart **");
@@ -340,6 +357,9 @@ void CGeniusAI::battleEnd(BattleResult *br)
 	
 	delete m_battleLogic;
 	m_battleLogic = NULL;
+
+	assert(m_state.get() == ONGOING_BATTLE);
+	m_state.setn(ENDING_BATTLE);
 
 	DbgBox("** CGeniusAI::battleEnd **");
 }

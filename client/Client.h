@@ -5,6 +5,7 @@
 #include "../global.h"
 #include <boost/thread.hpp>
 #include "../lib/IGameCallback.h"
+#include "../lib/CondSh.h"
 
 /*
  * Client.h, part of VCMI engine
@@ -62,7 +63,10 @@ public:
 	SharedMem *shared;
 	BattleAction *curbaction;
 
+	CondSh<bool> waitingRequest;
+
 	void waitForMoveAndSend(int color);
+	//void sendRequest(const CPackForServer *request, bool waitForRealization);
 	CClient(void);
 	CClient(CConnection *con, StartInfo *si);
 	~CClient(void);

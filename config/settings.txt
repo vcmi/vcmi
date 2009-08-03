@@ -125,4 +125,32 @@ GUISettings
 			ButtonEndTurn: x=1159 y=524 graphic=IAM001.DEF playerColoured=1;
 		};
 	}
+	1600x1200 //setting specific for this resolution
+	{
+		AdventureMap
+		{
+			AdvMap: x=7 y=6 width=1395 height=1147 smoothMove=1;
+			InfoBox: x=1406 y=989;
+			gem0: x=6 y=1108 graphic=agemLL.def;
+			gem1: x=1356 y=1108 graphic=agemLR.def;
+			gem2: x=6 y=6 graphic=agemUL.def;
+			gem3: x=1356 y=6 graphic=agemUR.def;
+			background=ADVMAP4.pcx;
+			HeroList: size=23 x=1409 y=201 movePoints=IMOBIL.DEF manaPoints=IMANA.DEF arrowUp=IAM012.DEF arrowDown=IAM013.DEF;
+			TownList: size=23 x=1547 y=201 arrowUp=IAM014.DEF arrowDown=IAM015.DEF;
+			Minimap: width=144 height=144 x=1430 y=26;
+			Statusbar: x=285 y=1155 graphic=ADROLLVR3.pcx;
+			ResDataBar: x=0 y=1175 graphic=ZRESBAR3.pcx offsetX=65 offsetY=2 resSpace=192 resDateSpace=210;
+			ButtonKingdomOv: x=1479 y=197 graphic=IAM002L.DEF playerColoured=1;
+			ButtonUnderground: x=1479 y=229 graphic=IAM010L.DEF playerColoured=1 additionalDefs=(IAM003L.DEF);
+			ButtonQuestLog: x=1479 y=261 graphic=IAM004L.DEF playerColoured=1;
+			ButtonSleepWake: x=1479 y=294 graphic=IAM005L.DEF playerColoured=1;
+			ButtonMoveHero: x=1479 y=327 graphic=IAM006L.DEF playerColoured=1;
+			ButtonSpellbook: x=1479 y=359 graphic=IAM007L.DEF playerColoured=1;
+			ButtonAdvOptions: x=1479 y=393 graphic=IAM008L.DEF playerColoured=1;
+			ButtonSysOptions: x=1479 y=426 graphic=IAM009L.DEF playerColoured=1;
+			ButtonNextHero: x=1479 y=458 graphic=IAM000.DEF playerColoured=1;
+			ButtonEndTurn: x=1479 y=491 graphic=IAM001.DEF playerColoured=1;
+		};
+	}
 }
