@@ -11,6 +11,6 @@
 #include "../../AI_Base.h"
 #pragma warning (default: 4100 4244)
 
-void MsgBox(const char *msg, bool messageBox = false);
+void DbgBox(const char *msg, bool messageBox = false);
 
 #endif/*__GENIUS_COMMON__*/

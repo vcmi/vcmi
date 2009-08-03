@@ -215,7 +215,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 		(float)totalHitPoints / (float)totalEnemyHitPoints < 0.5f)
 	{
 		m_bEnemyDominates = true;
-		MsgBox("** EnemyDominates!");
+		DbgBox("** EnemyDominates!");
 	}
 	else
 	{
@@ -261,11 +261,11 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 	{
 		creatures = PerformDefaultAction(stackID, additionalInfo);
 	}
-	/*
-	std::string message("Creature will be attacked - ");
+	
+	/*std::string message("Creature will be attacked - ");
 	message += boost::lexical_cast<std::string>(creature_to_attack);
-	MsgBox(message.c_str());
-	*/
+	DbgBox(message.c_str());*/
+	
 
 	if (additionalInfo == -1 || creatures.empty())
 	{
@@ -288,7 +288,9 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 		}
 		else
 		{
+#if defined PRINT_DEBUG
 			PrintBattleAction(ba);
+#endif
 			return ba;
 		}
 	}
@@ -567,7 +569,9 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			{
 				ba.additionalInfo = dest_tile;
 				ba.actionType = action_walk_and_attack;
+#if defined PRINT_DEBUG
 				PrintBattleAction(ba);
+#endif
 				return ba;
 			}
 		}
@@ -578,7 +582,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 			{
 				// attack!
 				ba.actionType = action_walk_and_attack;
-#if defined _DEBUG
+#if defined PRINT_DEBUG
 				PrintBattleAction(ba);
 #endif
 				return ba;
@@ -594,12 +598,12 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 		message = "Attacker position X=";
 		message += boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(nearest_pos)) + ", Y=";
 		message += boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(nearest_pos));
-		MsgBox(message.c_str());
+		DbgBox(message.c_str());
 
 		ba.actionType = action_walk;
 		ba.destinationTile = (ui16)nearest_pos;
 		ba.additionalInfo  = -1;
-#if defined _DEBUG
+#if defined PRINT_DEBUG
 		PrintBattleAction(ba);
 #endif
 		return ba;
