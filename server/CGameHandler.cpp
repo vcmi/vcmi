@@ -570,10 +570,21 @@ void CGameHandler::moveStack(int stack, int dest)
 	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility[dest])
 		return;
 
+	bool accessibilityWithOccupyable[BFIELD_SIZE];
+	std::vector<int> accOc = gs->curB->getAccessibility(curStack->ID, true);
+	for(int b=0; b<BFIELD_SIZE; ++b)
+	{
+		accessibilityWithOccupyable[b] = false;
+	}
+	for(int g=0; g<accOc.size(); ++g)
+	{
+		accessibilityWithOccupyable[accOc[g]] = true;
+	}
+
 	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
 	//	return false;
 
-	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibility, curStack->creature->isFlying(), curStack->creature->isDoubleWide(), curStack->attackerOwned);
+	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->creature->isFlying(), curStack->creature->isDoubleWide(), curStack->attackerOwned);
 	if(curStack->creature->isFlying())
 	{
 		if(path.second <= curStack->Speed() && path.first.size() > 0)
@@ -2306,8 +2317,12 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			if(curStack->position != ba.destinationTile) //we wasn't able to reach destination tile
 			{
-				tlog3<<"We cannot move this stack to its destination "<<curStack->creature->namePl<<std::endl;
+				std::string problem = "We cannot move this stack to its destination " + curStack->creature->namePl;
+				tlog3 << problem << std::endl;
+				complain(problem);
 				ok = false;
+				sendAndApply(&EndAction());
+				break;
 			}
 
 			if(curStack->ID == stackAtEnd->ID) //we should just move, it will be handled by following check
@@ -2317,8 +2332,13 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			if(!stackAtEnd)
 			{
-				tlog3 << "There is no stack on " << ba.additionalInfo << " tile (no attack)!";
+				std::ostringstream problem;
+				problem << "There is no stack on " << ba.additionalInfo << " tile (no attack)!";
+				std::string probl = problem.str();
+				tlog3 << probl << std::endl;
+				complain(probl);
 				ok = false;
+				sendAndApply(&EndAction());
 				break;
 			}
 

@@ -215,6 +215,8 @@ private:
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
 
+	void handleEndOfMove(int stackNumber, int destinationTile); //helper function
+
 	struct SBattleEffect
 	{
 		int x, y; //position on the screen

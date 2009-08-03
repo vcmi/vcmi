@@ -1240,6 +1240,10 @@ void CPlayerInterface::actionFinished(const BattleAction* action)
 		else
 			battleInt->attackingHero->setPhase(0);
 	}
+	if(action->actionType == 6 || action->actionType == 2 && battleInt->creAnims[action->stackNumber]->getType() != 2) //walk or walk & attack
+	{
+		battleInt->handleEndOfMove(action->stackNumber, action->destinationTile);
+	}
 }
 
 BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn of that stack

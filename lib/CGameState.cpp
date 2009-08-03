@@ -478,6 +478,11 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 	{
 		makeBFS(start, accessibility, predecessor, dist, twoHex, attackerOwned);
 	}
+	
+	if(predecessor[dest] == -1) //cannot reach destination
+	{
+		return std::make_pair(std::vector<int>(), 0);
+	}
 
 	//making the Path
 	std::vector<int> path;

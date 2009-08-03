@@ -1134,41 +1134,16 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 		SDL_framerateDelay(LOCPLINT->mainFPSmng);
 	}
 	//unit moved
-
-	if(endMoving) //animation of ending move
+	if(endMoving)
 	{
-		if(creAnims[number]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
-		{
-			if (movedStack->creature->sounds.endMoving) {
-				CGI->soundh->playSound(movedStack->creature->sounds.endMoving);
-			}
-
-			creAnims[number]->setType(21);
-
-			//for(int i=0; i<creAnims[number]->framesInGroup(21)*getAnimSpeedMultiplier()-1; ++i)
-			while(!creAnims[number]->onLastFrameInGroup())
-			{
-				show(screen);
-				CSDL_Ext::update(screen);
-				SDL_framerateDelay(LOCPLINT->mainFPSmng);
-			}
-		}
-		creAnims[number]->setType(2); //resetting to default
-		CGI->curh->show();
-		CGI->soundh->stopSound(moveSh);
+		handleEndOfMove(number, destHex);
 	}
 
-	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
-	if(endMoving) //resetting to default
-	{
-		if(creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))
-			reverseCreature(number, destHex, twoTiles);	
-	}
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], curs.creature);
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], movedStack->creature);
 	creAnims[number]->pos.x = coords.first;
-	if(!endMoving && twoTiles && (curs.owner == attackingHeroInstance->tempOwner) && (creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))) //big attacker creature is reversed
+	if(!endMoving && twoTiles && (movedStack->owner == attackingHeroInstance->tempOwner) && (creDir[number] != (movedStack->owner == attackingHeroInstance->tempOwner))) //big attacker creature is reversed
 		creAnims[number]->pos.x -= 44;
-	else if(!endMoving && twoTiles && (curs.owner != attackingHeroInstance->tempOwner) && (creDir[number] != (curs.owner == attackingHeroInstance->tempOwner))) //big defender creature is reversed
+	else if(!endMoving && twoTiles && (movedStack->owner != attackingHeroInstance->tempOwner) && (creDir[number] != (movedStack->owner == attackingHeroInstance->tempOwner))) //big defender creature is reversed
 		creAnims[number]->pos.x += 44;
 	creAnims[number]->pos.y = coords.second;
 }
@@ -1472,6 +1447,34 @@ bool CBattleInterface::isTileAttackable(const int & number) const
 			return true;
 	}
 	return false;
+}
+
+void CBattleInterface::handleEndOfMove(int stackNumber, int destinationTile)
+{
+	CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackNumber);
+	if(creAnims[stackNumber]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
+	{
+		if (movedStack->creature->sounds.endMoving)
+		{
+			CGI->soundh->playSound(movedStack->creature->sounds.endMoving);
+		}
+
+		creAnims[stackNumber]->setType(21);
+
+		//for(int i=0; i<creAnims[number]->framesInGroup(21)*getAnimSpeedMultiplier()-1; ++i)
+		while(!creAnims[stackNumber]->onLastFrameInGroup())
+		{
+			show(screen);
+			CSDL_Ext::update(screen);
+			SDL_framerateDelay(LOCPLINT->mainFPSmng);
+		}
+	}
+	creAnims[stackNumber]->setType(2); //resetting to default
+	CGI->curh->show();
+	CGI->soundh->stopSound(moveSh);
+
+	if(creDir[stackNumber] != (movedStack->owner == attackingHeroInstance->tempOwner))
+		reverseCreature(stackNumber, destinationTile, movedStack->creature->isDoubleWide());	
 }
 
 void CBattleInterface::hexLclicked(int whichOne)
