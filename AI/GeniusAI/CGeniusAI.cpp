@@ -1,6 +1,6 @@
 #include "CGeniusAI.h"
 #include <iostream>
-
+#include "../../hch/CBuildingHandler.h"
 using namespace std;
 using namespace GeniusAI;
 
@@ -74,10 +74,11 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 	int movement = h.remainingMovement;
 	for(std::set<AIObjectContainer>::const_iterator i = hgs.knownVisitableObjects.begin(); i != hgs.knownVisitableObjects.end();i++)
 	{
-		if(i->o->ID==54||i->o->ID==34)	//creatures, another hero
-			continue;
+	//	if(i->o->ID==54||i->o->ID==34)	//creatures, another hero
+	//		continue;
 
-		if(i->o->getOwner()==m_cb->getMyColor())
+		if(i->o->ID==53)	//mine
+		if(i->o->getOwner()==m_cb->getMyColor())//don't visit if you own, there's almost no point(maybe to leave guards or because the hero's trapped).
 			continue;
 		
 		destination = i->o->getSightCenter();
@@ -105,8 +106,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 	//recruitCreatures
 	//upgradeCreatures
 	//buildBuilding
-
-	if(hgs.heroModels.size()<3) //recruitHero
+	if(hgs.heroModels.size()<3&&hgs.resourceAmounts[6]>=2500) //recruitHero
 	{
 		if(!t.visitingHero)
 		{
@@ -120,43 +120,43 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 		}
 	}
 	
+/*	for(int i = 0; i < t.t->creatures.size() ;i++)
+	{
+		if(t.t->creatures[i].second.empty()) continue;
 
-//	for(int i = 0; i < t.t->creatures.size() ;i++)
-//	{
-//		int ID = t.t->creatures[i].second.back();
-//		CCreature
-//		cout << "town has " << t.t->creatures[i].first << " level " << i+1 << " " << creature->namePl << endl;
-//	}
-	
+		int ID = t.t->creatures[i].second.back();
+		
+		const CCreature *creature = m_cb->getCCreatureByID(ID);
+		cout << "town has " << t.t->creatures[i].first  << " "<< creature->namePl << " (AI Strength " << creature->AIValue << ")." << endl;
+	}
 
-
+	//buildBuilding
+	std::map<int, CBuilding *> thisTownsBuildings = m_cb->getCBuildingsByID(t.t);
+	for(std::map<int, CBuilding *>::iterator i = thisTownsBuildings.begin(); i != thisTownsBuildings.end();i++)
+		cout << "structure "<< i->first << ", " << i->second->Name() << ", build?= " << m_cb->canBuildStructure(t.t,i->first) << endl;
+*/
 }
 
-void CGeniusAI::TownObjective::fulfill(CGeniusAI & cg, HypotheticalGameState & hgs)
+void CGeniusAI::TownObjective::fulfill(CGeniusAI & cg,HypotheticalGameState &hgs)
 {
+	cg.m_cb->waitTillRealize = true;
 	switch(type)
 	{
 	case recruitHero:
 		cg.m_cb->recruitHero(whichTown->t,hgs.AvailableHeroesToBuy[which]);
 		hgs.heroModels.push_back(hgs.AvailableHeroesToBuy[which]);
 		whichTown->visitingHero = true;
+		
 		//TODO: sub 2500 gold from hgs here
 	}
-}
-void CGeniusAI::getObjectives(CGeniusAI::HypotheticalGameState & hgs)
-{
-	currentHeroObjectives.clear();
-	currentTownObjectives.clear();
 	
-	for(std::vector <CGeniusAI::HypotheticalGameState::HeroModel>::iterator i = hgs.heroModels.begin(); i != hgs.heroModels.end(); i++)
-		addHeroObjectives(*i,hgs);
-
-	for(std::vector <CGeniusAI::HypotheticalGameState::TownModel>::iterator i = hgs.townModels.begin(); i != hgs.townModels.end(); i++)
-		addTownObjectives(*i,hgs);
+	cg.m_cb->waitTillRealize = false;
 }
 
-void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg, HypotheticalGameState & hgs)
+
+void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hgs)
 {
+	cg.m_cb->waitTillRealize = true;
 	switch(type)
 	{
 	case visit:
@@ -170,8 +170,16 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg, HypotheticalGameState & h
 		if(cg.m_cb->getPath(hpos,destination,h->h,path))
 		{
 			path.convert(0);
-			for(int i = path.nodes.size()-2;i>=0;i--)
+													//wait over, battle over too. hero might be killed. check.
+			for(int i = path.nodes.size()-2;i>=0&&(cg.m_cb->getHeroSerial(h->h) >= 0);i--)
+			{
 				cg.m_cb->moveHero(h->h,path.nodes[i].coord);
+
+				if(cg.m_state.get() != NO_BATTLE)
+					cg.m_state.waitUntil(NO_BATTLE);//wait for battle end
+			}
+
+
 			h->remainingMovement-=path.nodes[0].dist;
 			if(object->blockVisit)
 				h->pos = path.nodes[1].coord;
@@ -184,49 +192,64 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg, HypotheticalGameState & h
 
 
 	}
+	cg.m_cb->waitTillRealize = false;
 }
 
 
+void CGeniusAI::fillObjectiveQueue(HypotheticalGameState & hgs)
+{
+	objectiveQueue.clear();
+	currentHeroObjectives.clear();
+	currentTownObjectives.clear();
+	
+	for(std::vector <CGeniusAI::HypotheticalGameState::HeroModel>::iterator i = hgs.heroModels.begin(); i != hgs.heroModels.end(); i++)
+		addHeroObjectives(*i,hgs);
+
+	for(std::vector <CGeniusAI::HypotheticalGameState::TownModel>::iterator i = hgs.townModels.begin(); i != hgs.townModels.end(); i++)
+		addTownObjectives(*i,hgs);
+	for(std::set<CGeniusAI::HeroObjective>::iterator i = currentHeroObjectives.begin(); i != currentHeroObjectives.end(); i++)
+		objectiveQueue.push_back(AIObjectivePtrCont(&(*i)));
+	for(std::set<CGeniusAI::TownObjective>::iterator i = currentTownObjectives.begin(); i != currentTownObjectives.end(); i++)
+		objectiveQueue.push_back(AIObjectivePtrCont(&(*i)));
+}
+CGeniusAI::AIObjective * CGeniusAI::getBestObjective()
+{
+	trueGameState = HypotheticalGameState(*this);
+	
+	fillObjectiveQueue(trueGameState);
+	
+	if(!objectiveQueue.empty())
+		return max_element(objectiveQueue.begin(),objectiveQueue.end())->obj;
+	return NULL;
+
+}
 void CGeniusAI::yourTurn()
 {
+
 	static int seed = rand();
 	srand(seed);
 	if(firstTurn)
 	{
 		//m_cb->sendMessage("vcmieagles");
+		//m_cb->sendMessage("vcmiformenos");
+		//m_cb->sendMessage("vcmiformenos");
 		firstTurn = false;
-
-			
 	}
+	//////////////TODO: replace with updates. Also add suspected objects list./////////
 	knownVisitableObjects.clear();
 	int3 pos = m_cb->getMapSize();
 	for(int x = 0;x<pos.x;x++)
 		for(int y = 0;y<pos.y;y++)
 			for(int z = 0;z<pos.z;z++)
 				tileRevealed(int3(x,y,z));
+	///////////////////////////////////////////////////////////////////////////////////
 
-	reportResources();
+//	reportResources();
 	turn++;
-	HypotheticalGameState hgs(*this);
-	getObjectives(hgs);
-	vector<AIObjectivePtrCont> AIObjectiveQueue;
-	do{
-			
-		//std::cout << "I have " << currentHeroObjectives.size() << " things I could do with my heroes!" << std::endl;
-		//std::cout << "I have " << currentTownObjectives.size() << " things I could do with my towns!" << std::endl;
-		
-		AIObjectiveQueue.clear();
-		for(std::set<CGeniusAI::HeroObjective>::iterator i = currentHeroObjectives.begin(); i != currentHeroObjectives.end(); i++)
-			AIObjectiveQueue.push_back(AIObjectivePtrCont(&(*i)));
-		for(std::set<CGeniusAI::TownObjective>::iterator i = currentTownObjectives.begin(); i != currentTownObjectives.end(); i++)
-			AIObjectiveQueue.push_back(AIObjectivePtrCont(&(*i)));
-		if(!AIObjectiveQueue.empty())
-			max_element(AIObjectiveQueue.begin(),AIObjectiveQueue.end())->obj->fulfill(*this, hgs);
 
-		getObjectives(hgs);
-
-	}while(!currentHeroObjectives.empty());
-
+	AIObjective * objective;
+	while((objective = getBestObjective())!=NULL)
+		objective->fulfill(*this,trueGameState);
 
 	seed = rand();
 	m_cb->endTurn();
@@ -252,14 +275,28 @@ void CGeniusAI::tileRevealed(int3 pos)
 		knownVisitableObjects.insert(*o);
 }
 
+void CGeniusAI::newObject(const CGObjectInstance * obj) //eg. ship built in shipyard
+{
+	knownVisitableObjects.insert(obj);
+}
+
+void CGeniusAI::objectRemoved(const CGObjectInstance *obj) //eg. collected resource, picked artifact, beaten hero
+{
+	std::set <AIObjectContainer>::iterator o = knownVisitableObjects.find(obj);
+	if(o!=knownVisitableObjects.end())
+		knownVisitableObjects.erase(o);
+}
+
 void CGeniusAI::tileHidden(int3 pos)
 {
-
+	
 }
 
 void CGeniusAI::heroMoved(const TryMoveHero &TMH)
 {
-	DbgBox("** CGeniusAI::heroMoved **");
+	//DbgBox("** CGeniusAI::heroMoved **");
+
+
 }
 
 void CGeniusAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)

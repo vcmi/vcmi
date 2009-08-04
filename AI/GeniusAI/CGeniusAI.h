@@ -5,10 +5,15 @@
 #include "BattleLogic.h"
 #include "GeneralAI.h"
 #include "..\..\lib\CondSh.h"
-#include "../../lib/VCMI_Lib.h"
+//#include "../../lib/VCMI_Lib.h"
+//#include "../../global.h"
+//#include "../../client/CGameInfo.h"
 #include <set>
 #include <list>
 #include <queue>
+
+class CBuilding;
+
 namespace GeniusAI {
 
 enum BattleState
@@ -25,6 +30,9 @@ private:
 	ICallback*							m_cb;
 	GeniusAI::BattleAI::CBattleLogic*	m_battleLogic;
 	GeniusAI::GeneralAI::CGeneralAI		m_generalAI;
+	
+	CondSh<BattleState> m_state; //are we engaged into battle?
+
 	class AIObjectContainer
 	{
 	public:
@@ -37,11 +45,11 @@ private:
 			return o->id<b.o->id;
 		}
 	};
-	std::set< AIObjectContainer > knownVisitableObjects;
 
 	class HypotheticalGameState
 	{
 	public:
+		HypotheticalGameState(){}
 		HypotheticalGameState(CGeniusAI & AI)
 			:knownVisitableObjects(AI.knownVisitableObjects)
 		{
@@ -55,6 +63,8 @@ private:
 
 			if(AI.m_cb->howManyTowns()!=0)
 				AvailableHeroesToBuy = AI.m_cb->getAvailableHeroes(AI.m_cb->getTownInfo(0,0));
+
+			for(int i = 0; i < 7;i++)resourceAmounts.push_back(AI.m_cb->getResourceAmount(i));
 		}
 
 		class TownModel
@@ -75,19 +85,12 @@ private:
 			const CGHeroInstance * h;
 		};
 		std::vector<const CGHeroInstance *> AvailableHeroesToBuy;
+		std::vector<int> resourceAmounts;
 		std::vector<HeroModel> heroModels;
 		std::vector<TownModel> townModels;
 		std::set< AIObjectContainer > knownVisitableObjects;
 	};
-	void addHeroObjectives(HypotheticalGameState::HeroModel &h, HypotheticalGameState & hgs);
-	void addTownObjectives(HypotheticalGameState::TownModel &h, HypotheticalGameState & hgs);
-	void getObjectives(HypotheticalGameState & hgs);
-	void reportResources();
-	int turn;
-	CondSh<BattleState> m_state; //are we engaged into battle?
-	bool firstTurn;
-
-
+	
 	class AIObjective
 	{
 	public: 
@@ -112,6 +115,7 @@ private:
 		//virtual bool operator < (const AIObjective &)const=0;
 		//virtual bool stillPossible(const HypotheticalGameState &)const = 0;
 		virtual void fulfill(CGeniusAI &,HypotheticalGameState & hgs)=0;
+		virtual HypotheticalGameState pretend(const HypotheticalGameState &) =0;
 		virtual float getValue() const=0;	//how much is it worth to the AI to achieve
 	};
 
@@ -141,18 +145,18 @@ private:
 				return object->id < other.object->id;
 			return false;
 		}
-		//bool stillPossible(const HypotheticalGameState &) const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
+		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
 		float getValue() const{return _value;}
 	private:
 		float _value;
 	};
 
-				//town objectives
-			//recruitHero,
-			//recruitCreatures,
-			//upgradeCreatures,
-			//buildBuilding
+	//town objectives
+		//recruitHero,
+		//recruitCreatures,
+		//upgradeCreatures,
+		//buildBuilding
 
 	class TownObjective: public AIObjective
 	{
@@ -171,6 +175,7 @@ private:
 			return false;
 		}
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
+		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
 		float getValue() const {return _value;}
 	private:
 		float _value;
@@ -186,8 +191,19 @@ private:
 		{return obj->getValue()<other.obj->getValue();}
 
 	};
+	HypotheticalGameState trueGameState;
+	AIObjective * getBestObjective();
+	void addHeroObjectives(HypotheticalGameState::HeroModel &h, HypotheticalGameState & hgs);
+	void addTownObjectives(HypotheticalGameState::TownModel &h, HypotheticalGameState & hgs);
+	void fillObjectiveQueue(HypotheticalGameState & hgs);
+
+	void reportResources();
+	int turn;
+	bool firstTurn;
+	std::set< AIObjectContainer > knownVisitableObjects;
 	std::set<HeroObjective> currentHeroObjectives;	//can be fulfilled right now
 	std::set<TownObjective> currentTownObjectives;
+	std::vector<AIObjectivePtrCont> objectiveQueue;
 
 public:
 	CGeniusAI();
@@ -206,6 +222,11 @@ public:
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
 	virtual void playerBlocked(int reason);
+
+	virtual void objectRemoved(const CGObjectInstance *obj); //eg. collected resource, picked artifact, beaten hero
+	virtual void newObject(const CGObjectInstance * obj); //eg. ship built in shipyard
+	
+	
 	// battle
 	virtual void actionFinished(const BattleAction *action);//occurs AFTER every action taken by any stack or by the hero
 	virtual void actionStarted(const BattleAction *action);//occurs BEFORE every action taken by any stack or by the hero
