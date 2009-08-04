@@ -1576,10 +1576,10 @@ int CGameState::getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, in
 int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 {
 	int ret = 7; //allowed by default
-
 	//checking resources
 	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
-	for(int res=0;res<7;res++) //TODO: support custom amount of resources
+	if(!pom)return 8;
+	for(int res=0;res<pom->resources.size();res++) //TODO: support custom amount of resources
 	{
 		if(pom->resources[res] > getPlayer(t->tempOwner)->resources[res])
 			ret = 6; //lack of res
@@ -1620,6 +1620,8 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 			ret = 1; //lack of water
 	}
 
+	if(t->builtBuildings.find(ID)!=t->builtBuildings.end())	//already built
+		ret = 4;
 	return ret;
 }
 
