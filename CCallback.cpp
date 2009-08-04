@@ -308,6 +308,14 @@ std::vector < const CGHeroInstance *> CCallback::getHeroesInfo(bool onlyOur) con
 	}
 	return ret;
 }
+std::map<int,CBuilding *> CCallback::getCBuildingsByID(const CGTownInstance * tn) const
+{
+	return CGI->buildh->buildings[tn->subID];
+}
+const CCreature * CCallback::getCCreatureByID(int ID) const
+{
+	return &CGI->creh->creatures[ID];
+}
 
 bool CCallback::isVisible(int3 pos) const
 {
