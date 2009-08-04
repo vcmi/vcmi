@@ -1180,7 +1180,7 @@ void CPlayerInterface::actionStarted(const BattleAction* action)
 
 	battleInt->deactivate();
 
-	CStack *stack = cb->battleGetStackByID(action->stackNumber);
+	const CStack *stack = cb->battleGetStackByID(action->stackNumber);
 	char txt[400];
 
 	if(action->actionType == 1)
@@ -1252,7 +1252,7 @@ BattleAction CPlayerInterface::activeStack(int stackID) //called when it's turn 
 	{
 		boost::unique_lock<boost::recursive_mutex> un(*pim);
 
-		CStack *stack = cb->battleGetStackByID(stackID);
+		const CStack *stack = cb->battleGetStackByID(stackID);
 		if(vstd::contains(stack->state,MOVED)) //this stack has moved and makes second action -> high morale
 		{
 			std::string hlp = CGI->generaltexth->allTexts[33];
@@ -1331,7 +1331,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	assert(curAction);
 	if(ba->lucky()) //lucky hit
 	{
-		CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
+		const CStack *stack = cb->battleGetStackByID(ba->stackAttacking);
 		std::string hlp = CGI->generaltexth->allTexts[45];
 		boost::algorithm::replace_first(hlp,"%s",(stack->amount != 1) ? stack->creature->namePl.c_str() : stack->creature->nameSing.c_str());
 		battleInt->console->addText(hlp);
@@ -1346,7 +1346,7 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	}
 	else
 	{
-		CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
+		const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
 		int shift = 0;		
 		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)		
 		{			

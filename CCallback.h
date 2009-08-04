@@ -166,8 +166,8 @@ public:
 	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield
 	virtual std::vector<CObstacleInstance> battleGetAllObstacles()=0; //returns all obstacles on the battlefield
 	virtual int battleGetStack(int pos)=0; //returns ID of stack on the tile
-	virtual CStack * battleGetStackByID(int ID)=0; //returns stack info by given ID
-	virtual CStack * battleGetStackByPos(int pos)=0; //returns stack info by given pos
+	virtual const CStack * battleGetStackByID(int ID)=0; //returns stack info by given ID
+	virtual const CStack * battleGetStackByPos(int pos)=0; //returns stack info by given pos
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
@@ -267,8 +267,8 @@ public:
 	int battleGetObstaclesAtTile(int tile); //returns bitfield
 	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
 	int battleGetStack(int pos); //returns ID of stack on the tile
-	CStack * battleGetStackByID(int ID); //returns stack info by given ID
-	CStack * battleGetStackByPos(int pos); //returns stack info by given pos
+	const CStack * battleGetStackByID(int ID); //returns stack info by given ID
+	const CStack * battleGetStackByPos(int pos); //returns stack info by given pos
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	int battleMakeAction(BattleAction* action);//for casting spells by hero - DO NOT use it for moving active stack
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield

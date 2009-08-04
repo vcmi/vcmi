@@ -2098,7 +2098,8 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 			}
 		}
 	}
-	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_1") != std::string::npos
+		|| VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 	{
 		if(caster->getSpellSchoolLevel(s) < 3)  /*not expert */
 		{

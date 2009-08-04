@@ -709,8 +709,8 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		{
 			if(std::find(shadedHexes.begin(),shadedHexes.end(),myNumber) == shadedHexes.end())
 			{
-				CStack *shere = LOCPLINT->cb->battleGetStackByPos(myNumber);
-				CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
+				const CStack *shere = LOCPLINT->cb->battleGetStackByPos(myNumber);
+				const CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
 				if(shere)
 				{
 					if(shere->owner == LOCPLINT->playerID) //our stack
@@ -762,7 +762,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			}
 			else //available tile
 			{
-				CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
+				const CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
 				if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isFlying())
 				{
 					CGI->curh->changeGraphic(1,2);
@@ -805,7 +805,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		}
 		else
 		{
-			CStack * stackUnder = LOCPLINT->cb->battleGetStackByPos(myNumber);
+			const CStack * stackUnder = LOCPLINT->cb->battleGetStackByPos(myNumber);
 			bool whichCase; //for cases 1, 2 and 3
 			switch(spellSelMode)
 			{
@@ -1031,7 +1031,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 	int steps = creAnims[number]->framesInGroup(0)*getAnimSpeedMultiplier()-1;
 	int hexWbase = 44, hexHbase = 42;
 	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
-	CStack * movedStack = LOCPLINT->cb->battleGetStackByID(number);
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(number);
 	
 	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack->creature);
 	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack->creature);
@@ -1451,7 +1451,7 @@ bool CBattleInterface::isTileAttackable(const int & number) const
 
 void CBattleInterface::handleEndOfMove(int stackNumber, int destinationTile)
 {
-	CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackNumber);
+	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackNumber);
 	if(creAnims[stackNumber]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
 	{
 		if (movedStack->creature->sounds.endMoving)
@@ -1514,7 +1514,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 		}
 		else
 		{
-			CStack* dest = LOCPLINT->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
+			const CStack* dest = LOCPLINT->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
 			if(!dest || !dest->alive()) //no creature at that tile
 			{
 				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
@@ -1811,8 +1811,14 @@ void CBattleInterface::spellCast(SpellCast * sc)
 	case 17: //lightning bolt
 		displayEffect(1, sc->tile);
 		displayEffect(spell.mainEffectAnim, sc->tile);
+		break;
 	case 35: //dispel
-		displayEffect(spell.mainEffectAnim, sc->tile);
+	case 37: //cure
+		for(std::set<ui32>::const_iterator it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it)
+		{
+			displayEffect(spell.mainEffectAnim, LOCPLINT->cb->battleGetStackByID(*it)->position);
+		}
+		break;
 	} //switch(sc->id)
 
 	//support for resistance
@@ -1861,7 +1867,8 @@ void CBattleInterface::castThisSpell(int spellID)
 			break;
 		}
 	}
-	if(CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
+	if(CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET_1") != std::string::npos ||
+		CGI->spellh->spells[spellID].attributes.find("CREATURE_TARGET_2") != std::string::npos) //spell to be cast on a specific creature but massive on expert
 	{
 		if(castingHero && castingHero->getSpellSecLevel(spellID) < 3)
 		{
@@ -2030,7 +2037,7 @@ void CBattleInterface::attackingShowHelper()
 		{
 			attackingInfo->reversing = true;
 
-			CStack* aStackp = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
+			const CStack* aStackp = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
 			if(aStackp == NULL)
 				return;
 			CStack aStack = *aStackp;

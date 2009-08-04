@@ -105,7 +105,7 @@ private:
 	/**
 	 * Helper function. It's used for performing an attack action.
 	 */
-	std::vector<int> GetAvailableHexesForAttacker(CStack *defender, CStack *attacker = NULL);
+	std::vector<int> GetAvailableHexesForAttacker(const CStack *defender, const CStack *attacker = NULL);
 	/**
 	 * Just make defend action.
 	 */

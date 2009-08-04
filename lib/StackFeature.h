@@ -109,6 +109,7 @@ struct StackFeature
 	ui8 type;//ECombatFeatures
 	ui8 duration;//EDuration
 	ui8 source;//ESource
+	si8 positiveness; //+1 - positive, 0 - neutral, -1 - negative; used mostly for spell features
 	ui16 turnsRemain; //if duration is N_TURNS it describes how long the effect will last
 	si16 subtype; //subtype of bonus/feature
 	si32 value;
@@ -123,7 +124,7 @@ struct StackFeature
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & type & duration & source & turnsRemain & subtype & value & additionalInfo;
+		h & type & duration & source & positiveness & turnsRemain & subtype & value & additionalInfo;
 	}
 };
 

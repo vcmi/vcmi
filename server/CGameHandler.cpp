@@ -2722,6 +2722,10 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 
 			//calculating affected creatures for all spells
 			std::set<CStack*> attackedCres = gs->curB->getAttackedCreatures(s, h, ba.destinationTile);
+			for(std::set<CStack*>::const_iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+			{
+				sc.affectedCres.insert((*it)->ID);
+			}
 
 			//checking if creatures resist
 			sc.resisted = calculateResistedStacks(s, h, secondHero, attackedCres);
@@ -2752,7 +2756,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 						BattleStackAttacked bsa;
 						bsa.flags |= 2;
 						bsa.effect = VLC->spellh->spells[ba.additionalInfo].mainEffectAnim;
-						bsa.damageAmount = calculateSpellDmg(&VLC->spellh->spells[ba.additionalInfo], h, *it);
+						bsa.damageAmount = calculateSpellDmg(s, h, *it);
 						bsa.stackAttacked = (*it)->ID;
 						prepareAttacked(bsa,*it);
 						si.stacks.insert(bsa);
@@ -2812,6 +2816,24 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					sse.effect.turnsRemain = 1;
 					if(!sse.stacks.empty())
 						sendAndApply(&sse);
+					break;
+				}
+			case 37: //cure
+				{
+					StacksHealedOrResurrected shr;
+					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
+					{
+						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+							continue;
+						StacksHealedOrResurrected::HealInfo hi;
+						hi.stackID = (*it)->ID;
+						int healedHP = h->getPrimSkillLevel(2) * 5 + s->powers[h->getSpellSchoolLevel(s)];
+						hi.healForFirstStack = std::min<ui32>(healedHP, (*it)->MaxHealth() - (*it)->firstHPleft);
+						hi.resurrectedCres = 0;
+						shr.healedStacks.push_back(hi);
+					}
+					if(!shr.healedStacks.empty())
+						sendAndApply(&shr);
 					break;
 				}
 			}

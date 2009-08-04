@@ -904,9 +904,10 @@ struct SpellCast : public CPackForClient//3009
 	ui8 skill;
 	ui16 tile; //destination tile (may not be set in some global/mass spells
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
+	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side & id & skill & tile & resisted;
+		h & side & id & skill & tile & resisted & affectedCres;
 	}
 };
 
@@ -947,6 +948,31 @@ struct BattleResultsApplied : public CPackForClient //3012
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & player1 & player2;
+	}
+};
+
+struct StacksHealedOrResurrected : public CPackForClient //3013
+{
+	StacksHealedOrResurrected(){type = 3013;}
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+
+	struct HealInfo
+	{
+		ui32 stackID;
+		ui32 healForFirstStack;
+		ui32 resurrectedCres;
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & stackID & healForFirstStack & resurrectedCres;
+		}
+	};
+
+	std::vector<HealInfo> healedStacks;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & healedStacks;
 	}
 };
 

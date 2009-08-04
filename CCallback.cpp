@@ -442,7 +442,7 @@ int CCallback::battleGetStack(int pos)
 	return gs->battleGetStack(pos);
 }
 
-CStack* CCallback::battleGetStackByID(int ID)
+const CStack* CCallback::battleGetStackByID(int ID)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB) return NULL;
@@ -456,7 +456,7 @@ int CCallback::battleMakeAction(BattleAction* action)
 	return 0;
 }
 
-CStack* CCallback::battleGetStackByPos(int pos)
+const CStack* CCallback::battleGetStackByPos(int pos)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return battleGetStackByID(battleGetStack(pos));
@@ -553,7 +553,7 @@ bool CCallback::battleIsStackMine(int ID)
 bool CCallback::battleCanShoot(int ID, int dest)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	CStack *our = battleGetStackByID(ID), *dst = battleGetStackByPos(dest);
+	const CStack *our = battleGetStackByID(ID), *dst = battleGetStackByPos(dest);
 	if(!our || !dst || !gs->curB) return false; 
 
 	//for(size_t g=0; g<our->effects.size(); ++g)

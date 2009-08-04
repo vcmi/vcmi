@@ -696,18 +696,21 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 
 	if(gs->curB && id == 35) //dispel
 	{
-		CStack *s = gs->curB->getStackT(tile);
-		if(s && !vstd::contains(resisted, s->ID)) //if stack exists and it didn't resist
+		for(std::set<ui32>::const_iterator it = affectedCres.begin(); it != affectedCres.end(); ++it)
 		{
-			s->effects.clear(); //removing all effects
-			//removing all features from spells
-			std::vector<StackFeature> tmpFeatures = s->features;
-			s->features.clear();
-			for(int i=0; i < tmpFeatures.size(); i++)
+			CStack *s = gs->curB->getStack(*it);
+			if(s && !vstd::contains(resisted, s->ID)) //if stack exists and it didn't resist
 			{
-				if(tmpFeatures[i].source != StackFeature::SPELL_EFFECT)
+				s->effects.clear(); //removing all effects
+				//removing all features from spells
+				std::vector<StackFeature> tmpFeatures = s->features;
+				s->features.clear();
+				for(int i=0; i < tmpFeatures.size(); i++)
 				{
-					s->features.push_back(tmpFeatures[i]);
+					if(tmpFeatures[i].source != StackFeature::SPELL_EFFECT)
+					{
+						s->features.push_back(tmpFeatures[i]);
+					}
 				}
 			}
 		}
@@ -797,6 +800,12 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 		break;
 	}
 
+	//setting positiveness
+	for(int g=0; g<sf.size(); ++g)
+	{
+		sf[g].positiveness = VLC->spellh->spells[sse.id].positiveness;
+	}
+
 	return sf;
 }
 
@@ -865,6 +874,37 @@ DLL_EXPORT void StacksInjured::applyGs( CGameState *gs )
 {
 	BOOST_FOREACH(BattleStackAttacked stackAttacked, stacks)
 		stackAttacked.applyGs(gs);
+}
+
+DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
+{
+	for(int g=0; g<healedStacks.size(); ++g)
+	{
+		CStack * changedStack = gs->curB->stacks[healedStacks[g].stackID];
+		changedStack->firstHPleft += healedStacks[g].healForFirstStack;
+		changedStack->amount += healedStacks[g].resurrectedCres;
+		//removal of negative effects
+		{
+			for(int h=0; h<changedStack->effects.size(); ++h)
+			{
+				if(VLC->spellh->spells[changedStack->effects[h].id].positiveness < 0)
+				{
+					changedStack->effects.erase(changedStack->effects.begin() + h);
+				}
+			}
+			
+			//removing all features from negative spells
+			std::vector<StackFeature> tmpFeatures = changedStack->features;
+			changedStack->features.clear();
+			for(int i=0; i < tmpFeatures.size(); i++)
+			{
+				if(tmpFeatures[i].source != StackFeature::SPELL_EFFECT || tmpFeatures[i].positiveness >= 0)
+				{
+					changedStack->features.push_back(tmpFeatures[i]);
+				}
+			}
+		}
+	}
 }
 
 DLL_EXPORT void YourTurn::applyGs( CGameState *gs )

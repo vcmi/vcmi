@@ -300,7 +300,7 @@ BattleAction CBattleLogic::MakeDecision(int stackID)
 
 
 
-std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender, CStack *attacker)
+std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(const CStack *defender, const CStack *attacker)
 {
 	int x = m_battleHelper.DecodeXPosition(defender->position);
 	int y = m_battleHelper.DecodeYPosition(defender->position);
@@ -408,7 +408,7 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(CStack *defender, CS
 		}
 
 		int new_pos = m_battleHelper.GetBattleFieldPosition(it->first, it->second);
-		CStack *st = m_cb->battleGetStackByPos(new_pos);
+		const CStack *st = m_cb->battleGetStackByPos(new_pos);
 
 		if (st == NULL || st->amount < 1)
 		{
@@ -479,7 +479,7 @@ BattleAction CBattleLogic::MakeWait(int stackID)
 
 BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 {
-	CStack *attackerStack = m_cb->battleGetStackByID(attackerID),
+	const CStack *attackerStack = m_cb->battleGetStackByID(attackerID),
 		*destinationStack = m_cb->battleGetStackByID(destinationID);
 	assert(attackerStack && destinationStack);
 
@@ -744,7 +744,7 @@ void CBattleLogic::PrintBattleAction(const BattleAction &action) // for debug pu
 		message += "stack - " + boost::lexical_cast<std::string>(m_battleHelper.DecodeXPosition(action.additionalInfo));
 		message += ", " + boost::lexical_cast<std::string>(m_battleHelper.DecodeYPosition(action.additionalInfo));
 		message += ", creature - ";
-		CStack *c = m_cb->battleGetStackByPos(action.additionalInfo);
+		const CStack *c = m_cb->battleGetStackByPos(action.additionalInfo);
 		if (c && c->creature)
 		{
 			message += c->creature->nameRef;
