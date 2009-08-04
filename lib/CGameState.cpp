@@ -264,7 +264,7 @@ CStack * BattleInfo::getStackT(int tileID)
 	}
 	return NULL;
 }
-void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, int stackToOmmit)
+void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit)
 {
 	memset(accessibility, 1, BFIELD_SIZE); //initialize array with trues
 	for(unsigned int g=0; g<stacks.size(); ++g)
@@ -300,22 +300,25 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 			for(int w=1; w<BFIELD_WIDTH-1; ++w)
 			{
 				int hex = h * BFIELD_WIDTH + w;
-				if(!isAccessible(hex, accessibility, twoHex, attackerOwned)
-					&& (attackerOwned ? isAccessible(hex+1, accessibility, twoHex, attackerOwned) : isAccessible(hex-1, accessibility, twoHex, attackerOwned) )
+				if(!isAccessible(hex, accessibility, twoHex, attackerOwned, flying, true)
+					&& (attackerOwned ? isAccessible(hex+1, accessibility, twoHex, attackerOwned, flying, true) : isAccessible(hex-1, accessibility, twoHex, attackerOwned, flying, true) )
 					)
 					rem.insert(hex);
 			}
 		}
 		occupyable = rem;
-		for(std::set<int>::const_iterator it = rem.begin(); it != rem.end(); ++it)
+		/*for(std::set<int>::const_iterator it = rem.begin(); it != rem.end(); ++it)
 		{
 			accessibility[*it] = true;
-		}
+		}*/
 	}
 }
 
-bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool attackerOwned)
+bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos)
 {
+	if(flying && !lastPos)
+		return true;
+
 	if(twoHex)
 	{
 		//if given hex is accessible and appropriate adjacent one is free too
@@ -327,7 +330,7 @@ bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool a
 	}
 }
 
-void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned) //both pointers must point to the at least 187-elements int arrays
+void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying) //both pointers must point to the at least 187-elements int arrays
 {
 	//inits
 	for(int b=0; b<BFIELD_SIZE; ++b)
@@ -347,7 +350,7 @@ void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *
 		for(unsigned int nr=0; nr<neighbours.size(); nr++)
 		{
 			curNext = neighbours[nr]; //if(!accessibility[curNext] || (dists[curHex]+1)>=dists[curNext])
-			if(!isAccessible(curNext, accessibility, twoHex, attackerOwned) || (dists[curHex]+1)>=dists[curNext])
+			if(!isAccessible(curNext, accessibility, twoHex, attackerOwned, flying, dists[curHex]+1 == dists[curNext]) || (dists[curHex]+1)>=dists[curNext])
 				continue;
 			hexq.push(curNext);
 			dists[curNext] = dists[curHex] + 1;
@@ -366,7 +369,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 	getAccessibilityMap(ac, s->creature->isDoubleWide(), s->attackerOwned, addOccupiable, occupyable, stackID);
 
 	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
-	makeBFS(s->position, ac, pr, dist, s->creature->isDoubleWide(), s->attackerOwned);
+	makeBFS(s->position, ac, pr, dist, s->creature->isDoubleWide(), s->attackerOwned, s->creature->isFlying());
 
 	if(s->creature->isDoubleWide())
 	{
@@ -395,10 +398,10 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 	
 	for(int i=0; i < BFIELD_SIZE ; ++i)
 		if(
-			(dist[i] <= s->Speed() //we can reach it
-			|| (vstd::contains(occupyable, i) && dist[ i + (s->attackerOwned ? 1 : -1 ) ] <= s->Speed() ) //it's occupyable and we can reach adjacent hex
+			( ( !addOccupiable && dist[i] <= s->Speed() && ac[i] ) || ( addOccupiable && dist[i] <= s->Speed() && isAccessible(i, ac, s->creature->isDoubleWide(), s->attackerOwned, s->creature->isFlying(), true) ) )//we can reach it
+			|| (vstd::contains(occupyable, i) && ( dist[ i + (s->attackerOwned ? 1 : -1 ) ] <= s->Speed() ) &&
+				ac[i + (s->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
 			)
-			&& ac[i])
 		{
 			ret.push_back(i);
 		}
@@ -464,20 +467,7 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 	int predecessor[BFIELD_SIZE]; //for getting the Path
 	int dist[BFIELD_SIZE]; //calculated distances
 
-	if(flyingCreature)
-	{
-		bool acc[BFIELD_SIZE]; //full accessibility table
-		for(int b=0; b<BFIELD_SIZE; ++b) //initialization of acc
-		{
-			acc[b] = true;
-		}
-
-		makeBFS(start, acc, predecessor, dist, twoHex, attackerOwned);
-	}
-	else
-	{
-		makeBFS(start, accessibility, predecessor, dist, twoHex, attackerOwned);
-	}
+	makeBFS(start, accessibility, predecessor, dist, twoHex, attackerOwned, flyingCreature);
 	
 	if(predecessor[dest] == -1) //cannot reach destination
 	{
