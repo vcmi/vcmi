@@ -111,7 +111,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 		if(!t.visitingHero)
 		{
 			for(int i =0; i < hgs.AvailableHeroesToBuy.size();i++)
-				if(hgs.AvailableHeroesToBuy[i]->army.slots.size()>1)//only buy heros with units
+				if(hgs.AvailableHeroesToBuy[i]!=NULL&&hgs.AvailableHeroesToBuy[i]->army.slots.size()>1)//only buy heros with units
 				{
 					TownObjective to(AIObjective::recruitHero,&t,0);
 					currentTownObjectives.insert(to);
@@ -244,7 +244,7 @@ void CGeniusAI::yourTurn()
 				tileRevealed(int3(x,y,z));
 	///////////////////////////////////////////////////////////////////////////////////
 
-//	reportResources();
+	reportResources();
 	turn++;
 
 	AIObjective * objective;
