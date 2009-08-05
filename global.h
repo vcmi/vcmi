@@ -84,18 +84,32 @@ const int SPELL_LEVELS = 5;
 
 #define DEFBYPASS
 
+
 #ifdef _WIN32
-	#ifdef VCMI_DLL
-		#define DLL_EXPORT __declspec(dllexport)
-	#else
-		#define DLL_EXPORT __declspec(dllimport)
-	#endif
+	#define DLL_F_EXPORT __declspec(dllexport)
 #else
 	#if defined(__GNUC__) && __GNUC__ >= 4
-		#define DLL_EXPORT	__attribute__ ((visibility("default")))
+		#define DLL_F_EXPORT	__attribute__ ((visibility("default")))
 	#else
-		#define DLL_EXPORT
+		#define DLL_F_EXPORT
 	#endif
+#endif
+
+#ifdef _WIN32
+#define DLL_F_IMPORT __declspec(dllimport)
+#else
+#if defined(__GNUC__) && __GNUC__ >= 4
+#define DLL_F_IMPORT	__attribute__ ((visibility("default")))
+#else
+#define DLL_F_IMPORT
+#endif
+#endif
+
+
+#ifdef VCMI_DLL
+	#define DLL_EXPORT DLL_F_EXPORT
+#else
+	#define DLL_EXPORT DLL_F_IMPORT
 #endif
 
 template<typename T, size_t N> char (&_ArrayCountObj(const T (&)[N]))[N];  

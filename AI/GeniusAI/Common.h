@@ -1,8 +1,6 @@
 #ifndef __GENIUS_COMMON__
 #define __GENIUS_COMMON__
 
-#define VCMI_DLL
-
 #ifdef __GNUC__
 #define strcpy_s(a, b, c) strncpy(a, c, b)
 #endif
