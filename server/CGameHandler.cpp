@@ -1913,7 +1913,7 @@ bool CGameHandler::buildStructure( si32 tid, si32 bid )
 	SetResources sr;
 	sr.player = t->tempOwner;
 	sr.res = gs->getPlayer(t->tempOwner)->resources;
-	for(int i=0;i<7;i++)
+	for(int i=0;i<b->resources.size();i++)
 		sr.res[i]-=b->resources[i];
 	sendAndApply(&sr);
 

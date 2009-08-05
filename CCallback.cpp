@@ -398,7 +398,7 @@ bool CCallback::buildBuilding(const CGTownInstance *town, si32 buildingID)
 	if(town->tempOwner!=player)
 		return false;
 	CBuilding *b = CGI->buildh->buildings[t->subID][buildingID];
-	for(int i=0;i<7;i++)
+	for(int i=0;i<b->resources.size();i++)
 		if(b->resources[i] > gs->players[player].resources[i])
 			return false; //lack of resources
 

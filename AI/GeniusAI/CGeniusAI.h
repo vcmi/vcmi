@@ -5,9 +5,6 @@
 #include "BattleLogic.h"
 #include "GeneralAI.h"
 #include "..\..\lib\CondSh.h"
-//#include "../../lib/VCMI_Lib.h"
-//#include "../../global.h"
-//#include "../../client/CGameInfo.h"
 #include <set>
 #include <list>
 #include <queue>
@@ -64,25 +61,28 @@ private:
 			if(AI.m_cb->howManyTowns()!=0)
 				AvailableHeroesToBuy = AI.m_cb->getAvailableHeroes(AI.m_cb->getTownInfo(0,0));
 
-			for(int i = 0; i < 7;i++)resourceAmounts.push_back(AI.m_cb->getResourceAmount(i));
+			for(int i = 0; i < 8;i++)resourceAmounts.push_back(AI.m_cb->getResourceAmount(i));
 		}
 
-		class TownModel
-		{
-		public:
-			TownModel(const CGTownInstance *t):t(t){visitingHero=(t->visitingHero!=NULL);}
-			const CGTownInstance *t;
-			bool visitingHero;
-		};
 		class HeroModel
 		{
 		public:
+			HeroModel(){}
 			HeroModel(const CGHeroInstance * h):h(h){
 				pos = h->getPosition(false);remainingMovement = h->movement;
 			}
 			int3 pos;
+			int3 interestingPos;
 			int remainingMovement;
 			const CGHeroInstance * h;
+		};
+		class TownModel
+		{
+		public:
+			TownModel(const CGTownInstance *t):t(t){hasBuilt = t->builded;creaturesToRecruit = t->creatures;}
+			const CGTownInstance *t;
+			std::vector<std::pair<ui32, std::vector<ui32> > > creaturesToRecruit;
+			bool hasBuilt;
 		};
 		std::vector<const CGHeroInstance *> AvailableHeroesToBuy;
 		std::vector<int> resourceAmounts;
@@ -106,9 +106,9 @@ private:
 
 			//town objectives
 			recruitHero,
+			buildBuilding,
 			recruitCreatures,
-			upgradeCreatures,
-			buildBuilding
+			upgradeCreatures
 		};
 		
 		Type type;
@@ -133,7 +133,7 @@ private:
 			pos = object->pos;
 			type = t;
 			whoCanAchieve.push_back(h);
-			_value = rand();
+			_value = 100 + rand()%30;
 		}
 		bool operator < (const HeroObjective &other)const
 		{
@@ -153,10 +153,10 @@ private:
 	};
 
 	//town objectives
-		//recruitHero,
-		//recruitCreatures,
-		//upgradeCreatures,
+		//recruitHero
 		//buildBuilding
+		//recruitCreatures
+		//upgradeCreatures
 
 	class TownObjective: public AIObjective
 	{
@@ -164,12 +164,14 @@ private:
 		HypotheticalGameState::TownModel * whichTown;
 		int which;				//which hero, which building, which creature, 
 
-		TownObjective(Type t,HypotheticalGameState::TownModel * tn,int which):whichTown(tn),which(which){type = t;_value = rand();}
+		TownObjective(Type t,HypotheticalGameState::TownModel * tn,int Which):whichTown(tn),which(Which){type = t;_value = 100 + rand()%30;}
 		
 		bool operator < (const TownObjective &other)const
 		{
 			if(type != other.type)
 				return type<other.type;
+			if(which!=other.which)
+				return which<other.which;
 			if(whichTown->t->id!=other.whichTown->t->id)
 				return whichTown->t->id < other.whichTown->t->id;
 			return false;
@@ -196,7 +198,7 @@ private:
 	void addHeroObjectives(HypotheticalGameState::HeroModel &h, HypotheticalGameState & hgs);
 	void addTownObjectives(HypotheticalGameState::TownModel &h, HypotheticalGameState & hgs);
 	void fillObjectiveQueue(HypotheticalGameState & hgs);
-
+	
 	void reportResources();
 	int turn;
 	bool firstTurn;

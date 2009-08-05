@@ -1581,7 +1581,10 @@ int CGameState::canBuildStructure( const CGTownInstance *t, int ID )
 	int ret = 7; //allowed by default
 	//checking resources
 	CBuilding * pom = VLC->buildh->buildings[t->subID][ID];
+	
 	if(!pom)return 8;
+	if(pom->Name().size()==0||pom->resources.size()==0)return 2;//TODO: why does this happen?
+
 	for(int res=0;res<pom->resources.size();res++) //TODO: support custom amount of resources
 	{
 		if(pom->resources[res] > getPlayer(t->tempOwner)->resources[res])
