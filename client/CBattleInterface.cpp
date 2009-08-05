@@ -86,7 +86,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
 	for(std::map<int, CStack>::iterator b=stacks.begin(); b!=stacks.end(); ++b)
 	{
-		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(b->second.position, b->second.owner == attackingHeroInstance->tempOwner, b->second.creature);
+		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(b->second.position, b->second.owner == attackingHeroInstance->tempOwner, &b->second);
 		creAnims[b->second.ID] = (new CCreatureAnimation(b->second.creature->animDefName));
 		creAnims[b->second.ID]->setType(2);
 		creAnims[b->second.ID]->pos = genRect(creAnims[b->second.ID]->fullHeight, creAnims[b->second.ID]->fullWidth, coords.first, coords.second);
@@ -763,7 +763,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			else //available tile
 			{
 				const CStack *sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
-				if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isFlying())
+				if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::FLYING))
 				{
 					CGI->curh->changeGraphic(1,2);
 					//setting console text
@@ -805,7 +805,12 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 		}
 		else
 		{
-			const CStack * stackUnder = LOCPLINT->cb->battleGetStackByPos(myNumber);
+			//get dead stack if we cast resurrection or animate dead
+			const CStack * stackUnder = LOCPLINT->cb->battleGetStackByPos(myNumber, spellToCast->additionalInfo != 38 && spellToCast->additionalInfo != 39);
+
+			if(stackUnder && spellToCast->additionalInfo == 39 && !stackUnder->hasFeatureOfType(StackFeature::UNDEAD)) //animate dead can be cast only on living creatures
+				stackUnder = NULL;
+
 			bool whichCase; //for cases 1, 2 and 3
 			switch(spellSelMode)
 			{
@@ -880,14 +885,14 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	}
 	creDir[number] = !creDir[number];
 
-	CStack curs = *LOCPLINT->cb->battleGetStackByID(number);
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, creDir[number], curs.creature);
+	const CStack * curs = LOCPLINT->cb->battleGetStackByID(number);
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, creDir[number], curs);
 	creAnims[number]->pos.x = coords.first;
 	//creAnims[number]->pos.y = coords.second;
 
-	if(wideTrick && curs.creature->isDoubleWide())
+	if(wideTrick && curs->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 	{
-		if(curs.attackerOwned)
+		if(curs->attackerOwned)
 		{
 			if(!creDir[number])
 				creAnims[number]->pos.x -= 44;
@@ -1030,11 +1035,12 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 	int curStackPos = LOCPLINT->cb->battleGetPos(number);
 	int steps = creAnims[number]->framesInGroup(0)*getAnimSpeedMultiplier()-1;
 	int hexWbase = 44, hexHbase = 42;
-	bool twoTiles = LOCPLINT->cb->battleGetCreature(number).isDoubleWide();
 	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(number);
+	bool twoTiles = movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
+
 	
-	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack->creature);
-	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack->creature);
+	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack);
+	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack);
 
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
@@ -1070,7 +1076,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 
 	//step shift calculation
 	float posX = creAnims[number]->pos.x, posY = creAnims[number]->pos.y; // for precise calculations ;]
-	if(mutPos == -1 && movedStack->creature->isFlying()) 
+	if(mutPos == -1 && movedStack->hasFeatureOfType(StackFeature::FLYING)) 
 	{
 		steps *= distance;
 
@@ -1139,7 +1145,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 		handleEndOfMove(number, destHex);
 	}
 
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], movedStack->creature);
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], movedStack);
 	creAnims[number]->pos.x = coords.first;
 	if(!endMoving && twoTiles && (movedStack->owner == attackingHeroInstance->tempOwner) && (creDir[number] != (movedStack->owner == attackingHeroInstance->tempOwner))) //big attacker creature is reversed
 		creAnims[number]->pos.x -= 44;
@@ -1200,17 +1206,17 @@ void CBattleInterface::stacksAreAttacked(std::vector<CBattleInterface::SStackAtt
 	int maxLen = 0;
 	for(size_t g=0; g<attackedInfos.size(); ++g)
 	{
-		CStack attacked = *LOCPLINT->cb->battleGetStackByID(attackedInfos[g].ID);
+		const CStack * attacked = LOCPLINT->cb->battleGetStackByID(attackedInfos[g].ID, false);
 			
 		if(attackedInfos[g].killed)
 		{
-			CGI->soundh->playSound(attacked.creature->sounds.killed);
+			CGI->soundh->playSound(attacked->creature->sounds.killed);
 			creAnims[attackedInfos[g].ID]->setType(5); //death
 		}
 		else
 		{
 			// TODO: this block doesn't seems correct if the unit is defending.
-			CGI->soundh->playSound(attacked.creature->sounds.wince);
+			CGI->soundh->playSound(attacked->creature->sounds.wince);
 			creAnims[attackedInfos[g].ID]->setType(3); //getting hit
 		}
 	}
@@ -1275,7 +1281,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	int reversedShift = 0; //shift of attacking stack's position due to reversing
 	if(aStack.attackerOwned)
 	{
-		if(aStack.creature->isDoubleWide())
+		if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 		{
 			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
 			{
@@ -1303,7 +1309,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 					break;
 			}
 		}
-		else //else for if(aStack.creature->isDoubleWide())
+		else //else for if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 		{
 			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
 			{
@@ -1327,7 +1333,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	}
 	else //if(aStack.attackerOwned)
 	{
-		if(aStack.creature->isDoubleWide())
+		if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 		{
 			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
 			{
@@ -1356,7 +1362,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 					break;
 			}
 		}
-		else //else for if(aStack.creature->isDoubleWide())
+		else //else for if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 		{
 			switch(BattleInfo::mutualPosition(aStack.position, dest)) //attack direction
 			{
@@ -1474,7 +1480,7 @@ void CBattleInterface::handleEndOfMove(int stackNumber, int destinationTile)
 	CGI->soundh->stopSound(moveSh);
 
 	if(creDir[stackNumber] != (movedStack->owner == attackingHeroInstance->tempOwner))
-		reverseCreature(stackNumber, destinationTile, movedStack->creature->isDoubleWide());	
+		reverseCreature(stackNumber, destinationTile, movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE));	
 }
 
 void CBattleInterface::hexLclicked(int whichOne)
@@ -1487,18 +1493,19 @@ void CBattleInterface::hexLclicked(int whichOne)
 		{
 			//checking destination
 			bool allowCasting = true;
+			bool onlyAlive = spellToCast->additionalInfo != 38 && spellToCast->additionalInfo != 39; //when casting resurrection or animate dead we should be allow to select dead stack
 			switch(spellSelMode)
 			{
 			case 1:
-				if(!LOCPLINT->cb->battleGetStackByPos(whichOne) || LOCPLINT->playerID != LOCPLINT->cb->battleGetStackByPos(whichOne)->owner )
+				if(!LOCPLINT->cb->battleGetStackByPos(whichOne, onlyAlive) || LOCPLINT->playerID != LOCPLINT->cb->battleGetStackByPos(whichOne, onlyAlive)->owner )
 					allowCasting = false;
 				break;
 			case 2:
-				if(!LOCPLINT->cb->battleGetStackByPos(whichOne) || LOCPLINT->playerID == LOCPLINT->cb->battleGetStackByPos(whichOne)->owner )
+				if(!LOCPLINT->cb->battleGetStackByPos(whichOne, onlyAlive) || LOCPLINT->playerID == LOCPLINT->cb->battleGetStackByPos(whichOne, onlyAlive)->owner )
 					allowCasting = false;
 				break;
 			case 3:
-				if(!LOCPLINT->cb->battleGetStackByPos(whichOne))
+				if(!LOCPLINT->cb->battleGetStackByPos(whichOne, onlyAlive))
 					allowCasting = false;
 				break;
 			case 4: //TODO: implement this case
@@ -1520,7 +1527,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
 				{
 					CGI->curh->changeGraphic(1, 6); //cursor should be changed
-					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide())
+					if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 					{
 						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
 						int shiftedDest = whichOne + (LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned ? 1 : -1);
@@ -1580,7 +1587,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 						break;
 					}
 				case 8: //from left
-					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide() && !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
+					if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && !LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
 					{
 						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
 						if(vstd::contains(acc, whichOne))
@@ -1628,7 +1635,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 						break;
 					}
 				case 11: //from right
-					if(LOCPLINT->cb->battleGetStackByID(activeStack)->creature->isDoubleWide() && LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
+					if(LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && LOCPLINT->cb->battleGetStackByID(activeStack)->attackerOwned)
 					{
 						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
 						if(vstd::contains(acc, whichOne))
@@ -1670,8 +1677,8 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	spi.frameNum = 0;
 	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
 
-	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(LOCPLINT->cb->battleGetPos(ID), true, &LOCPLINT->cb->battleGetCreature(ID));
-	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, &LOCPLINT->cb->battleGetCreature(ID)); 
+	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(LOCPLINT->cb->battleGetPos(ID), true, LOCPLINT->cb->battleGetStackByID(ID));
+	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, LOCPLINT->cb->battleGetStackByID(ID)); 
 	destcoord.first += 250; destcoord.second += 210; //TODO: find a better place to shoot
 
 	if(projectileAngle > straightAngle) //upper shot
@@ -1766,7 +1773,7 @@ void CBattleInterface::spellCast(SpellCast * sc)
 			//initial variables
 			std::string animToDisplay;
 			std::pair<int, int> srccoord = sc->side ? std::make_pair(770, 60) : std::make_pair(30, 60);
-			std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(sc->tile, !sc->side, LOCPLINT->cb->battleGetStackByPos(sc->tile)->creature); //position attacked by arrow
+			std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(sc->tile, !sc->side, LOCPLINT->cb->battleGetStackByPos(sc->tile)); //position attacked by arrow
 			destcoord.first += 250; destcoord.second += 240;
 
 			//animation angle
@@ -1814,9 +1821,11 @@ void CBattleInterface::spellCast(SpellCast * sc)
 		break;
 	case 35: //dispel
 	case 37: //cure
+	case 38: //resurrection
+	case 39: //animate dead
 		for(std::set<ui32>::const_iterator it = sc->affectedCres.begin(); it != sc->affectedCres.end(); ++it)
 		{
-			displayEffect(spell.mainEffectAnim, LOCPLINT->cb->battleGetStackByID(*it)->position);
+			displayEffect(spell.mainEffectAnim, LOCPLINT->cb->battleGetStackByID(*it, false)->position);
 		}
 		break;
 	} //switch(sc->id)
@@ -2002,7 +2011,7 @@ void CBattleInterface::attackingShowHelper()
 	{
 		if(attackingInfo->frame == 0)
 		{
-			CStack aStack = *LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
+			const CStack * aStack = LOCPLINT->cb->battleGetStackByID(attackingInfo->ID); //attacking stack
 			if(attackingInfo->shooting)
 			{
 				// TODO: I see that we enter this function twice with
@@ -2011,24 +2020,24 @@ void CBattleInterface::attackingShowHelper()
 				// that is fixed. Once done, we can get rid of
 				// attackingInfo->sh
 				if (attackingInfo->sh == -1)
-					attackingInfo->sh = CGI->soundh->playSound(aStack.creature->sounds.shoot);
+					attackingInfo->sh = CGI->soundh->playSound(aStack->creature->sounds.shoot);
 				creAnims[attackingInfo->ID]->setType(attackingInfo->shootingGroup);
 			}
 			else
 			{
 				// TODO: see comment above
 				if (attackingInfo->sh == -1)
-					attackingInfo->sh = CGI->soundh->playSound(aStack.creature->sounds.attack);
+					attackingInfo->sh = CGI->soundh->playSound(aStack->creature->sounds.attack);
 
 				std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
 				int type; //dependent on attack direction
-				if(aStack.creature->isDoubleWide())
+				if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 				{
-					type = dirToType[ BattleInfo::mutualPosition(aStack.position + attackingInfo->posShiftDueToDist, attackingInfo->dest) ]; //attack direction
+					type = dirToType[ BattleInfo::mutualPosition(aStack->position + attackingInfo->posShiftDueToDist, attackingInfo->dest) ]; //attack direction
 				}
-				else //else for if(aStack.creature->isDoubleWide())
+				else //else for if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 				{
-					type = BattleInfo::mutualPosition(aStack.position, attackingInfo->dest);
+					type = BattleInfo::mutualPosition(aStack->position, attackingInfo->dest);
 				}
 				creAnims[attackingInfo->ID]->setType(type);
 			}
@@ -2043,7 +2052,7 @@ void CBattleInterface::attackingShowHelper()
 			CStack aStack = *aStackp;
 			if(aStack.attackerOwned)
 			{
-				if(aStack.creature->isDoubleWide())
+				if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 				{
 					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 					{
@@ -2070,7 +2079,7 @@ void CBattleInterface::attackingShowHelper()
 							break;
 					}
 				}
-				else //else for if(aStack.creature->isDoubleWide())
+				else //else for if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 				{
 					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 					{
@@ -2094,7 +2103,7 @@ void CBattleInterface::attackingShowHelper()
 			}
 			else //if(aStack.attackerOwned)
 			{
-				if(aStack.creature->isDoubleWide())
+				if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 				{
 					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 					{
@@ -2122,7 +2131,7 @@ void CBattleInterface::attackingShowHelper()
 							break;
 					}
 				}
-				else //else for if(aStack.creature->isDoubleWide())
+				else //else for if(aStack.hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 				{
 					switch(BattleInfo::mutualPosition(aStack.position, attackingInfo->dest)) //attack direction
 					{
@@ -2186,20 +2195,20 @@ void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
 void CBattleInterface::printConsoleAttacked(int ID, int dmg, int killed, int IDby)
 {
 	char tabh[200];
-	CStack attacker = *LOCPLINT->cb->battleGetStackByID(IDby);
-	CStack defender = *LOCPLINT->cb->battleGetStackByID(ID);
-	int end = sprintf(tabh, CGI->generaltexth->allTexts[attacker.amount > 1 ? 377 : 376].c_str(),
-		(attacker.amount > 1 ? attacker.creature->namePl.c_str() : attacker.creature->nameSing.c_str()),
+	const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby);
+	const CStack * defender = LOCPLINT->cb->battleGetStackByID(ID, false);
+	int end = sprintf(tabh, CGI->generaltexth->allTexts[attacker->amount > 1 ? 377 : 376].c_str(),
+		(attacker->amount > 1 ? attacker->creature->namePl.c_str() : attacker->creature->nameSing.c_str()),
 		dmg);
 	if(killed > 0)
 	{
 		if(killed > 1)
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed, defender.creature->namePl.c_str());
+			sprintf(tabh + end, CGI->generaltexth->allTexts[379].c_str(), killed, defender->creature->namePl.c_str());
 		}
 		else //killed == 1
 		{
-			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(), defender.creature->nameSing.c_str());
+			sprintf(tabh + end, CGI->generaltexth->allTexts[378].c_str(), defender->creature->nameSing.c_str());
 		}
 	}
 
@@ -2397,7 +2406,7 @@ CBattleHero::~CBattleHero()
 	delete flag;
 }
 
-std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CCreature * creature)
+std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack)
 {
 	std::pair<int, int> ret = std::make_pair(-500, -500); //returned value
 	ret.second = -139 + 42 * (hexNum/BFIELD_WIDTH); //counting y
@@ -2411,7 +2420,7 @@ std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & a
 		ret.first = -219 + 22 * ( ((hexNum/BFIELD_WIDTH) + 1)%2 ) + 44 * (hexNum % BFIELD_WIDTH);
 	}
 	//shifting position for double - hex creatures
-	if(creature && creature->isDoubleWide())
+	if(stack && stack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 	{
 		if(attacker)
 		{

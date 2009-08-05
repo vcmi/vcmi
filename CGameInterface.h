@@ -117,6 +117,7 @@ public:
 	virtual void battleStacksEffectsSet(SetStackEffect & sse){};//called when a specific effect is set to stacks
 	virtual void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side){}; //called by engine when battle starts; side=0 - left, side=1 - right
 	virtual void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles){}; //called when battlefield is prepared, prior the battle beginning
+	virtual void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32>> & healedStacks){}; //called when stacks are healed / resurrected first element of pair - stack id, second - healed hp
 };
 class CAIHandler
 {

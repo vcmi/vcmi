@@ -882,8 +882,18 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 	for(int g=0; g<healedStacks.size(); ++g)
 	{
 		CStack * changedStack = gs->curB->stacks[healedStacks[g].stackID];
-		changedStack->firstHPleft += healedStacks[g].healForFirstStack;
-		changedStack->amount += healedStacks[g].resurrectedCres;
+		if(!changedStack->alive())
+		{
+			changedStack->state.insert(ALIVE);
+		}
+		int missingHPfirst = changedStack->MaxHealth() - changedStack->firstHPleft;
+		changedStack->amount += healedStacks[g].healedHP / changedStack->MaxHealth();
+		changedStack->firstHPleft += healedStacks[g].healedHP - changedStack->amount * changedStack->MaxHealth();
+		if(changedStack->firstHPleft > changedStack->MaxHealth())
+		{
+			changedStack->firstHPleft -= changedStack->MaxHealth();
+			changedStack->amount += 1;
+		}
 		//removal of negative effects
 		{
 			for(int h=0; h<changedStack->effects.size(); ++h)

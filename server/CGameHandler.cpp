@@ -561,7 +561,7 @@ void CGameHandler::moveStack(int stack, int dest)
 	}
 
 	//shifting destination (if we have double wide stack and we can occupy dest but not be exactly there)
-	if(!stackAtEnd && curStack->creature->isDoubleWide() && !accessibility[dest])
+	if(!stackAtEnd && curStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && !accessibility[dest])
 	{
 		if(curStack->attackerOwned)
 		{
@@ -592,8 +592,8 @@ void CGameHandler::moveStack(int stack, int dest)
 	//if(dists[dest] > curStack->creature->speed && !(stackAtEnd && dists[dest] == curStack->creature->speed+1)) //we can attack a stack if we can go to adjacent hex
 	//	return false;
 
-	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->creature->isFlying(), curStack->creature->isDoubleWide(), curStack->attackerOwned);
-	if(curStack->creature->isFlying())
+	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->hasFeatureOfType(StackFeature::FLYING), curStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE), curStack->attackerOwned);
+	if(curStack->hasFeatureOfType(StackFeature::FLYING))
 	{
 		if(path.second <= curStack->Speed() && path.first.size() > 0)
 		{
@@ -957,11 +957,11 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 
 	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
 	{
-		if((stacks[g]->position%17)==1 && stacks[g]->creature->isDoubleWide())
+		if((stacks[g]->position%17)==1 && stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 		{
 			stacks[g]->position += 1;
 		}
-		else if((stacks[g]->position%17)==15 && stacks[g]->creature->isDoubleWide())
+		else if((stacks[g]->position%17)==15 && stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 		{
 			stacks[g]->position -= 1;
 		}
@@ -2370,11 +2370,11 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			if( !(
 				(BattleInfo::mutualPosition(curpos, enemypos) >= 0)						//front <=> front
-				|| (curStack->creature->isDoubleWide()									//back <=> front
+				|| (curStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE)									//back <=> front
 					&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos) >= 0)
-				|| (stackAtEnd->creature->isDoubleWide()									//front <=> back
+				|| (stackAtEnd->hasFeatureOfType(StackFeature::DOUBLE_WIDE)									//front <=> back
 					&& BattleInfo::mutualPosition(curpos, enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
-				|| (stackAtEnd->creature->isDoubleWide() && curStack->creature->isDoubleWide()//back <=> back
+				|| (stackAtEnd->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && curStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE)//back <=> back
 					&& BattleInfo::mutualPosition(curpos + (curStack->attackerOwned ? -1 : 1), enemypos + (stackAtEnd->attackerOwned ? -1 : 1)) >= 0)
 				)
 				)
@@ -2646,6 +2646,34 @@ static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, 
 	return ret;
 }
 
+static ui32 calculateHealedHP(const CGHeroInstance * caster, const CSpell * spell, const CStack * stack)
+{
+	switch(spell->id)
+	{
+	case 37: //cure
+		{
+			int healedHealth = caster->getPrimSkillLevel(2) * 5 + spell->powers[caster->getSpellSchoolLevel(spell)];
+			return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft);
+			break;
+		}
+	case 38: //resurrection
+		{
+			int healedHealth = caster->getPrimSkillLevel(2) * 50 + spell->powers[caster->getSpellSchoolLevel(spell)];
+			return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + stack->baseAmount * stack->MaxHealth());
+			break;
+		}
+	case 39: //animate dead
+		{
+			int healedHealth = caster->getPrimSkillLevel(2) * 50 + spell->powers[caster->getSpellSchoolLevel(spell)];
+			return std::min<ui32>(healedHealth, stack->MaxHealth() - stack->firstHPleft + stack->baseAmount * stack->MaxHealth());
+			break;
+		}
+	}
+	//we shouldn't be here
+	tlog1 << "calculateHealedHP called for non-healing spell: " << spell->name << std::endl;
+	return 0;
+}
+
 static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHeroInstance * caster, const CGHeroInstance * hero2, const std::set<CStack*> affectedCreatures)
 {
 	std::vector<ui32> ret;
@@ -2831,17 +2859,19 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					break;
 				}
 			case 37: //cure
+			case 38: //resurrection
+			case 39: //animate dead
 				{
 					StacksHealedOrResurrected shr;
 					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
 					{
-						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
+						if(vstd::contains(sc.resisted, (*it)->ID) //this creature resisted the spell
+							|| (s->id == 39 && !(*it)->hasFeatureOfType(StackFeature::UNDEAD)) //we try to cast animate dead on living stack
+							) 
 							continue;
 						StacksHealedOrResurrected::HealInfo hi;
 						hi.stackID = (*it)->ID;
-						int healedHP = h->getPrimSkillLevel(2) * 5 + s->powers[h->getSpellSchoolLevel(s)];
-						hi.healForFirstStack = std::min<ui32>(healedHP, (*it)->MaxHealth() - (*it)->firstHPleft);
-						hi.resurrectedCres = 0;
+						hi.healedHP = calculateHealedHP(h, s, *it);
 						shr.healedStacks.push_back(hi);
 					}
 					if(!shr.healedStacks.empty())

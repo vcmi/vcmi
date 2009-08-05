@@ -159,9 +159,9 @@ public:
 	virtual int battleGetBattlefieldType()=0; //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	virtual int battleGetObstaclesAtTile(int tile)=0; //returns bitfield
 	virtual std::vector<CObstacleInstance> battleGetAllObstacles()=0; //returns all obstacles on the battlefield
-	virtual int battleGetStack(int pos)=0; //returns ID of stack on the tile
-	virtual const CStack * battleGetStackByID(int ID)=0; //returns stack info by given ID
-	virtual const CStack * battleGetStackByPos(int pos)=0; //returns stack info by given pos
+	virtual int battleGetStack(int pos, bool onlyAlive)=0; //returns ID of stack on the tile
+	virtual const CStack * battleGetStackByID(int ID, bool onlyAlive = true)=0; //returns stack info by given ID
+	virtual const CStack * battleGetStackByPos(int pos, bool onlyAlive = true)=0; //returns stack info by given pos
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
@@ -258,9 +258,9 @@ public:
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	int battleGetObstaclesAtTile(int tile); //returns bitfield
 	std::vector<CObstacleInstance> battleGetAllObstacles(); //returns all obstacles on the battlefield
-	int battleGetStack(int pos); //returns ID of stack on the tile
-	const CStack * battleGetStackByID(int ID); //returns stack info by given ID
-	const CStack * battleGetStackByPos(int pos); //returns stack info by given pos
+	int battleGetStack(int pos, bool onlyAlive = true); //returns ID of stack on the tile
+	const CStack * battleGetStackByID(int ID, bool onlyAlive = true); //returns stack info by given ID
+	const CStack * battleGetStackByPos(int pos, bool onlyAlive = true); //returns stack info by given pos
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	int battleMakeAction(BattleAction* action);//for casting spells by hero - DO NOT use it for moving active stack
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield

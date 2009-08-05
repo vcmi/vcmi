@@ -428,17 +428,17 @@ std::vector<CObstacleInstance> CCallback::battleGetAllObstacles()
 		return std::vector<CObstacleInstance>();
 }
 
-int CCallback::battleGetStack(int pos)
+int CCallback::battleGetStack(int pos, bool onlyAlive)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return gs->battleGetStack(pos);
+	return gs->battleGetStack(pos, onlyAlive);
 }
 
-const CStack* CCallback::battleGetStackByID(int ID)
+const CStack* CCallback::battleGetStackByID(int ID, bool onlyAlive)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	if(!gs->curB) return NULL;
-	return gs->curB->getStack(ID);
+	return gs->curB->getStack(ID, onlyAlive);
 }
 
 int CCallback::battleMakeAction(BattleAction* action)
@@ -448,10 +448,10 @@ int CCallback::battleMakeAction(BattleAction* action)
 	return 0;
 }
 
-const CStack* CCallback::battleGetStackByPos(int pos)
+const CStack* CCallback::battleGetStackByPos(int pos, bool onlyAlive)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	return battleGetStackByID(battleGetStack(pos));
+	return battleGetStackByID(battleGetStack(pos, onlyAlive), onlyAlive);
 }
 
 int CCallback::battleGetPos(int stack)

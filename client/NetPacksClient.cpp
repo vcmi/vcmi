@@ -434,6 +434,17 @@ void BattleResultsApplied::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(player2,battleResultsApplied);
 }
 
+void StacksHealedOrResurrected::applyCl( CClient *cl )
+{
+	std::vector<std::pair<ui32, ui32>> shiftedHealed;
+	for(int v=0; v<healedStacks.size(); ++v)
+	{
+		shiftedHealed.push_back(std::make_pair(healedStacks[v].stackID, healedStacks[v].healedHP));
+	}
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleStacksHealedRes, shiftedHealed);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleStacksHealedRes, shiftedHealed);
+}
+
 CGameState* CPackForClient::GS( CClient *cl )
 {
 	return cl->gs;

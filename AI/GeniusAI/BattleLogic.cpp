@@ -190,7 +190,7 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 				m_statDistanceFromShooters.push_back(std::pair<int, int>(id, m_battleHelper.GetShortestDistance(currentStack->position, st->position)));
 			}
 
-			if (currentStack->creature->isFlying() || (currentStack->creature->isShooting() && currentStack->shots > 0))
+			if (currentStack->hasFeatureOfType(StackFeature::FLYING) || (currentStack->creature->isShooting() && currentStack->shots > 0))
 			{
 				m_statDistance.push_back(std::pair<int, int>(id, m_battleHelper.GetShortestDistance(currentStack->position, st->position)));
 			}
@@ -304,8 +304,8 @@ std::vector<int> CBattleLogic::GetAvailableHexesForAttacker(const CStack *defend
 {
 	int x = m_battleHelper.DecodeXPosition(defender->position);
 	int y = m_battleHelper.DecodeYPosition(defender->position);
-	bool defenderIsDW = defender->creature->isDoubleWide();
-	bool attackerIsDW = attacker->creature->isDoubleWide();
+	bool defenderIsDW = defender->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
+	bool attackerIsDW = attacker->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
 	// TOTO: should be std::vector<int> but for debug purpose std::pair is used
 	typedef std::pair<int, int> hexPoint;
 	std::list<hexPoint> candidates;
@@ -558,7 +558,7 @@ BattleAction CBattleLogic::MakeAttack(int attackerID, int destinationID)
 
 		// if double wide calculate tail
 		int tail_pos = -1;
-		if (attackerStack->creature->isDoubleWide())
+		if (attackerStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 		{
 			int x_pos = m_battleHelper.DecodeXPosition(attackerStack->position);
 			int y_pos = m_battleHelper.DecodeYPosition(attackerStack->position);

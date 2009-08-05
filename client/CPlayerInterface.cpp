@@ -1158,6 +1158,19 @@ void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObs
 {
 }
 
+void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32>> & healedStacks)
+{
+	for(int b=0; b<healedStacks.size(); ++b)
+	{
+		const CStack * healed = cb->battleGetStackByID(healedStacks[b].first);
+		if(battleInt->creAnims[healed->ID]->getType() == 5)
+		{
+			//stack has been resurrected
+			battleInt->creAnims[healed->ID]->setType(2);
+		}
+	}
+}
+
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

@@ -324,10 +324,18 @@ void CCreatureHandler::loadCreatures()
 		case '-': //remove ability
 			{
 				int creatureID;
-				ui32 type;
+				std::string type;
 				reader >> creatureID;
 				reader >> type;
-				StackFeature::ECombatFeatures ecf = static_cast<StackFeature::ECombatFeatures>(type);
+				std::map<std::string, int>::iterator it = type_list.find(type);
+				if (it == type_list.end())
+				{
+					tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
+					break;
+				}
+				int typeNo = it->second;
+
+				StackFeature::ECombatFeatures ecf = static_cast<StackFeature::ECombatFeatures>(typeNo);
 
 				creatures[creatureID].abilities -= ecf;
 				break;

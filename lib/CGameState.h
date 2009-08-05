@@ -123,8 +123,8 @@ struct DLL_EXPORT BattleInfo
 	}
 	CStack * getNextStack(); //which stack will have turn after current one
 	std::vector<CStack> getStackQueue(); //returns stack in order of their movement action
-	CStack * getStack(int stackID);
-	CStack * getStackT(int tileID);
+	CStack * getStack(int stackID, bool onlyAlive = true);
+	CStack * getStackT(int tileID, bool onlyAlive = true);
 	void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit=-1); //send pointer to at least 187 allocated bytes
 	static bool isAccessible(int hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
 	void makeBFS(int start, bool*accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying); //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
@@ -273,7 +273,7 @@ public:
 	bool battleMoveCreatureStack(int ID, int dest);
 	bool battleAttackCreatureStack(int ID, int dest);
 	bool battleShootCreatureStack(int ID, int dest);
-	int battleGetStack(int pos); //returns ID of stack at given tile
+	int battleGetStack(int pos, bool onlyAlive); //returns ID of stack at given tile
 	int battleGetBattlefieldType(int3 tile = int3());//   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
 	si8 battleMaxSpellLevel(); //calculates maximum spell level possible to be cast on battlefield - takes into account artifacts of both heroes; if no effects are set, SPELL_LEVELS is returned
 	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);

@@ -61,7 +61,7 @@ public:
 	//CStack * ourStack;
 	bool hovered, strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
 	CBattleInterface * myInterface; //interface that owns me
-	static std::pair<int, int> getXYUnitAnim(const int & hexNum, const bool & attacker, const CCreature * creature); //returns (x, y) of left top corner of animation
+	static std::pair<int, int> getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * creature); //returns (x, y) of left top corner of animation
 	//for user interactions
 	void hover (bool on);
 	void activate();
@@ -177,7 +177,7 @@ private:
 	std::map<int, int> standingFrame; //number of frame in standing animation by stack ID, helps in showing 'random moves'
 
 	bool spellDestSelectMode; //if true, player is choosing destination for his spell
-	int spellSelMode; //0 - any location, 1 - any firendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle, -1 - no location
+	int spellSelMode; //0 - any location, 1 - any firendly creature, 2 - any hostile creature, 3 - any creature, 4 - obstacle,z -1 - no location
 	BattleAction * spellToCast; //spell for which player is choosing destination
 	void endCastingSpell(); //ends casting spell (eg. when spell has been cast or cancelled)
 

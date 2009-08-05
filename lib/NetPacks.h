@@ -956,15 +956,15 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 	StacksHealedOrResurrected(){type = 3013;}
 
 	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyCl(CClient *cl);
 
 	struct HealInfo
 	{
 		ui32 stackID;
-		ui32 healForFirstStack;
-		ui32 resurrectedCres;
+		ui32 healedHP;
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{
-			h & stackID & healForFirstStack & resurrectedCres;
+			h & stackID & healedHP;
 		}
 	};
 

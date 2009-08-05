@@ -239,24 +239,24 @@ static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
 	return nobj;
 }
-CStack * BattleInfo::getStack(int stackID)
+CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 {
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
-		if(stacks[g]->ID == stackID)
+		if(stacks[g]->ID == stackID && (!onlyAlive || stacks[g]->alive()))
 			return stacks[g];
 	}
 	return NULL;
 }
-CStack * BattleInfo::getStackT(int tileID)
+CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
 {
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
 		if(stacks[g]->position == tileID 
-			|| (stacks[g]->creature->isDoubleWide() && stacks[g]->attackerOwned && stacks[g]->position-1 == tileID)
-			|| (stacks[g]->creature->isDoubleWide() && !stacks[g]->attackerOwned && stacks[g]->position+1 == tileID))
+			|| (stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && stacks[g]->attackerOwned && stacks[g]->position-1 == tileID)
+			|| (stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && !stacks[g]->attackerOwned && stacks[g]->position+1 == tileID))
 		{
-			if(stacks[g]->alive())
+			if(!onlyAlive || stacks[g]->alive())
 			{
 				return stacks[g];
 			}
@@ -273,7 +273,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 			continue;
 
 		accessibility[stacks[g]->position] = false;
-		if(stacks[g]->creature->isDoubleWide()) //if it's a double hex creature
+		if(stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE)) //if it's a double hex creature
 		{
 			if(stacks[g]->attackerOwned)
 				accessibility[stacks[g]->position-1] = false;
@@ -366,12 +366,12 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 	CStack *s = getStack(stackID);
 	std::set<int> occupyable;
 
-	getAccessibilityMap(ac, s->creature->isDoubleWide(), s->attackerOwned, addOccupiable, occupyable, stackID);
+	getAccessibilityMap(ac, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, addOccupiable, occupyable, s->hasFeatureOfType(StackFeature::FLYING), stackID);
 
 	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
-	makeBFS(s->position, ac, pr, dist, s->creature->isDoubleWide(), s->attackerOwned, s->creature->isFlying());
+	makeBFS(s->position, ac, pr, dist, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, s->hasFeatureOfType(StackFeature::FLYING));
 
-	if(s->creature->isDoubleWide())
+	if(s->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 	{
 		if(!addOccupiable)
 		{
@@ -398,7 +398,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 	
 	for(int i=0; i < BFIELD_SIZE ; ++i)
 		if(
-			( ( !addOccupiable && dist[i] <= s->Speed() && ac[i] ) || ( addOccupiable && dist[i] <= s->Speed() && isAccessible(i, ac, s->creature->isDoubleWide(), s->attackerOwned, s->creature->isFlying(), true) ) )//we can reach it
+			( ( !addOccupiable && dist[i] <= s->Speed() && ac[i] ) || ( addOccupiable && dist[i] <= s->Speed() && isAccessible(i, ac, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, s->hasFeatureOfType(StackFeature::FLYING), true) ) )//we can reach it
 			|| (vstd::contains(occupyable, i) && ( dist[ i + (s->attackerOwned ? 1 : -1 ) ] <= s->Speed() ) &&
 				ac[i + (s->attackerOwned ? 1 : -1 )] ) //it's occupyable and we can reach adjacent hex
 			)
@@ -417,7 +417,7 @@ bool BattleInfo::isStackBlocked(int ID)
 			|| stacks[i]->owner==our->owner
 		  )
 			continue; //we omit dead and allied stacks
-		if(stacks[i]->creature->isDoubleWide())
+		if(stacks[i]->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 		{
 			if( mutualPosition(stacks[i]->position, our->position) >= 0  
 			  || mutualPosition(stacks[i]->position + (stacks[i]->attackerOwned ? -1 : 1), our->position) >= 0)
@@ -1370,18 +1370,18 @@ bool CGameState::battleShootCreatureStack(int ID, int dest)
 	return true;
 }
 
-int CGameState::battleGetStack(int pos)
+int CGameState::battleGetStack(int pos, bool onlyAlive)
 {
 	if(!curB)
 		return -1;
 	for(unsigned int g=0; g<curB->stacks.size(); ++g)
 	{
 		if((curB->stacks[g]->position == pos 
-			  || (curB->stacks[g]->creature->isDoubleWide() 
+			  || (curB->stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) 
 					&&( (curB->stacks[g]->attackerOwned && curB->stacks[g]->position-1 == pos) 
 					||	(!curB->stacks[g]->attackerOwned && curB->stacks[g]->position+1 == pos)	)
 			 ))
-		  && curB->stacks[g]->alive()
+			 && (!onlyAlive || curB->stacks[g]->alive())
 		  )
 			return curB->stacks[g]->ID;
 	}
@@ -2101,6 +2101,9 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 {
 	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, caster->getSpellSchoolLevel(s));
 	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/
+
+	bool onlyAlive = s->id != 38 && s->id != 39; //when casting resurrection or animate dead we should be allow to select dead stack
+
 	if(s->id == 24 || s->id == 25 || s->id == 26) //death ripple, destroy undead and armageddon
 	{
 		for(int it=0; it<stacks.size(); ++it)
@@ -2119,7 +2122,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 	{
 		if(caster->getSpellSchoolLevel(s) < 3)  /*not expert */
 		{
-			CStack * st = getStackT(destinationTile);
+			CStack * st = getStackT(destinationTile, onlyAlive);
 			if(st)
 				attackedCres.insert(st);
 		}
@@ -2132,14 +2135,15 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 					||(VLC->spellh->spells[s->id].positiveness <= 0 && stacks[it]->owner != caster->tempOwner )
 					)
 				{
-					attackedCres.insert(stacks[it]);
+					if(!onlyAlive || stacks[it]->alive())
+						attackedCres.insert(stacks[it]);
 				}
 			}
 		} //if(caster->getSpellSchoolLevel(s) < 3)
 	}
 	else if(VLC->spellh->spells[s->id].attributes.find("CREATURE_TARGET") != std::string::npos) //spell to be cast on one specific creature
 	{
-		CStack * st = getStackT(destinationTile);
+		CStack * st = getStackT(destinationTile, onlyAlive);
 		if(st)
 			attackedCres.insert(st);
 	}
@@ -2147,7 +2151,7 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 	{
 		for(std::set<ui16>::iterator it = attackedHexes.begin(); it != attackedHexes.end(); ++it)
 		{
-			CStack * st = getStackT(*it);
+			CStack * st = getStackT(*it, onlyAlive);
 			if(st)
 				attackedCres.insert(st);
 		}
