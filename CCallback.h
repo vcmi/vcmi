@@ -10,7 +10,6 @@
 //(boost using this lib during compilation i dont know what for exactly)
 #endif
 #include "lib/CGameState.h"
-#include <map>
 
 /*
  * CCallback.h, part of VCMI engine
@@ -21,7 +20,7 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-class CBuilding;
+
 class CGHeroInstance;
 class CGameState;
 struct CPath;
@@ -126,11 +125,6 @@ public:
 	virtual int getMySerial()const =0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)const =0;
 	virtual const StartInfo * getStartInfo()const =0;
-	
-	//get static info
-	//TODO: is there a better way for the AI to access this data? In WoG it isn't static.
-	virtual const CCreature * getCCreatureByID(int ID) const= 0;
-	virtual std::map<int, CBuilding *> getCBuildingsByID(const CGTownInstance * tn) const= 0;
 
 	//hero
 	virtual int howManyHeroes(bool includeGarrisoned = true)const =0;
@@ -259,8 +253,6 @@ public:
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret);
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
-	const CCreature * getCCreatureByID(int ID) const;
-	std::map<int, CBuilding *> getCBuildingsByID(const CGTownInstance * tn) const;
 
 	//battle
 	int battleGetBattlefieldType(); //   1. sand/shore   2. sand/mesas   3. dirt/birches   4. dirt/hills   5. dirt/pines   6. grass/hills   7. grass/pines   8. lava   9. magic plains   10. snow/mountains   11. snow/trees   12. subterranean   13. swamp/trees   14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field   20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough   24. ship to ship   25. ship
