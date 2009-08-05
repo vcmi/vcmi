@@ -662,39 +662,45 @@ bool CStack::willMove()
 		&& ! hasFeatureOfType(StackFeature::NOT_ACTIVE); //eg. Ammo Cart
 }
 
-CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, int notThatOne)
+CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available) const
 {
+	CGHeroInstance *ret = NULL;
+
 	if(player<0 || player>=PLAYER_LIMIT)
 	{
 		tlog1 << "Cannot pick hero for " << town->Name() << ". Wrong owner!\n";
 		return NULL;
 	}
+
 	std::vector<CGHeroInstance *> pool;
-	int sum=0, r;
+
 	if(native)
 	{
-		for(std::map<ui32,CGHeroInstance *>::iterator i=heroesPool.begin(); i!=heroesPool.end(); i++)
+		for(std::map<ui32,CGHeroInstance *>::iterator i=available.begin(); i!=available.end(); i++)
 		{
-			if(pavailable[i->first] & 1<<player
-			  && i->second->type->heroType/2 == town->typeID
-			  && i->second->subID != notThatOne
-			  )
+			if(pavailable.find(i->first)->second & 1<<player
+				&& i->second->type->heroType/2 == town->typeID)
 			{
 				pool.push_back(i->second);
 			}
 		}
 		if(!pool.size())
-			return pickHeroFor(false,player,town,notThatOne);
+		{
+			tlog1 << "Cannot pick native hero for " << player << ". Picking any...\n";
+			return pickHeroFor(false, player, town, available);
+		}
 		else
-			return pool[rand()%pool.size()];
+		{
+			ret = pool[rand()%pool.size()];
+		}
 	}
 	else
 	{
-		for(std::map<ui32,CGHeroInstance *>::iterator i=heroesPool.begin(); i!=heroesPool.end(); i++)
+		int sum=0, r;
+
+		for(std::map<ui32,CGHeroInstance *>::iterator i=available.begin(); i!=available.end(); i++)
 		{
-			if(pavailable[i->first] & 1<<player
-				&& i->second->subID != notThatOne
-			  )
+			if(pavailable.find(i->first)->second & 1<<player)
 			{
 				pool.push_back(i->second);
 				sum += i->second->type->heroClass->selectionProbability[town->typeID];
@@ -705,16 +711,23 @@ CGHeroInstance* CGameState::HeroesPool::pickHeroFor(bool native, int player, con
 			tlog1 << "There are no heroes available for player " << player<<"!\n";
 			return NULL;
 		}
+
 		r = rand()%sum;
 		for(unsigned int i=0; i<pool.size(); i++)
 		{
 			r -= pool[i]->type->heroClass->selectionProbability[town->typeID];
 			if(r<0)
-				return pool[i];
+				ret = pool[i];
 		}
-		return pool[pool.size()-1];
+		if(!ret)
+			ret = pool.back();
 	}
+
+	available.erase(ret->subID);
+	return ret;
 }
+
+
 
 //void CGameState::apply(CPack * pack)
 //{

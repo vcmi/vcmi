@@ -251,7 +251,7 @@ public:
 		std::map<ui32,CGHeroInstance *> heroesPool; //[subID] - heroes available to buy; NULL if not available
 		std::map<ui32,ui8> pavailable; // [subid] -> which players can recruit hero
 
-		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, int notThatOne=-1);
+		CGHeroInstance * pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available) const;
 
 		template <typename Handler> void serialize(Handler &h, const int version)
 		{

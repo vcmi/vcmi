@@ -685,13 +685,15 @@ list<int> CBattleLogic::PerformDefaultAction(int stackID, int &additionalInfo)
 
 	for (std::map<int, int>::iterator it = votes.begin(); it != votes.end(); ++it)
 	{
-		if (it->second > max_vote)
+		if (m_cb->battleGetStackByID(it->first)->attackerOwned == m_side  //it's hostile stack
+			&& it->second > max_vote)
 		{
 			max_vote = it->second;
 			creatures.push_front(it->first);
 		}
 	}
 	additionalInfo = 0; // list contains creatures which shoud be attacked
+
 	return creatures;
 }
 

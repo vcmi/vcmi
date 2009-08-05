@@ -660,6 +660,8 @@ void CGameHandler::newTurn()
 	n.day = gs->day + 1;
 	n.resetBuilded = true;
 
+	std::map<ui32,CGHeroInstance *> pool = gs->hpool.heroesPool;
+
 	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
 	{
 		if(i->first == 255) continue;
@@ -667,12 +669,12 @@ void CGameHandler::newTurn()
 		{
 			SetAvailableHeroes sah;
 			sah.player = i->first;
-			CGHeroInstance *h = gs->hpool.pickHeroFor(true,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle]);
+			CGHeroInstance *h = gs->hpool.pickHeroFor(true,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle], pool);
 			if(h)
 				sah.hid1 = h->subID;
 			else
 				sah.hid1 = -1;
-			h = gs->hpool.pickHeroFor(false,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle],sah.hid1);
+			h = gs->hpool.pickHeroFor(false,i->first,&VLC->townh->towns[gs->scenarioOps->getIthPlayersSettings(i->first).castle], pool);
 			if(h)
 				sah.hid2 = h->subID;
 			else
@@ -2236,6 +2238,7 @@ bool CGameHandler::hireHero( ui32 tid, ui8 hid )
 		)
 		return false;
 	CGHeroInstance *nh = gs->getPlayer(t->tempOwner)->availableHeroes[hid];
+	assert(nh);
 
 	HeroRecruited hr;
 	hr.tid = tid;
@@ -2244,9 +2247,18 @@ bool CGameHandler::hireHero( ui32 tid, ui8 hid )
 	hr.tile = t->pos - int3(1,0,0);
 	sendAndApply(&hr);
 
+
+	std::map<ui32,CGHeroInstance *> pool = gs->hpool.heroesPool;
+	for ( std::map<ui8, PlayerState>::iterator i=gs->players.begin() ; i!=gs->players.end();i++)
+		for(std::vector<CGHeroInstance *>::iterator j = i->second.availableHeroes.begin(); j != i->second.availableHeroes.end(); j++)
+			if(*j)
+				pool.erase((**j).subID);
+
 	SetAvailableHeroes sah;
-	(hid ? sah.hid2 : sah.hid1) = gs->hpool.pickHeroFor(false,t->tempOwner,t->town)->subID;
-	(hid ? sah.hid1 : sah.hid2) = gs->getPlayer(t->tempOwner)->availableHeroes[!hid]->subID;
+	CGHeroInstance *h1 = gs->hpool.pickHeroFor(false,t->tempOwner,t->town, pool),
+				*h2 = gs->getPlayer(t->tempOwner)->availableHeroes[!hid];
+	(hid ? sah.hid2 : sah.hid1) = h1 ? h1->subID : -1;
+	(hid ? sah.hid1 : sah.hid2) = h2 ? h2->subID : -1;
 	sah.player = t->tempOwner;
 	sah.flags = hid+1;
 	sendAndApply(&sah);

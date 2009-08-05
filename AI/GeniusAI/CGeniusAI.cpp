@@ -108,7 +108,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 	//buildBuilding
 	if(hgs.heroModels.size()<3&&hgs.resourceAmounts[6]>=2500) //recruitHero
 	{
-		if(!t.visitingHero)
+		if(!t.visitingHero  &&  vstd::contains(t.t->builtBuildings, 5)) //no visiting hero and built tavern
 		{
 			for(int i =0; i < hgs.AvailableHeroesToBuy.size();i++)
 				if(hgs.AvailableHeroesToBuy[i]!=NULL&&hgs.AvailableHeroesToBuy[i]->army.slots.size()>1)//only buy heros with units

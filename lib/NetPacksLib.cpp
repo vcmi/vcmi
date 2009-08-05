@@ -455,6 +455,7 @@ DLL_EXPORT void SetHeroArtifacts::setArtAtPos(ui16 pos, int art)
 
 DLL_EXPORT void HeroRecruited::applyGs( CGameState *gs )
 {
+	assert(vstd::contains(gs->hpool.heroesPool, hid));
 	CGHeroInstance *h = gs->hpool.heroesPool[hid];
 	CGTownInstance *t = gs->getTown(tid);
 	h->setOwner(player);
