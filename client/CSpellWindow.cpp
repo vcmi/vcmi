@@ -318,7 +318,7 @@ CSpellWindow::~CSpellWindow()
 
 void CSpellWindow::fexitb()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 void CSpellWindow::fadvSpellsb()
@@ -672,7 +672,7 @@ void CSpellWindow::SpellArea::clickRight(boost::logic::tribool down)
 			CGI->spellh->spells[mySpell].name,30,30);
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
-		LOCPLINT->pushInt(vinya);
+		GH.pushInt(vinya);
 	}
 }
 

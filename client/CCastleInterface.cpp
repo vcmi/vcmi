@@ -130,14 +130,14 @@ void CBuildingRect::hover(bool on)
 
 			//call mouseMoved in other buildings, cursor might have been moved while they were inactive (eg. because of r-click popup)
 			for(size_t i = 0; i < LOCPLINT->castleInt->buildings.size(); i++)
-				LOCPLINT->castleInt->buildings[i]->mouseMoved(LOCPLINT->current->motion);
+				LOCPLINT->castleInt->buildings[i]->mouseMoved(GH.current->motion);
 		}
 	}
 }
 void CBuildingRect::clickLeft (tribool down)
 {
 
-	if(area && (LOCPLINT->castleInt->hBuild==this) && !(indeterminate(down)) && (CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
+	if(area && (LOCPLINT->castleInt->hBuild==this) && !(indeterminate(down)) && (CSDL_Ext::SDL_GetPixel(area,GH.current->motion.x-pos.x,GH.current->motion.y-pos.y) != 0)) //na polu
 	{
 		if(pressedL && !down)
 			LOCPLINT->castleInt->buildingClicked(str->ID);
@@ -151,7 +151,7 @@ void CBuildingRect::clickRight (tribool down)
 {
 	if((!area) || (!((bool)down)) || (this!=LOCPLINT->castleInt->hBuild))
 		return;
-	if((CSDL_Ext::SDL_GetPixel(area,LOCPLINT->current->motion.x-pos.x,LOCPLINT->current->motion.y-pos.y) != 0)) //na polu
+	if((CSDL_Ext::SDL_GetPixel(area,GH.current->motion.x-pos.x,GH.current->motion.y-pos.y) != 0)) //na polu
 	{
 		CBuilding *bld = CGI->buildh->buildings[str->townID][str->ID];
 		assert(bld);
@@ -165,7 +165,7 @@ void CBuildingRect::clickRight (tribool down)
 			bld->Name());
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
-		LOCPLINT->pushInt(vinya);
+		GH.pushInt(vinya);
 	}
 }
 void CBuildingRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
@@ -301,7 +301,7 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 		}
 		hover(false);hover(true); //refresh statusbar
 	}
-	//if(indeterminate(down) && !isItIn(&other->pos,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	//if(indeterminate(down) && !isItIn(&other->pos,GH.current->motion.x,GH.current->motion.y))
 	//{
 	//	other->highlight = highlight = false;
 	//	show(screen2);
@@ -515,7 +515,7 @@ void CCastleInterface::close()
 	if(town->visitingHero)
 		LOCPLINT->adventureInt->select(town->visitingHero);
 	LOCPLINT->castleInt = NULL;
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 	CGI->musich->stopMusic(5000);
 }
 
@@ -589,7 +589,7 @@ void CCastleInterface::buildingClicked(int building)
 		case 7: case 8: case 9: //fort/citadel/castle
 			{
 				CFortScreen *fs = new CFortScreen(this);
-				LOCPLINT->pushInt(fs);
+				GH.pushInt(fs);
 				break;
 			}
 		case 10: case 11: case 12: case 13: //hall
@@ -598,7 +598,7 @@ void CCastleInterface::buildingClicked(int building)
 		case 14:  //marketplace
 			{
 				CMarketplaceWindow *cmw = new CMarketplaceWindow(0);
-				LOCPLINT->pushInt(cmw);
+				GH.pushInt(cmw);
 				break;
 			}
 		case 15: //resource silo
@@ -622,7 +622,7 @@ void CCastleInterface::buildingClicked(int building)
 				if(vstd::contains(hero->artifWorn,ui16(aid+9))) //hero already has machine
 					possible = false;
 
-				LOCPLINT->pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(aid,false),aid,hero->id));
+				GH.pushInt(new CBlacksmithDialog(possible,CArtHandler::convertMachineID(aid,false),aid,hero->id));
 				break;
 			}
 		//TODO: case 17: //special 1
@@ -659,7 +659,7 @@ void CCastleInterface::buildingClicked(int building)
 void CCastleInterface::enterHall()
 {
 	CHallInterface *h = new CHallInterface(this);
-	LOCPLINT->pushInt(h);
+	GH.pushInt(h);
 }
 
 void CCastleInterface::showAll( SDL_Surface * to/*=NULL*/)
@@ -746,8 +746,8 @@ void CCastleInterface::townChange()
 {
 	const CGTownInstance * nt = townlist->items[townlist->selected];
 	int tpos = townlist->selected - townlist->from;
-	LOCPLINT->popIntTotally(this);
-	LOCPLINT->pushInt(new CCastleInterface(nt, tpos));
+	GH.popIntTotally(this);
+	GH.pushInt(new CCastleInterface(nt, tpos));
 }
 
 void CCastleInterface::show(SDL_Surface * to)
@@ -979,20 +979,20 @@ CRecruitmentWindow * CCastleInterface::showRecruitmentWindow( int building )
 	//CRecruitmentWindow *rw = new CRecruitmentWindow(crs,boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
 
 	CRecruitmentWindow *rw = new CRecruitmentWindow(town, level, town, boost::bind(&CCallback::recruitCreatures,LOCPLINT->cb,town,_1,_2));
-	LOCPLINT->pushInt(rw);
+	GH.pushInt(rw);
 	return rw;
 }
 
 void CCastleInterface::enterMageGuild()
 {
-	LOCPLINT->pushInt(new CMageGuildScreen(this));
+	GH.pushInt(new CMageGuildScreen(this));
 }
 
 void CCastleInterface::enterTavern()
 {
 	std::vector<const CGHeroInstance*> h = LOCPLINT->cb->getAvailableHeroes(town);
 	CTavernWindow *tv = new CTavernWindow(h[0],h[1],"GOSSIP TEST");
-	LOCPLINT->pushInt(tv);
+	GH.pushInt(tv);
 }
 
 void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
@@ -1047,7 +1047,7 @@ void CHallInterface::CBuildingBox::clickLeft (tribool down)
 {
 	if(pressedL && (!down))
 	{
-		LOCPLINT->pushInt(new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,0));
+		GH.pushInt(new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,0));
 	}
 	ClickableL::clickLeft(down);
 }
@@ -1055,7 +1055,7 @@ void CHallInterface::CBuildingBox::clickRight (tribool down)
 {
 	if(down)
 	{
-		LOCPLINT->pushInt(new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,1));
+		GH.pushInt(new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,1));
 	}
 	ClickableR::clickRight(down);
 }
@@ -1197,7 +1197,7 @@ CHallInterface::~CHallInterface()
 }
 void CHallInterface::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 void CHallInterface::show(SDL_Surface * to)
 {
@@ -1257,13 +1257,13 @@ void CHallInterface::CBuildWindow::deactivate()
 void CHallInterface::CBuildWindow::Buy()
 {
 	int building = bid;
-	LOCPLINT->popInts(2); //we - build window and hall screen
+	GH.popInts(2); //we - build window and hall screen
 	LOCPLINT->cb->buildBuilding(LOCPLINT->castleInt->town,building);
 }
 
 void CHallInterface::CBuildWindow::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 void CHallInterface::CBuildWindow::clickRight (tribool down)
@@ -1463,7 +1463,7 @@ void CFortScreen::deactivate()
 
 void CFortScreen::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 CFortScreen::CFortScreen( CCastleInterface * owner )
@@ -1635,7 +1635,7 @@ CMageGuildScreen::~CMageGuildScreen()
 
 void CMageGuildScreen::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 void CMageGuildScreen::show(SDL_Surface * to)
@@ -1687,7 +1687,7 @@ void CMageGuildScreen::Scroll::clickRight (tribool down)
 			spell->name,30,30);
 		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
 		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
-		LOCPLINT->pushInt(vinya);
+		GH.pushInt(vinya);
 	}
 }
 
@@ -1781,5 +1781,5 @@ CBlacksmithDialog::~CBlacksmithDialog()
 
 void CBlacksmithDialog::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }

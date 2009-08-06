@@ -346,7 +346,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	CGI->mh->init();
 	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
-	for (size_t i=0; i<CGI->state->scenarioOps->playerInfos.size();++i) //initializing interfaces for players
+	for (size_t i=0; i<gs->scenarioOps->playerInfos.size();++i) //initializing interfaces for players
 	{ 
 		ui8 color = gs->scenarioOps->playerInfos[i].color;
 		CCallback *cb = new CCallback(gs,color,this);

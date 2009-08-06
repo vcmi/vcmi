@@ -168,10 +168,10 @@ const CArmedInstance * CGarrisonSlot::getObj()
 
 void CGarrisonSlot::clickRight (tribool down)
 {
-	StackState *pom = getStackState(getObj(),ID, LOCPLINT->topInt() == LOCPLINT->castleInt);
+	StackState *pom = getStackState(getObj(),ID, GH.topInt() == LOCPLINT->castleInt);
 	if(down && creature)
 	{
-		LOCPLINT->pushInt(new CCreInfoWindow(creature->idNumber, 0, count, pom, 0, 0, NULL));
+		GH.pushInt(new CCreInfoWindow(creature->idNumber, 0, count, pom, 0, 0, NULL));
 	}
 	delete pom;
 }
@@ -189,7 +189,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 		{
 			if(owner->highlighted == this) //view info
 			{
-				StackState *pom2 = getStackState(getObj(), ID, LOCPLINT->topInt() == LOCPLINT->castleInt);
+				StackState *pom2 = getStackState(getObj(), ID, GH.topInt() == LOCPLINT->castleInt);
 				UpgradeInfo pom = LOCPLINT->cb->getUpgradeInfo(getObj(), ID);
 
 				CCreInfoWindow *creWindow = NULL;
@@ -208,7 +208,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 						boost::bind(&CCallback::dismissCreature, LOCPLINT->cb, getObj(), ID), NULL);
 				}
 
-				LOCPLINT->pushInt(creWindow);
+				GH.pushInt(creWindow);
 
 				owner->highlighted = NULL;
 				show(screen2);
@@ -245,7 +245,7 @@ void CGarrisonSlot::clickLeft(tribool down)
 
 
 				CSplitWindow * spw = new CSplitWindow(owner->highlighted->creature->idNumber, totalAmount, owner, last, count);
-				LOCPLINT->pushInt(spw);
+				GH.pushInt(spw);
 				refr = true;
 			}
 			else if(creature != owner->highlighted->creature) //swap
@@ -602,7 +602,7 @@ CInfoWindow::CInfoWindow()
 }
 void CInfoWindow::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 	LOCPLINT->showingDialog->setn(false);
 }
 void CInfoWindow::show(SDL_Surface * to)
@@ -655,7 +655,7 @@ void CRClickPopup::deactivate()
 
 void CRClickPopup::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 CInfoPopup::CInfoPopup(SDL_Surface * Bitmap, int x, int y, bool Free)
@@ -683,7 +683,7 @@ void CInfoPopup::close()
 {
 	if(free)
 		SDL_FreeSurface(bitmap);
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 void CInfoPopup::show(SDL_Surface * to)
 {
@@ -1024,7 +1024,7 @@ void CStatusBar::print(const std::string & text)
 	if(LOCPLINT->cingconsole->enteredText == "" || text == LOCPLINT->cingconsole->enteredText) //for appropriate support for in-game console
 	{
 		current=text;
-		show(LOCPLINT->topInt()==LOCPLINT->adventureInt ? screen : screen2); //if there are now windows opened, update statusbar on screen, else to cache surface
+		show(GH.topInt()==LOCPLINT->adventureInt ? screen : screen2); //if there are now windows opened, update statusbar on screen, else to cache surface
 	}
 }
 
@@ -1135,7 +1135,7 @@ void CHeroList::clickLeft(tribool down)
 	if (down)
 	{
 		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
 		{
 			if(from>0)
 			{
@@ -1144,7 +1144,7 @@ void CHeroList::clickLeft(tribool down)
 			}
 			return;
 		}
-		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 		{
 			if(heroes.size()-from>SIZE)
 			{
@@ -1154,7 +1154,7 @@ void CHeroList::clickLeft(tribool down)
 			return;
 		}
 		/***************************HEROES*****************************************/
-		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+		int hx = GH.current->motion.x, hy = GH.current->motion.y;
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		int ny = hy/32;
@@ -1201,7 +1201,7 @@ void CHeroList::clickLeft(tribool down)
 
 void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
-	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
 	{
 		if (from>0)
 			LOCPLINT->adventureInt->statusbar.print(CGI->generaltexth->zelp[303].first);
@@ -1209,7 +1209,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			LOCPLINT->adventureInt->statusbar.clear();
 		return;
 	}
-	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 	{
 		if ((heroes.size()-from)  >  SIZE)
 			LOCPLINT->adventureInt->statusbar.print(CGI->generaltexth->zelp[304].first);
@@ -1218,7 +1218,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 		return;
 	}
 	//if not buttons then heroes
-	int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+	int hx = GH.current->motion.x, hy = GH.current->motion.y;
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	int ny = hy/32;
@@ -1239,18 +1239,18 @@ void CHeroList::clickRight(tribool down)
 	if (down)
 	{
 		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y) && from>0)
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[303].second,down,this);
 		}
-		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (heroes.size()-from>5))
+		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (heroes.size()-from>5))
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[304].second,down,this);
 		}
 		else
 		{
 			//if not buttons then heroes
-			int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+			int hx = GH.current->motion.x, hy = GH.current->motion.y;
 			hx-=pos.x;
 			hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 			int ny = hy/32;
@@ -1261,10 +1261,10 @@ void CHeroList::clickRight(tribool down)
 
 			//show popup
 			CInfoPopup * ip = new CInfoPopup(graphics->heroWins[heroes[from+ny]->subID],
-				LOCPLINT->current->motion.x-graphics->heroWins[heroes[from+ny]->subID]->w,
-				LOCPLINT->current->motion.y-graphics->heroWins[heroes[from+ny]->subID]->h,
+				GH.current->motion.x-graphics->heroWins[heroes[from+ny]->subID]->w,
+				GH.current->motion.y-graphics->heroWins[heroes[from+ny]->subID]->h,
 				false);
-			LOCPLINT->pushInt(ip);
+			GH.pushInt(ip);
 		}
 	}
 	else
@@ -1410,7 +1410,7 @@ void CTownList::select(int which)
 
 void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
-	if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
 	{
 		if (from>0)
 			LOCPLINT->statusbar->print(CGI->generaltexth->zelp[306].first);
@@ -1418,7 +1418,7 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 			LOCPLINT->statusbar->clear();
 		return;
 	}
-	else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+	else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 	{
 		if ((items.size()-from)  >  SIZE)
 			LOCPLINT->statusbar->print(CGI->generaltexth->zelp[307].first);
@@ -1427,7 +1427,7 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 		return;
 	}
 	//if not buttons then towns
-	int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+	int hx = GH.current->motion.x, hy = GH.current->motion.y;
 	hx-=pos.x;
 	hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 	int ny = hy/32;
@@ -1444,7 +1444,7 @@ void CTownList::clickLeft(tribool down)
 	if (down)
 	{
 		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y))
 		{
 			if(from>0)
 			{
@@ -1453,7 +1453,7 @@ void CTownList::clickLeft(tribool down)
 			}
 			return;
 		}
-		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y))
 		{
 			if(items.size()-from > SIZE)
 			{
@@ -1463,13 +1463,13 @@ void CTownList::clickLeft(tribool down)
 			return;
 		}
 		/***************************TOWNS*****************************************/
-		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+		int hx = GH.current->motion.x, hy = GH.current->motion.y;
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		int ny = hy/32;
 		if (ny>SIZE || ny<0)
 			return;
-		if(LOCPLINT->topInt() == LOCPLINT->adventureInt
+		if(GH.topInt() == LOCPLINT->adventureInt
 		  && (ny+from)==selected 
 		  && LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE
 		  )
@@ -1518,16 +1518,16 @@ void CTownList::clickRight(tribool down)
 	if (down)
 	{
 		/***************************ARROWS*****************************************/
-		if(isItIn(&arrupp,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && from>0)
+		if(isItIn(&arrupp,GH.current->motion.x,GH.current->motion.y) && from>0)
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[306].second,down,this);
 		}
-		else if(isItIn(&arrdop,LOCPLINT->current->motion.x,LOCPLINT->current->motion.y) && (items.size()-from>5))
+		else if(isItIn(&arrdop,GH.current->motion.x,GH.current->motion.y) && (items.size()-from>5))
 		{
 			LOCPLINT->adventureInt->handleRightClick(CGI->generaltexth->zelp[307].second,down,this);
 		}
 		//if not buttons then towns
-		int hx = LOCPLINT->current->motion.x, hy = LOCPLINT->current->motion.y;
+		int hx = GH.current->motion.x, hy = GH.current->motion.y;
 		hx-=pos.x;
 		hy-=pos.y; hy-=arrup->ourImages[0].bitmap->h;
 		int ny = hy/32;
@@ -1539,10 +1539,10 @@ void CTownList::clickRight(tribool down)
 		//show popup
 		CInfoPopup * ip = new CInfoPopup(
 			graphics->townWins[items[from+ny]->id],
-			LOCPLINT->current->motion.x-graphics->townWins[items[from+ny]->id]->w,
-			LOCPLINT->current->motion.y-graphics->townWins[items[from+ny]->id]->h,
+			GH.current->motion.x-graphics->townWins[items[from+ny]->id]->w,
+			GH.current->motion.y-graphics->townWins[items[from+ny]->id]->h,
 			false);
-		LOCPLINT->pushInt(ip);
+		GH.pushInt(ip);
 	}
 	else
 	{
@@ -1622,7 +1622,7 @@ SDL_Surface * CCreaturePic::getPic(bool nextFrame)
 }
 void CRecruitmentWindow::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 void CRecruitmentWindow::Max()
 {
@@ -1630,7 +1630,27 @@ void CRecruitmentWindow::Max()
 }
 void CRecruitmentWindow::Buy()
 {
-	recruit(creatures[which].ID, slider->value);
+	int crid = creatures[which].ID,
+		dstslot = dst->army.getSlotFor(crid);
+
+	if(dstslot < 0) //no available slot
+	{
+		std::string txt;
+		if(dst->ID == HEROI_TYPE)
+		{
+			txt = CGI->generaltexth->allTexts[425]; //The %s would join your hero, but there aren't enough provisions to support them.
+			boost::algorithm::replace_first(txt, "%s", slider->value > 1 ? CGI->creh->creatures[crid].namePl : CGI->creh->creatures[crid].nameSing);
+		}
+		else
+		{
+			txt = CGI->generaltexth->allTexts[17]; //There is no room in the garrison for this army.
+		}
+
+		LOCPLINT->showInfoDialog(txt);
+		return;
+	}
+
+	recruit(crid, slider->value);
 	if(level >= 0)
 		close();
 	else
@@ -1647,10 +1667,10 @@ void CRecruitmentWindow::sliderMoved(int to)
 }
 void CRecruitmentWindow::clickLeft(tribool down)
 {
-	int curx = 192 + 51 - (102*creatures.size()/2) - (18*(creatures.size()-1)/2);
+	int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
-		if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+		if(isItIn(&genRect(132,CREATURE_WIDTH,pos.x+curx,pos.y+64),GH.current->motion.x,GH.current->motion.y))
 		{
 			which = i;
 			int newAmount = std::min(amounts[i],creatures[i].amount);
@@ -1659,34 +1679,34 @@ void CRecruitmentWindow::clickLeft(tribool down)
 				slider->moveTo(newAmount);
 			else
 				slider->moveTo(slider->value);
-			curx = 192 + 51 - (102*creatures.size()/2) - (13*(creatures.size()-1)/2);
+			curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 			for(int j=0;j<creatures.size();j++)
 			{
 				if(which==j)
-					drawBorder(bitmap,curx,64,102,132,int3(255,0,0));
+					drawBorder(bitmap,curx,64,CREATURE_WIDTH,132,int3(255,0,0));
 				else
-					drawBorder(bitmap,curx,64,102,132,int3(239,215,123));
-				curx += 115;
+					drawBorder(bitmap,curx,64,CREATURE_WIDTH,132,int3(239,215,123));
+				curx += TOTAL_CREATURE_WIDTH;
 			}
 			break;
 		}
-		curx += 115;
+		curx += TOTAL_CREATURE_WIDTH;
 	}
 }
 void CRecruitmentWindow::clickRight( boost::logic::tribool down )
 {
 	if(down)
 	{
-		int curx = 192 + 51 - (102*creatures.size()/2) - (13*(creatures.size()-1)/2);
+		int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 		for(int i=0;i<creatures.size();i++)
 		{
-			if(isItIn(&genRect(132,102,pos.x+curx,pos.y+64),LOCPLINT->current->motion.x,LOCPLINT->current->motion.y))
+			if(isItIn(&genRect(132,CREATURE_WIDTH,pos.x+curx,pos.y+64),GH.current->motion.x,GH.current->motion.y))
 			{
 				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID, 0, 0, NULL, NULL, NULL, NULL);
-				LOCPLINT->pushInt(popup);
+				GH.pushInt(popup);
 				break;
 			}
-			curx += 115;
+			curx += TOTAL_CREATURE_WIDTH;
 		}
 	}
 }
@@ -1740,11 +1760,11 @@ void CRecruitmentWindow::show(SDL_Surface * to)
 		curx+=32;
 	}
 
-	curx = pos.x + 192 + 102 - (102*creatures.size()/2) - (13*(creatures.size()-1)/2);
+	curx = pos.x + 192 + CREATURE_WIDTH - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0; i<creatures.size(); ++i)
 	{
 		creatures[i].pic->blitPic(to, curx-50, pos.y+130-65, !(animCounter%4));
-		curx += 115;
+		curx += TOTAL_CREATURE_WIDTH;
 	}
 
 	++animCounter;
@@ -1785,7 +1805,7 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 	drawBorder(bitmap,289,312,66,34,int3(173,142,66));
 
 	//border for creatures
-	int curx = 192 + 51 - (102*creatures.size()/2) - (13*(creatures.size()-1)/2);
+	int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
 		creatures[i].pos.x = curx+1;
@@ -1793,10 +1813,10 @@ CRecruitmentWindow::CRecruitmentWindow(const CGDwelling *Dwelling, int Level, co
 		creatures[i].pos.w = 100;
 		creatures[i].pos.h = 130;
 		if(which==i)
-			drawBorder(bitmap,curx,64,102,132,int3(255,0,0));
+			drawBorder(bitmap,curx,64,CREATURE_WIDTH,132,int3(255,0,0));
 		else
-			drawBorder(bitmap,curx,64,102,132,int3(239,215,123));
-		curx += 115;
+			drawBorder(bitmap,curx,64,CREATURE_WIDTH,132,int3(239,215,123));
+		curx += TOTAL_CREATURE_WIDTH;
 	}
 
 	if(!creatures[0].amount ||  !amounts[0])
@@ -1919,7 +1939,7 @@ void CSplitWindow::split()
 
 void CSplitWindow::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 void CSplitWindow::sliderMoved(int to)
@@ -1980,7 +2000,7 @@ void CSplitWindow::clickLeft( boost::logic::tribool down )
 {
 	if(down)
 	{
-		Point click(LOCPLINT->current->motion.x,LOCPLINT->current->motion.y);
+		Point click(GH.current->motion.x,GH.current->motion.y);
 		click -= pos.topLeft();
 		if(Rect(19,216,105,40).isIn(click)) //left picture
 			which = 0;
@@ -2219,7 +2239,7 @@ void CCreInfoWindow::activate()
 
 void CCreInfoWindow::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 void CCreInfoWindow::clickRight(boost::logic::tribool down)
@@ -2262,7 +2282,7 @@ void CLevelWindow::close()
 			break;
 		}
 	}
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 	LOCPLINT->showingDialog->setn(false);
 }
 
@@ -2432,7 +2452,7 @@ void CMarketplaceWindow::CTradeableItem::show(SDL_Surface * to)
 
 void CMarketplaceWindow::CTradeableItem::clickLeft( boost::logic::tribool down )
 {
-	CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(LOCPLINT->topInt());
+	CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.topInt());
 	assert(mw);
 	if(down)
 	{
@@ -2539,7 +2559,7 @@ CMarketplaceWindow::CMarketplaceWindow(int Mode)
 	slider = new CSlider(pos.x+231,pos.y+490,137,boost::bind(&CMarketplaceWindow::sliderMoved,this,_1),0,0);
 	setMode(mode);
 	hLeft = hRight = NULL;
-	ok = new AdventureMapButton("","",boost::bind(&CPlayerInterface::popIntTotally,LOCPLINT,this),pos.x+516,pos.y+520,"IOK6432.DEF",SDLK_RETURN);
+	ok = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally,&GH,this),pos.x+516,pos.y+520,"IOK6432.DEF",SDLK_RETURN);
 	ok->assignedKeys.insert(SDLK_ESCAPE);
 	deal = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::makeDeal,this),pos.x+307,pos.y+520,"TPMRKB.DEF");
 	max = new AdventureMapButton("","",boost::bind(&CMarketplaceWindow::setMax,this),pos.x+229,pos.y+520,"IRCBTNS.DEF");
@@ -2758,7 +2778,7 @@ void CSystemOptionsWindow::bquitf()
 
 void CSystemOptionsWindow::breturnf()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 
@@ -2908,7 +2928,7 @@ void CTavernWindow::deactivate()
 
 void CTavernWindow::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 void CTavernWindow::show(SDL_Surface * to)
@@ -2966,7 +2986,7 @@ void CTavernWindow::HeroPortrait::clickRight(boost::logic::tribool down)
 	if(down)
 	{
 		LOCPLINT->adventureInt->heroWindow->setHero(h);
-		LOCPLINT->pushInt(new CRClickPopupInt(LOCPLINT->adventureInt->heroWindow,false));
+		GH.pushInt(new CRClickPopupInt(LOCPLINT->adventureInt->heroWindow,false));
 	}
 }
 CTavernWindow::HeroPortrait::HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H)
@@ -3154,7 +3174,7 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 void CInGameConsole::startEnteringText()
 {
 	enteredText = "_";
-	if(LOCPLINT->topInt() == LOCPLINT->adventureInt)
+	if(GH.topInt() == LOCPLINT->adventureInt)
 	{
 		LOCPLINT->statusbar->print(enteredText);
 	}
@@ -3175,7 +3195,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 		print(txt);
 	}
 	enteredText = "";
-	if(LOCPLINT->topInt() == LOCPLINT->adventureInt)
+	if(GH.topInt() == LOCPLINT->adventureInt)
 	{
 		LOCPLINT->statusbar->clear();
 	}
@@ -3188,7 +3208,7 @@ void CInGameConsole::endEnteringText(bool printEnteredText)
 
 void CInGameConsole::refreshEnteredText()
 {
-	if(LOCPLINT->topInt() == LOCPLINT->adventureInt)
+	if(GH.topInt() == LOCPLINT->adventureInt)
 	{
 		LOCPLINT->statusbar->print(enteredText);
 	}
@@ -3205,7 +3225,7 @@ CInGameConsole::CInGameConsole() : prevEntDisp(-1), defaultTimeout(10000), maxDi
 
 void CGarrisonWindow::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 void CGarrisonWindow::activate()
@@ -3314,7 +3334,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 		if(ourArt->id == 0)
 		{
 			CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), ourOwner->curHero);
-			LOCPLINT->pushInt(spellWindow);
+			GH.pushInt(spellWindow);
 		}
 	}
 	if(!down && !clicked && pressedL) //not clicked before
@@ -3707,7 +3727,7 @@ CArtifactsOfHero::~CArtifactsOfHero()
 
 void CExchangeWindow::close()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }
 
 void CExchangeWindow::activate()
@@ -4089,8 +4109,8 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, const
 		}
 	}
 
-	quit = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CPlayerInterface::popIntTotally, LOCPLINT, this), pos.x+224, pos.y+312, "ICANCEL.DEF", SDLK_RETURN);
-	build = new AdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CPlayerInterface::popIntTotally, LOCPLINT, this), pos.x+42, pos.y+312, "IBY6432.DEF", SDLK_RETURN);
+	quit = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+224, pos.y+312, "ICANCEL.DEF", SDLK_RETURN);
+	build = new AdventureMapButton(CGI->generaltexth->allTexts[598], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+42, pos.y+312, "IBY6432.DEF", SDLK_RETURN);
 	build->callback += onBuy;
 
 	if(!affordable)

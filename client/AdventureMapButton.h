@@ -15,6 +15,8 @@
  *
  */
 
+class CDefEssential;
+
 namespace config{struct ButtonInfo;}
 
 class AdventureMapButton 

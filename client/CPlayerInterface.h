@@ -114,38 +114,22 @@ public:
 
 	SystemOptions sysOpts;
 
-	SDL_Event * current; //current event
 	CAdvMapInt * adventureInt;
 	CCastleInterface * castleInt; //NULL if castle window isn't opened
 	CBattleInterface * battleInt; //NULL if no battle
-	CInGameConsole * cingconsole;
 	FPSmanager * mainFPSmng; //to keep const framerate
+	CInGameConsole * cingconsole;
 	IStatusBar *statusbar; //current statusbar - will be used to show hover tooltips
 	
 	CCallback * cb; //to communicate with engine
 	const BattleAction *curAction; //during the battle - action currently performed by active stack (or NULL)
 
 	std::list<CInfoWindow *> dialogs; //queue of dialogs awaiting to be shown (not currently shown!)
-	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
-	void totalRedraw(); //forces total redraw (using showAll)
-	void popInt(IShowActivable *top); //removes given interface from the top and activates next
-	void popIntTotally(IShowActivable *top); //deactivates, deletes, removes given interface from the top and activates next
-	void pushInt(IShowActivable *newInt); //deactivate old top interface, activates this one and pushes to the top
-	void popInts(int howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
-	IShowActivable *topInt(); //returns top interface
+
 
 	std::vector<const CGHeroInstance *> wanderingHeroes; //our heroes on the adventure map (not the garrisoned ones)
 	void recreateWanderingHeroes();
 	const CGHeroInstance *getWHero(int pos); //returns NULL if position is not valid
-
-	//GUI elements
-	std::list<ClickableL*> lclickable;
-	std::list<ClickableR*> rclickable;
-	std::list<Hoverable*> hoverable;
-	std::list<KeyInterested*> keyinterested;
-	std::list<MotionInterested*> motioninterested;
-	std::list<TimeInterested*> timeinterested;
-	std::vector<IShowable*> objsToBlit;
 
 	//overloaded funcs from CGameInterface
 	void buildChanged(const CGTownInstance *town, int buildingID, int what); //what: 1 - built, 2 - demolished
@@ -206,10 +190,6 @@ public:
 	void openTownWindow(const CGTownInstance * town); //shows townscreen
 	void openHeroWindow(const CGHeroInstance * hero); //shows hero window with given hero
 	SDL_Surface * infoWin(const CGObjectInstance * specific); //specific=0 => draws info about selected town/hero
-	void handleEvent(SDL_Event * sEvent);
-	void handleKeyDown(SDL_Event *sEvent);
-	void handleKeyUp(SDL_Event *sEvent);
-	void handleMouseMotion(SDL_Event *sEvent);
 	void init(ICallback * CB);
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components = std::vector<SComponent*>(), int soundID = 0);

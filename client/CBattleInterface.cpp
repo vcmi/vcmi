@@ -288,14 +288,14 @@ void CBattleInterface::setPrintCellBorders(bool set)
 {
 	settings.printCellBorders = set;
 	redrawBackgroundWithHexes(activeStack);
-	LOCPLINT->totalRedraw();
+	GH.totalRedraw();
 }
 
 void CBattleInterface::setPrintStackRange(bool set)
 {
 	settings.printStackRange = set;
 	redrawBackgroundWithHexes(activeStack);
-	LOCPLINT->totalRedraw();
+	GH.totalRedraw();
 }
 
 void CBattleInterface::setPrintMouseShadow(bool set)
@@ -940,7 +940,7 @@ void CBattleInterface::bOptionsf()
 
 	SDL_Rect temp_rect = genRect(431, 481, 160, 84);
 	CBattleOptionsWindow * optionsWin = new CBattleOptionsWindow(temp_rect, this);
-	LOCPLINT->pushInt(optionsWin);
+	GH.pushInt(optionsWin);
 }
 
 void CBattleInterface::bSurrenderf()
@@ -973,7 +973,7 @@ void CBattleInterface::bSpellf()
 	else
 		chi = defendingHeroInstance;
 	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), chi);
-	LOCPLINT->pushInt(spellWindow);
+	GH.pushInt(spellWindow);
 }
 
 void CBattleInterface::bWaitf()
@@ -1744,7 +1744,7 @@ void CBattleInterface::battleFinished(const BattleResult& br)
 	SDL_Rect temp_rect = genRect(561, 470, (screen->w - 800)/2 + 165, (screen->h - 600)/2 + 19);
 	CGI->musich->stopMusic();
 	resWindow = new CBattleResultWindow(br, temp_rect, this);
-	LOCPLINT->pushInt(resWindow);
+	GH.pushInt(resWindow);
 }
 
 void CBattleInterface::spellCast(SpellCast * sc)
@@ -2372,7 +2372,7 @@ void CBattleHero::clickLeft(boost::logic::tribool down)
 		CGI->curh->changeGraphic(0,0);
 
 		CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), myHero);
-		LOCPLINT->pushInt(spellWindow);
+		GH.pushInt(spellWindow);
 	}
 }
 
@@ -2542,7 +2542,7 @@ void CBattleHex::clickRight(boost::logic::tribool down)
 				pom->effects.insert(myst.effects[vb].id);
 			}
 			pom->currentHealth = myst.firstHPleft;
-			LOCPLINT->pushInt(new CCreInfoWindow(myst.creature->idNumber, 0, myst.amount, pom, 0, 0, NULL));
+			GH.pushInt(new CCreInfoWindow(myst.creature->idNumber, 0, myst.amount, pom, 0, 0, NULL));
 		}
 		delete pom;
 	}
@@ -2817,7 +2817,7 @@ void CBattleResultWindow::show(SDL_Surface *to)
 
 void CBattleResultWindow::bExitf()
 {
-	LOCPLINT->popInts(2); //first - we; second - battle interface
+	GH.popInts(2); //first - we; second - battle interface
 	LOCPLINT->showingDialog->setn(false);
 	CGI->videoh->close();
 }
@@ -2928,5 +2928,5 @@ void CBattleOptionsWindow::bDefaultf()
 
 void CBattleOptionsWindow::bExitf()
 {
-	LOCPLINT->popIntTotally(this);
+	GH.popIntTotally(this);
 }

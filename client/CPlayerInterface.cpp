@@ -169,14 +169,11 @@ void CPlayerInterface::yourTurn()
 			adventureInt->select(adventureInt->townList.items[0]);
 
 		adventureInt->showAll(screen);
-		pushInt(adventureInt);
+		GH.pushInt(adventureInt);
 		adventureInt->KeyInterested::activate();
 
-		timeHandler th;
-		th.getDif();
 		while(makingTurn) // main loop
 		{
-
 			updateWater();
 			pim->lock();
 
@@ -185,51 +182,17 @@ void CPlayerInterface::yourTurn()
 			if(dialogs.size() && !showingDialog->get())
 			{
 				showingDialog->set(true);
-				pushInt(dialogs.front());
+				GH.pushInt(dialogs.front());
 				dialogs.pop_front();
 			}
 
-			int tv = th.getDif();
-			std::list<TimeInterested*> hlp = timeinterested;
-			for (std::list<TimeInterested*>::iterator i=hlp.begin(); i != hlp.end();i++)
-			{
-				if(!vstd::contains(timeinterested,*i)) continue;
-				if ((*i)->toNextTick>=0)
-					(*i)->toNextTick-=tv;
-				if ((*i)->toNextTick<0)
-					(*i)->tick();
-			}
+			GH.updateTime();
+			GH.handleEvents();
 
-			while(true)
-			{
-				SDL_Event *ev = NULL;
-				{
-					boost::unique_lock<boost::mutex> lock(eventsM);
-					if(!events.size())
-					{
-						break;
-					}
-					else
-					{
-						ev = events.front();
-						events.pop();
-					}
-				}
-				handleEvent(ev);
-				delete ev;
-			}
-
-			if(!adventureInt->active && adventureInt->scrollingDir) //player force map scrolling though interface is disabled
-			{
-				totalRedraw();
-			}
+			if(!adventureInt->active && adventureInt->scrollingDir) //player forces map scrolling though interface is disabled
+				GH.totalRedraw();
 			else
-			{
-				//update only top interface and draw background
-				if(objsToBlit.size() > 1)
-					blitAt(screen2,0,0,screen); //blit background
-				objsToBlit.back()->show(screen); //blit active interface/window
-			}
+				GH.simpleRedraw();
 
 			CGI->curh->draw1();
 			CSDL_Ext::update(screen);
@@ -239,7 +202,7 @@ void CPlayerInterface::yourTurn()
 		}
 
 		adventureInt->KeyInterested::deactivate();
-		popInt(adventureInt);
+		GH.popInt(adventureInt);
 
 		cb->endTurn();
 	} HANDLE_EXCEPTION
@@ -303,7 +266,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 	{
 		ho->isStanding = true;
 		stillMoveHero.setn(STOP_MOVE);
-		LOCPLINT->totalRedraw();
+		GH.totalRedraw();
 		return;
 	}
 
@@ -767,7 +730,7 @@ void CPlayerInterface::heroMoved(const TryMoveHero & details)
 		}
 	}
 
-	if(stillMoveHero.get() == 1)
+	if(stillMoveHero.get() == WAITING_MOVE)
 		stillMoveHero.setn(DURING_MOVE);
 
 }
@@ -789,7 +752,7 @@ void CPlayerInterface::heroCreated(const CGHeroInstance * hero)
 void CPlayerInterface::openTownWindow(const CGTownInstance * town)
 {
 	castleInt = new CCastleInterface(town);
-	LOCPLINT->pushInt(castleInt);
+	GH.pushInt(castleInt);
 }
 
 SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //specific=0 => draws info about selected town/hero
@@ -829,166 +792,6 @@ SDL_Surface * CPlayerInterface::infoWin(const CGObjectInstance * specific) //spe
 	}
 }
 
-void CPlayerInterface::handleMouseMotion(SDL_Event *sEvent)
-{
-	//sending active, hovered hoverable objects hover() call
-	std::vector<Hoverable*> hlp;
-	for(std::list<Hoverable*>::iterator i=hoverable.begin(); i != hoverable.end();i++)
-	{
-		if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-		{
-			if (!(*i)->hovered)
-				hlp.push_back((*i));
-		}
-		else if ((*i)->hovered)
-		{
-			(*i)->hover(false);
-		}
-	}
-	for(int i=0; i<hlp.size();i++)
-		hlp[i]->hover(true);
-
-	//sending active, MotionInterested objects mouseMoved() call
-	std::list<MotionInterested*> miCopy = motioninterested;
-	for(std::list<MotionInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
-	{
-		if ((*i)->strongInterest || isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-		{
-			(*i)->mouseMoved(sEvent->motion);
-		}
-	}
-
-	//adventure map scrolling with mouse
-	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL]  &&  adventureInt->active)
-	{
-		if(sEvent->motion.x<15)
-		{
-			adventureInt->scrollingDir |= CAdvMapInt::LEFT;
-		}
-		else
-		{
-			adventureInt->scrollingDir &= ~CAdvMapInt::LEFT;
-		}
-		if(sEvent->motion.x>screen->w-15)
-		{
-			adventureInt->scrollingDir |= CAdvMapInt::RIGHT;
-		}
-		else
-		{
-			adventureInt->scrollingDir &= ~CAdvMapInt::RIGHT;
-		}
-		if(sEvent->motion.y<15)
-		{
-			adventureInt->scrollingDir |= CAdvMapInt::UP;
-		}
-		else
-		{
-			adventureInt->scrollingDir &= ~CAdvMapInt::UP;
-		}
-		if(sEvent->motion.y>screen->h-15)
-		{
-			adventureInt->scrollingDir |= CAdvMapInt::DOWN;
-		}
-		else
-		{
-			adventureInt->scrollingDir &= ~CAdvMapInt::DOWN;
-		}
-	}
-}
-void CPlayerInterface::handleEvent(SDL_Event *sEvent)
-{
-	current = sEvent;
-
-	if (sEvent->type==SDL_KEYDOWN || sEvent->type==SDL_KEYUP)
-	{
-		SDL_KeyboardEvent key = sEvent->key;
-
-		//translate numpad keys
-		if (key.keysym.sym >= SDLK_KP0  && key.keysym.sym <= SDLK_KP9)
-		{
-			key.keysym.sym = (SDLKey) (key.keysym.sym - SDLK_KP0 + SDLK_0);
-		}
-		else if(key.keysym.sym == SDLK_KP_ENTER)
-		{
-			key.keysym.sym = (SDLKey)SDLK_RETURN;
-		}
-
-		bool keysCaptured = false;
-		for(std::list<KeyInterested*>::iterator i=keyinterested.begin(); i != keyinterested.end();i++)
-		{
-			if((*i)->captureAllKeys)
-			{
-				keysCaptured = true;
-				break;
-			}
-		}
-
-		std::list<KeyInterested*> miCopy = keyinterested;
-		for(std::list<KeyInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
-			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureAllKeys))
-				(**i).keyPressed(key);
-	}
-	else if(sEvent->type==SDL_MOUSEMOTION)
-	{
-		CGI->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
-		handleMouseMotion(sEvent);
-	}
-	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
-	{
-		std::list<ClickableL*> hlp = lclickable;
-		for(std::list<ClickableL*>::iterator i=hlp.begin(); i != hlp.end();i++)
-		{
-			if(!vstd::contains(lclickable,*i)) continue;
-			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				(*i)->clickLeft(true);
-			}
-		}
-	}
-	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
-	{
-		std::list<ClickableL*> hlp = lclickable;
-		for(std::list<ClickableL*>::iterator i=hlp.begin(); i != hlp.end();i++)
-		{
-			if(!vstd::contains(lclickable,*i)) continue;
-			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				(*i)->clickLeft(false);
-			}
-			else
-				(*i)->clickLeft(boost::logic::indeterminate);
-		}
-	}
-	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_RIGHT))
-	{
-		std::list<ClickableR*> hlp = rclickable;
-		for(std::list<ClickableR*>::iterator i=hlp.begin(); i != hlp.end();i++)
-		{
-			if(!vstd::contains(rclickable,*i)) continue;
-			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				(*i)->clickRight(true);
-			}
-		}
-	}
-	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
-	{
-		std::list<ClickableR*> hlp = rclickable;
-		for(std::list<ClickableR*>::iterator i=hlp.begin(); i != hlp.end();i++)
-		{
-			if(!vstd::contains(rclickable,*i)) continue;
-			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				(*i)->clickRight(false);
-			}
-			else
-				(*i)->clickRight(boost::logic::indeterminate);
-		}
-	}
-	current = NULL;
-
-} //event end
-
 int3 CPlayerInterface::repairScreenPos(int3 pos)
 {
 	if(pos.x<-CGI->mh->frameW)
@@ -1021,7 +824,7 @@ void CPlayerInterface::heroMovePointsChanged(const CGHeroInstance * hero)
 void CPlayerInterface::receivedResource(int type, int val)
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
-	LOCPLINT->totalRedraw();
+	GH.totalRedraw();
 }
 
 void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16>& skills, boost::function<void(ui32)> &callback)
@@ -1031,7 +834,7 @@ void CPlayerInterface::heroGotLevel(const CGHeroInstance *hero, int pskill, std:
 
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CLevelWindow *lw = new CLevelWindow(hero,pskill,skills,callback);
-	LOCPLINT->pushInt(lw);
+	GH.pushInt(lw);
 }
 void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 {
@@ -1064,7 +867,7 @@ void CPlayerInterface::heroInGarrisonChange(const CGTownInstance *town)
 		c->garr->set2 = town->visitingHero ? &town->visitingHero->army : NULL;
 		c->garr->recreateSlots();
 	}
-	LOCPLINT->totalRedraw();
+	GH.totalRedraw();
 }
 void CPlayerInterface::heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town)
 {
@@ -1102,7 +905,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 	}
 
 	bool wasGarrison = false;
-	for(std::list<IShowActivable*>::iterator i = listInt.begin(); i != listInt.end(); i++)
+	for(std::list<IShowActivable*>::iterator i = GH.listInt.begin(); i != GH.listInt.end(); i++)
 	{
 		if((*i)->type & IShowActivable::WITH_GARRISON)
 		{
@@ -1112,7 +915,7 @@ void CPlayerInterface::garrisonChanged(const CGObjectInstance * obj)
 		}
 	}
 
-	LOCPLINT->totalRedraw();
+	GH.totalRedraw();
 }
 
 void CPlayerInterface::buildChanged(const CGTownInstance *town, int buildingID, int what) //what: 1 - built, 2 - demolished
@@ -1151,7 +954,7 @@ void CPlayerInterface::battleStart(CCreatureSet *army1, CCreatureSet *army2, int
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	battleInt = new CBattleInterface(army1, army2, hero1, hero2, genRect(600, 800, (conf.cc.resx - 800)/2, (conf.cc.resy - 600)/2));
 	CGI->musich->playMusicFromSet(CGI->musich->battleMusics, -1);
-	pushInt(battleInt);
+	GH.pushInt(battleInt);
 }
 
 void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles) //called when battlefield is prepared, prior the battle beginning
@@ -1413,11 +1216,11 @@ void CPlayerInterface::showInfoDialog(const std::string &text, const std::vector
 	pom.push_back(std::pair<std::string,CFunctionList<void()> >("IOKAY.DEF",0));
 	CInfoWindow * temp = new CInfoWindow(text,playerID,0,components,pom,false);
 
-	if(makingTurn && listInt.size())
+	if(makingTurn && GH.listInt.size())
 	{
 		CGI->soundh->playSound(static_cast<soundBase::soundID>(soundID));
 		showingDialog->set(true);
-		pushInt(temp);
+		GH.pushInt(temp);
 	}
 	else
 	{
@@ -1439,7 +1242,7 @@ void CPlayerInterface::showYesNoDialog(const std::string &text, const std::vecto
 	for(int i=0;i<onNo.funcs.size();i++)
 		temp->buttons[1]->callback += onNo.funcs[i];
 
-	LOCPLINT->pushInt(temp);
+	GH.pushInt(temp);
 }
 
 void CPlayerInterface::showBlockingDialog( const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel )
@@ -1471,7 +1274,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 		}
 
 		CSelWindow * temp = new CSelWindow(text,playerID,35,intComps,pom,askID);
-		pushInt(temp);
+		GH.pushInt(temp);
 		intComps[0]->clickLeft(true);
 	}
 
@@ -1496,7 +1299,7 @@ void CPlayerInterface::openHeroWindow(const CGHeroInstance *hero)
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	adventureInt->heroWindow->setHero(hero);
 	adventureInt->heroWindow->quitButton->callback = boost::bind(&CHeroWindow::quit,adventureInt->heroWindow);
-	pushInt(adventureInt->heroWindow);
+	GH.pushInt(adventureInt->heroWindow);
 }
 
 void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
@@ -1509,7 +1312,7 @@ void CPlayerInterface::heroArtifactSetChanged(const CGHeroInstance*hero)
 		adventureInt->heroWindow->activate();
 		return;
 	}
-	CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(listInt.front());
+	CExchangeWindow* cew = dynamic_cast<CExchangeWindow*>(GH.topInt());
 	if(cew) //exchange window is open
 	{
 		cew->deactivate();
@@ -1535,13 +1338,13 @@ void CPlayerInterface::availableCreaturesChanged( const CGDwelling *town )
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	if(castleInt && town->ID == TOWNI_TYPE)
 	{
-		CFortScreen *fs = dynamic_cast<CFortScreen*>(listInt.front());
+		CFortScreen *fs = dynamic_cast<CFortScreen*>(GH.topInt());
 		if(fs)
 			fs->draw(castleInt,false);
 	}
-	else if(listInt.size() && (town->ID == 17  ||  town->ID == 20)) //external dwelling
+	else if(GH.listInt.size() && (town->ID == 17  ||  town->ID == 20)) //external dwelling
 	{
-		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(listInt.front());
+		CRecruitmentWindow *crw = dynamic_cast<CRecruitmentWindow*>(GH.topInt());
 		if(crw)
 			crw->initCres();
 	}
@@ -1663,73 +1466,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 	}
 	CGarrisonWindow *cgw = new CGarrisonWindow(up,down);
 	cgw->quit->callback += onEnd;
-	pushInt(cgw);
-}
-
-void CPlayerInterface::popInt( IShowActivable *top )
-{
-	assert(listInt.front() == top);
-	top->deactivate();
-	listInt.pop_front();
-	objsToBlit -= top;
-	if(listInt.size())
-		listInt.front()->activate();
-	totalRedraw();
-}
-
-void CPlayerInterface::popIntTotally( IShowActivable *top )
-{
-	assert(listInt.front() == top);
-	popInt(top);
-	delete top;
-}
-
-void CPlayerInterface::pushInt( IShowActivable *newInt )
-{
-	//a new interface will be present, we'll need to use buffer surface (unless it's advmapint that will alter screenBuf on activate anyway)
-	screenBuf = screen2; 
-
-	if(listInt.size())
-		listInt.front()->deactivate();
-	listInt.push_front(newInt);
-	newInt->activate();
-	objsToBlit += newInt;
-	LOCPLINT->totalRedraw();
-}
-
-void CPlayerInterface::popInts( int howMany )
-{
-	if(!howMany) return; //senseless but who knows...
-
-	assert(listInt.size() > howMany);
-	listInt.front()->deactivate();
-	for(int i=0; i < howMany; i++)
-	{
-		objsToBlit -= listInt.front();
-		delete listInt.front();
-		listInt.pop_front();
-	}
-	listInt.front()->activate();
-	totalRedraw();
-}
-
-IShowActivable * CPlayerInterface::topInt()
-{
-	if(!listInt.size())
-		return NULL;
-	else 
-		return listInt.front();
-}
-
-void CPlayerInterface::totalRedraw()
-{
-	for(int i=0;i<objsToBlit.size();i++)
-		objsToBlit[i]->showAll(screen2);
-
-	blitAt(screen2,0,0,screen);
-
-	if(objsToBlit.size())
-		objsToBlit.back()->showAll(screen);
+	GH.pushInt(cgw);
 }
 
 void CPlayerInterface::requestRealized( PackageApplied *pa )
@@ -1740,7 +1477,7 @@ void CPlayerInterface::requestRealized( PackageApplied *pa )
 
 void CPlayerInterface::heroExchangeStarted(si32 hero1, si32 hero2)
 {
-	pushInt(new CExchangeWindow(hero2, hero1));
+	GH.pushInt(new CExchangeWindow(hero2, hero1));
 }
 
 void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
@@ -1780,7 +1517,7 @@ void CPlayerInterface::showRecruitmentDialog(const CGDwelling *dwelling, const C
 	waitWhileDialog();
 	boost::unique_lock<boost::recursive_mutex> un(*pim);
 	CRecruitmentWindow *cr = new CRecruitmentWindow(dwelling, level, dst, boost::bind(&CCallback::recruitCreatures, cb, dwelling, _1, _2));
-	pushInt(cr);
+	GH.pushInt(cr);
 }
 
 void CPlayerInterface::waitWhileDialog()
@@ -1797,7 +1534,7 @@ void CPlayerInterface::showShipyardDialog(const IShipyard *obj)
 	std::vector<si32> cost;
 	obj->getBoatCost(cost);
 	CShipyardWindow *csw = new CShipyardWindow(cost, state, boost::bind(&CCallback::buildBoat, cb, obj));
-	pushInt(csw);
+	GH.pushInt(csw);
 }
 
 void CPlayerInterface::newObject( const CGObjectInstance * obj )

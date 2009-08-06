@@ -115,7 +115,7 @@ public:
 	CDefHandler * getAnim(int mode);
 };
 /*****************************/
-class CAdvMapInt : public CMainInterface, public KeyInterested //adventure map interface
+class CAdvMapInt : public CMainInterface, public KeyInterested, public MotionInterested //adventure map interface
 {
 public:
 	CAdvMapInt(int Player);
@@ -185,5 +185,6 @@ public:
 	int3 verifyPos(int3 ver);
 	void handleRightClick(std::string text, boost::logic::tribool down, CIntObject * client);
 	void keyPressed(const SDL_KeyboardEvent & key);
+	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 };
 #endif // __CADVMAPINTERFACE_H__

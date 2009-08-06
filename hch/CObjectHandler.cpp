@@ -986,7 +986,7 @@ void CGDwelling::initObj()
 			if(crs->level > 4)
 			{
 				army.slots[0].first = crs->idNumber;
-				army.slots[0].second = crs->getRandomAmount(ran);
+				army.slots[0].second = (8 - crs->level) * 3;
 			}
 		}
 		break;
@@ -1001,17 +1001,19 @@ void CGDwelling::initObj()
 			creatures[3].second.push_back(117); //Diamond Golem
 			//guards
 			army.slots[0].first = 116;
-			army.slots[0].second = VLC->creh->creatures[116].getRandomAmount(ran);
+			army.slots[0].second = 9;
+			army.slots[1].first = 117;
+			army.slots[1].second = 6;
 		}
 		else if(subID == 0) // Elemental Conflux 
 		{
 			creatures[0].second.push_back(112); //Air Elemental
-			creatures[1].second.push_back(113); //Earth Elemental
-			creatures[2].second.push_back(114); //Fire Elemental
+			creatures[1].second.push_back(114); //Fire Elemental
+			creatures[2].second.push_back(113); //Earth Elemental
 			creatures[3].second.push_back(115); //Water Elemental
 			//guards
 			army.slots[0].first = 113;
-			army.slots[0].second = VLC->creh->creatures[113].getRandomAmount(ran);
+			army.slots[0].second = 12;
 		}
 		else
 		{
@@ -1047,9 +1049,11 @@ void CGDwelling::onHeroVisit( const CGHeroInstance * h ) const
 	BlockingDialog bd;
 	bd.player = h->tempOwner;
 	bd.flags = BlockingDialog::ALLOW_CANCEL;
-	bd.text.addTxt(MetaString::ADVOB_TXT, 35); //{%s}	Would you like to recruit %s?
-	bd.text.addReplacement(MetaString::CREGENS, subID);
-	bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[0].second[0]);
+	bd.text.addTxt(MetaString::ADVOB_TXT, ID == 17 ? 35 : 36); //{%s} Would you like to recruit %s?
+	bd.text.addReplacement(ID == 17 ? MetaString::CREGENS : MetaString::CREGENS4, subID);
+	for(size_t i = 0; i < creatures.size(); i++)
+		bd.text.addReplacement(MetaString::CRE_PL_NAMES, creatures[i].second[0]);
+
 	cb->showBlockingDialog(&bd, boost::bind(&CGDwelling::heroAcceptsCreatures, this, h, _1));
 }
 
@@ -1071,7 +1075,10 @@ void CGDwelling::newTurn() const
 	{
 		if(creatures[i].second.size())
 		{
-			sac.creatures[i].first += VLC->creh->creatures[creatures[i].second[0]].growth;
+			if(false /*accumulate creatures*/)
+				sac.creatures[i].first += VLC->creh->creatures[creatures[i].second[0]].growth;
+			else
+				sac.creatures[i].first = VLC->creh->creatures[creatures[i].second[0]].growth;
 			change = true;
 		}
 	}

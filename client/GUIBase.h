@@ -4,6 +4,9 @@
 #include "../global.h"
 #include "SDL.h"
 #include <set>
+#include <list>
+#include "../timeHandler.h"
+
 
 #ifdef max
 #undef max
@@ -381,6 +384,39 @@ public:
 	virtual void deactivate();
 };
 
+class CGuiHandler
+{
+public:
+	timeHandler th;
+	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 
+	//active GUI elements (listening for events
+	std::list<ClickableL*> lclickable;
+	std::list<ClickableR*> rclickable;
+	std::list<Hoverable*> hoverable;
+	std::list<KeyInterested*> keyinterested;
+	std::list<MotionInterested*> motioninterested;
+	std::list<TimeInterested*> timeinterested;
+
+	//objs to blit
+	std::vector<IShowable*> objsToBlit;
+
+	SDL_Event * current; //current event
+
+	void totalRedraw(); //forces total redraw (using showAll)
+	void simpleRedraw(); //update only top interface and draw background from buffer
+	void popInt(IShowActivable *top); //removes given interface from the top and activates next
+	void popIntTotally(IShowActivable *top); //deactivates, deletes, removes given interface from the top and activates next
+	void pushInt(IShowActivable *newInt); //deactivate old top interface, activates this one and pushes to the top
+	void popInts(int howMany); //pops one or more interfaces - deactivates top, deletes and removes given number of interfaces, activates new front
+	IShowActivable *topInt(); //returns top interface
+	void updateTime(); //handles timeInterested
+	void handleEvents(); //takes events from queue and calls interested objects
+	void handleEvent(SDL_Event *sEvent);
+
+	void handleMouseMotion(SDL_Event *sEvent);
+};
+
+extern CGuiHandler GH; //global gui handler
 
 #endif //__GUIBASE_H__

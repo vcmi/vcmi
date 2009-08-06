@@ -289,7 +289,7 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 
 void CHeroWindow::quit()
 {
-	LOCPLINT->popInt(this);
+	GH.popInt(this);
 	dispose();
 }
 

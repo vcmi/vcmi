@@ -278,15 +278,15 @@ void CMinimap::clickLeft (tribool down)
 		MotionInterested::activate();
 	else if (!down)
 	{
-		if (std::find(LOCPLINT->motioninterested.begin(),LOCPLINT->motioninterested.end(),this)!=LOCPLINT->motioninterested.end())
+		if (std::find(GH.motioninterested.begin(),GH.motioninterested.end(),this)!=GH.motioninterested.end())
 			MotionInterested::deactivate();
 	}
 	ClickableL::clickLeft(down);
 	if (!((bool)down))
 		return;
 
-	float dx=((float)(LOCPLINT->current->motion.x-pos.x))/((float)pos.w),
-		dy=((float)(LOCPLINT->current->motion.y-pos.y))/((float)pos.h);
+	float dx=((float)(GH.current->motion.x-pos.x))/((float)pos.w),
+		dy=((float)(GH.current->motion.y-pos.y))/((float)pos.h);
 
 	int3 newCPos;
 	newCPos.x = (CGI->mh->sizes.x*dx);
@@ -576,9 +576,9 @@ void CTerrainRect::clickRight(tribool down)
 				if(LOCPLINT->cb->getHeroInfo(obj, iah))
 				{
 					SDL_Surface *iwin = graphics->drawHeroInfoWin(iah);
-					CInfoPopup * ip = new CInfoPopup(iwin, LOCPLINT->current->motion.x-iwin->w,
-													  LOCPLINT->current->motion.y-iwin->h, true);
-					LOCPLINT->pushInt(ip);
+					CInfoPopup * ip = new CInfoPopup(iwin, GH.current->motion.x-iwin->w,
+													  GH.current->motion.y-iwin->h, true);
+					GH.pushInt(ip);
 				}
 				else
 				{
@@ -588,10 +588,10 @@ void CTerrainRect::clickRight(tribool down)
 			else
 			{
 				CInfoPopup * ip = new CInfoPopup(graphics->heroWins[obj->subID],
-					LOCPLINT->current->motion.x-graphics->heroWins[obj->subID]->w,
-					LOCPLINT->current->motion.y-graphics->heroWins[obj->subID]->h,false
+					GH.current->motion.x-graphics->heroWins[obj->subID]->w,
+					GH.current->motion.y-graphics->heroWins[obj->subID]->h,false
 					);
-				LOCPLINT->pushInt(ip);
+				GH.pushInt(ip);
 			}
 			break;
 		}
@@ -603,9 +603,9 @@ void CTerrainRect::clickRight(tribool down)
 				if(LOCPLINT->cb->getTownInfo(obj, iah))
 				{
 					SDL_Surface *iwin = graphics->drawTownInfoWin(iah);
-					CInfoPopup * ip = new CInfoPopup(iwin, LOCPLINT->current->motion.x-iwin->w,
-						LOCPLINT->current->motion.y-iwin->h, true);
-					LOCPLINT->pushInt(ip);
+					CInfoPopup * ip = new CInfoPopup(iwin, GH.current->motion.x-iwin->w,
+						GH.current->motion.y-iwin->h, true);
+					GH.pushInt(ip);
 				}
 				else
 				{
@@ -615,10 +615,10 @@ void CTerrainRect::clickRight(tribool down)
 			else
 			{
 				CInfoPopup * ip = new CInfoPopup(graphics->townWins[obj->id],
-					LOCPLINT->current->motion.x-graphics->townWins[obj->id]->w,
-					LOCPLINT->current->motion.y-graphics->townWins[obj->id]->h,false
+					GH.current->motion.x-graphics->townWins[obj->id]->w,
+					GH.current->motion.y-graphics->townWins[obj->id]->h,false
 					);
-				LOCPLINT->pushInt(ip);
+				GH.pushInt(ip);
 			}
 			break;
 		}
@@ -1041,14 +1041,14 @@ void CTerrainRect::show(SDL_Surface * to)
 int3 CTerrainRect::whichTileIsIt(const int & x, const int & y)
 {
 	int3 ret;
-	ret.x = LOCPLINT->adventureInt->position.x + ((LOCPLINT->current->motion.x-CGI->mh->offsetX-pos.x)/32);
-	ret.y = LOCPLINT->adventureInt->position.y + ((LOCPLINT->current->motion.y-CGI->mh->offsetY-pos.y)/32);
+	ret.x = LOCPLINT->adventureInt->position.x + ((GH.current->motion.x-CGI->mh->offsetX-pos.x)/32);
+	ret.y = LOCPLINT->adventureInt->position.y + ((GH.current->motion.y-CGI->mh->offsetY-pos.y)/32);
 	ret.z = LOCPLINT->adventureInt->position.z;
 	return ret;
 }
 int3 CTerrainRect::whichTileIsIt()
 {
-	return whichTileIsIt(LOCPLINT->current->motion.x,LOCPLINT->current->motion.y);
+	return whichTileIsIt(GH.current->motion.x,GH.current->motion.y);
 }
 
 void CResDataBar::clickRight (tribool down)
@@ -1405,7 +1405,7 @@ void CAdvMapInt::fshowSpellbok()
 
 
 	CSpellWindow * spellWindow = new CSpellWindow(genRect(595, 620, (conf.cc.resx - 620)/2, (conf.cc.resy - 595)/2), (static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection)), false);
-	LOCPLINT->pushInt(spellWindow);
+	GH.pushInt(spellWindow);
 }
 
 void CAdvMapInt::fadventureOPtions()
@@ -1415,7 +1415,7 @@ void CAdvMapInt::fadventureOPtions()
 void CAdvMapInt::fsystemOptions()
 {
 	CSystemOptionsWindow * sysopWindow = new CSystemOptionsWindow(genRect(487, 481, 159, 57), LOCPLINT);
-	LOCPLINT->pushInt(sysopWindow);
+	GH.pushInt(sysopWindow);
 }
 
 void CAdvMapInt::fnextHero()
@@ -1486,8 +1486,8 @@ void CAdvMapInt::deactivate()
 	heroList.deactivate();
 	townList.deactivate();
 	terrain.deactivate();
-	if(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),&infoBar)!=LOCPLINT->timeinterested.end())
-		LOCPLINT->timeinterested.erase(std::find(LOCPLINT->timeinterested.begin(),LOCPLINT->timeinterested.end(),&infoBar));
+	if(std::find(GH.timeinterested.begin(),GH.timeinterested.end(),&infoBar)!=GH.timeinterested.end())
+		GH.timeinterested.erase(std::find(GH.timeinterested.begin(),GH.timeinterested.end(),&infoBar));
 	infoBar.mode=-1;
 
 	LOCPLINT->cingconsole->deactivate();
@@ -1541,7 +1541,7 @@ void CAdvMapInt::show(SDL_Surface *to)
 	//if advmap needs updating AND (no dialog is shown OR ctrl is pressed)
 	if((animValHitCount % (4/LOCPLINT->sysOpts.mapScrollingSpeed)) == 0 
 		&& 
-			(LOCPLINT->topInt() == this)
+			(GH.topInt() == this)
 			|| SDL_GetKeyState(NULL)[SDLK_LCTRL] 
 			|| SDL_GetKeyState(NULL)[SDLK_RCTRL]
 	)
@@ -1642,7 +1642,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_t:
 		{
 			//act on key down if marketplace windows is not already opened
-			if(key.state != SDL_PRESSED  ||  dynamic_cast<CMarketplaceWindow*>(LOCPLINT->topInt())) return;
+			if(key.state != SDL_PRESSED  ||  dynamic_cast<CMarketplaceWindow*>(GH.topInt())) return;
 
 			//check if we have aby marketplace
 			std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo();
@@ -1652,7 +1652,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 					break;
 
 			if(i != towns.size()) //if any town has marketplace, open window
-				LOCPLINT->pushInt(new CMarketplaceWindow); 
+				GH.pushInt(new CMarketplaceWindow); 
 			else //if not - complain
 				LOCPLINT->showInfoDialog("No available marketplace!", std::vector<SComponent*>(), soundBase::sound_todo);
 			return;
@@ -1678,7 +1678,7 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 		temp->pos.y=screen->h/2-(temp->pos.h/2);
 		temp->owner = client;
 		CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
-		LOCPLINT->pushInt(rcpi);
+		GH.pushInt(rcpi);
 	}
 }
 int3 CAdvMapInt::verifyPos(int3 ver)
@@ -1730,4 +1730,44 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 	townList.draw(screen);
 	heroList.draw(screen);
 	infoBar.draw(screen);
+}
+
+void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
+{
+	//adventure map scrolling with mouse
+	if(!SDL_GetKeyState(NULL)[SDLK_LCTRL]  &&  active)
+	{
+		if(sEvent.x<15)
+		{
+			scrollingDir |= LEFT;
+		}
+		else
+		{
+			scrollingDir &= ~LEFT;
+		}
+		if(sEvent.x>screen->w-15)
+		{
+			scrollingDir |= RIGHT;
+		}
+		else
+		{
+			scrollingDir &= ~RIGHT;
+		}
+		if(sEvent.y<15)
+		{
+			scrollingDir |= UP;
+		}
+		else
+		{
+			scrollingDir &= ~UP;
+		}
+		if(sEvent.y>screen->h-15)
+		{
+			scrollingDir |= DOWN;
+		}
+		else
+		{
+			scrollingDir &= ~DOWN;
+		}
+	}
 }

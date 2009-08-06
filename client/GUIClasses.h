@@ -327,6 +327,10 @@ public:
 class CRecruitmentWindow : public IShowActivable, public ClickableL, public ClickableR
 {
 public:
+	static const int SPACE_BETWEEN = 8;
+	static const int CREATURE_WIDTH = 102;
+	static const int TOTAL_CREATURE_WIDTH = SPACE_BETWEEN + CREATURE_WIDTH;
+
 	struct creinfo
 	{
 		SDL_Rect pos;

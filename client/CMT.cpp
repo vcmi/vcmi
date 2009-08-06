@@ -59,6 +59,7 @@
 
 std::string NAME_AFFIX = "client";
 std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
+CGuiHandler GH;
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
@@ -269,7 +270,7 @@ int main(int argc, char** argv)
 				boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
 				bool full = !(screen->flags&SDL_FULLSCREEN);
 				setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,full);
-				LOCPLINT->totalRedraw();
+				GH.totalRedraw();
 			}
 			eventsM.lock();
 			events.push(ev);
@@ -306,7 +307,7 @@ void processCommand(const std::string &message, CClient *&client)
 		switch (what)
 		{
 		case 0:
-			LOCPLINT->topInt()->activate();
+			GH.topInt()->activate();
 			break;
 		case 1:
 			LOCPLINT->adventureInt->activate();

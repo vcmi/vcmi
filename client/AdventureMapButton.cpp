@@ -401,7 +401,7 @@ void CSlider::clickLeft (tribool down)
 {
 	if(down)
 	{
-		float pw = LOCPLINT->current->motion.x-pos.x-24;
+		float pw = GH.current->motion.x-pos.x-24;
 		float rw = pw / ((float)(pos.w-48));
 		if (rw>1) return;
 		if (rw<0) return;
