@@ -506,6 +506,7 @@ void CGeniusAI::TownObjective::fulfill(CGeniusAI & cg,HypotheticalGameState &hgs
 		
 		whichTown->hasBuilt=true;
 		break;
+
 	case recruitCreatures:
 		ID = whichTown->creaturesToRecruit[which].second.back();				//buy upgraded if possible
 		creature = &VLC->creh->creatures[ID];
