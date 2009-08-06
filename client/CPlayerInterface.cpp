@@ -1171,6 +1171,18 @@ void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, u
 	}
 }
 
+void CPlayerInterface::battleNewStackAppeared(int stackID)
+{
+	const CStack * newStack = cb->battleGetStackByID(stackID);
+
+	//changing necessary things in battle interface
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(newStack->position, newStack->owner == battleInt->attackingHeroInstance->tempOwner, newStack);
+	battleInt->creAnims[newStack->ID] = (new CCreatureAnimation(newStack->creature->animDefName));
+	battleInt->creAnims[newStack->ID]->setType(2);
+	battleInt->creAnims[newStack->ID]->pos = genRect(battleInt->creAnims[newStack->ID]->fullHeight, battleInt->creAnims[newStack->ID]->fullWidth, coords.first, coords.second);
+	battleInt->creDir[newStack->ID] = newStack->owner == battleInt->attackingHeroInstance->tempOwner;
+}
+
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

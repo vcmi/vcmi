@@ -406,6 +406,14 @@ void SpellCast::applyCl( CClient *cl )
 		cl->playerint[GS(cl)->curB->side1]->battleSpellCast(this);
 	if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
 		cl->playerint[GS(cl)->curB->side2]->battleSpellCast(this);
+
+	if(id >= 66 && id <= 69) //elemental summoning
+	{
+		if(cl->playerint.find(GS(cl)->curB->side1) != cl->playerint.end())
+			cl->playerint[GS(cl)->curB->side1]->battleNewStackAppeared(GS(cl)->curB->stacks.size() - 1);
+		if(cl->playerint.find(GS(cl)->curB->side2) != cl->playerint.end())
+			cl->playerint[GS(cl)->curB->side2]->battleNewStackAppeared(GS(cl)->curB->stacks.size() - 1);
+	}
 }
 
 void SetStackEffect::applyCl( CClient *cl )

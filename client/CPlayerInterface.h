@@ -193,6 +193,7 @@ public:
 	void battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile, CGHeroInstance *hero1, CGHeroInstance *hero2, bool side); //called by engine when battle starts; side=0 - left, side=1 - right
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks); //called when stacks are healed / resurrected
+	void battleNewStackAppeared(int stackID); //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
 
 
 	//-------------//

@@ -137,6 +137,8 @@ struct DLL_EXPORT BattleInfo
 	static int calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting); //TODO: add additional conditions and require necessary data
 	void calculateCasualties(std::set<std::pair<ui32,si32> > *casualties);
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile); //calculates stack affected by given spell
+	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster);
+	static CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position); //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 };
 
 class DLL_EXPORT CStack

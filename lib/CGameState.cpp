@@ -2159,6 +2159,52 @@ std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHer
 	return attackedCres;
 }
 
+int BattleInfo::calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster)
+{
+	switch(spell->id)
+	{
+	case 56: //frenzy
+		return 1;
+	default: //other spells
+		return caster->getPrimSkillLevel(2) + caster->valOfBonuses(HeroBonus::SPELL_DURATION);
+	}
+}
+
+CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position)
+{
+	CStack * ret = new CStack(&VLC->creh->creatures[creatureID], amount, owner ? owner->tempOwner : 255, stackID, attackerOwned, slot);
+	if(owner)
+	{
+		ret->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->valOfBonuses(HeroBonus::STACKS_SPEED), StackFeature::BONUS_FROM_HERO));
+		//base luck/morale calculations
+		ret->morale = owner->getCurrentMorale(slot, false);
+		ret->luck = owner->getCurrentLuck(slot, false);
+		//other bonuses
+		ret->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
+		ret->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
+		ret->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->valOfBonuses(HeroBonus::STACK_HEALTH), StackFeature::BONUS_FROM_HERO));
+		ret->firstHPleft = ret->MaxHealth();
+	}
+	else
+	{
+		ret->morale = 0;
+		ret->luck = 0;
+	}
+
+	//native terrain bonuses
+	int faction = ret->creature->faction;
+	if(faction >= 0 && VLC->heroh->nativeTerrains[faction] == terrain)
+	{
+		ret->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
+		ret->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
+		ret->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
+	}
+
+	ret->position = position;
+
+	return ret;
+}
+
 CStack * BattleInfo::getNextStack()
 {
 	CStack *current = getStack(activeStack);

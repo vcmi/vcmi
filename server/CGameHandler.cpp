@@ -307,6 +307,9 @@ static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInf
 	CCreatureSet ret(set);
 	for(int i=0; i<bat->stacks.size();i++)
 	{
+		if(bat->stacks[i]->hasFeatureOfType(StackFeature::SUMMONED)) //don't take into account sumoned stacks
+			continue;
+
 		CStack *st = bat->stacks[i];
 		if(st->owner==color && vstd::contains(set.slots,st->slot) && st->amount < set.slots.find(st->slot)->second.second)
 		{
@@ -869,30 +872,8 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	curB->side2=(hero2)?(hero2->tempOwner):(-1);
 	curB->round = -2;
 	curB->activeStack = -1;
-	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
-	{
-		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero1->tempOwner, stacks.size(), true,i->first));
-		if(hero1)
-		{
-			stacks.back()->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->valOfBonuses(HeroBonus::STACKS_SPEED), StackFeature::BONUS_FROM_HERO));
-			//base luck/morale calculations
-			//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
-			stacks.back()->morale = hero1->getCurrentMorale(i->first,false);
-			stacks.back()->luck = hero1->getCurrentLuck(i->first,false);
-			stacks.back()->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
-			stacks.back()->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
-			stacks.back()->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, hero1->valOfBonuses(HeroBonus::STACK_HEALTH), StackFeature::BONUS_FROM_HERO));
-			stacks.back()->firstHPleft = stacks.back()->MaxHealth();
-		}
-		else
-		{
-			stacks.back()->morale = 0;
-			stacks.back()->luck = 0;
-		}
 
-		stacks[stacks.size()-1]->ID = stacks.size()-1;
-	}
-	//initialization of positions
+	//reading battleStartpos
 	std::ifstream positions;
 	positions.open("config" PATHSEPARATOR "battleStartpos.txt", std::ios_base::in|std::ios_base::binary);
 	if(!positions.is_open())
@@ -911,49 +892,31 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	positions>>dump;
 	CGH::readItTo(positions, defenderTight);
 	positions.close();
+	//battleStartpos read
+
+	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
+	{
+		int pos;
+		if(army1.formation)
+			pos = attackerTight[army1.slots.size()-1][i->first];
+		else
+			pos = attackerLoose[army1.slots.size()-1][i->first];
+
+		CStack * stack = BattleInfo::generateNewStack(hero1, i->second.first, i->second.second, stacks.size(), true, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
+		stacks.push_back(stack);
+	}
 	
-	if(army1.formation)
-		for(int b=0; b<army1.slots.size(); ++b) //tight
-		{
-			stacks[b]->position = attackerTight[army1.slots.size()-1][b];
-		}
-	else
-		for(int b=0; b<army1.slots.size(); ++b) //loose
-		{
-			stacks[b]->position = attackerLoose[army1.slots.size()-1][b];
-		}
 	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army2.slots.begin(); i!=army2.slots.end(); i++)
 	{
-		stacks.push_back(new CStack(&VLC->creh->creatures[i->second.first],i->second.second,hero2 ? hero2->tempOwner : 255, stacks.size(), false, i->first));
-		//base luck/morale calculations
-		//TODO: check if terrain is native, add bonuses for neutral stacks, bonuses from town
-		if(hero2)
-		{
-			stacks.back()->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->valOfBonuses(HeroBonus::STACKS_SPEED), StackFeature::BONUS_FROM_HERO));
-			stacks.back()->morale = hero2->getCurrentMorale(i->first,false);
-			stacks.back()->luck = hero2->getCurrentLuck(i->first,false);
-			stacks.back()->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
-			stacks.back()->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
-			stacks.back()->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, hero2->valOfBonuses(HeroBonus::STACK_HEALTH), StackFeature::BONUS_FROM_HERO));
-			stacks.back()->firstHPleft = stacks.back()->MaxHealth();
-		}
+		int pos;
+		if(army2.formation)
+			pos = defenderTight[army2.slots.size()-1][i->first];
 		else
-		{
-			stacks.back()->morale = 0;
-			stacks.back()->luck = 0;
-		}
-	}
+			pos = defenderLoose[army2.slots.size()-1][i->first];
 
-	if(army2.formation)
-		for(int b=0; b<army2.slots.size(); ++b) //tight
-		{
-			stacks[b+army1.slots.size()]->position = defenderTight[army2.slots.size()-1][b];
-		}
-	else
-		for(int b=0; b<army2.slots.size(); ++b) //loose
-		{
-			stacks[b+army1.slots.size()]->position = defenderLoose[army2.slots.size()-1][b];
-		}
+		CStack * stack = BattleInfo::generateNewStack(hero2, i->second.first, i->second.second, stacks.size(), false, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
+		stacks.push_back(stack);
+	}
 
 	for(unsigned g=0; g<stacks.size(); ++g) //shifting positions of two-hex creatures
 	{
@@ -967,65 +930,41 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		}
 	}
 
-	//adding native terrain bonuses
-	for(int g=0; g<stacks.size(); ++g)
-	{
-		int faction = stacks[g]->creature->faction;
-		if(faction >= 0 && VLC->heroh->nativeTerrains[faction] == gs->map->terrain[tile.x][tile.y][tile.z].tertype )
-		{
-			stacks[g]->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
-			stacks[g]->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
-			stacks[g]->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
-		}
-	}
-
 	//adding war machines
 	if(hero1)
 	{
 		if(hero1->getArt(13)) //ballista
 		{
-			stacks.push_back(new CStack(&VLC->creh->creatures[146], 1, hero1->tempOwner, stacks.size(), true, 255));
-			stacks[stacks.size()-1]->position = 52;
-			stacks.back()->morale = hero1->getCurrentMorale(stacks.back()->ID,false);
-			stacks.back()->luck = hero1->getCurrentLuck(stacks.back()->ID,false);
+			CStack * stack = BattleInfo::generateNewStack(hero1, 146, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 52);
+			stacks.push_back(stack);
 		}
 		if(hero1->getArt(14)) //ammo cart
 		{
-			stacks.push_back(new CStack(&VLC->creh->creatures[148], 1, hero1->tempOwner, stacks.size(), true, 255));
-			stacks[stacks.size()-1]->position = 18;
-			stacks.back()->morale = hero1->getCurrentMorale(stacks.back()->ID,false);
-			stacks.back()->luck = hero1->getCurrentLuck(stacks.back()->ID,false);
+			CStack * stack = BattleInfo::generateNewStack(hero1, 148, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 18);
+			stacks.push_back(stack);
 		}
 		if(hero1->getArt(15)) //first aid tent
 		{
-			stacks.push_back(new CStack(&VLC->creh->creatures[147], 1, hero1->tempOwner, stacks.size(), true, 255));
-			stacks[stacks.size()-1]->position = 154;
-			stacks.back()->morale = hero1->getCurrentMorale(stacks.back()->ID,false);
-			stacks.back()->luck = hero1->getCurrentLuck(stacks.back()->ID,false);
+			CStack * stack = BattleInfo::generateNewStack(hero1, 147, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 154);
+			stacks.push_back(stack);
 		}
 	}
 	if(hero2)
 	{
 		if(hero2->getArt(13)) //ballista
 		{
-			stacks.push_back(new CStack(&VLC->creh->creatures[146], 1, hero2->tempOwner, stacks.size(), false, 255));
-			stacks[stacks.size()-1]->position = 66;
-			stacks.back()->morale = hero2->getCurrentMorale(stacks.back()->ID,false);
-			stacks.back()->luck = hero2->getCurrentLuck(stacks.back()->ID,false);
+			CStack * stack = BattleInfo::generateNewStack(hero2, 146, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 66);
+			stacks.push_back(stack);
 		}
 		if(hero2->getArt(14)) //ammo cart
 		{
-			stacks.push_back(new CStack(&VLC->creh->creatures[148], 1, hero2->tempOwner, stacks.size(), false, 255));
-			stacks[stacks.size()-1]->position = 32;
-			stacks.back()->morale = hero2->getCurrentMorale(stacks.back()->ID,false);
-			stacks.back()->luck = hero2->getCurrentLuck(stacks.back()->ID,false);
+			CStack * stack = BattleInfo::generateNewStack(hero2, 148, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 32);
+			stacks.push_back(stack);
 		}
 		if(hero2->getArt(15)) //first aid tent
 		{
-			stacks.push_back(new CStack(&VLC->creh->creatures[147], 1, hero2->tempOwner, stacks.size(), false, 255));
-			stacks[stacks.size()-1]->position = 168;
-			stacks.back()->morale = hero2->getCurrentMorale(stacks.back()->ID,false);
-			stacks.back()->luck = hero2->getCurrentLuck(stacks.back()->ID,false);
+			CStack * stack = BattleInfo::generateNewStack(hero2, 147, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 168);
+			stacks.push_back(stack);
 		}
 	}
 	//war machines added
@@ -1070,7 +1009,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 			bool badObstacle = false;
 			for(int b=0; b<block.size(); ++b)
 			{
-				if(!obAv[block[b]])
+				if(block[b] < 0 || block[b] >= BFIELD_SIZE || !obAv[block[b]])
 				{
 					badObstacle = true;
 					break;
@@ -2811,6 +2750,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 31: //protection from fire
 			case 32: //protection from water
 			case 33: //protection from earth
+			case 34: //anti-magic
 			case 41: //bless
 			case 42: //curse
 			case 43: //bloodlust
@@ -2826,6 +2766,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 53: //haste
 			case 54: //slow
 			case 55: //slayer
+			case 56: //frenzy
 			case 61: //forgetfulness
 				{
 					SetStackEffect sse;
@@ -2837,23 +2778,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					}
 					sse.effect.id = ba.additionalInfo;
 					sse.effect.level = h->getSpellSchoolLevel(s);
-					sse.effect.turnsRemain = h->getPrimSkillLevel(2) + h->valOfBonuses(HeroBonus::SPELL_DURATION);
-					if(!sse.stacks.empty())
-						sendAndApply(&sse);
-					break;
-				}
-			case 56: //frenzy
-				{
-					SetStackEffect sse;
-					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)
-					{
-						if(vstd::contains(sc.resisted, (*it)->ID)) //this creature resisted the spell
-							continue;
-						sse.stacks.insert((*it)->ID);
-					}
-					sse.effect.id = ba.additionalInfo;
-					sse.effect.level = h->getSpellSchoolLevel(s);
-					sse.effect.turnsRemain = 1;
+					sse.effect.turnsRemain = BattleInfo::calculateSpellDuration(s, h);
 					if(!sse.stacks.empty())
 						sendAndApply(&sse);
 					break;

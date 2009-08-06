@@ -496,6 +496,10 @@ void CBattleInterface::show(SDL_Surface * to)
 		for(size_t v=0; v<stackAliveByHex[b].size(); ++v)
 		{
 			int curStackID = stackAliveByHex[b][v];
+			
+			if(creAnims.find(curStackID) == creAnims.end()) //eg. for summoned but not yet handled stacks
+				continue;
+
 			const CStack &curStack = stacks[curStackID];
 			int animType = creAnims[curStackID]->getType();
 

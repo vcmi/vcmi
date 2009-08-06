@@ -695,6 +695,7 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 		gs->curB->castSpells[side]++;
 	}
 
+
 	if(gs->curB && id == 35) //dispel
 	{
 		for(std::set<ui32>::const_iterator it = affectedCres.begin(); it != affectedCres.end(); ++it)
@@ -715,6 +716,50 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 				}
 			}
 		}
+	}
+
+	//elemental summoning
+	if(id >= 66 && id <= 69)
+	{
+		int creID;
+		switch(id)
+		{
+		case 66:
+			creID = 114; //fire elemental
+			break;
+		case 67:
+			creID = 113; //earth elemental
+			break;
+		case 68:
+			creID = 115; //water elemental
+			break;
+		case 69:
+			creID = 112; //air elemental
+			break;
+		}
+		const int3 & tile = gs->curB->tile;
+		TerrainTile::EterrainType ter = gs->map->terrain[tile.x][tile.y][tile.z].tertype;
+
+		int pos; //position of stack on the battlefield - to be calculated
+
+		bool ac[BFIELD_SIZE];
+		std::set<int> occupyable;
+		bool twoHex = vstd::contains(VLC->creh->creatures[creID].abilities, StackFeature::DOUBLE_WIDE);
+		bool flying = vstd::contains(VLC->creh->creatures[creID].abilities, StackFeature::FLYING);
+		gs->curB->getAccessibilityMap(ac, twoHex, !side, true, occupyable, flying);
+		for(int g=0; g<BFIELD_SIZE; ++g)
+		{
+			if(g % BFIELD_WIDTH != 0 && g % BFIELD_WIDTH != BFIELD_WIDTH-1 && BattleInfo::isAccessible(g, ac, twoHex, !side, flying, true) )
+			{
+				pos = g;
+				break;
+			}
+		}
+
+		CStack * summonedStack = BattleInfo::generateNewStack(h, creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], gs->curB->stacks.size(), !side, 255, ter, pos);
+		summonedStack->features.push_back( makeFeature(StackFeature::SUMMONED, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::BONUS_FROM_HERO) );
+
+		gs->curB->stacks.push_back(summonedStack);
 	}
 }
 
@@ -745,6 +790,9 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 		break;
 	case 33: //protection from earth
 		sf.push_back(featureGenerator(StackFeature::SPELL_DAMAGE_REDUCTION, 3, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
+		break;
+	case 34: //anti-magic
+		sf.push_back(featureGenerator(StackFeature::LEVEL_SPELL_IMMUNITY, 0, VLC->spellh->spells[sse.id].powers[sse.level] - 1, sse.turnsRemain));
 		break;
 	case 41: //bless
 		sf.push_back(featureGenerator(StackFeature::ALWAYS_MAXIMUM_DAMAGE, -1, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));

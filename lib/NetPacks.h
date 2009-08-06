@@ -900,8 +900,8 @@ struct SpellCast : public CPackForClient//3009
 	void applyCl(CClient *cl);
 
 	ui8 side; //which hero did cast spell: 0 - attacker, 1 - defender
-	ui32 id;
-	ui8 skill;
+	ui32 id; //id of spell
+	ui8 skill; //caster's skill level
 	ui16 tile; //destination tile (may not be set in some global/mass spells
 	std::vector<ui32> resisted; //ids of creatures that resisted this spell
 	std::set<ui32> affectedCres; //ids of creatures affected by this spell, generally used if spell does not set any effect (like dispel or cure)
@@ -917,8 +917,8 @@ struct SetStackEffect : public CPackForClient //3010
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	std::set<ui32> stacks;
-	CStack::StackEffect effect;
+	std::set<ui32> stacks; //affected stacks (IDs)
+	CStack::StackEffect effect; //type of effect
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & stacks & effect;
