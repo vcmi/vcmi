@@ -1158,7 +1158,7 @@ void CPlayerInterface::battlefieldPrepared(int battlefieldType, std::vector<CObs
 {
 }
 
-void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32>> & healedStacks)
+void CPlayerInterface::battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks)
 {
 	for(int b=0; b<healedStacks.size(); ++b)
 	{

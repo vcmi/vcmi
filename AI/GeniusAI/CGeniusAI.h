@@ -4,7 +4,7 @@
 #include "Common.h"
 #include "BattleLogic.h"
 #include "GeneralAI.h"
-#include "..\..\lib\CondSh.h"
+#include "../../lib/CondSh.h"
 #include <set>
 #include <list>
 #include <queue>

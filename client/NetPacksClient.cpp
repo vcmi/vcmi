@@ -436,7 +436,7 @@ void BattleResultsApplied::applyCl( CClient *cl )
 
 void StacksHealedOrResurrected::applyCl( CClient *cl )
 {
-	std::vector<std::pair<ui32, ui32>> shiftedHealed;
+	std::vector<std::pair<ui32, ui32> > shiftedHealed;
 	for(int v=0; v<healedStacks.size(); ++v)
 	{
 		shiftedHealed.push_back(std::make_pair(healedStacks[v].stackID, healedStacks[v].healedHP));
