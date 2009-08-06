@@ -30,60 +30,39 @@ private:
 	
 	CondSh<BattleState> m_state; //are we engaged into battle?
 
-	class AIObjectContainer
+	struct AIObjectContainer
 	{
-	public:
 		AIObjectContainer(const CGObjectInstance * o):o(o){}
 		const CGObjectInstance * o;
-		bool operator<(const AIObjectContainer& b)const
-		{
-			if (o->pos!=b.o->pos)
-				return o->pos<b.o->pos;
-			return o->id<b.o->id;
-		}
+		bool operator<(const AIObjectContainer& b)const;
 	};
 
 	class HypotheticalGameState
 	{
 	public:
-		HypotheticalGameState(){}
-		HypotheticalGameState(CGeniusAI & AI)
-			:knownVisitableObjects(AI.knownVisitableObjects)
+		struct HeroModel
 		{
-			std::vector < const CGHeroInstance *> heroes = AI.m_cb->getHeroesInfo();	
-			for(std::vector < const CGHeroInstance *>::iterator i = heroes.begin(); i != heroes.end(); i++)
-				heroModels.push_back(HeroModel(*i));
-			
-			std::vector < const CGTownInstance *> towns = AI.m_cb->getTownsInfo();	
-			for(std::vector < const CGTownInstance *>::iterator i = towns.begin(); i != towns.end(); i++)
-				townModels.push_back(TownModel(*i));
-
-			if(AI.m_cb->howManyTowns()!=0)
-				AvailableHeroesToBuy = AI.m_cb->getAvailableHeroes(AI.m_cb->getTownInfo(0,0));
-
-			for(int i = 0; i < 8;i++)resourceAmounts.push_back(AI.m_cb->getResourceAmount(i));
-		}
-
-		class HeroModel
-		{
-		public:
 			HeroModel(){}
-			HeroModel(const CGHeroInstance * h):h(h){
-				pos = h->getPosition(false);remainingMovement = h->movement;
-			}
+			HeroModel(const CGHeroInstance * h);
 			int3 pos;
 			int3 interestingPos;
+			bool finished;
 			int remainingMovement;
 			const CGHeroInstance * h;
 		};
-		class TownModel
+		struct TownModel
 		{
-		public:
-			TownModel(const CGTownInstance *t):t(t){hasBuilt = t->builded;creaturesToRecruit = t->creatures;}
+			TownModel(const CGTownInstance *t);
 			const CGTownInstance *t;
 			std::vector<std::pair<ui32, std::vector<ui32> > > creaturesToRecruit;
+			CCreatureSet creaturesInGarrison;				//type, num
 			bool hasBuilt;
 		};
+		HypotheticalGameState(){}
+		HypotheticalGameState(CGeniusAI & AI);
+
+		void update(CGeniusAI & AI);
+
 		std::vector<const CGHeroInstance *> AvailableHeroesToBuy;
 		std::vector<int> resourceAmounts;
 		std::vector<HeroModel> heroModels;
@@ -97,23 +76,21 @@ private:
 		enum Type
 		{
 			//hero objectives
-			visit,
-			attack,
+			visit,				//done
+			attack,				//done
 			flee,
 			dismissUnits,
 			dismissYourself,
-			finishTurn,			//uses up remaining motion to get somewhere nice.
+			finishTurn,			//done	//uses up remaining motion to get somewhere nice.
 
 			//town objectives
-			recruitHero,
-			buildBuilding,
-			recruitCreatures,
-			upgradeCreatures
+			recruitHero,		//done
+			buildBuilding,		//done
+			recruitCreatures,	//done
+			upgradeCreatures	//done
 		};
 		
 		Type type;
-		//virtual bool operator < (const AIObjective &)const=0;
-		//virtual bool stillPossible(const HypotheticalGameState &)const = 0;
 		virtual void fulfill(CGeniusAI &,HypotheticalGameState & hgs)=0;
 		virtual HypotheticalGameState pretend(const HypotheticalGameState &) =0;
 		virtual float getValue() const=0;	//how much is it worth to the AI to achieve
@@ -128,23 +105,8 @@ private:
 		
 		HeroObjective(){}
 		HeroObjective(Type t):object(NULL){type = t;}
-		HeroObjective(Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h):object(object)
-		{
-			pos = object->pos;
-			type = t;
-			whoCanAchieve.push_back(h);
-			_value = 100 + rand()%30;
-		}
-		bool operator < (const HeroObjective &other)const
-		{
-			if(type != other.type)
-				return type<other.type;
-			if(pos!=other.pos)
-				return pos < other.pos;
-			if(object->id!=other.object->id)
-				return object->id < other.object->id;
-			return false;
-		}
+		HeroObjective(Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h);
+		bool operator < (const HeroObjective &other)const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
 		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
 		float getValue() const{return _value;}
@@ -164,18 +126,9 @@ private:
 		HypotheticalGameState::TownModel * whichTown;
 		int which;				//which hero, which building, which creature, 
 
-		TownObjective(Type t,HypotheticalGameState::TownModel * tn,int Which):whichTown(tn),which(Which){type = t;_value = 100 + rand()%30;}
+		TownObjective(Type t,HypotheticalGameState::TownModel * tn,int Which);
 		
-		bool operator < (const TownObjective &other)const
-		{
-			if(type != other.type)
-				return type<other.type;
-			if(which!=other.which)
-				return which<other.which;
-			if(whichTown->t->id!=other.whichTown->t->id)
-				return whichTown->t->id < other.whichTown->t->id;
-			return false;
-		}
+		bool operator < (const TownObjective &other)const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
 		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
 		float getValue() const {return _value;}
@@ -189,9 +142,7 @@ private:
 		AIObjectivePtrCont():obj(NULL){}
 		AIObjectivePtrCont(AIObjective * obj):obj(obj){};
 		AIObjective * obj;
-		bool operator < (const AIObjectivePtrCont & other) const
-		{return obj->getValue()<other.obj->getValue();}
-
+		bool operator < (const AIObjectivePtrCont & other) const{return obj->getValue()<other.obj->getValue();}
 	};
 	HypotheticalGameState trueGameState;
 	AIObjective * getBestObjective();
@@ -200,8 +151,8 @@ private:
 	void fillObjectiveQueue(HypotheticalGameState & hgs);
 	
 	void reportResources();
-	int turn;
-	bool firstTurn;
+	void startFirstTurn();
+	std::map<int,bool> isHeroStrong;//hero
 	std::set< AIObjectContainer > knownVisitableObjects;
 	std::set<HeroObjective> currentHeroObjectives;	//can be fulfilled right now
 	std::set<TownObjective> currentTownObjectives;
