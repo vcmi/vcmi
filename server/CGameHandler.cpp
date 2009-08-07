@@ -2332,7 +2332,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			if(!curStack->hasFeatureOfType(StackFeature::BLOCKS_RETALIATION)
 				&& stackAtEnd->alive()
 				&& stackAtEnd->counterAttacks
-				&& !stackAtEnd->hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //TODO: support for multiple retaliatons per turn
+				&& !stackAtEnd->hasFeatureOfType(StackFeature::SIEGE_WEAPON)
+				&& !stackAtEnd->hasFeatureOfType(StackFeature::HYPNOTIZED)) //TODO: support for multiple retaliatons per turn
 			{
 				prepareAttack(bat,stackAtEnd,curStack);
 				bat.flags |= 2;
@@ -2654,6 +2655,21 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 			ret.push_back((*it)->ID);
 
 	}
+
+	if(sp->id == 60) //hypnotize
+	{
+		for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
+		{
+			if( (*it)->amount * (*it)->MaxHealth() + (*it)->firstHPleft 
+				> 
+				caster->getPrimSkillLevel(2) * 25 + sp->powers[caster->getSpellSchoolLevel(sp)]
+			)
+			{
+				ret.push_back((*it)->ID);
+			}
+		}
+	}
+
 	return ret;
 }
 
@@ -2767,7 +2783,9 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 54: //slow
 			case 55: //slayer
 			case 56: //frenzy
+			case 60: //hypnotize
 			case 61: //forgetfulness
+			case 62: //blind
 				{
 					SetStackEffect sse;
 					for(std::set<CStack*>::iterator it = attackedCres.begin(); it != attackedCres.end(); ++it)

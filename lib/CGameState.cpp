@@ -1861,7 +1861,7 @@ bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 
 int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
 {
-	int attackDefenseBonus = attacker->Attack() - defender->Defense(),
+	int attackDefenseBonus,
 		minDmg = attacker->creature->damageMin * attacker->amount, 
 		maxDmg = attacker->creature->damageMax * attacker->amount;
 
@@ -1869,6 +1869,15 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
 		minDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
 		maxDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
+	}
+
+	if(attacker->hasFeatureOfType(StackFeature::GENERAL_ATTACK_REDUCTION))
+	{
+		attackDefenseBonus = attacker->Attack() * (attacker->valOfFeatures(StackFeature::GENERAL_ATTACK_REDUCTION, -1024) / 100.0f) - defender->Defense();
+	}
+	else
+	{
+		attackDefenseBonus = attacker->Attack() - defender->Defense();
 	}
 
 	//calculating total attack/defense skills modifier
@@ -1882,6 +1891,7 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	{
 		attackDefenseBonus += attacker->valOfFeatures(StackFeature::ATTACK_BONUS, 1);
 	}
+
 
 	if(attacker->getEffect(55)) //slayer handling
 	{

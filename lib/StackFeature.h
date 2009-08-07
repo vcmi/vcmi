@@ -49,7 +49,8 @@ struct StackFeature
 	VCMI_CREATURE_ABILITY_NAME(SPELLCASTER) /*subtype - spell id, value - level of school, additional info - spell power*/ \
 	VCMI_CREATURE_ABILITY_NAME(CATAPULT)								\
 	VCMI_CREATURE_ABILITY_NAME(ENEMY_DEFENCE_REDUCTION) /*in % (value) eg. behemots*/ \
-	VCMI_CREATURE_ABILITY_NAME(GENERAL_DAMAGE_REDUCTION) /*eg. while stoned or blinded - in %, subtype: -1 - any damage, 0 - melee damage, 1 - ranged damage*/ \
+	VCMI_CREATURE_ABILITY_NAME(GENERAL_DAMAGE_REDUCTION) /* shield / air shield effect */ \
+	VCMI_CREATURE_ABILITY_NAME(GENERAL_ATTACK_REDUCTION) /*eg. while stoned or blinded - in %, subtype: -1 - any damage, 0 - melee damage, 1 - ranged damage*/ \
 	VCMI_CREATURE_ABILITY_NAME(ATTACKS_ALL_ADJACENT) /*eg. hydra*/		\
 	VCMI_CREATURE_ABILITY_NAME(MORE_DAMAGE_FROM_SPELL) /*value - damage increase in %, subtype - spell id*/ \
 	VCMI_CREATURE_ABILITY_NAME(CASTS_SPELL_WHEN_KILLED) /*similar to spell after attack*/ \
@@ -92,10 +93,10 @@ struct StackFeature
 
 	enum EDuration
 	{
-		WHOLE_BATTLE,
-		N_TURNS,
-		UNITL_BEING_ATTACKED,/*removed after attack and counterattacks are performed*/
-		UNTIL_ATTACK /*removed after attack and counterattacks are performed*/
+		WHOLE_BATTLE = 1,
+		N_TURNS = 2,
+		UNITL_BEING_ATTACKED = 4,/*removed after attack and counterattacks are performed*/
+		UNTIL_ATTACK = 8 /*removed after attack and counterattacks are performed*/
 	};
 
 	enum ESource
@@ -107,7 +108,7 @@ struct StackFeature
 	};
 
 	ui8 type;//ECombatFeatures
-	ui8 duration;//EDuration
+	ui8 duration;//EDuration //bitfield
 	ui8 source;//ESource
 	si8 positiveness; //+1 - positive, 0 - neutral, -1 - negative; used mostly for spell features
 	ui16 turnsRemain; //if duration is N_TURNS it describes how long the effect will last
@@ -129,7 +130,7 @@ struct StackFeature
 };
 
 //generates StackFeature from given data
-inline StackFeature makeFeature(StackFeature::ECombatFeatures type, StackFeature::EDuration duration, si16 subtype, si32 value, StackFeature::ESource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
+inline StackFeature makeFeature(StackFeature::ECombatFeatures type, ui8 duration, si16 subtype, si32 value, StackFeature::ESource source, ui16 turnsRemain = 0, si32 additionalInfo = 0)
 {
 	StackFeature sf;
 	sf.type = type;

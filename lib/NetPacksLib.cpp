@@ -600,7 +600,7 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		s->features.clear();
 		for(int i=0; i < tmpFeatures.size(); i++)
 		{
-			if(tmpFeatures[i].duration == StackFeature::N_TURNS)
+			if((tmpFeatures[i].duration & StackFeature::N_TURNS) != 0)
 			{
 				tmpFeatures[i].turnsRemain--;
 				if(tmpFeatures[i].turnsRemain > 0)
@@ -663,6 +663,29 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 		attacker->shots--;
 	BOOST_FOREACH(BattleStackAttacked stackAttacked, bsa)
 		stackAttacked.applyGs(gs);
+
+	for(int g=0; g<attacker->features.size(); ++g)
+	{
+		if((attacker->features[g].duration & StackFeature::UNTIL_ATTACK) != 0)
+		{
+			attacker->features.erase(attacker->features.begin() + g);
+			g = 0;
+		}
+	}
+
+	for(std::set<BattleStackAttacked>::const_iterator it = bsa.begin(); it != bsa.end(); ++it)
+	{
+		CStack * stack = gs->curB->getStack(it->stackAttacked, false);
+
+		for(int g=0; g<stack->features.size(); ++g)
+		{
+			if((stack->features[g].duration & StackFeature::UNITL_BEING_ATTACKED) != 0)
+			{
+				stack->features.erase(stack->features.begin() + g);
+				g = 0;
+			}
+		}
+	}
 }
 
 DLL_EXPORT void StartAction::applyGs( CGameState *gs )
@@ -841,11 +864,18 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 	case 55: //slayer
 		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
 		break;
+	case 56: //frenzy
+		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
+		break;
+	case 60: //hypnotize
+		break;
+		sf.push_back(featureGenerator(StackFeature::HYPNOTIZED, 0, sse.level, sse.turnsRemain));
 	case 61: //forgetfulness
 		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
 		break;
-	case 56: //frenzy
-		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
+	case 62: //blind
+		sf.push_back(makeFeature(StackFeature::NOT_ACTIVE, StackFeature::UNITL_BEING_ATTACKED | StackFeature::N_TURNS, 0, 0, StackFeature::SPELL_EFFECT, sse.turnsRemain, 0));
+		sf.push_back(makeFeature(StackFeature::GENERAL_ATTACK_REDUCTION, StackFeature::UNTIL_ATTACK | StackFeature::N_TURNS, 0, VLC->spellh->spells[sse.id].powers[sse.level], StackFeature::SPELL_EFFECT, sse.turnsRemain, 0));
 		break;
 	}
 

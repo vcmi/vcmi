@@ -1462,6 +1462,8 @@ bool CBattleInterface::isTileAttackable(const int & number) const
 void CBattleInterface::handleEndOfMove(int stackNumber, int destinationTile)
 {
 	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackNumber);
+	if(!movedStack)
+		return;
 	if(creAnims[stackNumber]->framesInGroup(21)!=0) // some units don't have this animation (ie. halberdier)
 	{
 		if (movedStack->creature->sounds.endMoving)
@@ -2199,7 +2201,7 @@ void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
 void CBattleInterface::printConsoleAttacked(int ID, int dmg, int killed, int IDby)
 {
 	char tabh[200];
-	const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby);
+	const CStack * attacker = LOCPLINT->cb->battleGetStackByID(IDby, false);
 	const CStack * defender = LOCPLINT->cb->battleGetStackByID(ID, false);
 	int end = sprintf(tabh, CGI->generaltexth->allTexts[attacker->amount > 1 ? 377 : 376].c_str(),
 		(attacker->amount > 1 ? attacker->creature->namePl.c_str() : attacker->creature->nameSing.c_str()),
