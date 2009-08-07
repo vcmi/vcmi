@@ -69,6 +69,7 @@ std::queue<SDL_Event*> events;
 boost::mutex eventsM;
 
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
+static bool gOnlyAI = false;
 
 void processCommand(const std::string &message, CClient *&client);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen);
@@ -200,6 +201,14 @@ int main(int argc, char** argv)
 		CGI->musich->playMusic(musicBase::mainMenu, -1);
 		CPG->showMainMenu();
 		StartInfo *options = new StartInfo(CPG->runLoop());
+
+		if(gOnlyAI)
+		{
+			for (size_t i =0; i < options->playerInfos.size(); i++)
+			{
+				options->playerInfos[i].human = false;
+			}
+		}
 
 		if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
 		{
@@ -404,6 +413,10 @@ void processCommand(const std::string &message, CClient *&client)
 		int *ptr = NULL;
 		*ptr = 666;
 		//disaster!
+	}
+	else if(cn == "onlyai")
+	{
+		gOnlyAI = true;
 	}
 	else if(client && client->serv && client->serv->connected) //send to server
 	{
