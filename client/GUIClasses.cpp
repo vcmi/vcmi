@@ -3125,6 +3125,9 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 		}
 	case SDLK_UP: //up arrow
 		{
+			if(previouslyEntered.size() == 0)
+				break;
+
 			if(prevEntDisp == -1)
 			{
 				prevEntDisp = previouslyEntered.size() - 1;

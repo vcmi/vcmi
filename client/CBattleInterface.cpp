@@ -86,11 +86,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
 	for(std::map<int, CStack>::iterator b=stacks.begin(); b!=stacks.end(); ++b)
 	{
-		std::pair <int, int> coords = CBattleHex::getXYUnitAnim(b->second.position, b->second.owner == attackingHeroInstance->tempOwner, &b->second);
-		creAnims[b->second.ID] = (new CCreatureAnimation(b->second.creature->animDefName));
-		creAnims[b->second.ID]->setType(2);
-		creAnims[b->second.ID]->pos = genRect(creAnims[b->second.ID]->fullHeight, creAnims[b->second.ID]->fullWidth, coords.first, coords.second);
-		creDir[b->second.ID] = b->second.owner==attackingHeroInstance->tempOwner;
+		newStack(b->second.ID);
 	}
 	//preparing menu background and terrain
 	std::vector< std::string > & backref = graphics->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
@@ -998,17 +994,21 @@ void CBattleInterface::bConsoleDownf()
 	console->scrollDown();
 }
 
-void CBattleInterface::newStack(CStack stack)
+void CBattleInterface::newStack(int stackID)
 {
-	creAnims[stack.ID] = new CCreatureAnimation(stack.creature->animDefName);
-	creAnims[stack.ID]->setType(2);
-	creDir[stack.ID] = stack.owner==attackingHeroInstance->tempOwner;
+	const CStack * newStack = LOCPLINT->cb->battleGetStackByID(stackID);
+
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(newStack->position, newStack->owner == attackingHeroInstance->tempOwner, newStack);
+	creAnims[stackID] = (new CCreatureAnimation(newStack->creature->animDefName));
+	creAnims[stackID]->setType(2);
+	creAnims[stackID]->pos = genRect(creAnims[newStack->ID]->fullHeight, creAnims[newStack->ID]->fullWidth, coords.first, coords.second);
+	creDir[stackID] = newStack->owner == attackingHeroInstance->tempOwner;
 }
 
-void CBattleInterface::stackRemoved(CStack stack)
+void CBattleInterface::stackRemoved(int stackID)
 {
-	delete creAnims[stack.ID];
-	creAnims.erase(stack.ID);
+	delete creAnims[stackID];
+	creAnims.erase(stackID);
 }
 
 void CBattleInterface::stackActivated(int number)

@@ -411,6 +411,9 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 bool BattleInfo::isStackBlocked(int ID)
 {
 	CStack *our = getStack(ID);
+	if(our->hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //siege weapons cannot be blocked
+		return true;
+
 	for(unsigned int i=0; i<stacks.size();i++)
 	{
 		if( !stacks[i]->alive()

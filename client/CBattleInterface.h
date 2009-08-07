@@ -281,8 +281,8 @@ public:
 	};
 
 	//call-ins
-	void newStack(CStack stack); //new stack appeared on battlefield
-	void stackRemoved(CStack stack); //stack disappeared from batlefiled
+	void newStack(int stackID); //new stack appeared on battlefield
+	void stackRemoved(int stackID); //stack disappeared from batlefiled
 	//void stackKilled(int ID, int dmg, int killed, int IDby, bool byShooting); //stack has been killed (but corpses remain)
 	void stackActivated(int number); //active stack has been changed
 	void stackMoved(int number, int destHex, bool endMoving, int distance); //stack with id number moved to destHex
