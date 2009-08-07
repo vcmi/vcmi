@@ -63,6 +63,8 @@ int IGameCallback::getDate(int mode)
 
 const CGHeroInstance* IGameCallback::getSelectedHero( int player )
 {
+	if(gs->players.find(player)->second.currentSelection==-1)
+		return NULL;
 	return getHero(gs->players.find(player)->second.currentSelection);
 }
 

@@ -93,14 +93,55 @@ void CGeniusAI::HypotheticalGameState::update(CGeniusAI & AI)
 	for(int i = 0; i < 8;i++)resourceAmounts.push_back(AI.m_cb->getResourceAmount(i));
 }
 
-CGeniusAI::HeroObjective::HeroObjective(Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h):object(object)
+CGeniusAI::HeroObjective::HeroObjective(Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h,CGeniusAI * ai):object(object)
 {
+	AI = ai;
 	pos = object->pos;
 	type = t;
 	whoCanAchieve.push_back(h);
-	_value = 100 + rand()%30;
+	_value = -1;
 }
 
+float CGeniusAI::HeroObjective::getValue() const
+{
+	if(_value>0)
+		return _value;
+
+	vector<int> resourceCosts;
+	for(int i = 0; i < 8;i++)
+		resourceCosts.push_back(0);
+
+	float bestCost = 9e9;
+	if(type !=AIObjective::finishTurn)
+		for(int i = 0; i < whoCanAchieve.size();i++)
+		{
+			int distOutOfTheWay = 0;
+			CPath path;
+			//from hero to object
+			if(AI->m_cb->getPath(whoCanAchieve[i]->pos,pos,whoCanAchieve[i]->h,path))
+				distOutOfTheWay+=path.nodes[0].dist;
+			//from object to goal
+			if(AI->m_cb->getPath(pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path))
+			{
+				distOutOfTheWay+=path.nodes[0].dist;
+				//from hero directly to goal
+				if(AI->m_cb->getPath(whoCanAchieve[i]->pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path))
+					distOutOfTheWay-=path.nodes[0].dist;
+			}
+			
+			
+
+
+			float cost = CostModel(resourceCosts,whoCanAchieve[i]->h,distOutOfTheWay).getCost();
+			if(cost < bestCost)
+				bestCost = cost;
+
+		}
+		if(bestCost < 10000)
+			cout << "best cost = " << bestCost << endl;
+	_value = rand()%1000+100-bestCost;
+	return _value;
+}
 bool CGeniusAI::HeroObjective::operator < (const HeroObjective &other)const
 {
 	if(type != other.type)
@@ -109,15 +150,54 @@ bool CGeniusAI::HeroObjective::operator < (const HeroObjective &other)const
 		return pos < other.pos;
 	if(object->id!=other.object->id)
 		return object->id < other.object->id;
+	if(dynamic_cast<const CGVisitableOPH *> (object))
+		if(whoCanAchieve.front()->h->id!=other.whoCanAchieve.front()->h->id)
+			return whoCanAchieve.front()->h->id<other.whoCanAchieve.front()->h->id;
 	return false;
 }
 
-CGeniusAI::TownObjective::TownObjective(Type t,HypotheticalGameState::TownModel * tn,int Which)
+void CGeniusAI::HeroObjective::print() const
+{
+	switch(type)
+	{
+	case visit:
+		cout << "visit " << object->hoverName;
+		break;
+	case attack:
+		cout << "attack " << object->hoverName;
+	case finishTurn:
+		cout << "finish turn";
+	}
+}
+
+CGeniusAI::TownObjective::TownObjective(Type t,HypotheticalGameState::TownModel * tn,int Which,CGeniusAI * ai)
 :whichTown(tn),which(Which)
 {
+	AI=ai;
 	type = t;
-	_value = 100 + rand()%30 + (t==upgradeCreatures)*200;
+	_value = -1;
 }
+
+float CGeniusAI::TownObjective::getValue() const
+{
+	if(_value>0)
+		return _value;
+	_value = rand()%1000+100;
+	return _value;
+}
+
+
+CGeniusAI::CostModel::CostModel(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay)
+:resourceCosts(resourceCosts),moved(moved),distOutOfTheWay(distOutOfTheWay)
+{}
+
+float CGeniusAI::CostModel::getCost()
+{
+	if(resourceCosts.size()==0||moved == NULL)return -1;
+	//TODO: replace with ann
+	return resourceCosts[0]/4.0+resourceCosts[1]/2.0+resourceCosts[2]/4.0+resourceCosts[3]/2.0+resourceCosts[4]/2.0+resourceCosts[5]/2.0+resourceCosts[6]/3000.0+distOutOfTheWay/10000.0;
+}
+
 
 bool CGeniusAI::TownObjective::operator < (const TownObjective &other)const
 {
@@ -128,6 +208,60 @@ bool CGeniusAI::TownObjective::operator < (const TownObjective &other)const
 	if(whichTown->t->id!=other.whichTown->t->id)
 		return whichTown->t->id < other.whichTown->t->id;
 	return false;
+}
+
+void CGeniusAI::TownObjective::print() const
+{
+	CBuilding * b;
+	const CCreature *creature;
+	HypotheticalGameState::HeroModel hm;
+	int ID, howMany, newID, hSlot;
+	switch(type)
+	{
+	case recruitHero:
+		cout << "recruit hero.";break;
+	case buildBuilding:
+		b = VLC->buildh->buildings[whichTown->t->subID][which];
+		cout << "build " << b->Name() << " cost = ";
+		if(b->resources.size()!=0)
+		{
+			if(b->resources[0]!=0)cout << b->resources[0] << " wood. ";
+			if(b->resources[1]!=0)cout << b->resources[1] << " mercury. ";
+			if(b->resources[2]!=0)cout << b->resources[2] << " ore. ";
+			if(b->resources[3]!=0)cout << b->resources[3] << " sulfer. ";
+			if(b->resources[4]!=0)cout << b->resources[4] << " cristal. ";
+			if(b->resources[5]!=0)cout << b->resources[5] << " gems. ";
+			if(b->resources[6]!=0)cout << b->resources[6] << " gold. ";
+		}
+		break;
+	case recruitCreatures:
+		ID = whichTown->creaturesToRecruit[which].second.back();				//buy upgraded if possible
+		creature = &VLC->creh->creatures[ID];
+		howMany = whichTown->creaturesToRecruit[which].first;
+		for(int i = 0; i < creature->cost.size();i++)
+			howMany = min(howMany,creature->cost[i]?AI->m_cb->getResourceAmount(i)/creature->cost[i]:INT_MAX);
+		cout << "recruit " << howMany  << " "<< creature->namePl << " (Total AI Strength " << creature->AIValue*howMany << "). cost = ";
+		
+		if(creature->cost.size()!=0)
+		{
+			if(creature->cost[0]!=0)cout << creature->cost[0]*howMany << " wood. ";
+			if(creature->cost[1]!=0)cout << creature->cost[1]*howMany << " mercury. ";
+			if(creature->cost[2]!=0)cout << creature->cost[2]*howMany << " ore. ";
+			if(creature->cost[3]!=0)cout << creature->cost[3]*howMany << " sulfer. ";
+			if(creature->cost[4]!=0)cout << creature->cost[4]*howMany << " cristal. ";
+			if(creature->cost[5]!=0)cout << creature->cost[5]*howMany << " gems. ";
+			if(creature->cost[6]!=0)cout << creature->cost[6]*howMany << " gold. ";
+		}
+		break;
+		case upgradeCreatures:
+			UpgradeInfo ui = AI->m_cb->getUpgradeInfo(whichTown->t,which);
+			ID = whichTown->creaturesInGarrison.slots[which].first;
+			cout << "upgrade " << VLC->creh->creatures[ID].namePl << endl;
+			//ui.cost
+			
+		break;
+
+	}
 }
 
 CGeniusAI::CGeniusAI()
@@ -182,7 +316,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 	{
 		//TODO: what would the hero actually visit if he went to that spot
 		//      IE maybe the hero wants to visit a seemingly unguarded enemy town, but there is a hero on top of it.
-
+		//if(i->o->)
 		if(i->o->ID!=34)			//unless you are trying to visit a hero
 		{
 			bool heroThere = false;
@@ -210,7 +344,13 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 
 		if(i->o->ID==53&&i->o->getOwner()==m_cb->getMyColor())//don't visit a mine if you own, there's almost no point(maybe to leave guards or because the hero's trapped).
 			continue;
-
+		if(dynamic_cast<const CGVisitableOPW *> (i->o)&&dynamic_cast<const CGVisitableOPW *> (i->o)->visited)//don't visit things that have already been visited this week.
+			continue;
+		if(dynamic_cast<const CGVisitableOPH *> (i->o)&&vstd::contains(dynamic_cast<const CGVisitableOPH *> (i->o)->visitors,h.h->id))//don't visit things that you have already visited OPH
+			continue;
+		if(i->o->id==h.h->id)	//don't visit yourself
+			continue;
+		
 		destination = i->o->getSightCenter();
 
 		if(hpos.z==destination.z)							//don't try to take a path from the underworld to the top or vice versa
@@ -221,7 +361,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 				if(path.nodes[0].dist<movement)
 				{
 					
-					HeroObjective ho(tp,i->o,&h);
+					HeroObjective ho(tp,i->o,&h,this);
 					std::set<HeroObjective>::iterator found = currentHeroObjectives.find(ho);
 					if(found==currentHeroObjectives.end())
 						currentHeroObjectives.insert(ho);
@@ -244,7 +384,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 	
 	h.interestingPos = interestingPos;
 	if(h.remainingMovement>0&&m_cb->getPath(hpos,interestingPos,h.h,path)) // there ought to be a path   
-		currentHeroObjectives.insert(HeroObjective(HeroObjective::finishTurn,h.h,&h));
+		currentHeroObjectives.insert(HeroObjective(HeroObjective::finishTurn,h.h,&h,this));
 		
 
 }
@@ -307,8 +447,40 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hg
 
 		break;
 	case visit:case attack:
-		//std::cout << "trying to visit " << object->hoverName << std::endl;
-		h = whoCanAchieve[rand()%whoCanAchieve.size()];//TODO:replace with best hero for the job
+
+		float bestCost = 9e9;
+		int bestHero = 0;
+		vector<int> resourceCosts;
+		for(int i = 0; i < 8;i++)
+			resourceCosts.push_back(0);
+		for(int i = 0; i < whoCanAchieve.size();i++)
+		{
+			int distOutOfTheWay = 0;
+			CPath path;
+			//from hero to object
+			if(AI->m_cb->getPath(whoCanAchieve[i]->pos,pos,whoCanAchieve[i]->h,path)) distOutOfTheWay+=path.nodes[0].dist;
+			//from object to goal
+			if(AI->m_cb->getPath(pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path))
+			{
+				distOutOfTheWay+=path.nodes[0].dist;
+				//from hero directly to goal
+				if(AI->m_cb->getPath(whoCanAchieve[i]->pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path)) distOutOfTheWay-=path.nodes[0].dist;
+			}
+			
+
+
+			float cost = CostModel(resourceCosts,whoCanAchieve[i]->h,distOutOfTheWay).getCost();
+			if(cost < bestCost)
+			{
+				bestCost = cost;
+				bestHero = i;
+			}
+
+		}
+
+		h = whoCanAchieve[bestHero];//TODO:replace with best hero for the job
+		//if(dynamic_cast<const CGVisitableOPH *> (object))
+		//	std::cout << h->h->name << " is visiting " << object->hoverName << std::endl;
 		hpos = h->pos;
 		destination = object->getSightCenter();
 
@@ -371,6 +543,14 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hg
 
 		//give town's units to hero
 		CCreatureSet tcreatures = town->army;
+		int weakestCreatureStack;
+		int weakestCreatureAIValue=99999;
+		for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = tcreatures.slots.begin();i!=tcreatures.slots.end();i++)
+			if(VLC->creh->creatures[i->second.first].AIValue<weakestCreatureAIValue)
+			{
+				weakestCreatureAIValue = VLC->creh->creatures[i->second.first].AIValue;
+				weakestCreatureStack = i->first;
+			}
 		for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = tcreatures.slots.begin();i!=tcreatures.slots.end();i++) // for each town slot
 		{
 			hcreatures = h->h->army;
@@ -379,7 +559,10 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hg
 			cout << "giving hero " << VLC->creh->creatures[i->second.first].namePl << endl;
 			if(hcreatures.slots.find(hSlot)!=hcreatures.slots.end())
 			{
-				cg.m_cb->mergeStacks(town,h->h,i->first,hSlot);	//TODO: the comment says that this code is not safe for the AI.
+				if(i->first==weakestCreatureStack&&town->garrisonHero!=NULL)//can't take garrisonHero's last unit
+					cg.m_cb->splitStack(town,h->h,i->first,hSlot,i->second.second-1);
+				else
+					cg.m_cb->mergeStacks(town,h->h,i->first,hSlot);	//TODO: the comment says that this code is not safe for the AI.
 			}
 			else
 			{
@@ -409,7 +592,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 			for(int i =0; i < hgs.AvailableHeroesToBuy.size();i++)
 				if(hgs.AvailableHeroesToBuy[i]!=NULL&&(t.t->subID==(hgs.AvailableHeroesToBuy[i]->type->heroType/2)))
 				{
-					TownObjective to(AIObjective::recruitHero,&t,0);
+					TownObjective to(AIObjective::recruitHero,&t,0,this);
 					currentTownObjectives.insert(to);
 				}
 		}
@@ -422,7 +605,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 		{
 			if(m_cb->canBuildStructure(t.t,i->first)==7)
 			{
-				TownObjective to(AIObjective::buildBuilding,&t,i->first);
+				TownObjective to(AIObjective::buildBuilding,&t,i->first,this);
 				currentTownObjectives.insert(to);
 				//cout <<"can build " << i->first << " "<< i->second->Name() << endl;
 			}
@@ -433,7 +616,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 
 	for(int i = 0; i < t.creaturesToRecruit.size() ;i++)
 	{
-		if(t.creaturesToRecruit[i].first==0) continue;
+		if(t.creaturesToRecruit[i].first==0||t.creaturesToRecruit[i].second.empty()) continue;
 		int ID = t.creaturesToRecruit[i].second.back();
 		
 		const CCreature *creature = &VLC->creh->creatures[ID];//m_cb->getCCreatureByID(ID);
@@ -444,7 +627,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 		if(!canAfford) continue;
 				
 		//cout << "town has " << t.t->creatures[i].first  << " "<< creature->namePl << " (AI Strength " << creature->AIValue << ")." << endl;
-		TownObjective to(AIObjective::recruitCreatures,&t,i);
+		TownObjective to(AIObjective::recruitCreatures,&t,i,this);
 		currentTownObjectives.insert(to);
 
 	}
@@ -456,10 +639,6 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 		UpgradeInfo ui = m_cb->getUpgradeInfo(t.t,i->first);
 		if(ui.newID.size()!=0)
 		{
-			//int newID = ui.newID.back();
-			//we have some. Can we afford to upgrade them?
-		//	const CCreature *creature = &VLC->creh->creatures[ID];//m_cb->getCCreatureByID(ID);
-		//	const CCreature *upgrade = &VLC->creh->creatures[newID];//m_cb->getCCreatureByID(ID);
 			bool canAfford = true;
 			for(int ii=0;ii<ui.cost.size();ii++)
 				for (std::set<std::pair<int,int> >::iterator j=ui.cost[ii].begin(); j!=ui.cost[ii].end(); j++)
@@ -467,7 +646,7 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 						canAfford = false;
 			if(canAfford)
 			{
-				TownObjective to(AIObjective::upgradeCreatures,&t,i->first);
+				TownObjective to(AIObjective::upgradeCreatures,&t,i->first,this);
 				currentTownObjectives.insert(to);
 			}
 		}
@@ -554,9 +733,20 @@ CGeniusAI::AIObjective * CGeniusAI::getBestObjective()
 	
 	fillObjectiveQueue(trueGameState);
 	
-	if(!objectiveQueue.empty())
-		return max_element(objectiveQueue.begin(),objectiveQueue.end())->obj;
-	return NULL;
+//	if(!objectiveQueue.empty())
+//		return max_element(objectiveQueue.begin(),objectiveQueue.end())->obj;
+
+	if(objectiveQueue.empty()) return NULL;
+	sort(objectiveQueue.begin(),objectiveQueue.end());
+	int num= 1;
+	for(std::vector<AIObjectivePtrCont> ::iterator i = objectiveQueue.begin(); i < objectiveQueue.end();i++)
+	{
+		cout << num++ << ": ";
+		i->obj->print();
+		cout << endl;
+	}
+
+	return objectiveQueue.front().obj;
 
 }
 void CGeniusAI::yourTurn()
@@ -568,10 +758,10 @@ void CGeniusAI::yourTurn()
 	srand(seed);
 	if(m_cb->getDate()==1)
 	{
-		startFirstTurn();
+	//	startFirstTurn();
 		
-		//m_cb->endTurn();
-
+	//	m_cb->endTurn();
+	//	return;
 	}
 	//////////////TODO: replace with updates. Also add suspected objects list./////////
 	knownVisitableObjects.clear();
@@ -598,13 +788,13 @@ void CGeniusAI::yourTurn()
 
 void CGeniusAI::startFirstTurn()
 {
-	/*
+	
 	HypotheticalGameState hgs(*this);
 	
 	const CGTownInstance * town = m_cb->getTownInfo(0,0);
 	const CGHeroInstance * heroInst = m_cb->getHeroInfo(0,0);
 	
-	TownObjective(AIObjective::recruitHero,&hgs.townModels.front(),0).fulfill(*this,hgs);
+	TownObjective(AIObjective::recruitHero,&hgs.townModels.front(),0,this).fulfill(*this,hgs);
 	
 	m_cb->swapGarrisonHero(town);
 	hgs.update(*this);
@@ -618,22 +808,22 @@ void CGeniusAI::startFirstTurn()
 			if(creature->cost[ii]>hgs.resourceAmounts[ii])
 				canAfford = false;							// can we afford at least one creature?
 		if(!canAfford) continue;
-		TownObjective(AIObjective::recruitCreatures,&hgs.townModels.front(),i).fulfill(*this,hgs);
+		TownObjective(AIObjective::recruitCreatures,&hgs.townModels.front(),i,this).fulfill(*this,hgs);
 	}
 		hgs.update(*this);
 
 	HypotheticalGameState::HeroModel *hero;
 	for(int i = 0; i < hgs.heroModels.size();i++)
 		if(hgs.heroModels[i].h->id==heroInst->id)
-			HeroObjective(AIObjective::visit,town,hero=&hgs.heroModels[i]).fulfill(*this,hgs);
+			HeroObjective(AIObjective::visit,town,hero=&hgs.heroModels[i],this).fulfill(*this,hgs);
 	
 	hgs.update(*this);
 	
 
-	m_cb->swapGarrisonHero(town);
+//	m_cb->swapGarrisonHero(town);
 
 	//TODO: choose the strongest hero.
-*/
+
 }
 
 void CGeniusAI::heroKilled(const CGHeroInstance * hero)
@@ -650,10 +840,12 @@ void CGeniusAI::tileRevealed(int3 pos)
 {
 	std::vector < const CGObjectInstance * > objects = 	m_cb->getVisitableObjs(pos);
 	for(std::vector < const CGObjectInstance * >::iterator o = objects.begin();o!=objects.end();o++)
-		knownVisitableObjects.insert(*o);
+		if((*o)->id!=-1)
+			knownVisitableObjects.insert(*o);
 	objects = m_cb->getFlaggableObjects(pos);
 	for(std::vector < const CGObjectInstance * >::iterator o = objects.begin();o!=objects.end();o++)
-		knownVisitableObjects.insert(*o);
+		if((*o)->id!=-1)
+			knownVisitableObjects.insert(*o);
 }
 
 void CGeniusAI::newObject(const CGObjectInstance * obj) //eg. ship built in shipyard

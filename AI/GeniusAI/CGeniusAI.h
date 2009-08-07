@@ -36,7 +36,7 @@ private:
 		const CGObjectInstance * o;
 		bool operator<(const AIObjectContainer& b)const;
 	};
-
+	
 	class HypotheticalGameState
 	{
 	public:
@@ -69,7 +69,17 @@ private:
 		std::vector<TownModel> townModels;
 		std::set< AIObjectContainer > knownVisitableObjects;
 	};
-	
+
+	struct CostModel
+	{
+		CostModel(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay);
+		CostModel():moved(NULL){}
+		vector<int> resourceCosts;
+		const CGHeroInstance * moved;
+		int distOutOfTheWay;
+		float getCost();
+	};
+
 	class AIObjective
 	{
 	public: 
@@ -89,10 +99,12 @@ private:
 			recruitCreatures,	//done
 			upgradeCreatures	//done
 		};
-		
+		CostModel cost;
+		CGeniusAI * AI;
 		Type type;
 		virtual void fulfill(CGeniusAI &,HypotheticalGameState & hgs)=0;
 		virtual HypotheticalGameState pretend(const HypotheticalGameState &) =0;
+		virtual void print() const=0;
 		virtual float getValue() const=0;	//how much is it worth to the AI to achieve
 	};
 
@@ -105,13 +117,14 @@ private:
 		
 		HeroObjective(){}
 		HeroObjective(Type t):object(NULL){type = t;}
-		HeroObjective(Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h);
+		HeroObjective(Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h,CGeniusAI * AI);
 		bool operator < (const HeroObjective &other)const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
 		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
-		float getValue() const{return _value;}
+		float getValue() const;
+		void print() const;
 	private:
-		float _value;
+		mutable float _value;
 	};
 
 	//town objectives
@@ -126,14 +139,15 @@ private:
 		HypotheticalGameState::TownModel * whichTown;
 		int which;				//which hero, which building, which creature, 
 
-		TownObjective(Type t,HypotheticalGameState::TownModel * tn,int Which);
+		TownObjective(Type t,HypotheticalGameState::TownModel * tn,int Which,CGeniusAI * AI);
 		
 		bool operator < (const TownObjective &other)const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
 		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
-		float getValue() const {return _value;}
+		float getValue() const;
+		void print() const;
 	private:
-		float _value;
+		mutable float _value;
 	};
 
 	class AIObjectivePtrCont
