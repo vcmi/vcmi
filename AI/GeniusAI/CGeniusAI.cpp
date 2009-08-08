@@ -239,7 +239,7 @@ void CGeniusAI::TownObjective::print() const
 		creature = &VLC->creh->creatures[ID];
 		howMany = whichTown->creaturesToRecruit[which].first;
 		for(int i = 0; i < creature->cost.size();i++)
-			howMany = min(howMany,creature->cost[i]?AI->m_cb->getResourceAmount(i)/creature->cost[i]:INT_MAX);
+			amin(howMany,creature->cost[i]?AI->m_cb->getResourceAmount(i)/creature->cost[i]:INT_MAX);
 		cout << "recruit " << howMany  << " "<< creature->namePl << " (Total AI Strength " << creature->AIValue*howMany << "). cost = ";
 		
 		if(creature->cost.size()!=0)
@@ -691,7 +691,7 @@ void CGeniusAI::TownObjective::fulfill(CGeniusAI & cg,HypotheticalGameState &hgs
 		creature = &VLC->creh->creatures[ID];
 		howMany = whichTown->creaturesToRecruit[which].first;
 		for(int i = 0; i < creature->cost.size();i++)
-			howMany = min(howMany,creature->cost[i]?hgs.resourceAmounts[i]/creature->cost[i]:INT_MAX);
+			amin(howMany,creature->cost[i]?hgs.resourceAmounts[i]/creature->cost[i]:INT_MAX);
 		if(howMany == 0) cout << "tried to recruit without enough money.";
 		cout << "recruiting " << howMany  << " "<< creature->namePl << " (Total AI Strength " << creature->AIValue*howMany << ")." << endl;
 		cg.m_cb->recruitCreatures(whichTown->t,ID,howMany);
