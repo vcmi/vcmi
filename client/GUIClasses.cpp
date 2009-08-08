@@ -1670,7 +1670,8 @@ void CRecruitmentWindow::clickLeft(tribool down)
 	int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
 	{
-		if(isItIn(&genRect(132,CREATURE_WIDTH,pos.x+curx,pos.y+64),GH.current->motion.x,GH.current->motion.y))
+		const int sCREATURE_WIDTH = CREATURE_WIDTH; // gcc -O0 workaround
+		if(isItIn(&genRect(132,sCREATURE_WIDTH,pos.x+curx,pos.y+64),GH.current->motion.x,GH.current->motion.y))
 		{
 			which = i;
 			int newAmount = std::min(amounts[i],creatures[i].amount);
@@ -1700,7 +1701,8 @@ void CRecruitmentWindow::clickRight( boost::logic::tribool down )
 		int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 		for(int i=0;i<creatures.size();i++)
 		{
-			if(isItIn(&genRect(132,CREATURE_WIDTH,pos.x+curx,pos.y+64),GH.current->motion.x,GH.current->motion.y))
+			const int sCREATURE_WIDTH = CREATURE_WIDTH; // gcc -O0 workaround
+			if(isItIn(&genRect(132,sCREATURE_WIDTH,pos.x+curx,pos.y+64),GH.current->motion.x,GH.current->motion.y))
 			{
 				CCreInfoWindow *popup = new CCreInfoWindow(creatures[i].ID, 0, 0, NULL, NULL, NULL, NULL);
 				GH.pushInt(popup);
