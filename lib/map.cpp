@@ -101,6 +101,8 @@ static EDefType getDefType(CGDefInfo * a)
 		return ARTIFACT_DEF; //handled
 	case 6:
 		return PANDORA_DEF; //hanled
+	case 10:
+		return EVENTOBJ_DEF; //???
 	case 26:
 		return EVENTOBJ_DEF; //handled
 	case 33:
@@ -135,7 +137,7 @@ static EDefType getDefType(CGDefInfo * a)
 		return WITCHHUT_DEF; //handled
 	case 214:
 		return HEROPLACEHOLDER_DEF; //partially handled
-	case 215:
+	case 215: case 9: //???
 		return BORDERGUARD_DEF; //handled by analogy to seer huts ;]
 	case 216:
 		return CREGEN2_DEF; //handled
@@ -1852,6 +1854,7 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		case 31: //Fountain of Youth
 		case 11: //Buoy
 		case 52: //Mermaid
+		case 94: //Stables
 			{
 				nobj = new CGBonusingObject();
 				break;
@@ -1894,6 +1897,31 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 		case 214: //hero placeholder
 			{
 				i+=3; //TODO: handle it more properly
+			}
+		case 10: //Keymaster
+			{
+				nobj = new CGKeymasterTent();
+				break;
+			}
+		case 9: //Border Guard
+			{
+				nobj = new CGBorderGuard();
+				break;
+			}
+		case 212: //Border Gate
+			{
+				nobj = new CGBorderGate();
+				break;
+			}
+		case 27: case 37: //Eye and Hut of Magi
+			{
+				nobj = new CGMagi();
+				break;
+			}
+		case 16: case 24: case 25: case 84: case 85: //treasure bank
+			{
+				nobj = new CBank();
+				break;
 			}
 		default:
 			nobj = new CGObjectInstance();

@@ -113,8 +113,8 @@ public:
 
 	void loadObstacles(); //loads info about obstacles
 
-	unsigned int level(unsigned int experience); //calculates level corresponding to given experience amount
-	unsigned int reqExp(unsigned int level); //calculates experience resuired for given level
+	unsigned int level(ui64 experience); //calculates level corresponding to given experience amount
+	ui64 reqExp(unsigned int level); //calculates experience resuired for given level
 
 	void loadHeroes();
 	void loadHeroClasses();

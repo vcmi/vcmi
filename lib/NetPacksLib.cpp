@@ -1001,8 +1001,16 @@ DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
 	gs->currentPlayer = player;
 }
 
-
 DLL_EXPORT void SetSelection::applyGs( CGameState *gs )
 {
 	gs->getPlayer(player)->currentSelection = id;
+}
+
+DLL_EXPORT void CenterView::applyGs( CGameState *gs )
+{
+	gs->getPlayer(player)->currentSelection = id;
+}
+
+DLL_EXPORT void TakeYourTime::applyGs( CGameState *gs )
+{
 }

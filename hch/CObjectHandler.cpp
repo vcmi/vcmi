@@ -38,7 +38,25 @@ IGameCallback * IObjectInterface::cb = NULL;
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 extern CLodHandler * bitmaph;
 extern boost::rand48 ran;
+std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
+std::map <si32, std::vector<CGMagi>> CGMagi::eyelist;
+std::map <ui32, std::vector <BankConfig>> banksInfo; //[index][preset], TODO: load it
 
+struct BankConfig
+{
+	BankConfig() {chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };
+	//std::string name;
+	ui8 chance;
+	ui8 upgradeChance;
+	std::vector< std::pair <ui16, ui32>> guards;
+	ui32 combatValue;
+	std::map<ui8, si32> resources;
+	std::vector< std::pair <ui16, ui32>> creatures;
+	std::map<ui8, ui16> artifacts;
+	ui32 value;
+	ui32 rewardDifficulty; //?
+	ui16 easiest; //?
+};
 
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
 {};
@@ -1666,6 +1684,25 @@ int CArmedInstance::getArmyStrength() const
 	return ret;
 }
 
+/*const std::string & CGCreature::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	hoverName += "\n Power rating: ";
+	float ratio = ((float)getArmyStrength() / cb->getSelectedHero(cb->getCurrentPlayer())->getTotalStrength());
+	if (ratio < 0.1) hoverName += "Effortless";
+	else if (ratio < 0.3) hoverName += "Very Weak";
+	else if (ratio < 0.6) hoverName += "Weak";
+	else if (ratio < 0.9) hoverName += "A bit weaker";
+	else if (ratio < 1.1) hoverName += "Equal";
+	else if (ratio < 1.3) hoverName += "A bit stronger";
+	else if (ratio < 1.8) hoverName += "Strong";
+	else if (ratio < 2.5) hoverName += "Very Strong";
+	else if (ratio < 4) hoverName += "Challenging";
+	else if (ratio < 8) hoverName += "Overpowering";
+	else if (ratio < 20) hoverName += "Deadly";
+	else hoverName += "Impossible";
+	return hoverName;
+}*/
 void CGCreature::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int action = takenAction(h);
@@ -2634,10 +2671,17 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		gbonus.bdescr <<  std::pair<ui8,ui32>(6,103);
 		bonusMove = 400;
 		break;
+	case 94: //Stables TODO: upgrade Cavaliers
+		sound = soundBase::horse20;
+		messageID = 137;
+		gbonus.bonus.type = HeroBonus::LAND_MOVEMENT;
+		gbonus.bonus.val = 600;
+		gbonus.bdescr <<  std::pair<ui8,ui32>(6, 100);
+		break;
 	}
 	if(visited)
 	{
-		if(ID==64 || ID==96  ||  ID==56 || ID == 52)
+		if(ID==64 || ID==96  ||  ID==56 || ID==52 || ID==94)
 			messageID--;
 		else
 			messageID++;
@@ -3386,24 +3430,369 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 
 			cb->giveHeroArtifact(bonusType,h->id,-2);
 		}
-
-		if(!h->getBonus(HeroBonus::OBJECT,ID)) //we don't have modifier from this object yet
-		{
-			//ruin morale 
-			GiveBonus gb;
-			gb.hid = h->id;
-			gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::MORALE,HeroBonus::OBJECT,-3,id,"");
-			gb.bdescr.addTxt(MetaString::ARRAY_TXT,104); //Warrior Tomb Visited -3
-			cb->giveHeroBonus(&gb);
-		}
-	
-		cb->showInfoDialog(&iw);
-
-		//add player to the visitors (for visited tooltop)
-		cb->setObjProperty(id,10,h->getOwner());
 	}
 }
 
+void CBank::initObj()
+{
+	index = 0;
+	switch (ID) //find apriopriate key
+	{
+		case 16: //bank
+			index = subID; break;
+		case 24: //derelict ship
+			index = 8;
+		case 25: //utopia
+			index = 10; break;
+		case 84: //crypt
+			index = 9; break;
+		case 85: //shipwreck
+			index = 7; break;
+	}
+	bc = NULL;
+	daycounter = 0;
+	multiplier = 1;
+}
+void CBank::reset()
+{
+
+	int val1 = ran()%100;
+	int chance = 0;
+	for (ui8 i = 1; i <= banksInfo[index].size(); i++)
+	{
+		if (val1 < (chance += banksInfo[index][i].chance))
+			cb->setObjProperty (id, 13, i);
+	}
+	artifacts.clear();
+	for (ui8 i = 1; i <= 4; i++)
+	{
+		for (ui8 j = 1; j <= bc->artifacts[i]; j++)
+			cb->setObjProperty (id, 18, i);
+	}
+
+}
+void CBank::setPropertyDer (ui8 what, ui32 val)
+{
+	switch (what)
+	{
+		case 11: //daycounter
+			daycounter++;
+			break;
+		case 12: //multiplier
+			multiplier *= ((float)val)/100;
+			break;
+		case 13: //bank preset
+			bc = &banksInfo[index][val];
+			break;
+		case 18: //Artifacts
+		{
+			std::vector<CArtifact*> arts; 
+			switch (val)
+			{
+				case 1:
+					cb->getAllowed (arts, CArtifact::ART_TREASURE);
+					break;
+				case 2:
+					cb->getAllowed (arts, CArtifact::ART_MINOR);
+					break;
+				case 3:
+					cb->getAllowed (arts, CArtifact::ART_MAJOR);
+					break;
+				case 4:
+					cb->getAllowed (arts, CArtifact::ART_RELIC);
+					break;
+			}
+			artifacts.push_back (arts[ran() % arts.size()]->id);
+		}
+			break;
+	}
+}
+
+void CBank::newTurn()
+{
+	if (bc == NULL)
+	{
+		if (daycounter >= 28 || cb->getDate(0) == 1)
+		{
+			reset();
+			daycounter = 0;
+			if (ID == 24 && cb->getDate(0) > 1)
+			{
+				artifacts.clear(); //derelict ships are usable only once
+			}
+		}
+		else
+			daycounter++;
+	}
+}
+void CBank::onHeroVisit (const CGHeroInstance * h) const
+{
+	if (bc != NULL)
+	{
+		int banktext = 0;
+		switch (ID)
+		{
+			case 16: //generic bank
+				banktext = 32;
+				break;
+			case 24:
+				banktext = 41;
+				break;
+			case 25: //utopia
+				banktext = 47;
+				break;
+			case 84: //crypt
+				banktext = 119;
+				break;
+			case 85: //shipwreck
+				banktext = 122;
+				break;
+		}
+		BlockingDialog bd (true, false);
+		bd.player = h->getOwner();
+		bd.soundID = soundBase::DANGER;
+		std::string desc =  VLC->generaltexth->allTexts[banktext];
+		boost::algorithm::replace_first (desc, "%s", VLC->generaltexth->names[ID]);
+		bd.text << desc;
+		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));
+	}
+	else
+	{
+		InfoWindow iw;
+		if (ID == 85)
+			iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
+		iw.soundID = soundBase::GRAVEYARD;
+		iw.player = h->getOwner();
+		iw.text.addTxt (MetaString::ADVOB_TXT, 33);
+		cb->showInfoDialog(&iw);
+	}
+}
+void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const 
+{
+	if (accept)
+	{
+		int upgraded = 0;
+		if (ran()%100 < bc->upgradeChance) upgraded = 1;
+		CCreatureSet ourArmy;
+		switch (bc->guards.size())
+		{
+			case 1:
+				for	(int i = 1; i <= 5; i++)
+					ourArmy.setCreature (i, bc->guards[1].first + upgraded, bc->guards[1].second  / 5 );
+				break;
+			case 4:
+			{
+				std::vector< std::pair <ui16, ui32>>::const_iterator it;
+				for (it = bc->guards.begin(); it != bc->guards.end(); it++)
+					ourArmy.setCreature (ourArmy.slots.size() + 1, it->first, it->second );
+			}
+				break;
+			default:
+				tlog1 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
+				return;
+		}
+	//TODO: start combat 
+	}
+}
+void CBank::endBattle (const BattleResult *result)
+{
+	if (result->winner == 0)
+	{
+		int textID = -1;
+		InfoWindow iw;
+		switch (ID)
+		{
+			case 16: //generic bank
+				textID = 34;
+				break;
+			case 24: //derelict ship
+				if (bc->resources.size() != 0)
+					textID = 43;
+				else
+				{
+					textID = 42;
+					iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
+				}
+				break;
+			case 25: //utopia
+				textID = 47;
+				break;
+			case 84: //crypt
+				textID = 121;
+				break;
+			case 85: //shipwreck
+				if (bc->resources.size() != 0)
+					textID = 124;
+				else
+				{
+					textID = 123;
+					
+				}
+				break;
+		}
+		iw.text.addTxt (MetaString::ADVOB_TXT, textID);
+		iw.player = cb->getCurrentPlayer();
+		for (std::map<ui8, si32>::iterator it = bc->resources.begin(); it != bc->resources.end(); it++)
+		{					
+			iw.components.push_back (Component (Component::RESOURCE, it->first, it->second, 0));
+			cb->giveResource (cb->getCurrentPlayer(), it->first, it->second);
+		}
+		for (std::vector<si32>::iterator it = artifacts.begin(); it != artifacts.end(); it++)
+		{
+			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
+			iw.text.addReplacement (MetaString::ART_NAMES, *it);
+			cb->giveHeroArtifact (*it, cb->getSelectedHero() ,-2);
+		}
+		CCreatureSet ourArmy;
+		for (std::vector< std::pair <ui16, ui32>>::iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
+		{
+			int slot = ourArmy.getSlotFor (it->second);
+			ourArmy.slots[slot] = *it; //assuming we're not going to add multiple stacks of same creature
+		}
+		cb->giveCreatures (id, cb->getHero (cb->getSelectedHero()), &ourArmy);
+			bc = NULL;
+	}
+	else
+		reset();
+}
+
+void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
+{
+	if (what >= 101 && what <= (100 + PLAYER_LIMIT))
+		playerKeyMap.find(what-101)->second.insert(val);
+}
+
+bool CGKeys::wasMyColorVisited (int player) const
+{
+	if (vstd::contains(playerKeyMap[player], subID)) //creates set if it's not there
+		return true;
+	else
+		return false;
+}
+
+const std::string & CGKeymasterTent::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	if (wasMyColorVisited (cb->getCurrentPlayer()) )//TODO: use local player, not current
+		hoverName += "\n" + VLC->generaltexth->allTexts[352];
+	else
+		hoverName += "\n" + VLC->generaltexth->allTexts[353];
+	return hoverName;
+}
+
+void CGKeymasterTent::onHeroVisit( const CGHeroInstance * h ) const
+{
+	InfoWindow iw;
+	iw.soundID = soundBase::CAVEHEAD;
+	iw.player = h->getOwner();
+	if (!wasMyColorVisited (h->getOwner()) )
+	{
+		cb->setObjProperty(id, h->tempOwner+101, subID);
+		iw.text << std::pair<ui8,ui32>(11,19);
+	}
+	else
+		iw.text << std::pair<ui8,ui32>(11,20);
+    cb->showInfoDialog(&iw);
+}
+
+void CGBorderGuard::initObj()
+{
+	blockVisit = true;
+}
+
+const std::string & CGBorderGuard::getHoverText() const
+{
+	hoverName = VLC->generaltexth->names[ID];
+	if (wasMyColorVisited (cb->getCurrentPlayer()) )//TODO: use local player, not current
+		hoverName += "\n" + VLC->generaltexth->allTexts[352];
+	else
+		hoverName += "\n" + VLC->generaltexth->allTexts[353];
+	return hoverName;
+}
+
+void CGBorderGuard::onHeroVisit( const CGHeroInstance * h ) const 
+{
+	if (wasMyColorVisited (h->getOwner()) )
+	{
+		BlockingDialog bd (true, false);
+		bd.player = h->getOwner();
+		bd.soundID = soundBase::QUEST;
+		bd.text.addTxt (MetaString::ADVOB_TXT, 17);
+		cb->showBlockingDialog (&bd, boost::bind (&CGBorderGuard::openGate, this, h, _1));	
+	}	
+	else
+	{
+		InfoWindow iw;
+		iw.player = h->getOwner();
+		iw.soundID = soundBase::CAVEHEAD;
+		iw.text << std::pair<ui8,ui32>(11,18);
+		cb->showInfoDialog (&iw);
+	}
+}
+
+void CGBorderGuard::openGate(const CGHeroInstance *h, ui32 accept) const
+{
+	if (accept)
+		cb->removeObject(id);
+}
+
+void CGBorderGate::onHeroVisit( const CGHeroInstance * h ) const //TODO: passability 
+{
+	InfoWindow iw;
+	iw.player = h->getOwner();
+	if (!wasMyColorVisited (h->getOwner()) )
+	{
+		iw.text << std::pair<ui8,ui32>(11,18);
+		cb->showInfoDialog(&iw);
+	}
+}
+
+void CGMagi::initObj()
+{
+	if (ID == 27)
+	{
+		blockVisit = true;
+		eyelist[subID].push_back (*this);
+	}
+}
+void CGMagi::onHeroVisit(const CGHeroInstance * h) const
+{
+	if (ID == 37)
+	{
+		InfoWindow iw;
+		CenterView cv;
+		FoWChange fw;
+		cv.player = iw.player = fw.player = h->tempOwner;
+
+		iw.soundID = soundBase::LIGHTHOUSE;
+		iw.player = h->tempOwner;
+		iw.text.addTxt (MetaString::ADVOB_TXT, 61);
+		cb->showInfoDialog(&iw);
+
+		fw.mode = 1;
+		TakeYourTime tyt;
+		std::vector<CGMagi>::iterator it;
+		for (it = eyelist[subID].begin() ; it < eyelist[subID].end(); it++)
+		{			
+			cb->getTilesInRange (fw.tiles, it->pos, 5, h->tempOwner, 1);
+			cb->sendAndApply(&fw);
+			cv.id = it->id;
+			cb->sendAndApply(&cv);
+			tyt.time = 2000;
+			cb->sendAndApply(&tyt);
+		}	
+		cv.id = h->id;
+		cb->sendAndApply(&cv);	
+	}
+	else if (ID == 27)
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		iw.text.addTxt (MetaString::ADVOB_TXT, 48);
+		cb->showInfoDialog(&iw);
+	}
+
+}
 void CGBoat::initObj()
 {
 	hero = NULL;

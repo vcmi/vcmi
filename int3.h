@@ -18,8 +18,14 @@ class CCreature;
 class CCreatureSet //seven combined creatures
 {
 public:
-	std::map<si32,std::pair<ui32,si32> > slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
+	std::map<si32, std::pair<ui32,si32>> slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
 	bool formation; //false - wide, true - tight
+	bool setCreature (si32 slot, ui32 type, si32 quantity) //slots 1 to 7
+	{
+		slots.find(slot)->second = std::pair<ui32,si32>(type, quantity);  //brutal force
+		if (slots.size() > 7) return false;
+		else return true;
+	}
 	si32 getSlotFor(ui32 creature, ui32 slotsAmount=7) const //returns -1 if no slot available
 	{	
 		for(std::map<si32,std::pair<ui32,si32> >::const_iterator i=slots.begin(); i!=slots.end(); ++i)

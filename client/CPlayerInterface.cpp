@@ -1545,6 +1545,11 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 	}
 }
 
+void CPlayerInterface::centerView (int3 pos)
+{
+	LOCPLINT->adventureInt->centerOn (pos);
+}
+
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )
 {
 	if(obj->ID == HEROI_TYPE  &&  obj->tempOwner == playerID)

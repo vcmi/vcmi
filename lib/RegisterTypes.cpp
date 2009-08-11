@@ -42,9 +42,14 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGBonusingObject>();
 	s.template registerType<CGMagicWell>();
 	s.template registerType<CGObservatory>();
+	s.template registerType<CGKeys>();
+	s.template registerType<CGKeymasterTent>();
+	s.template registerType<CGBorderGuard>();
 	s.template registerType<CGBoat>();
+	s.template registerType<CGMagi>();
 	s.template registerType<CGSirens>();
 	s.template registerType<CGOnceVisitable>();
+	s.template registerType<CBank>();
 	s.template registerType<CGShipyard>();
 	s.template registerType<CGObjectInstance>();
 }
@@ -105,6 +110,8 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();
 	s.template registerType<PlayerMessage>();
+	s.template registerType<TakeYourTime>();
+	s.template registerType<CenterView>();
 }
 
 template<typename Serializer> DLL_EXPORT

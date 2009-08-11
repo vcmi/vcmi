@@ -157,6 +157,7 @@ public:
 	void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain);//if gain hero received bonus, else he lost it
 	void requestRealized(PackageApplied *pa);
 	void heroExchangeStarted(si32 hero1, si32 hero2);
+	void centerView (int3 pos);
 	void objectPropertyChanged(const SetObjectProperty * sop);
 	void objectRemoved(const CGObjectInstance *obj);
 	void serialize(COSer<CSaveFile> &h, const int version); //saving
@@ -178,7 +179,6 @@ public:
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks); //called when stacks are healed / resurrected
 	void battleNewStackAppeared(int stackID); //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
-
 
 	//-------------//
 	void heroKilled(const CGHeroInstance* hero);

@@ -76,7 +76,7 @@ public:
 	virtual void heroCreated(const CGHeroInstance*){};
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback)=0; //pskill is gained primary skill, interface has to choose one of given skills and call callback with selection id
 	virtual void heroInGarrisonChange(const CGTownInstance *town){};
-	//virtual void heroKilled(const CGHeroInstance*){};
+	virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroMoved(const TryMoveHero & details){};
 	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val){};
 	virtual void heroManaPointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after spell casts
@@ -93,6 +93,7 @@ public:
 	virtual void tileRevealed(const std::set<int3> &pos){};
 	virtual void newObject(const CGObjectInstance * obj){}; //eg. ship built in shipyard
 	virtual void yourTurn(){};
+	virtual void centerView (int3 pos){};
 	virtual void availableCreaturesChanged(const CGDwelling *town){};
 	virtual void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain){};//if gain hero received bonus, else he lost it
 	virtual void requestRealized(PackageApplied *pa){};

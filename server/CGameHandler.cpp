@@ -1431,6 +1431,35 @@ void CGameHandler::giveResource(int player, int which, int val)
 	sr.val = gs->players.find(player)->second.resources[which]+val;
 	sendAndApply(&sr);
 }
+void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet *creatures)
+{
+	CCreatureSet heroArmy = h->army;
+	while(creatures)
+	{
+		int slot = heroArmy.getSlotFor(creatures->slots.begin()->second.first);
+		if(slot < 0)
+			break;
+
+		heroArmy.slots[slot].first = creatures->slots.begin()->second.first;
+		heroArmy.slots[slot].second += creatures->slots.begin()->second.second;
+		creatures->slots.erase(creatures->slots.begin());
+	}
+
+	if(!creatures) //all creatures can be moved to hero army - do that
+	{
+		SetGarrisons sg;
+		sg.garrs[h->id] = heroArmy;
+		sendAndApply(&sg);
+	}
+	else //show garrison window and let player pick creatures
+	{
+		SetGarrisons sg;
+		sg.garrs[objid] = *creatures;
+		sendAndApply(&sg);
+		showGarrisonDialog(objid, h->id, 0);
+		return;
+	}
+}
 void CGameHandler::showCompInfo(ShowInInfobox * comp)
 {
 	sendToAllClients(comp);

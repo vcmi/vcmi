@@ -42,6 +42,7 @@ class CGDefInfo;
 class CSpecObjInfo;
 struct TerrainTile;
 struct InfoWindow;
+struct BankConfig;
 class CGBoat;
 
 class DLL_EXPORT CCastleEvent
@@ -184,7 +185,7 @@ public:
 	}
 };
 
-class  DLL_EXPORT CArmedInstance: public CGObjectInstance
+class DLL_EXPORT CArmedInstance: public CGObjectInstance
 {
 public:
 	CCreatureSet army; //army
@@ -211,7 +212,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 	CHero * type;
-	ui32 exp; //experience point
+	ui64 exp; //experience point
 	si32 level; //current level of hero
 	std::string name; //may be custom
 	std::string biography; //if custom
@@ -474,6 +475,7 @@ public:
 
 	void fight(const CGHeroInstance *h) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
+	//const std::string & getHoverText() const;
 
 	void flee( const CGHeroInstance * h ) const;
 	void endBattle(BattleResult *result) const;
@@ -759,6 +761,54 @@ public:
 	}
 };
 
+
+class DLL_EXPORT CGKeys : public CGObjectInstance //Base class for Keymaster and guards, ToDo Border Gate
+{	
+public:
+	static std::map <ui8, std::set <ui8> > playerKeyMap; //[players][keysowned]
+	//SubID 0 - lightblue, 1 - green, 2 - red, 3 - darkblue, 4 - brown, 5 - purple, 6 - white, 7 - black
+
+	void setPropertyDer (ui8 what, ui32 val);
+	bool wasMyColorVisited (int player) const;
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+class DLL_EXPORT CGKeymasterTent : public CGKeys
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+	const std::string & getHoverText() const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
+
+class DLL_EXPORT CGBorderGuard : public CGKeys
+{
+public:
+	void initObj();
+	const std::string & getHoverText() const;
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void openGate(const CGHeroInstance *h, ui32 accept) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & blockVisit;
+	}
+};
+
+class DLL_EXPORT CGBorderGate : public CGBorderGuard //not fully imlemented, waiting for garrison
+{
+public:
+	void onHeroVisit(const CGHeroInstance * h) const;
+};
+
 class DLL_EXPORT CGBoat : public CGObjectInstance 
 {
 public:
@@ -778,7 +828,8 @@ public:
 	}
 };
 
-class DLL_EXPORT CGOnceVisitable : public CPlayersVisited //wagon, corpse, lean to, warriors tomb
+class DLL_EXPORT CGOnceVisitable
+	: public CPlayersVisited //wagon, corpse, lean to, warriors tomb
 {
 public:
 	ui8 artOrRes; //0 - nothing; 1 - artifact; 2 - resource
@@ -794,6 +845,30 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CPlayersVisited&>(*this);;
 		h & bonusType & bonusVal;
+	}
+};
+
+class DLL_EXPORT CBank : public CArmedInstance
+{
+	public:
+	int index; //banks have unusal numbering - see ZCRBANK.txt and initObj()
+	BankConfig *bc;
+	ui8 multiplier; //for improved banks script, in percent
+	std::vector<si32> artifacts; //fixed and deterministic
+	mutable ui32 daycounter;
+
+	void initObj();
+	void setPropertyDer (ui8 what, ui32 val);
+	void reset();
+	void newTurn();
+	void onHeroVisit (const CGHeroInstance * h) const;
+	void fightGuards (const CGHeroInstance *h, ui32 accept) const;
+	void endBattle (const BattleResult *result);
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & index & multiplier & artifacts & daycounter;
 	}
 };
 
@@ -819,4 +894,17 @@ public:
 
 
 
+class DLL_EXPORT CGMagi : public CGObjectInstance
+{
+public:
+	static std::map <si32, std::vector<CGMagi>> eyelist; //[subID][id], supports multiple sets as in H5
+
+	void initObj();
+	void onHeroVisit(const CGHeroInstance * h) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+	}
+};
 #endif // __COBJECTHANDLER_H__

@@ -72,6 +72,7 @@ public:
 	virtual ui32 showBlockingDialog(BlockingDialog *iw) =0; //synchronous version of above //TODO:
 	virtual void showGarrisonDialog(int upobj, int hid, const boost::function<void()> &cb) =0; //cb will be called when player closes garrison window
 	virtual void giveResource(int player, int which, int val)=0;
+	virtual void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet *creatures)=0;
 	virtual void showCompInfo(ShowInInfobox * comp)=0;
 	virtual void heroVisitCastle(int obj, int heroID)=0;
 	virtual void stopHeroVisitCastle(int obj, int heroID)=0;

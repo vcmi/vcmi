@@ -96,6 +96,7 @@ public:
 	ui32 showBlockingDialog(BlockingDialog *iw){return 0;}; //synchronous version of above
 	void showGarrisonDialog(int upobj, int hid, const boost::function<void()> &cb){};
 	void giveResource(int player, int which, int val){};
+	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet *creatures){};
 	void showCompInfo(ShowInInfobox * comp){};
 	void heroVisitCastle(int obj, int heroID){};
 	void stopHeroVisitCastle(int obj, int heroID){};

@@ -21,7 +21,7 @@ public:
 	long getDif(){long ret=clock()-last;last=clock();return ret;};
 	void update(){last=clock();};
 	void remember(){mem=clock();};
-	long memDif(){return mem-clock();};
+	long memDif(){return clock()-mem;};
 };
 
 
