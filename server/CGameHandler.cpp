@@ -1368,7 +1368,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 
 				if(obj->tempOwner==h->tempOwner) 
 				{
-					heroExchange(h->id, dh->id);
+					heroExchange(dh->id, h->id);
 					return true;
 				}
 				//TODO: check for ally

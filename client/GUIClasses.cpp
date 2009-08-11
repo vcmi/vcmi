@@ -82,7 +82,7 @@ static StackState* getStackState(const CGObjectInstance *obj, int pos, bool town
 
 void CGarrisonSlot::hover (bool on)
 {
-	Hoverable::hover(on);
+	////Hoverable::hover(on);
 	if(on)
 	{
 		std::string temp;
@@ -166,7 +166,7 @@ const CArmedInstance * CGarrisonSlot::getObj()
 	return 	(!upg)?(owner->oup):(owner->odown);
 }
 
-void CGarrisonSlot::clickRight (tribool down)
+void CGarrisonSlot::clickRight(tribool down, bool previousState)
 {
 	StackState *pom = getStackState(getObj(),ID, GH.topInt() == LOCPLINT->castleInt);
 	if(down && creature)
@@ -175,7 +175,7 @@ void CGarrisonSlot::clickRight (tribool down)
 	}
 	delete pom;
 }
-void CGarrisonSlot::clickLeft(tribool down)
+void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 {
 	if(owner->ignoreEvent)
 	{
@@ -277,17 +277,17 @@ void CGarrisonSlot::activate()
 {
 	if(!active) active=true;
 	else return;
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
+	activateLClick();
+	activateRClick();
+	activateHover();
 }
 void CGarrisonSlot::deactivate()
 {
 	if(active) active=false;
 	else return;
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
+	deactivateLClick();
+	deactivateRClick();
+	deactivateHover();
 }
 CGarrisonSlot::CGarrisonSlot(CGarrisonInt *Owner, int x, int y, int IID, int Upg, const CCreature * Creature, int Count)
 {
@@ -636,7 +636,7 @@ void CInfoWindow::deactivate()
 	for(int i=0;i<buttons.size();i++)
 		buttons[i]->deactivate();
 }
-void CRClickPopup::clickRight (tribool down)
+void CRClickPopup::clickRight(tribool down, bool previousState)
 {
 	if(down)
 		return;
@@ -645,12 +645,12 @@ void CRClickPopup::clickRight (tribool down)
 
 void CRClickPopup::activate()
 {
-	ClickableR::activate();
+	activateRClick();
 }
 
 void CRClickPopup::deactivate()
 {
-	ClickableR::deactivate();
+	deactivateRClick();
 }
 
 void CRClickPopup::close()
@@ -815,21 +815,21 @@ SDL_Surface * SComponent::getImg()
 	}
 	return NULL;
 }
-void SComponent::clickRight (tribool down)
+void SComponent::clickRight(tribool down, bool previousState)
 {
 	if(description.size())
 		LOCPLINT->adventureInt->handleRightClick(description,down,this);
 }
 void SComponent::activate()
 {
-	ClickableR::activate();
+	activateRClick();
 }
 void SComponent::deactivate()
 {
-	ClickableR::deactivate();
+	deactivateRClick();
 }
 
-void CSelectableComponent::clickLeft(tribool down)
+void CSelectableComponent::clickLeft(tribool down, bool previousState)
 {
 	if (down)
 	{
@@ -885,15 +885,15 @@ CSelectableComponent::~CSelectableComponent()
 }
 void CSelectableComponent::activate()
 {
-	KeyInterested::activate();
+	activateKeys();
 	SComponent::activate();
-	ClickableL::activate();
+	activateLClick();
 }
 void CSelectableComponent::deactivate()
 {
-	KeyInterested::deactivate();
+	deactivateKeys();
 	SComponent::deactivate();
-	ClickableL::deactivate();
+	deactivateLClick();
 }
 SDL_Surface * CSelectableComponent::getImg()
 {
@@ -1042,23 +1042,23 @@ std::string CStatusBar::getCurrent()
 
 void CList::activate()
 {
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
-	KeyInterested::activate();
-	MotionInterested::activate();
+	activateLClick();
+	activateRClick();
+	activateHover();
+	activateKeys();
+	activateMouseMove();
 };
 
 void CList::deactivate()
 {
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
-	KeyInterested::deactivate();
-	MotionInterested::deactivate();
+	deactivateLClick();
+	deactivateRClick();
+	deactivateHover();
+	deactivateKeys();
+	deactivateMouseMove();
 };
 
-void CList::clickLeft(tribool down)
+void CList::clickLeft(tribool down, bool previousState)
 {
 };
 
@@ -1130,7 +1130,7 @@ void CHeroList::select(int which)
 	LOCPLINT->adventureInt->select(heroes[which]);
 }
 
-void CHeroList::clickLeft(tribool down)
+void CHeroList::clickLeft(tribool down, bool previousState)
 {
 	if (down)
 	{
@@ -1234,7 +1234,7 @@ void CHeroList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	//select(ny+from);
 }
 
-void CHeroList::clickRight(tribool down)
+void CHeroList::clickRight(tribool down, bool previousState)
 {
 	if (down)
 	{
@@ -1357,6 +1357,10 @@ int CHeroList::getPosOfHero(const CGHeroInstance* h)
 	return vstd::findPos(heroes, h, std::equal_to<const CGHeroInstance*>());
 }
 
+void CHeroList::show( SDL_Surface * to )
+{
+
+}
 CTownList::~CTownList()
 {
 	delete arrup;
@@ -1439,7 +1443,7 @@ void CTownList::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	LOCPLINT->statusbar->print(items[from+ny]->name);
 }
 
-void CTownList::clickLeft(tribool down)
+void CTownList::clickLeft(tribool down, bool previousState)
 {
 	if (down)
 	{
@@ -1513,7 +1517,7 @@ void CTownList::clickLeft(tribool down)
 	}
 }
 
-void CTownList::clickRight(tribool down)
+void CTownList::clickRight(tribool down, bool previousState)
 {
 	if (down)
 	{
@@ -1588,6 +1592,10 @@ void CTownList::draw(SDL_Surface * to)
 		blitAt(arrdo->ourImages[2].bitmap,arrdop.x,arrdop.y,to);
 }
 
+void CTownList::show( SDL_Surface * to )
+{
+
+}
 
 CCreaturePic::CCreaturePic(const CCreature *cre, bool Big)
 :c(cre),big(Big)
@@ -1665,7 +1673,7 @@ void CRecruitmentWindow::sliderMoved(int to)
 {
 	buy->block(!to);
 }
-void CRecruitmentWindow::clickLeft(tribool down)
+void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 {
 	int curx = 192 + 51 - (CREATURE_WIDTH*creatures.size()/2) - (SPACE_BETWEEN*(creatures.size()-1)/2);
 	for(int i=0;i<creatures.size();i++)
@@ -1694,7 +1702,7 @@ void CRecruitmentWindow::clickLeft(tribool down)
 		curx += TOTAL_CREATURE_WIDTH;
 	}
 }
-void CRecruitmentWindow::clickRight( boost::logic::tribool down )
+void CRecruitmentWindow::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
@@ -1715,8 +1723,8 @@ void CRecruitmentWindow::clickRight( boost::logic::tribool down )
 
 void CRecruitmentWindow::activate()
 {
-	ClickableL::activate();
-	ClickableR::activate();
+	activateLClick();
+	activateRClick();
 	buy->activate();
 	max->activate();
 	cancel->activate();
@@ -1726,8 +1734,8 @@ void CRecruitmentWindow::activate()
 
 void CRecruitmentWindow::deactivate()
 {
-	ClickableL::deactivate();
-	ClickableR::deactivate();
+	deactivateLClick();
+	deactivateRClick();
 	buy->deactivate();
 	max->deactivate();
 	cancel->deactivate();
@@ -1917,8 +1925,8 @@ CSplitWindow::~CSplitWindow() //d-tor
 
 void CSplitWindow::activate()
 {
-	ClickableL::activate();
-	KeyInterested::activate();
+	activateLClick();
+	activateKeys();
 	ok->activate();
 	cancel->activate();
 	slider->activate();
@@ -1926,8 +1934,8 @@ void CSplitWindow::activate()
 
 void CSplitWindow::deactivate()
 {
-	ClickableL::deactivate();
-	KeyInterested::deactivate();
+	deactivateLClick();
+	deactivateKeys();
 	ok->deactivate();
 	cancel->deactivate();
 	slider->deactivate();
@@ -1998,7 +2006,7 @@ void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 	slider->moveTo(which ? ncur : a1+a2-ncur);
 }
 
-void CSplitWindow::clickLeft( boost::logic::tribool down )
+void CSplitWindow::clickLeft(tribool down, bool previousState)
 {
 	if(down)
 	{
@@ -2230,7 +2238,7 @@ void CCreInfoWindow::activate()
 	//if(active) return;
 	//active = true;
 	if(!type)
-		ClickableR::activate();
+		activateRClick();
 	if(ok)
 		ok->activate();
 	if(dismiss)
@@ -2244,7 +2252,7 @@ void CCreInfoWindow::close()
 	GH.popIntTotally(this);
 }
 
-void CCreInfoWindow::clickRight(boost::logic::tribool down)
+void CCreInfoWindow::clickRight(tribool down, bool previousState)
 {
 	if(down)
 		return;
@@ -2265,7 +2273,7 @@ void CCreInfoWindow::deactivate()
 	//if(!active) return;
 	//active = false;
 	if(!type)
-		ClickableR::deactivate();
+		deactivateRClick();
 	if(ok)
 		ok->deactivate();
 	if(dismiss)
@@ -2452,7 +2460,7 @@ void CMarketplaceWindow::CTradeableItem::show(SDL_Surface * to)
 	blitAt(hlp,pos.x+19,pos.y+9,to);
 }
 
-void CMarketplaceWindow::CTradeableItem::clickLeft( boost::logic::tribool down )
+void CMarketplaceWindow::CTradeableItem::clickLeft(tribool down, bool previousState)
 {
 	CMarketplaceWindow *mw = dynamic_cast<CMarketplaceWindow *>(GH.topInt());
 	assert(mw);
@@ -2478,12 +2486,12 @@ void CMarketplaceWindow::CTradeableItem::clickLeft( boost::logic::tribool down )
 
 void CMarketplaceWindow::CTradeableItem::activate()
 {
-	ClickableL::activate();
+	activateLClick();
 }
 
 void CMarketplaceWindow::CTradeableItem::deactivate()
 {
-	ClickableL::deactivate();
+	deactivateLClick();
 }
 
 SDL_Surface * CMarketplaceWindow::CTradeableItem::getSurface()
@@ -2965,25 +2973,25 @@ void CTavernWindow::show(SDL_Surface * to)
 	}
 }
 
-void CTavernWindow::HeroPortrait::clickLeft(boost::logic::tribool down)
+void CTavernWindow::HeroPortrait::clickLeft(tribool down, bool previousState)
 {
-	if(pressedL && !down)
+	if(previousState && !down)
 		as();
-	ClickableL::clickLeft(down);
+	//ClickableL::clickLeft(down);
 }
 void CTavernWindow::HeroPortrait::activate()
 {
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
+	activateLClick();
+	activateRClick();
+	activateHover();
 }
 void CTavernWindow::HeroPortrait::deactivate()
 {
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
+	deactivateLClick();
+	deactivateRClick();
+	deactivateHover();
 }
-void CTavernWindow::HeroPortrait::clickRight(boost::logic::tribool down)
+void CTavernWindow::HeroPortrait::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
@@ -3022,7 +3030,7 @@ void CTavernWindow::HeroPortrait::show(SDL_Surface * to)
 
 void CTavernWindow::HeroPortrait::hover( bool on )
 {
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if(on)
 		LOCPLINT->statusbar->print(hoverName);
 	else
@@ -3031,12 +3039,12 @@ void CTavernWindow::HeroPortrait::hover( bool on )
 
 void CInGameConsole::activate()
 {
-	KeyInterested::activate();
+	activateKeys();
 }
 
 void CInGameConsole::deactivate()
 {
-	KeyInterested::deactivate();
+	deactivateKeys();
 }
 
 void CInGameConsole::show(SDL_Surface * to)
@@ -3325,16 +3333,16 @@ void CArtPlace::activate()
 {
 	if(!active)
 	{
-		//ClickableL::activate();
+		//activateLClick();
 		LRClickableAreaWTextComp::activate();
 		active = true;
 	}
 }
-void CArtPlace::clickLeft(boost::logic::tribool down)
+void CArtPlace::clickLeft(tribool down, bool previousState)
 {
 	//LRClickableAreaWTextComp::clickLeft(down);
 	
-	if(ourArt && !down && pressedL) //we are spellbook
+	if(ourArt && !down && previousState) //we are spellbook
 	{
 		if(ourArt->id == 0)
 		{
@@ -3342,7 +3350,7 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 			GH.pushInt(spellWindow);
 		}
 	}
-	if(!down && !clicked && pressedL) //not clicked before
+	if(!down && !clicked && previousState) //not clicked before
 	{
 		if(ourArt && ourArt->id == 0)
 			return; //this is handled separately
@@ -3381,19 +3389,19 @@ void CArtPlace::clickLeft(boost::logic::tribool down)
 		clicked = false;
 		ourOwner->commonInfo->activeArtPlace = NULL;
 	}
-	ClickableL::clickLeft(down);
+	//ClickableL::clickLeft(down);
 }
-void CArtPlace::clickRight(boost::logic::tribool down)
+void CArtPlace::clickRight(tribool down, bool previousState)
 {
 	if(text.size()) //if there is no description, do nothing ;]
-		LRClickableAreaWTextComp::clickRight(down);
+		LRClickableAreaWTextComp::clickRight(down, previousState);
 }
 void CArtPlace::deactivate()
 {
 	if(active)
 	{
 		active = false;
-		//ClickableL::deactivate();
+		//deactivateLClick();
 		LRClickableAreaWTextComp::deactivate();
 	}
 }
@@ -3432,13 +3440,13 @@ CArtPlace::~CArtPlace()
 
 void LClickableArea::activate()
 {
-	ClickableL::activate();
+	activateLClick();
 }
 void LClickableArea::deactivate()
 {
-	ClickableL::deactivate();
+	deactivateLClick();
 }
-void LClickableArea::clickLeft(boost::logic::tribool down)
+void LClickableArea::clickLeft(tribool down, bool previousState)
 {
 	//if(!down)
 	//{
@@ -3448,13 +3456,13 @@ void LClickableArea::clickLeft(boost::logic::tribool down)
 
 void RClickableArea::activate()
 {
-	ClickableR::activate();
+	activateRClick();
 }
 void RClickableArea::deactivate()
 {
-	ClickableR::deactivate();
+	deactivateRClick();
 }
-void RClickableArea::clickRight(boost::logic::tribool down)
+void RClickableArea::clickRight(tribool down, bool previousState)
 {
 	//if(!down)
 	//{
@@ -3462,15 +3470,15 @@ void RClickableArea::clickRight(boost::logic::tribool down)
 	//}
 }
 
-void LRClickableAreaWText::clickLeft(boost::logic::tribool down)
+void LRClickableAreaWText::clickLeft(tribool down, bool previousState)
 {
-	if(!down && pressedL)
+	if(!down && previousState)
 	{
 		LOCPLINT->showInfoDialog(text, std::vector<SComponent*>(), soundBase::sound_todo);
 	}
-	ClickableL::clickLeft(down);
+	//ClickableL::clickLeft(down);
 }
-void LRClickableAreaWText::clickRight(boost::logic::tribool down)
+void LRClickableAreaWText::clickRight(tribool down, bool previousState)
 {
 	LOCPLINT->adventureInt->handleRightClick(text, down, this);
 }
@@ -3478,24 +3486,24 @@ void LRClickableAreaWText::activate()
 {
 	LClickableArea::activate();
 	RClickableArea::activate();
-	Hoverable::activate();
+	activateHover();
 }
 void LRClickableAreaWText::deactivate()
 {
 	LClickableArea::deactivate();
 	RClickableArea::deactivate();
-	Hoverable::deactivate();
+	deactivateHover();
 }
 void LRClickableAreaWText::hover(bool on)
 {
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if (on)
 		LOCPLINT->statusbar->print(hoverText);
 	else if (LOCPLINT->statusbar->getCurrent()==hoverText)
 		LOCPLINT->statusbar->clear();
 }
 
-void LClickableAreaHero::clickLeft(boost::logic::tribool down)
+void LClickableAreaHero::clickLeft(tribool down, bool previousState)
 {
 	if(!down)
 	{
@@ -3507,16 +3515,16 @@ void LClickableAreaHero::clickLeft(boost::logic::tribool down)
 	}
 }
 
-void LRClickableAreaWTextComp::clickLeft(boost::logic::tribool down)
+void LRClickableAreaWTextComp::clickLeft(tribool down, bool previousState)
 {
-	if((!down) && pressedL)
+	if((!down) && previousState)
 	{
 		std::vector<SComponent*> comp(1, new SComponent(SComponent::Etype(baseType), type, bonus));
 		LOCPLINT->showInfoDialog(text, comp, soundBase::sound_todo);
 	}
-	ClickableL::clickLeft(down);
+	//ClickableL::clickLeft(down);
 }
-void LRClickableAreaWTextComp::clickRight(boost::logic::tribool down)
+void LRClickableAreaWTextComp::clickRight(tribool down, bool previousState)
 {
 	LOCPLINT->adventureInt->handleRightClick(text, down, this);
 }
@@ -3524,17 +3532,17 @@ void LRClickableAreaWTextComp::activate()
 {
 	LClickableArea::activate();
 	RClickableArea::activate();
-	Hoverable::activate();
+	activateHover();
 }
 void LRClickableAreaWTextComp::deactivate()
 {
 	LClickableArea::deactivate();
 	RClickableArea::deactivate();
-	Hoverable::deactivate();
+	deactivateHover();
 }
 void LRClickableAreaWTextComp::hover(bool on)
 {
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if (on)
 		LOCPLINT->statusbar->print(hoverText);
 	else if (LOCPLINT->statusbar->getCurrent()==hoverText)

@@ -85,13 +85,13 @@ public:
 	//notification - this class inherits important destructor from CInfoWindow
 };
 
-class CRClickPopup : public IShowActivable, public ClickableR //popup displayed on R-click
+class CRClickPopup : public CIntObject //popup displayed on R-click
 {
 public:
 	virtual void activate();
 	virtual void deactivate();
 	virtual void close();
-	void clickRight (boost::logic::tribool down);
+	void clickRight(tribool down, bool previousState);
 	virtual ~CRClickPopup(){}; //d-tor
 };
 
@@ -118,7 +118,7 @@ public:
 	~CInfoPopup(){}; //d-tor
 };
 
-class SComponent : public ClickableR //common popup window component
+class SComponent : public virtual CIntObject //common popup window component
 {
 public:
 	enum Etype
@@ -137,7 +137,7 @@ public:
 	SComponent(){}; //c-tor
 	virtual ~SComponent(){}; //d-tor
 
-	void clickRight (boost::logic::tribool down); //call-in
+	void clickRight(tribool down, bool previousState); //call-in
 	virtual SDL_Surface * getImg();
 	virtual void show(SDL_Surface * to);
 	virtual void activate();
@@ -163,7 +163,7 @@ public:
 	SDL_Surface * border, *myBitmap;
 	boost::function<void()> onSelect; //function called on selection change
 
-	void clickLeft(boost::logic::tribool down); //call-in
+	void clickLeft(tribool down, bool previousState); //call-in
 	void init(SDL_Surface * Border);
 	CSelectableComponent(Etype Type, int Sub, int Val, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL); //c-tor
 	CSelectableComponent(const Component &c, boost::function<void()> OnSelect = 0, SDL_Surface * Border=NULL); //c-tor
@@ -175,7 +175,7 @@ public:
 	SDL_Surface * getImg(); //returns myBitmap
 };
 class CGarrisonInt;
-class CGarrisonSlot : public ClickableL, public ClickableR, public Hoverable
+class CGarrisonSlot : public CIntObject
 {
 public:
 	CGarrisonInt *owner;
@@ -186,8 +186,8 @@ public:
 
 	virtual void hover (bool on); //call-in
 	const CArmedInstance * getObj();
-	void clickRight (boost::logic::tribool down);
-	void clickLeft(boost::logic::tribool down);
+	void clickRight(tribool down, bool previousState);
+	void clickLeft(tribool down, bool previousState);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
@@ -246,8 +246,7 @@ public:
 	std::string getCurrent(); //getter for current
 };
 
-class CList
-	: public ClickableL, public ClickableR, public Hoverable, public KeyInterested, public virtual CIntObject, public MotionInterested
+class CList : public CIntObject
 {
 public:
 	SDL_Surface * bg; //background bitmap
@@ -258,10 +257,10 @@ public:
 	int selected, //id of selected position, <0 if none
 		from;
 	const int SIZE; //size of list
-	boost::logic::tribool pressed; //true=up; false=down; indeterminate=none
+	tribool pressed; //true=up; false=down; indeterminate=none
 
 	CList(int Size = 5); //c-tor
-	void clickLeft(boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
 	void activate();
 	void deactivate();
 	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0; //call-in
@@ -282,13 +281,14 @@ public:
 	void genList();
 	void select(int which); //call-in
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent); //call-in
-	void clickLeft(boost::logic::tribool down); //call-in
-	void clickRight(boost::logic::tribool down); //call-in
+	void clickLeft(tribool down, bool previousState); //call-in
+	void clickRight(tribool down, bool previousState); //call-in
 	void hover (bool on); //call-in
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 	void updateHList(const CGHeroInstance *toRemove=NULL); //removes specific hero from the list or recreates it
 	void updateMove(const CGHeroInstance* which); //draws move points bar
 	void draw(SDL_Surface * to);
+	void show(SDL_Surface * to);
 	void init();
 };
 
@@ -305,11 +305,12 @@ public:
 	void genList();
 	void select(int which); //call-in
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);  //call-in
-	void clickLeft(boost::logic::tribool down);  //call-in
-	void clickRight(boost::logic::tribool down); //call-in
+	void clickLeft(tribool down, bool previousState);  //call-in
+	void clickRight(tribool down, bool previousState); //call-in
 	void hover (bool on);  //call-in
 	void keyPressed (const SDL_KeyboardEvent & key);  //call-in
 	void draw(SDL_Surface * to);
+	void show(SDL_Surface * to);
 };
 
 class CCreaturePic //draws picture with creature on background, use nextFrame=true to get animation
@@ -324,7 +325,7 @@ public:
 	SDL_Surface * getPic(bool nextFrame); //returns frame of animation
 };
 
-class CRecruitmentWindow : public IShowActivable, public ClickableL, public ClickableR
+class CRecruitmentWindow : public CIntObject
 {
 public:
 	static const int SPACE_BETWEEN = 8;
@@ -356,8 +357,8 @@ public:
 	void Buy();
 	void Cancel();
 	void sliderMoved(int to);
-	void clickLeft(boost::logic::tribool down);
-	void clickRight(boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
@@ -367,7 +368,7 @@ public:
 	~CRecruitmentWindow(); //d-tor
 };
 
-class CSplitWindow : public IShowActivable, public KeyInterested, public ClickableL
+class CSplitWindow : public CIntObject
 {
 public:
 	CGarrisonInt *gar;
@@ -386,12 +387,12 @@ public:
 	void close();
 	void deactivate();
 	void show(SDL_Surface * to);
-	void clickLeft(boost::logic::tribool down); //call-in
+	void clickLeft(tribool down, bool previousState); //call-in
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 	void sliderMoved(int to);
 };
 
-class CCreInfoWindow : public IShowActivable, public KeyInterested, public ClickableR
+class CCreInfoWindow : public CIntObject
 {
 public:
 	//bool active; //TODO: comment me
@@ -410,14 +411,14 @@ public:
 	~CCreInfoWindow(); //d-tor
 	void activate();
 	void close();
-	void clickRight(boost::logic::tribool down); //call-in
+	void clickRight(tribool down, bool previousState); //call-in
 	void dismissF();
 	void keyPressed (const SDL_KeyboardEvent & key); //call-in
 	void deactivate();
 	void show(SDL_Surface * to);
 };
 
-class CLevelWindow : public IShowActivable, public CIntObject
+class CLevelWindow : public CIntObject
 {
 public:
 	int heroType;
@@ -435,7 +436,7 @@ public:
 	void show(SDL_Surface * to);
 };
 
-class CMinorResDataBar : public IShowable, public CIntObject
+class CMinorResDataBar : public CIntObject
 {
 public:
 	SDL_Surface *bg; //background bitmap
@@ -444,10 +445,10 @@ public:
 	~CMinorResDataBar(); //d-tor
 };
 
-class CMarketplaceWindow : public IShowActivable, public CIntObject
+class CMarketplaceWindow : public CIntObject
 {
 public:
-	class CTradeableItem : public ClickableL
+	class CTradeableItem : public CIntObject
 	{
 	public:
 		int type; //0 - res, 1 - artif big, 2 - artif small, 3 - player flag
@@ -458,7 +459,7 @@ public:
 		void activate();
 		void deactivate();
 		void show(SDL_Surface * to);
-		void clickLeft(boost::logic::tribool down);
+		void clickLeft(tribool down, bool previousState);
 		SDL_Surface *getSurface();
 		CTradeableItem(int Type, int ID, bool Left);
 	};
@@ -486,7 +487,7 @@ public:
 	void clear();
 };
 
-class CSystemOptionsWindow : public IShowActivable, public CIntObject
+class CSystemOptionsWindow : public CIntObject
 {
 private:
 	SDL_Surface * background; //background of window
@@ -508,10 +509,10 @@ public:
 	void show(SDL_Surface * to);
 };
 
-class CTavernWindow : public IShowActivable, public CIntObject
+class CTavernWindow : public CIntObject
 {
 public:
-	class HeroPortrait : public ClickableL, public ClickableR, public Hoverable
+	class HeroPortrait : public CIntObject
 	{
 	public:
 		std::string hoverName;
@@ -519,8 +520,8 @@ public:
 		const CGHeroInstance *h;
 		void activate();
 		void deactivate();
-		void clickLeft(boost::logic::tribool down);
-		void clickRight(boost::logic::tribool down);
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
 		void hover (bool on);
 		HeroPortrait(int &sel, int id, int x, int y, const CGHeroInstance *H);
 		void show(SDL_Surface * to);
@@ -544,7 +545,7 @@ public:
 	void show(SDL_Surface * to);
 };
 
-class CInGameConsole : public IShowActivable, public KeyInterested
+class CInGameConsole : public CIntObject
 {
 private:
 	std::list< std::pair< std::string, int > > texts; //<text to show, time of add>
@@ -569,18 +570,18 @@ public:
 };
 
 
-class LClickableArea: public ClickableL
+class LClickableArea: public virtual CIntObject
 {
 public:
-	virtual void clickLeft (boost::logic::tribool down);
+	virtual void clickLeft(tribool down, bool previousState);
 	virtual void activate();
 	virtual void deactivate();
 };
 
-class RClickableArea: public ClickableR
+class RClickableArea: public virtual CIntObject
 {
 public:
-	virtual void clickRight (boost::logic::tribool down);
+	virtual void clickRight(tribool down, bool previousState);
 	virtual void activate();
 	virtual void deactivate();
 };
@@ -590,21 +591,21 @@ class LClickableAreaHero : public LClickableArea
 public:
 	int id;
 	CHeroWindow * owner;
-	virtual void clickLeft (boost::logic::tribool down);
+	virtual void clickLeft(tribool down, bool previousState);
 };
 
-class LRClickableAreaWText: public LClickableArea, public RClickableArea, public Hoverable
+class LRClickableAreaWText: public LClickableArea, public RClickableArea
 {
 public:
 	std::string text, hoverText;
 	virtual void activate();
 	virtual void deactivate();
-	virtual void clickLeft (boost::logic::tribool down);
-	virtual void clickRight (boost::logic::tribool down);
+	virtual void clickLeft(tribool down, bool previousState);
+	virtual void clickRight(tribool down, bool previousState);
 	virtual void hover(bool on);
 };
 
-class LRClickableAreaWTextComp: public LClickableArea, public RClickableArea, public Hoverable
+class LRClickableAreaWTextComp: public LClickableArea, public RClickableArea
 {
 public:
 	std::string text, hoverText;
@@ -612,12 +613,12 @@ public:
 	int bonus, type;
 	virtual void activate();
 	virtual void deactivate();
-	virtual void clickLeft (boost::logic::tribool down);
-	virtual void clickRight (boost::logic::tribool down);
+	virtual void clickLeft(tribool down, bool previousState);
+	virtual void clickRight(tribool down, bool previousState);
 	virtual void hover(bool on);
 };
 
-class CArtPlace: public IShowable, public LRClickableAreaWTextComp
+class CArtPlace: public LRClickableAreaWTextComp
 {
 private:
 	bool active;
@@ -631,8 +632,8 @@ public:
 	CArtifactsOfHero * ourOwner;
 	const CArtifact * ourArt;
 	CArtPlace(const CArtifact * Art); //c-tor
-	void clickLeft (boost::logic::tribool down);
-	void clickRight (boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
@@ -641,7 +642,7 @@ public:
 };
 
 
-class CArtifactsOfHero : public IShowActivable, public CIntObject
+class CArtifactsOfHero : public CIntObject
 {
 	const CGHeroInstance * curHero;
 
@@ -672,7 +673,7 @@ public:
 	friend class CArtPlace;
 };
 
-class CGarrisonWindow : public CWindowWithGarrison, public CIntObject
+class CGarrisonWindow : public CWindowWithGarrison
 {
 public:
 	SDL_Surface *bg; //background surface
@@ -686,7 +687,7 @@ public:
 	~CGarrisonWindow(); //d-tor
 };
 
-class CExchangeWindow : public CIntObject, public CWindowWithGarrison
+class CExchangeWindow : public CWindowWithGarrison
 {
 	CStatusBar * ourBar; //internal statusbar
 
@@ -715,7 +716,7 @@ public:
 	~CExchangeWindow(); //d-tor
 };
 
-class CShipyardWindow : public CIntObject, public IShowActivable
+class CShipyardWindow : public CIntObject
 {
 public:
 	CStatusBar *bar;

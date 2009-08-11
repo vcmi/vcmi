@@ -170,7 +170,7 @@ void CPlayerInterface::yourTurn()
 
 		adventureInt->showAll(screen);
 		GH.pushInt(adventureInt);
-		adventureInt->KeyInterested::activate();
+		adventureInt->activateKeys();
 
 		while(makingTurn) // main loop
 		{
@@ -201,7 +201,7 @@ void CPlayerInterface::yourTurn()
 			SDL_framerateDelay(mainFPSmng);
 		}
 
-		adventureInt->KeyInterested::deactivate();
+		adventureInt->deactivateKeys();
 		GH.popInt(adventureInt);
 
 		cb->endTurn();
@@ -1269,7 +1269,7 @@ void CPlayerInterface::showBlockingDialog( const std::string &text, const std::v
 
 		CSelWindow * temp = new CSelWindow(text,playerID,35,intComps,pom,askID);
 		GH.pushInt(temp);
-		intComps[0]->clickLeft(true);
+		intComps[0]->clickLeft(true, false);
 	}
 
 }

@@ -88,18 +88,18 @@ CBuildingRect::~CBuildingRect()
 }
 void CBuildingRect::activate()
 {
-	Hoverable::activate();
-	ClickableL::activate();
-	ClickableR::activate();
+	activateHover();
+	activateLClick();
+	activateRClick();
 
 }
 void CBuildingRect::deactivate()
 {
-	Hoverable::deactivate();
-	ClickableL::deactivate();
-	ClickableR::deactivate();
+	deactivateHover();
+	deactivateLClick();
+	deactivateRClick();
 	if(moi)
-		MotionInterested::deactivate();
+		deactivateMouseMove();
 	moi=false;
 }
 bool CBuildingRect::operator<(const CBuildingRect & p2) const
@@ -111,17 +111,17 @@ bool CBuildingRect::operator<(const CBuildingRect & p2) const
 }
 void CBuildingRect::hover(bool on)
 {
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if(on)
 	{
 		if(!moi)
-			MotionInterested::activate();
+			activateMouseMove();
 		moi = true;
 	}
 	else
 	{
 		if(moi)
-			MotionInterested::deactivate();
+			deactivateMouseMove();
 		moi = false;
 		if(LOCPLINT->castleInt->hBuild == this)
 		{
@@ -134,20 +134,16 @@ void CBuildingRect::hover(bool on)
 		}
 	}
 }
-void CBuildingRect::clickLeft (tribool down)
+void CBuildingRect::clickLeft(tribool down, bool previousState)
 {
-
 	if(area && (LOCPLINT->castleInt->hBuild==this) && !(indeterminate(down)) && (CSDL_Ext::SDL_GetPixel(area,GH.current->motion.x-pos.x,GH.current->motion.y-pos.y) != 0)) //na polu
 	{
-		if(pressedL && !down)
+		if(previousState && !down)
 			LOCPLINT->castleInt->buildingClicked(str->ID);
-		ClickableL::clickLeft(down);
+		//ClickableL::clickLeft(down);
 	}
-
-
-	//todo - handle
 }
-void CBuildingRect::clickRight (tribool down)
+void CBuildingRect::clickRight(tribool down, bool previousState)
 {
 	if((!area) || (!((bool)down)) || (this!=LOCPLINT->castleInt->hBuild))
 		return;
@@ -254,12 +250,11 @@ void CHeroGSlot::hover (bool on)
 		LOCPLINT->statusbar->print(temp);
 }
 
-void CHeroGSlot::clickRight (boost::logic::tribool down)
+void CHeroGSlot::clickRight(tribool down, bool previousState)
 {
-
 }
 
-void CHeroGSlot::clickLeft(boost::logic::tribool down)
+void CHeroGSlot::clickLeft(tribool down, bool previousState)
 {
 	CHeroGSlot *other = upg  ?  &owner->hslotup :  &owner->hslotdown;
 	if(!down)
@@ -310,17 +305,17 @@ void CHeroGSlot::clickLeft(boost::logic::tribool down)
 
 void CHeroGSlot::activate()
 {
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
+	activateLClick();
+	activateRClick();
+	activateHover();
 }
 
 void CHeroGSlot::deactivate()
 {
 	highlight = false;
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
+	deactivateLClick();
+	deactivateRClick();
+	deactivateHover();
 }
 
 void CHeroGSlot::show(SDL_Surface * to)
@@ -793,7 +788,7 @@ void CCastleInterface::activate()
 	}
 	hslotdown.activate();
 	hslotup.activate();
-	KeyInterested::activate();
+	activateKeys();
 }
 
 void CCastleInterface::deactivate()
@@ -809,7 +804,7 @@ void CCastleInterface::deactivate()
 	}
 	hslotdown.deactivate();
 	hslotup.deactivate();
-	KeyInterested::deactivate();
+	deactivateKeys();
 }
 
 void CCastleInterface::addBuilding(int bid)
@@ -1028,7 +1023,7 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 
 void CHallInterface::CBuildingBox::hover(bool on)
 {
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if(on)
 	{
 		std::string toPrint;
@@ -1043,21 +1038,21 @@ void CHallInterface::CBuildingBox::hover(bool on)
 	else
 		LOCPLINT->statusbar->clear();
 }
-void CHallInterface::CBuildingBox::clickLeft (tribool down)
+void CHallInterface::CBuildingBox::clickLeft(tribool down, bool previousState)
 {
-	if(pressedL && (!down))
+	if(previousState && (!down))
 	{
 		GH.pushInt(new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,0));
 	}
-	ClickableL::clickLeft(down);
+	//ClickableL::clickLeft(down);
 }
-void CHallInterface::CBuildingBox::clickRight (tribool down)
+void CHallInterface::CBuildingBox::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
 		GH.pushInt(new CHallInterface::CBuildWindow(LOCPLINT->castleInt->town->subID,BID,state,1));
 	}
-	ClickableR::clickRight(down);
+	//ClickableR::clickRight(down);
 }
 void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 {
@@ -1092,15 +1087,15 @@ void CHallInterface::CBuildingBox::show(SDL_Surface * to)
 }
 void CHallInterface::CBuildingBox::activate()
 {
-	Hoverable::activate();
-	ClickableL::activate();
-	ClickableR::activate();
+	activateHover();
+	activateLClick();
+	activateRClick();
 }
 void CHallInterface::CBuildingBox::deactivate()
 {
-	Hoverable::deactivate();
-	ClickableL::deactivate();
-	ClickableR::deactivate();
+	deactivateHover();
+	deactivateLClick();
+	deactivateRClick();
 }
 CHallInterface::CBuildingBox::~CBuildingBox()
 {
@@ -1236,7 +1231,7 @@ void CHallInterface::deactivate()
 
 void CHallInterface::CBuildWindow::activate()
 {
-	ClickableR::activate();
+	activateRClick();
 	if(mode)
 		return;
 	if(state==7)
@@ -1246,7 +1241,7 @@ void CHallInterface::CBuildWindow::activate()
 
 void CHallInterface::CBuildWindow::deactivate()
 {
-	ClickableR::deactivate();
+	deactivateRClick();
 	if(mode)
 		return;
 	if(state==7)
@@ -1266,7 +1261,7 @@ void CHallInterface::CBuildWindow::close()
 	GH.popIntTotally(this);
 }
 
-void CHallInterface::CBuildWindow::clickRight (tribool down)
+void CHallInterface::CBuildWindow::clickRight(tribool down, bool previousState)
 {
 	if((!down || indeterminate(down)) && mode)
 		close();
@@ -1558,28 +1553,28 @@ void CFortScreen::draw( CCastleInterface * owner, bool first)
 	}
 	SDL_FreeSurface(icons);
 }
-void CFortScreen::RecArea::clickLeft (tribool down)
+void CFortScreen::RecArea::clickLeft(tribool down, bool previousState)
 {
-	if(!down && pressedL)
+	if(!down && previousState)
 	{
 		LOCPLINT->castleInt->showRecruitmentWindow(bid);
 	}
-	ClickableL::clickLeft(down);
+	//ClickableL::clickLeft(down);
 }
 void CFortScreen::RecArea::activate()
 {
-	ClickableL::activate();
-	ClickableR::activate();
+	activateLClick();
+	activateRClick();
 }
 void CFortScreen::RecArea::deactivate()
 {
-	ClickableL::deactivate();
-	ClickableR::deactivate();
+	deactivateLClick();
+	deactivateRClick();
 }
 
-void CFortScreen::RecArea::clickRight( tribool down )
+void CFortScreen::RecArea::clickRight(tribool down, bool previousState)
 {
-	clickLeft(down);; //r-click does same as l-click - opens recr. window
+	clickLeft(down, false); //r-click does same as l-click - opens recr. window
 }
 CMageGuildScreen::CMageGuildScreen(CCastleInterface * owner)
 {
@@ -1664,7 +1659,7 @@ void CMageGuildScreen::deactivate()
 	}
 }
 
-void CMageGuildScreen::Scroll::clickLeft (tribool down)
+void CMageGuildScreen::Scroll::clickLeft(tribool down, bool previousState)
 {
 	if(down)
 	{
@@ -1675,7 +1670,7 @@ void CMageGuildScreen::Scroll::clickLeft (tribool down)
 	}
 }
 
-void CMageGuildScreen::Scroll::clickRight (tribool down)
+void CMageGuildScreen::Scroll::clickRight(tribool down, bool previousState)
 {
 	if(down)
 	{
@@ -1693,7 +1688,7 @@ void CMageGuildScreen::Scroll::clickRight (tribool down)
 
 void CMageGuildScreen::Scroll::hover(bool on)
 {
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if(on)
 		LOCPLINT->statusbar->print(spell->name);
 	else
@@ -1703,16 +1698,16 @@ void CMageGuildScreen::Scroll::hover(bool on)
 
 void CMageGuildScreen::Scroll::activate()
 {
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
+	activateLClick();
+	activateRClick();
+	activateHover();
 }
 
 void CMageGuildScreen::Scroll::deactivate()
 {
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
+	deactivateLClick();
+	deactivateRClick();
+	deactivateHover();
 }
 
 CBlacksmithDialog::CBlacksmithDialog(bool possible, int creMachineID, int aid, int hid)

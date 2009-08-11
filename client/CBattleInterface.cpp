@@ -301,10 +301,9 @@ void CBattleInterface::setPrintMouseShadow(bool set)
 
 void CBattleInterface::activate()
 {
-	KeyInterested::activate();
-	MotionInterested::activate();
-	ClickableR::activate();
-	subInt = NULL;
+	activateKeys();
+	activateMouseMove();
+	activateRClick();
 	bOptions->activate();
 	bSurrender->activate();
 	bFlee->activate();
@@ -328,9 +327,9 @@ void CBattleInterface::activate()
 
 void CBattleInterface::deactivate()
 {
-	KeyInterested::deactivate();
-	MotionInterested::deactivate();
-	ClickableR::deactivate();
+	deactivateKeys();
+	deactivateMouseMove();
+	deactivateRClick();
 	bOptions->deactivate();
 	bSurrender->deactivate();
 	bFlee->deactivate();
@@ -862,7 +861,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	}
 }
 
-void CBattleInterface::clickRight(boost::logic::tribool down)
+void CBattleInterface::clickRight(tribool down, bool previousState)
 {
 	if(!down && spellDestSelectMode)
 	{
@@ -2342,11 +2341,11 @@ void CBattleHero::show(SDL_Surface *to)
 
 void CBattleHero::activate()
 {
-	ClickableL::activate();
+	activateLClick();
 }
 void CBattleHero::deactivate()
 {
-	ClickableL::deactivate();
+	deactivateLClick();
 }
 
 void CBattleHero::setPhase(int newPhase)
@@ -2362,7 +2361,7 @@ void CBattleHero::setPhase(int newPhase)
 	}
 }
 
-void CBattleHero::clickLeft(boost::logic::tribool down)
+void CBattleHero::clickLeft(tribool down, bool previousState)
 {
 	if(!down && myHero && LOCPLINT->cb->battleCanCastSpell()) //check conditions
 	{
@@ -2442,24 +2441,24 @@ std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & a
 }
 void CBattleHex::activate()
 {
-	Hoverable::activate();
-	MotionInterested::activate();
-	ClickableL::activate();
-	ClickableR::activate();
+	activateHover();
+	activateMouseMove();
+	activateLClick();
+	activateRClick();
 }
 
 void CBattleHex::deactivate()
 {
-	Hoverable::deactivate();
-	MotionInterested::deactivate();
-	ClickableL::deactivate();
-	ClickableR::deactivate();
+	deactivateHover();
+	deactivateMouseMove();
+	deactivateLClick();
+	deactivateRClick();
 }
 
 void CBattleHex::hover(bool on)
 {
 	hovered = on;
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if(!on && setAlterText)
 	{
 		myInterface->console->alterTxt = std::string();
@@ -2506,7 +2505,7 @@ void CBattleHex::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 	}
 }
 
-void CBattleHex::clickLeft(boost::logic::tribool down)
+void CBattleHex::clickLeft(tribool down, bool previousState)
 {
 	if(!down && hovered && strictHovered) //we've been really clicked!
 	{
@@ -2514,7 +2513,7 @@ void CBattleHex::clickLeft(boost::logic::tribool down)
 	}
 }
 
-void CBattleHex::clickRight(boost::logic::tribool down)
+void CBattleHex::clickRight(tribool down, bool previousState)
 {
 	int stID = LOCPLINT->cb->battleGetStack(myNumber); //id of stack being on this tile
 	if(hovered && strictHovered && stID!=-1)

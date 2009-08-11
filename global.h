@@ -3,6 +3,7 @@
 #include <iostream>
 #include <algorithm> //std::find
 #include <boost/logic/tribool.hpp>
+using boost::logic::tribool;
 #include <boost/cstdint.hpp>
 typedef boost::uint64_t ui64; //unsigned int 64 bits (8 bytes)
 typedef boost::uint32_t ui32;  //unsigned int 32 bits (4 bytes)

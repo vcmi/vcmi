@@ -24,7 +24,6 @@
  *
  */
 
-using boost::logic::tribool;
 class IGameCallback;
 struct BattleResult;
 class CCPPObjectScript;

@@ -31,7 +31,7 @@ class CMinorResDataBar;
  *
  */
 
-class CBuildingRect : public Hoverable, public MotionInterested, public ClickableL, public ClickableR//, public TimeInterested
+class CBuildingRect : public CIntObject
 {
 public:
 	bool moi; //motion interested is active
@@ -46,11 +46,11 @@ public:
 	void deactivate();
 	bool operator<(const CBuildingRect & p2) const;
 	void hover(bool on);
-	void clickLeft (boost::logic::tribool down);
-	void clickRight (boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 };
-class CHeroGSlot : public ClickableL, public ClickableR, public Hoverable
+class CHeroGSlot : public CIntObject
 {
 public:
 	CCastleInterface *owner;
@@ -59,8 +59,8 @@ public:
 	bool highlight; //indicates id the slot is highlighted
 
 	void hover (bool on);
-	void clickRight (boost::logic::tribool down);
-	void clickLeft(boost::logic::tribool down);
+	void clickRight(tribool down, bool previousState);
+	void clickLeft(tribool down, bool previousState);
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
@@ -68,7 +68,7 @@ public:
 	~CHeroGSlot(); //d-tor
 };
 
-class CCastleInterface : public CWindowWithGarrison, public KeyInterested
+class CCastleInterface : public CWindowWithGarrison
 {
 public:
 	SDL_Rect pos; //why not inherit this member from CIntObject ?
@@ -121,15 +121,15 @@ public:
 	CMinorResDataBar * resdatabar;
 	SDL_Rect pos;
 
-	class CBuildingBox : public Hoverable, public ClickableL, public ClickableR
+	class CBuildingBox : public CIntObject
 	{
 	public:
 		int BID;
 		int state;// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 		//(-1) - forbidden in this town, 0 - possible, 1 - lack of res, 2 - requirements/buildings per turn limit, (3) - already exists
 		void hover(bool on);
-		void clickLeft (boost::logic::tribool down);
-		void clickRight (boost::logic::tribool down);
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
 		void show(SDL_Surface * to);
 		void activate();
 		void deactivate();
@@ -138,7 +138,7 @@ public:
 		~CBuildingBox(); //d-tor
 	};
 
-	class CBuildWindow: public IShowActivable, public ClickableR
+	class CBuildWindow: public CIntObject
 	{
 	public:
 		int tid, bid, state; //town id, building id, state
@@ -149,7 +149,7 @@ public:
 		void activate();
 		void deactivate();
 		std::string getTextForState(int state);
-		void clickRight (boost::logic::tribool down);
+		void clickRight(tribool down, bool previousState);
 		void show(SDL_Surface * to);
 		void Buy();
 		void close();
@@ -172,15 +172,15 @@ public:
 	void deactivate();
 };
 
-class CFortScreen : public IShowActivable, public CIntObject
+class CFortScreen : public CIntObject
 {
-	class RecArea : public ClickableL, public ClickableR
+	class RecArea : public CIntObject
 	{
 	public:
 		int bid;
 		RecArea(int BID):bid(BID){}; //c-tor
-		void clickLeft (boost::logic::tribool down);
-		void clickRight (boost::logic::tribool down);
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
 		void activate();
 		void deactivate();
 	};
@@ -202,17 +202,17 @@ public:
 	void deactivate();
 };
 
-class CMageGuildScreen : public IShowActivable, public CIntObject
+class CMageGuildScreen : public CIntObject
 {
 public:	
-	class Scroll : public ClickableL, public Hoverable, public ClickableR
+	class Scroll : public CIntObject
 	{
 	public:
 		CSpell *spell;
 
 		Scroll(CSpell *Spell):spell(Spell){};
-		void clickLeft (boost::logic::tribool down);
-		void clickRight (boost::logic::tribool down);
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
 		void activate();
 		void deactivate();
@@ -234,7 +234,7 @@ public:
 	void deactivate();
 };
 
-class CBlacksmithDialog : public IShowActivable, public CIntObject
+class CBlacksmithDialog : public CIntObject
 {
 public:
 	AdventureMapButton *buy, *cancel;

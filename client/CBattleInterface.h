@@ -31,7 +31,7 @@ struct BattleAction;
 
 class CBattleInterface;
 
-class CBattleHero : public IShowable, public ClickableL
+class CBattleHero : public CIntObject
 {
 public:
 	bool flip; //false if it's attacking hero, true otherwise
@@ -46,12 +46,12 @@ public:
 	void activate();
 	void deactivate();
 	void setPhase(int newPhase); //sets phase of hero animation
-	void clickLeft(boost::logic::tribool down); //call-in
+	void clickLeft(tribool down, bool previousState); //call-in
 	CBattleHero(const std::string & defName, int phaseG, int imageG, bool filpG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner); //c-tor
 	~CBattleHero(); //d-tor
 };
 
-class CBattleHex : public Hoverable, public MotionInterested, public ClickableL, public ClickableR
+class CBattleHex : public CIntObject
 {
 private:
 	bool setAlterText; //if true, this hex has set alternative text in console and will clean it
@@ -67,8 +67,8 @@ public:
 	void activate();
 	void deactivate();
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
-	void clickLeft(boost::logic::tribool down);
-	void clickRight(boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
 	CBattleHex();
 };
 
@@ -77,7 +77,7 @@ class CBattleObstacle
 	std::vector<int> lockedHexes;
 };
 
-class CBattleConsole : public IShowable, public CIntObject
+class CBattleConsole : public CIntObject
 {
 private:
 	std::vector< std::string > texts; //a place where texts are stored
@@ -96,7 +96,7 @@ public:
 	void scrollDown(unsigned int by = 1); //scrolls console up by 'by' positions
 };
 
-class CBattleResultWindow : public IShowActivable, public CIntObject
+class CBattleResultWindow : public CIntObject
 {
 private:
 	SDL_Surface * background;
@@ -112,7 +112,7 @@ public:
 	void show(SDL_Surface * to = 0);
 };
 
-class CBattleOptionsWindow : public IShowActivable, public CIntObject
+class CBattleOptionsWindow : public CIntObject
 {
 private:
 	CBattleInterface * myInt;
@@ -153,7 +153,7 @@ struct BattleSettings
 	}
 };
 
-class CBattleInterface : public CMainInterface, public MotionInterested, public KeyInterested, public ClickableR
+class CBattleInterface : public CIntObject
 {
 private:
 	SDL_Surface * background, * menu, * amountNormal, * amountNegative, * amountPositive, * amountEffNeutral, * cellBorders, * backgroundWithHexes;
@@ -265,7 +265,7 @@ public:
 	void show(SDL_Surface * to);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved(const SDL_MouseMotionEvent &sEvent);
-	void clickRight(boost::logic::tribool down);
+	void clickRight(tribool down, bool previousState);
 
 	bool reverseCreature(int number, int hex, bool wideTrick = false); //reverses animation of given creature playing animation of reversing
 	void handleStartMoving(int number); //animation of starting move; some units don't have this animation (ie. halberdier)

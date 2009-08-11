@@ -27,7 +27,7 @@ class CArtifactsOfHero;
 
 
 
-class CHeroWindow: public CWindowWithGarrison, public virtual CIntObject
+class CHeroWindow: public CWindowWithGarrison
 {
 	SDL_Surface * background, * curBack;
 	CStatusBar * ourBar; //heroWindow's statusBar
@@ -70,7 +70,7 @@ public:
 	void switchHero(); //changes displayed hero
 
 	//friends
-	friend void CArtPlace::clickLeft(tribool down);
+	friend void CArtPlace::clickLeft(tribool down, bool previousState);
 	friend class CPlayerInterface;
 };
 

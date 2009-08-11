@@ -37,7 +37,7 @@ SpellbookInteractiveArea::SpellbookInteractiveArea(const SDL_Rect & myRect, boos
 	onHoverOff = funcHoff;
 }
 
-void SpellbookInteractiveArea::clickLeft(boost::logic::tribool down)
+void SpellbookInteractiveArea::clickLeft(tribool down, bool previousState)
 {
 	if(!down)
 	{
@@ -45,14 +45,14 @@ void SpellbookInteractiveArea::clickLeft(boost::logic::tribool down)
 	}
 }
 
-void SpellbookInteractiveArea::clickRight(boost::logic::tribool down)
+void SpellbookInteractiveArea::clickRight(tribool down, bool previousState)
 {
 	LOCPLINT->adventureInt->handleRightClick(textOnRclick, down, this);
 }
 
 void SpellbookInteractiveArea::hover(bool on)
 {
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if(on)
 	{
 		onHoverOn();
@@ -65,16 +65,16 @@ void SpellbookInteractiveArea::hover(bool on)
 
 void SpellbookInteractiveArea::activate()
 {
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
+	activateLClick();
+	activateRClick();
+	activateHover();
 
 }
 void SpellbookInteractiveArea::deactivate()
 {
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
+	deactivateLClick();
+	deactivateRClick();
+	deactivateHover();
 }
 
 CSpellWindow::CSpellWindow(const SDL_Rect & myRect, const CGHeroInstance * _myHero, bool openOnBattleSpells):
@@ -581,7 +581,7 @@ void CSpellWindow::computeSpellsPerArea()
 
 void CSpellWindow::activate()
 {
-	KeyInterested::activate();
+	activateKeys();
 	exitBtn->activate();
 	battleSpells->activate();
 	adventureSpells->activate();
@@ -604,7 +604,7 @@ void CSpellWindow::activate()
 
 void CSpellWindow::deactivate()
 {
-	KeyInterested::deactivate();
+	deactivateKeys();
 	exitBtn->deactivate();
 	battleSpells->deactivate();
 	adventureSpells->deactivate();
@@ -647,7 +647,7 @@ CSpellWindow::SpellArea::SpellArea(SDL_Rect pos, CSpellWindow * owner)
 	this->owner = owner;
 }
 
-void CSpellWindow::SpellArea::clickLeft(boost::logic::tribool down)
+void CSpellWindow::SpellArea::clickLeft(tribool down, bool previousState)
 {
 	if(!down && mySpell!=-1)
 	{
@@ -660,7 +660,7 @@ void CSpellWindow::SpellArea::clickLeft(boost::logic::tribool down)
 	}
 }
 
-void CSpellWindow::SpellArea::clickRight(boost::logic::tribool down)
+void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 {
 	if(down && mySpell != -1)
 	{
@@ -678,7 +678,7 @@ void CSpellWindow::SpellArea::clickRight(boost::logic::tribool down)
 
 void CSpellWindow::SpellArea::hover(bool on)
 {
-	Hoverable::hover(on);
+	//Hoverable::hover(on);
 	if(mySpell != -1)
 	{
 		if(on)
@@ -696,14 +696,14 @@ void CSpellWindow::SpellArea::hover(bool on)
 
 void CSpellWindow::SpellArea::activate()
 {
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
+	activateLClick();
+	activateRClick();
+	activateHover();
 }
 
 void CSpellWindow::SpellArea::deactivate()
 {
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
+	deactivateLClick();
+	deactivateRClick();
+	deactivateHover();
 }

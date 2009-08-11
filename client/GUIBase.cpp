@@ -24,9 +24,9 @@ void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 	if(vstd::contains(assignedKeys,key.keysym.sym))
 	{
 		if(key.state == SDL_PRESSED)
-			clickLeft(true);
+			clickLeft(true, pressedL);
 		else
-			clickLeft(false);
+			clickLeft(false, pressedL);
 	}
 }
 
@@ -65,108 +65,6 @@ void CButtonBase::show(SDL_Surface * to)
 	{
 		blitAt(imgs[curimg][img],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
 	}
-}
-
-ClickableL::ClickableL()
-{
-	pressedL=false;
-}
-
-ClickableL::~ClickableL()
-{
-}
-
-void ClickableL::clickLeft(boost::logic::tribool down)
-{
-	if (down)
-		pressedL=true;
-	else
-		pressedL=false;
-}
-void ClickableL::activate()
-{
-	GH.lclickable.push_front(this);
-}
-void ClickableL::deactivate()
-{
-	GH.lclickable.erase(std::find(GH.lclickable.begin(),GH.lclickable.end(),this));
-}
-
-ClickableR::ClickableR()
-{
-	pressedR=false;
-}
-
-ClickableR::~ClickableR()
-{}
-
-void ClickableR::clickRight(boost::logic::tribool down)
-{
-	if (down)
-		pressedR=true;
-	else
-		pressedR=false;
-}
-void ClickableR::activate()
-{
-	GH.rclickable.push_front(this);
-}
-void ClickableR::deactivate()
-{
-	GH.rclickable.erase(std::find(GH.rclickable.begin(),GH.rclickable.end(),this));
-}
-//ClickableR
-
-Hoverable::~Hoverable()
-{}
-
-void Hoverable::activate()
-{
-	GH.hoverable.push_front(this);
-}
-
-void Hoverable::deactivate()
-{
-	GH.hoverable.erase(std::find(GH.hoverable.begin(),GH.hoverable.end(),this));
-}
-void Hoverable::hover(bool on)
-{
-	hovered=on;
-}
-//Hoverable
-
-KeyInterested::~KeyInterested()
-{}
-
-void KeyInterested::activate()
-{
-	GH.keyinterested.push_front(this);
-}
-
-void KeyInterested::deactivate()
-{
-	GH.keyinterested.erase(std::find(GH.keyinterested.begin(),GH.keyinterested.end(),this));
-}
-//KeyInterested
-
-void MotionInterested::activate()
-{
-	GH.motioninterested.push_front(this);
-}
-
-void MotionInterested::deactivate()
-{
-	GH.motioninterested.erase(std::find(GH.motioninterested.begin(),GH.motioninterested.end(),this));
-}
-
-void TimeInterested::activate()
-{
-	GH.timeinterested.push_back(this);
-}
-
-void TimeInterested::deactivate()
-{
-	GH.timeinterested.erase(std::find(GH.timeinterested.begin(),GH.timeinterested.end(),this));
 }
 
 void CGuiHandler::popInt( IShowActivable *top )
@@ -238,8 +136,8 @@ void CGuiHandler::totalRedraw()
 void CGuiHandler::updateTime()
 {
 	int tv = th.getDif();
-	std::list<TimeInterested*> hlp = timeinterested;
-	for (std::list<TimeInterested*>::iterator i=hlp.begin(); i != hlp.end();i++)
+	std::list<CIntObject*> hlp = timeinterested;
+	for (std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
 	{
 		if(!vstd::contains(timeinterested,*i)) continue;
 		if ((*i)->toNextTick>=0)
@@ -274,6 +172,7 @@ void CGuiHandler::handleEvents()
 void CGuiHandler::handleEvent(SDL_Event *sEvent)
 {
 	current = sEvent;
+	bool prev;
 
 	if (sEvent->type==SDL_KEYDOWN || sEvent->type==SDL_KEYUP)
 	{
@@ -290,7 +189,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		}
 
 		bool keysCaptured = false;
-		for(std::list<KeyInterested*>::iterator i=keyinterested.begin(); i != keyinterested.end();i++)
+		for(std::list<CIntObject*>::iterator i=keyinterested.begin(); i != keyinterested.end();i++)
 		{
 			if((*i)->captureAllKeys)
 			{
@@ -299,8 +198,8 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			}
 		}
 
-		std::list<KeyInterested*> miCopy = keyinterested;
-		for(std::list<KeyInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
+		std::list<CIntObject*> miCopy = keyinterested;
+		for(std::list<CIntObject*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
 			if(vstd::contains(keyinterested,*i) && (!keysCaptured || (*i)->captureAllKeys))
 				(**i).keyPressed(key);
 	}
@@ -311,54 +210,62 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
-		std::list<ClickableL*> hlp = lclickable;
-		for(std::list<ClickableL*>::iterator i=hlp.begin(); i != hlp.end();i++)
+		std::list<CIntObject*> hlp = lclickable;
+		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
 			if(!vstd::contains(lclickable,*i)) continue;
 			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 			{
-				(*i)->clickLeft(true);
+				prev = (*i)->pressedL;
+				(*i)->pressedL = true;
+				(*i)->clickLeft(true, prev);
 			}
 		}
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_LEFT))
 	{
-		std::list<ClickableL*> hlp = lclickable;
-		for(std::list<ClickableL*>::iterator i=hlp.begin(); i != hlp.end();i++)
+		std::list<CIntObject*> hlp = lclickable;
+		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
 			if(!vstd::contains(lclickable,*i)) continue;
+			prev = (*i)->pressedL;
+			(*i)->pressedL = false;
 			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 			{
-				(*i)->clickLeft(false);
+				(*i)->clickLeft(false, prev);
 			}
 			else
-				(*i)->clickLeft(boost::logic::indeterminate);
+				(*i)->clickLeft(boost::logic::indeterminate, prev);
 		}
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{
-		std::list<ClickableR*> hlp = rclickable;
-		for(std::list<ClickableR*>::iterator i=hlp.begin(); i != hlp.end();i++)
+		std::list<CIntObject*> hlp = rclickable;
+		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
 			if(!vstd::contains(rclickable,*i)) continue;
 			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 			{
-				(*i)->clickRight(true);
+				prev = (*i)->pressedR;
+				(*i)->pressedR = true;
+				(*i)->clickRight(true, prev);
 			}
 		}
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
 	{
-		std::list<ClickableR*> hlp = rclickable;
-		for(std::list<ClickableR*>::iterator i=hlp.begin(); i != hlp.end();i++)
+		std::list<CIntObject*> hlp = rclickable;
+		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
 		{
 			if(!vstd::contains(rclickable,*i)) continue;
+			prev = (*i)->pressedR;
+			(*i)->pressedR = false;
 			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 			{
-				(*i)->clickRight(false);
+				(*i)->clickRight(false, prev);
 			}
 			else
-				(*i)->clickRight(boost::logic::indeterminate);
+				(*i)->clickRight(boost::logic::indeterminate, prev);
 		}
 	}
 	current = NULL;
@@ -368,8 +275,8 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 {
 	//sending active, hovered hoverable objects hover() call
-	std::vector<Hoverable*> hlp;
-	for(std::list<Hoverable*>::iterator i=hoverable.begin(); i != hoverable.end();i++)
+	std::vector<CIntObject*> hlp;
+	for(std::list<CIntObject*>::iterator i=hoverable.begin(); i != hoverable.end();i++)
 	{
 		if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 		{
@@ -379,14 +286,19 @@ void CGuiHandler::handleMouseMotion(SDL_Event *sEvent)
 		else if ((*i)->hovered)
 		{
 			(*i)->hover(false);
+			(*i)->hovered = false;
 		}
 	}
 	for(int i=0; i<hlp.size();i++)
+	{
 		hlp[i]->hover(true);
+		hlp[i]->hovered = true;
+	}
+
 
 	//sending active, MotionInterested objects mouseMoved() call
-	std::list<MotionInterested*> miCopy = motioninterested;
-	for(std::list<MotionInterested*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
+	std::list<CIntObject*> miCopy = motioninterested;
+	for(std::list<CIntObject*>::iterator i=miCopy.begin(); i != miCopy.end();i++)
 	{
 		if ((*i)->strongInterest || isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
 		{
@@ -401,4 +313,132 @@ void CGuiHandler::simpleRedraw()
 	if(objsToBlit.size() > 1)
 		blitAt(screen2,0,0,screen); //blit background
 	objsToBlit.back()->show(screen); //blit active interface/window
+}
+
+void CIntObject::activateLClick()
+{
+	GH.lclickable.push_front(this);
+	active |= LCLICK;
+}
+
+void CIntObject::deactivateLClick()
+{
+	std::list<CIntObject*>::iterator hlp = std::find(GH.lclickable.begin(),GH.lclickable.end(),this);
+	assert(hlp != GH.lclickable.end());
+	GH.lclickable.erase(hlp);
+	active &= ~LCLICK;
+}
+
+void CIntObject::clickLeft(tribool down, bool previousState)
+{
+}
+
+void CIntObject::activateRClick()
+{
+	GH.rclickable.push_front(this);
+	active |= RCLICK;
+}
+
+void CIntObject::deactivateRClick()
+{
+	std::list<CIntObject*>::iterator hlp = std::find(GH.rclickable.begin(),GH.rclickable.end(),this);
+	assert(hlp != GH.rclickable.end());
+	GH.rclickable.erase(hlp);
+	active &= ~RCLICK;
+}
+
+void CIntObject::clickRight(tribool down, bool previousState)
+{
+}
+
+void CIntObject::activateHover()
+{
+	GH.hoverable.push_front(this);
+	active |= HOVER;
+}
+
+void CIntObject::deactivateHover()
+{
+	std::list<CIntObject*>::iterator hlp = std::find(GH.hoverable.begin(),GH.hoverable.end(),this);
+	assert(hlp != GH.hoverable.end());
+	GH.hoverable.erase(hlp);
+	active &= ~HOVER;
+}
+
+void CIntObject::hover( bool on )
+{
+}
+
+void CIntObject::activateKeys()
+{
+	GH.keyinterested.push_front(this);
+	active |= KEYBOARD;
+}
+
+void CIntObject::deactivateKeys()
+{
+	std::list<CIntObject*>::iterator hlp = std::find(GH.keyinterested.begin(),GH.keyinterested.end(),this);
+	assert(hlp != GH.keyinterested.end());
+	GH.keyinterested.erase(hlp);
+	active &= ~KEYBOARD;
+}
+
+void CIntObject::keyPressed( const SDL_KeyboardEvent & key )
+{
+}
+
+void CIntObject::activateMouseMove()
+{
+	GH.motioninterested.push_front(this);
+	active |= MOVE;
+}
+
+void CIntObject::deactivateMouseMove()
+{
+	std::list<CIntObject*>::iterator hlp = std::find(GH.motioninterested.begin(),GH.motioninterested.end(),this);
+	assert(hlp != GH.motioninterested.end());
+	GH.motioninterested.erase(hlp);
+	active &= ~MOVE;
+}
+
+void CIntObject::mouseMoved( const SDL_MouseMotionEvent & sEvent )
+{
+}
+
+void CIntObject::activateTimer()
+{
+	GH.timeinterested.push_back(this);
+	active |= TIME;
+}
+
+void CIntObject::deactivateTimer()
+{
+	std::list<CIntObject*>::iterator hlp = std::find(GH.timeinterested.begin(),GH.timeinterested.end(),this);
+	assert(hlp != GH.timeinterested.end());
+	GH.timeinterested.erase(hlp);
+	active &= ~TIME;
+}
+
+void CIntObject::tick()
+{
+}
+
+CIntObject::CIntObject()
+{
+	pressedL = pressedR = hovered = captureAllKeys = strongInterest = toNextTick = active = defActivation = 0;
+}
+
+void CIntObject::show( SDL_Surface * to )
+{
+
+}
+
+void CIntObject::activate()
+{
+
+}
+
+void CIntObject::deactivate()
+{
+
 }

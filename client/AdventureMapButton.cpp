@@ -60,7 +60,7 @@ AdventureMapButton::AdventureMapButton( const std::pair<std::string, std::string
 	pom[0] = help.first;
 	init(Callback, pom, help.second, playerColoredButton, defName, add, x, y, key);
 }
-void AdventureMapButton::clickLeft (boost::logic::tribool down)
+void AdventureMapButton::clickLeft(tribool down, bool previousState)
 {
 	if(blocked)
 		return;
@@ -71,23 +71,15 @@ void AdventureMapButton::clickLeft (boost::logic::tribool down)
 	show(screenBuf);
 	if (actOnDown && down)
 	{
-		pressedL=state;
-		//if(!callback.empty())
-			callback();
+		callback();
 	}
-	else if (!actOnDown && pressedL && (down==false))
+	else if (!actOnDown && previousState && (down==false))
 	{
-		pressedL=state;
-		//if(!callback.empty())
-			callback();
-	}
-	else
-	{
-		pressedL=state;
+		callback();
 	}
 }
 
-void AdventureMapButton::clickRight (boost::logic::tribool down)
+void AdventureMapButton::clickRight(tribool down, bool previousState)
 {
 	if(helpBox.size()) //there is no point to show window with nothing inside...
 		LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);
@@ -95,7 +87,7 @@ void AdventureMapButton::clickRight (boost::logic::tribool down)
 
 void AdventureMapButton::hover (bool on)
 {
-	Hoverable::hover(on);
+	////Hoverable::hover(on);
 	std::string *name = (vstd::contains(hoverTexts,state)) 
 							? (&hoverTexts[state]) 
 							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
@@ -128,19 +120,19 @@ void AdventureMapButton::activate()
 {
 	if (active) return;
 	active=true;
-	ClickableL::activate();
-	ClickableR::activate();
-	Hoverable::activate();
-	KeyInterested::activate();
+	activateLClick();
+	activateRClick();
+	activateHover();
+	activateKeys();
 }
 void AdventureMapButton::deactivate()
 {
 	if (!active) return;
 	active=false;
-	ClickableL::deactivate();
-	ClickableR::deactivate();
-	Hoverable::deactivate();
-	KeyInterested::deactivate();
+	deactivateLClick();
+	deactivateRClick();
+	deactivateHover();
+	deactivateKeys();
 }
 
 void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key)
@@ -216,7 +208,7 @@ void CHighlightableButton::select(bool on)
 	}
 }
 
-void CHighlightableButton::clickLeft( tribool down )
+void CHighlightableButton::clickLeft(tribool down, bool previousState)
 {
 	if(blocked)
 		return;
@@ -225,15 +217,10 @@ void CHighlightableButton::clickLeft( tribool down )
 	else
 		state = selected ? 3 : 0;
 	show(screenBuf);
-	if (pressedL && (down==false))
+	if(previousState  &&  down == false)
 	{
-		pressedL=state;
 		if(!onlyOn || !selected)
 			select(!selected);
-	}
-	else
-	{
-		pressedL=state;
 	}
 }
 
@@ -328,7 +315,7 @@ void CSlider::sliderClicked()
 {
 	if(!moving)
 	{
-		MotionInterested::activate();
+		activateMouseMove();
 		moving = true;
 	}
 }
@@ -386,7 +373,7 @@ void CSlider::activate() // makes button active
 	left.activate();
 	right.activate();
 	slider.activate();
-	ClickableL::activate();
+	activateLClick();
 }
 
 void CSlider::deactivate() // makes button inactive (but doesn't delete)
@@ -394,10 +381,10 @@ void CSlider::deactivate() // makes button inactive (but doesn't delete)
 	left.deactivate();
 	right.deactivate();
 	slider.deactivate();
-	ClickableL::deactivate();
+	deactivateLClick();
 }
 
-void CSlider::clickLeft (tribool down)
+void CSlider::clickLeft(tribool down, bool previousState)
 {
 	if(down)
 	{
@@ -410,7 +397,7 @@ void CSlider::clickLeft (tribool down)
 	}
 	if(moving)
 	{
-		MotionInterested::deactivate();
+		deactivateMouseMove();
 		moving = false;
 	}
 }

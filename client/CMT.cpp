@@ -442,12 +442,7 @@ void dispose()
 }
 
 static void setScreenRes(int w, int h, int bpp, bool fullscreen)
-{
-	if(screen) //screen has been already initialized
-		SDL_QuitSubSystem(SDL_INIT_VIDEO);
-
-	SDL_InitSubSystem(SDL_INIT_VIDEO);
-
+{	
 	// VCMI will only work with 3 or 4 bytes per pixel
 	if (bpp < 24) bpp = 24;
 	if (bpp > 32) bpp = 32;
@@ -456,13 +451,21 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	int suggestedBpp = SDL_VideoModeOK(w, h, bpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0));
 	if(suggestedBpp == 0)
 	{
-		tlog2 << "Warning: SDL says that " << w << "x" << h << " resolution is not available!\n";
-		suggestedBpp = bpp;
+		tlog1 << "Error: SDL says that " << w << "x" << h << " resolution is not available!\n";
+		return;
 	}
-	else if(suggestedBpp != bpp)
+	
+	if(suggestedBpp != bpp)
 	{
 		tlog2 << "Warning: SDL says that "  << bpp << "bpp is wrong and suggests " << suggestedBpp << std::endl;
 	}
+
+	if(screen) //screen has been already initialized
+		SDL_QuitSubSystem(SDL_INIT_VIDEO);
+
+	SDL_InitSubSystem(SDL_INIT_VIDEO);
+
+
 
 	
 	if((screen = SDL_SetVideoMode(w, h, suggestedBpp, SDL_SWSURFACE|(fullscreen?SDL_FULLSCREEN:0))) == NULL)

@@ -25,8 +25,7 @@ class CHeroWindow;
  *
  */
 
-class CMinimap
-	: public ClickableL, public ClickableR, public Hoverable, public MotionInterested, public virtual CIntObject
+class CMinimap : public CIntObject
 {
 public:
 	SDL_Surface * radar;
@@ -38,6 +37,7 @@ public:
 
 	CMinimap(bool draw=true);
 	~CMinimap();
+	void show(SDL_Surface * to);
 	void draw(SDL_Surface * to);
 	void redraw(int level=-1);// (level==-1) => redraw all levels
 	void initMap(int level=-1);// (level==-1) => redraw all levels
@@ -46,8 +46,8 @@ public:
 
 	void updateRadar();
 
-	void clickRight (boost::logic::tribool down);
-	void clickLeft (boost::logic::tribool down);
+	void clickRight(tribool down, bool previousState);
+	void clickLeft(tribool down, bool previousState);
 	void hover (bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void activate(); // makes button active
@@ -57,7 +57,7 @@ public:
 	void showVisibleTiles(int level=-1);// (level==-1) => redraw all levels
 };
 class CTerrainRect
-	:  public ClickableL, public ClickableR, public Hoverable, public MotionInterested
+	:  public CIntObject
 {
 public:
 	int tilesw, tilesh; //width and height of terrain to blit in tiles
@@ -70,8 +70,8 @@ public:
 	CPath * currentPath;
 	void activate();
 	void deactivate();
-	void clickLeft(boost::logic::tribool down);
-	void clickRight(boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
 	void hover(bool on);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void show(SDL_Surface * to);
@@ -80,14 +80,14 @@ public:
 	int3 whichTileIsIt(); //uses current cursor pos
 };
 class CResDataBar
-	:public ClickableR, public virtual CIntObject
+	: public CIntObject
 {
 public:
 	SDL_Surface * bg;
 	std::vector<std::pair<int,int> > txtpos;
 	std::string datetext;
 
-	void clickRight (boost::logic::tribool down);
+	void clickRight(tribool down, bool previousState);
 	void activate();
 	void deactivate();
 	CResDataBar();
@@ -95,9 +95,9 @@ public:
 	~CResDataBar();
 
 	void draw(SDL_Surface * to);
+	void show(SDL_Surface * to);
 };
-class CInfoBar
-	:public virtual CIntObject, public TimeInterested
+class CInfoBar : public CIntObject
 {
 public:
 	CDefHandler *day, *week1, *week2, *week3, *week4;
@@ -113,9 +113,10 @@ public:
 	void draw(SDL_Surface * to, const CGObjectInstance * specific=NULL); // if specific==0 function draws info about selected hero/town
 	void blitAnim(int mode);//0 - day, 1 - week
 	CDefHandler * getAnim(int mode);
+	void show(SDL_Surface * to);
 };
 /*****************************/
-class CAdvMapInt : public CMainInterface, public KeyInterested, public MotionInterested //adventure map interface
+class CAdvMapInt : public CIntObject //adventure map interface
 {
 public:
 	CAdvMapInt(int Player);
@@ -183,7 +184,7 @@ public:
 	void selectionChanged();
 	void centerOn(int3 on);
 	int3 verifyPos(int3 ver);
-	void handleRightClick(std::string text, boost::logic::tribool down, CIntObject * client);
+	void handleRightClick(std::string text, tribool down, CIntObject * client);
 	void keyPressed(const SDL_KeyboardEvent & key);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 };

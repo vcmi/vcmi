@@ -258,31 +258,87 @@ public:
 	virtual ~IShowActivable(){}; //d-tor
 };
 
-class CWindowWithGarrison : public IShowActivable
+class CIntObject : public IShowActivable //interface object
+{
+public:
+	CIntObject *parent; //parent object
+	std::vector<CIntObject *> children;
+
+	Rect pos, //position of object on the screen
+		posRelative; //position of object in the parent (not used if no parent)
+
+	int ID; //object ID, rarely used by some classes for identification / internal info
+
+	CIntObject();
+	virtual ~CIntObject(){}; //d-tor
+
+	//l-clicks handling
+	bool pressedL; //for determining if object is L-pressed
+	void activateLClick();
+	void deactivateLClick();
+	virtual void clickLeft(tribool down, bool previousState);
+
+	//r-clicks handling
+	bool pressedR; //for determining if object is R-pressed
+	void activateRClick();
+	void deactivateRClick();
+	virtual void clickRight(tribool down, bool previousState);
+
+	//hover handling
+	bool hovered;  //for determining if object is hovered
+	void activateHover();
+	void deactivateHover();
+	virtual void hover (bool on);
+
+	//keyboard handling
+	bool captureAllKeys; //if true, only this object should get info about pressed keys
+	void activateKeys();
+	void deactivateKeys();
+	virtual void keyPressed(const SDL_KeyboardEvent & key);
+
+	//mouse movement handling
+	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
+	void activateMouseMove();
+	void deactivateMouseMove();
+	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent);
+
+	//time handling
+	int toNextTick;
+	void activateTimer();
+	void deactivateTimer();
+	virtual void tick();
+
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32};
+	ui8 active;
+	ui8 defActivation;
+
+	void defActivate();
+	void defDeactivate();
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to);
+};
+
+//class for binding keys to left mouse button clicks
+//classes wanting use it should have it as one of their base classes
+class KeyShortcut : public virtual CIntObject
+{
+public:
+	std::set<int> assignedKeys;
+	KeyShortcut(){}; //c-tor
+	KeyShortcut(int key){assignedKeys.insert(key);}; //c-tor
+	KeyShortcut(std::set<int> Keys):assignedKeys(Keys){}; //c-tor
+	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
+};
+
+class CWindowWithGarrison : public CIntObject
 {
 public:
 	CGarrisonInt *garr;
 	CWindowWithGarrison();
 };
 
-class CMainInterface : public IShowActivable
-{
-public:
-	IShowActivable *subInt;
-};
-class CIntObject //interface object
-{
-public:
-	Rect pos; //position of object on the screen
-	int ID; //object unique ID, rarely (if at all) used
-
-	//virtual bool isIn(int x, int y)
-	//{
-	//	return pos.isIn(x,y);
-	//}
-	virtual ~CIntObject(){}; //d-tor
-};
-class CSimpleWindow : public IShowActivable, public virtual CIntObject
+class CSimpleWindow : public CIntObject
 {
 public:
 	SDL_Surface * bitmap; //background
@@ -293,7 +349,8 @@ public:
 	void activate(){};
 	void deactivate(){};
 };
-class CButtonBase : public virtual CIntObject, public IShowable, public IActivable //basic buttton class
+
+class CButtonBase : public KeyShortcut//basic buttton class
 {
 public:
 	int bitmapOffset; //TODO: comment me
@@ -311,78 +368,6 @@ public:
 	CButtonBase(); //c-tor
 	virtual ~CButtonBase(); //d-tor
 };
-class ClickableL : public virtual CIntObject  //for left-clicks
-{
-public:
-	bool pressedL; //for determining if object is L-pressed
-	ClickableL(); //c-tor
-	virtual ~ClickableL();//{};//d-tor
-	virtual void clickLeft (boost::logic::tribool down)=0;
-	virtual void activate();
-	virtual void deactivate();
-};
-class ClickableR : public virtual CIntObject //for right-clicks
-{
-public:
-	bool pressedR; //for determining if object is R-pressed
-	ClickableR(); //c-tor
-	virtual ~ClickableR();//{};//d-tor
-	virtual void clickRight (boost::logic::tribool down)=0;
-	virtual void activate()=0;
-	virtual void deactivate()=0;
-};
-class Hoverable  : public virtual CIntObject
-{
-public:
-	Hoverable() : hovered(false){} //c-tor
-	virtual ~Hoverable();//{}; //d-tor
-	bool hovered;  //for determining if object is hovered
-	virtual void hover (bool on)=0;
-	virtual void activate()=0;
-	virtual void deactivate()=0;
-};
-class KeyInterested : public virtual CIntObject
-{	
-public:
-	bool captureAllKeys; //if true, only this object should get info about pressed keys
-	KeyInterested(): captureAllKeys(false){}
-	virtual ~KeyInterested();//{};//d-tor
-	virtual void keyPressed(const SDL_KeyboardEvent & key)=0;
-	virtual void activate()=0;
-	virtual void deactivate()=0;
-};
-
-//class for binding keys to left mouse button clicks
-//classes wanting use it should have it as one of their base classes
-class KeyShortcut : public KeyInterested, public ClickableL
-{
-public:
-	std::set<int> assignedKeys;
-	KeyShortcut(){}; //c-tor
-	KeyShortcut(int key){assignedKeys.insert(key);}; //c-tor
-	KeyShortcut(std::set<int> Keys):assignedKeys(Keys){}; //c-tor
-	virtual void keyPressed(const SDL_KeyboardEvent & key); //call-in
-};
-
-class MotionInterested: public virtual CIntObject
-{
-public:
-	bool strongInterest; //if true - report all mouse movements, if not - only when hovered
-	MotionInterested(){strongInterest=false;};
-	virtual ~MotionInterested(){};//d-tor
-	virtual void mouseMoved (const SDL_MouseMotionEvent & sEvent)=0;
-	virtual void activate()=0;
-	virtual void deactivate()=0;
-};
-class TimeInterested: public virtual CIntObject
-{
-public:
-	virtual ~TimeInterested(){}; //d-tor
-	int toNextTick;
-	virtual void tick()=0;
-	virtual void activate();
-	virtual void deactivate();
-};
 
 class CGuiHandler
 {
@@ -391,12 +376,12 @@ public:
 	std::list<IShowActivable *> listInt; //list of interfaces - front=foreground; back = background (includes adventure map, window interfaces, all kind of active dialogs, and so on)
 
 	//active GUI elements (listening for events
-	std::list<ClickableL*> lclickable;
-	std::list<ClickableR*> rclickable;
-	std::list<Hoverable*> hoverable;
-	std::list<KeyInterested*> keyinterested;
-	std::list<MotionInterested*> motioninterested;
-	std::list<TimeInterested*> timeinterested;
+	std::list<CIntObject*> lclickable;
+	std::list<CIntObject*> rclickable;
+	std::list<CIntObject*> hoverable;
+	std::list<CIntObject*> keyinterested;
+	std::list<CIntObject*> motioninterested;
+	std::list<CIntObject*> timeinterested;
 
 	//objs to blit
 	std::vector<IShowable*> objsToBlit;

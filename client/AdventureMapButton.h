@@ -19,8 +19,7 @@ class CDefEssential;
 
 namespace config{struct ButtonInfo;}
 
-class AdventureMapButton 
-	: public ClickableR, public Hoverable, public KeyShortcut, public CButtonBase
+class AdventureMapButton : public CButtonBase
 {
 public:
 	std::map<int,std::string> hoverTexts; //state -> text for statusbar
@@ -30,8 +29,8 @@ public:
 		actOnDown; //runs when mouse is pressed down over it, not when up
 	ui8 blocked;
 
-	void clickRight (boost::logic::tribool down);
-	virtual void clickLeft (boost::logic::tribool down);
+	void clickRight(tribool down, bool previousState);
+	virtual void clickLeft(tribool down, bool previousState);
 	void hover (bool on);
 	void block(ui8 on); //if button is blocked then it'll change it's graphic to inactive (offset==2) and won't react on l-clicks
 	void activate(); // makes button active
@@ -55,7 +54,7 @@ public:
 	bool selected, onlyOn;
 	CFunctionList<void()> callback2; //when disselecting
 	void select(bool on);
-	void clickLeft (boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
 };
 
 class CHighlightableButtonsGroup
@@ -78,7 +77,7 @@ public:
 };
 
 
-class CSlider : public IShowable, public MotionInterested, public ClickableL
+class CSlider : public CIntObject
 {
 public:
 	AdventureMapButton left, right, slider; //if vertical then left=up
@@ -96,7 +95,7 @@ public:
 
 	void sliderClicked();
 	void moveLeft();
-	void clickLeft (boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
 	void mouseMoved (const SDL_MouseMotionEvent & sEvent);
 	void moveRight();
 	void moveTo(int to);

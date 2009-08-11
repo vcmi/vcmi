@@ -22,7 +22,7 @@ struct SDL_Rect;
 class CGHeroInstance;
 class CStatusBar;
 
-class SpellbookInteractiveArea : public ClickableL, public ClickableR, public Hoverable
+class SpellbookInteractiveArea : public CIntObject
 {
 private:
 	boost::function<void()> onLeft;
@@ -30,8 +30,8 @@ private:
 	boost::function<void()> onHoverOn;
 	boost::function<void()> onHoverOff;
 public:
-	void clickLeft(boost::logic::tribool down);
-	void clickRight(boost::logic::tribool down);
+	void clickLeft(tribool down, bool previousState);
+	void clickRight(tribool down, bool previousState);
 	void hover(bool on);
 	void activate();
 	void deactivate();
@@ -39,18 +39,18 @@ public:
 	SpellbookInteractiveArea(const SDL_Rect & myRect, boost::function<void()> funcL, const std::string & textR, boost::function<void()> funcHon, boost::function<void()> funcHoff);//c-tor
 };
 
-class CSpellWindow : public IShowActivable, public KeyInterested
+class CSpellWindow : public CIntObject
 {
 private:
-	class SpellArea : public ClickableL, public ClickableR, public Hoverable
+	class SpellArea : public CIntObject
 	{
 	public:
 		int mySpell;
 		CSpellWindow * owner;
 
 		SpellArea(SDL_Rect pos, CSpellWindow * owner);
-		void clickLeft(boost::logic::tribool down);
-		void clickRight(boost::logic::tribool down);
+		void clickLeft(tribool down, bool previousState);
+		void clickRight(tribool down, bool previousState);
 		void hover(bool on);
 		void activate();
 		void deactivate();
