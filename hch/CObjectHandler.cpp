@@ -39,8 +39,8 @@ DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mod
 extern CLodHandler * bitmaph;
 extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
-std::map <si32, std::vector<CGMagi>> CGMagi::eyelist;
-std::map <ui32, std::vector <BankConfig>> banksInfo; //[index][preset], TODO: load it
+std::map <si32, std::vector<CGMagi> > CGMagi::eyelist;
+std::map <ui32, std::vector <BankConfig> > banksInfo; //[index][preset], TODO: load it
 
 struct BankConfig
 {
@@ -48,10 +48,10 @@ struct BankConfig
 	//std::string name;
 	ui8 chance;
 	ui8 upgradeChance;
-	std::vector< std::pair <ui16, ui32>> guards;
+	std::vector< std::pair <ui16, ui32> > guards;
 	ui32 combatValue;
 	std::map<ui8, si32> resources;
-	std::vector< std::pair <ui16, ui32>> creatures;
+	std::vector< std::pair <ui16, ui32> > creatures;
 	std::map<ui8, ui16> artifacts;
 	ui32 value;
 	ui32 rewardDifficulty; //?
@@ -3582,7 +3582,7 @@ void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const
 				break;
 			case 4:
 			{
-				std::vector< std::pair <ui16, ui32>>::const_iterator it;
+				std::vector< std::pair <ui16, ui32> >::const_iterator it;
 				for (it = bc->guards.begin(); it != bc->guards.end(); it++)
 					ourArmy.setCreature (ourArmy.slots.size() + 1, it->first, it->second );
 			}
@@ -3644,7 +3644,7 @@ void CBank::endBattle (const BattleResult *result)
 			cb->giveHeroArtifact (*it, cb->getSelectedHero() ,-2);
 		}
 		CCreatureSet ourArmy;
-		for (std::vector< std::pair <ui16, ui32>>::iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
+		for (std::vector< std::pair <ui16, ui32> >::iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
 		{
 			int slot = ourArmy.getSlotFor (it->second);
 			ourArmy.slots[slot] = *it; //assuming we're not going to add multiple stacks of same creature

@@ -18,7 +18,7 @@ class CCreature;
 class CCreatureSet //seven combined creatures
 {
 public:
-	std::map<si32, std::pair<ui32,si32>> slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
+	std::map<si32, std::pair<ui32,si32> > slots; //slots[slot_id]=> pair(creature_id,creature_quantity)
 	bool formation; //false - wide, true - tight
 	bool setCreature (si32 slot, ui32 type, si32 quantity) //slots 1 to 7
 	{

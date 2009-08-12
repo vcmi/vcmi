@@ -896,7 +896,7 @@ public:
 class DLL_EXPORT CGMagi : public CGObjectInstance
 {
 public:
-	static std::map <si32, std::vector<CGMagi>> eyelist; //[subID][id], supports multiple sets as in H5
+	static std::map <si32, std::vector<CGMagi> > eyelist; //[subID][id], supports multiple sets as in H5
 
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
