@@ -365,8 +365,10 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 					std::set<HeroObjective>::iterator found = currentHeroObjectives.find(ho);
 					if(found==currentHeroObjectives.end())
 						currentHeroObjectives.insert(ho);
-					else
-						found->whoCanAchieve.push_back(&h);
+					else {
+						HeroObjective *objective = (HeroObjective *)&(*found);
+						objective->whoCanAchieve.push_back(&h);
+					}
 				}
 
 				// find the most interesting object that is eventually reachable, and set that position to the ultimate goal position
@@ -723,9 +725,9 @@ void CGeniusAI::fillObjectiveQueue(HypotheticalGameState & hgs)
 	for(std::vector <CGeniusAI::HypotheticalGameState::TownModel>::iterator i = hgs.townModels.begin(); i != hgs.townModels.end(); i++)
 		addTownObjectives(*i,hgs);
 	for(std::set<CGeniusAI::HeroObjective>::iterator i = currentHeroObjectives.begin(); i != currentHeroObjectives.end(); i++)
-		objectiveQueue.push_back(AIObjectivePtrCont(&(*i)));
+		objectiveQueue.push_back(AIObjectivePtrCont((CGeniusAI::HeroObjective *)&(*i)));
 	for(std::set<CGeniusAI::TownObjective>::iterator i = currentTownObjectives.begin(); i != currentTownObjectives.end(); i++)
-		objectiveQueue.push_back(AIObjectivePtrCont(&(*i)));
+		objectiveQueue.push_back(AIObjectivePtrCont((CGeniusAI::TownObjective *)&(*i)));
 }
 CGeniusAI::AIObjective * CGeniusAI::getBestObjective()
 {
