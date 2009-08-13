@@ -157,7 +157,7 @@ public:
 	void heroBonusChanged(const CGHeroInstance *hero, const HeroBonus &bonus, bool gain);//if gain hero received bonus, else he lost it
 	void requestRealized(PackageApplied *pa);
 	void heroExchangeStarted(si32 hero1, si32 hero2);
-	void centerView (int3 pos);
+	void centerView (int3 pos, int focusTime);
 	void objectPropertyChanged(const SetObjectProperty * sop);
 	void objectRemoved(const CGObjectInstance *obj);
 	void serialize(COSer<CSaveFile> &h, const int version); //saving

@@ -404,14 +404,14 @@ ui64 CHeroHandler::reqExp(unsigned int level)
 	}
 	else
 	{
-		ui64 exp = expPerLevel[expPerLevel.size()-1];
-		level-=(expPerLevel.size()-1);
-		while(level>0)
-		{
-			--level;
-			exp*=1.2;
-		}
-		return exp;
+		//ui64 exp = expPerLevel[expPerLevel.size()-1];
+		//level-=(expPerLevel.size()-1);
+		//while(level>0)
+		//{
+		//	--level;
+		//	exp*=1.2;
+		//}
+		//return exp;
 		return reqExp(level - 1) + (reqExp(level - 1) - reqExp(level - 2)) * 1.2; //inefficient but follows exactly H3 values
 	}
 }

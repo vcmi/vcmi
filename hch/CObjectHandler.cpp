@@ -39,24 +39,8 @@ DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mod
 extern CLodHandler * bitmaph;
 extern boost::rand48 ran;
 std::map <ui8, std::set <ui8> > CGKeys::playerKeyMap;
-std::map <si32, std::vector<CGMagi> > CGMagi::eyelist;
-std::map <ui32, std::vector <BankConfig> > banksInfo; //[index][preset], TODO: load it
+std::map <si32, std::vector<si32> > CGMagi::eyelist;
 
-struct BankConfig
-{
-	BankConfig() {chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };
-	//std::string name;
-	ui8 chance;
-	ui8 upgradeChance;
-	std::vector< std::pair <ui16, ui32> > guards;
-	ui32 combatValue;
-	std::map<ui8, si32> resources;
-	std::vector< std::pair <ui16, ui32> > creatures;
-	std::map<ui8, ui16> artifacts;
-	ui32 value;
-	ui32 rewardDifficulty; //?
-	ui16 easiest; //?
-};
 
 void IObjectInterface::onHeroVisit(const CGHeroInstance * h) const 
 {};
@@ -92,22 +76,25 @@ bool CPlayersVisited::hasVisited( ui8 player ) const
 
 void CObjectHandler::loadObjects()
 {
-	tlog5 << "\t\tReading cregens \n";
-	cregens.resize(110); //TODO: hardcoded value - change
-	for(size_t i=0; i < cregens.size(); ++i)
 	{
-		cregens[i]=-1;
+		tlog5 << "\t\tReading cregens \n";
+		cregens.resize(110); //TODO: hardcoded value - change
+		for(size_t i=0; i < cregens.size(); ++i)
+		{
+			cregens[i]=-1;
+		}
+		std::ifstream ifs("config/cregens.txt");
+		while(!ifs.eof())
+		{
+			int dw, cr;
+			ifs >> dw >> cr;
+			cregens[dw]=cr;
+		}
+		tlog5 << "\t\tDone loading objects!\n";
 	}
-	std::ifstream ifs("config/cregens.txt");
-	while(!ifs.eof())
-	{
-		int dw, cr;
-		ifs >> dw >> cr;
-		cregens[dw]=cr;
-	}
-	ifs.close();
-	ifs.clear();
-	tlog5 << "\t\tDone loading objects!\n";
+
+	std::string banksConfig = bitmaph->getTextFile("ZCRBANK.TXT");
+	//TODO: parse to banksInfo
 }
 int CGObjectInstance::getOwner() const
 {
@@ -3429,6 +3416,16 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 			iw.text.addReplacement(MetaString::ART_NAMES, bonusType);
 
 			cb->giveHeroArtifact(bonusType,h->id,-2);
+		}		
+		
+		if(!h->getBonus(HeroBonus::OBJECT,ID)) //we don't have modifier from this object yet
+		{
+			//ruin morale 
+			GiveBonus gb;
+			gb.hid = h->id;
+			gb.bonus = HeroBonus(HeroBonus::ONE_BATTLE,HeroBonus::MORALE,HeroBonus::OBJECT,-3,id,"");
+			gb.bdescr.addTxt(MetaString::ARRAY_TXT,104); //Warrior Tomb Visited -3
+			cb->giveHeroBonus(&gb);
 		}
 	}
 }
@@ -3458,9 +3455,9 @@ void CBank::reset()
 
 	int val1 = ran()%100;
 	int chance = 0;
-	for (ui8 i = 1; i <= banksInfo[index].size(); i++)
+	for (ui8 i = 1; i <= VLC->objh->banksInfo[index].size(); i++)
 	{
-		if (val1 < (chance += banksInfo[index][i].chance))
+		if (val1 < (chance += VLC->objh->banksInfo[index][i].chance))
 			cb->setObjProperty (id, 13, i);
 	}
 	artifacts.clear();
@@ -3482,7 +3479,7 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			multiplier *= ((float)val)/100;
 			break;
 		case 13: //bank preset
-			bc = &banksInfo[index][val];
+			bc = &VLC->objh->banksInfo[index][val];
 			break;
 		case 18: //Artifacts
 		{
@@ -3752,7 +3749,7 @@ void CGMagi::initObj()
 	if (ID == 27)
 	{
 		blockVisit = true;
-		eyelist[subID].push_back (*this);
+		eyelist[subID].push_back(id);
 	}
 }
 void CGMagi::onHeroVisit(const CGHeroInstance * h) const
@@ -3770,18 +3767,18 @@ void CGMagi::onHeroVisit(const CGHeroInstance * h) const
 		cb->showInfoDialog(&iw);
 
 		fw.mode = 1;
-		TakeYourTime tyt;
-		std::vector<CGMagi>::iterator it;
-		for (it = eyelist[subID].begin() ; it < eyelist[subID].end(); it++)
-		{			
-			cb->getTilesInRange (fw.tiles, it->pos, 5, h->tempOwner, 1);
+		std::vector<si32>::iterator it;
+		for (it = eyelist[subID].begin(); it < eyelist[subID].end(); it++)
+		{
+			const CGObjectInstance *eye = cb->getObj(*it);
+
+			cb->getTilesInRange (fw.tiles, eye->pos, 5, h->tempOwner, 1);
 			cb->sendAndApply(&fw);
-			cv.id = it->id;
+			cv.pos = eye->pos;
+			cv.focusTime = 2000;
 			cb->sendAndApply(&cv);
-			tyt.time = 2000;
-			cb->sendAndApply(&tyt);
 		}	
-		cv.id = h->id;
+		cv.pos = h->getPosition(false);
 		cb->sendAndApply(&cv);	
 	}
 	else if (ID == 27)

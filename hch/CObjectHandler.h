@@ -879,24 +879,10 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 };
 
-class DLL_EXPORT CObjectHandler
-{
-public:
-	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
-	void loadObjects();
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & cregens;
-	}
-};
-
-
-
 class DLL_EXPORT CGMagi : public CGObjectInstance
 {
 public:
-	static std::map <si32, std::vector<CGMagi> > eyelist; //[subID][id], supports multiple sets as in H5
+	static std::map <si32, std::vector<si32> > eyelist; //[subID][id], supports multiple sets as in H5
 
 	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
@@ -906,4 +892,44 @@ public:
 		h & static_cast<CGObjectInstance&>(*this);
 	}
 };
+
+
+
+struct BankConfig
+{
+	BankConfig() {chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };
+	//std::string name;
+	ui8 chance;
+	ui8 upgradeChance;
+	std::vector< std::pair <ui16, ui32> > guards;
+	ui32 combatValue;
+	std::map<ui8, si32> resources;
+	std::vector< std::pair <ui16, ui32> > creatures;
+	std::map<ui8, ui16> artifacts;
+	ui32 value;
+	ui32 rewardDifficulty; //?
+	ui16 easiest; //?
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts 
+			& value & rewardDifficulty & easiest;
+	}
+};
+
+class DLL_EXPORT CObjectHandler
+{
+public:
+	std::vector<si32> cregens; //type 17. dwelling subid -> creature ID
+	std::map <ui32, std::vector <BankConfig> > banksInfo; //[index][preset], TODO: load it
+
+	void loadObjects();
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & cregens & banksInfo;
+	}
+};
+
+
 #endif // __COBJECTHANDLER_H__

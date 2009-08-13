@@ -1463,6 +1463,8 @@ void CAdvMapInt::activate()
 	}
 	screenBuf = screen;
 	LOCPLINT->statusbar = &statusbar;
+	activateMouseMove();
+
 	kingOverview.activate();
 	underground.activate();
 	questlog.activate();
@@ -1483,7 +1485,9 @@ void CAdvMapInt::activate()
 }
 void CAdvMapInt::deactivate()
 {
+	deactivateMouseMove();
 	scrollingDir = 0;
+
 	CGI->curh->changeGraphic(0,0);
 	kingOverview.deactivate();
 	underground.deactivate();

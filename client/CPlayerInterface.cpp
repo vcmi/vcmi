@@ -1545,9 +1545,20 @@ void CPlayerInterface::newObject( const CGObjectInstance * obj )
 	}
 }
 
-void CPlayerInterface::centerView (int3 pos)
+void CPlayerInterface::centerView (int3 pos, int focusTime)
 {
 	LOCPLINT->adventureInt->centerOn (pos);
+	if(focusTime)
+	{
+		bool activeAdv = (GH.topInt() == adventureInt  &&  adventureInt->active);
+		if(activeAdv)
+			adventureInt->deactivate();
+
+		SDL_Delay(focusTime);
+
+		if(activeAdv)
+			adventureInt->activate();
+	}
 }
 
 void CPlayerInterface::objectRemoved( const CGObjectInstance *obj )

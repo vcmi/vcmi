@@ -552,13 +552,7 @@ void OpenWindow::applyCl(CClient *cl)
 
 void CenterView::applyCl(CClient *cl)
 {
-	int3 pos = (cl->getObj(id))->pos;
-	INTERFACE_CALL_IF_PRESENT (player, centerView, pos);
-}
-
-void TakeYourTime::applyCl(CClient *cl)
-{
-	SDL_Delay(time);
+	INTERFACE_CALL_IF_PRESENT (player, centerView, pos, focusTime);
 }
 
 void NewObject::applyCl(CClient *cl)

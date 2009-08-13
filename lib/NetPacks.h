@@ -1296,35 +1296,18 @@ struct SetSelection : public CPackForClient, public CPackForServer //514
 	}
 };
 
-struct TakeYourTime : public CPackForClient//515
+struct CenterView : public CPackForClient//515
 {
-	TakeYourTime(){CPackForClient::type = 515;};
-	DLL_EXPORT void applyGs(CGameState *gs);
+	CenterView(){CPackForClient::type = 515;};
 	void applyCl(CClient *cl);
-	bool applyGh(CGameHandler *gh);
 
 	ui8 player;
-	ui32 time;
+	int3 pos;
+	ui32 focusTime; //ms
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & time & player;
-	}
-};
-
-struct CenterView : public CPackForClient//516
-{
-	CenterView(){CPackForClient::type = 516;};
-	DLL_EXPORT void applyGs(CGameState *gs);
-	void applyCl(CClient *cl);
-	bool applyGh(CGameHandler *gh);
-
-	ui8 player;
-	si32 id;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & id & player;
+		h & pos & player & focusTime;
 	}
 };  
 

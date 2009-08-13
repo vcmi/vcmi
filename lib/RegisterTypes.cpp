@@ -110,7 +110,6 @@ void registerTypes2(Serializer &s)
 	s.template registerType<SaveGame>();
 	s.template registerType<SetSelection>();
 	s.template registerType<PlayerMessage>();
-	s.template registerType<TakeYourTime>();
 	s.template registerType<CenterView>();
 }
 
