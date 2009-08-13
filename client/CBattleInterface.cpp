@@ -737,13 +737,54 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 					}
 					else if(isTileAttackable(myNumber)) //available enemy (melee attackable)
 					{
-						int fromHex = previouslyHoveredHex;
-						if(fromHex!=-1 && fromHex%BFIELD_WIDTH!=0 && fromHex%BFIELD_WIDTH!=(BFIELD_WIDTH-1) && vstd::contains(shadedHexes, fromHex))
-						{
-							std::map<int, int> mutualToCursor = boost::assign::map_list_of(0, 12)(1, 7)(2, 8)(3, 9)(4, 10)(5, 11);
+						CCursorHandler *cursor = CGI->curh;
+						const CBattleHex &hoveredHex = bfield[myNumber];
 
-							CGI->curh->changeGraphic( 1, mutualToCursor[BattleInfo::mutualPosition(fromHex, myNumber)] );
+						const double subdividingAngle = 2.0*M_PI/6.0; // Divide a hex into six sectors.
+						const double hexMidX = hoveredHex.pos.x + hoveredHex.pos.w/2;
+						const double hexMidY = hoveredHex.pos.y + hoveredHex.pos.h/2;
+						const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2;
+						int cursorIndex = fmod(cursorHexAngle/subdividingAngle, 6.0);
+
+						int sectorCursor[] = {8, 9, 10, 11, 12, 7}; // From left to bottom left.
+						const int zigzagCorrection = !((myNumber/BFIELD_WIDTH)%2); // Off-by-one correction needed to deal with the odd battlefield rows.
+
+						// Exclude directions which cannot be attacked from.
+						// Check to the left.
+						if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber - 1)) {
+							sectorCursor[0] = -1;
 						}
+						// Check top left and top right.
+						if (myNumber/BFIELD_WIDTH == 0) {
+							sectorCursor[1] = -1;
+							sectorCursor[2] = -1;
+						} else {
+							if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
+								sectorCursor[1] = -1;
+							if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
+								sectorCursor[2] = -1;
+						}
+						// Check to the right.
+						if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber + 1)) {
+							sectorCursor[3] = -1;
+						}
+						// Check bottom right and bottom left.
+						if (myNumber/BFIELD_WIDTH == BFIELD_HEIGHT - 1) {
+							sectorCursor[4] = -1;
+							sectorCursor[5] = -1;
+						} else {
+							if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
+								sectorCursor[4] = -1;
+							if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
+								sectorCursor[5] = -1;
+						}
+
+						// Find the closest direction attackable, starting with the right one.
+						// FIXME: Is this really how the original H3 client does it?
+						int i = 0;
+						while (sectorCursor[(cursorIndex + i)%6] == -1) 
+							i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
+						cursor->changeGraphic(1, sectorCursor[(cursorIndex + i)%6]);
 					}
 					else //unavailable enemy
 					{
