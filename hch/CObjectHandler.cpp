@@ -1803,7 +1803,7 @@ int CGCreature::takenAction(const CGHeroInstance *h, bool allowJoin) const
 		if(hlp >= 7)
 			factor = 11;
 		else if(hlp >= 1)
-			factor = 2*(hlp-1);
+			factor = (int)(2*(hlp-1));
 		else if(hlp >= 0.5)
 			factor = -1;
 		else if(hlp >= 0.333)
@@ -3824,7 +3824,7 @@ void CGSirens::onHeroVisit( const CGHeroInstance * h ) const
 		sg.garrs[h->id] = h->army;
 		for (std::map<si32,std::pair<ui32,si32> >::const_iterator i = h->army.slots.begin(); i != h->army.slots.end(); i++)
 		{
-			int drown = i->second.second * 0.3;
+			int drown = (int)(i->second.second * 0.3);
 			if(drown)
 			{
 				sg.garrs[h->id].slots[i->first].second -= drown;

@@ -412,7 +412,7 @@ ui64 CHeroHandler::reqExp(unsigned int level)
 		//	exp*=1.2;
 		//}
 		//return exp;
-		return reqExp(level - 1) + (reqExp(level - 1) - reqExp(level - 2)) * 1.2; //inefficient but follows exactly H3 values
+		return (ui64)(reqExp(level - 1) + (reqExp(level - 1) - reqExp(level - 2)) * 1.2); //inefficient but follows exactly H3 values
 	}
 }
 

@@ -852,9 +852,9 @@ class DLL_EXPORT CBank : public CArmedInstance
 	public:
 	int index; //banks have unusal numbering - see ZCRBANK.txt and initObj()
 	BankConfig *bc;
-	ui8 multiplier; //for improved banks script, in percent
+	float multiplier; //for improved banks script, in percent
 	std::vector<si32> artifacts; //fixed and deterministic
-	mutable ui32 daycounter;
+	ui32 daycounter;
 
 	void initObj();
 	void setPropertyDer (ui8 what, ui32 val);
