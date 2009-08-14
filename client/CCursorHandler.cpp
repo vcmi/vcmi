@@ -47,6 +47,36 @@ void CCursorHandler::draw1()
 	{
 		x-=16;
 		y-=16;
+
+		// Properly align the melee attack cursors.
+		if (mode == 1) {
+			switch (number) {
+				case 7: // Bottom left
+					x -= 6;
+					y += 16;
+					break;
+				case 8: // Left
+					x -= 16;
+					y += 11;
+					break;
+				case 9: // Top left
+					x -= 6;
+					y -= 6;
+					break;
+				case 10: // Top right
+					x += 16;
+					y -= 6;
+					break;
+				case 11: // Right
+					x += 16;
+					y += 11;
+					break;
+				case 12: // Bottom right
+					x += 16;
+					y += 16;
+					break;
+			}
+		}
 	}
 	else if(mode==0 && number>0)
 	{
