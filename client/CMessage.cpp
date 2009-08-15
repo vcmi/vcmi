@@ -153,7 +153,7 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 			int pos = z-1;
 
 			// Do not break an ellipsis, backtrack until whitespace.
-			if (text[z] == '.') {
+			if (text[pos] == '.' && text[z] == '.') {
 				while (pos != 0 && text[pos] != ' ')
 					pos--;
 			} else {
