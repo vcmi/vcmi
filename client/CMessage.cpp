@@ -152,15 +152,21 @@ std::vector<std::string> * CMessage::breakText(std::string text, size_t maxLineS
 			 * suitable character. */
 			int pos = z-1;
 
+			// Do not break an ellipsis, backtrack until whitespace.
+			if (text[z] == '.') {
+				while (pos != 0 && text[pos] != ' ')
+					pos--;
+			} else {
 			/* TODO: boost should have a nice method to do that. */
-			while(pos > 0 &&
-				  text[pos] != ' ' && 
-				  text[pos] != ',' &&
-				  text[pos] != '.' &&
-				  text[pos] != ';' &&
-				  text[pos] != '!' &&
-				  text[pos] != '?')
-				pos --;
+				while(pos > 0 &&
+					  text[pos] != ' ' && 
+					  text[pos] != ',' &&
+					  text[pos] != '.' &&
+					  text[pos] != ';' &&
+					  text[pos] != '!' &&
+					  text[pos] != '?')
+					pos --;
+			}
 			if (pos > 0)
 				z = pos+1;
 		}
