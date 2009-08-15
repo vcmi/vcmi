@@ -21,16 +21,23 @@ To compile, at least the following packages (and their development counterparts)
 	* zlib and zlib-devel
 	* the ffmpeg libraries (libavformat and libswscale). Their name could be libavformat-devel and libswscale-devel, or ffmpeg-libs-devel or similar names.
 
+On Ubuntu 9.04, run:
+  sudo apt-get install g++ libsdl1.2debian-all libsdl-image1.2-dev libsdl-ttf2.0-dev libsdl-mixer1.2-dev zlib1g-dev libavformat-dev libswscale-dev libboost1.37-dev
+
+
 Then do the usual 
   ./configure
 
 Note that on 64 bits linux, if the boost libraries are installed in /usr/lib64, configure will not find them and will fail. Until this is fixed, use:
   ./configure --with-boost-libdir=/usr/lib64
 
+Note: if you've not installed everything, some files will be missing, and you may want to hack your system (don't) such as:
+=============
 Another note on ubuntu(posible others to) - create symlincs to correct libnames in /usr/lib
 eg:
 sudo ln -s libswscale.so.0.7.1 libswscale.so
 sudo ln -s libavformat.so.52 libavformat.so
+=============
 
 Then build vcmi:
   make
@@ -54,7 +61,7 @@ Download the windows VCMI release (at time of writing: http://vcmi.antypika.aplu
   mv Data/* /PATH_TO_H3_DIR/Data
   mv Fonts Games /PATH_TO_H3_DIR/
 
-If you also have the original linux version of Heroes, you can slso install the videos:
+If you also have the original linux version of Heroes, you can also install the videos:
   cp -a /PATH_TO_CDROM/data/video /PATH_TO_H3_DIR/Data
 
 
