@@ -1173,6 +1173,8 @@ void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
 
 int CGTownInstance::getSightRadious() const //returns sight distance
 {
+	if (subID == 2 && (builtBuildings.find(21))!=builtBuildings.end())
+		return 20;
 	return 5;
 }
 
@@ -2660,6 +2662,20 @@ void CGBonusingObject::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case 94: //Stables TODO: upgrade Cavaliers
 		sound = soundBase::horse20;
+		std::set<ui32> slots;
+		for (std::map<si32,std::pair<ui32,si32> >::const_iterator i = h->army.slots.begin(); i != h->army.slots.end(); ++i)
+		{
+			if(i->second.first == 10)
+				slots.insert(i->first);
+		}
+		if (!slots.empty())
+		{
+			for (std::set<ui32>::const_iterator i = slots.begin(); i != slots.end(); i++)
+			{
+				UpgradeCreature uc(*i, id, 11);
+				 //uc.applyGh (&gh);
+			}
+		}
 		messageID = 137;
 		gbonus.bonus.type = HeroBonus::LAND_MOVEMENT;
 		gbonus.bonus.val = 600;
