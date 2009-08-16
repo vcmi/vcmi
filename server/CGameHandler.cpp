@@ -2371,6 +2371,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			//second attack
 			if(curStack->valOfFeatures(StackFeature::ADDITIONAL_ATTACK) > 0
+				&& !curStack->hasFeatureOfType(StackFeature::SHOOTER)
 				&& curStack->alive()
 				&& stackAtEnd->alive()  )
 			{
