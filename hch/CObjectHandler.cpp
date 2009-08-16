@@ -1173,7 +1173,7 @@ void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
 
 int CGTownInstance::getSightRadious() const //returns sight distance
 {
-	if (subID == 2 && (builtBuildings.find(21))!=builtBuildings.end())
+	if (subID == 2 && (builtBuildings.find(21))!=builtBuildings.end()) //town has lookout tower
 		return 20;
 	return 5;
 }
@@ -1241,6 +1241,13 @@ int CGTownInstance::creatureGrowth(const int & level) const
 	if(getHordeLevel(1)==level)
 		if((builtBuildings.find(24)!=builtBuildings.end()) || (builtBuildings.find(25)!=builtBuildings.end()))
 			ret+=VLC->creh->creatures[town->basicCreatures[level]].hordeGrowth;
+
+	//support for legs of legion etc.
+	if(garrisonHero)
+		ret += garrisonHero->valOfBonuses(HeroBonus::CREATURE_GROWTH, level);
+	if(visitingHero)
+		ret += visitingHero->valOfBonuses(HeroBonus::CREATURE_GROWTH, level);
+
 	return ret;
 }
 int CGTownInstance::dailyIncome() const

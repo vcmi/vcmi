@@ -577,6 +577,11 @@ bool CCallback::battleCanCastSpell()
 		return gs->curB->castSpells[1] == 0 && gs->getHero(gs->curB->hero2)->getArt(17);
 }
 
+bool CCallback:: battleCanFlee()
+{
+	return gs->battleCanFlee(player);
+}
+
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
 	if(town->tempOwner != player) return;

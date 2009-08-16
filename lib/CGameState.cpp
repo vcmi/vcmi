@@ -1373,6 +1373,21 @@ bool CGameState::battleShootCreatureStack(int ID, int dest)
 	return true;
 }
 
+bool CGameState::battleCanFlee(int player)
+{
+	if(!curB) //there is no battle
+		return false;
+
+	const CGHeroInstance *h1 = getHero(curB->hero1);
+	const CGHeroInstance *h2 = getHero(curB->hero2);
+
+	if(h1->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE) //eg. one of heroes is wearing shakles of war
+		|| h2->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE))
+		return false;
+
+	return true;
+}
+
 int CGameState::battleGetStack(int pos, bool onlyAlive)
 {
 	if(!curB)

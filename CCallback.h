@@ -172,6 +172,7 @@ public:
 	virtual bool battleIsStackMine(int ID)=0; //returns true if stack with id ID belongs to caller
 	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
 	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
+	virtual bool battleCanFlee()=0; //returns true if caller can flee from the battle
 };
 
 struct HeroMoveDetails
@@ -270,6 +271,7 @@ public:
 	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller
 	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell(); //returns true, if caller can cast a spell
+	bool battleCanFlee(); //returns true if caller can flee from the battle
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

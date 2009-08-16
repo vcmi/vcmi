@@ -985,8 +985,29 @@ void CBattleInterface::bSurrenderf()
 
 void CBattleInterface::bFleef()
 {
-	CFunctionList<void()> ony = boost::bind(&CBattleInterface::reallyFlee,this);
-	LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<SComponent*>(), ony, 0, false);
+	if( LOCPLINT->cb->battleCanFlee() )
+	{
+		CFunctionList<void()> ony = boost::bind(&CBattleInterface::reallyFlee,this);
+		LOCPLINT->showYesNoDialog(CGI->generaltexth->allTexts[28],std::vector<SComponent*>(), ony, 0, false);
+	}
+	else
+	{
+		std::vector<SComponent*> comps;
+		std::string heroName;
+		//calculating fleeing hero's name
+		if(attackingHeroInstance)
+			if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor())
+				heroName = attackingHeroInstance->name;
+		if(defendingHeroInstance)
+			if(defendingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor())
+				heroName = defendingHeroInstance->name;
+		//calculating text
+		char buffer[1000];
+		sprintf(buffer, CGI->generaltexth->allTexts[340].c_str(), heroName.c_str());
+
+		//printing message
+		LOCPLINT->showInfoDialog(std::string(buffer), comps);
+	}
 }
 
 void CBattleInterface::reallyFlee()

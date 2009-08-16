@@ -314,11 +314,11 @@ void CArtHandler::addBonuses()
 	giveArtBonus(116,HeroBonus::GENERATE_RESOURCE,+750,6); //Endless Bag of Gold
 	giveArtBonus(117,HeroBonus::GENERATE_RESOURCE,+500,6); //Endless Purse of Gold
 
-	giveArtBonus(118,HeroBonus::CREATURE_GROWTH,+5,2); //Legs of Legion
-	giveArtBonus(119,HeroBonus::CREATURE_GROWTH,+4,3); //Loins of Legion
-	giveArtBonus(120,HeroBonus::CREATURE_GROWTH,+3,4); //Torso of Legion
-	giveArtBonus(121,HeroBonus::CREATURE_GROWTH,+2,5); //Arms of Legion
-	giveArtBonus(122,HeroBonus::CREATURE_GROWTH,+1,6); //Head of Legion
+	giveArtBonus(118,HeroBonus::CREATURE_GROWTH,+5,1); //Legs of Legion
+	giveArtBonus(119,HeroBonus::CREATURE_GROWTH,+4,2); //Loins of Legion
+	giveArtBonus(120,HeroBonus::CREATURE_GROWTH,+3,3); //Torso of Legion
+	giveArtBonus(121,HeroBonus::CREATURE_GROWTH,+2,4); //Arms of Legion
+	giveArtBonus(122,HeroBonus::CREATURE_GROWTH,+1,5); //Head of Legion
 
 	//Sea Captain's Hat 
 	giveArtBonus(123,HeroBonus::WHIRLPOOL_PROTECTION,0); 

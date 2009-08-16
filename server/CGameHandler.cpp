@@ -2287,8 +2287,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case 4: //retreat/flee
 		{
-			//TODO: check if fleeing is possible (e.g. enemy may have Shackles of War)
-			//TODO: calculate casualties
+			if( !gs->battleCanFlee(ba.side ? gs->curB->side2 : gs->curB->side1) )
+				break;
 			//TODO: remove retreating hero from map and place it in recruitment list
 			BattleResult *br = new BattleResult;
 			br->result = 1;
@@ -2681,7 +2681,8 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 
 		if(prob > 100) prob = 100;
 
-		if(rand()%100 < prob)
+		if( (*it)->hasFeatureOfType(StackFeature::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
+			|| rand()%100 < prob) //immunity from resistance
 			ret.push_back((*it)->ID);
 
 	}
@@ -2690,7 +2691,8 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 	{
 		for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 		{
-			if( (*it)->amount * (*it)->MaxHealth() + (*it)->firstHPleft 
+			if( (*it)->hasFeatureOfType(StackFeature::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
+				|| (*it)->amount * (*it)->MaxHealth() + (*it)->firstHPleft 
 				> 
 				caster->getPrimSkillLevel(2) * 25 + sp->powers[caster->getSpellSchoolLevel(sp)]
 			)

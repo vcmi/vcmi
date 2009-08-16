@@ -28,7 +28,7 @@ public:
 	ui32 price;
 	std::vector<ui16> possibleSlots; //ids of slots where artifact can be placed
 	EartClass aClass;
-	int id;
+	ui32 id;
 	std::list<HeroBonus> bonuses; //bonuses given by artifact
 
 	template <typename Handler> void serialize(Handler &h, const int version)
