@@ -378,27 +378,30 @@ void CHeroHandler::initHeroClasses()
 	loadNativeTerrains();
 }
 
-unsigned int CHeroHandler::level(ui64 experience)
+unsigned int CHeroHandler::level (ui64 experience)
 {
 	int i;
-	if(experience <= expPerLevel.back())
+	if (experience <= expPerLevel.back())
 	{
 		for(i = expPerLevel.size()-1; experience < expPerLevel[i]; i--);
 		return i + 1;
 	}
 	else
 	{
-		for(i = expPerLevel.size(); experience > reqExp(i); i++);
-		return i - 1;
+		//for(i = expPerLevel.size(); experience > reqExp(i); i++);
+		i = expPerLevel.size();
+		while (experience > reqExp (i))
+			i++;
+		return i;
 	}
 }
 
-ui64 CHeroHandler::reqExp(unsigned int level)
+ui64 CHeroHandler::reqExp (unsigned int level)
 {
 	if(!level)
 		return 0;
 
-	if(level<=expPerLevel.size())
+	if(level <= expPerLevel.size())
 	{
 		return expPerLevel[level - 1];
 	}
@@ -412,7 +415,13 @@ ui64 CHeroHandler::reqExp(unsigned int level)
 		//	exp*=1.2;
 		//}
 		//return exp;
-		return (ui64)(reqExp(level - 1) + (reqExp(level - 1) - reqExp(level - 2)) * 1.2); //inefficient but follows exactly H3 values
+		while (level > expPerLevel.size())
+		{
+			int i = expPerLevel.size() - 1;
+			expPerLevel.push_back ((ui64)(expPerLevel[i] + (expPerLevel[i] - expPerLevel[i-1]) * 1.2));
+		}
+		return expPerLevel[level-1];
+		//return (ui64)(reqExp(level - 1) + (reqExp(level - 1) - reqExp(level - 2)) * 1.2); //inefficient but follows exactly H3 values
 	}
 }
 

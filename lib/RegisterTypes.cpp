@@ -22,6 +22,7 @@ void registerTypes1(Serializer &s)
 {
 	s.template registerType<CGHeroInstance>();
 	s.template registerType<CGTownInstance>();
+	s.template registerType<CGPandoraBox>();
 	s.template registerType<CGEvent>();
 	s.template registerType<CGVisitableOPH>();
 	s.template registerType<CGVisitableOPW>();
@@ -37,7 +38,6 @@ void registerTypes1(Serializer &s)
 	s.template registerType<CGResource>();
 	s.template registerType<CGMine>();
 	s.template registerType<CGShrine>();
-	s.template registerType<CGPandoraBox>();
 	s.template registerType<CGQuestGuard>();
 	s.template registerType<CGBonusingObject>();
 	s.template registerType<CGMagicWell>();

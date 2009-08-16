@@ -78,7 +78,7 @@ public:
 	virtual void heroInGarrisonChange(const CGTownInstance *town){};
 	//virtual void heroKilled(const CGHeroInstance*){};
 	virtual void heroMoved(const TryMoveHero & details){};
-	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val){};
+	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val){};
 	virtual void heroManaPointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after spell casts
 	virtual void heroMovePointsChanged(const CGHeroInstance * hero){} //not called at the beginning of turn and after movement
 	virtual void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town){};

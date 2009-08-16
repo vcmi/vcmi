@@ -413,7 +413,7 @@ public:
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
 	void initObj();
-	void treeSelected(int heroID, int resType, int resVal, int expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
+	void treeSelected(int heroID, int resType, int resVal, ui64 expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
 	void schoolSelected(int heroID, ui32 which) const;
 	void arenaSelected(int heroID, int primSkill) const;
 
@@ -424,10 +424,13 @@ public:
 	}
 };
 
-class DLL_EXPORT CGEvent : public CArmedInstance //event objects
+class DLL_EXPORT CGPandoraBox : public CArmedInstance
 {
 public:
 	std::string message;
+	ui8 removeAfterVisit; //true if event is removed after occurring
+
+	//gained things:
 	ui32 gainedExp;
 	si32 manaDiff; //amount of gained / lost mana
 	si32 moraleDiff; //morale modifier
@@ -439,26 +442,42 @@ public:
 	std::vector<si32> artifacts; //gained artifacts
 	std::vector<si32> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
+
+	void CGPandoraBox::initObj();
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void open (const CGHeroInstance * h, ui32 accept) const;
+	void endBattle(const CGHeroInstance *h, BattleResult *result) const;
+	void giveContents(const CGHeroInstance *h, bool afterBattle) const;
+	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
+	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CArmedInstance&>(*this);
+		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
+			& abilities & abilityLevels & artifacts & spells & creatures & army;
+	}
+};
+
+class DLL_EXPORT CGEvent : public CGPandoraBox  //event objects
+{
+public:
+
 	ui8 availableFor; //players whom this event is available for
 	ui8 computerActivate; //true if computre player can activate this event
 	ui8 humanActivate; //true if human player can activate this event
-	ui8 removeAfterVisit; //true if event is removed after occurring
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
 		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
 			& abilities & abilityLevels & artifacts & spells & creatures & availableFor 
-			& computerActivate & humanActivate;
+			& computerActivate & humanActivate & army;
 	}
-
-	void activated(const CGHeroInstance * h) const;
+	
 	void onHeroVisit(const CGHeroInstance * h) const;
-	void endBattle(const CGHeroInstance *h, BattleResult *result) const;
-	void giveContents(const CGHeroInstance *h, bool afterBattle) const;
+	void activated(const CGHeroInstance * h) const;
 
-	void getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const;
-	void getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const;
 };
 
 class DLL_EXPORT CGCreature : public CArmedInstance //creatures on map
@@ -631,32 +650,6 @@ public:
 	{
 		h & static_cast<CGObjectInstance&>(*this) & static_cast<CPlayersVisited&>(*this);;
 		h & spell;
-	}
-};
-
-class DLL_EXPORT CGPandoraBox : public CArmedInstance
-{
-public:
-	std::string message;
-
-	//gained things:
-	ui32 gainedExp;
-	si32 manaDiff; //amount of gained / lost mana
-	si32 moraleDiff; //morale modifier
-	si32 luckDiff; //luck modifier
-	std::vector<si32> resources;//gained / lost resources
-	std::vector<si32> primskills;//gained / lost resources
-	std::vector<si32> abilities; //gained abilities
-	std::vector<si32> abilityLevels; //levels of gained abilities
-	std::vector<si32> artifacts; //gained artifacts
-	std::vector<si32> spells; //gained spells
-	CCreatureSet creatures; //gained creatures
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CArmedInstance&>(*this);
-		h & message & gainedExp & manaDiff & moraleDiff & luckDiff & resources & primskills
-			& abilities & abilityLevels & artifacts & spells & creatures;
 	}
 };
 

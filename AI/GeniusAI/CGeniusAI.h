@@ -181,7 +181,7 @@ public:
 	virtual void heroKilled(const CGHeroInstance *);
 	virtual void heroCreated(const CGHeroInstance *);
 	virtual void heroMoved(const TryMoveHero &);
-	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val) {};
+	virtual void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val) {};
 	virtual void showSelDialog(std::string text, std::vector<CSelectableComponent*> & components, int askID){};
 	virtual void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, const int soundID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
 	virtual void tileRevealed(int3 pos);

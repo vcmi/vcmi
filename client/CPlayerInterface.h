@@ -139,7 +139,7 @@ public:
 	void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
 	void heroInGarrisonChange(const CGTownInstance *town);
 	void heroMoved(const TryMoveHero & details);
-	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val);
+	void heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val);
 	void heroManaPointsChanged(const CGHeroInstance * hero);
 	void heroMovePointsChanged(const CGHeroInstance * hero);
 	void heroVisitsTown(const CGHeroInstance* hero, const CGTownInstance * town);

@@ -804,7 +804,7 @@ int3 CPlayerInterface::repairScreenPos(int3 pos)
 		pos.y = CGI->mh->map->height - this->adventureInt->terrain.tilesh + CGI->mh->frameH;
 	return pos;
 }
-void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, int val)
+void CPlayerInterface::heroPrimarySkillChanged(const CGHeroInstance * hero, int which, si64 val)
 {
 	if(which >= PRIMARY_SKILLS) //no need to redraw infowin if this is experience (exp is treated as prim skill with id==4)
 		return;

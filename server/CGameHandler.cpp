@@ -211,7 +211,7 @@ void CGameHandler::changeSecSkill( int ID, int which, int val, bool abs/*=false*
 	}
 }
 
-void CGameHandler::changePrimSkill(int ID, int which, int val, bool abs)
+void CGameHandler::changePrimSkill(int ID, int which, si64 val, bool abs)
 {
 	SetPrimSkill sps;
 	sps.id = ID;

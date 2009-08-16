@@ -1373,7 +1373,7 @@ void CGVisitableOPH::initObj()
 		ttype = -1;
 }
 
-void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, int expVal, ui32 result ) const
+void CGVisitableOPH::treeSelected( int heroID, int resType, int resVal, ui64 expVal, ui32 result ) const
 {
 	if(result) //player agreed to give res for exp
 	{
@@ -2781,7 +2781,7 @@ void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
 		activated(h);
 }
 
-void CGEvent::endBattle( const CGHeroInstance *h, BattleResult *result ) const
+void CGPandoraBox::endBattle( const CGHeroInstance *h, BattleResult *result ) const
 {
 	if(result->winner)
 		return;
@@ -2808,7 +2808,49 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 	}
 }
 
-void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
+void CGPandoraBox::initObj()
+{
+	blockVisit = true;
+}
+void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
+{
+		BlockingDialog bd (true, false);
+		bd.player = h->getOwner();
+		bd.soundID = soundBase::QUEST;
+		bd.text.addTxt (MetaString::ADVOB_TXT, 14);
+		cb->showBlockingDialog (&bd, boost::bind (&CGPandoraBox::open, this, h, _1));	
+}
+void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
+{
+	if (accept)
+	{
+		if (army)
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
+			cb->showInfoDialog(&iw);
+			cb->startBattleI(h, this, boost::bind(&CGPandoraBox::endBattle, this, h,_1));
+		}
+		else if (message.size() == resources.size() ==
+				primskills.size() == abilities.size() ==
+				abilityLevels.size() == artifacts.size() ==
+				spells.size() == creatures ==
+				gainedExp == manaDiff == moraleDiff == luckDiff == 0) //yeaha!
+		{
+			InfoWindow iw;
+			iw.player = h->tempOwner;
+			iw.text.addTxt(MetaString::ADVOB_TXT, 15);
+			cb->showInfoDialog(&iw);
+
+		}
+		else
+		{
+			giveContents (h, false);
+		}
+	}
+}
+void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 {
 	InfoWindow iw;
 	iw.player = h->getOwner();
@@ -3011,12 +3053,7 @@ void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 		SetGarrisons sg;
 		sg.garrs[id] = creatures;
 		cb->sendAndApply(&sg);
-
-		if(removeAfterVisit)
-			cb->showGarrisonDialog(id,h->id,boost::bind(&IGameCallback::removeObject,cb,id));
-		else
-			cb->showGarrisonDialog(id,h->id,0);
-		return;
+		cb->showGarrisonDialog(id,h->id,boost::bind(&IGameCallback::removeObject,cb,id));
 	}
 
 	if(!afterBattle && message.size())
@@ -3024,12 +3061,10 @@ void CGEvent::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 		iw.text << message;
 		cb->showInfoDialog(&iw);
 	}
-
-	if(removeAfterVisit)
-		cb->removeObject(id);
+	cb->removeObject(id);
 }
 
-void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const
+void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHeroInstance * h ) const
 {
 	if(afterBattle || !message.size())
 	{
@@ -3043,7 +3078,7 @@ void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int text, const CGHero
 	}
 }
 
-void CGEvent::getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const
+void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int negative, int positive, const CGHeroInstance * h ) const
 {
 	iw.components.clear();
 	iw.text.clear();

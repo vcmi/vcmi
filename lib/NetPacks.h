@@ -237,7 +237,8 @@ struct SetPrimSkill : public CPackForClient //105
 
 	ui8 abs; //0 - changes by value; 1 - sets to value
 	si32 id;
-	ui16 which, val;
+	ui16 which;
+	si64 val;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
