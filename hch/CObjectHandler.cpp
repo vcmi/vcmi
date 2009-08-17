@@ -3969,7 +3969,7 @@ IShipyard * IShipyard::castFrom( CGObjectInstance *obj )
 	}
 	else
 	{
-		tlog1 << "Cannot cast to IShipyar object with ID " << obj->ID << std::endl;
+		tlog1 << "Cannot cast to IShipyard object with ID " << obj->ID << std::endl;
 		return NULL;
 	}
 }
