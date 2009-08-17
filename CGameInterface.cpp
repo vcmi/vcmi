@@ -2,6 +2,7 @@
 #include "CGameInterface.h"
 
 #ifdef _WIN32
+	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 	#include <windows.h> //for .dll libs
 #else
 	#include <dlfcn.h>

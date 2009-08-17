@@ -139,6 +139,17 @@ namespace vstd
 				++itr;
 		return c2.end();
 	}
+	template <typename Container1, typename Container2>
+	typename Container2::const_iterator findFirstNot(const Container1 &c1, const Container2 &c2)//returns const first element of c2 not present in c1
+	{
+		typename Container2::const_iterator itr = c2.begin();
+		while(itr != c2.end())
+			if(!contains(c1,*itr))
+				return itr;
+			else
+				++itr;
+		return c2.end();
+	}
 	template <typename Container, typename Item>
 	typename Container::iterator find(const Container & c, const Item &i)
 	{
@@ -161,7 +172,12 @@ namespace vstd
 		return -1;
 	}
 	template <typename Container, typename Item>
-	typename Container::iterator find(Container & c, const Item &i)
+	typename Container::iterator find(Container & c, const Item &i) //returns iterator to the given element if present in container, end() if not
+	{
+		return std::find(c.begin(),c.end(),i);
+	}
+	template <typename Container, typename Item>
+	typename Container::const_iterator find(const Container & c, const Item &i)//returns const iterator to the given element if present in container, end() if not
 	{
 		return std::find(c.begin(),c.end(),i);
 	}
@@ -190,7 +206,7 @@ namespace vstd
 	public:
 		t1 &op1;
 		t2 op2;
-		assigner(t1 &a1, t2 a2)
+		assigner(t1 &a1, const t2 & a2)
 			:op1(a1), op2(a2)
 		{}
 		void operator()()

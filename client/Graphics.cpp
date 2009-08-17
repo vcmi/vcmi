@@ -1,7 +1,6 @@
 #include "../stdafx.h"
 #include "Graphics.h"
 #include "../hch/CDefHandler.h"
-#include "../hch/CObjectHandler.h"
 #include "SDL_Extensions.h"
 #include <boost/assign/std/vector.hpp> 
 #include <sstream>
@@ -16,7 +15,6 @@
 #include "../lib/VCMI_Lib.h"
 #include "../CCallback.h"
 #include "../hch/CTownHandler.h"
-#include "../hch/CDefObjInfoHandler.h"
 using namespace boost::assign;
 using namespace CSDL_Ext;
 #ifdef min

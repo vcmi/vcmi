@@ -771,7 +771,7 @@ int CGameState::pickHero(int owner)
 }
 CGHeroInstance *CGameState::getHero(int objid)
 {
-	if(objid<0 || objid>=map->objects.size() || map->objects[objid]->ID!=34)
+	if(objid<0 || objid>=map->objects.size() || map->objects[objid]->ID!=HEROI_TYPE)
 		return NULL;
 	return static_cast<CGHeroInstance *>(map->objects[objid]);
 }

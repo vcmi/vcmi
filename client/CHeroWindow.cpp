@@ -2,7 +2,6 @@
 #include "AdventureMapButton.h"
 #include "CAdvmapInterface.h"
 #include "../CCallback.h"
-#include "CCastleInterface.h"
 #include "CGameInfo.h"
 #include "CHeroWindow.h"
 #include "CMessage.h"

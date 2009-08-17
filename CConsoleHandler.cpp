@@ -26,6 +26,7 @@
 	#define CONSOLE_WHITE "\x1b[1;40;39m"
 	#define CONSOLE_GRAY "\x1b[0;40;39m"
 #else
+	#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 	#include <windows.h>
 	#include <dbghelp.h>
 	#pragma comment(lib, "dbghelp.lib")

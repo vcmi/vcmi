@@ -8,6 +8,7 @@ using namespace std;
 using namespace GeniusAI;
 
 #if defined (_MSC_VER) && (_MSC_VER >= 1020) || (__MINGW32__)
+#define WIN32_LEAN_AND_MEAN //excludes rarely used stuff from windows headers - delete this line if something is missing
 #include <windows.h>
 #endif
 
@@ -317,7 +318,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 		//TODO: what would the hero actually visit if he went to that spot
 		//      IE maybe the hero wants to visit a seemingly unguarded enemy town, but there is a hero on top of it.
 		//if(i->o->)
-		if(i->o->ID!=34)			//unless you are trying to visit a hero
+		if(i->o->ID!=HEROI_TYPE)			//unless you are trying to visit a hero
 		{
 			bool heroThere = false;
 			for(int ii = 0; ii < hgs.heroModels.size();ii++)

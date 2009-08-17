@@ -16,6 +16,7 @@
 #include "lib/map.h"
 #include "hch/CDefHandler.h"
 #include "client/CConfigHandler.h"
+#include <boost/assign/list_of.hpp>
 
 /*
  * mapHandler.cpp, part of VCMI engine
@@ -278,49 +279,30 @@ void CMapHandler::borderAndTerrainBitmapInit()
 			{
 				if(i < 0 || i > (map->width-1) || j < 0  || j > (map->height-1))
 				{
+					int terBitmapNum = -1;
+
 					if(i==-1 && j==-1)
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[16].bitmap;
-						continue;
-					}
+						terBitmapNum = 16;
 					else if(i==-1 && j==(map->height))
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[19].bitmap;
-						continue;
-					}
+						terBitmapNum = 19;
 					else if(i==(map->width) && j==-1)
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[17].bitmap;
-						continue;
-					}
+						terBitmapNum = 17;
 					else if(i==(map->width) && j==(map->height))
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[18].bitmap;
-						continue;
-					}
+						terBitmapNum = 18;
 					else if(j == -1 && i > -1 && i < map->height)
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[22+rand()%2].bitmap;
-						continue;
-					}
+						terBitmapNum = 22+rand()%2;
 					else if(i == -1 && j > -1 && j < map->height)
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[33+rand()%2].bitmap;
-						continue;
-					}
+						terBitmapNum = 33+rand()%2;
 					else if(j == map->height && i >-1 && i < map->width)
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[29+rand()%2].bitmap;
-						continue;
-					}
+						terBitmapNum = 29+rand()%2;
 					else if(i == map->width && j > -1 && j < map->height)
-					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[25+rand()%2].bitmap;
-						continue;
-					}
+						terBitmapNum = 25+rand()%2;
 					else
+						terBitmapNum = rand()%16;
+
+					if(terBitmapNum != -1)
 					{
-						ttiles[i][j][k].terbitmap = bord->ourImages[rand()%16].bitmap;
+						ttiles[i][j][k].terbitmap = bord->ourImages[terBitmapNum].bitmap;
 						continue;
 					}
 				}
@@ -1006,38 +988,30 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	else if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && !d9 && d1)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[22].bitmap); //visible left bottom corner
 		return partialHide->ourImages[34].bitmap; //visible left bottom corner
 	}
 	else if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && !d9 && !d1)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[15].bitmap); //visible left top corner
-		return partialHide->ourImages[35].bitmap;
+		return partialHide->ourImages[35].bitmap; //visible left top corner
 	}
 	else if(!d2 && !d6 && !d4 && d8 && d7 && !d3 && d9 && !d1)
 	{
-		//return partialHide->ourImages[rand()%2].bitmap; //visible top
 		return partialHide->ourImages[0].bitmap; //visible top
 	}
 	else if(d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && d1)
 	{
-		//return partialHide->ourImages[4+rand()%2].bitmap; //visble bottom
 		return partialHide->ourImages[4].bitmap; //visble bottom
 	}
 	else if(!d2 && !d6 && d4 && !d8 && d7 && !d3 && !d9 && d1)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[2+rand()%2].bitmap); //visible left
-		//return CSDL_Ext::rotate01(partialHide->ourImages[2].bitmap); //visible left
-		return partialHide->ourImages[36].bitmap;
+		return partialHide->ourImages[36].bitmap; //visible left
 	}
 	else if(!d2 && d6 && !d4 && !d8 && !d7 && d3 && d9 && !d1)
 	{
-		//return partialHide->ourImages[2+rand()%2].bitmap; //visible right
 		return partialHide->ourImages[2].bitmap; //visible right
 	}
 	else if(d2 && d6 && !d4 && !d8 && !d7)
 	{
-		//return partialHide->ourImages[12+2*(rand()%2)].bitmap; //visible bottom, right - bottom, right; left top corner hidden
 		return partialHide->ourImages[12].bitmap; //visible bottom, right - bottom, right; left top corner hidden
 	}
 	else if(!d2 && d6 && !d4 && d8 && !d1)
@@ -1046,14 +1020,11 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	else if(!d2 && !d6 && d4 && d8 && !d3)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[13].bitmap); //visible top, top - left, left; right bottom corner hidden
-		return partialHide->ourImages[37].bitmap;
+		return partialHide->ourImages[37].bitmap; //visible top, top - left, left; right bottom corner hidden
 	}
 	else if(d2 && !d6 && d4 && !d8 && !d9)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[12+2*(rand()%2)].bitmap); //visible left, left - bottom, bottom; right top corner hidden
-		//return CSDL_Ext::rotate01(partialHide->ourImages[12].bitmap); //visible left, left - bottom, bottom; right top corner hidden
-		return partialHide->ourImages[38].bitmap;
+		return partialHide->ourImages[38].bitmap; //visible left, left - bottom, bottom; right top corner hidden
 	}
 	else if(d2 && d6 && d4 && d8)
 	{
@@ -1069,13 +1040,11 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && !d9 && d1)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[16].bitmap); //visible left corners
-		return partialHide->ourImages[39].bitmap;
+		return partialHide->ourImages[39].bitmap; //visible left corners
 	}
 	if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && !d9 && d1)
 	{
-		//return CSDL_Ext::hFlip(partialHide->ourImages[18].bitmap); //visible bottom corners
-		return partialHide->ourImages[40].bitmap;
+		return partialHide->ourImages[40].bitmap; //visible bottom corners
 	}
 	if(!d2 && !d6 && !d4 && !d8 && !d7 && !d3 && d9 && d1)
 	{
@@ -1083,8 +1052,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && !d9 && !d1)
 	{
-		//return CSDL_Ext::hFlip(partialHide->ourImages[17].bitmap); //visible top - left and bottom - right corners
-		return partialHide->ourImages[41].bitmap;
+		return partialHide->ourImages[41].bitmap; //visible top - left and bottom - right corners
 	}
 	if(!d2 && !d6 && !d4 && !d8 && !d7 && d3 && d9 && d1)
 	{
@@ -1096,13 +1064,11 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	if(!d2 && !d6 && !d4 && !d8 && d7 && !d3 && d9 && d1)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[20].bitmap); //visible corners without right bottom
-		return partialHide->ourImages[42].bitmap;
+		return partialHide->ourImages[42].bitmap; //visible corners without right bottom
 	}
 	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && !d9 && d1)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[19].bitmap); //visible corners without right top
-		return partialHide->ourImages[43].bitmap;
+		return partialHide->ourImages[43].bitmap; //visible corners without right top
 	}
 	if(!d2 && !d6 && !d4 && !d8 && d7 && d3 && d9 && d1)
 	{
@@ -1122,8 +1088,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	if(d2 && d6 && !d4 && d8)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[7].bitmap); //hidden left
-		return partialHide->ourImages[44].bitmap;
+		return partialHide->ourImages[44].bitmap; //hidden left
 	}
 	if(!d2 && d6 && d4 && !d8)
 	{
@@ -1139,8 +1104,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	if(!d2 && !d6 && !d4 && d8 && !d3 && d1)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[24].bitmap); //visible top and left bottom corner
-		return partialHide->ourImages[45].bitmap;
+		return partialHide->ourImages[45].bitmap; //visible top and left bottom corner
 	}
 	if(!d2 && !d6 && !d4 && d8 && d3 && d1)
 	{
@@ -1148,13 +1112,11 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	if(!d2 && !d6 && d4 && !d8 && !d3 && d9)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[26].bitmap); //visible left and right top corner
-		return partialHide->ourImages[46].bitmap;
+		return partialHide->ourImages[46].bitmap; //visible left and right top corner
 	}
 	if(!d2 && !d6 && d4 && !d8 && d3 && !d9)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[25].bitmap); //visible left and right bottom corner
-		return partialHide->ourImages[47].bitmap;
+		return partialHide->ourImages[47].bitmap; //visible left and right bottom corner
 	}
 	if(!d2 && !d6 && d4 && !d8 && d3 && d9)
 	{
@@ -1162,8 +1124,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	if(d2 && !d6 && !d4 && !d8 && d7 && !d9)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[30].bitmap); //visible bottom and left top corner
-		return partialHide->ourImages[48].bitmap;
+		return partialHide->ourImages[48].bitmap; //visible bottom and left top corner
 	}
 	if(d2 && !d6 && !d4 && !d8 && !d7 && d9)
 	{
@@ -1183,8 +1144,7 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	if(!d2 && d6 && !d4 && !d8 && d7 && d1)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[32].bitmap); //visible right and left cornres
-		return partialHide->ourImages[49].bitmap;
+		return partialHide->ourImages[49].bitmap; //visible right and left cornres
 	}
 	if(d2 && d6 && !d4 && !d8 && d7)
 	{
@@ -1196,13 +1156,11 @@ SDL_Surface * CMapHandler::getVisBitmap(int x, int y, const std::vector< std::ve
 	}
 	else if(!d2 && !d6 && d4 && d8 && d3)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[27].bitmap); //visible top, top - left, left; right bottom corner visible
-		return partialHide->ourImages[50].bitmap;
+		return partialHide->ourImages[50].bitmap; //visible top, top - left, left; right bottom corner visible
 	}
 	else if(d2 && !d6 && d4 && !d8 && d9)
 	{
-		//return CSDL_Ext::rotate01(partialHide->ourImages[28].bitmap); //visible left, left - bottom, bottom; right top corner visible
-		return partialHide->ourImages[51].bitmap;
+		return partialHide->ourImages[51].bitmap; //visible left, left - bottom, bottom; right top corner visible
 	}
 	//newly added
 	else if(!d2 && !d6 && !d4 && d8 && !d7 && !d3 && d9 && !d1) //visible t and tr
@@ -1341,51 +1299,19 @@ unsigned char CMapHandler::getHeroFrameNum(unsigned char dir, bool isMoving) con
 {
 	if(isMoving)
 	{
-		switch(dir)
-		{
-		case 1:
-			return 10;
-		case 2:
-			return 5;
-		case 3:
-			return 6;
-		case 4:
-			return 7;
-		case 5:
-			return 8;
-		case 6:
-			return 9;
-		case 7:
-			return 12;
-		case 8:
-			return 11;
-		default:
-			throw std::string("Something very wrong1.");
-		}
+		std::map<int, unsigned char> dirToFrame = boost::assign::map_list_of(1, 10)(2, 5)(3, 6)(4, 7)(5, 8)(6, 9)(7, 12)(8, 11);
+		if(dir >= 1 && dir <= 10)
+			return dirToFrame[dir];
+
+		throw std::string("Something very wrong1.");
 	}
 	else //if(isMoving)
 	{
-		switch(dir)
-		{
-		case 1:
-			return 13;
-		case 2:
-			return 0;
-		case 3:
-			return 1;
-		case 4:
-			return 2;
-		case 5:
-			return 3;
-		case 6:
-			return 4;
-		case 7:
-			return 15;
-		case 8:
-			return 14;
-		default:
-			throw std::string("Something very wrong2.");
-		}
+		std::map<int, unsigned char> dirToFrame = boost::assign::map_list_of(1, 13)(2, 0)(3, 1)(4, 2)(5, 3)(6, 4)(7, 15)(8, 14);
+		if(dir >= 1 && dir <= 10)
+			return dirToFrame[dir];
+
+		throw std::string("Something very wrong1.");
 	}
 }
 
@@ -1434,37 +1360,29 @@ unsigned char CMapHandler::getDir(const int3 &a, const int3 &b)
 	if(a.z!=b.z)
 		return -1; //error!
 	if(a.x==b.x+1 && a.y==b.y+1) //lt
-	{
 		return 0;
-	}
+
 	else if(a.x==b.x && a.y==b.y+1) //t
-	{
 		return 1;
-	}
+
 	else if(a.x==b.x-1 && a.y==b.y+1) //rt
-	{
 		return 2;
-	}
+
 	else if(a.x==b.x-1 && a.y==b.y) //r
-	{
 		return 3;
-	}
+
 	else if(a.x==b.x-1 && a.y==b.y-1) //rb
-	{
 		return 4;
-	}
+
 	else if(a.x==b.x && a.y==b.y-1) //b
-	{
 		return 5;
-	}
+
 	else if(a.x==b.x+1 && a.y==b.y-1) //lb
-	{
 		return 6;
-	}
+
 	else if(a.x==b.x+1 && a.y==b.y) //l
-	{
 		return 7;
-	}
+
 	return -2; //shouldn't happen
 }
 
