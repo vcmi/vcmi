@@ -2371,9 +2371,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			//counterattack
 			if(!curStack->hasFeatureOfType(StackFeature::BLOCKS_RETALIATION)
 				&& stackAtEnd->alive()
-				&& stackAtEnd->counterAttacks
+				&& ( stackAtEnd->counterAttacks > 0 || stackAtEnd->hasFeatureOfType(StackFeature::UNLIMITED_RETALIATIONS) )
 				&& !stackAtEnd->hasFeatureOfType(StackFeature::SIEGE_WEAPON)
-				&& !stackAtEnd->hasFeatureOfType(StackFeature::HYPNOTIZED)) //TODO: support for multiple retaliatons per turn
+				&& !stackAtEnd->hasFeatureOfType(StackFeature::HYPNOTIZED))
 			{
 				prepareAttack(bat,stackAtEnd,curStack);
 				bat.flags |= 2;
@@ -2826,6 +2826,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 54: //slow
 			case 55: //slayer
 			case 56: //frenzy
+			case 58: //counterstrike
 			case 60: //hypnotize
 			case 61: //forgetfulness
 			case 62: //blind

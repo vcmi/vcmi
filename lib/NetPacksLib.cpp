@@ -583,7 +583,7 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= WAITING;
 		s->state -= MOVED;
 		s->state -= HAD_MORALE;
-		s->counterAttacks = 1;
+		s->counterAttacks = 1 + s->valOfFeatures(StackFeature::ADDITIONAL_RETALIATION);
 
 		//remove effects and restore only those with remaining turns in duration
 		std::vector<CStack::StackEffect> tmpEffects = s->effects;
@@ -867,9 +867,12 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 	case 56: //frenzy
 		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
 		break;
-	case 60: //hypnotize
+	case 58: //counterstrike
+		sf.push_back(featureGenerator(StackFeature::ADDITIONAL_RETALIATION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
 		break;
+	case 60: //hypnotize
 		sf.push_back(featureGenerator(StackFeature::HYPNOTIZED, 0, sse.level, sse.turnsRemain));
+		break;
 	case 61: //forgetfulness
 		sf.push_back(featureGenerator(StackFeature::SLAYER, 0, sse.level, sse.turnsRemain));
 		break;
@@ -960,6 +963,20 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 	for(int g=0; g<healedStacks.size(); ++g)
 	{
 		CStack * changedStack = gs->curB->stacks[healedStacks[g].stackID];
+
+		//checking if we resurrect a stack that is under a living stack
+		std::vector<int> access = gs->curB->getAccessibility(changedStack->ID, true);
+		bool acc[BFIELD_SIZE];
+		for(int h=0; h<BFIELD_SIZE; ++h)
+			acc[h] = false;
+		for(int h=0; h<access.size(); ++h)
+			acc[access[h]] = true;
+		if(!changedStack->alive() && !gs->curB->isAccessible(changedStack->position, acc,
+			changedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE), changedStack->attackerOwned,
+			changedStack->hasFeatureOfType(StackFeature::FLYING), true))
+			return; //position is already occupied
+
+		//applying changes
 		if(!changedStack->alive())
 		{
 			changedStack->state.insert(ALIVE);

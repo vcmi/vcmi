@@ -528,6 +528,15 @@ CStack::CStack(CCreature * C, int A, int O, int I, bool AO, int S)
 	:ID(I), creature(C), amount(A), baseAmount(A), firstHPleft(C->hitPoints), owner(O), slot(S), attackerOwned(AO), position(-1),   
 	counterAttacks(1), shots(C->shots), features(C->abilities)
 {
+	//additional retaliations
+	for(int h=0; h<C->abilities.size(); ++h)
+	{
+		if(C->abilities[h].type == StackFeature::ADDITIONAL_RETALIATION)
+		{
+			counterAttacks += C->abilities[h].value;
+		}
+	}
+	//alive state indication
 	state.insert(ALIVE);
 }
 
