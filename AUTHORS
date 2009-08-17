@@ -4,8 +4,8 @@ Micha³ Urbañczyk aka Tow,        <impono@gmail.com>
    * project originator; programming, making releases, website
 maintenance, reverse engineering, general support.
 
-Tow dragon,                <matcio1@gmail.com>
-   * general suport, battle support, support for many Heroes 3 config files
+Mateusz B. aka Tow dragon,                <matcio1@gmail.com>
+   * general suport, battle support, support for many Heroes 3 config files, reverse engineering
 
 Stefan Pavlov aka Ste,            <mailste@gmail.com>
    * minor fixes in pregame
@@ -25,8 +25,14 @@ Rafal R. aka ambtrip,            <ambtrip@wp.pl>
 Lukasz Wychrystenko aka tezeriusz,    <t0@czlug.icis.pcz.pl>
    * minor GCC/Linux compatibility changes, code review
 
-Xiaomin Ding                <dingding303@gmail.com>
+Xiaomin Ding,                <dingding303@gmail.com>
    * smack videos player
 
-Tom Zielinski aka Warmonger <Warmonger@vp.pl>
-   * map objects and other items
+Tom Zielinski aka Warmonger, 	<Warmonger@vp.pl>
+   * support for some of map objects and other items
+
+Frank Zago aka ubuntux,				<>
+   * GCC/Linux compatibility changes, sound/music support, video support on Linux
+   
+Trevor Standley aka tstandley		<>
+   * adventure map part of Genius AI
