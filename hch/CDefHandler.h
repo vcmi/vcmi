@@ -47,7 +47,7 @@ public:
 	CDefHandler(); //c-tor
 	~CDefHandler(); //d-tor
 	static void print (std::ostream & stream, int nr, int bytcon);
-	int readNormalNr (int pos, int bytCon, unsigned char * str=NULL, bool cyclic=false);
+	static int readNormalNr (int pos, int bytCon, const unsigned char * str=NULL, bool cyclic=false);
 	static unsigned char *writeNormalNr (int nr, int bytCon);
 	SDL_Surface * getSprite (int SIndex, unsigned char * FDef, BMPPalette * palette); //zapisuje klatke o zadanym numerze do "testtt.bmp"
 	void openDef(std::string name);

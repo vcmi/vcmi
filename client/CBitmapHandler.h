@@ -47,7 +47,7 @@ public:
 };
 namespace BitmapHandler
 {
-	SDL_Surface * loadBitmap(std::string fname, bool setKey=false);
+	SDL_Surface * loadBitmap(std::string fname, bool setKey=true);
 };
 
 #endif // __CBITMAPHANDLER_H__

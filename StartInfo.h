@@ -40,6 +40,13 @@ struct PlayerSettings
 		h & name;
 		h & human;
 	}
+
+	PlayerSettings()
+	{
+		bonus = brandom;
+		castle = -2;
+		heroPortrait = -1;
+	}
 };
 
 struct StartInfo

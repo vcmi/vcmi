@@ -62,6 +62,7 @@ public:
 	void activate(); //activates hero window;
 	void deactivate(); //activates hero window;
 	virtual void show(SDL_Surface * to); //shows hero window
+	void showAll(SDL_Surface * to){show(to);};
 	void redrawCurBack(); //redraws curBAck from scratch
 	void dispose(); //free resources not needed after closing windows and reset state
 	void quit(); //stops displaying hero window and disposes

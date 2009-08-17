@@ -27,7 +27,9 @@
  *
  */
 
-SDL_Color tytulowy, tlo, zwykly ;
+SDL_Color tytulowy = {229, 215, 123, 0}, 
+	tlo = {66, 44, 24, 0}, 
+	zwykly = {255, 255, 255, 0};
 
 extern SDL_Surface * screen;
 extern TTF_Font * TNRB16, *TNR, *GEOR13;
@@ -316,8 +318,10 @@ CSimpleWindow * CMessage::genWindow(std::string text, int player, int Lmar, int 
 	std::vector<std::vector<SDL_Surface*> > * txtg = drawText(brtext, fontHeight);
 	std::pair<int,int> txts = getMaxSizes(txtg, fontHeight);
 	ret->bitmap = drawBox1(txts.first+Lmar+Rmar,txts.second+Tmar+Bmar,player);
-	ret->pos.h=ret->bitmap->h;
-	ret->pos.w=ret->bitmap->w;
+	ret->pos.h = ret->bitmap->h;
+	ret->pos.w = ret->bitmap->w;
+	ret->pos.x = screen->w/2 - (ret->pos.w/2);
+	ret->pos.y = screen->h/2 - (ret->pos.h/2);
 	int curh = ret->bitmap->h/2 - (fontHeight*txtg->size())/2;
 	blitTextOnSur(txtg,fontHeight,curh,ret->bitmap);
 	delete brtext;

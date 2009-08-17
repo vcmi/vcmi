@@ -31,42 +31,6 @@ void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 }
 
 
-CButtonBase::CButtonBase()
-{
-	bitmapOffset = 0;
-	curimg=0;
-	type=-1;
-	abs=false;
-	active=false;
-	notFreeButton = false;
-	ourObj=NULL;
-	state=0;
-}
-
-CButtonBase::~CButtonBase()
-{
-	if(notFreeButton)
-		return;
-	for(int i =0; i<imgs.size();i++)
-		for(int j=0;j<imgs[i].size();j++)
-			SDL_FreeSurface(imgs[i][j]);
-}
-
-void CButtonBase::show(SDL_Surface * to)
-{
-	int img = std::min(state+bitmapOffset,int(imgs[curimg].size()-1));
-	img = std::max(0, img);
-
-	if (abs)
-	{
-		blitAt(imgs[curimg][img],pos.x,pos.y,to);
-	}
-	else
-	{
-		blitAt(imgs[curimg][img],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
-	}
-}
-
 void CGuiHandler::popInt( IShowActivable *top )
 {
 	assert(listInt.front() == top);
@@ -425,20 +389,181 @@ void CIntObject::tick()
 
 CIntObject::CIntObject()
 {
-	pressedL = pressedR = hovered = captureAllKeys = strongInterest = toNextTick = active = defActivation = 0;
+	pressedL = pressedR = hovered = captureAllKeys = strongInterest = toNextTick = active = used = 0;
+
+	recActions = defActions = GH.defActionsDef;
+
+	pos.x = 0;
+	pos.y = 0;
+	pos.w = 0;
+	pos.h = 0;
+
+	if(GH.captureChildren)
+	{
+		assert(GH.createdObj.size());
+		parent = GH.createdObj.front();
+		parent->children.push_back(this);
+
+		if(parent->defActions & SHARE_POS)
+		{
+			pos.x = parent->pos.x;
+			pos.y = parent->pos.y;
+		}
+	}
 }
 
 void CIntObject::show( SDL_Surface * to )
 {
+	if(defActions & UPDATE)
+		for(size_t i = 0; i < children.size(); i++)
+			if(children[i]->recActions & UPDATE)
+				children[i]->show(to);
+}
 
+void CIntObject::showAll( SDL_Surface * to )
+{
+	if(defActions & SHOWALL)
+	{
+		for(size_t i = 0; i < children.size(); i++)
+			if(children[i]->recActions & SHOWALL)
+				children[i]->showAll(to);
+
+	}
+	else
+		show(to);
 }
 
 void CIntObject::activate()
 {
+	assert(!active);
+	active |= GENERAL;
+	if(used & LCLICK)
+		activateLClick();
+	if(used & RCLICK)
+		activateRClick();
+	if(used & HOVER)
+		activateHover();
+	if(used & MOVE)
+		activateMouseMove();
+	if(used & KEYBOARD)
+		activateKeys();
+	if(used & TIME)
+		activateTimer();
 
+	if(defActions & ACTIVATE)
+		for(size_t i = 0; i < children.size(); i++)
+			if(children[i]->recActions & ACTIVATE)
+				children[i]->activate();
 }
 
 void CIntObject::deactivate()
 {
+	assert(active);
+	active &= ~ GENERAL;
+	if(used & LCLICK)
+		deactivateLClick();
+	if(used & RCLICK)
+		deactivateRClick();
+	if(used & HOVER)
+		deactivateHover();
+	if(used & MOVE)
+		deactivateMouseMove();
+	if(used & KEYBOARD)
+		deactivateKeys();
+	if(used & TIME)
+		deactivateTimer();
 
+	if(defActions & DEACTIVATE)
+		for(size_t i = 0; i < children.size(); i++)
+			if(children[i]->recActions & DEACTIVATE)
+				children[i]->deactivate();
+}
+
+CIntObject::~CIntObject()
+{
+	assert(!active); //do not delete active obj
+
+	if(defActions & DISPOSE)
+		for(size_t i = 0; i < children.size(); i++)
+			if(children[i]->recActions & DISPOSE)
+				delete children[i];
+}
+
+void CIntObject::printAtLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
+{
+	CSDL_Ext::printAt(text, pos.x + x, pos.y + y, font, kolor, dst, refresh);
+}
+
+void CIntObject::printAtMiddleLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
+{
+	CSDL_Ext::printAtMiddle(text, pos.x + x, pos.y + y, font, kolor, dst, refresh);
+}
+
+void CIntObject::blitAtLoc( SDL_Surface * src, int x, int y, SDL_Surface * dst )
+{
+	blitAt(src, pos.x + x, pos.y + y, dst);
+}
+
+void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst, bool refrsh /*= false*/ )
+{
+	CSDL_Ext::printAtMiddleWB(text, pos.x + x, pos.y + y, font, charpr, kolor, dst, refrsh);
+}
+
+void CIntObject::printToLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh /*= false*/ )
+{
+	CSDL_Ext::printTo(text, pos.x + x, pos.y + y, font, kolor, dst, refresh);
+}
+
+CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
+{
+	bg = BG; 
+	freeSurf = Free;
+	pos.x += x;
+	pos.y += y;
+	pos.w = BG->w;
+	pos.h = BG->h;
+}
+
+CPicture::~CPicture()
+{
+	if(freeSurf)
+		SDL_FreeSurface(bg);
+}
+
+void CPicture::showAll( SDL_Surface * to )
+{
+	blitAt(bg, pos, to);
+}
+
+ObjectConstruction::ObjectConstruction( CIntObject *obj )
+	:myObj(obj)
+{
+	GH.createdObj.push_front(obj);
+	GH.captureChildren = true;
+}
+
+ObjectConstruction::~ObjectConstruction()
+{
+	assert(GH.createdObj.size());
+	assert(GH.createdObj.front() == myObj);
+	GH.createdObj.pop_front();
+	GH.captureChildren = GH.createdObj.size();
+}
+
+BlockCapture::BlockCapture()
+{
+	previous = GH.captureChildren;
+	GH.captureChildren = false;
+}
+
+BlockCapture::~BlockCapture()
+{
+	GH.captureChildren = previous;
+}
+
+void IShowable::redraw()
+{
+	showAll(screenBuf);
+	if(screenBuf != screen)
+		showAll(screen);
 }

@@ -256,6 +256,19 @@ void CMapHeader::initFromMemory( unsigned char *bufor, int &i )
 			players[rr].team=bufor[i++];
 		}
 	}
+
+	pom = i;
+	allowedHeroes.resize(HEROES_QUANTITY,false);
+	for(i; i<pom+ (version == RoE ? 16 : 20) ; ++i)
+	{
+		unsigned char c = bufor[i];
+		for(int yy=0; yy<8; ++yy)
+			if((i-pom)*8+yy < HEROES_QUANTITY)
+				if(c == (c|((unsigned char)intPow(2, yy))))
+					allowedHeroes[(i-pom)*8+yy] = true;
+	}
+	if(version>RoE) //probably reserved for further heroes
+		i+=4;
 }
 void CMapHeader::loadPlayerInfo( int &pom, unsigned char * bufor, int &i )
 {
@@ -1062,22 +1075,10 @@ void Mapa::readRumors( unsigned char * bufor, int &i)
 void Mapa::readHeader( unsigned char * bufor, int &i)
 {
 	//reading allowed heroes (20 bytes)
-	int ist;
+	int ist = i;
 
 	ist=i; //starting i for loop
 
-	allowedHeroes.resize(HEROES_QUANTITY,false);
-
-	for(i; i<ist+ (version == RoE ? 16 : 20) ; ++i)
-	{
-		unsigned char c = bufor[i];
-		for(int yy=0; yy<8; ++yy)
-			if((i-ist)*8+yy < HEROES_QUANTITY)
-				if(c == (c|((unsigned char)intPow(2, yy))))
-					allowedHeroes[(i-ist)*8+yy] = true;
-	}
-	if(version>RoE) //probably reserved for further heroes
-		i+=4;
 	unsigned char disp = 0;
 	if(version>=SoD)
 	{
@@ -2095,8 +2096,20 @@ void CMapInfo::countPlayers()
 	}
 }
 
-CMapInfo::CMapInfo( std::string fname, unsigned char *map )
-:CMapHeader(map),filename(fname)
+CMapInfo::CMapInfo(const std::string &fname, unsigned char *map )
 {
+	init(fname, map);
+}
+
+CMapInfo::CMapInfo()
+{
+	version = invalid;
+}
+
+void CMapInfo::init(const std::string &fname, unsigned char *map )
+{
+	filename = fname;
+	int i = 0;
+	initFromMemory(map, i);
 	countPlayers();
 }

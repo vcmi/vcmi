@@ -894,25 +894,27 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	positions.close();
 	//battleStartpos read
 
-	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army1.slots.begin(); i!=army1.slots.end(); i++)
+	int k = 0; //stack serial 
+	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army1.slots.begin(); i!=army1.slots.end(); i++, k++)
 	{
 		int pos;
 		if(army1.formation)
-			pos = attackerTight[army1.slots.size()-1][i->first];
+			pos = attackerTight[army1.slots.size()-1][k];
 		else
-			pos = attackerLoose[army1.slots.size()-1][i->first];
+			pos = attackerLoose[army1.slots.size()-1][k];
 
 		CStack * stack = BattleInfo::generateNewStack(hero1, i->second.first, i->second.second, stacks.size(), true, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
 		stacks.push_back(stack);
 	}
 	
-	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army2.slots.begin(); i!=army2.slots.end(); i++)
+	k = 0;
+	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army2.slots.begin(); i!=army2.slots.end(); i++, k++)
 	{
 		int pos;
 		if(army2.formation)
-			pos = defenderTight[army2.slots.size()-1][i->first];
+			pos = defenderTight[army2.slots.size()-1][k];
 		else
-			pos = defenderLoose[army2.slots.size()-1][i->first];
+			pos = defenderLoose[army2.slots.size()-1][k];
 
 		CStack * stack = BattleInfo::generateNewStack(hero2, i->second.first, i->second.second, stacks.size(), false, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
 		stacks.push_back(stack);

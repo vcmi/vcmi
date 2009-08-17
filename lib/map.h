@@ -29,7 +29,7 @@ class CGObjectInstance;
 class CGHeroInstance;
 class CQuest;
 class CGTownInstance;
-enum ESortBy{_name, _playerAm, _size, _format, _viccon, _loscon};
+enum ESortBy{_playerAm, _size, _format, _name, _viccon, _loscon};
 enum EDefType {TOWN_DEF, HERO_DEF, CREATURES_DEF, SEERHUT_DEF, RESOURCE_DEF, TERRAINOBJ_DEF, 
 	EVENTOBJ_DEF, SIGN_DEF, GARRISON_DEF, ARTIFACT_DEF, WITCHHUT_DEF, SCHOLAR_DEF, PLAYERONLY_DEF, 
 	SHRINE_DEF, SPELLSCROLL_DEF, PANDORA_DEF, GRAIL_DEF, CREGEN_DEF, CREGEN2_DEF, CREGEN3_DEF, 
@@ -208,7 +208,7 @@ public:
 class DLL_EXPORT CMapHeader
 {
 public:
-	enum Eformat { WoG=0x33, AB=0x15, RoE=0x0e,  SoD=0x1c};
+	enum Eformat {invalid, WoG=0x33, AB=0x15, RoE=0x0e,  SoD=0x1c};
 	Eformat version; // version of map Eformat
 	ui8 areAnyPLayers; // if there are any playable players on map
 	si32 height, width, twoLevel; //sizes
@@ -221,6 +221,7 @@ public:
 	std::vector<PlayerInfo> players; // info about players - size 8
 	std::vector<ui8> teams;  // teams[i] = team of player no i
 	ui8 howManyTeams;
+	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
 	void initFromMemory(unsigned char *bufor, int &i);
 	void loadViCLossConditions( unsigned char * bufor, int &i);
 	void loadPlayerInfo( int &pom, unsigned char * bufor, int &i);
@@ -242,9 +243,10 @@ public:
 	std::string filename;
 	std::string date;
 	int playerAmnt, humenPlayers;
-	CMapInfo(){};
+	CMapInfo();
+	CMapInfo(const std::string &fname, unsigned char *map);
+	void init(const std::string &fname, unsigned char *map);
 	void countPlayers();
-	CMapInfo(std::string fname, unsigned char *map);
 };
 
 
@@ -304,7 +306,6 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	std::vector<ui8> allowedSpell; //allowedSpell[spell_ID] - if the spell is allowed
 	std::vector<ui8> allowedArtifact; //allowedArtifact[artifact_ID] - if the artifact is allowed
 	std::vector<ui8> allowedAbilities; //allowedAbilities[ability_ID] - if the ability is allowed
-	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
 	std::list<CMapEvent*> events;
 
 	int3 grailPos;

@@ -60,6 +60,7 @@
 std::string NAME_AFFIX = "client";
 std::string NAME = NAME_VER + std::string(" (") + NAME_AFFIX + ')'; //application name
 CGuiHandler GH;
+CClient *client = NULL;
 SDL_Surface *screen = NULL, //main screen surface 
 	*screen2 = NULL,//and hlp surface (used to store not-active interfaces layer) 
 	*screenBuf = screen; //points to screen (if only advmapint is present) or screen2 (else) - should be used when updating controls which are not regularly redrawed
@@ -71,10 +72,12 @@ boost::mutex eventsM;
 TTF_Font * TNRB16, *TNR, *GEOR13, *GEORXX, *GEORM, *GEOR16;
 static bool gOnlyAI = false;
 
-void processCommand(const std::string &message, CClient *&client);
+void processCommand(const std::string &message);
 static void setScreenRes(int w, int h, int bpp, bool fullscreen);
 void dispose();
 void playIntro();
+void listenForEvents();
+void startGame(StartInfo * options);
 
 void init()
 {
@@ -150,8 +153,8 @@ void init()
 
 	CMessage::init();
 	tlog0<<"Message handler: "<<tmh.getDif()<<std::endl;
-	CPG = new CPreGame(); //main menu and submenus
-	tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
+	//CPG = new CPreGame(); //main menu and submenus
+	//tlog0<<"Initialization CPreGame (together): "<<tmh.getDif()<<std::endl;
 }
 
 #ifndef __GNUC__
@@ -162,11 +165,10 @@ int main(int argc, char** argv)
 {
 	tlog0 << "Starting... " << std::endl;
 	timeHandler total, pomtime;
-	CClient *client = NULL;
 	std::cout.flags(std::ios::unitbuf);
 	logfile = new std::ofstream("VCMI_Client_log.txt");
 	console = new CConsoleHandler;
-	*console->cb = boost::bind(&processCommand, _1, boost::ref(client));
+	*console->cb = boost::bind(&processCommand, _1);
 	console->start();
 	atexit(dispose);
 	tlog0 <<"Creating console and logfile: "<<pomtime.getDif() << std::endl;
@@ -176,124 +178,38 @@ int main(int argc, char** argv)
 	tlog0 << NAME << std::endl;
 
 	srand ( time(NULL) );
-	CPG=NULL;
+	//CPG=NULL;
 	atexit(SDL_Quit);
 	CGI = new CGameInfo; //contains all global informations about game (texts, lodHandlers, map handler itp.)
-	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO)==0)
+	if(SDL_Init(SDL_INIT_VIDEO|SDL_INIT_TIMER|SDL_INIT_AUDIO))
 	{
-		setScreenRes(800,600,conf.cc.bpp,conf.cc.fullscreen);
-		tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
-
-		// Initialize video
-		CGI->videoh = new CVideoPlayer;
-		tlog0<<"\tInitializing video: "<<pomtime.getDif()<<std::endl;
-
-		//we can properly play intro only in the main thread, so we have to move loading to the separate thread
-		boost::thread loading(init);
-		playIntro();
-		SDL_FillRect(screen,NULL,0);
-		SDL_Flip(screen);
-		loading.join();
-		tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
-
-
-		SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
-		CGI->musich->playMusic(musicBase::mainMenu, -1);
-		CPG->showMainMenu();
-		StartInfo *options = new StartInfo(CPG->runLoop());
-
-		if(gOnlyAI)
-		{
-			for (size_t i =0; i < options->playerInfos.size(); i++)
-			{
-				options->playerInfos[i].human = false;
-			}
-		}
-
-		if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
-		{
-			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
-		}
-		CClient cl;
-		if(options->mode == 0) //new game
-		{
-			pomtime.getDif();
-			char portc[10];
-			SDL_itoa(conf.cc.port,portc,10);
-			CClient::runServer(portc);
-			tlog0<<"Preparing shared memory and starting server: "<<pomtime.getDif()<<std::endl;
-
-			pomtime.getDif();//reset timers
-
-			CConnection *c=NULL;
-			//wait until server is ready
-			tlog0<<"Waiting for server... ";
-			cl.waitForServer();
-			tlog0 << pomtime.getDif()<<std::endl;
-			while(!c)
-			{
-				try
-				{
-					tlog0 << "Establishing connection...\n";
-					c = new CConnection(conf.cc.server,portc,NAME);
-				}
-				catch(...)
-				{
-					tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
-					SDL_Delay(2000);
-				}
-			}
-			THC tlog0<<"\tConnecting to the server: "<<pomtime.getDif()<<std::endl;
-			cl.newGame(c,options);
-			client = &cl;
-			CGI->musich->stopMusic();
-			boost::thread t(boost::bind(&CClient::run,&cl));
-		}
-		else //load game
-		{
-			std::string fname = options->mapname;
-			boost::algorithm::erase_last(fname,".vlgm1");
-			cl.load(fname);
-			client = &cl;
-			CGI->musich->stopMusic();
-			boost::thread t(boost::bind(&CClient::run,&cl));
-		}
-
-		SDL_Event *ev = NULL;
-		while(1) //main SDL events loop
-		{
-			ev = new SDL_Event();
-
-			int ret = SDL_WaitEvent(ev);
-			if(ret == 0 || (ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
-			{
-				LOCPLINT->pim->lock();
-				cl.close();
-				console->end();
-				SDL_Delay(750);
-				tlog0 << "Ending...\n";
-				exit(EXIT_SUCCESS);
-			}
-			else if(ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
-			{
-				boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
-				bool full = !(screen->flags&SDL_FULLSCREEN);
-				setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,full);
-				GH.totalRedraw();
-			}
-			eventsM.lock();
-			events.push(ev);
-			eventsM.unlock();
-		}
+		tlog1<<"Something was wrong: "<< SDL_GetError() << std::endl;
+		exit(-1);
 	}
-	else
-	{
-		tlog1<<"Something was wrong: "<<SDL_GetError()<<std::endl;
-		return -1;
-	}
+
+	setScreenRes(800,600,conf.cc.bpp,conf.cc.fullscreen);
+	tlog0 <<"\tInitializing screen: "<<pomtime.getDif() << std::endl;
+
+	// Initialize video
+	CGI->videoh = new CVideoPlayer;
+	tlog0<<"\tInitializing video: "<<pomtime.getDif()<<std::endl;
+
+	//we can properly play intro only in the main thread, so we have to move loading to the separate thread
+	boost::thread loading(init);
+	playIntro();
+	SDL_FillRect(screen,NULL,0);
+	SDL_Flip(screen);
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
+	loading.join();
+	tlog0<<"Initialization of VCMI (together): "<<total.getDif()<<std::endl;
+
+	new CGPreGame; //will set CGP pointer to itself
+	CGI->musich->playMusic(musicBase::mainMenu, -1);
+	boost::thread hhh(&CGPreGame::run, CGP);
+	listenForEvents();
 }
 
-void processCommand(const std::string &message, CClient *&client)
+void processCommand(const std::string &message)
 {
 	std::istringstream readed;
 	readed.str(message);
@@ -326,31 +242,47 @@ void processCommand(const std::string &message, CClient *&client)
 			break;
 		}
 	}
+	else if(cn=="screen")
+	{
+		tlog0 << "Screenbuf points to ";
+
+		if(screenBuf == screen)
+			tlog1 << "screen";
+		else if(screenBuf == screen2)
+			tlog1 << "screen2";
+		else
+			tlog1 << "?!?";
+
+		tlog1 << std::endl;
+
+		SDL_SaveBMP(screen, "Screen_c.bmp");
+		SDL_SaveBMP(screen2, "Screen2_c.bmp");
+	}
 	else if(cn=="save")
 	{
 		std::string fname;
 		readed >> fname;
 		client->save(fname);
 	}
-	else if(cn=="list")
-	{
-		if(CPG)
-			for(int i = 0; i < CPG->ourScenSel->mapsel.ourGames.size(); i++)
-				tlog0 << i << ".\t" << CPG->ourScenSel->mapsel.ourGames[i]->filename << std::endl;
-	}
+	//else if(cn=="list")
+	//{
+	//	if(CPG)
+	//		for(int i = 0; i < CPG->ourScenSel->mapsel.ourGames.size(); i++)
+	//			tlog0 << i << ".\t" << CPG->ourScenSel->mapsel.ourGames[i]->filename << std::endl;
+	//}
 	else if(cn=="load")
 	{
 		std::string fname;
 		readed >> fname;
 		client->load(fname);
 	}
-	else if(cn=="ln")
-	{
-		int num;
-		readed >> num;
-		std::string &name = CPG->ourScenSel->mapsel.ourGames[num]->filename;
-		client->load(name.substr(0, name.size()-6));
-	}
+	//else if(cn=="ln")
+	//{
+	//	int num;
+	//	readed >> num;
+	//	std::string &name = CPG->ourScenSel->mapsel.ourGames[num]->filename;
+	//	client->load(name.substr(0, name.size()-6));
+	//}
 	else if(cn=="resolution")
 	{
 		if(LOCPLINT)
@@ -480,4 +412,97 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 	SDL_EnableUNICODE(1);
 	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
 	SDL_ShowCursor(SDL_DISABLE);
+}
+
+void listenForEvents() 
+{
+	SDL_Event *ev = NULL;
+	while(1) //main SDL events loop
+	{
+		ev = new SDL_Event();
+
+		int ret = SDL_WaitEvent(ev);
+		if(ret == 0 || (ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
+		{
+			LOCPLINT->pim->lock();
+			client->close();
+			console->end();
+			SDL_Delay(750);
+			tlog0 << "Ending...\n";
+			exit(EXIT_SUCCESS);
+		}
+		else if(ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
+		{
+			boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
+			bool full = !(screen->flags&SDL_FULLSCREEN);
+			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,full);
+			GH.totalRedraw();
+		}
+		eventsM.lock();
+		events.push(ev);
+		eventsM.unlock();
+	}
+}
+
+void startGame(StartInfo * options) 
+{
+	if(gOnlyAI)
+	{
+		for (size_t i =0; i < options->playerInfos.size(); i++)
+		{
+			options->playerInfos[i].human = false;
+		}
+	}
+
+	if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
+	{
+		setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
+	}
+
+	CClient cl;
+	if(options->mode == 0) //new game
+	{
+		timeHandler pomtime;
+		char portc[10];
+		SDL_itoa(conf.cc.port,portc,10);
+		CClient::runServer(portc);
+		tlog0<<"Preparing shared memory and starting server: "<<pomtime.getDif()<<std::endl;
+
+		pomtime.getDif();//reset timers
+
+		CConnection *c=NULL;
+		//wait until server is ready
+		tlog0<<"Waiting for server... ";
+		cl.waitForServer();
+		tlog0 << pomtime.getDif()<<std::endl;
+		while(!c)
+		{
+			try
+			{
+				tlog0 << "Establishing connection...\n";
+				c = new CConnection(conf.cc.server,portc,NAME);
+			}
+			catch(...)
+			{
+				tlog1 << "\nCannot establish connection! Retrying within 2 seconds" <<std::endl;
+				SDL_Delay(2000);
+			}
+		}
+		THC tlog0<<"\tConnecting to the server: "<<pomtime.getDif()<<std::endl;
+		cl.newGame(c,options);
+		client = &cl;
+		CGI->musich->stopMusic();
+		client->run();
+		//boost::thread t(boost::bind(&CClient::run,&cl));
+	}
+	else //load game
+	{
+		std::string fname = options->mapname;
+		boost::algorithm::erase_last(fname,".vlgm1");
+		cl.load(fname);
+		client = &cl;
+		CGI->musich->stopMusic();
+		client->run();
+		//boost::thread t(boost::bind(&CClient::run,&cl));
+	}
 }

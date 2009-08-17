@@ -1689,11 +1689,7 @@ void CAdvMapInt::handleRightClick(std::string text, tribool down, CIntObject * c
 {
 	if (down)
 	{
-		//boost::algorithm::erase_all(text,"\"");
 		CSimpleWindow * temp = CMessage::genWindow(text,LOCPLINT->playerID);
-		temp->pos.x=screen->w/2-(temp->pos.w/2);
-		temp->pos.y=screen->h/2-(temp->pos.h/2);
-		temp->owner = client;
 		CRClickPopupInt *rcpi = new CRClickPopupInt(temp,true);
 		GH.pushInt(rcpi);
 	}

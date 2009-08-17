@@ -219,7 +219,7 @@ void CDefHandler::expand(unsigned char N,unsigned char & BL, unsigned char & BR)
 	BL = (N & 0xE0) >> 5;
 	BR = N & 0x1F;
 }
-int CDefHandler::readNormalNr (int pos, int bytCon, unsigned char * str, bool cyclic)
+int CDefHandler::readNormalNr (int pos, int bytCon, const unsigned char * str, bool cyclic)
 {
 	int ret=0;
 	int amp=1;

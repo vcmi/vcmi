@@ -68,7 +68,8 @@ public:
 	std::vector<AdventureMapButton *> buttons;
 	std::vector<SComponent*> components;
 	virtual void close();
-	virtual void show(SDL_Surface * to);
+	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
 	void activate();
 	void deactivate();
 	CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps); //c-tor
@@ -362,6 +363,7 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to){show(to);};
 	void cleanCres();
 	void initCres();
 	CRecruitmentWindow(const CGDwelling *Dwelling, int Level, const CArmedInstance *Dst, const boost::function<void(int,int)> & Recruit); //creatures - pairs<creature_ID,amount> //c-tor
@@ -683,6 +685,7 @@ public:
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to){show(to);};
 	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down); //c-tor
 	~CGarrisonWindow(); //d-tor
 };

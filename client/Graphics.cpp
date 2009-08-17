@@ -258,6 +258,7 @@ Graphics::Graphics()
 	CDefHandler *smi, *smi2;
 
 	std::vector<Task> tasks; //preparing list of graphics to load
+	tasks += boost::bind(&Graphics::loadFonts,this);
 	tasks += boost::bind(&Graphics::loadPaletteAndColors,this);
 	tasks += boost::bind(&Graphics::loadHeroFlags,this);
 	tasks += boost::bind(&Graphics::loadHeroPortraits,this);
@@ -594,4 +595,70 @@ void Graphics::blueToPlayersAdv(SDL_Surface * sur, int player)
 			}
 		}
 	}
+}
+
+Font * Graphics::loadFont( const char * name )
+{
+	int len = 0;
+	unsigned char * hlp = bitmaph->giveFile(name, &len);
+	if(!hlp || !len)
+	{
+		tlog1 << "Error: cannot load font: " << name << std::endl;
+		return NULL;
+	}
+	Font *ret = new Font(hlp);
+	return ret;
+}
+
+void Graphics::loadFonts()
+{
+	static const char *fontnames [] = {"BIGFONT.FNT", "CALLI10R.FNT", "CREDITS.FNT", "HISCORE.FNT", "MEDFONT.FNT",
+								"SMALFONT.FNT", "TIMES08R.FNT", "TINY.FNT", "VERD10B.FNT"} ;
+
+	assert(ARRAY_COUNT(fontnames) == FONTS_NUMBER);
+	for(int i = 0; i < FONTS_NUMBER; i++)
+		fonts[i] = loadFont(fontnames[i]);
+}
+
+Font::Font(unsigned char *Data)
+{
+	data = Data;
+	int i = 0;
+
+	height = data[5];
+
+	i = 32;
+	for(int ci = 0; ci < 256; ci++)
+	{
+		chars[ci].unknown1 = CDefHandler::readNormalNr(i, 4, data); i+=4;
+		chars[ci].width = CDefHandler::readNormalNr(i, 4, data); i+=4;
+		chars[ci].unknown2 = CDefHandler::readNormalNr(i, 4, data); i+=4;
+
+		//if(ci>=30)
+		//	tlog0 << ci << ". (" << (char)ci << "). Width: " << chars[ci].width << " U1/U2:" << chars[ci].unknown1 << "/" << chars[ci].unknown2 << std::endl;
+	}
+	for(int ci = 0; ci < 256; ci++)
+	{
+		chars[ci].offset = CDefHandler::readNormalNr(i, 4, data); i+=4;
+		chars[ci].pixels = data + 4128 + chars[ci].offset;
+	}
+}
+
+Font::~Font()
+{
+	delete [] data;
+}
+
+int Font::getWidth(const char *text ) const
+{
+	int length = std::strlen(text);
+	int ret = 0;
+
+	for(int i = 0; i < length; i++)
+	{
+		unsigned char c = text[i];
+		ret += chars[c].width + chars[c].unknown1 + chars[c].unknown2;
+	}
+
+	return ret;
 }

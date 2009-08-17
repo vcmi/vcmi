@@ -55,6 +55,7 @@ class CArmedInstance;
 class CGTownInstance;
 class StackState;
 class CPlayerInterface;
+enum EFonts;
 
 struct Point
 {
@@ -224,6 +225,7 @@ struct Rect : public SDL_Rect
 class IShowable
 {
 public:
+	void redraw();
 	virtual void show(SDL_Surface * to)=0;
 	virtual void showAll(SDL_Surface * to)
 	{
@@ -270,7 +272,7 @@ public:
 	int ID; //object ID, rarely used by some classes for identification / internal info
 
 	CIntObject();
-	virtual ~CIntObject(){}; //d-tor
+	virtual ~CIntObject();; //d-tor
 
 	//l-clicks handling
 	bool pressedL; //for determining if object is L-pressed
@@ -308,15 +310,26 @@ public:
 	void deactivateTimer();
 	virtual void tick();
 
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32};
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64};
 	ui8 active;
-	ui8 defActivation;
+	ui8 used;
+
+	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
+	ui8 defActions; //which calls will be tried to be redirected to children
+	ui8 recActions; //which calls we allow te receive from parent
 
 	void defActivate();
 	void defDeactivate();
 	void activate();
 	void deactivate();
 	void show(SDL_Surface * to);
+	void showAll(SDL_Surface * to);
+
+	void printAtLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh = false);
+	void printToLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh = false);
+	void printAtMiddleLoc(const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh = false);
+	void printAtMiddleWBLoc(const std::string & text, int x, int y, EFonts font, int charpr, SDL_Color kolor, SDL_Surface * dst, bool refrsh = false);
+	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
 };
 
 //class for binding keys to left mouse button clicks
@@ -350,23 +363,15 @@ public:
 	void deactivate(){};
 };
 
-class CButtonBase : public KeyShortcut//basic buttton class
+class CPicture : public CIntObject
 {
-public:
-	int bitmapOffset; //TODO: comment me
-	int type; //advmapbutton=2 //TODO: comment me
-	bool abs;//TODO: comment me
-	bool active; //if true, this button is active and can be pressed
-	bool notFreeButton; //TODO: comment me
-	CIntObject * ourObj; // "owner"
-	int state; //TODO: comment me
-	std::vector< std::vector<SDL_Surface*> > imgs; //images for this button
-	int curimg; //curently displayed image from imgs
-	virtual void show(SDL_Surface * to);
-	virtual void activate()=0;
-	virtual void deactivate()=0;
-	CButtonBase(); //c-tor
-	virtual ~CButtonBase(); //d-tor
+public: 
+	SDL_Surface *bg;
+	bool freeSurf;
+
+	CPicture(SDL_Surface *BG, int x, int y, bool Free);
+	~CPicture();
+	void showAll(SDL_Surface * to);
 };
 
 class CGuiHandler
@@ -400,8 +405,29 @@ public:
 	void handleEvent(SDL_Event *sEvent);
 
 	void handleMouseMotion(SDL_Event *sEvent);
+
+	ui8 defActionsDef; //default auto actions
+	ui8 captureChildren; //all newly created objects will get their parents from stack and will be added to parents children list
+	std::list<CIntObject *> createdObj; //stack of objs being created
 };
 
 extern CGuiHandler GH; //global gui handler
+
+struct ObjectConstruction
+{
+	CIntObject *myObj;
+	ObjectConstruction(CIntObject *obj);
+	~ObjectConstruction();
+};
+
+struct BlockCapture
+{
+	bool previous;
+	BlockCapture();
+	~BlockCapture();
+};
+
+#define OBJ_CONSTRUCTION ObjectConstruction obj__i(this)
+#define BLOCK_CAPTURING BlockCapture obj__i
 
 #endif //__GUIBASE_H__

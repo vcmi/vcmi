@@ -364,7 +364,10 @@ SDL_Surface * BitmapHandler::loadBitmap(std::string fname, bool setKey)
 	CPCXConv cp;
 	cp.openPCX((char*)pcx,e->realSize);
 	SDL_Surface * ret = cp.getSurface();
-	if(setKey)
-		SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format,0,255,255));
+	if(ret->format->BytesPerPixel == 1  &&  setKey)
+	{
+		const SDL_Color &c = ret->format->palette->colors[0];
+		SDL_SetColorKey(ret,SDL_SRCCOLORKEY,SDL_MapRGB(ret->format, c.r, c.g, c.b));
+	}
 	return ret;
 }

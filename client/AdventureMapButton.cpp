@@ -11,6 +11,7 @@
 #include "Graphics.h"
 #include "CBattleInterface.h"
 #include "CPlayerInterface.h"
+#include "CMessage.h"
 
 /*
  * AdevntureMapButton.cpp, part of VCMI engine
@@ -22,11 +23,71 @@
  *
  */
 
+CButtonBase::CButtonBase()
+{
+	bitmapOffset = 0;
+	curimg=0;
+	type=-1;
+	abs=false;
+	//active=false;
+	notFreeButton = false;
+	ourObj=NULL;
+	state=0;
+	text = NULL;
+}
+
+CButtonBase::~CButtonBase()
+{
+	delete text;
+	if(notFreeButton)
+		return;
+	for(int i =0; i<imgs.size();i++)
+		for(int j=0;j<imgs[i].size();j++)
+			SDL_FreeSurface(imgs[i][j]);
+}
+
+void CButtonBase::show(SDL_Surface * to)
+{
+	int img = std::min(state+bitmapOffset,int(imgs[curimg].size()-1));
+	img = std::max(0, img);
+
+	if (abs)
+	{
+		blitAt(imgs[curimg][img],pos.x,pos.y,to);
+		if(text)
+		{
+			CSDL_Ext::printAt(text->text, text->x + pos.x + state, text->y + pos.y + state, text->font, zwykly, to);
+		}
+	}
+	else
+	{
+		blitAt(imgs[curimg][img],pos.x+ourObj->pos.x,pos.y+ourObj->pos.y,to);
+	}
+}
+
+void CButtonBase::showAll( SDL_Surface * to )
+{
+	show(to);
+}
+
+void CButtonBase::addTextOverlay( const std::string Text, EFonts font )
+{
+	text = new TextOverlay;
+	text->text = Text;
+
+	const Font *f = graphics->fonts[font];
+	text->x = pos.w/2 - f->getWidth(Text.c_str())/2;
+	text->y = pos.h/2 - f->height/2;
+	text->font = font;
+}
+
+
 AdventureMapButton::AdventureMapButton ()
 {
 	type=2;
 	abs=true;
-	active=false;
+	hoverable = false;
+	//active=false;
 	ourObj=NULL;
 	state=0;
 	blocked = actOnDown = false;
@@ -81,17 +142,36 @@ void AdventureMapButton::clickLeft(tribool down, bool previousState)
 
 void AdventureMapButton::clickRight(tribool down, bool previousState)
 {
-	if(helpBox.size()) //there is no point to show window with nothing inside...
-		LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);
+	if(down && helpBox.size()) //there is no point to show window with nothing inside...
+		if(LOCPLINT)
+			LOCPLINT->adventureInt->handleRightClick(helpBox,down,this);
+		else
+			GH.pushInt(new CRClickPopupInt(CMessage::genWindow(helpBox, 0),true));
 }
 
 void AdventureMapButton::hover (bool on)
 {
+	if(hoverable)
+	{
+		if(on)
+			state = 2;
+		else
+			state = 0;
+	}
+
+	if(pressedL)
+	{
+		if(on)
+			state = 1;
+		else
+			state = hoverable ? 2 : 0;
+	}
+
 	////Hoverable::hover(on);
 	std::string *name = (vstd::contains(hoverTexts,state)) 
 							? (&hoverTexts[state]) 
 							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
-	if(name && blocked!=1) //if there is no name, there is nohing to display also
+	if(LOCPLINT &&  name && blocked!=1) //if there is no name, there is nohing to display also
 	{
 		if (LOCPLINT->battleInt) //for battle buttons
 		{
@@ -118,8 +198,8 @@ void AdventureMapButton::hover (bool on)
 
 void AdventureMapButton::activate()
 {
-	if (active) return;
-	active=true;
+// 	if (active) return;
+// 	active=true;
 	activateLClick();
 	activateRClick();
 	activateHover();
@@ -127,8 +207,8 @@ void AdventureMapButton::activate()
 }
 void AdventureMapButton::deactivate()
 {
-	if (!active) return;
-	active=false;
+// 	if (!active) return;
+// 	active=false;
 	deactivateLClick();
 	deactivateRClick();
 	deactivateHover();
@@ -141,31 +221,22 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 	blocked = actOnDown = false;
 	type=2;
 	abs=true;
-	active=false;
+	hoverable = false;
+	//active=false;
 	ourObj=NULL;
 	assignedKeys.insert(key);
 	state=0;
 	hoverTexts = Name;
 	helpBox=HelpBox;
-	//int est = LOCPLINT->playerID; //TODO use me
-	CDefHandler * temp = CDefHandler::giveDef(defName); 
-	temp->notFreeImgs = true;
-	for (size_t i=0;i<temp->ourImages.size();i++)
-	{
-		imgs.resize(1);
-		imgs[0].push_back(temp->ourImages[i].bitmap);
-		if(playerColoredButton)
-		{
-			graphics->blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
-		}
-	}
-	delete temp;
+
+	setDef(defName, playerColoredButton);
+
 	if (add && add->size())
 	{
 		imgs.resize(imgs.size()+add->size());
 		for (size_t i=0; i<add->size();i++)
 		{
-			temp = CDefHandler::giveDef((*add)[i]);
+			CDefHandler *temp = CDefHandler::giveDef((*add)[i]);
 			temp->notFreeImgs = true;
 			for (size_t j=0;j<temp->ourImages.size();j++)
 			{
@@ -179,8 +250,8 @@ void AdventureMapButton::init(const CFunctionList<void()> &Callback, const std::
 		}
 		//delete add;
 	}
-	pos.x=x;
-	pos.y=y;
+	pos.x += x;
+	pos.y += y;
 	pos.w = imgs[curimg][0]->w;
 	pos.h = imgs[curimg][0]->h  -1;
 }
@@ -193,6 +264,21 @@ void AdventureMapButton::block( ui8 on )
 	show(screenBuf);
 }
 
+void AdventureMapButton::setDef(const std::string & defName, bool playerColoredButton)
+{
+	CDefHandler * temp = CDefHandler::giveDef(defName); 
+	temp->notFreeImgs = true;
+	for (size_t i=0;i<temp->ourImages.size();i++)
+	{
+		imgs.resize(1);
+		imgs[0].push_back(temp->ourImages[i].bitmap);
+		if(playerColoredButton)
+		{
+			graphics->blueToPlayersAdv(imgs[curimg][i],LOCPLINT->playerID);
+		}
+	}
+	delete temp;
+}
 void CHighlightableButton::select(bool on)
 {
 	selected = on;
@@ -228,6 +314,14 @@ CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelec
 : onlyOn(false), selected(false), callback2(onDeselect)
 {
 	init(onSelect,Name,HelpBox,playerColoredButton,defName,add,x,y,key);
+}
+
+CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::string> help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
+{
+	ID = myid;
+	std::map<int,std::string> pom;
+	pom[0] = help.first;
+	init(onSelect, pom, help.second, playerColoredButton, defName, add, x, y, key);
 }
 
 void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
@@ -311,6 +405,11 @@ void CHighlightableButtonsGroup::show(SDL_Surface * to )
 	}
 }
 
+void CHighlightableButtonsGroup::showAll( SDL_Surface * to )
+{
+	show(to);
+}
+
 void CSlider::sliderClicked()
 {
 	if(!moving)
@@ -322,11 +421,23 @@ void CSlider::sliderClicked()
 
 void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 {
-	if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  ) 
-		return;
-	float v = sEvent.x - pos.x - 24;
-	v*=amount;
-	v/= (pos.w - 48);
+	float v = 0;
+	if(horizontal)
+	{
+		if(	std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2+40  ||  std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2  ) 
+			return;
+		v = sEvent.x - pos.x - 24;
+		v *= positions;
+		v /= (pos.w - 48);
+	}
+	else
+	{
+		if(std::abs(sEvent.x-(pos.x+pos.w/2)) > pos.w/2+40  ||  std::abs(sEvent.y-(pos.y+pos.h/2)) > pos.h/2  ) 
+			return;
+		v = sEvent.y - pos.y - 24;
+		v *= positions;
+		v /= (pos.h - 48);
+	}
 	v += 0.5f;
 	if(v!=value)
 	{
@@ -337,7 +448,7 @@ void CSlider::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 
 void CSlider::redrawSlider()
 {
-	slider.show(screenBuf);
+	slider->show(screenBuf);
 }
 
 void CSlider::moveLeft()
@@ -352,47 +463,60 @@ void CSlider::moveRight()
 
 void CSlider::moveTo(int to)
 {
-	if(to<0)
-		to=0;
-	else if(to>amount)
-		to=amount;
+	amax(to, 0);
+	amin(to, positions);
+
+	//same, old position?
+	if(value == to)
+		return;
+
 	value = to;
-	if(amount)
+	if(horizontal)
 	{
-		float part = (float)to/amount;
-		part*=(pos.w-48);
-		slider.pos.x = part + pos.x + 16;
+		if(positions)
+		{
+			float part = (float)to/positions;
+			part*=(pos.w-48);
+			slider->pos.x = part + pos.x + 16;
+		}
+		else
+			slider->pos.x = pos.x+16;
 	}
 	else
-		slider.pos.x = pos.x+16;
+	{
+		if(positions)
+		{
+			float part = (float)to/positions;
+			part*=(pos.h-48);
+			slider->pos.y = part + pos.y + 16;
+		}
+		else
+			slider->pos.y = pos.y+16;
+	}
 	moved(to);
-}
-
-void CSlider::activate() // makes button active
-{
-	left.activate();
-	right.activate();
-	slider.activate();
-	activateLClick();
-}
-
-void CSlider::deactivate() // makes button inactive (but doesn't delete)
-{
-	left.deactivate();
-	right.deactivate();
-	slider.deactivate();
-	deactivateLClick();
 }
 
 void CSlider::clickLeft(tribool down, bool previousState)
 {
 	if(down)
 	{
-		float pw = GH.current->motion.x-pos.x-24;
-		float rw = pw / ((float)(pos.w-48));
-		if (rw>1) return;
-		if (rw<0) return;
-		moveTo(rw*amount+0.5f);
+		float pw = 0;
+		float rw = 0;
+		if(horizontal)
+		{
+			pw = GH.current->motion.x-pos.x-24;
+			rw = pw / ((float)(pos.w-48));
+		}
+		else
+		{
+			pw = GH.current->motion.y-pos.y-24;
+			rw = pw / ((float)(pos.h-48));
+		}
+		if(pw < -8  ||  pw > (horizontal ? pos.w : pos.h) + 8)
+			return;
+// 		if (rw>1) return;
+// 		if (rw<0) return;
+		moveTo(rw * positions  +  0.5f);
 		return;
 	}
 	if(moving)
@@ -402,46 +526,85 @@ void CSlider::clickLeft(tribool down, bool previousState)
 	}
 }
 
-void CSlider::show(SDL_Surface * to)
-{
-	left.show(to);
-	right.show(to);
-	slider.show(to);
-}
-
 CSlider::~CSlider()
 {
 	delete imgs;
 }
 
-CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal)
-:capacity(Capacity),amount(Amount),value(Value),horizontal(Horizontal), moved(Moved)
+CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, int style)
+:capacity(Capacity),amount(Amount),horizontal(Horizontal), moved(Moved)
 {
+	OBJ_CONSTRUCTION;
+	setAmount(amount);
+
+	used = LCLICK;
 	moving = false;
 	strongInterest = true;
-	imgs = CDefHandler::giveDefEss("IGPCRDIV.DEF");
 
-	left.pos.y = slider.pos.y = right.pos.y = pos.y = y;
-	left.pos.x = pos.x = x;
-	right.pos.x = x + totalw - 16;
-	left.callback = boost::bind(&CSlider::moveLeft,this);
-	right.callback = boost::bind(&CSlider::moveRight,this);
-	slider.callback = boost::bind(&CSlider::sliderClicked,this);
-	left.pos.w = left.pos.h = right.pos.w = right.pos.h = slider.pos.w = slider.pos.h = pos.h = 16;
-	pos.w = totalw;
-	left.imgs.resize(1); right.imgs.resize(1); slider.imgs.resize(1);
-	left.imgs[0].push_back(imgs->ourImages[0].bitmap); left.imgs[0].push_back(imgs->ourImages[1].bitmap);
-	right.imgs[0].push_back(imgs->ourImages[2].bitmap); right.imgs[0].push_back(imgs->ourImages[3].bitmap);
-	slider.imgs[0].push_back(imgs->ourImages[4].bitmap);
-	left.notFreeButton = right.notFreeButton = slider.notFreeButton = true;
-	slider.actOnDown = true;
 
-	moveTo(value);
+	left = new AdventureMapButton;
+	right = new AdventureMapButton;
+	slider = new AdventureMapButton;
+
+	if(horizontal)
+	{
+		left->pos.y = slider->pos.y = right->pos.y = pos.y = y;
+		left->pos.x = pos.x = x;
+		right->pos.x = x + totalw - 16;
+	}
+	else 
+	{
+		left->pos.x = slider->pos.x = right->pos.x = pos.x = x;
+		left->pos.y = pos.y = y;
+		right->pos.y = y + totalw - 16;
+	}
+
+	left->callback = boost::bind(&CSlider::moveLeft,this);
+	right->callback = boost::bind(&CSlider::moveRight,this);
+	slider->callback = boost::bind(&CSlider::sliderClicked,this);
+	left->pos.w = left->pos.h = right->pos.w = right->pos.h = slider->pos.w = slider->pos.h = 16;
+	if(horizontal)
+	{
+		pos.h = 16;
+		pos.w = totalw;
+	}
+	else
+	{
+		pos.w = 16;
+		pos.h = totalw;
+	}
+
+	if(style == 0)
+	{
+		imgs = CDefHandler::giveDefEss("IGPCRDIV.DEF");
+		left->imgs.resize(1); right->imgs.resize(1); slider->imgs.resize(1);
+		left->imgs[0].push_back(imgs->ourImages[0].bitmap); left->imgs[0].push_back(imgs->ourImages[1].bitmap);
+		right->imgs[0].push_back(imgs->ourImages[2].bitmap); right->imgs[0].push_back(imgs->ourImages[3].bitmap);
+		slider->imgs[0].push_back(imgs->ourImages[4].bitmap);
+		left->notFreeButton = right->notFreeButton = slider->notFreeButton = true;
+	}
+	else
+	{
+		imgs = NULL;
+		left->setDef(horizontal ? "SCNRBLF.DEF" : "SCNRBUP.DEF", false);
+		right->setDef(horizontal ? "SCNRBRT.DEF" : "SCNRBDN.DEF", false);
+		slider->setDef("SCNRBSL.DEF", false);
+	}
+	slider->actOnDown = true;
+
+	value = -1;
+	moveTo(Value);
 }
 
 void CSlider::block( bool on )
 {
-	left.block(on);
-	right.block(on);
-	slider.block(on);
+	left->block(on);
+	right->block(on);
+	slider->block(on);
+}
+
+void CSlider::setAmount( int to )
+{
+	positions = to - capacity;
+	amax(positions, 1);
 }

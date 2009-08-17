@@ -636,6 +636,12 @@ void CInfoWindow::deactivate()
 	for(int i=0;i<buttons.size();i++)
 		buttons[i]->deactivate();
 }
+
+void CInfoWindow::showAll( SDL_Surface * to )
+{
+	show(to);
+}
+
 void CRClickPopup::clickRight(tribool down, bool previousState)
 {
 	if(down)
@@ -1683,7 +1689,7 @@ void CRecruitmentWindow::clickLeft(tribool down, bool previousState)
 		{
 			which = i;
 			int newAmount = std::min(amounts[i],creatures[i].amount);
-			slider->amount = newAmount;
+			slider->setAmount(newAmount);
 			if(slider->value > newAmount)
 				slider->moveTo(newAmount);
 			else
@@ -1873,7 +1879,7 @@ void CRecruitmentWindow::initCres()
 		}
 	}
 
-	slider->amount = std::min(amounts[which],creatures[which].amount);
+	slider->setAmount(std::min(amounts[which],creatures[which].amount));
 }
 
 void CRecruitmentWindow::cleanCres()
@@ -2676,7 +2682,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	if(hLeft && hRight && hLeft->id!= hRight->id)
 	{
 		LOCPLINT->cb->getMarketOffer(hLeft->id,hRight->id,r1,r2,0);
-		slider->amount = LOCPLINT->cb->getResourceAmount(hLeft->id) / r1;
+		slider->setAmount(LOCPLINT->cb->getResourceAmount(hLeft->id) / r1);
 		slider->moveTo(0);
 		max->block(false);
 		deal->block(false);
@@ -2685,7 +2691,7 @@ void CMarketplaceWindow::selectionChanged(bool side)
 	{
 		max->block(true);
 		deal->block(true);
-		slider->amount = 0;
+		slider->setAmount(0);
 		slider->moveTo(0);
 	}
 	if(side && hLeft) //left selection changed, recalculate offers
@@ -3316,7 +3322,7 @@ CRClickPopupInt::~CRClickPopupInt()
 {
 	//workaround for hero window issue - if it's our interface, call dispose to properly reset it's state 
 	//TODO? it might be better to rewrite hero window so it will bee newed/deleted on opening / closing (not effort-worthy now, but on some day...?)
-	if(inner == LOCPLINT->adventureInt->heroWindow)
+	if(LOCPLINT && inner == LOCPLINT->adventureInt->heroWindow)
 		LOCPLINT->adventureInt->heroWindow->dispose();
 
 	if(delInner)

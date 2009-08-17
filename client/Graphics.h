@@ -24,9 +24,38 @@ struct SDL_Color;
 struct InfoAboutHero;
 struct InfoAboutTown;
 
+struct Font
+{
+	struct Char
+	{
+		si32 unknown1, width, unknown2, offset;
+		unsigned char *pixels;
+	};
+
+	Char chars[256];
+	ui8 height;
+
+	unsigned char *data;
+
+
+	Font(unsigned char *Data);
+	~Font();
+	int getWidth(const char *text) const;
+};
+
+enum EFonts
+{
+	FONT_BIG, FONT_CALLI, FONT_CREDITS, FONT_HIGH_SCORE, FONT_MEDIUM, FONT_SMALL, FONT_TIMES, FONT_TINY, FONT_VERD
+};
+
+
 class Graphics
 {
 public:
+	//Fonts
+	static const int FONTS_NUMBER = 9;
+	Font *fonts[FONTS_NUMBER];
+
 	//various graphics
 	SDL_Color * playerColors; //array [8]
 	SDL_Color * neutralColor;
@@ -82,6 +111,8 @@ public:
 	SDL_Surface * drawTownInfoWin(const CGTownInstance * curh);
 	SDL_Surface * getPic(int ID, bool fort=true, bool builded=false); //returns small picture of town: ID=-1 - blank; -2 - border; -3 - random
 	void blueToPlayersAdv(SDL_Surface * sur, int player); //replaces blue interface colour with a color of player
+	void loadFonts();
+	Font *loadFont(const char * name);
 };
 
 extern Graphics * graphics;
