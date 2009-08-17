@@ -88,7 +88,7 @@ public:
 	void setBlockVis(int objid, bool bv){};
 	void setOwner(int objid, ui8 owner){};
 	void setHoverName(int objid, MetaString * name){};
-	void setObjProperty(int objid, int prop, int val){};
+	void setObjProperty(int objid, int prop, si64 val){};
 	void changePrimSkill(int ID, int which, si64 val, bool abs=false){};
 	void changeSecSkill(int ID, int which, int val, bool abs=false){}; 
 	void showInfoDialog(InfoWindow *iw){};

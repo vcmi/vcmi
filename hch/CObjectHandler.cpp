@@ -2882,7 +2882,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 
 		//give exp
 		if(gainedExp)
-			cb->changePrimSkill(h->id,5,gainedExp,false);
+			cb->changePrimSkill(h->id,4,gainedExp,false);
 		//give prim skills
 		for(int i=0; i<primskills.size(); i++)
 			if(primskills[i])

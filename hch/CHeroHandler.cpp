@@ -383,13 +383,17 @@ unsigned int CHeroHandler::level (ui64 experience)
 	int i;
 	if (experience <= expPerLevel.back())
 	{
-		for(i = expPerLevel.size()-1; experience < expPerLevel[i]; i--);
+		
+		//i = expPerLevel.size() - 1;
+		//while (experience <= reqExp (i))
+		//	i--;
+		for (i = expPerLevel.size()-1; experience < expPerLevel[i]; i--);
 		return i + 1;
 	}
 	else
 	{
 		//for(i = expPerLevel.size(); experience > reqExp(i); i++);
-		i = expPerLevel.size();
+		i = expPerLevel.size() - 1;
 		while (experience > reqExp (i))
 			i++;
 		return i;

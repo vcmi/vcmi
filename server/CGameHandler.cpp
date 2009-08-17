@@ -1575,7 +1575,7 @@ int CGameHandler::getSelectedHero()
 	return IGameCallback::getSelectedHero(getCurrentPlayer())->id;
 }
 
-void CGameHandler::setObjProperty( int objid, int prop, int val )
+void CGameHandler::setObjProperty( int objid, int prop, si64 val )
 {
 	SetObjectProperty sob;
 	sob.id = objid;

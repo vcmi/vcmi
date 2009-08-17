@@ -93,7 +93,7 @@ class DLL_EXPORT CHeroHandler
 public:
 	std::vector<CHero*> heroes; //changed from nodrze
 	std::vector<CHeroClass *> heroClasses;
-	std::vector<int> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
+	std::vector<ui64> expPerLevel; //expPerLEvel[i] is amount of exp needed to reach level i; if it is not in this vector, multiplicate last value by 1,2 to get next value
 	
 	struct SBallisticsLevelInfo
 	{
