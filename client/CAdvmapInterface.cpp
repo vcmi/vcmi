@@ -1444,7 +1444,7 @@ void CAdvMapInt::fnextHero()
 		i++;
 		if(i >= LOCPLINT->wanderingHeroes.size())
 			i = 0;
-	} while (LOCPLINT->wanderingHeroes[i]->movement && i!=start);
+	} while (!LOCPLINT->wanderingHeroes[i]->movement && i!=start);
 	heroList.select(i);
 }
 
