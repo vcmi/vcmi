@@ -443,7 +443,7 @@ public:
 	std::vector<si32> spells; //gained spells
 	CCreatureSet creatures; //gained creatures
 
-	void CGPandoraBox::initObj();
+	void initObj();
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void open (const CGHeroInstance * h, ui32 accept) const;
 	void endBattle(const CGHeroInstance *h, BattleResult *result) const;
