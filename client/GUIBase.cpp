@@ -23,10 +23,13 @@ void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(vstd::contains(assignedKeys,key.keysym.sym))
 	{
-		if(key.state == SDL_PRESSED)
+		if(key.state == SDL_PRESSED) {
 			clickLeft(true, pressedL);
-		else
+			pressedL = true;
+		} else {
 			clickLeft(false, pressedL);
+			pressedL = false;
+		}
 	}
 }
 
