@@ -322,10 +322,10 @@ static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInf
 	return ret;
 }
 
-void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb)
+void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb)
 {
 	BattleInfo *curB = new BattleInfo;
-	setupBattle(curB, tile, army1->army, army2->army, hero1, hero2); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+	setupBattle(curB, tile, army1->army, army2->army, hero1, hero2, creatureBank); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 	NEW_ROUND;
 	//TODO: pre-tactic stuff, call scripts etc.
 
@@ -842,7 +842,7 @@ void CGameHandler::run(bool resume)
 namespace CGH
 {
 	using namespace std;
-	static void readItTo(ifstream & input, vector< vector<int> > & dest)
+	static void readItTo(ifstream & input, vector< vector<int> > & dest) //reads 7 lines, i-th one containing i integers, and puts it to dest
 	{
 		for(int j=0; j<7; ++j)
 		{
@@ -857,7 +857,7 @@ namespace CGH
 	}
 }
 
-void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet &army1, const CCreatureSet &army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2 )
+void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet &army1, const CCreatureSet &army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank )
 {
 	battleResult.set(NULL);
 	std::vector<CStack*> & stacks = (curB->stacks);
@@ -882,7 +882,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	}
 	std::string dump;
 	positions>>dump; positions>>dump;
-	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight;
+	std::vector< std::vector<int> > attackerLoose, defenderLoose, attackerTight, defenderTight, attackerCreBank, defenderCreBank;
 	CGH::readItTo(positions, attackerLoose);
 	positions>>dump;
 	CGH::readItTo(positions, defenderLoose);
@@ -891,6 +891,11 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	CGH::readItTo(positions, attackerTight);
 	positions>>dump;
 	CGH::readItTo(positions, defenderTight);
+	positions>>dump;
+	positions>>dump;
+	CGH::readItTo(positions, attackerCreBank);
+	positions>>dump;
+	CGH::readItTo(positions, defenderCreBank);
 	positions.close();
 	//battleStartpos read
 
@@ -898,7 +903,9 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army1.slots.begin(); i!=army1.slots.end(); i++, k++)
 	{
 		int pos;
-		if(army1.formation)
+		if(creatureBank)
+			pos = attackerCreBank[army1.slots.size()-1][k];
+		else if(army1.formation)
 			pos = attackerTight[army1.slots.size()-1][k];
 		else
 			pos = attackerLoose[army1.slots.size()-1][k];
@@ -911,7 +918,9 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	for(std::map<si32,std::pair<ui32,si32> >::const_iterator i = army2.slots.begin(); i!=army2.slots.end(); i++, k++)
 	{
 		int pos;
-		if(army2.formation)
+		if(creatureBank)
+			pos = defenderCreBank[army1.slots.size()-1][k];
+		else if(army2.formation)
 			pos = defenderTight[army2.slots.size()-1][k];
 		else
 			pos = defenderLoose[army2.slots.size()-1][k];
@@ -1374,7 +1383,7 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 					return true;
 				}
 				//TODO: check for ally
-				startBattleI(h, dh);
+				startBattleI(h, dh, false);
 				return true;
 			}
 		}
@@ -1530,7 +1539,7 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 	sendAndApply(&sha);
 }
 
-void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, boost::function<void(BattleResult*)> cb) //use hero=NULL for no hero
+void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb) //use hero=NULL for no hero
 {
 	engageIntoBattle(army1->tempOwner);
 	engageIntoBattle(army2->tempOwner);
@@ -1538,20 +1547,20 @@ void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstanc
 	if(army2->tempOwner < PLAYER_LIMIT)
 		states.setFlag(army2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
 
-	boost::thread(boost::bind(&CGameHandler::startBattle,this,army1,army2,tile,hero1,hero2,cb));
+	boost::thread(boost::bind(&CGameHandler::startBattle, this, army1, army2, tile, hero1, hero2, creatureBank, cb));
 }
 
-void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, boost::function<void(BattleResult*)> cb )
+void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank, boost::function<void(BattleResult*)> cb )
 {
 	startBattleI(army1, army2, tile,
-		army1->ID == 34 ? static_cast<const CGHeroInstance*>(army1) : NULL, 
-		army2->ID == 34 ? static_cast<const CGHeroInstance*>(army2) : NULL, 
-		cb);
+		army1->ID == HEROI_TYPE ? static_cast<const CGHeroInstance*>(army1) : NULL, 
+		army2->ID == HEROI_TYPE ? static_cast<const CGHeroInstance*>(army2) : NULL, 
+		creatureBank, cb);
 }
 
-void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, boost::function<void(BattleResult*)> cb)
+void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank, boost::function<void(BattleResult*)> cb)
 {
-	startBattleI(army1, army2, army2->pos - army2->getVisitableOffset(), cb);
+	startBattleI(army1, army2, army2->pos - army2->getVisitableOffset(), creatureBank, cb);
 }
 
 //void CGameHandler::startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb) //for hero<=>neutral army

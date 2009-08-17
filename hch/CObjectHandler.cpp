@@ -677,7 +677,7 @@ void CGHeroInstance::onHeroVisit(const CGHeroInstance * h) const
 		else
 		{
 			//battle
-			cb->startBattleI(h,	this);
+			cb->startBattleI(h,	this, false);
 		}
 	}
 	else if(ID == 62) //prison
@@ -1160,7 +1160,7 @@ void CGDwelling::heroAcceptsCreatures( const CGHeroInstance *h, ui32 answer ) co
 void CGDwelling::wantsFight( const CGHeroInstance *h, ui32 answer ) const
 {
 	if(answer)
-		cb->startBattleI(h, this, boost::bind(&CGDwelling::fightOver, this, h, _1));
+		cb->startBattleI(h, this, false, boost::bind(&CGDwelling::fightOver, this, h, _1));
 }
 
 void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
@@ -1942,7 +1942,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 
 void CGCreature::fight( const CGHeroInstance *h ) const
 {
-	cb->startBattleI(h, this, boost::bind(&CGCreature::endBattle,this,_1));
+	cb->startBattleI(h, this, false, boost::bind(&CGCreature::endBattle,this,_1));
 }
 
 void CGCreature::flee( const CGHeroInstance * h ) const
@@ -2078,7 +2078,7 @@ void CGResource::collectRes( int player ) const
 void CGResource::fightForRes(ui32 agreed, const CGHeroInstance *h) const
 {
 	if(agreed)
-		cb->startBattleI(h, this, boost::bind(&CGResource::endBattle,this,_1,h));
+		cb->startBattleI(h, this, false, boost::bind(&CGResource::endBattle,this,_1,h));
 }
 
 void CGResource::endBattle( BattleResult *result, const CGHeroInstance *h ) const
@@ -2288,7 +2288,7 @@ void CGArtifact::pick(const CGHeroInstance * h) const
 void CGArtifact::fightForArt( ui32 agreed, const CGHeroInstance *h ) const
 {
 	if(agreed)
-		cb->startBattleI(h, this, boost::bind(&CGArtifact::endBattle,this,_1,h));
+		cb->startBattleI(h, this, false, boost::bind(&CGArtifact::endBattle,this,_1,h));
 }
 
 void CGArtifact::endBattle( BattleResult *result, const CGHeroInstance *h ) const
@@ -2800,7 +2800,7 @@ void CGEvent::activated( const CGHeroInstance * h ) const
 		else
 			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
 		cb->showInfoDialog(&iw);
-		cb->startBattleI(h, this, boost::bind(&CGEvent::endBattle,this,h,_1));
+		cb->startBattleI(h, this, false, boost::bind(&CGEvent::endBattle,this,h,_1));
 	}
 	else
 	{
@@ -2812,6 +2812,7 @@ void CGPandoraBox::initObj()
 {
 	blockVisit = true;
 }
+
 void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 {
 		BlockingDialog bd (true, false);
@@ -2820,23 +2821,24 @@ void CGPandoraBox::onHeroVisit(const CGHeroInstance * h) const
 		bd.text.addTxt (MetaString::ADVOB_TXT, 14);
 		cb->showBlockingDialog (&bd, boost::bind (&CGPandoraBox::open, this, h, _1));	
 }
+
 void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 {
 	if (accept)
 	{
-		if (army)
+		if (army) //if pandora's box is protested by army
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
 			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
 			cb->showInfoDialog(&iw);
-			cb->startBattleI(h, this, boost::bind(&CGPandoraBox::endBattle, this, h,_1));
+			cb->startBattleI(h, this, false, boost::bind(&CGPandoraBox::endBattle, this, h, _1)); //grants things after battle
 		}
-		else if (message.size() == resources.size() ==
-				primskills.size() == abilities.size() ==
-				abilityLevels.size() == artifacts.size() ==
-				spells.size() == creatures ==
-				gainedExp == manaDiff == moraleDiff == luckDiff == 0) //yeaha!
+		else if (message.size() == 0 && resources.size() == 0
+				&& primskills.size() == 0 && abilities.size() == 0
+				&& abilityLevels.size() == 0 &&  artifacts.size() == 0
+				&& spells.size() == 0 && creatures == 0
+				&& gainedExp == 0 && manaDiff == 0 && moraleDiff == 0 && luckDiff == 0) //if it gives nothing without battle
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
@@ -2844,12 +2846,13 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 			cb->showInfoDialog(&iw);
 
 		}
-		else
+		else //if it gives something without battle
 		{
 			giveContents (h, false);
 		}
 	}
 }
+
 void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) const
 {
 	InfoWindow iw;
