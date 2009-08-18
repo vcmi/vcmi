@@ -119,8 +119,10 @@ public:
 		SelectedBox *town;
 		SelectedBox *hero;
 		SelectedBox *bonus;
+		bool fixedHero;
 		
 		PlayerOptionsEntry(OptionsTab *owner, PlayerSettings &S);
+		void selectButtons(bool onlyHero = true); //hides unavailable buttons
 		void showAll(SDL_Surface * to);
 	};
 	CPicture *bg;

@@ -80,6 +80,7 @@ struct OCM_HLP_CGIN
 
 CPlayerInterface::CPlayerInterface(int Player, int serial)
 {
+	GH.defActionsDef = 0;
 	LOCPLINT = this;
 	curAction = NULL;
 	playerID=Player;

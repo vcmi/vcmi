@@ -23,12 +23,15 @@ void KeyShortcut::keyPressed(const SDL_KeyboardEvent & key)
 {
 	if(vstd::contains(assignedKeys,key.keysym.sym))
 	{
-		if(key.state == SDL_PRESSED) {
-			clickLeft(true, pressedL);
+		bool prev = pressedL;
+		if(key.state == SDL_PRESSED) 
+		{
 			pressedL = true;
-		} else {
-			clickLeft(false, pressedL);
+			clickLeft(true, prev);
+		} else 
+		{
 			pressedL = false;
+			clickLeft(false, prev);
 		}
 	}
 }
@@ -515,6 +518,22 @@ void CIntObject::printAtMiddleWBLoc( const std::string & text, int x, int y, EFo
 void CIntObject::printToLoc( const std::string & text, int x, int y, EFonts font, SDL_Color kolor, SDL_Surface * dst, bool refresh /*= false*/ )
 {
 	CSDL_Ext::printTo(text, pos.x + x, pos.y + y, font, kolor, dst, refresh);
+}
+
+void CIntObject::disable()
+{
+	if(active)
+		deactivate();
+
+	recActions = DISPOSE;
+}
+
+void CIntObject::enable(bool activation)
+{
+	if(!active && activation)
+		activate();
+
+	recActions = 255;
 }
 
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )

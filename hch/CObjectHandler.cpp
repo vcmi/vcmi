@@ -93,7 +93,9 @@ void CObjectHandler::loadObjects()
 		tlog5 << "\t\tDone loading objects!\n";
 	}
 
+	int i = 0;
 	std::string banksConfig = bitmaph->getTextFile("ZCRBANK.TXT");
+	
 	//TODO: parse to banksInfo
 }
 int CGObjectInstance::getOwner() const

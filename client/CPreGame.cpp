@@ -858,8 +858,9 @@ void OptionsTab::showAll( SDL_Surface * to )
 
 void OptionsTab::nextCastle( int player, int dir )
 {
-	si32 &cur = curOpts->playerInfos[player].castle;
-	ui32 allowed = curMap->players[curOpts->playerInfos[player].color].allowedFactions;
+	PlayerSettings &s = curOpts->playerInfos[player];
+	si32 &cur = s.castle;
+	ui32 allowed = curMap->players[s.color].allowedFactions;
 
  	if (cur == -2) //no castle - no change
  		return;
@@ -897,6 +898,12 @@ void OptionsTab::nextCastle( int player, int dir )
  		}
  	}
 
+	if(s.hero >= 0)
+		s.hero = -1;
+	if(s.bonus == bresource)
+		s.bonus = brandom;
+
+	entries[player]->selectButtons();
 	redraw();
 }
 
@@ -1013,10 +1020,19 @@ void OptionsTab::setTurnLength( int npos )
 
 void OptionsTab::flagPressed( int player )
 {
-	PlayerSettings &s =  curOpts->playerInfos[player];
-	std::swap(curOpts->playerInfos[playerColor].human, s.human);
-	std::swap(curOpts->playerInfos[playerColor].name, s.name);
+	int playerSerial = playerColor; //curMap->players[playerColor].serial;
+	PlayerSettings &s =  curOpts->playerInfos[player],
+		&old = curOpts->playerInfos[playerSerial];
+
+	std::swap(old.human, s.human);
+	std::swap(old.name, s.name);
 	playerColor = s.color;
+
+	if(!entries[playerSerial]->fixedHero)
+		old.hero = -1;
+
+	entries[s.serial]->selectButtons();
+	entries[old.serial]->selectButtons();
 	GH.totalRedraw();
 }
 
@@ -1040,6 +1056,10 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	btns[4] = new AdventureMapButton(CGI->generaltexth->zelp[164], bind(&OptionsTab::nextBonus, owner, s.serial, -1), 259, 5, "ADOPLFA.DEF");
 	btns[5] = new AdventureMapButton(CGI->generaltexth->zelp[165], bind(&OptionsTab::nextBonus, owner, s.serial, +1), 320, 5, "ADOPRTA.DEF");
 
+	fixedHero = s.hero != -1; //if we doesn't start with "random hero" it must be fixed or none
+	selectButtons(false);
+
+
 	if(curMap->players[s.color].canHumanPlay)
 	{
 		flag = new AdventureMapButton(CGI->generaltexth->zelp[180], bind(&OptionsTab::flagPressed, owner, s.serial), -43, 2, flags[s.color]);
@@ -1062,52 +1082,92 @@ void OptionsTab::PlayerOptionsEntry::showAll( SDL_Surface * to )
 	printAtMiddleLoc(s.name, 55, 10, FONT_SMALL, zwykly, to);
 }
 
+void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
+{
+	if(!onlyHero  &&  s.castle != -1)
+	{
+		btns[0]->disable();
+		btns[1]->disable();
+	}
+	if(fixedHero  ||  !s.human  ||  s.castle < 0)
+	{
+		btns[2]->disable();
+		btns[3]->disable();
+	}
+	else
+	{
+		btns[2]->enable(active);
+		btns[3]->enable(active);
+	}
+}
+
 void OptionsTab::SelectedBox::showAll( SDL_Surface * to )
 {
 	PlayerSettings &s = curOpts->playerInfos[player];
+	SDL_Surface *toBlit = NULL;
+	const std::string *toPrint = NULL;
 
 	switch(which)
 	{
 	case TOWN:
 		{
 			if (s.castle < F_NUMBER  &&  s.castle >= 0)
-				blitAt(graphics->getPic(s.castle, true, false), pos, to);
+			{
+				toBlit = graphics->getPic(s.castle, true, false);
+				toPrint = &CGI->townh->towns[s.castle].Name();
+			}
 			else if (s.castle == -1)
-				blitAt(CGP->rTown, pos, to);
+			{
+				toBlit  = CGP->rTown;
+				toPrint = &CGI->generaltexth->allTexts[522];
+			}
 			else if (s.castle == -2)
-				blitAt(CGP->nTown, pos, to);
+			{
+				toBlit  = CGP->nTown;
+				toPrint = &CGI->generaltexth->allTexts[523];
+			}
 		}
 		break;
 	case HERO:
 		{
 			if (s.hero == -1)
 			{
-				blitAt(CGP->rHero, pos, to);
+				toBlit  = CGP->rHero;
+				toPrint = &CGI->generaltexth->allTexts[522];
 			}
 			else if (s.hero == -2)
 			{
 				if(s.heroPortrait >= 0)
 				{
-					blitAt(graphics->portraitSmall[s.heroPortrait], pos, to);
+					toBlit = graphics->portraitSmall[s.heroPortrait];
+					if(s.heroName.length())
+						toPrint = &s.heroName;
+					else
+						toPrint = &CGI->heroh->heroes[s.heroPortrait]->name;
 				}
 				else
 				{
-					blitAt(CGP->nHero, pos, to);
+					toBlit  = CGP->nHero;
+					toPrint = &CGI->generaltexth->allTexts[523];
 				}
 			}
 			else
 			{
-				blitAt(graphics->portraitSmall[s.hero], pos, to);
+				toBlit = graphics->portraitSmall[s.hero];
+				toPrint = &s.heroName;
 			}
 		}
 		break;
 	case BONUS:
 		{
 			int pom;
+			toPrint = &CGI->generaltexth->arraytxt[214 + s.bonus];
+
 			switch (s.bonus)
 			{
 			case -1:
 				pom=10;
+				toPrint = &CGI->generaltexth->allTexts[522];
 				break;
 			case 0:
 				pom=9;
@@ -1119,10 +1179,13 @@ void OptionsTab::SelectedBox::showAll( SDL_Surface * to )
 				pom=CGI->townh->towns[s.castle].bonus;
 				break;
 			}
-			blitAt(CGP->bonuses->ourImages[pom].bitmap, pos, to);
+			toBlit = CGP->bonuses->ourImages[pom].bitmap;
 		}
 		break;
 	}
+
+	blitAt(toBlit, pos, to);
+	printAtMiddleLoc(*toPrint, 23, 39, FONT_TINY, zwykly, to);
 }
 
 OptionsTab::SelectedBox::SelectedBox( SelType Which, ui8 Player )

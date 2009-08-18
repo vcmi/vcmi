@@ -317,6 +317,8 @@ public:
 	ui8 defActions; //which calls will be tried to be redirected to children
 	ui8 recActions; //which calls we allow te receive from parent
 
+	void disable(); //deactivates if needed, blocks all automatic activity, allows only disposal
+	void enable(bool activation = true); //activates if needed, all activity enabled (Warning: may not be symetric with disable if recActions was limited!)
 	void defActivate();
 	void defDeactivate();
 	void activate();

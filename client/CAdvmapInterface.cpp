@@ -1336,6 +1336,9 @@ endTurn(CGI->generaltexth->zelp[302].first,CGI->generaltexth->zelp[302].second,
 heroList(ADVOPT.hlistSize),
 townList(ADVOPT.tlistSize,ADVOPT.tlistX,ADVOPT.tlistY,ADVOPT.tlistAU,ADVOPT.tlistAD)//(5,&genRect(192,48,747,196),747,196,747,372),
 {
+	pos.x = pos.y = 0;
+	pos.w = screen->w;
+	pos.h = screen->h;
 	active = 0;
 	selection = NULL;
 	townList.fun = boost::bind(&CAdvMapInt::selectionChanged,this);

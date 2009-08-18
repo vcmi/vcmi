@@ -1299,19 +1299,51 @@ unsigned char CMapHandler::getHeroFrameNum(unsigned char dir, bool isMoving) con
 {
 	if(isMoving)
 	{
-		std::map<int, unsigned char> dirToFrame = boost::assign::map_list_of(1, 10)(2, 5)(3, 6)(4, 7)(5, 8)(6, 9)(7, 12)(8, 11);
-		if(dir >= 1 && dir <= 10)
-			return dirToFrame[dir];
-
-		throw std::string("Something very wrong1.");
+		switch(dir)
+		{
+		case 1:
+			return 10;
+		case 2:
+			return 5;
+		case 3:
+			return 6;
+		case 4:
+			return 7;
+		case 5:
+			return 8;
+		case 6:
+			return 9;
+		case 7:
+			return 12;
+		case 8:
+			return 11;
+		default:
+			throw std::string("Something very wrong1.");
+		}
 	}
 	else //if(isMoving)
 	{
-		std::map<int, unsigned char> dirToFrame = boost::assign::map_list_of(1, 13)(2, 0)(3, 1)(4, 2)(5, 3)(6, 4)(7, 15)(8, 14);
-		if(dir >= 1 && dir <= 10)
-			return dirToFrame[dir];
-
-		throw std::string("Something very wrong1.");
+		switch(dir)
+		{
+		case 1:
+			return 13;
+		case 2:
+			return 0;
+		case 3:
+			return 1;
+		case 4:
+			return 2;
+		case 5:
+			return 3;
+		case 6:
+			return 4;
+		case 7:
+			return 15;
+		case 8:
+			return 14;
+		default:
+			throw std::string("Something very wrong2.");
+		}
 	}
 }
 
