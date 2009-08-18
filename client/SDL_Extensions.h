@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <sstream>
+#include "FontBase.h"
 
 /*
  * SDL_Extensions.h, part of VCMI engine
@@ -16,8 +17,6 @@
  * Full text of license available in license.txt file, in main folder
  *
  */
-
-enum EFonts;
 
 extern SDL_Surface * screen, *screen2, *screenBuf;
 extern SDL_Color tytulowy, tlo, zwykly ;

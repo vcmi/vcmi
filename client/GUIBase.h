@@ -6,7 +6,7 @@
 #include <set>
 #include <list>
 #include "../timeHandler.h"
-
+#include "FontBase.h"
 
 #ifdef max
 #undef max
@@ -55,7 +55,6 @@ class CArmedInstance;
 class CGTownInstance;
 class StackState;
 class CPlayerInterface;
-enum EFonts;
 
 struct Point
 {

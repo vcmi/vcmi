@@ -63,6 +63,7 @@ vcmiclient_SOURCES =  \
 	CSpellWindow.h \
 	Client.cpp \
 	Client.h \
+	FontBase.h \
 	FunctionList.h \
 	GUIBase.cpp \
 	GUIBase.h \

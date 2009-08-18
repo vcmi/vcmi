@@ -3,6 +3,7 @@
 
 
 #include "../global.h"
+#include "FontBase.h"
 
 /*
  * Graphics.h, part of VCMI engine
@@ -42,12 +43,6 @@ struct Font
 	~Font();
 	int getWidth(const char *text) const;
 };
-
-enum EFonts
-{
-	FONT_BIG, FONT_CALLI, FONT_CREDITS, FONT_HIGH_SCORE, FONT_MEDIUM, FONT_SMALL, FONT_TIMES, FONT_TINY, FONT_VERD
-};
-
 
 class Graphics
 {
