@@ -2316,7 +2316,11 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			CStack *curStack = gs->curB->getStack(ba.stackNumber),
 				*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
 
-			if(curStack->position != ba.destinationTile) //we wasn't able to reach destination tile
+			if(curStack->position != ba.destinationTile //we wasn't able to reach destination tile
+				&& !(curStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE)
+					&&  ( curStack->position == ba.destinationTile + (curStack->attackerOwned ?  +1 : -1 ) )
+						) //nor occupy specified hex
+				) 
 			{
 				std::string problem = "We cannot move this stack to its destination " + curStack->creature->namePl;
 				tlog3 << problem << std::endl;
@@ -2703,7 +2707,7 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 		for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 		{
 			if( (*it)->hasFeatureOfType(StackFeature::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
-				|| (*it)->amount * (*it)->MaxHealth() + (*it)->firstHPleft 
+				|| ( (*it)->amount - 1 ) * (*it)->MaxHealth() + (*it)->firstHPleft 
 				> 
 				caster->getPrimSkillLevel(2) * 25 + sp->powers[caster->getSpellSchoolLevel(sp)]
 			)

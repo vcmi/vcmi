@@ -1170,15 +1170,15 @@ void CPlayerInterface::battleAttack(BattleAttack *ba)
 	else
 	{
 		const CStack * attacker = cb->battleGetStackByID(ba->stackAttacking);
-		int shift = 0;		
-		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)		
-		{			
-			if(attacker->attackerOwned)				
-				shift = 1;			
-			else				
-				shift = -1;		
-		}		
-		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo );	
+		int shift = 0;
+		if(ba->counter() && BattleInfo::mutualPosition(curAction->destinationTile, attacker->position) < 0)
+		{
+			if( BattleInfo::mutualPosition(curAction->destinationTile + 1, attacker->position) >= 0 )
+				shift = 1;
+			else
+				shift = -1;
+		}
+		battleInt->stackAttacking( ba->stackAttacking, ba->counter() ? curAction->destinationTile + shift : curAction->additionalInfo );
 	}
 }
 

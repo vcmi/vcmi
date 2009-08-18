@@ -1458,7 +1458,7 @@ void CBattleInterface::stackAttacking(int ID, int dest)
 	attackingInfo->frame = 0;
 	attackingInfo->hitCount = 0;
 	attackingInfo->ID = ID;
-	attackingInfo->IDby = LOCPLINT->cb->battleGetStackByPos(dest)->ID;
+	attackingInfo->IDby = LOCPLINT->cb->battleGetStackByPos(dest, false)->ID;
 	attackingInfo->reversing = false;
 	attackingInfo->posShiftDueToDist = reversedShift;
 	attackingInfo->shooting = false;
@@ -1586,7 +1586,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 				endCastingSpell();
 			}
 		}
-		else
+		else //we don't cast any spell
 		{
 			const CStack* dest = LOCPLINT->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
 			if(!dest || !dest->alive()) //no creature at that tile
@@ -1617,22 +1617,24 @@ void CBattleInterface::hexLclicked(int whichOne)
 			}
 			else if(dest->owner != attackingHeroInstance->tempOwner) //attacking
 			{
+				const CStack * actStack = LOCPLINT->cb->battleGetStackByID(activeStack);
+				int attackFromHex = -1; //hex from which we will attack chosen stack
 				switch(CGI->curh->number)
 				{
 				case 12: //from bottom right
 					{
 						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 );
 						if(vstd::contains(shadedHexes, destHex))
-							giveCommand(6,destHex,activeStack,whichOne);
-						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+							attackFromHex = destHex;
+						else if(actStack->attackerOwned) //if we are attacker
 						{
 							if(vstd::contains(shadedHexes, destHex+1))
-								giveCommand(6,destHex+1,activeStack,whichOne);
+								attackFromHex = destHex+1;
 						}
 						else //if we are defneder
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
-								giveCommand(6,destHex-1,activeStack,whichOne);
+								attackFromHex = destHex-1;
 						}
 						break;
 					}
@@ -1640,16 +1642,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 					{
 						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH-1 : BFIELD_WIDTH );
 						if(vstd::contains(shadedHexes, destHex))
-							giveCommand(6,destHex,activeStack,whichOne);
-						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+							attackFromHex = destHex;
+						else if(actStack->attackerOwned) //if we are attacker
 						{
 							if(vstd::contains(shadedHexes, destHex+1))
-								giveCommand(6,destHex+1,activeStack,whichOne);
+								attackFromHex = destHex+1;
 						}
 						else //if we are defneder
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
-								giveCommand(6,destHex-1,activeStack,whichOne);
+								attackFromHex = destHex-1;
 						}
 						break;
 					}
@@ -1658,29 +1660,29 @@ void CBattleInterface::hexLclicked(int whichOne)
 					{
 						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
 						if(vstd::contains(acc, whichOne))
-							giveCommand(6,whichOne - 1,activeStack,whichOne);
+							attackFromHex = whichOne - 1;
 						else
-							giveCommand(6,whichOne - 2,activeStack,whichOne);
+							attackFromHex = whichOne - 2;
 					}
 					else
 					{
-						giveCommand(6,whichOne - 1,activeStack,whichOne);
+						attackFromHex = whichOne - 1;
 					}
 					break;
 				case 9: //from top left
 					{
 						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH+1 : BFIELD_WIDTH );
 						if(vstd::contains(shadedHexes, destHex))
-							giveCommand(6,destHex,activeStack,whichOne);
-						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+							attackFromHex = destHex;
+						else if(actStack->attackerOwned) //if we are attacker
 						{
 							if(vstd::contains(shadedHexes, destHex+1))
-								giveCommand(6,destHex+1,activeStack,whichOne);
+								attackFromHex = destHex+1;
 						}
 						else //if we are defneder
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
-								giveCommand(6,destHex-1,activeStack,whichOne);
+								attackFromHex = destHex-1;
 						}
 						break;
 					}
@@ -1688,16 +1690,16 @@ void CBattleInterface::hexLclicked(int whichOne)
 					{
 						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 );
 						if(vstd::contains(shadedHexes, destHex))
-							giveCommand(6,destHex,activeStack,whichOne);
-						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+							attackFromHex = destHex;
+						else if(actStack->attackerOwned) //if we are attacker
 						{
 							if(vstd::contains(shadedHexes, destHex+1))
-								giveCommand(6,destHex+1,activeStack,whichOne);
+								attackFromHex = destHex+1;
 						}
 						else //if we are defneder
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
-								giveCommand(6,destHex-1,activeStack,whichOne);
+								attackFromHex = destHex-1;
 						}
 						break;
 					}
@@ -1706,16 +1708,19 @@ void CBattleInterface::hexLclicked(int whichOne)
 					{
 						std::vector<int> acc = LOCPLINT->cb->battleGetAvailableHexes(activeStack, false);
 						if(vstd::contains(acc, whichOne))
-							giveCommand(6,whichOne + 1,activeStack,whichOne);
+							attackFromHex = whichOne + 1;
 						else
-							giveCommand(6,whichOne + 2,activeStack,whichOne);
+							attackFromHex = whichOne + 2;
 					}
 					else
 					{
-						giveCommand(6,whichOne + 1,activeStack,whichOne);
+						attackFromHex = whichOne + 1;
 					}
 					break;
 				}
+
+				giveCommand(6, attackFromHex, activeStack, whichOne);
+
 				CGI->curh->changeGraphic(1, 6); //cursor should be changed
 			}
 		}

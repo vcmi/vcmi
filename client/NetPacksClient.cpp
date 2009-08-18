@@ -349,9 +349,18 @@ void BattleNextRound::applyCl( CClient *cl )
 
 void BattleSetActiveStack::applyCl( CClient *cl )
 {
-	int owner = GS(cl)->curB->getStack(stack)->owner;
-	if(vstd::contains(cl->playerint,owner))
-		boost::thread(boost::bind(&CClient::waitForMoveAndSend,cl,owner));
+	CStack * activated = GS(cl)->curB->getStack(stack);
+	int playerToCall = -1; //player that will move activated stack
+	if( activated->hasFeatureOfType(StackFeature::HYPNOTIZED) )
+	{
+		playerToCall = ( GS(cl)->curB->side1 == activated->owner ? GS(cl)->curB->side2 : GS(cl)->curB->side1 );
+	}
+	else
+	{
+		playerToCall = activated->owner;
+	}
+	if( vstd::contains(cl->playerint, playerToCall) )
+		boost::thread( boost::bind(&CClient::waitForMoveAndSend, cl, playerToCall) );
 }
 
 void BattleResult::applyFirstCl( CClient *cl )
