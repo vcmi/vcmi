@@ -21,12 +21,17 @@ enum BattleState
 	ENDING_BATTLE
 };
 
+
+class Priorities;
+
 class CGeniusAI : public CGlobalAI
 {
 private:
 	ICallback*							m_cb;
 	GeniusAI::BattleAI::CBattleLogic*	m_battleLogic;
 	GeniusAI::GeneralAI::CGeneralAI		m_generalAI;
+	GeniusAI::Priorities *				m_priorities;
+
 	
 	CondSh<BattleState> m_state; //are we engaged into battle?
 
@@ -59,25 +64,15 @@ private:
 			bool hasBuilt;
 		};
 		HypotheticalGameState(){}
-		HypotheticalGameState(CGeniusAI & AI);
+		HypotheticalGameState(CGeniusAI & ai);
 
-		void update(CGeniusAI & AI);
-
+		void update(CGeniusAI & ai);
+		CGeniusAI * AI;
 		std::vector<const CGHeroInstance *> AvailableHeroesToBuy;
 		std::vector<int> resourceAmounts;
 		std::vector<HeroModel> heroModels;
 		std::vector<TownModel> townModels;
 		std::set< AIObjectContainer > knownVisitableObjects;
-	};
-
-	struct CostModel
-	{
-		CostModel(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay);
-		CostModel():moved(NULL){}
-		vector<int> resourceCosts;
-		const CGHeroInstance * moved;
-		int distOutOfTheWay;
-		float getCost();
 	};
 
 	class AIObjective
@@ -86,12 +81,12 @@ private:
 		enum Type
 		{
 			//hero objectives
-			visit,				//done
+			visit,				//done TODO: upon visit friendly hero, trade
 			attack,				//done
-			flee,
+			//flee,
 			dismissUnits,
 			dismissYourself,
-			finishTurn,			//done	//uses up remaining motion to get somewhere nice.
+			finishTurn,			//done	//uses up remaining motion to get somewhere interesting.
 
 			//town objectives
 			recruitHero,		//done
@@ -99,7 +94,6 @@ private:
 			recruitCreatures,	//done
 			upgradeCreatures	//done
 		};
-		CostModel cost;
 		CGeniusAI * AI;
 		Type type;
 		virtual void fulfill(CGeniusAI &,HypotheticalGameState & hgs)=0;
@@ -111,13 +105,14 @@ private:
 	class HeroObjective: public AIObjective
 	{
 	public:
+		HypotheticalGameState hgs;
 		int3 pos;
 		const CGObjectInstance * object;
 		std::vector<HypotheticalGameState::HeroModel *> whoCanAchieve;
 		
 		HeroObjective(){}
 		HeroObjective(Type t):object(NULL){type = t;}
-		HeroObjective(Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h,CGeniusAI * AI);
+		HeroObjective(const HypotheticalGameState &hgs,Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h,CGeniusAI * AI);
 		bool operator < (const HeroObjective &other)const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
 		HypotheticalGameState pretend(const HypotheticalGameState &hgs){return hgs;};
@@ -125,6 +120,7 @@ private:
 		void print() const;
 	private:
 		mutable float _value;
+		mutable float _cost;
 	};
 
 	//town objectives
@@ -136,10 +132,11 @@ private:
 	class TownObjective: public AIObjective
 	{
 	public:
+		HypotheticalGameState hgs;
 		HypotheticalGameState::TownModel * whichTown;
 		int which;				//which hero, which building, which creature, 
 
-		TownObjective(Type t,HypotheticalGameState::TownModel * tn,int Which,CGeniusAI * AI);
+		TownObjective(const HypotheticalGameState &hgs,Type t,HypotheticalGameState::TownModel * tn,int Which,CGeniusAI * AI);
 		
 		bool operator < (const TownObjective &other)const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
@@ -148,6 +145,7 @@ private:
 		void print() const;
 	private:
 		mutable float _value;
+		mutable float _cost;
 	};
 
 	class AIObjectivePtrCont
@@ -211,6 +209,7 @@ public:
 	virtual void battleStackIsAttacked(int ID, int dmg, int killed, int IDby, bool byShooting);
 	virtual BattleAction activeStack(int stackID);
 	void battleResultsApplied();
+	friend class Priorities;
 };
 }
 
