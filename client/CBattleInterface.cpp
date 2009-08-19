@@ -848,7 +848,7 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 			//get dead stack if we cast resurrection or animate dead
 			const CStack * stackUnder = LOCPLINT->cb->battleGetStackByPos(myNumber, spellToCast->additionalInfo != 38 && spellToCast->additionalInfo != 39);
 
-			if(stackUnder && spellToCast->additionalInfo == 39 && !stackUnder->hasFeatureOfType(StackFeature::UNDEAD)) //animate dead can be cast only on living creatures
+			if(stackUnder && spellToCast->additionalInfo == 39 && !stackUnder->hasFeatureOfType(StackFeature::UNDEAD)) //animate dead can be cast only on undead creatures
 				stackUnder = NULL;
 
 			bool whichCase; //for cases 1, 2 and 3
@@ -896,6 +896,14 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 				}
 				break;
 			case 4: //TODO: implement this case
+				if( blockedByObstacle(myNumber) )
+				{
+					CGI->curh->changeGraphic(3, 0);
+				}
+				else
+				{
+					CGI->curh->changeGraphic(1, 0);
+				}
 				break;
 			}
 		}
@@ -1520,6 +1528,19 @@ bool CBattleInterface::isTileAttackable(const int & number) const
 	return false;
 }
 
+bool CBattleInterface::blockedByObstacle(int hex) const
+{
+	std::vector<CObstacleInstance> obstacles = LOCPLINT->cb->battleGetAllObstacles();
+	std::set<int> coveredHexes;
+	for(int b = 0; b < obstacles.size(); ++b)
+	{
+		std::vector<int> blocked = CGI->heroh->obstacles[obstacles[b].ID].getBlocked(obstacles[b].pos);
+		for(int w = 0; w < blocked.size(); ++w)
+			coveredHexes.insert(blocked[w]);
+	}
+	return vstd::contains(coveredHexes, hex);
+}
+
 void CBattleInterface::handleEndOfMove(int stackNumber, int destinationTile)
 {
 	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackNumber);
@@ -1575,7 +1596,9 @@ void CBattleInterface::hexLclicked(int whichOne)
 				if(!LOCPLINT->cb->battleGetStackByPos(whichOne, onlyAlive))
 					allowCasting = false;
 				break;
-			case 4: //TODO: implement this case
+			case 4:
+				if(!blockedByObstacle(whichOne))
+					allowCasting = false;
 				break;
 			}
 			//destination checked
@@ -1970,6 +1993,10 @@ void CBattleInterface::castThisSpell(int spellID)
 		{
 			spellSelMode = -1;
 		}
+	}
+	if(CGI->spellh->spells[spellID].attributes.find("OBSTACLE_TARGET") != std::string::npos) //spell to be cast on an obstacle
+	{
+		spellSelMode = 4;
 	}
 	if(spellSelMode == -1) //user does not have to select location
 	{

@@ -214,6 +214,7 @@ private:
 	void projectileShowHelper(SDL_Surface * to); //prints projectiles present on the battlefield
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
+	bool blockedByObstacle(int hex) const;
 
 	void handleEndOfMove(int stackNumber, int destinationTile); //helper function
 
@@ -237,7 +238,7 @@ public:
 	int getAnimSpeed() const; //speed of animation; 1 - slowest, 2 - medium, 4 - fastest
 
 	CBattleHex bfield[BFIELD_SIZE]; //11 lines, 17 hexes on each
-	std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
+	//std::vector< CBattleObstacle * > obstacles; //vector of obstacles on the battlefield
 	SDL_Surface * cellBorder, * cellShade;
 	CondSh<BattleAction *> *givenCommand; //data != NULL if we have i.e. moved current unit
 	bool myTurn; //if true, interface is active (commands can be ordered

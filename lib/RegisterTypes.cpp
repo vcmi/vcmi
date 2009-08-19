@@ -104,6 +104,7 @@ void registerTypes2(Serializer &s)
 	s.template registerType<StacksInjured>();
 	s.template registerType<BattleResultsApplied>();
 	s.template registerType<StacksHealedOrResurrected>();
+	s.template registerType<ObstaclesRemoved>();
 	s.template registerType<ShowInInfobox>();
 	s.template registerType<OpenWindow>();
 	s.template registerType<NewObject>();

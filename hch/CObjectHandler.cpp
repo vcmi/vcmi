@@ -4035,10 +4035,11 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 
 void CCartographer::onHeroVisit( const CGHeroInstance * h ) const 
 {
-	if (!hasVisited (h->getOwner()) )
+	if (!hasVisited (h->getOwner()) ) //if hero has not visited yet this cartographer
 	{
-		if (cb->getResource(h->tempOwner, 6) >= 1000)
+		if (cb->getResource(h->tempOwner, 6) >= 1000) //if he can afford a map
 		{
+			//ask if he wants to buy one
 			int text;
 			if (cb->getTile(pos)->tertype == 8) //water
 					text = 25;
@@ -4055,7 +4056,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 			bd.text.addTxt (MetaString::ADVOB_TXT, text);
 			cb->showBlockingDialog (&bd, boost::bind (&CCartographer::buyMap, this, h, _1));
 		}
-		else
+		else //if he cannot afford
 		{
 			InfoWindow iw;
 			iw.player = h->getOwner();
@@ -4064,7 +4065,7 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 			cb->showInfoDialog (&iw);
 		}
 	}	
-	else
+	else //if he already visited carographer
 	{
 		InfoWindow iw;
 		iw.player = h->getOwner();
@@ -4073,9 +4074,10 @@ void CCartographer::onHeroVisit( const CGHeroInstance * h ) const
 		cb->showInfoDialog (&iw);
 	}
 }
+
 void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 {
-	if (accept)
+	if (accept) //if hero wants to buy map
 	{
 		cb->giveResource (h->tempOwner, 6, -1000);
 		FoWChange fw;
@@ -4090,6 +4092,7 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 		else
 			floor = 2;
 
+		//reveal apropriate tiles
 		cb->getAllTiles (fw.tiles, h->tempOwner, floor, surface);
 		cb->sendAndApply (&fw);
 		cb->setObjProperty (id, 10, h->tempOwner);

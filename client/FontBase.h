@@ -2,7 +2,7 @@
 #define __FONTBASE_H__
 
 /*
- * Graphics.h, part of VCMI engine
+ * FontBase.h, part of VCMI engine
  *
  * Authors: listed in file AUTHORS in main folder
  *

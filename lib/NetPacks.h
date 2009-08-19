@@ -977,6 +977,21 @@ struct StacksHealedOrResurrected : public CPackForClient //3013
 	}
 };
 
+struct ObstaclesRemoved : public CPackForClient //3014
+{
+	ObstaclesRemoved(){type = 3014;}
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyCl(CClient *cl);
+
+	std::set<si32> obstacles; //uniqueIDs of removed obstacles
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & obstacles;
+	}
+};
+
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};

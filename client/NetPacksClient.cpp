@@ -462,6 +462,13 @@ void StacksHealedOrResurrected::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleStacksHealedRes, shiftedHealed);
 }
 
+void ObstaclesRemoved::applyCl( CClient *cl )
+{
+	//inform interfaces about removed obstacles
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleObstaclesRemoved, obstacles);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleObstaclesRemoved, obstacles);
+}
+
 CGameState* CPackForClient::GS( CClient *cl )
 {
 	return cl->gs;

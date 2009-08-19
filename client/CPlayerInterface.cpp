@@ -981,6 +981,23 @@ void CPlayerInterface::battleNewStackAppeared(int stackID)
 	battleInt->newStack(stackID);
 }
 
+void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObstacles)
+{
+	for(std::set<si32>::const_iterator it = removedObstacles.begin(); it != removedObstacles.end(); ++it)
+	{
+		for(std::map< int, CDefHandler * >::iterator itBat = battleInt->idToObstacle.begin(); itBat != battleInt->idToObstacle.end(); ++itBat)
+		{
+			if(itBat->first == *it) //remove this obstacle
+			{
+				battleInt->idToObstacle.erase(itBat);
+				break;
+			}
+		}
+	}
+	//update accessible hexes
+	battleInt->redrawBackgroundWithHexes(battleInt->activeStack);
+}
+
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

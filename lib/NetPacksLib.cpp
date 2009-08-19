@@ -1013,6 +1013,24 @@ DLL_EXPORT void StacksHealedOrResurrected::applyGs( CGameState *gs )
 	}
 }
 
+DLL_EXPORT void ObstaclesRemoved::applyGs( CGameState *gs )
+{
+	if(gs->curB) //if there is a battle
+	{
+		for(std::set<si32>::const_iterator it = obstacles.begin(); it != obstacles.end(); ++it)
+		{
+			for(int i=0; i<gs->curB->obstacles.size(); ++i)
+			{
+				if(gs->curB->obstacles[i].uniqueID == *it) //remove this obstacle
+				{
+					gs->curB->obstacles.erase(gs->curB->obstacles.begin() + i);
+					break;
+				}
+			}
+		}
+	}
+}
+
 DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;

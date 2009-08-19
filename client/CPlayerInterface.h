@@ -179,6 +179,7 @@ public:
 	void battlefieldPrepared(int battlefieldType, std::vector<CObstacle*> obstacles); //called when battlefield is prepared, prior the battle beginning
 	void battleStacksHealedRes(const std::vector<std::pair<ui32, ui32> > & healedStacks); //called when stacks are healed / resurrected
 	void battleNewStackAppeared(int stackID); //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
+	void battleObstaclesRemoved(const std::set<si32> & removedObstacles); //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
 
 	//-------------//
 	void heroKilled(const CGHeroInstance* hero);

@@ -1014,6 +1014,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		while(toBlock>0)
 		{
 			CObstacleInstance coi;
+			coi.uniqueID = curB->obstacles.size();
 			coi.ID = possibleObstacles[rand()%possibleObstacles.size()];
 			coi.pos = rand()%BFIELD_SIZE;
 			std::vector<int> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
@@ -2867,6 +2868,23 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 					}
 					if(!shr.healedStacks.empty())
 						sendAndApply(&shr);
+					break;
+				}
+			case 64: //remove obstacle
+				{
+					ObstaclesRemoved obr;
+					for(int g=0; g<gs->curB->obstacles.size(); ++g)
+					{
+						std::vector<int> blockedHexes = VLC->heroh->obstacles[gs->curB->obstacles[g].ID].getBlocked(gs->curB->obstacles[g].pos);
+
+						if(vstd::contains(blockedHexes, ba.destinationTile)) //this obstacle covers given hex
+						{
+							obr.obstacles.insert(gs->curB->obstacles[g].uniqueID);
+						}
+					}
+					if(!obr.obstacles.empty())
+						sendAndApply(&obr);
+
 					break;
 				}
 			}
