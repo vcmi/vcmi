@@ -17,6 +17,10 @@
  *
  */
 
+CGameState *const IGameCallback::gameState ()
+{ 
+	return gs;
+}
 const CGObjectInstance* IGameCallback::getObj(int objid)
 {
 	if(objid < 0  ||  objid >= gs->map->objects.size())
@@ -105,6 +109,37 @@ void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radiou
 					|| (mode == -1 && gs->players.find(player)->second.fogOfWarMap[xd][yd][pos.z]==1)
 				)
 					tiles.insert(int3(xd,yd,pos.z));
+			}
+		}
+	}
+}
+
+void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int floor, int surface )
+{
+	if(player >= PLAYER_LIMIT)
+	{
+		tlog1 << "Illegal call to getTilesInRange!\n";
+		return;
+	}
+	bool water = false, land = false;
+	if (surface == 0 || surface == 2)
+		water = true;
+	if (surface == 0 || surface == 1)
+		land  = true;
+	std::set<int> floors;
+	if (floor==1 || floor == 0) // ground
+		floors.insert(0);
+	if (floor==2 || floor == 0) // undergroundground
+		floors.insert(1);
+	for (std::set<int>::iterator i = floors.begin(); i!= floors.end(); i++)
+	{
+		for (int xd = 0; xd <= gs->map->width - 1; xd++)
+		{
+			for (int yd = 0; yd <= gs->map->height - 1; yd++)
+			{
+				if ((getTile (int3 (xd,yd,*i))->tertype == 8 && water == true)
+					|| (getTile (int3 (xd,yd,*i))->tertype != 8 && land == true))
+					tiles.insert(int3(xd,yd,*i));
 			}
 		}
 	}

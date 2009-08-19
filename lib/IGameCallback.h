@@ -41,6 +41,7 @@ protected:
 public:
 	virtual ~IGameCallback(){};
 
+	CGameState *const gameState ();
 	virtual int getOwner(int heroID);
 	virtual int getResource(int player, int which);
 	virtual int getDate(int mode=0); ////mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
@@ -52,7 +53,8 @@ public:
 	virtual int getSelectedHero()=0;
 	virtual const PlayerSettings * getPlayerSettings(int color);
 	virtual int getHeroCount(int player, bool includeGarrisoned);
-	virtual void getTilesInRange(std::set<int3> &tiles, int3 pos, int radious, int player=-1, int mode=0); //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
+	virtual void getTilesInRange(std::set<int3> &tiles, int3 pos, int radious, int player=-1, int mode=0);  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
+	virtual void getAllTiles (std::set<int3> &tiles, int player=-1, int floor=0, int surface=0);
 	virtual bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact
 	virtual void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> CArtHandler::*arts);
 	virtual void getAllowed(std::vector<CArtifact*> &out, int flags); //flags: bitfield uses EartClass

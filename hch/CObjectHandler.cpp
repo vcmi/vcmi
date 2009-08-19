@@ -2770,46 +2770,6 @@ const std::string & CGMagicWell::getHoverText() const
 	return hoverName;
 }
 
-void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
-{
-	if(!(availableFor & (1 << h->tempOwner))) 
-		return;
-	if(cb->getPlayerSettings(h->tempOwner)->human)
-	{
-		if(humanActivate)
-			activated(h);
-	}
-	else if(computerActivate)
-		activated(h);
-}
-
-void CGPandoraBox::endBattle( const CGHeroInstance *h, BattleResult *result ) const
-{
-	if(result->winner)
-		return;
-
-	giveContents(h,true);
-}
-
-void CGEvent::activated( const CGHeroInstance * h ) const
-{
-	if(army)
-	{
-		InfoWindow iw;
-		iw.player = h->tempOwner;
-		if(message.size())
-			iw.text << message;
-		else
-			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
-		cb->showInfoDialog(&iw);
-		cb->startBattleI(h, this, false, boost::bind(&CGEvent::endBattle,this,h,_1));
-	}
-	else
-	{
-		giveContents(h,false);
-	}
-}
-
 void CGPandoraBox::initObj()
 {
 	blockVisit = true;
@@ -2853,6 +2813,14 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 			giveContents (h, false);
 		}
 	}
+}
+
+void CGPandoraBox::endBattle( const CGHeroInstance *h, BattleResult *result ) const
+{
+	if(result->winner)
+		return;
+
+	giveContents(h,true);
 }
 
 void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) const
@@ -3096,6 +3064,38 @@ void CGPandoraBox::getText( InfoWindow &iw, bool &afterBattle, int val, int nega
 	{
 		iw.text << message;
 		afterBattle = true;
+	}
+}
+
+void CGEvent::onHeroVisit( const CGHeroInstance * h ) const
+{
+	if(!(availableFor & (1 << h->tempOwner))) 
+		return;
+	if(cb->getPlayerSettings(h->tempOwner)->human)
+	{
+		if(humanActivate)
+			activated(h);
+	}
+	else if(computerActivate)
+		activated(h);
+}
+
+void CGEvent::activated( const CGHeroInstance * h ) const
+{
+	if(army)
+	{
+		InfoWindow iw;
+		iw.player = h->tempOwner;
+		if(message.size())
+			iw.text << message;
+		else
+			iw.text.addTxt(MetaString::ADVOB_TXT, 16);
+		cb->showInfoDialog(&iw);
+		cb->startBattleI(h, this, false, boost::bind(&CGEvent::endBattle,this,h,_1));
+	}
+	else
+	{
+		giveContents(h,false);
 	}
 }
 
@@ -3539,10 +3539,16 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			daycounter++;
 			break;
 		case 12: //multiplier
-			multiplier *= ((float)val)/100;
+			multiplier = ((float)val)/100;
 			break;
 		case 13: //bank preset
 			bc = &VLC->objh->banksInfo[index][val];
+			break;
+		case 14:
+			reset();
+			break;
+		case 15:
+			bc = NULL;
 			break;
 		case 18: //Artifacts
 		{
@@ -3651,10 +3657,10 @@ void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const
 				tlog1 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
 				return;
 		}
-	//TODO: start combat 
+	cb->startBattleI (h, this, true, boost::bind (&CBank::endBattle, this, h, _1));
 	}
 }
-void CBank::endBattle (const BattleResult *result)
+void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) const
 {
 	if (result->winner == 0)
 	{
@@ -3697,23 +3703,23 @@ void CBank::endBattle (const BattleResult *result)
 			iw.components.push_back (Component (Component::RESOURCE, it->first, it->second, 0));
 			cb->giveResource (cb->getCurrentPlayer(), it->first, it->second);
 		}
-		for (std::vector<si32>::iterator it = artifacts.begin(); it != artifacts.end(); it++)
+		for (std::vector<si32>::const_iterator it = artifacts.begin(); it != artifacts.end(); it++)
 		{
 			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 			iw.text.addReplacement (MetaString::ART_NAMES, *it);
 			cb->giveHeroArtifact (*it, cb->getSelectedHero() ,-2);
 		}
 		CCreatureSet ourArmy;
-		for (std::vector< std::pair <ui16, ui32> >::iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
+		for (std::vector< std::pair <ui16, ui32> >::const_iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
 		{
 			int slot = ourArmy.getSlotFor (it->second);
 			ourArmy.slots[slot] = *it; //assuming we're not going to add multiple stacks of same creature
 		}
 		cb->giveCreatures (id, cb->getHero (cb->getSelectedHero()), &ourArmy);
-			bc = NULL;
+			cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
 	else
-		reset();
+		cb->setObjProperty (id, 14, 0); //reset
 }
 
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
@@ -4024,5 +4030,67 @@ void CGShipyard::onHeroVisit( const CGHeroInstance * h ) const
 		ow.id2 = h->id;
 		ow.window = OpenWindow::SHIPYARD_WINDOW;
 		cb->sendAndApply(&ow);
+	}
+}
+
+void CCartographer::onHeroVisit( const CGHeroInstance * h ) const 
+{
+	if (!hasVisited (h->getOwner()) )
+	{
+		if (cb->getResource(h->tempOwner, 6) >= 1000)
+		{
+			int text;
+			if (cb->getTile(pos)->tertype == 8) //water
+					text = 25;
+			else
+			{
+				if (pos.z == 0)
+					text = 26;
+				else
+					text = 27;
+			}
+			BlockingDialog bd (true, false);
+			bd.player = h->getOwner();
+			bd.soundID = soundBase::LIGHTHOUSE;
+			bd.text.addTxt (MetaString::ADVOB_TXT, text);
+			cb->showBlockingDialog (&bd, boost::bind (&CCartographer::buyMap, this, h, _1));
+		}
+		else
+		{
+			InfoWindow iw;
+			iw.player = h->getOwner();
+			iw.soundID = soundBase::CAVEHEAD;
+			iw.text << std::pair<ui8,ui32>(11,28);
+			cb->showInfoDialog (&iw);
+		}
+	}	
+	else
+	{
+		InfoWindow iw;
+		iw.player = h->getOwner();
+		iw.soundID = soundBase::CAVEHEAD;
+		iw.text << std::pair<ui8,ui32>(11,24);
+		cb->showInfoDialog (&iw);
+	}
+}
+void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
+{
+	if (accept)
+	{
+		FoWChange fw;
+		fw.player = h->tempOwner;
+		int floor, surface = 0;
+		if (cb->getTile(pos)->tertype == 8) //water
+			surface = 2;
+		else
+			surface = 1;
+		if (pos.z == 0) //ground
+			floor = 1;
+		else
+			floor = 2;
+
+		cb->getAllTiles (fw.tiles, h->tempOwner, floor, surface);
+		cb->sendAndApply (&fw);
+		cb->setObjProperty (id, 10, h->tempOwner);
 	}
 }

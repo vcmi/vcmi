@@ -176,7 +176,7 @@ public:
 	std::set<ui8> players; //players that visited this object
 
 	bool hasVisited(ui8 player) const;
-	void setPropertyDer(ui8 what, ui32 val);//synchr
+	virtual void setPropertyDer( ui8 what, ui32 val );
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -855,7 +855,7 @@ class DLL_EXPORT CBank : public CArmedInstance
 	void newTurn();
 	void onHeroVisit (const CGHeroInstance * h) const;
 	void fightGuards (const CGHeroInstance *h, ui32 accept) const;
-	void endBattle (const BattleResult *result);
+	void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -888,6 +888,20 @@ public:
 
 
 
+class DLL_EXPORT CCartographer : public CPlayersVisited
+{
+///behaviour varies depending on surface and  floor 
+public:
+	void onHeroVisit( const CGHeroInstance * h ) const;
+	void buyMap (const CGHeroInstance *h, ui32 accept) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & players;
+	}
+
+
+};
 struct BankConfig
 {
 	BankConfig() {chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };

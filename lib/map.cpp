@@ -1924,6 +1924,11 @@ void Mapa::readObjects( unsigned char * bufor, int &i)
 				nobj = new CBank();
 				break;
 			}
+		case 13: //Cartographer
+			{
+				nobj = new CCartographer();
+				break;
+			}
 		default:
 			nobj = new CGObjectInstance();
 		} //end of main switch
