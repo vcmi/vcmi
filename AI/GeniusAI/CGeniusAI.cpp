@@ -82,8 +82,11 @@ void CGeniusAI::HypotheticalGameState::update(CGeniusAI & ai)
 		heroModels.push_back(HeroModel(*i));
 	for(int i = 0; i < oldModels.size();i++)
 		for(int ii = 0; ii < heroModels.size();ii++)
-			if(oldModels[i].finished&&oldModels[i].h->id==heroModels[ii].h->id)
-				heroModels[ii].finished = true;
+			if(oldModels[i].h->subID==heroModels[ii].h->subID)
+			{
+				heroModels[ii].finished = oldModels[i].finished;
+				heroModels[ii].previouslyVisited_pos=oldModels[i].previouslyVisited_pos;
+			}
 	
 	townModels.clear();
 	std::vector < const CGTownInstance *> towns = ai.m_cb->getTownsInfo();	
@@ -359,8 +362,10 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 	if(h.finished) return;
 	for(std::set<AIObjectContainer>::const_iterator i = hgs.knownVisitableObjects.begin(); i != hgs.knownVisitableObjects.end();i++)
 	{
+		if(	h.previouslyVisited_pos==i->o->getSightCenter())
+			continue;
 		//TODO: what would the hero actually visit if he went to that spot
-		//      IE maybe the hero wants to visit a seemingly unguarded enemy town, but there is a hero on top of it.
+		//      maybe the hero wants to visit a seemingly unguarded enemy town, but there is a hero on top of it.
 		//if(i->o->)
 		if(i->o->ID!=HEROI_TYPE)			//unless you are trying to visit a hero
 		{
@@ -371,6 +376,9 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 			if(heroThere)			//it won't work if there is already someone visiting that spot.
 				continue;
 		}
+		if(i->o->id==h.h->id)	//don't visit yourself (should be caught by above)
+			continue;
+		
 		if(i->o->getOwner()!=m_cb->getMyColor())	
 		{
 			int enemyStrength = 0;							//TODO: I feel like the AI shouldn't have access to this information.
@@ -383,7 +391,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 				enemyStrength = (dynamic_cast<const CGTownInstance *> (i->o))->getArmyStrength()*1.2;
 			
 			if(enemyStrength*1.2 > h.h->getHeroStrength())  //TODO: ballence these numbers using objective cost formula.
-				continue;
+				continue;									//      it would be nice to do a battle sim
 			if(enemyStrength!=0)tp  = AIObjective::attack;
 		}
 
@@ -393,8 +401,8 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 			continue;
 		if(dynamic_cast<const CGVisitableOPH *> (i->o)&&vstd::contains(dynamic_cast<const CGVisitableOPH *> (i->o)->visitors,h.h->id))//don't visit things that you have already visited OPH
 			continue;
-		if(i->o->id==h.h->id)	//don't visit yourself
-			continue;
+
+
 		
 		if(i->o->ID==88||i->o->ID==89||i->o->ID==90)
 		{
@@ -501,7 +509,6 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hg
 
 		break;
 	case visit:case attack:
-
 		float bestCost = 9e9;
 		int bestHero = 0;
 		vector<int> resourceCosts;
@@ -533,6 +540,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hg
 		}
 
 		h = whoCanAchieve[bestHero];		//lowest cost hero
+		h->previouslyVisited_pos=object->getSightCenter();
 		//if(dynamic_cast<const CGVisitableOPH *> (object))
 		//	std::cout << h->h->name << " is visiting " << object->hoverName << std::endl;
 		hpos = h->pos;
@@ -543,7 +551,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hg
 
 
 	}
-	if(type == visit||type == finishTurn)
+	if(type == visit||type == finishTurn||type == attack)
 	if(cg.m_cb->getPath(hpos,destination,h->h,path))
 	{
 		path.convert(0);
@@ -793,8 +801,8 @@ CGeniusAI::AIObjective * CGeniusAI::getBestObjective()
 //		return max_element(objectiveQueue.begin(),objectiveQueue.end())->obj;
 	m_priorities->fillFeatures(trueGameState);
 	if(objectiveQueue.empty()) return NULL;
-	sort(objectiveQueue.begin(),objectiveQueue.end());
-	reverse(objectiveQueue.begin(),objectiveQueue.end());
+//	sort(objectiveQueue.begin(),objectiveQueue.end());
+//	reverse(objectiveQueue.begin(),objectiveQueue.end());
 	int num= 1;
 //	for(std::vector<AIObjectivePtrCont> ::iterator i = objectiveQueue.begin(); i < objectiveQueue.end();i++)
 //	{
@@ -808,9 +816,11 @@ CGeniusAI::AIObjective * CGeniusAI::getBestObjective()
 //	cout << "which would you do? (enter 0 for none): ";
 //	cin >> choice;
 	cout << "doing best of " << objectiveQueue.size() << " ";
-	objectiveQueue.front().obj->print();
-	cout << endl;
-
+	CGeniusAI::AIObjective* best = max_element(objectiveQueue.begin(),objectiveQueue.end())->obj;
+	best->print();
+	cout << " value = " << best->getValue() << endl;
+	if(!objectiveQueue.empty())
+		return best;
 	return objectiveQueue.front().obj;
 
 }

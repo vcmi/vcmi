@@ -32,7 +32,7 @@ public:
 	void fillFeatures(const CGeniusAI::HypotheticalGameState & AI);
 	float getValue(const CGeniusAI::AIObjective & obj);
 	float getCost(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay);
-	vector<vector<Network> > networks;
+	vector<vector<Network> > objectNetworks;
 };
 
 }

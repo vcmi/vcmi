@@ -13,7 +13,7 @@ Network::Network(vector<unsigned int> whichFeatures)// random network
 }
 Network::Network(istream & input)
 {
-	vector<int> whichFeatures;
+	//vector<int> whichFeatures;
 	int feature;
 	string line;
 	getline(input,line);
@@ -45,27 +45,27 @@ Priorities::Priorities()//random brain
 /*	vector<unsigned int> whichFeatures;//(512);
 	whichFeatures.push_back(16);
 	whichFeatures.push_back(17);
-	networks.push_back(Network(whichFeatures));	//for a friendly hero
-	networks.push_back(Network(whichFeatures));	//for an enemy hero
+	objectNetworks.push_back(Network(whichFeatures));	//for a friendly hero
+	objectNetworks.push_back(Network(whichFeatures));	//for an enemy hero
 
 	whichFeatures.clear();
 	whichFeatures.push_back(16);				//hero's AI value
-	networks.push_back(Network(whichFeatures));	//for school of magic
+	objectNetworks.push_back(Network(whichFeatures));	//for school of magic
 
 	whichFeatures.clear();
 	for(int i = 0; i <=16;i++)
 		whichFeatures.push_back(i);				//hero's AI value is 16
 
-	networks.push_back(Network(whichFeatures));	//for treasure chest
+	objectNetworks.push_back(Network(whichFeatures));	//for treasure chest
 
 	whichFeatures.clear();
 	whichFeatures.push_back(17);
-	networks.push_back(Network(whichFeatures));	//for a friendly town
-	networks.push_back(Network(whichFeatures));	//for an enemy town
+	objectNetworks.push_back(Network(whichFeatures));	//for a friendly town
+	objectNetworks.push_back(Network(whichFeatures));	//for an enemy town
 
 	whichFeatures.clear();
 	whichFeatures.push_back(16);
-	networks.push_back(Network(whichFeatures));	//for learning stone
+	objectNetworks.push_back(Network(whichFeatures));	//for learning stone
 */
 }
 
@@ -76,11 +76,11 @@ Priorities::Priorities(const string & filename)	//read brain from file
 
 	// object_num [list of features]
 	// brain data or "R" for random brain
-	networks.resize(255);
+	objectNetworks.resize(255);
 	int object_num;
 	while(infile>>object_num)
 	{
-		networks[object_num].push_back(Network(infile));
+		objectNetworks[object_num].push_back(Network(infile));
 	}
 }
 
@@ -176,12 +176,12 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 			{
 				
 				stateFeatures[17] = dynamic_cast<const CGHeroInstance*>(hobj->object)->getTotalStrength();
-				return networks[34][0].feedForward(stateFeatures);
+				return objectNetworks[34][0].feedForward(stateFeatures);
 			}
 			else
 			{
 				stateFeatures[17] = dynamic_cast<const CGHeroInstance*>(hobj->object)->getTotalStrength();
-				return networks[34][1].feedForward(stateFeatures);
+				return objectNetworks[34][1].feedForward(stateFeatures);
 			}
 
 			break;
@@ -189,12 +189,12 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 			if(dynamic_cast<const CGTownInstance*>(hobj->object)->getOwner()==obj.AI->m_cb->getMyColor())//friendly town
 			{
 				stateFeatures[17] = dynamic_cast<const CGTownInstance*>(hobj->object)->getArmyStrength();
-				return networks[98][0].feedForward(stateFeatures);
+				return objectNetworks[98][0].feedForward(stateFeatures);
 			}
 			else
 			{
 				stateFeatures[17] = dynamic_cast<const CGTownInstance*>(hobj->object)->getArmyStrength();
-				return networks[98][1].feedForward(stateFeatures);
+				return objectNetworks[98][1].feedForward(stateFeatures);
 			}
 
 			break;
@@ -209,14 +209,14 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 		case 215://quest guard
 			return 0;
 		case 53:	//various mines
-			return networks[53][hobj->object->subID].feedForward(stateFeatures);
+			return objectNetworks[53][hobj->object->subID].feedForward(stateFeatures);
 		case 113://TODO: replace with value of skill for the hero
 			return 0;
 		case 103:case 58://TODO: replace with value of seeing x number of new tiles 
 			return 0;
 		default:
-			if(networks[hobj->object->ID].size()!=0)
-				return networks[hobj->object->ID][0].feedForward(stateFeatures);
+			if(objectNetworks[hobj->object->ID].size()!=0)
+				return objectNetworks[hobj->object->ID][0].feedForward(stateFeatures);
 			cout << "don't know the value of ";
 			switch(obj.type)
 			{

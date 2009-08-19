@@ -50,6 +50,7 @@ private:
 			HeroModel(){}
 			HeroModel(const CGHeroInstance * h);
 			int3 pos;
+			int3 previouslyVisited_pos;
 			int3 interestingPos;
 			bool finished;
 			int remainingMovement;
@@ -86,6 +87,7 @@ private:
 			//flee,
 			dismissUnits,
 			dismissYourself,
+			rearangeTroops,
 			finishTurn,			//done	//uses up remaining motion to get somewhere interesting.
 
 			//town objectives
