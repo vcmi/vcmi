@@ -4119,12 +4119,12 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, const
 	SDL_FreeSurface(bgtemp);
 
 	// Draw resource icons and costs.
-	std::string woodCost = boost::lexical_cast<std::string>(10);
 	std::string goldCost = boost::lexical_cast<std::string>(1000);
-	blitAt(graphics->resources32->ourImages[0].bitmap, 100, 244, bg);
-	printAtMiddle(woodCost.c_str(), 116, 290, GEOR13, zwykly, bg);
-	blitAt(graphics->resources32->ourImages[6].bitmap, 196, 244, bg);
-	printAtMiddle(goldCost.c_str(), 212, 290, GEOR13, zwykly, bg);
+	std::string woodCost = boost::lexical_cast<std::string>(10);
+	blitAt(graphics->resources32->ourImages[6].bitmap, 100, 244, bg);
+	printAtMiddle(goldCost.c_str(), 116, 290, GEOR13, zwykly, bg);
+	blitAt(graphics->resources32->ourImages[0].bitmap, 196, 244, bg);
+	printAtMiddle(woodCost.c_str(), 212, 290, GEOR13, zwykly, bg);
 
 	bool affordable = true;
 	for(int i = 0; i < cost.size(); i++)

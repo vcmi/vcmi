@@ -57,7 +57,7 @@ void CCursorHandler::draw1()
 					break;
 				case 8: // Left
 					x -= 16;
-					y += 11;
+					y += 10;
 					break;
 				case 9: // Top left
 					x -= 6;
@@ -74,6 +74,14 @@ void CCursorHandler::draw1()
 				case 12: // Bottom right
 					x += 16;
 					y += 16;
+					break;
+				case 13: // Below
+					x += 9;
+					y += 16;
+					break;
+				case 14: // Above
+					x += 9;
+					y -= 15;
 					break;
 			}
 		}

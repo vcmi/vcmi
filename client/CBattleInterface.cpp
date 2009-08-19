@@ -744,47 +744,118 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						const double hexMidX = hoveredHex.pos.x + hoveredHex.pos.w/2;
 						const double hexMidY = hoveredHex.pos.y + hoveredHex.pos.h/2;
 						const double cursorHexAngle = M_PI - atan2(hexMidY - cursor->ypos, cursor->xpos - hexMidX) + subdividingAngle/2;
-						int cursorIndex = fmod(cursorHexAngle/subdividingAngle, 6.0);
-
-						int sectorCursor[] = {8, 9, 10, 11, 12, 7}; // From left to bottom left.
+						const double sector = fmod(cursorHexAngle/subdividingAngle, 6.0);
 						const int zigzagCorrection = !((myNumber/BFIELD_WIDTH)%2); // Off-by-one correction needed to deal with the odd battlefield rows.
+
+						std::vector<int> sectorCursor; // From left to bottom left.
+						sectorCursor.push_back(8);
+						sectorCursor.push_back(9);
+						sectorCursor.push_back(10);
+						sectorCursor.push_back(11);
+						sectorCursor.push_back(12);
+						sectorCursor.push_back(7);
+
+						const bool doubleWide = LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
+						bool aboveAttackable = true, belowAttackable = true;
 
 						// Exclude directions which cannot be attacked from.
 						// Check to the left.
 						if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber - 1)) {
 							sectorCursor[0] = -1;
 						}
-						// Check top left and top right.
+						// Check top left, top right as well as above for 2-hex creatures.
 						if (myNumber/BFIELD_WIDTH == 0) {
-							sectorCursor[1] = -1;
-							sectorCursor[2] = -1;
-						} else {
-							if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
 								sectorCursor[1] = -1;
-							if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
 								sectorCursor[2] = -1;
+								aboveAttackable = false;
+						} else {
+							if (doubleWide) {
+								bool attackRow[4] = {true, true, true, true};
+
+								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 2 + zigzagCorrection))
+									attackRow[0] = false;
+								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
+									attackRow[1] = false;
+								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
+									attackRow[2] = false;
+								if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + 1 + zigzagCorrection))
+									attackRow[3] = false;
+
+								if (!(attackRow[0] && attackRow[1]))
+									sectorCursor[1] = -1;
+								if (!(attackRow[1] && attackRow[2]))
+									aboveAttackable = false;
+								if (!(attackRow[2] && attackRow[3]))
+									sectorCursor[2] = -1;
+							} else {
+								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH - 1 + zigzagCorrection))
+									sectorCursor[1] = -1;
+								if (!vstd::contains(shadedHexes, myNumber - BFIELD_WIDTH + zigzagCorrection))
+									sectorCursor[2] = -1;
+							}
 						}
 						// Check to the right.
 						if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber + 1)) {
 							sectorCursor[3] = -1;
 						}
-						// Check bottom right and bottom left.
+						// Check bottom right, bottom left as well as below for 2-hex creatures.
 						if (myNumber/BFIELD_WIDTH == BFIELD_HEIGHT - 1) {
 							sectorCursor[4] = -1;
 							sectorCursor[5] = -1;
+							belowAttackable = false;
 						} else {
-							if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
-								sectorCursor[4] = -1;
-							if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
-								sectorCursor[5] = -1;
+							if (doubleWide) {
+								bool attackRow[4] = {true, true, true, true};
+
+								if (myNumber%BFIELD_WIDTH <= 1 || !vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 2 + zigzagCorrection))
+									attackRow[0] = false;
+								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
+									attackRow[1] = false;
+								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
+									attackRow[2] = false;
+								if (myNumber%BFIELD_WIDTH >= BFIELD_WIDTH - 2 || !vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + 1 + zigzagCorrection))
+									attackRow[3] = false;
+
+								if (!(attackRow[0] && attackRow[1]))
+									sectorCursor[5] = -1;
+								if (!(attackRow[1] && attackRow[2]))
+									belowAttackable = false;
+								if (!(attackRow[2] && attackRow[3]))
+									sectorCursor[4] = -1;
+							} else {
+								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH + zigzagCorrection))
+									sectorCursor[4] = -1;
+								if (!vstd::contains(shadedHexes, myNumber + BFIELD_WIDTH - 1 + zigzagCorrection))
+									sectorCursor[5] = -1;
+							}
+						}
+
+						// Determine index from sector.
+						int cursorIndex;
+						if (doubleWide) {
+							sectorCursor.insert(sectorCursor.begin() + 5, belowAttackable ? 13 : -1);
+							sectorCursor.insert(sectorCursor.begin() + 2, aboveAttackable ? 14 : -1);
+
+							if (sector < 1.5)
+								cursorIndex = sector;
+							else if (sector >= 1.5 && sector < 2.5)
+								cursorIndex = 2;
+							else if (sector >= 2.5 && sector < 4.5)
+								cursorIndex = (int) sector + 1;
+							else if (sector >= 4.5 && sector < 5.5)
+								cursorIndex = 6;
+							else
+								cursorIndex = (int) sector + 2;
+						} else {
+							cursorIndex = sector;
 						}
 
 						// Find the closest direction attackable, starting with the right one.
 						// FIXME: Is this really how the original H3 client does it?
 						int i = 0;
-						while (sectorCursor[(cursorIndex + i)%6] == -1) 
+						while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1)
 							i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
-						cursor->changeGraphic(1, sectorCursor[(cursorIndex + i)%6]);
+						cursor->changeGraphic(1, sectorCursor[(cursorIndex + i)%sectorCursor.size()]);
 					}
 					else //unavailable enemy
 					{
@@ -1646,7 +1717,8 @@ void CBattleInterface::hexLclicked(int whichOne)
 				{
 				case 12: //from bottom right
 					{
-						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 );
+						bool doubleWide = LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
+						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 ) + doubleWide;
 						if(vstd::contains(shadedHexes, destHex))
 							attackFromHex = destHex;
 						else if(actStack->attackerOwned) //if we are attacker
@@ -1654,7 +1726,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 							if(vstd::contains(shadedHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
-						else //if we are defneder
+						else //if we are defender
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
 								attackFromHex = destHex-1;
@@ -1671,7 +1743,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 							if(vstd::contains(shadedHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
-						else //if we are defneder
+						else //if we are defender
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
 								attackFromHex = destHex-1;
@@ -1702,7 +1774,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 							if(vstd::contains(shadedHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
-						else //if we are defneder
+						else //if we are defender
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
 								attackFromHex = destHex-1;
@@ -1711,7 +1783,8 @@ void CBattleInterface::hexLclicked(int whichOne)
 					}
 				case 10: //from top right
 					{
-						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 );
+						bool doubleWide = LOCPLINT->cb->battleGetStackByID(activeStack)->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
+						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 ) + doubleWide;
 						if(vstd::contains(shadedHexes, destHex))
 							attackFromHex = destHex;
 						else if(actStack->attackerOwned) //if we are attacker
@@ -1719,7 +1792,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 							if(vstd::contains(shadedHexes, destHex+1))
 								attackFromHex = destHex+1;
 						}
-						else //if we are defneder
+						else //if we are defender
 						{
 							if(vstd::contains(shadedHexes, destHex-1))
 								attackFromHex = destHex-1;
@@ -1740,6 +1813,40 @@ void CBattleInterface::hexLclicked(int whichOne)
 						attackFromHex = whichOne + 1;
 					}
 					break;
+				case 13: //from bottom
+					{
+						int destHex = whichOne + ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH+1 );
+						if(vstd::contains(shadedHexes, destHex))
+							giveCommand(6,destHex,activeStack,whichOne);
+						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+						{
+							if(vstd::contains(shadedHexes, destHex+1))
+								giveCommand(6,destHex+1,activeStack,whichOne);
+						}
+						else //if we are defender
+						{
+							if(vstd::contains(shadedHexes, destHex-1))
+								giveCommand(6,destHex-1,activeStack,whichOne);
+						}
+						break;
+					}
+				case 14: //from top
+					{
+						int destHex = whichOne - ( (whichOne/BFIELD_WIDTH)%2 ? BFIELD_WIDTH : BFIELD_WIDTH-1 );
+						if(vstd::contains(shadedHexes, destHex))
+							giveCommand(6,destHex,activeStack,whichOne);
+						else if(attackingHeroInstance->tempOwner == LOCPLINT->cb->getMyColor()) //if we are attacker
+						{
+							if(vstd::contains(shadedHexes, destHex+1))
+								giveCommand(6,destHex+1,activeStack,whichOne);
+						}
+						else //if we are defender
+						{
+							if(vstd::contains(shadedHexes, destHex-1))
+								giveCommand(6,destHex-1,activeStack,whichOne);
+						}
+						break;
+					}
 				}
 
 				giveCommand(6, attackFromHex, activeStack, whichOne);
