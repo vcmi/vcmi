@@ -60,8 +60,9 @@ am__installdirs = "$(DESTDIR)$(pkglibdir)"
 pkglibLTLIBRARIES_INSTALL = $(INSTALL)
 LTLIBRARIES = $(pkglib_LTLIBRARIES)
 GeniusAI_la_DEPENDENCIES = $(top_builddir)/lib/libvcmi.la
-am_GeniusAI_la_OBJECTS = BattleHelper.lo BattleLogic.lo CGeniusAI.lo \
-	DLLMain.lo GeneralAI.lo
+am_GeniusAI_la_OBJECTS = AIPriorities.lo BattleHelper.lo \
+	BattleLogic.lo CGeniusAI.lo DLLMain.lo GeneralAI.lo \
+	neuralNetwork.lo
 GeniusAI_la_OBJECTS = $(am_GeniusAI_la_OBJECTS)
 GeniusAI_la_LINK = $(LIBTOOL) --tag=CXX $(AM_LIBTOOLFLAGS) \
 	$(LIBTOOLFLAGS) --mode=link $(CXXLD) $(AM_CXXFLAGS) \
@@ -221,12 +222,20 @@ pkglib_LTLIBRARIES = GeniusAI.la
 GeniusAI_la_LIBADD = $(top_builddir)/lib/libvcmi.la @BOOST_SYSTEM_LIB@ @BOOST_FILESYSTEM_LIB@ @BOOST_THREAD_LIB@
 GeniusAI_la_LDFLAGS = -L$(top_builddir)/lib -module
 GeniusAI_la_SOURCES = \
+	AIPriorities.cpp \
+	AIPriorities.h \
 	BattleHelper.cpp \
+	BattleHelper.h \
 	BattleLogic.cpp \
+	BattleLogic.h \
 	CGeniusAI.cpp \
 	CGeniusAI.h \
+	Common.h \
 	DLLMain.cpp \
-	GeneralAI.cpp
+	GeneralAI.cpp \
+	GeneralAI.h \
+	neuralNetwork.cpp \
+	neuralNetwork.h
 
 all: all-am
 
@@ -297,11 +306,13 @@ mostlyclean-compile:
 distclean-compile:
 	-rm -f *.tab.c
 
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/AIPriorities.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BattleHelper.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/BattleLogic.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/CGeniusAI.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/DLLMain.Plo@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/GeneralAI.Plo@am__quote@
+@AMDEP_TRUE@@am__include@ @am__quote@./$(DEPDIR)/neuralNetwork.Plo@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	$(CXXCOMPILE) -MT $@ -MD -MP -MF $(DEPDIR)/$*.Tpo -c -o $@ $<
