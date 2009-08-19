@@ -1,3 +1,5 @@
+#include <stdlib.h>
+#include <string.h>
 
 #include "neuralNetwork.h"
 //using namespace std;
@@ -6,7 +8,7 @@
 #define M_PI       3.14159265358979323846
 #endif
 
-float norm(void)//add desired mean, multiply to get desired SD
+static float norm(void)//add desired mean, multiply to get desired SD
 {
 	static float kept = 0;
 	static bool in = 0;
