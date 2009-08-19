@@ -4077,6 +4077,7 @@ void CCartographer::buyMap (const CGHeroInstance *h, ui32 accept) const
 {
 	if (accept)
 	{
+		cb->giveResource (h->tempOwner, 6, -1000);
 		FoWChange fw;
 		fw.player = h->tempOwner;
 		int floor, surface = 0;
