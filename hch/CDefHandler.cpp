@@ -129,7 +129,6 @@ void CDefHandler::openDef(std::string name)
 void CDefHandler::openFromMemory(unsigned char *table, std::string name)
 {
 	int i,j, totalInBlock;
-	char Buffer[13];
 	BMPPalette palette[256];
 	defName=name;
 	i = 0;
@@ -161,9 +160,12 @@ void CDefHandler::openFromMemory(unsigned char *table, std::string name)
         i+=4;
 		for (j=0; j<totalInBlock; j++)
 		{
-			for (int k=0;k<13;k++) Buffer[k]=table[i+k]; 
-			i+=13;
+			char Buffer[13];
+			memcpy(Buffer, &table[i], 12);
+			Buffer[12] = 0;
 			SEntries[totalEntries+j].name=Buffer;
+
+			i+=13;
 		}
 		for (j=0; j<totalInBlock; j++)
 		{ 

@@ -2444,7 +2444,7 @@ void CBattleHero::clickLeft(tribool down, bool previousState)
 	}
 }
 
-CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner): flip(flipG), myHero(hero), myOwner(owner), phase(phaseG), nextPhase(-1), image(imageG), flagAnim(0)
+CBattleHero::CBattleHero(const std::string & defName, int phaseG, int imageG, bool flipG, unsigned char player, const CGHeroInstance * hero, const CBattleInterface * owner): flip(flipG), myHero(hero), myOwner(owner), phase(phaseG), nextPhase(-1), image(imageG), flagAnim(0), flagAnimCount(0)
 {
 	dh = CDefHandler::giveDef( defName );
 	for(int i=0; i<dh->ourImages.size(); ++i) //transforming images
