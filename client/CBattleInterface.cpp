@@ -73,8 +73,8 @@ static void transformPalette(SDL_Surface * surf, float rCor, float gCor, float b
 
 CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect)
 	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), 
-	  mouseHoveredStack(-1), previouslyHoveredHex(-1), spellDestSelectMode(false), spellToCast(NULL),
-	  attackingInfo(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), 
+	  mouseHoveredStack(-1), previouslyHoveredHex(-1), currentlyHoveredHex(-1), spellDestSelectMode(false),
+	  spellToCast(NULL), attackingInfo(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), 
 	  showStackQueue(false), moveStarted(false), moveSh(-1)
 {
 	pos = myRect;
