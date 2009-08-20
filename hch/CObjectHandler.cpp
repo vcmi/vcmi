@@ -2788,7 +2788,7 @@ void CGPandoraBox::open( const CGHeroInstance * h, ui32 accept ) const
 {
 	if (accept)
 	{
-		if (army) //if pandora's box is protested by army
+		if (army) //if pandora's box is protected by army
 		{
 			InfoWindow iw;
 			iw.player = h->tempOwner;
@@ -3338,7 +3338,7 @@ void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 	if(players.size()) //we have been already visited...
 	{
 		txtid++;
-		if(ID == 105) //wagon has extra text (for finding art) we need to ommit
+		if(ID == 105) //wagon has extra text (for finding art) we need to omit
 			txtid++;
 
 		iw.text.addTxt(MetaString::ADVOB_TXT, txtid);
