@@ -378,7 +378,11 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 			std::vector<int> rem;
 			for(int b=0; b<BFIELD_SIZE; ++b)
 			{
-				if( ac[b] && !(s->attackerOwned ? ac[b-1] : ac[b+1]))
+				//don't take into account most left and most right columns of hexes
+				if( b % BFIELD_WIDTH == 0 || b % BFIELD_WIDTH == BFIELD_WIDTH - 1 )
+					continue;
+
+				if( ac[b] && !(s->attackerOwned ? ac[b-1] : ac[b+1]) )
 				{
 					rem.push_back(b);
 				}

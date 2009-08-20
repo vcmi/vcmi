@@ -21,6 +21,7 @@
 #include "../lib/NetPacks.h"
 #include "../StartInfo.h"
 #include "../lib/map.h"
+#include <sstream>
 using namespace boost::assign;
 
 /*
@@ -74,6 +75,46 @@ bool CPlayersVisited::hasVisited( ui8 player ) const
 	return vstd::contains(players,player);
 }
 
+static void readCreatures(std::istream & is, BankConfig & bc, bool guards) //helper function for void CObjectHandler::loadObjects()
+{
+	const int MAX_BUF = 5000;
+	char buffer[MAX_BUF + 1];
+	std::pair<si16, si32> guardInfo = std::make_pair(0, 0);
+	std::string creName;
+
+	is >> guardInfo.first;
+	//one getline just does not work... probably a kind of left whitespace
+	is.getline(buffer, MAX_BUF, '\t');
+	is.getline(buffer, MAX_BUF, '\t');
+	creName = buffer;
+
+	if( std::string(buffer) == "None" ) //no creature to be added
+		return;
+
+	//look for the best creature that is described by given name
+	if( vstd::contains(VLC->creh->nameToID, creName) )
+	{
+		guardInfo.second = VLC->creh->nameToID[creName];
+	}
+	else
+	{
+		for(int g=0; g<VLC->creh->creatures.size(); ++g)
+		{
+			if(VLC->creh->creatures[g].namePl == creName
+				|| VLC->creh->creatures[g].nameRef == creName
+				|| VLC->creh->creatures[g].nameSing == creName)
+			{
+				guardInfo.second = VLC->creh->creatures[g].idNumber;
+			}
+		}
+	}
+	
+	if(guards)
+		bc.guards.push_back(guardInfo);
+	else //given creatures
+		bc.creatures.push_back(guardInfo);
+}
+
 void CObjectHandler::loadObjects()
 {
 	{
@@ -93,11 +134,64 @@ void CObjectHandler::loadObjects()
 		tlog5 << "\t\tDone loading objects!\n";
 	}
 
-	int i = 0;
 	std::string banksConfig = bitmaph->getTextFile("ZCRBANK.TXT");
+
+	std::istringstream istr(banksConfig);
+	const int MAX_BUF = 5000;
+	char buffer[MAX_BUF + 1];
+
+	//omitting unnecessary lines
+	istr.getline(buffer, MAX_BUF);
+	istr.getline(buffer, MAX_BUF);
 	
-	//TODO: parse to banksInfo
+	for(int g=0; g<21; ++g) //TODO: remove hardcoded value
+	{
+		//reading name - TODO: use it if necessary
+		istr.getline(buffer, MAX_BUF, '\t');
+
+		for(int i=0; i<4; ++i) //reading levels
+		{
+			BankConfig bc;
+			std::string buf;
+			char dump;
+			//bc.level is of type char and thus we cannot read directly to it; same for some othre variables
+			istr >> buf; 
+			bc.level = atoi(buf.c_str());
+
+			istr >> buf;
+			bc.chance = atoi(buf.c_str());
+
+			readCreatures(istr, bc, true);
+			istr >> buf;
+			bc.upgradeChance = atoi(buf.c_str());
+
+			for(int b=0; b<3; ++b)
+				readCreatures(istr, bc, true);
+
+			istr >> bc.combatValue;
+			bc.resources.resize(RESOURCE_QUANTITY);
+			for(int h=0; h<7; ++h)
+			{
+				istr >> bc.resources[h];
+			}
+			readCreatures(istr, bc, false);
+
+			bc.artifacts.resize(4);
+			for(int b=0; b<4; ++b)
+			{
+				istr >> bc.artifacts[b];
+			}
+
+			istr >> bc.value;
+			istr >> bc.rewardDifficulty;
+			istr >> buf;
+			bc.easiest = atoi(buf.c_str());
+
+			banksInfo[g].push_back(bc);
+		}
+	}
 }
+
 int CGObjectInstance::getOwner() const
 {
 	//if (state)
@@ -3698,17 +3792,20 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		}
 		iw.text.addTxt (MetaString::ADVOB_TXT, textID);
 		iw.player = cb->getCurrentPlayer();
-		for (std::map<ui8, si32>::iterator it = bc->resources.begin(); it != bc->resources.end(); it++)
+		//grant resources
+		for (int it = 0; it < bc->resources.size(); ++it)
 		{					
-			iw.components.push_back (Component (Component::RESOURCE, it->first, it->second, 0));
-			cb->giveResource (cb->getCurrentPlayer(), it->first, it->second);
+			iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
+			cb->giveResource (cb->getCurrentPlayer(), it, bc->resources[it]);
 		}
+		//grant artifacts
 		for (std::vector<si32>::const_iterator it = artifacts.begin(); it != artifacts.end(); it++)
 		{
 			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 			iw.text.addReplacement (MetaString::ART_NAMES, *it);
 			cb->giveHeroArtifact (*it, cb->getSelectedHero() ,-2);
 		}
+		//grant creatures
 		CCreatureSet ourArmy;
 		for (std::vector< std::pair <ui16, ui32> >::const_iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
 		{

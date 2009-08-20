@@ -76,6 +76,7 @@
 74	Beholder
 75	EvilEye
 76	Medusa
+76	Medusae
 77	MedusaQueen
 78	Minotaur
 79	MinotaurKing

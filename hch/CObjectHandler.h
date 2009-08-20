@@ -900,26 +900,26 @@ public:
 		h & players;
 	}
 
-
 };
+
 struct BankConfig
 {
-	BankConfig() {chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };
-	//std::string name;
-	ui8 chance;
-	ui8 upgradeChance;
-	std::vector< std::pair <ui16, ui32> > guards;
-	ui32 combatValue;
-	std::map<ui8, si32> resources;
-	std::vector< std::pair <ui16, ui32> > creatures;
-	std::map<ui8, ui16> artifacts;
-	ui32 value;
-	ui32 rewardDifficulty; //?
-	ui16 easiest; //?
+	BankConfig() {level = chance = upgradeChance = combatValue = value = rewardDifficulty = easiest = 0; };
+	ui8 level; //1 - 4, how hard the battle will be
+	ui8 chance; //chance for this level being chosen
+	ui8 upgradeChance; //chance for creatures to be in upgraded versions
+	std::vector< std::pair <ui16, ui32> > guards; //creature ID -> amount
+	ui32 combatValue; //how hard are guards of this level
+	std::vector<si32> resources; //resources given in case of victory
+	std::vector< std::pair <ui16, ui32> > creatures; //creatures granted in case of victory
+	std::vector<ui16> artifacts; //number of artifacts given in case of victory [0] -> treasure, [1] -> minor [2] -> major [3] -> relic
+	ui32 value; //overall value of given things
+	ui32 rewardDifficulty; //proportion of reward value to difficulty of guards; how profitable is this creature Bank config
+	ui16 easiest; //?!?
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts 
+		h & level & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts 
 			& value & rewardDifficulty & easiest;
 	}
 };
