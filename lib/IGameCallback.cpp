@@ -114,31 +114,36 @@ void IGameCallback::getTilesInRange( std::set<int3> &tiles, int3 pos, int radiou
 	}
 }
 
-void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int floor, int surface )
+void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int level, int surface )
 {
 	if(player >= PLAYER_LIMIT)
 	{
 		tlog1 << "Illegal call to getTilesInRange!\n";
 		return;
 	}
-	bool water = false, land = false;
-	if (surface == 0 || surface == 2)
-		water = true;
-	if (surface == 0 || surface == 1)
-		land  = true;
-	std::set<int> floors;
-	if (floor==1 || floor == 0) // ground
-		floors.insert(0);
-	if (floor==2 || floor == 0) // undergroundground
-		floors.insert(1);
-	for (std::set<int>::iterator i = floors.begin(); i!= floors.end(); i++)
+	bool water = surface == 0 || surface == 2,
+		land = surface == 0 || surface == 1;
+
+	std::vector<int> floors;
+	if(level == -1)
 	{
-		for (int xd = 0; xd <= gs->map->width - 1; xd++)
+		for(int b=0; b<gs->map->twoLevel + 1; ++b) //if gs->map->twoLevel is false then false (0) + 1 is 1, if it's true (1) then we have 2
 		{
-			for (int yd = 0; yd <= gs->map->height - 1; yd++)
+			floors.push_back(b);
+		}
+	}
+	else
+		floors.push_back(level);
+
+	for (std::vector<int>::const_iterator i = floors.begin(); i!= floors.end(); i++)
+	{
+		for (int xd = 0; xd < gs->map->width; xd++)
+		{
+			for (int yd = 0; yd < gs->map->height; yd++)
 			{
-				if ((getTile (int3 (xd,yd,*i))->tertype == 8 && water == true)
-					|| (getTile (int3 (xd,yd,*i))->tertype != 8 && land == true))
+				if ( (getTile (int3 (xd,yd,*i))->tertype == 8 && water == true)
+					|| (getTile (int3 (xd,yd,*i))->tertype != 8 && land == true)
+					)
 					tiles.insert(int3(xd,yd,*i));
 			}
 		}

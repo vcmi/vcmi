@@ -54,7 +54,7 @@ public:
 	virtual const PlayerSettings * getPlayerSettings(int color);
 	virtual int getHeroCount(int player, bool includeGarrisoned);
 	virtual void getTilesInRange(std::set<int3> &tiles, int3 pos, int radious, int player=-1, int mode=0);  //mode 1 - only unrevealed tiles; mode 0 - all, mode -1 -  only unrevealed
-	virtual void getAllTiles (std::set<int3> &tiles, int player=-1, int floor=0, int surface=0);
+	virtual void getAllTiles (std::set<int3> &tiles, int player=-1, int level=-1, int surface=0); //returns all tiles on given level (-1 - both levels, otherwise number of level); surface: 0 - land and water, 1 - only land, 2 - only water
 	virtual bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact
 	virtual void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> CArtHandler::*arts);
 	virtual void getAllowed(std::vector<CArtifact*> &out, int flags); //flags: bitfield uses EartClass
