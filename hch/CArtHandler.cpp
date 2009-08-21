@@ -342,6 +342,9 @@ void CArtHandler::addBonuses()
 	//Cloak of the Undead King
 	giveArtBonus(130, HeroBonus::SECONDARY_SKILL_PREMY, +30, 12);
 
+	//Elixir of Life
+	giveArtBonus(131, HeroBonus::STACK_HEALTH, +4);
+
 	//Armor of the Damned
 	ART_ATTACK_AND_DEFENSE(132, +3);
 	ART_POWER_AND_KNOWLEDGE(132, +2);
@@ -367,7 +370,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(137, HeroBonus::NO_SHOTING_PENALTY, 0);
 
 	//Ring of the Magi
-	giveArtBonus(139, HeroBonus::SPELL_DURATION, +50);
+	giveArtBonus(139, HeroBonus::SPELL_DURATION, +56);
 
 	//Cornucopia
 	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 1);

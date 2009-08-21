@@ -2238,6 +2238,8 @@ CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creature
 		//other bonuses
 		ret->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
 		ret->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
+		if (owner->getArtPos(131) != -1) // Elixir of Life, add 25% HP
+			ret->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, ret->creature->hitPoints*0.25, StackFeature::BONUS_FROM_HERO));
 		ret->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->valOfBonuses(HeroBonus::STACK_HEALTH), StackFeature::BONUS_FROM_HERO));
 		ret->firstHPleft = ret->MaxHealth();
 	}
