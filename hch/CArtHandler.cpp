@@ -157,59 +157,59 @@ void CArtHandler::addBonuses()
 
 	//Attack bonus artifacts (Weapons)
 	ART_PRIM_SKILL(7,0,+2); //Centaur Axe
-	ART_PRIM_SKILL(8,0,+3);
-	ART_PRIM_SKILL(9,0,+4);
-	ART_PRIM_SKILL(10,0,+5);
-	ART_PRIM_SKILL(11,0,+6);
-	ART_PRIM_SKILL(12,0,+12);
-	ART_PRIM_SKILL(12,1,-3);
+	ART_PRIM_SKILL(8,0,+3); //Blackshard of the Dead Knight
+	ART_PRIM_SKILL(9,0,+4); //Greater Gnoll's Flail
+	ART_PRIM_SKILL(10,0,+5); //Ogre's Club of Havoc
+	ART_PRIM_SKILL(11,0,+6); //Sword of Hellfire
+	ART_PRIM_SKILL(12,0,+12); //Titan's Gladius
+	ART_PRIM_SKILL(12,1,-3);  //Titan's Gladius
 
 	//Defense bonus artifacts (Shields)
 	ART_PRIM_SKILL(13,1,+2); //Shield of the Dwarven Lords
-	ART_PRIM_SKILL(14,1,+3); 
-	ART_PRIM_SKILL(15,1,+4); 
-	ART_PRIM_SKILL(16,1,+5); 
-	ART_PRIM_SKILL(17,1,+6); 
-	ART_PRIM_SKILL(18,1,+12); 
-	ART_PRIM_SKILL(18,0,-3); 
+	ART_PRIM_SKILL(14,1,+3); //Shield of the Yawning Dead
+	ART_PRIM_SKILL(15,1,+4); //Buckler of the Gnoll King
+	ART_PRIM_SKILL(16,1,+5); //Targ of the Rampaging Ogre
+	ART_PRIM_SKILL(17,1,+6); //Shield of the Damned
+	ART_PRIM_SKILL(18,1,+12); //Sentinel's Shield
+	ART_PRIM_SKILL(18,0,-3);  //Sentinel's Shield
 
 	//Knowledge bonus artifacts (Helmets)
 	ART_PRIM_SKILL(19,3,+1); //Helm of the Alabaster Unicorn 
-	ART_PRIM_SKILL(20,3,+2); 
-	ART_PRIM_SKILL(21,3,+3); 
-	ART_PRIM_SKILL(22,3,+4); 
-	ART_PRIM_SKILL(23,3,+5); 
-	ART_PRIM_SKILL(24,3,+10); 
-	ART_PRIM_SKILL(24,2,-2); 
+	ART_PRIM_SKILL(20,3,+2); //Skull Helmet
+	ART_PRIM_SKILL(21,3,+3); //Helm of Chaos
+	ART_PRIM_SKILL(22,3,+4); //Crown of the Supreme Magi
+	ART_PRIM_SKILL(23,3,+5); //Hellstorm Helmet
+	ART_PRIM_SKILL(24,3,+10); //Thunder Helmet
+	ART_PRIM_SKILL(24,2,-2);  //Thunder Helmet
 
 	//Spell power bonus artifacts (Armours)
 	ART_PRIM_SKILL(25,2,+1); //Breastplate of Petrified Wood
-	ART_PRIM_SKILL(26,2,+2); 
-	ART_PRIM_SKILL(27,2,+3); 
-	ART_PRIM_SKILL(28,2,+4); 
-	ART_PRIM_SKILL(29,2,+5); 
-	ART_PRIM_SKILL(30,2,+10); 
-	ART_PRIM_SKILL(30,3,-2); 
+	ART_PRIM_SKILL(26,2,+2); //Rib Cage
+	ART_PRIM_SKILL(27,2,+3); //Scales of the Greater Basilisk
+	ART_PRIM_SKILL(28,2,+4); //Tunic of the Cyclops King
+	ART_PRIM_SKILL(29,2,+5); //Breastplate of Brimstone
+	ART_PRIM_SKILL(30,2,+10); //Titan's Cuirass
+	ART_PRIM_SKILL(30,3,-2);  //Titan's Cuirass
 
 	//All primary skills (various)
 	ART_ALL_PRIM_SKILLS(31,+1); //Armor of Wonder
-	ART_ALL_PRIM_SKILLS(32,+2); 
-	ART_ALL_PRIM_SKILLS(33,+3); 
-	ART_ALL_PRIM_SKILLS(34,+4); 
-	ART_ALL_PRIM_SKILLS(35,+5); 
+	ART_ALL_PRIM_SKILLS(32,+2); //Sandals of the Saint
+	ART_ALL_PRIM_SKILLS(33,+3); //Celestial Necklace of Bliss
+	ART_ALL_PRIM_SKILLS(34,+4); //Lion's Shield of Courage
+	ART_ALL_PRIM_SKILLS(35,+5); //Sword of Judgement
 	ART_ALL_PRIM_SKILLS(36,+6); //Helm of Heavenly Enlightenment
 
 	//Attack and Defense (various)
 	ART_ATTACK_AND_DEFENSE(37,+1); //Quiet Eye of the Dragon
-	ART_ATTACK_AND_DEFENSE(38,+2); 
-	ART_ATTACK_AND_DEFENSE(39,+3); 
-	ART_ATTACK_AND_DEFENSE(40,+4); 
+	ART_ATTACK_AND_DEFENSE(38,+2); //Red Dragon Flame Tongue
+	ART_ATTACK_AND_DEFENSE(39,+3); //Dragon Scale Shield
+	ART_ATTACK_AND_DEFENSE(40,+4); //Dragon Scale Armor
 
 	//Spell power and Knowledge (various)
 	ART_POWER_AND_KNOWLEDGE(41,+1); //Dragonbone Greaves
-	ART_POWER_AND_KNOWLEDGE(42,+2); 
-	ART_POWER_AND_KNOWLEDGE(43,+3); 
-	ART_POWER_AND_KNOWLEDGE(44,+4); 
+	ART_POWER_AND_KNOWLEDGE(42,+2); //Dragon Wing Tabard
+	ART_POWER_AND_KNOWLEDGE(43,+3); //Necklace of Dragonteeth
+	ART_POWER_AND_KNOWLEDGE(44,+4); //Crown of Dragontooth
 
 	//Luck and morale 
 	ART_MORALE(45,+1); //Still Eye of the Dragon
@@ -329,6 +329,51 @@ void CArtHandler::addBonuses()
 	giveArtBonus(124,HeroBonus::SPELLS_OF_LEVEL,3,1); //Spellbinder's Hat
 	giveArtBonus(125,HeroBonus::ENEMY_CANT_ESCAPE,0); //Shackles of War
 	giveArtBonus(126,HeroBonus::BLOCK_SPELLS_ABOVE_LEVEL,0);//Orb of Inhibition
+
+	//Armageddon's Blade
+	giveArtBonus(128, HeroBonus::SPELL, 3, 26);
+	ART_ATTACK_AND_DEFENSE(128, +3);
+	ART_PRIM_SKILL(128, 2, +3);
+	ART_PRIM_SKILL(128, 3, +6);
+
+	//Angelic Alliance
+	ART_ALL_PRIM_SKILLS(129, +21);
+
+	//Cloak of the Undead King
+	giveArtBonus(130, HeroBonus::SECONDARY_SKILL_PREMY, +30, 12);
+
+	//Armor of the Damned
+	ART_ATTACK_AND_DEFENSE(132, +3);
+	ART_POWER_AND_KNOWLEDGE(132, +2);
+
+	//Power of the Dragon Father
+	ART_ALL_PRIM_SKILLS(134, +16);
+	giveArtBonus(134, HeroBonus::MORALE_AND_LUCK, +1);
+
+	//Titan's Thunder
+	ART_ATTACK_AND_DEFENSE(135, +9);
+	ART_POWER_AND_KNOWLEDGE(135, +8);
+	giveArtBonus(135, HeroBonus::SPELL, 3, 57);
+
+	//Admiral's Hat
+	giveArtBonus(136, HeroBonus::SEA_MOVEMENT, +1000);
+	giveArtBonus(136, HeroBonus::WHIRLPOOL_PROTECTION, 0);
+	giveArtBonus(136, HeroBonus::SEA_MOVEMENT, +500);
+	giveArtBonus(136, HeroBonus::SPELL, 3, 0);
+	giveArtBonus(136, HeroBonus::SPELL, 3, 1);
+
+	//Bow of the Sharpshooter
+	giveArtBonus(137, HeroBonus::SECONDARY_SKILL_PREMY, +30, 1);
+	giveArtBonus(137, HeroBonus::NO_SHOTING_PENALTY, 0);
+
+	//Ring of the Magi
+	giveArtBonus(139, HeroBonus::SPELL_DURATION, +50);
+
+	//Cornucopia
+	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 1);
+	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 3);
+	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 4);
+	giveArtBonus(140, HeroBonus::GENERATE_RESOURCE, +5, 5);
 }
 
 void CArtHandler::clear()

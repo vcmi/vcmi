@@ -5,6 +5,7 @@
 #include <list>
 #include <string>
 #include <vector>
+#include <climits>
 
 /*
  * CArtHandler.h, part of VCMI engine

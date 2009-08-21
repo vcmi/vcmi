@@ -556,10 +556,17 @@ bool CCallback::battleCanShoot(int ID, int dest)
 	if(our->hasFeatureOfType(StackFeature::FORGETFULL)) //forgetfulness
 		return false;
 
+
+	// See if the stack can benefit from the Bow of the Sharpshooter.
+	int ourHero = our->attackerOwned ? gs->curB->hero1 : gs->curB->hero2;
+	bool hasSharpshooterBow = false;
+	if (ourHero != -1)
+		hasSharpshooterBow = gs->getHero(ourHero)->getArtPos(137) != -1;
+
 	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
 		&& our->owner != dst->owner
 		&& dst->alive()
-		&& !gs->curB->isStackBlocked(ID)
+		&& (!gs->curB->isStackBlocked(ID) || hasSharpshooterBow)
 		&& our->shots
 		)
 		return true;

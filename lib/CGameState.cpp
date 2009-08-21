@@ -400,7 +400,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 		}
 	}
 	
-	for(int i=0; i < BFIELD_SIZE ; ++i)
+	for (int i=0; i < BFIELD_SIZE ; ++i) {
 		if(
 			( ( !addOccupiable && dist[i] <= s->Speed() && ac[i] ) || ( addOccupiable && dist[i] <= s->Speed() && isAccessible(i, ac, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, s->hasFeatureOfType(StackFeature::FLYING), true) ) )//we can reach it
 			|| (vstd::contains(occupyable, i) && ( dist[ i + (s->attackerOwned ? 1 : -1 ) ] <= s->Speed() ) &&
@@ -409,6 +409,21 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 		{
 			ret.push_back(i);
 		}
+	}
+
+	// 2-hex creatures should not be able to move to a hex with an inaccesible hex to the left or right
+	// at the horizontal edges of the battlefield.
+	if (s->hasFeatureOfType(StackFeature::DOUBLE_WIDE)) {
+		int i = 0;
+		while (i < ret.size()) {
+			if (ret[i]%BFIELD_WIDTH == 1 && ret[i] + 1 != ret[i + 1])
+				ret.erase(ret.begin() + i);
+			else if (ret[i]%BFIELD_WIDTH == BFIELD_WIDTH - 1 && (i == 0 || ret[i] - 1 != ret[i - 1]))
+				ret.erase(ret.begin() + i);
+			else
+				i++;
+		}
+	}
 
 	return ret;
 }
