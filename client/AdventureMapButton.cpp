@@ -317,6 +317,7 @@ CHighlightableButton::CHighlightableButton( const CFunctionList<void()> &onSelec
 }
 
 CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::string> help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
+: onlyOn(false), selected(false) // TODO: callback2(???)
 {
 	ID = myid;
 	std::map<int,std::string> pom;
