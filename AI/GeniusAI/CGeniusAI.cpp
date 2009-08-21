@@ -73,7 +73,7 @@ CGeniusAI::HypotheticalGameState::HypotheticalGameState(CGeniusAI & ai)
 void CGeniusAI::HypotheticalGameState::update(CGeniusAI & ai)
 {
 	AI = &ai;
-//	knownVisitableObjects = ai.knownVisitableObjects;
+	knownVisitableObjects = ai.knownVisitableObjects;
 
 	std::vector<HeroModel> oldModels = heroModels;
 	heroModels.clear();
@@ -122,22 +122,23 @@ float CGeniusAI::HeroObjective::getValue() const
 		resourceCosts[6]+=1000;
 
 	float bestCost = 9e9;
+	HypotheticalGameState::HeroModel * bestHero = NULL;
 	if(type !=AIObjective::finishTurn)
 	{
 		for(int i = 0; i < whoCanAchieve.size();i++)
 		{
 			int distOutOfTheWay = 0;
-			CPath path;
+			CPath path3;
 			//from hero to object
-			if(AI->m_cb->getPath(whoCanAchieve[i]->pos,pos,whoCanAchieve[i]->h,path))
-				distOutOfTheWay+=path.nodes[0].dist;
+			if(AI->m_cb->getPath(whoCanAchieve[i]->pos,pos,whoCanAchieve[i]->h,path3))
+				distOutOfTheWay+=path3.nodes[0].dist;
 			//from object to goal
-			if(AI->m_cb->getPath(pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path))
+			if(AI->m_cb->getPath(pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path3))
 			{
-				distOutOfTheWay+=path.nodes[0].dist;
+				distOutOfTheWay+=path3.nodes[0].dist;
 				//from hero directly to goal
-				if(AI->m_cb->getPath(whoCanAchieve[i]->pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path))
-					distOutOfTheWay-=path.nodes[0].dist;
+				if(AI->m_cb->getPath(whoCanAchieve[i]->pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path3))
+					distOutOfTheWay-=path3.nodes[0].dist;
 			}
 			
 			
@@ -145,12 +146,20 @@ float CGeniusAI::HeroObjective::getValue() const
 
 			float cost = AI->m_priorities->getCost(resourceCosts,whoCanAchieve[i]->h,distOutOfTheWay);
 			if(cost < bestCost)
+			{
 				bestCost = cost;
+				bestHero = whoCanAchieve[i];
+			}
 
 		}
 	}
 	else bestCost = 0;
-	//if(bestCost < 10000) cout << "best cost = " << bestCost << endl;
+	if(bestHero)
+	{
+		whoCanAchieve.clear();
+		whoCanAchieve.push_back(bestHero);
+	}
+
 	_value = AI->m_priorities->getValue(*this);
 	_cost=bestCost;
 	return _value-_cost;
@@ -178,6 +187,7 @@ void CGeniusAI::HeroObjective::print() const
 		break;
 	case attack:
 		cout << "attack " << object->hoverName;
+		break;
 	case finishTurn:
 		cout << "finish turn";
 	}
@@ -230,8 +240,9 @@ float CGeniusAI::TownObjective::getValue() const
 		ID = whichTown->creaturesInGarrison.slots[which].first;
 		howMany = whichTown->creaturesInGarrison.slots[which].second;
 		newID = ui.newID.back();
-		for(std::set<std::pair<int,int> >::iterator i = ui.cost[which].begin();i!=ui.cost[which].end();i++)
-			resourceCosts[i->first] = i->second*howMany;
+		int upgrade_serial = ui.newID.size()-1;
+		for (std::set<std::pair<int,int> >::iterator j=ui.cost[upgrade_serial].begin(); j!=ui.cost[upgrade_serial].end(); j++)
+			resourceCosts[j->first] = j->second*howMany;
 	
 		break;
 
@@ -362,6 +373,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 	if(h.finished) return;
 	for(std::set<AIObjectContainer>::const_iterator i = hgs.knownVisitableObjects.begin(); i != hgs.knownVisitableObjects.end();i++)
 	{
+		tp = AIObjective::visit;
 		if(	h.previouslyVisited_pos==i->o->getSightCenter())
 			continue;
 		//TODO: what would the hero actually visit if he went to that spot
@@ -376,9 +388,14 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 			if(heroThere)			//it won't work if there is already someone visiting that spot.
 				continue;
 		}
+		if(i->o->ID==HEROI_TYPE&&i->o->getOwner()==m_cb->getMyColor())//visiting friendly heroes not yet supported
+			continue;
 		if(i->o->id==h.h->id)	//don't visit yourself (should be caught by above)
 			continue;
 		
+		if(i->o->ID==53&&i->o->getOwner()==m_cb->getMyColor())//don't visit a mine if you own, there's almost no point(maybe to leave guards or because the hero's trapped).
+			continue;
+
 		if(i->o->getOwner()!=m_cb->getMyColor())	
 		{
 			int enemyStrength = 0;							//TODO: I feel like the AI shouldn't have access to this information.
@@ -386,17 +403,16 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 			if(dynamic_cast<const CArmedInstance *> (i->o))
 				enemyStrength = (dynamic_cast<const CArmedInstance *> (i->o))->getArmyStrength();//TODO: should be virtual maybe, Army strength should be comparable across objects
 			if(dynamic_cast<const CGHeroInstance *> (i->o))
-				enemyStrength = (dynamic_cast<const CGHeroInstance *> (i->o))->getHeroStrength();
+				enemyStrength = (dynamic_cast<const CGHeroInstance *> (i->o))->getTotalStrength();
 			if(dynamic_cast<const CGTownInstance *> (i->o))
 				enemyStrength = (dynamic_cast<const CGTownInstance *> (i->o))->getArmyStrength()*1.2;
-			
-			if(enemyStrength*1.2 > h.h->getHeroStrength())  //TODO: ballence these numbers using objective cost formula.
+			float heroStrength = h.h->getTotalStrength();
+			if(enemyStrength*2.5 > heroStrength)  //TODO: ballence these numbers using objective cost formula.
 				continue;									//      it would be nice to do a battle sim
-			if(enemyStrength!=0)tp  = AIObjective::attack;
+			if(enemyStrength>0)tp  = AIObjective::attack;
 		}
 
-		if(i->o->ID==53&&i->o->getOwner()==m_cb->getMyColor())//don't visit a mine if you own, there's almost no point(maybe to leave guards or because the hero's trapped).
-			continue;
+		
 		if(dynamic_cast<const CGVisitableOPW *> (i->o)&&dynamic_cast<const CGVisitableOPW *> (i->o)->visited)//don't visit things that have already been visited this week.
 			continue;
 		if(dynamic_cast<const CGVisitableOPH *> (i->o)&&vstd::contains(dynamic_cast<const CGVisitableOPH *> (i->o)->visitors,h.h->id))//don't visit things that you have already visited OPH
@@ -414,7 +430,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 		destination = i->o->getSightCenter();
 
 		if(hpos.z==destination.z)							//don't try to take a path from the underworld to the top or vice versa
-		{
+		{	//TODO: fix get path so that it doesn't return a path unless z's are the same, or path goes through sub gate
 			if(m_cb->getPath(hpos,destination,h.h,path))
 			{
 				path.convert(0);
@@ -445,7 +461,7 @@ void CGeniusAI::addHeroObjectives(CGeniusAI::HypotheticalGameState::HeroModel &h
 	}
 	
 	h.interestingPos = interestingPos;
-	if(h.remainingMovement>0&&m_cb->getPath(hpos,interestingPos,h.h,path)) // there ought to be a path   
+//	if(h.remainingMovement>0&&m_cb->getPath(hpos,interestingPos,h.h,path)) // there ought to be a path   
 		currentHeroObjectives.insert(HeroObjective(hgs,HeroObjective::finishTurn,h.h,&h,this));
 		
 
@@ -469,7 +485,7 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hg
 		hpos = h->pos;
 		destination = h->interestingPos;
 		if(!cg.m_cb->getPath(hpos,destination,h->h,path)) {cout << "AI error: invalid destination" << endl; return;}
-//		path.convert(0);
+
 		destination = h->pos;
 		for(int i = path.nodes.size()-2;i>=0;i--)		//find closest coord that we can get to
 			if(cg.m_cb->getPath(hpos,path.nodes[i].coord,h->h,path2)&&path2.nodes[0].dist<=h->remainingMovement)
@@ -506,43 +522,13 @@ void CGeniusAI::HeroObjective::fulfill(CGeniusAI & cg,HypotheticalGameState & hg
 			
 		destination = bestPos;
 		//////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
+		cg.m_cb->getPath(hpos,destination,h->h,path);
+		path.convert(0);
 		break;
 	case visit:case attack:
-		float bestCost = 9e9;
-		int bestHero = 0;
-		vector<int> resourceCosts;
-		for(int i = 0; i < 8;i++)
-			resourceCosts.push_back(0);
-		for(int i = 0; i < whoCanAchieve.size();i++)
-		{
-			int distOutOfTheWay = 0;
-			CPath path;
-			//from hero to object
-			if(AI->m_cb->getPath(whoCanAchieve[i]->pos,pos,whoCanAchieve[i]->h,path)) distOutOfTheWay+=path.nodes[0].dist;
-			//from object to goal
-			if(AI->m_cb->getPath(pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path))
-			{
-				distOutOfTheWay+=path.nodes[0].dist;
-				//from hero directly to goal
-				if(AI->m_cb->getPath(whoCanAchieve[i]->pos,whoCanAchieve[i]->interestingPos,whoCanAchieve[i]->h,path)) distOutOfTheWay-=path.nodes[0].dist;
-			}
-			
 
-
-			float cost = AI->m_priorities->getCost(resourceCosts,whoCanAchieve[i]->h,distOutOfTheWay);
-			if(cost < bestCost)
-			{
-				bestCost = cost;
-				bestHero = i;
-			}
-
-		}
-
-		h = whoCanAchieve[bestHero];		//lowest cost hero
+		h = whoCanAchieve.front();		//lowest cost hero
 		h->previouslyVisited_pos=object->getSightCenter();
-		//if(dynamic_cast<const CGVisitableOPH *> (object))
-		//	std::cout << h->h->name << " is visiting " << object->hoverName << std::endl;
 		hpos = h->pos;
 		destination = object->getSightCenter();
 
@@ -669,7 +655,6 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 			{
 				TownObjective to(hgs,AIObjective::buildBuilding,&t,i->first,this);
 				currentTownObjectives.insert(to);
-				//cout <<"can build " << i->first << " "<< i->second->Name() << endl;
 			}
 		}
 	}
@@ -693,8 +678,8 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 		currentTownObjectives.insert(to);
 
 	}
-	//upgradeCreatures
 
+	//upgradeCreatures
 
 	for(std::map<si32,std::pair<ui32,si32> >::iterator i = t.creaturesInGarrison.slots.begin();i!=t.creaturesInGarrison.slots.end();i++)
 	{
@@ -702,10 +687,11 @@ void CGeniusAI::addTownObjectives(HypotheticalGameState::TownModel &t, Hypotheti
 		if(ui.newID.size()!=0)
 		{
 			bool canAfford = true;
-			for(int ii=0;ii<ui.cost.size();ii++)
-				for (std::set<std::pair<int,int> >::iterator j=ui.cost[ii].begin(); j!=ui.cost[ii].end(); j++)
-					if(hgs.resourceAmounts[j->first] < j->second*i->second.second)
-						canAfford = false;
+			
+			int upgrade_serial = ui.newID.size()-1;
+			for (std::set<std::pair<int,int> >::iterator j=ui.cost[upgrade_serial].begin(); j!=ui.cost[upgrade_serial].end(); j++)
+				if(hgs.resourceAmounts[j->first] < j->second*i->second.second)
+					canAfford = false;
 			if(canAfford)
 			{
 				TownObjective to(hgs,AIObjective::upgradeCreatures,&t,i->first,this);
@@ -1034,13 +1020,17 @@ void CGeniusAI::battleStart(CCreatureSet *army1, CCreatureSet *army2, int3 tile,
  */
 void CGeniusAI::battleEnd(BattleResult *br)
 {
+
 	switch(br->winner)
 	{
 		case 0:	std::cout << "The winner is the attacker." << std::endl;break;
 		case 1:	std::cout << "The winner is the defender." << std::endl;break;
 		case 2:	std::cout << "It's a draw." << std::endl;break;
 	};
-	
+	cout << "lost ";
+	for(std::set<std::pair<ui32,si32> >::iterator i = br->casualties[0].begin(); i !=br->casualties[0].end();i++)
+		cout << i->second << " " << VLC->creh->creatures[i->first].namePl << endl;
+				
 	delete m_battleLogic;
 	m_battleLogic = NULL;
 

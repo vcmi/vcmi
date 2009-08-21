@@ -28,6 +28,7 @@ Network::Network(istream & input)
 
 float Network::feedForward(const vector<float> & stateFeatures)
 {
+	return (rand()%1000)/800.0;
 	double * input = new double[whichFeatures.size()];
 	for(int i = 0; i < whichFeatures.size();i++)
 		input[i]=stateFeatures[whichFeatures[i]];
@@ -38,37 +39,6 @@ float Network::feedForward(const vector<float> & stateFeatures)
 	return ans;
 }
 
-
-Priorities::Priorities()//random brain
-:numSpecialFeatures(8)
-{
-/*	vector<unsigned int> whichFeatures;//(512);
-	whichFeatures.push_back(16);
-	whichFeatures.push_back(17);
-	objectNetworks.push_back(Network(whichFeatures));	//for a friendly hero
-	objectNetworks.push_back(Network(whichFeatures));	//for an enemy hero
-
-	whichFeatures.clear();
-	whichFeatures.push_back(16);				//hero's AI value
-	objectNetworks.push_back(Network(whichFeatures));	//for school of magic
-
-	whichFeatures.clear();
-	for(int i = 0; i <=16;i++)
-		whichFeatures.push_back(i);				//hero's AI value is 16
-
-	objectNetworks.push_back(Network(whichFeatures));	//for treasure chest
-
-	whichFeatures.clear();
-	whichFeatures.push_back(17);
-	objectNetworks.push_back(Network(whichFeatures));	//for a friendly town
-	objectNetworks.push_back(Network(whichFeatures));	//for an enemy town
-
-	whichFeatures.clear();
-	whichFeatures.push_back(16);
-	objectNetworks.push_back(Network(whichFeatures));	//for learning stone
-*/
-}
-
 Priorities::Priorities(const string & filename)	//read brain from file
 :numSpecialFeatures(8)
 {
@@ -77,10 +47,26 @@ Priorities::Priorities(const string & filename)	//read brain from file
 	// object_num [list of features]
 	// brain data or "R" for random brain
 	objectNetworks.resize(255);
+	buildingNetworks.resize(9);
+
+	char type;
 	int object_num;
-	while(infile>>object_num)
+	int town_num;
+	int building_num;
+	while(infile>>type)
 	{
-		objectNetworks[object_num].push_back(Network(infile));
+		switch(type)
+		{
+		case 'o'://map object
+			infile >> object_num;
+			objectNetworks[object_num].push_back(Network(infile));
+			break;
+		case 't'://town building
+			infile >> town_num >> building_num;
+			buildingNetworks[town_num][building_num]=Network(infile);
+
+			break;
+		}
 	}
 }
 
@@ -116,13 +102,15 @@ float Priorities::getCost(vector<int> &resourceCosts,const CGHeroInstance * move
 
 float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 {	//resource
-
+	
 	vector<int> resourceAmounts(8,0);
 	int amount;
 
 	if(obj.type==CGeniusAI::AIObjective::finishTurn)	//TODO: replace with value of visiting that object divided by days till completed
 		return .0001;			//small nonzero
 	float a;
+	if(obj.type==CGeniusAI::AIObjective::attack)
+		return 100;
 	if(dynamic_cast<const CGeniusAI::HeroObjective* >(&obj))
 	{
 		const CGeniusAI::HeroObjective* hobj = dynamic_cast<const CGeniusAI::HeroObjective* >(&obj);
@@ -133,7 +121,7 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 		{
 		case 5: //artifact //TODO: return value of each artifact
 			return 0;
-		case 79:
+		case 79://resources on the ground
 			switch(hobj->object->subID)
 			{
 			case 6:
@@ -235,7 +223,19 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 	}
 	else	//town objective
 	{
-		
+		if(obj.type == CGeniusAI::AIObjective::buildBuilding)
+		{
+			const CGeniusAI::TownObjective* tnObj = dynamic_cast<const CGeniusAI::TownObjective* >(&obj);
+			if(buildingNetworks[tnObj->whichTown->t->subID].find(tnObj->which)!=buildingNetworks[tnObj->whichTown->t->subID].end())
+				return buildingNetworks[tnObj->whichTown->t->subID][tnObj->which].feedForward(stateFeatures);
+			else
+			{
+				cout << "don't know the value of ";
+				obj.print();
+				cout << endl;
+			}
+
+		}
 	}
 
 

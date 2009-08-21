@@ -22,7 +22,6 @@ public:
 class Priorities
 {
 public:
-	Priorities();								//random brain
 	Priorities(const string & filename);	//read brain from file
 
 
@@ -33,6 +32,7 @@ public:
 	float getValue(const CGeniusAI::AIObjective & obj);
 	float getCost(vector<int> &resourceCosts,const CGHeroInstance * moved,int distOutOfTheWay);
 	vector<vector<Network> > objectNetworks;
+	vector<map<int,Network> > buildingNetworks;
 };
 
 }

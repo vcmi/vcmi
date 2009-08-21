@@ -110,10 +110,10 @@ private:
 		HypotheticalGameState hgs;
 		int3 pos;
 		const CGObjectInstance * object;
-		std::vector<HypotheticalGameState::HeroModel *> whoCanAchieve;
+		mutable std::vector<HypotheticalGameState::HeroModel *> whoCanAchieve;
 		
-		HeroObjective(){}
-		HeroObjective(Type t):object(NULL){type = t;}
+		//HeroObjective(){}
+		//HeroObjective(Type t):object(NULL){type = t;}
 		HeroObjective(const HypotheticalGameState &hgs,Type t,const CGObjectInstance * object,HypotheticalGameState::HeroModel *h,CGeniusAI * AI);
 		bool operator < (const HeroObjective &other)const;
 		void fulfill(CGeniusAI &,HypotheticalGameState & hgs);
