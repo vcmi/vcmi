@@ -344,6 +344,7 @@ void CArtHandler::addBonuses()
 
 	//Elixir of Life
 	giveArtBonus(131, HeroBonus::STACK_HEALTH, +4);
+	giveArtBonus(131, HeroBonus::STACK_HEALTH_PERCENT, +25);
 
 	//Armor of the Damned
 	ART_ATTACK_AND_DEFENSE(132, +3);
@@ -368,6 +369,10 @@ void CArtHandler::addBonuses()
 	//Bow of the Sharpshooter
 	giveArtBonus(137, HeroBonus::SECONDARY_SKILL_PREMY, +30, 1);
 	giveArtBonus(137, HeroBonus::NO_SHOTING_PENALTY, 0);
+	giveArtBonus(137, HeroBonus::FREE_SHOOTING, 0);
+
+	//Wizard's Well
+	giveArtBonus(138, HeroBonus::FULL_MANA_REGENERATION, 0);
 
 	//Ring of the Magi
 	giveArtBonus(139, HeroBonus::SPELL_DURATION, +56);

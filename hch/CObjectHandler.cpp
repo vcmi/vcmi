@@ -1014,8 +1014,9 @@ int CGHeroInstance::getSightRadious() const
 
 si32 CGHeroInstance::manaRegain() const
 {
-	if (getArtPos(138) != -1) // Hero has Wizard's Well equipped.
+	if (hasBonusOfType(HeroBonus::FULL_MANA_REGENERATION))
 		return manaLimit();
+
 	return 1 + getSecSkillLevel(8) + valOfBonuses(HeroBonus::MANA_REGENERATION); //1 + Mysticism level 
 }
 

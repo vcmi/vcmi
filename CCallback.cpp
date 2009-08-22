@@ -546,7 +546,10 @@ bool CCallback::battleCanShoot(int ID, int dest)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	const CStack *our = battleGetStackByID(ID), *dst = battleGetStackByPos(dest);
-	if(!our || !dst || !gs->curB) return false; 
+
+	if(!our || !dst || !gs->curB) return false;
+	
+	int ourHero = our->attackerOwned ? gs->curB->hero1 : gs->curB->hero2;
 
 	//for(size_t g=0; g<our->effects.size(); ++g)
 	//{
@@ -557,16 +560,10 @@ bool CCallback::battleCanShoot(int ID, int dest)
 		return false;
 
 
-	// See if the stack can benefit from the Bow of the Sharpshooter.
-	int ourHero = our->attackerOwned ? gs->curB->hero1 : gs->curB->hero2;
-	bool hasSharpshooterBow = false;
-	if (ourHero != -1)
-		hasSharpshooterBow = gs->getHero(ourHero)->getArtPos(137) != -1;
-
 	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
 		&& our->owner != dst->owner
 		&& dst->alive()
-		&& (!gs->curB->isStackBlocked(ID) || hasSharpshooterBow)
+		&& (!gs->curB->isStackBlocked(ID) || gs->getHero(ourHero)->hasBonusOfType(HeroBonus::FREE_SHOOTING))
 		&& our->shots
 		)
 		return true;

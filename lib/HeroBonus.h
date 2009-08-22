@@ -27,6 +27,7 @@ struct DLL_EXPORT HeroBonus
 		PRIMARY_SKILL, //uses subtype to pick skill
 		SIGHT_RADIOUS, 
 		MANA_REGENERATION, //points per turn apart from normal (1 + mysticism)
+		FULL_MANA_REGENERATION, //all mana points are replenished every day
 		//not handled yet:
 		MAGIC_RESISTANCE, // %
 		SECONDARY_SKILL_PREMY, //%
@@ -34,7 +35,8 @@ struct DLL_EXPORT HeroBonus
 		STACKS_SPEED,
 		FLYING_MOVEMENT, SPELL_DURATION, AIR_SPELL_DMG_PREMY, EARTH_SPELL_DMG_PREMY, FIRE_SPELL_DMG_PREMY, 
 		WATER_SPELL_DMG_PREMY, BLOCK_SPELLS_ABOVE_LEVEL, WATER_WALKING, NO_SHOTING_PENALTY, DISPEL_IMMUNITY, 
-		NEGATE_ALL_NATURAL_IMMUNITIES, STACK_HEALTH, SPELL_IMMUNITY, BLOCK_MORALE, BLOCK_LUCK, FIRE_SPELLS,
+		NEGATE_ALL_NATURAL_IMMUNITIES, STACK_HEALTH, STACK_HEALTH_PERCENT, //the second one of stack health - value in % of base HP to be added to overall stack HP
+		SPELL_IMMUNITY, BLOCK_MORALE, BLOCK_LUCK, FIRE_SPELLS,
 		AIR_SPELLS, WATER_SPELLS, EARTH_SPELLS, 
 		GENERATE_RESOURCE, //daily value, uses subtype (resource type)
 		CREATURE_GROWTH, //for legion artifacts: value - week growth bonus, subtype - monster level
@@ -43,6 +45,7 @@ struct DLL_EXPORT HeroBonus
 		SPELLS_OF_LEVEL, //hero knows all spells of given level, val - skill level; subtype - level
 		ENEMY_CANT_ESCAPE, //for shackles of war
 		MAGIC_SCHOOL_SKILL, //eg. for magic plains terrain, subtype: school of magic (0 - all, 1 - fire, 2 - air, 4 - water, 8 - earth), value - level
+		FREE_SHOOTING //stacks can shoot even if otherwise blocked (sharpshooter's bow effect)
 	};
 	enum BonusDuration{PERMANENT, ONE_BATTLE, ONE_DAY, ONE_WEEK};
 	enum BonusSource{ARTIFACT, OBJECT};

@@ -267,6 +267,14 @@ CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
 void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit)
 {
 	memset(accessibility, 1, BFIELD_SIZE); //initialize array with trues
+
+	//removing accessibility for side columns of hexes
+	for(int v = 0; v < BFIELD_SIZE; ++v)
+	{
+		if( v % BFIELD_WIDTH == 0 || v % BFIELD_WIDTH == (BFIELD_WIDTH - 1) )
+			accessibility[v] = false;
+	}
+
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
 		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit) //we don't want to lock position of this stack
@@ -408,20 +416,6 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
 			)
 		{
 			ret.push_back(i);
-		}
-	}
-
-	// 2-hex creatures should not be able to move to a hex with an inaccesible hex to the left or right
-	// at the horizontal edges of the battlefield.
-	if (s->hasFeatureOfType(StackFeature::DOUBLE_WIDE)) {
-		int i = 0;
-		while (i < ret.size()) {
-			if (ret[i]%BFIELD_WIDTH == 1 && ret[i] + 1 != ret[i + 1])
-				ret.erase(ret.begin() + i);
-			else if (ret[i]%BFIELD_WIDTH == BFIELD_WIDTH - 1 && (i == 0 || ret[i] - 1 != ret[i - 1]))
-				ret.erase(ret.begin() + i);
-			else
-				i++;
 		}
 	}
 
@@ -2238,8 +2232,12 @@ CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creature
 		//other bonuses
 		ret->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
 		ret->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
-		if (owner->getArtPos(131) != -1) // Elixir of Life, add 25% HP
-			ret->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, ret->creature->hitPoints*0.25, StackFeature::BONUS_FROM_HERO));
+
+		if ( owner->hasBonusOfType(HeroBonus::STACK_HEALTH_PERCENT) ) // Elixir of Life, add 25% HP
+			ret->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, 
+			(ret->creature->hitPoints * owner->valOfBonuses(HeroBonus::STACK_HEALTH_PERCENT)) / 100, 
+			StackFeature::BONUS_FROM_HERO));
+
 		ret->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->valOfBonuses(HeroBonus::STACK_HEALTH), StackFeature::BONUS_FROM_HERO));
 		ret->firstHPleft = ret->MaxHealth();
 	}
