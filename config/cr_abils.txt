@@ -74,9 +74,9 @@
 +  55 ENEMY_LUCK_DECREASING -1 0 0 	//archdevils
 +  55 HATE 0 12 0		   	 		//archdevils hate angels
 +  55 HATE 0 13 0					//archdevils hate archangles
-+  60 REGENERATION 0 0 0			//wight
++  60 FULL_HP_REGENERATION 0 1 0			//wight
 +  61 MANA_DRAIN 2 0 0 				//wraith
-+  61 REGENERATION 0 0 0 			//wraith
++  61 FULL_HP_REGENERATION 0 1 0 			//wraith
 +  62 BLOCKS_RETALIATION 0 0 0		//vampires
 +  63 BLOCKS_RETALIATION 0 0 0		//vampire lords
 +  63 LIFE_DRAIN 0 0 0	   	 		//vampire lords
@@ -160,6 +160,7 @@
 + 123 DOUBLE_WIDE 0 0 0 			//ice elemental should be treated as double-wide
 + 140 DOUBLE_WIDE 0 0 0 			//boar should be treated as double-wide
 + 142 DOUBLE_WIDE 0 0 0 			//nomads should be treated as double-wide
++ 144 FULL_HP_REGENERATION 0 0 0 			//troll
 + 147 NOT_ACTIVE 0 0 0	   	 		//First Aid Tent //TODO: remove when support is added
 + 148 NOT_ACTIVE 0 0 0				//Ammo Cart
 -  46 FLYING		  				//hell hound doesn't fly

@@ -40,7 +40,8 @@ struct StackFeature
 	VCMI_CREATURE_ABILITY_NAME(ENEMY_MORALE_DECREASING) /*value - how much it decreases*/ \
 	VCMI_CREATURE_ABILITY_NAME(ENEMY_LUCK_DECREASING)					\
 	VCMI_CREATURE_ABILITY_NAME(UNDEAD)									\
-	VCMI_CREATURE_ABILITY_NAME(REGENERATION)							\
+	VCMI_CREATURE_ABILITY_NAME(HP_REGENERATION) /*creature regenerates val HP every new round*/					\
+	VCMI_CREATURE_ABILITY_NAME(FULL_HP_REGENERATION) /*first creature regenerates all HP every new round; subtype 0 - animation 4 (trolllike), 1 - animation 47 (wightlike)*/		\
 	VCMI_CREATURE_ABILITY_NAME(MANA_DRAIN) /*value - spell points per turn*/ \
 	VCMI_CREATURE_ABILITY_NAME(LIFE_DRAIN)								\
 	VCMI_CREATURE_ABILITY_NAME(DOUBLE_DAMAGE_CHANCE) /*value in %, eg. dread knight*/ \

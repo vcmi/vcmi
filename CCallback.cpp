@@ -563,7 +563,8 @@ bool CCallback::battleCanShoot(int ID, int dest)
 	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
 		&& our->owner != dst->owner
 		&& dst->alive()
-		&& (!gs->curB->isStackBlocked(ID) || gs->getHero(ourHero)->hasBonusOfType(HeroBonus::FREE_SHOOTING))
+		&& (!gs->curB->isStackBlocked(ID) || 
+			( gs->getHero(ourHero) && gs->getHero(ourHero)->hasBonusOfType(HeroBonus::FREE_SHOOTING) ) )
 		&& our->shots
 		)
 		return true;

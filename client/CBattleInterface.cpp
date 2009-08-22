@@ -1574,6 +1574,20 @@ void CBattleInterface::newRound(int number)
 
 	//unlock spellbook
 	bSpell->block(!LOCPLINT->cb->battleCanCastSpell());
+
+	//handle regeneration
+	std::map<int, CStack> stacks = LOCPLINT->cb->battleGetStacks();
+	for(std::map<int, CStack>::const_iterator it = stacks.begin(); it != stacks.end(); ++it)
+	{
+		if( it->second.hasFeatureOfType(StackFeature::HP_REGENERATION) )
+			displayEffect(74, it->second.position);
+
+		if( it->second.hasFeatureOfType(StackFeature::FULL_HP_REGENERATION, 0) )
+			displayEffect(4, it->second.position);
+
+		if( it->second.hasFeatureOfType(StackFeature::FULL_HP_REGENERATION, 1) )
+			displayEffect(74, it->second.position);
+	}
 }
 
 void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional)

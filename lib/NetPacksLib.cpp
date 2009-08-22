@@ -15,6 +15,9 @@
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
+#undef min
+#undef max
+
 /*
  * NetPacksLib.cpp, part of VCMI engine
  *
@@ -601,6 +604,12 @@ DLL_EXPORT void BattleNextRound::applyGs( CGameState *gs )
 		s->state -= MOVED;
 		s->state -= HAD_MORALE;
 		s->counterAttacks = 1 + s->valOfFeatures(StackFeature::ADDITIONAL_RETALIATION);
+
+		//regeneration
+		if( s->hasFeatureOfType(StackFeature::HP_REGENERATION) )
+			s->firstHPleft = std::min<ui32>( s->MaxHealth(), s->valOfFeatures(StackFeature::HP_REGENERATION) );
+		if( s->hasFeatureOfType(StackFeature::FULL_HP_REGENERATION) )
+			s->firstHPleft = s->MaxHealth();
 
 		//remove effects and restore only those with remaining turns in duration
 		std::vector<CStack::StackEffect> tmpEffects = s->effects;
