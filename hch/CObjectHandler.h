@@ -397,6 +397,7 @@ public:
 	//////////////////////////////////////////////////////////////////////////
 
 
+	void fightOver(const CGHeroInstance *h, BattleResult *result) const;
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void onHeroLeave(const CGHeroInstance * h) const;
 	void initObj();

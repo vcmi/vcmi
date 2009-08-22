@@ -536,6 +536,16 @@ void CIntObject::enable(bool activation)
 	recActions = 255;
 }
 
+bool CIntObject::isItInLoc( const SDL_Rect &rect, int x, int y )
+{
+	return isItIn(&rect, x - pos.x, y - pos.y);
+}
+
+bool CIntObject::isItInLoc( const SDL_Rect &rect, const Point &p )
+{
+	return isItIn(&rect, p.x - pos.x, p.y - pos.y);
+}
+
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
 	bg = BG; 

@@ -102,12 +102,12 @@ void CMessage::dispose()
 SDL_Surface * CMessage::drawBox1(int w, int h, int playerColor) //draws box for window
 {
 	//prepare surface
-	SDL_Surface * ret = SDL_CreateRGBSurface(screen->flags, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
+	SDL_Surface * ret = SDL_CreateRGBSurface(SDL_SWSURFACE, w, h, screen->format->BitsPerPixel, screen->format->Rmask, screen->format->Gmask, screen->format->Bmask, screen->format->Amask);
 	for (int i=0; i<h; i+=background->h)//background
 	{
-		for (int j=0; j<w; j+=background->w-1)
+		for (int j=0; j<w; j+=background->w)
 		{
-			SDL_BlitSurface(background,&genRect(background->h,background->w-1,1,0),ret,&genRect(h,w,j,i)); //FIXME taking address of temporary
+			SDL_BlitSurface(background,&genRect(background->h,background->w,0,0),ret,&genRect(h,w,j,i)); //FIXME taking address of temporary
 		}
 	}
 	drawBorder(playerColor, ret, w, h);
@@ -515,7 +515,7 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 		SDL_BlitSurface
 			(piecesOfBox[playerColor][6],NULL,ret,&genRect(piecesOfBox[playerColor][6]->h,piecesOfBox[playerColor][6]->w,x+i,y+0));
 		SDL_BlitSurface
-			(piecesOfBox[playerColor][7],NULL,ret,&genRect(piecesOfBox[playerColor][7]->h,piecesOfBox[playerColor][7]->w,x+i,y+h-piecesOfBox[playerColor][7]->h));
+			(piecesOfBox[playerColor][7],NULL,ret,&genRect(piecesOfBox[playerColor][7]->h,piecesOfBox[playerColor][7]->w,x+i,y+h-piecesOfBox[playerColor][7]->h+1));
 	}
 	//obwodka I-szego rzedu pionowa  //border of 1st series, vertical
 	for (int i=0; i<h-piecesOfBox[playerColor][4]->h; i+=piecesOfBox[playerColor][4]->h)
@@ -531,9 +531,9 @@ void CMessage::drawBorder(int playerColor, SDL_Surface * ret, int w, int h, int 
 	SDL_BlitSurface
 		(piecesOfBox[playerColor][1],NULL,ret,&genRect(piecesOfBox[playerColor][1]->h,piecesOfBox[playerColor][1]->w,x+w-piecesOfBox[playerColor][1]->w,y+0));
 	SDL_BlitSurface
-		(piecesOfBox[playerColor][2],NULL,ret,&genRect(piecesOfBox[playerColor][2]->h,piecesOfBox[playerColor][2]->w,x+0,y+h-piecesOfBox[playerColor][2]->h));
+		(piecesOfBox[playerColor][2],NULL,ret,&genRect(piecesOfBox[playerColor][2]->h,piecesOfBox[playerColor][2]->w,x+0,y+h-piecesOfBox[playerColor][2]->h+1));
 	SDL_BlitSurface
-		(piecesOfBox[playerColor][3],NULL,ret,&genRect(piecesOfBox[playerColor][3]->h,piecesOfBox[playerColor][3]->w,x+w-piecesOfBox[playerColor][3]->w,y+h-piecesOfBox[playerColor][3]->h));
+		(piecesOfBox[playerColor][3],NULL,ret,&genRect(piecesOfBox[playerColor][3]->h,piecesOfBox[playerColor][3]->w,x+w-piecesOfBox[playerColor][3]->w,y+h-piecesOfBox[playerColor][3]->h+1));
 }
 
 ComponentResolved::ComponentResolved()

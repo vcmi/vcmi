@@ -513,6 +513,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\FontBase.h"
+				>
+			</File>
+			<File
 				RelativePath=".\FunctionList.h"
 				>
 			</File>

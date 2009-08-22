@@ -1403,8 +1403,8 @@ bool CGameState::battleCanFlee(int player)
 	const CGHeroInstance *h1 = getHero(curB->hero1);
 	const CGHeroInstance *h2 = getHero(curB->hero2);
 
-	if(h1->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE) //eg. one of heroes is wearing shakles of war
-		|| h2->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE))
+	if(h1 && h1->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE) //eg. one of heroes is wearing shakles of war
+		|| h2 && h2->hasBonusOfType(HeroBonus::ENEMY_CANT_ESCAPE))
 		return false;
 
 	return true;
@@ -1557,7 +1557,7 @@ void CGameState::loadTownDInfos()
 
 void CGameState::getNeighbours(int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand)
 {
-	int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
+	static int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
 
 	vec.clear();
@@ -1704,6 +1704,8 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 	else
 		blockLandSea = boost::logic::indeterminate;
 
+	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayer(hero->tempOwner)->fogOfWarMap;
+
 	//graph initialization
 	std::vector< std::vector<CPathNode> > graph;
 	graph.resize(map->width);
@@ -1726,7 +1728,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 			if ((tinfo->tertype == TerrainTile::rock) //it's rock
 				|| ((blockLandSea) && (tinfo->tertype == TerrainTile::water)) //it's sea and we cannot walk on sea
 				|| ((!blockLandSea) && (tinfo->tertype != TerrainTile::water)) //it's land and we cannot walk on land
-				|| !getPlayer(hero->tempOwner)->fogOfWarMap[i][j][src.z] //tile is covered by the FoW
+				|| !FoW[i][j][src.z] //tile is covered by the FoW
 			)
 			{
 				node.accesible = false;
@@ -1750,10 +1752,10 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 		{
 			size_t i = 0;
 			for(; i < t->visitableObjects.size(); i++)
-				if(t->visitableObjects[i]->ID == 8) //it's a Boat
+				if(t->visitableObjects[i]->ID == 8  ||  t->visitableObjects[i]->ID == HEROI_TYPE) //it's a Boat
 					break;
 
-			d.accesible = (i < t->visitableObjects.size()); //dest is accessible only if there is boat
+			d.accesible = (i < t->visitableObjects.size()); //dest is accessible only if there is boat/hero
 		}
 		else if(!blockLandSea && t->tertype != TerrainTile::water) //hero is moving by water
 		{

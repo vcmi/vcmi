@@ -23,6 +23,8 @@
 #include "../hch/CMusicHandler.h"
 #include "../hch/CVideoHandler.h"
 #include "AdventureMapButton.h"
+#include "GUIClasses.h"
+#include "../hch/CCreatureHandler.h"
 /*
  * CPreGame.cpp, part of VCMI engine
  *
@@ -212,7 +214,6 @@ CSelectionScreen::CSelectionScreen( EState Type )
 		break;
 
 	case loadGame:
-		card->difficulty->select(current->seldiff, 0);
 		sel->recActions = 255;
 		start  = new AdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 414, 535, "SCNRLOD.DEF", SDLK_b);
 		break;
@@ -669,6 +670,7 @@ void SelectionTab::clickLeft( tribool down, bool previousState )
 InfoCard::InfoCard( EState Type )
 {
 	OBJ_CONSTRUCTION;
+	used = RCLICK;
 	sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
 	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
 	type = Type;
@@ -779,10 +781,10 @@ void InfoCard::showAll( SDL_Surface * to )
 
 		//print flags
 		int fx=64, ex=244, myT;
-		if (curMap->howManyTeams)
+		//if (curMap->howManyTeams)
 			myT = curMap->players[playerColor].team;
-		else 
-			myT = -1;
+		//else 
+		//	myT = -1;
 		for (std::vector<PlayerSettings>::const_iterator i = curOpts->playerInfos.begin(); i != curOpts->playerInfos.end(); i++)
 		{
 			int *myx = ((i->color == playerColor  ||  curMap->players[i->color].team == myT) ? &fx : &ex);
@@ -815,12 +817,47 @@ void InfoCard::showAll( SDL_Surface * to )
 
 void InfoCard::changeSelection( const CMapInfo *to )
 {
-	//current = to;
+	if(type == loadGame)
+		difficulty->select(curMap->seldiff, 0);
 	GH.totalRedraw();
 }
 
-OptionsTab::OptionsTab( EState Type/*, StartInfo &Opts */)
-	//:opts(Opts)
+void InfoCard::clickRight( tribool down, bool previousState )
+{
+	static const Rect flagArea(19, 397, 335, 23);
+	if(down && isItInLoc(flagArea, GH.current->motion.x, GH.current->motion.y))
+		showTeamsPopup();
+}
+
+void InfoCard::showTeamsPopup()
+{
+	SDL_Surface *bmp = CMessage::drawBox1(256, 90 + 50 * curMap->howManyTeams);
+	CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[657], 128, 30, FONT_MEDIUM, tytulowy, bmp); //{Team Alignments}
+
+	for(int i = 0; i < curMap->howManyTeams; i++)
+	{
+		std::vector<ui8> flags;
+		std::string hlp = CGI->generaltexth->allTexts[656]; //Team %d
+		hlp.replace(hlp.find("%d"), 2, boost::lexical_cast<std::string>(i+1));
+		CSDL_Ext::printAtMiddle(hlp, 128, 65 + 50*i, FONT_SMALL, zwykly, bmp);
+
+		for(int j = 0; j < PLAYER_LIMIT; j++)
+			if((curMap->players[j].canHumanPlay || curMap->players[j].canComputerPlay)
+				&& curMap->players[j].team == i)
+				flags.push_back(j);
+
+		int curx = 128 - 9*flags.size();
+		for(int j = 0; j < flags.size(); j++)
+		{
+			blitAt(sFlags->ourImages[flags[j]].bitmap, curx, 75 + 50*i, bmp);
+			curx += 18;
+		}	
+	}
+
+	GH.pushInt(new CInfoPopup(bmp, true));
+}
+
+OptionsTab::OptionsTab( EState Type)
 {
 	OBJ_CONSTRUCTION;
 	bg = new CPicture(BitmapHandler::loadBitmap("ADVOPTBK.bmp"), 3, 6, true);
@@ -1068,12 +1105,13 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 	else
 		flag = NULL;
 
+	defActions &= ~SHARE_POS;
 	town = new SelectedBox(TOWN, s.serial);
-	town->pos = pos + Point(119, 2);
+	town->pos += pos + Point(119, 2);
 	hero = new SelectedBox(HERO, s.serial);
-	hero->pos = pos + Point(195, 2);
+	hero->pos += pos + Point(195, 2);
 	bonus = new SelectedBox(BONUS, s.serial);
-	bonus->pos = pos + Point(271, 2);
+	bonus->pos += pos + Point(271, 2);
 }
 
 void OptionsTab::PlayerOptionsEntry::showAll( SDL_Surface * to )
@@ -1104,70 +1142,57 @@ void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
 void OptionsTab::SelectedBox::showAll( SDL_Surface * to )
 {
 	PlayerSettings &s = curOpts->playerInfos[player];
-	SDL_Surface *toBlit = NULL;
-	const std::string *toPrint = NULL;
+	SDL_Surface *toBlit = getImg();
+	const std::string *toPrint = getText();
+	blitAt(toBlit, pos, to);
+	printAtMiddleLoc(*toPrint, 23, 39, FONT_TINY, zwykly, to);
+}
 
+OptionsTab::SelectedBox::SelectedBox( SelType Which, ui8 Player )
+:which(Which), player(Player)
+{
+	SDL_Surface *img = getImg();
+	pos.w = img->w;
+	pos.h = img->h;
+	used = RCLICK;
+}
+
+SDL_Surface * OptionsTab::SelectedBox::getImg() const
+{
+	PlayerSettings &s = curOpts->playerInfos[player];
 	switch(which)
 	{
 	case TOWN:
-		{
-			if (s.castle < F_NUMBER  &&  s.castle >= 0)
-			{
-				toBlit = graphics->getPic(s.castle, true, false);
-				toPrint = &CGI->townh->towns[s.castle].Name();
-			}
-			else if (s.castle == -1)
-			{
-				toBlit  = CGP->rTown;
-				toPrint = &CGI->generaltexth->allTexts[522];
-			}
-			else if (s.castle == -2)
-			{
-				toBlit  = CGP->nTown;
-				toPrint = &CGI->generaltexth->allTexts[523];
-			}
-		}
-		break;
+		if (s.castle < F_NUMBER  &&  s.castle >= 0)
+			return graphics->getPic(s.castle, true, false);
+		else if (s.castle == -1)
+			return CGP->rTown;
+		else if (s.castle == -2)
+			return CGP->nTown;
 	case HERO:
+		if (s.hero == -1)
 		{
-			if (s.hero == -1)
-			{
-				toBlit  = CGP->rHero;
-				toPrint = &CGI->generaltexth->allTexts[522];
-			}
-			else if (s.hero == -2)
-			{
-				if(s.heroPortrait >= 0)
-				{
-					toBlit = graphics->portraitSmall[s.heroPortrait];
-					if(s.heroName.length())
-						toPrint = &s.heroName;
-					else
-						toPrint = &CGI->heroh->heroes[s.heroPortrait]->name;
-				}
-				else
-				{
-					toBlit  = CGP->nHero;
-					toPrint = &CGI->generaltexth->allTexts[523];
-				}
-			}
+			return CGP->rHero;
+		}
+		else if (s.hero == -2)
+		{
+			if(s.heroPortrait >= 0)
+				return graphics->portraitSmall[s.heroPortrait];
 			else
-			{
-				toBlit = graphics->portraitSmall[s.hero];
-				toPrint = &s.heroName;
-			}
+				return CGP->nHero;
+		}
+		else
+		{
+			return graphics->portraitSmall[s.hero];
 		}
 		break;
 	case BONUS:
 		{
 			int pom;
-			toPrint = &CGI->generaltexth->arraytxt[214 + s.bonus];
-
 			switch (s.bonus)
 			{
 			case -1:
 				pom=10;
-				toPrint = &CGI->generaltexth->allTexts[522];
 				break;
 			case 0:
 				pom=9;
@@ -1178,17 +1203,213 @@ void OptionsTab::SelectedBox::showAll( SDL_Surface * to )
 			case 2:
 				pom=CGI->townh->towns[s.castle].bonus;
 				break;
+			default: 
+				assert(0);
 			}
-			toBlit = CGP->bonuses->ourImages[pom].bitmap;
+			return CGP->bonuses->ourImages[pom].bitmap;
 		}
-		break;
+	default:
+		return NULL;
 	}
-
-	blitAt(toBlit, pos, to);
-	printAtMiddleLoc(*toPrint, 23, 39, FONT_TINY, zwykly, to);
 }
 
-OptionsTab::SelectedBox::SelectedBox( SelType Which, ui8 Player )
-:which(Which), player(Player)
+const std::string * OptionsTab::SelectedBox::getText() const
 {
+	PlayerSettings &s = curOpts->playerInfos[player];	
+	switch(which)
+	{
+	case TOWN:
+		if (s.castle < F_NUMBER  &&  s.castle >= 0)
+			return &CGI->townh->towns[s.castle].Name();
+		else if (s.castle == -1)
+			return &CGI->generaltexth->allTexts[522];
+		else if (s.castle == -2)
+			return &CGI->generaltexth->allTexts[523];
+	case HERO:
+		if (s.hero == -1)
+			return &CGI->generaltexth->allTexts[522];
+		else if (s.hero == -2)
+		{
+			if(s.heroPortrait >= 0)
+			{
+				if(s.heroName.length())
+					return &s.heroName;
+				else
+					return &CGI->heroh->heroes[s.heroPortrait]->name;
+			}
+			else
+				return &CGI->generaltexth->allTexts[523];
+		}
+		else
+		{
+			//if(s.heroName.length())
+			//	return &s.heroName;
+			//else
+				return &CGI->heroh->heroes[s.hero]->name;
+		}
+	case BONUS:
+		switch (s.bonus)
+		{
+		case -1:
+			return &CGI->generaltexth->allTexts[522];
+		default:
+			return &CGI->generaltexth->arraytxt[214 + s.bonus];
+		}
+	default:
+		return NULL;
+	}
+}
+
+void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
+{
+	if(indeterminate(down) || !down) return;
+	PlayerSettings &s = curOpts->playerInfos[player];
+	SDL_Surface *bmp = NULL;
+	const std::string *title = NULL, *subTitle = NULL;
+
+	subTitle = getText();
+
+	int val;
+	switch(which)
+	{
+	case TOWN: val = s.castle; break;
+	case HERO: 
+		val = s.hero; 
+		if(val < 0)
+		{
+			int p9 = curMap->players[s.color].p9;
+			if(p9 != 255)
+				val = p9;
+		}
+		break;
+	case BONUS: val = s.bonus; break;
+	}
+
+	if(val == -1  ||  which == BONUS) //random or bonus box
+	{
+		bmp = CMessage::drawBox1(256, 190);
+		std::string *description = NULL;
+
+		switch(which)
+		{
+		case TOWN:
+			title = &CGI->generaltexth->allTexts[103];
+			description = &CGI->generaltexth->allTexts[104];
+			break;
+		case HERO:
+			title = &CGI->generaltexth->allTexts[101];
+			description = &CGI->generaltexth->allTexts[102];
+			break;
+		case BONUS:
+			{
+				switch(val)
+				{
+				case brandom:
+					title = &CGI->generaltexth->allTexts[86]; //{Random Bonus}
+					description = &CGI->generaltexth->allTexts[94]; //Gold, wood and ore, or an artifact is randomly chosen as your starting bonus
+					break;
+				case bartifact:
+					title = &CGI->generaltexth->allTexts[83]; //{Artifact Bonus}
+					description = &CGI->generaltexth->allTexts[90]; //An artifact is randomly chosen and equipped to your starting hero
+					break;
+				case bgold:
+					title = &CGI->generaltexth->allTexts[84]; //{Gold Bonus}
+					subTitle = &CGI->generaltexth->allTexts[87]; //500-1000
+					description = &CGI->generaltexth->allTexts[92]; //At the start of the game, 500-1000 gold is added to your Kingdom's resource pool
+					break;
+				case bresource:
+					{
+						title = &CGI->generaltexth->allTexts[85]; //{Resource Bonus}
+						switch(CGI->townh->towns[s.castle].primaryRes)
+						{
+						case 1:
+							subTitle = &CGI->generaltexth->allTexts[694];
+							description = &CGI->generaltexth->allTexts[690];
+							break;
+						case 3:
+							subTitle = &CGI->generaltexth->allTexts[695];
+							description = &CGI->generaltexth->allTexts[691];
+							break;
+						case 4:
+							subTitle = &CGI->generaltexth->allTexts[692];
+							description = &CGI->generaltexth->allTexts[688];
+							break;
+						case 5:
+							subTitle = &CGI->generaltexth->allTexts[693];
+							description = &CGI->generaltexth->allTexts[689];
+							break;
+						case 127:
+							subTitle = &CGI->generaltexth->allTexts[89]; //5-10 wood / 5-10 ore
+							description = &CGI->generaltexth->allTexts[93]; //At the start of the game, 5-10 wood and 5-10 ore are added to your Kingdom's resource pool
+							break;
+						}
+					}
+					break;
+				}
+			}
+			break;
+		}
+
+		if(description)
+			CSDL_Ext::printAtMiddleWB(*description, 125, 145, FONT_SMALL, 37, zwykly, bmp);
+	}
+	else if(val == -2)
+	{
+		return;
+	}
+	else if(which == TOWN)
+	{
+		bmp = CMessage::drawBox1(256, 319);
+		title = &CGI->generaltexth->allTexts[80];
+
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[79], 135, 137, FONT_MEDIUM, tytulowy, bmp);
+		
+		const CTown &t = CGI->townh->towns[val];
+		//print creatures
+		int x = 60, y = 159;
+		for(int i = 0; i < 7; i++)
+		{
+			int c = t.basicCreatures[i];
+			blitAt(graphics->smallImgs[c], x, y, bmp);
+			CSDL_Ext::printAtMiddleWB(CGI->creh->creatures[c].nameSing, x + 16, y + 45, FONT_TINY, 10, zwykly, bmp);
+
+			if(i == 2)
+			{
+				x = 40;
+				y += 76;
+			}
+			else
+			{
+				x += 52;
+			}
+		}
+
+	}
+	else if(val >= 0)
+	{
+		const CHero *h = CGI->heroh->heroes[val];
+		bmp = CMessage::drawBox1(320, 255);
+		title = &CGI->generaltexth->allTexts[77];
+
+		CSDL_Ext::printAtMiddle(*title, 167, 36, FONT_MEDIUM, tytulowy, bmp);
+		CSDL_Ext::printAtMiddle(*subTitle + " - " + h->heroClass->name, 160, 99, FONT_SMALL, zwykly, bmp);
+
+		blitAt(getImg(), 136, 56, bmp);
+
+		//print specialty
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[78], 166, 132, FONT_MEDIUM, tytulowy, bmp);
+		blitAt(graphics->un44->ourImages[val].bitmap, 140, 150, bmp);
+
+		GH.pushInt(new CInfoPopup(bmp, true));
+		return;
+	}
+
+	if(title)
+		CSDL_Ext::printAtMiddle(*title, 135, 36, FONT_MEDIUM, tytulowy, bmp);
+	if(subTitle)
+		CSDL_Ext::printAtMiddle(*subTitle, 127, 103, FONT_SMALL, zwykly, bmp);
+
+	blitAt(getImg(), 104, 60, bmp);
+
+	GH.pushInt(new CInfoPopup(bmp, true));
 }

@@ -322,10 +322,10 @@ static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInf
 	return ret;
 }
 
-void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb)
+void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town)
 {
 	BattleInfo *curB = new BattleInfo;
-	setupBattle(curB, tile, army1->army, army2->army, hero1, hero2, creatureBank); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+	setupBattle(curB, tile, army1->army, army2->army, hero1, hero2, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 	NEW_ROUND;
 	//TODO: pre-tactic stuff, call scripts etc.
 
@@ -857,13 +857,12 @@ namespace CGH
 	}
 }
 
-void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet &army1, const CCreatureSet &army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank )
+void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet &army1, const CCreatureSet &army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank, const CGTownInstance *town)
 {
 	battleResult.set(NULL);
 	std::vector<CStack*> & stacks = (curB->stacks);
 
 	curB->tile = tile;
-	curB->siege = 0; //TODO: add sieges
 	curB->army1=army1;
 	curB->army2=army2;
 	curB->hero1=(hero1)?(hero1->id):(-1);
@@ -872,6 +871,17 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	curB->side2=(hero2)?(hero2->tempOwner):(-1);
 	curB->round = -2;
 	curB->activeStack = -1;
+
+	if(town)
+	{
+		curB->tid = town->id;
+		curB->siege = town->fortLevel();
+	}
+	else
+	{
+		curB->tid = -1;
+		curB->siege = 0;
+	}
 
 	//reading battleStartpos
 	std::ifstream positions;
@@ -1540,7 +1550,7 @@ void CGameHandler::giveHeroArtifact(int artid, int hid, int position) //pos==-1 
 	sendAndApply(&sha);
 }
 
-void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb) //use hero=NULL for no hero
+void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town) //use hero=NULL for no hero
 {
 	engageIntoBattle(army1->tempOwner);
 	engageIntoBattle(army2->tempOwner);
@@ -1548,7 +1558,7 @@ void CGameHandler::startBattleI(const CArmedInstance *army1, const CArmedInstanc
 	if(army2->tempOwner < PLAYER_LIMIT)
 		states.setFlag(army2->tempOwner,&PlayerStatus::engagedIntoBattle,true);
 
-	boost::thread(boost::bind(&CGameHandler::startBattle, this, army1, army2, tile, hero1, hero2, creatureBank, cb));
+	boost::thread(boost::bind(&CGameHandler::startBattle, this, army1, army2, tile, hero1, hero2, creatureBank, cb, town));
 }
 
 void CGameHandler::startBattleI( const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank, boost::function<void(BattleResult*)> cb )

@@ -125,7 +125,7 @@ struct DLL_EXPORT PlayerInfo
 	PlayerInfo(): p7(0), p8(0), p9(0), canHumanPlay(0), canComputerPlay(0),
 		AITactic(0), allowedFactions(0), isFactionRandom(0),
 		mainHeroPortrait(0), hasMainTown(0), generateHeroAtMainTown(0),
-		team(0), generateHero(0) {};
+		team(255), generateHero(0) {};
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -219,7 +219,6 @@ public:
 	LossCondition lossCondition;
 	CVictoryCondition victoryCondition; //victory conditions
 	std::vector<PlayerInfo> players; // info about players - size 8
-	std::vector<ui8> teams;  // teams[i] = team of player no i
 	ui8 howManyTeams;
 	std::vector<ui8> allowedHeroes; //allowedHeroes[hero_ID] - if the hero is allowed
 	void initFromMemory(unsigned char *bufor, int &i);
@@ -232,7 +231,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int Version)
 	{
 		h & version & name & description & width & height & twoLevel & difficulty & levelLimit & areAnyPLayers;
-		h & players & teams & lossCondition & victoryCondition & howManyTeams;
+		h & players & lossCondition & victoryCondition & howManyTeams;
 	}
 };
 
@@ -338,8 +337,8 @@ struct DLL_EXPORT Mapa : public CMapHeader
 	TerrainTile &getTile(int3 tile);
 	const TerrainTile &getTile(int3 tile) const;
 	CGHeroInstance * getHero(int ID, int mode=0);
-	bool isInTheMap(int3 pos) const;
-	bool isWaterTile(int3 pos) const; //out-of-pos safe
+	bool isInTheMap(const int3 &pos) const;
+	bool isWaterTile(const int3 &pos) const; //out-of-pos safe
 	template <typename Handler> void serialize(Handler &h, const int formatVersion)
 	{
 		h & static_cast<CMapHeader&>(*this);

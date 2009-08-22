@@ -552,9 +552,26 @@ DLL_EXPORT void SetObjectProperty::applyGs( CGameState *gs )
 {
 	CGObjectInstance *obj = gs->map->objects[id];
 	if(!obj)
+	{
 		tlog1 << "Wrong object ID - property cannot be set!\n";
-	else
-		obj->setProperty(what,val);
+		return;
+	}
+
+	if(what == 1)
+	{
+		if(obj->ID == TOWNI_TYPE)
+		{
+			CGTownInstance *t = static_cast<CGTownInstance*>(obj);
+			if(t->tempOwner < PLAYER_LIMIT)
+				gs->getPlayer(t->tempOwner)->towns -= t;
+
+			if(val < PLAYER_LIMIT)
+				gs->getPlayer(val)->towns.push_back(t);
+		}
+	}
+
+	
+	obj->setProperty(what,val);
 }
 
 DLL_EXPORT void SetHoverName::applyGs( CGameState *gs )

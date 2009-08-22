@@ -1406,7 +1406,26 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 {
 	if(getOwner() != h->getOwner())
 	{
-		return;
+		//TODO ally check
+		if(army)
+		{
+			const CGHeroInstance *defendingHero = NULL;
+			if(visitingHero)
+				defendingHero = visitingHero;
+			else if(garrisonHero)
+				defendingHero = garrisonHero;
+
+			const CArmedInstance *defendingArmy = this;
+			if(defendingHero)
+				defendingArmy = defendingHero;
+
+			bool outsideTown = (defendingHero == visitingHero && garrisonHero);
+			cb->startBattleI(h, defendingArmy, getSightCenter(), h, defendingHero, false, boost::bind(&CGTownInstance::fightOver, this, h, _1), (outsideTown ? NULL : this));
+		}
+		else
+		{
+			cb->setOwner(id, h->tempOwner);
+		}
 	}
 	cb->heroVisitCastle(id,h->id);
 }
@@ -1438,6 +1457,14 @@ int3 CGTownInstance::getSightCenter() const
 void CGTownInstance::getOutOffsets( std::vector<int3> &offsets ) const
 {
 	offsets += int3(-1,3,0), int3(-3,3,0);
+}
+
+void CGTownInstance::fightOver( const CGHeroInstance *h, BattleResult *result ) const
+{
+	if(result->winner == 0)
+	{
+		cb->setOwner(id, h->tempOwner);
+	}
 }
 
 void CGVisitableOPH::onHeroVisit( const CGHeroInstance * h ) const

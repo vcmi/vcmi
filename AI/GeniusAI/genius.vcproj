@@ -296,6 +296,14 @@
 			</File>
 		</Filter>
 		<File
+			RelativePath=".\AIPriorities.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\AIPriorities.h"
+			>
+		</File>
+		<File
 			RelativePath=".\CGeniusAI.cpp"
 			>
 		</File>
@@ -309,6 +317,14 @@
 		</File>
 		<File
 			RelativePath=".\DLLMain.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\neuralNetwork.cpp"
+			>
+		</File>
+		<File
+			RelativePath=".\neuralNetwork.h"
 			>
 		</File>
 	</Files>

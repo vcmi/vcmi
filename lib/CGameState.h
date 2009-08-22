@@ -110,6 +110,7 @@ struct DLL_EXPORT BattleInfo
 	ui8 side1, side2; //side1 - attacker, side2 - defender
 	si32 round, activeStack;
 	ui8 siege; //    = 0 ordinary battle    = 1 a siege with a Fort    = 2 a siege with a Citadel    = 3 a siege with a Castle
+	si32 tid; //used during town siege - id of attacked town; -1 if not town defence
 	int3 tile; //for background and bonuses
 	si32 hero1, hero2;
 	CCreatureSet army1, army2;

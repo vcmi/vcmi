@@ -175,9 +175,7 @@ void CPlayerInterface::yourTurn()
 
 		while(makingTurn) // main loop
 		{
-			updateWater();
 			pim->lock();
-
 
 			//if there are any waiting dialogs, show them
 			if(dialogs.size() && !showingDialog->get())
@@ -1504,6 +1502,9 @@ void CPlayerInterface::objectPropertyChanged(const SetObjectProperty * sop)
 			if(cb->isVisible(*it))
 				adventureInt->minimap.showTile(*it);
 		}
+
+		if(obj->ID == TOWNI_TYPE)
+			adventureInt->townList.genList();
 	}
 
 }

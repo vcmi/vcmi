@@ -683,6 +683,11 @@ CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 {
 	free=Free;
 	bitmap=Bitmap;
+
+	pos.x = screen->w/2 - bitmap->w/2;
+	pos.y = screen->h/2 - bitmap->h/2;
+	pos.h = bitmap->h;
+	pos.w = bitmap->w;
 }
 
 void CInfoPopup::close()
@@ -1402,6 +1407,7 @@ CTownList::CTownList(int Size, int x, int y, std::string arrupg, std::string arr
 
 void CTownList::genList()
 {
+	items.clear();
 	int howMany = LOCPLINT->cb->howManyTowns();
 	for (int i=0;i<howMany;i++)
 	{

@@ -253,7 +253,7 @@ void CMapHeader::initFromMemory( unsigned char *bufor, int &i )
 	{
 		for(int rr=0; rr<8; ++rr)
 		{
-			players[rr].team=bufor[i++];
+			players[rr].team = bufor[i++];
 		}
 	}
 
@@ -1991,7 +1991,7 @@ void Mapa::readEvents( unsigned char * bufor, int &i )
 	}
 }
 
-bool Mapa::isInTheMap( int3 pos ) const
+bool Mapa::isInTheMap(const int3 &pos) const
 {
 	if(pos.x<0 || pos.y<0 || pos.z<0 || pos.x >= width || pos.y >= height || pos.z > twoLevel)
 		return false;
@@ -2086,18 +2086,33 @@ const TerrainTile & Mapa::getTile( int3 tile ) const
 	return terrain[tile.x][tile.y][tile.z];
 }
 
-bool Mapa::isWaterTile( int3 pos ) const
+bool Mapa::isWaterTile(const int3 &pos) const
 {
 	return isInTheMap(pos) && getTile(pos).tertype == TerrainTile::water;
 }
 
 void CMapInfo::countPlayers()
 {
-	playerAmnt=humenPlayers=0;
-	for (int i=0;i<PLAYER_LIMIT;i++)
+	playerAmnt = humenPlayers = 0;
+	for(int i=0;i<PLAYER_LIMIT;i++)
 	{
-		if (players[i].canHumanPlay) {playerAmnt++;humenPlayers++;}
-		else if (players[i].canComputerPlay) {playerAmnt++;}
+		if(players[i].canHumanPlay)
+		{
+			playerAmnt++;
+			humenPlayers++;
+		}
+		else if(players[i].canComputerPlay)
+		{
+			playerAmnt++;
+		}
+	}
+
+	if(!howManyTeams) //no alliances
+	{
+		//howManyTeams = playerAmnt;
+		for(int i=0;i<PLAYER_LIMIT;i++)
+			if(players[i].canComputerPlay || players[i].canHumanPlay)
+				players[i].team = howManyTeams++;
 	}
 }
 

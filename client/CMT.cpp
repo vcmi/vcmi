@@ -129,8 +129,8 @@ void init()
 	CGI->soundh->init();
 	CGI->soundh->setVolume(GDefaultOptions.soundVolume);
 	CGI->musich = new CMusicHandler;
-	CGI->musich->init();
-	CGI->musich->setVolume(GDefaultOptions.musicVolume);
+	//CGI->musich->init();
+	//CGI->musich->setVolume(GDefaultOptions.musicVolume);
 	tlog0<<"\tInitializing sound: "<<pomtime.getDif()<<std::endl;
 	tlog0<<"Initializing screen, fonts and sound handling: "<<tmh.getDif()<<std::endl;
 
@@ -241,6 +241,10 @@ void processCommand(const std::string &message)
 			LOCPLINT->castleInt->activate();
 			break;
 		}
+	}
+	else if(cn=="redraw")
+	{
+		GH.totalRedraw();
 	}
 	else if(cn=="screen")
 	{
@@ -386,6 +390,8 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 		tlog1 << "Error: SDL says that " << w << "x" << h << " resolution is not available!\n";
 		return;
 	}
+
+	bool bufOnScreen = (screenBuf == screen);
 	
 	if(suggestedBpp != bpp)
 	{
@@ -406,12 +412,16 @@ static void setScreenRes(int w, int h, int bpp, bool fullscreen)
 		throw "Requested screen resolution is not available\n";
 	}
 
+	tlog0 << "New screen flags: " << screen->flags << std::endl;
+
 	if(screen2)
 		SDL_FreeSurface(screen2);
 	screen2 = CSDL_Ext::copySurface(screen);
 	SDL_EnableUNICODE(1);
 	SDL_WM_SetCaption(NAME.c_str(),""); //set window title
 	SDL_ShowCursor(SDL_DISABLE);
+
+	screenBuf = bufOnScreen ? screen : screen2;
 }
 
 void listenForEvents() 
@@ -421,26 +431,37 @@ void listenForEvents()
 	{
 		ev = new SDL_Event();
 
+		//tlog0 << "Waiting... ";
 		int ret = SDL_WaitEvent(ev);
-		if(ret == 0 || (ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
+		//tlog0 << "got " << (int)ev->type;
+		if(/*ret == 0 || */(ev->type==SDL_QUIT)  ||  (ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4 && (ev->key.keysym.mod & KMOD_ALT)))
 		{
-			LOCPLINT->pim->lock();
+			if(LOCPLINT)
+				LOCPLINT->pim->lock();
 			client->close();
 			console->end();
 			SDL_Delay(750);
 			tlog0 << "Ending...\n";
 			exit(EXIT_SUCCESS);
 		}
-		else if(ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
+		else if(LOCPLINT && ev->type == SDL_KEYDOWN && ev->key.keysym.sym==SDLK_F4)
 		{
 			boost::unique_lock<boost::recursive_mutex> lock(*LOCPLINT->pim);
 			bool full = !(screen->flags&SDL_FULLSCREEN);
 			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,full);
 			GH.totalRedraw();
 		}
+		else if(ev->type == SDL_USEREVENT && ev->user.code == 1)
+		{
+			setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
+			delete ev;
+			continue;
+		}
+		//tlog0 << " pushing ";
 		eventsM.lock();
 		events.push(ev);
 		eventsM.unlock();
+		//tlog0 << " done\n";
 	}
 }
 
@@ -456,7 +477,11 @@ void startGame(StartInfo * options)
 
 	if(screen->w != conf.cc.resx   ||   screen->h != conf.cc.resy)
 	{
-		setScreenRes(conf.cc.resx,conf.cc.resy,conf.cc.bpp,conf.cc.fullscreen);
+		//push special event to order event reading thread to change resolution
+		SDL_Event ev;
+		ev.type = SDL_USEREVENT;
+		ev.user.code = 1;
+		SDL_PushEvent(&ev);
 	}
 
 	CClient cl;

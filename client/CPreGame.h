@@ -61,6 +61,8 @@ public:
 
 	void changeSelection(const CMapInfo *to);
 	void showAll(SDL_Surface * to);
+	void clickRight(tribool down, bool previousState);
+	void showTeamsPopup();
 	InfoCard(EState Type);
 	~InfoCard();
 };
@@ -106,8 +108,13 @@ public:
 	{
 		SelType which;
 		ui8 player; //serial nr
-		void showAll(SDL_Surface * to);
+
+		SDL_Surface *getImg() const;
+		const std::string *getText() const;
+
 		SelectedBox(SelType Which, ui8 Player);
+		void showAll(SDL_Surface * to);
+		void clickRight(tribool down, bool previousState);
 	};
 
 	struct PlayerOptionsEntry : public CIntObject

@@ -216,6 +216,9 @@ void CSDL_Ext::printAt(const std::string & text, int x, int y, TTF_Font * font, 
 
 void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL_Color kolor/*=zwykly*/, SDL_Surface * dst/*=screen*/, bool refresh /*= false*/ )
 {
+	if(!text.size())
+		return;
+
 	assert(dst);
 	assert(font < Graphics::FONTS_NUMBER);
 	assert(dst->format->BytesPerPixel == 3   ||   dst->format->BytesPerPixel == 4); //  24/32 bpp dst only
@@ -225,8 +228,11 @@ void CSDL_Ext::printAt( const std::string & text, int x, int y, EFonts font, SDL
 	Uint8 *px = NULL;
 	Uint8 *src = NULL;
 
+	//if text is in {} braces, we'll ommit them
+	const int first = (text[0] == '{' ? 1 : 0);
+	const int beyondEnd = (text[text.size()-1] == '}' ? text.size()-1 : text.size());
 
-	for(int txti = 0; txti < text.size(); txti++)
+	for(int txti = first; txti < beyondEnd; txti++)
 	{
 		const unsigned char c = text[txti];
 		src = f->chars[c].pixels;

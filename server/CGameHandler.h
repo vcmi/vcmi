@@ -84,11 +84,11 @@ public:
 	bool isAllowedExchange(int id1, int id2);
 	void giveSpells(const CGTownInstance *t, const CGHeroInstance *h);
 	void moveStack(int stack, int dest);
-	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
+	void startBattle(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void prepareAttack(BattleAttack &bat, CStack *att, CStack *def); //if last parameter is true, attack is by shooting, if false it's a melee attack
 	void prepareAttacked(BattleStackAttacked &bsa, CStack *def);
 	void checkForBattleEnd( std::vector<CStack*> &stacks );
-	void setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet &army1, const CCreatureSet &army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank );
+	void setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet &army1, const CCreatureSet &army2, const CGHeroInstance * hero1, const CGHeroInstance * hero2, bool creatureBank, const CGTownInstance *town);
 
 
 	CGameHandler(void);
@@ -122,7 +122,7 @@ public:
 	void giveHeroArtifact(int artid, int hid, int position); //pos==-1 - first free slot in backpack; pos==-2 - default if available or backpack
 	void moveArtifact(int hid, int oldPosition, int destPos);
 	void removeArtifact(int hid, int pos);
-	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb); //use hero=NULL for no hero
+	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town = NULL); //use hero=NULL for no hero
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, int3 tile, bool creatureBank, boost::function<void(BattleResult*)> cb);
 	void startBattleI(const CArmedInstance *army1, const CArmedInstance *army2, bool creatureBank, boost::function<void(BattleResult*)> cb = 0); //if any of armies is hero, hero will be used, visitable tile of second obj is place of battle
 	//void startBattleI(int heroID, CCreatureSet army, int3 tile, boost::function<void(BattleResult*)> cb); //for hero<=>neutral army
