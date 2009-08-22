@@ -1898,7 +1898,7 @@ bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 	return true;
 }
 
-int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting)
+int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
 {
 	int attackDefenseBonus,
 		minDmg = attacker->creature->damageMin * attacker->amount, 
@@ -1985,6 +1985,10 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	}
 
 	float dmgBonusMultiplier = 1.0f;
+
+	//applying jousting bonus
+	if( attacker->hasFeatureOfType(StackFeature::JOUSTING) && !defender->hasFeatureOfType(StackFeature::CHARGE_IMMUNITY) )
+		dmgBonusMultiplier += charge * 0.05f;
 
 	//bonus from attack/defense skills
 	if(attackDefenseBonus < 0) //decreasing dmg

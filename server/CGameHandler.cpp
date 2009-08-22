@@ -451,6 +451,7 @@ askInterfaceForMove:
 	
 	sendAndApply(&resultsApplied);
 }
+
 void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
 {	
 	bsa.killedAmount = bsa.damageAmount / def->MaxHealth();
@@ -478,7 +479,7 @@ void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
 	}
 }
 
-void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
+void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def, int distance)
 {
 	bat.bsa.clear();
 	bat.stackAttacking = att->ID;
@@ -490,7 +491,7 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def)
 	#endif
 
 	bsa->stackAttacked = def->ID;
-	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot());//counting dealt damage
+	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot(), distance);//counting dealt damage
 	if(att->Luck() > 0  &&  rand()%24 < att->Luck())
 	{
 		bsa->damageAmount *= 2;
@@ -546,8 +547,11 @@ handleConEnd:
 #undef SPELL_CAST_TEMPLATE_1
 #undef SPELL_CAST_TEMPLATE_2
 }
-void CGameHandler::moveStack(int stack, int dest)
-{							
+
+int CGameHandler::moveStack(int stack, int dest)
+{
+	int ret = 0;
+
 	CStack *curStack = gs->curB->getStack(stack),
 		*stackAtEnd = gs->curB->getStackT(dest);
 
@@ -579,7 +583,7 @@ void CGameHandler::moveStack(int stack, int dest)
 	}
 
 	if((stackAtEnd && stackAtEnd!=curStack && stackAtEnd->alive()) || !accessibility[dest])
-		return;
+		return 0;
 
 	bool accessibilityWithOccupyable[BFIELD_SIZE];
 	std::vector<int> accOc = gs->curB->getAccessibility(curStack->ID, true);
@@ -596,6 +600,9 @@ void CGameHandler::moveStack(int stack, int dest)
 	//	return false;
 
 	std::pair< std::vector<int>, int > path = gs->curB->getPath(curStack->position, dest, accessibilityWithOccupyable, curStack->hasFeatureOfType(StackFeature::FLYING), curStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE), curStack->attackerOwned);
+
+	ret = path.second;
+
 	if(curStack->hasFeatureOfType(StackFeature::FLYING))
 	{
 		if(path.second <= curStack->Speed() && path.first.size() > 0)
@@ -623,6 +630,8 @@ void CGameHandler::moveStack(int stack, int dest)
 			sendAndApply(&sm);
 		}
 	}
+
+	return ret;
 }
 CGameHandler::CGameHandler(void)
 {
@@ -2323,7 +2332,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 	case 6: //walk or attack
 		{
 			sendAndApply(&StartAction(ba)); //start movement and attack
-			moveStack(ba.stackNumber,ba.destinationTile);
+			int distance = moveStack(ba.stackNumber, ba.destinationTile);
 			CStack *curStack = gs->curB->getStack(ba.stackNumber),
 				*stackAtEnd = gs->curB->getStackT(ba.additionalInfo);
 
@@ -2380,7 +2389,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 			//attack
 			BattleAttack bat;
-			prepareAttack(bat,curStack,stackAtEnd);
+			prepareAttack(bat, curStack, stackAtEnd, distance);
 			sendAndApply(&bat);
 
 			//counterattack
@@ -2390,7 +2399,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& !stackAtEnd->hasFeatureOfType(StackFeature::SIEGE_WEAPON)
 				&& !stackAtEnd->hasFeatureOfType(StackFeature::HYPNOTIZED))
 			{
-				prepareAttack(bat,stackAtEnd,curStack);
+				prepareAttack(bat, stackAtEnd, curStack, 0);
 				bat.flags |= 2;
 				sendAndApply(&bat);
 			}
@@ -2402,7 +2411,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& stackAtEnd->alive()  )
 			{
 				bat.flags = 0;
-				prepareAttack(bat,curStack,stackAtEnd);
+				prepareAttack(bat, curStack, stackAtEnd, 0);
 				sendAndApply(&bat);
 			}
 			sendAndApply(&EndAction());
@@ -2430,7 +2439,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&StartAction(ba)); //start shooting
 
 			BattleAttack bat;
-			prepareAttack(bat,curStack,destStack);
+			prepareAttack(bat, curStack, destStack, 0);
 			bat.flags |= 1;
 			sendAndApply(&bat);
 
@@ -2440,7 +2449,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 				&& curStack->shots
 				)
 			{
-				prepareAttack(bat,curStack,destStack);
+				prepareAttack(bat, curStack, destStack, 0);
 				sendAndApply(&bat);
 			}
 
