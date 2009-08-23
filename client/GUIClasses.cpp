@@ -684,10 +684,13 @@ CInfoPopup::CInfoPopup(SDL_Surface *Bitmap, bool Free)
 	free=Free;
 	bitmap=Bitmap;
 
-	pos.x = screen->w/2 - bitmap->w/2;
-	pos.y = screen->h/2 - bitmap->h/2;
-	pos.h = bitmap->h;
-	pos.w = bitmap->w;
+	if(bitmap)
+	{
+		pos.x = screen->w/2 - bitmap->w/2;
+		pos.y = screen->h/2 - bitmap->h/2;
+		pos.h = bitmap->h;
+		pos.w = bitmap->w;
+	}
 }
 
 void CInfoPopup::close()

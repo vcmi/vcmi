@@ -666,14 +666,11 @@ void CSpellWindow::SpellArea::clickRight(tribool down, bool previousState)
 {
 	if(down && mySpell != -1)
 	{
-		CInfoPopup *vinya = new CInfoPopup();
-		vinya->free = true;
-		vinya->bitmap = CMessage::drawBoxTextBitmapSub(
+		SDL_Surface *spellBox = CMessage::drawBoxTextBitmapSub(
 			LOCPLINT->playerID,
 			CGI->spellh->spells[mySpell].descriptions[0], this->owner->spells->ourImages[mySpell].bitmap,
 			CGI->spellh->spells[mySpell].name,30,30);
-		vinya->pos.x = screen->w/2 - vinya->bitmap->w/2;
-		vinya->pos.y = screen->h/2 - vinya->bitmap->h/2;
+		CInfoPopup *vinya = new CInfoPopup(spellBox, true);
 		GH.pushInt(vinya);
 	}
 }
