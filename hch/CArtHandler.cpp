@@ -222,7 +222,7 @@ void CArtHandler::addBonuses()
 	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,59);//berserk
 	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,60);//hypnotize
 	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,61);//forgetfulness
-	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,62);//forgetfulness
+	giveArtBonus(49,HeroBonus::SPELL_IMMUNITY,62);//blind
 	ART_MORALE(50,+1); //Crest of Valor
 	ART_MORALE(51,+1); //Glyph of Gallantry
 
@@ -332,27 +332,46 @@ void CArtHandler::addBonuses()
 
 	//Armageddon's Blade
 	giveArtBonus(128, HeroBonus::SPELL, 3, 26);
+	giveArtBonus(128, HeroBonus::SPELL_IMMUNITY, 26);
 	ART_ATTACK_AND_DEFENSE(128, +3);
 	ART_PRIM_SKILL(128, 2, +3);
 	ART_PRIM_SKILL(128, 3, +6);
 
 	//Angelic Alliance
 	ART_ALL_PRIM_SKILLS(129, +21);
+	giveArtBonus(129, HeroBonus::NONEVIL_ALIGNMENT_MIX, 0);
+	giveArtBonus(129, HeroBonus::OPENING_BATTLE_SPELL, 10, 29); // Prayer
 
 	//Cloak of the Undead King
 	giveArtBonus(130, HeroBonus::SECONDARY_SKILL_PREMY, +30, 12);
+	giveArtBonus(130, HeroBonus::SECONDARY_SKILL_PREMY, +30, 12);
+	giveArtBonus(130, HeroBonus::IMPROVED_NECROMANCY, 0);
 
 	//Elixir of Life
 	giveArtBonus(131, HeroBonus::STACK_HEALTH, +4);
 	giveArtBonus(131, HeroBonus::STACK_HEALTH_PERCENT, +25);
+	giveArtBonus(131, HeroBonus::HP_REGENERATION, +50);
 
 	//Armor of the Damned
 	ART_ATTACK_AND_DEFENSE(132, +3);
 	ART_POWER_AND_KNOWLEDGE(132, +2);
+	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 54); // Slow
+	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 47); // Disrupting Ray
+	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 45); // Weakness
+	giveArtBonus(132, HeroBonus::OPENING_BATTLE_SPELL, 50, 52); // Misfortune
+
+	// Statue of Legion
+	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +5, 1);
+	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +4, 2);
+	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +3, 3);
+	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +2, 4);
+	giveArtBonus(133, HeroBonus::CREATURE_GROWTH, +1, 5);
+	giveArtBonus(133, HeroBonus::CREATURE_GROWTH_PERCENT, 50);
 
 	//Power of the Dragon Father
 	ART_ALL_PRIM_SKILLS(134, +16);
 	giveArtBonus(134, HeroBonus::MORALE_AND_LUCK, +1);
+	giveArtBonus(134, HeroBonus::LEVEL_SPELL_IMMUNITY, 4);
 
 	//Titan's Thunder
 	ART_ATTACK_AND_DEFENSE(135, +9);
@@ -360,11 +379,11 @@ void CArtHandler::addBonuses()
 	giveArtBonus(135, HeroBonus::SPELL, 3, 57);
 
 	//Admiral's Hat
-	giveArtBonus(136, HeroBonus::SEA_MOVEMENT, +1000);
+	giveArtBonus(136, HeroBonus::SEA_MOVEMENT, +1500);
 	giveArtBonus(136, HeroBonus::WHIRLPOOL_PROTECTION, 0);
-	giveArtBonus(136, HeroBonus::SEA_MOVEMENT, +500);
 	giveArtBonus(136, HeroBonus::SPELL, 3, 0);
 	giveArtBonus(136, HeroBonus::SPELL, 3, 1);
+	giveArtBonus(136, HeroBonus::FREE_SHIP_BOARDING, 0);
 
 	//Bow of the Sharpshooter
 	giveArtBonus(137, HeroBonus::SECONDARY_SKILL_PREMY, +30, 1);

@@ -46,11 +46,13 @@
 +  40 SPELL_IMMUNITY 0 59 0			//giants are immune to mind spells (berserk)
 +  40 SPELL_IMMUNITY 0 60 0			//giants are immune to mind spells (hypnotize)
 +  40 SPELL_IMMUNITY 0 61 0			//giants are immune to mind spells (forgetfulness)
++  40 SPELL_IMMUNITY 0 62 0			//giants are immune to mind spells (blind)
 +  41 HATE 0 83 0		   	 		//titans hate black dragons
 +  41 SPELL_IMMUNITY 0 50 0			//titans are immune to mind spells (sorrow)
 +  41 SPELL_IMMUNITY 0 59 0			//titans are immune to mind spells (berserk)
 +  41 SPELL_IMMUNITY 0 60 0			//titans are immune to mind spells (hypnotize)
 +  41 SPELL_IMMUNITY 0 61 0			//titans are immune to mind spells (forgetfulness)
++  41 SPELL_IMMUNITY 0 62 0			//titans are immune to mind spells (blind)
 +  43 MANA_CHANNELING 20 0 0 		//familiars
 +  45 SPELL_LIKE_ATTACK 21 0 0 		//magogs fire with fireballs
 +  47 BLOCKS_RETALIATION 0 0 0 		//cerberus

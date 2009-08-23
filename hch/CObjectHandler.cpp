@@ -858,7 +858,18 @@ std::vector<std::pair<int,std::string> > CGHeroInstance::getCurrentMoraleModifie
 		std::set<si8> factions;
 		for(std::map<si32,std::pair<ui32,si32> >::const_iterator i=army.slots.begin(); i!=army.slots.end(); i++)
 		{
-			factions.insert(VLC->creh->creatures[i->second.first].faction);
+			// Take Angelic Alliance troop-mixing freedom into account.
+			si8 faction = VLC->creh->creatures[i->second.first].faction;
+			if (hasBonusOfType(HeroBonus::NONEVIL_ALIGNMENT_MIX)
+			    && (faction <= 2 || faction == 6 || faction == 8))
+			{
+				factions.insert(0); // Insert any non-evil alignment as arbitrary single faction, in this case Castle.
+			}
+			else
+			{
+				factions.insert(faction);
+			}
+
 			if(i->second.first == 13)
 				archangelInArmy = true;
 		}

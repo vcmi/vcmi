@@ -2244,10 +2244,17 @@ CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creature
 		ret->features.push_back(makeFeature(StackFeature::ATTACK_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->getPrimSkillLevel(0), StackFeature::BONUS_FROM_HERO));
 		ret->features.push_back(makeFeature(StackFeature::DEFENCE_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->getPrimSkillLevel(1), StackFeature::BONUS_FROM_HERO));
 
-		if ( owner->hasBonusOfType(HeroBonus::STACK_HEALTH_PERCENT) ) // Elixir of Life, add 25% HP
+		if ( owner->hasBonusOfType(HeroBonus::STACK_HEALTH_PERCENT) ) // e.g. Elixir of Life
 			ret->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, 
-			(ret->creature->hitPoints * owner->valOfBonuses(HeroBonus::STACK_HEALTH_PERCENT)) / 100, 
-			StackFeature::BONUS_FROM_HERO));
+				(ret->creature->hitPoints * owner->valOfBonuses(HeroBonus::STACK_HEALTH_PERCENT)) / 100, 
+				StackFeature::BONUS_FROM_HERO));
+		if (owner->hasBonusOfType(HeroBonus::HP_REGENERATION)) // e.g. Elixir of Life
+			ret->features.push_back(makeFeature(StackFeature::HP_REGENERATION, StackFeature::WHOLE_BATTLE, 0,
+				owner->valOfBonuses(HeroBonus::HP_REGENERATION), StackFeature::BONUS_FROM_HERO));
+
+		if (owner->hasBonusOfType(HeroBonus::LEVEL_SPELL_IMMUNITY)) // e.g. Power of the Dragon Father
+			ret->features.push_back(makeFeature(StackFeature::LEVEL_SPELL_IMMUNITY, StackFeature::WHOLE_BATTLE, 0,
+				owner->valOfBonuses(HeroBonus::LEVEL_SPELL_IMMUNITY), StackFeature::BONUS_FROM_HERO));
 
 		ret->features.push_back(makeFeature(StackFeature::HP_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->valOfBonuses(HeroBonus::STACK_HEALTH), StackFeature::BONUS_FROM_HERO));
 		ret->firstHPleft = ret->MaxHealth();

@@ -28,6 +28,9 @@ struct DLL_EXPORT HeroBonus
 		SIGHT_RADIOUS, 
 		MANA_REGENERATION, //points per turn apart from normal (1 + mysticism)
 		FULL_MANA_REGENERATION, //all mana points are replenished every day
+		NONEVIL_ALIGNMENT_MIX, //good and neutral creatures can be mixed without morale penalty
+		HP_REGENERATION, //regenerates a certain amount of hp for the top of each stack every turn, val - hp regained
+		LEVEL_SPELL_IMMUNITY, //val - spell level creatures become immune to and below
 		//not handled yet:
 		MAGIC_RESISTANCE, // %
 		SECONDARY_SKILL_PREMY, //%
@@ -45,7 +48,11 @@ struct DLL_EXPORT HeroBonus
 		SPELLS_OF_LEVEL, //hero knows all spells of given level, val - skill level; subtype - level
 		ENEMY_CANT_ESCAPE, //for shackles of war
 		MAGIC_SCHOOL_SKILL, //eg. for magic plains terrain, subtype: school of magic (0 - all, 1 - fire, 2 - air, 4 - water, 8 - earth), value - level
-		FREE_SHOOTING //stacks can shoot even if otherwise blocked (sharpshooter's bow effect)
+		FREE_SHOOTING, //stacks can shoot even if otherwise blocked (sharpshooter's bow effect)
+		OPENING_BATTLE_SPELL, //casts a spell at expert level at beginning of battle, val - spell power, subtype - spell id
+		IMPROVED_NECROMANCY, //allows Necropolis units other than skeletons to be raised by necromancy
+		CREATURE_GROWTH_PERCENT, //increases growth of all units in all towns, val - percentage
+		FREE_SHIP_BOARDING //movement points preserved with ship boarding and landing
 	};
 	enum BonusDuration{PERMANENT, ONE_BATTLE, ONE_DAY, ONE_WEEK};
 	enum BonusSource{ARTIFACT, OBJECT};
