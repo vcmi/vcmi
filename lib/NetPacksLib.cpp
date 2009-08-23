@@ -736,7 +736,16 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 	CGHeroInstance *h = (side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
 	if(h)
 	{
-		h->mana -= VLC->spellh->spells[id].costs[skill];
+		int spellCost = 0;
+		if(gs->curB)
+		{
+			spellCost = gs->curB->getSpellCost(&VLC->spellh->spells[id], h);
+		}
+		else
+		{
+			spellCost = VLC->spellh->spells[id].costs[skill];
+		}
+		h->mana -= spellCost;
 		if(h->mana < 0) h->mana = 0;
 	}
 	if(side >= 0 && side < 2)

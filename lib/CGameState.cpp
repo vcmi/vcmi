@@ -2022,20 +2022,20 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 			switch(attackerHero->getSecSkillLevel(1)) //archery
 			{
 			case 1: //basic
-				dmgBonusMultiplier *= 1.1f;
+				dmgBonusMultiplier += 0.1f;
 				break;
 			case 2: //advanced
-				dmgBonusMultiplier *= 1.25f;
+				dmgBonusMultiplier += 0.25f;
 				break;
 			case 3: //expert
-				dmgBonusMultiplier *= 1.5f;
+				dmgBonusMultiplier += 0.5f;
 				break;
 			}
 
 			if(attackerHero->getSecSkillLevel(1) > 0) //non-none level
 			{
 				//apply artifact premy to archery
-				dmgBonusMultiplier *= (100.0f + attackerHero->valOfBonuses(HeroBonus::SECONDARY_SKILL_PREMY, 1)) / 100.0f;
+				dmgBonusMultiplier += attackerHero->valOfBonuses(HeroBonus::SECONDARY_SKILL_PREMY, 1) / 100.0f;
 			}
 		}
 		else
@@ -2043,13 +2043,13 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 			switch(attackerHero->getSecSkillLevel(22)) //offense
 			{
 			case 1: //basic
-				dmgBonusMultiplier *= 1.1f;
+				dmgBonusMultiplier += 0.1f;
 				break;
 			case 2: //advanced
-				dmgBonusMultiplier *= 1.2f;
+				dmgBonusMultiplier += 0.2f;
 				break;
 			case 3: //expert
-				dmgBonusMultiplier *= 1.3f;
+				dmgBonusMultiplier += 0.3f;
 				break;
 			}
 		}
@@ -2069,6 +2069,11 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 			break;
 		}
 	}
+
+	//handling hate effect
+	if( attacker->hasFeatureOfType(StackFeature::HATE, defender->creature->idNumber) )
+		dmgBonusMultiplier += 0.5f;
+
 	//handling spell effects
 	if(!shooting && defender->hasFeatureOfType(StackFeature::GENERAL_DAMAGE_REDUCTION, 0)) //eg. shield
 	{
@@ -2265,6 +2270,23 @@ CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creature
 	ret->position = position;
 
 	return ret;
+}
+
+ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster)
+{
+	ui32 ret = VLC->spellh->spells[sp->id].costs[caster->getSpellSchoolLevel(sp)];
+
+	//checking for friendly stacks reducing cost of the spell
+	si32 manaReduction = 0;
+	for(int g=0; g<stacks.size(); ++g)
+	{
+		if( stacks[g]->owner == caster->tempOwner && stacks[g]->hasFeatureOfType(StackFeature::CHANGES_SPELL_COST_FOR_ALLY) )
+		{
+			amin(manaReduction, stacks[g]->valOfFeatures(StackFeature::CHANGES_SPELL_COST_FOR_ALLY));
+		}
+	}
+
+	return ret + manaReduction;
 }
 
 CStack * BattleInfo::getNextStack()

@@ -125,6 +125,7 @@ public:
 	virtual int getMySerial()const =0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)const =0;
 	virtual const StartInfo * getStartInfo()const =0;
+	virtual int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const =0; //when called during battle, takes into account creatures' spell cost reduction
 
 	//hero
 	virtual int howManyHeroes(bool includeGarrisoned = true)const =0;
@@ -243,6 +244,8 @@ public:
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj) const;
 	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos) const;
 	const StartInfo * getStartInfo() const;
+	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
+
 	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos) const;
 	std::vector < const CGObjectInstance * > getVisitableObjs(int3 pos) const;
 	void getMarketOffer(int t1, int t2, int &give, int &rec, int mode=0) const; //t1 - type of given resource, t2 - type of received resource; give is the amount of resource t1 that can be traded for amount rec of resource t2 (one of them is 1)

@@ -19,9 +19,9 @@
 +  21 CHANGES_SPELL_COST_FOR_ENEMY 2 0 0 	//silver pegasus makes spell cost higher for enemy mage
 +  22 SPELL_AFTER_ATTACK 0 72 100   //dendroids cast bind
 +  23 SPELL_AFTER_ATTACK 0 72 100 	//dendroid guards cast bind
-+  24 SPELL_AFTER_ATTACK 0 62 100 	//unicorns cast blind with 20% probability
++  24 SPELL_AFTER_ATTACK 0 62 20 	//unicorns cast blind with 20% probability
 +  24 SPELL_RESISTANCE_AURA 0 55 0	//unicorn
-+  25 SPELL_AFTER_ATTACK 0 62 100 	//war unicorns cast blind with 20% probability
++  25 SPELL_AFTER_ATTACK 0 62 20 	//war unicorns cast blind with 20% probability
 +  25 SPELL_RESISTANCE_AURA 0 55 0 	//war unicorn
 +  26 LEVEL_SPELL_IMMUNITY 3 0 0 	//green dragon's spell immunity
 +  26 TWO_HEX_ATTACK_BREATH 0 0 0  	//green dragon's breath

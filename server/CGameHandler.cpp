@@ -2490,6 +2490,7 @@ void CGameHandler::playerMessage( ui8 player, const std::string &message )
 		if(!h->getArt(17)) //hero doesn't have spellbook
 		{
 			//give spellbook
+			sha.hid = h->id;
 			sha.artifacts = h->artifacts;
 			sha.artifWorn = h->artifWorn;
 			sha.artifWorn[17] = 0;
@@ -2648,6 +2649,14 @@ static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, 
 		ret /= 100;
 	}
 
+	//dmg increasing
+	if( affectedCreature->hasFeatureOfType(StackFeature::MORE_DAMAGE_FROM_SPELL, sp->id) )
+	{
+		ret *= 100 + affectedCreature->valOfFeatures(StackFeature::MORE_DAMAGE_FROM_SPELL, sp->id);
+		ret /= 100;
+	}
+
+
 	return ret;
 }
 
@@ -2763,7 +2772,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			ui8 skill = h->getSpellSchoolLevel(s); //skill level
 
 			if(   !(h->canCastThisSpell(s)) //hero cannot cast this spell at all
-				|| (h->mana < s->costs[skill]) //not enough mana
+				|| (h->mana < gs->curB->getSpellCost(s, h)) //not enough mana
 				|| (ba.additionalInfo < 10) //it's adventure spell (not combat)
 				|| (gs->curB->castSpells[ba.side]) //spell has been cast
 				|| (secondHero && secondHero->hasBonusOfType(HeroBonus::SPELL_IMMUNITY, s->id)) //non - casting hero provides immunity for this spell 

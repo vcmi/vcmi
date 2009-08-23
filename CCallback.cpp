@@ -15,6 +15,7 @@
 #include <boost/foreach.hpp>
 #include <boost/thread.hpp>
 #include <boost/thread/shared_mutex.hpp>
+#include "hch/CSpellHandler.h"
 #ifdef min
 #undef min
 #endif
@@ -111,11 +112,24 @@ const StartInfo * CCallback::getStartInfo() const
 	return gs->scenarioOps;
 }
 
+int CCallback::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
+{
+	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
+
+	//if there is a battle
+	if(gs->curB)
+		return gs->curB->getSpellCost(sp, caster);
+
+	//if there is no battle
+	return sp->costs[caster->getSpellSchoolLevel(sp)];
+}
+
 int CCallback::howManyTowns() const
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
 	return gs->players[player].towns.size();
 }
+
 const CGTownInstance * CCallback::getTownInfo(int val, bool mode) const //mode = 0 -> val = serial; mode = 1 -> val = ID
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);

@@ -11,6 +11,7 @@
 #include "SDL_Extensions.h"
 #include "CMessage.h"
 #include "CPlayerInterface.h"
+#include "../CCallback.h"
 #include <boost/bind.hpp>
 #include <sstream>
 
@@ -441,32 +442,33 @@ void CSpellWindow::show(SDL_Surface *to)
 	{
 		if(spellAreas[b]->mySpell == -1)
 			continue;
+		const CSpell * spell = &CGI->spellh->spells[spellAreas[b]->mySpell];
 		//int b2 = -1; //TODO use me
 
 		blitAt(spells->ourImages[spellAreas[b]->mySpell].bitmap, spellAreas[b]->pos.x, spellAreas[b]->pos.y, to);
 
 		Uint8 bestSchool = -1,
-			bestslvl =  myHero->getSpellSchoolLevel( &CGI->spellh->spells[spellAreas[b]->mySpell] );
+			bestslvl =  myHero->getSpellSchoolLevel( spell );
 
-		if(CGI->spellh->spells[spellAreas[b]->mySpell].air)
+		if(spell->air)
 			bestSchool = 0;
-		if(CGI->spellh->spells[spellAreas[b]->mySpell].fire)
+		if(spell->fire)
 			bestSchool = 1;
-		if(CGI->spellh->spells[spellAreas[b]->mySpell].water)
+		if(spell->water)
 			bestSchool = 2;
-		if(CGI->spellh->spells[spellAreas[b]->mySpell].earth)
+		if(spell->earth)
 			bestSchool = 3;
 
 		//printing border (indicates level of magic school)
 		blitAt(schoolBorders[bestSchool]->ourImages[bestslvl].bitmap, spellAreas[b]->pos.x, spellAreas[b]->pos.y, to);
 
 		//printing spell's name
-		CSDL_Ext::printAtMiddle(CGI->spellh->spells[spellAreas[b]->mySpell].name, spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 70, GEORM, tytulowy, to);
+		CSDL_Ext::printAtMiddle(spell->name, spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 70, GEORM, tytulowy, to);
 		//printing lvl
-		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + CGI->spellh->spells[spellAreas[b]->mySpell].level], spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 82, GEORM, zwykly, to);
+		CSDL_Ext::printAtMiddle(CGI->generaltexth->allTexts[171 + spell->level], spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 82, GEORM, zwykly, to);
 		//printing  cost
 		std::ostringstream ss;
-		ss<<CGI->generaltexth->allTexts[387]<<": "<<CGI->spellh->spells[spellAreas[b]->mySpell].costs[bestslvl];
+		ss<<CGI->generaltexth->allTexts[387]<<": "<<LOCPLINT->cb->getSpellCost(spell, myHero);
 
 		CSDL_Ext::printAtMiddle(ss.str(), spellAreas[b]->pos.x + 39, spellAreas[b]->pos.y + 94, GEORM, zwykly, to);
 	}
