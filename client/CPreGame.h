@@ -96,6 +96,9 @@ public:
 
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);
+	void wheelScrolled(bool down, bool in);
+	void keyPressed(const SDL_KeyboardEvent & key);
+	void onDoubleClick();
 	SelectionTab(EState Type, const boost::function<void(CMapInfo *)> &OnSelect);
 	~SelectionTab();
 };

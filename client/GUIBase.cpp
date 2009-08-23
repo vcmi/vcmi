@@ -178,17 +178,61 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		CGI->curh->cursorMove(sEvent->motion.x, sEvent->motion.y);
 		handleMouseMotion(sEvent);
 	}
-	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_LEFT))
+	else if (sEvent->type==SDL_MOUSEBUTTONDOWN)
 	{
-		std::list<CIntObject*> hlp = lclickable;
-		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+		if(sEvent->button.button == SDL_BUTTON_LEFT)
 		{
-			if(!vstd::contains(lclickable,*i)) continue;
-			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
+			
+			if(lastClick == sEvent->motion  &&  (SDL_GetTicks() - lastClickTime) < 300)
 			{
-				prev = (*i)->pressedL;
-				(*i)->pressedL = true;
-				(*i)->clickLeft(true, prev);
+				std::list<CIntObject*> hlp = doubleClickInterested;
+				for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+				{
+					if(!vstd::contains(doubleClickInterested,*i)) continue;
+					if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
+					{
+						(*i)->onDoubleClick();
+					}
+				}
+
+			}
+
+			lastClick = sEvent->motion;
+			lastClickTime = SDL_GetTicks();
+
+			std::list<CIntObject*> hlp = lclickable;
+			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+			{
+				if(!vstd::contains(lclickable,*i)) continue;
+				if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
+				{
+					prev = (*i)->pressedL;
+					(*i)->pressedL = true;
+					(*i)->clickLeft(true, prev);
+				}
+			}
+		}
+		else if (sEvent->button.button == SDL_BUTTON_RIGHT)
+		{
+			std::list<CIntObject*> hlp = rclickable;
+			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+			{
+				if(!vstd::contains(rclickable,*i)) continue;
+				if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
+				{
+					prev = (*i)->pressedR;
+					(*i)->pressedR = true;
+					(*i)->clickRight(true, prev);
+				}
+			}
+		}
+		else if(sEvent->button.button == SDL_BUTTON_WHEELDOWN || sEvent->button.button == SDL_BUTTON_WHEELUP)
+		{
+			std::list<CIntObject*> hlp = wheelInterested;
+			for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
+			{
+				if(!vstd::contains(wheelInterested,*i)) continue;
+				(*i)->wheelScrolled(sEvent->button.button == SDL_BUTTON_WHEELDOWN, isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y));
 			}
 		}
 	}
@@ -206,20 +250,6 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 			}
 			else
 				(*i)->clickLeft(boost::logic::indeterminate, prev);
-		}
-	}
-	else if ((sEvent->type==SDL_MOUSEBUTTONDOWN) && (sEvent->button.button == SDL_BUTTON_RIGHT))
-	{
-		std::list<CIntObject*> hlp = rclickable;
-		for(std::list<CIntObject*>::iterator i=hlp.begin(); i != hlp.end();i++)
-		{
-			if(!vstd::contains(rclickable,*i)) continue;
-			if (isItIn(&(*i)->pos,sEvent->motion.x,sEvent->motion.y))
-			{
-				prev = (*i)->pressedR;
-				(*i)->pressedR = true;
-				(*i)->clickRight(true, prev);
-			}
 		}
 	}
 	else if ((sEvent->type==SDL_MOUSEBUTTONUP) && (sEvent->button.button == SDL_BUTTON_RIGHT))
@@ -455,6 +485,10 @@ void CIntObject::activate()
 		activateKeys();
 	if(used & TIME)
 		activateTimer();
+	if(used & WHEEL)
+		activateWheel();
+	if(used & DOUBLECLICK)
+		activateDClick();
 
 	if(defActions & ACTIVATE)
 		for(size_t i = 0; i < children.size(); i++)
@@ -478,6 +512,10 @@ void CIntObject::deactivate()
 		deactivateKeys();
 	if(used & TIME)
 		deactivateTimer();
+	if(used & WHEEL)
+		deactivateWheel();
+	if(used & DOUBLECLICK)
+		deactivateDClick();
 
 	if(defActions & DEACTIVATE)
 		for(size_t i = 0; i < children.size(); i++)
@@ -544,6 +582,42 @@ bool CIntObject::isItInLoc( const SDL_Rect &rect, int x, int y )
 bool CIntObject::isItInLoc( const SDL_Rect &rect, const Point &p )
 {
 	return isItIn(&rect, p.x - pos.x, p.y - pos.y);
+}
+
+void CIntObject::activateWheel()
+{
+	GH.wheelInterested.push_front(this);
+	active |= WHEEL;
+}
+
+void CIntObject::deactivateWheel()
+{
+	std::list<CIntObject*>::iterator hlp = std::find(GH.wheelInterested.begin(),GH.wheelInterested.end(),this);
+	assert(hlp != GH.wheelInterested.end());
+	GH.wheelInterested.erase(hlp);
+	active &= ~WHEEL;
+}
+
+void CIntObject::wheelScrolled(bool down, bool in)
+{
+}
+
+void CIntObject::activateDClick()
+{
+	GH.doubleClickInterested.push_front(this);
+	active |= DOUBLECLICK;
+}
+
+void CIntObject::deactivateDClick()
+{
+	std::list<CIntObject*>::iterator hlp = std::find(GH.doubleClickInterested.begin(),GH.doubleClickInterested.end(),this);
+	assert(hlp != GH.doubleClickInterested.end());
+	GH.doubleClickInterested.erase(hlp);
+	active &= ~DOUBLECLICK;
+}
+
+void CIntObject::onDoubleClick()
+{
 }
 
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )

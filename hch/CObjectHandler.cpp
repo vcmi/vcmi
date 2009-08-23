@@ -3708,16 +3708,16 @@ void CBank::reset()
 
 	int val1 = ran()%100;
 	int chance = 0;
-	for (ui8 i = 1; i <= VLC->objh->banksInfo[index].size(); i++)
+	for (ui8 i = 0; i < VLC->objh->banksInfo[index].size(); i++)
 	{
-		if (val1 < (chance += VLC->objh->banksInfo[index][i].chance))
-			cb->setObjProperty (id, 13, i);
+// 		if (val1 < (chance += VLC->objh->banksInfo[index][i].chance))
+// 			cb->setObjProperty (id, 13, i);
 	}
 	artifacts.clear();
 	for (ui8 i = 1; i <= 4; i++)
 	{
-		for (ui8 j = 1; j <= bc->artifacts[i]; j++)
-			cb->setObjProperty (id, 18, i);
+// 		for (ui8 j = 1; j <= bc->artifacts[i]; j++)
+// 			cb->setObjProperty (id, 18, i);
 	}
 
 }

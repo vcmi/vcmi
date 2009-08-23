@@ -93,6 +93,16 @@ struct Point
 	{
 		return x < b.x   &&   y < b.y;
 	}
+	template<typename T> Point& operator=(const T &t)
+	{
+		x = t.x;
+		y = t.y;
+		return *this;
+	}
+	template<typename T> bool operator==(const T &t)
+	{
+		return x == t.x  &&  y == t.y;
+	}
 };
 
 struct Rect : public SDL_Rect
@@ -309,9 +319,19 @@ public:
 	void deactivateTimer();
 	virtual void tick();
 
-	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64};
-	ui8 active;
-	ui8 used;
+	//mouse wheel
+	void activateWheel();
+	void deactivateWheel();
+	virtual void wheelScrolled(bool down, bool in);
+
+	//double click
+	void activateDClick();
+	void deactivateDClick();
+	virtual void onDoubleClick();
+
+	enum {LCLICK=1, RCLICK=2, HOVER=4, MOVE=8, KEYBOARD=16, TIME=32, GENERAL=64, WHEEL=128, DOUBLECLICK=256, ALL=0xffff};
+	ui16 active;
+	ui16 used;
 
 	enum {ACTIVATE=1, DEACTIVATE=2, UPDATE=4, SHOWALL=8, DISPOSE=16, SHARE_POS=32};
 	ui8 defActions; //which calls will be tried to be redirected to children
@@ -390,11 +410,16 @@ public:
 	std::list<CIntObject*> keyinterested;
 	std::list<CIntObject*> motioninterested;
 	std::list<CIntObject*> timeinterested;
+	std::list<CIntObject*> wheelInterested;
+	std::list<CIntObject*> doubleClickInterested;
 
 	//objs to blit
 	std::vector<IShowable*> objsToBlit;
 
 	SDL_Event * current; //current event
+
+	Point lastClick;
+	unsigned lastClickTime;
 
 	void totalRedraw(); //forces total redraw (using showAll)
 	void simpleRedraw(); //update only top interface and draw background from buffer

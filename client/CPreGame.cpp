@@ -436,7 +436,7 @@ SelectionTab::SelectionTab(EState Type, const boost::function<void(CMapInfo *)> 
 	OBJ_CONSTRUCTION;
 	selectionPos = 0;
 
-	used = LCLICK;
+	used = LCLICK | WHEEL | KEYBOARD | DOUBLECLICK;
 	slider = NULL;
 	type = Type;
 	std::vector<FileInfo> toParse;
@@ -528,13 +528,18 @@ void SelectionTab::select( int position )
 {
 	// New selection. py is the index in curItems.
 	int py = position + slider->value;
-	if (py < curItems.size()) 
-	{
-		CGI->soundh->playSound(soundBase::button);
-		selectionPos = py;
+	amax(py, 0);
+	amin(py, curItems.size()-1);
 
-		onSelect(curItems[py]);
-	}
+	CGI->soundh->playSound(soundBase::button);
+	selectionPos = py;
+
+	if(position < 0)
+		slider->moveTo(slider->value + position);
+	else if(position >= positions)
+		slider->moveTo(slider->value + position - positions + 1);
+
+	onSelect(curItems[py]);
 }
 
 int SelectionTab::getPosition( int x, int y )
@@ -665,6 +670,47 @@ void SelectionTab::clickLeft( tribool down, bool previousState )
 		select(line);
 
 	}
+}
+
+void SelectionTab::wheelScrolled( bool down, bool in )
+{
+	slider->moveTo(slider->value + 3 * (down ? +1 : -1));
+	//select(selectionPos - slider->value + (down ? +1 : -1));
+}
+
+void SelectionTab::keyPressed( const SDL_KeyboardEvent & key )
+{
+	if(key.state != SDL_PRESSED) return;
+
+	int moveBy = 0;
+	switch(key.keysym.sym)
+	{
+	case SDLK_UP:
+		moveBy = -1;
+		break;
+	case SDLK_DOWN:
+		moveBy = +1;
+		break;
+	case SDLK_PAGEUP:
+		moveBy = -positions+1;
+		break;
+	case SDLK_PAGEDOWN:
+		moveBy = +positions-1; 
+		break;
+	case SDLK_HOME:
+		select(-slider->value);
+		return;
+	case SDLK_END:
+		select(curItems.size() - slider->value);
+		return;
+	}
+	select(selectionPos - slider->value + moveBy); 
+}
+
+void SelectionTab::onDoubleClick()
+{
+	//act as start button was pressed
+	(static_cast<CSelectionScreen*>(parent))->start->callback();
 }
 
 InfoCard::InfoCard( EState Type )
