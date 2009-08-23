@@ -22,6 +22,7 @@ void registerTypes1(Serializer &s)
 {
 	s.template registerType<CGHeroInstance>();
 	s.template registerType<CGTownInstance>();
+	s.template registerType<CTownBonus>();
 	s.template registerType<CGPandoraBox>();
 	s.template registerType<CGEvent>();
 	s.template registerType<CGVisitableOPH>();

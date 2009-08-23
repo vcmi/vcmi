@@ -127,6 +127,8 @@ void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int l
 	std::vector<int> floors;
 	if(level == -1)
 	{
+		
+		for (int xd = 0; xd <= gs->map->width - 1; xd++)
 		for(int b=0; b<gs->map->twoLevel + 1; ++b) //if gs->map->twoLevel is false then false (0) + 1 is 1, if it's true (1) then we have 2
 		{
 			floors.push_back(b);
@@ -137,14 +139,14 @@ void IGameCallback::getAllTiles (std::set<int3> &tiles, int player/*=-1*/, int l
 
 	for (std::vector<int>::const_iterator i = floors.begin(); i!= floors.end(); i++)
 	{
+		register int zd = *i;
 		for (int xd = 0; xd < gs->map->width; xd++)
 		{
 			for (int yd = 0; yd < gs->map->height; yd++)
 			{
-				if ( (getTile (int3 (xd,yd,*i))->tertype == 8 && water == true)
-					|| (getTile (int3 (xd,yd,*i))->tertype != 8 && land == true)
-					)
-					tiles.insert(int3(xd,yd,*i));
+				if ((getTile (int3 (xd,yd,zd))->tertype == 8 && water)
+					|| (getTile (int3 (xd,yd,zd))->tertype != 8 && land))
+					tiles.insert(int3(xd,yd,zd));
 			}
 		}
 	}
@@ -188,7 +190,14 @@ void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 		getAllowedArts(out,&CArtHandler::relics);
 }
 
-TerrainTile * IGameCallback::getTile( int3 pos )
+std::pair<ui16, ui16> IGameCallback::getMapSize()
+{
+	std::pair<ui16, ui16> dimensions;
+	dimensions.first = gs->map->width;
+	dimensions.second = gs->map->height;
+	return dimensions;
+}
+inline TerrainTile * IGameCallback::getTile( int3 pos )
 {
 	if(!gs->map->isInTheMap(pos))
 		return NULL;

@@ -345,9 +345,11 @@ DLL_EXPORT void SetGarrisons::applyGs( CGameState *gs )
 
 DLL_EXPORT void NewStructures::applyGs( CGameState *gs )
 {
-	CGTownInstance*t = gs->getTown(tid);
+	CGTownInstance *t = gs->getTown(tid);
 	BOOST_FOREACH(si32 id,bid)
+	{
 		t->builtBuildings.insert(id);
+	}
 	t->builded = builded;
 }
 

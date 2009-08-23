@@ -1272,8 +1272,11 @@ void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
 
 int CGTownInstance::getSightRadious() const //returns sight distance
 {
-	if (subID == 2 && (builtBuildings.find(21))!=builtBuildings.end()) //town has lookout tower
-		return 20;
+	if (subID == 2) //tower
+		if ((builtBuildings.find(17)) != builtBuildings.end()) //skyship
+			return cb->getMapSize().first + cb->getMapSize().second;
+		else if ((builtBuildings.find(21)) != builtBuildings.end()) //lookout tower
+			return 20;
 	return 5;
 }
 
@@ -1427,7 +1430,9 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->setOwner(id, h->tempOwner);
 		}
 	}
-	cb->heroVisitCastle(id,h->id);
+	for (std::vector<CGTownBuilding>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
+		i->onHeroVisit (h);
+	cb->heroVisitCastle(id, h->id);
 }
 
 void CGTownInstance::onHeroLeave(const CGHeroInstance * h) const
@@ -1446,6 +1451,15 @@ void CGTownInstance::initObj()
 			creatures[i].second.push_back(town->basicCreatures[i]);
 		if(creatureDwelling(i,true))
 			creatures[i].second.push_back(town->upgradedCreatures[i]);
+	}
+	switch (alignment)
+	{ //add new visitable objects
+		case 2: case 3: case 5: case 6:
+			bonusingBuildings.push_back(*new CTownBonus(23, this));
+			break;
+		case 7:
+			bonusingBuildings.push_back(*new CTownBonus(17, this));
+			break;
 	}
 }
 
@@ -1793,6 +1807,57 @@ void CGVisitableOPH::schoolSelected(int heroID, ui32 which) const
 	cb->changePrimSkill(heroID, base + which-1, +1); //give appropriate skill
 }
 
+CTownBonus::CTownBonus (int index, CGTownInstance *TOWN)
+{
+	ID = index;
+	town = TOWN;
+}
+void CTownBonus::onHeroVisit (const CGHeroInstance * h) const
+{
+	int heroID = h->id;
+	if ((town->builtBuildings.find(ID) != town->builtBuildings.end()) && (visitors.find(heroID) == visitors.end()))
+	{
+		InfoWindow iw;
+		switch (ID)
+		{
+			case 23:
+				switch(town->alignment)
+				{
+					case 2: //wall
+						cb->changePrimSkill (heroID, 3, 1);
+						iw.components.push_back (Component(Component::PRIM_SKILL, 3, 1, 0));
+						break;
+					case 3: //order of fire
+						cb->changePrimSkill (heroID, 2, 1);
+						iw.components.push_back (Component(Component::PRIM_SKILL, 2, 1, 0));
+						break;
+					case 6://hall of valhalla
+						cb->changePrimSkill (heroID, 0, 1);
+						iw.components.push_back (Component(Component::PRIM_SKILL, 0, 1, 0));
+						break;
+					case 5://academy of battle scholars
+						cb->changePrimSkill (heroID, 4, 1000);
+						iw.components.push_back (Component(Component::EXPERIENCE, 0, 1000, 0));
+						break;
+				}
+				break;
+			case 17:
+				switch(town->alignment)
+				{
+					case 7: //cage of warlords
+						cb->changePrimSkill (heroID, 1, 1);
+						iw.components.push_back (Component(Component::PRIM_SKILL, 1, 1, 0));
+						break;
+				}
+				break;
+		}
+		iw.player = cb->getOwner(heroID);
+		iw.text << std::pair<ui8,ui32>(11,66);
+		//iw.soundID = sound;
+		cb->showInfoDialog(&iw);
+		cb->setObjProperty (id, 4, h->id); //add to visitors
+	}
+}
 bool CArmedInstance::needsLastStack() const
 {
 	return false;
@@ -3636,6 +3701,7 @@ void CBank::initObj()
 	bc = NULL;
 	daycounter = 0;
 	multiplier = 1;
+	//reset();
 }
 void CBank::reset()
 {
@@ -3660,7 +3726,10 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 	switch (what)
 	{
 		case 11: //daycounter
-			daycounter++;
+			if (val == 0)
+				daycounter = 0;
+			else
+				daycounter++;
 			break;
 		case 12: //multiplier
 			multiplier = ((float)val)/100;
@@ -3673,6 +3742,9 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			break;
 		case 15:
 			bc = NULL;
+			break;
+		case 16:
+			artifacts.clear();
 			break;
 		case 18: //Artifacts
 		{
@@ -3698,21 +3770,21 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 	}
 }
 
-void CBank::newTurn()
+void CBank::newTurn() const 
 {
 	if (bc == NULL)
 	{
 		if (daycounter >= 28 || cb->getDate(0) == 1)
 		{
-			reset();
-			daycounter = 0;
+			cb->setObjProperty (id,11,0); //daycounter 0
+			cb->setObjProperty (id,14,0); //reset
 			if (ID == 24 && cb->getDate(0) > 1)
 			{
-				artifacts.clear(); //derelict ships are usable only once
+				cb->setObjProperty (id,16,0);; //derelict ships are usable only once
 			}
 		}
 		else
-			daycounter++;
+			cb->setObjProperty (id,11,1); //daycounter++
 	}
 }
 void CBank::onHeroVisit (const CGHeroInstance * h) const
@@ -3750,10 +3822,23 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 	{
 		InfoWindow iw;
 		if (ID == 85)
-			iw.components.push_back (Component (Component::MORALE, 0 , -2, 0));
+		{
+			iw.components.push_back (Component (Component::MORALE, 0 , -1, 0));
+			GiveBonus gbonus;
+			gbonus.hid = h->id;
+			gbonus.bonus.duration = HeroBonus::ONE_BATTLE;
+			gbonus.bonus.source = HeroBonus::OBJECT;
+			gbonus.bonus.id = ID;
+			gbonus.bdescr << "\n" << VLC->generaltexth->arraytxt[ID];
+			gbonus.bonus.type = HeroBonus::MORALE;
+			gbonus.bonus.val = -1;
+			cb->giveHeroBonus(&gbonus);
+		}
 		iw.soundID = soundBase::GRAVEYARD;
 		iw.player = h->getOwner();
-		iw.text.addTxt (MetaString::ADVOB_TXT, 33);
+		std::string desc = VLC->generaltexth->advobtxt[33];
+		boost::algorithm::replace_first (desc, "%s", VLC->generaltexth->names[ID]);
+		iw.text << desc;
 		cb->showInfoDialog(&iw);
 	}
 }

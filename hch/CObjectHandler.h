@@ -36,6 +36,7 @@ class CHero;
 class CBuilding;
 class CSpell;
 class CGTownInstance;
+class CGTownBuilding;
 class CArtifact;
 class CGDefInfo;
 class CSpecObjInfo;
@@ -327,6 +328,50 @@ public:
 	void wantsFight(const CGHeroInstance *h, ui32 answer) const;
 };
 
+
+class DLL_EXPORT CGVisitableOPH : public CGObjectInstance //objects visitable only once per hero
+{
+public:
+	std::set<si32> visitors; //ids of heroes who have visited this obj
+	si8 ttype; //tree type - used only by trees of knowledge: 0 - give level for free; 1 - take 2000 gold; 2 - take 10 gems
+	const std::string & getHoverText() const;
+
+	void setPropertyDer(ui8 what, ui32 val);//synchr
+	void onHeroVisit(const CGHeroInstance * h) const;
+	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
+	void initObj();
+	void treeSelected(int heroID, int resType, int resVal, ui64 expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
+	void schoolSelected(int heroID, ui32 which) const;
+	void arenaSelected(int heroID, int primSkill) const;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & visitors & ttype;
+	}
+};
+class DLL_EXPORT CGTownBuilding : IObjectInterface
+{
+///basic class for town structures handled as map objects
+public:
+	CGTownInstance *town;
+
+	virtual void onHeroVisit (const CGHeroInstance * h) const {};
+};
+class DLL_EXPORT CTownBonus : public CGVisitableOPH, public CGTownBuilding
+{
+///used for one-time bonusing structures
+public:
+	void onHeroVisit (const CGHeroInstance * h) const;
+
+	CTownBonus (int index, CGTownInstance *TOWN);
+	CTownBonus (){ID = 0; town = NULL;};
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & static_cast<CGObjectInstance&>(*this);
+		h & visitors & town;
+	}
+};
 class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard
 {
 public:
@@ -338,6 +383,7 @@ public:
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	si32 alignment;
 	std::set<si32> forbiddenBuildings, builtBuildings;
+	std::vector<CGTownBuilding> bonusingBuildings;
 	std::vector<ui32> possibleSpells, obligatorySpells;
 	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
 
@@ -402,29 +448,6 @@ public:
 	void onHeroLeave(const CGHeroInstance * h) const;
 	void initObj();
 };
-
-class DLL_EXPORT CGVisitableOPH : public CGObjectInstance //objects visitable only once per hero
-{
-public:
-	std::set<si32> visitors; //ids of heroes who have visited this obj
-	si8 ttype; //tree type - used only by trees of knowledge: 0 - give level for free; 1 - take 2000 gold; 2 - take 10 gems
-	const std::string & getHoverText() const;
-
-	void setPropertyDer(ui8 what, ui32 val);//synchr
-	void onHeroVisit(const CGHeroInstance * h) const;
-	void onNAHeroVisit(int heroID, bool alreadyVisited) const;
-	void initObj();
-	void treeSelected(int heroID, int resType, int resVal, ui64 expVal, ui32 result) const; //handle player's anwer to the Tree of Knowledge dialog
-	void schoolSelected(int heroID, ui32 which) const;
-	void arenaSelected(int heroID, int primSkill) const;
-
-	template <typename Handler> void serialize(Handler &h, const int version)
-	{
-		h & static_cast<CGObjectInstance&>(*this);
-		h & visitors & ttype;
-	}
-};
-
 class DLL_EXPORT CGPandoraBox : public CArmedInstance
 {
 public:
@@ -853,7 +876,7 @@ class DLL_EXPORT CBank : public CArmedInstance
 	void initObj();
 	void setPropertyDer (ui8 what, ui32 val);
 	void reset();
-	void newTurn();
+	void newTurn() const;
 	void onHeroVisit (const CGHeroInstance * h) const;
 	void fightGuards (const CGHeroInstance *h, ui32 accept) const;
 	void endBattle (const CGHeroInstance *h, const BattleResult *result) const;
