@@ -177,12 +177,12 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 			if(dynamic_cast<const CGTownInstance*>(hobj->object)->getOwner()==obj.AI->m_cb->getMyColor())//friendly town
 			{
 				stateFeatures[17] = dynamic_cast<const CGTownInstance*>(hobj->object)->getArmyStrength();
-				return objectNetworks[98][0].feedForward(stateFeatures);
+				return 0; // objectNetworks[98][0].feedForward(stateFeatures);
 			}
 			else
 			{
 				stateFeatures[17] = dynamic_cast<const CGTownInstance*>(hobj->object)->getArmyStrength();
-				return objectNetworks[98][1].feedForward(stateFeatures);
+				return 0; //objectNetworks[98][1].feedForward(stateFeatures);
 			}
 
 			break;
@@ -197,7 +197,8 @@ float Priorities::getValue(const CGeniusAI::AIObjective & obj)
 		case 215://quest guard
 			return 0;
 		case 53:	//various mines
-			return objectNetworks[53][hobj->object->subID].feedForward(stateFeatures);
+			return 0; //out of range crash
+			//objectNetworks[53][hobj->object->subID].feedForward(stateFeatures);
 		case 113://TODO: replace with value of skill for the hero
 			return 0;
 		case 103:case 58://TODO: replace with value of seeing x number of new tiles 

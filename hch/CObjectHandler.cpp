@@ -1443,8 +1443,8 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 			cb->setOwner(id, h->tempOwner);
 		}
 	}
-	for (std::vector<CGTownBuilding>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
-		i->onHeroVisit (h);
+	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
+		(*i)->onHeroVisit (h);
 	cb->heroVisitCastle(id, h->id);
 }
 
@@ -1468,10 +1468,10 @@ void CGTownInstance::initObj()
 	switch (alignment)
 	{ //add new visitable objects
 		case 2: case 3: case 5: case 6:
-			bonusingBuildings.push_back(CTownBonus(23, this));
+			bonusingBuildings.push_back(new CTownBonus(23, this));
 			break;
 		case 7:
-			bonusingBuildings.push_back(CTownBonus(17, this));
+			bonusingBuildings.push_back(new CTownBonus(17, this));
 			break;
 	}
 }
@@ -3703,7 +3703,7 @@ void CBank::initObj()
 		case 16: //bank
 			index = subID; break;
 		case 24: //derelict ship
-			index = 8;
+			index = 8; break;
 		case 25: //utopia
 			index = 10; break;
 		case 84: //crypt
@@ -3718,19 +3718,36 @@ void CBank::initObj()
 }
 void CBank::reset()
 {
-
 	int val1 = ran()%100;
 	int chance = 0;
 	for (ui8 i = 0; i < VLC->objh->banksInfo[index].size(); i++)
-	{
-// 		if (val1 < (chance += VLC->objh->banksInfo[index][i].chance))
-// 			cb->setObjProperty (id, 13, i);
+	{	
+		if (val1 < (chance += VLC->objh->banksInfo[index][i].chance))
+ 			bc = &VLC->objh->banksInfo[index][i];
 	}
 	artifacts.clear();
+	std::vector<CArtifact*> arts; 
 	for (ui8 i = 1; i <= 4; i++)
-	{
-// 		for (ui8 j = 1; j <= bc->artifacts[i]; j++)
-// 			cb->setObjProperty (id, 18, i);
+	{	
+		for (ui8 n = 1; n <= bc->artifacts[i - 1]; n++)
+		{
+			switch (i)
+			{
+				case 1:
+					cb->getAllowed (arts, CArtifact::ART_TREASURE);
+					break;
+				case 2:
+					cb->getAllowed (arts, CArtifact::ART_MINOR);
+					break;
+				case 3:
+					cb->getAllowed (arts, CArtifact::ART_MAJOR);
+					break;
+				case 4:
+					cb->getAllowed (arts, CArtifact::ART_RELIC);
+					break;
+			}
+			artifacts.push_back (arts[ran() % arts.size()]->id);
+		}
 	}
 
 }
@@ -3758,27 +3775,6 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			break;
 		case 16:
 			artifacts.clear();
-			break;
-		case 18: //Artifacts
-		{
-			std::vector<CArtifact*> arts; 
-			switch (val)
-			{
-				case 1:
-					cb->getAllowed (arts, CArtifact::ART_TREASURE);
-					break;
-				case 2:
-					cb->getAllowed (arts, CArtifact::ART_MINOR);
-					break;
-				case 3:
-					cb->getAllowed (arts, CArtifact::ART_MAJOR);
-					break;
-				case 4:
-					cb->getAllowed (arts, CArtifact::ART_RELIC);
-					break;
-			}
-			artifacts.push_back (arts[ran() % arts.size()]->id);
-		}
 			break;
 	}
 }
@@ -3826,7 +3822,7 @@ void CBank::onHeroVisit (const CGHeroInstance * h) const
 		BlockingDialog bd (true, false);
 		bd.player = h->getOwner();
 		bd.soundID = soundBase::DANGER;
-		std::string desc =  VLC->generaltexth->allTexts[banktext];
+		std::string desc =  VLC->generaltexth->advobtxt[banktext];
 		boost::algorithm::replace_first (desc, "%s", VLC->generaltexth->names[ID]);
 		bd.text << desc;
 		cb->showBlockingDialog (&bd, boost::bind (&CBank::fightGuards, this, h, _1));

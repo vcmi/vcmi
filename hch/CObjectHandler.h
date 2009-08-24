@@ -383,7 +383,7 @@ public:
 	ui32 identifier; //special identifier from h3m (only > RoE maps)
 	si32 alignment;
 	std::set<si32> forbiddenBuildings, builtBuildings;
-	std::vector<CGTownBuilding> bonusingBuildings;
+	std::vector<CGTownBuilding*> bonusingBuildings;
 	std::vector<ui32> possibleSpells, obligatorySpells;
 	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
 
