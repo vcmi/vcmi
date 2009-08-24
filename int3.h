@@ -22,7 +22,7 @@ public:
 	bool formation; //false - wide, true - tight
 	bool setCreature (si32 slot, ui32 type, si32 quantity) //slots 1 to 7
 	{
-		slots.find(slot)->second = std::pair<ui32,si32>(type, quantity);  //brutal force
+		slots[slot] = std::pair<ui32, si32>(type, quantity);  //brutal force
 		if (slots.size() > 7) return false;
 		else return true;
 	}

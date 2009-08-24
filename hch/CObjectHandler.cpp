@@ -3862,7 +3862,7 @@ void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const
 		{
 			case 1:
 				for	(int i = 1; i <= 5; i++)
-					ourArmy.setCreature (i, bc->guards[1].first + upgraded, bc->guards[1].second  / 5 );
+					ourArmy.setCreature (i, bc->guards[0].first + upgraded, bc->guards[0].second  / 5 );
 				break;
 			case 4:
 			{
