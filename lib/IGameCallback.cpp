@@ -190,13 +190,11 @@ void IGameCallback::getAllowed(std::vector<CArtifact*> &out, int flags)
 		getAllowedArts(out,&CArtHandler::relics);
 }
 
-std::pair<ui16, ui16> IGameCallback::getMapSize()
+int3 IGameCallback::getMapSize()
 {
-	std::pair<ui16, ui16> dimensions;
-	dimensions.first = gs->map->width;
-	dimensions.second = gs->map->height;
-	return dimensions;
+	return int3(gs->map->width, gs->map->height, gs->map->twoLevel + 1);
 }
+
 inline TerrainTile * IGameCallback::getTile( int3 pos )
 {
 	if(!gs->map->isInTheMap(pos))

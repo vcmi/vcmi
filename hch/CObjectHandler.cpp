@@ -1286,7 +1286,7 @@ int CGTownInstance::getSightRadious() const //returns sight distance
 	if (subID == 2) //tower
 	{
 		if ((builtBuildings.find(17)) != builtBuildings.end()) //skyship
-			return cb->getMapSize().first + cb->getMapSize().second;
+			return cb->getMapSize().x + cb->getMapSize().y;
 		else if ((builtBuildings.find(21)) != builtBuildings.end()) //lookout tower
 			return 20;
 	}

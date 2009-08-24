@@ -58,7 +58,7 @@ public:
 	virtual bool isAllowed(int type, int id); //type: 0 - spell; 1- artifact
 	virtual void getAllowedArts(std::vector<CArtifact*> &out, std::vector<CArtifact*> CArtHandler::*arts);
 	virtual void getAllowed(std::vector<CArtifact*> &out, int flags); //flags: bitfield uses EartClass
-	virtual std::pair<ui16, ui16> getMapSize();
+	virtual int3 getMapSize(); //returns size of the map
 	virtual TerrainTile * getTile(int3 pos);
 
 	//do sth
