@@ -1107,18 +1107,10 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		{
 			for(int g=0; g<stacks.size(); ++g) //+1 morale bonus for good creatures, -1 morale bonus for evil creatures
 			{
-				if(stacks[g]->creature->faction == 0
-					|| stacks[g]->creature->faction == 1
-					|| stacks[g]->creature->faction == 2) 
-				{
+				if (stacks[g]->creature->isGood())
 					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
-				}
-				else if(stacks[g]->creature->faction == 3
-					|| stacks[g]->creature->faction == 4
-					|| stacks[g]->creature->faction == 5)
-				{
+				else if (stacks[g]->creature->isEvil())
 					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, -1, StackFeature::OTHER_SOURCE));
-				}
 			}
 			break;
 		}
@@ -1137,18 +1129,10 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		{
 			for(int g=0; g<stacks.size(); ++g) //-1 morale bonus for good creatures, +1 morale bonus for evil creatures
 			{
-				if(stacks[g]->creature->faction == 0
-					|| stacks[g]->creature->faction == 1
-					|| stacks[g]->creature->faction == 2) 
-				{
+				if (stacks[g]->creature->isGood())
 					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, -1, StackFeature::OTHER_SOURCE));
-				}
-				else if(stacks[g]->creature->faction == 3
-					|| stacks[g]->creature->faction == 4
-					|| stacks[g]->creature->faction == 5)
-				{
+				else if (stacks[g]->creature->isEvil())
 					stacks[g]->features.push_back(makeFeature(StackFeature::MORALE_BONUS, StackFeature::WHOLE_BATTLE, 0, 1, StackFeature::OTHER_SOURCE));
-				}
 			}
 			break;
 		}

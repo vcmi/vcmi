@@ -63,6 +63,8 @@ public:
 	bool isFlying() const; //returns true if it is a flying unit
 	bool isShooting() const; //returns true if unit can shoot
 	bool isUndead() const; //returns true if unit is undead
+	bool isGood () const;
+	bool isEvil () const;
 	si32 maxAmount(const std::vector<si32> &res) const; //how many creatures can be bought
 	static int getQuantityID(const int & quantity); //0 - a few, 1 - several, 2 - pack, 3 - lots, 4 - horde, 5 - throng, 6 - swarm, 7 - zounds, 8 - legion
 
@@ -100,9 +102,15 @@ public:
 	std::map<std::string,int> nameToID;
 	std::map<int,std::string> idToProjectile;
 	std::map<int,bool> idToProjectileSpin; //if true, appropriate projectile is spinning during flight
+	std::vector<bool> factionAlignments; //1 for good, 0 for neutral and -1 for evil with faction ID as index
+
 	void loadCreatures();
 	void loadAnimationInfo();
 	void loadUnitAnimInfo(CCreature & unit, std::string & src, int & i);
+
+	bool isGood (si8 faction) const;
+	bool isEvil (si8 faction) const;
+
 	CCreatureHandler();
 	~CCreatureHandler();
 

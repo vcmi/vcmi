@@ -31,13 +31,20 @@ static std::vector<int> getMindSpells()
 	ret.push_back(59); //berserk
 	ret.push_back(60); //hypnotize
 	ret.push_back(61); //forgetfulness
+	ret.push_back(62); //blind
 	return ret;
 }
 
 CCreatureHandler::CCreatureHandler()
 {
 	VLC->creh = this;
+
+	// Set the faction alignments to the defaults:
+	// Good: Castle, Rampart, Tower	// Evil: Inferno, Necropolis, Dungeon
+	// Neutral: Stronghold, Fortess, Conflux
+	factionAlignments += 1, 1, 1, -1, -1, -1, 0, 0, 0;
 }
+
 int CCreature::getQuantityID(const int & quantity)
 {
 	if (quantity<5)
@@ -81,6 +88,24 @@ bool CCreature::isUndead() const
 	return vstd::contains(abilities, StackFeature::UNDEAD);
 }
 
+/**
+ * Determines if the creature is of a good alignment.
+ * @return true if the creture is good, false otherwise.
+ */
+bool CCreature::isGood () const
+{
+	return VLC->creh->isGood(faction);
+}
+
+/**
+ * Determines if the creature is of an evil alignment.
+ * @return true if the creature is evil, false otherwise.
+ */
+bool CCreature::isEvil () const
+{
+	return VLC->creh->isEvil(faction);
+}
+
 si32 CCreature::maxAmount(const std::vector<si32> &res) const //how many creatures can be bought
 {
 	int ret = 2147483645;
@@ -117,6 +142,26 @@ float readFloat(int & befi, int & i, int andame, std::string & buf) //helper fun
 	float ret = atof(buf.substr(befi, i-befi).c_str());
 	++i;
 	return ret;
+}
+
+/**
+ * Determines if a faction is good.
+ * @param ID of the faction.
+ * @return true if the faction is good, false otherwise.
+ */
+bool CCreatureHandler::isGood (si8 faction) const
+{
+	return faction != -1 && factionAlignments[faction] == 1;
+}
+
+/**
+ * Determines if a faction is evil.
+ * @param ID of the faction.
+ * @return true if the faction is evil, false otherwise.
+ */
+bool CCreatureHandler::isEvil (si8 faction) const
+{
+	return faction != -1 && factionAlignments[faction] == -1;
 }
 
 void CCreatureHandler::loadCreatures()
