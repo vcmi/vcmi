@@ -1284,10 +1284,12 @@ void CGDwelling::fightOver(const CGHeroInstance *h, BattleResult *result) const
 int CGTownInstance::getSightRadious() const //returns sight distance
 {
 	if (subID == 2) //tower
+	{
 		if ((builtBuildings.find(17)) != builtBuildings.end()) //skyship
 			return cb->getMapSize().first + cb->getMapSize().second;
 		else if ((builtBuildings.find(21)) != builtBuildings.end()) //lookout tower
 			return 20;
+	}
 	return 5;
 }
 
@@ -1466,10 +1468,10 @@ void CGTownInstance::initObj()
 	switch (alignment)
 	{ //add new visitable objects
 		case 2: case 3: case 5: case 6:
-			bonusingBuildings.push_back(*new CTownBonus(23, this));
+			bonusingBuildings.push_back(CTownBonus(23, this));
 			break;
 		case 7:
-			bonusingBuildings.push_back(*new CTownBonus(17, this));
+			bonusingBuildings.push_back(CTownBonus(17, this));
 			break;
 	}
 }
