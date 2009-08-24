@@ -596,9 +596,17 @@ bool CCallback::battleCanCastSpell()
 		return gs->curB->castSpells[1] == 0 && gs->getHero(gs->curB->hero2)->getArt(17);
 }
 
-bool CCallback:: battleCanFlee()
+bool CCallback::battleCanFlee()
 {
 	return gs->battleCanFlee(player);
+}
+
+const CGTownInstance *CCallback::battleGetDefendedTown()
+{
+	if(!gs->curB || gs->curB->tid == -1)
+		return NULL;
+
+	return gs->map->towns[gs->curB->tid];
 }
 
 void CCallback::swapGarrisonHero( const CGTownInstance *town )

@@ -23,6 +23,7 @@
 #include "../lib/NetPacks.h"
 #include "CPlayerInterface.h"
 #include "../hch/CVideoHandler.h"
+#include "../hch/CTownHandler.h"
 #include <boost/assign/list_of.hpp>
 #ifndef __GNUC__
 const double M_PI = 3.14159265358979323846;
@@ -75,7 +76,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	: attackingHeroInstance(hero1), defendingHeroInstance(hero2), animCount(0), activeStack(-1), 
 	  mouseHoveredStack(-1), previouslyHoveredHex(-1), currentlyHoveredHex(-1), spellDestSelectMode(false),
 	  spellToCast(NULL), attackingInfo(NULL), givenCommand(NULL), myTurn(false), resWindow(NULL), 
-	  showStackQueue(false), moveStarted(false), moveSh(-1)
+	  showStackQueue(false), moveStarted(false), moveSh(-1), siegeH(NULL)
 {
 	pos = myRect;
 	strongInterest = true;
@@ -88,9 +89,27 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	{
 		newStack(b->second.ID);
 	}
+
+	
+	//preparing siege info
+	const CGTownInstance * town = LOCPLINT->cb->battleGetDefendedTown();
+	if(town)
+	{
+		siegeH = new SiegeHelper(town);
+	}
+
 	//preparing menu background and terrain
-	std::vector< std::string > & backref = graphics->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
-	background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()] );
+	if(siegeH)
+	{
+		background = BitmapHandler::loadBitmap( siegeH->getBackgroundName() );
+	}
+	else
+	{
+		std::vector< std::string > & backref = graphics->battleBacks[ LOCPLINT->cb->battleGetBattlefieldType() ];
+		background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()] );
+	}
+	
+	//preparign menu background
 	menu = BitmapHandler::loadBitmap("CBAR.BMP");
 	graphics->blueToPlayersAdv(menu, hero1->tempOwner);
 
@@ -277,6 +296,7 @@ CBattleInterface::~CBattleInterface()
 	for(std::map< int, CDefHandler * >::iterator g=idToObstacle.begin(); g!=idToObstacle.end(); ++g)
 		delete g->second;
 
+	delete siegeH;
 	LOCPLINT->battleInt = NULL;
 }
 
@@ -3145,4 +3165,16 @@ void CBattleOptionsWindow::bDefaultf()
 void CBattleOptionsWindow::bExitf()
 {
 	GH.popIntTotally(this);
+}
+
+std::string CBattleInterface::SiegeHelper::townTypeInfixes[F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR" "EL"};
+
+CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown)
+: town(siegeTown)
+{
+}
+
+std::string CBattleInterface::SiegeHelper::getBackgroundName() const
+{
+	return "SG" + townTypeInfixes[town->town->typeID] + "BACK.BMP";
 }

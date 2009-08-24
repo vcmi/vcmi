@@ -120,7 +120,7 @@ struct DLL_EXPORT BattleInfo
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & side1 & side2 & round & activeStack & siege & tile & stacks & army1 & army2 & hero1 & hero2 & obstacles
+		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & army1 & army2 & hero1 & hero2 & obstacles
 			& castSpells;
 	}
 	CStack * getNextStack(); //which stack will have turn after current one

@@ -174,6 +174,7 @@ public:
 	virtual bool battleCanShoot(int ID, int dest)=0; //returns true if unit with id ID can shoot to dest
 	virtual bool battleCanCastSpell()=0; //returns true, if caller can cast a spell
 	virtual bool battleCanFlee()=0; //returns true if caller can flee from the battle
+	virtual const CGTownInstance * battleGetDefendedTown()=0; //returns defended town if current battle is a siege, NULL instead
 };
 
 struct HeroMoveDetails
@@ -275,6 +276,7 @@ public:
 	bool battleCanShoot(int ID, int dest); //returns true if unit with id ID can shoot to dest
 	bool battleCanCastSpell(); //returns true, if caller can cast a spell
 	bool battleCanFlee(); //returns true if caller can flee from the battle
+	const CGTownInstance * battleGetDefendedTown(); //returns defended town if current battle is a siege, NULL instead
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

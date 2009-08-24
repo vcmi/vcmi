@@ -28,6 +28,7 @@ struct SpellCast;
 template <typename T> struct CondSh;
 struct SetStackEffect;;
 struct BattleAction;
+class CGTownInstance;
 
 class CBattleInterface;
 
@@ -225,6 +226,18 @@ private:
 		CDefHandler * anim; //animation to display
 	};
 	std::list<SBattleEffect> battleEffects; //different animations to display on the screen like spell effects
+
+	class SiegeHelper
+	{
+	private:
+		static std::string townTypeInfixes[F_NUMBER]; //for internal use only - to build filenames
+	public:
+		const CGTownInstance * town; //besieged town
+		SiegeHelper(const CGTownInstance * siegeTown); //c-tor
+
+		//filename getters
+		std::string getBackgroundName() const;
+	} * siegeH;
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect); //c-tor
 	~CBattleInterface(); //d-tor
