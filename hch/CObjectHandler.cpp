@@ -3497,6 +3497,27 @@ void CGScholar::initObj()
 	}
 }
 
+void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
+{
+	if (h->tempOwner != tempOwner && army) {
+		//TODO: Find a way to apply magic garrison effects in battle.
+		cb->startBattleI(h, this, false, boost::bind(&CGGarrison::fightOver, this, h, _1));
+		return;
+	}
+
+	//New owner.
+	if (h->tempOwner != tempOwner)
+		cb->setOwner(id, h->tempOwner);
+
+	//TODO: Garrison visit screen.
+}
+
+void CGGarrison::fightOver (const CGHeroInstance *h, BattleResult *result) const
+{
+	if (result->winner == 0)
+		onHeroVisit(h);
+}
+
 void CGOnceVisitable::onHeroVisit( const CGHeroInstance * h ) const
 {
 	int sound = 0;

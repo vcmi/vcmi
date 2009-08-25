@@ -602,6 +602,9 @@ class DLL_EXPORT CGGarrison : public CArmedInstance
 public:
 	ui8 removableUnits;
 
+	void onHeroVisit (const CGHeroInstance *h) const;
+	void fightOver (const CGHeroInstance *h, BattleResult *result) const;
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CArmedInstance&>(*this);
