@@ -938,7 +938,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	{
 		int pos;
 		if(creatureBank)
-			pos = defenderCreBank[army1.slots.size()-1][k];
+			pos = defenderCreBank[army2.slots.size()-1][k];
 		else if(army2.formation)
 			pos = defenderTight[army2.slots.size()-1][k];
 		else

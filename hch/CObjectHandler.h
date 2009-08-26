@@ -369,7 +369,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & static_cast<CGObjectInstance&>(*this);
-		h & visitors & town;
+		h & visitors;
 	}
 };
 class DLL_EXPORT CGTownInstance : public CGDwelling, public IShipyard
@@ -872,13 +872,13 @@ class DLL_EXPORT CBank : public CArmedInstance
 	public:
 	int index; //banks have unusal numbering - see ZCRBANK.txt and initObj()
 	BankConfig *bc;
-	float multiplier; //for improved banks script, in percent
-	std::vector<si32> artifacts; //fixed and deterministic
+	float multiplier; //for improved banks script
+	std::vector<ui32> artifacts; //fixed and deterministic
 	ui32 daycounter;
 
 	void initObj();
 	void setPropertyDer (ui8 what, ui32 val);
-	void reset();
+	void reset(ui16 var1, ui16 var2);
 	void newTurn() const;
 	void onHeroVisit (const CGHeroInstance * h) const;
 	void fightGuards (const CGHeroInstance *h, ui32 accept) const;
@@ -935,7 +935,7 @@ struct BankConfig
 	ui8 level; //1 - 4, how hard the battle will be
 	ui8 chance; //chance for this level being chosen
 	ui8 upgradeChance; //chance for creatures to be in upgraded versions
-	std::vector< std::pair <ui16, ui32> > guards; //creature ID -> amount
+	std::vector< std::pair <ui16, ui32> > guards; //creature ID, amount
 	ui32 combatValue; //how hard are guards of this level
 	std::vector<si32> resources; //resources given in case of victory
 	std::vector< std::pair <ui16, ui32> > creatures; //creatures granted in case of victory

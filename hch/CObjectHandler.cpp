@@ -3718,7 +3718,6 @@ void CGOnceVisitable::searchTomb(const CGHeroInstance *h, ui32 accept) const
 
 void CBank::initObj()
 {
-	index = 0;
 	switch (ID) //find apriopriate key
 	{
 		case 16: //bank
@@ -3735,44 +3734,47 @@ void CBank::initObj()
 	bc = NULL;
 	daycounter = 0;
 	multiplier = 1;
-	//reset();
 }
-void CBank::reset()
+void CBank::reset(ui16 var1, ui16 var2) //prevents desync
 {
-	int val1 = ran()%100;
 	int chance = 0;
 	for (ui8 i = 0; i < VLC->objh->banksInfo[index].size(); i++)
 	{	
-		if (val1 < (chance += VLC->objh->banksInfo[index][i].chance))
+		if (var1 < (chance += VLC->objh->banksInfo[index][i].chance))
+		{
  			bc = &VLC->objh->banksInfo[index][i];
+			break;
+		}
 	}
 	artifacts.clear();
-	std::vector<CArtifact*> arts; 
-	for (ui8 i = 1; i <= 4; i++)
+	for (ui8 i = 0; i <= 3; i++)
 	{	
-		for (ui8 n = 1; n <= bc->artifacts[i - 1]; n++)
+		std::vector<CArtifact*> arts; //to avoid addition of different tiers
+		for (ui8 n = 0; n < bc->artifacts[i]; n++)
 		{
 			switch (i)
 			{
-				case 1:
+				case 0:
 					cb->getAllowed (arts, CArtifact::ART_TREASURE);
 					break;
-				case 2:
+				case 1:
 					cb->getAllowed (arts, CArtifact::ART_MINOR);
 					break;
-				case 3:
+				case 2:
 					cb->getAllowed (arts, CArtifact::ART_MAJOR);
 					break;
-				case 4:
+				case 3:
 					cb->getAllowed (arts, CArtifact::ART_RELIC);
 					break;
 			}
-			artifacts.push_back (arts[ran() % arts.size()]->id);
+			artifacts.push_back (arts[var2 % arts.size()]->id);
+			var2 *= (var1 + n * i); //almost like random
 		}
 	}
 
 }
 void CBank::setPropertyDer (ui8 what, ui32 val)
+/// random values are passed as arguments and processed identically on all clients
 {
 	switch (what)
 	{
@@ -3782,20 +3784,45 @@ void CBank::setPropertyDer (ui8 what, ui32 val)
 			else
 				daycounter++;
 			break;
-		case 12: //multiplier
+		case 12: //multiplier, in percent
 			multiplier = ((float)val)/100;
 			break;
 		case 13: //bank preset
 			bc = &VLC->objh->banksInfo[index][val];
 			break;
 		case 14:
-			reset();
+			reset (val%100, val);
 			break;
 		case 15:
 			bc = NULL;
 			break;
 		case 16:
 			artifacts.clear();
+			break;
+		case 17: //set ArmedInstance army
+			int upgraded = 0;
+			if (val%100 < bc->upgradeChance) //once again anti-desync
+				upgraded = 1;
+			switch (bc->guards.size())
+			{
+				case 1:
+					for	(int i = 0; i <= 4; i++)
+						army.setCreature (i, bc->guards[0].first + upgraded, bc->guards[0].second  / 5 );
+					break;
+				case 4:
+				{
+					std::vector< std::pair <ui16, ui32> >::const_iterator it;
+					for (it = bc->guards.begin(); it != bc->guards.end(); it++)
+					{
+						int n = army.slots.size(); //debug
+						army.setCreature (n, it->first, it->second);
+					}
+				}
+					break;
+				default:
+					tlog1 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
+					return;
+			}
 			break;
 	}
 }
@@ -3806,15 +3833,15 @@ void CBank::newTurn() const
 	{
 		if (daycounter >= 28 || cb->getDate(0) == 1)
 		{
-			cb->setObjProperty (id,11,0); //daycounter 0
-			cb->setObjProperty (id,14,0); //reset
+			cb->setObjProperty (id, 11, 0); //daycounter 0
+			cb->setObjProperty (id, 14, ran()); //reset
 			if (ID == 24 && cb->getDate(0) > 1)
 			{
-				cb->setObjProperty (id,16,0);; //derelict ships are usable only once
+				cb->setObjProperty (id, 16, 0);; //derelict ships are usable only once
 			}
 		}
 		else
-			cb->setObjProperty (id,11,1); //daycounter++
+			cb->setObjProperty (id, 11, 1); //daycounter++
 	}
 }
 void CBank::onHeroVisit (const CGHeroInstance * h) const
@@ -3876,27 +3903,8 @@ void CBank::fightGuards (const CGHeroInstance * h, ui32 accept) const
 {
 	if (accept)
 	{
-		int upgraded = 0;
-		if (ran()%100 < bc->upgradeChance) upgraded = 1;
-		CCreatureSet ourArmy;
-		switch (bc->guards.size())
-		{
-			case 1:
-				for	(int i = 1; i <= 5; i++)
-					ourArmy.setCreature (i, bc->guards[0].first + upgraded, bc->guards[0].second  / 5 );
-				break;
-			case 4:
-			{
-				std::vector< std::pair <ui16, ui32> >::const_iterator it;
-				for (it = bc->guards.begin(); it != bc->guards.end(); it++)
-					ourArmy.setCreature (ourArmy.slots.size() + 1, it->first, it->second );
-			}
-				break;
-			default:
-				tlog1 << "Error: Unexpected army data: " << bc->guards.size() <<" items found";
-				return;
-		}
-	cb->startBattleI (h, this, true, boost::bind (&CBank::endBattle, this, h, _1));
+		cb->setObjProperty (id, 17, ran()); //get army
+		cb->startBattleI (h, this, true, boost::bind (&CBank::endBattle, this, h, _1));
 	}
 }
 void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) const
@@ -3936,19 +3944,19 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 				break;
 		}
 		iw.text.addTxt (MetaString::ADVOB_TXT, textID);
-		iw.player = cb->getCurrentPlayer();
+		iw.player = h->getOwner();
 		//grant resources
-		for (int it = 0; it < bc->resources.size(); ++it)
+		for (int it = 0; it < bc->resources.size(); it++)
 		{					
 			iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
-			cb->giveResource (cb->getCurrentPlayer(), it, bc->resources[it]);
+			cb->giveResource (h->getOwner(), it, bc->resources[it]);
 		}
 		//grant artifacts
-		for (std::vector<si32>::const_iterator it = artifacts.begin(); it != artifacts.end(); it++)
+		for (std::vector<ui32>::const_iterator it = artifacts.begin(); it != artifacts.end(); it++)
 		{
 			iw.components.push_back (Component (Component::ARTIFACT, *it, 0, 0));
 			iw.text.addReplacement (MetaString::ART_NAMES, *it);
-			cb->giveHeroArtifact (*it, cb->getSelectedHero() ,-2);
+			cb->giveHeroArtifact (*it, h->id ,-2);
 		}
 		//grant creatures
 		CCreatureSet ourArmy;
@@ -3961,7 +3969,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
 	else
-		cb->setObjProperty (id, 14, 0); //reset
+		cb->setObjProperty (id, 14, ran()); //reset
 }
 
 void CGKeys::setPropertyDer (ui8 what, ui32 val) //101-108 - enable key for player 1-8
