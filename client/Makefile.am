@@ -18,11 +18,13 @@ vcmiclient_SOURCES =  \
 	../hch/CDefHandler.cpp \
 	../hch/CDefHandler.h \
 	../hch/CHeroHandler.h \
+	../hch/CMusicBase.h \
 	../hch/CMusicHandler.cpp \
 	../hch/CMusicHandler.h \
 	../hch/CObjectHandler.h \
 	../hch/CSndHandler.cpp \
 	../hch/CSndHandler.h \
+	../hch/CSoundBase.h \
 	../hch/CVideoHandler.cpp \
 	../hch/CVideoHandler.h \
 	../int3.h \
