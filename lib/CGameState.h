@@ -105,6 +105,17 @@ struct DLL_EXPORT CObstacleInstance
 	}
 };
 
+//only for use in BattleInfo
+struct DLL_EXPORT SiegeInfo
+{
+	ui8 wallState[7]; //[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; 1 - intact, 2 - damaged, 3 - destroyed
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & wallState;
+	}
+};
+
 struct DLL_EXPORT BattleInfo
 {
 	ui8 side1, side2; //side1 - attacker, side2 - defender
@@ -117,11 +128,12 @@ struct DLL_EXPORT BattleInfo
 	std::vector<CStack*> stacks;
 	std::vector<CObstacleInstance> obstacles;
 	ui8 castSpells[2]; //[0] - attacker, [1] - defender
+	SiegeInfo si;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & army1 & army2 & hero1 & hero2 & obstacles
-			& castSpells;
+			& castSpells & si;
 	}
 	CStack * getNextStack(); //which stack will have turn after current one
 	std::vector<CStack> getStackQueue(); //returns stack in order of their movement action

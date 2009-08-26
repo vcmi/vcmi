@@ -609,6 +609,15 @@ const CGTownInstance *CCallback::battleGetDefendedTown()
 	return gs->map->towns[gs->curB->tid];
 }
 
+ui8 CCallback::battleGetWallState(int partOfWall)
+{
+	if(!gs->curB || gs->curB->siege == 0)
+	{
+		return 0;
+	}
+	return gs->curB->si.wallState[partOfWall];
+}
+
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
 	if(town->tempOwner != player) return;

@@ -123,6 +123,36 @@ CHeroHandler::~CHeroHandler()
 CHeroHandler::CHeroHandler()
 {}
 
+void CHeroHandler::loadWallPositions()
+{
+	std::ifstream inp;
+	inp.open("config" PATHSEPARATOR "wall_pos.txt", std::ios_base::in|std::ios_base::binary);
+	if(!inp.is_open())
+	{
+		tlog1<<"missing file: config/wall_pos.txt"<<std::endl;
+	}
+	else
+	{
+		const int MAX_BUF = 2000;
+		char buf[MAX_BUF+1];
+
+		inp.getline(buf, MAX_BUF);
+		std::string dump;
+		for(int g=0; g<ARRAY_COUNT(wallPositions); ++g)
+		{
+			inp >> dump;
+			for(int b=0; b<10; ++b)
+			{
+				std::pair<int, int> pt;
+				inp >> pt.first;
+				inp >> pt.second;
+				wallPositions[g].push_back(pt);
+			}
+		}
+	}
+	inp.close();
+}
+
 void CHeroHandler::loadObstacles()
 {
 	std::ifstream inp;

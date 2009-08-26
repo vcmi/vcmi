@@ -174,6 +174,7 @@ void LibClasses::init()
 	heroh = new CHeroHandler;
 	heroh->loadHeroes();
 	heroh->loadObstacles();
+	heroh->loadWallPositions();
 	tlog0 <<"\tHero handler: "<<pomtime.getDif()<<std::endl;
 
 	arth = new CArtHandler;

@@ -95,13 +95,13 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	const CGTownInstance * town = LOCPLINT->cb->battleGetDefendedTown();
 	if(town)
 	{
-		siegeH = new SiegeHelper(town);
+		siegeH = new SiegeHelper(town, this);
 	}
 
 	//preparing menu background and terrain
 	if(siegeH)
 	{
-		background = BitmapHandler::loadBitmap( siegeH->getBackgroundName() );
+		background = BitmapHandler::loadBitmap( siegeH->getSiegeName(0) );
 	}
 	else
 	{
@@ -476,6 +476,12 @@ void CBattleInterface::show(SDL_Surface * to)
 		blitAt(images[((animCount+1)/(4/settings.animSpeed))%images.size()].bitmap, x, y, to);
 	}
 
+	//showing siege background
+	if(siegeH)
+	{
+		siegeH->printSiegeBackground(to);
+	}
+
 	//showing hero animations
 	if(attackingHero)
 		attackingHero->show(to);
@@ -512,94 +518,10 @@ void CBattleInterface::show(SDL_Surface * to)
 		{
 			int curStackID = stackAliveByHex[b][v];
 			
-			if(creAnims.find(curStackID) == creAnims.end()) //eg. for summoned but not yet handled stacks
-				continue;
-
-			const CStack &curStack = stacks[curStackID];
-			int animType = creAnims[curStackID]->getType();
-
-			int affectingSpeed = settings.animSpeed;
-			if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
-				affectingSpeed = 2;
-			bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
-
-			if(animType == 2)
-			{
-				if(standingFrame.find(curStackID)!=standingFrame.end())
-				{
-					incrementFrame = (animCount%(8/affectingSpeed)==0);
-					if(incrementFrame)
-					{
-						++standingFrame[curStackID];
-						if(standingFrame[curStackID] == creAnims[curStackID]->framesInGroup(2))
-						{
-							standingFrame.erase(standingFrame.find(curStackID));
-						}
-					}
-				}
-				else
-				{
-					if((rand()%50) == 0)
-					{
-						standingFrame.insert(std::make_pair(curStackID, 0));
-					}
-				}
-			}
-
-			creAnims[curStackID]->nextFrame(to, creAnims[curStackID]->pos.x + pos.x, creAnims[curStackID]->pos.y + pos.y, creDir[curStackID], animCount, incrementFrame, curStackID==activeStack, curStackID==mouseHoveredStack); //increment always when moving, never if stack died
-
-			//printing amount
-			if(curStack.amount > 0 //don't print if stack is not alive
-				&& (!LOCPLINT->curAction
-					|| (LOCPLINT->curAction->stackNumber != curStackID //don't print if stack is currently taking an action
-						&& (LOCPLINT->curAction->actionType != 6  ||  curStack.position != LOCPLINT->curAction->additionalInfo) //nor if it's an object of attack
-						&& (LOCPLINT->curAction->destinationTile != curStack.position) //nor if it's on destination tile for current action
-						)
-					)
-					&& !curStack.hasFeatureOfType(StackFeature::SIEGE_WEAPON) //and not a war machine...
-			)
-			{
-				int xAdd = curStack.attackerOwned ? 220 : 202;
-
-				//blitting amoutn background box
-				SDL_Surface *amountBG = NULL;
-				if(curStack.effects.size() == 0)
-				{
-					amountBG = amountNormal;
-				}
-				else
-				{
-					int pos=0; //determining total positiveness of effects
-					for(int c=0; c<curStack.effects.size(); ++c)
-					{
-						pos += CGI->spellh->spells[ curStack.effects[c].id ].positiveness;
-					}
-					if(pos > 0)
-					{
-						amountBG = amountPositive;
-					}
-					else if(pos < 0)
-					{
-						amountBG = amountNegative;
-					}
-					else
-					{
-						amountBG = amountEffNeutral;
-					}
-				}
-				SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[curStackID]->pos.x + xAdd + pos.x, creAnims[curStackID]->pos.y + 260 + pos.y));
-				//blitting amount
-				CSDL_Ext::printAtMiddleWB(
-					makeNumberShort(curStack.amount),
-					creAnims[curStackID]->pos.x + xAdd + 14 + pos.x,
-					creAnims[curStackID]->pos.y + 260 + 4 + pos.y,
-					GEOR13,
-					20,
-					zwykly,
-					to
-                );
-			}
+			showAliveStack(stackAliveByHex[b][v], stacks, to);
 		}
+
+		showPieceOfWall(to, b);
 	}
 	//units shown
 	projectileShowHelper(to);//showing projectiles
@@ -2269,7 +2191,7 @@ void CBattleInterface::attackingShowHelper()
 				if (attackingInfo->sh == -1)
 					attackingInfo->sh = CGI->soundh->playSound(aStack->creature->sounds.attack);
 
-				std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
+				static std::map<int, int> dirToType = boost::assign::map_list_of (0, 11)(1, 11)(2, 12)(3, 13)(4, 13)(5, 12);
 				int type; //dependent on attack direction
 				if(aStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 				{
@@ -2407,6 +2329,117 @@ void CBattleInterface::attackingShowHelper()
 			if(attackingInfo->hitCount%(4/settings.animSpeed) == 0)
 				attackingInfo->frame++;
 		}
+	}
+}
+
+void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stacks, SDL_Surface * to)
+{
+	if(creAnims.find(ID) == creAnims.end()) //eg. for summoned but not yet handled stacks
+		return;
+
+	const CStack &curStack = stacks.find(ID)->second;
+	int animType = creAnims[ID]->getType();
+
+	int affectingSpeed = settings.animSpeed;
+	if(animType == 1 || animType == 2) //standing stacks should not stand faster :)
+		affectingSpeed = 2;
+	bool incrementFrame = (animCount%(4/affectingSpeed)==0) && animType!=5 && animType!=20 && animType!=3 && animType!=2;
+
+	if(animType == 2)
+	{
+		if(standingFrame.find(ID)!=standingFrame.end())
+		{
+			incrementFrame = (animCount%(8/affectingSpeed)==0);
+			if(incrementFrame)
+			{
+				++standingFrame[ID];
+				if(standingFrame[ID] == creAnims[ID]->framesInGroup(2))
+				{
+					standingFrame.erase(standingFrame.find(ID));
+				}
+			}
+		}
+		else
+		{
+			if((rand()%50) == 0)
+			{
+				standingFrame.insert(std::make_pair(ID, 0));
+			}
+		}
+	}
+
+	creAnims[ID]->nextFrame(to, creAnims[ID]->pos.x + pos.x, creAnims[ID]->pos.y + pos.y, creDir[ID], animCount, incrementFrame, ID==activeStack, ID==mouseHoveredStack); //increment always when moving, never if stack died
+
+	//printing amount
+	if(curStack.amount > 0 //don't print if stack is not alive
+		&& (!LOCPLINT->curAction
+			|| (LOCPLINT->curAction->stackNumber != ID //don't print if stack is currently taking an action
+				&& (LOCPLINT->curAction->actionType != 6  ||  curStack.position != LOCPLINT->curAction->additionalInfo) //nor if it's an object of attack
+				&& (LOCPLINT->curAction->destinationTile != curStack.position) //nor if it's on destination tile for current action
+				)
+			)
+			&& !curStack.hasFeatureOfType(StackFeature::SIEGE_WEAPON) //and not a war machine...
+	)
+	{
+		int xAdd = curStack.attackerOwned ? 220 : 202;
+
+		//blitting amoutn background box
+		SDL_Surface *amountBG = NULL;
+		if(curStack.effects.size() == 0)
+		{
+			amountBG = amountNormal;
+		}
+		else
+		{
+			int pos=0; //determining total positiveness of effects
+			for(int c=0; c<curStack.effects.size(); ++c)
+			{
+				pos += CGI->spellh->spells[ curStack.effects[c].id ].positiveness;
+			}
+			if(pos > 0)
+			{
+				amountBG = amountPositive;
+			}
+			else if(pos < 0)
+			{
+				amountBG = amountNegative;
+			}
+			else
+			{
+				amountBG = amountEffNeutral;
+			}
+		}
+		SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd + pos.x, creAnims[ID]->pos.y + 260 + pos.y));
+		//blitting amount
+		CSDL_Ext::printAtMiddleWB(
+			makeNumberShort(curStack.amount),
+			creAnims[ID]->pos.x + xAdd + 14 + pos.x,
+			creAnims[ID]->pos.y + 260 + 4 + pos.y,
+			GEOR13,
+			20,
+			zwykly,
+			to
+        );
+	}
+}
+
+void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex)
+{
+	if(!siegeH)
+		return;
+
+	static std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(29, 7)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 4);
+
+	std::map<int, int>::const_iterator it = hexToPart.find(hex);
+	if(it != hexToPart.end())
+	{
+		siegeH->printPartOfWall(to, it->second);
+	}
+
+	//additionally print lower tower
+	if(hex == 182)
+	{
+		siegeH->printPartOfWall(to, 3);
 	}
 }
 
@@ -3169,12 +3202,96 @@ void CBattleOptionsWindow::bExitf()
 
 std::string CBattleInterface::SiegeHelper::townTypeInfixes[F_NUMBER] = {"CS", "RM", "TW", "IN", "NC", "DN", "ST", "FR" "EL"};
 
-CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown)
-: town(siegeTown)
+CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)
+: town(siegeTown), owner(_owner)
 {
+	backWall = BitmapHandler::loadBitmap( getSiegeName(1) );
+
+	for(int g=0; g<ARRAY_COUNT(walls); ++g)
+	{
+		walls[g] = BitmapHandler::loadBitmap( getSiegeName(g + 2) );
+	}
 }
 
-std::string CBattleInterface::SiegeHelper::getBackgroundName() const
+CBattleInterface::SiegeHelper::~SiegeHelper()
 {
-	return "SG" + townTypeInfixes[town->town->typeID] + "BACK.BMP";
+	if(backWall)
+		SDL_FreeSurface(backWall);
+
+	for(int g=0; g<ARRAY_COUNT(walls); ++g)
+	{
+		SDL_FreeSurface(walls[g]);
+	}
+}
+
+std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInfo) const
+{
+	char buf[100];
+	itoa(additInfo, buf, 10);
+	std::string addit(buf);
+	switch(what)
+	{
+	case 0: //background
+		return "SG" + townTypeInfixes[town->town->typeID] + "BACK.BMP";
+	case 1: //background wall
+		return "SG" + townTypeInfixes[town->town->typeID] + "TPW1.BMP";
+	case 2: //keep
+		return "SG" + townTypeInfixes[town->town->typeID] + "MAN" + addit + ".BMP";
+	case 3: //bottom tower
+		return "SG" + townTypeInfixes[town->town->typeID] + "TW1" + addit + ".BMP";
+	case 4: //bottom wall
+		return "SG" + townTypeInfixes[town->town->typeID] + "WA1" + addit + ".BMP";
+	case 5: //below gate
+		return "SG" + townTypeInfixes[town->town->typeID] + "WA3" + addit + ".BMP";
+	case 6: //over gate
+		return "SG" + townTypeInfixes[town->town->typeID] + "WA4" + addit + ".BMP";
+	case 7: //upper wall
+		return "SG" + townTypeInfixes[town->town->typeID] + "WA6" + addit + ".BMP";
+	case 8: //upper tower
+		return "SG" + townTypeInfixes[town->town->typeID] + "TW2" + addit + ".BMP";
+	case 9: //gate
+		return "SG" + townTypeInfixes[town->town->typeID] + "DRW" + addit + ".BMP";
+	case 10: //gate arch
+		return "SG" + townTypeInfixes[town->town->typeID] + "ARCH.BMP";
+	case 11: //bottom static wall
+		return "SG" + townTypeInfixes[town->town->typeID] + "WA2.BMP";
+	case 12: //upper static wall
+		return "SG" + townTypeInfixes[town->town->typeID] + "WA5.BMP";
+	default:
+		return "";
+	}
+}
+
+void CBattleInterface::SiegeHelper::printSiegeBackground(SDL_Surface * to)
+{
+	blitAt(backWall, owner->pos.w + owner->pos.x - backWall->w, 50 + owner->pos.y, to);
+}
+
+void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
+{
+	Point pos = Point(-1, -1);
+	switch(what)
+	{
+	case 2: //keep
+		pos = Point(owner->pos.w + owner->pos.x - walls[what-2]->w, 154 + owner->pos.y);
+		break;
+	case 3: //bottom tower
+	case 4: //bottom wall
+	case 5: //below gate
+	case 6: //over gate
+	case 7: //upper wall
+	case 8: //upper tower
+	case 9: //gate
+	case 10: //gate arch
+	case 11: //bottom static wall
+	case 12: //upper static wall
+		pos.x = CGI->heroh->wallPositions[town->town->typeID][what - 3].first + owner->pos.x;
+		pos.y = CGI->heroh->wallPositions[town->town->typeID][what - 3].second + owner->pos.y;
+		break;
+	};
+
+	if(pos.x != -1)
+	{
+		blitAt(walls[what-2], pos.x, pos.y, to);
+	}
 }

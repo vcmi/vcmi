@@ -997,8 +997,22 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 			stacks.push_back(stack);
 		}
 	}
+	if(town && hero1) //catapult
+	{
+		CStack * stack = BattleInfo::generateNewStack(hero1, 145, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 120);
+		stacks.push_back(stack);
+	}
 	//war machines added
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
+
+	//seting up siege
+	if(town)
+	{
+		for(int b=0; b<ARRAY_COUNT(curB->si.wallState); ++b)
+		{
+			curB->si.wallState[b] = 1;
+		}
+	}
 
 	//randomize obstacles
 	bool obAv[BFIELD_SIZE]; //availability of hexes for obstacles;
@@ -2569,7 +2583,7 @@ static ui32 calculateSpellDmg(const CSpell * sp, const CGHeroInstance * caster, 
 
 	//15 - magic arrows, 16 - ice bolt, 17 - lightning bolt, 18 - implosion, 20 - frost ring, 21 - fireball, 22 - inferno, 23 - meteor shower,
 	//24 - death ripple, 25 - destroy undead, 26 - armageddon
-	std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50);
+	static std::map <int, int> dmgMultipliers = boost::assign::map_list_of(15, 10)(16, 20)(17, 25)(18, 75)(20, 10)(21, 10)(22, 10)(23, 10)(24, 5)(25, 10)(26, 50);
 
 	ret = caster->getPrimSkillLevel(2) * dmgMultipliers[sp->id]  +  sp->powers[caster->getSpellSchoolLevel(sp)];
 	
