@@ -108,7 +108,7 @@ public:
 	};
 	std::vector<SBallisticsLevelInfo> ballistics; //info about ballistics ability per level; [0] - none; [1] - basic; [2] - adv; [3] - expert
 
-	std::vector<std::pair<int, int>> wallPositions[F_NUMBER]; //positions of different pieces of wall <x, y>
+	std::vector<std::pair<int, int> > wallPositions[F_NUMBER]; //positions of different pieces of wall <x, y>
 	void loadWallPositions();
 
 	std::map<int, CObstacleInfo> obstacles; //info about obstacles that may be placed on battlefield

@@ -3227,7 +3227,7 @@ CBattleInterface::SiegeHelper::~SiegeHelper()
 std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInfo) const
 {
 	char buf[100];
-	itoa(additInfo, buf, 10);
+	SDL_itoa(additInfo, buf, 10);
 	std::string addit(buf);
 	switch(what)
 	{
