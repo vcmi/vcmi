@@ -83,6 +83,7 @@ class CHighlightableButton
 public:
 	CHighlightableButton(const CFunctionList<void()> &onSelect, const CFunctionList<void()> &onDeselect, const std::map<int,std::string> &Name, const std::string &HelpBox, bool playerColoredButton, const std::string &defName, std::vector<std::string> * add, int x, int y, int key=0);
 	CHighlightableButton(const std::pair<std::string, std::string> help, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
+	CHighlightableButton(const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key=0, std::vector<std::string> * add = NULL, bool playerColoredButton = false );//c-tor
 	bool onlyOn, selected;
 	CFunctionList<void()> callback2; //when de-selecting
 	void select(bool on);
@@ -107,6 +108,7 @@ public:
 	void selectionChanged(int to);
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to);
+	void block(ui8 on);
 };
 
 

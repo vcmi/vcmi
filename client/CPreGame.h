@@ -6,10 +6,9 @@
 #include "../StartInfo.h"
 #include "CMessage.h"
 #include "../lib/map.h"
-#include <boost/function.hpp>
-#include <boost/bind.hpp>
 #include <cstdlib>
 #include "GUIBase.h"
+#include "FunctionList.h"
 
 /*
  * CPreGame.h, part of VCMI engine
@@ -22,13 +21,28 @@
  */
 
 struct CMusicHandler;
-using boost::bind;
-using boost::ref;
 
 enum EState { //where are we?
-	mainMenu, newGame, loadGame, ScenarioList, saveGame
+	mainMenu, newGame, loadGame, ScenarioList, saveGame, scenarioInfo
 };
 
+
+class CTextInput : public CIntObject
+{
+public:
+	CPicture *bg;
+	std::string text;
+	CFunctionList<void(const std::string &)> cb;
+
+	void setText(const std::string &nText, bool callCb = false);
+
+	CTextInput();
+	CTextInput(const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB);
+	~CTextInput();
+	void showAll(SDL_Surface * to);
+	void clickLeft(tribool down, bool previousState);
+	void keyPressed(const SDL_KeyboardEvent & key);
+};
 
 class CMenuScreen : public CIntObject
 {
@@ -83,16 +97,21 @@ public:
 
 	CDefHandler *format;
 
+	CTextInput *txt;
+
 	void getFiles(std::vector<FileInfo> &out, const std::string &dirname, const std::string &ext);
 	void parseMaps(std::vector<FileInfo> &files, int start = 0, int threads = 1);
 	void parseGames(std::vector<FileInfo> &files);
-	void filter(int size); //0 - all
+	void filter(int size, bool selectFirst = false); //0 - all
 	void select(int position); //position: <0 - positions>  position on the screen
+	void selectAbs(int position); //position: absolute position in curItems vector
 	int getPosition(int x, int y); //convert mouse coords to entry position; -1 means none
 	void sliderMove(int slidPos);
 	void sortBy(int criteria);
 	void sort();
 	void printMaps(SDL_Surface *to);
+	int getLine();
+	void selectFName(const std::string &fname);
 
 	void showAll(SDL_Surface * to);
 	void clickLeft(tribool down, bool previousState);
@@ -135,6 +154,7 @@ public:
 		void selectButtons(bool onlyHero = true); //hides unavailable buttons
 		void showAll(SDL_Surface * to);
 	};
+	EState type;
 	CPicture *bg;
 	CSlider *turnDuration;
 
@@ -148,7 +168,7 @@ public:
 	void setTurnLength(int npos);
 	void flagPressed(int player);
 
-	void changeSelection(const CMapInfo *to);
+	void changeSelection(const CMapHeader *to);
 	OptionsTab(EState Type/*, StartInfo &Opts*/);
 	~OptionsTab();
 	void showAll(SDL_Surface * to);
@@ -179,6 +199,17 @@ public:
 	void updateStartInfo(const CMapInfo * to);
 	void startGame();
 	void difficultyChange(int to);
+};
+
+class CScenarioInfo : public CIntObject
+{
+public:
+	AdventureMapButton *back;
+	InfoCard *card;
+	OptionsTab *opt;
+
+	CScenarioInfo(const CMapHeader *mapInfo, const StartInfo *startInfo);
+	~CScenarioInfo();
 };
 
 class CGPreGame : public CIntObject

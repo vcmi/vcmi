@@ -263,7 +263,7 @@ public:
 class IShowActivable : public IShowable, public IActivable
 {
 public:
-	enum {WITH_GARRISON = 1};
+	enum {WITH_GARRISON = 1, BLOCK_ADV_HOTKEYS = 2};
 	int type; //bin flags using etype
 	IShowActivable();
 	virtual ~IShowActivable(){}; //d-tor
@@ -353,6 +353,8 @@ public:
 	void blitAtLoc(SDL_Surface * src, int x, int y, SDL_Surface * dst);
 	bool isItInLoc(const SDL_Rect &rect, int x, int y);
 	bool isItInLoc(const SDL_Rect &rect, const Point &p);
+	const Rect & center(const Rect &r); //sets pos so that r will be in the center of screen, returns new position
+	const Rect & center(); //centers when pos.w and pos.h are set, returns new position
 };
 
 //class for binding keys to left mouse button clicks
@@ -392,7 +394,8 @@ public:
 	SDL_Surface *bg;
 	bool freeSurf;
 
-	CPicture(SDL_Surface *BG, int x, int y, bool Free);
+	CPicture(SDL_Surface *BG, int x, int y, bool Free = true);
+	CPicture(const std::string &bmpname, int x, int y);
 	~CPicture();
 	void showAll(SDL_Surface * to);
 };
@@ -448,14 +451,16 @@ struct ObjectConstruction
 	~ObjectConstruction();
 };
 
-struct BlockCapture
+struct SetCaptureState
 {
-	bool previous;
-	BlockCapture();
-	~BlockCapture();
+	bool previousCapture;
+	ui8 prevActions;
+	SetCaptureState(bool allow, ui8 actions);
+	~SetCaptureState();
 };
 
 #define OBJ_CONSTRUCTION ObjectConstruction obj__i(this)
-#define BLOCK_CAPTURING BlockCapture obj__i
+#define OBJ_CONSTRUCTION_CAPTURING_ALL defActions = 255; SetCaptureState obj__i1(true, 255); ObjectConstruction obj__i(this)
+#define BLOCK_CAPTURING SetCaptureState obj__i(false, 0)
 
 #endif //__GUIBASE_H__

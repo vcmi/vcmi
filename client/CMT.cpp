@@ -287,7 +287,7 @@ void processCommand(const std::string &message)
 	//	std::string &name = CPG->ourScenSel->mapsel.ourGames[num]->filename;
 	//	client->load(name.substr(0, name.size()-6));
 	//}
-	else if(cn=="resolution")
+	else if(cn=="resolution" || cn == "r")
 	{
 		if(LOCPLINT)
 		{

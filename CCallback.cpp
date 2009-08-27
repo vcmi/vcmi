@@ -801,6 +801,11 @@ CCallback::CCallback( CGameState * GS, int Player, CClient *C )
 	waitTillRealize = false;
 }
 
+const CMapHeader * CCallback::getMapHeader() const
+{
+	return gs->map;
+}
+
 InfoAboutHero::InfoAboutHero()
 {
 	details = NULL;

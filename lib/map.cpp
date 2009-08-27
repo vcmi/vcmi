@@ -256,6 +256,13 @@ void CMapHeader::initFromMemory( unsigned char *bufor, int &i )
 			players[rr].team = bufor[i++];
 		}
 	}
+	else//no alliances
+	{
+		for(int i=0;i<PLAYER_LIMIT;i++)
+			if(players[i].canComputerPlay || players[i].canHumanPlay)
+				players[i].team = howManyTeams++;
+	}
+
 
 	pom = i;
 	allowedHeroes.resize(HEROES_QUANTITY,false);
@@ -463,6 +470,11 @@ void CMapHeader::loadViCLossConditions( unsigned char * bufor, int &i)
 			break;
 		}
 	}
+}
+
+CMapHeader::~CMapHeader()
+{
+
 }
 
 void Mapa::initFromBytes(unsigned char * bufor)
@@ -2105,14 +2117,6 @@ void CMapInfo::countPlayers()
 		{
 			playerAmnt++;
 		}
-	}
-
-	if(!howManyTeams) //no alliances
-	{
-		//howManyTeams = playerAmnt;
-		for(int i=0;i<PLAYER_LIMIT;i++)
-			if(players[i].canComputerPlay || players[i].canHumanPlay)
-				players[i].team = howManyTeams++;
 	}
 }
 

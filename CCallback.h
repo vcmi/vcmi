@@ -39,6 +39,7 @@ struct TerrainTile;
 class CHeroClass;
 class IShipyard;
 struct CPackForServer;
+class CMapHeader;
 
 struct InfoAboutHero
 {
@@ -125,6 +126,7 @@ public:
 	virtual int getMySerial()const =0;
 	virtual int getHeroSerial(const CGHeroInstance * hero)const =0;
 	virtual const StartInfo * getStartInfo()const =0;
+	virtual const CMapHeader * getMapHeader()const =0;
 	virtual int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const =0; //when called during battle, takes into account creatures' spell cost reduction
 
 	//hero
@@ -246,6 +248,7 @@ public:
 	const CCreatureSet* getGarrison(const CGObjectInstance *obj) const;
 	UpgradeInfo getUpgradeInfo(const CArmedInstance *obj, int stackPos) const;
 	const StartInfo * getStartInfo() const;
+	const CMapHeader * getMapHeader()const ;
 	int getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //when called during battle, takes into account creatures' spell cost reduction
 
 	std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos) const;

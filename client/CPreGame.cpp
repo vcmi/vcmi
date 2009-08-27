@@ -25,6 +25,8 @@
 #include "AdventureMapButton.h"
 #include "GUIClasses.h"
 #include "../hch/CCreatureHandler.h"
+#include "CPlayerInterface.h"
+#include "../CCallback.h"
 /*
  * CPreGame.cpp, part of VCMI engine
  *
@@ -35,12 +37,16 @@
  *
  */
 namespace fs = boost::filesystem;
+using boost::bind;
+using boost::ref;
 void startGame(StartInfo * options);
 
 CGPreGame * CGP;
-static const CMapInfo *curMap = NULL;
+static const CMapHeader *curMap = NULL;
 static StartInfo *curOpts = NULL;
 static int playerColor;
+
+static std::string selectedName; //set when game is started/loaded
 
 CMenuScreen::CMenuScreen( EState which )
 {
@@ -133,7 +139,7 @@ void CGPreGame::run()
 
 CGPreGame::CGPreGame()
 {
-	GH.defActionsDef = 31;
+	GH.defActionsDef = 63;
 	CGP = this;
 	mainbg = BitmapHandler::loadBitmap("ZPIC1005.bmp");
 
@@ -177,17 +183,31 @@ void CGPreGame::disposeGraphics()
 
 CSelectionScreen::CSelectionScreen( EState Type )
 {
-	OBJ_CONSTRUCTION;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	IShowActivable::type = BLOCK_ADV_HOTKEYS;
+	pos.w = 762;
+	pos.h = 584;
+	if(Type == saveGame)
+	{
+		center(pos);
+	}
+	else
+	{
+		pos.x = 3;
+		pos.y = 6;
+		bg = new CPicture(BitmapHandler::loadBitmap(rand()%2 ? "ZPIC1000.bmp" : "ZPIC1001.bmp"), -3, -6, true);
+	}
+
 	CGP->loadGraphics();
 	type = Type;
 	curOpts = &sInfo;
+	sInfo.difficulty = 1;
 	current = NULL;
 
 	sInfo.mode = (Type == newGame ? 0 : 1);
 	sInfo.turnTime = 0;
 	curTab = NULL;
 
-	bg = new CPicture(BitmapHandler::loadBitmap(rand()%2 ? "ZPIC1000.bmp" : "ZPIC1001.bmp"), 0, 0, true);
 	card = new InfoCard(type);
 	opt = new OptionsTab(type/*, sInfo*/);
 	opt->recActions = DISPOSE;
@@ -200,31 +220,38 @@ CSelectionScreen::CSelectionScreen( EState Type )
 		{
 			card->difficulty->onChange = bind(&CSelectionScreen::difficultyChange, this, _1);
 			card->difficulty->select(1, 0);
-			AdventureMapButton *select = new AdventureMapButton(CGI->generaltexth->zelp[45], bind(&CSelectionScreen::toggleTab, this, sel), 414, 81, "GSPBUTT.DEF", SDLK_s);
+			AdventureMapButton *select = new AdventureMapButton(CGI->generaltexth->zelp[45], bind(&CSelectionScreen::toggleTab, this, sel), 411, 75, "GSPBUTT.DEF", SDLK_s);
 			select->addTextOverlay(CGI->generaltexth->allTexts[500], FONT_SMALL);
 
-			AdventureMapButton *opts = new AdventureMapButton(CGI->generaltexth->zelp[46], bind(&CSelectionScreen::toggleTab, this, opt), 414, 509, "GSPBUTT.DEF", SDLK_a);
+			AdventureMapButton *opts = new AdventureMapButton(CGI->generaltexth->zelp[46], bind(&CSelectionScreen::toggleTab, this, opt), 411, 503, "GSPBUTT.DEF", SDLK_a);
 			opts->addTextOverlay(CGI->generaltexth->allTexts[501], FONT_SMALL);
 
-			AdventureMapButton *random = new AdventureMapButton(CGI->generaltexth->zelp[47], bind(&CSelectionScreen::toggleTab, this, sel), 414, 105, "GSPBUTT.DEF", SDLK_r);
+			AdventureMapButton *random = new AdventureMapButton(CGI->generaltexth->zelp[47], bind(&CSelectionScreen::toggleTab, this, sel), 411, 99, "GSPBUTT.DEF", SDLK_r);
 			random->addTextOverlay(CGI->generaltexth->allTexts[740], FONT_SMALL);
 
-			start  = new AdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 414, 535, "SCNRBEG.DEF", SDLK_b);
+			start  = new AdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 411, 529, "SCNRBEG.DEF", SDLK_b);
 		}
 		break;
-
 	case loadGame:
 		sel->recActions = 255;
-		start  = new AdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 414, 535, "SCNRLOD.DEF", SDLK_b);
+		start  = new AdventureMapButton(CGI->generaltexth->zelp[103], bind(&CSelectionScreen::startGame, this), 411, 529, "SCNRLOD.DEF", SDLK_l);
+		break;
+	case saveGame:
+		sel->recActions = 255;
+		start  = new AdventureMapButton("", CGI->generaltexth->zelp[103].second, bind(&CSelectionScreen::startGame, this), 411, 529, "SCNRSAV.DEF");
 		break;
 	}
 
-	back = new AdventureMapButton(CGI->generaltexth->zelp[105], bind(&CGuiHandler::popIntTotally, &GH, this), 584, 535, "SCNRBACK.DEF", SDLK_ESCAPE);
+	start->assignedKeys.insert(SDLK_RETURN);
+
+	back = new AdventureMapButton("", CGI->generaltexth->zelp[105].second, bind(&CGuiHandler::popIntTotally, &GH, this), 581, 529, "SCNRBACK.DEF", SDLK_ESCAPE);
 }
 
 CSelectionScreen::~CSelectionScreen()
 {
-
+	curMap = NULL;
+	curOpts = NULL;
+	playerColor = -1;
 }
 
 void CSelectionScreen::toggleTab(CIntObject *tab)
@@ -250,6 +277,8 @@ void CSelectionScreen::toggleTab(CIntObject *tab)
 void CSelectionScreen::changeSelection( const CMapInfo *to )
 {
 	curMap = current = to;
+	if(to && type == loadGame)
+		curOpts->difficulty = to->seldiff;
 	updateStartInfo(to);
 	card->changeSelection(to);
 	opt->changeSelection(to);
@@ -257,6 +286,7 @@ void CSelectionScreen::changeSelection( const CMapInfo *to )
 
 void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 {
+	if(!to) return;
 	sInfo.mapname = to->filename;
 	sInfo.playerInfos.clear();
 	sInfo.playerInfos.resize(to->playerAmnt);
@@ -317,17 +347,29 @@ void CSelectionScreen::updateStartInfo( const CMapInfo * to )
 
 void CSelectionScreen::startGame()
 {
-	if(!current)
-		return;
+	if(type != saveGame)
+	{
+		if(!current)
+			return;
 
-	//CGP->disposeGraphics();
-	StartInfo *si = new StartInfo(sInfo);
-	GH.popIntTotally(this);
-	GH.popIntTotally(GH.topInt());
-	curMap = NULL;
-	curOpts = NULL;
-	::startGame(si);
-	delete si; //rather won't be called...
+		selectedName = sInfo.mapname;
+		StartInfo *si = new StartInfo(sInfo);
+		GH.popIntTotally(this);
+		GH.popIntTotally(GH.topInt());
+		curMap = NULL;
+		curOpts = NULL;
+		::startGame(si);
+		delete si; //rather won't be called...
+	}
+	else
+	{
+		if(!(sel && sel->txt && sel->txt->text.size()))
+			return;
+
+		selectedName = sel->txt->text;
+		LOCPLINT->cb->save(sel->txt->text);
+		GH.popIntTotally(this);
+	}
 }
 
 void CSelectionScreen::difficultyChange( int to )
@@ -339,7 +381,7 @@ void CSelectionScreen::difficultyChange( int to )
 
 // A new size filter (Small, Medium, ...) has been selected. Populate
 // selMaps with the relevant data.
-void SelectionTab::filter( int size )
+void SelectionTab::filter( int size, bool selectFirst )
 {
 	curItems.clear();
 
@@ -352,8 +394,11 @@ void SelectionTab::filter( int size )
 		slider->block(false);
 		slider->setAmount(curItems.size());
 		sort();
-		slider->moveTo(0);
-		onSelect(curItems[0]);
+		if(selectFirst)
+		{
+			slider->moveTo(0);
+			onSelect(curItems[0]);
+		}
 	}
 	else
 	{
@@ -435,10 +480,15 @@ SelectionTab::SelectionTab(EState Type, const boost::function<void(CMapInfo *)> 
 {
 	OBJ_CONSTRUCTION;
 	selectionPos = 0;
-
 	used = LCLICK | WHEEL | KEYBOARD | DOUBLECLICK;
 	slider = NULL;
+	txt = NULL;
 	type = Type;
+
+	bg = new CPicture(BitmapHandler::loadBitmap("SCSELBCK.bmp"), 0, 0, true);
+	pos.w = bg->pos.w;
+	pos.h = bg->pos.h;
+
 	std::vector<FileInfo> toParse;
 	switch(type)
 	{
@@ -459,38 +509,55 @@ SelectionTab::SelectionTab(EState Type, const boost::function<void(CMapInfo *)> 
 		else
 		{
 			positions = 16;
-		}
+		}	
+		if(type == saveGame)
+			txt = new CTextInput(Rect(32, 539, 350, 20), Point(-32, -25), "GSSTRIP.bmp", 0);
 		break;
 
 	default:
 		assert(0);
 	}
 
-	bg = new CPicture(BitmapHandler::loadBitmap("SCSELBCK.bmp"), 3, 6, true);
-	pos = bg->pos;
 
 	//size filter buttons
 	{
 		int sizes[] = {36, 72, 108, 144, 0};
 		const char * names[] = {"SCSMBUT.DEF", "SCMDBUT.DEF", "SCLGBUT.DEF", "SCXLBUT.DEF", "SCALBUT.DEF"};
 		for(int i = 0; i < 5; i++)
-			new AdventureMapButton(CGI->generaltexth->zelp[54+i], bind(&SelectionTab::filter, this, sizes[i]), 161 + 47*i, 52, names[i]);
+			new AdventureMapButton("", CGI->generaltexth->zelp[54+i].second, bind(&SelectionTab::filter, this, sizes[i], true), 158 + 47*i, 46, names[i]);
 	}
 
 	{
-		int xpos[] = {26, 58, 91, 124, 309, 342};
+		int xpos[] = {23, 55, 88, 121, 306, 339};
 		const char * names[] = {"SCBUTT1.DEF", "SCBUTT2.DEF", "SCBUTCP.DEF", "SCBUTT3.DEF", "SCBUTT4.DEF", "SCBUTT5.DEF"};
 		for(int i = 0; i < 6; i++)
-			new AdventureMapButton(CGI->generaltexth->zelp[107+i], bind(&SelectionTab::sortBy, this, i), xpos[i], 92, names[i]);
+			new AdventureMapButton("", CGI->generaltexth->zelp[107+i].second, bind(&SelectionTab::sortBy, this, i), xpos[i], 86, names[i]);
 	}
 
-	slider = new CSlider(375, 92, 480, bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
+	slider = new CSlider(372, 86, type != saveGame ? 480 : 430, bind(&SelectionTab::sliderMove, this, _1), positions, curItems.size(), 0, false, 1);
 	format =  CDefHandler::giveDef("SCSELC.DEF");
 
 	sortingBy = _format;
 	ascending = true;
 	filter(0);
-	select(0);
+	//select(0);
+	switch(type)
+	{
+	case newGame:
+		selectFName("Maps/Arrogance.h3m");
+		break;
+	case loadGame:
+		select(0);
+		break;
+	case saveGame:;
+		if(selectedName.size())
+		{
+			if(selectedName[0] == 'M')
+				txt->setText("NEWGAME");
+			else
+				selectFName("Games/" + selectedName + ".vlgm1");
+		}
+	}
 }
 
 SelectionTab::~SelectionTab()
@@ -526,6 +593,8 @@ void SelectionTab::sort()
 
 void SelectionTab::select( int position )
 {
+	if(!curItems.size()) return;
+
 	// New selection. py is the index in curItems.
 	int py = position + slider->value;
 	amax(py, 0);
@@ -539,7 +608,15 @@ void SelectionTab::select( int position )
 	else if(position >= positions)
 		slider->moveTo(slider->value + position - positions + 1);
 
+	if(txt)
+		txt->setText(curItems[py]->filename.substr(6,curItems[py]->filename.size()-12));
+
 	onSelect(curItems[py]);
+}
+
+void SelectionTab::selectAbs( int position )
+{
+	select(position - slider->value);
 }
 
 int SelectionTab::getPosition( int x, int y )
@@ -661,15 +738,9 @@ void SelectionTab::showAll( SDL_Surface * to )
 
 void SelectionTab::clickLeft( tribool down, bool previousState )
 {
-	Point clickPos(GH.current->button.x, GH.current->button.y);
-	clickPos -= pos.topLeft();
-
-	if (clickPos.y > 115  &&  clickPos.y < 564  &&  clickPos.x > 52  &&  clickPos.x < 366)
-	{
-		int line = (clickPos.y-115) / 25; //which line
+	int line = getLine();
+	if(line != -1)
 		select(line);
-
-	}
 }
 
 void SelectionTab::wheelScrolled( bool down, bool in )
@@ -703,34 +774,76 @@ void SelectionTab::keyPressed( const SDL_KeyboardEvent & key )
 	case SDLK_END:
 		select(curItems.size() - slider->value);
 		return;
+	default:
+		return;
 	}
 	select(selectionPos - slider->value + moveBy); 
 }
 
 void SelectionTab::onDoubleClick()
 {
-	//act as start button was pressed
-	(static_cast<CSelectionScreen*>(parent))->start->callback();
+	if(getLine() != -1) //double clicked scenarios list
+	{
+		//act as start button was pressed
+		(static_cast<CSelectionScreen*>(parent))->start->callback();
+	}
+}
+
+int SelectionTab::getLine()
+{
+	int line = -1;
+	Point clickPos(GH.current->button.x, GH.current->button.y);
+	clickPos -= pos.topLeft();
+
+	if (clickPos.y > 115  &&  clickPos.y < 564  &&  clickPos.x > 52  &&  clickPos.x < 366)
+	{
+		line = (clickPos.y-115) / 25; //which line
+	}
+
+	return line;
+}
+
+void SelectionTab::selectFName( const std::string &fname )
+{
+	for(int i = curItems.size() - 1; i >= 0; i--)
+	{
+		if(curItems[i]->filename == fname)
+		{
+			slider->moveTo(i);
+			selectAbs(i);
+			return;
+		}
+	}
+
+	selectAbs(0);
 }
 
 InfoCard::InfoCard( EState Type )
 {
 	OBJ_CONSTRUCTION;
+	pos.x += 393;
 	used = RCLICK;
 	sizes = CDefHandler::giveDef("SCNRMPSZ.DEF");
 	sFlags = CDefHandler::giveDef("ITGFLAGS.DEF");
 	type = Type;
-	bg = new CPicture(BitmapHandler::loadBitmap("GSELPOP1.bmp"), 396, 6, true);
-	pos = bg->pos;
+	bg = new CPicture(BitmapHandler::loadBitmap("GSELPOP1.bmp"), 0, 0, true);
+	pos.w = bg->pos.w;
+	pos.h = bg->pos.h;
+
 	difficulty = new CHighlightableButtonsGroup(0);
 	{
+		static const char *difButns[] = {"GSPBUT3.DEF", "GSPBUT4.DEF", "GSPBUT5.DEF", "GSPBUT6.DEF", "GSPBUT7.DEF"};
 		BLOCK_CAPTURING;
-		difficulty->addButton(new CHighlightableButton(CGI->generaltexth->zelp[24], 0, 506, 456, "GSPBUT3.DEF", 0));
-		difficulty->addButton(new CHighlightableButton(CGI->generaltexth->zelp[25], 0, 538, 456, "GSPBUT4.DEF", 1));
-		difficulty->addButton(new CHighlightableButton(CGI->generaltexth->zelp[26], 0, 570, 456, "GSPBUT5.DEF", 2));
-		difficulty->addButton(new CHighlightableButton(CGI->generaltexth->zelp[27], 0, 602, 456, "GSPBUT6.DEF", 3));
-		difficulty->addButton(new CHighlightableButton(CGI->generaltexth->zelp[28], 0, 634, 456, "GSPBUT7.DEF", 4));
+
+		for(int i = 0; i < 5; i++)
+		{
+			difficulty->addButton(new CHighlightableButton("", CGI->generaltexth->zelp[24+i].second, 0, 110 + i*32, 450, difButns[i], i));
+			difficulty->buttons.back()->pos += pos.topLeft();
+		}
 	}
+
+	if(type != newGame)
+		difficulty->block(true);
 }
 
 InfoCard::~InfoCard()
@@ -760,10 +873,10 @@ void InfoCard::showAll( SDL_Surface * to )
 		{
 			for (int i = 0; i < difficulty->buttons.size(); i++)
 			{
-				if(i == curMap->difficulty)
-					difficulty->buttons[i]->state = 3;
-				else
-					difficulty->buttons[i]->state = 2;
+				//if(i == curMap->difficulty)
+				//	difficulty->buttons[i]->state = 3;
+				//else
+				//	difficulty->buttons[i]->state = 2;
 
 				difficulty->buttons[i]->showAll(to);
 			}
@@ -817,13 +930,13 @@ void InfoCard::showAll( SDL_Surface * to )
 		blitAtLoc(sizes->ourImages[temp].bitmap, 318, 22, to);
 		temp = curMap->victoryCondition.condition;
 		if (temp>12) temp=11;
-		blitAt(CGP->victory->ourImages[temp].bitmap, 420, 308, to); //vicotry cond descr
+		blitAtLoc(CGP->victory->ourImages[temp].bitmap, 24, 302, to); //vicotry cond descr
 		temp=curMap->lossCondition.typeOfLossCon;
 		if (temp>12) temp=3;
-		blitAt(CGP->loss->ourImages[temp].bitmap, 420, 365, to); //loss cond 
+		blitAtLoc(CGP->loss->ourImages[temp].bitmap, 24, 359, to); //loss cond 
 
 		if(type == loadGame)
-			printToLoc(curMap->date,308,34, FONT_SMALL, zwykly, to);
+			printToLoc((static_cast<const CMapInfo*>(curMap))->date,308,34, FONT_SMALL, zwykly, to);
 
 		//print flags
 		int fx=64, ex=244, myT;
@@ -839,7 +952,7 @@ void InfoCard::showAll( SDL_Surface * to )
 		}
 
 		std::string tob;
-		switch (type != newGame ? curMap->seldiff : curOpts->difficulty)
+		switch (curOpts->difficulty)
 		{
 		case 0:
 			tob="80%";
@@ -863,15 +976,15 @@ void InfoCard::showAll( SDL_Surface * to )
 
 void InfoCard::changeSelection( const CMapInfo *to )
 {
-	if(type == loadGame)
-		difficulty->select(curMap->seldiff, 0);
+	if(to/* && type != newGame*/)
+		difficulty->select(curOpts->difficulty, 0);
 	GH.totalRedraw();
 }
 
 void InfoCard::clickRight( tribool down, bool previousState )
 {
 	static const Rect flagArea(19, 397, 335, 23);
-	if(down && isItInLoc(flagArea, GH.current->motion.x, GH.current->motion.y))
+	if(down && curMap && isItInLoc(flagArea, GH.current->motion.x, GH.current->motion.y))
 		showTeamsPopup();
 }
 
@@ -904,12 +1017,14 @@ void InfoCard::showTeamsPopup()
 }
 
 OptionsTab::OptionsTab( EState Type)
+:type(Type)
 {
 	OBJ_CONSTRUCTION;
-	bg = new CPicture(BitmapHandler::loadBitmap("ADVOPTBK.bmp"), 3, 6, true);
+	bg = new CPicture(BitmapHandler::loadBitmap("ADVOPTBK.bmp"), 0, 0, true);
 	pos = bg->pos;
 
-	turnDuration = new CSlider(pos.x + 55, pos.y + 551, 194, bind(&OptionsTab::setTurnLength, this, _1), 1, 11, 11, true, 1);
+	if(type == newGame)
+		turnDuration = new CSlider(55, 551, 194, bind(&OptionsTab::setTurnLength, this, _1), 1, 11, 11, true, 1);
 }
 
 OptionsTab::~OptionsTab()
@@ -1072,7 +1187,7 @@ void OptionsTab::nextBonus( int player, int dir )
 	redraw();
 }
 
-void OptionsTab::changeSelection( const CMapInfo *to )
+void OptionsTab::changeSelection( const CMapHeader *to )
 {
 	for(int i = 0; i < entries.size(); i++)
 	{
@@ -1132,18 +1247,21 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 		"ADOPOPNL.bmp", "ADOPPPNL.bmp", "ADOPTPNL.bmp", "ADOPSPNL.bmp"};
 
 	bg = new CPicture(BitmapHandler::loadBitmap(bgs[s.color]), 0, 0, true);
-	btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[132], bind(&OptionsTab::nextCastle, owner, s.serial, -1), 107, 5, "ADOPLFA.DEF");
-	btns[1] = new AdventureMapButton(CGI->generaltexth->zelp[133], bind(&OptionsTab::nextCastle, owner, s.serial, +1), 168, 5, "ADOPRTA.DEF");
-	btns[2] = new AdventureMapButton(CGI->generaltexth->zelp[148], bind(&OptionsTab::nextHero, owner, s.serial, -1), 183, 5, "ADOPLFA.DEF");
-	btns[3] = new AdventureMapButton(CGI->generaltexth->zelp[149], bind(&OptionsTab::nextHero, owner, s.serial, +1), 244, 5, "ADOPRTA.DEF");
-	btns[4] = new AdventureMapButton(CGI->generaltexth->zelp[164], bind(&OptionsTab::nextBonus, owner, s.serial, -1), 259, 5, "ADOPLFA.DEF");
-	btns[5] = new AdventureMapButton(CGI->generaltexth->zelp[165], bind(&OptionsTab::nextBonus, owner, s.serial, +1), 320, 5, "ADOPRTA.DEF");
+	if(owner->type == newGame)
+	{
+		btns[0] = new AdventureMapButton(CGI->generaltexth->zelp[132], bind(&OptionsTab::nextCastle, owner, s.serial, -1), 107, 5, "ADOPLFA.DEF");
+		btns[1] = new AdventureMapButton(CGI->generaltexth->zelp[133], bind(&OptionsTab::nextCastle, owner, s.serial, +1), 168, 5, "ADOPRTA.DEF");
+		btns[2] = new AdventureMapButton(CGI->generaltexth->zelp[148], bind(&OptionsTab::nextHero, owner, s.serial, -1), 183, 5, "ADOPLFA.DEF");
+		btns[3] = new AdventureMapButton(CGI->generaltexth->zelp[149], bind(&OptionsTab::nextHero, owner, s.serial, +1), 244, 5, "ADOPRTA.DEF");
+		btns[4] = new AdventureMapButton(CGI->generaltexth->zelp[164], bind(&OptionsTab::nextBonus, owner, s.serial, -1), 259, 5, "ADOPLFA.DEF");
+		btns[5] = new AdventureMapButton(CGI->generaltexth->zelp[165], bind(&OptionsTab::nextBonus, owner, s.serial, +1), 320, 5, "ADOPRTA.DEF");
+	}
 
 	fixedHero = s.hero != -1; //if we doesn't start with "random hero" it must be fixed or none
 	selectButtons(false);
 
 
-	if(curMap->players[s.color].canHumanPlay)
+	if(owner->type != scenarioInfo  &&  curMap->players[s.color].canHumanPlay)
 	{
 		flag = new AdventureMapButton(CGI->generaltexth->zelp[180], bind(&OptionsTab::flagPressed, owner, s.serial), -43, 2, flags[s.color]);
 		flag->hoverable = true;
@@ -1168,6 +1286,9 @@ void OptionsTab::PlayerOptionsEntry::showAll( SDL_Surface * to )
 
 void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
 {
+	if(type != newGame)
+		return;
+
 	if(!onlyHero  &&  s.castle != -1)
 	{
 		btns[0]->disable();
@@ -1458,4 +1579,89 @@ void OptionsTab::SelectedBox::clickRight( tribool down, bool previousState )
 	blitAt(getImg(), 104, 60, bmp);
 
 	GH.pushInt(new CInfoPopup(bmp, true));
+}
+
+CScenarioInfo::CScenarioInfo( const CMapHeader *mapInfo, const StartInfo *startInfo )
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+
+	for(size_t i = 0; i < startInfo->playerInfos.size(); i++)
+		if(startInfo->playerInfos[i].human)
+			playerColor = startInfo->playerInfos[i].color;
+
+	pos.w = 762;
+	pos.h = 584;
+	center(pos);
+
+	curMap = mapInfo;
+	curOpts = (StartInfo*)startInfo;
+
+	card = new InfoCard(scenarioInfo);
+	opt = new OptionsTab(scenarioInfo);
+	opt->changeSelection(0);
+
+	card->difficulty->select(startInfo->difficulty, 0);
+	back = new AdventureMapButton("", CGI->generaltexth->zelp[105].second, bind(&CGuiHandler::popIntTotally, &GH, this), 584, 535, "SCNRBACK.DEF", SDLK_ESCAPE);
+}
+
+CScenarioInfo::~CScenarioInfo()
+{
+}
+
+CTextInput::CTextInput()
+{
+	bg = NULL;
+	used = 0;
+}
+
+CTextInput::CTextInput( const Rect &Pos, const Point &bgOffset, const std::string &bgName, const CFunctionList<void(const std::string &)> &CB )
+:cb(CB)
+{
+	pos += Pos;
+	OBJ_CONSTRUCTION;
+	bg = new CPicture(bgName, bgOffset.x, bgOffset.y);
+	used = LCLICK | KEYBOARD;
+}
+
+CTextInput::~CTextInput()
+{
+
+}
+
+void CTextInput::showAll( SDL_Surface * to )
+{
+	CIntObject::showAll(to);
+	CSDL_Ext::printAt(text + "_", pos.x, pos.y, FONT_SMALL, zwykly, to);
+}
+
+void CTextInput::clickLeft( tribool down, bool previousState )
+{
+	//TODO
+
+}
+
+void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
+{
+	switch(key.keysym.sym)
+	{
+	case SDLK_BACKSPACE:
+		if(text.size())
+			text.resize(text.size()-1);
+		break;
+	default:
+		char c = key.keysym.unicode;
+		if(std::isprint(c))
+			text += c;
+		break;
+	}
+	redraw();
+	cb(text);
+}
+
+void CTextInput::setText( const std::string &nText, bool callCb )
+{
+	text = nText;
+	redraw();
+	if(callCb)
+		cb(text);
 }

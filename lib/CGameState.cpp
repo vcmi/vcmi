@@ -1090,7 +1090,11 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 					break;
 			if(j == scenarioOps->playerInfos.size())
 				continue;
+
 			int h=pickHero(i);
+			if(scenarioOps->playerInfos[j].hero == -1)
+				scenarioOps->playerInfos[j].hero = h;
+
 			CGHeroInstance * nnn =  static_cast<CGHeroInstance*>(createObject(HEROI_TYPE,h,hpos,i));
 			nnn->id = map->objects.size();
 			hpos = map->players[i].posOfMainTown;hpos.x+=2;

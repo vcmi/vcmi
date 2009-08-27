@@ -226,6 +226,7 @@ public:
 	void loadPlayerInfo( int &pom, unsigned char * bufor, int &i);
 	CMapHeader(unsigned char *map); //an argument is a reference to string described a map (unpacked)
 	CMapHeader();
+	virtual ~CMapHeader();
 
 
 	template <typename Handler> void serialize(Handler &h, const int Version)

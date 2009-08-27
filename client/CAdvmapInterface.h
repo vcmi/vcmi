@@ -25,6 +25,18 @@ class CHeroWindow;
  *
  */
 
+class CAdventureOptions : public CIntObject
+{
+public:
+	CPicture *bg;
+	AdventureMapButton *exit, *viewWorld, *puzzle, *dig, *scenInfo, *replay;
+
+	CAdventureOptions();
+	~CAdventureOptions();
+	static void showScenarioInfo();
+};
+	 
+
 class CMinimap : public CIntObject
 {
 public:

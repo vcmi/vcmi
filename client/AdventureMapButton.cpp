@@ -151,10 +151,13 @@ void AdventureMapButton::clickRight(tribool down, bool previousState)
 
 void AdventureMapButton::hover (bool on)
 {
+	if(blocked)
+		return;
+
 	if(hoverable)
 	{
 		if(on)
-			state = 2;
+			state = 3;
 		else
 			state = 0;
 	}
@@ -164,14 +167,14 @@ void AdventureMapButton::hover (bool on)
 		if(on)
 			state = 1;
 		else
-			state = hoverable ? 2 : 0;
+			state = hoverable ? 3 : 0;
 	}
 
 	////Hoverable::hover(on);
 	std::string *name = (vstd::contains(hoverTexts,state)) 
 							? (&hoverTexts[state]) 
 							: (vstd::contains(hoverTexts,0) ? (&hoverTexts[0]) : NULL);
-	if(LOCPLINT &&  name && blocked!=1) //if there is no name, there is nohing to display also
+	if(LOCPLINT && name && name->size() && blocked!=1) //if there is no name, there is nohing to display also
 	{
 		if (LOCPLINT->battleInt) //for battle buttons
 		{
@@ -283,6 +286,7 @@ void CHighlightableButton::select(bool on)
 {
 	selected = on;
 	state = selected ? 3 : 0;
+
 	if(selected)
 		callback();
 	else 
@@ -299,7 +303,7 @@ void CHighlightableButton::clickLeft(tribool down, bool previousState)
 	if(blocked)
 		return;
 	if (down)
-		state=1;
+		state = 1;
 	else
 		state = selected ? 3 : 0;
 	show(screenBuf);
@@ -323,6 +327,15 @@ CHighlightableButton::CHighlightableButton( const std::pair<std::string, std::st
 	std::map<int,std::string> pom;
 	pom[0] = help.first;
 	init(onSelect, pom, help.second, playerColoredButton, defName, add, x, y, key);
+}
+
+CHighlightableButton::CHighlightableButton( const std::string &Name, const std::string &HelpBox, const CFunctionList<void()> &onSelect, int x, int y, const std::string &defName, int myid, int key/*=0*/, std::vector<std::string> * add /*= NULL*/, bool playerColoredButton /*= false */ )
+: onlyOn(false), selected(false) // TODO: callback2(???)
+{
+	ID = myid;
+	std::map<int,std::string> pom;
+	pom[0] = Name;
+	init(onSelect, pom,HelpBox, playerColoredButton, defName, add, x, y, key);
 }
 
 void CHighlightableButtonsGroup::addButton(CHighlightableButton* bt)
@@ -409,6 +422,14 @@ void CHighlightableButtonsGroup::show(SDL_Surface * to )
 void CHighlightableButtonsGroup::showAll( SDL_Surface * to )
 {
 	show(to);
+}
+
+void CHighlightableButtonsGroup::block( ui8 on )
+{
+	for(size_t i=0;i<buttons.size(); ++i) 
+	{
+		buttons[i]->block(on);
+	}
 }
 
 void CSlider::sliderClicked()
@@ -547,17 +568,20 @@ CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int
 	right = new AdventureMapButton;
 	slider = new AdventureMapButton;
 
+	pos.x += x;
+	pos.y += y;
+
 	if(horizontal)
 	{
-		left->pos.y = slider->pos.y = right->pos.y = pos.y = y;
-		left->pos.x = pos.x = x;
-		right->pos.x = x + totalw - 16;
+		left->pos.y = slider->pos.y = right->pos.y = pos.y;
+		left->pos.x = pos.x;
+		right->pos.x = pos.x + totalw - 16;
 	}
 	else 
 	{
-		left->pos.x = slider->pos.x = right->pos.x = pos.x = x;
-		left->pos.y = pos.y = y;
-		right->pos.y = y + totalw - 16;
+		left->pos.x = slider->pos.x = right->pos.x = pos.x;
+		left->pos.y = pos.y;
+		right->pos.y = pos.y + totalw - 16;
 	}
 
 	left->callback = boost::bind(&CSlider::moveLeft,this);
@@ -606,6 +630,7 @@ void CSlider::block( bool on )
 
 void CSlider::setAmount( int to )
 {
+	amount = to;
 	positions = to - capacity;
 	amax(positions, 1);
 }

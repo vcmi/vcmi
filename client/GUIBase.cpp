@@ -6,6 +6,7 @@
 #include <queue>
 #include "CGameInfo.h"
 #include "CCursorHandler.h"
+#include "CBitmapHandler.h"
 /*
  * GUIBase.cpp, part of VCMI engine
  *
@@ -620,6 +621,20 @@ void CIntObject::onDoubleClick()
 {
 }
 
+const Rect & CIntObject::center( const Rect &r )
+{
+	pos.w = r.w;
+	pos.h = r.h;
+	pos.x = screen->w/2 - r.w/2;
+	pos.y = screen->h/2 - r.h/2;
+	return pos;
+}
+
+const Rect & CIntObject::center()
+{
+	return center(pos);
+}
+
 CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 {
 	bg = BG; 
@@ -628,6 +643,16 @@ CPicture::CPicture( SDL_Surface *BG, int x, int y, bool Free )
 	pos.y += y;
 	pos.w = BG->w;
 	pos.h = BG->h;
+}
+
+CPicture::CPicture( const std::string &bmpname, int x, int y )
+{
+	bg = BitmapHandler::loadBitmap(bmpname); 
+	freeSurf = true;;
+	pos.x += x;
+	pos.y += y;
+	pos.w = bg->w;
+	pos.h = bg->h;
 }
 
 CPicture::~CPicture()
@@ -656,15 +681,18 @@ ObjectConstruction::~ObjectConstruction()
 	GH.captureChildren = GH.createdObj.size();
 }
 
-BlockCapture::BlockCapture()
+SetCaptureState::SetCaptureState(bool allow, ui8 actions)
 {
-	previous = GH.captureChildren;
+	previousCapture = GH.captureChildren;
 	GH.captureChildren = false;
+	prevActions = GH.defActionsDef;
+	GH.defActionsDef = actions;
 }
 
-BlockCapture::~BlockCapture()
+SetCaptureState::~SetCaptureState()
 {
-	GH.captureChildren = previous;
+	GH.captureChildren = previousCapture;
+	GH.defActionsDef = prevActions;
 }
 
 void IShowable::redraw()

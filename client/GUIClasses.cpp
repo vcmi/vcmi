@@ -2576,6 +2576,7 @@ void CMarketplaceWindow::clear()
 
 CMarketplaceWindow::CMarketplaceWindow(int Mode)
 {
+	type = BLOCK_ADV_HOTKEYS;
 	mode = Mode;
 	bg = NULL;
 	ok = max = deal = NULL;
@@ -3116,13 +3117,14 @@ void CInGameConsole::keyPressed (const SDL_KeyboardEvent & key)
 	switch(key.keysym.sym)
 	{
 	case SDLK_TAB:
+	case SDLK_ESCAPE:
 		{
 			if(captureAllKeys)
 			{
 				captureAllKeys = false;
 				endEnteringText(false);
 			}
-			else
+			else if(SDLK_TAB)
 			{
 				captureAllKeys = true;
 				startEnteringText();

@@ -24,6 +24,7 @@
 #include <boost/assign/std/vector.hpp>
 #include <boost/thread.hpp>
 #include <sstream>
+#include "CPreGame.h"
 
 #ifdef _MSC_VER
 #pragma warning (disable : 4355)
@@ -1426,6 +1427,7 @@ void CAdvMapInt::fshowSpellbok()
 
 void CAdvMapInt::fadventureOPtions()
 {
+	GH.pushInt(new CAdventureOptions);
 }
 
 void CAdvMapInt::fsystemOptions()
@@ -1624,6 +1626,14 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	ui8 Dir;
 	switch(key.keysym.sym)
 	{
+	case SDLK_i: 
+		if(active)
+			CAdventureOptions::showScenarioInfo();
+		return;
+	case SDLK_s: 
+		if(active)
+			GH.pushInt(new CSelectionScreen(saveGame));
+		return;
 	case SDLK_UP: 
 		Dir = UP;
 		break;
@@ -1662,7 +1672,7 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 	case SDLK_t:
 		{
 			//act on key down if marketplace windows is not already opened
-			if(key.state != SDL_PRESSED  ||  dynamic_cast<CMarketplaceWindow*>(GH.topInt())) return;
+			if(key.state != SDL_PRESSED  || GH.topInt()->type & BLOCK_ADV_HOTKEYS) return;
 
 			//check if we have aby marketplace
 			std::vector<const CGTownInstance*> towns = LOCPLINT->cb->getTownsInfo();
@@ -1786,4 +1796,27 @@ void CAdvMapInt::mouseMoved( const SDL_MouseMotionEvent & sEvent )
 			scrollingDir &= ~DOWN;
 		}
 	}
+}
+
+CAdventureOptions::CAdventureOptions()
+{
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
+	bg = new CPicture(BitmapHandler::loadBitmap("ADVOPTS.bmp"), 0, 0);
+	graphics->blueToPlayersAdv(bg->bg, LOCPLINT->playerID);
+	pos = bg->center();
+	exit = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+
+	//scenInfo = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 24, "ADVINFO.DEF",SDLK_i);
+	scenInfo = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 198, "ADVINFO.DEF",SDLK_i);
+	scenInfo->callback += CAdventureOptions::showScenarioInfo;
+	//viewWorld = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+}
+
+CAdventureOptions::~CAdventureOptions()
+{
+}
+
+void CAdventureOptions::showScenarioInfo()
+{
+	GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
 }
