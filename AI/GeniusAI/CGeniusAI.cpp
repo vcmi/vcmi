@@ -5,6 +5,7 @@
 #include "../../hch/CHeroHandler.h"
 #include "../../lib/VCMI_Lib.h"
 #include "../../lib/NetPacks.h"
+#include <boost/lexical_cast.hpp>
 
 using namespace std;
 using namespace GeniusAI;

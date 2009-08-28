@@ -27,6 +27,7 @@
 #include "../hch/CCreatureHandler.h"
 #include "CPlayerInterface.h"
 #include "../CCallback.h"
+#include <boost/lexical_cast.hpp>
 /*
  * CPreGame.cpp, part of VCMI engine
  *
@@ -366,7 +367,7 @@ void CSelectionScreen::startGame()
 		if(!(sel && sel->txt && sel->txt->text.size()))
 			return;
 
-		selectedName = sel->txt->text;
+		selectedName = "Games/" + sel->txt->text + ".vlgm1";
 		LOCPLINT->cb->save(sel->txt->text);
 		GH.popIntTotally(this);
 	}
@@ -555,7 +556,7 @@ SelectionTab::SelectionTab(EState Type, const boost::function<void(CMapInfo *)> 
 			if(selectedName[0] == 'M')
 				txt->setText("NEWGAME");
 			else
-				selectFName("Games/" + selectedName + ".vlgm1");
+				selectFName(selectedName);
 		}
 	}
 }
@@ -1642,6 +1643,7 @@ void CTextInput::clickLeft( tribool down, bool previousState )
 
 void CTextInput::keyPressed( const SDL_KeyboardEvent & key )
 {
+	if(key.state != SDL_PRESSED) return;
 	switch(key.keysym.sym)
 	{
 	case SDLK_BACKSPACE:

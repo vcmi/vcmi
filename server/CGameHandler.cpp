@@ -327,6 +327,7 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 	BattleInfo *curB = new BattleInfo;
 	curB->side1 = army1->tempOwner;
 	curB->side2 = army2->tempOwner;
+	if(curB->side2 == 254) curB->side2 = 255;
 	setupBattle(curB, tile, army1->army, army2->army, hero1, hero2, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 	NEW_ROUND;
 	//TODO: pre-tactic stuff, call scripts etc.
