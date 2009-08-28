@@ -300,6 +300,27 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 		}
 	}
 
+	//walls
+	if(siege >= 0)
+	{
+		static int permanentlyLocked[] = {12, 45, 78, 112, 147, 182};
+		for(int b=0; b<ARRAY_COUNT(permanentlyLocked); ++b)
+		{
+			accessibility[permanentlyLocked[b]] = false;
+		}
+
+		static std::pair<int, int> lockedIfNotDestroyed[] = //(which part of wall, which hex is blocked if this part of wall is not destroyed
+			{std::make_pair(2, 165), std::make_pair(3, 130), std::make_pair(4, 62), std::make_pair(5, 29)};
+		for(int b=0; b<ARRAY_COUNT(lockedIfNotDestroyed); ++b)
+		{
+			if(si.wallState[lockedIfNotDestroyed[b].first] < 3)
+			{
+				accessibility[lockedIfNotDestroyed[b].second] = false;
+			}
+		}
+	}
+
+	//occupyability
 	if(addOccupiable && twoHex)
 	{
 		std::set<int> rem; //tiles to unlock

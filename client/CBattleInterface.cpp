@@ -476,12 +476,6 @@ void CBattleInterface::show(SDL_Surface * to)
 		blitAt(images[((animCount+1)/(4/settings.animSpeed))%images.size()].bitmap, x, y, to);
 	}
 
-	//showing siege background
-	if(siegeH)
-	{
-		siegeH->printSiegeBackground(to);
-	}
-
 	//showing hero animations
 	if(attackingHero)
 		attackingHero->show(to);
@@ -2428,7 +2422,7 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex)
 	if(!siegeH)
 		return;
 
-	static std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(29, 7)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 4);
+	static std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(16, 1)(29, 7)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 4);
 
 	std::map<int, int>::const_iterator it = hexToPart.find(hex);
 	if(it != hexToPart.end())
@@ -3272,16 +3266,14 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 	}
 }
 
-void CBattleInterface::SiegeHelper::printSiegeBackground(SDL_Surface * to)
-{
-	blitAt(backWall, owner->pos.w + owner->pos.x - backWall->w, 50 + owner->pos.y, to);
-}
-
 void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 {
 	Point pos = Point(-1, -1);
 	switch(what)
 	{
+	case 1: //background wall
+		pos = Point(owner->pos.w + owner->pos.x - backWall->w, 55 + owner->pos.y);
+		break;
 	case 2: //keep
 		pos = Point(owner->pos.w + owner->pos.x - walls[what-2]->w, 154 + owner->pos.y);
 		break;
