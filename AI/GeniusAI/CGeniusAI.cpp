@@ -285,7 +285,7 @@ void CGeniusAI::TownObjective::print() const
 			if(b->resources[0]!=0)cout << b->resources[0] << " wood. ";
 			if(b->resources[1]!=0)cout << b->resources[1] << " mercury. ";
 			if(b->resources[2]!=0)cout << b->resources[2] << " ore. ";
-			if(b->resources[3]!=0)cout << b->resources[3] << " sulfer. ";
+			if(b->resources[3]!=0)cout << b->resources[3] << " sulfur. ";
 			if(b->resources[4]!=0)cout << b->resources[4] << " cristal. ";
 			if(b->resources[5]!=0)cout << b->resources[5] << " gems. ";
 			if(b->resources[6]!=0)cout << b->resources[6] << " gold. ";
@@ -304,7 +304,7 @@ void CGeniusAI::TownObjective::print() const
 			if(creature->cost[0]!=0)cout << creature->cost[0]*howMany << " wood. ";
 			if(creature->cost[1]!=0)cout << creature->cost[1]*howMany << " mercury. ";
 			if(creature->cost[2]!=0)cout << creature->cost[2]*howMany << " ore. ";
-			if(creature->cost[3]!=0)cout << creature->cost[3]*howMany << " sulfer. ";
+			if(creature->cost[3]!=0)cout << creature->cost[3]*howMany << " sulfur. ";
 			if(creature->cost[4]!=0)cout << creature->cost[4]*howMany << " cristal. ";
 			if(creature->cost[5]!=0)cout << creature->cost[5]*howMany << " gems. ";
 			if(creature->cost[6]!=0)cout << creature->cost[6]*howMany << " gold. ";
@@ -354,7 +354,7 @@ void CGeniusAI::reportResources()
 	cout << m_cb->getResourceAmount(0) << " wood. ";
 	cout << m_cb->getResourceAmount(1) << " mercury. ";
 	cout << m_cb->getResourceAmount(2) << " ore. ";
-	cout << m_cb->getResourceAmount(3) << " sulfer. ";
+	cout << m_cb->getResourceAmount(3) << " sulfur. ";
 	cout << m_cb->getResourceAmount(4) << " cristal. ";
 	cout << m_cb->getResourceAmount(5) << " gems. ";
 	cout << m_cb->getResourceAmount(6) << " gold.";
