@@ -241,6 +241,19 @@ struct CPathNode
 	bool visited;
 };
 
+struct CGPathNode
+{
+	enum {ACCESSIBLE=1, VISITABLE, BLOCKVIS, BLOCKED}; //BLOCKVIS - visitable from neighbourign tile but not passable
+	ui8 land;
+	ui8 accessible; //the enum above
+	ui8 turns;
+	ui32 moveRemains;
+	CPathNode * theNodeBefore;
+	int3 coord; //coordiantes
+	CGPathNode();
+};
+
+
 struct DLL_EXPORT CPath
 {
 	std::vector<CPathNode> nodes; //just get node by node
@@ -248,6 +261,16 @@ struct DLL_EXPORT CPath
 	int3 startPos() const; // start point
 	int3 endPos() const; //destination point
 	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
+};
+
+struct CPathsInfo
+{
+	int3 sizes;
+	CGPathNode ***nodes; //[w][h][level]
+
+	void getPath(const int3 &src, const int3 &dst, CPath &out);
+	CPathsInfo(const int3 &sizes);
+	~CPathsInfo();
 };
 
 class DLL_EXPORT CGameState
@@ -299,6 +322,7 @@ public:
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if dst tile is visitable from dst tile
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
+	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, const int3 &src = int3(-1,-1,-1)); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);

@@ -606,7 +606,7 @@ const CGTownInstance *CCallback::battleGetDefendedTown()
 	if(!gs->curB || gs->curB->tid == -1)
 		return NULL;
 
-	return gs->map->towns[gs->curB->tid];
+	return static_cast<const CGTownInstance *>(gs->map->objects[gs->curB->tid]);
 }
 
 ui8 CCallback::battleGetWallState(int partOfWall)

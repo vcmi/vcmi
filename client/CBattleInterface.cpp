@@ -3234,7 +3234,17 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 	case 0: //background
 		return "SG" + townTypeInfixes[town->town->typeID] + "BACK.BMP";
 	case 1: //background wall
-		return "SG" + townTypeInfixes[town->town->typeID] + "TPW1.BMP";
+		{
+			switch(town->town->typeID)
+			{
+			case 5: case 4: case 1: case 6:
+				return "SG" + townTypeInfixes[town->town->typeID] + "TPW1.BMP";
+			case 0: case 2: case 3: case 7: case 8:
+				return "SG" + townTypeInfixes[town->town->typeID] + "TPWL.BMP";
+			default:
+				return "";
+			}
+		}
 	case 2: //keep
 		return "SG" + townTypeInfixes[town->town->typeID] + "MAN" + addit + ".BMP";
 	case 3: //bottom tower

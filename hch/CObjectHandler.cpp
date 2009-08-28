@@ -457,7 +457,7 @@ unsigned int CGHeroInstance::getTileCost(const TerrainTile &dest, const TerrainT
 	}
 	else 
 	{
-		ret = std::max(type->heroClass->terrCosts[dest.tertype],type->heroClass->terrCosts[from.tertype]); //take cost of worse of two tiles
+		ret = type->heroClass->terrCosts[from.tertype];
 		ret = std::max(ret - 25*unsigned(getSecSkillLevel(0)), 100u); //reduce 25% of terrain penalty for each pathfinding level
 	}
 	return ret;
