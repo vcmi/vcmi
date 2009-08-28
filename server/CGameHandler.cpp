@@ -325,6 +325,8 @@ static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInf
 void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town)
 {
 	BattleInfo *curB = new BattleInfo;
+	curB->side1 = army1->tempOwner;
+	curB->side2 = army2->tempOwner;
 	setupBattle(curB, tile, army1->army, army2->army, hero1, hero2, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
 	NEW_ROUND;
 	//TODO: pre-tactic stuff, call scripts etc.
@@ -876,8 +878,6 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	curB->army2=army2;
 	curB->hero1=(hero1)?(hero1->id):(-1);
 	curB->hero2=(hero2)?(hero2->id):(-1);
-	curB->side1=(hero1)?(hero1->tempOwner):(-1);
-	curB->side2=(hero2)?(hero2->tempOwner):(-1);
 	curB->round = -2;
 	curB->activeStack = -1;
 
