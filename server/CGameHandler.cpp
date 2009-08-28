@@ -929,7 +929,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		else
 			pos = attackerLoose[army1.slots.size()-1][k];
 
-		CStack * stack = BattleInfo::generateNewStack(hero1, i->second.first, i->second.second, stacks.size(), true, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
+		CStack * stack = curB->generateNewStack(hero1, i->second.first, i->second.second, stacks.size(), true, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
 		stacks.push_back(stack);
 	}
 	
@@ -944,7 +944,7 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		else
 			pos = defenderLoose[army2.slots.size()-1][k];
 
-		CStack * stack = BattleInfo::generateNewStack(hero2, i->second.first, i->second.second, stacks.size(), false, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
+		CStack * stack = curB->generateNewStack(hero2, i->second.first, i->second.second, stacks.size(), false, i->first, gs->map->terrain[tile.x][tile.y][tile.z].tertype, pos);
 		stacks.push_back(stack);
 	}
 
@@ -965,17 +965,17 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	{
 		if(hero1->getArt(13)) //ballista
 		{
-			CStack * stack = BattleInfo::generateNewStack(hero1, 146, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 52);
+			CStack * stack = curB->generateNewStack(hero1, 146, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 52);
 			stacks.push_back(stack);
 		}
 		if(hero1->getArt(14)) //ammo cart
 		{
-			CStack * stack = BattleInfo::generateNewStack(hero1, 148, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 18);
+			CStack * stack = curB->generateNewStack(hero1, 148, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 18);
 			stacks.push_back(stack);
 		}
 		if(hero1->getArt(15)) //first aid tent
 		{
-			CStack * stack = BattleInfo::generateNewStack(hero1, 147, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 154);
+			CStack * stack = curB->generateNewStack(hero1, 147, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 154);
 			stacks.push_back(stack);
 		}
 	}
@@ -983,23 +983,23 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 	{
 		if(hero2->getArt(13)) //ballista
 		{
-			CStack * stack = BattleInfo::generateNewStack(hero2, 146, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 66);
+			CStack * stack = curB->generateNewStack(hero2, 146, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 66);
 			stacks.push_back(stack);
 		}
 		if(hero2->getArt(14)) //ammo cart
 		{
-			CStack * stack = BattleInfo::generateNewStack(hero2, 148, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 32);
+			CStack * stack = curB->generateNewStack(hero2, 148, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 32);
 			stacks.push_back(stack);
 		}
 		if(hero2->getArt(15)) //first aid tent
 		{
-			CStack * stack = BattleInfo::generateNewStack(hero2, 147, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 168);
+			CStack * stack = curB->generateNewStack(hero2, 147, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 168);
 			stacks.push_back(stack);
 		}
 	}
 	if(town && hero1) //catapult
 	{
-		CStack * stack = BattleInfo::generateNewStack(hero1, 145, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 120);
+		CStack * stack = curB->generateNewStack(hero1, 145, 1, stacks.size(), true, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, 120);
 		stacks.push_back(stack);
 	}
 	//war machines added

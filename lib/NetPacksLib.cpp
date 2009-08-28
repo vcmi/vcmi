@@ -816,7 +816,7 @@ DLL_EXPORT void SpellCast::applyGs( CGameState *gs )
 			}
 		}
 
-		CStack * summonedStack = BattleInfo::generateNewStack(h, creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], gs->curB->stacks.size(), !side, 255, ter, pos);
+		CStack * summonedStack = gs->curB->generateNewStack(h, creID, h->getPrimSkillLevel(2) * VLC->spellh->spells[id].powers[skill], gs->curB->stacks.size(), !side, 255, ter, pos);
 		summonedStack->features.push_back( makeFeature(StackFeature::SUMMONED, StackFeature::WHOLE_BATTLE, 0, 0, StackFeature::BONUS_FROM_HERO) );
 
 		gs->curB->stacks.push_back(summonedStack);

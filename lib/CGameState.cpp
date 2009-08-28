@@ -2378,7 +2378,7 @@ int BattleInfo::calculateSpellDuration(const CSpell * spell, const CGHeroInstanc
 
 CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position)
 {
-	CStack * ret = new CStack(&VLC->creh->creatures[creatureID], amount, owner ? owner->tempOwner : 255, stackID, attackerOwned, slot);
+	CStack * ret = new CStack(&VLC->creh->creatures[creatureID], amount, attackerOwned ? side1 : side2, stackID, attackerOwned, slot);
 	if(owner)
 	{
 		ret->features.push_back(makeFeature(StackFeature::SPEED_BONUS, StackFeature::WHOLE_BATTLE, 0, owner->valOfBonuses(HeroBonus::STACKS_SPEED), StackFeature::BONUS_FROM_HERO));

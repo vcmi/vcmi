@@ -152,7 +152,7 @@ struct DLL_EXPORT BattleInfo
 	void calculateCasualties(std::set<std::pair<ui32,si32> > *casualties);
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile); //calculates stack affected by given spell
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster);
-	static CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position); //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position); //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster); //returns cost of given spell
 };
 
