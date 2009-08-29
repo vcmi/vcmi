@@ -301,7 +301,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 	}
 
 	//walls
-	if(siege >= 0)
+	if(siege > 0)
 	{
 		static const int permanentlyLocked[] = {12, 45, 78, 112, 147, 182};
 		for(int b=0; b<ARRAY_COUNT(permanentlyLocked); ++b)
