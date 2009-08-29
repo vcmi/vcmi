@@ -49,9 +49,13 @@ SDL_LIBS="`sdl-config --libs` $LIBS"
 LIBS=$saved_LIBS
 
 # Check for ffmpeg libraries
+saved_LIBS=$LIBS
 AC_CHECK_LIB(avformat,main,,AC_MSG_ERROR([FFMpeg avformat library not found. Please install it.]))
 AC_CHECK_LIB(swscale,main,,AC_MSG_ERROR([FFMpeg swscale library not found. Please install it.]))
-FFMPEG_LIBS="-lavformat -lswscale"
+
+FFMPEG_CXXFLAGS=`pkg-config --cflags libavformat libswscale`
+FFMPEG_LIBS=`pkg-config --libs libavformat libswscale`
+LIBS=$saved_LIBS
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -65,5 +69,6 @@ AC_CHECK_FUNCS([atexit memset pow select sqrt])
 AC_SUBST(SDL_LIBS)
 AC_SUBST(SDL_CXXFLAGS)
 AC_SUBST(FFMPEG_LIBS)
+AC_SUBST(FFMPEG_CXXFLAGS)
 
 AC_OUTPUT(Makefile lib/Makefile client/Makefile server/Makefile AI/Makefile AI/GeniusAI/Makefile AI/EmptyAI/Makefile)
