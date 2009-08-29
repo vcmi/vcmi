@@ -2064,7 +2064,7 @@ bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 	return true;
 }
 
-int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
+std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
 {
 	int attackDefenseBonus,
 		minDmg = attacker->creature->damageMin * attacker->amount, 
@@ -2261,23 +2261,30 @@ int BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, con
 	if(attacker->getEffect(42)) //curse handling (rest)
 	{
 		minDmg -= VLC->spellh->spells[42].powers[attacker->getEffect(42)->level];
-		return minDmg;
+		return std::make_pair(minDmg, minDmg);
 	}
 	else if(attacker->getEffect(41)) //bless handling
 	{
 		maxDmg += VLC->spellh->spells[41].powers[attacker->getEffect(41)->level];
-		return maxDmg;
+		return std::make_pair(maxDmg, maxDmg);
 	}
 	else
 	{
-		if(minDmg != maxDmg)
-			return minDmg  +  rand() % (maxDmg - minDmg + 1);
-		else
-			return minDmg;
+		return std::make_pair(minDmg, maxDmg);
 	}
 
 	tlog1 << "We are too far in calculateDmg...\n";
-	return -1;
+	return std::make_pair(0, 0);
+}
+
+ui32 BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
+{
+	std::pair<ui32, ui32> range = calculateDmgRange(attacker, defender, attackerHero, defendingHero, shooting, charge);
+
+	if(range.first != range.second)
+		return range.first  +  rand() % (range.second - range.first + 1);
+	else
+		return range.first;
 }
 
 void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualties )

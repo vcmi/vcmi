@@ -618,6 +618,29 @@ ui8 CCallback::battleGetWallState(int partOfWall)
 	return gs->curB->si.wallState[partOfWall];
 }
 
+std::pair<ui32, ui32> CCallback::battleEstimateDamage(int attackerID, int defenderID)
+{
+	if(!gs->curB)
+		return std::make_pair(0, 0);
+
+	const CGHeroInstance * attackerHero, * defenderHero;
+
+	if(gs->curB->side1 == player)
+	{
+		attackerHero = gs->getHero(gs->curB->hero1);
+		defenderHero = gs->getHero(gs->curB->hero2);
+	}
+	else
+	{
+		attackerHero = gs->getHero(gs->curB->hero2);
+		defenderHero = gs->getHero(gs->curB->hero1);
+	}
+
+	const CStack * attacker = gs->curB->stacks[attackerID], * defender = gs->curB->stacks[defenderID];
+
+	return BattleInfo::calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker->ID, defender->position), 0);
+}
+
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
 	if(town->tempOwner != player) return;

@@ -667,7 +667,12 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						CGI->curh->changeGraphic(1,3);
 						//setting console text
 						char buf[500];
-						sprintf(buf, CGI->generaltexth->allTexts[296].c_str(), shere->amount == 1 ? shere->creature->nameSing.c_str() : shere->creature->namePl.c_str(), sactive->shots, "?");
+						//calculating esimated dmg
+						std::pair<ui32, ui32> estimatedDmg = LOCPLINT->cb->battleEstimateDamage(sactive->ID, shere->ID);
+						std::ostringstream estDmg;
+						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
+						//printing
+						sprintf(buf, CGI->generaltexth->allTexts[296].c_str(), shere->amount == 1 ? shere->creature->nameSing.c_str() : shere->creature->namePl.c_str(), sactive->shots, estDmg.str().c_str());
 						console->alterTxt = buf;
 						console->whoSetAlter = 0;
 					}
@@ -792,6 +797,17 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						while (sectorCursor[(cursorIndex + i)%sectorCursor.size()] == -1)
 							i = i <= 0 ? 1 - i : -i; // 0, 1, -1, 2, -2, 3, -3 etc..
 						cursor->changeGraphic(1, sectorCursor[(cursorIndex + i)%sectorCursor.size()]);
+
+						//setting console info
+						char buf[500];
+						//calculating esimated dmg
+						std::pair<ui32, ui32> estimatedDmg = LOCPLINT->cb->battleEstimateDamage(sactive->ID, shere->ID);
+						std::ostringstream estDmg;
+						estDmg << estimatedDmg.first << " - " << estimatedDmg.second;
+						//printing
+						sprintf(buf, CGI->generaltexth->allTexts[36].c_str(), shere->amount == 1 ? shere->creature->nameSing.c_str() : shere->creature->namePl.c_str(), estDmg.str().c_str());
+						console->alterTxt = buf;
+						console->whoSetAlter = 0;
 					}
 					else //unavailable enemy
 					{
