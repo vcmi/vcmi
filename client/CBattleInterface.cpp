@@ -2422,7 +2422,7 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex)
 	if(!siegeH)
 		return;
 
-	static std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(16, 1)(29, 7)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 4);
+	static const std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(16, 1)(29, 7)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 4);
 
 	std::map<int, int>::const_iterator it = hexToPart.find(hex);
 	if(it != hexToPart.end())

@@ -82,7 +82,7 @@ static void readCreatures(std::istream & is, BankConfig & bc, bool guards) //hel
 	std::pair<si16, si32> guardInfo = std::make_pair(0, 0);
 	std::string creName;
 
-	is >> guardInfo.first;
+	is >> guardInfo.second;
 	//one getline just does not work... probably a kind of left whitespace
 	is.getline(buffer, MAX_BUF, '\t');
 	is.getline(buffer, MAX_BUF, '\t');
@@ -94,7 +94,7 @@ static void readCreatures(std::istream & is, BankConfig & bc, bool guards) //hel
 	//look for the best creature that is described by given name
 	if( vstd::contains(VLC->creh->nameToID, creName) )
 	{
-		guardInfo.second = VLC->creh->nameToID[creName];
+		guardInfo.first = VLC->creh->nameToID[creName];
 	}
 	else
 	{
@@ -104,7 +104,7 @@ static void readCreatures(std::istream & is, BankConfig & bc, bool guards) //hel
 				|| VLC->creh->creatures[g].nameRef == creName
 				|| VLC->creh->creatures[g].nameSing == creName)
 			{
-				guardInfo.second = VLC->creh->creatures[g].idNumber;
+				guardInfo.first = VLC->creh->creatures[g].idNumber;
 			}
 		}
 	}

@@ -326,7 +326,7 @@ void CCreatureHandler::loadCreatures()
 
 	// Map types names
 #define VCMI_CREATURE_ABILITY_NAME(x) ( #x, StackFeature::x )
-	std::map<std::string, int> type_list = map_list_of VCMI_CREATURE_ABILITY_LIST;
+	static const std::map<std::string, int> type_list = map_list_of VCMI_CREATURE_ABILITY_LIST;
 #undef VCMI_CREATURE_ABILITY_NAME
 
 	////second part of reading cr_abils.txt////
@@ -349,7 +349,7 @@ void CCreatureHandler::loadCreatures()
 				reader >> creatureID;
 
 				reader >> type;
-				std::map<std::string, int>::iterator it = type_list.find(type);
+				std::map<std::string, int>::const_iterator it = type_list.find(type);
 				if (it == type_list.end()) {
 					tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
 					break;
@@ -372,7 +372,7 @@ void CCreatureHandler::loadCreatures()
 				std::string type;
 				reader >> creatureID;
 				reader >> type;
-				std::map<std::string, int>::iterator it = type_list.find(type);
+				std::map<std::string, int>::const_iterator it = type_list.find(type);
 				if (it == type_list.end())
 				{
 					tlog1 << "Error: invalid type " << type << " in cr_abils.txt" << std::endl;
