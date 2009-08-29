@@ -2692,7 +2692,14 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 	std::vector<ui32> ret;
 	for(std::set<CStack*>::const_iterator it = affectedCreatures.begin(); it != affectedCreatures.end(); ++it)
 	{
-		//non-negative spells on friendly stacks should always succeed
+		if ((*it)->hasFeatureOfType(StackFeature::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
+			|| ((*it)->valOfFeatures(StackFeature::LEVEL_SPELL_IMMUNITY) >= sp->level))
+		{
+			ret.push_back((*it)->ID);
+			continue;
+		}
+
+		//non-negative spells on friendly stacks should always succeed, unless immune
 		if(sp->positiveness >= 0 && (*it)->owner == caster->tempOwner)
 			continue;
 
@@ -2724,8 +2731,7 @@ static std::vector<ui32> calculateResistedStacks(const CSpell * sp, const CGHero
 
 		if(prob > 100) prob = 100;
 
-		if( (*it)->hasFeatureOfType(StackFeature::SPELL_IMMUNITY, sp->id) //100% sure spell immunity
-			|| rand()%100 < prob) //immunity from resistance
+		if(rand()%100 < prob) //immunity from resistance
 			ret.push_back((*it)->ID);
 
 	}

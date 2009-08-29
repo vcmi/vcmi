@@ -2109,32 +2109,35 @@ void CBattleInterface::displayEffect(ui32 effect, int destTile)
 			}
 		}
 	}
-	else
+	else // Effects targeted at a specific creature/hex.
 	{
 		if(graphics->battleACToDef[effect].size() != 0)
 		{
+			const CStack* destStack = LOCPLINT->cb->battleGetStackByPos(destTile, false);
+			Rect &tilePos = bfield[destTile].pos;
 			SBattleEffect be;
 			be.anim = CDefHandler::giveDef(graphics->battleACToDef[effect][0]);
 			be.frame = 0;
 			be.maxFrame = be.anim->ourImages.size();
-			be.x = 22 * ( ((destTile/BFIELD_WIDTH) + 1)%2 ) + 44 * (destTile % BFIELD_WIDTH) + 45;
-			be.y = 105 + 42 * (destTile/BFIELD_WIDTH);
 
-			if(effect != 1 && effect != 0)
-			{
-				be.x -= be.anim->ourImages[0].bitmap->w/2;
-				be.y -= be.anim->ourImages[0].bitmap->h/2;
+			switch (effect) {
+				case 0: // Prayer and Lightning Bolt.
+				case 1:
+					// Position effect with it's bottom center touching the bottom center of affected tile(s).
+					be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
+					be.y = tilePos.y + tilePos.h - be.anim->height;
+					break;
+
+				default:
+					// Position effect with it's center touching the top center of affected tile(s).
+					be.x = tilePos.x + tilePos.w/2 - be.anim->width/2;
+					be.y = tilePos.y - be.anim->height/2;
+					break;
 			}
-			else if(effect == 1)
-			{
-				be.x -= be.anim->ourImages[0].bitmap->w;
-				be.y -= be.anim->ourImages[0].bitmap->h;
-			}
-			else if (effect == 0)
-			{
-				be.x -= be.anim->ourImages[0].bitmap->w/2;
-				be.y -= be.anim->ourImages[0].bitmap->h;
-			}
+
+			// Correction for 2-hex creatures.
+			if (destStack != NULL && destStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
+				be.x += (destStack->attackerOwned ? -1 : 1)*tilePos.w/2;
 
 			battleEffects.push_back(be);
 		}
