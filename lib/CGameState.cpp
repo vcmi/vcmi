@@ -1580,7 +1580,7 @@ void CGameState::loadTownDInfos()
 	}
 }
 
-void CGameState::getNeighbours(int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand)
+void CGameState::getNeighbours( const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand )
 {
 	static int3 dirs[] = { int3(0,1,0),int3(0,-1,0),int3(-1,0,0),int3(+1,0,0),
 					int3(1,1,0),int3(-1,1,0),int3(1,-1,0),int3(-1,-1,0) };
@@ -1588,19 +1588,21 @@ void CGameState::getNeighbours(int3 tile, std::vector<int3> &vec, const boost::l
 	vec.clear();
 	for (size_t i = 0; i < ARRAY_COUNT(dirs); i++)
 	{
-		int3 hlp = tile + dirs[i];
+		const int3 hlp = tile + dirs[i];
 		if(!map->isInTheMap(hlp)) 
 			continue;
 
-		if((indeterminate(onLand)  ||  onLand == (map->getTile(hlp).tertype!=8) ) 
-			&& map->getTile(hlp).tertype!=9) 
+		const TerrainTile &hlpt = map->getTile(hlp);
+
+		if((indeterminate(onLand)  ||  onLand == (hlpt.tertype!=8) ) 
+			&& hlpt.tertype!=9) 
 		{
 			vec.push_back(hlp);
 		}
 	}
 }
 
-int CGameState::getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, int remainingMovePoints, bool checkLast)
+int CGameState::getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints, bool checkLast)
 {
 	if(src == dest) //same tile
 		return 0;
@@ -1616,7 +1618,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, in
 		int old = ret;
 		ret *= 1.414213;
 		//diagonal move costs too much but normal move is possible - allow diagonal move for remaining move points
-		if(ret > remainingMovePoints  &&  remainingMovePoints > old)
+		if(ret > remainingMovePoints  &&  remainingMovePoints >= old)
 		{
 			return remainingMovePoints;
 		}
@@ -1627,7 +1629,7 @@ int CGameState::getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, in
 	if(checkLast  &&  left > 0  &&  remainingMovePoints-ret < 250) //it might be the last tile - if no further move possible we take all move points
 	{
 		std::vector<int3> vec;
-		getNeighbours(dest, vec, s.tertype != TerrainTile::water);
+		getNeighbours(d, dest, vec, s.tertype != TerrainTile::water);
 		for(size_t i=0; i < vec.size(); i++)
 		{
 			int fcost = getMovementCost(h,dest,vec[i],left,false);
@@ -1818,7 +1820,7 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 		}
 
 		//add accessible neighbouring nodes to the queue
-		getNeighbours(cp.coord, neighbours, boost::logic::indeterminate);
+		getNeighbours(map->getTile(cp.coord), cp.coord, neighbours, boost::logic::indeterminate);
 		for(unsigned int i=0; i < neighbours.size(); i++)
 		{
 			CPathNode & dp = graph[neighbours[i].x][neighbours[i].y];
@@ -1852,146 +1854,144 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 	return true;
 }
 
-//void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, const int3 &src)
-//{
-//	if(!map->isInTheMap(src)/* || !map->isInTheMap(dest)*/) //check input
-//		//todo: distater
-//		return;
-//
-//	int3 hpos = hero->getPosition(false);
-//	tribool blockLandSea; //true - blocks sea, false - blocks land, indeterminate - allows all
-//
-//	if (!hero->canWalkOnSea())
-//		blockLandSea = (map->getTile(hpos).tertype != TerrainTile::water); //block land if hero is on water and vice versa
-//	else
-//		blockLandSea = boost::logic::indeterminate;
-//
-//	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayer(hero->tempOwner)->fogOfWarMap;
-//
-//	//graph initialization
-//	CGPathNode ***graph = out.nodes;
-//	for(size_t i=0; i < out.sizes.x; ++i)
-//	{
-//		for(size_t j=0; j < out.sizes.y; ++j)
-//		{
-//			for(size_t k=0; k < out.sizes.z; ++k)
-//			{
-//				const TerrainTile *tinfo = &map->terrain[i][j][k];
-//				CGPathNode &node = graph[i][j][k];
-//
-//				node.accessible = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
-//				node.visited = false;
-//				node.turns = 0xff;
-//				node.moveRemains = 0;
-//				node.coord.x = i;
-//				node.coord.y = j;
-//				node.coord.z = k;
-//				node.land = tinfo->tertype == TerrainTile::water;
-//
-//				if ((tinfo->tertype == TerrainTile::rock) //it's rock
-//					|| ((blockLandSea) && () //it's sea and we cannot walk on sea
-//					|| ((!blockLandSea) && (tinfo->tertype != TerrainTile::water)) //it's land and we cannot walk on land
-//					|| !FoW[i][j][k] //tile is covered by the FoW
-//				)
-//				{
-//					node.accessible = CGPathNode::BLOCKED;
-//				}
-//				else if(tinfo->visitable)
-//				{
-//					for(size_t ii = 0; ii < tinfo->visitableObjects.size(); ii++)
-//					{
-//						if(tinfo->visitableObjects[ii]->blockVisit)
-//						{
-//							node.accessible = CGPathNode::BLOCKVIS;
-//							break;
-//						}
-//						else
-//							node.accessible = CGPathNode::VISITABLE;
-//					}
-//				}
-//
-//				if(blockLandSea && tinfo->tertype == TerrainTile::water) //hero can walk only on land and tile lays on the water
-//				{
-//					size_t i = 0;
-//					for(; i < tinfo->visitableObjects.size(); i++)
-//						if(tinfo->visitableObjects[i]->ID == 8  ||  tinfo->visitableObjects[i]->ID == HEROI_TYPE) //it's a Boat
-//							break;
-//
-//					if(i < tinfo->visitableObjects.size())
-//						node.accessible = CGPathNode::BLOCKVIS; //dest is accessible only if there is boat/hero
-//				}
-//				else if(!blockLandSea && tinfo->tertype != TerrainTile::water) //hero is moving by water
-//				{
-//					if((tinfo->siodmyTajemniczyBajt & 64) && !tinfo->blocked)
-//						node.accessible = CGPathNode::ACCESSIBLE; //tile is accessible if it's coastal and not blocked
-//				}
-//			}
-//		}
-//	}
-//	//graph initialized
-//
-//
-//	//initial tile - set cost on 0 and add to the queue
-//	graph[src.x][src.y][src.z].turns = 0; 
-//	graph[src.x][src.y][src.z].moveRemains = hero->movement;
-//	std::queue<CGPathNode*> mq;
-//	mq.push(&graph[src.x][src.y][src.z]);
-//
-//	ui32 curDist = 0xffffffff; //total cost of path - init with max possible val
-//
-//	std::vector<int3> neighbours;
-//	neighbours.reserve(8);
-//
-//	while(!mq.empty())
-//	{
-//		CGPathNode *cp = graph[mq.front()->coord.x][mq.front()->coord.y];
-//		mq.pop();
-//
-//		//add accessible neighbouring nodes to the queue
-//		getNeighbours(cp->coord, neighbours, boost::logic::indeterminate);
-//		for(unsigned int i=0; i < neighbours.size(); i++)
-//		{
-//			const int3 &n = neighbours[i]; //current neighbour
-//			CGPathNode & dp = graph[n.x][n.y][n.z];
-//			if(!cp->moveRemains)
-//			{
-//				cp->turns++;
-//				cp->moveRemains = hero->maxMovePoints(
-//			}
-//
-//
-//			if(dp.accessible != CGPathNode::BLOCKVIS)
-//			{
-//				int cost = getMovementCost(hero,cp->coord,dp.coord,hero->movement - cp->dist);
-//				if((dp.turns==0xff || (dp.dist > cp->dist + cost)) && dp.accesible && checkForVisitableDir(cp->coord, dp.coord) && checkForVisitableDir(dp.coord, cp->coord))
-//				{
-//					dp.moveRemains = cp.moveRemains - cost;
-//					dp.theNodeBefore = &cp;
-//					if(dp.accessible == CGPathNode::ACCESSIBLE)
-//					{
-//						mq.push(dp);
-//					}
-//				}
-//			}
-//		}
-//	}
-//
-//	CPathNode *curNode = &graph[dest.x][dest.y];
-//	if(!curNode->theNodeBefore) //destination is not accessible
-//		return false;
-//
-//
-//	//fill ret with found path
-//	ret.nodes.clear();
-//	while(curNode->coord != graph[src.x][src.y].coord)
-//	{
-//		ret.nodes.push_back(*curNode);
-//		curNode = curNode->theNodeBefore;
-//	}
-//	ret.nodes.push_back(graph[src.x][src.y]);
-//
-//	return true;
-//}
+void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src, int movement)
+{
+	if(src.x < 0)
+		src = hero->getPosition(false);
+	if(movement < 0)
+		movement = hero->movement;
+
+	if(!map->isInTheMap(src)/* || !map->isInTheMap(dest)*/) //check input
+	{
+		tlog1 << "CGameState::calculatePaths: Hero outside the map? How dare you...\n";
+		return;
+	}
+
+	tribool onLand; //true - blocks sea, false - blocks land, indeterminate - allows all
+
+	if (!hero->canWalkOnSea())
+		onLand = (map->getTile(src).tertype != TerrainTile::water); //block land if hero is on water and vice versa
+	else
+		onLand = boost::logic::indeterminate;
+
+	const std::vector<std::vector<std::vector<ui8> > > &FoW = getPlayer(hero->tempOwner)->fogOfWarMap;
+
+	//graph initialization
+	CGPathNode ***graph = out.nodes;
+	for(size_t i=0; i < out.sizes.x; ++i)
+	{
+		for(size_t j=0; j < out.sizes.y; ++j)
+		{
+			for(size_t k=0; k < out.sizes.z; ++k)
+			{
+				const TerrainTile *tinfo = &map->terrain[i][j][k];
+				CGPathNode &node = graph[i][j][k];
+
+				node.accessible = (tinfo->blocked ? CGPathNode::BLOCKED : CGPathNode::ACCESSIBLE);
+				node.turns = 0xff;
+				node.moveRemains = 0;
+				node.coord.x = i;
+				node.coord.y = j;
+				node.coord.z = k;
+				node.land = tinfo->tertype != TerrainTile::water;
+
+				if ( tinfo->tertype == TerrainTile::rock//it's rock
+					|| onLand  && !node.land		//it's sea and we cannot walk on sea
+					|| !onLand && node.land		//it's land and we cannot walk on land
+					|| !FoW[i][j][k]					//tile is covered by the FoW
+				)
+				{
+					node.accessible = CGPathNode::BLOCKED;
+				}
+				else if(tinfo->visitable)
+				{
+					for(size_t ii = 0; ii < tinfo->visitableObjects.size(); ii++)
+					{
+						if(tinfo->visitableObjects[ii]->blockVisit)
+						{
+							node.accessible = CGPathNode::BLOCKVIS;
+							break;
+						}
+						else
+							node.accessible = CGPathNode::VISITABLE;
+					}
+				}
+
+				if(onLand && !node.land) //hero can walk only on land and tile lays on the water
+				{
+					size_t i = 0;
+					for(; i < tinfo->visitableObjects.size(); i++)
+						if(tinfo->visitableObjects[i]->ID == 8  ||  tinfo->visitableObjects[i]->ID == HEROI_TYPE) //it's a Boat
+							break;
+					if(i < tinfo->visitableObjects.size())
+						node.accessible = CGPathNode::BLOCKVIS; //dest is accessible only if there is boat/hero
+				}
+				else if(!onLand && tinfo->tertype != TerrainTile::water) //hero is moving by water
+				{
+					if((tinfo->siodmyTajemniczyBajt & 64) && !tinfo->blocked)
+						node.accessible = CGPathNode::ACCESSIBLE; //tile is accessible if it's coastal and not blocked
+				}
+			}
+		}
+	}
+	//graph initialized
+
+
+	//initial tile - set cost on 0 and add to the queue
+	graph[src.x][src.y][src.z].turns = 0; 
+	graph[src.x][src.y][src.z].moveRemains = movement;
+	std::queue<CGPathNode*> mq;
+	mq.push(&graph[src.x][src.y][src.z]);
+
+	ui32 curDist = 0xffffffff; //total cost of path - init with max possible val
+
+	std::vector<int3> neighbours;
+	neighbours.reserve(8);
+
+	while(!mq.empty())
+	{
+		CGPathNode *cp = mq.front();
+		mq.pop();
+
+		const TerrainTile &ct = map->getTile(cp->coord);
+		int movement = cp->moveRemains, turn = cp->turns;
+		if(!movement)
+		{
+			movement = hero->maxMovePoints(ct.tertype != TerrainTile::water);
+			turn++;
+		}
+
+		//add accessible neighbouring nodes to the queue
+		getNeighbours(ct, cp->coord, neighbours, boost::logic::indeterminate);
+		for(unsigned int i=0; i < neighbours.size(); i++)
+		{
+			const int3 &n = neighbours[i]; //current neighbor
+			CGPathNode & dp = graph[n.x][n.y][n.z];
+			if( !checkForVisitableDir(cp->coord, dp.coord) 
+				|| !checkForVisitableDir(dp.coord, cp->coord)
+				|| dp.accessible == CGPathNode::BLOCKED )
+			{
+				continue;
+			}
+
+			int cost = getMovementCost(hero, cp->coord, dp.coord, movement);
+			int remains = movement - cost;
+
+			if(dp.turns==0xff		//we haven't been here before
+				|| dp.turns > turn
+				|| (dp.turns >= turn  &&  dp.moveRemains < remains)) //this route is faster
+			{
+				dp.moveRemains = remains;
+				dp.turns = turn;
+				dp.theNodeBefore = cp;
+				if(dp.accessible == CGPathNode::ACCESSIBLE)
+				{
+					mq.push(&dp);
+				}
+			}
+		} //neighbours loop
+	} //queue loop
+}
 
 bool CGameState::isVisible(int3 pos, int player)
 {
@@ -2022,6 +2022,11 @@ bool CGameState::isVisible( const CGObjectInstance *obj, int player )
 bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 {
 	const TerrainTile * pom = &map->getTile(dst);
+	return checkForVisitableDir(src, pom, dst);
+}
+
+bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom, const int3 & dst ) const
+{
 	for(unsigned int b=0; b<pom->visitableObjects.size(); ++b) //checking destination tile
 	{
 		if(!vstd::contains(pom->blockingObjects, pom->visitableObjects[b])) //this visitable object is not blocking, ignore
@@ -2063,7 +2068,6 @@ bool CGameState::checkForVisitableDir(const int3 & src, const int3 & dst) const
 	}
 	return true;
 }
-
 std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
 {
 	int attackDefenseBonus,
@@ -2573,4 +2577,56 @@ void CPath::convert(ui8 mode) //mode=0 -> from 'manifest' to 'object'
 int3 CPath::endPos() const
 {
 	return nodes[0].coord;
+}
+
+CGPathNode::CGPathNode()
+:coord(-1,-1,-1)
+{
+	accessible = 0;
+	land = 0;
+	moveRemains = 0;
+	turns = 255;
+	theNodeBefore = NULL;
+}
+
+bool CPathsInfo::getPath( const int3 &dst, CGPath &out )
+{
+	out.nodes.clear();
+	const CGPathNode *curnode = &nodes[dst.x][dst.y][dst.z];
+	if(!curnode->theNodeBefore)
+		return false;
+
+	while(curnode->theNodeBefore)
+	{
+		out.nodes.push_back(*curnode);
+		curnode = curnode->theNodeBefore;
+	}
+	return true;
+}
+
+CPathsInfo::CPathsInfo( const int3 &Sizes )
+:sizes(Sizes)
+{
+	nodes = new CGPathNode**[sizes.x];
+	for(int i = 0; i < sizes.x; i++)
+	{
+		nodes[i] = new CGPathNode*[sizes.y];
+		for (int j = 0; j < sizes.y; j++)
+		{
+			nodes[i][j] = new CGPathNode[sizes.z];
+		}
+	}
+}
+
+CPathsInfo::~CPathsInfo()
+{
+	for(int i = 0; i < sizes.x; i++)
+	{
+		for (int j = 0; j < sizes.y; j++)
+		{
+			delete [] nodes[i][j];
+		}
+		delete [] nodes[i];
+	}
+	delete [] nodes;
 }

@@ -829,6 +829,16 @@ const CMapHeader * CCallback::getMapHeader() const
 	return gs->map;
 }
 
+const CGPathNode * CCallback::getPathInfo( int3 tile )
+{
+	return &cl->pathInfo->nodes[tile.x][tile.y][tile.z];
+}
+
+bool CCallback::getPath2( int3 dest, CGPath &ret )
+{
+	return cl->pathInfo->getPath(dest, ret);
+}
+
 InfoAboutHero::InfoAboutHero()
 {
 	details = NULL;

@@ -1302,6 +1302,7 @@ struct SetSelection : public CPackForClient, public CPackForServer //514
 	SetSelection(){CPackForClient::type = 514;};
 	DLL_EXPORT void applyGs(CGameState *gs);
 	bool applyGh(CGameHandler *gh);
+	void applyCl(CClient *cl);
 
 	ui8 player;
 	ui32 id;

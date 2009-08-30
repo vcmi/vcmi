@@ -40,6 +40,8 @@ class CHeroClass;
 class IShipyard;
 struct CPackForServer;
 class CMapHeader;
+struct CGPathNode;
+struct CGPath;
 
 struct InfoAboutHero
 {
@@ -135,6 +137,8 @@ public:
 	virtual std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true)const =0;
 	virtual bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const = 0;
 	virtual bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)=0;
+	virtual const CGPathNode *getPathInfo(int3 tile)=0;
+	virtual bool getPath2(int3 dest, CGPath &ret)=0;
 	
 	//map
 	virtual std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos)const =0;
@@ -261,6 +265,8 @@ public:
 	const TerrainTile * getTileInfo(int3 tile) const;
 	int canBuildStructure(const CGTownInstance *t, int ID);//// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret);
+	const CGPathNode *getPathInfo(int3 tile);
+	bool getPath2(int3 dest, CGPath &ret);
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
 

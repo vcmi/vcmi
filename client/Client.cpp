@@ -82,6 +82,7 @@ public:
 
 void CClient::init()
 {
+	pathInfo = NULL;
 	applier = new CCLApplier;
 	IObjectInterface::cb = this;
 	serv = NULL;
@@ -107,6 +108,7 @@ CClient::CClient(CConnection *con, StartInfo *si)
 }
 CClient::~CClient(void)
 {
+	delete pathInfo;
 	delete applier;
 	delete shared;
 }
@@ -232,6 +234,7 @@ void CClient::load( const std::string & fname )
 
 		CGI->state = gs;
 		CGI->mh->map = gs->map;
+		pathInfo = new CPathsInfo(int3(gs->map->width, gs->map->height, gs->map->twoLevel+1));
 		CGI->mh->init();
 		tlog0 <<"Initing maphandler: "<<tmh.getDif()<<std::endl;
 	}
@@ -344,6 +347,7 @@ void CClient::newGame( CConnection *con, StartInfo *si )
 	CGI->mh->map = mapa;
 	tlog0 <<"Creating mapHandler: "<<tmh.getDif()<<std::endl;
 	CGI->mh->init();
+	pathInfo = new CPathsInfo(int3(mapa->width, mapa->height, mapa->twoLevel+1));
 	tlog0 <<"Initializing mapHandler (together): "<<tmh.getDif()<<std::endl;
 
 	for (size_t i=0; i<gs->scenarioOps->playerInfos.size();++i) //initializing interfaces for players

@@ -652,32 +652,121 @@ void CTerrainRect::mouseMoved (const SDL_MouseMotionEvent & sEvent)
 	{
 		LOCPLINT->adventureInt->statusbar.clear();
 	}
-	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getVisitableObjs(pom); 
-	for(int i=0; i<objs.size();i++)
+
+	const CGPathNode *pnode = LOCPLINT->cb->getPathInfo(pom);
+	std::vector<const CGObjectInstance *> objs = LOCPLINT->cb->getBlockingObjs(pom); 
+	const CGObjectInstance *obj = objs.size() ? objs.back() : NULL;
+	bool accessible  =  pnode->turns < 255;
+
+	int turns = pnode->turns;
+	amin(turns, 4);
+
+	if(LOCPLINT->adventureInt->selection->ID == TOWNI_TYPE)
 	{
-		if(objs[i]->ID == TOWNI_TYPE) //town
+		if(obj)
 		{
-			CGI->curh->changeGraphic(0,0);
-			return;
+			if(obj->ID == TOWNI_TYPE)
+			{
+				CGI->curh->changeGraphic(0, 3);
+			}
+			else if(obj->ID == HEROI_TYPE)
+			{
+				CGI->curh->changeGraphic(0, 2);
+			}
+		}
+		else
+		{
+			CGI->curh->changeGraphic(0, 0);
 		}
 	}
-	objs = LOCPLINT->cb->getBlockingObjs(pom);
-	for(size_t i=0; i < objs.size(); ++i)
+	else if(LOCPLINT->adventureInt->selection->ID == HEROI_TYPE)
 	{
-		if(objs[i]->ID == TOWNI_TYPE && objs[i]->tempOwner == LOCPLINT->playerID) //town
+		const CGHeroInstance *h = static_cast<const CGHeroInstance *>(LOCPLINT->adventureInt->selection);
+		if(obj)
 		{
-			CGI->curh->changeGraphic(0,3);
-			return;
-		}
-		else if(objs[i]->ID == HEROI_TYPE //mouse over hero
-			&& (objs[i]==LOCPLINT->adventureInt->selection  ||  LOCPLINT->adventureInt->selection->ID==TOWNI_TYPE)
-			&& objs[i]->tempOwner == LOCPLINT->playerID) //this hero is selected or we've selected a town
+			if(obj->ID == HEROI_TYPE)
+			{
+				if(obj->tempOwner != LOCPLINT->playerID) //enemy hero TODO: allies
+				{
+					if(accessible)
+						CGI->curh->changeGraphic(0, 5 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 0);
+				}
+				else //our hero
+				{
+					if(LOCPLINT->adventureInt->selection == obj)
+						CGI->curh->changeGraphic(0, 2);
+					else if(accessible)
+						CGI->curh->changeGraphic(0, 8 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 2);
+				}
+			}
+			else if(obj->ID == TOWNI_TYPE)
+			{
+				if(obj->tempOwner != LOCPLINT->playerID) //enemy town TODO: allies
+				{
+					if(accessible)
+						CGI->curh->changeGraphic(0, 5 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 0);
+				}
+				else //our town
+				{
+					if(accessible)
+						CGI->curh->changeGraphic(0, 9 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 3);
+				}
+			}
+			else if(obj->ID == 54) //monster
+			{
+				if(accessible)
+					CGI->curh->changeGraphic(0, 5 + turns*6);
+				else
+					CGI->curh->changeGraphic(0, 0);
+			}
+			else if(obj->ID == 8) //boat
+			{
+				if(accessible)
+					CGI->curh->changeGraphic(0, 6 + turns*6);
+				else
+					CGI->curh->changeGraphic(0, 0);
+			}
+			else
+			{
+				if(accessible)
+				{
+					if(pnode->land)
+						CGI->curh->changeGraphic(0, 9 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 28 + turns);
+				}
+				else
+					CGI->curh->changeGraphic(0, 0);
+			}
+		} 
+		else //no objs 
 		{
-			CGI->curh->changeGraphic(0,2);
-			return;
+			if(accessible)
+			{
+				if(pnode->land)
+				{
+					if(LOCPLINT->cb->getTileInfo(h->getPosition(false))->tertype != TerrainTile::water)
+						CGI->curh->changeGraphic(0, 4 + turns*6);
+					else
+						CGI->curh->changeGraphic(0, 7 + turns*6); //anchor
+				}
+				else
+					CGI->curh->changeGraphic(0, 6 + turns*6);
+			}
+			else
+				CGI->curh->changeGraphic(0, 0);
 		}
 	}
-	CGI->curh->changeGraphic(0,0);
+
+	//tlog1 << "Tile " << pom << ": Turns=" << (int)pnode->turns <<"  Move:=" << pnode->moveRemains <</* " (from  "  << ")" << */std::endl;
 }
 void CTerrainRect::hover(bool on)
 {

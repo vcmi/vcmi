@@ -485,7 +485,17 @@ void EndAction::applyCl( CClient *cl )
 
 void PackageApplied::applyCl( CClient *cl )
 {
-	INTERFACE_CALL_IF_PRESENT(GS(cl)->currentPlayer,requestRealized,this);
+	ui8 player = GS(cl)->currentPlayer;
+
+	if(packType == typeList.getTypeID((MoveHero*)NULL))
+	{
+		//we've finished moving hero - paths info must be updated
+		const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
+		if(h)
+			GS(cl)->calculatePaths(h, *cl->pathInfo);
+	}
+
+	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
 	if(cl->waitingRequest.get())
 		cl->waitingRequest.setn(false);
 }
@@ -524,6 +534,15 @@ void PlayerMessage::applyCl(CClient *cl)
 	tlog4 << str.str() << std::endl;
 	if(LOCPLINT)
 		LOCPLINT->cingconsole->print(str.str());
+}
+
+void SetSelection::applyCl(CClient *cl)
+{
+	const CGHeroInstance *h = cl->getHero(id);
+	if(!h)
+		return;
+
+	CPackForClient::GS(cl)->calculatePaths(h, *cl->pathInfo);
 }
 
 void ShowInInfobox::applyCl(CClient *cl)

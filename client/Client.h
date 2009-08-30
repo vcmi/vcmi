@@ -25,6 +25,8 @@ class CCallback;
 struct BattleAction;
 struct SharedMem;
 class CClient;
+struct CPathsInfo;
+
 void processCommand(const std::string &message, CClient *&client);
 namespace boost
 {
@@ -62,6 +64,7 @@ public:
 	bool must_close;
 	SharedMem *shared;
 	BattleAction *curbaction;
+	CPathsInfo *pathInfo;
 
 	CondSh<bool> waitingRequest;
 

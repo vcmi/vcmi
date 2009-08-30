@@ -48,7 +48,7 @@ struct SetObjectProperty;
 struct MetaString;
 struct CPack;
 class CSpell;
-
+struct TerrainTile;
 
 namespace boost
 {
@@ -244,13 +244,13 @@ struct CPathNode
 
 struct CGPathNode
 {
-	enum {ACCESSIBLE=1, VISITABLE, BLOCKVIS, BLOCKED}; //BLOCKVIS - visitable from neighbourign tile but not passable
-	ui8 land;
+	enum {ACCESSIBLE=1, VISITABLE, BLOCKVIS, BLOCKED}; //BLOCKVIS - visitable from neighbouring tile but not passable
 	ui8 accessible; //the enum above
+	ui8 land;
 	ui8 turns;
 	ui32 moveRemains;
-	CPathNode * theNodeBefore;
-	int3 coord; //coordiantes
+	CGPathNode * theNodeBefore;
+	int3 coord; //coordinates
 	CGPathNode();
 };
 
@@ -264,13 +264,22 @@ struct DLL_EXPORT CPath
 	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
 };
 
-struct CPathsInfo
+struct DLL_EXPORT CGPath
+{
+	std::vector<CGPathNode> nodes; //just get node by node
+
+	int3 startPos() const; // start point
+	int3 endPos() const; //destination point
+	void convert(ui8 mode); //mode=0 -> from 'manifest' to 'object'
+};
+
+struct DLL_EXPORT CPathsInfo
 {
 	int3 sizes;
 	CGPathNode ***nodes; //[w][h][level]
 
-	void getPath(const int3 &src, const int3 &dst, CPath &out);
-	CPathsInfo(const int3 &sizes);
+	bool getPath(const int3 &dst, CGPath &out);
+	CPathsInfo(const int3 &Sizes);
 	~CPathsInfo();
 };
 
@@ -321,17 +330,18 @@ public:
 	UpgradeInfo getUpgradeInfo(CArmedInstance *obj, int stackPos);
 	float getMarketEfficiency(int player, int mode=0);
 	int canBuildStructure(const CGTownInstance *t, int ID);// 0 - no more than one capitol, 1 - lack of water, 2 - forbidden, 3 - Add another level to Mage Guild, 4 - already built, 5 - cannot build, 6 - cannot afford, 7 - build, 8 - lack of requirements
-	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if dst tile is visitable from dst tile
+	bool checkForVisitableDir(const int3 & src, const int3 & dst) const; //check if src tile is visitable from dst tile
+	bool checkForVisitableDir(const int3 & src, const TerrainTile *pom, const int3 & dst) const; //check if src tile is visitable from dst tile
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
-	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, const int3 &src = int3(-1,-1,-1)); //calculates path between src and dest; returns pointer to newly allocated CPath or NULL if path does not exists
+	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left; returns pointer to newly allocated CPath or NULL if path does not exists
 
 	bool isVisible(int3 pos, int player);
 	bool isVisible(const CGObjectInstance *obj, int player);
 
 	CGameState(); //c-tor
 	~CGameState(); //d-tor
-	void getNeighbours(int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand);
-	int getMovementCost(const CGHeroInstance *h, int3 src, int3 dest, int remainingMovePoints=-1, bool checkLast=true);
+	void getNeighbours(const TerrainTile &srct, int3 tile, std::vector<int3> &vec, const boost::logic::tribool &onLand);
+	int getMovementCost(const CGHeroInstance *h, const int3 &src, const int3 &dest, int remainingMovePoints=-1, bool checkLast=true);
 	int getDate(int mode=0) const; //mode=0 - total days in game, mode=1 - day of week, mode=2 - current week, mode=3 - current month
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

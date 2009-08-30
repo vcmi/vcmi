@@ -29,6 +29,8 @@ public:
 	void cursorMove(const int & x, const int & y); //change cursor's positions to (x, y)
 	void changeGraphic(const int & type, const int & no); //changes cursor graphic for type type (0 - adventure, 1 - combat, 2 - default, 3 - spellbook) and frame no (not used for type 3)
 	void draw1();
+
+	void shiftPos( int &x, int &y );
 	void draw2();
 	void hide(){Show=0;};
 	void show(){Show=1;};
