@@ -163,10 +163,12 @@ void CHeroHandler::loadObstacles()
 	}
 	else
 	{
-		std::string dump;
-		for(int i=0; i<99; ++i)
+		const int MAX_DUMP = 10000;
+		char dump[MAX_DUMP+1];
+
+		for(int i=0; i<8; ++i)
 		{
-			inp>>dump;
+			inp.getline(dump, MAX_DUMP);
 		}
 		while(true)
 		{
@@ -176,6 +178,8 @@ void CHeroHandler::loadObstacles()
 			inp>>obi.defName;
 			inp>>obi.blockmap;
 			inp>>obi.allowedTerrains;
+			inp>>obi.posShift.first;
+			inp>>obi.posShift.second;
 			obstacles[obi.ID] = obi;
 		}
 		inp.close();

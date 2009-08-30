@@ -470,8 +470,9 @@ void CBattleInterface::show(SDL_Surface * to)
 	std::vector<CObstacleInstance> obstacles = LOCPLINT->cb->battleGetAllObstacles();
 	for(int b=0; b<obstacles.size(); ++b)
 	{
-		int x = ((obstacles[b].pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(obstacles[b].pos%BFIELD_WIDTH) + pos.x;
-		int y = 86 + 42 * (obstacles[b].pos/BFIELD_WIDTH) + pos.y;
+		std::pair<si16, si16> shift = CGI->heroh->obstacles[obstacles[b].ID].posShift;
+		int x = ((obstacles[b].pos/BFIELD_WIDTH)%2==0 ? 22 : 0) + 44*(obstacles[b].pos%BFIELD_WIDTH) + pos.x + shift.first;
+		int y = 86 + 42 * (obstacles[b].pos/BFIELD_WIDTH) + pos.y + shift.second;
 		std::vector<Cimage> &images = idToObstacle[obstacles[b].ID]->ourImages; //reference to animation of obstacle
 		blitAt(images[((animCount+1)/(4/settings.animSpeed))%images.size()].bitmap, x, y, to);
 	}

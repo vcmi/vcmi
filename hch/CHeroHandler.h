@@ -79,12 +79,13 @@ struct DLL_EXPORT CObstacleInfo
 			14. fiery fields   15. rock lands   16. magic clouds   17. lucid pools   18. holy ground   19. clover field  
 			20. evil fog   21. "favourable winds" text on magic plains background   22. cursed ground   23. rough 
 			24. ship to ship   25. ship*/
+	std::pair<si16, si16> posShift; //shift of obstacle's position in the battlefield <x shift, y shift>, eg. if it's <-1, 2> obstacle will be printed one pixel to the left and two to the bottom
 	int getWidth(); //returns width of obstacle in hexes
 	int getHeight(); //returns height of obstacle in hexes
 	std::vector<int> getBlocked(int hex); //returns vector of hexes blocked by obstacle when it's placed on hex 'hex'
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & ID & defName & blockmap & allowedTerrains;
+		h & ID & defName & blockmap & allowedTerrains & posShift;
 	}
 };
 
