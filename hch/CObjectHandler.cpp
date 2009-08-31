@@ -1013,6 +1013,79 @@ bool CGHeroInstance::canCastThisSpell(const CSpell * spell) const
 	return false;
 }
 
+/**
+ * Calculates what creatures and how many to be raised from a battle.
+ * @param battleResult The results of the battle.
+ * @return Returns a pair with the first value indicating the ID of the creature
+ * type and second value the amount. Both values are returned as -1 if necromancy
+ * could not be applied.
+ */
+std::pair<ui32, si32> CGHeroInstance::calculateNecromancy (BattleResult &battleResult) const
+{
+	const ui8 necromancyLevel = getSecSkillLevel(12);
+
+	// Hero knows necromancy.
+	if (necromancyLevel > 0) {
+		double necromancySkill = necromancyLevel*0.1
+			+ valOfBonuses(HeroBonus::SECONDARY_SKILL_PREMY, 12)/100.0;
+		const std::set<std::pair<ui32, si32> > &casualties = battleResult.casualties[!battleResult.winner];
+		ui32 raisedUnits = 0;
+
+		// Get lost enemy hit points convertible to units.
+		for (std::set<std::pair<ui32, si32> >::const_iterator it = casualties.begin(); it != casualties.end(); it++)
+			raisedUnits += VLC->creh->creatures[it->first].hitPoints*it->second;
+		raisedUnits *= necromancySkill;
+
+		// Figure out what to raise and how many.
+		const ui32 creatureTypes[] = {56, 58, 60, 64}; // IDs for Skeletons, Walking Dead, Wights and Liches respectively.
+		const bool improvedNecromancy = hasBonusOfType(HeroBonus::IMPROVED_NECROMANCY);
+		CCreature *raisedUnitType = &VLC->creh->creatures[creatureTypes[improvedNecromancy ? necromancyLevel : 0]];
+
+		raisedUnits /= raisedUnitType->hitPoints;
+
+		// Make room for new units.
+		int slot = army.getSlotFor(raisedUnitType->idNumber);
+		if (slot == -1) {
+			// If there's no room for unit, try it's upgraded version 2/3rds the size.
+			raisedUnitType = &VLC->creh->creatures[*raisedUnitType->upgrades.begin()];
+			raisedUnits = (raisedUnits*2)/3;
+
+			slot = army.getSlotFor(raisedUnitType->idNumber);
+		}
+		if (raisedUnits <= 0)
+			raisedUnits = 1;
+
+		return std::pair<ui32, si32>(raisedUnitType->idNumber, raisedUnits);
+	}
+
+	return std::pair<ui32, si32>(-1, -1);
+}
+
+/**
+ * Show the necromancy dialog with information about units raised.
+ * @param raisedStack Pair where the first element represents ID of the raised creature
+ * and the second element the amount.
+ */
+void CGHeroInstance::showNecromancyDialog (std::pair<ui32, si32> raisedStack) const
+{
+	const CCreature &unitType = VLC->creh->creatures[raisedStack.first];
+	InfoWindow iw;
+	iw.soundID = soundBase::GENIE;
+	iw.player = tempOwner;
+	iw.components.push_back(Component(3, unitType.idNumber, raisedStack.second, 0));
+
+	if (raisedStack.second > 1) { // Practicing the dark arts of necromancy, ... (plural)
+		iw.text.addTxt(MetaString::GENERAL_TXT, 145);
+		iw.text.addReplacement(raisedStack.second);
+		iw.text.addReplacement(MetaString::CRE_PL_NAMES, unitType.idNumber);
+	} else { // Practicing the dark arts of necromancy, ... (singular)
+		iw.text.addTxt(MetaString::GENERAL_TXT, 146);
+		iw.text.addReplacement(MetaString::CRE_SING_NAMES, unitType.idNumber);
+	}
+
+	cb->showInfoDialog(&iw);
+}
+
 int3 CGHeroInstance::getSightCenter() const
 {
 	return getPosition(false);

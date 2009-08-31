@@ -450,9 +450,32 @@ askInterfaceForMove:
 	if(cb)
 		cb(battleResult.data);
 
-	delete battleResult.data;
-	
 	sendAndApply(&resultsApplied);
+
+	// Necromancy if applicable.
+	const CGHeroInstance *winnerHero = battleResult.data->winner != 0 ? hero2 : hero1;
+	if (winnerHero) {
+		std::pair<ui32, si32> raisedStack = winnerHero->calculateNecromancy(*battleResult.data);
+
+		// Give raised units to winner and show dialog, if any were raised.
+		if (raisedStack.first != -1) {
+			int slot = winnerHero->army.getSlotFor(raisedStack.first);
+
+			if (slot != -1) {
+				SetGarrisons sg;
+
+				sg.garrs[winnerHero->id] = winnerHero->army;
+				if (vstd::contains(winnerHero->army.slots, slot)) // Add to existing stack.
+					sg.garrs[winnerHero->id].slots[slot].second += raisedStack.second;
+				else // Create a new stack.
+					sg.garrs[winnerHero->id].slots[slot] = raisedStack;
+				winnerHero->showNecromancyDialog(raisedStack);
+				sendAndApply(&sg);
+			}
+		}
+	}
+
+	delete battleResult.data;
 }
 
 void CGameHandler::prepareAttacked(BattleStackAttacked &bsa, CStack *def)
