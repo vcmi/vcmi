@@ -60,6 +60,8 @@ class CPlayerInterface;
 class CHeroWindow;
 class CArtifact;
 class CArtifactsOfHero;
+class CResDataBar;
+struct SPuzzleInfo;
 
 class CInfoWindow : public CSimpleWindow //text + comp. + ok button
 { //window able to delete its components when closed
@@ -733,6 +735,25 @@ public:
 	void show(SDL_Surface * to);
 	CShipyardWindow(const std::vector<si32> &cost, int state, const boost::function<void()> &onBuy);
 	~CShipyardWindow();
+};
+
+class CPuzzleWindow : public CIntObject
+{
+private:
+	SDL_Surface * background;
+	AdventureMapButton * quitb;
+	CResDataBar * resdatabar;
+
+	std::vector<std::pair<SDL_Surface *, SPuzzleInfo *> > puzzlesToPullBack;
+	ui8 animCount;
+
+public:
+	void activate();
+	void deactivate();
+	void show(SDL_Surface * to);
+
+	CPuzzleWindow();
+	~CPuzzleWindow();
 };
 
 #endif //__GUICLASSES_H__

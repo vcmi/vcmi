@@ -34,6 +34,7 @@ public:
 	CAdventureOptions();
 	~CAdventureOptions();
 	static void showScenarioInfo();
+	static void showPuzzleMap();
 };
 	 
 

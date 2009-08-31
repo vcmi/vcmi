@@ -29,6 +29,7 @@
  */
 
 extern SDL_Surface * screen;
+#define ADVOPT (conf.go()->ac)
 
 std::string nameFromType (int typ)
 {
@@ -500,7 +501,7 @@ void CMapHandler::init()
 // top_tile top left tile to draw. Not necessarily visible.
 // extRect, extRect = map window on screen
 // moveX, moveY: when a hero is in movement indicates how to shift the map. Range is -31 to + 31.
-void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY)
+void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, const std::vector< std::vector< std::vector<unsigned char> > > * visibilityMap, bool otherHeroAnim, unsigned char heroAnim, SDL_Surface * extSurf, const SDL_Rect * extRect, int moveX, int moveY, bool puzzleMode)
 {
 	// Width and height of the portion of the map to process. Units in tiles.
 	unsigned int dx = tilesW;
@@ -712,6 +713,10 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 				if(obj->ID != HEROI_TYPE && !obj->coveringAt(obj->pos.x - (top_tile.x + bx), top_tile.y + by - obj->pos.y + 5))
 					continue;
 
+				//don't print flaggable objects in puzzle mode
+				if(puzzleMode && obj->tempOwner != 254)
+					continue;
+
 				SDL_Rect sr;
 				sr.x = srx;
 				sr.y = sry;
@@ -830,36 +835,39 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 	// objects printed
 
 	// printing shadow
-	srx = srx_init;
-
-	for (int bx = 0; bx<dx; bx++, srx+=32)
+	if(!puzzleMode)
 	{
-		// Skip column if not in map
-		if (top_tile.x+bx < 0 || top_tile.x+bx >= map->width)
-			continue;
+		srx = srx_init;
 
-		sry = sry_init;
-
-		for (int by = 0; by<dy; by++, sry+=32)
+		for (int bx = 0; bx<dx; bx++, srx+=32)
 		{
-			// Skip tile if not in map
-			if (top_tile.y+by < 0 || top_tile.y+by >= map->height)
+			// Skip column if not in map
+			if (top_tile.x+bx < 0 || top_tile.x+bx >= map->width)
 				continue;
 
-			SDL_Rect sr;
+			sry = sry_init;
 
-			sr.x = srx;
-			sr.y = sry;
-			sr.h = sr.w = 32;
-
-			if (top_tile.x+bx >= 0 &&
-				top_tile.y+by >= 0 &&
-				top_tile.x+bx < CGI->mh->map->width &&
-				top_tile.y+by < CGI->mh->map->height &&
-				!(*visibilityMap)[top_tile.x+bx][top_tile.y+by][top_tile.z])
+			for (int by = 0; by<dy; by++, sry+=32)
 			{
-				SDL_Surface * hide = getVisBitmap(top_tile.x+bx, top_tile.y+by, *visibilityMap, top_tile.z);
-				CSDL_Ext::blit8bppAlphaTo24bpp(hide, &rtile, extSurf, &sr);
+				// Skip tile if not in map
+				if (top_tile.y+by < 0 || top_tile.y+by >= map->height)
+					continue;
+
+				SDL_Rect sr;
+
+				sr.x = srx;
+				sr.y = sry;
+				sr.h = sr.w = 32;
+
+				if (top_tile.x+bx >= 0 &&
+					top_tile.y+by >= 0 &&
+					top_tile.x+bx < CGI->mh->map->width &&
+					top_tile.y+by < CGI->mh->map->height &&
+					!(*visibilityMap)[top_tile.x+bx][top_tile.y+by][top_tile.z])
+				{
+					SDL_Surface * hide = getVisBitmap(top_tile.x+bx, top_tile.y+by, *visibilityMap, top_tile.z);
+					CSDL_Ext::blit8bppAlphaTo24bpp(hide, &rtile, extSurf, &sr);
+				}
 			}
 		}
 	}
@@ -955,6 +963,67 @@ void CMapHandler::terrainRect(int3 top_tile, unsigned char anim, std::vector< st
 
 	// grid	
 #endif
+
+	//applying sepia / gray effect
+	if(puzzleMode)
+	{
+		if(ADVOPT.puzzleSepia)
+		{
+			const int sepiaDepth = 20;
+			const int sepiaIntensity = 30;
+
+			for(int xp = extRect->x; xp < extRect->x + extRect->w; ++xp)
+			{
+				for(int yp = extRect->y; yp < extRect->y + extRect->h; ++yp)
+				{
+					unsigned char * pixels = (unsigned char*)extSurf->pixels + yp * extSurf->pitch + xp * extSurf->format->BytesPerPixel;
+
+					int b = pixels[0]; 
+					int g = pixels[1]; 
+					int r = pixels[2]; 
+					int gry = (r + g + b) / 3;
+
+					r = g = b = gry; 
+					r = r + (sepiaDepth * 2); 
+					g = g + sepiaDepth; 
+
+					if (r>255) r=255; 
+					if (g>255) g=255; 
+					if (b>255) b=255; 
+
+					// Darken blue color to increase sepia effect 
+					b -= sepiaIntensity; 
+
+					// normalize if out of bounds 
+					if (b<0) b=0; 
+					if (b>255) b=255; 
+
+					pixels[0] = b; 
+					pixels[1] = g; 
+					pixels[2] = r; 
+
+				}
+			}
+		}
+		else
+		{
+			for(int xp = extRect->x; xp < extRect->x + extRect->w; ++xp)
+			{
+				for(int yp = extRect->y; yp < extRect->y + extRect->h; ++yp)
+				{
+					unsigned char * pixels = (unsigned char*)extSurf->pixels + yp * extSurf->pitch + xp * extSurf->format->BytesPerPixel;
+
+					int b = pixels[0]; 
+					int g = pixels[1]; 
+					int r = pixels[2]; 
+					int gry = (r + g + b) / 3;
+
+					pixels[0] = pixels[1] = pixels[2] = gry;
+				}
+			}
+		}
+	}
+	//sepia / gray effect applied
 
 	SDL_SetClipRect(extSurf, &prevClip); //restoring clip_rect
 

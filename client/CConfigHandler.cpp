@@ -238,6 +238,7 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 							  | "width=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapW)]
 							  | "height=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::advmapH)]
 							  | "smoothMove=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::smoothMove)]
+							  | "puzzleSepia=" >> uint_p[SetAdventureProp_a(&AdventureMapConfig::puzzleSepia)]
 							) 
 						 )
 				| str_p("background=") >> fname[SetAdventureStr(&AdventureMapConfig::mainGraphic)]

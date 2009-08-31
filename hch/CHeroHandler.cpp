@@ -4,6 +4,8 @@
 #include <sstream>
 #include "CLodHandler.h"
 #include "../lib/VCMI_Lib.h"
+#include <iomanip>
+
 extern CLodHandler * bitmaph;
 void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 
@@ -181,6 +183,49 @@ void CHeroHandler::loadObstacles()
 			inp>>obi.posShift.first;
 			inp>>obi.posShift.second;
 			obstacles[obi.ID] = obi;
+		}
+		inp.close();
+	}
+}
+
+void CHeroHandler::loadPuzzleInfo()
+{
+	std::ifstream inp;
+	inp.open("config" PATHSEPARATOR "puzzle_map.txt", std::ios_base::in|std::ios_base::binary);
+	if(!inp.is_open())
+	{
+		tlog1<<"missing file: config/puzzle_map.txt"<<std::endl;
+	}
+	else
+	{
+		const int MAX_DUMP = 10000;
+		char dump[MAX_DUMP+1];
+
+		inp.getline(dump, MAX_DUMP);
+
+		for(int fct = 0; fct < F_NUMBER; ++fct)
+		{
+			std::string dmp;
+			inp >> dmp;
+
+			for(int g=0; g<PUZZLES_PER_FACTION; ++g)
+			{
+				SPuzzleInfo spi;
+				inp >> spi.x;
+				inp >> spi.y;
+				inp >> spi.whenUncovered;
+				spi.number = g;
+				
+				//filename calculation
+				std::ostringstream suffix;
+				suffix << std::setfill('0') << std::setw(2);
+				suffix << g << ".BMP";
+
+				static const std::string factionToInfix[F_NUMBER] = {"CAS", "TOW", "RAM", "INF", "NEC", "DUN", "STR", "FOR", "ELE"};
+				spi.filename = "PUZ" + factionToInfix[fct] + suffix.str();
+
+				puzzleInfo[fct].push_back(spi);
+			}
 		}
 		inp.close();
 	}

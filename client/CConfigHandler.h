@@ -44,6 +44,7 @@ namespace config
 		//advmap
 		int advmapX, advmapY, advmapW, advmapH;
 		bool smoothMove;
+		bool puzzleSepia;
 		//general properties
 		std::string mainGraphic;
 		//buttons

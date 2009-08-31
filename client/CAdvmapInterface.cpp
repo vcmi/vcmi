@@ -1118,12 +1118,12 @@ void CTerrainRect::show(SDL_Surface * to)
 		CGI->mh->terrainRect
 			(LOCPLINT->adventureInt->position, LOCPLINT->adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-			 to, &pos, moveX, moveY);
+			 to, &pos, moveX, moveY, false);
 	else
 		CGI->mh->terrainRect
 			(LOCPLINT->adventureInt->position, LOCPLINT->adventureInt->anim,
 			 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
-			 to, &pos, 0, 0);
+			 to, &pos, 0, 0, false);
 	
 	//SDL_BlitSurface(teren,&genRect(pos.h,pos.w,0,0),screen,&genRect(547,594,7,6));
 	//SDL_FreeSurface(teren);
@@ -1899,6 +1899,9 @@ CAdventureOptions::CAdventureOptions()
 	scenInfo = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 198, "ADVINFO.DEF",SDLK_i);
 	scenInfo->callback += CAdventureOptions::showScenarioInfo;
 	//viewWorld = new AdventureMapButton("","",boost::bind(&CGuiHandler::popIntTotally, &GH, this), 204, 313, "IOK6432.DEF",SDLK_RETURN);
+
+	puzzle = new AdventureMapButton("","", boost::bind(&CGuiHandler::popIntTotally, &GH, this), 24, 81, "ADVPUZ.DEF");;
+	puzzle->callback += CAdventureOptions::showPuzzleMap;
 }
 
 CAdventureOptions::~CAdventureOptions()
@@ -1908,4 +1911,9 @@ CAdventureOptions::~CAdventureOptions()
 void CAdventureOptions::showScenarioInfo()
 {
 	GH.pushInt(new CScenarioInfo(LOCPLINT->cb->getMapHeader(), LOCPLINT->cb->getStartInfo()));
+}
+
+void CAdventureOptions::showPuzzleMap()
+{
+	GH.pushInt(new CPuzzleWindow());
 }

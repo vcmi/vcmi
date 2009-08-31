@@ -89,6 +89,21 @@ struct DLL_EXPORT CObstacleInfo
 	}
 };
 
+struct DLL_EXPORT SPuzzleInfo
+{
+	ui16 number; //type of puzzle
+	si16 x, y; //position
+	ui16 whenUncovered; //determines the sequnce of discovering (the lesser it is the sooner puzzle will be discovered)
+	std::string filename; //file with graphic of this puzzle
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & number & x & y & whenUncovered & filename;
+	}
+};
+
+const int PUZZLES_PER_FACTION = 48;
+
 class DLL_EXPORT CHeroHandler
 {
 public:
@@ -117,6 +132,9 @@ public:
 
 	void loadObstacles(); //loads info about obstacles
 
+	std::vector<SPuzzleInfo> puzzleInfo[F_NUMBER]; //descriptions of puzzles
+	void loadPuzzleInfo();
+
 	unsigned int level(ui64 experience); //calculates level corresponding to given experience amount
 	ui64 reqExp(unsigned int level); //calculates experience resuired for given level
 
@@ -130,7 +148,7 @@ public:
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & heroClasses & heroes & expPerLevel & ballistics & wallPositions & obstacles & nativeTerrains;
+		h & heroClasses & heroes & expPerLevel & ballistics & wallPositions & obstacles & nativeTerrains & puzzleInfo;
 		if(!h.saving)
 		{
 			//restore class pointers

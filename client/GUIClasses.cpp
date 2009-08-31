@@ -4157,3 +4157,100 @@ CShipyardWindow::CShipyardWindow(const std::vector<si32> &cost, int state, const
 	printAtMiddle(CGI->generaltexth->jktexts[13], 165, 28, GEORXX, tytulowy, bg);  //Build A New Ship
 	printAtMiddle(CGI->generaltexth->jktexts[14], 165, 218, GEOR16, zwykly, bg); //Resource cost:
 }
+
+CPuzzleWindow::CPuzzleWindow()
+:animCount(0)
+{
+	SDL_Surface * back = BitmapHandler::loadBitmap("PUZZLE.BMP", false);
+	//make transparency black
+	back->format->palette->colors[0].b = back->format->palette->colors[0].r = back->format->palette->colors[0].g = 0;
+	//the rest
+	background = SDL_ConvertSurface(back, screen->format, back->flags);
+	SDL_FreeSurface(back);
+	pos = genRect(background->h, background->w, (conf.cc.resx - background->w) / 2, (conf.cc.resy - background->h) / 2);
+	quitb = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+670, pos.y+538, "IOK6432.DEF", SDLK_RETURN);
+	resdatabar = new CResDataBar();
+	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
+
+	//printing necessary thinks to background
+	
+	CGI->mh->terrainRect
+		(int3(14, 15, 0), LOCPLINT->adventureInt->anim,
+		 &LOCPLINT->cb->getVisibilityMap(), true, LOCPLINT->adventureInt->heroAnim,
+		 background, &genRect(544, 591, 8, 8), 0, 0, true);
+
+	
+	float discoveryRatio = 0.5f;
+	int faction = 3;
+
+	std::vector<SPuzzleInfo> puzzlesToPrint;
+
+	for(int g=0; g<PUZZLES_PER_FACTION; ++g)
+	{
+		if(CGI->heroh->puzzleInfo[faction][g].whenUncovered >= PUZZLES_PER_FACTION * discoveryRatio)
+		{
+			puzzlesToPrint.push_back(CGI->heroh->puzzleInfo[faction][g]);
+		}
+		else
+		{
+			SDL_Surface *buf = BitmapHandler::loadBitmap(CGI->heroh->puzzleInfo[faction][g].filename);
+			puzzlesToPullBack.push_back( std::make_pair(buf, &CGI->heroh->puzzleInfo[faction][g]) );
+		}
+	}
+
+	for(int b = 0; b < puzzlesToPrint.size(); ++b)
+	{
+		SDL_Surface * puzzle = BitmapHandler::loadBitmap(puzzlesToPrint[b].filename);
+
+		blitAt(puzzle, puzzlesToPrint[b].x, puzzlesToPrint[b].y, background);
+
+		SDL_FreeSurface(puzzle);
+	}
+
+}
+
+CPuzzleWindow::~CPuzzleWindow()
+{
+	delete quitb;
+	delete resdatabar;
+	SDL_FreeSurface(background);
+	for(int g = 0; g < puzzlesToPullBack.size(); ++g)
+		SDL_FreeSurface( puzzlesToPullBack[g].first );
+}
+
+void CPuzzleWindow::activate()
+{
+	quitb->activate();
+}
+
+void CPuzzleWindow::deactivate()
+{
+	quitb->deactivate();
+}
+
+void CPuzzleWindow::show(SDL_Surface * to)
+{
+	blitAt(background, pos.x, pos.y, to);
+	quitb->show(to);
+	resdatabar->draw(to);
+
+	//blitting disappearing puzzles
+	for(int g=0; g<2; ++g)
+		if(animCount != 255)
+			++animCount;
+
+	if(animCount != 255)
+	{
+		for(int b = 0; b < puzzlesToPullBack.size(); ++b)
+		{
+			int xPos = puzzlesToPullBack[b].second->x,
+				yPos = puzzlesToPullBack[b].second->y;
+			SDL_Surface *from = puzzlesToPullBack[b].first;
+
+			SDL_SetAlpha(from, SDL_SRCALPHA, 255 - animCount);
+			blitAt(from, xPos, yPos, to);
+		}
+	}
+	//disappearing puzzles blitted
+
+}
