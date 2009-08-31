@@ -1148,7 +1148,11 @@ void CPlayerInterface::battleStacksAttacked(std::set<BattleStackAttacked> & bsa)
 	{
 		if(i->isEffect() && i->effect != 12) //and not armageddon
 		{
-			battleInt->displayEffect(i->effect, cb->battleGetStackByID(i->stackAttacked)->position);
+			const CStack *stack = cb->battleGetStackByID(i->stackAttacked);
+
+			// FIXME: Perhaps position should be kept for dead stacks?
+			if (stack != NULL)
+				battleInt->displayEffect(i->effect, stack->position);
 		}
 		CBattleInterface::SStackAttackedInfo to_put = {i->stackAttacked, i->damageAmount, i->killedAmount, LOCPLINT->curAction->stackNumber, LOCPLINT->curAction->actionType==7, i->killed()};
 		arg.push_back(to_put);
