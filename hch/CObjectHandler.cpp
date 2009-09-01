@@ -1517,7 +1517,7 @@ void CGTownInstance::onHeroVisit(const CGHeroInstance * h) const
 		}
 	}
 	for (std::vector<CGTownBuilding*>::const_iterator i = bonusingBuildings.begin(); i != bonusingBuildings.end(); i++)
-		(*i)->onHeroVisit (h);
+		(*i)->onHeroVisit (h); //does not work
 	cb->heroVisitCastle(id, h->id);
 }
 
@@ -3810,7 +3810,7 @@ void CBank::initObj()
 }
 void CBank::reset(ui16 var1, ui16 var2) //prevents desync
 {
-	int chance = 0;
+	ui8 chance = 0;
 	for (ui8 i = 0; i < VLC->objh->banksInfo[index].size(); i++)
 	{	
 		if (var1 < (chance += VLC->objh->banksInfo[index][i].chance))
@@ -4020,9 +4020,12 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 		iw.player = h->getOwner();
 		//grant resources
 		for (int it = 0; it < bc->resources.size(); it++)
-		{					
-			iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
-			cb->giveResource (h->getOwner(), it, bc->resources[it]);
+		{	
+			if (bc->resources[it] != 0)
+			{
+				iw.components.push_back (Component (Component::RESOURCE, it, bc->resources[it], 0));
+				cb->giveResource (h->getOwner(), it, bc->resources[it]);
+			}
 		}
 		//grant artifacts
 		for (std::vector<ui32>::const_iterator it = artifacts.begin(); it != artifacts.end(); it++)
@@ -4031,6 +4034,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			iw.text.addReplacement (MetaString::ART_NAMES, *it);
 			cb->giveHeroArtifact (*it, h->id ,-2);
 		}
+		cb->showInfoDialog(&iw);
 		//grant creatures
 		CCreatureSet ourArmy;
 		for (std::vector< std::pair <ui16, ui32> >::const_iterator it = bc->creatures.begin(); it != bc->creatures.end(); it++)
@@ -4038,8 +4042,8 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			int slot = ourArmy.getSlotFor (it->second);
 			ourArmy.slots[slot] = *it; //assuming we're not going to add multiple stacks of same creature
 		}
-		cb->giveCreatures (id, cb->getHero (cb->getSelectedHero()), &ourArmy);
-			cb->setObjProperty (id, 15, 0); //bc = NULL
+		cb->giveCreatures (id, cb->getHero (h->getOwner()), &ourArmy);
+		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
 	else
 		cb->setObjProperty (id, 14, ran()); //reset

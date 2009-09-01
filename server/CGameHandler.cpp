@@ -1486,6 +1486,8 @@ void CGameHandler::giveResource(int player, int which, int val)
 }
 void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet *creatures)
 {
+	if (creatures->slots.size() <= 0)
+		return;
 	CCreatureSet heroArmy = h->army;
 	while(creatures)
 	{

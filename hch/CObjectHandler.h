@@ -849,8 +849,8 @@ public:
 	}
 };
 
-class DLL_EXPORT CGOnceVisitable
-	: public CPlayersVisited //wagon, corpse, lean to, warriors tomb
+class DLL_EXPORT CGOnceVisitable : public CPlayersVisited
+///wagon, corpse, lean to, warriors tomb
 {
 public:
 	ui8 artOrRes; //0 - nothing; 1 - artifact; 2 - resource
@@ -948,8 +948,7 @@ struct BankConfig
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & level & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts 
-			& value & rewardDifficulty & easiest;
+		h & level & chance & upgradeChance & guards & combatValue & resources & creatures & artifacts & value & rewardDifficulty & easiest;
 	}
 };
 
