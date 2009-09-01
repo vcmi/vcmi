@@ -2480,6 +2480,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		}
 	case 9: //catapult
 		{
+			sendAndApply(&StartAction(ba));
 			const CGHeroInstance * attackingHero = (ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
 			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(20)]; //artillery
 			
@@ -2539,6 +2540,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 
 				sendAndApply(&ca);
 			}
+			sendAndApply(&EndAction());
 			break;
 		}
 	}
