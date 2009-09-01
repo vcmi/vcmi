@@ -996,6 +996,13 @@ void CPlayerInterface::battleObstaclesRemoved(const std::set<si32> & removedObst
 	battleInt->redrawBackgroundWithHexes(battleInt->activeStack);
 }
 
+void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
+{
+	SDL_FreeSurface(battleInt->siegeH->walls[ca.attackedPartOfWall + 2]);
+	battleInt->siegeH->walls[ca.attackedPartOfWall + 2] = BitmapHandler::loadBitmap(
+		battleInt->siegeH->getSiegeName(ca.attackedPartOfWall + 2, cb->battleGetWallState(ca.attackedPartOfWall)) );
+}
+
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

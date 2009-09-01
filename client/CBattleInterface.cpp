@@ -817,6 +817,12 @@ void CBattleInterface::mouseMoved(const SDL_MouseMotionEvent &sEvent)
 						console->whoSetAlter = 0;
 					}
 				}
+				else if( sactive->hasFeatureOfType(StackFeature::CATAPULT) && isCatapultAttackable(myNumber) ) //catapulting
+				{
+					CGI->curh->changeGraphic(1,16);
+					console->alterTxt = "";
+					console->whoSetAlter = 0;
+				}
 				else //empty unavailable tile
 				{
 					CGI->curh->changeGraphic(1,0);
@@ -1579,6 +1585,18 @@ bool CBattleInterface::blockedByObstacle(int hex) const
 	return vstd::contains(coveredHexes, hex);
 }
 
+bool CBattleInterface::isCatapultAttackable(int hex) const
+{
+	if(!siegeH)
+		return false;
+
+	int wallUnder = LOCPLINT->cb->battleGetWallUnderHex(hex);
+	if(wallUnder == -1)
+		return false;
+
+	return LOCPLINT->cb->battleGetWallState(wallUnder) < 3;
+}
+
 void CBattleInterface::handleEndOfMove(int stackNumber, int destinationTile)
 {
 	const CStack * movedStack = LOCPLINT->cb->battleGetStackByID(stackNumber);
@@ -1652,6 +1670,7 @@ void CBattleInterface::hexLclicked(int whichOne)
 			const CStack* dest = LOCPLINT->cb->battleGetStackByPos(whichOne); //creature at destination tile; -1 if there is no one
 			if(!dest || !dest->alive()) //no creature at that tile
 			{
+				const CStack * sactive = LOCPLINT->cb->battleGetStackByID(activeStack);
 				if(std::find(shadedHexes.begin(),shadedHexes.end(),whichOne)!=shadedHexes.end())// and it's in our range
 				{
 					CGI->curh->changeGraphic(1, 6); //cursor should be changed
@@ -1668,6 +1687,10 @@ void CBattleInterface::hexLclicked(int whichOne)
 					{
 						giveCommand(2,whichOne,activeStack);
 					}
+				}
+				else if(sactive->hasFeatureOfType(StackFeature::CATAPULT) && isCatapultAttackable(whichOne)) //attacking (catapult)
+				{
+					giveCommand(9,whichOne,activeStack);
 				}
 			}
 			else if(dest->owner != attackingHeroInstance->tempOwner
@@ -3219,19 +3242,14 @@ std::string CBattleInterface::SiegeHelper::townTypeInfixes[F_NUMBER] = {"CS", "R
 CBattleInterface::SiegeHelper::SiegeHelper(const CGTownInstance *siegeTown, const CBattleInterface * _owner)
 : town(siegeTown), owner(_owner)
 {
-	backWall = BitmapHandler::loadBitmap( getSiegeName(1) );
-
 	for(int g=0; g<ARRAY_COUNT(walls); ++g)
 	{
-		walls[g] = BitmapHandler::loadBitmap( getSiegeName(g + 2) );
+		walls[g] = BitmapHandler::loadBitmap( getSiegeName(g) );
 	}
 }
 
 CBattleInterface::SiegeHelper::~SiegeHelper()
 {
-	if(backWall)
-		SDL_FreeSurface(backWall);
-
 	for(int g=0; g<ARRAY_COUNT(walls); ++g)
 	{
 		SDL_FreeSurface(walls[g]);
@@ -3240,6 +3258,11 @@ CBattleInterface::SiegeHelper::~SiegeHelper()
 
 std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInfo) const
 {
+	if(what == 2 || what == 3 || what == 8)
+	{
+		if(additInfo == 2) additInfo = 1;
+		else if(additInfo == 3) additInfo = 2;
+	}
 	char buf[100];
 	SDL_itoa(additInfo, buf, 10);
 	std::string addit(buf);
@@ -3292,10 +3315,10 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 	switch(what)
 	{
 	case 1: //background wall
-		pos = Point(owner->pos.w + owner->pos.x - backWall->w, 55 + owner->pos.y);
+		pos = Point(owner->pos.w + owner->pos.x - walls[1]->w, 55 + owner->pos.y);
 		break;
 	case 2: //keep
-		pos = Point(owner->pos.w + owner->pos.x - walls[what-2]->w, 154 + owner->pos.y);
+		pos = Point(owner->pos.w + owner->pos.x - walls[2]->w, 154 + owner->pos.y);
 		break;
 	case 3: //bottom tower
 	case 4: //bottom wall
@@ -3314,6 +3337,6 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 
 	if(pos.x != -1)
 	{
-		blitAt(walls[what-2], pos.x, pos.y, to);
+		blitAt(walls[what], pos.x, pos.y, to);
 	}
 }

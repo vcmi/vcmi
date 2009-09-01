@@ -618,6 +618,15 @@ ui8 CCallback::battleGetWallState(int partOfWall)
 	return gs->curB->si.wallState[partOfWall];
 }
 
+int CCallback::battleGetWallUnderHex(int hex)
+{
+	if(!gs->curB || gs->curB->siege == 0)
+	{
+		return -1;
+	}
+	return gs->curB->hexToWallPart(hex);
+}
+
 std::pair<ui32, ui32> CCallback::battleEstimateDamage(int attackerID, int defenderID)
 {
 	if(!gs->curB)

@@ -2473,6 +2473,24 @@ ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster)
 	return ret + manaReduction;
 }
 
+int BattleInfo::hexToWallPart(int hex)
+{
+	if(siege == 0) //there is no battle!
+		return -1;
+
+	static const std::pair<int, int> attackable[] = //potentially attackable parts of wall
+	{std::make_pair(50, 0), std::make_pair(182, 1), std::make_pair(165, 2), std::make_pair(130, 3),
+	std::make_pair(62, 4), std::make_pair(29, 5), std::make_pair(12, 6), std::make_pair(95, 7), std::make_pair(96, 7)};
+
+	for(int g = 0; g < ARRAY_COUNT(attackable); ++g)
+	{
+		if(attackable[g].first == hex)
+			return attackable[g].second;
+	}
+
+	return -1; //not found!
+}
+
 CStack * BattleInfo::getNextStack()
 {
 	CStack *current = getStack(activeStack);

@@ -992,6 +992,22 @@ struct ObstaclesRemoved : public CPackForClient //3014
 	}
 };
 
+struct CatapultAttack : public CPackForClient //3015
+{
+	CatapultAttack(){type = 3015;}
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyCl(CClient *cl);
+
+	ui8 attackedPartOfWall;//[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate;
+	ui8 damageDealt;
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & attackedPartOfWall & damageDealt;
+	}
+};
+
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};

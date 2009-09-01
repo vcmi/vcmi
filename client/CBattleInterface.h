@@ -218,6 +218,7 @@ private:
 	void giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional=-1);
 	bool isTileAttackable(const int & number) const; //returns true if tile 'number' is neighbouring any tile from active stack's range or is one of these tiles
 	bool blockedByObstacle(int hex) const;
+	bool isCatapultAttackable(int hex) const; //returns true if given tile can be attacked by catapult
 
 	void handleEndOfMove(int stackNumber, int destinationTile); //helper function
 
@@ -233,8 +234,7 @@ private:
 	{
 	private:
 		static std::string townTypeInfixes[F_NUMBER]; //for internal use only - to build filenames
-		SDL_Surface * backWall;
-		SDL_Surface * walls[11];
+		SDL_Surface * walls[13];
 		const CBattleInterface * owner;
 	public:
 		const CGTownInstance * town; //besieged town
@@ -245,6 +245,8 @@ private:
 		std::string getSiegeName(ui16 what, ui16 additInfo = 1) const; //what: 0 - background, 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall; additInfo: 1 - intact, 2 - damaged, 3 - destroyed
 
 		void printPartOfWall(SDL_Surface * to, int what);//what: 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall
+
+		friend class CPlayerInterface;
 	} * siegeH;
 public:
 	CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, CGHeroInstance *hero1, CGHeroInstance *hero2, const SDL_Rect & myRect); //c-tor

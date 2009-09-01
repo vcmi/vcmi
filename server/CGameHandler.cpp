@@ -2478,6 +2478,69 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 			sendAndApply(&EndAction());
 			break;
 		}
+	case 9: //catapult
+		{
+			const CGHeroInstance * attackingHero = (ba.side) ? gs->getHero(gs->curB->hero2) : gs->getHero(gs->curB->hero1);
+			CHeroHandler::SBallisticsLevelInfo sbi = VLC->heroh->ballistics[attackingHero->getSecSkillLevel(20)]; //artillery
+			
+			int attackedPart = gs->curB->hexToWallPart(ba.destinationTile);
+			if(attackedPart == -1)
+			{
+				complain("catapult tried to attack non-catapultable hex!");
+				break;
+			}
+			for(int g=0; g<sbi.shots; ++g)
+			{
+				if(gs->curB->si.wallState[attackedPart] == 3) //it's not destroyed
+					continue;
+				
+				CatapultAttack ca; //package for clients
+				ca.attackedPartOfWall = attackedPart;
+				ca.damageDealt = 0;
+
+				int chanceForHit = 0;
+				int dmgChance[3] = {sbi.noDmg, sbi.oneDmg, sbi.twoDmg}; //dmgChance[i] - chance for doing i dmg when hit is successful
+				switch(attackedPart)
+				{
+				case 0: //keep
+					chanceForHit = sbi.keep;
+					break;
+				case 1: //bottom tower
+				case 6: //upper tower
+					chanceForHit = sbi.tower;
+					break;
+				case 2: //bottom wall
+				case 3: //below gate
+				case 4: //over gate
+				case 5: //upper wall
+					chanceForHit = sbi.wall;
+					break;
+				case 7: //gate
+					chanceForHit = sbi.gate;
+					break;
+				}
+
+				if(rand()%100 >= chanceForHit) //hit is successful
+				{
+					int dmgRand = rand()%100;
+					//accumulating dmgChance
+					dmgChance[1] += dmgChance[0];
+					dmgChance[2] += dmgChance[1];
+					//calculating dealt damage
+					for(int v = 0; v < ARRAY_COUNT(dmgChance); ++v)
+					{
+						if(dmgRand <= dmgChance[v])
+						{
+							ca.damageDealt = v;
+							break;
+						}
+					}
+				}
+
+				sendAndApply(&ca);
+			}
+			break;
+		}
 	}
 	battleMadeAction.setn(true);
 	return ok;

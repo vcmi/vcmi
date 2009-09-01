@@ -1068,6 +1068,15 @@ DLL_EXPORT void ObstaclesRemoved::applyGs( CGameState *gs )
 	}
 }
 
+DLL_EXPORT void CatapultAttack::applyGs( CGameState *gs )
+{
+	if(gs->curB && gs->curB->siege != 0) //if there is a battle and it's a siege
+	{
+		gs->curB->si.wallState[attackedPartOfWall] = 
+			std::min( gs->curB->si.wallState[attackedPartOfWall] + damageDealt, 3 );
+	}
+}
+
 DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;

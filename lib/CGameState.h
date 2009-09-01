@@ -108,7 +108,7 @@ struct DLL_EXPORT CObstacleInstance
 //only for use in BattleInfo
 struct DLL_EXPORT SiegeInfo
 {
-	ui8 wallState[7]; //[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; 1 - intact, 2 - damaged, 3 - destroyed
+	ui8 wallState[8]; //[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; 1 - intact, 2 - damaged, 3 - destroyed
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
@@ -155,6 +155,7 @@ struct DLL_EXPORT BattleInfo
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster);
 	CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position); //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
 	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster); //returns cost of given spell
+	int hexToWallPart(int hex); //returns part of destructible wall / gate / keep under given hex or -1 if not found
 };
 
 class DLL_EXPORT CStack

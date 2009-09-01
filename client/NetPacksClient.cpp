@@ -469,6 +469,13 @@ void ObstaclesRemoved::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleObstaclesRemoved, obstacles);
 }
 
+void CatapultAttack::applyCl( CClient *cl )
+{
+	//inform interfaces about catapult attack
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleCatapultAttacked, *this);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleCatapultAttacked, *this);
+}
+
 CGameState* CPackForClient::GS( CClient *cl )
 {
 	return cl->gs;
