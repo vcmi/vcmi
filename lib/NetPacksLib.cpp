@@ -907,6 +907,9 @@ static std::vector<StackFeature> stackEffectToFeature(const CStack::StackEffect 
 	case 58: //counterstrike
 		sf.push_back(featureGenerator(StackFeature::ADDITIONAL_RETALIATION, 0, VLC->spellh->spells[sse.id].powers[sse.level], sse.turnsRemain));
 		break;
+	case 59: //bersek
+		sf.push_back(featureGenerator(StackFeature::ATTACKS_NEAREST_CREATURE, 0, sse.level, sse.turnsRemain));
+		break;
 	case 60: //hypnotize
 		sf.push_back(featureGenerator(StackFeature::HYPNOTIZED, 0, sse.level, sse.turnsRemain));
 		break;

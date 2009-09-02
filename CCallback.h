@@ -184,6 +184,7 @@ public:
 	virtual ui8 battleGetWallState(int partOfWall)=0; //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	virtual int battleGetWallUnderHex(int hex)=0; //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	virtual std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID)=0; //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	virtual ui8 battleGetSiegeLevel()=0; //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 };
 
 struct HeroMoveDetails
@@ -292,6 +293,7 @@ public:
 	ui8 battleGetWallState(int partOfWall); //for determining state of a part of the wall; format: parameter [0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate; returned value: 1 - intact, 2 - damaged, 3 - destroyed; 0 - no battle
 	int battleGetWallUnderHex(int hex); //returns part of destructible wall / gate / keep under given hex or -1 if not found
 	std::pair<ui32, ui32> battleEstimateDamage(int attackerID, int defenderID); //estimates damage dealt by attacker to defender; it may be not precise especially when stack has randomly working bonuses; returns pair <min dmg, max dmg>
+	ui8 battleGetSiegeLevel(); //returns 0 when there is no siege, 1 if fort, 2 is citadel, 3 is castle
 
 //XXX hmmm _tmain on _GNUC_ wtf?
 //friends

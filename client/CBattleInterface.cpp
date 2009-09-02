@@ -102,6 +102,19 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	if(siegeH)
 	{
 		background = BitmapHandler::loadBitmap( siegeH->getSiegeName(0) );
+		ui8 siegeLevel = LOCPLINT->cb->battleGetSiegeLevel();
+		if(siegeLevel >= 2) //citadel or castle
+		{
+			//print moat/mlip
+			SDL_Surface * moat = BitmapHandler::loadBitmap( siegeH->getSiegeName(13) ),
+				* mlip = BitmapHandler::loadBitmap( siegeH->getSiegeName(14) );
+
+			blitAt(moat, 410, background->h - moat->h, background);
+			blitAt(mlip, 410, background->h - mlip->h, background);
+
+			SDL_FreeSurface(moat);
+			SDL_FreeSurface(mlip);
+		}
 	}
 	else
 	{
@@ -3304,6 +3317,10 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 		return "SG" + townTypeInfixes[town->town->typeID] + "WA2.BMP";
 	case 12: //upper static wall
 		return "SG" + townTypeInfixes[town->town->typeID] + "WA5.BMP";
+	case 13: //moat
+		return "SG" + townTypeInfixes[town->town->typeID] + "MOAT.BMP";
+	case 14: //mlip
+		return "SG" + townTypeInfixes[town->town->typeID] + "MLIP.BMP";
 	default:
 		return "";
 	}

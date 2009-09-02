@@ -138,24 +138,27 @@ struct DLL_EXPORT BattleInfo
 	CStack * getNextStack(); //which stack will have turn after current one
 	std::vector<CStack> getStackQueue(); //returns stack in order of their movement action
 	CStack * getStack(int stackID, bool onlyAlive = true);
+	const CStack * getStack(int stackID, bool onlyAlive = true) const;
 	CStack * getStackT(int tileID, bool onlyAlive = true);
-	void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit=-1); //send pointer to at least 187 allocated bytes
+	const CStack * getStackT(int tileID, bool onlyAlive = true) const;
+	void getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit=-1) const; //send pointer to at least 187 allocated bytes
 	static bool isAccessible(int hex, bool * accessibility, bool twoHex, bool attackerOwned, bool flying, bool lastPos); //helper for makeBFS
-	void makeBFS(int start, bool*accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying); //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
+	void makeBFS(int start, bool*accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying) const; //*accessibility must be prepared bool[187] array; last two pointers must point to the at least 187-elements int arrays - there is written result
 	std::pair< std::vector<int>, int > getPath(int start, int dest, bool*accessibility, bool flyingCreature, bool twoHex, bool attackerOwned); //returned value: pair<path, length>; length may be different than number of elements in path since flying vreatures jump between distant hexes
-	std::vector<int> getAccessibility(int stackID, bool addOccupiable); //returns vector of accessible tiles (taking into account the creature range)
+	std::vector<int> getAccessibility(int stackID, bool addOccupiable) const; //returns vector of accessible tiles (taking into account the creature range)
 
 	bool isStackBlocked(int ID); //returns true if there is neighbouring enemy stack
 	static signed char mutualPosition(int hex1, int hex2); //returns info about mutual position of given hexes (-1 - they're distant, 0 - left top, 1 - right top, 2 - right, 3 - right bottom, 4 - left bottom, 5 - left)
 	static std::vector<int> neighbouringTiles(int hex);
 	static ui32 calculateDmg(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge); //charge - number of hexes travelled before attack (for champion's jousting)
 	static std::pair<ui32, ui32> calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge); //charge - number of hexes travelled before attack (for champion's jousting); returns pair <min dmg, max dmg>
-	void calculateCasualties(std::set<std::pair<ui32,si32> > *casualties);
+	void calculateCasualties(std::set<std::pair<ui32,si32> > *casualties) const;
 	std::set<CStack*> getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile); //calculates stack affected by given spell
 	static int calculateSpellDuration(const CSpell * spell, const CGHeroInstance * caster);
-	CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position); //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
-	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster); //returns cost of given spell
-	int hexToWallPart(int hex); //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	CStack * generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const; //helper for CGameHandler::setupBattle and spells addign new stacks to the battlefield
+	ui32 getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const; //returns cost of given spell
+	int hexToWallPart(int hex) const; //returns part of destructible wall / gate / keep under given hex or -1 if not found
+	std::pair<const CStack *, int> getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const; //if attackerOwned is indetermnate, returened stack is of any owner; hex is the number of hex we should be looking from; returns (nerarest creature, predecessorHex)
 };
 
 class DLL_EXPORT CStack

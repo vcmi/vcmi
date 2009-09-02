@@ -376,6 +376,26 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				}
 			}
 
+			if(next->hasFeatureOfType(StackFeature::ATTACKS_NEAREST_CREATURE)) //while in berserk
+			{
+				std::pair<const CStack *, int> attackInfo = curB.getNearestStack(next, boost::logic::indeterminate);
+				if(attackInfo.first != NULL)
+				{
+					BattleAction attack;
+					attack.actionType = 6;
+					attack.side = !next->attackerOwned;
+					attack.stackNumber = next->ID;
+
+					attack.additionalInfo = attackInfo.first->position;
+					attack.destinationTile = attackInfo.second;
+
+					makeBattleAction(attack);
+
+					checkForBattleEnd(stacks);
+				}
+				continue;
+			}
+
 askInterfaceForMove:
 			//ask interface and wait for answer
 			if(!battleResult.get())
@@ -1037,62 +1057,65 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 			curB->si.wallState[b] = 1;
 		}
 	}
-
-	//randomize obstacles
-	bool obAv[BFIELD_SIZE]; //availability of hexes for obstacles;
-	std::vector<int> possibleObstacles;
-
-	for(int i=0; i<BFIELD_SIZE; ++i)
-	{
-		if(i%17 < 4 || i%17 > 12)
-		{
-			obAv[i] = false;
-		}
-		else
-		{
-			obAv[i] = true;
-		}
-	}
-
+	
 	int terType = gs->battleGetBattlefieldType(tile);
 
-	for(std::map<int, CObstacleInfo>::const_iterator g=VLC->heroh->obstacles.begin(); g!=VLC->heroh->obstacles.end(); ++g)
+	//randomize obstacles
+	if(town == NULL) //do it only when it's not siege
 	{
-		if(g->second.allowedTerrains[terType-1] == '1') //we need to take terType with -1 because terrain ids start from 1 and allowedTerrains array is indexed from 0
-		{
-			possibleObstacles.push_back(g->first);
-		}
-	}
+		bool obAv[BFIELD_SIZE]; //availability of hexes for obstacles;
+		std::vector<int> possibleObstacles;
 
-	srand(time(NULL));
-	if(possibleObstacles.size() > 0) //we cannot place any obstacles when we don't have them
-	{
-		int toBlock = rand()%6 + 6; //how many hexes should be blocked by obstacles
-		while(toBlock>0)
+		for(int i=0; i<BFIELD_SIZE; ++i)
 		{
-			CObstacleInstance coi;
-			coi.uniqueID = curB->obstacles.size();
-			coi.ID = possibleObstacles[rand()%possibleObstacles.size()];
-			coi.pos = rand()%BFIELD_SIZE;
-			std::vector<int> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
-			bool badObstacle = false;
-			for(int b=0; b<block.size(); ++b)
+			if(i%17 < 4 || i%17 > 12)
 			{
-				if(block[b] < 0 || block[b] >= BFIELD_SIZE || !obAv[block[b]])
+				obAv[i] = false;
+			}
+			else
+			{
+				obAv[i] = true;
+			}
+		}
+
+		for(std::map<int, CObstacleInfo>::const_iterator g=VLC->heroh->obstacles.begin(); g!=VLC->heroh->obstacles.end(); ++g)
+		{
+			if(g->second.allowedTerrains[terType-1] == '1') //we need to take terType with -1 because terrain ids start from 1 and allowedTerrains array is indexed from 0
+			{
+				possibleObstacles.push_back(g->first);
+			}
+		}
+
+		srand(time(NULL));
+		if(possibleObstacles.size() > 0) //we cannot place any obstacles when we don't have them
+		{
+			int toBlock = rand()%6 + 6; //how many hexes should be blocked by obstacles
+			while(toBlock>0)
+			{
+				CObstacleInstance coi;
+				coi.uniqueID = curB->obstacles.size();
+				coi.ID = possibleObstacles[rand()%possibleObstacles.size()];
+				coi.pos = rand()%BFIELD_SIZE;
+				std::vector<int> block = VLC->heroh->obstacles[coi.ID].getBlocked(coi.pos);
+				bool badObstacle = false;
+				for(int b=0; b<block.size(); ++b)
 				{
-					badObstacle = true;
-					break;
+					if(block[b] < 0 || block[b] >= BFIELD_SIZE || !obAv[block[b]])
+					{
+						badObstacle = true;
+						break;
+					}
 				}
+				if(badObstacle) continue;
+				//obstacle can be placed
+				curB->obstacles.push_back(coi);
+				for(int b=0; b<block.size(); ++b)
+				{
+					if(block[b] >= 0 && block[b] < BFIELD_SIZE)
+						obAv[block[b]] = false;
+				}
+				toBlock -= block.size();
 			}
-			if(badObstacle) continue;
-			//obstacle can be placed
-			curB->obstacles.push_back(coi);
-			for(int b=0; b<block.size(); ++b)
-			{
-				if(block[b] >= 0 && block[b] < BFIELD_SIZE)
-					obAv[block[b]] = false;
-			}
-			toBlock -= block.size();
 		}
 	}
 
@@ -2955,6 +2978,7 @@ bool CGameHandler::makeCustomAction( BattleAction &ba )
 			case 55: //slayer
 			case 56: //frenzy
 			case 58: //counterstrike
+			case 59: //berserk
 			case 60: //hypnotize
 			case 61: //forgetfulness
 			case 62: //blind

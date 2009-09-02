@@ -650,6 +650,14 @@ std::pair<ui32, ui32> CCallback::battleEstimateDamage(int attackerID, int defend
 	return BattleInfo::calculateDmgRange(attacker, defender, attackerHero, defenderHero, battleCanShoot(attacker->ID, defender->position), 0);
 }
 
+ui8 CCallback::battleGetSiegeLevel()
+{
+	if(!gs->curB)
+		return 0;
+
+	return gs->curB->siege;
+}
+
 void CCallback::swapGarrisonHero( const CGTownInstance *town )
 {
 	if(town->tempOwner != player) return;

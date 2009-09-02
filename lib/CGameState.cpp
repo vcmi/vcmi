@@ -239,6 +239,7 @@ static CGObjectInstance * createObject(int id, int subid, int3 pos, int owner)
 	nobj->defInfo = VLC->dobjinfo->gobjs[id][subid];
 	return nobj;
 }
+
 CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 {
 	for(unsigned int g=0; g<stacks.size(); ++g)
@@ -248,6 +249,17 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 	}
 	return NULL;
 }
+
+const CStack * BattleInfo::getStack(int stackID, bool onlyAlive) const
+{
+	for(unsigned int g=0; g<stacks.size(); ++g)
+	{
+		if(stacks[g]->ID == stackID && (!onlyAlive || stacks[g]->alive()))
+			return stacks[g];
+	}
+	return NULL;
+}
+
 CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
 {
 	for(unsigned int g=0; g<stacks.size(); ++g)
@@ -264,7 +276,25 @@ CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
 	}
 	return NULL;
 }
-void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit)
+
+const CStack * BattleInfo::getStackT(int tileID, bool onlyAlive) const
+{
+	for(unsigned int g=0; g<stacks.size(); ++g)
+	{
+		if(stacks[g]->position == tileID 
+			|| (stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && stacks[g]->attackerOwned && stacks[g]->position-1 == tileID)
+			|| (stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && !stacks[g]->attackerOwned && stacks[g]->position+1 == tileID))
+		{
+			if(!onlyAlive || stacks[g]->alive())
+			{
+				return stacks[g];
+			}
+		}
+	}
+	return NULL;
+}
+
+void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit) const
 {
 	memset(accessibility, 1, BFIELD_SIZE); //initialize array with trues
 
@@ -303,20 +333,26 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 	//walls
 	if(siege > 0)
 	{
-		static const int permanentlyLocked[] = {12, 45, 78, 112, 147, 182};
+		static const int permanentlyLocked[] = {12, 45, 78, 112, 147, 165};
 		for(int b=0; b<ARRAY_COUNT(permanentlyLocked); ++b)
 		{
 			accessibility[permanentlyLocked[b]] = false;
 		}
 
 		static const std::pair<int, int> lockedIfNotDestroyed[] = //(which part of wall, which hex is blocked if this part of wall is not destroyed
-			{std::make_pair(2, 165), std::make_pair(3, 130), std::make_pair(4, 62), std::make_pair(5, 29)};
+			{std::make_pair(2, 182), std::make_pair(3, 130), std::make_pair(4, 62), std::make_pair(5, 29)};
 		for(int b=0; b<ARRAY_COUNT(lockedIfNotDestroyed); ++b)
 		{
 			if(si.wallState[lockedIfNotDestroyed[b].first] < 3)
 			{
 				accessibility[lockedIfNotDestroyed[b].second] = false;
 			}
+		}
+
+		//gate
+		if(attackerOwned && si.wallState[7] < 3) //if it attacker's unit and gate is not destroyed
+		{
+			accessibility[95] = accessibility[96] = false; //block gate's hexes
 		}
 	}
 
@@ -359,7 +395,7 @@ bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool a
 	}
 }
 
-void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying) //both pointers must point to the at least 187-elements int arrays
+void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying) const //both pointers must point to the at least 187-elements int arrays
 {
 	//inits
 	for(int b=0; b<BFIELD_SIZE; ++b)
@@ -379,20 +415,24 @@ void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *
 		for(unsigned int nr=0; nr<neighbours.size(); nr++)
 		{
 			curNext = neighbours[nr]; //if(!accessibility[curNext] || (dists[curHex]+1)>=dists[curNext])
-			if(!isAccessible(curNext, accessibility, twoHex, attackerOwned, flying, dists[curHex]+1 == dists[curNext]) || (dists[curHex]+1)>=dists[curNext])
+			bool accessible = isAccessible(curNext, accessibility, twoHex, attackerOwned, flying, dists[curHex]+1 == dists[curNext]);
+			if( dists[curHex]+1 >= dists[curNext] )
 				continue;
-			hexq.push(curNext);
-			dists[curNext] = dists[curHex] + 1;
+			if(accessible)
+			{
+				hexq.push(curNext);
+				dists[curNext] = dists[curHex] + 1;
+			}
 			predecessor[curNext] = curHex;
 		}
 	}
 };
 
-std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable)
+std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable) const
 {
 	std::vector<int> ret;
 	bool ac[BFIELD_SIZE];
-	CStack *s = getStack(stackID);
+	const CStack *s = getStack(stackID);
 	std::set<int> occupyable;
 
 	getAccessibilityMap(ac, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, addOccupiable, occupyable, s->hasFeatureOfType(StackFeature::FLYING), stackID);
@@ -446,7 +486,7 @@ bool BattleInfo::isStackBlocked(int ID)
 {
 	CStack *our = getStack(ID);
 	if(our->hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //siege weapons cannot be blocked
-		return true;
+		return false;
 
 	for(unsigned int i=0; i<stacks.size();i++)
 	{
@@ -2291,7 +2331,7 @@ ui32 BattleInfo::calculateDmg(const CStack* attacker, const CStack* defender, co
 		return range.first;
 }
 
-void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualties )
+void BattleInfo::calculateCasualties( std::set<std::pair<ui32,si32> > *casualties ) const
 {
 	for(unsigned int i=0; i<stacks.size();i++)//setting casualties
 	{
@@ -2408,7 +2448,7 @@ int BattleInfo::calculateSpellDuration(const CSpell * spell, const CGHeroInstanc
 	}
 }
 
-CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position)
+CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creatureID, int amount, int stackID, bool attackerOwned, int slot, int /*TerrainTile::EterrainType*/ terrain, int position) const
 {
 	CStack * ret = new CStack(&VLC->creh->creatures[creatureID], amount, attackerOwned ? side1 : side2, stackID, attackerOwned, slot);
 	if(owner)
@@ -2456,7 +2496,7 @@ CStack * BattleInfo::generateNewStack(const CGHeroInstance * owner, int creature
 	return ret;
 }
 
-ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster)
+ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster) const
 {
 	ui32 ret = VLC->spellh->spells[sp->id].costs[caster->getSpellSchoolLevel(sp)];
 
@@ -2473,13 +2513,13 @@ ui32 BattleInfo::getSpellCost(const CSpell * sp, const CGHeroInstance * caster)
 	return ret + manaReduction;
 }
 
-int BattleInfo::hexToWallPart(int hex)
+int BattleInfo::hexToWallPart(int hex) const
 {
 	if(siege == 0) //there is no battle!
 		return -1;
 
 	static const std::pair<int, int> attackable[] = //potentially attackable parts of wall
-	{std::make_pair(50, 0), std::make_pair(182, 1), std::make_pair(165, 2), std::make_pair(130, 3),
+	{std::make_pair(50, 0), std::make_pair(183, 1), std::make_pair(182, 2), std::make_pair(130, 3),
 	std::make_pair(62, 4), std::make_pair(29, 5), std::make_pair(12, 6), std::make_pair(95, 7), std::make_pair(96, 7)};
 
 	for(int g = 0; g < ARRAY_COUNT(attackable); ++g)
@@ -2489,6 +2529,45 @@ int BattleInfo::hexToWallPart(int hex)
 	}
 
 	return -1; //not found!
+}
+
+std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closest, boost::logic::tribool attackerOwned) const
+{	
+	bool ac[BFIELD_SIZE];
+	std::set<int> occupyable;
+
+	getAccessibilityMap(ac, closest->hasFeatureOfType(StackFeature::DOUBLE_WIDE), closest->attackerOwned, false, occupyable, closest->hasFeatureOfType(StackFeature::FLYING), closest->ID);
+
+	int predecessor[BFIELD_SIZE], dist[BFIELD_SIZE];
+	makeBFS(closest->position, ac, predecessor, dist, closest->hasFeatureOfType(StackFeature::DOUBLE_WIDE), closest->attackerOwned, closest->hasFeatureOfType(StackFeature::FLYING));
+
+	std::vector< std::pair< std::pair<int, int>, const CStack *> > stackPairs; //pairs <<distance, hex>, stack>
+	for(int g=0; g<BFIELD_SIZE; ++g)
+	{
+		const CStack * atG = getStackT(g);
+		if(!atG || atG->ID == closest->ID) //if there is not stack or we are the closest one
+			continue;
+		if(boost::logic::indeterminate(attackerOwned) || atG->attackerOwned == attackerOwned)
+		{
+			if(predecessor[g] == -1) //TODO: is it really the best solution?
+				continue;
+			stackPairs.push_back( std::make_pair( std::make_pair(dist[predecessor[g]], g), atG) );
+		}
+	}
+
+	if(stackPairs.size() > 0)
+	{
+		std::pair< std::pair<int, int>, const CStack *> minimalPair = stackPairs[0];
+	
+		for(int b=1; b<stackPairs.size(); ++b)
+		{
+			if(stackPairs[b].first.first < minimalPair.first.first)
+				minimalPair = stackPairs[b];
+		}
+		return std::make_pair(minimalPair.second, predecessor[minimalPair.first.second]);
+	}
+
+	return std::make_pair<const CStack * , int>(NULL, -1);
 }
 
 CStack * BattleInfo::getNextStack()
