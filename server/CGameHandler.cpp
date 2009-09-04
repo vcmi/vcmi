@@ -1047,6 +1047,24 @@ void CGameHandler::setupBattle( BattleInfo * curB, int3 tile, const CCreatureSet
 		stacks.push_back(stack);
 	}
 	//war machines added
+
+	switch(curB->siege) //adding towers
+	{
+		
+	case 3: //castle
+		{//lower tower / upper tower
+			CStack * stack = curB->generateNewStack(hero2, 149, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, -4);
+			stacks.push_back(stack);
+			stack = curB->generateNewStack(hero2, 149, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, -3);
+			stacks.push_back(stack);
+		}
+	case 2: //citadel
+		{//main tower
+			CStack * stack = curB->generateNewStack(hero2, 149, 1, stacks.size(), false, 255, gs->map->terrain[tile.x][tile.y][tile.z].tertype, -2);
+			stacks.push_back(stack);
+		}
+	}
+
 	std::stable_sort(stacks.begin(),stacks.end(),cmpst);
 
 	//seting up siege
@@ -2468,19 +2486,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 		{
 			CStack *curStack = gs->curB->getStack(ba.stackNumber),
 				*destStack= gs->curB->getStackT(ba.destinationTile);
-			if(!curStack //our stack exists
-				|| !destStack //there is a stack at destination tile
-				|| !curStack->shots //stack has shots
-				|| gs->curB->isStackBlocked(curStack->ID) //we are not blocked
-				|| !curStack->hasFeatureOfType(StackFeature::SHOOTER) //our stack is shooting unit
-				)
-				break;
-			//for(int g=0; g<curStack->effects.size(); ++g)
-			//{
-			//	if(61 == curStack->effects[g].id) //forgetfulness
-			//		break;
-			//}
-			if(curStack->hasFeatureOfType(StackFeature::FORGETFULL)) //forgetfulness
+			if( !gs->battleCanShoot(ba.stackNumber, ba.destinationTile) )
 				break;
 
 			sendAndApply(&StartAction(ba)); //start shooting

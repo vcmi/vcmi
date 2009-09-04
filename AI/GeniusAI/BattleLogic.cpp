@@ -71,6 +71,10 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 	typedef std::map<int, CStack> map_stacks;
 	map_stacks allStacks = m_cb->battleGetStacks();
 	const CStack *currentStack = m_cb->battleGetStackByID(currentCreatureId);
+	if(currentStack->position < 0) //turret
+	{
+		return;
+	}
 	/*
 	// find all creatures belong to the enemy
 	std::for_each(allStacks.begin(), allStacks.end(),
@@ -249,6 +253,11 @@ void CBattleLogic::MakeStatistics(int currentCreatureId)
 
 BattleAction CBattleLogic::MakeDecision(int stackID)
 {
+	const CStack *currentStack = m_cb->battleGetStackByID(stackID);
+	if(currentStack->position < 0) //turret
+	{
+		return MakeDefend(stackID);
+	}
 	MakeStatistics(stackID);
 
 	list<int> creatures;

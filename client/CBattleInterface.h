@@ -198,7 +198,7 @@ private:
 	} * attackingInfo;
 	void attackingShowHelper();
 	void showAliveStack(int ID, const std::map<int, CStack> & stacks, SDL_Surface * to); //helper function for function show
-	void showPieceOfWall(SDL_Surface * to, int hex); //helper function for show
+	void showPieceOfWall(SDL_Surface * to, int hex, const std::map<int, CStack> & stacks); //helper function for show
 	void redrawBackgroundWithHexes(int activeStack);
 	void printConsoleAttacked(int ID, int dmg, int killed, int IDby);
 
@@ -234,7 +234,7 @@ private:
 	{
 	private:
 		static std::string townTypeInfixes[F_NUMBER]; //for internal use only - to build filenames
-		SDL_Surface * walls[13];
+		SDL_Surface * walls[18];
 		const CBattleInterface * owner;
 	public:
 		const CGTownInstance * town; //besieged town
@@ -242,9 +242,9 @@ private:
 		~SiegeHelper(); //d-tor
 
 		//filename getters
-		std::string getSiegeName(ui16 what, ui16 additInfo = 1) const; //what: 0 - background, 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall, 13 - moat, 14 - mlip; additInfo: 1 - intact, 2 - damaged, 3 - destroyed
+		std::string getSiegeName(ui16 what, ui16 additInfo = 1) const; //what: 0 - background, 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall, 13 - moat, 14 - mlip, 15 - keep creature cover, 16 - bottom turret creature cover, 17 - upper turret creature cover; additInfo: 1 - intact, 2 - damaged, 3 - destroyed
 
-		void printPartOfWall(SDL_Surface * to, int what);//what: 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall
+		void printPartOfWall(SDL_Surface * to, int what);//what: 1 - background wall, 2 - keep, 3 - bottom tower, 4 - bottom wall, 5 - below gate, 6 - over gate, 7 - upper wall, 8 - uppert tower, 9 - gate, 10 - gate arch, 11 - bottom static wall, 12 - upper static wall, 15 - keep creature cover, 16 - bottom turret creature cover, 17 - upper turret creature cover
 
 		friend class CPlayerInterface;
 	} * siegeH;

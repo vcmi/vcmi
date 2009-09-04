@@ -81,6 +81,14 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	pos = myRect;
 	strongInterest = true;
 	givenCommand = new CondSh<BattleAction *>(NULL);
+	
+	//preparing siege info
+	const CGTownInstance * town = LOCPLINT->cb->battleGetDefendedTown();
+	if(town)
+	{
+		siegeH = new SiegeHelper(town, this);
+	}
+
 	//initializing armies
 	this->army1 = army1;
 	this->army2 = army2;
@@ -88,14 +96,6 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	for(std::map<int, CStack>::iterator b=stacks.begin(); b!=stacks.end(); ++b)
 	{
 		newStack(b->second.ID);
-	}
-
-	
-	//preparing siege info
-	const CGTownInstance * town = LOCPLINT->cb->battleGetDefendedTown();
-	if(town)
-	{
-		siegeH = new SiegeHelper(town, this);
 	}
 
 	//preparing menu background and terrain
@@ -204,7 +204,8 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	//locking occupied positions on batlefield
 	for(std::map<int, CStack>::iterator it = stacks.begin(); it!=stacks.end(); ++it) //stacks gained at top of this function
 	{
-		bfield[it->second.position].accesible = false;
+		if(it->second.position >= 0) //turrets have position < 0
+			bfield[it->second.position].accesible = false;
 	}
 
 	//loading projectiles for units
@@ -460,10 +461,6 @@ void CBattleInterface::show(SDL_Surface * to)
 	
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
-	//showing menu background and console
-	blitAt(menu, pos.x, 556 + pos.y, to);
-	console->show(to);
-
 	//showing buttons
 	bOptions->show(to);
 	bSurrender->show(to);
@@ -501,7 +498,7 @@ void CBattleInterface::show(SDL_Surface * to)
 	//double loop because dead stacks should be printed first
 	for(std::map<int, CStack>::iterator j=stacks.begin(); j!=stacks.end(); ++j)
 	{
-		if(j->second.alive())
+		if(j->second.alive() && j->second.position >= 0) //don't show turrets here
 			stackAliveByHex[j->second.position].push_back(j->second.ID);
 	}
 	std::vector<int> stackDeadByHex[BFIELD_SIZE];
@@ -529,7 +526,7 @@ void CBattleInterface::show(SDL_Surface * to)
 			showAliveStack(stackAliveByHex[b][v], stacks, to);
 		}
 
-		showPieceOfWall(to, b);
+		showPieceOfWall(to, b, stacks);
 	}
 	//units shown
 	projectileShowHelper(to);//showing projectiles
@@ -608,13 +605,17 @@ void CBattleInterface::show(SDL_Surface * to)
 
 	SDL_SetClipRect(to, &buf); //restoring previous clip_rect
 
+	//showing menu background and console
+	blitAt(menu, pos.x, 556 + pos.y, to);
+	console->show(to);
+
 	//showing window with result of battle
 	if(resWindow)
 	{
 		resWindow->show(to);
 	}
 
-	//showing in-gmae console
+	//showing in-game console
 	LOCPLINT->cingconsole->show(to);
 
 	//printing border around interface
@@ -1110,11 +1111,34 @@ void CBattleInterface::newStack(int stackID)
 {
 	const CStack * newStack = LOCPLINT->cb->battleGetStackByID(stackID);
 
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(newStack->position, newStack->owner == attackingHeroInstance->tempOwner, newStack);
-	creAnims[stackID] = (new CCreatureAnimation(newStack->creature->animDefName));
+	std::pair <int, int> coords;
+
+	if(newStack->position < 0) //turret
+	{
+		static const int townToTurretAnim[] = {2, 18, 34, 44, 64, 76, 88, 100, 127};
+
+		switch(newStack->position)
+		{
+		case -2: //keep
+			coords = std::make_pair(505, -66);
+			break;
+		case -3: //lower turret
+			coords = std::make_pair(368, 304);
+			break;
+		case -4: //upper turret
+			coords = std::make_pair(339, -192);
+			break;	
+		}
+		creAnims[stackID] = new CCreatureAnimation(CGI->creh->creatures[ townToTurretAnim[siegeH->town->town->typeID] ].animDefName);	
+	}
+	else
+	{
+		coords = CBattleHex::getXYUnitAnim(newStack->position, newStack->owner == attackingHeroInstance->tempOwner, newStack);
+		creAnims[stackID] = new CCreatureAnimation(newStack->creature->animDefName);	
+	}
 	creAnims[stackID]->setType(2);
 	creAnims[stackID]->pos = genRect(creAnims[newStack->ID]->fullHeight, creAnims[newStack->ID]->fullWidth, coords.first, coords.second);
-	creDir[stackID] = newStack->owner == attackingHeroInstance->tempOwner;
+	creDir[stackID] = newStack->attackerOwned;
 }
 
 void CBattleInterface::stackRemoved(int stackID)
@@ -2473,24 +2497,67 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 	}
 }
 
-void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex)
+void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::map<int, CStack> & stacks)
 {
 	if(!siegeH)
 		return;
 
-	static const std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(16, 1)(29, 7)(50, 2)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 4);
+	static const std::map<int, int> hexToPart = boost::assign::map_list_of(12, 8)(16, 1)(29, 7)(50, 2)(62, 12)(78, 6)(112, 10)(147, 5)(165, 11)(182, 3)(186, 0);
+	
+	//additionally print bottom wall
+	if(hex == 182)
+	{
+		siegeH->printPartOfWall(to, 4);
+	}
 
 	std::map<int, int>::const_iterator it = hexToPart.find(hex);
 	if(it != hexToPart.end())
 	{
 		siegeH->printPartOfWall(to, it->second);
+
+		//print creature in turret
+		int posToSeek = -1;
+		switch(it->second)
+		{
+		case 3: //bottom turret
+			posToSeek = -3;
+			break;
+		case 8: //upper turret
+			posToSeek = -4;
+			break;
+		case 2: //keep
+			posToSeek = -2;
+			break;
+		}
+
+		if(posToSeek != -1)
+		{
+			int ID = -1;
+			for(std::map<int, CStack>::const_iterator it = stacks.begin(); it != stacks.end(); ++it)
+			{
+				if(it->second.position == posToSeek)
+				{
+					ID = it->second.ID;
+					break;
+				}
+			}
+			showAliveStack(ID, stacks, to);
+			//blitting creature cover
+			switch(posToSeek)
+			{
+			case -3: //bottom turret
+				siegeH->printPartOfWall(to, 16);
+				break;
+			case -4: //upper turret
+				siegeH->printPartOfWall(to, 17);
+				break;
+			case -2: //keep
+				siegeH->printPartOfWall(to, 15);
+				break;
+			}
+		}
 	}
 
-	//additionally print lower tower
-	if(hex == 182)
-	{
-		siegeH->printPartOfWall(to, 3);
-	}
 }
 
 void CBattleInterface::redrawBackgroundWithHexes(int activeStack)
@@ -3321,6 +3388,12 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 		return "SG" + townTypeInfixes[town->town->typeID] + "MOAT.BMP";
 	case 14: //mlip
 		return "SG" + townTypeInfixes[town->town->typeID] + "MLIP.BMP";
+	case 15: //keep creature cover
+		return "SG" + townTypeInfixes[town->town->typeID] + "MANC.BMP";
+	case 16: //bottom turret creature cover
+		return "SG" + townTypeInfixes[town->town->typeID] + "TW1C.BMP";
+	case 17: //upper turret creature cover
+		return "SG" + townTypeInfixes[town->town->typeID] + "TW2C.BMP";
 	default:
 		return "";
 	}
@@ -3349,6 +3422,17 @@ void CBattleInterface::SiegeHelper::printPartOfWall(SDL_Surface * to, int what)
 	case 12: //upper static wall
 		pos.x = CGI->heroh->wallPositions[town->town->typeID][what - 3].first + owner->pos.x;
 		pos.y = CGI->heroh->wallPositions[town->town->typeID][what - 3].second + owner->pos.y;
+		break;
+	case 15: //keep creature cover
+		pos = Point(owner->pos.w + owner->pos.x - walls[2]->w, 154 + owner->pos.y);
+		break;
+	case 16: //bottom turret creature cover
+		pos.x = CGI->heroh->wallPositions[town->town->typeID][0].first + owner->pos.x;
+		pos.y = CGI->heroh->wallPositions[town->town->typeID][0].second + owner->pos.y;
+		break;
+	case 17: //upper turret creature cover
+		pos.x = CGI->heroh->wallPositions[town->town->typeID][5].first + owner->pos.x;
+		pos.y = CGI->heroh->wallPositions[town->town->typeID][5].second + owner->pos.y;
 		break;
 	};
 

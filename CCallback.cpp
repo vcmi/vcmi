@@ -555,34 +555,15 @@ bool CCallback::battleIsStackMine(int ID)
 			return gs->curB->stacks[h]->owner == player;
 	}
 	return false;
-}	
+}
+
 bool CCallback::battleCanShoot(int ID, int dest)
 {
 	boost::shared_lock<boost::shared_mutex> lock(*gs->mx);
-	const CStack *our = battleGetStackByID(ID), *dst = battleGetStackByPos(dest);
 
-	if(!our || !dst || !gs->curB) return false;
-	
-	int ourHero = our->attackerOwned ? gs->curB->hero1 : gs->curB->hero2;
+	if(!gs->curB) return false;
 
-	//for(size_t g=0; g<our->effects.size(); ++g)
-	//{
-	//	if(61 == our->effects[g].id) //forgetfulness
-	//		return false;
-	//}
-	if(our->hasFeatureOfType(StackFeature::FORGETFULL)) //forgetfulness
-		return false;
-
-
-	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
-		&& our->owner != dst->owner
-		&& dst->alive()
-		&& (!gs->curB->isStackBlocked(ID) || 
-			( gs->getHero(ourHero) && gs->getHero(ourHero)->hasBonusOfType(HeroBonus::FREE_SHOOTING) ) )
-		&& our->shots
-		)
-		return true;
-	return false;
+	return gs->battleCanShoot(ID, dest);
 }
 
 bool CCallback::battleCanCastSpell()

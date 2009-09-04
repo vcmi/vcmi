@@ -307,7 +307,7 @@ void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool atta
 
 	for(unsigned int g=0; g<stacks.size(); ++g)
 	{
-		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit) //we don't want to lock position of this stack
+		if(!stacks[g]->alive() || stacks[g]->ID==stackToOmmit || stacks[g]->position < 0) //we don't want to lock position of this stack (eg. if it's a turret)
 			continue;
 
 		accessibility[stacks[g]->position] = false;
@@ -433,6 +433,10 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable) c
 	std::vector<int> ret;
 	bool ac[BFIELD_SIZE];
 	const CStack *s = getStack(stackID);
+
+	if(s->position < 0) //turrets
+		return std::vector<int>();
+
 	std::set<int> occupyable;
 
 	getAccessibilityMap(ac, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, addOccupiable, occupyable, s->hasFeatureOfType(StackFeature::FLYING), stackID);
@@ -713,7 +717,7 @@ si32 CStack::Attack() const
 
 	if(hasFeatureOfType(StackFeature::IN_FRENZY)) //frenzy for attacker
 	{
-		ret += (VLC->spellh->spells[56].powers[getEffect(56)->level]/100.0) * Defense(false);
+		ret += si32(VLC->spellh->spells[56].powers[getEffect(56)->level]/100.0) * Defense(false);
 	}
 
 	ret += valOfFeatures(StackFeature::ATTACK_BONUS);
@@ -2110,9 +2114,24 @@ bool CGameState::checkForVisitableDir( const int3 & src, const TerrainTile *pom,
 }
 std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, const CStack* defender, const CGHeroInstance * attackerHero, const CGHeroInstance * defendingHero, bool shooting, ui8 charge)
 {
-	int attackDefenseBonus,
+	float attackDefenseBonus,
 		minDmg = attacker->creature->damageMin * attacker->amount, 
 		maxDmg = attacker->creature->damageMax * attacker->amount;
+
+	if(attacker->creature->idNumber == 149) //arrow turret
+	{
+		switch(attacker->position)
+		{
+		case -2: //keep
+			minDmg = 15;
+			maxDmg = 15;
+			break;
+		case -3: case -4: //turrets
+			minDmg = 7.5f;
+			maxDmg = 7.5f;
+			break;
+		}
+	}
 
 	if(attacker->hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //any siege weapon, but only ballista can attack
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
@@ -2305,16 +2324,16 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 	if(attacker->getEffect(42)) //curse handling (rest)
 	{
 		minDmg -= VLC->spellh->spells[42].powers[attacker->getEffect(42)->level];
-		return std::make_pair(minDmg, minDmg);
+		return std::make_pair(int(minDmg), int(minDmg));
 	}
 	else if(attacker->getEffect(41)) //bless handling
 	{
 		maxDmg += VLC->spellh->spells[41].powers[attacker->getEffect(41)->level];
-		return std::make_pair(maxDmg, maxDmg);
+		return std::make_pair(int(maxDmg), int(maxDmg));
 	}
 	else
 	{
-		return std::make_pair(minDmg, maxDmg);
+		return std::make_pair(int(minDmg), int(maxDmg));
 	}
 
 	tlog1 << "We are too far in calculateDmg...\n";
@@ -2568,6 +2587,32 @@ std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closes
 	}
 
 	return std::make_pair<const CStack * , int>(NULL, -1);
+}
+
+bool CGameState::battleCanShoot(int ID, int dest)
+{
+	if(!curB)
+		return false;
+
+	const CStack *our = curB->getStack(ID),
+		*dst = curB->getStackT(dest);
+
+	if(!our || !dst) return false;
+
+	int ourHero = our->attackerOwned ? curB->hero1 : curB->hero2;
+
+	if(our->hasFeatureOfType(StackFeature::FORGETFULL)) //forgetfulness
+		return false;
+
+	if(our->hasFeatureOfType(StackFeature::SHOOTER)//it's shooter
+		&& our->owner != dst->owner
+		&& dst->alive()
+		&& (!curB->isStackBlocked(ID) || 
+			( getHero(ourHero) && getHero(ourHero)->hasBonusOfType(HeroBonus::FREE_SHOOTING) ) )
+		&& our->shots
+		)
+		return true;
+	return false;
 }
 
 CStack * BattleInfo::getNextStack()
