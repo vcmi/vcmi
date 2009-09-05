@@ -1564,6 +1564,16 @@ int CGameState::battleGetBattlefieldType(int3 tile)
 	}
 }
 
+const CGHeroInstance * CGameState::battleGetOwner(int stackID)
+{
+	if(!curB)
+		return NULL;
+
+	si32 ourHero = curB->getStack(stackID)->attackerOwned ? curB->hero1 : curB->hero2;
+	return getHero(ourHero);
+
+}
+
 UpgradeInfo CGameState::getUpgradeInfo(CArmedInstance *obj, int stackPos)
 {
 	UpgradeInfo ret;
@@ -2133,7 +2143,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 		}
 	}
 
-	if(attacker->hasFeatureOfType(StackFeature::SIEGE_WEAPON)) //any siege weapon, but only ballista can attack
+	if(attacker->hasFeatureOfType(StackFeature::SIEGE_WEAPON) && attacker->creature->idNumber != 149) //any siege weapon, but only ballista can attack (second condition - not arrow turret)
 	{ //minDmg and maxDmg are multiplied by hero attack + 1
 		minDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
 		maxDmg *= attackerHero->getPrimSkillLevel(0) + 1; 
@@ -2599,7 +2609,7 @@ bool CGameState::battleCanShoot(int ID, int dest)
 
 	if(!our || !dst) return false;
 
-	int ourHero = our->attackerOwned ? curB->hero1 : curB->hero2;
+	const CGHeroInstance * ourHero = battleGetOwner(our->ID);
 
 	if(our->hasFeatureOfType(StackFeature::FORGETFULL)) //forgetfulness
 		return false;
@@ -2608,7 +2618,7 @@ bool CGameState::battleCanShoot(int ID, int dest)
 		&& our->owner != dst->owner
 		&& dst->alive()
 		&& (!curB->isStackBlocked(ID) || 
-			( getHero(ourHero) && getHero(ourHero)->hasBonusOfType(HeroBonus::FREE_SHOOTING) ) )
+			( ourHero && ourHero->hasBonusOfType(HeroBonus::FREE_SHOOTING) ) )
 		&& our->shots
 		)
 		return true;

@@ -1,0 +1,11 @@
+//describes_which_creature's_animation_should_be_used_to_dispaly_creature_in_turret_while_siege
+//i-th_line_-_i-th_faction
+2
+18
+34
+44
+64
+76
+88
+100
+127

@@ -102,7 +102,8 @@ public:
 	std::map<std::string,int> nameToID;
 	std::map<int,std::string> idToProjectile;
 	std::map<int,bool> idToProjectileSpin; //if true, appropriate projectile is spinning during flight
-	std::vector<bool> factionAlignments; //1 for good, 0 for neutral and -1 for evil with faction ID as index
+	std::vector<si8> factionAlignments; //1 for good, 0 for neutral and -1 for evil with faction ID as index
+	int factionToTurretCreature[F_NUMBER]; //which creature's animation should be used to dispaly creature in turret while siege
 
 	void loadCreatures();
 	void loadAnimationInfo();
@@ -117,7 +118,7 @@ public:
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		//TODO: should be optimized, not all these informations needs to be serialized (same for ccreature)
-		h & notUsedMonsters & creatures & nameToID & idToProjectile & idToProjectileSpin;
+		h & notUsedMonsters & creatures & nameToID & idToProjectile & idToProjectileSpin & factionToTurretCreature;
 
 		if(!h.saving)
 		{

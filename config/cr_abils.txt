@@ -165,6 +165,7 @@
 + 144 FULL_HP_REGENERATION 0 0 0 			//troll
 + 147 NOT_ACTIVE 0 0 0	   	 		//First Aid Tent //TODO: remove when support is added
 + 148 NOT_ACTIVE 0 0 0				//Ammo Cart
++ 149 SHOOTER 0 0 0					//arrow turret
 -  46 FLYING		  				//hell hound doesn't fly
 -  47 FLYING			  			//cerberus doesn't fly
 - 120 DOUBLE_WIDE					//psychic elemental

@@ -1080,6 +1080,24 @@ DLL_EXPORT void CatapultAttack::applyGs( CGameState *gs )
 	}
 }
 
+DLL_EXPORT void BattleStacksRemoved::applyGs( CGameState *gs )
+{
+	if(!gs->curB)
+		return;
+
+	for(std::set<ui32>::const_iterator it = stackIDs.begin(); it != stackIDs.end(); ++it) //for each removed stack
+	{
+		for(int b=0; b<gs->curB->stacks.size(); ++b) //find it in vector of stacks
+		{
+			if(gs->curB->stacks[b]->ID == *it) //if found
+			{
+				gs->curB->stacks.erase(gs->curB->stacks.begin() + b); //remove
+				break;
+			}
+		}
+	}
+}
+
 DLL_EXPORT void YourTurn::applyGs( CGameState *gs )
 {
 	gs->currentPlayer = player;

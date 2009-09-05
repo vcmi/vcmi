@@ -1003,6 +1003,14 @@ void CPlayerInterface::battleCatapultAttacked(const CatapultAttack & ca)
 		battleInt->siegeH->getSiegeName(ca.attackedPartOfWall + 2, cb->battleGetWallState(ca.attackedPartOfWall)) );
 }
 
+void CPlayerInterface::battleStacksRemoved(const BattleStacksRemoved & bsr)
+{
+	for(std::set<ui32>::const_iterator it = bsr.stackIDs.begin(); it != bsr.stackIDs.end(); ++it) //for each removed stack
+	{
+		battleInt->stackRemoved(*it);
+	}
+}
+
 void CPlayerInterface::battleNewRound(int round) //called at the beggining of each turn, round=-1 is the tactic phase, round=0 is the first "normal" turn
 {
 	boost::unique_lock<boost::recursive_mutex> un(*pim);

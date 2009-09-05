@@ -525,6 +525,18 @@ void CCreatureHandler::loadCreatures()
 		idToProjectileSpin[id] = spin;
 	}
 	inp2.close();
+
+	//reading factionToTurretCreature
+
+	tlog5 << "\t\tReading config/cr_to_turret.txt" << std::endl;
+	std::ifstream inp3("config" PATHSEPARATOR "cr_to_turret.txt", std::ios::in | std::ios::binary); //this file is not in lod
+	std::string dump2;
+	inp3 >> dump2 >> dump2;
+	for(int g=0; g<F_NUMBER; ++g)
+	{
+		inp3 >> factionToTurretCreature[g];
+	}
+	inp3.close();
 }
 
 void CCreatureHandler::loadAnimationInfo()

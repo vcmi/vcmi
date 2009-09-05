@@ -1008,6 +1008,21 @@ struct CatapultAttack : public CPackForClient //3015
 	}
 };
 
+struct BattleStacksRemoved : public CPackForClient //3016
+{
+	BattleStacksRemoved(){type = 3016;}
+
+	DLL_EXPORT void applyGs(CGameState *gs);
+	void applyCl(CClient *cl);
+
+	std::set<ui32> stackIDs; //IDs of removed stacks
+
+	template <typename Handler> void serialize(Handler &h, const int version)
+	{
+		h & stackIDs;
+	}
+};
+
 struct ShowInInfobox : public CPackForClient //107
 {
 	ShowInInfobox(){type = 107;};

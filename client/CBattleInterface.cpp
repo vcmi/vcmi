@@ -109,8 +109,10 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 			SDL_Surface * moat = BitmapHandler::loadBitmap( siegeH->getSiegeName(13) ),
 				* mlip = BitmapHandler::loadBitmap( siegeH->getSiegeName(14) );
 
-			blitAt(moat, 410, background->h - moat->h, background);
-			blitAt(mlip, 410, background->h - mlip->h, background);
+			if(moat) //eg. tower has no moat
+				blitAt(moat, 410, background->h - moat->h, background);
+			if(mlip) //eg. tower has no mlip
+				blitAt(mlip, 410, background->h - mlip->h, background);
 
 			SDL_FreeSurface(moat);
 			SDL_FreeSurface(mlip);
@@ -211,9 +213,10 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 	//loading projectiles for units
 	for(std::map<int, CStack>::iterator g = stacks.begin(); g != stacks.end(); ++g)
 	{
-		if(g->second.creature->isShooting() && CGI->creh->idToProjectile[g->second.creature->idNumber] != std::string())
-		{
-			idToProjectile[g->second.creature->idNumber] = CDefHandler::giveDef(CGI->creh->idToProjectile[g->second.creature->idNumber]);
+		int creID = (g->second.creature->idNumber == 149) ? CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] : g->second.creature->idNumber; //id of creature whose shots should be loaded
+		if(g->second.creature->isShooting() && CGI->creh->idToProjectile[creID] != std::string())
+		{	
+			idToProjectile[g->second.creature->idNumber] = CDefHandler::giveDef(CGI->creh->idToProjectile[creID]);
 
 			if(idToProjectile[g->second.creature->idNumber]->ourImages.size() > 2) //add symmetric images
 			{
@@ -1115,21 +1118,23 @@ void CBattleInterface::newStack(int stackID)
 
 	if(newStack->position < 0) //turret
 	{
-		static const int townToTurretAnim[] = {2, 18, 34, 44, 64, 76, 88, 100, 127};
+		const CCreature & turretCreature = CGI->creh->creatures[ CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] ];
+
+		int xShift = turretCreature.isDoubleWide() ? 44 : 0;
 
 		switch(newStack->position)
 		{
 		case -2: //keep
-			coords = std::make_pair(505, -66);
+			coords = std::make_pair(505 + xShift, -66);
 			break;
 		case -3: //lower turret
-			coords = std::make_pair(368, 304);
+			coords = std::make_pair(368 + xShift, 304);
 			break;
 		case -4: //upper turret
-			coords = std::make_pair(339, -192);
+			coords = std::make_pair(339 + xShift, -192);
 			break;	
 		}
-		creAnims[stackID] = new CCreatureAnimation(CGI->creh->creatures[ townToTurretAnim[siegeH->town->town->typeID] ].animDefName);	
+		creAnims[stackID] = new CCreatureAnimation(turretCreature.animDefName);	
 	}
 	else
 	{
@@ -1145,6 +1150,7 @@ void CBattleInterface::stackRemoved(int stackID)
 {
 	delete creAnims[stackID];
 	creAnims.erase(stackID);
+	creDir.erase(stackID);
 }
 
 void CBattleInterface::stackActivated(int number)
@@ -1666,7 +1672,10 @@ void CBattleInterface::handleEndOfMove(int stackNumber, int destinationTile)
 
 void CBattleInterface::hexLclicked(int whichOne)
 {
-	if((whichOne%BFIELD_WIDTH)!=0 && (whichOne%BFIELD_WIDTH)!=(BFIELD_WIDTH-1)) //if player is trying to attack enemey unit or move creature stack
+	const CStack * actSt = LOCPLINT->cb->battleGetStackByID(activeStack);
+	if( ((whichOne%BFIELD_WIDTH)!=0 && (whichOne%BFIELD_WIDTH)!=(BFIELD_WIDTH-1)) //if player is trying to attack enemey unit or move creature stack
+		|| (actSt->hasFeatureOfType(StackFeature::CATAPULT) && !spellDestSelectMode )
+		)
 	{
 		if(!myTurn)
 			return; //we are not permit to do anything
@@ -2541,20 +2550,24 @@ void CBattleInterface::showPieceOfWall(SDL_Surface * to, int hex, const std::map
 					break;
 				}
 			}
-			showAliveStack(ID, stacks, to);
-			//blitting creature cover
-			switch(posToSeek)
+			if(ID != -1)
 			{
-			case -3: //bottom turret
-				siegeH->printPartOfWall(to, 16);
-				break;
-			case -4: //upper turret
-				siegeH->printPartOfWall(to, 17);
-				break;
-			case -2: //keep
-				siegeH->printPartOfWall(to, 15);
-				break;
+				showAliveStack(ID, stacks, to);
+				//blitting creature cover
+				switch(posToSeek)
+				{
+				case -3: //bottom turret
+					siegeH->printPartOfWall(to, 16);
+					break;
+				case -4: //upper turret
+					siegeH->printPartOfWall(to, 17);
+					break;
+				case -2: //keep
+					siegeH->printPartOfWall(to, 15);
+					break;
+				}
 			}
+
 		}
 	}
 
@@ -3340,8 +3353,7 @@ std::string CBattleInterface::SiegeHelper::getSiegeName(ui16 what, ui16 additInf
 {
 	if(what == 2 || what == 3 || what == 8)
 	{
-		if(additInfo == 2) additInfo = 1;
-		else if(additInfo == 3) additInfo = 2;
+		if(additInfo == 3) additInfo = 2;
 	}
 	char buf[100];
 	SDL_itoa(additInfo, buf, 10);

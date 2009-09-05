@@ -41,6 +41,7 @@ struct HeroBonus;
 struct PackageApplied;
 struct SetObjectProperty;
 struct CatapultAttack;
+struct BattleStacksRemoved;
 class CLoadFile;
 class CSaveFile;
 template <typename Serializer> class CISer;
@@ -123,6 +124,7 @@ public:
 	virtual void battleNewStackAppeared(int stackID){}; //not called at the beginning of a battle or by resurrection; called eg. when elemental is summoned
 	virtual void battleObstaclesRemoved(const std::set<si32> & removedObstacles){}; //called when a certain set  of obstacles is removed from batlefield; IDs of them are given
 	virtual void battleCatapultAttacked(const CatapultAttack & ca){}; //called when catapult makes an attack
+	virtual void battleStacksRemoved(const BattleStacksRemoved & bsr){}; //called when certain stack is completely removed from battlefield
 };
 class CAIHandler
 {

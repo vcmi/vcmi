@@ -396,6 +396,30 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				continue;
 			}
 
+			const CGHeroInstance * curOwner = gs->battleGetOwner(next->ID);
+
+			if(next->position < 0 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //arrow turret, hero has no ballistics
+			{
+				BattleAction attack;
+				attack.actionType = 7;
+				attack.side = !next->attackerOwned;
+				attack.stackNumber = next->ID;
+
+				for(int g=0; g<gs->curB->stacks.size(); ++g)
+				{
+					if(gs->curB->stacks[g]->attackerOwned)
+					{
+						attack.destinationTile = gs->curB->stacks[g]->position;
+						break;
+					}
+				}
+
+				makeBattleAction(attack);
+
+				checkForBattleEnd(stacks);
+				continue;
+			}
+
 askInterfaceForMove:
 			//ask interface and wait for answer
 			if(!battleResult.get())
@@ -536,8 +560,8 @@ void CGameHandler::prepareAttack(BattleAttack &bat, CStack *att, CStack *def, in
 		BattleStackAttacked *bsa = &*i;
 	#endif
 
-	bsa->stackAttacked = def->ID;
-	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->getHero(att->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), gs->getHero(def->attackerOwned ? gs->curB->hero1 : gs->curB->hero2), bat.shot(), distance);//counting dealt damage
+		bsa->stackAttacked = def->ID;
+	bsa->damageAmount = BattleInfo::calculateDmg(att, def, gs->battleGetOwner(att->ID), gs->battleGetOwner(def->ID), bat.shot(), distance);//counting dealt damage
 	if(att->Luck() > 0  &&  rand()%24 < att->Luck())
 	{
 		bsa->damageAmount *= 2;
@@ -2552,7 +2576,7 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					break;
 				}
 
-				if(rand()%100 >= chanceForHit) //hit is successful
+				if(rand()%100 <= chanceForHit) //hit is successful
 				{
 					int dmgRand = rand()%100;
 					//accumulating dmgChance
@@ -2566,6 +2590,34 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 							ca.damageDealt = v;
 							break;
 						}
+					}
+					if(ca.damageDealt > 0 && (attackedPart == 0 || attackedPart == 1 || attackedPart == 6))
+					{
+						int posRemove = -1;
+						switch(attackedPart)
+						{
+						case 0: //keep
+							posRemove = -2;
+							break;
+						case 1: //bottom tower
+							posRemove = -3;
+							break;
+						case 6: //upper tower
+							posRemove = -4;
+							break;
+						}
+
+						BattleStacksRemoved bsr;
+						for(int g=0; g<gs->curB->stacks.size(); ++g)
+						{
+							if(gs->curB->stacks[g]->position == posRemove)
+							{
+								bsr.stackIDs.insert( gs->curB->stacks[g]->ID );
+								break;
+							}
+						}
+
+						sendAndApply(&bsr);
 					}
 				}
 

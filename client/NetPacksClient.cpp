@@ -476,6 +476,13 @@ void CatapultAttack::applyCl( CClient *cl )
 	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleCatapultAttacked, *this);
 }
 
+void BattleStacksRemoved::applyCl( CClient *cl )
+{
+	//inform interfaces about removed stacks
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side1, battleStacksRemoved, *this);
+	INTERFACE_CALL_IF_PRESENT(GS(cl)->curB->side2, battleStacksRemoved, *this);
+}
+
 CGameState* CPackForClient::GS( CClient *cl )
 {
 	return cl->gs;
