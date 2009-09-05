@@ -40,6 +40,7 @@
 #include "CSpellWindow.h"
 #include "CHeroWindow.h"
 #include "../hch/CVideoHandler.h"
+#include "../StartInfo.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine
@@ -4162,6 +4163,7 @@ CPuzzleWindow::CPuzzleWindow()
 :animCount(0)
 {
 	SDL_Surface * back = BitmapHandler::loadBitmap("PUZZLE.BMP", false);
+	graphics->blueToPlayersAdv(back, LOCPLINT->playerID);
 	//make transparency black
 	back->format->palette->colors[0].b = back->format->palette->colors[0].r = back->format->palette->colors[0].g = 0;
 	//the rest
@@ -4169,7 +4171,7 @@ CPuzzleWindow::CPuzzleWindow()
 	SDL_FreeSurface(back);
 	pos = genRect(background->h, background->w, (conf.cc.resx - background->w) / 2, (conf.cc.resy - background->h) / 2);
 	quitb = new AdventureMapButton(CGI->generaltexth->allTexts[599], "", boost::bind(&CGuiHandler::popIntTotally, &GH, this), pos.x+670, pos.y+538, "IOK6432.DEF", SDLK_RETURN);
-	resdatabar = new CResDataBar();
+	resdatabar = new CResDataBar("ZRESBAR.bmp", pos.x+3, pos.y+575, 32, 2, 85, 85);
 	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
 
 	//printing necessary thinks to background
@@ -4181,7 +4183,7 @@ CPuzzleWindow::CPuzzleWindow()
 
 	
 	float discoveryRatio = 0.5f;
-	int faction = 3;
+	int faction = LOCPLINT->cb->getStartInfo()->playerInfos[LOCPLINT->serialID].castle;
 
 	std::vector<SPuzzleInfo> puzzlesToPrint;
 
@@ -4243,8 +4245,8 @@ void CPuzzleWindow::show(SDL_Surface * to)
 	{
 		for(int b = 0; b < puzzlesToPullBack.size(); ++b)
 		{
-			int xPos = puzzlesToPullBack[b].second->x,
-				yPos = puzzlesToPullBack[b].second->y;
+			int xPos = puzzlesToPullBack[b].second->x + pos.x,
+				yPos = puzzlesToPullBack[b].second->y + pos.y;
 			SDL_Surface *from = puzzlesToPullBack[b].first;
 
 			SDL_SetAlpha(from, SDL_SRCALPHA, 255 - animCount);
@@ -4253,4 +4255,7 @@ void CPuzzleWindow::show(SDL_Surface * to)
 	}
 	//disappearing puzzles blitted
 
+	//printing border around window
+	if(screen->w != 800 || screen->h !=600)
+		CMessage::drawBorder(LOCPLINT->playerID,to,828,628,pos.x-14,pos.y-15);
 }
