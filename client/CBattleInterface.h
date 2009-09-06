@@ -62,7 +62,7 @@ public:
 	//CStack * ourStack;
 	bool hovered, strictHovered; //for determining if hex is hovered by mouse (this is different problem than hex's graphic hovering)
 	CBattleInterface * myInterface; //interface that owns me
-	static std::pair<int, int> getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * creature); //returns (x, y) of left top corner of animation
+	static std::pair<int, int> getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * creature, const CBattleInterface * cbi); //returns (x, y) of left top corner of animation
 	//for user interactions
 	void hover (bool on);
 	void activate();

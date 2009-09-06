@@ -420,6 +420,21 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 				continue;
 			}
 
+			if(next->creature->idNumber == 145 && (!curOwner || curOwner->getSecSkillLevel(10) == 0)) //catapult, hero has no ballistics
+			{
+				BattleAction attack;
+				static const int wallHexes[] = {50, 183, 182, 130, 62, 29, 12, 95};
+
+				attack.destinationTile = wallHexes[ rand()%ARRAY_COUNT(wallHexes) ];
+				attack.actionType = 9;
+				attack.additionalInfo = 0;
+				attack.side = !next->attackerOwned;
+				attack.stackNumber = next->ID;
+
+				makeBattleAction(attack);
+				continue;
+			}
+
 askInterfaceForMove:
 			//ask interface and wait for answer
 			if(!battleResult.get())

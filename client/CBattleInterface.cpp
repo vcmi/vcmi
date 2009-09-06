@@ -981,7 +981,7 @@ bool CBattleInterface::reverseCreature(int number, int hex, bool wideTrick)
 	creDir[number] = !creDir[number];
 
 	const CStack * curs = LOCPLINT->cb->battleGetStackByID(number);
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, creDir[number], curs);
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(hex, creDir[number], curs, this);
 	creAnims[number]->pos.x = coords.first;
 	//creAnims[number]->pos.y = coords.second;
 
@@ -1114,31 +1114,15 @@ void CBattleInterface::newStack(int stackID)
 {
 	const CStack * newStack = LOCPLINT->cb->battleGetStackByID(stackID);
 
-	std::pair <int, int> coords;
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(newStack->position, newStack->owner == attackingHeroInstance->tempOwner, newStack, this);;
 
 	if(newStack->position < 0) //turret
 	{
 		const CCreature & turretCreature = CGI->creh->creatures[ CGI->creh->factionToTurretCreature[siegeH->town->town->typeID] ];
-
-		int xShift = turretCreature.isDoubleWide() ? 44 : 0;
-
-		switch(newStack->position)
-		{
-		case -2: //keep
-			coords = std::make_pair(505 + xShift, -66);
-			break;
-		case -3: //lower turret
-			coords = std::make_pair(368 + xShift, 304);
-			break;
-		case -4: //upper turret
-			coords = std::make_pair(339 + xShift, -192);
-			break;	
-		}
 		creAnims[stackID] = new CCreatureAnimation(turretCreature.animDefName);	
 	}
 	else
 	{
-		coords = CBattleHex::getXYUnitAnim(newStack->position, newStack->owner == attackingHeroInstance->tempOwner, newStack);
 		creAnims[stackID] = new CCreatureAnimation(newStack->creature->animDefName);	
 	}
 	creAnims[stackID]->setType(2);
@@ -1185,8 +1169,8 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 	bool twoTiles = movedStack->hasFeatureOfType(StackFeature::DOUBLE_WIDE);
 
 	
-	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack);
-	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack);
+	std::pair<int, int> begPosition = CBattleHex::getXYUnitAnim(curStackPos, movedStack->attackerOwned, movedStack, this);
+	std::pair<int, int> endPosition = CBattleHex::getXYUnitAnim(destHex, movedStack->attackerOwned, movedStack, this);
 
 	if(startMoving) //animation of starting move; some units don't have this animation (ie. halberdier)
 	{
@@ -1291,7 +1275,7 @@ void CBattleInterface::stackMoved(int number, int destHex, bool endMoving, int d
 		handleEndOfMove(number, destHex);
 	}
 
-	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], movedStack);
+	std::pair <int, int> coords = CBattleHex::getXYUnitAnim(destHex, creDir[number], movedStack, this);
 	creAnims[number]->pos.x = coords.first;
 	if(!endMoving && twoTiles && (movedStack->owner == attackingHeroInstance->tempOwner) && (creDir[number] != (movedStack->owner == attackingHeroInstance->tempOwner))) //big attacker creature is reversed
 		creAnims[number]->pos.x -= 44;
@@ -1915,8 +1899,8 @@ void CBattleInterface::stackIsShooting(int ID, int dest)
 	spi.frameNum = 0;
 	spi.spin = CGI->creh->idToProjectileSpin[spi.creID];
 
-	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(LOCPLINT->cb->battleGetPos(ID), true, LOCPLINT->cb->battleGetStackByID(ID));
-	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, LOCPLINT->cb->battleGetStackByID(ID)); 
+	std::pair<int, int> xycoord = CBattleHex::getXYUnitAnim(LOCPLINT->cb->battleGetPos(ID), true, LOCPLINT->cb->battleGetStackByID(ID), this);
+	std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(dest, false, LOCPLINT->cb->battleGetStackByPos(dest), this); 
 	destcoord.first += 250; destcoord.second += 210; //TODO: find a better place to shoot
 
 	if(projectileAngle > straightAngle) //upper shot
@@ -2011,7 +1995,7 @@ void CBattleInterface::spellCast(SpellCast * sc)
 			//initial variables
 			std::string animToDisplay;
 			std::pair<int, int> srccoord = sc->side ? std::make_pair(770, 60) : std::make_pair(30, 60);
-			std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(sc->tile, !sc->side, LOCPLINT->cb->battleGetStackByPos(sc->tile)); //position attacked by arrow
+			std::pair<int, int> destcoord = CBattleHex::getXYUnitAnim(sc->tile, !sc->side, LOCPLINT->cb->battleGetStackByPos(sc->tile), this); //position attacked by arrow
 			destcoord.first += 250; destcoord.second += 240;
 
 			//animation angle
@@ -2809,8 +2793,27 @@ CBattleHero::~CBattleHero()
 	delete flag;
 }
 
-std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack)
+std::pair<int, int> CBattleHex::getXYUnitAnim(const int & hexNum, const bool & attacker, const CStack * stack, const CBattleInterface * cbi)
 {
+	if(stack->position < 0) //creatures in turrets
+	{
+		const CCreature & turretCreature = CGI->creh->creatures[ CGI->creh->factionToTurretCreature[cbi->siegeH->town->town->typeID] ];
+		int xShift = turretCreature.isDoubleWide() ? 44 : 0;
+
+		switch(stack->position)
+		{
+		case -2: //keep
+			return std::make_pair(505 + xShift, -66);
+			break;
+		case -3: //lower turret
+			return std::make_pair(368 + xShift, 304);
+			break;
+		case -4: //upper turret
+			return std::make_pair(339 + xShift, -192);
+			break;	
+		}
+	}
+
 	std::pair<int, int> ret = std::make_pair(-500, -500); //returned value
 	ret.second = -139 + 42 * (hexNum/BFIELD_WIDTH); //counting y
 	//counting x
