@@ -395,7 +395,7 @@ bool BattleInfo::isAccessible(int hex, bool * accessibility, bool twoHex, bool a
 	}
 }
 
-void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying) const //both pointers must point to the at least 187-elements int arrays
+void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *dists, bool twoHex, bool attackerOwned, bool flying, bool fillPredecessors) const //both pointers must point to the at least 187-elements int arrays
 {
 	//inits
 	for(int b=0; b<BFIELD_SIZE; ++b)
@@ -403,27 +403,32 @@ void BattleInfo::makeBFS(int start, bool *accessibility, int *predecessor, int *
 	for(int g=0; g<BFIELD_SIZE; ++g)
 		dists[g] = 100000000;	
 	
-	std::queue<int> hexq; //bfs queue
-	hexq.push(start);
-	dists[hexq.front()] = 0;
+	std::queue< std::pair<int, bool> > hexq; //bfs queue <hex, accessible> (second filed used only if fillPredecessors is true)
+	hexq.push(std::make_pair(start, true));
+	dists[hexq.front().first] = 0;
 	int curNext = -1; //for bfs loop only (helper var)
 	while(!hexq.empty()) //bfs loop
 	{
-		int curHex = hexq.front();
-		std::vector<int> neighbours = neighbouringTiles(curHex);
+		std::pair<int, bool> curHex = hexq.front();
+		std::vector<int> neighbours = neighbouringTiles(curHex.first);
 		hexq.pop();
 		for(unsigned int nr=0; nr<neighbours.size(); nr++)
 		{
 			curNext = neighbours[nr]; //if(!accessibility[curNext] || (dists[curHex]+1)>=dists[curNext])
-			bool accessible = isAccessible(curNext, accessibility, twoHex, attackerOwned, flying, dists[curHex]+1 == dists[curNext]);
-			if( dists[curHex]+1 >= dists[curNext] )
+			bool accessible = isAccessible(curNext, accessibility, twoHex, attackerOwned, flying, dists[curHex.first]+1 == dists[curNext]);
+			if( dists[curHex.first]+1 >= dists[curNext] )
 				continue;
-			if(accessible)
+			if(accessible && curHex.second)
 			{
-				hexq.push(curNext);
-				dists[curNext] = dists[curHex] + 1;
+				hexq.push(std::make_pair(curNext, true));
+				dists[curNext] = dists[curHex.first] + 1;
 			}
-			predecessor[curNext] = curHex;
+			else if(fillPredecessors && !(accessible && !curHex.second))
+			{
+				hexq.push(std::make_pair(curNext, false));
+				dists[curNext] = dists[curHex.first] + 1;
+			}
+			predecessor[curNext] = curHex.first;
 		}
 	}
 };
@@ -442,7 +447,7 @@ std::vector<int> BattleInfo::getAccessibility(int stackID, bool addOccupiable) c
 	getAccessibilityMap(ac, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, addOccupiable, occupyable, s->hasFeatureOfType(StackFeature::FLYING), stackID);
 
 	int pr[BFIELD_SIZE], dist[BFIELD_SIZE];
-	makeBFS(s->position, ac, pr, dist, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, s->hasFeatureOfType(StackFeature::FLYING));
+	makeBFS(s->position, ac, pr, dist, s->hasFeatureOfType(StackFeature::DOUBLE_WIDE), s->attackerOwned, s->hasFeatureOfType(StackFeature::FLYING), false);
 
 	if(s->hasFeatureOfType(StackFeature::DOUBLE_WIDE))
 	{
@@ -548,7 +553,7 @@ std::pair< std::vector<int>, int > BattleInfo::getPath(int start, int dest, bool
 	int predecessor[BFIELD_SIZE]; //for getting the Path
 	int dist[BFIELD_SIZE]; //calculated distances
 
-	makeBFS(start, accessibility, predecessor, dist, twoHex, attackerOwned, flyingCreature);
+	makeBFS(start, accessibility, predecessor, dist, twoHex, attackerOwned, flyingCreature, false);
 	
 	if(predecessor[dest] == -1) //cannot reach destination
 	{
@@ -2568,7 +2573,7 @@ std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closes
 	getAccessibilityMap(ac, closest->hasFeatureOfType(StackFeature::DOUBLE_WIDE), closest->attackerOwned, false, occupyable, closest->hasFeatureOfType(StackFeature::FLYING), closest->ID);
 
 	int predecessor[BFIELD_SIZE], dist[BFIELD_SIZE];
-	makeBFS(closest->position, ac, predecessor, dist, closest->hasFeatureOfType(StackFeature::DOUBLE_WIDE), closest->attackerOwned, closest->hasFeatureOfType(StackFeature::FLYING));
+	makeBFS(closest->position, ac, predecessor, dist, closest->hasFeatureOfType(StackFeature::DOUBLE_WIDE), closest->attackerOwned, closest->hasFeatureOfType(StackFeature::FLYING), true);
 
 	std::vector< std::pair< std::pair<int, int>, const CStack *> > stackPairs; //pairs <<distance, hex>, stack>
 	for(int g=0; g<BFIELD_SIZE; ++g)
@@ -2586,14 +2591,25 @@ std::pair<const CStack *, int> BattleInfo::getNearestStack(const CStack * closes
 
 	if(stackPairs.size() > 0)
 	{
-		std::pair< std::pair<int, int>, const CStack *> minimalPair = stackPairs[0];
+		std::vector< std::pair< std::pair<int, int>, const CStack *> > minimalPairs;
+		minimalPairs.push_back(stackPairs[0]);
 	
 		for(int b=1; b<stackPairs.size(); ++b)
 		{
-			if(stackPairs[b].first.first < minimalPair.first.first)
-				minimalPair = stackPairs[b];
+			if(stackPairs[b].first.first < minimalPairs[0].first.first)
+			{
+				minimalPairs.clear();
+				minimalPairs.push_back(stackPairs[b]);
+			}
+			else if(stackPairs[b].first.first == minimalPairs[0].first.first)
+			{
+				minimalPairs.push_back(stackPairs[b]);
+			}
 		}
-		return std::make_pair(minimalPair.second, predecessor[minimalPair.first.second]);
+
+		std::pair< std::pair<int, int>, const CStack *> minPair = minimalPairs[minimalPairs.size()/2];
+
+		return std::make_pair(minPair.second, predecessor[minPair.first.second]);
 	}
 
 	return std::make_pair<const CStack * , int>(NULL, -1);
