@@ -143,7 +143,7 @@ void CHeroHandler::loadWallPositions()
 		for(int g=0; g<ARRAY_COUNT(wallPositions); ++g)
 		{
 			inp >> dump;
-			for(int b=0; b<10; ++b)
+			for(int b=0; b<12; ++b)
 			{
 				std::pair<int, int> pt;
 				inp >> pt.first;

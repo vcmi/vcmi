@@ -999,12 +999,15 @@ struct CatapultAttack : public CPackForClient //3015
 	DLL_EXPORT void applyGs(CGameState *gs);
 	void applyCl(CClient *cl);
 
-	ui8 attackedPartOfWall;//[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate;
-	ui8 damageDealt;
+	std::set< std::pair<ui8, ui8> > attackedParts; // <attackedPartOfWall, damageDealt>
+	//attackedPartOfWall; //[0] - keep, [1] - bottom tower, [2] - bottom wall, [3] - below gate, [4] - over gate, [5] - upper wall, [6] - uppert tower, [7] - gate;
+	//damageDealt;
+
+	bool byCatapult; //if true, by catapult, if false - by something else (ie. spell)
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & attackedPartOfWall & damageDealt;
+		h & attackedParts & byCatapult;
 	}
 };
 

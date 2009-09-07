@@ -1,4 +1,4 @@
-//this file is a description of positions of wall parts' positions, following lines contain positions of: bottom tower, bottom wall, wall below gate, wall over gate, upper wall, upper tower, gate, gate arch, bottom static wall and upper static wall (x, y)
+//this file is a description of positions of wall parts' positions, following lines contain positions of: bottom tower, bottom wall, wall below gate, wall over gate, upper wall, upper tower, gate, gate arch, bottom static wall and upper static wall, moat, mlip (x, y)
 //Castle 
 601 500 
 528 350 
@@ -10,6 +10,8 @@
 476 238 
 511 347 
 488 79 
+410 90 
+410 80 
 //Rampart 
 593 511 
 548 451 
@@ -21,6 +23,8 @@
 459 220 
 509 364 
 491 103 
+410 77 
+410 97 
 //Tower 
 591 516 
 547 452 
@@ -32,6 +36,8 @@
 470 187 
 516 365 
 513 79 
+410 90 
+410 80 
 //Inferno 
 594 514 
 560 451 
@@ -43,6 +49,8 @@
 476 221 
 521 376 
 501 92 
+410 68 
+410 68 
 //Necropolis 
 591 512 
 535 445 
@@ -54,6 +62,8 @@
 473 240 
 508 372 
 503 97 
+410 78 
+412 77 
 //Dungeon 
 599 495 
 558 448 
@@ -65,6 +75,8 @@
 470 164 
 521 305 
 493 53 
+277 94 
+277 94 
 //Stronghold 
 585 508 
 552 440 
@@ -76,6 +88,8 @@
 477 235 
 510 380 
 498 107 
+410 90 
+410 91 
 //Fortress 
 599 505 
 545 441 
@@ -87,6 +101,8 @@
 482 236 
 521 382 
 507 130 
+369 95 
+363 70 
 //Conflux 
 607 505 
 508 346 
@@ -97,4 +113,6 @@
 408 254 
 485 232 
 508 346 
-489 97
+489 97 
+410 80 
+410 80 

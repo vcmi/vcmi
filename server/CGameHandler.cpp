@@ -2562,8 +2562,9 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					continue;
 				
 				CatapultAttack ca; //package for clients
-				ca.attackedPartOfWall = attackedPart;
-				ca.damageDealt = 0;
+				std::pair<ui8, ui8> attack;
+				attack.first = attackedPart;
+				attack.second = 0;
 
 				int chanceForHit = 0;
 				int dmgChance[3] = {sbi.noDmg, sbi.oneDmg, sbi.twoDmg}; //dmgChance[i] - chance for doing i dmg when hit is successful
@@ -2598,11 +2599,11 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 					{
 						if(dmgRand <= dmgChance[v])
 						{
-							ca.damageDealt = v;
+							attack.second = v;
 							break;
 						}
 					}
-					if(ca.damageDealt > 0 && (attackedPart == 0 || attackedPart == 1 || attackedPart == 6))
+					if(attack.second > 0 && (attackedPart == 0 || attackedPart == 1 || attackedPart == 6))
 					{
 						int posRemove = -1;
 						switch(attackedPart)
@@ -2631,6 +2632,8 @@ bool CGameHandler::makeBattleAction( BattleAction &ba )
 						sendAndApply(&bsr);
 					}
 				}
+				ca.byCatapult = true;
+				ca.attackedParts.insert(attack);
 
 				sendAndApply(&ca);
 			}

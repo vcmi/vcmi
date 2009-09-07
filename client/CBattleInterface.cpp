@@ -109,10 +109,13 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 			SDL_Surface * moat = BitmapHandler::loadBitmap( siegeH->getSiegeName(13) ),
 				* mlip = BitmapHandler::loadBitmap( siegeH->getSiegeName(14) );
 
+			std::pair<int, int> moatPos = CGI->heroh->wallPositions[siegeH->town->town->typeID][10],
+				mlipPos = CGI->heroh->wallPositions[siegeH->town->town->typeID][11];
+
 			if(moat) //eg. tower has no moat
-				blitAt(moat, 410, background->h - moat->h, background);
+				blitAt(moat, moatPos.first,moatPos.second, background);
 			if(mlip) //eg. tower has no mlip
-				blitAt(mlip, 410, background->h - mlip->h, background);
+				blitAt(mlip, mlipPos.first, mlipPos.second, background);
 
 			SDL_FreeSurface(moat);
 			SDL_FreeSurface(mlip);
