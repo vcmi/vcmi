@@ -1578,6 +1578,10 @@ void CBattleInterface::newRound(int number)
 
 void CBattleInterface::giveCommand(ui8 action, ui16 tile, ui32 stack, si32 additional)
 {
+	if(!LOCPLINT->cb->battleGetStackByID(stack))
+	{
+		return;
+	}
 	BattleAction * ba = new BattleAction(); //is deleted in CPlayerInterface::activeStack()
 	ba->side = defendingHeroInstance ? (LOCPLINT->playerID == defendingHeroInstance->tempOwner) : false;
 	ba->actionType = action;
