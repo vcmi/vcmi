@@ -103,6 +103,9 @@ public:
 	virtual void newTurn() const;
 	virtual void initObj(); //synchr
 	virtual void setProperty(ui8 what, ui32 val);//synchr
+
+	static void preInit(); //called before objs receive their initObj
+	static void postInit();//caleed after objs receive their initObj
 };
 
 class DLL_EXPORT IShipyard
@@ -121,7 +124,7 @@ public:
 	static IShipyard *castFrom(CGObjectInstance *obj);
 };
 
-class DLL_EXPORT CGObjectInstance : protected IObjectInterface
+class DLL_EXPORT CGObjectInstance : public IObjectInterface
 {
 protected:
 	void getNameVis(std::string &hname) const;
@@ -388,16 +391,6 @@ public:
 	std::vector<CGTownBuilding*> bonusingBuildings;
 	std::vector<ui32> possibleSpells, obligatorySpells;
 	std::vector<std::vector<ui32> > spells; //spells[level] -> vector of spells, first will be available in guild
-
-	//struct StrInfo
-	//{
-	//	std::map<si32,ui32> creatures; //level - available amount
-
-	//	template <typename Handler> void serialize(Handler &h, const int version)
-	//	{
-	//		h & creatures;
-	//	}
-	//} strInfo;
 	std::set<CCastleEvent> events;
 
 	//////////////////////////////////////////////////////////////////////////
@@ -723,9 +716,11 @@ public:
 class DLL_EXPORT CGTeleport : public CGObjectInstance //teleports and subterranean gates
 {
 public:
-	static std::map<int,std::map<int, std::vector<int> > > objs; //map[ID][subID] => vector of ids
+	static std::map<int,std::map<int, std::vector<int> > > objs; //teleports: map[ID][subID] => vector of ids
+	static std::vector<std::pair<int, int> > gates; //subterranean gates: pairs of ids
 	void onHeroVisit(const CGHeroInstance * h) const;
 	void initObj();	
+	static void postInit();
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{

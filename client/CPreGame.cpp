@@ -977,7 +977,7 @@ void InfoCard::showAll( SDL_Surface * to )
 
 void InfoCard::changeSelection( const CMapInfo *to )
 {
-	if(to/* && type != newGame*/)
+	if(to && type != newGame)
 		difficulty->select(curOpts->difficulty, 0);
 	GH.totalRedraw();
 }
@@ -1257,6 +1257,9 @@ OptionsTab::PlayerOptionsEntry::PlayerOptionsEntry( OptionsTab *owner, PlayerSet
 		btns[4] = new AdventureMapButton(CGI->generaltexth->zelp[164], bind(&OptionsTab::nextBonus, owner, s.serial, -1), 259, 5, "ADOPLFA.DEF");
 		btns[5] = new AdventureMapButton(CGI->generaltexth->zelp[165], bind(&OptionsTab::nextBonus, owner, s.serial, +1), 320, 5, "ADOPRTA.DEF");
 	}
+	else
+		for(int i = 0; i < 6; i++)
+			btns[i] = NULL;
 
 	fixedHero = s.hero != -1; //if we doesn't start with "random hero" it must be fixed or none
 	selectButtons(false);
@@ -1287,7 +1290,7 @@ void OptionsTab::PlayerOptionsEntry::showAll( SDL_Surface * to )
 
 void OptionsTab::PlayerOptionsEntry::selectButtons(bool onlyHero)
 {
-	if(type != newGame)
+	if(!btns[0])
 		return;
 
 	if(!onlyHero  &&  s.castle != -1)

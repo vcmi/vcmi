@@ -150,11 +150,7 @@ void CGuiHandler::handleEvent(SDL_Event *sEvent)
 		SDL_KeyboardEvent key = sEvent->key;
 
 		//translate numpad keys
-		if (key.keysym.sym >= SDLK_KP0  && key.keysym.sym <= SDLK_KP9)
-		{
-			key.keysym.sym = (SDLKey) (key.keysym.sym - SDLK_KP0 + SDLK_0);
-		}
-		else if(key.keysym.sym == SDLK_KP_ENTER)
+		if(key.keysym.sym == SDLK_KP_ENTER)
 		{
 			key.keysym.sym = (SDLKey)SDLK_RETURN;
 		}
@@ -700,4 +696,40 @@ void IShowable::redraw()
 	showAll(screenBuf);
 	if(screenBuf != screen)
 		showAll(screen);
+}
+
+SDLKey arrowToNum( SDLKey key )
+{
+	switch(key)
+	{
+	case SDLK_DOWN:
+		return SDLK_KP2;
+	case SDLK_UP:
+		return SDLK_KP8;
+	case SDLK_LEFT:
+		return SDLK_KP4;
+	case SDLK_RIGHT:
+		return SDLK_KP6;
+	default:
+		assert(0);
+	}
+	throw std::string("Wrong key!");
+}
+
+SDLKey numToDigit( SDLKey key )
+{
+	return SDLKey(key - SDLK_KP0 + SDLK_0);
+}
+
+bool isNumKey( SDLKey key, bool number )
+{
+	if(number)
+		return key >= SDLK_KP0 && key <= SDLK_KP_EQUALS;
+	else
+		return key >= SDLK_KP0 && key <= SDLK_KP9;
+}
+
+bool isArrowKey( SDLKey key )
+{
+	return key >= SDLK_UP && key <= SDLK_LEFT;
 }

@@ -632,5 +632,5 @@ void CSlider::setAmount( int to )
 {
 	amount = to;
 	positions = to - capacity;
-	amax(positions, 1);
+	amax(positions, 0);
 }

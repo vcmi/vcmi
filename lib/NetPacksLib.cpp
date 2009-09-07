@@ -646,6 +646,7 @@ DLL_EXPORT void BattleSetActiveStack::applyGs( CGameState *gs )
 {
 	gs->curB->activeStack = stack;
 	CStack *st = gs->curB->getStack(stack);
+	st->state -= WAITING; //if stack was waiting it'll now make move, so it won't be "waiting" anymore
 	if(vstd::contains(st->state,MOVED)) //if stack is moving second time this turn it must had a high morale bonus
 		st->state.insert(HAD_MORALE);
 }
@@ -719,6 +720,7 @@ DLL_EXPORT void BattleAttack::applyGs( CGameState *gs )
 DLL_EXPORT void StartAction::applyGs( CGameState *gs )
 {
 	CStack *st = gs->curB->getStack(ba.stackNumber);
+	assert(st);
 	switch(ba.actionType)
 	{
 	case 3:

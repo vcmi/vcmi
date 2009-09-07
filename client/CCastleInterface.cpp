@@ -992,7 +992,7 @@ void CCastleInterface::enterTavern()
 
 void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 {
-	if(key.state != SDL_RELEASED) return;
+	if(key.state != SDL_PRESSED) return;
 
 	switch(key.keysym.sym)
 	{

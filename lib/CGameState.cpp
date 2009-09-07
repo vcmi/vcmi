@@ -90,6 +90,61 @@ public:
 
 } *applierGs = NULL;
 
+class IObjectCaller
+{
+public:
+	virtual void preInit()=0;
+	virtual void postInit()=0;
+};
+
+template <typename T>
+class CObjectCaller : public IObjectCaller
+{
+public:
+	void preInit()
+	{
+		T::preInit();
+	}
+	void postInit()
+	{
+		T::postInit();
+	}
+};
+
+class CObjectCallersHandler
+{
+public:
+	std::vector<IObjectCaller*> apps; 
+
+	template<typename T> void registerType(const T * t=NULL)
+	{
+		apps.push_back(new CObjectCaller<T>);
+	}
+
+	CObjectCallersHandler()
+	{
+		registerTypes1(*this);
+	}
+
+	~CObjectCallersHandler()
+	{
+		for (size_t i = 0; i < apps.size(); i++)
+			delete apps[i];
+	}
+
+	void preInit()
+	{
+		for (size_t i = 0; i < apps.size(); i++)
+			apps[i]->preInit();
+	}
+
+	void postInit()
+	{
+		for (size_t i = 0; i < apps.size(); i++)
+			apps[i]->postInit();
+	}
+} *objCaller = NULL;
+
 void MetaString::getLocalString(const std::pair<ui8,ui32> &txt, std::string &dst) const
 {
 	int type = txt.first, ser = txt.second;
@@ -252,12 +307,7 @@ CStack * BattleInfo::getStack(int stackID, bool onlyAlive)
 
 const CStack * BattleInfo::getStack(int stackID, bool onlyAlive) const
 {
-	for(unsigned int g=0; g<stacks.size(); ++g)
-	{
-		if(stacks[g]->ID == stackID && (!onlyAlive || stacks[g]->alive()))
-			return stacks[g];
-	}
-	return NULL;
+	return const_cast<BattleInfo * const>(this)->getStack(stackID, onlyAlive);
 }
 
 CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
@@ -279,19 +329,7 @@ CStack * BattleInfo::getStackT(int tileID, bool onlyAlive)
 
 const CStack * BattleInfo::getStackT(int tileID, bool onlyAlive) const
 {
-	for(unsigned int g=0; g<stacks.size(); ++g)
-	{
-		if(stacks[g]->position == tileID 
-			|| (stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && stacks[g]->attackerOwned && stacks[g]->position-1 == tileID)
-			|| (stacks[g]->hasFeatureOfType(StackFeature::DOUBLE_WIDE) && !stacks[g]->attackerOwned && stacks[g]->position+1 == tileID))
-		{
-			if(!onlyAlive || stacks[g]->alive())
-			{
-				return stacks[g];
-			}
-		}
-	}
-	return NULL;
+	return const_cast<BattleInfo * const>(this)->getStackT(tileID, onlyAlive);
 }
 
 void BattleInfo::getAccessibilityMap(bool *accessibility, bool twoHex, bool attackerOwned, bool addOccupiable, std::set<int> & occupyable, bool flying, int stackToOmmit) const
@@ -749,12 +787,22 @@ ui16 CStack::MaxHealth() const
 	return creature->hitPoints + valOfFeatures(StackFeature::HP_BONUS);
 }
 
-bool CStack::willMove()
+bool CStack::willMove() const
 {
 	return !vstd::contains(state, DEFENDING)
-		&& !vstd::contains(state, MOVED)
-		&& alive()
+		&& !moved()
+		&& canMove();
+}
+
+bool CStack::canMove() const
+{
+	return alive()
 		&& ! hasFeatureOfType(StackFeature::NOT_ACTIVE); //eg. Ammo Cart
+}
+
+bool CStack::moved() const
+{
+	return vstd::contains(state, MOVED);
 }
 
 CGHeroInstance * CGameState::HeroesPool::pickHeroFor(bool native, int player, const CTown *town, std::map<ui32,CGHeroInstance *> &available) const
@@ -1105,6 +1153,7 @@ CGameState::CGameState()
 	curB = NULL;
 	scenarioOps = NULL;
 	applierGs = new CGSApplier;
+	objCaller = new CObjectCallersHandler;
 }
 CGameState::~CGameState()
 {
@@ -1113,6 +1162,7 @@ CGameState::~CGameState()
 	delete curB;
 	delete scenarioOps;
 	delete applierGs;
+	delete objCaller;
 }
 void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 {
@@ -1456,12 +1506,14 @@ void CGameState::init(StartInfo * si, Mapa * map, int Seed)
 		map->defy[i]->serial = i;
 	}
 
+	objCaller->preInit();
 	for(unsigned int i=0; i<map->objects.size(); i++)
 	{
 		map->objects[i]->initObj();
 		if(map->objects[i]->ID == 62) //prison also needs to initialize hero
 			static_cast<CGHeroInstance*>(map->objects[i])->initHero();
 	}
+	objCaller->postInit();
 }
 
 bool CGameState::battleShootCreatureStack(int ID, int dest)
@@ -1915,10 +1967,14 @@ bool CGameState::getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath
 
 void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src, int movement)
 {
+	assert(hero);
 	if(src.x < 0)
 		src = hero->getPosition(false);
 	if(movement < 0)
 		movement = hero->movement;
+
+	out.hero = hero;
+	out.hpos = src;
 
 	if(!map->isInTheMap(src)/* || !map->isInTheMap(dest)*/) //check input
 	{
@@ -1953,6 +2009,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				node.coord.y = j;
 				node.coord.z = k;
 				node.land = tinfo->tertype != TerrainTile::water;
+				node.theNodeBefore = NULL;
 
 				if ( tinfo->tertype == TerrainTile::rock//it's rock
 					|| onLand  && !node.land		//it's sea and we cannot walk on sea
@@ -1988,7 +2045,7 @@ void CGameState::calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int
 				else if(!onLand && tinfo->tertype != TerrainTile::water) //hero is moving by water
 				{
 					if((tinfo->siodmyTajemniczyBajt & 64) && !tinfo->blocked)
-						node.accessible = CGPathNode::ACCESSIBLE; //tile is accessible if it's coastal and not blocked
+						node.accessible = CGPathNode::VISITABLE; //tile is accessible if it's coastal and not blocked
 				}
 			}
 		}
@@ -2213,7 +2270,7 @@ std::pair<ui32, ui32> BattleInfo::calculateDmgRange(const CStack* attacker, cons
 				affectedIds.push_back(151); //diamond dragon
 				affectedIds.push_back(154); //blood dragon
 				affectedIds.push_back(155); //darkness dragon
-				affectedIds.push_back(156); //ghost behemot
+				affectedIds.push_back(156); //ghost behemoth
 				affectedIds.push_back(157); //hell hydra
 				break;
 			}
@@ -2412,17 +2469,17 @@ si8 CGameState::battleMaxSpellLevel()
 std::set<CStack*> BattleInfo::getAttackedCreatures(const CSpell * s, const CGHeroInstance * caster, int destinationTile)
 {
 	std::set<ui16> attackedHexes = s->rangeInHexes(destinationTile, caster->getSpellSchoolLevel(s));
-	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurences of two hex creatures*/
+	std::set<CStack*> attackedCres; /*std::set to exclude multiple occurrences of two hex creatures*/
 
 	bool onlyAlive = s->id != 38 && s->id != 39; //when casting resurrection or animate dead we should be allow to select dead stack
 
-	if(s->id == 24 || s->id == 25 || s->id == 26) //death ripple, destroy undead and armageddon
+	if(s->id == 24 || s->id == 25 || s->id == 26) //death ripple, destroy undead and Armageddon
 	{
 		for(int it=0; it<stacks.size(); ++it)
 		{
 			if((s->id == 24 && !stacks[it]->creature->isUndead()) //death ripple
 				|| (s->id == 25 && stacks[it]->creature->isUndead()) //destroy undead
-				|| (s->id == 26) //armageddon
+				|| (s->id == 26) //Armageddon
 				)
 			{
 				attackedCres.insert(stacks[it]);
@@ -2641,90 +2698,148 @@ bool CGameState::battleCanShoot(int ID, int dest)
 	return false;
 }
 
-CStack * BattleInfo::getNextStack()
+const CStack * BattleInfo::getNextStack() const
 {
-	CStack *current = getStack(activeStack);
-	for (unsigned int i = 0; i <  stacks.size(); i++)  //find fastest not moved/waited stack (stacks vector is sorted by speed)
-	{
-		if(stacks[i]->willMove()  &&  !vstd::contains(stacks[i]->state,WAITING))
-			return stacks[i];
-	}
-	for (int i = stacks.size() - 1; i >= 0 ; i--) //find slowest waiting stack
-	{
-		if(stacks[i]->willMove())
-			return stacks[i];
-	}
-	return NULL; //all stacks moved or defending!
+	std::vector<const CStack *> hlp;
+	getStackQueue(hlp, 1, 2);
+
+	if(hlp.size())
+		return hlp[0];
+	else
+		return NULL;
 }
 
-std::vector<CStack> BattleInfo::getStackQueue()
+static const CStack *takeStack(std::vector<const CStack *> &st, int &curside)
 {
-	std::vector<CStack> ret;
-	std::vector<int> taken; //if non-zero value, corresponding stack has been placed in ret
-	taken.resize(stacks.size());
-	for(unsigned int g=0; g<taken.size(); ++g)
-	{
-		taken[g] = 0;
-	}
+	const CStack *ret = NULL;
+	unsigned i, //fastest stack
+		j; //fastest stack of the other side
+	for(i = 0; i < st.size(); i++)
+		if(st[i])
+			break;
 
-	for(int moved=0; moved<2; ++moved) //in first cycle we add stacks that can act in current turn, in second one the rest of them
+	//no stacks left
+	if(i == st.size())
+		return NULL;
+
+	const CStack *fastest = st[i], *other = NULL;
+	int bestSpeed = fastest->Speed();
+
+	if(fastest->attackerOwned != curside)
 	{
-		for(unsigned int gc=0; gc<stacks.size(); ++gc)
+		ret = fastest;
+	}
+	else
+	{
+		for(j = i + 1; j < st.size(); j++)
 		{
-			int id = -1, speed = -1;
-			for(unsigned int i=0; i<stacks.size(); ++i) //find not waited stacks only
-			{
-				if((moved == 1 ||!vstd::contains(stacks[i]->state, DEFENDING))
-					&& stacks[i]->alive()
-					&& (moved == 1 || !vstd::contains(stacks[i]->state, MOVED))
-					&& !vstd::contains(stacks[i]->state,WAITING)
-					&& taken[i]==0
-					&& !stacks[i]->hasFeatureOfType(StackFeature::NOT_ACTIVE)) //eg. Ammo Cart
-				{
-					if(speed == -1 || stacks[i]->Speed() > speed)
-					{
-						id = i;
-						speed = stacks[i]->Speed();
-					}
-				}
-			}
-			if(id != -1)
-			{
-				ret.push_back(*stacks[id]);
-				taken[id] = 1;
-			}
-			else //choose something from not moved stacks
-			{
-				int id = -1, speed = 10000; //infinite speed
-				for(unsigned int i=0; i<stacks.size(); ++i) //find waited stacks only
-				{
-					if((moved == 1 ||!vstd::contains(stacks[i]->state, DEFENDING))
-						&& stacks[i]->alive()
-						&& (moved == 1 || !vstd::contains(stacks[i]->state, MOVED))
-						&& vstd::contains(stacks[i]->state,WAITING)
-						&& taken[i]==0
-						&& !stacks[i]->hasFeatureOfType(StackFeature::NOT_ACTIVE)) //eg. Ammo Cart
-					{
-						if(stacks[i]->Speed() < speed) //slowest one
-						{
-							id = i;
-							speed = stacks[i]->Speed();
-						}
-					}
-				}
-				if(id != -1)
-				{
-					ret.push_back(*stacks[id]);
-					taken[id] = 1;
-				}
-				else
-				{
-					break; //no stacks have been found, so none of them will be found in next iterations
-				}
-			}
+			if(!st[j]) continue;
+			if(st[j]->attackerOwned != curside || st[j]->Speed() != bestSpeed)
+				break;
+		}
+
+		if(j >= st.size())
+		{
+			ret = fastest;
+		}
+		else
+		{
+			other = st[j];
+			if(other->Speed() != bestSpeed)
+				ret = fastest;
+			else
+				ret = other;
 		}
 	}
+
+	assert(ret);
+	if(ret == fastest)
+		st[i] = NULL;
+	else
+		st[j] = NULL;
+
+	curside = ret->attackerOwned;
 	return ret;
+}
+
+void BattleInfo::getStackQueue( std::vector<const CStack *> &out, int howMany, int mode, int lastMoved ) const 
+{
+	//we'll split creatures with remaining movement to 4 parts
+	std::vector<const CStack *> phase[4]; //0 - turrets/catapult, 1 - normal (unmoved) creatures, other war machines, 2 - waited cres that had morale, 3 - rest of waited cres
+	int toMove = 0; //how many stacks still has move
+
+	for(unsigned int i=0; i<stacks.size(); ++i)
+	{
+		const CStack * const s = stacks[i];
+		if(mode != 1  &&  s->willMove()
+			|| mode == 1  &&  s->canMove())
+		{
+			int p = -1; //in which phase this tack will move?
+			if(!mode && vstd::contains(s->state, WAITING))
+			{
+				if(vstd::contains(s->state, HAD_MORALE))
+					p = 2;
+				else
+					p = 3;
+			}
+			else if(vstd::contains(s->state, StackFeature::SIEGE_WEAPON)	 //catapult and turrets are first
+				&& (s->creature->idNumber == 145  ||  s->creature->idNumber == 149))
+			{
+				p = 0;
+			}
+			else
+			{
+				p = 1;
+			}
+
+			phase[p].push_back(s);
+			toMove++;
+		}
+	}
+
+	for(int i = 0; i < 4; i++)
+		std::sort(phase[i].begin(), phase[i].end(), CMP_stack(i));
+
+	for(size_t i = 0; i < phase[0].size() && i < howMany; i++)
+		out.push_back(phase[0][i]);
+
+	if(out.size() == howMany)
+		return;
+
+	if(lastMoved == -1)
+	{
+		const CStack *current = getStack(activeStack);
+		if(current)
+		{
+			lastMoved = !current->attackerOwned;
+			if(!current->willMove() || mode == 2)
+				lastMoved = !lastMoved;
+		}
+		else
+		{
+			lastMoved = 0;
+		}
+	}
+
+	int pi = 1;
+	while(out.size() < howMany)
+	{
+		const CStack *hlp = takeStack(phase[pi], lastMoved);
+		if(!hlp)
+		{
+			pi++;
+			if(pi > 3)
+			{
+				if(mode != 2)
+					getStackQueue(out, howMany, 1, lastMoved);
+				return;
+			}
+		}
+		else
+		{
+			out.push_back(hlp);
+		}
+	}
 }
 
 int3 CPath::startPos() const
@@ -2764,7 +2879,7 @@ bool CPathsInfo::getPath( const int3 &dst, CGPath &out )
 	if(!curnode->theNodeBefore)
 		return false;
 
-	while(curnode->theNodeBefore)
+	while(curnode)
 	{
 		out.nodes.push_back(*curnode);
 		curnode = curnode->theNodeBefore;
@@ -2797,4 +2912,68 @@ CPathsInfo::~CPathsInfo()
 		delete [] nodes[i];
 	}
 	delete [] nodes;
+}
+
+int3 CGPath::startPos() const
+{
+	return nodes[nodes.size()-1].coord;
+}
+
+int3 CGPath::endPos() const
+{
+	return nodes[0].coord;
+}
+
+void CGPath::convert( ui8 mode )
+{
+	if(mode==0)
+	{
+		for(unsigned int i=0;i<nodes.size();i++)
+		{
+			nodes[i].coord = CGHeroInstance::convertPosition(nodes[i].coord,true);
+		}
+	}
+}
+
+bool CMP_stack::operator()( const CStack* a, const CStack* b )
+{
+	switch(phase)
+	{
+	case 0: //catapult moves after turrets
+		return a->creature->idNumber < b->creature->idNumber; //catapult is 145 and turrets are 149
+		//TODO? turrets order
+	case 1: //fastest first, upper slot first
+		{
+			int as = a->Speed(), bs = b->Speed();
+			if(as != bs)
+				return as > bs;
+			else
+				return a->slot < b->slot;
+		}
+	case 2: //fastest last, upper slot first
+		//TODO: should be replaced with order of receiving morale!
+	case 3: //fastest last, upper slot first
+		{
+			int as = a->Speed(), bs = b->Speed();
+			if(as != bs)
+				return as < bs;
+			else
+				return a->slot < b->slot;
+		}
+	default:
+		assert(0);
+		return false;
+	}
+
+}
+
+CMP_stack::CMP_stack( int Phase /*= 1*/ )
+{
+	phase = Phase;
+}
+
+PlayerState::PlayerState() 
+ : color(-1), currentSelection(0xffffffff)
+{
+
 }

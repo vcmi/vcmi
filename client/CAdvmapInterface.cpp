@@ -545,9 +545,9 @@ void CTerrainRect::clickLeft(tribool down, bool previousState)
 		else if(mp.z == currentHero->pos.z) //remove old path and find a new one if we clicked on the map level on which hero is present
 		{
 			int3 bufpos = currentHero->getPosition(false);
-			CPath &path = LOCPLINT->adventureInt->paths[currentHero];
+			CGPath &path = LOCPLINT->adventureInt->paths[currentHero];
 			currentPath = &path;
-			if(!LOCPLINT->cb->getPath(bufpos, mp, currentHero, path))
+			if(!LOCPLINT->cb->getPath2(mp, path))
 			{
 				LOCPLINT->adventureInt->paths.erase(currentHero);
 				currentPath = NULL;
@@ -799,7 +799,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 			 * 7 8 9
 			 * ie. 157 means an arrow from left upper tile to left bottom tile through 5 (all arrows go through 5 in this notation)
 			*/
-			std::vector<CPathNode> & cv = currentPath->nodes;
+			std::vector<CGPathNode> & cv = currentPath->nodes;
 			if (cv[i+1].coord.x == cv[i].coord.x-1 && cv[i+1].coord.y == cv[i].coord.y-1) //15x
 			{
 				if(cv[i-1].coord.x == cv[i].coord.x+1 && cv[i-1].coord.y == cv[i].coord.y) //156
@@ -1042,7 +1042,7 @@ void CTerrainRect::showPath(const SDL_Rect * extRect)
 			}
 
 		}
-		if (  ((currentPath->nodes[i].dist)-(*(currentPath->nodes.end()-1)).dist) > (static_cast<const CGHeroInstance*>(LOCPLINT->adventureInt->selection))->movement)
+		if (currentPath->nodes[i].turns)
 			pn+=25;
 		if (pn>=0)
 		{
@@ -1712,8 +1712,9 @@ void CAdvMapInt::centerOn(int3 on)
 }
 void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 {
-	ui8 Dir;
-	switch(key.keysym.sym)
+	ui8 Dir = 0;
+	int k = key.keysym.sym;
+	switch(k)
 	{
 	case SDLK_i: 
 		if(active)
@@ -1723,18 +1724,6 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 		if(active)
 			GH.pushInt(new CSelectionScreen(saveGame));
 		return;
-	case SDLK_UP: 
-		Dir = UP;
-		break;
-	case SDLK_LEFT: 
-		Dir = LEFT;
-		break;
-	case SDLK_RIGHT: 
-		Dir = RIGHT;
-		break;
-	case SDLK_DOWN: 
-		Dir = DOWN;
-		break;
 	case SDLK_SPACE: //space - try to revisit current object with selected hero
 		{
 			if(!active) 
@@ -1777,9 +1766,70 @@ void CAdvMapInt::keyPressed(const SDL_KeyboardEvent & key)
 			return;
 		}
 	default: 
+		{
+			static const int3 directions[] = {  int3(-1, +1, 0), int3(0, +1, 0), int3(+1, +1, 0),
+												int3(-1, 0, 0),  int3(0, 0, 0),  int3(+1, 0, 0),
+												int3(-1, -1, 0), int3(0, -1, 0), int3(+1, -1, 0) };
+
+			//numpad arrow
+			if(isArrowKey(SDLKey(k)))
+			{
+				switch(k)
+				{
+				case SDLK_UP: 
+					Dir = UP;
+					break;
+				case SDLK_LEFT: 
+					Dir = LEFT;
+					break;
+				case SDLK_RIGHT: 
+					Dir = RIGHT;
+					break;
+				case SDLK_DOWN: 
+					Dir = DOWN;
+					break;
+				}
+
+				k = arrowToNum(SDLKey(k));
+			}
+
+			if(!active)
+				break;
+
+			k -= SDLK_KP0 + 1;
+			if(k < 0 || k > 8 || key.state != SDL_PRESSED)
+				return;
+
+
+			const CGHeroInstance *h = dynamic_cast<const CGHeroInstance *>(selection);
+			if(!h) break;
+			if(k == 4)
+			{
+				centerOn(h->getPosition(false));
+				return;
+			}
+
+			int3 dir = directions[k];
+
+			CGPath &path = paths[h];
+			terrain.currentPath = &path;
+			if(!LOCPLINT->cb->getPath2(h->getPosition(false) + dir, path))
+			{
+				terrain.currentPath = NULL;
+				return;
+			}
+
+			if(!path.nodes[0].turns)
+			{
+				LOCPLINT->pim->unlock();
+				LOCPLINT->moveHero(h, path);
+				LOCPLINT->pim->lock();
+			}
+		}
+
 		return;
 	}
-	if(key.state == SDL_PRESSED //arrow is pressed
+	if(Dir && key.state == SDL_PRESSED //arrow is pressed
 		&& (SDL_GetKeyState(NULL)[SDLK_LCTRL] 
 			|| SDL_GetKeyState(NULL)[SDLK_RCTRL])
 	)
@@ -1816,6 +1866,7 @@ int3 CAdvMapInt::verifyPos(int3 ver)
 void CAdvMapInt::select(const CArmedInstance *sel )
 {
 	LOCPLINT->cb->setSelection(sel);
+
 	centerOn(sel->pos);
 	selection = sel;
 
@@ -1834,9 +1885,10 @@ void CAdvMapInt::select(const CArmedInstance *sel )
 
 		if(vstd::contains(paths,h)) //hero has assigned path
 		{
-			CPath &path = paths[h];
+			CGPath &path = paths[h];
+			assert(h->getPosition(false) == path.startPos()); 
 			//update the hero path in case of something has changed on map
-			if(LOCPLINT->cb->getPath(path.startPos(), path.endPos(), h, path))
+			if(LOCPLINT->cb->getPath2(path.endPos(), path))
 				terrain.currentPath = &path;
 			else
 				paths.erase(h);

@@ -66,7 +66,9 @@ public:
 	std::vector<CGHeroInstance *> heroes;
 	std::vector<CGTownInstance *> towns;
 	std::vector<CGHeroInstance *> availableHeroes; //heroes available in taverns
-	PlayerState():color(-1),currentSelection(0xffffffff){};
+
+	PlayerState();
+
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
 		h & color & serial & human & currentSelection & fogOfWarMap & resources;
@@ -135,8 +137,8 @@ struct DLL_EXPORT BattleInfo
 		h & side1 & side2 & round & activeStack & siege & tid & tile & stacks & army1 & army2 & hero1 & hero2 & obstacles
 			& castSpells & si;
 	}
-	CStack * getNextStack(); //which stack will have turn after current one
-	std::vector<CStack> getStackQueue(); //returns stack in order of their movement action
+	const CStack * getNextStack() const; //which stack will have turn after current one
+	void getStackQueue(std::vector<const CStack *> &out, int howMany, int mode = 0, int lastMoved = -1) const; //returns stack in order of their movement action
 	CStack * getStack(int stackID, bool onlyAlive = true);
 	const CStack * getStack(int stackID, bool onlyAlive = true) const;
 	CStack * getStackT(int tileID, bool onlyAlive = true);
@@ -196,7 +198,9 @@ public:
 	CStack() : ID(-1), creature(NULL), amount(-1), baseAmount(-1), firstHPleft(-1), owner(255), slot(255), attackerOwned(true), position(-1), counterAttacks(1) {} //c-tor
 	const StackEffect * getEffect(ui16 id) const; //effect id (SP)
 	ui8 howManyEffectsSet(ui16 id) const; //returns amount of effects with given id set for this stack
-	bool willMove(); //if stack has remaining move this turn
+	bool willMove() const; //if stack has remaining move this turn
+	bool moved() const; //if stack was already moved this turn
+	bool canMove() const; //if stack can move
 	ui32 Speed() const; //get speed of creature with all modificators
 	si8 Morale() const; //get morale of stack with all modificators
 	si8 Luck() const; //get luck of stack with all modificators
@@ -227,6 +231,15 @@ public:
 	{
 		return vstd::contains(state,ALIVE);
 	}
+};
+
+class DLL_EXPORT CMP_stack
+{
+	int phase; //rules of which phase will be used
+public:
+
+	bool operator ()(const CStack* a, const CStack* b);
+	CMP_stack(int Phase = 1);
 };
 
 struct UpgradeInfo
@@ -279,6 +292,8 @@ struct DLL_EXPORT CGPath
 
 struct DLL_EXPORT CPathsInfo
 {
+	const CGHeroInstance *hero;
+	int3 hpos;
 	int3 sizes;
 	CGPathNode ***nodes; //[w][h][level]
 

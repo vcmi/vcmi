@@ -500,15 +500,6 @@ void EndAction::applyCl( CClient *cl )
 void PackageApplied::applyCl( CClient *cl )
 {
 	ui8 player = GS(cl)->currentPlayer;
-
-	if(packType == typeList.getTypeID((MoveHero*)NULL))
-	{
-		//we've finished moving hero - paths info must be updated
-		const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
-		if(h)
-			GS(cl)->calculatePaths(h, *cl->pathInfo);
-	}
-
 	INTERFACE_CALL_IF_PRESENT(player, requestRealized, this);
 	if(cl->waitingRequest.get())
 		cl->waitingRequest.setn(false);

@@ -41,6 +41,7 @@
 #include "CHeroWindow.h"
 #include "../hch/CVideoHandler.h"
 #include "../StartInfo.h"
+#include "CPreGame.h"
 
 /*
  * GUIClasses.cpp, part of VCMI engine
@@ -1308,11 +1309,13 @@ void CHeroList::updateHList(const CGHeroInstance *toRemove)
 	if(selected >= heroes.size())
 		select(heroes.size()-1);
 
-
-	if(heroes.size() == 0)
-		LOCPLINT->adventureInt->townList.select(0);
-	else
-		select(selected);
+	if(toRemove)
+	{
+		if(heroes.size() == 0)
+			LOCPLINT->adventureInt->townList.select(0);
+		else
+			select(selected);
+	}
 }
 
 void CHeroList::updateMove(const CGHeroInstance* which) //draws move points bar
@@ -1990,23 +1993,27 @@ void CSplitWindow::show(SDL_Surface * to)
 
 void CSplitWindow::keyPressed (const SDL_KeyboardEvent & key)
 {
+	SDLKey k = key.keysym.sym;
+	if (isNumKey(k)) //convert numpad number to normal digit
+		k = numToDigit(k); 
+
 	if(key.state != SDL_PRESSED)
 		return;
 
 	int &cur = (which ? a2 : a1), 
 		&sec = (which ? a1 : a2), 
 		ncur = cur;
-	if (key.keysym.sym == SDLK_BACKSPACE)
+	if (k == SDLK_BACKSPACE)
 	{
 		ncur /= 10;
 	}
-	else if(key.keysym.sym == SDLK_TAB)
+	else if(k == SDLK_TAB)
 	{
 		which = !which;
 	}
 	else
 	{
-		int number = key.keysym.sym - SDLK_0;
+		int number = k - SDLK_0;
 		if (number < 0   ||   number > 9) //not a number pressed
 		{
 			return;
@@ -2811,13 +2818,15 @@ void CSystemOptionsWindow::breturnf()
 
 void CSystemOptionsWindow::bsavef()
 {
-	using namespace boost::posix_time;
+	GH.popIntTotally(this);
+	GH.pushInt(new CSelectionScreen(saveGame));
+	/*using namespace boost::posix_time;
 	std::ostringstream fnameStream;
 	fnameStream << second_clock::local_time();
 	std::string fname = fnameStream.str();
 	boost::algorithm::replace_all(fname,":","");
 	boost::algorithm::replace_all(fname," ","-");
-	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<SComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false);
+	LOCPLINT->showYesNoDialog("Do you want to save current game as " + fname, std::vector<SComponent*>(), boost::bind(&CCallback::save, LOCPLINT->cb, fname), boost::bind(&CSystemOptionsWindow::activate, this), false);*/
 }
 
 void CSystemOptionsWindow::activate()

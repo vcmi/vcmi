@@ -137,8 +137,10 @@ public:
 	virtual std::vector < const CGHeroInstance *> getHeroesInfo(bool onlyOur=true)const =0;
 	virtual bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const = 0;
 	virtual bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret)=0;
-	virtual const CGPathNode *getPathInfo(int3 tile)=0;
-	virtual bool getPath2(int3 dest, CGPath &ret)=0;
+	virtual const CGPathNode *getPathInfo(int3 tile)=0; //uses main, client pathfinder info
+	virtual bool getPath2(int3 dest, CGPath &ret)=0; //uses main, client pathfinder info
+	virtual void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1) =0;
+	virtual void recalculatePaths()=0; //updates main, client pathfinder info (should be called when moving hero is over)
 	
 	//map
 	virtual std::vector < const CGObjectInstance * > getBlockingObjs(int3 pos)const =0;
@@ -172,7 +174,7 @@ public:
 	virtual int battleGetPos(int stack)=0; //returns position (tile ID) of stack
 	virtual int battleMakeAction(BattleAction* action)=0;//for casting spells by hero - DO NOT use it for moving active stack
 	virtual std::map<int, CStack> battleGetStacks()=0; //returns stacks on battlefield
-	virtual std::vector<CStack> battleGetStackQueue()=0; //returns vector of stack in order of their move sequence
+	virtual void getStackQueue( std::vector<const CStack *> &out, int howMany )=0; //returns vector of stack in order of their move sequence
 	virtual CCreature battleGetCreature(int number)=0; //returns type of creature by given number of stack
 	//virtual bool battleMoveCreature(int ID, int dest)=0; //moves creature with id ID to dest if possible
 	virtual std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable)=0; //reutrns numbers of hexes reachable by creature with id ID
@@ -269,6 +271,8 @@ public:
 	bool getPath(int3 src, int3 dest, const CGHeroInstance * hero, CPath &ret);
 	const CGPathNode *getPathInfo(int3 tile);
 	bool getPath2(int3 dest, CGPath &ret);
+	void calculatePaths(const CGHeroInstance *hero, CPathsInfo &out, int3 src = int3(-1,-1,-1), int movement = -1); //calculates possible paths for hero, by default uses current hero position and movement left;
+	void recalculatePaths(); //updates pathfinder info (should be called when moving hero is over)
 	bool getHeroInfo(const CGObjectInstance *hero, InfoAboutHero &dest) const;
 	bool getTownInfo(const CGObjectInstance *town, InfoAboutTown &dest) const;
 
@@ -282,7 +286,7 @@ public:
 	int battleGetPos(int stack); //returns position (tile ID) of stack
 	int battleMakeAction(BattleAction* action);//for casting spells by hero - DO NOT use it for moving active stack
 	std::map<int, CStack> battleGetStacks(); //returns stacks on battlefield
-	std::vector<CStack> battleGetStackQueue(); //returns vector of stack in order of their move sequence
+	void getStackQueue( std::vector<const CStack *> &out, int howMany ); //returns vector of stack in order of their move sequence
 	CCreature battleGetCreature(int number); //returns type of creature by given number of stack
 	std::vector<int> battleGetAvailableHexes(int ID, bool addOccupiable); //reutrns numbers of hexes reachable by creature with id ID
 	bool battleIsStackMine(int ID); //returns true if stack with id ID belongs to caller

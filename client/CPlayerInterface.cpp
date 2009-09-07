@@ -1415,7 +1415,7 @@ void CPlayerInterface::redrawHeroWin(const CGHeroInstance * hero)
 		adventureInt->infoBar.draw(screen);
 }
 
-bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
+bool CPlayerInterface::moveHero( const CGHeroInstance *h, CGPath path )
 {
 	if (!h)
 		return false; //can't find hero
@@ -1442,10 +1442,6 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 		// TODO
 		if (hero is flying && sh == -1)
 			sh = CGI->soundh->playSound(soundBase::horseFlying, -1);
-		} 
-		else if (hero is in a boat && sh = -1) {
-			sh = CGI->soundh->playSound(soundBase::sound_todo, -1);
-		} else
 #endif
 		{
 			newTerrain = cb->getTileInfo(CGHeroInstance::convertPosition(path.nodes[i].coord, false))->tertype;
@@ -1468,6 +1464,7 @@ bool CPlayerInterface::moveHero( const CGHeroInstance *h, CPath path )
 	CGI->soundh->stopSound(sh);
 
 	//stillMoveHero = false;
+	cb->recalculatePaths();
 	return result;
 }
 

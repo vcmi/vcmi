@@ -8,7 +8,7 @@
 #include "GUIClasses.h"
 class CDefHandler;
 class CCallback;
-struct CPath;
+struct CGPath;
 class CAdvMapInt;
 class CGHeroInstance;
 class CGTownInstance;
@@ -80,7 +80,7 @@ public:
 	CDefHandler * arrows;
 	CTerrainRect();
 	~CTerrainRect();
-	CPath * currentPath;
+	CGPath * currentPath;
 	void activate();
 	void deactivate();
 	void clickLeft(tribool down, bool previousState);
@@ -173,7 +173,7 @@ public:
 	CHeroWindow * heroWindow;
 
 	const CArmedInstance *selection; //currently selected town/hero
-	std::map<const CGHeroInstance *, CPath> paths; //maps hero => selected path in adventure map
+	std::map<const CGHeroInstance *, CGPath> paths; //maps hero => selected path in adventure map
 
 	//functions bound to buttons
 	void fshowOverview();

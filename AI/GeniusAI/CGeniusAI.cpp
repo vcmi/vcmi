@@ -1110,6 +1110,8 @@ BattleAction CGeniusAI::activeStack(int stackID)
 	message += ")";
 	DbgBox(message.c_str());
 
-	return m_battleLogic->MakeDecision(stackID);
+	BattleAction bact = m_battleLogic->MakeDecision(stackID);
+	assert(m_cb->battleGetStackByID(bact.stackNumber));
+	return bact;
 };
 

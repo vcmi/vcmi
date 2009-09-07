@@ -124,7 +124,7 @@ CBattleInterface::CBattleInterface(CCreatureSet * army1, CCreatureSet * army2, C
 		background = BitmapHandler::loadBitmap(backref[ rand() % backref.size()] );
 	}
 	
-	//preparign menu background
+	//preparing menu background
 	menu = BitmapHandler::loadBitmap("CBAR.BMP");
 	graphics->blueToPlayersAdv(menu, hero1->tempOwner);
 
@@ -560,49 +560,46 @@ void CBattleInterface::show(SDL_Surface * to)
 	//showing queue of stacks
 	if(showStackQueue)
 	{
+		const int QUEUE_SIZE = 10;
+
 		int xPos = screen->w/2 - ( stacks.size() * 37 )/2;
 		int yPos = (screen->h - 600)/2 + 10;
 
-		std::vector<CStack> stacksSorted;
-		stacksSorted = LOCPLINT->cb->battleGetStackQueue();
-		int startFrom = -1;
-		for(size_t n=0; n<stacksSorted.size(); ++n)
+		std::vector<const CStack *> stacksSorted;
+// 		const CStack *curStack = LOCPLINT->cb->battleGetStackByID(activeStack);
+// 		if(curStack)
+// 			stacksSorted.push_back(curStack);
+		LOCPLINT->cb->getStackQueue(stacksSorted, QUEUE_SIZE);
+
+
+		for(size_t b=0; b < stacksSorted.size(); ++b)
 		{
-			if(stacksSorted[n].ID == activeStack)
+			const CStack * s = stacksSorted[b];
+			SDL_BlitSurface(graphics->smallImgs[-2], NULL, to, &genRect(32, 32, xPos, yPos));
+
+			//printing colored border
+			for(int xFrom = xPos-1; xFrom<xPos+33; ++xFrom)
 			{
-				startFrom = n;
-				break;
-			}
-		}
-		if(startFrom != -1)
-		{
-			for(size_t b=startFrom; b<stacksSorted.size()+startFrom; ++b)
-			{
-				SDL_BlitSurface(graphics->smallImgs[-2], NULL, to, &genRect(32, 32, xPos, yPos));
-				//printing colored border
-				for(int xFrom = xPos-1; xFrom<xPos+33; ++xFrom)
+				for(int yFrom = yPos-1; yFrom<yPos+33; ++yFrom)
 				{
-					for(int yFrom = yPos-1; yFrom<yPos+33; ++yFrom)
+					if(xFrom == xPos-1 || xFrom == xPos+32 || yFrom == yPos-1 || yFrom == yPos+32)
 					{
-						if(xFrom == xPos-1 || xFrom == xPos+32 || yFrom == yPos-1 || yFrom == yPos+32)
+						SDL_Color pc;
+						if(s->owner != 255)
 						{
-							SDL_Color pc;
-							if(stacksSorted[b % stacksSorted.size()].owner != 255)
-							{
-								pc = graphics->playerColors[stacksSorted[b % stacksSorted.size()].owner];
-							}
-							else
-							{
-								pc = *graphics->neutralColor;
-							}
-							CSDL_Ext::SDL_PutPixelWithoutRefresh(to, xFrom, yFrom, pc.r, pc.g, pc.b);
+							pc = graphics->playerColors[s->owner];
 						}
+						else
+						{
+							pc = *graphics->neutralColor;
+						}
+						CSDL_Ext::SDL_PutPixelWithoutRefresh(to, xFrom, yFrom, pc.r, pc.g, pc.b);
 					}
 				}
-				//colored border printed
-				SDL_BlitSurface(graphics->smallImgs[stacksSorted[b % stacksSorted.size()].creature->idNumber], NULL, to, &genRect(32, 32, xPos, yPos));
-				xPos += 37;
 			}
+			//colored border printed
+			SDL_BlitSurface(graphics->smallImgs[s->creature->idNumber], NULL, to, &genRect(32, 32, xPos, yPos));
+			xPos += 37;
 		}
 	}
 
@@ -2478,12 +2475,11 @@ void CBattleInterface::showAliveStack(int ID, const std::map<int, CStack> & stac
 		}
 		SDL_BlitSurface(amountBG, NULL, to, &genRect(amountNormal->h, amountNormal->w, creAnims[ID]->pos.x + xAdd + pos.x, creAnims[ID]->pos.y + 260 + pos.y));
 		//blitting amount
-		CSDL_Ext::printAtMiddleWB(
+		CSDL_Ext::printAtMiddle(
 			makeNumberShort(curStack.amount),
-			creAnims[ID]->pos.x + xAdd + 14 + pos.x,
-			creAnims[ID]->pos.y + 260 + 4 + pos.y,
-			GEOR13,
-			20,
+			creAnims[ID]->pos.x + xAdd + 15 + pos.x,
+			creAnims[ID]->pos.y + 260 + 5 + pos.y,
+			FONT_TINY,
 			zwykly,
 			to
         );

@@ -442,6 +442,11 @@ public:
 	std::list<CIntObject *> createdObj; //stack of objs being created
 };
 
+SDLKey arrowToNum(SDLKey key); //converts arrow key to according numpad key
+SDLKey numToDigit(SDLKey key);//converts numpad digit key to normal digit key
+bool isNumKey(SDLKey key, bool number = true); //checks if key is on numpad (numbers - check only for numpad digits)
+bool isArrowKey(SDLKey key); 
+
 extern CGuiHandler GH; //global gui handler
 
 struct ObjectConstruction

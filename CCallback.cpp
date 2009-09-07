@@ -500,14 +500,14 @@ std::map<int, CStack> CCallback::battleGetStacks()
 	return ret;
 }
 
-std::vector<CStack> CCallback::battleGetStackQueue()
+void CCallback::getStackQueue( std::vector<const CStack *> &out, int howMany )
 {
 	if(!gs->curB)
 	{
-		tlog2<<"battleGetStackQueue called when there is not battle!"<<std::endl;
-		return std::vector<CStack>();
+		tlog2 << "battleGetStackQueue called when there is not battle!" << std::endl;
+		return;
 	}
-	return gs->curB->getStackQueue();
+	gs->curB->getStackQueue(out, howMany);
 }
 
 CCreature CCallback::battleGetCreature(int number)
@@ -834,7 +834,23 @@ const CGPathNode * CCallback::getPathInfo( int3 tile )
 
 bool CCallback::getPath2( int3 dest, CGPath &ret )
 {
+	const CGHeroInstance *h = cl->IGameCallback::getSelectedHero(player);
+	assert(cl->pathInfo->hero == h);
+	if(cl->pathInfo->hpos != h->getPosition(false)) //hero position changed, must update paths
+	{ 
+		recalculatePaths();
+	}
 	return cl->pathInfo->getPath(dest, ret);
+}
+
+void CCallback::recalculatePaths()
+{
+	gs->calculatePaths(cl->IGameCallback::getSelectedHero(player), *cl->pathInfo);
+}
+
+void CCallback::calculatePaths( const CGHeroInstance *hero, CPathsInfo &out, int3 src /*= int3(-1,-1,-1)*/, int movement /*= -1*/ )
+{
+	gs->calculatePaths(hero, out, src, movement);
 }
 
 InfoAboutHero::InfoAboutHero()

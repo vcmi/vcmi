@@ -163,6 +163,9 @@ int _tmain(int argc, _TCHAR* argv[])
 int main(int argc, char** argv)
 #endif
 {
+	putenv("SDL_VIDEO_WINDOW_POS");
+	putenv("SDL_VIDEO_CENTERED=1");
+
 	tlog0 << "Starting... " << std::endl;
 	timeHandler total, pomtime;
 	std::cout.flags(std::ios::unitbuf);

@@ -150,7 +150,7 @@ struct BattleSettings
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & printCellBorders & printStackRange & printMouseShadow;
+		h & printCellBorders & printStackRange & animSpeed & printMouseShadow;
 	}
 };
 

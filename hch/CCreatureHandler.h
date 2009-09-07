@@ -57,6 +57,11 @@ public:
 		soundBase::soundID ext2;  // creature specific extension
 		soundBase::soundID startMoving; // usually same as ext1
 		soundBase::soundID endMoving;	// usually same as ext2
+
+		template <typename Handler> void serialize(Handler &h, const int version)
+		{
+			h & attack & defend & killed & move & shoot & wince & ext1 & ext2 & startMoving & endMoving;
+		}
 	} sounds;
 
 	bool isDoubleWide() const; //returns true if unit is double wide on battlefield
@@ -89,6 +94,8 @@ public:
 			& timeBetweenFidgets & walkAnimationTime & attackAnimationTime & flightAnimationDistance
 			& upperRightMissleOffsetX & rightMissleOffsetX & lowerRightMissleOffsetX & upperRightMissleOffsetY & rightMissleOffsetY & lowerRightMissleOffsetY
 			& missleFrameAngles & troopCountLocationOffset & attackClimaxFrame;
+
+		h & sounds;
 	}
 };
 

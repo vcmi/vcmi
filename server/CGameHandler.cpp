@@ -84,14 +84,7 @@ public:
 
 } *applier = NULL;
 
-class CMP_stack
-{
-public:
-	inline bool operator ()(const CStack* a, const CStack* b)
-	{
-		return (a->Speed())>(b->Speed());
-	}
-} cmpst ;
+CMP_stack cmpst ;
 
 static inline double distance(int3 a, int3 b)
 {
@@ -324,11 +317,15 @@ static CCreatureSet takeCasualties(int color, const CCreatureSet &set, BattleInf
 
 void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance * army2, int3 tile, const CGHeroInstance *hero1, const CGHeroInstance *hero2, bool creatureBank, boost::function<void(BattleResult*)> cb, const CGTownInstance *town)
 {
-	BattleInfo *curB = new BattleInfo;
-	curB->side1 = army1->tempOwner;
-	curB->side2 = army2->tempOwner;
-	if(curB->side2 == 254) curB->side2 = 255;
-	setupBattle(curB, tile, army1->army, army2->army, hero1, hero2, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+	{
+		BattleInfo *curB = new BattleInfo;
+		curB->side1 = army1->tempOwner;
+		curB->side2 = army2->tempOwner;
+		if(curB->side2 == 254) 
+			curB->side2 = 255;
+		setupBattle(curB, tile, army1->army, army2->army, hero1, hero2, creatureBank, town); //initializes stacks, places creatures on battlefield, blocks and informs player interfaces
+	}
+
 	NEW_ROUND;
 	//TODO: pre-tactic stuff, call scripts etc.
 
@@ -351,10 +348,9 @@ void CGameHandler::startBattle(const CArmedInstance *army1, const CArmedInstance
 		const BattleInfo & curB = *gs->curB;
 
 		//stack loop
-		CStack *next;
-		while(!battleResult.get() && (next=gs->curB->getNextStack()))
+		const CStack *next;
+		while(!battleResult.get() && (next = curB.getNextStack()) && next->willMove())
 		{
-			next->state -= WAITING; //if stack was waiting it'll now make move, so it won't be "waiting" anymore
 
 			//check for bad morale => freeze
 			if(next->Morale() < 0 &&
@@ -1369,8 +1365,6 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		return false;
 	}
 
-	if(states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle) && complain("Cannot move hero during the battle"))
-		return false;
 
 	tlog5 << "Player " <<int(asker) << " wants to move hero "<< hid << " from "<< h->pos << " to " << dst << std::endl;
 	int3 hmpos = dst + int3(-1,0,0);
@@ -1403,7 +1397,9 @@ bool CGameHandler::moveHero( si32 hid, int3 dst, ui8 instant, ui8 asker /*= 255*
 		|| (h->boat && t.tertype != TerrainTile::water && t.blocked)
 			&& complain("Cannot disembark hero, tile is blocked!")
 		|| (!h->movement && dst != h->pos)
-			&& complain("Hero don't have any movement points left!"))
+			&& complain("Hero don't have any movement points left!")
+		|| states.checkFlag(h->tempOwner, &PlayerStatus::engagedIntoBattle)
+			&& complain("Cannot move hero during the battle"))
 	{
 		//send info about movement failure
 		sendAndApply(&tmh);

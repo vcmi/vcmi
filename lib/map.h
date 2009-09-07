@@ -407,6 +407,7 @@ struct DLL_EXPORT Mapa : public CMapHeader
 		}
 
 		h & CGTeleport::objs;
+		h & CGTeleport::gates;
 		h & CGKeys::playerKeyMap;
 		h & CGMagi::eyelist;
 

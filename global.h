@@ -301,7 +301,8 @@ extern DLL_EXPORT CLogger<5> tlog5; //gray - minor log info
 //XXX pls dont - 'debug macros' are usually more trubble then its worth
 #define HANDLE_EXCEPTION  \
 	catch (const std::exception& e) {	\
-	tlog1 << e.what() << std::endl;	\
+	tlog1 << e.what() << std::endl;		\
+	throw;								\
 	}									\
 	catch (const std::exception * e)	\
 	{									\

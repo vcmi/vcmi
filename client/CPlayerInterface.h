@@ -42,7 +42,7 @@ class CStack;
 class SComponent;
 class CCreature;
 struct SDL_Surface;
-struct CPath;
+struct CGPath;
 class CCreatureAnimation;
 class CSelectableComponent;
 class CCreatureSet;
@@ -198,7 +198,7 @@ public:
 	int3 repairScreenPos(int3 pos); //returns position closest to pos we can center screen on
 	void showInfoDialog(const std::string &text, const std::vector<SComponent*> & components = std::vector<SComponent*>(), int soundID = 0);
 	void showYesNoDialog(const std::string &text, const std::vector<SComponent*> & components, CFunctionList<void()> onYes, CFunctionList<void()> onNo, bool DelComps); //deactivateCur - whether current main interface should be deactivated; delComps - if components will be deleted on window close
-	bool moveHero(const CGHeroInstance *h, CPath path);
+	bool moveHero(const CGHeroInstance *h, CGPath path);
 
 	CPlayerInterface(int Player, int serial);//c-tor
 	~CPlayerInterface();//d-tor

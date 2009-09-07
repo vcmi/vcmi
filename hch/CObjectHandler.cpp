@@ -35,6 +35,7 @@ using namespace boost::assign;
  */
 
 std::map<int,std::map<int, std::vector<int> > > CGTeleport::objs;
+std::vector<std::pair<int, int> > CGTeleport::gates;
 IGameCallback * IObjectInterface::cb = NULL;
 DLL_EXPORT void loadToIt(std::string &dest, std::string &src, int &iter, int mode);
 extern CLodHandler * bitmaph;
@@ -62,6 +63,12 @@ void IObjectInterface::initObj()
 {}
 
 void IObjectInterface::setProperty( ui8 what, ui32 val )
+{}
+
+void IObjectInterface::postInit()
+{}
+
+void IObjectInterface::preInit()
 {}
 
 void CPlayersVisited::setPropertyDer( ui8 what, ui32 val )
@@ -2476,27 +2483,25 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 		break;
 	case 103: //find nearest subterranean gate on the other level
 		{
-			std::pair<int,double> best(-1,150000); //pair<id,dist>
-			for(int i=0; i<objs[103][0].size(); i++)
+			for(int i=0; i < gates.size(); i++)
 			{
-				if(cb->getObj(objs[103][0][i])->pos.z == pos.z) continue; //gates on our level are not interesting
-				double hlp = cb->getObj(objs[103][0][i])->pos.dist2d(pos);
-				if(hlp<best.second)
+				if(gates[i].first == id)
 				{
-					best.first = objs[103][0][i];
-					best.second = hlp;
+					destinationid = gates[i].second;
+					break;
+				}
+				else if(gates[i].second == id)
+				{
+					destinationid = gates[i].first;
+					break;
 				}
 			}
-			if(best.first<0)
-				return;
-			else 
-				destinationid = best.first;
 			break;
 		}
 	}
 	if(destinationid < 0)
 	{
-		tlog2 << "Cannot find exit... :( \n";
+		tlog2 << "Cannot find exit... (obj at " << pos << ") :( \n";
 		return;
 	}
 	cb->moveHero(h->id,CGHeroInstance::convertPosition(cb->getObj(destinationid)->pos,true) - getVisitableOffset(),
@@ -2505,7 +2510,51 @@ void CGTeleport::onHeroVisit( const CGHeroInstance * h ) const
 
 void CGTeleport::initObj()
 {
-	objs[ID][subID].push_back(id);
+	int si = subID;
+	if(ID == 103) //ignore subterranean gates subid
+		si = 0;
+
+	objs[ID][si].push_back(id);
+}
+
+void CGTeleport::postInit() //matches subterranean gates into pairs
+{
+	//split on underground and surface gates
+	std::vector<const CGObjectInstance *> gatesSplit[2]; //surface and underground gates
+	for(size_t i = 0; i < objs[103][0].size(); i++)
+	{
+		const CGObjectInstance *hlp = cb->getObj(objs[103][0][i]);
+		gatesSplit[hlp->pos.z].push_back(hlp);
+	}
+
+	//sort by position
+	std::sort(gatesSplit[0].begin(), gatesSplit[0].end(), boost::bind(&CGObjectInstance::pos, _1) < boost::bind(&CGObjectInstance::pos, _2));
+
+	for(size_t i = 0; i < gatesSplit[0].size(); i++)
+	{
+		const CGObjectInstance *cur = gatesSplit[0][i];
+
+		//find nearest underground exit
+		std::pair<int,double> best(-1,150000); //pair<pos_in_vector, distance>
+		for(int j = 0; j < gatesSplit[1].size(); j++)
+		{
+			const CGObjectInstance *checked = gatesSplit[1][j];
+			if(!checked)
+				continue;
+			double hlp = checked->pos.dist2d(cur->pos);
+			if(hlp < best.second)
+			{
+				best.first = j;
+				best.second = hlp;
+			}
+		}
+
+		gates.push_back(std::pair<int, int>(cur->id, gatesSplit[1][best.first]->id));
+		gatesSplit[1][best.first] = NULL;
+	}
+
+
+	objs.erase(103);
 }
 
 void CGArtifact::initObj()
@@ -4042,7 +4091,7 @@ void CBank::endBattle (const CGHeroInstance *h, const BattleResult *result) cons
 			int slot = ourArmy.getSlotFor (it->second);
 			ourArmy.slots[slot] = *it; //assuming we're not going to add multiple stacks of same creature
 		}
-		cb->giveCreatures (id, cb->getHero (h->getOwner()), &ourArmy);
+		cb->giveCreatures (id, h, &ourArmy);
 		cb->setObjProperty (id, 15, 0); //bc = NULL
 	}
 	else
