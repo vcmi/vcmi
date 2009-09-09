@@ -1476,7 +1476,7 @@ bool CPlayerInterface::shiftPressed() const
 	return SDL_GetKeyState(NULL)[SDLK_LSHIFT]  ||  SDL_GetKeyState(NULL)[SDLK_RSHIFT];
 }
 
-void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd )
+void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd )
 {
 	{
 		boost::unique_lock<boost::mutex> un(showingDialog->mx);
@@ -1491,7 +1491,7 @@ void CPlayerInterface::showGarrisonDialog( const CArmedInstance *up, const CGHer
 		SDL_Delay(20);
 		pim->lock();
 	}
-	CGarrisonWindow *cgw = new CGarrisonWindow(up,down);
+	CGarrisonWindow *cgw = new CGarrisonWindow(up,down,removableUnits);
 	cgw->quit->callback += onEnd;
 	GH.pushInt(cgw);
 }

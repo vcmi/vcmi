@@ -940,7 +940,7 @@ void CGeniusAI::heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector
 	callback(rand() % skills.size());
 }
 
-void GeniusAI::CGeniusAI::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd )
+void GeniusAI::CGeniusAI::showGarrisonDialog( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd )
 {
 	onEnd();
 }

@@ -722,10 +722,11 @@ struct GarrisonDialog : public Query//2004
 	GarrisonDialog(){type = 2004;}
 	void applyCl(CClient *cl);
 	si32 objid, hid;
+	bool removableUnits;
 
 	template <typename Handler> void serialize(Handler &h, const int version)
 	{
-		h & id & objid & hid;
+		h & id & objid & hid & removableUnits;
 	}
 };
 

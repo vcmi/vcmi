@@ -149,7 +149,7 @@ public:
 	void showRecruitmentDialog(const CGDwelling *dwelling, const CArmedInstance *dst, int level);
 	void showShipyardDialog(const IShipyard *obj); //obj may be town or shipyard; 
 	void showBlockingDialog(const std::string &text, const std::vector<Component> &components, ui32 askID, int soundID, bool selection, bool cancel); //Show a dialog, player must take decision. If selection then he has to choose between one of given components, if cancel he is allowed to not choose. After making choice, CCallback::selectionMade should be called with number of selected component (1 - n) or 0 for cancel (if allowed) and askID.
-	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
+	void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd);
 	void tileHidden(const std::set<int3> &pos); //called when given tiles become hidden under fog of war
 	void tileRevealed(const std::set<int3> &pos); //called when fog of war disappears from given tiles
 	void newObject(const CGObjectInstance * obj);

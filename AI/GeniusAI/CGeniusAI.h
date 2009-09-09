@@ -187,7 +187,7 @@ public:
 	virtual void tileRevealed(int3 pos);
 	virtual void tileHidden(int3 pos);
 	virtual void heroGotLevel(const CGHeroInstance *hero, int pskill, std::vector<ui16> &skills, boost::function<void(ui32)> &callback);
-	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, boost::function<void()> &onEnd);
+	virtual void showGarrisonDialog(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits, boost::function<void()> &onEnd);
 	virtual void playerBlocked(int reason);
 
 	virtual void objectRemoved(const CGObjectInstance *obj); //eg. collected resource, picked artifact, beaten hero

@@ -117,12 +117,14 @@ SDL_Surface * Graphics::drawTownInfoWin( const InfoAboutTown & curh )
 	}
 
 	//blit town icon
-	pom = curh.tType->typeID*2;
-	if (!curh.fortLevel)
-		pom += F_NUMBER*2;
-	if(curh.built)
-		pom++;
-	blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
+	if (curh.tType) {
+		pom = curh.tType->typeID*2;
+		if (!curh.fortLevel)
+			pom += F_NUMBER*2;
+		if(curh.built)
+			pom++;
+		blitAt(bigTownPic->ourImages[pom].bitmap,13,13,ret);
+	}
 
 	if(curh.details)
 	{

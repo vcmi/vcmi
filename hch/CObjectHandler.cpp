@@ -2219,7 +2219,7 @@ void CGCreature::joinDecision(const CGHeroInstance *h, int cost, ui32 accept) co
 		}
 		else
 		{
-			cb->showGarrisonDialog(id,h->id,boost::bind(&IGameCallback::removeObject,cb,id)); //show garrison window and remove ourselves from map when player ends
+			cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id)); //show garrison window and remove ourselves from map when player ends
 		}
 	}
 }
@@ -2245,7 +2245,7 @@ void CGMine::onHeroVisit( const CGHeroInstance * h ) const
 
 	if(h->tempOwner == tempOwner) //we're visiting our mine
 	{
-		cb->showGarrisonDialog(id,h->id,0);
+		cb->showGarrisonDialog(id,h->id,true,0);
 		return; 
 	}
 
@@ -3350,7 +3350,7 @@ void CGPandoraBox::giveContents( const CGHeroInstance *h, bool afterBattle ) con
 		SetGarrisons sg;
 		sg.garrs[id] = creatures;
 		cb->sendAndApply(&sg);
-		cb->showGarrisonDialog(id,h->id,boost::bind(&IGameCallback::removeObject,cb,id));
+		cb->showGarrisonDialog(id,h->id,true,boost::bind(&IGameCallback::removeObject,cb,id));
 	}
 
 	if(!afterBattle && message.size())
@@ -3631,7 +3631,7 @@ void CGGarrison::onHeroVisit (const CGHeroInstance *h) const
 	if (h->tempOwner != tempOwner)
 		cb->setOwner(id, h->tempOwner);
 
-	//TODO: Garrison visit screen.
+	cb->showGarrisonDialog(id, h->id, removableUnits, 0);
 }
 
 void CGGarrison::fightOver (const CGHeroInstance *h, BattleResult *result) const

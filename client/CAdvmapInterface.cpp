@@ -609,8 +609,8 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 				if(LOCPLINT->cb->getTownInfo(obj, iah))
 				{
 					SDL_Surface *iwin = graphics->drawTownInfoWin(iah);
-					CInfoPopup * ip = new CInfoPopup(iwin, GH.current->motion.x-iwin->w,
-						GH.current->motion.y-iwin->h, true);
+					CInfoPopup * ip = new CInfoPopup(iwin, GH.current->motion.x - iwin->w/2,
+						GH.current->motion.y - iwin->h/2, true);
 					GH.pushInt(ip);
 				}
 				else
@@ -621,9 +621,32 @@ void CTerrainRect::clickRight(tribool down, bool previousState)
 			else
 			{
 				CInfoPopup * ip = new CInfoPopup(graphics->townWins[obj->id],
-					GH.current->motion.x-graphics->townWins[obj->id]->w,
-					GH.current->motion.y-graphics->townWins[obj->id]->h,false
+					GH.current->motion.x - graphics->townWins[obj->id]->w/2,
+					GH.current->motion.y - graphics->townWins[obj->id]->h/2,false
 					);
+				GH.pushInt(ip);
+			}
+			break;
+		}
+	case 33: // Garrison
+		{
+			const CGGarrison *garr = dynamic_cast<const CGGarrison *>(obj);
+
+			if (garr != NULL) {
+				InfoAboutTown iah;
+
+				iah.fortLevel = 0;
+				iah.army = garr->army;
+				iah.name = std::string("Garrison");
+				iah.owner = garr->tempOwner;
+				iah.built = false;
+				iah.details = NULL; // TODO: Find a suitable way to show detailed info.
+				iah.tType = NULL;
+
+				SDL_Surface *iwin = graphics->drawTownInfoWin(iah);
+				CInfoPopup * ip = new CInfoPopup(iwin,
+					GH.current->motion.x - iwin->w/2,
+					GH.current->motion.y - iwin->h/2, true);
 				GH.pushInt(ip);
 			}
 			break;

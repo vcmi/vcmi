@@ -327,7 +327,7 @@ void GarrisonDialog::applyCl(CClient *cl)
 		return;
 
 	boost::function<void()> callback = boost::bind(&CCallback::selectionMade,LOCPLINT->cb,0,id);
-	cl->playerint[h->getOwner()]->showGarrisonDialog(obj,h,callback);
+	cl->playerint[h->getOwner()]->showGarrisonDialog(obj,h,removableUnits,callback);
 }
 
 void BattleStart::applyCl( CClient *cl )

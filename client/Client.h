@@ -97,7 +97,7 @@ public:
 	void showInfoDialog(InfoWindow *iw){};
 	void showBlockingDialog(BlockingDialog *iw, const CFunctionList<void(ui32)> &callback){};
 	ui32 showBlockingDialog(BlockingDialog *iw){return 0;}; //synchronous version of above
-	void showGarrisonDialog(int upobj, int hid, const boost::function<void()> &cb){};
+	void showGarrisonDialog(int upobj, int hid, bool removableUnits, const boost::function<void()> &cb){};
 	void giveResource(int player, int which, int val){};
 	void giveCreatures (int objid, const CGHeroInstance * h, CCreatureSet *creatures){};
 	void showCompInfo(ShowInInfobox * comp){};

@@ -211,6 +211,7 @@ public:
 	int p2; //TODO: comment me
 	bool ignoreEvent, update, active, splitting, pb, 
 		smallIcons; //true - 32x32 imgs, false - 58x64
+	bool removableUnits;
 
 	const CCreatureSet *set1; //top set of creatures
 	const CCreatureSet *set2; //bottom set of creatures
@@ -230,7 +231,7 @@ public:
 	void splitClick(); //handles click on split button
 	void splitStacks(int am2); //TODO: comment me
 
-	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool smallImgs = false); //c-tor
+	CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point &SurOffset, const CArmedInstance *s1, const CArmedInstance *s2=NULL, bool _removableUnits = true, bool smallImgs = false); //c-tor
 	~CGarrisonInt(); //d-tor
 };
 
@@ -689,7 +690,7 @@ public:
 	void deactivate();
 	void show(SDL_Surface * to);
 	void showAll(SDL_Surface * to){show(to);};
-	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down); //c-tor
+	CGarrisonWindow(const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits); //c-tor
 	~CGarrisonWindow(); //d-tor
 };
 

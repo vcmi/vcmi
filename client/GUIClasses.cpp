@@ -222,52 +222,66 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				refr = true;
 				delete pom2;
 			}
-			else if((owner->splitting || LOCPLINT->shiftPressed())
-				&& (!creature
-					|| (creature == owner->highlighted->creature))
-			) //we want to split
-			{
-				owner->p2 = ID; //store the second stack pos
-				owner->pb = upg;//store the second stack owner (up or down army)
-				owner->splitting = false;
-
-				int totalAmount = owner->highlighted->count;
-				if(creature) 
-					totalAmount += count;
-
-				int last = -1;
-				if(upg != owner->highlighted->upg) //not splitting within same army
+			else {
+				// Only allow certain moves if troops aren't removable.
+				if (owner->removableUnits
+					|| (upg == 0 && (owner->highlighted->upg == 1 && !creature))
+					|| (upg == 1 && owner->highlighted->upg == 1))
 				{
-					if(owner->highlighted->getObj()->army.slots.size() == 1
-						&& owner->highlighted->getObj()->needsLastStack() )
+					//we want to split
+					if((owner->splitting || LOCPLINT->shiftPressed())
+						&& (!creature
+							|| (creature == owner->highlighted->creature)))
 					{
-						last = 0;
+						owner->p2 = ID; //store the second stack pos
+						owner->pb = upg;//store the second stack owner (up or down army)
+						owner->splitting = false;
+
+						int totalAmount = owner->highlighted->count;
+						if(creature) 
+							totalAmount += count;
+
+						int last = -1;
+						if(upg != owner->highlighted->upg) //not splitting within same army
+						{
+							if(owner->highlighted->getObj()->army.slots.size() == 1
+								&& owner->highlighted->getObj()->needsLastStack() )
+							{
+								last = 0;
+							}
+							if(getObj()->army.slots.size() == 1
+								&& getObj()->needsLastStack() )
+							{
+								last += 2;
+							}
+						}
+
+
+						CSplitWindow * spw = new CSplitWindow(owner->highlighted->creature->idNumber, totalAmount, owner, last, count);
+						GH.pushInt(spw);
+						refr = true;
 					}
-					if(getObj()->army.slots.size() == 1
-						&& getObj()->needsLastStack() )
+					else if(creature != owner->highlighted->creature) //swap
 					{
-						last += 2;
+						LOCPLINT->cb->swapCreatures(
+							(!upg)?(owner->oup):(owner->odown),
+							(!owner->highlighted->upg)?(owner->oup):(owner->odown),
+							ID,owner->highlighted->ID);
+					}
+					else //merge
+					{
+						LOCPLINT->cb->mergeStacks(
+							(!owner->highlighted->upg)?(owner->oup):(owner->odown),
+							(!upg)?(owner->oup):(owner->odown),
+							owner->highlighted->ID,ID);
 					}
 				}
-
-
-				CSplitWindow * spw = new CSplitWindow(owner->highlighted->creature->idNumber, totalAmount, owner, last, count);
-				GH.pushInt(spw);
-				refr = true;
-			}
-			else if(creature != owner->highlighted->creature) //swap
-			{
-				LOCPLINT->cb->swapCreatures(
-					(!upg)?(owner->oup):(owner->odown),
-					(!owner->highlighted->upg)?(owner->oup):(owner->odown),
-					ID,owner->highlighted->ID);
-			}
-			else //merge
-			{
-				LOCPLINT->cb->mergeStacks(
-					(!owner->highlighted->upg)?(owner->oup):(owner->odown),
-					(!upg)?(owner->oup):(owner->odown),
-					owner->highlighted->ID,ID);
+				else { // Highlight
+					if(creature)
+						owner->highlighted = this;
+					show(screen2);
+					refr = true;
+				}
 			}
 		}
 		else //highlight
@@ -559,9 +573,9 @@ void CGarrisonInt::splitStacks(int am2)
 
 }
 CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_Surface *&pomsur, const Point& SurOffset, 
-						   const CArmedInstance *s1, const CArmedInstance *s2, bool smallImgs)
+						   const CArmedInstance *s1, const CArmedInstance *s2, bool _removableUnits, bool smallImgs)
 	 :interx(inx),garOffset(garsOffset),highlighted(NULL),sur(pomsur),surOffset(SurOffset),sup(NULL),
-	 sdown(NULL),oup(s1),odown(s2), smallIcons(smallImgs)
+	 sdown(NULL),oup(s1),odown(s2), removableUnits(_removableUnits), smallIcons(smallImgs)
 {
 	active = false;
 	splitting = false;
@@ -3320,7 +3334,7 @@ void CGarrisonWindow::show(SDL_Surface * to)
 	printAtMiddle(CGI->generaltexth->allTexts[709],pos.x+275,pos.y+30,GEOR16,tytulowy,to);
 }
 
-CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down )
+CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance *down, bool removableUnits )
 {
 	bg = BitmapHandler::loadBitmap("GARRISON.bmp");
 	SDL_SetColorKey(bg,SDL_SRCCOLORKEY,SDL_MapRGB(bg->format,0,255,255));
@@ -3330,7 +3344,7 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	pos.w = screen->w;
 	pos.h = screen->h;
 
-	garr = new CGarrisonInt(pos.x+92, pos.y+127, 4, Point(0,96), bg, Point(93,127), up, down);
+	garr = new CGarrisonInt(pos.x+92, pos.y+127, 4, Point(0,96), bg, Point(93,127), up, down, removableUnits);
 	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF"));
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
 }

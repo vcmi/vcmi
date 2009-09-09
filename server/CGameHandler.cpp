@@ -1587,7 +1587,7 @@ void CGameHandler::giveCreatures (int objid, const CGHeroInstance * h, CCreature
 		SetGarrisons sg;
 		sg.garrs[objid] = *creatures;
 		sendAndApply(&sg);
-		showGarrisonDialog(objid, h->id, 0);
+		showGarrisonDialog(objid, h->id, true, 0);
 		return;
 	}
 }
@@ -3191,7 +3191,7 @@ ui32 CGameHandler::getQueryResult( ui8 player, int queryID )
 	return 0;
 }
 
-void CGameHandler::showGarrisonDialog( int upobj, int hid, const boost::function<void()> &cb )
+void CGameHandler::showGarrisonDialog( int upobj, int hid, bool removableUnits, const boost::function<void()> &cb )
 {
 	ui8 player = getOwner(hid);
 	GarrisonDialog gd;
@@ -3205,6 +3205,7 @@ void CGameHandler::showGarrisonDialog( int upobj, int hid, const boost::function
 		allowedExchanges[QID] = std::pair<si32,si32>(upobj,hid);
 		states.addQuery(player,QID);
 		QID++; 
+		gd.removableUnits = removableUnits;
 		sendAndApply(&gd);
 	}
 }
