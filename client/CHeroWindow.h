@@ -36,7 +36,7 @@ class CHeroWindow: public CWindowWithGarrison
 	CDefEssential *flags;
 
 	//buttons
-	AdventureMapButton * gar4button; //splitting
+	//AdventureMapButton * gar4button; //splitting
 	std::vector<LClickableAreaHero *> heroListMi; //new better list of heroes
 
 	CArtifactsOfHero * artifs;

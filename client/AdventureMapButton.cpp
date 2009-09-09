@@ -526,15 +526,15 @@ void CSlider::clickLeft(tribool down, bool previousState)
 		float rw = 0;
 		if(horizontal)
 		{
-			pw = GH.current->motion.x-pos.x-24;
+			pw = GH.current->motion.x-pos.x-16;
 			rw = pw / ((float)(pos.w-48));
 		}
 		else
 		{
-			pw = GH.current->motion.y-pos.y-24;
+			pw = GH.current->motion.y-pos.y-16;
 			rw = pw / ((float)(pos.h-48));
 		}
-		if(pw < -8  ||  pw > (horizontal ? pos.w : pos.h) + 8)
+		if(pw < 0  ||  pw > (horizontal ? pos.w : pos.h) - 32)
 			return;
 // 		if (rw>1) return;
 // 		if (rw<0) return;
@@ -556,7 +556,7 @@ CSlider::~CSlider()
 CSlider::CSlider(int x, int y, int totalw, boost::function<void(int)> Moved, int Capacity, int Amount, int Value, bool Horizontal, int style)
 :capacity(Capacity),amount(Amount),horizontal(Horizontal), moved(Moved)
 {
-	OBJ_CONSTRUCTION;
+	OBJ_CONSTRUCTION_CAPTURING_ALL;
 	setAmount(amount);
 
 	used = LCLICK;

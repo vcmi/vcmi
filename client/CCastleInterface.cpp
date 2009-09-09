@@ -261,9 +261,10 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 	{
 		owner->garr->splitting = false;
 		owner->garr->highlighted = NULL;
+
 		if(hero && highlight)
 		{
-			highlight = false;
+			setHighlight(false);
 			LOCPLINT->openHeroWindow(hero);
 		}
 		else if(other->hero && other->highlight)
@@ -284,13 +285,16 @@ void CHeroGSlot::clickLeft(tribool down, bool previousState)
 					allow = false;
 				}
 			}
-			other->highlight = highlight = false;
+
+			setHighlight(false);
+			other->setHighlight(false);
+
 			if(allow)
 				LOCPLINT->cb->swapGarrisonHero(owner->town);
 		}
 		else if(hero)
 		{
-			highlight = true;
+			setHighlight(true);
 			owner->garr->highlighted = NULL;
 			show(screen2);
 		}
@@ -342,6 +346,16 @@ CHeroGSlot::CHeroGSlot(int x, int y, int updown, const CGHeroInstance *h, CCastl
 
 CHeroGSlot::~CHeroGSlot()
 {
+}
+
+void CHeroGSlot::setHighlight( bool on )
+{
+	highlight = on;
+	if(owner->hslotup.hero && owner->hslotdown.hero) //two heroes in town
+	{
+		for(size_t i = 0; i<owner->garr->splitButtons.size(); i++) //splitting enabled when slot higlighted
+			owner->garr->splitButtons[i]->block(!on);
+	}
 }
 
 static std::string getBgName(int type) //TODO - co z tym zrobi�?
@@ -415,8 +429,9 @@ CCastleInterface::CCastleInterface(const CGTownInstance * Town, int listPos)
 	exit = new AdventureMapButton
 		(CGI->generaltexth->tcommands[8],"",boost::bind(&CCastleInterface::close,this),pos.x+744,pos.y+544,"TSBTNS.DEF",SDLK_RETURN);
 	exit->assignedKeys.insert(SDLK_ESCAPE);
-	split = new AdventureMapButton
-		(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+744,pos.y+382,"TSBTNS.DEF");
+	split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+744,pos.y+382,"TSBTNS.DEF");
+	split->callback += boost::bind(&CCastleInterface::splitClicked,this);
+	garr->splitButtons.push_back(split);
 	statusbar = new CStatusBar(pos.x+7,pos.y+555,"TSTATBAR.bmp",732);
 	resdatabar = new CResDataBar("ZRESBAR.bmp",pos.x+3,pos.y+575,32,2,85,85);
 	resdatabar->pos.x = pos.x+3; resdatabar->pos.y = pos.y+575;
@@ -1018,6 +1033,14 @@ void CCastleInterface::keyPressed( const SDL_KeyboardEvent & key )
 			LOCPLINT->cb->swapGarrisonHero(town);
 		}
 		break;
+	}
+}
+
+void CCastleInterface::splitClicked()
+{
+	if(town->visitingHero && town->garrisonHero && (hslotdown.highlight || hslotup.highlight))
+	{
+		LOCPLINT->heroExchangeStarted(town->visitingHero->id, town->garrisonHero->id);
 	}
 }
 

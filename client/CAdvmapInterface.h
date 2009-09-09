@@ -120,7 +120,7 @@ public:
 
 	CInfoBar();
 	~CInfoBar();
-	void newDay(int Day);
+	void newDay(int Day); //start showing new day/week animation
 	void showComp(SComponent * comp, int time=5000);
 	void tick();
 	void draw(SDL_Surface * to, const CGObjectInstance * specific=NULL); // if specific==0 function draws info about selected hero/town

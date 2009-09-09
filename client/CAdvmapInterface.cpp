@@ -1277,24 +1277,19 @@ CDefHandler * CInfoBar::getAnim(int mode)
 	{
 	case 0:
 		return day;
-		break;
 	case 1:
 		return week1;
-		break;
 	case 2:
 		return week2;
-		break;
 	case 3:
 		return week3;
-		break;
 	case 4:
 		return week4;
-		break;
 	default:
 		return NULL;
-		break;
 	}
 }
+
 void CInfoBar::blitAnim(int mode)//0 - day, 1 - week
 {
 	CDefHandler * anim = NULL;
@@ -1313,6 +1308,7 @@ void CInfoBar::blitAnim(int mode)//0 - day, 1 - week
 	if (pom == anim->ourImages.size()-1)
 		toNextTick+=750;
 }
+
 void CInfoBar::newDay(int Day)
 {
 	if(LOCPLINT->cb->getDate(1) != 1)
@@ -1344,7 +1340,6 @@ void CInfoBar::newDay(int Day)
 	activateTimer();
 	toNextTick = 500;
 	blitAnim(mode);
-	//blitAt(day->ourImages[pom].bitmap,pos.x+10,pos.y+10);
 }
 
 void CInfoBar::showComp(SComponent * comp, int time)
@@ -1390,6 +1385,7 @@ void CInfoBar::show( SDL_Surface * to )
 {
 
 }
+
 CAdvMapInt::CAdvMapInt(int Player)
 :player(Player),
 statusbar(ADVOPT.statusbarX,ADVOPT.statusbarY,ADVOPT.statusbarG),

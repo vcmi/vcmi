@@ -66,8 +66,6 @@ CHeroWindow::CHeroWindow(int playerColor):
 
 
 	gar2button = new CHighlightableButton(0, 0, map_list_of(0,CGI->generaltexth->heroscrn[26])(3,CGI->generaltexth->heroscrn[25]), CGI->generaltexth->heroscrn[31], false, "hsbtns8.def", NULL, pos.x+604, pos.y+491, SDLK_b);
-	gar4button = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::function<void()>(), pos.x+604, pos.y+527, "hsbtns9.def", false, NULL, false);
-	boost::algorithm::replace_first(gar4button->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
 
 
 	//right list of heroes
@@ -127,7 +125,7 @@ CHeroWindow::~CHeroWindow()
 	delete questlogButton;
 	delete formations;
 	delete gar2button;
-	delete gar4button;
+	//delete gar4button;
 
 	for(size_t g=0; g<heroListMi.size(); ++g)
 	{
@@ -172,7 +170,7 @@ void CHeroWindow::show(SDL_Surface *to)
 	questlogButton->show(to);
 	formations->show(to);
 	gar2button->show(to);
-	gar4button->show(to);
+	//gar4button->show(to);
 
 	garr->show(to);
 	ourBar->show(to);
@@ -208,7 +206,10 @@ void CHeroWindow::setHero(const CGHeroInstance *hero)
 	delete garr;
 	garr = new CGarrisonInt(pos.x+80, pos.y+493, 8, Point(), curBack, Point(16,486), curHero);
 	garr->update = false;
-	gar4button->callback =  boost::bind(&CGarrisonInt::splitClick,garr);//actualization of callback function
+
+	AdventureMapButton * split = new AdventureMapButton(CGI->generaltexth->allTexts[256], CGI->generaltexth->heroscrn[32], boost::bind(&CGarrisonInt::splitClick,garr), pos.x+604, pos.y+527, "hsbtns9.def", false, NULL, false); //deleted by garrison destructor
+	boost::algorithm::replace_first(split->hoverTexts[0],"%s",CGI->generaltexth->allTexts[43]);
+	garr->splitButtons.push_back(split);
 
 	//primary skills support
 	for(size_t g=0; g<primSkillAreas.size(); ++g)
@@ -299,7 +300,7 @@ void CHeroWindow::activate()
 	questlogButton->activate();
 	gar2button->activate();
 	formations->activate();
-	gar4button->activate();
+	//gar4button->activate();
 	portraitArea->activate();
 	expArea->activate();
 	spellPointsArea->activate();
@@ -334,7 +335,7 @@ void CHeroWindow::deactivate()
 	questlogButton->deactivate();
 	gar2button->deactivate();
 	formations->deactivate();
-	gar4button->deactivate();
+	//gar4button->deactivate();
 	portraitArea->deactivate();
 	expArea->deactivate();
 	spellPointsArea->deactivate();

@@ -213,6 +213,11 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 				GH.pushInt(creWindow);
 
 				owner->highlighted = NULL;
+				owner->splitting = false;
+
+				for(size_t i = 0; i<owner->splitButtons.size(); i++)
+					owner->splitButtons[i]->block(true);
+
 				show(screen2);
 				refr = true;
 				delete pom2;
@@ -268,7 +273,12 @@ void CGarrisonSlot::clickLeft(tribool down, bool previousState)
 		else //highlight
 		{
 			if(creature)
+			{
 				owner->highlighted = this;
+
+				for(size_t i = 0; i<owner->splitButtons.size(); i++)
+					owner->splitButtons[i]->block(false);
+			}
 			show(screen2);
 			refr = true;
 		}
@@ -386,6 +396,9 @@ void CGarrisonInt::show(SDL_Surface * to)
 			}
 		}
 	}
+
+	for(size_t i = 0; i<splitButtons.size(); i++)
+		splitButtons[i]->show(to);
 }
 void CGarrisonInt::deactiveteSlots()
 {
@@ -432,6 +445,9 @@ void CGarrisonInt::activeteSlots()
 			}
 		}
 	}
+
+	for(size_t i = 0; i<splitButtons.size(); i++)
+		splitButtons[i]->activate();
 }
 void CGarrisonInt::createSlots()
 {
@@ -508,6 +524,10 @@ void CGarrisonInt::recreateSlots()
 {
 	splitting = false;
 	highlighted = NULL;
+
+	for(size_t i = 0; i<splitButtons.size(); i++)
+		splitButtons[i]->block(true);
+
 	if(active)
 	{
 		deactiveteSlots();
@@ -558,6 +578,10 @@ CGarrisonInt::CGarrisonInt(int x, int y, int inx, const Point &garsOffset, SDL_S
 
 void CGarrisonInt::activate()
 {
+	for(size_t i = 0; i<splitButtons.size(); i++)
+		if(splitButtons[i]->blocked != !highlighted)
+			splitButtons[i]->block(!highlighted);
+
 	active = true;
 	if(sup)
 	{
@@ -571,11 +595,16 @@ void CGarrisonInt::activate()
 			if((*sdown)[i])
 				(*sdown)[i]->activate();
 	}
+
+	for(size_t i = 0; i<splitButtons.size(); i++)
+		splitButtons[i]->activate();
 }
 void CGarrisonInt::deactivate()
 {
 	active = false;
 	deactiveteSlots();
+	for(size_t i = 0; i<splitButtons.size(); i++)
+		splitButtons[i]->deactivate();
 }
 
 CInfoWindow::CInfoWindow(std::string text, int player, int charperline, const std::vector<SComponent*> &comps, std::vector<std::pair<std::string,CFunctionList<void()> > > &Buttons, bool delComps)
@@ -2498,7 +2527,7 @@ void CMarketplaceWindow::CTradeableItem::clickLeft(tribool down, bool previousSt
 		}
 		else
 		{
-			if(mw->hRight != this)
+			if(mw->hRight != this) 
 				mw->hRight = this;
 			else
 				return;
@@ -2552,9 +2581,9 @@ void CMarketplaceWindow::setMode( int mode )
 			graphics->blueToPlayersAdv(bg2,LOCPLINT->playerID);
 			bg = SDL_ConvertSurface(bg2,screen->format,0); 
 			SDL_FreeSurface(bg2);
-			lpos += genRect(66,69,39,180), genRect(66,69,122,180), genRect(66,69,204,180),
-				genRect(66,69,39,259), genRect(66,69,122,259), genRect(66,69,204,259),
-				genRect(66,69,122,338);
+			lpos += genRect(66,74,39,180), genRect(66,74,122,180), genRect(66,74,204,180),
+				genRect(66,74,39,259), genRect(66,74,122,259), genRect(66,74,204,259),
+				genRect(66,74,122,338);
 			for(int i=0;i<lpos.size();i++)
 			{
 				lpos[i].x += pos.x;
@@ -2564,9 +2593,9 @@ void CMarketplaceWindow::setMode( int mode )
 			}
 			initItems(left,lpos,0,7,true,NULL);
 			initItems(right,rpos,0,7,false,NULL);
-			printAtMiddle(CGI->generaltexth->allTexts[158],303,28,GEORXX,tytulowy,bg); //title
-			printAtMiddle(CGI->generaltexth->allTexts[270],158,148,GEOR13,zwykly,bg); //kingdom res.
-			printAtMiddle(CGI->generaltexth->allTexts[168],450,148,GEOR13,zwykly,bg); //available for trade
+			printAtMiddle(CGI->generaltexth->allTexts[158],300,27,FONT_BIG,tytulowy,bg); //title
+			printAtMiddle(CGI->generaltexth->allTexts[270],155,148,FONT_SMALL,zwykly,bg); //kingdom res.
+			printAtMiddle(CGI->generaltexth->allTexts[168],450,147,FONT_SMALL,zwykly,bg); //available for trade
 		}
 	}
 }
@@ -2629,26 +2658,26 @@ void CMarketplaceWindow::show(SDL_Surface * to)
 		for(int i=0;i<left.size();i++)
 		{
 			SDL_itoa(LOCPLINT->cb->getResourceAmount(i),buf,10);
-			printAtMiddle(buf,left[i]->pos.x+35,left[i]->pos.y+56,GEOR13,zwykly,to);
+			printAtMiddle(buf,left[i]->pos.x+36,left[i]->pos.y+57,FONT_SMALL,zwykly,to);
 		}
 		if(hLeft) //print prices
 		{
 			for(int i=0; i<right.size();i++)
 			{
 				if(right[i]->id != hLeft->id)
-					printAtMiddle(rSubs[i],right[i]->pos.x+35,right[i]->pos.y+56,GEOR13,zwykly,to);
+					printAtMiddle(rSubs[i],right[i]->pos.x+36,right[i]->pos.y+57,FONT_SMALL,zwykly,to);
 				else
-					printAtMiddle(CGI->generaltexth->allTexts[164],right[i]->pos.x+35,right[i]->pos.y+56,GEOR13,zwykly,to);
+					printAtMiddle(CGI->generaltexth->allTexts[164],right[i]->pos.x+36,right[i]->pos.y+57,FONT_SMALL,zwykly,to);
 			}
 		}
 		if(hLeft && hRight && hLeft->id!= hRight->id)
 		{
-			blitAt(hLeft->getSurface(),pos.x+142,pos.y+457,to);
-			blitAt(hRight->getSurface(),pos.x+430,pos.y+457,to);
+			blitAt(hLeft->getSurface(),pos.x+141,pos.y+457,to);
+			blitAt(hRight->getSurface(),pos.x+429,pos.y+457,to);
 			SDL_itoa(slider->value * r1,buf,10);
-			printAtMiddle(buf,pos.x+158,pos.y+504,GEOR13,zwykly,to);
+			printAtMiddle(buf,pos.x+156,pos.y+505,FONT_SMALL,zwykly,to);
 			SDL_itoa(slider->value * r2,buf,10);
-			printAtMiddle(buf,pos.x+446,pos.y+504,GEOR13,zwykly,to);
+			printAtMiddle(buf,pos.x+443,pos.y+505,FONT_SMALL,zwykly,to);
 		}
 	}
 }
@@ -3270,14 +3299,12 @@ void CGarrisonWindow::close()
 
 void CGarrisonWindow::activate()
 {
-	split->activate();
 	quit->activate();
 	garr->activate();
 }
 
 void CGarrisonWindow::deactivate()
 {
-	split->deactivate();
 	quit->deactivate();
 	garr->deactivate();
 }
@@ -3285,7 +3312,6 @@ void CGarrisonWindow::deactivate()
 void CGarrisonWindow::show(SDL_Surface * to)
 {
 	blitAt(bg,pos,to);
-	split->show(to);
 	quit->show(to);
 	garr->show(to);
 
@@ -3305,14 +3331,13 @@ CGarrisonWindow::CGarrisonWindow( const CArmedInstance *up, const CGHeroInstance
 	pos.h = screen->h;
 
 	garr = new CGarrisonInt(pos.x+92, pos.y+127, 4, Point(0,96), bg, Point(93,127), up, down);
-	split = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF");
+	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+88,pos.y+314,"IDV6432.DEF"));
 	quit = new AdventureMapButton(CGI->generaltexth->tcommands[8],"",boost::bind(&CGarrisonWindow::close,this),pos.x+399,pos.y+314,"IOK6432.DEF",SDLK_RETURN);
 }
 
 CGarrisonWindow::~CGarrisonWindow()
 {
 	SDL_FreeSurface(bg);
-	delete split;
 	delete quit;
 	delete garr;
 }
@@ -3774,8 +3799,6 @@ void CExchangeWindow::activate()
 {
 	quit->activate();
 	garr->activate();
-	splitButton[0]->activate();
-	splitButton[1]->activate();
 
 	artifs[0]->activate();
 	artifs[1]->activate();
@@ -3815,8 +3838,6 @@ void CExchangeWindow::deactivate()
 {
 	quit->deactivate();
 	garr->deactivate();
-	splitButton[0]->deactivate();
-	splitButton[1]->deactivate();
 
 	artifs[0]->deactivate();
 	artifs[1]->deactivate();
@@ -3871,8 +3892,6 @@ void CExchangeWindow::show(SDL_Surface * to)
 	}
 
 	garr->show(to);
-	splitButton[0]->show(to);
-	splitButton[1]->show(to);
 }
 
 void CExchangeWindow::questlog(int whichHero)
@@ -4044,8 +4063,8 @@ CExchangeWindow::CExchangeWindow(si32 hero1, si32 hero2) : bg(NULL)
 	//garrison interface
 	garr = new CGarrisonInt(pos.x + 69, pos.y + 131, 4, Point(418,0), bg, Point(69,131), heroInst[0],heroInst[1], true);
 
-	splitButton[0] = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF");
-	splitButton[1] = new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF");
+	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+10,pos.y+132,"TSBTNS.DEF"));
+	garr->splitButtons.push_back(new AdventureMapButton(CGI->generaltexth->tcommands[3],"",boost::bind(&CGarrisonInt::splitClick,garr),pos.x+740,pos.y+132,"TSBTNS.DEF"));
 }
 
 CExchangeWindow::~CExchangeWindow() //d-tor
@@ -4061,8 +4080,6 @@ CExchangeWindow::~CExchangeWindow() //d-tor
 	delete artifs[1];
 
 	delete garr;
-	delete splitButton[0];
-	delete splitButton[1];
 	delete ourBar;
 
 	for(int g=0; g<ARRAY_COUNT(secSkillAreas); g++)

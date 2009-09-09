@@ -205,6 +205,7 @@ public:
 	Point garOffset, //offset between garrisons (not used if only one hero)
 		surOffset; //offset between garrison position on the bg surface and position on the screen
 	CGarrisonSlot *highlighted; //chosen slot
+	std::vector<AdventureMapButton *> splitButtons; //may be empty if no buttons
 
 	SDL_Surface *&sur; //bg surface
 	int p2; //TODO: comment me
@@ -681,7 +682,7 @@ class CGarrisonWindow : public CWindowWithGarrison
 {
 public:
 	SDL_Surface *bg; //background surface
-	AdventureMapButton *split, *quit;
+	AdventureMapButton *quit;
 
 	void close();
 	void activate();
@@ -697,7 +698,7 @@ class CExchangeWindow : public CWindowWithGarrison
 	CStatusBar * ourBar; //internal statusbar
 
 	SDL_Surface *bg; //background
-	AdventureMapButton * quit, * questlogButton[2], * splitButton[2];
+	AdventureMapButton * quit, * questlogButton[2];
 
 	std::vector<LRClickableAreaWTextComp *> secSkillAreas[2], primSkillAreas;
 

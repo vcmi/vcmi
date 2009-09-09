@@ -58,6 +58,8 @@ public:
 	int upg; //0 - up garrison, 1 - down garrison
 	bool highlight; //indicates id the slot is highlighted
 
+	void setHighlight(bool on);
+
 	void hover (bool on);
 	void clickRight(tribool down, bool previousState);
 	void clickLeft(tribool down, bool previousState);
@@ -105,6 +107,7 @@ public:
 	void buildingClicked(int building);
 	void enterTavern();
 	void enterMageGuild();
+	void splitClicked(); //for hero meeting (splitting stacks is handled by garrison int)
 	CRecruitmentWindow * showRecruitmentWindow(int building);
 	void enterHall();
 	void close();

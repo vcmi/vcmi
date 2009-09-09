@@ -153,6 +153,14 @@ struct AddDefForButton
 		currentButton->additionalDefs.push_back(str);
 	}
 };
+struct ClearAdditionalDefs
+{
+	template <typename Z>
+	void operator()(const Z first, const Z last) const
+	{
+		currentButton->additionalDefs.clear();
+	}
+};
 static void addGRes()
 {
 	if(current)
@@ -248,7 +256,8 @@ struct SettingsGrammar : public grammar<SettingsGrammar>
 							  |	"y=" >> uint_p[SetButtonProp_a(&ButtonInfo::y)]
 							  |	"playerColoured=" >> uint_p[SetButtonProp_a(&ButtonInfo::playerColoured)]
 							  |	"graphic=" >> fname[SetButtonStr(&ButtonInfo::defName)]
-							  | "additionalDefs=" >> ch_p('(') >> fname[AddDefForButton()] 
+							  | str_p("additionalDefs=")[ClearAdditionalDefs()] 
+									>> ch_p('(') >> fname[AddDefForButton()] 
 									>> *(',' >> fname[AddDefForButton()]) >> ')'
 							) 
 						 )

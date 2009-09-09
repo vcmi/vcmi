@@ -724,9 +724,9 @@ SDLKey numToDigit( SDLKey key )
 bool isNumKey( SDLKey key, bool number )
 {
 	if(number)
-		return key >= SDLK_KP0 && key <= SDLK_KP_EQUALS;
-	else
 		return key >= SDLK_KP0 && key <= SDLK_KP9;
+	else
+		return key >= SDLK_KP0 && key <= SDLK_KP_EQUALS;
 }
 
 bool isArrowKey( SDLKey key )
